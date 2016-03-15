@@ -1,1616 +1,63 @@
-/* 
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#include <memory>
 #include <set>
 #include <sstream>
 #include <cctype>
+
+#include <boost/date_time.hpp>
 
 #include "mforms/jsonview.h"
 #include "mforms/panel.h"
 #include "mforms/treeview.h"
 #include "mforms/code_editor.h"
 #include "mforms/tabview.h"
+#include "mforms/menubar.h"
+#include "mforms/button.h"
+#include "mforms/label.h"
+#include "mforms/textentry.h"
+
 #include "base/string_utilities.h"
+
+#undef min
 
 using namespace mforms;
 using namespace JsonParser;
+
 namespace ph = std::placeholders;
+namespace bt = boost::posix_time;
 
-/**
-* -------------------------------------------------------------------------------------------------
-*   JSON Data structures implementation
-* -------------------------------------------------------------------------------------------------             
-*/
-
-/**
-* @brief  Default constructor creates empty element.
-*/
-JsonObject::JsonObject()
-{
-}
-
-/**
-* @brief  Move constructor.
-* @param other A JsonObject of identical element and allocator types.
-*/
-JsonObject::JsonObject(JsonObject &&other) 
-  : _data(std::move(other._data))
-{
-}
-
-/**
-* @brief Move assignment operator.
-* @param other A JsonObject of identical element and allocator types.
-* 
-* @return returns the reference to assigned value.
-*/
-JsonObject &JsonObject::operator=(JsonObject &&other)
-{
-  _data = std::move(other._data);
-  return *this;
-}
-
-/**
-* @brief Copy constructor.
-* @param other a JsonObject of identical element and allocator types.
-*/
-JsonObject::JsonObject(const JsonObject &other) : _data(other._data)
-{
-}
-
-/**
-* @brief Assignment operator.
-* @param other a JsonObject of identical element and allocator types.
-*
-* @return returns the reference to assigned value.
-*/
-JsonObject &JsonObject::operator=(const JsonObject &other)
-{
-  //if (*this != other)
-  _data = other._data;
-  return *this;
-}
-
-/**
-* @brief Returns a read/write iterator.
-* 
-* Returns a read/write iterator that points to the first
-* element in the JsonObject container. Iteration is done in accessing order according to the key.
-*
-* @return iterator for begining of sequence.
-**/
-JsonObject::Iterator JsonObject::begin()
-{
-  return _data.begin();
-}
-
-/**
-* @brief Returns a readonly iterator.
-*
-* Returns a readonly iterator that points to the first
-* element in the JsonObject container. Iteration is done in accessing order according to the key.
-*
-* @return iterator for begining of sequence.
-**/
-JsonObject::ConstIterator JsonObject::begin() const
-{
-  return _data.begin();
-}
-
-/**
-* @brief Returns a readonly iterator.
-*
-* Returns a readonly iterator that points to the first
-* element in the JsonObject container. Iteration is done in accessing order according to the key.
-*
-* @return iterator for begining of sequence.
-**/
-JsonObject::ConstIterator JsonObject::cbegin() const
-{
-  return _data.begin();
-}
-
-/**
-* @brief Returns iterator for end of sequence.
-*
-* Returns a read/write iterator that points to one past the last pair in the JsonObject container.
-*
-* @return iterator for end of sequence.
-**/
-JsonObject::Iterator JsonObject::end()
-{
-  return _data.end();
-}
-
-/**
-* @brief Returns a readonly iterator.
-*
-* Returns a readonly (const) iterator that points to one past the last pair in the JsonObject container.
-*
-* @return iterator for end of sequence.
-**/
-JsonObject::ConstIterator JsonObject::end() const
-{
-  return _data.end();
-}
-
-/**
-* @brief Returns a readonly iterator.
-*
-* Returns a readonly (const) iterator that points to one past the last pair in the JsonObject container.
-*
-* @return iterator for end of sequence.
-**/
-JsonObject::ConstIterator JsonObject::cend() const
-{
-  return _data.end();
-}
-
-/**
-* @brief Returns the size of the JsonObject container.
-*
-* @return the size of the JsonObject container.
-**/
-JsonObject::SizeType JsonObject::size()
-{
-  return _data.size();
-}
-
-/**
-* @brief Tries to find an element in a JsonObject container.
-*
-* @param key Kay to be located in the JsonObject container.
-* @return Iterator pointing to element, or end() if not found.
-**/
-JsonObject::Iterator JsonObject::find(const KeyType &key)
-{
-  return _data.find(key);
-}
-
-
-/**
-* @brief Tries to find an element in a JsonObject container.
-*
-* @param key Kay to be located in the JsonObject container.
-* @return Read only iterator pointing to element, or end() if not found.
-**/
-JsonObject::ConstIterator JsonObject::find(const KeyType &key) const
-{
-  return _data.find(key);
-}
-
-/**
-* @brief Test if container is empty.
-*
-* @return returns true if the JsonObject container is empty.
-**/
-bool JsonObject::empty() const
-{
-  return _data.empty();
-}
-
-/**
-* @brief Erases all elements in a JsonObject container.
-*
-*/
-void JsonObject::clear()
-{
-  _data.clear();
-}
-
-/**
-* @brief Erases an element from a JsonObject container.
-*
-* @param it An iterator pointing to the element to be erased.
-* @return An iterator pointing to the element immediately following
-*         a position prior to the element being erased.If no such
-*         element exists, end() is returned.
-**/
-JsonObject::Iterator JsonObject::erase(Iterator it)
-{
-  return _data.erase(it);
-}
-
-/**
-* @brief Erases an element from a JsonObject container.
-*
-* @param first An iterator pointing to the start of the range to be erased.
-* @param last An iterator pointing to the end of the range to be erased.
-* @return An iterator pointing to the element immediately following
-*         a position prior to the element being erased.If no such
-*         element exists, end() is returned.
-*/
-JsonObject::Iterator JsonObject::erase(Iterator first, Iterator last)
-{
-  return _data.erase(first, last);
-}
-
-/**
-* @brief Attempts to insert a Json value into the container.
-*
-* @param  key  The key for which json data should be stored.
-* @param  value  JsonValue to be inserted.
-**/
-void JsonObject::insert(const KeyType &key, const JsonValue &value)
-{
-  _data[key] = value;
-}
-
-/**
-* @brief Access to the data..
-* 
-* @param name The key for which json data should be accesed.
-* @return A reference to the data whose key is equivalent to 'key', if
-*         such a data is present in the Json container. If no such data is present
-*         new key is created
-**/
-JsonValue &JsonObject::operator [](const std::string &name)
-{
-  return _data[name];
-}
-
-/**
-* @brief Access to JsonObject container data.
-*
-* @param key The key for which data should be retrieved.
-* @return A reference to the data whose key is equivalent to 'key', if
-*         such a data is present in the Json container. If no such data is present
-*         std::out_of_range is thrown.
-**/
-JsonValue &JsonObject::get(const KeyType &key)
-{
-  if (_data.count(key) == 0)
-    throw std::out_of_range(base::strfmt("no element '%s' found in caontainer", key.c_str()));
-  return _data[key];
-}
-
-/**
-* @brief Access to JsonObject container data.
-*
-* @param key The key for which data should be retrieved.
-* @return  A const reference to the data whose key is equivalent to 'key', if
-*          such a data is present in the Json container. If no such data is present
-*          std::out_of_range is thrown.
-**/
-const JsonValue &JsonObject::get(const KeyType &key) const
-{
-  if (_data.count(key) == 0)
-    throw std::out_of_range(base::strfmt("no element '%s' found in caontainer", key.c_str()));
-  return _data.at(key);
-}
-
-
-/**
-* @brief Default constructor.
-*
-**/
-JsonArray::JsonArray()
-{
-}
-
-/**
-* @brief  Move constructor.
-* @param other A JsonArray of identical element and allocator types.
-**/
-JsonArray::JsonArray(JsonArray &&other)
-  : _data(std::move(other._data))
-{
-}
-
-/**
-* @brief Move assignment operator.
-* @param other A JsonArray of identical element and allocator types.
-*
-* @return returns the reference to assigned value.
-***/
-JsonArray &JsonArray::operator=(JsonArray &&other)
-{
-  _data = std::move(other._data);
-  return *this;
-}
-
-/**
-* @brief Copy constructor.
-* @param other a JsonObject of identical element and allocator types.
-**/
-JsonArray::JsonArray(const JsonArray &other) : _data(other._data)
-{
-}
-
-/**
-* @brief Assignment operator.
-* @param other a JsonArray of identical element and allocator types.
-*
-* @return returns the reference to assigned value.
-**/
-JsonArray &JsonArray::operator=(const JsonArray &other)
-{
-  _data = other._data;
-  return *this;
-}
-
-/**
-* @brief  Access to the data.
-* @param pos The index of the element for which data should be
-*            accessed.
-* @return Read/write reference to data stored in continer. 
-*         If no such data is present std::out_of_range is thrown.
-**/
-JsonValue &JsonArray::at(SizeType pos)
-{
-  if (pos > _data.size())
-    throw std::out_of_range(base::strfmt("Index '%lu' is out of range.", pos));
-  return _data.at(pos);
-}
-
-/**
-* @brief Access to the data.
-* @param pos The index of the element for which data should be
-*        accessed.
-* @return Read only reference to data stored in continer.
-*         If no such data is present std::out_of_range is thrown.
-**/
-const JsonValue &JsonArray::at(SizeType pos) const
-{
-  if (pos > _data.size())
-    throw std::out_of_range(base::strfmt("Index '%lu' is out of range.", pos));
-  return _data.at(pos);
-}
-
-/**
-* @brief  Access to the data.
-* @param pos The index of the element for which data should be accessed.
-* @return Read/Write reference to data stored in continer.
-*
-*  This operator allows for easy, array-style, data access.
-**/
-JsonValue &JsonArray::operator[](SizeType pos)
-{
-  assert(pos < _data.size());
-  return _data[pos];
-}
-
-/**
-* @brief  Access to the data.
-* @param pos The index of the element for which data should be accessed.
-* @return Read only reference to data stored in continer.
-*
-*  This operator allows for easy, array-style, data access.
-**/
-const JsonValue &JsonArray::operator[](SizeType pos) const
-{
-  assert(pos < _data.size());
-  return _data[pos];
-}
-
-/**
-* @brief Returns a read/write iterator.
-*
-* Returns a read/write iterator that points to the first
-* element in the JsonArray container.
-*
-* @return iterator for begining of sequence.
-**/
-JsonArray::Iterator JsonArray::begin()
-{
-  return _data.begin();
-}
-
-/**
-* @brief Returns a rad only iterator.
-*
-* Returns a read only iterator that points to the first
-* element in the JsonArray container.
-*
-* @return iterator for begining of sequence.
-**/
-JsonArray::ConstIterator JsonArray::begin() const
-{
-  return _data.begin();
-}
-
-/**
-* @brief Returns a rad only iterator.
-*
-* Returns a read only iterator that points to the first
-* element in the JsonArray container.
-*
-* @return iterator for begining of sequence.
-**/
-JsonArray::ConstIterator JsonArray::cbegin() const
-{
-  return _data.begin();
-}
-
-/**
-* @brief Returns iterator for end of sequence.
-*
-* Returns a read/write iterator that points to one past the last pair in the JsonArray container.
-*
-* @return iterator for end of sequence.
-**/
-JsonArray::Iterator JsonArray::end()
-{
-  return _data.end();
-}
-
-/**
-* @brief Returns iterator for end of sequence.
-*
-* Returns a read only iterator that points to one past the last pair in the JsonArray container.
-*
-* @return iterator for end of sequence.
-**/
-JsonArray::ConstIterator JsonArray::end() const
-{
-  return _data.end();
-}
-
-/**
-* @brief Returns iterator for end of sequence.
-*
-* Returns a read only iterator that points to one past the last pair in the JsonArray container.
-*
-* @return iterator for end of sequence.
-**/
-JsonArray::ConstIterator JsonArray::cend() const
-{
-  return _data.end();
-}
-
-/**
-* @brief Get size of JsonArray.
-*
-* @return return length of sequence.
-**/
-JsonArray::SizeType JsonArray::size()
-{
-  return _data.size();
-}
-
-/**
-* @brief Test if container is empty.
-*
-* @return returns true if the JsonArray container is empty.
-**/
-bool JsonArray::empty() const
-{
-  return _data.empty();
-}
-
-/**
-* @brief Erases all elements in a JsonArray container.
-*
-***/
-void JsonArray::clear()
-{
-  _data.clear();
-}
-
-/**
-* @brief Erases an element from a JsonArray container.
-*
-* @param it An iterator pointing to the element to be erased.
-* @return An iterator pointing to the element immediately following
-*         a position prior to the element being erased. If no such
-*         element exists, end() is returned.
-*/
-JsonArray::Iterator JsonArray::erase(Iterator pos)
-{
-  return _data.erase(pos);
-
-}
-
-/**
-* @brief Erases an element from a JsonArray container.
-*
-* @param first An iterator pointing to the start of the range to be erased.
-* @param last An iterator pointing to the end of the range to be erased.
-* @return An iterator pointing to the element immediately following
-*         a position prior to the element being erased.If no such
-*         element exists, end() is returned.
-**/
-JsonArray::Iterator JsonArray::erase(Iterator first, Iterator last)
-{
-  return _data.erase(first, last);
-}
-
-/**
-* @brief Attempts to insert value at pos.
-* @param  pos  A iterator to the JsonArray where insert value.
-* @param  value  JsonValue to be inserted.
-*
-* @return An iterator that points to the inserted data.
-**/
-JsonArray::Iterator JsonArray::insert(Iterator pos, const JsonValue &value)
-{
-  return _data.insert(pos, value);
-}
-
-/**
-* @brief Add data to the end of the container.
-   @param  value  JsonValue to be inserted.
-*
-**/
-void JsonArray::pushBack(const ValueType &value)
-{
-  _data.push_back(value);
-}
-
-/**
-* @brief default destructor.
-*
-**/
-JsonValue::JsonValue()
-  : _double(0), _bool(false), _type(VEmpty)
-{
-}
-
-/**
-* @brief  Copy constructor.
-* @param other A JsonValue of identical element and allocator types.
-**/
-JsonValue::JsonValue(const JsonValue &rhs)
-   : _double(rhs._double), _bool(rhs._bool), _string(rhs._string), _object(rhs._object),  
-   _array(rhs._array), _type(rhs._type)
-{
-}
-
-
-/**
-* @brief  Move constructor.
-* @param other A JsonValue of identical element and allocator types.
-**/
-JsonValue::JsonValue(JsonValue &&rhs)
-   : _double(rhs._double), _bool(rhs._bool), _string(std::move(rhs._string)), _object(std::move(rhs._object)),
-   _array(std::move(rhs._array)), _type(rhs._type)
-{
-}
-
-/**
-* @brief Assignment operator.
-* @param other A JsonValue of identical element and allocator types.
-*
-* @return returns the reference to assigned value.
-**/
-JsonValue &JsonValue::operator=(const JsonValue &rhs)
-{
-  _double = rhs._double;
-  _bool = rhs._bool;
-  _string = rhs._string;
-  _object = rhs._object;
-  _array = rhs._array;
-  _type = rhs._type;
-  return *this;
-}
-
-/**
-* @brief Move assignment operator.
-* @param other A JsonValue of identical element and allocator types.
-*
-* @return returns the reference to assigned value.
-**/
-JsonValue &JsonValue::operator=(JsonValue &&rhs)
-{
-  _double = rhs._double;
-  _bool = rhs._bool;
-  _string = std::move(rhs._string);
-  _object = std::move(rhs._object);
-  _array = std::move(rhs._array);
-  _type = rhs._type;
-  return *this;
-}
-
-/**
-* @brief  Construct JsonValue from string.
-* @param val A string value.
-**/
-JsonValue::JsonValue(const std::string &val)
-   : _double(0), _bool(false), _string(val), _type(VString)
-{
-}
-
-/**
-* @brief  Construct JsonValue from string.
-* @param val A string value.
-**/
-JsonValue::JsonValue(std::string &&val)
-  : _double(0), _bool(false), _string(std::move(val)), _type(VString)
-{
-}
-
-/**
-* @brief  Construct JsonValue from string.
-* @param val A string const value.
-**/
-JsonValue::JsonValue(const char* val)
-  : _double(0), _bool(false), _type(VString)
-{
-  _string = std::string(val != nullptr ? val : "");
-}
-
-/**
-* @brief Construct JsonValue from bool.
-* @param val A bool value.
-**/
-JsonValue::JsonValue(bool val)
-  : _double(0), _bool(val), _type(VBoolean)
-{
-}
-
-/**
-* @brief Construct JsonValue from int.
-* @param val A int value.
-**/
-JsonValue::JsonValue(int val)
-  : _double(val), _bool(false), _type(VInt)
-{
-}
-
-/**
-* @brief Construct JsonValue from int64_t.
-* @param val A int value.
-**/
-JsonValue::JsonValue(int64_t val)
-  : _double(val), _bool(false), _type(VInt)
-{
-}
-
-/**
-* @brief Construct JsonValue from uint64_t.
-* @param val A int value.
-**/
-JsonValue::JsonValue(uint64_t val)
-  : _double(val), _bool(false), _type(VInt)
-{
-}
-
-/**
-* @brief implicit cast to jsonObject element type. throw if its not possible.
-*
-**/
-JsonValue::operator const JsonObject & () const
-{
-  if (getType() != VObject)
-    throw std::bad_cast();
-  return getObject();
-}
-
-/**
-* @brief implicit cast to JsonArray element type. throw if its not possible.
-*
-**/
-JsonValue::operator const JsonArray & () const
-{
-  if (getType() != VArray)
-    throw std::bad_cast();
-  return getArray();
-}
-
-/**
-* @brief implicit cast to int element type. throw if its not possible.
-*
-**/
-JsonValue::operator int() const
-{
-  if (getType() != VInt)
-    throw std::bad_cast();
-  return getInt();
-
-}
+// JSON Data structures implementation
 
-/**
-* @brief implicit cast to double element type. throw if its not possible.
-*
-**/
-JsonValue::operator double() const
-{
-  if (getType() != VDouble)
-    throw std::bad_cast();
-  return getDouble();
-
-}
-
-/**
-* @brief implicit cast to bool element type. throw if its not possible.
-*
-**/
-JsonValue::operator bool() const
-{
-  if (getType() != VBoolean)
-    throw std::bad_cast();
-   return getBool();
-}
-
-/**
-* @brief implicit cast to std::string element type. throw if its not possible.
-*
-**/
-JsonValue::operator const std::string & () const
-{
-  if (getType() != VString)
-    throw std::bad_cast();
-  return getString();
-}
-
-/**
-* @brief Construct JsonValue from double.
-*
-* @param val A double value.
-**/
-JsonValue::JsonValue(double val)
-  : _double(val), _bool(false), _type(VDouble)
-{
-}
-
-/**
-* @brief Construct JsonValue from JsonObject value.
-*
-* @param val A JsonObject value.
-**/
-JsonValue::JsonValue(const JsonObject &val)
-  : _double(0), _bool(false), _object(val), _type(VObject)
-{
-}
-
-/**
-* @brief Construct JsonValue from JsonObject value.
-*
-* @param val A JsonObject value.
-**/
-JsonValue::JsonValue(JsonObject &&val)
-  : _double(0), _bool(false), _object(std::move(val)), _type(VObject)
-{
-}
-
-/**
-* @brief Construct JsonValue from JsonArray value.
-*
-* @param val A JsonArray value.
-**/
-JsonValue::JsonValue(const JsonArray &val)
-  : _double(0), _bool(false), _array(val), _type(VArray)
-{
-}
-
-/**
-* @brief Construct JsonValue from JsonArray value.
-*
-* @param val A JsonArray value.
-**/
-JsonValue::JsonValue(JsonArray &&val)
-  : _double(0), _bool(false), _array(std::move(val)), _type(VArray)
-{
-}
-
-/**
-* @brief Access to type of value.
-*
-* @return return type of value.
-**/
-DataType JsonValue::getType() const
-{
-  return _type;
-}
-
-/**
-* @brief Access to the double value.
-*
-* @return return double value.
-**/
-double JsonValue::getDouble() const
-{
-  return _double;
-}
-
-/**
-* @brief Set number value.
-*
-* @param val A double value to set.
-**/
-void JsonValue::setNumber(double val)
-{
-  _double = val;
-}
-
-/**
-* @brief Access to the int value.
-*
-* @return return int value.
-**/
-int JsonValue::getInt() const
-{
-  return static_cast<int>(_double);
-}
-
-/**
-* @brief Access to the bool value.
-*
-* @return return bool value.
-**/
-bool JsonValue::getBool() const
-{
-  return _bool;
-}
-
-/**
-* @brief Set bool value.
-*
-* @param val A bool value to set.
-**/
-void JsonValue::setBool(bool val)
-{
-  _bool = val;
-}
-
-/**
-* @brief Access to the string value.
-*
-* @return return const reference to string value.
-**/
-const std::string &JsonValue::getString() const
-{
-  return _string;
-}
-
-/**
-* @brief Set string value.
-*
-* @param val A string reference to set.
-**/
-void JsonValue::setString(const std::string &val)
-{
-  _string = val;
-}
-
-/**
-* @brief Access to the JsonObject value.
-*
-* @return return reference to the JsonObject value.
-**/
-JsonObject &JsonValue::getObject()
-{
-  return _object;
-}
-
-/**
-* @brief Access to the JsonObject value.
-*
-* @return return const reference to the JsonObject value.
-**/
-const JsonObject &JsonValue::getObject() const
-{
-  return _object;
-}
-
-/**
-* @brief Set JsonObject value.
-*
-* @param val A reference to JsonObject to set.
-**/
-void JsonValue::setObject(const JsonObject &val)
-{
-  _object = val;
-}
-
-/**
-* @brief Access to the JsonArray value.
-*
-* @return return reference to the JsonObject value.
-**/
-JsonArray &JsonValue::getArray()
-{
-  return _array;
-}
-
-/**
-* @brief Set setArray value.
-*
-* @param val A reference to setArray to set.
-**/
-void JsonValue::setArray(const JsonArray &val)
-{
-  _array = val;
-}
-
-/**
-* @brief Access to the double value.
-*
-* @return return double value.
-**/
-const JsonArray &JsonValue::getArray() const
-{
-  return _array;
-}
-
-/**
-* @brief Set JsonValue type.
-*
-* @param type A type to set.
-**/
-void JsonValue::setType(DataType type)
-{
-   _type = type;
-}
-
-/**
-* -------------------------------------------------------------------------------------------------
-*   JSON reader implementation
-* -------------------------------------------------------------------------------------------------
-*/
-
-/**
-* @brief Construtor
-*        Construct JsonReader from string
-*
-* @param value string reference contaning Json data
-**/
-JsonReader::JsonReader(const std::string &value) 
-  : _jsonText(value), _actualPos(0)
-{
-}
-
-/**
-* @brief Returns the next available character but does not consume it.
-*
-* @return An char representing the next character to be read, or 0 if there are no characters to be read.
-**/
-char JsonReader::peek()
-{
-  return (_actualPos < _jsonText.length()) ? _jsonText[_actualPos] : static_cast<char>(0);
-}
-
-/**
-* @brief Check if the end of a string has been reached
-*
-* @param
-* @return Returns a bool value true when the end of a string has been reached
-**/
-bool JsonReader::eos()
-{
-  return _actualPos == _jsonText.length();
-}
-
-/**
-* @brief Indicates whether the specified  character is categorized as white space.
-*
-* @param c The character to evaluate. 
-* @return true if c is white space; otherwise, false.
-**/
-bool JsonReader::isWhiteSpace(char c)
-{
-  return c == ' ' || c == '\t' || c == '\n' || c == '\r';
-}
-
-/**
-* @brief skip white spaces.
-*
-**/
-void JsonReader::eatWhitespace()
-{
-  while(isWhiteSpace(peek()))
-    moveAhead();
-}
-
-/**
-* @brief Consume actual character and move the next available.
-*
-**/
-void JsonReader::moveAhead()
-{
-  _actualPos = std::min(_actualPos + 1, _jsonText.length());
-}
-
-/**
-* @brief Try to parse Json data.
-*
-* @param text String to parse.
-* @param value Parsed Json value.
-**/
-void JsonReader::read(const std::string &text, JsonValue &value)
-{
-  JsonReader reader(text);
-  reader.scan();
-  reader.parse(value);
-}
 
-/**
-* @brief Scan every character in Json data.
-*
-**/
-void JsonReader::scan()
-{
-  while (!eos())
-  {
-    eatWhitespace();
-    std::string value;
-    auto type = JsonToken::JsonTokenEmpty;
-    char chr = peek();
-    switch (chr)
-    {
-    case '{':
-      value += chr;
-      type = JsonToken::JsonTokenObjectStart;
-      moveAhead();
-      break;
-
-    case '}':
-      value += chr;
-      type = JsonToken::JsonTokenObjectEnd;
-      moveAhead();
-      break;
-
-    case '[':
-      value += chr;
-      type = JsonToken::JsonTokenArrayStart;
-      moveAhead();
-      break;
-
-    case ']':
-      value += chr;
-      type = JsonToken::JsonTokenArrayEnd;
-      moveAhead();
-      break;
-
-    case ',':
-      value += chr;
-      type = JsonToken::JsonTokenNext;
-      moveAhead();
-      break;
-
-    case ':':
-      value += chr;
-      type = JsonToken::JsonTokenAssign;
-      moveAhead();
-      break;
-
-    case '"':
-      value = getJsonString();
-      type = JsonToken::JsonTokenString;
-      break;
-
-    case '-':
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-      value = getJsonNumber();
-      type = JsonToken::JsonTokenNumber;
-      break;
-    case 't':
-    case 'f':
-      value = getJsonBoolean();
-      type = JsonToken::JsonTokenBoolean;
-      break;
-    case 'n':
-      checkJsonEmpty();
-      type = JsonToken::JsonTokenEmpty;
-      break;
-    case 'u':
-      checkJsonEmpty("undefined"); //only valid in java script, it is not valid json value according to
-      type = JsonToken::JsonTokenEmpty;
-      break;
-
-    case 0:
-      break;
-    default:
-      throw ParserException(std::string("Unexpected start sequence: ") + chr); // @@FIXMEE
-    }
-    _tokens.push_back(JsonToken(type, value));
-  }
-  _tokenIterator = _tokens.cbegin();
-  _tokenEnd = _tokens.cend();
-}
-
-/**
-* @brief Check if Json data contains given text starting with actual reader position.
-*
-* @param text String to check.
-* @return true if text match to readed text from Json data member; otherwise, false.
-**/
-bool JsonReader::match(const std::string &text)
-{
-  bool match = !text.empty();
-  auto cend = text.cend();
-  std::for_each(text.cbegin(), cend, [&match, this](char value)
-  {
-    if (eos() || value != peek())
-    {
-      match = false;
-      return;
-    }
-    moveAhead();
-  });
-  return match;
-}
-
-/**
-* @brief Parse json string.
-*
-* @return Parsed value.
-**/
-std::string JsonReader::getJsonString()
-{
-  moveAhead();
-  std::string string;
-  while (eos() == false && peek() != '"')
-  {
-    char currentChar = peek();
-    moveAhead();
-    if (currentChar == '\\' && !eos())
-    {
-      currentChar = peek();
-      moveAhead();
-      switch (currentChar)
-      {
-      case '/': 
-      case '"':
-      case '\\':
-        string += currentChar;
-        break;
-      case 'b':
-        string += '\b';
-        break;
-      case 'f':
-        string += '\f';
-        break;
-      case 'n':
-        string += '\n';
-        break;
-      case 'r':
-        string += '\r';
-        break;
-      case 't':
-        string += '\t';
-        break;
-      /*case 'u':
-        string += '\x';*/
-      default:
-          throw ParserException(std::string("Unrecognized escape sequence: \\") + currentChar);
-      }
-    }
-    else
-    {
-      string.push_back(currentChar);
-    }
-  }
-  if (!match("\""))
-    throw ParserException(std::string("Expected: \" "));
-  return string;
-}
-
-/**
-* @brief Parse json null literal.
-*
-* @param text String to check.
-**/
-void JsonReader::checkJsonEmpty(const std::string &text/* = "null" */)
-{
-  std::string emptyString;
-  for (size_t i = 0; i < text.size() && !eos(); ++i)
-  {
-    char ch = peek();
-    if(isspace(ch))
-      break;
-    emptyString += ch;
-    moveAhead();
-  }
-  if (emptyString.compare(text) != 0)
-    throw ParserException(std::string("Unexpected token: ") + emptyString);
-}
-
-/**
-* @brief Get a string literal from Json data buffer.
-*
-* @return returns the parsed bool as string.
-**/
-std::string JsonReader::getJsonBoolean()
-{
-  const int size = peek() == 'f' ? 5 : 4;
-  std::string boolString;
-  for (int i = 0; i < size && !eos(); ++i)
-  {
-    boolString += peek();
-    moveAhead();
-  }
-  if (boolString == "true" && boolString == "false")
-    throw ParserException(std::string("Unexpected token: ") + boolString);
-
-  return boolString;
-}
-
-/**
-* @brief Get a string literal from Json data buffer.
-*
-* @return returns the parsed number as string.
-**/
-std::string JsonReader::getJsonNumber()
-{
-  std::set<char> numericChars = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', 'e', 'E', '-', '+'};
-  std::string number;
-  while (eos() == false && numericChars.count(peek()) == 1)
-  {
-    number += peek();
-    moveAhead();
-  }
-  return number;
-}
-
-/**
-* @brief Check the specified token in current buffer position
-*
-* @param token Token to check.
-* @param skip Skip this token.
-* @param mustMach True if specified thoken must macht, otherweise exception is thrown.
-**/
-bool JsonReader::processToken(JsonToken::JsonTokenType type, bool skip /*= false*/, bool mustMatch/* = true*/)
-{
-  bool ret = _tokenIterator != _tokenEnd && _tokenIterator->getType() == type;
-  if (!ret && mustMatch)
-  {
-    std::string message;
-    if (_tokenIterator != _tokenEnd)
-      message = std::string("Unexpected token: ") + _tokenIterator->getValue();
-    else
-    message = std::string("Not compleated json data");
-    throw ParserException(message);
-  }
-  if (skip && ret)
-  {
-    ++_tokenIterator;
-    ret = _tokenIterator != _tokenEnd;
-  }
-  return ret;
-}
-
-/**
-* @brief Parse a JsonObject from Json data buffer.
-*
-* @param value JsonValue reference where to store parsed JsonObject.
-**/
-void JsonReader::parse(JsonObject &obj)
-{
-  bool go = processToken(JsonToken::JsonTokenObjectStart, true) && _tokenIterator->getType() != JsonToken::JsonTokenObjectStart;
-  while (go)
-  {
-    // the member name
-    processToken(JsonToken::JsonTokenString);
-    std::string name = _tokenIterator->getValue();
-    ++_tokenIterator;
-
-    // assign separator
-    processToken(JsonToken::JsonTokenAssign, true);
-
-    JsonValue value;
-    // json value
-    parse(value);
-    if (obj.find(name) != obj.end())
-      throw ParserException(std::string("Duplicate member: ") + name);
-
-    obj.insert(name, value);
-
-    go = processToken(JsonToken::JsonTokenNext, true, false);
-  }
-  processToken(JsonToken::JsonTokenObjectEnd, true);
-}
-
-/**
-* @brief Parses a string, and returns a floating point number or integer.
-*
-* @param value JsonValue reference where to store parsed number.
-**/
-void JsonReader::parseNumber(JsonValue &value)
-{
-   std::stringstream buffer;
-   buffer << _tokenIterator->getValue();
-   double number = 0;
-   buffer >> number;
-   double intpart = 0;
-   if (modf(number, &intpart) == 0.0)
-      value.setType(VInt);
-   else
-      value.setType(VDouble);
-   value.setNumber(number);
-   ++_tokenIterator;
-}
-
-/**
-* @brief Parses a string, and returns a bool.
-*
-* @param value JsonValue reference where to store parsed bool value.
-**/
-void JsonReader::parseBoolean(JsonValue &value)
-{
-  bool isBool = (_tokenIterator->getValue() == "true" ? true : false);
-  value.setBool(isBool);
-  value.setType(VBoolean);
-  ++_tokenIterator;
-}
-
-/**
-* @brief Parse a string literal from Json data buffer.
-*
-* @param value JsonValue reference where to store parsed string.
-**/
-void JsonReader::parseString(JsonValue &value)
-{
-  value.setString(_tokenIterator->getValue());
-  value.setType(VString);
-  ++_tokenIterator;
-}
-
-/**
-* @brief Parse a empty string literal from Json data buffer.
-*
-* @param value JsonValue reference where to store parsed string.
-**/
-void JsonReader::parseEmpty(JsonValue &value)
-{
-  value.setType(VEmpty);
-  ++_tokenIterator;
-}
-
-/**
-* @brief Parse a JsonObject from Json data buffer.
-*
-* @param value JsonValue reference where to store parsed JsonObject.
-**/
-void JsonReader::parseObject(JsonValue &value)
-{
-  value.setType(VObject);
-  JsonObject &object = value.getObject();
-  parse(object);
-}
-
-/**
-* @brief Parse a JsonArray from Json data buffer.
-*
-* @param value JsonValue reference where to store parsed JsonArray.
-**/
-void JsonReader::parseArray(JsonValue &value)
-{
-  value.setType(VArray);
-  JsonArray &array = value.getArray();
-  bool go = processToken(JsonToken::JsonTokenArrayStart, true) && _tokenIterator->getType() != JsonToken::JsonTokenArrayStart;
-  while (go)
-  {
-    JsonValue value;
-    parse(value);
-    array.pushBack(value);
-    go = processToken(JsonToken::JsonTokenNext, true, false);
-  }
-  processToken(JsonToken::JsonTokenArrayEnd, true);
-}
-
-/**
-* @brief parse 
-*
-* @param reference to json value to be parsed
-**/
-void JsonReader::parse(JsonValue &value)
-{
-  if (_tokenIterator == _tokenEnd)
-     throw ParserException("Unexpected json data end.");
-  auto type = _tokenIterator->getType();
-  switch (type)
-  {
-  case JsonToken::JsonTokenString: 
-    parseString(value);
-    break;
-  case JsonToken::JsonTokenNumber:
-    parseNumber(value);
-    break;
-  case JsonToken::JsonTokenBoolean:
-    parseBoolean(value);
-    break;
-  case JsonToken::JsonTokenEmpty: 
-    parseEmpty(value);
-    break;
-  case JsonToken::JsonTokenObjectStart: 
-    parseObject(value);
-    break;
-  case JsonToken::JsonTokenArrayStart: 
-    parseArray(value);
-    break;
-  default: 
-     throw ParserException(std::string("Unexpected token: ") + _tokenIterator->getValue());
-  }
-}
-
-/**
-* -------------------------------------------------------------------------------------------------
-*   JSON writer implementation 
-* -------------------------------------------------------------------------------------------------
-*/
-
-/**
-* @brief Construtor
-*        Construct JsonWriter from JsonValue
-*
-* @param value JsonValue reference
-**/
-JsonWriter::JsonWriter(const JsonValue &value)
-  : _jsonValue(value), _depth(0)
-{
-}
+//--------------------------------------------------------------------------------------------------
 
-/**
-* @brief Write JsonValue into string.
-*
-* @param text String reference to store json text data.
-* @param value JsonValue to be stored into text.
-**/
-void JsonWriter::write(std::string &text, const JsonValue &value)
-{
-  JsonWriter writer(value);
-  writer.toString(text);
-}
-
-/**
-* @brief Generate text representation of JsonObject.
-*
-* @param output String reference to store json text data.
-**/
-void JsonWriter::toString(std::string &output)
-{
-  generate(output);
-}
-
-/**
-* @brief Generate text representation of JsonObject.
-*
-* @param output String reference to store json text data.
-**/
-void JsonWriter::generate(std::string &output)
-{
-  write(_jsonValue);
-  output = _output;
-}
-
-/**
-* @brief Write JsonValue into string.
-*
-* @param value JsonValue to store in json text data.
-**/
-void JsonWriter::write(const JsonValue &value)
-{
-  switch(value.getType())
-  {
-  case VInt: 
-    _output += std::to_string(value.getInt());
-    break;
-  case VBoolean: 
-    _output += value.getBool() ? "true" : "false";
-    break;
-  case VString: 
-    write(value.getString());
-    break;
-  case VDouble: 
-    _output += std::to_string(value.getDouble());
-    break;
-  case VObject:
-    write(value.getObject());
-    break;
-  case VArray:
-    write(value.getArray());
-    break;
-  case VEmpty:
-    _output += "null";
-    break;
-  default: break;
-  }
-}
-
-
-/**
-* @brief Write JsonObject value.
-*
-* @param value JsonObject to store in json text data.
-**/
-void JsonWriter::write(const JsonObject &value)
-{
-  _output += "{";
-  ++_depth;
-  auto end = value.cend();
-  auto finalIter = end;
-  if (!value.empty())
-  {
-    _output += "\n";
-    --finalIter;
-  }
-  for (auto it = value.cbegin();  it != end; ++it)
-  {
-    _output += std::string(_depth, '\t');
-    write(it->first);
-    _output += " : ";
-    write(it->second);
-    if (it != finalIter)
-      _output += ",";
-    _output += "\n";
-  }
-  --_depth;
-  _output += std::string(_depth, '\t');
-  _output += "}";
-}
-
-/**
-* @brief Write JsonArray value.
-*
-* @param value JsonArray to store in json text data.
-**/
-void JsonWriter::write(const JsonArray &value)
-{
-  _output += "[";
-  ++_depth;
-  auto end = value.cend();
-  auto finalIter = end;
-  if (!value.empty())
-  {
-    _output += "\n";
-    --finalIter;
-  }
-  for (auto it = value.cbegin(); it != end; ++it)
-  {
-    _output += std::string(_depth, '\t');
-    write(*it);
-    if (it != finalIter)
-      _output += ",";
-    _output += "\n";
-  }
-  --_depth;
-  _output += std::string(_depth, '\t');
-  _output += "]";
-}
-
-/**
-* @brief Write string value.
-*
-* @param value String to store in json text.
-**/
-void JsonWriter::write(const std::string &value)
-{
-  _output += '"';
-  _output += base::escape_json_string(value);
-  _output += '"';
-}
-
-/**
-* -------------------------------------------------------------------------------------------------
-*   JSON Control Implementation
-* -------------------------------------------------------------------------------------------------
-*/
+// JSON Control Implementation
 
 /**
-* @brief Find node in tree recursively.
-*
-* parent Parent node reference
-* text Text to find.
-* founded Map reference to save results.
-**/
-static void findNode(TreeNodeRef parent, const std::string &text, std::map<std::string, std::vector<TreeNodeRef>> &found)
+ * @brief Find node in tree recursively.
+ *
+ * parent Parent node reference
+ * text Text to find.
+ * founded Map reference to save results.
+ */
+static void findNode(TreeNodeRef parent, const std::string &text, JsonTreeBaseView::TreeNodeVectorMap &found)
 {
   if (parent.is_valid())
   {
@@ -1627,145 +74,466 @@ static void findNode(TreeNodeRef parent, const std::string &text, std::map<std::
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-/**
-* @brief default constructor.
-*
-**/
-JsonBaseView::JsonBaseView() : Panel(TransparentPanel)
+JsonInputDlg::JsonInputDlg(mforms::Form *owner, bool showTextEntry)
+  : mforms::Form(owner, mforms::FormResizable), _textEditor(manage(new CodeEditor())),
+  _save(nullptr), _cancel(nullptr), _textEntry(nullptr), _validated(false)
+{
+  setup(showTextEntry);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+JsonInputDlg::~JsonInputDlg()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief default destructor.
+ * @brief Get JSON Object name.
+ *
+ * @returns Obect name.
+ */
+std::string JsonInputDlg::objectName() const
+{
+  return (_textEntry != NULL) ? _textEntry->get_string_value() : "";
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Get JSON data in text format.
+ *
+ * @returns JSON text.
+ */
+const std::string &JsonInputDlg::text() const
+{ 
+  return _text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Get JSON value.
+ *
+ * @returns JSON value.
+ */
+const JsonParser::JsonValue &JsonInputDlg::data() const
+{ 
+  return _value;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool JsonInputDlg::run()
+{
+  return run_modal(NULL, _cancel);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonInputDlg::setup(bool showTextEntry)
+{
+  Box *box = manage(new Box(false));
+  Box *hbox = manage(new Box(true));
+  Button *check = manage(new Button());
+
+  if (showTextEntry)
+  {
+    Box *textEntryBox = manage(new Box(true));
+    textEntryBox->set_padding(12);
+    textEntryBox->set_spacing(12);
+    Label *nameDescription = manage(new Label("Object name:"));
+    _textEntry = manage(new TextEntry());
+    textEntryBox->add(nameDescription, false, false);
+    textEntryBox->add(_textEntry, true, true);
+    box->add(textEntryBox, false, true);
+  }
+  _cancel = manage(new Button());
+  _save = manage(new Button());
+
+  set_title("JSON Editor");
+  set_content(box);
+  box->set_padding(12);
+  box->set_spacing(12);
+  _textEditor->set_language(mforms::LanguageJson);
+  _textEditor->set_features(mforms::FeatureWrapText, false);
+  _textEditor->set_features(mforms::FeatureReadOnly, false);
+  box->add(_textEditor, true, true);
+  box->add(hbox, false, true);
+  hbox->add_end(_cancel, false, true);
+  hbox->add_end(_save, false, true);
+  hbox->add_end(check, false, true);
+  hbox->set_spacing(12);
+  check->set_text("Validate");
+  _save->set_text("Save");
+  _save->set_enabled(false);
+  _cancel->set_text("Cancel");
+  scoped_connect(check->signal_clicked(), boost::bind(&JsonInputDlg::validate, this));
+  scoped_connect(_save->signal_clicked(), boost::bind(&JsonInputDlg::save, this));
+  scoped_connect(_textEditor->signal_changed(), boost::bind(&JsonInputDlg::editorContentChanged, this, _1, _2, _3, _4));
+  set_size(800, 500);
+  center();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonInputDlg::save()
+{
+  if (_textEntry)
+  {
+    auto text = _textEntry->get_string_value();
+    if (text.empty() && _textEntry->is_enabled())
+    {
+      mforms::Utilities::show_error("JSON Editor.", "The field 'name' can not be empty", "Ok");
+      return;
+    }
+  }
+  end_modal(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+* @brief Set text.
 *
-**/
+* @text Text to set.
+* @readOnly Set control read only.
+*/
+void JsonInputDlg::setText(const std::string &text, bool readonly)
+{
+  if (_textEntry)
+  {
+    _textEntry->set_value(text);
+    _textEntry->set_enabled(!readonly);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+* @brief Set JSON value.
+*
+* @json JSON to set.
+*/
+void JsonInputDlg::setJson(const JsonValue &json)
+{
+  std::string text;
+  JsonWriter::write(text, json);
+  _textEditor->set_text(text.c_str());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+  * @brief Validate json text.
+  *
+  */
+void JsonInputDlg::validate()
+{
+  auto text = _textEditor->get_text(false);
+  if (text.empty())
+    return;
+  try
+  {
+    JsonParser::JsonValue value;
+    JsonParser::JsonReader::read(text, value);
+    _save->set_enabled(true);
+    _validated = true;
+    _value = value;
+    _text = _textEditor->get_string_value();
+  }
+  catch (ParserException &ex)
+  {
+    mforms::Utilities::show_error("JSON check.", base::strfmt("Validation failed: '%s'", ex.what()), "Ok");
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+  * @brief Content is edited
+  *
+  * @position The (byte) position in the text where the change happened.
+  * @length The length of the change (in bytes).
+  * @numberOfLines The number of lines which have been added (if positive) or removed (if negative).
+  * @inserted True if text was inserted.
+  */
+void  JsonInputDlg::editorContentChanged(int /*position*/, int /*length*/, int /*numberOfLines*/, bool /*inserted*/)
+{
+  _save->set_enabled(false);
+  _validated = false;
+  _text = "";
+  _value = JsonValue();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+JsonBaseView::JsonBaseView() 
+  : Panel(TransparentPanel)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool JsonBaseView::isDateTime(const std::string &text)
+{
+  bt::time_input_facet *isoFacet = new bt::time_input_facet();
+  isoFacet->set_iso_format();
+  bt::time_input_facet *extendedIsoFacet = new bt::time_input_facet();
+  isoFacet->set_iso_extended_format();
+  static const std::locale formats[] = {
+    std::locale(std::locale::classic(), isoFacet),
+    std::locale(std::locale::classic(), extendedIsoFacet),
+    std::locale(std::locale::classic(), new bt::time_input_facet("%Y-%m-%d %H:%M:%S")),
+    std::locale(std::locale::classic(), new bt::time_input_facet("%Y/%m/%d %H:%M:%S")),
+    std::locale(std::locale::classic(), new bt::time_input_facet("%d.%m.%Y %H:%M:%S")),
+    std::locale(std::locale::classic(), new bt::time_input_facet("%Y-%m-%d"))
+  };
+  static const size_t formatCounts = sizeof(formats) / sizeof(formats[0]);
+
+  bt::ptime pt;
+  bool ret = false;
+  for (size_t i = 0; i < formatCounts; ++i)
+  {
+    std::istringstream is(text);
+    is.imbue(formats[i]);
+    is >> pt;
+    if (pt != bt::ptime())
+    {
+      ret = true;
+      break;
+    }
+  }
+  return ret;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 JsonBaseView::~JsonBaseView()
 {
 }
 
-/**
-* @brief
-*
-* @return
-**/
-bool JsonBaseView::getNeedRepaint() const
-{
-  return _needRepaint;
-}
+//--------------------------------------------------------------------------------------------------
 
 /**
-* @brief
-*
-* @return
-**/
-void JsonBaseView::setNeedRepaint(bool value)
+ * @brief Signal emitted when JSON data was modified.
+ *
+ * @return Signal funtion pointer.
+ */
+boost::signals2::signal<void(bool)>* JsonBaseView::dataChanged()
 {
-  _needRepaint = value;
+  return &_dataChanged;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Clear control.
-*
-**/
+ * @brief Clear control.
+ *
+ */
 void JsonBaseView::clear()
 {
 }
 
-/**
-* @brief default constructor.
-*
-**/
+//--------------------------------------------------------------------------------------------------
+
 JsonTreeBaseView::JsonTreeBaseView()
   : _useFilter(false), _searchIdx(0)
 {
+  _contextMenu = mforms::manage(new mforms::ContextMenu());
+  _contextMenu->signal_will_show()->connect(boost::bind(&JsonTreeBaseView::prepareMenu, this));
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief default destructor.
+ * @brief Setup context manu.
+ *
+ **/
+void JsonTreeBaseView::prepareMenu()
+{
+  if (_contextMenu)
+  {
+    _contextMenu->remove_all();
+    auto node = _treeView->get_selected_node();
+    if (!node.is_valid())
+      return;
+    auto *data = dynamic_cast<JsonValueNodeData*>(node->get_data());
+    if (data != NULL)
+    {
+      auto &jv = data->getData();
+      bool showAddModify = true;
+      if (jv.getType() != VObject && jv.getType() != VArray)
+        showAddModify = false;
+
+      auto *item = mforms::manage(new mforms::MenuItem("Add new value"));
+      item->set_name("add_new_doc");
+      item->signal_clicked()->connect(boost::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      item->set_enabled(showAddModify);
+      _contextMenu->add_item(item);
+
+      item = mforms::manage(new mforms::MenuItem("Delete JSON"));
+      item->set_name("delete_doc");
+      item->signal_clicked()->connect(boost::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      _contextMenu->add_item(item);
+
+      item = mforms::manage(new mforms::MenuItem("Modify JSON"));
+      item->set_name("modify_doc");
+      item->signal_clicked()->connect(boost::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      item->set_enabled(showAddModify);
+      _contextMenu->add_item(item);
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Handle mennu command message.
+ *
+ * @command Command text.
+ * @node Selected tree node.
+ */
+void JsonTreeBaseView::handleMenuCommand(const std::string &command)
+{
+  auto node = _treeView->get_selected_node();
+  if (command == "add_new_doc")
+  {
+    openInputJsonWindow(node);
+    return;
+  }
+  if (command == "delete_doc")
+  {
+    auto data = dynamic_cast<JsonValueNodeData*>(node->get_data());
+    if (data != nullptr)
+    {
+      auto &jv = data->getData();
+      jv.setDeleted(true);
+      node->set_data(nullptr); // This will explicitly delete the data.
+    }
+    node->remove_from_parent();
+    _dataChanged(false);
+    return;
+  }
+  if (command == "modify_doc")
+  {
+    openInputJsonWindow(node, true);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+* @brief Handle mennu command message.
 *
-**/
+* @command Command text.
+* @node Selected tree node.
+*/
+void JsonTreeBaseView::openInputJsonWindow(TreeNodeRef node, bool updateMode /*= false*/)
+{
+  auto data = dynamic_cast<JsonValueNodeData*>(node->get_data());
+  if (data != nullptr)
+  {
+    auto &jv = data->getData();
+    bool isObject = jv.getType() == VObject;
+    JsonInputDlg dlg(_treeView->get_parent_form(), isObject);
+    if (updateMode)
+    {
+      if (isObject)
+      {
+        auto tag = node->get_tag();
+        dlg.setText(tag, true);
+      }
+      dlg.setJson(jv);
+    }
+    if (dlg.run())
+    {
+      auto value = dlg.data();
+      auto objectName = dlg.objectName();
+      switch (jv.getType())
+      {
+      case VObject:
+        {
+          JsonObject &obj = (JsonObject)jv;
+          if (updateMode)
+          {
+            if (objectName.empty())
+              jv = value;
+            else
+              obj[objectName] = value;
+            node->remove_children();
+          }
+          else 
+            obj.insert(objectName, value);
+          auto newNode = (updateMode) ? node : node->add_child();
+          generateTree(objectName.empty() ? jv : obj[objectName], 0, newNode);
+          newNode->set_string(0, objectName + "{" + base::to_string(obj.size()) + "}");
+          newNode->set_tag(objectName);
+          _dataChanged(false);
+          break;
+        }
+      case VArray:
+        {
+          JsonArray &array = (JsonArray)jv;
+          if (updateMode)
+          {
+            array.clear();
+            node->remove_children();
+            if (value.getType() == VArray)
+              array = (JsonArray)value;
+            else
+              array.pushBack(value);
+          }
+          else
+            array.pushBack(value);
+          size_t size = array.size();
+          auto newNode = (updateMode) ? node : node->add_child();
+          generateTree((updateMode) ? jv : array[size - 1], 0, newNode);
+          newNode->set_string(0, objectName + "[" + base::to_string(array.size()) + "]");
+          _dataChanged(false);
+          break;
+        }
+      default:
+        break;
+      }
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 JsonTreeBaseView::~JsonTreeBaseView()
 {
 }
 
-/**
-* @brief Insert object value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-* @param addNew If true add as child node.
-**/
-void JsonTreeBaseView::generateObjectInTree(JsonParser::JsonValue &/*value*/, TreeNodeRef /*node*/, bool /*addNew*/)
-{
-}
+//--------------------------------------------------------------------------------------------------
 
 /**
-* @brief Insert array value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-* @param addNew If true add as child node.
-**/
-void JsonTreeBaseView::generateArrayInTree(JsonParser::JsonValue &/*value*/, TreeNodeRef /*node*/, bool /*addNew*/)
+ * @brief Insert string value to the tree.
+ *
+ * @param value JsonValue to put in tree.
+ * @param node Tree node reference.
+ */
+void JsonTreeBaseView::generateStringInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node)
 {
+  const std::string &text = (std::string)value;
+  setStringData(columnId, node, text);
+  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
+  node->expand();
 }
 
-/**
-* @brief Insert int value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-**/
-void JsonTreeBaseView::generateIntInTree(JsonParser::JsonValue &/*value*/, TreeNodeRef /*node*/)
-{
-}
+//--------------------------------------------------------------------------------------------------
 
 /**
-* @brief Insert bool value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-**/
-void JsonTreeBaseView::generateBoolInTree(JsonParser::JsonValue &/*value*/, TreeNodeRef /*node*/)
-{
-}
-
-/**
-* @brief Insert string value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-**/
-void JsonTreeBaseView::generateStringInTree(JsonParser::JsonValue &/*value*/, TreeNodeRef /*node*/)
-{
-}
-
-/**
-* @brief Insert double value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-**/
-void JsonTreeBaseView::generateDoubleInTree(JsonParser::JsonValue &/*value*/, TreeNodeRef /*node*/)
-{
-}
-
-/**
-* @brief Insert null to tree.
-*
-* @param node Tree node reference.
-**/
-void JsonTreeBaseView::generateNullInTree(JsonParser::JsonValue &/*value*/, TreeNodeRef /*node*/)
-{
-}
-
-/**
-* @brief Highlight matches in tree view.
-*
-* @param text Text to find.
-* @param backward Search backward.
-**/
+ * @brief Highlight matches in tree view.
+ *
+ * @param text Text to find.
+ * @param backward Search backward.
+ */
 void JsonTreeBaseView::highlightMatchNode(const std::string &text, bool backward)
 {
   if (_textToFind != text)
@@ -1813,13 +581,14 @@ void JsonTreeBaseView::highlightMatchNode(const std::string &text, bool backward
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 /**
-* @brief Find parents.
-*
-* @param node Tree node reference.
-* @param parents List of returned parents.
-**/
+ * @brief Find parents.
+ *
+ * @param node Tree node reference.
+ * @param parents List of returned parents.
+ */
 void JsonTreeBaseView::collectParents(TreeNodeRef node, std::list<TreeNodeRef> &parents)
 {
   auto parent = node->get_parent();
@@ -1830,24 +599,29 @@ void JsonTreeBaseView::collectParents(TreeNodeRef node, std::list<TreeNodeRef> &
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Restore oryginal result.
-*
-* @param value Json value reference.
-**/
-void JsonTreeBaseView::restoreOrygilanResult(JsonParser::JsonValue &value)
+ * @brief Re-create tree.
+ *
+ * @param value JSON value reference.
+ */
+void JsonTreeBaseView::reCreateTree(JsonValue &value)
 {
   _useFilter = false;
   _treeView->clear();
-  generateTree(value, _treeView->root_node());
+  auto node = _treeView->root_node()->add_child();
+  generateTree(value, 0, node);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Filter tree view.
-*
-* @param text Text to find.
-* @param value Json value reference.
-**/
+ * @brief Filter tree view.
+ *
+ * @param text Text to find.
+ * @param value JSON value reference.
+ */
 bool JsonTreeBaseView::filterView(const std::string &text, JsonParser::JsonValue &value)
 {
   auto selectedNode = _treeView->get_selected_node();
@@ -1881,55 +655,60 @@ bool JsonTreeBaseView::filterView(const std::string &text, JsonParser::JsonValue
     }
     _useFilter = true;
     _treeView->clear();
-    generateTree(value, _treeView->root_node());
+    generateTree(value, 0, _treeView->root_node());
   }
   return _useFilter;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Fill tree control.
-*
-* @param value JsonValue to show in tree.
-* @param node Tree node reference.
-* @param addNew True if child node should be created.
-**/
-void JsonTreeBaseView::generateTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew)
+ * @brief Fill tree control.
+ *
+ * @param value JsonValue to show in tree.
+ * @param node Tree node reference.
+ * @param addNew True if child node should be created.
+ */
+void JsonTreeBaseView::generateTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node, bool addNew)
 {
+  if (value.isDeleted())
+    return;
   switch (value.getType())
   {
-  case VInt:
-    generateIntInTree(value, node);
+  case VDouble:
+  case VInt64:
+  case VUint64:
+    generateNumberInTree(value, columnId, node);
     break;
   case VBoolean:
-    generateBoolInTree(value, node);
+    generateBoolInTree(value, columnId, node);
     break;
   case VString:
-    generateStringInTree(value, node);
-    break;
-  case VDouble:
-    generateDoubleInTree(value, node);
+    generateStringInTree(value, columnId, node);
     break;
   case VObject:
-    generateObjectInTree(value, node, addNew);
+    generateObjectInTree(value, columnId, node, addNew);
     break;
   case VArray:
-    generateArrayInTree(value, node, addNew);
+    generateArrayInTree(value, columnId, node);
     break;
   case VEmpty:
-    generateNullInTree(value, node);
+    generateNullInTree(value, columnId, node);
     break;
-  default: 
+  default:
     break;
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief callback to handle changed made by user to tree cells.
-*
-* @param node Tree node reference, which was edited.
-* @param column Column number which was edited.
-* @param value New string value to set.
-**/
+ * @brief callback to handle changed made by user to tree cells.
+ *
+ * @param node Tree node reference, which was edited.
+ * @param column Column number which was edited.
+ * @param value New string value to set.
+ */
 void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const std::string &value)
 {
   auto data = dynamic_cast<JsonValueNodeData*>(node->get_data());
@@ -1938,17 +717,34 @@ void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const 
   {
     std::stringstream buffer;
     double number = 0;
+    int64_t number2 = 0;
+    uint64_t number3 = 0;
     bool retBool = false;
     auto &storedValue = data->getData();
     switch (storedValue.getType())
     {
     case VDouble:
-    case VInt:
       if (!base::is_number(value))
         break;
       buffer << value;
       buffer >> number;
-      storedValue.setNumber(number);
+      storedValue = number;
+      setData = true;
+      break;
+    case VInt64:
+      if (!base::is_number(value))
+        break;
+      buffer << value;
+      buffer >> number2;
+      storedValue = number2;
+      setData = true;
+      break;
+    case VUint64:
+      if (!base::is_number(value))
+        break;
+      buffer << value;
+      buffer >> number3;
+      storedValue = number3;
       setData = true;
       break;
     case VBoolean:
@@ -1956,11 +752,12 @@ void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const 
         break;
       buffer << value;
       buffer >> std::boolalpha >> retBool;
-      storedValue.setBool(retBool);
+      storedValue = retBool;
       setData = true;
       break;
     case VString:
-      storedValue.setString(value);
+      storedValue = value;
+      setStringData(column, node, value);
       setData = true;
       break;
     default:
@@ -1970,345 +767,202 @@ void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const 
   if (setData)
   {
     node->set_string(column, value);
-    node->set_attributes(column, mforms::TextAttributes("#c6c6c6", true, true));
-    //_needRepaint = true;
+    _dataChanged(false);
   }
 }
 
-/**
-* @brief Default constructor
-*
-**/
-JsonTextView::JsonTextView() : _textEditor(std::make_shared<CodeEditor>())
+//--------------------------------------------------------------------------------------------------
+
+JsonTextView::JsonTextView() : 
+  _textEditor(manage(new CodeEditor())), 
+  _validationResult(manage(new Label(""))),
+  _modified(false)
 {
   init();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Fill text in control
-*
-* @param jsonTExt A string that contains the json text data to set..
-**/
+ * @brief Fill text in control
+ *
+ * @param jsonText A string that contains the JSON text data to set.
+ */
 void JsonTextView::setText(const std::string &jsonText)
 {
   _textEditor->set_value(jsonText.c_str());
+  validate();
+  _validationResult->set_text("Document changed.");
+  _validationResult->set_tooltip("");
+  _text = jsonText;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Destructor.
-*
-**/
+ * @brief Get Json.
+ *
+ * @return Json value const reference.
+ */
+const JsonValue &JsonTextView::getJson() const
+{
+  return _json;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+const std::string &JsonTextView::getText() const
+{
+  return _text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 JsonTextView::~JsonTextView()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Clear control.
-*
-**/
+ * @brief Clear control.
+ *
+ */
 void JsonTextView::clear()
 {
   _textEditor->set_value("");
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Init controls in text tab control.
-*
-**/
+ * @brief Init controls in text tab control.
+ *
+ */
 void JsonTextView::init()
 {
-  assert(_textEditor.get() != nullptr);
+  assert(_textEditor != NULL);
   _textEditor->set_language(mforms::LanguageJson);
   _textEditor->set_features(mforms::FeatureWrapText, false);
   _textEditor->set_features(mforms::FeatureReadOnly, false);
-  add(_textEditor.get());
+  scoped_connect(_textEditor->signal_changed(), boost::bind(&JsonTextView::editorContentChanged, this, _1, _2, _3, _4));
+  scoped_connect(_textEditor->signal_lost_focus(), boost::bind(&JsonTextView::validate, this));
+
+  Button *validate = manage(new Button());
+  validate->set_text("Validate");
+  scoped_connect(validate->signal_clicked(), boost::bind(&JsonTextView::validate, this));
+
+  _validationResult->set_text("JSON valid");
+
+  Box *box = manage(new Box(false));
+  box->set_padding(5);
+  box->set_spacing(5);
+  box->add(_textEditor, true, true);
+
+  Box *hbox = manage(new Box(true));
+  hbox->add(_validationResult, true, true);
+  hbox->add_end(validate, false, true);
+  box->add(hbox, false, true);
+  add(box);
 }
+
+//--------------------------------------------------------------------------------------------------
+
+/** 
+ * @brief Content is edited
+ * 
+ * @position The (byte) position in the text where the change happened.
+ * @length The length of the change (in bytes).
+ * @numberOfLines The number of lines which have been added (if positive) or removed (if negative).
+ * @inserted True if text was inserted.
+ */
+void JsonTextView::editorContentChanged(int position, int length, int numberOfLines, bool inserted)
+{
+  _modified = true;
+  _validationResult->set_text("Content changed.");
+  _validationResult->set_tooltip("");
+
+  _text = _textEditor->get_text(false);
+  _dataChanged(true);
+}
+
+/**
+ * @brief Signal emitted when the validate was clicked.
+ */
+bool JsonTextView::validate()
+{
+  bool ret = true;
+  if (_modified)
+  {
+    try
+    {
+      JsonParser::JsonValue value;
+      JsonParser::JsonReader::read(_text, value);
+      _json = value;
+
+      _modified = false;
+      _validationResult->set_text("Document valid.");
+      _validationResult->set_tooltip("");
+    }
+    catch (ParserException &ex)
+    {
+      _validationResult->set_text(ex.what());
+      _validationResult->set_tooltip(ex.what());
+      ret = false;
+    }
+  }
+  return ret;
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void JsonTextView::findAndHighlightText(const std::string &text, bool backward /*= false*/)
 {
   _textEditor->find_and_highlight_text(text, mforms::FindDefault, true, backward);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-/**
-* @brief Constructor
-*
-**/
 JsonTreeView::JsonTreeView()
 {
-  _treeView.reset(new mforms::TreeView(TreeNoBorder | TreeShowColumnLines));
-  _treeView->add_column(IconStringColumnType, "", 150, false, true);
-  _treeView->add_column(StringColumnType, "Value", 200, false, true);
-  _treeView->end_columns();
-  _treeView->set_cell_edit_handler(std::bind(&JsonTreeBaseView::setCellValue, this, ph::_1, ph::_2, ph::_3));
-  init();
-}
-
-/**
-* @brief Destructor
-*
-**/
-JsonTreeView::~JsonTreeView()
-{
-}
-
-/**
-* @brief Init tree view
-*
-* Based of readed json data control function initialize mforms control TreNodeView
-**/
-void JsonTreeView::init()
-{
-  assert(_treeView.get() != nullptr);
-  add(_treeView.get());
-}
-
-/**
-* @brief Add Json data to the control.
-*
-* @param value A JsonValue object to show in control.
-**/
-void JsonTreeView::setJson(JsonParser::JsonValue &value)
-{
-  clear();
-  TreeNodeRef node = _treeView->root_node();
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  generateTree(value, node);
-}
-
-/**
-* @brief Append Json data to the control.
-*
-* @param value A JsonValue object to show in control.
-**/
-void JsonTreeView::appendJson(JsonParser::JsonValue &value)
-{
-  _viewFindResult.clear();
-  _textToFind = "";
-  _searchIdx = 0;
-  TreeNodeRef node = _treeView->root_node();
-  generateTree(value, node);
-}
-
-/**
-* @brief Clear control.
-*
-**/
-void JsonTreeView::clear()
-{
-  _treeView->clear();
-  _viewFindResult.clear();
-  _textToFind = "";
-  _searchIdx = 0;
-}
-
-/**
-* @brief Insert object value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-* @param addNew If true add as child node.
-**/
-void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew)
-{
-  if (_useFilter && _filterGuard.count(&value) == 0)
-    return;
-  auto &object = value.getObject();
-  size_t size = 0;
-  std::stringstream textSize;
-  auto end = object.end();
-  for (auto it = object.begin(); it != end; ++it)
-  {
-    auto text = it->first;
-    switch (it->second.getType())
-    {
-      case VArray:
-      {
-        auto &arrayVal = it->second.getArray();
-        size = arrayVal.size();
-        textSize << size;
-        text += "[";
-        text += textSize.str();
-        text += "]";
-        break;
-      }
-      case VObject:
-      {
-        auto &objectVal = it->second.getObject();
-        size = objectVal.size();
-        textSize << size;
-        text += "{";
-        text += textSize.str();
-        text += "}";
-        break;
-      }
-
-      default: // Nothing else by intention.
-        break;
-    }
-
-    mforms::TreeNodeRef node2 = (addNew) ? node->add_child() : node;
-    node->set_icon_path(0, "JS_Datatype_Object.png");
-    node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-    node2->set_string(0, text);
-    node2->set_string(1, "");
-    generateTree(it->second, node2);
-    node2->expand();
-  }
-}
-
-/**
-* @brief Insert array value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-* @param addNew If true add as child node.
-**/
-void JsonTreeView::generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew)
-{
-  if (_useFilter && _filterGuard.count(&value) == 0)
-    return;
-  auto &arrayType = value.getArray();
-  auto size = arrayType.size();
-  std::stringstream textSize;
-  textSize << size;
-  auto text = "array [" + textSize.str() + "]";
-  mforms::TreeNodeRef node2 = node->add_child();
-  node2->set_icon_path(0, "JS_Datatype_Array.png");
-  node2->set_string(0, text);
-  node2->set_string(1, "");
-  node2->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  auto end = arrayType.end();
-  int idx = 0;
-  for (auto it = arrayType.begin(); it != end; ++it, ++idx)
-  {
-    if (_useFilter && _filterGuard.count(&*it) == 0)
-      continue;
-    mforms::TreeNodeRef arrrayNode = node2->add_child();
-    bool addNew = false;
-    if (it->getType() == VArray || it->getType() == VObject)
-      addNew = true;
-    arrrayNode->set_string(0, base::strfmt("[%d]", idx));
-    arrrayNode->set_string(1, "");
-    generateTree(*it, arrrayNode, addNew);
-  }
-  node2->expand();
-}
-
-/**
-* @brief Insert int value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-**/
-void JsonTreeView::generateIntInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_Number.png");
-  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
-  node->set_int(1, value.getInt());
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->expand();
-}
-
-/**
-* @brief Insert bool value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-**/
-void JsonTreeView::generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_Bool.png");
-  node->set_attributes(1, mforms::TextAttributes("#0099ff", true, true));
-  node->set_bool(1, value.getBool());
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->expand();
-}
-
-/**
-* @brief Insert string value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-**/
-void JsonTreeView::generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_String.png");
-  node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
-  node->set_string(1, value.getString());
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->expand();
-}
-
-/**
-* @brief Insert double value to the tree.
-*
-* @param value JsonValue to put in tree.
-* @param node Tree node reference.
-**/
-void JsonTreeView::generateDoubleInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_Number.png");
-  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
-  node->set_float(1, value.getDouble());
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->expand();
-}
-
-/**
-* @brief Insert null to tree.
-*
-* @param node Tree node reference.
-**/
-void JsonTreeView::generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_Null.png");
-  node->set_string(0, "<<null>>");
-  node->set_string(1, "");
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->expand();
-}
-
-/**
-* @brief Constructor
-*
-**/
-JsonGridView::JsonGridView()
-{
-  _treeView.reset(new mforms::TreeView(mforms::TreeAltRowColors | mforms::TreeShowRowLines | mforms::TreeShowColumnLines | mforms::TreeNoBorder));
+  _treeView = manage(new mforms::TreeView(mforms::TreeAltRowColors | mforms::TreeShowRowLines | mforms::TreeShowColumnLines | mforms::TreeNoBorder));
   _treeView->add_column(IconStringColumnType, "Key", 150, false, true);
   _treeView->add_column(StringLTColumnType, "Value", 200, true, true);
   _treeView->add_column(StringLTColumnType, "Type", 200, false, true);
   _treeView->end_columns();
   _treeView->set_cell_edit_handler(std::bind(&JsonTreeBaseView::setCellValue, this, ph::_1, ph::_2, ph::_3));
+  _treeView->set_selection_mode(TreeSelectSingle);
+  _treeView->set_context_menu(_contextMenu);
   init();
 }
 
-/**
-* @brief Init tree/grid view
-*
-* Based of readed json data control function initialize mforms control TreNodeView
-**/
-void JsonGridView::init()
-{
-  assert(_treeView.get() != nullptr);
-  add(_treeView.get());
-}
+//--------------------------------------------------------------------------------------------------
 
 /**
-* @brief Destructor
-*
-**/
-JsonGridView::~JsonGridView()
+ * @brief Init tree/grid view
+ *
+ * Based of readed JSON data control function initialize mforms control TreNodeView
+ */
+void JsonTreeView::init()
+{
+  assert(_treeView != NULL);
+  add(_treeView);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+JsonTreeView::~JsonTreeView()
 {
   _treeView->clear();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Clear control.
-*
-**/
-void JsonGridView::clear()
+ * @brief Clear control.
+ *
+ */
+void JsonTreeView::clear()
 {
   _treeView->clear();
   _viewFindResult.clear();
@@ -2317,56 +971,64 @@ void JsonGridView::clear()
   _useFilter = false;
 }
 
-/**
-* @brief Add the Json data to the control.
-*
-* @param value A JsonValue object to show in control.
-**/
-void JsonGridView::setJson(JsonParser::JsonValue &value)
-{
-  clear();
-  TreeNodeRef node = _treeView->root_node()->add_child();
-  generateTree(value, node);
-}
+//--------------------------------------------------------------------------------------------------
 
 /**
-* @brief Append Json data to the control.
-*
-* @param value A JsonValue object to show in control.
-**/
-void JsonGridView::appendJson(JsonParser::JsonValue &value)
+ * @brief Add the JSON data to the control.
+ *
+ * @param value A JsonValue object to show in control.
+ */
+void JsonTreeView::setJson(JsonParser::JsonValue &value)
+{
+  clear();
+  auto node = _treeView->root_node()->add_child();
+  generateTree(value, 0, node);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Append Json data to the control.
+ *
+ * @param value A JsonValue object to show in control.
+ */
+void JsonTreeView::appendJson(JsonParser::JsonValue &value)
 {
   TreeNodeRef node = _treeView->root_node();
   _viewFindResult.clear();
   _textToFind = "";
   _searchIdx = 0;
-  generateTree(value, node);
+  generateTree(value, 0, node);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Insert object value to the tree
-*
-* @param value JsonValue to put in tree
-* @param node Tree node reference
-* @param addNew If true add as child node
-**/
-void JsonGridView::generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew)
+ * @brief Insert object value to the tree
+ *
+ * @param value JsonValue to put in tree
+ * @param node Tree node reference
+ * @param addNew If true add as child node
+ */
+void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*columnId*/, TreeNodeRef node, bool addNew)
 {
   if (_useFilter && _filterGuard.count(&value) == 0)
     return;
-  auto &object = value.getObject();
+  auto &object = (JsonObject)value;
   size_t size = 0;
-  std::stringstream textSize;
   auto end = object.end();
-  for (auto it = object.begin(); it != end; ++it)
+  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
+  for (JsonObject::Iterator it = object.begin(); it != end; ++it)
   {
     auto text = it->first;
+    std::stringstream textSize;
     switch (it->second.getType())
     {
     case VArray:
     {
-      auto &arrayVal = it->second.getArray();
+      auto &arrayVal = (JsonArray)it->second;
       size = arrayVal.size();
+      node->set_tag(it->first);
       textSize << size;
       text += "[";
       text += textSize.str();
@@ -2375,7 +1037,7 @@ void JsonGridView::generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRe
     }
     case VObject:
     {
-      auto &objectVal = it->second.getObject();
+      auto &objectVal = (JsonObject)it->second;
       size = objectVal.size();
       textSize << size;
       text += "{";
@@ -2386,208 +1048,796 @@ void JsonGridView::generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRe
     default:
       break;
     }
-    mforms::TreeNodeRef node2 = (addNew) ? node->add_child() : node;
-    node->set_icon_path(0, "JS_Datatype_Object.png");
-    node->set_string(1, "");
-    node->set_string(2, "Object");
-    node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
+    auto node2 = (addNew) ? node->add_child() : node;
+    if (addNew)
+    {
+      node->set_icon_path(0, "JS_Datatype_Object.png");
+      std::string name = node->get_string(0);
+      if (name.empty())
+        node->set_string(0, "<unnamed>");
+      node->set_string(1, "");
+      node->set_string(2, "Object");
+    }
     node2->set_string(0, text);
-    generateTree(it->second, node2);
+    node2->set_tag(it->first);
+    generateTree(it->second, 1, node2);
     node2->expand();
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Insert array value to the tree
-*
-* @param value JsonValue to put in tree
-* @param node Tree node reference
-* @param addNew If true add as child node
-**/
-void JsonGridView::generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew)
+ * @brief Insert array value to the tree
+ *
+ * @param value JsonValue to put in tree
+ * @param node Tree node reference
+ * @param addNew If true add as child node
+ */
+void JsonTreeView::generateArrayInTree(JsonParser::JsonValue &value, int /*columnId*/, TreeNodeRef node)
 {
   if (_useFilter && _filterGuard.count(&value) == 0)
     return;
-  auto &arrayType = value.getArray();
-  auto size = arrayType.size();
-  std::stringstream textSize;
-  textSize << size;
-  auto text = "array [" + textSize.str() + "]";
-  mforms::TreeNodeRef node2 = node->add_child();
-  node2->set_icon_path(0, "JS_Datatype_Array.png");
-  node2->set_string(0, text);
-  node2->set_string(1, "");
-  node2->set_string(2, "Array");
-  node2->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
+
+  auto &arrayType = (JsonArray)value;
+
+  node->set_icon_path(0, "JS_Datatype_Array.png");
+  std::string name = node->get_string(0);
+  if (name.empty())
+    node->set_string(0, "<unnamed>");
+  node->set_string(1, "");
+  node->set_string(2, "Array");
+  std::string tagName = node->get_tag();
+  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
+
   auto end = arrayType.end();
-  int idx = 0;
-  for (auto it = arrayType.begin(); it != end; ++it, ++idx)
+  int index = 0;
+  for (auto it = arrayType.begin(); it != end; ++it, ++index)
   {
     if (_useFilter && _filterGuard.count(&*it) == 0)
       continue;
-    mforms::TreeNodeRef arrrayNode = node2->add_child();
+    auto arrrayNode = node->add_child();
     bool addNew = false;
     if (it->getType() == VArray || it->getType() == VObject)
       addNew = true;
-    arrrayNode->set_string(0, base::strfmt("[%d]", idx));
+    std::string keyName = tagName.empty() ? "key[%d]" : tagName + "[%d]";
+    arrrayNode->set_string(0, base::strfmt(keyName.c_str(), index));
     arrrayNode->set_string(1, "");
-    generateTree(*it, arrrayNode, addNew);
+    generateTree(*it, 1, arrrayNode, addNew);
   }
-  node2->expand();
-}
-
-/**
-* @brief Insert int value to the tree
-*
-* @param value JsonValue to put in tree
-* @param node Tree node reference
-**/
-void JsonGridView::generateIntInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_Number.png");
-  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
-  node->set_int(1, value.getInt());
-  node->set_string(2, "Integer");
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Insert bool value to the tree
-*
-* @param value JsonValue to put in tree
-* @param node Tree node reference
-**/
-void JsonGridView::generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node)
+ * @brief Insert bool value to the tree
+ *
+ * @param value JsonValue to put in tree
+ * @param node Tree node reference
+ */
+void JsonTreeView::generateBoolInTree(JsonParser::JsonValue &value, int /*columnId*/, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Bool.png");
-  node->set_attributes(1, mforms::TextAttributes("#0099ff", true, true));
-  node->set_bool(1, value.getBool());
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
+  node->set_bool(1, (bool)value);
   node->set_string(2, "Boolean");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
 }
 
-/**
-* @brief Insert string value to the tree
-*
-* @param value JsonValue to put in tree
-* @param node Tree node reference
-**/
-void JsonGridView::generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_String.png");
-  node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
-  node->set_string(1, value.getString());
-  node->set_string(2, "String");
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  //auto jd = dynamic_cast<JsonBaseView::JsonValueNodeData*>(node->get_data());
-  node->expand();
-}
+//--------------------------------------------------------------------------------------------------
 
 /**
-* @brief Insert double value to the tree
-*
-* @param value JsonValue to put in tree
-* @param node Tree node reference
-**/
-void JsonGridView::generateDoubleInTree(JsonParser::JsonValue &value, TreeNodeRef node)
+ * @brief Insert double value to the tree
+ *
+ * @param value JsonValue to put in tree
+ * @param node Tree node reference
+ */
+void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*columnId*/, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Number.png");
-  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
-  node->set_float(1, value.getDouble());
-  node->set_string(2, "Double");
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
+  switch (value.getType())
+  {
+  case VDouble:
+    node->set_string(1, base::to_string((double)value));
+    node->set_string(2, "Double");
+    break;
+  case VInt64:
+    node->set_string(1, base::to_string((int64_t)value));
+    node->set_string(2, "Long Integer");
+    break;
+  case VUint64:
+    node->set_string(1, base::to_string((uint64_t)value));
+    node->set_string(2, "Unsigned Long Integer");
+    break;
+  default:
+    break;
+  }
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Insert null value to the tree
-*
-* @param node Tree node reference
-**/
-void JsonGridView::generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node)
+ * @brief Insert null value to the tree
+ *
+ * @param node Tree node reference
+ */
+void JsonTreeView::generateNullInTree(JsonParser::JsonValue &value, int /*columnId*/, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Null.png");
-  node->set_string(0, "<<null>>");
+  node->set_string(0, "null");
   node->set_string(1, "");
-  node->set_string(2, "null");
+  node->set_string(2, "Null");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
 }
 
+//--------------------------------------------------------------------------------------------------
 
-/**
-* @brief
-*
-* @param
-* @return
-**/
-void JsonTabView::Setup()
+void JsonTreeView::setStringData(int /*columnId*/, TreeNodeRef node, const std::string &text)
 {
-  assert(_tabView.get() != NULL);
-  _tabView->set_name("json_editor:tab");
-  std::get<0>(_tabId) = _tabView->add_page(_textView.get(), "Text");
-  std::get<1>(_tabId) = _tabView->add_page(_treeView.get(), "Tree");
-  std::get<2>(_tabId) = _tabView->add_page(_gridView.get(), "Grid");
-  add(_tabView.get());
-  scoped_connect(_tabView->signal_tab_changed(), boost::bind(&JsonTabView::tabChanged, this));
+  if (isDateTime(text))
+  {
+    node->set_icon_path(0, "JS_Datatype_Date.png");
+    node->set_string(2, "Date/Time");
+  }
+  else
+  {
+    node->set_icon_path(0, "JS_Datatype_String.png");
+    node->set_string(2, "String");
+  }
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
+  node->set_string(1, text.c_str());
 }
 
+//--------------------------------------------------------------------------------------------------
+
+JsonGridView::JsonGridView()
+  : _level(0), _headerAdded(false), _noNameColId(-1),
+  _columnIndex(0), _rowNum(1), _actualParent(20)
+{
+  init();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief
-*
-* @param
-* @return
-**/
-JsonTabView::JsonTabView() : Panel(TransparentPanel), _textView(std::make_shared<JsonTextView>()),
-  _treeView(std::make_shared<JsonTreeView>()), _gridView(std::make_shared<JsonGridView>()), 
-  _tabView(std::make_shared<TabView>(TabViewPalette))
+ * @brief Init flat grid view
+ *
+ * Based of readed JSON data control function initialize mforms control TreNodeView
+ */
+void JsonGridView::init()
+{
+  _treeView = manage(new mforms::TreeView(mforms::TreeAltRowColors | mforms::TreeShowRowLines | mforms::TreeShowColumnLines | mforms::TreeNoBorder));
+  assert(_treeView != nullptr);
+  _treeView->add_column(StringLTColumnType, "", 30, false, false);
+  _treeView->set_cell_edit_handler(boost::bind(&JsonGridView::setCellValue, this, _1, _2, _3));
+  _treeView->signal_node_activated()->connect(boost::bind(&JsonGridView::nodeActivated, this, _1, _2));
+
+  _treeView->set_selection_mode(TreeSelectSingle);
+  _treeView->set_context_menu(_contextMenu);
+
+  _goUpButton = manage(new Button());
+  _goUpButton->set_text("Back <<<");
+  _goUpButton->set_enabled(false);
+  scoped_connect(_goUpButton->signal_clicked(), boost::bind(&JsonGridView::goUp, this));
+
+  _content = manage(new Box(false));
+  _content->add(_treeView, true, true);
+
+  Box *hbox = manage(new Box(true));
+  hbox->add_end(_goUpButton, false, false);
+  _content->add(hbox, false, false);
+  add(_content);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::goUp()
+{
+  if (_level <= 0 || _actualParent.empty())
+    return;
+  JsonParser::JsonValue *value = _actualParent.at(_level - 1);
+  if (value == NULL)
+    return;
+  setJson(*value);
+  _level--;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+JsonGridView::~JsonGridView()
+{
+  _treeView->clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Clear control.
+ *
+ */
+void JsonGridView::clear()
+{
+  _treeView->clear();
+  _viewFindResult.clear();
+  _textToFind = "";
+  _searchIdx = 0;
+  _useFilter = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Add the JSON data to the control.
+ *
+ * @param value A JsonValue object to show in control.
+ */
+void JsonGridView::setJson(JsonParser::JsonValue &value)
+{
+  clear();
+  _rowNum = 1;
+  if (!_headerAdded)
+  {
+    _columnIndex = 1;
+    _level = 0;
+    _noNameColId = -1;
+    generateColumnNames(value);
+    _treeView->end_columns();
+    _headerAdded = true;
+  }
+  if (_level >= (int)_actualParent.size())
+    _actualParent.resize(_actualParent.size() * 2);
+  _actualParent[_level] = &value;
+  TreeNodeRef node = _treeView->root_node();
+  generateTree(value, 0, node);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::reCreateTree(JsonParser::JsonValue &value)
+{
+  remove(_content);
+  init();
+  _headerAdded = false;
+  _colNameToColId.clear();
+  setJson(value);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::addColumn(int size, JsonParser::DataType type, const std::string &name)
+{
+  switch (type)
+  {
+  case VArray:
+  case VObject:
+    _treeView->add_column(IconStringColumnType, name, size, false, true);
+    break;
+  case VInt64:
+    _treeView->add_column(LongIntegerColumnType, name, size, true, true);
+    break;
+  case VUint64:
+  case VDouble:
+    _treeView->add_column(FloatColumnType, name, size, true, true);
+    break;
+  case VBoolean:
+  case VString:
+  case VEmpty:
+  default:
+    _treeView->add_column(StringColumnType, name, size, true, true);
+    break;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
+{
+  if(_level != 0)
+    return;
+  switch(value.getType())
+  {
+  case VObject:
+  {
+    JsonObject &obj = (JsonObject)value;
+    JsonObjectIter end = obj.end();
+    for(JsonObjectIter it = obj.begin(); it != end; ++it)
+    {
+      if (_colNameToColId.count(it->first) == 1)
+        continue;
+      addColumn(100, it->second.getType(), it->first);
+      _colNameToColId[it->first] = _columnIndex++;
+      if (it->second.getType() == VObject || it->second.getType() == VArray)
+        generateColumnNames(it->second);
+    }
+    break;
+  }
+  case VArray:
+  {
+    JsonArray &jarray = (JsonArray)value;
+ 
+    JsonArrayIter end = jarray.end();
+    for (JsonArrayIter it = jarray.begin(); it != end; ++it)
+    {
+      if (it->getType() == VObject)
+      {
+        JsonObject &obj = (JsonObject)*it;
+        JsonObjectIter end = obj.end();
+        for (JsonObjectIter it = obj.begin(); it != end; ++it)
+        {
+          if (_colNameToColId.count(it->first) == 1)
+            continue;
+          addColumn(100, it->second.getType(), it->first);
+          _colNameToColId[it->first] = _columnIndex++;
+          if (it->second.getType() == VObject || it->second.getType() == VArray)
+            generateColumnNames(it->second);
+        }
+      }
+      else
+      {
+        if (_noNameColId > 0)
+          continue;
+        addColumn(100, VString, "");
+        _noNameColId = _columnIndex++;
+      }
+      if (it->getType() == VObject || it->getType() == VArray)
+        generateColumnNames(*it);
+    }
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std::string &value)
+{
+  JsonValueNodeData* data = dynamic_cast<JsonValueNodeData*>(node->get_data());
+  if (data == NULL)
+    return;
+
+  const std::map<std::string, int>::const_iterator it = std::find_if(_colNameToColId.begin(),
+    _colNameToColId.end(), boost::bind(&std::map<std::string, int>::value_type::second, _1) == column);
+
+  std::string key;
+  if (it != _colNameToColId.end())
+    key = it->first;
+  JsonParser::JsonValue &storedValue = (!key.empty() ? ((JsonObject)data->getData())[key] : data->getData());
+  if (data != NULL)
+  {
+    std::stringstream buffer;
+    double number = 0;
+    int64_t number2 = 0;
+    uint64_t number3 = 0;
+    bool retBool = false;
+    switch (storedValue.getType())
+    {
+    case VDouble:
+      if (!base::is_number(value))
+        break;
+      buffer << value;
+      buffer >> number;
+      storedValue = number;
+      node->set_float(column, number);
+      _dataChanged(false);
+    case VInt64:
+      if (!base::is_number(value))
+        break;
+      buffer << value;
+      buffer >> number2;
+      storedValue = number2;
+      node->set_long(column, number2);
+      _dataChanged(false);
+      break;
+    case VUint64:
+      if (!base::is_number(value))
+        break;
+      buffer << value;
+      buffer >> number3;
+      storedValue = number3;
+      node->set_float(column, (double)number3);
+      _dataChanged(false);
+      break;
+    case VBoolean:
+      if (!base::isBool(value))
+        break;
+      buffer << value;
+      buffer >> std::boolalpha >> retBool;
+      storedValue = retBool;
+      node->set_bool(column, retBool);
+      _dataChanged(false);
+      break;
+    case VString:
+      storedValue = value;
+      setStringData(column, node, value);
+      node->set_string(column, value);
+      _dataChanged(false);
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::openInputJsonWindow(JsonParser::JsonValue &value)
+{
+  JsonInputDlg dlg(_treeView->get_parent_form(), false);
+  dlg.setJson(value);
+  if (dlg.run())
+  {
+    value = dlg.data();
+    _actualParent[_level] = &value;
+    reCreateTree(*_actualParent.at(0));
+    setJson(*_actualParent.at(_level));
+    _dataChanged(false);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::handleMenuCommand(const std::string &command)
+{
+  JsonParser::JsonValue *value = _actualParent.at(_level);
+  if (value == NULL)
+    return;
+  if (command == "add_new_doc" || command == "modify_doc")
+  {
+    openInputJsonWindow(*value);
+    return;
+  }
+  if (command == "delete_doc")
+  {
+    TreeNodeRef node = _treeView->get_selected_node();
+    if (!node.is_valid())
+      return;
+    auto *data = dynamic_cast<JsonValueNodeData*>(node->get_data());
+    if (data != nullptr)
+    {
+      JsonParser::JsonValue &jv = data->getData();
+      jv.setDeleted(true);
+      node->set_data(nullptr); // This will explicitly delete the data.
+    }
+    node->remove_from_parent();
+    _dataChanged(false);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Append JSON data to the control.
+ *
+ * @param value A JsonValue object to show in control.
+ */
+void JsonGridView::appendJson(JsonParser::JsonValue &/*value*/)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Insert object value to the tree
+ *
+ * @param value JsonValue to put in tree
+ * @param node Tree node reference
+ * @param addNew If true add as child node
+ */
+void JsonGridView::generateObjectInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node, bool addNew)
+{
+  if (value.isDeleted())
+    return;
+  auto child = node;
+  if (addNew)
+    child = node->add_child();
+  auto &object = (JsonObject)value;
+  size_t size = 0;
+  std::stringstream textSize;
+  auto end = object.end();
+  child->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
+  node->set_string(0, base::to_string(_rowNum++));
+  for (auto it = object.begin(); it != end; ++it)
+  {
+    if (it->second.isDeleted())
+      continue;
+    std::string text = it->first;
+    if(_colNameToColId.count(text) == 0)
+      continue;
+    int index = _colNameToColId[text];
+    switch (it->second.getType())
+    {
+    case VArray:
+    {
+      auto &arrayVal =(JsonArray)it->second;
+      size = arrayVal.size();
+      textSize << size;
+      text = "Array [";
+      text += textSize.str();
+      text += "]";
+      child->set_icon_path(index, "JS_Datatype_Array.png");
+      child->set_string(index, text);
+      break;
+    }
+    case VObject:
+    {
+      auto &objectVal = (JsonObject)it->second;
+      size = objectVal.size();
+      textSize << size;
+      text = "Object {";
+      text += textSize.str();
+      text += "}";
+      child->set_icon_path(index, "JS_Datatype_Object.png");
+      child->set_string(index, text);
+      break;
+    }
+    case VDouble:
+    case VInt64:
+    case VUint64:
+      generateNumberInTree(it->second, index, child);
+      break;
+    case VBoolean:
+      generateBoolInTree(it->second, index, child);
+      break;
+    case VString:
+      setStringData(index, child, it->second);
+      break;
+    case VEmpty:
+      generateNullInTree(it->second, index, child);
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Insert array value to the tree
+ *
+ * @param value JsonValue to put in tree
+ * @param node Tree node reference
+ * @param addNew If true add as child node
+ */
+void JsonGridView::generateArrayInTree(JsonParser::JsonValue &value, int /*columnId*/, TreeNodeRef /*node*/)
+{
+  if (value.isDeleted())
+    return;
+
+  auto &arrayType = (JsonArray)value;
+  auto end = arrayType.end();
+  for (auto it = arrayType.begin(); it != end; ++it)
+  {
+    if (it->isDeleted())
+      return;
+    mforms::TreeNodeRef arrrayNode = _treeView->root_node()->add_child();
+    arrrayNode->set_string(0, base::to_string(_rowNum++));
+    switch (it->getType())
+    {
+    case VArray:
+    {
+      JsonArray &arrayVal = (JsonArray)*it;
+      size_t size = arrayVal.size();
+      std::stringstream textSize;
+      textSize << size;
+      std::string text = "Array [";
+      text += textSize.str();
+      text += "]";
+      arrrayNode->set_icon_path(_noNameColId, "JS_Datatype_Array.png");
+      arrrayNode->set_string(_noNameColId, text);
+      arrrayNode->set_data(new JsonTreeBaseView::JsonValueNodeData(*it));
+      break;
+    }
+    case VObject:
+      _rowNum--;
+      generateObjectInTree(*it, 0, arrrayNode, false);
+      break;
+    case VDouble:
+    case VInt64:
+    case VUint64:
+      generateNumberInTree(*it, _noNameColId, arrrayNode);
+      arrrayNode->set_data(new JsonTreeBaseView::JsonValueNodeData(*it));
+      break;
+    case VBoolean:
+      generateBoolInTree(*it, _noNameColId, arrrayNode);
+      arrrayNode->set_data(new JsonTreeBaseView::JsonValueNodeData(*it));
+      break;
+    case VString:
+      setStringData(_noNameColId, arrrayNode, *it);
+      arrrayNode->set_data(new JsonTreeBaseView::JsonValueNodeData(*it));
+      break;
+    case VEmpty:
+      generateNullInTree(*it, _noNameColId, arrrayNode);
+      arrrayNode->set_data(new JsonTreeBaseView::JsonValueNodeData(*it));
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::nodeActivated(TreeNodeRef node, int column)
+{
+  if (column > 0)
+  {
+    JsonValueNodeData* data = dynamic_cast<JsonValueNodeData*>(node->get_data());
+    if (!data)
+      return;
+
+    JsonParser::JsonValue &storedValue = data->getData();
+    if (storedValue.getType() == VObject)
+    {
+      const std::map<std::string, int>::const_iterator it = std::find_if(_colNameToColId.begin(),
+        _colNameToColId.end(), boost::bind(&std::map<std::string, int>::value_type::second, _1) == column);
+
+      if (it != _colNameToColId.end())
+      {
+        JsonParser::JsonValue &clickedValue = ((JsonObject)storedValue)[it->first];
+        if (clickedValue.getType() != VObject && clickedValue.getType() != VArray)
+          return;
+        _level++;
+        setJson(clickedValue);
+        _goUpButton->set_enabled(true);
+      }
+    }
+    if (storedValue.getType() == VArray)
+    {
+      _level++;
+      setJson(storedValue);
+      _goUpButton->set_enabled(true);
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Insert bool value to the tree
+ *
+ * @param value JsonValue to put in tree
+ * @param node Tree node reference
+ */
+void JsonGridView::generateBoolInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node)
+{
+  node->set_bool(columnId, (bool)value);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Insert double value to the tree
+ *
+ * @param value JsonValue to put in tree
+ * @param node Tree node reference
+ */
+void JsonGridView::generateNumberInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node)
+{
+  switch (value.getType())
+  {
+  case VDouble:
+    node->set_float(columnId, (double)value);
+    break;
+  case VInt64:
+    node->set_long(columnId, (int64_t)value);
+    break;
+  case VUint64:
+    node->set_long(columnId, (uint64_t)value);
+    break;
+  default:
+    break;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Insert null value to the tree
+ *
+ * @param node Tree node reference
+ */
+void JsonGridView::generateNullInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node)
+{
+  node->set_string(columnId, "null");
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::setStringData(int columnId, TreeNodeRef node, const std::string &text)
+{
+  if (isDateTime(text))
+    node->set_icon_path(0, "JS_Datatype_Date.png");
+  node->set_attributes(columnId, mforms::TextAttributes("#4b4a4c", false, false));
+  node->set_string(columnId, text.c_str());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+
+void JsonTabView::Setup()
+{
+  assert(_tabView != NULL);
+  _tabView->set_name("json_editor:tab");
+  _tabId.textTabId = _tabView->add_page(_textView, "Text");
+  _tabId.treeViewTabId = _tabView->add_page(_treeView, "Tree");
+  _tabId.gridViewTabId = _tabView->add_page(_gridView, "Grid");
+  add(_tabView);
+
+  scoped_connect(_textView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
+  scoped_connect(_treeView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
+  scoped_connect(_gridView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
+  scoped_connect(_tabView->signal_tab_changed(), boost::bind(&JsonTabView::tabChanged, this));
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
+
+JsonTabView::JsonTabView() : Panel(TransparentPanel),
+  _textView(manage(new JsonTextView())),
+  _treeView(manage(new JsonTreeView())),
+  _gridView(manage(new JsonGridView())),
+  _tabView(manage(new TabView(TabViewPalette))),
+  _updating(false)
 {
   Setup();
 }
 
-/**
-* @brief
-*
-* @param
-* @return
-**/
+//--------------------------------------------------------------------------------------------------
+
 JsonTabView::~JsonTabView()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Add the Json data to the control.
-*
-* @param value A JsonValue object that contains the json text data to set.
-**/
+ * @brief Add the JSON data to the control.
+ *
+ * @param value A JsonValue object that contains the JSON text data to set.
+ */
 void JsonTabView::setJson(const JsonParser::JsonValue &value)
 {
   _json = std::make_shared<JsonParser::JsonValue>(value);
   _ident = 0;
+  _updating = true;
   JsonWriter::write(_jsonText, value);
   _textView->setText(_jsonText);
   _treeView->setJson(*_json);
   _gridView->setJson(*_json);
+  _updating = false;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief
-*
-* @param
-* @return
-**/
+ * @brief Set JSON text. 
+ *
+ * @param text String to set in control.
+ */
 void JsonTabView::setText(const std::string &text)
 {
   _jsonText = text;
+  _textView->setText(text);
+  dataChanged(true);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Append text to JSON textview control
-*
-* @param value JSON data to append
-**/
+ * @brief Append text to JSON textview control
+ *
+ * @param value JSON data to append
+ */
 void JsonTabView::append(const std::string &text)
 {
   _jsonText += text;
@@ -2600,141 +1850,217 @@ void JsonTabView::append(const std::string &text)
   _gridView->appendJson(*_json);
 }
 
-/**
-* @brief Signal emitted when the tab is switched by user.
-*
-**/
+//--------------------------------------------------------------------------------------------------
+
 void JsonTabView::tabChanged()
 {
-  if(_gridView->getNeedRepaint())
+  int tabId = _tabView->get_active_tab();
+  if (tabId == _tabId.textTabId && _updateView.textViewUpdate)
   {
-    _gridView->setNeedRepaint(false);
+    _updating = true;
+    _textView->setText(_jsonText);
+    _updateView.textViewUpdate = false;
+    _updating = false;
+    _dataChanged(_jsonText);
+  }
+  else if (tabId == _tabId.treeViewTabId && _updateView.treeViewUpdate)
+  {
+    _treeView->reCreateTree(*_json);
+    _updateView.treeViewUpdate = false;
+    _dataChanged(_jsonText);
+  }
+  else  if (tabId == _tabId.gridViewTabId && _updateView.gridViewUpdate)
+  {
+    _gridView->reCreateTree(*_json);
+    _updateView.gridViewUpdate = false;
+    _dataChanged(_jsonText);
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Clear control
-*
-**/
+ * @brief Signal emitted when the tab is switched by user.
+ *
+ */
+void JsonTabView::dataChanged(bool forceUpdate)
+{
+  if (_updating)
+    return;
+  int tabId = _tabView->get_active_tab();
+  if (tabId != _tabId.textTabId)
+    JsonWriter::write(_jsonText, *_json);
+  else
+  {
+    if (_textView->validate())
+    {
+      _jsonText = _textView->getText();
+      _json.reset(new JsonValue(_textView->getJson()));
+    }
+    else
+      return;
+  }
+  _updateView.textViewUpdate = tabId != _tabId.textTabId;
+  _updateView.treeViewUpdate = tabId != _tabId.treeViewTabId;
+  _updateView.gridViewUpdate = tabId != _tabId.gridViewTabId;
+
+  _dataChanged(_jsonText);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+boost::signals2::signal<void(const std::string &text)> *JsonTabView::editorDataChanged()
+{
+  return &_dataChanged;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Clear control
+ *
+ */
 void JsonTabView::clear()
 {
-
   _jsonText.clear();
   _textView->clear();
   _treeView->clear();
   _gridView->clear();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Highlight match in control.
-*
-* text Text to find.
-**/
+ * @brief Highlight match in control.
+ *
+ * text Text to find.
+ */
 void JsonTabView::highlightMatch(const std::string &text)
 {
   _matchText = text;
-  auto tabId = _tabView->get_active_tab();
-  if (tabId == std::get<0>(_tabId))
+  int tabId = _tabView->get_active_tab();
+  if (tabId == _tabId.textTabId)
   {
     _textView->findAndHighlightText(text);
   }
-  else if (tabId == std::get<1>(_tabId))
+  else if (tabId == _tabId.treeViewTabId)
   {
     _treeView->highlightMatchNode(text);
   }
-  else if (tabId == std::get<2>(_tabId))
+  else if (tabId == _tabId.gridViewTabId)
   {
     _gridView->highlightMatchNode(text);
   }
-
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Highlight next matches in JSON view.
-*
-**/
+ * @brief Highlight next matches in JSON view.
+ *
+ */
 void JsonTabView::highlightNextMatch()
 {
-  auto tabId = _tabView->get_active_tab();
-  if (tabId == std::get<0>(_tabId) && !_matchText.empty())
+  int tabId = _tabView->get_active_tab();
+  if (tabId == _tabId.textTabId && !_matchText.empty())
   {
     _textView->findAndHighlightText(_matchText);
   }
-  else if (tabId == std::get<1>(_tabId) && !_matchText.empty())
+  else if (tabId == _tabId.treeViewTabId && !_matchText.empty())
   {
     _treeView->highlightMatchNode(_matchText);
   }
-  else if (tabId == std::get<2>(_tabId) && !_matchText.empty())
+  else if (tabId == _tabId.gridViewTabId && !_matchText.empty())
   {
     _gridView->highlightMatchNode(_matchText);
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Highlight next match in JSON view.
-*
-**/
+ * @brief Highlight next match in JSON view.
+ *
+ */
 void JsonTabView::highlightPreviousMatch()
 {
-  auto tabId = _tabView->get_active_tab();
-  if (tabId == std::get<0>(_tabId) && !_matchText.empty())
+  int tabId = _tabView->get_active_tab();
+  if (tabId == _tabId.textTabId && !_matchText.empty())
   {
     _textView->findAndHighlightText(_matchText, true);
   }
-  else if (tabId == std::get<1>(_tabId) && !_matchText.empty())
+  else if (tabId == _tabId.treeViewTabId && !_matchText.empty())
   {
     _treeView->highlightMatchNode(_matchText, true);
   }
-  else if (tabId == std::get<2>(_tabId) && !_matchText.empty())
+  else if (tabId == _tabId.gridViewTabId && !_matchText.empty())
   {
     _gridView->highlightMatchNode(_matchText, true);
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Highlight match in control.
-*
-* text Text to find.
-**/
+ * @brief Highlight match in control.
+ *
+ * text Text to find.
+ */
 bool JsonTabView::filterView(const std::string &text)
 {
-  auto tabId = _tabView->get_active_tab();
+  int tabId = _tabView->get_active_tab();
   bool ret = false;
-  if (tabId == std::get<0>(_tabId))
+  if (tabId == _tabId.textTabId)
   {
     return false; //no filtering for text view
   }
-  else if (tabId == std::get<1>(_tabId))
+  else if (tabId == _tabId.treeViewTabId)
   {
     ret = _treeView->filterView(text, *_json);
   }
-  else if (tabId == std::get<2>(_tabId))
+  else if (tabId == _tabId.gridViewTabId)
   {
     ret = _gridView->filterView(text, *_json);
   }
   return ret;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
-* @brief Disable filtering.
-*
-* text Text to find.
-**/
+ * @brief Disable filtering.
+ *
+ * text Text to find.
+ */
 void JsonTabView::restoreOrginalResult()
 {
-  auto tabId = _tabView->get_active_tab();
-  //bool ret = false;
-  if (tabId == std::get<0>(_tabId))
+  int tabId = _tabView->get_active_tab();
+  if (tabId == _tabId.textTabId)
   {
     return;
   }
-  else if (tabId == std::get<1>(_tabId))
+  else if (tabId == _tabId.treeViewTabId)
   {
-    _treeView->restoreOrygilanResult(*_json);
+    _treeView->reCreateTree(*_json);
   }
-  else if (tabId == std::get<2>(_tabId))
+  else if (tabId == _tabId.gridViewTabId)
   {
-    _gridView->restoreOrygilanResult(*_json);
+    _gridView->reCreateTree(*_json);
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
+const std::string &JsonTabView::text() const
+{
+  return _jsonText;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+const JsonParser::JsonValue &JsonTabView::json() const
+{
+  return *_json;
+}
+
+//--------------------------------------------------------------------------------------------------

@@ -70,3 +70,29 @@
   #endif
 
 #endif // _WIN32
+
+// In Win32 ssize_t and int are the same, so we get a compiler error if we compile functions/c-tors with
+// those types (redefinition error). Hence we need a check when to exclude them.
+// A similar problem exists for uint64_t and size_t in Win64.
+#ifdef _WIN32
+  #define DEFINE_INT_FUNCTIONS
+
+  #ifdef _WIN64
+    #define DEFINE_SSIZE_T_FUNCTIONS
+  #else
+    #define DEFINE_UINT64_T_FUNCTIONS
+  #endif
+#else
+  #define DEFINE_SSIZE_T_FUNCTIONS
+
+  #ifdef __LP64__
+    #define DEFINE_INT_FUNCTIONS
+  #endif
+
+  #ifdef __APPLE__
+    // On OSX we only support the 64bit arch.
+    #define DEFINE_SSIZE_T_FUNCTIONS
+    #define DEFINE_UINT64_T_FUNCTIONS
+    #define DEFINE_INT_FUNCTIONS
+  #endif
+#endif

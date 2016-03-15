@@ -341,6 +341,7 @@ namespace grt {
   {
   public:
     typedef Class RefType;
+
     Ref()
     {
     }
@@ -367,13 +368,9 @@ namespace grt {
     template<class Subclass>
       Ref(const Ref<Subclass> &ref)
     {
-#if defined(ENABLE_DEBUG) || defined(_DEBUG)
-      // poor mans compile-time type "check". compiler will throw an error if Subclass is not derived from Class
-#ifdef __GNUC__
-      Class *dummy_variable_just_for_type_check __attribute__((unused))= static_cast<Subclass*>(ref.valueptr());
-#else
-      Class *dummy_variable_just_for_type_check= static_cast<Subclass*>(ref.valueptr());
-#endif
+#ifdef WB_DEBUG
+      // Poor mans compile-time type "check". Compiler will throw an error if Subclass is not derived from Class.
+      Class *dummy_variable_just_for_type_check WB_UNUSED = static_cast<Subclass*>(ref.valueptr());
 #endif
       _value= ref.valueptr();
       retain();
@@ -544,32 +541,6 @@ namespace grt {
 
   typedef Ref<internal::Integer> IntegerRef;
 
-  // In Win32 ssize_t and int are the same, so we get a compiler error if we compile functions/c-tors with
-  // those types (redefinition error). Hence we need a check when to exclude them.
-  // A similar problem exists for uint64_t and size_t in Win64.
-#ifdef _WIN32
-  #define DEFINE_INT_FUNCTIONS
-
-  #ifdef _WIN64
-    #define DEFINE_SSIZE_T_FUNCTIONS
-  #else
-    //#define DEFINE_UINT64_T_FUNCTIONS
-  #endif
-#else
-  #define DEFINE_SSIZE_T_FUNCTIONS
-
-  #ifdef __LP64__
-    #define DEFINE_INT_FUNCTIONS
-  #endif
-
-  #ifdef __APPLE__
-    // On OSX we only support the 64bit arch.
-    #define DEFINE_UINT64_T_FUNCTIONS
-    #define DEFINE_INT_FUNCTIONS
-
-  #endif
-#endif
-
   /** Reference object class for integer GRT values (32 or 64bit, depending on compiler architecture).
    * 
    * aka IntegerRef
@@ -649,18 +620,6 @@ namespace grt {
       : ValueRef(internal::Integer::get(value))
     {
     }
-
-#ifdef DEFINE_UINT64_T_FUNCTIONS
-    Ref(int64_t value)
-      : ValueRef(internal::Integer::get(value))
-    {
-    }
-
-    Ref(uint64_t value)
-      : ValueRef(internal::Integer::get(value))
-    {
-    }
-#endif
 
     inline operator storage_type () const { return *content(); }
     inline storage_type operator *() const { return *content(); }
@@ -1263,12 +1222,8 @@ namespace grt {
       ListRef(const ListRef<Subclass> &other)
        : BaseListRef(other)
     {
-       Subclass *x= 0;
-#ifdef __GNUC__
-       O *tmp __attribute__((unused))= x;// hack so that we get a compile error if Subclass is not a subclass of O
-#else
-       O *tmp= x;// hack so that we get a compile error if Subclass is not a subclass of O
-#endif
+       Subclass *x = 0;
+       O *tmp WB_UNUSED = x; // Hack so that we get a compile error if Subclass is not a subclass of O.
     }
 
     static ListRef<O> cast_from(const ValueRef &value)
