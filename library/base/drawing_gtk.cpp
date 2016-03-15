@@ -1,0 +1,115 @@
+/*
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#include "base/drawing.h"
+#include <gtkmm/settings.h>
+#include <gtkmm/entry.h>
+
+
+using namespace base;
+
+std::string OSConstants::defaultFontName() const
+{
+  auto settings = Gtk::Settings::get_default();
+  std::string fontName = settings->property_gtk_font_name().get_value();
+  auto pangoFontDescription = pango_font_description_from_string(fontName.c_str());
+  return std::string(pango_font_description_get_family(pangoFontDescription));
+
+}
+
+float OSConstants::systemFontSize() const
+{
+  auto settings = Gtk::Settings::get_default();
+  std::string fontName = settings->property_gtk_font_name().get_value();
+  auto pangoFontDescription = pango_font_description_from_string(fontName.c_str());
+  return pango_font_description_get_size(pangoFontDescription);
+}
+
+float OSConstants::smallSystemFontSize() const
+{
+  return OSConstants::systemFontSize() - 2;
+}
+
+float OSConstants::labelFontSize() const
+{
+  return OSConstants::systemFontSize();
+}
+
+static base::Color rgba_color_to_mforms(const Gdk::RGBA& c)
+{
+  return base::Color(c.get_red(), c.get_green(), c.get_blue(), c.get_alpha());
+}
+
+
+//TODO: implement all the missing SystemColors
+base::Color Color::getSystemColor(base::SystemColor type)
+{
+  typedef std::map<base::SystemColor, base::Color> Colors;
+  static Colors     colors;
+
+  base::Color ret;
+
+  Gtk::Entry e;
+  auto styleCtx = e.get_style_context();
+  styleCtx->get_color();
+  switch (type)
+  {
+    case base::SystemColor::HighlightColor:
+    {
+      Colors::const_iterator it = colors.find(type);
+      if (it != colors.end())
+        ret = it->second;
+      else
+      {
+        ;
+        base::Color new_color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_SELECTED)));
+        colors[type] = new_color;
+        ret = new_color;
+      }
+      break;
+    }
+    case base::SystemColor::TextBackgroundColor:
+    {
+      Colors::const_iterator it = colors.find(type);
+      if (it != colors.end())
+        ret = it->second;
+      else
+      {
+        ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_BACKDROP)));
+        colors[type] = ret;
+      }
+      break;
+
+    }
+    default:
+    {
+      Colors::const_iterator it = colors.find(type);
+      if (it != colors.end())
+        ret = it->second;
+      else
+      {
+        ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_NORMAL)));
+        colors[type] = ret;
+      }
+      break;
+    }
+  }
+
+  return ret;
+}

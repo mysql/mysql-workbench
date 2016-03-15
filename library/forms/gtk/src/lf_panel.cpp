@@ -1,6 +1,7 @@
 #include "../lf_mforms.h"
 #include "../lf_panel.h"
 #include "gtk_helpers.h"
+#include "base/drawing.h"
 
 mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType type)
   : ViewImpl(self), BinImpl(this), _frame(0), _evbox(0), _radio_group_set(false)
@@ -31,7 +32,8 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
     mforms::App *app = mforms::App::get();
     if (app)
     {
-      base::Color sclr = app->get_system_color(mforms::SystemColorHighlight);
+
+      base::Color sclr = base::Color::getSystemColor(base::SystemColor::HighlightColor);
       _evbox->override_background_color(color_to_rgba(Gdk::Color(sclr.to_html())), Gtk::STATE_FLAG_NORMAL);
     }
   }
