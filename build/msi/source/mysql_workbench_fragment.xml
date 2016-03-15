@@ -752,6 +752,7 @@
                     <File Id="file60645" Name="big_switcher_yes.png"/>
                     <File Id="file60646" Name="big_switcher_no.png"/>
                     <File Id="file60647" Name="separator_vertical.png"/>
+                    <File Id="file60648" Name="editor_continue_on_error.xpm"/>
 
                     <File Id="file60685" Name="switcher_bottom_on_win8.png"/>
                     <File Id="file60659" Name="switcher_left_on_win8.png"/>

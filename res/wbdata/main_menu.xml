@@ -2081,8 +2081,8 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.stop_on_error"> 
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
           <value type="string" key="caption">Stop Script Execution on Errors</value> 
-          <value type="string" key="name">query.stopOnError</value> 
-          <value type="string" key="command">builtin:query.stopOnError</value> 
+          <value type="string" key="name">query.continueOnError</value> 
+          <value type="string" key="command">builtin:query.continueOnError</value> 
           <value type="string" key="itemType">check</value> 
           <value type="string" key="shortcut"></value> 
         </value>

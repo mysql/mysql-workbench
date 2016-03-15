@@ -205,7 +205,7 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
     _menu->set_item_enabled("query.discard_edits", false);
     _menu->set_item_enabled("query.export", false);
     
-    _menu->set_item_checked("query.stopOnError", !continue_on_error());
+    _menu->set_item_checked("query.continueOnError", continue_on_error());
   }
   return _menu;
 }
@@ -258,9 +258,9 @@ void SqlEditorForm::update_menu_and_toolbar()
   set_editor_tool_items_enbled("query.commit", !running && !auto_commit() && connected);
   set_editor_tool_items_enbled("query.rollback", !running && !auto_commit() && connected);
   set_editor_tool_items_enbled("query.autocommit", !running && connected);
-  set_editor_tool_items_enbled("query.stopOnError", connected);
+  set_editor_tool_items_enbled("query.continueOnError", connected);
   set_editor_tool_items_checked("query.autocommit", auto_commit());
-  set_editor_tool_items_checked("query.stopOnError", !_continue_on_error);
+  set_editor_tool_items_checked("query.continueOnError", _continue_on_error);
   set_editor_tool_items_checked("query.toggleLimit",  bec::GRTManager::get().get_app_option_int("SqlEditor:LimitRows") != 0);
 }
 
