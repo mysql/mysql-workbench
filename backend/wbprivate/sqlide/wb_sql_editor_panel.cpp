@@ -841,7 +841,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.stopOnError");
+  item->set_name("query.continueOnError");
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-off.png"));
   item->set_tooltip(_("Toggle whether execution of SQL script should continue after failed statements"));

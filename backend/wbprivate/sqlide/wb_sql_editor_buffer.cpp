@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -432,6 +432,7 @@ SqlEditorPanel* SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed
 {
   SqlEditorPanel* editor(mforms::manage(new SqlEditorPanel(this, scratch, start_collapsed)));
   editor->editor_be()->register_file_drop_for(this);
+  editor->editor_be()->set_continue_on_error(continue_on_error());
 
   editor->grtobj()->owner(grtobj());
   grtobj()->queryEditors().insert(editor->grtobj());
