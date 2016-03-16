@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -308,7 +308,7 @@ void GridViewModel::get_cell_value(const iterator& iter, int column, GType type,
 //    static const Gdk::Color even_row_color("snow2");
 //    const Gdk::Color *color= (node[0]%2) ? &even_row_color : &odd_row_color;
 
-    g_value_init(value.gobj(), GDK_TYPE_COLOR);
+    g_value_init(value.gobj(), GDK_TYPE_RGBA);
     g_value_set_boxed(value.gobj(), 0);
   }
     break;
