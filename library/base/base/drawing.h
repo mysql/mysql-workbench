@@ -127,6 +127,8 @@ namespace base {
 
     bool operator !=(const Color &other);
     std::string to_html() const;
+    long toRGB() const;
+    long toBGR() const;
     bool is_valid() const;
 
     static Color parse(const std::string &color);
