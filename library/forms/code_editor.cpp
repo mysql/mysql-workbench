@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +43,7 @@ using namespace base;
 #define CE_BREAKPOINT_MARKER     2
 #define CE_BREAKPOINT_HIT_MARKER 3
 #define CE_CURRENT_LINE_MARKER   4
+#define CE_ERROR_CONTINUE_MARKER 5
 
 #define AC_LIST_SEPARATOR '\x19' // Unused codes as separators.
 #define AC_TYPE_SEPARATOR '\x18'
@@ -122,7 +123,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
   _document = new TiXmlDocument(config_file.c_str()); // Remove c_str() as soon as we compile against libc++ on Mac.
   if (!_document->LoadFile())
   {
-    log_error("Code Editor Config: cannot load configuration file \"%s\":\n\t%s (row: %d, column: %d)\n",
+    logError("Code Editor Config: cannot load configuration file \"%s\":\n\t%s (row: %d, column: %d)\n",
       config_file.c_str(), _document->ErrorDesc(), _document->ErrorRow(), _document->ErrorCol());
     return;
   }
@@ -130,7 +131,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
   TiXmlElement *element = _document->FirstChildElement("languages");
   if (element == NULL)
   {
-    log_error("Code Editor: invalid configuration file \"%s\"\n", config_file.c_str());
+    logError("Code Editor: invalid configuration file \"%s\"\n", config_file.c_str());
     return;
   }
 
@@ -146,7 +147,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
 
   if (_language_element == NULL)
   {
-    log_warning("Code Editor: could not find settings for language %s in configuration file "
+    logWarning("Code Editor: could not find settings for language %s in configuration file "
       "\"%s\"\n", lexer.c_str(), config_file.c_str());
     return;
   }
@@ -293,6 +294,8 @@ CodeEditor::CodeEditor(void *host)
 
 CodeEditor::~CodeEditor()
 {
+  delete _find_panel;
+  
   auto_completion_cancel();
   for (std::map<int, void*>::iterator iterator = _images.begin(); iterator != _images.end(); ++iterator)
     free(iterator->second);
@@ -355,6 +358,7 @@ void CodeEditor::setup()
   setup_marker(CE_BREAKPOINT_MARKER, "editor_breakpoint");
   setup_marker(CE_BREAKPOINT_HIT_MARKER, "editor_breakpoint_hit");
   setup_marker(CE_CURRENT_LINE_MARKER, "editor_current_pos");
+  setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");//editor_continue_on_error
 
   // Other settings.
   Color color = Color::getSystemColor(base::HighlightColor);
@@ -383,6 +387,32 @@ void CodeEditor::setup()
   // - Auto completion
   _code_editor_impl->send_editor(this, SCI_AUTOCSETSEPARATOR, AC_LIST_SEPARATOR, 0);
   _code_editor_impl->send_editor(this, SCI_AUTOCSETTYPESEPARATOR, AC_TYPE_SEPARATOR, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::set_custom_color(EditorColorSettings part, base::Color color, bool foreground)
+{
+  switch (part)
+  {
+  case LineNumberMargin:
+    if (foreground)
+      _code_editor_impl->send_editor(this, SCI_STYLESETFORE, STYLE_LINENUMBER, color.toRGB());
+    else
+      _code_editor_impl->send_editor(this, SCI_STYLESETBACK, STYLE_LINENUMBER, color.toRGB());
+    break;
+  case Markers:
+    //for (int n = 25; n < 31; ++n) // Markers 25..31 are reserved for folding.
+    //{
+    //  if (foreground)
+    //    _code_editor_impl->send_editor(this, SCI_MARKERSETFORE, n, color.toRGB());
+    //  else
+    //    _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, n, color.toRGB());
+    //}
+    break;
+  default: 
+    break;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -430,7 +460,7 @@ void CodeEditor::append_text(const char* text, size_t length)
 
 void CodeEditor::replace_selected_text(const std::string& text)
 {
-  size_t start, length;
+  std::size_t start, length;
   get_selection(start, length);
   _code_editor_impl->send_editor(this, SCI_REPLACESEL, 0, (sptr_t)text.c_str());
 
@@ -493,9 +523,9 @@ const std::string CodeEditor::get_text_in_range(size_t start, size_t end)
 
 //--------------------------------------------------------------------------------------------------
 
-std::pair<const char*, size_t> CodeEditor::get_text_ptr()
+std::pair<const char*, std::size_t> CodeEditor::get_text_ptr()
 {
-  std::pair<const char*, size_t> result;
+  std::pair<const char*, std::size_t> result;
   result.first = (const char*)_code_editor_impl->send_editor(this, SCI_GETCHARACTERPOINTER, 0, 0);
   result.second = _code_editor_impl->send_editor(this, SCI_GETTEXTLENGTH, 0, 0);
 
@@ -504,7 +534,7 @@ std::pair<const char*, size_t> CodeEditor::get_text_ptr()
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::set_selection(size_t start, size_t length)
+void CodeEditor::set_selection(std::size_t start, std::size_t length)
 {
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONSTART, start, 0);
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONEND, start + length, 0);
@@ -520,7 +550,7 @@ void CodeEditor::clear_selection()
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::get_selection(size_t &start, size_t &length)
+void CodeEditor::get_selection(std::size_t &start, std::size_t &length)
 {
   start = _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
   length = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0) - start;
@@ -757,6 +787,11 @@ void CodeEditor::show_markup(LineMarkup markup, size_t line)
     if ((marker_mask & LineMarkupStatement) == 0)
       new_marker_mask |= LineMarkupStatement;
   }
+  if ((markup & mforms::LineMarkupErrorContinue) != 0)
+  {
+    if ((marker_mask & LineMarkupErrorContinue) == 0)
+      new_marker_mask |= LineMarkupErrorContinue;
+  }
   if ((markup & mforms::LineMarkupError) != 0)
   {
     if ((marker_mask & LineMarkupError) == 0)
@@ -799,6 +834,8 @@ void CodeEditor::remove_markup(LineMarkup markup, ssize_t line)
       _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_STATEMENT_MARKER);
     if ((markup & mforms::LineMarkupError) != 0)
       _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_ERROR_MARKER);
+    if ((markup & mforms::LineMarkupErrorContinue) != 0)
+      _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_ERROR_CONTINUE_MARKER);
     if ((markup & mforms::LineMarkupBreakpoint) != 0)
       _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_BREAKPOINT_MARKER);
     if ((markup & mforms::LineMarkupBreakpointHit) != 0)
@@ -1073,6 +1110,19 @@ void CodeEditor::on_command(int command)
 {
   // TODO: removal candidate.
 }
+
+//--------------------------------------------------------------------------------------------------
+
+bool CodeEditor::key_event(KeyCode code, ModifierKey modifier, const std::string& text)
+{
+  // Return true if the key event can be further processed by the sender.
+  // Return false if it is handled in backend code.
+  if (_key_event_signal.empty())
+    return true;
+
+  return *_key_event_signal(code, modifier, text);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 
