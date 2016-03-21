@@ -18,6 +18,7 @@
  */
 
 #include "base/drawing.h"
+#include "base/string_utilities.h"
 
 using namespace base;
 
@@ -114,6 +115,46 @@ Color Color::getSystemColor(SystemColor colorType)
   }
 
   return Color(GetRValue(sysColor) / 255.0, GetGValue(sysColor) / 255.0, GetBValue(sysColor) / 255.0);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string OSConstants::defaultFontName()
+{
+  NONCLIENTMETRICS metrics;
+  metrics.cbSize = sizeof(metrics);
+  SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0);
+  return base::wstring_to_string(metrics.lfCaptionFont.lfFaceName);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::systemFontSize()
+{
+  NONCLIENTMETRICS metrics;
+  metrics.cbSize = sizeof(metrics);
+  SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0);
+  return -metrics.lfCaptionFont.lfHeight;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::smallSystemFontSize()
+{
+  NONCLIENTMETRICS metrics;
+  metrics.cbSize = sizeof(metrics);
+  SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0);
+  return -metrics.lfCaptionFont.lfHeight - 2;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::labelFontSize()
+{
+  NONCLIENTMETRICS metrics;
+  metrics.cbSize = sizeof(metrics);
+  SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0);
+  return -metrics.lfCaptionFont.lfHeight;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
