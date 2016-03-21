@@ -614,10 +614,11 @@ public:
 
 #else
       cairo_surface_t *overlay = owner->_mouse_over_icon;
-      cairo_set_source_surface(cr, overlay, bounds.left() + bounds.width() - image_width(overlay), bounds.top());
+      base::Size imageSize = mforms::Utilities::getImageSize(overlay);
+      cairo_set_source_surface(cr, overlay, bounds.left() + bounds.width() - imageSize.width, bounds.top());
       cairo_paint_with_alpha(cr, alpha);
 
-      cairo_set_source_rgba(cr, component, component, component, alpha);
+//      cairo_set_source_rgba(cr, component, component, component, alpha);
 #endif
     }
 

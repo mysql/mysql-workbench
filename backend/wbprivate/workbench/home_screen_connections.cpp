@@ -736,7 +736,8 @@ public:
 #endif
     }
 
-    cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    std::string systemFont = base::OSConstants::defaultFontName();
+    cairo_select_font_face(cr, systemFont.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
 
     // Title string.
