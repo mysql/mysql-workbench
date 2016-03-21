@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +53,7 @@ namespace mforms {
     LanguageCpp,    // Lexer for C++, C, Java, and JavaScript (which includes JSON).
     LanguageJS,
     LanguageJson,
+
     LanguageMySQL = LanguageMySQL56, // Always the latest (released) language.
   };
 
@@ -66,6 +67,7 @@ namespace mforms {
     LineMarkupBreakpoint    = 1 << 2, // Line has a marker set for a break point.
     LineMarkupBreakpointHit = 1 << 3, // Line has a marker set for a break point which is currently hit.
     LineMarkupCurrent       = 1 << 4, // Current execution line.
+    LineMarkupErrorContinue = 1 << 5, // ine's background is drawn in red to mark an execution error on continue.
 
     LineMarkupAll           = 0xFF,   // All markup, useful for remove_markup.
   };
@@ -193,17 +195,35 @@ public:
     sptr_t (*send_editor)(CodeEditor* self, unsigned int message, uptr_t wParam, sptr_t lParam);
     void (*set_status_text)(CodeEditor* self, const std::string &text);
   };
+
+  struct MarginSizes
+  {
+    sptr_t margin1;
+    sptr_t margin2;
+    sptr_t margin3;
+    sptr_t margin4;
+  };
 #endif
 #endif
 
   class MFORMS_EXPORT CodeEditor : public View
   {
   public:
+    enum EditorMargin { LineNumberMargin, MarkersMargin, FolderMargin, TextMargin };
+
     CodeEditor(void *host = NULL);
     ~CodeEditor();
 
     /** Apply default settings for the editor. */
     void setup();
+
+    /** Set custom color and size of editor margins. */
+    void setWidth(EditorMargin margin, int size, const std::string &adjustText = "");
+    void setColor(EditorMargin margin, base::Color color, bool foreground = false);
+    void showMargin(EditorMargin, bool show = true);
+    void setMarginText(const std::string& str);
+    void setMarginText(const std::string& str, size_t line);
+    void setScrollWidth(size_t width);
 
     /** Replaces the text in the editor. */
     void set_text(const char* text);
@@ -228,7 +248,7 @@ public:
      *  string in that case.
      */
     const std::string get_text(bool selection_only);
-    virtual std::string get_string_value() { return get_text(false); };
+    virtual std::string get_string_value() { return get_text(false); }
 
     /** Returns the text in the given range (inclusive endpoints), regardless of the selection state.
      *  The range is automatically adjusted if it lies outside the available total text range.
@@ -243,16 +263,16 @@ public:
      *  for short term tasks (e.g. error parsing, direct search etc.).
      *  Don't change the text in any way or the editor might get out of sync.
      */
-    std::pair<const char*, size_t> get_text_ptr();
+    std::pair<const char*, std::size_t> get_text_ptr();
 
     /** Selects the text at the given range. If length is 0 it will just move the caret.
      * NOTE: Scintilla uses bytes everywhere when a position or length is set or read. So be very
      *       careful when doing char maths (we use utf-8 with a variable code length per character).
      */
-    void set_selection(size_t start, size_t length);
+    void set_selection(std::size_t start, std::size_t length);
 
     /** Gets the current selection range. */
-    void get_selection(size_t &start, size_t &length);
+    void get_selection(std::size_t &start, std::size_t &length);
 
     /** Removes the current selection without moving the caret. */
     void clear_selection();
@@ -495,6 +515,8 @@ public:
      */
     boost::signals2::signal<void(const LineMarkupChangeset &changeset, bool deleted)>* signal_marker_changed() { return &_marker_changed_event; }
 
+    boost::signals2::signal<bool(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text)>* key_event_signal() { return &_key_event_signal; };
+
     /** Signal emitted when the control loses input focus.
      */
     boost::signals2::signal<void ()>* signal_lost_focus() { return &_signal_lost_focus; }
@@ -505,9 +527,10 @@ public:
     /** Called by the platform code forwarding us all scintilla commands, so we can act on them. */
     void on_command(int command);
     void lost_focus();
+    bool key_event(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text);
 
     virtual void resize();
-
+    
 #endif
 #endif
   protected:
@@ -518,6 +541,8 @@ public:
     void *_host;
     bool _scroll_on_resize;
     bool _auto_indent;
+
+    MarginSizes _marginSize;
 
     void setup_marker(int marker, const std::string& name);
     void check_markers_removed(int position, int length);
@@ -532,6 +557,7 @@ public:
     boost::signals2::signal<void (int)> _char_added_event;
     boost::signals2::signal<void ()> _signal_lost_focus;
     boost::signals2::signal<void(const LineMarkupChangeset &changeset, bool deleted)> _marker_changed_event;
+    boost::signals2::signal<bool(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text)> _key_event_signal;
 
     boost::function<void (CodeEditor*, bool)> _show_find_panel;
   };
