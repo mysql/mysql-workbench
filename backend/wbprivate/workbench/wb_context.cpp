@@ -1816,6 +1816,8 @@ void WBContext::set_default_options(grt::DictRef options)
 
   // Default Fonts
 
+  set_default(options, "workbench.physical.FontSet:Name", "Default (Western)");
+  
   set_default(options, "workbench.physical.TableFigure:TitleFont", DEFAULT_FONT_FAMILY" Bold 12");
   set_default(options, "workbench.physical.TableFigure:SectionFont", DEFAULT_FONT_FAMILY" Bold 11");
   set_default(options, "workbench.physical.TableFigure:ItemsFont", DEFAULT_FONT_FAMILY" 11");
