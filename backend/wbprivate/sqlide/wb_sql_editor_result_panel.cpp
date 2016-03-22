@@ -1185,7 +1185,7 @@ void SqlEditorResult::create_query_stats_panel()
       std::string file = render_stages(stages);
       mforms::ImageBox *image = mforms::manage(new mforms::ImageBox());
       image->set_image(file);
-      table->add(image, 0, 2, 3, 4, mforms::HFillFlag);
+      table->add(image, 0, 2, 3, 4, mforms::FillAndExpand);
     }
 
     std::vector<SqlEditorForm::PSWait> waits(rsdata->ps_wait_info);
