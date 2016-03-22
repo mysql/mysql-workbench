@@ -915,14 +915,11 @@ static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
   }
 
   int rows_of_text = (int)stages.size() / 3 + 1;
-  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 800, 30 + 20 + rows_of_text * 25);
+  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 800, 30 + 20 + rows_of_text * 25);
   cairo_t *cr = cairo_create(surf);
 
   cairo_set_font_size(cr, 12);
-
   cairo_set_line_width(cr, 1);
-  cairo_set_source_rgb(cr, 1, 1, 1);
-  cairo_paint(cr);
 
   double x = 0.0;
   for (size_t i = 0; i < stages.size(); i++)
@@ -1001,14 +998,11 @@ static std::string render_waits(std::vector<SqlEditorForm::PSWait> &waits)
   }
 
   int rows_of_text = (int)waits.size() / 2 + 1;
-  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 800, 30 + 20 + rows_of_text * 25);
+  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 800, 30 + 20 + rows_of_text * 25);
   cairo_t *cr = cairo_create(surf);
 
   cairo_set_font_size(cr, 12);
-
   cairo_set_line_width(cr, 1);
-  cairo_set_source_rgb(cr, 1, 1, 1);
-  cairo_paint(cr);
 
   double x = 0.0;
   for (size_t i = 0; i < waits.size(); i++)
@@ -1094,7 +1088,7 @@ void SqlEditorResult::create_query_stats_panel()
     // if we're in a server with PS, show some extra PS goodies
     std::map<std::string, boost::int64_t> &ps_stats(rsdata->ps_stat_info);
 
-    if (ps_stats.empty())
+    if (ps_stats.size() <= 1) //  "EVENT_ID" is always present
     {
       if (!rsdata->ps_stat_error.empty())
         box->add(bold_label(rsdata->ps_stat_error), false, true);
@@ -1183,7 +1177,7 @@ void SqlEditorResult::create_query_stats_panel()
       std::string file = render_stages(stages);
       mforms::ImageBox *image = mforms::manage(new mforms::ImageBox());
       image->set_image(file);
-      table->add(image, 0, 2, 3, 4, mforms::HFillFlag);
+      table->add(image, 0, 2, 3, 4, mforms::FillAndExpand);
     }
 
     std::vector<SqlEditorForm::PSWait> waits(rsdata->ps_wait_info);
