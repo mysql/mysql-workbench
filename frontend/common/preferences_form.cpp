@@ -1827,6 +1827,8 @@ void PreferencesForm::font_preset_changed()
 
   if (i >= 0)
   {
+    _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_sets[i].name);
+
     change_font_option("workbench.physical.TableFigure:TitleFont", font_sets[i].object_title_font);
     change_font_option("workbench.physical.TableFigure:SectionFont", font_sets[i].object_section_font);
     change_font_option("workbench.physical.TableFigure:ItemsFont", font_sets[i].object_item_font);
@@ -1901,6 +1903,10 @@ mforms::View *PreferencesForm::create_appearance_page()
     hbox->set_padding(12);
 
     _font_preset.signal_changed()->connect(boost::bind(&PreferencesForm::font_preset_changed, this));
+    
+    std::string font_name;
+    _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_name);
+    
     for (size_t i = 0; font_sets[i].name; i++)
     {
       // skip font options that are not modeling specific
@@ -1908,6 +1914,8 @@ mforms::View *PreferencesForm::create_appearance_page()
           base::starts_with(font_sets[i].name, "workbench.scripting"))
         continue;
       _font_preset.add_item(font_sets[i].name);
+      if (font_sets[i].name == font_name)
+        _font_preset.set_selected(i);
     }
     hbox->add(mforms::manage(new mforms::Label("Configure Fonts For:")), false, true);
     hbox->add(&_font_preset, true, true);
@@ -1919,7 +1927,6 @@ mforms::View *PreferencesForm::create_appearance_page()
     content->add(&_font_list, true, true);
     box->add(frame, true, true);
   }
-
 
   return box;
 }
