@@ -1096,7 +1096,7 @@ void SqlEditorResult::create_query_stats_panel()
     // if we're in a server with PS, show some extra PS goodies
     std::map<std::string, boost::int64_t> &ps_stats(rsdata->ps_stat_info);
 
-    if (ps_stats.empty())
+    if (ps_stats.size() <= 1) //  "EVENT_ID" is always present
     {
       if (!rsdata->ps_stat_error.empty())
         box->add(bold_label(rsdata->ps_stat_error), false, true);
