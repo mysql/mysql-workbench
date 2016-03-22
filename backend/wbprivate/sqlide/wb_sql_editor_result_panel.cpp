@@ -917,14 +917,11 @@ static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
   }
 
   int rows_of_text = (int)stages.size() / 3 + 1;
-  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 800, 30 + 20 + rows_of_text * 25);
+  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 800, 30 + 20 + rows_of_text * 25);
   cairo_t *cr = cairo_create(surf);
 
   cairo_set_font_size(cr, 12);
-
   cairo_set_line_width(cr, 1);
-  cairo_set_source_rgb(cr, 1, 1, 1);
-  cairo_paint(cr);
 
   double x = 0.0;
   for (size_t i = 0; i < stages.size(); i++)
@@ -1003,14 +1000,11 @@ static std::string render_waits(std::vector<SqlEditorForm::PSWait> &waits)
   }
 
   int rows_of_text = (int)waits.size() / 2 + 1;
-  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 800, 30 + 20 + rows_of_text * 25);
+  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 800, 30 + 20 + rows_of_text * 25);
   cairo_t *cr = cairo_create(surf);
 
   cairo_set_font_size(cr, 12);
-
   cairo_set_line_width(cr, 1);
-  cairo_set_source_rgb(cr, 1, 1, 1);
-  cairo_paint(cr);
 
   double x = 0.0;
   for (size_t i = 0; i < waits.size(); i++)
