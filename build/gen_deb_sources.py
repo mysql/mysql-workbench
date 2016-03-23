@@ -18,8 +18,13 @@ def preprocess(inpath, inf, outf, vars):
         # @endif
         # Where variable is the name of the distro or of the edition
 
-        def evaluate(options, distro, edition, bundle):
-                return distro in options or edition in options or bundle in options
+        def evaluate(options, distro, edition, bundle, version):
+                return distro in options or edition in options or bundle in options or version in options
+              
+        def evaluate_version(options, vars):
+                version = int(vars['version'])
+                eval_command = 'version' + ''.join(options)
+                return eval(eval_command)
 
         conditions = [True]
 
@@ -31,11 +36,14 @@ def preprocess(inpath, inf, outf, vars):
                 if line.startswith("@") and not line.startswith("@@"):
                         d, _, args = line.strip().partition(" ")
                         conds = [s.strip() for s in args.split()]
+                        if d == "@ifversion":
+                                conditions.append(evaluate_version(conds, vars))
+                                continue
                         if d == "@ifdef":
-                                conditions.append(evaluate(conds, vars['distro'], vars['edition'], vars['bundle']))
+                                conditions.append(evaluate(conds, vars['distro'], vars['edition'], vars['bundle'], vars['version']))
                                 continue
                         elif d == "@ifndef":
-                                conditions.append(not evaluate(conds, vars['distro'], vars['edition'], vars['bundle']))
+                                conditions.append(not evaluate(conds, vars['distro'], vars['edition'], vars['bundle'], vars['version']))
                                 continue
                         elif d == "@else":
                                 conditions[-1] = not conditions[-1]
@@ -86,5 +94,6 @@ for distro, distro_version, bundle in output_distros:
                 vars['distrov'] = distro_version
                 vars['edition'] = edition
                 vars['bundle'] = bundle
+                vars['version'] = distro_version.replace('ubu', '')
                 generate_distro("debian.in", vars)
 
