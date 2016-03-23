@@ -60,8 +60,8 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-@ifversion >= 1510
-CXXFLAGS="-std=c++11 $CXXFLAGS" \
+@ifversion >= 1604
+	CXXFLAGS="-std=c++11 $(CXXFLAGS)" \
 @endif
 	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) -DCMAKE_BUILD_TYPE=Release \
 	-DMySQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
