@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -189,7 +189,7 @@ WHERE st.table_name='%s' AND su.user_name='%s'""" % (table.name, table.owner.nam
         query = """SELECT UPPER(st.type_name), UPPER(base_type_str), UPPER(sd.domain_name )
         FROM SYSUSERTYPE st LEFT JOIN SYSDOMAIN sd ON st.domain_id=sd.domain_id"""
 
-        if cls.serverVersion().majorNumber < 12:
+        if cls.serverVersion(connection).majorNumber < 12:
             query = """SELECT
             UPPER(st.type_name),
             CASE
@@ -516,6 +516,6 @@ def reverseEngineerFunctions(connection, schema):
 def reverseEngineerTriggers(connection, schema):
     return SQLAnywhereReverseEngineering.reverseEngineerTriggers(connection, schema)
 
-@ModuleInfo.export(grt.LIST, grt.classes.db_mgmt_Connection)
+@ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
 def getOS(connection):
     return SQLAnywhereReverseEngineering.getOS(connection)
