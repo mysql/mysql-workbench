@@ -19,16 +19,13 @@
 
 #pragma once
 
-#include "home_screen.h"
-
+#include "mforms/box.h"
 #include "mforms/drawbox.h"
 #include "mforms/textentry.h"
+#include "mforms/mforms.h"
 #include "base/data_types.h"
-
-namespace mforms
-{
-  class Menu;
-};
+#include "home_screen_helpers.h"
+#include "wb_backend_public_interface.h"
 
 namespace wb
 {
@@ -36,6 +33,7 @@ namespace wb
   class XFolderBackEntry;
   class XFolderEntry;
   class XConnectionInfoPopup;
+  class HomeScreen;
 
   class XConnectionsSection: public mforms::DrawBox, public mforms::DropDelegate
   {

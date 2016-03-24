@@ -68,6 +68,15 @@ namespace sql
 };
 
 namespace grt {
+
+//  std::map<std::string, base::any> convert(const grt::DictRef dict)
+//  {
+//    std::map<std::string, base::any> result;
+//    for (auto it = dict.begin(); it != dict.end(); ++it)
+//    {
+//      result.insert({it->first, it->second});
+//    }
+//  }
  
   class MYSQLGRT_PUBLIC os_error : public std::runtime_error
   {

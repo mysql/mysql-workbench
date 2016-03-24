@@ -25,6 +25,7 @@
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/log.h"
+#include "home_screen.h"
 
 DEFAULT_LOG_DOMAIN("home");
 
@@ -35,63 +36,6 @@ inline void delete_surface(cairo_surface_t* surface)
   if (surface != NULL)
     cairo_surface_destroy(surface);
 }
-
-static int image_width(cairo_surface_t* image)
-{
-  if (image != NULL)
-  {
-    if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return (int)(cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor());
-    else
-      return (int)cairo_image_surface_get_width(image);
-  }
-  return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-static int image_height(cairo_surface_t* image)
-{
-  if (image != NULL)
-  {
-    if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return (int)(cairo_image_surface_get_height(image) / mforms::App::get()->backing_scale_factor());
-    else
-      return (int)cairo_image_surface_get_height(image);
-  }
-  return 0;
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Determines if the given connection is an SSH connection and returns true if so.
- */
-//static bool is_ssh_connection(const dataTypes::nodeConnection &connection)
-//{
-//  if (connection.isValid())
-//    return connection.ssh.isValid();
-//
-//  return false;
-//}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Determines if the given connection is a local connection (i.e. to the current box).
- */
-//static bool is_local_connection(const dataTypes::nodeConnection &connection)
-//{
-//
-//  if (connection.isValid())
-//  {
-//    if (!is_ssh_connection(connection) && (connection.hostName == "localhost" || connection.hostName.empty() || connection.hostName == "127.0.0.1"))
-//    return true;
-//  }
-//  return false;
-//}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -254,16 +198,16 @@ public:
     content_bounds.size.height = POPUP_HEIGHT - 2 * POPUP_TB_PADDING;
 
     // The title.
-    cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
+    cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_move_to(cr, content_bounds.left(), content_bounds.top() + 16);
     cairo_show_text(cr, _project.name.c_str());
     cairo_stroke(cr);
 
     // All the various info.
-    cairo_select_font_face(cr, HOME_DETAILS_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, HOME_DETAILS_FONT_SIZE);
+    cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_DETAILS_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_DETAILS_FONT_SIZE);
     print_details_text(cr, content_bounds);
 
     // Buttons at the bottom.
@@ -276,11 +220,11 @@ public:
 
 
     // Finally the close button.
-    _close_button_rect = base::Rect(right - image_width(_close_icon) - 10, top + 10, image_width(_close_icon), image_height(_close_icon));
+    base::Size size = mforms::Utilities::getImageSize(_close_icon);
+    _close_button_rect = base::Rect(right - size.width - 10, top + 10, size.width, size.height);
     cairo_set_source_surface(cr, _close_icon, _close_button_rect.left(), _close_button_rect.top());
     cairo_paint(cr);
   }
-
   //------------------------------------------------------------------------------------------------
 
   /**
@@ -424,17 +368,12 @@ protected:
   XConnectionsSection *owner;
 
   std::string title;
+  base::Rect titleBounds;
   std::string description;
-  std::string user;
-  std::string schema;
-  bool compute_strings; // True after creation to indicate the need to compute the final display strings.
-  bool draw_info_tab;
+  base::Rect descriptionBounds;
 
-  // For filtering we need the full strings.
-  std::string search_title;
-  std::string search_description;
-  std::string search_user;
-  std::string search_schema;
+  bool computeStrings; // True after creation to indicate the need to compute the final display strings.
+  bool draw_info_tab;
 
   boost::function <void (int, int)> default_handler;
 
@@ -449,7 +388,7 @@ protected:
 
   virtual std::string get_acc_description()
   {
-    return base::strfmt("desc:%s;schema:%s;user:%s", description.c_str(), schema.c_str(), user.c_str());
+    return base::strfmt("desc:%s", description.c_str());
   }
 
   virtual Accessible::Role get_acc_role() { return Accessible::ListItem;}
@@ -472,10 +411,11 @@ protected:
   void draw_icon_with_text(cairo_t *cr, double x, double y, cairo_surface_t *icon,
                                             const std::string &text, double alpha)
   {
+    base::Size size = mforms::Utilities::getImageSize(icon);
     if (icon)
     {
       mforms::Utilities::paint_icon(cr, icon, x, y);
-      x += image_width(icon) + 3;
+      x += size.width + 3;
     }
     double component = 0xF9 / 255.0;
     cairo_set_source_rgba(cr, component, component, component, alpha);
@@ -488,7 +428,7 @@ protected:
       std::string line = texts[index];
       cairo_text_extents(cr, line.c_str(), &extents);
 
-      cairo_move_to(cr, x, (int)(y + image_height(icon) / 2.0 + extents.height / 2.0 + (index * (extents.height + 3))));
+      cairo_move_to(cr, x, (int)(y + size.height / 2.0 + extents.height / 2.0 + (index * (extents.height + 3))));
       cairo_show_text(cr, line.c_str());
       cairo_stroke(cr);
     }
@@ -503,7 +443,7 @@ public:
   };
 
   XConnectionEntry(XConnectionsSection *aowner)
-  : owner(aowner), compute_strings(false)
+  : owner(aowner), computeStrings(false)
   {
     draw_info_tab = true;
   }
@@ -518,6 +458,16 @@ public:
     return true;
   }
 
+  virtual base::Color getTitleColor()
+  {
+    return owner->_titleColor;
+  }
+
+  virtual base::Color getDescriptionColor()
+  {
+    return owner->_descriptionColor;
+  }
+
   virtual base::Color getBackgroundColor(bool hot)
   {
     return hot ? owner->_backgroundColorHot : owner->_backgroundColor;
@@ -525,68 +475,43 @@ public:
 
   virtual cairo_surface_t *get_background_icon()
   {
-    return owner->_sakila_icon;
+    return nullptr;
   }
 
   void draw_tile_background(cairo_t *cr, bool hot, double alpha, bool for_dragging)
   {
-    base::Color current_color = getBackgroundColor(hot);
+    base::Color backColor = getBackgroundColor(hot);
 
     base::Rect bounds = this->bounds;
     if (for_dragging)
       bounds.pos = base::Point(0, 0);
 
-#ifdef __APPLE__
-    cairo_new_sub_path(cr);
-
-    double radius = 8;
-    double degrees = M_PI / 180.0;
-
-    bounds.use_inter_pixel = false;
-    cairo_arc(cr, bounds.left() + bounds.width() - radius, bounds.top() + radius, radius, -90 * degrees, 0 * degrees);
-    cairo_arc(cr, bounds.left() + bounds.width() - radius, bounds.top() + this->bounds.height() - radius, radius, 0 * degrees, 90 * degrees);
-    cairo_arc(cr, bounds.left() + radius, bounds.top() + bounds.height() - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, bounds.left() + radius, bounds.top() + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
-    cairo_set_source_rgba(cr, current_color.red, current_color.green, current_color.blue, alpha);
-    cairo_fill(cr);
-
-    // Border.
-    bounds.use_inter_pixel = true;
-    cairo_arc(cr, -2 + bounds.right() - radius, 1 + bounds.top() + radius, radius, -90 * degrees, 0 * degrees);
-    cairo_arc(cr, -2 + bounds.right() - radius, -2 + bounds.bottom() - radius, radius, 0 * degrees, 90 * degrees);
-    cairo_arc(cr, 1 + bounds.left() + radius, -2 + bounds.bottom() - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, 1 + bounds.left() + radius, 1 + bounds.top() + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.19 * alpha);
-    cairo_set_line_width(cr, 3);
-    cairo_stroke(cr);
-
-    float image_alpha = 0.3;
-#else
     bounds.use_inter_pixel = false;
     cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width(), bounds.height());
-    cairo_set_source_rgba(cr, current_color.red, current_color.green, current_color.blue, alpha);
+    cairo_set_source_rgba(cr, backColor.red, backColor.green, backColor.blue, alpha);
     cairo_fill(cr);
 
     // Border.
     bounds.use_inter_pixel = true;
     cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width() - 1, bounds.height() - 1);
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.125 * alpha);
+    cairo_set_source_rgba(cr, backColor.red - 0.05, backColor.green - 0.05, backColor.blue - 0.05, alpha);
     cairo_set_line_width(cr, 1);
     cairo_stroke(cr);
-
-    float image_alpha = 1;
-#endif
-
-    // Background icon.
-    bounds.use_inter_pixel = false;
+    
     cairo_surface_t *back_icon = get_background_icon();
+    if (back_icon != nullptr)
+    {
+      float image_alpha = 0.25;
 
-    double x = bounds.left() + bounds.width() - image_width(back_icon);
-    double y = bounds.top() + bounds.height() - image_height(back_icon);
-    cairo_set_source_surface(cr, back_icon, x, y);
-    cairo_paint_with_alpha(cr, image_alpha * alpha);
+      // Background icon.
+      bounds.use_inter_pixel = false;
+
+      base::Size size = mforms::Utilities::getImageSize(back_icon);
+      double x = bounds.left() + bounds.width() - size.width;
+      double y = bounds.top() + bounds.height() - size.height;
+      cairo_set_source_surface(cr, back_icon, x, y);
+      cairo_paint_with_alpha(cr, image_alpha * alpha);
+    }
   }
 
   virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging)
@@ -597,15 +522,25 @@ public:
 
     draw_tile_background(cr, hot, alpha, for_dragging);
 
-    double component = 0xF9 / 255.0;
-    cairo_set_source_rgba(cr, component, component, component, alpha);
+    if (owner->_xTileIcon != nullptr)
+    {
+      bounds.use_inter_pixel = false;
+
+      base::Size imageSize = mforms::Utilities::getImageSize(owner->_xTileIcon);
+      double y = bounds.top() + (bounds.height() - imageSize.height) / 2;
+      mforms::Utilities::paint_icon(cr, owner->_xTileIcon, bounds.left() + 10, y);
+
+      bounds.set_xmin(bounds.left() + 10 + imageSize.width);
+    }
+
+    draw_tile_text(cr, bounds, alpha);
 
     if (hot && owner->_showDetails && draw_info_tab)
     {
 #ifdef __APPLE__
       // On OS X we show the usual italic small i letter instead of the peeling corner.
       cairo_select_font_face(cr, HOME_INFO_FONT, CAIRO_FONT_SLANT_ITALIC, CAIRO_FONT_WEIGHT_BOLD);
-      cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
+      cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
 
       owner->_info_button_rect = base::Rect(bounds.right() - 15, bounds.bottom() - 10, 10, 10);
       cairo_move_to(cr, owner->_info_button_rect.left(), owner->_info_button_rect.top());
@@ -613,82 +548,68 @@ public:
       cairo_stroke(cr);
 
 #else
+
       cairo_surface_t *overlay = owner->_mouse_over_icon;
       base::Size imageSize = mforms::Utilities::getImageSize(overlay);
       cairo_set_source_surface(cr, overlay, bounds.left() + bounds.width() - imageSize.width, bounds.top());
       cairo_paint_with_alpha(cr, alpha);
 
-//      cairo_set_source_rgba(cr, component, component, component, alpha);
 #endif
     }
+  }
 
-    cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
+  virtual void draw_tile_text(cairo_t *cr, base::Rect bounds, double alpha)
+  {
+    std::string systemFont = base::OSConstants::defaultFontName();
+    cairo_select_font_face(cr, systemFont.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
-    // Title string.
-    double x = (int)bounds.left() + 10.5; // Left offset from the border to caption, user and network icon.
-    double y = bounds.top() + 27; // Distance from top to the caption base line.
-
-    if (compute_strings)
+    if (computeStrings)
     {
-      // On first render compute the actual string to show. We only need to do this once
+      // On first render compute the actual string to show and their position. We only need to do this once
       // as neither the available space changes nor is the entry manipulated.
+      cairo_text_extents_t extents;
 
-      // we try to shrink titles at the middle, if there's a : in it we assume it's a port number
-      // and thus, we shrink everything before the :
-      if (title.find(':') != std::string::npos)
-      {
-        double available_width = bounds.width() - 21;
-        std::string left, right;
-        cairo_text_extents_t extents;
-        base::partition(title, ":", left, right);
-        right = ":"+right;
-        cairo_text_extents(cr, right.c_str(), &extents);
-        available_width -= extents.width;
-        title = mforms::Utilities::shorten_string(cr, left, available_width)+right;
-      }
-      else
-      {
-        double available_width = bounds.width() - 21;
-        title = mforms::Utilities::shorten_string(cr, title, available_width);
-      }
+      cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
+      title = mforms::Utilities::shorten_string(cr, title, bounds.width() - 21);
+
+      cairo_text_extents(cr, title.c_str(), &extents);
+      titleBounds = base::Rect((int)bounds.left() + 10.5, bounds.top() + ceil(extents.height / 2), ceil(extents.width), ceil(extents.height));
+
+      cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_SMALL_INFO_FONT_SIZE);
+      description = mforms::Utilities::shorten_string(cr, description, bounds.width() - 21);
+
+      cairo_text_extents(cr, description.c_str(), &extents);
+      descriptionBounds = base::Rect((int)bounds.left() + 10.5, bounds.top(), ceil(extents.width), ceil(extents.height));
+
+      titleBounds.pos.y += (bounds.height() - titleBounds.height() - descriptionBounds.height()) / 2;
+      descriptionBounds.pos.y = titleBounds.bottom() + 4;
+
+      computeStrings = false;
     }
 
-    cairo_move_to(cr, x, y);
+    cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
+
+    base::Color color = getTitleColor();
+    cairo_set_source_rgba(cr, color.red, color.green, color.blue, alpha);
+
+    cairo_move_to(cr, titleBounds.left(), titleBounds.top());
     cairo_show_text(cr, title.c_str());
     cairo_stroke(cr);
 
-    cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
+    cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_SMALL_INFO_FONT_SIZE);
 
-    draw_tile_text(cr, x, y, alpha);
+    color = getDescriptionColor();
+    cairo_set_source_rgba(cr, color.red, color.green, color.blue, alpha);
 
-    compute_strings = false;
-  }
-
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha)
-  {
-    if (compute_strings)
-    {
-      double available_width = bounds.width() - 24 - image_width(owner->_network_icon);
-      description = mforms::Utilities::shorten_string(cr, description, available_width);
-
-      available_width = bounds.center().x - x - image_width(owner->_user_icon) - 6; // -6 is the spacing between text and icons.
-      user = mforms::Utilities::shorten_string(cr, user, available_width);
-
-      schema = mforms::Utilities::shorten_string(cr, schema, available_width);
-    }
-
-    y = bounds.top() + 56 - image_height(owner->_user_icon);
-    draw_icon_with_text(cr, x, y, owner->_user_icon, user, alpha);
-
-    y = bounds.top() + 74 - image_height(owner->_network_icon);
-    draw_icon_with_text(cr, x, y, owner->_network_icon, description, alpha);
+    cairo_move_to(cr, descriptionBounds.left(), descriptionBounds.top());
+    cairo_show_text(cr, description.c_str());
+    cairo_stroke(cr);
   }
 
 
   virtual void activate(std::shared_ptr<XConnectionEntry> conn, int x, int y)
   {
-    owner->_owner->openConnection(conn);
+    owner->_owner->openConnection(conn->project);
   }
 
   virtual mforms::Menu *context_menu()
@@ -763,14 +684,13 @@ public:
     draw_info_tab = false;
   }
 
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha) override
+  virtual void draw_tile_text(cairo_t *cr, base::Rect bounds, double alpha) override
   {
     double component = 0xF9 / 255.0;
     cairo_set_source_rgba(cr, component, component, component, alpha);
 
     std::string info = base::to_string(children.size() - 1) + " " + _("Connections");
-    y = bounds.top() + 55;
-    cairo_move_to(cr, x, y);
+    cairo_move_to(cr, bounds.left(), bounds.top() + 55);
     cairo_show_text(cr, info.c_str());
     cairo_stroke(cr);
   }
@@ -848,7 +768,7 @@ public:
     // Title string.
     double x = bounds.left() + 10;
     double y = bounds.top() + 27;
-    cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
+    cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
     cairo_set_source_rgb(cr, 0xF9 / 255.0, 0xF9 / 255.0, 0xF9 / 255.0);
 
     cairo_move_to(cr, x, y);
@@ -892,22 +812,17 @@ XConnectionsSection::XConnectionsSection(HomeScreen *owner)
   _filtered = false;
 
   std::vector<std::string> formats;
-  formats.push_back(TILE_DRAG_FORMAT);           // We allow dragging tiles to reorder them.
+  formats.push_back(wb::HomeScreenSettings::TILE_DRAG_FORMAT);           // We allow dragging tiles to reorder them.
   formats.push_back(mforms::DragFormatFileName); // We accept sql script files to open them.
   register_drop_formats(this, formats);
 
   _folder_icon = mforms::Utilities::load_icon("wb_tile_folder.png");
   _mouse_over_icon = mforms::Utilities::load_icon("wb_tile_mouseover.png");
   _mouse_over2_icon = mforms::Utilities::load_icon("wb_tile_mouseover_2.png");
-  _network_icon = mforms::Utilities::load_icon("wb_tile_network.png");
   // TODO: We need a tile icon for the group filter and the status.
-  _ha_filter_icon = mforms::Utilities::load_icon("wb_tile_network.png");
   _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
-  _sakila_icon = mforms::Utilities::load_icon("wb_tile_sakila.png");
-  _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png");
-  _user_icon = mforms::Utilities::load_icon("wb_tile_user.png");
   _manage_icon = mforms::Utilities::load_icon("wb_tile_manage.png");
-
+  _xTileIcon = mforms::Utilities::load_icon("wb_x_tile.png");
   _info_popup = NULL;
 
   update_colors();
@@ -953,13 +868,9 @@ XConnectionsSection::~XConnectionsSection()
   delete_surface(_folder_icon);
   delete_surface(_mouse_over_icon);
   delete_surface(_mouse_over2_icon);
-  delete_surface(_network_icon);
-  delete_surface(_ha_filter_icon);
   delete_surface(_plus_icon);
-  delete_surface(_sakila_icon);
-  delete_surface(_schema_icon);
-  delete_surface(_user_icon);
   delete_surface(_manage_icon);
+  delete_surface(_xTileIcon);
 
   if (_info_popup != NULL)
     delete _info_popup;
@@ -970,6 +881,7 @@ XConnectionsSection::~XConnectionsSection()
 void XConnectionsSection::update_colors()
 {
   _titleColor = base::Color::parse("#505050");
+  _descriptionColor = base::Color::parse("#A0A0A0");
   _folderTitleColor = base::Color::parse("#F0F0F0");
   _backgroundColor = base::Color::parse("#F4F4F4");
   _backgroundColorHot = base::Color::parse("#D5D5D5");
@@ -1093,8 +1005,8 @@ int XConnectionsSection::drawHeading(cairo_t *cr)
 
   int yoffset = 100;
   cairo_save(cr);
-  cairo_select_font_face(cr, HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE * 3);
+  cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3);
   cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
 
   std::string heading = "Welcome to MySQL Hybrid";
@@ -1105,7 +1017,7 @@ int XConnectionsSection::drawHeading(cairo_t *cr)
   x = get_width()/2 - (extents.width / 2 + extents.x_bearing);
   cairo_move_to(cr, x, yoffset);
   cairo_show_text(cr, heading.c_str());
-  yoffset += HOME_TITLE_FONT_SIZE * 3;
+  yoffset += wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3;
 
   std::vector<std::string> description = {"MySQL Hybrid is a cross(x) over between the Relational model and the NoSQL Document model.",
   "Starting with MySQL 5.7 the MySQL Server speaks a new, optimized MySQL X Protocol and the",
@@ -1113,7 +1025,7 @@ int XConnectionsSection::drawHeading(cairo_t *cr)
 
   for (auto txt : description)
   {
-    cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE * 0.8);
+    cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
     cairo_text_extents(cr, txt.c_str(), &extents);
     x = get_width()/2 - (extents.width / 2 + extents.x_bearing);
     cairo_move_to(cr, x,  yoffset);
@@ -1124,8 +1036,8 @@ int XConnectionsSection::drawHeading(cairo_t *cr)
   yoffset += 40;
 
   // Draw heading links
-  cairo_select_font_face(cr, HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE * 0.8);
+  cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
 
   cairo_set_source_rgb(cr, 0x1b / 255.0, 0xad / 255.0, 0xe8 / 255.0);
   double pos = 0.25;
@@ -1157,8 +1069,8 @@ void XConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, 
 
   int tiles_per_row = width / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
 
-  cairo_select_font_face(cr, HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
+  cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
 
   cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
   cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, yoffset);
@@ -1183,15 +1095,14 @@ void XConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, 
   cairo_text_extents(cr, title.c_str(), &extents);
   double text_width = ceil(extents.width);
 
-
-  _addButton.bounds = base::Rect(CONNECTIONS_LEFT_PADDING + text_width + 10, yoffset - image_height(_plus_icon),
-                                  image_width(_plus_icon), image_height(_plus_icon));
+  base::Size size = mforms::Utilities::getImageSize(_plus_icon);
+  _addButton.bounds = base::Rect(CONNECTIONS_LEFT_PADDING + text_width + 10, yoffset - size.height, size.width, size.height);
 
   cairo_set_source_surface(cr, _plus_icon, _addButton.bounds.left(), _addButton.bounds.top());
   cairo_paint(cr);
 
-  _manageButton.bounds = base::Rect(_addButton.bounds.right() + 10, yoffset - image_height(_manage_icon),
-                                     image_width(_manage_icon), image_height(_manage_icon));
+  size = mforms::Utilities::getImageSize(_manage_icon);
+  _manageButton.bounds = base::Rect(_addButton.bounds.right() + 10, yoffset - size.height, size.width, size.height);
   cairo_set_source_surface(cr, _manage_icon, _manageButton.bounds.left(), _manageButton.bounds.top());
   cairo_paint(cr);
 
@@ -1216,12 +1127,12 @@ void XConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, 
           if (!section.empty() && current_section != section)
           {
             current_section = section;
-            bounds.pos.y += HOME_TILES_TITLE_FONT_SIZE + CONNECTIONS_SPACING;
+            bounds.pos.y += wb::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE + CONNECTIONS_SPACING;
 
             {
               // draw the section title
-              cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-              cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
+              cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+              cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
               cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
               cairo_text_extents(cr, current_section.c_str(), &extents);
               cairo_move_to(cr, CONNECTIONS_LEFT_PADDING,
@@ -1320,8 +1231,7 @@ std::shared_ptr<XFolderEntry> XConnectionsSection::createFolder(const dataTypes:
 {
   std::shared_ptr<XFolderEntry> folder(new XFolderEntry(this));
   folder->title = holder.name;
-  folder->compute_strings = true;
-  folder->search_title = folder->title;
+  folder->computeStrings = true;
   folder->children.push_back(std::shared_ptr<XConnectionEntry>(new XFolderBackEntry(this)));
   return folder;
 }
@@ -1332,10 +1242,9 @@ std::shared_ptr<XConnectionEntry> XConnectionsSection::createConnection(const da
 {
   std::shared_ptr<XConnectionEntry> entry = std::shared_ptr<XConnectionEntry>(new XConnectionEntry(this));
   entry->project = project;
-  entry->title = entry->project.name;
+  entry->title = _("X Session with ") + entry->project.name;
 
-  if (entry->project.connection.ssh.isValid())
-    entry->description = entry->project.connection.ssh.userName + "@" + entry->project.connection.ssh.hostName + "\n";
+  entry->description = _("Connection URI: ");
   switch(entry->project.connection.language)
   {
   case dataTypes::EditorJavaScript:
@@ -1349,16 +1258,9 @@ std::shared_ptr<XConnectionEntry> XConnectionsSection::createConnection(const da
     break;
   }
   entry->description += entry->project.connection.hostName + ":" + std::to_string(entry->project.connection.port);
-  entry->user = entry->project.connection.userName;
-  entry->schema = entry->project.connection.defaultSchema;
-  entry->compute_strings = true;
+  entry->computeStrings = true;
 
-  entry->search_title = entry->title;
-  entry->search_description = entry->description;
-  entry->search_user = entry->user;
-  entry->search_schema = entry->schema;
-  entry->default_handler = boost::bind(&XConnectionsSection::mouse_click, this,
-                                       mforms::MouseButtonLeft, _1, _2);
+  entry->default_handler = boost::bind(&XConnectionsSection::mouse_click, this, mforms::MouseButtonLeft, _1, _2);
   return entry;
 }
 
@@ -1366,7 +1268,7 @@ std::shared_ptr<XConnectionEntry> XConnectionsSection::createConnection(const da
 
 void XConnectionsSection::updateHeight()
 {
-  int height = 350; // The top section + project list heading.
+  int height = 355; // The top section + project list heading.
 
   XConnectionVector *connections;
   if (_active_folder)
@@ -1376,11 +1278,13 @@ void XConnectionsSection::updateHeight()
 
   if (_filtered)
     connections = &_filtered_connections;
-  int tiles_per_row = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+  float tilesPerRow = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
 
-  if (tiles_per_row > 1)
+  if (tilesPerRow > 1)
   {
-    height += (connections->size() / tiles_per_row) * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING) + CONNECTIONS_TOP_PADDING;
+    int rowCount = ceil(connections->size() / tilesPerRow);
+    if (rowCount > 0)
+      height += rowCount * CONNECTIONS_TILE_HEIGHT + (rowCount - 1 ) * CONNECTIONS_SPACING;
     if (height != get_height())
         set_size(-1, height);
   }
@@ -1505,31 +1409,31 @@ bool XConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
     {
       if (_addButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(ActionNewXConnection, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionNewXConnection, grt::ValueRef());
         return true;
       }
 
       if (_manageButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(ActionManageXConnections, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionManageXConnections, grt::ValueRef());
         return true;
       }
 
       if (_learnButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(ActionOpenXLearnMore, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionOpenXLearnMore, grt::ValueRef());
         return true;
       }
 
       if (_tutorialButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(ActionOpenXTutorial, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionOpenXTutorial, grt::ValueRef());
         return true;
       }
 
       if (_useTraditionalButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(ActionOpenXTraditional, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionOpenXTraditional, grt::ValueRef());
         return true;
       }
 
@@ -1921,7 +1825,7 @@ bool XConnectionsSection::do_tile_drag(ssize_t index, int x, int y)
       entry->draw_tile(cr, false, 1, true);
 
       _dragIndex = index;
-      mforms::DragOperation operation = do_drag_drop(details, entry.get(), TILE_DRAG_FORMAT);
+      mforms::DragOperation operation = do_drag_drop(details, entry.get(), wb::HomeScreenSettings::TILE_DRAG_FORMAT);
       _mouse_down_position = base::Rect();
       cairo_surface_destroy(details.image);
       cairo_destroy(cr);
@@ -1966,7 +1870,7 @@ mforms::DragOperation XConnectionsSection::drag_over(View *sender, base::Point p
     return allowedOperations & mforms::DragOperationCopy;
   }
 
-  if (std::find(formats.begin(), formats.end(), TILE_DRAG_FORMAT) != formats.end())
+  if (std::find(formats.begin(), formats.end(), wb::HomeScreenSettings::TILE_DRAG_FORMAT) != formats.end())
   {
     // A tile is being dragged. Find the target index and drop location for visual feedback.
     // Computation here is more relaxed than the normal hit test as we want to allow dropping
@@ -2124,7 +2028,7 @@ mforms::DragOperation XConnectionsSection::files_dropped(View *sender, base::Poi
 mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, base::Point p,
                                    mforms::DragOperation allowedOperations, void *data, const std::string &format)
 {
-  if (format == TILE_DRAG_FORMAT && _dropIndex > -1)
+  if (format == wb::HomeScreenSettings::TILE_DRAG_FORMAT && _dropIndex > -1)
   {
     mforms::DragOperation result = mforms::DragOperationNone;
 
@@ -2165,7 +2069,7 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
         details.set("group", grt::StringRef("*Ungrouped*"));
       else
         details.set("group", grt::StringRef(entry->title));
-      _owner->trigger_callback(ActionMoveConnectionToGroup, details);
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, details);
     }
     else
     {
@@ -2177,7 +2081,7 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
         to++;
 
       details.set("to", grt::IntegerRef((int)to));
-      _owner->trigger_callback(ActionMoveConnection, details);
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, details);
     }
     result = mforms::DragOperationMove;
 
