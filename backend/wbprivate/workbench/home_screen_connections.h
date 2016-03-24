@@ -21,8 +21,10 @@
 
 #include "home_screen.h"
 
+#include "mforms/box.h"
 #include "mforms/drawbox.h"
 #include "mforms/textentry.h"
+#include "home_screen_helpers.h"
 
 namespace mforms
 {

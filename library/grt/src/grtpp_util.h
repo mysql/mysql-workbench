@@ -23,6 +23,7 @@
 
 #include <set>
 
+#include "base/any.h"
 #include "base/string_utilities.h"
 
 #define GRTLIST_FOREACH(type, list, iter) \
@@ -34,6 +35,8 @@
 
 namespace grt
 {
+  std::map<std::string, base::any> MYSQLGRT_PUBLIC convert(const grt::DictRef dict);
+
   std::string MYSQLGRT_PUBLIC type_to_str(Type type);
   Type MYSQLGRT_PUBLIC str_to_type(const std::string &str);
 

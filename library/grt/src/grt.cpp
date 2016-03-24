@@ -23,7 +23,7 @@
 #include "base/log.h"
 #include "base/file_utilities.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 #include "grtpp_shell.h"
 #include "grtpp_module_cpp.h"
@@ -41,6 +41,16 @@ DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 
 using namespace grt;
 using namespace base;
+
+//--------------------------------------------------------------------------------------------------
+
+std::shared_ptr<GRT> GRT::get()
+{
+  static std::shared_ptr<GRT> instance(new GRT);
+  return instance;
+}
+
+//--------------------------------------------------------------------------------------------------
 
 std::string grt::type_to_str(Type type)
 {
@@ -64,6 +74,54 @@ std::string grt::type_to_str(Type type)
   return "";
 }
 
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, base::any> grt::convert(const grt::DictRef dict)
+{
+    std::map<std::string, base::any> result;
+    for (auto it = dict.begin(); it != dict.end(); ++it)
+    {
+      auto val = dict.get(it->first);
+      std::pair<std::string, base::any> item;
+      if (val.is_valid())
+      {
+        switch(val.type())
+        {
+        case grt::IntegerType:
+          item = {it->first, grt::IntegerRef::extract_from(val)};
+          break;
+        case grt::DoubleType:
+          item = {it->first, grt::DoubleRef::extract_from(val)};
+          break;
+        case grt::StringType:
+          item = {it->first, grt::StringRef::extract_from(val)};
+          break;
+        case grt::ListType:
+        {
+          auto list = grt::BaseListRef::cast_from(val);
+          std::vector<base::any> vec(list.count());
+          for (std::size_t i = 0; i < list.count(); ++i)
+            vec[i] = list.get(i);
+          break;
+        }
+        case grt::DictType:
+          item = {it->first, convert(grt::DictRef::cast_from(val))};
+          break;
+        case grt::ObjectType:
+          item = {it->first, grt::ObjectRef::cast_from(val)};
+          break;
+        default:
+          item = {it->first, val};
+        }
+      }
+      else
+        item = {it->first, nullptr};
+
+      result.insert(item);
+    }
+    return result;
+  }
+
+//--------------------------------------------------------------------------------------------------
 
 Type grt::str_to_type(const std::string &type)
 {
@@ -82,7 +140,6 @@ Type grt::str_to_type(const std::string &type)
     return ObjectType;
   return UnknownType;
 }
-
 
 
 std::string Message::format(bool withtype) const
@@ -179,14 +236,14 @@ GRT::GRT()
   
   GRTNotificationCenter::setup();
 
-  _default_undo_manager= new UndoManager(this);
+  _default_undo_manager = new UndoManager;
 
-  add_module_loader(new CPPModuleLoader(this));
+  add_module_loader(new CPPModuleLoader());
   
   // register metaclass for base class
-  add_metaclass(MetaClass::create_base_class(this));
+  add_metaclass(MetaClass::create_base_class());
   
-  _root= grt::DictRef(this);
+  _root= grt::DictRef(true);
 }
 
 
@@ -309,7 +366,7 @@ void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requ
     {
       if (xmlStrcmp(root->name, (xmlChar*)"gstruct")==0)
       {
-        MetaClass *gstruct= MetaClass::from_xml(this, file, root);
+        MetaClass *gstruct= MetaClass::from_xml(file, root);
         if (gstruct)
         {
           MetaClass *tmp;
@@ -453,7 +510,7 @@ void GRT::end_loading_metaclasses(bool check_class_binding)
     throw std::runtime_error("Validation error in loaded metaclasses");
 
   // register GRT object classes
-  internal::ClassRegistry::get_instance()->register_all(this);
+  internal::ClassRegistry::get_instance()->register_all();
   
   if (check_class_binding)
   {
@@ -492,7 +549,7 @@ void GRT::add_metaclass(MetaClass *stru)
 
 void GRT::set_root(const ValueRef &root)
 {
-  AutoLock lock(this);
+  AutoLock lock;
   _root= root;
 // only nodes starting from /wb/doc (ie, in a model) should be marked global for undo tracking
 //  if (_root.is_valid())
@@ -503,7 +560,7 @@ void GRT::set_root(const ValueRef &root)
 
 ValueRef GRT::get(const std::string &path) const
 {
-  AutoLock lock(this);
+  AutoLock lock;
  
   return get_value_by_path(_root, path);
 }
@@ -511,7 +568,7 @@ ValueRef GRT::get(const std::string &path) const
 
 void GRT::set(const std::string &path, const ValueRef &value)
 {
-  AutoLock lock(this);
+  AutoLock lock;
   
   if (!set_value_by_path(_root, path, value))
     throw grt::bad_item("Invalid path "+path);
@@ -565,20 +622,20 @@ ObjectRef GRT::find_object_by_id(const std::string &id, const std::string &subpa
 void GRT::serialize(const ValueRef &value, const std::string &path,
                     const std::string &doctype, const std::string &version, bool list_objects_as_links)
 {
-  internal::Serializer ser(this);
+  internal::Serializer ser;
   
   ser.save_to_xml(value, path, doctype, version, list_objects_as_links);
 }
 
 std::shared_ptr<grt::internal::Unserializer> GRT::get_unserializer()
 {
-  return std::shared_ptr<grt::internal::Unserializer> (new internal::Unserializer(this, _check_serialized_crc));
+  return std::shared_ptr<grt::internal::Unserializer> (new internal::Unserializer(_check_serialized_crc));
 };
 
 ValueRef GRT::unserialize(const std::string &path, std::shared_ptr<grt::internal::Unserializer> unserializer)
 {
   if(!unserializer)
-    unserializer = std::shared_ptr<grt::internal::Unserializer>(new internal::Unserializer(this, _check_serialized_crc));
+    unserializer = std::shared_ptr<grt::internal::Unserializer>(new internal::Unserializer(_check_serialized_crc));
 
   if (!g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
     throw os_error(path);
@@ -591,13 +648,12 @@ ValueRef GRT::unserialize(const std::string &path, std::shared_ptr<grt::internal
   {
     throw std::runtime_error(std::string("Error unserializing GRT data from ").append(path).append(": ").append(exc.what()));
   }
-  return ValueRef();
 }
 
 
 ValueRef GRT::unserialize(const std::string &path, std::string &doctype_ret, std::string &version_ret)
 {
-  internal::Unserializer unser(this, _check_serialized_crc);
+  internal::Unserializer unser(_check_serialized_crc);
   
   if (!g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
     throw os_error(path);
@@ -610,7 +666,6 @@ ValueRef GRT::unserialize(const std::string &path, std::string &doctype_ret, std
     throw grt_runtime_error("Error unserializing GRT data from "+path, 
                             exc.what());
   }
-  return ValueRef();
 }
 
 
@@ -628,7 +683,7 @@ void GRT::get_xml_metainfo(xmlDocPtr doc, std::string &doctype_ret, std::string 
 
 ValueRef GRT::unserialize_xml(xmlDocPtr doc, const std::string &source_path)
 {
-  internal::Unserializer unser(this, _check_serialized_crc);
+  internal::Unserializer unser(_check_serialized_crc);
 
   try
   {
@@ -638,20 +693,19 @@ ValueRef GRT::unserialize_xml(xmlDocPtr doc, const std::string &source_path)
   {
     throw grt_runtime_error("Error unserializing GRT data" , exc.what());
   }
-  return ValueRef();
 }
 
 
 std::string GRT::serialize_xml_data(const ValueRef &value, const std::string &doctype, const std::string &version,
                                     bool list_objects_as_links)
 {
-  return internal::Serializer(this).serialize_to_xmldata(value, doctype, version, list_objects_as_links);
+  return internal::Serializer().serialize_to_xmldata(value, doctype, version, list_objects_as_links);
 }
 
 
 ValueRef GRT::unserialize_xml_data(const std::string &data)
 {
-  return internal::Unserializer(this, _check_serialized_crc).unserialize_xmldata(data.data(), data.size());
+  return internal::Unserializer(_check_serialized_crc).unserialize_xmldata(data.data(), data.size());
 }
 
 //--------------------------------------------------------------------------------
@@ -974,7 +1028,7 @@ void *GRT::get_context_data(const std::string &key)
 bool GRT::init_shell(const std::string &shell_type)
 {
   if (shell_type == LanguagePython)
-    _shell= new PythonShell(this);
+    _shell= new PythonShell;
   else
     throw std::runtime_error("Invalid shell type "+shell_type);
   
