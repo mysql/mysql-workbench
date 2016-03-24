@@ -12,6 +12,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/parsers
@@ -82,6 +83,9 @@ add_library(wbprivate
     workbench/wb_overview.cpp
     workbench/home_screen.cpp
     workbench/home_screen_connections.cpp
+    workbench/home_screen_x_connections.cpp
+    workbench/home_screen_documents.cpp
+    workbench/home_screen_helpers.cpp
     workbench/wb_tunnel.cpp
     workbench/webbrowser_view.cpp
     workbench/wb_db_schema.cpp
@@ -103,6 +107,7 @@ add_library(wbprivate
 target_link_libraries(wbprivate
     grt
     mdcanvas
+    wbbase
     ${CAIRO_LIBRARIES}
     ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
