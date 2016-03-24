@@ -625,17 +625,15 @@ void UtilitiesWrapper::show_wait_message(const std::string &title, const std::st
 bool UtilitiesWrapper::hide_wait_message()
 {
   log_debug("Hiding the wait message\n");
-  
+
   bool result = HUDForm::IsVisible;
   if (result)
   {
     log_debug2("Wait message was visible, finishing it\n");
-
     HUDForm::Finish();
   }
   else
-    log_debug2("Wait message was not visibile, nothing to do\n");
-
+    log_debug2("Wait message was not visible, nothing to do\n");
 
   return result;
 }
