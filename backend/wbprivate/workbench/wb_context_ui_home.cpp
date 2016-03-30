@@ -27,7 +27,7 @@
 
 #include "mforms/menu.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grts/structs.app.h"
 #include "grts/structs.h"
@@ -48,9 +48,13 @@
 #include "new_connection_wizard.h"
 #include "select_option_dialog.h"
 #include "wb_model_file.h"
-
+#include "base/data_types.h"
 #include "home_screen.h"
+#include "home_screen_x_connections.h"
+#include "home_screen_connections.h"
+#include "home_screen_documents.h"
 #include <zip.h>
+#include "base/session_wrapper.h"
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
 
@@ -288,6 +292,7 @@ void WBContextUI::show_about()
  * Creates the main home screen (Workbench Central, Workspace) if not yet done and docks it to 
  * the main application window.
  */
+
 void WBContextUI::show_home_screen()
 {
   if (_home_screen != NULL)
@@ -299,14 +304,33 @@ void WBContextUI::show_home_screen()
   _initializing_home_screen = (_home_screen == NULL);
   if (_home_screen == NULL)
   {    
-    _home_screen = mforms::manage(new HomeScreen(_wb->get_root()->rdbmsMgmt()));
+    _home_screen = mforms::manage(new HomeScreen());
     _home_screen->set_menubar(_command_ui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL));
     _home_screen->set_callback((home_screen_action_callback)&WBContextUI::home_action_callback, this);
-    _home_screen->handle_context_menu = boost::bind(&WBContextUI::handle_home_context_menu, this, _1, _2);
-    _home_screen->openMigrationCallback = std::bind<void>([this]() {
+    _home_screen->handle_context_menu = std::bind(&WBContextUI::handle_home_context_menu, this, std::placeholders::_1, std::placeholders::_2);
+
+    // now we have to add sections
+    _xConnectionsSection = new wb::XConnectionsSection(_home_screen);
+    _xConnectionsSection->set_name("Home X Connections Section");
+    _xConnectionsSection->set_size(-1, 1); // We need initial size for OSX.
+    _home_screen->addSection(_xConnectionsSection);
+
+    _connectionsSection = new wb::ConnectionsSection(_home_screen, _wb->get_root()->rdbmsMgmt());
+    _connectionsSection->set_name("Home Connections Section");
+    _connectionsSection->set_size(-1, 1); // We need initial size for OSX.
+    _home_screen->addSection(_connectionsSection);
+
+    _documentsSection = new wb::DocumentsSection(_home_screen);
+    _documentsSection->set_name("Documents Section");
+    _documentsSection->set_size(-1, 1); // We need initial size for OSX.
+    _home_screen->addSection(_documentsSection);
+
+    _home_screen->addSectionEntry("wb_starter_mysql_migration_52.png", nullptr, [=]() {
       logInfo("Opening Migration Wizard...\n");
       _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
-    });
+    }, false);
+
+
 
     // Setup context menus.
     mforms::Menu *menu;
@@ -316,7 +340,7 @@ void WBContextUI::show_home_screen()
       bec::ArgumentPool argument_pool;
       _wb->update_plugin_arguments_pool(argument_pool);
       groups.push_back("Menu/Home/Connections");
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu = mforms::manage(new mforms::Menu());
@@ -336,9 +360,9 @@ void WBContextUI::show_home_screen()
       std::list<std::string> groups;
       bec::ArgumentPool argument_pool;
       _wb->update_plugin_arguments_pool(argument_pool);
-      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(_wb->get_grt()), "db.mgmt.Connection");
+      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(grt::Initialized), "db.mgmt.Connection");
       groups.push_back("Menu/Home/Connections");
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -371,7 +395,7 @@ void WBContextUI::show_home_screen()
 
       argument_pool.add_simple_value("selectedGroupName", grt::StringRef(""));
       groups.push_back("Menu/Home/ConnectionGroup");
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_items_from_list(pitems);
@@ -390,7 +414,7 @@ void WBContextUI::show_home_screen()
       _wb->update_plugin_arguments_pool(argument_pool);
       argument_pool.add_simple_value("selectedModelFile", grt::ValueRef());
       groups.push_back("Menu/Home/ModelFiles");
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -414,7 +438,7 @@ void WBContextUI::show_home_screen()
       _wb->update_plugin_arguments_pool(argument_pool);
       argument_pool.add_simple_value("selectedModelFile", grt::ValueRef());
       groups.push_back("Menu/Home/ModelFiles"); // TODO: do we need a different group for the action menu?
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -449,16 +473,59 @@ void WBContextUI::show_home_screen()
   }
 
   _home_screen->setup_done();
+
+  if (!_oldAuthList.empty())
+  {
+    std::string tmp;
+    std::vector<db_mgmt_ConnectionRef>::const_iterator it;
+    for (it = _oldAuthList.begin(); it != _oldAuthList.end(); ++it)
+    {
+      tmp.append("\n");
+      tmp.append((*it)->name());
+      tmp.append(" user name:");
+      tmp.append((*it)->parameterValues().get_string("userName"));
+    }
+
+    int rc = mforms::Utilities::show_warning("Connections using old authentication protocol found",
+              "While loading the stored connections some were found to use the old authentication protocol. "
+              "This is no longer supported by MySQL Workbench and the MySQL client library. Click on the \"More Info\" button for a more detailed explanation.\n\n"
+              "With this change it is essential that user accounts are converted to the new password storage or you can no longer connect with MySQL Workbench using these accounts.\n\n"
+              "The following connections are affected:\n"
+              +tmp,
+              "Change", "Ignore", "More Info");
+    if (rc == mforms::ResultOther)
+    {
+      mforms::Utilities::open_url("http://mysqlworkbench.org/2014/03/mysql-workbench-6-1-updating-accounts-using-the-old-pre-4-1-1-authentication-protocol/");
+    }
+    else if (rc == mforms::ResultOk)
+    {
+      std::vector<db_mgmt_ConnectionRef>::const_iterator it;
+      for (it = _oldAuthList.begin(); it != _oldAuthList.end(); ++it)
+      {
+        if((*it).is_valid())
+        {
+          if ((*it)->parameterValues().has_key("useLegacyAuth"))
+            (*it)->parameterValues().remove("useLegacyAuth");
+        }
+      }
+      _oldAuthList.clear();
+    }
+  }
+
   _initializing_home_screen = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WBContextUI::home_action_callback(HomeScreenAction action, const grt::ValueRef &object, WBContextUI *self)
+void WBContextUI::home_action_callback(HomeScreenAction action, const base::any &object, WBContextUI *self)
 {
+  grt::ValueRef val;
+  if (!object.is_null())
+    val = object;
+
   try
   {
-    self->handle_home_action(action, object);
+    self->handle_home_action(action, val);
   }
   catch (const std::exception &exc)
   {
@@ -476,25 +543,26 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const grt::Value
  */
 void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
 {
-  grt::GRT *grt = connection->get_grt();
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args(true);
   args->insert_unchecked(connection);
 
-  grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnection", args);
+  grt::ValueRef result = grt::GRT::get()->call_module_function("Workbench", "deleteConnection", args);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const std::string &action)
+void WBContextUI::handle_home_context_menu(const base::any &object, const std::string &action)
 {
   if (action == "open_connection")
   {
-    handle_home_action(ActionOpenConnectionFromList, object);
+    db_mgmt_ConnectionRef val = object;
+    handle_home_action(HomeScreenAction::ActionOpenConnectionFromList, val);
   }
   else if (action == "delete_connection")
   {
-    db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-    
+    grt::ValueRef val = object;
+    db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(val);
+
     std::string name = connection->name();
     std::string title;
     std::string warning;
@@ -512,33 +580,38 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
   }
   else if (action == "manage_connections" || action == "edit_connection")
   {
-    handle_home_action(ActionManageConnections, object);
+    db_mgmt_ConnectionRef val = object;
+    handle_home_action(HomeScreenAction::ActionManageConnections, val);
   }
   else if (action == "move_connection_to_top")
   {
     // We enter here for both: groups and connections. The object for groups must be a StringRef
     // with the name of the group. For connections it's the connection ref.
     // Similar for the other move_* actions.
+    db_mgmt_ConnectionRef val = object;
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveTop);
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveTop);
     refresh_home_connections(false);
   }
   else if (action == "move_connection_up")
   {
+    grt::ValueRef val = object;
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveUp);
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveUp);
     refresh_home_connections(false);
   }
   else if (action == "move_connection_down")
   {
+    db_mgmt_ConnectionRef val = object;
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveDown);
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveDown);
     refresh_home_connections(false);
   }
   else if (action == "move_connection_to_end")
   {
+    db_mgmt_ConnectionRef val = object;
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveBottom);
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveBottom);
     refresh_home_connections(false);
   }
   else if (action == "move_connection_to_group")
@@ -547,23 +620,24 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
 
     // Create the available groups for the movement...
     std::vector<std::string> groups;
-    get_groups_for_movement<db_mgmt_Connection>(connections, object, groups);
+    db_mgmt_ConnectionRef val = object;
+    get_groups_for_movement<db_mgmt_Connection>(connections, val, groups);
 
     SelectOptionDialog dialog(_("Move To Group"), _("Pick a group to move the selected connection "
       "to\nor type a name to move it to a new one."), groups);
-    dialog.set_validation_function(boost::bind(&validate_group_for_movement<db_mgmt_Connection>, connections, object, _1));
+    dialog.set_validation_function(boost::bind(&validate_group_for_movement<db_mgmt_Connection>, connections, val, _1));
     std::string result = dialog.run();
 
     // At this point the movement is considered valid so we just do it.
     if( result != "")
     {
-      move_item_to_group<db_mgmt_Connection>(result, connections, object);
+      move_item_to_group<db_mgmt_Connection>(result, connections, val);
       refresh_home_connections();
     }
   }
   else if (action == "delete_connection_group" || action == "internal_delete_connection_group")
   {
-    std::string group = object.toString();
+    std::string group = object;
     int answer = mforms::ResultOk;
     
 
@@ -576,11 +650,11 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     
     if (answer == mforms::ResultOk)
     {
-      grt::GRT *grt = _wb->get_grt();
-      grt::BaseListRef args(grt);
-      args->insert_unchecked(object);
+      grt::BaseListRef args(true);
+      db_mgmt_ConnectionRef val = object;
+      args->insert_unchecked(val);
 
-      grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnectionGroup", args);
+      grt::ValueRef result = grt::GRT::get()->call_module_function("Workbench", "deleteConnectionGroup", args);
 
       // Internal deletion does not require the UI update
       if (action == "delete_connection_group")
@@ -601,27 +675,31 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
   }
   else if (action == "open_model_from_list")
   {
-    handle_home_action(ActionOpenEERModelFromList, object);
+    grt::ValueRef val = object;
+    handle_home_action(HomeScreenAction::ActionOpenEERModelFromList, val);
   }
   else if (action == "model_from_schema")
   {
-    handle_home_action(ActionNewModelFromDB, object);
+    grt::ValueRef val = object;
+    handle_home_action(HomeScreenAction::ActionNewModelFromDB, val);
   }
   else if (action == "model_from_script")
   {
-    handle_home_action(ActionNewModelFromScript, object);
+    grt::ValueRef val = object;
+    handle_home_action(HomeScreenAction::ActionNewModelFromScript, val);
   }
   else if (action == "show_model")
   {
-    std::string file = grt::StringRef::cast_from(object);
+    std::string file = object;
     mforms::Utilities::reveal_file(file);
   }
   else if (action == "remove_model")
   {
-    _wb->get_root()->options()->recentFiles()->remove(object);
+    grt::ValueRef val = object;
+    _wb->get_root()->options()->recentFiles()->remove(val);
 
     bool remove_auto_save = false;
-    std::string file = grt::StringRef::cast_from(object);
+    std::string file = object;
     if (file.size() > 5 && file.substr(file.size()-5) == ".mwbd")
       remove_auto_save = true;
     else
@@ -676,23 +754,29 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     bec::ArgumentPool argument_pool;
     _wb->update_plugin_arguments_pool(argument_pool);
 
-    if (db_mgmt_ConnectionRef::can_wrap(object))
+    if (object.is<std::string>())
     {
-      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef::cast_from(object));
+      std::string val = object;
+      if (base::hasSuffix(val, ".mwb"))
+        argument_pool.add_simple_value("selectedModelFile", grt::StringRef(val)); // assume a model file
+      else
+        argument_pool.add_simple_value("selectedGroupName", grt::StringRef(val)); // assume a connection group name
       get_command_ui()->activate_command(action, argument_pool);
     }
-    else
-      if (grt::StringRef::can_wrap(object))
+    else if (object.is<grt::ValueRef>())
+    {
+      grt::ValueRef val = object;
+      if (db_mgmt_ConnectionRef::can_wrap(val))
       {
-        grt::StringRef arg(grt::StringRef::cast_from(object));
-        if (base::hasSuffix(arg, ".mwb"))
-          argument_pool.add_simple_value("selectedModelFile", arg); // assume a model file
-        else
-          argument_pool.add_simple_value("selectedGroupName", arg); // assume a connection group name
+        argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef::cast_from(val));
         get_command_ui()->activate_command(action, argument_pool);
       }
-      else // Any other command.
+      else
         get_command_ui()->activate_command(action, argument_pool);
+    }
+    else
+      get_command_ui()->activate_command(action, argument_pool);
+
   }
 }
 
@@ -730,26 +814,10 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 {
   switch (action)
   {
-    case ActionNone:
+    case HomeScreenAction::ActionNone:
       break;
 
-//    case ActionShortcut:
-//    {
-//      app_StarterRef starter = app_StarterRef::cast_from(object);
-//      start_plugin(starter->title(), starter->command(), bec::ArgumentPool());
-//    }
-//
-//    break;
-      
-//    case ActionRemoveShortcut:
-//    {
-//      app_StarterRef starter = app_StarterRef::cast_from(object);
-//      _wb->get_root()->starters()->displayList()->remove(starter);
-//      _wb->save_starters();
-//    }
-//      break;
-      
-    case ActionOpenConnectionFromList:
+    case HomeScreenAction::ActionOpenConnectionFromList:
     {
       if (_processing_action_open_connection)
         break;
@@ -777,7 +845,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       break;
     }
       
-    case ActionFilesWithConnection:
+    case HomeScreenAction::ActionFilesWithConnection:
       {
         if (_processing_action_open_connection)
           break;
@@ -802,7 +870,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
         break;
       }
 
-    case ActionNewConnection:
+    case HomeScreenAction::ActionNewConnection:
     {
       NewConnectionWizard wizard(_wb, _wb->get_root()->rdbmsMgmt());
       wizard.set_title("Setup New Connection");
@@ -811,9 +879,9 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       break;
     }
 
-    case ActionManageConnections:
+    case HomeScreenAction::ActionManageConnections:
     {
-      ServerInstanceEditor editor(_wb->get_grt_manager(), _wb->get_root()->rdbmsMgmt());
+      ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
       _wb->show_status_text("Connection Manager Opened");
       editor.run(db_mgmt_ConnectionRef::cast_from(object));
       _wb->show_status_text("");
@@ -821,7 +889,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       break;
     }
 
-    case ActionMoveConnection:
+    case HomeScreenAction::ActionMoveConnection:
     {
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
@@ -846,7 +914,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       break;
     }
 
-    case ActionMoveConnectionToGroup:
+    case HomeScreenAction::ActionMoveConnectionToGroup:
     {
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
       db_mgmt_ConnectionRef connection;
@@ -862,7 +930,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       break;
     }
 
-    case ActionSetupRemoteManagement:
+    case HomeScreenAction::ActionSetupRemoteManagement:
     {
       NewServerInstanceWizard wizard(_wb, db_mgmt_ConnectionRef::cast_from(object));
       _wb->show_status_text("Started Management Setup Wizard");
@@ -873,12 +941,12 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       break;
     }
 
-    case ActionEditSQLScript:
+    case HomeScreenAction::ActionEditSQLScript:
     {
       break;
     }
 
-    case ActionOpenEERModel:
+    case HomeScreenAction::ActionOpenEERModel:
       {
         // Note: wb->open_document has an own GUILock, so we must not set another one here.
         std::string filename = _wb->show_file_dialog("open", _("Open Workbench Model"), "mwb");
@@ -889,7 +957,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
         break;
       }
 
-    case ActionOpenEERModelFromList:
+    case HomeScreenAction::ActionOpenEERModelFromList:
     {
       // Note: wb->open_document has an own GUILock, so we must not set another one here.
       if (object.is_valid())
@@ -901,11 +969,11 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       break;
     }
 
-    case ActionNewEERModel:
+    case HomeScreenAction::ActionNewEERModel:
       _wb->new_document();
       break;
 
-    case ActionNewModelFromDB:
+    case HomeScreenAction::ActionNewModelFromDB:
       {
         _wb->new_document();          
         if (_wb->get_document().is_valid())
@@ -931,7 +999,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
         break;
       }
 
-    case ActionNewModelFromScript:
+    case HomeScreenAction::ActionNewModelFromScript:
       {
         _wb->new_document();
         if (_wb->get_document().is_valid())
@@ -955,6 +1023,8 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
           _wb->show_status_text("Error creating document");
         break;
       }
+    default:
+      logError("Unknown Action.\n");
   }
 }
 
@@ -969,18 +1039,17 @@ void WBContextUI::refresh_home_connections(bool clear_state)
 
   std::map<std::string, std::string> auto_save_files = WBContextSQLIDE::auto_save_sessions();
 
-  _home_screen->clear_connections(clear_state);
+  _connectionsSection->clear_connections(clear_state);
 
   // If there are no connections defined yet then create entries for all currently installed
   // local servers (only if this is the first run, after application start).
   if (_initializing_home_screen && (connections->count() == 0))
   {
-    grt::GRT* grt = _wb->get_grt();
-    grt::Module* module = grt->get_module("Workbench");
+    grt::Module* module = grt::GRT::get()->get_module("Workbench");
     if (module == NULL)
       throw std::logic_error("Internal error: can't find Workbench module.");
     
-    grt::StringListRef arguments(grt);
+    grt::StringListRef arguments(grt::Initialized);
     module->call_function("createInstancesFromLocalServers", arguments);
   }
 
@@ -1040,13 +1109,16 @@ void WBContextUI::refresh_home_connections(bool clear_state)
         if (auto_save_files.find((*inst)->id()) != auto_save_files.end())
           title += " (auto saved)";
 
-        _home_screen->add_connection(*inst, title, host_entry,
+        _connectionsSection->add_connection(*inst, title, host_entry,
           dict.get_string("userName"), dict.get_string("schema"));
       }
     }
   }
 
-  _home_screen->oldAuthConnections(oldAuthList);
+
+  _xConnectionsSection->loadProjects(ng::loadNgSessions());
+
+  _oldAuthList = oldAuthList;
 
   // Deletes invalid connections
   for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = invalid_connections.begin();
@@ -1067,7 +1139,7 @@ void WBContextUI::refresh_home_documents()
   if (!_home_screen)
     return;
 
-  _home_screen->clear_documents();
+  _documentsSection->clear_documents();
   
   std::map<std::string, std::string> auto_save_models(WBContextModel::auto_save_files());
 
@@ -1087,7 +1159,7 @@ void WBContextUI::refresh_home_documents()
     }
 
     if (!found)
-      _home_screen->add_document(iter->second, 0, wb::ModelFile::read_comment(iter->first.c_str()), 0);
+      _documentsSection->add_document(iter->second, 0, wb::ModelFile::read_comment(iter->first.c_str()), 0);
   }
   
   // Create list entries for each recently opened file.
@@ -1115,11 +1187,11 @@ void WBContextUI::refresh_home_documents()
         "\\MySQL\\Samples and Examples 5.5");
       examples_paths.push_back(mforms::Utilities::get_special_folder(mforms::WinProgramFiles) +
         "\\MySQL\\Samples and Examples 5.5");
-      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/extras");
+      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/extras");
 #elif defined(__APPLE__)
-      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/../SharedSupport");
+      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/../SharedSupport");
 #else
-      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/extras");
+      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/extras");
 #endif
 
       for (std::list<std::string>::const_iterator path_iterator = examples_paths.begin();
@@ -1148,9 +1220,9 @@ void WBContextUI::refresh_home_documents()
     struct stat stbuf;
 #endif
     if (base_stat((*f).c_str(), &stbuf) < 0)
-      _home_screen->add_document(*f, 0, "", 0);
+      _documentsSection->add_document(*f, 0, "", 0);
     else
-      _home_screen->add_document(*f, stbuf.st_mtime, wb::ModelFile::read_comment(*f), stbuf.st_size);
+      _documentsSection->add_document(*f, stbuf.st_mtime, wb::ModelFile::read_comment(*f), stbuf.st_size);
   }
 
 }

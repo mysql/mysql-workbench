@@ -800,7 +800,8 @@ public:
 
 //------------------------------------------------------------------------------------------------
 
-XConnectionsSection::XConnectionsSection(HomeScreen *owner)
+XConnectionsSection::XConnectionsSection(HomeScreen *owner) :
+    HomeScreenSection("wb_starter_grt_shell_52.png")
 {
   _owner = owner;
   _connection_context_menu = NULL;
@@ -1292,6 +1293,39 @@ void XConnectionsSection::updateHeight()
 
 //------------------------------------------------------------------------------------------------
 
+void XConnectionsSection::cancelOperation()
+{
+  // pass
+}
+
+void XConnectionsSection::setFocus()
+{
+  // pass
+}
+
+//------------------------------------------------------------------------------------------------
+
+bool XConnectionsSection::canHandle(HomeScreenMenuType type)
+{
+  return false;
+}
+
+//------------------------------------------------------------------------------------------------
+
+void XConnectionsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType type)
+{
+  // pass
+}
+
+//------------------------------------------------------------------------------------------------
+
+void XConnectionsSection::setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type)
+{
+  // pass
+}
+
+//------------------------------------------------------------------------------------------------
+
 void XConnectionsSection::loadProjects(const dataTypes::ProjectHolder &holder)
 {
     loadProjects(holder, _connections);
@@ -1409,31 +1443,31 @@ bool XConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
     {
       if (_addButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionNewXConnection, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionNewXConnection, base::any());
         return true;
       }
 
       if (_manageButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionManageXConnections, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionManageXConnections, base::any());
         return true;
       }
 
       if (_learnButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenXLearnMore, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionOpenXLearnMore, base::any());
         return true;
       }
 
       if (_tutorialButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenXTutorial, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionOpenXTutorial, base::any());
         return true;
       }
 
       if (_useTraditionalButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenXTraditional, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionOpenXTraditional, base::any());
         return true;
       }
 
@@ -1549,50 +1583,6 @@ bool XConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y)
 
 //------------------------------------------------------------------------------------------------
 
-void XConnectionsSection::set_context_menu(mforms::Menu *menu, HomeScreenMenuType type)
-{
-  switch (type)
-  {
-    case HomeMenuConnectionGroup:
-      if (_folder_context_menu != NULL)
-        _folder_context_menu->release();
-      _folder_context_menu = menu;
-      if (_folder_context_menu != NULL)
-      {
-        _folder_context_menu->retain();
-        menu->set_handler(boost::bind(&XConnectionsSection::handle_folder_command, this, _1));
-      }
-      break;
-
-    case HomeMenuConnection:
-      if (_connection_context_menu != NULL)
-        _connection_context_menu->release();
-      _connection_context_menu = menu;
-      if (_connection_context_menu != NULL)
-      {
-        _connection_context_menu->retain();
-        menu->set_handler(boost::bind(&XConnectionsSection::handle_command, this, _1));
-      }
-      break;
-
-    default:
-      if (_generic_context_menu != NULL)
-        _generic_context_menu->release();
-      _generic_context_menu = menu;
-      if (_generic_context_menu != NULL)
-      {
-        _generic_context_menu->retain();
-        menu->set_handler(boost::bind(&XConnectionsSection::handle_command, this, _1));
-      }
-      break;
-  }
-
-  if (menu != NULL)
-    scoped_connect(menu->signal_will_show(), boost::bind(&XConnectionsSection::menu_open, this));
-}
-
-//------------------------------------------------------------------------------------------------
-
 void XConnectionsSection::handle_command(const std::string &command)
 {
   dataTypes::XProject *project = nullptr;
@@ -1637,7 +1627,7 @@ void XConnectionsSection::handle_folder_command(const std::string &command)
 
     title += "/";
 
-    _owner->handle_context_menu(grt::StringRef(title), command);
+    _owner->handle_context_menu(title, command);
     _entry_for_menu.reset();
   }
 
@@ -1683,13 +1673,6 @@ void XConnectionsSection::hide_info_popup()
 void XConnectionsSection::popup_closed()
 {
   hide_info_popup();
-}
-
-//------------------------------------------------------------------------------------------------
-
-void XConnectionsSection::cancel_operation()
-{
-  _owner->cancel_script_loading();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -2069,7 +2052,7 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
         details.set("group", grt::StringRef("*Ungrouped*"));
       else
         details.set("group", grt::StringRef(entry->title));
-      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, details);
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, grt::ValueRef(details));
     }
     else
     {
@@ -2081,7 +2064,7 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
         to++;
 
       details.set("to", grt::IntegerRef((int)to));
-      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, details);
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, grt::ValueRef(details));
     }
     result = mforms::DragOperationMove;
 

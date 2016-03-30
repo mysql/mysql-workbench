@@ -17,25 +17,25 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_CONTEXT_UI_H_
-#define _WB_CONTEXT_UI_H_
+#pragma once
 
 // WB application functionality for UI
 
 #include "wb_backend_public_interface.h"
 #include "base/trackable.h"
 #include "base/notifications.h"
+#include "base/any.h"
 
 #include "grts/structs.app.h"
 #include "grts/structs.db.mgmt.h"
 #include "grt/plugin_manager.h"
-//#include "home_screen.h" // Needed for enums. Remove and forward declare the enums when C++11 is available.
 
 namespace bec 
 {
   class ValueTreeBE;
   class ValueInspectorBE;
   class BaseEditor;
+  class UIForm;
 };
 
 namespace mdc {
@@ -48,6 +48,8 @@ class PluginInstallWindow;
 class AddOnDownloadWindow;
 
 namespace wb {
+
+  enum class HomeScreenAction;
   
   class WBContext;
   struct WBFrontendCallbacks;
@@ -63,6 +65,9 @@ namespace wb {
   class ModelDiagramForm;
 
   class HomeScreen;
+  class XConnectionsSection;
+  class ConnectionsSection;
+  class DocumentsSection;
 
   // this class contains functionality that the UI needs,
   // like menu/toolbar access, special form backends etc
@@ -184,16 +189,14 @@ namespace wb {
     void locate_log_file();
     void show_log_file();
 
-    void handle_home_action(HomeScreenAction action, const grt::ValueRef &object);
+    void handle_home_action(wb::HomeScreenAction action, const grt::ValueRef &object);
 
     void remove_connection(const db_mgmt_ConnectionRef &connection);
-    void handle_home_context_menu(const grt::ValueRef &object, const std::string &action);
+    void handle_home_context_menu(const base::any &object, const std::string &action);
 
     void start_plugin(const std::string& title, const std::string& command, const bec::ArgumentPool &defaults, bool force_external = false);
 
-
-    
-    static void home_action_callback(HomeScreenAction action, const grt::ValueRef &object, WBContextUI *self);
+    static void home_action_callback(wb::HomeScreenAction action, const base::any &object, WBContextUI *self);
     
   private:
     WBContext *_wb;
@@ -201,6 +204,11 @@ namespace wb {
     // special forms/panels
     GRTShellWindow *_shell_window;
     HomeScreen *_home_screen;
+    XConnectionsSection *_xConnectionsSection;
+    ConnectionsSection *_connectionsSection;
+    DocumentsSection *_documentsSection;
+    std::vector<db_mgmt_ConnectionRef> _oldAuthList;
+
     OutputView *_output_view;
     AddOnDownloadWindow *_addon_download_window;
     PluginInstallWindow *_plugin_install_window;
@@ -220,6 +228,3 @@ namespace wb {
     bool _processing_action_open_connection;
   };
 };
-
-
-#endif

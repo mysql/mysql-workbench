@@ -24,11 +24,97 @@
 #include "base/log.h"
 #include <atkmm.h>
 #include "gtk_helpers.h"
+#include <gdk/gdkkeysyms-compat.h>
+#include <gtkmm/stylecontext.h>
+
 DEFAULT_LOG_DOMAIN("mforms.linux")
 
 namespace mforms { namespace gtk {
 
+mforms::ModifierKey GetModifiers(const guint state, const guint keyval)
+{
+  mforms::ModifierKey modifiers = mforms::ModifierNoModifier;
+  Gdk::ModifierType mod_type = Gtk::AccelGroup::get_default_mod_mask();
 
+  if ((state & mod_type) != 0)
+  {
+    if ((state & mod_type) == GDK_CONTROL_MASK)
+      modifiers = modifiers | mforms::ModifierControl;
+    if ((state & mod_type) == GDK_SHIFT_MASK)
+      modifiers = modifiers | mforms::ModifierShift;
+    if ((state & mod_type) == GDK_MOD1_MASK)
+      modifiers = modifiers | mforms::ModifierAlt;
+    if ((state & mod_type) == GDK_SUPER_MASK)
+      modifiers = modifiers | mforms::ModifierCommand;
+    if ((state & mod_type) == (GDK_CONTROL_MASK | GDK_SHIFT_MASK))
+      modifiers = modifiers | mforms::ModifierControl | mforms::ModifierShift;
+    if ((state & mod_type) == (GDK_CONTROL_MASK | GDK_MOD1_MASK))
+      modifiers = modifiers | mforms::ModifierControl | mforms::ModifierAlt;
+    if ((state & mod_type) == (GDK_CONTROL_MASK | GDK_SUPER_MASK))
+      modifiers = modifiers | mforms::ModifierControl | mforms::ModifierCommand;
+    if ((state & mod_type) == (GDK_SHIFT_MASK | GDK_MOD1_MASK))
+      modifiers = modifiers | mforms::ModifierShift | mforms::ModifierAlt;
+    if ((state & mod_type) == (GDK_SHIFT_MASK | GDK_SUPER_MASK))
+      modifiers = modifiers | mforms::ModifierShift | mforms::ModifierCommand;
+    if ((state & mod_type) == (GDK_SUPER_MASK | GDK_MOD1_MASK))
+      modifiers = modifiers | mforms::ModifierCommand | mforms::ModifierAlt;
+
+  }
+  return modifiers;
+}
+
+mforms::KeyCode GetKeys(const guint keyval)
+{
+  mforms::KeyCode code = mforms::KeyNone;
+  switch(keyval)
+  {
+  case GDK_Home:
+    code = mforms::KeyHome;
+    break;
+  case GDK_End:
+    code = mforms::KeyEnd;
+    break;
+  case GDK_Page_Up:
+    code = mforms::KeyPrevious;
+    break;
+  case GDK_Page_Down:
+    code = mforms::KeyNext;
+    break;
+  case GDK_Up:
+    code = mforms::KeyUp;
+    break;
+  case GDK_Down:
+    code = mforms::KeyDown;
+    break;
+
+  case GDK_KEY_Return:
+    code = mforms::KeyReturn;
+    break;
+
+  case GDK_KEY_KP_Enter:
+    code = mforms::KeyEnter;
+    break;
+  case GDK_KEY_Shift_L:
+  case GDK_KEY_Shift_R:
+  case GDK_KEY_Alt_L:
+  case GDK_KEY_Alt_R:
+  case GDK_KEY_Control_L:
+  case GDK_KEY_Control_R:
+  case GDK_KEY_Super_L:
+  case GDK_KEY_Super_R:
+    code = mforms::KeyModifierOnly;
+    break;
+  default:
+    if ((keyval >= GDK_KEY_A && keyval <= GDK_KEY_Z) || (keyval >= GDK_KEY_a && keyval <= GDK_KEY_z))
+      code = mforms::KeyChar;
+    break;
+  }
+
+  if (code == mforms::KeyNone)
+    code = mforms::KeyUnkown;
+
+  return code;
+}
 
   // get the widget that does the actual work. most of the time it will be the same as the outer one
 Gtk::Widget *ViewImpl::get_inner() const
@@ -410,10 +496,13 @@ void ViewImpl::set_back_color(const std::string &color)
   if (w)
   {
     mforms::gtk::set_color(w, color, BG_COLOR);
-    if (!color.empty())
-      w->override_background_color(color_to_rgba(Gdk::Color(color)), Gtk::STATE_FLAG_NORMAL);
+
+    auto provider = Gtk::CssProvider::create();
+    if (color.empty())
+      provider->load_from_data("* { background-color: rgba(0, 0, 0, 0); }");
     else
-      w->unset_background_color(Gtk::STATE_FLAG_NORMAL);
+      provider->load_from_data("* { background-color: " + color + "; }");
+    w->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
   }
 }
 
@@ -531,7 +620,7 @@ void ViewImpl::set_back_image(const std::string &path, mforms::Alignment alig)
   }
   catch (Glib::Error &exc)
   {
-    log_error("Could not load image for background: %s: %s\n", file.c_str(), exc.what().c_str());
+    logError("Could not load image for background: %s: %s\n", file.c_str(), exc.what().c_str());
   }
 }
 

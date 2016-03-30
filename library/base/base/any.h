@@ -67,7 +67,27 @@ struct any
   }
 
   template<class U>
+  StorageType<U>& as() const
+  {
+    typedef StorageType<U> T;
+
+    auto derived = dynamic_cast<Derived<T>*>(ptr);
+
+    if (!derived)
+      throw std::bad_cast();
+
+    return derived->value;
+  }
+
+
+  template<class U>
   operator U()
+  {
+    return as<StorageType<U>>();
+  }
+
+  template<class U>
+  operator U() const
   {
     return as<StorageType<U>>();
   }

@@ -62,7 +62,7 @@ public:
 //----------------- DocumentsSection ---------------------------------------------------------------
 
 
-class DocumentsSection: public mforms::DrawBox
+class DocumentsSection: public HomeScreenSection
 {
 private:
   HomeScreen *_owner;
@@ -108,6 +108,8 @@ private:
   base::Rect _model_heading_rect;
   base::Rect _sql_heading_rect;
   base::Rect _mixed_heading_rect;
+  std::string _pending_script;
+
 public:
   const int DOCUMENTS_LEFT_PADDING = 40;
   const int DOCUMENTS_RIGHT_PADDING = 40;
@@ -142,7 +144,13 @@ public:
   void update_filtered_documents();
   void draw_selection_message(cairo_t *cr);
   void layout(cairo_t *cr);
-  void updateHeight();
+  virtual void updateHeight();
+  virtual void cancelOperation();
+  virtual void setFocus();
+  virtual bool canHandle(HomeScreenMenuType type);
+  virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
+  virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
+
   void load_icons();
   void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
   void add_document(const std::string &path, const time_t &time, const std::string schemas,
@@ -152,12 +160,9 @@ public:
   virtual bool mouse_click(mforms::MouseButton button, int x, int y);
   bool mouse_leave();
   virtual bool mouse_move(mforms::MouseButton button, int x, int y);
-  void set_context_menu(mforms::Menu *menu, bool forModels);
-  void set_action_context_menu(mforms::Menu *menu, bool forModels);
   void handle_command(const std::string &command);
   void show_connection_select_message();
   void hide_connection_select_message();
-  void cancel_operation();
   virtual int get_acc_child_count();
   virtual Accessible* get_acc_child(int index);
   virtual Accessible::Role get_acc_role();
