@@ -54,6 +54,9 @@
 #include "mforms/appview.h"
 
 #include "home_screen.h"
+#include "home_screen_x_connections.h"
+#include "home_screen_connections.h"
+#include "home_screen_documents.h"
 
 #include "wb_command_ui.h"
 
@@ -106,7 +109,18 @@ WBContextUI::~WBContextUI()
   delete _plugin_install_window;
 
   if (_home_screen != NULL)
+  {
+    //first we clear up sidebar, then we can clear up sections as nothing else should be using those
+    if (_xConnectionsSection != nullptr)
+      delete _xConnectionsSection;
+    if (_connectionsSection != nullptr)
+      delete _connectionsSection;
+    if (_documentsSection != nullptr)
+      delete _documentsSection;
+
+    _home_screen->clearSidebar();
     _home_screen->release();
+  }
 
   delete _output_view;
   delete _shell_window;

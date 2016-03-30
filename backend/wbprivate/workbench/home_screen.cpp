@@ -67,7 +67,7 @@ private:
   HomeScreen *_owner;
   cairo_surface_t* _defaultEntryIcon;
 
-  std::vector<SidebarEntry*> _entries;
+  std::vector<std::pair<SidebarEntry*, HomeScreenSection*>> _entries;
 
   SidebarEntry *_hotEntry;
   SidebarEntry *_activeEntry; // For the context menu.
@@ -98,8 +98,10 @@ public:
   {
     deleteSurface(_defaultEntryIcon);
 
-    for(auto it : _entries)
-      delete it;
+    for(auto &it : _entries)
+      delete it.first;
+
+    _entries.clear();
   }
 
   //--------------------------------------------------------------------------------------------------
@@ -134,21 +136,21 @@ public:
       cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
 
-      for (auto iterator : _entries)
+      for (auto &iterator : _entries)
       {
         float alpha = (yoffset + SIDEBAR_ROW_HEIGHT) > height ? 0.25f : 1;
 
-        iterator->acc_bounds.pos.x = SIDEBAR_LEFT_PADDING;
-        iterator->acc_bounds.pos.y = yoffset;
-        iterator->acc_bounds.size.width = get_width() - (SIDEBAR_LEFT_PADDING + SIDEBAR_RIGHT_PADDING);
-        iterator->acc_bounds.size.height = SIDEBAR_ROW_HEIGHT;
+        iterator.first->acc_bounds.pos.x = SIDEBAR_LEFT_PADDING;
+        iterator.first->acc_bounds.pos.y = yoffset;
+        iterator.first->acc_bounds.size.width = get_width() - (SIDEBAR_LEFT_PADDING + SIDEBAR_RIGHT_PADDING);
+        iterator.first->acc_bounds.size.height = SIDEBAR_ROW_HEIGHT;
 
-        mforms::Utilities::paint_icon(cr, iterator->icon, SIDEBAR_LEFT_PADDING, yoffset, alpha);
+        mforms::Utilities::paint_icon(cr, iterator.first->icon, SIDEBAR_LEFT_PADDING, yoffset, alpha);
 
-        if (!iterator->title.empty())
+        if (!iterator.first->title.empty())
           cairo_set_source_rgba(cr, 0, 0, 0, alpha);
 
-        if (iterator == _activeEntry) //we need to draw an indicator
+        if (iterator.first == _activeEntry) //we need to draw an indicator
           drawTriangle(cr, get_width() - SIDEBAR_RIGHT_PADDING, yoffset, get_width(), yoffset + SIDEBAR_ROW_HEIGHT, alpha);
 
         yoffset += SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING;
@@ -188,7 +190,7 @@ public:
   /**
    * Adds a new sidebar entry to the internal list. The function performs some sanity checks.
    */
-  void addEntry(const std::string& icon_name, std::function<void()> callback, bool canSelect)
+  void addEntry(const std::string& icon_name, HomeScreenSection* section, std::function<void()> callback, bool canSelect)
   {
 
     SidebarEntry *entry = new SidebarEntry;
@@ -202,9 +204,13 @@ public:
     if (entry->icon == NULL)
       entry->icon = _defaultEntryIcon;
 
-    _entries.push_back(entry);
-    if (_activeEntry == nullptr && entry->canSelect)
-      _activeEntry = _entries.back();
+    _entries.push_back({entry, section});
+    if (_activeEntry == nullptr && entry->canSelect && section != nullptr)
+    {
+      _activeEntry = entry;
+      // If this is first entry, we need to show it.
+      section->get_parent()->show(true);
+    }
 
     set_layout_dirty(true);
   }
@@ -213,17 +219,33 @@ public:
 
   void clearEntries()
   {
-    for (auto iterator : _entries)
+    for (auto &iterator : _entries)
     {
-      if (iterator->icon != _defaultEntryIcon)
-        deleteSurface(iterator->icon);
-      delete iterator;
+      if (iterator.first->icon != _defaultEntryIcon)
+        deleteSurface(iterator.first->icon);
+      delete iterator.first;
     }
 
     _hotEntry = nullptr;
     _activeEntry = nullptr;
     _entries.clear();
     set_layout_dirty(true);
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
+  HomeScreenSection* getActive()
+  {
+    if (_activeEntry != nullptr)
+    {
+      for( auto &it : _entries)
+      {
+        if (it.first == _activeEntry)
+          return it.second;
+      }
+    }
+
+    return nullptr;
   }
 
   //--------------------------------------------------------------------------------------------------
@@ -251,22 +273,22 @@ public:
       // Compute bounding box for each shortcut entry.
       for (auto iterator : _entries)
       {
-        int icon_height = imageHeight(iterator->icon);
+        int icon_height = imageHeight(iterator.first->icon);
 
 
-        std::string title = iterator->title;
+        std::string title = iterator.first->title;
         if (!title.empty())
         {
-          iterator->title_bounds.pos.x = text_xoffset;
+          iterator.first->title_bounds.pos.x = text_xoffset;
 
           // Text position is the lower-left corner.
-          iterator->title_bounds.pos.y = icon_height / 4 + text_height / 2;
-          iterator->title_bounds.size.height = text_height;
+          iterator.first->title_bounds.pos.y = icon_height / 4 + text_height / 2;
+          iterator.first->title_bounds.size.height = text_height;
 
           cairo_text_extents_t extents;
-          iterator->title = mforms::Utilities::shorten_string(cr, title, text_width);
-          cairo_text_extents(cr, iterator->title.c_str(), &extents);
-          iterator->title_bounds.size.width = extents.width;
+          iterator.first->title = mforms::Utilities::shorten_string(cr, title, text_width);
+          cairo_text_extents(cr, iterator.first->title.c_str(), &extents);
+          iterator.first->title_bounds.size.width = extents.width;
         }
 
         yoffset += SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING;
@@ -326,7 +348,7 @@ public:
     SidebarEntry *shortcut = nullptr;
     int row = shortcutFromPoint(x, y);
     if (row > -1)
-      shortcut = _entries[row];
+      shortcut = _entries[row].first;
     if (shortcut != _hotEntry)
     {
       _hotEntry = shortcut;
@@ -334,13 +356,6 @@ public:
       return true;
     }
     return false;
-  }
-
-  //--------------------------------------------------------------------------------------------------
-
-  void cancel_operation()
-  {
-    _owner->cancel_script_loading();
   }
 
   //------------------------------------------------------------------------------------------------
@@ -357,7 +372,7 @@ public:
     mforms::Accessible* accessible = NULL;
 
     if (index < (int)_entries.size())
-      accessible = _entries[index];
+      accessible = _entries[index].first;
 
     return accessible;
   }
@@ -375,7 +390,7 @@ public:
 
     int row = shortcutFromPoint(x, y);
     if (row != -1)
-      accessible = _entries[row];
+      accessible = _entries[row].first;
 
     return accessible;
   }
@@ -386,71 +401,16 @@ public:
 
 #include "workbench/wb_command_ui.h"
 
-HomeScreen::HomeScreen(db_mgmt_ManagementRef rdbms)
+HomeScreen::HomeScreen()
   : AppView(true, "home", true)
 {
-  _rdbms = rdbms;
-
   _callback = nullptr;
   _user_data = nullptr;
-  openMigrationCallback = nullptr;
 
   _sidebarSection = new SidebarSection(this);
   _sidebarSection->set_name("Home Shortcuts Section");
   _sidebarSection->set_size(85, -1);
   add(_sidebarSection, false, true);
-
-  mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
-  _xConnectionsSection = new wb::XConnectionsSection(this);
-  _xConnectionsSection->set_name("Home X Connections Section");
-  _xConnectionsSection->set_size(-1, 1); // We need initial size for OSX.
-  scroll->add(_xConnectionsSection);
-  add(scroll, true, true);
-
-  scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
-  _connection_section = new wb::ConnectionsSection(this);
-  _connection_section->set_name("Home Connections Section");
-  _connection_section->set_size(-1, 1);  // We need initial size for OSX.
-  scroll->add(_connection_section);
-  add(scroll, true, true);
-  scroll->show(false);
-
-  scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
-  _document_section = new DocumentsSection(this);
-  _document_section->set_name("Home Models Section");
-  _document_section->set_size(-1, 1); // We need initial size for OSX.
-  scroll->add(_document_section);
-  add(scroll, true, true);
-  scroll->show(false);
-
-  _sidebarSection->addEntry("wb_starter_grt_shell_52.png", [this](){
-    _xConnectionsSection->get_parent()->show(true);
-    _xConnectionsSection->updateHeight();
-    _connection_section->get_parent()->show(false);
-    _document_section->get_parent()->show(false);
-  }, true);
-
-  _sidebarSection->addEntry("wb_starter_mysql_bug_reporter_52.png", [this]() {
-    _xConnectionsSection->get_parent()->show(false);
-    _connection_section->get_parent()->show(true);
-    _connection_section->updateHeight();
-    _document_section->get_parent()->show(false);
-  }, true);
-
-  _sidebarSection->addEntry("wb_starter_mysql_wb_blog_52.png", [this]() {
-    _xConnectionsSection->get_parent()->show(false);
-    _connection_section->get_parent()->show(false);
-    _document_section->get_parent()->show(true);
-    _document_section->updateHeight();
-  }, true);
-
-  _sidebarSection->addEntry("wb_starter_mysql_migration_52.png", [this]() {
-    if (openMigrationCallback)
-      openMigrationCallback();
-  }, false);
-  
-//  set_menubar(mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
-  //_toolbar = mforms::manage(cmdui->create_toolbar(""));
 
   update_colors();
 
@@ -466,9 +426,6 @@ HomeScreen::~HomeScreen()
   clear_subviews(); // Remove our sections or the View d-tor will try to release them.
 
   delete _sidebarSection;
-  delete _connection_section;
-  delete _document_section;
-  delete _xConnectionsSection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -481,6 +438,48 @@ void HomeScreen::update_colors()
 
 //--------------------------------------------------------------------------------------------------
 
+void HomeScreen::addSection(HomeScreenSection *section)
+{
+  if (section == nullptr)
+    throw std::runtime_error("Empty HomeScreenSection given");
+
+  _sections.push_back(section);
+
+  mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
+  scroll->add(section);
+  add(scroll, true, true);
+  scroll->show(false);
+
+  bool isCallbackOnly = section->callback ? true : false;
+  _sidebarSection->addEntry(section->getIcon(), section, [=]() {
+
+    if (isCallbackOnly)
+      section->callback();
+    else
+    {
+      for( auto &it: _sections)
+      {
+        if (it != section)
+          it->get_parent()->show(false);
+        else
+          it->get_parent()->show(true);
+      }
+      section->updateHeight();
+    }
+
+  }, !isCallbackOnly);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void HomeScreen::addSectionEntry(const std::string& icon_name, HomeScreenSection* section, std::function<void()> callback, bool canSelect)
+{
+  _sidebarSection->addEntry(icon_name, section, callback, canSelect);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void HomeScreen::set_callback(home_screen_action_callback callback, void* user_data)
 {
   _callback= callback;
@@ -489,26 +488,16 @@ void HomeScreen::set_callback(home_screen_action_callback callback, void* user_d
 
 //--------------------------------------------------------------------------------------------------
 
-void HomeScreen::trigger_callback(HomeScreenAction action, const grt::ValueRef &object)
+void HomeScreen::trigger_callback(HomeScreenAction action, const base::any &object)
 {
-  if (action == HomeScreenAction::ActionEditSQLScript)
-  {
-    // Editing a script takes 2 steps. The first one happens here, as we store the request and ask the user for
-    // a connection to open with that script.
-    _pending_script = grt::StringRef::cast_from(object);
-    _document_section->show_connection_select_message();
-    return;
-  }
-  else
-    _document_section->hide_connection_select_message();
-
   if (action == HomeScreenAction::ActionOpenConnectionFromList)
   {
     // The second step if we are opening an SQL script. If no SQL is selected we open the connection as usual.
-    if (!_pending_script.empty()&& _callback != NULL)
+    if (!_pending_script.empty() && _callback != NULL)
     {
+      grt::ValueRef val = object;
       grt::DictRef dict;
-      dict["connection"] = object;
+      dict["connection"] = val;
       dict["script"] = grt::StringRef(_pending_script);
       (*_callback)(HomeScreenAction::ActionEditSQLScript, dict, _user_data);
     }
@@ -540,71 +529,18 @@ void HomeScreen::openConnection(const dataTypes::XProject &project)
   printf("connection uuid: %s\n", project.connection.uuid.c_str());
 }
 
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::cancel_script_loading()
+void HomeScreen::cancelOperation()
 {
-  _pending_script = "";
-  _document_section->hide_connection_select_message();
+  for (auto &it : _sections)
+    it->cancelOperation();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void HomeScreen::clear_connections(bool clear_state)
+void HomeScreen::clearSidebar()
 {
-  _connection_section->clear_connections(clear_state);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::add_connection(db_mgmt_ConnectionRef connection, const std::string &title,
-  const std::string &description, const std::string &user, const std::string &schema)
-{
-  _connection_section->add_connection(connection, title, description, user, schema);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::addConnection(const dataTypes::XProject &project)
-{
-  if (_xConnectionsSection)
-  {
-    dataTypes::ProjectHolder p;
-    p.name = project.name;
-    p.project = project;
-    p.isGroup = false;
-    _xConnectionsSection->loadProjects(p);
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::addConnections(const dataTypes::ProjectHolder &holder)
-{
-  if (_xConnectionsSection)
-    _xConnectionsSection->loadProjects(holder);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::oldAuthConnections(const std::vector<db_mgmt_ConnectionRef> &list)
-{
-  _oldAuthList.assign(list.begin(), list.end());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::add_document(const grt::StringRef& path, const time_t &time,
-  const std::string schemas, long file_size)
-{
-  _document_section->add_document(path, time, schemas, file_size);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::clear_documents()
-{
-  _document_section->clear_documents();
+  if (_sidebarSection != nullptr)
+    _sidebarSection->clearEntries();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -616,24 +552,33 @@ void HomeScreen::set_menu(mforms::Menu *menu, HomeScreenMenuType type)
     case HomeMenuConnection:
     case HomeMenuConnectionGroup:
     case HomeMenuConnectionGeneric:
-      _connection_section->set_context_menu(menu, type);
+    {
+      for (auto &it : _sections)
+        it->setContextMenu(menu, type);
       break;
-
+    }
     case HomeMenuDocumentModelAction:
-      _document_section->set_action_context_menu(menu, true);
+    {
+      for (auto &it : _sections)
+        it->setContextMenuAction(menu, type);
       break;
+    }
 
     case HomeMenuDocumentModel:
-      _document_section->set_context_menu(menu, true);
+      for (auto &it : _sections)
+        it->setContextMenu(menu, type);
       break;
 
     case HomeMenuDocumentSQLAction:
-      _document_section->set_action_context_menu(menu, false);
+      for (auto &it : _sections)
+        it->setContextMenuAction(menu, type);
       break;
 
     case HomeMenuDocumentSQL:
-      _document_section->set_context_menu(menu, false);
+      for (auto &it : _sections)
+        it->setContextMenu(menu, type);
       break;
+
   }
 }
 
@@ -642,53 +587,15 @@ void HomeScreen::set_menu(mforms::Menu *menu, HomeScreenMenuType type)
 void HomeScreen::on_resize()
 {
   // Resize changes the layout so if there is pending script loading the popup is likely misplaced.
-  if (!_pending_script.empty())
-    cancel_script_loading();
-
+  cancelOperation();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void HomeScreen::setup_done()
 {
-  _connection_section->focus_search_box();
-  if (!_oldAuthList.empty())
-  {
-    std::string tmp;
-    std::vector<db_mgmt_ConnectionRef>::const_iterator it;
-    for (it = _oldAuthList.begin(); it != _oldAuthList.end(); ++it)
-    {
-      tmp.append("\n");
-      tmp.append((*it)->name());
-      tmp.append(" user name:");
-      tmp.append((*it)->parameterValues().get_string("userName"));
-    }
-
-    int rc = mforms::Utilities::show_warning("Connections using old authentication protocol found",
-              "While loading the stored connections some were found to use the old authentication protocol. "
-              "This is no longer supported by MySQL Workbench and the MySQL client library. Click on the \"More Info\" button for a more detailed explanation.\n\n"
-              "With this change it is essential that user accounts are converted to the new password storage or you can no longer connect with MySQL Workbench using these accounts.\n\n"
-              "The following connections are affected:\n"
-              +tmp,
-              "Change", "Ignore", "More Info");
-    if (rc == mforms::ResultOther)
-    {
-      mforms::Utilities::open_url("http://mysqlworkbench.org/2014/03/mysql-workbench-6-1-updating-accounts-using-the-old-pre-4-1-1-authentication-protocol/");
-    }
-    else if (rc == mforms::ResultOk)
-    {
-      std::vector<db_mgmt_ConnectionRef>::const_iterator it;
-      for (it = _oldAuthList.begin(); it != _oldAuthList.end(); ++it)
-      {
-        if((*it).is_valid())
-        {
-          if ((*it)->parameterValues().has_key("useLegacyAuth"))
-            (*it)->parameterValues().remove("useLegacyAuth");
-        }
-      }
-      _oldAuthList.clear();
-    }
-  }
+  if (_sidebarSection->getActive())
+    _sidebarSection->getActive()->setFocus();
 }
 
 //--------------------------------------------------------------------------------------------------

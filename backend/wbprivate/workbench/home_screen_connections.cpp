@@ -498,13 +498,13 @@ public:
       if (_button2_rect.contains(x, y))
       {
         set_modal_result(1);
-        owner->trigger_callback(ActionSetupRemoteManagement, connection);
+        owner->trigger_callback(HomeScreenAction::ActionSetupRemoteManagement, connection);
       }
       else
       if (_button3_rect.contains(x, y))
       {
         set_modal_result(1);
-        owner->handle_context_menu(connection, "");
+        owner->handle_context_menu(grt::ValueRef(connection), "");
       }
       else 
       if (_button4_rect.contains(x, y))
@@ -704,7 +704,7 @@ public:
       cairo_set_source_surface(cr, overlay, bounds.left() + bounds.width() - imageWidth(overlay), bounds.top());
       cairo_paint_with_alpha(cr, alpha);
 
-      cairo_set_source_rgba(cr, component, component, component, alpha);
+      cairo_set_source_rgba(cr, 1, 1, 1, alpha);
 #endif
     }
 
@@ -776,7 +776,7 @@ public:
   virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
     // Anything else.
-    owner->_owner->trigger_callback(ActionOpenConnectionFromList, connection);
+    owner->_owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, grt::ValueRef(connection));
   }
 
   virtual mforms::Menu *context_menu()
@@ -826,7 +826,7 @@ public:
     base::Rect item_bounds = base::Rect(pos.first, pos.second, ConnectionsSection::CONNECTIONS_TILE_WIDTH, ConnectionsSection::CONNECTIONS_TILE_HEIGHT);
 
     db_mgmt_ServerInstanceRef instance;
-    grt::ListRef<db_mgmt_ServerInstance> instances = owner->_owner->rdbms()->storedInstances();
+    grt::ListRef<db_mgmt_ServerInstance> instances = owner->_rdbms->storedInstances();
     for (grt::ListRef<db_mgmt_ServerInstance>::const_iterator iterator = instances.begin();
          iterator != instances.end(); iterator++)
     {
@@ -990,8 +990,9 @@ public:
 
 //------------------------------------------------------------------------------------------------
 
-ConnectionsSection::ConnectionsSection(HomeScreen *owner)
-: _search_box(true), _search_text(mforms::SmallSearchEntry)
+ConnectionsSection::ConnectionsSection(HomeScreen *owner, db_mgmt_ManagementRef rdbms)
+: HomeScreenSection("wb_starter_mysql_bug_reporter_52.png"),
+  _search_box(true), _search_text(mforms::SmallSearchEntry), _rdbms(rdbms)
 {
   _owner = owner;
   _connection_context_menu = NULL;
@@ -1168,7 +1169,7 @@ void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
           break;
 
         case 2: // Exactly one entry matched the filter. Activate it.
-          _owner->trigger_callback(ActionOpenConnectionFromList, _filtered_connections[1]->connection);
+          _owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, grt::ValueRef(_filtered_connections[1]->connection));
           break;
       }
     }
@@ -1197,7 +1198,7 @@ void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
           set_needs_repaint();
         }
         else
-        _owner->trigger_callback(ActionOpenConnectionFromList, _filtered_connections[0]->connection);
+        _owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, grt::ValueRef(_filtered_connections[0]->connection));
       }
     }
   }
@@ -1466,6 +1467,88 @@ void ConnectionsSection::updateHeight()
 
 //------------------------------------------------------------------------------------------------
 
+void ConnectionsSection::cancelOperation()
+{
+  // noop
+}
+
+void ConnectionsSection::setFocus()
+{
+  _search_text.focus();
+}
+
+//------------------------------------------------------------------------------------------------
+
+bool ConnectionsSection::canHandle(HomeScreenMenuType type)
+{
+  switch(type)
+  {
+     case HomeMenuConnection:
+     case HomeMenuConnectionGroup:
+     case HomeMenuConnectionGeneric:
+       return true;
+     default:
+       return false;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------------------------
+
+void ConnectionsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType type)
+{
+  if (canHandle(type))
+  {
+    switch (type)
+    {
+      case HomeMenuConnectionGroup:
+        if (_folder_context_menu != NULL)
+          _folder_context_menu->release();
+        _folder_context_menu = menu;
+        if (_folder_context_menu != NULL)
+        {
+          _folder_context_menu->retain();
+          menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1));
+        }
+        break;
+
+      case HomeMenuConnection:
+        if (_connection_context_menu != NULL)
+          _connection_context_menu->release();
+        _connection_context_menu = menu;
+        if (_connection_context_menu != NULL)
+        {
+          _connection_context_menu->retain();
+          menu->set_handler(boost::bind(&ConnectionsSection::handle_command, this, _1));
+        }
+        break;
+
+      default:
+        if (_generic_context_menu != NULL)
+          _generic_context_menu->release();
+        _generic_context_menu = menu;
+        if (_generic_context_menu != NULL)
+        {
+          _generic_context_menu->retain();
+          menu->set_handler(boost::bind(&ConnectionsSection::handle_command, this, _1));
+        }
+        break;
+    }
+
+    if (menu != NULL)
+      scoped_connect(menu->signal_will_show(), boost::bind(&ConnectionsSection::menu_open, this));
+  }
+}
+
+//------------------------------------------------------------------------------------------------
+
+void ConnectionsSection::setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type)
+{
+  // pass
+}
+
+//------------------------------------------------------------------------------------------------
+
 void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection, const std::string &title,
                                         const std::string &description, const std::string &user, const std::string &schema)
 {
@@ -1621,13 +1704,13 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
     {
       if (_add_button.bounds.contains(x, y))
       {
-        _owner->trigger_callback(ActionNewConnection, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionNewConnection, base::any());
         return true;
       }
 
       if (_manage_button.bounds.contains(x, y))
       {
-        _owner->trigger_callback(ActionManageConnections, grt::ValueRef());
+        _owner->trigger_callback(HomeScreenAction::ActionManageConnections, base::any());
         return true;
       }
 
@@ -1743,53 +1826,9 @@ bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y)
 
 //------------------------------------------------------------------------------------------------
 
-void ConnectionsSection::set_context_menu(mforms::Menu *menu, HomeScreenMenuType type)
-{
-  switch (type)
-  {
-    case HomeMenuConnectionGroup:
-      if (_folder_context_menu != NULL)
-        _folder_context_menu->release();
-      _folder_context_menu = menu;
-      if (_folder_context_menu != NULL)
-      {
-        _folder_context_menu->retain();
-        menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1));
-      }
-      break;
-
-    case HomeMenuConnection:
-      if (_connection_context_menu != NULL)
-        _connection_context_menu->release();
-      _connection_context_menu = menu;
-      if (_connection_context_menu != NULL)
-      {
-        _connection_context_menu->retain();
-        menu->set_handler(boost::bind(&ConnectionsSection::handle_command, this, _1));
-      }
-      break;
-
-    default:
-      if (_generic_context_menu != NULL)
-        _generic_context_menu->release();
-      _generic_context_menu = menu;
-      if (_generic_context_menu != NULL)
-      {
-        _generic_context_menu->retain();
-        menu->set_handler(boost::bind(&ConnectionsSection::handle_command, this, _1));
-      }
-      break;
-  }
-
-  if (menu != NULL)
-    scoped_connect(menu->signal_will_show(), boost::bind(&ConnectionsSection::menu_open, this));
-}
-
-//------------------------------------------------------------------------------------------------
-
 void ConnectionsSection::handle_command(const std::string &command)
 {
-  grt::ObjectRef item;
+  db_mgmt_ConnectionRef item;
   if (_entry_for_menu)
   {
     if (_active_folder)
@@ -1812,6 +1851,7 @@ void ConnectionsSection::handle_command(const std::string &command)
       item = _entry_for_menu->connection;
     }
   }
+
   _owner->handle_context_menu(item, command);
   _entry_for_menu.reset();
 }
@@ -1830,7 +1870,7 @@ void ConnectionsSection::handle_folder_command(const std::string &command)
 
     title += "/";
 
-    _owner->handle_context_menu(grt::StringRef(title), command);
+    _owner->handle_context_menu(title, command);
     _entry_for_menu.reset();
   }
 
@@ -1876,13 +1916,6 @@ void ConnectionsSection::hide_info_popup()
 void ConnectionsSection::popup_closed()
 {
   hide_info_popup();
-}
-
-//------------------------------------------------------------------------------------------------
-
-void ConnectionsSection::cancel_operation()
-{
-  _owner->cancel_script_loading();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -2195,10 +2228,8 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
   db_mgmt_ConnectionRef connection = entry->connection;
   if (connection.is_valid())
   {
-    grt::GRT *grt = connection->get_grt();
-
     // Allow only sql script files to be dropped.
-    grt::StringListRef valid_names(grt);
+    grt::StringListRef valid_names(grt::Initialized);
     for (size_t i = 0; i < file_names.size(); ++i)
       if (base::tolower(base::extension(file_names[i])) == ".sql")
         valid_names.insert(file_names[i]);
@@ -2206,10 +2237,10 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
     if (valid_names.count() == 0)
     return mforms::DragOperationNone;
 
-    grt::DictRef details(grt);
+    grt::DictRef details(true);
     details.set("connection", connection);
     details.set("files", valid_names);
-    _owner->trigger_callback(ActionFilesWithConnection, details);
+    _owner->trigger_callback(HomeScreenAction::ActionFilesWithConnection, grt::ValueRef(details));
   }
 
   return mforms::DragOperationCopy;
@@ -2250,7 +2281,7 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
     bool is_back_tile = entry->title == "< back";
 
     // Drop target is a group.
-    grt::DictRef details(_owner->rdbms().get_grt());
+    grt::DictRef details(true);
 
     details.set("object", grt::StringRef(source_entry->title + "/"));
 
@@ -2261,7 +2292,7 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
         details.set("group", grt::StringRef("*Ungrouped*"));
       else
         details.set("group", grt::StringRef(entry->title));
-      _owner->trigger_callback(ActionMoveConnectionToGroup, details);
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, grt::ValueRef(details));
     }
     else
     {
@@ -2273,7 +2304,7 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
         to++;
 
       details.set("to", grt::IntegerRef((int)to));
-      _owner->trigger_callback(ActionMoveConnection, details);
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, grt::ValueRef(details));
     }
     result = mforms::DragOperationMove;
 

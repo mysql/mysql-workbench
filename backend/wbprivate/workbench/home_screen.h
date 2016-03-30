@@ -25,6 +25,7 @@
 
 #include "base/notifications.h"
 #include "base/data_types.h"
+#include "base/any.h"
 #include "mforms/appview.h"
 #include "mforms/drawbox.h"
 #include "mforms/tabview.h"
@@ -47,7 +48,7 @@ namespace wb
   class XConnectionsSection;
   class XConnectionEntry;
 
-  typedef void (*home_screen_action_callback)(HomeScreenAction action, const grt::ValueRef &object, void* user_data);
+  typedef void (*home_screen_action_callback)(HomeScreenAction action, const base::any &object, void* user_data);
 
   class CommandUI;
 
@@ -61,46 +62,30 @@ namespace wb
   {
   private:
     SidebarSection *_sidebarSection;
-    ConnectionsSection *_connection_section;
-    XConnectionsSection *_xConnectionsSection;
-    DocumentsSection *_document_section;
-
 
     std::string _pending_script; // The path to a script that should be opened next time a connection is opened.
-    db_mgmt_ManagementRef _rdbms;
     home_screen_action_callback _callback;
     void* _user_data;
     mforms::TabView _tabView;
 
     void update_colors();
 
-    std::vector<db_mgmt_ConnectionRef> _oldAuthList;
+    std::vector<HomeScreenSection*> _sections;
   public:
-    HomeScreen(db_mgmt_ManagementRef rdbms);
+    HomeScreen();
     virtual ~HomeScreen();
     
-    db_mgmt_ManagementRef rdbms() { return _rdbms; };
-    
-    boost::function<void (grt::ValueRef, std::string)> handle_context_menu;
-    std::function<void()> openMigrationCallback;
+    void addSection(HomeScreenSection *section);
+    void addSectionEntry(const std::string& icon_name, HomeScreenSection* section, std::function<void()> callback, bool canSelect);
+
+    std::function<void (base::any, std::string)> handle_context_menu;
     
     void set_callback(home_screen_action_callback callback, void* user_data);
-    void trigger_callback(HomeScreenAction action, const grt::ValueRef &object);
+    void trigger_callback(HomeScreenAction action, const base::any &object);
     void openConnection(const dataTypes::XProject &project);
 
-    void cancel_script_loading();
-
-    void clear_connections(bool clear_state = true);
-    void add_connection(db_mgmt_ConnectionRef connection, const std::string &title,
-      const std::string &description, const std::string &user, const std::string &schema);
-    void addConnection(const dataTypes::XProject &project);
-    void addConnections(const dataTypes::ProjectHolder &holder);
-
-    void oldAuthConnections(const std::vector<db_mgmt_ConnectionRef> &list);
-
-    void clear_documents();
-    void add_document(const grt::StringRef &path, const time_t &time, const std::string schemas,
-      long file_size);
+    void cancelOperation();
+    void clearSidebar();
 
     void set_menu(mforms::Menu *menu, HomeScreenMenuType type);
 

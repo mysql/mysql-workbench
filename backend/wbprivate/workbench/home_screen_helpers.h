@@ -21,6 +21,7 @@
 
 #include <cairo/cairo.h>
 #include "mforms/drawbox.h"
+#include "mforms/menu.h"
 
 namespace wb
 {
@@ -115,6 +116,23 @@ namespace wb
     virtual base::Rect get_acc_bounds();
 
     virtual void do_default_action();
+  };
+
+  class HomeScreenSection : public mforms::DrawBox
+  {
+  protected:
+    std::string _iconName;
+  public:
+    HomeScreenSection(const std::string &icon) : _iconName(icon){}
+    virtual ~HomeScreenSection() {};
+    std::string getIcon() { return _iconName; }
+    virtual void updateHeight() = 0;
+    virtual void cancelOperation() = 0;
+    virtual void setFocus() = 0;
+    virtual bool canHandle(HomeScreenMenuType type) = 0;
+    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) = 0;
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) = 0;
+    std::function<void()> callback;
   };
 
   // The following helpers are just temporary. They will be replaced by a cairo context class.

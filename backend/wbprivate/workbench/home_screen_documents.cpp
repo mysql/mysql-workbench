@@ -71,7 +71,8 @@ std::string DocumentEntry::get_acc_default_action()
 
 //----------------- DocumentsSection ---------------------------------------------------------------
 
-DocumentsSection::DocumentsSection(wb::HomeScreen *owner)
+DocumentsSection::DocumentsSection(wb::HomeScreen *owner) :
+    HomeScreenSection("wb_starter_mysql_wb_blog_52.png")
 {
   _owner = owner;
   _model_context_menu = NULL;
@@ -476,6 +477,71 @@ void DocumentsSection::updateHeight()
 
 //------------------------------------------------------------------------------------------------
 
+void DocumentsSection::cancelOperation()
+{
+  _pending_script = "";
+  hide_connection_select_message();
+}
+
+//------------------------------------------------------------------------------------------------
+
+void DocumentsSection::setFocus()
+{
+  // pass
+}
+
+
+//------------------------------------------------------------------------------------------------
+
+bool DocumentsSection::canHandle(HomeScreenMenuType type)
+{
+  switch(type)
+  {
+     case HomeMenuDocumentModelAction:
+     case HomeMenuDocumentModel:
+     case HomeMenuDocumentSQLAction:
+     case HomeMenuDocumentSQL:
+       return true;
+     default:
+       return false;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------------------------
+
+void DocumentsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType type)
+{
+  if (canHandle(type) && type == HomeMenuDocumentModel)
+  {
+    if (_model_context_menu != NULL)
+      _model_context_menu->release();
+    _model_context_menu = menu;
+    if (_model_context_menu != NULL)
+      _model_context_menu->retain();
+
+    menu->set_handler(boost::bind(&DocumentsSection::handle_command, this, _1));
+  }
+}
+
+//------------------------------------------------------------------------------------------------
+
+void DocumentsSection::setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type)
+{
+  if (canHandle(type) && type == HomeMenuDocumentModelAction)
+  {
+    if (_model_action_menu != NULL)
+      _model_action_menu->release();
+    _model_action_menu = menu;
+    if (_model_context_menu != NULL)
+      _model_action_menu->retain();
+
+    menu->set_handler(boost::bind(&DocumentsSection::handle_command, this, _1));
+  }
+}
+
+//------------------------------------------------------------------------------------------------
+
 void DocumentsSection::load_icons()
 {
   if (_backing_scale_when_icons_loaded
@@ -746,13 +812,16 @@ bool DocumentsSection::mouse_double_click(mforms::MouseButton button, int x,
     _active_entry = entry_from_point(x, y);
     if (_active_entry > -1)
     {
-      printf("add support, change handling\n");
-//      if (_filtered_documents[_active_entry].is_model)
-//        _owner->trigger_callback(HomeScreenAction::ActionOpenEERModelFromList,
-//            _filtered_documents[_active_entry].path);
-//      else
-//        _owner->trigger_callback(HomeScreenAction::ActionEditSQLScript,
-//            _filtered_documents[_active_entry].path);
+      _owner->cancelOperation();
+
+      if (_filtered_documents[_active_entry].is_model)
+        _owner->trigger_callback(HomeScreenAction::ActionOpenEERModelFromList,
+            grt::ValueRef(grt::StringRef(_filtered_documents[_active_entry].path)));
+      else
+      {
+        _pending_script = _filtered_documents[_active_entry].path;
+        show_connection_select_message();
+      }
       return true;
     }
   }
@@ -790,7 +859,7 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y)
   {
     if (_show_selection_message && _close_button_rect.contains(x, y))
     {
-      _owner->cancel_script_loading();
+      _owner->cancelOperation();
       return true;
     }
 
@@ -830,7 +899,7 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y)
 
     if (_model_heading_rect.contains_flipped(x, y))
     {
-      _owner->cancel_script_loading();
+      _owner->cancelOperation();
 
       if (_display_mode != ModelsOnly)
       {
@@ -854,7 +923,7 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y)
 
     if (_mixed_heading_rect.contains_flipped(x, y))
     {
-      _owner->cancel_script_loading();
+      _owner->cancelOperation();
 
       if (_display_mode != Mixed)
       {
@@ -869,15 +938,16 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y)
     _active_entry = entry_from_point(x, y);
     if (_active_entry > -1)
     {
-      _owner->cancel_script_loading();
+      _owner->cancelOperation();
 
-      printf("add support change handling\n");
-//      if (_filtered_documents[_active_entry].is_model)
-//        _owner->trigger_callback(HomeScreenAction::ActionOpenEERModelFromList,
-//            _filtered_documents[_active_entry].path);
-//      else
-//        _owner->trigger_callback(HomeScreenAction::ActionEditSQLScript,
-//            _filtered_documents[_active_entry].path);
+      if (_filtered_documents[_active_entry].is_model)
+        _owner->trigger_callback(HomeScreenAction::ActionOpenEERModelFromList,
+            grt::ValueRef(grt::StringRef(_filtered_documents[_active_entry].path)));
+      else
+      {
+        _pending_script = _filtered_documents[_active_entry].path;
+        show_connection_select_message();
+      }
 
       return true;
     }
@@ -886,7 +956,7 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y)
 
   case mforms::MouseButtonRight:
   {
-    _owner->cancel_script_loading();
+    _owner->cancelOperation();
 
     if (_display_mode == ModelsOnly)
     {
@@ -959,51 +1029,17 @@ bool DocumentsSection::mouse_move(mforms::MouseButton button, int x, int y)
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
-
-void DocumentsSection::set_context_menu(mforms::Menu *menu, bool forModels)
-{
-  if (forModels)
-  {
-    if (_model_context_menu != NULL)
-      _model_context_menu->release();
-    _model_context_menu = menu;
-    if (_model_context_menu != NULL)
-      _model_context_menu->retain();
-
-    menu->set_handler(boost::bind(&DocumentsSection::handle_command, this, _1));
-  }
-}
-
-//------------------------------------------------------------------------------------------------
-
-void DocumentsSection::set_action_context_menu(mforms::Menu *menu,
-                                               bool forModels)
-{
-  if (forModels)
-  {
-    if (_model_action_menu != NULL)
-      _model_action_menu->release();
-    _model_action_menu = menu;
-    if (_model_context_menu != NULL)
-      _model_action_menu->retain();
-
-    menu->set_handler(boost::bind(&DocumentsSection::handle_command, this, _1));
-  }
-}
-
 //------------------------------------------------------------------------------------------------
 
 void DocumentsSection::handle_command(const std::string &command)
 {
-  /*
+
   if (_active_entry > -1)
-    _owner->handle_context_menu(_filtered_documents[_active_entry].path,
+    _owner->handle_context_menu(grt::ValueRef(grt::StringRef(_filtered_documents[_active_entry].path)),
         command);
   else
-    _owner->handle_context_menu(grt::ValueRef(), command);
-    */
-  printf("handle command\n");
+    _owner->handle_context_menu(base::any(), command);
+
   _active_entry = -1;
 }
 
@@ -1021,13 +1057,6 @@ void DocumentsSection::hide_connection_select_message()
 {
   _show_selection_message = false;
   set_needs_repaint();
-}
-
-//------------------------------------------------------------------------------------------------
-
-void DocumentsSection::cancel_operation()
-{
-  _owner->cancel_script_loading();
 }
 
 //------------------------------------------------------------------------------------------------
