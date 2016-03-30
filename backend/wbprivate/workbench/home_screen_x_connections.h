@@ -35,7 +35,7 @@ namespace wb
   class XConnectionInfoPopup;
   class HomeScreen;
 
-  class XConnectionsSection: public mforms::DrawBox, public mforms::DropDelegate
+  class MYSQLWBBACKEND_PUBLIC_FUNC XConnectionsSection : public HomeScreenSection, public mforms::DropDelegate
   {
     friend class XConnectionEntry;
     friend class XFolderBackEntry;
@@ -50,16 +50,12 @@ namespace wb
     cairo_surface_t* _folder_icon;
     cairo_surface_t* _mouse_over_icon;
     cairo_surface_t* _mouse_over2_icon;
-    cairo_surface_t* _network_icon;
-    cairo_surface_t* _ha_filter_icon;
-    cairo_surface_t* _managed_status_icon;
     cairo_surface_t* _plus_icon;
-    cairo_surface_t* _sakila_icon;
-    cairo_surface_t* _schema_icon;
-    cairo_surface_t* _user_icon;
     cairo_surface_t* _manage_icon;
+    cairo_surface_t* _xTileIcon;
 
     base::Color _titleColor;
+    base::Color _descriptionColor;
     base::Color _folderTitleColor;
     base::Color _backgroundColor;
     base::Color _backgroundColorHot;
@@ -135,8 +131,6 @@ namespace wb
     void hide_info_popup();
     void popup_closed();
 
-    void cancel_operation();
-
     void change_to_folder(std::shared_ptr<XFolderEntry> folder);
 
     virtual int get_acc_child_count();
@@ -157,11 +151,11 @@ namespace wb
   public:
     static const int CONNECTIONS_LEFT_PADDING = 40;
     static const int CONNECTIONS_RIGHT_PADDING = 40; // The tile spacing right to the last tile in the row does not belong to this padding.
-    static const int CONNECTIONS_TOP_PADDING = 75; // The vertical offset of the first visible shortcut entry->
+    static const int CONNECTIONS_TOP_PADDING = 75; // The vertical offset of the first visible shortcut entry.
     static const int CONNECTIONS_SPACING = 9; // Vertical/horizontal space between entries.
 
-    static const int CONNECTIONS_TILE_WIDTH = 241;
-    static const int CONNECTIONS_TILE_HEIGHT = 91;
+    static const int CONNECTIONS_TILE_WIDTH = 300;
+    static const int CONNECTIONS_TILE_HEIGHT = 85;
 
     XConnectionsSection(HomeScreen *owner);
     ~XConnectionsSection();
@@ -172,7 +166,11 @@ namespace wb
     void loadProjects(const dataTypes::ProjectHolder &holder);
     void loadProjects(const dataTypes::ProjectHolder &holder, XConnectionVector &children);
 
-    void set_context_menu(mforms::Menu *menu, HomeScreenMenuType type);
-    void updateHeight();
+    virtual void updateHeight();
+    virtual void cancelOperation();
+    virtual void setFocus();
+    virtual bool canHandle(HomeScreenMenuType type);
+    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
   };
 }

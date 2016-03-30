@@ -38,7 +38,7 @@ namespace wb
   class FolderEntry;
   class ConnectionInfoPopup;
 
-  class ConnectionsSection: public mforms::DrawBox, public mforms::DropDelegate
+  class ConnectionsSection: public HomeScreenSection, public mforms::DropDelegate
   {
     friend class ConnectionEntry;
     friend class FolderBackEntry;
@@ -101,6 +101,7 @@ namespace wb
     mforms::TextEntry _search_text;
 
     base::Rect _mouse_down_position; // Used to determine if the user starts a drag/drop operation.
+    db_mgmt_ManagementRef _rdbms;
 
     ConnectionVector &displayed_connections();
 
@@ -132,8 +133,6 @@ namespace wb
     void hide_info_popup();
     void popup_closed();
 
-    void cancel_operation();
-
     void change_to_folder(std::shared_ptr<FolderEntry> folder);
 
     virtual int get_acc_child_count();
@@ -160,15 +159,18 @@ namespace wb
     static const int CONNECTIONS_TILE_WIDTH = 241;
     static const int CONNECTIONS_TILE_HEIGHT = 91;
 
-    ConnectionsSection(HomeScreen *owner);
+    ConnectionsSection(HomeScreen *owner, db_mgmt_ManagementRef rdbms);
     ~ConnectionsSection();
     void clear_connections(bool clear_state = true);
     void focus_search_box();
-    void updateHeight();
+    virtual void updateHeight();
+    virtual void cancelOperation();
+    virtual void setFocus();
+    virtual bool canHandle(HomeScreenMenuType type);
+    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
 
     void add_connection(const db_mgmt_ConnectionRef &connection, const std::string &title,
                         const std::string &description, const std::string &user, const std::string &schema);
-
-    void set_context_menu(mforms::Menu *menu, HomeScreenMenuType type);
   };
 }
