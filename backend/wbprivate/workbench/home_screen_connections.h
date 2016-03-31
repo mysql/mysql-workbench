@@ -43,6 +43,7 @@ namespace wb
     friend class ConnectionEntry;
     friend class FolderBackEntry;
     friend class FolderEntry;
+    friend class ConnectionInfoPopup;
 
   private:
     HomeScreen *_owner;
@@ -101,7 +102,6 @@ namespace wb
     mforms::TextEntry _search_text;
 
     base::Rect _mouse_down_position; // Used to determine if the user starts a drag/drop operation.
-    db_mgmt_ManagementRef _rdbms;
 
     ConnectionVector &displayed_connections();
 
@@ -113,7 +113,7 @@ namespace wb
     std::shared_ptr<ConnectionEntry> entry_from_point(int x, int y, bool &in_details_area);
     std::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index);
     base::Rect bounds_for_entry(ssize_t index);
-    db_mgmt_ConnectionRef connection_from_index(ssize_t index);
+    std::string connectionIdFromIndex(ssize_t index);
 
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
 
@@ -159,7 +159,7 @@ namespace wb
     static const int CONNECTIONS_TILE_WIDTH = 241;
     static const int CONNECTIONS_TILE_HEIGHT = 91;
 
-    ConnectionsSection(HomeScreen *owner, db_mgmt_ManagementRef rdbms);
+    ConnectionsSection(HomeScreen *owner);
     ~ConnectionsSection();
     void clear_connections(bool clear_state = true);
     void focus_search_box();
@@ -169,8 +169,9 @@ namespace wb
     virtual bool canHandle(HomeScreenMenuType type);
     virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
     virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
+    std::function<anyMap (const std::string&)> getConnectionInfoCallback;
 
-    void add_connection(const db_mgmt_ConnectionRef &connection, const std::string &title,
+    void addConnection(const std::string &connectionId, const std::string &title,
                         const std::string &description, const std::string &user, const std::string &schema);
   };
 }

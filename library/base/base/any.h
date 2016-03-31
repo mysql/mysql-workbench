@@ -29,13 +29,9 @@ using StorageType = typename std::decay<T>::type;
 
 struct any
 {
-  bool is_null() const
+  bool isNull() const
   {
     return !ptr;
-  }
-  bool not_null() const
-  {
-    return ptr;
   }
 
   template<typename U> any(U&& value) :

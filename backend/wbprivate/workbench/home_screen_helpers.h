@@ -22,10 +22,43 @@
 #include <cairo/cairo.h>
 #include "mforms/drawbox.h"
 #include "mforms/menu.h"
+#include "base/any.h"
 
 namespace wb
 {
 //--------------------------------------------------------------------------------------------------
+
+  typedef std::map<std::string, base::any> anyMap;
+
+  template <typename T> T getAnyMapValue(const anyMap &map, const std::string &key, base::any a = base::any())
+  {
+    T tmp;
+    try {
+      return map.at(key);
+    } catch (std::out_of_range &err)
+    {
+      if (a.isNull())
+        tmp = 0;
+      else
+        tmp = a.as<T>();
+      return tmp;
+    }
+  }
+
+  template<>
+  inline std::string getAnyMapValue(const anyMap &map, const std::string &key, base::any a)
+  {
+      std::string tmp;
+      try {
+        return map.at(key);
+      } catch (std::out_of_range &err)
+      {
+        if (a.isNull())
+          return tmp;
+        else
+          return a.as<std::string>();
+      }
+  }
 
   /**
    * Value to tell observers which action was triggered on the home screen.
@@ -51,6 +84,8 @@ namespace wb
     ActionNewModelFromDB,
     ActionNewModelFromScript,
 
+    ActionOpenXConnection,
+
     ActionNewXConnection,
     ActionManageXConnections,
 
@@ -69,6 +104,23 @@ namespace wb
     HomeMenuDocumentModel,
     HomeMenuDocumentSQLAction,
     HomeMenuDocumentSQL,
+  };
+
+  class HomeScreenDropInfo
+  {
+  public:
+    HomeScreenDropInfo() : valueIsConnectionId(false), to(0) {}
+    bool valueIsConnectionId;
+    std::string value;
+    std::size_t to;
+    std::string group;
+  };
+
+  class HomeScreenDropFilesInfo
+  {
+  public:
+    std::string connectionId;
+    std::vector<std::string> files;
   };
 
   class HomeScreenSettings

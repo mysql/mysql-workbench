@@ -748,7 +748,7 @@ bool DocumentsSection::mouse_double_click(mforms::MouseButton button, int x,
       }
 
       _owner->trigger_callback(HomeScreenAction::ActionNewEERModel,
-          grt::ValueRef());
+          base::any());
       return true;
     }
 
@@ -762,7 +762,7 @@ bool DocumentsSection::mouse_double_click(mforms::MouseButton button, int x,
       }
 
       _owner->trigger_callback(HomeScreenAction::ActionOpenEERModel,
-          grt::ValueRef());
+          base::any());
       return true;
     }
 
@@ -816,7 +816,7 @@ bool DocumentsSection::mouse_double_click(mforms::MouseButton button, int x,
 
       if (_filtered_documents[_active_entry].is_model)
         _owner->trigger_callback(HomeScreenAction::ActionOpenEERModelFromList,
-            grt::ValueRef(grt::StringRef(_filtered_documents[_active_entry].path)));
+            _filtered_documents[_active_entry].path);
       else
       {
         _pending_script = _filtered_documents[_active_entry].path;
@@ -873,7 +873,7 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y)
       }
 
       _owner->trigger_callback(HomeScreenAction::ActionNewEERModel,
-          grt::ValueRef());
+          base::any());
       return true;
     }
 
@@ -887,7 +887,7 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y)
       }
 
       _owner->trigger_callback(HomeScreenAction::ActionOpenEERModel,
-          grt::ValueRef());
+          base::any());
       return true;
     }
 
@@ -942,7 +942,7 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y)
 
       if (_filtered_documents[_active_entry].is_model)
         _owner->trigger_callback(HomeScreenAction::ActionOpenEERModelFromList,
-            grt::ValueRef(grt::StringRef(_filtered_documents[_active_entry].path)));
+            _filtered_documents[_active_entry].path);
       else
       {
         _pending_script = _filtered_documents[_active_entry].path;
@@ -1035,7 +1035,7 @@ void DocumentsSection::handle_command(const std::string &command)
 {
 
   if (_active_entry > -1)
-    _owner->handle_context_menu(grt::ValueRef(grt::StringRef(_filtered_documents[_active_entry].path)),
+    _owner->handle_context_menu(_filtered_documents[_active_entry].path,
         command);
   else
     _owner->handle_context_menu(base::any(), command);

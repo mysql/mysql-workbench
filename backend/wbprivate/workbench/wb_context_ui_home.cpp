@@ -315,9 +315,12 @@ void WBContextUI::show_home_screen()
     _xConnectionsSection->set_size(-1, 1); // We need initial size for OSX.
     _home_screen->addSection(_xConnectionsSection);
 
-    _connectionsSection = new wb::ConnectionsSection(_home_screen, _wb->get_root()->rdbmsMgmt());
+    _connectionsSection = new wb::ConnectionsSection(_home_screen);
     _connectionsSection->set_name("Home Connections Section");
     _connectionsSection->set_size(-1, 1); // We need initial size for OSX.
+    _connectionsSection->getConnectionInfoCallback = std::bind([=](const std::string &connectionId)->wb::anyMap {
+      return connectionToMap(getConnectionById(connectionId));
+    }, std::placeholders::_1);
     _home_screen->addSection(_connectionsSection);
 
     _documentsSection = new wb::DocumentsSection(_home_screen);
@@ -519,13 +522,9 @@ void WBContextUI::show_home_screen()
 
 void WBContextUI::home_action_callback(HomeScreenAction action, const base::any &object, WBContextUI *self)
 {
-  grt::ValueRef val;
-  if (!object.is_null())
-    val = object;
-
   try
   {
-    self->handle_home_action(action, val);
+    self->handle_home_action(action, object);
   }
   catch (const std::exception &exc)
   {
@@ -533,6 +532,88 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const base::any 
     logError("%s\n", message.c_str());
     mforms::Utilities::show_error("Internal Error", message, _("Close"));
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+db_mgmt_ConnectionRef WBContextUI::getConnectionById(const std::string &id)
+{
+  grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
+  for (std::size_t i = 0; i < connections->count(); ++i)
+  {
+    if (connections[i].id() == id)
+      return connections[i];
+  }
+
+  return db_mgmt_ConnectionRef();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static bool isSSHConnection(const db_mgmt_ConnectionRef &connection)
+{
+  if (connection.is_valid())
+  {
+    std::string driver = connection->driver().is_valid() ? connection->driver()->name() : "";
+    return (driver == "MysqlNativeSSH");
+  }
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Determines if the given connection is a local connection (i.e. to the current box).
+ */
+static bool isLocalConnection(const db_mgmt_ConnectionRef &connection)
+{
+  if (connection.is_valid())
+  {
+    std::string hostname= connection->parameterValues().get_string("hostName");
+
+    if (!isSSHConnection(connection) && (hostname == "localhost" || hostname.empty() || hostname == "127.0.0.1"))
+    return true;
+  }
+  return false;
+}
+
+anyMap WBContextUI::connectionToMap(db_mgmt_ConnectionRef connection)
+{
+  anyMap output;
+
+  if (!connection.is_valid())
+    return output;
+
+  db_mgmt_ServerInstanceRef instance;
+  grt::ListRef<db_mgmt_ServerInstance> instances = _wb->get_root()->rdbmsMgmt()->storedInstances();
+  for (grt::ListRef<db_mgmt_ServerInstance>::const_iterator iterator = instances.begin();
+       iterator != instances.end(); iterator++)
+  {
+    if ((*iterator)->connection() == connection)
+    {
+      instance = *iterator;
+      break;
+    }
+  }
+
+  output = grt::convert(connection->parameterValues());
+
+  if (instance->serverInfo().is_valid())
+    output.insert({"serverInfo", grt::convert(instance->serverInfo())});
+  else
+    output.insert({"serverInfo", base::any()});
+
+  if (instance->loginInfo().is_valid())
+      output.insert({"loginInfo", grt::convert(instance->loginInfo())});
+  else
+    output.insert({"loginInfo", base::any()});
+
+  output.insert({"isLocalConnection", isLocalConnection(connection)});
+  output.insert({"isSSHConnection", isSSHConnection(connection)});
+  output.insert({"hostIdentifier", std::string(connection->hostIdentifier())});
+  std::string name = connection->name();
+  output.insert({"name", name});
+  return output;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -555,8 +636,7 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
 {
   if (action == "open_connection")
   {
-    db_mgmt_ConnectionRef val = object;
-    handle_home_action(HomeScreenAction::ActionOpenConnectionFromList, val);
+    handle_home_action(HomeScreenAction::ActionOpenConnectionFromList, object);
   }
   else if (action == "delete_connection")
   {
@@ -566,7 +646,6 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
     std::string name = connection->name();
     std::string title;
     std::string warning;
-
 
     title = _("Delete Connection");
     warning = strfmt(_("Do you want to delete connection %s?"), name.c_str());
@@ -580,8 +659,7 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
   }
   else if (action == "manage_connections" || action == "edit_connection")
   {
-    db_mgmt_ConnectionRef val = object;
-    handle_home_action(HomeScreenAction::ActionManageConnections, val);
+    handle_home_action(HomeScreenAction::ActionManageConnections, object);
   }
   else if (action == "move_connection_to_top")
   {
@@ -675,18 +753,15 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
   }
   else if (action == "open_model_from_list")
   {
-    grt::ValueRef val = object;
-    handle_home_action(HomeScreenAction::ActionOpenEERModelFromList, val);
+    handle_home_action(HomeScreenAction::ActionOpenEERModelFromList, object);
   }
   else if (action == "model_from_schema")
   {
-    grt::ValueRef val = object;
-    handle_home_action(HomeScreenAction::ActionNewModelFromDB, val);
+    handle_home_action(HomeScreenAction::ActionNewModelFromDB, object);
   }
   else if (action == "model_from_script")
   {
-    grt::ValueRef val = object;
-    handle_home_action(HomeScreenAction::ActionNewModelFromScript, val);
+    handle_home_action(HomeScreenAction::ActionNewModelFromScript, object);
   }
   else if (action == "show_model")
   {
@@ -809,8 +884,7 @@ void WBContextUI::start_plugin(const std::string& title, const std::string& comm
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRef &object)
+void WBContextUI::handle_home_action(wb::HomeScreenAction action, const base::any  &anyObject)
 {
   switch (action)
   {
@@ -822,6 +896,10 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       if (_processing_action_open_connection)
         break;
       _processing_action_open_connection = true;
+      db_mgmt_ConnectionRef object;
+      if (!anyObject.isNull())
+        object = getConnectionById(anyObject.as<std::string>());
+
       if (object.is_valid())
       {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
@@ -851,17 +929,19 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
           break;
 
         _processing_action_open_connection = true;
-        if (object.is_valid())
+        HomeScreenDropFilesInfo dInfo;
+        if (!anyObject.isNull())
+          dInfo = anyObject;
+
+        if (dInfo.files.size() != 0)
         {
-          grt::DictRef dict = grt::DictRef::cast_from(object);
-          db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(dict["connection"]);
-          grt::StringListRef names = grt::StringListRef::cast_from(dict["files"]);
+          db_mgmt_ConnectionRef connection = getConnectionById(dInfo.connectionId);
           _wb->show_status_text("Opening files in new SQL Editor ...");          
           std::shared_ptr<SqlEditorForm> form = _wb->add_new_query_window(connection, false);
           if (form)
           {
-            for (size_t i = 0; i < names->count(); ++i)
-              form->open_file(names[i], true);
+            for (auto &it : dInfo.files)
+              form->open_file(it, true);
             form->update_title();
           }
         }
@@ -881,6 +961,10 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
     case HomeScreenAction::ActionManageConnections:
     {
+      db_mgmt_ConnectionRef object;
+      if (!anyObject.isNull())
+        object = getConnectionById(anyObject.as<std::string>());
+
       ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
       _wb->show_status_text("Connection Manager Opened");
       editor.run(db_mgmt_ConnectionRef::cast_from(object));
@@ -891,40 +975,33 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
     case HomeScreenAction::ActionMoveConnection:
     {
+      HomeScreenDropInfo dropInfo = anyObject;
+
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
-      grt::DictRef dict = grt::DictRef::cast_from(object);
-      int to = (int)grt::IntegerRef::cast_from(dict["to"]);
-      if (db_mgmt_ConnectionRef::can_wrap(dict["object"]))
+      if (dropInfo.valueIsConnectionId)
       {
-        db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(dict["object"]);
-        move_list_ref_item<db_mgmt_Connection>(connections, connection, to);
+        db_mgmt_ConnectionRef connection = getConnectionById(dropInfo.value);
+        move_list_ref_item<db_mgmt_Connection>(connections, connection, dropInfo.to);
         refresh_home_connections(false);
       }
       else
       {
-        if (grt::StringRef::can_wrap(dict["object"]))
-        {
-          grt::StringRef group = grt::StringRef::cast_from(dict["object"]);
-          move_list_ref_item<db_mgmt_Connection>(connections, group, to);
-          refresh_home_connections(false);
-        }
-
+        std::string group = dropInfo.value;
+        move_list_ref_item<db_mgmt_Connection>(connections, grt::StringRef(group), dropInfo.to);
+        refresh_home_connections(false);
       }
       break;
     }
 
     case HomeScreenAction::ActionMoveConnectionToGroup:
     {
+      HomeScreenDropInfo dropInfo = anyObject;
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-      db_mgmt_ConnectionRef connection;
-
-      grt::DictRef dict = grt::DictRef::cast_from(object);
-      std::string group = grt::StringRef::cast_from(dict["group"]);
-      connection = db_mgmt_ConnectionRef::cast_from(dict["object"]);
-      if (group != "" && connection.is_valid())
+      db_mgmt_ConnectionRef connection = getConnectionById(dropInfo.value);
+      if (dropInfo.group != "" && connection.is_valid())
       {
-        move_item_to_group<db_mgmt_Connection>(group, connections, connection);
+        move_item_to_group<db_mgmt_Connection>(dropInfo.group, connections, connection);
         refresh_home_connections(false);
       }
       break;
@@ -932,7 +1009,8 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
     case HomeScreenAction::ActionSetupRemoteManagement:
     {
-      NewServerInstanceWizard wizard(_wb, db_mgmt_ConnectionRef::cast_from(object));
+      db_mgmt_ConnectionRef object = getConnectionById(anyObject.as<std::string>());
+      NewServerInstanceWizard wizard(_wb, object);
       _wb->show_status_text("Started Management Setup Wizard");
       wizard.run_modal();
       _wb->show_status_text("");
@@ -960,9 +1038,9 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
     case HomeScreenAction::ActionOpenEERModelFromList:
     {
       // Note: wb->open_document has an own GUILock, so we must not set another one here.
-      if (object.is_valid())
+      if (!anyObject.isNull())
       {
-        std::string path = *grt::StringRef::cast_from(object);
+        std::string path = anyObject;
         _wb->show_status_text(strfmt("Opening %s...", path.c_str()));
         _wb->open_document(path);
       }
@@ -1109,7 +1187,7 @@ void WBContextUI::refresh_home_connections(bool clear_state)
         if (auto_save_files.find((*inst)->id()) != auto_save_files.end())
           title += " (auto saved)";
 
-        _connectionsSection->add_connection(*inst, title, host_entry,
+        _connectionsSection->addConnection((*inst).id(), title, host_entry,
           dict.get_string("userName"), dict.get_string("schema"));
       }
     }

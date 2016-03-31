@@ -31,49 +31,17 @@ DEFAULT_LOG_DOMAIN("home");
 
 using namespace wb;
 
-/**
- * Determines if the given connection is an SSH connection and returns true if so.
- */
-static bool is_ssh_connection(const db_mgmt_ConnectionRef &connection)
-{
-  if (connection.is_valid())
-  {
-    std::string driver = connection->driver().is_valid() ? connection->driver()->name() : "";
-    return (driver == "MysqlNativeSSH");
-  }
-  return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Determines if the given connection is a local connection (i.e. to the current box).
- */
-static bool is_local_connection(const db_mgmt_ConnectionRef &connection)
-{
-  if (connection.is_valid())
-  {
-    std::string hostname= connection->parameterValues().get_string("hostName");
-
-    if (!is_ssh_connection(connection) && (hostname == "localhost" || hostname.empty() || hostname == "127.0.0.1"))
-    return true;
-  }
-  return false;
-}
-
 //--------------------------------------------------------------------------------------------------
 
 class wb::ConnectionInfoPopup : public mforms::Popup
 {
 private:
-  HomeScreen *_owner;
+  ConnectionsSection *_owner;
 
   base::Rect _free_area;
   int _info_width;
-  db_mgmt_ConnectionRef _connection;
-  db_mgmt_ServerInstanceRef _instance; // Might be invalid.
-//  std::string _connId;
-//  std::string _serverInstanceId;
+  std::string _connectionId;
+
   base::Rect _button1_rect;
   base::Rect _button2_rect;
   base::Rect _button3_rect;
@@ -97,17 +65,12 @@ public:
   const int DETAILS_LINE_HEIGHT = 18;
   const int DETAILS_LINE_WIDTH = 340;
 
-//  ConnectionInfoPopup(HomeScreen *owner, const std::string &connId,
-//                      const std::string &serverInstanceId, base::Rect host_bounds, base::Rect free_area, int info_width)
-  ConnectionInfoPopup(HomeScreen *owner, const db_mgmt_ConnectionRef connection,
-                      const db_mgmt_ServerInstanceRef instance, base::Rect host_bounds, base::Rect free_area, int info_width)
+  ConnectionInfoPopup(ConnectionsSection *owner, const std::string connectionId,
+                      base::Rect host_bounds, base::Rect free_area, int info_width)
   : Popup(mforms::PopupPlain)
   {
     _owner = owner;
-//    _connId = connId;
-//    _serverInstanceId = serverInstanceId;
-    _connection = connection;
-    _instance = instance;
+    _connectionId = connectionId;
 
     _close_icon = mforms::Utilities::load_icon("wb_close.png");
 
@@ -229,12 +192,14 @@ public:
     content_bounds.pos.y += POPUP_TB_PADDING;
     content_bounds.size.height = POPUP_HEIGHT - 2 * POPUP_TB_PADDING;
 
+    auto connectionInfo = _owner->getConnectionInfoCallback(_connectionId);
+
     // The title.
     cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_move_to(cr, content_bounds.left(), content_bounds.top() + 16);
-    cairo_show_text(cr, _connection->name().c_str());
+    cairo_show_text(cr, connectionInfo["name"].as<std::string>().c_str());
     cairo_stroke(cr);
 
     // All the various info.
@@ -247,19 +212,24 @@ public:
     _button1_rect = draw_button(cr, position, _("Edit Connection..."));
 
 
-    grt::DictRef serverInfo;
-    if (_instance.is_valid())
-    serverInfo = _instance->serverInfo();
 
-    bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
-    if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
-        serverInfo.get_int("windowsAdmin") == 0)
-    pending = true;
+    bool pending = false;
+    if (!connectionInfo["serverInfo"].isNull())
+    {
+      wb::anyMap serverInfo = connectionInfo["serverInfo"];
+      pending = serverInfo["setupPending"].as<ssize_t>() == 1;
+      if (!pending && !connectionInfo["isLocalConnection"] && getAnyMapValue<ssize_t>(serverInfo, "remoteAdmin") == 0
+          && getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 0)
+        pending = true;
+    }
+    else
+      pending = true;
+
 
     if (pending)
     {
       position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
-      if (is_local_connection(_connection))
+      if (connectionInfo["isLocalConnection"].as<bool>())
       _button2_rect = draw_button(cr, position, _("Configure Local Management..."));
       else
       _button2_rect = draw_button(cr, position, _("Configure Remote Management..."));
@@ -319,19 +289,20 @@ public:
     // Use POPUP_LR_PADDIND as space between the two columns.
     line_bounds.size.width = (bounds.width() - POPUP_LR_PADDING) / 2;
 
-    grt::DictRef parameter_values = _connection->parameterValues();
 
-    grt::DictRef server_info;
-    if (_instance.is_valid())
-    server_info = _instance->serverInfo();
+    auto connectionInfo = _owner->getConnectionInfoCallback(_connectionId);
+    wb::anyMap serverInfo;
+    if (!connectionInfo["serverInfo"].isNull())
+      serverInfo = connectionInfo["serverInfo"].as<wb::anyMap>();
 
-    std::string server_version = parameter_values.get_string("serverVersion");
-    if (server_version.empty() && server_info.is_valid())
-    server_version = server_info.get_string("serverVersion");
+
+    std::string server_version = connectionInfo["serverVersion"];
+    if (server_version.empty() && !serverInfo.empty())
+      server_version = serverInfo["serverVersion"].as<std::string>();
 
     print_info_line(cr, line_bounds, _("MySQL Version"), server_version);
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    time_t time = parameter_values.get_int("lastConnected");
+    time_t time = connectionInfo["lastConnected"].as<ssize_t>();
     if (time == 0)
     print_info_line(cr, line_bounds, _("Last connected"), "");
     else
@@ -343,15 +314,18 @@ public:
     }
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-    std::string sshHost = parameter_values.get_string("sshHost");
-    if (!sshHost.empty())
+    if (connectionInfo.find("sshHost") != connectionInfo.end())
     {
-      std::string sshUser = parameter_values.get_string("sshUserName");
-      print_info_line(cr, line_bounds, _("Using Tunnel"), sshUser + "@" + sshHost);
+      std::string sshHost = connectionInfo["sshHost"];
+      if (!sshHost.empty())
+      {
+        std::string sshUser = connectionInfo["sshUserName"];
+        print_info_line(cr, line_bounds, _("Using Tunnel"), sshUser + "@" + sshHost);
+      }
     }
 
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    std::string user_name = parameter_values.get_string("userName");
+    std::string user_name = connectionInfo["userName"];
     print_info_line(cr, line_bounds, _("User Account"), user_name);
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
@@ -361,11 +335,11 @@ public:
     
     try
     {
-      find_result = mforms::Utilities::find_password(_connection->hostIdentifier(), user_name, password);
+      find_result = mforms::Utilities::find_password(connectionInfo["hostIdentifier"].as<std::string>(), user_name, password);
     }
     catch(std::exception &except)
     {
-      logWarning("Exception caught when trying to find a password for '%s' connection: %s\n", _connection->name().c_str(), except.what());
+      logWarning("Exception caught when trying to find a password for '%s' connection: %s\n", connectionInfo["name"].as<std::string>().c_str(), except.what());
     }
     
     if (find_result)
@@ -375,9 +349,9 @@ public:
     }
     print_info_line(cr, line_bounds, _("Password"), password_stored);
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    print_info_line(cr, line_bounds, _("Network Address"), parameter_values.get_string("hostName"));
+    print_info_line(cr, line_bounds, _("Network Address"), getAnyMapValue<std::string>(connectionInfo, "hostName"));
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    ssize_t port = parameter_values.get_int("port");
+    ssize_t port = getAnyMapValue<ssize_t>(connectionInfo, "port");
     print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
 
 
@@ -391,38 +365,41 @@ public:
     line_bounds.pos.x -= bounds.right() - line_bounds.right();
 
     {
-      grt::DictRef serverInfo;
-      if (_instance.is_valid())
-      serverInfo =_instance->serverInfo();
-
-      bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
-      if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
-          serverInfo.get_int("windowsAdmin") == 0)
-      pending = true;
+      bool pending = false;
+      if (!connectionInfo["serverInfo"].isNull())
+      {
+        wb::anyMap serverInfo = connectionInfo["serverInfo"];
+        pending = serverInfo["setupPending"].as<ssize_t>() == 1;
+        if (!pending && !connectionInfo["isLocalConnection"] && getAnyMapValue<ssize_t>(serverInfo, "remoteAdmin") == 0
+            && getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 0)
+          pending = true;
+      }
+      else
+        pending = true;
 
       if (pending)
       {
-        if (is_local_connection(_connection))
+        if (connectionInfo["isLocalConnection"].as<bool>())
         print_info_line(cr, line_bounds, _("Local management not set up"), " ");
         else
         print_info_line(cr, line_bounds, _("Remote management not set up"), " ");
       }
       else
       {
-        if (is_local_connection(_connection))
+        if (connectionInfo["isLocalConnection"].as<bool>())
         {
           print_info_line(cr, line_bounds, _("Local management"), "Enabled");
           line_bounds.pos.y += 6 * DETAILS_LINE_HEIGHT; // Same layout as for remote mgm. So config file is at bottom.
-          print_info_line(cr, line_bounds, _("Config Path"), serverInfo.get_string("sys.config.path"));
+          print_info_line(cr, line_bounds, _("Config Path"), getAnyMapValue<std::string>(serverInfo,"sys.config.path"));
         }
         else
         {
-          grt::DictRef loginInfo = _instance->loginInfo();
-          bool windowsAdmin = serverInfo.get_int("windowsAdmin", 0) == 1;
+          auto loginInfo = connectionInfo["loginInfo"];
+          bool windowsAdmin = getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 1;
 
-          std::string os = serverInfo.get_string("serverOS");
+          std::string os = getAnyMapValue<std::string>(serverInfo, "serverOS");
           if (os.empty()) // If there's no OS set (yet) then use the generic system identifier (which is not that specific, but better than nothing).
-          os = serverInfo.get_string("sys.system");
+          os = getAnyMapValue<std::string>(serverInfo, "sys.system");
           if (os.empty() && windowsAdmin)
           os = "Windows";
           print_info_line(cr, line_bounds, _("Operating System"), os);
@@ -433,14 +410,14 @@ public:
             print_info_line(cr, line_bounds, _("Remote management via"), "WMI");
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-            std::string host_name = loginInfo.get_string("wmi.hostName");
-            print_info_line(cr, line_bounds, _("Target Server"), loginInfo.get_string("wmi.hostName"));
+            std::string host_name = getAnyMapValue<std::string>(loginInfo, "wmi.hostName");
+            print_info_line(cr, line_bounds, _("Target Server"), getAnyMapValue<std::string>(loginInfo, "wmi.hostName"));
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("WMI user"), loginInfo.get_string("wmi.userName"));
+            print_info_line(cr, line_bounds, _("WMI user"), getAnyMapValue<std::string>(loginInfo, "wmi.userName"));
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
             std::string password_key = "wmi@" + host_name;
-            user_name = loginInfo.get_string("wmi.userName");
+            user_name = getAnyMapValue<std::string>(loginInfo, "wmi.userName");
             if (mforms::Utilities::find_password(password_key, user_name, password))
             {
               password = "";
@@ -452,7 +429,7 @@ public:
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
             line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
-            print_info_line(cr, line_bounds, _("Config Path"), serverInfo.get_string("sys.config.path"));
+            print_info_line(cr, line_bounds, _("Config Path"), getAnyMapValue<std::string>(serverInfo, "sys.config.path"));
           }
           else
           {
@@ -461,16 +438,16 @@ public:
 
             line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
 
-            std::string host_name = loginInfo.get_string("ssh.hostName");
+            std::string host_name = getAnyMapValue<std::string>(loginInfo, "ssh.hostName");
             print_info_line(cr, line_bounds, _("SSH Target"), host_name);
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("SSH User"), loginInfo.get_string("ssh.userName"));
+            print_info_line(cr, line_bounds, _("SSH User"), getAnyMapValue<std::string>(loginInfo, "ssh.userName"));
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-            std::string security = (loginInfo.get_int("ssh.useKey", 0) != 0) ? _("Public Key") : _("Password ") + password_stored;
+            std::string security = (getAnyMapValue<ssize_t>(loginInfo,  "ssh.useKey", 0) != 0) ? _("Public Key") : _("Password ") + password_stored;
             print_info_line(cr, line_bounds, _("SSH Security"), security);
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("SSH Port"), loginInfo.get_string("ssh.port", "22"));
+            print_info_line(cr, line_bounds, _("SSH Port"),  getAnyMapValue<std::string>(loginInfo, "ssh.port", "22"));
           }
         }
       }
@@ -486,31 +463,31 @@ public:
       // We are going to destroy ourselves when starting an action, so we have to cache
       // values we need after destruction. The self destruction is also the reason why we
       // use mouse_up instead of mouse_click.
-      HomeScreen *owner = _owner;
-      db_mgmt_ConnectionRef connection = _connection;
+      HomeScreen *owner = _owner->_owner;
+//      db_mgmt_ConnectionRef connection = _connection;
 
       if (_button1_rect.contains(x, y))
       {
         set_modal_result(1); // Just a dummy value to close ourselves.
-        owner->handle_context_menu(connection, "manage_connections");
+        owner->handle_context_menu(_connectionId, "manage_connections");
       }
       else
       if (_button2_rect.contains(x, y))
       {
         set_modal_result(1);
-        owner->trigger_callback(HomeScreenAction::ActionSetupRemoteManagement, connection);
+        owner->trigger_callback(HomeScreenAction::ActionSetupRemoteManagement, _connectionId);
       }
       else
       if (_button3_rect.contains(x, y))
       {
         set_modal_result(1);
-        owner->handle_context_menu(grt::ValueRef(connection), "");
+        owner->handle_context_menu(_connectionId, "");
       }
       else 
       if (_button4_rect.contains(x, y))
       {
         set_modal_result(1);
-        owner->handle_context_menu(connection, "open_connection");
+        owner->handle_context_menu(_connectionId, "open_connection");
       }
       else
       if (_close_button_rect.contains(x, y))
@@ -528,8 +505,7 @@ class wb::ConnectionEntry: mforms::Accessible
   friend class ConnectionsSection;
   
 public:
-  db_mgmt_ConnectionRef connection;
-//  std::string connId;
+  std::string connectionId;
 
 protected:
   ConnectionsSection *owner;
@@ -776,7 +752,7 @@ public:
   virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
     // Anything else.
-    owner->_owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, grt::ValueRef(connection));
+    owner->_owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, connectionId);
   }
 
   virtual mforms::Menu *context_menu()
@@ -825,22 +801,11 @@ public:
     pos.second = (int)(ConnectionsSection::CONNECTIONS_TOP_PADDING + row * (ConnectionsSection::CONNECTIONS_TILE_HEIGHT + ConnectionsSection::CONNECTIONS_SPACING));
     base::Rect item_bounds = base::Rect(pos.first, pos.second, ConnectionsSection::CONNECTIONS_TILE_WIDTH, ConnectionsSection::CONNECTIONS_TILE_HEIGHT);
 
-    db_mgmt_ServerInstanceRef instance;
-    grt::ListRef<db_mgmt_ServerInstance> instances = owner->_rdbms->storedInstances();
-    for (grt::ListRef<db_mgmt_ServerInstance>::const_iterator iterator = instances.begin();
-         iterator != instances.end(); iterator++)
-    {
-      if ((*iterator)->connection() == connection)
-      {
-        instance = *iterator;
-        break;
-      }
-    }
 
     int info_width =  parent->get_width();
     if (info_width < 735)
       info_width = (int)host_bounds.width();
-    return mforms::manage(new ConnectionInfoPopup(owner->_owner, connection, instance, host_bounds, item_bounds, info_width));
+    return mforms::manage(new ConnectionInfoPopup(owner, connectionId, host_bounds, item_bounds, info_width));
   }
 };
 
@@ -990,9 +955,9 @@ public:
 
 //------------------------------------------------------------------------------------------------
 
-ConnectionsSection::ConnectionsSection(HomeScreen *owner, db_mgmt_ManagementRef rdbms)
+ConnectionsSection::ConnectionsSection(HomeScreen *owner)
 : HomeScreenSection("wb_starter_mysql_bug_reporter_52.png"),
-  _search_box(true), _search_text(mforms::SmallSearchEntry), _rdbms(rdbms)
+  _search_box(true), _search_text(mforms::SmallSearchEntry)
 {
   _owner = owner;
   _connection_context_menu = NULL;
@@ -1169,7 +1134,7 @@ void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
           break;
 
         case 2: // Exactly one entry matched the filter. Activate it.
-          _owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, grt::ValueRef(_filtered_connections[1]->connection));
+          _owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, _filtered_connections[1]->connectionId);
           break;
       }
     }
@@ -1198,7 +1163,7 @@ void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
           set_needs_repaint();
         }
         else
-        _owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, grt::ValueRef(_filtered_connections[0]->connection));
+        _owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, _filtered_connections[0]->connectionId);
       }
     }
   }
@@ -1297,18 +1262,17 @@ base::Rect ConnectionsSection::bounds_for_entry(ssize_t index)
 }
 
 //------------------------------------------------------------------------------------------------
-
 /**
- * Returns the connection stored under the given index. Returns an invalid ref if the index
+ * Returns the connection id stored under the given index. Returns an empty string if the index
  * describes a folder or back tile.
  * Properly takes into account if we are in a folder or not and if we have filtered entries currently.
  */
-db_mgmt_ConnectionRef ConnectionsSection::connection_from_index(ssize_t index)
+std::string ConnectionsSection::connectionIdFromIndex(ssize_t index)
 {
   if (index < 0 || (_active_folder && index == 0))
-    return db_mgmt_ConnectionRef();
+    return "";
 
-  return displayed_connections()[index]->connection;
+  return displayed_connections()[index]->connectionId;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1549,7 +1513,7 @@ void ConnectionsSection::setContextMenuAction(mforms::Menu *menu, HomeScreenMenu
 
 //------------------------------------------------------------------------------------------------
 
-void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection, const std::string &title,
+void ConnectionsSection::addConnection(const std::string &connectionId, const std::string &title,
                                         const std::string &description, const std::string &user, const std::string &schema)
 {
   std::shared_ptr<ConnectionEntry> entry;
@@ -1557,7 +1521,7 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
 
   entry = std::shared_ptr<ConnectionEntry>(new ConnectionEntry(this));
 
-  entry->connection = connection;
+  entry->connectionId = connectionId;
   entry->title = title;
   entry->description = description;
   entry->user = user;
@@ -1828,7 +1792,7 @@ bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y)
 
 void ConnectionsSection::handle_command(const std::string &command)
 {
-  db_mgmt_ConnectionRef item;
+  std::string item;
   if (_entry_for_menu)
   {
     if (_active_folder)
@@ -1843,12 +1807,12 @@ void ConnectionsSection::handle_command(const std::string &command)
       }
       else
       {
-        item = _entry_for_menu->connection;
+        item = _entry_for_menu->connectionId;
       }
     }
     else
     {
-      item = _entry_for_menu->connection;
+      item = _entry_for_menu->connectionId;
     }
   }
 
@@ -1860,7 +1824,6 @@ void ConnectionsSection::handle_command(const std::string &command)
 
 void ConnectionsSection::handle_folder_command(const std::string &command)
 {
-  grt::ValueRef item;
   {
     // We have to pass on a valid connection (for the group name).
     // All child items have the same group name (except the dummy entry for the back tile).
@@ -2085,7 +2048,7 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
     if (!entry)
       return mforms::DragOperationNone;
 
-    if (!entry->connection.is_valid())
+    if (entry->connectionId.empty())
       return mforms::DragOperationNone;
 
     if (_hot_entry != entry)
@@ -2225,22 +2188,21 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
   if (!entry)
     return mforms::DragOperationNone;
 
-  db_mgmt_ConnectionRef connection = entry->connection;
-  if (connection.is_valid())
+  if (!entry->connectionId.empty())
   {
     // Allow only sql script files to be dropped.
-    grt::StringListRef valid_names(grt::Initialized);
+    std::vector<std::string> files;
     for (size_t i = 0; i < file_names.size(); ++i)
       if (base::tolower(base::extension(file_names[i])) == ".sql")
-        valid_names.insert(file_names[i]);
+        files.push_back(file_names[i]);
 
-    if (valid_names.count() == 0)
+    if (files.size() == 0)
     return mforms::DragOperationNone;
 
-    grt::DictRef details(true);
-    details.set("connection", connection);
-    details.set("files", valid_names);
-    _owner->trigger_callback(HomeScreenAction::ActionFilesWithConnection, grt::ValueRef(details));
+    HomeScreenDropFilesInfo dInfo;
+    dInfo.connectionId = entry->connectionId;
+    dInfo.files = files;
+    _owner->trigger_callback(HomeScreenAction::ActionFilesWithConnection, dInfo);
   }
 
   return mforms::DragOperationCopy;
@@ -2256,6 +2218,7 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
     mforms::DragOperation result = mforms::DragOperationNone;
 
     // Can be invalid if we move a group.
+    std::string connectionId = connectionIdFromIndex(_drag_index);
     ConnectionEntry *source_entry = static_cast<ConnectionEntry*>(data);
 
     std::shared_ptr<ConnectionEntry> entry;
@@ -2281,18 +2244,23 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
     bool is_back_tile = entry->title == "< back";
 
     // Drop target is a group.
-    grt::DictRef details(true);
-
-    details.set("object", grt::StringRef(source_entry->title + "/"));
+    HomeScreenDropInfo dropInfo;
+    if (!connectionId.empty())
+    {
+      dropInfo.valueIsConnectionId = true;
+      dropInfo.value = connectionId;
+    }
+    else
+      dropInfo.value = source_entry->title + "/";
 
     if (_drop_position == mforms::DropPositionOn)
     {
       // Drop on a group (or back tile).
       if (is_back_tile)
-        details.set("group", grt::StringRef("*Ungrouped*"));
+        dropInfo.group = "*Ungrouped*";
       else
-        details.set("group", grt::StringRef(entry->title));
-      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, grt::ValueRef(details));
+        dropInfo.group = entry->title;
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, dropInfo);
     }
     else
     {
@@ -2302,9 +2270,8 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
         to--; // The back tile has no representation in the global list.
       if (_drop_position == mforms::DropPositionRight)
         to++;
-
-      details.set("to", grt::IntegerRef((int)to));
-      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, grt::ValueRef(details));
+      dropInfo.to = to;
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, dropInfo);
     }
     result = mforms::DragOperationMove;
 

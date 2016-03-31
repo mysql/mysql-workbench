@@ -490,19 +490,6 @@ void HomeScreen::set_callback(home_screen_action_callback callback, void* user_d
 
 void HomeScreen::trigger_callback(HomeScreenAction action, const base::any &object)
 {
-  if (action == HomeScreenAction::ActionOpenConnectionFromList)
-  {
-    // The second step if we are opening an SQL script. If no SQL is selected we open the connection as usual.
-    if (!_pending_script.empty() && _callback != NULL)
-    {
-      grt::ValueRef val = object;
-      grt::DictRef dict;
-      dict["connection"] = val;
-      dict["script"] = grt::StringRef(_pending_script);
-      (*_callback)(HomeScreenAction::ActionEditSQLScript, dict, _user_data);
-    }
-  }
-
   if (_callback != NULL)
     (*_callback)(action, object, _user_data);
 }
@@ -524,9 +511,6 @@ void HomeScreen::openConnection(const dataTypes::XProject &project)
   {
     logError("Unable to execute: %s\n", mforms::App::get()->get_executable_path(exeName).c_str());
   }
-
-  //TODO: implement
-  printf("connection uuid: %s\n", project.connection.uuid.c_str());
 }
 
 void HomeScreen::cancelOperation()
