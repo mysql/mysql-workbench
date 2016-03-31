@@ -25,7 +25,6 @@
 #include "base/geometry.h"
 #include "home_screen_helpers.h"
 
-
 namespace wb {
 
 class HomeScreen;

@@ -21,7 +21,6 @@
 #include "mforms/menu.h"
 #include "mforms/popup.h"
 #include "mforms/imagebox.h"
-#include <iostream>
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/log.h"
@@ -321,7 +320,8 @@ public:
       // We are going to destroy ourselves when starting an action, so we have to cache
       // values we need after destruction. The self destruction is also the reason why we
       // use mouse_up instead of mouse_click.
-//      HomeScreen *owner = _owner;
+      HomeScreen *owner = _owner;
+      dataTypes::XProject project = _project;
 //      db_mgmt_ConnectionRef connection = _connection;
 //
 //      if (_button1_rect.contains(x, y))
@@ -342,14 +342,14 @@ public:
 //        owner->handle_context_menu(connection, "");
 //      }
 //      else
-//      if (_button4_rect.contains(x, y))
-//      {
-//        set_modal_result(1);
-//        owner->handle_context_menu(connection, "open_connection");
-//      }
-//      else
-//      if (_close_button_rect.contains(x, y))
-//      set_modal_result(1);
+      if (_button4_rect.contains(x, y))
+      {
+        set_modal_result(1);
+        owner->openConnection(project);
+      }
+      else
+      if (_close_button_rect.contains(x, y))
+      set_modal_result(1);
     }
     return false;
   }
@@ -1608,8 +1608,8 @@ void XConnectionsSection::handle_command(const std::string &command)
       project  = &_entry_for_menu->project;
     }
   }
-  std::cout << "implement" << std::endl;
-//  _owner->handle_context_menu(item, command);
+
+  _owner->handle_context_menu(project, command);
   _entry_for_menu.reset();
 }
 
@@ -1617,7 +1617,6 @@ void XConnectionsSection::handle_command(const std::string &command)
 
 void XConnectionsSection::handle_folder_command(const std::string &command)
 {
-  grt::ValueRef item;
   {
     // We have to pass on a valid connection (for the group name).
     // All child items have the same group name (except the dummy entry for the back tile).
@@ -1985,18 +1984,17 @@ mforms::DragOperation XConnectionsSection::files_dropped(View *sender, base::Poi
   dataTypes::XProject project = entry->project;
   if (project.isValid())
   {
-    std::cout << "implement" << std::endl;
-//    grt::GRT *grt = connection->get_grt();
-//
-//    // Allow only sql script files to be dropped.
-//    grt::StringListRef valid_names(grt);
-//    for (size_t i = 0; i < file_names.size(); ++i)
-//      if (base::tolower(base::extension(file_names[i])) == ".sql")
-//        valid_names.insert(file_names[i]);
-//
-//    if (valid_names.count() == 0)
-//    return mforms::DragOperationNone;
-//
+    std::vector<std::string> files;
+    for (size_t i = 0; i < file_names.size(); ++i)
+      if (base::tolower(base::extension(file_names[i])) == ".sql")
+        files.push_back(file_names[i]);
+
+    if (files.size() == 0)
+    return mforms::DragOperationNone;
+
+    //TODO: implement this, once NG will allow to open files from cmd line
+//    HomeScreenDropFilesInfo dInfo;
+
 //    grt::DictRef details(grt);
 //    details.set("connection", connection);
 //    details.set("files", valid_names);
@@ -2041,18 +2039,18 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
     bool is_back_tile = entry->title == "< back";
 
     // Drop target is a group.
-    grt::DictRef details(true);
-
-    details.set("object", grt::StringRef(source_entry->title + "/"));
+    HomeScreenDropInfo dropInfo;
+    dropInfo.value = source_entry->title + "/";
 
     if (_dropPosition == mforms::DropPositionOn)
     {
       // Drop on a group (or back tile).
       if (is_back_tile)
-        details.set("group", grt::StringRef("*Ungrouped*"));
+        dropInfo.group = "*Ungrouped*";
       else
-        details.set("group", grt::StringRef(entry->title));
-      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, grt::ValueRef(details));
+        dropInfo.group = entry->title;
+
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, dropInfo);
     }
     else
     {
@@ -2062,9 +2060,8 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
         to--; // The back tile has no representation in the global list.
       if (_dropPosition == mforms::DropPositionRight)
         to++;
-
-      details.set("to", grt::IntegerRef((int)to));
-      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, grt::ValueRef(details));
+      dropInfo.to = to;
+      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, dropInfo);
     }
     result = mforms::DragOperationMove;
 

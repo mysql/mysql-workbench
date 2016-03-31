@@ -30,8 +30,6 @@
 #include "mforms/drawbox.h"
 #include "mforms/tabview.h"
 
-#include "grts/structs.app.h"
-#include "grts/structs.db.mgmt.h"
 #include "home_screen_helpers.h"
 #include "home_screen_documents.h"
 
