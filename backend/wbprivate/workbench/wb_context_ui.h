@@ -29,6 +29,7 @@
 #include "grts/structs.app.h"
 #include "grts/structs.db.mgmt.h"
 #include "grt/plugin_manager.h"
+#include "home_screen_helpers.h"
 
 namespace bec 
 {
@@ -189,7 +190,7 @@ namespace wb {
     void locate_log_file();
     void show_log_file();
 
-    void handle_home_action(wb::HomeScreenAction action, const grt::ValueRef &object);
+    void handle_home_action(wb::HomeScreenAction action, const base::any &anyObject);
 
     void remove_connection(const db_mgmt_ConnectionRef &connection);
     void handle_home_context_menu(const base::any &object, const std::string &action);
@@ -198,6 +199,9 @@ namespace wb {
 
     static void home_action_callback(wb::HomeScreenAction action, const base::any &object, WBContextUI *self);
     
+    db_mgmt_ConnectionRef getConnectionById(const std::string &id);
+    anyMap connectionToMap(db_mgmt_ConnectionRef connection);
+
   private:
     WBContext *_wb;
 
