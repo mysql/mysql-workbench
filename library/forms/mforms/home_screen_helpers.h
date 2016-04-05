@@ -24,7 +24,7 @@
 #include "mforms/menu.h"
 #include "base/any.h"
 
-namespace wb
+namespace mforms
 {
 //--------------------------------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ namespace wb
     HomeMenuDocumentSQL,
   };
 
-  class HomeScreenDropInfo
+  class MFORMS_EXPORT HomeScreenDropInfo
   {
   public:
     HomeScreenDropInfo() : valueIsConnectionId(false), to(0) {}
@@ -116,14 +116,14 @@ namespace wb
     std::string group;
   };
 
-  class HomeScreenDropFilesInfo
+  class MFORMS_EXPORT HomeScreenDropFilesInfo
   {
   public:
     std::string connectionId;
     std::vector<std::string> files;
   };
 
-  class HomeScreenSettings
+  class MFORMS_EXPORT HomeScreenSettings
   {
   public:
     #ifdef __APPLE__
@@ -152,7 +152,7 @@ namespace wb
     static const char* TILE_DRAG_FORMAT;
   };
 
-  class HomeAccessibleButton : public mforms::Accessible
+  class MFORMS_EXPORT HomeAccessibleButton : public mforms::Accessible
   {
   public:
     std::string name;
@@ -170,7 +170,7 @@ namespace wb
     virtual void do_default_action();
   };
 
-  class HomeScreenSection : public mforms::DrawBox
+  class MFORMS_EXPORT HomeScreenSection : public mforms::DrawBox
   {
   protected:
     std::string _iconName;
