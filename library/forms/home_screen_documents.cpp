@@ -173,7 +173,7 @@ void DocumentsSection::draw_icon_with_text(cairo_t *cr, int x, int y,
     imageSize = mforms::Utilities::getImageSize(icon);
 
     mforms::Utilities::paint_icon(cr, icon, x, y);
-    x += imageSize.width + 3;
+    x += (int)imageSize.width + 3;
   }
 
   cairo_text_extents_t extents;
@@ -223,7 +223,7 @@ void DocumentsSection::draw_entry(cairo_t *cr, const DocumentEntry &entry,
   } else
     textWithDecoration(cr, x, y, entry.title_shorted.c_str(), false, 0);
 
-  x += iconSize.width + 10;
+  x += (int)iconSize.width + 10;
 
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SMALL_INFO_FONT_SIZE);
 
@@ -467,9 +467,9 @@ void DocumentsSection::updateHeight()
 
   if (!_documents.empty() && tilesPerRow > 1)
   {
-    int height = (_documents.size() / tilesPerRow)
+    int height = (int)((_documents.size() / tilesPerRow)
         * (DOCUMENTS_ENTRY_HEIGHT + DOCUMENTS_VERTICAL_SPACING)
-        + DOCUMENTS_TOP_PADDING;
+        + DOCUMENTS_TOP_PADDING);
     if (height != get_height())
       set_size(-1, height);
   }

@@ -45,8 +45,7 @@ struct any
     typedef StorageType<U> T;
 
     auto derived = dynamic_cast<Derived<T>*>(ptr);
-
-    return derived;
+    return derived != nullptr;
   }
 
   template<class U>
@@ -94,12 +93,6 @@ struct any
 
   }
 
-  any(any& that) :
-      ptr(that.clone())
-  {
-
-  }
-
   any(any&& that) :
       ptr(that.ptr)
   {
@@ -107,12 +100,6 @@ struct any
   }
 
   any(const any& that) :
-      ptr(that.clone())
-  {
-
-  }
-
-  any(const any&& that) :
       ptr(that.clone())
   {
 
