@@ -49,10 +49,10 @@
 #include "select_option_dialog.h"
 #include "wb_model_file.h"
 #include "base/data_types.h"
-#include "home_screen.h"
-#include "home_screen_x_connections.h"
-#include "home_screen_connections.h"
-#include "home_screen_documents.h"
+#include "mforms/home_screen.h"
+#include "mforms/home_screen_x_connections.h"
+#include "mforms/home_screen_connections.h"
+#include "mforms/home_screen_documents.h"
 #include <zip.h>
 #include "base/session_wrapper.h"
 
@@ -304,26 +304,26 @@ void WBContextUI::show_home_screen()
   _initializing_home_screen = (_home_screen == NULL);
   if (_home_screen == NULL)
   {    
-    _home_screen = mforms::manage(new HomeScreen());
+    _home_screen = mforms::manage(new mforms::HomeScreen());
     _home_screen->set_menubar(_command_ui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL));
     _home_screen->set_callback((home_screen_action_callback)&WBContextUI::home_action_callback, this);
     _home_screen->handle_context_menu = std::bind(&WBContextUI::handle_home_context_menu, this, std::placeholders::_1, std::placeholders::_2);
 
     // now we have to add sections
-    _xConnectionsSection = new wb::XConnectionsSection(_home_screen);
+    _xConnectionsSection = new mforms::XConnectionsSection(_home_screen);
     _xConnectionsSection->set_name("Home X Connections Section");
     _xConnectionsSection->set_size(-1, 1); // We need initial size for OSX.
     _home_screen->addSection(_xConnectionsSection);
 
-    _connectionsSection = new wb::ConnectionsSection(_home_screen);
+    _connectionsSection = new mforms::ConnectionsSection(_home_screen);
     _connectionsSection->set_name("Home Connections Section");
     _connectionsSection->set_size(-1, 1); // We need initial size for OSX.
-    _connectionsSection->getConnectionInfoCallback = std::bind([=](const std::string &connectionId)->wb::anyMap {
+    _connectionsSection->getConnectionInfoCallback = std::bind([=](const std::string &connectionId)->mforms::anyMap {
       return connectionToMap(getConnectionById(connectionId));
     }, std::placeholders::_1);
     _home_screen->addSection(_connectionsSection);
 
-    _documentsSection = new wb::DocumentsSection(_home_screen);
+    _documentsSection = new mforms::DocumentsSection(_home_screen);
     _documentsSection->set_name("Documents Section");
     _documentsSection->set_size(-1, 1); // We need initial size for OSX.
     _home_screen->addSection(_documentsSection);
@@ -666,28 +666,28 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
     // We enter here for both: groups and connections. The object for groups must be a StringRef
     // with the name of the group. For connections it's the connection ref.
     // Similar for the other move_* actions.
-    db_mgmt_ConnectionRef val = object;
+    db_mgmt_ConnectionRef val = getConnectionById(object.as<std::string>());
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
     bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveTop);
     refresh_home_connections(false);
   }
   else if (action == "move_connection_up")
   {
-    grt::ValueRef val = object;
+    grt::ValueRef val = getConnectionById(object.as<std::string>());
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
     bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveUp);
     refresh_home_connections(false);
   }
   else if (action == "move_connection_down")
   {
-    db_mgmt_ConnectionRef val = object;
+    db_mgmt_ConnectionRef val = getConnectionById(object.as<std::string>());
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
     bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveDown);
     refresh_home_connections(false);
   }
   else if (action == "move_connection_to_end")
   {
-    db_mgmt_ConnectionRef val = object;
+    db_mgmt_ConnectionRef val = getConnectionById(object.as<std::string>());
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
     bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveBottom);
     refresh_home_connections(false);
@@ -698,7 +698,7 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
 
     // Create the available groups for the movement...
     std::vector<std::string> groups;
-    db_mgmt_ConnectionRef val = object;
+    db_mgmt_ConnectionRef val = getConnectionById(object.as<std::string>());
     get_groups_for_movement<db_mgmt_Connection>(connections, val, groups);
 
     SelectOptionDialog dialog(_("Move To Group"), _("Pick a group to move the selected connection "
@@ -884,7 +884,7 @@ void WBContextUI::start_plugin(const std::string& title, const std::string& comm
 }
 
 //--------------------------------------------------------------------------------------------------
-void WBContextUI::handle_home_action(wb::HomeScreenAction action, const base::any  &anyObject)
+void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base::any  &anyObject)
 {
   switch (action)
   {

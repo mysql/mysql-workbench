@@ -17,60 +17,60 @@
  * 02110-1301  USA
  */
 
-#include "home_screen_helpers.h"
+#include "mforms/home_screen_helpers.h"
 #include "mforms/utilities.h"
 #include "mforms/app.h"
 
 
 
 #ifdef __APPLE__
-const char* wb::HomeScreenSettings::HOME_TITLE_FONT = "Helvetica Neue Light";
-const char* wb::HomeScreenSettings::HOME_NORMAL_FONT = "Helvetica Neue Light";
-const char* wb::HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica Neue Light";
+const char* mforms::HomeScreenSettings::HOME_TITLE_FONT = "Helvetica Neue Light";
+const char* mforms::HomeScreenSettings::HOME_NORMAL_FONT = "Helvetica Neue Light";
+const char* mforms::HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica Neue Light";
 // Info font is only used on Mac.
-const char* wb::HomeScreenSettings::HOME_INFO_FONT = "Baskerville";
+const char* mforms::HomeScreenSettings::HOME_INFO_FONT = "Baskerville";
 #elif defined(_WIN32)
-const char* wb::HomeScreenSettings::HOME_TITLE_FONT = "Segoe UI";
-const char* wb::HomeScreenSettings::HOME_NORMAL_FONT = "Segoe UI";
-const char* wb::HomeScreenSettings::HOME_DETAILS_FONT = "Segoe UI";
+const char* mforms::HomeScreenSettings::HOME_TITLE_FONT = "Segoe UI";
+const char* mforms::HomeScreenSettings::HOME_NORMAL_FONT = "Segoe UI";
+const char* mforms::HomeScreenSettings::HOME_DETAILS_FONT = "Segoe UI";
 #else
-const char* wb::HomeScreenSettings::HOME_TITLE_FONT = "Tahoma";
-const char* wb::HomeScreenSettings::HOME_NORMAL_FONT = "Tahoma";
-const char* wb::HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica";
+const char* mforms::HomeScreenSettings::HOME_TITLE_FONT = "Tahoma";
+const char* mforms::HomeScreenSettings::HOME_NORMAL_FONT = "Tahoma";
+const char* mforms::HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica";
 #endif
-const char* wb::HomeScreenSettings::TILE_DRAG_FORMAT = "com.mysql.workbench-drag-tile-format";
+const char* mforms::HomeScreenSettings::TILE_DRAG_FORMAT = "com.mysql.workbench-drag-tile-format";
 
 //--------------------------------------------------------------------------------------------------
 
-std::string wb::HomeAccessibleButton::get_acc_name()
+std::string mforms::HomeAccessibleButton::get_acc_name()
 {
   return name;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string wb::HomeAccessibleButton::get_acc_default_action()
+std::string mforms::HomeAccessibleButton::get_acc_default_action()
 {
   return default_action;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::Accessible::Role wb::HomeAccessibleButton::get_acc_role()
+mforms::Accessible::Role mforms::HomeAccessibleButton::get_acc_role()
 {
   return mforms::Accessible::PushButton;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-base::Rect wb::HomeAccessibleButton::get_acc_bounds()
+base::Rect mforms::HomeAccessibleButton::get_acc_bounds()
 {
   return bounds;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void wb::HomeAccessibleButton::do_default_action()
+void mforms::HomeAccessibleButton::do_default_action()
 {
   if (default_handler)
     default_handler((int) bounds.center().x, (int) bounds.center().y);
@@ -80,7 +80,7 @@ void wb::HomeAccessibleButton::do_default_action()
 
 // The following helpers are just temporary. They will be replaced by a cairo context class.
 
-int wb::imageWidth(cairo_surface_t* image)
+int mforms::imageWidth(cairo_surface_t* image)
 {
   if (image != nullptr)
   {
@@ -96,7 +96,7 @@ int wb::imageWidth(cairo_surface_t* image)
 
 //--------------------------------------------------------------------------------------------------
 
-int wb::imageHeight(cairo_surface_t* image)
+int mforms::imageHeight(cairo_surface_t* image)
 {
   if (image != nullptr)
   {
@@ -113,7 +113,7 @@ int wb::imageHeight(cairo_surface_t* image)
 /**
  * Helper to draw text with a hot decoration.
  */
-void wb::textWithDecoration(cairo_t* cr, double x, double y, const char* text,
+void mforms::textWithDecoration(cairo_t* cr, double x, double y, const char* text,
                         bool hot, double width)
 {
   cairo_move_to(cr, x, y);

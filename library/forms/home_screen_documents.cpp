@@ -17,14 +17,14 @@
  * 02110-1301  USA
  */
 
-#include "home_screen_documents.h"
+#include "mforms/home_screen_documents.h"
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "mforms/app.h"
 
-#include "home_screen.h"
+#include "mforms/home_screen.h"
 
-using namespace wb;
+using namespace mforms;
 
 //----------------- DocumentEntry ---------------------------------------------------------------
 
@@ -71,7 +71,7 @@ std::string DocumentEntry::get_acc_default_action()
 
 //----------------- DocumentsSection ---------------------------------------------------------------
 
-DocumentsSection::DocumentsSection(wb::HomeScreen *owner) :
+DocumentsSection::DocumentsSection(mforms::HomeScreen *owner):
     HomeScreenSection("wb_starter_mysql_wb_blog_52.png")
 {
   _owner = owner;
@@ -199,9 +199,9 @@ void DocumentsSection::draw_entry(cairo_t *cr, const DocumentEntry &entry,
   base::Size iconSize = mforms::Utilities::getImageSize(_model_icon);
 
   cairo_set_source_rgb(cr, 0, 0, 0);
-  cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL,
+  cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL,
       CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
+  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
   int x = (int) entry.bounds.left();
   int y = (int) entry.bounds.top() + 18;
   if (hot)
@@ -225,7 +225,7 @@ void DocumentsSection::draw_entry(cairo_t *cr, const DocumentEntry &entry,
 
   x += iconSize.width + 10;
 
-  cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_SMALL_INFO_FONT_SIZE);
+  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SMALL_INFO_FONT_SIZE);
 
   draw_icon_with_text(cr, x, (int) entry.bounds.top() + icon_top, _folder_icon,
       entry.folder_shorted);
@@ -329,7 +329,7 @@ void DocumentsSection::draw_selection_message(cairo_t *cr)
 
   cairo_fill(cr);
 
-  cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_DETAILS_FONT_SIZE);
+  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_DETAILS_FONT_SIZE);
   cairo_font_extents_t extents;
   cairo_font_extents(cr, &extents);
 
@@ -413,7 +413,7 @@ void DocumentsSection::layout(cairo_t *cr)
      */
 
     // Compute the shorted strings.
-    cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
+    cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
 
     int model_icon_width = imageWidth(_model_icon);
     int sql_icon_width = imageWidth(_sql_icon);
@@ -587,9 +587,9 @@ void DocumentsSection::repaint(cairo_t *cr, int areax, int areay, int areaw,
   load_icons();
 
   cairo_set_line_width(cr, 1);
-  cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
+  cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
       CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
+  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
 
   layout(cr);
 
@@ -606,7 +606,7 @@ void DocumentsSection::repaint(cairo_t *cr, int areax, int areay, int areaw,
 #endif
 
   width -= DOCUMENTS_LEFT_PADDING + DOCUMENTS_RIGHT_PADDING;
-  cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
+  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
   int entries_per_row = width / DOCUMENTS_ENTRY_WIDTH;
 
   // Heading for switching display mode. Draw heading hot only when we support more sections.
