@@ -20,9 +20,7 @@
 #ifndef _HOME_SCREEN_H_
 #define _HOME_SCREEN_H_
 
-#include "wb_backend_public_interface.h"
 #include <ctime>
-
 #include "base/notifications.h"
 #include "base/data_types.h"
 #include "base/any.h"
@@ -31,17 +29,12 @@
 #include "mforms/tabview.h"
 
 #include "home_screen_helpers.h"
-#include "home_screen_documents.h"
 
 class SidebarSection;
 
 namespace mforms
 {
   class Menu;
-};
-
-namespace wb
-{
   class ConnectionsSection;
   class XConnectionsSection;
   class XConnectionEntry;
@@ -56,7 +49,7 @@ namespace wb
    * This class implements the main (home) screen in MySQL Workbench, containing
    * sections for connections, plugins and documents.
    */
-  class MYSQLWBBACKEND_PUBLIC_FUNC HomeScreen : public mforms::AppView, public base::Observer
+  class MFORMS_EXPORT HomeScreen : public mforms::AppView, public base::Observer
   {
   private:
     SidebarSection *_sidebarSection;

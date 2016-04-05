@@ -31,16 +31,15 @@
 #include "mforms/imagebox.h"
 #include "mforms/scrollpanel.h"
 
-#include "home_screen.h"
-#include "home_screen_connections.h"
-#include "home_screen_x_connections.h"
+#include "mforms/home_screen.h"
+#include "mforms/home_screen_connections.h"
+#include "mforms/home_screen_x_connections.h"
 
-#include "workbench/wb_context_names.h"
 #include "base/any.h"
 
 DEFAULT_LOG_DOMAIN("home_screen")
 
-using namespace wb;
+using namespace mforms;
 
 //----------------- ShortcutSection ----------------------------------------------------------------
 
@@ -124,8 +123,8 @@ public:
 
     int height = get_height();
 
-    cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
+    cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
 
     cairo_set_source_rgb(cr, 0, 0, 0);
 
@@ -133,8 +132,8 @@ public:
     int yoffset = SIDEBAR_TOP_PADDING;
     if (_entries.size() > 0 && yoffset < height)
     {
-      cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
+      cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
 
       for (auto &iterator : _entries)
       {
@@ -263,8 +262,8 @@ public:
 
       double text_width = get_width() - text_xoffset - SIDEBAR_RIGHT_PADDING;
 
-      cairo_select_font_face(cr, wb::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size(cr, wb::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
+      cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
 
       cairo_font_extents_t font_extents;
       cairo_font_extents(cr, &font_extents);
@@ -398,8 +397,6 @@ public:
 };
 
 //----------------- HomeScreen ---------------------------------------------------------------------
-
-#include "workbench/wb_command_ui.h"
 
 HomeScreen::HomeScreen()
   : AppView(true, "home", true)

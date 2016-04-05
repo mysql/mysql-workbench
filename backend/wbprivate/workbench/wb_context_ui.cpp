@@ -53,10 +53,10 @@
 
 #include "mforms/appview.h"
 
-#include "home_screen.h"
-#include "home_screen_x_connections.h"
-#include "home_screen_connections.h"
-#include "home_screen_documents.h"
+#include "mforms/home_screen.h"
+#include "mforms/home_screen_x_connections.h"
+#include "mforms/home_screen_connections.h"
+#include "mforms/home_screen_documents.h"
 
 #include "wb_command_ui.h"
 

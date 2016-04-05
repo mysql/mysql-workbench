@@ -112,6 +112,12 @@ add_library(mforms
     widgets.cpp
     wizard.cpp
     jsonview.cpp
+    home_screen.cpp
+    home_screen_connections.cpp
+    home_screen_x_connections.cpp
+    home_screen_documents.cpp
+    home_screen_helpers.cpp
+
 )
 
 if (KEYRING_DEFINITION)

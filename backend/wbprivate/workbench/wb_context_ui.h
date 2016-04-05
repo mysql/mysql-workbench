@@ -29,7 +29,7 @@
 #include "grts/structs.app.h"
 #include "grts/structs.db.mgmt.h"
 #include "grt/plugin_manager.h"
-#include "home_screen_helpers.h"
+#include "mforms/home_screen_helpers.h"
 
 namespace bec 
 {
@@ -48,9 +48,15 @@ class OutputView;
 class PluginInstallWindow;
 class AddOnDownloadWindow;
 
-namespace wb {
-
+namespace mforms {
   enum class HomeScreenAction;
+  class HomeScreen;
+  class XConnectionsSection;
+  class ConnectionsSection;
+  class DocumentsSection;
+}
+
+namespace wb {
   
   class WBContext;
   struct WBFrontendCallbacks;
@@ -65,10 +71,6 @@ namespace wb {
 
   class ModelDiagramForm;
 
-  class HomeScreen;
-  class XConnectionsSection;
-  class ConnectionsSection;
-  class DocumentsSection;
 
   // this class contains functionality that the UI needs,
   // like menu/toolbar access, special form backends etc
@@ -190,27 +192,27 @@ namespace wb {
     void locate_log_file();
     void show_log_file();
 
-    void handle_home_action(wb::HomeScreenAction action, const base::any &anyObject);
+    void handle_home_action(mforms::HomeScreenAction action, const base::any &anyObject);
 
     void remove_connection(const db_mgmt_ConnectionRef &connection);
     void handle_home_context_menu(const base::any &object, const std::string &action);
 
     void start_plugin(const std::string& title, const std::string& command, const bec::ArgumentPool &defaults, bool force_external = false);
 
-    static void home_action_callback(wb::HomeScreenAction action, const base::any &object, WBContextUI *self);
+    static void home_action_callback(mforms::HomeScreenAction action, const base::any &object, WBContextUI *self);
     
     db_mgmt_ConnectionRef getConnectionById(const std::string &id);
-    anyMap connectionToMap(db_mgmt_ConnectionRef connection);
+    mforms::anyMap connectionToMap(db_mgmt_ConnectionRef connection);
 
   private:
     WBContext *_wb;
 
     // special forms/panels
     GRTShellWindow *_shell_window;
-    HomeScreen *_home_screen;
-    XConnectionsSection *_xConnectionsSection;
-    ConnectionsSection *_connectionsSection;
-    DocumentsSection *_documentsSection;
+    mforms::HomeScreen *_home_screen;
+    mforms::XConnectionsSection *_xConnectionsSection;
+    mforms::ConnectionsSection *_connectionsSection;
+    mforms::DocumentsSection *_documentsSection;
     std::vector<db_mgmt_ConnectionRef> _oldAuthList;
 
     OutputView *_output_view;
