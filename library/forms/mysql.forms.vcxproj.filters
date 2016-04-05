@@ -166,6 +166,21 @@
     <ClCompile Include="jsonview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="home_screen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen_connections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen_documents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen_helpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen_x_connections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -320,6 +335,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\jsonview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_connections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_documents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_x_connections.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
