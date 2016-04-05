@@ -269,6 +269,11 @@
     <ClCompile Include="find_panel.cpp" />
     <ClCompile Include="form.cpp" />
     <ClCompile Include="fs_object_selector.cpp" />
+    <ClCompile Include="home_screen.cpp" />
+    <ClCompile Include="home_screen_connections.cpp" />
+    <ClCompile Include="home_screen_documents.cpp" />
+    <ClCompile Include="home_screen_helpers.cpp" />
+    <ClCompile Include="home_screen_x_connections.cpp" />
     <ClCompile Include="hypertext.cpp" />
     <ClCompile Include="imagebox.cpp" />
     <ClCompile Include="jsonview.cpp" />
@@ -329,6 +334,11 @@
     <ClInclude Include="mforms\find_panel.h" />
     <ClInclude Include="mforms\form.h" />
     <ClInclude Include="mforms\fs_object_selector.h" />
+    <ClInclude Include="mforms\home_screen.h" />
+    <ClInclude Include="mforms\home_screen_connections.h" />
+    <ClInclude Include="mforms\home_screen_documents.h" />
+    <ClInclude Include="mforms\home_screen_helpers.h" />
+    <ClInclude Include="mforms\home_screen_x_connections.h" />
     <ClInclude Include="mforms\hypertext.h" />
     <ClInclude Include="mforms\imagebox.h" />
     <ClInclude Include="mforms\jsonview.h" />

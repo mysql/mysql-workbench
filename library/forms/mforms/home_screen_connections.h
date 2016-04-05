@@ -34,7 +34,7 @@ namespace mforms
   class FolderEntry;
   class ConnectionInfoPopup;
 
-  class ConnectionsSection: public HomeScreenSection, public mforms::DropDelegate
+  class MFORMS_EXPORT ConnectionsSection : public HomeScreenSection, public mforms::DropDelegate
   {
     friend class ConnectionEntry;
     friend class FolderBackEntry;

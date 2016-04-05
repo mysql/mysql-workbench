@@ -35,7 +35,7 @@ namespace mforms
     T tmp;
     try {
       return map.at(key);
-    } catch (std::out_of_range &err)
+    } catch (std::out_of_range &/*err*/)
     {
       if (a.isNull())
         tmp = 0;
@@ -51,7 +51,7 @@ namespace mforms
       std::string tmp;
       try {
         return map.at(key);
-      } catch (std::out_of_range &err)
+      } catch (std::out_of_range &/*err*/)
       {
         if (a.isNull())
           return tmp;
@@ -63,7 +63,7 @@ namespace mforms
   /**
    * Value to tell observers which action was triggered on the home screen.
    */
-  enum class HomeScreenAction
+  enum class MFORMS_EXPORT HomeScreenAction
   {
     ActionNone,
 

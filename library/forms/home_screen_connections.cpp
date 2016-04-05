@@ -218,7 +218,7 @@ public:
     {
       mforms::anyMap serverInfo = connectionInfo["serverInfo"];
       pending = serverInfo["setupPending"].as<ssize_t>() == 1;
-      if (!pending && !connectionInfo["isLocalConnection"] && getAnyMapValue<ssize_t>(serverInfo, "remoteAdmin") == 0
+      if (!pending && !connectionInfo["isLocalConnection"].as<bool>() && getAnyMapValue<ssize_t>(serverInfo, "remoteAdmin") == 0
           && getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 0)
         pending = true;
     }
@@ -370,7 +370,7 @@ public:
       {
         mforms::anyMap serverInfo = connectionInfo["serverInfo"];
         pending = serverInfo["setupPending"].as<ssize_t>() == 1;
-        if (!pending && !connectionInfo["isLocalConnection"] && getAnyMapValue<ssize_t>(serverInfo, "remoteAdmin") == 0
+        if (!pending && !connectionInfo["isLocalConnection"].as<bool>() && getAnyMapValue<ssize_t>(serverInfo, "remoteAdmin") == 0
             && getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 0)
           pending = true;
       }
@@ -996,7 +996,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
 #ifdef _WIN32
   _search_text.set_bordered(false);
   _search_text.set_size(-1, 18);
-  _search_text.set_font(mforms::HomeScreenSettings::HOME_NORMAL_FONT" 10");
+  _search_text.set_font(mforms::HomeScreenSettings::HOME_NORMAL_FONT);
   _search_box.set_size(-1, 18);
 #else
   _search_box.set_padding(8, 1, 8, 5);
