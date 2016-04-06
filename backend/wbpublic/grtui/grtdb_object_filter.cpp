@@ -138,7 +138,7 @@ DBObjectFilterFrame::DBObjectFilterFrame(bec::GRTManager *grtm)
   scoped_connect(_mask_list.signal_changed(),boost::bind(&DBObjectFilterFrame::update_button_enabled, this));
   
   _filter_help_label.set_style(mforms::SmallHelpTextStyle);
-  _filter_help_label.set_text(_("Use the + button to exclude objects matching wildcards such as * and _"));
+  _filter_help_label.set_text(_("Use the + button to exclude objects matching wildcards such as * and ?"));
   _detailed_table.add(&_filter_help_label, 0, 3, 8, 9, mforms::HFillFlag);
 }
 
