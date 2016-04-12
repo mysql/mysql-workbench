@@ -32,7 +32,7 @@ class CodeEditorWrapper : public ViewWrapper
   {
   }
 
-  static bool create(CodeEditor* self)
+  static bool create(CodeEditor* self, bool showInfo)
   {
     return true;
   }

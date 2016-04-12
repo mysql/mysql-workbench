@@ -94,7 +94,7 @@ namespace MySQL {
     protected:
       CodeEditorWrapper(mforms::CodeEditor *backend);
 
-      static bool create(mforms::CodeEditor* editor);
+      static bool create(mforms::CodeEditor* editor, bool showInfo);
       static sptr_t send_editor(mforms::CodeEditor* editor, unsigned int message, uptr_t wParam, sptr_t lParam);
       static void show_find_panel(mforms::CodeEditor* editor, bool show);
 
