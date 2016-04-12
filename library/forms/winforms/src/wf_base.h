@@ -98,7 +98,7 @@ namespace Forms {
 
     // Returns the managed control/dialog etc. for the given backend.
     template<class T>
-    static T^ GetManagedObject(mforms::Object *backend)
+    static T^ GetManagedObject(const mforms::Object *backend)
     {
       ObjectWrapper *wrapper = backend->get_data<ObjectWrapper>();
       System::ComponentModel::Component ^value = wrapper->component;

@@ -311,7 +311,7 @@ CodeEditorWrapper::CodeEditorWrapper(mforms::CodeEditor *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-bool CodeEditorWrapper::create(mforms::CodeEditor *backend)
+bool CodeEditorWrapper::create(mforms::CodeEditor *backend, bool showInfo)
 {
   CodeEditorWrapper *wrapper = new CodeEditorWrapper(backend);
   ScintillaControl ^editor = CodeEditorWrapper::Create<ScintillaControl>(backend, wrapper);
