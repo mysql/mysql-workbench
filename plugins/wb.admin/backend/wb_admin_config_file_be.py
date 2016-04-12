@@ -978,7 +978,7 @@ class WbAdminConfigFileBE(object):
                             ovalue = "0"
                         options.append((name, ovalue))
                     else:
-                        options.append((name, opt.value()))
+                        options.append((name, opt.value().strip()))
 
         return options
 
