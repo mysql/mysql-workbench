@@ -220,6 +220,7 @@ class WbAdminPSBaseTab(mforms.Box):
         self.installer_panel = None
         self.warning_panel = None
         self.content = None
+        
 
 
     def create_basic_ui(self, icon, title, button=None):
@@ -239,16 +240,23 @@ class WbAdminPSBaseTab(mforms.Box):
     def ps_helper_needs_installation(self):
         try:
             installed_version = get_installed_sys_version(self.main_view.editor)
+            install_text = ""
+            missing_grants = self.get_missing_grants()
+            install_text = """\n\nTo be able to install the performance schema helper, you'll need the following privileges:
+    - SELECT, INSERT, CREATE, DROP, ALTER, SUPER, CREATE VIEW, CREATE ROUTINE, ALTER ROUTINE and TRIGGER"""
+            can_install = True
+            if len(missing_grants) > 0:
+                can_install = False
+                install_text = "%s\n\nThe following grants are missing:\n  - %s" % (install_text, str(missing_grants))
+    
             if not installed_version:
+        
                 return "The Performance Schema helper schema (sys) is not installed", \
     """Click the [Install Helper] button to install it.
     You must have at least the following privileges to use Performance Schema functionality:
       - SELECT on performance_schema.*
       - UPDATE on performance_schema.setup* for configuring instrumentation
-                    
-    and
-                    
-      - ALL on sys to be able to install the performance schema helper"""
+      %s""" % install_text, can_install
             else:
                 curversion = get_current_sys_version(self.ctrl_be.target_version)
                 x, y, z = [int(i) for i in curversion.split(".")]
@@ -261,9 +269,9 @@ class WbAdminPSBaseTab(mforms.Box):
                 if ix == x and (iy > y or (iy == y and iz >= z)):
                     pass # ok
                 elif x < ix:
-                    return "Installed Performance Schema helper (sys) version is newer than supported", "MySQL Workbench needs to downgrade it.\n(current version is %s, server has %s)." % (curversion, installed_version)
+                    return "Installed Performance Schema helper (sys) version is newer than supported", "MySQL Workbench needs to downgrade it.\n(current version is %s, server has %s).%s" % (curversion, installed_version, install_text), can_install
                 else:
-                    return "Performance Schema helper schema (sys) is outdated", "MySQL Workbench needs to upgrade it.\n(current version is %s, server has %s)." % (curversion, installed_version)
+                    return "Performance Schema helper schema (sys) is outdated", "MySQL Workbench needs to upgrade it.\n(current version is %s, server has %s%s)." % (curversion, installed_version, install_text), can_install
         except grt.DBError, e:
             return "Unable to access Performance Schema helper schema (sys)", "%s (error %s)\n\nIf the sys schema is already installed, make sure you have SELECT privileges on it.\nIf not, you will need privileges to create the `sys` schema and populate it with views and stored procedures for PERFORMANCE_SCHEMA." % e.args
 
@@ -292,6 +300,24 @@ class WbAdminPSBaseTab(mforms.Box):
     def check_usable(self):
         return None, None
 
+    def get_missing_grants(self):
+      # SELECT, INSERT, CREATE, DROP, ALTER, SUPER, CREATE VIEW, CREATE ROUTINE, ALTER ROUTINE, TRIGGER
+        required_grants = ['SELECT', 'INSERT', 'CREATE', 'DROP', 'ALTER', 'SUPER', 'CREATE VIEW', 'CREATE ROUTINE', 'ALTER ROUTINE', 'TRIGGER']
+        missing_grants = []
+        current_user_grants = ""
+        try:
+            res = self.main_view.editor.executeManagementQuery("show grants", 0)
+            if res.goToFirstRow():
+                current_user_grants = res.stringFieldValue(0)
+        except grt.DBError, e:
+            log_error("MySQL error retrieving user grants: %s\n" % e)
+
+        for grant in required_grants:
+            if current_user_grants.find(grant) == -1:
+                missing_grants.append(grant)
+
+        return missing_grants
+
     def page_activated(self):
         if self.warning_panel:
             self.remove(self.warning_panel)
@@ -306,6 +332,7 @@ class WbAdminPSBaseTab(mforms.Box):
             text = ("Performance Schema Unavailable", "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
         else:
             text = self.ps_helper_needs_installation()
+            
             if self.installer_panel:
                 if self.installer_panel.is_busy:
                     return
@@ -319,7 +346,9 @@ class WbAdminPSBaseTab(mforms.Box):
             text, button_data = self.check_usable()
 
         if text:
-            title, text = text
+            title, text, can_install = text
+            if not can_install:
+                button_data = None
             self.warning_panel = MessageButtonPanel("", title, text, button_data)
             self.add(self.warning_panel, True, True)
             
