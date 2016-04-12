@@ -281,6 +281,9 @@ JsonBaseView::JsonBaseView()
 
 bool JsonBaseView::isDateTime(const std::string &text)
 {
+  static std::string validChars = "0123456789-.: ";
+  if (text.find_first_not_of(validChars) != std::string::npos)
+    return false;
   bt::time_input_facet *isoFacet = new bt::time_input_facet();
   isoFacet->set_iso_format();
   bt::time_input_facet *extendedIsoFacet = new bt::time_input_facet();
