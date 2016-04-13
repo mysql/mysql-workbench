@@ -1100,7 +1100,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                 }
                 catch (std::logic_error &)
                 {
-                  const std::string msg = base::strfmt("ERROR: Could not successfully convert UCS-2 string to UTF-8 "
+                  const std::string msg = base::strfmt("Could not successfully convert UCS-2 string to UTF-8 "
                     "in table %s.%s (column %s). Original string: \"%s\"",
                     _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
                   );
