@@ -30,6 +30,8 @@
 
 #include "sqlide/wb_live_schema_tree.h"
 
+#include "grt/grt_manager.h"
+
 /**
  * Implementation of a sidebar in iTunes look and feel that can optionally show the content of a 
  * database.
@@ -186,6 +188,7 @@ namespace wb {
   class SimpleSidebar : public mforms::TaskSidebar
   {
   protected:
+    bec::GRTManager *_grtm;
     std::vector<SidebarSection*> _sections;
 
     base::Color _selection_color;
@@ -197,6 +200,8 @@ namespace wb {
     void add_items_from_list(mforms::MenuBase &menu, const bec::MenuItemList &items);
   public:
     ~SimpleSidebar();
+    
+    void set_grt_manager(bec::GRTManager *manager){ _grtm = manager; }
 
     virtual int add_section(const std::string &name, const std::string& title, mforms::TaskSectionFlags flags = mforms::TaskSectionPlain);
     virtual void remove_section(const std::string& name);
@@ -255,6 +260,8 @@ namespace wb {
 
     mforms::Box _schema_box; // Container for schema section and tree so we can hide it as a block.
 
+    bec::GRTManager::Timer *_filterTimer;
+    
     AdvancedSidebar(); // Create the sidebar via its mforms alter ego TaskSidebar::create()
   protected:
     static mforms::TaskSidebar* create_instance();
@@ -264,7 +271,8 @@ namespace wb {
     void on_show_menu(mforms::MenuItem *parent_item);
     void add_items_from_list(mforms::MenuBase &menu, const bec::MenuItemList &items);
     void handle_menu_command(const std::string& command);
-    void on_search_text_changed();
+    void on_search_text_changed_prepare();
+    bool on_search_text_changed();
     void on_remote_search_clicked();
     void on_tree_node_selected();
   public:
