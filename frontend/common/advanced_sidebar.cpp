@@ -1522,16 +1522,17 @@ void AdvancedSidebar::handle_notification(const std::string &name, void *sender,
 void AdvancedSidebar::on_search_text_changed_prepare()
 {
   if (_filterTimer)
-    _grtm->cancel_timer(_filterTimer);
+    bec::GRTManager::get().cancel_timer(_filterTimer);
   
-  _filterTimer = _grtm->run_every(boost::bind(&AdvancedSidebar::on_search_text_changed, this), 1.0);
+  _filterTimer = bec::GRTManager::get().run_every(boost::bind(&AdvancedSidebar::on_search_text_changed, this), 1.0);
 }
+
 
 bool AdvancedSidebar::on_search_text_changed()
 {
-  _grtm->cancel_timer(_filterTimer);
+  bec::GRTManager::get().cancel_timer(_filterTimer);
   _filterTimer = NULL;
-  
+
   std::string filter = _schema_search_text.get_string_value();
 
   // Updates the current schema model to filtered/base
