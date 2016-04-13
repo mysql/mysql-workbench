@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1100,10 +1100,10 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                 }
                 catch (std::logic_error &)
                 {
-                  const std::string msg = base::strfmt("ERROR: Could not successfully convert UCS-2 string to UTF-8 "
-                      "in table %s.%s (column %s). Original string: \"%s\"",
-                      _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
-                      );
+                  const std::string msg = base::strfmt("Could not successfully convert UCS-2 string to UTF-8 "
+                    "in table %s.%s (column %s). Original string: \"%s\"",
+                    _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
+                  );
                   log_error("%s", msg.c_str());
                   throw std::invalid_argument(msg);
                 }
