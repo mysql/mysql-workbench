@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016 Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -147,13 +147,13 @@ class TableCopyWorker(Thread):
             o, e = self.process.communicate()
             if o:
                 last_progress = None
-                for l in o.split("\n"):
-                    if l.startswith("PROGRESS:"):
-                        last_progress = l
+                for line in o.split("\n"):
+                    if line.startswith("PROGRESS:"):
+                        type, _, last_progress = line.strip().partition(":")
                     else:
                         self._owner.send_info(l)
                 if last_progress:
-                    self.result_queue.put(l)
+                    self.result_queue.put((type, last_progress))
             if e:
                 self._owner.send_info(e)
 
