@@ -188,7 +188,6 @@ namespace wb {
   class SimpleSidebar : public mforms::TaskSidebar
   {
   protected:
-    bec::GRTManager *_grtm;
     std::vector<SidebarSection*> _sections;
 
     base::Color _selection_color;
@@ -201,8 +200,6 @@ namespace wb {
   public:
     ~SimpleSidebar();
     
-    void set_grt_manager(bec::GRTManager *manager){ _grtm = manager; }
-
     virtual int add_section(const std::string &name, const std::string& title, mforms::TaskSectionFlags flags = mforms::TaskSectionPlain);
     virtual void remove_section(const std::string& name);
     virtual int add_section_entry(const std::string& section_name, const std::string &name, const std::string& title, const std::string& icon, mforms::TaskEntryType type);
@@ -261,7 +258,7 @@ namespace wb {
     mforms::Box _schema_box; // Container for schema section and tree so we can hide it as a block.
 
     bec::GRTManager::Timer *_filterTimer;
-    
+
     AdvancedSidebar(); // Create the sidebar via its mforms alter ego TaskSidebar::create()
   protected:
     static mforms::TaskSidebar* create_instance();
