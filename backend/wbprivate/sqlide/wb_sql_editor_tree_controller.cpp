@@ -188,6 +188,7 @@ void SqlEditorTreeController::finish_init()
   // Left hand sidebar tabview with admin and schema tree pages.
   _task_tabview = new mforms::TabView(mforms::TabViewSelectorSecondary);
   _schema_side_bar = (wb::SimpleSidebar *)mforms::TaskSidebar::create("SchemaTree");
+  _schema_side_bar->set_grt_manager(_grtm);
   scoped_connect(_schema_side_bar->on_section_command(), boost::bind(&SqlEditorTreeController::sidebar_action, this, _1));
   _admin_side_bar = (wb::SimpleSidebar *)mforms::TaskSidebar::create("Simple");
   scoped_connect(_admin_side_bar->on_section_command(), boost::bind(&SqlEditorTreeController::sidebar_action, this, _1));
