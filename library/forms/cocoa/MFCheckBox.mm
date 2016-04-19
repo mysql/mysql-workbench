@@ -52,6 +52,13 @@
   mOwner->callback();
 }
 
+- (NSSize)minimumSize
+{
+  // We have to explicitly add space for the check box. No idea why this isn't done by cocoa implicitly.
+  NSSize result = super.minimumSize;
+  result.width += 4; // Seems only the spacing is missing.
+  return result;
+}
 
 static bool checkbox_create(::mforms::CheckBox *self, bool square)
 {

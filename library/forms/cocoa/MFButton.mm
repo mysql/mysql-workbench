@@ -164,6 +164,7 @@ static void button_set_text(::mforms::Button *self, const std::string &text)
     if ( button )
     {
       button.title = [wrap_nsstring(text) stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"_"]];
+      [button sizeToFit];
     }
   }
 }
