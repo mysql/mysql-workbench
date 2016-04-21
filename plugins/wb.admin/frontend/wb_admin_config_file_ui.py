@@ -75,15 +75,15 @@ def run_version_select_form(version):
     right_vbox.set_spacing(12)
 
     warn_label = newLabel("Server version %s is not supported by Workbench\nconfiguration file management tool." % ".".join(map(lambda x: str(x), version)))
-    right_vbox.add(warn_label, False, False)
+    right_vbox.add(warn_label, False, True)
 
     warn_label = newLabel("Although, you can select different server version\nfor the tool to use. Suggested version "
                           "is given\nbelow. You can either pick version or type one."
                          )
-    right_vbox.add(warn_label, False, False)
+    right_vbox.add(warn_label, False, True)
 
     warn_label = newLabel("Valid version formats are X.Y.ZZ or X.Y.\nAll other variants will resort to default - 5.1.")
-    right_vbox.add(warn_label, False, False)
+    right_vbox.add(warn_label, False, True)
 
     if (type(version) is not tuple):
         version = (5,1)
@@ -109,10 +109,10 @@ def run_version_select_form(version):
     versions.reverse()
     version_selector.add_items(map(lambda x: str(x), versions))
     version_selector.set_value(str(guessed_version))
-    right_vbox.add(version_selector, False, False)
+    right_vbox.add(version_selector, False, True)
     version_selector.add_changed_callback(lambda: verify_selected_version(version_selector, True))
 
-    info_hbox.add(img_box, False, False)
+    info_hbox.add(img_box, False, True)
     info_hbox.add(right_vbox, True, True)
     top_vbox.add(info_hbox, True, True)
 
@@ -120,9 +120,9 @@ def run_version_select_form(version):
     ok.set_text("Ok")
 
     button_box = newBox(True)
-    button_box.add_end(ok, False, False)
+    button_box.add_end(ok, False, True)
 
-    top_vbox.add(button_box, False, False)
+    top_vbox.add(button_box, False, True)
 
     form.set_content(top_vbox)
     form.run_modal(ok, None)
@@ -250,9 +250,9 @@ class WbAdminConfigFileUI(mforms.Box):
         search_box.set_padding(2)
         search_box.set_spacing(4)
         #search_box.set_size(300, -1)
-        search_box.add(search_label, False, False)
+        search_box.add(search_label, False, True)
         search_box.add(self.option_lookup_entry, False, True)
-        search_box.add(search_btn, False, False)
+        search_box.add(search_btn, False, True)
         search_panel = newPanel(mforms.FilledPanel)
         search_panel.add(search_box)
 
@@ -309,12 +309,12 @@ class WbAdminConfigFileUI(mforms.Box):
             table.set_column_spacing(20)
             table.set_padding(5)
             table.set_homogeneous(False)
-
+            
             table.set_row_count(number_of_controls)
             table.set_column_count(3)
 
             table_row = -1 # Counter to address table rows, as we may skip some control_idx.
-
+            table.suspend_layout()
             for control_idx in range(0, number_of_controls):
                 ctrl_def = controls[control_idx]
 
@@ -364,6 +364,7 @@ class WbAdminConfigFileUI(mforms.Box):
                     self.enabled_checkbox_click(name, True)
                     self.set_string_value_to_control(ctrl_tuple, value)
 
+            table.resume_layout()
             # Remove empty rows
             table.set_row_count(table_row+1)#number_of_controls - (number_of_controls - table_row))
 
@@ -494,7 +495,7 @@ class WbAdminConfigFileUI(mforms.Box):
         btn.add_clicked_callback(lambda: self.open_file_chooser(OpenDirectory, te, name))
 
         dir_box.add(te, True, True)
-        dir_box.add(btn, False, False)
+        dir_box.add(btn, False, True)
         te.set_enabled(False)
         btn.set_enabled(False)
 
@@ -694,7 +695,7 @@ class WbAdminConfigFileUI(mforms.Box):
         btn.set_tooltip('Browse a file in your server...')
         btn.enable_internal_padding(False)
         btn.add_clicked_callback(lambda: self.open_file_chooser(OpenFile, te, name))
-        dir_box.add(btn, False, False)
+        dir_box.add(btn, False, True)
 
         btn_dwn = None
         if ctrl_def['type'] in ('filedownload', 'fileedit'):
@@ -703,7 +704,7 @@ class WbAdminConfigFileUI(mforms.Box):
             btn_dwn.set_tooltip('Download this file to your local computer')
             btn_dwn.enable_internal_padding(False)
             btn_dwn.add_clicked_callback(lambda: download_file_from_server_cb(te))
-            dir_box.add(btn_dwn, False, False)
+            dir_box.add(btn_dwn, False, True)
             btn_dwn.set_enabled(False)
 
         btn_upl = None
@@ -713,7 +714,7 @@ class WbAdminConfigFileUI(mforms.Box):
             btn_upl.set_tooltip('Upload a file from your local computer to the server')
             btn_upl.enable_internal_padding(False)
             btn_upl.add_clicked_callback(lambda: upload_file_to_server_cb(te))
-            dir_box.add(btn_upl, False, False)
+            dir_box.add(btn_upl, False, True)
             btn_upl.set_enabled(False)
 
 
@@ -805,7 +806,7 @@ class WbAdminConfigFileUI(mforms.Box):
             #table.add(label, 1, 2, row, row+1, HExpandFlag | HFillFlag)
         elif ctype == 'textedit' or ctype == 'string' or ctype == 'set':
             te = self.create_textedit(name, ctrl_def)
-            table.add(te, 1, 2, row, row+1, HExpandFlag | HFillFlag)
+            table.add(te, 1, 2, row, row+1, VFillFlag | HExpandFlag | HFillFlag)
             ctrl = ('txt', (enabled, te), ctrl_def)
             self.opt2ctrl_map[name] = ctrl
         elif ctype in ['filename', 'fileedit', 'filebrowse', 'filedownload']:
@@ -815,13 +816,13 @@ class WbAdminConfigFileUI(mforms.Box):
             else:
                 (dir_box, te, btn, btn_dwn, btn_upl) = self.create_fileedit(name, ctrl_def)
                 ctrl = ('fed', (enabled, te, btn, btn_dwn, btn_upl), ctrl_def)
-            table.add(dir_box, 1, 2, row, row + 1, HExpandFlag | HFillFlag)
+            table.add(dir_box, 1, 2, row, row + 1, VFillFlag | HExpandFlag | HFillFlag)
             te.add_changed_callback(lambda: self.control_action(name))
             self.opt2ctrl_map[name] = ctrl
         elif ctype in ['directory', 'dirname']:
             (dir_box, te, btn) = self.create_dir_file_edit(name, ctrl_def)
             ctrl = ('dir', (enabled, te, btn), ctrl_def)
-            table.add(dir_box, 1, 2, row, row + 1, HExpandFlag | HFillFlag)
+            table.add(dir_box, 1, 2, row, row + 1, VFillFlag | HExpandFlag | HFillFlag)
             te.add_changed_callback(lambda: self.control_action(name))
             self.opt2ctrl_map[name] = ctrl
         elif ctype == "numeric" or ctype == "spinedit" or ctype == "integer":
@@ -832,25 +833,25 @@ class WbAdminConfigFileUI(mforms.Box):
             ctrl = ('txt', (enabled, te), ctrl_def)
             self.opt2ctrl_map[name] = ctrl
             #table.add(spin_box, 1, 2, row, row + 1, HExpandFlag | HFillFlag)
-            table.add(te, 1, 2, row, row + 1, HExpandFlag | HFillFlag)
+            table.add(te, 1, 2, row, row + 1, VFillFlag | HExpandFlag | HFillFlag)
         elif ctype == "dropdownbox" or ctype == 'dropdownboxentry' or ctype == "enum":
             if 'choice' not in ctrl_def:
                 te = newTextEntry()
                 te.set_enabled(False)
                 te.add_changed_callback(lambda: self.control_action(name))
-                table.add(te, 1, 2, row, row+1, HExpandFlag | HFillFlag)
+                table.add(te, 1, 2, row, row+1, VFillFlag | HExpandFlag | HFillFlag)
                 ctrl = ('txt', (enabled, te), ctrl_def)
                 self.opt2ctrl_map[name] = ctrl
             else:
                 (dropbox, items) = self.create_dropdownbox(name, ctrl_def, ctype)
-                table.add(dropbox, 1, 2, row, row + 1, HExpandFlag | HFillFlag)
+                table.add(dropbox, 1, 2, row, row + 1, VFillFlag | HExpandFlag | HFillFlag)
                 ctrl = ('drp', (enabled, dropbox, items), ctrl_def)
                 self.opt2ctrl_map[name] = ctrl
         else:
             raise NotImplementedError("Control type %s not implemented for config file editor"%ctype)
 
         if CATOPTS is None:
-            table.add(enabled, 0, 1, row, row + 1, HFillFlag)
+            table.add(enabled, 0, 1, row, row + 1, VFillFlag | HFillFlag)
             enabled.add_clicked_callback(lambda: self.enabled_checkbox_click(name))
         else:
             catbox = newBox(True)
@@ -1232,7 +1233,7 @@ class WbAdminConfigFileUI(mforms.Box):
         discard_btn.add_clicked_callback(self.config_discard_changes_clicked)
 
         self.add(self.tab_view, True, True)
-        self.add(self.bottom_box, False, False)
+        self.add(self.bottom_box, False, True)
 
         self.bottom_box.add(newLabel("Configuration File:"), False, True)
         self.bottom_box.add(self.file_name_ctrl, True, True)

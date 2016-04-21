@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -294,7 +294,7 @@ class WbAdminPSBaseTab(mforms.Box):
     def create_basic_ui(self, icon, title, button=None):
         self.heading = make_panel_header(icon, self.instance_info.name, title, button)
         self.heading.set_padding(8)
-        self.add(self.heading, False, False)
+        self.add(self.heading, False, True)
 
         self.content = None
 
@@ -381,6 +381,11 @@ class WbAdminPSBaseTab(mforms.Box):
         except grt.DBError, e:
             log_error("MySQL error retrieving user grants: %s\n" % e)
 
+        # First we check if there's full grant set,
+        if current_user_grants.find("ALL") != -1:
+            return missing_grants
+    
+        # only if not, we will check for the other
         for grant in required_grants:
             if current_user_grants.find(grant) == -1:
                 missing_grants.append(grant)

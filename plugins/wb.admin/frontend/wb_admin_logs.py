@@ -217,10 +217,10 @@ class LogView(mforms.Box):
         self.error_box = newBox(True)
         self.error_box.set_spacing(8)
         error_label = newLabel(str(error))
-        self.error_box.add(error_label, False, False)
+        self.error_box.add(error_label, False, True)
         try_again_button = newButton()
         try_again_button.set_text('Try again')
-        self.error_box.add(try_again_button, False, False)
+        self.error_box.add(try_again_button, False, True)
         try_again_button.add_clicked_callback(self.try_again)
         self.add(self.error_box, False, True)
 
@@ -253,7 +253,9 @@ class LogView(mforms.Box):
         
         filter_box = self.create_filter_box()
         if filter_box:
-            self.add(filter_box, False, False)
+            if filter_box.get_parent():
+                self.remove(filter_box)
+            self.add(filter_box, False, True)
         
         try:
             self.log_reader = self.BackendLogReaderClass(*self.args)
@@ -267,7 +269,7 @@ class LogView(mforms.Box):
             self.warning_box = newBox(True)
             self.warning_box.set_spacing(8)
             warning_label = newLabel(self.log_reader.partial_support)
-            self.warning_box.add(warning_label, False, False)
+            self.warning_box.add(warning_label, False, True)
             self.add(self.warning_box, False, True)
 
         self.tree = newTreeView(mforms.TreeFlatList)
@@ -301,17 +303,17 @@ class LogView(mforms.Box):
         else:
             label = newLabel("TABLE")
         label.set_style(mforms.BoldStyle)
-        table.add(label, 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(label, 1, 2, 0, 1, mforms.VFillFlag|mforms.HFillFlag|mforms.HExpandFlag)
 
-        table.add(newLabel("Log File Size:"), 2, 3, 0, 1, mforms.HFillFlag)
+        table.add(newLabel("Log File Size:"), 2, 3, 0, 1, mforms.VFillFlag|mforms.HFillFlag)
         self.size_label = newLabel("retrieving..." if self.log_reader.log_file else "-")
         self.size_label.set_style(mforms.BoldStyle)
-        table.add(self.size_label, 3, 4, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(self.size_label, 3, 4, 0, 1, mforms.VFillFlag|mforms.HFillFlag|mforms.HExpandFlag)
 
-        table.add(newLabel("Showing:"), 0, 1, 1, 2, mforms.HFillFlag)
+        table.add(newLabel("Showing:"), 0, 1, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
         self.range_label = newLabel("retrieving data...")
         self.range_label.set_style(mforms.BoldStyle)
-        table.add(self.range_label, 1, 2, 1, 2, mforms.HFillFlag)
+        table.add(self.range_label, 1, 2, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
         self.add(table, False, True)
 
         self.bbox = newBox(True)
@@ -374,15 +376,15 @@ class LogView(mforms.Box):
         self.worker = None
 
     def refresh(self, records=None):
-        if self.log_reader.log_file.path == "stderr":
-            grt.getEventLogEntry(self.actual_position, self.query)
-            self.bof_button.set_enabled(False)
-            self.back_button.set_enabled(False)
-            self.eof_button.set_enabled(False)
-            self.next_button.set_enabled(False)
-            self.range_label.set_text('Records read: %d' % self.actual_position)
-            return
         if self.log_reader:
+            if self.log_reader.log_file.path == "stderr":
+                grt.getEventLogEntry(self.actual_position, self.query)
+                self.bof_button.set_enabled(False)
+                self.back_button.set_enabled(False)
+                self.eof_button.set_enabled(False)
+                self.next_button.set_enabled(False)
+                self.range_label.set_text('Records read: %d' % self.actual_position)
+                return
             try:
                 self.log_reader.refresh()
 

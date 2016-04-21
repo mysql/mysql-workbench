@@ -577,7 +577,7 @@ class WbAdminSchemaListTab(mforms.Box):
             self.folder_load_btn.add_clicked_callback(self.refresh_table_list)
             tbox = newBox(True)
             tbox.add(self.folder_load_btn, False, True)
-            optionsbox.add(tbox, False, False)
+            optionsbox.add(tbox, False, True)
 
         optionsbox.add(file_path, False, True)
         optionsbox.add(self.filelabel, False, True)
@@ -2112,18 +2112,18 @@ class WbAdminProgressTab(mforms.Box):
             self.hintlabel = newLabel("Press [Start Export] to start...")
         else:
             self.hintlabel = newLabel("Press [Start Import] to start...")
-        statusbox.add(self.hintlabel, False, False)
-        statusbox.add(self.dump_progressbar, False, False)
-        statusbox.add(newLabel("Status:"), False, False)
-        statusbox.add(self.statlabel, False, False)
+        statusbox.add(self.hintlabel, False, True)
+        statusbox.add(self.dump_progressbar, False, True)
+        statusbox.add(newLabel("Status:"), False, True)
+        statusbox.add(self.statlabel, False, True)
 
         self.progress_log = newTextBox(mforms.VerticalScrollBar)
         self.progress_log.set_read_only(True)
 
-        self.add(statusbox, False, False)
+        self.add(statusbox, False, True)
 
         label = newLabel("Log:")
-        self.add(label, False, False)
+        self.add(label, False, True)
         self.add(self.progress_log, True, True)
 
         box = newBox(True)
