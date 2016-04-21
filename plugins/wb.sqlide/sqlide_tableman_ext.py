@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -95,7 +95,7 @@ class TableInfoPanel(mforms.Box):
 
         self._table_engine = None
         
-        self.add(self.panel_header_box,False, False)
+        self.add(self.panel_header_box,False, True)
 
 
         self.table.add(make_title("Table Details"), 0, 2, 0, 1, mforms.HFillFlag)
@@ -224,9 +224,9 @@ class TableInfoPanel(mforms.Box):
         table.add(self.analyze_btn,                                                     1, 2, 0, 1, mforms.HFillFlag)
         table.add(mforms.newLabel(" to update it."),                              2, 3, 0, 1, mforms.HFillFlag)
         
-        bbox.add(table, False, False)
+        bbox.add(table, False, True)
         
-        self.add(bbox, False, False)
+        self.add(bbox, False, True)
         
     def get_table_engine(self):
         return self._table_engine
@@ -307,7 +307,7 @@ class TableInfoPanel(mforms.Box):
         self._schema = schema
         self._table = table
 
-        self.panel_header_box.add(make_panel_header("db.Table.32x32.png", self.editor.connection.name, "%s.%s" % (schema, table)), False, False)
+        self.panel_header_box.add(make_panel_header("db.Table.32x32.png", self.editor.connection.name, "%s.%s" % (schema, table)), False, True)
 
         self.refresh()
 
@@ -348,7 +348,7 @@ class CreateIndexForm(mforms.Form):
         self.kind = mforms.newSelector()
         self.kind.add_items(["Non-Unique", "Unique", "FullText", "Spatial"])
         hbox.add(self.kind, False, True)
-        table.add(hbox, 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(hbox, 1, 2, 0, 1, mforms.VFillFlag|mforms.HFillFlag|mforms.HExpandFlag)
 
         if self._engine in ["memory", "heap","ndb"]:
             table.add(mforms.newLabel("Type:", True), 0, 1, 1, 2, mforms.HFillFlag)
@@ -370,7 +370,7 @@ class CreateIndexForm(mforms.Form):
         tbl.set_column_count(2)
         tbl.set_row_spacing(2)
         tbl.set_column_spacing(4)
-        tbl.add(self.columns, 0, 1, 0, 3, mforms.HFillFlag|mforms.VFillFlag|mforms.HExpandFlag)
+        tbl.add(self.columns, 0, 1, 0, 3, mforms.HFillFlag|mforms.VFillFlag|mforms.HExpandFlag|mforms.VExpandFlag)
         self.move_up = mforms.newButton()
         self.move_up.set_text("\xe2\x96\xb2")
         self.move_up.add_clicked_callback(self.move_row_up)
@@ -379,10 +379,10 @@ class CreateIndexForm(mforms.Form):
         self.move_down.set_text("\xe2\x96\xbc")
         self.move_down.add_clicked_callback(self.move_row_down)
         self.move_down.enable_internal_padding(False)
-        tbl.add(self.move_up, 1, 2, 0, 1, mforms.HFillFlag)
-        tbl.add(self.move_down, 1, 2, 1, 2, mforms.HFillFlag)
-        tbl.add(mforms.newLabel(""), 1, 2, 2, 3, mforms.HFillFlag|mforms.VExpandFlag)
-        table.add(tbl, 1, 2, 2, 3, mforms.HFillFlag)
+        tbl.add(self.move_up, 1, 2, 0, 1, mforms.VFillFlag|mforms.HFillFlag)
+        tbl.add(self.move_down, 1, 2, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
+        tbl.add(mforms.newLabel(""), 1, 2, 2, 3, mforms.VFillFlag|mforms.HFillFlag|mforms.VExpandFlag)
+        table.add(tbl, 1, 2, 2, 3, mforms.VFillFlag|mforms.HFillFlag)
 
         l = mforms.newLabel("Comments:")
         l.set_text_align(mforms.TopRight)
@@ -427,7 +427,7 @@ class CreateIndexForm(mforms.Form):
         mforms.Utilities.add_end_ok_cancel_buttons(bbox, self.ok, self.cancel)
         content.add_end(bbox, False, True)
 
-        self.set_size(550, -1)
+        self.set_size(550, 400)
         self.center()
 
     def move_row_up(self):
@@ -540,7 +540,7 @@ class TableIndexInfoPanel(mforms.Box):
         self.drop_index.set_enabled(False)
         self.drop_index.add_clicked_callback(self.do_drop_index)
         dhbox.add_end(self.drop_index, False, True)
-        table.add(dhbox, 1, 3, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(dhbox, 1, 3, 0, 1, mforms.HFillFlag|mforms.HExpandFlag|mforms.VFillFlag)
         
         self.info = mforms.newTable()
         table.add(self.info, 1, 3, 1, 2, mforms.HFillFlag|mforms.HExpandFlag|mforms.VFillFlag)
@@ -639,7 +639,8 @@ class TableIndexInfoPanel(mforms.Box):
             form = CreateIndexForm(self, self.editor, self._schema, self._table, cols, self.get_table_engine() if self.get_table_engine else None)
             if form.run():
                 self.refresh()
-
+        else:
+            mforms.Utilities.show_warning("Create Index","You have to select at least one column.\n", "OK", "", "")
 
     def index_selected(self):
         node = self.index_list.get_selected_node()

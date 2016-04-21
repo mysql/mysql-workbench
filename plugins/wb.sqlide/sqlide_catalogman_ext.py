@@ -653,7 +653,6 @@ class TableManagerParent(mforms.Splitter):
 
         self.right_view = None
 
-
     @property
     def table_names(self):
         return self.summary_view.table_names
@@ -676,8 +675,9 @@ class TableManagerParent(mforms.Splitter):
     def switch_maintenance(self):
         self.right_view = TableMaintenancePanel(self.editor)
         self.add(self.right_view)
-        self.set_divider_position(250)
+        self.relayout()
         self.right_view.relayout()
+        self.set_divider_position(250)
 
         self.right_view.show_tables(self.schema, self.selected_tables())
 
@@ -968,9 +968,9 @@ class SchemaInfoPanel(mforms.Box):
 
         self.panel_header_box = mforms.newBox(True)
         self.panel_header_box.set_padding(10)
-        self.panel_header_box.add(make_panel_header("db.Schema.32x32.png", self.editor.connection.name, "%s" % (schema)), False, False)
+        self.panel_header_box.add(make_panel_header("db.Schema.32x32.png", self.editor.connection.name, "%s" % (schema)), False, True)
         
-        self.add(self.panel_header_box,False, False)
+        self.add(self.panel_header_box, False, True)
 
         self.table.add(make_title("Schema Details"), 0, 2, 0, 1, mforms.HFillFlag)
 
@@ -999,7 +999,7 @@ class SchemaInfoPanel(mforms.Box):
         tbox.set_padding(15)
         tbox.add(self.table, True, True)
         
-        self.add(tbox, False, False)
+        self.add(tbox, False, True)
     
     def refresh(self):
         try:
