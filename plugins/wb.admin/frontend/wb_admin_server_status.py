@@ -26,12 +26,12 @@ import wb_admin_monitor
 
 def stradd(table, y, label, value):
     t = mforms.newLabel(label)
-    table.add(t, 0, 1, y, y+1, mforms.HFillFlag)
+    table.add(t, 0, 1, y, y+1, mforms.VFillFlag|mforms.HFillFlag)
 
     t = mforms.newLabel(value)
     t.set_style(mforms.BoldStyle)
     t.set_color("#555555")
-    table.add(t, 1, 2, y, y+1, mforms.HFillFlag)
+    table.add(t, 1, 2, y, y+1, mforms.VFillFlag|mforms.HFillFlag)
     return t
 
 
@@ -126,7 +126,6 @@ class ConnectionInfo(mforms.Box):
         self.info_table.set_row_count(8)
         self.info_table.set_column_spacing(18)
         self.info_table.set_row_spacing(5)
-        self.vbox.add(self.info_table, True, True)
 
         stradd(self.info_table, 0, "\nHost:", "\n"+info.get("hostname", "n/a"))
         stradd(self.info_table, 1, "Socket:", info.get("socket", "n/a"))
@@ -142,6 +141,7 @@ class ConnectionInfo(mforms.Box):
             stradd(self.info_table, 6, "Running Since:", "%s (%s)" % (time.ctime(ctrl_be.status_variables_time-uptime), format_duration(uptime, True)))
         else:
             stradd(self.info_table, 6, "Running Since:", "n/a")
+        self.vbox.add(self.info_table, True, True)
 
         box = mforms.newBox(True)
         refresh = mforms.newButton()
@@ -149,7 +149,7 @@ class ConnectionInfo(mforms.Box):
         refresh.set_tooltip("Refresh server status information")
         refresh.add_clicked_callback(self.owner.refresh_status)
         box.add(refresh, False, False)
-        self.info_table.add(box, 1, 2, 7, 8, 0)
+        self.info_table.add(box, 1, 2, 7, 8, mforms.VFillFlag)
 
         version = ctrl_be.target_version
         if version and info:
@@ -217,7 +217,7 @@ class WbAdminServerStatus(mforms.Box):
         self.status = wb_admin_monitor.WbAdminMonitor(server_profile, self.ctrl_be)
         self.status.set_size(360, -1)
         self.status.set_padding(0, 24, 24, 24)
-        self.add(self.status, False, False)
+        self.add(self.status, False, True)
 
         self.controls = {}
 
@@ -460,6 +460,7 @@ class WbAdminServerStatus(mforms.Box):
         hbox.add(info_table, True, True)
 
         self.content.add(hbox, False, True)
+        self.content.get_parent().relayout()
 
 
     def add_info_section(self, title, info, params):
@@ -475,6 +476,7 @@ class WbAdminServerStatus(mforms.Box):
         info_table = self.make_info_table([x for x in info if x], params)
         self.content.add(info_table, False, True)
         self.controls[title] = (info_table, None)
+        self.content.get_parent().relayout()
 
 
     def make_info_table(self, info, params):
@@ -497,7 +499,7 @@ class WbAdminServerStatus(mforms.Box):
             if self.controls.has_key(label):
                 info_table.remove(self.controls[label][0])
             else:
-                info_table.add(mforms.newLabel(label), 0, 1, i, i+1, mforms.HFillFlag)
+                info_table.add(mforms.newLabel(label), 0, 1, i, i+1, mforms.VFillFlag|mforms.HFillFlag)
             is_gtid_mode_setable = label == 'GTID Mode:' and self.ctrl_be.target_version >= Version(5, 7, 6)
             if type(value) is bool or value is None:
                 b = StateIcon()

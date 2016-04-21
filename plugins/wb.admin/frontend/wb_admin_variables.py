@@ -516,7 +516,7 @@ class VariablesGroupSelector(mforms.Form):
         mforms.Utilities.add_end_ok_cancel_buttons(okcancel_box, self.ok, self.cancel)
         content.add_end(bbox, False, True)
 
-        self.set_size(550, -1)
+        self.set_size(550, 350)
         self.center()
         self.load_groups()
 

@@ -90,7 +90,7 @@ class WbAdminConfigurationStartup(mforms.Box):
         self.heading = make_panel_header("title_startup.png", self.server_profile.name, "Startup / Shutdown MySQL Server")
         self.add(self.heading, False, True)
 
-        self.add(newLabel(" "), False, False)
+        self.add(newLabel(" "), False, True)
 
         self.long_status_msg = newLabel("The database server is stopped")
         self.long_status_msg.set_style(mforms.SmallStyle)
@@ -110,9 +110,9 @@ class WbAdminConfigurationStartup(mforms.Box):
         start_stop_hbox = newBox(True)
         start_stop_hbox.add(status_message_part, False, True)
         start_stop_hbox.add(self.short_status_msg, False, True)
-        start_stop_hbox.add(newLabel("  "), False, False)
-        start_stop_hbox.add(self.start_stop_btn, False, False)
-        start_stop_hbox.add(self.offline_mode_btn, False, False)
+        start_stop_hbox.add(newLabel("  "), False, True)
+        start_stop_hbox.add(self.start_stop_btn, False, True)
+        start_stop_hbox.add(self.offline_mode_btn, False, True)
         
         if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
             self.offline_mode_btn.show(True)
@@ -120,11 +120,11 @@ class WbAdminConfigurationStartup(mforms.Box):
             self.offline_mode_btn.show(False)
 
         self.add(self.long_status_msg, False, True)
-        self.add(start_stop_hbox, False, False)
+        self.add(start_stop_hbox, False, True)
 
         description = newLabel("If you stop the server, you and your applications will not be able to use the database and all current connections will be closed\n")
         description.set_style(mforms.SmallStyle)
-        self.add(description, False, False)
+        self.add(description, False, True)
 
         auto_start_checkbox = newCheckBox()
         auto_start_checkbox.set_text("Automatically Start Database Server on Startup")
@@ -149,19 +149,19 @@ class WbAdminConfigurationStartup(mforms.Box):
         self.refresh_button.set_size(150, -1)
         self.refresh_button.set_text("Refresh Status")
         self.refresh_button.add_clicked_callback(lambda:self.refresh(True))
-        button_box.add(self.refresh_button, False, False)
+        button_box.add(self.refresh_button, False, True)
 
         self.copy_to_clipboard_button = newButton()
         self.copy_to_clipboard_button.set_size(150, -1)
         self.copy_to_clipboard_button.set_text("Copy to Clipboard")
         self.copy_to_clipboard_button.add_clicked_callback(self.copy_to_clipboard)
-        button_box.add_end(self.copy_to_clipboard_button, False, False)
+        button_box.add_end(self.copy_to_clipboard_button, False, True)
 
         self.clear_messages_button = newButton()
         self.clear_messages_button.set_size(150, -1)
         self.clear_messages_button.set_text("Clear Messages")
         self.clear_messages_button.add_clicked_callback(self.clear_messages)
-        button_box.add_end(self.clear_messages_button, False, False)
+        button_box.add_end(self.clear_messages_button, False, True)
         self.add(button_box, False, True)
 
         self.resume_layout()

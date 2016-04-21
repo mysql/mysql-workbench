@@ -218,13 +218,13 @@ class ConfigurationPage(WizardPage):
             for name, opts in self.active_module.options.iteritems():
                 label_box = mforms.newBox(True)
                 label_box.set_spacing(8)
-                label_box.add(mforms.newLabel(opts['description']), False, False)
+                label_box.add(mforms.newLabel(opts['description']), False, True)
                 if opts['type'] == 'text':
                     opt_val = mforms.newTextEntry()
                     opt_val.set_size(35, -1)
                     opt_val.set_value(opts['value'])
                     opt_val.add_changed_callback(lambda field = opt_val, output = opts: set_text_entry(field, output))
-                    label_box.add_end(opt_val, False, False)
+                    label_box.add_end(opt_val, False, True)
                     self.opts_mapping[name] = lambda val: opt_val.set_value(val)
                 if opts['type'] == 'select':
                     opt_val = mforms.newSelector()
@@ -233,8 +233,8 @@ class ConfigurationPage(WizardPage):
                     opt_val.set_selected(opts['opts'].values().index(opts['value']))
                     opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
                     self.opts_mapping[name] = lambda input, values =  opts['opts'].values(): opt_val.set_selected(values.index(input) if input in values else 0)
-                    label_box.add_end(opt_val, False, False)
-                box.add(label_box, False, False)
+                    label_box.add_end(opt_val, False, True)
+                box.add(label_box, False, True)
             self.optpanel.add(box)
             self.content.add(self.optpanel, False, True)
             self.optpanel.show(False)
@@ -677,7 +677,7 @@ class SelectDestinationPage(WizardPage):
             self.truncate_table_cb.show(False)
         table_destination_box.add(self.drop_table_cb, False, True)
         
-        self.content.add(table_destination_box, False, False)
+        self.content.add(table_destination_box, False, True)
         
     def radio_click(self):
         if self.new_table_radio.get_active():
