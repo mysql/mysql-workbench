@@ -258,6 +258,7 @@ class ProgressMainView(WizardPage):
         else:
             self.advanced_button.set_text('Show Logs')
         self._log_box.show(self._showing_logs)
+        self.content.relayout()
     
     def go_cancel(self):
         self._cancel_requested = True

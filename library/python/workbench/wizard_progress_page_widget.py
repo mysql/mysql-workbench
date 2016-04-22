@@ -247,7 +247,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._log_text.set_padding(16)
         self._log_box.add(self._log_text)
         self._log_box.show(False)
-        self.content.add_end(self._log_box, True, True)
+        self.content.add_end(self._log_box, False, True)
         self._log_queue = deque()
         
         self._showing_logs = False
@@ -317,6 +317,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         else:
             self.advanced_button.set_text("Show Logs")
         self._log_box.show(self._showing_logs)
+        self.relayout()
     
     def go_cancel(self):
         self._cancel_requested = True
@@ -394,6 +395,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
             grt.push_message_handler(self._handle_task_output)
         self.send_info("Starting...")
         self._timer = mforms.Utilities.add_timeout(0.1, self.update_status)
+        self.relayout()
         
     def resume(self):
         self._progress.show()
@@ -408,6 +410,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
 
         self._tasks_held = False
         self._timer = mforms.Utilities.add_timeout(0.1, self.update_status)
+        self.relayout()
 
         
     def tasks_finished(self):
@@ -430,6 +433,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self.cancel_button.set_enabled(True)
 
         self._tasks_held = True
+        self.relayout()
 
 
 
@@ -462,6 +466,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
             self.tasks_failed(False)
         else:
             self.tasks_finished()
+        self.relayout()
 
 
     def _failed(self):
@@ -485,6 +490,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
             self.go_advanced()
 
         self.tasks_failed(False)
+        self.relayout()
         
 
     def _cancelled(self):
@@ -505,6 +511,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._detail_label.set_text("Cancelled by user.")
 
         self.tasks_failed(True)
+        self.relayout()
 
 
     def _flush_messages(self):
@@ -559,7 +566,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         elif self._warnings > 0:
             ret_val = "There were warnings during execution; please review log messages.\nClick [Next >] to continue if you think they are not important."
         else:
-            ret_val = self.final_message() + "\nClick [Next >] to continue."
+            ret_val = self.final_message() + " Click [Next >] to continue."
 
         return ret_val
 

@@ -365,9 +365,9 @@ class TransferMainView(WizardProgressPage):
 
         self.retry_box = mforms.newBox(True)
         self.content.remove(self._detail_label)
-        self.retry_box.add(self._detail_label, True, True)
+        self.retry_box.add(self._detail_label, False, True)
         self.retry_box.add(self.retry_button, False, True)
-        self.content.add(self.retry_box, False, False)
+        self.content.add(self.retry_box, False, True)
         self.retry_button.show(False)
 
         self.main.add_wizard_page(self, "DataMigration", "Bulk Data Transfer")
