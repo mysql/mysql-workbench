@@ -64,7 +64,7 @@ class Migration(mforms.AppView):
         self.ui_profile = migration_ui_style.UIProfile()
 
         self.left_side_cont = self.create_tasks_side()
-        self.add(self.left_side_cont, False, False)
+        self.add(self.left_side_cont, False, True)
         self.tasks_side.add_section("Overview", "OVERVIEW", 0)
         self.tasks_side.add_section("SourceTarget", "SOURCE & TARGET", 0)
         self.tasks_side.add_section("ObjectMigration", "OBJECT MIGRATION", 0)

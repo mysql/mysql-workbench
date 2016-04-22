@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -299,12 +299,12 @@ class SourceMainView(SourceWizardPage):
         self._store_connection_check.set_text("Store connection for future usage as ")
         self._store_connection_check.add_clicked_callback(self._toggle_store_connection)
         self._store_connection_check.set_size(270, -1)
-        box.add(self._store_connection_check, False, False)
+        box.add(self._store_connection_check, False, True)
         self._store_connection_entry = mforms.newTextEntry()
         box.add(self._store_connection_entry, True, True)
         self._store_connection_entry.set_enabled(False)
 
-        self.server_instance_box.add(box, False, False)
+        self.server_instance_box.add(box, False, True)
         self.content.add(self.server_instance_box, True, True)
 
         self.advanced_button.set_text("Test Connection")
@@ -371,12 +371,12 @@ class TargetMainView(SourceWizardPage):
         self._store_connection_check = mforms.newCheckBox()
         self._store_connection_check.set_text("Store connection for future usage as ")
         self._store_connection_check.add_clicked_callback(self._toggle_store_connection)
-        box.add(self._store_connection_check, False, False)
+        box.add(self._store_connection_check, False, True)
         self._store_connection_entry = mforms.newTextEntry()
         box.add(self._store_connection_entry, True, True)
         self._store_connection_entry.set_enabled(False)
 
-        self.server_instance_box.add(box, False, False)
+        self.server_instance_box.add(box, False, True)
         self.content.add(self.server_instance_box, True, True)
 
         self.advanced_button.set_text("Test Connection")
