@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..;..\..\ext;..\..\generated;..\..\library;..\..\ext;..\..\library\grt;..\..\library\grt\src;..\..\library\utilities\src;..\..\modules;&quot;$(SolutionDir)\..\mysql-gui-win-res\include&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\libxml&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\sigc++&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\pcre&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;ENABLE_LUA_MODULES;MYSQLGRTBACKEND_EXPORTS;PCRE_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;MYSQLGRTBACKEND_EXPORTS;PCRE_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -118,7 +118,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".;..;..\..\generated;..\..\library;..\..\ext;..\..\library\grt;..\..\library\grt\src;..\..\library\utilities\src;..\..\modules;&quot;$(SolutionDir)\..\mysql-gui-win-res\include&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\libxml&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\sigc++&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\pcre&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;ENABLE_LUA_MODULES;MYSQLGRTBACKEND_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;MYSQLGRTBACKEND_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -190,7 +190,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".;..;..\..\generated;..\..\library;..\..\ext;..\..\library\grt;..\..\library\grt\src;..\..\library\utilities\src;..\..\modules;&quot;$(SolutionDir)\..\mysql-gui-win-res\include&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\libxml&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\sigc++&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1&quot;;&quot;$(SolutionDir)\..\mysql-gui-win-res\include\pcre&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;ENABLE_LUA_MODULES;MYSQLGRTBACKEND_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;MYSQLGRTBACKEND_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
