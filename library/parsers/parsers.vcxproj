@@ -93,31 +93,37 @@
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetExt>.dll</TargetExt>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetExt>.dll</TargetExt>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetExt>.dll</TargetExt>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -819,6 +825,14 @@ cd ..
 call build-parsers.cmd mysqls
 cd ..
       </Command>
+<Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd grammars
+call build-parsers.cmd mysqls
+cd ..
+      </Command>
+<Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd grammars
+call build-parsers.cmd mysqls
+cd ..
+      </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating simple ANTLR parser...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating simple ANTLR parser...</Message>
@@ -827,6 +841,16 @@ cd ..
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating simple ANTLR parser...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Regenerating simple ANTLR parser...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Regenerating simple ANTLR parser...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">false</LinkObjects>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -848,14 +872,26 @@ cd ..
 call build-parsers.cmd js
 cd ..
 </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd grammars
+call build-parsers.cmd js
+cd ..
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd grammars
+call build-parsers.cmd js
+cd ..
+</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating JS parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating JS parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating JS parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating JS parser...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Regenerating JS parser...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Regenerating JS parser...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
