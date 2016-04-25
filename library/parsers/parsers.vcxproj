@@ -164,6 +164,24 @@
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\SQLSimpleParser.tokens;$(SolutionDir)\library\parsers\ECMAParser.h;$(SolutionDir)\library\parsers\ECMAParser.c;$(SolutionDir)\library\parsers\ECMALexer.h;$(SolutionDir)\library\parsers\ECMALexer.c;$(SolutionDir)\library\parsers\ECMA.tokens;%(Outputs)</Outputs>
+      <Command>cd grammars
+call build-parsers.cmd js
+call build-parsers.cmd mysql
+call build-parsers.cmd mysqls
+cd ..
+</Command>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -185,6 +203,24 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\SQLSimpleParser.tokens;$(SolutionDir)\library\parsers\ECMAParser.h;$(SolutionDir)\library\parsers\ECMAParser.c;$(SolutionDir)\library\parsers\ECMALexer.h;$(SolutionDir)\library\parsers\ECMALexer.c;$(SolutionDir)\library\parsers\ECMA.tokens;%(Outputs)</Outputs>
+      <Command>cd grammars
+call build-parsers.cmd js
+call build-parsers.cmd mysql
+call build-parsers.cmd mysqls
+cd ..
+</Command>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -206,6 +242,24 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\SQLSimpleParser.tokens;$(SolutionDir)\library\parsers\ECMAParser.h;$(SolutionDir)\library\parsers\ECMAParser.c;$(SolutionDir)\library\parsers\ECMALexer.h;$(SolutionDir)\library\parsers\ECMALexer.c;$(SolutionDir)\library\parsers\ECMA.tokens;%(Outputs)</Outputs>
+      <Command>cd grammars
+call build-parsers.cmd js
+call build-parsers.cmd mysql
+call build-parsers.cmd mysqls
+cd ..
+</Command>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
     <ClCompile>
@@ -227,6 +281,24 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\SQLSimpleParser.tokens;$(SolutionDir)\library\parsers\ECMAParser.h;$(SolutionDir)\library\parsers\ECMAParser.c;$(SolutionDir)\library\parsers\ECMALexer.h;$(SolutionDir)\library\parsers\ECMALexer.c;$(SolutionDir)\library\parsers\ECMA.tokens;%(Outputs)</Outputs>
+      <Command>cd grammars
+call build-parsers.cmd js
+call build-parsers.cmd mysql
+call build-parsers.cmd mysqls
+cd ..
+</Command>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
     <ClCompile>
@@ -248,6 +320,24 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\SQLSimpleParser.tokens;$(SolutionDir)\library\parsers\ECMAParser.h;$(SolutionDir)\library\parsers\ECMAParser.c;$(SolutionDir)\library\parsers\ECMALexer.h;$(SolutionDir)\library\parsers\ECMALexer.c;$(SolutionDir)\library\parsers\ECMA.tokens;%(Outputs)</Outputs>
+      <Command>cd grammars
+call build-parsers.cmd js
+call build-parsers.cmd mysql
+call build-parsers.cmd mysqls
+cd ..
+</Command>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="code-completion\mysql-code-completion.h" />
@@ -753,149 +843,24 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="grammars\MySQL.g">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd grammars
-call build-parsers.cmd mysql
-cd ..
-      </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd grammars
-call build-parsers.cmd mysql
-cd ..
-      </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-        cd grammars
-        build-parsers.cmd mysql
-        cd ..
-      </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-        cd grammars
-        build-parsers.cmd mysql
-        cd ..
-      </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">cd grammars
-call build-parsers.cmd mysql
-cd ..
-      </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">cd grammars
-call build-parsers.cmd mysql
-cd ..
-      </Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating ANTLR parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating ANTLR parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Regenerating ANTLR parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Regenerating ANTLR parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating ANTLR parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">false</LinkObjects>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\base\base.vcxproj">
       <Project>{c3b85913-b106-40c6-8dde-a7cf52a4ec80}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="grammars\MySQLSimpleParser.g">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd grammars
-call build-parsers.cmd mysqls
-cd ..
-      </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">cd grammars
-call build-parsers.cmd mysqls
-cd ..
-      </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd grammars
-call build-parsers.cmd mysqls
-cd ..
-      </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">cd grammars
-call build-parsers.cmd mysqls
-cd ..
-      </Command>
-<Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd grammars
-call build-parsers.cmd mysqls
-cd ..
-      </Command>
-<Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd grammars
-call build-parsers.cmd mysqls
-cd ..
-      </Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating simple ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating simple ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating simple ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating simple ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Regenerating simple ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Regenerating simple ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">false</LinkObjects>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">false</LinkObjects>
-    </CustomBuild>
+    <None Include="grammars\MySQL.g">
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="grammars\MySQLSimpleParser.g">
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="grammars\ECMA.g">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd grammars
-call build-parsers.cmd js
-cd ..
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">cd grammars
-call build-parsers.cmd js
-cd ..
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd grammars
-call build-parsers.cmd js
-cd ..
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">cd grammars
-call build-parsers.cmd js
-cd ..
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd grammars
-call build-parsers.cmd js
-cd ..
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd grammars
-call build-parsers.cmd js
-cd ..
-</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating JS parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating JS parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating JS parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating JS parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Regenerating JS parser...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Regenerating JS parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ECMA.tokens" />
     <None Include="grammars\predefined.tokens" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
