@@ -294,6 +294,7 @@ add_definitions(-DGTK_DISABLE_DEPRECATED)
 add_definitions(-DGSEAL_ENABLE)
 
 set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
+SET(GCOV OFF CACHE BOOL "Add gcov flags")
 
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
@@ -309,6 +310,11 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 ${MY_CXXFLAGS}")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
 endif()
+
+if(GCOV)
+    set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
+endif()
+
 
 
 #-----------------------------------------------------------------------
