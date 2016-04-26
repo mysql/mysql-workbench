@@ -137,7 +137,7 @@ TEST_DATA_CONSTRUCTOR(db_mysql_plugin_test)
   // reverse engineered content from, nor where it was sync'ed to. So we have to mimic this here.
   std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
-    target_version = "5.5";
+    target_version = "5.5.49";
   tester.get_rdbms()->version(parse_version(tester.grt, target_version));
 }
 
