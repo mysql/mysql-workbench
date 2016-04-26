@@ -442,10 +442,10 @@ bool PreferencesForm::versionIsValid(const std::string &text)
       dots_count++;
   }
 
-  if( starts_with(text, ".") || ends_with(text, ".") || dots_count < 1 || dots_count > 2 )
+  if( hasPrefix(text, ".") || hasSuffix(text, ".") || dots_count < 1 || dots_count > 2 )
     return false;
 
-  GrtVersionRef version = bec::parse_version(_wbui->get_wb()->get_grt(), text);
+  GrtVersionRef version = bec::parse_version(text);
   if( !version.is_valid() || version->majorNumber() < 5 
         || version->majorNumber() > 10 || version->minorNumber() > 20
     )
