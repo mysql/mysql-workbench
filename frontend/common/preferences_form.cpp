@@ -164,6 +164,9 @@ static LangFontSet font_sets[] = {
   {NULL, NULL, NULL, NULL, NULL, NULL}
 };
 
+const std::string VALID_VERSION_TOOLTIP = _("Specify default target MySQL version in format MAJOR.MINOR or MAJOR.MINOR.RELEASE");
+const std::string INVALID_VERSION_TOOLTIP = _("This is not valid version of MySQL.\nSpecify default target MySQL version in format MAJOR.MINOR or MAJOR.MINOR.RELEASE");
+
 static mforms::Label *new_label(const std::string &text, bool right_align=false, bool help=false)
 {
   mforms::Label *label= mforms::manage(new mforms::Label());
@@ -423,6 +426,45 @@ mforms::TreeNodeRef PreferencesForm::add_page(mforms::TreeNodeRef parent, const 
   _tabview.add_page(view, title);
 
   return node;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool PreferencesForm::versionIsValid(const std::string &text)
+{
+  size_t dots_count = 0;
+  for (size_t i = 0; i < text.size(); i++) 
+  {
+    if( !(isdigit(text[i]) || text[i] == '.') )
+      return false;
+    if (text[i] == '.')
+      dots_count++;
+  }
+
+  if( starts_with(text, ".") || ends_with(text, ".") || dots_count < 1 || dots_count > 2 )
+    return false;
+
+  GrtVersionRef version = bec::parse_version(_wbui->get_wb()->get_grt(), text);
+  if( !version.is_valid() || version->majorNumber() < 5 
+        || version->majorNumber() > 10 || version->minorNumber() > 20
+    )
+    return false;
+  
+  return true;
+}
+
+void PreferencesForm::version_changed()
+{
+  if( versionIsValid(version_entry->get_string_value()) )
+  { 
+    version_entry->set_back_color("#FFFFFF");
+    version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
+  }
+  else
+  {
+    version_entry->set_back_color("#FF5E5E");
+    version_entry->set_tooltip(INVALID_VERSION_TOOLTIP);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1580,7 +1622,8 @@ mforms::View *PreferencesForm::create_mysql_page()
     {
       table->add(new_label(_("Default Target MySQL Version:"), true), 0, 1, 0, 1, 0);
       version_entry = new_entry_option("DefaultTargetMySQLVersion", false);
-      version_entry->set_tooltip("Specify default target MySQL version in format MAJOR.MINOR or MAJOR.MINOR.PATCH");
+      version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
+      version_entry->signal_changed()->connect(boost::bind(&PreferencesForm::version_changed, this));
       table->add(version_entry, 1, 2, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
     }
     else
