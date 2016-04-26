@@ -57,7 +57,7 @@ protected:
 
       std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
       if (target_version.empty())
-        target_version = "5.5";
+        target_version = "5.5.49";
       tester.get_rdbms()->version(parse_version(tester.grt, target_version));
 
       // init database connection
