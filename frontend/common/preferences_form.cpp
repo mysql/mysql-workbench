@@ -1616,7 +1616,9 @@ mforms::View *PreferencesForm::create_mysql_page()
     if (!_model.is_valid())
     {
       table->add(new_label(_("Default Target MySQL Version:"), true), 0, 1, 0, 1, 0);
-      table->add(new_selector_option("DefaultTargetMySQLVersion"), 1, 2, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
+      version_entry = new_entry_option("DefaultTargetMySQLVersion", false);
+      version_entry->set_tooltip("Specify default target MySQL version in format MAJOR.MINOR or MAJOR.MINOR.PATCH");
+      table->add(version_entry, 1, 2, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
     }
     else
     {
