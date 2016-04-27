@@ -26,11 +26,14 @@ using namespace bec;
 
 BEGIN_TEST_DATA_CLASS(grt_dispatcher_test)
 public:
+  GRTDispatcher::Ref _dispatcher;
 
 TEST_DATA_CONSTRUCTOR(grt_dispatcher_test)
 {
   // No need to initialize Python for this test. No need for a module path either.
-  GRTManagerTest::get()->initialize(false, "");
+  grt::GRT::get(); //make sure grt is initialized before Dispatcher is created
+  _dispatcher = GRTDispatcher::create_dispatcher(false, true);
+  _dispatcher->start();
 }
 
 END_TEST_DATA_CLASS;
@@ -65,10 +68,10 @@ TEST_FUNCTION(1)
   grt::ValueRef result;
   bool finish_called= false;
   
-  bec::GRTTask::Ref task = GRTTask::create_task("test", bec::GRTManager::get().get_dispatcher(), boost::bind(normal_test_function));
+  bec::GRTTask::Ref task = GRTTask::create_task("test", _dispatcher, boost::bind(normal_test_function));
   task->signal_finished()->connect(boost::bind(&finished, _1, &finish_called));
   
-  result = GRTManagerTest::get()->get_dispatcher()->add_task_and_wait(task);
+  result = _dispatcher->add_task_and_wait(task);
   
   ensure("result", result.is_valid() && result.type() == grt::IntegerType);
   ensure_equals("result value", *grt::IntegerRef::cast_from(result), 123);
@@ -76,10 +79,10 @@ TEST_FUNCTION(1)
   ensure("finish callback called", finish_called);
   
   finish_called = false;
-  task = GRTTask::create_task("test", GRTManagerTest::get()->get_dispatcher(), boost::bind(normal_test_function));
+  task = GRTTask::create_task("test", _dispatcher, boost::bind(normal_test_function));
   task->signal_finished()->connect(boost::bind(&finished_with_wait, _1, &finish_called));
   
-  result = GRTManagerTest::get()->get_dispatcher()->add_task_and_wait(task);
+  result = _dispatcher->add_task_and_wait(task);
   
   ensure("finish callback called with wait", finish_called);
 }
@@ -97,6 +100,13 @@ TEST_FUNCTION(6)
 
 }
 */
+
+TEST_FUNCTION(99)
+{
+  //we need to shutdown it here instead of d-tor because it will crash otherwise
+  _dispatcher->shutdown();
+  _dispatcher.reset();
+}
 
 END_TESTS
 
