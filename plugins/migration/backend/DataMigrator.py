@@ -151,7 +151,7 @@ class TableCopyWorker(Thread):
                     if line.startswith("PROGRESS:"):
                         type, _, last_progress = line.strip().partition(":")
                     else:
-                        self._owner.send_info(l)
+                        self._owner.send_info(line)
                 if last_progress:
                     self.result_queue.put((type, last_progress))
             if e:
