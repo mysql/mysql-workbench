@@ -21,24 +21,26 @@
 
 using namespace base;
 
-std::string OSConstants::defaultFontName() const
+static bool inTesting = false;
+
+std::string OSConstants::defaultFontName()
 {
   NSFont *font = [NSFont systemFontOfSize: 13];
   NSString *name = font.fontName;
   return name.UTF8String;
 }
 
-float OSConstants::systemFontSize() const
+float OSConstants::systemFontSize()
 {
   return NSFont.systemFontSize;
 }
 
-float OSConstants::smallSystemFontSize() const
+float OSConstants::smallSystemFontSize()
 {
   return NSFont.smallSystemFontSize;
 }
 
-float OSConstants::labelFontSize() const
+float OSConstants::labelFontSize()
 {
   return NSFont.labelFontSize;
 }
@@ -90,13 +92,40 @@ Color Color::getSystemColor(SystemColor colorType)
   if (color == nil)
     return Color();
 
-  // We need to convert the named color to the RGB color space first. For unknown reasons colorUsingColorSpace does not
-  // work here. So we use a CGColor instead.
-  CGColorRef ref = color.CGColor;
-  const CGFloat *components = CGColorGetComponents(ref);
+  NSColor *rgbColor = [color colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
+  if (rgbColor == nil) {
+    // A pattern color probably.
+    rgbColor = [color colorUsingColorSpaceName: NSPatternColorSpace];
+    NSImage *pattern = rgbColor.patternImage;
+    if (pattern != nil) {
+      NSBitmapImageRep *representation = (NSBitmapImageRep *)pattern.representations[0]; // Usually only has one.
+      if (representation.colorSpaceName == NSCalibratedRGBColorSpace)
+      {
+        // Patterns are usually of a very small size (like 8 x 8 pixels), we simply iterate over all pixels to find an
+        // average value (as if we had scaled it to one pixel).
+        NSInteger count = representation.size.width * representation.size.height;
+        CGFloat red = 0, green = 0, blue = 0;
+        for (NSInteger x = 0; x < representation.size.width; ++x)
+        {
+          for (NSInteger y = 0; y < representation.size.height; ++y)
+          {
+            NSColor *pixel = [representation colorAtX: x y: y];
+            red += pixel.redComponent;
+            green += pixel.greenComponent;
+            blue += pixel.blueComponent;
+          }
 
-  return Color(components[0], components[1], components[2], components[3]);
+        }
+        return Color(red / count, green / count, blue / count, 1);
+      }
+    }
+  }
+  return Color(rgbColor.redComponent, rgbColor.greenComponent, rgbColor.blueComponent, rgbColor.alphaComponent);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void Color::prepareForTesting()
+{
+  inTesting = true;
+}
