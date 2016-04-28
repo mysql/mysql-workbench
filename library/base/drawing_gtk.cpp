@@ -24,7 +24,9 @@
 
 using namespace base;
 
-std::string OSConstants::defaultFontName() const
+static bool inTesting = false;
+
+std::string OSConstants::defaultFontName()
 {
   auto settings = Gtk::Settings::get_default();
   std::string fontName = settings->property_gtk_font_name().get_value();
@@ -33,7 +35,9 @@ std::string OSConstants::defaultFontName() const
 
 }
 
-float OSConstants::systemFontSize() const
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::systemFontSize()
 {
   auto settings = Gtk::Settings::get_default();
   std::string fontName = settings->property_gtk_font_name().get_value();
@@ -41,21 +45,28 @@ float OSConstants::systemFontSize() const
   return pango_font_description_get_size(pangoFontDescription);
 }
 
-float OSConstants::smallSystemFontSize() const
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::smallSystemFontSize()
 {
   return OSConstants::systemFontSize() - 2;
 }
 
-float OSConstants::labelFontSize() const
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::labelFontSize()
 {
   return OSConstants::systemFontSize();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static base::Color rgba_color_to_mforms(const Gdk::RGBA& c)
 {
   return base::Color(c.get_red(), c.get_green(), c.get_blue(), c.get_alpha());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 //TODO: implement all the missing SystemColors
 base::Color Color::getSystemColor(base::SystemColor type)
@@ -64,10 +75,11 @@ base::Color Color::getSystemColor(base::SystemColor type)
   static Colors     colors;
 
   base::Color ret;
+  if (inTesting)
+    return ret;
 
   Gtk::Entry e;
   auto styleCtx = e.get_style_context();
-  styleCtx->get_color();
   switch (type)
   {
     case base::SystemColor::HighlightColor:
@@ -112,4 +124,11 @@ base::Color Color::getSystemColor(base::SystemColor type)
   }
 
   return ret;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Color::prepareForTesting()
+{
+  inTesting = true;
 }

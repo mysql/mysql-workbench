@@ -24,6 +24,8 @@ using namespace base;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static bool inTesting = false;
+
 Color Color::getSystemColor(SystemColor colorType)
 {
   DWORD sysColor = 0;
@@ -158,3 +160,8 @@ float OSConstants::labelFontSize()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+void Color::prepareForTesting()
+{
+  inTesting = true;
+}
