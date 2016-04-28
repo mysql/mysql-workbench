@@ -36,9 +36,9 @@ DEFAULT_LOG_DOMAIN("GRTDispatcher");
 static bool debug_dispatcher = false;
 
 #ifdef __GNUC__
-#define DPRINT(fmt, ...) if (debug_dispatcher) log_debug3(fmt,##__VA_ARGS__)
+#define DPRINT(fmt, ...) if (debug_dispatcher) logDebug3(fmt,##__VA_ARGS__)
 #else
-#define DPRINT(...) if (debug_dispatcher) log_debug3(__VA_ARGS__)
+#define DPRINT(...) if (debug_dispatcher) logDebug3(__VA_ARGS__)
 #endif
 
 // Helper structures to store shared pointers into an async queue.
@@ -424,22 +424,24 @@ GRTDispatcher::Ref GRTDispatcher::create_dispatcher(bool threaded, bool is_main_
 
 void GRTDispatcher::start()
 {
+  _grtm = bec::GRTManager::get();
+
   _shut_down = false;
   if (!_threading_disabled)
   {
-    log_debug("starting worker thread\n");
+    logDebug("starting worker thread\n");
 
     GrtDispatcherHelper *helper = new GrtDispatcherHelper(shared_from_this());
     _thread= base::create_thread(worker_thread, helper);
     if (_thread == 0)
     {
-      log_error("base::create_thread failed to create the GRT worker thread. Falling back into non-threaded mode.\n");
+      logError("base::create_thread failed to create the GRT worker thread. Falling back into non-threaded mode.\n");
       _threading_disabled = true;
     }
   }
 
 
-  bec::GRTManager::get().add_dispatcher(shared_from_this());
+  _grtm.lock()->add_dispatcher(shared_from_this());
 
   if (_is_main_dispatcher)
     grt::GRT::get()->push_message_handler(boost::bind(&GRTDispatcher::message_callback, this, _1, _2));
@@ -464,13 +466,13 @@ void GRTDispatcher::shutdown()
   {
     std::shared_ptr<GrtNullTask> task(new GrtNullTask(shared_from_this()));
     add_task(task);
-    log_debug2("GRTDispatcher:Main thread waiting for worker to finish\n");
+    logDebug2("GRTDispatcher:Main thread waiting for worker to finish\n");
     _w_runing.wait();
-    log_debug2("GRTDispatcher:Main thread worker finished\n");
+    logDebug2("GRTDispatcher:Main thread worker finished\n");
   }
 
-  if (_started)
-    bec::GRTManager::get().remove_dispatcher(shared_from_this());
+  if (_started && !_grtm.expired())
+    _grtm.lock()->remove_dispatcher(shared_from_this());
 
   _started = false;
 }
@@ -488,7 +490,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
   mforms::Utilities::set_thread_name("GRTDispatcher");
 
-  log_debug("worker thread running\n");
+  logDebug("worker thread running\n");
   
   g_async_queue_ref(task_queue);
   g_async_queue_ref(callback_queue);
@@ -522,7 +524,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 #endif
 
     g_atomic_int_inc(&self->_busy);
-    log_debug3("GRT dispatcher, running task %s", task->name().c_str());
+    logDebug3("GRT dispatcher, running task %s", task->name().c_str());
 
     if (dynamic_cast<GrtNullTask*>(task.get()) != 0) // a NULL task terminates the thread
     {
@@ -549,14 +551,14 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
     if (task->get_error())
     {
-      log_error("%s\n", std::string(("worker: task '"+task->name()+"' has failed with error:.")+task->get_error()->what()).c_str());
+      logError("%s\n", std::string(("worker: task '"+task->name()+"' has failed with error:.")+task->get_error()->what()).c_str());
       g_atomic_int_dec_and_test(&self->_busy);
       continue;
     }
 
     if (count != grt::GRT::get()->message_handler_count())
     {
-      log_error("INTERNAL ERROR: Message handler count mismatch after executing task '%s' (%i vs %i)",
+      logError("INTERNAL ERROR: Message handler count mismatch after executing task '%s' (%i vs %i)",
         task->name().c_str(), count, grt::GRT::get()->message_handler_count());
     }
 
@@ -571,7 +573,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
   self->_w_runing.post();
 
-  log_debug("worker thread exiting...\n");
+  logDebug("worker thread exiting...\n");
 
   return NULL;
 }
@@ -766,19 +768,19 @@ void GRTDispatcher::execute_task(const GRTTaskBase::Ref gtask)
   }
   catch (std::exception &error)
   {
-    log_exception("exception in grt execute_task, continuing",error);
+    logException("exception in grt execute_task, continuing",error);
     restore_callbacks(gtask);
     gtask->failed(error);
   }
   catch (std::exception *error)
   {
-    log_exception("exception in grt execute_task, continuing",*error);
+    logException("exception in grt execute_task, continuing",*error);
     restore_callbacks(gtask);
     gtask->failed(*error);
   }
   catch (...)
   {
-    log_error("Unknown exception in grt execute_task.");
+    logError("Unknown exception in grt execute_task.");
     restore_callbacks(gtask);
     gtask->failed(std::runtime_error("Unknown reason"));
   }

@@ -22,7 +22,6 @@
 
 #include "python_context.h"
 
-#include "grt/grt_manager.h"
 #include "base/threading.h"
 #include "glib/gstdio.h"
 #include "base/log.h"
@@ -33,6 +32,8 @@
 #include "base/file_utilities.h"
 #include "base/string_utilities.h"
 #include "mforms/utilities.h"
+
+#include "grt/grt_manager.h"
 
 using namespace grt;
 using namespace bec;
