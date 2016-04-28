@@ -62,22 +62,7 @@ public:
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());    
     stmt->execute("DROP SCHEMA IF EXISTS test; CREATE SCHEMA test");
   }
-  
-  TEST_DATA_DESTRUCTOR(module_dbc_statement_test)
-  {
-    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-    setup_env(connectionProperties);
-    sql::DriverManager *dm= sql::DriverManager::getDriverManager();
-    ensure("dm is NULL", dm != NULL);
-
-    sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
-    ensure("conn is NULL", wrapper.get() != NULL);
-
-    sql::Connection* connection= wrapper.get();
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());    
-    stmt->execute("DROP SCHEMA IF EXISTS test;");
-  }
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_dbc_statement_test, "DBC: statement tests");
@@ -679,6 +664,19 @@ TEST_FUNCTION(16)
 // we can't have this inside of the d-tor.
 TEST_FUNCTION(99)
 {
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+
+  setup_env(connectionProperties);
+  sql::DriverManager *dm= sql::DriverManager::getDriverManager();
+  ensure("dm is NULL", dm != NULL);
+
+  sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
+  ensure("conn is NULL", wrapper.get() != NULL);
+
+  sql::Connection* connection= wrapper.get();
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  stmt->execute("DROP SCHEMA IF EXISTS test;");
+
   delete _tester;
 }
 
