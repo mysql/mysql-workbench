@@ -31,6 +31,7 @@
 
 namespace bec {
 
+  class GRTManager;
   class WBPUBLICBACKEND_PUBLIC_FUNC GRTDispatcher;
 
   // Mechanism for allowing queuing of callbacks to be executed
@@ -277,6 +278,7 @@ namespace bec {
   private:
     GAsyncQueue *_task_queue;
     FlushAndWaitCallback _flush_main_thread_and_wait;
+    std::weak_ptr<bec::GRTManager> _grtm;
     
     volatile base::refcount_t _busy;
     
