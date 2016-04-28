@@ -145,6 +145,7 @@ namespace base {
     static void set_active_scheme(ColorScheme scheme);
     static ColorScheme get_active_scheme();
     static bool is_high_contrast_scheme();
+    static void prepareForTesting();
 
     // Persistence support. Also called when colors were changed in preferences.
     static void load_custom_colors(const std::map<std::string, std::string> &colors);
