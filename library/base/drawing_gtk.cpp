@@ -18,9 +18,7 @@
  */
 
 #include "base/drawing.h"
-#include <gtkmm/settings.h>
-#include <gtkmm/entry.h>
-
+#include <gtkmm.h>
 
 using namespace base;
 
@@ -78,8 +76,7 @@ base::Color Color::getSystemColor(base::SystemColor type)
   if (inTesting)
     return ret;
 
-  Gtk::Entry e;
-  auto styleCtx = e.get_style_context();
+
   switch (type)
   {
     case base::SystemColor::HighlightColor:
@@ -89,7 +86,8 @@ base::Color Color::getSystemColor(base::SystemColor type)
         ret = it->second;
       else
       {
-        ;
+        Gtk::Entry e;
+        auto styleCtx = e.get_style_context();
         base::Color new_color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_SELECTED)));
         colors[type] = new_color;
         ret = new_color;
@@ -103,11 +101,27 @@ base::Color Color::getSystemColor(base::SystemColor type)
         ret = it->second;
       else
       {
-        ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_BACKDROP)));
+        Gtk::Entry e;
+        auto styleCtx = e.get_style_context();
+        ret = base::Color(rgba_color_to_mforms(styleCtx->get_background_color(Gtk::STATE_FLAG_NORMAL)));
         colors[type] = ret;
       }
       break;
 
+    }
+    case base::SystemColor::WindowBackgroundColor:
+    {
+      Colors::const_iterator it = colors.find(type);
+      if (it != colors.end())
+        ret = it->second;
+      else
+      {
+        Gtk::Window wnd;
+        auto ctx = wnd.get_style_context();
+        ret = base::Color(rgba_color_to_mforms(ctx->get_background_color(Gtk::STATE_FLAG_NORMAL)));
+        colors[type] = ret;
+      }
+      break;
     }
     default:
     {
@@ -116,6 +130,8 @@ base::Color Color::getSystemColor(base::SystemColor type)
         ret = it->second;
       else
       {
+        Gtk::Entry e;
+        auto styleCtx = e.get_style_context();
         ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_NORMAL)));
         colors[type] = ret;
       }
