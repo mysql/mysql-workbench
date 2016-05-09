@@ -970,13 +970,13 @@ int MYSQLlex(void **arg, void *yyl)
 	if ((lex->ptr - lex->tok_start) >= 4 && !ident_map[c])
 	{
     tmp_lex_string= get_token(lex,yyLength());
-    new_ast_terminal_node(lex, /*tmp_lex_string.str + 2, */tmp_lex_string.length - 2, tmp_lex_string.str);
+    new_ast_terminal_node(lex, /*tmp_lex_string.str + 2, */tmp_lex_string.length, tmp_lex_string.str);
 #if 0
     yylval->lex_str=get_token(lex,yyLength());
 	  yylval->lex_str.str+=2;		// Skip 0x
 	  yylval->lex_str.length-=2;
 #endif
-	  lex->yytoklen-=2;
+    //lex->yytoklen-=2;
 	  return (HEX_NUM);
 	}
 	yyUnget();
