@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,8 +27,11 @@
 #include "grts/structs.db.h"
 #include "base/string_utilities.h"
 #include "db.mysql/src/module_db_mysql.h"
+#include "base/log.h"
 
 #include <glib.h>
+
+DEFAULT_LOG_DOMAIN("Db Plugin")
 
 void Db_plugin::grtm(bec::GRTManager *grtm, bool reveng)
 {
@@ -267,23 +270,32 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type)
 
     if (!schema_name.empty())
     {
-      std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", schema_name, db_object_type_name));
-      total_objects= (float)rset->rowsCount();
-      while (rset->next())
+      try
       {
-        Db_obj_handle db_obj;
-        db_obj.schema= schema_name;
-        db_obj.name= rset->getString("name");
-        db_obj.ddl= rset->getString("ddl");
-        setup->all.push_back(db_obj);
-        
-        // prefixed by schema name
-        db_obj_names.push_back(std::string(schema_name).append(".").append(db_obj.name));
-        
-        _grtm->get_grt()->send_progress((current_schema / total_schemas) + (count / total_objects)/total_schemas,
-                                        db_obj_names.back());
-        
-        count++;
+        std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", schema_name, db_object_type_name));
+        total_objects= (float)rset->rowsCount();
+        while (rset->next())
+        {
+          Db_obj_handle db_obj;
+          db_obj.schema= schema_name;
+          db_obj.name= rset->getString("name");
+          db_obj.ddl= rset->getString("ddl");
+          setup->all.push_back(db_obj);
+          
+          // prefixed by schema name
+          db_obj_names.push_back(std::string(schema_name).append(".").append(db_obj.name));
+          
+          _grtm->get_grt()->send_progress((current_schema / total_schemas) + (count / total_objects)/total_schemas,
+                                          db_obj_names.back());
+          
+          count++;
+        }
+      }
+      catch(std::exception &e)
+      {
+        std::string msg = base::strfmt("Failed to fetch %s objects from %s: %s", db_objects_type_to_string(db_object_type), schema_name.c_str(), e.what());
+        _grtm->get_grt()->send_info(msg);
+        log_error(msg.c_str());
       }
     }
 
