@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -301,7 +301,7 @@ class WbAdminPSBaseTab(mforms.Box):
         return None, None
 
     def get_missing_grants(self):
-      # SELECT, INSERT, CREATE, DROP, ALTER, SUPER, CREATE VIEW, CREATE ROUTINE, ALTER ROUTINE, TRIGGER
+        # SELECT, INSERT, CREATE, DROP, ALTER, SUPER, CREATE VIEW, CREATE ROUTINE, ALTER ROUTINE, TRIGGER
         required_grants = ['SELECT', 'INSERT', 'CREATE', 'DROP', 'ALTER', 'SUPER', 'CREATE VIEW', 'CREATE ROUTINE', 'ALTER ROUTINE', 'TRIGGER']
         missing_grants = []
         current_user_grants = ""
@@ -312,10 +312,12 @@ class WbAdminPSBaseTab(mforms.Box):
         except grt.DBError, e:
             log_error("MySQL error retrieving user grants: %s\n" % e)
 
-        for grant in required_grants:
-            if current_user_grants.find(grant) == -1:
-                missing_grants.append(grant)
+        if current_user_grants.find('ALL') == -1:
+            for grant in required_grants:
+                if current_user_grants.find(grant) == -1:
+                    missing_grants.append(grant)
 
+        missing_grants = []
         return missing_grants
 
     def page_activated(self):
