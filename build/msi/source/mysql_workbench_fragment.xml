@@ -1604,7 +1604,6 @@
                       <File Id="file68676" Name="hostkeys.py"/>
                       <File Id="file68678" Name="kex_gex.py"/>
                       <File Id="file68680" Name="kex_group1.py"/>
-                      <File Id="file68682" Name="logging22.py"/>
                       <File Id="file68683" Name="message.py"/>
                       <File Id="file68685" Name="packet.py"/>
                       <File Id="file68687" Name="pipe.py"/>
