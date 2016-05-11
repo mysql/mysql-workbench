@@ -68,15 +68,14 @@ configure-stamp:
 	-DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
 	-DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
 	-DGDAL_INCLUDE_DIR=$(GDAL_HOME)/include -DGDAL_LIBRARY=$(GDAL_HOME)/lib/libgdal.so \
+	-DCTemplate_INCLUDE_DIR=${CTEMPLATE_HOME}/include \
+	-DCTemplate_LIBRARIES="-L${CTEMPLATE_HOME}/lib -lctemplate"\
 @ifdef community
 	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config 
 @else
 	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \
 	-DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
-	-DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
-	-DCTemplate_INCLUDE_DIR=${CTEMPLATE_HOME}/include \
-  	-DCTemplate_LIBRARIES="-L${CTEMPLATE_HOME}/lib -lctemplate"
-
+	-DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp"
 @endif
 
 	touch configure-stamp
