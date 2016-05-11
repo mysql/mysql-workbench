@@ -265,6 +265,7 @@
 		27512ED31240F50200EF37DD /* code_editor.h in Headers */ = {isa = PBXBuildFile; fileRef = 27512ED21240F50200EF37DD /* code_editor.h */; };
 		2753E59918E95FBC0079DAA8 /* sshtunnel.py in Resources */ = {isa = PBXBuildFile; fileRef = 2753E59818E95FBC0079DAA8 /* sshtunnel.py */; };
 		2754DF60142CAA9800D1D419 /* snippet_clipboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */; };
+		275749491CD753E900D637A9 /* libzip.1.0.0.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 275749481CD753E900D637A9 /* libzip.1.0.0.dylib */; };
 		2757EE9D1BF0DA47007E2BAE /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		27597A0114192ED100641E30 /* container.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27597A0014192ED100641E30 /* container.cpp */; };
 		27597A0314192EE900641E30 /* container.h in Headers */ = {isa = PBXBuildFile; fileRef = 27597A0214192EE900641E30 /* container.h */; };
@@ -3662,6 +3663,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				275749491CD753E900D637A9 /* libzip.1.0.0.dylib in Copy 3rd party libraries */,
 				2782344E1CD34920003A2649 /* libpcre.1.dylib in Copy 3rd party libraries */,
 				278234581CD34983003A2649 /* libpcrecpp.0.dylib in Copy 3rd party libraries */,
 				278234421CD34920003A2649 /* libcairo.2.dylib in Copy 3rd party libraries */,
@@ -4419,6 +4421,7 @@
 		27512ED21240F50200EF37DD /* code_editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = code_editor.h; path = library/forms/mforms/code_editor.h; sourceTree = "<group>"; };
 		2753E59818E95FBC0079DAA8 /* sshtunnel.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sshtunnel.py; path = library/sshtunnel/sshtunnel.py; sourceTree = SOURCE_ROOT; };
 		2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_clipboard.png; path = images/toolbar/snippet_clipboard.png; sourceTree = "<group>"; };
+		275749481CD753E900D637A9 /* libzip.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libzip.1.0.0.dylib; path = "../mysql-mac-res/lib/libzip.1.0.0.dylib"; sourceTree = "<group>"; };
 		27597A0014192ED100641E30 /* container.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = container.cpp; path = library/forms/container.cpp; sourceTree = "<group>"; };
 		27597A0214192EE900641E30 /* container.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = container.h; path = library/forms/mforms/container.h; sourceTree = "<group>"; };
 		275E55CD11AD35F100B3886E /* popup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = popup.h; path = library/forms/mforms/popup.h; sourceTree = "<group>"; };
@@ -8337,6 +8340,7 @@
 		29B97314FDCFA39411CA2CEA /* MySQLWorkbench */ = {
 			isa = PBXGroup;
 			children = (
+				275749481CD753E900D637A9 /* libzip.1.0.0.dylib */,
 				2744E6780FC1831900E85C33 /* ScintillaFramework.xcodeproj */,
 				2B825EBD0E0B68EC00BE52DF /* Backend */,
 				2B1E2FCC172F03670037D3DD /* Commercial Plugins */,
