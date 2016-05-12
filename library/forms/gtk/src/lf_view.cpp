@@ -502,7 +502,7 @@ void ViewImpl::set_back_color(const std::string &color)
       provider->load_from_data("* { background-color: rgba(0, 0, 0, 0); }");
     else
       provider->load_from_data("* { background-color: " + color + "; }");
-    w->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    w->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
   }
 }
 
@@ -709,28 +709,7 @@ void ViewImpl::register_drop_formats(const std::vector<std::string> &formats, Dr
 void ViewImpl::slot_drag_begin(const Glib::RefPtr<Gdk::DragContext> &context)
 {
   if (_drag_image)
-  {
-    // Convert pixel fromat from ARGB to ABGR.
-    int i = 0;
-    int width = cairo_image_surface_get_width(_drag_image);
-    int height = cairo_image_surface_get_height(_drag_image);
-    unsigned char *data = cairo_image_surface_get_data(_drag_image);
-
-    while (i < 4 * width * height)
-    {
-      unsigned char temp = data[i];
-      data[i] = data[i + 2];
-      data[i + 2] = temp;
-      i += 4;
-    }
-
-    Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_data(data, Gdk::COLORSPACE_RGB, true, 8,
-                                                                      width,
-                                                                      height,
-                                                                      cairo_image_surface_get_stride(_drag_image));
-    context->set_icon(pixbuf, 0, 0);
-  }
-
+    context->set_icon(Cairo::RefPtr<Cairo::Surface>(new Cairo::Surface(_drag_image)));
 }
 
 //------------------------------------------------------------------------------
