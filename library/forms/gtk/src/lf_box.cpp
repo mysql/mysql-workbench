@@ -86,6 +86,14 @@ void mforms::gtk::BoxImpl::set_padding_impl(int left, int top, int right, int bo
 }
 
 //------------------------------------------------------------------------------
+
+void mforms::gtk::BoxImpl::set_size(int width, int height)
+{
+  get_outer()->set_size_request(width, height);
+  get_inner()->set_size_request(width, height);
+}
+
+//------------------------------------------------------------------------------
 mforms::gtk::BoxImpl::~BoxImpl()
 {
   delete _box;
