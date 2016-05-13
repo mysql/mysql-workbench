@@ -317,7 +317,6 @@ class WbAdminPSBaseTab(mforms.Box):
                 if current_user_grants.find(grant) == -1:
                     missing_grants.append(grant)
 
-        missing_grants = []
         return missing_grants
 
     def page_activated(self):
@@ -329,9 +328,9 @@ class WbAdminPSBaseTab(mforms.Box):
 
         button_data = None
         if not self.ctrl_be.is_sql_connected():
-            text = ("There is no connection to the MySQL Server.", "This functionality requires a connection to a MySQL server to work.")
+            text = ("There is no connection to the MySQL Server.", "This functionality requires a connection to a MySQL server to work.", False)
         elif not self.ps_usable():
-            text = ("Performance Schema Unavailable", "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
+            text = ("Performance Schema Unavailable", "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.", False)
         else:
             text = self.ps_helper_needs_installation()
             
