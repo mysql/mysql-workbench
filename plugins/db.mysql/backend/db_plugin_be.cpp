@@ -295,7 +295,7 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type)
       {
         std::string msg = base::strfmt("Failed to fetch %s objects from %s: %s", db_objects_type_to_string(db_object_type), schema_name.c_str(), e.what());
         _grtm->get_grt()->send_info(msg);
-        log_error(msg.c_str());
+        log_error("Failed to fetch %s objects from %s: %s", db_objects_type_to_string(db_object_type), schema_name.c_str(), e.what());
       }
     }
 
