@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -182,7 +182,13 @@ def getCatalogNames(connection):
 
     [NOTE] From MSDN: [A catalog] is equivalent to a databases in SQL Server.
     """
-    query = 'exec sys.sp_databases'
+    query_pre_90 = 'SELECT name FROM sys.databases'
+    query_post_90 = 'exec sys.sp_databases'
+    
+    serverVersion = connected_server_version(connection)
+
+    query = query_pre_90 if serverVersion.majorNumber < 9 else query_post_90
+
     return [ row[0] for row in execute_query(connection, query) ]
 
 
