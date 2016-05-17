@@ -1526,7 +1526,9 @@ void JsonReader::parse(JsonObject &obj)
   while (go)
   {
     // the member name
-    processToken(JsonToken::JsonTokenString);
+    processToken(JsonToken::JsonTokenString, false, false);
+    if (_tokenIterator->getType() == JsonToken::JsonTokenObjectEnd)
+      break;
     std::string name = _tokenIterator->getValue();
     ++_tokenIterator;
 
