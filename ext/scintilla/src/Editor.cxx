@@ -346,6 +346,10 @@ int Editor::MaxScrollPos() const {
 	}
 }
 
+int Editor::DocumentHeight() const {
+  return cs.LinesDisplayed() * vs.lineHeight;
+}
+
 SelectionPosition Editor::ClampPositionIntoDocument(SelectionPosition sp) const {
 	if (sp.Position() < 0) {
 		return SelectionPosition(0);
@@ -7670,6 +7674,9 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 
 	case SCI_COUNTCHARACTERS:
 		return pdoc->CountCharacters(static_cast<int>(wParam), static_cast<int>(lParam));
+
+	case SCI_GETDOCUMENTHEIGHT:
+	  return DocumentHeight();
 
 	default:
 		return DefWndProc(iMessage, wParam, lParam);

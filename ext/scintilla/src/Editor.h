@@ -283,6 +283,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	virtual int LinesOnScreen() const;
 	int LinesToScroll() const;
 	int MaxScrollPos() const;
+	int DocumentHeight() const;
 	SelectionPosition ClampPositionIntoDocument(SelectionPosition sp) const;
 	Point LocationFromPosition(SelectionPosition pos);
 	Point LocationFromPosition(int pos);
