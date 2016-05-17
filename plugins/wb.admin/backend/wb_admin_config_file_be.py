@@ -760,23 +760,25 @@ class WbAdminConfigFileBE(object):
                             else:
                                 option.append(i, True)
 
-                            if "skip" in option_name:
+                            if option_name.startswith("skip-"):
                                 odef = self.get_option_def(option_name[5:])
                                 if odef and odef.get('disabledby') == option_name:
                                     option = Option(current_section, i, 'disabledby')
                                     cur_file_original_opts[option_name[5:]] = option
                                     cur_file_original_opts[option_name] = option
-                            elif value.lower() in ['on', 'off', '1', '0','yes','no', 'true', 'false']:
-                                # since we remove one of redundant option from pairs like 'option_name' and 'skip-option_name'
-                                # we need to take care of options that exists in config file but not in UI
-                                # so if option is bool and has no 'skip-' in name we put additional option 'skip-option_name'
-                                # to cur_file_original_opts list with opposite value to properly handle every options 
-                                if has_value:
-                                    value = not self.normalize_bool(value)
-                                else:
-                                    value = False
-                                option = Option(current_section, i, value)
-                                cur_file_original_opts['skip-'+option_name] = option
+                            else:
+                                odef = self.get_option_def(option_name)
+                                if odef is not None and odef.get('type') == 'boolean':
+                                    # since we remove one of redundant option from pairs like 'option_name' and 'skip-option_name'
+                                    # we need to take care of options that exists in config file but not in UI
+                                    # so if option is bool and has no 'skip-' in name we put additional option 'skip-option_name'
+                                    # to cur_file_original_opts list with opposite value to properly handle every options 
+                                    if has_value:
+                                        value = not self.normalize_bool(value)
+                                    else:
+                                        value = False
+                                    option = Option(current_section, i, value)
+                                    cur_file_original_opts['skip-'+option_name] = option
 
             self.original_opts = cur_file_original_opts
             self.sections = sorted(self.sections, lambda x,y: cmp(x[0], y[0]))
@@ -972,6 +974,8 @@ class WbAdminConfigFileBE(object):
                     options.append((name, self.changeset[name].value))
                 else:
                     odef = self.get_option_def(name)
+                    if odef is None and name.startswith("skip-"):
+                        odef = self.get_option_def(name[5:])
                     if odef is not None and odef.get('type') == 'boolean':
                         ovalue = str(opt)
                         if ovalue == 'disabledby':
