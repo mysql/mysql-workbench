@@ -1962,6 +1962,25 @@ void MySQLCopyDataTarget::set_truncate(bool flag)
   _truncate = flag;
 }
 
+void MySQLCopyDataTarget::get_generated_colums(const std::string &schema, const std::string &table, std::vector<std::string> &gc)
+{
+  gc.clear();
+  std::string q = base::strfmt("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s' AND EXTRA like '%%GENERATED%%';", base::unquote(schema).c_str(), base::unquote(table).c_str());
+
+  if (mysql_query(&_mysql, q.data()) < 0)
+    throw ConnectionError("mysql_query("+q+")", &_mysql);
+  
+  MYSQL_RES *result;
+  if ((result = mysql_use_result(&_mysql)) == NULL)
+    throw ConnectionError("Getting Generated Columns", &_mysql);
+  
+  MYSQL_ROW row;
+  while ((row = mysql_fetch_row(result)))
+    gc.push_back(row[0]);
+  
+  mysql_free_result(result);
+}
+
 void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std::string &table,
                                            boost::shared_ptr<std::vector<ColumnInfo> > columns)
 {
@@ -1981,13 +2000,28 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
       if (meta)
       {
         int column_count = mysql_num_fields(meta);
-        if (column_count == (int)columns->size())
+        MYSQL_FIELD *fields = mysql_fetch_fields(meta);
+
+        std::vector<std::string> generated_columns;
+        if ( column_count > (int)columns->size())
+          get_generated_colums(schema, table, generated_columns);
+        
+        int gc_count = generated_columns.size();
+        std::string target_name;
+
+        if ((column_count - gc_count) == (int)columns->size())
         {
-          MYSQL_FIELD *fields = mysql_fetch_fields(meta);
-          log_debug2("Columns from target table %s.%s (%i):\n", schema.c_str(), table.c_str(), column_count);
+          log_debug2("Columns from target table %s.%s (%i) [skipped: %i]:\n", schema.c_str(), table.c_str(), column_count - gc_count, gc_count);
           for (int i= 0; i < column_count; i++)
           {
-            (*columns)[i].target_name = std::string(fields[i].name, fields[i].name_length);
+            target_name = std::string(fields[i].name, fields[i].name_length);
+            if ( std::find(generated_columns.begin(), generated_columns.end(), target_name) 
+                  != generated_columns.end())
+            {
+              log_debug2("%i - %s: GENERATED [SKIPPED]\n", i + 1, target_name.c_str());
+              continue;
+            }
+            (*columns)[i].target_name = target_name;
             (*columns)[i].target_type = field_type_to_ps_param_type(fields[i].type);
             // We can't trust source drivers to report signed/unsigned values, so we take that from the target MySQL table:
             (*columns)[i].is_unsigned = (fields[i].flags & UNSIGNED_FLAG) != 0;
