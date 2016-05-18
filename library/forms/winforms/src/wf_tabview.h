@@ -35,7 +35,7 @@ namespace MySQL
       static bool create(mforms::TabView *backend, mforms::TabViewType type);
       static void set_active_tab(mforms::TabView *backend, int index);
       static int get_active_tab(mforms::TabView *backend);
-      static int add_page(mforms::TabView *backend, mforms::View *page, const std::string& caption);
+      static int add_page(mforms::TabView *backend, mforms::View *page, const std::string& caption, bool hasCloseButton);
       static void remove_page(mforms::TabView *backend, mforms::View *page);
       static void set_tab_title(mforms::TabView *backend, int tab, const std::string& caption);
       static void set_aux_view(mforms::TabView *backend, mforms::View *aux);

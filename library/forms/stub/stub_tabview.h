@@ -48,7 +48,7 @@ class TabViewWrapper : public ViewWrapper
     return -1;
   }
 
-  static int add_page(::mforms::TabView *self, ::mforms::View *page, const std::string& caption)
+  static int add_page(::mforms::TabView *self, ::mforms::View *page, const std::string& caption, bool hasCloseButton)
   {
     return 0;
   }
