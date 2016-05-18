@@ -89,6 +89,10 @@ void ViewWrapper::set_size(int width, int height)
 {
 }
 
+void ViewWrapper::set_min_size(int width, int height)
+{
+}
+  
 void ViewWrapper::set_position(mforms::View *self, int x, int y)
 {
 }
@@ -208,6 +212,7 @@ void ViewWrapper::init()
   f->_view_impl.get_preferred_width  = &ViewWrapper::get_preferred_width;
   f->_view_impl.get_preferred_height = &ViewWrapper::get_preferred_height;
   f->_view_impl.set_size             = &ViewWrapper::set_size;
+  f->_view_impl.set_min_size         = &ViewWrapper::set_min_size;
   f->_view_impl.set_padding          = &ViewWrapper::set_padding;
 
   f->_view_impl.get_x                = &ViewWrapper::get_x;

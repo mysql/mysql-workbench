@@ -33,6 +33,7 @@ protected:
   static int get_preferred_width(mforms::View *self);
   static int get_preferred_height(mforms::View *self);
   static void set_size(mforms::View *self, int w, int h);
+  static void set_min_size(mforms::View *self, int w, int h);
   static void set_padding(View *self, int, int, int, int);
 
   static int get_x(mforms::View *self);
