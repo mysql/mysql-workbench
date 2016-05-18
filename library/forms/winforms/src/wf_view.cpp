@@ -661,6 +661,20 @@ void ViewWrapper::set_size(mforms::View *backend, int w, int h)
 
 //-------------------------------------------------------------------------------------------------
 
+void ViewWrapper::set_min_size(mforms::View *backend, int w, int h)
+{
+  Control ^control = GetManagedObject<Control>(backend);
+  Size newMinSize = control->MinimumSize;
+  if (w >= 0)
+    newMinSize.Width = w;
+  if (h >= 0)
+    newMinSize.Height = h;
+
+  control->MinimumSize = newMinSize;
+}
+
+//-------------------------------------------------------------------------------------------------
+
 void ViewWrapper::set_padding(mforms::View *backend, int left, int top, int right, int bottom)
 {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
@@ -1323,6 +1337,7 @@ void ViewWrapper::init()
   f->_view_impl.get_preferred_height = &get_preferred_height;
   f->_view_impl.set_position = &set_position;
   f->_view_impl.set_size = &set_size;
+  f->_view_impl.set_min_size = &set_min_size;
   f->_view_impl.set_padding = &set_padding;
   f->_view_impl.screen_to_client = &screen_to_client;
   f->_view_impl.client_to_screen = &client_to_screen;
