@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,6 +36,7 @@ namespace mforms
                                //   and such). unclosable tabs
     TabViewDocumentClosable,   //!< WB style for tabbed documents (top standing tabs, sql editors 
                                //   and such). closable tabs
+    TabViewDocumentClosableX,  // A variation of TabViewDocumentClosable with the same functionality but different style.
     TabViewPalette,            //!< WB style tab view (bottom hanging tabs on Win), unclosable tabs
     TabViewSelectorSecondary,  //!< Sidebar palette selector style, unclosable tabs.
     TabViewEditorBottom,       //!< Bottom facing, closable tabs to be used for docking editors
@@ -51,7 +52,7 @@ namespace mforms
     void (*set_active_tab)(TabView*,int);
     void (*set_tab_title)(TabView*,int,const std::string&);
     int (*get_active_tab)(TabView*);
-    int (*add_page)(TabView*,View*,const std::string&);
+    int (*add_page)(TabView*,View*,const std::string&, bool);
     void (*remove_page)(TabView*,View*);
     void (*set_aux_view)(TabView*,View*);
     void (*set_allows_reordering)(TabView*,bool);
@@ -88,7 +89,7 @@ namespace mforms
     /** Get currently selected tab */
     int get_active_tab();
     /** Add a new page to the tab view, with its tab caption. */
-    int add_page(View *page, const std::string& caption);
+    int add_page(View *page, const std::string& caption, bool hasCloseButton = true);
     /** Remove a tab page by its content. */
     void remove_page(View *page);
 
