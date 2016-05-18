@@ -55,6 +55,7 @@ namespace MySQL {
       static int get_x(mforms::View *backend);
       static int get_y(mforms::View *backend);
       static void set_size(mforms::View *backend, int w, int h);
+      static void set_min_size(mforms::View *backend, int w, int h);
       static void set_padding(mforms::View *backend, int left, int top, int right, int bottom);
       static void set_position(mforms::View *backend, int x, int y);
       static std::pair<int, int> client_to_screen(mforms::View *backend, int x, int y);
