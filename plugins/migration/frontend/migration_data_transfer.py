@@ -484,6 +484,8 @@ class TransferMainView(WizardProgressPage):
             source_pk_list = []
             target_pk_list = []
             for column in table.columns:
+                if column.generated:
+                    continue
                 if table.isPrimaryKeyColumn(column):
                     source_pk_list.append(source_db_module.quoteIdentifier(column.oldName))
                     target_pk_list.append(target_db_module.quoteIdentifier(column.name))
