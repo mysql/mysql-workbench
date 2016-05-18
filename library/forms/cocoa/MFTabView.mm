@@ -284,17 +284,22 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   mOwner->set_menu_tab([tabView indexOfTabViewItem: tabViewItem]);
 }
 
-- (BOOL)tabView:(NSTabView*)tabView itemIsPinned:(NSTabViewItem*)item
+- (BOOL)tabView:(NSTabView*)tabView itemIsPinned: (NSTabViewItem*)item
 {
   if (mOwner->is_pinned)
     return mOwner->is_pinned([tabView indexOfTabViewItem: item]);
   return NO;
 }
 
-- (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)item
+- (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton: (NSTabViewItem*)item
 {
-  if ([self isClosable])
+  if ([self isClosable]) {
+    if ([item.view isKindOfClass: MFTabViewItemView.class]) {
+      MFTabViewItemView *view = (MFTabViewItemView *)item.view;
+      return view->showCloseButton;
+    }
     return YES;
+  }
   return NO;
 }
 
@@ -305,7 +310,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   [self setNeedsDisplay: YES];
 }
 
-- (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)item
+- (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem: (NSTabViewItem*)item
 {
   if ([self isClosable])
   {
@@ -372,11 +377,12 @@ static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const st
     
     if ( tabView )
     {
-      NSTabViewItem *item= [[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat: @"%p", tab]];
-      MFTabViewItemView *view= [[MFTabViewItemView alloc] init];
+      NSTabViewItem *item = [[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat: @"%p", tab]];
+      MFTabViewItemView *view = [MFTabViewItemView new];
 
       view->mOwner = tab;
-      view->mTabView= tabView->mTabView;
+      view->mTabView = tabView->mTabView;
+      view->showCloseButton = hasCloseButton;
       
       item.label = wrap_nsstring(label);
       item.view = view;
@@ -388,7 +394,7 @@ static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const st
       if (tabView->mTabSwitcher && self->get_tab_menu())
         tabView->mTabSwitcher.menu = self->get_tab_menu()->get_data();
       
-      return tabView->mTabView.numberOfTabViewItems-1;
+      return tabView->mTabView.numberOfTabViewItems - 1;
     }
   }
   return -1;
