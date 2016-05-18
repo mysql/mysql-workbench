@@ -89,7 +89,7 @@ void ViewWrapper::set_size(int width, int height)
 {
 }
 
-void ViewWrapper::set_min_size(int width, int height)
+void ViewWrapper::set_min_size(mforms::View *self, int width, int height)
 {
 }
   
