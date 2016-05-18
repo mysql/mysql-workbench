@@ -78,7 +78,7 @@ namespace mforms {
 %rename(append_text) append_text(const std::string &text);
 
 %rename(append_text_with_encoding_and_scroll) append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end);
-%rename(append_text_with_encoding) append_text_with_encoding(const std::string &text, const std::string &encoding);
+%rename(append_text_with_encoding) append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end);
 #endif
 #endif
   public:
