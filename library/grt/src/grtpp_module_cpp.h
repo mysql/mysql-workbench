@@ -210,7 +210,7 @@ namespace grt {
     virtual void initialization_done() {};
 
     void register_functions(ModuleFunctorBase *first, ...);
-
+    virtual GModule* getGModule() { return _gmodule; }
   };
 
   typedef CPPModule ModuleImplBase;
@@ -229,7 +229,6 @@ namespace grt {
     virtual std::string get_loader_name() { return "cpp"; }
     
     virtual Module *init_module(const std::string &path);
-
     virtual void refresh();
   };
 
