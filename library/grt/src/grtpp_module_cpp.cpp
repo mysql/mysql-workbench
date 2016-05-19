@@ -191,14 +191,6 @@ CPPModule::~CPPModule()
   for (std::list<ModuleFunctorBase*>::iterator iter= _functors.begin();
        iter != _functors.end(); ++iter)
     delete *iter;
-  
-  // Modules live the whole life of the app, so there's usually no need to delete them
-  // except when initialization is aborted in the middle (like when a module is duplicate)
-  // Problem is that in this case of duplicate modules, it seems that closing a GModule will cause a crash (in OSX)
-#ifndef __APPLE__
-  if (_gmodule)
-    g_module_close(_gmodule);
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -252,15 +252,17 @@ GRT::~GRT()
   delete _shell;
   delete _default_undo_manager;
   
-
-  /* this is crashing, must be tracked
   for (std::vector<Module*>::iterator iter= _modules.begin();
        iter != _modules.end(); ++iter)
   {
+    auto mod = (*iter)->getGModule();
     delete *iter;
+    if (mod)
+      g_module_close(mod);
+
   }
+
   _modules.clear();
-  */
 
   for (std::map<std::string,Interface*>::iterator iter= _interfaces.begin();
        iter != _interfaces.end(); ++iter)
