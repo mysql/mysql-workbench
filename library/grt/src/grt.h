@@ -34,6 +34,7 @@
 #include "base/threading.h"
 #include <boost/unordered_map.hpp>
 #include <string>
+#include <gmodule.h>
 
 #ifndef _NODLL_
 # if defined(_WIN32)
@@ -2315,6 +2316,7 @@ namespace grt {
 
     Module(ModuleLoader *loader);
     virtual ~Module() {}
+    virtual GModule* getGModule() { return nullptr; }
 
     std::string name() const { return _name; }
     std::string version() const { return _meta_version; }
