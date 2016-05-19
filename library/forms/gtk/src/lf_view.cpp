@@ -284,6 +284,24 @@ void ViewImpl::set_size(::mforms::View *self, int w, int h)
 
 void ViewImpl::set_size(int width, int height)
 {
+  Gtk::Window *wnd = dynamic_cast<Gtk::Window*>(get_outer());
+  if (wnd != nullptr)
+  {
+    wnd->set_default_size(width, height);
+  }
+  else
+    get_outer()->set_size_request(width, height);
+}
+
+void ViewImpl::set_min_size(::mforms::View *self, int w, int h)
+{
+  ViewImpl *view = self->get_data<ViewImpl>();
+  if ( view )
+    view->set_min_size(w, h);
+}
+
+void ViewImpl::set_min_size(int width, int height)
+{
   get_outer()->set_size_request(width, height);
 }
 
@@ -1069,6 +1087,7 @@ void ViewImpl::init()
   f->_view_impl.get_preferred_width   = &ViewImpl::get_preferred_width;
   f->_view_impl.get_preferred_height  = &ViewImpl::get_preferred_height;
   f->_view_impl.set_size              = &ViewImpl::set_size;
+  f->_view_impl.set_min_size          = &ViewImpl::set_min_size;
 
   f->_view_impl.get_x                 = &ViewImpl::get_x;
   f->_view_impl.get_y                 = &ViewImpl::get_y;
