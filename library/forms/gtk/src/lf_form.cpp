@@ -294,13 +294,6 @@ void FormImpl::realized(mforms::Form *owner, Gdk::WMDecoration flags)
   _window->get_window()->set_decorations(flags);
 }
 
-
-void FormImpl::set_size(int width, int height)
-{
-  _window->set_default_size(width, height);
-  _window->set_size_request(width, height);
-}
-
 void FormImpl::set_name(const std::string &name)
 {
   _window->set_role(name);

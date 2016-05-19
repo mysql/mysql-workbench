@@ -65,6 +65,8 @@ protected:
   static int get_y(::mforms::View *self);
   static void set_size(::mforms::View *self, int w, int h);
   virtual void set_size(int width, int height);
+  static void set_min_size(::mforms::View *self, int w, int h);
+  virtual void set_min_size(int width, int height);
   static void set_position(::mforms::View *self, int x, int y);
   static std::pair<int, int>client_to_screen(::mforms::View *self, int x, int y);
   static void set_enabled(::mforms::View *self, bool flag);
