@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ class TabViewImpl : public ViewImpl
   static bool create(::mforms::TabView *self, mforms::TabViewType tabtype);
   static void set_active_tab(::mforms::TabView *self, int index);
   static int get_active_tab(::mforms::TabView *self);
-  static int add_page(::mforms::TabView *self, ::mforms::View *page, const std::string& caption);
+  static int add_page(::mforms::TabView *self, ::mforms::View *page, const std::string& caption, bool hasCloseButton);
   static void remove_page(::mforms::TabView *self, ::mforms::View *page);
   static void set_tab_title(::mforms::TabView* self,int tab,const std::string& title);
   static void set_aux_view(mforms::TabView *self, mforms::View *view);
