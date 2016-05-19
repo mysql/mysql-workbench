@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,8 +39,11 @@ public:
     if (evb->button == 3)
     {
       _owner->set_menu_tab(_owner->get_page_index(_page));
-      _owner->get_tab_menu()->will_show();
-      _owner->get_tab_menu()->popup_at(NULL, base::Point(evb->x, evb->y));
+      if (_owner->get_tab_menu())
+      {
+        _owner->get_tab_menu()->will_show();
+        _owner->get_tab_menu()->popup_at(NULL, base::Point(evb->x, evb->y));
+      }
     }
     return false;
   }
@@ -70,6 +73,7 @@ mforms::gtk::TabViewImpl::TabViewImpl(::mforms::TabView *self, ::mforms::TabView
   _nb->signal_switch_page().connect(sigc::mem_fun(this, &TabViewImpl::tab_changed));
   _nb->signal_page_reordered().connect(sigc::mem_fun(this, &TabViewImpl::tab_reordered));
   _nb->show();
+  setup();
 }
 
 mforms::gtk::TabViewImpl::~TabViewImpl()
@@ -131,7 +135,7 @@ int mforms::gtk::TabViewImpl::get_active_tab(::mforms::TabView *self)
   return cb ? cb->_nb->get_current_page() : -1;
 }
 
-int mforms::gtk::TabViewImpl::add_page(::mforms::TabView *self, ::mforms::View *page, const std::string& caption)
+int mforms::gtk::TabViewImpl::add_page(::mforms::TabView *self, ::mforms::View *page, const std::string& caption, bool hasCloseButton)
 {
   int page_index_after_insert = -1;
   TabViewImpl* cb= self->get_data<TabViewImpl>();
@@ -144,13 +148,25 @@ int mforms::gtk::TabViewImpl::add_page(::mforms::TabView *self, ::mforms::View *
       widget_wrapper->get_outer()->set_data("mforms::View", page);
 
       Gtk::Widget *label;
-      if (self->get_type() == mforms::TabViewEditorBottom)
-        label= Gtk::manage(new MyActiveLabel(self, page, caption, sigc::bind(sigc::mem_fun(cb, &TabViewImpl::close_tab_clicked), page)));
-      else
+      switch(self->get_type())
+      {
+      case mforms::TabViewMainClosable:
+      case mforms::TabViewEditorBottom:
+      case mforms::TabViewDocumentClosable:
+        if (hasCloseButton)
+        {
+          label= Gtk::manage(new MyActiveLabel(self, page, caption, sigc::bind(sigc::mem_fun(cb, &TabViewImpl::close_tab_clicked), page)));
+          break;
+        }
+        /* no break */
+      default:
         label= Gtk::manage(new Gtk::Label(caption));
+      }
       widget_wrapper->get_outer()->show();
       page_index_after_insert = cb->_nb->append_page(*widget_wrapper->get_outer(), *label);
       widget_wrapper->get_outer()->set_data("TabViewLabel", label);
+      if (!hasCloseButton)
+        label->get_style_context()->add_class("noClose");
 
       if (cb->_reorderable)
         cb->_nb->set_tab_reorderable(*widget_wrapper->get_outer(), true);
