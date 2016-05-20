@@ -39,6 +39,7 @@ from workbench.utils import server_version_str2tuple
 pysource = {}
 pysource['engine-list'] = "grt.root.wb.options.options[\"@db.mysql.Table:tableEngine/Items\"]"
 multi_separator = r'\n'
+default_section = 'mysqld'
 
 #-------------------------------------------------------------------------------
 def ver_cmp(v1, v2):
@@ -703,7 +704,7 @@ class WbAdminConfigFileBE(object):
 
         filter_by_section = self.server_profile.config_file_section
         if not filter_by_section:
-            filter_by_section = "mysqld"
+            filter_by_section = default_section
 
         log_debug('Parsing options only from section "%s"\n' % filter_by_section)
 
@@ -787,7 +788,7 @@ class WbAdminConfigFileBE(object):
 
         # Sets a default section in case it is empty
         if section == "":
-            section = "mysqld"
+            section = default_section
 
         # Check if the wanted section is in the file, if not, add it
         if self.server_profile.admin_enabled and not any(_section == section for _line, _section in self.sections):
@@ -809,7 +810,7 @@ class WbAdminConfigFileBE(object):
             value = True
 
         if section is None:
-            section = self.server_profile.config_file_section
+            section = self.server_profile.config_file_section if self.server_profile.config_file_section is not '' else default_section
 
         odef = self.get_option_def(name)
         option_type    = odef.get('type')
@@ -1102,7 +1103,7 @@ class WbAdminConfigFileBE(object):
                         file_lines[line] = ""
             elif c.mod == ADD:
                 lines_range = sections_map.get(c.section)
-                if lines_range[1] >= 0:
+                if lines_range and lines_range[1] >= 0:
                     if type(c.value) is list or type(c.value) is tuple:
                         lineno = lines_range[1]
                         for v in c.value:
