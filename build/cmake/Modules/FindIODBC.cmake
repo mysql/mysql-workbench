@@ -21,12 +21,14 @@ if (IODBC_INCLUDE_PATH)
     	      ${CMAKE_SYSTEM_INCLUDE_PATH}
     	      /usr/include
               /usr/local/include
+              /usr/include/libiodbc
     )
 else()
     find_path(IODBC_INCLUDE_DIRS iodbcunix.h
     	PATHS ${CMAKE_SYSTEM_INCLUDE_PATH}
     	      /usr/include
-              /usr/local/include
+            /usr/local/include
+            /usr/include/libiodbc
     )
 endif(IODBC_INCLUDE_PATH)
 
