@@ -778,8 +778,7 @@ void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const 
 
 JsonTextView::JsonTextView() : 
   _textEditor(manage(new CodeEditor())), 
-  _validationResult(manage(new Label(""))),
-  _modified(false)
+  _modified(false), _position(0)
 {
   init();
 }
@@ -795,8 +794,6 @@ void JsonTextView::setText(const std::string &jsonText)
 {
   _textEditor->set_value(jsonText.c_str());
   validate();
-  _validationResult->set_text("Document changed.");
-  _validationResult->set_tooltip("");
   _text = jsonText;
 }
 
@@ -849,23 +846,10 @@ void JsonTextView::init()
   _textEditor->set_features(mforms::FeatureWrapText, false);
   _textEditor->set_features(mforms::FeatureReadOnly, false);
   scoped_connect(_textEditor->signal_changed(), boost::bind(&JsonTextView::editorContentChanged, this, _1, _2, _3, _4));
-  scoped_connect(_textEditor->signal_lost_focus(), boost::bind(&JsonTextView::validate, this));
-
-  Button *validate = manage(new Button());
-  validate->set_text("Validate");
-  scoped_connect(validate->signal_clicked(), boost::bind(&JsonTextView::validate, this));
-
-  _validationResult->set_text("JSON valid");
-
   Box *box = manage(new Box(false));
   box->set_padding(5);
   box->set_spacing(5);
   box->add(_textEditor, true, true);
-
-  Box *hbox = manage(new Box(true));
-  hbox->add(_validationResult, true, true);
-  hbox->add_end(validate, false, true);
-  box->add(hbox, false, true);
   add(box);
 }
 
@@ -882,9 +866,7 @@ void JsonTextView::init()
 void JsonTextView::editorContentChanged(int position, int length, int numberOfLines, bool inserted)
 {
   _modified = true;
-  _validationResult->set_text("Content changed.");
-  _validationResult->set_tooltip("");
-
+  _position = position;
   _text = _textEditor->get_text(false);
   _dataChanged(true);
 }
@@ -902,15 +884,19 @@ bool JsonTextView::validate()
       JsonParser::JsonValue value;
       JsonParser::JsonReader::read(_text, value);
       _json = value;
-
+      
+      _textEditor->remove_markup(LineMarkupAll, -1);
+      _textEditor->remove_indicator(mforms::RangeIndicatorError, 0, _textEditor->text_length());
       _modified = false;
-      _validationResult->set_text("Document valid.");
-      _validationResult->set_tooltip("");
     }
-    catch (ParserException &ex)
+    catch (ParserException &/*ex*/)
     {
-      _validationResult->set_text(ex.what());
-      _validationResult->set_tooltip(ex.what());
+      int line = (int)_textEditor->line_from_position(_position);
+      _textEditor->show_markup(LineMarkupError, line);
+      std::size_t posBegin = _textEditor->position_from_line(line);
+      posBegin = _text.find_first_not_of(" \t\r\n", posBegin);
+      std::size_t posEnd = _text.find_first_of("\n\r", posBegin + 1);
+      _textEditor->show_indicator(mforms::RangeIndicatorError, posBegin, posEnd - posBegin);
       ret = false;
     }
   }
