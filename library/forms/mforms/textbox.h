@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,7 +75,7 @@ namespace mforms {
 #if SWIG_VERSION < 0x030003 || SWIG_VERSION >= 0x030008  // starting with SWIG v3.0.3, this is no longer necessary (https://github.com/swig/swig/pull/201)
 //workaround for problem with unicode strings and default args in swig
 %rename(append_text_and_scroll) append_text(const std::string &text, bool scroll_to_end);
-%rename(append_text) append_text(const std::string &text);
+%rename(append_text) append_text(const std::string &text, bool scroll_to_end);
 
 %rename(append_text_with_encoding_and_scroll) append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end);
 %rename(append_text_with_encoding) append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end);
