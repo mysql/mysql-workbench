@@ -57,13 +57,14 @@ public:
   virtual bool perform_command(const std::string &cmd);
 
 protected:
-  bool close_plugin_tab(PluginEditorBase *editor);
   
   sigc::slot<void, PluginEditorBase*> _close_editor;
 
   virtual void plugin_tab_added(PluginEditorBase *plugin) {};
 
 public:
+  bool close_plugin_tab(PluginEditorBase *editor);
+
   void set_close_editor_callback(const sigc::slot<void, PluginEditorBase*> &handler);
 
   void add_plugin_tab(PluginEditorBase *plugin);
