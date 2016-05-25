@@ -39,12 +39,17 @@
 #elif defined(__APPLE__)
   #define DEFAULT_FONT_FAMILY "Helvetica"
   #define DEFAULT_FONT_SIZE 11
+<<<<<<< HEAD
 
   #define DEFAULT_MONOSPACE_FONT_FAMILY "AndaleMono"
+=======
+  #define DEFAULT_SMALL_FONT "Helvetica"
+  #define DEFAULT_MONOSPACE_FONT_FAMILY "Consolas"
+>>>>>>> f93aa47... OSX, Liunux: fix build, add missing DEFAULT_SMALL_FONT
 #else
   #define DEFAULT_FONT_FAMILY "Helvetica"
   #define DEFAULT_FONT_SIZE 11
-
+  #define DEFAULT_SMALL_FONT "Sans"
   #define DEFAULT_MONOSPACE_FONT_FAMILY "Bitstream Vera Sans Mono"
 #endif
 
