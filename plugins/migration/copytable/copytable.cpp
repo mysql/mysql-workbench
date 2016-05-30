@@ -1675,15 +1675,48 @@ std::vector<std::string> MySQLCopyDataTarget::get_last_pkeys(const std::vector<s
       ret.push_back(row[i]);
 
   mysql_free_result(result);
-
-  std::string column_value;
-  for (size_t i = 0; i < ret.size(); ++i)
+  
+  MYSQL_STMT *stmt = mysql_stmt_init(&_mysql);
+  if (stmt)
   {
-    column_value += base::strfmt("%s: %s", pk_columns[i].c_str(), ret[i].c_str());
-    if (i < pk_columns.size() - 1)
-      column_value += ",";
+    if (mysql_stmt_prepare(stmt, q.data(), (unsigned long)q.length()) == 0)
+    {
+      MYSQL_RES *meta = mysql_stmt_result_metadata(stmt);
+      if (meta)
+      {
+        int column_count = mysql_num_fields(meta);
+        MYSQL_FIELD *fields = mysql_fetch_fields(meta);
+        std::string column_value;
+        for (size_t i = 0; i < ret.size(); ++i)
+        {
+          if (fields[i].type == MYSQL_TYPE_TIMESTAMP && base::ends_with(ret[i], ".000000")) 
+            column_value += base::strfmt("%s: %s", pk_columns[i].c_str(), ret[i].substr(ret[i].length() - 7).c_str());
+          else
+            column_value += base::strfmt("%s: %s", pk_columns[i].c_str(), ret[i].c_str());
+          if (i < pk_columns.size() - 1)
+          column_value += ",";
+        }
+        log_info("Resuming copy of table %s.%s. Starting on record with keys: %s\n", schema.c_str(), table.c_str(), column_value.c_str());
+        mysql_free_result(meta);
+      }
+      else
+      {
+        ConnectionError err("mysql_stmt_result_metadata", stmt);
+        mysql_stmt_close(stmt);
+        throw err;
+      }
+    }
+    else
+    {
+      ConnectionError err("mysql_stmt_prepare", stmt);
+      mysql_stmt_close(stmt);
+      throw err;
+    }
+    mysql_stmt_close(stmt);
   }
-  log_info("Resuming copy of table %s.%s. Starting on record with keys: %s\n", schema.c_str(), table.c_str(), column_value.c_str());
+  else
+    throw ConnectionError("mysql_stmt_init", &_mysql);
+
 
   return ret;
 }
