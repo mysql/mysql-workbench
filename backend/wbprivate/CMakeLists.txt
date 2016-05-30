@@ -114,7 +114,9 @@ target_link_libraries(wbprivate
 
 set_target_properties(wbprivate
                       PROPERTIES VERSION   ${WB_VERSION}
-                                 SOVERSION ${WB_VERSION})
+                      SOVERSION ${WB_VERSION})
+
+add_dependencies(wbprivate antlr-wb)
 
 if(COMMAND cotire)
   set_target_properties(wbprivate PROPERTIES
