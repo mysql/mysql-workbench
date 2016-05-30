@@ -179,6 +179,7 @@ class MSSQLMigration(GenericMigration):
 
                     # Only timestamp supports CURRENT_TIMESTAMP, so force the target type to it
                     target_column.simpleType = find_object_with_name(state.targetCatalog.simpleDatatypes, 'TIMESTAMP')
+                    target_column.length = -1
                     state.addMigrationLogEntry(0, source_column, target_column, 
                               'Default value is %s, so type was changed from %s to TIMESTAMP' % (default_value, source_datatype))
 
