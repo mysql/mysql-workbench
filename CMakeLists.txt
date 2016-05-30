@@ -7,7 +7,7 @@ if(NOT CMAKE_BUILD_TYPE)
  To specify build type use:
  -DCMAKE_BUILD_TYPE=<mode> where <mode> is Debug or Release.")
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-       "Choose the type of build, options are: Debug Release."
+       "Choose the type of build, options are: Debug Release RelWithDebInfo"
        FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
@@ -301,15 +301,20 @@ SET(GCOV OFF CACHE BOOL "Add gcov flags")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g ${MY_CXXFLAGS}")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g ${MY_CXXFLAGS}") 
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
     message(FATAL_ERROR "Insufficient gcc version. You need gcc v4.7 or newer to build this project")
   endif()
-	set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
+  set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 ${MY_CXXFLAGS}")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -ggdb3 ${MY_CXXFLAGS}")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
 endif()
+
+string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE_UPPER)
+message("CMAKE_CXX_FLAGS_${BUILD_TYPE_UPPER} : ${CMAKE_CXX_FLAGS_${BUILD_TYPE_UPPER}}")
 
 if(GCOV)
     set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
