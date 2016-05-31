@@ -1682,7 +1682,6 @@ std::vector<std::string> MySQLCopyDataTarget::get_last_pkeys(const std::vector<s
       MYSQL_RES *meta = mysql_stmt_result_metadata(stmt);
       if (meta)
       {
-        int column_count = mysql_num_fields(meta);
         MYSQL_FIELD *fields = mysql_fetch_fields(meta);
         std::string column_value;
         for (size_t i = 0; i < ret.size(); ++i)
@@ -1995,7 +1994,7 @@ void MySQLCopyDataTarget::set_truncate(bool flag)
   _truncate = flag;
 }
 
-void MySQLCopyDataTarget::get_generated_colums(const std::string &schema, const std::string &table, std::vector<std::string> &gc)
+void MySQLCopyDataTarget::get_generated_columns(const std::string &schema, const std::string &table, std::vector<std::string> &gc)
 {
   gc.clear();
   std::string q = base::strfmt("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s' AND EXTRA like '%%GENERATED%%';", base::unquote(schema).c_str(), base::unquote(table).c_str());
@@ -2037,7 +2036,7 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
 
         std::vector<std::string> generated_columns;
         if ( column_count > (int)columns->size())
-          get_generated_colums(schema, table, generated_columns);
+          get_generated_columns(schema, table, generated_columns);
         
         int gc_count = generated_columns.size();
         std::string target_name;
