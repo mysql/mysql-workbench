@@ -244,20 +244,20 @@ void ModelDiagramPanel::InlineEditor::set_multiline(bool flag)
 
 //--------------------------------------------------------------------------------
 
-ModelDiagramPanel *ModelDiagramPanel::create(wb::WBContextUI *wb)
+ModelDiagramPanel *ModelDiagramPanel::create()
 {
   Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("diagram_view.glade"));
 
   ModelDiagramPanel *panel = 0;
   xml->get_widget_derived("diagram_pane", panel);
-  panel->post_construct(wb);
+  panel->post_construct();
 
   return panel;
 }
 
 void ModelDiagramPanel::on_activate()
 {
-  mforms::View *sidebar = _wb->get_wb()->get_model_context()->shared_secondary_sidebar();
+  mforms::View *sidebar = wb::WBContextUI::get()->get_wb()->get_model_context()->shared_secondary_sidebar();
   Gtk::Widget *w = mforms::widget_for_view(sidebar);
   Gtk::Frame *secondary_sidebar;
   _xml->get_widget("sidebar_frame", secondary_sidebar);
@@ -275,7 +275,6 @@ ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, const Glib::RefPtr<Gtk::Bu
   , _tools_toolbar(0)
   , _vbox(0)
   , _diagram_hbox(0)
-  , _wb(0)
   , _be(0)
   , _canvas(0)
   , _cursor(0)
@@ -296,9 +295,8 @@ ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, const Glib::RefPtr<Gtk::Bu
 {
 }
 
-void ModelDiagramPanel::post_construct(wb::WBContextUI *wb)
+void ModelDiagramPanel::post_construct()
 {
-  _wb = wb;
   _diagram_hbox= 0;
   _xml->get_widget("diagram_hbox", _diagram_hbox);
   _top_box.show();
@@ -333,7 +331,7 @@ void ModelDiagramPanel::view_realized()
 
 void ModelDiagramPanel::init(const std::string &view_id)
 {
-  _be= _wb->get_wb()->get_model_context()->get_diagram_form_for_diagram_id(view_id);
+  _be= wb::WBContextUI::get()->get_wb()->get_model_context()->get_diagram_form_for_diagram_id(view_id);
   _be->set_frontend_data(dynamic_cast<FormViewBase*>(this));
   _canvas= Gtk::manage(new CanvasViewer(_be, false));//_wb->get_wb()->using_opengl()));
 
@@ -378,23 +376,23 @@ void ModelDiagramPanel::init(const std::string &view_id)
     note->append_page(*mforms::widget_for_view(_be->get_layer_tree()), *label);
     label->set_use_markup(true);
 
-    _usertypes_list= _wb->get_wb()->get_model_context()->create_user_type_list();
+    _usertypes_list= wb::WBContextUI::get()->get_wb()->get_model_context()->create_user_type_list();
     label = Gtk::manage(new Gtk::Label(_("<small>User Types</small>")));
     note->append_page(*mforms::widget_for_view(_usertypes_list), *label);
     label->set_use_markup(true);
 
     _xml->get_widget("side_model_note2", note);
-    _documentation_box= Gtk::manage(new DocumentationBox(_wb));
+    _documentation_box= Gtk::manage(new DocumentationBox());
     label = Gtk::manage(new Gtk::Label(_("<small>Description</small>")));
     note->append_page(*_documentation_box, *label);
     label->set_use_markup(true);
 
-    _properties_tree= Gtk::manage(new PropertiesTree(_wb));
+    _properties_tree= Gtk::manage(new PropertiesTree());
     label = Gtk::manage(new Gtk::Label(_("<small>Properties</small>")));
     note->append_page(*_properties_tree, *label);
     label->set_use_markup(true);
 
-    _history_list = _wb->get_wb()->get_model_context()->create_history_tree();
+    _history_list = wb::WBContextUI::get()->get_wb()->get_model_context()->create_history_tree();
     label = Gtk::manage(new Gtk::Label(_("<small>History</small>")));
     note->append_page(*mforms::widget_for_view(_history_list), *label);
     label->set_use_markup(true);

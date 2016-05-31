@@ -7,7 +7,6 @@
 #ifndef __MAIN_FORM_H__
 #define __MAIN_FORM_H__
 
-#include "workbench/wb_context.h"
 #include <gtkmm/window.h>
 #include <gtkmm/notebook.h>
 #include <gtkmm/progressbar.h>
@@ -17,15 +16,12 @@
 #include "mforms/dockingpoint.h"
 #include "base/notifications.h"
 
+#include "workbench/wb_context.h"
+
 namespace bec
 {
   class GRTManager;
 }
-
-namespace wb
-{
-class WBContextUI;
-};
 
 namespace Gtk
 {
@@ -56,7 +52,7 @@ public:
     TabOpenActive
   };
 
-  MainForm(wb::WBContextUI* ctx);
+  MainForm();
   ~MainForm();
   void setup_ui();
   Gtk::Window* get_mainwindow() const;
@@ -87,7 +83,6 @@ public:
 
   void exiting() { _exiting = true; }
   
-  wb::WBContextUI* get_wbui_context() const { return _wbui_context; }
 
 private:
   std::map<mdc::CanvasView*,ModelDiagramPanel*> _diagram_panel_list;
@@ -194,7 +189,6 @@ private:
 private:
   std::map<std::string, FormViewFactory> _form_view_factories;
 
-  wb::WBContextUI             *_wbui_context;
   
   ModelPanel                  *_model_panel;
   OverviewPanel               *_model_overview;   //!< Overview of the model, see overview_panel.h
@@ -239,7 +233,7 @@ private:
 #ifndef __MAIN_FORM_H__
 #define __MAIN_FORM_H__
 
-#include "workbench/wb_context.h"
+
 #include <gtkmm/window.h>
 #include <gtkmm/notebook.h>
 #include <gtkmm/progressbar.h>
@@ -253,11 +247,6 @@ namespace bec
 {
   class GRTManager;
 }
-
-namespace wb
-{
-class WBContextUI;
-};
 
 namespace Gtk
 {
@@ -288,7 +277,7 @@ public:
     TabOpenActive
   };
 
-  MainForm(wb::WBContextUI* ctx);
+  MainForm();
   ~MainForm();
   void setup_ui();
   Gtk::Window* get_mainwindow() const;
@@ -319,7 +308,6 @@ public:
 
   void exiting() { _exiting = true; }
   
-  wb::WBContextUI* get_wbui_context() const { return _wbui_context; }
 
 private:
   std::map<mdc::CanvasView*,ModelDiagramPanel*> _diagram_panel_list;
@@ -423,7 +411,6 @@ private:
 private:
   std::map<std::string, FormViewFactory> _form_view_factories;
 
-  wb::WBContextUI             *_wbui_context;
   
   ModelPanel                  *_model_panel;
   OverviewPanel               *_model_overview;   //!< Overview of the model, see overview_panel.h

@@ -27,6 +27,7 @@
 #include "active_label.h"
 // the rest, backend, etc ...
 #include "workbench/wb_context_ui.h"
+#include "workbench/wb_context.h"
 #include "model/wb_model_diagram_form.h"
 #include "workbench/wb_overview.h"
 #include "model/wb_context_model.h"
@@ -78,9 +79,7 @@ static Gdk::Color _sys_selection_color;
 
 //------------------------------------------------------------------------------
 // @ctx is passed from Program class, see Program::Program
-MainForm::MainForm(wb::WBContextUI* ctx)
-  : _wbui_context(ctx),
-    _exiting(false)
+MainForm::MainForm() : _exiting(false)
 {
   setup_mforms_app();
   
@@ -172,7 +171,7 @@ bool MainForm::close_window(GdkEventAny *ev)
     get_mainwindow()->hide();
     _wbui_context->perform_quit();
   }*/
-  _wbui_context->get_wb()->quit_application();
+  wb::WBContextUI::get()->get_wb()->quit_application();
   return true; // true means stop processing the event
 }
 //------------------------------------------------------------------------------
@@ -210,10 +209,10 @@ void MainForm::on_focus_widget(Gtk::Widget *w)
     }
     
     if (form)
-      _wbui_context->set_active_form(form);
+      wb::WBContextUI::get()->set_active_form(form);
   }
 
-  _wbui_context->get_command_ui()->revalidate_edit_menu_items();
+  wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
 
   // for updating the Edit menu
  //!!! Gtk::Alignment* menu_holder;
@@ -229,7 +228,7 @@ void MainForm::on_configure_window(GdkEventConfigure *conf)
     int x, y;
     get_mainwindow()->get_position(x, y);
     std::string geom = base::strfmt("%i %i %i %i", x, y, conf->width, conf->height);
-    _wbui_context->get_wb()->save_state("MainWindow", "geometry", geom);
+    wb::WBContextUI::get()->get_wb()->save_state("MainWindow", "geometry", geom);
   }
 }
 
@@ -240,14 +239,14 @@ void MainForm::on_window_state(GdkEventWindowState *conf)
   if (get_mainwindow()->is_visible() && (conf->changed_mask & GDK_WINDOW_STATE_MAXIMIZED))
   {
     if (conf->new_window_state & GDK_WINDOW_STATE_MAXIMIZED)
-      _wbui_context->get_wb()->save_state("MainWindow", "geometry", std::string("maximized"));
+      wb::WBContextUI::get()->get_wb()->save_state("MainWindow", "geometry", std::string("maximized"));
     else
     {
       int x, y, width, height;
       get_mainwindow()->get_position(x, y);
       get_mainwindow()->get_size(width, height);
       std::string geom = base::strfmt("%i %i %i %i", x, y, width, height);
-      _wbui_context->get_wb()->save_state("MainWindow", "geometry", geom);
+      wb::WBContextUI::get()->get_wb()->save_state("MainWindow", "geometry", geom);
     }
   }
 }
@@ -271,7 +270,7 @@ void MainForm::show()
 {
   Gtk::Window *window = get_mainwindow();
   // restore saved size/pos
-  std::string geom = _wbui_context->get_wb()->read_state("MainWindow", "geometry", std::string());
+  std::string geom = wb::WBContextUI::get()->get_wb()->read_state("MainWindow", "geometry", std::string());
   if (!geom.empty())
   {
     int x, y, width, height;
@@ -332,8 +331,8 @@ void MainForm::show_status_text_becb(const std::string& text)
 bool MainForm::quit_app_becb()
 {
   // close the model 1st
-  if (_wbui_context->get_wb()->can_close_document())
-    _wbui_context->get_wb()->close_document();
+  if (wb::WBContextUI::get()->get_wb()->can_close_document())
+    wb::WBContextUI::get()->get_wb()->close_document();
   else
     return false;
 
@@ -495,7 +494,7 @@ void MainForm::call_find()
     editor->show_find_panel(false);
     return;
   }
-  if (_wbui_context->get_active_context(true) != WB_CONTEXT_QUERY)
+  if (wb::WBContextUI::get()->get_active_context(true) != WB_CONTEXT_QUERY)
   {
     if (validate_find_replace())
       call_find_replace();
@@ -542,8 +541,8 @@ void MainForm::call_undo()
         return;
     }
 
-    if (_wbui_context->get_active_main_form() && _wbui_context->get_active_main_form()->can_undo())
-        _wbui_context->get_active_main_form()->undo();
+    if (wb::WBContextUI::get()->get_active_main_form() && wb::WBContextUI::get()->get_active_main_form()->can_undo())
+      wb::WBContextUI::get()->get_active_main_form()->undo();
 }
 
 
@@ -556,8 +555,8 @@ void MainForm::call_redo()
     return;
   }
 
-  if (_wbui_context->get_active_main_form() && _wbui_context->get_active_main_form()->can_redo())
-    _wbui_context->get_active_main_form()->redo();
+  if (wb::WBContextUI::get()->get_active_main_form() && wb::WBContextUI::get()->get_active_main_form()->can_redo())
+    wb::WBContextUI::get()->get_active_main_form()->redo();
 }
 
 
@@ -577,8 +576,8 @@ void MainForm::call_copy()
   GridView *gv = NULL;
   if (dynamic_cast<Gtk::Editable*>(focused))
       dynamic_cast<Gtk::Editable*>(focused)->copy_clipboard();
-  else if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_copy())
-    _wbui_context->get_active_form()->copy();
+  else if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_copy())
+    wb::WBContextUI::get()->get_active_form()->copy();
   else if ((gv = dynamic_cast<GridView*>(focused)))
     gv->copy();
 
@@ -599,8 +598,8 @@ void MainForm::call_cut()
 
   if (dynamic_cast<Gtk::Editable*>(focused))
     dynamic_cast<Gtk::Editable*>(focused)->cut_clipboard();
-  else if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_cut())
-    _wbui_context->get_active_form()->cut();
+  else if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_cut())
+    wb::WBContextUI::get()->get_active_form()->cut();
 }
 
 
@@ -617,8 +616,8 @@ void MainForm::call_paste()
 
   if (dynamic_cast<Gtk::Editable*>(focused))
       dynamic_cast<Gtk::Editable*>(focused)->paste_clipboard();
-  else if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_paste())
-    _wbui_context->get_active_form()->paste();
+  else if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_paste())
+    wb::WBContextUI::get()->get_active_form()->paste();
 }
 
 
@@ -635,8 +634,8 @@ void MainForm::call_delete()
 
   if (dynamic_cast<Gtk::Editable*>(focused))
     dynamic_cast<Gtk::Editable*>(focused)->delete_selection();
-  else if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_delete())
-    _wbui_context->get_active_form()->delete_selection();
+  else if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_delete())
+    wb::WBContextUI::get()->get_active_form()->delete_selection();
 }
 
 void MainForm::call_select_all()
@@ -649,13 +648,13 @@ void MainForm::call_select_all()
   }
   else if (dynamic_cast<Gtk::Editable*>(focused))
     dynamic_cast<Gtk::Editable*>(focused)->select_region(0, -1);
-  else if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_select_all())
-    _wbui_context->get_active_form()->select_all();
+  else if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_select_all())
+    wb::WBContextUI::get()->get_active_form()->select_all();
 }
 
 bool MainForm::validate_find()
 {
-  std::string context = _wbui_context->get_active_context();
+  std::string context = wb::WBContextUI::get()->get_active_context();
   
   if (context == WB_CONTEXT_MODEL || context == WB_CONTEXT_QUERY || context == WB_CONTEXT_PHYSICAL_OVERVIEW)
     return true;
@@ -668,7 +667,7 @@ bool MainForm::validate_undo()
   if (editor)
     return editor->can_undo();
 
-  bec::UIForm *form = _wbui_context->get_active_main_form();
+  bec::UIForm *form = wb::WBContextUI::get()->get_active_main_form();
   if (form)
     return form->can_undo();
   
@@ -681,7 +680,7 @@ bool MainForm::validate_redo()
   if (editor)
     return editor->can_redo();
 
-  bec::UIForm *form = _wbui_context->get_active_main_form();
+  bec::UIForm *form = wb::WBContextUI::get()->get_active_main_form();
   if (form)
     return form->can_redo();
   
@@ -695,7 +694,7 @@ bool MainForm::validate_copy()
   if (editor)
     return editor->can_copy();
 
-  if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_copy())
+  if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_copy())
     ret = true;
   else
   {
@@ -721,7 +720,7 @@ bool MainForm::validate_cut()
   if (editor)
     return editor->can_cut();
 
-  if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_copy())
+  if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_copy())
     ret = true;
   else
   {
@@ -740,7 +739,7 @@ bool MainForm::validate_paste()
   if (editor)
     return editor->can_paste();
 
-  if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_paste())
+  if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_paste())
     ret = true;
   else
   {
@@ -759,7 +758,7 @@ bool MainForm::validate_delete()
   if (editor)
     return editor->can_delete();
 
-  if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_delete())
+  if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_delete())
     ret = true;
   else
   {
@@ -784,7 +783,7 @@ bool MainForm::validate_select_all()
       return true;
   }
 
-  if (_wbui_context->get_active_form() && _wbui_context->get_active_form()->can_select_all())
+  if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_select_all())
     ret = true;
   else
   {
@@ -838,33 +837,33 @@ void MainForm::register_commands()
   commands.push_back("wb.toggleOutputArea");
 
 
-  _wbui_context->get_command_ui()->add_frontend_commands(commands);
+  wb::WBContextUI::get()->get_command_ui()->add_frontend_commands(commands);
 
-  _wbui_context->get_command_ui()->add_builtin_command("find_replace",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find_replace",
                                                make_slot(&MainForm::call_find_replace),
                                                make_slot(&MainForm::validate_find_replace));
-  _wbui_context->get_command_ui()->add_builtin_command("find",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find",
                                                make_slot(&MainForm::call_find),
                                                make_slot(&MainForm::validate_find));
-  _wbui_context->get_command_ui()->add_builtin_command("undo",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("undo",
                                                make_slot(&MainForm::call_undo),
                                                make_slot(&MainForm::validate_undo));
-  _wbui_context->get_command_ui()->add_builtin_command("redo",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("redo",
                                                make_slot(&MainForm::call_redo),
                                                make_slot(&MainForm::validate_redo));
-  _wbui_context->get_command_ui()->add_builtin_command("copy",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("copy",
                                                make_slot(&MainForm::call_copy),
                                                make_slot(&MainForm::validate_copy));
-  _wbui_context->get_command_ui()->add_builtin_command("cut",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("cut",
                                                make_slot(&MainForm::call_cut),
                                                make_slot(&MainForm::validate_cut));
-  _wbui_context->get_command_ui()->add_builtin_command("paste",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("paste",
                                                make_slot(&MainForm::call_paste),
                                                make_slot(&MainForm::validate_paste));
-  _wbui_context->get_command_ui()->add_builtin_command("delete",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("delete",
                                                make_slot(&MainForm::call_delete),
                                                make_slot(&MainForm::validate_delete));
-  _wbui_context->get_command_ui()->add_builtin_command("selectAll",
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("selectAll",
                                                make_slot(&MainForm::call_select_all),
                                                make_slot(&MainForm::validate_select_all));
 
@@ -923,9 +922,9 @@ void MainForm::perform_command_becb(const std::string& command)
 //------------------------------------------------------------------------------
 mdc::CanvasView* MainForm::create_view_becb(const model_DiagramRef &diagram)
 {
-  ModelDiagramPanel *model_panel= Gtk::manage(ModelDiagramPanel::create(_wbui_context));
+  ModelDiagramPanel *model_panel= Gtk::manage(ModelDiagramPanel::create());
 
-  model_panel->set_close_editor_callback(sigc::bind(sigc::ptr_fun(close_plugin), _wbui_context->get_wb()));
+  model_panel->set_close_editor_callback(sigc::bind(sigc::ptr_fun(close_plugin), wb::WBContextUI::get()->get_wb()));
 
   _signal_close_editor.connect(sigc::hide_return(sigc::mem_fun(model_panel, &ModelDiagramPanel::close_editors_for_object)));
 
@@ -996,7 +995,7 @@ void MainForm::switched_view_becb(mdc::CanvasView* view)
 {
   Gtk::Notebook *note= get_upper_note();
 
-  bec::UIForm *view_form= _wbui_context->get_wb()->get_model_context()->get_diagram_form(view);
+  bec::UIForm *view_form= wb::WBContextUI::get()->get_wb()->get_model_context()->get_diagram_form(view);
 
   for (int c= note->get_n_pages(), i= 1; i < c; i++)
   {
@@ -1067,7 +1066,7 @@ void MainForm::handle_notification(const std::string &name, void *sender, base::
   }
   else if (name == "GNFocusChanged")
   {
-    _wbui_context->get_command_ui()->revalidate_edit_menu_items();
+    wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
   }
 }
 
@@ -1103,7 +1102,7 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string& arg_id,
   {
   case wb::RefreshNeeded:
     {
-      _sig_flush_idle = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(_wbui_context->get_wb(), &wb::WBContext::flush_idle_tasks), false));
+      _sig_flush_idle = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(wb::WBContextUI::get()->get_wb(), &wb::WBContext::flush_idle_tasks), false));
       break;
     }
 
@@ -1111,9 +1110,9 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string& arg_id,
     {
       prepare_close_document();
 
-      _wbui_context->get_wb()->flush_idle_tasks();
+      wb::WBContextUI::get()->get_wb()->flush_idle_tasks();
 
-      _wbui_context->get_wb()->close_document_finish();
+      wb::WBContextUI::get()->get_wb()->close_document_finish();
 
       handle_model_closed();
     }
@@ -1148,7 +1147,7 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string& arg_id,
   
   case wb::RefreshOverviewNodeChildren:
   {
-    if (_model_panel && (arg_ptr == dynamic_cast<bec::UIForm*>(_wbui_context->get_physical_overview()) || arg_ptr == NULL))
+    if (_model_panel && (arg_ptr == dynamic_cast<bec::UIForm*>(wb::WBContextUI::get()->get_physical_overview()) || arg_ptr == NULL))
     {
       if (arg_id.empty())
       {
@@ -1162,7 +1161,7 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string& arg_id,
   
   case wb::RefreshDocument:
     {
-      get_mainwindow()->set_title(_wbui_context->get_title());
+      get_mainwindow()->set_title(wb::WBContextUI::get()->get_title());
 
       ///_model_sidebar.refresh_usertypes();
       break;
@@ -1186,7 +1185,7 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string& arg_id,
 
   case wb::RefreshNewModel:
     handle_model_created();
-    _wbui_context->get_wb()->new_model_finish();
+    wb::WBContextUI::get()->get_wb()->new_model_finish();
     break;
     
   case wb::RefreshZoom:
@@ -1245,10 +1244,10 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string& arg_id,
 
 void MainForm::handle_model_created()
 {
-  wb::OverviewBE* overview_be = _wbui_context->get_physical_overview();
+  wb::OverviewBE* overview_be = wb::WBContextUI::get()->get_physical_overview();
   // Create the model overview panel
-  _model_panel = ModelPanel::create(_wbui_context, overview_be);
-  _model_panel->set_close_editor_callback(sigc::bind(sigc::ptr_fun(close_plugin), _wbui_context->get_wb()));
+  _model_panel = ModelPanel::create(overview_be);
+  _model_panel->set_close_editor_callback(sigc::bind(sigc::ptr_fun(close_plugin), wb::WBContextUI::get()->get_wb()));
   _model_panel->get_overview()->get_be()->set_frontend_data(dynamic_cast<FormViewBase*>(_model_panel));
   _signal_close_editor.connect(sigc::hide_return(sigc::mem_fun(_model_panel, &ModelPanel::close_editors_for_object)));
 
@@ -1292,13 +1291,13 @@ void MainForm::switch_page(Gtk::Widget*, guint pagenum)
     page->show();
 
     bec::UIForm* uiform = static_cast<bec::UIForm*>(page->get_data("uiform"));
-    _wbui_context->set_active_form(uiform);
+    wb::WBContextUI::get()->set_active_form(uiform);
 
     FormViewBase *form = static_cast<FormViewBase*>(page->get_data("FormViewBase"));
     if (form)
       form->on_activate();
   }
-  _wbui_context->get_command_ui()->revalidate_edit_menu_items();
+  wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
 }
 
 
@@ -1306,7 +1305,7 @@ void MainForm::switch_page(Gtk::Widget*, guint pagenum)
 ModelDiagramPanel *MainForm::get_panel_for_view(mdc::CanvasView *view)
 {
   bec::UIForm *form;
-  if ((form= _wbui_context->get_wb()->get_model_context()->get_diagram_form(view)))
+  if ((form= wb::WBContextUI::get()->get_wb()->get_model_context()->get_diagram_form(view)))
     return dynamic_cast<ModelDiagramPanel*>(static_cast<FormViewBase*>(form->get_frontend_data()));
 
   return 0;
@@ -1720,7 +1719,7 @@ void MainForm::reset_layout()
 
 void MainForm::show_diagram_options()
 {
-  DiagramSizeForm *form= DiagramSizeForm::create(_wbui_context);
+  DiagramSizeForm *form= DiagramSizeForm::create();
 
   form->run();
 
@@ -1731,7 +1730,7 @@ void MainForm::show_diagram_options()
 
 void MainForm::show_page_setup()
 {
-  _wbui_context->get_wb()->execute_plugin("wb.print.setup");
+  wb::WBContextUI::get()->get_wb()->execute_plugin("wb.print.setup");
 }
 
 
@@ -1978,7 +1977,7 @@ void MainForm::dock_view(mforms::AppView *view, const std::string &position, int
       view->retain();
 
     if (!view->get_menubar())
-      view->set_menubar(mforms::manage(_wbui_context->get_command_ui()->create_menubar_for_context(view->is_main_form() ? view->get_form_context_name() : "")));
+      view->set_menubar(mforms::manage(wb::WBContextUI::get()->get_command_ui()->create_menubar_for_context(view->is_main_form() ? view->get_form_context_name() : "")));
 
     Gtk::Widget *decorated = reinterpret_cast<Gtk::Widget*>(w->get_data("DockDecoration"));
     if (!decorated)

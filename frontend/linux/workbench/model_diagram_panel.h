@@ -64,7 +64,6 @@ class ModelDiagramPanel : public Gtk::Paned, public FormViewBase
   Gtk::Box *_vbox;
   Gtk::Box *_diagram_hbox;
 
-  wb::WBContextUI *_wb;
   wb::ModelDiagramForm *_be;
   mdc::GtkCanvasScroller _scroller;
   mdc::GtkCanvas *_canvas;
@@ -95,12 +94,12 @@ class ModelDiagramPanel : public Gtk::Paned, public FormViewBase
 
   void view_realized();
 
-  void post_construct(wb::WBContextUI *wb);
+  void post_construct();
 
   sigc::connection    _sig_restore_sidebar;
 
 public:
-  static ModelDiagramPanel *create(wb::WBContextUI *wb);
+  static ModelDiagramPanel *create();
 
   ModelDiagramPanel(GtkPaned *paned, const Glib::RefPtr<Gtk::Builder> &xml);
 
