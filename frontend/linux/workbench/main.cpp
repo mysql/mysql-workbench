@@ -13,6 +13,7 @@
 #include "base/log.h"
 #include <gdk/gdkx.h>
 #include <iostream>
+#include "main_app.h"
 DEFAULT_LOG_DOMAIN("main")
 
 #if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
@@ -65,7 +66,8 @@ int main(int argc, char **argv)
     std::string script_name = argv[0];
     std::string termination = "-bin";
     
-    if (base::ends_with(script_name, termination))
+
+    if (base::hasSuffix(script_name, termination))
       script_name = base::left(script_name, script_name.length() - termination.length());
     
     std::cout << "To start MySQL Workbench, use " << script_name << " instead of " << argv[0] << std::endl;
@@ -92,20 +94,19 @@ int main(int argc, char **argv)
 
   #if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
   if (getenv("WB_NO_GNOME_KEYRING"))
-    log_info("WB_NO_GNOME_KEYRING environment variable has been set. Stored passwords will be lost once quit.\n");
+    logInfo("WB_NO_GNOME_KEYRING environment variable has been set. Stored passwords will be lost once quit.\n");
   else
   {
     if (!gnome_keyring_is_available())
     {
       setenv("WB_NO_GNOME_KEYRING", "1", 1);
-      log_error("Can't communicate with gnome-keyring, it's probably not running. Stored passwords will be lost once quit.\n");
+      logError("Can't communicate with gnome-keyring, it's probably not running. Stored passwords will be lost once quit.\n");
     }
   }
   #endif
 
   wb::WBOptions wboptions;
   wboptions.user_data_dir = user_data_dir;
-
 
   wboptions.basedir = getenv("MWB_DATA_DIR");
   wboptions.plugin_search_path = getenv("MWB_PLUGIN_DIR");
@@ -114,18 +115,32 @@ int main(int argc, char **argv)
 
   g_set_application_name("MySQL Workbench");
 
-  int retval = 0;
-  if (!wboptions.parse_args(argv, argc, &retval))
-    return retval;
 
-  if (getenv("WB_VERBOSE"))
-    wboptions.verbose = true;
+  Program program;
 
-  mforms::gtk::init(getenv("WB_FORCE_SYSTEM_COLORS") != NULL);
-  mforms::gtk::WizardImpl::set_icon_path(wboptions.basedir+"/images");
-  {
-    lf_record_grid_init();
-  }
+  runtime::app::get().parseParams = [&wboptions](int argc, char **argv, int *retval)->bool{
+    return wboptions.parse_args(argv, argc, retval);
+  };
+
+  runtime::app::get().onBeforeActivate = [&wboptions, &program]()-> bool{
+    if (getenv("WB_VERBOSE"))
+      wboptions.verbose = true;
+
+    mforms::gtk::init(getenv("WB_FORCE_SYSTEM_COLORS") != NULL);
+    mforms::gtk::WizardImpl::set_icon_path(wboptions.basedir+"/images");
+    {
+      lf_record_grid_init();
+    }
+
+    program.init(wboptions);
+
+    mforms::gtk::check();
+    return true;
+  };
+
+  runtime::app::get().showWbHelpCb = [&](const char* arg0) {
+    wboptions.show_help(arg0);
+  };
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -133,9 +148,18 @@ int main(int argc, char **argv)
     gdk_threads_enter();
 #pragma GCC diagnostic pop
 
-  Gtk::Main app(argc, argv);
+  runtime::app::get().init("com.mysql.workbench", argc, argv);
 
-//  Gtk::CssProvider::get_default()->load_from_path(wboptions.basedir+"/workbench.rc");
+  try
+  {
+
+    auto css = Gtk::CssProvider::create();
+    css->load_from_path(wboptions.basedir+"/workbench.css");
+    Gtk::StyleContext::add_provider_for_screen(Gdk::Screen::get_default(), css, GTK_STYLE_PROVIDER_PRIORITY_USER);
+  } catch (Glib::Error &err)
+  {
+    logError("Unable to load: %s, using system defaults.\n", std::string(wboptions.basedir+"/workbench.css").c_str());
+  }
   // Workbench doesn't support any other language than English, 
   // force text/window directon to be Left To Right.
   gtk_widget_set_default_direction(GTK_TEXT_DIR_LTR);
@@ -146,16 +170,14 @@ int main(int argc, char **argv)
     XSynchronize(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), 1);
   }
 
-  Program program(wboptions);
-  
-  mforms::gtk::check();
-  
+  int retval = 0;
   for (;;)
   {
     try
     {
-      app.run();
+      retval = runtime::app::get().run();
       break;
+
     }
     catch (const std::exception &exc)
     {
@@ -198,7 +220,7 @@ int main(int argc, char **argv)
     gdk_threads_leave();
 #pragma GCC diagnostic pop
 
-  return 0;
+  return retval;
 }
 
 
