@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 #ifndef _WIN32
-#if __GNUC__ < 5
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8 )
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-source-encoding"
 #endif
