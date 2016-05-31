@@ -9,13 +9,10 @@
 #include <gtkmm/box.h>
 #include <gtkmm/comboboxtext.h>
 #include <gtkmm/textview.h>
-
 #include "workbench/wb_context_ui.h"
-
 
 class DocumentationBox : public Gtk::Box
 {
-  wb::WBContextUI *_wbui;
   Gtk::ComboBoxText _combo;
   Gtk::TextView _text;
   sigc::connection _timer;
@@ -31,7 +28,7 @@ class DocumentationBox : public Gtk::Box
   void commit();
   
 public:
-  DocumentationBox(wb::WBContextUI *wbui);
+  DocumentationBox();
   ~DocumentationBox();
   
   void update_for_form(bec::UIForm *form);

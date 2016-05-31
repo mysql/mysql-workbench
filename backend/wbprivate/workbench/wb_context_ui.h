@@ -78,7 +78,7 @@ namespace wb {
   class MYSQLWBBACKEND_PUBLIC_FUNC WBContextUI : public base::trackable
   {
   public:
-    static WBContextUI *get(); // Singleton.
+    static std::shared_ptr<WBContextUI> get(); // Singleton.
     virtual ~WBContextUI();
 
     bool init(WBFrontendCallbacks *callbacks, WBOptions *options);
@@ -166,8 +166,8 @@ namespace wb {
   private:
     friend class WBContext;
     WBContextUI(); // Enforce singleton model.
-    WBContextUI(const WBContextUI&);
-    WBContextUI& operator = (const WBContextUI &);
+    WBContextUI(const WBContextUI&) = delete;
+    WBContextUI& operator = (const WBContextUI &) = delete;
 
     void load_app_options(bool update);
 

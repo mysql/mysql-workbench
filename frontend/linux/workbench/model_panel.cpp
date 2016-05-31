@@ -37,7 +37,7 @@
 
 bool ModelPanel::on_close()
 {
-  bool has_changes = _wb->get_wb()->has_unsaved_changes();
+  bool has_changes = wb::WBContextUI::get()->get_wb()->has_unsaved_changes();
   _overview->on_close(); 
   return !has_changes;
 }
@@ -45,7 +45,7 @@ bool ModelPanel::on_close()
 
 void ModelPanel::on_activate()
 {
-  mforms::View *sidebar = _wb->get_wb()->get_model_context()->shared_secondary_sidebar();
+  mforms::View *sidebar = wb::WBContextUI::get()->get_wb()->get_model_context()->shared_secondary_sidebar();
   Gtk::Widget *w = mforms::widget_for_view(sidebar);
   if (w->get_parent())
     gtk_reparent_realized(w,_secondary_sidebar);
@@ -55,20 +55,20 @@ void ModelPanel::on_activate()
 }
 
 
-ModelPanel *ModelPanel::create(wb::WBContextUI *wb, wb::OverviewBE *overview)
+ModelPanel *ModelPanel::create(wb::OverviewBE *overview)
 {
   Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("model_view.glade"));
 
   ModelPanel *panel = 0;
   xml->get_widget_derived("top_vbox", panel);
-  panel->post_construct(wb, overview);
+  panel->post_construct(overview);
   
   return panel;
 }
 
 
 ModelPanel::ModelPanel(GtkBox *cobject, const Glib::RefPtr<Gtk::Builder> &xml)
-  : Gtk::Box(cobject), FormViewBase("ModelOverview"), _wb(0), _overview(0),
+  : Gtk::Box(cobject), FormViewBase("ModelOverview"), _overview(0),
     _editor_paned(0), _sidebar(0), _secondary_sidebar(0),
     _history_tree(0), _usertypes_box(0), _documentation_box(0)
 #ifdef COMMERCIAL_CODE
@@ -79,9 +79,8 @@ ModelPanel::ModelPanel(GtkBox *cobject, const Glib::RefPtr<Gtk::Builder> &xml)
   _pending_rebuild_overview = false;
 }
 
-void ModelPanel::post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview)
+void ModelPanel::post_construct(wb::OverviewBE *overview)
 {
-  _wb= wb;
   _toolbar = overview->get_toolbar();
   {
     mforms::MenuBar *menubar = overview->get_menubar();
@@ -98,7 +97,7 @@ void ModelPanel::post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview)
  
   _builder->get_widget("sidebar_frame", _secondary_sidebar);
 
-  _overview = Gtk::manage(new OverviewPanel(wb, overview));
+  _overview = Gtk::manage(new OverviewPanel(overview));
   
   _builder->get_widget("editor_tab", _editor_note);
   _builder->get_widget("content", _editor_paned);
@@ -117,18 +116,18 @@ void ModelPanel::post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview)
   Gtk::Label *label;
 
   _builder->get_widget("side_model_note0", note);
-  _documentation_box= Gtk::manage(new DocumentationBox(wb));
+  _documentation_box= Gtk::manage(new DocumentationBox());
   label = Gtk::manage(new Gtk::Label(_("<small>Description</small>")));
   note->append_page(*_documentation_box, *label);
   label->set_use_markup(true);
 
   _builder->get_widget("side_model_note1", note);
-  _usertypes_box= wb->get_wb()->get_model_context()->create_user_type_list();
+  _usertypes_box= wb::WBContextUI::get()->get_wb()->get_model_context()->create_user_type_list();
   label = Gtk::manage(new Gtk::Label(_("<small>User Types</small>")));
   note->append_page(*mforms::widget_for_view(_usertypes_box), *label);
   label->set_use_markup(true);
 
-  _history_tree= wb->get_wb()->get_model_context()->create_history_tree();
+  _history_tree= wb::WBContextUI::get()->get_wb()->get_model_context()->create_history_tree();
   label = Gtk::manage(new Gtk::Label(_("<small>History</small>")));
   note->append_page(*mforms::widget_for_view(_history_tree), *label);
   label->set_use_markup(true);

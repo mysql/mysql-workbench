@@ -26,6 +26,7 @@
 
 #include "base/string_utilities.h"
 #include "base/log.h"
+#include "main_app.h"
 
 using base::strfmt;
 
@@ -37,12 +38,14 @@ Program* Program::_instance = 0;
 
 static void flush_main_thread()
 {
+
   while (Gtk::Main::events_pending())
   {
     if (Gtk::Main::iteration(false))
     {
       // return value of true means quit() was called 
-      Gtk::Main::quit();
+      // with gtk3 we're handling this different way
+      // no need to call Gtk::quit here
       break;
     }
   }
@@ -50,12 +53,14 @@ static void flush_main_thread()
 
 DEFAULT_LOG_DOMAIN("Program")
 //------------------------------------------------------------------------------
-Program::Program(wb::WBOptions &wboptions)
+Program::Program() : _main_form(nullptr) {};
+
+
+void Program::init(wb::WBOptions &wboptions)
 {
   _instance = this;
   // Setup backend stuff
-  _wb_context_ui = new wb::WBContextUI(wboptions.verbose);
-  _wb_context = _wb_context_ui->get_wb();
+//  _wb_context_ui = new wb::WBContextUI(wboptions.verbose);
 
 
 #ifdef ENBLE_DEBUG
@@ -93,10 +98,10 @@ Program::Program(wb::WBOptions &wboptions)
     exit(1);
   }
 
-  bec::GRTManager::get().set_datadir(getenv("MWB_DATA_DIR"));
+  bec::GRTManager::get()->set_datadir(getenv("MWB_DATA_DIR"));
 
   // Main form holds UI code, Glade wrapper, etc ...
-  _main_form = new MainForm(_wb_context_ui);
+  _main_form = new MainForm();
 
   // Define a set of methods which backend can call to interact with user and frontend
   wb::WBFrontendCallbacks wbcallbacks;
@@ -135,13 +140,13 @@ Program::Program(wb::WBOptions &wboptions)
       {
         if (!base::copyDirectoryRecursive(std::string(g_get_home_dir()).append("/.mysql/workbench"), wboptions.user_data_dir))
         {
-          log_error("Unable to prepare new config directory: %s\n", wboptions.user_data_dir.c_str());
+          logError("Unable to prepare new config directory: %s\n", wboptions.user_data_dir.c_str());
           exit(1);
         }
       }
       catch (std::exception &exc)
       {
-        log_error("There was a problem preparing new config directory. The error was: %s\n", exc.what());
+        logError("There was a problem preparing new config directory. The error was: %s\n", exc.what());
         exit(1);
       }
     }
@@ -149,15 +154,14 @@ Program::Program(wb::WBOptions &wboptions)
   else
     wboptions.user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
 
-  _wb_context_ui->init(&wbcallbacks, &wboptions);
-
-  bec::GRTManager::get().get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
+  wb::WBContextUI::get()->init(&wbcallbacks, &wboptions);
+  bec::GRTManager::get()->get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
 
   {
     std::string form_name;
     sigc::slot<FormViewBase*, std::shared_ptr<bec::UIForm> > form_creator;
 
-    setup_sqlide(_wb_context_ui, form_name, form_creator);
+    setup_sqlide(form_name, form_creator);
 
     _main_form->register_form_view_factory(form_name, form_creator);
   }
@@ -174,16 +178,13 @@ Program::Program(wb::WBOptions &wboptions)
 //------------------------------------------------------------------------------
 Program::~Program()
 { 
-  delete _wb_context_ui;
-  _wb_context = NULL;
 }
 
 
 void Program::finalize_initialization(wb::WBOptions *options)
 {
   _main_form->show();
-  
-  _wb_context_ui->init_finish(options);
+  wb::WBContextUI::get()->init_finish(options);
 }
 
 
@@ -192,24 +193,26 @@ bool Program::idle_stuff()
 {
   // if there are tasks to be executed, schedule it to be done when idle so that the timer
   // doesn't get blocked during its execution
-  _idleConnections.push_back(Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(_wb_context, &wb::WBContext::flush_idle_tasks), false)));
+  _idleConnections.push_back(Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(wb::WBContextUI::get()->get_wb(), &wb::WBContext::flush_idle_tasks), false)));
   return true;
 }
 
 
 void Program::shutdown()
 {
+  if (_instance == nullptr) //there was no initialization
+    return;
+
   _main_form->exiting();
   
-  _wb_context_ui->finalize();
+  wb::WBContextUI::get()->finalize();
   
   //sigc::connection conn(idle_signal_conn);
   _sig_finalize_initialization.disconnect();
   _idle_signal_conn.disconnect();
   
-  bec::GRTManager::get().terminate();
-
-  bec::GRTManager::get().get_dispatcher()->shutdown();
+  bec::GRTManager::get()->terminate();
+  bec::GRTManager::get()->get_dispatcher()->shutdown();
 
   for (std::deque<sigc::connection>::iterator it = _idleConnections.begin(); it != _idleConnections.end(); it++)
     (*it).disconnect();

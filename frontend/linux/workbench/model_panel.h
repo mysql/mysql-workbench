@@ -11,7 +11,6 @@
 #include "linux_utilities/form_view_base.h"
 
 #include "workbench/wb_overview.h"
-#include "workbench/wb_context_ui.h"
 
 class OverviewPanel;
 class DocumentationBox;
@@ -27,7 +26,7 @@ namespace mforms
 class ModelPanel : public Gtk::Box, public FormViewBase
 {
 public:
-  static ModelPanel *create(wb::WBContextUI *wb, wb::OverviewBE *overview);
+  static ModelPanel *create(wb::OverviewBE *overview);
   ~ModelPanel();
   
   virtual bool on_close();
@@ -45,7 +44,6 @@ public:
   virtual void restore_sidebar_layout();
 
 private:
-  wb::WBContextUI *_wb;
   OverviewPanel *_overview;
   Gtk::Paned *_editor_paned;
   Gtk::Widget *_sidebar;
@@ -63,7 +61,7 @@ private:
 
   friend class Gtk::Builder;
   ModelPanel(GtkBox *cobject, const Glib::RefPtr<Gtk::Builder> &xml);
-  void post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview);
+  void post_construct(wb::OverviewBE *overview);
 
   void resize_overview();
   bool do_resize_overview();

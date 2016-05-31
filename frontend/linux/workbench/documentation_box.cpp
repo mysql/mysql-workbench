@@ -4,12 +4,13 @@
 #include "grt/common.h"
 #include "grtpp_util.h"
 #include <glibmm/main.h>
+#include "workbench/wb_context_ui.h"
 
 #define TIMER_INTERVAL 700
 
 
-DocumentationBox::DocumentationBox(wb::WBContextUI *wbui)
-  : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _wbui(wbui), _multiple_items(false)
+DocumentationBox::DocumentationBox()
+  : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _multiple_items(false)
 {
   pack_start(_combo, false, false);
   
@@ -49,9 +50,9 @@ void DocumentationBox::update_for_form(bec::UIForm *form)
   _selected_form= form;
 
   if (form)
-    description = _wbui->get_description_for_selection(form, new_object_list, items);
+    description = wb::WBContextUI::get()->get_description_for_selection(form, new_object_list, items);
   else
-    description = _wbui->get_description_for_selection(new_object_list, items);
+    description = wb::WBContextUI::get()->get_description_for_selection(new_object_list, items);
   
   // update only if selection was changed
   if (!grt::compare_list_contents(_object_list, new_object_list))
@@ -106,7 +107,7 @@ void DocumentationBox::commit()
   puts("COMMIT");
   _timer.disconnect();
 
-  _wbui->set_description_for_selection(_object_list, _text.get_buffer()->get_text());
+  wb::WBContextUI::get()->set_description_for_selection(_object_list, _text.get_buffer()->get_text());
 }
 
 
