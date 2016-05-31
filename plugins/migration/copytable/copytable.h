@@ -350,7 +350,7 @@ class MySQLCopyDataTarget
   std::string ps_query();
   enum enum_field_types field_type_to_ps_param_type(enum enum_field_types ftype);
 
-  void get_generated_colums(const std::string &schema, const std::string &table, std::vector<std::string> &gc);
+  void get_generated_columns(const std::string &schema, const std::string &table, std::vector<std::string> &gc);
 
 public:
   MySQLCopyDataTarget(const std::string &hostname, int port,
