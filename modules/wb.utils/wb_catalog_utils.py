@@ -147,7 +147,7 @@ def prefixTables(cat):
 @ModuleInfo.plugin('wb.util.changeStorageEngines', caption='Change the Storage Engine of All Tables', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'])
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def changeStorageEngines(cat):
-     ret, prefix = mforms.Utilities.request_input("Change the Storage Engine of All Tables", "Type the new storage engine name:", "")
+     ret, new_engine = mforms.Utilities.request_input("Change the Storage Engine of All Tables", "Type the new storage engine name:", "")
      
      if not ret:
          return 1
