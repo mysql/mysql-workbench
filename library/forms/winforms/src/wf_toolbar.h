@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,6 +74,7 @@ namespace MySQL {
       static void set_item_alt_icon(mforms::ToolBarItem *item, const std::string &path);
       static void set_item_text(mforms::ToolBarItem *item, const std::string &text);
       static std::string get_item_text(mforms::ToolBarItem *item);
+      static void set_item_name(ToolBarItem *item, const std::string&);
       static void set_item_enabled(mforms::ToolBarItem *item, bool state);
       static bool get_item_enabled(mforms::ToolBarItem *item);
       static void set_item_checked(mforms::ToolBarItem *item, bool state);
