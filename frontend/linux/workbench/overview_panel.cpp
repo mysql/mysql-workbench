@@ -955,9 +955,8 @@ public:
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-OverviewPanel::OverviewPanel(wb::WBContextUI *wb, wb::OverviewBE *overview)
+OverviewPanel::OverviewPanel(wb::OverviewBE *overview)
   : _container(Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0)))
-  , _wb(wb)
   , _overview_be(overview)
 {
   add(*_container);
@@ -1480,6 +1479,6 @@ void OverviewPanel::item_popup_menu(const Gtk::TreeModel::Path &path, guint32 ti
   
   bec::MenuItemList menuitems = _overview_be->get_popup_items_for_nodes(nodes);
   if (!menuitems.empty())
-    run_popup_menu(menuitems, time, sigc::mem_fun(_wb->get_command_ui(), (void(wb::CommandUI::*)(const std::string&))&wb::CommandUI::activate_command), &_context_menu);
+    run_popup_menu(menuitems, time, sigc::mem_fun(wb::WBContextUI::get()->get_command_ui(), (void(wb::CommandUI::*)(const std::string&))&wb::CommandUI::activate_command), &_context_menu);
 }
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -201,7 +201,6 @@ class PropertyInspector : public Gtk::ScrolledWindow
 //==============================================================================
 class PropertiesTree : public Gtk::Box
 {  
-  wb::WBContextUI       *_wb;
   bec::ValueInspectorBE *_inspector;
   PropertyInspector      _inspector_view;
 
@@ -212,7 +211,7 @@ class PropertiesTree : public Gtk::Box
 
   void refresh();  
 public:
-  PropertiesTree(wb::WBContextUI *wb);
+  PropertiesTree();
   virtual ~PropertiesTree();
   
   void update();

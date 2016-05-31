@@ -28,8 +28,8 @@ class DiagramSizeForm : public Gtk::Dialog, public base::trackable
   mdc::GtkCanvas *_canvas;
   wb::DiagramOptionsBE *_be;
 
-  void realize_be(wb::WBContextUI *wbui);
-  void init(wb::WBContextUI *wb);
+  void realize_be();
+  void init();
   void spin_changed();
   void changed();
   void ok_clicked();
@@ -37,7 +37,7 @@ public:
   DiagramSizeForm(GtkDialog *gobj, Glib::RefPtr<Gtk::Builder> xml);
   virtual ~DiagramSizeForm();
 
-  static DiagramSizeForm *create(wb::WBContextUI *wb);
+  static DiagramSizeForm *create();
 };
 
 

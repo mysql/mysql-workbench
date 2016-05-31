@@ -26,7 +26,7 @@ class MultiView;
 class OverviewPanel : public Gtk::ScrolledWindow
 {
 public:
-  OverviewPanel(wb::WBContextUI *wb, wb::OverviewBE *overview);
+  OverviewPanel(wb::OverviewBE *overview);
 
   void reset();
   void rebuild_all();
@@ -52,7 +52,6 @@ private:
 
   std::map<std::string, OverviewGroupContainer*> _group_containers_by_id;
   std::map<std::string, OverviewItemContainer*> _item_containers_by_id;
-  wb::WBContextUI *_wb;
 
   wb::OverviewBE *_overview_be;
   

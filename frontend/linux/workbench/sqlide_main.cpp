@@ -28,9 +28,9 @@ static FormViewBase *create_db_sql_editor_view(std::shared_ptr<bec::UIForm> form
 
 
 
-void setup_sqlide(wb::WBContextUI *wbui,
-                  std::string &name, sigc::slot<FormViewBase*, std::shared_ptr<bec::UIForm> > &create_function)
+void setup_sqlide(std::string &name, sigc::slot<FormViewBase*, std::shared_ptr<bec::UIForm> > &create_function)
 {
   name= WB_MAIN_VIEW_DB_QUERY;
-  create_function= sigc::bind(sigc::ptr_fun(create_db_sql_editor_view), wbui->get_wb());
+
+  create_function= sigc::bind(sigc::ptr_fun(create_db_sql_editor_view), wb::WBContextUI::get()->get_wb());
 }

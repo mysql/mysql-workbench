@@ -43,9 +43,9 @@ void DiagramSizeForm::changed()
 }
 
 
-void DiagramSizeForm::realize_be(wb::WBContextUI *wbui)
+void DiagramSizeForm::realize_be()
 {
-  _be= wbui->create_diagram_options_be(_canvas->get_canvas());
+  _be= wb::WBContextUI::get()->create_diagram_options_be(_canvas->get_canvas());
   _be->update_size();
   
   scoped_connect(_be->signal_changed(),sigc::mem_fun(this, &DiagramSizeForm::changed));
@@ -79,7 +79,7 @@ void DiagramSizeForm::ok_clicked()
 }
 
 
-void DiagramSizeForm::init(wb::WBContextUI *wbui)
+void DiagramSizeForm::init()
 {  
   Gtk::Frame *frame= 0;
 
@@ -89,11 +89,11 @@ void DiagramSizeForm::init(wb::WBContextUI *wbui)
   frame->add(*_canvas);
   _canvas->show();
 
-  _canvas->signal_realize().connect_notify(sigc::bind(sigc::mem_fun(this, &DiagramSizeForm::realize_be), wbui));
+  _canvas->signal_realize().connect_notify(sigc::mem_fun(this, &DiagramSizeForm::realize_be));
 }
 
 
-DiagramSizeForm *DiagramSizeForm::create(wb::WBContextUI *wbui)
+DiagramSizeForm *DiagramSizeForm::create()
 {
   Glib::RefPtr<Gtk::Builder> ui= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("diagram_size_form.glade"));
   
@@ -102,7 +102,7 @@ DiagramSizeForm *DiagramSizeForm::create(wb::WBContextUI *wbui)
   ui->get_widget_derived<DiagramSizeForm>("dialog", panel);
 
   if (panel)
-    panel->init(wbui);
+    panel->init();
 
   return panel;
 }

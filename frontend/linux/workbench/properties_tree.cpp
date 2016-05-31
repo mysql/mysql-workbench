@@ -26,6 +26,7 @@
 #include "grt/grt_value_inspector.h"
 #include <boost/lexical_cast.hpp>
 
+#include "workbench/wb_context_ui.h"
 //------------------------------------------------------------------------------
 PropertyValue::PropertyValue(PropertyInspector* owner, const bec::NodeId& node)
               : _owner(owner)
@@ -450,8 +451,8 @@ void PropertyInspector::edit_canceled()
 }
 
 //------------------------------------------------------------------------------
-PropertiesTree::PropertiesTree(wb::WBContextUI *wb)
-  : Gtk::Box(Gtk::ORIENTATION_VERTICAL), _wb(wb), _inspector(0)
+PropertiesTree::PropertiesTree()
+  : Gtk::Box(Gtk::ORIENTATION_VERTICAL), _inspector(0)
 {
   pack_start(_inspector_view, true, true);
 
@@ -471,10 +472,10 @@ PropertiesTree::~PropertiesTree()
 void PropertiesTree::update()
 {
   std::vector<std::string> items;
-  
+
   delete _inspector;
   _inspector = 0;
-  _inspector = _wb->create_inspector_for_selection(_wb->get_active_main_form(), items);
+  _inspector = wb::WBContextUI::get()->create_inspector_for_selection(wb::WBContextUI::get()->get_active_main_form(), items);
   
   _inspector_view.clear();
   if (_inspector)
