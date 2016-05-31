@@ -998,6 +998,11 @@ static std::string get_item_text(ToolBarItem *item)
   return [tbitem stringValue].UTF8String ?: "";
 }
 
+static void set_item_name(ToolBarItem *item, const std::string &name)
+{
+  // This is dummy function to silent warnings
+}
+
 static void set_item_enabled(ToolBarItem *item, bool flag)
 {
   id tbitem = item->get_data();
@@ -1073,6 +1078,7 @@ void cf_toolbar_init()
   f->_tool_bar_impl.set_item_alt_icon = set_item_alt_icon;
   f->_tool_bar_impl.set_item_text = set_item_text;
   f->_tool_bar_impl.get_item_text = get_item_text;
+  f->_tool_bar_impl.set_item_name = set_item_name;
   f->_tool_bar_impl.set_item_enabled = set_item_enabled;
   f->_tool_bar_impl.get_item_enabled = get_item_enabled;
   f->_tool_bar_impl.set_item_checked = set_item_checked;

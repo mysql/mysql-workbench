@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -311,6 +311,18 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
       break;
     }
 
+  case mforms::TextEntryItem:
+  {
+    ToolStripTextBox ^box = ViewWrapper::Create<ToolStripTextBox>(backend, this);
+    box->Enabled = true;
+    box->AutoSize = false;
+    box->Size = Size(60, 20);
+    box->TextBox->MaximumSize = Size(60, 20);
+    box->KeyPress += gcnew KeyPressEventHandler(eventTarget, &ToolbarItemEventTarget::OnKeyPress);
+    item = box;
+    break;
+  }
+
   case mforms::LabelItem:
     {
       ToolStripLabel ^label = ToolBarItemWrapper::Create<ToolStripLabel>(backend, this);
@@ -355,6 +367,19 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
       break;
     }
 
+  case mforms::FlatSelectorItem:
+    {
+      ToolStripDropDownButton^ selector = ViewWrapper::Create<ToolStripDropDownButton>(backend, this);
+      ToolStripDropDown^ dropdown = gcnew ToolStripDropDown();
+      dropdown->BackColor = Color::DarkGray;
+      selector->DropDown = dropdown;
+      selector->DisplayStyle = ToolStripItemDisplayStyle::Text;
+      selector->BackColor = Color::DarkGray;
+      selector->Font = ControlUtilities::GetFont("Microsoft Sans Serif", 8.25f);
+      selector->Margin = Padding(2, 3, 2, 3);
+      item = selector;
+      break;
+    }
   case mforms::SelectorItem:
     {
       ToolStripComboBox^ selector = ViewWrapper::Create<ToolStripComboBox>(backend, this);
@@ -397,6 +422,15 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
       item = label;
       break;
     }
+
+  case mforms::SwitcherItem:
+  {
+    ToolStripButton ^button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
+    button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation);
+    button->ForeColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, true);
+    item = button;
+    break;
+  }
 
   default:
     throw std::runtime_error(base::strfmt("Internal error: unimplemented toolbar item type requested (%i).", (int) type));
@@ -557,7 +591,7 @@ bool ToolBarWrapper::create_tool_bar(mforms::ToolBar *backend, mforms::ToolBarTy
       catch (System::ArgumentException^ e)
       {
         // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-        log_error("ToolBarWrapper::create_tool_bar failed. %s\n", e->Message);
+        logError("ToolBarWrapper::create_tool_bar failed. %s\n", e->Message);
       }
 
       toolstrip->BackColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, false);
@@ -715,6 +749,13 @@ std::string ToolBarWrapper::get_item_text(mforms::ToolBarItem *item)
 
 //--------------------------------------------------------------------------------------------------
 
+void ToolBarWrapper::set_item_name(ToolBarItem *item, const std::string& name)
+{
+  // This is dummy function to silent warnings
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void ToolBarWrapper::set_item_enabled(mforms::ToolBarItem *item, bool state)
 {
   ToolStripItem ^native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
@@ -773,6 +814,28 @@ void ToolBarWrapper::set_selector_items(mforms::ToolBarItem *item, const std::ve
         combobox->Items->AddRange(list.ToArray());
         if (combobox->Items->Count > 0)
           combobox->SelectedIndex = 0;
+      }
+      break;
+    }
+  case mforms::FlatSelectorItem:
+    {
+      ToolStripDropDownButton ^selector = ToolBarWrapper::GetManagedObject<ToolStripDropDownButton>(item);
+      if (selector != nullptr)
+      {
+        List<ToolStripButton^> buttons = gcnew List<ToolStripButton^>();
+        for (std::vector<std::string>::const_iterator iterator = values.begin(); iterator != values.end(); iterator++)
+        {
+          String ^text = CppStringToNative(*iterator);
+          ToolStripButton ^button = gcnew ToolStripButton();
+          button->DisplayStyle = ToolStripItemDisplayStyle::Text;
+          ToolBarItemWrapper *wrapper = item->get_data<ToolBarItemWrapper>();
+          button->Text = text;
+          button->Tag = selector;
+          wrapper->RegisterDropDown(button);
+          buttons.Add(button);
+        }
+        selector->DropDown->Items->Clear();
+        selector->DropDown->Items->AddRange(buttons.ToArray());
       }
       break;
     }
@@ -839,6 +902,7 @@ void ToolBarWrapper::init()
   f->_tool_bar_impl.set_item_alt_icon = &ToolBarWrapper::set_item_alt_icon;
   f->_tool_bar_impl.set_item_text = &ToolBarWrapper::set_item_text;
   f->_tool_bar_impl.get_item_text = &ToolBarWrapper::get_item_text;
+  f->_tool_bar_impl.set_item_name = &ToolBarWrapper::set_item_name;
   f->_tool_bar_impl.set_item_enabled = &ToolBarWrapper::set_item_enabled;
   f->_tool_bar_impl.get_item_enabled = &ToolBarWrapper::get_item_enabled;
   f->_tool_bar_impl.set_item_checked = &ToolBarWrapper::set_item_checked;
