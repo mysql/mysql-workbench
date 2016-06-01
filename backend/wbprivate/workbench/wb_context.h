@@ -209,7 +209,7 @@ namespace wb {
     friend class WBContextUI;
 
    public:
-    WBContext(WBContextUI *ui, bool verbose = false);
+    WBContext(bool verbose = false);
     virtual ~WBContext();
 
     bool software_rendering_enforced();
@@ -220,7 +220,6 @@ namespace wb {
     void finalize();
     
     bool is_commercial();
-    WBContextUI *get_ui() { return _uicontext; }
 
     bec::UIForm *get_active_form();
     bec::UIForm *get_active_main_form();

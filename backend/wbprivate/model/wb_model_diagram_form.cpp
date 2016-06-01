@@ -97,7 +97,7 @@ ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &v
   _tool= DEFAULT_TOOL;
 
   _paste_offset= 0;
-  _shortcuts= owner->get_wb()->get_ui()->get_command_ui()->get_shortcuts_for_context(WB_CONTEXT_MODEL);
+  _shortcuts = WBContextUI::get()->get_command_ui()->get_shortcuts_for_context(WB_CONTEXT_MODEL);
 
   scoped_connect(owner->get_wb()->get_clipboard()->signal_changed(), boost::bind(&ModelDiagramForm::clipboard_changed, this));
   
@@ -153,7 +153,7 @@ mforms::ToolBar *ModelDiagramForm::get_toolbar()
 {
   if (!_toolbar)
   {
-    _toolbar = get_wb()->get_ui()->get_command_ui()->create_toolbar("data/model_diagram_toolbar.xml");
+    _toolbar = WBContextUI::get()->get_command_ui()->create_toolbar("data/model_diagram_toolbar.xml");
     update_toolbar_icons();
   }
   return _toolbar;
@@ -203,7 +203,7 @@ mforms::TreeView *ModelDiagramForm::get_layer_tree()
 {
   if (!_layer_tree)
   {
-    _layer_tree = new LayerTree(get_wb()->get_ui(), this, _model_diagram);
+    _layer_tree = new LayerTree(this, _model_diagram);
     _layer_tree->refresh();
   }
   return _layer_tree;
@@ -278,7 +278,7 @@ mforms::MenuBar *ModelDiagramForm::get_menubar()
 {
   if (!_menu)
   {
-    _menu = _owner->get_wb()->get_ui()->get_command_ui()->create_menubar_for_context(WB_CONTEXT_MODEL);
+    _menu = WBContextUI::get()->get_command_ui()->create_menubar_for_context(WB_CONTEXT_MODEL);
     scoped_connect(_menu->signal_will_show(),boost::bind(&ModelDiagramForm::revalidate_menu, this));
     
     mforms::MenuItem *item = _menu->find_item("wb.edit.editSelectedFigure");
@@ -888,7 +888,7 @@ void ModelDiagramForm::handle_mouse_button(mdc::MouseButton button, bool press, 
       
       _context_menu.clear();
       _context_menu.add_items_from_list(items);
-      _context_menu.set_handler(boost::bind(&CommandUI::activate_command, get_wb()->get_ui()->get_command_ui(), _1));
+      _context_menu.set_handler(boost::bind(&CommandUI::activate_command, wb::WBContextUI::get()->get_command_ui(), _1));
       
       _context_menu.popup_at(NULL, x, y);
     }
@@ -994,7 +994,7 @@ bool ModelDiagramForm::handle_key(const mdc::KeyInfo &key, bool press, mdc::Even
         else if (iter->command == "zoomdefault")
           set_zoom(1);
         else
-          get_wb()->get_ui()->get_command_ui()->activate_command(iter->command);
+          wb::WBContextUI::get()->get_command_ui()->activate_command(iter->command);
         return true;
       }
     }

@@ -506,7 +506,7 @@ mforms::ToolBar *PhysicalOverviewBE::get_toolbar()
 {
   if (!_toolbar)
   {
-    _toolbar = _wb->get_ui()->get_command_ui()->create_toolbar("data/model_toolbar.xml");
+    _toolbar = wb::WBContextUI::get()->get_command_ui()->create_toolbar("data/model_toolbar.xml");
     update_toolbar_icons();
   }
   return _toolbar;
@@ -620,7 +620,7 @@ mforms::MenuBar *PhysicalOverviewBE::get_menubar()
 {
   if (!_menu)
   {
-    _menu = _wb->get_ui()->get_command_ui()->create_menubar_for_context(WB_CONTEXT_PHYSICAL_OVERVIEW);
+    _menu = wb::WBContextUI::get()->get_command_ui()->create_menubar_for_context(WB_CONTEXT_PHYSICAL_OVERVIEW);
     
     static const char* diagram_only_items[] = {
       "diagram_size",

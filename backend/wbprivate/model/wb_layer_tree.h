@@ -56,7 +56,7 @@ namespace wb
     void object_changed(const std::string &key, const grt::ValueRef &value, mforms::TreeNodeRef node);
     void diagram_objects_changed(grt::internal::OwnedList *list, bool added, const grt::ValueRef &value);
   public:
-    LayerTree(WBContextUI *wbui, ModelDiagramForm *_form, const model_DiagramRef &diagram);
+    LayerTree(ModelDiagramForm *_form, const model_DiagramRef &diagram);
     void refresh();
 
     void refresh_selection_status();

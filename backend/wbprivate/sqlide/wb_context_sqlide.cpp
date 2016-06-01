@@ -26,7 +26,7 @@
 #include "base/notifications.h"
 #include "base/ui_form.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 
 #include "grts/structs.h"
@@ -162,11 +162,11 @@ public:
   
   virtual grt::ListRef<db_query_Resultset> executeScript(const std::string &sql)
   {
-    grt::ListRef<db_query_Resultset> result(_self->get_grt());
+    grt::ListRef<db_query_Resultset> result(true);
     std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     { 
-      ref->grt_manager()->replace_status_text("Executing query...");
+      bec::GRTManager::get()->replace_status_text("Executing query...");
       
       try
       {
@@ -175,7 +175,7 @@ public:
         for (std::vector<Recordset::Ref>::const_iterator iter= rsets->begin(); iter != rsets->end(); ++iter)
           result.insert(grtwrap_recordset(_self, *iter));
       
-        ref->grt_manager()->replace_status_text("Query finished.");
+        bec::GRTManager::get()->replace_status_text("Query finished.");
       }
       catch (sql::SQLException &exc)
       {
@@ -594,7 +594,7 @@ static bool validate_save_edits(wb::WBContextSQLIDE *sqlide)
 
 static bool validate_list_members(wb::WBContextSQLIDE *sqlide)
 {
-  return sqlide->get_grt_manager()->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") != 0;
+  return bec::GRTManager::get()->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,7 +604,7 @@ static void new_script_tab(wb::WBContextSQLIDE *sqlide)
   SqlEditorForm *form= sqlide->get_active_sql_editor();
   if (form)
   {
-    if (sqlide->get_grt_manager()->get_app_option_int("DbSqlEditor:DiscardUnsavedQueryTabs", 0))
+    if (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:DiscardUnsavedQueryTabs", 0))
       form->new_sql_scratch_area();
     else
       form->new_sql_script_file();
@@ -659,8 +659,8 @@ static bool validate_toolbar_alias_toggle(wb::WBContextSQLIDE *sqlide, const std
 
 //--------------------------------------------------------------------------------------------------
 
-WBContextSQLIDE::WBContextSQLIDE(WBContextUI *wbui)
-: _wbui(wbui), _auto_save_handle(0), _auto_save_active(false), _option_change_signal_connected(false)
+WBContextSQLIDE::WBContextSQLIDE()
+: _auto_save_handle(0), _auto_save_interval(0), _auto_save_active(false), _option_change_signal_connected(false)
 {
 }
 
@@ -677,7 +677,7 @@ WBContextSQLIDE::~WBContextSQLIDE()
 
 void WBContextSQLIDE::option_changed(grt::internal::OwnedDict*dict, bool, const std::string&key)
 {
-  if (key == "workbench:AutoSaveSQLEditorInterval" && dict == _wbui->get_wb()->get_wb_options().valueptr())
+  if (key == "workbench:AutoSaveSQLEditorInterval" && dict == WBContextUI::get()->get_wb()->get_wb_options().valueptr())
   {
     auto_save_workspaces();
   }
@@ -687,7 +687,7 @@ void WBContextSQLIDE::option_changed(grt::internal::OwnedDict*dict, bool, const 
 
 bool WBContextSQLIDE::auto_save_workspaces()
 {
-  WBContext *wb= _wbui->get_wb();
+  WBContext *wb = WBContextUI::get()->get_wb();
   ssize_t interval= wb->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
   if (interval <= 0 || !_auto_save_active)
   {
@@ -707,7 +707,7 @@ bool WBContextSQLIDE::auto_save_workspaces()
     catch (const std::exception &exception)
     {
       logWarning("Exception during auto-save of SQL Editors: %s\n", exception.what());
-      wb->get_grt_manager()->replace_status_text(base::strfmt("Error during auto-save of SQL Editors: %s", exception.what()));
+      bec::GRTManager::get()->replace_status_text(base::strfmt("Error during auto-save of SQL Editors: %s", exception.what()));
     }
   }
   
@@ -764,12 +764,6 @@ std::map<std::string, std::string> WBContextSQLIDE::auto_save_sessions()
 
 //--------------------------------------------------------------------------------------------------
 
-bec::GRTManager *WBContextSQLIDE::get_grt_manager()
-{
-  return _wbui->get_wb()->get_grt_manager();
-}
-
-
 CommandUI *WBContextSQLIDE::get_cmdui()
 {
   return _wbui->get_command_ui();
@@ -785,7 +779,7 @@ void WBContextSQLIDE::handle_notification(const std::string &name, void *sender,
 
 void WBContextSQLIDE::init()
 {
-  DbSqlEditorSnippets::setup(this, base::makePath(get_grt_manager()->get_user_datadir(), "snippets"));
+  DbSqlEditorSnippets::setup(this, base::makePath(bec::GRTManager::get()->get_user_datadir(), "snippets"));
   
   //scoped_connect(_wbui->get_wb()->signal_app_closing(),boost::bind(&WBContextSQLIDE::finalize, this));
   base::NotificationCenter::get()->add_observer(this, "GNAppClosing");
@@ -838,7 +832,7 @@ void WBContextSQLIDE::init()
 
   cmdui->add_builtin_command("query.reconnect", boost::bind(call_reconnect, this));
 
-  cmdui->add_builtin_command("query.stopOnError", boost::bind(call_continue_on_error, this));
+  cmdui->add_builtin_command("query.continueOnError", boost::bind(call_continue_on_error, this));
 
   cmdui->add_builtin_command("query.jump_to_placeholder", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::jump_to_placeholder));
   cmdui->add_builtin_command("list-members", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::list_members),
@@ -889,19 +883,19 @@ void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor)
   }
   catch (grt::user_cancelled)
   {
-    editor->grt_manager()->replace_status_text("Tunnel connection cancelled.");
+    bec::GRTManager::get()->replace_status_text("Tunnel connection cancelled.");
     return;
   }
   try
   {
     if (editor && !editor->is_running_query())
     {
-      editor->grt_manager()->replace_status_text("Reconnecting...");
+      bec::GRTManager::get()->replace_status_text("Reconnecting...");
       if (editor->connect(tunnel))
-        editor->grt_manager()->replace_status_text("Connection reopened.");
+        bec::GRTManager::get()->replace_status_text("Connection reopened.");
       else
       {
-        editor->grt_manager()->replace_status_text("Could not reconnect.");
+        bec::GRTManager::get()->replace_status_text("Could not reconnect.");
         if (tunnel.get())
         {
           // check whether this was a tunnel related error
@@ -1007,9 +1001,9 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
 
       if (tmp == ":PASSWORD_EXPIRED")
       {
-        grt::BaseListRef args(conn->get_grt(), grt::AnyType);
+        grt::BaseListRef args(grt::AnyType);
         args.ginsert(conn);
-        ssize_t result = *grt::IntegerRef::cast_from(conn->get_grt()->call_module_function("WbAdmin", "handleExpiredPassword", args));
+        ssize_t result = *grt::IntegerRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "handleExpiredPassword", args));
         if (result != 0)
           return create_connected_editor(conn);
         throw grt::user_cancelled("password reset cancelled by user");
@@ -1033,7 +1027,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
 
   {
     // Create entry for grt tree and update volatile data in the connection.
-    db_query_EditorRef object(_wbui->get_wb()->get_grt());
+    db_query_EditorRef object(grt::Initialized);
     object->owner(_wbui->get_wb()->get_root());
     object->name(conn.is_valid() ? conn->name() : "unconnected");
     

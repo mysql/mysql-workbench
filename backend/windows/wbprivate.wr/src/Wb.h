@@ -146,8 +146,6 @@ public:
 
 public ref class WbContext
 {
-  wb::WBContextUI *inner;
-
   MySQL::Grt::GrtManager ^manager;
   MySQL::Workbench::Overview ^physical_overview;
 
@@ -194,19 +192,18 @@ public:
   WbContext(bool verbose);
   ~WbContext();
 
-  bool is_commercial() { return inner->get_wb()->is_commercial(); };
-  wb::WBContextUI *get_unmanaged_object() { return inner; }
+  bool is_commercial() { return wb::WBContextUI::get()->get_wb()->is_commercial(); };
 
   bool init(MySQL::Workbench::WbFrontendCallbacks^ callbacks, WbOptions^ options,
     VoidStrUIFormDelegate^ create_main_form_view);
 
-  bool opengl_rendering_enforced() { return inner->get_wb()->opengl_rendering_enforced(); }
-  bool software_rendering_enforced() { return inner->get_wb()->software_rendering_enforced(); }
-  bool is_busy() { return bec::GRTManager::get().get_dispatcher()->get_busy(); }
-  bool request_quit() { return inner->request_quit(); }
-  void perform_quit() { inner->perform_quit(); }
-  bool is_quitting() { return inner->is_quitting(); }
-  void finalize() { inner->finalize(); }
+  bool opengl_rendering_enforced() { return wb::WBContextUI::get()->get_wb()->opengl_rendering_enforced(); }
+  bool software_rendering_enforced() { return wb::WBContextUI::get()->get_wb()->software_rendering_enforced(); }
+  bool is_busy() { return bec::GRTManager::get()->get_dispatcher()->get_busy(); }
+  bool request_quit() { return wb::WBContextUI::get()->request_quit(); }
+  void perform_quit() { wb::WBContextUI::get()->perform_quit(); }
+  bool is_quitting() { return wb::WBContextUI::get()->is_quitting(); }
+  void finalize() { wb::WBContextUI::get()->finalize(); }
 
   GrtManager^ get_grt_manager();
 
@@ -229,96 +226,96 @@ public:
   // ----- Edit menu handling
   void validate_edit_menu()
   {
-    inner->get_command_ui()->revalidate_edit_menu_items();
+    wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
   }
 
   void edit_undo()
   {
-    if (inner->get_active_main_form())
-      inner->get_active_main_form()->undo();
+    if (wb::WBContextUI::get()->get_active_main_form())
+      wb::WBContextUI::get()->get_active_main_form()->undo();
   }
 
   bool edit_can_undo()
   {
-    if (inner->get_active_main_form() && inner->get_active_main_form()->can_undo())
+    if (wb::WBContextUI::get()->get_active_main_form() && wb::WBContextUI::get()->get_active_main_form()->can_undo())
       return true;
     return false;
   }
 
   void edit_redo()
   {
-    if (inner->get_active_main_form())
-      inner->get_active_main_form()->redo();
+    if (wb::WBContextUI::get()->get_active_main_form())
+      wb::WBContextUI::get()->get_active_main_form()->redo();
   }
 
   bool edit_can_redo()
   {
-    if (inner->get_active_main_form() && inner->get_active_main_form()->can_redo())
+    if (wb::WBContextUI::get()->get_active_main_form() && wb::WBContextUI::get()->get_active_main_form()->can_redo())
       return true;
     return false;
   }
 
   void edit_copy()
   {
-    if (inner->get_active_form())
-      inner->get_active_form()->copy();
+    if (wb::WBContextUI::get()->get_active_form())
+      wb::WBContextUI::get()->get_active_form()->copy();
   }
 
   bool edit_can_copy()
   {
-    if (inner->get_active_form())
-      return inner->get_active_form()->can_copy();
+    if (wb::WBContextUI::get()->get_active_form())
+      return wb::WBContextUI::get()->get_active_form()->can_copy();
     return false;
   }
 
   void edit_cut()
   {
-    if (inner->get_active_form())
-      inner->get_active_form()->cut();
+    if (wb::WBContextUI::get()->get_active_form())
+      wb::WBContextUI::get()->get_active_form()->cut();
   }
 
   bool edit_can_cut()
   {
-    if (inner->get_active_form() && inner->get_active_form()->can_cut())
+    if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_cut())
       return true;
     return false;
   }
 
   void edit_paste()
   {
-    if (inner->get_active_form())
-      inner->get_active_form()->paste();
+    if (wb::WBContextUI::get()->get_active_form())
+      wb::WBContextUI::get()->get_active_form()->paste();
   }
 
   bool edit_can_paste()
   {
-    if (inner->get_active_form())
-      return inner->get_active_form()->can_paste();
+    if (wb::WBContextUI::get()->get_active_form())
+      return wb::WBContextUI::get()->get_active_form()->can_paste();
     return false;
   }
 
   void edit_select_all()
   {
-    if (inner->get_active_form())
-      inner->get_active_form()->select_all();
+    if (wb::WBContextUI::get()->get_active_form())
+      wb::WBContextUI::get()->get_active_form()->select_all();
   }
 
   bool edit_can_select_all()
   {
-    if (inner->get_active_form() && inner->get_active_form()->can_select_all())
+    if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_select_all())
       return true;
     return false;
   }
 
   void edit_delete()
   {
-    if (inner->get_active_form())
-      inner->get_active_form()->delete_selection();
+    if (wb::WBContextUI::get()->get_active_form())
+      wb::WBContextUI::get()->get_active_form()->delete_selection();
   }
 
   bool edit_can_delete()
   {
-    if (inner->get_active_form() && inner->get_active_form()->can_delete())
+    if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_delete())
       return true;
     return false;
   }
@@ -326,7 +323,7 @@ public:
 
   bool try_searching_diagram(String ^text)
   {
-    bec::UIForm *form= inner->get_active_main_form();
+    bec::UIForm *form = wb::WBContextUI::get()->get_active_main_form();
     if (form && dynamic_cast<wb::ModelDiagramForm*>(form))
     {
       dynamic_cast<wb::ModelDiagramForm*>(form)->search_and_focus_object(NativeToCppString(text));
@@ -378,31 +375,31 @@ public:
     this->find_replace_delegate= gcnew CommandActionDelegate(find_replace_delegate);
     this->can_find_replace_delegate= gcnew CommandValidateDelegate(can_find_replace_delegate);
 
-    inner->get_command_ui()->add_builtin_command("undo", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("undo",
         this->undo_delegate->get_slot(),
         this->can_undo_delegate->get_slot());
-    inner->get_command_ui()->add_builtin_command("redo", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("redo",
         this->redo_delegate->get_slot(),
         this->can_redo_delegate->get_slot());
-    inner->get_command_ui()->add_builtin_command("copy", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("copy",
         this->copy_delegate->get_slot(),
         this->can_copy_delegate->get_slot());
-    inner->get_command_ui()->add_builtin_command("cut", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("cut",
         this->cut_delegate->get_slot(),
         this->can_cut_delegate->get_slot());
-    inner->get_command_ui()->add_builtin_command("paste", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("paste",
         this->paste_delegate->get_slot(),
         this->can_paste_delegate->get_slot());
-    inner->get_command_ui()->add_builtin_command("selectAll", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("selectAll",
         this->select_all_delegate->get_slot(),
         this->can_select_all_delegate->get_slot());
-    inner->get_command_ui()->add_builtin_command("delete", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("delete",
         this->delete_delegate->get_slot(),
         this->can_delete_delegate->get_slot());
-    inner->get_command_ui()->add_builtin_command("find", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find",
         this->find_delegate->get_slot(),
         this->can_find_delegate->get_slot());
-    inner->get_command_ui()->add_builtin_command("find_replace", 
+    wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find_replace",
         this->find_replace_delegate->get_slot(),
         this->can_find_replace_delegate->get_slot());
   }
@@ -447,13 +444,13 @@ public:
   // Paper.
   List<PaperSize^>^ get_paper_sizes()
   {
-    return MySQL::Grt::CppListToObjectList<::wb::WBPaperSize,PaperSize>(inner->get_paper_sizes(false));
+    return MySQL::Grt::CppListToObjectList<::wb::WBPaperSize,PaperSize>(wb::WBContextUI::get()->get_paper_sizes(false));
   }
 
 
   PageSettings^ get_page_settings()
   {
-    app_PageSettingsRef settings(inner->get_page_settings());
+    app_PageSettingsRef settings(wb::WBContextUI::get()->get_page_settings());
     if (settings.is_valid())
       return gcnew PageSettings(settings);
     return nullptr;
@@ -462,8 +459,8 @@ public:
 
   void set_page_settings(PageSettings^ settings)
   {
-    settings->update_object(inner->get_wb()->get_root()->options()->paperTypes(), inner->get_page_settings());
-    inner->get_wb()->get_model_context()->update_page_settings();
+    settings->update_object(wb::WBContextUI::get()->get_wb()->get_root()->options()->paperTypes(), wb::WBContextUI::get()->get_page_settings());
+    wb::WBContextUI::get()->get_wb()->get_model_context()->update_page_settings();
   }
 
   /**
@@ -471,12 +468,12 @@ public:
    */
   void finished_loading(WbOptions^ options)
   {
-    inner->init_finish(options->get_unmanaged_object());
+    wb::WBContextUI::get()->init_finish(options->get_unmanaged_object());
   }
 
   void close_document_finish()
   {
-    inner->get_wb()->close_document_finish();
+    wb::WBContextUI::get()->get_wb()->close_document_finish();
 
     // Explicitly delete the overview object to avoid garbage collection to kick in after
     // our internal (non-managed) objects are gone already.
@@ -486,12 +483,12 @@ public:
 
   void new_model_finish()
   {
-    inner->get_wb()->new_model_finish();
+    wb::WBContextUI::get()->get_wb()->new_model_finish();
   }
 
   String^ get_filename()
   {
-    return CppStringToNative(inner->get_wb()->get_filename());
+    return CppStringToNative(wb::WBContextUI::get()->get_wb()->get_filename());
   }  
 
   void mainform_activated() { mforms::Form::main_form()->activated(); }
@@ -513,7 +510,7 @@ public:
     _delegate= gcnew MySQL::Grt::DelegateSlot0<void, void>(deleg);
 
     inner= new wb::DiagramOptionsBE(view->get_unmanaged_object(), 
-      wbContext->get_unmanaged_object()->get_wb()->get_model_context()->get_active_model_diagram(true), wbContext->get_unmanaged_object()->get_wb());
+      wb::WBContextUI::get()->get_wb()->get_model_context()->get_active_model_diagram(true), wb::WBContextUI::get()->get_wb());
 
     inner->scoped_connect(inner->signal_changed(),_delegate->get_slot());
   }

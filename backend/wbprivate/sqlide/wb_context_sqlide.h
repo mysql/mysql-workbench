@@ -51,7 +51,7 @@ namespace wb
     bool _option_change_signal_connected;
     
   public:
-    WBContextSQLIDE(WBContextUI *wbui);
+    WBContextSQLIDE();
     virtual ~WBContextSQLIDE();
     void init();
     void finalize();
