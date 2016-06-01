@@ -66,7 +66,7 @@ namespace wb
   class MYSQLWBBACKEND_PUBLIC_FUNC WBContextModel : public ModelBridgeDelegate, public base::trackable, base::Observer
   {    
   public:
-    WBContextModel(WBContextUI *wbui);
+    WBContextModel();
     virtual ~WBContextModel();
     
     static void detect_auto_save_files(const std::string &autosave_dir);
@@ -75,7 +75,6 @@ namespace wb
 
     mforms::View *shared_secondary_sidebar();
   public:
-    WBContextUI *get_wbui() { return _wbui; }
     PhysicalOverviewBE *get_overview() { return _overview; }
 
     mforms::TreeView *create_user_type_list();

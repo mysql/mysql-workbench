@@ -39,8 +39,8 @@ DEFAULT_LOG_DOMAIN("udt");
 
 using namespace base;
 
-UserDefinedTypeEditor::UserDefinedTypeEditor(wb::WBContextUI *wbui, const workbench_physical_ModelRef &model)
-: mforms::Form(0, mforms::FormResizable), _wbui(wbui), _model(model),
+UserDefinedTypeEditor::UserDefinedTypeEditor(const workbench_physical_ModelRef &model)
+: mforms::Form(0, mforms::FormResizable), _model(model),
 _vbox(false), _type_list(mforms::TreeAllowReorderRows|mforms::TreeFlatList), _args_box(true), _flags_box(false), _button_box(true)
 {
   set_title(_("User Defined Types"));
@@ -128,7 +128,7 @@ _vbox(false), _type_list(mforms::TreeAllowReorderRows|mforms::TreeFlatList), _ar
   // fill simple type combo
   grt::ListRef<db_SimpleDatatype> types(_model->catalog()->simpleDatatypes());
 
-  GrtVersionRef version = _wbui->get_wb()->get_model_context()->get_target_version();
+  GrtVersionRef version = wb::WBContextUI::get()->get_wb()->get_model_context()->get_target_version();
   
   _type.clear();
   _valid_types.clear();
@@ -459,7 +459,7 @@ void UserDefinedTypeEditor::ok_clicked()
       continue;
     
     if (!_user_types[i].is_valid())
-      type= db_UserDatatypeRef(grt::Initialized);
+      type= db_UserDatatypeRef();
     else
       type= _user_types[i];
     
@@ -487,7 +487,7 @@ void UserDefinedTypeEditor::ok_clicked()
         }
       }
       if (!simpleType.is_valid())
-        log_warning("Could not find type %s for udt '%s'\n", type_name.c_str(), type->name().c_str());
+        logWarning("Could not find type %s for udt '%s'\n", type_name.c_str(), type->name().c_str());
       if (type->actualType() != simpleType)
         type->actualType(simpleType);
     }
@@ -501,8 +501,8 @@ void UserDefinedTypeEditor::ok_clicked()
   
   undo.end_or_cancel_if_empty(_("Edit User Defined Types"));
 
-  if (_wbui->get_wb()->get_model_context())
-    _wbui->get_wb()->get_model_context()->_udt_list_changed();
+  if (wb::WBContextUI::get()->get_wb()->get_model_context())
+    wb::WBContextUI::get()->get_wb()->get_model_context()->_udt_list_changed();
 
   close();
 }

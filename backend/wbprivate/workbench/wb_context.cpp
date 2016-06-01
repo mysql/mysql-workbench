@@ -691,7 +691,7 @@ WBComponent *WBContext::get_component_handling(const model_ObjectRef &object)
 
 bec::UIForm *WBContext::get_active_form()
 {
-  return _uicontext->get_active_form();
+  return wb::WBContextUI::get()->get_active_form();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -706,7 +706,7 @@ bool wb::WBContext::is_commercial()
 
 bec::UIForm *WBContext::get_active_main_form()
 {
-  return _uicontext->get_active_main_form();
+  return wb::WBContextUI::get()->get_active_main_form();
 }
 
 
@@ -1400,7 +1400,7 @@ void WBContext::handle_grt_message(MessageListStorage::MessageEntryRef message)
   if (message->icon == -1)
   {
     if (message->message == "show")
-      _grtManager->run_once_when_idle(boost::bind(&WBContextUI::show_output, _uicontext));
+      _grtManager->run_once_when_idle(boost::bind(&WBContextUI::show_output, wb::WBContextUI::get()));
     return;
   }
 }
@@ -1951,7 +1951,7 @@ void WBContext::setLogLevelFromGuiPreferences(const grt::DictRef& dict)
 void WBContext::load_app_options(bool update)
 {
   // load ui related stuff (menus, toolbars etc)
-  _uicontext->load_app_options(update);
+  wb::WBContextUI::get()->load_app_options(update);
 
   // load saved options
   std::string options_xml= base::makePath(_user_datadir, OPTIONS_FILE_NAME);
@@ -2473,7 +2473,7 @@ void WBContext::add_recent_file(const std::string &file)
     recentFiles.remove(20);
   save_app_options();
 
-  _uicontext->refresh_home_documents();
+  wb::WBContextUI::get()->refresh_home_documents();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2621,7 +2621,7 @@ void WBContext::new_document()
     // close the current document
     do_close_document(false);
 
-    _model_context = new WBContextModel(_uicontext);
+    _model_context = new WBContextModel();
 
     // create an empty document and add a physical model to it
     workbench_DocumentRef doc(grt::Initialized);
@@ -2735,7 +2735,7 @@ bool WBContext::open_file_by_extension(const std::string &path, bool interactive
   {
     // install plugin
     if (interactive)
-      return _uicontext->start_plugin_install(path);
+      return wb::WBContextUI::get()->start_plugin_install(path);
 
     install_module_file(path);
     return true;
@@ -2879,7 +2879,7 @@ bool WBContext::open_document(const std::string &file)
 
   workbench_DocumentRef doc;
 
-  _model_context= new WBContextModel(_uicontext);
+  _model_context= new WBContextModel;
 
   FOREACH_COMPONENT(_components, iter)
     (*iter)->block_model_notifications();
