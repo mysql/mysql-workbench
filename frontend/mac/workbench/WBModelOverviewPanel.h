@@ -21,7 +21,7 @@
 
 @interface WBModelOverviewPanel : WBSplitPanel
 
-- (instancetype)initWithWBContextUI NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 @property (readonly, copy) NSString *identifier;
 @property (weak, readonly) WBOverviewPanel *overview;

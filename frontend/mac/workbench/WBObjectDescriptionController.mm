@@ -26,7 +26,7 @@
 
 @implementation WBObjectDescriptionController
 
-- (void)setWBContext
+- (void)setup
 {
   [self updateForForm: 0];
 }
@@ -48,9 +48,9 @@
   std::string description;
 
   if (form)
-    description = _wbui->get_description_for_selection(form, new_object_list, items);
+    description = wb::WBContextUI::get()->get_description_for_selection(form, new_object_list, items);
   else
-    description = _wbui->get_description_for_selection(new_object_list, items);
+    description = wb::WBContextUI::get()->get_description_for_selection(new_object_list, items);
   
   // update only if selection was changed
   if (!_objectList || !grt::compare_list_contents(*_objectList, new_object_list))
@@ -119,7 +119,7 @@
   _timer= nil;
 
   if (_objectList)
-    _wbui->set_description_for_selection(*_objectList, text.string.UTF8String);
+    wb::WBContextUI::get()->set_description_for_selection(*_objectList, text.string.UTF8String);
 }
 
 

@@ -47,7 +47,7 @@
 
 @implementation WBModelOverviewPanel
 
-- (instancetype)initWithWBContextUI
+- (instancetype)init
 {
   self = [super init];
   if (self)
@@ -66,7 +66,7 @@
         [sidebarController setupWithContext: wb::WBContextUI::get()->get_wb()->get_model_context()];
         mSwitcherT.tabStyle = MPaletteTabSwitcherSmallText;
         mSwitcherB.tabStyle = MPaletteTabSwitcherSmallText;
-        [descriptionController setWBContext];
+        [descriptionController setup];
 
         self.splitView.dividerThickness = 1;
         self.splitView.backgroundColor = [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0];
@@ -82,11 +82,6 @@
     }
   }
   return self;
-}
-
-- (instancetype)init
-{
-  return [self initWithWBContextUI];
 }
 
 - (void)dealloc
