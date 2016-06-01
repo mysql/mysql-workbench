@@ -1193,7 +1193,7 @@ void WBContextUI::refresh_home_connections(bool clear_state)
     }
   }
 
-
+  _xConnectionsSection->clear_connections(true);
   _xConnectionsSection->loadProjects(ng::loadNgSessions());
 
   _oldAuthList = oldAuthList;
