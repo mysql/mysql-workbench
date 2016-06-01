@@ -16,10 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-//!
-//! \addtogroup linuxui Linux UI
-//! @{
-//! 
 
 #ifndef _PROPERTIES_TREE_H_
 #define _PROPERTIES_TREE_H_
@@ -219,8 +215,3 @@ public:
 
 
 #endif /* _PROPERTIES_TREE_H_ */
-
-//!                                                                                                                                     
-//! @}                                                                                                                                  
-//!
-
