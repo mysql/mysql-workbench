@@ -48,7 +48,7 @@
 
 @implementation WBDiagramSizeController
 
-- (instancetype)initWithWBContext
+- (instancetype)init
 {
   self = [super init];
   if (self != nil)
@@ -74,11 +74,6 @@
     }
   }
   return self;
-}
-
-- (instancetype)init
-{
-  return [self initWithWBContext];
 }
 
 - (void)dealloc
