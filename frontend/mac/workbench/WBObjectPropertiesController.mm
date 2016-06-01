@@ -53,7 +53,6 @@
   NSCell* mColorCell;
   NSButtonCell * mCheckBoxCell;
 
-  wb::WBContextUI *_wbui;
   bec::ValueInspectorBE* mValueInspector;
 }
 
@@ -276,7 +275,7 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   
   if (form != nil) {
     std::vector<std::string> items;
-    mValueInspector = _wbui->create_inspector_for_selection(form, items);
+    mValueInspector = wb::WBContextUI::get()->create_inspector_for_selection(form, items);
     
     // Update color of color picker to match new selection.
     NSInteger rowIndex = mTableView.selectedRow;
@@ -288,14 +287,6 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   
   [mTableView reloadData];
 }
-
-
-
-- (void) setWBContext: (wb::WBContextUI*) be;
-{
-  _wbui = be;
-}
-
 
 
 #pragma mark Create + Destroy

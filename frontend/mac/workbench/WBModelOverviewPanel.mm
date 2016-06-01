@@ -40,7 +40,6 @@
   __weak IBOutlet MTabSwitcher *mSwitcherT;
   __weak IBOutlet MTabSwitcher *mSwitcherB;
 
-  wb::WBContextUI *_wbui;
   NSMutableArray *nibObjects;
 }
 
@@ -48,13 +47,12 @@
 
 @implementation WBModelOverviewPanel
 
-- (instancetype)initWithWBContextUI: (wb::WBContextUI*)wbui
+- (instancetype)initWithWBContextUI
 {
   self = [super init];
   if (self)
   {
-    _wbui = wbui;
-    if (_wbui != NULL)
+
     {
       NSMutableArray *temp;
       if ([NSBundle.mainBundle loadNibNamed: @"WBModelOverview" owner: self topLevelObjects: &temp])
@@ -63,11 +61,12 @@
 
         [editorTabView createDragger];
 
-        [overview setupWithOverviewBE: wbui->get_physical_overview()];
-        [sidebarController setupWithContext: wbui->get_wb()->get_model_context()];
+
+        [overview setupWithOverviewBE: wb::WBContextUI::get()->get_physical_overview()];
+        [sidebarController setupWithContext: wb::WBContextUI::get()->get_wb()->get_model_context()];
         mSwitcherT.tabStyle = MPaletteTabSwitcherSmallText;
         mSwitcherB.tabStyle = MPaletteTabSwitcherSmallText;
-        [descriptionController setWBContext: wbui];
+        [descriptionController setWBContext];
 
         self.splitView.dividerThickness = 1;
         self.splitView.backgroundColor = [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0];
@@ -78,7 +77,7 @@
 
         self.splitView.autosaveName = @"modelSplitPosition";
 
-        [self restoreSidebarsFor: "ModelOverview" toolbar: wbui->get_physical_overview()->get_toolbar()];
+        [self restoreSidebarsFor: "ModelOverview" toolbar: wb::WBContextUI::get()->get_physical_overview()->get_toolbar()];
       }
     }
   }
@@ -87,7 +86,7 @@
 
 - (instancetype)init
 {
-  return [self initWithWBContextUI: NULL];
+  return [self initWithWBContextUI];
 }
 
 - (void)dealloc
@@ -121,7 +120,7 @@
 
 - (void)didActivate
 {
-  NSView *view = nsviewForView(_wbui->get_wb()->get_model_context()->shared_secondary_sidebar());
+  NSView *view = nsviewForView(wb::WBContextUI::get()->get_wb()->get_model_context()->shared_secondary_sidebar());
   if (view.superview)
     [view removeFromSuperview];
 

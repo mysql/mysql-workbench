@@ -198,20 +198,13 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)setWBContext:(wb::WBContextUI*)wbui
+- (void)setup
 {
   _backendObserver = new MacNotificationObserver(self);
-  
-  _wbui= wbui;
   
   setup_mforms_app(self);
 }
 
-
-- (wb::WBContextUI*)context
-{
-  return _wbui;
-}
 
 
 /** Called after the window is shown on screen
@@ -222,7 +215,7 @@ void setup_mforms_app(MainWindowController *mwin);
 {
   log_debug("Setup done\n");
 
-  self.window.title = @(_wbui->get_title().c_str());
+  self.window.title = @(wb::WBContextUI::get()->get_title().c_str());
 
   [self setupModel];
 }
@@ -350,27 +343,27 @@ void setup_mforms_app(MainWindowController *mwin);
       
     case wb::RefreshDocument:
       // refresh the title of the document
-      self.window.title = @(_wbui->get_title().c_str());
-      self.window.representedFilename = @(_wbui->get_wb()->get_filename().c_str());
-      self.window.documentEdited = _wbui->get_wb()->has_unsaved_changes();
+      self.window.title = @(wb::WBContextUI::get()->get_title().c_str());
+      self.window.representedFilename = @(wb::WBContextUI::get()->get_wb()->get_filename().c_str());
+      self.window.documentEdited = wb::WBContextUI::get()->get_wb()->has_unsaved_changes();
       break;
 
     case wb::RefreshNewModel:
       [self handleModelCreated];
-      _wbui->get_wb()->new_model_finish();
+      wb::WBContextUI::get()->get_wb()->new_model_finish();
       break;
       
     case wb::RefreshCloseDocument:
       [self closeEditorsMatching:nil]; // close all editors
 
       // flush anything waiting to be executed 
-      _wbui->get_wb()->flush_idle_tasks();
+      wb::WBContextUI::get()->get_wb()->flush_idle_tasks();
   
-      _wbui->get_wb()->close_document_finish();
+      wb::WBContextUI::get()->get_wb()->close_document_finish();
       
       [self handleModelClosed];
 
-      self.window.title = @(_wbui->get_title().c_str());
+      self.window.title = @(wb::WBContextUI::get()->get_title().c_str());
       break;
       
     case wb::RefreshOverviewNodeInfo:
@@ -476,7 +469,7 @@ void setup_mforms_app(MainWindowController *mwin);
 - (mdc::CanvasView*)createView:(const char*)oid
                           name:(const char*)name
 {
-  wb::ModelDiagramForm *dform= _wbui->get_wb()->get_model_context()->get_diagram_form_for_diagram_id(oid);
+  wb::ModelDiagramForm *dform= wb::WBContextUI::get()->get_wb()->get_model_context()->get_diagram_form_for_diagram_id(oid);
   WBModelDiagramPanel *panel= [[WBModelDiagramPanel alloc] initWithId: @(oid)
                                                                formBE: dform];
 
@@ -731,7 +724,7 @@ void setup_mforms_app(MainWindowController *mwin);
     
     NSAssert(![panel isKindOfClass:[WBModelDiagramPanel class]] || [(WBModelDiagramPanel*)panel canvas], @"diagram panel has no canvas at moment of tab switch");
 
-    _wbui->set_active_form(panel.formBE);
+    wb::WBContextUI::get()->set_active_form(panel.formBE);
   }
 }
 
@@ -852,7 +845,7 @@ void setup_mforms_app(MainWindowController *mwin);
 
 - (void)focusSearchField:(id)sender
 {
-  bec::UIForm *main_form = _wbui->get_active_main_form();
+  bec::UIForm *main_form = wb::WBContextUI::get()->get_active_main_form();
   if (main_form && main_form->get_toolbar())
   {
     mforms::ToolBarItem *item = main_form->get_toolbar()->find_item("find");
@@ -873,7 +866,7 @@ void setup_mforms_app(MainWindowController *mwin);
 
 - (void)performSearchObject:(id)sender
 {
-  bec::UIForm *main_form= _wbui->get_active_main_form();
+  bec::UIForm *main_form= wb::WBContextUI::get()->get_active_main_form();
   if (main_form && main_form->get_frontend_data() && main_form->get_toolbar())
   {
     mforms::ToolBarItem *item = main_form->get_toolbar()->find_item("find");
@@ -1022,7 +1015,7 @@ void setup_mforms_app(MainWindowController *mwin);
 {
   WBBasePanel *panel= [self panelForResponder:responder];
 
-  BOOL changedActivePanel = panel.formBE != _wbui->get_active_form();
+  BOOL changedActivePanel = panel.formBE != wb::WBContextUI::get()->get_active_form();
 
   // replace Edit menu with the standard one so that copy/paste works without intervention
   if ([responder isKindOfClass: [NSTextView class]])
@@ -1030,7 +1023,7 @@ void setup_mforms_app(MainWindowController *mwin);
     NSLog(@"TODO: restore edit menu");
   }
   else if (!changedActivePanel)
-    _wbui->get_command_ui()->revalidate_edit_menu_items();
+    wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1041,9 +1034,9 @@ void setup_mforms_app(MainWindowController *mwin);
 - (void) activatePanel: (WBBasePanel*) panel
 {
   if (panel)
-    _wbui->set_active_form(panel.formBE);
+    wb::WBContextUI::get()->set_active_form(panel.formBE);
   else
-    _wbui->set_active_form(0);
+    wb::WBContextUI::get()->set_active_form(0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1085,7 +1078,7 @@ void setup_mforms_app(MainWindowController *mwin);
 
 - (BOOL)windowShouldClose:(id)window
 {
-  return _wbui->get_wb()->quit_application();
+  return wb::WBContextUI::get()->get_wb()->quit_application();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1126,7 +1119,7 @@ public:
       {
         panel = [[WBMFormsPluginPanel alloc] initWithAppView: view];
         if (!view->get_menubar())
-          [panel setDefaultMenuBar: controller.context->get_command_ui()->create_menubar_for_context(
+          [panel setDefaultMenuBar: wb::WBContextUI::get()->get_command_ui()->create_menubar_for_context(
             view->is_main_form() ? view->get_form_context_name() : "")];
         [controller addTopPanelAndSwitch: panel];
       }

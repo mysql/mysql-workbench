@@ -112,8 +112,7 @@ static void *backend_destroyed(void *ptr)
       _identifier = oid;
       _viewer = [[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)];
 
-      [descriptionController setWBContext: _formBE->get_wb()->get_ui()];
-      [propertiesController setWBContext: _formBE->get_wb()->get_ui()];
+      [descriptionController setWBContext];
 
       self.splitView.dividerThickness = 1;
       self.splitView.backgroundColor = [NSColor colorWithDeviceWhite: 128 / 255.0 alpha : 1.0];
