@@ -41,7 +41,6 @@ namespace wb
   
   class MYSQLWBBACKEND_PUBLIC_FUNC WBContextSQLIDE : public base::trackable, base::Observer
   {
-    WBContextUI *_wbui;
     std::list<std::weak_ptr<SqlEditorForm> > _open_editors;
     app_ToolbarRef _toolbar;
 
@@ -61,7 +60,6 @@ namespace wb
     
     std::shared_ptr<SqlEditorForm> create_connected_editor(const db_mgmt_ConnectionRef &conn);
 
-    WBContextUI *get_wbui() { return _wbui; }
     CommandUI *get_cmdui();
     
     SqlEditorForm* get_active_sql_editor();

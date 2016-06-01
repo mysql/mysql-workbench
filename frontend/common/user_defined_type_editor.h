@@ -44,7 +44,6 @@ namespace mforms
 
 class MYSQLWBBACKEND_PUBLIC_FUNC UserDefinedTypeEditor : public mforms::Form 
 { 
-  wb::WBContextUI *_wbui;
   workbench_physical_ModelRef _model;
 
   mforms::Box _vbox;
@@ -89,6 +88,6 @@ class MYSQLWBBACKEND_PUBLIC_FUNC UserDefinedTypeEditor : public mforms::Form
   void refresh();
   void selected_row();
 public:
-  UserDefinedTypeEditor(wb::WBContextUI *wbui, const workbench_physical_ModelRef &model);
+  UserDefinedTypeEditor(const workbench_physical_ModelRef &model);
 };
 
