@@ -541,8 +541,9 @@ void MainForm::call_undo()
         return;
     }
 
-    if (wb::WBContextUI::get()->get_active_main_form() && wb::WBContextUI::get()->get_active_main_form()->can_undo())
-      wb::WBContextUI::get()->get_active_main_form()->undo();
+    auto wbui = wb::WBContextUI::get();
+    if (wbui->get_active_main_form() && wbui->get_active_main_form()->can_undo())
+      wbui->get_active_main_form()->undo();
 }
 
 
@@ -555,8 +556,9 @@ void MainForm::call_redo()
     return;
   }
 
-  if (wb::WBContextUI::get()->get_active_main_form() && wb::WBContextUI::get()->get_active_main_form()->can_redo())
-    wb::WBContextUI::get()->get_active_main_form()->redo();
+  auto wbui = wb::WBContextUI::get();
+  if (wbui->get_active_main_form() && wbui->get_active_main_form()->can_redo())
+    wbui->get_active_main_form()->redo();
 }
 
 
@@ -573,11 +575,12 @@ void MainForm::call_copy()
 
 
 
+  auto wbui = wb::WBContextUI::get();
   GridView *gv = NULL;
   if (dynamic_cast<Gtk::Editable*>(focused))
       dynamic_cast<Gtk::Editable*>(focused)->copy_clipboard();
-  else if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_copy())
-    wb::WBContextUI::get()->get_active_form()->copy();
+  else if (wbui->get_active_form() && wbui->get_active_form()->can_copy())
+    wbui->get_active_form()->copy();
   else if ((gv = dynamic_cast<GridView*>(focused)))
     gv->copy();
 
@@ -836,34 +839,35 @@ void MainForm::register_commands()
   commands.push_back("wb.toggleSecondarySidebar");
   commands.push_back("wb.toggleOutputArea");
 
+  auto wbui = wb::WBContextUI::get();
 
-  wb::WBContextUI::get()->get_command_ui()->add_frontend_commands(commands);
+  wbui->get_command_ui()->add_frontend_commands(commands);
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find_replace",
+  wbui->get_command_ui()->add_builtin_command("find_replace",
                                                make_slot(&MainForm::call_find_replace),
                                                make_slot(&MainForm::validate_find_replace));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find",
+  wbui->get_command_ui()->add_builtin_command("find",
                                                make_slot(&MainForm::call_find),
                                                make_slot(&MainForm::validate_find));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("undo",
+  wbui->get_command_ui()->add_builtin_command("undo",
                                                make_slot(&MainForm::call_undo),
                                                make_slot(&MainForm::validate_undo));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("redo",
+  wbui->get_command_ui()->add_builtin_command("redo",
                                                make_slot(&MainForm::call_redo),
                                                make_slot(&MainForm::validate_redo));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("copy",
+  wbui->get_command_ui()->add_builtin_command("copy",
                                                make_slot(&MainForm::call_copy),
                                                make_slot(&MainForm::validate_copy));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("cut",
+  wbui->get_command_ui()->add_builtin_command("cut",
                                                make_slot(&MainForm::call_cut),
                                                make_slot(&MainForm::validate_cut));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("paste",
+  wbui->get_command_ui()->add_builtin_command("paste",
                                                make_slot(&MainForm::call_paste),
                                                make_slot(&MainForm::validate_paste));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("delete",
+  wbui->get_command_ui()->add_builtin_command("delete",
                                                make_slot(&MainForm::call_delete),
                                                make_slot(&MainForm::validate_delete));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("selectAll",
+  wbui->get_command_ui()->add_builtin_command("selectAll",
                                                make_slot(&MainForm::call_select_all),
                                                make_slot(&MainForm::validate_select_all));
 
