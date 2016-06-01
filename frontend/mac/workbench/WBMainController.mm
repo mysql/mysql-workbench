@@ -811,7 +811,7 @@ static void flush_main_thread()
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification
 {
-  _wb->get_ui()->init_finish(_options);
+  wb::WBContextUI::get()->init_finish(_options);
 
   _initFinished= YES;
   [[NSNotificationCenter defaultCenter] addObserver: self
