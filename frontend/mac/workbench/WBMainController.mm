@@ -1152,7 +1152,7 @@ static void init_mforms()
 
 - (IBAction)showDiagramProperties:(id)sender
 {
-  WBDiagramSizeController *controller= [[WBDiagramSizeController alloc] initWithWBContext];
+  WBDiagramSizeController *controller= [[WBDiagramSizeController alloc] init];
   
   [controller showModal];
 }

@@ -19,14 +19,13 @@
 
 namespace wb {
   class DiagramOptionsBE;
-  class WBContextUI;
 }
 
 @class MCanvasViewer;
 
 @interface WBDiagramSizeController : NSObject
 
-- (instancetype)initWithWBContext NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 - (IBAction)okClicked:(id)sender;
 - (void)showModal;

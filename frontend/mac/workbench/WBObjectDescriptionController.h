@@ -27,13 +27,12 @@
   
   NSTimer *_timer;
   
-  wb::WBContextUI *_wbui;
   BOOL _initializing;
   BOOL _multipleItems;
   grt::ListRef<GrtObject> *_objectList;
 }
 
-- (void)setWBContext;
+- (void)setup;
 
 - (void)updateForForm:(bec::UIForm*)form;
 
