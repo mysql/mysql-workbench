@@ -749,7 +749,7 @@ std::string ToolBarWrapper::get_item_text(mforms::ToolBarItem *item)
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::set_item_name(ToolBarItem *item, const std::string& name)
+void ToolBarWrapper::set_item_name(mforms::ToolBarItem *item, const std::string& name)
 {
   // This is dummy function to silent warnings
 }
