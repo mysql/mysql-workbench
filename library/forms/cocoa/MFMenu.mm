@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,7 +149,12 @@ static void menu_popup_at(mforms::Menu *self, mforms::Object *control, int x, in
   {
     mforms::Form *activeForm = mforms::Form::active_form();
     if (activeForm != NULL)
-      [NSMenu popUpContextMenu: menu withEvent: [NSApp currentEvent] forView: activeForm->get_data()];
+    {
+      id nativeForm = activeForm->get_data();
+      if ([nativeForm isKindOfClass: NSWindow.class])
+        nativeForm = [nativeForm firstResponder];
+      [NSMenu popUpContextMenu: menu withEvent: [NSApp currentEvent] forView: nativeForm];
+    }
   }
   else
   {
