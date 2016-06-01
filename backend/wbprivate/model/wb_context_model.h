@@ -178,7 +178,6 @@ namespace wb
 
     void setup_secondary_sidebar();
   private:
-    WBContextUI *_wbui;
     PhysicalOverviewBE *_overview;
     ModelFile *_file;
     UserDefinedTypeEditor* _current_user_type_editor;

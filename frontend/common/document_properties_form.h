@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,10 +53,8 @@ class MYSQLWBBACKEND_PUBLIC_FUNC DocumentPropertiesForm : public mforms::Form
   mforms::Button _ok_button;
   mforms::Button _cancel_button;
   
-  wb::WBContextUI *_wbui;
-  
   void add_control(const std::string &caption, mforms::View *control, bool expand= false);
-  
+
   void ok_clicked();
   void cancel_clicked();
   
