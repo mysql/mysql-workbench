@@ -56,7 +56,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
                 , _side_palette(mforms::gtk::ViewImpl::get_widget_for_view(_be->get_side_palette()))
                 , _dock_delegate(NULL, MAIN_DOCKING_POINT)
                 , _busy_tab(NULL)
-                , _right_aligned(editor_be->wbsql()->get_wbui()->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0))
+                , _right_aligned(wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0))
                 , _editor_maximized(false)
 {
   _dpoint = mforms::manage(new mforms::DockingPoint(&_dock_delegate, false));
