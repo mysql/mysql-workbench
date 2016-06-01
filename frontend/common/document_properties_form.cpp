@@ -33,11 +33,9 @@
 
 #include "document_properties_form.h"
 
-DocumentPropertiesForm::DocumentPropertiesForm(wb::WBContextUI *wbui)
+DocumentPropertiesForm::DocumentPropertiesForm()
   : Form(NULL, mforms::FormResizable), _bottom_box(true), _text(mforms::BothScrollBars)
 {
-  _wbui= wbui;
-  
   set_title(_("Document Properties"));
   set_name("document_properties");
   
@@ -97,7 +95,7 @@ void DocumentPropertiesForm::push_values()
   
   description= _text.get_string_value();
   
-  _wbui->set_doc_properties(caption, version, author, project, dateCreated, dateChanged, description);
+  wb::WBContextUI::get()->set_doc_properties(caption, version, author, project, dateCreated, dateChanged, description);
 }
 
 
@@ -106,7 +104,7 @@ void DocumentPropertiesForm::pull_values()
   std::string caption, version, author, project, dateCreated, dateChanged, description;
 
   //fetch values from backend
-  _wbui->get_doc_properties(caption, version, author, project, dateCreated, dateChanged, description);
+  wb::WBContextUI::get()->get_doc_properties(caption, version, author, project, dateCreated, dateChanged, description);
 
   _entry1.set_value(caption);
   _entry2.set_value(version);

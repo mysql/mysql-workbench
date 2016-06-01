@@ -138,7 +138,7 @@ private:
   bool versionIsValid(const std::string &text);
   void version_changed();
 public:
-  PreferencesForm(wb::WBContextUI *wbui, const workbench_physical_ModelRef &model = workbench_physical_ModelRef());
+  PreferencesForm(const workbench_physical_ModelRef &model = workbench_physical_ModelRef());
   virtual ~PreferencesForm();
   
   // returned font, title, current font

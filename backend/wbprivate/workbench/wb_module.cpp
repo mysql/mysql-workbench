@@ -107,8 +107,8 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
   std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s build %i (%s)\n",
     tab, info->name().c_str(), APP_EDITION_NAME, APP_LICENSE_TYPE, APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER,
                               APP_RELEASE_TYPE, APP_BUILD_NUMBER, ARCHITECTURE);
-  result += strfmt("%sConfiguration Directory: %s\n", tab, bec::GRTManager::get().get_user_datadir().c_str());
-  result += strfmt("%sData Directory: %s\n", tab, bec::GRTManager::get().get_basedir().c_str());
+  result += strfmt("%sConfiguration Directory: %s\n", tab, bec::GRTManager::get()->get_user_datadir().c_str());
+  result += strfmt("%sData Directory: %s\n", tab, bec::GRTManager::get()->get_basedir().c_str());
 
   int cver= cairo_version();
   result += strfmt("%sCairo Version: %i.%i.%i\n", tab, (cver / 10000) % 100, (cver / 100) % 100, cver % 100);
@@ -190,7 +190,7 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
       char *stdo;
       if (g_spawn_command_line_sync("/usr/bin/env", &stdo, NULL, &rc, NULL) && stdo)
       {
-        log_debug3("Environment variables:\n %s\n", stdo);
+        logDebug3("Environment variables:\n %s\n", stdo);
         g_free(stdo);
       }
     }
@@ -210,8 +210,8 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
   result["edition"] = APP_EDITION_NAME;
   result["license"] = APP_LICENSE_TYPE;
   result["version"] = strfmt("%u.%u.%u", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER);
-  result["configuration directory"] = bec::GRTManager::get().get_user_datadir();
-  result["data directory"] = bec::GRTManager::get().get_basedir();
+  result["configuration directory"] = bec::GRTManager::get()->get_user_datadir();
+  result["data directory"] = bec::GRTManager::get()->get_basedir();
   result["cairo version"] = strfmt("%u.%u.%u", (cver / 10000) % 100, (cver / 100) % 100, cver % 100);
   result["os"] = get_local_os_name();
   result["cpu"] = get_local_hardware_info();
@@ -232,13 +232,13 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 {
   if (os.find("unknown") != std::string::npos)
   {
-    log_warning("OS detection failed, skipping OS support check.  OS string: '%s'\n", os.c_str());
+    logWarning("OS detection failed, skipping OS support check.  OS string: '%s'\n", os.c_str());
     return true;
   }
 
   if (os.find("x86_64") == std::string::npos && os.find("Windows") == std::string::npos)
   {
-    log_warning("Detected 32-bit non-Windows OS.  OS string: '%s'\n", os.c_str());
+    logWarning("Detected 32-bit non-Windows OS.  OS string: '%s'\n", os.c_str());
     return false;
   }
 
@@ -268,12 +268,12 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   {
     if (os.find(s) != std::string::npos)
     {
-      log_debug2("OS '%s' is supported\n", os.c_str());
+      logDebug2("OS '%s' is supported\n", os.c_str());
       return true;
     }
   }
 
-  log_warning("OS not found on supported OS list.  OS string: '%s'\n", os.c_str());
+  logWarning("OS not found on supported OS list.  OS string: '%s'\n", os.c_str());
   return false;
 }
 //--------------------------------------------------------------------------------------------------
@@ -511,7 +511,7 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
 
 int WorkbenchImpl::copyToClipboard(const std::string &astr)
 {
-  bec::GRTManager::get().get_dispatcher()
+  bec::GRTManager::get()->get_dispatcher()
     ->call_from_main_thread<void>(boost::bind(mforms::Utilities::set_clipboard_text, astr), true, false);
 
   return 1;
@@ -616,16 +616,16 @@ int WorkbenchImpl::exportPS(const std::string &filename)
 }
 
 
-static void quit(WBContext *wb)
+static void quit()
 {
-  if (wb->get_ui()->request_quit())
-    wb->get_ui()->perform_quit();
+  if(wb::WBContextUI::get()->request_quit())
+    wb::WBContextUI::get()->perform_quit();
 }
 
 int WorkbenchImpl::exit()
 {
-  bec::GRTManager::get().get_dispatcher()->
-  call_from_main_thread<void>(boost::bind(quit, _wb), false, false);
+  bec::GRTManager::get()->get_dispatcher()->
+  call_from_main_thread<void>(boost::bind(quit), false, false);
 
   return 0;
 }
@@ -781,14 +781,14 @@ int WorkbenchImpl::editSelectedFigureInNewWindow(const model_DiagramRef &view)
 
 int WorkbenchImpl::editObject(const GrtObjectRef &object)
 {
-  bec::GRTManager::get().open_object_editor(object, bec::NoFlags);
+  bec::GRTManager::get()->open_object_editor(object, bec::NoFlags);
   return 0;
 }
 
 
 int WorkbenchImpl::editObjectInNewWindow(const GrtObjectRef &object)
 {
-  bec::GRTManager::get().open_object_editor(object, bec::ForceNewWindowFlag);
+  bec::GRTManager::get()->open_object_editor(object, bec::ForceNewWindowFlag);
   return 0;
 }
 
@@ -908,7 +908,7 @@ int WorkbenchImpl::toggleGridAlign(const model_DiagramRef &view)
   {
     form->get_view()->set_grid_snapping(!form->get_view()->get_grid_snapping());
 
-    bec::GRTManager::get().set_app_option("AlignToGrid", grt::IntegerRef(form->get_view()->get_grid_snapping()?1:0));
+    bec::GRTManager::get()->set_app_option("AlignToGrid", grt::IntegerRef(form->get_view()->get_grid_snapping()?1:0));
   }
   return 0;
 }
@@ -975,7 +975,7 @@ int WorkbenchImpl::goToMarker(const std::string &marker)
       diagram->x(mk->x());
       diagram->y(mk->y());
 
-      bec::GRTManager::get().get_dispatcher()->call_from_main_thread<void>(
+      bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<void>(
         boost::bind(&WBContextModel::switch_diagram, _wb->get_model_context(), diagram), false, false);
     }
   }
@@ -986,7 +986,7 @@ int WorkbenchImpl::goToMarker(const std::string &marker)
 
 int WorkbenchImpl::setMarker(const std::string &marker)
 {
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_ui()->get_active_main_form());
+  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(wb::WBContextUI::get()->get_active_main_form());
 
   if (form)
   {
@@ -1051,7 +1051,7 @@ int WorkbenchImpl::highlightFigure(const model_ObjectRef &figure)
 
 int WorkbenchImpl::setFigureNotation(const std::string &name, workbench_physical_ModelRef model)
 {
-//  model_ModelRef model(_wb->get_ui()->get_active_model(true));
+//  model_ModelRef model(wb::WBContextUI::get()->get_active_model(true));
 
   if (model.is_valid() && model.is_instance<workbench_physical_Model>())
     workbench_physical_ModelRef::cast_from(model)->figureNotation(name);
@@ -1063,7 +1063,7 @@ int WorkbenchImpl::setFigureNotation(const std::string &name, workbench_physical
 
 int WorkbenchImpl::setRelationshipNotation(const std::string &name, workbench_physical_ModelRef model)
 {
-//  model_ModelRef model(_wb->get_ui()->get_active_model(true));
+//  model_ModelRef model(wb::WBContextUI::get()->get_active_model(true));
 
   if (model.is_valid() && model.is_instance<workbench_physical_Model>())
     workbench_physical_ModelRef::cast_from(model)->connectionNotation(name);
@@ -1366,7 +1366,7 @@ int WorkbenchImpl::debugShowInfo()
 
 int WorkbenchImpl::refreshHomeConnections()
 {
-  _wb->get_ui()->refresh_home_connections();
+  wb::WBContextUI::get()->refresh_home_connections();
   return 0;
 }
 
@@ -1374,21 +1374,21 @@ int WorkbenchImpl::refreshHomeConnections()
 
 int WorkbenchImpl::confirm(const std::string &title, const std::string &caption)
 {
-  return bec::GRTManager::get().get_dispatcher()->call_from_main_thread<int>(
+  return bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<int>(
     boost::bind(mforms::Utilities::show_message, title, caption, _("OK"), _("Cancel"), ""), true, false);
 }
 
 
 std::string WorkbenchImpl::requestFileOpen(const std::string &caption, const std::string &extensions)
 {
-  return bec::GRTManager::get().get_dispatcher()->
+  return bec::GRTManager::get()->get_dispatcher()->
     call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "open", caption, extensions), true, false);
 }
 
 
 std::string WorkbenchImpl::requestFileSave(const std::string &caption, const std::string &extensions)
 {
-  return bec::GRTManager::get().get_dispatcher()->
+  return bec::GRTManager::get()->get_dispatcher()->
     call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "save", caption, extensions), true, false);
 }
 
@@ -1405,30 +1405,30 @@ int WorkbenchImpl::showUserTypeEditor(const workbench_physical_ModelRef &model)
 
 int WorkbenchImpl::showGRTShell()
 {
-  _wb->get_ui()->get_shell_window()->show();
+  wb::WBContextUI::get()->get_shell_window()->show();
 
   return 0;
 }
 
 int WorkbenchImpl::newGRTFile()
 {
-  _wb->get_ui()->get_shell_window()->show();
-  _wb->get_ui()->get_shell_window()->add_new_script();
+  wb::WBContextUI::get()->get_shell_window()->show();
+  wb::WBContextUI::get()->get_shell_window()->add_new_script();
 
   return 0;
 }
 
 int WorkbenchImpl::openGRTFile()
 {
-  _wb->get_ui()->get_shell_window()->show();
-  _wb->get_ui()->get_shell_window()->open_script_file();
+  wb::WBContextUI::get()->get_shell_window()->show();
+  wb::WBContextUI::get()->get_shell_window()->open_script_file();
 
   return 0;
 }
 
 int WorkbenchImpl::showDocumentProperties()
 {
-  DocumentPropertiesForm props(_wb->get_ui());
+  DocumentPropertiesForm props;
 
   props.show();
 
@@ -1438,7 +1438,7 @@ int WorkbenchImpl::showDocumentProperties()
 
 int WorkbenchImpl::showModelOptions(const workbench_physical_ModelRef &model)
 {
-  PreferencesForm prefs(_wb->get_ui(), model);
+  PreferencesForm prefs(model);
   prefs.show();
 
   return 0;
@@ -1447,7 +1447,7 @@ int WorkbenchImpl::showModelOptions(const workbench_physical_ModelRef &model)
 
 int WorkbenchImpl::showOptions()
 {
-  PreferencesForm prefs(_wb->get_ui());
+  PreferencesForm prefs;
   prefs.show();
 
   return 0;
@@ -1489,7 +1489,7 @@ int WorkbenchImpl::showConnectionManager()
   _wb->show_status_text("Connection Manager Opened.");
   editor.run();
   _wb->show_status_text("");
-  _wb->get_ui()->refresh_home_connections();
+  wb::WBContextUI::get()->refresh_home_connections();
   _wb->save_connections();
 
   return 0;
@@ -1565,7 +1565,7 @@ int WorkbenchImpl::showPluginManager()
  */
 int WorkbenchImpl::wmiOpenSession(const std::string server, const std::string& user, const std::string& password)
 {
-  log_debug2("Opening wmi session\n");
+  logDebug2("Opening wmi session\n");
 
   wmi::WmiServices* services = new wmi::WmiServices(server, user, password);
   _wmi_sessions[++_last_wmi_session_id] = services;
@@ -1584,7 +1584,7 @@ int WorkbenchImpl::wmiOpenSession(const std::string server, const std::string& u
   {\
     if (g_thread_self() != _thread_for_wmi_session[session])\
     {\
-      log_warning("%s called from invalid thread for WMI session %i", __FUNCTION__, session);\
+      logWarning("%s called from invalid thread for WMI session %i", __FUNCTION__, session);\
       throw std::logic_error("WMI access from invalid thread"); \
     }\
   }\
@@ -1604,11 +1604,11 @@ int WorkbenchImpl::wmiOpenSession(const std::string server, const std::string& u
  */
 int WorkbenchImpl::wmiCloseSession(int session)
 {
-  log_debug2("Closing wmi session\n");
+  logDebug2("Closing wmi session\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
     return -1;
 
-  log_debug2("Closing all wmi monitors\n");
+  logDebug2("Closing all wmi monitors\n");
   wmi::WmiServices* services = _wmi_sessions[session];
   std::map<int, wmi::WmiMonitor*>::iterator next, i= _wmi_monitors.begin();
   while (i != _wmi_monitors.end())
@@ -1638,10 +1638,10 @@ int WorkbenchImpl::wmiCloseSession(int session)
  */
 grt::DictListRef WorkbenchImpl::wmiQuery(int session, const std::string& query)
 {
-  log_debug2("Running a wmi query\n");
+  logDebug2("Running a wmi query\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
   {
-    log_warning("Attempt to run a wmi query against non-existing session\n");
+    logWarning("Attempt to run a wmi query against non-existing session\n");
     return grt::DictListRef();
   }
 
@@ -1672,7 +1672,7 @@ grt::DictListRef WorkbenchImpl::wmiQuery(int session, const std::string& query)
  */
 std::string WorkbenchImpl::wmiServiceControl(int session, const std::string& service, const std::string& action)
 {
-  log_debug2("Running wmi service control command\n");
+  logDebug2("Running wmi service control command\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
     return "error - Invalid wmi session";
 
@@ -1695,7 +1695,7 @@ std::string WorkbenchImpl::wmiServiceControl(int session, const std::string& ser
  */
 std::string WorkbenchImpl::wmiSystemStat(int session, const std::string& what)
 {
-  log_debug2("Running wmi system statistics query\n");
+  logDebug2("Running wmi system statistics query\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
     return "error - Invalid wmi session";
 
@@ -1719,7 +1719,7 @@ std::string WorkbenchImpl::wmiSystemStat(int session, const std::string& what)
  */
 int WorkbenchImpl::wmiStartMonitoring(int session, const std::string& what)
 {
-  log_debug2("Starting new wmi monitor\n");
+  logDebug2("Starting new wmi monitor\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
     return -1;
 
@@ -1729,7 +1729,7 @@ int WorkbenchImpl::wmiStartMonitoring(int session, const std::string& what)
   wmi::WmiMonitor* monitor = services->startMonitoring(what);
   _wmi_monitors[++_last_wmi_monitor_id] = monitor;
 
-  log_debug2("Wmi monitor with id %d created\n", _last_wmi_monitor_id);
+  logDebug2("Wmi monitor with id %d created\n", _last_wmi_monitor_id);
   return _last_wmi_monitor_id;
 }
 
@@ -1743,10 +1743,10 @@ int WorkbenchImpl::wmiStartMonitoring(int session, const std::string& what)
  */
 std::string WorkbenchImpl::wmiReadValue(int monitor_id)
 {
-  log_debug3("Reading wmi value for monitor: %d\n", monitor_id);
+  logDebug3("Reading wmi value for monitor: %d\n", monitor_id);
   if (_wmi_monitors.find(monitor_id) == _wmi_monitors.end())
   {
-    log_warning("Attempt to read monitor value for non-existing monitor\n");
+    logWarning("Attempt to read monitor value for non-existing monitor\n");
     return "error - Invalid wmi session";
   }
 
@@ -1765,10 +1765,10 @@ std::string WorkbenchImpl::wmiReadValue(int monitor_id)
  */
 int WorkbenchImpl::wmiStopMonitoring(int monitor_id)
 {
-  log_debug2("Stopping wmi monitor %d\n", monitor_id);
+  logDebug2("Stopping wmi monitor %d\n", monitor_id);
   if (_wmi_monitors.find(monitor_id) == _wmi_monitors.end())
   {
-    log_warning("Attempt to stop non-existing wmi monitor\n");
+    logWarning("Attempt to stop non-existing wmi monitor\n");
     return -1;
   }
 
@@ -1797,7 +1797,7 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
                                                        int port,
                                                        const std::string& name)
 {
-  log_debug("Creating new connection (%s) to host %s:%d for user %s (socket/pipe: %s)\n",
+  logDebug("Creating new connection (%s) to host %s:%d for user %s (socket/pipe: %s)\n",
     name.c_str(), host.c_str(), port, user.c_str(), socket_or_pipe_name.c_str()
   );
 
@@ -1834,7 +1834,7 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
   connection->hostIdentifier(bec::get_host_identifier_for_connection(connection));
   connections.insert(connection);
 
-  log_debug("Done creating new connection\n");
+  logDebug("Done creating new connection\n");
 
   return connection;
 }
@@ -1846,7 +1846,7 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
  */
 grt::DictListRef WorkbenchImpl::getLocalServerList()
 {
-  log_debug("Reading locally installed MySQL servers\n");
+  logDebug("Reading locally installed MySQL servers\n");
 
   grt::DictListRef entries;
 #ifdef _WIN32
@@ -1860,11 +1860,11 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
   catch (std::exception const& e)
   {
     // If for some reason (e.g. insufficient rights) the retrieval fails then we return an empty list.
-    log_error("Unable to locate installed MySQL Servers : %s.\n", e.what());
+    logError("Unable to locate installed MySQL Servers : %s.\n", e.what());
   }
   catch (...)
   {
-    log_error("Unable to locate installed MySQL Servers.\n");
+    logError("Unable to locate installed MySQL Servers.\n");
   }
   
 #else
@@ -1903,18 +1903,18 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
   
     if (err)
     {
-      log_warning("Error looking for installed servers, error %d : %s\n", err->code, err->message);
+      logWarning("Error looking for installed servers, error %d : %s\n", err->code, err->message);
       g_error_free(err);
     }
     
     if (ster != NULL && strlen(ster) > 0)
-      log_error("stderr from process list %s\n", ster);
+      logError("stderr from process list %s\n", ster);
 
     g_free(ster);
     
 #endif
 
-  log_debug("Found %li installed MySQL servers\n", entries.is_valid() ? (long)entries.count() : -1);
+  logDebug("Found %li installed MySQL servers\n", entries.is_valid() ? (long)entries.count() : -1);
 
   return entries;
 }
@@ -2147,7 +2147,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
   {
     // If for some reason (e.g. insufficient rights) the wmi session throws an exception
     // we don't want to see it. We simply do not create the list in that case.
-    log_warning("Error auto-detecting server instance: %s\n", exc.what());
+    logWarning("Error auto-detecting server instance: %s\n", exc.what());
   }
 
   return found_instances;
@@ -2160,7 +2160,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
  */
 std::string WorkbenchImpl::getVideoAdapter()
 {
-  log_debug("Attempting to determine the current video adaptor and its properties\n");
+  logDebug("Attempting to determine the current video adaptor and its properties\n");
   std::string result = _("Unknown");
   try
   {
@@ -2171,7 +2171,7 @@ std::string WorkbenchImpl::getVideoAdapter()
     wmiCloseSession(session);
 
     size_t count = entries->count();
-    log_debug("Found %d adapters\n", count);
+    logDebug("Found %d adapters\n", count);
     for (size_t i = 0; i < count; i++)
     {
       grt::DictRef entry(entries[i]);
@@ -2190,10 +2190,10 @@ std::string WorkbenchImpl::getVideoAdapter()
   catch (...)
   {
     // If for some reason (e.g. insufficient rights) the retrieval fails then we return an empty list.
-    log_error("Attempt failed to determine the current video adapter\n");
+    logError("Attempt failed to determine the current video adapter\n");
   }
 
-  log_debug("Done scan for the current video adapter\n");
+  logDebug("Done scan for the current video adapter\n");
 
   return result;
 }
@@ -2300,7 +2300,7 @@ int WorkbenchImpl::initializeOtherRDBMS()
     }
   }
   if (failed)
-    log_warning("Support for one or more RDBMS sources have failed.");
+    logWarning("Support for one or more RDBMS sources have failed.");
 
   _wb->load_other_connections();
   
@@ -2351,7 +2351,7 @@ int WorkbenchImpl::deleteConnection(const db_mgmt_ConnectionRef &connection)
     }
     catch (std::exception &exc)
     {
-      log_warning("Could not clear password: %s\n", exc.what());
+      logWarning("Could not clear password: %s\n", exc.what());
     }    
   }  
 

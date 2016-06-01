@@ -32,7 +32,6 @@ using namespace base;
 BEGIN_TEST_DATA_CLASS(wb_undo_diagram)
 public:
   WBTester *tester;
-  WBContextUI *wbui;
   UndoManager *um;
   OverviewBE *overview;
   ModelDiagramForm *diagram_form;
@@ -46,9 +45,8 @@ TEST_DATA_CONSTRUCTOR(wb_undo_diagram)
   tester = new WBTester;
   populate_grt(*tester);
 
-  wbui = tester->wb->get_ui();
   um = grt::GRT::get()->get_undo_manager();
-  overview = wbui->get_physical_overview();
+  overview = wb::WBContextUI::get()->get_physical_overview();
   diagram = model_DiagramRef();
 
   last_undo_stack_height = 0;
@@ -99,7 +97,7 @@ TEST_MODULE(wb_undo_diagram, "undo tests for diagram actions in Workbench");
 // setup
 TEST_FUNCTION(1)
 {
-  wbui->set_active_form(diagram_form);
+  wb::WBContextUI::get()->set_active_form(diagram_form);
   ensure_equals("undo stack is empty", um->get_undo_stack().size(), 0U);
 }
 
@@ -113,7 +111,7 @@ TEST_FUNCTION(10)  //  Place Table
   size_t old_root_figure_count= diagram->rootLayer()->figures().count();
   size_t old_object_count= schema->tables().count();
 
-  WBComponentPhysical *compo= wbui->get_wb()->get_component<WBComponentPhysical>();
+  WBComponentPhysical *compo= wb::WBContextUI::get()->get_wb()->get_component<WBComponentPhysical>();
 
   compo->place_new_db_object(diagram_form, Point(10, 10), wb::ObjectTable);
   check_only_one_undo_added();
@@ -142,7 +140,7 @@ TEST_FUNCTION(11)  //  Place View
   size_t old_root_figure_count= diagram->rootLayer()->figures().count();
   size_t old_object_count= schema->views().count();
 
-  WBComponentPhysical *compo= wbui->get_wb()->get_component<WBComponentPhysical>();
+  WBComponentPhysical *compo= wb::WBContextUI::get()->get_wb()->get_component<WBComponentPhysical>();
 
   compo->place_new_db_object(diagram_form, Point(10, 10), wb::ObjectView);
   check_only_one_undo_added();
@@ -171,7 +169,7 @@ TEST_FUNCTION(12)  //  Place Routine Group
   size_t old_root_figure_count= diagram->rootLayer()->figures().count();
   size_t old_object_count= schema->routineGroups().count();
 
-  WBComponentPhysical *compo= wbui->get_wb()->get_component<WBComponentPhysical>();
+  WBComponentPhysical *compo= wb::WBContextUI::get()->get_wb()->get_component<WBComponentPhysical>();
 
   compo->place_new_db_object(diagram_form, Point(10, 10), wb::ObjectRoutineGroup);
   check_only_one_undo_added();
@@ -591,7 +589,7 @@ TEST_FUNCTION(32) // Delete Table
   
   // delete the figure
   mforms::stub::UtilitiesWrapper::set_message_callback(message_ok_callback);
-  wbui->get_wb()->get_model_context()->delete_object(figure);
+  wb::WBContextUI::get()->get_wb()->get_model_context()->delete_object(figure);
   check_only_one_undo_added();
 
   ensure("table delete", !find_named_object_in_list(diagram->figures(), "table1").is_valid());

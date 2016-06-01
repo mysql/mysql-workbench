@@ -289,11 +289,10 @@ static void force_checkbox_on_toggle(mforms::CheckBox *value, mforms::CheckBox *
 
 //----------------- PreferencesForm ----------------------------------------------------------------
 
-PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical_ModelRef &model)
+PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
 : Form(NULL, mforms::FormResizable), _switcher(mforms::TreeNoHeader|mforms::TreeSidebar), _hbox(true), _top_box(false), _bottom_box(true),
   _tabview(mforms::TabViewTabless), _button_box(true), _font_list(mforms::TreeFlatList)
 {
-  _wbui = wbui;
   _model = model;
 
   set_name("preferences");

@@ -33,7 +33,6 @@ using namespace grt;
 BEGIN_TEST_DATA_CLASS(wb_undo_others)
 public:
   WBTester *tester;
-  WBContextUI *wbui;
   UndoManager *um;
   OverviewBE *overview;
   size_t last_undo_stack_height;
@@ -44,7 +43,6 @@ TEST_DATA_CONSTRUCTOR(wb_undo_others)
 {
   tester = new WBTester;
   tester->create_new_document();
-  wbui= tester->wb->get_ui();
   um= grt::GRT::get()->get_undo_manager();
   overview = 0;
   last_undo_stack_height= 0;
@@ -184,8 +182,8 @@ TEST_FUNCTION(1)
   bool flag= tester->wb->open_document("data/workbench/undo_test_model1.mwb");
   ensure("open_document", flag);
   
-  overview= wbui->get_physical_overview();
-  wbui->set_active_form(overview);
+  overview= wb::WBContextUI::get()->get_physical_overview();
+  wb::WBContextUI::get()->set_active_form(overview);
 
   ensure_equals("schemas", tester->get_catalog()->schemata().count(), 1U);
   
@@ -341,8 +339,8 @@ TEST_FUNCTION(29)
   bool flag= tester->wb->open_document("data/workbench/undo_test_model1.mwb");
   ensure("open_document", flag);
   
-  overview= wbui->get_physical_overview();
-  wbui->set_active_form(overview);
+  overview= wb::WBContextUI::get()->get_physical_overview();
+  wb::WBContextUI::get()->set_active_form(overview);
 
   bec::NodeId node(0);
   node.append(1);
@@ -362,7 +360,7 @@ TEST_FUNCTION(30)  // Property
   
   std::vector<std::string> items;
 
-  ValueInspectorBE *insp= wbui->create_inspector_for_selection(view, items);
+  ValueInspectorBE *insp= wb::WBContextUI::get()->create_inspector_for_selection(view, items);
   ensure("prop inspector created", insp != 0);
   ensure_equals("items", items.size(), 1U);
   ensure_equals("item0", items[0], "table2: Table");
@@ -402,11 +400,11 @@ TEST_FUNCTION(32)  // Description
   grt::ListRef<GrtObject> new_object_list;
   std::string description, old_description;
 
-  old_description= wbui->get_description_for_selection(new_object_list, items);
+  old_description= wb::WBContextUI::get()->get_description_for_selection(new_object_list, items);
   
   ensure_equals("selection count", items.size(), 1U);
   
-  wbui->set_description_for_selection(new_object_list, "test description");
+  wb::WBContextUI::get()->set_description_for_selection(new_object_list, "test description");
   check_only_one_undo_added();
 
   ensure_equals("description", 
@@ -455,11 +453,11 @@ TEST_FUNCTION(50) // Plugin Execution
   return; // something wrong with blocked UI events at this point... maybe should split the test
   model_DiagramRef mview(tester->get_pview());
 
-//  wbui->set_active_form(tester->tester->get_model_context()->get_diagram_form_for_diagram_id(tester->get_pmodel()->diagrams()[0].id()));
+//  wb::WBContextUI::get()->set_active_form(tester->tester->get_model_context()->get_diagram_form_for_diagram_id(tester->get_pmodel()->diagrams()[0].id()));
 
   ensure_equals("grid", mview->options().get_int("ShowGrid", -42), -42);
   
-  wbui->get_command_ui()->activate_command("plugin:tester->edit.toggleGrid");
+  wb::WBContextUI::get()->get_command_ui()->activate_command("plugin:tester->edit.toggleGrid");
   check_only_one_undo_added();
   
   ensure_equals("grid", mview->options().get_int("ShowGrid", -42), 0);

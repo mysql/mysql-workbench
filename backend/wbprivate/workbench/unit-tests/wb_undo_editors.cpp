@@ -29,7 +29,6 @@ using namespace wb;
 BEGIN_TEST_DATA_CLASS(wb_undo_editors)
 public:
   WBTester             *tester;
-  WBContextUI         *wbui;
   UndoManager         *um;
   OverviewBE          *overview;
   db_SchemaRef         schema;
@@ -41,11 +40,10 @@ public:
 TEST_DATA_CONSTRUCTOR(wb_undo_editors)
 {
   tester = new WBTester;
-  wbui     = tester->wb->get_ui();
   um       = grt::GRT::get()->get_undo_manager();
-  overview = wbui->get_physical_overview();
+  overview = WBContextUI::get()->get_physical_overview();
   
-  wbui->set_active_form(overview);
+  WBContextUI::get()->set_active_form(overview);
 
   last_undo_stack_height= 0;
   last_redo_stack_height= 0;

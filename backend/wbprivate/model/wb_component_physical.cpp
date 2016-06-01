@@ -2200,7 +2200,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
       workbench_physical_ModelRef model(get_parent_for_object<workbench_physical_Model>(form->get_model_diagram()));
       std::string selected;
 
-      _wb->get_ui()->get_wb_options_value(model.id(), "db.mysql.Table:tableEngine", selected);
+      wb::WBContextUI::get()->get_wb_options_value(model.id(), "db.mysql.Table:tableEngine", selected);
       if (selected.empty())
         selected= "*Default Engine*";
 
@@ -2349,8 +2349,8 @@ void WBComponentPhysical::reset_document()
     }
   }
 
-  ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_scripts();
-  ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_notes();
+  ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_scripts();
+  ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_notes();
 }
 
 
@@ -2399,7 +2399,7 @@ void WBComponentPhysical::catalog_object_list_changed(grt::internal::OwnedList *
     _wb->request_refresh(RefreshOverviewNodeChildren, "", 0); // Non-recursive refresh for the overview page.
 
     // A refresh for the schema list specifically.
-    ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_schema_list();
+    ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_schema_list();
     
     if (added)
     {
@@ -2432,8 +2432,8 @@ void WBComponentPhysical::schema_member_changed(const std::string &member, const
                                                 const db_SchemaRef &schema)
 {
 
-  if (_wb->get_ui()->get_physical_overview())
-    ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_for_schema(schema, true);
+  if (wb::WBContextUI::get()->get_physical_overview())
+    ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_for_schema(schema, true);
 
   _wb->get_model_context()->notify_catalog_tree_view(NodeAddUpdate, schema);
 }
@@ -2469,8 +2469,8 @@ void WBComponentPhysical::schema_object_list_changed(grt::internal::OwnedList *l
     _wb->request_refresh(RefreshCloseEditor, object.id());
   }
 
-  if (_wb->get_ui()->get_physical_overview())
-    ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_for_schema_object(GrtObjectRef::cast_from(value), false);
+  if (wb::WBContextUI::get()->get_physical_overview())
+    ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_for_schema_object(GrtObjectRef::cast_from(value), false);
 }
 
 
@@ -2572,7 +2572,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
         view->signal_list_changed()->connect(
                   boost::bind(&WBComponentPhysical::view_object_list_changed, this, _1, _2, _3, view));
         
-        _wb->get_ui()->get_physical_overview()->send_refresh_diagram(model_DiagramRef());
+        wb::WBContextUI::get()->get_physical_overview()->send_refresh_diagram(model_DiagramRef());
         return;
       }
       else
@@ -2628,9 +2628,9 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
 #endif
       // request refresh of overview
       if (value.is_instance(db_Script::static_class_name()))
-        ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_scripts();
+        ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_scripts();
       else if (value.is_instance(GrtStoredNote::static_class_name()))
-        ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_notes();
+        ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_notes();
     }
     else // !added
     {
@@ -2661,9 +2661,9 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
 #endif
         // request refresh of overview
         if (value.is_instance(db_Script::static_class_name()))
-          ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_scripts();
+          ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_scripts();
         else
-          ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_notes();
+          ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_notes();
       }
       else if (value.is_instance(model_Diagram::static_class_name()))
       {
@@ -2672,7 +2672,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
         _figure_list_listeners[id].disconnect();
         _figure_list_listeners.erase(id);
         
-        _wb->get_ui()->get_physical_overview()->send_refresh_diagram(model_DiagramRef());
+        wb::WBContextUI::get()->get_physical_overview()->send_refresh_diagram(model_DiagramRef());
       }
     }
   }
@@ -2732,7 +2732,7 @@ void WBComponentPhysical::refresh_ui_for_object(const GrtObjectRef &object)
   if (object.is_valid() && object->owner().is_valid())
   {
     workbench_physical_ModelRef model(get_parent_for_object<workbench_physical_Model>(object));
-    PhysicalOverviewBE *overview= (PhysicalOverviewBE*)((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview());
+    PhysicalOverviewBE *overview= (PhysicalOverviewBE*)((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview());
 
     if (overview->get_model() != model)
       throw std::logic_error("code is outdated");
@@ -3060,9 +3060,9 @@ void WBComponentPhysical::privilege_list_changed(grt::internal::OwnedList *list,
                                                  const db_CatalogRef &catalog)
 {
   if (grt::BaseListRef(list) == catalog->users())
-    ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_users();
+    ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_users();
   else if (grt::BaseListRef(list) == catalog->roles())
-    ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_roles();
+    ((PhysicalOverviewBE*)wb::WBContextUI::get()->get_physical_overview())->send_refresh_roles();
   if (!added)
   {
     grt::ObjectRef object(grt::ObjectRef::cast_from(value));

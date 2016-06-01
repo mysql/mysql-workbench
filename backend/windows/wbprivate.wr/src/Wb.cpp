@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,7 @@
 #include "sqlide/wb_sql_editor_form.h"
 
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 #include "workbench/wb_overview.h"
 #include "ConvUtils.h"
 #include "GrtTemplates.h"
@@ -54,7 +55,28 @@ WbOptions::WbOptions(String^ baseDir, String^ userDir, bool full_init)
   inner->module_search_path = inner->basedir + "/modules";
   inner->struct_search_path = "";
   inner->library_search_path = inner->basedir;
-  inner->user_data_dir = NativeToCppStringRaw(userDir);
+
+ if (!inner->user_data_dir.empty())
+  {
+    if (!base::is_directory(inner->user_data_dir))
+    {
+      try
+      {
+        if (!base::copyDirectoryRecursive(NativeToCppStringRaw(userDir), inner->user_data_dir))
+        {
+          Logger::LogError("WBContext managed", String::Format("Unable to prepare new config directory: {0} \n", CppStringToNative(inner->user_data_dir)));
+        }
+      }
+      catch (std::exception &exc)
+      {
+        Logger::LogError("WBContext managed", String::Format("There was a problem preparing new config directory. Falling back to default one. The error was: {0}\n", CppStringToNative(exc.what())));
+        inner->user_data_dir = NativeToCppStringRaw(userDir);
+      }
+    }
+  }
+  else
+    inner->user_data_dir = NativeToCppStringRaw(userDir);
+
   inner->full_init = full_init;
 }
 
@@ -107,8 +129,6 @@ String^ WbOptions::OpenAtStartupType::get()
 
 WbContext::WbContext(bool verbose)
 {
-  inner = WBContextUI::get();
-  manager = nullptr;
   physical_overview = nullptr;
 
   Logger::LogDebug("WBContext managed", 1, "Creating WbContext\n");
@@ -120,7 +140,6 @@ WbContext::~WbContext()
 {
   // Don't delete the inner object. It's a singleton.
   delete physical_overview;
-  delete manager;
 
   Logger::LogDebug("WBContext managed", 1, "Destroying WbContext\n");
 }
@@ -131,7 +150,7 @@ bool WbContext::init(WbFrontendCallbacks ^callbacks, WbOptions ^options,
   VoidStrUIFormDelegate^ create_main_form_view)
 {
   set_create_main_form_view(callbacks, create_main_form_view);
-  return inner->init(
+  return WBContextUI::get()->init(
     callbacks->get_callbacks(), 
     options->get_unmanaged_object());
 }
@@ -141,23 +160,24 @@ bool WbContext::init(WbFrontendCallbacks ^callbacks, WbOptions ^options,
 GrtManager^ WbContext::get_grt_manager()
 {
   if (manager == nullptr)
-    manager= gcnew GrtManager(inner->get_wb()->get_grt_manager());
+    manager = gcnew GrtManager();
 
-  return manager; 
+  return manager;
 }
+
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::add_frontend_commands(List<String^>^ commands)
 {
-  inner->get_command_ui()->add_frontend_commands(NativeToCppStringList2(commands));
+  WBContextUI::get()->get_command_ui()->add_frontend_commands(NativeToCppStringList2(commands));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::remove_frontend_commands(List<String^>^ commands)
 {
-  inner->get_command_ui()->remove_frontend_commands(NativeToCppStringList2(commands));
+  WBContextUI::get()->get_command_ui()->remove_frontend_commands(NativeToCppStringList2(commands));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +185,7 @@ void WbContext::remove_frontend_commands(List<String^>^ commands)
 void WbContext::activate_command(String^ name)
 {
   std::string command= NativeToCppString(name);
-  inner->get_command_ui()->activate_command(command);
+  WBContextUI::get()->get_command_ui()->activate_command(command);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +193,7 @@ void WbContext::activate_command(String^ name)
 Overview^ WbContext::get_physical_overview()
 {
   if (physical_overview == nullptr)
-    physical_overview= gcnew Overview(inner->get_physical_overview());
+    physical_overview= gcnew Overview(WBContextUI::get()->get_physical_overview());
   return physical_overview;
 }
 
@@ -183,14 +203,14 @@ TreeViewAdv^ WbContext::get_history_tree()
 {
   // Note: this and the other get_* function below leak memory (the created trees).
   //       This will be solved once the entire sidebars are managed by the backend.
-  return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(inner->get_wb()->get_model_context()->create_history_tree()));
+  return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(WBContextUI::get()->get_wb()->get_model_context()->create_history_tree()));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 TreeViewAdv^ WbContext::get_usertypes_tree()
 {
-  return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(inner->get_wb()->get_model_context()->create_user_type_list()));
+  return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(WBContextUI::get()->get_wb()->get_model_context()->create_user_type_list()));
 } 
 
 //--------------------------------------------------------------------------------------------------
@@ -199,9 +219,9 @@ MySQL::Grt::GrtValueInspector^ WbContext::get_inspector_for_selection(UIForm^ fo
 {
   std::vector<std::string> vitems;
   bec::ValueInspectorBE *insp = 
-    inner->create_inspector_for_selection(form->get_unmanaged_object(), vitems);
+    WBContextUI::get()->create_inspector_for_selection(form->get_unmanaged_object(), vitems);
   if (!insp)
-    insp = inner->create_inspector_for_selection(vitems);
+    insp = WBContextUI::get()->create_inspector_for_selection(vitems);
   if (insp)
   {
     items= CppStringListToNative(vitems);
@@ -231,7 +251,7 @@ String^ WbContext::get_description_for_selection(UIForm^ form, [Out] GrtValue^ %
   std::vector<std::string> vitems;
   ::grt::ListRef<GrtObject> activeObjList_;
   std::string val= 
-    inner->get_description_for_selection(form->get_unmanaged_object(), activeObjList_, vitems);
+    WBContextUI::get()->get_description_for_selection(form->get_unmanaged_object(), activeObjList_, vitems);
   activeObjList= gcnew GrtValue(activeObjList_);
   items= CppStringListToNative(vitems);
   return CppStringToNative(val);
@@ -243,7 +263,7 @@ String^ WbContext::get_description_for_selection([Out] GrtValue^ %activeObjList,
 {
   std::vector<std::string> vitems;
   ::grt::ListRef<GrtObject> activeObjList_;
-  std::string val= inner->get_description_for_selection(activeObjList_, vitems);
+  std::string val= WBContextUI::get()->get_description_for_selection(activeObjList_, vitems);
   activeObjList= gcnew GrtValue(activeObjList_);
   items= CppStringListToNative(vitems);
   return CppStringToNative(val);
@@ -255,14 +275,14 @@ void WbContext::set_description_for_selection(GrtValue^ activeObjList, String^ v
 {
   std::string val_= NativeToCppString(val);
   ::grt::ListRef<GrtObject> activeObjList_(::grt::ListRef<GrtObject>::cast_from(activeObjList->get_unmanaged_object()));
-  inner->set_description_for_selection(activeObjList_, val_);
+  WBContextUI::get()->set_description_for_selection(activeObjList_, val_);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 MySQL::Workbench::ModelDiagramFormWrapper^ WbContext::get_diagram_form_for_diagram(String^ id)
 {
-  return gcnew ModelDiagramFormWrapper(inner->get_wb()->get_model_context()->get_diagram_form_for_diagram_id(NativeToCppString(id)));
+  return gcnew ModelDiagramFormWrapper(WBContextUI::get()->get_wb()->get_model_context()->get_diagram_form_for_diagram_id(NativeToCppString(id)));
 }
 
 
@@ -271,9 +291,9 @@ MySQL::Workbench::ModelDiagramFormWrapper^ WbContext::get_diagram_form_for_diagr
 void WbContext::set_active_form(UIForm^ uiform)
 {
   if (uiform == nullptr)
-    inner->set_active_form(0);
+    WBContextUI::get()->set_active_form(0);
   else
-    inner->set_active_form(uiform->get_unmanaged_object());
+    WBContextUI::get()->set_active_form(uiform->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -283,13 +303,13 @@ void WbContext::set_active_form_from_appview(MySQL::Forms::AppViewDockContent ^f
   if (form == nullptr)
   {
     Logger::LogDebug("WBContext managed", 2, "Activating appview 0\n");
-    inner->set_active_form(0);
+    WBContextUI::get()->set_active_form(0);
   }
   else
   {
     Logger::LogDebug("WBContext managed", 2, String::Format("Activating appview {0}\n",
       form->GetAppViewIdentifier()));
-    inner->set_active_form(form->GetBackend());
+    WBContextUI::get()->set_active_form(form->GetBackend());
   }
 }
 
@@ -297,42 +317,42 @@ void WbContext::set_active_form_from_appview(MySQL::Forms::AppViewDockContent ^f
 
 String^ WbContext::get_active_context()
 {
-  return CppStringToNative(inner->get_active_context());
+  return CppStringToNative(WBContextUI::get()->get_active_context());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::show_output()
 {
-  inner->show_output();
+  WBContextUI::get()->show_output();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::close_gui_plugin(IntPtr handle)
 {
-  inner->get_wb()->close_gui_plugin((NativeHandle)handle.ToPointer());
+  WBContextUI::get()->get_wb()->close_gui_plugin((NativeHandle)handle.ToPointer());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::execute_plugin(String^ name)
 {
-  inner->get_wb()->execute_plugin(NativeToCppStringRaw(name));
+  WBContextUI::get()->get_wb()->execute_plugin(NativeToCppStringRaw(name));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::report_bug(String^ errorInfo)
 {
-  inner->get_wb()->report_bug(NativeToCppStringRaw(errorInfo));
+  WBContextUI::get()->get_wb()->report_bug(NativeToCppStringRaw(errorInfo));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 String^ WbContext::read_state(String^ name, String^ domain, String^ default_value)
 {
-  std::string value= inner->get_wb()->read_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
+  std::string value= WBContextUI::get()->get_wb()->read_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
     NativeToCppString(default_value));
   
   return CppStringToNative(value);
@@ -342,7 +362,7 @@ String^ WbContext::read_state(String^ name, String^ domain, String^ default_valu
 
 int WbContext::read_state(String^ name, String^ domain, const int default_value)
 {
-  int value= inner->get_wb()->read_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
+  int value= WBContextUI::get()->get_wb()->read_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
     default_value);
   
   return value;
@@ -352,7 +372,7 @@ int WbContext::read_state(String^ name, String^ domain, const int default_value)
 
 double WbContext::read_state(String^ name, String^ domain, const double default_value)
 {
-  double value= inner->get_wb()->read_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
+  double value= WBContextUI::get()->get_wb()->read_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
     default_value);
   
   return value;
@@ -362,7 +382,7 @@ double WbContext::read_state(String^ name, String^ domain, const double default_
 
 bool WbContext::read_state(String^ name, String^ domain, const bool default_value)
 {
-  bool value= inner->get_wb()->read_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
+  bool value= WBContextUI::get()->get_wb()->read_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
     default_value);
   
   return value;
@@ -372,7 +392,7 @@ bool WbContext::read_state(String^ name, String^ domain, const bool default_valu
 
 void WbContext::save_state(String^ name, String^ domain, String^ value)
 {
-  inner->get_wb()->save_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
+  WBContextUI::get()->get_wb()->save_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), 
     NativeToCppString(value));
 }
 
@@ -380,21 +400,21 @@ void WbContext::save_state(String^ name, String^ domain, String^ value)
 
 void WbContext::save_state(String^ name, String^ domain, const int value)
 {
-  inner->get_wb()->save_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), value);
+  WBContextUI::get()->get_wb()->save_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), value);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::save_state(String^ name, String^ domain, const double value)
 {
-  inner->get_wb()->save_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), value);
+  WBContextUI::get()->get_wb()->save_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), value);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::save_state(String^ name, String^ domain, const bool value)
 {
-  inner->get_wb()->save_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), value);
+  WBContextUI::get()->get_wb()->save_state(NativeToCppStringRaw(name), NativeToCppStringRaw(domain), value);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,7 +422,7 @@ void WbContext::save_state(String^ name, String^ domain, const bool value)
 String^ WbContext::read_option_value(String^ model, String^ key, String^ default_value)
 {
   std::string raw_result;
-  if (inner->get_wb_options_value(NativeToCppStringRaw(model), NativeToCppStringRaw(key), raw_result))
+  if (WBContextUI::get()->get_wb_options_value(NativeToCppStringRaw(model), NativeToCppStringRaw(key), raw_result))
     return CppStringToNativeRaw(raw_result);
   else
     return default_value;
@@ -433,7 +453,7 @@ void WbContext::create_main_form_view_wrapper(const std::string& view_name, std:
 
   if (0 == view_name.compare(WB_MAIN_VIEW_DB_QUERY))
   {
-    std::shared_ptr<::SqlEditorForm> ref(boost::static_pointer_cast<::SqlEditorForm>(form_be));
+    std::shared_ptr<::SqlEditorForm> ref(std::static_pointer_cast<::SqlEditorForm>(form_be));
     form= gcnew MySQL::GUI::Workbench::SqlEditorFormWrapper(&ref);
   }
 
@@ -449,7 +469,7 @@ MenuStrip^ WbContext::menu_for_form(MySQL::Base::UIForm^ form)
   if (form != nullptr)
     menu = form->get_unmanaged_object()->get_menubar();
   if (menu == NULL)
-    menu = inner->get_command_ui()->create_menubar_for_context("");
+    menu = WBContextUI::get()->get_command_ui()->create_menubar_for_context("");
 
   if (menu == NULL)
     return nullptr;
@@ -473,7 +493,7 @@ MenuStrip^ WbContext::menu_for_appview(MySQL::Forms::AppViewDockContent ^content
     return menuStrip;
 
   auto backend = content->GetBackend();
-  mforms::MenuBar *menu = inner->get_command_ui()->create_menubar_for_context(backend->is_main_form() ? backend->get_form_context_name() : "");
+  mforms::MenuBar *menu = WBContextUI::get()->get_command_ui()->create_menubar_for_context(backend->is_main_form() ? backend->get_form_context_name() : "");
   if (menu == NULL)
     return nullptr;
 
@@ -511,7 +531,7 @@ ToolStrip^ WbContext::toolbar_for_form(MySQL::Base::UIForm ^form)
 
 Control ^WbContext::shared_secondary_sidebar()
 {
-  mforms::View *sidebar = inner->get_wb()->get_model_context()->shared_secondary_sidebar();
+  mforms::View *sidebar = WBContextUI::get()->get_wb()->get_model_context()->shared_secondary_sidebar();
   if (sidebar == NULL)
     return nullptr;
 
@@ -567,28 +587,28 @@ String^ WbContext::get_search_string(MySQL::Base::UIForm^ form)
 
 String^ WbContext::get_title()
 {
-  return CppStringToNative(inner->get_title());
+  return CppStringToNative(WBContextUI::get()->get_title());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool WbContext::has_unsaved_changes()
 {
-  return inner->get_wb()->has_unsaved_changes();
+  return WBContextUI::get()->get_wb()->has_unsaved_changes();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::open_document(String^ file)
 {
-  inner->get_wb()->open_document(NativeToCppString(file));
+  WBContextUI::get()->get_wb()->open_document(NativeToCppString(file));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool WbContext::save_changes()
 {
-  return inner->get_wb()->save_changes();
+  return WBContextUI::get()->get_wb()->save_changes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,7 +617,7 @@ void WbContext::flush_idle_tasks()
 {
   try 
   {
-    inner->get_wb()->flush_idle_tasks(); 
+    WBContextUI::get()->get_wb()->flush_idle_tasks(); 
   }
   catch(std::exception *ex)
   {
@@ -618,14 +638,14 @@ void WbContext::flush_idle_tasks()
 
 double WbContext::delay_for_next_timer()
 {
-  return inner->get_wb()->get_grt_manager()->delay_for_next_timeout();
+  return bec::GRTManager::get()->delay_for_next_timeout();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::flush_timers()
 {
-  return inner->get_wb()->get_grt_manager()->flush_timers();
+  return bec::GRTManager::get()->flush_timers();
 }
 
 //--------------------------------------------------------------------------------------------------
