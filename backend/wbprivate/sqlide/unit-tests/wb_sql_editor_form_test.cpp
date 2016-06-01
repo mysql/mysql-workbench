@@ -23,7 +23,7 @@
 #include "sqlide/wb_sql_editor_tree_controller.h"
 #include "stub/stub_mforms.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "cppdbc.h"
 #include "wb_helpers.h"
@@ -90,7 +90,7 @@ public:
 
   void perform_idle_tasks()
   {
-    _form->grt_manager()->perform_idle_tasks();
+    bec::GRTManager::get()->perform_idle_tasks();
   }
 
   std::list<std::string> fetch_schema_list()
@@ -229,55 +229,58 @@ private:
 
 BEGIN_TEST_DATA_CLASS(wb_sql_editor_form_test)
 public:
-  WBTester tester;
-  WBContextSQLIDE wb_context_sqlide;
+  WBTester *tester;
+  WBContextSQLIDE *wb_context_sqlide;
   sql::ConnectionWrapper connection;
   SqlEditorForm::Ref form;
-  EditorFormTester form_tester;
+  EditorFormTester *form_tester;
   mforms::TreeView *pmodel_view;
-  GRT grt;
 
-
-  void set_connection_properties(grt::GRT *grt, db_mgmt_ConnectionRef& connection)
+  void set_connection_properties(db_mgmt_ConnectionRef& connection)
 {
-  grt::DictRef conn_params(grt);
+  grt::DictRef conn_params(true);
   conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
   conn_params.set("password", grt::StringRef(test_params->get_password()));
   grt::replace_contents(connection->parameterValues(), conn_params);
 
-  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt->get("/rdbms/drivers/0/"));
+  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt::GRT::get()->get("/rdbms/drivers/0/"));
   connection->driver(driverProperties);
 }
 
-sql::ConnectionWrapper create_connection_for_import(grt::GRT *grt)
+sql::ConnectionWrapper create_connection_for_import()
 {
   // init database connection
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  set_connection_properties(grt, connectionProperties);
+  set_connection_properties(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
 
   return dm->getConnection(connectionProperties);
 }
 
-TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test):wb_context_sqlide(tester.wbui)
+TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test)
 {
-  populate_grt(tester.grt, tester);
+  bec::GRTManager::get(); //need to bcreated first
+  tester = new WBTester;
+  wb_context_sqlide = new WBContextSQLIDE();
+  form_tester = new EditorFormTester();
 
-  connection= create_connection_for_import(tester.grt);
+  populate_grt(*tester);
 
-  db_mgmt_ConnectionRef my_connection(tester.grt);
-  set_connection_properties(tester.grt, my_connection);
-  form = SqlEditorForm::create(&wb_context_sqlide, my_connection);
+  connection = create_connection_for_import();
+
+  db_mgmt_ConnectionRef my_connection(grt::Initialized);
+  set_connection_properties(my_connection);
+  form = SqlEditorForm::create(wb_context_sqlide, my_connection);
   form->connect(std::shared_ptr<sql::TunnelConnection>());
 
   pmodel_view = new mforms::TreeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);
 
-  form_tester.set_target(form);
-  form_tester.set_lst_model_view(pmodel_view);
+  form_tester->set_target(form);
+  form_tester->set_lst_model_view(pmodel_view);
 
     //"USE `wb_sql_editor_form_test`;"
   static const char *sql1 =//
@@ -410,14 +413,14 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test):wb_context_sqlide(tester.wbui)
     " DELIMITER ;\n";
 
   std::string sql(sql1);
-  form_tester.exec_sql(sql);
+  form_tester->exec_sql(sql);
 
-  form_tester.tree_refresh();
-  form_tester.load_schema_data("wb_sql_editor_form_test");
+  form_tester->tree_refresh();
+  form_tester->load_schema_data("wb_sql_editor_form_test");
 
   // Stay for some time to finish the setup (it's done in a background thread).
   g_usleep(1000000);
-  form_tester.perform_idle_tasks();
+  form_tester->perform_idle_tasks();
 }
 
 END_TEST_DATA_CLASS;
@@ -427,7 +430,7 @@ TEST_MODULE(wb_sql_editor_form_test, "sql editor form test");
 // Testing fetch_schema_list.
 TEST_FUNCTION(1)
 {
-  std::list<std::string> schema_list = form_tester.fetch_schema_list();
+  std::list<std::string> schema_list = form_tester->fetch_schema_list();
 
   ensure ("TF001CHK001: Unexpected number of schemas retrieved", schema_list.size() > 0);
 
@@ -444,34 +447,34 @@ TEST_FUNCTION(1)
 TEST_FUNCTION(2)
 {
   // Loads the schema list
-  form_tester.tree_refresh();
+  form_tester->tree_refresh();
 
   // Sets the expectations..
-  form_tester._expect_schema_content_arrived = true;
-  form_tester._mock_validate_schema_content = true;
+  form_tester->_expect_schema_content_arrived = true;
+  form_tester->_mock_validate_schema_content = true;
 
-  form_tester._expected_tables.push_back("language");
-  form_tester._expected_tables.push_back("film");
-  form_tester._expected_tables.push_back("film_text");
-  form_tester._expected_tables.push_back("dummy_table");
-  form_tester._expected_tables.push_back("complex_pk_table");
-  form_tester._expected_tables.push_back("no_pk_table");
-  form_tester._expected_tables.push_back("pk_table_unique_not_null");
-  form_tester._expected_tables.push_back("no_pk_table_unique_not_null");
+  form_tester->_expected_tables.push_back("language");
+  form_tester->_expected_tables.push_back("film");
+  form_tester->_expected_tables.push_back("film_text");
+  form_tester->_expected_tables.push_back("dummy_table");
+  form_tester->_expected_tables.push_back("complex_pk_table");
+  form_tester->_expected_tables.push_back("no_pk_table");
+  form_tester->_expected_tables.push_back("pk_table_unique_not_null");
+  form_tester->_expected_tables.push_back("no_pk_table_unique_not_null");
 
-  form_tester._expected_views.push_back("dummy_film_view");
+  form_tester->_expected_views.push_back("dummy_film_view");
 
-  form_tester._expected_procedures.push_back("get_films");
+  form_tester->_expected_procedures.push_back("get_films");
 
-  form_tester._expected_functions.push_back("dummy_function");
-  form_tester._expected_functions.push_back("other_function");
+  form_tester->_expected_functions.push_back("dummy_function");
+  form_tester->_expected_functions.push_back("other_function");
 
-  form_tester._check_id = "TF002CHK001";
+  form_tester->_check_id = "TF002CHK001";
 
   // Loads the specific schema...
-  form_tester.fetch_schema_contents("wb_sql_editor_form_test");
+  form_tester->fetch_schema_contents("wb_sql_editor_form_test");
 
-  form_tester.clean_and_reset();
+  form_tester->clean_and_reset();
 }
 
 // Testing for SqlEditorForm::fetch_column_data.
@@ -484,16 +487,16 @@ TEST_FUNCTION(3)
   wb::LiveSchemaTree::ColumnData *pchild_data;
   
   // Loads the schema list into the tree...
-  form_tester.tree_refresh();
+  form_tester->tree_refresh();
 
   // Loads a specific schema contents...
-  form_tester.load_schema_data("wb_sql_editor_form_test");
+  form_tester->load_schema_data("wb_sql_editor_form_test");
 
   // Loads the column data from the language table.
-  form_tester._expect_update_node_children = true;
-  form_tester._mock_propagate_update_node_children = true;
-  form_tester._check_id = "TF003CHK001";
-  form_tester.fetch_column_data("wb_sql_editor_form_test", "language", wb::LiveSchemaTree::Table);
+  form_tester->_expect_update_node_children = true;
+  form_tester->_mock_propagate_update_node_children = true;
+  form_tester->_check_id = "TF003CHK001";
+  form_tester->fetch_column_data("wb_sql_editor_form_test", "language", wb::LiveSchemaTree::Table);
 
   table_node = form->get_live_tree()->get_schema_tree()->get_node_for_object("wb_sql_editor_form_test", wb::LiveSchemaTree::Table, "language");
   pdata = dynamic_cast<wb::LiveSchemaTree::TableData*>(table_node->get_data());
@@ -536,17 +539,17 @@ TEST_FUNCTION(4)
   wb::LiveSchemaTree::IndexData *pchild_data;
 
   // Loads the schema list into the tree...
-  form_tester.tree_refresh();
+  form_tester->tree_refresh();
 
   // Loads a specific schema contents...
-  form_tester._check_id = "TF004CHK001";
-  form_tester.load_schema_data("wb_sql_editor_form_test");
+  form_tester->_check_id = "TF004CHK001";
+  form_tester->load_schema_data("wb_sql_editor_form_test");
 
   // Loads the index data from the film table.
-  form_tester._expect_update_node_children = true;
-  form_tester._mock_propagate_update_node_children = true;
-  form_tester._check_id = "TF004CHK002";
-  form_tester.fetch_index_data("wb_sql_editor_form_test", "film", wb::LiveSchemaTree::Table);
+  form_tester->_expect_update_node_children = true;
+  form_tester->_mock_propagate_update_node_children = true;
+  form_tester->_check_id = "TF004CHK002";
+  form_tester->fetch_index_data("wb_sql_editor_form_test", "film", wb::LiveSchemaTree::Table);
 
   table_node = form->get_live_tree()->get_schema_tree()->get_node_for_object("wb_sql_editor_form_test", wb::LiveSchemaTree::Table, "film");
   pdata = dynamic_cast<wb::LiveSchemaTree::TableData*>(table_node->get_data());
@@ -600,17 +603,17 @@ TEST_FUNCTION(5)
   wb::LiveSchemaTree::TriggerData *pchild_data;
 
   // Loads the schema list into the tree...
-  form_tester.tree_refresh();
+  form_tester->tree_refresh();
 
   // Loads a specific schema contents...
-  form_tester._check_id = "TF005CHK001";
-  form_tester.load_schema_data("wb_sql_editor_form_test");
+  form_tester->_check_id = "TF005CHK001";
+  form_tester->load_schema_data("wb_sql_editor_form_test");
 
   // Loads the trigger data from the film table.
-  form_tester._expect_update_node_children = true;
-  form_tester._mock_propagate_update_node_children = true;
-  form_tester._check_id = "TF005CHK002";
-  form_tester.fetch_trigger_data("wb_sql_editor_form_test", "film", wb::LiveSchemaTree::Table);
+  form_tester->_expect_update_node_children = true;
+  form_tester->_mock_propagate_update_node_children = true;
+  form_tester->_check_id = "TF005CHK002";
+  form_tester->fetch_trigger_data("wb_sql_editor_form_test", "film", wb::LiveSchemaTree::Table);
 
   table_node = form->get_live_tree()->get_schema_tree()->get_node_for_object("wb_sql_editor_form_test", wb::LiveSchemaTree::Table, "film");
   pdata = dynamic_cast<wb::LiveSchemaTree::TableData*>(table_node->get_data());
@@ -656,17 +659,17 @@ TEST_FUNCTION(6)
   wb::LiveSchemaTree::FKData *pchild_data;
 
   // Loads the schema list into the tree...
-  form_tester.tree_refresh();
+  form_tester->tree_refresh();
 
   // Loads a specific schema contents...
-  form_tester._check_id = "TF006CHK001";
-  form_tester.load_schema_data("wb_sql_editor_form_test");
+  form_tester->_check_id = "TF006CHK001";
+  form_tester->load_schema_data("wb_sql_editor_form_test");
 
   // Loads the foreign key data from the film table.
-  form_tester._expect_update_node_children = true;
-  form_tester._mock_propagate_update_node_children = true;
-  form_tester._check_id = "TF006CHK002";
-  form_tester.fetch_foreign_key_data("wb_sql_editor_form_test", "film", wb::LiveSchemaTree::Table);
+  form_tester->_expect_update_node_children = true;
+  form_tester->_mock_propagate_update_node_children = true;
+  form_tester->_check_id = "TF006CHK002";
+  form_tester->fetch_foreign_key_data("wb_sql_editor_form_test", "film", wb::LiveSchemaTree::Table);
 
   table_node = form->get_live_tree()->get_schema_tree()->get_node_for_object("wb_sql_editor_form_test", wb::LiveSchemaTree::Table, "film");
   pdata = dynamic_cast<wb::LiveSchemaTree::TableData*>(table_node->get_data());
@@ -695,13 +698,21 @@ TEST_FUNCTION(6)
   ensure_equals("TF006CHK005 : Unexpected foreign key delete rule", pchild_data->referenced_table, "language");
 }
 
-TEST_FUNCTION(100)
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(99)
 {
   // cleanup
   std::string sql = "DROP DATABASE wb_sql_editor_form_test";
-  form_tester.exec_sql(sql);
+  form_tester->exec_sql(sql);
   form->close();
   form.reset();
+
+  delete form_tester;
+  delete wb_context_sqlide;
+  delete tester;
 }
+
+
 
 END_TESTS

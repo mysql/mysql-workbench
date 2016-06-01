@@ -61,7 +61,7 @@ TEST_FUNCTION(2)
   columns.push_back(wb::OverviewBE::Expanded);
   columns.push_back(wb::OverviewBE::Height);
   columns.push_back(wb::OverviewBE::DisplayMode);
-  dump_tree_model("output/overview_test2.txt", tester->wb->get_ui()->get_physical_overview(), columns);
+  dump_tree_model("output/overview_test2.txt", wb::WBContextUI::get()->get_physical_overview(), columns);
 
   ensure_files_equal("initial overview state ", "output/overview_test2.txt", "data/be/overview_test2.txt");
 }

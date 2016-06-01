@@ -64,7 +64,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC DocumentPropertiesForm : public mforms::Form
   void push_values();
   
 public:
-  DocumentPropertiesForm(wb::WBContextUI *wbui);
+  DocumentPropertiesForm();
   virtual ~DocumentPropertiesForm();
 
   void show();

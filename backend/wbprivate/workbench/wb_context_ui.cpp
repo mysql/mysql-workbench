@@ -79,7 +79,7 @@ std::shared_ptr<WBContextUI> WBContextUI::get()
 //--------------------------------------------------------------------------------------------------
 
 WBContextUI::WBContextUI()
-  : _wb(new WBContext(this, false)), _command_ui(new CommandUI(_wb))
+  : _wb(new WBContext(false)), _command_ui(new CommandUI(_wb))
 {
   _shell_window= 0;
   

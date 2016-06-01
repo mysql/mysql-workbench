@@ -548,7 +548,7 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
 
 extern void register_all_metaclasses();
 
-WBContext::WBContext(WBContextUI *ui, bool verbose)
+WBContext::WBContext(bool verbose)
 {
   static bool registered_metaclasses = false;
 
@@ -559,9 +559,8 @@ WBContext::WBContext(WBContextUI *ui, bool verbose)
   _grtManager = bec::GRTManager::get();
 
   _asked_for_saving = false;
-  _uicontext = ui;
   _model_context = nullptr;
-  _sqlide_context = new WBContextSQLIDE(ui);
+  _sqlide_context = new WBContextSQLIDE();
   _file = nullptr;
   _save_point = nullptr;
   _tunnel_manager = nullptr;
@@ -2772,7 +2771,7 @@ void WBContext::reset_document()
 {
  _grt->get_undo_manager()->reset();
 
-  get_ui()->reset();
+  wb::WBContextUI::get()->reset();
   
   _clipboard->clear();
   _clipboard->set_content_description("");

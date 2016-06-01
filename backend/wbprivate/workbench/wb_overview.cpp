@@ -1117,9 +1117,9 @@ bool OverviewBE::activate_popup_item_for_nodes(const std::string &name, const st
         argpool.add_entries_for_object("", n->object, "GrtObject");
 
         if (name == "plugin:wb.edit.editSelectedFigureInNewWindow")
-          _wb->get_ui()->get_command_ui()->activate_command("plugin:wb.edit.editObjectInNewWindow", argpool);
+          wb::WBContextUI::get()->get_command_ui()->activate_command("plugin:wb.edit.editObjectInNewWindow", argpool);
         else
-          _wb->get_ui()->get_command_ui()->activate_command(name, argpool);
+          wb::WBContextUI::get()->get_command_ui()->activate_command(name, argpool);
       }
     }
   }
