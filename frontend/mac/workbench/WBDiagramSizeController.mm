@@ -48,10 +48,10 @@
 
 @implementation WBDiagramSizeController
 
-- (instancetype)initWithWBContext: (wb::WBContextUI*)wbui
+- (instancetype)initWithWBContext
 {
   self = [super init];
-  if (self != nil && wbui != NULL)
+  if (self != nil)
   {
     // The diagram size controller is a panel (window) which can be set to auto release on close.
     // However, in order to keep the pattern with all our nib loading this setting is off and we do it manually.
@@ -64,7 +64,7 @@
       [canvas setupQuartz];
       [canvas unlockFocus];
 
-      _be = wbui->create_diagram_options_be(canvas.canvas);
+      _be = wb::WBContextUI::get()->create_diagram_options_be(canvas.canvas);
       _be->update_size();
       _be->signal_changed()->connect(boost::bind(update_size_entries, (__bridge void *)self));
 
@@ -78,7 +78,7 @@
 
 - (instancetype)init
 {
-  return [self initWithWBContext: NULL];
+  return [self initWithWBContext];
 }
 
 - (void)dealloc

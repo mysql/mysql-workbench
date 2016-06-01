@@ -32,7 +32,7 @@
 - (void)handleModelCreated
 {
   // Set up the model overview tab
-  _physicalOverview = [[WBModelOverviewPanel alloc] initWithWBContextUI: _wbui];
+  _physicalOverview = [[WBModelOverviewPanel alloc] initWithWBContextUI];
   [self addTopPanelAndSwitch: _physicalOverview];
 }
 

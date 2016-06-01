@@ -37,17 +37,15 @@ class MacNotificationObserver;
 @interface MainWindowController : NSWindowController
 {
   WBModelOverviewPanel *_physicalOverview;
-  wb::WBContextUI *_wbui;
 }
 
-@property (readonly) wb::WBContextUI *context;
 @property (readonly) BOOL closeAllPanels;
 @property (weak) WBMainController *owner;
 @property (readonly, strong) WBBasePanel *selectedTopPanel;
 @property (readonly, strong) WBBasePanel *activePanel;
 @property (readonly, strong) WBBasePanel *selectedMainPanel;
 
-- (void)setWBContext:(wb::WBContextUI*)wbui;
+- (void)setup;
 - (void)setupReady;
 - (NSTabViewItem*)addTopPanel:(WBBasePanel*)panel;
 - (NSTabViewItem*)addTopPanelAndSwitch:(WBBasePanel*)panel;

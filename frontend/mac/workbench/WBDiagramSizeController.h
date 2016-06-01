@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ namespace wb {
 
 @interface WBDiagramSizeController : NSObject
 
-- (instancetype)initWithWBContext:(wb::WBContextUI*)wbui NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithWBContext NS_DESIGNATED_INITIALIZER;
 
 - (IBAction)okClicked:(id)sender;
 - (void)showModal;
