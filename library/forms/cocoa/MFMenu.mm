@@ -35,7 +35,7 @@
 
   NSPopUpButtonCell* popUpButtonCell = [[NSPopUpButtonCell alloc] initTextCell: @""
                                                                      pullsDown: pullsDown];
-  popUpButtonCell.menu = popup;
+  [popUpButtonCell setMenu: popup];
   if (!pullsDown)
     [popUpButtonCell selectItem: nil];
   [popUpButtonCell performClickWithFrame: frame inView: view];
@@ -62,8 +62,8 @@
 
 - (void) handleCommand: (NSMenuItem*) sender
 {
-  NSString* command = sender.representedObject;
-  mOwner->handle_action(command.UTF8String);
+  NSString* command = [sender representedObject];
+  mOwner->handle_action([command UTF8String]);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,14 +91,14 @@ static int menu_add_item(mforms::Menu *self, const std::string &caption, const s
   NSMenuItem* item;
   
   item = [[NSMenuItem alloc] init];
-  item.representedObject = @(action.c_str());
-  item.target = menu;
-  item.action = @selector(handleCommand:);
-  item.title = @(caption.c_str());
-  item.enabled = true;
+  [item setRepresentedObject: @(action.c_str())];
+  [item setTarget: menu];
+  [item setAction: @selector(handleCommand:)];
+  [item setTitle: @(caption.c_str())];
+  [item setEnabled: true];
   
   [menu addItem: item];
-  return menu.numberOfItems - 1;
+  return [menu numberOfItems] - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ static int menu_add_separator(mforms::Menu *self)
   NSMenuItem* item;
   item = [NSMenuItem separatorItem];
   [menu addItem: item];
-  return menu.numberOfItems - 1;
+  return [menu numberOfItems] - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,13 +121,13 @@ static int menu_add_submenu(mforms::Menu *self, const std::string &caption, mfor
   
   NSMenuItem* item;
   item = [[NSMenuItem alloc] init];
-  item.title = @(caption.c_str());
-  item.enabled = true;
+  [item setTitle: @(caption.c_str())];
+  [item setEnabled: true];
 
   [menu addItem: item];
   MFMenuImpl* theSubMenu = submenu->get_data();
   [menu setSubmenu: theSubMenu forItem: item];
-  return menu.numberOfItems - 1;
+  return [menu numberOfItems] - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ static void menu_set_item_enabled(mforms::Menu *self, int i, bool flag)
 {
   MFMenuImpl* menu = self->get_data();
   
-  [menu itemAtIndex: i].enabled = flag;
+  [[menu itemAtIndex: i] setEnabled: flag];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,7 +149,12 @@ static void menu_popup_at(mforms::Menu *self, mforms::Object *control, int x, in
   {
     mforms::Form *activeForm = mforms::Form::active_form();
     if (activeForm != NULL)
-      [NSMenu popUpContextMenu: menu withEvent: NSApp.currentEvent forView: activeForm->get_data()];
+    {
+      id nativeForm = activeForm->get_data();
+      if ([nativeForm isKindOfClass: NSWindow.class])
+        nativeForm = [nativeForm firstResponder];
+      [NSMenu popUpContextMenu: menu withEvent: [NSApp currentEvent] forView: nativeForm];
+    }
   }
   else
   {
@@ -173,7 +178,7 @@ static void menu_clear(mforms::Menu *self)
   MFMenuImpl* menu = self->get_data();
   
   // [menu removeAllItems]; available on 10.6+
-  while (menu.numberOfItems > 0)
+  while ([menu numberOfItems] > 0)
     [menu removeItemAtIndex: 0];
 }
 
