@@ -60,7 +60,6 @@ DEFAULT_LOG_DOMAIN("Workbench")
 
 @interface WBMainController()
 {
-  wb::WBContextUI *_wbui;
   wb::WBContext *_wb;
   wb::WBOptions *_options;
   std::map<std::string, FormPanelFactory> _formPanelFactories;
@@ -78,6 +77,8 @@ DEFAULT_LOG_DOMAIN("Workbench")
   IBOutlet NSTextField *paperSizeLabel;
   IBOutlet NSButton *landscapeButton;
   IBOutlet NSButton *portraitButton;
+  // We need to keep extra reference, so it's not released too early.
+  std::shared_ptr<wb::WBContextUI> _wbContext;
 }
 
 @end
@@ -377,53 +378,51 @@ static bool quitApplication(MainWindowController *controller)
   [[NSNotificationCenter defaultCenter] removeObserver: self];
 
   
-  _wbui->get_wb()->finalize();
-  delete _wbui;
-
+  wb::WBContextUI::get()->get_wb()->finalize();
   logInfo("Workbench shutdown done\n");
 }
 
-static void call_copy(wb::WBContextUI *wbui)
+static void call_copy()
 {
   if (![NSApp.keyWindow.firstResponder tryToPerform:@selector(copy:) with:nil])
-    if (wbui->get_active_form() && wbui->get_active_form()->can_copy())
-      wbui->get_active_form()->copy();    
+    if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_copy())
+      wb::WBContextUI::get()->get_active_form()->copy();
 }
 
-static void call_cut(wb::WBContextUI *wbui)
+static void call_cut()
 {
   if (![NSApp.keyWindow.firstResponder tryToPerform:@selector(cut:) with:nil])
-    if (wbui->get_active_form() && wbui->get_active_form()->can_cut())
-      wbui->get_active_form()->cut();
+    if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_cut())
+      wb::WBContextUI::get()->get_active_form()->cut();
 }
 
-static void call_paste(wb::WBContextUI *wbui)
+static void call_paste()
 {
   if (![NSApp.keyWindow.firstResponder tryToPerform: @selector(paste:) with:nil])
-    if (wbui->get_active_form() && wbui->get_active_form()->can_paste())
-      wbui->get_active_form()->paste();
+    if (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_paste())
+      wb::WBContextUI::get()->get_active_form()->paste();
 }
 
-static void call_select_all(wb::WBContextUI *wbui)
+static void call_select_all()
 {
   if (![NSApp.keyWindow.firstResponder tryToPerform: @selector(selectAll:) with:nil])
-    if (wbui->get_active_form())
-      wbui->get_active_form()->select_all();
+    if (wb::WBContextUI::get()->get_active_form())
+      wb::WBContextUI::get()->get_active_form()->select_all();
 }
 
-static void call_delete(wb::WBContextUI *wbui)
+static void call_delete()
 {
   id responder= NSApp.keyWindow.firstResponder;
 
   if (![responder tryToPerform: @selector(delete:) with: nil])
     if (![responder tryToPerform: @selector(deleteBackward:) with:nil])
-      if (wbui->get_active_form())
-        wbui->get_active_form()->delete_selection();
+      if (wb::WBContextUI::get()->get_active_form())
+        wb::WBContextUI::get()->get_active_form()->delete_selection();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static bool validate_copy(wb::WBContextUI *wbui)
+static bool validate_copy()
 {
   if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(selectedRange)])
   {
@@ -434,12 +433,12 @@ static bool validate_copy(wb::WBContextUI *wbui)
       &&*/ [NSApp.keyWindow.firstResponder respondsToSelector: @selector(copy:)])
     return true; //[[(NSTableView*)[[NSApp keyWindow] firstResponder] selectedRowIndexes] count] > 0;
   
-  return (wbui->get_active_form() && wbui->get_active_form()->can_copy());
+  return (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_copy());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static bool validate_cut(wb::WBContextUI *wbui)
+static bool validate_cut()
 {
   if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(selectedRange)])
   {
@@ -455,12 +454,12 @@ static bool validate_cut(wb::WBContextUI *wbui)
   else if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(cut:)])
     return true;
   
-  return (wbui->get_active_form() && wbui->get_active_form()->can_cut());
+  return (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_cut());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static bool validate_paste(wb::WBContextUI *wbui)
+static bool validate_paste()
 {
   if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(isEditable)])
   {
@@ -477,22 +476,22 @@ static bool validate_paste(wb::WBContextUI *wbui)
   else if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(paste:)])
     return true;
   
-  return (wbui->get_active_form() && wbui->get_active_form()->can_paste());
+  return (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_paste());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static bool validate_select_all(wb::WBContextUI *wbui)
+static bool validate_select_all()
 {
   if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(isSelectable)])
     return [(id)NSApp.keyWindow.firstResponder isSelectable];
 
-  return (wbui->get_active_form());
+  return (wb::WBContextUI::get()->get_active_form());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static bool validate_delete(wb::WBContextUI *wbui)
+static bool validate_delete()
 {
   NSResponder* responder = NSApp.keyWindow.firstResponder;
   if ([responder respondsToSelector: @selector(canDeleteItem:)])
@@ -504,7 +503,7 @@ static bool validate_delete(wb::WBContextUI *wbui)
     return textRange.length > 0;
   }
 
-  return (wbui->get_active_form() && wbui->get_active_form()->can_delete());
+  return (wb::WBContextUI::get()->get_active_form() && wb::WBContextUI::get()->get_active_form()->can_delete());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -645,7 +644,7 @@ static void call_find(MainWindowController *controller)
 
 static bool validate_find(MainWindowController *controller)
 {
-  bec::UIForm *form = controller.context->get_active_main_form();
+  bec::UIForm *form = wb::WBContextUI::get()->get_active_main_form();
   if (form && form->get_toolbar() && form->get_toolbar()->find_item("find"))
     return true;
   return validate_find_replace();
@@ -655,7 +654,6 @@ static bool validate_find(MainWindowController *controller)
 
 static void call_undo(MainWindowController *controller)
 {
-  wb::WBContextUI *wbui = controller.context;
   id firstResponder = NSApp.keyWindow.firstResponder;
 
   if ([firstResponder respondsToSelector: @selector(undo:)])
@@ -663,13 +661,12 @@ static void call_undo(MainWindowController *controller)
   else if ([firstResponder isKindOfClass: [NSTextView class]])
     return [[firstResponder undoManager] undo];
   else
-    if (wbui->get_active_main_form())
-      wbui->get_active_main_form()->undo();
+    if (wb::WBContextUI::get()->get_active_main_form())
+      wb::WBContextUI::get()->get_active_main_form()->undo();
 }
 
 static bool validate_undo(MainWindowController *controller)
 {
-  wb::WBContextUI *wbui = controller.context;
   id firstResponder = NSApp.keyWindow.firstResponder;
 
   if ([firstResponder respondsToSelector: @selector(canUndo)])
@@ -679,14 +676,13 @@ static bool validate_undo(MainWindowController *controller)
   else if ([firstResponder isKindOfClass: [SCIContentView class]])
     return true;
   else
-    if (wbui->get_active_main_form())
-      return wbui->get_active_main_form()->can_undo();
+    if (wb::WBContextUI::get()->get_active_main_form())
+      return wb::WBContextUI::get()->get_active_main_form()->can_undo();
   return false;
 }
 
 static void call_redo(MainWindowController *controller)
 {
-  wb::WBContextUI *wbui = controller.context;
   id firstResponder = NSApp.keyWindow.firstResponder;
   
   if ([firstResponder respondsToSelector: @selector(redo:)])
@@ -694,13 +690,12 @@ static void call_redo(MainWindowController *controller)
   else if ([firstResponder isKindOfClass: [NSTextView class]])
     return [[firstResponder undoManager] redo];
   else
-    if (wbui->get_active_main_form())
-      wbui->get_active_main_form()->redo();
+    if (wb::WBContextUI::get()->get_active_main_form())
+      wb::WBContextUI::get()->get_active_main_form()->redo();
 }
 
 static bool validate_redo(MainWindowController *controller)
 {
-  wb::WBContextUI *wbui = controller.context;
   id firstResponder = NSApp.keyWindow.firstResponder;
   
   if ([firstResponder respondsToSelector: @selector(canRedo)])
@@ -710,8 +705,8 @@ static bool validate_redo(MainWindowController *controller)
   else if ([firstResponder isKindOfClass: [SCIContentView class]])
     return true;
   else
-    if (wbui->get_active_main_form())
-      return wbui->get_active_main_form()->can_redo();
+    if (wb::WBContextUI::get()->get_active_main_form())
+      return wb::WBContextUI::get()->get_active_main_form()->can_redo();
   return false;
 }
 
@@ -724,8 +719,7 @@ static bool validate_redo(MainWindowController *controller)
        notification.object == [firstResponder superview]))
   { 
     // refresh edit menu
-    wb::WBContextUI *wbui = mainController.context;
-    wbui->get_command_ui()->revalidate_edit_menu_items();
+    wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
   }
 }
 
@@ -758,37 +752,37 @@ static bool validate_redo(MainWindowController *controller)
   commands.push_back("wb.next_query_tab");
   commands.push_back("wb.back_query_tab");
 
-  _wbui->get_command_ui()->add_frontend_commands(commands);
+  wb::WBContextUI::get()->get_command_ui()->add_frontend_commands(commands);
 
-  _wbui->get_command_ui()->add_builtin_command("closetab", boost::bind(call_closetab_old, mainController),
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("closetab", boost::bind(call_closetab_old, mainController),
                                                boost::bind(validate_closetab_old, mainController));
-  _wbui->get_command_ui()->add_builtin_command("close_tab", boost::bind(call_close_tab, mainController),
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("close_tab", boost::bind(call_close_tab, mainController),
                                                boost::bind(validate_close_tab, mainController));
-  _wbui->get_command_ui()->add_builtin_command("close_editor", boost::bind(call_close_editor, mainController),
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("close_editor", boost::bind(call_close_editor, mainController),
                                                boost::bind(validate_close_editor, mainController));
 
-  _wbui->get_command_ui()->add_builtin_command("toggle_fullscreen", boost::bind(call_toggle_fullscreen, mainController),
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("toggle_fullscreen", boost::bind(call_toggle_fullscreen, mainController),
                                                boost::bind(validate_toggle_fullscreen, mainController));
 
-  _wbui->get_command_ui()->add_builtin_command("find", boost::bind(call_find, mainController),
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find", boost::bind(call_find, mainController),
                                                boost::bind(validate_find, mainController));
-  _wbui->get_command_ui()->add_builtin_command("find_replace", boost::bind(call_find_replace, true),
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find_replace", boost::bind(call_find_replace, true),
                                                boost::bind(validate_find_replace));
 
-  _wbui->get_command_ui()->add_builtin_command("undo", boost::bind(call_undo, mainController),
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("undo", boost::bind(call_undo, mainController),
                                                boost::bind(validate_undo, mainController));
-  _wbui->get_command_ui()->add_builtin_command("redo", boost::bind(call_redo, mainController),
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("redo", boost::bind(call_redo, mainController),
                                                boost::bind(validate_redo, mainController));
-  _wbui->get_command_ui()->add_builtin_command("copy", boost::bind(call_copy, _wbui),
-                                               boost::bind(validate_copy, _wbui));
-  _wbui->get_command_ui()->add_builtin_command("cut", boost::bind(call_cut, _wbui), 
-                                               boost::bind(validate_cut, _wbui));
-  _wbui->get_command_ui()->add_builtin_command("paste", boost::bind(call_paste, _wbui), 
-                                               boost::bind(validate_paste, _wbui));
-  _wbui->get_command_ui()->add_builtin_command("delete", boost::bind(call_delete, _wbui),
-                                               boost::bind(validate_delete, _wbui));
-  _wbui->get_command_ui()->add_builtin_command("selectAll", boost::bind(call_select_all, _wbui), 
-                                               boost::bind(validate_select_all, _wbui));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("copy", boost::bind(call_copy),
+                                               boost::bind(validate_copy));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("cut", boost::bind(call_cut),
+                                               boost::bind(validate_cut));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("paste", boost::bind(call_paste),
+                                               boost::bind(validate_paste));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("delete", boost::bind(call_delete),
+                                               boost::bind(validate_delete));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("selectAll", boost::bind(call_select_all),
+                                               boost::bind(validate_select_all));
 }
 
 static void flush_main_thread()
@@ -869,14 +863,14 @@ static NSString *applicationSupportFolder()
     bec::GRTManager *grtm;
     
     // Setup backend stuff
-    _wbui = wb::WBContextUI::get();
-    _wb = _wbui->get_wb();
+    _wb = wb::WBContextUI::get()->get_wb();
     
     grtm = _wb->get_grt_manager();
     grtm->get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
     
-    mainController.wBContext = _wbui;
     mainController.owner = self;
+    [mainController setup];
+
     
     // Define a set of methods which backend can call to interact with user and frontend
     wb::WBFrontendCallbacks wbcallbacks;
@@ -897,6 +891,7 @@ static NSString *applicationSupportFolder()
     wbcallbacks.refresh_gui= boost::bind(windowRefreshGui, _1, _2, _3, mainController);
     wbcallbacks.lock_gui= boost::bind(windowLockGui, _1, mainController);
     wbcallbacks.quit_application= boost::bind(quitApplication, mainController);
+
       
     // Add shipped python module search path to PYTHONPATH.
     {
@@ -913,7 +908,7 @@ static NSString *applicationSupportFolder()
       }
     }
 
-    _wbui->init(&wbcallbacks, _options);
+    wb::WBContextUI::get()->init(&wbcallbacks, _options);
     
     _wb->flush_idle_tasks();
   }
@@ -1051,7 +1046,7 @@ static void init_mforms()
     
     [self registerCommandsWithBackend];
     
-    setupSQLQueryUI(self, mainController, _wbui);
+    setupSQLQueryUI(self, mainController);
     
     // don't show the main window if we'll quit after running a script
     if ((_options->quit_when_done && !_options->run_at_startup.empty()))
@@ -1079,6 +1074,7 @@ static void init_mforms()
         }
       }
     }
+    _wbContext = wb::WBContextUI::get();
   }
 }
 
@@ -1141,11 +1137,11 @@ static void init_mforms()
   switch ([sender tag])
   {
     case APP_MENU_ABOUT:
-      _wbui->get_command_ui()->activate_command("builtin:show_about");
+      wb::WBContextUI::get()->get_command_ui()->activate_command("builtin:show_about");
       break;
       
     case APP_MENU_PREFERENCES:
-      _wbui->get_command_ui()->activate_command("plugin:wb.form.showOptions");
+      wb::WBContextUI::get()->get_command_ui()->activate_command("plugin:wb.form.showOptions");
       break;
       
     case APP_MENU_QUIT:
@@ -1156,7 +1152,7 @@ static void init_mforms()
 
 - (IBAction)showDiagramProperties:(id)sender
 {
-  WBDiagramSizeController *controller= [[WBDiagramSizeController alloc] initWithWBContext:_wbui];
+  WBDiagramSizeController *controller= [[WBDiagramSizeController alloc] initWithWBContext];
   
   [controller showModal];
 }
@@ -1201,7 +1197,7 @@ static void init_mforms()
 {
   logDebug("Showing page setup dialog\n");
 
-  app_PageSettingsRef settings(_wbui->get_page_settings());
+  app_PageSettingsRef settings(wb::WBContextUI::get()->get_page_settings());
   
   if (!settings.is_valid())
     return;
@@ -1226,7 +1222,7 @@ static void init_mforms()
     }
   }
   
-  std::list<wb::WBPaperSize> paper_sizes= _wbui->get_paper_sizes(false);
+  std::list<wb::WBPaperSize> paper_sizes= wb::WBContextUI::get()->get_paper_sizes(false);
   
   [paperSize removeAllItems];
   for (std::list<wb::WBPaperSize>::const_iterator iter= paper_sizes.begin(); iter != paper_sizes.end(); 

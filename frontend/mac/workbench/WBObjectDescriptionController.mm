@@ -26,9 +26,8 @@
 
 @implementation WBObjectDescriptionController
 
-- (void)setWBContext:(wb::WBContextUI*)be
+- (void)setWBContext
 {
-  _wbui= be;
   [self updateForForm: 0];
 }
 

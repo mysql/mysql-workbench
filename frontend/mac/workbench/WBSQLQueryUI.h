@@ -20,4 +20,4 @@
 @class WBMainController;
 @class MainWindowController;
 
-void setupSQLQueryUI(WBMainController *main, MainWindowController *controller, wb::WBContextUI *wbui);
+void setupSQLQueryUI(WBMainController *main, MainWindowController *controller);

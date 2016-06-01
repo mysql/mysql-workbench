@@ -49,7 +49,7 @@ static WBBasePanel *createQueryPanel(MainWindowController *controller, boost::sh
 }
 
 
-void setupSQLQueryUI(WBMainController *main, MainWindowController *controller, wb::WBContextUI *wbui)
+void setupSQLQueryUI(WBMainController *main, MainWindowController *controller)
 {  
   log_debug("Setting up UI\n");
   // other commands in wb_context_sqlide.cpp
