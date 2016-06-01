@@ -493,7 +493,7 @@ static void call_new_connection(wb::WBContextSQLIDE *sqlide)
   if (form)
   {
     db_mgmt_ConnectionRef conn(form->connection_descriptor());
-    sqlide->get_wbui()->get_wb()->add_new_query_window(conn);
+    wb::WBContextUI::get()->get_wb()->add_new_query_window(conn);
   }
 }
 
@@ -510,7 +510,7 @@ static void call_open_script(wb::WBContextSQLIDE *sqlide)
   chooser.set_extensions("SQL Files (*.sql)|*.sql|Query Browser Files (*.qbquery)|*.qbquery", "sql");
   if (chooser.run_modal())
   {
-    std::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
+    std::shared_ptr<SqlEditorForm> form = wb::WBContextUI::get()->get_wb()->add_new_query_window();
     if (form)
     {
       form->open_file(chooser.get_path());
@@ -520,7 +520,7 @@ static void call_open_script(wb::WBContextSQLIDE *sqlide)
 
 static void call_no_connection_empty_tab(wb::WBContextSQLIDE *sqlide)
 {
-  std::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
+  std::shared_ptr<SqlEditorForm> form = wb::WBContextUI::get()->get_wb()->add_new_query_window();
   if (form)
     form->open_file();
 }
@@ -766,7 +766,7 @@ std::map<std::string, std::string> WBContextSQLIDE::auto_save_sessions()
 
 CommandUI *WBContextSQLIDE::get_cmdui()
 {
-  return _wbui->get_command_ui();
+  return wb::WBContextUI::get()->get_command_ui();
 }
 
 
@@ -781,11 +781,11 @@ void WBContextSQLIDE::init()
 {
   DbSqlEditorSnippets::setup(this, base::makePath(bec::GRTManager::get()->get_user_datadir(), "snippets"));
   
-  //scoped_connect(_wbui->get_wb()->signal_app_closing(),boost::bind(&WBContextSQLIDE::finalize, this));
+  //scoped_connect(wb::WBContextUI::get()->get_wb()->signal_app_closing(),boost::bind(&WBContextSQLIDE::finalize, this));
   base::NotificationCenter::get()->add_observer(this, "GNAppClosing");
   
   // Setup some builtin commands handled by ourselves for the SQL IDE.
-  wb::CommandUI *cmdui = _wbui->get_command_ui();
+  wb::CommandUI *cmdui = wb::WBContextUI::get()->get_command_ui();
 
   cmdui->add_builtin_command("alias.wb.toggleSidebar", boost::bind(call_toolbar_alias_toggle, this, "wb.toggleSidebar"), boost::bind(validate_toolbar_alias_toggle, this, "wb.toggleSidebar"));
   cmdui->add_builtin_command("alias.wb.toggleSecondarySidebar", boost::bind(call_toolbar_alias_toggle, this, "wb.toggleSecondarySidebar"), boost::bind(validate_toolbar_alias_toggle, this, "wb.toggleSecondarySidebar"));
@@ -867,7 +867,7 @@ void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor)
 
   if (!editor->connection_descriptor().is_valid())
   {
-    grtui::DbConnectionDialog dialog(get_wbui()->get_wb()->get_root()->rdbmsMgmt());
+    grtui::DbConnectionDialog dialog(wb::WBContextUI::get()->get_wb()->get_root()->rdbmsMgmt());
     logDebug("No connection associated with editor on reconnect, showing connection selection dialog...\n");
     db_mgmt_ConnectionRef target= dialog.run();
     if (!target.is_valid())
@@ -1028,7 +1028,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
   {
     // Create entry for grt tree and update volatile data in the connection.
     db_query_EditorRef object(grt::Initialized);
-    object->owner(_wbui->get_wb()->get_root());
+    object->owner(wb::WBContextUI::get()->get_wb()->get_root());
     object->name(conn.is_valid() ? conn->name() : "unconnected");
     
     object->set_data(new db_query_EditorConcreteImplData(editor, object));
@@ -1044,7 +1044,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
       object->serverVersion(editor->rdbms_version());
     }
 
-    _wbui->get_wb()->get_root()->sqlEditors().insert(object);
+    wb::WBContextUI::get()->get_wb()->get_root()->sqlEditors().insert(object);
   }
 
   _open_editors.push_back(editor);
@@ -1055,14 +1055,14 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
   if (!_auto_save_active)
   {
     _auto_save_active= true;
-    ssize_t interval = _wbui->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
+    ssize_t interval = wb::WBContextUI::get()->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
     if (interval > 0)
         _auto_save_handle = mforms::Utilities::add_timeout((float)interval, boost::bind(&WBContextSQLIDE::auto_save_workspaces, this));
     _auto_save_interval = interval;
 
     if (!_option_change_signal_connected)
     {
-      scoped_connect(_wbui->get_wb()->get_root()->options()->signal_dict_changed(),boost::bind(&WBContextSQLIDE::option_changed, this, _1, _2, _3));
+      scoped_connect(wb::WBContextUI::get()->get_wb()->get_root()->options()->signal_dict_changed(),boost::bind(&WBContextSQLIDE::option_changed, this, _1, _2, _3));
       _option_change_signal_connected= true;
     }
   }
@@ -1072,7 +1072,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
     if (::auto_save_sessions.find(conn.id()) != ::auto_save_sessions.end())
     {
       ::auto_save_sessions.erase(conn.id());
-      _wbui->refresh_home_connections();
+      wb::WBContextUI::get()->refresh_home_connections();
     }
   }
   return editor;
@@ -1081,7 +1081,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
 
 SqlEditorForm* WBContextSQLIDE::get_active_sql_editor()
 {
-  bec::UIForm *form= _wbui->get_active_main_form();
+  bec::UIForm *form= wb::WBContextUI::get()->get_active_main_form();
   if (form)
     return dynamic_cast<SqlEditorForm*>(form);
   return 0;
@@ -1106,7 +1106,7 @@ void WBContextSQLIDE::open_document(const std::string &path)
   }
   else
   {
-    std::shared_ptr<SqlEditorForm> editor(get_wbui()->get_wb()->add_new_query_window());
+    std::shared_ptr<SqlEditorForm> editor(wb::WBContextUI::get()->get_wb()->add_new_query_window());
     editor->open_file(path);
   }
 }
@@ -1124,7 +1124,7 @@ void WBContextSQLIDE::editor_will_close(SqlEditorForm* editor)
   if (iter != _open_editors.end())
   {
     // delete entry from grt tree
-    grt::ListRef<db_query_Editor> editors(_wbui->get_wb()->get_root()->sqlEditors());
+    grt::ListRef<db_query_Editor> editors(wb::WBContextUI::get()->get_wb()->get_root()->sqlEditors());
     
     for (size_t c= editors.count(), i= 0; i < c; i++)
     {
@@ -1189,7 +1189,7 @@ db_query_EditorRef WBContextSQLIDE::get_grt_editor_object(SqlEditorForm *editor)
 {
   if (editor)
   {
-    grt::ListRef<db_query_Editor> list(_wbui->get_wb()->get_root()->sqlEditors());
+    grt::ListRef<db_query_Editor> list(wb::WBContextUI::get()->get_wb()->get_root()->sqlEditors());
     for (grt::ListRef<db_query_Editor>::const_iterator ed= list.begin(); ed != list.end(); ++ed)
     {
       if (dynamic_cast<db_query_EditorConcreteImplData*>((*ed)->get_data())->editor_object().get() == editor)

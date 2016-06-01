@@ -397,7 +397,6 @@ namespace wb {
 
     base::RecMutex _block_user_interaction_mutex;
     
-    WBContextUI *_uicontext;
     WBContextModel *_model_context;
     WBContextSQLIDE *_sqlide_context;
     

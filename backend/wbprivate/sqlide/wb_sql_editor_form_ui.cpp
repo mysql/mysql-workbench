@@ -330,7 +330,7 @@ void SqlEditorForm::update_toolbar_icons()
 void SqlEditorForm::validate_menubar()
 {
   if (get_menubar())
-    _wbsql->get_wbui()->get_command_ui()->revalidate_menu_bar(get_menubar());
+    wb::WBContextUI::get()->get_command_ui()->revalidate_menu_bar(get_menubar());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -506,9 +506,9 @@ bool SqlEditorForm::run_live_object_alteration_wizard(const std::string &alter_s
   
   // Determine the current online DDL settings, so the wizard can initialize its local settings.
   std::string algorithm;
-  wbsql()->get_wbui()->get_wb_options_value("", "DbSqlEditor:OnlineDDLAlgorithm", algorithm);
+  wb::WBContextUI::get()->get_wb_options_value("", "DbSqlEditor:OnlineDDLAlgorithm", algorithm);
   std::string lock;
-  wbsql()->get_wbui()->get_wb_options_value("", "DbSqlEditor:OnlineDDLLock", lock);
+  wb::WBContextUI::get()->get_wb_options_value("", "DbSqlEditor:OnlineDDLLock", lock);
   
   SqlScriptRunWizard wizard(rdbms_version(), algorithm, lock);
   if (obj_editor)

@@ -2415,9 +2415,9 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
     // Generate the initial version of the alter script. This might be altered in the wizard
     // depending on the online DDL options.
     std::string algorithm;
-    _owner->wbsql()->get_wbui()->get_wb_options_value("", "DbSqlEditor:OnlineDDLAlgorithm", algorithm);
+    wb::WBContextUI::get()->get_wb_options_value("", "DbSqlEditor:OnlineDDLAlgorithm", algorithm);
     std::string lock;
-    _owner->wbsql()->get_wbui()->get_wb_options_value("", "DbSqlEditor:OnlineDDLLock", lock);
+    wb::WBContextUI::get()->get_wb_options_value("", "DbSqlEditor:OnlineDDLLock", lock);
     std::string alter_script = generate_alter_script(_owner->rdbms(), db_object, algorithm, lock);
 
     // The alter_script may contain a dummy USE statement.
