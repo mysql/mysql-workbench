@@ -153,13 +153,18 @@ class SimpleTabExport(mforms.Box):
         self.column_list.thaw_refresh()
         
     def get_query(self):
+        selected_columns = []
+        for i in range(self.column_list.count()):
+            if self.column_list.node_at_row(i).get_bool(0):
+                selected_columns.append(self.column_list.node_at_row(i).get_string(1))
+
         limit = ""
         if self.limit_entry.get_string_value():
             limit = "LIMIT %d" % int(self.limit_entry.get_string_value())
             if self.offset_entry.get_string_value():
                 limit = "LIMIT %d,%d" % (int(self.offset_entry.get_string_value()), int(self.limit_entry.get_string_value()))
         table_w_prefix = "%s.%s" % (self.owner.main.source_table['schema'], self.owner.main.source_table['table'])
-        return """SELECT %s FROM %s %s""" % (",".join([value['name'] for value in self.columns]), table_w_prefix, limit)
+        return """SELECT %s FROM %s %s""" % (",".join(selected_columns), table_w_prefix, limit)
         
 class AdvancedTabExport(mforms.Box):
     def __init__(self, editor, owner):
