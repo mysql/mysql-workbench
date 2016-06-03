@@ -83,7 +83,7 @@ WBContextUI::WBContextUI()
 {
   _shell_window= 0;
   
-  _output_view = NULL;
+  _output_view = nullptr;
   _active_form= 0;
   _active_main_form= 0;
   
@@ -94,7 +94,7 @@ WBContextUI::WBContextUI()
   _quitting= false;
   _processing_action_open_connection = false;
   
-  _home_screen = NULL;
+  _home_screen = nullptr;
 
   // to notify that the save status of the doc has changed
   //grt::GRT::get()->get_undo_manager()->signal_changed().connect(boost::bind(&WBContextUI::history_changed, this));
@@ -103,8 +103,8 @@ WBContextUI::WBContextUI()
   // stuff to do when the active form is switched in the UI (through set_active_form)
   _form_change_signal.connect(boost::bind(&WBContextUI::form_changed, this));
 
-  _output_view = new OutputView(_wb);
-  scoped_connect(_output_view->get_be()->signal_show(),boost::bind(&WBContextUI::show_output, this));
+  _output_view = mforms::manage(new OutputView(_wb));
+  scoped_connect(_output_view->get_be()->signal_show(), boost::bind(&WBContextUI::show_output, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,25 +112,9 @@ WBContextUI::WBContextUI()
 WBContextUI::~WBContextUI()
 {
   _wb->do_close_document(true);
-
   delete _addon_download_window;
   delete _plugin_install_window;
 
-  if (_home_screen != NULL)
-  {
-    //first we clear up sidebar, then we can clear up sections as nothing else should be using those
-    if (_xConnectionsSection != nullptr)
-      delete _xConnectionsSection;
-    if (_connectionsSection != nullptr)
-      delete _connectionsSection;
-    if (_documentsSection != nullptr)
-      delete _documentsSection;
-
-    _home_screen->clearSidebar();
-    _home_screen->release();
-  }
-
-  delete _output_view;
   delete _shell_window;
   delete _wb;
   delete _command_ui;
@@ -202,12 +186,13 @@ void WBContextUI::init_finish(WBOptions *options)
   show_home_screen(options->showClassicHome);
   _wb->init_finish_(options);
 
-  NotificationCenter::get()->send("GNAppStarted", NULL);
+  NotificationCenter::get()->send("GNAppStarted", nullptr);
 }
 
 
 void WBContextUI::finalize()
 {  
+  _output_view->release();
   _wb->finalize();
 }
 
@@ -223,7 +208,7 @@ bool WBContextUI::request_quit()
     NotificationInfo info;
     info["cancel"] = "0";
     
-    NotificationCenter::get()->send("GNAppShouldClose", NULL, info);
+    NotificationCenter::get()->send("GNAppShouldClose", nullptr, info);
     
     if (info["cancel"] != "0")
       return false;
@@ -235,7 +220,7 @@ bool WBContextUI::request_quit()
   if (_wb->get_sqlide_context() && !_wb->get_sqlide_context()->request_quit())
     return false;
 
-  if (_shell_window != NULL && !_shell_window->request_quit())
+  if (_shell_window != nullptr && !_shell_window->request_quit())
     return false;
 
   return true;
@@ -569,7 +554,7 @@ std::string WBContextUI::get_description_for_selection(grt::ListRef<GrtObject> &
 {
   std::string res;
 
-  if (get_physical_overview() != NULL)
+  if (get_physical_overview() != nullptr)
   {
     grt::ListRef<GrtObject> selection(get_physical_overview()->get_selection());
     activeObjList= selection;
