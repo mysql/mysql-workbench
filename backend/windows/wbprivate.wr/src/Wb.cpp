@@ -130,7 +130,7 @@ String^ WbOptions::OpenAtStartupType::get()
 WbContext::WbContext(bool verbose)
 {
   physical_overview = nullptr;
-
+  _wbContextUi = new WbContextUiHolder;
   Logger::LogDebug("WBContext managed", 1, "Creating WbContext\n");
 }
 
@@ -140,7 +140,7 @@ WbContext::~WbContext()
 {
   // Don't delete the inner object. It's a singleton.
   delete physical_overview;
-
+  delete _wbContextUi;
   Logger::LogDebug("WBContext managed", 1, "Destroying WbContext\n");
 }
 
