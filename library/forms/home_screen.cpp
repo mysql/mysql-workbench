@@ -70,7 +70,6 @@ private:
 
   SidebarEntry *_hotEntry;
   SidebarEntry *_activeEntry; // For the context menu.
-  mforms::Menu _entryContextMenu;
 
   boost::function <bool (int, int)> _accessible_click_handler;
 
@@ -81,6 +80,8 @@ public:
   const int SIDEBAR_RIGHT_PADDING = 25;
   const int SIDEBAR_ROW_HEIGHT = 50;
   const int SIDEBAR_SPACING = 18;// Vertical space between entries.
+
+  //--------------------------------------------------------------------------------------------------
 
   SidebarSection(HomeScreen *owner)
   {
@@ -93,13 +94,18 @@ public:
       mforms::MouseButtonLeft, _1, _2);
   }
 
+  //--------------------------------------------------------------------------------------------------
+
   ~SidebarSection()
   {
     deleteSurface(_defaultEntryIcon);
 
-    for(auto &it : _entries)
+    for (auto &it : _entries)
+    {
+      if (it.first->icon != _defaultEntryIcon)
+        deleteSurface(it.first->icon);
       delete it.first;
-
+    }
     _entries.clear();
   }
 
@@ -211,23 +217,6 @@ public:
       section->get_parent()->show(true);
     }
 
-    set_layout_dirty(true);
-  }
-
-  //--------------------------------------------------------------------------------------------------
-
-  void clearEntries()
-  {
-    for (auto &iterator : _entries)
-    {
-      if (iterator.first->icon != _defaultEntryIcon)
-        deleteSurface(iterator.first->icon);
-      delete iterator.first;
-    }
-
-    _hotEntry = nullptr;
-    _activeEntry = nullptr;
-    _entries.clear();
     set_layout_dirty(true);
   }
 
@@ -514,14 +503,6 @@ void HomeScreen::cancelOperation()
 {
   for (auto &it : _sections)
     it->cancelOperation();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::clearSidebar()
-{
-  if (_sidebarSection != nullptr)
-    _sidebarSection->clearEntries();
 }
 
 //--------------------------------------------------------------------------------------------------

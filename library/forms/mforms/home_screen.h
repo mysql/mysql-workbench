@@ -76,7 +76,6 @@ namespace mforms
     void openConnection(const dataTypes::XProject &project);
 
     void cancelOperation();
-    void clearSidebar();
 
     void set_menu(mforms::Menu *menu, HomeScreenMenuType type);
 

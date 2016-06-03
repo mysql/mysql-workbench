@@ -143,11 +143,22 @@ public:
   }
 };
 
+class WbContextUiHolder
+{
+  std::shared_ptr<wb::WBContextUI> _wbCtxUi;
+public:
+  WbContextUiHolder() : _wbCtxUi(wb::WBContextUI::get())
+  {
+  }
+};
 
 public ref class WbContext
 {
+  WbContextUiHolder* _wbContextUi;
+
   MySQL::Grt::GrtManager ^manager;
   MySQL::Workbench::Overview ^physical_overview;
+
 
   System::Collections::ArrayList open_editor_slot_wrappers;
 

@@ -303,19 +303,20 @@ void WBContextUI::show_home_screen()
 
   _initializing_home_screen = (_home_screen == NULL);
   if (_home_screen == NULL)
-  {    
-    _home_screen = mforms::manage(new mforms::HomeScreen());
+  {
+    // The home screen and its content is freed in AppView::close() during undock_view(...).
+    _home_screen = mforms::manage(new mforms::HomeScreen);
     _home_screen->set_menubar(_command_ui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL));
     _home_screen->set_callback((home_screen_action_callback)&WBContextUI::home_action_callback, this);
     _home_screen->handle_context_menu = std::bind(&WBContextUI::handle_home_context_menu, this, std::placeholders::_1, std::placeholders::_2);
 
     // now we have to add sections
-    _xConnectionsSection = new mforms::XConnectionsSection(_home_screen);
+    _xConnectionsSection = mforms::manage(new mforms::XConnectionsSection(_home_screen));
     _xConnectionsSection->set_name("Home X Connections Section");
     _xConnectionsSection->set_size(-1, 1); // We need initial size for OSX.
     _home_screen->addSection(_xConnectionsSection);
 
-    _connectionsSection = new mforms::ConnectionsSection(_home_screen);
+    _connectionsSection = mforms::manage(new mforms::ConnectionsSection(_home_screen));
     _connectionsSection->set_name("Home Connections Section");
     _connectionsSection->set_size(-1, 1); // We need initial size for OSX.
     _connectionsSection->getConnectionInfoCallback = std::bind([=](const std::string &connectionId)->mforms::anyMap {
@@ -323,7 +324,7 @@ void WBContextUI::show_home_screen()
     }, std::placeholders::_1);
     _home_screen->addSection(_connectionsSection);
 
-    _documentsSection = new mforms::DocumentsSection(_home_screen);
+    _documentsSection = mforms::manage(new mforms::DocumentsSection(_home_screen));
     _documentsSection->set_name("Documents Section");
     _documentsSection->set_size(-1, 1); // We need initial size for OSX.
     _home_screen->addSection(_documentsSection);
