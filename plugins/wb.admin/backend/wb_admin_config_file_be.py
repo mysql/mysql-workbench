@@ -983,7 +983,10 @@ class WbAdminConfigFileBE(object):
                             ovalue = "0"
                         options.append((name, ovalue))
                     else:
-                        options.append((name, opt.value().strip()))
+                        if hasattr(opt.value(), "strip"):
+                            options.append((name, opt.value().strip()))
+                        else:
+                            options.append((name, opt.value()))
 
         return options
 
