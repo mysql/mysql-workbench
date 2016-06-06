@@ -136,7 +136,6 @@
 		2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901B1C97004A00B6DAC9 /* jsonparser.h */; };
 		2717901F1C97004A00B6DAC9 /* scope_exit_trigger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */; };
 		271790201C97004A00B6DAC9 /* session_wrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901D1C97004A00B6DAC9 /* session_wrapper.h */; };
-		2717A6841192E22900FED3E5 /* predefined_starters.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2717A6831192E22900FED3E5 /* predefined_starters.xml */; };
 		271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		2720518E111847920013E88B /* message_wb_lock.png in Resources */ = {isa = PBXBuildFile; fileRef = 2720518D111847920013E88B /* message_wb_lock.png */; };
 		27227B5D1C454C180098910A /* mysql_object_names_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27227B591C454C180098910A /* mysql_object_names_cache.cpp */; };
@@ -3896,7 +3895,6 @@
 				27C5903614C9755100FFC45E /* code_editor.xml in Copy Files (data) */,
 				2B1E2FDD173350B90037D3DD /* table_templates.xml in Copy Files (data) */,
 				2B15B69B12E15273006567D6 /* model_diagram_toolbar.xml in Copy Files (data) */,
-				2717A6841192E22900FED3E5 /* predefined_starters.xml in Copy Files (data) */,
 				2BE6805D0F8E47FD00E00A97 /* data.db in Copy Files (data) */,
 				2BF87BC00FA87CF60012EADA /* dbquery_toolbar.xml in Copy Files (data) */,
 				2BD99BB90FAE754C0074852E /* default_toolbar.xml in Copy Files (data) */,

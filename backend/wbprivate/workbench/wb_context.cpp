@@ -101,13 +101,6 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT)
 #define STATE_DOCUMENT_FORMAT "MySQL Workbench Application State"
 #define STATE_DOCUMENT_VERSION "1.0.0"
 
-// Starters files.
-#define STARTERS_PREDEFINED_FILE_NAME "data/predefined_starters.xml"
-#define STARTERS_USER_FILE_NAME "user_starters.xml"
-#define STARTERS_SETTINGS_FILE_NAME "starters_settings.xml"
-#define STARTERS_DOCUMENT_FORMAT "MySQL Workbench Starters"
-#define STARTERS_DOCUMENT_VERSION "1.0.0"
-
 // Don't send a given refresh_request unless no new ones arrive in this time.
 #define UI_REQUEST_THROTTLE 0.3
 
@@ -725,7 +718,6 @@ void WBContext::finalize()
   // quitting before all the old state was loaded and writing stuff back would just reset everything)
   if (_initialization_finished)
   {
-    save_starters();
     save_app_options();
     save_app_state();
 
@@ -1434,8 +1426,6 @@ grt::ValueRef WBContext::setup_context_grt(WBOptions *options)
   // This must be done as early as possible to provide all other parts their last saved state
   // when they are loading/initializing.
   load_app_state(unserializer);
-
-  load_starters(unserializer);
 
   init_plugin_groups_grt(options);
 
@@ -2201,195 +2191,6 @@ void WBContext::save_connections()
   _grt->serialize(mgmt->storedConns(),
                                  base::makePath(get_user_datadir(), FILE_CONNECTION_LIST));
   logDebug("Saved connection list (MySQL: %u)\n", (unsigned int)mgmt->storedConns()->count());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Loads predefined and user defined starters into the grt tree as well as the starter settings.
- */
-void WBContext::load_starters(std::shared_ptr<grt::internal::Unserializer> unserializer)
-{
-  // Initialize starters object.
-  app_StartersRef starters(grt::Initialized);
-  starters->owner(get_root());
-  get_root()->starters(starters);
-
-  // Load predefined starters.
-  std::string starters_file = base::makePath(_datadir, STARTERS_PREDEFINED_FILE_NAME);
-  if (g_file_test(starters_file.c_str(), G_FILE_TEST_EXISTS))
-  {
-    xmlDocPtr xmlDocument= NULL;
-    try 
-    {
-      xmlDocument= _grt->load_xml(starters_file);
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
-
-      std::string doctype, version;
-      _grt->get_xml_metainfo(xmlDocument, doctype, version);
-
-      if (doctype != STARTERS_DOCUMENT_FORMAT)
-      {
-        throw std::runtime_error(_("The file is not a valid MySQL Workbench starters file.\n"
-          "The file will skipped and starters are reset to their initial set."));
-      }
-
-      grt::ListRef<app_Starter> new_starters=
-        grt::ListRef<app_Starter>::cast_from(_grt->unserialize_xml(xmlDocument, starters_file));
-
-      // Store new starters in grt tree.
-      BaseListRef predefined = starters->predefined();
-      for (size_t c= predefined.count(), i= 0; i < c; i++)
-        predefined.remove(0);
-
-      std::string edition;
-      if (is_commercial())
-        edition = "se";
-      else
-        edition = "ce";
-      for (size_t c= new_starters.count(), i= 0; i < c; i++)
-      {
-        std::string starter_edition = new_starters[i]->edition();
-        if (starter_edition == "" || starter_edition.find(edition) != std::string::npos)
-          predefined.ginsert(new_starters[i]);
-      }
-    }
-    catch (std::exception &exc)
-    {
-      mforms::Utilities::show_error(_("Error while loading starters"),
-        strfmt("The file '%s' could not be loaded: %s", starters_file.c_str(), exc.what()), _("Close"));
-      _grt->send_warning(strfmt("Error while loading '%s': %s",
-        starters_file.c_str(), exc.what()));
-    }
-  }
-
-  // Load user starters if there are any.
-  starters_file= base::makePath(_user_datadir, STARTERS_USER_FILE_NAME);
-  if (g_file_test(starters_file.c_str(), G_FILE_TEST_EXISTS))
-  {
-    xmlDocPtr xmlDocument= NULL;
-    try 
-    {
-      xmlDocument= _grt->load_xml(starters_file);
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
-
-      std::string doctype, version;
-      _grt->get_xml_metainfo(xmlDocument, doctype, version);
-
-      if (doctype != STARTERS_DOCUMENT_FORMAT)
-      {
-        throw std::runtime_error(_("The file is not a valid MySQL Workbench starters file.\n"
-          "The file will skipped and starters are reset to their initial set."));
-      }
-
-      grt::ListRef<app_Starter> new_starters=
-        grt::ListRef<app_Starter>::cast_from(_grt->unserialize_xml(xmlDocument, starters_file));
-
-      // Store new starters in grt tree.
-      grt::replace_contents(starters->custom(), new_starters);
-    }
-    catch (std::exception &exc)
-    {
-      mforms::Utilities::show_error(_("Error while loading starters"),
-        strfmt("The file '%s' could not be loaded: %s", starters_file.c_str(), exc.what()), _("Close"));
-      _grt->send_warning(strfmt("Error while loading '%s': %s",
-        starters_file.c_str(), exc.what()));
-    }
-  }
-
-  // Finally fill the the starter display list. If there is no saved list use the
-  // predefined starters for this.
-  starters_file= base::makePath(_user_datadir, STARTERS_SETTINGS_FILE_NAME);
-  grt::ListRef<app_Starter> starter_links= grt::ListRef<app_Starter>(true);
-  if (g_file_test(starters_file.c_str(), G_FILE_TEST_EXISTS))
-  {
-    xmlDocPtr xmlDocument= NULL;
-    try 
-    {
-      xmlDocument= _grt->load_xml(starters_file);
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
-
-      std::string doctype, version;
-      _grt->get_xml_metainfo(xmlDocument, doctype, version);
-
-      if (doctype != STARTERS_DOCUMENT_FORMAT)
-      {
-        throw std::runtime_error(_("The file is not a valid MySQL Workbench starters file.\n"
-          "The file will skipped and starters are reset to their initial set."));
-      }
-
-      starter_links= grt::ListRef<app_Starter>::cast_from(_grt->unserialize_xml(xmlDocument, starters_file));
-    }
-    catch (std::exception &exc)
-    {
-      mforms::Utilities::show_error(_("Error while loading starters"),
-        strfmt("The file '%s' could not be loaded: %s", starters_file.c_str(), exc.what()), _("Close"));
-      _grt->send_warning(strfmt("Error while loading '%s': %s",
-        starters_file.c_str(), exc.what()));
-    }
-  }
-
-  // Check if we could load the links and if not, add the predefined ones as list.
-  if (!starter_links.is_valid() || starter_links.count() == 0)
-    grt::replace_contents(starters->displayList(), starters->predefined());
-  else
-    grt::replace_contents(starters->displayList(), starter_links);
-
-  // Check if there are starters introduced in a new version of WB and this is the first run for it.
-  // In that case we add the starter also to the display list (if it isn't already there).
-  GrtVersionRef last_version = bec::parse_version( read_state("last-run-as", "global", std::string("5.0.0")));
-  
-  for (grt::ListRef<app_Starter>::const_iterator iterator= starters->predefined().begin();
-    iterator != starters->predefined().end(); iterator++)
-  {
-    std::string introduction = (*iterator)->introduction();
-    if (introduction.empty())
-      continue; // No action needed if there was never an introduction set.
-
-    GrtVersionRef entry_version = bec::parse_version(introduction);
-    bool ignore = !bec::version_greater(entry_version, last_version);
-    if (!ignore)
-    {
-      // Look if that starter is already in the display list.
-      for (grt::ListRef<app_Starter>::const_iterator display_iterator= starters->displayList().begin();
-        display_iterator != starters->displayList().end(); display_iterator++)
-      {
-        if ((*display_iterator)->id() == (*iterator)->id())
-        {
-          ignore = true;
-          break;
-        }
-      }
-    }
-    if (!ignore)
-      starters->displayList().insert(*iterator);
-  }
-
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Saves the user defined starters and the starters settings.
- */
-void WBContext::save_starters()
-{
-  //nothing to save
-  if(!get_root()->starters().is_valid())
-    return;
-  // User starters.
-  std::string starters_file= base::makePath(_user_datadir, STARTERS_USER_FILE_NAME);
-  _grt->serialize(get_root()->starters()->custom(), starters_file + ".tmp",
-    STARTERS_DOCUMENT_FORMAT, STARTERS_DOCUMENT_VERSION);
-  g_remove(starters_file.c_str());
-  g_rename(std::string(starters_file + ".tmp").c_str(), starters_file.c_str());
-
-  // Starter settings.
-  starters_file= base::makePath(_user_datadir, STARTERS_SETTINGS_FILE_NAME);
-  _grt->serialize(get_root()->starters()->displayList(), starters_file + ".tmp",
-    STARTERS_DOCUMENT_FORMAT, STARTERS_DOCUMENT_VERSION, true);
-  g_remove(starters_file.c_str());
-  g_rename(std::string(starters_file + ".tmp").c_str(), starters_file.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
