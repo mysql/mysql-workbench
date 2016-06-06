@@ -64,7 +64,6 @@ class SidebarSection: public mforms::DrawBox
 {
 private:
   HomeScreen *_owner;
-  cairo_surface_t* _defaultEntryIcon;
 
   std::vector<std::pair<SidebarEntry*, HomeScreenSection*>> _entries;
 
@@ -88,7 +87,6 @@ public:
     _owner = owner;
     _hotEntry = nullptr;
     _activeEntry = nullptr;
-    _defaultEntryIcon = mforms::Utilities::load_icon("wb_starter_generic_52.png", true);
 
     _accessible_click_handler = boost::bind(&SidebarSection::mouse_click, this,
       mforms::MouseButtonLeft, _1, _2);
@@ -98,12 +96,9 @@ public:
 
   ~SidebarSection()
   {
-    deleteSurface(_defaultEntryIcon);
-
     for (auto &it : _entries)
     {
-      if (it.first->icon != _defaultEntryIcon)
-        deleteSurface(it.first->icon);
+      deleteSurface(it.first->icon);
       delete it.first;
     }
     _entries.clear();
@@ -203,11 +198,10 @@ public:
     entry->callback = callback;
     entry->canSelect = canSelect;
 
-
     // See if we can load the icon. If not use the placeholder.
     entry->icon = mforms::Utilities::load_icon(icon_name, true);
     if (entry->icon == NULL)
-      entry->icon = _defaultEntryIcon;
+      throw std::runtime_error("Icon not found: " + icon_name);
 
     _entries.push_back({entry, section});
     if (_activeEntry == nullptr && entry->canSelect && section != nullptr)
