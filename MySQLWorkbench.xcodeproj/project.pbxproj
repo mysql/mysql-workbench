@@ -4261,7 +4261,6 @@
 		2717901B1C97004A00B6DAC9 /* jsonparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsonparser.h; path = library/base/base/jsonparser.h; sourceTree = "<group>"; };
 		2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scope_exit_trigger.h; path = library/base/base/scope_exit_trigger.h; sourceTree = "<group>"; };
 		2717901D1C97004A00B6DAC9 /* session_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = session_wrapper.h; path = library/base/base/session_wrapper.h; sourceTree = "<group>"; };
-		2717A6831192E22900FED3E5 /* predefined_starters.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = predefined_starters.xml; path = res/wbdata/predefined_starters.xml; sourceTree = "<group>"; };
 		271A795110A1D8F600058CB4 /* wbtests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = wbtests; sourceTree = BUILT_PRODUCTS_DIR; };
 		2720518D111847920013E88B /* message_wb_lock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = message_wb_lock.png; sourceTree = "<group>"; };
 		27227B561C454BFF0098910A /* ECMA.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ECMA.g; path = library/parsers/grammars/ECMA.g; sourceTree = "<group>"; };
@@ -9540,7 +9539,6 @@
 				2BF87BBE0FA87CF60012EADA /* model_option_toolbar_selection.xml */,
 				2BF87BBF0FA87CF60012EADA /* model_toolbar.xml */,
 				2B59A9FA0E94F6430083C1C6 /* paper_types.xml */,
-				2717A6831192E22900FED3E5 /* predefined_starters.xml */,
 				2B59A9FC0E94F6430083C1C6 /* shortcuts_basic.xml */,
 				2B59A9FD0E94F6430083C1C6 /* shortcuts_physical.xml */,
 				2B59A9FB0E94F6430083C1C6 /* shortcuts.xml */,
