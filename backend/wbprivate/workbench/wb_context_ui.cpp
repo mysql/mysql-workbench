@@ -25,7 +25,7 @@
 #include "base/log.h"
 #include "base/notifications.h"
 
-#include "grt.h"
+#include "grtpp.h"
 
 #include "grts/structs.h"
 #include "grts/structs.app.h"
@@ -53,10 +53,7 @@
 
 #include "mforms/appview.h"
 
-#include "mforms/home_screen.h"
-#include "mforms/home_screen_x_connections.h"
-#include "mforms/home_screen_connections.h"
-#include "mforms/home_screen_documents.h"
+#include "home_screen.h"
 
 #include "wb_command_ui.h"
 
@@ -70,20 +67,12 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 
 //--------------------------------------------------------------------------------------------------
 
-std::shared_ptr<WBContextUI> WBContextUI::get()
-{
-  static std::shared_ptr<WBContextUI> _singleton(new WBContextUI());
-  return _singleton;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-WBContextUI::WBContextUI()
-  : _wb(new WBContext(false)), _command_ui(new CommandUI(_wb))
+WBContextUI::WBContextUI(bool verbose)
+  : _wb(new WBContext(this, verbose)), _command_ui(new CommandUI(_wb))
 {
   _shell_window= 0;
   
-  _output_view = nullptr;
+  _output_view = NULL;
   _active_form= 0;
   _active_main_form= 0;
   
@@ -94,17 +83,17 @@ WBContextUI::WBContextUI()
   _quitting= false;
   _processing_action_open_connection = false;
   
-  _home_screen = nullptr;
+  _home_screen = NULL;
 
   // to notify that the save status of the doc has changed
-  //grt::GRT::get()->get_undo_manager()->signal_changed().connect(boost::bind(&WBContextUI::history_changed, this));
-  scoped_connect(grt::GRT::get()->get_undo_manager()->signal_changed(),boost::bind(&WBContextUI::history_changed, this));
+  //_wb->get_grt()->get_undo_manager()->signal_changed().connect(boost::bind(&WBContextUI::history_changed, this));
+  scoped_connect(_wb->get_grt()->get_undo_manager()->signal_changed(),boost::bind(&WBContextUI::history_changed, this));
   
   // stuff to do when the active form is switched in the UI (through set_active_form)
   _form_change_signal.connect(boost::bind(&WBContextUI::form_changed, this));
 
   _output_view = mforms::manage(new OutputView(_wb));
-  scoped_connect(_output_view->get_be()->signal_show(), boost::bind(&WBContextUI::show_output, this));
+  scoped_connect(_output_view->get_be()->signal_show(),boost::bind(&WBContextUI::show_output, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,6 +101,7 @@ WBContextUI::WBContextUI()
 WBContextUI::~WBContextUI()
 {
   _wb->do_close_document(true);
+
   delete _addon_download_window;
   delete _plugin_install_window;
 
@@ -125,7 +115,7 @@ WBContextUI::~WBContextUI()
 bool WBContextUI::init(WBFrontendCallbacks *callbacks, WBOptions *options)
 {
   // Log set folders.
-  logInfo("Initializing workbench context UI with these values:\n"
+  log_info("Initializing workbench context UI with these values:\n"
     "\tbase dir: %s\n\tplugin path: %s\n\tstruct path: %s\n\tmodule path: %s\n\t"
     "library path: %s\n\tuser data dir: %s\n\topen at start: %s\n\topen type: %s\n\trun at startup: %s\n\t"
     "run type: %s\n\tForce SW rendering: %s\n\tForce OpenGL: %s\n\tquit when done: %s\n",
@@ -159,11 +149,11 @@ bool WBContextUI::init(WBFrontendCallbacks *callbacks, WBOptions *options)
   }
   catch (const std::exception& e)
   {
-    logError("WBContextUI::init, exception '%s'\n", e.what()); // log_error logs to stderr too in debug mode.
+    log_error("WBContextUI::init, exception '%s'\n", e.what()); // log_error logs to stderr too in debug mode.
   }
   catch (...)
   {
-    logError("Some exception has happened. It was caught at WBContextUI::init.\n");
+    log_error("Some exception has happened. It was caught at WBContextUI::init.\n");
   }
 
   return flag;
@@ -183,10 +173,10 @@ GRTShellWindow* WBContextUI::get_shell_window()
 void WBContextUI::init_finish(WBOptions *options)
 {
   g_assert(_wb->get_root().is_valid());
-  show_home_screen(options->showClassicHome);
+  show_home_screen();
   _wb->init_finish_(options);
 
-  NotificationCenter::get()->send("GNAppStarted", nullptr);
+  NotificationCenter::get()->send("GNAppStarted", NULL);
 }
 
 
@@ -201,14 +191,14 @@ bool WBContextUI::request_quit()
   if (_quitting)
     return true;
   
-  if (!bec::GRTManager::get()->in_main_thread())
+  if (!_wb->get_grt_manager()->in_main_thread())
     g_warning("request_quit() called in worker thread");
 
   {
     NotificationInfo info;
     info["cancel"] = "0";
     
-    NotificationCenter::get()->send("GNAppShouldClose", nullptr, info);
+    NotificationCenter::get()->send("GNAppShouldClose", NULL, info);
     
     if (info["cancel"] != "0")
       return false;
@@ -220,7 +210,7 @@ bool WBContextUI::request_quit()
   if (_wb->get_sqlide_context() && !_wb->get_sqlide_context()->request_quit())
     return false;
 
-  if (_shell_window != nullptr && !_shell_window->request_quit())
+  if (_shell_window != NULL && !_shell_window->request_quit())
     return false;
 
   return true;
@@ -262,7 +252,7 @@ void WBContextUI::history_changed()
   if (_wb->has_unsaved_changes() != _last_unsaved_changes_state)
     _wb->request_refresh(RefreshDocument, "", (NativeHandle)0);
 
-  bec::GRTManager::get()->run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, get_command_ui()));
+  _wb->get_grt_manager()->run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, get_command_ui()));
 
   _last_unsaved_changes_state= _wb->has_unsaved_changes();
 }
@@ -350,7 +340,7 @@ void WBContextUI::add_backend_builtin_commands()
   _command_ui->add_builtin_command("show_about",
                                    boost::bind(&WBContextUI::show_about, this));
   _command_ui->add_builtin_command("overview.home",
-                                     boost::bind(&WBContextUI::show_home_screen, this, true));
+                                     boost::bind(&WBContextUI::show_home_screen, this));
   _command_ui->add_builtin_command("show_output_form", 
                                   boost::bind(&WBContextUI::show_output, this));
 
@@ -490,7 +480,7 @@ bec::ValueInspectorBE *WBContextUI::create_inspector_for_selection(bec::UIForm *
     {
       items.push_back(strfmt("%s: %s", selection[0]->name().c_str(), selection[0].get_metaclass()->get_attribute("caption").c_str()));
 
-      return ValueInspectorBE::create(selection[0], false, true);
+      return ValueInspectorBE::create(_wb->get_grt_manager()->get_grt(), selection[0], false, true);
     }
     else
     {
@@ -503,7 +493,7 @@ bec::ValueInspectorBE *WBContextUI::create_inspector_for_selection(bec::UIForm *
         list.push_back(selection.get(i));
       }
 
-      return ValueInspectorBE::create(list);
+      return ValueInspectorBE::create(_wb->get_grt_manager()->get_grt(), list);
     }
   }
 
@@ -527,7 +517,7 @@ bec::ValueInspectorBE *WBContextUI::create_inspector_for_selection(std::vector<s
       {
         items.push_back(strfmt("%s: %s", obj.get_string_member(name_mem_name).c_str(), obj.get_metaclass()->get_attribute("caption").c_str()));
 
-        return ValueInspectorBE::create(selection[0], false, true);
+        return ValueInspectorBE::create(_wb->get_grt_manager()->get_grt(), selection[0], false, true);
       }
     }
     else
@@ -543,7 +533,7 @@ bec::ValueInspectorBE *WBContextUI::create_inspector_for_selection(std::vector<s
         list.push_back(selection.get(i));
       }
 
-      return ValueInspectorBE::create(list);
+      return ValueInspectorBE::create(_wb->get_grt_manager()->get_grt(), list);
     }
   }
 
@@ -554,7 +544,7 @@ std::string WBContextUI::get_description_for_selection(grt::ListRef<GrtObject> &
 {
   std::string res;
 
-  if (get_physical_overview() != nullptr)
+  if (get_physical_overview() != NULL)
   {
     grt::ListRef<GrtObject> selection(get_physical_overview()->get_selection());
     activeObjList= selection;
@@ -607,7 +597,7 @@ std::string WBContextUI::get_description_for_selection(bec::UIForm *form, grt::L
 
   std::string res;
 
-  activeObjList= grt::ListRef<model_Object>(true);
+  activeObjList= grt::ListRef<model_Object>(selection.get_grt());
 
   std::string comment_mem_name("comment");
   std::string descr_mem_name("description");
@@ -664,7 +654,7 @@ void WBContextUI::set_description_for_selection(const grt::ListRef<GrtObject> &o
     std::string comment_mem_name("comment");
     std::string descr_mem_name("description");
     
-    grt::AutoUndo undo;
+    grt::AutoUndo undo(_wb->get_grt());
 
     for (size_t c= objList.count(), i= 0; i < c; i++)
     {
@@ -735,7 +725,7 @@ void WBContextUI::set_doc_properties(const std::string &caption, const std::stri
 {
   app_DocumentInfoRef info= _wb->get_document()->info();
 
-  grt::AutoUndo undo;
+  grt::AutoUndo undo(_wb->get_grt());
   info->caption(caption);
   info->version(version);
   info->author(author);
@@ -785,7 +775,7 @@ bool WBContextUI::add_paper_size(const std::string &name, double width, double h
   if (grt::find_named_object_in_list(_wb->get_root()->options()->paperTypes(), name).is_valid())
     return false;
 
-  app_PaperTypeRef type(grt::Initialized);
+  app_PaperTypeRef type(_wb->get_grt_manager()->get_grt());
   type->owner(_wb->get_root()->options());
   type->name(name);
   type->width(width);
@@ -808,7 +798,7 @@ app_PageSettingsRef WBContextUI::get_page_settings()
   else
   {
     // XXX add proper initialization for non-trivial types in structs.app.h too.
-    app_PageSettingsRef settings= app_PageSettingsRef(grt::Initialized);
+    app_PageSettingsRef settings= app_PageSettingsRef(_wb->get_grt());
     settings->scale(1);
     settings->paperType(app_PaperTypeRef());
 
