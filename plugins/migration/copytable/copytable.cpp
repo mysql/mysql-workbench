@@ -523,7 +523,7 @@ std::string CopyDataSource::get_where_condition(const std::vector<std::string> &
       where_cond += ")";
   }
 
-    return where_cond;
+  return where_cond;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -1649,6 +1649,8 @@ std::vector<std::string> MySQLCopyDataTarget::get_last_pkeys(const std::vector<s
 {
   std::vector<std::string> ret;
   std::string order_by_cond;
+  if (pk_columns.empty())
+    throw std::logic_error("Get last copied row: Cannot get last copied record from table with no PK.");
 
   for (size_t i = 0; i < pk_columns.size(); ++i)
   {
@@ -2044,6 +2046,7 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
         if ((column_count - gc_count) == (int)columns->size())
         {
           log_debug2("Columns from target table %s.%s (%i) [skipped: %i]:\n", schema.c_str(), table.c_str(), column_count - gc_count, gc_count);
+          unsigned short idx_mod = 0;
           for (int i= 0; i < column_count; i++)
           {
             target_name = std::string(fields[i].name, fields[i].name_length);
@@ -2051,16 +2054,17 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
                   != generated_columns.end())
             {
               log_debug2("%i - %s: GENERATED [SKIPPED]\n", i + 1, target_name.c_str());
+              idx_mod++;
               continue;
             }
-            (*columns)[i].target_name = target_name;
-            (*columns)[i].target_type = field_type_to_ps_param_type(fields[i].type);
+            (*columns)[i - idx_mod].target_name = target_name;
+            (*columns)[i - idx_mod].target_type = field_type_to_ps_param_type(fields[i].type);
             // We can't trust source drivers to report signed/unsigned values, so we take that from the target MySQL table:
-            (*columns)[i].is_unsigned = (fields[i].flags & UNSIGNED_FLAG) != 0;
+            (*columns)[i - idx_mod].is_unsigned = (fields[i].flags & UNSIGNED_FLAG) != 0;
             if (_get_field_lengths_from_target)
-                (*columns)[i].source_length = fields[i].length;
-            log_debug2("%i - %s: %s\n", i + 1, (*columns)[i].target_name.c_str(),
-                       mysql_field_type_to_name((*columns)[i].target_type));
+                (*columns)[i - idx_mod].source_length = fields[i].length;
+            log_debug2("%i - %s: %s\n", i + 1, (*columns)[i - idx_mod].target_name.c_str(),
+                       mysql_field_type_to_name((*columns)[i - idx_mod].target_type));
           }
         }
         else
