@@ -318,7 +318,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wbdata", "wbdata", "{25040E
 		res\wbdata\model_option_toolbar_selection.xml = res\wbdata\model_option_toolbar_selection.xml
 		res\wbdata\model_toolbar.xml = res\wbdata\model_toolbar.xml
 		res\wbdata\paper_types.xml = res\wbdata\paper_types.xml
-		res\wbdata\predefined_starters.xml = res\wbdata\predefined_starters.xml
 		res\wbdata\shortcuts.xml = res\wbdata\shortcuts.xml
 		res\wbdata\shortcuts_basic.xml = res\wbdata\shortcuts_basic.xml
 		res\wbdata\shortcuts_physical.xml = res\wbdata\shortcuts_physical.xml
