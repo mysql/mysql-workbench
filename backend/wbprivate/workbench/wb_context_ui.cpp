@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +92,7 @@ WBContextUI::WBContextUI(bool verbose)
   // stuff to do when the active form is switched in the UI (through set_active_form)
   _form_change_signal.connect(boost::bind(&WBContextUI::form_changed, this));
 
-  _output_view = new OutputView(_wb);
+  _output_view = mforms::manage(new OutputView(_wb));
   scoped_connect(_output_view->get_be()->signal_show(),boost::bind(&WBContextUI::show_output, this));
 }
 
@@ -105,10 +105,6 @@ WBContextUI::~WBContextUI()
   delete _addon_download_window;
   delete _plugin_install_window;
 
-  if (_home_screen != NULL)
-    _home_screen->release();
-
-  delete _output_view;
   delete _shell_window;
   delete _wb;
   delete _command_ui;
@@ -186,6 +182,7 @@ void WBContextUI::init_finish(WBOptions *options)
 
 void WBContextUI::finalize()
 {  
+  _output_view->release();
   _wb->finalize();
 }
 
