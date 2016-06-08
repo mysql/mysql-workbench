@@ -216,7 +216,6 @@
                   <File Id="file2018" Name="data.db"/>
                   <File Id="file2019" Name="default_toolbar.xml"/>
                   <File Id="file2020" Name="dbquery_toolbar.xml"/>
-                  <File Id="file2021" Name="predefined_starters.xml"/>
                   <File Id="file2022" Name="model_diagram_toolbar.xml"/>
                   <File Id="file2023" Name="code_editor.xml"/>
                   <File Id="file2024" Name="table_templates.xml"/>
