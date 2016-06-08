@@ -331,7 +331,7 @@ class DataMigrator(object):
                 args.append('--source-charset=%s' % default_charset)
 
         if self._resume:
-          args.append("--resume")
+            args.append("--resume")
 
         argv = [self.copytable_path] + args + table_param
 

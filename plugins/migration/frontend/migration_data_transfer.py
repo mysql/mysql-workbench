@@ -495,8 +495,8 @@ class TransferMainView(WizardProgressPage):
                 else:
                     select_expression.append(source_db_module.quoteIdentifier(column.oldName))
 
-            self._working_set[schema_name+"."+table_name]["source_primary_key"] = ",".join(source_pk_list)
-            self._working_set[schema_name+"."+table_name]["target_primary_key"] = ",".join(target_pk_list)
+            self._working_set[schema_name+"."+table_name]["source_primary_key"] = ",".join(source_pk_list) if len(source_pk_list) > 0 else "-"
+            self._working_set[schema_name+"."+table_name]["target_primary_key"] = ",".join(target_pk_list) if len(target_pk_list) > 0 else "-"
             self._working_set[schema_name+"."+table_name]["select_expression"] = ", ".join(select_expression)
 #            source_db_module = self.main.plan.migrationSource.module_db()
  #           source_table = source_db_module.fullyQualifiedObjectName(stable)
