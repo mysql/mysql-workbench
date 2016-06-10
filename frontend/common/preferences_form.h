@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,7 +70,6 @@ private:
   mforms::TextEntry *version_entry;
 
   workbench_physical_ModelRef _model; // nil unless we're showing model specific options
-  wb::WBContextUI *_wbui;
 
   boost::function<std::string (std::string,std::string)> _edit_font;
 
