@@ -393,10 +393,10 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
 
   grt::DictRef info(true);
   if (!_model.is_valid())
-    info.set("options", _wbui->get_wb()->get_wb_options());
+    info.set("options", wb::WBContextUI::get()->get_wb()->get_wb_options());
   else
   {
-    info.set("model-options", _wbui->get_model_options(_model.id()));
+    info.set("model-options", wb::WBContextUI::get()->get_model_options(_model.id()));
     info.set("model", model);
   }
   grt::GRTNotificationCenter::get()->send_grt("GRNPreferencesDidCreate", grt::ObjectRef(), info);
@@ -482,10 +482,10 @@ void PreferencesForm::show()
 {
   grt::DictRef info(true);
   if (!_model.is_valid())
-    info.set("options", _wbui->get_wb()->get_wb_options());
+    info.set("options", wb::WBContextUI::get()->get_wb()->get_wb_options());
   else
   {
-    info.set("model-options", _wbui->get_model_options(_model.id()));
+    info.set("model-options", wb::WBContextUI::get()->get_model_options(_model.id()));
     info.set("model", _model);
   }
   grt::GRTNotificationCenter::get()->send_grt("GRNPreferencesWillOpen", grt::ObjectRef(), info);
@@ -512,7 +512,7 @@ void PreferencesForm::show_values()
   if (_model.is_valid())
   {
     std::string value;
-    _wbui->get_wb_options_value(_model.id(), "useglobal", value);
+    wb::WBContextUI::get()->get_wb_options_value(_model.id(), "useglobal", value);
     if (value == "1")
     {
       _use_global.set_active(true);
@@ -528,7 +528,7 @@ void PreferencesForm::update_values()
 
   if (_model.is_valid())
   {
-    _wbui->set_wb_options_value(_model.id(), "useglobal", _use_global.get_active() ? "1" : "0");
+    wb::WBContextUI::get()->set_wb_options_value(_model.id(), "useglobal", _use_global.get_active() ? "1" : "0");
   }
 
   if (!_model.is_valid() || !_use_global.get_active())
@@ -549,9 +549,9 @@ void PreferencesForm::update_values()
 grt::DictRef PreferencesForm::get_options(bool global)
 {
   if (!_model.is_valid() || global)
-    return _wbui->get_wb()->get_wb_options();
+    return wb::WBContextUI::get()->get_wb()->get_wb_options();
   else
-    return _wbui->get_model_options(_model.id());
+    return wb::WBContextUI::get()->get_model_options(_model.id());
 }
 
 
@@ -559,7 +559,7 @@ void PreferencesForm::show_entry_option(const std::string &option_name, mforms::
 {
   std::string value;
 
-  _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
+  wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
   entry->set_value(value);
 }
 
@@ -567,22 +567,22 @@ void PreferencesForm::show_entry_option(const std::string &option_name, mforms::
 void PreferencesForm::update_entry_option(const std::string &option_name, mforms::TextEntry *entry, bool numeric)
 {
   if (numeric)
-    _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_string_value(), grt::IntegerType);
+    wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_string_value(), grt::IntegerType);
   else
-    _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_string_value(), grt::StringType);
+    wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_string_value(), grt::StringType);
 }
 
 void PreferencesForm::show_path_option(const std::string &option_name, mforms::FsObjectSelector *entry)
 {
   std::string value;
   
-  _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
+  wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
   entry->set_filename(value);
 }
 
 void PreferencesForm::update_path_option(const std::string &option_name, mforms::FsObjectSelector *entry)
 {
-  _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_filename(), grt::StringType);
+  wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_filename(), grt::StringType);
 }
 
 
@@ -594,7 +594,7 @@ void PreferencesForm::update_entry_option_numeric(const std::string &option_name
   else if (value > maxrange)
     value= maxrange;
   
-  _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, strfmt("%li", (long)value));
+  wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, strfmt("%li", (long)value));
 }
 
 
@@ -602,7 +602,7 @@ void PreferencesForm::show_checkbox_option(const std::string &option_name, mform
 {
   std::string value;
 
-  _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
+  wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
 
   checkbox->set_active(base::atoi<int>(value, 0) != 0);
 }
@@ -611,7 +611,7 @@ void PreferencesForm::show_checkbox_option(const std::string &option_name, mform
 void PreferencesForm::update_checkbox_option(const std::string &option_name, mforms::CheckBox *checkbox)
 {
   std::string value = checkbox->get_active() ? "1" : "0";
-  _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value, grt::IntegerType);
+  wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value, grt::IntegerType);
 
 #ifdef _WIN32
   // On Windows we have to write the following value also to the registry as our options are not
@@ -627,7 +627,7 @@ void PreferencesForm::show_selector_option(const std::string &option_name, mform
                                            const std::vector<std::string> &choices)
 {
   std::string value;
-  _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
+  wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
   selector->set_selected((int)(std::find(choices.begin(), choices.end(), value) - choices.begin()));
 }
 
@@ -638,16 +638,16 @@ void PreferencesForm::update_selector_option(const std::string &option_name, mfo
   if (as_number)
   {
     if (selector->get_selected_index() < 0)
-      _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, default_value, grt::IntegerType);
+      wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, default_value, grt::IntegerType);
     else
-      _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, choices[selector->get_selected_index()], grt::IntegerType);
+      wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, choices[selector->get_selected_index()], grt::IntegerType);
   }
   else 
   {
     if (selector->get_selected_index() < 0)
-      _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, default_value);
+      wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, default_value);
     else
-      _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, choices[selector->get_selected_index()]);
+      wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, choices[selector->get_selected_index()]);
   }
 
   if (option_name == "ColorScheme")
@@ -722,7 +722,7 @@ mforms::Selector *PreferencesForm::new_selector_option(const std::string &option
   mforms::Selector *selector= new mforms::Selector();
 
   if (choices_string.empty())
-    _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "@"+option_name+"/Items", choices_string);
+    wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", "@"+option_name+"/Items", choices_string);
 
   std::vector<std::string> choices, parts= base::split(choices_string, ",");
 
@@ -1063,7 +1063,7 @@ mforms::View *PreferencesForm::create_editor_page()
 
         // Set initial enabled state of sub settings depending on whether code completion is enabled.
         std::string value;
-        _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "DbSqlEditor:CodeCompletionEnabled", value);
+        wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", "DbSqlEditor:CodeCompletionEnabled", value);
         subsettings_box->set_enabled(base::atoi<int>(value, 0) != 0);
 
         vbox->add(subsettings_box, false);
@@ -1908,7 +1908,7 @@ void PreferencesForm::font_preset_changed()
 
   if (i >= 0)
   {
-    _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_sets[i].name);
+    wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_sets[i].name);
 
     change_font_option("workbench.physical.TableFigure:TitleFont", font_sets[i].object_title_font);
     change_font_option("workbench.physical.TableFigure:SectionFont", font_sets[i].object_section_font);
@@ -1986,7 +1986,7 @@ mforms::View *PreferencesForm::create_appearance_page()
     _font_preset.signal_changed()->connect(boost::bind(&PreferencesForm::font_preset_changed, this));
     
     std::string font_name;
-    _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_name);
+    wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_name);
     
     for (size_t i = 0; font_sets[i].name; i++)
     {
@@ -2079,7 +2079,7 @@ static std::string separate_camel_word(const std::string &word)
 
 void PreferencesForm::show_colors_and_fonts()
 {
-  std::vector<std::string> options= _wbui->get_wb_options_keys("");
+  std::vector<std::string> options= wb::WBContextUI::get()->get_wb_options_keys("");
 
   _font_options.clear();
   _font_list.clear();
@@ -2112,7 +2112,7 @@ void PreferencesForm::show_colors_and_fonts()
           
           mforms::TreeNodeRef node= _font_list.add_node();
           std::string value;
-          _wbui->get_wb_options_value("", *iter, value);
+          wb::WBContextUI::get()->get_wb_options_value("", *iter, value);
           node->set_string(0, caption);
           node->set_string(1, value);
           
@@ -2134,7 +2134,7 @@ void PreferencesForm::update_colors_and_fonts()
   {
     std::string value= _font_list.root_node()->get_child(i)->get_string(1);
 
-    _wbui->set_wb_options_value("", _font_options[i], value);
+    wb::WBContextUI::get()->set_wb_options_value("", _font_options[i], value);
   }
 }
 
