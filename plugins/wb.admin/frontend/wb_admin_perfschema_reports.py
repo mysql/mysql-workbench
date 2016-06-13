@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -522,7 +522,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
                 continue
             setattr(self, "tab_"+tab.caption, tab)
             self.pages.append(tab)
-            self.tabview.add_page(tab, tab.caption)
+            self.tabview.add_page(tab, str(tab.caption))
 
             if tab.category != prev:
                 if parent:
