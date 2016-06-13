@@ -247,7 +247,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._log_text.set_padding(16)
         self._log_box.add(self._log_text)
         self._log_box.show(False)
-        self.content.add_end(self._log_box, False, True)
+        self.content.add_end(self._log_box, True, True)
         self._log_queue = deque()
         
         self._showing_logs = False
