@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,8 +37,8 @@ class SelectorImpl : public ViewImpl
   virtual Gtk::Widget *get_outer() const;
   virtual Gtk::Widget *get_inner() const;
 
-  Gtk::Alignment                    *_align;
-  Impl                              *_pimpl;
+  Gtk::Box          *_outerBox;
+  Impl              *_pimpl;
 
  protected:
   SelectorImpl(::mforms::Selector *self, ::mforms::SelectorStyle style);

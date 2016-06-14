@@ -28,17 +28,18 @@ class BoxImpl : public ViewImpl
 {
 
 protected:
-  Gtk::Box *_box;
-  Gtk::Alignment *_alignment;
+  Gtk::Box *_innerBox;
+
+  Gtk::Box *_outerBox;
 
   virtual Gtk::Widget *get_outer() const
   {
-    return _alignment;
+    return _outerBox;
   }
 
   virtual Gtk::Widget *get_inner() const
   {
-    return _box;
+    return _innerBox;
   }
 
   BoxImpl(::mforms::Box *self, bool horiz);

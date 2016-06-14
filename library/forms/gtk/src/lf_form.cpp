@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,7 +50,7 @@ void FormImpl::accept_clicked(bool *status, const bool is_run)
 {
   *status= true;
   if (is_run)
-    Gtk::Main::quit();
+    _loop.quit();
   else
     _window->hide();
 
@@ -62,7 +62,7 @@ void FormImpl::cancel_clicked(bool *status, const bool is_run)
 {
   *status= false;
   if (is_run)
-    Gtk::Main::quit();
+    _loop.quit();
   else
     _window->hide();
 
@@ -91,7 +91,7 @@ void FormImpl::end_modal(::mforms::Form *self, bool result)
     form->_result= result;
     if (form->_in_modal_loop > 0)
     {
-      Gtk::Main::quit();
+      form->_loop.quit();
       form->_in_modal_loop--;
     }
   }
@@ -156,7 +156,7 @@ bool FormImpl::run_modal(::mforms::Form *self, ::mforms::Button *accept, ::mform
     form->_window->signal_key_release_event().connect(sigc::bind(sigc::mem_fun(form, &FormImpl::on_key_release), &form->_result, true, accept, cancel));
 
     form->_in_modal_loop++;
-    Gtk::Main::run();
+    form->_loop.run();
 
     form->_window->set_modal(false); // to be sure it wont Quit the app on close()
 
@@ -178,7 +178,7 @@ void FormImpl::close(::mforms::Form *self)
     form->_window->hide();
     if (form->_in_modal_loop > 0)
     {
-      Gtk::Main::quit();
+      form->_loop.quit();
       form->_in_modal_loop--;
     }
   }
@@ -227,6 +227,7 @@ void FormImpl::set_menubar(mforms::Form *self, mforms::MenuBar *menu)
 FormImpl::FormImpl(::mforms::Form *form, ::mforms::Form *owner, mforms::FormFlag form_flag)
   : ViewImpl(form), _in_modal_loop(0), _result(false)
 {
+
   _window = new Gtk::Window(Gtk::WINDOW_TOPLEVEL);
 
   if (owner)
@@ -297,6 +298,17 @@ void FormImpl::realized(mforms::Form *owner, Gdk::WMDecoration flags)
 void FormImpl::set_name(const std::string &name)
 {
   _window->set_role(name);
+}
+
+void FormImpl::show(bool show)
+{
+  if (show)
+  {
+    _window->signal_delete_event().connect(sigc::bind(sigc::mem_fun(this, &FormImpl::on_widget_delete_event), nullptr));
+    _window->show();
+  }
+  else
+    _window->hide();
 }
 
 void FormImpl::init_main_form(Gtk::Window* main)

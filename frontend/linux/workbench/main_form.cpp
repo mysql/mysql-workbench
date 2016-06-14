@@ -213,10 +213,6 @@ void MainForm::on_focus_widget(Gtk::Widget *w)
   }
 
   wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
-
-  // for updating the Edit menu
- //!!! Gtk::Alignment* menu_holder;
- //!!! _menu_manager->rebuild(_ui->get("main_menu_box", &menu_holder));
 }
 
 //------------------------------------------------------------------------------
@@ -2000,11 +1996,9 @@ void MainForm::dock_view(mforms::AppView *view, const std::string &position, int
     if (dynamic_cast<bec::UIForm*>(view)->get_form_context_name() == "home")
     {
       Gtk::Widget *tab = Gtk::manage(new Gtk::Image(bec::IconManager::get_instance()->get_icon_path("WB_Home.png")));
-      Gtk::Alignment *align = Gtk::manage(new Gtk::Alignment());
-      align->add(*tab);
-      align->show_all();
-      align->set_padding(0, 0, 10, 10);
-      note->append_page(*decorated, *align);
+      tab->set_margin_left(10);
+      tab->set_margin_right(10);
+      note->append_page(*decorated, *tab);
     }
     else
     {

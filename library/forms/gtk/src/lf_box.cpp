@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,13 +24,14 @@
 mforms::gtk::BoxImpl::BoxImpl(::mforms::Box *self, bool horiz)
   : ViewImpl(self)
 {
-  _box = new Gtk::Box(horiz ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
+  _innerBox = new Gtk::Box(horiz ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
 
-  _alignment = new Gtk::Alignment();
-  _alignment->add(*_box);
-  _alignment->show_all();
+  _outerBox = new Gtk::Box();
+  _outerBox->pack_start(*_innerBox, true, true);
+  _outerBox->show_all();
 
-  _box->signal_draw().connect(sigc::bind(sigc::ptr_fun(mforms::gtk::draw_event_slot), _box), false);
+  _innerBox->signal_draw().connect(sigc::bind(sigc::ptr_fun(mforms::gtk::draw_event_slot), _innerBox), false);
+  setup();
 }
 
 //------------------------------------------------------------------------------
@@ -44,7 +45,7 @@ void mforms::gtk::BoxImpl::add(Box *self, View *child, bool expand, bool fill)
 {
   BoxImpl *box = self->get_data<BoxImpl>();
 
-  box->_box->pack_start(*child->get_data<ViewImpl>()->get_outer(), expand, fill);
+  box->_innerBox->pack_start(*child->get_data<ViewImpl>()->get_outer(), expand, fill);
 }
 
 //------------------------------------------------------------------------------
@@ -52,7 +53,7 @@ void mforms::gtk::BoxImpl::add_end(Box *self, View *child, bool expand, bool fil
 {
   BoxImpl *box = self->get_data<BoxImpl>();
 
-  box->_box->pack_end(*child->get_data<ViewImpl>()->get_outer(), expand, fill);
+  box->_innerBox->pack_end(*child->get_data<ViewImpl>()->get_outer(), expand, fill);
 }
 
 //------------------------------------------------------------------------------
@@ -60,7 +61,7 @@ void mforms::gtk::BoxImpl::remove(Box *self, View *child)
 {
   BoxImpl *box = self->get_data<BoxImpl>();
 
-  box->_box->remove(*child->get_data<ViewImpl>()->get_outer());
+  box->_innerBox->remove(*child->get_data<ViewImpl>()->get_outer());
 }
 
 //------------------------------------------------------------------------------
@@ -68,7 +69,7 @@ void mforms::gtk::BoxImpl::set_homogeneous(Box *self, bool flag)
 {
   BoxImpl *box = self->get_data<BoxImpl>();
 
-  box->_box->set_homogeneous(flag);
+  box->_innerBox->set_homogeneous(flag);
 }
 
 //------------------------------------------------------------------------------
@@ -76,13 +77,16 @@ void mforms::gtk::BoxImpl::set_spacing(Box *self, int spc)
 {
   BoxImpl *box = self->get_data<BoxImpl>();
 
-  box->_box->set_spacing(spc);
+  box->_innerBox->set_spacing(spc);
 }
 
 //------------------------------------------------------------------------------
 void mforms::gtk::BoxImpl::set_padding_impl(int left, int top, int right, int bottom)
 {
-  _alignment->set_padding(top, bottom, left, right);
+  _innerBox->set_margin_bottom(bottom);
+  _innerBox->set_margin_top(top);
+  _innerBox->set_margin_left(left);
+  _innerBox->set_margin_right(right);
 }
 
 //------------------------------------------------------------------------------
@@ -96,8 +100,8 @@ void mforms::gtk::BoxImpl::set_size(int width, int height)
 //------------------------------------------------------------------------------
 mforms::gtk::BoxImpl::~BoxImpl()
 {
-  delete _box;
-  delete _alignment;
+  delete _innerBox;
+  delete _outerBox;
 }
 //------------------------------------------------------------------------------
 void mforms::gtk::BoxImpl::init()
