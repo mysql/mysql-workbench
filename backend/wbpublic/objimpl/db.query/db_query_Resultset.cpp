@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -506,7 +506,7 @@ public:
       try {
         return getGeoRepresentation(data, false);
       }
-      catch (std::exception &exc)
+      catch (std::exception &)
       {
         throw std::invalid_argument(base::strfmt("unable to convert geometry data to WKT for column %li", (long)column).c_str());
       }
@@ -522,7 +522,7 @@ public:
       try {
         return getGeoRepresentation(data, false);
       }
-      catch (std::exception &exc)
+      catch (std::exception &)
       {
         throw std::invalid_argument(base::strfmt("unable to convert geometry data to WKT for column %s", column.c_str()).c_str());
       }
@@ -538,7 +538,7 @@ public:
       try {
         return getGeoRepresentation(data, true);
       }
-      catch (std::exception &exc)
+      catch (std::exception &)
       {
         throw std::invalid_argument(base::strfmt("unable to convert geometry data to WKT for column %li", (long)column).c_str());
       }
@@ -555,7 +555,7 @@ public:
       try {
         return getGeoRepresentation(data, true);
       }
-      catch (std::exception &exc)
+      catch (std::exception &)
       {
         throw std::invalid_argument(base::strfmt("unable to convert geometry data to WKT for column %s", column.c_str()).c_str());
       }

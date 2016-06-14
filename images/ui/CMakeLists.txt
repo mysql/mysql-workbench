@@ -139,6 +139,7 @@ set(IMAGE_FILES
     zoom_reset.png
     editor_breakpoint_hit.xpm
     editor_breakpoint.xpm
+    editor_continue_on_error.xpm
     editor_current_pos.xpm
     editor_error.xpm
     editor_statement.xpm

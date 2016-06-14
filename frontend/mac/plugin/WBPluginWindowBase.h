@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-
 namespace grt
 {
   class BaseListRef;
@@ -29,17 +27,14 @@ namespace bec
   class GRTManager;
 }
 
-
-@interface WBPluginWindowBase : NSObject {
-  grt::Module *_module;
-@protected
-  bec::GRTManager *_grtm;
-}
+// Standalone plugins as modal dialogs.
+// TODO: convert to protocol.
+@interface WBPluginWindowBase : NSObject
 
 - (instancetype)initWithModule: (grt::Module *)module
                     grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args;
-@property (readonly) bec::GRTManager *grtManager;
-- (void)show;
+
+- (void)showModal;
 
 @end

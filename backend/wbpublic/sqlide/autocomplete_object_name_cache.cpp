@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,7 +64,7 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
   log_debug2("Using autocompletion cache file %s\n", (make_path(cache_dir, _connection_id) + ".cache").c_str());
 
 
-  // Top level objects (aka. schemas).
+  // Top level objects.
   // They are retrieved automatically only once to limit traffic to the server.
   // The user can manually trigger a refresh when needed.
   add_pending_refresh(RefreshTask::RefreshSchemas);
@@ -72,6 +72,8 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
   // Objects that don't change while a server is running.
   add_pending_refresh(RefreshTask::RefreshVariables);
   add_pending_refresh(RefreshTask::RefreshEngines);
+  add_pending_refresh(RefreshTask::RefreshCharsets);
+  add_pending_refresh(RefreshTask::RefreshCollations);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,6 +216,27 @@ std::vector<std::string> AutoCompleteCache::get_matching_tablespaces(const std::
 
 //--------------------------------------------------------------------------------------------------
 
+std::vector<std::string> AutoCompleteCache::get_matching_charsets(const std::string &prefix)
+{
+  return get_matching_objects("charsets", "", "", prefix, RetrieveWithNoQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> AutoCompleteCache::get_matching_collations(const std::string &prefix)
+{
+  return get_matching_objects("collations", "", "", prefix, RetrieveWithNoQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> AutoCompleteCache::get_matching_events(const std::string &schema, const std::string &prefix)
+{
+  return get_matching_objects("events", schema, "", prefix, RetrieveWithSchemaQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Core object retrieval function.
  */
@@ -311,11 +334,12 @@ bool AutoCompleteCache::refresh_schema_cache_if_needed(const std::string &schema
   // Add tasks to load various schema objects. They will then update the last_refresh value.
   log_debug3("schema %s is not cached, populating cache...\n", schema.c_str());
 
-  // Refreshing views and tables will implicitly refresh their local objects too.
+  // Refreshing a schema implicitly refreshs its local objects too.
   add_pending_refresh(RefreshTask::RefreshTables, schema);
   add_pending_refresh(RefreshTask::RefreshViews, schema);
   add_pending_refresh(RefreshTask::RefreshProcedures, schema);
   add_pending_refresh(RefreshTask::RefreshFunctions, schema);
+  add_pending_refresh(RefreshTask::RefreshEvents, schema);
 
   return true;
 }
@@ -336,6 +360,13 @@ void AutoCompleteCache::refresh_triggers(const std::string &schema, const std::s
 
 //--------------------------------------------------------------------------------------------------
 
+void AutoCompleteCache::refresh_udfs()
+{
+  add_pending_refresh(RefreshTask::RefreshUDFs);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void AutoCompleteCache::refresh_tablespaces()
 {
   add_pending_refresh(RefreshTask::RefreshTableSpaces);
@@ -346,6 +377,13 @@ void AutoCompleteCache::refresh_tablespaces()
 void AutoCompleteCache::refresh_logfile_groups()
 {
   add_pending_refresh(RefreshTask::RefreshLogfileGroups);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void AutoCompleteCache::refresh_events()
+{
+  add_pending_refresh(RefreshTask::RefreshEvents);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,6 +437,14 @@ void AutoCompleteCache::refresh_cache_thread()
           refresh_udfs_w();
           break;
 
+        case RefreshTask::RefreshCharsets:
+          refreshCharsets_w();
+          break;
+
+        case RefreshTask::RefreshCollations:
+          refreshCollations_w();
+          break;
+
         case RefreshTask::RefreshVariables:
           refresh_variables_w();
           break;
@@ -414,6 +460,11 @@ void AutoCompleteCache::refresh_cache_thread()
         case RefreshTask::RefreshTableSpaces:
           refresh_tablespaces_w();
           break;
+
+        case RefreshTask::RefreshEvents:
+          refreshEvents_w(task.schema_name);
+
+        break;
       }
     }
     catch (std::exception &exc)
@@ -485,29 +536,35 @@ void AutoCompleteCache::refresh_tables_w(const std::string &schema)
     // TODO: check if it is possible that the connection can be locked even it was already deleted.
     base::RecMutexLock lock(_get_connection(conn));
     {
-      std::string sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
+      // Avoid an exception for an unknown schema by checking in advance.
       std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(sql));
-      if (rs.get())
+      std::string sql = base::sqlstring("show schemas like ?", 0) << schema;
+      std::auto_ptr<sql::ResultSet> rs1(statement->executeQuery(sql));
+      if (rs1.get() && rs1->next())
       {
-        while (rs->next() && !_shutdown)
+        sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
+        std::auto_ptr<sql::ResultSet> rs2(statement->executeQuery(sql));
+        if (rs2.get())
         {
-          std::string type = rs->getString(2);
-          std::string table = rs->getString(1);
-          if (type != "VIEW")
+          while (rs2->next() && !_shutdown)
           {
-            tables->push_back(table);
+            std::string type = rs2->getString(2);
+            std::string table = rs2->getString(1);
+            if (type != "VIEW")
+            {
+              tables->push_back(table);
 
-            // Implicitly load table-local objects for each table/view.
-            add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
-            add_pending_refresh(RefreshTask::RefreshTriggers, schema, table);
+              // Implicitly load table-local objects for each table/view.
+              add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
+              add_pending_refresh(RefreshTask::RefreshTriggers, schema, table);
+            }
           }
-        }
 
-        log_debug2("Found %li tables\n", (long)tables->size());
+          log_debug2("Found %li tables\n", (long)tables->size());
+        }
+        else
+          log_debug2("No tables found for %s\n", schema.c_str());
       }
-      else
-        log_debug2("No tables found for %s\n", schema.c_str());
     }
   }
 
@@ -525,28 +582,34 @@ void AutoCompleteCache::refresh_views_w(const std::string &schema)
 
     base::RecMutexLock lock(_get_connection(conn));
     {
-      std::string sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
+      // Avoid an exception for an unknown schema by checking in advance.
       std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(sql));
-      if (rs.get())
+      std::string sql = base::sqlstring("show schemas like ?", 0) << schema;
+      std::auto_ptr<sql::ResultSet> rs1(statement->executeQuery(sql));
+      if (rs1.get() && rs1->next())
       {
-        while (rs->next() && !_shutdown)
+        sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
+        std::auto_ptr<sql::ResultSet> rs2(statement->executeQuery(sql));
+        if (rs2.get())
         {
-          std::string type = rs->getString(2);
-          std::string table = rs->getString(1);
-          if (type == "VIEW")
+          while (rs2->next() && !_shutdown)
           {
-            views->push_back(table);
+            std::string type = rs2->getString(2);
+            std::string table = rs2->getString(1);
+            if (type == "VIEW")
+            {
+              views->push_back(table);
 
-            // Implicitly load columns for each table/view.
-            add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
+              // Implicitly load columns for each table/view.
+              add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
+            }
           }
-        }
 
-        log_debug2("Found %li views\n", (long)views->size());
+          log_debug2("Found %li views\n", (long)views->size());
+        }
+        else
+          log_debug2("No views found for %s\n", schema.c_str());
       }
-      else
-        log_debug2("No views found for %s\n", schema.c_str());
     }
   }
 
@@ -691,6 +754,60 @@ void AutoCompleteCache::refresh_udfs_w()
 
 //--------------------------------------------------------------------------------------------------
 
+void AutoCompleteCache::refreshCharsets_w()
+{
+  std::vector<std::string> charsets;
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    base::RecMutexLock lock(_get_connection(conn));
+    {
+      std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("show charset"));
+      if (rs.get())
+      {
+        while (rs->next() && !_shutdown)
+          charsets.push_back(rs->getString(1));
+
+        log_debug2("Found %li character sets.\n", (long)charsets.size());
+      }
+      else
+        log_debug2("No character sets found.\n");
+    }
+  }
+
+  if (!_shutdown)
+    update_object_names("charsets", charsets);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void AutoCompleteCache::refreshCollations_w()
+{
+  std::vector<std::string> collations;
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    base::RecMutexLock lock(_get_connection(conn));
+    {
+      std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("show collation"));
+      if (rs.get())
+      {
+        while (rs->next() && !_shutdown)
+          collations.push_back(rs->getString(1));
+
+        log_debug2("Found %li collations.\n", (long)collations.size());
+      }
+      else
+        log_debug2("No collations found.\n");
+    }
+  }
+
+  if (!_shutdown)
+    update_object_names("collations", collations);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void AutoCompleteCache::refresh_variables_w()
 {
   std::vector<std::string> variables;
@@ -757,7 +874,7 @@ void AutoCompleteCache::refresh_logfile_groups_w()
       // Logfile groups and tablespaces are referenced as single unqualified identifiers in MySQL syntax.
       // They are stored however together with a table schema and a table name.
       // For auto completion however we only need to support what the syntax supports.
-      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT logfile_group_name FROM information_schema.FILES"));
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT distinct logfile_group_name FROM information_schema.FILES"));
       if (rs.get())
       {
         while (rs->next() && !_shutdown)
@@ -784,11 +901,15 @@ void AutoCompleteCache::refresh_tablespaces_w()
     base::RecMutexLock lock(_get_connection(conn));
     {
       std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT tablespace_name FROM information_schema.FILES"));
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT distinct tablespace_name FROM information_schema.FILES"));
       if (rs.get())
       {
         while (rs->next() && !_shutdown)
-          tablespaces.push_back(rs->getString(1));
+        {
+          std::string entry = rs->getString(1);
+          if (!entry.empty())
+            tablespaces.push_back(entry);
+        }
 
         log_debug2("Found %li tablespaces.\n", (long)tablespaces.size());
       }
@@ -799,6 +920,38 @@ void AutoCompleteCache::refresh_tablespaces_w()
 
   if (!_shutdown)
     update_object_names("tablespaces", tablespaces);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void AutoCompleteCache::refreshEvents_w(const std::string &schema)
+{
+  base::StringListPtr events(new std::list<std::string>());
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    base::RecMutexLock lock(_get_connection(conn));
+    {
+      std::string sql = base::sqlstring("SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = ?", 0) << schema;
+      std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(sql));
+      if (rs.get())
+      {
+        while (rs->next() && !_shutdown)
+        {
+          std::string entry = rs->getString(1);
+          if (!entry.empty())
+            events->push_back(entry);
+        }
+
+        log_debug2("Found %li events in schema %s.\n", (long)events->size(), schema.c_str());
+      }
+      else
+        log_debug2("No events found for schema %s.\n", schema.c_str());
+    }
+  }
+
+  if (!_shutdown)
+    update_object_names("events", schema, events);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -828,7 +981,7 @@ void AutoCompleteCache::init_db()
   }
 
   // Creation of cache tables that consist only of a single column (name).
-  std::string single_param_caches[] = {"variables", "engines", "tablespaces", "logfile_groups", "udfs"};
+  std::string single_param_caches[] = {"variables", "engines", "tablespaces", "logfile_groups", "udfs", "charsets", "collations"};
 
   for (size_t i = 0; i < sizeof(single_param_caches) / sizeof(single_param_caches[0]); ++i)
   {
@@ -844,7 +997,7 @@ void AutoCompleteCache::init_db()
   }
 
   // Creation of cache tables that consist of a name and a schema column.
-  std::string dual_param_caches[] = {"tables", "views", "functions", "procedures"};
+  std::string dual_param_caches[] = {"tables", "views", "functions", "procedures", "events"};
 
   for (size_t i = 0; i < sizeof(dual_param_caches) / sizeof(dual_param_caches[0]); ++i)
   {
@@ -1010,7 +1163,7 @@ void AutoCompleteCache::update_schemas(const std::vector<std::string> &schemas)
   }
   catch (std::exception &exc)
   {
-    log_error("Exception caught while updating schema name cache: %s", exc.what());
+    log_error("Exception caught while updating schema name cache: %s\n", exc.what());
   }
 }
 
@@ -1044,6 +1197,13 @@ void AutoCompleteCache::update_functions(const std::string &schema, base::String
 
 //--------------------------------------------------------------------------------------------------
 
+void AutoCompleteCache::update_events(const std::string &schema, base::StringListPtr events)
+{
+  update_object_names("events", schema, events);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Central update routine for cache tables that have a single column "name".
  */
@@ -1071,7 +1231,7 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
   }
   catch (std::exception &exc)
   {
-    log_error("Exception caught while updating object name in cache %s: %s", cache.c_str(), exc.what());
+    log_error("Exception caught while updating object name in cache %s: %s\n", cache.c_str(), exc.what());
   }
 }
 
@@ -1172,6 +1332,8 @@ void AutoCompleteCache::add_pending_refresh(RefreshTask::RefreshType type, const
       case RefreshTask::RefreshVariables:
       case RefreshTask::RefreshEngines:
       case RefreshTask::RefreshUDFs:
+      case RefreshTask::RefreshCharsets:
+      case RefreshTask::RefreshCollations:
         found = true;
         break;
 
@@ -1179,6 +1341,7 @@ void AutoCompleteCache::add_pending_refresh(RefreshTask::RefreshType type, const
       case RefreshTask::RefreshViews:
       case RefreshTask::RefreshProcedures:
       case RefreshTask::RefreshFunctions:
+      case RefreshTask::RefreshEvents:
         found = i->schema_name == schema;
         break;
 

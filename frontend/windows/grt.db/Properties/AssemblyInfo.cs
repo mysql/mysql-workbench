@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("grt.db.fe")]
-[assembly: AssemblyCopyright("Copyright (c) 2010, 2015, Oracle and/or its affiliates")]
+[assembly: AssemblyCopyright("Copyright (c) 2010, 2016, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

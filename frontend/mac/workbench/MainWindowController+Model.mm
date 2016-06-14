@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,35 +16,30 @@
 
 #include "workbench/wb_context.h"
 
-#import "WBMainWindow_Model.h"
+#import "MainWindowController+Model.h"
 #import "WBModelSidebarController.h"
 #import "WBOverviewPanel.h"
 #import "WBModelDiagramPanel.h"
 #import "WBModelOverviewPanel.h"
 #include "wb_overview_physical.h"
 
-@implementation WBMainWindow(WBMainWindow_Model)
-
+@implementation MainWindowController(MainWindowControllerModel)
 
 - (void)setupModel
 {
 }
 
-
 - (void)handleModelCreated
 {
   // Set up the model overview tab
-  _physicalOverview= [[WBModelOverviewPanel alloc] initWithWBContextUI: _wbui];
+  _physicalOverview = [[WBModelOverviewPanel alloc] initWithWBContextUI: _wbui];
   [self addTopPanelAndSwitch: _physicalOverview];
 }
-
 
 - (void)handleModelClosed
 {
   [self closeTopPanelWithIdentifier: [_physicalOverview identifier] hideOnly: NO];
-  [_physicalOverview release];
   _physicalOverview= nil;
 }
-
 
 @end

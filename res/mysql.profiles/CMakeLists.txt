@@ -1,4 +1,5 @@
 set(DATA_FILES 
+    "CentOS_7_(MySQL_Package).xml"
     "Fedora_Linux_(MySQL_Package).xml"
     "Fedora_Linux_(Vendor_Package).xml"
     "Fedora_Linux_16_(Vendor_Package).xml"

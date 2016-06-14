@@ -267,10 +267,13 @@ static void ColouriseMySQLDoc(unsigned int startPos, int length, int initStyle, 
               {
                 sc.SetState(SCE_MYSQL_COMMENT | activeState);
 
-                // Skip comment introducer and check for hidden command.
-                sc.Forward(2);
-                if (sc.ch == '!')
+                // Skip first char of comment introducer and check for hidden command.
+                // The second char is skipped by the outer loop.
+                sc.Forward();
+                if (sc.GetRelativeCharacter(1) == '!')
                 {
+                  // Version comment found. Skip * now.
+                  sc.Forward();
                   activeState = HIDDENCOMMAND_STATE;
                   sc.ChangeState(SCE_MYSQL_HIDDENCOMMAND);
                 }
@@ -570,4 +573,4 @@ static const char * const mysqlWordListDesc[] = {
 	0
 };
 
-LexerModule lmMySQL(SCLEX_MYSQL, ColouriseMySQLDoc, "mysql", FoldMySQLDoc, mysqlWordListDesc, 7);
+LexerModule lmMySQL(SCLEX_MYSQL, ColouriseMySQLDoc, "mysql", FoldMySQLDoc, mysqlWordListDesc);

@@ -66,6 +66,8 @@ private:
   mforms::Selector _font_preset;
   mforms::TreeNodeView _font_list;
   std::vector<std::string> _font_options;
+  
+  mforms::TextEntry *version_entry;
 
   workbench_physical_ModelRef _model; // nil unless we're showing model specific options
   wb::WBContextUI *_wbui;
@@ -131,6 +133,8 @@ private:
 
   void switch_page();
   mforms::TreeNodeRef add_page(mforms::TreeNodeRef parent, const std::string &title, mforms::View *view);
+  bool versionIsValid(const std::string &text);
+  void version_changed();
 public:
   PreferencesForm(wb::WBContextUI *wbui, const workbench_physical_ModelRef &model = workbench_physical_ModelRef());
   virtual ~PreferencesForm();

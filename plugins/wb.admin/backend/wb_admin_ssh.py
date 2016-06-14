@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -39,6 +39,8 @@ from workbench.utils import server_version_str2tuple
 from wb_common import CmdOptions, CmdOutput, SSHFingerprintNewError, format_bad_host_exception
 
 from workbench.log import log_info, log_warning, log_error, log_debug, log_debug2, log_debug3
+
+import grt
 
 try:
     import paramiko
@@ -348,6 +350,9 @@ class WbAdminSSH(object):
 
     def _get_ssh_config_path(self):
         paths = []
+        user_path = grt.root.wb.options.options['pathtosshconfig'] if grt.root.wb.options.options['pathtosshconfig'] is not None else None
+        if user_path:
+            paths.append(user_path)
         if platform.system().lower() == "windows":
             paths.append("%s\ssh\config" % mforms.App.get().get_user_data_folder())
             paths.append("%s\ssh\ssh_config" % mforms.App.get().get_user_data_folder())

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -120,7 +120,7 @@ class GenericReverseEngineering(object):
         '''Establishes a connection to the server and stores the connection object in the connections pool.
 
         It first looks for a connection with the given connection parameters in the connections pool to
-        reuse existent connections. If such connection is found it queries the server to ensure that the
+        reuse existent connections. If such a connection is found, it queries the server to ensure that the
         connection is alive and reestablishes it if is dead. If no suitable connection is found in the
         connections pool, a new one is created and stored in the pool.
 
@@ -483,13 +483,13 @@ class GenericReverseEngineering(object):
 
     @classmethod
     def reverseEngineerTablePK(cls, connection, table):
-        """Reverse engineers the primary key(s) for the given table."""
+        """Reverse engineers the primary key for the given table."""
 
         schema = table.owner
         catalog = schema.owner
 
 
-        if len(table.columns) == 0:  # Table must have columns reverse engineered before we can rev eng its primary key(s)
+        if len(table.columns) == 0:  # Table must have columns reverse engineered before we can rev eng its primary key
             grt.send_error('Migration: reverseEngineerTablePKAndIndices: Reverse engineer of table %s was attempted but the table has no columns attribute' % table.name)
             return 1
         

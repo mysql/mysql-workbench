@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -395,14 +395,16 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
             }
             catch (const std::exception &exc)
             {
-              log_warning("%s: Error inserting %s to list: %s", _source_name.c_str(), sub_value.repr().c_str(), exc.what());
+              log_warning("%s: Error inserting %s to list: %s", _source_name.c_str(),
+              sub_value.debugDescription().c_str(), exc.what());
               throw;
             }
           }
           else
           {
             //error!
-            log_warning("%s: skipping element '%s' in unserialized document, line %i", _source_name.c_str(), child->name, child->line);
+            log_warning("%s: skipping element '%s' in unserialized document, line %i",
+              _source_name.c_str(), child->name, child->line);
             value.clear();
             break;
           }
@@ -540,8 +542,8 @@ void internal::Unserializer::unserialize_object_contents(const ObjectRef &object
             }
             catch (const std::exception &exc) 
             {
-              log_warning("exception setting %s<%s>:%s to %s %s", object.id().c_str(), object.class_name().c_str(), key.c_str(), 
-                        sub_value.repr().c_str(), exc.what());
+              log_warning("exception setting %s<%s>:%s to %s %s", object.id().c_str(),
+              object.class_name().c_str(), key.c_str(), sub_value.debugDescription().c_str(), exc.what());
               throw;
             }
           }

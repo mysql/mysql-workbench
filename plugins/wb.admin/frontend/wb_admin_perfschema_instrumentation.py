@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -138,13 +138,15 @@ class EasySetupPage(mforms.Box):
         try:
             r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_consumers WHERE enabled='NO'")
             if r == 0:
-                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE enabled='NO' OR timed='NO'")
+                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
+                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE NAME NOT LIKE 'memory/performance_schema/%' AND (enabled='NO' OR timed='NO')")
                 if r == 0:
                     return "fully"
 
             r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_consumers WHERE enabled='YES'")
             if r == 0:
-                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE enabled='YES' OR timed='YES'")
+                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
+                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE NAME NOT LIKE 'memory/performance_schema/%' AND (enabled='YES' OR timed='YES')")
                 if r == 0:
                     return "disabled"
 
@@ -164,6 +166,8 @@ class EasySetupPage(mforms.Box):
                 nlikes = []
                 likes = []
                 ins = []
+                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
+                nlikes.append("'memory/performance_schema/%'")
                 for i in instruments:
                    if '%' in i:
                        likes.append("NAME LIKE '%s'" % i)
@@ -269,7 +273,7 @@ class EasySetupPage(mforms.Box):
         image.set_image(mforms.App.get().get_resource_path("separator_vertical.png"))
         self.add(image, False, True)
 
-        label = mforms.newLabel("\n\nThe MySQL Performance Schema allows to:\n- instrument MySQL to collect statistics and performance data\n- log collected events into tables, so they can be analyzed\n\nUse the switch above to change Performance Schema instrumentation or disable it.")
+        label = mforms.newLabel("\n\nThe MySQL Performance Schema allows you to:\n- instrument MySQL to collect statistics and performance data\n- log collected events into tables, so they can be analyzed\n\nUse the switch above to change Performance Schema instrumentation or disable it.")
         label.set_text_align(mforms.MiddleCenter)
         self.add(label, False, True)
 
@@ -736,7 +740,7 @@ class ObjectInfoDialog(mforms.Form):
         vbox.set_padding(20)
         vbox.set_spacing(18)
 
-        caption = 'Define the database objects for which performance schema will monitor for events.\n'\
+        caption = 'Define the database objects which performance schema will monitor for events.\n'\
                   'You can use the % to indicate any schema and/or any object name.'
 
         l = mforms.newLabel(caption)
@@ -1131,13 +1135,13 @@ class SetupOptions(mforms.Box):
         vbox = mforms.newBox(False)
         vbox.set_padding(12)
 
-        description = "Instruments measure the duration of events, for that they can use different timers.\n"\
+        description = "Instruments measure the duration of events, for which they can use different timers.\n"\
                       "A timer has characteristics that need to be considered when setting up the timer to be used on the\n"\
                       "different instruments:\n"\
                       "\n"\
                       "     - Frequency: Indicates the number of timer units per second.\n"\
                       "     - Resolution: Indicates the size used to increase a timer value at a time.\n"\
-                      "     -Overhead: Minimal number of cycles of overhead to obtain one timing.\n"\
+                      "     - Overhead: Minimal number of cycles of overhead to obtain one timing.\n"\
                       "\n"\
                       "Here you can configure which timer will be used for each instrument type.\n\n"
         vbox.add(mforms.newLabel(description), False, False)

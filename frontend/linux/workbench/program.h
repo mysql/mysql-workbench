@@ -47,12 +47,12 @@ class Program
   private: // Callbacks for backend
     int confirm_action_becb(const std::string& title, const std::string& msg, const std::string& default_btn, const std::string& alt_btn, const std::string& other_btn);
     std::string show_file_dialog_becb(const std::string& type, const std::string& title, const std::string& extensions);
-    bool request_input_becb( const std::string& title, int flags, std::string& text);
 
     void finalize_initialization(wb::WBOptions *options);
 
     bool idle_stuff();
   private:
+    std::deque<sigc::connection> _idleConnections;
     wb::WBContextUI     *_wb_context_ui; //!< 
     wb::WBContext       *_wb_context;
     bec::GRTManager     *_grt_manager;

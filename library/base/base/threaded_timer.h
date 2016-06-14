@@ -22,7 +22,7 @@
 
 #include "common.h"
 
-#ifndef HAVE_PREDEFINED_HEADERS
+#ifndef HAVE_PRECOMPILED_HEADERS
   #include "glib.h"
   #include <list>
   #include <boost/function.hpp>

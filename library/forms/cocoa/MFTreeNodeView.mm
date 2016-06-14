@@ -92,7 +92,6 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node);
 {
   if (_data)
     _data->release();
-  [super dealloc];
 }
 
 @end
@@ -158,7 +157,7 @@ public:
   {
     if (is_valid())
     {
-      MFTreeNodeImpl *child = [[[MFTreeNodeImpl alloc] initWithOwner: [_self treeNodeView]] autorelease];
+      MFTreeNodeImpl *child = [[MFTreeNodeImpl alloc] initWithOwner: [_self treeNodeView]];
       
       mforms::TreeNodeRef node([child nodeRef]);
       
@@ -265,7 +264,6 @@ public:
         
         result.push_back([child nodeRef]);
 
-        [child release];
       }
 
       if (![[_self treeNodeView] frozen])
@@ -311,7 +309,7 @@ public:
         // Setups the child for all the parents (same name, icon)
         for(unsigned int index = 0; index < [parents count]; index++)
         {
-          MFTreeNodeImpl *child = [[[MFTreeNodeImpl alloc] initWithOwner: [_self treeNodeView]] autorelease];
+          MFTreeNodeImpl *child = [[MFTreeNodeImpl alloc] initWithOwner: [_self treeNodeView]];
           [child setObject: caption
                     forKey: columnKey];
           
@@ -483,7 +481,7 @@ public:
 
   virtual void set_data(mforms::TreeNodeData *data)
   {
-    [_self setObject: [[[TreeNodeDataRef alloc] initWithCPPPointer: data] autorelease]
+    [_self setObject: [[TreeNodeDataRef alloc] initWithCPPPointer: data]
               forKey: @"data"];
   }
   
@@ -497,7 +495,7 @@ public:
     NSImage *image = nil;
     if (icon_path == "folder")
     {
-      static NSImage *folderIcon= [[[[NSWorkspace sharedWorkspace] iconForFile:@"/usr"] copy] retain];
+      static NSImage *folderIcon = [[[NSWorkspace sharedWorkspace] iconForFile:@"/usr"] copy];
       image = folderIcon;
     }
     else
@@ -637,22 +635,22 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
 
 @implementation MFTreeNodeImpl
 
-- (instancetype)initWithOwner:(MFTreeNodeViewImpl*)owner
+- (instancetype)initWithOwner: (MFTreeNodeViewImpl*)owner
 {
   self = [super init];
   if (self)
   {
-    mData = [[NSMutableDictionary alloc] init];
+    mData = [NSMutableDictionary new];
     mTree = owner;
   }
   return self;
 }
 
-- (void)dealloc
+- (instancetype)init
 {
-  [mData release];
-  [super dealloc];
+  return [self initWithOwner: nil];
 }
+
 
 - (MFTreeNodeViewImpl*)treeNodeView
 {
@@ -712,7 +710,6 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
         [[[self treeNodeView] outlineView] deselectAll: nil];
     }
 
-    [[self retain] autorelease];
     [children removeObject: self];
     mParent = nil;
    
@@ -793,11 +790,6 @@ static NSImage *descendingSortIndicator = nil;
   return self;
 }
 
-- (void)dealloc
-{
-  [mOverlayIcons release];
-  [super dealloc];
-}
 
 - (mforms::Object*)mformsObject
 {
@@ -847,7 +839,6 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   {
     if (mClickingOverlay < 0)
     {
-      [mOverlayIcons release];
       mOverlayIcons = nil;
       mOverOverlay = -1;
       mOverlayedRow = -1;
@@ -904,7 +895,6 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (bool)handleMouseExited:(NSEvent *)event owner:(mforms::View *)owner
 {
   mMouseInside = NO;
-  [mOverlayIcons release];
   mOverlayIcons = nil;
   mOverOverlay = -1;
   mClickingOverlay = -1;
@@ -954,9 +944,9 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     CGFloat x = NSMaxX([self visibleRect]) - OVERLAY_ICON_RIGHT_PADDING;
     for (id icon in mOverlayIcons)
     {
-      if ([icon isKindOfClass: [NSImage class]])
+      if ([icon isKindOfClass: NSImage.class])
       {
-        NSSize size = [icon size];
+        NSSize size = [(NSImage *)icon size];
         x -= size.width + OVERLAY_ICON_SPACING;
       }
     }
@@ -965,7 +955,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     {
       if ([icon isKindOfClass: [NSImage class]])
       {
-        NSSize size = [icon size];
+        NSSize size = [(NSImage *)icon size];
         [(NSImage*)icon drawInRect: NSMakeRect(floorf(x), floorf(NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2),
                                                size.width, size.height)
                           fromRect: NSZeroRect
@@ -1014,8 +1004,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 {
   if (!ascendingSortIndicator)
   {
-    ascendingSortIndicator= [[NSImage imageNamed:@"NSAscendingSortIndicator"] retain];
-    descendingSortIndicator= [[NSImage imageNamed:@"NSDescendingSortIndicator"] retain];
+    ascendingSortIndicator = [NSImage imageNamed:@"NSAscendingSortIndicator"];
+    descendingSortIndicator = [NSImage imageNamed:@"NSDescendingSortIndicator"];
   }
   
   self= [super initWithFrame:NSMakeRect(0, 0, 40, 40)];
@@ -1064,7 +1054,6 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (void)destroy
 {
   mOwner = nil;
-  [self autorelease];
 }
 
 - (void)enableIndexing
@@ -1081,14 +1070,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   // Might become unnecessary if we don't auto release mOutline.
   [mOutline setDataSource: nil];
   [mOutline setDelegate: nil];
-  [mOutline release];
   
   mTagMap.clear();
-  [mAttributedFonts release];
-  [mColumnKeys release];
-  [mIconCache release];
-  [mRootNode release];
-  [super dealloc];
 }
 
 - (void)reloadTreeData
@@ -1143,7 +1126,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 {
   int idx= [[mOutline tableColumns] count];
   NSString *columnKey = [NSString stringWithFormat:@"%i", idx];
-  NSTableColumn *column= [[[NSTableColumn alloc] initWithIdentifier: columnKey] autorelease];
+  NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier: columnKey];
 
   [mColumnKeys addObject: columnKey];
   
@@ -1154,7 +1137,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   {
     case mforms::CheckColumnType:
     {
-      NSButtonCell *cell = [[[NSButtonCell alloc] init] autorelease];
+      NSButtonCell *cell = [[NSButtonCell alloc] init];
       [column setDataCell: cell];
       [cell setTitle: @""];
       [cell setButtonType: NSSwitchButton];
@@ -1162,7 +1145,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     }
     case mforms::TriCheckColumnType:
     {
-      NSButtonCell *cell = [[[NSButtonCell alloc] init] autorelease];
+      NSButtonCell *cell = [[NSButtonCell alloc] init];
       [column setDataCell: cell];
       [cell setTitle: @""];
       [cell setButtonType: NSSwitchButton];
@@ -1177,13 +1160,13 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       break;
     case mforms::IconColumnType:
     {
-      MTextImageCell *cell = [[[MTextImageCell alloc] init] autorelease];
+      MTextImageCell *cell = [[MTextImageCell alloc] init];
       [column setDataCell: cell];
       break;
     }
     case mforms::FloatColumnType:
     {
-      NSNumberFormatter *nf = [[[NSNumberFormatter alloc] init] autorelease];
+      NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
       [nf setNumberStyle: (NSNumberFormatterStyle)kCFNumberFormatterDecimalStyle];
       [[column dataCell] setAlignment: NSRightTextAlignment];
       [[column dataCell] setFormatter: nf];
@@ -1192,7 +1175,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     case mforms::IntegerColumnType:
     case mforms::LongIntegerColumnType:
     {
-      NSNumberFormatter *nf = [[[NSNumberFormatter alloc] init] autorelease];
+      NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
       [nf setNumberStyle: NSNumberFormatterNoStyle];
       [[column dataCell] setAlignment: NSRightTextAlignment];
       [[column dataCell] setFormatter: nf];
@@ -1233,7 +1216,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     if (!image)
     {
       std::string full_path= g_file_test([path UTF8String], G_FILE_TEST_EXISTS) ? [path UTF8String] : mforms::App::get()->get_resource_path([path UTF8String]);
-      image = [[[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)] autorelease];
+      image = [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
       if (image && [image isValid])
         mIconCache[path] = image;
       else
@@ -1467,7 +1450,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
         if ([attributes rangeOfString: @"i"].length > 0)
           traits |= NSItalicFontMask;
 
-        font = [[NSFontManager sharedFontManager] convertFont: [[[[tableColumn dataCell] font] copy] autorelease]
+        font = [[NSFontManager sharedFontManager] convertFont: [[[tableColumn dataCell] font] copy]
                                                   toHaveTrait: traits];
         mAttributedFonts[fontKey] = font;
       }
@@ -1714,12 +1697,12 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   if (mOwner != nil && !mOwner->is_destroying())
   {
     [super resizeSubviewsWithOldSize: oldSize];
-    NSArray *columns = [mOutline tableColumns];
-    if ([columns count] == 1)
+    NSArray<NSTableColumn *> *columns = [mOutline tableColumns];
+    if (columns.count == 1)
     {
-      float w = NSWidth([mOutline frame]);
-      if ([[columns lastObject] width] < w)
-        [[columns lastObject] setWidth: w];
+      float w = NSWidth(mOutline.frame);
+      if (columns.lastObject.width < w)
+        columns.lastObject.width = w;
     }
   }
 }
@@ -1739,7 +1722,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 static bool treeview_create(mforms::TreeNodeView *self, mforms::TreeOptions options)
 {
-  MFTreeNodeViewImpl *tree= [[[MFTreeNodeViewImpl alloc] initWithObject: self] autorelease];
+  MFTreeNodeViewImpl *tree = [[MFTreeNodeViewImpl alloc] initWithObject: self];
 
   if (options & mforms::TreeAllowReorderRows || options & mforms::TreeCanBeDragSource)
   {

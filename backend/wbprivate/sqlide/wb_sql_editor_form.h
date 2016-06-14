@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -81,7 +81,8 @@ public:
   {
     UnknownState,
     RunningState,
-    PossiblyStoppedState
+    PossiblyStoppedState,
+    OfflineState
   };
 
 
@@ -247,6 +248,8 @@ private:
 public:
   bool connect(boost::shared_ptr<sql::TunnelConnection> tunnel);
   bool connected() const;
+  void checkIfOffline();
+  bool offline();
   bool ping() const;
   void finish_startup();
   void cancel_query();
@@ -444,6 +447,7 @@ public:
 protected:
   DbSqlEditorLog::Ref _log;
   DbSqlEditorHistory::Ref _history;
+  bool _serverIsOffline;
 
 public:
   // Result should be RowId but that requires to change the task callback type (at least for 64bit builds).

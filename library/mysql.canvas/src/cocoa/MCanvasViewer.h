@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
 #include "mdc_canvas_view_macosx.h"
 
 @protocol CanvasViewerDelegate
@@ -46,7 +45,6 @@
 @interface MCanvasViewer : NSView
 {
   mdc::QuartzCanvasView *_view;
-  id<CanvasViewerDelegate> _delegate;
   NSCursor *_cursor;
   int _buttonState;
   NSTrackingArea *_trackingArea;
@@ -54,18 +52,14 @@
   BOOL _firstResponder;
 }
 
-//- (void)setupOpenGL;
-- (void)setupQuartz;
-
 @property (readonly) mdc::CanvasView *canvas;
-
-- (void)setCursor:(NSCursor*)cursor;
-
-@property (assign) id delegate;
-
-- (void)scrollToPoint:(NSPoint)offset;
+@property (weak) id<CanvasViewerDelegate> delegate;
 @property (readonly) NSRect documentRect;
 @property (readonly) NSRect documentVisibleRect;
+
+- (void)setupQuartz;
+- (void)setCursor:(NSCursor*)cursor;
+- (void)scrollToPoint:(NSPoint)offset;
 
 @end
 

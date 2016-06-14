@@ -188,6 +188,7 @@ void SqlEditorTreeController::finish_init()
   // Left hand sidebar tabview with admin and schema tree pages.
   _task_tabview = new mforms::TabView(mforms::TabViewSelectorSecondary);
   _schema_side_bar = (wb::SimpleSidebar *)mforms::TaskSidebar::create("SchemaTree");
+  _schema_side_bar->set_grt_manager(_grtm);
   scoped_connect(_schema_side_bar->on_section_command(), boost::bind(&SqlEditorTreeController::sidebar_action, this, _1));
   _admin_side_bar = (wb::SimpleSidebar *)mforms::TaskSidebar::create("Simple");
   scoped_connect(_admin_side_bar->on_section_command(), boost::bind(&SqlEditorTreeController::sidebar_action, this, _1));
@@ -497,16 +498,17 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
     StringListPtr functions(new std::list<std::string>());
 
     MutexLock schema_contents_mutex(_schema_contents_mutex);
-
     if (arrived_slot.empty())
       return grt::StringRef("");
 
     {
       sql::Dbc_connection_handler::Ref conn;
       RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
+      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
 
       {
-        std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW FULL TABLES FROM !", 0) << schema_name)));
+        std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+        std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(sqlstring("SHOW FULL TABLES FROM !", 0) << schema_name)));
         while (rs->next())
         {
           std::string name = rs->getString(1);
@@ -527,7 +529,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
         // will become unnecessary then
         try
         {
-          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SELECT name, type FROM mysql.proc WHERE Db=?", 0) << schema_name)));
+          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(sqlstring("SELECT name, type FROM mysql.proc WHERE Db=?", 0) << schema_name)));
 
           while (rs->next())
           {
@@ -549,7 +551,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
       if (_use_show_procedure)
       {
         {
-          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema_name)));
+          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema_name)));
 
           while (rs->next())
           {
@@ -558,7 +560,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
           }
         }
         {
-          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW FUNCTION STATUS WHERE Db=?", 0) << schema_name)));
+          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(sqlstring("SHOW FUNCTION STATUS WHERE Db=?", 0) << schema_name)));
           while (rs->next())
           {
             std::string name = rs->getString(2);
@@ -1565,11 +1567,14 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       return;
     }
 #endif
-
-    db_object->customData().set("sqlMode", grt::StringRef(sql_mode));
-    db_object->customData().set("originalObjectDDL", grt::StringRef(ddl_script));
-
-    open_alter_object_editor(db_object, server_state_catalog);
+    if (db_object.is_valid())
+    {
+      db_object->customData().set("sqlMode", grt::StringRef(sql_mode));
+      db_object->customData().set("originalObjectDDL", grt::StringRef(ddl_script));
+      open_alter_object_editor(db_object, server_state_catalog);
+    }
+    else
+      log_warning("Failed to create/alter `%s`.`%s`", used_schema_name.c_str(), obj_name.c_str());
   }
   catch (const std::exception &e)
   {
@@ -1608,6 +1613,22 @@ void SqlEditorTreeController::open_alter_object_editor(db_DatabaseObjectRef obje
     //TODO use DB_Plugin here somehow
     comparer.load_db_options(conn->ref->getMetaData());
   }
+
+  db_mgmt_RdbmsRef rdbms= _owner->rdbms();
+      //std::string database_package= *rdbms->databaseObjectPackage();
+
+  if (rdbms.is_valid())
+  {
+    rdbms = grt::shallow_copy_object(rdbms);
+    rdbms->version(grt::shallow_copy_object(_owner->rdbms_version()));
+    rdbms->version()->owner(rdbms);
+  }
+
+  if (!client_state_catalog->version().is_valid())
+    client_state_catalog->version(rdbms->version());
+  if (!server_state_catalog->version().is_valid())
+    server_state_catalog->version(rdbms->version());
+
   object->customData().set("DBSettings", comparer.get_options_dict());
   object->customData().set("liveRdbms", _owner->rdbms());
   object->customData().set("ownerSqlEditor", _owner->wbsql()->get_grt_editor_object(_owner));

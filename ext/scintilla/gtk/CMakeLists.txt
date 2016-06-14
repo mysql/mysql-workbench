@@ -4,7 +4,7 @@ include_directories(.
     ../include
     ../src
     ../lexlib
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
 )
 
 add_library(wbscintilla
@@ -46,6 +46,9 @@ add_library(wbscintilla
     ../src/PerLine.cxx
     ../src/CaseConvert.cxx
     ../src/CaseFolder.cxx
+    ../src/EditModel.cxx
+	../src/EditView.cxx
+	../src/MarginView.cxx
     ../lexers/LexCPP.cxx
     ../lexers/LexHTML.cxx
     ../lexers/LexMSSQL.cxx
@@ -54,6 +57,11 @@ add_library(wbscintilla
     ../lexers/LexSQL.cxx
 )
 
-target_link_libraries(wbscintilla ${GTK2_LIBRARIES})
-
+target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
+if(COMMAND cotire)
+    set_target_properties(wbscintilla PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+    
+  cotire(wbscintilla)
+endif()
 install(TARGETS wbscintilla DESTINATION ${WB_INSTALL_LIB_DIR})

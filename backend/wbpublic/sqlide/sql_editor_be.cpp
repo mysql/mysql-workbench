@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -282,8 +282,8 @@ MySQLEditor::~MySQLEditor()
   if (d->_editor_text_submenu != NULL)
     delete d->_editor_text_submenu;
   delete d->_editor_context_menu;
-  if (d->_owns_toolbar)
-    delete d->_toolbar;
+  if (d->_owns_toolbar && d->_toolbar != NULL)
+    d->_toolbar->release();
 
   delete _editor_config;
   delete _code_editor;
@@ -493,7 +493,7 @@ mforms::ToolBar* MySQLEditor::get_toolbar(bool include_file_actions)
   if (!d->_toolbar)
   {
     d->_owns_toolbar = true;
-    d->_toolbar = new mforms::ToolBar(mforms::SecondaryToolBar);
+    d->_toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
 #ifdef _WIN32
     d->_toolbar->set_size(-1, 27);
 #endif
@@ -750,7 +750,7 @@ void MySQLEditor::text_changed(int position, int length, int lines_changed, bool
   d->_splitting_required = true;
   d->_text_info = _code_editor->get_text_ptr();
   if (d->_is_sql_check_enabled)
-    d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.05);
+    d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.001);
   else
     d->_text_change_signal(); // If there is no timer set up then trigger change signals directly.
 }
@@ -945,13 +945,17 @@ void* MySQLEditor::update_error_markers()
 
   d->_error_marker_lines.swap(lines);
 
+  
+  mforms::LineMarkup unmark = _continue_on_error ? mforms::LineMarkupError : mforms::LineMarkupErrorContinue;
+  mforms::LineMarkup mark = _continue_on_error ? mforms::LineMarkupErrorContinue : mforms::LineMarkupError;
+  
   for (std::set<size_t>::const_iterator iterator = removal_candidates.begin();
     iterator != removal_candidates.end(); ++iterator)
-    _code_editor->remove_markup(mforms::LineMarkupError, *iterator);
+    _code_editor->remove_markup(unmark, *iterator);
 
   for (std::set<size_t>::const_iterator iterator = insert_candidates.begin();
     iterator != insert_candidates.end(); ++iterator)
-    _code_editor->show_markup(mforms::LineMarkupError, *iterator);
+    _code_editor->show_markup(mark, *iterator);
 
   return NULL;
 }
@@ -1186,7 +1190,7 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
     {
       ThreadedTimer::get()->remove_task(d->_current_work_timer_id); // Does nothing if the id is -1.
       if (d->_current_delay_timer == NULL)
-        d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.15);
+        d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.01);
     }
     else
       stop_processing();
@@ -1314,6 +1318,30 @@ void MySQLEditor::register_file_drop_for(mforms::DropDelegate *target)
   std::vector<std::string> formats;
   formats.push_back(mforms::DragFormatFileName);
   _code_editor->register_drop_formats(target, formats);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLEditor::set_continue_on_error(bool value)
+{
+  _continue_on_error = value;
+  
+  std::vector<size_t> lines;
+
+  mforms::LineMarkup unmark = _continue_on_error ? mforms::LineMarkupError : mforms::LineMarkupErrorContinue;
+  mforms::LineMarkup mark = _continue_on_error ? mforms::LineMarkupErrorContinue : mforms::LineMarkupError;
+  
+  for (size_t i = 0; i < d->_recognition_errors.size(); ++i)
+  {
+    _code_editor->show_indicator(mforms::RangeIndicatorError, d->_recognition_errors[i].position, d->_recognition_errors[i].length);
+    lines.push_back(_code_editor->line_from_position(d->_recognition_errors[i].position));
+  }
+
+  for (std::vector<size_t>::iterator iter = lines.begin(); iter != lines.end(); ++iter)
+  {
+    _code_editor->remove_markup(unmark, *iter);
+    _code_editor->show_markup(mark, *iter);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

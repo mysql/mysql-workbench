@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1427,6 +1427,7 @@ void AdvancedSidebar::setup_schema_tree()
       break;
   }
 
+  _new_schema_tree.set_name("Schema Tree");
   _new_schema_tree.add_column(mforms::IconStringColumnType, _("Schema"), 100, false, true);
   _new_schema_tree.set_selection_mode(mforms::TreeSelectMultiple);
   _new_schema_tree.set_back_color(background_color);
@@ -1468,8 +1469,9 @@ void AdvancedSidebar::setup_schema_tree()
       "? - a substitue for single character\n"
       "Search is possible only through already loaded schemas."
       );
+  _schema_search_text.set_name("Schema Filter Entry");
   _schema_search_box.add(&_schema_search_text, true, true);
-  scoped_connect(_schema_search_text.signal_changed(), boost::bind(&AdvancedSidebar::on_search_text_changed, this));
+  scoped_connect(_schema_search_text.signal_changed(), boost::bind(&AdvancedSidebar::on_search_text_changed_prepare, this));
   scoped_connect(_remote_search.signal_clicked(), boost::bind(&AdvancedSidebar::on_remote_search_clicked, this));
 
   // Add the tree itself and its section caption to the container.
@@ -1517,8 +1519,19 @@ void AdvancedSidebar::handle_notification(const std::string &name, void *sender,
 
 //--------------------------------------------------------------------------------------------------
 
-void AdvancedSidebar::on_search_text_changed()
+void AdvancedSidebar::on_search_text_changed_prepare()
 {
+  if (_filterTimer)
+    _grtm->cancel_timer(_filterTimer);
+  
+  _filterTimer = _grtm->run_every(boost::bind(&AdvancedSidebar::on_search_text_changed, this), 1.0);
+}
+
+bool AdvancedSidebar::on_search_text_changed()
+{
+  _grtm->cancel_timer(_filterTimer);
+  _filterTimer = NULL;
+  
   std::string filter = _schema_search_text.get_string_value();
 
   // Updates the current schema model to filtered/base
@@ -1561,6 +1574,8 @@ void AdvancedSidebar::on_search_text_changed()
 
   // Raises a signal indicating the filter has changed
   _search_box_changed_signal(filter);
+  
+  return false;
 }
 
 void AdvancedSidebar::on_tree_node_selected()

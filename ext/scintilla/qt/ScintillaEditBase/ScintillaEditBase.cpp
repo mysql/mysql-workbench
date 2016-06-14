@@ -310,17 +310,11 @@ void ScintillaEditBase::mouseReleaseEvent(QMouseEvent *event)
 	emit buttonReleased(event);
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 void ScintillaEditBase::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	// Scintilla does its own double-click detection.
 	mousePressEvent(event);
 }
-#else
-void ScintillaEditBase::mouseDoubleClickEvent(QMouseEvent *)
-{
-}
-#endif
 
 void ScintillaEditBase::mouseMoveEvent(QMouseEvent *event)
 {

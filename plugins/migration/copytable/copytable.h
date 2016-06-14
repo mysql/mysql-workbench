@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -347,6 +347,8 @@ class MySQLCopyDataTarget
   void init();
   std::string ps_query();
   enum enum_field_types field_type_to_ps_param_type(enum enum_field_types ftype);
+
+  void get_generated_columns(const std::string &schema, const std::string &table, std::vector<std::string> &gc);
 
 public:
   MySQLCopyDataTarget(const std::string &hostname, int port,

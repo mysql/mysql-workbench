@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,10 +72,10 @@ IntroductionPage::IntroductionPage(WizardForm *form)
   set_title(_("Introduction"));
 
   mforms::Label *text = mforms::manage(new mforms::Label());
-  text->set_text(_("This dialog will help you to set up remote managemment for your connection. At the start "
+  text->set_text(_("This dialog will help you to set up remote management for your connection. At the start "
                 "a connection attempt is made to determine server version and operating system of the target "
                 "machine. This allows you to validate the connection settings and allows the wizard to pick "
-                "a meaningful configuration preset. If this attemmpt fails you can still continue, however.\n\n"
+                "a meaningful configuration preset. If this attempt fails you can still continue, however.\n\n"
                 "Continue to the next page to start the connection. This might take a few moments."));
   text->set_wrap_text(true);
   add(text, false, true);
@@ -1776,7 +1776,7 @@ std::string NewServerInstanceWizard::get_server_info(const std::string& key)
     return "";
   if (grt::StringRef::can_wrap(value))
     return grt::StringRef::cast_from(value);
-  return value.repr();
+  return value.debugDescription();
 }
 
 //--------------------------------------------------------------------------------------------------

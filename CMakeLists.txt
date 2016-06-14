@@ -30,6 +30,10 @@ string(STRIP ${WB_VERSION} WB_VERSION)
 # Look for our custom modules in cmake/Modules:
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/Modules/")
 
+if(ENABLE_COTIRE AND CMAKE_VERSION VERSION_GREATER "2.8.11")
+  include(cotire)
+  set_property(DIRECTORY PROPERTY COTIRE_UNITY_LINK_LIBRARIES_INIT "COPY_UNITY")
+endif()
 find_package(PkgConfig REQUIRED)
 
 find_package(X11)
@@ -74,7 +78,7 @@ endif ()
 
 # We need to be able to detect python module versions and packages hence this function
 
-FIND_PROGRAM(PYTHON_EXEC "python")
+FIND_PROGRAM(PYTHON_EXEC "python2")
 include(FindPackageHandleStandardArgs)
 function(find_python_module module minver)
         string(TOUPPER ${module} module_upper)
@@ -105,6 +109,9 @@ find_package(MySQL 5.6.0 REQUIRED)
 if (UNIX)
 	set(MYSQL_DEFINITIONS "-DBIG_JOINS=1"  "-fno-strict-aliasing")
 endif()
+set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS}")
+
+
 
 find_package(LibXml2 REQUIRED)
 
@@ -266,6 +273,7 @@ endif ()
 add_definitions(-D__STDC_FORMAT_MACROS)
 
 set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
+SET(GCOV OFF CACHE BOOL "Add gcov flags")
 
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
@@ -275,6 +283,11 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -ggdb3 ${MY_CXXFLAGS}")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
 endif()
+
+if(GCOV)
+    set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
+endif()
+
 
 
 #-----------------------------------------------------------------------

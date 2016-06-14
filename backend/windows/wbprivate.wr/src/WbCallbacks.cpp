@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,6 @@ WbFrontendCallbacks::WbFrontendCallbacks(
   StrStrStrStrDelegate^ show_file_dialog, 
   VoidStrDelegate^ show_status_text,
   BoolStrStrFloatDelegate^ show_progress,
-  BoolStrIntStrPtrDelegate^ request_input,
   CanvasViewStringStringDelegate^ create_diagram,
   VoidCanvasViewDelegate^ destroy_view,
   VoidCanvasViewDelegate^ switched_view,
@@ -48,7 +47,6 @@ WbFrontendCallbacks::WbFrontendCallbacks(
 
   set_show_file_dialog(show_file_dialog);
   set_show_status_text(show_status_text);
-  set_request_input(request_input);
 
   set_create_diagram(create_diagram);
   set_destroy_view(destroy_view);
@@ -82,20 +80,6 @@ WbFrontendCallbacks::~WbFrontendCallbacks()
 
 //--------------------------------------------------------------------------------------------------
 
-bool WbFrontendCallbacks::request_input_wrapper(const std::string &title, int flags, std::string& res)
-{
-  String^ result= nullptr;
-  bool flag;
-
-  flag= request_input_delegate(CppStringToNative(title), flags, result);
-  if (result != nullptr)
-    res= NativeToCppString(result);
-
-  return flag;
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void WbFrontendCallbacks::set_show_file_dialog(StrStrStrStrDelegate^ dt)
 {
   show_file_dialog_delegate= dt;
@@ -116,18 +100,6 @@ void WbFrontendCallbacks::set_show_status_text(VoidStrDelegate^ dt)
   IntPtr ip = Marshal::GetFunctionPointerForDelegate(show_status_text_wrapper_delegate);
   VOID_STR_CB cb = static_cast<VOID_STR_CB>(ip.ToPointer());
   _callbacks->show_status_text= cb;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void WbFrontendCallbacks::set_request_input(BoolStrIntStrPtrDelegate^ dt)
-{
-  request_input_delegate= dt;
-  request_input_wrapper_delegate= 
-    gcnew BoolStrIntStrPtrWrapperDelegate(this, &WbFrontendCallbacks::request_input_wrapper);
-  IntPtr ip = Marshal::GetFunctionPointerForDelegate(request_input_wrapper_delegate);
-  BOOL_STR_INT_STRPTR_CB cb = static_cast<BOOL_STR_INT_STRPTR_CB>(ip.ToPointer());
-  _callbacks->request_input= cb;
 }
 
 //--------------------------------------------------------------------------------------------------

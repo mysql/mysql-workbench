@@ -1,5 +1,5 @@
 
-' Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+' Copyright (c) 2012, 2016 Oracle and/or its affiliates. All rights reserved.
 '
 ' This program is free software; you can redistribute it and/or
 ' modify it under the terms of the GNU General Public License as
@@ -870,7 +870,7 @@ class MEBUpdateScheduling
     
     public sub print_usage()
         Wscript.Echo "UPDATE_SCHEDULING <profile> <old_label> <old_full> <old_incremental>"
-        Wscript.Echo "WHERE : <change>           : Indicate the operation being done with the profile: NEW, UPDATE, DELETE."
+        Wscript.Echo "WHERE : <change>           : Indicates the operation being done with the profile: NEW, UPDATE, DELETE."
         Wscript.Echo "        <profile>          : is the UUID of the profile to be used for the scheduling."
         Wscript.Echo "        [<old_label>]      : indicates the label under which the jobs were scheduled. Applies on UPDATE and DELETE changes."
         Wscript.Echo "        [<old_full>]       : indicates if the profile was scheduled for full backup. (0 or 1). Applies on UPDATE and DELETE changes."

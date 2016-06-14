@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2014, 2015 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -481,7 +481,7 @@ class MEBUpdateScheduling(MEBCommand):
 
     def print_usage(self):
         self.write_output("UPDATE_SCHEDULING <profile> <old_label> <old_full> <old_incremental>")
-        self.write_output("WHERE : <change>           : Indicate the operation being done with the profile: NEW, UPDATE, DELETE.")
+        self.write_output("WHERE : <change>           : Indicates the operation being done with the profile: NEW, UPDATE, DELETE.")
         self.write_output("        <profile>          : is the UUID of the profile to be used for the scheduling.")
         self.write_output("        [<old_label>]      : indicates the label under which the jobs were scheduled. Applies on UPDATE and DELETE changes.")
         self.write_output("        [<old_full>]       : indicates if the profile was scheduled for full backup. (0 or 1). Applies on UPDATE and DELETE changes.")
@@ -726,7 +726,7 @@ class MEBPropagateSettings(MEBCommand):
             os.remove(source_config_file)
         else:
             self.print_usage()
-						
+
         return ret_val
 
             

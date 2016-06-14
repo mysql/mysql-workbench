@@ -1,9 +1,8 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; version 2 of the
-# License.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -40,6 +39,7 @@ from workbench.utils import server_version_str2tuple
 pysource = {}
 pysource['engine-list'] = "grt.root.wb.options.options[\"@db.mysql.Table:tableEngine/Items\"]"
 multi_separator = r'\n'
+default_section = 'mysqld'
 
 #-------------------------------------------------------------------------------
 def ver_cmp(v1, v2):
@@ -113,7 +113,7 @@ def parse_version_str(version_str):
             else:
                 version = (int(tokens[3]), int(tokens[4]))
     except ValueError:
-        print "ERROR! incorrect version attribute value '" + version_str + "', ", type(version_str)
+        print "ERROR! Incorrect version attribute value '" + version_str + "', ", type(version_str)
 
     return version
 
@@ -195,7 +195,17 @@ class Option(object):
 
     def val(self, i):
         return self.values[i][1]
-
+    
+    # Return the last value from the file, if more then one exists
+    def value(self):
+        result_value = None
+        result_line = 0
+        for value in self.values:
+            if value[0] > result_line:
+                result_line = value[0]
+                result_value = value[1]
+        return result_value
+      
     def line(self, i):
         return self.values[i][0]
 
@@ -443,7 +453,7 @@ class WbAdminConfigFileBE(object):
         self.opt_rindex = {}
         (added, skipped, deprecated, no_value) = (0, 0, 0, 0)
 
-        for (tabname, tabcont) in opts.opts_list:
+        for (tabname, tabcont, width) in opts.opts_list:
             new_tab_cont = {}
             groups = []
 
@@ -487,6 +497,7 @@ class WbAdminConfigFileBE(object):
 
             new_tab_cont['groups'] = tuple(groups)
             new_tab_cont['position'] = pos
+            new_tab_cont['width'] = width
             pos += 1
             tabs[tabname] = new_tab_cont
 
@@ -603,7 +614,7 @@ class WbAdminConfigFileBE(object):
                 content = self.ctrl_be.server_helper.get_file_content(file_name, as_user=Users.CURRENT, user_password=None)
                 log_debug('%i bytes read from file\n' % len(content or []) )
             except PermissionDeniedError, e:
-                log_debug('Permissin denied, sudo needed to read config file: "%r"\n' % e)
+                log_debug('Permissin denied; sudo needed to read config file: "%r"\n' % e)
                 self.needs_root_for_file_read = True
 
         if self.needs_root_for_file_read:
@@ -693,7 +704,7 @@ class WbAdminConfigFileBE(object):
 
         filter_by_section = self.server_profile.config_file_section
         if not filter_by_section:
-            filter_by_section = "mysqld"
+            filter_by_section = default_section
 
         log_debug('Parsing options only from section "%s"\n' % filter_by_section)
 
@@ -750,23 +761,25 @@ class WbAdminConfigFileBE(object):
                             else:
                                 option.append(i, True)
 
-                            if "skip" in option_name:
+                            if option_name.startswith("skip-"):
                                 odef = self.get_option_def(option_name[5:])
                                 if odef and odef.get('disabledby') == option_name:
                                     option = Option(current_section, i, 'disabledby')
                                     cur_file_original_opts[option_name[5:]] = option
                                     cur_file_original_opts[option_name] = option
-                            elif value.lower() in ['on', 'off', '1', '0','yes','no', 'true', 'false']:
-                                # since we remove one of redundant option from pairs like 'option_name' and 'skip-option_name'
-                                # we need to take care of options that exists in config file but not in UI
-                                # so if option is bool and has no 'skip-' in name we put additional option 'skip-option_name'
-                                # to cur_file_original_opts list with opposite value to properly handle every options 
-                                if has_value:
-                                    value = not self.normalize_bool(value)
-                                else:
-                                    value = False
-                                option = Option(current_section, i, value)
-                                cur_file_original_opts['skip-'+option_name] = option
+                            else:
+                                odef = self.get_option_def(option_name)
+                                if odef is not None and odef.get('type') == 'boolean':
+                                    # since we remove one of redundant option from pairs like 'option_name' and 'skip-option_name'
+                                    # we need to take care of options that exists in config file but not in UI
+                                    # so if option is bool and has no 'skip-' in name we put additional option 'skip-option_name'
+                                    # to cur_file_original_opts list with opposite value to properly handle every options 
+                                    if has_value:
+                                        value = not self.normalize_bool(value)
+                                    else:
+                                        value = False
+                                    option = Option(current_section, i, value)
+                                    cur_file_original_opts['skip-'+option_name] = option
 
             self.original_opts = cur_file_original_opts
             self.sections = sorted(self.sections, lambda x,y: cmp(x[0], y[0]))
@@ -775,7 +788,7 @@ class WbAdminConfigFileBE(object):
 
         # Sets a default section in case it is empty
         if section == "":
-            section = "mysqld"
+            section = default_section
 
         # Check if the wanted section is in the file, if not, add it
         if self.server_profile.admin_enabled and not any(_section == section for _line, _section in self.sections):
@@ -797,7 +810,7 @@ class WbAdminConfigFileBE(object):
             value = True
 
         if section is None:
-            section = self.server_profile.config_file_section
+            section = self.server_profile.config_file_section if self.server_profile.config_file_section is not '' else default_section
 
         odef = self.get_option_def(name)
         option_type    = odef.get('type')
@@ -884,7 +897,7 @@ class WbAdminConfigFileBE(object):
             if orig_opt is None:
                 if off_value == 'disabledby':
                     if disabledby is None:
-                        print "Error, option definition does not have disbledby"
+                        print "Error, option definition does not have disabledby"
                     else:
                         if disabledby not in self.original_opts:
                             ci = WbAdminConfigFileBE.ChangesetItem(ADD, section, disabledby, None)
@@ -962,13 +975,18 @@ class WbAdminConfigFileBE(object):
                     options.append((name, self.changeset[name].value))
                 else:
                     odef = self.get_option_def(name)
+                    if odef is None and name.startswith("skip-"):
+                        odef = self.get_option_def(name[5:])
                     if odef is not None and odef.get('type') == 'boolean':
                         ovalue = str(opt)
                         if ovalue == 'disabledby':
                             ovalue = "0"
                         options.append((name, ovalue))
                     else:
-                        options.append((name, str(opt)))
+                        if hasattr(opt.value(), "strip"):
+                            options.append((name, opt.value().strip()))
+                        else:
+                            options.append((name, opt.value()))
 
         return options
 
@@ -1088,7 +1106,7 @@ class WbAdminConfigFileBE(object):
                         file_lines[line] = ""
             elif c.mod == ADD:
                 lines_range = sections_map.get(c.section)
-                if lines_range[1] >= 0:
+                if lines_range and lines_range[1] >= 0:
                     if type(c.value) is list or type(c.value) is tuple:
                         lineno = lines_range[1]
                         for v in c.value:
@@ -1339,7 +1357,7 @@ def unit_test_5(ctx):
         value = val.val(0)
         if value != "disabledby":
             status = False
-            msg += "Broken parser. partition must have value 'disabledby' when skip-partition is used!"
+            msg += "Broken parser. Partition must have value 'disabledby' when skip-partition is used!"
 
     return (name, status, msg)
 
@@ -1631,7 +1649,7 @@ def unit_test_13_(ctx):
 
 #-------------------------------------------------------------------------------
 def unit_test_14(ctx):
-    name = (__name__, "Disabling innodb. File has bool innodb, WBA uses enum innodb")
+    name = (__name__, "Disabling innodb. File has bool innodb; WBA uses enum innodb")
     status = True
     msg = ""
     settings = ctx['settings']

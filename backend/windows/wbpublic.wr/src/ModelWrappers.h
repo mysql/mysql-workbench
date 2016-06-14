@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _TREE_MODEL_WRAPPER_H_
-#define _TREE_MODEL_WRAPPER_H_
+#pragma once
 
 #include "ConvUtils.h"
 #include "GrtTemplates.h"
@@ -58,7 +57,7 @@ namespace MySQL {
       bool next();
       NodeIdWrapper^ append(int i);
       bool is_valid();
-      String^ repr();
+      String^ toString();
     };
 
     //----------------------------------------------------------------------------------------------
@@ -189,5 +188,3 @@ namespace MySQL {
 
   } // namespace Grt
 } // namespace MySQL
-
-#endif // _TREE_MODEL_WRAPPER_H_

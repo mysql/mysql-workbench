@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,18 +53,16 @@
 
 @end
 
-
-
-
 @implementation WBBasePanel
+
+@synthesize topView;
 
 - (NSView*)decoratedTopView
 {
   bec::UIForm *form = [self formBE];
   mforms::ToolBar *tbar = form->get_toolbar();
-  if (form && tbar)
+  if (form != NULL && tbar != NULL)
   {
-    NSView *topView = [self topView];
     NSView *tbview = nsviewForView(tbar);
     if (tbview)
     {
@@ -74,23 +72,15 @@
         WBToolBarContainer *container = [[WBToolBarContainer alloc] initWithFrame: NSMakeRect(0, 0, NSWidth(r), NSHeight(r) + NSHeight([tbview frame]))];
         decoratorView = container;
         [container addSubview: tbview];
+        [topView removeFromSuperview];
         [container addSubview: topView];
         [container resizeSubviewsWithOldSize: NSZeroSize];
       }
       return decoratorView;
     }
-    return topView;
   }
-  return [self topView];
+  return topView;
 }
-
-
-- (void) dealloc
-{
-  [decoratorView release];
-  [super dealloc];
-}
-
 
 - (NSMenu*)menuBar
 {
@@ -104,13 +94,6 @@
   return nil;
 }
 
-
-- (NSView*)topView
-{
-  return nil;
-}
-
-
 - (NSString*)title
 {
   bec::UIForm *form = [self formBE];
@@ -119,24 +102,20 @@
   return @"";
 }
 
-
 - (NSString*)identifier
 {
   return nil;
 }
 
-
-- (bec::UIForm*)formBE
+- (bec::UIForm *)formBE
 {
-  return 0;
+  return NULL;
 }
-
 
 - (NSImage*)tabIcon
 {
   return nil;
 }
-
 
 - (NSSize)minimumSize
 {

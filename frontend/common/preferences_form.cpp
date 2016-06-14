@@ -164,6 +164,9 @@ static LangFontSet font_sets[] = {
   {NULL, NULL, NULL, NULL, NULL, NULL}
 };
 
+const std::string VALID_VERSION_TOOLTIP = _("Specify default target MySQL version in format MAJOR.MINOR or MAJOR.MINOR.RELEASE");
+const std::string INVALID_VERSION_TOOLTIP = _("This is not valid version of MySQL.\nSpecify default target MySQL version in format MAJOR.MINOR or MAJOR.MINOR.RELEASE");
+
 static mforms::Label *new_label(const std::string &text, bool right_align=false, bool help=false)
 {
   mforms::Label *label= mforms::manage(new mforms::Label());
@@ -423,6 +426,45 @@ mforms::TreeNodeRef PreferencesForm::add_page(mforms::TreeNodeRef parent, const 
   _tabview.add_page(view, title);
 
   return node;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool PreferencesForm::versionIsValid(const std::string &text)
+{
+  size_t dots_count = 0;
+  for (size_t i = 0; i < text.size(); i++) 
+  {
+    if( !(isdigit(text[i]) || text[i] == '.') )
+      return false;
+    if (text[i] == '.')
+      dots_count++;
+  }
+
+  if( starts_with(text, ".") || ends_with(text, ".") || dots_count < 1 || dots_count > 2 )
+    return false;
+
+  GrtVersionRef version = bec::parse_version(_wbui->get_wb()->get_grt(), text);
+  if( !version.is_valid() || version->majorNumber() < 5 
+        || version->majorNumber() > 10 || version->minorNumber() > 20
+    )
+    return false;
+  
+  return true;
+}
+
+void PreferencesForm::version_changed()
+{
+  if( versionIsValid(version_entry->get_string_value()) )
+  { 
+    version_entry->set_back_color("#FFFFFF");
+    version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
+  }
+  else
+  {
+    version_entry->set_back_color("#FF5E5E");
+    version_entry->set_tooltip(INVALID_VERSION_TOOLTIP);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1407,6 +1449,27 @@ mforms::View *PreferencesForm::create_others_page()
   }
 #endif
 
+  mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+
+  mforms::Table *ssh_table= mforms::manage(new mforms::Table());
+
+  ssh_table->set_padding(8);
+  ssh_table->set_row_spacing(12);
+  ssh_table->set_column_spacing(8);
+
+  ssh_table->set_row_count(1);
+  ssh_table->set_column_count(3);
+  frame->add(ssh_table);
+  {
+    mforms::FsObjectSelector *pathsel;
+    ssh_table->add(new_label(_("Path to SSH config file:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+    pathsel= new_path_option("pathtosshconfig", true);
+    pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the SSH config file."));
+    ssh_table->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag|mforms::HExpandFlag);
+  }
+
+  content->add(frame, false);
+
   return content;
 }
 
@@ -1558,7 +1621,10 @@ mforms::View *PreferencesForm::create_mysql_page()
     if (!_model.is_valid())
     {
       table->add(new_label(_("Default Target MySQL Version:"), true), 0, 1, 0, 1, 0);
-      table->add(new_selector_option("DefaultTargetMySQLVersion"), 1, 2, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
+      version_entry = new_entry_option("DefaultTargetMySQLVersion", false);
+      version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
+      version_entry->signal_changed()->connect(boost::bind(&PreferencesForm::version_changed, this));
+      table->add(version_entry, 1, 2, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
     }
     else
     {
@@ -1806,6 +1872,8 @@ void PreferencesForm::font_preset_changed()
 
   if (i >= 0)
   {
+    _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_sets[i].name);
+
     change_font_option("workbench.physical.TableFigure:TitleFont", font_sets[i].object_title_font);
     change_font_option("workbench.physical.TableFigure:SectionFont", font_sets[i].object_section_font);
     change_font_option("workbench.physical.TableFigure:ItemsFont", font_sets[i].object_item_font);
@@ -1880,6 +1948,10 @@ mforms::View *PreferencesForm::create_appearance_page()
     hbox->set_padding(12);
 
     _font_preset.signal_changed()->connect(boost::bind(&PreferencesForm::font_preset_changed, this));
+    
+    std::string font_name;
+    _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_name);
+    
     for (size_t i = 0; font_sets[i].name; i++)
     {
       // skip font options that are not modeling specific
@@ -1887,6 +1959,8 @@ mforms::View *PreferencesForm::create_appearance_page()
           base::starts_with(font_sets[i].name, "workbench.scripting"))
         continue;
       _font_preset.add_item(font_sets[i].name);
+      if (font_sets[i].name == font_name)
+        _font_preset.set_selected(i);
     }
     hbox->add(mforms::manage(new mforms::Label("Configure Fonts For:")), false, true);
     hbox->add(&_font_preset, true, true);
@@ -1898,7 +1972,6 @@ mforms::View *PreferencesForm::create_appearance_page()
     content->add(&_font_list, true, true);
     box->add(frame, true, true);
   }
-
 
   return box;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1871,15 +1871,6 @@ static base::Color get_system_color(mforms::SystemColor type)
 }
 
 
-static void begin_thread_loop()
-{
-}
-
-static void end_thread_loop()
-{
-}
-
-
 struct EventLoopFrame
 {
   int exit_code;
@@ -1968,8 +1959,6 @@ void MainForm::setup_mforms_app()
   cf->_app_impl.get_executable_path = &get_executable_path;
   cf->_app_impl.set_status_text= &set_status_text;
   cf->_app_impl.get_application_bounds= &get_main_window_bounds;
-  cf->_app_impl.begin_thread_loop= &begin_thread_loop;
-  cf->_app_impl.end_thread_loop= &end_thread_loop;
   cf->_app_impl.enter_event_loop= &begin_event_loop;
   cf->_app_impl.exit_event_loop= &end_event_loop;
   cf->_app_impl.get_system_color= &get_system_color;

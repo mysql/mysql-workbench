@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +43,7 @@ using namespace base;
 #define CE_BREAKPOINT_MARKER     2
 #define CE_BREAKPOINT_HIT_MARKER 3
 #define CE_CURRENT_LINE_MARKER   4
+#define CE_ERROR_CONTINUE_MARKER 5
 
 #define AC_LIST_SEPARATOR '\x19' // Unused codes as separators.
 #define AC_TYPE_SEPARATOR '\x18'
@@ -292,6 +293,8 @@ CodeEditor::CodeEditor(void *host)
 
 CodeEditor::~CodeEditor()
 {
+  delete _find_panel;
+  
   auto_completion_cancel();
   for (std::map<int, void*>::iterator iterator = _images.begin(); iterator != _images.end(); ++iterator)
     free(iterator->second);
@@ -354,6 +357,7 @@ void CodeEditor::setup()
   setup_marker(CE_BREAKPOINT_MARKER, "editor_breakpoint");
   setup_marker(CE_BREAKPOINT_HIT_MARKER, "editor_breakpoint_hit");
   setup_marker(CE_CURRENT_LINE_MARKER, "editor_current_pos");
+  setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");//editor_continue_on_error
 
   // Other settings.
   Color color = App::get()->get_system_color(mforms::SystemColorHighlight);
@@ -757,6 +761,11 @@ void CodeEditor::show_markup(LineMarkup markup, size_t line)
     if ((marker_mask & LineMarkupStatement) == 0)
       new_marker_mask |= LineMarkupStatement;
   }
+  if ((markup & mforms::LineMarkupErrorContinue) != 0)
+  {
+    if ((marker_mask & LineMarkupErrorContinue) == 0)
+      new_marker_mask |= LineMarkupErrorContinue;
+  }
   if ((markup & mforms::LineMarkupError) != 0)
   {
     if ((marker_mask & LineMarkupError) == 0)
@@ -799,6 +808,8 @@ void CodeEditor::remove_markup(LineMarkup markup, ssize_t line)
       _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_STATEMENT_MARKER);
     if ((markup & mforms::LineMarkupError) != 0)
       _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_ERROR_MARKER);
+    if ((markup & mforms::LineMarkupErrorContinue) != 0)
+      _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_ERROR_CONTINUE_MARKER);
     if ((markup & mforms::LineMarkupBreakpoint) != 0)
       _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_BREAKPOINT_MARKER);
     if ((markup & mforms::LineMarkupBreakpointHit) != 0)

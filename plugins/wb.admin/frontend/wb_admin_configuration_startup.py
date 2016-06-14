@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,12 +23,13 @@ import datetime
 from wb_admin_utils import no_remote_admin_warning_label, make_panel_header
 
 from wb_log_reader import ErrorLogFileReader
-
+from workbench.notifications import nc
 
 class WbAdminConfigurationStartup(mforms.Box):
     long_status_msg = None
     short_status_msg = None
     start_stop_btn = None
+    offline_mode_btn = None
     startup_msgs_log = None
     is_server_running_prev_check = None
     copy_to_clipboard_button = None
@@ -101,17 +102,27 @@ class WbAdminConfigurationStartup(mforms.Box):
         self.start_stop_btn = newButton()
         self.start_stop_btn.set_text("Start server")
         self.start_stop_btn.add_clicked_callback(self.start_stop_clicked)
+        
+        self.offline_mode_btn = newButton()
+        self.offline_mode_btn.set_text("Bring Offline")
+        self.offline_mode_btn.add_clicked_callback(self.offline_mode_clicked)
 
         start_stop_hbox = newBox(True)
         start_stop_hbox.add(status_message_part, False, True)
         start_stop_hbox.add(self.short_status_msg, False, True)
         start_stop_hbox.add(newLabel("  "), False, False)
         start_stop_hbox.add(self.start_stop_btn, False, False)
+        start_stop_hbox.add(self.offline_mode_btn, False, False)
+        
+        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+            self.offline_mode_btn.show(True)
+        else:
+            self.offline_mode_btn.show(False)
 
         self.add(self.long_status_msg, False, True)
         self.add(start_stop_hbox, False, False)
 
-        description = newLabel("If you stop the server, you and your applications will not be able to use the Database and all current connections will be closed\n")
+        description = newLabel("If you stop the server, you and your applications will not be able to use the database and all current connections will be closed\n")
         description.set_style(mforms.SmallStyle)
         self.add(description, False, False)
 
@@ -156,6 +167,7 @@ class WbAdminConfigurationStartup(mforms.Box):
         self.resume_layout()
 
         self.ctrl_be.add_me_for_event("server_started", self)
+        self.ctrl_be.add_me_for_event("server_offline", self)
         self.ctrl_be.add_me_for_event("server_stopped", self)
 
     #---------------------------------------------------------------------------
@@ -175,12 +187,20 @@ class WbAdminConfigurationStartup(mforms.Box):
             self.is_server_running_prev_check = self.ctrl_be.is_server_running()
             self.update_ui(self.is_server_running_prev_check)
             self.print_new_error_log_entries()
+        else:
+            self.ctrl_be.query_server_info() 
+            self.update_ui(self.ctrl_be.is_server_running())
 
 
     #---------------------------------------------------------------------------
     def server_started_event(self):
         dprint_ex(2, "Handling server start event in start/stop page")
         self.update_ui("running")
+
+    #---------------------------------------------------------------------------
+    def server_offline_event(self):
+        dprint_ex(2, "Handling server offline event in start/stop page")
+        self.update_ui("offline")
 
     #---------------------------------------------------------------------------
     def server_stopped_event(self):
@@ -190,35 +210,52 @@ class WbAdminConfigurationStartup(mforms.Box):
     #---------------------------------------------------------------------------
     def update_ui(self, server_status):
         dprint_ex(3, "server_status on enter is %s" % str(server_status))
-
+        
         if not self.server_profile.admin_enabled:
             return
 
         self.is_server_running_prev_check = server_status
-        if server_status in ("running", "starting"):
+        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+            self.offline_mode_btn.show(True)
+        else:
+            self.offline_mode_btn.show(False)
+                
+        if server_status in ("running", "starting", "offline"):
             if server_status == "starting":
                 self.long_status_msg.set_text("The database server is starting...")
                 self.start_stop_btn.set_enabled(False)
                 self.short_status_msg.set_color("#DDCC00")
+                self.offline_mode_btn.set_text("Bring Offline")
+                self.offline_mode_btn.set_enabled(False)
+            elif server_status == "offline":
+                self.offline_mode_btn.set_text("Bring Online")
+                self.offline_mode_btn.set_enabled(True)
+                server_status = "in offline mode"
+                self.short_status_msg.set_color("#0000FF")
+                self.long_status_msg.set_text("The database server is in offline mode. To put it back into online mode, use the \"Online mode\" button")
             else:
+                self.offline_mode_btn.set_enabled(True)
+                self.offline_mode_btn.set_text("Bring Offline")
                 self.start_stop_btn.set_enabled(True)
                 self.short_status_msg.set_color("#00DD00")
-                self.long_status_msg.set_text("The database server is started and ready for client connections. To shut the Server down, use the \"Stop Server\" button")
+                self.long_status_msg.set_text("The database server is started and ready for client connections. To shut the server down, use the \"Stop Server\" button")
             self.short_status_msg.set_text(server_status)
             self.start_stop_btn.set_text("Stop Server")
         elif server_status in ("stopped", "stopping"):
             if server_status == "stopping":
                 self.long_status_msg.set_text("The database server is stopping...")
                 self.start_stop_btn.set_enabled(False)
+                self.offline_mode_btn.set_enabled(False)
                 self.short_status_msg.set_color("#DDCC00")
             else:
                 self.start_stop_btn.set_enabled(True)
+                self.offline_mode_btn.set_enabled(False)
                 self.short_status_msg.set_color("#DD0000")
                 self.long_status_msg.set_text("The database server is stopped. To start the Server, use the \"Start Server\" button")
             self.short_status_msg.set_text(server_status)
             self.start_stop_btn.set_text("Start Server")
         else:
-            self.long_status_msg.set_text("The state of the database server could not be determined, please verify server profile settings.")
+            self.long_status_msg.set_text("The state of the database server could not be determined. Please verify server profile settings.")
             self.short_status_msg.set_text("unknown")
             self.short_status_msg.set_color("#FF0000")
             self.start_stop_btn.set_text("Start Server")
@@ -269,16 +306,24 @@ class WbAdminConfigurationStartup(mforms.Box):
         status = self.ctrl_be.is_server_running(verbose=1)
         # Check if server was started/stoped from outside
         if self.is_server_running_prev_check == status:
-            if status == "running":
+            if status == "running" or status == "offline":
+                if status == "offline":
+                    self.print_output("Server is in offline mode.")
                 self.start_stop_btn.set_enabled(False)
                 self.refresh_button.set_enabled(False)
 
                 try:
                     if self.server_control and not self.server_control.stop_async(self.async_stop_callback, True):
+                        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+                            self.offline_mode_btn.show(True)
+
                         self.start_stop_btn.set_enabled(True)
                         self.refresh_button.set_enabled(True)
                         return
                 except Exception, exc:
+                    if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+                        self.offline_mode_btn.show(True)
+
                     self.start_stop_btn.set_enabled(True)
                     self.refresh_button.set_enabled(True)
                     Utilities.show_error("Stop Server",
@@ -288,6 +333,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             elif status == "stopped":
                 self.start_stop_btn.set_enabled(False)
                 self.refresh_button.set_enabled(False)
+                self.offline_mode_btn.set_enabled(False)
 
                 try:
                     if self.server_control and not self.server_control.start_async(self.async_start_callback, True):
@@ -303,12 +349,30 @@ class WbAdminConfigurationStartup(mforms.Box):
                     return
 
             elif status == "stopping":
-                self.print_output("Server is stopping, please wait...")
+                self.print_output("Server is stopping; please wait...")
             elif status == "starting":
-                self.print_output("Server is starting, please wait...")
+                self.print_output("Server is starting; please wait...")
             else:
                 self.print_output("Unable to detect server status.")
             self.refresh()
+
+            if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+                self.offline_mode_btn.show(True)
+
+    def offline_mode_clicked(self):
+        info = { "state" : -1, "connection" : self.ctrl_be.server_profile.db_connection_params }
+        if self.ctrl_be.is_server_running() == "offline":
+            self.ctrl_be.exec_query("SET GLOBAL offline_mode = off")
+            self.ctrl_be.event_from_main("server_started")
+            info['state'] = 1
+        else:
+            self.ctrl_be.exec_query("SET GLOBAL offline_mode = on")
+            self.ctrl_be.event_from_main("server_offline")
+            info['state'] = -1
+            
+        #we need to send notification that server state has changed,
+        nc.send("GRNServerStateChanged", self.ctrl_be.editor, info)
+             
 
     #---------------------------------------------------------------------------
     def async_stop_callback(self, status):
@@ -348,6 +412,7 @@ class WbAdminConfigurationStartup(mforms.Box):
     #---------------------------------------------------------------------------
     def async_start_finished(self, status):
         if status == "success":
+            self.ctrl_be.event_from_main("server_started")
             self.print_output("Server start done.")
         elif status == "bad_password":
             r = Utilities.show_error("Start Server",

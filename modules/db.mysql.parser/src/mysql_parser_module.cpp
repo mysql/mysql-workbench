@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -129,6 +129,28 @@ static std::string getDefiner(MySQLRecognizerTreeWalker &walker)
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * Returns the identifier text for a dot_identifier sequence (see this rule in the grammar for details).
+ * The caller is responsible for checking the validity of that token on enter.
+ * Advances the walker to the first position after the identifier.
+ */
+static std::string getDotIdentifier(MySQLRecognizerTreeWalker &walker)
+{
+  std::string result;
+  if (walker.is(DOT_SYMBOL))
+  {
+    walker.next();
+    result = walker.token_text();
+  }
+  else
+    result = walker.token_text().substr(1);
+  walker.next();
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
 * Read an object identifier "(id?.)?id" from the current walker position which must be
 * one of the *_REF_TOKEN or *_NAME_TOKENS types.
 * This functions tries get as much info as possible even if the syntax is not fully correct.
@@ -183,27 +205,20 @@ static Identifier getIdentifier(MySQLRecognizerTreeWalker &walker)
   case EVENT_NAME_TOKEN:     // schema.event
   case EVENT_REF_TOKEN:      // ditto
     walker.next();
-    if (walker.is(DOT_SYMBOL))
+    if (walker.is(DOT_SYMBOL) || walker.is(DOT_IDENTIFIER))
     {
       // Starting with a dot (ODBC style).
-      walker.next();
-      if (walker.is_identifier())
-      {
-        result.second = walker.token_text();
-        walker.next();
-      }
+      result.second = getDotIdentifier(walker);
     }
     else
       if (walker.is_identifier())
       {
         result.second = walker.token_text();
         walker.next();
-        if (walker.is(DOT_SYMBOL))
+        if (walker.is(DOT_SYMBOL) || walker.is(DOT_IDENTIFIER))
         {
-          walker.next();
           result.first = result.second;
-          result.second = walker.token_text();
-          walker.next();
+          result.second = getDotIdentifier(walker);
         }
       }
     break;
@@ -222,45 +237,25 @@ static Identifier getIdentifier(MySQLRecognizerTreeWalker &walker)
 static ColumnIdentifier getColumnIdentifier(MySQLRecognizerTreeWalker &walker)
 {
   ColumnIdentifier result;
-  if (walker.is(DOT_SYMBOL))
-  {
-    walker.next();
-    if (walker.is_identifier())
-    {
-      result.column = walker.token_text();
-      walker.next();
-    }
-  }
+  if (walker.is(DOT_SYMBOL) || walker.is(DOT_IDENTIFIER))
+    result.column = getDotIdentifier(walker);
   else
   {
     // id
-    if (walker.is_identifier())
+    result.column = walker.token_text();
+    walker.next();
+    if (walker.is(DOT_SYMBOL) || walker.is(DOT_IDENTIFIER))
     {
-      result.column = walker.token_text();
-      walker.next();
-      if (walker.is(DOT_SYMBOL))
-      {
-        // id.id
-        result.table = result.column;
-        walker.next();
-        if (walker.is_identifier())
-        {
-          result.column = walker.token_text();
-          walker.next();
+      // id.id
+      result.table = result.column;
+      result.column = getDotIdentifier(walker);
 
-          if (walker.is(DOT_SYMBOL))
-          {
-            // id.id.id
-            result.schema = result.table;
-            result.table = result.column;
-            walker.next();
-            if (walker.is_identifier())
-            {
-              result.column = walker.token_text();
-              walker.next();
-            }
-          }
-        }
+      if (walker.is(DOT_SYMBOL) || walker.is(DOT_IDENTIFIER))
+      {
+        // id.id.id
+        result.schema = result.table;
+        result.table = result.column;
+        result.column = getDotIdentifier(walker);
       }
     }
   }
@@ -1324,7 +1319,7 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
           {
             newDefault += "(";
             walker.next();
-            if (walker.is(IDENTIFIER)) // Optional precision.
+            if (walker.is(INT_NUMBER)) // Optional precision.
             {
               newDefault += walker.token_text();
               walker.next();
@@ -1802,7 +1797,7 @@ static void fillTableCreateItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
   walker.next();
   switch (walker.token_type())
   {
-  case COLUMN_REF_TOKEN: // A column definition.
+  case COLUMN_NAME_TOKEN: // A column definition.
   {
     walker.next();
     db_mysql_ColumnRef column(table->get_grt());
@@ -4404,7 +4399,7 @@ void collectSchemaNameOffsets(ParserContext::Ref context, std::list<size_t> &off
     case TABLE_REF_TOKEN:
     {
       walker.next();
-      if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(false) == DOT_SYMBOL)
+      if (walker.is_identifier() && (walker.look_ahead(false) == DOT_SYMBOL || walker.look_ahead(false) == DOT_IDENTIFIER))
       {
         // A table ref not with leading dot but a qualified identifier.
         if (base::same_string(walker.token_text(), schema_name, case_sensitive))
@@ -4421,25 +4416,26 @@ void collectSchemaNameOffsets(ParserContext::Ref context, std::list<size_t> &off
     case COLUMN_REF_TOKEN: // Field and key names (id, .id, id.id, id.id.id).
       walker.next();
       // No leading dot (which means no schema/table) and at least one dot after the first id.
-      if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(false) == DOT_SYMBOL)
+      if (walker.is_identifier() && (walker.look_ahead(false) == DOT_SYMBOL || walker.look_ahead(false) == DOT_IDENTIFIER))
       {
         std::string name = walker.token_text();
         size_t pos = walker.token_offset();
-        walker.next(2);
-        if (walker.look_ahead(false) == DOT_SYMBOL) // Fully qualified.
+        if (walker.is(BACK_TICK_QUOTED_ID) || walker.is(SINGLE_QUOTED_TEXT))
+          ++pos;
+
+        walker.next();
+        walker.skip_if(DOT_SYMBOL);
+        walker.next();
+
+        if (walker.look_ahead(false) == DOT_SYMBOL || walker.look_ahead(false) == DOT_IDENTIFIER) // Fully qualified.
         {
           if (base::same_string(name, schema_name, case_sensitive))
-          {
-            size_t pos = walker.token_offset();
-            if (walker.is(BACK_TICK_QUOTED_ID) || walker.is(SINGLE_QUOTED_TEXT))
-              ++pos;
             offsets.push_back(pos);
-          }
         }
       }
       break;
 
-      // All those can have schema.id or only id.
+    // All those can have schema.id or only id.
     case VIEW_REF_TOKEN:
     case VIEW_NAME_TOKEN:
     case TRIGGER_REF_TOKEN:
@@ -4449,7 +4445,7 @@ void collectSchemaNameOffsets(ParserContext::Ref context, std::list<size_t> &off
     case FUNCTION_REF_TOKEN:
     case FUNCTION_NAME_TOKEN:
       walker.next();
-      if (walker.look_ahead(false) == DOT_SYMBOL)
+      if (walker.look_ahead(false) == DOT_SYMBOL || walker.look_ahead(false) == DOT_IDENTIFIER)
       {
         if (base::same_string(walker.token_text(), schema_name, case_sensitive))
         {

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -41,11 +41,18 @@ typedef int ssize_t;
 #include <map>
 #include <string>
 #include <stdexcept>
+#include <list>
+#include <vector>
+#include <sstream>
+#include <typeinfo>
 
 #include <glib.h>
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
+
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
 
 #endif

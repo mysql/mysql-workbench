@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,10 +70,6 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 WBContextUI::WBContextUI(bool verbose)
   : _wb(new WBContext(this, verbose)), _command_ui(new CommandUI(_wb))
 {
-  NodeId n; // workaround a bug causing crash when output tab is shown with GLib-ERROR **: The thread system is not yet initialized.
-
-  base::NotificationCenter::get()->add_observer(this, "GNAppClosing");
-  
   _shell_window= 0;
   
   _output_view = NULL;
@@ -96,7 +92,7 @@ WBContextUI::WBContextUI(bool verbose)
   // stuff to do when the active form is switched in the UI (through set_active_form)
   _form_change_signal.connect(boost::bind(&WBContextUI::form_changed, this));
 
-  _output_view = new OutputView(_wb);
+  _output_view = mforms::manage(new OutputView(_wb));
   scoped_connect(_output_view->get_be()->signal_show(),boost::bind(&WBContextUI::show_output, this));
 }
 
@@ -104,40 +100,14 @@ WBContextUI::WBContextUI(bool verbose)
 
 WBContextUI::~WBContextUI()
 {
-  base::NotificationCenter::get()->remove_observer(this);
-  
   _wb->do_close_document(true);
 
-  // TODO: is it really necessary to set all member variables to NULL in a dtor?
   delete _addon_download_window;
-  _addon_download_window = 0;
   delete _plugin_install_window;
-  _plugin_install_window = 0;
-  if (_home_screen != NULL)
-  {
-    _home_screen->release();
-    _home_screen = NULL;
-  }
-
-  delete _output_view;
-  _output_view = 0;
 
   delete _shell_window;
-  _shell_window = NULL;
-
   delete _wb;
-  _wb = NULL;
-
   delete _command_ui;
-  _command_ui = NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void WBContextUI::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info)
-{
-  if (name == "GNAppClosing")
-    home_screen_closing();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +182,7 @@ void WBContextUI::init_finish(WBOptions *options)
 
 void WBContextUI::finalize()
 {  
+  _output_view->release();
   _wb->finalize();
 }
 
@@ -898,10 +869,10 @@ bool WBContextUI::get_wb_options_value(const std::string &model, const std::stri
   case grt::StringType: 
   case grt::DoubleType:
   case grt::IntegerType:
-      value= val.repr();
-      return true;
-    default: 
-      return false;
+    value = val.toString();
+    return true;
+  default:
+    return false;
   }
 }
 

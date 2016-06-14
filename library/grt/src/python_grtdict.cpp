@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -427,7 +427,7 @@ dict_setdefault(PyGRTDictObject *self, PyObject *arg)
 
 static PyObject *dict_printable(PyGRTDictObject *self)
 {
-  return PyString_FromString(self->dict->repr().c_str());
+  return PyString_FromString(self->dict->toString().c_str());
 }
 
 

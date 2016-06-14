@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,14 +20,23 @@
 #include <glib.h>
 #include <cctype>
 
+#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
+#include <sstream>
+#include <vector>
+#include <list>
+#include <boost/scoped_array.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
+
 #include "grtdb/charset_utils.h"
 #include "base/string_utilities.h"
 #include "base/threading.h"
 
 #include "mysql_sql_parser_fe.h"
-#include <sstream>
-#include <boost/scoped_array.hpp>
-#include <boost/shared_ptr.hpp>
 #include "myx_statement_parser.h"
 
 #define MYSQL_LEX 1

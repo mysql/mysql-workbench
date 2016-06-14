@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -438,7 +438,6 @@
       [[NSAnimationContext currentContext] setDuration: 0.0];
       
       NSInteger index = [mTabItems indexOfObject: item];
-      [[item retain] autorelease];
       [item removeFromSuperlayer];
       [mTabItems removeObject: item];
       
@@ -759,8 +758,6 @@
 
 - (void) closeTab: (WBTabItem*) sender;
 {
-  [[sender retain] autorelease];
-  
   if (mDoneCustomizing) {
     if ([[self delegate] respondsToSelector: @selector(tabView:willCloseTabViewItem:)]) {
       for (NSTabViewItem* item in [mTabView tabViewItems]) {
@@ -1127,7 +1124,7 @@
   contentFrame.size.width -= 2 * contentPadding;
   contentFrame.size.height -= contentPadding;
   
-  NSTabView* theContainerTabView = [[[NSTabView alloc] initWithFrame: contentFrame] autorelease];
+  NSTabView* theContainerTabView = [[NSTabView alloc] initWithFrame: contentFrame];
   [theContainerTabView setTabViewType: NSNoTabsNoBorder];
   [theContainerTabView setAutoresizingMask: (NSViewWidthSizable | NSViewHeightSizable)];
 
@@ -1138,10 +1135,7 @@
     tabRowFrame.origin.y = contentFrame.size.height;
   }
   
-  //  tabRowFrame.origin.x += 1;
-  //  tabRowFrame.size.width -= 2;
-  
-  mTabRowView = [[[WBRightClickThroughView alloc] initWithFrame: tabRowFrame] autorelease];
+  mTabRowView = [[WBRightClickThroughView alloc] initWithFrame: tabRowFrame];
   if (mTabPlacement == WBTabPlacementTop) {
     [mTabRowView setAutoresizingMask: (NSViewWidthSizable | NSViewMinYMargin)];
   }
@@ -1210,31 +1204,19 @@
   return shadowLayer;
 }
 
-
-
-- (CALayer*) plaqueLayer;
-{
-  return nil;
-}
-
-
-
-- (WBTabMenuLayer*) tabMenuLayer;
+- (WBTabMenuLayer*)tabMenuLayer;
 {
   WBTabMenuLayer* baseLayer = [WBTabMenuLayer layer];
   
   // Make layer to hold the arrow icon.
   CALayer* iconLayer = [CALayer layer];
-  NSBundle* b = [NSBundle bundleForClass: [WBTabView class]];
-  NSString* path = [b pathForResource: @"TabMenuIcon"
-                               ofType: @"png"];
-  mTabMenuIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[mTabMenuIconImage representations][0] CGImage];
+  NSBundle* bundle = [NSBundle bundleForClass: WBTabView.class];
+  mTabMenuIconImage = [bundle imageForResource: @"TabMenuIcon"];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mTabMenuIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
   [iconLayer setFrame: r];
-  [iconLayer setContents: (id)img];
+  iconLayer.contents = mTabMenuIconImage;
   
   // Set up the base layer and add the icon layer to it.
   r.origin.x = -r.size.width;
@@ -1252,28 +1234,23 @@
 
 
 
-- (WBTabDraggerLayer*) draggerLayer;
+- (WBTabDraggerLayer*)draggerLayer;
 {
   WBTabDraggerLayer* baseLayer = [WBTabDraggerLayer layer];
   
   // Make layer to hold the arrow icon.
   CALayer* iconLayer = [CALayer layer];
-  NSBundle* b = [NSBundle bundleForClass: [WBTabView class]];
-  NSString* path = [b pathForResource: @"TabDragIcon"
-                               ofType: @"png"];
-  mDraggerIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[mDraggerIconImage representations][0] CGImage];
+  NSBundle* bundle = [NSBundle bundleForClass: WBTabView.class];
+  mDraggerIconImage = [bundle imageForResource: @"TabDragIcon"];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mDraggerIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
   [iconLayer setFrame: r];
-  [iconLayer setContents: (id)img];
+  iconLayer.contents = mDraggerIconImage;
   iconLayer.contentsGravity= kCAGravityCenter;
   
   // Set up the base layer and add the icon layer to it
   r.origin.x = -r.size.width-2;
-  //r.origin.y += 1; 
-  //r.size.height -= 1;
   [baseLayer setFrame: r];
   [baseLayer addSublayer: iconLayer];  
   [baseLayer setAutoresizingMask: kCALayerMinXMargin];
@@ -1284,23 +1261,19 @@
   return baseLayer;
 }
 
-
-- (WBTabArrow*) leftArrowLayer;
+- (WBTabArrow*)leftArrowLayer;
 {
   WBTabArrow* baseLayer = [WBTabArrow layer];
   
   // Make layer to hold the arrow icon.
   CALayer* iconLayer = [CALayer layer];
-  NSBundle* b = [NSBundle bundleForClass: [WBTabView class]];
-  NSString* path = [b pathForResource: @"LeftArrowIcon"
-                               ofType: @"png"];
-  mLeftArrowIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[mLeftArrowIconImage representations][0] CGImage];
+  NSBundle* bundle = [NSBundle bundleForClass: WBTabView.class];
+  mLeftArrowIconImage = [bundle imageForResource: @"LeftArrowIcon"];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mLeftArrowIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
   [iconLayer setFrame: r];
-  [iconLayer setContents: (id)img];
+  iconLayer.contents = mLeftArrowIconImage;
   
   // Set up the base layer and add the icon layer to it.
   r.origin.x = -r.size.width;
@@ -1317,24 +1290,19 @@
   return baseLayer;
 }
 
-
-
-- (WBTabArrow*) rightArrowLayer;
+- (WBTabArrow*)rightArrowLayer;
 {
   WBTabArrow* baseLayer = [WBTabArrow layer];
   
   // Make layer to hold the arrow icon.
   CALayer* iconLayer = [CALayer layer];
-  NSBundle* b = [NSBundle bundleForClass: [WBTabView class]];
-  NSString* path = [b pathForResource: @"RightArrowIcon"
-                               ofType: @"png"];
-  mRightArrowIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[mRightArrowIconImage representations][0] CGImage];
+  NSBundle* bundle = [NSBundle bundleForClass: WBTabView.class];
+  mRightArrowIconImage = [bundle imageForResource: @"RightArrowIcon"];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mRightArrowIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
   [iconLayer setFrame: r];
-  [iconLayer setContents: (id)img];
+  iconLayer.contents = mRightArrowIconImage;
   
   // Set up the base layer and add the icon layer to it.
   r.origin.x = 10000;
@@ -1390,33 +1358,6 @@
 
 - (void) createTabRow;
 {
-  // TODO: obsolete, remove creation code.
-  //CALayer* shadowLayer = [self shadowLayer];
-  //[mTabRowLayer addSublayer: shadowLayer];
-  
-  //	{
-  //		CALayer* debugLayer = [CALayer layer];
-  //		
-  //		[debugLayer setBorderWidth: 1];
-  //		CGColorRef c = WB_CGColorCreateCalibratedRGB(0.3, 0.9, 0.3, 1);
-  //		[debugLayer setBorderColor: c];
-  //		CGColorRelease(c);
-  //		
-  //		CGRect r = [mTabRowLayer bounds];
-  //		[debugLayer setFrame: r];
-  //		[debugLayer setZPosition: 100];
-  //		[debugLayer setAutoresizingMask: (kCALayerWidthSizable | kCALayerHeightSizable)];
-  //		[mTabRowLayer addSublayer: debugLayer];
-  //	}
-  
-  // TODO: obsolete, remove creation code.
-  //CALayer* plaqueLayer = [self plaqueLayer];
-  //[mTabRowLayer addSublayer: plaqueLayer];
-  
-  // TODO: obsolete, remove creation code.
-  //CALayer* lineLayer = [self lineLayer];
-  //[mTabRowLayer addSublayer: lineLayer];
-  
   // Create left and right arrows, and tab menu icon.
   CGColorRef tabRowBackgroundColor = [self tabRowActiveBackgroundColorCreate];
   
@@ -1545,15 +1486,10 @@
   mColorNotActiveNotSelected = CGColorRetain(colorNotActiveNotSelected);
 }
 
-
-
 #pragma mark Create and Destroy
-
-
 
 + (void) load;
 {
-  // Unspeakably neat Obj-C swizzling!
   // Substitute -setLabel: method for NSTabVIewItem so that it notifies us so we
   // can update the corresponding custom tab.
   Method originalMethod = class_getInstanceMethod([NSTabViewItem class], @selector(setLabel:));
@@ -1561,15 +1497,10 @@
   method_exchangeImplementations(originalMethod, alternateMethod);
 }
 
-
-
 - (void) awakeFromNib;
 {
-  //	mAllowsTabReordering = YES;
   [self doCustomize];
 }
-
-
 
 - (void) dealloc
 {
@@ -1577,20 +1508,11 @@
   [dc removeObserver: self];
 
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  
-  [mTabItems release];
-  
-  [mLeftArrowIconImage release];
-  [mRightArrowIconImage release];
-  [mTabMenuIconImage release];
-  [mDraggerIconImage release];
-  
+
   CGColorRelease(mColorActiveSelected);
   CGColorRelease(mColorActiveNotSelected);
   CGColorRelease(mColorNotActiveSelected);
   CGColorRelease(mColorNotActiveNotSelected);
-  
-  [super dealloc];
 }
 
 - (BOOL)mouseDownCanMoveWindow

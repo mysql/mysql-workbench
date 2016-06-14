@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
 #include "workbench/wb_overview.h"
 #import "MVerticalLayoutView.h"
 #import "WBSchemaTabView.h"
@@ -29,7 +28,7 @@ typedef NS_ENUM(NSInteger, ListMode) {
   ListModeLargeIcon,
   ListModeSmallIcon,
   ListModeDetails
-} ;
+};
 
 @interface WBOverviewGroupContainer : WBSchemaTabView <NSTabViewDelegate>
 {
@@ -91,18 +90,11 @@ typedef NS_ENUM(NSInteger, ListMode) {
   wb::OverviewBE *_be;
   bec::NodeId *_nodeId;
 
-  NSMutableArray *_nibObjects;
-  
   wb::OverviewBE::OverviewDisplayMode _displayMode;
 
   NSTextField *_descriptionLabel;
   
-  NSCollectionView *_iconView;
-  WBOverviewListController *_iconController;
-  
   NSTableView *_tableView;
-  
-  NSMenu *_contextMenu; // this is created in teh collectionView nib
 }
 
 - (instancetype)initWithOverview:(WBOverviewPanel*)owner
