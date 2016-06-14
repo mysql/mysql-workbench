@@ -65,6 +65,9 @@ fi
 echo "Updating Info.plist"
 sed -e "/<key>CFBundleShortVersionString<\/key>/N;s/.*\n.*<\/string>/	<key>CFBundleShortVersionString<\/key>@	<string>$major.$minor.$release$dot_release_type<\/string>/" -e 'y/@/\n/' -i.bak Info.plist
 
+echo "Updating mysql-workbench.spec.in"
+sed -e "s/--define='version.*'/--define='version $major.$minor.$release_number'/" -i.bak build/mysql-workbench.spec.in
+
 # check if build/debian.in/changelog needs update
 echo "Checking if build/debian.in/changelog needs updating"
 if ! grep $major.$minor.$release- build/debian.in/changelog; then
@@ -74,7 +77,7 @@ mysql-workbench-@edition@ ($major.$minor.$release$dot_release_type-1@distrov@) @
 
   * New release
 
- -- `bzr whoami`  `date +"%a, %d %b %Y %T %z"`
+ -- `git config user.name` (`git config user.email`)  `date +"%a, %d %b %Y %T %z"`
 
 EOF
     cat build/debian.in/changelog >> build/debian.in/changelog.new
