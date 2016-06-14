@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -83,7 +83,7 @@ wba_page_modules = []
 class AdministratorContext:
     """
     An instance of the WBA, associated to a SQL Editor.
-    Thi is created when a GRNSQLEditorOpened notification is received.
+    This is created when a GRNSQLEditorOpened notification is received.
 
     Initially, only the different sections of the WBA are added to the sidebar
     and the GUI itself is not initialized until the user enters each section.
@@ -401,7 +401,7 @@ def attachToSQLEditor(name, sender, args):
         # attach our WBA related things to it
         context = AdministratorContext(sender)
         sender.customData["adminContext"] = grt.togrt(context)
-        if not sender.isConnected:
+        if sender.isConnected <= 0:
             ignore = mforms.Utilities.add_timeout(0.1, lambda:context.open_into_section("admin_server_status", True))
             del ignore
 
@@ -697,7 +697,6 @@ def testInstanceSettingByName(what, connection, server_instance):
             log_debug2("Backtrace was: " % traceback.format_stack())
             return "ERROR "+str(exc)
         except:
-            print "Unknown error"
             return "ERROR"
 
         try:

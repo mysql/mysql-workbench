@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -276,7 +276,7 @@
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
 {
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
   {
     if (mHorizontal)
       [self resizeSubviewsWithOldSizeH:oldBoundsSize];
@@ -362,20 +362,15 @@
 {
   // mark the subview so that it's not accounted when relayouting
   subview.viewFlags = (subview.viewFlags & ~BoxFlagMask) | RemovingFlag;
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
     [self subviewMinimumSizeChanged];
 }
 
 - (void)setFrame: (NSRect)frame
 {
   [super setFrame: frame];
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
       (*mOwner->signal_resized())();
-}
-
-- (void)destroy
-{
-  [self removeFromSuperview];
 }
 
 #if 0
@@ -397,7 +392,7 @@
 
 static bool box_create(::mforms::Box *self, bool horiz)
 {
-  MFBoxImpl *box= [[[MFBoxImpl alloc] initWithObject:self] autorelease];
+  MFBoxImpl *box= [[MFBoxImpl alloc] initWithObject: self];
   
   [box setHorizontal:horiz ? YES : NO];
   

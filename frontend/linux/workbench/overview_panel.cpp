@@ -1099,7 +1099,7 @@ void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnod
 
     division->add_edit_buttons(_("Schema"));
 
-    _group_containers_by_id[pnode.repr()]= _groups;
+    _group_containers_by_id[pnode.toString()]= _groups;
 
     // assumes child nodes are sections
     // Build groups, like 'mydb' tab and its content for a databases
@@ -1125,7 +1125,7 @@ void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnod
     division->signal_view_mode_change().connect(sigc::mem_fun(*item_list, &OverviewItemContainer::set_display_mode));
     item_list->show();
 
-    _item_containers_by_id[pnode.repr()]= item_list;
+    _item_containers_by_id[pnode.toString()]= item_list;
 
     division->set_display_mode(wb::OverviewBE::MLargeIcon);
 
@@ -1142,7 +1142,7 @@ void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnod
       OverviewSection *section= Gtk::manage(new OverviewSection(_overview_be, node, true, true));
 
       section->signal_selection_changed().connect(sigc::bind(sigc::mem_fun(this, &OverviewPanel::item_list_selection_changed), section));
-      _item_containers_by_id[node.repr()]= section;
+      _item_containers_by_id[node.toString()]= section;
 
       division->pack_start(*section, false, false);
       section->show();
@@ -1198,7 +1198,7 @@ void OverviewPanel::build_group_contents(OverviewDivision *division, Gtk::VBox *
     section->signal_selection_changed().connect(sigc::bind(sigc::mem_fun(this, &OverviewPanel::item_list_selection_changed), section));
     section->signal_popup_menu().connect(sigc::bind(sigc::mem_fun(this, &OverviewPanel::item_popup_menu),
                                                     section));
-    _item_containers_by_id[node.repr()]= section;
+    _item_containers_by_id[node.toString()]= section;
 
     page->pack_start(*section, false, false);
     section->show();
@@ -1247,7 +1247,7 @@ void OverviewPanel::refresh_active_group_node_children()
 
     _overview_be->refresh_node(group_node_id, true);
 
-    OverviewGroupContainer *group_container= _group_containers_by_id[group_node_id.repr()];
+    OverviewGroupContainer *group_container= _group_containers_by_id[group_node_id.toString()];
     OverviewDivision *division= dynamic_cast<OverviewDivision*>(group_container->get_parent());
     bec::NodeId node(group_node_id);
 
@@ -1313,7 +1313,7 @@ void OverviewPanel::update_group_note(OverviewGroupContainer *group_container, c
         OverviewItemContainer* items = dynamic_cast<OverviewItemContainer*>(*iter);
         if (items)
         {
-          it = _item_containers_by_id.find(items->get_base_node().repr());
+          it = _item_containers_by_id.find(items->get_base_node().toString());
           if (it != _item_containers_by_id.end())
           {
             _item_containers_by_id.erase(it);
@@ -1396,7 +1396,7 @@ void OverviewPanel::refresh_children(const bec::NodeId& node)
   switch ((wb::OverviewBE::OverviewNodeType)type)
   {
   case wb::OverviewBE::OGroup:
-    update_group_note(_group_containers_by_id[node.repr()], node);
+    update_group_note(_group_containers_by_id[node.toString()], node);
     if (_groups->enable_set_focus_node())
     {
       if ((_groups->current_page_index() >= 0) &&
@@ -1408,7 +1408,7 @@ void OverviewPanel::refresh_children(const bec::NodeId& node)
     break;
 
   case wb::OverviewBE::OItem:
-    _item_containers_by_id[node.repr()]->refresh();
+    _item_containers_by_id[node.toString()]->refresh();
     break;
 
   default: break;
@@ -1430,11 +1430,11 @@ void OverviewPanel::refresh_node(const bec::NodeId &node)
   switch ((wb::OverviewBE::OverviewNodeType)type)
   {
   case wb::OverviewBE::OGroup:
-    _group_containers_by_id[parent.repr()]->refresh_info(node);
+    _group_containers_by_id[parent.toString()]->refresh_info(node);
     break;
 
   case wb::OverviewBE::OItem:
-    //_item_containers_by_id[parent.repr()]->refresh_info(node);
+    //_item_containers_by_id[parent.toString()]->refresh_info(node);
     // so that renaming a node will refresh the order too, if needed
     refresh_children(parent);
     break;
@@ -1455,7 +1455,7 @@ void OverviewPanel::select_node(const bec::NodeId& node)
   switch ((wb::OverviewBE::OverviewNodeType)type)
   {
     case wb::OverviewBE::OItem:
-     _item_containers_by_id[parent.repr()]->select_node(node);
+     _item_containers_by_id[parent.toString()]->select_node(node);
     break;
 
     default: break;

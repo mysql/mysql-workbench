@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -145,9 +145,10 @@ def run_version_select_form(version):
 
 #===============================================================================
 class Page(object):
-    def __init__(self, page_name, page_content):
+    def __init__(self, page_name, page_content, var_column_width):
         self.page_name = page_name
         self.page_content = page_content
+        self.var_column_width = var_column_width
         self.panel = None
         self.created = False
         self.update_cb = None
@@ -235,7 +236,6 @@ class WbAdminConfigFileUI(mforms.Box):
         self.dir_dict = {}  # Will be filled later when loading default values
 
         self.pack_to_top()
-
 
     #---------------------------------------------------------------------------
     def create_search_panel(self):
@@ -336,7 +336,7 @@ class WbAdminConfigFileUI(mforms.Box):
                     name = right_name
                     ctrl_def['name'] = name
 
-                ctrl_tupple = self.place_control(ctrl_def, table, table_row)
+                ctrl_tuple = self.place_control(ctrl_def, table, table_row, page.var_column_width)
 
                 label = newLabel(ctrl_def['description'])
                 label.set_size(500, -1)
@@ -344,8 +344,8 @@ class WbAdminConfigFileUI(mforms.Box):
                 label.set_style(SmallHelpTextStyle)
                 table.add(label, 2, 3, table_row, table_row + 1, HFillFlag | VFillFlag)
 
-                ctrl     = ctrl_tupple[1]
-                ctrl_def = ctrl_tupple[2]
+                ctrl     = ctrl_tuple[1]
+                ctrl_def = ctrl_tuple[2]
 
                 #load default value into control
                 if ctrl is not None and ctrl_def is not None:
@@ -354,15 +354,15 @@ class WbAdminConfigFileUI(mforms.Box):
                     if ctrl_def.has_key('default'):
                         default = ctrl_def['default']
                         if default is not None:
-                            self.set_string_value_to_control(ctrl_tupple, str(default))
+                            self.set_string_value_to_control(ctrl_tuple, str(default))
                     else:
-                        self.set_string_value_to_control(ctrl_tupple, "")
+                        self.set_string_value_to_control(ctrl_tuple, "")
 
                 #load control with values from config
                 if name in opts_map:
                     value = opts_map[name]
                     self.enabled_checkbox_click(name, True)
-                    self.set_string_value_to_control(ctrl_tupple, value)
+                    self.set_string_value_to_control(ctrl_tuple, value)
 
             # Remove empty rows
             table.set_row_count(table_row+1)#number_of_controls - (number_of_controls - table_row))
@@ -374,6 +374,7 @@ class WbAdminConfigFileUI(mforms.Box):
             box.add(panel, False, True)
 
 
+        
         page.panel.add(box)
         page.created = True
         self.loading = False
@@ -436,8 +437,9 @@ class WbAdminConfigFileUI(mforms.Box):
         #build ordered list of pages. Initially only skeleton pages are created, means only names.
         # Values into pages will be load as soon as page is switched to.
         self.pages = {}
+
         for page_name, page_content in self.myopts.iteritems():
-            self.pages[int(page_content['position'])] = Page(page_name, page_content) # False means page not created
+            self.pages[int(page_content['position'])] = Page(page_name, page_content, page_content['width']) # False means page not created
         # page key is its position in UI. As we can have pages positions set like (1,2,4,5)
         # the position set needs to be sorted so pages appear in specified order
         page_positions = self.pages.keys()
@@ -719,8 +721,6 @@ class WbAdminConfigFileUI(mforms.Box):
 
     #---------------------------------------------------------------------------
     def create_numeric(self, name, ctrl_def):
-        #spin_box = newBox(True)
-        #spin_box.set_spacing(5)
         te = newTextEntry()
         #spin_box.add(te, True, True)
         te.set_enabled(False)
@@ -785,15 +785,15 @@ class WbAdminConfigFileUI(mforms.Box):
         return (dropbox, items)
 
     #---------------------------------------------------------------------------
-    def place_control(self, ctrl_def, table, row):
+    def place_control(self, ctrl_def, table, row, val_column_width):
         ctrl = None
         ctype = ctrl_def['type']
         name = ctrl_def['name']
 
         enabled = newCheckBox()
         enabled.set_text(ctrl_def['caption'])
-        enabled.set_size(200, -1) # Use a fixed fix to make all tables align their columns properly. Must be larger than the largest text, to make it work.
-        enabled.set_tooltip(ctrl_def['name'])
+        enabled.set_size(val_column_width, -1) # Use a fixed fix to make all tables align their columns properly. Must be larger than the largest text, to make it work.
+        enabled.set_tooltip("%s\n\n%s" % (ctrl_def['name'], ctrl_def['description']))
 
         # place_control creates control as ctrl_def describes. Reference to a created control is placed
         # to map of controls. That is done in order to access controls via option name
@@ -894,8 +894,8 @@ class WbAdminConfigFileUI(mforms.Box):
             def control(idx):
                 return ctrl[1][idx]
 
-            tag = ctrl[0] # tupple ctrl holds tag at index 0, the rest is control def. Exact format
-                          # of control tupple(the one that goes after tag is defined by the type of control
+            tag = ctrl[0] # tuple ctrl holds tag at index 0, the rest is control def. Exact format
+                          # of control tuple(the one that goes after tag is defined by the type of control
 
             if force_enabled is not None:
                 enabled = bool(force_enabled)
@@ -943,8 +943,7 @@ class WbAdminConfigFileUI(mforms.Box):
 
     #---------------------------------------------------------------------------
     def get_string_value_from_control(self, option_name, ctrl):
-        #ctrl is a tupple from map
-        value = ""
+        value = "" # ctrl is a tuple from map
 
         tag = ctrl[0]
         def control(idx):
@@ -1053,8 +1052,7 @@ class WbAdminConfigFileUI(mforms.Box):
 
     #---------------------------------------------------------------------------
     def set_string_value_to_control(self, ctrl, value):
-        #ctrl is a tupple from map
-        tag = ctrl[0]
+        tag = ctrl[0] #ctrl is a tuple from map
         def control(idx):
             return ctrl[1][idx]
 
@@ -1118,7 +1116,6 @@ class WbAdminConfigFileUI(mforms.Box):
 
     #---------------------------------------------------------------------------
     def config_discard_changes_clicked(self):
-        #self.cfg_be.revert()
         self.clear_and_load()
 
     #---------------------------------------------------------------------------
@@ -1192,11 +1189,11 @@ class WbAdminConfigFileUI(mforms.Box):
     #---------------------------------------------------------------------------
     def load_defaults(self):
         self.loading = True
-        for name,ctrl_tupple in self.opt2ctrl_map.iteritems():
-            if ctrl_tupple is not None:
+        for name,ctrl_tuple in self.opt2ctrl_map.iteritems():
+            if ctrl_tuple is not None:
                 #tag      = ctrl_tupple[0]
-                ctrl     = ctrl_tupple[1]
-                ctrl_def = ctrl_tupple[2]
+                ctrl     = ctrl_tuple[1]
+                ctrl_def = ctrl_tuple[2]
 
                 if ctrl is not None and ctrl_def is not None:
                     ctrl[0].set_active(False)
@@ -1204,17 +1201,15 @@ class WbAdminConfigFileUI(mforms.Box):
                     if ctrl_def.has_key('default'):
                         default = ctrl_def['default']
                         if default is not None:
-                            self.set_string_value_to_control(ctrl_tupple, str(default))
+                            self.set_string_value_to_control(ctrl_tuple, str(default))
                     else:
-                        self.set_string_value_to_control(ctrl_tupple, "")
+                        self.set_string_value_to_control(ctrl_tuple, "")
 
         self.loading = False
 
 
     #-------------------------------------------------------------------------------
     def pack_to_top(self):
-
-        #if self.server_profile.admin_enabled:
         self.file_name_ctrl = newLabel("")
         self.file_name_ctrl.set_tooltip("To change the path to the configuration file, edit the server profile in the Manage Server Instances dialog.")
         sys_config_path = self.server_profile.config_file_path

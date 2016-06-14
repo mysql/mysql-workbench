@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,30 +25,31 @@
 
 @implementation WBPluginPanel
 
-- (instancetype)initWithPlugin:(WBPluginEditorBase*)plugin
+- (instancetype)initWithPlugin: (WBPluginEditorBase *)plugin
 {
-  self= [super init];
-  if (self)
+  self = [super init];
+  if (self != nil)
   {
-    mPluginEditor= [plugin retain];
+    mPluginEditor = plugin;
   }
   return self;
 }
 
-- (void) dealloc
+- (instancetype)init
 {
-  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle(self);
-  
-  [mPluginEditor release];
-  [super dealloc];
+  return [self initWithPlugin: nil];
 }
 
+- (void)dealloc
+{
+  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
+  
+}
 
 - (WBPluginEditorBase*)pluginEditor
 {
   return mPluginEditor;
 }
-
 
 - (NSView*)topView
 {

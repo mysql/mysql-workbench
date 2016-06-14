@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,16 +20,53 @@
 #include "base/geometry.h"
 #include "base/string_utilities.h"
 
+#include "mysql_relationship_editor.h"
+
 #import "MySQLRelationshipEditor.h"
 
 #import "MCPPUtilities.h"
 
+@interface DbMysqlRelationshipEditor()
+{
+  IBOutlet NSTabView *tabView;
+
+  IBOutlet NSTextField *caption1Edit;
+  IBOutlet NSTextField *caption2Edit;
+  IBOutlet NSTextView *commentText;
+  IBOutlet NSMatrix *visibilityRadios;
+
+  IBOutlet NSImageView *previewImage;
+
+  IBOutlet NSTextField *caption1FullText;
+  IBOutlet NSTextField *caption2FullText;
+
+  IBOutlet NSTextField *table1NameText;
+  IBOutlet NSTextField *table2NameText;
+  IBOutlet NSTextField *table1FKText;
+  IBOutlet NSTextField *table1ColumnText;
+  IBOutlet NSTextField *table2ColumnText;
+
+  IBOutlet NSButton *mandatory1Check;
+  IBOutlet NSButton *mandatory2Check;
+
+  IBOutlet NSButton *identifyingCheck;
+
+  IBOutlet NSMatrix *cardinalityRadios;
+  IBOutlet NSButtonCell *oneToManyRadio;
+  IBOutlet NSButtonCell *oneToOneRadio;
+
+  RelationshipEditorBE *mBackEnd;
+}
+
+@end
+
 @implementation DbMysqlRelationshipEditor
 
 
-static void call_refresh(DbMysqlRelationshipEditor *self)
+static void call_refresh(void *theEditor)
 {
-  [self performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
+  DbMysqlRelationshipEditor *editor = (__bridge DbMysqlRelationshipEditor *)theEditor;
+  [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
 }
 
 
@@ -69,9 +106,9 @@ static void call_refresh(DbMysqlRelationshipEditor *self)
   
   delete mBackEnd;
   
-  mBackEnd= new RelationshipEditorBE(_grtm, workbench_physical_ConnectionRef::cast_from(args[0]));
+  mBackEnd = new RelationshipEditorBE(_grtm, workbench_physical_ConnectionRef::cast_from(args[0]));
   
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
   
   // update the UI
   [self refresh];
@@ -81,18 +118,15 @@ static void call_refresh(DbMysqlRelationshipEditor *self)
 - (void) dealloc
 {
   delete mBackEnd;
-  [super dealloc];
 }
 
-
-/** Fetches object info from the backend and update the UI
+/**
+ * Fetches object info from the backend and updates the UI.
  */
 - (void)refresh
 {
   if (mBackEnd)
   {
-    [caption1Text setStringValue: [NSString stringWithCPPString:mBackEnd->get_caption()]];
-    [caption2Text setStringValue: [NSString stringWithCPPString:mBackEnd->get_extra_caption()]];
     [caption1Edit setStringValue: [NSString stringWithCPPString:mBackEnd->get_caption()]];
     [caption2Edit setStringValue: [NSString stringWithCPPString:mBackEnd->get_extra_caption()]];
 
@@ -221,4 +255,5 @@ static void call_refresh(DbMysqlRelationshipEditor *self)
 {
   return mBackEnd;
 }
+
 @end

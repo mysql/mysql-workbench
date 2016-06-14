@@ -1,7 +1,7 @@
 grammar MySQL;
 
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +62,10 @@ grammar MySQL;
 //-------------------------------------------------------------------------------------------------
 
 options {
-  tokenVocab = predefined; // A set of tokens with ids that aid searching in ranges (e.g. for keywords allowed as identifier).
+  // The predefined token file contains all our keywords in a specific order to establish a fixed set of ranges
+  // for quick checks. Hence it needs to track any change that is made to the keywords in this grammar
+  // (e.g. reordering, additions).
+  tokenVocab = predefined;
   language = C;
   output = AST;
   ASTLabelType = pANTLR3_BASE_TREE;
@@ -396,12 +399,69 @@ extern "C" {
     return ((unsigned char)str[-1] <= (unsigned char)cmp[-1]) ? smaller : bigger;
   }
   
+  // Custom nextToken function to allow injecting additional tokens.
+  static pANTLR3_COMMON_TOKEN nextToken(pANTLR3_TOKEN_SOURCE tokenSource)
+  {
+  	pMySQLLexer lexer = (pMySQLLexer)((pANTLR3_LEXER)tokenSource->super)->ctx;
+  	if (lexer->pendingTokens->count > 0)
+  	  return (pANTLR3_COMMON_TOKEN)lexer->pendingTokens->remove(lexer->pendingTokens, 0);
+  	
+  	pANTLR3_COMMON_TOKEN result = lexer->originalNextToken(tokenSource); // Call could add new pending tokens.
+  	if (lexer->pendingTokens->count > 0)
+  	{
+  	  	pANTLR3_COMMON_TOKEN pending = (pANTLR3_COMMON_TOKEN)lexer->pendingTokens->remove(lexer->pendingTokens, 0);
+  	  	lexer->pendingTokens->add(lexer->pendingTokens, result, NULL);
+  	  	return pending;
+  	}
+  	
+  	return result;
+  }
+  
+  static void addPendingToken(pMySQLLexer ctx, ANTLR3_INT32 _type)
+  {
+    EMIT();
+    ctx->pendingTokens->add(ctx->pendingTokens, LTOKEN, NULL);
+  }
+  
+  static void resetLexer(pMySQLLexer ctx)
+  {
+    ctx->pendingTokens->clear(ctx->pendingTokens);
+    RECOGNIZER->reset(RECOGNIZER);
+  }
+  
+  static void freeLexer(pMySQLLexer ctx)
+  {
+    ctx->pendingTokens->free(ctx->pendingTokens);
+    LEXER->free(LEXER);
+    ANTLR3_FREE(ctx);
+  }
+}
+
+@lexer::context
+{
+// A pointer to the original nextToken function.
+pANTLR3_COMMON_TOKEN (*originalNextToken)(pANTLR3_TOKEN_SOURCE tokenSource);
+
+// Contains ANTLR3_COMMON_TOKEN instances.
+pANTLR3_VECTOR pendingTokens;
 }
 
 @lexer::apifuncs
 {
-	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = onMySQLParseError;
+ // Install custom error collector for the front end.
+ RECOGNIZER->displayRecognitionError = onMySQLParseError;
+
+ // Override the nextToken function in the token source.
+ pANTLR3_TOKEN_SOURCE tokenSource = TOKENSOURCE(ctx);
+ ctx->originalNextToken = tokenSource->nextToken;
+ tokenSource->nextToken = nextToken;
+ 
+ // Our list of pending tokens.
+ ctx->pendingTokens = antlr3VectorNew(0);
+ 
+ // Own reset + free functions for clean up.
+ ctx->free = freeLexer;
+ ctx->reset = resetLexer;
 }
 
 @parser::postinclude {
@@ -412,24 +472,54 @@ extern "C" {
   // Custom error reporting function.
   void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
 
+  // Have to forward declare these 2. The code generator places them after the @parser::members section
+  // (other that what is done in the lexer, where the order is reversed).
+  static void resetParser(pMySQLParser ctx);
+  static void freeParser(pMySQLParser ctx);
+  
 #ifdef __cplusplus
 };
 #endif
 }
 
 @parser::members {
+
+  static void resetParser(pMySQLParser ctx)
+  {
+    RECOGNIZER->reset(RECOGNIZER);
+    
+    // The generated code does not account for the vector factory and the tree adaptor
+    // which can grow endlessly, if not reset too. They exist however only if an AST is built.
+    ctx->vectors->close(ctx->vectors);
+    ctx->vectors = antlr3VectorFactoryNew(0);
+
+    ADAPTOR->free(ADAPTOR);
+    ADAPTOR = ANTLR3_TREE_ADAPTORNew(INPUT->tokenSource->strFactory);
+  }
+  
+  static void freeParser(pMySQLParser ctx)
+  {
+    ctx->vectors->close(ctx->vectors);
+    ADAPTOR->free(ADAPTOR);
+    ctx->pParser->free(ctx->pParser);
+    ANTLR3_FREE(ctx);
+  }
 }
 
 @parser::apifuncs
 {
-	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = onMySQLParseError;
+ // Install custom error collector for the front end.
+ RECOGNIZER->displayRecognitionError = onMySQLParseError;
+ 
+ // Own reset + free functions for clean up.
+ ctx->free = freeParser;
+ ctx->reset = resetParser;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 query:
-	(statement SEMICOLON_SYMBOL?)? EOF
+	((statement | begin_work) SEMICOLON_SYMBOL?)? EOF
 ;
 
 statement:
@@ -471,6 +561,10 @@ statement:
 	
 	// MySQL utilitity statements
 	| utility_statement
+	
+	| {SERVER_VERSION >= 50604}? get_diagnostics
+	| {SERVER_VERSION >= 50500}? signal_statement
+	| {SERVER_VERSION >= 50500}? resignal_statement
 ;
 
 //----------------- DDL statements -----------------------------------------------------------------
@@ -511,8 +605,8 @@ alter_event:
 
 alter_log_file_group:
 	LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref ADD_SYMBOL UNDOFILE_SYMBOL string_literal
-		(INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)? WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? IDENTIFIER
-;
+		(INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)? WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? engine_ref
+		;
 
 alter_server:
 	SERVER_SYMBOL server_ref server_options
@@ -974,7 +1068,7 @@ drop_logfile_group_option:
 
 rename_table_statement:
 	RENAME_SYMBOL^ (TABLE_SYMBOL | TABLES_SYMBOL)
-		table_ref TO_SYMBOL table_ref (COMMA_SYMBOL table_ref TO_SYMBOL table_ref)*
+		table_ref TO_SYMBOL table_name (COMMA_SYMBOL table_ref TO_SYMBOL table_name)*
 ;
 	
 //--------------------------------------------------------------------------------------------------
@@ -986,7 +1080,7 @@ truncate_table_statement:
 //--------------- DML statements -------------------------------------------------------------------
 
 call_statement:
-	CALL_SYMBOL^ procedure_ref (OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL)?
+	CALL_SYMBOL^ procedure_ref optional_expression_list_with_parentheses?
 ;
 
 delete_statement:
@@ -1066,11 +1160,7 @@ insert_field_spec:
 ;
 
 fields:
-	insert_identifier (COMMA_SYMBOL insert_identifier)*
-;
-
-insert_identifier:
-	column_ref_with_wildcard -> ^(COLUMN_NAME_TOKEN column_ref_with_wildcard)
+	column_ref_with_wildcard (COMMA_SYMBOL column_ref_with_wildcard)*
 ;
 
 insert_values:
@@ -1207,8 +1297,8 @@ select_item_list:
 	(select_item | MULT_OPERATOR) ( options { greedy = true; }: COMMA_SYMBOL select_item)*
 ;
 
-select_item options { k = 5; }:
-	table_wild -> ^(COLUMN_REF_TOKEN table_wild)
+select_item:
+	(table_wild) => table_wild -> ^(COLUMN_REF_TOKEN table_wild)
 	| expression select_alias? -> ^(SELECT_EXPR_TOKEN expression select_alias?)
 ;
 
@@ -1324,7 +1414,12 @@ select_table_factor_union:
 
 query_specification:
 	SELECT_SYMBOL select_part2_derived table_expression
-	| OPEN_PAR_SYMBOL query_specification CLOSE_PAR_SYMBOL order_by_or_limit?
+	| OPEN_PAR_SYMBOL select_paren_derived CLOSE_PAR_SYMBOL order_by_or_limit?
+;
+
+select_paren_derived:
+	SELECT_SYMBOL select_part2_derived table_expression
+	| OPEN_PAR_SYMBOL select_paren_derived CLOSE_PAR_SYMBOL
 ;
 
 join_table: // Like the same named rule in sql_yacc.yy but with removed left recursion.
@@ -1412,7 +1507,6 @@ transaction_or_locking_statement:
 
 transaction_statement:
 	START_SYMBOL^ TRANSACTION_SYMBOL transaction_characteristic*
-	| BEGIN_SYMBOL^ WORK_SYMBOL?
 	| COMMIT_SYMBOL^ WORK_SYMBOL? (AND_SYMBOL NO_SYMBOL? CHAIN_SYMBOL)? (NO_SYMBOL? RELEASE_SYMBOL)?
 	| ROLLBACK_SYMBOL^ WORK_SYMBOL?
 		(
@@ -1422,6 +1516,11 @@ transaction_statement:
 	// In order to avoid needing a predicate to solve ambiquity between this and general SET statements with global/session variables the following
 	// alternative is moved to the set_statement rule.
 	//| SET_SYMBOL option_type? TRANSACTION_SYMBOL set_transaction_characteristic (COMMA_SYMBOL set_transaction_characteristic)*
+;
+
+// BEGIN WORK is separated from transactional statements as it must not appear as part of a stored program.
+begin_work:
+	BEGIN_SYMBOL^ WORK_SYMBOL?
 ;
 
 transaction_characteristic:
@@ -1762,7 +1861,7 @@ privilege_type:
 
 privilege_level:
 	MULT_OPERATOR (DOT_SYMBOL MULT_OPERATOR)?
-	| identifier (DOT_SYMBOL (MULT_OPERATOR | identifier))?
+	| identifier (DOT_SYMBOL MULT_OPERATOR | dot_identifier)?
 ;
 
 require_list:
@@ -2187,16 +2286,16 @@ interval_time_span:
 ;
 
 primary:
-    (
+    ( options { k = 4; }:
 		literal
+		| function_call
 		| runtime_function_call // Complete functions defined in the grammar.
-		| udf_call
-		| (stored_function_call) => stored_function_call
 		| column_ref ( {SERVER_VERSION >= 50708}? (JSON_SEPARATOR_SYMBOL text_string)? | /* empty*/ )
 		| PARAM_MARKER
 		| variable
 		| EXISTS_SYMBOL subquery
 		| expression_with_nested_parentheses
+		| ROW_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)+ CLOSE_PAR_SYMBOL
 		| OPEN_CURLY_SYMBOL identifier expression CLOSE_CURLY_SYMBOL
 		| match_expression
 		| case_expression
@@ -2211,7 +2310,6 @@ primary:
 expression_with_nested_parentheses:
 	{LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? subquery
 	| expression_list_with_parentheses
-	| ROW_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)+ CLOSE_PAR_SYMBOL
 ;
 
 comparison_operator:
@@ -2392,20 +2490,16 @@ count_function:
 	CLOSE_PAR_SYMBOL
 ;
 
-udf_call:
-	udf_call_expression -> ^(UDF_CALL_TOKEN udf_call_expression)
+function_call:
+	function_call_expression  -> ^(FUNCTION_CALL_TOKEN function_call_expression)
 ;
 
-udf_call_expression:
-	(IDENTIFIER | BACK_TICK_QUOTED_ID) OPEN_PAR_SYMBOL aliased_expression_list? CLOSE_PAR_SYMBOL
-;
-
-stored_function_call:
-	stored_function_call_expression -> ^(FUNCTION_CALL_TOKEN stored_function_call_expression)
-;
-
-stored_function_call_expression:
-	qualified_identifier OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL
+function_call_expression:
+	pure_identifier
+	(
+		OPEN_PAR_SYMBOL aliased_expression_list? CLOSE_PAR_SYMBOL // For both UDF + other functions.
+		| dot_identifier OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL // Other functions only.
+	)
 ;
 
 aliased_expression_list:
@@ -2432,8 +2526,8 @@ system_variable:
 ;
 
 variable_name:
-	identifier (DOT_SYMBOL identifier)?    // Check in semantic phase that the first id is not global/local/session/default.
-	| DEFAULT_SYMBOL DOT_SYMBOL identifier
+	identifier dot_identifier?    // Check in semantic phase that the first id is not global/local/session/default.
+	| DEFAULT_SYMBOL dot_identifier
 ;
 
 match_expression:
@@ -2575,34 +2669,63 @@ channel:
 //----------------- Stored program rules -----------------------------------------------------------
 
 // Compound syntax for stored procedures, stored functions, triggers and events.
-compound_statement:
-	label?
-		(
-			{LA(2) != WORK_SYMBOL}? begin_end_block
-			| loop_block
-			| repeat_until_block
-			| while_do_block
-		)
-	| case_statement
-	| if_statement
-	| iterate_statement
-	| leave_statement
+// Both sp_proc_stmt and ev_sql_stmt_inner in the server grammar.
+compound_statement options { k = 3; }:
+	statement
 	| return_statement
-	
+	| if_statement
+	| case_statement
+	| labeled_block
+	| unlabeled_block
+	| labeled_control
+	| unlabeled_control
+	| leave_statement
+	| iterate_statement
+
 	| cursor_open
 	| cursor_fetch
 	| cursor_close
-	
-	| statement
-	| {SERVER_VERSION >= 50604}? get_diagnostics
-	| {SERVER_VERSION >= 50500}? signal_statement
-	| {SERVER_VERSION >= 50500}? resignal_statement
+;
+
+return_statement:
+	RETURN_SYMBOL expression
+;
+
+if_statement:
+	IF_SYMBOL^ if_body END_SYMBOL IF_SYMBOL
+;
+
+if_body:
+	expression then_statement (ELSEIF_SYMBOL if_body | ELSE_SYMBOL compound_statement_list)?
+;
+
+then_statement:
+	THEN_SYMBOL^ compound_statement_list
 ;
 
 compound_statement_list:
 	(compound_statement SEMICOLON_SYMBOL)+
 ;
 
+// CASE rule solely for stored programs. There's another variant (case_expression) used in (primary) expressions.
+// In the server grammar there are 2 variants of this rule actually (one simple and one searched).
+// They differ only in action code, not syntax.
+case_statement:
+	CASE_SYMBOL^ expression (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
+;
+
+else_statement:
+	ELSE_SYMBOL^ compound_statement_list
+;
+
+labeled_block:
+	label begin_end_block label_identifier?
+;
+	
+unlabeled_block:
+	begin_end_block
+;
+	
 label:
 	// Block labels can only be up to 16 characters long.
 	label_identifier COLON_SYMBOL -> ^(LABEL_TOKEN label_identifier COLON_SYMBOL)
@@ -2613,32 +2736,51 @@ label_identifier:
 ;
 
 begin_end_block: 
-	BEGIN_SYMBOL^ declarations compound_statement_list? END_SYMBOL label_identifier?
+	BEGIN_SYMBOL^ sp_declarations? compound_statement_list? END_SYMBOL
+;
+
+labeled_control:
+	label unlabeled_control label_identifier?
+;
+
+unlabeled_control:
+	loop_block
+	| while_do_block
+	| repeat_until_block
 ;
 
 loop_block:
-	LOOP_SYMBOL^ compound_statement_list END_SYMBOL LOOP_SYMBOL label_identifier?
-;
-
-repeat_until_block:
-	REPEAT_SYMBOL^ compound_statement_list UNTIL_SYMBOL expression END_SYMBOL REPEAT_SYMBOL label_identifier?
+	LOOP_SYMBOL^ compound_statement_list END_SYMBOL LOOP_SYMBOL
 ;
 
 while_do_block:
-	WHILE_SYMBOL^ expression DO_SYMBOL compound_statement_list END_SYMBOL WHILE_SYMBOL label_identifier?
+	WHILE_SYMBOL^ expression DO_SYMBOL compound_statement_list END_SYMBOL WHILE_SYMBOL
 ;
 
-declarations: // Order is important here.
-	( options { k = 3; }: DECLARE_SYMBOL identifier (variable_declaration | condition_declaration))*
-		cursor_declaration* handler_declaration*
+repeat_until_block:
+	REPEAT_SYMBOL^ compound_statement_list UNTIL_SYMBOL expression END_SYMBOL REPEAT_SYMBOL
+;
+
+sp_declarations:
+	(sp_declaration SEMICOLON_SYMBOL)+
+;
+
+sp_declaration:
+	DECLARE_SYMBOL
+	(
+		variable_declaration
+		| condition_declaration
+		| handler_declaration
+		| cursor_declaration
+	) 
 ;
 
 variable_declaration:
-	(COMMA_SYMBOL identifier)* data_type (DEFAULT_SYMBOL expression)? SEMICOLON_SYMBOL
+	identifier_list data_type (COLLATE_SYMBOL collation_name_or_default)? (DEFAULT_SYMBOL expression)?
 ;
 
 condition_declaration:
-	CONDITION_SYMBOL FOR_SYMBOL sp_condition SEMICOLON_SYMBOL
+	identifier CONDITION_SYMBOL FOR_SYMBOL sp_condition
 ;
 
 sp_condition:
@@ -2650,42 +2792,21 @@ sqlstate:
 	SQLSTATE_SYMBOL VALUE_SYMBOL? string_literal
 ;
 
-cursor_declaration:
-	DECLARE_SYMBOL identifier CURSOR_SYMBOL FOR_SYMBOL select_statement SEMICOLON_SYMBOL
-;
-
 handler_declaration:
-	DECLARE_SYMBOL (CONTINUE_SYMBOL | EXIT_SYMBOL | UNDO_SYMBOL) HANDLER_SYMBOL
-		FOR_SYMBOL handler_condition (COMMA_SYMBOL handler_condition)* compound_statement SEMICOLON_SYMBOL
+	(CONTINUE_SYMBOL | EXIT_SYMBOL | UNDO_SYMBOL) HANDLER_SYMBOL
+		FOR_SYMBOL handler_condition (COMMA_SYMBOL handler_condition)* compound_statement
 ;
 
 handler_condition:
 	sp_condition
 	| identifier
 	| SQLWARNING_SYMBOL
-	| NOT_SYMBOL FOUND_SYMBOL
+	| not_rule FOUND_SYMBOL
 	| SQLEXCEPTION_SYMBOL
 ;
 
-// CASE rule solely for stored programs. There's another variant (case_expression) used in (primary) expressions.
-case_statement:
-	CASE_SYMBOL^ expression? (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
-;
-
-then_statement:
-	THEN_SYMBOL^ compound_statement_list
-;
-
-else_statement:
-	ELSE_SYMBOL^ compound_statement_list
-;
-
-if_statement:
-	IF_SYMBOL^ if_body END_SYMBOL IF_SYMBOL
-;
-
-if_body:
-	expression then_statement (ELSEIF_SYMBOL if_body | ELSE_SYMBOL compound_statement_list)?
+cursor_declaration:
+	identifier CURSOR_SYMBOL FOR_SYMBOL select_statement
 ;
 
 iterate_statement:
@@ -2694,10 +2815,6 @@ iterate_statement:
 
 leave_statement:
 	LEAVE_SYMBOL label_identifier
-;
-
-return_statement:
-	RETURN_SYMBOL expression
 ;
 
 get_diagnostics:
@@ -2755,16 +2872,16 @@ signal_information_item:
 	signal_information_item_name EQUAL_OPERATOR signal_allowed_expression
 ;
 
+cursor_open:
+	OPEN_SYMBOL identifier
+;
+
 cursor_close:
 	CLOSE_SYMBOL identifier
 ;
 
 cursor_fetch:
 	FETCH_SYMBOL identifier INTO_SYMBOL identifier_list
-;
-
-cursor_open:
-	OPEN_SYMBOL identifier
 ;
 
 //----------------- Supplemental rules -------------------------------------------------------------
@@ -2788,7 +2905,7 @@ column_definition:
 ;
 
 field_spec:
-	column_ref field_def
+	column_name field_def
 ;
 
 field_def:
@@ -2976,7 +3093,7 @@ collation_name:
 ;
 
 collation_name_or_default:
-	text_or_identifier
+	collation_name
 	| DEFAULT_SYMBOL
 ;
 
@@ -3221,8 +3338,8 @@ column_ref:
 
 // field_ident rule in the server parser.
 column_ref_variants:
-	DOT_SYMBOL identifier
-	| qualified_identifier (options { greedy = true; }: DOT_SYMBOL identifier)?
+	dot_identifier
+	| qualified_identifier (options { greedy = true; }: dot_identifier)?
 ;
 
 column_internal_ref:
@@ -3233,10 +3350,16 @@ column_ref_with_wildcard:
 	column_ref_with_wildcard2 -> ^(COLUMN_REF_TOKEN column_ref_with_wildcard2)
 ;
 
-// A separate rule for the actual definition (ANTLR throws an error when both definition and tree rewriting
-// are in the same rule.
 column_ref_with_wildcard2:
-	qualified_identifier (DOT_SYMBOL (identifier | MULT_OPERATOR))?
+	identifier
+	(
+		{LA(2) ==  MULT_OPERATOR}? DOT_SYMBOL MULT_OPERATOR
+		| dot_identifier
+		(
+			{LA(2) ==  MULT_OPERATOR}? DOT_SYMBOL MULT_OPERATOR
+			| dot_identifier
+		)?
+	)?
 ;
 
 index_name:
@@ -3248,7 +3371,11 @@ index_ref:
 ;
 
 table_wild:
-	qualified_identifier DOT_SYMBOL MULT_OPERATOR
+	identifier
+	(
+		{LA(2) ==  MULT_OPERATOR}? DOT_SYMBOL MULT_OPERATOR
+		| dot_identifier DOT_SYMBOL MULT_OPERATOR
+	)
 ;       
 
 schema_name:
@@ -3336,11 +3463,15 @@ table_name:
 ;
 
 filter_table_ref: // Always qualified.
-	identifier DOT_SYMBOL identifier -> ^(TABLE_NAME_TOKEN identifier DOT_SYMBOL identifier)
+	identifier dot_identifier -> ^(TABLE_NAME_TOKEN identifier dot_identifier)
 ;
 
 table_ref_with_wildcard:
-	qualified_identifier (DOT_SYMBOL MULT_OPERATOR)? -> ^(TABLE_NAME_TOKEN qualified_identifier (DOT_SYMBOL MULT_OPERATOR)?)
+	identifier
+	(
+		{LA(2) == MULT_OPERATOR}? DOT_SYMBOL MULT_OPERATOR
+		| dot_identifier (DOT_SYMBOL MULT_OPERATOR)?
+	)?
 ;
 
 table_ref:
@@ -3353,7 +3484,7 @@ table_ref_no_db:
 
 table_name_variants:
 	qualified_identifier
-	| DOT_SYMBOL identifier
+	| dot_identifier
 ;
 
 table_ref_list:
@@ -3388,7 +3519,14 @@ identifier_list_with_parentheses:
 ;
 
 qualified_identifier:
-	identifier ( options { greedy = true; }: DOT_SYMBOL identifier)?
+	identifier (options { greedy = true; }: dot_identifier)?
+;
+
+// This rule mimics the behavior of the server parser to allow any identifier, including any keyword,
+// unquoted when directly preceded by a dot in a qualified identifier.
+dot_identifier:
+	DOT_SYMBOL identifier // Dot and kw separated. Not all keywords are allowed then.
+	//| DOT_IDENTIFIER    // Cannot appear due to our manual splitting.
 ;
 
 ulong_number:
@@ -3462,8 +3600,7 @@ string_literal:
 
 string:
 	NCHAR_TEXT
-	| UNDERSCORE_CHARSET? ( options { greedy = true; }: SINGLE_QUOTED_TEXT
-	| {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? DOUBLE_QUOTED_TEXT)+
+	| UNDERSCORE_CHARSET? ( options { greedy = true; }:	SINGLE_QUOTED_TEXT | {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? DOUBLE_QUOTED_TEXT)+
 ;
 
 num_literal:
@@ -4016,6 +4153,30 @@ SINGLE_QUOTE:				'\'';
 DOUBLE_QUOTE:				'"';
 ESCAPE_OPERATOR:			'\\';
 
+// Special rule that should also match all keywords if they are directly preceded by a dot.
+// Hence it's defined before all keywords.
+// However, because we handle here two token types as one we get into trouble later when used as such
+// (e.g. during code completion). To avoid that we manually emit 2 tokens (DOT + IDENTIFIER) instead.
+DOT_IDENTIFIER: DOT_SYMBOL IDENTIFIER
+{
+  // Add the dot to our pending token list first and keep the token starts (in stream + in line)
+  // so we can adjust start and end positions of the 2 manual tokens.
+  addPendingToken(ctx, DOT_SYMBOL);
+  ANTLR3_MARKER marker = LTOKEN->start;
+  ANTLR3_INT32 charPosition = LTOKEN->charPosition;
+  
+  // The dot is only 1 char long, so stop points to the same location as start.
+  LTOKEN->stop = marker;
+  
+  // EMIT() creates a new token with the current type and stores that in the lexer shared state
+  // which is then used as the current token in the stream. But since we stored a pending token
+  // the order is corrected in our overridden nextToken() function (see above).
+  $type = IDENTIFIER;
+  EMIT();
+  LTOKEN->start = marker + 1;
+  LTOKEN->charPosition = charPosition + 1;
+};
+
 // $<Keywords 
 
 /*
@@ -4137,6 +4298,8 @@ CROSS_SYMBOL:							'CROSS';							// SQL-2003-R
 CUBE_SYMBOL:							'CUBE';								// SQL-2003-R
 CURDATE_SYMBOL:							'CURDATE'							{ $type = determine_function(ctx, $type); }; // MYSQL-FUNC
 CURRENT_SYMBOL:							'CURRENT'							{ $type = TYPE_FROM_VERSION(50604, $type); };
+CURRENT_DATE_SYMBOL:					'CURRENT_DATE'						{ $type = determine_function(ctx, CURDATE_SYMBOL); }; // Synonym, MYSQL-FUNC
+CURRENT_TIME_SYMBOL:					'CURRENT_TIME'						{ $type = determine_function(ctx, CURTIME_SYMBOL); }; // Synonym, MYSQL-FUNC
 CURRENT_TIMESTAMP_SYMBOL:				'CURRENT_TIMESTAMP'					{ $type = NOW_SYMBOL; }; // Synonym
 CURRENT_USER_SYMBOL:					'CURRENT_USER'						{ $type = TYPE_FROM_VERSION(40100, $type); }; // SQL-2003-R
 CURSOR_SYMBOL:							'CURSOR'							{ $type = TYPE_FROM_VERSION(50000, $type); };	// SQL-2003-R
@@ -4553,6 +4716,7 @@ SLAVE_SYMBOL:							'SLAVE';
 SLOW_SYMBOL:							'SLOW'								{ $type = TYPE_FROM_VERSION(50500, $type); };
 SMALLINT_SYMBOL:						'SMALLINT';							// SQL-2003-R
 SNAPSHOT_SYMBOL:						'SNAPSHOT';
+SOME_SYMBOL:							'SOME'								{ $type = ANY_SYMBOL; }; // Synonym
 SOCKET_SYMBOL:							'SOCKET';
 SONAME_SYMBOL:							'SONAME';
 SOUNDS_SYMBOL:							'SOUNDS';
@@ -4696,21 +4860,21 @@ YEAR_SYMBOL:							'YEAR';								// SQL-2003-R
 ZEROFILL_SYMBOL:						'ZEROFILL';
 
 // Additional tokens which are mapped to existing tokens.
-INT1_SYMBOL:							'INT1'								{ $type = TINYINT_SYMBOL; };
-INT2_SYMBOL:							'INT2'								{ $type = SMALLINT_SYMBOL; };
-INT3_SYMBOL:							'INT3'								{ $type = MEDIUMINT_SYMBOL; };
-INT4_SYMBOL:							'INT4'								{ $type = INT_SYMBOL; };
-INT8_SYMBOL:							'INT8'								{ $type = BIGINT_SYMBOL; };
+INT1_SYMBOL:							'INT1'								{ $type = TINYINT_SYMBOL; }; // Synonym
+INT2_SYMBOL:							'INT2'								{ $type = SMALLINT_SYMBOL; }; // Synonym
+INT3_SYMBOL:							'INT3'								{ $type = MEDIUMINT_SYMBOL; }; // Synonym
+INT4_SYMBOL:							'INT4'								{ $type = INT_SYMBOL; }; // Synonym
+INT8_SYMBOL:							'INT8'								{ $type = BIGINT_SYMBOL; }; // Synonym
 
-SQL_TSI_FRAC_SECOND_SYMBOL:				'SQL_TSI_FRAC_SECOND'				{ $type = DEPRECATED_TYPE_FROM_VERSION(50503, FRAC_SECOND_SYMBOL); };
-SQL_TSI_SECOND_SYMBOL:					'SQL_TSI_SECOND'					{ $type = SECOND_SYMBOL; };
-SQL_TSI_MINUTE_SYMBOL:					'SQL_TSI_MINUTE'					{ $type = MINUTE_SYMBOL; };
-SQL_TSI_HOUR_SYMBOL:					'SQL_TSI_HOUR'						{ $type = HOUR_SYMBOL; };
-SQL_TSI_DAY_SYMBOL:						'SQL_TSI_DAY'						{ $type = DAY_SYMBOL; };
-SQL_TSI_WEEK_SYMBOL:					'SQL_TSI_WEEK'						{ $type = WEEK_SYMBOL; };
-SQL_TSI_MONTH_SYMBOL:					'SQL_TSI_MONTH'						{ $type = MONTH_SYMBOL; };
-SQL_TSI_QUARTER_SYMBOL:					'SQL_TSI_QUARTER'					{ $type = QUARTER_SYMBOL; };
-SQL_TSI_YEAR_SYMBOL:					'SQL_TSI_YEAR'						{ $type = YEAR_SYMBOL; };
+SQL_TSI_FRAC_SECOND_SYMBOL:				'SQL_TSI_FRAC_SECOND'				{ $type = DEPRECATED_TYPE_FROM_VERSION(50503, FRAC_SECOND_SYMBOL); }; // Synonym
+SQL_TSI_SECOND_SYMBOL:					'SQL_TSI_SECOND'					{ $type = SECOND_SYMBOL; }; // Synonym
+SQL_TSI_MINUTE_SYMBOL:					'SQL_TSI_MINUTE'					{ $type = MINUTE_SYMBOL; }; // Synonym
+SQL_TSI_HOUR_SYMBOL:					'SQL_TSI_HOUR'						{ $type = HOUR_SYMBOL; }; // Synonym
+SQL_TSI_DAY_SYMBOL:						'SQL_TSI_DAY'						{ $type = DAY_SYMBOL; }; // Synonym
+SQL_TSI_WEEK_SYMBOL:					'SQL_TSI_WEEK'						{ $type = WEEK_SYMBOL; }; // Synonym
+SQL_TSI_MONTH_SYMBOL:					'SQL_TSI_MONTH'						{ $type = MONTH_SYMBOL; }; // Synonym
+SQL_TSI_QUARTER_SYMBOL:					'SQL_TSI_QUARTER'					{ $type = QUARTER_SYMBOL; }; // Synonym
+SQL_TSI_YEAR_SYMBOL:					'SQL_TSI_YEAR'						{ $type = YEAR_SYMBOL; }; // Synonym
 
 // $> Keywords
 

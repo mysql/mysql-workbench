@@ -16,7 +16,7 @@
 # 02110-1301  USA
 
 from __future__ import with_statement
-from workbench.log import log_info, log_error, log_warning
+from workbench.log import log_info, log_error, log_warning, log_debug3
 
 from workbench.utils import format_duration
 from workbench.db_utils import QueryError
@@ -223,6 +223,7 @@ class WbAdminServerStatus(mforms.Box):
 
         self.currently_started = None
         self.ctrl_be.add_me_for_event("server_started", self)
+        self.ctrl_be.add_me_for_event("server_offline", self)
         self.ctrl_be.add_me_for_event("server_stopped", self)
 
         self.connection_info.update(self.ctrl_be)
@@ -235,6 +236,12 @@ class WbAdminServerStatus(mforms.Box):
             if not self._update_timeout:
                 self._update_timeout = mforms.Utilities.add_timeout(0.5, self.update)
 
+    def server_offline_event(self):
+        if self.currently_started != True:
+            self.refresh("offline")
+            self.currently_started = True
+            if not self._update_timeout:
+                self._update_timeout = mforms.Utilities.add_timeout(0.5, self.update)
     #---------------------------------------------------------------------------
     def server_stopped_event(self):
         if self.currently_started != False:
@@ -252,12 +259,12 @@ class WbAdminServerStatus(mforms.Box):
     def refresh_status(self):
         if not self._update_timeout:
             status = self.ctrl_be.force_check_server_state()
-            if status == "running" or not status and self.currently_started:
+            if (status == "running" or not status  or status == "offline" ) and self.currently_started:
                 self.ctrl_be.query_server_info()
 
             self._update_timeout = mforms.Utilities.add_timeout(0.5, self.update)
 
-    
+
     #---------------------------------------------------------------------------
     def page_activated(self):
         self.suspend_layout()
@@ -274,8 +281,14 @@ class WbAdminServerStatus(mforms.Box):
         if self.currently_started is None:
             if self.ctrl_be.is_server_running() == "running":
                 self.server_started_event()
+            elif self.ctrl_be.is_server_running() == "offline":
+                self.server_offline_event()
             else:
                 self.server_stopped_event()
+        else:
+            self.ctrl_be.query_server_info()
+
+        self.refresh(self.ctrl_be.is_server_running())
 
     def update(self):
         self._update_timeout = None
@@ -416,10 +429,10 @@ class WbAdminServerStatus(mforms.Box):
                                ("SSL Key:", lambda info, plugins, status: info.get("ssl_key") or "n/a")],
                               params)
 
-        log_error("mysql_firewall_trace: %s\n" % info.get("mysql_firewall_trace"))
-        log_error("Firewall_access_denied: %s\n" % status.get("Firewall_access_denied"))
-        log_error("Firewall_access_granted: %s\n" % status.get("Firewall_access_granted"))
-        log_error("Firewall_cached_entries: %s\n" % status.get("Firewall_cached_entries"))
+        log_debug3("mysql_firewall_trace: %s\n" % info.get("mysql_firewall_trace"))
+        log_debug3("Firewall_access_denied: %s\n" % status.get("Firewall_access_denied"))
+        log_debug3("Firewall_access_granted: %s\n" % status.get("Firewall_access_granted"))
+        log_debug3("Firewall_cached_entries: %s\n" % status.get("Firewall_cached_entries"))
 
         if info.get("mysql_firewall_mode") == "ON":
             self.add_info_section("Firewall",

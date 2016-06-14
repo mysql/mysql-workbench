@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,27 +17,7 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-
 #import "WBPluginEditorBase.h"
-#include "mysql_routinegroup_editor.h"
 
-@class MVerticalLayoutView;
-
-@interface DbMysqlRoutineGroupEditor : WBPluginEditorBase {
-  IBOutlet NSTabView *tabView;
-  
-  IBOutlet NSTextField *nameText;
-  IBOutlet NSTableView *routineTable;
-  IBOutlet NSTextView *commentText;
-  
-  IBOutlet MVerticalLayoutView *editorHost;
-  
-  NSMutableArray *mRoutineArray;
- 
-  MySQLRoutineGroupEditorBE *mBackEnd;  
-}
-
-- (IBAction) removeItem: (id) sender;
-
+@interface DbMysqlRoutineGroupEditor : WBPluginEditorBase
 @end

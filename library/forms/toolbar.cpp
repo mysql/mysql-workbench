@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -195,6 +195,8 @@ bool ToolBarItem::get_checked()
 void ToolBarItem::set_name(const std::string &name)
 {
   _name = name;
+  if (_impl->set_item_name)
+    _impl->set_item_name(this, name);
 }
 
 void ToolBarItem::set_selector_items(const std::vector<std::string>& values)

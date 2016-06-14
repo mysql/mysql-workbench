@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@
 
 static NSString *stringFromNodeId(const bec::NodeId &node)
 {
-  return [NSString stringWithCPPString: node.repr()];
+  return [NSString stringWithCPPString: node.toString()];
 }
 
 @implementation WBOverviewGroup
@@ -43,10 +43,10 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   self = [super initWithFrame:NSMakeRect(0, 0, 100, 100)];
   if (self != nil)
   {
-    _owner= owner;
-    _be= [owner backend];
-    _nodeId= new bec::NodeId(node);
-    _tabItem= tabItem;
+    _owner = owner;
+    _be = [owner backend];
+    _nodeId = new bec::NodeId(node);
+    _tabItem = tabItem;
 
     [self setExpandSubviewsByDefault: NO];
     [self setBackgroundColor:[NSColor whiteColor]];
@@ -70,7 +70,6 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (void)dealloc
 {
   delete _nodeId;
-  [super dealloc];
 }
 
 - (void)updateNodeId:(const bec::NodeId&)node
@@ -105,8 +104,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     bec::NodeId child(_be->get_child(*_nodeId, i));
 
-    WBOverviewSection *section= [[[WBOverviewSection alloc] initWithOverview:_owner
-                                                                      nodeId:child] autorelease];
+    WBOverviewSection *section= [[WBOverviewSection alloc] initWithOverview:_owner
+                                                                      nodeId:child];
     [section setFrameSize:NSMakeSize(100, 20)];
     [section setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [self addSubview:section];
@@ -115,10 +114,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     _be->get_field(child, wb::OverviewBE::Label, title);
     [section setTitle:@(title.c_str())];
 
-    [_owner registerContainer:section forItem:[NSString stringWithCPPString: child.repr().c_str()]];
-
-    // NSContainerView doens't like being refreshed here
-    //   [section refreshChildren];
+    [_owner registerContainer:section forItem:[NSString stringWithCPPString: child.toString().c_str()]];
   }
 }
 
@@ -228,7 +224,6 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   delete _nodeId;
-  [super dealloc];
 }
 
 
@@ -241,9 +236,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   std::string label;
   _be->get_field(child, 0, label);
 
-  WBOverviewGroup *group= [[[WBOverviewGroup alloc] initWithOverview:_owner
+  WBOverviewGroup *group = [[WBOverviewGroup alloc] initWithOverview:_owner
                                                               nodeId:child
-                                                             tabItem:item] autorelease];
+                                                             tabItem:item];
 
   [item setLabel:@(label.c_str())];
   [item setView:group];
@@ -253,7 +248,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   [group buildChildren];
   
-  [self addTabViewItem:[item autorelease]];
+  [self addTabViewItem: item];
   
   return group;
 }
@@ -329,15 +324,11 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     if (existing_groups.find(_be->get_node_unique_id(child)) == existing_groups.end())
     {
       [self buildChildGroup:child];
-      // because of a bug in NSCollectionView, we need to make it visible on screen before refreshing
-      // otherwise we get a crash
-//      [self selectLastTabViewItem:nil]; 
-//      [group refreshChildren];
     }
   }
 
   // reorder
-  //MISSING CODE HERE
+  // TODO: MISSING CODE HERE
 
   // refresh everythng
   NSTabViewItem *tabItem;
@@ -468,7 +459,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   if (!menuitems.empty())
   {
-    NSMenu *menu = [[[NSMenu alloc] initWithTitle: [NSString stringWithCPPString: node.repr()]] autorelease];
+    NSMenu *menu = [[NSMenu alloc] initWithTitle: [NSString stringWithCPPString: node.toString()]];
 
     [WBMenuManager fillMenu:menu withItems:menuitems selector:@selector(activateContextMenu:) target:self];
   
@@ -504,7 +495,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     }
     catch (std::exception &exc)
     {
-      NSLog(@"Can't focus node %s: %s", node.repr().c_str(), exc.what());
+      NSLog(@"Can't focus node %s: %s", node.toString().c_str(), exc.what());
     }
   }
 }
@@ -520,8 +511,19 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 #pragma mark -
 
-@implementation WBOverviewItemContainer
+@interface WBOverviewItemContainer()
+{
+@protected
+  __weak IBOutlet WBOverviewListController *iconController;
+  __weak IBOutlet NSCollectionView *collectionView;
+  __weak IBOutlet NSMenu *contextMenu;
 
+  NSMutableArray *nibObjects;
+}
+
+@end
+
+@implementation WBOverviewItemContainer
 
 - (instancetype)initWithOverview: (WBOverviewPanel *)owner
                           nodeId: (const bec::NodeId &)node
@@ -532,70 +534,55 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   self = [super initWithFrame:NSMakeRect(0, 0, 100, 20)];
   if (self != nil)
   {
-    _owner= owner;
-    _be= [owner backend];
-    _nodeId= new bec::NodeId(node);
-    
-    std::string label= _be->get_field_description(node, 0);
-    if (!label.empty())
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"IconCollectionView" owner: self topLevelObjects: &temp])
     {
-      _descriptionLabel= [[[NSTextField alloc] initWithFrame:NSZeroRect] autorelease];
-      [_descriptionLabel setStringValue: [NSString stringWithCPPString: label]];
-      [_descriptionLabel setEditable: NO];
-      [_descriptionLabel setBordered: NO];
-      [_descriptionLabel setTextColor: [NSColor lightGrayColor]];
-      [_descriptionLabel setFont: [NSFont systemFontOfSize: [NSFont labelFontSize]]];
-      [_descriptionLabel sizeToFit];
-      [self addSubview: _descriptionLabel];
-    }
-    
-    _nibObjects= [[NSMutableArray array] retain];
-    NSDictionary *nameTable= @{NSNibTopLevelObjects: _nibObjects};
+      nibObjects = temp;
 
-    [NSBundle loadNibFile:[[NSBundle mainBundle] pathForResource:@"IconCollectionView"
-                                                          ofType:@"nib"]
-        externalNameTable:nameTable withZone:nil];
+      _owner = owner;
+      _be = [owner backend];
+      _nodeId = new bec::NodeId(node);
 
-    // catch some objects from the nib
-    for (id object in _nibObjects)
-    {
-      if ([object isKindOfClass:[NSCollectionView class]])
-        _iconView= (NSCollectionView*)object;
+      std::string label= _be->get_field_description(node, 0);
+      if (!label.empty())
+      {
+        _descriptionLabel= [[NSTextField alloc] initWithFrame:NSZeroRect];
+        [_descriptionLabel setStringValue: [NSString stringWithCPPString: label]];
+        [_descriptionLabel setEditable: NO];
+        [_descriptionLabel setBordered: NO];
+        [_descriptionLabel setTextColor: [NSColor lightGrayColor]];
+        [_descriptionLabel setFont: [NSFont systemFontOfSize: [NSFont labelFontSize]]];
+        [_descriptionLabel sizeToFit];
+        [self addSubview: _descriptionLabel];
+      }
 
-      if ([object isKindOfClass:[WBOverviewListController class]])
-        _iconController= (WBOverviewListController*)object;
+      ssize_t displayMode = wb::OverviewBE::MSmallIcon;
+      if (_be->get_field(node, wb::OverviewBE::DisplayMode, displayMode) &&
+          displayMode == wb::OverviewBE::MLargeIcon)
+      {
+        [iconController setShowLargeIcons: YES];
+      }
+      else
+        [iconController setShowLargeIcons: NO];
 
-      if ([object isKindOfClass:[NSMenu class]])
-        _contextMenu= (NSMenu*)object;
-    }
-    
-    ssize_t displayMode= wb::OverviewBE::MSmallIcon;
-    if (_be->get_field(node, wb::OverviewBE::DisplayMode, displayMode) &&
-        displayMode == wb::OverviewBE::MLargeIcon)
-    {
-      [_iconController setShowLargeIcons: YES];
-    }
-    else
-      [_iconController setShowLargeIcons: NO];
-    
-    _displayMode= (wb::OverviewBE::OverviewDisplayMode)displayMode;
+      _displayMode = (wb::OverviewBE::OverviewDisplayMode)displayMode;
 
-    // listen to size changes from the icon view so we can resize to accomodate it
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(subviewResized:)
-                                                 name:NSViewFrameDidChangeNotification
-                                               object:_iconView];
-    
-    [_iconView setAllowsMultipleSelection: NO];
-    [_iconView setPostsFrameChangedNotifications:YES];
+      // listen to size changes from the icon view so we can resize to accomodate it
+      [[NSNotificationCenter defaultCenter] addObserver: self
+                                               selector: @selector(subviewResized:)
+                                                   name: NSViewFrameDidChangeNotification
+                                                 object: collectionView];
+
+      [collectionView setAllowsMultipleSelection: NO];
+      [collectionView setPostsFrameChangedNotifications: YES];
+
+      [self addSubview: collectionView];
+
+      [self setMenu: contextMenu];
+      [contextMenu setDelegate: self];
       
-    [self addSubview:_iconView];
-    
-    [_iconView setMenu: _contextMenu];
-    [self setMenu: _contextMenu];
-    [_contextMenu setDelegate: self];
-    
-    [_iconController setOverviewBE:_be];
+      [iconController setOverviewBE: _be];
+    }
   }
   return self;
 }
@@ -612,15 +599,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)dealloc
 {
-  for (id object in _nibObjects)
-    [object release];
-  [_nibObjects release];
-  
   [[NSNotificationCenter defaultCenter] removeObserver:self];
-  
   delete _nodeId;
-  
-  [super dealloc];
 }
 
 
@@ -628,13 +608,13 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {
   int index= node.back();
   
-  [_iconController setSelectedIndexes: [NSIndexSet indexSetWithIndex: index]];
+  [iconController setSelectedIndexes: [NSIndexSet indexSetWithIndex: index]];
 }
 
 
 - (void)clearSelection
 {
-  [_iconController setSelectedIndexes: [NSIndexSet indexSet]];
+  [iconController setSelectedIndexes: [NSIndexSet indexSet]];
 }
 
 
@@ -655,11 +635,11 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     
     if (_displayMode == wb::OverviewBE::MLargeIcon)
     {
-      [_iconController setShowLargeIcons: YES];
+      [iconController setShowLargeIcons: YES];
     }
     else if (_displayMode == wb::OverviewBE::MSmallIcon)
     {
-      [_iconController setShowLargeIcons: NO];
+      [iconController setShowLargeIcons: NO];
     }
 
     [self refreshChildren];
@@ -701,7 +681,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   frame.origin.x+= 8;
   frame.origin.y= 8;
   
-  [_iconView setFrame:frame];
+  [collectionView setFrame:frame];
 }
 
 
@@ -709,9 +689,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {  
   _be->refresh_node(*_nodeId, true);
 
-  [_iconController fillFromChildrenOf: *_nodeId
-                             overview: _be
-                             iconSize: _displayMode == wb::OverviewBE::MLargeIcon ? bec::Icon32 : bec::Icon16];  
+  [iconController fillFromChildrenOf: *_nodeId
+                            overview: _be
+                            iconSize: _displayMode == wb::OverviewBE::MLargeIcon ? bec::Icon32 : bec::Icon16];
 }
 
 
@@ -720,68 +700,24 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   _be->refresh_node(node, false);
   
   [self refreshChildren];
-  //NSLog(@"refresh node info");
 }
 
-- (void)drawRect:(NSRect)rect
+- (void)drawRect: (NSRect)rect
 {
-  if (_descriptionLabel)
+  if (_descriptionLabel != nil)
   {
-    //[self lockFocus];
-    
     NSImage *bar= [NSImage imageNamed:@"header_bar_gray.png"];
    
     NSRect frame= [self frame];
     
-    [bar drawAtPoint:NSMakePoint(8, NSHeight(frame) - NSHeight([_descriptionLabel frame]) - 10)
-            fromRect:NSMakeRect(0, 0, [bar size].width, [bar size].height)
-           operation:NSCompositeSourceOver
-            fraction:0.4];
-    
-    //[self unlockFocus];
+    [bar drawAtPoint: NSMakePoint(8, NSHeight(frame) - NSHeight([_descriptionLabel frame]) - 10)
+            fromRect: NSMakeRect(0, 0, [bar size].width, [bar size].height)
+           operation: NSCompositeSourceOver
+            fraction: 0.4];
   }
 }
 
-/*
-- (void) menuNeedsUpdate: (NSMenu*) menu
-{
-  bec::MenuItemList menuitems;
-  std::vector<bec::NodeId> nodes;
-  
-  if ([[_iconController selectedIndexes] count] > 0)
-  {
-    NSIndexSet* indices = [_iconController selectedIndexes];
-    for (NSUInteger index = [indices firstIndex]; index < [indices count]; index++)
-      if ([indices containsIndex: index])
-      {
-        bec::NodeId node;
-        NSDictionary* entry = [[_iconController items] objectAtIndex: index];
-        NSString *path= [entry objectForKey: @"path"];
-        node= bec::NodeId([path UTF8String]);
-        nodes.push_back(node);
-      }
-    
-    menuitems = _be->get_popup_items_for_nodes(nodes);
-  }
-  else
-  {
-    NSMutableArray* items = [_iconController items];
-    for (int index = 0; index < [items count]; index++)
-    {
-      bec::NodeId node;
-      NSDictionary* entry = [items objectAtIndex: index];
-      NSString *path= [entry objectForKey: @"path"];
-      node= bec::NodeId([path UTF8String]);
-      nodes.push_back(node);
-    }
-    
-    menuitems = _be->get_popup_items_for_nodes(nodes);
-  }
-  if (!menuitems.empty())
-    [[_owner menuManager] refreshMenu: menu withItems: menuitems];
-}*/
-
-- (void)menuNeedsUpdate:(NSMenu *)menu
+- (void)menuNeedsUpdate: (NSMenu *)menu
 {
   bec::MenuItemList menuitems;
   bec::NodeId node(*_nodeId);
@@ -790,16 +726,15 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   // we need to pass the icon under the cursor
   // since all attempts to get that has failed so far,
   // we'll just use the 1st selected item for that purpose
-  if ([[_iconController selectedIndexes] count] > 0)
-    nodes.push_back(node.append([[_iconController selectedIndexes] firstIndex]));
+  if ([[iconController selectedIndexes] count] > 0)
+    nodes.push_back(node.append([[iconController selectedIndexes] firstIndex]));
   else
     nodes.push_back(node);
   
-  menuitems= _be->get_popup_items_for_nodes(nodes);
+  menuitems = _be->get_popup_items_for_nodes(nodes);
   std::string s;
   _be->get_field(node, 0, s);
-  //NSLog(@"=== menu for %s has %i items", s.c_str(), menuitems.size());
-  
+
   if (!menuitems.empty())
   {
     [WBMenuManager fillMenu:menu withItems:menuitems selector:@selector(activateContextMenu:) target:self];
@@ -814,8 +749,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   // we need to pass the icon under the cursor
   // since all attempts to get that has failed so far,
   // we'll just use the 1st selected item for that purpose
-  if ([[_iconController selectedIndexes] count] > 0)
-    nodes.push_back(node.append([[_iconController selectedIndexes] firstIndex]));
+  if ([[iconController selectedIndexes] count] > 0)
+    nodes.push_back(node.append([[iconController selectedIndexes] firstIndex]));
   else
     nodes.push_back(node);
   _be->activate_popup_item_for_nodes([[sender representedObject] UTF8String], nodes);
@@ -834,18 +769,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   self = [super initWithOverview:owner nodeId:node];
   if (self != nil)
   {
-//    [self setDisplayMode:wb::OverviewBE::MSmallIcon];
   }
   return self;
 }
-
-- (void) dealloc
-{
-  [_title release];
-  [_subTitle release];
-  [super dealloc];
-}
-
 
 - (void)subviewResized:(NSNotification*)notif
 {
@@ -858,52 +784,43 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   [self setFrameSize:size];
 }
 
-
-- (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
+- (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
 {
   NSRect frame= [self frame];
   
-  frame.size.height-= 16;
-  frame.size.width-= 16;
-  frame.origin.x+= 8;
-  frame.origin.y= 0;
+  frame.size.height -= 16;
+  frame.size.width -= 16;
+  frame.origin.x += 8;
+  frame.origin.y = 0;
   
-  [_iconView setFrame:frame];
+  collectionView.frame = frame;
 }
-
 
 - (void)setTitle:(NSString*)title
 {
   if (_title != title)
   {
-    [_title release];
-    _title= [title retain];
-    [self setNeedsDisplay:YES];
+    _title= title;
+    [self setNeedsDisplay: YES];
   }
 }
-
 
 - (void)setSubTitle:(NSString*)title
 {
   if (_subTitle != title)
   {
-    [_subTitle release];
-    _subTitle= [title retain];
-    [self setNeedsDisplay:YES];
+    _subTitle= title;
+    [self setNeedsDisplay: YES];
   }
 }
-
 
 - (NSString*)title
 {
   return _title;
 }
 
-
-- (void)drawRect:(NSRect)rect
+- (void)drawRect: (NSRect)rect
 {
-  //[self lockFocus];
-  
   NSImage *bar= [NSImage imageNamed:@"header_bar_gray.png"];
   
   [[NSColor darkGrayColor] set];
@@ -923,10 +840,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
           fromRect:NSMakeRect(0, 0, [bar size].width, [bar size].height)
          operation:NSCompositeSourceOver
           fraction:0.4];
-  
-  //[self unlockFocus];
 }
-
 
 - (void)refreshChildren
 {  

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,35 +24,60 @@
 
 #import "MFTable.h"
 
+@interface MFWizardBox : NSBox
+
+@end
+
 @implementation MFWizardBox
 
 - (void)subviewMinimumSizeChanged
 {
-  NSView *content= [[self subviews] lastObject];
-  [content resizeSubviewsWithOldSize: [content frame].size];
+  NSView *content = [self.subviews lastObject];
+  [content resizeSubviewsWithOldSize: content.frame.size];
 }
-
 
 @end
 
+
+@interface MFWizardImpl()
+{
+  mforms::Wizard *mOwner;
+  IBOutlet NSButton *nextButton;
+  IBOutlet NSButton *backButton;
+  IBOutlet NSButton *extraButton;
+  IBOutlet NSBox *contentBox;
+  IBOutlet NSTextField *headingText;
+  IBOutlet NSView *stepList;
+
+  float mOriginalButtonWidth;
+  BOOL mAllowCancel;
+
+  NSMutableArray *nibObjects;
+}
+
+@end
 
 @implementation MFWizardImpl
 
 - (instancetype)initWithObject:(::mforms::Wizard*)aWizard
 {
-  self= [super init];
-  if (self)
+  self = [super init];
+  if (self != nil)
   {
-    [NSBundle loadNibNamed:@"WizardWindow" owner:self];
-    [[self window] setContentSize: NSMakeSize(900, 620)];
-    [[self window] setMinSize: [[self window] frame].size];
-    [[self window] center];
-    
-    mOriginalButtonWidth = NSWidth([nextButton frame]);
-    
-    mAllowCancel= YES;
-    mOwner= aWizard;
-    mOwner->set_data(self);
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"WizardWindow" owner: self topLevelObjects: &temp])
+    {
+      nibObjects = temp;
+      self.window.contentSize = NSMakeSize(900, 620);
+      self.window.minSize = self.window.frame.size;
+      [self.window center];
+
+      mOriginalButtonWidth = NSWidth([nextButton frame]);
+
+      mAllowCancel = YES;
+      mOwner = aWizard;
+      mOwner->set_data(self);
+    }
   }
   return self;
 }
@@ -152,7 +177,7 @@
     text= [stepList viewWithTag: row*2+1];
     if (!image)
     {
-      image= [[[NSImageView alloc] initWithFrame:NSMakeRect(0, y-1, 16, 16)] autorelease];
+      image = [[NSImageView alloc] initWithFrame: NSMakeRect(0, y - 1, 16, 16)];
       [image setTag: row*2];
       [stepList addSubview: image];
       [image setAutoresizingMask: NSViewMinXMargin|NSViewMaxYMargin];
@@ -174,7 +199,7 @@
     }
     if (!text)
     {
-      text= [[[NSTextField alloc] initWithFrame:NSMakeRect(16, y, width, 16)] autorelease];
+      text = [[NSTextField alloc] initWithFrame: NSMakeRect(16, y, width, 16)];
       [text setTag: row*2+1];
       [text setEditable: NO];
       [text setBordered: NO];
@@ -221,7 +246,7 @@
 
 static bool wizard_create(::mforms::Wizard *self, mforms::Form *owner)
 {
-  /*MFWizardImpl *wizard = */[[[MFWizardImpl alloc] initWithObject:self] autorelease];
+  return [[MFWizardImpl alloc] initWithObject: self] != nil;
     
   return true;
 }

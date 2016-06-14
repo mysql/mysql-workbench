@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,14 +23,7 @@
 
 @implementation WBGrayTabView
 
-- (void) dealloc
-{
-  [mPlaqueImage release];
-  [super dealloc];
-}
-
-
-- (void) drawRect: (NSRect) rect;
+- (void)drawRect: (NSRect)rect;
 {
   [super drawRect: rect];
   
@@ -76,31 +69,6 @@
 	
 	return lineLayer;
 }
-
-
-- (CALayer*) plaqueLayer;
-{
-  // Create a gradient plaque in the tab row area, behind the tabs.
-  CALayer* plaqueLayer = [CALayer layer];
-  
-  CGRect r = [mTabRowLayer bounds];
-  r.origin.y -= 1;
-  r.size.height = [self tabAreaHeight] + 1;
-  [plaqueLayer setFrame: r];
-  [plaqueLayer setAutoresizingMask: (kCALayerWidthSizable | kCALayerMaxYMargin)];
-  [plaqueLayer setZPosition: -4];
-  
-  NSBundle* b = [NSBundle bundleForClass: [self class]];
-  NSString* path = [b pathForResource: @"tab_header_background2"
-                               ofType: @"png"];
-  mPlaqueImage = [[NSImage alloc] initWithContentsOfFile: path];
-  NSImageRep* rep = [mPlaqueImage representations][0];
-  CGImageRef img = [(id)rep CGImage];
-  [plaqueLayer setContents: (id)img];
-  
-  return plaqueLayer;
-}
-
 
 - (WBTabItem*) tabItemWithIdentifier: (id) identifier
 							   label: (NSString*) label;

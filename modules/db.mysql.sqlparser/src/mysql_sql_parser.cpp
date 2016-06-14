@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +17,13 @@
  * 02110-1301  USA
  */
 
+#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 #include <glib.h>
 #include <boost/signals2.hpp>
 #include <cctype>
-
-#ifdef _WIN32
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
 
 #include "base/util_functions.h"
 
@@ -33,6 +31,7 @@
 #include "grtsqlparser/module_utils.h"
 #include "mysql_sql_parser_utils.h"
 #include "grtdb/db_object_helpers.h"
+
 #include "base/string_utilities.h"
 #include <sstream>
 #include <iterator>
@@ -48,7 +47,7 @@ public:
   void init(GRT *grt)
   {
     grt::ListRef<db_mysql_StorageEngine> engines;
-    Module *module= grt->get_module("DbMySQL");
+    grt::Module *module= grt->get_module("DbMySQL");
     if (!module)
       throw std::logic_error("module DbMySQL not found");
     grt::BaseListRef args(grt);
@@ -79,7 +78,7 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
 {
   _sql_parser->_fk_refs.clear();
   boost::function<Parse_result ()> f = boost::lambda::constant(pr_irrelevant);
-  _sql_parser->_process_specific_create_statement.clear(); //= boost::bind(f);
+  _sql_parser->_process_specific_create_statement.clear();
   _sql_parser->_datatype_cache= grt::DictRef();
   _sql_parser->_created_objects= grt::ListRef<GrtObject>();
   _sql_parser->_processing_create_statements= true;

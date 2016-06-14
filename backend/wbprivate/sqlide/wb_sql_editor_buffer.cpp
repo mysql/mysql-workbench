@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -268,15 +268,15 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
   if (base::file_exists(bec::make_path(workspace_path, "tab_order")))
   {
     // new WB 6.2 format workspace
-    std::ifstream f(bec::make_path(workspace_path, "tab_order").c_str());
-
+    std::wifstream f;
+    openStream(bec::make_path(workspace_path, "tab_order"), f);
     std::vector<std::string> editor_files;
     while (!f.eof())
     {
-      std::string suffix;
+      std::wstring suffix;
       f >> suffix;
       if (!suffix.empty())
-        editor_files.push_back(suffix);
+        editor_files.push_back(base::wstring_to_string(suffix));
     }
 
     SqlEditorPanel *editor(add_sql_editor());
@@ -432,6 +432,7 @@ SqlEditorPanel* SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed
 {
   SqlEditorPanel* editor(mforms::manage(new SqlEditorPanel(this, scratch, start_collapsed)));
   editor->editor_be()->register_file_drop_for(this);
+  editor->editor_be()->set_continue_on_error(continue_on_error());
 
   editor->grtobj()->owner(grtobj());
   grtobj()->queryEditors().insert(editor->grtobj());
@@ -578,22 +579,20 @@ void SqlEditorForm::sql_editor_panel_closed(mforms::AppView *view)
 
 void SqlEditorForm::save_workspace_order(const std::string &prefix)
 {
-  std::ofstream order_file;
   if (prefix.empty())
-  {
     log_error("save with empty path\n");
-  }
-
-  order_file.open(bec::make_path(prefix, "tab_order").c_str(), std::ofstream::out);
 
   if (_tabdock)
   {
+    std::wofstream orderFile;
+    openStream(bec::make_path(prefix, "tab_order"), orderFile);
     for (int c = _tabdock->view_count(), i = 0; i < c; i++)
     {
       SqlEditorPanel *editor = sql_editor_panel(i);
-      if (editor)
-        order_file << editor->autosave_file_suffix() << "\n";
+      if (editor && orderFile.good())
+        orderFile << base::string_to_wstring(editor->autosave_file_suffix()) << std::endl;
     }
+    orderFile.close();
   }
 }
 

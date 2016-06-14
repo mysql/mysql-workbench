@@ -49,7 +49,7 @@ def copyTableListToClipboard(cat):
     #insert = ['`'+schema.name+'`.`'+tbl.name+'`' for tbl in schema.tables for schema in cat.schemata ]
     insert = '' 
     for schema in cat.schemata:
-        insert = ', '.join(['`'+schema.name+'`.`'+tbl.name+'`' for tbl in schema.tables])
+        insert = insert + ', '.join(['`'+schema.name+'`.`'+tbl.name+'`' for tbl in schema.tables])
              
     Workbench.copyToClipboard(insert)
     return 0
@@ -132,9 +132,10 @@ This action cannot be undone!''', 'Clear SQL', 'Cancel', 'Leave SQL')
 @ModuleInfo.plugin('wb.util.prefixTables', caption='Give a Prefix to All Tables in Catalog', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'])
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def prefixTables(cat):
-     prefix = Workbench.input('Please specify the prefix')
      
-     if not prefix:
+     ret, prefix = mforms.Utilities.request_input("Give a Prefix to All Tables in Catalog", "Please specify the prefix:copy table ", "")
+     
+     if not ret:
          return 1
 
      for schema in cat.schemata:
@@ -146,10 +147,10 @@ def prefixTables(cat):
 @ModuleInfo.plugin('wb.util.changeStorageEngines', caption='Change the Storage Engine of All Tables', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'])
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def changeStorageEngines(cat):
-     new_engine = Workbench.input('Type the new storage engine name for all tables in your model:')
+     ret, new_engine = mforms.Utilities.request_input("Change the Storage Engine of All Tables", "Type the new storage engine name:", "")
      
-     if not new_engine:
-       return 1
+     if not ret:
+         return 1
  
      def getTableEngines():
         result = grt.root.wb.options.options['@db.mysql.Table:tableEngine/Items']

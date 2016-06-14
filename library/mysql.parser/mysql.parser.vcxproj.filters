@@ -104,6 +104,7 @@
     <ClCompile Include="MySQLSimpleParser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3.h">
@@ -220,6 +221,7 @@
     <ClInclude Include="mysql-recognition-types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="grammar\MySQL.g" />

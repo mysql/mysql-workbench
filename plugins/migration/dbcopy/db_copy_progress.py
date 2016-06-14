@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -396,7 +396,7 @@ class ProgressMainView(WizardPage):
 
     def _finished(self):
         if self._warnings > 0 or self._errors > 0:
-            self.send_info("Tasks finished with warnings and/or errors, view the logs for details")
+            self.send_info("Tasks finished with warnings and/or errors; view the logs for details")
         self.send_info(self.final_message())
         self._flush_messages()
         self.send_info("\n\n")
@@ -419,9 +419,9 @@ class ProgressMainView(WizardPage):
             self.go_advanced()
         
         if self._errors > 0:
-            self._description.set_text("Finished.\nThere were errors during execution, please review log messages.")
+            self._description.set_text("Finished.\nThere were errors during execution; please review log messages.")
         elif self._warnings > 0:
-            self._description.set_text("Finished.\nThere were warnings during execution, please review log messages.\nClick [Next >] to continue if you think they are not important.")
+            self._description.set_text("Finished.\nThere were warnings during execution; please review log messages.\nClick [Next >] to continue if you think they are not important.")
         else:
             self._description.set_text(self.final_message()+"\nClick [Next >] to continue.")
 

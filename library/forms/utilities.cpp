@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -427,6 +427,15 @@ void Utilities::add_end_ok_cancel_buttons(mforms::Box *box, mforms::Button *ok, 
 
 //--------------------------------------------------------------------------------------------------
 
+static void on_request_action(mforms::TextEntryAction action, mforms::Button *btn)
+{
+  if (action == mforms::EntryActivate)
+    btn->signal_clicked()->operator ()();
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
 bool Utilities::request_input(const std::string &title, const std::string &description,
                               const std::string &default_value, std::string &ret_value)
 {
@@ -459,6 +468,8 @@ bool Utilities::request_input(const std::string &title, const std::string &descr
 
   edit.set_size(150, -1);
   edit.set_value(default_value);
+  edit.signal_action()->connect(boost::bind(&on_request_action, _1, &ok_button));
+
   content.add(&description_label, 1, 2, 0, 1, HFillFlag | VFillFlag);
   content.add(&edit, 2, 3, 0, 1, HFillFlag | VFillFlag);
 
@@ -645,6 +656,7 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   password_form.center();
   
   password_edit.focus();
+  password_edit.signal_action()->connect(boost::bind(&on_request_action, _1, &ok_button));
   
   bool result= password_form.run_modal(&ok_button, &cancel_button);
   if (result)
@@ -897,7 +909,7 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
   if (extents.width <= width)
     return text;
   
-  length= text.size();
+  length = g_utf8_strlen(text.data(), (gssize)text.size());
   if (length == 0 || width <= 0)
     return "";
   else
@@ -932,7 +944,10 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
       else
         h= n;
     }
-    return text.substr(0, l - 1) + "...";
+    const gchar *begin = g_utf8_offset_to_pointer(text.data(), 0);
+    const gchar *end = g_utf8_offset_to_pointer(begin, (glong)(l - 1));
+    std::string temp = std::string(text.data(), end - begin) + "...";
+    return temp;
   }
   
   return "";

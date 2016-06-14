@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,10 +19,9 @@ from __future__ import with_statement
 
 # import the mforms module for GUI stuff
 import mforms
-import grt
 import threading
 
-import sys, os, csv
+import os
 
 from mforms import newTreeNodeView
 from mforms import FileChooser
@@ -33,7 +32,7 @@ import operator
 from workbench.utils import Version
 
 
-from workbench.log import log_debug3, log_debug2, log_error, log_info
+from workbench.log import log_error, log_info
 
 last_location = ""
 drop_table = False
@@ -139,7 +138,7 @@ class ImportProgressPage(WizardProgressPage):
                 
     def on_close(self):
         if self.module and self.module.is_running:
-            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop import process?", "Yes", "No",""):
+            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop the import process?", "Yes", "No",""):
                 self.stop.set()
                 return True
             return False
@@ -206,7 +205,7 @@ class ConfigurationPage(WizardPage):
                     mforms.Utilities.add_timeout(0.1, self.call_create_preview_table)
                 else:
                     field.set_value("")
-                    mforms.Utilities.show_error("Import Wizard", "Due to the nature of this wizard, you can't use unicode characters in this place, as also only one character is allowed.","Ok","","")
+                    mforms.Utilities.show_error("Import Wizard", "Due to the nature of this wizard, you can't use unicode characters in this place, as only one character is allowed.","Ok","","")
 
 
             def set_selector_entry(selector, output):
@@ -344,7 +343,7 @@ class ConfigurationPage(WizardPage):
         if self.input_file_type == 'csv':
             self.active_module.set_encoding(self.encoding_list[self.encoding_sel.get_string_value()])
         if not self.active_module.analyze_file():
-            mforms.Utilities.show_warning("Table Data Import", "Can't analyze file, please try to change encoding type, if that doesn't help, maybe the file is not: %s, or the file is empty." % self.active_module.title, "Ok", "", "")
+            mforms.Utilities.show_warning("Table Data Import", "Can't analyze file. Please try to change encoding type. If that doesn't help, maybe the file is not: %s, or the file is empty." % self.active_module.title, "Ok", "", "")
             self.last_analyze_status = False
             return False
         self.last_analyze_status = True
@@ -488,7 +487,7 @@ class ConfigurationPage(WizardPage):
             chk_box = create_chkbox(row)
             self.checkbox_list.append(chk_box)
             self.preview_table.add(chk_box, 0, 1, i+1, i+2, mforms.HFillFlag)
-            self.preview_table.add(mforms.newLabel(str(col['name'])), 1, 2, i+1, i+2, mforms.HFillFlag)
+            self.preview_table.add(mforms.newLabel(str(col['name'].encode('utf8'))), 1, 2, i+1, i+2, mforms.HFillFlag)
             if not self.main.destination_page.new_table_radio.get_active():
                 self.preview_table.add(create_select_dest_col(row, self.dest_cols), 2, 3, i+1, i+2, mforms.HFillFlag)
             else:
@@ -497,7 +496,7 @@ class ConfigurationPage(WizardPage):
             
         self.treeview_preview = newTreeNodeView(mforms.TreeFlatList)
         for i, col in enumerate(self.active_module._columns):
-            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name']), 75, True)
+            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name'].encode('utf8')), 75, True)
         self.treeview_preview.end_columns()
         
         
@@ -521,7 +520,10 @@ class ConfigurationPage(WizardPage):
             for row in col_values:
                 node = self.treeview_preview.add_node()
                 for i, col in enumerate(row):
-                    node.set_string(i, str(col))
+                    if hasattr(col, 'encode'):
+                        node.set_string(i, str(col.encode('utf8')))
+                    else:
+                        node.set_string(i, str(col))
 
         self.treeview_preview.set_allow_sorting(True)
         self.treeview_preview.set_size(200, 100)
@@ -714,7 +716,7 @@ class SelectDestinationPage(WizardPage):
             table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
 
             if not self.drop_table_cb.get_active() and (table_name in self.table_list or self.check_if_table_exists(self.main.destination_table['schema'], self.main.destination_table['table'])):
-                res = mforms.Utilities.show_message("Table Import", "You specify to create new table, but table with such name already exists in the selected schema. Would you like to drop it, or use existing one and truncate?", "Drop the table", "Use Existing One and Truncate it", "Cancel")
+                res = mforms.Utilities.show_message("Table Import", "You specified to create a new table, but a table with the same name already exists in the selected schema. Would you like to drop it, or use the existing one and truncate?", "Drop the table", "Use Existing One and Truncate it", "Cancel")
                 if res == mforms.ResultOk: 
                     self.drop_table_cb.set_active(True)
                 elif res == mforms.ResultCancel:
@@ -734,7 +736,7 @@ class SelectFileWizardPage(WizardPage):
     def create_ui(self):
         self.set_spacing(16)
 
-        label = mforms.newLabel("Table Data Import allows you to easily import csv, json datafiles.\nYou can also create destination table on the fly.")
+        label = mforms.newLabel("Table Data Import allows you to easily import CSV, JSON datafiles.\nYou can also create destination table on the fly.")
         label.set_style(mforms.BoldInfoCaptionStyle)
 
         self.content.add(label, False, False)
@@ -771,12 +773,12 @@ class SelectFileWizardPage(WizardPage):
             if format.name == fileExt[1:]:
                 break
         else:
-            mforms.Utilities.show_warning("Table Data Import", "This file type is not supported, valid options are: csv, json", "Ok", "", "")
+            mforms.Utilities.show_warning("Table Data Import", "This file type is not supported, valid options are: CSV, JSON", "Ok", "", "")
             return False
         
         if fileExt[1:] == "json":
             if os.path.getsize(file_path) > 104857600:
-                if mforms.Utilities.show_warning("Table Data Import", "This file appears to be a json filetype, and the size is over 100MB. We suggest to get the data in csv format, do you wish to continue?", "Continue", "Cancel", "") != mforms.ResultOk:
+                if mforms.Utilities.show_warning("Table Data Import", "This file appears to be a JSON filetype, and the size is over 100MB, which will take a long time to import. If possible, obtain the data in CSV format instead. Do you wish to continue with this file anyway?", "Continue", "Cancel", "") != mforms.ResultOk:
                     self.importfile_path.set_value("")
                     return False
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,6 @@
 
 @implementation NSMenu(NSMenu_Extras)
 
-
 + (NSMenu*)menuFromMenuItems:(const bec::MenuItemList&)items
                       action:(SEL)selector
                       target:(id)target
@@ -31,7 +30,7 @@
 
   if (!items.empty())
   {
-    menu= [[[NSMenu alloc] initWithTitle: @""] autorelease];
+    menu = [[NSMenu alloc] initWithTitle: @""];
     [menu setAutoenablesItems: NO];
 
     for (bec::MenuItemList::const_iterator iter= items.begin(); iter != items.end(); ++iter)

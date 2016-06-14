@@ -54,7 +54,7 @@ public:
   void show(int x, int y)
   {
     _visible = true;
-    mforms::Popover::show(x, y, mforms::Right);
+    mforms::Popover::show(x, y, mforms::StartRight);
   }
 
   virtual void close()

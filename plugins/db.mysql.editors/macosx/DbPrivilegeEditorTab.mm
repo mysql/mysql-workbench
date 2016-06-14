@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,40 +26,73 @@
 #import "GRTTreeDataSource.h"
 
 #include "grtdb/db_object_helpers.h"
+#include "grtdb/dbobject_roles.h"
+#include "grtdb/role_tree_model.h"
+
+@interface DbPrivilegeEditorTab()
+{
+  bec::DBObjectEditorBE *_be;
+
+  bec::ObjectRoleListBE *_rolesListBE;
+  bec::RoleTreeBE *_roleTreeBE;
+  bec::ObjectPrivilegeListBE *_privilegeListBE;
+
+  IBOutlet __weak NSTableView *assignedRolesTable;
+  IBOutlet __weak NSTableView *privilegesTable;
+  IBOutlet __weak NSOutlineView *allRolesOutline;
+
+  IBOutlet __weak GRTListDataSource *assignedRolesDS;
+  IBOutlet __weak GRTTreeDataSource *allRolesDS;
+
+  NSMutableArray *nibObjects;
+}
+
+@end
 
 @implementation DbPrivilegeEditorTab
 
-- (instancetype)initWithObjectEditor:(bec::DBObjectEditorBE*)be
+@synthesize view;
+
+- (instancetype)initWithObjectEditor: (bec::DBObjectEditorBE*)be
 {
   self= [super init];
   if (self)
   {
-    _be= be;
-    
-    [NSBundle loadNibNamed:@"PrivilegesTab" owner:self];
-    
-    _rolesListBE= new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
-    _roleTreeBE= new bec::RoleTreeBE(be->get_catalog());
-    _privilegeListBE= _rolesListBE->get_privilege_list();
-    
-    _roleTreeBE->refresh();
-    
-    [allRolesDS setTreeModel:_roleTreeBE];
-    [assignedRolesDS setListModel:_rolesListBE];
-    
-    [allRolesOutline reloadData];
-    [assignedRolesTable reloadData];
+    _be = be;
+    if (_be != NULL)
+    {
+      NSBundle *bundle = [NSBundle bundleForClass: self.class];
+      NSMutableArray *temp;
+      if ([bundle loadNibNamed: @"PrivilegesTab" owner: self topLevelObjects: &temp])
+      {
+        nibObjects = temp;
+        _rolesListBE = new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
+        _roleTreeBE = new bec::RoleTreeBE(be->get_catalog());
+        _privilegeListBE = _rolesListBE->get_privilege_list();
+
+        _roleTreeBE->refresh();
+
+        [allRolesDS setTreeModel:_roleTreeBE];
+        [assignedRolesDS setListModel:_rolesListBE];
+
+        [allRolesOutline reloadData];
+        [assignedRolesTable reloadData];
+      }
+    }
   }
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithObjectEditor: NULL];
+}
 
 - (void)dealloc
 {
   delete _rolesListBE;
   delete _roleTreeBE;
 
-  [super dealloc];
 }
 
 
@@ -165,12 +198,6 @@
       return _privilegeListBE->count();
   }
   return 0;
-}
-
-
-- (NSView*)view
-{
-  return view;
 }
 
 @end

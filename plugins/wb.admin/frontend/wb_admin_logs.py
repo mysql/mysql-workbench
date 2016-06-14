@@ -1,4 +1,4 @@
-﻿# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -350,7 +350,7 @@ class LogView(mforms.Box):
         self.bbox.add(self.refresh_button, False, True)
         self.refresh_button.add_clicked_callback(self.refresh)
 
-        if self.log_reader.log_file.path == "stderr":
+        if self.log_reader.log_file and self.log_reader.log_file.path == "stderr":
             self.actual_position = 0
             grt.getEventLogEntry(0, self.query)
 

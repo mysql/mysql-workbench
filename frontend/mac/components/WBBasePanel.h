@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-
 #include "ui_form.h"
 
 @interface WBBasePanel : NSObject 
@@ -26,20 +24,18 @@
   NSView *decoratorView;
 }
 
-@property (readonly, strong) NSView *topView;
-@property (readonly, copy) NSString *title;
-@property (readonly, copy) NSString *identifier;
-@property (readonly, copy) NSImage *tabIcon;
+@property (weak) IBOutlet NSView *topView;
+
+@property (readonly) NSString *title;
+@property (readonly) NSString *identifier;
+@property (readonly) NSImage *tabIcon;
 @property (readonly) bec::UIForm *formBE;
 @property (readonly) NSSize minimumSize;
-
-@property (readonly, copy) NSMenu *menuBar;
-
+@property (readonly, strong) NSMenu *menuBar;
 @property (readonly, strong) NSView *decoratedTopView;
-
 @property (readonly) BOOL willClose;
-- (void)didOpen;
 
+- (void)didOpen;
 - (void)didActivate;
 
 @end

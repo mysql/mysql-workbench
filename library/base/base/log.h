@@ -72,6 +72,10 @@
 #include <stdarg.h>
 #include "base/common.h"
 
+#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
+  #include <glib.h>
+#endif
+
 namespace base
 {
 #if defined(DEBUG) || defined(_DEBUG) || defined(ENABLE_DEBUG)
@@ -103,7 +107,7 @@ namespace base
     static void enable_level(const LogLevel level);
     static void disable_level(const LogLevel level);
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
-    static void log(const LogLevel level, const char* const domain, const char* format, ...) __attribute__((__format__ (__printf__, 3, 4)));
+    static void log(const LogLevel level, const char* const domain, const char* format, ...) G_GNUC_PRINTF(3, 4);
 #else
     static void log(const LogLevel level, const char* const domain, const char* format, ...);
 #endif

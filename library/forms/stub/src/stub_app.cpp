@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,9 +89,6 @@ void AppWrapper::init(wb::WBOptions *theOptions)
 
   f->_app_impl.enter_event_loop = &AppWrapper::enter_event_loop;
   f->_app_impl.exit_event_loop = &AppWrapper::exit_event_loop;
-
-  f->_app_impl.begin_thread_loop = &AppWrapper::begin_thread_loop;
-  f->_app_impl.end_thread_loop = &AppWrapper::end_thread_loop;
 
   f->_app_impl.get_system_color = &AppWrapper::get_system_color;
 }

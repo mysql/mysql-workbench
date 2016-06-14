@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,15 +19,10 @@ from __future__ import with_statement
 
 # import the mforms module for GUI stuff
 import mforms
-import grt
-import threading
 
 import sys, os, csv
 
-from mforms import newTreeNodeView
-from mforms import FileChooser
 import datetime
-import operator
 import json
 from workbench.utils import Version
 
@@ -114,6 +109,9 @@ class base_module:
             return True if type(v) in [dict, list] else False
         
         def is_float(v):
+            if hasattr(v, 'encode'):
+                v = v.encode('utf8')
+
             v = str(v)
             try:
                 if "%s" % float(v) == v:
@@ -123,6 +121,9 @@ class base_module:
                 return False
         
         def is_int(v):
+            if hasattr(v, 'encode'):
+                v = v.encode('utf8')
+
             v = str(v)
             try:
                 if "%s" % int(v) == v:
@@ -566,7 +567,7 @@ class json_module(base_module):
             limit = "LIMIT %d" % int(self._limit)
             if self._offset:
                 limit = "LIMIT %d,%d" % (int(self._offset), int(self._limit))
-        return """SELECT %s FROM %s %s""" % (",".join([value['name'] for value in self._columns]), self._table_w_prefix, limit)                
+        return """SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)                
     
     def start_export(self):
         if self._user_query:
@@ -637,7 +638,7 @@ class json_module(base_module):
         with open(self._filepath, 'rb') as jsonfile:
             data = json.load(jsonfile)
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
-            query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
+            query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(["`%s`" % col for col in dest_col_order]), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['name']) for i in self._mapping if i['active']])
             col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
             
@@ -706,7 +707,7 @@ class json_module(base_module):
             rowcount = 0 
             while True:
                 if f.tell() >= 20480:
-                    log_error("Json file contains data that's in unknown structure: %s" % (self._filepath))
+                    log_error("JSON file contains data that's in unknown structure: %s" % (self._filepath))
                     return False
                 c = f.read(1)
                 if c == "":
@@ -732,11 +733,11 @@ class json_module(base_module):
             try:
                 data = json.loads("".join(datachunk))
             except Exception, e:
-                log_error("Unable to parse json file: %s,%s " % (self._filepath, e))
+                log_error("Unable to parse JSON file: %s,%s " % (self._filepath, e))
                 self._last_analyze = False
                 return False
         if len(data) == 0:
-            log_error("Json file contains no data, or data is inalivd: %s" % (self._filepath))
+            log_error("JSON file contains no data, or data is invalid: %s" % (self._filepath))
             self._last_analyze = False
             return False
         

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,11 +56,6 @@
   return self;
 }
 
-- (void)dealloc
-{
-  [mBackImage release];
-  [super dealloc];
-}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -70,7 +65,6 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 - (void)setBackgroundImage: (NSString*) path withAlignment: (mforms::Alignment) align
 {
-  [mBackImage release];
   if (path)
     mBackImage = [[NSImage alloc] initWithContentsOfFile: path];
   else
@@ -192,8 +186,8 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
   }
   else if (panel->mType == mforms::StyledHeaderPanel)
   {
-    [[[[NSGradient alloc] initWithStartingColor: [NSColor colorWithDeviceWhite: 0.9 alpha: 1]
-  endingColor: [NSColor whiteColor]] autorelease]
+    [[[NSGradient alloc] initWithStartingColor: [NSColor colorWithDeviceWhite: 0.9 alpha: 1]
+                                   endingColor: [NSColor whiteColor]]
     drawInRect: rect
          angle: 90];
   }
@@ -267,18 +261,13 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
     mBottomRightOffset.x= NSMaxX(frame) - NSMaxX(content);
     mBottomRightOffset.y= MAX(NSMaxY(frame) - NSMaxY(content), [mCheckButton cellSize].height);
 
-    [super setContentView: [[[MFPanelContent alloc] initWithPanel: self] autorelease]];
+    [super setContentView: [[MFPanelContent alloc] initWithPanel: self]];
     [[super contentView] setBasePadding: basePadding];
   }
   return self;
 }
 
 
-- (void) dealloc
-{
-  [mCheckButton release];
-  [super dealloc];
-}
 
 - (NSRect)titleRect
 {
@@ -412,9 +401,7 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 static bool panel_create(::mforms::Panel *self, ::mforms::PanelType type)
 {
-  [[[MFPanelImpl alloc] initWithObject:self type:type] autorelease];
-    
-  return true;
+  return [[MFPanelImpl alloc] initWithObject: self type: type] != nil;
 }
 
 

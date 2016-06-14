@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("WBControls.Design")]
-[assembly: AssemblyCopyright("Copyright (c) 2014, 2015, Oracle and/or its affiliates")]
+[assembly: AssemblyCopyright("Copyright (c) 2014, 2016, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

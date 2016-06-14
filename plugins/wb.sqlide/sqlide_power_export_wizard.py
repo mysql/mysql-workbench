@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@ import mforms
 import grt
 import threading
 
-import sys, os, csv
+import os
 
 from mforms import newTreeNodeView
 from mforms import FileChooser
@@ -32,7 +32,7 @@ from datetime import datetime
 import operator
 
 
-from workbench.log import log_debug3, log_debug2, log_error
+from workbench.log import log_error
 
 last_location = None
 
@@ -153,13 +153,18 @@ class SimpleTabExport(mforms.Box):
         self.column_list.thaw_refresh()
         
     def get_query(self):
+        selected_columns = []
+        for i in range(self.column_list.count()):
+            if self.column_list.node_at_row(i).get_bool(0):
+                selected_columns.append(self.column_list.node_at_row(i).get_string(1))
+
         limit = ""
         if self.limit_entry.get_string_value():
             limit = "LIMIT %d" % int(self.limit_entry.get_string_value())
             if self.offset_entry.get_string_value():
                 limit = "LIMIT %d,%d" % (int(self.offset_entry.get_string_value()), int(self.limit_entry.get_string_value()))
         table_w_prefix = "%s.%s" % (self.owner.main.source_table['schema'], self.owner.main.source_table['table'])
-        return """SELECT %s FROM %s %s""" % (",".join([value['name'] for value in self.columns]), table_w_prefix, limit)
+        return """SELECT %s FROM %s %s""" % (",".join(selected_columns), table_w_prefix, limit)
         
 class AdvancedTabExport(mforms.Box):
     def __init__(self, editor, owner):
@@ -273,7 +278,7 @@ class ExportProgressPage(WizardProgressPage):
                 
     def on_close(self):
         if self.module and self.module.is_running:
-            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop export process?", "Yes", "No", ""):
+            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop the export process?", "Yes", "No", ""):
                 self.stop.set()
                 return True
             return False
@@ -300,7 +305,7 @@ class SelectFilePage(WizardPage):
         self.suspend_layout()
         self.set_spacing(16)
         
-        label = mforms.newLabel("Table Data Export allows you to easily export data into csv, json datafiles.\n")
+        label = mforms.newLabel("Table Data Export allows you to easily export data into CSV, JSON datafiles.\n")
         label.set_style(mforms.BoldInfoCaptionStyle)
 
         self.content.add(label, False, False)
@@ -346,7 +351,7 @@ class SelectFilePage(WizardPage):
         self.export_local_cb.set_text("Export to local machine")
         self.export_local_cb.set_active(True)
         self.export_local_box.add(self.export_local_cb, False, True)
-        l = mforms.newLabel("""If checked rows will be exported on the location that started Workbench.\nIf not checked, rows will be exported on the server.\nIf server and computer that started Workbench are different machines, import of that file can be done manual way only.""")
+        l = mforms.newLabel("""If checked, rows will be exported on the location that started Workbench.\nIf not checked, rows will be exported on the server.\nIf server and computer that started Workbench are different machines, import of that file can be done manual way only.""")
         l.set_style(mforms.SmallHelpTextStyle)
         self.export_local_box.add(l, False, True)
         
@@ -373,7 +378,7 @@ class SelectFilePage(WizardPage):
         
     def validate(self):
         if not self.check_is_supported_format():
-            mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok", "", "")
+            mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select CSV or JSON.", "Ok", "", "")
             return False            
         file_path = self.exportfile_path.get_string_value()
         if not os.path.isdir(os.path.dirname(file_path)):
@@ -381,11 +386,11 @@ class SelectFilePage(WizardPage):
             return False
         if self.confirm_file_overwrite and os.path.isfile(file_path):
             self.destination_file_checked = True
-            if mforms.Utilities.show_warning(self.main.title, "The output file already exists, do you want to overwrite it?", "Yes", "No", "") != mforms.ResultOk:
+            if mforms.Utilities.show_warning(self.main.title, "The output file already exists. Do you want to overwrite it?", "Yes", "No", "") != mforms.ResultOk:
                 return False
             self.confirm_file_overwrite = False
         if self.main.data_input_page._showing_simple and not self.export_local_cb.get_active():
-           if mforms.Utilities.show_warning(self.main.title, "You've specified to export file on the server. Export may fail if the file already exists, please remove the file manually before continuing.", "Continue", "Cancel", "") != mforms.ResultOk:
+           if mforms.Utilities.show_warning(self.main.title, "You've specified to export file on the server. Export may fail if the file already exists. Please remove the file manually before continuing.", "Continue", "Cancel", "") != mforms.ResultOk:
                return False
         elif not self.destination_file_checked and os.path.isfile(file_path):
             self.destination_file_checked = True
@@ -412,7 +417,7 @@ class SelectFilePage(WizardPage):
             self.unsupported_output_format = True
             self.active_module = self.main.formats[0] # we use first format as default one
             if not silent:
-                mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok", "", "")
+                mforms.Utilities.show_error(self.main.title, "This file format is not supported. Please select CSV or JSON.", "Ok", "", "")
     
     def load_module_options(self):
         self.suspend_layout()
@@ -429,7 +434,7 @@ class SelectFilePage(WizardPage):
                     operator.setitem(output, 'value', txt)
                 else:
                     field.set_value("")
-                    mforms.Utilities.show_error(self.main.title, "Due to the nature of this wizard, you can't use unicode characters in this place, as also only one character is allowed.","Ok","","")
+                    mforms.Utilities.show_error(self.main.title, "Due to the nature of this wizard, you can't use unicode characters in this place, as only one character is allowed.","Ok","","")
                     
 
             def set_selector_entry(selector, output):
@@ -614,7 +619,7 @@ class DataInputPage(WizardPage):
     
     def validate(self):
         if len(self.get_columns()) == 0:
-            mforms.Utilities.show_message("Table Data Export", "You need to specify at least one column", "Ok", "","")
+            mforms.Utilities.show_message(self.main.title, "You need to specify at least one column", "Ok", "","")
             return False
         return True
 

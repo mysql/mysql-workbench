@@ -27,6 +27,8 @@
 #include <msclr\lock.h>
 #include <fcntl.h>
 #include <io.h>
+#include <iosfwd>
+#include <fstream>
 #include <iostream>
 
 #define NOMINMAX

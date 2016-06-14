@@ -1,4 +1,4 @@
-# Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ ModuleInfo = DefineModule(name= "WBFabric", author= "Oracle Corp.", version="1.0
 
 def perform_fabric_operation(conn, name, callback = None, callback_params = None):
     """
-    Current fabric operations are done using the next cycle:
+    Current Fabric operations are done using the next cycle:
     - Open Connection
     - Execute Specific Operation
     - Close Connection
@@ -44,12 +44,12 @@ def perform_fabric_operation(conn, name, callback = None, callback_params = None
 
     The specific operation should be done on a function received as callback.
 
-    To pass data from the caller to the actual fabric operation method use the
+    To pass data from the caller to the actual Fabric operation method use the
     callback_params, this method will also include the connection_id on such params.
     """
     error = ""
 
-    # Retrieves the fabric node connection data
+    # Retrieves the Fabric node connection data
     host = conn.parameterValues["hostName"]
     port = conn.parameterValues["port"]
     user = conn.parameterValues["userName"]
@@ -59,11 +59,11 @@ def perform_fabric_operation(conn, name, callback = None, callback_params = None
         accepted, password = mforms.Utilities.find_or_ask_for_password("Fabric Node Connection", '%s@%s' % (host, port), user, False)
         if accepted:
 
-            # Opens a connection to the fabric instance
+            # Opens a connection to the Fabric instance
             conn_id = grt.modules.WbFabricInterface.openConnection(conn, password)
 
             if conn_id > 0:
-                # Executes the callback function which will interact with fabric using the
+                # Executes the callback function which will interact with Fabric using the
                 # created connection.
                 if callback:
                     if callback_params:
@@ -87,14 +87,14 @@ def perform_fabric_operation(conn, name, callback = None, callback_params = None
 
 def _execute_fabric_command(conn_id, fabric_command):
     """
-    This function will be used to actually execute a valid fabric command
+    This function will be used to actually execute a valid Fabric command
     and process the result.
 
-    The data resulting from fabric operations is returned in JSON format.
+    The data resulting from Fabric operations is returned in JSON format.
 
     The Fabric commands will return 2 recordsets which are returned as 2 lists on the
     returned json data:
-    - The first element is a status record, it is processe here and if there were errors
+    - The first element is a status record, it is processed here and if there were errors
       an exception is thrown.
     - The second is the actual list of data returned by the executed function.
     """
@@ -114,7 +114,6 @@ def _execute_fabric_command(conn_id, fabric_command):
     return return_data
 
 
-
 def _get_managed_connections(conn):
     connections = {}
 
@@ -130,7 +129,6 @@ def _get_managed_connections(conn):
 
 
 def _update_fabric_connections(params):
-
     error = ''
     conn = params['conn']
     conn_id = params['conn_id']
@@ -159,7 +157,7 @@ def _update_fabric_connections(params):
 
     for group in groups:
         include_group = not group_filter or group['group_id'] in group_filter
-
+        
         if include_group:
             matched_groups.append(group['group_id'])
 
@@ -176,11 +174,11 @@ def _update_fabric_connections(params):
                 address = server['address']
                 host, port = address.split(':')
 
-                # If the managed servers are located on the fabric node
+                # If the managed servers are located on the Fabric node
                 # most probably they will use localhost or 127.0.0.1 as
-                # address on the fabric configuration.
+                # address on the Fabric configuration.
 
-                # We need to replace that for the fabric node IP in order
+                # We need to replace that for the Fabric node IP in order
                 # to create the connections in WB
                 if host in ['localhost', '127.0.0.1']:
                     host = conn.parameterValues["hostName"]
@@ -189,24 +187,29 @@ def _update_fabric_connections(params):
 
                 managed_connections += 1
 
+                managed_conn = None
+
                 if existing_connections.has_key(address):
-                    del existing_connections[address]
+                    managed_conn = existing_connections[address]
+                    del existing_connections[address]                    
                 else:
                     child_conn_name = '%s/%s:%s' % (conn.name, host, port)
 
                     server_user = conn.parameterValues["mysqlUserName"]
                     managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
-                    managed_conn.parameterValues["fabric_managed"] = conn.__id__
-                    managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
-
-                    # Includes the rest of the server parameters on the connection parameters
-                    for att in server.keys():
-                        if att != 'address':
-                            managed_conn.parameterValues['fabric_%s' % att] = server[att]
-
+                    
                     added_servers += 1
 
-    # Removes the remaining connections (which no longer exist on the fabric node)
+                # Update connection settings
+                managed_conn.parameterValues["fabric_managed"] = conn.__id__
+                managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
+
+                # Includes the rest of the server parameters on the connection parameters
+                for att in server.keys():
+                    if att != 'address':
+                        managed_conn.parameterValues['fabric_%s' % att] = server[att]
+
+    # Removes the remaining connections (which no longer exist on the Fabric node)
     for connection in existing_connections.values():
         grt.modules.Workbench.deleteConnection(connection)
 
@@ -216,22 +219,21 @@ def _update_fabric_connections(params):
         grt.modules.Workbench.refreshHomeConnections()
     elif managed_connections == 0:
         if fabric_group_count == 0:
-            error = "There are no High Availability Groups defined on the %s fabric node." % conn.name
+            error = "There are no High Availability Groups defined on the %s Fabric node." % conn.name
         elif not matched_groups:
             error = "There are no High Availability Groups matching the configured group filter on %s." % conn.name
         else:
             error = "There are no Managed Servers defined for the included groups in %s: %s." % (conn.name, ','.join(matched_groups))
 
     return error
-   
 
 
 @ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
 def testConnection(conn):
     """
-    Attempts a connection to the fabric server, returns an error if required.
+    Attempts a connection to the Fabric server; returns an error if required.
 
-    Since no additional operations are needed on such connection the specific operation callback is None.
+    Since no additional operations are needed on such a connection, the specific operation callback is None.
     """
     error = perform_fabric_operation(conn, 'testing Fabric Connection')
 
@@ -241,7 +243,7 @@ def testConnection(conn):
 @ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
 def updateConnections(conn):
     """
-    Connects to the fabric server and updates the fabric connections in WB
+    Connects to the Fabric server and updates the Fabric connections in WB
     """
     error = perform_fabric_operation(conn, 'updating Fabric Servers', _update_fabric_connections, {'conn':conn} )
 

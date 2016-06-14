@@ -103,7 +103,6 @@ Program::Program(wb::WBOptions &wboptions)
   // Assign those callback methods
   wbcallbacks.show_file_dialog= sigc::mem_fun(this, &Program::show_file_dialog_becb);
   wbcallbacks.show_status_text= sigc::mem_fun(_main_form, &MainForm::show_status_text_becb);
-  wbcallbacks.request_input= sigc::mem_fun(this, &Program::request_input_becb);
   wbcallbacks.open_editor= sigc::mem_fun(_main_form, &MainForm::open_plugin_becb);
   wbcallbacks.show_editor= sigc::mem_fun(_main_form, &MainForm::show_plugin_becb);
   wbcallbacks.hide_editor= sigc::mem_fun(_main_form, &MainForm::hide_plugin_becb);
@@ -154,6 +153,9 @@ Program::Program(wb::WBOptions &wboptions)
 //------------------------------------------------------------------------------
 Program::~Program()
 { 
+  delete _wb_context_ui;
+  _wb_context = NULL;
+  _grt_manager = NULL;
 }
 
 
@@ -170,9 +172,7 @@ bool Program::idle_stuff()
 {
   // if there are tasks to be executed, schedule it to be done when idle so that the timer
   // doesn't get blocked during its execution
-  Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(_wb_context, &wb::WBContext::flush_idle_tasks), false));
-
-  //_wb_context->flush_idle_tasks();
+  _idleConnections.push_back(Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(_wb_context, &wb::WBContext::flush_idle_tasks), false)));
   return true;
 }
 
@@ -191,12 +191,13 @@ void Program::shutdown()
 
   _grt_manager->get_dispatcher()->shutdown();
 
+  for (std::deque<sigc::connection>::iterator it = _idleConnections.begin(); it != _idleConnections.end(); it++)
+    (*it).disconnect();
+
+  _idleConnections.clear();
+
   delete _main_form;
   _main_form= 0;
-
-// is not working well
- // delete _wb_context_ui;
-  _wb_context_ui= 0;
 }
 
 
@@ -343,46 +344,6 @@ std::string Program::show_file_dialog_becb(const std::string& type
   }
   
   return file;
-}
-
-//------------------------------------------------------------------------------
-bool Program::request_input_becb( const std::string& title, int flags, std::string& text)
-{
-  Glib::RefPtr<Gtk::Builder> ui= Gtk::Builder::create_from_file(_grt_manager->get_data_file_path("input_dialog.glade"));
-  Gtk::Dialog *win;
-  
-  ui->get_widget("input_dialog", win);
-  
-  Gtk::Label *label;
-  ui->get_widget("label", label);
-  label->set_text(title);
-  
-  Gtk::Entry *entry;
-  ui->get_widget("entry", entry);
-  entry->set_text(text);
-  
-  Gtk::Button *btn;
-  ui->get_widget("ok", btn);
-  btn->signal_clicked().connect(sigc::bind(sigc::mem_fun(win, &Gtk::Dialog::response), 1));
-  
-  ui->get_widget("cancel", btn);
-  btn->signal_clicked().connect(sigc::bind(sigc::mem_fun(win, &Gtk::Dialog::response), 0));
-  
-  if (flags & wb::InputPassword)
-    entry->set_visibility(false);
-  
-  win->show();
-  
-  bool ret = false;
-  if (win->run() == 1)
-  {
-    text = entry->get_text();
-    ret = true;
-  }
-  
-  win->hide();
-  
-  return ret;
 }
 
 //------------------------------------------------------------------------------

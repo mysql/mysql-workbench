@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +17,11 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _RECORDSET_CDBC_STORAGE_BE_H_
-#define _RECORDSET_CDBC_STORAGE_BE_H_
-
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "sqlide/recordset_sql_storage.h"
 #include "cppdbc.h"
-
 
 class WBPUBLICBACKEND_PUBLIC_FUNC Recordset_cdbc_storage : public Recordset_sql_storage
 {
@@ -58,9 +54,6 @@ protected:
 public:
   std::string decorated_sql_query(); // adds limit clause if defined by options
 
-  // list of columns that are PK or unique not null (equivalent to getBestRowIdentifier()) provided
-  // by the caller, so that we don't need to call getBestRowIdentifier() ourselves
-  //std::vector<std::string> known_pkey_columns;
 public:
   void dbms_conn(const sql::Dbc_connection_handler::Ref &val) { _dbms_conn= val; }
   sql::Dbc_connection_handler::Ref dbms_conn() { return _dbms_conn; }
@@ -89,6 +82,3 @@ private:
   size_t determine_pkey_columns(Recordset::Column_names &column_names, Recordset::Column_types &column_types, Recordset::Column_types &real_column_types);
   size_t determine_pkey_columns_alt(Recordset::Column_names &column_names, Recordset::Column_types &column_types, Recordset::Column_types &real_column_types);
 };
-
-
-#endif /* _RECORDSET_CDBC_STORAGE_BE_H_ */

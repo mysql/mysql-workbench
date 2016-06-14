@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ static void notify_visible_member_change(const std::string &member, const grt::V
 
 void db_Column::init()
 {
-  //No need in disconnet management since signal it part of object
+  // No need to disconnect management since the signal is part of the object.
   _changed_signal.connect(boost::bind(notify_visible_member_change, _1, _2, this));
 }
 
@@ -66,31 +66,31 @@ public:
 
 grt::StringRef db_Column::formattedRawType() const
 {
-  if (this->userType().is_valid())
+  if (userType().is_valid())
   {
     std::string arguments;
 
     // if no simple or structured datatype is set,
     // simply take the parameters
-    if (this->length() != bec::EMPTY_COLUMN_LENGTH)
+    if (length() != bec::EMPTY_COLUMN_LENGTH)
     {
-      arguments= strfmt("(%i)", (int)this->length());
+      arguments= strfmt("(%i)", (int)length());
     }
-    else if (this->precision() != bec::EMPTY_COLUMN_PRECISION)
+    else if (precision() != bec::EMPTY_COLUMN_PRECISION)
     {
       std::string tmp;
-      if (this->scale() != bec::EMPTY_COLUMN_SCALE)
-        tmp= strfmt("(%i,%i)", (int)this->precision(), (int)this->scale());
+      if (scale() != bec::EMPTY_COLUMN_SCALE)
+        tmp= strfmt("(%i,%i)", (int)precision(), (int)scale());
   else
-        tmp= strfmt("(%i)", (int)this->precision());
+        tmp= strfmt("(%i)", (int)precision());
       arguments= tmp;
     }
-    else if (this->datatypeExplicitParams().is_valid() && *this->datatypeExplicitParams() != "")
+    else if (datatypeExplicitParams().is_valid() && *datatypeExplicitParams() != "")
     {
-      arguments= *this->datatypeExplicitParams();      
+      arguments= *datatypeExplicitParams();      
     }
     
-    return std::string(this->userType()->name()).append(arguments);
+    return std::string(userType()->name()).append(arguments);
   }
   else
     return formattedType();
@@ -111,10 +111,10 @@ grt::StringRef db_Column::formattedType() const
     if (simpleType->numericPrecision() != bec::EMPTY_TYPE_PRECISION)
     {
       std::string tmp;
-      if (this->precision() != bec::EMPTY_COLUMN_PRECISION && this->scale() != bec::EMPTY_COLUMN_SCALE && (ptype == 3 || ptype == 4 || ptype == 5 || ptype == 6))
-        tmp= strfmt("(%i,%i)", (int)this->precision(), (int)this->scale());
-      else if (this->precision() != bec::EMPTY_COLUMN_PRECISION && (ptype == 1 || ptype == 2 || ptype == 4 || ptype == 6))
-        tmp= strfmt("(%i)", (int)this->precision());
+      if (precision() != bec::EMPTY_COLUMN_PRECISION && scale() != bec::EMPTY_COLUMN_SCALE && (ptype == 3 || ptype == 4 || ptype == 5 || ptype == 6))
+        tmp= strfmt("(%i,%i)", (int)precision(), (int)scale());
+      else if (precision() != bec::EMPTY_COLUMN_PRECISION && (ptype == 1 || ptype == 2 || ptype == 4 || ptype == 6))
+        tmp= strfmt("(%i)", (int)precision());
       caption.append(tmp);
     }
     else
@@ -122,13 +122,18 @@ grt::StringRef db_Column::formattedType() const
       if (*simpleType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH 
           || *simpleType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH)
       {
-        if (this->length() != bec::EMPTY_COLUMN_LENGTH && (ptype == 1 || ptype == 2 || ptype == 4 || ptype == 6))
+        if (length() != bec::EMPTY_COLUMN_LENGTH && (ptype == 1 || ptype == 2 || ptype == 4 || ptype == 6))
         {
-          caption.append(strfmt("(%i)", (int)this->length()));
+          caption.append(strfmt("(%i)", (int)length()));
         }
       }
-      else if (this->datatypeExplicitParams().is_valid() && *this->datatypeExplicitParams() != "")
-        caption.append(*this->datatypeExplicitParams());
+      else if (*simpleType->dateTimePrecision() > 0 && length() > 0)
+      {
+        // timestamp, time, datetime, year
+        caption.append(strfmt("(%i)", (int)length()));
+      }
+      else if (datatypeExplicitParams().is_valid() && *datatypeExplicitParams() != "")
+        caption.append(*datatypeExplicitParams());
     }
   }
   else if (structuredType.is_valid())
@@ -138,27 +143,27 @@ grt::StringRef db_Column::formattedType() const
   {
     std::string arguments;
     
-    if (this->userType().is_valid())
-      caption= this->userType()->sqlDefinition();
+    if (userType().is_valid())
+      caption= userType()->sqlDefinition();
 
     // if no simple or structured datatype is set,
     // simply take the parameters
-    if (this->length() != bec::EMPTY_COLUMN_LENGTH)
+    if (length() != bec::EMPTY_COLUMN_LENGTH)
     {
-      arguments= strfmt("(%i)", (int)this->length());
+      arguments= strfmt("(%i)", (int)length());
     }
-    else if (this->precision() != bec::EMPTY_COLUMN_PRECISION)
+    else if (precision() != bec::EMPTY_COLUMN_PRECISION)
     {
       std::string tmp;
-      if (this->scale() != bec::EMPTY_COLUMN_SCALE)
-        tmp= strfmt("(%i,%i)", (int)this->precision(), (int)this->scale());
+      if (scale() != bec::EMPTY_COLUMN_SCALE)
+        tmp= strfmt("(%i,%i)", (int)precision(), (int)scale());
       else
-        tmp= strfmt("(%i)", (int)this->precision());
+        tmp= strfmt("(%i)", (int)precision());
       arguments= tmp;
     }
-    else if (this->datatypeExplicitParams().is_valid() && *this->datatypeExplicitParams() != "")
+    else if (datatypeExplicitParams().is_valid() && *datatypeExplicitParams() != "")
     {
-      arguments= *this->datatypeExplicitParams();      
+      arguments= *datatypeExplicitParams();      
     }
     
     if (!arguments.empty())

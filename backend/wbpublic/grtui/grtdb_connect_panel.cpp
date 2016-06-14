@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -634,10 +634,19 @@ bool DbConnectPanel::test_connection()
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
+    if (!connectionProperties.is_valid())
+    {
+      db_mgmt_ConnectionRef connection(get_be()->get_grt());
+      connection->owner(get_be()->get_db_mgmt());
+      connection->driver(selected_driver());
+      set_connection(connection);
+      change_active_stored_conn();
+      connectionProperties = get_be()->get_connection();
+    }
     std::string ssl_cipher;
 
     message.append("Host: " + connectionProperties->parameterValues().get_string("hostName") + "\n");
-    message.append("Port: " + grt::IntegerRef(connectionProperties->parameterValues().get_int("port")).repr() + "\n");
+    message.append("Port: " + grt::IntegerRef(connectionProperties->parameterValues().get_int("port")).toString() + "\n");
     message.append("User: " + connectionProperties->parameterValues().get_string("userName") + "\n");
 
     if ( connectionProperties->driver()->name() == "MySQLFabric")
@@ -971,8 +980,8 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear)
   }
   for (grt::DictRef::const_iterator iter = paramValues.begin(); iter != paramValues.end(); ++iter)
   {
-    storage_key = bec::replace_string(storage_key, "%"+iter->first+"%", iter->second.repr());
-    username = bec::replace_string(username, "%"+iter->first+"%", iter->second.repr());
+    storage_key = bec::replace_string(storage_key, "%" + iter->first + "%", iter->second.toString());
+    username = bec::replace_string(username, "%" + iter->first + "%", iter->second.toString());
   }
 
   if (username.empty())
@@ -1127,7 +1136,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       // value
       {
-        grt::StringRef value= driver_param->get_value_repr();
+        grt::StringRef value = driver_param->get_value_repr();
         if (value.is_valid())
           ctrl->set_active(*value != "" && *value != "0" && *value != "NULL");
       }

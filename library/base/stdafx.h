@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,6 +45,8 @@
 #include <list>
 #include <string>
 #include <map>
+#include <vector>
+#include <sstream>
 #include <sddl.h>
 #include <stdio.h>
 #include <winevt.h>
@@ -53,6 +55,12 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <glib/glib.h>
 #include <glib/gstdio.h>
+
+#include <iosfwd>
+#include <fstream>

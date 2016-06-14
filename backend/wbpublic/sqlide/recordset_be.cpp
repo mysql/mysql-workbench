@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,10 @@
  * 02110-1301  USA
  */
 
+#include "sqlide_generics_private.h"
+
 #include "recordset_be.h"
 #include "recordset_data_storage.h"
-#include "sqlide_generics_private.h"
 #include "grtpp.h"
 #include "cppdbc.h"
 #include "grtui/binary_data_editor.h"
@@ -184,9 +185,9 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
     CATCH_AND_DISPATCH_EXCEPTION(rethrow, "Reset recordset")
   }
 
-  data_edited();
-  //refresh_ui(); This is the wrong place for a GUI refresh. Reset is called from many places, including the c-tor.
-
+  // Don't use refresh() to send update requests for the UI. It's regularly called from a background thread.
+  // Instead the caller should schedule refresh calls (and coalesce them).
+  
   return res;
 }
 
@@ -279,7 +280,7 @@ void Recordset::data_edited()
   if (_grtm->in_main_thread())
     data_edited_signal();
   else
-    log_debug2("data_edited called from thread\n");
+    log_error("data_edited called from thread\n");
 }
 
 
@@ -1895,8 +1896,8 @@ void Recordset::save_to_file(const bec::NodeId &node, ColumnId column, const std
 void Recordset::save_to_file(const bec::NodeId &node, ColumnId column)
 {
   mforms::FileChooser chooser(mforms::SaveFile);
-  
   chooser.set_title("Save Field Value");
+  chooser.set_extensions("Text files (*.txt)|*.txt|All Files (*.*)|*.*", "txt");
   
   if (chooser.run_modal())
   {

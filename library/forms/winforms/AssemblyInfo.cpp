@@ -33,7 +33,7 @@ using namespace Runtime::InteropServices;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("Oracle Corporation")];
 [assembly:AssemblyProductAttribute("mforms.wr")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c) 2010, 2015, Oracle and/or its affiliates")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c) 2010, 2016, Oracle and/or its affiliates")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 

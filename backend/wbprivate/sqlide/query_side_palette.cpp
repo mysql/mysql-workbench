@@ -218,7 +218,7 @@ public:
     _snippet_popover->set_read_only(false);
     _snippet_popover->set_text(description);
     _snippet_popover->set_read_only(true);
-    _snippet_popover->show(left_top.first, left_top.second, mforms::Left);
+    _snippet_popover->show(left_top.first, left_top.second, mforms::StartLeft);
   }
 
   //------------------------------------------------------------------------------------------------

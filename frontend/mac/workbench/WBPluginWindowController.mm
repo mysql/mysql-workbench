@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,51 +24,68 @@
 
 #include "grt_manager.h"
 
+@interface WBPluginWindowController()
+{
+  NSMutableArray *nibObjects;
+
+  WBPluginEditorBase *mPluginEditor;
+
+  __weak IBOutlet NSWindow *window;
+  __weak IBOutlet NSView *contentView;
+}
+
+@end
+
 @implementation WBPluginWindowController
 
-- (instancetype)initWithPlugin:(WBPluginEditorBase*)plugin
+- (instancetype)initWithPlugin: (WBPluginEditorBase*)plugin
 {
   self = [super init];
-  if (self)
+  if (self != nil && plugin != nil)
   {
-    mPluginEditor= [plugin retain];
-    
-    [NSBundle loadNibNamed:@"PluginEditorWindow" owner:self];
+    mPluginEditor = plugin;
 
-    float yextra;
-    NSSize size = [mPluginEditor minimumSize];
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"PluginEditorWindow" owner: self topLevelObjects: &temp])
     {
-      NSSize wsize = [window contentRectForFrameRect: [window frame]].size;
-      NSSize csize = [contentView frame].size;
-      yextra = wsize.height - csize.height;
+      nibObjects = temp;
+
+      float yextra;
+      NSSize size = mPluginEditor.minimumSize;
+      {
+        NSSize wsize = [window contentRectForFrameRect: window.frame].size;
+        NSSize csize = contentView.frame.size;
+        yextra = wsize.height - csize.height;
+      }
+      size.width += 100;
+      size.height += 80;
+      NSRect rect = NSZeroRect;
+      rect.size = size;
+
+      size.height += yextra;
+      [window setContentSize: size];
+
+      NSView *view = mPluginEditor.view;
+      [contentView addSubview: view];
+      view.frame = rect;
+
+      window.title = mPluginEditor.title;
+
+      [window makeKeyAndOrderFront: nil];
     }
-    size.width += 100;
-    size.height += 80;
-    NSRect rect = NSZeroRect;
-    rect.size = size;
-    
-    size.height += yextra;
-    [window setContentSize: size];
-    
-    id view = [mPluginEditor view];
-    [contentView addSubview: view];
-    [view setFrame: rect];
-    
-    [window setTitle: [mPluginEditor title]];
-    
-    [window makeKeyAndOrderFront: nil];
   }
   return self;
 }
 
-- (void)dealloc
+- (instancetype)init
 {
-  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle(self);
-  
-  [mPluginEditor release];
-  [super dealloc];
+  return [self initWithPlugin: nil];
 }
 
+- (void)dealloc
+{
+  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
+}
 
 - (BOOL)windowShouldClose:(id)sender
 {
@@ -76,7 +93,6 @@
     return [mPluginEditor pluginWillClose:self];
   return YES;
 }
-
 
 - (IBAction)buttonClicked:(id)sender
 {
@@ -96,6 +112,5 @@
       break;
   }
 }
-
 
 @end

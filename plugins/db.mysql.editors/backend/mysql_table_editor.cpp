@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -408,7 +408,8 @@ bool MySQLTableColumnsListBE::activate_popup_item_for_nodes(const std::string &n
         
         if (col.is_valid())
         {
-          col->defaultValue(value);
+          bec::ColumnHelper::set_default_value(col, value);
+          _owner->update_change_date();
           changed= true;
         }
       }
@@ -1737,7 +1738,7 @@ std::string MySQLTableEditorBE::get_table_option_by_name(const std::string& name
   else if(name.compare("AUTO_INCREMENT") == 0)
     return table->nextAutoInc();
   else if(name.compare("DELAY_KEY_WRITE") == 0)
-    return table->delayKeyWrite().repr();
+    return table->delayKeyWrite().toString();
   else if(name.compare("ROW_FORMAT") == 0)
     return table->rowFormat();
   else if(name.compare("KEY_BLOCK_SIZE") == 0)
@@ -1749,7 +1750,7 @@ std::string MySQLTableEditorBE::get_table_option_by_name(const std::string& name
   else if(name.compare("MIN_ROWS") == 0)
     return table->minRows();
   else if(name.compare("CHECKSUM") == 0)
-    return table->checksum().repr();
+    return table->checksum().toString();
   else if(name.compare("DATA DIRECTORY") == 0)
     return table->tableDataDir();
   else if(name.compare("INDEX DIRECTORY") == 0)
@@ -2424,7 +2425,7 @@ bool MySQLTableIndexListBE::get_field_grt(const NodeId &node, ColumnId column, g
       value= existing_node && index.is_valid() ? index->indexKind() : grt::StringRef("");
       return true;
     case RowBlockSize:
-      value= existing_node && index.is_valid() ? grt::StringRef(index->keyBlockSize().repr()) : grt::StringRef("");
+      value = existing_node && index.is_valid() ? grt::StringRef(index->keyBlockSize().toString()) : grt::StringRef("");
       return true;
     case Parser:
       value= existing_node && index.is_valid() ? index->withParser() : grt::StringRef("");

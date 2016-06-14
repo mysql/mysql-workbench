@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -129,7 +129,6 @@
                                                  green: 0.88
                                                   blue: 0.88
                                                  alpha: 1];
-    [mBackgroundColor retain];
   }
   
   [super drawRect: rect];
@@ -141,24 +140,17 @@
   }
 }
 
-
-
-- (void) setBackgroundColor: (NSColor*) backgroundColor;
+- (void)setBackgroundColor: (NSColor*)backgroundColor;
 {
-  [mBackgroundColor autorelease];
-  mBackgroundColor = [backgroundColor retain];
+  mBackgroundColor = backgroundColor;
   [self setNeedsDisplay: YES];
 }
 
 @end
 
-
-
 @implementation WBTabItem
 
-
-
-- (void) updateAppearance;
+- (void)updateAppearance;
 {
   [mIcon setOpacity: (mEnabled ? 1.0 : 0.7)];
   [mCloseButton setOpacity: (mEnabled ? 1.0 : 0.7)];
@@ -219,8 +211,7 @@
 
 - (void) setLabel: (NSString*) label;
 {
-  [mLabel autorelease];
-  mLabel = [label retain];
+  mLabel = label;
   [mTitleLayer setString: label];
 
   if (mTabSize == WBTabSizeLarge)
@@ -237,29 +228,16 @@
 
 
 
-- (void) setCloseButtonState: (NSCellStateValue) state;
+- (void)setCloseButtonState: (NSCellStateValue) state;
 {
+  NSBundle * bundle = [NSBundle bundleForClass: self.class];
   if (state == NSOnState) {
-    NSBundle* b = [NSBundle bundleForClass: [self class]];
-    NSString* path = [b pathForResource: @"TabClose_Pressed"
-                                 ofType: @"png"];
-    [mCloseButtonImage autorelease];
-    mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
-    
-    //		NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Pressed"];
-    CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
-    [mCloseButton setContents: (id)img];
+    mCloseButtonImage = [bundle imageForResource: @"TabClose_Pressed"];
+    mCloseButton.contents = mCloseButtonImage;
   }
   else if (state == NSOffState) {
-    NSBundle* b = [NSBundle bundleForClass: [self class]];
-    NSString* path = [b pathForResource: @"TabClose_Unpressed"
-                                 ofType: @"png"];
-    [mCloseButtonImage autorelease];
-    mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
-    
-    //		NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Unpressed"];
-    CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
-    [mCloseButton setContents: (id)img];
+    mCloseButtonImage = [bundle imageForResource: @"TabClose_Unpressed"];
+    mCloseButton.contents = mCloseButtonImage;
   }
 }
 
@@ -276,8 +254,7 @@
 
 - (void) setIconImage: (NSImage*) image;
 {
-  [mDocumentIconImage autorelease];
-  mDocumentIconImage = [image retain];
+  mDocumentIconImage = image;
   
   if (image == nil)
   {
@@ -293,11 +270,9 @@
   {
     if (!mIcon)
     {
-      //			NSImage* iconImage = [NSImage imageNamed: @"TabDocument"];
-      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
       mIcon = [CALayer layer];
       CGRect rect= mIcon.frame;
-      [mIcon setContents: (id)img];
+      mIcon.contents = mDocumentIconImage;
       rect.size= NSSizeToCGSize([image size]);
       [mIcon setFrame: rect];
       [self addSublayer: mIcon];
@@ -308,9 +283,8 @@
     }
     else
     {
-      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
       CGRect rect= mIcon.frame;
-      [mIcon setContents: (id)img];
+      mIcon.contents = mDocumentIconImage;
       rect.size= NSSizeToCGSize([image size]);
       [mIcon setFrame: rect];
       
@@ -397,20 +371,6 @@
     }
     mMouseInCloseBox = inside;
   }
-  //	else {
-  //    // Drag tab.
-  //		CGPoint p = CGPointMake(mouse.x - mMouseDownPoint.x, 0);
-  //		p = [self convertPoint: p
-  //					   toLayer: [self superlayer]];
-  //		CGRect r = [self frame];
-  //		r.origin.x = p.x;
-  //		
-  //		r = [[self delegate] tabItem: self
-  //					  draggedToFrame: r];
-  //		
-  //		[[NSAnimationContext currentContext] setDuration: 0];
-  //		[self setFrame: r];
-  //	}
 }
 
 
@@ -423,31 +383,24 @@
   }
 }
 
-
-
 #pragma mark Creation & Destruction
-
-
 
 - (void) layout;
 {
-  
 }
 
-
-
 - (instancetype) initWithIdentifier: (id) identifier
-                    label: (NSString*) label
-                direction: (WBTabDirection) tabDirection
-                placement: (WBTabPlacement) tabPlacement
-                     size: (WBTabSize) tabSize
-                  hasIcon: (BOOL) hasIcon
-                 canClose: (BOOL) canClose;
+                              label: (NSString*) label
+                          direction: (WBTabDirection) tabDirection
+                          placement: (WBTabPlacement) tabPlacement
+                               size: (WBTabSize) tabSize
+                            hasIcon: (BOOL) hasIcon
+                           canClose: (BOOL) canClose;
 {
   self = [super init];
   
   if (self != nil) {
-    mIdentifier = [identifier retain];
+    mIdentifier = identifier;
     
     mTabDirection = tabDirection;
     mTabPlacement = tabPlacement;
@@ -460,29 +413,18 @@
     
     CGRect frame = CGRectZero;
     if (tabSize == WBTabSizeLarge)
-      //frame.size = CGSizeMake(TAB_ITEM_WIDTH, 44);
       frame.size = CGSizeMake([self preferredWidth], 44);
     else
       frame.size = CGSizeMake(TAB_ITEM_SMALL_WIDTH, 32);
     [self setFrame: frame];
     
     CGFloat horizon = frame.size.height / 2;
-    
-    //		[self setCornerRadius: (mTabSize == WBTabSizeLarge ? 6 : 4)];
-    //		[self setBorderWidth: 1];
-    //		CGColorRef c = WB_CGColorCreateCalibratedRGB(0.3, 0.3, 0.3, 0.7);
-    //		[self setBorderColor: c];
-    //		CGColorRelease(c);
-    
+    NSBundle* bundle = [NSBundle bundleForClass: self.class];
+
     if (mCanClose) {
       // Close button layer.
-      NSBundle* b = [NSBundle bundleForClass: [self class]];
-      NSString* path = [b pathForResource: @"TabClose_Unpressed"
-                                   ofType: @"png"];
-      mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
+      mCloseButtonImage = [bundle imageForResource: @"TabClose_Unpressed"];
       
-      //			NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Unpressed"];
-      CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
       mCloseButton = [CALayer layer];
       CGRect r = CGRectZero;
       r.size = NSSizeToCGSize([mCloseButtonImage size]);
@@ -492,20 +434,15 @@
       else 
         r.origin.y = floor((horizon / 2) - (r.size.height / 2));
       [mCloseButton setFrame: r];
-      [mCloseButton setContents: (id)img];
+      mCloseButton.contents = mCloseButtonImage;
       [mCloseButton setAutoresizingMask: kCALayerMinXMargin];
       [self addSublayer: mCloseButton];
     }
     
     if (mHasIcon) {
       // Icon layer.
-      NSBundle* b = [NSBundle bundleForClass: [self class]];
-      NSString* path = [b pathForResource: @"TabDocument"
-                                   ofType: @"png"];
-      mDocumentIconImage = [[NSImage alloc] initWithContentsOfFile: path];
+      mDocumentIconImage = [bundle imageForResource: @"TabDocument"];
       
-      //			NSImage* iconImage = [NSImage imageNamed: @"TabDocument"];
-      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
       mIcon = [CALayer layer];
       CGRect r = CGRectZero;
       r.size = NSSizeToCGSize([mDocumentIconImage size]);
@@ -515,7 +452,7 @@
      else 
        r.origin.y = floor((horizon / 2) - (r.size.height / 2));
       [mIcon setFrame: r];
-      [mIcon setContents: (id)img];
+      mIcon.contents = mDocumentIconImage;
       [self addSublayer: mIcon];
     }
     
@@ -557,7 +494,7 @@
       [mTitleLayer setForegroundColor: c];
       CGColorRelease(c);
       NSFont* font = [NSFont boldSystemFontOfSize: 0];
-      [mTitleLayer setFont: font];
+      [mTitleLayer setFont: (__bridge CFTypeRef _Nullable)(font)];
       if (mTabSize == WBTabSizeLarge) {
         [mTitleLayer setFontSize: 11.5];
         CGColorRef shadowColor = WB_CGColorCreateCalibratedRGB(1.0, 1.0, 1.0, 1.0);
@@ -586,8 +523,6 @@
   return self;
 }
 
-
-
 + (WBTabItem*) tabItemWithIdentifier: (id) identifier
                                label: (NSString*) label
                            direction: (WBTabDirection) tabDirection
@@ -596,32 +531,23 @@
                              hasIcon: (BOOL) hasIcon
                             canClose: (BOOL) canClose;
 {
-  return [[[WBTabItem alloc] initWithIdentifier: identifier
-                                          label: label
-                                      direction: tabDirection
-                                      placement: tabPlacement
-                                           size: tabSize
-                                        hasIcon: hasIcon
-                                       canClose: canClose] autorelease];
+  return [[WBTabItem alloc] initWithIdentifier: identifier
+                                         label: label
+                                     direction: tabDirection
+                                     placement: tabPlacement
+                                          size: tabSize
+                                       hasIcon: hasIcon
+                                      canClose: canClose];
 }
-
-
 
 - (void) dealloc
 {
-  [mIdentifier release];
-  [mLabel release];
-  [mCloseButtonImage release];
-  [mDocumentIconImage release];
   
   CGColorRelease(mColorActiveSelected);
   CGColorRelease(mColorActiveNotSelected);
   CGColorRelease(mColorNotActiveSelected);
   CGColorRelease(mColorNotActiveNotSelected);
-  
-  [super dealloc];
 }
-
 
 @end
 

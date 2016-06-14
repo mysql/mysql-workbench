@@ -57,7 +57,7 @@ protected:
 
       std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
       if (target_version.empty())
-        target_version = "5.5";
+        target_version = "5.5.49";
       tester.get_rdbms()->version(parse_version(tester.grt, target_version));
 
       // init database connection
@@ -87,6 +87,7 @@ TEST_FUNCTION(3)
   schemata.push_back("grtdiff_alter_test");
   tester.grt->get_undo_manager()->disable();
   db_mysql_CatalogRef cat= tester.db_rev_eng_schema(schemata);
+  tester.wb->flush_idle_tasks();
   tester.wb->close_document();
   tester.wb->close_document_finish();
 }

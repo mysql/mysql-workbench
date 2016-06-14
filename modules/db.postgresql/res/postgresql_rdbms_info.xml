@@ -115,7 +115,7 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param5">
             <value type="string" key="caption">Database:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The database to connect to. Leave blank to select it later.</value>
+            <value type="string" key="description">The database to connect to. Cannot be blank.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">4</value>
             <value type="int" key="layoutWidth">218</value>

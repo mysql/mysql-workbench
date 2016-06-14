@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,7 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-
 @class WBMainController;
-@class WBMainWindow;
+@class MainWindowController;
 
-void setupSQLQueryUI(WBMainController *main, WBMainWindow *mainwin, wb::WBContextUI *wbui);
+void setupSQLQueryUI(WBMainController *main, MainWindowController *controller, wb::WBContextUI *wbui);
