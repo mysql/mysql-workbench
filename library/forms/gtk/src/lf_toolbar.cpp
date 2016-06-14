@@ -137,21 +137,11 @@ void mforms::gtk::ToolBarImpl::insert_item(mforms::ToolBar *toolbar, int index, 
 
   if (item && item->get_type() == SeparatorItem)
   {
-    Gtk::Alignment *align = dynamic_cast<Gtk::Alignment*>(w);
-    if (align)
+    Gtk::Separator *sep = dynamic_cast<Gtk::Separator*>(w);
+    if (sep)
     {
-      Gtk::Separator* sep = 0;
-      if (toolbar_orientation_from_type(impl->_toolbar_type) == Gtk::ORIENTATION_HORIZONTAL)
-        sep = new Gtk::HSeparator;
-      else
-        sep = new Gtk::VSeparator;
-
-      if (sep)
-      {
-        sep->show();
-        align->add(*Gtk::manage(sep));
-        align->show();
-      }
+      sep->set_orientation(toolbar_orientation_from_type(impl->_toolbar_type));
+      sep->show();
     }
   }
 
@@ -226,9 +216,8 @@ bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolB
     }
     case mforms::SeparatorItem:
     {
-      Gtk::Alignment *align = Gtk::manage(new Gtk::Alignment(0.5, 0.5));
-      align->set_padding(2, 1, 2, 1);
-      w = align;
+      Gtk::Separator* sep = new Gtk::Separator(Gtk::ORIENTATION_VERTICAL);
+      w = sep;
       break;
     }
     case mforms::SearchFieldItem:

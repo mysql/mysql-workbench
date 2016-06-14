@@ -71,7 +71,6 @@ class PopoverWidget : public Gtk::Window
     int                     _handle_y;
 
     WBFixed                 _fixed;
-    Gtk::Alignment         *_align;
     Gtk::Box               *_hbox;
     int                     _old_w;
     int                     _old_h;
@@ -104,12 +103,9 @@ PopoverWidget::PopoverWidget(Gtk::Window* parent, mforms::PopoverStyle style)
     set_resizable(false);
     set_name("gtk-tooltip");
     set_border_width(2);
-    _align= Gtk::manage(new Gtk::Alignment());
-
-    add(*_align);
 
     _hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
-    _align->add(*_hbox);
+    add(*_hbox);
     signal_event().connect(sigc::mem_fun(this, &PopoverWidget::tooltip_signal_event));
     parent->add_events(Gdk::KEY_RELEASE_MASK);
     parent->signal_key_release_event().connect_notify(sigc::mem_fun(this, &PopoverWidget::parent_key_release));

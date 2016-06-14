@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@ class TableImpl : public ViewImpl
 {  
 protected:
   Gtk::Table *_table;
-  Gtk::Alignment *_alignment;
+  Gtk::Box *_outerBox;
   virtual Gtk::Widget *get_outer() const;
   virtual Gtk::Widget *get_inner() const;
   

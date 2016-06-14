@@ -35,22 +35,21 @@ static std::string icon_path;
 
 static void setup_padded_button(Gtk::Button *button, Gtk::Label *label, Gtk::Image *image)
 {
-  Gtk::Alignment *align= Gtk::manage(new Gtk::Alignment());
-
-  button->add(*align);
-
   if (image)
   {
     Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 4));
-    align->add(*hbox);
+    button->add(*hbox);
     hbox->pack_start(*image, false, true);
     hbox->pack_start(*label, true, true);
+    button->set_margin_left(6);
+    button->set_margin_right(8);
   }
   else if (label)
-    align->add(*label);
-
-  align->property_left_padding()= 6;
-  align->property_right_padding()= 8;
+  {
+    button->add(*label);
+    label->set_margin_left(6);
+    label->set_margin_right(8);
+  }
   
   button->show_all();
 }
@@ -75,13 +74,13 @@ WizardImpl::WizardImpl(::mforms::Wizard *wiz, ::mforms::Form* owner)
   setup_padded_button(&_extra_btn, &_extra_label, 0);
   _extra_label.set_use_markup(true);
 
-  Gtk::Alignment *align= Gtk::manage(new Gtk::Alignment());
-  _heading.set_alignment(0.0, 0.5);
-  align->add(_heading);
-  align->set_border_width(12);
+  _heading.set_halign(Gtk::ALIGN_START);
+  _heading.set_valign(Gtk::ALIGN_CENTER);
+  Gtk::Box *holder = Gtk::manage(new Gtk::Box());
+  holder->pack_start(_heading, true, true);
+  holder->set_border_width(12);
   
-  
-  _top_table.attach(*align, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL);
+  _top_table.attach(*holder, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL);
   _top_table.attach(*Gtk::manage(new Gtk::HSeparator()), 0, 2, 2, 3, Gtk::FILL, Gtk::FILL);
   _top_table.attach(_button_box, 0, 2, 3, 4, Gtk::FILL, Gtk::FILL);
 

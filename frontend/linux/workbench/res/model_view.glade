@@ -96,15 +96,18 @@
                 <property name="position">800</property>
                 <property name="position_set">True</property>
                 <child>
-                  <object class="GtkAlignment" id="overview_placeholder">
+                  <object class="GtkBox" id="overview_placeholder">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <placeholder/>
                     </child>
                   </object>
                   <packing>
-                    <property name="resize">True</property>
+                    <property name="resize">False</property>
                     <property name="shrink">True</property>
                   </packing>
                 </child>

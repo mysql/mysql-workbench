@@ -104,9 +104,11 @@ void ModelPanel::post_construct(wb::OverviewBE *overview)
   
   _builder->get_widget("model_sidebar", _sidebar);
   
-  Gtk::Alignment *placeholder;
+
+  Gtk::Box *placeholder;
   _builder->get_widget("overview_placeholder", placeholder);
-  placeholder->add(*_overview);
+  placeholder->pack_start(*_overview, true, true);
+
   _overview->show();
  
   _sidebar1_pane->property_position().signal_changed().connect(sigc::mem_fun(this, &ModelPanel::resize_overview));
