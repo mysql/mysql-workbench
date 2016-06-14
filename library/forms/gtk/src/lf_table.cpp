@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 Gtk::Widget *mforms::gtk::TableImpl::get_outer() const
 {
-  return _alignment;
+  return _outerBox;
 }
 //------------------------------------------------------------------------------
 Gtk::Widget *mforms::gtk::TableImpl::get_inner() const
@@ -32,18 +32,19 @@ Gtk::Widget *mforms::gtk::TableImpl::get_inner() const
 //------------------------------------------------------------------------------
 mforms::gtk::TableImpl::TableImpl(::mforms::Table *self) : ViewImpl(self)
 {
-  _alignment= new Gtk::Alignment();
+  _outerBox = new Gtk::Box();
   _table= new Gtk::Table();
-  _table->show();
-  _alignment->add(*_table);
-  _alignment->show();
-  _alignment->set(0.5, 0.5, 1.0, 1.0);
+  _outerBox->pack_start(*_table, true, true);
+  _outerBox->show_all();
+  _table->set_halign(Gtk::ALIGN_FILL);
+  _table->set_valign(Gtk::ALIGN_FILL);
+  setup();
 }
 
 mforms::gtk::TableImpl::~TableImpl()
 {
   delete _table;
-  delete _alignment;
+  delete _outerBox;
 }
 //------------------------------------------------------------------------------
 bool mforms::gtk::TableImpl::create(::mforms::Table *self)
@@ -129,12 +130,14 @@ void mforms::gtk::TableImpl::set_padding_impl(int left, int top, int right, int 
 {
   if (left < 0 && top < 0 && right < 0 && bottom < 0)
   {
-    _alignment->set(0.5, 0.5, 0.0, 0.0);
+    _table->set_valign(Gtk::ALIGN_CENTER);
+    _table->set_halign(Gtk::ALIGN_CENTER);
     _table->set_border_width(0);
   }
   else
   {
-    _alignment->set(0.5, 0.5, 1.0, 1.0);
+    _table->set_valign(Gtk::ALIGN_FILL);
+    _table->set_halign(Gtk::ALIGN_FILL);
     _table->set_border_width(left);
   }
 }

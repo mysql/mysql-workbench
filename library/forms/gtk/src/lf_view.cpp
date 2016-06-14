@@ -521,6 +521,18 @@ void ViewImpl::set_back_color(const std::string &color)
     else
       provider->load_from_data("* { background-color: " + color + "; }");
     w->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+    // Outer widget should also receive color, cause when someone will set padding there will be frame.
+    Gtk::Widget *o = this->get_outer();
+    if (o && o != w)
+    {
+      auto provider = Gtk::CssProvider::create();
+      if (color.empty())
+        provider->load_from_data("* { background-color: rgba(0, 0, 0, 0); }");
+      else
+        provider->load_from_data("* { background-color: " + color + "; }");
+      o->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+    }
   }
 }
 

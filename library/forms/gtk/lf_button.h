@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ namespace gtk {
 
 class ButtonImpl : public ViewImpl
 {
-  Gtk::Alignment *_align;
+  Gtk::Box *_holder;
  protected:
   Gtk::Label *_label;
   Gtk::Button *_button;

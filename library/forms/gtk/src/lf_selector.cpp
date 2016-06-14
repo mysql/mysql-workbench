@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -238,7 +238,7 @@ SelectorImpl::SelectorImpl(::mforms::Selector *self, ::mforms::SelectorStyle sty
   : ViewImpl(self)
   , _pimpl(0)
 {
-  _align= Gtk::manage(new Gtk::Alignment(0.5, 0.5, 1, 0));
+  _outerBox = Gtk::manage(new Gtk::Box());
   // TODO: implement selector styles.
   //_pimpl= Gtk::manage(new Gtk::ComboBoxText());
   //_pimpl->show();
@@ -247,9 +247,10 @@ SelectorImpl::SelectorImpl(::mforms::Selector *self, ::mforms::SelectorStyle sty
   else if (style == SelectorPopup)
     _pimpl = new SelectorPopupImpl(self);
 
-  _align->add(*_pimpl->widget());
-  _pimpl->widget()->show();
-  _align->show_all();
+  _outerBox->pack_start(*_pimpl->widget(), true, true);
+  _outerBox->show_all();
+  _pimpl->widget()->set_halign(Gtk::ALIGN_CENTER);
+  _pimpl->widget()->set_valign(Gtk::ALIGN_CENTER);
 }
 
 //------------------------------------------------------------------------------
@@ -364,7 +365,7 @@ void SelectorImpl::set_value(::mforms::Selector *self, const std::string& value)
     sel->_pimpl->set_value(value);
 }
 
-Gtk::Widget *SelectorImpl::get_outer() const { return _align; }
+Gtk::Widget *SelectorImpl::get_outer() const { return _outerBox; }
 Gtk::Widget *SelectorImpl::get_inner() const { return _pimpl->widget(); }
 
 //------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,24 +25,24 @@
 
 
 mforms::gtk::ButtonImpl::ButtonImpl(::mforms::Button *self, ::mforms::ButtonType btype, bool concrete)
-    : ViewImpl(self),  _align(0), _label(0), _button(0), _icon(0)
+    : ViewImpl(self),  _holder(0), _label(0), _button(0), _icon(0)
 {
   if (concrete)
   {
     _button= Gtk::manage(new Gtk::Button());
-    _align= Gtk::manage(new Gtk::Alignment());
+    _holder= Gtk::manage(new Gtk::Box());
     if (btype == ::mforms::PushButton)
     {
       _label= Gtk::manage(new Gtk::Label());
-      _align->add(*_label);
+      _holder->pack_start(*_label, true, true);
     }
     else
     {
       _icon= Gtk::manage(new Gtk::Image());
-      _align->add(*_icon);
+      _holder->pack_start(*_icon, true, true);
       _button->set_relief(Gtk::RELIEF_NONE);
     }
-    _button->add(*_align);
+    _button->add(*_holder);
     _button->signal_clicked().connect(sigc::bind(sigc::ptr_fun(&ButtonImpl::callback), self));
 
     _button->show_all();
@@ -97,11 +97,14 @@ void mforms::gtk::ButtonImpl::set_icon(::mforms::Button *self, const std::string
 
     if ( button )
     {
-      if (!button->_icon)
+      if (button->_icon == nullptr)
       {
         button->_icon= Gtk::manage(new Gtk::Image());
-        button->_align->remove();
-        button->_align->add(*button->_icon);
+          if (button->_label != nullptr)
+            button->_holder->remove(*button->_label);
+
+
+        button->_holder->pack_start(*button->_icon, true, true);
         button->_icon->show();
         button->_button->show_all();
       }
@@ -122,10 +125,27 @@ void mforms::gtk::ButtonImpl::enable_internal_padding(Button *self, bool enabled
   ButtonImpl* button = self->get_data<ButtonImpl>();
   if (button)
   {
-    if (enabled)
-      button->_align->set_padding(0, 0, 8, 8);
-    else
-      button->_align->set_padding(0, 0, 0, 0);
+    if (!button->_holder->get_children().empty())
+    {
+      Gtk::Widget* widget = button->_holder->get_children()[0]; // If there's something inside, it's only one item.
+      if (widget != nullptr)
+      {
+        if (enabled)
+        {
+          widget->set_margin_top(0);
+          widget->set_margin_right(8);
+          widget->set_margin_bottom(0);
+          widget->set_margin_left(8);
+        }
+        else
+        {
+          widget->set_margin_top(0);
+          widget->set_margin_right(0);
+          widget->set_margin_bottom(0);
+          widget->set_margin_left(0);
+        }
+      }
+    }
   }
 }
 
