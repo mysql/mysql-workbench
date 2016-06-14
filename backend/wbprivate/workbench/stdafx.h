@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,6 +45,7 @@
 #include <typeinfo>
 #include <fstream>
 #include <stdint.h>
+#include <sstream>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -52,6 +53,8 @@
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
 
 #include <cairo/cairo.h>
 #include <cairo/cairo-pdf.h>

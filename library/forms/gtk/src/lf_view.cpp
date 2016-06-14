@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,8 @@
 #include "../lf_view.h"
 #include "base/util_functions.h"
 #include "base/log.h"
+#include <atkmm.h>
+
 DEFAULT_LOG_DOMAIN("mforms.linux")
 
 namespace mforms { namespace gtk {
@@ -281,7 +283,22 @@ void ViewImpl::set_name(::mforms::View *self, const std::string &name)
 
 void ViewImpl::set_name(const std::string &name)
 {
-
+  Gtk::Widget *w = get_outer();
+  if(w)
+  {
+    w->set_name(name);
+    {
+      Glib::RefPtr<Atk::Object> acc = w->get_accessible();
+      if (acc)
+        acc->set_name(name);
+    }
+    if (get_outer() != get_inner() && get_inner())
+    {
+      Glib::RefPtr<Atk::Object> acc = get_inner()->get_accessible();
+      if (acc)
+        acc->set_name(name);
+    }
+  }
 }
 
 void ViewImpl::relayout(::mforms::View *view)

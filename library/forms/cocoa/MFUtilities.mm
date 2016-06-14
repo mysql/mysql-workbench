@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,6 @@
 
 #import "MFMForms.h"
 #import "MFBase.h"
-#include <stdexcept>
 
 #include "base/log.h"
 #include "base/string_utilities.h"
@@ -59,7 +58,7 @@ static int util_show_message_with_checkbox(const std::string &title, const std::
                                            const std::string &other,
                                            const std::string &cb_message, bool &cb_answer)
 {
-  NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+  NSAlert *alert = [[NSAlert alloc] init];
   
   [alert setMessageText: wrap_nsstring(title)];
   [alert setInformativeText: [wrap_nsstring(text) stringByReplacingOccurrencesOfString:@"%" withString:@"%%"]];
@@ -161,13 +160,17 @@ static base::Mutex timeout_lock;
   return self;
 }
 
+-(instancetype)init
+{
+  return [self initWithSlot: boost::function<bool ()>()];
+}
+
 - (void)dealloc
 {
   delete callback;
-  [super dealloc];
 }
 
-- (void)fire:(NSTimer*)timer
+- (void)fire: (NSTimer*)timer
 {
   try
   {
@@ -188,7 +191,6 @@ static base::Mutex timeout_lock;
         }
       }
       [timer invalidate];
-      [self autorelease];
     }
   }
   catch (std::exception &exc)
@@ -231,7 +233,7 @@ static std::string os_error_to_string(OSErr error)
 {
   CFStringRef ref = SecCopyErrorMessageString(error, nil);
 
-  std::string result = [(NSString*)ref UTF8String]; // Toll-free-bridged.
+  std::string result = [(__bridge NSString*)ref UTF8String]; // Toll-free-bridged.
   CFRelease(ref);
   return result;
 }
@@ -344,16 +346,13 @@ static bool util_hide_wait_message()
 
 static bool util_move_to_trash(const std::string &path)
 {
-  FSRef ref;
-  if (FSPathMakeRefWithOptions((const UInt8 *)[wrap_nsstring(path) fileSystemRepresentation], 
-                               kFSPathMakeRefDoNotFollowLeafSymlink,
-                               &ref,
-                               NULL) != 0)
-    return false;
-  
-  if (FSMoveObjectToTrashSync(&ref, NULL, kFSFileOperationDefaultOptions) != 0)
-    return false;
-  return true;
+  NSFileManager *manager = NSFileManager.defaultManager;
+  NSString *nativePath = [NSString stringWithUTF8String: path.c_str()];
+  NSURL *url = [NSURL fileURLWithPath: nativePath];
+
+  NSError *error = nil;
+  [manager trashItemAtURL: url resultingItemURL: nil error: &error];
+  return error == nil;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,7 +378,6 @@ static void reveal_file(const std::string &path)
 - (void)dealloc
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [super dealloc];
 }
 
 - (void)perform
@@ -406,7 +404,6 @@ static void *util_perform_from_main_thread(const boost::function<void* ()> &slot
                           withObject: nil
                        waitUntilDone: wait_response];
     void *result = tmp->result;
-    [tmp release];
     return result;
   }
 }
@@ -428,7 +425,6 @@ static double util_get_text_width(const std::string &text, const std::string &fo
     std::string font;
     float size;
     bool bold, italic;
-    [attributeDict release];
     attributeDict = nil;
     if (base::parse_font_description(font_desc, font, size, bold, italic))
     {
@@ -436,7 +432,7 @@ static double util_get_text_width(const std::string &text, const std::string &fo
       NSFont *font = [NSFont fontWithDescriptor: [fd fontDescriptorWithSymbolicTraits: (bold ? NSFontBoldTrait : 0) | (italic ? NSFontItalicTrait : 0)]
                                       size: size];
 
-      attributeDict = [@{NSFontAttributeName: font} retain];
+      attributeDict = @{NSFontAttributeName: font};
     }
     cachedFontName = font_desc;
   }
@@ -444,7 +440,6 @@ static double util_get_text_width(const std::string &text, const std::string &fo
   NSAttributedString *str = [[NSAttributedString alloc] initWithString: @(text.c_str())
                                                             attributes: attributeDict];
   double w = [str size].width;
-  [str release];
   return w;
 }
 

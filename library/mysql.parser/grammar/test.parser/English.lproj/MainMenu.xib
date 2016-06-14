@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner">
@@ -488,7 +488,6 @@ DQ
                     <tabView id="560">
                         <rect key="frame" x="10" y="10" width="868" height="623"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <animations/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Single Query" identifier="1" id="561">
@@ -506,7 +505,6 @@ DQ
                                                     <textView importsGraphics="NO" richText="NO" horizontallyResizable="YES" allowsUndo="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="538">
                                                         <rect key="frame" x="0.0" y="0.0" width="811" height="137"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <animations/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="811" height="137"/>
                                                         <size key="maxSize" width="10000000" height="10000000"/>
@@ -518,25 +516,20 @@ DQ
                                                         </connections>
                                                     </textView>
                                                 </subviews>
-                                                <animations/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </clipView>
-                                            <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="537">
                                                 <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="536">
                                                 <rect key="frame" x="796" y="1" width="16" height="137"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                         </scrollView>
                                         <button verticalHuggingPriority="750" id="540">
                                             <rect key="frame" x="741" y="9" width="96" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                            <animations/>
                                             <buttonCell key="cell" type="push" title="Parse" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="541">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -555,7 +548,6 @@ DQ
                                                     <textView editable="NO" importsGraphics="NO" allowsUndo="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="553">
                                                         <rect key="frame" x="0.0" y="0.0" width="811" height="264"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <animations/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="811" height="264"/>
                                                         <size key="maxSize" width="1501" height="10000000"/>
@@ -564,19 +556,15 @@ DQ
                                                         <size key="maxSize" width="1501" height="10000000"/>
                                                     </textView>
                                                 </subviews>
-                                                <animations/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </clipView>
-                                            <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="552">
                                                 <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="551">
                                                 <rect key="frame" x="796" y="1" width="16" height="264"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                         </scrollView>
                                         <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="555">
@@ -589,7 +577,6 @@ DQ
                                                     <textView editable="NO" drawsBackground="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="558">
                                                         <rect key="frame" x="0.0" y="0.0" width="811" height="94"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <animations/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="811" height="94"/>
                                                         <size key="maxSize" width="1501" height="10000000"/>
@@ -598,23 +585,18 @@ DQ
                                                         <size key="maxSize" width="1501" height="10000000"/>
                                                     </textView>
                                                 </subviews>
-                                                <animations/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </clipView>
-                                            <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="557">
                                                 <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="556">
                                                 <rect key="frame" x="796" y="1" width="16" height="94"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                         </scrollView>
                                     </subviews>
-                                    <animations/>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Multi Query" identifier="2" id="563">
@@ -625,7 +607,6 @@ DQ
                                         <textField verticalHuggingPriority="750" id="565">
                                             <rect key="frame" x="10" y="534" width="836" height="38"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="566">
                                                 <font key="font" metaFont="system" size="15"/>
                                                 <string key="title">This page allows to run a large number of queries from a text file. Each query in such a file must be terminated by $$ followed by a linebreak. Minimum server version for the default file is 5.6.04!</string>
@@ -636,7 +617,6 @@ DQ
                                         <textField verticalHuggingPriority="750" id="567">
                                             <rect key="frame" x="10" y="490" width="819" height="17"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Select a file containing queries:" id="568">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -646,7 +626,6 @@ DQ
                                         <textField verticalHuggingPriority="750" id="569">
                                             <rect key="frame" x="12" y="460" width="706" height="22"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="/Data/Work/MySQL/workbench/testing/tut/data/db/statements.txt" drawsBackground="YES" id="570">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -656,7 +635,6 @@ DQ
                                         <button verticalHuggingPriority="750" id="571">
                                             <rect key="frame" x="721" y="454" width="46" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <buttonCell key="cell" type="push" title="..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="572">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -668,7 +646,6 @@ DQ
                                         <button verticalHuggingPriority="750" id="575">
                                             <rect key="frame" x="331" y="424" width="115" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <buttonCell key="cell" type="push" title="Start tests" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="576">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -687,7 +664,6 @@ DQ
                                                     <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="586" userLabel="Error Query Text">
                                                         <rect key="frame" x="0.0" y="0.0" width="820" height="258"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <animations/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="820" height="258"/>
                                                         <size key="maxSize" width="830" height="10000000"/>
@@ -696,25 +672,20 @@ DQ
                                                         <size key="maxSize" width="830" height="10000000"/>
                                                     </textView>
                                                 </subviews>
-                                                <animations/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </clipView>
-                                            <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="587">
                                                 <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="588">
                                                 <rect key="frame" x="805" y="1" width="16" height="258"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                         </scrollView>
                                         <textField verticalHuggingPriority="750" id="592">
                                             <rect key="frame" x="688" y="285" width="148" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="0 of 0" id="593">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -724,7 +695,6 @@ DQ
                                         <textField verticalHuggingPriority="750" id="580">
                                             <rect key="frame" x="10" y="285" width="58" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Status:" id="581">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" red="0.0" green="0.40461397170000002" blue="0.81900453569999998" alpha="1" colorSpace="calibratedRGB"/>
@@ -734,7 +704,6 @@ DQ
                                         <textField verticalHuggingPriority="750" id="582">
                                             <rect key="frame" x="76" y="285" width="591" height="17"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="nothing done yet" id="583">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -751,7 +720,6 @@ DQ
                                                     <textView importsGraphics="NO" richText="NO" findStyle="panel" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="597">
                                                         <rect key="frame" x="0.0" y="0.0" width="820" height="98"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <animations/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="820" height="98"/>
                                                         <size key="maxSize" width="830" height="10000000"/>
@@ -760,23 +728,18 @@ DQ
                                                         <size key="maxSize" width="830" height="10000000"/>
                                                     </textView>
                                                 </subviews>
-                                                <animations/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </clipView>
-                                            <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="598">
                                                 <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="599">
                                                 <rect key="frame" x="805" y="1" width="16" height="98"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                         </scrollView>
                                     </subviews>
-                                    <animations/>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Queries to tokens" identifier="" id="609">
@@ -787,7 +750,6 @@ DQ
                                         <textField verticalHuggingPriority="750" id="611">
                                             <rect key="frame" x="15" y="597" width="819" height="38"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Converts a list of queries to a list of tokens, which can be used in unit tests." id="612">
                                                 <font key="font" metaFont="system" size="15"/>
                                                 <color key="textColor" red="0.0" green="0.40461397170000002" blue="0.81900453569999998" alpha="1" colorSpace="calibratedRGB"/>
@@ -804,7 +766,6 @@ DQ
                                                     <textView importsGraphics="NO" richText="NO" allowsUndo="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="620">
                                                         <rect key="frame" x="0.0" y="0.0" width="811" height="248"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <animations/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="811" height="248"/>
                                                         <size key="maxSize" width="1501" height="10000000"/>
@@ -813,19 +774,15 @@ DQ
                                                         <size key="maxSize" width="1501" height="10000000"/>
                                                     </textView>
                                                 </subviews>
-                                                <animations/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </clipView>
-                                            <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="619">
                                                 <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="618">
                                                 <rect key="frame" x="796" y="1" width="16" height="248"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                         </scrollView>
                                         <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="614">
@@ -838,7 +795,6 @@ DQ
                                                     <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="617">
                                                         <rect key="frame" x="0.0" y="0.0" width="811" height="248"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <animations/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="811" height="248"/>
                                                         <size key="maxSize" width="1501" height="10000000"/>
@@ -847,25 +803,20 @@ DQ
                                                         <size key="maxSize" width="1501" height="10000000"/>
                                                     </textView>
                                                 </subviews>
-                                                <animations/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </clipView>
-                                            <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="616">
                                                 <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="615">
                                                 <rect key="frame" x="796" y="1" width="16" height="248"/>
                                                 <autoresizingMask key="autoresizingMask"/>
-                                                <animations/>
                                             </scroller>
                                         </scrollView>
                                         <textField verticalHuggingPriority="750" id="621">
                                             <rect key="frame" x="15" y="583" width="819" height="17"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Enter the list of queries to convert. Delimiter must be $$" id="622">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -875,7 +826,6 @@ DQ
                                         <textField verticalHuggingPriority="750" id="623">
                                             <rect key="frame" x="15" y="42" width="819" height="17"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Nothing done yet" id="624">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -885,7 +835,6 @@ DQ
                                         <button verticalHuggingPriority="750" id="625">
                                             <rect key="frame" x="695" y="6" width="142" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                            <animations/>
                                             <buttonCell key="cell" type="push" title="Start conversion" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="626">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -895,7 +844,6 @@ DQ
                                             </connections>
                                         </button>
                                     </subviews>
-                                    <animations/>
                                 </view>
                             </tabViewItem>
                         </tabViewItems>
@@ -903,7 +851,6 @@ DQ
                     <button id="638">
                         <rect key="frame" x="106" y="673" width="184" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <animations/>
                         <buttonCell key="cell" type="check" title="IGNORE_SPACE" bezelStyle="regularSquare" imagePosition="left" inset="2" id="639">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -912,7 +859,6 @@ DQ
                     <button id="640">
                         <rect key="frame" x="106" y="653" width="184" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <animations/>
                         <buttonCell key="cell" type="check" title="ANSI_QUOTES" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="641">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -921,7 +867,6 @@ DQ
                     <button id="642">
                         <rect key="frame" x="106" y="633" width="184" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <animations/>
                         <buttonCell key="cell" type="check" title="PIPES_AS_CONCAT" bezelStyle="regularSquare" imagePosition="left" inset="2" id="643">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -930,7 +875,6 @@ DQ
                     <button id="644">
                         <rect key="frame" x="261" y="673" width="184" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <animations/>
                         <buttonCell key="cell" type="check" title="HIGH_NOT_PRECEDENCE" bezelStyle="regularSquare" imagePosition="left" inset="2" id="645">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -939,7 +883,6 @@ DQ
                     <textField verticalHuggingPriority="750" id="646">
                         <rect key="frame" x="17" y="674" width="86" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="SQL modes:" id="647">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -949,7 +892,6 @@ DQ
                     <button id="648">
                         <rect key="frame" x="261" y="653" width="184" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <animations/>
                         <buttonCell key="cell" type="check" title="NO_BACKSLASH_ESCAPE" bezelStyle="regularSquare" imagePosition="left" inset="2" id="649">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -958,7 +900,6 @@ DQ
                     <textField verticalHuggingPriority="750" id="657">
                         <rect key="frame" x="777" y="671" width="96" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" title="50610" drawsBackground="YES" usesSingleLineMode="YES" id="658">
                             <numberFormatter key="formatter" formatterBehavior="custom10_4" positiveFormat="0.00.00" negativeFormat="" localizesFormat="NO" numberStyle="decimal" allowsFloats="NO" usesGroupingSeparator="NO" paddingCharacter="*" groupingSize="0" minimumIntegerDigits="1" maximumIntegerDigits="309" maximumFractionDigits="3" decimalSeparator="." groupingSeparator="," currencyDecimalSeparator="." plusSign="+" minusSign="-" notANumberSymbol="NaN" perMillSymbol="‰" percentSymbol="%" exponentSymbol="E" positivePrefix="" positiveSuffix="" negativePrefix="-" negativeSuffix="" id="659">
                                 <integer key="minimum" value="40000"/>
@@ -971,7 +912,6 @@ DQ
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="1PW-x9-woq">
                         <rect key="frame" x="585" y="674" width="192" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Server versions (e.g. 50610):" id="yiJ-Gq-gM1">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -979,7 +919,6 @@ DQ
                         </textFieldCell>
                     </textField>
                 </subviews>
-                <animations/>
             </view>
             <point key="canvasLocation" x="364.5" y="119"/>
         </window>

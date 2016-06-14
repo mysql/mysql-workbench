@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@
     mOwner = aBrowser;
     mOwner->set_data(self);
     
-    mBrowser = [[[WebView alloc] initWithFrame: [self frame]] autorelease];
+    mBrowser = [[WebView alloc] initWithFrame: [self frame]];
     [self addSubview: mBrowser];
     [mBrowser setFrameLoadDelegate: (id)self];
     [mBrowser setUIDelegate: (id)self];
@@ -85,7 +85,7 @@
            fromDataSource:(WebDataSource *)dataSource
 {  
   // disable caching
-  NSMutableURLRequest *req = [[request mutableCopy] autorelease];
+  NSMutableURLRequest *req = [request mutableCopy];
   [req setCachePolicy: NSURLRequestReloadIgnoringLocalCacheData];
   return req;
 }
@@ -133,10 +133,6 @@ decisionListener:(id < WebPolicyDecisionListener >)listener
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)dealloc
-{
-  [super dealloc];
-}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -167,9 +163,7 @@ decisionListener:(id < WebPolicyDecisionListener >)listener
 
 static bool WebBrowser_create(::mforms::WebBrowser *self)
 {
-  [[[MFWebBrowserImpl alloc] initWithObject: self] autorelease];
-  
-  return true;  
+  return [[MFWebBrowserImpl alloc] initWithObject: self] != nil;
 }
 
 //--------------------------------------------------------------------------------------------------

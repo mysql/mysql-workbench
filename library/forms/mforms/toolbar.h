@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,12 +68,15 @@ namespace mforms {
     void (*set_item_icon)(ToolBarItem *item, const std::string&);
     void (*set_item_alt_icon)(ToolBarItem *item, const std::string&);
     void (*set_item_text)(ToolBarItem *item, const std::string&);
+    // XXX: implement on Windows and Mac
     std::string (*get_item_text)(ToolBarItem *item);
+    void (*set_item_name)(ToolBarItem *item, const std::string&);
     void (*set_item_enabled)(ToolBarItem *item, bool);
     bool (*get_item_enabled)(ToolBarItem *item);
     void (*set_item_checked)(ToolBarItem *item, bool);
     bool (*get_item_checked)(ToolBarItem *item);
     void (*set_item_tooltip)(ToolBarItem *item, const std::string&);
+
 
     // For selector items only.
     void (*set_selector_items)(ToolBarItem* item, const std::vector<std::string>& values);

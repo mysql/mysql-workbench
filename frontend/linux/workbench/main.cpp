@@ -124,6 +124,10 @@ int main(int argc, char **argv)
   gdk_threads_enter();
   Gtk::Main app(argc, argv);
 
+  // Workbench doesn't support any other language than English, 
+  // force text/window directon to be Left To Right.
+  gtk_widget_set_default_direction(GTK_TEXT_DIR_LTR);
+
   if (getenv("XSYNC"))
   {
     g_message("Enabling XSynchronize()");

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,9 +54,6 @@ namespace mforms {
     int (*enter_event_loop)(App *app, float max_wait_time);
     void (*exit_event_loop)(App *app, int result);
     
-    void (*begin_thread_loop)();
-    void (*end_thread_loop)();
-
     base::Color (*get_system_color)(SystemColor type);
 
     float (*backing_scale_factor)(App *app);
@@ -110,10 +107,6 @@ namespace mforms {
     
     /** Exits from enter_event_loop() */
     void exit_event_loop(int retcode);
-    
-    // use in threads where mforms is called
-    static void begin_thread_loop();
-    static void end_thread_loop();
     
     // Retrieve system information like predefined colors, screen size, monitor count etc.
     base::Color get_system_color(SystemColor type);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,7 +46,7 @@ static std::string get_args_hash(const grt::BaseListRef &list)
       hash+= get_args_hash(grt::BaseListRef::cast_from(list.get(i)));
       break;
     default:
-      hash+= list.get(i).repr();
+      hash += list.get(i).toString();
       break;
     }
   }
@@ -1229,7 +1229,7 @@ grt::BaseListRef ArgumentPool::build_argument_list(const app_PluginRef &plugin)
     if (!argument.is_valid())
     {
       log_warning("Cannot satisfy plugin input for %s: %s", plugin->name().c_str(), searched_key.c_str());
-      log_warning("Missing input: %s", pdef.repr().c_str());
+      log_warning("Missing input: %s", pdef.debugDescription().c_str());
       
       throw grt::grt_runtime_error("Cannot execute "+*plugin->name(),
                                    "Plugin requires unavailable argument value.");

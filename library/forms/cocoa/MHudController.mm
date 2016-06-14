@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,12 +21,52 @@
 
 //--------------------------------------------------------------------------------------------------
 
+@interface MHudController()
+{
+  IBOutlet NSPanel* hudPanel;
+  IBOutlet NSTextField* shortHudDescription;
+  IBOutlet NSTextField* longHudDescription;
+  IBOutlet NSButton* cancelButton;
+
+  NSModalSession modalSession;
+  BOOL stopped;
+
+  boost::function<bool ()> cancelAction;
+
+  NSMutableArray *nibObjects;
+}
+
+@end
+
 @implementation MHudController
 
 static MHudController* instance = nil;
 
+- (instancetype)init
+{
+  self = [super init];
+  if (self != nil)
+  {
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"HUDPanel" owner: self topLevelObjects: &temp])
+    {
+      nibObjects = temp;
+      [hudPanel setBecomesKeyOnlyIfNeeded: YES];
+    }
+  }
+  return self;
+}
 
-+ (void) showHudWithTitle: (NSString*) title andDescription: (NSString*) description
+//--------------------------------------------------------------------------------------------------
+
+- (void)dealloc
+{
+  [NSObject cancelPreviousPerformRequestsWithTarget: self];
+}
+
+//--------------------------------------------------------------------------------------------------
+
++ (void)showHudWithTitle: (NSString*) title andDescription: (NSString*) description
 {
   // TODO: perhaps this should be made thread safe (even tho it must never be called outside the main thread)?
   if (instance == nil)
@@ -144,27 +184,6 @@ static BOOL modalHUDRunning = NO;
     return result;
   }
   return NO;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (instancetype) init
-{
-  if ((self= [super init]) != nil)
-  {
-    if (![NSBundle loadNibNamed: @"HUDPanel" owner: self])
-      NSLog(@"Error loading HUDPanel.xib");
-
-    [hudPanel setBecomesKeyOnlyIfNeeded: YES];
-  }
-  return self;
-}
-
-- (void) dealloc
-{
-  [hudPanel release];
-  [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [super dealloc];
 }
 
 //--------------------------------------------------------------------------------------------------

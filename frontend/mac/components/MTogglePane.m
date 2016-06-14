@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,13 +29,13 @@
     _initializing= YES;
     if (hasHeader)
     {
-      _header= [[[NSImageView alloc] initWithFrame:NSMakeRect(0, 0, NSWidth(frame), 23)] autorelease];
+      _header= [[NSImageView alloc] initWithFrame:NSMakeRect(0, 0, NSWidth(frame), 23)];
       [self addSubview:_header];
       [_header setAutoresizingMask:NSViewWidthSizable];
       [_header setImageScaling:NSImageScaleAxesIndependently];
       [_header setImage:[NSImage imageNamed:@"collapsing_panel_header_bg_flat.png"]];
   
-      _toggleButton= [[[NSButton alloc] initWithFrame:NSMakeRect(5, 5, 13, 13)] autorelease];
+      _toggleButton= [[NSButton alloc] initWithFrame:NSMakeRect(5, 5, 13, 13)];
       [_toggleButton setBezelStyle:NSDisclosureBezelStyle];
       [_toggleButton setButtonType:NSOnOffButton];
       [_toggleButton setTitle:@""];
@@ -44,14 +44,14 @@
       [_toggleButton setState: NSOnState]; // expanded by default
       [self addSubview:_toggleButton];
     
-      _label= [[[NSTextField alloc] initWithFrame:NSMakeRect(20, 3, 20, 20)] autorelease];
+      _label= [[NSTextField alloc] initWithFrame:NSMakeRect(20, 3, 20, 20)];
       [_label setBordered:NO];
       [_label setEditable:NO];
       [_label setFont:[NSFont boldSystemFontOfSize:12]];
       [_label setDrawsBackground:NO];
       [self addSubview:_label];
     }
-    _buttons= [[NSMutableArray array] retain];
+    _buttons= [NSMutableArray array];
     
     _initializing = NO;
     _relayouting = NO;
@@ -73,8 +73,6 @@
 {
   [[NSNotificationCenter defaultCenter] removeObserver: self];
   
-  [_buttons release];
-  [super dealloc];
 }
 
 - (BOOL)isFlipped
@@ -197,12 +195,12 @@
 }
 
 
-- (NSButton*)addButton:(NSImage*)icon
-            withAction:(SEL)selector
-                target:(id)target
+- (NSButton*)addButton: (NSImage*)icon
+            withAction: (SEL)selector
+                target: (id)target
 {
   CGFloat headerHeight= NSHeight([_header frame]);
-  NSButton *button= [[[NSButton alloc] initWithFrame:NSMakeRect(0, 0, headerHeight, headerHeight)] autorelease];
+  NSButton *button = [[NSButton alloc] initWithFrame: NSMakeRect(0, 0, headerHeight, headerHeight)];
 
   _initializing= YES;
   

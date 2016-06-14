@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ class MainView(WizardPage):
 
         label = mforms.newLabel('The MySQL Schema Transfer Wizard helps you to move your data from an older MySQL server to the latest MySQL GA\n'+
                                 '(General Availability) version. It is meant for developer machines to get you working with the latest\n'+ 
-                                'MySQL Server quickly. The data is transferred on the fly and not based on a consistent snapshot. This\n'+
+                                'MySQL Server quickly. The data is transferred on the fly and is not based on a consistent snapshot. This\n'+
                                 'works well for local instances that are used for development purposes. Please note that you should not\n'+
                                 'use this tool on production MySQL instances. Production databases require a more complex data migration\n'+
                                 'scenario in most cases.')

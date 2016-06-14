@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
 
 #include <errno.h>
 #define __STDC_LIMIT_MACROS
@@ -38,7 +37,13 @@
 #include <boost/bind.hpp>
 #include <boost/algorithm/string.hpp>
 
+#ifdef __APPLE__
+// All the functions in sql.h are deprecated, but we have no replacement atm.
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 DEFAULT_LOG_DOMAIN("copytable");
+
 #define TMP_TRIGGER_TABLE "wb_tmp_triggers"
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
@@ -518,7 +523,7 @@ std::string CopyDataSource::get_where_condition(const std::vector<std::string> &
       where_cond += ")";
   }
 
-    return where_cond;
+  return where_cond;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -1095,10 +1100,10 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                 }
                 catch (std::logic_error &)
                 {
-                  const std::string msg = base::strfmt("ERROR: Could not successfully convert UCS-2 string to UTF-8 "
-                      "in table %s.%s (column %s). Original string: \"%s\"",
-                      _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
-                      );
+                  const std::string msg = base::strfmt("Could not successfully convert UCS-2 string to UTF-8 "
+                    "in table %s.%s (column %s). Original string: \"%s\"",
+                    _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
+                  );
                   log_error("%s", msg.c_str());
                   throw std::invalid_argument(msg);
                 }
@@ -1644,6 +1649,8 @@ std::vector<std::string> MySQLCopyDataTarget::get_last_pkeys(const std::vector<s
 {
   std::vector<std::string> ret;
   std::string order_by_cond;
+  if (pk_columns.empty())
+    throw std::logic_error("Get last copied row: Cannot get last copied record from table with no PK.");
 
   for (size_t i = 0; i < pk_columns.size(); ++i)
   {
@@ -1668,15 +1675,47 @@ std::vector<std::string> MySQLCopyDataTarget::get_last_pkeys(const std::vector<s
       ret.push_back(row[i]);
 
   mysql_free_result(result);
-
-  std::string column_value;
-  for (size_t i = 0; i < ret.size(); ++i)
+  
+  MYSQL_STMT *stmt = mysql_stmt_init(&_mysql);
+  if (stmt)
   {
-    column_value += base::strfmt("%s: %s", pk_columns[i].c_str(), ret[i].c_str());
-    if (i < pk_columns.size() - 1)
-      column_value += ",";
+    if (mysql_stmt_prepare(stmt, q.data(), (unsigned long)q.length()) == 0)
+    {
+      MYSQL_RES *meta = mysql_stmt_result_metadata(stmt);
+      if (meta)
+      {
+        MYSQL_FIELD *fields = mysql_fetch_fields(meta);
+        std::string column_value;
+        for (size_t i = 0; i < ret.size(); ++i)
+        {
+          if (fields[i].type == MYSQL_TYPE_TIMESTAMP && base::ends_with(ret[i], ".000000")) 
+            column_value += base::strfmt("%s: %s", pk_columns[i].c_str(), ret[i].substr(ret[i].length() - 7).c_str());
+          else
+            column_value += base::strfmt("%s: %s", pk_columns[i].c_str(), ret[i].c_str());
+          if (i < pk_columns.size() - 1)
+          column_value += ",";
+        }
+        log_info("Resuming copy of table %s.%s. Starting on record with keys: %s\n", schema.c_str(), table.c_str(), column_value.c_str());
+        mysql_free_result(meta);
+      }
+      else
+      {
+        ConnectionError err("mysql_stmt_result_metadata", stmt);
+        mysql_stmt_close(stmt);
+        throw err;
+      }
+    }
+    else
+    {
+      ConnectionError err("mysql_stmt_prepare", stmt);
+      mysql_stmt_close(stmt);
+      throw err;
+    }
+    mysql_stmt_close(stmt);
   }
-  log_info("Resuming copy of table %s.%s. Starting on record with keys: %s\n", schema.c_str(), table.c_str(), column_value.c_str());
+  else
+    throw ConnectionError("mysql_stmt_init", &_mysql);
+
 
   return ret;
 }
@@ -1957,6 +1996,25 @@ void MySQLCopyDataTarget::set_truncate(bool flag)
   _truncate = flag;
 }
 
+void MySQLCopyDataTarget::get_generated_columns(const std::string &schema, const std::string &table, std::vector<std::string> &gc)
+{
+  gc.clear();
+  std::string q = base::strfmt("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s' AND EXTRA like '%%GENERATED%%';", base::unquote(schema).c_str(), base::unquote(table).c_str());
+
+  if (mysql_query(&_mysql, q.data()) < 0)
+    throw ConnectionError("mysql_query("+q+")", &_mysql);
+  
+  MYSQL_RES *result;
+  if ((result = mysql_use_result(&_mysql)) == NULL)
+    throw ConnectionError("Getting Generated Columns", &_mysql);
+  
+  MYSQL_ROW row;
+  while ((row = mysql_fetch_row(result)))
+    gc.push_back(row[0]);
+  
+  mysql_free_result(result);
+}
+
 void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std::string &table,
                                            boost::shared_ptr<std::vector<ColumnInfo> > columns)
 {
@@ -1976,20 +2034,37 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
       if (meta)
       {
         int column_count = mysql_num_fields(meta);
-        if (column_count == (int)columns->size())
+        MYSQL_FIELD *fields = mysql_fetch_fields(meta);
+
+        std::vector<std::string> generated_columns;
+        if ( column_count > (int)columns->size())
+          get_generated_columns(schema, table, generated_columns);
+        
+        int gc_count = generated_columns.size();
+        std::string target_name;
+
+        if ((column_count - gc_count) == (int)columns->size())
         {
-          MYSQL_FIELD *fields = mysql_fetch_fields(meta);
-          log_debug2("Columns from target table %s.%s (%i):\n", schema.c_str(), table.c_str(), column_count);
+          log_debug2("Columns from target table %s.%s (%i) [skipped: %i]:\n", schema.c_str(), table.c_str(), column_count - gc_count, gc_count);
+          unsigned short idx_mod = 0;
           for (int i= 0; i < column_count; i++)
           {
-            (*columns)[i].target_name = std::string(fields[i].name, fields[i].name_length);
-            (*columns)[i].target_type = field_type_to_ps_param_type(fields[i].type);
+            target_name = std::string(fields[i].name, fields[i].name_length);
+            if ( std::find(generated_columns.begin(), generated_columns.end(), target_name) 
+                  != generated_columns.end())
+            {
+              log_debug2("%i - %s: GENERATED [SKIPPED]\n", i + 1, target_name.c_str());
+              idx_mod++;
+              continue;
+            }
+            (*columns)[i - idx_mod].target_name = target_name;
+            (*columns)[i - idx_mod].target_type = field_type_to_ps_param_type(fields[i].type);
             // We can't trust source drivers to report signed/unsigned values, so we take that from the target MySQL table:
-            (*columns)[i].is_unsigned = (fields[i].flags & UNSIGNED_FLAG) != 0;
+            (*columns)[i - idx_mod].is_unsigned = (fields[i].flags & UNSIGNED_FLAG) != 0;
             if (_get_field_lengths_from_target)
-                (*columns)[i].source_length = fields[i].length;
-            log_debug2("%i - %s: %s\n", i + 1, (*columns)[i].target_name.c_str(),
-                       mysql_field_type_to_name((*columns)[i].target_type));
+                (*columns)[i - idx_mod].source_length = fields[i].length;
+            log_debug2("%i - %s: %s\n", i + 1, (*columns)[i - idx_mod].target_name.c_str(),
+                       mysql_field_type_to_name((*columns)[i - idx_mod].target_type));
           }
         }
         else

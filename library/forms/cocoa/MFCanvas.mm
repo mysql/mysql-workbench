@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014,2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@
     mCanvas = [[MCanvasViewer alloc] initWithFrame: [self bounds]];
 
     [mCanvas setupQuartz];
-    [self setContentCanvas: [mCanvas autorelease]];
+    [self setContentCanvas: mCanvas];
 
     mOwner= canvas;
     mOwner->set_data(self);
@@ -47,7 +47,7 @@
 
 static bool cf_create(mforms::Canvas *self)
 {
-  return [[[MFCanvasImpl alloc] initWithObject: self] autorelease] != nil;
+  return [[MFCanvasImpl alloc] initWithObject: self] != nil;
 }
 
 

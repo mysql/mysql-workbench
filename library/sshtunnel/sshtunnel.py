@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -33,11 +33,13 @@ import paramiko
 from workbench.log import log_warning, log_error, log_debug, log_debug2, log_debug3, log_info
 from wb_common import SSHFingerprintNewError, format_bad_host_exception
 
+import grt
+
 SSH_PORT = 22
 REMOTE_PORT = 3306
 
 # timeout for closing an unused tunnel
-TUNNEL_TIMEOUT = 60
+TUNNEL_TIMEOUT = 3
 
 # paramiko 1.6 didn't have this class
 if hasattr(paramiko, "WarningPolicy"):
@@ -99,7 +101,6 @@ class Tunnel(threading.Thread):
     def is_connecting(self):
         with self.lock:
             return self.connecting
-
 
     def run(self):
         try:
@@ -239,6 +240,9 @@ class Tunnel(threading.Thread):
 
     def _get_ssh_config_path(self):
         paths = []
+        user_path = grt.root.wb.options.options['pathtosshconfig'] if grt.root.wb.options.options['pathtosshconfig'] is not None else None
+        if user_path:
+            paths.append(user_path)
         if platform.system().lower() == "windows":
             paths.append("%s\ssh\config" % mforms.App.get().get_user_data_folder())
             paths.append("%s\ssh\ssh_config" % mforms.App.get().get_user_data_folder())
@@ -528,10 +532,11 @@ class TunnelManager:
         else:
             self.outpipe.write(code + '\n')
         self.outpipe.flush()
-
+    
     def shutdown(self):
         for tunnel in self.tunnel_by_port.itervalues():
             tunnel.close()
+            tunnel.join()
 
     # FIXME: It seems that this function is never called. Should we remove it?
     def wait_requests(self):

@@ -18,13 +18,19 @@ if (UNIX)
       copytable/converter.cpp
   )
 
+
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set_target_properties(wbcopytables-bin PROPERTIES COMPILE_FLAGS "-fPIE")
   else()
     set_target_properties(wbcopytables-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")
   endif()
   target_link_libraries(wbcopytables-bin wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
-  
+   if(COMMAND cotire)
+       set_target_properties(wbcopytables-bin PROPERTIES
+           COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS};/usr/include/unixodbc_conf.h;/usr/include/sql.h;/usr/include/sqltypes.h;/usr/include/sqlext.h;/usr/include/sqlucode.h")
+
+       cotire(wbcopytables-bin) 
+   endif()
   install(TARGETS wbcopytables-bin DESTINATION ${WB_INSTALL_DIR_EXECUTABLE})
 else()
   add_executable(wbcopytables
@@ -33,6 +39,7 @@ else()
       copytable/main.cpp
       copytable/converter.cpp
   )
+  
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set_target_properties(wbcopytables PROPERTIES COMPILE_FLAGS "-fPIE")
   else()
@@ -40,7 +47,13 @@ else()
   endif()
 
    target_link_libraries(wbcopytables wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
-  
+   if(COMMAND cotire)
+       set_target_properties(wbcopytables PROPERTIES
+           COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS};/usr/include/unixodbc_conf.h;/usr/include/sql.h;/usr/include/sqltypes.h;/usr/include/sqlext.h;/usr/include/sqlucode.h")
+
+       cotire(wbcopytables) 
+   endif()
+
   install(TARGETS wbcopytables DESTINATION ${WB_INSTALL_BIN_DIR})
 endif()
 

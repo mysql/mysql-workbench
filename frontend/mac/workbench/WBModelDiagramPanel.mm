@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 
 #include "model/wb_model_diagram_form.h"
 #include "model/wb_layer_tree.h"
+#include "wb_context.h"
+#include "wb_context_model.h"
 
 #import "mforms/../cocoa/MFView.h"
 #import "NSString_extras.h"
@@ -24,12 +26,12 @@
 #import "GRTIconCache.h"
 #import "GRTTreeDataSource.h"
 #import "MTabSwitcher.h"
+#import "WBSplitView.h"
 #import "WBObjectDescriptionController.h"
+#import "WBObjectPropertiesController.h"
 #import "WBModelSidebarController.h"
 #import "MCPPUtilities.h"
-
-#include "wb_context.h"
-#include "wb_context_model.h"
+#import "MContainerView.h"
 
 static int zoom_levels[]= {
   200,
@@ -49,13 +51,47 @@ static int zoom_levels[]= {
   10
 };
 
+@interface WBModelDiagramPanel()
+{
+  NSString *_identifier;
+  IBOutlet NSView *toolbar;
+  IBOutlet NSView *optionsToolbar;
+  IBOutlet MCanvasScrollView *scrollView;
+  IBOutlet NSTabViewItem *layerTab;
+
+  IBOutlet NSSplitView *sideSplitview;
+
+  IBOutlet WBModelSidebarController *sidebarController;
+
+  IBOutlet MCanvasViewer *navigatorViewer;
+  IBOutlet NSSlider *zoomSlider;
+  IBOutlet NSComboBox *zoomCombo;
+
+  IBOutlet WBObjectDescriptionController *descriptionController;
+
+  IBOutlet WBObjectPropertiesController* propertiesController;
+
+  IBOutlet MTabSwitcher *mSwitcherT;
+  IBOutlet MTabSwitcher *mSwitcherM;
+  IBOutlet MTabSwitcher *mSwitcherB;
+
+  NSMutableArray *nibObjects;
+
+  MCanvasViewer *_viewer;
+
+  wb::ModelDiagramForm *_formBE;
+
+  BOOL _miniViewReady;
+}
+
+@end
 
 @implementation WBModelDiagramPanel
 
 static void *backend_destroyed(void *ptr)
 {
-  ((WBModelDiagramPanel*)ptr)->_formBE = 0;
-  return 0;
+  ((__bridge WBModelDiagramPanel*)ptr)->_formBE = NULL;
+  return NULL;
 }
 
 - (instancetype)initWithId: (NSString *)oid formBE: (wb::ModelDiagramForm *)be
@@ -63,103 +99,98 @@ static void *backend_destroyed(void *ptr)
   self = [super init];
   if (self != nil)
   {
-    _formBE= be;
-    _formBE->set_frontend_data(self);
-    grtm = be->get_wb()->get_grt_manager();
-    
-    _formBE->add_destroy_notify_callback(self, backend_destroyed);
-
-    [NSBundle loadNibNamed:@"WBModelDiagram" owner:self];
-    _identifier= [oid retain];
-    _viewer= [[[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)] autorelease];
-    
-    [descriptionController setWBContext: _formBE->get_wb()->get_ui()];
-    [mPropertiesController setWBContext: _formBE->get_wb()->get_ui()];
-    
-    [topView setDividerThickness: 1];
-    [topView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
-     
-    // setup layer tree
-    [layerTab setView: nsviewForView(_formBE->get_layer_tree())];
-
-    // setup navigator
-    for (int i= 0; i < (int)(sizeof(zoom_levels)/sizeof(int)); i++)
-      [zoomCombo addItemWithObjectValue:@((float)zoom_levels[i])];
-    [navigatorViewer setupQuartz];
-    [navigatorViewer setPostsFrameChangedNotifications:YES];
-    
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(navigatorFrameChanged:)
-                                                 name: NSViewFrameDidChangeNotification
-                                               object: navigatorViewer];    
-    [_viewer setupQuartz];
-    [_viewer setDelegate: self];
-    [scrollView setContentCanvas: _viewer];
-    
-    [sidebarController setupWithDiagramForm: _formBE];
-    
-    [_viewer canvas]->set_user_data(self);
-    
-    [_viewer registerForDraggedTypes: @[@WB_DBOBJECT_DRAG_TYPE]];
-
-    [self setRightSidebar: be->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0)];
-
-    [topView setAutosaveName: @"diagramSplitPosition"];
-
-    [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
-    [mSwitcherM setTabStyle: MPaletteTabSwitcherSmallText];
-    [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
-
-    // setup tools toolbar
-    mforms::ToolBar *tbar = _formBE->get_tools_toolbar();
-    if (tbar)
+    _formBE = be;
+    NSMutableArray *temp;
+    if (_formBE != NULL && [NSBundle.mainBundle loadNibNamed: @"WBModelDiagram" owner: self topLevelObjects: &temp])
     {
-      NSView *view = tbar->get_data();
-      [toolbar addSubview: view];
-      [view setAutoresizingMask: NSViewHeightSizable|NSViewMinXMargin|NSViewMaxYMargin];
-      [view setFrame: [toolbar bounds]];
-    }
+      nibObjects = temp;
 
-    // setup options toolbar
-    tbar = _formBE->get_options_toolbar();
-    if (tbar)
-    {
-      NSView *view = tbar->get_data();
-      [optionsToolbar addSubview: view];
-      [view setAutoresizingMask: NSViewWidthSizable|NSViewMinXMargin|NSViewMaxYMargin];
-      [view setFrame: [optionsToolbar bounds]];
-    }
+      _formBE->set_frontend_data((__bridge void *)self);
+      grtm = be->get_wb()->get_grt_manager();
 
-    [self restoreSidebarsFor: "ModelDiagram" toolbar: _formBE->get_toolbar()];
+      _formBE->add_destroy_notify_callback((__bridge void *)self, backend_destroyed);
+
+      _identifier = oid;
+      _viewer = [[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)];
+
+      [descriptionController setWBContext: _formBE->get_wb()->get_ui()];
+      [propertiesController setWBContext: _formBE->get_wb()->get_ui()];
+
+      [self.splitView setDividerThickness: 1];
+      [self.splitView setBackgroundColor: [NSColor colorWithDeviceWhite: 128 / 255.0 alpha : 1.0]];
+
+      // setup layer tree
+      [layerTab setView: nsviewForView(_formBE->get_layer_tree())];
+
+      // setup navigator
+      for (int i= 0; i < (int)(sizeof(zoom_levels)/sizeof(int)); i++)
+        [zoomCombo addItemWithObjectValue:@((float)zoom_levels[i])];
+      [navigatorViewer setupQuartz];
+      [navigatorViewer setPostsFrameChangedNotifications:YES];
+
+      [[NSNotificationCenter defaultCenter] addObserver: self
+                                               selector: @selector(navigatorFrameChanged:)
+                                                   name: NSViewFrameDidChangeNotification
+                                                 object: navigatorViewer];
+      [_viewer setupQuartz];
+      [_viewer setDelegate: self];
+      [scrollView setContentCanvas: _viewer];
+
+      [sidebarController setupWithDiagramForm: _formBE];
+
+      [_viewer canvas]->set_user_data((__bridge void *)self);
+
+      [_viewer registerForDraggedTypes: @[@WB_DBOBJECT_DRAG_TYPE]];
+
+      [self setRightSidebar: be->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0)];
+
+      [self.splitView setAutosaveName: @"diagramSplitPosition"];
+
+      [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
+      [mSwitcherM setTabStyle: MPaletteTabSwitcherSmallText];
+      [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
+
+      // setup tools toolbar
+      mforms::ToolBar *tbar = _formBE->get_tools_toolbar();
+      if (tbar)
+      {
+        NSView *view = tbar->get_data();
+        [toolbar addSubview: view];
+        [view setAutoresizingMask: NSViewHeightSizable|NSViewMinXMargin|NSViewMaxYMargin];
+        [view setFrame: [toolbar bounds]];
+      }
+
+      // setup options toolbar
+      tbar = _formBE->get_options_toolbar();
+      if (tbar)
+      {
+        NSView *view = tbar->get_data();
+        [optionsToolbar addSubview: view];
+        [view setAutoresizingMask: NSViewWidthSizable|NSViewMinXMargin|NSViewMaxYMargin];
+        [view setFrame: [optionsToolbar bounds]];
+      }
+      
+      [self restoreSidebarsFor: "ModelDiagram" toolbar: _formBE->get_toolbar()];
+    }
   }
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithId: nil formBE: NULL];
+}
 
 - (void)dealloc
 {
   if (_formBE)
-    _formBE->remove_destroy_notify_callback(self);
-  [_identifier release];
+    _formBE->remove_destroy_notify_callback((__bridge void *)self);
   [[NSNotificationCenter defaultCenter] removeObserver: self];
   [sidebarController invalidate];
   
   [_viewer setDelegate: nil];
-  [topView release];
-  [sidebarController release];
-  [descriptionController release];
-  [mPropertiesController release];
-  [mainSplitViewDelegate release];
-  
-  [super dealloc];
+
 }
-
-
-- (NSView*)topView
-{
-  return topView;
-}
-
 
 - (void)showOptionsToolbar:(BOOL)flag
 {
@@ -167,36 +198,24 @@ static void *backend_destroyed(void *ptr)
   {
     id parent = [optionsToolbar superview];
     [optionsToolbar setHidden: !flag];
-    [optionsToolbar retain];
     [optionsToolbar removeFromSuperview];
     [parent addSubview: optionsToolbar];
-    [optionsToolbar release];
     [optionsToolbar setNeedsDisplay:YES];
-/*  
-    NSRect rect= [scrollView frame];
-    if (flag)
-      rect.size.height-= NSHeight([optionsToolbar frame]);
-    else
-      rect.size.height+= NSHeight([optionsToolbar frame]);
-    [scrollView setFrame: rect];
-*/
+
   }
   else
     [optionsToolbar setNeedsDisplay: YES];
 }
-
 
 - (MCanvasViewer*)canvasViewer
 {
   return _viewer;
 }
 
-
 - (mdc::CanvasView*)canvas
 {
   return [_viewer canvas];
 }
-
 
 - (NSString*)identifier
 {
@@ -209,20 +228,15 @@ static void *backend_destroyed(void *ptr)
   return @(_formBE->get_title().c_str());
 }
 
-
-- (void)searchString:(NSString*)text
+- (void)searchString: (NSString*)text
 {
-  if (!_formBE->search_and_focus_object([text UTF8String]))
-    ;
-    //NSBeep();
+  _formBE->search_and_focus_object([text UTF8String]);
 }
-
 
 - (NSImage*)tabIcon
 {
   return [NSImage imageNamed:@"tab.diagram.16x16.png"];
 }
-
 
 static NSPoint loadCursorHotspot(const std::string &path)
 {
@@ -244,7 +258,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   return NSMakePoint(0.0, 0.0);
 }
 
-
 - (void)updateCursor
 {
   std::string cursorName= _formBE->get_cursor();
@@ -261,15 +274,12 @@ static NSPoint loadCursorHotspot(const std::string &path)
       cursor= [[NSCursor alloc] initWithImage:image hotSpot:loadCursorHotspot([path fileSystemRepresentation])];
   }
   [_viewer setCursor:cursor];
-  [cursor release];
 }
-
 
 - (bec::UIForm*)formBE
 {
   return _formBE;
 }
-
 
 - (NSView*)initialFirstResponder
 {
@@ -281,7 +291,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   return _formBE->is_closed();
 }
 
-
 - (BOOL)willClose
 {
   if (_formBE)
@@ -291,7 +300,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
 
 - (void)selectionChanged
 {
-  [mPropertiesController updateForForm: _formBE];
+  [propertiesController updateForForm: _formBE];
   [descriptionController updateForForm: _formBE];
 }
 
@@ -301,7 +310,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
   [navigatorViewer setNeedsDisplay:YES];
 }
 
-- (IBAction)setZoom:(id)sender
+- (IBAction)setZoom: (id)sender
 {
   if (sender == zoomSlider || sender == zoomCombo)
   {
@@ -323,20 +332,17 @@ static NSPoint loadCursorHotspot(const std::string &path)
   }
 }
 
-
 - (void)refreshZoom
 {
   [zoomSlider setIntegerValue:_formBE->get_zoom()*100];
   [zoomCombo setIntegerValue:_formBE->get_zoom()*100];
 }
 
-
 - (void)didActivate
 {
   NSView *view = nsviewForView(_formBE->get_wb()->get_model_context()->shared_secondary_sidebar());
   if ([view superview])
   {
-    [view retain];
     [view removeFromSuperview];
   }
   [secondarySidebar addSubview: view];
@@ -345,7 +351,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
 
 
   [self refreshZoom];
-  [[topView window] makeFirstResponder: _viewer];
+  [[self.topView window] makeFirstResponder: _viewer];
   
   if (!_miniViewReady)
   {
@@ -355,12 +361,10 @@ static NSPoint loadCursorHotspot(const std::string &path)
   }
 }
 
-
 - (void)didOpen
 {
   _formBE->set_closed(false);
 }
-
 
 - (void)canvasToolChanged:(mdc::CanvasView*)canvas
 {
@@ -370,7 +374,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   
   [self updateCursor];
 }
-
 
 - (BOOL)canvasMouseDown:(mdc::MouseButton)button
                location:(NSPoint)pos
@@ -404,20 +407,17 @@ static NSPoint loadCursorHotspot(const std::string &path)
   return YES;
 }
 
-
 - (BOOL)canvasKeyDown:(mdc::KeyInfo)key state:(mdc::EventState)state
 {
   _formBE->handle_key(key, true, state);
   return YES;
 }
 
-
 - (BOOL)canvasKeyUp:(mdc::KeyInfo)key state:(mdc::EventState)state
 {
   _formBE->handle_key(key, false, state);
   return YES;
 }
-
 
 
 // drag drop
@@ -465,7 +465,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   return [super splitView: splitView shouldAdjustSizeOfSubview: subview];
 }
 
-
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMin ofSubviewAt:(NSInteger)dividerIndex
 {
   if (splitView == sideSplitview)
@@ -475,7 +474,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
     else if (dividerIndex == 1)
       return proposedMin + 30;
   }
-  else if (splitView == topView)
+  else if (splitView == self.splitView)
     return proposedMin + 120;
   return [super splitView: splitView constrainMinCoordinate: proposedMin ofSubviewAt: dividerIndex];
 }
@@ -490,7 +489,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
     else if (dividerIndex == 1)
       return proposedMax - 80;
   }
-  else if (splitView == topView)
+  else if (splitView == self.splitView)
     return proposedMax - 120;
 
   return [super splitView: splitView constrainMaxCoordinate: proposedMax ofSubviewAt: dividerIndex];
@@ -503,25 +502,23 @@ static NSPoint loadCursorHotspot(const std::string &path)
 {
   mSidebarAtRight = flag;
   
-  id view1 = [topView subviews][0];
-  id view2 = [topView subviews][1];
+  id view1 = [self.topView subviews][0];
+  id view2 = [self.topView subviews][1];
   
   if (mSidebarAtRight)
   {
     if (view2 != sidebar)
     {
-      [[view1 retain] autorelease];
       [view1 removeFromSuperview];
-      [topView addSubview: view1];
+      [self.topView addSubview: view1];
     }    
   }
   else
   {
     if (view1 != sidebar)
     {
-      [[view1 retain] autorelease];
       [view1 removeFromSuperview];
-      [topView addSubview: view1];
+      [self.topView addSubview: view1];
     }
   }
 }

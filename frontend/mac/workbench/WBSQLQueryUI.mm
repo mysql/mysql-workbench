@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 #import "WBSQLQueryPanel.h"
 
 #import "WBMainController.h"
-#import "WBMainWindow.h"
+#import "MainWindowController.h"
 #import "MResultsetViewer.h"
 
 #include "mforms/code_editor.h"
@@ -38,22 +38,22 @@
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WQE_NATIVE)
 
-static WBBasePanel *createQueryPanel(WBMainWindow *mainwin, boost::shared_ptr<bec::UIForm> form)
+static WBBasePanel *createQueryPanel(MainWindowController *controller, boost::shared_ptr<bec::UIForm> form)
 {
-  SqlEditorForm::Ref editor= boost::dynamic_pointer_cast<SqlEditorForm>(form);
+  SqlEditorForm::Ref editor = boost::dynamic_pointer_cast<SqlEditorForm>(form);
   
   if (!editor)
     throw std::logic_error("invalid backend object");
 
-  return [[[WBSQLQueryPanel alloc] initWithBE: editor] autorelease];
+  return [[WBSQLQueryPanel alloc] initWithBE: editor];
 }
 
 
-void setupSQLQueryUI(WBMainController *main, WBMainWindow *mainwin, wb::WBContextUI *wbui)
+void setupSQLQueryUI(WBMainController *main, MainWindowController *controller, wb::WBContextUI *wbui)
 {  
   log_debug("Setting up UI\n");
   // other commands in wb_context_sqlide.cpp
 
-  [main registerFormPanelFactory:createQueryPanel forFormType: WB_MAIN_VIEW_DB_QUERY];
+  [main registerFormPanelFactory: createQueryPanel forFormType: WB_MAIN_VIEW_DB_QUERY];
 }
 

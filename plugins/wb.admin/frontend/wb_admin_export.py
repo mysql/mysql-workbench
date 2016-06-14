@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@ def get_path_to_mysqldump():
             if any(os.path.exists(os.path.join(p, path)) for p in os.getenv("PATH").split(os.pathsep)):
                 return path
             if path != "mysqldump":
-                self.print_log_message("mysqldump path specified in configurations is invalid: %s" % path)
+                log_error("mysqldump path specified in configurations is invalid: %s" % path)
                 return None
     except:
         return None
@@ -100,23 +100,21 @@ def get_path_to_mysqldump():
 def get_mysqldump_version():
     path = get_path_to_mysqldump()
     if not path:
-        self.print_log_message("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
+        log_error("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
         return None
       
     output = StringIO.StringIO()
     rc = local_run_cmd('"%s" --version' % path, output_handler=output.write)
     output = output.getvalue()
-    msg = None
-    error = False
     
     if rc or not output:
-        self.print_log_message("Error retrieving version from %s:\n%s (exit %s)"%(path, output, rc))
+        log_error("Error retrieving version from %s:\n%s (exit %s)"%(path, output, rc))
         return None
       
     s = re.match(".*Distrib ([\d.a-z]+).*", output)
     
     if not s:
-        self.print_log_message("Could not parse version number from %s:\n%s"%(path, output))
+        log_error("Could not parse version number from %s:\n%s"%(path, output))
         return None
     
     version_group = s.groups()[0]
@@ -1197,7 +1195,6 @@ class WbAdminImportTab(WbAdminSchemaListTab):
         conn = connection_params.parameterValues
 
         from_folder = not self.fileradio.get_active()
-        old_auth = self.owner.ctrl_be.is_old_authentication_protocol(conn["userName"], conn["hostName"])
 
         operations = []
         if from_folder:
@@ -1216,8 +1213,6 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                 logmsg = "Restoring %s (%s)" % (schema, table)
                 path = self.tables_paths.get((schema, table))
                 extra_args = ["--database=%s" % schema]
-                if old_auth:
-                    extra_args.append('--skip-secure-auth')
                 # description, object_count, extra_args, objects, pipe_factory
                 if path != None:
                     task = DumpThread.TaskData(logmsg, 1, extra_args, [path], None, lambda:None)
@@ -1236,8 +1231,6 @@ class WbAdminImportTab(WbAdminSchemaListTab):
             logmsg = "Restoring " + self.path
             # description, object_count, pipe_factory, extra_args, objects
             extra_args = []
-            if old_auth:
-                extra_args.append('--skip-secure-auth')
             task = DumpThread.TaskData(logmsg, 1, extra_args, [self.path], None, lambda:None)
             operations.append(task)
 #            operations.append((logmsg, 1, lambda:None, [], [self.path]))
@@ -1558,7 +1551,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             return False
         
         if mysqldump_version < self.owner.ctrl_be.target_version:
-            msg = "%s is version %s, but the MySQL Server to be dumped has version %s.\nBecause the version of mysqldump is older than the server, some features may not be backed up properly.\nIt is recommended you upgrade your local MySQL client programs, including mysqldump to a version equal to or newer than that of the target server.\nThe path to the dump tool must then be set in Preferences -> Administrator -> Path to mysqldump Tool:" % (get_path_to_mysqldump(), mysqldump_version, self.owner.ctrl_be.target_version)
+            msg = "%s is version %s, but the MySQL Server to be dumped has version %s.\nBecause the version of mysqldump is older than the server, some features may not be backed up properly.\nIt is recommended you upgrade your local MySQL client programs, including mysqldump, to a version equal to or newer than that of the target server.\nThe path to the dump tool must then be set in Preferences -> Administrator -> Path to mysqldump Tool:" % (get_path_to_mysqldump(), mysqldump_version, self.owner.ctrl_be.target_version)
             if about_to_run:
                 if not mforms.Utilities.show_warning("mysqldump Version Mismatch", msg, "Continue Anyway", "Cancel", ""):
                     return False
@@ -1671,8 +1664,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
 
         conn = connection_params.parameterValues
 
-        old_auth = self.owner.ctrl_be.is_old_authentication_protocol(conn["userName"], conn["hostName"])
-
         single_transaction = self.single_transaction_check.get_active()
         #dump_views = self.dump_view_check.get_active()
         sel_index = self.dump_type_selector.get_selected_index()
@@ -1726,9 +1717,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                             
                         if skip_table_structure:
                             args.append('--no-create-info')
-                        
-                        if old_auth:
-                            args.append('--skip-secure-auth')
 
                         if skip_data:
                             task = self.TableDumpNoData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table))
@@ -1795,9 +1783,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
 
                     if not tables or not dump_triggers:
                         params.append("--skip-triggers")
-                    
-                    if old_auth:
-                        params.append('--skip-secure-auth')
 
                     # description, object_count, pipe_factory, extra_args, objects
                     task = DumpThread.TaskData(title, len(tables), params, objects, tables_to_ignore, lambda schema=schema:self.dump_to_file([schema]))
@@ -1820,8 +1805,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 else:
                     params += ["--databases"]
                 
-                if old_auth:
-                    params.append('--skip-secure-auth')
                 # --databases includes CREATE DATABASE info, so it's not needed for dump_to_file()
                 # description, object_count, pipe_factory, extra_args, objects
                 task = DumpThread.TaskData(title, count, params, schema_names, tables_to_ignore, lambda:self.dump_to_file([]))
@@ -2026,13 +2009,13 @@ class WbAdminExportOptionsTab(mforms.Box):
                             continue
                     if max_version and target_version:
                         if target_version.is_supported_mysql_version_at_least(Version.fromstr(max_version)):
-                            log_debug("Skip option %s becasue it's deprecated in version %s\n" % (optname, max_version))
+                            log_debug("Skip option %s because it's deprecated in version %s\n" % (optname, max_version))
                             continue
                     if min_version and mysqldump_version < min_version:
                             log_debug("Skip option %s because it's for mysqldump %s\n" % (optname, min_version))
                             continue
                     if max_version and mysqldump_version > max_version:
-                            log_debug("Skip option %s becasue it's deprecated in mysqldump %s\n" % (optname, max_version))
+                            log_debug("Skip option %s because it's deprecated in mysqldump %s\n" % (optname, max_version))
                             continue
 
                 # get the default value from mysqldump --help, if we don't have that data, use the stored default

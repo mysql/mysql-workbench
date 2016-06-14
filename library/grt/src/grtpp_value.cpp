@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,13 +89,16 @@ ClassRegistry *ClassRegistry::get_instance()
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Integer::repr() const
+std::string Integer::debugDescription(const std::string &indentation) const
 {
-  char s[100];
-  g_snprintf(s, sizeof(s), "%li", (long int)_value);
-  return s;
+  // Simple values don't use indentation as they are always on a RHS.
+  return toString();
 }
 
+std::string Integer::toString() const
+{
+  return base::to_string(_value);
+}
 
 Integer::Integer(storage_type value)
 : _value(value)
@@ -131,11 +134,14 @@ bool Integer::less_than(const Value *o) const
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Double::repr() const
+std::string Double::debugDescription(const std::string &indentation) const
 {
-  char s[100];
-  g_snprintf(s, sizeof(s), "%g", _value);
-  return s;
+  return toString();
+}
+
+std::string Double::toString() const
+{
+  return base::to_string(_value);
 }
 
 Double::Double(storage_type value)
@@ -169,12 +175,15 @@ bool Double::less_than(const Value *o) const
 
 //--------------------------------------------------------------------------------------------------
 
+std::string String::debugDescription(const std::string &indentation) const
+{
+  return "'" + _value + "'";
+}
 
-std::string String::repr() const
+std::string String::toString() const
 {
   return _value;
 }
-
 
 String::String(const storage_type &value)
 : _value(value)
@@ -202,27 +211,38 @@ bool String::less_than(const Value *o) const
 {
   return _value < dynamic_cast<const String*>(o)->_value;
 }
+
 //--------------------------------------------------------------------------------------------------
 
-
-std::string List::repr() const
+std::string List::debugDescription(const std::string &indentation) const
 {
   std::string s;
-  bool first= true;
+
+  s.append("[\n"); // Not indented (RHS value).
+  for (raw_const_iterator iter= raw_begin(); iter != raw_end(); ++iter)
+    s.append(indentation + "  " + iter->debugDescription(indentation + "  ") + "\n");
+
+  s.append(indentation + "]");
+  return s;
+}
+
+std::string List::toString() const
+{
+  std::string s;
+  bool first = true;
 
   s.append("[");
-  for (raw_const_iterator iter= raw_begin(); iter != raw_end(); ++iter)
+  for (raw_const_iterator iter = raw_begin(); iter != raw_end(); ++iter)
   {
     if (!first)
       s.append(", ");
-    first= false;
-    s.append(iter->repr());
+    first = false;
+    s.append(iter->toString());
   }
 
   s.append("]");
   return s;
 }
-
 
 List::List(GRT *grt, bool allow_null)
 : _grt(grt), _allow_null(allow_null)
@@ -541,28 +561,41 @@ void OwnedList::remove(size_t index)
   _owner->owned_list_item_removed(this, item);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 
-std::string Dict::repr() const
+std::string Dict::debugDescription(const std::string &indentation) const
 {
   std::string s;
-  bool first= true;
+
+  s.append("{\n");
+  for (const_iterator iter = begin(); iter != end(); ++iter)
+  {
+    s.append(indentation + "  " + iter->first);
+    s.append(" = ");
+    s.append(iter->second.debugDescription(indentation + "  ") + "\n");
+  }
+  s.append(indentation + "}");
+  return s;
+}
+
+std::string Dict::toString() const
+{
+  std::string s;
+  bool first = true;
 
   s.append("{");
-  for (const_iterator iter= begin(); iter != end(); ++iter)
+  for (const_iterator iter = begin(); iter != end(); ++iter)
   {
     if (!first)
       s.append(", ");
-    first= false;
+    first = false;
     s.append(iter->first);
     s.append(" = ");
-    s.append(iter->second.repr());
+    s.append(iter->second.toString());
   }
   s.append("}");
   return s;
 }
-
 
 Dict::Dict(GRT *grt, bool allow_null)
 : _grt(grt), _allow_null(allow_null)
@@ -961,7 +994,61 @@ const std::string &Object::class_name() const
   return _metaclass->name();
 }
 
-std::string Object::repr() const
+std::string Object::debugDescription(const std::string &indentation) const
+{
+  std::string s;
+  bool first = true;
+
+  s = strfmt("{<%s> (%s)\n", _metaclass->name().c_str(), id().c_str());
+
+  MetaClass *mc= _metaclass;
+
+  do
+  {
+    for (MetaClass::MemberList::const_iterator iter= mc->get_members_partial().begin();
+         iter != mc->get_members_partial().end(); ++iter)
+    {
+      if (iter->second.overrides) continue;
+
+      if (!first)
+        s.append(", ");
+      first= false;
+
+      s.append(iter->first);
+      s.append(" = ");
+
+      if (iter->second.type.base.type == ObjectType)
+      {
+        ObjectRef obj(ObjectRef::cast_from(get_member(iter->first)));
+        if (obj.is_valid())
+        {
+          if (obj.has_member("name"))
+            s.append(indentation + strfmt("  %s: %s  (%s)",
+                            obj.get_string_member("name").c_str(),
+                            obj.get_metaclass()->name().c_str(),
+                            obj.id().c_str()));
+          else
+            s.append(indentation + strfmt("  %s (%s)",
+                            obj.get_metaclass()->name().c_str(),
+                            obj.id().c_str()));
+        }
+        else
+          s.append(indentation + strfmt("  %s: null", iter->first.c_str()));
+      }
+      else
+        s.append(get_member(iter->first).debugDescription(indentation + "  "));
+    }
+
+    mc= mc->parent();
+  }
+  while (mc != 0);
+
+  s.append(indentation + "}\n");
+
+  return s;
+}
+
+std::string Object::toString() const
 {
   std::string s;
   bool first= true;
@@ -1004,7 +1091,7 @@ std::string Object::repr() const
             iter->first.c_str()));
       }
       else
-        s.append(get_member(iter->first).repr());
+        s.append(get_member(iter->first).toString());
     }
 
     mc= mc->parent();
@@ -1015,7 +1102,6 @@ std::string Object::repr() const
 
   return s;
 }
-
 
 bool Object::is_instance(MetaClass *metaclass) const
 {
@@ -1267,7 +1353,8 @@ class CountedTypeHandler : public TypeHandler
       virtual void clear(TypeHandle& handle)const {release(handle);};
       virtual inline bool is_same(const TypeHandle& handle, const ValueRef &value) const { return get_ptr(handle) == value.valueptr(); }
       virtual inline Type type(const TypeHandle& handle) const { return get_ptr(handle) ? get_ptr(handle)->get_type() : UnknownType; }
-      std::string repr(const TypeHandle& handle) const {return get_ptr(handle)->repr();};
+      std::string debugDescription(const TypeHandle& handle) const {return get_ptr(handle)->debugDescription();};
+      std::string toString(const TypeHandle& handle) const { return get_ptr(handle)->toString(); };
       virtual void mark_global(const TypeHandle& handle) const{get_ptr(handle)->mark_global();};
       virtual void unmark_global(const TypeHandle& handle) const{get_ptr(handle)->unmark_global();};
       virtual internal::Value* valueptr(const TypeHandle& handle) const
@@ -1321,9 +1408,14 @@ public:
         return value.type() == UnknownType;
     }
 
-    std::string repr(const TypeHandle& handle) const
+    std::string debugDescription(const TypeHandle& handle) const
     {
         return "NULL";
+    };
+
+    std::string toString(const TypeHandle& handle) const
+    {
+      return "NULL";
     };
 };
 
@@ -1358,11 +1450,14 @@ public:
         return handle.double_value == value.get_data().double_value;
     }
 
-    std::string repr(const TypeHandle& handle) const
+    std::string debugDescription(const TypeHandle& handle) const
     {
-        char s[100];
-        g_snprintf(s, sizeof(s), "%g", handle.double_value);
-        return s;
+      return toString(handle);
+    };
+
+    std::string toString(const TypeHandle& handle) const
+    {
+      return base::to_string(handle.double_value);
     };
 };
 
@@ -1396,11 +1491,14 @@ public:
         return handle.int_value == value.get_data().int_value;
     }
 
-    std::string repr(const TypeHandle& handle) const
+    std::string debugDescription(const TypeHandle& handle) const
     {
-        char s[100];
-        g_snprintf(s, sizeof(s), "%i", handle.int_value);
-        return s;
+      return toString(handle);
+    };
+
+    std::string toString(const TypeHandle& handle) const
+    {
+      return base::to_string(handle.int_value);
     };
 };
 
@@ -1437,7 +1535,8 @@ public:
 
     virtual inline bool is_same(const TypeHandle& handle, const ValueRef &value) const { return get_ptr(handle) == value.get_data().string_ptr; }
     virtual inline Type type(const TypeHandle& handle) const { return StringType; }
-    std::string repr(const TypeHandle& handle) const {return get_ptr(handle);};
+    std::string debugDescription(const TypeHandle& handle) const {return get_ptr(handle);};
+    std::string toString(const TypeHandle& handle) const { return get_ptr(handle); };
     virtual void mark_global(const TypeHandle& handle) const{};
     virtual void unmark_global(const TypeHandle& handle) const{};
     virtual internal::Value* valueptr(const TypeHandle& handle) const {return NULL;};

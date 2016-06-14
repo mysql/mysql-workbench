@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -252,7 +252,10 @@ class SQLPrettifier:
 
         new_symbol = symbol
         if value and symbol not in NON_KEYWORD_TOKENS:
-            new_value = value.upper()
+            if symbol.upper() == 'HEX_NUM':
+                new_value = '0x' + value[2:].upper()
+            else:
+                new_value = value.upper()
         else:
             new_value = value
         new_children = []

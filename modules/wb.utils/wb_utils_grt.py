@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -32,12 +32,11 @@ import grt
 import mforms
 
 from grt import log_warning
-from workbench.log import log_info, log_error, log_debug, log_debug2
+from workbench.log import log_info, log_error, log_debug2
 import traceback
 
-from workbench.ui import WizardForm, WizardPage, WizardProgressPage
-from mforms import newButton, newCheckBox, newTreeNodeView
-from mforms import FileChooser
+from workbench.ui import WizardForm, WizardPage
+from mforms import newButton, newCheckBox
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "PyWbUtils", author= "Sun Microsystems Inc.", version="1.0")
@@ -276,7 +275,7 @@ def connectionFromString(connstr):
             try:
                 port = int(port)
             except:
-                log_warning("wb_utils", "Error parsing connstring, port value '%s' should be a number\n" % port)
+                log_warning("wb_utils", "Error parsing connstring; port value '%s' should be a number\n" % port)
                 port = None
         if not port:
             port = 3306
@@ -579,31 +578,26 @@ class CheckForUpdateThread(threading.Thread):
         
         self.is_running = True
         try:
-            import xml.dom.minidom
             import urllib2
-            
-            self.dom = xml.dom.minidom.parse(urllib2.urlopen('http://wb.mysql.com/installer/products.xml'))
+            import json
+            self.json = json.load(urllib2.urlopen("http://workbench.mysql.com/current-release")) 
         except Exception, error:
-            self.dom = None
+
+            self.json = None
             self.error = "%s\n\nPlease verify your internet connection is available." % str(error)        
     
     def checkForUpdatesCallback(self):
         if self.isAlive():
             return True  # Don't do anything until the dom is built
         
-        if not self.dom:
+        if not self.json:
             if hasattr(self, 'error'):
                 mforms.Utilities.show_error("Check for updates failed", str(self.error), "OK", "", "")
         else:
             try:
                 current_version = (grt.root.wb.info.version.majorNumber, grt.root.wb.info.version.minorNumber, grt.root.wb.info.version.releaseNumber)
-                edition = '' if grt.root.wb.info.license == 'GPL' else '-commercial'
-                filename=u'mysql-workbench' + (edition or '-community')
-                packages = ( package for package in self.dom.getElementsByTagName('Package') if package.parentNode.parentNode.attributes['name'].nodeValue == u'workbench-win32' + edition)
-                version_strings = (node.attributes['thisVersion'].nodeValue for node in packages if node.attributes['filename'].nodeValue.startswith(filename) and node.attributes['filename'].nodeValue.endswith(u'msi'))
-                versions = tuple( tuple( int(num) for num in version_string.split('.') ) for version_string in version_strings )
-                version_list = [v for v in versions]
-                newest_version = max( version_list ) if version_list else current_version
+                newest_version = tuple(int(i) for i in self.json['fullversion'].split("."))
+
                 if newest_version > current_version:
                     if mforms.Utilities.show_message('New Version Available', 'The new MySQL Workbench %s has been released.\nYou can download the latest version from\nhttp://www.mysql.com/downloads/workbench.' % '.'.join( [str(num) for num in newest_version] ),
                                                   'Get it Now', 'Maybe Later', "") == mforms.ResultOk:
@@ -797,7 +791,7 @@ class SSLWizard_IntroPage(WizardPage):
         box.set_padding(20)
         box.set_spacing(20)
 
-        message = "This wizard will assist you generating a set of SSL certificates and self-signed keys that are required \n"
+        message = "This wizard will assist you to generate a set of SSL certificates and self-signed keys that are required \n"
         message += "by the MySQL server to enable SSL. Other files will also be generated so that you can check how to \n"
         message += "configure your server and clients as well as the attributes used to generate them."
 
@@ -863,9 +857,9 @@ class SSLWizard_OptionsPage(WizardPage):
         box.set_spacing(12)
         box.set_padding(12)
 
-        message = "These optons allow you to configure the process. You can use default parameters\n"
-        message += "instead providing your own, allow the generation of the certifcates and determine\n"
-        message += "whether to uptade the connection settings or not."
+        message = "These options allow you to configure the process. You can use default parameters\n"
+        message += "instead of providing your own, allow the generation of the certificates and determine\n"
+        message += "whether to update the connection settings or not."
 
         label = mforms.newLabel(message)
 
@@ -882,11 +876,11 @@ class SSLWizard_GeneratePage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Generate certificates and self-signed keys")
 
-        self.ca_cert = os.path.join(self.main.results_path, "ca-cert.pem")
-        self.server_cert = os.path.join(self.main.results_path, "server-cert.pem")
-        self.server_key = os.path.join(self.main.results_path, "server-key.pem")
-        self.client_cert = os.path.join(self.main.results_path, "client-cert.pem")
-        self.client_key = os.path.join(self.main.results_path, "client-key.pem")
+        self.ca_cert = os.path.join(self.main.results_path, "ca-cert.pem").replace('\\', '/')
+        self.server_cert = os.path.join(self.main.results_path, "server-cert.pem").replace('\\', '/')
+        self.server_key = os.path.join(self.main.results_path, "server-key.pem").replace('\\', '/')
+        self.client_cert = os.path.join(self.main.results_path, "client-cert.pem").replace('\\', '/')
+        self.client_key = os.path.join(self.main.results_path, "client-key.pem").replace('\\', '/')
 
         self.table = mforms.newTable()
         self.table.set_padding(12)
@@ -905,7 +899,7 @@ class SSLWizard_GeneratePage(WizardPage):
         row, self.common_name = self.add_label_row(row, "Common:", "eg, put the FQDN of the server\nto allow server address validation")
 
         message = "Now you must specify the parameters to use in the certificates and self-signed key generation.\n"
-        message += "This may include some data refering youself and/or the company you work for. All fields are optional."
+        message += "This may include some data refering to youself and/or the company you work for. All fields are optional."
         
         self.parameters_box = mforms.newBox(False)
         self.parameters_box.set_padding(20)
@@ -984,11 +978,11 @@ ssl-key=%(client_key)s
 ssl-ca=%(ca_cert)s
 ssl-cert=%(server_cert)s
 ssl-key=%(server_key)s
-        """ % {"ca_cert"     : os.path.join("<directory>", os.path.basename(self.ca_cert)), 
-               "server_cert" : os.path.join("<directory>", os.path.basename(self.server_cert)), 
-               "server_key"  : os.path.join("<directory>", os.path.basename(self.server_key)), 
-               "client_cert" : os.path.join("<directory>", os.path.basename(self.client_cert)), 
-               "client_key"  : os.path.join("<directory>", os.path.basename(self.client_key))
+        """ % {"ca_cert"     : os.path.join("<directory>", os.path.basename(self.ca_cert)).replace('\\', '/'), 
+               "server_cert" : os.path.join("<directory>", os.path.basename(self.server_cert)).replace('\\', '/'), 
+               "server_key"  : os.path.join("<directory>", os.path.basename(self.server_key)).replace('\\', '/'), 
+               "client_cert" : os.path.join("<directory>", os.path.basename(self.client_cert)).replace('\\', '/'), 
+               "client_key"  : os.path.join("<directory>", os.path.basename(self.client_key)).replace('\\', '/')
               })
         f.close()
         log_debug2("SSL Wizard generation task result: %s\n" % str(task.result))
@@ -1006,9 +1000,9 @@ class SSLWizard_ResultsPage(WizardPage):
 
     def go_next(self):
         if self.update_connection:
-            self.main.conn.parameterValues['sslCA'] = self.main.generate_page.ca_cert
-            self.main.conn.parameterValues['sslCert'] = self.main.generate_page.client_cert
-            self.main.conn.parameterValues['sslKey'] = self.main.generate_page.client_key
+            self.main.conn.parameterValues['sslCA'] = self.main.generate_page.ca_cert.replace('\\', '/')
+            self.main.conn.parameterValues['sslCert'] = self.main.generate_page.client_cert.replace('\\', '/')
+            self.main.conn.parameterValues['sslKey'] = self.main.generate_page.client_key.replace('\\', '/')
             self.main.conn.parameterValues['useSSL'] = 2
             
         self.main.go_next_page()
@@ -1021,9 +1015,9 @@ class SSLWizard_ResultsPage(WizardPage):
             message += "Click on the finish button to update the connection. "
             
         message += "To setup the server, you should \ncopy the following files to a <directory> inside %s:\n\n" % self.main.conn.parameterValues['hostName']
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "ca-cert.pem"))
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-cert.pem"))
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-key.pem"))
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "ca-cert.pem")).replace('\\', '/')
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-cert.pem")).replace('\\', '/')
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-key.pem")).replace('\\', '/')
         message += "\n\nand edit the config file to use the following parameters:"
         
         label = mforms.newLabel(message)
@@ -1036,7 +1030,7 @@ class SSLWizard_ResultsPage(WizardPage):
         self.content.add(config_file, False, True)
         f.close()
         
-        label = mforms.newLabel("A copy of this file can be found in:\n%s" % str(os.path.join(self.main.results_path, "my.cnf.sample")))
+        label = mforms.newLabel("A copy of this file can be found in:\n%s" % str(os.path.join(self.main.results_path, "my.cnf.sample").replace('\\', '/')))
         self.content.add(label, False, True)
         
         return

@@ -234,14 +234,14 @@ static bool entry_create(mforms::TextEntry *self, mforms::TextEntryType type)
   switch (type)
   {
     case mforms::PasswordEntry:
-      field = [[[SecureTextField alloc] initWithObject: self type: type] autorelease];
+      field = [[SecureTextField alloc] initWithObject: self type: type];
       break;
     case mforms::SearchEntry:
     case mforms::SmallSearchEntry:
-      field = [[[SearchTextField alloc] initWithObject: self type: type] autorelease];
+      field = [[SearchTextField alloc] initWithObject: self type: type];
       break;
     default: // mforms::NormalEntry
-      field = [[[StandardTextField alloc] initWithObject: self type: type] autorelease];
+      field = [[StandardTextField alloc] initWithObject: self type: type];
       break;
   }
 
@@ -253,7 +253,6 @@ static bool entry_create(mforms::TextEntry *self, mforms::TextEntryType type)
 
   LimitedTextFieldFormatter* formatter = [LimitedTextFieldFormatter new];
   [field.cell setFormatter: formatter];
-  [formatter release];
 
   return true;
 }

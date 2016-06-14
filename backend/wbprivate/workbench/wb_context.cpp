@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -882,8 +882,6 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   // Copy callbacks
   this->show_file_dialog= callbacks->show_file_dialog;
 
-  this->request_input= callbacks->request_input;
-
   this->create_diagram= callbacks->create_diagram;
   this->destroy_view= callbacks->destroy_view;
   this->switched_view= callbacks->switched_view;
@@ -1739,8 +1737,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "SynchronizeObjectColors", 1);
 
   // MySQL Defaults
-  set_default(options, "DefaultTargetMySQLVersion", "5.6");
-  set_default(options, "@DefaultTargetMySQLVersion/Items", "5.0,5.1,5.5,5.6,5.7");
+  set_default(options, "DefaultTargetMySQLVersion", "5.6.30");
 
   set_default(options, "db.mysql.Table:tableEngine", "InnoDB");
   set_default(options, "SqlGenerator.Mysql:SQL_MODE", "TRADITIONAL,ALLOW_INVALID_DATES");
@@ -1782,6 +1779,8 @@ void WBContext::set_default_options(grt::DictRef options)
 
   // Default Fonts
 
+  set_default(options, "workbench.physical.FontSet:Name", "Default (Western)");
+  
   set_default(options, "workbench.physical.TableFigure:TitleFont", DEFAULT_FONT_FAMILY" Bold 12");
   set_default(options, "workbench.physical.TableFigure:SectionFont", DEFAULT_FONT_FAMILY" Bold 11");
   set_default(options, "workbench.physical.TableFigure:ItemsFont", DEFAULT_FONT_FAMILY" 11");
@@ -2507,9 +2506,14 @@ void WBContext::request_refresh(RefreshType type, const std::string &str, Native
   refresh.str= str;
   refresh.ptr= ptr;
   refresh.timestamp= now;
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+  // XXX: check this requirement. Probably already fixed since this hack was added.
+
   // Do not remove the following refresh! W/o it linux version hangs at times.
   if (refresh_gui && _pending_refreshes.empty())
     refresh_gui(RefreshNeeded, "", (NativeHandle)0);
+#endif
 
   _pending_refreshes.push_back(refresh);
 }

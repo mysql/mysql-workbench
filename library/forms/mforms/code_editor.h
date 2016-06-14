@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,6 +67,7 @@ namespace mforms {
     LineMarkupBreakpoint    = 1 << 2, // Line has a marker set for a break point.
     LineMarkupBreakpointHit = 1 << 3, // Line has a marker set for a break point which is currently hit.
     LineMarkupCurrent       = 1 << 4, // Current execution line.
+    LineMarkupErrorContinue = 1 << 5, // ine's background is drawn in red to mark an execution error on continue.
 
     LineMarkupAll           = 0xFF,   // All markup, useful for remove_markup.
   };
@@ -508,7 +509,7 @@ public:
     void lost_focus();
 
     virtual void resize();
-
+    
 #endif
 #endif
   protected:

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,31 @@
 
 using namespace mforms;
 
+@interface MFFindPanel()
+{
+  mforms::FindPanel *mOwner;
+
+  __weak IBOutlet NSSegmentedControl *mFindTypeSegmented;
+  __weak IBOutlet NSTextField *mReplaceText;
+  __weak IBOutlet NSTextField *mFindLabel;
+  __weak IBOutlet NSSegmentedControl *mFindSegmented;
+  __weak IBOutlet NSMenu *mSearchMenu;
+
+  BOOL mMatchCase;
+  BOOL mMatchWhole;
+  BOOL mWrapAround;
+  BOOL mUseRegex;
+
+  NSMutableArray *nibObjects;
+}
+
+@property (assign, unsafe_unretained) IBOutlet NSSearchField *findText;
+
+@end
 
 @implementation MFFindPanel
+
+@synthesize findText;
 
 - (instancetype)initWithOwner: (mforms::FindPanel*)owner
 {
@@ -37,37 +60,48 @@ using namespace mforms;
   self = [super initWithFrame: NSMakeRect(0, 0, 100, 100)];
   if (self)
   {
-    if (![NSBundle loadNibNamed: @"EmbedableFindPane" owner: self])
-      NSLog(@"Could not load EmbedableFindPane nib file for Find Panel");
-    
-    mOwner = owner;
-    mOwner->set_data(self);
-    
-    // transplant everything from placeholder to self
-    [self setFrame: [mFindPanelPlaceholder frame]];
-    for (id subview in [[mFindPanelPlaceholder subviews] reverseObjectEnumerator])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"EmbedableFindPane" owner: self topLevelObjects: &temp])
     {
-      NSRect r = [subview frame];
-      [subview retain];
-      [subview removeFromSuperview];
-      [self addSubview: subview];
-      [subview setFrame: r];
-      [subview release];
-    }
-    [mFindPanelPlaceholder release];
-    mFindPanelPlaceholder = nil;
-    
-    mMatchCase = NO;
-    mWrapAround = YES;
-    
-    [[mSearchMenu itemWithTag: 20] setState: mUseRegex ? NSOffState : NSOnState];
-    [[mSearchMenu itemWithTag: 21] setState: !mUseRegex ? NSOffState : NSOnState];
-    
-    [[mSearchMenu itemWithTag: 30] setState: !mMatchCase ? NSOnState : NSOffState];
-    [[mSearchMenu itemWithTag: 31] setState: mMatchWhole ? NSOnState : NSOffState];
-    [[mSearchMenu itemWithTag: 32] setState: mWrapAround ? NSOnState : NSOffState];      
+      nibObjects = temp;
 
-    [self enableReplaceInFindPanel: NO];
+      mOwner = owner;
+      mOwner->set_data(self);
+
+      // Find the top view holding the subviews we wanna move to ourselve.
+      NSView *holder = nil;
+      for (id entry in nibObjects)
+      {
+        if ([entry isKindOfClass: NSView.class])
+        {
+          holder = entry;
+          break;
+        }
+      }
+
+      // Now transfer the views.
+      // Wouldn't be necessary if that class were just an NSViewController.
+      [self setFrame: [holder frame]];
+      for (id subview in [[holder subviews] reverseObjectEnumerator])
+      {
+        NSRect r = [subview frame];
+        [subview removeFromSuperview];
+        [self addSubview: subview];
+        [subview setFrame: r];
+      }
+
+      mMatchCase = NO;
+      mWrapAround = YES;
+
+      [[mSearchMenu itemWithTag: 20] setState: mUseRegex ? NSOffState : NSOnState];
+      [[mSearchMenu itemWithTag: 21] setState: !mUseRegex ? NSOffState : NSOnState];
+
+      [[mSearchMenu itemWithTag: 30] setState: !mMatchCase ? NSOnState : NSOffState];
+      [[mSearchMenu itemWithTag: 31] setState: mMatchWhole ? NSOnState : NSOffState];
+      [[mSearchMenu itemWithTag: 32] setState: mWrapAround ? NSOnState : NSOffState];
+      
+      [self enableReplaceInFindPanel: NO];
+    }
   }
   return self;
 }
@@ -82,17 +116,6 @@ using namespace mforms;
   return [self initWithOwner: nil];
 }
 
-- (void) dealloc
-{
-  [mFindTypeSegmented self];
-  [mFindText self];
-  [mReplaceText self];
-  [mFindLabel self];
-  [mFindSegmented self];
-  [mSearchMenu self];
-  
-  [super dealloc];
-}
 
 - (BOOL)expandsOnLayoutVertically:(BOOL)flag
 {
@@ -135,8 +158,8 @@ using namespace mforms;
 - (void)focusFindPanel
 {
   [mFindLabel setStringValue: @""];
-  [[self window] makeFirstResponder: mFindText];
-  [mFindText selectText: nil];
+  [[self window] makeFirstResponder: findText];
+  [findText selectText: nil];
 }
 
 
@@ -152,7 +175,7 @@ using namespace mforms;
   if (mUseRegex)
     flags = flags | mforms::FindRegex;
 
-  return mOwner->get_editor()->find_and_highlight_text([[mFindText stringValue] CPPString], flags,
+  return mOwner->get_editor()->find_and_highlight_text([findText.stringValue CPPString], flags,
                                                        true, backwards);
 }
 
@@ -170,14 +193,14 @@ using namespace mforms;
     flags = flags | mforms::FindRegex;
 
   if (findFirst)
-    return mOwner->get_editor()->find_and_replace_text([[mFindText stringValue] CPPString], 
+    return mOwner->get_editor()->find_and_replace_text([findText.stringValue CPPString],
                                                        [[mReplaceText stringValue] CPPString], 
                                                        flags, false) > 0;
   else
   {
     mOwner->get_editor()->replace_selected_text([[mReplaceText stringValue] CPPString]);
 
-    return mOwner->get_editor()->find_and_highlight_text([[mFindText stringValue] CPPString], flags,
+    return mOwner->get_editor()->find_and_highlight_text([findText.stringValue CPPString], flags,
                                                   true, false);
   }
 }
@@ -195,7 +218,7 @@ using namespace mforms;
   if (mUseRegex)
     flags = flags | mforms::FindRegex;
   
-  return mOwner->get_editor()->find_and_replace_text([[mFindText stringValue] CPPString], 
+  return mOwner->get_editor()->find_and_replace_text([findText.stringValue CPPString],
                                                      [[mReplaceText stringValue] CPPString], 
                                                      flags, true);  
 }
@@ -256,19 +279,12 @@ using namespace mforms;
   }
 }
 
-
-- (NSView*)topView
-{
-  return self;
-}
-
-
 - (int)performFindAction:(FindPanelAction)action
 {
   switch (action)
   {
     case FindNext:
-      if ([[mFindText stringValue] length] == 0)
+      if ([findText.stringValue length] == 0)
         [mFindLabel setStringValue: @""];
       else
       {
@@ -282,7 +298,7 @@ using namespace mforms;
       }
       break;
     case FindPrevious:
-      if ([[mFindText stringValue] length] == 0)
+      if ([findText.stringValue length] == 0)
         [mFindLabel setStringValue: @""];
       else
       {
@@ -296,7 +312,7 @@ using namespace mforms;
       }
       break;
     case FindAndReplace:
-      if ([[mFindText stringValue] length] > 0)
+      if ([findText.stringValue length] > 0)
       {
         if ([self replaceAndFind:YES])
         {
@@ -308,7 +324,7 @@ using namespace mforms;
       }      
       break;
     case ReplaceAll:
-      if ([[mFindText stringValue] length] > 0)
+      if ([findText.stringValue length] > 0)
       {
         int count;
         if ((count = [self replaceAll]) > 0)
@@ -328,8 +344,7 @@ using namespace mforms;
 
 static bool find_create(FindPanel *fp)
 {
-  [[[MFFindPanel alloc] initWithOwner: fp] autorelease];
-  return true;  
+  return [[MFFindPanel alloc] initWithOwner: fp] != nil;
 }
 
 static size_t find_perform_action(FindPanel *fp, FindPanelAction action)
@@ -342,9 +357,8 @@ static size_t find_perform_action(FindPanel *fp, FindPanelAction action)
 
 static void find_focus(FindPanel *fp)
 {
-  MFFindPanel *self = fp->get_data();
-  
-  [[self->mFindText window] makeFirstResponder: self->mFindText];
+  MFFindPanel *panel = fp->get_data();
+  [panel.findText.window makeFirstResponder: panel.findText];
 }
 
 

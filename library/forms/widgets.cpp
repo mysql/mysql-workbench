@@ -688,9 +688,10 @@ void HeartbeatWidget::repaint(cairo_t *cr, int areax, int areay, int areaw, int 
 ServerStatusWidget::ServerStatusWidget()
 {
   _status= -1;
-  _image_unknown= Utilities::load_icon("admin_info_unknown.png", true);
-  _image_running= Utilities::load_icon("admin_info_running.png", true);
-  _image_stopped= Utilities::load_icon("admin_info_stopped.png", true);
+  _image_unknown = Utilities::load_icon("admin_info_unknown.png", true);
+  _image_running = Utilities::load_icon("admin_info_running.png", true);
+  _image_stopped = Utilities::load_icon("admin_info_stopped.png", true);
+  _image_offline = Utilities::load_icon("admin_info_offline.png", true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -700,6 +701,7 @@ ServerStatusWidget::~ServerStatusWidget()
  cairo_surface_destroy(_image_unknown);
  cairo_surface_destroy(_image_running);
  cairo_surface_destroy(_image_stopped);
+ cairo_surface_destroy(_image_offline);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -707,7 +709,7 @@ ServerStatusWidget::~ServerStatusWidget()
 void ServerStatusWidget::set_server_status(int status)
 {
   // Sanity check.
-  if (status < -1 || status > 1)
+  if (status < -1 || status > 2)
     status= -1;
 
   lock();
@@ -735,6 +737,9 @@ void ServerStatusWidget::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_surface_t* icon;
   switch (_status)
   {
+    case 2:
+      icon= _image_offline;
+      break;
     case 1:
       icon= _image_running;
       break;
@@ -782,6 +787,9 @@ bool ServerStatusWidget::layout(cairo_t* cr)
   cairo_surface_t* icon;
   switch (_status)
   {
+    case 2:
+      icon= _image_offline;
+      break;
     case 1:
       icon= _image_running;
       break;

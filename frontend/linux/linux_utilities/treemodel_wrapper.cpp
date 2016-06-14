@@ -8,8 +8,8 @@
 //------------------------------------------------------------------------------
 void TreeModelWrapper::update_root_node(const bec::NodeId &root_node)
 {
-  _root_node_path= root_node.repr();
-  _root_node_path_dot= root_node.repr()+".";
+  _root_node_path= root_node.toString();
+  _root_node_path_dot= root_node.toString()+".";
 
   _stamp++;
 }

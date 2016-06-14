@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -210,7 +210,7 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   "4 Make sure you are both providing a password if needed and using the correct password for %server% connecting from the host address you're connecting from";
 
   message = bec::replace_string(message, "%user%", target->parameterValues().get_string("userName"));
-  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").repr());
+  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").toString());
   message = bec::replace_string(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
   message = bec::replace_string(message, "%error%", error);
 
@@ -231,7 +231,7 @@ void SqlEditorForm::report_connection_failure(const grt::server_denied &info, co
   message += "' from your host to server at ";//%server%:%port%\n";
   message += target->parameterValues().get_string("hostName", "localhost");
   message += ":";
-  message += target->parameterValues().get("port").repr() + "\n";
+  message += target->parameterValues().get("port").toString() + "\n";
   if (info.errNo == 3159)
     message += "Only connections with enabled SSL support are accepted.\n";
   else if (info.errNo == 3032)
@@ -269,7 +269,8 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _live_tree(SqlEditorTreeController::create(this)),
   _side_palette_host(NULL),
   _side_palette(NULL),
-  _history(DbSqlEditorHistory::create(_grtm))
+  _history(DbSqlEditorHistory::create(_grtm)),
+  _serverIsOffline(false)
 {
   _startup_done = false;
   _log = DbSqlEditorLog::create(this, _grtm, 500);
@@ -286,8 +287,10 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _last_log_message_timestamp = timestamp();
 
   int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+
   if (keep_alive_interval != 0)
   {
+    log_debug3("Create KeepAliveInterval timer\n");
     _keep_alive_thread= TimerActionThread::create(boost::bind(&SqlEditorForm::send_message_keep_alive, this), keep_alive_interval*1000);
     _keep_alive_thread->on_exit.connect(boost::bind(&SqlEditorForm::reset_keep_alive_thread, this));
   }
@@ -410,11 +413,32 @@ void SqlEditorForm::finish_startup()
 
   this->check_server_problems();
 
+
+  // We need to check this before sending GRNSQLEditorOpened cause offline() function that's called
+  // from python which is connected to this notification will deadlock on PythonLock.
+  checkIfOffline();
+
   // refresh snippets again, in case the initial load from DB is pending for shared snippets
   _side_palette->refresh_snippets();
 
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
 
+  int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+
+  //  We have to set these variables so that the server doesn't timeout before we ping everytime
+  // From http://dev.mysql.com/doc/refman/5.7/en/communication-errors.html for reasones to loose the connection
+  // - The client had been sleeping more than wait_timeout or interactive_timeout seconds without issuing any requests to the server
+  //  We're adding 10 seconds for communication delays
+  {
+    std::string value;
+    
+    if (get_session_variable(_usr_dbc_conn->ref.get(), "wait_timeout", value) && base::atoi<int>(value) < keep_alive_interval)
+      exec_main_sql(base::strfmt("SET @@SESSION.wait_timeout=%d", keep_alive_interval + 10), false);
+    
+    if (get_session_variable(_usr_dbc_conn->ref.get(), "interactive_timeout", value) && base::atoi<int>(value) < keep_alive_interval)
+      exec_main_sql(base::strfmt("SET @@SESSION.interactive_timeout=%d", keep_alive_interval + 10), false);
+  }  
+  
   _startup_done = true;
 }
 
@@ -478,12 +502,27 @@ void SqlEditorForm::handle_grt_notification(const std::string &name, grt::Object
   {
     db_mgmt_ConnectionRef conn(db_mgmt_ConnectionRef::cast_from(info.get("connection")));
 
-    ServerState new_state = (info.get_int("state") != 0 ? RunningState : PossiblyStoppedState);
+    ServerState new_state = UnknownState;
+    if (info.get_int("state") == 1)
+    {
+      _serverIsOffline = false;
+      new_state = RunningState;
+    }
+    else if (info.get_int("state") == -1)
+    {
+      _serverIsOffline = true;
+      new_state = OfflineState;
+    }
+    else
+    {
+      _serverIsOffline = false;
+      new_state = PossiblyStoppedState;
+    }
 
     if (_last_server_running_state != new_state)
     {
       _last_server_running_state = new_state;
-      if (new_state == RunningState && ping())
+      if ((new_state == RunningState || new_state == OfflineState) && ping())
       {
         // if new state is running but we're already connected, don't do anything
         return;
@@ -673,7 +712,6 @@ bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::s
   }
   return false;
 }
-
 
 void SqlEditorForm::schema_tree_did_populate()
 {
@@ -1118,9 +1156,10 @@ struct ConnectionErrorInfo
   sql::AuthenticationError *auth_error;
   bool password_expired;
   bool server_probably_down;
+  bool serverIsOffline;
   grt::server_denied *serverException;
 
-  ConnectionErrorInfo() : auth_error(NULL), password_expired(false), server_probably_down(false), serverException(NULL) {}
+  ConnectionErrorInfo() : auth_error(NULL), password_expired(false), server_probably_down(false), serverIsOffline(false), serverException(NULL) {}
   ~ConnectionErrorInfo()
   {
     delete auth_error;
@@ -1194,7 +1233,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
         return false;
       }
     }
-    catch (grt::grt_runtime_error &err)
+    catch (grt::grt_runtime_error &/*err*/)
     {
       if (error_ptr.serverException != NULL)
         throw grt::server_denied(*error_ptr.serverException);
@@ -1204,7 +1243,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
 
       if (!error_ptr.auth_error)
         throw;
-      else if (error_ptr.server_probably_down)
+      else if (error_ptr.server_probably_down || error_ptr.serverIsOffline)
         return false;
 
       //check if user cancelled
@@ -1325,7 +1364,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     // open connections
     create_connection(_aux_dbc_conn, _connection, tunnel, auth, _aux_dbc_conn->autocommit_mode, false);
     create_connection(_usr_dbc_conn, _connection, tunnel, auth, _usr_dbc_conn->autocommit_mode, true);
-
+    _serverIsOffline = false;
     cache_sql_mode();
 
     try
@@ -1423,7 +1462,33 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
 
       return grt::StringRef();
     }
-    else if (exc.getErrorCode() == 3159 || exc.getErrorCode() == 3032) //require SSL, offline mode
+    else if (exc.getErrorCode() == 3032)
+    {
+      err_ptr->serverIsOffline = true;
+      _serverIsOffline = true;
+      add_log_message(WarningMsg, exc.what(), "Could not connect, server is in offline mode.", "");
+
+      if (_connection.is_valid())
+      {
+        // if there's no connection, then we continue anyway if this is a local connection or
+        // a remote connection with remote admin enabled..
+        _grtm->get_grt()->get_module("WbAdmin");
+        grt::BaseListRef args(_grtm->get_grt());
+        args.ginsert(_connection);
+      }
+
+      log_info("Error %i connecting to server, server is in offline mode. Only superuser connection are allowed. Opening editor with no connection\n",
+              exc.getErrorCode());
+
+      // Create a parser with some sensible defaults if we cannot connect.
+      // We specify no charsets here, disabling parsing of repertoires.
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(grt, 50503), true);
+      _work_parser_context->use_sql_mode(_sql_mode);
+
+      return grt::StringRef();
+    }
+    else if (exc.getErrorCode() == 3159) //require SSL, offline mode
     {
       err_ptr->serverException = new grt::server_denied(exc.what(), exc.getErrorCode()); // we need to change exception type so we can properly handle it in
     }
@@ -1472,13 +1537,55 @@ bool SqlEditorForm::connected() const
 }
 
 
+void SqlEditorForm::checkIfOffline()
+{
+  base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
+  int counter = 1;
+  while(!tmp.locked())
+  {
+    if (counter >= 30)
+    {
+      log_error("Can't lock conn mutex for 30 seconds, assuming server is not offline.");
+      return;
+    }
+
+    log_debug3("Can't lock conn mutex, trying again in one sec.");
+#if _WIN32
+    Sleep(1);
+#else
+    sleep(1);
+#endif
+    counter++;
+    tmp.retry_lock(_usr_dbc_conn_mutex);
+  }
+
+
+  std::string result;
+  if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "offline_mode", result))
+  {
+    if (base::string_compare(result, "ON") == 0)
+      _serverIsOffline = true;
+  }
+}
+
+bool SqlEditorForm::offline()
+{
+
+  if (_serverIsOffline)
+      return true;
+
+  if (!connected())
+    return false;
+
+  return _serverIsOffline;
+}
+
 bool SqlEditorForm::ping() const
 {
   {
     base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
     if (!tmp.locked()) //is conn mutex is locked by someone else, then we assume the conn is in use and thus, there'a a connection.
       return true;
-
     if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr())
     {
       std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
@@ -1487,10 +1594,11 @@ bool SqlEditorForm::ping() const
         std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("select 1"));
         return true;
       }
-      catch (...)
+      catch(const std::exception &ex)
       {
-        // failed
+        log_error("Failed to ping the server: %s\n", ex.what());
       }
+
     }
   }
   return false;
@@ -1537,12 +1645,22 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
                                                         bool throw_on_block)
 {
   RecMutexLock mutex_lock(dbc_conn_mutex, throw_on_block);
-  bool valid= false;
+  bool valid = false;
 
   sql::Dbc_connection_handler::Ref myref(dbc_conn);
   if (dbc_conn && dbc_conn->ref.get_ptr())
   {
-    if (dbc_conn->ref->isClosed())
+    try
+    {
+      //use connector::isValid to check if server connection is valid
+      //this will also ping the server and reconnect if needed
+      valid = dbc_conn->ref->isValid();
+    } catch (std::exception &exc)
+    {
+      log_error("CppConn::isValid exception: %s", exc.what());
+      valid = false;
+    }
+    if (!valid)
     {
       bool user_connection = _usr_dbc_conn ? dbc_conn->ref.get_ptr() == _usr_dbc_conn->ref.get_ptr() : false;
 
@@ -1924,12 +2042,6 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     std::pair<size_t, size_t> statement_range;
     BOOST_FOREACH (statement_range, statement_ranges)
     {
-      if (total_result_count >= max_resultset_count)
-      {
-        results_left = true;
-        break;
-      }
-
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
@@ -2101,22 +2213,26 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           {
             for (size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
             {
-              if (total_result_count >= max_resultset_count)
-              {
-                results_left = true;
-                break;
-              }
-
               do
               {
-                if (total_result_count >= max_resultset_count)
-                {
-                  results_left = true;
-                  break;
-                }
-
                 if (more_results)
                 {
+                  if (total_result_count == max_resultset_count)
+                  {
+                    int result = mforms::Utilities::show_warning(_("Maximum result count reached"),
+                                                  "No further result tabs will be displayed as the maximm number has been reached. \nYou may stop the operation, leaving the connection out of sync. You'll have to got o 'Query->Reconnect to server' menu item to reset the state.\n\n Do you want to cancel the operation?",
+                                                  "Yes", "No");
+                    if (result == mforms::ResultOk)
+                    {
+                      add_log_message(DbSqlEditorLog::ErrorMsg, "Not more results could be displayed. Operation cancelled by user", statement, "");
+                      dbc_statement->cancel();
+                      dbc_statement->close();
+                      return grt::StringRef("");
+                    }
+                    add_log_message(DbSqlEditorLog::WarningMsg, "Not more results will be displayed because the maximum number of result sets was reached.", statement, "");
+                  }
+                    
+                  
                   if (!reuse_log_msg && ((updated_rows_count >= 0) || (resultset_count)))
                     log_message_index= add_log_message(DbSqlEditorLog::BusyMsg, _("Fetching..."), statement, "- / ?");
                   else
@@ -2151,6 +2267,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                         err_msg= strfmt(_("Error Code: %i. %s"), e.getErrorCode(), e.what());
                         break;
                       }
+
                       set_log_message(log_message_index, DbSqlEditorLog::ErrorMsg, err_msg, statement, statement_exec_timer.duration_formatted());
                       
                       if (_continue_on_error)
@@ -2159,7 +2276,13 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                         goto stop_processing_sql_script;
                     }
                   }
-                  if (dbc_resultset)
+
+                  std::string exec_and_fetch_durations=
+                    (((updated_rows_count >= 0) || (resultset_count)) ? std::string("-") : statement_exec_timer.duration_formatted()) + " / " +
+                    statement_fetch_timer.duration_formatted();
+                  if (total_result_count >= max_resultset_count)
+                    set_log_message(log_message_index, DbSqlEditorLog::OKMsg, "Row count could not be verified", statement, exec_and_fetch_durations);
+                  else if (dbc_resultset)
                   {
                     if (!data_storage)
                     {
@@ -2194,13 +2317,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     }
 
                     rs->data_storage(data_storage);
-
-                    {
-                      //We need this mutex, because reset(bool) is using aux_connection
-                      //to query bestrowidentifier.
-                      RecMutexLock aux_mtx(ensure_valid_aux_connection(_aux_dbc_conn));
-                      rs->reset(true);
-                    }
+                    rs->reset(true);
 
                     if (data_storage->valid()) // query statement
                     {
@@ -2213,37 +2330,25 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                       std::string statement_res_msg = base::to_string(rs->row_count()) + _(" row(s) returned");
                       if (!last_statement_info->empty())
                         statement_res_msg.append("\n").append(last_statement_info);
-                      std::string exec_and_fetch_durations=
-                        (((updated_rows_count >= 0) || (resultset_count)) ? std::string("-") : statement_exec_timer.duration_formatted()) + " / " +
-                        statement_fetch_timer.duration_formatted();
 
                       set_log_message(log_message_index, DbSqlEditorLog::OKMsg, statement_res_msg, statement, exec_and_fetch_durations);
                     }
-                    //! else failed to fetch data
-                    //added_recordsets.push_back(rs);
                     ++resultset_count;
-                    ++total_result_count;
                   }
                   else
                   {
                     reuse_log_msg= true;
                   }
+                  ++total_result_count;
                   data_storage.reset();
                 }
               }
               while ((more_results = dbc_statement->getMoreResults()));
-
-              // If we stopped fetching before we got to the end of the result sets finish
-              // fetching here.
-              while (dbc_statement->getMoreResults())
-                ;
             }
           }
           
           if ((updated_rows_count < 0) && !(resultset_count))
-          {
             set_log_message(log_message_index, DbSqlEditorLog::OKMsg, _("OK"), statement, statement_exec_timer.duration_formatted());
-          }
         }
       }
     } // BOOST_FOREACH (statement, statements)
@@ -2353,7 +2458,7 @@ static wb::LiveSchemaTree::ObjectType str_to_object_type(const std::string &obje
   else if (object_type == "db.Schema")
     return LiveSchemaTree::Schema;
 
-  return LiveSchemaTree::None;
+  return LiveSchemaTree::NoneType;
 }
 
 void SqlEditorForm::handle_command_side_effects(const std::string &sql)
@@ -2369,7 +2474,7 @@ void SqlEditorForm::handle_command_side_effects(const std::string &sql)
   {
 
     wb::LiveSchemaTree::ObjectType obj = str_to_object_type(object_type);
-    if (obj != wb::LiveSchemaTree::None)
+    if (obj != wb::LiveSchemaTree::NoneType)
     {
       std::vector<std::pair<std::string, std::string> >::reverse_iterator rit;
 
@@ -2467,11 +2572,12 @@ void SqlEditorForm::continue_on_error(bool val)
     return;
 
   _continue_on_error= val;
-  _grtm->set_app_option("DbSqlEditor:ContinueOnError", grt::IntegerRef((int)_continue_on_error));
+  _grtm->set_app_option("DbSqlEditor:ContinueOnError", grt::IntegerRef((int)continue_on_error()));
   
   if (_menu)
-    _menu->set_item_checked("query.stopOnError", !continue_on_error());
-  set_editor_tool_items_checked("query.stopOnError", !continue_on_error());
+    _menu->set_item_checked("query.continueOnError", continue_on_error());
+  set_editor_tool_items_checked("query.continueOnError", continue_on_error());
+  active_sql_editor_panel()->editor_be()->set_continue_on_error(continue_on_error());
 }
 
 
@@ -2479,6 +2585,7 @@ void SqlEditorForm::send_message_keep_alive()
 {
   try
   {
+    log_debug3("KeepAliveInterval tick\n");
     // ping server and reset connection timeout counter
     // this also checks the connection state and restores it if possible
     ensure_valid_aux_connection();
@@ -3147,35 +3254,42 @@ void SqlEditorForm::update_editor_title_schema(const std::string& schema)
  */
 void SqlEditorForm::note_connection_open_outcome(int error)
 {
-  ServerState new_state;
+  ServerState newState;
   switch (error)
   {
     case 0:
-      new_state = RunningState; // success = running;
+      newState = RunningState; // success = running;
       break;
     case 2002: // CR_CONNECTION_ERROR
     case 2003: // CR_CONN_HOST_ERROR
-      new_state = PossiblyStoppedState;
+      newState = PossiblyStoppedState;
       break;
     case 2013: // Lost packet blabla, can happen on failure when using ssh tunnel
-      new_state = PossiblyStoppedState;
+      newState = PossiblyStoppedState;
       break;
     default:
       // there may be other errors that could indicate server stopped and maybe
       // some errors that can't tell anything about the server state
-      new_state = RunningState;
+      newState = RunningState;
       break;
   }
 
-  if (_last_server_running_state != new_state && new_state != UnknownState)
+  if (_last_server_running_state != newState && newState != UnknownState)
   {
     grt::DictRef info(_grtm->get_grt());
-    _last_server_running_state = new_state;
+    _last_server_running_state = newState;
 
-    info.gset("state", new_state == RunningState);
+    if (newState == RunningState)
+      info.gset("state", 1);
+    else if (newState == OfflineState)
+      info.gset("state", -1);
+    else
+      info.gset("state", 0);
+
     info.set("connection", connection_descriptor());
 
-    log_debug("Notifying server state change of %s to %s\n", connection_descriptor()->hostIdentifier().c_str(), new_state == RunningState ? "running" : "not running");
+    log_debug("Notifying server state change of %s to %s\n", connection_descriptor()->hostIdentifier().c_str(),
+                        (newState == RunningState || newState == OfflineState) ? "running" : "not running");
     GRTNotificationCenter::get()->send_grt("GRNServerStateChanged",
                                            grtobj(),
                                            info);

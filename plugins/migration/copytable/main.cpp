@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +19,11 @@
 
 #ifdef _WIN32
 #define HAVE_ROUND
+#endif
+
+#ifdef __APPLE__
+// All the functions in sql.h are deprecated, but we have no replacement atm.
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #include "python_copy_data_source.h" // python stuff need to be 1st #include
@@ -231,8 +236,10 @@ bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueu
         {
           param.target_schema = fields[2];
           param.target_table = fields[3];
-          param.source_pk_columns = base::split(fields[4], ",", -1);
-          param.target_pk_columns = base::split(fields[5], ",", -1);
+          if(std::strcmp(fields[4].c_str(), "-") != 0)
+            param.source_pk_columns = base::split(fields[4], ",", -1);
+          if(std::strcmp(fields[5].c_str(), "-") != 0)
+            param.target_pk_columns = base::split(fields[5], ",", -1);
           param.select_expression = fields[6];
 
           trigger_schemas.insert(param.target_schema);
@@ -423,8 +430,10 @@ int main(int argc, char **argv)
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
-        param.source_pk_columns = base::split(argv[++i], ",", -1);
-        param.target_pk_columns = base::split(argv[++i], ",", -1);
+        if(std::strcmp(argv[++i], "-") != 0)
+          param.source_pk_columns = base::split(argv[i], ",", -1);
+        if(std::strcmp(argv[++i], "-") != 0)
+          param.target_pk_columns = base::split(argv[i], ",", -1);
         param.select_expression = argv[++i];
 
         trigger_schemas.insert(param.target_schema);
@@ -452,8 +461,10 @@ int main(int argc, char **argv)
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
-        param.source_pk_columns = base::split(argv[++i], ",", -1);
-        param.target_pk_columns = base::split(argv[++i], ",", -1);
+        if(std::strcmp(argv[++i], "-") != 0)
+          param.source_pk_columns = base::split(argv[i], ",", -1);
+        if(std::strcmp(argv[++i], "-") != 0)
+          param.target_pk_columns = base::split(argv[i], ",", -1);
         param.select_expression = argv[++i];
 
         trigger_schemas.insert(param.target_schema);
@@ -480,8 +491,10 @@ int main(int argc, char **argv)
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
-        param.source_pk_columns = base::split(argv[++i], ",", -1);
-        param.target_pk_columns = base::split(argv[++i], ",", -1);
+        if(std::strcmp(argv[++i], "-") != 0)
+          param.source_pk_columns = base::split(argv[i], ",", -1);
+        if(std::strcmp(argv[++i], "-") != 0)
+          param.target_pk_columns = base::split(argv[i], ",", -1);
         param.select_expression = argv[++i];
       }
       param.copy_spec.row_count = base::atoi<long long>(argv[++i], 0ll);
@@ -507,8 +520,10 @@ int main(int argc, char **argv)
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
-        param.source_pk_columns = base::split(argv[++i], ",", -1);
-        param.target_pk_columns = base::split(argv[++i], ",", -1);
+        if(std::strcmp(argv[++i], "-") != 0)
+          param.source_pk_columns = base::split(argv[i], ",", -1);
+        if(std::strcmp(argv[++i], "-") != 0)
+          param.target_pk_columns = base::split(argv[i], ",", -1);
         param.select_expression = argv[++i];
         param.copy_spec.where_expression = argv[++i];
 

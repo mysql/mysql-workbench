@@ -24,4 +24,11 @@ set_target_properties(dbutils.grt
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(dbutils.grt PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(dbutils.grt)
+endif()
+
 install(TARGETS dbutils.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

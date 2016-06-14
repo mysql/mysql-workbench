@@ -6,10 +6,11 @@ set(IMAGE_FILES
 	admin_connections.png
 	admin_dashboard.png
 	admin_export.png
-  admin_firewall.png
+    admin_firewall.png
 	admin_info_running.png
 	admin_info_stopped.png
 	admin_info_unknown.png
+    admin_info_offline.png
 	admin_instrumentation_setup.png
 	admin_manage_exported.png
 	admin_manage_privs.png

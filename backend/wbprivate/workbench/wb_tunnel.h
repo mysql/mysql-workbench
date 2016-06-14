@@ -40,7 +40,6 @@ namespace wb
     int open_tunnel(const char *server, const char *username, const char *password, 
                     const char *keyfile, const char *target);
     void wait_tunnel(int port);
-    void close_tunnel(int port);
     void set_keepalive(int port, int keepalive);
     
   public:

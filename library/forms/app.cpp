@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,22 +76,6 @@ void App::set_status_text(const std::string &text)
 {
   if (_app_impl->set_status_text)
     _app_impl->set_status_text(this, text);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void App::begin_thread_loop()
-{
-  if (ControlFactory::get_instance()->_app_impl.begin_thread_loop)
-    ControlFactory::get_instance()->_app_impl.begin_thread_loop();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void App::end_thread_loop()
-{
-  if (ControlFactory::get_instance()->_app_impl.end_thread_loop)
-    ControlFactory::get_instance()->_app_impl.end_thread_loop();
 }
 
 //--------------------------------------------------------------------------------------------------

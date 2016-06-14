@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -126,7 +126,17 @@ public:
   {
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
-      return grt::IntegerRef(_editor->connected() ? 1 : 0);
+    {
+      if (_editor->offline())
+        return grt::IntegerRef(-1);
+      else
+      {
+        if (_editor->connected())
+          return grt::IntegerRef(1);
+        else
+          return grt::IntegerRef(0);
+      }
+    }
     return grt::IntegerRef(0);
   }
 
@@ -829,7 +839,7 @@ void WBContextSQLIDE::init()
 
   cmdui->add_builtin_command("query.reconnect", boost::bind(call_reconnect, this));
 
-  cmdui->add_builtin_command("query.stopOnError", boost::bind(call_continue_on_error, this));
+  cmdui->add_builtin_command("query.continueOnError", boost::bind(call_continue_on_error, this));
 
   cmdui->add_builtin_command("query.jump_to_placeholder", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::jump_to_placeholder));
   cmdui->add_builtin_command("list-members", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::list_members),

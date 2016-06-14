@@ -80,6 +80,7 @@ add_executable(mysql-workbench-bin
 )
 
 
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE")
 else()
@@ -118,5 +119,11 @@ target_link_libraries(mysql-workbench-bin
     ${SQLITE3_LIBRARIES}
     ${GNOME_KEYRING_LIBRARIES}
 )
+
+if(COMMAND cotire)
+  set_target_properties(mysql-workbench-bin PROPERTIES
+    COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+  cotire(mysql-workbench-bin)
+endif()
 
 install(TARGETS mysql-workbench-bin DESTINATION ${WB_INSTALL_DIR_EXECUTABLE})

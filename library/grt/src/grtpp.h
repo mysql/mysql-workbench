@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -277,7 +277,8 @@ namespace grt {
       return _value->less_than(other._value);
     }
 
-    std::string repr() const { return _value ? _value->repr() : "NULL"; }
+    std::string debugDescription(const std::string &indentation = "") const { return _value ? _value->debugDescription(indentation) : "NULL"; }
+    std::string toString() const { return _value ? _value->toString() : "NULL"; }
 
     inline internal::Value *valueptr() const { return _value; }
 
@@ -557,7 +558,7 @@ namespace grt {
   #ifdef _WIN64
     #define DEFINE_SSIZE_T_FUNCTIONS
   #else
-    #define DEFINE_UINT64_T_FUNCTIONS
+    //#define DEFINE_UINT64_T_FUNCTIONS
   #endif
 #else
   #define DEFINE_SSIZE_T_FUNCTIONS
@@ -2646,7 +2647,7 @@ namespace grt {
     std::string document_module_data_path() { return _document_module_options_path; }
 
     void add_module_loader(ModuleLoader *loader);
-    bool load_module(const std::string &path, bool refresh);
+    bool load_module(const std::string &path, const std::string &basePath, bool refresh);
     void end_loading_modules();
      
     ModuleLoader *get_module_loader(const std::string &name);
@@ -2661,7 +2662,7 @@ namespace grt {
     const std::map<std::string,Interface*> &get_interfaces() const { return _interfaces; }
     const Interface *get_interface(const std::string &name);
     
-    int scan_modules_in(const std::string &path, const std::list<std::string> &exts,
+    int scan_modules_in(const std::string &path, const std::string &basePath, const std::list<std::string> &exts,
                         bool reload);
     
     const std::vector<Module*> &get_modules() const { return _modules; }

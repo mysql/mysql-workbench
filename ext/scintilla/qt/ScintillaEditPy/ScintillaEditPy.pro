@@ -32,9 +32,12 @@ INCLUDEPATH += $$PYSIDE_INCLUDES/QtCore
 INCLUDEPATH += $$PYSIDE_INCLUDES/QtGui
 
 unix:!mac {
-	LIBS += -ldl
 	LIBS += `pkg-config pyside --libs`
+}
+unix:linux-* {
+	# gcc on freebsd 9.2, at least, doesn't support -Wno-empty-body
 	QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-empty-body
+	LIBS += -ldl
 }
 
 macx {

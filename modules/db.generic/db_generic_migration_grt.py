@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -307,6 +307,7 @@ class GenericMigration(object):
                 if first_autoinc_column is not None:
                     targetTable.primaryKey.columns.reorder(first_autoinc_column, 0)
 
+            # FIXME: Only unique (not PK!) columns can have AI
             # Only PK columns can have autoIncrement set:
             if targetTable.primaryKey:
                 pk_cols = set(column.referencedColumn.name for column in targetTable.primaryKey.columns)
@@ -415,7 +416,7 @@ class GenericMigration(object):
             referenced_index_col = find_object_with_old_name(targetTable.columns, source_index_column.referencedColumn.name)
             if not referenced_index_col:
                 state.addMigrationLogEntry(2, source_index, target_index,
-                      'The column "%s" is part of source table "%s" index "%s" but there is not such column in the target table' % (source_index_column.name, sourceTable.name, source_index.name) )
+                      'The column "%s" is part of source table "%s" index "%s" but there is no such column in the target table' % (source_index_column.name, sourceTable.name, source_index.name) )
                 #return None
                 ##XXXXX
             target_index_column = grt.classes.db_mysql_IndexColumn()

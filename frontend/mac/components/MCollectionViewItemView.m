@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,7 +58,6 @@
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   [[NSNotificationCenter defaultCenter] removeObserver: self];
-  [super dealloc];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,14 +152,11 @@
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) rightMouseDown: (NSEvent*) event
+- (void)rightMouseDown: (NSEvent*) event
 {
-  //[self cancelPendingInlineEdit];
-  
-  //[self setSelected: YES];
   [self mouseDown: event]; // same handling as left mouse click.
 
-  // this will popup the context menu
+  // This will popup the context menu.
   [super rightMouseDown: event];
 }
 

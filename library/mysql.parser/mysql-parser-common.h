@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,7 +45,7 @@ class MYSQL_PARSER_PUBLIC_FUNC MySQLRecognitionBase
 {
 public:
   MySQLRecognitionBase(const std::set<std::string> &charsets);
-  virtual ~MySQLRecognitionBase() {};
+  virtual ~MySQLRecognitionBase();
 
   // Internal function called by static callback.
   void add_error(const std::string &message, ANTLR3_UINT32 token, ANTLR3_MARKER token_start,
@@ -70,6 +70,8 @@ public:
   static bool is_number(ANTLR3_UINT32 type);
   static bool is_operator(ANTLR3_UINT32 type);
   static bool is_subtree(struct ANTLR3_BASE_TREE_struct *tree);
+
+  static std::string dumpTree(pANTLR3_UINT8 *tokenNames, pANTLR3_BASE_TREE tree, const std::string &indentation = "");
 
 protected:
   virtual void reset();

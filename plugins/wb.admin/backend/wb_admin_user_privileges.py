@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ class PrivilegeTarget(object):
       This class holds the information of the priv_level item at the
       GRANT statement.
 
-      It will used not only to hold the information but also to provide functions
+      It will be used not only to hold the information but also to provide functions
       for the matching against other priv_level definitions.
     """
     def __init__(self):
@@ -146,7 +146,7 @@ class UserHostPrivileges(object):
 
     def get_privilege_value(self, privileges, level):
         """
-          This functions will return a binary value indicating the sum of privileges
+          This function will return a binary value indicating the set of privileges
           at the indicated level.
         """
         ret_val = 0

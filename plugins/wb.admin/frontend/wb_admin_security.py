@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ import os
 
 import mforms
 
-from mforms import newBox, newLabel, newButton, newTextEntry, newTreeNodeView, newTable, newRadioButton, newListBox, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
+from mforms import newBox, newLabel, newButton, newTextEntry, newTreeNodeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
 from wb_admin_utils import not_running_warning_label, make_panel_header
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
 from wb_common import PermissionDeniedError
@@ -120,7 +120,7 @@ class ThreadedInputValidator(object):
     """This class validates the changes in the associated text entry widget displaying the result in a validation label
 
     Usage:
-        Instanciate this class and set is callback method to be the callback of the associated text entry.
+        Instantiate this class and set is callback method to be the callback of the associated text entry.
     """
     def __init__(self, owner, text_entry, validation_label, ctrl_be, delay=1, colors=('#33aa33', '#aa3333')):
         self.owner = owner
@@ -181,7 +181,7 @@ class ThreadedInputValidator(object):
             if passwd == '':
                 return 0
 
-            result = self.ctrl_be.exec_query("SELECT VALIDATE_PASSWORD_STRENGTH('%s')" % passwd)
+            result = self.ctrl_be.exec_query("SELECT VALIDATE_PASSWORD_STRENGTH('%s')" % db_utils.escape_sql_string(passwd))
             if result and result.nextRow():
                 estimate = result.intByIndex(1)
             else:
@@ -718,10 +718,6 @@ class FirewallCommands:
         log_error("Adding a firewall user rule failed to normalize the query. Probably, the inserted query does not translate to a firewall rule.\n")
         return False
 
-    def add_normalized_rule(self, userhost, rule):
-        self.execute_command(rule)
-        return True
-
     def normalize_query(self, query):
         query_result = self.execute_result_command("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
         if not query_result:
@@ -903,7 +899,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         firewall_rules_main_box.add(self.note, False, True)
 
         info_box = mforms.newBox(True)
-        info_label = mforms.newLabel("Manage the rules for the current user. Changing the mode to RECORDING will start collecting the SQL commands used by your application.\nWhen all the neccessary rules were collected, you should set the mode to PROTECTING. You can then fine-tune the set of rules by adding or deleting them.")
+        info_label = mforms.newLabel("Manage the rules for the current user. Changing the mode to RECORDING will start collecting the SQL commands used by your application.\nWhen all the necessary rules were collected, you should set the mode to PROTECTING. You can then fine-tune the set of rules by adding or deleting them.")
         info_box.add(info_label, True, True)
         self.add(info_box, False, False)
         
@@ -990,7 +986,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.note.set_text(text)
         
     def refresh_row(self, current_row, user, host):
-        userhost = "%s@%s" % (user, host)
+        userhost = "%s@%s" % (db_utils.escape_sql_string(user), host)
         current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
         current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
         current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
@@ -998,7 +994,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
     def show_user(self, user, host, new_user):
         self.current_user = user
         self.current_host = host
-        self.current_userhost = "%s@%s" % (user, host)
+        self.current_userhost = "%s@%s" % (db_utils.escape_sql_string(user), host)
         self.new_user = new_user
         self.set_enabled(not new_user)
         self.update_rules()
@@ -1804,15 +1800,13 @@ class SecurityAccount(mforms.Box):
             self.valid_name = False
 
         subnet_mask = ''
-        if host[-1:] == ".":
-            host = host[:-1]
-        elif '/' in host:
+        if '/' in host:
             host, _, subnet_mask = host.rpartition('/')
             if not subnet_mask:
                 self.valid_name = False
 
         if self.valid_name:
-            allowed = re.compile(r"^(?!-)[\.A-Z%_-]{1,63}(?<!-)$", re.IGNORECASE)
+	    allowed = re.compile(r"([a-z]|([%_]\.))(([\-_\.]?[a-z0-9]+)*)[a-z0-9]$", re.IGNORECASE)
             allowed_ipv4 = re.compile(r"^(((%|_)?|25[0-5%_]|(%|_)?|2[0-4%_][0-9%_]|[01%_]?[0-9%_][0-9%_]?)\.){0,3}((%|_)?|25[0-5%_]|2[0-4%_][0-9%_]|[01%_]?[0-9%_][0-9%_]?)$")
             allowed_ipv6 = re.compile(r"^\s*(?!.*::.*::)(?:(?!:)|:(?=:))(?:[0-9a-f%_]{0,4}(?:(?<=::)|(?<!::):)){6}(?:[0-9a-f%_]{0,4}(?:(?<=::)|(?<!::):)[0-9a-f%_]{0,4}(?:(?<=::)|(?<!:)|(?<=:)(?<!::):)|(?:25[0-4%_]|2[0-4%_]\d|1\d\d|[1-9%_]?\d)(?:\.(?:25[0-4%_]|2[0-4%_]\d|1\d\d|[1-9%_]?\d)){3})\s*$"
                                       , re.IGNORECASE)
@@ -1861,7 +1855,7 @@ class SecurityAccount(mforms.Box):
     def revoke_all(self):
         if self._selected_user:
             if Utilities.show_message("Revoke All Privileges",
-                  "Please confirm revokation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained.\n\nAdd new privileges afterwards or the user will not be able to access any schema object."%(self._selected_user.username, self._selected_user.host),
+                  "Please confirm revocation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained.\n\nAdd new privileges afterwards or the user will not be able to access any schema object."%(self._selected_user.username, self._selected_user.host),
                   "Revoke", "Cancel", "") == mforms.ResultOk:
                 try:
                     self._selected_user.revoke_all()
@@ -1897,7 +1891,7 @@ class SecurityAccount(mforms.Box):
             is_new_user = not self._selected_user.is_commited
 
             password_unneeded = False
-            self.password_label.set_text("Password is expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
+            self.password_label.set_text("Password has expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
             plugin_info = AUTHENTICATION_PLUGIN_TYPES.get(self.selected_plugin_type(), {})
             if self.has_extra_plugins and not plugin_info.get("enable_password", True):
                 password_unneeded = True
@@ -2014,7 +2008,7 @@ Please click [Upgrade Account] to fix that.
 Either the account password must be provided to reset it
 or a new password must be supplied.'''
         elif user.password_expired:
-            caption = 'Password is expired. User must change password to use the account.'
+            caption = 'Password has expired. User must change password to use the account.'
         elif not user.username:
             caption = 'This is an anonymous account. It is usually advisable to delete this account.'
         elif user.blank_password :

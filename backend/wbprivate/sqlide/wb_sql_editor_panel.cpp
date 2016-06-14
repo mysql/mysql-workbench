@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,7 +96,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   add(&_splitter, true, true);
 
   mforms::CodeEditor* code_editor = editor_be()->get_editor_control();
-
+  code_editor->set_name("code editor");
   _editor_box.add(setup_editor_toolbar(), false, true);
   _editor_box.add_end(code_editor, true, true);
 
@@ -386,12 +386,13 @@ static bool check_if_file_too_big_to_restore(const std::string &path, const std:
 SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
 : word_wrap(false), show_special(false)
 {
-  char buffer[4098];
-  std::ifstream f(info_file.c_str());
+  wchar_t buffer[4098] = {0};
+  std::wifstream f;
+  openStream(info_file, f);
   while (f.getline(buffer, sizeof(buffer)))
   {
     std::string key, value;
-    base::partition(buffer, "=", key, value);
+    base::partition(base::wstring_to_string(buffer), "=", key, value);
     if (key == "orig_encoding")
       orig_encoding = value;
     else if (key == "type")
@@ -681,36 +682,39 @@ void SqlEditorPanel::auto_save(const std::string &path)
 {
   // save info about the file
   {
-    std::ofstream f(bec::make_path(path, _autosave_file_suffix+".info").c_str());
-
+    std::wofstream f;
+    openStream(bec::make_path(path, _autosave_file_suffix + ".info"), f);
+    std::string content;
     if (_is_scratch)
-      f << "type=scratch\n";
+      content += "type=scratch\n";
     else
-      f << "type=file\n";
+      content += "type=file\n";
 
     if (!_is_scratch && !_filename.empty())
     {
-      f << "filename=" << _filename << "\n";
+      content += "filename=" + _filename + "\n";
     }
-    f << "orig_encoding=" << _orig_encoding << "\n";
+    content += "orig_encoding=" + _orig_encoding + "\n";
 
-    f << "title="<<_title<<"\n";
+    content += "title=" + _title + "\n";
 
     if (get_toolbar()->get_item_checked("query.toggleInvisible"))
-      f << "show_special=1\n";
+      content += "show_special=1\n";
     else
-      f << "show_special=0\n";
+      content += "show_special=0\n";
     if (get_toolbar()->get_item_checked("query.toggleWordWrap"))
-      f << "word_wrap=1\n";
+      content += "word_wrap=1\n";
     else
-      f << "word_wrap=0\n";
+      content += "word_wrap=0\n";
 
     size_t caret_pos = _editor->get_editor_control()->get_caret_pos();
-    f << "caret_pos=" << caret_pos << "\n";
+    content += "caret_pos=" + base::to_string(caret_pos) + "\n";
 
     size_t first_line = _editor->get_editor_control()->send_editor(SCI_GETFIRSTVISIBLELINE, 0, 0);
-    f << "first_visible_line=" << first_line << "\n";
+    content += "first_visible_line=" + base::to_string(first_line) + "\n";
 
+    if (f.good())
+      f << base::string_to_wstring(content);
     f.close();
   }
 
@@ -784,7 +788,7 @@ static void toggle_continue_on_error(SqlEditorForm *sql_editor_form)
 
 mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 {
-  mforms::ToolBar *tbar(new mforms::ToolBar(mforms::SecondaryToolBar));
+  mforms::ToolBar *tbar(mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar)));
 #ifdef _WIN32
   tbar->set_size(-1, 27);
 #endif
@@ -837,7 +841,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.stopOnError");
+  item->set_name("query.continueOnError");
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-off.png"));
   item->set_tooltip(_("Toggle whether execution of SQL script should continue after failed statements"));

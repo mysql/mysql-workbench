@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -551,7 +551,7 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, const st
 {
   RefreshUI::Blocker __centry(*_owner);
 
-  db_ColumnRef col;
+
   std::string old;
 
   // either the row was edited or cancelled (sent "" as value)
@@ -611,7 +611,8 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, const st
   else if (node[0] >= real_count())
     return false;
 
-  col= _owner->get_table()->columns().get(node[0]);
+  db_ColumnRef col;
+  col = _owner->get_table()->columns().get(node[0]);
 
   get_field(node, column, old);
 
@@ -779,8 +780,9 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, ssize_t 
       if (value != 0)
       {
         _owner->get_table()->addPrimaryKeyColumn(col);
-        if (col->defaultValue() != "")
-          col->defaultValue("");
+        if (col->defaultValueIsNull())
+          bec::ColumnHelper::set_default_value(col, "");
+
       }
       else
         _owner->get_table()->removePrimaryKeyColumn(col);
@@ -803,7 +805,7 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, ssize_t 
 
       // When setting the not-null flag then having a default value of NULL is meaningless.
       // Remove that if it is set.
-      if (col->defaultValueIsNull())
+      if (col->defaultValueIsNull() && col->isNotNull())
         bec::ColumnHelper::set_default_value(col, "");
       
       TableHelper::update_foreign_keys_from_column_notnull(_owner->get_table(), col);
@@ -1297,8 +1299,8 @@ bool TableColumnsListBE::activate_popup_item_for_nodes(const std::string &name, 
       
         if (col.is_valid())
         {
-          col->defaultValue("");
-          col->defaultValueIsNull(0);
+          bec::ColumnHelper::set_default_value(col, "");
+          _owner->update_change_date();
           changed= true;
         }
       }
@@ -1325,7 +1327,9 @@ bool TableColumnsListBE::activate_popup_item_for_nodes(const std::string &name, 
         
         if (col.is_valid())
         {
-          col->defaultValue("NULL");
+
+          bec::ColumnHelper::set_default_value(col, "NULL");
+          _owner->update_change_date();
           changed= true;
         }
       }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -153,14 +153,10 @@ static bool selector_create(::mforms::Selector *self, ::mforms::SelectorStyle st
   switch (style)
   {
     case ::mforms::SelectorPopup:
-      [[[PopupStyleSelector alloc] initWithObject:self] autorelease];
-      break;
+      return [[PopupStyleSelector alloc] initWithObject: self] != nil;
     default:
-      [[[ComboStyleSelector alloc] initWithObject:self] autorelease];
-      break;
+      return [[ComboStyleSelector alloc] initWithObject: self] != nil;
   }
-  
-  return true;  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,7 +218,7 @@ static std::string selector_get_item(::mforms::Selector *self, int index)
     {
       case ::mforms::SelectorPopup:
       {
-        id value = [selector itemAtIndex: index];
+        id value = [(PopupStyleSelector*)selector itemAtIndex: index];
         if (value != nil)
           return [[value title] UTF8String];
         break;
