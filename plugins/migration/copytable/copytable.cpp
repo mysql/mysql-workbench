@@ -717,11 +717,17 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
       if (outbuf_len > _max_blob_chunk_size - 1)
       	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
 
-      if (s_outbuf.empty())
+      // The following lengths are valid as length/indicator values: 
+      // - n, where n > 0, 
+      // - 0
+      // - SQL_NTS. A string sent to the driver in the corresponding data buffer is null-terminated; this is a convenient 
+      //            way for C programmers to pass strings without having to calculate their byte length. 
+      //            This value is legal only when the application sends data to the driver.
+      if (s_outbuf.empty() && len_or_indicator > 0)
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
-      std::strcpy(out_buffer, s_outbuf.c_str());
-
+      if (len_or_indicator > 0)
+        std::strcpy(out_buffer, s_outbuf.c_str());
       *out_length = outbuf_len;
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
@@ -813,10 +819,11 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
       if (outbuf_len > _max_blob_chunk_size - 1)
       	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
 
-      if (s_outbuf.empty())
+      if (s_outbuf.empty() && len_or_indicator > 0)
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
-      std::strcpy(out_buffer, s_outbuf.c_str());
+      if (len_or_indicator)
+        std::strcpy(out_buffer, s_outbuf.c_str());
 
       *out_length = outbuf_len;
     }
