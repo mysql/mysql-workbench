@@ -81,11 +81,11 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
   ensure_false("Ubuntu, supported, no 64-bit", isOsSupportedProxy("Ubuntu 15.04"));
   ensure_false("Ubuntu, supported, 32-bit", isOsSupportedProxy("Ubuntu 15.04 i386"));
   ensure_false("Ubuntu, supported, 32-bit, extra chars", isOsSupportedProxy("..... Ubuntu 15.04 i386 ....."));
-  ensure_true("Ubuntu, supported", isOsSupportedProxy("Ubuntu 15.04 x86_64"));
-  ensure_true("Ubuntu, supported, extra chars", isOsSupportedProxy("..... Ubuntu 15.04 ..... x86_64 ....."));
-  ensure_true("Ubuntu, subversion, supported", isOsSupportedProxy("Ubuntu 15.04.2 x86_64"));
-  ensure_true("Ubuntu, subversion, supported, extra chars", isOsSupportedProxy("..... Ubuntu 15.04.2 ..... x86_64 ....."));
-  ensure_false("Ubuntu, chars between name and version", isOsSupportedProxy("..... Ubuntu ..... 15.04 ..... x86_64 ....."));
+  ensure_true("Ubuntu, supported", isOsSupportedProxy("Ubuntu 16.04 x86_64"));
+  ensure_true("Ubuntu, supported, extra chars", isOsSupportedProxy("..... Ubuntu 16.04 ..... x86_64 ....."));
+  ensure_true("Ubuntu, subversion, supported", isOsSupportedProxy("Ubuntu 16.04.2 x86_64"));
+  ensure_true("Ubuntu, subversion, supported, extra chars", isOsSupportedProxy("..... Ubuntu 16.04.2 ..... x86_64 ....."));
+  ensure_false("Ubuntu, chars between name and version", isOsSupportedProxy("..... Ubuntu ..... 16.04 ..... x86_64 ....."));
 
   // red-hat based
   ensure_false("Oracle, no version", isOsSupportedProxy("Red Hat Enterprise Linux Server release"));
@@ -117,7 +117,7 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
 
   // other red-hat-based
   ensure_false("Fedora, old", isOsSupportedProxy("Fedora release 20 x86_64"));
-  ensure_true("Fedora, supported", isOsSupportedProxy("Fedora release 22 x86_64"));
+  ensure_true("Fedora, supported", isOsSupportedProxy("Fedora release 24 x86_64"));
 }
 
 // Due to the tut nature, this must be executed as a last test always,
