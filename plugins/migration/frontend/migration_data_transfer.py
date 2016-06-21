@@ -227,7 +227,7 @@ All tables are copied by default.""")
 
         self.main.plan.state.dataBulkTransferParams["tableList"] = tables_to_copy
 
-        if self._copy_db.get_active() or self.copy_script_radiobutton.get_active() or self.bulk_copy_script_radiobutton.get_active():
+        if self.main.plan.state.dataBulkTransferParams["tableList"]:
             return WizardPage.go_next(self)
         else:
             self.main.go_next_page(2)
@@ -375,7 +375,7 @@ class TransferMainView(WizardProgressPage):
         self._tables_to_exclude = list()
 
     def page_activated(self, advancing):
-        if advancing:
+        if advancing and self.main.plan.state.dataBulkTransferParams["tableList"]:
             options = self.main.plan.state.dataBulkTransferParams
             copy_script = options.get("GenerateCopyScript", None)
             bulk_copy_script = options.get("GenerateBulkCopyScript", None)
@@ -574,10 +574,11 @@ IF [%arg_source_password%] == [] (
 
             f.write("\n\n")
             f.write(self.main.plan.wbcopytables_path)
+            f.write(" ^\n")
             for arg in self._transferer.helper_basic_arglist(True):
-                f.write(' %s' % arg)
-            f.write(' --source-password="%arg_source_password%" --target-password="%arg_target_password%" --table-file="%table_file%"')
-            f.write(' --thread-count=%arg_worker_count% %arg_truncate_target% %arg_debug_output%')
+                f.write(' %s ^\n' % arg)
+            f.write(' --source-password="%arg_source_password%" ^\n --target-password="%arg_target_password%" ^\n --table-file="%table_file%"')
+            f.write(' --thread-count=%arg_worker_count% ^\n %arg_truncate_target% ^\n %arg_debug_output%')
             f.write("\n\n")
             f.write("REM Removes the file with the table definitions\n")
             f.write("DEL %s\n" % filename)
@@ -601,10 +602,11 @@ fi
             f.write( ("" if debug_table_copy else "# ") + "arg_debug_output=--log-level=debug3\n")
             f.write("\n")
             f.write(self.main.plan.wbcopytables_path)
+            f.write(" \\\n")
             for arg in self._transferer.helper_basic_arglist(True):
-                f.write(' %s' % arg)
-            f.write(' --source-password="$arg_source_password" --target-password="$arg_target_password"')
-            f.write(' --thread-count=$arg_worker_count $arg_truncate_target $arg_debug_output')
+                f.write(' %s \\\n' % arg)
+            f.write(' --source-password="$arg_source_password" \\\n --target-password="$arg_target_password" \\\n')
+            f.write(' --thread-count=$arg_worker_count \\\n $arg_truncate_target \\\n $arg_debug_output \\\n')
 
             for table in self._working_set.values():
                 opt = "--table '%s' '%s' '%s' '%s' '%s' '%s' '%s'" % (table["source_schema"], 
