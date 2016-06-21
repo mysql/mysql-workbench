@@ -1,4 +1,4 @@
-# Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -312,7 +312,8 @@ class MySQLConnection:
       
     def disconnect(self):
         if self.connection:
-            modules.DbMySQLQuery.closeConnection(self.connection)
+            if hasattr(modules.DbMySQLQuery, 'closeConnection'): 
+                modules.DbMySQLQuery.closeConnection(self.connection)
             self.connection = 0
             self.send_status(-1, "Connection closed by client")
     
