@@ -314,7 +314,6 @@ class GenericMigration(object):
             else:
                 pk_cols = []
             for column in targetTable.columns:
-                print 'col: %s\n' % column
                 if column.autoIncrement and column.name not in pk_cols:
                     column.autoIncrement = 0
                     state.addMigrationLogEntry(1, sourceTable, targetTable,
