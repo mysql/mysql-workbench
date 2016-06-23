@@ -273,7 +273,7 @@ class WbAdminMonitor(mforms.Box):
         free_pages, total_pages = float(free_pages), float(total_pages)
         if -0.00001 <= total_pages <= 0.00001:
             return 0
-        return 100 * (((total_pages - free_pages) / total_pages)/UPDATE_INTERVAL)
+        return 100 * ((total_pages - free_pages) / total_pages)
 
     def calc_innodb_reads_per_second(self, (count,)):
         if self.last_ircount == 0:
