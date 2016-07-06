@@ -291,7 +291,7 @@ def getTriggerNames(connection, catalog_name, schema_name):
     execute_query(connection, 'USE %s' % quoteIdentifier(catalog_name))
     query = """SELECT name
 FROM sysobjects
-WHERE type="TR" AND uid = user_id(?)"""
+WHERE type='TR' AND uid = user_id(?)"""
     return [ row[0] for row in execute_query(connection, query, schema_name) ]
 
 
