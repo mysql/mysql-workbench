@@ -182,7 +182,7 @@ def getCatalogNames(connection):
 
     [NOTE] From MSDN: [A catalog] is equivalent to a databases in SQL Server.
     """
-    query_pre_90 = 'SELECT name FROM sys.databases'
+    query_pre_90 = 'SELECT name FROM master.dbo.sysdatabases'
     query_post_90 = 'exec sys.sp_databases'
     
     serverVersion = connected_server_version(connection)
