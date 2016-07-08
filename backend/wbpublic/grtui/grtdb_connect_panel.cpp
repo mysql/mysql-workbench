@@ -861,9 +861,16 @@ void DbConnectPanel::launch_ssl_wizard()
   mforms::Form *parent = get_parent_form();
   grt::BaseListRef args(get_be()->get_grt());
   args.ginsert(mforms_to_grt(get_be()->get_grt(), parent, "Form"));
+  if (!get_connection().is_valid())
+  {
+    db_mgmt_ConnectionRef connection(get_be()->get_grt());
+    connection->owner(get_be()->get_db_mgmt());
+    connection->driver(selected_driver());
+    set_connection(connection);
+    change_active_stored_conn();
+  }
   args.ginsert(get_connection());
   args.ginsert(grt::StringRef(get_connection()->id()));
-
   get_be()->get_grt()->call_module_function("PyWbUtils", "generateCertificates", args);
   
   _connection->update();
