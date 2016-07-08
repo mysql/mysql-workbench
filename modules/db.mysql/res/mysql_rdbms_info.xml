@@ -792,65 +792,65 @@
                         </value>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl1">
-                        <value type="string" key="caption">SSL CA File:</value>
-                        <value type="string" key="defaultValue"></value>
-                        <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
-                        <value type="int" key="layoutAdvanced">2</value>
-                        <value type="int" key="layoutRow">-1</value>
-                        <value type="int" key="layoutWidth">180</value>
-                        <value type="string" key="lookupValueMethod"></value>
-                        <value type="string" key="lookupValueModule"></value>
-                        <value type="string" key="name">sslCA</value>
-                        <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-                        <value type="string" key="paramType">file</value>
-                        <value type="dict" content-type="string" key="paramTypeDetails"/>
-                        <value type="int" key="required">0</value>
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl3">
+                      <value type="string" key="caption">SSL Key File:</value>
+                      <value type="string" key="defaultValue"></value>
+                      <value type="string" key="description">Path to Client Key file for SSL.</value>
+                      <value type="int" key="layoutAdvanced">2</value>
+                      <value type="int" key="layoutRow">-1</value>
+                      <value type="int" key="layoutWidth">180</value>
+                      <value type="string" key="lookupValueMethod"></value>
+                      <value type="string" key="lookupValueModule"></value>
+                      <value type="string" key="name">sslKey</value>
+                      <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+                      <value type="string" key="paramType">file</value>
+                      <value type="dict" content-type="string" key="paramTypeDetails"/>
+                      <value type="int" key="required">0</value>
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl2">
-                        <value type="string" key="caption">SSL CERT File:</value>
-                        <value type="string" key="defaultValue"></value>
-                        <value type="string" key="description">Path to Client Certificate file for SSL.</value>
-                        <value type="int" key="layoutAdvanced">2</value>
-                        <value type="int" key="layoutRow">-1</value>
-                        <value type="int" key="layoutWidth">180</value>
-                        <value type="string" key="lookupValueMethod"></value>
-                        <value type="string" key="lookupValueModule"></value>
-                        <value type="string" key="name">sslCert</value>
-                        <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-                        <value type="string" key="paramType">file</value>
-                        <value type="dict" content-type="string" key="paramTypeDetails"/>
-                        <value type="int" key="required">0</value>
+                      <value type="string" key="caption">SSL CERT File:</value>
+                      <value type="string" key="defaultValue"></value>
+                      <value type="string" key="description">Path to Client Certificate file for SSL.</value>
+                      <value type="int" key="layoutAdvanced">2</value>
+                      <value type="int" key="layoutRow">-1</value>
+                      <value type="int" key="layoutWidth">180</value>
+                      <value type="string" key="lookupValueMethod"></value>
+                      <value type="string" key="lookupValueModule"></value>
+                      <value type="string" key="name">sslCert</value>
+                      <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+                      <value type="string" key="paramType">file</value>
+                      <value type="dict" content-type="string" key="paramTypeDetails"/>
+                      <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl3">
-                        <value type="string" key="caption">SSL Key File:</value>
-                        <value type="string" key="defaultValue"></value>
-                        <value type="string" key="description">Path to Client Key file for SSL.</value>
-                        <value type="int" key="layoutAdvanced">2</value>
-                        <value type="int" key="layoutRow">-1</value>
-                        <value type="int" key="layoutWidth">180</value>
-                        <value type="string" key="lookupValueMethod"></value>
-                        <value type="string" key="lookupValueModule"></value>
-                        <value type="string" key="name">sslKey</value>
-                        <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-                        <value type="string" key="paramType">file</value>
-                        <value type="dict" content-type="string" key="paramTypeDetails"/>
-                        <value type="int" key="required">0</value>
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl1">
+                      <value type="string" key="caption">SSL CA File:</value>
+                      <value type="string" key="defaultValue"></value>
+                      <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
+                      <value type="int" key="layoutAdvanced">2</value>
+                      <value type="int" key="layoutRow">-1</value>
+                      <value type="int" key="layoutWidth">180</value>
+                      <value type="string" key="lookupValueMethod"></value>
+                      <value type="string" key="lookupValueModule"></value>
+                      <value type="string" key="name">sslCA</value>
+                      <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+                      <value type="string" key="paramType">file</value>
+                      <value type="dict" content-type="string" key="paramTypeDetails"/>
+                      <value type="int" key="required">0</value>
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl4">
-                        <value type="string" key="caption">SSL Cipher:</value>
-                        <value type="string" key="defaultValue"></value>
-                        <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
-                        <value type="int" key="layoutAdvanced">2</value>
-                        <value type="int" key="layoutRow">-1</value>
-                        <value type="int" key="layoutWidth">180</value>
-                        <value type="string" key="lookupValueMethod"></value>
-                        <value type="string" key="lookupValueModule"></value>
-                        <value type="string" key="name">sslCipher</value>
-                        <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-                        <value type="string" key="paramType">string</value>
-                        <value type="dict" content-type="string" key="paramTypeDetails"/>
-                        <value type="int" key="required">0</value>
+                      <value type="string" key="caption">SSL Cipher:</value>
+                      <value type="string" key="defaultValue"></value>
+                      <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
+                      <value type="int" key="layoutAdvanced">2</value>
+                      <value type="int" key="layoutRow">-1</value>
+                      <value type="int" key="layoutWidth">180</value>
+                      <value type="string" key="lookupValueMethod"></value>
+                      <value type="string" key="lookupValueModule"></value>
+                      <value type="string" key="name">sslCipher</value>
+                      <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+                      <value type="string" key="paramType">string</value>
+                      <value type="dict" content-type="string" key="paramTypeDetails"/>
+                      <value type="int" key="required">0</value>
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
                         <value type="string" key="caption">SSL Wizard ...</value>
