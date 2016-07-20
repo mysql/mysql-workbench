@@ -533,6 +533,15 @@ void DbConnectPanel::change_active_driver()
     // semantic. In ssh based connections the sshHost is the remote server name (what is otherwise
     // the host name) and the host name is relative to the ssh host (usually localhost).
     db_mgmt_ConnectionRef actual_connection = get_connection();
+    if (!actual_connection.is_valid())
+    {
+      db_mgmt_ConnectionRef connection(get_be()->get_grt());
+      connection->owner(get_be()->get_db_mgmt());
+      connection->driver(selected_driver());
+      set_connection(connection);
+      change_active_stored_conn();
+      actual_connection = get_connection();
+    }
     if (*current_driver->name() == "MysqlNativeSSH")
     {
       std::string machine = actual_connection->parameterValues().get_string("sshHost");
