@@ -72,7 +72,7 @@ public:
 
   db_mgmt_ConnectionRef get_default_connection() { return _anonymous_connection; }
   
-  db_mgmt_ConnectionRef get_connection();
+  db_mgmt_ConnectionRef get_connection(bool initInvalid = false);
   void set_connection(const db_mgmt_ConnectionRef& conn);
   
   boost::signals2::signal<void (std::string,bool)>* signal_validation_state_changed() { return &_signal_validation_state_changed; }
