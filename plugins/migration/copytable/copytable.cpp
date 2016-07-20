@@ -47,10 +47,12 @@ DEFAULT_LOG_DOMAIN("copytable");
 #define TMP_TRIGGER_TABLE "wb_tmp_triggers"
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-#define MYSQL_CHECK_VERSION(major,minor,micro) \
-    (MYSQL_VERSION_MAJOR > (major) || \
-    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR > (minor)) || \
-    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR == (minor) && MYSQL_VERSION_PATCH >= (micro)))
+  #define MYSQL_CHECK_VERSION(major,minor,micro) \
+      (MYSQL_VERSION_MAJOR > (major) || \
+      (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR > (minor)) || \
+      (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR == (minor) && MYSQL_VERSION_PATCH >= (micro)))
+#else
+  #define MYSQL_CHECK_VERSION(major,minor,micro) false
 #endif
 
 static const char *mysql_field_type_to_name(enum enum_field_types type)
@@ -1319,14 +1321,12 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
   }
 
 
-#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,5,27)
   my_bool use_cleartext = use_cleartext_plugin;
   mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
 #else
   if (use_cleartext_plugin)
     log_warning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
-#endif
 #endif
 
   if (!mysql_real_connect(&_mysql, host.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
@@ -1929,11 +1929,9 @@ _use_bulk_inserts(true), _bulk_insert_buffer(this), _bulk_insert_record(this),
     _incoming_data_charset = "latin1";
 
   mysql_init(&_mysql);
-#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,6,6)
   if (is_mysql_version_at_least(5,6,6))
     mysql_options4(&_mysql, MYSQL_OPT_CONNECT_ATTR_ADD, "program_name", app_name.c_str());
-#endif
 #endif
 
   // _bulk_insert_record is used to prepare a single record string, the connection
@@ -1967,14 +1965,12 @@ _use_bulk_inserts(true), _bulk_insert_buffer(this), _bulk_insert_record(this),
            socket.c_str(), username.c_str());
   }
 
-#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,5,27)
   my_bool use_cleartext = use_cleartext_plugin;
   mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
 #else
   if (use_cleartext_plugin)
     log_warning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
-#endif
 #endif
 
 
@@ -2916,17 +2912,21 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
   // This function is used to create a legal SQL string that you can use in an SQL statement
   // This is needed because the escaping depends on the character set in use by the server
-  length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-//  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-//  #if MYSQL_CHECK_VERSION(5, 7, 6)
-//    if (_target->is_mysql_version_at_least(5, 7, 6))
-//      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
-//    else
-//      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-//  #else
-//    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-//  #endif
-//  #endif
+  unsigned long ret_length = 0;
+  
+  #if MYSQL_CHECK_VERSION(5, 7, 6)
+    if (_target->is_mysql_version_at_least(5, 7, 6))
+      ret_length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
+    else
+      ret_length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+  #else
+    ret_length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+  #endif
+
+  if( ret_length != (unsigned long) -1)
+    length += ret_length;
+  else
+    throw std::runtime_error("mysql_real_escape_string: Cannot convert data to legal SQL string.");
 
   return true;
 }
