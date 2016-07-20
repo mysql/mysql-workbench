@@ -22,6 +22,7 @@
 #include "mforms/fs_object_selector.h"
 #include "grtdb/db_helpers.h"
 
+#include "grt/common.h"
 #include "base/string_utilities.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
@@ -64,7 +65,6 @@ _params_panel(mforms::TransparentPanel), _params_table(0),
 _ssl_panel(mforms::TransparentPanel), _ssl_table(0),
 _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
 _options_panel(mforms::TransparentPanel), _options_table(0),
-_create_group(false),
 _show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
 _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0),
@@ -107,13 +107,10 @@ _last_active_tab(-1)
   _desc3.set_text(_("Method to use to connect to the RDBMS"));
   _desc3.set_style(mforms::SmallHelpTextStyle);
 
-
-  _stored_connection_sel.set_name("Connection List");
   if (_show_connection_combo)
     scoped_connect(_stored_connection_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_stored_conn, this));
   scoped_connect(_rdbms_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_rdbms, this));
   scoped_connect(_driver_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_driver, this));
-  scoped_connect(_name_entry.signal_changed(), boost::bind(&DbConnectPanel::change_connection_name, this));
 
   _table.set_name("connect_panel:table");
   _table.set_row_count(flags & DbConnectPanelShowRDBMSCombo ? 4 : 2);
@@ -175,40 +172,6 @@ DbConnectPanel::~DbConnectPanel()
 {
   if (_delete_connection_be)
     delete _connection;
-}
-
-
-void DbConnectPanel::connection_user_input(std::string &text_entry, bool &create_group, bool new_entry /*= true*/)
-{
-  std::size_t pos = text_entry.find_first_of("/");
-  if (pos == std::string::npos)
-    return;
-  create_group = false;
-  std::string group = text_entry.substr(0, pos);
-  std::string message = (new_entry) ? "Do you want to create connection inside the group" : "Do you want to split the name and move the connection to the group";
-  int ret = mforms::Utilities::show_message("Place Connection in a Group.",
-                                            base::strfmt("You have used a forward slash in your connection name, which is used to separate a group from the real connection name.\n"
-                                            "%s '%s'? If you select 'No' all forward slashes in the name will be replaced by underscores.", 
-                                            message.c_str(), group.c_str()), _("Yes"), _("No"));
-  if (ret == mforms::ResultOk)
-  {
-    create_group = true;
-    return;
-  }
-  while (pos != std::string::npos)
-  {
-    text_entry[pos] = '_';
-    pos = text_entry.find_first_of("/", pos + 1);
-  }
-}
-
-void DbConnectPanel::change_connection_name()
-{
-  if (_create_group)
-    return;
-  std::string text = _name_entry.get_string_value();
-  connection_user_input(text, _create_group);
-  _name_entry.set_value(text);
 }
 
 
@@ -297,8 +260,16 @@ void DbConnectPanel::init(const db_mgmt_ManagementRef &mgmt, const db_mgmt_Conne
 }
 
 
-db_mgmt_ConnectionRef DbConnectPanel::get_connection()
+db_mgmt_ConnectionRef DbConnectPanel::get_connection(bool initInvalid)
 {
+  if (!_connection->get_connection().is_valid() && initInvalid)
+  {
+    db_mgmt_ConnectionRef connection(get_be()->get_grt());
+    connection->owner(get_be()->get_db_mgmt());
+    connection->driver(selected_driver());
+    set_connection(connection);
+    change_active_stored_conn();
+  }
   return _connection->get_connection();
 }
 
@@ -490,7 +461,7 @@ void DbConnectPanel::change_active_rdbms()
       _updating = false;      
     }
     else
-      logWarning("DbConnectPanel: no active rdbms\n");
+      log_warning("DbConnectPanel: no active rdbms\n");
   }
 }
 
@@ -532,16 +503,7 @@ void DbConnectPanel::change_active_driver()
     // When switching to/from ssh based connections the value for the host name gets another
     // semantic. In ssh based connections the sshHost is the remote server name (what is otherwise
     // the host name) and the host name is relative to the ssh host (usually localhost).
-    db_mgmt_ConnectionRef actual_connection = get_connection();
-    if (!actual_connection.is_valid())
-    {
-      db_mgmt_ConnectionRef connection(grt::Initialized);
-      connection->owner(get_be()->get_db_mgmt());
-      connection->driver(selected_driver());
-      set_connection(connection);
-      change_active_stored_conn();
-      actual_connection = get_connection();
-    }
+    db_mgmt_ConnectionRef actual_connection = get_connection(true);
     if (*current_driver->name() == "MysqlNativeSSH")
     {
       std::string machine = actual_connection->parameterValues().get_string("sshHost");
@@ -695,6 +657,20 @@ bool DbConnectPanel::test_connection()
     message.append("Port: " + grt::IntegerRef(connectionProperties->parameterValues().get_int("port")).toString() + "\n");
     message.append("User: " + connectionProperties->parameterValues().get_string("userName") + "\n");
 
+    if ( connectionProperties->driver()->name() == "MySQLFabric")
+    {
+      grt::GRT *grt = connectionProperties->get_grt();
+      grt::BaseListRef args(grt);
+      args->insert_unchecked(connectionProperties);
+      grt::ValueRef result= grt->call_module_function("WBFabric", "testConnection", args);
+      std::string error = grt::StringRef::extract_from(result);
+      if (!error.empty())
+      {
+        failed = true;
+        message = error;
+      }
+    }
+    else
     {
       sql::ConnectionWrapper _dbc_conn= dbc_drv_man->getConnection(connectionProperties);
       
@@ -710,7 +686,7 @@ bool DbConnectPanel::test_connection()
         }
         if (!bec::is_supported_mysql_version(version))
         {
-          logError("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
+          log_error("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
                     version.c_str());
           if (mforms::Utilities::show_warning("Connection Warning",
                                               base::strfmt("Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
@@ -784,11 +760,13 @@ void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
   _warning.set_text("");
   if (!connection.is_valid())
     connection = _anonymous_connection;
+  else if (connection->parameterValues().has_key("fabric_managed"))
+    _warning.set_text(_("This is a fabric managed connection"));
 
   db_mgmt_DriverRef driver = connection->driver();
   if (!driver.is_valid())
   {
-    logError("Connection %s has no driver set\n", connection->name().c_str());
+    log_error("Connection %s has no driver set\n", connection->name().c_str());
     return;
   }
 
@@ -870,16 +848,8 @@ void DbConnectPanel::launch_ssl_wizard()
   mforms::Form *parent = get_parent_form();
   grt::BaseListRef args(get_be()->get_grt());
   args.ginsert(mforms_to_grt(get_be()->get_grt(), parent, "Form"));
-  if (!get_connection().is_valid())
-  {
-    db_mgmt_ConnectionRef connection(get_be()->get_grt());
-    connection->owner(get_be()->get_db_mgmt());
-    connection->driver(selected_driver());
-    set_connection(connection);
-    change_active_stored_conn();
-  }
-  args.ginsert(get_connection());
-  args.ginsert(grt::StringRef(get_connection()->id()));
+  args.ginsert(get_connection(true));
+  args.ginsert(grt::StringRef(get_connection(true)->id()));
   get_be()->get_grt()->call_module_function("PyWbUtils", "generateCertificates", args);
   
   _connection->update();
@@ -887,7 +857,7 @@ void DbConnectPanel::launch_ssl_wizard()
 
 void DbConnectPanel::open_ssl_wizard_directory()
 {
-  std::string path = base::joinPath(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
+  std::string path = base::join_path(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
   
   if (base::is_directory(path))
     Utilities::open_url(path);
@@ -1003,7 +973,7 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear)
 {
   std::string storage_key;
   std::string username;
-  grt::DictRef paramValues(get_connection()->parameterValues());
+  grt::DictRef paramValues(get_connection(true)->parameterValues());
   std::vector<std::string> tokens = base::split(param->object()->paramTypeDetails().get_string("storageKeyFormat"), "::");
   if (tokens.size() == 2)
   {
@@ -1012,13 +982,13 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear)
   }
   else
   {
-    logError("Invalid storage key format for option %s\n", param->object().id().c_str());
+    log_error("Invalid storage key format for option %s\n", param->object().id().c_str());
     return;
   }
   for (grt::DictRef::const_iterator iter = paramValues.begin(); iter != paramValues.end(); ++iter)
   {
-    storage_key = base::replaceString(storage_key, "%"+iter->first+"%", iter->second.toString());
-    username = base::replaceString(username, "%"+iter->first+"%", iter->second.toString());
+    storage_key = bec::replace_string(storage_key, "%" + iter->first + "%", iter->second.toString());
+    username = bec::replace_string(username, "%" + iter->first + "%", iter->second.toString());
   }
 
   if (username.empty())
@@ -1224,7 +1194,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       
       // value
       {
-        grt::StringRef value = driver_param->getValue();
+        grt::StringRef value= driver_param->get_value_repr();
         if (value.is_valid())
           ctrl->set_value(*value);
       }
@@ -1292,7 +1262,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       }
       catch (std::exception &e)
       {
-        logError("Error calling get_enum_options() for param %s: %s", 
+        log_error("Error calling get_enum_options() for param %s: %s", 
                 driver_param->get_control_name().c_str(),
                 e.what());
         mforms::Utilities::show_error("Connection Setup",
@@ -1320,7 +1290,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       break;
     }
     default:
-      logWarning("Unknown param type for %s\n", driver_param->get_control_name().c_str());
+      log_warning("Unknown param type for %s\n", driver_param->get_control_name().c_str());
       break;
   }
 }
