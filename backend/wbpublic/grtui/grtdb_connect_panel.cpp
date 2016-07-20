@@ -535,7 +535,7 @@ void DbConnectPanel::change_active_driver()
     db_mgmt_ConnectionRef actual_connection = get_connection();
     if (!actual_connection.is_valid())
     {
-      db_mgmt_ConnectionRef connection(get_be()->get_grt());
+      db_mgmt_ConnectionRef connection(grt::Initialized);
       connection->owner(get_be()->get_db_mgmt());
       connection->driver(selected_driver());
       set_connection(connection);
