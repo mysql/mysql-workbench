@@ -260,8 +260,16 @@ void DbConnectPanel::init(const db_mgmt_ManagementRef &mgmt, const db_mgmt_Conne
 }
 
 
-db_mgmt_ConnectionRef DbConnectPanel::get_connection()
+db_mgmt_ConnectionRef DbConnectPanel::get_connection(bool initInvalid)
 {
+  if (!_connection->get_connection().is_valid() && initInvalid)
+  {
+    db_mgmt_ConnectionRef connection(get_be()->get_grt());
+    connection->owner(get_be()->get_db_mgmt());
+    connection->driver(selected_driver());
+    set_connection(connection);
+    change_active_stored_conn();
+  }
   return _connection->get_connection();
 }
 
@@ -495,16 +503,7 @@ void DbConnectPanel::change_active_driver()
     // When switching to/from ssh based connections the value for the host name gets another
     // semantic. In ssh based connections the sshHost is the remote server name (what is otherwise
     // the host name) and the host name is relative to the ssh host (usually localhost).
-    db_mgmt_ConnectionRef actual_connection = get_connection();
-    if (!actual_connection.is_valid())
-    {
-      db_mgmt_ConnectionRef connection(get_be()->get_grt());
-      connection->owner(get_be()->get_db_mgmt());
-      connection->driver(selected_driver());
-      set_connection(connection);
-      change_active_stored_conn();
-      actual_connection = get_connection();
-    }
+    db_mgmt_ConnectionRef actual_connection = get_connection(true);
     if (*current_driver->name() == "MysqlNativeSSH")
     {
       std::string machine = actual_connection->parameterValues().get_string("sshHost");
@@ -849,16 +848,8 @@ void DbConnectPanel::launch_ssl_wizard()
   mforms::Form *parent = get_parent_form();
   grt::BaseListRef args(get_be()->get_grt());
   args.ginsert(mforms_to_grt(get_be()->get_grt(), parent, "Form"));
-  if (!get_connection().is_valid())
-  {
-    db_mgmt_ConnectionRef connection(get_be()->get_grt());
-    connection->owner(get_be()->get_db_mgmt());
-    connection->driver(selected_driver());
-    set_connection(connection);
-    change_active_stored_conn();
-  }
-  args.ginsert(get_connection());
-  args.ginsert(grt::StringRef(get_connection()->id()));
+  args.ginsert(get_connection(true));
+  args.ginsert(grt::StringRef(get_connection(true)->id()));
   get_be()->get_grt()->call_module_function("PyWbUtils", "generateCertificates", args);
   
   _connection->update();
@@ -982,7 +973,7 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear)
 {
   std::string storage_key;
   std::string username;
-  grt::DictRef paramValues(get_connection()->parameterValues());
+  grt::DictRef paramValues(get_connection(true)->parameterValues());
   std::vector<std::string> tokens = base::split(param->object()->paramTypeDetails().get_string("storageKeyFormat"), "::");
   if (tokens.size() == 2)
   {
