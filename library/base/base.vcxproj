@@ -133,11 +133,11 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh\mysqlxtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\mysqlshcore.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\v8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
@@ -152,12 +152,12 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh\mysqlxtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\mysqlshcore.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\v8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
@@ -175,14 +175,14 @@
       <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh\mysqlxtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\mysqlshcore.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\v8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
@@ -197,14 +197,14 @@
       <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh\mysqlxtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\mysqlshcore.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\v8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
@@ -219,14 +219,14 @@
       <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh\mysqlxtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\mysqlshcore.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\v8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
@@ -241,29 +241,34 @@
       <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh;$(ProjectDir)..\..\..\mysql-win-res\include\ngshell\mysqlsh\mysqlxtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\mysqlshcore.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\ngshell\$(Configuration)\v8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="base\event_log.cpp" />
     <ClCompile Include="config_file.cpp" />
+    <ClCompile Include="data_types.cpp" />
     <ClCompile Include="debugging.cpp" />
     <ClCompile Include="drawing.cpp" />
+    <ClCompile Include="drawing_win.cpp" />
+    <ClCompile Include="event_log.cpp" />
     <ClCompile Include="file_functions.cpp" />
     <ClCompile Include="file_utilities.cpp" />
     <ClCompile Include="geometry.cpp" />
+    <ClCompile Include="jsonparser.cpp" />
     <ClCompile Include="log.cpp" />
+    <ClCompile Include="mem_stat.cpp" />
     <ClCompile Include="notifications.cpp" />
     <ClCompile Include="profiling.cpp" />
+    <ClCompile Include="session_wrapper.cpp" />
     <ClCompile Include="sqlstring.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -281,8 +286,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base\boost_smart_ptr_helpers.h" />
+    <ClInclude Include="base\c++helpers.h" />
     <ClInclude Include="base\common.h" />
     <ClInclude Include="base\config_file.h" />
+    <ClInclude Include="base\data_types.h" />
     <ClInclude Include="base\debugging.h" />
     <ClInclude Include="base\drawing.h" />
     <ClInclude Include="base\entities.h" />
@@ -291,10 +298,13 @@
     <ClInclude Include="base\file_utilities.h" />
     <ClInclude Include="base\generic_templates.h" />
     <ClInclude Include="base\geometry.h" />
+    <ClInclude Include="base\jsonparser.h" />
     <ClInclude Include="base\log.h" />
+    <ClInclude Include="base\mem_stat.h" />
     <ClInclude Include="base\notifications.h" />
     <ClInclude Include="base\profiling.h" />
     <ClInclude Include="base\scope_exit_trigger.h" />
+    <ClInclude Include="base\session_wrapper.h" />
     <ClInclude Include="base\sqlstring.h" />
     <ClInclude Include="base\string_utilities.h" />
     <ClInclude Include="base\threaded_timer.h" />
