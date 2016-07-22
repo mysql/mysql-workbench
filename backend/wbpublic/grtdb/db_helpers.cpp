@@ -261,8 +261,9 @@ bool bec::version_greater(GrtVersionRef a, GrtVersionRef b)
  */
 bool bec::is_supported_mysql_version(int mysql_major, int mysql_minor, int mysql_release)
 {
-  return (mysql_major == 5 &&
-          (mysql_minor == 1 || mysql_minor == 5 || mysql_minor == 6 || mysql_minor == 7));
+  return ((mysql_major == 5 &&
+          (mysql_minor == 1 || mysql_minor == 5 || mysql_minor == 6 || mysql_minor == 7)) ||
+          (mysql_major == 8 && mysql_minor == 0));
 }
 
 
@@ -293,7 +294,7 @@ bool bec::is_supported_mysql_version_at_least(int mysql_major, int mysql_minor, 
   // if the available release number is negative, that's meant to signify "any release number", so we make it the max value possible
   unsigned int available = mysql_major * 100000 + mysql_minor * 1000 + (mysql_release < 0 ? 999 : mysql_release);
 
-  if (major < 5 || (major == 5 && minor < 6))
+  if (major < 5 || (major == 5 && minor < 6) || (major == 8 && minor == 0))
   {
     return (required <= available);
   }
