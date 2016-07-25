@@ -20,7 +20,6 @@ add_library(wbbase
     threading.cpp 
     profiling.cpp
     jsonparser.cpp
-    session_wrapper.cpp
     drawing_gtk.cpp
     boost_fix.cpp
     )

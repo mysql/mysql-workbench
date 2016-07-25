@@ -33,7 +33,6 @@
 
 #include "mforms/home_screen.h"
 #include "mforms/home_screen_connections.h"
-#include "mforms/home_screen_x_connections.h"
 
 #include "base/any.h"
 
@@ -525,9 +524,6 @@ void HomeScreen::set_menu(mforms::Menu *menu, HomeScreenMenuType type)
     case HomeMenuConnection:
     case HomeMenuConnectionGroup:
     case HomeMenuConnectionGeneric:
-    case HomeMenuXConnection:
-    case HomeMenuXConnectionGroup:
-    case HomeMenuXConnectionGeneric:
     {
       for (auto &it : _sections)
         it->setContextMenu(menu, type);

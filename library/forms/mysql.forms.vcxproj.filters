@@ -178,9 +178,6 @@
     <ClCompile Include="home_screen_helpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="home_screen_x_connections.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProjectForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -350,9 +347,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\home_screen_helpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mforms\home_screen_x_connections.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ProjectForm.h">
