@@ -466,7 +466,7 @@ bool TableColumnsListBE::set_column_type_from_string(db_ColumnRef &col, const st
     }
   }
   else
-    log_warning("%s is not a valid column type", type.c_str());
+    logWarning("%s is not a valid column type", type.c_str());
   return flag;
 }
 
@@ -581,10 +581,10 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, const st
       {
         _owner->get_table()->addPrimaryKeyColumn(col);
                                                  
-        set_column_type_from_string(col, grt::StringRef::cast_from(bec::GRTManager::get().get_app_option("DefaultPkColumnType")));
+        set_column_type_from_string(col, grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("DefaultPkColumnType")));
       }
       else
-        set_column_type_from_string(col, grt::StringRef::cast_from(bec::GRTManager::get().get_app_option("DefaultColumnType")));
+        set_column_type_from_string(col, grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("DefaultColumnType")));
     }
     else
     {
@@ -919,12 +919,12 @@ bool TableColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
     {
       if (node[0] == 0)
       {
-        value= grt::StringRef(base::replaceVariable(bec::GRTManager::get().get_app_option_string("PkColumnNameTemplate"),
+        value= grt::StringRef(base::replaceVariable(bec::GRTManager::get()->get_app_option_string("PkColumnNameTemplate"),
                                              "%table%", _owner->get_name().c_str()));
       }
       else
       {
-        std::string templ= base::replaceVariable(bec::GRTManager::get().get_app_option_string("ColumnNameTemplate"),
+        std::string templ= base::replaceVariable(bec::GRTManager::get()->get_app_option_string("ColumnNameTemplate"),
                                           "%table%", _owner->get_name().c_str());
         
         value= grt::StringRef(grt::get_name_suggestion_for_list_object(_owner->get_table()->columns(), templ, false));
@@ -933,9 +933,9 @@ bool TableColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
     else if (column == Type && _editing_placeholder_row == node[0])
     {
       if (node[0] == 0) 
-        value= grt::StringRef::cast_from(bec::GRTManager::get().get_app_option("DefaultPkColumnType"));
+        value= grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("DefaultPkColumnType"));
       else
-        value= grt::StringRef::cast_from(bec::GRTManager::get().get_app_option("DefaultColumnType"));
+        value= grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("DefaultColumnType"));
 
     }
     else
@@ -1154,7 +1154,7 @@ MenuItemList TableColumnsListBE::get_popup_items_for_nodes(const std::vector<Nod
   item.caption = "Paste";
   item.name    = "pasteColumnToolStripMenuItem";
   item.enabled = false;
-  bec::Clipboard *clip = bec::GRTManager::get().get_clipboard();
+  bec::Clipboard *clip = bec::GRTManager::get()->get_clipboard();
   if (clip->is_data())
   {
     std::list<grt::ObjectRef> data = clip->get_data();
@@ -1218,7 +1218,7 @@ bool TableColumnsListBE::activate_popup_item_for_nodes(const std::string &name, 
   }
   else if (name == "copyColumnToolStripMenuItem")
   {
-    bec::Clipboard *clip = bec::GRTManager::get().get_clipboard();
+    bec::Clipboard *clip = bec::GRTManager::get()->get_clipboard();
     clip->clear();
     for (std::vector<NodeId>::const_iterator iter= nodes.begin();
          iter != nodes.end(); ++iter)
@@ -1233,7 +1233,7 @@ bool TableColumnsListBE::activate_popup_item_for_nodes(const std::string &name, 
   }
   else if (name == "cutColumnToolStripMenuItem")
   {
-    bec::Clipboard *clip = bec::GRTManager::get().get_clipboard();
+    bec::Clipboard *clip = bec::GRTManager::get()->get_clipboard();
     clip->clear();
     for (std::vector<NodeId>::const_iterator iter= nodes.begin();
          iter != nodes.end(); ++iter)
@@ -1251,7 +1251,7 @@ bool TableColumnsListBE::activate_popup_item_for_nodes(const std::string &name, 
   }
   else if (name == "pasteColumnToolStripMenuItem")
   {
-    bec::Clipboard *clip = bec::GRTManager::get().get_clipboard();
+    bec::Clipboard *clip = bec::GRTManager::get()->get_clipboard();
     if (clip->is_data())
     {
       AutoUndoEdit undo(_owner);
@@ -2725,7 +2725,7 @@ bool FKConstraintListBE::set_field(const NodeId &node, ColumnId column, const st
 
           {
             std::string schema_name = schema.is_valid() ? *schema->name() : parts[0];
-            log_info("Creating stub schema and table %s.%s for foreign key\n", schema_name.c_str(), table.c_str());
+            logInfo("Creating stub schema and table %s.%s for foreign key\n", schema_name.c_str(), table.c_str());
             dbtable = _owner->create_stub_table(schema_name, table);
             if (!dbtable.is_valid())
               return false;
@@ -2786,7 +2786,7 @@ bool FKConstraintListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
       value= fk->name();
     else if (_editing_placeholder_row == node[0])
     {
-      std::string temp = base::replaceString(bec::GRTManager::get().get_app_option_string("FKNameTemplate"),
+      std::string temp = base::replaceString(bec::GRTManager::get()->get_app_option_string("FKNameTemplate"),
                                                     "%stable%", _owner->get_name().c_str());
 
       value = grt::StringRef(get_name_suggestion_for_list_object(_owner->get_table()->foreignKeys(), base::replaceString(temp, "%dtable%", ""), true));
@@ -3054,9 +3054,9 @@ NodeId TableEditorBE::add_fk(const std::string &name)
 
   fk= TableHelper::create_empty_foreign_key(get_table(), name);
 
-  fk->updateRule(StringRef::cast_from(bec::GRTManager::get().get_app_option
+  fk->updateRule(StringRef::cast_from(bec::GRTManager::get()->get_app_option
     ("db.ForeignKey:updateRule")));
-  fk->deleteRule(StringRef::cast_from(bec::GRTManager::get().get_app_option("db.ForeignKey:deleteRule")));
+  fk->deleteRule(StringRef::cast_from(bec::GRTManager::get()->get_app_option("db.ForeignKey:deleteRule")));
 
   update_change_date();
 
@@ -3460,9 +3460,9 @@ void TableEditorBE::show_export_wizard(mforms::Form *owner)
 {
   if (_inserts_model && _inserts_model->count() > 0)
   {
-    grt::ValueRef option(bec::GRTManager::get().get_app_option("TableEditor:LastExportDirectory"));
+    grt::ValueRef option(bec::GRTManager::get()->get_app_option("TableEditor:LastExportDirectory"));
     std::string path = option.is_valid() ? grt::StringRef::cast_from(option) : "";
-    option = bec::GRTManager::get().get_app_option("TableEditor:LastExportExtension");
+    option = bec::GRTManager::get()->get_app_option("TableEditor:LastExportExtension");
     std::string extension = option.is_valid() ? grt::StringRef::cast_from(option) : "";
     InsertsExportForm exporter(owner, _inserts_model, extension);
     exporter.set_title(strfmt(_("Export Inserts for %s"), get_name().c_str()));
@@ -3473,16 +3473,16 @@ void TableEditorBE::show_export_wizard(mforms::Form *owner)
     }
     path = exporter.run();
     if (path.empty())
-      bec::GRTManager::get().replace_status_text(_("Export inserts canceled"));
+      bec::GRTManager::get()->replace_status_text(_("Export inserts canceled"));
     else
     {
-      bec::GRTManager::get().replace_status_text(strfmt(_("Exported inserts to %s"), path.c_str()));
-      bec::GRTManager::get().set_app_option("TableEditor:LastExportDirectory", grt::StringRef(exporter.get_directory()));
+      bec::GRTManager::get()->replace_status_text(strfmt(_("Exported inserts to %s"), path.c_str()));
+      bec::GRTManager::get()->set_app_option("TableEditor:LastExportDirectory", grt::StringRef(exporter.get_directory()));
       extension = base::extension(path);
       if (!extension.empty() && extension[0] == '.')
         extension = extension.substr(1);
       if (!extension.empty())
-        bec::GRTManager::get().set_app_option("TableEditor:LastExportExtension", grt::StringRef(extension));
+        bec::GRTManager::get()->set_app_option("TableEditor:LastExportExtension", grt::StringRef(extension));
     }
   }
   else
@@ -3517,7 +3517,7 @@ void TableEditorBE::show_import_wizard()
       }
     }
     else
-      log_error("Can't find module SQLIDEUtils for record importer");
+      logError("Can't find module SQLIDEUtils for record importer");
   }
 }
                                                   

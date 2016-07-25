@@ -76,6 +76,9 @@ void WBPageSetup::run_setup()
     update_gtk_page_setup_from_grt(_page_setup, _app_page_settings, false);
   }
 
+  if (get_mainwindow() == nullptr)
+    throw std::runtime_error("Need main window to continue.");
+
   Glib::RefPtr<Gtk::PageSetup> new_page_setup = Gtk::run_page_setup_dialog(*get_mainwindow(), _page_setup, _print_settings);
   _page_setup = new_page_setup;
 
@@ -270,6 +273,9 @@ void WBPrintingLinux::show_plugin()
 {
   try
   {
+    if (get_mainwindow() == nullptr)
+        throw std::runtime_error("Need main window to continue");
+
     Glib::RefPtr<WBPrintOperation> printer = WBPrintOperation::create(_diagram);
 
     printer->signal_done().connect(sigc::bind(sigc::mem_fun(this, &WBPrintingLinux::on_print_done), printer));
@@ -286,6 +292,9 @@ void WBPrintingLinux::on_print_done(Gtk::PrintOperationResult result, Glib::RefP
 {
   if (result == Gtk::PRINT_OPERATION_RESULT_ERROR)
   {
+    if (get_mainwindow() == nullptr)
+      throw std::runtime_error("Need main window to continue");
+
     Gtk::MessageDialog err_dlg(*get_mainwindow(), "Error printing document", false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
     err_dlg.run();
   }

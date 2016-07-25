@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,8 +48,8 @@ namespace MySQL {
 
       static void destroy(mforms::View *backend);
       static void show(mforms::View *backend, bool show);
-      static int get_width(mforms::View *backend);
-      static int get_height(mforms::View *backend);
+      static int get_width(const mforms::View *backend);
+      static int get_height(const mforms::View *backend);
       static int get_preferred_width(mforms::View *backend);
       static int get_preferred_height(mforms::View *backend);
       static int get_x(mforms::View *backend);
@@ -124,6 +124,7 @@ namespace MySQL {
       static bool can_layout(Windows::Forms::Control ^control, String ^reason);
 
       static mforms::View* source_view_from_data(Windows::Forms::IDataObject ^data);
+      static mforms::ModifierKey GetModifiers(Windows::Forms::Keys keyData);
 
       static void init();
     };

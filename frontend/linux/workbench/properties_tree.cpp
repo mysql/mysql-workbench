@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -246,7 +246,9 @@ PropertyText::PropertyText(PropertyInspector* owner, const bec::NodeId& node)
   _scroll.add(_text);
   _wnd.get_vbox()->add(_scroll);
   _wnd.set_position(Gtk::WIN_POS_MOUSE);
-  _wnd.set_transient_for(*get_mainwindow());
+  if (get_mainwindow() != nullptr)
+    _wnd.set_transient_for(*get_mainwindow());
+
   _wnd.resize(128,96);
   _text.signal_event().connect(sigc::mem_fun(this, &PropertyText::handle_event));
 }

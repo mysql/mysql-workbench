@@ -185,10 +185,10 @@ private:
     mforms::App::get()->set_status_text("Searching...");
 
 
-    bec::GRTManager::get().set_app_option("db.search:SearchType", grt::IntegerRef(search_type));
-    bec::GRTManager::get().set_app_option("db.search:SearchLimit", grt::IntegerRef(limit_total));
-    bec::GRTManager::get().set_app_option("db.search:SearchLimitPerTable", grt::IntegerRef(limit_table));
-    bec::GRTManager::get().set_app_option("db.search:SearchInvert", grt::IntegerRef(invert));
+    bec::GRTManager::get()->set_app_option("db.search:SearchType", grt::IntegerRef(search_type));
+    bec::GRTManager::get()->set_app_option("db.search:SearchLimit", grt::IntegerRef(limit_total));
+    bec::GRTManager::get()->set_app_option("db.search:SearchLimitPerTable", grt::IntegerRef(limit_table));
+    bec::GRTManager::get()->set_app_option("db.search:SearchInvert", grt::IntegerRef(invert));
 
     _filter_panel.set_searching(true);
     _search_panel.show(true);
@@ -224,10 +224,10 @@ public:
 
     grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNLiveDBObjectSelectionDidChange", editor);
 
-    _filter_panel.set_search_type(bec::GRTManager::get().get_app_option_int("db.search:SearchType", 0));
-    _filter_panel.set_limit_total(base::strfmt("%li", bec::GRTManager::get().get_app_option_int("db.search:SearchLimit", 10000)));
-    _filter_panel.set_limit_table(base::strfmt("%li", bec::GRTManager::get().get_app_option_int("db.search:SearchLimitPerTable", 100)));
-    _filter_panel.set_exclude(bec::GRTManager::get().get_app_option_int("db.search:SearchInvert", 0) != 0);
+    _filter_panel.set_search_type(bec::GRTManager::get()->get_app_option_int("db.search:SearchType", 0));
+    _filter_panel.set_limit_total(base::strfmt("%li", bec::GRTManager::get()->get_app_option_int("db.search:SearchLimit", 10000)));
+    _filter_panel.set_limit_table(base::strfmt("%li", bec::GRTManager::get()->get_app_option_int("db.search:SearchLimitPerTable", 100)));
+    _filter_panel.set_exclude(bec::GRTManager::get()->get_app_option_int("db.search:SearchInvert", 0) != 0);
 
     _tree_selection = _editor->schemaTreeSelection();
     _filter_panel.search_button()->set_enabled(_tree_selection.count() > 0);

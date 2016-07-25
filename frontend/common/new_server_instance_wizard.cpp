@@ -220,7 +220,7 @@ bool TestDatabaseSettingsPage::get_server_platform()
 
   os = base::tolower(os);
   std::string os_type = "";
-  if (base::starts_with(os, "osx"))
+  if (base::hasPrefix(os, "osx"))
     os_type = "MacOS X";
   
   if (os.empty())
@@ -359,7 +359,7 @@ void HostAndRemoteTypePage::enter(bool advancing)
   
   // Refresh platform list on each enter. This way a change on disk can be reflected without
   // restarting the wizard.
-  std::string path = bec::GRTManager::get().get_data_file_path("mysql.profiles");
+  std::string path = bec::GRTManager::get()->get_data_file_path("mysql.profiles");
   GDir *dir = g_dir_open(path.c_str(), 0, NULL);
   if (dir)
   {
@@ -843,7 +843,7 @@ void WindowsManagementPage::enter(bool advancing)
       }
       catch(std::exception &exc)
       {
-        log_warning("Exception caught when clearning the password: %s", exc.what());
+        logWarning("Exception caught when clearning the password: %s", exc.what());
         mforms::Utilities::show_error("Clear Password", 
                                       base::strfmt("Could not clear password: %s", exc.what()),
                                       "OK");
@@ -949,7 +949,7 @@ void WindowsManagementPage::enter(bool advancing)
       }
       catch (std::exception &exc)
       {
-        log_warning("Exception caught when clearning the password: %s", exc.what());
+        logWarning("Exception caught when clearning the password: %s", exc.what());
         mforms::Utilities::show_error("Clear Password", 
                                       base::strfmt("Could not clear password: %s", exc.what()),
                                       "OK");

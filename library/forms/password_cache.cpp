@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,13 +40,13 @@ PasswordCache::PasswordCache()
   storage_size = 4*1024;
   storage = (char*)malloc(storage_size);
   if (!storage)
-    log_error("Unable to allocate memory for password cache, caching will be disabled (errno %i)\n", errno);
+    logError("Unable to allocate memory for password cache, caching will be disabled (errno %i)\n", errno);
 #ifdef HAVE_MLOCK
   else
   {
     if (mlock(storage, storage_size) < 0)
     {
-      log_error("mlock password cache (errno %i)\n", errno);
+      logError("mlock password cache (errno %i)\n", errno);
       free(storage);
       storage = NULL;
     }
@@ -69,7 +69,7 @@ PasswordCache::~PasswordCache()
     memset(storage, 0, storage_size);
 #ifdef HAVE_MLOCK
     if (munlock(storage, storage_size) < 0)
-      log_error("munlock password cache failed (errno %i)\n", errno);
+      logError("munlock password cache failed (errno %i)\n", errno);
 #endif
     free(storage);
   }
@@ -112,7 +112,7 @@ void PasswordCache::add_password(const std::string &service, const std::string &
 #ifdef HAVE_MLOCK
         if (mlock(new_block, new_size) < 0)
         {
-          log_error("mlock password cache (errno %i)\n", errno);
+          logError("mlock password cache (errno %i)\n", errno);
           free(new_block);
           throw std::runtime_error("Could not increase password cache size");
         }
@@ -121,7 +121,7 @@ void PasswordCache::add_password(const std::string &service, const std::string &
         memset(storage, 0, storage_size);
 #ifdef HAVE_MLOCK
         if (munlock(storage, storage_size) < 0)
-          log_error("munlock password cache (errno %i)\n", errno);
+          logError("munlock password cache (errno %i)\n", errno);
 #endif
         free(storage);
         storage = new_block;

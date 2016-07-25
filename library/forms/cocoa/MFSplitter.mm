@@ -23,11 +23,11 @@
 
 @implementation MFSplitterImpl
 
-static NSSize initialSize = {10,10};
+static NSSize initialSize = { 10, 10 };
 
-- (instancetype)initWithObject:(::mforms::Splitter*)aSplitter
+- (instancetype)initWithObject: (mforms::Splitter*)aSplitter
 {
-  self= [super initWithFrame: NSMakeRect(10,10,10,10)];
+  self= [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
   if (self)
   {
     mOwner= aSplitter;
@@ -36,24 +36,21 @@ static NSSize initialSize = {10,10};
     mRequestedPosition = -1;
     mResizable[0] = YES;
     mResizable[1] = YES;
+    self.dividerStyle = NSSplitViewDividerStyleThin;
   }
   return self;
 }
-
 
 - (mforms::Object*)mformsObject
 {
   return mOwner;
 }
 
-
-
 - (void)setHorizontal:(BOOL)flag
 {
   mHorizontal= flag;
   self.vertical = flag;
 }
-
 
 - (void)setPosition:(int)position
 {
@@ -77,43 +74,41 @@ static NSSize initialSize = {10,10};
   }
 }
 
-
-
 - (NSSize)minimumSize
 {
   NSSize size, minSize;
-  float maxSize= 0;
+  float maxSize = 0;
   int i = 0;
   
-  size.width= 0;
-  size.height= 0;
+  size.width = 0;
+  size.height = 0;
   
-  for (id subview in self.subviews)
+  for (NSView *subview in self.subviews)
   {
-    if (![subview isHidden])
+    if (!subview.isHidden)
     {
-      minSize= [subview preferredSize];
+      minSize = subview.minimumSize;
       
       if (mHorizontal)
       {
-        size.width+= minSize.width;
-        maxSize= MAX(maxSize, minSize.width);
-        size.height= MAX(size.height, MAX(mMinSizes[i], minSize.height));
+        size.width += minSize.width;
+        maxSize = MAX(maxSize, minSize.width);
+        size.height = MAX(size.height, MAX(mMinSizes[i], minSize.height));
       }
       else
       {
-        size.width= MAX(size.width, MAX(mMinSizes[i], minSize.width));
-        maxSize= MAX(maxSize, minSize.height);
-        size.height+= minSize.height;
+        size.width = MAX(size.width, MAX(mMinSizes[i], minSize.width));
+        maxSize = MAX(maxSize, minSize.height);
+        size.height += minSize.height;
       }
     }
     i++;
-  }  
-  return size;
+  }
+  minSize = super.minimumSize;
+  return { MAX(size.width, minSize.width), MAX(size.height, minSize.height) }; // No splitter width included. We use a thin splitter.
 }
 
-
-- (void)resizeSubviewsWithOldSize:(NSSize)osize
+- (void)resizeSubviewsWithOldSize: (NSSize)osize
 {
   [super resizeSubviewsWithOldSize:osize];
 
@@ -130,12 +125,6 @@ static NSSize initialSize = {10,10};
     mRequestedPosition= -1;
   }
 }
-
-/* this is bogus, we shouldn't be hiding the divider making it impossible to drag
-- (BOOL)splitView: (NSSplitView*)splitView shouldHideDividerAtIndex: (NSInteger)dividerIndex
-{
-  return YES;
-}*/
 
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview
 {
@@ -174,10 +163,9 @@ static NSSize initialSize = {10,10};
 }
 
 
-- (void)splitViewDidResizeSubviews:(NSNotification *)notification
+- (void)splitViewDidResizeSubviews: (NSNotification *)notification
 {
-  if ((self.viewFlags & RemovingFlag) == 0)
-    mOwner->position_changed();
+  mOwner->position_changed();
 }
 
 - (NSRect)splitView:(NSSplitView *)splitView

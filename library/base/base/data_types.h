@@ -20,11 +20,14 @@
 
 // This file store general data types used between classic and X WB.
 
-#ifndef LIBRARY_BASE_DATA_TYPES_H_
-#define LIBRARY_BASE_DATA_TYPES_H_
+#pragma once
 
 #include <string>
 #include <vector>
+
+#include "common.h"
+#include "jsonparser.h"
+#include <typeinfo>
 
 namespace dataTypes {
 
@@ -33,13 +36,33 @@ enum ConnectionType {
   ConnectionNode
 };
 
+JsonParser::JsonValue toJson(const ConnectionType &type);
+void fromJson(const JsonParser::JsonValue &value, ConnectionType &type);
+
 enum EditorLanguage {
   EditorSql,
   EditorJavaScript,
   EditorPython
 };
 
-class BaseConnection {
+JsonParser::JsonValue toJson(const EditorLanguage &lang);
+void fromJson(const JsonParser::JsonValue &value, EditorLanguage &lang);
+
+struct BASELIBRARY_PUBLIC_FUNC AppOptions
+ {
+   std::string basedir;
+   std::string pluginSearchPath;
+   std::string structSearchPath;
+   std::string moduleSearchPath;
+   std::string jsModuleSearchPath;
+   std::string librarySearchPath;
+   std::string cdbcDriverSearchPath;
+   std::string userDataDir;
+};
+
+class BASELIBRARY_PUBLIC_FUNC BaseConnection {
+private:
+  std::string className = "BaseConnection";
 public:
   std::string hostName;
   ssize_t port;
@@ -47,42 +70,69 @@ public:
   std::string userPassword;
   BaseConnection() : port(0) {};
   BaseConnection(ssize_t p) : port(p) {};
+  BaseConnection(const JsonParser::JsonValue &value);
   virtual ~BaseConnection() {};
 
   bool isValid() const {
     return (!hostName.empty() && !userName.empty());
   }
 
-  std::string uri() const {
-      return userName + "@" + hostName + ":" + std::to_string(port);
-  }
+  std::string uri(bool withPassword = false) const;
+  std::string hostIdentifier() const;
+
+  virtual JsonParser::JsonValue toJson() const;
+  virtual void fromJson(const JsonParser::JsonValue &value, const std::string &cName = "");
+
 };
 
-class SshConnection : public BaseConnection {
+class BASELIBRARY_PUBLIC_FUNC SSHConnection : public BaseConnection {
+private:
+  std::string className = "SSHConnection";
 public:
   std::string keyFile;
-  SshConnection() : BaseConnection(22) { }
-  virtual ~SshConnection() {};
+  SSHConnection() : BaseConnection(22) { }
+  SSHConnection(const JsonParser::JsonValue &value);
+  virtual ~SSHConnection() {};
+  virtual JsonParser::JsonValue toJson() const;
+  virtual void fromJson(const JsonParser::JsonValue &value, const std::string &cName = "");
 };
 
-class nodeConnection : public BaseConnection {
+class BASELIBRARY_PUBLIC_FUNC NodeConnection : public BaseConnection {
+private:
+  std::string className = "NodeConnection";
+
 public:
-  SshConnection ssh;
+  SSHConnection ssh;
   std::string defaultSchema;
+  std::string uuid;
   ConnectionType type;
   EditorLanguage language;
-  nodeConnection();
-  virtual ~nodeConnection();
+  NodeConnection();
+  NodeConnection(const JsonParser::JsonValue &value);
+  virtual ~NodeConnection();
+  virtual JsonParser::JsonValue toJson() const;
+  virtual void fromJson(const JsonParser::JsonValue &value, const std::string &cName = "");
 };
 
-class XProject {
+class BASELIBRARY_PUBLIC_FUNC XProject {
+private:
+  std::string className = "XProject";
 public:
+  bool placeholder;
   std::string name;
-  nodeConnection connection;
-  bool isValid() { return !name.empty(); };
+  NodeConnection connection;
+  bool isValid() const { return !name.empty() && connection.isValid(); };
+  XProject() : placeholder(false) {};
+  XProject(const JsonParser::JsonValue &value);
+  virtual ~XProject() {};
+  JsonParser::JsonValue toJson() const;
+  void fromJson(const JsonParser::JsonValue &value);
+
 };
 
-class ProjectHolder {
+class BASELIBRARY_PUBLIC_FUNC ProjectHolder {
+private:
+  std::string className = "ProjectHolder";
 public:
   std::string name;
   bool isGroup;
@@ -90,8 +140,10 @@ public:
   std::vector<ProjectHolder> children;
   XProject project;
   ProjectHolder() : isGroup(false), isRoot(false) {};
+  ProjectHolder(const JsonParser::JsonValue &value);
+  virtual ~ProjectHolder() {};
+  JsonParser::JsonValue toJson() const;
+  void fromJson(const JsonParser::JsonValue &value);
 };
 
 } /* namespace dataTypes */
-
-#endif /* LIBRARY_BASE_DATA_TYPES_H_ */

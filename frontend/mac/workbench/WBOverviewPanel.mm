@@ -202,13 +202,13 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     std::string label;
     _overview->get_field(*_lastFoundNode, wb::OverviewBE::Label, label);
     
-    bec::GRTManager::get().replace_status_text(base::strfmt(_("Found '%s'"), label.c_str()));
+    bec::GRTManager::get()->replace_status_text(base::strfmt(_("Found '%s'"), label.c_str()));
   }
   else
   {
     delete _lastFoundNode;
     _lastFoundNode= 0;
-    bec::GRTManager::get().replace_status_text(_("No matches found."));
+    bec::GRTManager::get()->replace_status_text(_("No matches found."));
   }
 }
 

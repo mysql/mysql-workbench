@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,7 +78,7 @@ bool HyperTextWrapper::create(mforms::HyperText *backend)
   catch (System::ArgumentException^ e)
   {
     // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-    log_error("HyperTextWrapper, setting default font failed. %s\n", e->Message);
+    logError("HyperTextWrapper, setting default font failed. %s\n", e->Message);
   }
 
   return true;

@@ -233,12 +233,12 @@ std::vector<std::pair<std::string, std::string> > DbDriverParam::get_enum_option
         }
       }
       else
-        log_warning("Error calling enum value lookup method %s.%s for DriverParameter %s",
+        logWarning("Error calling enum value lookup method %s.%s for DriverParameter %s",
                     _inner->lookupValueModule().c_str(), _inner->lookupValueMethod().c_str(),
                     _inner->name().c_str());
     }
     else
-      log_warning("Error searching module for enum value lookup method %s.%s for DriverParameter %s",
+      logWarning("Error searching module for enum value lookup method %s.%s for DriverParameter %s",
                   _inner->lookupValueModule().c_str(), _inner->lookupValueMethod().c_str(),
                   _inner->name().c_str());
   }

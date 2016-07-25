@@ -8,10 +8,23 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 6.3.8' \
+#                                   --define='version 7.0.0' \
 #                                   --define='release 1' 
 ####################################################################
+
+# Enable use of "--with" and "--without" options to "rpmbuld"
+#
+# NOTE: If giving "--with paramiko" our own bundled paramiko is used,
+# else the system one is use (a bit misleading option name)
+#
+# NOTE: Currently 'mysql_static' just means we don't copy
+# "libmysqlclient.so*", a newer version of FindMySQL is needed to
+# actually force the use of the "libmysqlclient.a" library.
+# I.e. the -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE below has currently
+# no effect (instead you need to remove the shared libraries from the
+# MySQL install)
 %bcond_with paramiko
+%bcond_without mysql_static
 
 # Allow to continue when a binary with no build-id was found
 %undefine _missing_build_ids_terminate_build
@@ -24,40 +37,37 @@
 %define have_python26   1
 %include %{_rpmconfigdir}/macros.python
 
-# Directory where iodbc and pyodbc binaries are located. Build both using the build_iodbc.sh script
-# If using distribution provided ODBC manager lib and pyodbc, then comment out this
-%define linuxres_home     $HOME/linux-res
+# FIXME change so that if not defined, this is a build building
+# against RPM installed libraries
+%if !%{defined linuxres_binaries}
 %define linuxres_binaries %{linuxres_home}/builds
-
-%define odbc_home         %{linuxres_binaries}/odbc/usr/local
-%define ctemplate_dir     %{linuxres_binaries}/ctemplate/usr/local
-%define sqlite_dir        %{linuxres_binaries}/sqlite
-%define pysqlite_dir      %{linuxres_binaries}/pysqlite2
-%define python_dir        %{linuxres_home}/python
-%define pyodbc_dir        %{linuxres_binaries}/pyodbc
-
+%endif
 
 %if "%{edition}" == "commercial"
 %define commercial       1
-%define mysqlcppconn_dir %{linuxres_binaries}/cppconn-com/usr/local
-%define gdal_dir         %{linuxres_binaries}/gdal-com/usr/local
-%define vsqlite_dir       %{linuxres_binaries}/vsqlite-com/usr/local
-%define mysql_home       $HOME/mysql-server-advanced
-
-%define edition          commercial
+%define lictag           com
 %define license_type     Commercial
 %define license_file     LICENSE.mysql
 %else
 %define community        1
-%define mysqlcppconn_dir %{linuxres_binaries}/cppconn-gpl/usr/local
-%define gdal_dir         %{linuxres_binaries}/gdal-gpl/usr/local
-%define vsqlite_dir       %{linuxres_binaries}/vsqlite-gpl/usr/local
-%define mysql_home       $HOME/mysql-server
-
+%define lictag           gpl
 %define edition          community
 %define license_type     GPLv2
 %define license_file     COPYING
 %endif
+
+%define odbc_home        %{linuxres_binaries}/odbc
+%define ctemplate_dir    %{linuxres_binaries}/ctemplate
+%define sqlite_dir       %{linuxres_binaries}/sqlite-%{lictag}
+%define pysqlite_dir     %{linuxres_binaries}/pysqlite2-%{lictag}
+%define pyodbc_dir       %{linuxres_binaries}/pyodbc
+%define mysqlcppconn_dir %{linuxres_binaries}/cppconn-%{lictag}
+%define mysqlshell_dir   %{linuxres_binaries}/ngshell-%{lictag}
+%define gdal_dir         %{linuxres_binaries}/gdal-%{lictag}
+%define vsqlite_dir      %{linuxres_binaries}/vsqlite-%{lictag}
+%define python_dir       %{linuxres_home}/python
+%define antlr_jar_path   %{linuxres_home}/bin/antlr-3.4-complete.jar
+%define boost_root       %{linuxres_home}
 
 Summary: A MySQL visual database modeling, administration, development and migration tool
 Name   : mysql-workbench-%{edition}
@@ -70,35 +80,35 @@ URL    : http://wb.mysql.com
 Source : %{name}-%{version}-src.tar.gz
 
 BuildRoot    : %{_tmppath}/%{name}-%{version}-root
+
 BuildRequires: pcre-devel >= 3.9
-%if 0%{?fedora} >= 20
-BuildRequires: mysql-devel >= 5.1
-%endif
 BuildRequires: cmake >= 2.8
 BuildRequires: libzip-devel libxml2-devel
-BuildRequires: python-devel >= 2.5
-%if 0%{?rhel} == 6
-BuildRequires: boost148-devel
-%else
-BuildRequires: boost-devel
-%endif
-BuildRequires: gtk2-devel >= 2.20
-BuildRequires: gtkmm24-devel
+BuildRequires: python-devel >= 2.6
+BuildRequires: gtk3-devel
+BuildRequires: gtkmm30-devel
 BuildRequires: mesa-libGL-devel
-BuildRequires: sqlite-devel
 BuildRequires: make
 BuildRequires: tar
 BuildRequires: gcc-c++
 BuildRequires: swig >= 1.3
 BuildRequires: proj-devel
 
+%if !%{defined mysql_home}
+BuildRequires: mysql-devel >= 5.7
+%endif
+
+%if !%{defined linuxres_binaries}
+BuildRequires: boost-devel
+BuildRequires: sqlite-devel
+BuildRequires: vsqlite++-devel
+BuildRequires: ctemplate-devel
+%endif
+
 %if 0%{?fedora} >= 18
-BuildRequires: libgnome-keyring-devel libuuid-devel tinyxml-devel vsqlite++-devel ctemplate-devel
+BuildRequires: libgnome-keyring-devel libuuid-devel tinyxml-devel
 %else
 BuildRequires: gnome-keyring-devel
-%endif
-%if 0%{?rhel} == 6
-BuildRequires: redhat-rpm-config
 %endif
 
 Provides: mysql-workbench = %{version}-%{release}
@@ -111,79 +121,29 @@ Requires: python-paramiko >= 1.15.1
 Requires: gnome-keyring
 Requires: proj
 Requires: glib2 >= 2.28
-Requires: gtk2 >= 2.20
+Requires: gtk3
+Requires: gtkmm30
 
 # our old package names
-Obsoletes: mysql-workbench < 6.1
+Obsoletes: mysql-workbench < 7.0
 Conflicts: mysql-workbench-oss
 Conflicts: mysql-workbench-com-se
 Conflicts: mysql-workbench-gpl
 
 %if 0%{?commercial}
-Obsoletes: mysql-workbench-com-se
+Obsoletes: mysql-workbench-com-se < 7.0
 Conflicts: mysql-workbench-community
 %else
-Obsoletes: mysql-workbench-oss
-Obsoletes: mysql-workbench-gpl
+Obsoletes: mysql-workbench-oss < 7.0
+Obsoletes: mysql-workbench-gpl < 7.0
 Conflicts: mysql-workbench-commercial
 %endif
 
 
-# Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering
-%if 0%{?fedora}
-%if 0%{?commercial}
-%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlparser|sqlide|wbbase|wbpublic|wbprivate|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient|gdal|sqlite3)\\.so.*$
-%global __requires_exclude %{__requires_exclude}|db.*)\\.so.*$
-%global __requires_exclude %{__requires_exclude}|wb.*)\\.so.*$
-%else
-%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlparser|sqlide|wbbase|wbpublic|wbprivate|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient|gdal|wb.*|db.*)\\.so.*$
-%global __requires_exclude %{__requires_exclude}|db.*)\\.so.*$
-%global __requires_exclude %{__requires_exclude}|wb.*)\\.so.*$
-%endif
-%global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*|%{_libdir}/mysql/libmysqlclient\\.so.*|%{mysqlcppconn_dir}/lib/libmysqlcppconn\\.so.*|%{odbc_home}/lib/libiodbc\\.so.*)$
-%endif
-
-%if 0%{?rhel}
-%{?filter_setup:
-  %filter_provides_in %{_libdir}/mysql/libmysqlclient/.*\.so.*$
-  %filter_provides_in %{mysqlcppconn_dir}/lib/libmysqlcppconn/.*\.so.*$
-  %filter_provides_in %{_libdir}/mysql.workbench/.*\.so.*$
-  %filter_requires_in %{_libdir}/mysql.workbench/modules/.*\.so.*$
-  %filter_requires_in %{_libdir}/mysql.workbench/plugins/.*\.so.*$
-  %filter_from_requires /libantlr3c_wb/d
-  %filter_from_requires /libcdbc/d
-  %filter_from_requires /libgrt/d
-  %filter_from_requires /liblinux_utilities/d
-  %filter_from_requires /libmdcanvasgtk/d
-  %filter_from_requires /libmdcanvas/d
-  %filter_from_requires /libmforms/d
-  %filter_from_requires /libmysqlparser/d
-  %filter_from_requires /libsqlparser/d
-  %filter_from_requires /libsqlide/d
-  %filter_from_requires /libwbbase/d
-  %filter_from_requires /libwbpublic/d
-  %filter_from_requires /libwbprivate/d
-  %filter_from_requires /libwbscintilla/d
-  %filter_from_requires /libmysqlcppconn/d
-  %filter_from_requires /libmysqlcppconn/d
-  %filter_from_requires /libiodbc/d
-  %filter_from_requires /libiodbcadm/d
-  %filter_from_requires /libiodbcinst/d
-  %filter_from_requires /libvsqlitepp/d
-  %filter_from_requires /libmysqlclient/d
-  %filter_from_requires /libgdal/d
-  %filter_from_requires /libctemplate/d
-#
-# Don't bundle libzip.so neither libtinyxml.so. Those can be found in EPEL.
-#  
-#  %filter_from_requires /libzip/d
-#  %filter_from_requires /libtinyxml/d
-  %{?commercial:%filter_from_requires /libsqlite3/d}
-  %filter_setup
-}
-%endif
-
-
+# Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering (from EL7)
+# FIXME if using system installs of one of these, this list is not correct
+%global __requires_exclude ^lib(antlr3c_wb|cdbc|ctemplate|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla)\\.so.*$
+%global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*)$
 
 
 %description
@@ -196,29 +156,45 @@ Windows, Linux and Mac OS X.
 
 %prep
 
+if [ -z "%{?linuxres_home}" ] ; then
+  echo "ERROR: You need to run like: rpmbuild --define 'linuxres_home <path-to-res-repo>' ..."
+  exit 1
+fi
+
 # Add the -D flag if you don't want to delete the source root on each build
 %setup -q -n %{name}-%{version}-src
 
 
 %build
+export ANTLR_JAR_PATH=%{antlr_jar_path}
+export BOOST_ROOT=%{boost_root}
 %if 0%{?fedora} > 22
 CXXFLAGS="-std=c++11 $CXXFLAGS" \
 %undefine _hardened_build #need to undefine because of some memory problems
 %endif
+# CMAKE_INSTALL_PREFIX etc is handled by the cmake macro
 %cmake -DCMAKE_BUILD_TYPE=Release \
        -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
+%if %{defined mysql_home}
        -DMySQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
+       -DUSE_BUNDLED_MYSQLDUMP=1 \
+%endif
+%if %{with mysql_static}
+       -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE \
+%endif
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
+       -DMYSQLNG_LIBRARIES="%{mysqlshell_dir}/lib" \
+       -DMYSQLNG_INCLUDE_DIR=%{mysqlshell_dir}/include/mysqlsh \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
-       -DGDAL_INCLUDE_DIR=%{gdal_dir}/include -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
+       -DIODBC_INCLUDE_PATH=%{odbc_home}/include \
+       -DIODBC_LIBRARIES_PATH=%{odbc_home}/lib \
+       -DGDAL_INCLUDE_DIR=%{gdal_dir}/include \
+       -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
        -DCTemplate_INCLUDE_DIR=%{ctemplate_dir}/include \
-  	   -DCTemplate_LIBRARIES="-L%{ctemplate_dir}/lib -lctemplate" \
-%if 0%{?rhel} == 6
+       -DCTemplate_LIBRARIES="-L%{ctemplate_dir}/lib -lctemplate" \
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
-       -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
-%endif
-       -DUSE_BUNDLED_MYSQLDUMP=1
+       -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp"
 
 make %{?_smp_mflags}
 
@@ -227,17 +203,11 @@ make %{?_smp_mflags}
 make install DESTDIR=%{buildroot}
 rm -fr %{buildroot}/usr/share/doc/mysql-workbench
 
-%if  %{defined mysqlcppconn_dir}
-    cp -a %{mysqlcppconn_dir}/lib/libmysqlcppconn.so.7* %{buildroot}%{_libdir}/mysql-workbench
-%endif
-
-if [ -f %{vsqlite_dir}/lib/libvsqlitepp.so.3 ]; then
-    cp -a %{vsqlite_dir}/lib/libvsqlitepp.so.3* %{buildroot}%{_libdir}/mysql-workbench
-fi
-
 # Bundle client programs and lib
 %if %{defined mysql_home}
+%if %{without mysql_static}
   cp -a %{mysql_home}/lib/libmysqlclient.so.* %{buildroot}%{_libdir}/mysql-workbench/
+%endif
   cp -a %{mysql_home}/bin/mysql %{buildroot}%{_libexecdir}/mysql-workbench/
   cp -a %{mysql_home}/bin/mysqldump %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
@@ -245,51 +215,33 @@ fi
 #
 # Don't bundle libzip.so neither libtinyxml.so. Those can be found in EPEL.
 #
-#%if 0%{?rhel}
-#  cp -a /usr/lib64/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
-#  cp -a /usr/lib64/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
-#%endif
-
-
-%if 0%{?fedora} 
-  cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
-%else
-%if 0%{?rhel} <= 7
-    cp -a %{ctemplate_dir}/lib/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
-%endif
-%if 0%{?rhel} > 7
-    cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
-%endif
-%endif
-
+#%%if 0%%{?rhel}
+#  cp -a /usr/lib64/libzip.so* %%{buildroot}%%{_libdir}/mysql-workbench/
+#  cp -a /usr/lib64/libtinyxml.so* %%{buildroot}%%{_libdir}/mysql-workbench/
+#%%endif
 
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.a  -exec rm {} \; -print
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
 
-# Bundle pre-built libs
-%if %{defined odbc_home}
-  for l in %{odbc_home}/lib/libiodbc.so.* %{odbc_home}/lib/libiodbcinst.so.* %{odbc_home}/lib/libiodbcadm.so.*; do
-    cp -a $l %{buildroot}%{_libdir}/mysql-workbench
-    /usr/sbin/prelink -u %{buildroot}%{_libdir}/mysql-workbench/`basename $l` || true
-  done
-  cp -a %{odbc_home}/bin/iodbcadm-gtk %{buildroot}%{_libexecdir}/mysql-workbench/
-%endif
-
-if [ %{pyodbc_dir} ]; then
-  cp -a %{pyodbc_dir}/pyodbc.so %{buildroot}%{_libdir}/mysql-workbench/modules
-%if 0%{?commercial}
-  # Bundle libs only needed in commercial edition
-  cp -a %{sqlite_dir}/libsqlite3.so %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{pysqlite_dir} %{buildroot}%{_libdir}/mysql-workbench/modules
-%endif
-fi
-
+%if %{defined linuxres_binaries}
+  # Bundle pre-built libs
+  cp -a %{pyodbc_dir}                                 %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{pysqlite_dir}                               %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{sqlite_dir}/lib/*.so*                       %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{gdal_dir}/lib/*.so*                         %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{mysqlcppconn_dir}/lib/libmysqlcppconn.so*   %{buildroot}%{_libdir}/mysql-workbench/
+# Note that MySQL Shell only provide static libraries at the moment,
+# i.e. is linked into the WB binaries
+# cp -a %%{mysqlshell_dir}/lib/*.so*                  %%{buildroot}%%{_libdir}/mysql-workbench/
+  cp -a %{vsqlite_dir}/lib/libvsqlitepp.so*           %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{ctemplate_dir}/lib/libctemplate.so*         %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{odbc_home}/lib/libiodbc{,inst,adm}.so*      %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{odbc_home}/bin/iodbcadm-gtk                 %{buildroot}%{_libexecdir}/mysql-workbench/
 %if %{with paramiko}
-  cp -a %{python_dir}/paramiko %{buildroot}%{_libdir}/mysql-workbench/modules/
-  cp -a %{python_dir}/ecdsa %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{python_dir}/paramiko %{python_dir}/ecdsa    %{buildroot}%{_libdir}/mysql-workbench/modules/
+%endif
 %endif
 
-cp -a %{gdal_dir}/lib/libgdal.so.* %{buildroot}%{_libdir}/mysql-workbench/
 
 %post
 touch --no-create %{_datadir}/icons/hicolor || :
@@ -331,16 +283,19 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 %doc %{license_file} README
 
 %attr(0755,root,root) %{_bindir}/mysql-workbench
+%attr(0755,root,root) %{_bindir}/workbench.x
 %attr(0755,root,root) %{_bindir}/wbcopytables
 
 %dir %{_libexecdir}/mysql-workbench
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql-workbench-bin
+%attr(0755,root,root) %{_libexecdir}/mysql-workbench/workbench.x-bin
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/wbcopytables-bin
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/iodbcadm-gtk
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysqldump
 
 %{_libdir}/mysql-workbench
+%{_libdir}/workbench.x
 
 %{_datadir}/mysql-workbench
 %attr(0755,root,root) %{_datadir}/mysql-workbench/extras/*.sh

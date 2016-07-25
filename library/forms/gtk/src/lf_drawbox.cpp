@@ -210,7 +210,7 @@ bool DrawBoxImpl::mouse_button_event(GdkEventButton *event, ::mforms::DrawBox *s
   case 3: mbtn = MouseButtonRight; break;
   default:
     mbtn = MouseButtonNone;
-    log_error("Unrecognised mouse button pressed");
+    logError("Unrecognised mouse button pressed");
     break;
   }
 

@@ -42,6 +42,8 @@ namespace bec {
   class WBPUBLICBACKEND_PUBLIC_FUNC GRTManager : public base::trackable
   {
   public:
+    typedef std::shared_ptr<GRTManager> Ref;
+
     struct Timer
     {
       boost::function<bool ()> slot;
@@ -62,7 +64,7 @@ namespace bec {
     GRTManager& operator=(GRTManager&) = delete;
 
   public:
-    static GRTManager& get();
+    static GRTManager::Ref get();
     virtual ~GRTManager();
 
     void setVerbose(bool verbose);
@@ -259,6 +261,7 @@ namespace bec {
 
   private:
     bool _terminated; // true if application termination was requested by the BE or a plugin.
+    std::shared_ptr<grt::GRT> _grt; // Reference to static grt singleton to avoid static fiasco.
 
     grt::ValueRef setup_grt();
     void shell_write(const std::string &text);

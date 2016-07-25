@@ -126,6 +126,28 @@ void Authentication::invalidate()
   }
 }  
 
+std::string Authentication::uri(bool withPassword)
+{
+  std::vector<std::string> v;
+  grt::DictRef parameter_values = connectionProperties()->parameterValues();
+
+  v.push_back(parameter_values.get_string("hostName"));
+  v.push_back(std::to_string(connectionProperties()->parameterValues().get_int("port")));
+  v.push_back(parameter_values.get_string("userName"));
+  if (parameter_values.get_string("password").empty() )
+  {
+    if (is_valid() && withPassword)
+      v.push_back(_password);
+  }
+
+  std::string uri;
+  if (v.size() == 4) //if there's no pw, we will ask for it later
+    uri = v[2] + ":" + v[3] + "@" + v[0] + ":" + v[1];
+  else
+    uri = v[2] + "@" + v[0] + ":" + v[1];
+  return uri;
+}
+
 //----------------- DriverManager ------------------------------------------------------------------
 
 DriverManager *DriverManager::getDriverManager()

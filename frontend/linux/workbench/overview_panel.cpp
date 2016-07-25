@@ -425,7 +425,7 @@ void OverviewItemContainer::drag_data_get(const Glib::RefPtr<Gdk::DragContext> &
       
       if (!file.empty())
       {
-        _drag_tmp_file= bec::GRTManager::get().get_tmp_dir() + "/" + name;
+        _drag_tmp_file= bec::GRTManager::get()->get_tmp_dir() + "/" + name;
         
         wb::ModelFile::copy_file(file, _drag_tmp_file);
         {

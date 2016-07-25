@@ -79,7 +79,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   // if we're autosaving, just use the same path from previous saves
   if (!is_autosave || _autosave_path.empty())
   {
-    std::string path_prefix = base::makePath(bec::GRTManager::get().get_user_datadir(),
+    std::string path_prefix = base::makePath(bec::GRTManager::get()->get_user_datadir(),
                                         "sql_workspaces");
     if (!g_file_test(path_prefix.c_str(), G_FILE_TEST_EXISTS))
     {
@@ -153,7 +153,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
       }
       catch (std::exception &e)
       {
-        log_error("Could not auto-save editor %s\n", editor->get_title().c_str());
+        logError("Could not auto-save editor %s\n", editor->get_title().c_str());
         mforms::Utilities::show_error("Auto save", base::strfmt("Could not save contents of tab %s.\n%s",
                                                                 editor->get_title().c_str(),
                                                                 e.what()),
@@ -166,7 +166,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
 
 std::string SqlEditorForm::find_workspace_state(const std::string &workspace_name, std::auto_ptr<base::LockFile> &lock_file)
 {
-  std::string path_prefix = base::makePath(bec::GRTManager::get().get_user_datadir(), "sql_workspaces");
+  std::string path_prefix = base::makePath(bec::GRTManager::get()->get_user_datadir(), "sql_workspaces");
 
   // find workspaces on disk
   std::string workspace_path;
@@ -255,7 +255,7 @@ struct GuardBoolFlag
 // Restore a previously saved workspace for this connection. The loaded data is deleted immediately after loading (unless its an autosave)
 bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 {
-  std::string path_prefix = base::makePath(bec::GRTManager::get().get_user_datadir(), "sql_workspaces");
+  std::string path_prefix = base::makePath(bec::GRTManager::get()->get_user_datadir(), "sql_workspaces");
 
   GuardBoolFlag flag(&_loading_workspace);
 
@@ -311,12 +311,12 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       try { base::remove(info_file); }
       catch (std::exception &e)
       {
-        log_error("Could not delete autosave file %s\n%s\n", info_file.c_str(), e.what());
+        logError("Could not delete autosave file %s\n%s\n", info_file.c_str(), e.what());
       }
       try { base::remove(text_file); }
       catch (std::exception &e)
       {
-        log_error("Could not delete autosave file %s\n%s\n", text_file.c_str(), e.what());
+        logError("Could not delete autosave file %s\n%s\n", text_file.c_str(), e.what());
       }
     }
     // remove the pre-created editor
@@ -379,7 +379,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       try { base::remove(file.first); }
       catch (std::exception &e)
       {
-        log_error("Could not delete autosave file %s\n%s\n", file.first.c_str(), e.what());
+        logError("Could not delete autosave file %s\n%s\n", file.first.c_str(), e.what());
       }
     }
     // remove the pre-created editor
@@ -396,7 +396,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       char *line = strtok(data, "\n");
       while (line)
       {
-        if (base::starts_with(line, "expanded="))
+        if (base::hasPrefix(line, "expanded="))
         {
           char *value = strchr(line, '=');
           if (value)
@@ -416,7 +416,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
     _autosave_lock = lock_file.release();
     _autosave_path = workspace_path;
     
-    bec::GRTManager::get().replace_status_text(_("Restored last session state"));
+    bec::GRTManager::get()->replace_status_text(_("Restored last session state"));
   }
   else
   {
@@ -543,7 +543,7 @@ void SqlEditorForm::sql_editor_panel_switched()
 {
   SqlEditorPanel *panel = active_sql_editor_panel();
   if (panel)
-    bec::GRTManager::get().run_once_when_idle((bec::UIForm*)panel, boost::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
+    bec::GRTManager::get()->run_once_when_idle((bec::UIForm*)panel, boost::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
 
   validate_menubar();
 }
@@ -579,7 +579,8 @@ void SqlEditorForm::sql_editor_panel_closed(mforms::AppView *view)
 void SqlEditorForm::save_workspace_order(const std::string &prefix)
 {
   if (prefix.empty())
-    log_error("save with empty path\n");
+    logError("save with empty path\n");
+
   if (_tabdock)
   {
     std::wofstream orderFile;
@@ -602,7 +603,7 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
   /// Reorder the GRT lists
   int from_index = (int)grtobj()->queryEditors().get_index(panel->grtobj());
   if (from_index == (int)grt::BaseListRef::npos)
-    log_fatal("Could not find reordered editor in GRT object list\n");
+    logFatal("Could not find reordered editor in GRT object list\n");
 
   // first build an array of result panel objects, in the same order as the tabview
   std::vector<std::pair<db_query_QueryEditorRef, int> > panels;
@@ -641,7 +642,7 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
   }
   if (to_index < 0)
   {
-    log_fatal("Unable to find suitable target index for reorder\n");
+    logFatal("Unable to find suitable target index for reorder\n");
     return;
   }
 
@@ -685,7 +686,7 @@ int SqlEditorForm::sql_editor_count()
 SqlEditorPanel *SqlEditorForm::new_sql_script_file()
 {
   SqlEditorPanel *panel = add_sql_editor(false);
-  bec::GRTManager::get().replace_status_text(_("Added new script editor"));
+  bec::GRTManager::get()->replace_status_text(_("Added new script editor"));
   update_menu_and_toolbar();
   return panel;
 }
@@ -693,7 +694,7 @@ SqlEditorPanel *SqlEditorForm::new_sql_script_file()
 SqlEditorPanel *SqlEditorForm::new_sql_scratch_area(bool start_collapsed)
 {
   SqlEditorPanel *panel = add_sql_editor(true, start_collapsed);
-  bec::GRTManager::get().replace_status_text(_("Added new scratch query editor"));
+  bec::GRTManager::get()->replace_status_text(_("Added new scratch query editor"));
   update_menu_and_toolbar();
   return panel;
 }
@@ -704,7 +705,7 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab, bool ask
 {
   std::string file_path = path;
 
-  bec::GRTManager::get().replace_status_text(base::strfmt(_("Opening %s..."), path.c_str()));
+  bec::GRTManager::get()->replace_status_text(base::strfmt(_("Opening %s..."), path.c_str()));
 
   if (askForFile)
   {
@@ -718,7 +719,7 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab, bool ask
     }
     if (file_path.empty())
     {
-      bec::GRTManager::get().replace_status_text(_("Cancelled open file"));
+      bec::GRTManager::get()->replace_status_text(_("Cancelled open file"));
       return;
     }
   }
@@ -758,7 +759,7 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab, bool ask
   }
   catch (std::exception &exc)
   {
-    log_error("Cannot open file %s: %s\n", file_path.c_str(), exc.what());
+    logError("Cannot open file %s: %s\n", file_path.c_str(), exc.what());
     if (in_new_tab)
       remove_sql_editor(panel);
     mforms::Utilities::show_error(_("Open File"),

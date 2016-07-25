@@ -47,10 +47,14 @@
 
 - (NSSize)minimumSize
 {
+  NSSize minSize = super.minimumSize;
   if (!mScale)
-    return self.image.size;
-  else
-    return super.minimumSize;
+    return { MAX(minSize.width, self.image.size.width), MAX(minSize.height, self.image.size.height) };
+  return minSize;
+}
+
+- (NSSize)preferredSize: (NSSize)proposal {
+  return [self minimumSize];
 }
 
 static bool imagebox_create(mforms::ImageBox *image)
@@ -64,14 +68,11 @@ static void imagebox_set_image(mforms::ImageBox *self, const std::string &file)
   if (self)
   {
     MFImageBoxImpl *impl= self->get_data();
-    NSSize oldSize= impl.frame.size;
-    
-    std::string full_path= mforms::App::get()->get_resource_path(file);
-    NSImage *image= [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
-    impl.image = image;
 
-    if (!NSEqualSizes(image.size, oldSize))
-      [impl.superview subviewMinimumSizeChanged];
+    std::string full_path = mforms::App::get()->get_resource_path(file);
+    NSImage *image = [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
+    impl.image = image;
+    impl.frameSize = image.size;
   }
 }
 
@@ -90,7 +91,7 @@ static void imagebox_set_image_data(mforms::ImageBox *self, const char *data, si
     impl.image = image;
     
     if (!NSEqualSizes(image.size, oldSize))
-      [impl.superview subviewMinimumSizeChanged];
+      [impl.superview relayout];
   }
 }
 

@@ -1997,7 +1997,7 @@ void TreeViewImpl::set_allow_sorting(bool flag)
     
     if (col == NULL || mcol == NULL)
     {
-      log_warning("Invalid column pointer[col:%s][mcol:%s]\n", col == NULL ? "NULL" : "NOT NULL", mcol == NULL ? "NULL" : "NOT NULL");
+      logWarning("Invalid column pointer[col:%s][mcol:%s]\n", col == NULL ? "NULL" : "NOT NULL", mcol == NULL ? "NULL" : "NOT NULL");
       continue;
     }
 
@@ -2059,7 +2059,7 @@ void TreeViewImpl::set_allow_sorting(bool flag)
         _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_string_compare), (Gtk::TreeModelColumn<Glib::ustring>*)mcol, get_owner()->get_column_type(i)));
         break;
       default:
-        log_warning("Unknown column storage type");
+        logWarning("Unknown column storage type");
         break;
     }
   }

@@ -557,11 +557,10 @@ static void consumeIdentifierUnicodeStart(pECMALexer ctx)
 	}
 }
 
-pANTLR3_COMMON_TOKEN (*originalNextToken)(pANTLR3_TOKEN_SOURCE tokenSource);
-
-pANTLR3_COMMON_TOKEN nextToken(pANTLR3_TOKEN_SOURCE tokenSource)
+static pANTLR3_COMMON_TOKEN nextToken(pANTLR3_TOKEN_SOURCE tokenSource)
 {
-	pANTLR3_COMMON_TOKEN result = originalNextToken(tokenSource);
+	pECMALexer lexer = (pECMALexer)((pANTLR3_LEXER)tokenSource->super)->ctx;
+	pANTLR3_COMMON_TOKEN result = lexer->originalNextToken(tokenSource);
 	if (result->channel == ANTLR3_TOKEN_DEFAULT_CHANNEL)
 	{
 		last = result;
@@ -571,15 +570,20 @@ pANTLR3_COMMON_TOKEN nextToken(pANTLR3_TOKEN_SOURCE tokenSource)
 
 }
 
+@lexer::context
+{
+pANTLR3_COMMON_TOKEN (*originalNextToken)(pANTLR3_TOKEN_SOURCE tokenSource);
+}
+
 @lexer::apifuncs
 {
-	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = onECMAParseError;
-	
-	// Override the nextToken function in the token source.
-	pANTLR3_TOKEN_SOURCE tokenSource = TOKENSOURCE(ctx);
-	originalNextToken = tokenSource->nextToken;
-	tokenSource->nextToken = nextToken;
+ // Install custom error collector for the front end.
+ RECOGNIZER->displayRecognitionError = onECMAParseError;
+
+ // Override the nextToken function in the token source.
+ pANTLR3_TOKEN_SOURCE tokenSource = TOKENSOURCE(ctx);
+ ctx->originalNextToken = tokenSource->nextToken;
+ tokenSource->nextToken = nextToken;
 }
 
 @parser::members
@@ -675,8 +679,9 @@ void promoteEOL(pECMAParser ctx, ECMAParser_semicolon_return *rule)
   // A MultiLineComment gets promoted when it contains an EOL.
   if (!(la == SEMICOLON_SYMBOL || la == EOF || la == RIGHT_BRACE_SYMBOL || la == EOL || la == MultiLineComment))
   {
-    // Start on the possition before the current token and scan backwards off channel tokens until the previous on channel token.
-    for (int ix = lt->getTokenIndex(lt) - 1; ix > 0; ix--)
+    // Start on the position before the current token and scan backwards off channel tokens until the previous on channel token.
+    ANTLR3_INT32 ix;
+    for (ix = (ANTLR3_INT32)lt->getTokenIndex(lt) - 1; ix > 0; ix--)
     {
       lt = INPUT->get(INPUT, ix);
       if (lt->getChannel(lt) == 0) // Default channel.
@@ -1430,7 +1435,7 @@ semicolon
 @init
 {
 	// Mark current position so we can unconsume an RBRACE.
-	int marker = MARK();
+	ANTLR3_MARKER marker = MARK();
 	// Promote EOL if appropriate	
 	promoteEOL(ctx, &retval);
 }

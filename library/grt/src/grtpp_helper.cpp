@@ -31,6 +31,8 @@
 
 using namespace grt;
 
+// XXX: convert to using C++11 and streams.
+
 //--------------------------------------------------------------------------------------------------
 
 static std::string cppize_class_name(std::string name)
@@ -258,9 +260,9 @@ struct ClassImplGenerator
       }
     }
     if (!gstruct->get_attribute("simple-impl-data").empty())
-      fprintf(f, ",\n    _data(0), _release_data(NULL)");
+      fprintf(f, ",\n    _data(nullptr), _release_data(nullptr)");
     else if ((needs_body && gstruct->impl_data()))
-      fprintf(f, ",\n    _data(0)");
+      fprintf(f, ",\n    _data(nullptr)");
     fprintf(f, "\n");
   }
 
@@ -730,31 +732,34 @@ struct ClassImplGenerator
     fprintf(f, "\n\n");
   }
   
-  
-  
+  //------------------------------------------------------------------------------------------------
+
   void generate_class_body(FILE *f)
-  {    
-    fprintf(f, "//================================================================================\n");
-    fprintf(f, "// %s\n", cname.c_str());
-    fprintf(f, "\n\n");
+  {
+    const char *separator = "//------------------------------------------------------------------------------------------------\n\n";
+    fprintf(f, "%s", separator);
     
     if (gstruct->impl_data())
     {
       fprintf(f, "class %s::ImplData\n{\n", cname.c_str());
-      fprintf(f, "};\n");
+      fprintf(f, "};\n\n");
                
-      fprintf(f, "\n\n");
+      fprintf(f, "%s", separator);
       fprintf(f, "void %s::init()\n{\n  if (!_data) _data= new %s::ImplData();\n}\n\n",
             cname.c_str(), cname.c_str());
-      fprintf(f, "%s::~%s()\n{\n  delete _data;\n}\n\n\n", cname.c_str(), cname.c_str());
-
+      fprintf(f, "%s", separator);
+      fprintf(f, "%s::~%s()\n{\n  delete _data;\n}\n\n", cname.c_str(), cname.c_str());
+      fprintf(f, "%s", separator);
       fprintf(f, "void %s::set_data(ImplData *data)\n{\n}\n\n", cname.c_str());
+      fprintf(f, "%s", separator);
     }
     else
     {
       fprintf(f, "void %s::init()\n{\n\n}\n\n", cname.c_str());
-      fprintf(f, "%s::~%s()\n{\n  \n}\n\n\n", cname.c_str(), cname.c_str());
-    }      
+      fprintf(f, "%s", separator);
+      fprintf(f, "%s::~%s()\n{\n  \n}\n\n", cname.c_str(), cname.c_str());
+      fprintf(f, "%s", separator);
+    }
 
     // generate constructors
     for (std::map<std::string,MetaClass::Method>::const_iterator iter= methods.begin(); 
@@ -778,9 +783,10 @@ struct ClassImplGenerator
 
       if (iter->second.delegate_get)
       {
-        fprintf(f, "%s %s::%s() const\n{\n // add code here\n}\n", 
+        fprintf(f, "%s %s::%s() const\n{\n // add code here\n}\n\n", 
                 format_type_cpp(iter->second.type).c_str(), 
                 cname.c_str(), iter->second.name.c_str());
+        fprintf(f, "%s", separator);
       }
 
       if (!iter->second.read_only && iter->second.delegate_set)
@@ -805,6 +811,7 @@ struct ClassImplGenerator
         //fprintf(f, "  _changed_signal.emit(\"%s\", ovalue);\n", iter->second.name.c_str());
 
         fprintf(f, "}\n\n");
+        fprintf(f, "%s", separator);
       }
     }
 
@@ -813,9 +820,11 @@ struct ClassImplGenerator
       fprintf(f, "void %s::owned_list_item_added(grt::internal::OwnedList *list, const grt::ValueRef &value)\n",
               cname.c_str());
       fprintf(f, "{\n}\n\n");
+      fprintf(f, "%s", separator);
       fprintf(f, "void %s::owned_list_item_removed(grt::internal::OwnedList *list, const grt::ValueRef &value)\n",
               cname.c_str());
       fprintf(f, "{\n}\n\n");
+      fprintf(f, "%s", separator);
     }
 
     if (gstruct->watch_dicts())
@@ -823,9 +832,11 @@ struct ClassImplGenerator
       fprintf(f, "void %s::owned_dict_item_set(grt::internal::OwnedDict *dict, const std::string &key)\n",
               cname.c_str());
       fprintf(f, "{\n}\n\n");
+      fprintf(f, "%s", separator);
       fprintf(f, "void %s::owned_dict_item_removed(grt::internal::OwnedDict *dict, const std::string &key)\n",
               cname.c_str());
       fprintf(f, "{\n}\n\n");
+      fprintf(f, "%s", separator);
     }
 
     // generate methods
@@ -833,12 +844,12 @@ struct ClassImplGenerator
          iter != methods.end(); ++iter)
     {
       if (!iter->second.abstract && ! iter->second.constructor)
-        fprintf(f, "%s %s::%s(%s)\n{\n  // add code here\n}\n\n\n",
+        fprintf(f, "%s %s::%s(%s)\n{\n  // add code here\n}\n\n",
                 format_type_cpp(iter->second.ret_type, true).c_str(), 
                 cname.c_str(), iter->second.name.c_str(),
                 format_arg_list(iter->second.arg_types).c_str());
+      fprintf(f, "%s", separator);
     }
-    fprintf(f, "\n\n\n");
   }
 };
 
@@ -1009,8 +1020,13 @@ void grt::helper::generate_struct_code(const std::string &target_file,
       g_print("create file %s\n", path);
       g_free(path);
 
-      fprintf(fhdr, "#pragma once\n");
-      fprintf(fhdr, "\n#include \"grt.h\"\n\n");
+      fprintf(fhdr, "#pragma once\n\n");
+      fprintf(fhdr, "#ifndef _WIN32\n");
+      fprintf(fhdr, "  #pragma GCC diagnostic push\n");
+      fprintf(fhdr, "  #pragma GCC diagnostic ignored \"-Woverloaded-virtual\"\n");
+      fprintf(fhdr, "#endif\n\n");
+
+      fprintf(fhdr, "#include \"grt.h\"\n\n");
 
       fprintf(fhdr, "#ifdef _WIN32\n");
       fprintf(fhdr, "  #pragma warning(disable: 4355) // 'this' : used in base member initializer list\n");
@@ -1028,7 +1044,7 @@ void grt::helper::generate_struct_code(const std::string &target_file,
            r != requires_orig.end() && r->first == file; ++r)
       {
         std::string tmp(r->second, 0, r->second.rfind('.'));
-        fprintf(fhdr, "#include <grts/%s.h>\n", tmp.c_str());
+        fprintf(fhdr, "#include \"grts/%s.h\"\n", tmp.c_str());
       }
       fprintf(fhdr, "\n\n");
 
@@ -1082,14 +1098,14 @@ void grt::helper::generate_struct_code(const std::string &target_file,
         }
       }        
 
-      files[(*iter)->source()]= fhdr;
+      files[(*iter)->source()] = fhdr;
     }
     else
     {
-      fhdr= files[(*iter)->source()];
+      fhdr = files[(*iter)->source()];
       
-      header_file= (*iter)->source().substr(0, (*iter)->source().find(".xml"));
-      header_file= header_file.substr((*iter)->source().rfind('/')+1);
+      header_file = (*iter)->source().substr(0, (*iter)->source().find(".xml"));
+      header_file = header_file.substr((*iter)->source().rfind('/') + 1);
     }
 
     body_file= imploutpath;
@@ -1097,7 +1113,7 @@ void grt::helper::generate_struct_code(const std::string &target_file,
     
     ClassImplGenerator gen(*iter, fhdr);
     
-    gen.generate_class_header(generate_dll_export_name((*iter)->source())+"_PUBLIC");
+    gen.generate_class_header(generate_dll_export_name((*iter)->source()) + "_PUBLIC");
     if (gen.needs_body)
     {
       // create the output dir if it doesn't exist
@@ -1108,8 +1124,8 @@ void grt::helper::generate_struct_code(const std::string &target_file,
       g_message("CREATE %s", body_file.c_str());
       FILE *f= base_fopen(body_file.c_str(), "wb+");
 
-      fprintf(f, "\n#include <grts/%s.h>\n", header_file.c_str());
-      fprintf(f, "\n#include <grtpp_util.h>\n");
+      fprintf(f, "\n#include \"grts/%s.h\"\n", header_file.c_str());
+      fprintf(f, "\n#include \"grtpp_util.h\"\n");
 
       fprintf(f, "\n\n");
 
@@ -1119,13 +1135,13 @@ void grt::helper::generate_struct_code(const std::string &target_file,
     }
   }
 
-  for (std::map<std::string,FILE*>::const_iterator iter= files.begin();
+  for (std::map<std::string, FILE*>::const_iterator iter= files.begin();
        iter != files.end(); ++iter)
   {
     if (iter->second)
     {
-      std::string name= cppize_class_name(basename(iter->first));
-      const char *sname= name.c_str();
+      std::string name = cppize_class_name(basename(iter->first));
+      const char *sname = name.c_str();
       
       // output code to register all classes in this file
       fprintf(iter->second, "\n\ninline void register_%s()\n", sname);
@@ -1146,6 +1162,10 @@ void grt::helper::generate_struct_code(const std::string &target_file,
       fprintf(iter->second, "#ifdef AUTO_REGISTER_GRT_CLASSES\n");
       fprintf(iter->second, "static struct _autoreg__%s { _autoreg__%s() { register_%s(); } } __autoreg__%s;\n",
               sname, sname, sname, sname);
+      fprintf(iter->second, "#endif\n\n");
+
+      fprintf(iter->second, "#ifndef _WIN32\n");
+      fprintf(iter->second, "  #pragma GCC diagnostic pop\n");
       fprintf(iter->second, "#endif\n\n");
 
       fclose(iter->second);

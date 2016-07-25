@@ -20,7 +20,7 @@
 #pragma once
 
 #include "mdc_canvas_view.h"
-#include <cairo-quartz.h>
+#include <cairo/cairo-quartz.h>
 #include <OpenGL/gl.h>
 
 namespace mdc {
@@ -47,4 +47,3 @@ private:
 
 
 };
-

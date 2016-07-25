@@ -160,7 +160,7 @@ void bec::ValidationMessagesBE::validation_message(const grt::Validator::Tag& ta
     }
     default:
     {
-      log_warning("Unhandled type in validation_message");
+      logWarning("Unhandled type in validation_message");
     }
   }
 
@@ -191,7 +191,7 @@ void bec::ValidationManager::register_validator(const std::string& type, grt::Va
 
 void bec::ValidationManager::scan()
 {
-  const std::vector<app_PluginRef> plugins = bec::GRTManager::get().get_plugin_manager()->get_plugins_for_group("");
+  const std::vector<app_PluginRef> plugins = bec::GRTManager::get()->get_plugin_manager()->get_plugins_for_group("");
   
   for (size_t i = 0; i < plugins.size(); ++i)
   {
@@ -203,7 +203,7 @@ void bec::ValidationManager::scan()
       { 
         // Handle plugin directly
         //1. Fetch slot
-        log_debug2("ValidationManager: %s", plugins[i]->caption().c_str());
+        logDebug2("ValidationManager: %s", plugins[i]->caption().c_str());
       }
       else
       {

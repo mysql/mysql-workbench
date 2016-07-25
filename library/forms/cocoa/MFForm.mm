@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,15 +20,23 @@
 #import "MFMForms.h"
 #import "MFForm.h"
 
+@interface MFFormImpl () {
+  mforms::Form *mOwner;
+  BOOL mIsModal;
+  NSWindow *mParentWindow;
+  NSMenu *mOriginalMenu;
+}
+@end
+
 @implementation MFFormImpl
 
-- (instancetype)initWithObject:(::mforms::Form*)form
-               owner:(::mforms::Form*)ownerWindow
+- (instancetype)initWithObject: (mforms::Form*)form
+                         owner: (mforms::Form*)ownerWindow
 {
-  self= [super initWithContentRect:NSMakeRect(100, 100, 1,1)
-                         styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask 
-                           backing:NSBackingStoreBuffered 
-                             defer:YES];
+  self = [super initWithContentRect: NSMakeRect(100, 100, 100, 100)
+                         styleMask: NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask
+                           backing: NSBackingStoreBuffered
+                             defer: YES];
   if (self)
   {
    // [self setAutorecalculatesKeyViewLoop: YES];
@@ -80,44 +88,57 @@
     [self orderOut:nil];
 }
 
+//------------------------------------------------------------------------------------------------
 
-- (void)subviewMinimumSizeChanged
+/**
+ * Computes the entire layout of the form.
+ *
+ * @param proposedSize The size to start from layouting. 
+ * @param resizeChildren Tells the function whether the computed client control bounds should be applied
+ *                      (when doing a relayout) or not (when computing the preferred size).
+ * Note: in opposition to Windows we don't need to apply the child size, because in an NSPanel the content view
+ *       is always filling the entire panel. We keep this parameter only to keep the pattern for all computeLayout functions.
+ * @return The resulting size of the content view.
+ */
+- (NSSize)computeLayout: (NSSize)proposedSize resizeChildren: (BOOL)doResize
 {
-  NSSize size= self.contentView.minimumSize;
-  NSSize frameSize= self.contentView.frame.size;
-  BOOL flag= NO;
-
-  if (frameSize.width < size.width)
+  if (self.contentView != nil)
   {
-    frameSize.width= size.width;
-    flag= YES;
+    self.contentView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    return [self.contentView preferredSize: proposedSize]; // Includes the minimum size if needed.
   }
-
-  if (frameSize.height < size.height)
-  {
-    frameSize.height= size.height;
-    flag= YES;
-  }
-
-  if (flag)
-    [self setContentSize:frameSize];
- // else
-    [self.contentView resizeSubviewsWithOldSize:frameSize];
-  
-  self.contentMinSize = size;
+  return proposedSize;
 }
 
+//------------------------------------------------------------------------------------------------
 
-- (void)setFrameSize:(NSSize)size
+- (NSSize)preferredSize: (NSSize)proposedSize
 {
-  [self setContentSize:size];
+  return [self computeLayout: proposedSize resizeChildren: NO];
+}
+
+//------------------------------------------------------------------------------------------------
+
+- (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
+{
+  [self computeLayout: self.frame.size resizeChildren: YES];
+}
+
+- (void)relayout
+{
+  [self resizeSubviewsWithOldSize: self.frame.size];
+}
+
+- (void)setFrameSize: (NSSize)size
+{
+  [self setContentSize: size];
 }
 
 - (BOOL)windowShouldClose: (id)sender {
   return mOwner->can_close();
 }
 
-- (void)windowWillClose:(NSNotification *)notification
+- (void)windowWillClose: (NSNotification *)notification
 {
   [self makeFirstResponder: nil];
   if (mIsModal)
@@ -177,20 +198,8 @@
 
 - (void)endModal:(BOOL)ok
 {
-  [NSApp stopModalWithCode: (ok ? NSOKButton : NSCancelButton)];
+  [NSApp stopModalWithCode: (ok ? NSModalResponseOK : NSModalResponseCancel)];
 }
-
-
-- (void)setFixedFrameSize:(NSSize)size
-{
-  NSSize curSize = self.frame.size;
-  if (size.width < 0)
-    size.width = curSize.width;
-  if (size.height < 0)
-    size.height = curSize.height;
-  [self setFrameSize: size];
-}
-
 
 - (void)destroy
 {
@@ -230,13 +239,13 @@
 
 
 
-static bool form_create(::mforms::Form *self, ::mforms::Form *owner, ::mforms::FormFlag flags)
+static bool form_create(mforms::Form *self, mforms::Form *owner, mforms::FormFlag flags)
 {
   return [[MFFormImpl alloc] initWithObject: self owner:owner] != nil;
 }
 
 
-static void form_set_title(::mforms::Form *self, const std::string &title)
+static void form_set_title(mforms::Form *self, const std::string &title)
 {
   id form = self->get_data();
   if (form)
@@ -254,7 +263,7 @@ static void show_modal_button_action(void *form, mforms::Button *btn)
 }
 
 
-static void form_show_modal(::mforms::Form *self, ::mforms::Button *accept, ::mforms::Button *cancel)
+static void form_show_modal(mforms::Form *self, mforms::Button *accept, mforms::Button *cancel)
 {
   id  form = self->get_data();
   if (form)
@@ -274,7 +283,7 @@ static void form_show_modal(::mforms::Form *self, ::mforms::Button *accept, ::mf
 }
 
 
-static bool form_run_modal(::mforms::Form *self, ::mforms::Button *accept, ::mforms::Button *cancel)
+static bool form_run_modal(mforms::Form *self, mforms::Button *accept, mforms::Button *cancel)
 {
   MFFormImpl *form = self->get_data();
   if (form)
@@ -282,12 +291,12 @@ static bool form_run_modal(::mforms::Form *self, ::mforms::Button *accept, ::mfo
     if (accept)
     {
       form.defaultButtonCell = [accept->get_data() cell];
-      accept->signal_clicked()->connect(boost::bind(&::mforms::Form::end_modal, self, true));
+      accept->signal_clicked()->connect(boost::bind(&mforms::Form::end_modal, self, true));
     }
     if (cancel)
-      cancel->signal_clicked()->connect(boost::bind(&::mforms::Form::end_modal, self, false));
+      cancel->signal_clicked()->connect(boost::bind(&mforms::Form::end_modal, self, false));
     
-    int dialog_result = NSCancelButton;
+    int dialog_result = NSModalResponseCancel;
     if ([NSThread isMainThread])
       dialog_result = [form runModal];
     else
@@ -298,7 +307,7 @@ static bool form_run_modal(::mforms::Form *self, ::mforms::Button *accept, ::mfo
       [invocation performSelectorOnMainThread: @selector(invoke) withObject: nil waitUntilDone: YES];
       [invocation getReturnValue: &dialog_result];
     }
-    if (dialog_result == NSOKButton)
+    if (dialog_result == NSModalResponseOK)
     {
       [form close];
       return true;
@@ -309,14 +318,14 @@ static bool form_run_modal(::mforms::Form *self, ::mforms::Button *accept, ::mfo
 }
 
 
-static void form_end_modal(::mforms::Form *self, bool result)
+static void form_end_modal(mforms::Form *self, bool result)
 {
   [self->get_data() makeFirstResponder:nil];
   [self->get_data() endModal: result];
 }
 
 
-static void form_close(::mforms::Form *self)
+static void form_close(mforms::Form *self)
 {
   id  form = self->get_data();
   if (form)
@@ -326,19 +335,20 @@ static void form_close(::mforms::Form *self)
   }
 }
 
-
-static void form_set_content(::mforms::Form *self, ::mforms::View *child)
+static void form_set_content(mforms::Form *self, mforms::View *child)
 {
   id  form = self->get_data();
-  if (form)
+  if (form != nil)
   {
-    [form setContentView:child->get_data()];
-    [form subviewMinimumSizeChanged];
+    NSView *content = child->get_data();
+    NSSize size = [content preferredSize: {0, 0}];
+    [form setFrameSize: size];
+    [form setMinSize: size];
+    [form setContentView: content];
   }
 }
 
-
-static void form_center(::mforms::Form *self)
+static void form_center(mforms::Form *self)
 {
   id  form = self->get_data();
   if (form)
@@ -349,7 +359,7 @@ static void form_center(::mforms::Form *self)
 
 
 
-static void form_flush_events(::mforms::Form *self)
+static void form_flush_events(mforms::Form *self)
 {
   
 }
@@ -363,7 +373,7 @@ static void form_set_menubar(mforms::Form *self, mforms::MenuBar *menubar)
 
 void cf_form_init()
 {
-  ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
+  mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
   
   f->_form_impl.create     = &form_create;
   f->_form_impl.close      = &form_close;

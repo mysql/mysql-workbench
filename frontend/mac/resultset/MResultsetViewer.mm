@@ -157,9 +157,15 @@ static const char *viewFlagsKey = "viewFlagsKey";
 
   if (mWarnedManyColumns == 0 && (*mData)->get_column_count() > 300)
   {
-    if (NSRunAlertPanel(@"Too Many Columns",
-                        @"The resultset for your query contains too many columns, which may be very slow to display.\nHowever, as a workaround, manual resizing of columns can be disabled to speed up display and scrolling.",
-                        @"Disable Column Resizing", @"Continue", nil) == NSAlertDefaultReturn)
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = @"Too Many Columns";
+    alert.informativeText = @"The resultset for your query contains too many columns, which may be very slow to display."
+      "\nHowever, as a workaround, manual resizing of columns can be disabled to speed up display and scrolling.";
+    alert.alertStyle = NSWarningAlertStyle;
+    [alert addButtonWithTitle: @"Disable Column Resizing"];
+    [alert addButtonWithTitle: @"Ignore"];
+
+    if ([alert runModal] == NSAlertFirstButtonReturn)
       mWarnedManyColumns = 1;
     else
       mWarnedManyColumns = -1;

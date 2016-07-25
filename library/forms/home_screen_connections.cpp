@@ -469,7 +469,7 @@ public:
       if (_button1_rect.contains(x, y))
       {
         set_modal_result(1); // Just a dummy value to close ourselves.
-        owner->handle_context_menu(_connectionId, "manage_connections");
+        owner->handleContextMenu(_connectionId, "manage_connections");
       }
       else
       if (_button2_rect.contains(x, y))
@@ -481,13 +481,13 @@ public:
       if (_button3_rect.contains(x, y))
       {
         set_modal_result(1);
-        owner->handle_context_menu(_connectionId, "");
+        owner->handleContextMenu(_connectionId, "");
       }
       else 
       if (_button4_rect.contains(x, y))
       {
         set_modal_result(1);
-        owner->handle_context_menu(_connectionId, "open_connection");
+        owner->handleContextMenu(_connectionId, "open_connection");
       }
       else
       if (_close_button_rect.contains(x, y))
@@ -667,7 +667,7 @@ public:
     {
 #ifdef __APPLE__
       // On OS X we show the usual italic small i letter instead of the peeling corner.
-      cairo_select_font_face(cr, HOME_INFO_FONT, CAIRO_FONT_SLANT_ITALIC, CAIRO_FONT_WEIGHT_BOLD);
+      cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_INFO_FONT, CAIRO_FONT_SLANT_ITALIC, CAIRO_FONT_WEIGHT_BOLD);
       cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
 
       owner->_info_button_rect = base::Rect(bounds.right() - 15, bounds.bottom() - 10, 10, 10);
@@ -956,7 +956,7 @@ public:
 //------------------------------------------------------------------------------------------------
 
 ConnectionsSection::ConnectionsSection(HomeScreen *owner)
-: HomeScreenSection("wb_starter_mysql_bug_reporter_52.png"),
+: HomeScreenSection("sidebar_wb.png"),
   _search_box(true), _search_text(mforms::SmallSearchEntry)
 {
   _owner = owner;
@@ -1282,6 +1282,8 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   int width = get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING;
 
   int tiles_per_row = width / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+  if (tiles_per_row < 1)
+    tiles_per_row = 1;
 
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
@@ -1423,7 +1425,7 @@ void ConnectionsSection::updateHeight()
 
   if (!connections->empty() && tiles_per_row > 1)
   {
-    int height = (connections->size() / tiles_per_row) * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING) + CONNECTIONS_TOP_PADDING;
+    int height = (int)((connections->size() / tiles_per_row) * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING) + CONNECTIONS_TOP_PADDING);
     if (height != get_height())
         set_size(-1, height);
   }
@@ -1816,7 +1818,7 @@ void ConnectionsSection::handle_command(const std::string &command)
     }
   }
 
-  _owner->handle_context_menu(item, command);
+  _owner->handleContextMenu(item, command);
   _entry_for_menu.reset();
 }
 
@@ -1833,7 +1835,7 @@ void ConnectionsSection::handle_folder_command(const std::string &command)
 
     title += "/";
 
-    _owner->handle_context_menu(title, command);
+    _owner->handleContextMenu(title, command);
     _entry_for_menu.reset();
   }
 

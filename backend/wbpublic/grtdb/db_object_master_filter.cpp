@@ -28,7 +28,7 @@ DBObjectMasterFilterBE::DBObjectMasterFilterBE()
   // load stored filter sets
   grt::DictRef opt= grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   _stored_master_filter_sets_filepath
-    .append(bec::GRTManager::get().get_user_datadir())
+    .append(bec::GRTManager::get()->get_user_datadir())
     .append("/stored_master_filter_sets.xml");
   if (g_file_test(_stored_master_filter_sets_filepath.c_str(), G_FILE_TEST_EXISTS))
     _stored_master_filter_sets= grt::DictRef::cast_from(

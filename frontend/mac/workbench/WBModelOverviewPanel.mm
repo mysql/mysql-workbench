@@ -73,8 +73,6 @@
 
         [overview performSelector: @selector(rebuildAll) withObject: nil afterDelay: 0.1];
 
-        grtm = _wbui->get_wb()->get_grt_manager();
-
         self.splitView.autosaveName = @"modelSplitPosition";
 
         [self restoreSidebarsFor: "ModelOverview" toolbar: wb::WBContextUI::get()->get_physical_overview()->get_toolbar()];

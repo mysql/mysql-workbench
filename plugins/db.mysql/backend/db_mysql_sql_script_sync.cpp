@@ -318,11 +318,11 @@ void DbMySQLScriptSync::set_option(const std::string& name, const std::string& v
 void DbMySQLScriptSync::start_sync()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL sync", 
-    bec::GRTManager::get().get_dispatcher(),
+    bec::GRTManager::get()->get_dispatcher(),
     boost::bind(&DbMySQLScriptSync::sync_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLScriptSync::sync_finished, this, _1));
-  bec::GRTManager::get().get_dispatcher()->add_task(task);
+  bec::GRTManager::get()->get_dispatcher()->add_task(task);
 }
 
 void DbMySQLScriptSync::sync_finished(grt::ValueRef res)
@@ -462,7 +462,7 @@ grt::StringRef DbMySQLScriptSync::generate_alter(db_mysql_CatalogRef org_cat, db
   options.set("KeepOrder", grt::IntegerRef(1));
   grt::ListRef<GrtNamedObject> alter_object_list(true);
   options.set("OutputObjectContainer", alter_object_list);
-  options.set("SQL_MODE", bec::GRTManager::get().get_app_option("SqlGenerator.Mysql:SQL_MODE"));
+  options.set("SQL_MODE", bec::GRTManager::get()->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
 
   diffsql_module->generateSQL(org_cat, options, alter_change);
 
@@ -485,7 +485,7 @@ void DbMySQLScriptSync::save_sync_profile()
     for (size_t i = 0; i < mod_cat->schemata().count(); i++)
     {
       db_SchemaRef schema(mod_cat->schemata()[i]);
-      log_info("Saving oldNames and other sync state info for %s::%s (catalog %s)\n", _sync_profile_name.c_str(), schema->name().c_str(), mod_cat.id().c_str());
+      logInfo("Saving oldNames and other sync state info for %s::%s (catalog %s)\n", _sync_profile_name.c_str(), schema->name().c_str(), mod_cat.id().c_str());
       db_mgmt_SyncProfileRef profile = bec::get_sync_profile(workbench_physical_ModelRef::cast_from(model_obj), _sync_profile_name, schema->name());
       if (!profile.is_valid())
         profile = bec::create_sync_profile(workbench_physical_ModelRef::cast_from(model_obj), _sync_profile_name, schema->name());
@@ -508,11 +508,11 @@ void DbMySQLScriptSync::restore_sync_profile(db_CatalogRef catalog)
       db_mgmt_SyncProfileRef profile = bec::get_sync_profile(workbench_physical_ModelRef::cast_from(model_obj), _sync_profile_name, schema->name());
       if (profile.is_valid())
       {
-        log_info("Restoring oldNames and other sync state info for %s::%s (catalog %s)\n", _sync_profile_name.c_str(), schema->name().c_str(), catalog.id().c_str());
+        logInfo("Restoring oldNames and other sync state info for %s::%s (catalog %s)\n", _sync_profile_name.c_str(), schema->name().c_str(), catalog.id().c_str());
         bec::update_schema_from_sync_profile(schema, profile);
       }
       else
-        log_info("No sync profile found for %s::%s\n", _sync_profile_name.c_str(), schema->name().c_str());
+        logInfo("No sync profile found for %s::%s\n", _sync_profile_name.c_str(), schema->name().c_str());
     }
   }
 }
@@ -540,7 +540,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vector<
 {
   db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
-  grt::ValueRef default_engine = bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine");
+  grt::ValueRef default_engine = bec::GRTManager::get()->get_app_option("db.mysql.Table:tableEngine");
   if(grt::StringRef::can_wrap(default_engine))
     default_engine_name = grt::StringRef::cast_from(default_engine);
   std::string err;
@@ -581,7 +581,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vector<
       std::string orig_schema_name = schema->customData().get_string("db.mysql.synchronize:originalName", "");
       if (!orig_schema_name.empty() && schema->name() != orig_schema_name)
       {
-        log_info("Fix schema references of %s (from %s)\n", schema->name().c_str(), orig_schema_name.c_str());
+        logInfo("Fix schema references of %s (from %s)\n", schema->name().c_str(), orig_schema_name.c_str());
         Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
         renamer->rename_schema_references(_mod_cat_copy, orig_schema_name, schema->name());
       }
@@ -589,7 +589,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vector<
       // remove excluded object types from the copy of the model catalog... the right catalog should already come stripped from the source
       if (options.is_valid() && options.get_int("SkipTriggers"))
       {
-        log_info("Remove triggers from copy of model schema %s\n", schema->name().c_str());
+        logInfo("Remove triggers from copy of model schema %s\n", schema->name().c_str());
         for (size_t t = 0; t < schema->tables().count(); t++)
         {
           schema->tables()[t]->triggers().remove_all();
@@ -597,7 +597,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vector<
       }
       if (options.is_valid() && options.get_int("SkipRoutines"))
       {
-        log_info("Remove routines from copy of model schema %s\n", schema->name().c_str());
+        logInfo("Remove routines from copy of model schema %s\n", schema->name().c_str());
         schema->routines().remove_all();
         schema->routineGroups().remove_all();
       }
@@ -734,7 +734,7 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
   options.set("TriggerFilterList", convert_string_vector_to_grt_list(triggers));
 
   options.set("KeepOrder", grt::IntegerRef(1));
-  options.set("SQL_MODE", bec::GRTManager::get().get_app_option("SqlGenerator.Mysql:SQL_MODE"));
+  options.set("SQL_MODE", bec::GRTManager::get()->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
 
   grt::StringListRef alter_list(grt::Initialized);
   grt::ListRef<GrtNamedObject> alter_object_list(true);
@@ -818,7 +818,7 @@ std::string DbMySQLScriptSync::generate_diff_tree_report()
   options.set("RoutineFilterList", convert_string_vector_to_grt_list(routines));
   options.set("TriggerFilterList", convert_string_vector_to_grt_list(triggers));
   options.set("TemplateFile", 
-    grt::StringRef(bec::GRTManager::get().get_data_file_path("modules/data/db_mysql_catalog_reporting/Basic_Text.tpl/basic_text_report.txt.tpl").c_str()));
+    grt::StringRef(bec::GRTManager::get()->get_data_file_path("modules/data/db_mysql_catalog_reporting/Basic_Text.tpl/basic_text_report.txt.tpl").c_str()));
 
   grt::StringRef output_string(diffsql_module->generateReport(_org_cat, options, _alter_change));
 
@@ -928,7 +928,7 @@ public:
                       pos++;                    
                   }
 
-                  //log_info("Add new %s (%s / %s -> %s) to %s::%s (%s / %s)\n", newobj->class_name().c_str(), newobj->name().c_str(), obj.id().c_str(), newobj.id().c_str(), owner->class_name().c_str(), attr_name.c_str(), owner->name().c_str(),
+                  //logInfo("Add new %s (%s / %s -> %s) to %s::%s (%s / %s)\n", newobj->class_name().c_str(), newobj->name().c_str(), obj.id().c_str(), newobj.id().c_str(), owner->class_name().c_str(), attr_name.c_str(), owner->name().c_str(),
                   //         owner->id().c_str());
                   owner_list.ginsert(newobj, owner_pos);
 
@@ -1004,7 +1004,7 @@ public:
           }
           break;
       default:
-          log_error("Unhandled change!\n");
+          logError("Unhandled change!\n");
           break;
       }
   };
@@ -1017,7 +1017,7 @@ public:
     {
       if (mapping.find(iter->first) == mapping.end())
       {
-        log_debug3("%s is not in primary mapping\n", iter->first.c_str());
+        logDebug3("%s is not in primary mapping\n", iter->first.c_str());
         mapping[iter->first] = iter->second;
       }
     }
@@ -1198,7 +1198,7 @@ public:
           
           if (!fk->referencedTable().is_valid())
           {
-            log_error("FK %s from table %s is invalid and has no referencedTable set\n",
+            logError("FK %s from table %s is invalid and has no referencedTable set\n",
                       fk->name().c_str(), table->name().c_str());
             grt::GRT::get()->send_error(base::strfmt("ForeignKey %s from table %s is invalid and has no referencedTable set",
                                                     fk->name().c_str(), table->name().c_str()));
@@ -1226,7 +1226,7 @@ public:
                 ok = true;
             }
             if (!ok)
-              log_error("The table %s (%s) referenced from %s.%s doesn't exist (newtable = %s)!\n", fk->referencedTable()->id().c_str(),
+              logError("The table %s (%s) referenced from %s.%s doesn't exist (newtable = %s)!\n", fk->referencedTable()->id().c_str(),
                         fk->referencedTable()->name().c_str(), fk->owner()->name().c_str(), fk->name().c_str(),
                         new_table.is_valid() ? new_table->id().c_str() : "???");
           }*/

@@ -1,32 +1,9 @@
-mysql-workbench-@edition@ (6.3.8-1@distrov@) @distro@; urgency=low
+mysql-workbench-@edition@ (7.0.0-1@distrov@) @distro@; urgency=low
 
   * New release
 
- -- Mike Lischke (mike.lischke@oracle.com)  Di, 14 Jun 2016 11:14:47 +0200
+ -- Marcin Szalowicz <marcin.szalowicz@oracle.com>  Fri, 20 Mar 2015 12:00:00 +0100
 
-mysql-workbench-@edition@ (6.3.7-1@distrov@) @distro@; urgency=low
-
-  * New release
-
- -- Milosz Bodzek <milosz.bodzek@oracle.com>  Mon, 09 May 2016 14:54:36 +0200
-
-mysql-workbench-@edition@ (6.3.6-1@distrov@) @distro@; urgency=low
-
-  * New release
-
- -- Marcin Szałowicz <marcin.szalowicz@oracle.com>  Thu, 19 November 2015 12:00:00 +0100
-
-mysql-workbench-@edition@ (6.3.5-1@distrov@) @distro@; urgency=low
-
-  * New release
-
- -- Mike Lischke <mike.lischke@oracle.com>  Wed, 17 June 2015 12:00:00 +0100
-
-mysql-workbench-@edition@ (6.3.4-1@distrov@) @distro@; urgency=low
-
-  * New release
-
- -- Mike Lischke <mike.lischke@oracle.com>  Wed, 13 May 2015 12:00:00 +0100
 
 mysql-workbench-@edition@ (6.3.3-1@distrov@) @distro@; urgency=low
 

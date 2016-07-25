@@ -180,7 +180,7 @@ std::string RoutineGroupEditorBE::get_title()
 void RoutineGroupEditorBE::open_editor_for_routine_at_index(size_t index)
 {
   if (index < get_routine_group()->routines().count())
-    bec::GRTManager::get().open_object_editor(get_routine_group()->routines()[index]);
+    bec::GRTManager::get()->open_object_editor(get_routine_group()->routines()[index]);
 }
 
 //--------------------------------------------------------------------------------------------------

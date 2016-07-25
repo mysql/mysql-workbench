@@ -117,7 +117,7 @@ add_library(mforms
     home_screen_x_connections.cpp
     home_screen_documents.cpp
     home_screen_helpers.cpp
-
+    ProjectForm.cpp
 )
 
 if (KEYRING_DEFINITION)

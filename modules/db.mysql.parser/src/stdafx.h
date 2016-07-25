@@ -30,6 +30,7 @@
 #include <map>
 #include <list>
 #include <unordered_set>
+#include <stack>
 #include <sstream>
 
 #include <glib.h>

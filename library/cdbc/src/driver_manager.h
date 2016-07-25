@@ -91,6 +91,7 @@ public:
   const char* password() const { return _password; }
   void invalidate();
   bool is_valid() const { return _password != NULL; }
+  std::string uri(bool withPassword = false);
 };
 
 typedef std::set<Authentication::Ref> AuthenticationSet;

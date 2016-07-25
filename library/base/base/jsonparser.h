@@ -59,7 +59,7 @@ namespace JsonParser {
     ConstIterator cend() const;
 
     // return length of sequence
-    SizeType size();
+    SizeType size() const;
     Iterator find(const KeyType &key);
     ConstIterator find(const KeyType &key) const;
 
@@ -116,7 +116,7 @@ namespace JsonParser {
     ConstIterator cend() const;
 
     // return length of sequence
-    SizeType size();
+    SizeType size() const;
 
     // test if container is empty
     bool empty() const;
@@ -170,8 +170,10 @@ namespace JsonParser {
 
     // Cast and assignment. Throw if cast is not possible.
     operator const JsonObject & () const;
+    operator JsonObject & (); // non-const version so you can change inner values of the object.
     const JsonObject& operator = (const JsonObject &other);
     operator const JsonArray & () const;
+    operator JsonArray & (); // dito non-const version
     const JsonArray& operator = (const JsonArray &other);
 
 #ifdef DEFINE_INT_FUNCTIONS

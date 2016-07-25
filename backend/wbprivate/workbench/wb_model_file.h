@@ -28,7 +28,7 @@
 #include "base/trackable.h"
 
 #ifndef _WIN32
-#include <cairo.h>
+#include <cairo/cairo.h>
 #endif
 
 #define MAIN_DOCUMENT_NAME "document.mwb.xml"

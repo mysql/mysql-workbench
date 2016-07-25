@@ -38,6 +38,8 @@
 #include <algorithm>
 #include <exception>
 #include <unordered_set>
+#include <vector>
+#include <stack>
 
 #include <glib.h>
 

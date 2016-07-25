@@ -63,7 +63,7 @@ namespace mforms
   /**
    * Value to tell observers which action was triggered on the home screen.
    */
-  enum class MFORMS_EXPORT HomeScreenAction
+  enum HomeScreenAction
   {
     ActionNone,
 
@@ -84,10 +84,10 @@ namespace mforms
     ActionNewModelFromDB,
     ActionNewModelFromScript,
 
-    ActionOpenXConnection,
-
-    ActionNewXConnection,
-    ActionManageXConnections,
+    ActionOpenXProject,
+    ActionNewJSXProject,
+    ActionNewPythonXProject,
+    ActionManageXProjects,
 
     ActionOpenXTutorial,
     ActionOpenXLearnMore,
@@ -104,6 +104,11 @@ namespace mforms
     HomeMenuDocumentModel,
     HomeMenuDocumentSQLAction,
     HomeMenuDocumentSQL,
+
+    HomeMenuXConnection,
+    HomeMenuXConnectionGroup,
+    HomeMenuXConnectionGeneric
+
   };
 
   class MFORMS_EXPORT HomeScreenDropInfo

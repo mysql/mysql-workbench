@@ -12,6 +12,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
     ${PROJECT_SOURCE_DIR}/library/sql-parser/source
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/plugins/db/backend

@@ -3,6 +3,7 @@
       <requires file="structs.xml"/>
       <requires file="structs.app.xml"/>
       <requires file="structs.db.xml"/>
+      <requires file="structs.db.ng.xml"/>
       <requires file="structs.db.query.xml"/>
       <requires file="structs.db.mgmt.xml"/>
       <requires file="structs.workbench.physical.xml"/>
@@ -14,6 +15,8 @@
               <member name="doc" type="object" struct-name="workbench.Document" owned="1" overrides="app.Document" attr:desc="the Workbench document"/>
               <member name="docPath" type="string" attr:desc="the Workbench document path"/>
               <member name="sqlEditors" type="list" content-type="object" content-struct-name="db.query.Editor" owned="1" read-only="1" attr:desc="list of open SQL Editor instances"/>
+              <member name="ngSheets" type="list" content-type="object" content-struct-name="db.ng.Sheet" owned="1" read-only="1" attr:desc="list of open NG Sheet instances"/>
+
               <member name="rdbmsMgmt" type="object" struct-name="db.mgmt.Management" owned="1" attr:desc="the RDBMS management information"/>
               <member name="migration" type="object" struct-name="db.migration.Migration" owned="1" attr:desc="data for Migration Plugin"/>
           </members>

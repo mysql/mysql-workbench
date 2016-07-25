@@ -62,6 +62,7 @@ mforms::ToolBar *SqlEditorForm::get_toolbar()
   if (!_toolbar)
   {
     _toolbar = _wbsql->get_cmdui()->create_toolbar("data/dbquery_toolbar.xml", boost::bind(&SqlEditorForm::activate_command, this, _1));
+    _toolbar->set_name("dbquery");
     
     update_menu_and_toolbar();
     update_toolbar_icons();
@@ -95,9 +96,9 @@ void SqlEditorForm::limit_rows(const std::string &limit_text)
     }
   }
 
-  bec::GRTManager::get().set_app_option("SqlEditor:LimitRows", grt::IntegerRef(limit > 0));
+  bec::GRTManager::get()->set_app_option("SqlEditor:LimitRows", grt::IntegerRef(limit > 0));
   if (limit > 0)
-    bec::GRTManager::get().set_app_option("SqlEditor:LimitRowsCount", grt::IntegerRef(limit));
+    bec::GRTManager::get()->set_app_option("SqlEditor:LimitRowsCount", grt::IntegerRef(limit));
 
   // special handling for custom values not in the predefined list
   mforms::MenuItem *citem = menu->find_item("custom");
@@ -136,7 +137,7 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
     _menu = _wbsql->get_cmdui()->create_menubar_for_context(WB_CONTEXT_QUERY);
 
     // special handling for Query -> Row Limit submenu
-    int limit_count = bec::GRTManager::get().get_app_option_int("SqlEditor:LimitRows") ? bec::GRTManager::get().get_app_option_int("SqlEditor:LimitRowsCount") : 0;
+    int limit_count = bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows") ? bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRowsCount") : 0;
 
     mforms::MenuItem *limit_item = _menu->find_item("limit_rows");
     if (limit_item)
@@ -212,7 +213,7 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
 
 void SqlEditorForm::update_menu_and_toolbar()
 {
-  if (!bec::GRTManager::get().in_main_thread())
+  if (!bec::GRTManager::get()->in_main_thread())
   {
     exec_sql_task->execute_in_main_thread(boost::bind(&SqlEditorForm::update_menu_and_toolbar, this),
                                           false,
@@ -261,7 +262,7 @@ void SqlEditorForm::update_menu_and_toolbar()
   set_editor_tool_items_enbled("query.continueOnError", connected);
   set_editor_tool_items_checked("query.autocommit", auto_commit());
   set_editor_tool_items_checked("query.continueOnError", _continue_on_error);
-  set_editor_tool_items_checked("query.toggleLimit",  bec::GRTManager::get().get_app_option_int("SqlEditor:LimitRows") != 0);
+  set_editor_tool_items_checked("query.toggleLimit",  bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows") != 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -353,7 +354,7 @@ void SqlEditorForm::setup_side_palette()
   _side_palette_host = _side_palette;
 #endif
 
-  _side_palette->set_active_tab(bec::GRTManager::get().get_app_option_int("DbSqlEditor:ActiveSidePaletteTab", 0));
+  _side_palette->set_active_tab(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ActiveSidePaletteTab", 0));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -586,7 +587,7 @@ void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_in
   else if (action == "close_tab")
   {
     if (_tabdock->view_at_index(tab_index)->on_close())
-      bec::GRTManager::get().run_once_when_idle(this, boost::bind(&mforms::DockingPoint::close_view_at_index, _tabdock, tab_index));
+      bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&mforms::DockingPoint::close_view_at_index, _tabdock, tab_index));
   }
   else if (action == "close_other_tabs")
   {

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ static struct
   {26, 4, 3, 26-2*3, 2} // Palette
 };
 
-static const float EMPTY_TOOLBAR_HEIGHT = 6;
+static const float EMPTY_TOOLBAR_HEIGHT = 20;
 
 using namespace mforms;
 
@@ -217,23 +217,39 @@ static NSColor* colorFromHexString(const char* hexcolor)
       case ToggleItem:
         [self setButtonType: NSToggleButton];
         [self.cell setHighlightsBy: NSChangeBackgroundCellMask];
+        self.bordered = NO;
         break;
+
       case TextActionItem:
         self.imagePosition = NSNoImage;
+        self.bordered = NO;
         break;
+
       case SegmentedToggleItem:
         [self setButtonType: NSToggleButton];
         self.imagePosition = NSImageOnly;
         [self.cell setHighlightsBy: NSChangeBackgroundCellMask];
+        self.bordered = NO;
         break;
-      default:
-        self.image = [NSImage imageNamed: @"NSInfo"];
-        [self.cell setHighlightsBy: NSChangeBackgroundCellMask];
+
+      case SwitcherItem:
+        self.bezelStyle = NSRecessedBezelStyle;
+        self.showsBorderOnlyWhileMouseInside = YES;
+        self.buttonType = NSMomentaryPushInButton;
+        self.bordered = YES;
+        break;
+
+      default: // ActionItem etc.
+        self.bezelStyle = NSTexturedRoundedBezelStyle;
+        self.buttonType = NSMomentaryPushInButton;
+        //[self.cell setImageScaling: NSImageScaleProportionallyDown];
+        self.bordered = NO;
+
         break;
     }
-    [self setBordered: NO];
     self.target = self;
     self.action = @selector(perform:);
+    self.title = @"";
   }
   return self;
 }
@@ -273,10 +289,15 @@ static NSColor* colorFromHexString(const char* hexcolor)
     self.bordered = value == NSOnState;
 }
 
-- (void)setImage:(NSImage *)image
+- (void)setImage: (NSImage *)image
 {
   super.image = image;
-  [self setFrameSize: image.size];
+  if (self.title.length > 0)
+    self.imagePosition = NSImageLeft;
+  else
+    self.imagePosition = NSImageOnly;
+
+  [self sizeToFit];
 }
 
 - (void)viewDidMoveToSuperview
@@ -302,16 +323,16 @@ static NSColor* colorFromHexString(const char* hexcolor)
       [self setFrameSize: NSMakeSize(tsize.height, tsize.height)];
     }
   }
-  else
-  {
-    if (mOwner->get_type() == ActionItem)
-      [self.cell setHighlightsBy: NSContentsCellMask];
-  }
 }
 
 - (void)setStringValue: (NSString*)value
 {
   self.title = value;
+  if (self.image != nil)
+    self.imagePosition = NSImageLeft;
+  else
+    self.imagePosition = NSImageOnly;
+
   [self sizeToFit];
 }
 
@@ -381,19 +402,6 @@ static NSColor* colorFromHexString(const char* hexcolor)
   return mOwner;
 }
 
-/*
-- (void) viewDidMoveToSuperview
-{
-  switch ([(MFToolBarImpl*)[self superview] type])
-  {
-    case OptionsToolBar:
-      [self setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
-      break;
-    default:
-      break;
-  }
-}*/
-
 - (void) setStringValue:(NSString *)aString
 {
   super.stringValue = aString;
@@ -456,7 +464,6 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 //--------------------------------------------------------------------------------------------------
 
-
 @interface MFToolBarSearchItemImpl : NSSearchField
 {
   ToolBarItem *mOwner;
@@ -504,6 +511,49 @@ static NSColor* colorFromHexString(const char* hexcolor)
 {
   mOwner->callback();
 }
+@end
+
+//--------------------------------------------------------------------------------------------------
+
+@interface MFToolBarTextItemImpl : NSTextField
+{
+  ToolBarItem *mOwner;
+}
+- (instancetype)initWithItemObject:(ToolBarItem*)item NS_DESIGNATED_INITIALIZER;
+@property (readonly) mforms::ToolBarItem *toolBarItem;
+@end
+
+@implementation MFToolBarTextItemImpl
+
+- (instancetype)initWithItemObject: (ToolBarItem*)item
+{
+  if (item == nil)
+    return nil;
+
+  self = [super initWithFrame: NSMakeRect(0, 0, 200, layout_info[0].item_width)];
+  if (self)
+  {
+    mOwner = item;
+    mOwner->set_data(self);
+  }
+  return self;
+}
+
+-(instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithItemObject: nil];
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithItemObject: nil];
+}
+
+- (ToolBarItem*)toolBarItem
+{
+  return mOwner;
+}
+
 @end
 
 //--------------------------------------------------------------------------------------------------
@@ -623,27 +673,33 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 - (NSSize)minimumSize
 {
+  NSSize requiredSize;
   switch (mOwner->get_type())
   {
     case MainToolBar:
       if (self.subviews.count == 0)
-        return NSMakeSize(100, EMPTY_TOOLBAR_HEIGHT);
+        requiredSize = NSMakeSize(100, EMPTY_TOOLBAR_HEIGHT);
       else
-        return NSMakeSize(100, layout_info[MainToolBar].height);
+        requiredSize = NSMakeSize(100, layout_info[MainToolBar].height);
 
     case SecondaryToolBar:
-      return NSMakeSize(100, layout_info[SecondaryToolBar].height);
+      requiredSize = NSMakeSize(100, layout_info[SecondaryToolBar].height);
 
     case ToolPickerToolBar:
-      return NSMakeSize(layout_info[ToolPickerToolBar].height, 100);
+      requiredSize = NSMakeSize(layout_info[ToolPickerToolBar].height, 100);
       
     case OptionsToolBar:
-      return NSMakeSize(100, layout_info[OptionsToolBar].height);
+      requiredSize = NSMakeSize(100, layout_info[OptionsToolBar].height);
       
     case PaletteToolBar:
-      return NSMakeSize(100, layout_info[PaletteToolBar].height);
+      requiredSize = NSMakeSize(100, layout_info[PaletteToolBar].height);
+
+    default:
+      break;
   }
-  return NSMakeSize(1, 1);
+
+  NSSize minSize = super.minimumSize;
+  return { MAX(requiredSize.width, minSize.width), MAX(requiredSize.height, minSize.height) };
 }
 
 
@@ -691,11 +747,10 @@ static NSColor* colorFromHexString(const char* hexcolor)
       NSRect rect = self.frame;
       rect.size.height = layout_info[MainToolBar].height;
       self.frame = rect;
-      [super subviewMinimumSizeChanged];
     }
   }
     
-  [self resizeSubviewsWithOldSize: NSZeroSize];
+  [self relayout];
 }
 
 - (void) dealloc
@@ -794,14 +849,14 @@ static NSColor* colorFromHexString(const char* hexcolor)
     }
     total_width += spacing * spaced_item_count;
     
-    for (id item in self.subviews)
+    for (NSView *item in self.subviews)
     {
       NSRect r = [item frame];
       r.origin = NSMakePoint(x, y);
-      mforms::ToolBarItem *titem = [item toolBarItem];
+      mforms::ToolBarItem *titem = [(id)item toolBarItem];
       if (titem && titem->get_expandable())
         r.size.width = (NSWidth(rect) - total_width) / expander_count;
-      if ([item isKindOfClass: [MFToolBarSeparatorImpl class]] && [item itemType] == ExpanderItem)
+      if ([item isKindOfClass: [MFToolBarSeparatorImpl class]] && [(id)item itemType] == ExpanderItem)
       {
         r.size.height = h;
         r.size.width = (NSWidth(rect) - total_width) / expander_count;
@@ -828,6 +883,8 @@ static NSColor* colorFromHexString(const char* hexcolor)
       {
         r.origin.y = (NSHeight(rect) - r.size.height)/2;
         r.size.height = h;
+
+        r.size = item.frame.size;
         [item setFrame: r];
       }
 
@@ -938,6 +995,7 @@ static bool create_tool_item(ToolBarItem *item, ToolBarItemType type)
     case ToggleItem:
     case TextActionItem:
     case SegmentedToggleItem:
+    case SwitcherItem:
       return [[MFToolBarActionItemImpl alloc] initWithItemObject: item] != nil;
 
     case SeparatorItem:
@@ -947,6 +1005,7 @@ static bool create_tool_item(ToolBarItem *item, ToolBarItemType type)
     case SearchFieldItem:
       return [[MFToolBarSearchItemImpl alloc] initWithItemObject: item] != nil;
 
+    case FlatSelectorItem:
     case SelectorItem:
       return [[MFToolBarSelectorItemImpl alloc] initWithItemObject: item] != nil;
 
@@ -959,6 +1018,9 @@ static bool create_tool_item(ToolBarItem *item, ToolBarItemType type)
 
     case ImageBoxItem:
       return [[MFToolBarImageItemImpl alloc] initWithItemObject: item] != nil;
+
+    case TextEntryItem:
+      return [[MFToolBarTextItemImpl alloc] initWithItemObject: item] != nil;
 
     default:
       return false;

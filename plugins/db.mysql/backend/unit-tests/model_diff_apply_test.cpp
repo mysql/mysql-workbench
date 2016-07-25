@@ -188,7 +188,7 @@ std::shared_ptr<DiffChange> tut::Test_object_base<model_diff_apply>::compare_cat
       cat->schemata().remove(0);
   org_cat->oldName("");
 
-  grt::ValueRef default_engine = bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine");
+  grt::ValueRef default_engine = bec::GRTManager::get()->get_app_option("db.mysql.Table:tableEngine");
   std::string default_engine_name;
   if(grt::StringRef::can_wrap(default_engine))
     default_engine_name = grt::StringRef::cast_from(default_engine);

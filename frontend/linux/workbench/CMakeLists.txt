@@ -9,7 +9,7 @@ set(WORKBENCH_DATA_FILES
     res/find.glade
     res/diagram_size_form.glade
     res/input_dialog.glade
-    workbench.rc
+    workbench.css
 )
 install(FILES ${WORKBENCH_DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR})
 
@@ -49,6 +49,7 @@ include_directories(.
     ${MYSQLCPPCONN_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${GNOME_KEYRING_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
     ${VSQLITE_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
 )
@@ -105,7 +106,7 @@ target_link_libraries(mysql-workbench-bin
     wbscintilla
     mdcanvasgtk
     mdcanvas
-    mysqlparser
+    parsers
     ${MYSQLCPPCONN_LIBRARIES}
     ${CTemplate_LIBRARIES}
     ${X11_LIBRARIES}

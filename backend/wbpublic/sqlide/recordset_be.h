@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _RECORDSET_BE_H_
-#define _RECORDSET_BE_H_
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "sqlide/sqlide_generics.h"
@@ -54,11 +53,11 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Recordset : public VarGridModel
 public:
   typedef std::shared_ptr<Recordset> Ref;
   typedef std::weak_ptr<Recordset> Ptr;
-  static Ref create(bec::GRTManager *grtm);
+  static Ref create();
   static Ref create(GrtThreadedTask::Ref parent_task);
   virtual ~Recordset();
 protected:
-  Recordset(bec::GRTManager *grtm);
+  Recordset();
   Recordset(GrtThreadedTask::Ref parent_task);
 
 public:
@@ -139,7 +138,7 @@ public:
   void rollback_and_gather_messages(std::string &messages);
   
   void apply_changes_();
-  grt::StringRef do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordset_data_storage_Ptr data_storage_ptr, bool skip_commit);
+  grt::StringRef do_apply_changes(Ptr self_ptr, Recordset_data_storage_Ptr data_storage_ptr, bool skip_commit);
   bool has_pending_changes();
   void pending_changes(int &upd_count, int &ins_count, int &del_count) const;
   void rollback();
@@ -268,4 +267,3 @@ protected:
   void set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length, bool isJson = false);
 };
 
-#endif /* _RECORDSET_BE_H_ */

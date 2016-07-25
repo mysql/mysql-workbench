@@ -31,5 +31,6 @@
 #define WB_CONTEXT_EDITOR "editor" // object editors
 #define WB_CONTEXT_PHYSICAL_OVERVIEW "overview.physical"
 #define WB_CONTEXT_QUERY "dbquery"
+#define WB_CONTEXT_NG   "ng"
 
 #endif

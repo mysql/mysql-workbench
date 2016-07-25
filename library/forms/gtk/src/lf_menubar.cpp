@@ -220,7 +220,7 @@ static void add_shortcuts(Glib::RefPtr<Gtk::AccelGroup> accel_group, Gtk::MenuIt
     if (accel_key != 0)
       menu_item->add_accelerator("activate", accel_group, accel_key, accel_mods, Gtk::ACCEL_VISIBLE);
     else
-      log_error("Accelerator key not found for %s.\n", shortcut.c_str());
+      logError("Accelerator key not found for %s.\n", shortcut.c_str());
   }
   
 }
@@ -230,7 +230,7 @@ void mforms::gtk::MenuItemImpl::set_shortcut(mforms::MenuItem *item, const std::
 {
   if (item_shortcut.empty())
   {
-    log_warning("Shortcut is empty\n");
+    logWarning("Shortcut is empty\n");
     return;
   }
 
@@ -238,7 +238,7 @@ void mforms::gtk::MenuItemImpl::set_shortcut(mforms::MenuItem *item, const std::
   
   if (menu_item == NULL)
   {
-    log_error("Menu item was not defined (%s)\n", item_shortcut.c_str());
+    logError("Menu item was not defined (%s)\n", item_shortcut.c_str());
     return;
   }
   
@@ -418,7 +418,7 @@ void mforms::gtk::MenuItemImpl::set_checked(mforms::MenuItem *item, bool on)
     mi->set_data("ignore_signal", 0);
   }
   else
-    log_error("Passed MenuItem '%s' does not have CheckMenuItem at %p\n", mforms::gtk::MenuItemImpl::get_title(item).c_str(), item->get_data_ptr());
+    logError("Passed MenuItem '%s' does not have CheckMenuItem at %p\n", mforms::gtk::MenuItemImpl::get_title(item).c_str(), item->get_data_ptr());
 }
 
 //------------------------------------------------------------------------------
@@ -431,7 +431,7 @@ bool mforms::gtk::MenuItemImpl::get_checked(mforms::MenuItem *item)
     ret = mi->get_active();
   }
   else
-    log_error("Passed MenuItem '%s' does not have CheckMenuItem at %p\n", mforms::gtk::MenuItemImpl::get_title(item).c_str(), item->get_data_ptr());
+    logError("Passed MenuItem '%s' does not have CheckMenuItem at %p\n", mforms::gtk::MenuItemImpl::get_title(item).c_str(), item->get_data_ptr());
   return ret;
 }
 
@@ -466,7 +466,7 @@ void mforms::gtk::MenuItemImpl::insert_item(mforms::MenuBase *menub, int index, 
       menu_shell = menu;
     }
     else
-      log_error("Passed MenuBase %p does not contain neither Gtk::MenuBar nor Gtk::MenuItem\n", menub);
+      logError("Passed MenuBase %p does not contain neither Gtk::MenuBar nor Gtk::MenuItem\n", menub);
   }
   else
   {
@@ -476,7 +476,7 @@ void mforms::gtk::MenuItemImpl::insert_item(mforms::MenuBase *menub, int index, 
   if (menu_shell && item_to_insert)
     menu_shell->insert(*item_to_insert, index);
   else
-    log_error("Internal error in MenuBase::insert_item()\n");
+    logError("Internal error in MenuBase::insert_item()\n");
 }
 
 //------------------------------------------------------------------------------
@@ -491,10 +491,10 @@ void mforms::gtk::MenuItemImpl::remove_item(mforms::MenuBase *menu, mforms::Menu
       if (mi->has_submenu())
         menu_shell = mi->get_submenu();
       else
-        log_error("Requesting to remove MenuItem from Menu with no sub menu\n");
+        logError("Requesting to remove MenuItem from Menu with no sub menu\n");
     }
     else
-      log_error("Passed MenuBase %p does not contain neither Gtk::MenuBar nor Gtk::MenuItem\n", menu);
+      logError("Passed MenuBase %p does not contain neither Gtk::MenuBar nor Gtk::MenuItem\n", menu);
   }
 
   Gtk::MenuItem* item_to_remove = item ? cast<Gtk::MenuItem*>(item->get_data_ptr()) : 0;

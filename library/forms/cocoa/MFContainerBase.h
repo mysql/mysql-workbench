@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,6 @@
 }
 
 - (void)setPaddingLeft:(float)lpad right:(float)rpad top:(float)tpad bottom:(float)bpad;
-- (void)subviewMinimumSizeChanged;
 - (BOOL)setFreezeRelayout:(BOOL)flag;
 - (void)setBackgroundColor: (NSColor*) color;
 - (void)setBackgroundImage: (NSString*) path withAlignment: (mforms::Alignment) align;

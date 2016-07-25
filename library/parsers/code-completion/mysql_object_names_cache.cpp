@@ -36,8 +36,8 @@ DEFAULT_LOG_DOMAIN("MySQL Name Cache");
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLObjectNamesCache::MySQLObjectNamesCache(ObjectQueryCallback getValues, std::function<void(bool)> feedback)
-  : _cacheWworking(1)
+MySQLObjectNamesCache::MySQLObjectNamesCache(ObjectQueryCallback getValues, std::function<void(bool)> feedback, bool jsonSupport)
+  : _cacheWworking(1), _jsonSupport(jsonSupport)
 {
   _refreshThread = nullptr;
   _shutdown = false;
@@ -180,8 +180,7 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingEngines(const std::st
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingLogfileGroups(const std::string &prefix)
 {
-  addPendingRefresh(RefreshTask::RefreshLogfileGroups);
-
+  // Loaded at startup. Explicitly refesh as you see need.
   return getMatchingObjects("logfile_groups", "", "", prefix, RetrieveWithNoQualifier);
 }
 
@@ -189,8 +188,7 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingLogfileGroups(const s
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingTablespaces(const std::string &prefix)
 {
-  addPendingRefresh(RefreshTask::RefreshTableSpaces);
-
+  // Loaded at startup. Explicitly refesh as you see need.
   return getMatchingObjects("tablespaces", "", "", prefix, RetrieveWithNoQualifier);
 }
 
@@ -198,8 +196,7 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingTablespaces(const std
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingCharsets(const std::string &prefix)
 {
-  addPendingRefresh(RefreshTask::RefreshCharsets);
-
+  // Loaded at startup. Explicitly refesh as you see need.
   return getMatchingObjects("charsets", "", "", prefix, RetrieveWithNoQualifier);
 }
 
@@ -207,8 +204,7 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingCharsets(const std::s
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingCollations(const std::string &prefix)
 {
-  addPendingRefresh(RefreshTask::RefreshCollations);
-
+  // Loaded at startup. Explicitly refesh as you see need.
   return getMatchingObjects("collations", "", "", prefix, RetrieveWithNoQualifier);
 }
 
@@ -216,9 +212,18 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingCollations(const std:
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingEvents(const std::string &schema, const std::string &prefix)
 {
-  addPendingRefresh(RefreshTask::RefreshEvents);
+  loadSchemaObjectsIfNeeded(schema);
+
   return getMatchingObjects("events", schema, "", prefix, RetrieveWithSchemaQualifier);
 }
+
+std::vector<std::string> MySQLObjectNamesCache::getMatchingCollections(const std::string &schema, const std::string &prefix)
+{
+  loadSchemaObjectsIfNeeded(schema);
+
+  return getMatchingObjects("collections", schema, "", prefix, RetrieveWithSchemaQualifier);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 
@@ -451,6 +456,10 @@ void MySQLObjectNamesCache::refreshThread()
         case RefreshTask::RefreshEvents:
           doRefreshEvents(task.schemaName);
           break;
+
+        case RefreshTask::RefreshCollections:
+          doRefreshCollections(task.schemaName);
+          break;
       }
     }
     catch (std::exception &exc)
@@ -500,6 +509,9 @@ bool MySQLObjectNamesCache::loadSchemaObjectsIfNeeded(const std::string &schema)
   addPendingRefresh(RefreshTask::RefreshViews, schema);
   addPendingRefresh(RefreshTask::RefreshProcedures, schema);
   addPendingRefresh(RefreshTask::RefreshFunctions, schema);
+  addPendingRefresh(RefreshTask::RefreshEvents, schema);
+  addPendingRefresh(RefreshTask::RefreshCollections, schema);
+
 
   return true;
 }
@@ -869,6 +881,35 @@ void MySQLObjectNamesCache::doRefreshEvents(const std::string &schema)
 }
 
 //--------------------------------------------------------------------------------------------------
+void MySQLObjectNamesCache::doRefreshCollections(const std::string &schema)
+{
+  if (!_jsonSupport)
+    return;
+
+  std::string sql = base::sqlstring("SELECT distinct(table_name) FROM information_schema.columns WHERE "
+      "((column_name = 'doc' and data_type = 'json') OR "
+      "(column_name = '_id' and generation_expression = 'json_unquote(json_extract(`doc`,''$._id''))')) AND table_schema = ?", 0) << schema;
+
+  base::StringListPtr collections(new std::list<std::string>());
+  std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
+
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      collections->push_back(entry.first);
+
+  if (!_shutdown)
+  {
+    updateObjectNames("collections", schema, collections);
+
+    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    base::NotificationInfo info;
+    info["type"] = "collections";
+    info["path"] = schema;
+    base::NotificationCenter::get()->send("GNObjectCache", this, info);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void MySQLObjectNamesCache::updateSchemas(const std::set<std::string> &schemas)
 {
@@ -895,6 +936,7 @@ void MySQLObjectNamesCache::updateSchemas(const std::set<std::string> &schemas)
     _schemaObjectsCache.erase({schema, "procedures"});
     _schemaObjectsCache.erase({schema, "trigger"});
     _schemaObjectsCache.erase({schema, "events"});
+    _schemaObjectsCache.erase({schema, "collections"});
 
     _tableObjectsCache.erase(schema);
   }
@@ -937,6 +979,13 @@ void MySQLObjectNamesCache::updateFunctions(const std::string &schema, base::Str
 void MySQLObjectNamesCache::updateEvents(const std::string &schema, base::StringListPtr events)
 {
   updateObjectNames("events", schema, events);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLObjectNamesCache::updateCollections(const std::string &schema, base::StringListPtr collections)
+{
+  updateObjectNames("collections", schema, collections);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1012,6 +1061,7 @@ void MySQLObjectNamesCache::addPendingRefresh(RefreshTask::RefreshType type, con
       case RefreshTask::RefreshProcedures:
       case RefreshTask::RefreshFunctions:
       case RefreshTask::RefreshEvents:
+      case RefreshTask::RefreshCollections:
         found = task.schemaName == schema;
         break;
 

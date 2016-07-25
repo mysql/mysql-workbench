@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.xml"/> 
+      <requires file="structs.ui.xml"/> 
+
+	  <gstruct name="db.ng.Ide" parent="GrtObject" impl-data="1" attr:desc="a proxy to an instance of NGIde.\n This object cannot be instantiated directly.">
+	  	  <members>
+          	  <member name="ngSheets" type="list" content-type="object" content-struct-name="db.ng.Sheet" owned="1" attr:desc="list of open ng sheets. This list cannot be modified"/>
+			  <member name="activeNgSheet" type="object" struct-name="db.ng.Sheet" read-only="1" delegate-get="1" attr:desc="sheet that is currently selected"/>
+		  </members>
+	  </gstruct>
+
+      <gstruct name="db.ng.Sheet" parent="GrtObject" impl-data="1" attr:desc="a proxy to an instance of NGShell.\n This object cannot be instantiated directly.">
+          <members>
+              <member name="connection" struct-name="db.mgmt.Connection" type="object" calculated="1" read-only="1" delegate-get="1" attr:desc="connection data"/>
+			  <member name="editor" type="object" struct-name="db.ng.Editor" read-only="1" delegate-get="1" attr:desc="editor that is currently selected"/>
+              <member name="customData" type="dict"/>
+              <member name="dockingPoint" type="object" struct-name="mforms.ObjectReference"/>
+              <member name="sidebar" type="object" struct-name="mforms.ObjectReference"/>
+              <method name="execute" attr:desc="Execute code in the active NgEditor">
+              	  <argument name="currentStatementOnly" type="int"/>
+                  <return type="void"/>
+              </method>
+          </members>
+      </gstruct>
+      
+      <gstruct name="db.ng.Editor" impl-data="1" parent="GrtObject" attr:desc="a proxy to an instance of NgEditor.\n">
+          <members>
+          	  <member name="connection" struct-name="db.mgmt.Connection" type="object" calculated="1" read-only="1" delegate-get="1" attr:desc="connection data"/>
+              <member name="script" type="string" calculated="1" read-only="1" delegate-get="1" attr:desc="editor contents"/>
+          </members>
+      </gstruct>
+  </gstructs>

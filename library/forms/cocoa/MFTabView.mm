@@ -32,14 +32,7 @@
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
 {
-  NSRect frame= NSMakeRect(0, 0, 0, 0);
-  
-  frame.size= self.frame.size;
-  
-  if (NSEqualRects(frame, self.subviews.lastObject.frame))
-    [self.subviews.lastObject resizeSubviewsWithOldSize: oldBoundsSize];
-  else
-    self.subviews.lastObject.frame = frame;
+  self.subviews.lastObject.frame = { {0, 0}, self.frame.size };
 }
 
 
@@ -52,9 +45,12 @@
 {
   // A tabview item usually has only one subview attached (the content view), so use this
   // to determine the minimum size.
+  NSSize minSize = super.minimumSize;
   if (self.subviews.count == 0)
-    return NSMakeSize(0, 0);
-  return (self.subviews[0]).minimumSize;
+    return minSize;
+
+  NSSize childMinSize = (self.subviews[0]).minimumSize;
+  return { MAX(minSize.width, childMinSize.width), MAX(minSize.height, childMinSize.height) };
 }
 
 @end
@@ -116,9 +112,10 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
       case mforms::TabViewDocument:
       case mforms::TabViewDocumentClosable:
+      case mforms::TabViewDocumentClosableX:
         mTabView.tabViewType = NSNoTabsNoBorder;
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
-        mTabSwitcher.tabStyle = MEditorTabSwitcher;
+        mTabSwitcher.tabStyle = (tabType == mforms::TabViewDocumentClosableX) ? MEditorTabSwitcherX : MEditorTabSwitcher;
         [mTabSwitcher setTabView: mTabView];
         break;
 
@@ -196,13 +193,13 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (NSSize)minimumSize
 {
   if (mOwner == NULL || mOwner->is_destroying())
-    return NSZeroSize;
+    return super.minimumSize;
   
-  NSSize minSize= NSZeroSize;
+  NSSize minSize = super.minimumSize;
   
   for (NSTabViewItem *item in mTabView.tabViewItems)
   {
-    NSSize size= item.view.minimumSize;
+    NSSize size = item.view.minimumSize;
     
     minSize.width= MAX(minSize.width, size.width);
     minSize.height= MAX(minSize.height, size.height);
@@ -240,12 +237,6 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     mTabView.frame = self.bounds;
   for (NSTabViewItem *item in mTabView.tabViewItems)
     [item.view resizeSubviewsWithOldSize: oldBoundsSize];
-
-  if (mforms::View *view = mOwner->get_aux_view())
-  {
-    view->set_size(view->get_preferred_width(), NSHeight(mTabSwitcher.frame));
-    view->set_position(mOwner->get_width() - view->get_width() - 11, 0);
-  }
 }
 
 - (void)setEnabled:(BOOL)flag
@@ -261,7 +252,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 {
   return (mOwner->get_type() == mforms::TabViewEditorBottom
           || mOwner->get_type() == mforms::TabViewEditorBottomPinnable
-          || mOwner->get_type() == mforms::TabViewDocumentClosable);
+          || mOwner->get_type() == mforms::TabViewDocumentClosable
+          || mOwner->get_type() == mforms::TabViewDocumentClosableX);
 }
 
 
@@ -369,7 +361,7 @@ static int tabview_get_active_tab(::mforms::TabView *self)
 }
 
 
-static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const std::string &label)
+static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const std::string &label, bool hasCloseButton)
 {
   if ( self )
   {
@@ -437,7 +429,7 @@ static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
   if (tabView)
   {
     [tabView->mTabSwitcher addSubview: nsviewForView(view)];
-    view->set_size(view->get_preferred_width(), NSHeight(tabView->mTabSwitcher.frame));
+    //view->set_size(view->get_preferred_width(), NSHeight(tabView->mTabSwitcher.frame));
     view->set_position(self->get_width() - view->get_width(), 0);
   }
 }
@@ -445,7 +437,10 @@ static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
 
 static void tabview_set_allow_reordering(::mforms::TabView *self, bool flag)
 {
-  if (self->get_type() != mforms::TabViewEditorBottom && self->get_type() != mforms::TabViewEditorBottomPinnable && self->get_type() == mforms::TabViewDocumentClosable)
+  if (self->get_type() != mforms::TabViewEditorBottom &&
+      self->get_type() != mforms::TabViewEditorBottomPinnable &&
+      self->get_type() != mforms::TabViewDocumentClosable &&
+      self->get_type() != mforms::TabViewDocumentClosableX)
     throw std::invalid_argument("TabView is not of a reorderable type\n");
 
   MFTabViewImpl *tabView = self->get_data();

@@ -122,7 +122,7 @@ void DiffNode::dump(int depth)
     case CantApply: dir = "n/a"; break;
   }
 
-  log_debug("%*s: %s: %s | %s | %s\n", depth, "-", change ? change->get_type_name().c_str() : "nil",
+  logDebug("%*s: %s: %s | %s | %s\n", depth, "-", change ? change->get_type_name().c_str() : "nil",
             db_part.is_valid_object() ? db_part.get_name().c_str() : "nil",
             dir,
             model_part.is_valid_object() ? model_part.get_name().c_str() : "nil");

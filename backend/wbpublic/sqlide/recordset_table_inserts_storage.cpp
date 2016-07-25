@@ -272,7 +272,7 @@ void Recordset_table_inserts_storage::generate_sql_script(const Recordset *recor
 void Recordset_table_inserts_storage::do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commit)
 {
   Recordset_sqlite_storage::do_apply_changes(recordset, data_swap_db, skip_commit);
-  bec::GRTManager::get().has_unsaved_changes(true);
+  bec::GRTManager::get()->has_unsaved_changes(true);
 }
 
 

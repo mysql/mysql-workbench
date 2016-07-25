@@ -55,14 +55,15 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (instancetype)initWithObject:(::mforms::ListBox*)aListBox
 {
-  self= [super initWithFrame:NSMakeRect(0, 0, 40, 40)];
-  if (self)
+  self = [super initWithFrame:NSMakeRect(0, 0, 40, 40)];
+  if (self != nil)
   { 
     mOwner= aListBox;
     mOwner->set_data(self);
     
     [self setHasVerticalScroller:YES];
     [self setAutohidesScrollers:YES];
+    self.minimumSize = { 40, 50 };
 
     NSRect rect;
     rect.origin= NSMakePoint(0, 0);
@@ -94,19 +95,12 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   return self;
 }
 
-- (void)setEnabled:(BOOL)flag
+- (void)setEnabled: (BOOL)flag
 {
   mTable.enabled = flag;
 }
 
-
-- (NSSize)minimumSize
-{
-  return NSMakeSize(40, 50);
-}
-
-
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
+- (NSInteger)numberOfRowsInTableView: (NSTableView *)aTableView
 {
   return mContents.count;
 }
@@ -123,14 +117,12 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   mOwner->selection_changed();
 }
 
-// TODO: due to the mix of own tag definition and predefined tag values it is not clear if this
-//       is meant to really manipulate the table's tag value or addresses the now named viewFlags property.
-- (void)setViewFlags: (NSInteger)tag
+- (void)setViewFlags: (ViewFlags)flags
 {
-  mTable.viewFlags = tag;
+  mTable.viewFlags = ViewFlags(flags);
 }
 
-- (NSInteger)viewFlags
+- (ViewFlags)viewFlags
 {
   return mTable.viewFlags;
 }

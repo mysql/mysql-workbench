@@ -14,7 +14,7 @@ add_library(db.mysql.parser.grt
     src/mysql_parser_module.cpp
 )
 
-add_dependencies(db.mysql.parser.grt mysqlparser)
+add_dependencies(db.mysql.parser.grt parsers)
 
 set_target_properties(db.mysql.parser.grt PROPERTIES
 #	LINK_FLAGS "-module"

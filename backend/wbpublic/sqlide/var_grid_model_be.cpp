@@ -103,7 +103,7 @@ void VarGridModel::reset()
   _data_swap_db.reset();
   if (_data_swap_db_path.empty())
   {
-    _data_swap_db_path= GRTManager::get().get_unique_tmp_subdir();
+    _data_swap_db_path= GRTManager::get()->get_unique_tmp_subdir();
     _data_swap_db_path.resize(_data_swap_db_path.size()-1); // remove trailing path separator
     _data_swap_db_path+= ".db";
 
@@ -141,7 +141,7 @@ int VarGridModel::floating_point_visible_scale()
 
 std::shared_ptr<sqlite::connection> VarGridModel::data_swap_db() const
 {
-  if (GRTManager::get().in_main_thread())
+  if (GRTManager::get()->in_main_thread())
     return (_data_swap_db) ? _data_swap_db : _data_swap_db= create_data_swap_db_connection();
   else
     return create_data_swap_db_connection();
@@ -164,10 +164,10 @@ std::shared_ptr<sqlite::connection> VarGridModel::create_data_swap_db_connection
 
 int VarGridModel::refresh_ui()
 {
-  if (GRTManager::get().in_main_thread())
+  if (GRTManager::get()->in_main_thread())
     refresh_ui_signal();
   else
-    _refresh_connection = GRTManager::get().run_once_when_idle(this, boost::bind(&VarGridModel::refresh_ui, this));
+    _refresh_connection = GRTManager::get()->run_once_when_idle(this, boost::bind(&VarGridModel::refresh_ui, this));
   return 0;
 }
 

@@ -37,6 +37,7 @@
 #include <cctype>
 #include <algorithm>
 #include <exception>
+#include <stack>
 
 #include <glib.h>
 

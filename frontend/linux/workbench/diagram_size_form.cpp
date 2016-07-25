@@ -95,7 +95,7 @@ void DiagramSizeForm::init()
 
 DiagramSizeForm *DiagramSizeForm::create()
 {
-  Glib::RefPtr<Gtk::Builder> ui= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("diagram_size_form.glade"));
+  Glib::RefPtr<Gtk::Builder> ui= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("diagram_size_form.glade"));
   
   DiagramSizeForm *panel= 0;
 

@@ -240,23 +240,23 @@ FormWrapper::FormWrapper(mforms::Form *form, mforms::Form *aOwner, mforms::FormF
   {
     // Meant is the window parent here, not the real owner.
     if (aOwner == mforms::Form::main_form())
-      owner = Application::OpenForms[0];
+      _owner = Application::OpenForms[0];
     else
-      owner = FormWrapper::GetManagedObject<Form>(aOwner);
+      _owner = FormWrapper::GetManagedObject<Form>(aOwner);
   }
   else
-    owner = nullptr;
+    _owner = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool FormWrapper::create(mforms::Form *backend, mforms::Form *owner, mforms::FormFlag flag)
+bool FormWrapper::create(mforms::Form *backend, mforms::Form *aOwner, mforms::FormFlag flag)
 {
-  FormWrapper *wrapper = new FormWrapper(backend, owner, flag);
+  FormWrapper *wrapper = new FormWrapper(backend, aOwner, flag);
   FillForm ^form = FormWrapper::Create<FillForm>(backend, wrapper);
   form->wrapper = wrapper;
 
-  if (owner != NULL)
+  if (aOwner != NULL)
     form->StartPosition = FormStartPosition::CenterParent;
   else
     form->StartPosition= FormStartPosition::Manual;
@@ -357,7 +357,7 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
   if (form->InvokeRequired)
   {
     Object^ invocation_result = form->Invoke(gcnew FillForm::ShowModalDelegate(form, &Windows::Forms::Form::ShowDialog),
-      gcnew array<Object^> {wrapper->owner});
+      gcnew array<Object^> {wrapper->_owner});
     dialog_result = *(Windows::Forms::DialogResult ^)(invocation_result);
   }
   else
@@ -376,7 +376,7 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
     }
 
     mforms::Utilities::enter_modal_loop();
-    Windows::Forms::Form ^owner = (Windows::Forms::Form ^)wrapper->owner;
+    Windows::Forms::Form ^owner = (Windows::Forms::Form ^)wrapper->_owner;
     dialog_result = form->ShowDialog(owner);
     mforms::Utilities::leave_modal_loop();
   }

@@ -284,6 +284,17 @@ void TreeNodeWrapper::set_selected(bool flag)
 
 //--------------------------------------------------------------------------------------------------
 
+void TreeNodeWrapper::scrollToNode()
+{
+  TreeViewAdv ^view = treeWrapper->GetManagedObject<TreeViewAdv>();
+  if (view != nullptr)
+  {
+    view->ScrollTo(nativeNodeAdv);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void TreeNodeWrapper::set_attributes(int column, const mforms::TreeNodeTextAttributes& attrs)
 {
   if (!isRoot)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,7 +65,9 @@ PopupImpl::PopupImpl(::mforms::Popup *self, mforms::PopupStyle style)
   _wnd.override_background_color(color_to_rgba(Gdk::Color("black")), Gtk::STATE_FLAG_NORMAL);
 
   set_size(self, 825, 351);
-  _wnd.set_transient_for(*get_mainwindow());
+  auto wnd = get_mainwindow();
+  if (wnd != nullptr)
+    _wnd.set_transient_for(*wnd);
   _wnd.set_modal(true);
 #if GTK_VERSION_GE(2,12)
   _wnd.set_opacity(0.7);
@@ -277,7 +279,7 @@ int PopupImpl::show(::mforms::Popup *self, int x, int y)
 
 //      impl->_wnd.get_window()->pointer_grab(true, Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK|Gdk::POINTER_MOTION_MASK, 0);
 
-      Gtk::Main::run();
+      impl->_loop.run();
       impl->_wnd.set_modal(false);
       impl->_wnd.hide();
     }
@@ -306,7 +308,7 @@ void PopupImpl::set_modal_result(Popup *self, int result)
   impl->_wnd.hide();
 
   if (result > -1 && impl->_style == mforms::PopupBezel)
-    Gtk::Main::quit();
+    impl->_loop.quit();
 
   // must call closed() cb when idle, because it can delete the popup
   // in the middle of an event handler

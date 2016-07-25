@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,119 @@
 
 #include "base/threading.h"
 
+#if !defined(__APPLE__) && !defined(_WIN32)
+#include <unistd.h>
+#include <wait.h>
+#endif
+
+#include <algorithm>
+#include "base/string_utilities.h"
+
 using namespace base;
+
+#ifdef _WIN32
+
+void base::launchTool(const std::string &name, const std::vector<std::string> &params)
+{
+  std::stringstream ss;
+  std::copy(params.begin(), params.end(), std::ostream_iterator<std::string>(ss, " "));
+  std::wstring wexe = base::string_to_wstring(name);
+  std::wstring wparam = base::string_to_wstring(ss.str());
+  SHELLEXECUTEINFO shellExeInfo;
+  memset(&shellExeInfo, 0, sizeof(shellExeInfo));
+  shellExeInfo.cbSize = sizeof(shellExeInfo);
+  shellExeInfo.fMask = NULL;
+  shellExeInfo.lpVerb = L"runas";
+  shellExeInfo.lpFile = wexe.c_str();
+  shellExeInfo.lpParameters = wparam.c_str();
+  shellExeInfo.nShow = SW_SHOWMAXIMIZED;
+  SetLastError(ERROR_SUCCESS);
+  if (ShellExecuteEx(&shellExeInfo) == FALSE)
+  {
+    LPVOID msgBuf = NULL;
+    DWORD lastErr = GetLastError();
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+      NULL, lastErr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+      (LPTSTR)&msgBuf, 0, NULL);
+    std::wstring msg =  (LPCTSTR)msgBuf;
+    LocalFree(msgBuf);
+    SetLastError(ERROR_SUCCESS);
+    throw std::runtime_error(base::wstring_to_string(msg));
+  }
+}
+
+void base::launchApplication(const std::string &path, const std::vector<std::string> &params)
+{
+  launchTool(path, params);
+}
+
+#elif __APPLE__
+
+void base::launchTool(const std::string &name, const std::vector<std::string> &params)
+{
+  NSString *path = [NSString stringWithUTF8String: name.c_str()];
+
+  NSMutableArray *args = [NSMutableArray new];
+  for (size_t i = 0; i < params.size(); ++i)
+    [args addObject: [NSString stringWithUTF8String: params[i].c_str()]];
+
+  NSTask *task = [NSTask launchedTaskWithLaunchPath: path arguments: args];
+  if (task == nil)
+    throw std::runtime_error("Running the tool failed.");
+}
+
+void base::launchApplication(const std::string &name, const std::vector<std::string> &params)
+{
+  NSString *appName = [NSString stringWithUTF8String: name.c_str()];
+
+  NSMutableArray *args = [NSMutableArray new];
+  for (size_t i = 0; i < params.size(); ++i)
+    [args addObject: [NSString stringWithUTF8String: params[i].c_str()]];
+
+  NSError *error = nil;
+  NSString *root = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent];
+  NSURL *url = [NSURL fileURLWithPath: [root stringByAppendingPathComponent: appName]];
+
+  NSRunningApplication *application = [NSWorkspace.sharedWorkspace launchApplicationAtURL: url
+                                              options: NSWorkspaceLaunchAndHide
+                                        configuration: @{ NSWorkspaceLaunchConfigurationArguments: args }
+                                                error: &error];
+  if (error != nil)
+    throw std::runtime_error([error.localizedDescription stringByAppendingString: url.absoluteString].UTF8String);
+  [application activateWithOptions: NSApplicationActivateAllWindows];
+}
+
+#else
+#include <glibmm/spawn.h>
+#include <glibmm/vectorutils.h>
+#include <glibmm/miscutils.h>
+
+
+void base::launchTool(const std::string &name, const std::vector<std::string> &params)
+{
+  auto tmpParams = params;
+  tmpParams.insert(tmpParams.begin(), name);
+
+  auto envp = Glib::ArrayHandler<std::string>::array_to_vector(g_get_environ(), Glib::OWNERSHIP_NONE);
+  envp.erase(std::remove_if(envp.begin(), envp.end(), [](const std::string &str){
+    return str.find("LD_PRELOAD") != std::string::npos;
+  }),
+      envp.end());
+  Glib::Pid pid;
+  try {
+    Glib::spawn_async(Glib::get_current_dir(), tmpParams, envp, Glib::SPAWN_DEFAULT, sigc::slot<void>(), &pid);
+  } catch (Glib::SpawnError &serr)
+  {
+    throw std::runtime_error(serr.what());
+  }
+}
+
+void base::launchApplication(const std::string &name, const std::vector<std::string> &params)
+{
+  launchTool(name, params);
+}
+  
+#endif
 
 #if GLIB_CHECK_VERSION(2,32,0)
 void base::threading_init()

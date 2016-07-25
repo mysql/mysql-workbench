@@ -42,7 +42,7 @@ public:
   
 private:
   grt::StringRef parse_sql_script(db_CatalogRef catalog, const std::string &sql_script);
-  virtual void parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context,
+  virtual void parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::MySQLParserContext::Ref context,
                                 db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options);
   virtual db_CatalogRef target_catalog();
   virtual GrtVersionRef getVersion();

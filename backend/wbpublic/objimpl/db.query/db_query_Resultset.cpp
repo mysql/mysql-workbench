@@ -437,7 +437,7 @@ public:
     if (column >= 0 && column < (ssize_t)column_by_name.size())
     {
 #ifdef ENVIRONMENT_64
-      return grt::IntegerRef(recordset->getInt64((uint32_t)column + 1));
+      return grt::IntegerRef((size_t)recordset->getInt64((uint32_t)column + 1));
 #else
       return grt::IntegerRef(recordset->getInt((uint32_t)column + 1));
 #endif
@@ -451,7 +451,7 @@ public:
     if (column_by_name.find(column) != column_by_name.end())
     {
 #ifdef ENVIRONMENT_64
-      return grt::IntegerRef(recordset->getInt64((uint32_t)column_by_name[column]));
+      return grt::IntegerRef((size_t)recordset->getInt64((uint32_t)column_by_name[column]));
 #else
       return grt::IntegerRef(recordset->getInt((uint32_t)column_by_name[column]));
 #endif

@@ -43,6 +43,7 @@ namespace MySQL {
       static mforms::TreeNodeRef get_selected_node(mforms::TreeView *backend);
       static void clear_selection(mforms::TreeView *backend);
       static void set_selected(mforms::TreeView *backend, mforms::TreeNodeRef node, bool flag);
+      static void scrollToNode(mforms::TreeView *backend, mforms::TreeNodeRef node);
 
       static void set_allow_sorting(mforms::TreeView *backend, bool flag);
       static void set_row_height(mforms::TreeView *backend, int h);
@@ -64,6 +65,9 @@ namespace MySQL {
       static void set_column_width(mforms::TreeView *backend, int column, int width);
       static int get_column_width(mforms::TreeView *backend, int column);
 
+      static void BeginUpdate(mforms::TreeView *backend);
+      static void EndUpdate(mforms::TreeView *backend);
+
       virtual mforms::DropPosition get_drop_position();
     public:
       void set_row_height(int h);
@@ -74,6 +78,7 @@ namespace MySQL {
       void clear_selection();
       std::list<mforms::TreeNodeRef> get_selection();
       void set_selected(mforms::TreeNodeRef node, bool flag);
+      void scrollToNode(mforms::TreeNodeRef node);
 
       void allow_column_sorting(bool flag);
 
@@ -92,6 +97,9 @@ namespace MySQL {
 
       void set_column_width(int column, int width);
       int get_column_width(int column);
+
+      void BeginUpdate();
+      void EndUpdate();
 
       // Internal functions.
       void process_mapping(Aga::Controls::Tree::TreeNodeAdv ^node, const std::string &tag);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -138,7 +138,7 @@ static BOOL modalHUDRunning = NO;
   for (;;)
   {
     if (instance->stopped ||
-        (ret = [NSApp runModalSession: instance->modalSession]) != NSRunContinuesResponse)
+        (ret = [NSApp runModalSession: instance->modalSession]) != NSModalResponseContinue)
       break;
     usleep(1000);
   }
@@ -150,7 +150,7 @@ static BOOL modalHUDRunning = NO;
   // make sure shared_refs bound to it are not kept dangling
   instance->cancelAction.clear();
   
-  if (ret == NSRunAbortedResponse)
+  if (ret == NSModalResponseAbort)
   {
     [instance hideAnimated];
     return NO; // cancelled

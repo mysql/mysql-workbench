@@ -191,7 +191,7 @@ public:
 #ifndef SWIG
   struct CodeEditorImplPtrs
   {
-    bool (*create)(CodeEditor* self);
+    bool (*create)(CodeEditor* self, bool showInfo);
     sptr_t (*send_editor)(CodeEditor* self, unsigned int message, uptr_t wParam, sptr_t lParam);
     void (*set_status_text)(CodeEditor* self, const std::string &text);
   };
@@ -211,7 +211,7 @@ public:
   public:
     enum EditorMargin { LineNumberMargin, MarkersMargin, FolderMargin, TextMargin };
 
-    CodeEditor(void *host = NULL);
+    CodeEditor(void *host = NULL, bool showInfo = true);
     ~CodeEditor();
 
     /** Apply default settings for the editor. */
@@ -224,6 +224,7 @@ public:
     void setMarginText(const std::string& str);
     void setMarginText(const std::string& str, size_t line);
     void setScrollWidth(size_t width);
+    int getLineHeight(int line);
 
     /** Replaces the text in the editor. */
     void set_text(const char* text);
@@ -520,6 +521,14 @@ public:
     /** Signal emitted when the control loses input focus.
      */
     boost::signals2::signal<void ()>* signal_lost_focus() { return &_signal_lost_focus; }
+
+    /** Signal emitted when the control wrap line.
+     * @param bool - Set true when line wrap occurs, false when it was removed.
+     * @param int - New document height.
+     * @param int - Old document height.
+    */
+    boost::signals2::signal<void (bool, int, int)>* signalLineWrapped() { return &_signalLineWrapped; }
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     /** Called by the platform code forwarding us all scintilla notifications, so we can act on them. */
     void on_notify(Scintilla::SCNotification* notification);
@@ -543,6 +552,7 @@ public:
     bool _auto_indent;
 
     MarginSizes _marginSize;
+    int _previousDocumentHeight;
 
     void setup_marker(int marker, const std::string& name);
     void check_markers_removed(int position, int length);
@@ -558,6 +568,13 @@ public:
     boost::signals2::signal<void ()> _signal_lost_focus;
     boost::signals2::signal<void(const LineMarkupChangeset &changeset, bool deleted)> _marker_changed_event;
     boost::signals2::signal<bool(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text)> _key_event_signal;
+
+    /**
+     * @param bool - Set true when line wrap occurs, false when it was removed.
+     * @param int - New document height.
+     * @param int - Old document height.
+     */
+    boost::signals2::signal<void (bool, int, int)> _signalLineWrapped;
 
     boost::function<void (CodeEditor*, bool)> _show_find_panel;
   };

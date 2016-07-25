@@ -142,6 +142,7 @@
             <ComponentRef Id="Libraries" />
 <!--            <ComponentRef Id="WB_Executables" />  -->
             <ComponentRef Id="MySQLWorkbench.exe" />
+            <ComponentRef Id="MySQLWorkbench.X" />
 <!--            <ComponentRef Id="GRT_Shell_GUI" /> -->
             <ComponentRef Id="data" />
             <ComponentRef Id="images_curors" />

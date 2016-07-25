@@ -90,9 +90,26 @@
 #define STANDARD_TEXT_ENTRY_HANDLING \
 - (mforms::Object*)mformsObject { return mOwner; } \
 \
-- (NSSize)minimumSize { return NSMakeSize(mMinHeight, mMinHeight); } \
+- (NSSize)minimumSize \
+{ \
+  NSTextField *field = mOwner->get_data(); \
+  NSSize contentSize = field.cell.cellSize; \
+  NSSize minSize = super.minimumSize; \
+  return { MAX(contentSize.width, minSize.width), MAX(contentSize.height, minSize.height) }; \
+} \
 \
-- (BOOL)heightIsFixed { return YES; } \
+- (NSSize)preferredSize: (NSSize)proposal \
+{ \
+  NSSize size = self.minimumSize; \
+  if (self.cell.wraps) \
+  { \
+    NSRect frame; \
+    frame.size = proposal; \
+    size = [self.cell cellSizeForBounds: frame]; \
+  } \
+ \
+  return { ceil(size.width), ceil(size.height) }; \
+} \
 \
 - (void)controlTextDidChange:(NSNotification *)aNotification { mOwner->callback(); } \
 \
@@ -123,7 +140,6 @@
 
 @interface SecureTextField : NSSecureTextField  <NSTextFieldDelegate> {
   mforms::TextEntry *mOwner;
-  float mMinHeight;
 }
 
 @end
@@ -139,7 +155,6 @@
     mOwner->set_data(self);
 
     [self sizeToFit];
-    mMinHeight = NSHeight(self.frame);
   }
   return self;
 }

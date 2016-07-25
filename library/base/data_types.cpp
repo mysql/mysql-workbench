@@ -85,6 +85,31 @@ BaseConnection::BaseConnection(const JsonParser::JsonValue &value) : port(0)
   fromJson(value);
 }
 
+std::string BaseConnection::uri(bool withPassword) const
+{
+  std::vector<std::string> v;
+
+  v.push_back(hostName);
+  v.push_back(std::to_string(port));
+  v.push_back(userName);
+  if (!userPassword.empty() && withPassword)
+     v.push_back(userPassword);
+
+  std::string uri;
+  if (v.size() == 4) //if there's no pw, we will ask for it later
+    uri = v[2] + ":" + v[3] + "@" + v[0] + ":" + v[1];
+  else
+    uri = v[2] + "@" + v[0] + ":" + v[1];
+  return uri;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string BaseConnection::hostIdentifier() const
+{
+  return hostName + ":" + std::to_string(port);
+}
+
 //--------------------------------------------------------------------------------------------------
 
 JsonParser::JsonValue BaseConnection::toJson() const
@@ -186,7 +211,7 @@ void NodeConnection::fromJson(const JsonParser::JsonValue &value, const std::str
 
 //--------------------------------------------------------------------------------------------------
 
-XProject::XProject(const JsonParser::JsonValue &value)
+XProject::XProject(const JsonParser::JsonValue &value) : placeholder(false)
 {
   fromJson(value);
 }

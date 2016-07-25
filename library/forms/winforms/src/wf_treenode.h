@@ -103,6 +103,7 @@ namespace MySQL {
     
       virtual void set_icon_path(int column, const std::string &icon);
       virtual void set_selected(bool flag);
+      virtual void scrollToNode();
 
       virtual void set_attributes(int column, const mforms::TreeNodeTextAttributes &attrs);
       virtual void set_string(int column, const std::string &value);

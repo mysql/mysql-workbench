@@ -125,29 +125,16 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     
 //--------------------------------------------------------------------------------------------------
 
-- (NSSize)preferredSize
+- (NSSize)preferredSize: (NSSize)proposal
 {
   if (mOwner == NULL || mOwner->is_destroying())
     return NSZeroSize;
   
   int w, h;
   mOwner->get_layout_size(&w, &h);
-  NSSize size= NSMakeSize(w, h);
+  NSSize size = NSMakeSize(w, h);
   
-  // If a fixed size is set honour that but don't go below the
-  // minimal required size.
-  if (self.widthIsFixed)
-    size.width = MAX(size.width, NSWidth([self frame]));
-  if (self.heightIsFixed)
-    size.height = MAX(size.height, NSHeight([self frame]));
-  return size;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (NSSize)minimumSize
-{
-  return self.preferredSize;
+  return { MAX(size.width, self.minimumSize.width), MAX(size.height, self.minimumSize.height) };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,7 +258,6 @@ static void drawbox_add(mforms::DrawBox *self, mforms::View *view, mforms::Align
   box->mSubviews[view] = alignment;
   [box addSubview: view->get_data()];
 
-  [box subviewMinimumSizeChanged];
   [box resizeSubviewsWithOldSize: box.frame.size];
 }
 
@@ -283,7 +269,6 @@ static void drawbox_remove(mforms::DrawBox *self, mforms::View *view)
   box->mSubviews.erase(view);
   [view->get_data() removeFromSuperview];
 
-  [box subviewMinimumSizeChanged];
   [box resizeSubviewsWithOldSize: box.frame.size];
 }
 

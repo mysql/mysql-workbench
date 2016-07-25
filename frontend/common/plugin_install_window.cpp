@@ -85,7 +85,7 @@ AddOnDownloadWindow::DownloadItem::DownloadItem(AddOnDownloadWindow *owner, cons
   else
     name++;
   
-  _dest_path = base::makePath(bec::GRTManager::get().get_tmp_dir(), name);
+  _dest_path = base::makePath(bec::GRTManager::get()->get_tmp_dir(), name);
   _caption.set_text(base::strfmt("Downloading %s", name));  
   _info.set_text("Preparing...");
   _progress.set_value(0.0);
@@ -134,14 +134,14 @@ grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download()
 
 void AddOnDownloadWindow::DownloadItem::start()
 {
-  bec::GRTTask::Ref task = bec::GRTTask::create_task("downloading plugin", bec::GRTManager::get().get_dispatcher(),
+  bec::GRTTask::Ref task = bec::GRTTask::create_task("downloading plugin", bec::GRTManager::get()->get_dispatcher(),
     boost::bind(&AddOnDownloadWindow::DownloadItem::perform_download, this));
   
   scoped_connect(task->signal_finished(),boost::bind(&AddOnDownloadWindow::DownloadItem::download_finished, this, _1));
   scoped_connect(task->signal_failed(),boost::bind(&AddOnDownloadWindow::DownloadItem::download_failed, this, _1));
   scoped_connect(task->signal_message(),boost::bind(&AddOnDownloadWindow::DownloadItem::handle_output, this, _1));
 
-  bec::GRTManager::get().get_dispatcher()->add_task(task);
+  bec::GRTManager::get()->get_dispatcher()->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------

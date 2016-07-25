@@ -213,7 +213,7 @@ void setup_mforms_app(MainWindowController *mwin);
  */
 - (void)setupReady
 {
-  log_debug("Setup done\n");
+  logDebug("Setup done\n");
 
   self.window.title = @(wb::WBContextUI::get()->get_title().c_str());
 
@@ -223,7 +223,7 @@ void setup_mforms_app(MainWindowController *mwin);
 
 - (NSTabViewItem*)addTopPanel:(WBBasePanel*)panel
 {
-  log_debug2("Adding new top panel\n");
+  logDebug2("Adding new top panel\n");
 
   id tabItem = [[NSTabViewItem alloc] initWithIdentifier: panel.identifier];
 
@@ -291,7 +291,7 @@ void setup_mforms_app(MainWindowController *mwin);
   [_backendTimer invalidate];
   _backendTimer= 0;
 
-  double interval= bec::GRTManager::get().delay_for_next_timeout();
+  double interval= bec::GRTManager::get()->delay_for_next_timeout();
   
   if (interval >= 0.0)
     _backendTimer= [NSTimer scheduledTimerWithTimeInterval:interval
@@ -304,7 +304,7 @@ void setup_mforms_app(MainWindowController *mwin);
 
 - (void)fireBackendTimer:(NSTimer*)timer
 {
-  bec::GRTManager::get().flush_timers();
+  bec::GRTManager::get()->flush_timers();
 
   [self updateBackendTimer];
 }
@@ -1161,7 +1161,7 @@ public:
       [controller setTitle: panel.title forPanel: panel];
     }
     else
-      log_warning("set_view_title called for undocked view\n");
+      logWarning("set_view_title called for undocked view\n");
   }
   
   virtual std::pair<int, int> get_size()

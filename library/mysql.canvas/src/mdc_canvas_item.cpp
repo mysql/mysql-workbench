@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -981,7 +981,7 @@ void CanvasItem::repaint_cached()
   {
 #ifndef WIN32
     if (_layer->get_view()->debug_enabled())
-      log_debug3("paint cache data for %p", this);
+      logDebug3("paint cache data for %p", this);
 #endif
     // paint the image to the canvas
     _layer->get_view()->paint_item_cache(_layer->get_view()->cairoctx(),

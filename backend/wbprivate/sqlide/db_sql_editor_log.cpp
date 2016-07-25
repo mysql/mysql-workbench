@@ -48,7 +48,7 @@ DbSqlEditorLog::DbSqlEditorLog(SqlEditorForm *owner, int max_entry_count)
   : VarGridModel(), _owner(owner), _max_entry_count(max_entry_count)
 {
   reset();
-  std::string log_dir = base::joinPath(bec::GRTManager::get().get_user_datadir().c_str(), "log", "");
+  std::string log_dir = base::joinPath(bec::GRTManager::get()->get_user_datadir().c_str(), "log", "");
   create_directory(log_dir, 0700);
   _log_file_name = base::joinPath(log_dir.c_str(), sanitize_file_name("sql_actions_" + owner->get_session_name() + ".log").c_str(), "");
 
@@ -309,7 +309,7 @@ RowId DbSqlEditorLog::add_message(int msg_type, const std::string &context, cons
   }
   else
   {
-    log_error("DbSqlEditorLog::add_message called with no log file name set\n");
+    logError("DbSqlEditorLog::add_message called with no log file name set\n");
     return -1;
   }
 

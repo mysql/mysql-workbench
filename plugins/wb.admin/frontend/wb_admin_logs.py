@@ -476,7 +476,7 @@ class LogViewGeneric(LogView):
         filter.add_clicked_callback(self.filter_handler)
         
         self.filter_list[text] = filter
-        self.filter_box.add(filter, False, False)
+        self.filter_box.add(filter, False, True)
         
     def create_filter_box(self):
         self.add_filter_option("All")

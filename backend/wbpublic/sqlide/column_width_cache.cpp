@@ -44,7 +44,7 @@ ColumnWidthCache::ColumnWidthCache(const std::string &connection_id, const std::
   sqlite::execute(*_sqconn, "PRAGMA temp_store=MEMORY", true);
   sqlite::execute(*_sqconn, "PRAGMA synchronous=NORMAL", true);
 
-  log_debug2("Using column width cache file %s\n", (base::makePath(cache_dir, connection_id)+".column_widths").c_str());
+  logDebug2("Using column width cache file %s\n", (base::makePath(cache_dir, connection_id)+".column_widths").c_str());
 
   // check if the DB is already initialized
   sqlite::query q(*_sqconn, "select name from sqlite_master where type='table'");
@@ -62,7 +62,7 @@ ColumnWidthCache::ColumnWidthCache(const std::string &connection_id, const std::
   }
   if (found == 0)
   {
-    log_debug3("Initializing cache\n");
+    logDebug3("Initializing cache\n");
     init_db();
   }
 }
@@ -77,14 +77,14 @@ void ColumnWidthCache::init_db()
 {
   std::string code = "create table widths (column_id varchar(100) primary key, width int)";
 
-  log_info("Initializing column width cache for %s\n", _connection_id.c_str());
+  logInfo("Initializing column width cache for %s\n", _connection_id.c_str());
   try
   {
     sqlite::execute(*_sqconn, code, true);
   }
   catch (std::exception &exc)
   {
-    log_error("Error creating cache %s: %s\n", code.c_str(), exc.what());
+    logError("Error creating cache %s: %s\n", code.c_str(), exc.what());
   }
 }
 
@@ -100,7 +100,7 @@ void ColumnWidthCache::save_column_width(const std::string &column_id, int width
   }
   catch (std::exception &exc)
   {
-    log_error("Error storing column width to cache %s: %s\n", column_id.c_str(), exc.what());
+    logError("Error storing column width to cache %s: %s\n", column_id.c_str(), exc.what());
   }
 }
 
@@ -121,7 +121,7 @@ void ColumnWidthCache::save_columns_width(const std::map<std::string, int> &colu
   }
   catch (std::exception &exc)
   {
-    log_error("Error storing column width to cache %s: %s\n", it->first.c_str(), exc.what());
+    logError("Error storing column width to cache %s: %s\n", it->first.c_str(), exc.what());
   }
 }
 
@@ -140,7 +140,7 @@ int ColumnWidthCache::get_column_width(const std::string &column_id)
   }
   catch (std::exception &exc)
   {
-    log_error("Error storing column width to cache %s: %s\n", column_id.c_str(), exc.what());
+    logError("Error storing column width to cache %s: %s\n", column_id.c_str(), exc.what());
   }
   return -1;
 }
@@ -156,6 +156,6 @@ void ColumnWidthCache::delete_column_width(const std::string &column_id)
   }
   catch (std::exception &exc)
   {
-    log_debug("Error deleting column width to cache %s: %s\n", column_id.c_str(), exc.what());
+    logDebug("Error deleting column width to cache %s: %s\n", column_id.c_str(), exc.what());
   }
 }

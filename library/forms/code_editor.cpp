@@ -275,12 +275,12 @@ void CodeEditorConfig::parse_styles()
 
 //----------------- CodeEditor ---------------------------------------------------------------------
 
-CodeEditor::CodeEditor(void *host)
-  : _host(host)
+CodeEditor::CodeEditor(void *host, bool showInfo)
+  : _host(host), _previousDocumentHeight(0)
 {
   _code_editor_impl= &ControlFactory::get_instance()->_code_editor_impl;
 
-  _code_editor_impl->create(this);
+  _code_editor_impl->create(this, showInfo);
   _code_editor_impl->send_editor(this, SCI_SETCODEPAGE, SC_CP_UTF8, 0);
   _context_menu = NULL;
   _find_panel = NULL;
@@ -343,6 +343,11 @@ void CodeEditor::setup()
     _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, n, 0x404040);
   }
 
+  // Text margin.
+  _code_editor_impl->send_editor(this, SCI_SETMARGINTYPEN, 3, SC_MARGIN_TEXT);
+  _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 3, 0);
+  _code_editor_impl->send_editor(this, SCI_SETMARGINSENSITIVEN, 3, 0);
+
   // Margin: Line number style.
   _code_editor_impl->send_editor(this, SCI_STYLESETFORE, STYLE_LINENUMBER, 0x404040);
   _code_editor_impl->send_editor(this, SCI_STYLESETBACK, STYLE_LINENUMBER, 0xE0E0E0);
@@ -358,13 +363,13 @@ void CodeEditor::setup()
   setup_marker(CE_BREAKPOINT_MARKER, "editor_breakpoint");
   setup_marker(CE_BREAKPOINT_HIT_MARKER, "editor_breakpoint_hit");
   setup_marker(CE_CURRENT_LINE_MARKER, "editor_current_pos");
-  setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");//editor_continue_on_error
+  setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");
 
   // Other settings.
-  Color color = Color::getSystemColor(base::HighlightColor);
-  int rawColor = (int)(255 * color.red) + ((int)(255 * color.green) << 8) + ((int)(255 * color.blue) << 16);
+  Color color = Color::getSystemColor(base::SelectedTextBackgroundColor);
+  int rawColor = color.toBGR();
   _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, rawColor);
-  _code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, 0xFFFFFF);
+  //_code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, 0xFFFFFF);
 
   _code_editor_impl->send_editor(this, SCI_SETCARETLINEVISIBLE, 1, 0);
   _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACK, 0xF8C800, 0);
@@ -391,28 +396,143 @@ void CodeEditor::setup()
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::set_custom_color(EditorColorSettings part, base::Color color, bool foreground)
+void CodeEditor::setWidth(EditorMargin margin, int size, const std::string &adjustText)
 {
-  switch (part)
+  if (!adjustText.empty())
+    size = (int)_code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t)adjustText.c_str());
+  switch (margin)
   {
   case LineNumberMargin:
+    _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 0, size);
+    break;
+  case MarkersMargin:
+    _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 1, size);
+    break;
+  case FolderMargin:
+    _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 2, size);
+    break;
+  case TextMargin:
+    _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 3, size);
+    break;
+  default:
+    break;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::setColor(EditorMargin margin, base::Color color, bool foreground)
+{
+  switch (margin)
+  {
+  case FolderMargin:
+  case LineNumberMargin: 
+  case TextMargin:
     if (foreground)
       _code_editor_impl->send_editor(this, SCI_STYLESETFORE, STYLE_LINENUMBER, color.toRGB());
     else
       _code_editor_impl->send_editor(this, SCI_STYLESETBACK, STYLE_LINENUMBER, color.toRGB());
     break;
-  case Markers:
-    //for (int n = 25; n < 31; ++n) // Markers 25..31 are reserved for folding.
-    //{
-    //  if (foreground)
-    //    _code_editor_impl->send_editor(this, SCI_MARKERSETFORE, n, color.toRGB());
-    //  else
-    //    _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, n, color.toRGB());
-    //}
+  case MarkersMargin:
+    for (int n = 25; n < 32; ++n) // Markers 25..31 are reserved for folding.
+    {
+      if (foreground)
+        _code_editor_impl->send_editor(this, SCI_MARKERSETFORE, n, color.toRGB());
+      else
+        _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, n, color.toRGB());
+    }
     break;
-  default: 
+  default:
     break;
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::showMargin(EditorMargin margin, bool show)
+{
+  sptr_t size = 0;
+  const sptr_t defaultSize = 16;
+  switch (margin)
+  {
+  case LineNumberMargin:
+    if (!show)
+      _marginSize.margin1 = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 0, 0);
+    else
+    {
+      size = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 0, 0);
+      if (size > 0)
+        break;
+      size = _marginSize.margin1 > 0 ? _marginSize.margin1 : defaultSize;
+    }
+    break;
+  case MarkersMargin:
+    if (!show)
+      _marginSize.margin2 = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 1, 0);
+    else
+    {
+      size = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 1, 0);
+      if (size > 0)
+        break;
+      size = _marginSize.margin2 > 0 ? _marginSize.margin2 : defaultSize;
+    }
+    break;
+  case FolderMargin:
+    if (!show)
+      _marginSize.margin3 = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 2, 0);
+    else
+    {
+      size = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 2, 0);
+      if (size > 0)
+        break;
+      size = _marginSize.margin3 > 0 ? _marginSize.margin3 : defaultSize;
+    }
+    break;
+  case TextMargin:
+    if (!show)
+      _marginSize.margin4 = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 3, 0);
+    else
+    {
+      size = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 3, 0);
+      if (size > 0)
+        break;
+      size = _marginSize.margin4 > 0 ? _marginSize.margin4 : defaultSize;
+    }
+    break;
+  default:
+    break;
+  }
+  if (!show)
+    setWidth(margin, 0);
+  else
+    setWidth(margin, (int)size);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::setMarginText(const std::string &str)
+{
+  setMarginText(str, line_count() - 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::setScrollWidth(size_t width)
+{
+  _code_editor_impl->send_editor(this, SCI_SETSCROLLWIDTH, width, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::setMarginText(const std::string &str, size_t line)
+{
+  sptr_t size = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 3, 0);
+  sptr_t lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t)str.c_str());
+  if (lineNumberStyleWidth > size)
+    _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 3, lineNumberStyleWidth);
+
+  _code_editor_impl->send_editor(this, SCI_MARGINSETTEXT, line, (sptr_t)str.c_str());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -420,6 +540,13 @@ void CodeEditor::set_custom_color(EditorColorSettings part, base::Color color, b
 void CodeEditor::set_text(const char* text)
 {
   _code_editor_impl->send_editor(this, SCI_SETTEXT, 0, (sptr_t)text);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int CodeEditor::getLineHeight(int line)
+{
+  return (int)_code_editor_impl->send_editor(this, SCI_TEXTHEIGHT, line, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1031,6 +1158,16 @@ void CodeEditor::on_notify(SCNotification* notification)
       _change_event(notification->position, notification->length, notification->linesAdded,
         (notification->modificationType & SC_MOD_INSERTTEXT) != 0);
     }
+
+
+
+    int newDocumentHeight = (int)_code_editor_impl->send_editor(this, SCI_GETDOCUMENTHEIGHT, 0, 0);
+    if (newDocumentHeight > _previousDocumentHeight)
+      _signalLineWrapped(true, newDocumentHeight, _previousDocumentHeight);
+    else
+      _signalLineWrapped(false, newDocumentHeight, _previousDocumentHeight);
+    _previousDocumentHeight = newDocumentHeight;
+
     break;
   }
 

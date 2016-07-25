@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -254,14 +254,14 @@ Form *View::get_parent_form() const
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_width()
+int View::get_width() const
 {
   return (*_view_impl->get_width)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_height()
+int View::get_height() const
 {
   return (*_view_impl->get_height)(this);
 }
@@ -307,6 +307,14 @@ void View::set_size(int width, int height)
 {
   set_layout_dirty(true);
   (*_view_impl->set_size)(this, width, height);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void View::set_min_size(int width, int height)
+{
+  set_layout_dirty(true);
+  (*_view_impl->set_min_size)(this, width, height);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -386,9 +394,7 @@ bool View::is_layout_dirty()
 
 void View::relayout()
 {
-  if (_parent != NULL)
-    _parent->relayout();
-  (*_view_impl->relayout)(this);
+  _view_impl->relayout(this);
 }
 
 //--------------------------------------------------------------------------------------------------

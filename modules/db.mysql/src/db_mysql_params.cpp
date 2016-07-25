@@ -99,7 +99,7 @@ db_mysql_StorageEngineRef engine_by_id(EngineId id)
 grt::ListRef<db_mysql_StorageEngine> get_known_engines()
 {
   return grt::ListRef<db_mysql_StorageEngine>::cast_from(
-    grt::GRT::get()->unserialize(base::makePath(bec::GRTManager::get().get_basedir(), "modules/data/mysql_engines.xml")));
+    grt::GRT::get()->unserialize(base::makePath(bec::GRTManager::get()->get_basedir(), "modules/data/mysql_engines.xml")));
 }
 
 bool check_valid_characters(const char* str)

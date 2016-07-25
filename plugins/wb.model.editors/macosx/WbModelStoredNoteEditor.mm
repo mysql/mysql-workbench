@@ -140,19 +140,22 @@
 {
   if (![super pluginWillClose: sender])
   {
-    int ret = NSRunAlertPanel(@"Close Editor", @"There are unsaved changes in the editor %s. "
-                              "If you do not save, these changes will be discarded.",
-                              @"Apply Changes", @"Discard", @"Cancel", mBackEnd->get_name().c_str());
-    if (ret == NSAlertDefaultReturn)
+    NSAlert *alert = [NSAlert new];
+    alert.messageText =@"Close Editor";
+    alert.informativeText = [NSString stringWithFormat: @"There are unsaved changes in the editor %s. "
+                             "If you do not save, these changes will be discarded.", mBackEnd->get_name().c_str()];
+    alert.alertStyle = NSWarningAlertStyle;
+    [alert addButtonWithTitle: @"Apply Changes"];
+    [alert addButtonWithTitle: @"Discard Changes"];
+    [alert addButtonWithTitle: @"Cancel"];
+    switch ([alert runModal])
     {
-      mBackEnd->commit_changes();
+      case NSAlertFirstButtonReturn:
+        mBackEnd->commit_changes();
+        break;
+      case NSAlertThirdButtonReturn:
+        return NO;
     }
-    else if (ret == NSAlertAlternateReturn)
-    {
-      // Nothing to do here.
-    }
-    else
-      return NO;
   }
   
   return YES;

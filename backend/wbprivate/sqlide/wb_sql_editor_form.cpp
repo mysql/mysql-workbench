@@ -105,11 +105,11 @@ CATCH_EXCEPTION_AND_DISPATCH(statement)
 #define CATCH_ANY_EXCEPTION_AND_DISPATCH_TO_DEFAULT_LOG(statement) \
 catch (sql::SQLException &e)\
 {\
-  _grtm->get_grt()->send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
+  grt::GRT::get()->send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
 }\
 catch (std::exception &e)\
 {\
-  _grtm->get_grt()->send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
+  grt::GRT::get()->send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
 }
 
 
@@ -179,7 +179,7 @@ SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mg
 void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp)
 {
   _tabdock = dp;
-  grtobj()->dockingPoint(mforms_to_grt(_grtm->get_grt(), dp));
+  grtobj()->dockingPoint(mforms_to_grt(dp));
   scoped_connect(_tabdock->signal_view_switched(), boost::bind(&SqlEditorForm::sql_editor_panel_switched, this));
   scoped_connect(_tabdock->signal_view_undocked(), boost::bind(&SqlEditorForm::sql_editor_panel_closed, this, _1));
 }
@@ -245,7 +245,6 @@ void SqlEditorForm::report_connection_failure(const grt::server_denied &info, co
 SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   :
   _wbsql(wbsql),
-  _grtm(wbsql->get_grt_manager()),
   _menu(NULL),  // Please use NULL where pointers are assigned, not 0, to avoid confusing the param with ctor flags or similar!
   _toolbar(NULL),
   _autosave_lock(NULL),
@@ -262,16 +261,16 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _last_server_running_state(UnknownState),
   _auto_completion_cache(NULL),
   _column_width_cache(NULL),
-  exec_sql_task(GrtThreadedTask::create(_grtm)),
+  exec_sql_task(GrtThreadedTask::create()),
   _is_running_query(false),
   _live_tree(SqlEditorTreeController::create(this)),
   _side_palette_host(NULL),
   _side_palette(NULL),
-  _history(DbSqlEditorHistory::create(_grtm)),
+  _history(DbSqlEditorHistory::create()),
   _serverIsOffline(false)
 {
   _startup_done = false;
-  _log = DbSqlEditorLog::create(this, _grtm, 500);
+  _log = DbSqlEditorLog::create(this, 500);
 
   NotificationCenter::get()->add_observer(this, "GNApplicationActivated");
   NotificationCenter::get()->add_observer(this, "GNMainFormChanged");
@@ -284,7 +283,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
 
   _last_log_message_timestamp = timestamp();
 
-  int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+  int keep_alive_interval= bec::GRTManager::get()->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
 
   if (keep_alive_interval != 0)
   {
@@ -294,10 +293,10 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
 
   _lower_case_table_names = 0;
 
-  _continue_on_error= (_grtm->get_app_option_int("DbSqlEditor:ContinueOnError", 0) != 0);
+  _continue_on_error= (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ContinueOnError", 0) != 0);
 
   // set initial autocommit mode value
-  _usr_dbc_conn->autocommit_mode= (_grtm->get_app_option_int("DbSqlEditor:AutocommitMode", 1) != 0);
+  _usr_dbc_conn->autocommit_mode= (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:AutocommitMode", 1) != 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,7 +370,7 @@ void SqlEditorForm::finish_startup()
 
   _live_tree->finish_init();
 
-  std::string cache_dir = _grtm->get_user_datadir() + "/cache/";
+  std::string cache_dir = bec::GRTManager::get()->get_user_datadir() + "/cache/";
   try
   {
     base::create_directory(cache_dir, 0700); // No-op if the folder already exists.
@@ -381,9 +380,9 @@ void SqlEditorForm::finish_startup()
     logError("Could not create %s: %s\n", cache_dir.c_str(), e.what());
   }
 
-  // We moved this here, cause it needs schema_sidebar to be fully created,
-  // due to some race conditions that occurs sometimes.
-  if (_grtm->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") == 1 && connected())
+  // we moved this here, cause it needs schema_sidebar to be fully created,
+  // due to some race conditions that occurs sometimes
+  if (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") == 1 && connected())
     {
       try
       {
@@ -437,7 +436,7 @@ void SqlEditorForm::finish_startup()
   if (_usr_dbc_conn && !_usr_dbc_conn->active_schema.empty())
     _live_tree->on_active_schema_change(_usr_dbc_conn->active_schema);
 
-  _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_menu_and_toolbar, this));
+  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_menu_and_toolbar, this));
 
   this->check_server_problems();
 
@@ -451,7 +450,7 @@ void SqlEditorForm::finish_startup()
 
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
 
-  int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+  int keep_alive_interval= bec::GRTManager::get()->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
 
   //  We have to set these variables so that the server doesn't timeout before we ping everytime
   // From http://dev.mysql.com/doc/refman/5.7/en/communication-errors.html for reasones to loose the connection
@@ -557,7 +556,7 @@ void SqlEditorForm::handle_grt_notification(const std::string &name, grt::Object
       }
       // reconnect when idle, to avoid any deadlocks
       if (conn.is_valid() && conn == connection_descriptor())
-        _grtm->run_once_when_idle(this, boost::bind(&WBContextSQLIDE::reconnect_editor, wbsql(), this));
+        bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&WBContextSQLIDE::reconnect_editor, wbsql(), this));
     }
   }
 }
@@ -604,7 +603,7 @@ void SqlEditorForm::reset_keep_alive_thread()
   }
 }
 
-grt::StringRef SqlEditorForm::do_disconnect(grt::GRT *grt)
+grt::StringRef SqlEditorForm::do_disconnect()
 {
   if (_usr_dbc_conn->ref.get())
   {
@@ -626,11 +625,11 @@ grt::StringRef SqlEditorForm::do_disconnect(grt::GRT *grt)
 
 void SqlEditorForm::close()
 {
-  grt::ValueRef option(_grtm->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
+  grt::ValueRef option(bec::GRTManager::get()->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
 
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
   {
-    _grtm->replace_status_text("Saving workspace state...");
+    bec::GRTManager::get()->replace_status_text("Saving workspace state...");
     if (_autosave_path.empty())
     {
       save_workspace(sanitize_file_name(get_session_name()), false);
@@ -700,13 +699,13 @@ void SqlEditorForm::close()
     _tabdock->close_all_views();
     _closing = false;
   }
-  _grtm->replace_status_text("Closing SQL Editor...");
+  bec::GRTManager::get()->replace_status_text("Closing SQL Editor...");
   wbsql()->editor_will_close(this);
 
-  exec_sql_task->exec(true, boost::bind(&SqlEditorForm::do_disconnect, this, _1));
+  exec_sql_task->exec(true, boost::bind(&SqlEditorForm::do_disconnect, this));
   exec_sql_task->disconnect_callbacks();
   reset_keep_alive_thread();
-  _grtm->replace_status_text("SQL Editor closed");
+  bec::GRTManager::get()->replace_status_text("SQL Editor closed");
 
   delete _menu;
   _menu = NULL;
@@ -743,7 +742,7 @@ bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::s
 
 void SqlEditorForm::schema_tree_did_populate()
 {
-  if (!_pending_expand_nodes.empty() && _grtm->get_app_option_int("DbSqlEditor:SchemaTreeRestoreState", 1))
+  if (!_pending_expand_nodes.empty() && bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SchemaTreeRestoreState", 1))
   {
     std::string schema, groups;
     base::partition(_pending_expand_nodes, ":", schema, groups);
@@ -808,7 +807,7 @@ void SqlEditorForm::cache_sql_mode()
     if (sql_mode != _sql_mode)
     {
       _sql_mode= sql_mode;
-      _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_sql_mode_for_editors, this));
+      bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_sql_mode_for_editors, this));
     }
   }
 }
@@ -1012,7 +1011,7 @@ void SqlEditorForm::refresh_log_messages(bool ignore_last_message_timestamp)
     if (!ignore_last_message_timestamp)
     {
       double now = timestamp();
-      int progress_status_update_interval = (int)(_grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500) / 1000.);
+      int progress_status_update_interval = (int)(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500) / 1000.);
 
       if (_last_log_message_timestamp + progress_status_update_interval < now)
         is_refresh_needed= true;
@@ -1048,7 +1047,7 @@ void SqlEditorForm::init_connection(sql::Connection* dbc_conn_ref, const db_mgmt
     }
     
     // check if SQL_SAFE_UPDATES should be enabled (only for user connections, don't do it for the aux connection)
-    if (_grtm->get_app_option_int("DbSqlEditor:SafeUpdates", 1) && user_connection)
+    if (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SafeUpdates", 1) && user_connection)
       sql_script.push_back("SET SQL_SAFE_UPDATES=1");
     
     std::auto_ptr<sql::Statement> stmt(dbc_conn_ref->createStatement());
@@ -1108,13 +1107,13 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
 
   sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
 
-  db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(grt::CopyContext(db_mgmt_conn.get_grt()).copy(db_mgmt_conn));
+  db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(grt::CopyContext().copy(db_mgmt_conn));
 
-  int read_timeout = _grtm->get_app_option_int("DbSqlEditor:ReadTimeOut");
+  int read_timeout = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ReadTimeOut");
   if (read_timeout > 0)
     temp_connection->parameterValues().set("OPT_READ_TIMEOUT", grt::IntegerRef(read_timeout));
 
-  int connect_timeout = _grtm->get_app_option_int("DbSqlEditor:ConnectionTimeOut");
+  int connect_timeout = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ConnectionTimeOut");
   if (connect_timeout  > 0)
     temp_connection->parameterValues().set("OPT_CONNECT_TIMEOUT", grt::IntegerRef(connect_timeout));
 
@@ -1163,7 +1162,7 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
         dbc_conn->ref->setSchema(default_schema);
         dbc_conn->active_schema = default_schema;
 
-        _grtm->run_once_when_idle(this, boost::bind(&set_active_schema, shared_from_this(), default_schema));
+        bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&set_active_schema, shared_from_this(), default_schema));
       }
       catch (std::exception &exc)
       {
@@ -1253,7 +1252,7 @@ bool SqlEditorForm::connect(std::shared_ptr<sql::TunnelConnection> tunnel)
     // connection must happen in the worker thread
     try
     {
-      exec_sql_task->exec(true, boost::bind(&SqlEditorForm::do_connect, this, _1, tunnel, auth, &error_ptr));
+      exec_sql_task->exec(true, boost::bind(&SqlEditorForm::do_connect, this, tunnel, auth, &error_ptr));
 
       //check if user cancelled
       if (_cancel_connect) //return false, so it looks like the server is down
@@ -1317,7 +1316,7 @@ bool SqlEditorForm::connect(std::shared_ptr<sql::TunnelConnection> tunnel)
   // assumes setup_side_palette() is called in finish_init(), signalizing that the editor was already initialized once
   if (_side_palette) // we're in a thread here, so make sure the notification is sent from the main thread
   {
-    _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_connected_state, this));
+    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_connected_state, this));
   }
 
   return true;
@@ -1327,7 +1326,7 @@ bool SqlEditorForm::connect(std::shared_ptr<sql::TunnelConnection> tunnel)
 
 void SqlEditorForm::update_connected_state()
 {
-  grt::DictRef args(_grtm->get_grt());
+  grt::DictRef args(true);
   args.gset("connected", connected());
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorReconnected", grtobj(), args);
 
@@ -1358,7 +1357,7 @@ std::string SqlEditorForm::get_client_lib_version()
 
 //--------------------------------------------------------------------------------------------------
 
-grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth, ConnectionErrorInfo *err_ptr)
+grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth, ConnectionErrorInfo *err_ptr)
 {
   try
   {
@@ -1421,7 +1420,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, std::shared_ptr<sql::Tun
           _connection_details["dbmsProductVersion"].c_str());
       }
       
-      _version = parse_version(grt, _connection_details["dbmsProductVersion"]);
+      _version = parse_version(_connection_details["dbmsProductVersion"]);
       _version->name(grt::StringRef(_connection_details["dbmsProductName"]));
 
       db_query_EditorRef editor(grtobj());
@@ -1451,7 +1450,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, std::shared_ptr<sql::Tun
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
         _lower_case_table_names = base::atoi<int>(value, 0);
 
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
       _work_parser_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
       _work_parser_context->use_sql_mode(_sql_mode);
     }
@@ -1480,8 +1479,8 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, std::shared_ptr<sql::Tun
       {
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
-        grt::Module *m = _grtm->get_grt()->get_module("WbAdmin");
-        grt::BaseListRef args(_grtm->get_grt());
+        grt::Module *m = grt::GRT::get()->get_module("WbAdmin");
+        grt::BaseListRef args(true);
         args.ginsert(_connection);
         if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
         {
@@ -1497,8 +1496,8 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, std::shared_ptr<sql::Tun
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(grt, 50503), true);
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503), true);
       _work_parser_context->use_sql_mode(_sql_mode);
 
       return grt::StringRef();
@@ -1513,8 +1512,8 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, std::shared_ptr<sql::Tun
       {
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
-        _grtm->get_grt()->get_module("WbAdmin");
-        grt::BaseListRef args(_grtm->get_grt());
+        grt::GRT::get()->get_module("WbAdmin");
+        grt::BaseListRef args(true);
         args.ginsert(_connection);
       }
 
@@ -1523,8 +1522,8 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, std::shared_ptr<sql::Tun
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(grt, 50503), true);
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503), true);
       _work_parser_context->use_sql_mode(_sql_mode);
 
       return grt::StringRef();
@@ -1804,7 +1803,7 @@ void SqlEditorForm::cancel_query()
 
     if (_usr_dbc_conn->is_stop_query_requested)
     {
-      _grtm->replace_status_text("Query Cancelled");
+      bec::GRTManager::get()->replace_status_text("Query Cancelled");
       set_log_message(log_message_index, DbSqlEditorLog::NoteMsg, _("OK - Query cancelled"), STATEMENT, timer.duration_formatted());
     }
     else
@@ -1844,11 +1843,11 @@ void SqlEditorForm::explain_current_statement()
     SqlEditorResult *result = panel->add_panel_for_recordset(Recordset::Ref());
     result->set_title("Explain");
 
-    grt::BaseListRef args(_grtm->get_grt());
+    grt::BaseListRef args(true);
     args.ginsert(panel->grtobj());
     args.ginsert(result->grtobj());
     // run the visual explain plugin, so it will fill the result panel
-    _grtm->get_grt()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
+    grt::GRT::get()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
   }
 }
 
@@ -1870,7 +1869,7 @@ void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_sc
 
 
   exec_sql_task->exec(sync,
-    boost::bind(&SqlEditorForm::do_exec_sql, this, _1,
+    boost::bind(&SqlEditorForm::do_exec_sql, this,
                weak_ptr_from(this), std::shared_ptr<std::string>(new std::string(sql_script)),
                editor, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0),
                RecordsetsRef()));
@@ -1893,7 +1892,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
 
   RecordsetsRef rsets(new Recordsets());
   
-  do_exec_sql(_grtm->get_grt(), weak_ptr_from(this), std::shared_ptr<std::string>(new std::string(sql_script)),
+  do_exec_sql(weak_ptr_from(this), std::shared_ptr<std::string>(new std::string(sql_script)),
     NULL, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
 
   return rsets;
@@ -1945,7 +1944,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
     flags = (ExecFlags)(flags | NeedNonStdDelimiter);
   if (dont_add_limit_clause)
     flags = (ExecFlags)(flags | DontAddLimitClause);
-  if (_grtm->get_app_option_int("DbSqlEditor:ShowWarnings", 1))
+  if (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ShowWarnings", 1))
     flags = (ExecFlags)(flags | ShowWarnings);
   auto_save();
 
@@ -1960,7 +1959,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
 
     exec_sql_task->exec(
       sync,
-      boost::bind(&SqlEditorForm::do_exec_sql, this, _1, weak_ptr_from(this), shared_sql,
+      boost::bind(&SqlEditorForm::do_exec_sql, this, weak_ptr_from(this), shared_sql,
       (SqlEditorPanel*)NULL, flags, rsets)
       );
 
@@ -1972,7 +1971,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
   else
     exec_sql_task->exec(
       sync,
-      boost::bind(&SqlEditorForm::do_exec_sql, this, _1, weak_ptr_from(this), shared_sql,
+      boost::bind(&SqlEditorForm::do_exec_sql, this, weak_ptr_from(this), shared_sql,
       editor, flags, RecordsetsRef())
       );
 
@@ -1981,12 +1980,10 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
 
 void SqlEditorForm::update_live_schema_tree(const std::string &sql)
 {
-  if(_grtm)
-    _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::handle_command_side_effects, this, sql));
+  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlEditorForm::handle_command_side_effects, this, sql));
 }
 
-
-grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shared_ptr<std::string> sql,
+grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::string> sql,
   SqlEditorPanel *editor, ExecFlags flags, RecordsetsRef result_list)
 {
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;
@@ -1997,12 +1994,12 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shar
   bool query_ps_stats = collect_ps_statement_events();
   std::string query_ps_statement_events_error;
   std::string statement;
-  int max_query_size_to_log = _grtm->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
+  int max_query_size_to_log = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
   int limit_rows = 0;
-  if (_grtm->get_app_option_int("SqlEditor:LimitRows") != 0)
-    limit_rows = _grtm->get_app_option_int("SqlEditor:LimitRowsCount", 0);
+  if (bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows") != 0)
+    limit_rows = bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRowsCount", 0);
 
-  _grtm->replace_status_text(_("Executing Query..."));
+  bec::GRTManager::get()->replace_status_text(_("Executing Query..."));
 
   std::shared_ptr<SqlEditorForm> self_ref= (self_ptr).lock();
   SqlEditorForm *self= (self_ref).get();
@@ -2062,7 +2059,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shar
     }
 
     // Intentionally allow any value. For values <= 0 show no result set at all.
-    ssize_t max_resultset_count = _grtm->get_app_option_int("DbSqlEditor::MaxResultsets", 50);
+    ssize_t max_resultset_count = bec::GRTManager::get()->get_app_option_int("DbSqlEditor::MaxResultsets", 50);
     ssize_t total_result_count = (editor != NULL) ? editor->resultset_count() : 0; // Consider pinned result sets.
 
     bool results_left = false;
@@ -2098,7 +2095,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shar
         // for select queries add limit clause if specified by global option
         if (!is_multiple_statement && (Sql_syntax_check::sql_select == statement_type))
         {
-          data_storage= Recordset_cdbc_storage::create(_grtm);
+          data_storage= Recordset_cdbc_storage::create();
           data_storage->set_gather_field_info(true);
           data_storage->rdbms(rdbms());
           data_storage->dbms_conn(_usr_dbc_conn);
@@ -2237,7 +2234,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shar
           bool reuse_log_msg= false;
           if ((updated_rows_count < 0) || is_multiple_statement)
           {
-            for (size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
+            for (std::size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
             {
               do
               {
@@ -2312,7 +2309,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shar
                   {
                     if (!data_storage)
                     {
-                      data_storage= Recordset_cdbc_storage::create(_grtm);
+                      data_storage= Recordset_cdbc_storage::create();
                       data_storage->set_gather_field_info(true);
                       data_storage->rdbms(rdbms());
                       data_storage->dbms_conn(_usr_dbc_conn);
@@ -2387,12 +2384,12 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shar
         "limit in the preferences."), _("OK"), "", ""), true, false);
     }
 
-    _grtm->replace_status_text(_("Query Completed"));
+    bec::GRTManager::get()->replace_status_text(_("Query Completed"));
     interrupted = false;
 
 stop_processing_sql_script:
     if (interrupted)
-      _grtm->replace_status_text(_("Query interrupted"));
+      bec::GRTManager::get()->replace_status_text(_("Query interrupted"));
     // try to minimize the times this is called, since this will change the state of the connection
     // after a user query is ran (eg, it will reset all warnings)
     if (ran_set_sql_mode)
@@ -2517,7 +2514,7 @@ void SqlEditorForm::handle_command_side_effects(const std::string &sql)
           std::string default_schema= connection_descriptor()->parameterValues().get_string("schema", "");
           if (schema_name == default_schema)
             default_schema = "";
-          _grtm->run_once_when_idle(this, boost::bind(&set_active_schema, shared_from_this(), default_schema));
+          bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&set_active_schema, shared_from_this(), default_schema));
         }
       }
       else
@@ -2598,11 +2595,12 @@ void SqlEditorForm::continue_on_error(bool val)
     return;
 
   _continue_on_error= val;
-  _grtm->set_app_option("DbSqlEditor:ContinueOnError", grt::IntegerRef((int)_continue_on_error));
+  bec::GRTManager::get()->set_app_option("DbSqlEditor:ContinueOnError", grt::IntegerRef((int)_continue_on_error));
   
   if (_menu)
-    _menu->set_item_checked("query.stopOnError", !continue_on_error());
-  set_editor_tool_items_checked("query.stopOnError", !continue_on_error());
+    _menu->set_item_checked("query.continueOnError", continue_on_error());
+  set_editor_tool_items_checked("query.continueOnError", continue_on_error());
+  active_sql_editor_panel()->editor_be()->set_continue_on_error(continue_on_error());
 }
 
 
@@ -2671,7 +2669,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
       else
         skip_commit = true; // if we're in an open tx, then do not commit
 
-      bool is_data_changes_commit_wizard_enabled= (0 != _grtm->get_app_option_int("DbSqlEditor:IsDataChangesCommitWizardEnabled", 1));
+      bool is_data_changes_commit_wizard_enabled= (0 != bec::GRTManager::get()->get_app_option_int("DbSqlEditor:IsDataChangesCommitWizardEnabled", 1));
       if (is_data_changes_commit_wizard_enabled)
       {
         run_data_changes_commit_wizard(rs_ptr, skip_commit);
@@ -2681,7 +2679,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
         sql_storage->is_sql_script_substitute_enabled(false);
         
         scoped_connection on_sql_script_run_error_conn(sql_storage->on_sql_script_run_error.connect(on_sql_script_run_error));
-        rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
+        rs->do_apply_changes(rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
       }
       
       // Since many messages could have been added it is possible the
@@ -2709,7 +2707,7 @@ bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool s
   std::string sql_script_text= Recordset_sql_storage::statements_as_sql_script(sql_script.statements);
 
   // No need for online DDL settings or callback as we are dealing with data here, not metadata.
-  SqlScriptRunWizard wizard(_grtm, rdbms_version(), "", "");
+  SqlScriptRunWizard wizard(rdbms_version(), "", "");
 
   scoped_connection c1(on_sql_script_run_error.connect(boost::bind(&SqlScriptApplyPage::on_error, wizard.apply_page, _1, _2, _3)));
   scoped_connection c2(on_sql_script_run_progress.connect(boost::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, _1)));
@@ -2731,7 +2729,7 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
   std::list<std::string> statements;
   sql_splitter->splitSqlScript(alter_script, statements);
   
-  int max_query_size_to_log = _grtm->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
+  int max_query_size_to_log = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
   
 /* this doesn't really work
   std::list<std::string> failback_statements;
@@ -2836,7 +2834,7 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
       // Run refresh on main thread, but only if there's not another refresh pending already.
       if (!_overviewRefreshPending.connected())
       {
-        _overviewRefreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
+        _overviewRefreshPending = bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
           _live_tree, db_object_type, schema_name, db_object->oldName(), db_object->name()));
       }
     }
@@ -2844,7 +2842,7 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
     //_live_tree->refresh_live_object_in_editor(obj_editor, false);
     if (!_editorRefreshPending.connected())
     {
-      _editorRefreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
+      _editorRefreshPending = bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
         _live_tree, obj_editor, false));
     }
   }
@@ -2862,7 +2860,7 @@ void SqlEditorForm::apply_data_changes_commit(const std::string &sql_script_text
   if (!sql_storage)
     return;
 
-  int max_query_size_to_log = _grtm->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
+  int max_query_size_to_log = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
 
   Sql_script sql_script= sql_storage->sql_script_substitute();
   sql_script.statements.clear();
@@ -2874,7 +2872,7 @@ void SqlEditorForm::apply_data_changes_commit(const std::string &sql_script_text
   scoped_connection on_sql_script_run_statistics_conn(sql_storage->on_sql_script_run_statistics.connect(on_sql_script_run_statistics));
 
   sql_storage->sql_script_substitute(sql_script);
-  rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
+  rs->do_apply_changes(rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
 
   if (!max_query_size_to_log || max_query_size_to_log >= (int)sql_script_text.size() )
     _history->add_entry(sql_script.statements);
@@ -2972,11 +2970,11 @@ void SqlEditorForm::active_schema(const std::string &value)
     update_editor_title_schema(value);
     
     if (value.empty())
-      grt_manager()->replace_status_text(_("Active schema was cleared"));
+      bec::GRTManager::get()->replace_status_text(_("Active schema was cleared"));
     else
-      grt_manager()->replace_status_text(strfmt(_("Active schema changed to %s"), value.c_str()));
+      bec::GRTManager::get()->replace_status_text(strfmt(_("Active schema changed to %s"), value.c_str()));
     
-    _grtm->get_grt()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
+    grt::GRT::get()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
   }
   CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Set active schema"))
 }
@@ -2991,7 +2989,7 @@ db_mgmt_RdbmsRef SqlEditorForm::rdbms()
     return db_mgmt_RdbmsRef::cast_from(_connection->driver()->owner());
   }
   else
-    return db_mgmt_RdbmsRef::cast_from(_grtm->get_grt()->get("/wb/rdbmsMgmt/rdbms/0/"));
+    return db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0/"));
 }
 
 
@@ -3094,7 +3092,7 @@ std::set<std::string> SqlEditorForm::valid_charsets()
   if (_charsets.empty())
   {
     grt::ListRef<db_CharacterSet> list = rdbms()->characterSets();
-    for (size_t i = 0; i < list->count(); i++)
+    for (std::size_t i = 0; i < list->count(); i++)
       _charsets.insert(base::tolower(*list[i]->name()));
 
     // 3 character sets were added in version 5.5.3. Remove them from the list if the current version
@@ -3117,7 +3115,7 @@ bool SqlEditorForm::save_snippet()
   if (!panel)
     return false;
   std::string text;
-  size_t start, end;
+  std::size_t start, end;
   if (panel->editor_be()->selected_range(start, end))
     text = panel->editor_be()->selected_text();
   else
@@ -3127,11 +3125,11 @@ bool SqlEditorForm::save_snippet()
     return false;
 
   DbSqlEditorSnippets::get_instance()->add_snippet("", text, true);
-  _grtm->replace_status_text("SQL saved to snippets list.");
+  bec::GRTManager::get()->replace_status_text("SQL saved to snippets list.");
 
   _side_palette->refresh_snippets();
 
-  _grtm->run_once_when_idle(this, boost::bind(&QuerySidePalette::edit_last_snippet, _side_palette));
+  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&QuerySidePalette::edit_last_snippet, _side_palette));
 
   return true;
 }
@@ -3147,7 +3145,7 @@ bool SqlEditorForm::can_close_(bool interactive)
 {
   if (exec_sql_task && exec_sql_task->is_busy())
   {
-    _grtm->replace_status_text(_("Cannot close SQL IDE while being busy"));
+    bec::GRTManager::get()->replace_status_text(_("Cannot close SQL IDE while being busy"));
     return false;
   }
 
@@ -3155,14 +3153,14 @@ bool SqlEditorForm::can_close_(bool interactive)
     return false;
 
   _live_tree->prepare_close();
-  _grtm->set_app_option("DbSqlEditor:ActiveSidePaletteTab", grt::IntegerRef(_side_palette->get_active_tab()));
+  bec::GRTManager::get()->set_app_option("DbSqlEditor:ActiveSidePaletteTab", grt::IntegerRef(_side_palette->get_active_tab()));
 
   bool check_scratch_editors = true;
   bool save_workspace_on_close = false;
 
   // if Save of workspace on close is enabled, we don't need to check whether there are unsaved
   // SQL editors but other stuff should be checked.
-  grt::ValueRef option(_grtm->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
+  grt::ValueRef option(bec::GRTManager::get()->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
   {
     save_workspace_on_close = true;
@@ -3306,7 +3304,7 @@ void SqlEditorForm::note_connection_open_outcome(int error)
 
   if (_last_server_running_state != newState && newState != UnknownState)
   {
-    grt::DictRef info(_grtm->get_grt());
+    grt::DictRef info(true);
     _last_server_running_state = newState;
 
     if (newState == RunningState)

@@ -147,8 +147,7 @@ static void windowShowStatusText(const std::string &text, MainWindowController *
 }
 
 
-static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
-                                     grt::Module *ownerModule, const std::string &shlib, const std::string &class_name,
+static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string &shlib, const std::string &class_name,
                                      const grt::BaseListRef &args, bec::GUIPluginFlags flags, MainWindowController *controller)
 {
   std::string path= ownerModule->path();
@@ -164,7 +163,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
     // determine the path for the plugin bundle by stripping Contents/Framework/dylibname 
     bundlePath= [NSString stringWithCPPString:path].stringByDeletingLastPathComponent.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent;
     
-    NSLog(@"opening plugin bundle %@ ([%s initWithModule:grtManager:arguments:...])", bundlePath, class_name.c_str());
+    NSLog(@"opening plugin bundle %@ ([%s initWithModule:arguments:...])", bundlePath, class_name.c_str());
     
     pluginBundle= [NSBundle bundleWithPath: bundlePath];
     if (!pluginBundle)
@@ -214,7 +213,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
         else
         {
           // drop the old plugin->handle mapping
-          grtm->get_plugin_manager()->forget_gui_plugin_handle((__bridge NativeHandle)existingPanel);
+          bec::GRTManager::get()->get_plugin_manager()->forget_gui_plugin_handle((__bridge NativeHandle)existingPanel);
           
           if ([existingPanel respondsToSelector: @selector(pluginEditor)])
           {
@@ -235,7 +234,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
     }
     
     // Instantiate and initialize the plugin.
-    id plugin = [[pclass alloc] initWithModule: ownerModule grtManager: grtm arguments: args];
+    id plugin = [[pclass alloc] initWithModule: ownerModule arguments: args];
       
     if ([plugin isKindOfClass: [WBPluginEditorBase class]])
     {      
@@ -860,13 +859,11 @@ static NSString *applicationSupportFolder()
 
   try
   {
-    bec::GRTManager *grtm;
-    
     // Setup backend stuff
     _wb = wb::WBContextUI::get()->get_wb();
     
-    grtm = _wb->get_grt_manager();
-    grtm->get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
+   
+    bec::GRTManager::get()->get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
     
     mainController.owner = self;
     [mainController setup];
@@ -878,7 +875,7 @@ static NSString *applicationSupportFolder()
     // Assign those callback methods
     wbcallbacks.show_file_dialog= boost::bind(showFileDialog, _1, _2, _3);
     wbcallbacks.show_status_text= boost::bind(windowShowStatusText, _1, mainController);
-    wbcallbacks.open_editor= boost::bind(windowOpenPlugin, _1, _2, _3, _4, _5, _6, mainController);
+    wbcallbacks.open_editor= boost::bind(windowOpenPlugin, _1, _2, _3, _4, _5, mainController);
     wbcallbacks.show_editor= boost::bind(windowShowPlugin, _1, mainController);
     wbcallbacks.hide_editor= boost::bind(windowHidePlugin, _1, mainController);
     wbcallbacks.perform_command= boost::bind(windowPerformCommand, _1, mainController, self);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -589,7 +589,7 @@ void ViewWrapper::show(mforms::View *backend, bool show)
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_width(mforms::View *backend)
+int ViewWrapper::get_width(const mforms::View *backend)
 {
   Control ^control = GetManagedObject<Control>(backend);
   return control->Width;
@@ -597,7 +597,7 @@ int ViewWrapper::get_width(mforms::View *backend)
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_height(mforms::View *backend)
+int ViewWrapper::get_height(const mforms::View *backend)
 {
   Control ^control = GetManagedObject<Control>(backend);
   return control->Height;
@@ -921,7 +921,7 @@ void ViewWrapper::set_font(const std::string &fontDescription)
   catch (System::ArgumentException^ e)
   {
     // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-    log_error("ViewWrapper::set_font failed. %s\n", e->Message);
+    logError("ViewWrapper::set_font failed. %s\n", e->Message);
   }
 
 }
@@ -1320,6 +1320,22 @@ void ViewWrapper::set_padding(int left, int top, int right, int bottom)
 {
   Control ^control = GetManagedObject<Control>();
   control->Padding = Windows::Forms::Padding(left, top, right, bottom);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::ModifierKey ViewWrapper::GetModifiers(Keys keyData)
+{
+  mforms::ModifierKey modifiers = mforms::ModifierNoModifier;
+  if ((keyData & Keys::Control) == Keys::Control)
+    modifiers = modifiers | mforms::ModifierControl;
+  if ((keyData & Keys::Alt) == Keys::Alt)
+    modifiers = modifiers | mforms::ModifierAlt;
+  if ((keyData & Keys::Shift) == Keys::Shift)
+    modifiers = modifiers | mforms::ModifierShift;
+  if ((keyData & Keys::LWin) == Keys::LWin)
+    modifiers = modifiers | mforms::ModifierCommand;
+  return modifiers;
 }
 
 //--------------------------------------------------------------------------------------------------

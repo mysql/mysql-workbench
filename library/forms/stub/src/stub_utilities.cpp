@@ -44,7 +44,7 @@ int UtilitiesWrapper::show_message(const std::string &title, const std::string &
                         const std::string &ok, const std::string &cancel,
                         const std::string &other)
 {
-  log_info("DIALOG: %s: %s\n", title.c_str(), text.c_str());
+  logInfo("DIALOG: %s: %s\n", title.c_str(), text.c_str());
   if (message_callback)
     return message_callback();
 
@@ -58,7 +58,7 @@ int UtilitiesWrapper::show_error(const std::string &title, const std::string &te
                       const std::string &ok, const std::string &cancel,
                       const std::string &other)
 {
-  log_info("DIALOG: %s: %s\n", title.c_str(), text.c_str());
+  logInfo("DIALOG: %s: %s\n", title.c_str(), text.c_str());
   if (message_callback)
     return message_callback();
 
@@ -69,7 +69,7 @@ int UtilitiesWrapper::show_warning(const std::string &title, const std::string &
                       const std::string &ok, const std::string &cancel,
                       const std::string &other)
 {
-  log_info("DIALOG: %s: %s\n", title.c_str(), text.c_str());
+  logInfo("DIALOG: %s: %s\n", title.c_str(), text.c_str());
   if (message_callback)
     return message_callback();
 
@@ -82,7 +82,7 @@ int UtilitiesWrapper::show_message_with_checkbox(const std::string &title, const
                       const std::string &checkbox_text, // empty text = default "Don't show this message again" text
                       bool &remember_checked)
 {
-  log_info("DIALOG: %s: %s\n", title.c_str(), text.c_str());
+  logInfo("DIALOG: %s: %s\n", title.c_str(), text.c_str());
   if (message_callback)
     return message_callback();
 
@@ -181,7 +181,7 @@ bool UtilitiesWrapper::find_password(const std::string &service, const std::stri
         }
       }
       else
-        log_error("Could not open password file %s: %i\n", password_file, errno);
+        logError("Could not open password file %s: %i\n", password_file, errno);
     }
     loaded_passwords = true;
   }
@@ -199,7 +199,7 @@ bool UtilitiesWrapper::find_password(const std::string &service, const std::stri
       ret_val = true;
     }
     else
-      log_error("Unknown password for %s:%s\n", service.c_str(), account.c_str());
+      logError("Unknown password for %s:%s\n", service.c_str(), account.c_str());
   }
   return ret_val;
 }

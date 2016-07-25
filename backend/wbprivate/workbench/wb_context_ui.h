@@ -49,7 +49,6 @@ class PluginInstallWindow;
 class AddOnDownloadWindow;
 
 namespace mforms {
-  enum class HomeScreenAction;
   class HomeScreen;
   class XConnectionsSection;
   class ConnectionsSection;
@@ -186,7 +185,7 @@ namespace wb {
     void add_backend_builtin_commands();
 
     void show_about();
-    void show_home_screen();
+    void show_home_screen(bool startClassic);
     void show_web_page(const std::string& url, bool internal_browser);
     void show_help_index();
     void locate_log_file();
@@ -199,8 +198,6 @@ namespace wb {
 
     void start_plugin(const std::string& title, const std::string& command, const bec::ArgumentPool &defaults, bool force_external = false);
 
-    static void home_action_callback(mforms::HomeScreenAction action, const base::any &object, WBContextUI *self);
-    
     db_mgmt_ConnectionRef getConnectionById(const std::string &id);
     mforms::anyMap connectionToMap(db_mgmt_ConnectionRef connection);
 

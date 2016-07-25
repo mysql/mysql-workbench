@@ -24,7 +24,7 @@ using namespace System::Collections::Generic;
 #include "GrtTemplates.h"
 #include "DelegateWrapper.h"
 #include "IconManager.h"
-#include "Grt.h"
+#include "GrtWrapper.h"
 #include "ModelWrappers.h"
 #include "var_grid_model_wr.h"
 #include "ActionList.h"

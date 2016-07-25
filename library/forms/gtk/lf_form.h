@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 #include <sigc++/sigc++.h>
 
 #include "gtk_helpers.h"
+#include "main_app.h"
 #include "lf_button.h"
 #include "lf_view.h"
 #include "lf_mforms.h"
@@ -33,6 +34,7 @@ namespace gtk {
 
 class FormImpl : public ViewImpl
 { 
+  runtime::loop _loop;
   Gtk::Window *_window;
   int _in_modal_loop;
   bool _result;
@@ -57,6 +59,7 @@ class FormImpl : public ViewImpl
   static void set_menubar(mforms::Form *self, mforms::MenuBar *menu);
   void realized(mforms::Form *owner, Gdk::WMDecoration flags);
   virtual void set_name(const std::string &name);
+  virtual void show(bool show);
   bool on_focus_event(GdkEventFocus* ev, ::mforms::Form *form);
 
 public:

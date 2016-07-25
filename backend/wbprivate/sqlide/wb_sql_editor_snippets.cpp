@@ -230,7 +230,7 @@ void DbSqlEditorSnippets::load_from_db(SqlEditorForm *editor)
   if (editor)
   {
     if (_snippet_db.empty())
-      _snippet_db = bec::GRTManager::get().get_app_option_string("workbench:InternalSchema");
+      _snippet_db = bec::GRTManager::get()->get_app_option_string("workbench:InternalSchema");
 
     sql::Dbc_connection_handler::Ref conn;
 
@@ -263,7 +263,7 @@ void DbSqlEditorSnippets::load_from_db(SqlEditorForm *editor)
     }
     catch (std::exception &e)
     {
-      log_error("Error querying snippets table: %s\n", e.what());
+      logError("Error querying snippets table: %s\n", e.what());
       mforms::Utilities::show_error("Shared Snippets",
                                     base::strfmt("Unable to load server stored snippets.\n%s", e.what()),
                                     "OK");
@@ -290,7 +290,7 @@ int DbSqlEditorSnippets::add_db_snippet(const std::string &name, const std::stri
       std::string error = internal_schema.create_snippets_table_exist();
       if (!error.empty())
       {
-        log_warning("Could not create table %s.snippet: %s\n", _snippet_db.c_str(), error.c_str());
+        logWarning("Could not create table %s.snippet: %s\n", _snippet_db.c_str(), error.c_str());
         mforms::Utilities::show_error("Shared Snippets", "Unable to setup server stored snippets.\n"+error, "OK");
         return 0;
       }
@@ -302,7 +302,7 @@ int DbSqlEditorSnippets::add_db_snippet(const std::string &name, const std::stri
     }
     catch (std::exception &exc)
     {
-      log_error("Error saving snippet: %s\n", exc.what());
+      logError("Error saving snippet: %s\n", exc.what());
       mforms::Utilities::show_error("Shared Snippets",
                                     base::strfmt("Error adding new snippet: %s", exc.what()),
                                     "OK");
@@ -325,7 +325,7 @@ void DbSqlEditorSnippets::delete_db_snippet(int snippet_id)
     }
     catch (std::exception &exc)
     {
-      log_error("Error saving snippet: %s\n", exc.what());
+      logError("Error saving snippet: %s\n", exc.what());
       mforms::Utilities::show_error("Shared Snippets",
                                     base::strfmt("Error deleting snippet: %s", exc.what()),
                                     "OK");
@@ -426,7 +426,7 @@ DbSqlEditorSnippets::DbSqlEditorSnippets(wb::WBContextSQLIDE *sqlide, const std:
     g_mkdir_with_parents(_path.c_str(), 0700);
   
   // copy the standard files
-  std::string datadir = bec::GRTManager::get().get_data_file_path("snippets");
+  std::string datadir = bec::GRTManager::get()->get_data_file_path("snippets");
   {
     GDir *dir = g_dir_open(datadir.c_str(), 0, NULL);
     if (dir)
@@ -445,7 +445,7 @@ DbSqlEditorSnippets::DbSqlEditorSnippets(wb::WBContextSQLIDE *sqlide, const std:
 
 void DbSqlEditorSnippets::copy_original_file(const std::string& name, bool overwrite)
 {
-  std::string datadir = bec::GRTManager::get().get_data_file_path("snippets");
+  std::string datadir = bec::GRTManager::get()->get_data_file_path("snippets");
   std::string dest = base::makePath(_path, name);
   bool target_exists = g_file_test(dest.c_str(), G_FILE_TEST_EXISTS) == TRUE;
   if (!target_exists || overwrite)
@@ -540,7 +540,7 @@ bool DbSqlEditorSnippets::set_field(const bec::NodeId &node, ColumnId column, co
       }
       catch (std::exception &exc)
       {
-        log_error("Error saving snippet: %s\n", exc.what());
+        logError("Error saving snippet: %s\n", exc.what());
         mforms::Utilities::show_error("Shared Snippets",
                                       base::strfmt("Error deleting snippet: %s", exc.what()),
                                       "OK");

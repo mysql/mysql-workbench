@@ -25,6 +25,7 @@ typedef __int64 ssize_t;
 typedef int ssize_t;
 #endif
 
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -43,15 +44,17 @@ typedef int ssize_t;
 #include <sstream>
 #include <vector>
 #include <stack>
+#include <algorithm>
 #include <iosfwd>
 #include <fstream>
+#include <locale>
+
 
 #include <errno.h>
 #include <cstdlib>
+#include <list>
 
 #include "glib.h"
 #include <glib/gstdio.h>
-
-#include "tinyxml.h"
 
 #include "SciLexer.h"

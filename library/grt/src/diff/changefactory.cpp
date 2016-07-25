@@ -48,7 +48,7 @@ bool is_any(ValueRef& s);
 std::shared_ptr<DiffChange> ChangeFactory::create_value_added_change(std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target, bool dupvalue)
 {
 #ifdef DEBUG_DIFF
-  log_info("value_added (%s)\n", rep(target).c_str());
+  logInfo("value_added (%s)\n", rep(target).c_str());
 #endif
   return std::shared_ptr<DiffChange>(new ValueAddedChange(ValueAdded, target, dupvalue));
 }
@@ -57,7 +57,7 @@ std::shared_ptr<DiffChange> ChangeFactory::create_value_added_change(std::shared
 std::shared_ptr<DiffChange> ChangeFactory::create_value_removed_change(std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target)
 {
 #ifdef DEBUG_DIFF
-  log_info("value_remove (%s)\n", rep(target).c_str());
+  logInfo("value_remove (%s)\n", rep(target).c_str());
 #endif
   return std::shared_ptr<DiffChange>(new ValueRemovedChange);
 }
@@ -68,9 +68,9 @@ std::shared_ptr<DiffChange> ChangeFactory::create_object_attr_modified_change(st
   if (change)
   {
 #ifdef DEBUG_DIFF
-    log_info("attr_change %s\n", attr.c_str());
+    logInfo("attr_change %s\n", attr.c_str());
     if (attr == "flags")
-      log_info("%s.%s) %s // %s\n", ObjectRef::cast_from(source.get_member("owner")).get_string_member("name").c_str(),
+      logInfo("%s.%s) %s // %s\n", ObjectRef::cast_from(source.get_member("owner")).get_string_member("name").c_str(),
                source.get_string_member("name").c_str(), source.get_member(attr).description().c_str(), target.get_member(attr).description().c_str());
 #endif
     return std::shared_ptr<DiffChange>(new ObjectAttrModifiedChange(attr, change));
@@ -84,7 +84,7 @@ std::shared_ptr<MultiChange> ChangeFactory::create_object_modified_change(std::s
   if (!changes.empty())
   {
 #ifdef DEBUG_DIFF
-    log_info("object_modified (%s)\n", rep(target).c_str());
+    logInfo("object_modified (%s)\n", rep(target).c_str());
 #endif
     return std::shared_ptr<MultiChange>(new MultiChange(ObjectModified, changes));
   }
@@ -132,7 +132,7 @@ std::shared_ptr<DiffChange>  ChangeFactory::create_simple_value_change( std::sha
   }
 
 #ifdef DEBUG_DIFF
-  log_info("simple_value_change: %s -> %s\n", rep(source).c_str(), rep(target).c_str());
+  logInfo("simple_value_change: %s -> %s\n", rep(source).c_str(), rep(target).c_str());
 #endif
   return std::shared_ptr<DiffChange>(new SimpleValueChange(source, target));
 }

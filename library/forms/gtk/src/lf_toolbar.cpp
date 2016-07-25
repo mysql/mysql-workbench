@@ -188,18 +188,19 @@ void mforms::gtk::ToolBarImpl::remove_item(mforms::ToolBar *toolbar, mforms::Too
 bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolBarItemType type)
 {
   Gtk::Widget *w = 0;
-
   switch ( type )
   {
     case mforms::TextActionItem:
     case mforms::ActionItem:
+    case mforms::SwitcherItem:
     {
       Gtk::Button *btn = Gtk::manage(new Gtk::Button());
       btn->set_focus_on_click(false);
       btn->set_border_width(0);
       btn->set_relief(Gtk::RELIEF_NONE);
       btn->signal_clicked().connect(sigc::bind(sigc::ptr_fun(process_ctrl_action), btn, item));
-
+      if (type == mforms::SwitcherItem)
+        btn->set_always_show_image(true);
       w = btn;
       break;
     }
@@ -240,6 +241,18 @@ bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolB
       entry->signal_activate().connect(sigc::bind(sigc::ptr_fun(process_ctrl_action), entry, item));
       break;
     }
+    case mforms::TextEntryItem:
+    {
+      Gtk::Box *hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 0));
+      w = hbox;
+      Gtk::Entry *entry = Gtk::manage(new Gtk::Entry());
+      hbox->pack_start(*entry, true, true);
+      hbox->set_data("entry", entry);
+      hbox->show_all();
+      entry->signal_activate().connect(sigc::bind(sigc::ptr_fun(process_ctrl_action), entry, item));
+      break;
+    }
+    case mforms::FlatSelectorItem:
     case mforms::SelectorItem:
     {
       Gtk::ComboBoxText *ct  = Gtk::manage(new Gtk::ComboBoxText());
@@ -276,6 +289,15 @@ bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolB
       w = image;
       break;
     }
+    case mforms::TitleItem:
+    {
+      Gtk::Label *label = Gtk::manage(new Gtk::Label("", 0.0, 0.5));
+      w = label;
+      auto provider = Gtk::CssProvider::create();
+      provider->load_from_data("* { color: #333; font-weight: bold; }");
+      w->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+      break;
+    }
     case mforms::SegmentedToggleItem:
     {
       Gtk::ToggleButton *btn = Gtk::manage(new Gtk::ToggleButton());
@@ -295,7 +317,7 @@ bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolB
     w->show();
   }
   else
-    log_error("create_tool_item, widget is 0 for passed type %i\n", type);
+    logError("create_tool_item, widget is 0 for passed type %i\n", type);
 
   item->set_data(w);
 
@@ -370,12 +392,20 @@ void mforms::gtk::ToolBarImpl::set_item_text(mforms::ToolBarItem *item, const st
     case mforms::ActionItem:
     case mforms::SegmentedToggleItem:
     case mforms::ToggleItem:
+    case mforms::SwitcherItem:
     {
       Gtk::Button* btn = cast<Gtk::Button*>(item->get_data_ptr());
-      btn->add_label(label);
+      if (type == mforms::SwitcherItem)
+      {
+        btn->set_label(label);
+        btn->get_style_context()->add_class("SwitcherItem");
+      }
+      else
+        btn->add_label(label);
       btn->set_name(label);
       break;
     }
+    case mforms::TitleItem:
     case mforms::LabelItem:
     {
       Gtk::Label* lbl = cast<Gtk::Label*>(item->get_data_ptr());
@@ -386,6 +416,7 @@ void mforms::gtk::ToolBarImpl::set_item_text(mforms::ToolBarItem *item, const st
       }
       break;
     }
+    case mforms::FlatSelectorItem:
     case mforms::SelectorItem:
     {
       Gtk::ComboBoxText* ct = cast<Gtk::ComboBoxText*>(item->get_data_ptr());
@@ -419,6 +450,7 @@ void mforms::gtk::ToolBarImpl::set_item_text(mforms::ToolBarItem *item, const st
       break;
     }
     case mforms::SearchFieldItem:
+    case mforms::TextEntryItem:
     {
       Gtk::Entry* e = cast<Gtk::Entry*>(item->get_data_ptr());
       if (e)
@@ -439,6 +471,7 @@ std::string mforms::gtk::ToolBarImpl::get_item_text(mforms::ToolBarItem *item)
 
   switch (item->get_type())
   {
+    case mforms::FlatSelectorItem:
     case mforms::SelectorItem:
     {
       Gtk::ComboBoxText* ct = cast<Gtk::ComboBoxText*>(item->get_data_ptr());
@@ -553,7 +586,7 @@ void mforms::gtk::ToolBarImpl::set_item_tooltip(mforms::ToolBarItem *item, const
 //------------------------------------------------------------------------------
 void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::vector<std::string>& values)
 {
-  if (item->get_type() == mforms::SelectorItem)
+  if (item->get_type() == mforms::SelectorItem || item->get_type() == mforms::FlatSelectorItem)
   {
     Gtk::ComboBoxText* w = cast<Gtk::ComboBoxText*>(item->get_data_ptr());
     if (w)

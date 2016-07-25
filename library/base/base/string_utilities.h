@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,15 +19,6 @@
 
 #pragma once
 
-#ifdef _WIN32
-# ifndef PRId64
-#   define PRId64 "I64d"
-# endif
-#else
-# include <inttypes.h>
-
-#endif
-
 #include "common.h"
 
 #if !defined(_WIN32) && !defined(__APPLE)
@@ -35,6 +26,7 @@
 #endif
 
 #ifndef HAVE_PRECOMPILED_HEADERS
+  #include <inttypes.h>
   #include <string>
   #include <list>
   #include <vector>
@@ -101,19 +93,17 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string escape_backticks(const std::string &string);  // `identifier`
   BASELIBRARY_PUBLIC_FUNC std::string extract_option_from_command_line(const std::string& option,
     const std::string &command_line);
-  
+
   BASELIBRARY_PUBLIC_FUNC bool parse_font_description(const std::string &fontspec, std::string &font,
                                                       float &size, bool &bold, bool &italic);
 
   // Searching, splitting etc.
   BASELIBRARY_PUBLIC_FUNC std::string left(const std::string& s, size_t len);
   BASELIBRARY_PUBLIC_FUNC std::string right(const std::string& s, size_t len);
-  BASELIBRARY_PUBLIC_FUNC bool starts_with(const std::string& s, const std::string& part);
-  BASELIBRARY_PUBLIC_FUNC bool ends_with(const std::string& s, const std::string& part);
+  BASELIBRARY_PUBLIC_FUNC bool hasPrefix(const std::string& s, const std::string& part);
+  BASELIBRARY_PUBLIC_FUNC bool hasSuffix(const std::string& s, const std::string& part);
   BASELIBRARY_PUBLIC_FUNC void replaceStringInplace(std::string& value, const std::string& search, const std::string& replacement);
   BASELIBRARY_PUBLIC_FUNC std::string replaceString(const std::string &s, const std::string &from, const std::string &to);
-  inline bool hasPrefix(const std::string &str, const std::string &pref) { return (strncmp(str.c_str(), pref.c_str(), pref.length())==0); }
-  inline bool hasSuffix(const std::string &str, const std::string &suf) { return (suf.length() < str.length() && strncmp(str.c_str()+str.length()-suf.length(), suf.c_str(), suf.length())==0); }
 
   /**
    * @brief Split the a string into a vector, using @a sep as a separator
@@ -179,6 +169,7 @@ namespace base
 
   BASELIBRARY_PUBLIC_FUNC bool is_number(const std::string &word);
   BASELIBRARY_PUBLIC_FUNC bool isBool(const std::string &text);
+
 
 
   /**

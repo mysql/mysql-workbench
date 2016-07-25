@@ -35,7 +35,7 @@ protected:
 
     if (!_selection_save_name.empty())
     {
-      std::string name = bec::GRTManager::get().get_app_option_string(_selection_save_name);
+      std::string name = bec::GRTManager::get()->get_app_option_string(_selection_save_name);
       if (!name.empty())
         _connect.set_active_stored_conn(name);
     }
@@ -49,7 +49,7 @@ protected:
     {
       db_mgmt_ConnectionRef conn(_connect.get_connection());
       if (conn.is_valid() && conn->name() != "")
-        bec::GRTManager::get().set_app_option(_selection_save_name, conn->name());
+        bec::GRTManager::get()->set_app_option(_selection_save_name, conn->name());
     }
 
     return WizardPage::advance();

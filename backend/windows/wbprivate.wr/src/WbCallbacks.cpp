@@ -307,7 +307,7 @@ uintptr_t WbFrontendCallbacks::open_editor_wrapper(grt::Module *module,
   const std::string& str2, const std::string& str3, const grt::BaseListRef &grt_list,
   bec::GUIPluginFlags flags)
 {
-  return (uintptr_t)open_editor_delegate(gcnew GrtManager(&bec::GRTManager::get()), gcnew GrtModule(module), 
+  return (uintptr_t)open_editor_delegate(gcnew GrtManager(), gcnew GrtModule(module), 
     CppStringToNative(str2), CppStringToNative(str3),
     gcnew GrtValue(grt_list), (GUIPluginFlags)flags).ToPointer();
 }

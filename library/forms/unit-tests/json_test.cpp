@@ -160,7 +160,7 @@ TEST_FUNCTION(10)
   bool exceptionThrown = false;
   try
   {
-    double number = (double)value;
+    double WB_UNUSED number = (double)value;
   }
   catch (const std::bad_cast &)
   { 

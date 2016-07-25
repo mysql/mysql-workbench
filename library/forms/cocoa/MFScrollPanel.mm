@@ -31,21 +31,13 @@
 // Need to override the clipview so that the layout methods can get called by content
 @implementation MFClipView
 
-- (void)subviewMinimumSizeChanged
+- (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
 {
-  [self resizeSubviewsWithOldSize: NSMakeSize(0, 0)];
-}
+  NSRect frame = self.frame;
+  NSSize size = [self.documentView preferredSize: { frame.size.width, 0 }];
 
-- (void)resizeSubviewsWithOldSize:( NSSize)oldBoundsSize
-{  
-  NSSize size;
-  NSSize psize= [self.documentView preferredSize];
-
-  size.width= NSWidth(self.frame);
-  size.height= [self.documentView minimumSize].height;
-
-  size.width = MAX(size.width, psize.width);
-  size.height = MAX(size.height, psize.height);
+  size.width = frame.size.width;
+  size.height = MAX(size.height, NSHeight(frame));
 
   [self.documentView setFrameSize: size];
 }
@@ -84,42 +76,24 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 //--------------------------------------------------------------------------------------------------
 
+- (void)relayout
+{
+  [self.contentView resizeSubviewsWithOldSize: self.frame.size];
+}
+
 - (NSSize)minimumSize
 {
-  return [NSScrollView contentSizeForFrameSize: NSMakeSize(50, 50)
-                       horizontalScrollerClass: [NSScroller class]
-                         verticalScrollerClass: [NSScroller class]
-                                    borderType: NSBezelBorder
-                                   controlSize: NSRegularControlSize
-                                 scrollerStyle: NSScrollerStyleOverlay];
+  NSSize minSize = super.minimumSize;
+  NSSize contentMinSize = [NSScrollView contentSizeForFrameSize: NSMakeSize(50, 50)
+                                        horizontalScrollerClass: [NSScroller class]
+                                          verticalScrollerClass: [NSScroller class]
+                                                     borderType: NSBezelBorder
+                                                    controlSize: NSRegularControlSize
+                                                  scrollerStyle: NSScrollerStyleOverlay];
+  return { MAX(minSize.width, contentMinSize.width), MAX(minSize.height, contentMinSize.height) };
 }
 
-- (void)subviewMinimumSizeChanged
-{
-  if (!mOwner->is_destroying())
-  {
-    NSSize minSize= self.minimumSize;
-    NSSize size= self.frame.size;
-    
-    // size of some subview has changed, we check if our current size is enough
-    // to fit it and if not, request forward the size change notification to superview
-    
-    if (minSize.width > size.width || minSize.height > size.height)
-    {
-      if (self.superview)
-      {
-        [self.superview subviewMinimumSizeChanged];
-        return;
-      }
-      else
-        [self setFrameSize: minSize];
-    }
-    [self resizeSubviewsWithOldSize:size];
-    [self.contentView subviewMinimumSizeChanged];
-  }
-}
-
-- (void) setBackgroundColor: (NSColor*) color
+- (void)setBackgroundColor: (NSColor*) color
 {
   super.backgroundColor = color;
 }
@@ -151,7 +125,10 @@ static void scrollpanel_add(mforms::ScrollPanel *self, mforms::View *child)
 {
   MFScrollPanelImpl *panel= self->get_data();
   if (panel)
+  {
     panel.contentView.documentView = child->get_data();
+    [panel.contentView resizeSubviewsWithOldSize: panel.frame.size];
+  }
 }
 
 

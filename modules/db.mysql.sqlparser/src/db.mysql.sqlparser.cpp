@@ -17,6 +17,8 @@
  * 02110-1301  USA
  */
 
+#include <stack>
+
 #include <glib.h>
 #include <boost/signals2.hpp>
 

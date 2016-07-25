@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -40,10 +40,8 @@ namespace mforms {
 @property (readonly, copy) NSImage *tabIcon;
 @property (readonly) mforms::AppView *appView;
 @property (readonly) bec::UIForm *formBE;
-@property (readonly) NSSize minimumSize;
-
-
 @property (readonly) BOOL willClose;
+
 - (void)didOpen;
 
 @end

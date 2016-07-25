@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,7 +50,7 @@ bool InternalSchema::check_schema_exist()
   }
   catch (const sql::SQLException& exc)
   {
-    log_warning("Error verifying existence of wb schema '%s': %s", _schema_name.c_str(), exc.what());
+    logWarning("Error verifying existence of wb schema '%s': %s", _schema_name.c_str(), exc.what());
     ret_val = false;
   }
 
@@ -86,7 +86,7 @@ bool InternalSchema::check_function_or_sp_exists(const std::string object_name, 
   }
   catch (const sql::SQLException& exc)
   {
-    log_warning("Error verifying existence of %s '%s'.'%s' : %s", what.c_str(), _schema_name.c_str(), object_name.c_str(), exc.what());
+    logWarning("Error verifying existence of %s '%s'.'%s' : %s", what.c_str(), _schema_name.c_str(), object_name.c_str(), exc.what());
     ret_val = false;
   }
 
@@ -122,7 +122,7 @@ bool InternalSchema::check_table_or_view_exists(const std::string object_name, b
   }
   catch (const sql::SQLException& exc)
   {
-    log_warning("Error verifying existence of %s '%s'.'%s' : %s", what.c_str(), _schema_name.c_str(), object_name.c_str(), exc.what());
+    logWarning("Error verifying existence of %s '%s'.'%s' : %s", what.c_str(), _schema_name.c_str(), object_name.c_str(), exc.what());
     ret_val = false;
   }
 
@@ -159,7 +159,7 @@ std::string InternalSchema::execute_sql(const std::string &statement)
   catch (const sql::SQLException& exc)
   {
     ret_val = base::strfmt("MySQL Error : %s (code %d)", exc.what(), exc.getErrorCode());
-    log_warning("Error executing sql :\n '%s'\n Error %d : %s", statement.c_str(), exc.getErrorCode(), exc.what());
+    logWarning("Error executing sql :\n '%s'\n Error %d : %s", statement.c_str(), exc.getErrorCode(), exc.what());
   }
 
   return ret_val;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 #include <string>
 #include <stack>
 #include <set>
+#include <map>
 
 #include <antlr3.h>
 #include <glib.h>
@@ -39,7 +40,7 @@ DEFAULT_LOG_DOMAIN("MySQL parsing")
 
 //--------------------------------------------------------------------------------------------------
 
-static std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token)
+std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token)
 {
   // Transform a selection of tokens to nice strings. All others just take the token name.
   switch (token)
@@ -77,50 +78,191 @@ static std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token
 
 //--------------------------------------------------------------------------------------------------
 
-static bool handle_lexer_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
-  ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
+std::string formatVersion(long version)
 {
-  pANTLR3_LEXER lexer = (pANTLR3_LEXER)(recognizer->super);
-  start = recognizer->state->tokenStartCharIndex;
+  long major = version / 10000, minor = (version / 100) % 100, release = version % 100;
+  return base::strfmt("%ld.%ld.%ld", major, minor, release);
+}
 
-  // For debugging use the native error message that contains the grammar line.
-  // std::string native = (pANTLR3_UINT8)(exception->message);
-  length = ANTLR3_UINT32_CAST(((pANTLR3_UINT8)(lexer->input->data) + (lexer->input->size(lexer->input))) - (pANTLR3_UINT8)(exception->index));
+//--------------------------------------------------------------------------------------------------
 
-  if (length <= 0)
+/**
+ * Parses a server version predicate to get out the version + a word for the error message
+ * that describes the version relationship.
+ */
+std::string handleServerVersion(const std::vector<std::string> parts, bool withPrefix)
+{
+  bool includesEquality = parts[1].size() == 2;
+  std::string version = formatVersion(atoi(parts[2].c_str()));
+  switch (parts[1][0])
   {
-    message = "unexpected end of input (unfinished string or quoted identifier)";
-    length = ANTLR3_UINT32_CAST(((pANTLR3_UINT8)(lexer->input->data) + (lexer->input->size(lexer->input))) - (pANTLR3_UINT8)(lexer->rec->state->tokenStartCharIndex));
+    case '<': // A max version.
+      if (!includesEquality)
+        return withPrefix ? "server versions before " + version : "before " + version;
+      return withPrefix ? "server versions up to " + version : "up to " + version;
+    case '=': // An exact version.
+      return "the server version " + version;
+    case '>': // A min version.
+      if (!includesEquality)
+        withPrefix ? "server versions after " + version : "after " + version;
+      return withPrefix ? "server versions starting with " + version : "starting with " + version;
+
+    default:
+      return "specific versions"; // Unexpected operator found. Return a generic message part.
+  }
+}
+
+//------------------------------------------------------------------------------------------------
+
+/**
+ * Parses the given predicate and constructs an error message that tells why there is that error.
+ */
+std::string createErrorFromPredicate(std::string predicate, long version)
+{
+  // Parsable predicates have one of these forms:
+  // - "SERVER_VERSION >= 50100"
+  // - "(SERVER_VERSION >= 50105) && (SERVER_VERSION < 50500)"
+  // - "SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)"
+  // - "!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)"
+  //
+  // We don't do full expression parsing here. Only what is given above.
+  predicate = base::trim(predicate);
+  std::vector<std::string> parts = base::split(predicate, "&&");
+  std::string message = "\nThis syntax is only allowed for %s. The current version is " + formatVersion(version);
+  switch (parts.size())
+  {
+    case 2:
+{
+      // Min and max values for server versions.
+      std::string messagePart = "";
+      std::string expression = base::trim(parts[0]);
+      if (base::hasPrefix(expression, "(") && base::hasSuffix(expression, ")"))
+        expression = expression.substr(1, expression.size() - 2);
+      std::vector<std::string> expressionParts = base::split(expression, " ");
+      if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
+        messagePart = handleServerVersion(expressionParts, true);
+
+      expression = base::trim(parts[1]);
+      if (base::hasPrefix(expression, "(") && base::hasSuffix(expression, ")"))
+        expression = expression.substr(1, expression.size() - 2);
+      expressionParts = base::split(expression, " ");
+      if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
+        messagePart += " and " + handleServerVersion(expressionParts, false);
+
+      if (messagePart.empty())
+        return "";
+
+      return base::strfmt(message.c_str(), messagePart.c_str());
+    }
+
+    case 1:
+    {
+      // A single expression.
+      std::string messagePart = "";
+      std::vector<std::string> expressionParts = base::split(predicate, " ");
+      if (expressionParts.size() == 1)
+  {
+        message = "\nThis syntax is only allowed if ";
+        if (base::hasPrefix(predicate, "SQL_MODE_ACTIVE("))
+          message += predicate.substr(16, predicate.size() - 17) + " is active.";
+        else if (base::hasPrefix(predicate, "!SQL_MODE_ACTIVE("))
+          message += predicate.substr(17, predicate.size() - 18) + " is not active.";
   }
   else
   {
+        if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
+          messagePart = handleServerVersion(expressionParts, true);
+      }
+
+      if (messagePart.empty())
+        return "";
+
+      return base::strfmt(message.c_str(), messagePart.c_str());
+    }
+    default:
+      return "";
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool handleLexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
+  ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
+{
+  std::ostringstream error;
+  pANTLR3_LEXER lexer = (pANTLR3_LEXER)(recognizer->super);
+  start = recognizer->state->tokenStartCharIndex;
+
+  length = exception->index - start;
+
+  std::string tokenText((char*)start, length);
     switch (exception->type)
     {
     case ANTLR3_RECOGNITION_EXCEPTION:
-      // Invalid character. Can currently never appear because any input from the Unicode BMP
-      // is acceptable input for our parser. We cannot parse input beyond the BMP.
-      message += "'";
-      if (isprint(exception->c))
-        message += (char)exception->c;
-      else
-        message += (ANTLR3_UINT8)(exception->c);
-
-      message += "' is not valid input";
+    {
+      switch (tokenText[0])
+      {
+        case '/':
+        error << "unfinished multiline comment";
+          break;
+        case 'x':
+        case 'X':
+          error << "unfinished hex string literal";
+          break;
+        case 'b':
+        case 'B':
+          error << "unfinished binary string literal";
+          break;
+        default:
+        error << "unexpected input";
       break;
-
-    case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
-      message += (ANTLR3_UINT8)(exception->c);
-      message += " is not valid input";
+      }
       break;
     }
+
+    case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
+    {
+      switch (recognizer->state->type) {
+        case DOUBLE_QUOTE:
+          error << "unfinished double quote string";
+          break;
+
+        case SINGLE_QUOTE:
+          error << "unfinished single quote string";
+          break;
+
+        case BACK_TICK:
+          error << "unfinished back tick quote string";
+      break;
+
+        default:
+          error << "unexpected input";
+          break;
+      }
+      break;
+    }
+
+    case ANTLR3_FAILED_PREDICATE_EXCEPTION:
+    {
+      // One of the semantic predicates failed. Since most of those are our version check predicates
+      // we can use that to give the user a hint about this.
+      std::string predicate = (const char*)exception->message;
+      RecognitionContext *context = (RecognitionContext*)recognizer->state->userp;
+      error << "'" << tokenText << "' is not a valid keyword" << createErrorFromPredicate(predicate, context->version);
+      break;
+    }
+
+    default:
+      return false;
   }
 
+  message = error.str();
   return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
+bool handleParserError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
   pANTLR3_UINT8 *tokenNames, ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
 {
   std::ostringstream error;
@@ -151,6 +293,9 @@ static bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCE
   {
   case ANTLR3_RECOGNITION_EXCEPTION:
     // Unpredicted input.
+    if (error_token->type == INVALID_INPUT) // Our catch all rule for any char not allowed in MySQL.
+      error << token_text << " is not allowed at all";
+    else
     error << token_text << " (" << token_name << ") is not valid input at this position";
     break;
 
@@ -208,13 +353,14 @@ static bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCE
     break;
 
   case ANTLR3_FAILED_PREDICATE_EXCEPTION:
-    // Appears when a gated semantic predicate is used in the grammar, but not for predicting an alternative,
-    // e.g. ... some_rule {condition}? => some_rule.
-    // If the condition does not match we get a failed predicate error. So it's more like a grammar error
-    // unless this is by intention (which is never the case in the MySQL grammar where predicates are only used
-    // to guide the parser).
-    error << "failed predicate";
+    {
+      // One of the semantic predicates failed. Since most of those are our version check predicates
+      // we can use that to give the user a hint about this.
+      std::string predicate = (const char*)exception->message;
+      RecognitionContext *context = (RecognitionContext*)recognizer->state->userp;
+      error << token_text << " (" << token_name << ") is not valid input here." << createErrorFromPredicate(predicate, context->version);
     break;
+    }
 
   case ANTLR3_MISMATCHED_TREE_NODE_EXCEPTION:
     // This is very likely a tree parser error and hence not relevant here (no info in ANTLR docs).
@@ -306,21 +452,19 @@ extern "C" {
       switch (recognizer->type)
       {
       case ANTLR3_TYPE_LEXER:
-        if (!handle_lexer_error(recognizer, exception, start, length, message))
+        if (!handleLexerError(recognizer, exception, start, length, message))
           return;
         break;
 
       case ANTLR3_TYPE_PARSER:
-        if (!handle_parser_error(recognizer, exception, tokenNames, start, length, message))
+        if (!handleParserError(recognizer, exception, tokenNames, start, length, message))
           return;
         break;
       }
 
-      pANTLR3_COMMON_TOKEN error_token = (pANTLR3_COMMON_TOKEN)(exception->token);
       MySQLRecognitionBase *our_recognizer = (MySQLRecognitionBase*)((RecognitionContext*)recognizer->state->userp)->payload;
-      our_recognizer->add_error("Syntax error: " + message,
-        (error_token == NULL) ? 0 : error_token->type, start,
-        exception->line, exception->charPositionInLine, length);
+      our_recognizer->add_error("Syntax error: " + message, recognizer->state->type, start, exception->line,
+        exception->charPositionInLine, length);
     }
   }
 
@@ -1308,14 +1452,6 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);
     d->_parser->reset(d->_parser);
-
-    // Manually free adaptor and vector pool members. The parser reset() misses them and we cannot
-    // add this code to the parser (as it is generated). Without that these members grow endlessly.
-    d->_parser->vectors->close(d->_parser->vectors);
-    d->_parser->vectors = antlr3VectorFactoryNew(0);
-
-    d->_parser->adaptor->free(d->_parser->adaptor);
-    d->_parser->adaptor = ANTLR3_TREE_ADAPTORNew(d->_tokens->tstream->tokenSource->strFactory);
   }
 
   switch (parse_unit)

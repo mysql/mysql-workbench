@@ -125,7 +125,7 @@ void SynchronizeDifferencesPage::update_original_columns(std::list<db_ColumnRef>
     }
     if (!orig_table.is_valid())
     {
-      log_error("Internal error, could not find original object for table %s.%s\n", schema->name().c_str(), table->name().c_str());
+      logError("Internal error, could not find original object for table %s.%s\n", schema->name().c_str(), table->name().c_str());
       continue;
     }
 
@@ -133,7 +133,7 @@ void SynchronizeDifferencesPage::update_original_columns(std::list<db_ColumnRef>
     if (orig_column.is_valid())
       orig_column->oldName((*col)->oldName());
     else
-      log_error("Could not find original column for %s [old %s]\n", (*col)->name().c_str(), (*col)->oldName().c_str());
+      logError("Could not find original column for %s [old %s]\n", (*col)->name().c_str(), (*col)->oldName().c_str());
   }
 }
 
@@ -180,14 +180,14 @@ void SynchronizeDifferencesPage::update_original_tables(std::list<db_TableRef> &
     db_SchemaRef orig_schema = grt::find_named_object_in_list(_src->schemata(), (*tbl)->owner()->name());
     if (!orig_schema.is_valid())
     {
-      log_error("Could not find original schema for %s\n", (*tbl)->owner()->name().c_str());
+      logError("Could not find original schema for %s\n", (*tbl)->owner()->name().c_str());
       continue;
     }
     db_TableRef orig_table = grt::find_named_object_in_list(orig_schema->tables(), (*tbl)->name());
     if (orig_table.is_valid())
         orig_table->oldName((*tbl)->oldName());
     else
-      log_error("Could not find original table for %s\n", (*tbl)->name().c_str());
+      logError("Could not find original table for %s\n", (*tbl)->name().c_str());
   }
 }
 

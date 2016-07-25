@@ -323,7 +323,7 @@ void ModelFile::open(const std::string &path)
                                                      path.c_str(), base::fmttime(autosave_ts, DATETIME_FMT).c_str(), base::fmttime(file_ts, DATETIME_FMT).c_str()),
                                         _("Recover"), _("Continue"), "") == mforms::ResultOk)
     {
-      log_info("Recovering %s...", path.c_str());
+      logInfo("Recovering %s...", path.c_str());
       recover= true;
       _content_dir = auto_save_dir;
 
@@ -355,7 +355,7 @@ void ModelFile::open(const std::string &path)
     }
     else // Cancel recovery
     {
-      log_info("Cleaning up leftover auto-save directory %s", auto_save_dir.c_str());
+      logInfo("Cleaning up leftover auto-save directory %s", auto_save_dir.c_str());
       rmdir_recursively(auto_save_dir.c_str());
     }
   }
@@ -924,7 +924,7 @@ void ModelFile::cleanup()
 void ModelFile::add_db_file(const std::string &content_dir)
 {
 
-  std::string db_tpl_file_path= bec::GRTManager::get().get_data_file_path("data/" DB_FILE);
+  std::string db_tpl_file_path= bec::GRTManager::get()->get_data_file_path("data/" DB_FILE);
   std::string db_file_dir_path= content_dir + "/" + DB_DIR;
   add_attachment_file(db_file_dir_path, db_tpl_file_path);
 }

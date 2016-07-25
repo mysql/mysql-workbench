@@ -22,7 +22,6 @@
 #include "mforms/fs_object_selector.h"
 #include "grtdb/db_helpers.h"
 
-#include "grt/common.h"
 #include "base/string_utilities.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
@@ -65,6 +64,7 @@ _params_panel(mforms::TransparentPanel), _params_table(0),
 _ssl_panel(mforms::TransparentPanel), _ssl_table(0),
 _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
 _options_panel(mforms::TransparentPanel), _options_table(0),
+_create_group(false),
 _show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
 _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0),
@@ -107,10 +107,13 @@ _last_active_tab(-1)
   _desc3.set_text(_("Method to use to connect to the RDBMS"));
   _desc3.set_style(mforms::SmallHelpTextStyle);
 
+
+  _stored_connection_sel.set_name("Connection List");
   if (_show_connection_combo)
     scoped_connect(_stored_connection_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_stored_conn, this));
   scoped_connect(_rdbms_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_rdbms, this));
   scoped_connect(_driver_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_driver, this));
+  scoped_connect(_name_entry.signal_changed(), boost::bind(&DbConnectPanel::change_connection_name, this));
 
   _table.set_name("connect_panel:table");
   _table.set_row_count(flags & DbConnectPanelShowRDBMSCombo ? 4 : 2);
@@ -123,7 +126,7 @@ _last_active_tab(-1)
   if (flags & DbConnectPanelShowRDBMSCombo)
   {
     _table.add(&_label2, 0, 1, row, row+1, mforms::HFillFlag);
-    _table.add(&_rdbms_sel, 1, 2, row, row+1, mforms::HExpandFlag | mforms::HFillFlag);
+    _table.add(&_rdbms_sel, 1, 2, row, row+1, mforms::HExpandFlag | mforms::HFillFlag | mforms::VFillFlag);
     _table.add(&_desc2, 2, 3, row, row+1, mforms::HFillFlag);
     row++;
     _table.add(mforms::manage(new mforms::Label()), 0, 1, row, row+1, mforms::HFillFlag);
@@ -135,20 +138,21 @@ _last_active_tab(-1)
     if (_show_connection_combo)
     {
       _table.add(&_label1, 0, 1, row, row+1, mforms::HFillFlag);
-      _table.add(&_stored_connection_sel, 1, 2, row, row+1, mforms::HExpandFlag | mforms::HFillFlag);
+      _table.add(&_stored_connection_sel, 1, 2, row, row+1, mforms::HExpandFlag | mforms::HFillFlag | mforms::VFillFlag);
       _table.add(&_desc1, 2, 3, row, row+1, mforms::HFillFlag);
     }
     else
     {
       _table.add(&_label1, 0, 1, row, row+1, mforms::HFillFlag);
-      _table.add(&_name_entry, 1, 2, row, row+1, mforms::HExpandFlag | mforms::HFillFlag);
+      _table.add(&_name_entry, 1, 2, row, row+1, mforms::HExpandFlag | mforms::HFillFlag | mforms::VFillFlag);
       _table.add(&_desc1, 2, 3, row, row+1, mforms::HFillFlag);    
     }
     row++;
   }
-  
+
+  _label3.set_size(-1, 30);
   _table.add(&_label3, 0, 1, row, row+1, mforms::HFillFlag);
-  _table.add(&_driver_sel, 1, 2, row, row+1, mforms::HExpandFlag | mforms::HFillFlag);
+  _table.add(&_driver_sel, 1, 2, row, row+1, mforms::HExpandFlag | mforms::HFillFlag | mforms::VFillFlag);
   _table.add(&_desc3, 2, 3, row, row+1, mforms::HFillFlag);
 
   _tab.set_name("connect_panel:tab");
@@ -160,11 +164,11 @@ _last_active_tab(-1)
   set_name("connect_panel");
 
   add(&_content, true, true);
-  _content.add(&_table, false, false);
+  _content.add(&_table, false, true);
   _content.add(&_tab, true, true);
   _warning.set_style(mforms::SmallHelpTextStyle);
   _warning.set_front_color("#FF0000");
-  _content.add(&_warning, false, false);
+  _content.add(&_warning, false, true);
 }
 
 
@@ -172,6 +176,40 @@ DbConnectPanel::~DbConnectPanel()
 {
   if (_delete_connection_be)
     delete _connection;
+}
+
+
+void DbConnectPanel::connection_user_input(std::string &text_entry, bool &create_group, bool new_entry /*= true*/)
+{
+  std::size_t pos = text_entry.find_first_of("/");
+  if (pos == std::string::npos)
+    return;
+  create_group = false;
+  std::string group = text_entry.substr(0, pos);
+  std::string message = (new_entry) ? "Do you want to create connection inside the group" : "Do you want to split the name and move the connection to the group";
+  int ret = mforms::Utilities::show_message("Place Connection in a Group.",
+                                            base::strfmt("You have used a forward slash in your connection name, which is used to separate a group from the real connection name.\n"
+                                            "%s '%s'? If you select 'No' all forward slashes in the name will be replaced by underscores.", 
+                                            message.c_str(), group.c_str()), _("Yes"), _("No"));
+  if (ret == mforms::ResultOk)
+  {
+    create_group = true;
+    return;
+  }
+  while (pos != std::string::npos)
+  {
+    text_entry[pos] = '_';
+    pos = text_entry.find_first_of("/", pos + 1);
+  }
+}
+
+void DbConnectPanel::change_connection_name()
+{
+  if (_create_group)
+    return;
+  std::string text = _name_entry.get_string_value();
+  connection_user_input(text, _create_group);
+  _name_entry.set_value(text);
 }
 
 
@@ -204,13 +242,13 @@ void DbConnectPanel::init(DbConnection *conn, const db_mgmt_ConnectionRef &defau
     _anonymous_connection= default_conn;
   else
   {
-    _anonymous_connection = db_mgmt_ConnectionRef(_connection->get_grt());
+    _anonymous_connection = db_mgmt_ConnectionRef(grt::Initialized);
     _anonymous_connection->owner(_connection->get_db_mgmt());
   }
 
   if (!_allowed_rdbms.is_valid())
   {
-    _allowed_rdbms = grt::ListRef<db_mgmt_Rdbms>(_connection->get_grt());
+    _allowed_rdbms = grt::ListRef<db_mgmt_Rdbms>(true);
     _allowed_rdbms.ginsert(_connection->get_db_mgmt()->rdbms()[0]);
   }
 
@@ -264,7 +302,7 @@ db_mgmt_ConnectionRef DbConnectPanel::get_connection(bool initInvalid)
 {
   if (!_connection->get_connection().is_valid() && initInvalid)
   {
-    db_mgmt_ConnectionRef connection(get_be()->get_grt());
+    db_mgmt_ConnectionRef connection(grt::Initialized);
     connection->owner(get_be()->get_db_mgmt());
     connection->driver(selected_driver());
     set_connection(connection);
@@ -461,7 +499,7 @@ void DbConnectPanel::change_active_rdbms()
       _updating = false;      
     }
     else
-      log_warning("DbConnectPanel: no active rdbms\n");
+      logWarning("DbConnectPanel: no active rdbms\n");
   }
 }
 
@@ -644,7 +682,7 @@ bool DbConnectPanel::test_connection()
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
     if (!connectionProperties.is_valid())
     {
-      db_mgmt_ConnectionRef connection(get_be()->get_grt());
+      db_mgmt_ConnectionRef connection(grt::Initialized);
       connection->owner(get_be()->get_db_mgmt());
       connection->driver(selected_driver());
       set_connection(connection);
@@ -657,20 +695,6 @@ bool DbConnectPanel::test_connection()
     message.append("Port: " + grt::IntegerRef(connectionProperties->parameterValues().get_int("port")).toString() + "\n");
     message.append("User: " + connectionProperties->parameterValues().get_string("userName") + "\n");
 
-    if ( connectionProperties->driver()->name() == "MySQLFabric")
-    {
-      grt::GRT *grt = connectionProperties->get_grt();
-      grt::BaseListRef args(grt);
-      args->insert_unchecked(connectionProperties);
-      grt::ValueRef result= grt->call_module_function("WBFabric", "testConnection", args);
-      std::string error = grt::StringRef::extract_from(result);
-      if (!error.empty())
-      {
-        failed = true;
-        message = error;
-      }
-    }
-    else
     {
       sql::ConnectionWrapper _dbc_conn= dbc_drv_man->getConnection(connectionProperties);
       
@@ -686,7 +710,7 @@ bool DbConnectPanel::test_connection()
         }
         if (!bec::is_supported_mysql_version(version))
         {
-          log_error("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
+          logError("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
                     version.c_str());
           if (mforms::Utilities::show_warning("Connection Warning",
                                               base::strfmt("Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
@@ -760,13 +784,11 @@ void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
   _warning.set_text("");
   if (!connection.is_valid())
     connection = _anonymous_connection;
-  else if (connection->parameterValues().has_key("fabric_managed"))
-    _warning.set_text(_("This is a fabric managed connection"));
 
   db_mgmt_DriverRef driver = connection->driver();
   if (!driver.is_valid())
   {
-    log_error("Connection %s has no driver set\n", connection->name().c_str());
+    logError("Connection %s has no driver set\n", connection->name().c_str());
     return;
   }
 
@@ -846,18 +868,17 @@ void DbConnectPanel::change_active_stored_conn()
 void DbConnectPanel::launch_ssl_wizard()
 {
   mforms::Form *parent = get_parent_form();
-  grt::BaseListRef args(get_be()->get_grt());
-  args.ginsert(mforms_to_grt(get_be()->get_grt(), parent, "Form"));
+  grt::BaseListRef args(true);
+  args.ginsert(mforms_to_grt(parent, "Form"));
   args.ginsert(get_connection(true));
   args.ginsert(grt::StringRef(get_connection(true)->id()));
-  get_be()->get_grt()->call_module_function("PyWbUtils", "generateCertificates", args);
-  
+  grt::GRT::get()->call_module_function("PyWbUtils", "generateCertificates", args);
   _connection->update();
 }
 
 void DbConnectPanel::open_ssl_wizard_directory()
 {
-  std::string path = base::join_path(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
+  std::string path = base::joinPath(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
   
   if (base::is_directory(path))
     Utilities::open_url(path);
@@ -869,7 +890,7 @@ void DbConnectPanel::open_ssl_wizard_directory()
 
 db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 {
-  grt::ListRef<db_mgmt_Rdbms> rdbms_list(_connection->get_grt());
+  grt::ListRef<db_mgmt_Rdbms> rdbms_list(true);
   rdbms_list.ginsert(selected_rdbms());
   DbConnectionEditor editor(_connection->get_db_mgmt());
 
@@ -940,25 +961,25 @@ void DbConnectPanel::begin_layout()
 
 void DbConnectPanel::end_layout()
 {
-  if (_param_rows.size())
+  if (!_param_rows.empty())
   {
     _params_panel.add(_params_table);
     _tab.add_page(&_params_panel, _("Parameters"));
   }
 
-  if (_ssl_rows.size())
+  if (!_ssl_rows.empty())
   {
     _ssl_panel.add(_ssl_table);
     _tab.add_page(&_ssl_panel, _("SSL"));
   }
 
-  if (_advanced_rows.size())
+  if (!_advanced_rows.empty())
   {
     _advanced_panel.add(_advanced_table);
     _tab.add_page(&_advanced_panel, _("Advanced"));
   }
 
-  if (_options_rows.size())
+  if (!_options_rows.empty())
   {
     _options_panel.add(_options_table);
     _tab.add_page(&_options_panel, _("Options"));
@@ -982,13 +1003,13 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear)
   }
   else
   {
-    log_error("Invalid storage key format for option %s\n", param->object().id().c_str());
+    logError("Invalid storage key format for option %s\n", param->object().id().c_str());
     return;
   }
   for (grt::DictRef::const_iterator iter = paramValues.begin(); iter != paramValues.end(); ++iter)
   {
-    storage_key = bec::replace_string(storage_key, "%" + iter->first + "%", iter->second.toString());
-    username = bec::replace_string(username, "%" + iter->first + "%", iter->second.toString());
+    storage_key = base::replaceString(storage_key, "%"+iter->first+"%", iter->second.toString());
+    username = base::replaceString(username, "%"+iter->first+"%", iter->second.toString());
   }
 
   if (username.empty())
@@ -1078,7 +1099,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     _views.push_back(box);
 
     mforms::TableItemFlags flags;
-    flags = mforms::HExpandFlag | mforms::HFillFlag;
+    flags = mforms::HExpandFlag | mforms::HFillFlag | mforms::VFillFlag;
     if (driver_param->get_type() == DbDriverParam::ptText)
       flags = flags | mforms::VExpandFlag|mforms::VFillFlag;
     table->add(mforms::manage(box), 1, 2, bounds.top, bounds.top + 1, flags);
@@ -1194,7 +1215,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       
       // value
       {
-        grt::StringRef value= driver_param->get_value_repr();
+        grt::StringRef value = driver_param->getValue();
         if (value.is_valid())
           ctrl->set_value(*value);
       }
@@ -1262,7 +1283,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       }
       catch (std::exception &e)
       {
-        log_error("Error calling get_enum_options() for param %s: %s", 
+        logError("Error calling get_enum_options() for param %s: %s", 
                 driver_param->get_control_name().c_str(),
                 e.what());
         mforms::Utilities::show_error("Connection Setup",
@@ -1290,7 +1311,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       break;
     }
     default:
-      log_warning("Unknown param type for %s\n", driver_param->get_control_name().c_str());
+      logWarning("Unknown param type for %s\n", driver_param->get_control_name().c_str());
       break;
   }
 }

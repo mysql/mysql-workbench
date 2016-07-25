@@ -68,7 +68,7 @@ add_library(db.mysql.editors.wbp MODULE
     schema_editor_fe.cpp
 )
 
-add_dependencies(db.mysql.editors.wbp mysqlparser)
+add_dependencies(db.mysql.editors.wbp parsers)
 
 target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES})
 

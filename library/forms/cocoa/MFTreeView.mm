@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -581,10 +581,13 @@ public:
   
   virtual std::string get_string(int column) const
   {
-    NSString *s = [_self objectForKey: [_self.treeView keyForColumn: column]];
-    if (s)
-      return s.UTF8String;
-
+    id o = [_self objectForKey: [_self.treeView keyForColumn: column]];
+    if (o != nil) {
+      if ([o isKindOfClass: NSString.class])
+        return ((NSString *)o).UTF8String;
+      if ([o isKindOfClass: NSNumber.class])
+        return ((NSNumber *)o).stringValue.UTF8String;
+    }
     return "";
   }
 
@@ -926,7 +929,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     if (node)
       mOwner->overlay_icon_for_node_clicked(node, mClickingOverlay);
     else
-      log_debug("Error getting node for row %li, shouldn't be NULL\n", mOverlayedRow);
+      logDebug("Error getting node for row %li, shouldn't be NULL\n", mOverlayedRow);
 
     mClickingOverlay = -1;
     return true;
@@ -1117,25 +1120,18 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   return mOutline.enabled;
 }
 
-
-- (NSSize)minimumSize
-{
-  return NSMakeSize(40, 50);
-}
-
-
 - (NSInteger)addColumnWithTitle:(NSString*)title type:(mforms::TreeColumnType)type editable:(BOOL)editable
                           width:(int)width
 {
-  int idx= mOutline.tableColumns.count;
-  NSString *columnKey = [NSString stringWithFormat:@"%i", idx];
+  int idx = mOutline.tableColumns.count;
+  NSString *columnKey = [NSString stringWithFormat: @"%i", idx];
   NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier: columnKey];
 
   [mColumnKeys addObject: columnKey];
   
   [mOutline addTableColumn: column];
   [column.headerCell setTitle: title];
-  column.resizingMask = NSTableColumnUserResizingMask;
+  //column.resizingMask = NSTableColumnUserResizingMask;
   switch (type)
   {
     case mforms::CheckColumnType:
@@ -1308,12 +1304,12 @@ static void sortChildrenOfNode(MFTreeNodeImpl *node,
   }
 }
 
-- (void)setViewFlags: (NSInteger)tag
+- (void)setViewFlags: (ViewFlags)flags
 {
-  mOutline.viewFlags = tag;
+  mOutline.viewFlags = flags;
 }
 
-- (NSInteger)viewFlags
+- (ViewFlags)viewFlags
 {
   return mOutline.viewFlags;
 }
@@ -1392,7 +1388,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   }
   catch (std::exception &exc)
   {
-    log_error("Exception in expand_toggle(true) handler\n");
+    logError("Exception in expand_toggle(true) handler\n");
   }
 }
 
@@ -1409,7 +1405,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   }
   catch (std::exception &exc)
   {
-    log_error("Exception in expand_toggle(false) handler\n");
+    logError("Exception in expand_toggle(false) handler\n");
   }  
 }
 
@@ -1699,21 +1695,6 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   mOutline.backgroundColor = color;
 }
 
-- (void)resizeSubviewsWithOldSize:(NSSize)oldSize
-{
-  if (mOwner != nil && !mOwner->is_destroying())
-  {
-    [super resizeSubviewsWithOldSize: oldSize];
-    NSArray<NSTableColumn *> *columns = mOutline.tableColumns;
-    if (columns.count == 1)
-    {
-      float w = NSWidth(mOutline.frame);
-      if (columns.lastObject.width < w)
-        columns.lastObject.width = w;
-    }
-  }
-}
-
 - (void)setNode: (MFTreeNodeImpl*)node forTag: (const std::string&)tag
 {
   if (!tag.empty() && mTagIndexEnabled)
@@ -1892,6 +1873,16 @@ static void treeview_set_selected(mforms::TreeView *self, mforms::TreeNodeRef no
     }
     else
       [tree->mOutline deselectRow: treeview_row_for_node(self, node)];
+  }
+}
+
+
+static void treeviewScrollToNode(mforms::TreeView *backend, mforms::TreeNodeRef node)
+{
+  MFTreeViewImpl *tree = backend->get_data();
+  if (tree != NULL && node.is_valid())
+  {
+    [tree->mOutline scrollRowToVisible: treeview_row_for_node(backend, node)];
   }
 }
 
@@ -2174,26 +2165,27 @@ void cf_treeview_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
   
-  f->_treeview_impl.create= &treeview_create;
-  f->_treeview_impl.add_column= &treeview_add_column;
-  f->_treeview_impl.end_columns= &treeview_end_columns;
+  f->_treeview_impl.create = &treeview_create;
+  f->_treeview_impl.add_column = &treeview_add_column;
+  f->_treeview_impl.end_columns = &treeview_end_columns;
   
-  f->_treeview_impl.clear= &treeview_clear;
+  f->_treeview_impl.clear = &treeview_clear;
 
-  f->_treeview_impl.clear_selection= &treeview_clear_selection;
-  f->_treeview_impl.get_selected_node= &treeview_get_selected;
-  f->_treeview_impl.get_selection= &treeview_get_selection;
-  f->_treeview_impl.set_selected= &treeview_set_selected;
+  f->_treeview_impl.clear_selection = &treeview_clear_selection;
+  f->_treeview_impl.get_selected_node = &treeview_get_selected;
+  f->_treeview_impl.get_selection = &treeview_get_selection;
+  f->_treeview_impl.set_selected = &treeview_set_selected;
+  f->_treeview_impl.scrollToNode = &treeviewScrollToNode;
 
   f->_treeview_impl.set_selection_mode = &treeview_set_selection_mode;
   f->_treeview_impl.get_selection_mode = &treeview_get_selection_mode;
   
-  f->_treeview_impl.set_row_height= &treeview_set_row_height;
+  f->_treeview_impl.set_row_height = &treeview_set_row_height;
   
-  f->_treeview_impl.root_node= &treeview_root_node;
+  f->_treeview_impl.root_node = &treeview_root_node;
 
-  f->_treeview_impl.set_allow_sorting= &treeview_allow_sorting;
-  f->_treeview_impl.freeze_refresh= &treeview_freeze_refresh;
+  f->_treeview_impl.set_allow_sorting = &treeview_allow_sorting;
+  f->_treeview_impl.freeze_refresh = &treeview_freeze_refresh;
   
   f->_treeview_impl.row_for_node = &treeview_row_for_node;
   f->_treeview_impl.node_at_row = &treeview_node_at_row;

@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MYSQL_SQL_SCHEMA_RENAME_H_
-#define _MYSQL_SQL_SCHEMA_RENAME_H_
-
+#pragma once
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_schema_rename.h"
@@ -35,10 +32,10 @@ class Mysql_sql_schema_rename
 {
 public:
   typedef std::shared_ptr<Mysql_sql_schema_rename> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_schema_rename(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_schema_rename()); }
   virtual ~Mysql_sql_schema_rename() {}
 protected:
-  Mysql_sql_schema_rename(grt::GRT *grt);
+  Mysql_sql_schema_rename();
 
 public:
   int rename_schema_references(db_CatalogRef catalog, const std::string &old_schema_name, const std::string &new_schema_name);
@@ -74,6 +71,3 @@ protected:
   };
   friend class Null_state_keeper;
 };
-
-
-#endif // _MYSQL_SQL_SCHEMA_RENAME_H_

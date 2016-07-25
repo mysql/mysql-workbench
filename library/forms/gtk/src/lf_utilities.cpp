@@ -47,6 +47,7 @@ extern "C" {
 #include "../lf_utilities.h"
 #include "gtk_helpers.h"
 #include "mforms.h"
+#include "main_app.h"
 
 namespace mforms {
 namespace gtk {
@@ -345,7 +346,7 @@ TimeoutHandle UtilitiesImpl::add_timeout(float interval, const boost::function<b
   catch (std::exception &exc)
   {
     static const char* const default_log_domain = "Utilities";
-    log_exception("Utilities: exception in add timeout function", exc);
+    logException("Utilities: exception in add timeout function", exc);
   }
   return 0;
 }
@@ -654,6 +655,7 @@ class TransparentMessage : public Gtk::Window
     sigc::slot<bool> cancel_slot;
     Glib::Mutex mutex;
     bool _is_runing;
+    runtime::loop _loop;
     std::string _title;
     std::string _description;
     virtual bool on_button_release_event(GdkEventButton* ev);
@@ -815,8 +817,6 @@ void TransparentMessage::show_message(const std::string& title, const std::strin
   else
     realize();
 
-
-
   Glib::RefPtr<Gdk::Window> window = get_window();
   show_all();
   window->process_updates(true);
@@ -825,7 +825,7 @@ void TransparentMessage::show_message(const std::string& title, const std::strin
 void TransparentMessage::run()
 {
   _is_runing = true;
-  Gtk::Main::run();
+  _loop.run();
 }
 
 //------------------------------------------------------------------------------
@@ -838,7 +838,7 @@ void TransparentMessage::stop()
     running_modal = false;
     if (_is_runing)
     {
-      Gtk::Main::quit();
+      _loop.quit();
       _is_runing = false;
     }
   }
@@ -857,7 +857,7 @@ void TransparentMessage::cancel_clicked()
       running_modal = false;
       if (_is_runing)
       {
-        Gtk::Main::quit();
+        _loop.quit();
         hide();
         _is_runing = false;
       }
@@ -956,7 +956,8 @@ void UtilitiesImpl::set_thread_name(const std::string &name)
 
 void UtilitiesImpl::beep()
 {
-  get_mainwindow()->get_window()->beep();
+  if (get_mainwindow())
+    get_mainwindow()->get_window()->beep();
 }
 
 //------------------------------------------------------------------------------
@@ -1008,7 +1009,7 @@ Glib::RefPtr<Gdk::Pixbuf> UtilitiesImpl::get_cached_icon(const std::string &icon
 
   if (icon == "folder")
   {
-    Glib::RefPtr<Gdk::Pixbuf> pix = get_mainwindow()->render_icon_pixbuf(Gtk::Stock::DIRECTORY, Gtk::ICON_SIZE_MENU);
+    Glib::RefPtr<Gdk::Pixbuf> pix = Gtk::IconTheme::get_default()->load_icon("folder", Gtk::ICON_SIZE_MENU);
     icon_cache[icon] = pix;
     return pix;
   }
@@ -1073,6 +1074,8 @@ double UtilitiesImpl::get_text_width(const std::string &text, const std::string 
   std::map<std::string, FontMeasurement*>::iterator it = FontMeasurementDescriptors.find(font_desc);
   if (it == FontMeasurementDescriptors.end())
   {
+    if (get_mainwindow() == nullptr)
+      throw std::runtime_error("Need main window to continue.");
     PangoFontDescription *font_description = pango_font_description_new ();
     FontMeasurement *font_measurement = new FontMeasurement(pango_layout_new(get_mainwindow()->get_pango_context()->gobj()));
 

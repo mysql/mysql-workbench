@@ -87,33 +87,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)subviewMinimumSizeChanged
-{
-  NSSize minSize= self.preferredSize;
-  NSSize size= self.frame.size;
-  
-  // size of some subview has changed, we check if our current size is enough
-  // to fit it and if not, request forward the size change notification to superview
-  
-  if (mFreezeRelayout > 0)
-    return;
-
-  if (minSize.width != size.width || minSize.height != size.height)
-  {
-    if (self.superview)
-    {
-      [self.superview subviewMinimumSizeChanged];
-      return;
-    }
-    else
-      [self setFrameSize: minSize];
-  }
-  [self resizeSubviewsWithOldSize:size];
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (BOOL)setFreezeRelayout:(BOOL)flag
+- (BOOL)setFreezeRelayout: (BOOL)flag
 {
   if (flag)
     mFreezeRelayout++;
@@ -124,11 +98,10 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
     {
       // exec when idle to avoid crashes caused by unsettled structure changes
       // (like when removing subviews from a container destructor)
-      [self performSelector: @selector(subviewMinimumSizeChanged)
+      [self performSelector: @selector(relayout)
                  withObject: nil
                  afterDelay: 0
                     inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
-      [self.window recalculateKeyViewLoop];
       return YES;
     }
   }

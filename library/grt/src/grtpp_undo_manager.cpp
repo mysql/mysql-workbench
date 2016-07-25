@@ -807,7 +807,7 @@ UndoGroup *UndoManager::begin_undo_group(UndoGroup *group)
   if (!group)
     group= new UndoGroup();
 
-  log_debug3("begin undo group: %s\n", group->description().c_str());
+  logDebug3("begin undo group: %s\n", group->description().c_str());
 
   add_undo(group);
   
@@ -884,7 +884,7 @@ bool UndoManager::end_undo_group(const std::string &description, bool trim)
       }
     }
      */
-    log_debug3("end undo group: %s\n", description.c_str());
+    logDebug3("end undo group: %s\n", description.c_str());
     return true;
   }
 }
@@ -1082,7 +1082,7 @@ void UndoManager::add_undo(UndoAction *cmd)
     if (!flag)
     {
       if (debug_undo && !dynamic_cast<UndoGroup*>(cmd))
-        log_debug2("added undo action that's not a group to top");
+        logDebug2("added undo action that's not a group to top");
       _undo_stack.push_back(cmd);
       trim_undo_stack();
     }
@@ -1178,7 +1178,7 @@ AutoUndo::~AutoUndo()
 
       if (group && group->is_open())
       {
-        log_warning("automatically cancelling unclosed undo group");
+        logWarning("automatically cancelling unclosed undo group");
         if (strcmp(tmp, "throw") == 0)
           throw std::logic_error("unclosed undo group");
       }

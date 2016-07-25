@@ -162,10 +162,10 @@ void BaseEditor::on_object_changed()
     // calling ui_refresh from here will cause refresh to be called from the GRT thread
     // which must not happen. delaying it to be executing when idle will make it 
     // get called on main thread
-    if (bec::GRTManager::get().in_main_thread())
+    if (bec::GRTManager::get()->in_main_thread())
       do_ui_refresh();
     else
-      _ui_refresh_conn = bec::GRTManager::get().run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
+      _ui_refresh_conn = bec::GRTManager::get()->run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
   }
   else
     _ignored_object_changes_for_ui_refresh++;
@@ -175,14 +175,14 @@ void BaseEditor::on_object_changed()
 
 void BaseEditor::undo_applied()
 {
-  _ui_refresh_conn = bec::GRTManager::get().run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
+  _ui_refresh_conn = bec::GRTManager::get()->run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void BaseEditor::run_from_grt(const boost::function<void()> &slot)
 {
-  bec::GRTManager::get().get_dispatcher()->execute_sync_function("editor action",
+  bec::GRTManager::get()->get_dispatcher()->execute_sync_function("editor action",
     boost::bind(boost::bind(&base::run_and_return_value<grt::ValueRef>, slot)));
 }
 

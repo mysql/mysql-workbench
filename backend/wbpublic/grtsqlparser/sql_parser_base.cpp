@@ -96,14 +96,14 @@ void Sql_parser_base::add_log_message(const std::string &text, int entry_type)
   // syntax checks and the like. Simple SQL errors shouldn't go into the log file.
   if (_messages_enabled)
   {
-    bool send_to_frontend = (!bec::GRTManager::get().in_main_thread());
+    bool send_to_frontend = (!bec::GRTManager::get()->in_main_thread());
 
     // TODO: The entry types needs a review. It should be streamlined to the logger levels.
     switch (entry_type)
     {
     case 0:
       {
-        log_debug2("%s", (text + "\n").c_str());
+        logDebug2("%s", (text + "\n").c_str());
 
         if (send_to_frontend)
           grt::GRT::get()->send_info(text);
@@ -112,7 +112,7 @@ void Sql_parser_base::add_log_message(const std::string &text, int entry_type)
     case 1:
       {
         ++_warn_count;
-        log_debug("%s", (text + "\n").c_str());
+        logDebug("%s", (text + "\n").c_str());
 
         if (send_to_frontend)
           grt::GRT::get()->send_warning(text);
@@ -120,14 +120,14 @@ void Sql_parser_base::add_log_message(const std::string &text, int entry_type)
       }
     case 2:
       {
-        log_debug("%s", (text + "\n").c_str());
+        logDebug("%s", (text + "\n").c_str());
 
         if (send_to_frontend)
           grt::GRT::get()->send_error(text);
         break;
       }
     default:
-      log_debug3("%s", (text + "\n").c_str());
+      logDebug3("%s", (text + "\n").c_str());
       break;
     }
   }

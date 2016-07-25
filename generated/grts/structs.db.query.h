@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -13,9 +18,9 @@
   #define GRT_STRUCTS_DB_QUERY_PUBLIC
 #endif
 
-#include <grts/structs.h>
-#include <grts/structs.ui.h>
-#include <grts/structs.db.mgmt.h>
+#include "grts/structs.h"
+#include "grts/structs.ui.h"
+#include "grts/structs.db.mgmt.h"
 
 
 class db_query_LiveDBObject;
@@ -199,8 +204,7 @@ public:
   db_query_Resultset(grt::MetaClass *meta=0)
   : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _columns(this, false),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -453,7 +457,7 @@ public:
   : db_query_Resultset(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _schema(""),
      _table(""),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -762,8 +766,7 @@ public:
   friend class ImplData;
   db_query_QueryBuffer(grt::MetaClass *meta=0)
   : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -1042,8 +1045,7 @@ public:
   : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false),
     _queryEditors(this, false),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -1404,5 +1406,9 @@ inline void register_structs_db_query_xml()
 
 #ifdef AUTO_REGISTER_GRT_CLASSES
 static struct _autoreg__structs_db_query_xml { _autoreg__structs_db_query_xml() { register_structs_db_query_xml(); } } __autoreg__structs_db_query_xml;
+#endif
+
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
 #endif
 
