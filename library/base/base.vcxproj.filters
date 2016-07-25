@@ -64,9 +64,6 @@
     <ClCompile Include="data_types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="session_wrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="jsonparser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -161,9 +158,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="base\jsonparser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="base\session_wrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="base\mem_stat.h">

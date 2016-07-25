@@ -273,7 +273,6 @@
     <ClCompile Include="home_screen_connections.cpp" />
     <ClCompile Include="home_screen_documents.cpp" />
     <ClCompile Include="home_screen_helpers.cpp" />
-    <ClCompile Include="home_screen_x_connections.cpp" />
     <ClCompile Include="hypertext.cpp" />
     <ClCompile Include="imagebox.cpp" />
     <ClCompile Include="jsonview.cpp" />
@@ -339,7 +338,6 @@
     <ClInclude Include="mforms\home_screen_connections.h" />
     <ClInclude Include="mforms\home_screen_documents.h" />
     <ClInclude Include="mforms\home_screen_helpers.h" />
-    <ClInclude Include="mforms\home_screen_x_connections.h" />
     <ClInclude Include="mforms\hypertext.h" />
     <ClInclude Include="mforms\imagebox.h" />
     <ClInclude Include="mforms\jsonview.h" />
