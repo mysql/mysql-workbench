@@ -103,11 +103,7 @@ namespace mforms
     HomeMenuDocumentModelAction,
     HomeMenuDocumentModel,
     HomeMenuDocumentSQLAction,
-    HomeMenuDocumentSQL,
-
-    HomeMenuXConnection,
-    HomeMenuXConnectionGroup,
-    HomeMenuXConnectionGeneric
+    HomeMenuDocumentSQL
 
   };
 

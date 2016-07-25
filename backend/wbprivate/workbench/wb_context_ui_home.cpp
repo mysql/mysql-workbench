@@ -345,7 +345,6 @@ void WBContextUI::show_home_screen(bool startClassic)
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Open Project"), "open_project");
     menu->add_item(_("Delete Project..."), "delete_project");
-    _home_screen->set_menu(menu, mforms::HomeMenuXConnection);
 
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Open Connection"), "open_connection");
