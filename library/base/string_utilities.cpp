@@ -391,7 +391,7 @@ std::string sanitize_file_name(const std::string &s)
   for (std::string::const_iterator c = s.begin(); c != s.end(); ++c)
   {
     // utf-8 has the high-bit = 1, so we just copy those verbatim
-    if (isalnum(*c) || (unsigned char)*c >= 128 || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
+    if ((unsigned char)*c >= 128 || isalnum(*c) || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
       out.push_back(*c);
     else
       out.push_back('_');
@@ -1620,7 +1620,25 @@ std::string unquote_identifier(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-  
+
+/**
+ * @brief Remove outer quotes from any text.
+ *
+ * @param text Text to unquote
+ * @return Return unqoted text.
+ */
+std::string unquote(const std::string &text)
+{
+  if (text.size() < 2)
+    return text;
+
+  if ((text[0] == '"' || text[0] == '`' || text[0] == '\'') && text[0] == text[text.size() - 1])
+    return text.substr(1, text.size() - 2);
+  return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::string quote_identifier(const std::string& identifier, const char quote_char)
 {
   return quote_char + identifier + quote_char;

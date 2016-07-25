@@ -23,6 +23,7 @@ typedef NS_ENUM(NSInteger, MTabSwitcherStyle)
   MPaletteTabSwitcher, // Similar to SectionTabSwitcher, but with slight changes (darker and centered)
   MPaletteTabSwitcherSmallText,
   MEditorTabSwitcher,
+  MEditorTabSwitcherX,
   MEditorBottomTabSwitcher,
   MEditorBottomTabSwitcherPinnable,
   MMainTabSwitcher

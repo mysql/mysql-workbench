@@ -66,7 +66,7 @@ GRTCodeEditor::GRTCodeEditor(GRTShellWindow *owner, bool module, const std::stri
   else
     _debugging_supported= false;
 
-  _text.set_font(bec::GRTManager::get().get_app_option_string("workbench.general.Editor:Font"));
+  _text.set_font(bec::GRTManager::get()->get_app_option_string("workbench.general.Editor:Font"));
 
   add(&_top, true, true);
 

@@ -31,9 +31,6 @@ namespace MySQL {
       virtual void OnTextChanged(EventArgs ^args) override;
       virtual void OnKeyDown(Windows::Forms::KeyEventArgs ^args) override;
       virtual void OnKeyPress(Windows::Forms::KeyPressEventArgs ^args) override;
-
-      mforms::ModifierKey GetModifiers(Windows::Forms::Keys keyData);
-    public:
     };
 
     public class TextBoxWrapper : public ViewWrapper

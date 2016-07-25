@@ -92,8 +92,8 @@ const bec::GRTDispatcher::Ref & GrtThreadedTask::dispatcher()
   if (!_dispatcher)
   {
 
-    _dispatcher = bec::GRTDispatcher::create_dispatcher(bec::GRTManager::get().is_threaded(), false);
-    _dispatcher->set_main_thread_flush_and_wait(bec::GRTManager::get().get_dispatcher()->get_main_thread_flush_and_wait());
+    _dispatcher = bec::GRTDispatcher::create_dispatcher(bec::GRTManager::get()->is_threaded(), false);
+    _dispatcher->set_main_thread_flush_and_wait(bec::GRTManager::get()->get_dispatcher()->get_main_thread_flush_and_wait());
     _dispatcher->start();
   }
   return _dispatcher;
@@ -189,7 +189,7 @@ void GrtThreadedTask::process_finish(grt::ValueRef res)
 void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::string &detail)
 {
 
-  if (bec::GRTManager::get().in_main_thread())
+  if (bec::GRTManager::get()->in_main_thread())
   {
      if(_msg_cb)
         _msg_cb(msg_type, msg, detail);
@@ -217,10 +217,10 @@ void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::
 
 void GrtThreadedTask::send_progress(float percentage, const std::string &msg, const std::string &detail)
 {
-  if (bec::GRTManager::get().terminated())
+  if (bec::GRTManager::get()->terminated())
     return;
 
-  if (bec::GRTManager::get().in_main_thread())
+  if (bec::GRTManager::get()->in_main_thread())
   {
     if (_progress_cb)
       _progress_cb(percentage, msg);

@@ -57,7 +57,7 @@ void ModelPanel::on_activate()
 
 ModelPanel *ModelPanel::create(wb::OverviewBE *overview)
 {
-  Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("model_view.glade"));
+  Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("model_view.glade"));
 
   ModelPanel *panel = 0;
   xml->get_widget_derived("top_vbox", panel);

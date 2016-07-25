@@ -41,7 +41,7 @@ PluginEditorBase::PluginEditorBase(grt::Module *module, const grt::BaseListRef &
   set_shadow_type(Gtk::SHADOW_NONE);
 
   if (glade_file)
-    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path(glade_file));
+    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path(glade_file));
 }
 
 //------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void PluginEditorBase::load_glade(const char* glade_xml_filename)
 
   if (glade_xml_filename)
   {
-    _xml = Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path(glade_xml_filename));
+    _xml = Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path(glade_xml_filename));
     if (!_xml)
       throw std::logic_error("Can't load glade xml");
   }
@@ -100,7 +100,7 @@ void PluginEditorBase::decorate_object_editor()
   {
     if (!_live_object_editor_decorator_control)
     {
-      _live_object_editor_decorator_xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("modules/data/live_editor_decoration.glade"));
+      _live_object_editor_decorator_xml= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("modules/data/live_editor_decoration.glade"));
       _live_object_editor_decorator_xml->get_widget("box1", _live_object_editor_decorator_control);
       _live_object_editor_decorator_xml->get_widget("live_editor_placeholder", _live_editor_placeholder);
 

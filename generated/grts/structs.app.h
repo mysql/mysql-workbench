@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -13,7 +18,7 @@
   #define GRT_STRUCTS_APP_PUBLIC
 #endif
 
-#include <grts/structs.h>
+#include "grts/structs.h"
 
 
 class app_PluginInputDefinition;
@@ -3418,5 +3423,9 @@ inline void register_structs_app_xml()
 
 #ifdef AUTO_REGISTER_GRT_CLASSES
 static struct _autoreg__structs_app_xml { _autoreg__structs_app_xml() { register_structs_app_xml(); } } __autoreg__structs_app_xml;
+#endif
+
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
 #endif
 

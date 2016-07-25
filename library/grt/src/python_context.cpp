@@ -361,7 +361,7 @@ void PythonContext::handle_notification(const std::string &name, void *sender, b
         v = from_pyobject(value);
         if (!pystring_to_string(key, s) || !v.is_valid())
         {
-          log_error("Error in Python notification handler: info dictionary contains an invalid item");
+          logError("Error in Python notification handler: info dictionary contains an invalid item");
           continue;
         }
         info[s] = v.toString();
@@ -431,32 +431,32 @@ static PyObject *pylog(base::Logger::LogLevel level, PyObject *args)
 
 static PyObject *grt_log_error(PyObject *self, PyObject *args)
 {
-  return pylog(base::Logger::LogError, args);
+  return pylog(base::Logger::LogLevel::Error, args);
 }
 
 static PyObject *grt_log_warning(PyObject *self, PyObject *args)
 {
-  return pylog(base::Logger::LogWarning, args);
+  return pylog(base::Logger::LogLevel::Warning, args);
 }
 
 static PyObject *grt_log_info(PyObject *self, PyObject *args)
 {
-  return pylog(base::Logger::LogInfo, args);
+  return pylog(base::Logger::LogLevel::Info, args);
 }
 
 static PyObject *grt_log_debug(PyObject *self, PyObject *args)
 {
-  return pylog(base::Logger::LogDebug, args);
+  return pylog(base::Logger::LogLevel::Debug, args);
 }
 
 static PyObject *grt_log_debug2(PyObject *self, PyObject *args)
 {
-  return pylog(base::Logger::LogDebug2, args);
+  return pylog(base::Logger::LogLevel::Debug2, args);
 }
 
 static PyObject *grt_log_debug3(PyObject *self, PyObject *args)
 {
-  return pylog(base::Logger::LogDebug3, args);
+  return pylog(base::Logger::LogLevel::Debug3, args);
 }
 
 static PyObject *grt_send_output(PyObject *self, PyObject *args)
@@ -550,7 +550,7 @@ static PyObject *grt_send_info(PyObject *self, PyObject *args)
   }
 
   grt::GRT::get()->send_info(text, detail);
-//  log_debug2("grt.python", "%s: (%s)", text.c_str(), detail.c_str());
+//  logDebug2("grt.python", "%s: (%s)", text.c_str(), detail.c_str());
 
   Py_INCREF(Py_None);
   return Py_None;
@@ -827,7 +827,7 @@ static bool call_handle_message(const grt::Message &msg, void *sender, AutoPyObj
   
   if (handling_message > 10)
   {
-    log_warning("Force-breaking apparent recursion of GRT message handlers\n");
+    logWarning("Force-breaking apparent recursion of GRT message handlers\n");
     return false;
   }
   handling_message++;
@@ -1684,7 +1684,7 @@ ValueRef PythonContext::from_pyobject(PyObject *object, const grt::TypeSpec &exp
               list.ginsert(from_pyobject(item));
               break;
             default:
-              log_warning("invalid type spec requested\n");
+              logWarning("invalid type spec requested\n");
               break;
           }
         }
@@ -1719,7 +1719,7 @@ ValueRef PythonContext::from_pyobject(PyObject *object, const grt::TypeSpec &exp
               dict.set(PyString_AsString(key), from_pyobject(value));
               break;
             default:
-              log_warning("invalid type spec requested\n");
+              logWarning("invalid type spec requested\n");
               break;
           }
         }
@@ -1750,7 +1750,7 @@ int PythonContext::run_file(const std::string &file, bool interactive)
     return -1;
   }
 
-  log_debug2("About to pyrun '%s'\n", file.c_str());
+  logDebug2("About to pyrun '%s'\n", file.c_str());
   if (PyRun_SimpleFile(PyFile_AsFile(f), file.c_str()) != 0)
   {
     Py_DECREF(f);
@@ -1963,7 +1963,7 @@ void PythonContext::log_python_error(const char *message)
   if (ctx)
   {
     if (message)
-      base::Logger::log(base::Logger::LogError, "python", "%s", message);
+      base::Logger::log(base::Logger::LogLevel::Error, "python", "%s", message);
     PyObject *grt_dict = PyModule_GetDict(ctx->get_grt_module());
     PyObject *_stderr = PyDict_GetItemString(grt_dict, "_log_stderr"); 
     PyObject *old_stderr = PySys_GetObject((char*)"stderr");

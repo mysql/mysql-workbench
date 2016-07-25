@@ -23,13 +23,13 @@
 
 - (instancetype)init
 {
-  return [self initWithModule: nil grtManager: nil arguments: grt::BaseListRef()];
+  return [self initWithModule: nil arguments: grt::BaseListRef()];
 }
 
 - (instancetype)initWithModule: (grt::Module*)module
                      arguments: (const grt::BaseListRef &)args
 {
-  if (module == nil || grtm == nil)
+  if (module == nil)
     return nil;
   
   self = [super init];

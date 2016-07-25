@@ -97,7 +97,7 @@ void GeomDrawBox::draw_geometry(cairo_t *cr, OGRGeometry *geom, double scale, do
       }
       break;
     default:
-      log_warning("Can't paint geometry type %s\n", geom->getGeometryName());
+      logWarning("Can't paint geometry type %s\n", geom->getGeometryName());
       break;
   }
 }

@@ -40,6 +40,7 @@ add_library(linux_utilities
     notebook_dockingpoint.cpp
     widgets_auto_cleaner.cpp
     widget_saver.cpp
+    main_app.cpp
 )
 
 target_link_libraries(linux_utilities ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})

@@ -36,10 +36,8 @@ namespace mforms
 {
   class Menu;
   class ConnectionsSection;
-  class XConnectionsSection;
-  class XConnectionEntry;
-
-  typedef void (*home_screen_action_callback)(HomeScreenAction action, const base::any &object, void* user_data);
+  class XProjectsSection;
+  class XProjectEntry;
 
   class CommandUI;
 
@@ -55,25 +53,23 @@ namespace mforms
     SidebarSection *_sidebarSection;
 
     std::string _pending_script; // The path to a script that should be opened next time a connection is opened.
-    home_screen_action_callback _callback;
-    void* _user_data;
     mforms::TabView _tabView;
+    bool _singleSection;
 
     void update_colors();
 
     std::vector<HomeScreenSection*> _sections;
   public:
-    HomeScreen();
+    HomeScreen(bool singleSection = false);
     virtual ~HomeScreen();
     
     void addSection(HomeScreenSection *section);
     void addSectionEntry(const std::string& icon_name, HomeScreenSection* section, std::function<void()> callback, bool canSelect);
 
-    std::function<void (base::any, std::string)> handle_context_menu;
+    std::function<void (base::any, std::string)> handleContextMenu;
+    std::function<void (HomeScreenAction action, const base::any &object)> onHomeScreenAction;
     
-    void set_callback(home_screen_action_callback callback, void* user_data);
     void trigger_callback(HomeScreenAction action, const base::any &object);
-    void openConnection(const dataTypes::XProject &project);
 
     void cancelOperation();
 
@@ -81,6 +77,7 @@ namespace mforms
 
     void on_resize();
     void setup_done();
+    void showSection(size_t index);
 
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
   };

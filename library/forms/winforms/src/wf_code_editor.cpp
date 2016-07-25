@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -134,7 +134,7 @@ bool ScintillaControl::CanPaste::get()
   }
   catch (...)
   {
-    log_error("Clipboard::ContainsText returned with exception\n");
+    logError("Clipboard::ContainsText returned with exception\n");
     return false;
   }
 }
@@ -207,6 +207,49 @@ Windows::Forms::CreateParams^ ScintillaControl::CreateParams::get()
 
 //--------------------------------------------------------------------------------------------------
 
+mforms::KeyCode ScintillaControl::GetKeyCode(int code)
+{
+  auto key = mforms::KeyUnkown;
+  switch (code)
+  {
+  case Keys::Return:
+    key = mforms::KeyReturn;
+    break;
+  case Keys::Up:
+    key = mforms::KeyUp;
+    break;
+  case Keys::Down:
+    key = mforms::KeyDown;
+    break;
+  default:
+    break;
+  }
+  return key;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::ModifierKey ScintillaControl::GetModifiers(Windows::Forms::Keys keyData)
+{
+  return ViewWrapper::GetModifiers(keyData);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool ScintillaControl::ProcessCmdKey(Windows::Forms::Message% msg, Windows::Forms::Keys keyData)
+{
+  if (msg.Msg == WM_KEYDOWN)
+  {
+    if (backend->key_event(GetKeyCode(msg.WParam.ToInt32()), GetModifiers(keyData), ""))
+      return __super::ProcessCmdKey(msg, keyData);
+    return false;
+  
+  }
+  return __super::ProcessCmdKey(msg, keyData);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void ScintillaControl::WndProc(Windows::Forms::Message %m)
 {
   switch (m.Msg)
@@ -267,6 +310,14 @@ void ScintillaControl::WndProc(Windows::Forms::Message %m)
   case WM_NCDESTROY:
     destroying = true;
     break;
+  /*case WM_KEYDOWN:
+    {
+      std::string val;
+      val.append((char*)m.WParam.ToInt32());
+      if (backend->key_event(GetKeyCode(m.WParam.ToInt32()), GetModifiers(m.LParam.ToInt32()), val))
+        Control::WndProc(m);
+    }
+    break;*/
 
   default:
     Control::WndProc(m);

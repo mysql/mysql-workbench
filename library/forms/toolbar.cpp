@@ -215,7 +215,7 @@ void ToolBarItem::callback()
   }
   catch (std::exception &exc)
   {
-    log_error("Unhandled exception in toolbar callback for %s: %s\n", _name.c_str(), exc.what());
+    logError("Unhandled exception in toolbar callback for %s: %s\n", _name.c_str(), exc.what());
     mforms::Utilities::show_error("Unhandled Exception", exc.what(), "OK");
   }
 }

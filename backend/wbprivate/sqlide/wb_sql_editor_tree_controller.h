@@ -71,7 +71,6 @@ private:
   SqlEditorTreeController(SqlEditorForm *owner);
   
   SqlEditorForm *_owner;
-  bec::GRTManager *_grtm;
 
   wb::SimpleSidebar *_schema_side_bar;
   wb::SimpleSidebar *_admin_side_bar;
@@ -116,14 +115,14 @@ public:
   std::string generate_alter_script(const db_mgmt_RdbmsRef &rdbms, db_DatabaseObjectRef db_object, std::string algorithm, std::string lock);
 
 private:
-  grt::StringRef do_fetch_live_schema_contents(grt::GRT *grt, std::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_name, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot);
+  grt::StringRef do_fetch_live_schema_contents(std::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_name, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot);
   wb::LiveSchemaTree::ObjectType fetch_object_type(const std::string& schema_name, const std::string& obj_name);
   void fetch_column_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot);
   void fetch_trigger_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot);
   void fetch_index_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot);
   void fetch_foreign_key_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot);
 
-  grt::StringRef do_fetch_data_for_filter(grt::GRT *grt, std::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_filter, const std::string &object_filter, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot);
+  grt::StringRef do_fetch_data_for_filter(std::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_filter, const std::string &object_filter, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot);
 
   void schema_row_selected();
   void side_bar_filter_changed(const std::string& filter);
@@ -139,7 +138,7 @@ public:
   
   void open_alter_object_editor(db_DatabaseObjectRef object, db_CatalogRef server_state_catalog);
 private:
-  grt::StringRef do_refresh_schema_tree_safe(grt::GRT *grt, std::weak_ptr<SqlEditorForm> self_ptr);
+  grt::StringRef do_refresh_schema_tree_safe(std::weak_ptr<SqlEditorForm> self_ptr);
   
   int insert_text_to_active_editor(const std::string& str);
 private:

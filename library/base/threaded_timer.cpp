@@ -153,7 +153,7 @@ ThreadedTimer::~ThreadedTimer()
 {
   // Free the thread pool but wait until tasks, which are currently executing have finished.
   // Pending tasks are discarded.
-  log_debug2("Threaded timer shutdown...\n");
+  logDebug2("Threaded timer shutdown...\n");
 
   // Don't lock the mutex or we might deadlock here if the mutex is currently held by the work loop.
   _terminate = true;
@@ -163,7 +163,7 @@ ThreadedTimer::~ThreadedTimer()
   
   g_thread_pool_free(_pool, TRUE, TRUE);
 
-  log_debug2("Threaded timer shutdown done\n");
+  logDebug2("Threaded timer shutdown done\n");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,7 +202,7 @@ gpointer ThreadedTimer::pool_function(gpointer data, gpointer user_data)
     base::MutexLock lock(timer->_timer_lock);
     task->stop= true;
     task->scheduled= false;
-    log_warning("Threaded timer: exception in pool function: %s\n", e.what());
+    logWarning("Threaded timer: exception in pool function: %s\n", e.what());
   }
   catch (...)
   {
@@ -211,7 +211,7 @@ gpointer ThreadedTimer::pool_function(gpointer data, gpointer user_data)
     base::MutexLock(timer->_timer_lock);
     task->stop= true;
     task->scheduled= false;
-    log_warning("Threaded timer: unknown exception in pool function\n");
+    logWarning("Threaded timer: unknown exception in pool function\n");
   }
 
   return NULL;

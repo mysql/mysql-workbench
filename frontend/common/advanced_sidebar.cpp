@@ -130,11 +130,10 @@ void SidebarEntry::paint(cairo_t *cr, base::Rect bounds, bool hot, bool active, 
   double offset;
   if (_icon != NULL)
   {
-    int width, height;
-    mforms::Utilities::get_icon_size(_icon, width, height);
-    offset = (bounds.height() - height) / 2;
+    base::Size size = mforms::Utilities::getImageSize(_icon);
+    offset = (bounds.height() - size.height) / 2;
     mforms::Utilities::paint_icon(cr, _icon, bounds.left(), bounds.top() + offset);
-    cairo_rel_move_to(cr, width + SECTION_ENTRY_ICON_SPACING, 0);
+    cairo_rel_move_to(cr, size.width + SECTION_ENTRY_ICON_SPACING, 0);
   }
 
   cairo_select_font_face(cr, SIDEBAR_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -188,18 +187,13 @@ SidebarSection::Button::Button(const std::string &accessible_name, const std::st
   if (!alt_icon_name.empty())
     alt_icon = Utilities::load_icon(alt_icon_name, true);
 
-  width = 0;
-  height = 0;
-  if (icon)
-  {
-    Utilities::get_icon_size(icon, width, height);
-  }
-  else if (alt_icon)
-  {
-    Utilities::get_icon_size(alt_icon, width, height);
-  }
-  bounds_width = width + 4;
-  bounds_height = height + 4;
+  if (icon != nullptr)
+    size = Utilities::getImageSize(icon);
+  else if (alt_icon != nullptr)
+    size = Utilities::getImageSize(alt_icon);
+
+  bounds_width = size.width + 5;
+  bounds_height = size.height + 5;
 }
 
 
@@ -222,6 +216,14 @@ void SidebarSection::Button::draw(cairo_t *cr)
       cairo_surface_destroy(alt_icon);
     icon = Utilities::load_icon(_icon_name, true);
     alt_icon = Utilities::load_icon(_alt_icon_name, true);
+
+    if (icon != nullptr)
+      size = Utilities::getImageSize(icon);
+    else if (alt_icon != nullptr)
+      size = Utilities::getImageSize(alt_icon);
+
+    bounds_width = size.width + 5;
+    bounds_height = size.height + 5;
   }
 
   cairo_surface_t *image = (state && alt_icon != NULL) ? alt_icon : icon;
@@ -257,8 +259,8 @@ void SidebarSection::Button::draw(cairo_t *cr)
       cairo_stroke(cr);
     }
 
-    image_left += floor((bounds_width - width) / 2 + 1);
-    image_top += floor((bounds_height - height) / 2 + 1);
+    image_left += floor((bounds_width - size.width) / 2);
+    image_top += floor((bounds_height - size.height) / 2);
     Utilities::paint_icon(cr, image, image_left, image_top);
   }
 }
@@ -1417,7 +1419,7 @@ void AdvancedSidebar::setup_schema_tree()
     }
   }
 
-  _new_schema_tree.set_name("Schema Tree");
+  _new_schema_tree.set_name("SchemaTree");
   _new_schema_tree.add_column(mforms::IconStringColumnType, _("Schema"), 100, false, true);
   _new_schema_tree.set_selection_mode(mforms::TreeSelectMultiple);
 #ifndef __APPLE__
@@ -1518,15 +1520,15 @@ void AdvancedSidebar::handle_notification(const std::string &name, void *sender,
 void AdvancedSidebar::on_search_text_changed_prepare()
 {
   if (_filterTimer)
-    bec::GRTManager::get().cancel_timer(_filterTimer);
+    bec::GRTManager::get()->cancel_timer(_filterTimer);
   
-  _filterTimer = bec::GRTManager::get().run_every(boost::bind(&AdvancedSidebar::on_search_text_changed, this), 1.0);
+  _filterTimer = bec::GRTManager::get()->run_every(boost::bind(&AdvancedSidebar::on_search_text_changed, this), 1.0);
 }
 
 
 bool AdvancedSidebar::on_search_text_changed()
 {
-  bec::GRTManager::get().cancel_timer(_filterTimer);
+  bec::GRTManager::get()->cancel_timer(_filterTimer);
   _filterTimer = NULL;
 
   std::string filter = _schema_search_text.get_string_value();

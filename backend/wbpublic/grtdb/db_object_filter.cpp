@@ -49,7 +49,7 @@ void DBObjectFilterBE::set_object_type_name(const std::string &type_name)
   // load stored filter sets
   grt::DictRef opt= grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   _stored_filter_sets_filepath
-    .append(bec::GRTManager::get().get_user_datadir())
+    .append(bec::GRTManager::get()->get_user_datadir())
     .append("/stored_filter_sets.")
     .append(_full_type_name)
     .append(".xml");

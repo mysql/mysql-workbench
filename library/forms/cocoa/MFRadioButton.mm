@@ -59,13 +59,11 @@
   dynamic_cast<mforms::RadioButton*>(mOwner)->callback();
 }
 
-
 - (NSSize)minimumSize
 {
-  return self.cell.cellSize;
+  NSSize size = super.minimumSize;
+  return { MAX(self.cell.cellSize.width, size.width), MAX(self.cell.cellSize.height, size.height) };
 }
-
-
 
 static bool radiobutton_create(::mforms::RadioButton *self, int)
 {

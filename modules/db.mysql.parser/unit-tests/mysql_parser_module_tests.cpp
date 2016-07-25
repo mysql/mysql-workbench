@@ -31,7 +31,7 @@ BEGIN_TEST_DATA_CLASS(mysql_parser_module_tests)
 protected:
   WBTester *_tester;
   MySQLParserServices::Ref _services;
-  ParserContext::Ref _context;
+  MySQLParserContext::Ref _context;
 
   TEST_DATA_CONSTRUCTOR(mysql_parser_module_tests)
   {

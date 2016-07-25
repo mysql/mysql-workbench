@@ -136,7 +136,7 @@ float OSConstants::systemFontSize()
   NONCLIENTMETRICS metrics;
   metrics.cbSize = sizeof(metrics);
   SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0);
-  return -metrics.lfCaptionFont.lfHeight;
+  return (float)-metrics.lfCaptionFont.lfHeight;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ float OSConstants::smallSystemFontSize()
   NONCLIENTMETRICS metrics;
   metrics.cbSize = sizeof(metrics);
   SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0);
-  return -metrics.lfCaptionFont.lfHeight - 2;
+  return (float)-metrics.lfCaptionFont.lfHeight - 2;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ float OSConstants::labelFontSize()
   NONCLIENTMETRICS metrics;
   metrics.cbSize = sizeof(metrics);
   SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0);
-  return -metrics.lfCaptionFont.lfHeight;
+  return (float)-metrics.lfCaptionFont.lfHeight;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

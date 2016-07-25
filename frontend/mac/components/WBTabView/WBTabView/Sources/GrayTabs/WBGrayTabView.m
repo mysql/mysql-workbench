@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@
 - (void)drawRect: (NSRect)rect;
 {
   [super drawRect: rect];
-  
+
   // fills area inside a tab
   [[NSColor colorWithCalibratedRed: 0.93
                              green: 0.93
@@ -97,30 +97,3 @@
 }
 
 @end
-
-
-@implementation WBPaddedGrayTabView
-
-- (void) doCustomize
-{
-  [super doCustomize];
-  NSRect r = [mTabView frame];
-  [mTabView setFrame: r];
-}
-
-@end
-
-
-@implementation WBUnpaddedGrayTabView
-
-- (void) doCustomize
-{
-  [super doCustomize];
-  NSRect r = [mTabView frame];
-  r = NSInsetRect(r, 5, 0);
-  r.size.height += 5;
-  [mTabView setFrame: r];
-}
-
-@end
-

@@ -68,8 +68,8 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
   {
     workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(_note->owner()));
     MySQLParserServices::Ref services = MySQLParserServices::get();
-    ParserContext::Ref context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
-    ParserContext::Ref autocomplete_context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
+    MySQLParserContext::Ref context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
+    MySQLParserContext::Ref autocomplete_context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
     _sql_editor = MySQLEditor::create(context, autocomplete_context);
 
     scoped_connect(_sql_editor->text_change_signal(),

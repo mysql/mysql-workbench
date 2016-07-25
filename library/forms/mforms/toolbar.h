@@ -41,19 +41,18 @@ namespace mforms {
     LabelItem,
     ActionItem,
     TextActionItem,
+    TextEntryItem,
     ToggleItem,
     SegmentedToggleItem,
     SearchFieldItem,
     SelectorItem,
+    FlatSelectorItem,
     ColorSelectorItem,
     SeparatorItem,
     ExpanderItem,
     ImageBoxItem,
-#if !defined(_WIN32) && !defined(__APPLE__)
-    TitleItem = LabelItem // TODO implement specific TitleItem (bold with #333333 color) for Linux
-#else
-    TitleItem
-#endif
+    TitleItem,
+    SwitcherItem, // A button, usually with both image + text, that's like an action button, but shows special backgrounds on hover + click.
   };
 
 #ifndef SWIG

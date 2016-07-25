@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,6 @@
 
 #include <glib/gstdio.h>
 #include <cstdio>
-#include <pcre.h>
 #include <sstream>
 #include <fstream>
 #include <vector>
@@ -325,7 +324,7 @@ std::string get_local_os_name()
 
   if (!product_name.empty())
   {
-    result = (base::starts_with(product_name, "Microsoft") ? "" : "Microsoft ") + product_name;
+    result = (base::hasPrefix(product_name, "Microsoft") ? "" : "Microsoft ") + product_name;
     if (!csd_version.empty())
       result += " " + csd_version;
   }
@@ -632,7 +631,7 @@ std::string get_local_os_name()
     }
     else
     {
-      log_error("Error executing lsb_release -%c: %s\n", param, error->message);
+      logError("Error executing lsb_release -%c: %s\n", param, error->message);
       return std::string("unknown");
     }
 
@@ -651,7 +650,7 @@ std::string get_local_os_name()
     }
     catch(const std::ios_base::failure& e)
     {
-      log_error("Error reading /etc/redhat-release: %s\n", e.what());
+      logError("Error reading /etc/redhat-release: %s\n", e.what());
       return std::string("unknown");
     }
   };
@@ -687,12 +686,12 @@ static int _get_hardware_info(hardware_info &info)
     if (!fgets(line, sizeof(line), proc))
       break;
     
-    if (base::starts_with(line,"model name")) 
+    if (base::hasPrefix(line,"model name")) 
     {
       info._cpu_count++;
       info._cpu = base::trim(base::split(line, ":")[1], " \n");
     } 
-    else if (base::starts_with(line,"cpu MHz"))
+    else if (base::hasPrefix(line,"cpu MHz"))
     {
       info._clock = base::trim( base::split(line, ":")[1], " \n");
     }
@@ -865,56 +864,6 @@ char *strcasestr_len(const char *haystack, int haystack_len, const char *needle)
     i++;
   }
   return NULL;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-#define O_VECTOR_COUNT 64 // max # of ()*2+2
-
-char * get_value_from_text_ex_opt(const char *txt, int txt_length,
-                                  const char *regexpr,
-                                  unsigned int substring_nr,
-                                  int options_for_exec)
-{
-  pcre *pcre_exp;
-  const char *error_str;
-  int erroffset;
-  int o_vector[O_VECTOR_COUNT];
-  int rc;
-  const char *ret_val;
-  char *value= NULL;
-
-  if(txt && *txt)
-  {
-    pcre_exp= pcre_compile(regexpr, PCRE_CASELESS, &error_str, &erroffset, NULL);
-    if (pcre_exp)
-    {
-      if ((rc= pcre_exec(pcre_exp, NULL, txt, txt_length, 0, 
-                          options_for_exec, o_vector, O_VECTOR_COUNT) ) > 0)
-      {
-        if (o_vector[substring_nr * 2] != -1)
-        {
-          pcre_get_substring(txt, o_vector, rc, substring_nr, &ret_val);
-
-          value= g_strdup(ret_val);
-
-          pcre_free_substring((char*)ret_val);
-        }
-      }
-
-      pcre_free(pcre_exp);
-    }
-  }
-
-  return value;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-char * get_value_from_text_ex(const char *txt, int txt_length,
-                              const char *regexpr, unsigned int substring_nr)
-{
-  return get_value_from_text_ex_opt(txt,txt_length,regexpr,substring_nr,0);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

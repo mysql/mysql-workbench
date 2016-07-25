@@ -273,7 +273,7 @@ int Mysql_invalid_sql_parser::parse_invalid_sql_script(const std::string &sql)
 
   _process_sql_statement= boost::bind(&Mysql_invalid_sql_parser::process_sql_statement, this, _1);
 
-  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml= false;
 
   // Consider using const char* for the sql instead if memory usage is an issue.

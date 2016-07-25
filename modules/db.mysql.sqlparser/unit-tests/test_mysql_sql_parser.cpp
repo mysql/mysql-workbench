@@ -39,7 +39,7 @@ protected:
   WBTester *_tester;
   SqlFacade::Ref _sqlFacade;
   
-  ParserContext::Ref _context;
+  MySQLParserContext::Ref _context;
   MySQLParserServices::Ref _services;
 
   DictRef _options;

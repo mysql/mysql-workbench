@@ -117,11 +117,6 @@
   return nil;
 }
 
-- (NSSize)minimumSize
-{
-  return NSMakeSize(0, 0);
-}
-
 - (BOOL)willClose
 {
   return YES;

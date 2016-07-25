@@ -320,7 +320,7 @@ void ModelDiagramForm::revalidate_menu()
     _menu->set_item_enabled("wb.edit.selectSimilar", has_selection_);
     _menu->set_item_enabled("wb.edit.selectConnected", get_selection().count() == 1);
 
-    _menu->set_item_checked("wb.edit.toggleGridAlign", bec::GRTManager::get().get_app_option_int("AlignToGrid", 0) != 0);
+    _menu->set_item_checked("wb.edit.toggleGridAlign", bec::GRTManager::get()->get_app_option_int("AlignToGrid", 0) != 0);
     _menu->set_item_checked("wb.edit.toggleGrid", get_diagram_options().get_int("ShowGrid", 1) != 0);
     _menu->set_item_checked("wb.edit.togglePageGrid", get_diagram_options().get_int("ShowPageGrid", 1) != 0);
     _menu->set_item_checked("wb.edit.toggleFKHighlight", get_diagram_options().get_int("ShowFKHighlight", 0) != 0);
@@ -482,7 +482,7 @@ void ModelDiagramForm::activate_catalog_tree_item(const grt::ValueRef &value)
   {
     db_DatabaseObjectRef object(db_DatabaseObjectRef::cast_from(value));
 
-    bec::GRTManager::get().open_object_editor(object);
+    bec::GRTManager::get()->open_object_editor(object);
   }
 }
 
@@ -491,10 +491,10 @@ void ModelDiagramForm::selection_changed()
 {
   get_wb()->request_refresh(RefreshSelection, "", 0);
   
-  if (bec::GRTManager::get().in_main_thread())
+  if (bec::GRTManager::get()->in_main_thread())
     revalidate_menu();
   else
-    bec::GRTManager::get().run_once_when_idle(boost::bind(&ModelDiagramForm::revalidate_menu, this));
+    bec::GRTManager::get()->run_once_when_idle(boost::bind(&ModelDiagramForm::revalidate_menu, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -504,7 +504,7 @@ void ModelDiagramForm::diagram_changed(grt::internal::OwnedList* olist, bool add
 {
   _idle_node_mark.disconnect();
   if (added)
-    _idle_node_mark = bec::GRTManager::get().run_once_when_idle(boost::bind(&ModelDiagramForm::mark_catalog_node, this, val, true));
+    _idle_node_mark = bec::GRTManager::get()->run_once_when_idle(boost::bind(&ModelDiagramForm::mark_catalog_node, this, val, true));
 }
 
 void ModelDiagramForm::mark_catalog_node(grt::ValueRef val, bool mark)
@@ -522,7 +522,7 @@ void ModelDiagramForm::attach_canvas_view(mdc::CanvasView *cview)
   _view= cview;
 
   cview->set_tag(_model_diagram.id());
-  cview->set_grid_snapping(bec::GRTManager::get().get_app_option_int("AlignToGrid", 0) != 0);
+  cview->set_grid_snapping(bec::GRTManager::get()->get_app_option_int("AlignToGrid", 0) != 0);
   cview->get_background_layer()->set_grid_visible(_model_diagram->options().get_int("ShowGrid", 1)!=0);
   cview->get_background_layer()->set_paper_visible(_model_diagram->options().get_int("ShowPageGrid", 1)!=0);
 
@@ -1144,7 +1144,7 @@ double ModelDiagramForm::get_zoom()
 
 bec::Clipboard *ModelDiagramForm::get_clipboard()
 {
-  return bec::GRTManager::get().get_clipboard();
+  return bec::GRTManager::get()->get_clipboard();
 }
 
 
@@ -1186,7 +1186,7 @@ bool ModelDiagramForm::can_paste()
   {
     if (!(*iter).is_valid())
     {
-      log_warning("copy buffer has null value");
+      logWarning("copy buffer has null value");
       return false;
     }
     bool result= false;
@@ -1349,7 +1349,7 @@ void ModelDiagramForm::paste()
       }
     }
     else
-      log_warning("Don't know how to paste %s\n", iter->class_name().c_str());
+      logWarning("Don't know how to paste %s\n", iter->class_name().c_str());
   }
   context.finish();
   undo.end(strfmt(_("Paste %s"), get_clipboard()->get_content_description().c_str()));
@@ -1617,7 +1617,7 @@ bool ModelDiagramForm::search_and_focus_object(const std::string &text)
   
   if (found_object.is_valid())
   {
-    bec::GRTManager::get().replace_status_text(strfmt(_("Found %s '%s'"),
+    bec::GRTManager::get()->replace_status_text(strfmt(_("Found %s '%s'"),
                                                           found_object.get_metaclass()->get_attribute("caption").c_str(),
                                                           found_object->name().c_str()));
     
@@ -1628,9 +1628,9 @@ bool ModelDiagramForm::search_and_focus_object(const std::string &text)
   else
   {
     if (_model_diagram->selection().count() > 0)
-      bec::GRTManager::get().replace_status_text(_("No more matches"));
+      bec::GRTManager::get()->replace_status_text(_("No more matches"));
     else
-      bec::GRTManager::get().replace_status_text(_("No match found"));
+      bec::GRTManager::get()->replace_status_text(_("No match found"));
   }
 
   _model_diagram->selection().remove_all();

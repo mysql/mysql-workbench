@@ -16,7 +16,7 @@ void utils::gtk::save_settings(Gtk::Paned* paned, const bool right_side)
     long pos = paned->get_position();
     if (right_side)
       pos = paned->get_width() - pos;
-    bec::GRTManager::get().set_app_option(name + ".position", grt::IntegerRef(pos));
+    bec::GRTManager::get()->set_app_option(name + ".position", grt::IntegerRef(pos));
   }
 }
 
@@ -58,11 +58,11 @@ sigc::connection utils::gtk::load_settings(Gtk::Paned* paned, const sigc::slot<v
   long pos = -1;
   try
   {
-    pos = bec::GRTManager::get().get_app_option_int(name + ".position");
+    pos = bec::GRTManager::get()->get_app_option_int(name + ".position");
   }
   catch (const grt::type_error& e)
   {
-    log_error("Can not restore paned position for name '%s', error '%s'\n", name.c_str(), e.what());
+    logError("Can not restore paned position for name '%s', error '%s'\n", name.c_str(), e.what());
   }
   sigc::connection con;
   if (pos > 0)

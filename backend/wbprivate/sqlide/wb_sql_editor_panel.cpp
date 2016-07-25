@@ -81,11 +81,11 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   // (and hence an own parser), to allow concurrent and multi threaded work.
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
 
-  parser::ParserContext::Ref context = services->createParserContext(owner->rdbms()->characterSets(),
+  parser::MySQLParserContext::Ref context = services->createParserContext(owner->rdbms()->characterSets(),
     owner->rdbms_version(), owner->lower_case_table_names() != 0);
 
   _editor = MySQLEditor::create(context, owner->work_parser_context(), grtobj);
-  _editor->sql_check_progress_msg_throttle(bec::GRTManager::get().get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
+  _editor->sql_check_progress_msg_throttle(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
   _editor->set_sql_mode(owner->sql_mode());
   _editor->set_current_schema(owner->active_schema());
@@ -99,7 +99,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _editor_box.add(setup_editor_toolbar(), false, true);
   _editor_box.add_end(code_editor, true, true);
 
-  code_editor->set_font(grt::StringRef::cast_from(bec::GRTManager::get().get_app_option("workbench.general.Editor:Font")));
+  code_editor->set_font(grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("workbench.general.Editor:Font")));
   code_editor->set_status_text("");
   code_editor->set_show_find_panel_callback(boost::bind(&SqlEditorPanel::show_find_panel, this, _1, _2));
 
@@ -112,9 +112,9 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   UIForm::scoped_connect(_splitter.signal_position_changed(), boost::bind(&SqlEditorPanel::splitter_resized, this));
   _tab_action_box.set_spacing(4);
   _tab_action_box.add_end(&_tab_action_info, false, true);
-  _tab_action_box.add_end(&_tab_action_icon, false, false);
-  _tab_action_box.add_end(&_tab_action_revert, false, false);
-  _tab_action_box.add_end(&_tab_action_apply, false, false);
+  _tab_action_box.add_end(&_tab_action_icon, false, true);
+  _tab_action_box.add_end(&_tab_action_revert, false, true);
+  _tab_action_box.add_end(&_tab_action_apply, false, true);
   _tab_action_icon.set_image(mforms::App::get()->get_resource_path("mini_notice.png"));
   _tab_action_icon.show(false);
   _tab_action_info.show(false);
@@ -195,7 +195,7 @@ bool SqlEditorPanel::can_close()
   bool check_editors = true;
   // if Save of workspace on close is enabled, we don't need to check whether there are unsaved scratch
   // SQL editors but other stuff should be checked.
-  grt::ValueRef option(bec::GRTManager::get().get_app_option("workbench:SaveSQLWorkspaceOnClose"));
+  grt::ValueRef option(bec::GRTManager::get()->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
     check_editors = false;
 
@@ -333,7 +333,7 @@ void SqlEditorPanel::splitter_resized()
 {
   if (_lower_tabview.page_count() > 0)
   {
-    bec::GRTManager::get().set_app_option("DbSqlEditor:ResultSplitterPosition",
+    bec::GRTManager::get()->set_app_option("DbSqlEditor:ResultSplitterPosition",
                                          grt::IntegerRef(_splitter.get_divider_position()));
   }
 }
@@ -521,7 +521,7 @@ SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, co
   
   if (!g_file_get_contents(file.c_str(), &data, &length, &error))
   {
-    log_error("Could not read file %s: %s\n", file.c_str(), error->message);
+    logError("Could not read file %s: %s\n", file.c_str(), error->message);
     std::string what = error->message;
     g_error_free(error);
     throw std::runtime_error(what);
@@ -565,7 +565,7 @@ SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, co
 
   if (!file_mtime(file, _file_timestamp))
   {
-    log_warning("Can't get timestamp for %s\n", file.c_str());
+    logWarning("Can't get timestamp for %s\n", file.c_str());
     _file_timestamp = 0;
   }
   return Loaded;
@@ -620,13 +620,13 @@ bool SqlEditorPanel::save()
 
   // File extension check is already done in FileChooser.
 
-  bec::GRTManager::get().replace_status_text(strfmt(_("Saving SQL script to '%s'..."), _filename.c_str()));
+  bec::GRTManager::get()->replace_status_text(strfmt(_("Saving SQL script to '%s'..."), _filename.c_str()));
 
   std::pair<const char*, size_t> text = text_data();
   if (!g_file_set_contents(_filename.c_str(), text.first, text.second, &error))
   {
-    log_error("Could not save script %s: %s\n", _filename.c_str(), error->message);
-    bec::GRTManager::get().replace_status_text(strfmt(_("Error saving SQL script to '%s'."), _filename.c_str()));
+    logError("Could not save script %s: %s\n", _filename.c_str(), error->message);
+    bec::GRTManager::get()->replace_status_text(strfmt(_("Error saving SQL script to '%s'."), _filename.c_str()));
 
     mforms::Utilities::show_error(strfmt(_("Error writing file %s"), _filename.c_str()),
                                   error->message, _("OK"));
@@ -639,7 +639,7 @@ bool SqlEditorPanel::save()
   _is_scratch = false; // saving a file makes it not a scratch buffer anymore
   file_mtime(_filename, _file_timestamp);
 
-  bec::GRTManager::get().replace_status_text(strfmt(_("SQL script saved to '%s'"), _filename.c_str()));
+  bec::GRTManager::get()->replace_status_text(strfmt(_("SQL script saved to '%s'"), _filename.c_str()));
 
   // update autosave state
   _form->auto_save();
@@ -663,7 +663,7 @@ void SqlEditorPanel::revert_to_saved()
       NotificationCenter::get()->send("GNDocumentOpened", this, info);
     }
     _form->auto_save();
-    bec::GRTManager::get().replace_status_text(strfmt(_("Reverted to saved '%s'"), _filename.c_str()));
+    bec::GRTManager::get()->replace_status_text(strfmt(_("Reverted to saved '%s'"), _filename.c_str()));
   }
 }
 
@@ -728,7 +728,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
     std::pair<const char*, size_t> text = text_data();
     if (!g_file_set_contents(fn.c_str(), text.first, text.second, &error))
     {
-      log_error("Could not save snapshot of editor contents to %s: %s\n", fn.c_str(), error->message);
+      logError("Could not save snapshot of editor contents to %s: %s\n", fn.c_str(), error->message);
       std::string msg(strfmt("Could not save snapshot of editor contents to %s: %s", fn.c_str(), error->message));
       g_error_free(error);
       throw std::runtime_error(msg);
@@ -743,7 +743,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
     }
     catch (std::exception &e)
     {
-      log_warning("Error deleting autosave file %s: %s\n", fn.c_str(), e.what());
+      logWarning("Error deleting autosave file %s: %s\n", fn.c_str(), e.what());
     }
   }
 }
@@ -756,11 +756,11 @@ void SqlEditorPanel::delete_auto_save(const std::string &path)
   try
   {
     base::remove(base::makePath(path, _autosave_file_suffix+".autosave"));
-  } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
+  } catch (std::exception &exc) { logWarning("Could not delete auto-save file: %s\n", exc.what()); }
   try
   {
     base::remove(base::makePath(path, _autosave_file_suffix+".info"));
-  } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
+  } catch (std::exception &exc) { logWarning("Could not delete auto-save file: %s\n", exc.what()); }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1079,7 +1079,7 @@ void SqlEditorPanel::query_finished()
 
 void SqlEditorPanel::query_failed(const std::string &message)
 {
-  log_error("Unhandled error during query: %s\n", message.c_str());
+  logError("Unhandled error during query: %s\n", message.c_str());
   _busy = false;
 
   _form->set_busy_tab(-1);
@@ -1165,7 +1165,7 @@ void SqlEditorPanel::lower_tab_switched()
   // if a lower tab view selection has changed, we make sure it's visible
   if (!_busy && _lower_tabview.page_count() > 0) // if we're running a query, then let dock_result handle this
   {
-    int position = bec::GRTManager::get().get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
+    int position = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
     _splitter.set_divider_position(position);
@@ -1243,14 +1243,14 @@ SqlEditorResult *SqlEditorPanel::result_panel(int i)
 
 void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
 {
-  if (bec::GRTManager::get().in_main_thread())
+  if (bec::GRTManager::get()->in_main_thread())
   {
     SqlEditorForm::RecordsetData *rdata = dynamic_cast<SqlEditorForm::RecordsetData*>(rset->client_data());
     
     rdata->result_panel = add_panel_for_recordset(rset);
   }
   else
-    bec::GRTManager::get().run_once_when_idle(dynamic_cast<bec::UIForm*>(this),
+    bec::GRTManager::get()->run_once_when_idle(dynamic_cast<bec::UIForm*>(this),
       boost::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
 }
 
@@ -1281,7 +1281,7 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
   _splitter.set_expanded(false, true);
   if (_was_empty)
   {
-    int position = bec::GRTManager::get().get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
+    int position = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
     _splitter.set_divider_position(position);
@@ -1307,7 +1307,7 @@ void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
   size_t from_index = grtobj()->resultPanels().get_index(dynamic_cast<SqlEditorResult*>(view)->grtobj());
   if (from_index == grt::BaseListRef::npos)
   {
-    log_fatal("Result panel is not in resultPanels() list\n");
+    logFatal("Result panel is not in resultPanels() list\n");
     return;
   }
 
@@ -1348,7 +1348,7 @@ void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
   }
   if (to_index < 0)
   {
-    log_fatal("Unable to find suitable target index for reorder\n");
+    logFatal("Unable to find suitable target index for reorder\n");
     return;
   }
 

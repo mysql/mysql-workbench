@@ -414,7 +414,7 @@ public:
     {
       save_text_to(path);
       
-      bec::GRTManager::get().push_status_text(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
+      bec::GRTManager::get()->push_status_text(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
       grt::GRT::get()->send_info(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
     }
     return true;

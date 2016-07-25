@@ -18,8 +18,8 @@
   #define GRT_STRUCTS_DB_MYSQL_PUBLIC
 #endif
 
-#include <grts/structs.db.h>
-#include <grts/structs.h>
+#include "grts/structs.db.h"
+#include "grts/structs.h"
 
 
 class db_mysql_StorageEngine;
@@ -3080,4 +3080,3 @@ static struct _autoreg__structs_db_mysql_xml { _autoreg__structs_db_mysql_xml() 
 #ifndef _WIN32
   #pragma GCC diagnostic pop
 #endif
-

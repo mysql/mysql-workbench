@@ -2498,14 +2498,10 @@ namespace grt {
    */ 
   class MYSQLGRT_PUBLIC GRT//
   {
-  private:
-    GRT();
-    GRT(const GRT&) = delete;
-    GRT& operator=(GRT&) = delete;
-
   public:
     static std::shared_ptr<GRT> get();
     ~GRT();
+
     /** 
      *
      * @param flag  
@@ -2816,6 +2812,11 @@ namespace grt {
     bool _check_serialized_crc;
     bool _verbose;
     bool _scanning_modules;
+
+  private:
+    GRT();
+    GRT(const GRT&) = delete;
+    GRT& operator=(GRT&) = delete;
   };
   
   //------------------------------------------------------------------------------------------------

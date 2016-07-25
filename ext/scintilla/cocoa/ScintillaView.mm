@@ -4,7 +4,7 @@
  *
  * Created by Mike Lischke.
  *
- * Copyright 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
@@ -620,10 +620,15 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (void) keyDown: (NSEvent *) theEvent
 {
+  bool handled = false;
   if (mMarkedTextRange.length == 0)
-	mOwner.backend->KeyboardInput(theEvent);
-  NSArray* events = [NSArray arrayWithObject: theEvent];
-  [self interpretKeyEvents: events];
+    handled = mOwner.backend->KeyboardInput(theEvent);
+  if (!handled) {
+    [mOwner keyDown: theEvent]; // Forward to the owning view (where the application can override keyDown).
+
+    NSArray* events = [NSArray arrayWithObject: theEvent];
+    [self interpretKeyEvents: events];
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

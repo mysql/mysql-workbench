@@ -97,7 +97,7 @@ std::string wmiResultToString(HRESULT wmiResult)
 
     if (FAILED(hres))
     {
-      log_error("Converting result code to string failed with error: %d\n", hres);
+      logError("Converting result code to string failed with error: %d\n", hres);
       result = "Internal error: WMI error description retrieval failed.";
     }
 
@@ -107,7 +107,7 @@ std::string wmiResultToString(HRESULT wmiResult)
   }
   else
   {
-    log_error("Could not instatiate a status code text converter. Error code: %d\n", hres);
+    logError("Could not instatiate a status code text converter. Error code: %d\n", hres);
     result = "Internal error: WMI status code text creation failed.";
   }
 
@@ -159,13 +159,13 @@ std::string serviceResultToString(unsigned int result)
 WmiMonitor::WmiMonitor(IWbemServices* services, const std::string& parameter)
   : _services(services), _propertyHandle(0), _namePropertyHandle(0), _findTotal(false)
 {
-  log_debug("Creating new wmi monitor for parameter: %s\n", parameter.c_str());
+  logDebug("Creating new wmi monitor for parameter: %s\n", parameter.c_str());
   
   const std::vector<std::string> args = base::split(parameter, ".");
 
   if (args.size() < 2)
   {
-    log_error("Invalid parameter format - cannot continue\n");
+    logError("Invalid parameter format - cannot continue\n");
     throw std::runtime_error(_("Wrong monitor format. Got '") + parameter + _("', expected '<WMIClass.Name>'"));
   }
 
@@ -175,7 +175,7 @@ WmiMonitor::WmiMonitor(IWbemServices* services, const std::string& parameter)
     (void**) &_refresher);
   if (FAILED(hr))
   {
-    log_error("Could not create a wbem refresher instance. Error: %d\n", hr);
+    logError("Could not create a wbem refresher instance. Error: %d\n", hr);
     throw std::runtime_error(_("WMI - Could not create monitor object.\n\n") + wmiResultToString(hr));
   }
 
@@ -183,7 +183,7 @@ WmiMonitor::WmiMonitor(IWbemServices* services, const std::string& parameter)
   hr = _refresher->QueryInterface(IID_IWbemConfigureRefresher, (void**) &config);
   if (FAILED(hr))
   {
-    log_error("QueryInterface for wbem configure refresher failed with error: %d\n", hr);
+    logError("QueryInterface for wbem configure refresher failed with error: %d\n", hr);
 
     // _refersher is a smart pointer and is automatically freed.
     throw std::runtime_error(_("WMI - Could not create monitor object.\n\n") + wmiResultToString(hr));
@@ -200,7 +200,7 @@ WmiMonitor::WmiMonitor(IWbemServices* services, const std::string& parameter)
   if (FAILED(hr))
   {
     std::string result = wmiResultToString(hr);
-    log_error("Could not register monitoring enumerator. Error: %s\n", result.c_str());
+    logError("Could not register monitoring enumerator. Error: %s\n", result.c_str());
     throw std::runtime_error(_("WMI - Could not register monitoring enumerator.\n"));
   }
 }
@@ -209,7 +209,7 @@ WmiMonitor::WmiMonitor(IWbemServices* services, const std::string& parameter)
 
 WmiMonitor::~WmiMonitor()
 {
-  log_debug("Destroying monitor\n");
+  logDebug("Destroying monitor\n");
   
   CComPtr<IWbemConfigureRefresher> config;
   HRESULT hr = _refresher->QueryInterface(IID_IWbemConfigureRefresher, (void**) &config);
@@ -218,7 +218,7 @@ WmiMonitor::~WmiMonitor()
   else
   {
     std::string result = wmiResultToString(hr);
-    log_error("Could not remove enumerator from wbem config refresher. Error: %s\n", result.c_str());
+    logError("Could not remove enumerator from wbem config refresher. Error: %s\n", result.c_str());
   }
 }
 
@@ -226,7 +226,7 @@ WmiMonitor::~WmiMonitor()
 
 std::string WmiMonitor::readValue()
 {
-  log_debug("Reading next monitoring value\n");
+  logDebug("Reading next monitoring value\n");
 
   // Refresh the enumerator so we actually get values.
   _refresher->Refresh(0L);
@@ -246,7 +246,7 @@ std::string WmiMonitor::readValue()
     if (FAILED(hr))
     {
       std::string result = wmiResultToString(hr);
-      log_error("Cannot get value object from enumerator. Error: %s\n", result.c_str());
+      logError("Cannot get value object from enumerator. Error: %s\n", result.c_str());
 
       delete [] accessors;
       return "0";
@@ -264,7 +264,7 @@ std::string WmiMonitor::readValue()
   if (FAILED(hr))
   {
     std::string result = wmiResultToString(hr);
-    log_error("Cannot get property handle from wbem accessor. Error: %s\n", result.c_str());
+    logError("Cannot get property handle from wbem accessor. Error: %s\n", result.c_str());
   }
 
   CIMTYPE namePropType;
@@ -274,7 +274,7 @@ std::string WmiMonitor::readValue()
   if (FAILED(hr))
   {
     std::string result = wmiResultToString(hr);
-    log_error("Cannot get name property handle from wbem accessor. Error: %s\n", result.c_str());
+    logError("Cannot get name property handle from wbem accessor. Error: %s\n", result.c_str());
   }
 
   if (_propertyHandle != 0)
@@ -296,7 +296,7 @@ std::string WmiMonitor::readValue()
           if (FAILED(hr))
           {
             std::string result = wmiResultToString(hr);
-            log_error("Cannot read DWORD value from wbem accessor. Error: %s\n", result.c_str());
+            logError("Cannot read DWORD value from wbem accessor. Error: %s\n", result.c_str());
           }
 
           break;
@@ -312,7 +312,7 @@ std::string WmiMonitor::readValue()
       if (FAILED(hr))
       {
         std::string result = wmiResultToString(hr);
-        log_error("Cannot read DWORD value from wbem accessor. Error: %s\n", result.c_str());
+        logError("Cannot read DWORD value from wbem accessor. Error: %s\n", result.c_str());
       }
     }
 
@@ -337,9 +337,9 @@ static int _locator_refcount = 0;
 WmiServices::WmiServices(const std::string& server, const std::string& user, const std::string& password)
 {
   if (server.empty())
-    log_debug("Creating WmiServices for local server (user: %s)\n", user.c_str());
+    logDebug("Creating WmiServices for local server (user: %s)\n", user.c_str());
   else
-    log_debug("Creating WmiServices for remote server: %s (user: %s)\n", server.c_str(), user.c_str());
+    logDebug("Creating WmiServices for remote server: %s (user: %s)\n", server.c_str(), user.c_str());
 
   allocate_locator();
 
@@ -391,14 +391,14 @@ WmiServices::WmiServices(const std::string& server, const std::string& user, con
     if (FAILED(hr))
     {
       std::string result = wmiResultToString(hr);
-      log_error("Could not set proxy blanket for our wmi services. Error: %s\n", result.c_str());
+      logError("Could not set proxy blanket for our wmi services. Error: %s\n", result.c_str());
       throw std::runtime_error(_("WMI setting security blanket failed.\n"));
     }
   }
   else
   {
     std::string result = wmiResultToString(hr);
-    log_error("Could not connect to target machine. Error: %s\n", result.c_str());
+    logError("Could not connect to target machine. Error: %s\n", result.c_str());
     throw std::runtime_error(_("Could not connect to target machine.\n"));
   }
 }
@@ -407,7 +407,7 @@ WmiServices::WmiServices(const std::string& server, const std::string& user, con
 
 WmiServices::~WmiServices()
 {
-  log_debug("Destroying services\n");
+  logDebug("Destroying services\n");
   deallocate_locator();
 }
 
@@ -415,7 +415,7 @@ WmiServices::~WmiServices()
 
 void WmiServices::allocate_locator()
 {
-  log_debug("Allocating wbem locator\n");
+  logDebug("Allocating wbem locator\n");
 
   base::MutexLock lock(_locator_mutex);
   if (_locator_refcount == 0)
@@ -426,7 +426,7 @@ void WmiServices::allocate_locator()
     if (FAILED(hr))
     {
       std::string result = wmiResultToString(hr);
-      log_error("Could not create wbem locator. Error: %s\n", result.c_str());
+      logError("Could not create wbem locator. Error: %s\n", result.c_str());
       throw std::runtime_error("Internal error: Instantiation of IWbemLocator failed.\n");
     }
   }
@@ -438,7 +438,7 @@ void WmiServices::allocate_locator()
 
 void WmiServices::deallocate_locator()
 {
-  log_debug("Deallocating wbem locator\n");
+  logDebug("Deallocating wbem locator\n");
 
   base::MutexLock lock(_locator_mutex);
   if (_locator_refcount > 0)
@@ -467,7 +467,7 @@ void WmiServices::deallocate_locator()
  */
 grt::DictListRef WmiServices::query(const std::string& query)
 {
-  log_debug3("Running wmi query: %s\n", query.c_str());
+  logDebug3("Running wmi query: %s\n", query.c_str());
 
   // Making this function explicitly thread-safe might be unnecessary as we don't have
   // any data which is allocated/deallocated concurrently. But since we know we will be called
@@ -530,7 +530,7 @@ grt::DictListRef WmiServices::query(const std::string& query)
           char *name_ = _com_util::ConvertBSTRToString(name);
 
           std::string result = wmiResultToString(hr);
-          log_error("Couldn't get the value for %s. Error: %s\n", name_, result.c_str());
+          logError("Couldn't get the value for %s. Error: %s\n", name_, result.c_str());
           delete [] name_;
         }
       }
@@ -542,7 +542,7 @@ grt::DictListRef WmiServices::query(const std::string& query)
   else
   {
     std::string result = wmiResultToString(hr);
-    log_error("Query execution failed. Error: %s\n", result.c_str());
+    logError("Query execution failed. Error: %s\n", result.c_str());
     throw std::runtime_error("WMI query execution failed");
   }
 
@@ -566,7 +566,7 @@ grt::DictListRef WmiServices::query(const std::string& query)
  */
 std::string WmiServices::serviceControl(const std::string& service, const std::string& action)
 {
-  log_debug3("Running wmi service control query for service: %s (action: %s)\n", service.c_str(), action.c_str());
+  logDebug3("Running wmi service control query for service: %s (action: %s)\n", service.c_str(), action.c_str());
 
   base::MutexLock lock(_locator_mutex);
 
@@ -577,7 +577,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
   if (FAILED(hr))
   {
     std::string result = wmiResultToString(hr);
-    log_error("Query execution failed. Error: %s\n", result.c_str());
+    logError("Query execution failed. Error: %s\n", result.c_str());
     return "error, see log";
   }
 
@@ -586,7 +586,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
   if (FAILED(hr))
   {
     std::string result = wmiResultToString(hr);
-    log_error("Could not get state value for the service. Error: %s\n", result.c_str());
+    logError("Could not get state value for the service. Error: %s\n", result.c_str());
     return "unknown";
   }
 
@@ -648,7 +648,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
       {
         char *serviceClassPath_ = _com_util::ConvertBSTRToString(serviceClassPath);
         std::string result = wmiResultToString(hr);
-        log_error("Could not get object for service class path: %s. Error: %s\n", serviceClassPath_, result.c_str());
+        logError("Could not get object for service class path: %s. Error: %s\n", serviceClassPath_, result.c_str());
         delete [] serviceClassPath_;
       }
 
@@ -658,7 +658,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
       {
         char *methodName_ = _com_util::ConvertBSTRToString(methodName);
         std::string result = wmiResultToString(hr);
-        log_error("Could not get in/out class for method: %s. Error: %s\n", methodName_, result.c_str());
+        logError("Could not get in/out class for method: %s. Error: %s\n", methodName_, result.c_str());
         delete [] methodName_;
       }
 
@@ -667,7 +667,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
       else
       {
         std::string result = wmiResultToString(hr);
-        log_error("Could not spawn in-class instance. Error: %s\n", result.c_str());
+        logError("Could not spawn in-class instance. Error: %s\n", result.c_str());
       }
 
       if (FAILED(hr))
@@ -675,7 +675,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
         char *serviceClassPath_ = _com_util::ConvertBSTRToString(serviceClassPath);
         char *methodName_ = _com_util::ConvertBSTRToString(methodName);
         std::string result = wmiResultToString(hr);
-        log_error("Could not execute method %d at path %s. Error: %s\n", methodName_,
+        logError("Could not execute method %d at path %s. Error: %s\n", methodName_,
           serviceClassPath_, result.c_str());
         delete [] methodName_;
         delete [] serviceClassPath_;
@@ -691,7 +691,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
       if (FAILED(hr))
       {
         std::string result = wmiResultToString(hr);
-        log_error("Could not get the return value of the query. Error: %s\n", result.c_str());
+        logError("Could not get the return value of the query. Error: %s\n", result.c_str());
 
         return "error, see log";
       }
@@ -703,7 +703,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
         if (result != 0)
         {
           std::string text =  serviceResultToString(result);
-          log_error("Variant conversion for return value failed. Error: %s\n", text.c_str());
+          logError("Variant conversion for return value failed. Error: %s\n", text.c_str());
           
           return "error, see log";
         }
@@ -723,7 +723,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
         if (FAILED(hr))
         {
           std::string result = wmiResultToString(hr);
-          log_error("Could not get state value for the service. Error: %s\n", result.c_str());
+          logError("Could not get state value for the service. Error: %s\n", result.c_str());
 
           return "unknown";
         }
@@ -745,7 +745,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
 
       if (state != expectedState)
       {
-        log_error("Timeout waiting for the service to change status. Returning error to caller.\n");
+        logError("Timeout waiting for the service to change status. Returning error to caller.\n");
         return "error";
       }
 
@@ -766,7 +766,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
  */
 std::string WmiServices::systemStat(const std::string& what)
 {
-  log_debug3("Running wmi system stat call (what: %s)\n", what.c_str());
+  logDebug3("Running wmi system stat call (what: %s)\n", what.c_str());
 
   base::MutexLock lock(_locator_mutex);
 
@@ -801,14 +801,14 @@ std::string WmiServices::systemStat(const std::string& what)
       char *propertyName_ = _com_util::ConvertBSTRToString(propertyName);
 
       std::string result = wmiResultToString(hr);
-      log_error("Could not get the value for property %s. Error: %s\n", propertyName_, result.c_str());
+      logError("Could not get the value for property %s. Error: %s\n", propertyName_, result.c_str());
       delete [] propertyName_;
     }
   }
   else
   {
     std::string result = wmiResultToString(hr);
-    log_error("Could not run the system stat query. Error: %s\n", result.c_str());
+    logError("Could not run the system stat query. Error: %s\n", result.c_str());
   }
 
 

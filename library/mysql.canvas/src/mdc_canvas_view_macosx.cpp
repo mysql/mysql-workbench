@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,7 @@ using namespace mdc;
 QuartzCanvasView::QuartzCanvasView(int width, int height)
   : CanvasView(width, height)
 {
-  log_debug("Creating quartz canvas view\n");
+  logDebug("Creating quartz canvas view\n");
 
   // A surface used to get a cairo context outside of a paint cycle (usually for font measurement).
   _offlineSurface = cairo_quartz_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
@@ -50,7 +50,7 @@ QuartzCanvasView::QuartzCanvasView(int width, int height)
 
 QuartzCanvasView::~QuartzCanvasView()
 {
-  log_debug("Destroying quartz canvas view\n");
+  logDebug("Destroying quartz canvas view\n");
 
   if (_offlineSurface != NULL)
     cairo_surface_destroy(_offlineSurface);

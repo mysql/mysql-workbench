@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,6 +72,15 @@ wrapper->mOwner->focus_changed(); \
 return [super becomeFirstResponder]; \
 }
 
+enum ViewFlags
+{
+  ExpandFlag   = 1,
+  FillFlag     = 2,
+  PackEndFlag  = 4,
+
+  BoxFlagMask  = 0xff
+};
+
 namespace mforms { class View; }
 
 @interface NSPasteboard (MySQLWorkbench)
@@ -86,25 +95,16 @@ namespace mforms { class View; }
 /** MForms control implementations must subclass their own NS counterpart and implement
  *  the size related methods like below if they need it.
  */
-@interface NSView(MForms) <NSDraggingDestination, NSDraggingSource, NSPasteboardItemDataProvider>
+@interface NSView (MForms) <NSDraggingDestination, NSDraggingSource, NSPasteboardItemDataProvider>
 
-@property NSInteger viewFlags;
 @property NSArray *acceptableDropFormats;
 @property mforms::DragOperation lastDragOperation;
 @property mforms::DragOperation allowedDragOperations;
 @property mforms::DropPosition lastDropPosition; // Only valid during a drag operation. Set by descendants.
 
+@property ViewFlags viewFlags;
 @property (readonly, strong) id innerView;
-
-- (void)subviewMinimumSizeChanged;
-@property (readonly) NSSize minimumSize;
-- (NSSize)minimumSizeForWidth:(float)width;
-@property (readonly) NSSize preferredSize;
-- (NSSize)preferredSizeForWidth:(float)width;
-
-@property  NSSize fixedFrameSize;
-@property (readonly) BOOL widthIsFixed;
-@property (readonly) BOOL heightIsFixed;
+@property NSSize minimumSize;
 
 - (bool)handleMouseUp: (NSEvent*) event owner: (mforms::View *)mOwner;
 - (bool)handleMouseDown: (NSEvent*) event owner: (mforms::View *)mOwner;
@@ -113,6 +113,9 @@ namespace mforms { class View; }
 - (bool)handleMouseExited: (NSEvent*) event owner: (mforms::View *)mOwner;
 - (NSTrackingArea *)updateTrackingArea: (NSTrackingArea *)currentArea;
 
+- (NSSize)preferredSize: (NSSize)proposal;
+- (void)relayout;
+- (mforms::ModifierKey) modifiersFromEvent: (NSEvent*) event;
 
 @end
 

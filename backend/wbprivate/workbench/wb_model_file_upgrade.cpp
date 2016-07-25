@@ -590,7 +590,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
           {
             fk->index(found_index);
 
-            log_info("Document Upgrade: ForeignKey %s.%s was assigned the index %s by column matching\n", 
+            logInfo("Document Upgrade: ForeignKey %s.%s was assigned the index %s by column matching\n", 
                       table->name().c_str(), fk->name().c_str(), 
                       found_index->name().c_str());
           }
@@ -601,7 +601,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
             fk->index(new_index);
             table->indices().insert(new_index);
 
-            log_warning("ForeignKey %s.%s has no matching index, created one\n", 
+            logWarning("ForeignKey %s.%s has no matching index, created one\n", 
                       table->name().c_str(), fk->name().c_str());            
           }
         }
@@ -638,7 +638,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
                           if (idx_name.length() > 59)
                               idx_name.resize(59);
                           indexes[ii]->name(grt::get_name_suggestion_for_list_object(indexes,idx_name.append("_idx"),false));
-                          log_info("Document Upgrade: Index %s.%s was renamed to %s.%s to avoid name conflict with FK\n",
+                          logInfo("Document Upgrade: Index %s.%s was renamed to %s.%s to avoid name conflict with FK\n",
                               tables[i]->name().c_str(), fks[fi]->name().c_str(),
                               tables[i]->name().c_str(), indexes[ii]->name().c_str());
                           continue;
@@ -646,7 +646,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
           }
       }
       if (!ask_confirmation)
-        bec::GRTManager::get().has_unsaved_changes(true);
+        bec::GRTManager::get()->has_unsaved_changes(true);
   }
 
   if (major <= 1 && (minor < 4 || (minor == 4 && revision < 4)))
@@ -918,7 +918,7 @@ static int fix_duplicate_uuid_bug(xmlNodePtr node,
           std::string remapped = strfmt("%s%i", id.c_str(), (int)remapped_ids.size());
           if (remapped_ids.find(id) != remapped_ids.end()
               || remapped_ids[id].find(sname) != remapped_ids[id].end())
-            log_warning("Found more than 1 duplicate entry for same UUID, will be unable to correctly fix file (%s %s)\n",
+            logWarning("Found more than 1 duplicate entry for same UUID, will be unable to correctly fix file (%s %s)\n",
                       sname.c_str(), id.c_str());
           if (remapped_ids[id].size() == 0)
           {
@@ -965,11 +965,11 @@ static void fix_duplicate_uuid_bug_references(xmlNodePtr node,
             if (XMLTraverser::node_prop(node, "type") == "list" && XMLTraverser::node_prop(node, "content-type") == "object"
                 && !(sname = XMLTraverser::node_prop(node, "content-struct-name")).empty())
             {
-              log_info("link %s is in list of %s\n", id.c_str(), sname.c_str());
+              logInfo("link %s is in list of %s\n", id.c_str(), sname.c_str());
             }
             else
             {
-              log_info("link %s has no struct-name\n", id.c_str());
+              logInfo("link %s has no struct-name\n", id.c_str());
               continue;
             }
           }
@@ -1011,7 +1011,7 @@ static void fix_duplicate_uuid_bug_references(xmlNodePtr node,
                 if (mc->name() == sname)
                 {
                   count++;
-                  log_info("found match %i %s for %s:%s (%s -> %s)\n", count, opt->first.c_str(), sname.c_str(), target_key.c_str(),
+                  logInfo("found match %i %s for %s:%s (%s -> %s)\n", count, opt->first.c_str(), sname.c_str(), target_key.c_str(),
                             id.c_str(), opt->second.c_str());
                   xmlNodeSetContent(n, (xmlChar*)opt->second.c_str());
                   ok = true;
@@ -1022,7 +1022,7 @@ static void fix_duplicate_uuid_bug_references(xmlNodePtr node,
             }
 
             if (!ok)
-              log_warning("WARNING: Could not resolve link for %s %s (%i) key='%s'. Report to the developers to get a fix.\n",
+              logWarning("WARNING: Could not resolve link for %s %s (%i) key='%s'. Report to the developers to get a fix.\n",
                         id.c_str(), sname.c_str(), (int)structs.size(),
                         XMLTraverser::node_prop(n, "key").c_str());
           }

@@ -131,7 +131,7 @@ static void show_python_exception()
   
   PyErr_Restore(exc, val, tb);
 
-  log_error("Unhandled exception in Python code: %s\n%s\n", reason.c_str(), stack.c_str());
+  logError("Unhandled exception in Python code: %s\n%s\n", reason.c_str(), stack.c_str());
   mforms::Utilities::show_error("Error", std::string("Unhandled exception: ").append(reason), "OK", "", "");
 }
 
@@ -555,7 +555,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
   }
   catch (std::exception &exc)
   {
-    log_error("exception calling mforms method $name: %s\n", exc.what());
+    logError("exception calling mforms method $name: %s\n", exc.what());
     PyErr_Format(PyExc_SystemError, "Exception calling mforms method '$name': %s", exc.what());
     SWIG_fail;
   }

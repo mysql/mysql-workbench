@@ -43,7 +43,7 @@ public:
   {
     set_border_width(8);
     
-    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("modules/data/editor_storednote.glade"));
+    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("modules/data/editor_storednote.glade"));
 
     Gtk::Box* box(0);
     _xml->get_widget("vbox1", box);

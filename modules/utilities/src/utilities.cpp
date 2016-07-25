@@ -67,7 +67,7 @@ public:
       g_free(data);
     }
     else
-      log_error("Unable to get contents of a file: %s\n", path.c_str());
+      logError("Unable to get contents of a file: %s\n", path.c_str());
     return epsg;
   }
 };

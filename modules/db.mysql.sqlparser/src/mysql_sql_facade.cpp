@@ -17,6 +17,8 @@
  * 02110-1301  USA
  */
 
+#include <stack>
+
 #include <glib.h>
 #include <boost/signals2.hpp>
 
@@ -53,7 +55,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const std::string &sql, std::list<std::st
 
 //--------------------------------------------------------------------------------------------------
 
-static const unsigned char* skip_leading_whitespace(const unsigned char *head, const unsigned char *tail)
+static const unsigned char* skipLeadingWhitespace(const unsigned char *head, const unsigned char *tail)
 {
   while (head < tail && *head <= ' ')
     head++;
@@ -62,7 +64,7 @@ static const unsigned char* skip_leading_whitespace(const unsigned char *head, c
 
 //--------------------------------------------------------------------------------------------------
 
-bool is_line_break(const unsigned char *head, const unsigned char *line_break)
+bool isLineBreak(const unsigned char *head, const unsigned char *line_break)
 {
   if (*line_break == '\0')
     return false;
@@ -133,11 +135,11 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, std::size_t length,
       case '-': // Possible single line comment.
       {
         const unsigned char *end_char = tail + 2;
-        if (*(tail + 1) == '-' && (*end_char == ' ' || *end_char == '\t' || is_line_break(end_char, new_line)))
+        if (*(tail + 1) == '-' && (*end_char == ' ' || *end_char == '\t' || isLineBreak(end_char, new_line)))
         {
           // Skip everything until the end of the line.
           tail += 2;
-          while (tail < end && !is_line_break(tail, new_line))
+          while (tail < end && !isLineBreak(tail, new_line))
             tail++;
           if (!have_content)
             head = tail;
@@ -149,7 +151,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, std::size_t length,
       }
         
       case '#': // MySQL single line comment.
-        while (tail < end && !is_line_break(tail, new_line))
+        while (tail < end && !isLineBreak(tail, new_line))
           tail++;
         if (!have_content)
           head = tail;
@@ -198,13 +200,13 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, std::size_t length,
           {
             // Delimiter keyword found. Get the new delimiter (everything until the end of the line).
             tail = run++;
-            while (run < end && !is_line_break(run, new_line))
+            while (run < end && !isLineBreak(run, new_line))
               run++;
             delimiter = base::trim(std::string((char *)tail, run - tail));
             delimiter_head = (unsigned char*)delimiter.c_str();
 
             // Skip over the delimiter statement and any following line breaks.
-            while (is_line_break(run, new_line))
+            while (isLineBreak(run, new_line))
               run++;
             tail = run;
             head = tail;
@@ -232,7 +234,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, std::size_t length,
       if (count == 1)
       {
         // Most common case. Trim the statement and check if it is not empty before adding the range.
-        head = skip_leading_whitespace(head, tail);
+        head = skipLeadingWhitespace(head, tail);
         if (head < tail)
           ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
         head = ++tail;
@@ -249,7 +251,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, std::size_t length,
         {
           // Multi char delimiter is complete. Tail still points to the start of the delimiter.
           // Run points to the first character after the delimiter.
-          head = skip_leading_whitespace(head, tail);
+          head = skipLeadingWhitespace(head, tail);
           if (head < tail)
             ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
           tail = run;
@@ -261,7 +263,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, std::size_t length,
   }
   
   // Add remaining text to the range list.
-  head = skip_leading_whitespace(head, tail);
+  head = skipLeadingWhitespace(head, tail);
   if (head < tail)
     ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
   
@@ -542,7 +544,7 @@ static int parse_callback(void* user_data, const MyxStatementParser *splitter, c
 
 grt::BaseListRef MysqlSqlFacadeImpl::parseAstFromSqlScript(const std::string &sql)
 {
-  Mysql_sql_parser_fe parser(bec::GRTManager::get().get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe parser(bec::GRTManager::get()->get_app_option_string("SqlMode"));
   grt::BaseListRef result(true);
 
   parser.is_ast_generation_enabled = true;

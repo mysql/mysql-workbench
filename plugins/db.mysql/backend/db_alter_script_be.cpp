@@ -147,7 +147,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<s
 {
   db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
-  grt::ValueRef default_engine = bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine");
+  grt::ValueRef default_engine = bec::GRTManager::get()->get_app_option("db.mysql.Table:tableEngine");
   if(grt::StringRef::can_wrap(default_engine))
     default_engine_name = grt::StringRef::cast_from(default_engine);
   std::string err;
@@ -183,7 +183,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<s
       std::string orig_schema_name = schema->customData().get_string("db.mysql.synchronize:originalName", "");
       if (!orig_schema_name.empty() && schema->name() != orig_schema_name)
       {
-        log_info("Fix schema references of %s (from %s)\n", schema->name().c_str(), orig_schema_name.c_str());
+        logInfo("Fix schema references of %s (from %s)\n", schema->name().c_str(), orig_schema_name.c_str());
         Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
         renamer->rename_schema_references(_left_cat_copy, orig_schema_name, schema->name());
       }
@@ -197,7 +197,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<s
     // remove excluded object types from the copy of the left catalog
     if (options.get_int("SkipTriggers"))
     {
-      log_info("Remove triggers from copy of model schema %s\n", schema->name().c_str());
+      logInfo("Remove triggers from copy of model schema %s\n", schema->name().c_str());
       for (size_t t = 0; t < schema->tables().count(); t++)
       {
         schema->tables()[t]->triggers().remove_all();
@@ -205,7 +205,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<s
     }
     if (options.get_int("SkipRoutines"))
     {
-      log_info("Remove routines from copy of model schema %s\n", schema->name().c_str());
+      logInfo("Remove routines from copy of model schema %s\n", schema->name().c_str());
       schema->routines().remove_all();
       schema->routineGroups().remove_all();
     }
@@ -217,7 +217,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<s
     // remove excluded object types from the copy of the right catalog
     if (options.get_int("SkipTriggers"))
     {
-      log_info("Remove triggers from copy of model schema %s\n", schema->name().c_str());
+      logInfo("Remove triggers from copy of model schema %s\n", schema->name().c_str());
       for (size_t t = 0; t < schema->tables().count(); t++)
       {
         schema->tables()[t]->triggers().remove_all();
@@ -225,7 +225,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<s
     }
     if (options.get_int("SkipRoutines"))
     {
-      log_info("Remove routines from copy of model schema %s\n", schema->name().c_str());
+      logInfo("Remove routines from copy of model schema %s\n", schema->name().c_str());
       schema->routines().remove_all();
       schema->routineGroups().remove_all();
     }

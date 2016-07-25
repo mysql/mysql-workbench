@@ -794,47 +794,47 @@ TEST_FUNCTION(40)
   std::string test_string_unicode = "\xC3\x89\xC3\x89\xC3\x89\xC3\x89\xC3\x89\xC3\x89\xC3\x89\xC3\x89...Now that is a unicode string...\xE3\x8A\xA8";
 
   //  Base tests
-  ensure_equals("TEST 40.1: Starts with (success test)", base::starts_with(test_string, "This"), true);
-  ensure_equals("TEST 40.2: Starts with (exists somwehere in the middle)", base::starts_with(test_string, "is"), false);
-  ensure_equals("TEST 40.3: Starts with (exists in the end)", base::starts_with(test_string, "test."), false);
-  ensure_equals("TEST 40.4: Starts with (search text don't exist)", base::starts_with(test_string, "blablabla"), false);
-  ensure_equals("TEST 40.5: Starts with (search an empty string)", base::starts_with(test_string, ""), true);
-  ensure_equals("TEST 40.6: Starts with (starting on the second character)", base::starts_with(test_string, "his"), false);
-  ensure_equals("TEST 40.7: Starts with (whole string)", base::starts_with(test_string, test_string), true);
-  ensure_equals("TEST 40.8: Starts with (more then the original string)", base::starts_with(test_string, test_string + " Second part..."), false);
-  ensure_equals("TEST 40.9: Starts with (empty source)", base::starts_with("", "blablabla"), false);
-  ensure_equals("TEST 40.10: Starts with (empty source, empty search)", base::starts_with("", ""), true);
+  ensure_equals("TEST 40.1: Starts with (success test)", base::hasPrefix(test_string, "This"), true);
+  ensure_equals("TEST 40.2: Starts with (exists somwehere in the middle)", base::hasPrefix(test_string, "is"), false);
+  ensure_equals("TEST 40.3: Starts with (exists in the end)", base::hasPrefix(test_string, "test."), false);
+  ensure_equals("TEST 40.4: Starts with (search text don't exist)", base::hasPrefix(test_string, "blablabla"), false);
+  ensure_equals("TEST 40.5: Starts with (search an empty string)", base::hasPrefix(test_string, ""), true);
+  ensure_equals("TEST 40.6: Starts with (starting on the second character)", base::hasPrefix(test_string, "his"), false);
+  ensure_equals("TEST 40.7: Starts with (whole string)", base::hasPrefix(test_string, test_string), true);
+  ensure_equals("TEST 40.8: Starts with (more then the original string)", base::hasPrefix(test_string, test_string + " Second part..."), false);
+  ensure_equals("TEST 40.9: Starts with (empty source)", base::hasPrefix("", "blablabla"), false);
+  ensure_equals("TEST 40.10: Starts with (empty source, empty search)", base::hasPrefix("", ""), true);
 
-  ensure_equals("TEST 40.11: Ends with (success test)", base::ends_with(test_string, "test."), true);
-  ensure_equals("TEST 40.12: Ends with (exists somwehere in the middle)", base::ends_with(test_string, "to "), false);
-  ensure_equals("TEST 40.13: Ends with (exists at the beginning)", base::ends_with(test_string, "This"), false);
-  ensure_equals("TEST 40.14: Ends with (search text don't exist)", base::ends_with(test_string, "blablabla"), false);
-  ensure_equals("TEST 40.15: Ends with (search an empty string)", base::ends_with(test_string, ""), true);
-  ensure_equals("TEST 40.16: Ends with (starting on the second last character)", base::ends_with(test_string, "test"), false);
-  ensure_equals("TEST 40.17: Ends with (whole string)", base::ends_with(test_string, test_string), true);
-  ensure_equals("TEST 40.18: Ends with (more then the original string)", base::ends_with(test_string, test_string + " Second part..."), false);
-  ensure_equals("TEST 40.19: Ends with (empty source)", base::ends_with("", "blablabla"), false);
-  ensure_equals("TEST 40.20: Ends with (empty source, empty search)", base::ends_with("", ""), true);
+  ensure_equals("TEST 40.11: Ends with (success test)", base::hasSuffix(test_string, "test."), true);
+  ensure_equals("TEST 40.12: Ends with (exists somwehere in the middle)", base::hasSuffix(test_string, "to "), false);
+  ensure_equals("TEST 40.13: Ends with (exists at the beginning)", base::hasSuffix(test_string, "This"), false);
+  ensure_equals("TEST 40.14: Ends with (search text don't exist)", base::hasSuffix(test_string, "blablabla"), false);
+  ensure_equals("TEST 40.15: Ends with (search an empty string)", base::hasSuffix(test_string, ""), true);
+  ensure_equals("TEST 40.16: Ends with (starting on the second last character)", base::hasSuffix(test_string, "test"), false);
+  ensure_equals("TEST 40.17: Ends with (whole string)", base::hasSuffix(test_string, test_string), true);
+  ensure_equals("TEST 40.18: Ends with (more then the original string)", base::hasSuffix(test_string, test_string + " Second part..."), false);
+  ensure_equals("TEST 40.19: Ends with (empty source)", base::hasSuffix("", "blablabla"), false);
+  ensure_equals("TEST 40.20: Ends with (empty source, empty search)", base::hasSuffix("", ""), true);
 
   
   // Unicode tests
-  ensure_equals("TEST 40.21: [Unicode]Starts with (success test)", base::starts_with(test_string_unicode, "\xC3\x89\xC3\x89"), true);
-  ensure_equals("TEST 40.22: [Unicode]Starts with (exists somwehere in the middle)", base::starts_with(test_string_unicode, "is"), false);
-  ensure_equals("TEST 40.23: [Unicode]Starts with (exists in the end)", base::starts_with(test_string_unicode, "\xE3\x8A\xA8"), false);
-  ensure_equals("TEST 40.24: [Unicode]Starts with (search text don't exist)", base::starts_with(test_string_unicode, "blablabla"), false);
-  ensure_equals("TEST 40.25: [Unicode]Starts with (search an empty string)", base::starts_with(test_string_unicode, ""), true);
-  ensure_equals("TEST 40.26: [Unicode]Starts with (starting on the second character)", base::starts_with(test_string_unicode, "\x89\xC3\x89\xC3"), false);
-  ensure_equals("TEST 40.27: [Unicode]Starts with (whole string)", base::starts_with(test_string_unicode, test_string_unicode), true);
-  ensure_equals("TEST 40.28: [Unicode]Starts with (more then the original string)", base::starts_with(test_string_unicode, test_string_unicode + ". Second part..."), false);
+  ensure_equals("TEST 40.21: [Unicode]Starts with (success test)", base::hasPrefix(test_string_unicode, "\xC3\x89\xC3\x89"), true);
+  ensure_equals("TEST 40.22: [Unicode]Starts with (exists somwehere in the middle)", base::hasPrefix(test_string_unicode, "is"), false);
+  ensure_equals("TEST 40.23: [Unicode]Starts with (exists in the end)", base::hasPrefix(test_string_unicode, "\xE3\x8A\xA8"), false);
+  ensure_equals("TEST 40.24: [Unicode]Starts with (search text don't exist)", base::hasPrefix(test_string_unicode, "blablabla"), false);
+  ensure_equals("TEST 40.25: [Unicode]Starts with (search an empty string)", base::hasPrefix(test_string_unicode, ""), true);
+  ensure_equals("TEST 40.26: [Unicode]Starts with (starting on the second character)", base::hasPrefix(test_string_unicode, "\x89\xC3\x89\xC3"), false);
+  ensure_equals("TEST 40.27: [Unicode]Starts with (whole string)", base::hasPrefix(test_string_unicode, test_string_unicode), true);
+  ensure_equals("TEST 40.28: [Unicode]Starts with (more then the original string)", base::hasPrefix(test_string_unicode, test_string_unicode + ". Second part..."), false);
 
-  ensure_equals("TEST 40.29: [Unicode]Ends with (success test)", base::ends_with(test_string_unicode, ".\xE3\x8A\xA8"), true);
-  ensure_equals("TEST 40.30: [Unicode]Ends with (exists somwehere in the middle)", base::ends_with(test_string_unicode, "to "), false);
-  ensure_equals("TEST 40.31: [Unicode]Ends with (exists at the beginning)", base::ends_with(test_string_unicode, "\xC3\x89\xC3\x89"), false);
-  ensure_equals("TEST 40.32: [Unicode]Ends with (search text don't exist)", base::ends_with(test_string_unicode, "blablabla"), false);
-  ensure_equals("TEST 40.33: [Unicode]Ends with (search an empty string)", base::ends_with(test_string_unicode, ""), true);
-  ensure_equals("TEST 40.34: [Unicode]Ends with (starting on the second last character)", base::ends_with(test_string_unicode, ".\xE3\x8A"), false);
-  ensure_equals("TEST 40.35: [Unicode]Ends with (whole string)", base::ends_with(test_string_unicode, test_string_unicode), true);
-  ensure_equals("TEST 40.36: [Unicode]Ends with (more then the original string)", base::ends_with(test_string_unicode, test_string_unicode + ". Second part..."), false);
+  ensure_equals("TEST 40.29: [Unicode]Ends with (success test)", base::hasSuffix(test_string_unicode, ".\xE3\x8A\xA8"), true);
+  ensure_equals("TEST 40.30: [Unicode]Ends with (exists somwehere in the middle)", base::hasSuffix(test_string_unicode, "to "), false);
+  ensure_equals("TEST 40.31: [Unicode]Ends with (exists at the beginning)", base::hasSuffix(test_string_unicode, "\xC3\x89\xC3\x89"), false);
+  ensure_equals("TEST 40.32: [Unicode]Ends with (search text don't exist)", base::hasSuffix(test_string_unicode, "blablabla"), false);
+  ensure_equals("TEST 40.33: [Unicode]Ends with (search an empty string)", base::hasSuffix(test_string_unicode, ""), true);
+  ensure_equals("TEST 40.34: [Unicode]Ends with (starting on the second last character)", base::hasSuffix(test_string_unicode, ".\xE3\x8A"), false);
+  ensure_equals("TEST 40.35: [Unicode]Ends with (whole string)", base::hasSuffix(test_string_unicode, test_string_unicode), true);
+  ensure_equals("TEST 40.36: [Unicode]Ends with (more then the original string)", base::hasSuffix(test_string_unicode, test_string_unicode + ". Second part..."), false);
 }
 
 TEST_FUNCTION(41)

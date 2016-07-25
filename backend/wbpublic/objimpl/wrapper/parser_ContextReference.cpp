@@ -1,21 +1,21 @@
 /*
-* Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License as
-* published by the Free Software Foundation; version 2 of the
-* License.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301  USA
-*/
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
 #include "grts/structs.wrapper.h"
 
@@ -28,8 +28,8 @@ using namespace parser;
 class parser_ContextReference::ImplData
 {
 public:
-  parser::ParserContext::Ref _ref;
-  ImplData(const ParserContext::Ref &ref)
+  parser::MySQLParserContext::Ref _ref;
+  ImplData(const MySQLParserContext::Ref &ref)
   {
     _ref = ref;
   }
@@ -68,16 +68,16 @@ void parser_ContextReference::set_data(ImplData *data)
 
 //--------------------------------------------------------------------------------------------------
 
-ParserContext::Ref parser_context_from_grt(parser_ContextReferenceRef object)
+MySQLParserContext::Ref parser_context_from_grt(parser_ContextReferenceRef object)
 {
   if (!object.is_valid() || !*object->valid())
-    return ParserContext::Ref();
+    return MySQLParserContext::Ref();
   return object->get_data()->_ref;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-parser_ContextReferenceRef parser_context_to_grt(const ParserContext::Ref &context)
+parser_ContextReferenceRef parser_context_to_grt(const MySQLParserContext::Ref &context)
 {
   if (context != NULL)
   {

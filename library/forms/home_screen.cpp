@@ -37,8 +37,6 @@
 
 #include "base/any.h"
 
-DEFAULT_LOG_DOMAIN("home_screen")
-
 using namespace mforms;
 
 //----------------- ShortcutSection ----------------------------------------------------------------
@@ -232,6 +230,36 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
+  void setActive(HomeScreenSection* section)
+  {
+    SidebarEntry *entryForSection = nullptr;
+    for( auto &it : _entries)
+    {
+      if (it.second == section)
+      {
+        if (it.first == _activeEntry)
+          return; // Section already active. Nothing to do.
+
+        entryForSection = it.first;
+      }
+    }
+
+    if (_activeEntry != nullptr)
+    {
+      for( auto &it : _entries)
+      {
+        if (it.first == _activeEntry)
+          it.second->get_parent()->show(false);
+      }
+    }
+
+    _activeEntry = entryForSection;
+    section->get_parent()->show(true);
+    set_needs_repaint();
+  }
+
+  //--------------------------------------------------------------------------------------------------
+  
   void layout(cairo_t* cr)
   {
     if (is_layout_dirty())
@@ -381,16 +409,18 @@ public:
 
 //----------------- HomeScreen ---------------------------------------------------------------------
 
-HomeScreen::HomeScreen()
-  : AppView(true, "home", true)
+HomeScreen::HomeScreen(bool singleSection)
+  : AppView(true, "home", true), _singleSection(singleSection)
 {
-  _callback = nullptr;
-  _user_data = nullptr;
-
-  _sidebarSection = new SidebarSection(this);
-  _sidebarSection->set_name("Home Shortcuts Section");
-  _sidebarSection->set_size(85, -1);
-  add(_sidebarSection, false, true);
+  if (!_singleSection)
+  {
+    _sidebarSection = new SidebarSection(this);
+    _sidebarSection->set_name("Home Shortcuts Section");
+    _sidebarSection->set_size(85, -1);
+    add(_sidebarSection, false, true);
+  }
+  else
+    _sidebarSection = nullptr;
 
   update_colors();
 
@@ -413,7 +443,8 @@ HomeScreen::~HomeScreen()
 void HomeScreen::update_colors()
 {
   set_back_color("#ffffff");
-  _sidebarSection->set_back_color("#464646");
+  if (_sidebarSection != nullptr)
+    _sidebarSection->set_back_color("#464646");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,75 +454,61 @@ void HomeScreen::addSection(HomeScreenSection *section)
   if (section == nullptr)
     throw std::runtime_error("Empty HomeScreenSection given");
 
+  if (_singleSection && !_sections.empty())
+    throw std::runtime_error("HomeScreen is in singleSection mode. Only one section allowed.");
+
   _sections.push_back(section);
 
-  mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
-  scroll->add(section);
-  add(scroll, true, true);
-  scroll->show(false);
+  if (_sidebarSection != nullptr)
+  {
+    mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
+    scroll->add(section);
+    add(scroll, true, true);
+    scroll->show(false);
 
-  bool isCallbackOnly = section->callback ? true : false;
-  _sidebarSection->addEntry(section->getIcon(), section, [=]() {
-
-    if (isCallbackOnly)
-      section->callback();
-    else
-    {
-      for( auto &it: _sections)
+    bool isCallbackOnly = section->callback ? true : false;
+    _sidebarSection->addEntry(section->getIcon(), section, [this, isCallbackOnly, section]() {
+      if (isCallbackOnly)
+        section->callback();
+      else
       {
-        if (it != section)
-          it->get_parent()->show(false);
-        else
-          it->get_parent()->show(true);
+        for( auto &it: _sections)
+        {
+          if (it != section)
+            it->get_parent()->show(false);
+          else
+            it->get_parent()->show(true);
+        }
+        section->updateHeight();
       }
-      section->updateHeight();
-    }
 
-  }, !isCallbackOnly);
-
+    }, !isCallbackOnly);
+  }
+  else
+  {
+    add(section, true, true);
+    section->show(true);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void HomeScreen::addSectionEntry(const std::string& icon_name, HomeScreenSection* section, std::function<void()> callback, bool canSelect)
 {
-  _sidebarSection->addEntry(icon_name, section, callback, canSelect);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::set_callback(home_screen_action_callback callback, void* user_data)
-{
-  _callback= callback;
-  _user_data= user_data;
+  if (_sidebarSection != nullptr)
+    _sidebarSection->addEntry(icon_name, section, callback, canSelect);
+  else
+    throw std::runtime_error("HomeScreen is in single section mode");
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void HomeScreen::trigger_callback(HomeScreenAction action, const base::any &object)
 {
-  if (_callback != NULL)
-    (*_callback)(action, object, _user_data);
+  onHomeScreenAction(action, object);
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void HomeScreen::openConnection(const dataTypes::XProject &project)
-{
-
-  std::string exeName = "workbench.x";
-#ifdef _WIN32
-  exeName = "MySQLWorkbench.X.exe";
-#endif
-  logInfo("About to execute: %s\n", mforms::App::get()->get_executable_path(exeName).c_str());
-  try
-  {
-    base::executeProcess({ mforms::App::get()->get_executable_path(exeName), "--open", project.connection.uuid });
-  } catch (std::runtime_error &re)
-  {
-    logError("Unable to execute: %s\n", mforms::App::get()->get_executable_path(exeName).c_str());
-  }
-}
 
 void HomeScreen::cancelOperation()
 {
@@ -508,6 +525,9 @@ void HomeScreen::set_menu(mforms::Menu *menu, HomeScreenMenuType type)
     case HomeMenuConnection:
     case HomeMenuConnectionGroup:
     case HomeMenuConnectionGeneric:
+    case HomeMenuXConnection:
+    case HomeMenuXConnectionGroup:
+    case HomeMenuXConnectionGeneric:
     {
       for (auto &it : _sections)
         it->setContextMenu(menu, type);
@@ -550,8 +570,29 @@ void HomeScreen::on_resize()
 
 void HomeScreen::setup_done()
 {
-  if (_sidebarSection->getActive())
+  if (_sidebarSection != nullptr)
+  {
+    if (_sidebarSection->getActive())
+    {
+      _sidebarSection->getActive()->setFocus();
+    }
+  }
+  else
+  {
+    if (!_sections.empty())
+      _sections.back()->setFocus();
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void HomeScreen::showSection(size_t index)
+{
+  if (index < _sections.size() && _sidebarSection != nullptr)
+  {
+    _sidebarSection->setActive(_sections[index]);
     _sidebarSection->getActive()->setFocus();
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

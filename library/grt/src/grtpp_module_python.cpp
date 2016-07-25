@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -114,7 +114,7 @@ void PythonModule::add_parse_function(const std::string &name, PyObject *return_
   }
   catch (std::exception &exc)
   {
-    log_error("Invalid return type specification in %s.%s: %s\n", _name.c_str(), name.c_str(), exc.what());
+    logError("Invalid return type specification in %s.%s: %s\n", _name.c_str(), name.c_str(), exc.what());
     throw std::runtime_error(strfmt("Invalid return type specification in %s.%s: %s", _name.c_str(), name.c_str(), exc.what()));
   }
   
@@ -150,7 +150,7 @@ void PythonModule::add_parse_function(const std::string &name, PyObject *return_
     }
     catch (std::exception &exc)
     {
-      log_error("Invalid argument type specification in %s.%s: %s\n", _name.c_str(), name.c_str(), exc.what());
+      logError("Invalid argument type specification in %s.%s: %s\n", _name.c_str(), name.c_str(), exc.what());
       throw std::runtime_error(strfmt("Invalid argument type specification in %s.%s", _name.c_str(), name.c_str()));
     }
     func.arg_types.push_back(arg);

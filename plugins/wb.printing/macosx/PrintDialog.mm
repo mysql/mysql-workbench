@@ -179,7 +179,7 @@
 
 - (void) dealloc
 {
-  bec::GRTManager::get().get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
+  bec::GRTManager::get()->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
 
 }
 

@@ -40,10 +40,10 @@
 #include "mforms/menu.h"
 #include "mforms/filechooser.h"
 
-#include "autocomplete_object_name_cache.h"
-
 #include "grts/structs.db.mysql.h"
 
+#include "mysql-scanner.h"
+#include "code-completion/mysql-code-completion.h"
 #include "sql_editor_be.h"
 
 DEFAULT_LOG_DOMAIN("MySQL editor");
@@ -71,15 +71,15 @@ public:
 
   int _last_typed_char;
 
-  ParserContext::Ref _parser_context;
-  ParserContext::Ref _autocompletion_context;
+  MySQLParserContext::Ref _parser_context;
+  MySQLParserContext::Ref _autocompletion_context;
   MySQLParserServices::Ref _services;
 
   double _last_sql_check_progress_msg_timestamp;
   double _sql_check_progress_msg_throttle;
 
   base::RecMutex _sql_checker_mutex;
-  MySQLQueryType _parse_unit;  // The type of query we want to limit our parsing to.
+  MySQLParseUnit _parse_unit;  // The type of query we want to limit our parsing to.
 
   // We use 2 timers here for delayed work. One is a grt timer to run a task in the main thread after a certain delay.
   // The other one is to run the actual work task in a background thread.
@@ -88,7 +88,6 @@ public:
 
   std::pair<const char*, size_t> _text_info; // Only valid during a parse run.
 
-  base::RecMutex _sql_errors_mutex;
   std::vector<ParserErrorEntry> _recognition_errors; // List of errors from the last sql check run.
   std::set<size_t> _error_marker_lines;
 
@@ -108,12 +107,12 @@ public:
   boost::signals2::signal<void ()> _text_change_signal;
 
   // autocomplete_context will go after auto completion refactoring.
-  Private(ParserContext::Ref syntaxcheck_context, ParserContext::Ref autocomplete_context)
+  Private(MySQLParserContext::Ref syntaxcheck_context, MySQLParserContext::Ref autocomplete_context)
     : _grtobj(grt::Initialized), _last_sql_check_progress_msg_timestamp(0.0), _stop_processing(false)
   {
 
     _owns_toolbar = false;
-    _parse_unit = QtUnknown;
+    _parse_unit = MySQLParseUnit::PuGeneric;
     _is_refresh_enabled = true;
     _sql_check_progress_msg_throttle = 500;
 
@@ -146,29 +145,29 @@ public:
     // as a single statement. This will then show syntax errors for any invalid additional input.
     if (_splitting_required)
     {
-      log_debug3("Start splitting\n");
+      logDebug3("Start splitting\n");
       _splitting_required = false;
 
       base::RecMutexLock lock(_sql_statement_borders_mutex);
 
       _statement_ranges.clear();
-      if (_parse_unit == QtUnknown)
+      if (_parse_unit == MySQLParseUnit::PuGeneric)
       {
         double start = timestamp();
-        _services->determineStatementRanges(_text_info.first, _text_info.second, ";", _statement_ranges);
-        log_debug3("Splitting ended after %f ticks\n", timestamp() - start);
+        determineStatementRanges(_text_info.first, _text_info.second, ";", _statement_ranges);
+        logDebug3("Splitting ended after %f ticks\n", timestamp() - start);
       }
       else
-        _statement_ranges.push_back(std::make_pair(0, _text_info.second));
+        _statement_ranges.push_back({ 0, _text_info.second });
     }
   }
 
   //------------------------------------------------------------------------------------------------
 
   /**
-  * One or more markers on that line where changed. We have to stay in sync with our statement markers list
-  * to make the optimized add/remove algorithm working.
-  */
+   * One or more markers on that line where changed. We have to stay in sync with our statement markers list
+   * to make the optimized add/remove algorithm working.
+   */
   void marker_changed(const mforms::LineMarkupChangeset &changeset, bool deleted)
   {
     if (_updating_statement_markers || changeset.size() == 0)
@@ -212,7 +211,7 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLEditor::Ref MySQLEditor::create(ParserContext::Ref syntax_check_context, ParserContext::Ref autocopmlete_context,
+MySQLEditor::Ref MySQLEditor::create(MySQLParserContext::Ref syntax_check_context, MySQLParserContext::Ref autocopmlete_context,
                                      db_query_QueryBufferRef grtobj)
 {
   Ref sql_editor = MySQLEditor::Ref(new MySQLEditor(syntax_check_context, autocopmlete_context));
@@ -229,13 +228,13 @@ MySQLEditor::Ref MySQLEditor::create(ParserContext::Ref syntax_check_context, Pa
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLEditor::MySQLEditor(ParserContext::Ref syntax_check_context, ParserContext::Ref autocopmlete_context)
+MySQLEditor::MySQLEditor(MySQLParserContext::Ref syntax_check_context, MySQLParserContext::Ref autocopmlete_context)
 {
   d = new Private(syntax_check_context, autocopmlete_context);
   
 
   _code_editor = new mforms::CodeEditor(this);
-  _code_editor->set_font(bec::GRTManager::get().get_app_option_string("workbench.general.Editor:Font"));
+  _code_editor->set_font(bec::GRTManager::get()->get_app_option_string("workbench.general.Editor:Font"));
   _code_editor->set_features(mforms::FeatureUsePopup, false);
   _code_editor->set_features(mforms::FeatureConvertEolOnPaste | mforms::FeatureAutoIndent, true);
   _code_editor->set_name("Code Editor");
@@ -244,9 +243,9 @@ MySQLEditor::MySQLEditor(ParserContext::Ref syntax_check_context, ParserContext:
   _editor_config = NULL;
   create_editor_config_for_version(version);
 
-  _code_editor->send_editor(SCI_SETTABWIDTH, bec::GRTManager::get().get_app_option_int("Editor:TabWidth", 4), 0);
-  _code_editor->send_editor(SCI_SETINDENT, bec::GRTManager::get().get_app_option_int("Editor:IndentWidth", 4), 0);
-  _code_editor->send_editor(SCI_SETUSETABS, !bec::GRTManager::get().get_app_option_int("Editor:TabIndentSpaces", 0), 0);
+  _code_editor->send_editor(SCI_SETTABWIDTH, bec::GRTManager::get()->get_app_option_int("Editor:TabWidth", 4), 0);
+  _code_editor->send_editor(SCI_SETINDENT, bec::GRTManager::get()->get_app_option_int("Editor:IndentWidth", 4), 0);
+  _code_editor->send_editor(SCI_SETUSETABS, !bec::GRTManager::get()->get_app_option_int("Editor:TabIndentSpaces", 0), 0);
 
   scoped_connect(_code_editor->signal_changed(), boost::bind(&MySQLEditor::text_changed, this, _1, _2, _3, _4));
   scoped_connect(_code_editor->signal_char_added(), boost::bind(&MySQLEditor::char_added, this, _1));
@@ -273,8 +272,7 @@ MySQLEditor::~MySQLEditor()
     
     // We lock all mutexes for a moment here to ensure no background thread is still holding them.
     base::RecMutexLock lock1(d->_sql_checker_mutex);
-    base::RecMutexLock lock2(d->_sql_errors_mutex);
-    base::RecMutexLock lock3(d->_sql_statement_borders_mutex);
+    base::RecMutexLock lock2(d->_sql_statement_borders_mutex);
   }
 
   if (d->_editor_text_submenu != NULL)
@@ -636,7 +634,7 @@ std::pair<std::size_t, std::size_t> MySQLEditor::cursor_pos_row_column(bool loca
       line -= _code_editor->line_from_position(min);
   }
   
-  return std::make_pair(offset, line);
+  return { offset, line };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -697,20 +695,20 @@ void MySQLEditor::restrict_content_to(ContentType type)
   switch (type)
   {
   case ContentTypeTrigger:
-    d->_parse_unit = QtCreateTrigger;
+    d->_parse_unit = MySQLParseUnit::PuCreateTrigger;
     break;
   case ContentTypeView:
-    d->_parse_unit = QtCreateView;
+    d->_parse_unit = MySQLParseUnit::PuCreateView;
     break;
   case ContentTypeRoutine:
-    d->_parse_unit = QtCreateRoutine;
+    d->_parse_unit = MySQLParseUnit::PuCreateRoutine;
     break;
   case ContentTypeEvent:
-    d->_parse_unit = QtCreateEvent;
+    d->_parse_unit = MySQLParseUnit::PuCreateEvent;
     break;
 
   default:
-    d->_parse_unit = QtUnknown;
+    d->_parse_unit = MySQLParseUnit::PuGeneric;
     break;
   }
 }
@@ -732,14 +730,14 @@ void MySQLEditor::text_changed(int position, int length, int lines_changed, bool
     // Update auto completion list if a char was removed, but not added.
     // When adding a char the caret is not yet updated leading to strange behavior.
     // So we use a different notification for adding chars.
-    std::string text = get_written_part(position);
+    std::string text = getWrittenPart(position);
     update_auto_completion(text);
   }
   
   d->_splitting_required = true;
   d->_text_info = _code_editor->get_text_ptr();
   if (d->_is_sql_check_enabled)
-    d->_current_delay_timer = bec::GRTManager::get().run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.001);
+    d->_current_delay_timer = bec::GRTManager::get()->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.001);
   else
     d->_text_change_signal(); // If there is no timer set up then trigger change signals directly.
 }
@@ -752,18 +750,9 @@ void MySQLEditor::char_added(int char_code)
       d->_last_typed_char = char_code; // UTF32 encoded char.
   else
   {
-    std::string text = get_written_part(_code_editor->get_caret_pos());
+    std::string text = getWrittenPart(_code_editor->get_caret_pos());
     update_auto_completion(text);
   }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void MySQLEditor::cancel_auto_completion()
-{
-  // Make sure a pending timed autocompletion won't kick in after we cancel it.
-  d->_last_typed_char = 0;
-  _code_editor->auto_completion_cancel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -804,7 +793,7 @@ bool MySQLEditor::start_sql_processing()
   d->_current_delay_timer = NULL; // The timer will be deleted by the grt manager.
 
   {
-    RecMutexLock sql_errors_mutex(d->_sql_errors_mutex);
+    RecMutexLock sql_errors_mutex(d->_sql_checker_mutex);
     d->_recognition_errors.clear();
   }
 
@@ -826,7 +815,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
   d->split_statements_if_required();
   
   // Start tasks that depend on the statement ranges (markers + auto completion).
-  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&MySQLEditor::splitting_done, this));
+  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&MySQLEditor::splitting_done, this));
 
   if (d->_stop_processing)
     return false;
@@ -849,7 +838,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
     }
   }
 
-  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&MySQLEditor::update_error_markers, this));
+  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&MySQLEditor::update_error_markers, this));
 
   return false;
 }
@@ -1016,7 +1005,7 @@ void MySQLEditor::setup_editor_menu()
     argpool.add_entries_for_object("activeQueryBuffer", grtobj());
     argpool.add_entries_for_object("", grtobj());
     
-    bec::MenuItemList plugin_items= bec::GRTManager::get().get_plugin_context_menu_items(groups, argpool);
+    bec::MenuItemList plugin_items= bec::GRTManager::get()->get_plugin_context_menu_items(groups, argpool);
     
     if (!plugin_items.empty())
     {
@@ -1032,7 +1021,7 @@ void MySQLEditor::setup_editor_menu()
 
   groups.clear();
   groups.push_back("Filter");
-  plugin_items = bec::GRTManager::get().get_plugin_context_menu_items(groups, argpool);
+  plugin_items = bec::GRTManager::get()->get_plugin_context_menu_items(groups, argpool);
   if (!plugin_items.empty())
   {
     d->_editor_context_menu->add_separator();
@@ -1087,7 +1076,7 @@ void MySQLEditor::activate_context_menu_item(const std::string &name)
     std::vector<std::string> parts= base::split(name, ":", 1);
     if (parts.size() == 2 && parts[0] == "plugin")
     {
-      app_PluginRef plugin(bec::GRTManager::get().get_plugin_manager()->get_plugin(parts[1]));
+      app_PluginRef plugin(bec::GRTManager::get()->get_plugin_manager()->get_plugin(parts[1]));
 
       if (!plugin.is_valid())
         throw std::runtime_error("Invalid plugin "+name);
@@ -1112,7 +1101,7 @@ void MySQLEditor::activate_context_menu_item(const std::string &name)
 
       grt::BaseListRef fargs(argpool.build_argument_list(plugin));
 
-      grt::ValueRef result= bec::GRTManager::get().get_plugin_manager()->execute_plugin_function(plugin, fargs);
+      grt::ValueRef result= bec::GRTManager::get()->get_plugin_manager()->execute_plugin_function(plugin, fargs);
 
       if (is_filter)
       {
@@ -1127,7 +1116,7 @@ void MySQLEditor::activate_context_menu_item(const std::string &name)
       }
     }
     else {
-      log_warning("Unhandled context menu item %s", name.c_str());
+      logWarning("Unhandled context menu item %s", name.c_str());
     }
   }
 }
@@ -1179,7 +1168,7 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
     {
       ThreadedTimer::get()->remove_task(d->_current_work_timer_id); // Does nothing if the id is -1.
       if (d->_current_delay_timer == NULL)
-        d->_current_delay_timer = bec::GRTManager::get().run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.01);
+        d->_current_delay_timer = bec::GRTManager::get()->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.01);
     }
     else
       stop_processing();
@@ -1188,16 +1177,246 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
 
 //--------------------------------------------------------------------------------------------------
 
+void MySQLEditor::setup_auto_completion()
+{
+  _code_editor->auto_completion_max_size(80, 15);
+
+  static std::vector<std::pair<int, std::string>> ccImages = {
+    { AC_KEYWORD_IMAGE, "ac_keyword.png" }, { AC_SCHEMA_IMAGE, "ac_schema.png" },
+    { AC_TABLE_IMAGE, "ac_table.png" }, { AC_ROUTINE_IMAGE, "ac_routine.png" },
+    { AC_FUNCTION_IMAGE, "ac_function.png" }, { AC_VIEW_IMAGE, "ac_view.png" },
+    { AC_COLUMN_IMAGE, "ac_column.png" }, { AC_OPERATOR_IMAGE, "ac_operator.png" },
+    { AC_ENGINE_IMAGE, "ac_engine.png" }, { AC_TRIGGER_IMAGE, "ac_trigger.png" },
+    { AC_LOGFILE_GROUP_IMAGE, "ac_logfilegroup.png" }, { AC_USER_VAR_IMAGE, "ac_uservar.png" },
+    { AC_SYSTEM_VAR_IMAGE, "ac_sysvar.png" }, { AC_TABLESPACE_IMAGE, "ac_tablespace.png" },
+    { AC_EVENT_IMAGE, "ac_event.png" }, { AC_INDEX_IMAGE, "ac_index.png" },
+    { AC_USER_IMAGE, "ac_user.png" }, { AC_CHARSET_IMAGE, "ac_charset.png" },
+    { AC_COLLATION_IMAGE, "ac_collation.png" }
+  };
+
+  _code_editor->auto_completion_register_images(ccImages);
+  _code_editor->auto_completion_stops("\t,.*;) "); // Will close ac even if we are in an identifier.
+  _code_editor->auto_completion_fillups("");
+
+  std::string grammarPath = base::makePath(bec::GRTManager::get()->get_basedir(), "data/MySQL.g");
+  initializeMySQLCodeCompletionIfNeeded(grammarPath);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the text in the editor starting at the given position backwards until the line start.
+ * If there's a back tick or double quote char then text until this quote char is returned. If there's
+ * no quoting char but a space or dot char then everything up to (but not including) this is returned.
+ */
+std::string MySQLEditor::getWrittenPart(size_t position)
+{
+  ssize_t line = _code_editor->line_from_position(position);
+  ssize_t start, stop;
+  _code_editor->get_range_of_line(line, start, stop);
+  std::string text = _code_editor->get_text_in_range(start, position);
+  if (text.empty())
+    return "";
+
+  const char *head = text.c_str();
+  const char *run = head;
+
+  while (*run != '\0')
+  {
+    if (*run == '\'' || *run == '"' || *run == '`')
+    {
+      // Entering a quoted text.
+      head = run + 1;
+      char quote_char = *run;
+      while (true)
+      {
+        run = g_utf8_next_char(run);
+        if (*run == quote_char || *run == '\0')
+          break;
+
+        // If there's an escape char skip it and the next char too (if we didn't reach the end).
+        if (*run == '\\')
+        {
+          run++;
+          if (*run != '\0')
+            run = g_utf8_next_char(run);
+        }
+      }
+      if (*run == '\0') // Unfinished quoted text. Return everything.
+        return head;
+      head = run + 1; // Skip over this quoted text and start over.
+    }
+    run++;
+  }
+
+  // If we come here then we are outside any quoted text. Scan back for anything we consider
+  // to be a word stopper (for now anything below '0', char code wise).
+  while (head < run--)
+  {
+    if (*run < '0')
+      return run + 1;
+  }
+  return head;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLEditor::show_auto_completion(bool auto_choose_single, parser::MySQLParserContext::Ref parser_context)
+{
+  if (!code_completion_enabled())
+    return;
+
+  _code_editor->auto_completion_options(true, auto_choose_single, false, true, false);
+
+  // Get the statement and its absolute position.
+  size_t caretPosition = _code_editor->get_caret_pos();
+  size_t caretLine = _code_editor->line_from_position(caretPosition);
+
+  ssize_t lineStart, lineEnd;
+  _code_editor->get_range_of_line(caretLine, lineStart, lineEnd);
+  size_t caretOffset = caretPosition - lineStart; // This is a byte offset.
+
+  size_t min, max;
+  std::string statement;
+  bool fixedCaretPos = false;
+  if (get_current_statement_range(min, max, true))
+  {
+    // If the caret is in the whitespaces before the query we would get a wrong line number
+    // (because the statement splitter doesn't include these whitespaces in the determined ranges).
+    // We set the caret pos to the first position in the query, which has the same effect for
+    // code completion (we don't generate error line numbers).
+    uint32_t codeStartLine = (uint32_t)_code_editor->line_from_position(min);
+    if (codeStartLine > caretLine)
+    {
+      caretLine = 0;
+      caretOffset = 0;
+      fixedCaretPos = true;
+    }
+    else
+      caretLine -= codeStartLine;
+
+    statement = _code_editor->get_text_in_range(min, max);
+  }
+  else
+  {
+    // No query, means we have nothing typed yet in the current query (at least nothing valuable).
+    caretLine = 0;
+    caretOffset = 0;
+    fixedCaretPos = true;
+  }
+
+  // Convert current caret position into a position of the single statement.
+  // The byte-based offset in the line must be converted to a character offset.
+  if (!fixedCaretPos)
+  {
+    std::string line_text = _code_editor->get_text_in_range(lineStart, lineEnd);
+    caretOffset = g_utf8_pointer_to_offset(line_text.c_str(), line_text.c_str() + caretOffset);
+  }
+
+  std::string writtenPart = getWrittenPart(caretPosition);
+  _auto_completion_entries = getCodeCompletionList(caretLine, caretOffset, writtenPart, _current_schema,
+    make_keywords_uppercase(), parser_context->createScanner(statement), _editor_config->get_keywords()["Functions"],
+    _auto_completion_cache);
+  update_auto_completion(writtenPart);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Updates the auto completion list by filtering the determined entries by the text the user
+ * already typed. If auto completion is not yet active it becomes active here.
+ * Returns the list sent to the editor for unit tests to validate them.
+ */
+std::vector<std::pair<int, std::string>> MySQLEditor::update_auto_completion(const std::string &typed_part)
+{
+  logDebug2("Updating auto completion popup in editor\n");
+
+  // Remove all entries that don't start with the typed text before showing the list.
+  if (!typed_part.empty())
+  {
+    gchar *prefix = g_utf8_casefold(typed_part.c_str(), -1);
+
+    std::vector<std::pair<int, std::string>> filteredEntries;
+    for (auto &entry : _auto_completion_entries)
+    {
+      gchar *folded = g_utf8_casefold(entry.second.c_str(), -1);
+      if (g_str_has_prefix(folded, prefix))
+        filteredEntries.push_back(entry);
+      g_free(folded);
+    }
+
+    switch (filteredEntries.size())
+    {
+    case 0:
+      logDebug2("Nothing to autocomplete - hiding popup if it was active\n");
+      _code_editor->auto_completion_cancel();
+      break;
+    case 1:
+      // See if that single entry matches the typed part. If so we don't need to show ac either.
+      if (base::same_string(filteredEntries[0].second, prefix, false)) // Exact (but case insensitive) match, not just string parts.
+      {
+        logDebug2("The only match is the same as the written input - hiding popup if it was active\n");
+        _code_editor->auto_completion_cancel();
+        break;
+      }
+      // Fall through.
+    default:
+      logDebug2("Showing auto completion popup\n");
+      _code_editor->auto_completion_show(typed_part.size(), filteredEntries);
+      break;
+    }
+
+    g_free(prefix);
+
+    return filteredEntries;
+  }
+  else
+  {
+    if (!_auto_completion_entries.empty())
+    {
+      logDebug2("Showing auto completion popup\n");
+      _code_editor->auto_completion_show(0, _auto_completion_entries);
+    }
+    else
+    {
+      logDebug2("Nothing to autocomplete - hiding popup if it was active\n");
+      _code_editor->auto_completion_cancel();
+    }
+  }
+
+  return _auto_completion_entries;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLEditor::cancel_auto_completion()
+{
+  // Make sure a pending timed autocompletion won't kick in after we cancel it.
+  d->_last_typed_char = 0;
+  _code_editor->auto_completion_cancel();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLEditor::set_auto_completion_cache(MySQLObjectNamesCache *cache)
+{
+  logDebug2("Auto completion cache set to: %p\n", cache);
+
+  _auto_completion_cache = cache;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 bool MySQLEditor::code_completion_enabled()
 {
-  return bec::GRTManager::get().get_app_option_int("DbSqlEditor:CodeCompletionEnabled") == 1;
+  return bec::GRTManager::get()->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool MySQLEditor::auto_start_code_completion()
 {
-  return (bec::GRTManager::get().get_app_option_int("DbSqlEditor:AutoStartCodeCompletion") == 1) &&
+  return (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:AutoStartCodeCompletion") == 1) &&
     (d->_autocompletion_context != NULL);
 }
 
@@ -1205,7 +1424,7 @@ bool MySQLEditor::auto_start_code_completion()
 
 bool MySQLEditor::make_keywords_uppercase()
 {
-  return bec::GRTManager::get().get_app_option_int("DbSqlEditor:CodeCompletionUpperCaseKeywords") == 1;
+  return bec::GRTManager::get()->get_app_option_int("DbSqlEditor:CodeCompletionUpperCaseKeywords") == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1283,7 +1502,7 @@ void MySQLEditor::stop_processing()
 
   if (d->_current_delay_timer != NULL)
   {
-    bec::GRTManager::get().cancel_timer(d->_current_delay_timer);
+    bec::GRTManager::get()->cancel_timer(d->_current_delay_timer);
     d->_current_delay_timer = NULL;
   }
 

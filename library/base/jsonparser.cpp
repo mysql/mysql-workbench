@@ -167,7 +167,7 @@ JsonObject::ConstIterator JsonObject::cend() const
  *
  * @return the size of the JsonObject container.
  */
-JsonObject::SizeType JsonObject::size()
+JsonObject::SizeType JsonObject::size() const
 {
   return _data.size();
 }
@@ -517,7 +517,7 @@ JsonArray::ConstIterator JsonArray::cend() const
  *
  * @return return length of sequence.
  */
-JsonArray::SizeType JsonArray::size()
+JsonArray::SizeType JsonArray::size() const
 {
   return _data.size();
 }
@@ -631,7 +631,7 @@ JsonValue::JsonValue(const JsonValue &rhs)
 JsonValue::JsonValue(JsonValue &&rhs)
   : _double(rhs._double), _integer64(rhs._integer64), _uinteger64(rhs._uinteger64), _bool(rhs._bool),
    _string(std::move(rhs._string)), _object(std::move(rhs._object)),
-   _array(std::move(rhs._array)), _type(rhs._type), _deleted(rhs._deleted), _isValid(_isValid)
+   _array(std::move(rhs._array)), _type(rhs._type), _deleted(rhs._deleted), _isValid(rhs._isValid)
 {
 }
 
@@ -848,6 +848,18 @@ JsonValue::operator const JsonObject & () const
 
 //--------------------------------------------------------------------------------------------------
 
+JsonValue::operator JsonObject & ()
+{
+  if (!_isValid)
+    throw std::runtime_error("Accessing uninitialized JSON value");
+
+  if (_type != VObject)
+    throw std::bad_cast();
+  return _object;
+}
+
+//--------------------------------------------------------------------------------------------------
+  
 const JsonObject& JsonValue::operator = (const JsonObject &other)
 {
   _isValid = true;
@@ -870,6 +882,18 @@ JsonValue::operator const JsonArray & () const
 
 //--------------------------------------------------------------------------------------------------
 
+JsonValue::operator JsonArray & ()
+{
+  if (!_isValid)
+    throw std::runtime_error("Accessing uninitialized JSON value");
+
+  if (_type != VArray)
+    throw std::bad_cast();
+  return _array;
+}
+
+//--------------------------------------------------------------------------------------------------
+  
 const JsonArray& JsonValue::operator = (const JsonArray &other)
 {
   _isValid = true;
@@ -1236,13 +1260,10 @@ void JsonReader::read(const std::string &text, JsonValue &value)
 
 void JsonReader::readFromFile(const std::string &path, JsonValue &value)
 {
-  std::ifstream file;
-  file.open(path);
-  if (file.is_open())
-  {
-    std::string str( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
-    read(str, value);
-  }
+  std::string str = base::getTextFileContent(path);
+  if (str.empty())
+    return;
+  read(str, value);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1331,6 +1352,7 @@ void JsonReader::scan()
       break;
 
     case 0:
+      moveAhead();
       break;
     default:
       throw ParserException(std::string("Unexpected start sequence: ") + chr); // @@FIXMEE

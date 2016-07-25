@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -504,14 +504,14 @@ class WbAdminServerStatus(mforms.Box):
             if type(value) is bool or value is None:
                 b = StateIcon()
                 b.set_state(value)
-                info_table.add(b, 1, 2, i, i+1, mforms.HFillFlag|mforms.HExpandFlag)
+                info_table.add(b, 1, 2, i, i+1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
                 self.controls[label] = (b, value_source)
             elif type(value) is tuple:
                 b = StateIcon()
                 b.set_state(value[0])
                 if value[0] and value[1]:
                     b.set_text(value[1])
-                info_table.add(b, 1, 2, i, i+1, mforms.HFillFlag|mforms.HExpandFlag)
+                info_table.add(b, 1, 2, i, i+1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
                 self.controls[label] = (b, value_source)
             else:
                 if is_gtid_mode_setable:
@@ -519,13 +519,13 @@ class WbAdminServerStatus(mforms.Box):
                     self.gtid_mode_selector.add_items(["OFF", "UPGRADE_STEP_1", "UPGRADE_STEP_1", "ON"])
                     self.gtid_mode_selector.set_selected(self.gtid_mode_selector.index_of_item_with_title(value_source))
                     self.gtid_mode_selector.add_changed_callback(self._gtid_mode_changed)
-                    info_table.add(self.gtid_mode_selector, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag)
+                    info_table.add(self.gtid_mode_selector, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
                     self.controls[label] = (self.gtid_mode_selector, value_source)
                 else:
                     l2 = mforms.newLabel(value or "")
                     l2.set_style(mforms.BoldStyle)
                     l2.set_color("#1c1c1c")
-                    info_table.add(l2, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag)
+                    info_table.add(l2, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
                     self.controls[label] = (l2, value_source)
         info_table.add(mforms.newLabel(""), 0, 1, len(info), len(info)+1, mforms.HFillFlag) # blank space
         return info_table

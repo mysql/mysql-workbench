@@ -67,14 +67,14 @@ grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::st
 
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
   db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0/"));
-  parser::ParserContext::Ref context = services->createParserContext(rdbms->characterSets(), getVersion(), /*_lower_case_table_names != 0*/ 0);
+  parser::MySQLParserContext::Ref context = services->createParserContext(rdbms->characterSets(), getVersion(), /*_lower_case_table_names != 0*/ 0);
 
   parse_sql_script(services, context, catalog, sql_script, _options);
 
   return grt::StringRef("The SQL script was parsed");
 }
 
-void Sql_import::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context,
+void Sql_import::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::MySQLParserContext::Ref context,
   db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
 {
   grt::AutoUndo undo;

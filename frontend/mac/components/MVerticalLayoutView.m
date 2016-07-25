@@ -19,6 +19,7 @@
 
 // Layout contained views vertically. Width of subviews will be adjusted to the same as parent
 // Height will be taken from the subviews themselves. Will resize to fit the height of all subviews.
+// Compare also with the much more sophisticated vertical layout in MFBox.
 
 #import "MVerticalLayoutView.h"
 

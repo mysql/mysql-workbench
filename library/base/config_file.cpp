@@ -501,7 +501,7 @@ bool ConfigurationFile::Private::load(const std::string& file_name)
             if (closing_bracket_position != std::string::npos)
               line.erase(closing_bracket_position, 1);
             else
-              log_warning("Unterminated section specifier found in file %s: %s\n", file_name.c_str(), line.c_str());
+              logWarning("Unterminated section specifier found in file %s: %s\n", file_name.c_str(), line.c_str());
 
             line.erase(0, 1);
             section = get_section(line, true);
@@ -533,10 +533,10 @@ bool ConfigurationFile::Private::load(const std::string& file_name)
                 comment = "";
               }
               else
-                log_warning("Invalid include sequence found in file %s: %s\n", file_name.c_str(), line.c_str());
+                logWarning("Invalid include sequence found in file %s: %s\n", file_name.c_str(), line.c_str());
             }
             else
-              log_warning("Invalid include sequence found in file %s: %s\n", file_name.c_str(), line.c_str());
+              logWarning("Invalid include sequence found in file %s: %s\n", file_name.c_str(), line.c_str());
           }
           break;
 

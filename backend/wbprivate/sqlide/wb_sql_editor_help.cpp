@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ std::string DbSqlEditorContextHelp::lookup_topic_for_string(const SqlEditorForm:
     {
       try
       {
-        log_debug2("Validating topic: %s\n", topic.c_str());
+        logDebug2("Validating topic: %s\n", topic.c_str());
 
         sql::Dbc_connection_handler::Ref conn;
         base::RecMutexLock aux_dbc_conn_mutex = form->ensure_valid_aux_connection(conn);
@@ -66,7 +66,7 @@ std::string DbSqlEditorContextHelp::lookup_topic_for_string(const SqlEditorForm:
       {
         // It's an exception but not relevant for the rest of the code. We just did not get a topic
         // (maybe the server was busy or not reachable).
-        log_debug2("Exception caught while looking up topic\n");
+        logDebug2("Exception caught while looking up topic\n");
       }
     }
   }
@@ -385,7 +385,7 @@ std::string object_from_token(MySQLScanner &scanner)
 bool DbSqlEditorContextHelp::get_help_text(const SqlEditorForm::Ref &form, const std::string &topic, std::string &title,
   std::string &text)
 {
-  log_debug2("Looking up help topic: %s\n", topic.c_str());
+  logDebug2("Looking up help topic: %s\n", topic.c_str());
   if (!topic.empty())
   {
     try
@@ -407,7 +407,7 @@ bool DbSqlEditorContextHelp::get_help_text(const SqlEditorForm::Ref &form, const
     }
     catch (...)
     {
-      log_debug2("Exception caught while looking up help text\n");
+      logDebug2("Exception caught while looking up help text\n");
     }
   }
   return false;
@@ -421,7 +421,7 @@ bool DbSqlEditorContextHelp::get_help_text(const SqlEditorForm::Ref &form, const
 std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEditorForm::Ref &form,
   const std::string &query, std::pair<ssize_t, ssize_t> caret)
 {
-  log_debug2("Finding help topic\n");
+  logDebug2("Finding help topic\n");
   
   // Ensure our translation list has the same size as there are query types.
   g_assert((sizeof(query_type_to_help_topic) / sizeof(query_type_to_help_topic[0])) == QtSentinel);
@@ -440,25 +440,25 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
   // syntax errors. So we check first these special cases if we can solve them by
   // parsing. If not we continue with our normal strategy.
   MySQLRecognizer recognizer(form->server_version(), form->sql_mode(), form->valid_charsets());
-  recognizer.parse(query.c_str(), query.length(), true, PuGeneric);
+  recognizer.parse(query.c_str(), query.length(), true, MySQLParseUnit::PuGeneric);
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
-  bool found_token = walker.advance_to_position((int)caret.second, (int)caret.first);
+  bool found_token = walker.advanceToPosition((int)caret.second, (int)caret.first);
   if (found_token && recognizer.has_errors())
   {
     // We can only assume success if the first error is after our position. Otherwise
     // we cannot predict what's in the syntax tree.
-    MySQLParserErrorInfo error = recognizer.error_info().front();
+    ParserErrorInfo error = recognizer.error_info().front();
     found_token = ((int)error.line > caret.second ||
-      (int)error.line == caret.second && (int)error.charOffset > caret.first);
+      ((int)error.line == caret.second && (int)error.charOffset > caret.first));
   }
 
   if (found_token)
   {
-    std::string text = base::tolower(walker.token_text());
-    switch (walker.token_type())
+    std::string text = base::tolower(walker.tokenText());
+    switch (walker.tokenType())
     {
       case CHAR_SYMBOL:
-        switch (walker.parent_type())
+        switch (walker.parentType())
         {
         case FUNCTION_CALL_TOKEN:
           return "char function";
@@ -467,14 +467,14 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
           return "show character set";
         }
 
-        if (walker.look_ahead(false) != OPEN_PAR_SYMBOL)
+        if (walker.lookAhead(false) != OPEN_PAR_SYMBOL)
           return "char byte";
         return "char";
 
       case DISTINCT_SYMBOL:
-        if (walker.up() && walker.token_type() == FUNCTION_CALL_TOKEN)
+        if (walker.up() && walker.tokenType() == FUNCTION_CALL_TOKEN)
         {
-          if (walker.look_ahead(true) == COUNT_SYMBOL)
+          if (walker.lookAhead(true) == COUNT_SYMBOL)
             return "count distinct";
         }
         break;
@@ -485,25 +485,25 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
 
         if (text == "merge")
         {
-          if (walker.previous_type() == EQUAL_OPERATOR)
+          if (walker.previousType() == EQUAL_OPERATOR)
           {
-            if (!walker.previous_sibling())
+            if (!walker.previousSibling())
               break;
           }
-          if (walker.previous_type() == ENGINES_SYMBOL || walker.previous_type() == TYPE_SYMBOL)
+          if (walker.previousType() == ENGINES_SYMBOL || walker.previousType() == TYPE_SYMBOL)
             return "merge";
         }
         break;
 
       case YEAR_SYMBOL:
-        if (walker.parent_type() == DATA_TYPE_TOKEN)
+        if (walker.parentType() == DATA_TYPE_TOKEN)
           return "year data type";
         else
           return "year";
         break;
 
       default:
-        switch (walker.parent_type())
+        switch (walker.parentType())
         {
         case LABEL_TOKEN:
           return "labels";
@@ -522,19 +522,19 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
 
   if (found_token)
   {
-    MySQLQueryType type = walker.get_current_query_type();
+    MySQLQueryType type = walker.getCurrentQueryType();
 
     if (topic == "INSERT" || type == QtInsert)
     {
       if (type == QtInsert)
-        walker.go_to_subquery_start(); // Go back to the start of this specific subquery.
+        walker.goToSubQueryStart(); // Go back to the start of this specific subquery.
 
       // Insert is a major keyword, so it has an own AST tree. Hence go down to the first child
       // for the next scan (which must be non-recursive).
       walker.next();
         
       // The current position should now be on the INSERT keyword.
-      if (walker.advance_to_type(SELECT_SYMBOL, false))
+      if (walker.advanceToType(SELECT_SYMBOL, false))
         return "insert select";
       return "insert";
     }
@@ -590,7 +590,7 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
   const std::string &query, std::pair<ssize_t, ssize_t> caret)
 {
   // TODO: switch to use a parser context instead of the form reference.
-  log_debug2("Trying to get help topic at position <%li, %li>, from query: %s...\n", (long)caret.first,
+  logDebug2("Trying to get help topic at position <%li, %li>, from query: %s...\n", (long)caret.first,
     (long)caret.second, query.substr(0, 300).c_str());
   
   // First collect all tokens up to the caret position.
@@ -974,7 +974,7 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
  */
 std::string DbSqlEditorContextHelp::topic_with_single_topic_equivalent(MySQLScanner &scanner)
 {
-  log_debug2("Trying single word topics\n");
+  logDebug2("Trying single word topics\n");
 
   std::string topic = base::tolower(scanner.token_text());
 

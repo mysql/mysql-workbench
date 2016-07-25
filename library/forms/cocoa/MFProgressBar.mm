@@ -19,20 +19,21 @@
 
 #import "MFProgressBar.h"
 #import "MFMForms.h"
+#import "MFView.h"
 
 @implementation MFProgressBarImpl
 
-
-- (instancetype)initWithObject: (::mforms::ProgressBar*)pbar
+- (instancetype)initWithObject: (mforms::ProgressBar*)pbar
 {
-  self = [super initWithFrame:NSMakeRect(10,10,10,10)];
+  self = [super initWithFrame:NSMakeRect(10, 10, 10, 10)];
   if (self != nil)
   {
     self.minValue = 0;
     self.maxValue = 1.0;
     [self setIndeterminate: NO];
+    self.minimumSize = { 100, 20 };
 
-    mOwner= pbar;
+    mOwner = pbar;
     mOwner->set_data(self);
   }
   return self;
@@ -42,13 +43,6 @@
 - (mforms::Object*)mformsObject
 {
   return mOwner;
-}
-
-
-
-- (NSSize)minimumSize
-{
-  return NSMakeSize(100, 20);
 }
 
 static bool progressbar_create(mforms::ProgressBar *image)

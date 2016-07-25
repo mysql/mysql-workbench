@@ -224,7 +224,7 @@ std::string WbModelImpl::getTemplateDirFromName(const std::string& template_name
   // get pointer to the GRT
 
   std::string template_base_dir= base::makePath(
-      bec::GRTManager::get().get_basedir(),
+      bec::GRTManager::get()->get_basedir(),
     "modules/data/wb_model_reporting");
 
   // reformat the template name, replace spaces with _
@@ -894,7 +894,7 @@ int WbModelImpl::createDiagramWithObjects(workbench_physical_ModelRef model, grt
 
     end_undo_group(_("Create Diagram with Objects"));
 
-    bec::GRTManager::get().run_once_when_idle(boost::bind(&WbModelImpl::autolayout, this, view));
+    bec::GRTManager::get()->run_once_when_idle(boost::bind(&WbModelImpl::autolayout, this, view));
   }
 
   return 0;

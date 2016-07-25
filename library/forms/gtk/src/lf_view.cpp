@@ -138,12 +138,17 @@ void ViewImpl::show(::mforms::View *self, bool show)
 
   if ( view )
   {
-    Gtk::Widget* widget = view->get_outer();
-    if (show)
-      widget->show();
-    else
-      widget->hide();
+    view->show(show);
   }
+}
+
+void ViewImpl::show(bool show)
+{
+  Gtk::Widget* widget = get_outer();
+  if (show)
+    widget->show();
+  else
+    widget->hide();
 }
 
 bool ViewImpl::is_shown(::mforms::View *self)
@@ -199,7 +204,7 @@ void ViewImpl::set_font(::mforms::View *self, const std::string &fontDescription
   }
 }
   
-int ViewImpl::get_width(::mforms::View *self)
+int ViewImpl::get_width(const ::mforms::View *self)
 {
   ViewImpl *view = self->get_data<ViewImpl>();
   if ( view )
@@ -210,7 +215,7 @@ int ViewImpl::get_width(::mforms::View *self)
   return 0;
 }
 
-int ViewImpl::get_height(::mforms::View *self)
+int ViewImpl::get_height(const ::mforms::View *self)
 {
   ViewImpl *view = self->get_data<ViewImpl>();
   if ( view )
@@ -764,14 +769,15 @@ void ViewImpl::slot_drag_end(const Glib::RefPtr<Gdk::DragContext> &context)
 {
   _drop_data.clear();
   _drag_image = NULL;
-  Gtk::Main::quit(); //call quit(), cause in do_drag_drop we called run()
+  _loop.quit(); //cause in do_drag_drop we called run()
+
 }
 
 //The drag_end signal is emmited on the drag source when the drag was failed due to user cancel, timeout, etc.
 bool ViewImpl::slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &context,Gtk::DragResult result)
 {
   if (result != Gtk::DRAG_RESULT_NO_TARGET && result != Gtk::DRAG_RESULT_USER_CANCELLED)
-    Gtk::Main::quit(); //call quit(), cause in do_drag_drop we called run()
+    _loop.quit(); //cause in do_drag_drop we called run()
   _drag_image = NULL;
   return false;
 }
@@ -1005,7 +1011,7 @@ DragOperation ViewImpl::drag_data(::mforms::DragDetails details, void *data,cons
      Glib::RefPtr<Gdk::DragContext> context = widget->drag_begin(tlist, actions, 1, _last_btn_down->gobj());
    else
      Glib::RefPtr<Gdk::DragContext> context = widget->drag_begin(tlist, actions, 1, NULL);
-   Gtk::Main::run();
+   _loop.run();
 
 
    drag_op = details.allowedOperations;

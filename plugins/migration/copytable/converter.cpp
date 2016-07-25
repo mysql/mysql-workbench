@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,7 +64,7 @@ void BaseConverter::convert_date(const char* source, MYSQL_TIME* target)
   // of the string will yield an out_of_range exception, hence:
   if (time.length() < 10)  // 9 is also valid but probably shouldn't be accepted
   {
-    log_warning("Invalid date literal detected: '%s'\n", source);
+    logWarning("Invalid date literal detected: '%s'\n", source);
     return;
   }
 
@@ -86,7 +86,7 @@ void BaseConverter::convert_time(const char* source, MYSQL_TIME* target)
 
   if (time.length() < 8)
   {
-    log_warning("Invalid time literal detected: '%s'\n", source);
+    logWarning("Invalid time literal detected: '%s'\n", source);
     return;
   }
 
@@ -133,7 +133,7 @@ void BaseConverter::convert_timestamp(const char* source, MYSQL_TIME* target)
 
   if (time.length() < 19)
   {
-    log_warning("Invalid timestamp literal detected: '%s'\n", source);
+    logWarning("Invalid timestamp literal detected: '%s'\n", source);
     return;
   }
 

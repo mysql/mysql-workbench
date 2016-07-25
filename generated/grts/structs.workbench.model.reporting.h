@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -13,7 +18,7 @@
   #define GRT_STRUCTS_WORKBENCH_MODEL_REPORTING_PUBLIC
 #endif
 
-#include <grts/structs.h>
+#include "grts/structs.h"
 
 
 class workbench_model_reporting_TemplateStyleInfo;
@@ -327,5 +332,9 @@ inline void register_structs_workbench_model_reporting_xml()
 
 #ifdef AUTO_REGISTER_GRT_CLASSES
 static struct _autoreg__structs_workbench_model_reporting_xml { _autoreg__structs_workbench_model_reporting_xml() { register_structs_workbench_model_reporting_xml(); } } __autoreg__structs_workbench_model_reporting_xml;
+#endif
+
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
 #endif
 

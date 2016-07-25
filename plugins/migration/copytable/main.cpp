@@ -76,7 +76,7 @@ static bool set_log_level(const std::string& value)
   std::string level = base::tolower(value);
   bool ret = base::Logger::active_level(level);
   if (ret) // TODO: if the logger is set to error or warning the following log call won't do anything.
-    log_info("Logger set to level '%s'. '%s'\n", level.c_str(), base::Logger::get_state().c_str());
+    logInfo("Logger set to level '%s'. '%s'\n", level.c_str(), base::Logger::get_state().c_str());
 
   return ret;
 }
@@ -223,7 +223,7 @@ bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueu
 
     if (line.length())
     {
-      log_info("--table %s\n", line.data());
+      logInfo("--table %s\n", line.data());
 
       std::vector<std::string> fields = base::split(line, "\t", field_count);
 
@@ -618,7 +618,7 @@ int main(int argc, char **argv)
   // Reenable or disable triggers are not called
   if (tables.empty() && !reenable_triggers && ! disable_triggers)
   {
-    log_warning("Missing table list specification\n");
+    logWarning("Missing table list specification\n");
     exit(0);
   }
 
@@ -655,7 +655,7 @@ int main(int argc, char **argv)
     char password[200];
     if (!fgets(password, sizeof(password), stdin))
     {
-      log_error("Error reading passwords from stdin\n");
+      logError("Error reading passwords from stdin\n");
       exit(1);
     }
 
@@ -802,7 +802,7 @@ int main(int argc, char **argv)
   }
   catch (std::exception &e)
   {
-    log_error("Exception: %s\n", e.what());
+    logError("Exception: %s\n", e.what());
     if (source_type == ST_PYTHON)
     {
       PyEval_RestoreThread(state);

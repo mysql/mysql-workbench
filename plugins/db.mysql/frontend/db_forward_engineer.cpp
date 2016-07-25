@@ -436,7 +436,7 @@ public:
       grt::ListRef<db_mgmt_Connection> list(_dbconn->get_db_mgmt()->storedConns());
       grt::ListRef<db_mgmt_Connection>::const_iterator iter = list.begin();
 
-      const std::string saved_conn_name = bec::GRTManager::get().get_app_option_string("LastUsedConnectionName");
+      const std::string saved_conn_name = bec::GRTManager::get()->get_app_option_string("LastUsedConnectionName");
 
       for (;iter != list.end(); ++iter)
       {
@@ -453,7 +453,7 @@ public:
   {
     if (_dbconn && _dbconn->get_connection().is_valid())
     {
-      bec::GRTManager::get().set_app_option("LastUsedConnectionName", grt::StringRef(_dbconn->get_connection()->name()));
+      bec::GRTManager::get()->set_app_option("LastUsedConnectionName", grt::StringRef(_dbconn->get_connection()->name()));
     }
   }
 };

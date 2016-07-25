@@ -39,10 +39,10 @@ public:
   };
   
   typedef std::shared_ptr<Recordset_cdbc_storage> Ref;
-  static Ref create(bec::GRTManager *grtm) { return Ref(new Recordset_cdbc_storage(grtm)); }
+  static Ref create() { return Ref(new Recordset_cdbc_storage()); }
   virtual ~Recordset_cdbc_storage();
 protected:
-  Recordset_cdbc_storage(bec::GRTManager *grtm);
+  Recordset_cdbc_storage();
 
 protected:
   virtual void do_unserialize(Recordset *recordset, sqlite::connection *data_swap_db);

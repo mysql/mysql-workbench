@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -155,7 +155,7 @@ public:
     catch (System::ArgumentException^ e)
     {
       // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-      log_error("WizardWrapper::c_tor setting title font failed. %s\n", e->Message);
+      logError("WizardWrapper::c_tor setting title font failed. %s\n", e->Message);
     }
 
     title->ForeColor = ColorTranslator::FromHtml("#003392");
@@ -297,7 +297,7 @@ public:
         catch (System::ArgumentException ^e)
         {
           // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-          log_error("WizardWrapper::set_step_list setting label font failed. %s\n", e->Message);
+          logError("WizardWrapper::set_step_list setting label font failed. %s\n", e->Message);
         }
 
         label->BackColor = Drawing::Color::Transparent;
@@ -348,7 +348,7 @@ void WizardWrapper::set_title(mforms::Wizard *backend, const std::string &title)
 void WizardWrapper::run_modal(mforms::Wizard *backend)
 {
   WizardWrapper *wrapper = backend->get_data<WizardWrapper>();
-  wrapper->GetManagedObject<Form>()->ShowDialog(wrapper->owner);
+  wrapper->GetManagedObject<Form>()->ShowDialog(wrapper->_owner);
 }
 
 //--------------------------------------------------------------------------------------------------

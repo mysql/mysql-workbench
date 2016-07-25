@@ -198,7 +198,7 @@ ssize_t ListBoxImpl::get_index(::mforms::ListBox *self)
 //------------------------------------------------------------------------------
 void ListBoxImpl::set_heading(ListBox *self, const std::string &text)
 {
-  log_warning("mforms::ListBoxImpl::set_heading('%s') not implemented", text.c_str());
+  logWarning("mforms::ListBoxImpl::set_heading('%s') not implemented", text.c_str());
 }
 
 static void get_selected_indices_walk_selected(const Gtk::TreeModel::Path& path, std::vector<size_t> *res)
@@ -207,7 +207,7 @@ static void get_selected_indices_walk_selected(const Gtk::TreeModel::Path& path,
 }
 
 //------------------------------------------------------------------------------
-std::vector<size_t> ListBoxImpl::get_selected_indices(ListBox *self)
+std::vector<std::size_t> ListBoxImpl::get_selected_indices(ListBox *self)
 {
   ListBoxImpl* lbi= self->get_data<ListBoxImpl>();
   std::vector<size_t> res;

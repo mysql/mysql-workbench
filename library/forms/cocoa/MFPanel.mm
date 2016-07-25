@@ -33,7 +33,6 @@
   float mRightPadding;
   float mTopPadding;
   float mBottomPadding;
-  float mBasePadding;
 
   NSTrackingArea *mTrackingArea;
 }
@@ -43,15 +42,12 @@
 
 @implementation MFPanelContent
 
-- (instancetype)initWithPanel:(MFPanelImpl*)aPanel
+- (instancetype)initWithPanel: (MFPanelImpl*)aPanel
 {
-  NSRect frame= aPanel.frame;
-  frame.origin= NSMakePoint(0, 0);
-  self= [super initWithFrame:frame];
+  self = [super initWithFrame: aPanel.bounds];
   if (self)
   {
-    panel= aPanel;
-    mBasePadding = 4;
+    panel = aPanel;
   }
   return self;
 }
@@ -86,49 +82,87 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
   mBottomPadding = bpad;
 }
 
-- (void)setBasePadding:(float)pad
+/**
+ * Computes the layout of the content view for a panel. It's very similar to MFForm (only one child filling the entire
+ * view).
+ *
+ * @param proposedSize The size to start from layouting.
+ * @param resizeChildren Tells the function whether the computed client control bounds should be applied
+ *                      (when doing a relayout) or not (when computing the preferred size).
+ * @return The resulting size of the content view.
+ */
+- (NSSize)computeLayout: (NSSize)proposedSize resizeChildren: (BOOL)doResize
 {
-  mBasePadding= pad;
+  NSView *child = self.subviews.lastObject;
+  if (child != nil)
+  {
+    float horizontalPadding = mLeftPadding + mRightPadding;
+    float verticalPadding = mTopPadding + mBottomPadding;
+
+    proposedSize.width -= horizontalPadding;
+    proposedSize.height -= verticalPadding;
+    child.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+
+    child.autoresizingMask = 0;
+    NSSize contentSize = [child preferredSize: proposedSize];
+    NSSize minSize = self.minimumSize;
+    // Adjust width of the container if it is too small or auto resizing is enabled.
+    if (proposedSize.width < contentSize.width || (self.autoresizingMask & NSViewWidthSizable) != 0)
+    {
+      proposedSize.width = contentSize.width;
+      if (proposedSize.width < minSize.width - horizontalPadding)
+        proposedSize.width = minSize.width - horizontalPadding;
+    }
+
+    // Adjust height of the container if it is too small or auto resizing is enabled.
+    if (proposedSize.height < contentSize.height || (self.autoresizingMask & NSViewHeightSizable) != 0)
+    {
+      proposedSize.height = contentSize.height;
+      if (proposedSize.height < minSize.height - verticalPadding)
+        proposedSize.height = minSize.height - verticalPadding;
+    }
+
+    if (doResize)
+    {
+      // Now stretch the client view to fill the entire display area.
+      child.autoresizingMask = 0;
+      child.frame = { { mLeftPadding, mTopPadding }, proposedSize };
+    }
+
+    proposedSize.width += horizontalPadding;
+    proposedSize.height += verticalPadding;
+  }
+
+  return proposedSize;
 }
 
+//------------------------------------------------------------------------------------------------
 
-- (void)subviewMinimumSizeChanged
+- (NSSize)preferredSize: (NSSize)proposedSize
 {
-  NSSize minSize= self.subviews.lastObject.minimumSize;
-  NSSize size= self.frame.size;
-  
-  // size of some subview has changed, we check if our current size is enough
-  // to fit it and if not, request forward the size change notification to superview
-  
-  if (minSize.width != size.width || minSize.height != size.height)
-    [panel subviewMinimumSizeChanged];
-  else
-    [self.subviews.lastObject setFrameSize: size];    
+  return [self computeLayout: proposedSize resizeChildren: NO];
 }
 
+//------------------------------------------------------------------------------------------------
 
-- (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
+- (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
 {
-  id content= self.subviews.lastObject;
-  NSSize size= self.frame.size;
-  size.width -= 2*mBasePadding + (mLeftPadding + mRightPadding);
-  size.height -= 2*mBasePadding + (mTopPadding + mBottomPadding);
-  // size.height= [content minimumSize].height;
-  [content setFrame: NSMakeRect(mLeftPadding+mBasePadding, mTopPadding+mBasePadding, size.width, size.height)];
+  self.autoresizingMask = 0;
+  [self computeLayout: self.frame.size resizeChildren: YES];
 }
-
 
 - (NSSize)minimumSize
 {
-  NSSize size= self.subviews.lastObject.minimumSize;
-  size.width+= 2 * mBasePadding + mLeftPadding + mRightPadding;
-  size.height+= 2 * mBasePadding + mTopPadding + mBottomPadding;
+  NSSize size = self.subviews.lastObject.minimumSize;
+  size.width +=  mLeftPadding + mRightPadding;
+  size.height += mTopPadding + mBottomPadding;
   return size;
 }
 
-- (void)drawRect:(NSRect)rect
+- (void)drawRect: (NSRect)rect
 {
   [super drawRect: rect];
+
   if (mBackImage)
   {
     float x = 0, y = 0;
@@ -196,20 +230,18 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 @end
 
 
-
-
 @implementation MFPanelImpl
 
-- (instancetype)initWithObject:(::mforms::Panel*)aPanel type:(::mforms::PanelType)type
+- (instancetype)initWithObject: (::mforms::Panel*)aPanel type: (mforms::PanelType)type
 {
-  self= [super initWithFrame:NSMakeRect(10, 10, 10, 10)];
-  if (self)
+  self = [super initWithFrame:NSMakeRect(10, 10, 10, 10)];
+  if (self != nil)
   {
     NSRect frame;
-    NSRect content= NSMakeRect(10, 10, 10, 10);
+    NSRect content = NSMakeRect(10, 10, 10, 10);
     float basePadding = 0;
 
-    mOwner= aPanel;
+    mOwner = aPanel;
     mOwner->set_data(self);
     mType = type;
     switch (type)
@@ -253,16 +285,16 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
     }
     
     self.contentViewMargins = NSMakeSize(0, 0);
-    [self setFrameFromContentFrame: content];
-    frame= self.frame;
-    // calculate the offsets the NSBox adds to the contentView
-    mTopLeftOffset.x= NSMinX(content) - NSMinX(frame);
-    mTopLeftOffset.y= NSMinY(content) - NSMinY(frame);
-    mBottomRightOffset.x= NSMaxX(frame) - NSMaxX(content);
-    mBottomRightOffset.y= MAX(NSMaxY(frame) - NSMaxY(content), [mCheckButton cellSize].height);
+    self.frameFromContentFrame = content;
+    frame = self.frame;
+
+    // Calculate the offsets the NSBox adds to the contentView.
+    mTopLeftOffset.x = NSMinX(content) - NSMinX(frame);
+    mTopLeftOffset.y = NSMinY(content) - NSMinY(frame);
+    mBottomRightOffset.x = NSMaxX(frame) - NSMaxX(content);
+    mBottomRightOffset.y = MAX(NSMaxY(frame) - NSMaxY(content), [mCheckButton cellSize].height);
 
     super.contentView = [[MFPanelContent alloc] initWithPanel: self];
-    [super.contentView setBasePadding: basePadding];
   }
   return self;
 }
@@ -302,69 +334,61 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
   }
 }
 
-
-- (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
-{
-  NSRect bounds = self.bounds;
-  bounds.size.width -= mTopLeftOffset.x + mBottomRightOffset.x;
-  bounds.size.height -= mTopLeftOffset.y + mBottomRightOffset.y;
-//  bounds.origin.x = mTopLeftOffset.x;
-//  bounds.origin.y = mTopLeftOffset.y;
-  self.contentView.frame = bounds;
-  [self setNeedsDisplay: YES];
-}
-
 - (mforms::Object*)mformsObject
 {
   return mOwner;
 }
 
+//------------------------------------------------------------------------------------------------
 
-- (NSSize)minimumSize
+- (NSSize)preferredSize: (NSSize)proposedSize
 {
-  NSSize size= self.contentView.minimumSize;
+  proposedSize.width -= mTopLeftOffset.x + mBottomRightOffset.x;
+  proposedSize.height -= mTopLeftOffset.y + mBottomRightOffset.y;
+
+  NSSize size = [self.contentView.subviews.lastObject preferredSize: proposedSize];
 
   size.width += mTopLeftOffset.x + mBottomRightOffset.x;
   size.height += mTopLeftOffset.y + mBottomRightOffset.y;
-    
-  return size;
+
+  NSSize minSize = super.minimumSize;
+  return { MAX(size.width, minSize.width), MAX(size.height, minSize.height) };
 }
 
+//------------------------------------------------------------------------------------------------
 
-- (void)subviewMinimumSizeChanged
+- (NSSize)minimumSize
 {
-  NSSize minSize= self.minimumSize;
-  NSSize size= self.frame.size;
-  
-  // size of some subview has changed, we check if our current size is enough
-  // to fit it and if not, request forward the size change notification to superview
-  
-  if (minSize.width != size.width || minSize.height != size.height)
-  {
-    if (self.superview)
-    {
-      [self.superview subviewMinimumSizeChanged];
-      return;
-    }
-    else
-      [self setFrameSize: minSize];
-  }
-  [self resizeSubviewsWithOldSize:size];
+  NSSize size = [self.contentView.subviews.lastObject minimumSize];
+
+  size.width += mTopLeftOffset.x + mBottomRightOffset.x;
+  size.height += mTopLeftOffset.y + mBottomRightOffset.y;
+
+  NSSize minSize = super.minimumSize;
+  return { MAX(size.width, minSize.width), MAX(size.height, minSize.height) };
 }
 
-- (void)setPaddingLeft:(float)lpad right:(float)rpad top:(float)tpad bottom:(float)bpad
+//------------------------------------------------------------------------------------------------
+
+- (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
 {
-  [self.contentView setPaddingLeft:lpad right:rpad top:tpad bottom:bpad];
+  [super resizeSubviewsWithOldSize: oldBoundsSize];
+  [self.contentView resizeSubviewsWithOldSize: oldBoundsSize];
+}
+
+- (void)setPaddingLeft: (float)lpad right: (float)rpad top: (float)tpad bottom: (float)bpad
+{
+  [self.contentView setPaddingLeft: lpad right: rpad top: tpad bottom: bpad];
 }
 
 
-- (void)setContentView:(NSView*)content
+- (void)setContentView: (NSView*)content
 {
   if (content)
     [self.contentView addSubview: content];
   else
     [self.contentView.subviews.lastObject removeFromSuperview];
-  [self subviewMinimumSizeChanged];
+  [self relayout];
 }
 
 

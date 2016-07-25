@@ -15,13 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
- 
  */
 
-#ifndef _WB_LIVE_SCHEMA_TREE_H_
-#define _WB_LIVE_SCHEMA_TREE_H_
+#pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grt/tree_model.h"
 #include "workbench/wb_backend_public_interface.h"
 #include "base/string_utilities.h"
@@ -332,7 +330,6 @@ namespace wb
   protected:
     std::weak_ptr<FetchDelegate> _fetch_delegate;
     std::weak_ptr<Delegate> _delegate;
-    grt::GRT* _grt;
     std::string _active_schema;
     mforms::TreeView* _model_view;
 
@@ -361,7 +358,7 @@ namespace wb
       GPatternSpec* pattern = NULL);
     bool is_object_type(ObjectTypeValidation validation, ObjectType type);
   public:
-    LiveSchemaTree(grt::GRT* grtm);
+    LiveSchemaTree();
     virtual ~LiveSchemaTree();
 
     void set_model_view(mforms::TreeView* target);
@@ -447,5 +444,3 @@ namespace wb
     bec::IconId get_node_icon(ObjectType type);
   };
 };
-
-#endif

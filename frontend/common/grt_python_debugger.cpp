@@ -600,7 +600,7 @@ const char *PythonDebugger::ui_program_stopped(const char *file, int line, int r
   // check if editor is still there
   editor = _shell->get_editor_for(file, true);
   if (!editor)
-    log_warning("editor gone\n");
+    logWarning("editor gone\n");
 
   switch (reason)
   {

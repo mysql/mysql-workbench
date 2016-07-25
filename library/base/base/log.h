@@ -17,28 +17,27 @@
  * 02110-1301  USA
  */
 
-#ifndef __BASE_LOG_H__
-#define __BASE_LOG_H__
+#pragma once
 
 // This default log domain is a convenience feature for C/C++ code to allow omitting a domain in
 // log_* calls. You can always use base::Logger::log to specify an arbitrary domain.
 #define DEFAULT_LOG_DOMAIN(domain)\
-	static const char* const default_log_domain = domain;\
+	static const char* const default_log_domain = domain;
 
 #if defined(DEBUG) || defined(_DEBUG)
-// same as log_error, but throws exception in debug builds
-#define log_fatal(...) base::Logger::log_throw(base::Logger::LogError, default_log_domain, __VA_ARGS__)
+  // Same as logError, but throws exception in debug builds.
+  #define logFatal(...) base::Logger::log_throw(base::Logger::LogLevel::Error, default_log_domain, __VA_ARGS__)
 #else
-#define log_fatal(...) base::Logger::log(base::Logger::LogError, default_log_domain, __VA_ARGS__)
+  #define logFatal(...) base::Logger::log(base::Logger::LogLevel::Error, default_log_domain, __VA_ARGS__)
 #endif
 
-#define log_error(...) base::Logger::log(base::Logger::LogError, default_log_domain, __VA_ARGS__)
-#define log_exception(msg, exc) base::Logger::log_exc(base::Logger::LogError, default_log_domain, msg, exc)
-#define log_warning(...) base::Logger::log(base::Logger::LogWarning, default_log_domain, __VA_ARGS__)
-#define log_info(...) base::Logger::log(base::Logger::LogInfo, default_log_domain, __VA_ARGS__)
-#define log_debug(...) base::Logger::log(base::Logger::LogDebug, default_log_domain, __VA_ARGS__)
-#define log_debug2(...) base::Logger::log(base::Logger::LogDebug2, default_log_domain, __VA_ARGS__)
-#define log_debug3(...) base::Logger::log(base::Logger::LogDebug3, default_log_domain, __VA_ARGS__)
+#define logError(...) base::Logger::log(base::Logger::LogLevel::Error, default_log_domain, __VA_ARGS__)
+#define logException(msg, exc) base::Logger::log_exc(base::Logger::LogLevel::Error, default_log_domain, msg, exc)
+#define logWarning(...) base::Logger::log(base::Logger::LogLevel::Warning, default_log_domain, __VA_ARGS__)
+#define logInfo(...) base::Logger::log(base::Logger::LogLevel::Info, default_log_domain, __VA_ARGS__)
+#define logDebug(...) base::Logger::log(base::Logger::LogLevel::Debug, default_log_domain, __VA_ARGS__)
+#define logDebug2(...) base::Logger::log(base::Logger::LogLevel::Debug2, default_log_domain, __VA_ARGS__)
+#define logDebug3(...) base::Logger::log(base::Logger::LogLevel::Debug3, default_log_domain, __VA_ARGS__)
 
 // Predefined domains
 #define DOMAIN_BASE "base library"
@@ -79,27 +78,26 @@
 namespace base
 {
 #if defined(DEBUG) || defined(_DEBUG) || defined(ENABLE_DEBUG)
-#define DEFAULT_LOG_TO_STDERR 1
+  #define DEFAULT_LOG_TO_STDERR 1
 #else
-#define DEFAULT_LOG_TO_STDERR 0
+  #define DEFAULT_LOG_TO_STDERR 0
 #endif
 
   class BASELIBRARY_PUBLIC_FUNC Logger
   {
   public:
-    // Note: When adding or changing integer id of log level mind that 
-    // the numbers must be sequential from 0 to N. Also make sure that
-    // log_impl.cpp:LevelText array is valid for new enum values
-    enum LogLevel {
-      LogNone     = 0, 
-      LogError    = 1, 
-      LogWarning  = 2, 
-      LogInfo     = 3, 
-      LogDebug    = 4, 
-      LogDebug2   = 5, 
-      LogDebug3   = 6, 
-      NumOfLevels = LogDebug3
+    enum class LogLevel {
+      Disabled,
+      Error,
+      Warning,
+      Info,
+      Debug,
+      Debug2,
+      Debug3,
+      Count
     };
+
+    static const size_t logLevelCount = static_cast<std::size_t>(LogLevel::Count);
 
     Logger(const bool stderr_log, const std::string& target_file);
     Logger(const std::string& dir, const bool stderr_log = DEFAULT_LOG_TO_STDERR, const std::string& file_name = "wb", int limit = 10); // Later logdir or set of log files can be passed
@@ -123,21 +121,19 @@ namespace base
 
     static void log_to_stderr(bool value);
 
-    static int                maxLogLevel()                { return LogLevel::NumOfLevels; }
-    static const std::string& maxLogLevel(int index)       { return _logLevelNames[index]; }
+    static const std::string& logLevelName(std::size_t index) { return _logLevelNames[index]; }
 
-    static bool               wasLogLevelSpecifiedByUser() { return _logLevelSpecifiedByUser;        }
-    static void               setLogLevelSpecifiedByUser() {        _logLevelSpecifiedByUser = true; }
+    static bool wasLogLevelSpecifiedByUser() { return _logLevelSpecifiedByUser; }
+    static void setLogLevelSpecifiedByUser() { _logLevelSpecifiedByUser = true; }
 
   protected:
     static void logv(const LogLevel level, const char* const domain, const char* format, va_list args);
   private:
     struct LoggerImpl;
-    static LoggerImpl*       _impl;
-    static const std::string _logLevelNames[LogLevel::NumOfLevels + 1];
-    static bool              _logLevelSpecifiedByUser;        // false until set to true
+    static LoggerImpl* _impl;
+
+    static const std::string _logLevelNames[logLevelCount];
+    static bool _logLevelSpecifiedByUser;        // false until set to true
   };
 
 } // End of namespace
-
-#endif

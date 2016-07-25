@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MYSQL_SQL_SEMANTIC_CHECK_H_
-#define _MYSQL_SQL_SEMANTIC_CHECK_H_
-
+#pragma once
 
 #include "mysql_sql_syntax_check.h"
 #include "grtsqlparser/sql_semantic_check.h"
@@ -35,9 +32,9 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_semantic_check
 {
 public:
   typedef std::shared_ptr<Mysql_sql_semantic_check> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_semantic_check(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_semantic_check()); }
 protected:
-  Mysql_sql_semantic_check(grt::GRT *grt);
+  Mysql_sql_semantic_check();
 
 protected:
 #ifndef _WIN32
@@ -60,6 +57,3 @@ protected:
     ~Null_state_keeper();
   };
 };
-
-
-#endif // _MYSQL_SQL_SEMANTIC_CHECK_H_

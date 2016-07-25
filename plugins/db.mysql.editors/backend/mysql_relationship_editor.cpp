@@ -301,7 +301,7 @@ void RelationshipEditorBE::open_editor_for_table(const db_TableRef &table)
     args.ginsert(table);
     
     bec::GUIPluginFlags flags= bec::NoFlags;
-    bec::PluginManager *pm= bec::GRTManager::get().get_plugin_manager();
+    bec::PluginManager *pm= bec::GRTManager::get()->get_plugin_manager();
     
     app_PluginRef plugin(pm->select_plugin_for_input("catalog/Editors", args));
     if (!plugin.is_valid())

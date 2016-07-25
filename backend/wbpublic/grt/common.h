@@ -35,14 +35,6 @@
 
 #include "wbpublic_public_interface.h"
 
-#ifdef __GNUC__
-#define WB_UNUSED __attribute__((unused))
-#else
-#define WB_UNUSED
-#endif
-
-
-
 namespace bec {
   
   enum MatchType

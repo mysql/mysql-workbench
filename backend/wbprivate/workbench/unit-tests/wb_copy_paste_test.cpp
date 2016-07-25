@@ -103,8 +103,8 @@ TEST_FUNCTION(1)
   
   compo->copy_object_to_clipboard(source, context);
 
-  ensure("clipboard has data", bec::GRTManager::get().get_clipboard()->get_data().empty()==false);
-  copy = workbench_physical_TableFigureRef::cast_from(bec::GRTManager::get().get_clipboard()->get_data().front());
+  ensure("clipboard has data", bec::GRTManager::get()->get_clipboard()->get_data().empty()==false);
+  copy = workbench_physical_TableFigureRef::cast_from(bec::GRTManager::get()->get_clipboard()->get_data().front());
 
   ensure("copy is valid", copy.is_valid());
   ensure("copy worked", copy.id() != source.id());

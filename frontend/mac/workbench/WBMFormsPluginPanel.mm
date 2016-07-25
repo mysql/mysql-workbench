@@ -130,12 +130,6 @@
   return _owner;
 }
 
-- (NSSize)minimumSize
-{
-  return NSMakeSize(1, 1);
-}
-
-
 - (BOOL)willClose
 {
   return _owner->on_close();

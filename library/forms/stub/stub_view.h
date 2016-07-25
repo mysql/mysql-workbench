@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +28,8 @@ class ViewWrapper : public ObjectWrapper
 protected:
   static void destroy(View *self);
 
-  static int get_width(mforms::View *self);
-  static int get_height(mforms::View *self);
+  static int get_width(const mforms::View *self);
+  static int get_height(const mforms::View *self);
   static int get_preferred_width(mforms::View *self);
   static int get_preferred_height(mforms::View *self);
   static void set_size(mforms::View *self, int w, int h);

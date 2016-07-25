@@ -21,34 +21,39 @@
 #import "MFMForms.h"
 #include "base/string_utilities.h"
 
-#import "MFContainerBase.h" // to get forw declaration of setFreezeRelayout:
+#import "MFContainerBase.h" // to get forward declaration of setFreezeRelayout:
 #import "ScintillaView.h"    // For drop delegate retrieval.
 #import "NSColor_extras.h"
 
-enum ViewFlags
-{
-  WidthFixedFlag = (1<<8),
-  HeightFixedFlag = (1<<9),
-  ViewFlagsMask = (WidthFixedFlag|HeightFixedFlag)
-};
-
 @implementation NSView(MForms)
-
 
 - (id)innerView
 {
   return self;
 }
 
-static const char *viewFlagsKey = "viewFlagsKey";
+static const char *minimumSizeKey = "minimumSizeKey";
 
-- (NSInteger)viewFlags
+- (NSSize)minimumSize
 {
-  NSNumber *value = objc_getAssociatedObject(self, viewFlagsKey);
-  return value.intValue;
+  NSValue *value = objc_getAssociatedObject(self, minimumSizeKey);
+  return value.sizeValue;
 }
 
-- (void)setViewFlags: (NSInteger)value
+- (void)setMinimumSize: (NSSize)size
+{
+  objc_setAssociatedObject(self, minimumSizeKey, [NSValue valueWithSize: size], OBJC_ASSOCIATION_RETAIN);
+}
+
+static const char *viewFlagsKey = "viewFlagsKey";
+
+- (ViewFlags)viewFlags
+{
+  NSNumber *value = objc_getAssociatedObject(self, viewFlagsKey);
+  return (ViewFlags)value.intValue;
+}
+
+- (void)setViewFlags: (ViewFlags)value
 {
   objc_setAssociatedObject(self, viewFlagsKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
@@ -240,103 +245,22 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)setFixedFrameSize: (NSSize)size
+/**
+ * Returns the view's preferred size. Since a raw view doesn't know anything about its content
+ * the prefered size is its minimum size or the proposal (whichever is larger). Descendants (like container classes)
+ * override this and compute their real preferred size.
+ */
+- (NSSize)preferredSize: (NSSize)proposal
 {
-  NSRect frame = self.frame;
-  NSUInteger flags = self.viewFlags & ~ViewFlagsMask;
-
-  if (size.width > 0)
-  {
-    frame.size.width= size.width;
-    flags|= WidthFixedFlag;
-  }
-  if (size.height > 0)
-  {
-    frame.size.height= size.height;
-    flags|= HeightFixedFlag; //That flags leads to problems in layouting as then always
-                               // the current frame size is used, instead of the min/preferred size.
-  }
-  
-  self.viewFlags = flags;
-  self.frame = frame;
+  return { MAX(self.minimumSize.width, proposal.width), MAX(self.minimumSize.height, proposal.height) };
 }
 
-
-- (BOOL)widthIsFixed
+- (void)relayout
 {
-  return (self.viewFlags & WidthFixedFlag) != 0;
+  [self resizeSubviewsWithOldSize: self.frame.size];
 }
 
-- (BOOL)heightIsFixed
-{
-  return (self.viewFlags & HeightFixedFlag) != 0;
-}
-
-- (NSSize)minimumSize
-{
-  return NSMakeSize(0, 0);
-}
-
-- (NSSize)fixedFrameSize
-{
-  return self.frame.size;
-}
-
-- (NSSize)preferredSize
-{
-  NSSize size= self.minimumSize;
-
-  // The preferred size is actually about what would be needed to fit everything nicely
-  //   not what is the current size of the control. The latter approach messes up the layouting
-  //   where the fixed size is considered anyway.
-  NSSize fsize = self.fixedFrameSize;
-
-  // If a fixed size is set honour that but don't go below the
-  // minimal required size.
-  if (self.widthIsFixed)
-    size.width= MAX(size.width, fsize.width);
-  if (self.heightIsFixed)
-    ; //size.height= MAX(size.height, fsize.height); see comment above
-
-  return size;
-}
-
-
-- (NSSize)preferredSizeForWidth: (float)width
-{
-  NSSize size= [self minimumSizeForWidth: self.widthIsFixed ? NSWidth(self.frame) : width];
-  
-  if (self.heightIsFixed)
-    size.height= self.fixedFrameSize.height;
-  if (self.widthIsFixed)
-    size.width= self.fixedFrameSize.width;
-  
-  return size;  
-}
-
-
-- (NSSize)minimumSizeForWidth:(float)width
-{
-  return self.minimumSize;
-}
-
-
-- (void)subviewMinimumSizeChanged
-{
-  if ([self.window respondsToSelector:@selector(subviewMinimumSizeChanged)])
-  {
-    // assume this is the toplevel view so just forward to the window
-    [(id)self.window subviewMinimumSizeChanged];
-  }
-  else
-  {
-    for (id subview in self.subviews)
-      [subview resizeSubviewsWithOldSize: NSMakeSize(0, 0)];
-  }
-}
-
-
-- (void)drawBounds:(NSRect)rect
+- (void)drawBounds: (NSRect)rect
 {
   NSFrameRect(rect);
   [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMinY(rect))
@@ -695,6 +619,26 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
       return nativeOperations;
   }
 }
+
+- (mforms::ModifierKey) modifiersFromEvent: (NSEvent*) event
+{
+  NSUInteger modifiers = event.modifierFlags;
+  mforms::ModifierKey mforms_modifiers = mforms::ModifierNoModifier;
+
+  if ((modifiers & NSControlKeyMask) != 0)
+    mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierControl);
+  if ((modifiers & NSShiftKeyMask) != 0)
+    mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierShift);
+  if ((modifiers & NSCommandKeyMask) != 0)
+    mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierCommand);
+  if ((modifiers & NSAlternateKeyMask) != 0)
+    mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierAlt);
+
+  return mforms_modifiers;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 @end
 
 //--------------------------------------------------------------------------------------------------
@@ -780,20 +724,60 @@ static int view_get_y(::mforms::View *self)
 
 static void view_set_size(::mforms::View *self, int w, int h)
 {
-  id view = self->get_data();
-  if (view != nil && [view respondsToSelector: @selector(setFixedFrameSize:)])
-  {
-    [view setFixedFrameSize: NSMakeSize(w,h)];
+  id frontend = self->get_data();
+  if ([frontend isKindOfClass: NSView.class]) {
+    NSView *view = frontend;
+    NSSize size = { (CGFloat)w, (CGFloat)h };
+    if (w < 0)
+      size.width = view.frame.size.width;
+    if (h < 0)
+      size.height = view.frame.size.height;
+    view.frameSize = size;
+    if (w < 0)
+      size.width = 0;
+    if (h < 0)
+      size.height = 0;
+    view.minimumSize = size;
+  } else {
+    // Window/panel.
+    NSWindow *window = frontend;
+    NSRect frame = window.frame;
+    if (w >= 0)
+      frame.size.width = w;
+    if (h >= 0)
+      frame.size.height = h;
+    [window setFrame: frame display: YES animate: NO];
+    window.minSize = frame.size;
+  }
+}
+
+static void view_set_min_size(::mforms::View *self, int w, int h)
+{
+  id frontend = self->get_data();
+  if ([frontend isKindOfClass: NSView.class]) {
+    NSView *view = frontend;
+    NSSize size = { (CGFloat)w, (CGFloat)h };
+    if (w < 0)
+      size.width = 0;
+    if (h < 0)
+      size.height = 0;
+    view.minimumSize = size;
+  } else {
+    // Window/panel.
+    NSWindow *window = frontend;
+    NSRect frame = window.frame;
+    if (w >= 0)
+      frame.size.width = w;
+    if (h >= 0)
+      frame.size.height = h;
+    window.minSize = frame.size;
   }
 }
 
 static void view_set_position(::mforms::View *self, int x, int y)
 {
-  id view = self->get_data();
-  if (view)
-  {
-    [view setFrameOrigin: NSMakePoint(x, y)];
-  }
+  NSView *view = self->get_data();
+  view.frameOrigin = { (CGFloat)x, (CGFloat)y };
 }
 
 static std::pair<int, int> view_client_to_screen(::mforms::View *self, int x, int y)
@@ -843,7 +827,7 @@ static bool view_is_enabled(::mforms::View *self)
   return false;
 }
 
-static int view_get_width(::mforms::View *self)
+static int view_get_width(const mforms::View *self)
 {
   id view = self->get_data();
   if ( view )
@@ -855,51 +839,64 @@ static int view_get_width(::mforms::View *self)
   return 0;
 }
 
-static int view_get_height(::mforms::View *self)
+static int view_get_height(const mforms::View *self)
 {
-  id view = self->get_data();
-  if ( view )
+  id frontend = self->get_data();
+  if (frontend != nil)
   {
-    if ([view isKindOfClass: [NSWindow class]])
-      return NSHeight([view contentRectForFrameRect:[view frame]]);
-    return NSHeight([view frame]);
+    if ([frontend isKindOfClass: NSWindow.class])
+      return NSHeight([frontend contentRectForFrameRect: [frontend frame]]);
+    return NSHeight([frontend frame]);
   }
   return 0;
 }
 
 static int view_get_preferred_width(::mforms::View *self)
 {
-  id view = self->get_data();
-  if ( view )
+  id frontend = self->get_data();
+  if (frontend != nil)
   {
-    return [view preferredSize].width;
+    if ([frontend isKindOfClass: NSWindow.class])
+    {
+      NSSize size = [frontend preferredSize: [frontend frame].size];
+      return size.width;
+    }
+    return NSWidth([frontend frame]);
   }
   return 0;
 }
 
 static int view_get_preferred_height(::mforms::View *self)
 {
-  id view = self->get_data();
-  if ( view )
+  id frontend = self->get_data();
+  if (frontend != nil)
   {
-    return [view preferredSize].height;
+    if ([frontend isKindOfClass: NSWindow.class])
+    {
+      NSSize size = [frontend preferredSize: [frontend frame].size];
+      return size.height;
+    }
+    return NSHeight([frontend frame]);
   }
   return 0;
 }
 
-
-static void view_show(::mforms::View *self, bool show)
+static void view_show(mforms::View *self, bool show)
 {
-  id view = self->get_data();
-  
-  if ( view && [view isHidden] != !show)
-  {
-    [view setHidden:!show];
+  id frontend = self->get_data();
+  if ([frontend isKindOfClass: NSView.class]) {
+    NSView *view = frontend;
 
-    if ([view respondsToSelector: @selector(superview)])
-      [[view superview] subviewMinimumSizeChanged];
-    if (show && [view respondsToSelector:@selector(window)])
-      [[view window] recalculateKeyViewLoop];
+    if (view.isHidden != !show)
+    {
+      view.hidden = !show;
+      [view.superview relayout];
+      [view.window recalculateKeyViewLoop];
+    }
+  } else {
+    if ([frontend isKindOfClass: NSWindow.class]) {
+      [frontend orderFrontRegardless];
+    }
   }
 }
 
@@ -936,7 +933,7 @@ static void view_set_tooltip(::mforms::View *self, const std::string &text)
 static void view_set_font(::mforms::View *self, const std::string &fontDescription)
 {
   id view = self->get_data();
-  if (view && [view respondsToSelector: @selector(setFont)])
+  if (view && [view respondsToSelector: @selector(setFont:)])
   {
     std::string name;
     float size;
@@ -966,14 +963,8 @@ static void view_set_name(mforms::View *self, const std::string&)
 
 static void view_relayout(mforms::View *self)
 {
-  if ([NSThread currentThread].isMainThread)
-    [self->get_data() subviewMinimumSizeChanged];
-  else
-  {
-    id view = self->get_data();
-    // this performSelector is cancelled in [MFContainerView dealloc]
-    [view performSelectorOnMainThread: @selector(subviewMinimumSizeChanged) withObject: view waitUntilDone: false];
-  }
+  id view = self->get_data();
+  [view performSelectorOnMainThread: @selector(relayout) withObject: nil waitUntilDone: true];
 }
 
 static void view_set_needs_repaint(mforms::View *self)
@@ -1045,8 +1036,13 @@ static void view_set_padding(::mforms::View *self, int left, int top, int right,
 
 static void view_focus(::mforms::View *self)
 {
-  id view = self->get_data();
-  [[view window] makeFirstResponder: view];
+  id frontend = self->get_data();
+  if ([frontend isKindOfClass: NSView.class]) {
+    [[frontend window] makeKeyAndOrderFront: frontend];
+    [[frontend window] makeFirstResponder: frontend];
+  }
+  else
+    [frontend makeKeyAndOrderFront: frontend];
 }
 
 static bool view_has_focus(::mforms::View *self)
@@ -1112,6 +1108,7 @@ void cf_view_init()
   f->_view_impl.get_preferred_width  = &view_get_preferred_width;
   f->_view_impl.get_preferred_height = &view_get_preferred_height;
   f->_view_impl.set_size             = &view_set_size;
+  f->_view_impl.set_min_size         = &view_set_min_size;
   f->_view_impl.set_padding          = &view_set_padding;
 
   f->_view_impl.get_x                = &view_get_x;

@@ -11,7 +11,7 @@
 #endif
 
 #include <cstddef>
-#include "ctemplate/template.h"
+#include <ctemplate/template.h>
 
 #include "grt/common.h"
 

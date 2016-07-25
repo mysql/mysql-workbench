@@ -25,7 +25,7 @@
 #include "mforms/treeview.h"
 
 #include <set>
-
+#include <functional>
 
 /**
  * @brief A Json view tab control with tree diffrent view text, tree and grid.
@@ -90,22 +90,33 @@ namespace mforms {
   public:
     JsonTextView();
     virtual ~JsonTextView();
-    void setText(const std::string &jsonText);
+    void setText(const std::string &jsonText, bool validateJson = true);
     virtual void clear();
     void findAndHighlightText(const std::string &text, bool backward = false);
     const JsonParser::JsonValue &getJson() const;
     const std::string &getText() const;
     bool validate();
+    void startProc();
+    std::function<void ()> _stopTextProcessing;
+    std::function<void (std::function<bool ()>)> _startTextProcessing;
 
   private:
+    struct JsonErrorEntry
+    {
+      std::string text;
+      std::size_t pos;
+      std::size_t length;
+    };
     void init();
     void editorContentChanged(int position, int length, int numberOfLines, bool inserted);
+    void dwellEvent(bool started, size_t position, int x, int y);
 
     CodeEditor *_textEditor;
     bool _modified;
     std::string _text;
     int _position;
     JsonParser::JsonValue _json;
+    std::vector<JsonErrorEntry> _errorEntry;
   };
 
   class JsonTreeBaseView : public JsonBaseView
@@ -234,12 +245,12 @@ namespace mforms {
     typedef std::shared_ptr<JsonParser::JsonValue> JsonValuePtr;
     enum JsonTabViewType { TabText, TabTree, TabGrid };
     void Setup();
-    JsonTabView(bool tabLess = false);
+    JsonTabView(bool tabLess = false, JsonTabViewType defaultView = TabText);
     ~JsonTabView();
 
     void setJson(const JsonParser::JsonValue &val);
-    void setText(const std::string &text);
-    void append(const std::string &text);
+    void setText(const std::string &text, bool validate = true);
+    void append2(const std::string &text);
     void tabChanged();
     void dataChanged(bool forceUpdate);
     void clear();
@@ -253,7 +264,9 @@ namespace mforms {
     boost::signals2::signal<void(const std::string &text)> *editorDataChanged();
     const std::string &text() const;
     const JsonParser::JsonValue &json() const;
-    
+
+    void setTextProcessingStartHandler(std::function<void (std::function<bool ()>)>);
+    void setTextProcessingStopHandler(std::function<void ()>);
 
   private:
     JsonTextView *_textView;
@@ -267,7 +280,7 @@ namespace mforms {
     struct { bool textViewUpdate; bool treeViewUpdate; bool gridViewUpdate; } _updateView;
     bool _updating;
     std::string _matchText;
-    bool _tabLess;
     boost::signals2::signal<void(const std::string &text)> _dataChanged;
+    JsonTabViewType _defaultView;
   };
 };

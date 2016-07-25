@@ -87,7 +87,7 @@ namespace wb {
       std::string _icon_name, _alt_icon_name;
       int x, y;
       int bounds_width, bounds_height;
-      int width, height;
+      base::Size size;
       bool hot;
       bool down;
       bool state;

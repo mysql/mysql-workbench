@@ -32,7 +32,9 @@
       hex = [hex substringFromIndex: 1];
     }
   }
-  
+
+#ifdef ENABLE_DEBUG
+
   // Test for malformatted hex string.
   NSAssert1( ([hex length] == 6), @"Hex string should be 6 chars long, excl any # sign. String: '%@'.", hex);
   
@@ -40,7 +42,8 @@
   NSString* empty = [hex stringByTrimmingCharactersInSet: cs];
   
   NSAssert1( ([empty length] == 0), @"Hex string should only contain characters [0123456789ABCDEFabcdef]. String: '%@'.", hex);
-  
+#endif
+
   NSScanner *scanner = [NSScanner scannerWithString: hex];
   unsigned int colorCode = 0;
   [scanner scanHexInt: &colorCode];

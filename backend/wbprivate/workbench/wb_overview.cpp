@@ -50,7 +50,7 @@ int OverviewBE::Node::get_popup_menu_items(WBContext *wb, bec::MenuItemList &ite
 
 bool OverviewBE::ObjectNode::activate(WBContext *wb)
 {
-  bec::GRTManager::get().open_object_editor(object, bec::NoFlags);
+  bec::GRTManager::get()->open_object_editor(object, bec::NoFlags);
 
   return true;
 }

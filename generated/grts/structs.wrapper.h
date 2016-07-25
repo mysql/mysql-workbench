@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -13,7 +18,7 @@
   #define GRT_STRUCTS_WRAPPER_PUBLIC
 #endif
 
-#include <grts/structs.h>
+#include "grts/structs.h"
 
 
 class parser_ContextReference;
@@ -41,8 +46,7 @@ public:
   friend class ImplData;
   parser_ContextReference(grt::MetaClass *meta=0)
   : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -98,7 +102,7 @@ public:
   mforms_ObjectReference(grt::MetaClass *meta=0)
   : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _type(""),
-    _data(0), _release_data(NULL)
+    _data(nullptr), _release_data(nullptr)
 
   {
   }
@@ -193,8 +197,7 @@ public:
   typedef grt::AutoPyObject ImplData;
   grt_PyObject(grt::MetaClass *meta=0)
   : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0), _release_data(NULL)
-
+    _data(nullptr), _release_data(nullptr)
   {
   }
 
@@ -254,5 +257,9 @@ inline void register_structs_wrapper_xml()
 
 #ifdef AUTO_REGISTER_GRT_CLASSES
 static struct _autoreg__structs_wrapper_xml { _autoreg__structs_wrapper_xml() { register_structs_wrapper_xml(); } } __autoreg__structs_wrapper_xml;
+#endif
+
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
 #endif
 

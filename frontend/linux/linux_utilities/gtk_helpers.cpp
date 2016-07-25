@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -255,7 +255,8 @@ static std::string file_chooser_impl(const bool is_for_save, const std::string &
   std::string filename;
   Gtk::FileChooserDialog dialog("Please choose a file",
           is_for_save ? Gtk::FILE_CHOOSER_ACTION_SAVE : Gtk::FILE_CHOOSER_ACTION_OPEN);
-  dialog.set_transient_for(*get_mainwindow());
+  if (get_mainwindow() != nullptr)
+    dialog.set_transient_for(*get_mainwindow());
 
   //Add response buttons the the dialog:
   dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);

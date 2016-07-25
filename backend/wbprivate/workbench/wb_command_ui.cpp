@@ -220,7 +220,7 @@ bool CommandUI::validate_command_item(const app_CommandItemRef &item, const wb::
       _wb->update_plugin_arguments_pool(argpool);
       argpool["app.PluginInputDefinition:string"]= grt::StringRef(cmd.args);
       
-      return bec::GRTManager::get().check_plugin_runnable(plugin, argpool);
+      return bec::GRTManager::get()->check_plugin_runnable(plugin, argpool);
     }
   }
   else if (cmd.type == "call")
@@ -231,7 +231,7 @@ bool CommandUI::validate_command_item(const app_CommandItemRef &item, const wb::
       grt::Module *m = grt::GRT::get()->get_module(module);
       if (m && m->has_function(function))
         return true;
-      log_info("Invalid function %s.%s\n", module.c_str(), function.c_str());
+      logInfo("Invalid function %s.%s\n", module.c_str(), function.c_str());
       return false;
     }
   }
@@ -246,7 +246,7 @@ bool CommandUI::validate_plugin_command(app_PluginRef plugin)
   bool result = false;
   if (plugin.is_valid())
   {
-    if (bec::GRTManager::get().check_plugin_runnable(plugin, _argpool))
+    if (bec::GRTManager::get()->check_plugin_runnable(plugin, _argpool))
       result = true;
   }
 
@@ -556,7 +556,7 @@ void CommandUI::add_scripts_menu(mforms::MenuItem *parent)
 {
   try
   {
-    std::list<std::string> pyfiles = base::scan_for_files_matching(base::makePath(bec::GRTManager::get().get_user_script_path(), "*.py"));
+    std::list<std::string> pyfiles = base::scan_for_files_matching(base::makePath(bec::GRTManager::get()->get_user_script_path(), "*.py"));
     std::vector<std::string> files;
 
     std::copy(pyfiles.begin(), pyfiles.end(), std::back_inserter(files));
@@ -676,7 +676,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
           if (!plugin.is_valid())
           {
             if (!base::hasSuffix(mitem.id(), "/SE") || _include_se)
-              log_warning("Plugin item %s was not found\n", cmd.name.c_str());
+              logWarning("Plugin item %s was not found\n", cmd.name.c_str());
             // if plugin is missing, check if it's supposed to be there
             if (!_include_se || !base::hasSuffix(mitem.id(), "/SE"))
               continue;
@@ -699,7 +699,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
             else
             {
               if (!base::hasSuffix(mitem.id(), "/SE") || _include_se)
-                log_warning("Module function %s was not found\n", cmd.name.c_str());
+                logWarning("Module function %s was not found\n", cmd.name.c_str());
               // if plugin is missing, check if it's supposed to be there
               if (!_include_se || !base::hasSuffix(mitem.id(), "/SE"))
                 continue;
@@ -835,7 +835,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file)
 
 mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, const boost::function<void (std::string)> &activate_slot)
 {
-  app_ToolbarRef toolbar(app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(bec::GRTManager::get().get_data_file_path(toolbar_file))));
+  app_ToolbarRef toolbar(app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(bec::GRTManager::get()->get_data_file_path(toolbar_file))));
   
   grt::ListRef<app_ToolbarItem> plist(toolbar->items());
   mforms::ToolBar *tbar = new mforms::ToolBar();
@@ -944,7 +944,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, cons
     }
     else
     {
-      log_warning("invalid toolbar item type %s", titem->itemType().c_str());
+      logWarning("invalid toolbar item type %s", titem->itemType().c_str());
       continue;
     }
     /*
@@ -1065,7 +1065,7 @@ void CommandUI::add_builtin_command(const std::string &name,
   cmd.validate= validate;
 
   if (_builtin_commands.find(name) != _builtin_commands.end())
-    log_warning("%s built-in command is being overwritten", name.c_str());
+    logWarning("%s built-in command is being overwritten", name.c_str());
   
   _builtin_commands[name]= cmd;
 }
@@ -1214,7 +1214,7 @@ void CommandUI::revalidate_edit_menu_items()
   if (mforms::Utilities::in_main_thread())
     _validate_edit_menu_items();
   else
-    bec::GRTManager::get().run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, this));
+    bec::GRTManager::get()->run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, this));
   //mforms::Utilities::perform_from_main_thread((boost::bind(&CommandUI::revalidate_edit_menu_items, this), (void*)0));
 
   // NOTE : using perform_from_main_thread causes a _grtm reference on the BaseEditor to to get lost in the process, 

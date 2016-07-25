@@ -642,11 +642,14 @@ static void expandVertically(std::vector<ChildEntry> &list, int fraction, bool m
 {
   if (mOwner != nullptr && !mOwner->is_destroying())
   {
+    NSAutoresizingMaskOptions previous = self.autoresizingMask;
     self.autoresizingMask = 0;
     if (mHorizontal)
       [self computeHorizontalLayout: self.frame.size resizeChildren: YES];
     else
       [self computeVerticalLayout: self.frame.size resizeChildren: YES];
+
+    self.autoresizingMask = previous;
   }
 }
 
@@ -654,7 +657,6 @@ static void expandVertically(std::vector<ChildEntry> &list, int fraction, bool m
 {
   [self resizeSubviewsWithOldSize: self.frame.size];
 }
-
 
 - (void)setFrame: (NSRect)frame
 {

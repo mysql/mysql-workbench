@@ -31,22 +31,6 @@ namespace mforms {
     SmallScrollBars = (1 << 2)      //!< A smaller version of the scrollbars.
   };
 
-  /**
-   * Code which abstracts special keys for each platform, to be used in the key event.
-   */
-  enum KeyCode {
-    KeyNone,
-    KeyChar,         //!< No special char. The key event has the entered character(s) in the text field.
-    KeyModifierOnly, //!< A combination of Shift/Control/Command/Alt only, without another key.
-    KeyEnter,        //!< The numpad <enter> key.
-    KeyReturn,       //!< The main keyboard <return> key.
-    KeyHome,
-    KeyEnd,
-    KeyPrevious,
-    KeyNext,
-    KeyUnkown,       //!< Any other key, not yet mapped.
-  };
-
   class TextBox;
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -29,6 +29,17 @@ using namespace MySQL;
 using namespace MySQL::Forms;
 using namespace MySQL::Controls;
 
+public ref class _ProgressBar : ProgressBar
+{
+public:
+  void SetProgressAsync(ProgressBar ^sender, int value)
+  {
+    ProgressBar ^progressbar = (ProgressBar^)sender;
+    if (progressbar != nullptr)
+      sender->Value = value;
+  }
+};
+
 //----------------- ProgressBarWrapper -------------------------------------------------------------
 
 ProgressBarWrapper::ProgressBarWrapper(mforms::ProgressBar *pbar)
@@ -41,7 +52,7 @@ ProgressBarWrapper::ProgressBarWrapper(mforms::ProgressBar *pbar)
 bool ProgressBarWrapper::create(mforms::ProgressBar *backend)
 {
   ProgressBarWrapper *wrapper = new ProgressBarWrapper(backend);
-  ProgressBar ^progressbar = ProgressBarWrapper::Create<ProgressBar>(backend, wrapper);
+  _ProgressBar ^progressbar = ProgressBarWrapper::Create<_ProgressBar>(backend, wrapper);
   progressbar->Maximum = 1000;
   progressbar->Minimum = 0;
   progressbar->Size = System::Drawing::Size(100, 20);
@@ -50,9 +61,11 @@ bool ProgressBarWrapper::create(mforms::ProgressBar *backend)
 
 //--------------------------------------------------------------------------------------------------
 
+delegate void RunProgressDelegate(ProgressBar ^sender, int value);
+
 void ProgressBarWrapper::set_value(mforms::ProgressBar *backend, float pct)
 {
-  ProgressBar ^progressbar = ProgressBarWrapper::GetManagedObject<ProgressBar>(backend);
+  _ProgressBar ^progressbar = ProgressBarWrapper::GetManagedObject<_ProgressBar>(backend);
   int value = (int)(pct * 1000);
   if (value < progressbar->Minimum)
     value = progressbar->Minimum;
@@ -60,6 +73,14 @@ void ProgressBarWrapper::set_value(mforms::ProgressBar *backend, float pct)
     if (value > progressbar->Maximum)
       value = progressbar->Maximum;
 
+  array<Object ^> ^parameters = gcnew array<Object^>(2);
+  parameters[0] = progressbar;
+  parameters[1] = value;
+  if (progressbar->InvokeRequired)
+  {
+    progressbar->BeginInvoke(gcnew RunProgressDelegate(progressbar, &_ProgressBar::SetProgressAsync), parameters);
+    return;
+  }
   progressbar->Value = value;
 }
 

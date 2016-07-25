@@ -239,7 +239,7 @@ static void* cancellable_task_thread(void *)
     }
     catch (std::exception &exc)
     {
-      log_error("Cancellable task threw uncaught exception: %s", exc.what());
+      logError("Cancellable task threw uncaught exception: %s", exc.what());
     }
 
     data->semaphore.wait(); // Wait for the main thread to signal it is ready.
@@ -325,7 +325,7 @@ retry:
   else
   {
     // Task canceled by user.
-    log_debug2("run_cancelable_wait_message returned false\n");
+    logDebug2("run_cancelable_wait_message returned false\n");
   }
 
   {
@@ -499,7 +499,7 @@ void Utilities::store_password(const std::string &service, const std::string &ac
   PasswordCache::get()->add_password(service, account, password.c_str());
   
   // OS storage
-  log_debug("Storing password for '%s'@'%s'\n", account.c_str(), service.c_str());
+  logDebug("Storing password for '%s'@'%s'\n", account.c_str(), service.c_str());
   ControlFactory::get_instance()->_utilities_impl.store_password(service, account, password);
 }
 
@@ -508,7 +508,7 @@ void Utilities::store_password(const std::string &service, const std::string &ac
 bool Utilities::find_password(const std::string &service, const std::string &account, std::string &password)
 {
   const bool ret = ControlFactory::get_instance()->_utilities_impl.find_password(service, account, password);
-  log_debug("Looking up password for '%s'@'%s' has %s\n", account.c_str(), service.c_str(), ret ? "succeeded" : "failed");
+  logDebug("Looking up password for '%s'@'%s' has %s\n", account.c_str(), service.c_str(), ret ? "succeeded" : "failed");
     
   if (ret)
     PasswordCache::get()->add_password(service, account, password.c_str());
@@ -527,7 +527,7 @@ bool Utilities::find_cached_password(const std::string &service, const std::stri
 
 void Utilities::forget_cached_password(const std::string &service, const std::string &account)
 {
-  log_debug2("Forgetting cached password for '%s'@'%s'\n", account.c_str(), service.c_str());
+  logDebug2("Forgetting cached password for '%s'@'%s'\n", account.c_str(), service.c_str());
   PasswordCache::get()->remove_password(service, account);
 }
 
@@ -537,7 +537,7 @@ void Utilities::forget_password(const std::string &service, const std::string &a
 {
   Utilities::forget_cached_password(service, account);
   
-  log_debug("Forgetting password for '%s'@'%s'\n", account.c_str(), service.c_str());
+  logDebug("Forgetting password for '%s'@'%s'\n", account.c_str(), service.c_str());
   ControlFactory::get_instance()->_utilities_impl.forget_password(service, account);
 }
 
@@ -553,7 +553,7 @@ void *Utilities::perform_from_main_thread(const boost::function<void* ()> &slot,
 static void *_ask_for_password_main(const std::string &title, const std::string &service, std::string *username /*in/out*/,
                              bool prompt_storage, std::string *ret_password /*out*/, bool *ret_store /*out*/)
 {
-  log_debug("Creating and showing password dialog\n");
+  logDebug("Creating and showing password dialog\n");
 
   Utilities::hide_wait_message(); 
 
@@ -648,9 +648,9 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
 //  cancel_button.set_size(75, -1);
   Utilities::add_end_ok_cancel_buttons(&button_box, &ok_button, &cancel_button);
   if (prompt_storage)
-    content.add(&button_box, 1, 3, 5, 6, HFillFlag);
+    content.add(&button_box, 1, 3, 5, 6, HFillFlag | VFillFlag);
   else
-    content.add(&button_box, 1, 3, 4, 5, HFillFlag);
+    content.add(&button_box, 1, 3, 4, 5, HFillFlag | VFillFlag);
   
   password_form.set_content(&content);
   password_form.center();
@@ -749,7 +749,7 @@ bool Utilities::credentials_for_service(const std::string &title, const std::str
       }
       catch (std::exception &exc)
       {
-        log_warning("Could not store password vault: %s\n", exc.what());
+        logWarning("Could not store password vault: %s\n", exc.what());
         show_warning(title.empty() ? _("Error Storing Password") : title, 
                      std::string("There was an error storing the password:\n")+exc.what(), "OK");
       }
@@ -838,6 +838,9 @@ bool Utilities::icon_needs_reload(cairo_surface_t *s)
 
 void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double y, float alpha)
 {
+  if (cr == nullptr || image == nullptr)
+    return;
+
   float backing_scale_factor = mforms::App::get()->backing_scale_factor();
 
   if (backing_scale_factor > 1 && mforms::Utilities::is_hidpi_icon(image))
@@ -865,7 +868,7 @@ void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double
     else
       cairo_paint_with_alpha(cr, alpha);
     cairo_restore(cr);
-    log_debug2("Icon is for hidpi screen but the screen is not.\n");
+    logDebug2("Icon is for hidpi screen but the screen is not.\n");
   }
   else
   {
@@ -879,15 +882,15 @@ void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::get_icon_size(cairo_surface_t *icon, int &w, int &h)
+base::Size Utilities::getImageSize(cairo_surface_t *icon)
 {
-  w = cairo_image_surface_get_width(icon);
-  h = cairo_image_surface_get_height(icon);
+  base::Size result(cairo_image_surface_get_width(icon), cairo_image_surface_get_height(icon));
   if (mforms::Utilities::is_hidpi_icon(icon))
   {
-    w = (int)(w / 2);
-    h = (int)(h / 2);
+    result.width /= 2;
+    result.height /= 2;
   }
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------

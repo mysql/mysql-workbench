@@ -34,7 +34,7 @@ namespace MySQL {
     private:
       bool hideOnClose;
     protected:
-      gcroot<Windows::Forms::Form ^> owner;
+      gcroot<Windows::Forms::Form ^> _owner;
 
       FormWrapper(mforms::Form *form, mforms::Form *owner, mforms::FormFlag flag);
 

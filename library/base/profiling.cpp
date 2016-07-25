@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,7 +60,7 @@ void StopWatch::start(const std::string& message)
   
   _lap_start = _start;
   
-  log_debug("---> %s - [STARTED] %s\n", format_time(0).data(), message.data());
+  logDebug("---> %s - [STARTED] %s\n", format_time(0).data(), message.data());
 }
 //-------------------------------------------------------------------------------------
 void StopWatch::lap(const std::string& message)
@@ -71,7 +71,7 @@ void StopWatch::lap(const std::string& message)
 
     clock_t diff = _end - _lap_start;
     
-    log_debug("---> %s - [LAP] %s\n", format_time(diff).data(), message.data());
+    logDebug("---> %s - [LAP] %s\n", format_time(diff).data(), message.data());
     
     _lap_start = _end;
   }
@@ -85,7 +85,7 @@ void StopWatch::stop(const std::string& message)
     
     clock_t diff = _end - _start;
     
-    log_debug("---> %s - [COMPLETED] %s\n", format_time(diff).data(), message.data());
+    logDebug("---> %s - [COMPLETED] %s\n", format_time(diff).data(), message.data());
   }
 }
 
@@ -116,11 +116,11 @@ void TimeAccumulator::dump(const std::string& message)
 {
   std::map<std::string, double>::const_iterator index, end = _accumulators.end();
   
-  log_debug("Dumping data for : %s\n", message.data());
+  logDebug("Dumping data for : %s\n", message.data());
   
   for(index = _accumulators.begin(); index != end; index++)
   {
-    log_debug("--->Time on accumulator %s : %lf\n", index->first.data(), index->second / CLOCKS_PER_SEC);
+    logDebug("--->Time on accumulator %s : %lf\n", index->first.data(), index->second / CLOCKS_PER_SEC);
   }
 }
 //-------------------------------------------------------------------------------------

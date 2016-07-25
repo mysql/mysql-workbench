@@ -36,7 +36,8 @@ class MainForm;
 class Program
 {
   public:
-    Program(wb::WBOptions &options);
+    Program();
+    void init(wb::WBOptions &options);
     ~Program();
   
     void shutdown();
@@ -53,8 +54,6 @@ class Program
     bool idle_stuff();
   private:
     std::deque<sigc::connection> _idleConnections;
-    wb::WBContextUI     *_wb_context_ui; //!< 
-    wb::WBContext       *_wb_context;
     MainForm            *_main_form;
 
     //sigc::signal<void>::iterator idle_signal_conn;

@@ -66,6 +66,8 @@ using namespace System::Threading;
 using namespace MySQL;
 using namespace MySQL::Forms;
 
+DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
+
 //--------------------------------------------------------------------------------------------------
 
 Manager::Manager()
@@ -73,7 +75,7 @@ Manager::Manager()
   created = 0;
   destroyed = 0;
 
-  base::Logger::log(base::Logger::LogInfo, DOMAIN_MFORMS_WRAPPER, "Initializing mforms wrapper\n");
+  logInfo("Initializing mforms wrapper\n");
 
   ViewWrapper::init();
   LabelWrapper::init();
@@ -117,7 +119,7 @@ Manager::Manager()
 
 Manager::~Manager()
 {
-  base::Logger::log(base::Logger::LogInfo, DOMAIN_MFORMS_WRAPPER, "Shutting down mforms wrapper\n");
+  logInfo("Shutting down mforms wrapper\n");
   /* Doesn't really work since on app shutdown many objects are just not regularly freed.
   base::Logger::log(base::Logger::LogDebug2, DOMAIN_MFORMS_WRAPPER,
     "Created %i wrapper objects, destroyed %i, leaking %i objects\n",

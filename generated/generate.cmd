@@ -34,6 +34,7 @@ echo Generating new wrappers...
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.db.mysql.xml ../res/grt/ grts ../backend/wbpublic/objimpl/db.mysql
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.db.oracle.xml ../res/grt/ grts ../backend/wbpublic/objimpl/db.oracle
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.db.query.xml ../res/grt/ grts ../backend/wbpublic/objimpl/db.query
+..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.db.ng.xml ../res/grt/ grts ../backend/wbpublic/objimpl/db.ng
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.db.sybase.xml ../res/grt/ grts ../backend/wbpublic/objimpl/db.sybase
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.eer.xml ../res/grt/ grts ../backend/wbpublic/objimpl/eer
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.model.xml ../res/grt/ grts ../backend/wbpublic/objimpl/model

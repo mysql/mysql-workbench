@@ -93,6 +93,4 @@ void AppWrapper::init(wb::WBOptions *theOptions)
 
   f->_app_impl.enter_event_loop = &AppWrapper::enter_event_loop;
   f->_app_impl.exit_event_loop = &AppWrapper::exit_event_loop;
-
-  f->_app_impl.get_system_color = &AppWrapper::get_system_color;
 }

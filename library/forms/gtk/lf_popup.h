@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@
 #include "mforms/popup.h"
 
 #include "lf_base.h"
+#include "main_app.h"
 
 namespace mforms {
 namespace gtk {
@@ -33,6 +34,7 @@ class PopupImpl : public ObjectImpl
   int               _width;
   int               _height;
   Gtk::Window       _wnd;
+  runtime::loop     _loop;
   bool              _have_rgba;
   bool              _inside;
   int               _result;

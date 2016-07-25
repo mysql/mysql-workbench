@@ -184,7 +184,7 @@ size_t ListBoxWrapper::get_count(mforms::ListBox *backend)
 std::string ListBoxWrapper::get_string_value_from_index(mforms::ListBox *backend, size_t index)
 {
   ListBox ^listbox = ListBoxWrapper::GetManagedObject<ListBox>(backend);
-  if (listbox->Items->Count < index)
+  if ((size_t)listbox->Items->Count < index)
     return "";
 
   return NativeToCppString(listbox->Items[index]->ToString());

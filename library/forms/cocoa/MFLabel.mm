@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-
-
 #import "MFLabel.h"
 #import "MFMForms.h"
 #import "NSColor_extras.h"
@@ -30,9 +28,9 @@
   self= [super initWithFrame:NSMakeRect(10,10,10,20)];
   if (self)
   {
-    [self setDrawsBackground:NO];
-    [self setBezeled:NO];
-    [self setEditable:NO];
+    [self setDrawsBackground: NO];
+    [self setBezeled: NO];
+    [self setEditable: NO];
     
     [self.cell setSelectable: YES];
     [self.cell setWraps: NO];
@@ -102,45 +100,27 @@
 }
 
 
-- (NSSize)minimumSizeForWidth:(float)width
+- (NSSize)preferredSize: (NSSize)proposal
 {
+  NSSize size;
+
+  // Preferred size computation for a label is not as easy as it sounds because
+  // the available APIs behave quite unexpected (e.g. the newer sizeThatFits method returns
+  // the proposal if it is smaller than what it needs, which seems weird).
   if (self.cell.wraps)
-  {
-    NSRect frame;
-    
-    if (width == 0.0 || (self.widthIsFixed && width > NSWidth(self.frame)))
-      width= NSWidth(self.frame);
-    
-    frame.origin= NSMakePoint(0, 0);
-    frame.size.width= width;
-    frame.size.height= 200;
-    
-    NSSize size= [self.cell cellSizeForBounds: frame];
-    
-    size.width+= 1;
-    
-    return size;
-  }
+    size = [self.cell cellSizeForBounds: { {0, 0}, { proposal.width, CGFLOAT_MAX } }];
   else
-  {
-    NSSize size= self.cell.cellSize;
-    size.width+= 1; // magic extra to compensate rounding errors during automatic layout
-    return size;    
-  }
+    size = [self.cell cellSizeForBounds: { {0, 0}, { CGFLOAT_MAX, CGFLOAT_MAX } }];
+
+  NSSize minSize = self.minimumSize;
+  return { ceil(MAX(size.width, minSize.width)), ceil(MAX(size.height, minSize.height)) };
 }
 
 
-- (NSSize)minimumSize
-{  
-  return [self minimumSizeForWidth: NSWidth(self.frame)];
-}
-
-
-
-- (void)setStringValue:(NSString*)text
+- (void)setStringValue: (NSString*)text
 {
   super.stringValue = text;
-  [self.superview subviewMinimumSizeChanged];
+  [self sizeToFit];
 }
 
     

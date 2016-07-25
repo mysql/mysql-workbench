@@ -28,7 +28,7 @@
   if (aButton == nil)
     return nil;
 
-  self = [super initWithFrame: NSMakeRect(10, 10, 30, 30)];
+  self = [super initWithFrame: NSMakeRect(10, 10, 30, 18)];
   if (self)
   {
     mOwner = aButton;
@@ -85,21 +85,18 @@
   return mOwner;
 }
 
-
+/*
 - (void)setFrame:(NSRect)frame
 {
-  if (!self.widthIsFixed)
-    frame.origin.x-= mTopLeftOffset.x;
-  frame.origin.y-= mTopLeftOffset.y;
+  frame.origin.x -= mTopLeftOffset.x;
+  frame.origin.y -= mTopLeftOffset.y;
   
-  // add back the extra padding for the button
-  if (!self.widthIsFixed)
-    frame.size.width+= mTopLeftOffset.x + mBottomRightOffset.x;
-  frame.size.height+= mTopLeftOffset.y + mBottomRightOffset.y;
+  frame.size.width += mTopLeftOffset.x + mBottomRightOffset.x;
+  frame.size.height += mTopLeftOffset.y + mBottomRightOffset.y;
   
   super.frame = frame;
 }
-
+*/
 
 - (void)performCallback:(id)sender
 {
@@ -108,29 +105,43 @@
 
 - (NSSize)minimumSize
 {
-  NSSize size= self.cell.cellSize;
+  NSSize size;
+  if ([self respondsToSelector: @selector(sizeThatFits:)])
+  {
+    size = [self sizeThatFits: NSZeroSize];
+    size.height += 2;
+  }
+  else
+  {
+    size = self.cell.cellSize;
+  }
+
   if (self.imagePosition == NSImageOnly)
   {
     size.width += 6;
     size.height += 6;
   }
   // remove the extra padding given by the cell size
-  size.width-= mTopLeftOffset.x + mBottomRightOffset.x;
-  size.height-= mTopLeftOffset.y + mBottomRightOffset.y;
+  //size.width -= mTopLeftOffset.x + mBottomRightOffset.x;
+  //size.height -= mTopLeftOffset.y + mBottomRightOffset.y;
   
   // add some internal padding to the button to make it look nicer
   if (mAddPadding)
-    size.width+= size.height;
-  
-  return size;
+    size.width += size.height;
+
+  NSSize minSize = super.minimumSize;
+  return { MAX(size.width, minSize.width), MAX(size.height, minSize.height) };
 }
 
+- (NSSize)preferredSize: (NSSize)proposal
+{
+  return self.minimumSize;
+}
 
-- (void)setTitle:(NSString*)title
+- (void)setTitle: (NSString*)title
 {
   super.title = title;
-
-  [self.superview subviewMinimumSizeChanged];
+  [self sizeToFit];
 }
 
 

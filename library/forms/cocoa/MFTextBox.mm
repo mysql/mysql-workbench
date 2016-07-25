@@ -42,25 +42,6 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 //--------------------------------------------------------------------------------------------------
 
-- (mforms::ModifierKey) modifiersFromEvent: (NSEvent*) event
-{
-  NSUInteger modifiers = event.modifierFlags;
-  ModifierKey mforms_modifiers = ModifierNoModifier;
-  
-  if ((modifiers & NSControlKeyMask) != 0)
-    mforms_modifiers = ModifierKey(mforms_modifiers | ModifierControl);
-  if ((modifiers & NSShiftKeyMask) != 0)
-    mforms_modifiers = ModifierKey(mforms_modifiers | ModifierShift);
-  if ((modifiers & NSCommandKeyMask) != 0)
-    mforms_modifiers = ModifierKey(mforms_modifiers | ModifierCommand);
-  if ((modifiers & NSAlternateKeyMask) != 0)
-    mforms_modifiers = ModifierKey(mforms_modifiers | ModifierAlt);
-  
-  return mforms_modifiers;
-}
-
-//--------------------------------------------------------------------------------------------------
-
 - (void) flagsChanged: (NSEvent*) event
 {
   mforms::ModifierKey modifiers = [self modifiersFromEvent: event];
@@ -139,15 +120,22 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   return mOwner;
 }
 
+- (NSSize)preferredSize: (NSSize)proposal
+{
+  NSSize minSize = self.minimumSize;
+  NSSize contentSize = mContentView.minSize; // Careful, not the minimumSize!
+  return { MAX(minSize.width, contentSize.width), MAX(minSize.height, contentSize.height) };
+}
 
 - (NSSize)minimumSize
 {
   NSSize size;
-  size.width= [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+  size.width = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
                                         scrollerStyle: NSScrollerStyleOverlay] + 50 + mPadding * 2;
-  size.height= [NSScroller scrollerWidthForControlSize: NSRegularControlSize
-                                         scrollerStyle: NSScrollerStyleOverlay] + 50 + mPadding*2;
-  return size;
+  size.height = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+                                         scrollerStyle: NSScrollerStyleOverlay] + 50 + mPadding * 2;
+  NSSize minSize = super.minimumSize;
+  return { MAX(size.width, minSize.width), MAX(size.height, minSize.height) };
 }
 
 

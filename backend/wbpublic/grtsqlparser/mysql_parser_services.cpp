@@ -192,9 +192,9 @@ MySQLParserContext::Ref MySQLParserServices::createParserContext(GrtCharacterSet
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLParserServices::Ref MySQLParserServices::get(grt::GRT *grt)
+MySQLParserServices::Ref MySQLParserServices::get()
 {
-  MySQLParserServices::Ref module = dynamic_cast<MySQLParserServices::Ref>(grt->get_module("MySQLParserServices"));
+  MySQLParserServices::Ref module = dynamic_cast<MySQLParserServices::Ref>(grt::GRT::get()->get_module("MySQLParserServices"));
   if (!module)
 		throw std::runtime_error("Can't get MySQLParserServices module.");
   return module;

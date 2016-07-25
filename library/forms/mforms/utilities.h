@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,16 +23,12 @@
  * Implementation some miscellaneous stuff needed in mforms.
  */
 
-#include <mforms/base.h>
 #include <boost/function.hpp>
 
-#include "cairo/cairo.h"
+#include <cairo/cairo.h>
 
-#ifdef __GNUC__
-#define WARN_UNUSED_RETURN_VALUE __attribute__((warn_unused_result))
-#else
-#define WARN_UNUSED_RETURN_VALUE
-#endif
+#include "base/geometry.h"
+#include "mforms/base.h"
 
 namespace mforms {
   // Constants for special folders on a system.
@@ -55,9 +51,27 @@ namespace mforms {
   };
 
   /**
+  * Code which abstracts special keys for each platform, to be used in the key event.
+  */
+  enum MFORMS_EXPORT KeyCode {
+    KeyNone,
+    KeyChar,         //!< No special char. The key event has the entered character(s) in the text field.
+    KeyModifierOnly, //!< A combination of Shift/Control/Command/Alt only, without another key.
+    KeyEnter,        //!< The numpad <enter> key.
+    KeyReturn,       //!< The main keyboard <return> key.
+    KeyHome,
+    KeyEnd,
+    KeyPrevious,
+    KeyNext,
+    KeyUp,
+    KeyDown,
+    KeyUnkown,       //!< Any other key, not yet mapped.
+  };
+
+  /**
    * Flags which describe which modifier key was pressed during a event.
    */
-  enum ModifierKey {
+  enum MFORMS_EXPORT ModifierKey {
     ModifierNoModifier =      0,
     ModifierControl    = 1 << 0,
     ModifierShift      = 1 << 1,
@@ -304,7 +318,7 @@ namespace mforms {
      Interval is in seconds, with fractional values allowed.
      The callback must return true if it wants to be triggered again
      */
-    static TimeoutHandle add_timeout(float interval, const boost::function<bool ()> &callback) WARN_UNUSED_RETURN_VALUE;
+    static TimeoutHandle add_timeout(float interval, const boost::function<bool ()> &callback) WB_UNUSED_RETURN_VALUE;
 #endif
     static void cancel_timeout(TimeoutHandle handle);
 
@@ -323,7 +337,7 @@ namespace mforms {
     static bool icon_needs_reload(cairo_surface_t *s);
 
     static void paint_icon(cairo_t *cr, cairo_surface_t *icon, double x, double y, float alpha = 1.0);
-    static void get_icon_size(cairo_surface_t *icon, int &w, int &h);
+    static base::Size getImageSize(cairo_surface_t *icon);
 
     static std::string shorten_string(cairo_t* cr, const std::string& text, double width);
 

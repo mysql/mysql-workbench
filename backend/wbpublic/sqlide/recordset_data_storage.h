@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _RECORDSET_DATA_STORAGE_BE_H_
-#define _RECORDSET_DATA_STORAGE_BE_H_
-
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "sqlide/recordset_be.h"
@@ -108,6 +105,3 @@ protected:
   int _limit_rows_offset;
   bool _limit_rows_applicable;
 };
-
-
-#endif /* _RECORDSET_DATA_STORAGE_BE_H_ */

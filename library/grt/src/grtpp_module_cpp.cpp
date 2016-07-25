@@ -233,7 +233,7 @@ Module *CPPModuleLoader::init_module(const std::string &path)
   // Locate entry point.
   if (!g_module_symbol(gmodule, "grt_module_init", (gpointer*)&module_init))
   {
-    log_debug3("Module init function not found in module %s. Not a grt module.\n", path.c_str());
+    logDebug3("Module init function not found in module %s. Not a grt module.\n", path.c_str());
     g_module_close(gmodule);
     
     return NULL;
@@ -246,7 +246,7 @@ Module *CPPModuleLoader::init_module(const std::string &path)
   cppmodule = dynamic_cast<CPPModule*>((*module_init)(this, GRT_VERSION));
   if (!cppmodule)
   {
-    log_error("Failed initializing module '%s' (%s)\n", path.c_str(), get_loader_name().c_str());
+    logError("Failed initializing module '%s' (%s)\n", path.c_str(), get_loader_name().c_str());
     g_module_close(gmodule);
     return NULL;
   }
