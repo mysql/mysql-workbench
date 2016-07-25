@@ -162,7 +162,9 @@ wb-build/
 .pydevproject
 .settings/
 
-library/parsers/ECMA*
+library/parsers/ECMAParser.*
+library/parsers/ECMALexer.*
+library/parsers/ECMA.tokens
 
 testing/tut/data/connections.xml
 testing/tut/data/**/*_res.xml
