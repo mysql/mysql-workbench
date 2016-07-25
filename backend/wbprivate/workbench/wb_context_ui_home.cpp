@@ -50,11 +50,9 @@
 #include "wb_model_file.h"
 #include "base/data_types.h"
 #include "mforms/home_screen.h"
-#include "mforms/home_screen_x_connections.h"
 #include "mforms/home_screen_connections.h"
 #include "mforms/home_screen_documents.h"
 #include <zip.h>
-#include "base/session_wrapper.h"
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
 
@@ -312,10 +310,6 @@ void WBContextUI::show_home_screen(bool startClassic)
     _home_screen->handleContextMenu = std::bind(&WBContextUI::handle_home_context_menu, this, std::placeholders::_1, std::placeholders::_2);
 
     // now we have to add sections
-    _xConnectionsSection = mforms::manage(new mforms::XConnectionsSection(_home_screen));
-    _xConnectionsSection->set_name("Home X Connections Section");
-    _home_screen->addSection(_xConnectionsSection);
-
     _connectionsSection = mforms::manage(new mforms::ConnectionsSection(_home_screen));
     _connectionsSection->set_name("Home Connections Section");
     _connectionsSection->getConnectionInfoCallback = std::bind([=](const std::string &connectionId)->mforms::anyMap {
@@ -1238,9 +1232,6 @@ void WBContextUI::refresh_home_connections(bool clear_state)
       }
     }
   }
-
-  _xConnectionsSection->clear_connections(true);
-  _xConnectionsSection->loadProjects(ng::loadNgSessions());
 
   _oldAuthList = oldAuthList;
 
