@@ -1,8 +1,10 @@
 #pragma once
+
 #ifndef _WIN32
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -16,8 +18,8 @@
   #define GRT_STRUCTS_MODEL_PUBLIC
 #endif
 
-#include <grts/structs.h>
-#include <grts/structs.app.h>
+#include "grts/structs.h"
+#include "grts/structs.app.h"
 
 
 class model_Marker;
@@ -320,7 +322,7 @@ public:
   model_Object(grt::MetaClass *meta=0)
   : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _visible(1),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -421,7 +423,7 @@ public:
     _subLayers(this, false),
      _top(0.0),
      _width(0.0),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -708,7 +710,7 @@ public:
   model_Connection(grt::MetaClass *meta=0)
   : model_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _drawSplit(0),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -840,7 +842,7 @@ public:
      _manualSizing(0),
      _top(0.0),
      _width(0.0),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -1149,7 +1151,7 @@ public:
      _x(0.0),
      _y(0.0),
      _zoom(0.0),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -1686,8 +1688,7 @@ public:
     _diagrams(this, false),
     _markers(this, false),
     _options(this, false),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -1866,3 +1867,4 @@ static struct _autoreg__structs_model_xml { _autoreg__structs_model_xml() { regi
 #ifndef _WIN32
   #pragma GCC diagnostic pop
 #endif
+

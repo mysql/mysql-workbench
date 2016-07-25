@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@
 
 #include "mforms/gridview.h"
 #include "mforms/utilities.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/textbox.h"
 #include "mforms/label.h"
 #include "mforms/tabview.h"
@@ -158,7 +158,7 @@ public:
 
 class SetFieldView : public ResultFormView::FieldView
 {
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
 
   void changed()
   {
@@ -290,6 +290,8 @@ public:
 class GeomFieldView : public ResultFormView::FieldView
 {
   mforms::Box _box;
+  mforms::Box _imageBox;
+  mforms::Label _srid;
   mforms::TextBox _text;
   GeomDrawBox _image;
   std::string _raw_data;
@@ -326,13 +328,16 @@ class GeomFieldView : public ResultFormView::FieldView
 public:
   GeomFieldView(const std::string &name, const std::string &type, bool editable, const boost::function<void (const std::string &s)> &change_callback,
                 const boost::function<void ()> &view_callback)
-  : FieldView(name, change_callback), _box(true), _text(mforms::VerticalScrollBar)
+  : FieldView(name, change_callback), _box(true), _imageBox(false), _text(mforms::VerticalScrollBar)
   {
     _view_type = 0;
     _box.set_spacing(8);
+    _imageBox.set_spacing(8);
     _image.set_size(150, 150);
 
-    _box.add(&_image, false, true);
+    _imageBox.add(&_image, false, true);
+    _imageBox.add_end(&_srid, false, false);
+    _box.add(&_imageBox, false, true);
     _box.add(&_text, true, true);
   }
 
@@ -341,6 +346,7 @@ public:
   virtual void set_value(const std::string &value, bool is_null)
   {
     _image.set_data(value);
+    _srid.set_text("SRID: "+base::to_string(_image.getSrid()));
     _text.set_read_only(false);
     _raw_data = value;
     update();
@@ -684,7 +690,7 @@ std::string ResultFormView::get_full_column_type(SqlEditorForm *editor, const st
     }
     catch (std::exception &e)
     {
-      log_exception(("Exception getting column information: "+q).c_str(), e);
+      logException(("Exception getting column information: "+q).c_str(), e);
     }
   }
   return "";
@@ -707,6 +713,8 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
     }
 
     Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+
+    _table.suspend_layout();
 
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
     _table.set_row_count((int)field_info.size());
@@ -750,5 +758,7 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
       }
       _tbar.insert_item(i+1, _geom_type_item);
     }
+
+    _table.resume_layout();
   }
 }

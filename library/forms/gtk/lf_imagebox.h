@@ -109,7 +109,7 @@ protected:
       }
       catch (std::exception &e)
       {
-        log_error("Exception loading image data: %s\n", e.what());
+        logError("Exception loading image data: %s\n", e.what());
         return;
       }
     }

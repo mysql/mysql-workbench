@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,6 +46,7 @@ class WizardImpl : public FormImpl
     Gtk::Label                      _fwd_label;
     Gtk::Label                      _extra_label;
     Gtk::EventBox                   _step_background;
+    runtime::loop                   _loop;
 
     typedef std::pair<Gtk::Image*,Gtk::Label*> ImageLabel;
     std::vector<ImageLabel> _steps;

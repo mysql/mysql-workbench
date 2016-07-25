@@ -26,7 +26,7 @@ import os
 
 import mforms
 
-from mforms import newBox, newLabel, newButton, newTextEntry, newTreeNodeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
+from mforms import newBox, newLabel, newButton, newTextEntry, newTreeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
 from wb_admin_utils import not_running_warning_label, make_panel_header
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
 from wb_common import PermissionDeniedError
@@ -242,13 +242,13 @@ class AddSchemaPrivilegeForm(mforms.Form):
         self.schema1.add_clicked_callback(self.schema_radio_changed)
         self.schema1.set_text("All Schema (%)")
         table.add(self.schema1, 0, 1, 0, 1, mforms.HFillFlag)
-        table.add(dLabel("This rule will apply to any schema name."), 2, 3, 0, 1, mforms.HFillFlag)
+        table.add(dLabel("This rule will apply to any schema name."), 2, 3, 0, 1, mforms.VFillFlag|mforms.HFillFlag)
 
         self.schema2 = newRadioButton(self.schema1.group_id())
         self.schema2.add_clicked_callback(self.schema_radio_changed)
         self.schema2.set_text("Schemas matching pattern:")
         table.add(self.schema2, 0, 1, 1, 2, mforms.HFillFlag)
-        table.add(dLabel("This rule will apply to schemas that match the given name or pattern.\nYou may use _ and % as wildcards in a pattern.\nEscape these characters with \\ in case you want their literal value."), 2, 3, 1, 2, mforms.HFillFlag)
+        table.add(dLabel("This rule will apply to schemas that match the given name or pattern.\nYou may use _ and % as wildcards in a pattern.\nEscape these characters with \\ in case you want their literal value."), 2, 3, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
 
         self.schema2entry = newTextEntry()
         table.add(self.schema2entry, 1, 2, 1, 2, mforms.HFillFlag|mforms.HExpandFlag)
@@ -257,11 +257,11 @@ class AddSchemaPrivilegeForm(mforms.Form):
         self.schema3.add_clicked_callback(self.schema_radio_changed)
         self.schema3.set_text("Selected schema:")
         alignbox = mforms.newBox(False)
-        alignbox.add(self.schema3, False, False)
-        table.add(alignbox, 0, 1, 2, 3, mforms.HFillFlag)
+        alignbox.add(self.schema3, False, True)
+        table.add(alignbox, 0, 1, 2, 3, mforms.VFillFlag|mforms.HFillFlag)
         label = dLabel("Select a specific schema name for the rule to apply to.")
         label.set_text_align(mforms.TopLeft)
-        table.add(label, 2, 3, 2, 3, mforms.HFillFlag)
+        table.add(label, 2, 3, 2, 3, mforms.VFillFlag|mforms.HFillFlag)
 
         self.schema3sel = newSelector()
         table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag)
@@ -321,7 +321,7 @@ class SecuritySchemaPrivileges(mforms.Box):
 
         self.schema_rights_checks = {}
 
-        self.privs_list = newTreeNodeView(mforms.TreeFlatList)
+        self.privs_list = newTreeView(mforms.TreeFlatList)
         self.privs_list.add_column(mforms.StringColumnType, "Schema", 150, True)
         self.privs_list.add_column(mforms.StringColumnType, "Privileges", 800, False)
         self.privs_list.end_columns()
@@ -1162,7 +1162,7 @@ class SecurityAccount(mforms.Box):
         #searchbox = TextEntry(SearchEntry)
         #account_list_box.add(searchbox, False, True)
 
-        self.user_list = newTreeNodeView(mforms.TreeFlatList)
+        self.user_list = newTreeView(mforms.TreeFlatList)
         self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
         self.user_list.add_column(mforms.StringColumnType, "From Host", 100, False)
         
@@ -1363,7 +1363,7 @@ class SecurityAccount(mforms.Box):
         self.revoke_all_button.add_clicked_callback(self.revoke_all)
         self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
 
-        self.role_list = newTreeNodeView(mforms.TreeFlatList)
+        self.role_list = newTreeView(mforms.TreeFlatList)
         self.role_list.add_column(mforms.CheckColumnType, "", 30, True)
         self.role_list.add_column(mforms.StringColumnType, "Role", 150, False)
         self.role_list.add_column(mforms.StringColumnType, "Description", 300, False)
@@ -1371,7 +1371,7 @@ class SecurityAccount(mforms.Box):
         lbox.add(self.role_list, True, True)
         self.role_list.set_cell_edited_callback(self.role_list_toggled)
 
-        self.role_priv_list = newTreeNodeView(mforms.TreeFlatList)
+        self.role_priv_list = newTreeView(mforms.TreeFlatList)
         self.role_priv_list.add_column(mforms.CheckColumnType, '', 30, True)
         self.role_priv_list.add_column(mforms.StringColumnType, "Global Privileges", 180, False)
         self.role_priv_list.end_columns()
@@ -1393,7 +1393,7 @@ class SecurityAccount(mforms.Box):
 
         self.resume_layout()
 
-        mforms.Utilities.add_timeout(0.1, lambda self=self: self.splitter.set_position(240))
+        mforms.Utilities.add_timeout(0.1, lambda self=self: self.splitter.set_divider_position(240))
 
         self.user_selected()
 

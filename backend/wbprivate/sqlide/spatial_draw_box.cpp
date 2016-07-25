@@ -738,13 +738,12 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
   {
     for (std::vector<Pin>::const_iterator pin = _pins.begin(); pin != _pins.end(); ++pin)
     {
-      int w, h;
       int x, y;
       if (pin->icon)
       {
         world_to_screen(pin->lat, pin->lon, x, y);
-        mforms::Utilities::get_icon_size(pin->icon, w, h);
-        mforms::Utilities::paint_icon(cr.get_cr(), pin->icon, x-w/2, y-h+2);
+        base::Size size = mforms::Utilities::getImageSize(pin->icon);
+        mforms::Utilities::paint_icon(cr.get_cr(), pin->icon, x - size.width / 2, y - size.height + 2);
       }
     }
   }

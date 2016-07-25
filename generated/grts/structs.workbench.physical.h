@@ -1,8 +1,10 @@
 #pragma once
+
 #ifndef _WIN32
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -16,11 +18,11 @@
   #define GRT_STRUCTS_WORKBENCH_PHYSICAL_PUBLIC
 #endif
 
-#include <grts/structs.h>
-#include <grts/structs.model.h>
-#include <grts/structs.meta.h>
-#include <grts/structs.db.h>
-#include <grts/structs.db.mgmt.h>
+#include "grts/structs.h"
+#include "grts/structs.model.h"
+#include "grts/structs.meta.h"
+#include "grts/structs.db.h"
+#include "grts/structs.db.mgmt.h"
 
 
 class workbench_physical_Layer;
@@ -101,7 +103,7 @@ public:
      _middleSegmentOffset(0.0),
      _startCaptionXOffs(0.0),
      _startCaptionYOffs(0.0),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -480,8 +482,7 @@ public:
   friend class ImplData;
   workbench_physical_RoutineGroupFigure(grt::MetaClass *meta=0)
   : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -547,8 +548,7 @@ public:
   friend class ImplData;
   workbench_physical_ViewFigure(grt::MetaClass *meta=0)
   : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -619,7 +619,7 @@ public:
      _indicesExpanded(0),
      _summarizeDisplay(-1),
      _triggersExpanded(0),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -816,8 +816,7 @@ public:
   friend class ImplData;
   workbench_physical_Diagram(grt::MetaClass *meta=0)
   : model_Diagram(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -970,8 +969,7 @@ public:
     _syncProfiles(this, false),
     _tagCategories(this, false),
     _tags(this, false),
-    _data(0)
-
+    _data(nullptr)
   {
     _diagrams.content().__retype(grt::ObjectType, "workbench.physical.Diagram");
   }
@@ -1327,3 +1325,4 @@ static struct _autoreg__structs_workbench_physical_xml { _autoreg__structs_workb
 #ifndef _WIN32
   #pragma GCC diagnostic pop
 #endif
+

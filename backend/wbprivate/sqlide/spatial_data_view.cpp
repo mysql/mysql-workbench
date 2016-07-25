@@ -59,7 +59,7 @@ public:
     if (rs && !_loaded)
     {
       _loaded = true;
-      log_info("Loading %li rows/features from resultset\n", (long)rs->row_count());
+      logInfo("Loading %li rows/features from resultset\n", (long)rs->row_count());
 
       _render_progress = 0.0;
       ssize_t row_count = rs->row_count();
@@ -346,7 +346,7 @@ void SpatialDataView::change_tool(mforms::ToolBarItem *item)
 
 int SpatialDataView::get_option(const char* opt_name, int default_value)
 {
-  return bec::GRTManager::get().get_app_option_int(opt_name, default_value) != 0;
+  return bec::GRTManager::get()->get_app_option_int(opt_name, default_value) != 0;
 }
 
 void SpatialDataView::area_selected()

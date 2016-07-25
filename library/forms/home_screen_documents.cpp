@@ -72,7 +72,7 @@ std::string DocumentEntry::get_acc_default_action()
 //----------------- DocumentsSection ---------------------------------------------------------------
 
 DocumentsSection::DocumentsSection(mforms::HomeScreen *owner):
-    HomeScreenSection("wb_starter_mysql_wb_blog_52.png")
+    HomeScreenSection("sidebar_modeling.png")
 {
   _owner = owner;
   _model_context_menu = NULL;
@@ -1035,10 +1035,10 @@ void DocumentsSection::handle_command(const std::string &command)
 {
 
   if (_active_entry > -1)
-    _owner->handle_context_menu(_filtered_documents[_active_entry].path,
+    _owner->handleContextMenu(_filtered_documents[_active_entry].path,
         command);
   else
-    _owner->handle_context_menu(base::any(), command);
+    _owner->handleContextMenu(base::any(), command);
 
   _active_entry = -1;
 }

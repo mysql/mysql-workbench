@@ -63,7 +63,7 @@ int Mysql_sql_schema_rename::rename_schema_references(
   _messages_enabled= false;
 
   _process_sql_statement= boost::bind(&Mysql_sql_schema_rename::process_sql_statement, this, _1);
-  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml= false;
 
   rename_schema_references(sql, sql_parser_fe, 1);
@@ -94,7 +94,7 @@ int Mysql_sql_schema_rename::rename_schema_references(
   }
 
   _process_sql_statement= boost::bind(&Mysql_sql_schema_rename::process_sql_statement, this, _1);
-  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml= false;
 
   ListRef<db_mysql_Schema> schemata= _catalog->schemata();

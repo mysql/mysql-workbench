@@ -21,7 +21,8 @@
 
 #include "wbpublic_public_interface.h"
 #include "sqlide/sqlide_generics.h"
-#include "grtpp.h"
+#include "grt.h"
+#include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 #include <list>
 #include <string>
@@ -38,10 +39,7 @@ public:
   typedef std::shared_ptr<Sql_specifics> Ref;
   virtual ~Sql_specifics() {}
 protected:
-  Sql_specifics(grt::GRT *grt);
-
-protected:
-  grt::GRT *_grt;
+  Sql_specifics();
 
 public:
   virtual std::string limit_select_query(const std::string &sql, int *row_count, int *offset);

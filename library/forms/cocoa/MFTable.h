@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,29 +16,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#import <Cocoa/Cocoa.h>
 
 #import "MFContainerBase.h"
 #include "mforms/table.h"
 
+@interface MFTableImpl : MFContainerBase
 
-@interface MFTableImpl : MFContainerBase {
-  float mRowSpacing;
-  float mColumnSpacing;
-  int mRowCount;
-  int mColumnCount;
-  BOOL mHomogeneous;
-  BOOL mCenterContents;
+- (void)setRowSpacing: (float)spacing;
+- (void)setColumnSpacing: (float)spacing;
+- (void)setRowCount: (int)count;
+- (void)setColumnCount: (int)count;
 
-  NSMutableArray *mTableCells;
-}
-
-
-- (void)setRowSpacing:(float)spacing;
-- (void)setColumnSpacing:(float)spacing;
-- (void)setRowCount:(int)count;
-- (void)setColumnCount:(int)count;
-
-- (void)addSubview:(NSView*)view left:(int)left right:(int)right top:(int)top bottom:(int)bottom flags:(mforms::TableItemFlags)flags;
+- (void)addSubview: (NSView*)view left: (int)left right: (int)right top: (int)top bottom: (int)bottom flags: (mforms::TableItemFlags)flags;
 
 @end

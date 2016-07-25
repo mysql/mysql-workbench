@@ -28,12 +28,12 @@ DEFAULT_LOG_DOMAIN("spatial");
 #ifdef _WIN32
 static void __stdcall ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 {
-  log_error("gdal error: %d, %s\n", err_no, msg);
+  logError("gdal error: %d, %s\n", err_no, msg);
 }
 #else
 static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 {
-  log_error("gdal error: %d, %s\n", err_no, msg);
+  logError("gdal error: %d, %s\n", err_no, msg);
 }
 #endif
 
@@ -93,7 +93,7 @@ std::string spatial::fetchAuthorityCode(const std::string &wkt)
 {
   if (wkt.empty())
   {
-    log_error("Unable to fetch AuthorityCode, WKT was empty.");
+    logError("Unable to fetch AuthorityCode, WKT was empty.");
     return "";
   }
   OGRSpatialReference srs;
@@ -101,14 +101,14 @@ std::string spatial::fetchAuthorityCode(const std::string &wkt)
   OGRErr err = srs.importFromWkt(&_wkt);
   if (err != OGRERR_NONE)
   {
-    log_error("ImportWKT Error: %s", stringFromErrorCode(err).c_str());
+    logError("ImportWKT Error: %s", stringFromErrorCode(err).c_str());
     return "";
   }
 
   err = srs.AutoIdentifyEPSG();
   if (err != OGRERR_NONE)
   {
-    log_error("AutoIdentifyEPSG Error: %s", stringFromErrorCode(err).c_str());
+    logError("AutoIdentifyEPSG Error: %s", stringFromErrorCode(err).c_str());
     return "";
   }
   return srs.GetAuthorityCode("GEOGCS");
@@ -558,7 +558,7 @@ std::string spatial::Importer::as_wkt()
     OGRErr err;
     if ((err = _geometry->exportToWkt(&data)) != OGRERR_NONE)
     {
-      log_error("Error exporting data to WKT (%i)\n", err);
+      logError("Error exporting data to WKT (%i)\n", err);
     }
     else
     {
@@ -577,7 +577,7 @@ std::string spatial::Importer::as_kml()
   {
     if (!(data = _geometry->exportToKML()))
     {
-      log_error("Error exporting data to KML\n");
+      logError("Error exporting data to KML\n");
     }
     else
     {
@@ -596,7 +596,7 @@ std::string spatial::Importer::as_json()
   {
     if (!(data = _geometry->exportToJson()))
     {
-      log_error("Error exporting data to JSON\n");
+      logError("Error exporting data to JSON\n");
     }
     else
     {
@@ -615,7 +615,7 @@ std::string spatial::Importer::as_gml()
   {
     if (!(data = _geometry->exportToGML()))
     {
-      log_error("Error exporting data to GML\n");
+      logError("Error exporting data to GML\n");
     }
     else
     {
@@ -712,7 +712,7 @@ void spatial::Converter::change_projection(ProjectionView view, OGRSpatialRefere
   {
     char * proj4;
     _target_srs->exportToProj4(&proj4);
-    log_error("Unable to perform requested reprojection from WGS84, to %s\n", proj4);
+    logError("Unable to perform requested reprojection from WGS84, to %s\n", proj4);
     CPLFree(proj4);
   }
 
@@ -720,7 +720,7 @@ void spatial::Converter::change_projection(ProjectionView view, OGRSpatialRefere
   {
     char * proj4;
     _target_srs->exportToProj4(&proj4);
-    log_error("Unable to perform requested reprojection from WGS84, to %s\n", proj4);
+    logError("Unable to perform requested reprojection from WGS84, to %s\n", proj4);
     CPLFree(proj4);
   }
 
@@ -732,7 +732,7 @@ void spatial::Converter::change_projection(ProjectionView view, OGRSpatialRefere
   _adf_projection[4] = 0;
   _adf_projection[5] = -(maxLon - minLon) / (double)_view.height;
   if (!GDALInvGeoTransform(_adf_projection, _inv_projection))
-    log_error("Unable to invert equation\n");
+    logError("Unable to invert equation\n");
 }
 
 void spatial::Converter::to_projected(int x, int y, double &lat, double &lon)
@@ -802,7 +802,7 @@ void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_con
     }
 
     if (!for_removal.empty())
-      log_debug("%i points that could not be converted were skipped\n", (int)for_removal.size());
+      logDebug("%i points that could not be converted were skipped\n", (int)for_removal.size());
 
     std::deque<size_t>::reverse_iterator rit;
     for (rit = for_removal.rbegin(); rit != for_removal.rend() && !_interrupt; rit++)
@@ -823,7 +823,7 @@ void spatial::Converter::transform_envelope(spatial::Envelope &env)
 
   if (!env.is_init())
   {
-    log_error("Can't transform empty envelope.\n");
+    logError("Can't transform empty envelope.\n");
     return;
   }
 
@@ -841,7 +841,7 @@ void spatial::Converter::transform_envelope(spatial::Envelope &env)
   }
   else
   {
-    log_error("Unable to transform envelope: %f, %f, %f, %f.\n", env.top_left.x, env.top_left.y, env.bottom_right.x, env.bottom_right.y);
+    logError("Unable to transform envelope: %f, %f, %f, %f.\n", env.top_left.x, env.top_left.y, env.bottom_right.x, env.bottom_right.y);
   }
 
 
@@ -931,7 +931,7 @@ void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_are
   {
     if ((*it).points.empty())
     {
-      log_error("%s is empty", shape_description(it->type).c_str());
+      logError("%s is empty", shape_description(it->type).c_str());
       continue;
     }
 
@@ -971,7 +971,7 @@ void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_are
         break;
 
       default:
-        log_debug("Unknown type %i\n", it->type);
+        logDebug("Unknown type %i\n", it->type);
         break;
     }
   }

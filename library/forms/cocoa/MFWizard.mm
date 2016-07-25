@@ -30,12 +30,6 @@
 
 @implementation MFWizardBox
 
-- (void)subviewMinimumSizeChanged
-{
-  NSView *content = self.subviews.lastObject;
-  [content resizeSubviewsWithOldSize: content.frame.size];
-}
-
 @end
 
 

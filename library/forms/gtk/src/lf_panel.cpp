@@ -60,6 +60,7 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
 
   if (_frame) _frame->show();
   if (_evbox) _evbox->show();
+  setup();
 }
 
 mforms::gtk::PanelImpl::~PanelImpl()

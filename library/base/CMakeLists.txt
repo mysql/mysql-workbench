@@ -22,6 +22,7 @@ add_library(wbbase
     jsonparser.cpp
     session_wrapper.cpp
     drawing_gtk.cpp
+    boost_fix.cpp
     )
 
 target_link_libraries(wbbase ${CAIRO_LIBRARIES} ${GLIB_LIBRARIES} ${MySQL_LIBRARIES} ${MYSQLNG_LIBRARY} ${GTHREAD_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${SSL_LIBRARIES} ${GTK3_LIBRARIES})

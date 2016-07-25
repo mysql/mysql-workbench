@@ -1,10 +1,13 @@
 <?xml version="1.0" ?><Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
   <?if $(var.SETUP_TYPE) = "commercial" ?>
   <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN)"?>
+  <?define PRODUCT_NAME_X  = "MySQL Workbench.X $(var.VERSION_MAIN)"?>
   <?elseif $(var.SETUP_TYPE) = "community" ?>
   <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN) CE"?>
+  <?define PRODUCT_NAME_X  = "MySQL Workbench.X $(var.VERSION_MAIN) CE"?>
   <?else ?>
   <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN) Debug"?>
+  <?define PRODUCT_NAME_X  = "MySQL Workbench.X $(var.VERSION_MAIN) Debug"?>
   <?endif ?>
 
   <?if $(sys.BUILDARCH)="x86"?>
@@ -22,6 +25,7 @@
     -->
 
     <Icon Id="WBIcon.exe" SourceFile="resources/MySQLWorkbench.ico"/>
+    <Icon Id="WBXIcon.exe" SourceFile="resources/MySQLWorkbench.X.ico"/>
 
     <!-- *****************************************************************************************
       Directories / Files
@@ -67,15 +71,14 @@
                 <File Id="file1083" Name="zlib.dll"/>
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
-                <File Id="file1099d" Name="python27_d.dll"/>
-				<File Id="python_d.exe" Name="python_d.exe"/>
+                  <File Id="file1099d" Name="python27_d.dll"/>
+                  <File Id="python_d.exe" Name="python_d.exe"/>
                 <?else ?>
-                <File Id="file1099" Name="python27.dll"/>
-				<File Id="python.exe" Name="python.exe"/>
+                  <File Id="file1099" Name="python27.dll"/>
+                  <File Id="python.exe" Name="python.exe"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
                 <File Id="file1102" Name="mysql.exe"/>
-
                 <File Id="file1103" Name="mysql_system_status.vbs"/>
                 <File Id="file1104" Name="mysql_system_status_rmt.vbs"/>
                 <File Id="file1106" Name="Scintilla.dll"/>
@@ -84,8 +87,10 @@
                 <File Id="gdal.dll" Name="gdal.dll"/>
                 <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
                 <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
-				<File Id="file1121" Name="vsqlite++.dll"/>
-				<File Id="file1122" Name="tinyxml.dll"/>
+                <File Id="file1121" Name="vsqlite++.dll"/>
+                <File Id="file1122" Name="tinyxml.dll"/>
+                <File Id="mysqlshcore.dll" Name="mysqlshcore.dll"/>
+                <File Id="v8.dll" Name="v8.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
@@ -114,7 +119,7 @@
                 <File Id="file1073" Name="base.wr.dll"/>
                 <File Id="file1052" Name="MySQLCsUtilities.dll"/>
                 <File Id="file1053" Name="WBControls.dll"/>
-				<File Id="file1054" Name="WBControls.dll.config"/>
+                <File Id="file1054" Name="WBControls.dll.config"/>
                 <File Id="file1067" Name="wb.model.editors.wbp.be.dll"/>
                 <File Id="file1068" Name="wb.model.editors.wbp.fe.dll"/>
                 <File Id="file1069" Name="wb.model.editors.wbp.wr.dll"/>
@@ -155,12 +160,13 @@
                 <File Id="file1116" Name="wbadminhelper.exe"/>
                 <File Id="file1118" Name="mysqlwbmeb.py"/>
                 <File Id="file1119" Name="mysqlwbmeb.vbs"/>
+                <File Id="wb.x.ide.dll" Name="wb.x.ide.dll"/>
+                <File Id="mysqlworkbench.x.wr.dll" Name="mysqlworkbench.x.wr.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="47641656-8430-4722-B558-DAE76CA7C0CA" Id="MySQLWorkbench.exe" Location="either">
                 <File Id="file1056" KeyPath="yes" Name="MySQLWorkbench.exe"/>
-				<File Id="file1057" Name="MySQLWorkbench.exe.config"/>
-
+                <File Id="MySQLWorkbench.exe.config" Name="MySQLWorkbench.exe.config"/>
                 <File Id="MySQLWorkbenchDoc.ico" Name="MySQLWorkbenchDoc.ico"/>
                 <File Id="MySQLWBPlugin.ico" Name="MySQLWBPlugin.ico"/>
 
@@ -171,9 +177,9 @@
                   <RegistryValue Id="Reg.Class.MWB.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
                   <RegistryValue Action="write" Id="Reg.Class.MWB.Command" Key="Shell\Open\Command" Type="string" Value="&quot;[#file1056]&quot; &quot;%1&quot;"/>
                 </RegistryKey>
-				
-				<RegistryValue Action="write" Id="Reg.Extn.SQL" Key=".sql" Root="HKCR" Type="string" Value="SQLFile"/>	
-				
+                
+                <RegistryValue Action="write" Id="Reg.Extn.SQL" Key=".sql" Root="HKCR" Type="string" Value="SQLFile"/>	
+                
                 <RegistryKey ForceCreateOnInstall="yes" Id="Reg.Class.SQL" Key="SQLfile" Root="HKCR">
                   <RegistryValue Id="Reg.Class.SQL.Value" Type="string" Value="SQL Text File"/>
                   <RegistryValue Id="Reg.Class.SQL.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
@@ -182,11 +188,17 @@
 
               </Component>
 
+              <Component DiskId="1" Guid="0EAA6EB3-47DD-463F-8749-A30091DABF3E" Id="MySQLWorkbench.X" Location="either">
+                <File Id="MySQLWorkbench.X.exe" KeyPath="yes" Name="MySQLWorkbench.X.exe"/>
+                <File Id="MySQLWorkbench.X.exe.config" Name="MySQLWorkbench.X.exe.config"/>
+              </Component>
+
               <Component DiskId="1" Guid="5EDFE6C6-57CB-44BB-97B9-CA7CAA96E0A0" Id="MySQLWorkbenchProgramLink" Location="either">
                 <RegistryKey ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes" Key="SOFTWARE\MySQL AB\[ProductName] \Install" Root="HKCU">
                   <RegistryValue KeyPath="yes" Name="ProgramSC" Type="integer" Value="1"/>
                 </RegistryKey>
                 <Shortcut Advertise="no" Description="MySQL Workbench Visual Database Designer" Directory="MysqlProgramMenuFolder" Icon="WBIcon.exe" IconIndex="0" Id="WBProgramShortcut" Name="$(var.PRODUCT_NAME)" Show="normal" Target="[INSTALLDIR]MySQLWorkbench.exe" WorkingDirectory="INSTALLDIR"/>
+                <Shortcut Advertise="no" Description="MySQL Workbench X" Directory="MysqlProgramMenuFolder" Icon="WBXIcon.exe" IconIndex="0" Id="WBXProgramShortcut" Name="$(var.PRODUCT_NAME_X)" Show="normal" Target="[INSTALLDIR]MySQLWorkbench.X.exe" WorkingDirectory="INSTALLDIR"/>
               </Component>
               <Component DiskId="1" Guid="DA7365B3-7FCC-4724-B583-6577FA55C841" Id="mysql_canvas" Location="either">
                 <File Id="file12004" Name="mysql.canvas.dll"/>
@@ -776,6 +788,9 @@
                     <File Id="file60670" Name="Close_16x16.png"/>
                     
                     <File Id="file60675" Name="firewall-header.png"/>
+                    <File Id="session" Name="session.png"/>
+                    <File Id="folder" Name="folder.png"/>
+                    <File Id="session_switch" Name="session-switch.png"/>
 
                     </Component>
                 </Directory>
@@ -783,7 +798,10 @@
                 <Directory Id="home" Name="home">
                   <Component DiskId="1" Guid="609A7F7D-0615-4C3E-83F8-B04ADCD36E1A" Id="images_home" Location="either">
                     <File Id="home11" Name="WB_Home.png"/>
-                    <File Id="home12" Name="wb_starter_mysql_migration_52.png"/>
+                    <File Id="sidebar_migration" Name="sidebar_migration.png"/>
+                    <File Id="sidebar_wbx" Name="sidebar_wbx.png"/>
+                    <File Id="sidebar_wb" Name="sidebar_wb.png"/>
+                    <File Id="sidebar_modeling" Name="sidebar_modeling.png"/>
                     <File Id="home13" Name="wb_tile_folder.png"/>
                     <File Id="home13m" Name="wb_tile_folder_mini.png"/>
                     <File Id="home14" Name="wb_tile_mouseover.png"/>
@@ -797,34 +815,16 @@
                     <File Id="home22" Name="wb_tile_time.png"/>
                     <File Id="home23" Name="wb_tile_user.png"/>
                     <File Id="home24" Name="wb_doc_model.png"/>
-					<File Id="home24a" Name="wb_doc_model@2x.png"/>
+                    <File Id="home24a" Name="wb_doc_model@2x.png"/>
                     <File Id="home25" Name="wb_doc_sql.png"/>
                     <File Id="home26" Name="wb_tile_number.png"/>
                     <File Id="home27" Name="wb_close.png"/>
                     <File Id="home28" Name="wb_tile_manage.png"/>
                     <File Id="home29" Name="wb_tile_more.png"/>
                     <File Id="home30" Name="wb_tile_open.png"/>
-                    <File Id="home40" Name="wb_starter_mysql_bug_reporter_52.png"/>
-                    <File Id="home41" Name="wb_starter_mysql_doc_lib_52.png"/>
-                    <File Id="home42" Name="wb_starter_mysql_news_52.png"/>
-                    <File Id="home43" Name="wb_starter_mysql_wb_blog_52.png"/>
-                    <File Id="home44" Name="wb_starter_mysql_wb_twitters_52.png"/>
-                    <File Id="home45" Name="wb_starter_planet_mysql_52.png"/>
-                    <File Id="home46" Name="wb_starter_generic_52.png"/>
-                    <File Id="home47" Name="wb_starter_mysql_forums_52.png"/>
-                    <File Id="home48" Name="wb_starter_grt_shell_52.png"/>
-                    <File Id="home49" Name="wb_starter_mysql_utilities_52.png"/>
-                    <File Id="home50" Name="wb_starter_edelivery_52.png"/>
-                    <File Id="home51" Name="wb_starter_edelivery_52@2x.png"/>
-                    <File Id="home52" Name="wb_starter_grt_shell_52@2x.png"/>
-                    <File Id="home53" Name="wb_starter_mysql_bug_reporter_52@2x.png"/>
-                    <File Id="home54" Name="wb_starter_mysql_doc_lib_52@2x.png"/>
-                    <File Id="home55" Name="wb_starter_mysql_forums_52@2x.png"/>
-                    <File Id="home56" Name="wb_starter_mysql_migration_52@2x.png"/>
-                    <File Id="home57" Name="wb_starter_mysql_utilities_52@2x.png"/>
-                    <File Id="home58" Name="wb_starter_planet_mysql_52@2x.png"/>
-                    <File Id="home59" Name="wb_starter_support_52.png"/>
-                    <File Id="home60" Name="wb_starter_support_52@2x.png"/>
+                    <File Id="wb_x_tile.png" Name="wb_x_tile.png"/>
+                    <File Id="wb_x_js_tile.png" Name="wb_x_js_tile.png"/>
+                    <File Id="wb_x_py_tile.png" Name="wb_x_py_tile.png"/>
                   </Component>
                 </Directory>
 
@@ -882,7 +882,7 @@
                     <File Id="ac_user.png" Name="ac_user.png"/>
                     <File Id="ac_uservar.png" Name="ac_uservar.png"/>
                     <File Id="ac_view.png" Name="ac_view.png"/>
-					
+
                     <File Id="file61751" Name="qe_sql-editor-tb-icon_word-wrap-off.png"/>
                     <File Id="file61752" Name="qe_sql-editor-tb-icon_word-wrap-on.png"/>
                     <File Id="file61753" Name="wb-sidebar-collapse.png"/>
@@ -916,7 +916,7 @@
                     <File Id="file606609" Name="qe_sql-editor-tb-icon_zoom-jump.png"/>
                     <File Id="file606611" Name="qe_sql-editor-tb-icon_zoom-auto.png"/>
                     <File Id="file606613" Name="qe_sql-editor-tb-icon_zoom-center.png"/>
- 		
+
                     <File Id="wb_item_overlay_editor" Name="wb_item_overlay_editor.png"/>
                     <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
                     <File Id="wb_item_overlay_inspector" Name="wb_item_overlay_inspector.png"/>

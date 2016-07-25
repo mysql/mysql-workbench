@@ -42,11 +42,11 @@
   mRestoringSidebars = YES;
 
   // restore state of toolbar
-  toolbar->set_item_checked("wb.toggleSecondarySidebar", !(mSecondarySidebarHidden = grtm->get_app_option_int(mOptionName+":SecondarySidebarHidden", 0)));
-  toolbar->set_item_checked("wb.toggleSidebar", !(mSidebarHidden = grtm->get_app_option_int(mOptionName+":SidebarHidden", 0)));
+  toolbar->set_item_checked("wb.toggleSecondarySidebar", !(mSecondarySidebarHidden = bec::GRTManager::get()->get_app_option_int(mOptionName+":SecondarySidebarHidden", 0)));
+  toolbar->set_item_checked("wb.toggleSidebar", !(mSidebarHidden = bec::GRTManager::get()->get_app_option_int(mOptionName+":SidebarHidden", 0)));
 
-  mLastSecondarySidebarWidth = MAX(grtm->get_app_option_int(mOptionName+":SecondarySidebarWidth", 220), 100);
-  mLastSidebarWidth = MAX(grtm->get_app_option_int(mOptionName+":SidebarWidth", 220), MIN_SIDEBAR_WIDTH);
+  mLastSecondarySidebarWidth = MAX(bec::GRTManager::get()->get_app_option_int(mOptionName+":SecondarySidebarWidth", 220), 100);
+  mLastSidebarWidth = MAX(bec::GRTManager::get()->get_app_option_int(mOptionName+":SidebarWidth", 220), MIN_SIDEBAR_WIDTH);
 
   if (mSidebarHidden)
   {
@@ -103,14 +103,15 @@
     return;
 
   if (!mSidebarHidden)
-    grtm->set_app_option(mOptionName+":SidebarWidth", grt::IntegerRef((int)NSWidth(sidebar.frame)));
+    bec::GRTManager::get()->set_app_option(mOptionName+":SidebarWidth", grt::IntegerRef((int)NSWidth(sidebar.frame)));
+
   {
     BOOL newCollapseState = [self.splitView isSubviewCollapsed: sidebar];
     BOOL hidden = !mToolbar->get_item_checked("wb.toggleSidebar");
 
     if (newCollapseState != hidden)
     {
-      grtm->set_app_option(mOptionName+":SidebarHidden", grt::IntegerRef(newCollapseState));
+      bec::GRTManager::get()->set_app_option(mOptionName+":SidebarHidden", grt::IntegerRef(newCollapseState));
       mToolbar->set_item_checked("wb.toggleSidebar", newCollapseState);
     }
     if (!newCollapseState)
@@ -118,7 +119,7 @@
       int width = NSWidth(sidebar.frame);
       if (width <= 0)
         width = MIN_SIDEBAR_WIDTH;
-      grtm->set_app_option(mOptionName+":SidebarWidth", grt::IntegerRef(width));
+      bec::GRTManager::get()->set_app_option(mOptionName+":SidebarWidth", grt::IntegerRef(width));
     }
   }
 
@@ -131,7 +132,7 @@
         width = NSWidth(secondarySidebar.frame);
       else
         width = NSWidth(self.splitView.frame) - NSWidth(secondarySidebar.frame);
-      grtm->set_app_option(mOptionName+":SecondarySidebarWidth", grt::IntegerRef((int)width));
+      bec::GRTManager::get()->set_app_option(mOptionName+":SecondarySidebarWidth", grt::IntegerRef((int)width));
     }
     {
       BOOL newCollapseState = [self.splitView isSubviewCollapsed: secondarySidebar];
@@ -139,7 +140,7 @@
 
       if (newCollapseState != hidden)
       {
-        grtm->set_app_option(mOptionName+":SecondarySidebarHidden", grt::IntegerRef(newCollapseState));
+        bec::GRTManager::get()->set_app_option(mOptionName+":SecondarySidebarHidden", grt::IntegerRef(newCollapseState));
         mToolbar->set_item_checked("wb.toggleSecondarySidebar", !newCollapseState);
       }
       if (!newCollapseState)
@@ -147,7 +148,7 @@
         int width = NSWidth(secondarySidebar.frame);
         if (width <= 0)
           width = MIN_SIDEBAR_WIDTH;
-        grtm->set_app_option(mOptionName+":SecondarySidebarWidth", grt::IntegerRef(width));
+        bec::GRTManager::get()->set_app_option(mOptionName+":SecondarySidebarWidth", grt::IntegerRef(width));
       }
     }
   }
@@ -238,13 +239,13 @@
   if (command == "wb.toggleSecondarySidebar")
   {
     mSecondarySidebarHidden = !mToolbar->get_item_checked(command);
-    grtm->set_app_option(mOptionName+":SecondarySidebarHidden", grt::IntegerRef(mSecondarySidebarHidden));
+    bec::GRTManager::get()->set_app_option(mOptionName+":SecondarySidebarHidden", grt::IntegerRef(mSecondarySidebarHidden));
     [self hideSideBar: mSecondarySidebarHidden secondary: YES];
   }
   else if (command == "wb.toggleSidebar")
   {
     mSidebarHidden = !mToolbar->get_item_checked(command);
-    grtm->set_app_option(mOptionName+":SidebarHidden", grt::IntegerRef(mSidebarHidden));
+    bec::GRTManager::get()->set_app_option(mOptionName+":SidebarHidden", grt::IntegerRef(mSidebarHidden));
     [self hideSideBar: mSidebarHidden secondary: NO];
   }
 }

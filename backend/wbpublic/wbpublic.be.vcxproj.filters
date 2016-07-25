@@ -44,8 +44,11 @@
     <Filter Include="grtdb Source Files">
       <UniqueIdentifier>{a8aae8af-d1d2-4571-91c8-3b27a2947f4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="grammar parser">
-      <UniqueIdentifier>{13e5081a-ffb1-4d4d-ac60-3f8ae3ca0387}</UniqueIdentifier>
+    <Filter Include="db_ng Header Files">
+      <UniqueIdentifier>{e3157aa3-6318-44b3-9110-47224057c79e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="db_ng Source Files">
+      <UniqueIdentifier>{1252ad35-b208-4eba-b39f-69836165f44d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -341,9 +344,6 @@
     <ClInclude Include="grtui\wizard_view_text_page.h">
       <Filter>grtui Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlide\autocomplete_object_name_cache.h">
-      <Filter>sqlide Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sqlide\recordset_be.h">
       <Filter>sqlide Header Files</Filter>
     </ClInclude>
@@ -488,11 +488,20 @@
     <ClInclude Include="grtui\geom_draw_box.h">
       <Filter>grtui Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlide\grammar-parser\ANTLRv3Lexer.h">
-      <Filter>grammar parser</Filter>
+    <ClInclude Include="grtsqlparser\parser_services_common.h">
+      <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlide\grammar-parser\ANTLRv3Parser.h">
-      <Filter>grammar parser</Filter>
+    <ClInclude Include="objimpl\db.ng\db_ng_Editor.h">
+      <Filter>db_ng Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\db.ng\db_ng_Ide.h">
+      <Filter>db_ng Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\db.ng\db_ng_Sheet.h">
+      <Filter>db_ng Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.db.ng.h">
+      <Filter>Generated Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -782,9 +791,6 @@
     <ClCompile Include="grtui\text_input_dialog.cpp">
       <Filter>grtui Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlide\autocomplete_object_name_cache.cpp">
-      <Filter>sqlide Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sqlide\recordset_be.cpp">
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
@@ -807,9 +813,6 @@
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlide\sql_editor_be.cpp">
-      <Filter>sqlide Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sqlide\sql_editor_be_autocomplete.cpp">
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlide\sql_script_run_wizard.cpp">
@@ -929,11 +932,14 @@
     <ClCompile Include="grtui\geom_draw_box.cpp">
       <Filter>grtui Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlide\grammar-parser\ANTLRv3Lexer.c">
-      <Filter>grammar parser</Filter>
+    <ClCompile Include="objimpl\db.ng\db_ng_Editor.cpp">
+      <Filter>db_ng Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlide\grammar-parser\ANTLRv3Parser.c">
-      <Filter>grammar parser</Filter>
+    <ClCompile Include="objimpl\db.ng\db_ng_Ide.cpp">
+      <Filter>db_ng Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db.ng\db_ng_Sheet.cpp">
+      <Filter>db_ng Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

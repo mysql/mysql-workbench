@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -221,7 +221,7 @@ int TabViewWrapper::get_active_tab(mforms::TabView *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-int TabViewWrapper::add_page(mforms::TabView *backend, mforms::View *page, const std::string &caption)
+int TabViewWrapper::add_page(mforms::TabView *backend, mforms::View *page, const std::string &caption, bool hasCloseButton)
 {
   TabViewWrapper *wrapper = backend->get_data<TabViewWrapper>();
   int new_index = -1;

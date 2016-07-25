@@ -28,6 +28,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include <stack>
 #include <sstream>
 
 #include <glib.h>

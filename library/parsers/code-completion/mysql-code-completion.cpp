@@ -473,13 +473,18 @@ private:
             {
               optimized = true;
               child = (pANTLR3_BASE_TREE)childAlt->getChild(childAlt, 0);
-              switch (child->getType(child))
+              ANTLR3_UINT32 childType = child->getType(child);
+              switch (childType)
               {
+                case CHAR_LITERAL:
+                case STRING_LITERAL:
                 case TOKEN_REF:
                 {
                   node.isTerminal = true;
                   pANTLR3_STRING tokenText = child->getText(child);
                   std::string name = (char*)tokenText->chars;
+                  if (childType == CHAR_LITERAL || childType == STRING_LITERAL)
+                    name = base::unquote(name);
                   node.tokenRef = tokenMap[name];
                   break;
                 }
@@ -1367,7 +1372,7 @@ private:
 
             // XXX: hack, need a better way to find out when we have to include the special rule from the stack.
             //      Using a fixed token look-back might not be valid for all languages.
-            if (lastToken == DOT_SYMBOL || scanner->is(DOT_IDENTIFIER))
+            if (lastToken == DOT_SYMBOL)
             {
               for (auto &entry : walkStack)
               {
@@ -1627,7 +1632,7 @@ static ObjectFlags determineQualifier(std::shared_ptr<MySQLScanner> scanner, std
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
+  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
     return ObjectFlags(ShowFirst | ShowSecond);
 
   qualifier = temp;
@@ -1663,9 +1668,9 @@ static ObjectFlags determineSchemaTableQualifier(std::shared_ptr<MySQLScanner> s
   // Go left until we find something not related to an id or at most 2 dots.
   if (position > 0)
   {
-    if (scanner->is_identifier() && (scanner->look_around(-1, true) == DOT_SYMBOL || scanner->look_around(-1, true) == DOT_IDENTIFIER))
+    if (scanner->is_identifier() && (scanner->look_around(-1, true) == DOT_SYMBOL))
       scanner->previous(true);
-    if ((scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) && scanner->MySQLRecognitionBase::isIdentifier(scanner->look_around(-1, true)))
+    if (scanner->is(DOT_SYMBOL) && scanner->MySQLRecognitionBase::isIdentifier(scanner->look_around(-1, true)))
     {
       scanner->previous(true);
 
@@ -1691,18 +1696,18 @@ static ObjectFlags determineSchemaTableQualifier(std::shared_ptr<MySQLScanner> s
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
+  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
     return ObjectFlags(ShowSchemas | ShowTables | ShowColumns);
 
   scanner->next(true); // Skip dot.
   table = temp;
   schema = temp;
-  if (scanner->is_identifier() || scanner->is(DOT_IDENTIFIER))
+  if (scanner->is_identifier())
   {
     temp = base::unquote(scanner->token_text());
     scanner->next(true);
 
-    if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
+    if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
       return ObjectFlags(ShowTables | ShowColumns); // Schema only valid for tables. Columns must use default schema.
 
     table = temp;
@@ -1790,11 +1795,15 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
   // The scanner already contains the statement to examine. Hence no need to deal with that here.
   // But we need the letters the user typed until the current caret position.
   context.serverVersion = scanner->get_server_version();
-  context.typedPart = writtenPart;
 
   // Remove escape characters from the typed part so we have the pure text.
-  context.typedPart.erase(std::remove(context.typedPart.begin(), context.typedPart.end(), '\\'),
-    context.typedPart.end());
+  //writtenPart.erase(std::remove(writtenPart.begin(), writtenPart.end(), '\\'), writtenPart.end());
+
+  // If we already pre-filter the list by the written part (e.g. when retrieving names from the cache) we will not
+  // be able to show a correct list when the user deletes a char, as we simply show entries that would match now, but
+  // did not before, simply because they are not there.
+  // Hence we only filter in the updateCodeCompletion() function.
+  //context.typedPart = writtenPart;
 
   // A set for each object type. This will sort the groups alphabetically and avoids duplicates,
   // but allows to add them as groups to the final list.
@@ -2221,14 +2230,19 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
     }
   }
 
+  // Insert the groups "inside out", that is, most likely ones first + most inner first (columns before tables etc).
   std::copy(keywordEntries.begin(), keywordEntries.end(), std::back_inserter(result));
-  std::copy(schemaEntries.begin(), schemaEntries.end(), std::back_inserter(result));
+  std::copy(columnEntries.begin(), columnEntries.end(), std::back_inserter(result));
   std::copy(tableEntries.begin(), tableEntries.end(), std::back_inserter(result));
   std::copy(viewEntries.begin(), viewEntries.end(), std::back_inserter(result));
+  std::copy(schemaEntries.begin(), schemaEntries.end(), std::back_inserter(result));
+
+  // Everything else is significantly less used.
+  // TODO: make this configurable.
+  // TODO: show an optimized (small) list of candidates on first invocation, a full list on every following.
   std::copy(functionEntries.begin(), functionEntries.end(), std::back_inserter(result));
   std::copy(procedureEntries.begin(), procedureEntries.end(), std::back_inserter(result));
   std::copy(triggerEntries.begin(), triggerEntries.end(), std::back_inserter(result));
-  std::copy(columnEntries.begin(), columnEntries.end(), std::back_inserter(result));
   std::copy(indexEntries.begin(), indexEntries.end(), std::back_inserter(result));
   std::copy(eventEntries.begin(), eventEntries.end(), std::back_inserter(result));
   std::copy(userEntries.begin(), userEntries.end(), std::back_inserter(result));
@@ -2241,7 +2255,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
   std::copy(userVarEntries.begin(), userVarEntries.end(), std::back_inserter(result));
   std::copy(runtimeFunctionEntries.begin(), runtimeFunctionEntries.end(), std::back_inserter(result));
   std::copy(systemVarEntries.begin(), systemVarEntries.end(), std::back_inserter(result));
-  
+ 
   return result;
 }
 

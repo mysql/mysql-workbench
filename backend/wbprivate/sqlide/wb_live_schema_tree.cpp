@@ -1011,7 +1011,7 @@ std::string LiveSchemaTree::get_field_description(const mforms::TreeNodeRef& nod
   catch (std::exception &e)
   {
     text = _("Unable to retrieve node description.");
-    log_error("Exception retrieving node description : %s\n", strfmt("%s", e.what()).c_str());
+    logError("Exception retrieving node description : %s\n", strfmt("%s", e.what()).c_str());
   }
 
   return text;

@@ -360,17 +360,17 @@ class WbAdminConnections(WbAdminBaseTab):
         info_table.set_row_spacing(4)
         info_table.set_column_spacing(20)
 
-        info_table.add(self.create_labeled_info("Threads Connected:", "lbl_Threads_connected"),                     0, 1, 0, 1, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Threads Running:", "lbl_Threads_running"),                          1, 2, 0, 1, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Threads Created:", "lbl_Threads_created"),                         2, 3, 0, 1, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Threads Cached:", "lbl_Threads_cached"),                           3, 4, 0, 1, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Rejected (over limit):", "lbl_Connection_errors_max_connections"), 4, 5, 0, 1, mforms.HFillFlag)
+        info_table.add(self.create_labeled_info("Threads Connected:", "lbl_Threads_connected"),                     0, 1, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Running:", "lbl_Threads_running"),                          1, 2, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Created:", "lbl_Threads_created"),                         2, 3, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Cached:", "lbl_Threads_cached"),                           3, 4, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Rejected (over limit):", "lbl_Connection_errors_max_connections"), 4, 5, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
 
-        info_table.add(self.create_labeled_info("Total Connections:", "lbl_Connections"),                           0, 1, 1, 2, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Connection Limit:", "lbl_max_connections"),                        1, 2, 1, 2, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Aborted Clients:", "lbl_Aborted_clients"),                         2, 3, 1, 2, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Aborted Connections:", "lbl_Aborted_connects"),                    3, 4, 1, 2, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Errors:", "lbl_errors", "tooltip_errors"),                         4, 5, 1, 2, mforms.HFillFlag)
+        info_table.add(self.create_labeled_info("Total Connections:", "lbl_Connections"),                           0, 1, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Connection Limit:", "lbl_max_connections"),                        1, 2, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Aborted Clients:", "lbl_Aborted_clients"),                         2, 3, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Aborted Connections:", "lbl_Aborted_connects"),                    3, 4, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Errors:", "lbl_errors", "tooltip_errors"),                         4, 5, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
 
         self.info_table = info_table
         self.add(info_table, False, True)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -557,6 +557,9 @@ static void delete_PopoverWidget(void* o)
 //------------------------------------------------------------------------------
 static bool create(mforms::Popover* self, mforms::PopoverStyle style)
 {
+  if (get_mainwindow() == nullptr)
+    throw std::runtime_error("Need main window to continue.");
+
   PopoverWidget* w = new PopoverWidget(get_mainwindow(), style);
   self->set_data(w, delete_PopoverWidget);
   return w;

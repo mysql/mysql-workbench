@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,12 +41,12 @@ void ViewWrapper::set_tooltip(mforms::View *self, const std::string &text)
 }
 
 
-int ViewWrapper::get_width(mforms::View *self)
+int ViewWrapper::get_width(const mforms::View *self)
 {
   return 0;
 }
 
-int ViewWrapper::get_height(mforms::View *self)
+int ViewWrapper::get_height(const mforms::View *self)
 {
   return 0;
 }

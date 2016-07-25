@@ -143,7 +143,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
     mforms::ToolBar *toolbar = _be->get_toolbar();
     bool flag;
 
-    toolbar->set_item_checked("wb.toggleOutputArea", flag = !bec::GRTManager::get().get_app_option_int("DbSqlEditor:OutputAreaHidden", 0));
+    toolbar->set_item_checked("wb.toggleOutputArea", flag = !bec::GRTManager::get()->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0));
     if (flag) _main_pane.get_child2()->show(); else _main_pane.get_child2()->hide();
   }
 
@@ -173,7 +173,7 @@ bool DbSqlEditorView::perform_command(const std::string &cmd)
       w->show();
     else
       w->hide();
-    bec::GRTManager::get().set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
+    bec::GRTManager::get()->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
   } 
   else if (cmd == "wb.next_query_tab")
   {
@@ -262,7 +262,7 @@ void DbSqlEditorView::tab_menu_handler(const std::string& action, ActiveLabel *s
   PluginEditorBase *_pluginView = dynamic_cast<PluginEditorBase *>(widget);
   
   if (_pluginView)
-    _grtm->run_once_when_idle(boost::bind(&FormViewBase::close_plugin_tab, this, _pluginView));
+    bec::GRTManager::get()->run_once_when_idle(boost::bind(&FormViewBase::close_plugin_tab, this, _pluginView));
   else if (widget)
   {
     int page = _editor_note->page_num(*widget);
@@ -417,9 +417,9 @@ void DbSqlEditorView::set_maximized_editor_mode(bool flag, bool hide_schemas)
     {
       be()->get_toolbar()->set_item_checked("wb.toggleSidebar", true);
       be()->get_toolbar()->set_item_checked("wb.toggleOutputArea", 
-                !bec::GRTManager::get().get_app_option_int("DbSqlEditor:OutputAreaHidden"));
+                !bec::GRTManager::get()->get_app_option_int("DbSqlEditor:OutputAreaHidden"));
       be()->get_toolbar()->set_item_checked("wb.toggleSecondarySidebar", 
-                !bec::GRTManager::get().get_app_option_int("DbSqlEditor:SecondarySidebarHidden"));
+                !bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SecondarySidebarHidden"));
       _sidebar1_pane->get_child1()->show();
       perform_command("wb.toggleOutputArea");
       perform_command("wb.toggleSecondarySidebar");

@@ -503,7 +503,7 @@ TEST_FUNCTION(70)
 
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
   GrtVersionRef version = bec::parse_version("5.6.0");
-  parser::ParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
+  parser::MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
     version, false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
 

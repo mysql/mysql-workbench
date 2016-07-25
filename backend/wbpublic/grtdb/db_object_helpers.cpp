@@ -381,13 +381,13 @@ void TableHelper::reorder_foreign_key_for_index(const db_ForeignKeyRef &fk, cons
 
   if (fk->columns().count() != fk->referencedColumns().count())
   {
-    log_error("Internal consistency error: number of items in fk->columns and fk->referencedColumns() for %s.%s.%s do not match\n",
+    logError("Internal consistency error: number of items in fk->columns and fk->referencedColumns() for %s.%s.%s do not match\n",
               fk->owner()->owner()->name().c_str(), fk->owner()->name().c_str(), fk->name().c_str());
     return;
   }
   if (column_count > index->columns().count())
   {
-    log_error("Internal consistency error: number of items in index for FK is less than columns in FK %s.%s.%s\n",
+    logError("Internal consistency error: number of items in index for FK is less than columns in FK %s.%s.%s\n",
              fk->owner()->owner()->name().c_str(), fk->owner()->name().c_str(), fk->name().c_str());
     return;
   }
@@ -1254,69 +1254,69 @@ static bool parse_type(const std::string &type,
   // like charsets etc.). That doesn't affect the main task here, however. Additionally stuff
   // is simply ignored for now (but it must be a valid definition).
   MySQLRecognizer recognizer(bec::version_to_int(targetVersion), "", std::set<std::string>());
-  recognizer.parse(type.c_str(), type.size(), true, PuDataType);
+  recognizer.parse(type.c_str(), type.size(), true, MySQLParseUnit::PuDataType);
   if (!recognizer.error_info().empty())
     return false;
 
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
 
   // A type name can consist of up to 3 parts (e.g. "national char varying").
-  std::string type_name = walker.token_text();
+  std::string type_name = walker.tokenText();
   
-  switch (walker.token_type())
+  switch (walker.tokenType())
   {
   case DOUBLE_SYMBOL:
     walker.next();
-    if (walker.token_type() == PRECISION_SYMBOL)
+    if (walker.tokenType() == PRECISION_SYMBOL)
       walker.next(); // Simply ignore syntactic sugar.
     break;
 
   case NATIONAL_SYMBOL:
     walker.next();
-    type_name += " " + walker.token_text();
+    type_name += " " + walker.tokenText();
     walker.next();
-    if (walker.token_type() == VARYING_SYMBOL)
+    if (walker.tokenType() == VARYING_SYMBOL)
     {
-      type_name += " " + walker.token_text();
+      type_name += " " + walker.tokenText();
       walker.next();
     }
     break;
 
   case NCHAR_SYMBOL:
     walker.next();
-    if (walker.token_type() == VARCHAR_SYMBOL || walker.token_type() == VARYING_SYMBOL)
+    if (walker.tokenType() == VARCHAR_SYMBOL || walker.tokenType() == VARYING_SYMBOL)
     {
-      type_name += " " + walker.token_text();
+      type_name += " " + walker.tokenText();
       walker.next();
     }
     break;
 
   case CHAR_SYMBOL:
     walker.next();
-    if (walker.token_type() == VARYING_SYMBOL)
+    if (walker.tokenType() == VARYING_SYMBOL)
     {
-      type_name += " " + walker.token_text();
+      type_name += " " + walker.tokenText();
       walker.next();
     }
     break;
 
   case LONG_SYMBOL:
     walker.next();
-    switch (walker.token_type())
+    switch (walker.tokenType())
     {
     case CHAR_SYMBOL: // LONG CHAR VARYING
-      if (walker.look_ahead(true) == VARYING_SYMBOL) // Otherwise we may get e.g. LONG CHAR SET...
+      if (walker.lookAhead(true) == VARYING_SYMBOL) // Otherwise we may get e.g. LONG CHAR SET...
       {
-        type_name += " " + walker.token_text();
+        type_name += " " + walker.tokenText();
         walker.next();
-        type_name += " " + walker.token_text();
+        type_name += " " + walker.tokenText();
         walker.next();
       }
       break;
 
     case VARBINARY_SYMBOL:
     case VARCHAR_SYMBOL:
-      type_name += " " + walker.token_text();
+      type_name += " " + walker.tokenText();
       walker.next();
     }
     break;
@@ -1341,9 +1341,9 @@ static bool parse_type(const std::string &type,
   if (simpleType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH
     || simpleType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH)
   {
-    if (walker.token_type() != INT_NUMBER)
+    if (walker.tokenType() != INT_NUMBER)
       return false;
-    length = base::atoi<int>(walker.token_text().c_str());
+    length = base::atoi<int>(walker.tokenText().c_str());
     return true;
   }
 
@@ -1354,9 +1354,9 @@ static bool parse_type(const std::string &type,
     {
       if (!explicitParams.empty())
         explicitParams += ", ";
-      explicitParams += walker.token_text(true);
+      explicitParams += walker.tokenText(true);
       walker.next();
-      walker.skip_if(COMMA_SYMBOL); // We normalize the whitespace around the commas.
+      walker.skipIf(COMMA_SYMBOL); // We normalize the whitespace around the commas.
     } while (!walker.is(CLOSE_PAR_SYMBOL));
     explicitParams = "(" + explicitParams + ")";
 
@@ -1364,12 +1364,12 @@ static bool parse_type(const std::string &type,
   }
 
   // Finally all cases with either precision, scale or both.
-  precision = base::atoi<int>(walker.token_text().c_str());
+  precision = base::atoi<int>(walker.tokenText().c_str());
   walker.next();
-  if (walker.token_type() != COMMA_SYMBOL)
+  if (walker.tokenType() != COMMA_SYMBOL)
     return true;
   walker.next();
-  scale = base::atoi<int>(walker.token_text().c_str());
+  scale = base::atoi<int>(walker.tokenText().c_str());
 
   return true;
 }
@@ -1468,7 +1468,7 @@ std::string bec::get_default_collation_for_charset(const db_SchemaRef &schema, c
     }
   }
   else
-    log_warning("While checking diff, catalog ref was found to be invalid\n");
+    logWarning("While checking diff, catalog ref was found to be invalid\n");
 
 
   return "";
@@ -1479,7 +1479,7 @@ std::string bec::get_default_collation_for_charset(const db_TableRef &table, con
   if (table->owner().is_valid())
     return bec::get_default_collation_for_charset(db_SchemaRef::cast_from(table->owner()), character_set);
   else
-    log_warning("While checking diff, table ref was found to be invalid\n");
+    logWarning("While checking diff, table ref was found to be invalid\n");
   return "";
 }
 

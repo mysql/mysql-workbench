@@ -45,11 +45,6 @@ class AppWrapper : public ObjectWrapper
   }
   static void exit_event_loop(App *app, int result) {}
     
-  static base::Color get_system_color(SystemColor type) 
-  {
-    return base::Color();
-  }
-
 public:
   static void init(wb::WBOptions *theOptions);
 };

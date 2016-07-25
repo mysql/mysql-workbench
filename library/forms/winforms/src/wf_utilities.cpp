@@ -47,7 +47,7 @@ using namespace System::Collections::Generic;
 
 CustomMessageBox::CustomMessageBox()
 {
-  log_debug("Creating custom message box in old style\n");
+  logDebug("Creating custom message box in old style\n");
     
   _picture = gcnew Windows::Forms::PictureBox();
   _button1 = gcnew Windows::Forms::Button();
@@ -128,7 +128,7 @@ mforms::DialogResult CustomMessageBox::ShowInternal(const std::string& title, co
   PCWSTR mainIcon, const std::string& buttonOK, const std::string& buttonCancel,
   const std::string& buttonOther, const std::string& checkbox, bool& checked)
 {
-  log_debug("Creating and showing custom message box\n");
+  logDebug("Creating and showing custom message box\n");
 
   TASKDIALOGCONFIG config = {0};
   config.cbSize = sizeof(config);
@@ -193,11 +193,11 @@ mforms::DialogResult CustomMessageBox::ShowInternal(const std::string& title, co
   if (checkbox_text.size() > 0)
     config.pszVerificationText = checkbox_text.c_str();
 
-  log_debug("Running custom message box\n");
+  logDebug("Running custom message box\n");
 
   HRESULT result = TaskDialogIndirect(&config, &button, &radioButton, &verificationChecked);
 
-  log_debug("Custom message box closed\n");
+  logDebug("Custom message box closed\n");
 
   if (!SUCCEEDED(result))
     return mforms::ResultCancel;
@@ -252,7 +252,7 @@ void AdjustButton(Windows::Forms::Button^ button)
  */
 void CustomMessageBox::ComputeLayout()
 {
-  log_debug2("Layouting custom message box\n");
+  logDebug2("Layouting custom message box\n");
 
   SuspendLayout();
 
@@ -415,7 +415,7 @@ void CustomMessageBox::ComputeLayout()
 
 void CustomMessageBox::ButtonClick(Object^ sender, EventArgs^ arguments)
 {
-  log_debug2("Button was clicked in custom message box\n");
+  logDebug2("Button was clicked in custom message box\n");
 
   DialogResult = ((Windows::Forms::Button^)sender)->DialogResult;
 }
@@ -426,7 +426,7 @@ mforms::DialogResult CustomMessageBox::Show(const std::string& title, const std:
   PCWSTR mainIcon, const std::string& buttonOK, const std::string& buttonCancel,
   const std::string& buttonOther, const std::string& checkbox, bool& checked)
 {
-  log_debug("About to show a custom message box\n");
+  logDebug("About to show a custom message box\n");
 
   mforms::Utilities::enter_modal_loop();
   mforms::DialogResult result = ShowInternal(title, text, mainIcon, buttonOK, buttonCancel,
@@ -441,7 +441,7 @@ mforms::DialogResult CustomMessageBox::Show(const std::string& title, const std:
 Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ title,  String^ text,  
    String^ buttonOK,  String^ buttonCancel,  String^ buttonOther,  String^ checkbox, [Out] bool% checked)
 {
-  log_debug("About to show a custom message box\n");
+  logDebug("About to show a custom message box\n");
 
   mforms::DialogResult result;
 
@@ -499,11 +499,11 @@ delegate InvokationResult^ RunSlotDelegate(SlotWrapper ^wrapper);
 
 void* DispatchControl::RunOnMainThread(const boost::function<void* ()> &slot, bool wait)
 {
-  log_debug("Running slot on main thread (%swaiting for it)\n", wait ? "" : "not ");
+  logDebug("Running slot on main thread (%swaiting for it)\n", wait ? "" : "not ");
 
   if (InvokeRequired)
   {
-    log_debug2("Cross thread invocation required\n");
+    logDebug2("Cross thread invocation required\n");
 
     array<Object ^> ^parameters = gcnew array<Object^>(1);
     parameters[0] = gcnew SlotWrapper(slot);
@@ -532,7 +532,7 @@ void* DispatchControl::RunOnMainThread(const boost::function<void* ()> &slot, bo
  */
 InvokationResult^ DispatchControl::RunSlot(SlotWrapper ^wrapper)
 {
-  log_debug2("Running cancel_slot on main thread\n");
+  logDebug2("Running cancel_slot on main thread\n");
 
   return gcnew InvokationResult((*wrapper->_slot)());
 }
@@ -555,7 +555,7 @@ void UtilitiesWrapper::beep()
 int UtilitiesWrapper::show_message(const std::string &title, const std::string &text, const std::string &ok,
   const std::string &cancel, const std::string &other)
 {
-  log_debug("Showing a message to the user\n");
+  logDebug("Showing a message to the user\n");
 
   hide_wait_message();
 
@@ -568,7 +568,7 @@ int UtilitiesWrapper::show_message(const std::string &title, const std::string &
 int UtilitiesWrapper::show_error(const std::string &title, const std::string &text, const std::string &ok, 
   const std::string &cancel, const std::string &other)
 {
-  log_debug("Showing an error to the user\n");
+  logDebug("Showing an error to the user\n");
 
   hide_wait_message();
 
@@ -581,7 +581,7 @@ int UtilitiesWrapper::show_error(const std::string &title, const std::string &te
 int UtilitiesWrapper::show_warning(const std::string &title, const std::string &text, const std::string &ok, 
   const std::string &cancel, const std::string &other)
 {
-  log_debug("Showing a warning to the user\n");
+  logDebug("Showing a warning to the user\n");
 
   hide_wait_message();
 
@@ -595,7 +595,7 @@ int UtilitiesWrapper::show_message_with_checkbox(const std::string &title, const
   const std::string &ok, const std::string &cancel, const std::string &other, const std::string &checkbox_text,
   bool &isChecked)
 {
-  log_debug("Showing a message with checkbox to the user\n");
+  logDebug("Showing a message with checkbox to the user\n");
 
   hide_wait_message();
 
@@ -612,7 +612,7 @@ int UtilitiesWrapper::show_message_with_checkbox(const std::string &title, const
  */
 void UtilitiesWrapper::show_wait_message(const std::string &title, const std::string &text)
 {
-  log_debug("Showing wait message\n");
+  logDebug("Showing wait message\n");
 
   HUDForm::Show(CppStringToNative(title), CppStringToNative(text), true);
 }
@@ -624,16 +624,16 @@ void UtilitiesWrapper::show_wait_message(const std::string &title, const std::st
  */
 bool UtilitiesWrapper::hide_wait_message()
 {
-  log_debug("Hiding the wait message\n");
-
+  logDebug("Hiding the wait message\n");
+  
   bool result = HUDForm::IsVisible;
   if (result)
   {
-    log_debug2("Wait message was visible, finishing it\n");
+    logDebug2("Wait message was visible, finishing it\n");
     HUDForm::Finish();
   }
   else
-    log_debug2("Wait message was not visible, nothing to do\n");
+    logDebug2("Wait message was not visible, nothing to do\n");
 
   return result;
 }
@@ -672,17 +672,17 @@ bool UtilitiesWrapper::run_cancelable_wait_message(const std::string &title, con
                                                    const boost::function<void ()> &signal_ready,
                                                    const boost::function<bool ()> &cancel_slot)
 {
-  log_debug("Running a cancelable wait message\n");
+  logDebug("Running a cancelable wait message\n");
 
   CallSlotDelegate ^caller = gcnew CallSlotDelegate(&signal_ready, &cancel_slot);
 
   HUDForm::ReadyDelegate ^readyDelegate = gcnew HUDForm::ReadyDelegate(caller, &CallSlotDelegate::call_start);
   HUDForm::CancelDelegate ^cancelDelegate = gcnew HUDForm::CancelDelegate(caller, &CallSlotDelegate::call_cancel);
 
-  log_debug2("Running the HUD window\n");
+  logDebug2("Running the HUD window\n");
   Windows::Forms::DialogResult result = HUDForm::ShowModal(CppStringToNative(title),
     CppStringToNative(text), true, readyDelegate, cancelDelegate);
-  log_debug2("HUD window returned with code: %i\n", result);
+  logDebug2("HUD window returned with code: %i\n", result);
 
   // Abort is used if the window was forcibly closed (e.g. when showing another dialog, like password query).
   return (result == Windows::Forms::DialogResult::OK) || (result == Windows::Forms::DialogResult::Abort);
@@ -696,7 +696,7 @@ bool UtilitiesWrapper::run_cancelable_wait_message(const std::string &title, con
  */
 void UtilitiesWrapper::stop_cancelable_wait_message()
 {
-  log_debug("Explicit cancelation of the wait message\n");
+  logDebug("Explicit cancelation of the wait message\n");
 
   HUDForm::Finish();
 }
@@ -710,7 +710,7 @@ void UtilitiesWrapper::stop_cancelable_wait_message()
  */
 void UtilitiesWrapper::set_clipboard_text(const std::string &content)
 {
-  log_debug("Setting clipboard text\n");
+  logDebug("Setting clipboard text\n");
 
   if (!content.empty())
   {
@@ -723,15 +723,15 @@ void UtilitiesWrapper::set_clipboard_text(const std::string &content)
       // we try a second time with built-in retries. If that still fails we inform the user.
       Clipboard::SetText(text);
 
-      log_debug2("Successful\n");
+      logDebug2("Successful\n");
     }
     catch (ExternalException ^)
     {
       try
       {
-        log_debug2("Got exception, second attempt\n");
+        logDebug2("Got exception, second attempt\n");
         Clipboard::SetDataObject(text, false, 5, 200);
-        log_debug2("Successful\n");
+        logDebug2("Successful\n");
       }
       catch (ExternalException ^e)
       {
@@ -743,7 +743,7 @@ void UtilitiesWrapper::set_clipboard_text(const std::string &content)
         GetWindowText(window, window_text, 500);
         String ^converted_text = gcnew String(window_text);
         msg += converted_text;
-        log_debug2("Error while setting the text: %s\n", NativeToCppString(msg).c_str());
+        logDebug2("Error while setting the text: %s\n", NativeToCppString(msg).c_str());
 
         CustomMessageBox::Show(MessageType::MessageError, _("Error while copying to clipboard"), msg, "Close");
       }
@@ -761,7 +761,7 @@ void UtilitiesWrapper::set_clipboard_text(const std::string &content)
  */
 std::string UtilitiesWrapper::get_clipboard_text()
 {
-  log_debug("Reading clipboard text\n");
+  logDebug("Reading clipboard text\n");
   
   String^ unicode = (String^) Clipboard::GetData(DataFormats::UnicodeText);
   if (unicode == nullptr)
@@ -777,7 +777,7 @@ std::string UtilitiesWrapper::get_clipboard_text()
  */
 std::string UtilitiesWrapper::get_special_folder(mforms::FolderType type)
 {
-  log_debug("Get special folder\n");
+  logDebug("Get special folder\n");
 
   Environment::SpecialFolder special_folder;
   switch (type)
@@ -806,7 +806,7 @@ std::string UtilitiesWrapper::get_special_folder(mforms::FolderType type)
   // IntPtr has a size of 8 for 64 bit apps.
   if (IntPtr::Size == 4 && type == mforms::WinProgramFiles)
   {
-    log_debug2("Getting the 64bit program path\n");
+    logDebug2("Getting the 64bit program path\n");
 
     WCHAR folder[MAX_PATH];
     ExpandEnvironmentStrings(L"%ProgramW6432%", folder, ARRAYSIZE(folder));
@@ -829,14 +829,14 @@ void UtilitiesWrapper::open_url(const std::string &url)
 {
   try
   {
-    log_debug("Opening the URL: %s\n", url.c_str());
+    logDebug("Opening the URL: %s\n", url.c_str());
 
     System::Diagnostics::Process::Start(CppStringToNative(url));
   }
   catch (Exception ^e)
   {
     String ^message = e->Message->ToString();
-    log_debug("Error opening the url: %s\n", NativeToCppString(message).c_str());
+    logDebug("Error opening the url: %s\n", NativeToCppString(message).c_str());
 
     MessageBox::Show(message, "Error Opening Browser", 
       MessageBoxButtons::OK, MessageBoxIcon::Error, MessageBoxDefaultButton::Button1);
@@ -847,7 +847,7 @@ void UtilitiesWrapper::open_url(const std::string &url)
 
 bool UtilitiesWrapper::move_to_trash(const std::string &file_name)
 {
-  log_debug("Moving file to trash: %s\n", file_name.c_str());
+  logDebug("Moving file to trash: %s\n", file_name.c_str());
   
   SHFILEOPSTRUCT shf = {0};
 
@@ -872,7 +872,7 @@ void MySQL::Forms::UtilitiesWrapper::reveal_file(const std::string &path)
   if (pidl != NULL)
   {
     if (SHOpenFolderAndSelectItems(pidl, 0, 0, 0) != S_OK)
-      log_debug("Could not open Explorer with the path %s\n", path.c_str());
+      logDebug("Could not open Explorer with the path %s\n", path.c_str());
 
     ILFree(pidl);
   }
@@ -893,7 +893,7 @@ typedef std::map<std::string, std::string>::iterator PasswordIterator;
  */
 void UtilitiesWrapper::load_passwords()
 {
-  log_debug("Loading password cache\n");
+  logDebug("Loading password cache\n");
   
   // Load password cache from disk. Don't throw an error if the cache file doesn't exist yet, though.
   std::string file = get_special_folder(mforms::ApplicationData) + "/MySQL/Workbench/workbench_user_data.dat";
@@ -907,7 +907,7 @@ void UtilitiesWrapper::load_passwords()
     bool result = g_file_get_contents(file.c_str(), &content, &length, &error) == TRUE;
     if (!result)
     {
-      log_error("Error loading password data: %s\n", error->message);
+      logError("Error loading password data: %s\n", error->message);
       int result = show_error("Password management error", "Error while loading passwords: " + 
         std::string(error->message) + "\n\n" + user_info,
         _("Ignore"), "", _("Clear Vault"));
@@ -922,14 +922,14 @@ void UtilitiesWrapper::load_passwords()
     data_in.pbData = (BYTE *) content;
     data_in.cbData = (DWORD)length;
     
-    log_debug2("Decrypting password data\n");
+    logDebug2("Decrypting password data\n");
     result = CryptUnprotectData(&data_in, NULL, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &data_out) == TRUE;
     
     g_free(content);
 
     if (!result)
     {
-      log_error("Could not decrypt password data\n");
+      logError("Could not decrypt password data\n");
       int result = show_error("Password management error", "Could not decrypt password cache.\n\n" + user_info,
         _("Ignore"), "", _("Clear Vault"));
       if (result == mforms::ResultOther)
@@ -939,7 +939,7 @@ void UtilitiesWrapper::load_passwords()
 
     try
     {
-      log_debug2("Filling password cache\n");
+      logDebug2("Filling password cache\n");
 
       // Split the string into individual items and fill the password cache with them.
       std::stringstream ss((char*) data_out.pbData);
@@ -967,14 +967,14 @@ void UtilitiesWrapper::load_passwords()
  */
 void UtilitiesWrapper::unload_passwords(bool store)
 {
-  log_debug("Unloading password cache\n");
+  logDebug("Unloading password cache\n");
   
   // Store all passwords in a string for encryption.
   try
   {
     if (store)
     {
-      log_debug("Storing password data\n");
+      logDebug("Storing password data\n");
 
       std::string plain_data;
       for (PasswordIterator iterator = password_cache.begin(); iterator != password_cache.end(); iterator++)
@@ -988,7 +988,7 @@ void UtilitiesWrapper::unload_passwords(bool store)
       
       if (!CryptProtectData(&data_in, NULL, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &data_out))
       {
-        log_error("Error encrypting password data\n");
+        logError("Error encrypting password data\n");
         show_error("Password management error", "Could not encrypt password cache.", _("Close"), "", "");
         return;
       }
@@ -1002,7 +1002,7 @@ void UtilitiesWrapper::unload_passwords(bool store)
 
       if (!result)
       {
-        log_error("Error storing password data: %s\n", error->message);
+        logError("Error storing password data: %s\n", error->message);
         show_error("Password management error", "Error while storing passwords: " + std::string(error->message),
           _("Close"), "", "");
       }
@@ -1039,7 +1039,7 @@ void UtilitiesWrapper::store_password(const std::string &service, const std::str
  */
 bool UtilitiesWrapper::find_password(const std::string &service, const std::string &account, std::string &password)
 {
-  log_debug("Looking up password for service: %s, account: %s\n", service.c_str(), account.c_str());
+  logDebug("Looking up password for service: %s, account: %s\n", service.c_str(), account.c_str());
   
   base::MutexLock lock(password_mutex);
   load_passwords();
@@ -1162,7 +1162,7 @@ double UtilitiesWrapper::get_text_width(const std::string &text, const std::stri
  */
 Windows::Forms::Form^ UtilitiesWrapper::get_mainform()
 {
-  log_debug2("Returning main form\n");
+  logDebug2("Returning main form\n");
 
   return Application::OpenForms["MainForm"];
 }
@@ -1179,7 +1179,7 @@ ref class TimerHandler
 public:
   TimerHandler(float interval, const boost::function<bool ()> &slot)
   {
-    log_debug("Creating new TimerHandler\n");
+    logDebug("Creating new TimerHandler\n");
 
     _timer = gcnew System::Windows::Forms::Timer();
 
@@ -1197,7 +1197,7 @@ public:
 
   ~TimerHandler()
   {
-    log_debug("Destructing TimerHandler instance\n");
+    logDebug("Destructing TimerHandler instance\n");
 
     _timer->Stop();
     delete _timer;
@@ -1253,7 +1253,7 @@ private:
 
 mforms::TimeoutHandle UtilitiesWrapper::add_timeout(float interval, const boost::function<bool ()> &slot)
 {
-  log_debug("Adding new timeout\n");
+  logDebug("Adding new timeout\n");
 
   TimerHandler ^handler = gcnew TimerHandler(interval, slot);
   return handler->handle();

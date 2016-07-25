@@ -28,6 +28,8 @@
   #include <glib/gstdio.h>
 #endif
 
+#include "base/c++helpers.h"
+
 #include "base/log.h"
 #include "base/wb_memory.h"
 #include "base/file_utilities.h"
@@ -47,33 +49,34 @@ struct Logger::LoggerImpl
   LoggerImpl()
   {
     // Default values for all available log levels.
-    _levels[LogNone] = false; // Disable None level.
-    _levels[LogError] = true;
-    _levels[LogWarning] = true;
-    _levels[LogInfo] = true; //  Includes all g_message calls.
+    _levels[enumIndex(Logger::LogLevel::Disabled)] = false; // Disable None level.
+    _levels[enumIndex(Logger::LogLevel::Error)] = true;
+    _levels[enumIndex(Logger::LogLevel::Warning)] = true;
+    _levels[enumIndex(Logger::LogLevel::Info)] = true; //  Includes all g_message calls.
 #if !defined(DEBUG) && !defined(_DEBUG)
-    _levels[LogDebug]  = false; // General debug messages.
-    _levels[LogDebug2] = false; // Verbose debug messages.
+    _levels[enumIndex(Logger::LogLevel::Debug)] = false; // General debug messages.
+    _levels[enumIndex(Logger::LogLevel::Debug2)] = false; // Verbose debug messages.
 #else
-    _levels[LogDebug]  = true;
-    _levels[LogDebug2] = true;
+    _levels[enumIndex(Logger::LogLevel::Debug)] = true;
+    _levels[enumIndex(Logger::LogLevel::Debug2)] = true;
 #endif
-    _levels[LogDebug3] = false; // Really chatty, should be switched on only on demand.
+    _levels[enumIndex(Logger::LogLevel::Debug3)] = false; // Really chatty, should be switched on only on demand.
   }
 
   bool level_is_enabled(const Logger::LogLevel level) const
   {
-    return _levels[level];
+    return _levels[enumIndex(level)];
   }
 
-  std::string _filename;
-  bool        _levels[Logger::NumOfLevels + 1];
   std::string _dir;
-  bool        _new_line_pending; // Set to true when the last logged entry ended with a new line.
-  bool        _std_err_log;
+  std::string _filename;
+
+  bool _levels[Logger::logLevelCount];
+  bool _new_line_pending; // Set to true when the last logged entry ended with a new line.
+  bool _std_err_log;
 };
 
-Logger::LoggerImpl*  Logger::_impl = 0;
+Logger::LoggerImpl *Logger::_impl = nullptr;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -164,8 +167,8 @@ Logger::Logger(const std::string& dir, const bool stderr_log, const std::string&
 
 void Logger::enable_level(const LogLevel level)
 {
-  if (level <= NumOfLevels)
-    _impl->_levels[level] = true;
+  if (enumIndex(level) < logLevelCount)
+    _impl->_levels[enumIndex(level)] = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,8 +176,8 @@ void Logger::enable_level(const LogLevel level)
 void Logger::disable_level(const LogLevel level)
 {
 
-  if (level <= NumOfLevels)
-    _impl->_levels[level] = false;
+  if (enumIndex(level) < logLevelCount)
+    _impl->_levels[enumIndex(level)] = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,7 +219,7 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
   if (fp)
   {
     if (_impl->_new_line_pending)
-      fprintf(fp, "%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec, LevelText[level], domain);
+      fprintf(fp, "%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec, LevelText[enumIndex(level)], domain);
     fwrite(buffer, 1, strlen(buffer.get()), fp);
   }
 
@@ -229,46 +232,49 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
     HANDLE  hConsole = 0;
     WORD wOldColorAttrs;
     CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-    if ((level == LogError) || (level == LogWarning))
+    if ((level == LogLevel::Error) || (level == LogLevel::Warning))
     {
       hConsole = GetStdHandle(STD_ERROR_HANDLE);
       GetConsoleScreenBufferInfo(hConsole, &csbiInfo);
       wOldColorAttrs = csbiInfo.wAttributes;
       SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
-      if (level == LogError)
+      if (level == LogLevel::Error)
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
-      else if (level == LogWarning)
+      else if (level == LogLevel::Warning)
         SetConsoleTextAttribute(hConsole, FOREGROUND_INTENSITY);
     }
 # elif !defined(__APPLE__)
-    if (level == LogError)
+    if (level == LogLevel::Error)
       fprintf(stderr, "\e[1;31m");
-    else if (level == LogWarning)
+    else if (level == LogLevel::Warning)
       fprintf(stderr, "\e[1m");
 # endif
 
 #ifdef _WIN32
     if (_impl->_new_line_pending)
     {
-      char *tmp = g_strdup_printf("%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec, LevelText[level], domain);
+      char *tmp = g_strdup_printf("%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec,
+        LevelText[enumIndex(level)], domain);
       OutputDebugStringA(tmp);
       g_free(tmp);
     }
     // if you want the program to stop when a specific log msg is printed, put a bp in the next line and set condition to log_msg_serial==#
     OutputDebugStringA(buffer.get());
 #endif
-    // we need the data in stderr even in Windows, so that the output can be read from copytables
+    // We need the data in stderr even in Windows, so that the output can be read from other tools.
     if (_impl->_new_line_pending)
-      fprintf(stderr, "%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec, LevelText[level], domain);
+      fprintf(stderr, "%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec,
+      LevelText[enumIndex(level)], domain);
       
-    // if you want the program to stop when a specific log msg is printed, put a bp in the next line and set condition to log_msg_serial==#
+    // If you want the program to stop when a specific log msg is printed, put a bp in the next line
+    // and set condition to log_msg_serial==#
     fprintf(stderr, "%s", buffer.get());
 
 # if defined(_WIN32)
-    if ((level == LogError) || (level == LogWarning))
+    if ((level == LogLevel::Error) || (level == LogLevel::Warning))
       SetConsoleTextAttribute(hConsole, wOldColorAttrs);
 # elif !defined(__APPLE__)
-    if (level == LogError || level == LogWarning)
+    if (level == LogLevel::Error || level == LogLevel::Warning)
       fprintf(stderr, "\e[0m");
 # endif
   }
@@ -319,7 +325,7 @@ std::string Logger::get_state()
   std::string state = "";
   if (_impl)
   {
-    for (int i = 0; i < Logger::NumOfLevels + 1; ++i)
+    for (std::size_t i = 0; i < logLevelCount; ++i)
     {
       state += _impl->level_is_enabled((Logger::LogLevel)i) ? "1" : "0";
     }
@@ -331,9 +337,9 @@ std::string Logger::get_state()
 
 void Logger::set_state(const std::string& state)
 {
-  if (_impl && state.length() >= Logger::NumOfLevels)
+  if (_impl && state.length() >= logLevelCount)
   {
-    for (int i = 0; i < Logger::NumOfLevels + 1; ++i)
+    for (std::size_t i = 0; i < logLevelCount; ++i)
     {
       const char level = state[i];
       if (level == '1')
@@ -359,7 +365,7 @@ std::string Logger::active_level()
     return "none";
 
   int i;
-  for (i = NumOfLevels; i > 0; i--)
+  for (i = logLevelCount - 1; i >= 0; i--)
     if (_impl->level_is_enabled((LogLevel) i))
       break;
 
@@ -395,14 +401,16 @@ bool Logger::active_level(const std::string& value)
   if (_impl == NULL)
     return false;
 
-  int levelIndex = NumOfLevels;
+
+  int levelIndex = logLevelCount - 1;
   while (levelIndex >= 0 && !same_string(value, _logLevelNames[levelIndex]))
     levelIndex--;
+
 
   if (levelIndex < 0)
     return false; // Invalid value given. Ignore it.
 
-  for (int i = 1; i < ((int)NumOfLevels + 1); ++i)
+  for (int i = 0; i < int(logLevelCount); ++i)
   {
     if (levelIndex >= i)
       enable_level((LogLevel)i);

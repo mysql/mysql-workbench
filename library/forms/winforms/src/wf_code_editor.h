@@ -35,6 +35,7 @@ namespace MySQL {
 
       virtual void WndProc(Windows::Forms::Message %m) override;
       virtual void OnMouseDown(Windows::Forms::MouseEventArgs ^args) override;
+      virtual bool ProcessCmdKey(Windows::Forms::Message% msg, Windows::Forms::Keys keyData) override;
 
       virtual property Windows::Forms::CreateParams^ CreateParams
       {
@@ -47,6 +48,9 @@ namespace MySQL {
       sptr_t direct_call(unsigned int message, uptr_t wParam, sptr_t lParam);
       void SetBackend(mforms::CodeEditor *editor);
       void SetDropTarget(mforms::DropDelegate *target);
+
+      mforms::KeyCode GetKeyCode(int code);
+      mforms::ModifierKey GetModifiers(Windows::Forms::Keys keyData);
 
       // For interaction with the UI we need some public methods/properties and forward these events
       // to the backend.

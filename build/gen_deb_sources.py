@@ -4,7 +4,11 @@
 # from the input debian.in directory contents
 
 
-output_distros = [("xenial", "ubu1604", ""), ("wily", "ubu1510", ""), ("vivid", "ubu1504", ""), ("utopic", "ubu1410", 'paramiko'), ("trusty", "ubu1404",'paramiko'), ("precise", "ubu1204", 'paramiko')]
+output_distros = [
+    ("xenial" ,"ubuntu16.04" ,"1604"  ,""),
+    ("trusty" ,"ubuntu14.04" ,"1404"  ,"paramiko"),
+    ("jessie" ,"debian8"     ,"8"     ,""),
+]
 
 editions = ["community", "commercial"]
 
@@ -87,13 +91,13 @@ def generate_distro(source_dir, vars):
 
         print target_dir, "generated"
 
-for distro, distro_version, bundle in output_distros:
+for distro, distro_version, version, bundle in output_distros:
         for edition in editions:
                 vars = {}
                 vars['distro'] = distro
                 vars['distrov'] = distro_version
                 vars['edition'] = edition
                 vars['bundle'] = bundle
-                vars['version'] = distro_version.replace('ubu', '')
+                vars['version'] = version
                 generate_distro("debian.in", vars)
 

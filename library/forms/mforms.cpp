@@ -34,7 +34,7 @@ ControlFactory *ControlFactory::get_instance()
   
   if (!instance)
   {
-    log_debug2("Initializing mforms factory\n");
+    logDebug2("Initializing mforms factory\n");
     
     // Do some one time initializations.
     _mforms_main_thread = g_thread_self();
@@ -92,7 +92,7 @@ void **ptrs= (void**)&v;\
 for (unsigned int i= 0; i < sizeof(v)/sizeof(void*); i++)\
 {\
 if (ptrs[i] == 0)\
-log_error("%s has NULL ptr at %i\n", #v, i);\
+logError("%s has NULL ptr at %i\n", #v, i);\
 }\
 }
 
@@ -140,7 +140,7 @@ void ControlFactory::check_impl()
 
 ControlFactory::~ControlFactory()
 {
-  log_info("Shutting down mforms backend\n");
+  logInfo("Shutting down mforms backend\n");
 }
 
 //--------------------------------------------------------------------------------------------------

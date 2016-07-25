@@ -301,14 +301,14 @@ bool wb::internal::PrivilegeInfoNode::is_pasteable(bec::Clipboard *clip)
 
 bool wb::internal::PrivilegeInfoNode::add_new_user(WBContext *wb)
 {
-  bec::GRTManager::get().open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_user(workbench_physical_ModelRef::cast_from(object->owner())));
+  bec::GRTManager::get()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_user(workbench_physical_ModelRef::cast_from(object->owner())));
   return true;
 }
 
 
 bool wb::internal::PrivilegeInfoNode::add_new_role(WBContext *wb)
 {
-  bec::GRTManager::get().open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_role(workbench_physical_ModelRef::cast_from(object->owner())));
+  bec::GRTManager::get()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_role(workbench_physical_ModelRef::cast_from(object->owner())));
   return true;
 }
 

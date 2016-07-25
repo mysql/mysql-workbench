@@ -322,7 +322,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
 
   _catalog= db_mysql_CatalogRef::cast_from(model->catalog());
 
-  log_info("Started import DBD4 model.\n");
+  logInfo("Started import DBD4 model.\n");
 
   _created_schemata= ListRef<db_mysql_Schema>();
   ensure_schema_created(0,
@@ -453,11 +453,11 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
           if (table_prefix_el)
             table_prefix_el= table_prefix_el->NextSiblingElement();
 
-          log_info("Schemata:\n");
+          logInfo("Schemata:\n");
           while (table_prefix_el)
           {
             std::string schema_name= dbd_string_to_utf8(table_prefix_el->Attribute("Name"));
-            log_info("...%s\n", schema_name.c_str());
+            logInfo("...%s\n", schema_name.c_str());
 
             ensure_schema_created((int)_schemata.size(), schema_name.c_str());
 
@@ -497,13 +497,13 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
       {
         if (regions_el)
         {
-          log_info("Layers:\n");
+          logInfo("Layers:\n");
 
           const TiXmlElement *region_el= regions_el->FirstChildElement("REGION");
           while (region_el)
           {
             std::string layer_name= dbd_string_to_utf8(region_el->Attribute("RegionName"));
-            log_info("...%s\n", layer_name.c_str());
+            logInfo("...%s\n", layer_name.c_str());
 
             model_LayerRef layer= workbench_physical_LayerRef(grt::Initialized);
             layer->owner(view);
@@ -536,7 +536,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
       {
         if (tables_el)
         {
-          log_info("Tables:\n");
+          logInfo("Tables:\n");
 
           TableInsertsLoader table_inserts_loader;
 
@@ -544,7 +544,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
           while (table_el)
           {
             std::string table_name= dbd_string_to_utf8(table_el->Attribute("Tablename"));
-            log_info("...%s\n", table_name.c_str());
+            logInfo("...%s\n", table_name.c_str());
 
             // table
             table_el->QueryIntAttribute("TablePrefix", &id);
@@ -744,13 +744,13 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
       {
         if (relations_el)
         {
-          log_info("Connections:\n");
+          logInfo("Connections:\n");
 
           const TiXmlElement *relation_el= relations_el->FirstChildElement("RELATION");
           while (relation_el)
           {
             std::string relation_name= dbd_string_to_utf8(relation_el->Attribute("RelationName"));
-            log_info("...%s\n", relation_name.c_str());
+            logInfo("...%s\n", relation_name.c_str());
 
             relation_el->QueryIntAttribute("DestTable", &id);
             db_mysql_TableRef srcTable= _tables[id];
@@ -924,13 +924,13 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
       {
         if (notes_el)
         {
-          log_info("Notes:\n");
+          logInfo("Notes:\n");
 
           const TiXmlElement *note_el= notes_el->FirstChildElement("NOTE");
           while (note_el)
           {
             std::string note_name= dbd_string_to_utf8(note_el->Attribute("NoteName"));
-            log_info("...%s\n", note_name.c_str());
+            logInfo("...%s\n", note_name.c_str());
 
             workbench_model_NoteFigureRef note_figure(grt::Initialized);
             note_figure->owner(view);
@@ -956,12 +956,12 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
       {
         if (images_el)
         {
-          log_info("Images:\n");
+          logInfo("Images:\n");
 
-          const std::string tmp_dir= bec::GRTManager::get().get_unique_tmp_subdir();
+          const std::string tmp_dir= bec::GRTManager::get()->get_unique_tmp_subdir();
           // crete temp dir
           {
-            base::create_directory(bec::GRTManager::get().get_tmp_dir(), 0700, false);
+            base::create_directory(bec::GRTManager::get()->get_tmp_dir(), 0700, false);
             base::create_directory(tmp_dir, 0700, false);
           }
 
@@ -973,7 +973,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
             if ((img_format.compare("PNG") == 0) && (id == 0))
             {
               std::string image_name= dbd_string_to_utf8(image_el->Attribute("ImageName"));
-              log_info("...%s\n", image_name.c_str());
+              logInfo("...%s\n", image_name.c_str());
 
               std::string filename;
               filename
@@ -1022,7 +1022,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
 
   remove_unused_schemata();
 
-  log_info("Finished import DBD4 model.\n");
+  logInfo("Finished import DBD4 model.\n");
 
   return 1; // success
 }

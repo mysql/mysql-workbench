@@ -130,7 +130,7 @@ void WBComponentPhysical::load_app_options(bool update)
 
       if (list.is_valid())
       {
-        log_debug("Loaded connection list, %i connections found.\n", (int)list.count());
+        logDebug("Loaded connection list, %i connections found.\n", (int)list.count());
         bool changed = false;
         while (mgmt->storedConns().count() > 0)
           mgmt->storedConns().remove(0);
@@ -559,7 +559,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_table(const db_SchemaRef &s
     table= schema->addNewTable(*get_parent_for_object<workbench_physical_Model>(schema)->rdbms()->databaseObjectPackage());
 
   if (table.has_member("tableEngine"))
-    table.set_member("tableEngine", bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine"));
+    table.set_member("tableEngine", bec::GRTManager::get()->get_app_option("db.mysql.Table:tableEngine"));
 
   undo.end(_("Create Table"));
 
@@ -1810,12 +1810,12 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
             }
             catch(std::invalid_argument &e)
             {
-              log_warning("base::reflow_text throw an exception: %s\n", e.what());
+              logWarning("base::reflow_text throw an exception: %s\n", e.what());
               comment = "??Invalid text??";
             }
             catch(std::logic_error &e)
             {
-              log_warning("base::reflow_text throw an exception: %s\n", e.what());
+              logWarning("base::reflow_text throw an exception: %s\n", e.what());
               comment = "??Invalid text result??";
             }
             comment.append("\n");
@@ -1859,12 +1859,12 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
             }
             catch(std::invalid_argument &e)
             {
-              log_warning("base::reflow_text throw an exception: %s\n", e.what());
+              logWarning("base::reflow_text throw an exception: %s\n", e.what());
               comment = "??Invalid text??";
             }
             catch(std::logic_error &e)
             {
-              log_warning("base::reflow_text throw an exception: %s\n", e.what());
+              logWarning("base::reflow_text throw an exception: %s\n", e.what());
               comment = "??Invalid text result??";
             }
             comment.append("\n");
@@ -1886,12 +1886,12 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
               }
               catch(std::invalid_argument &e)
               {
-                log_warning("base::reflow_text throw an exception: %s\n", e.what());
+                logWarning("base::reflow_text throw an exception: %s\n", e.what());
                 comment = "??Invalid text??";
               }
               catch(std::logic_error &e)
               {
-                log_warning("base::reflow_text throw an exception: %s\n", e.what());
+                logWarning("base::reflow_text throw an exception: %s\n", e.what());
                 comment = "??Invalid text result??";
               }
               comment.append("\n");
@@ -2061,10 +2061,10 @@ void WBComponentPhysical::activate_canvas_object(const model_ObjectRef &figure, 
   GrtObjectRef object(get_object_for_figure(figure));
 
   if (object.is_valid())
-    bec::GRTManager::get().open_object_editor(object, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get()->open_object_editor(object, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
 
   else if (workbench_physical_ConnectionRef::can_wrap(figure))
-    bec::GRTManager::get().open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get()->open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
 }
 
 
@@ -2589,7 +2589,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
         {
           gchar *data;
           gsize length;
-          std::string path= base::makePath(bec::GRTManager::get().get_tmp_dir(), object->filename());
+          std::string path= base::makePath(bec::GRTManager::get()->get_tmp_dir(), object->filename());
           
           if (g_file_get_contents(path.c_str(), &data, &length, NULL))
           {
@@ -2644,7 +2644,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
 #if 0
         if (object->filename() != "")
         {
-          std::string path= base::makePath(bec::GRTManager::get().get_tmp_dir(), object->filename());
+          std::string path= base::makePath(bec::GRTManager::get()->get_tmp_dir(), object->filename());
           std::string tmp= base::dirname(path.c_str());
           g_mkdir_with_parents(tmp.c_str(), 0700);
           

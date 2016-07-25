@@ -86,7 +86,6 @@ add_library(wbpublic
     grtsqlparser/mysql_parser_services.cpp
     sqlide/sqlide_generics.cpp
     sqlide/sql_editor_be.cpp
-    sqlide/sql_editor_be_autocomplete.cpp
     sqlide/var_grid_model_be.cpp
     sqlide/recordset_be.cpp
     sqlide/recordset_data_storage.cpp
@@ -96,11 +95,8 @@ add_library(wbpublic
     sqlide/recordset_table_inserts_storage.cpp
     sqlide/recordset_text_storage.cpp
     sqlide/table_inserts_loader_be.cpp
-    sqlide/mysql_object_names_cache.cpp
     sqlide/sql_script_run_wizard.cpp
     sqlide/column_width_cache.cpp
-    sqlide/grammar-parser/ANTLRv3Lexer.c
-    sqlide/grammar-parser/ANTLRv3Parser.c
     wbcanvas/figure_common.cpp
     wbcanvas/badge_figure.cpp
     wbcanvas/connection_figure.cpp
@@ -148,6 +144,9 @@ add_library(wbpublic
     objimpl/db.query/db_query_QueryBuffer.cpp
     objimpl/db.query/db_query_Editor.cpp
     objimpl/db.query/db_query_EditableResultset.cpp
+    objimpl/db.ng/db_ng_Sheet.cpp
+    objimpl/db.ng/db_ng_Ide.cpp
+    objimpl/db.ng/db_ng_Editor.cpp
     objimpl/db.migration/db_migration_Migration.cpp
     objimpl/ui/ui_db_ConnectPanel.cpp
     objimpl/ui/ui_ObjectEditor.cpp
@@ -184,13 +183,13 @@ add_library(wbpublic
 #	)
 #endif()
 
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTemplate_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set_source_files_properties(sqlide/grammar-parser/ANTLRv3Lexer.c
           PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
 endif()
 
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTemplate_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
 
 set_target_properties(wbpublic
                       PROPERTIES VERSION   ${WB_VERSION}

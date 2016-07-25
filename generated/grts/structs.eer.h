@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -13,7 +18,7 @@
   #define GRT_STRUCTS_EER_PUBLIC
 #endif
 
-#include <grts/structs.h>
+#include "grts/structs.h"
 
 
 class eer_Datatype;
@@ -771,5 +776,9 @@ inline void register_structs_eer_xml()
 
 #ifdef AUTO_REGISTER_GRT_CLASSES
 static struct _autoreg__structs_eer_xml { _autoreg__structs_eer_xml() { register_structs_eer_xml(); } } __autoreg__structs_eer_xml;
+#endif
+
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
 #endif
 

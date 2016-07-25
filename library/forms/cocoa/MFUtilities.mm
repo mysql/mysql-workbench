@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,16 +37,20 @@ static int util_show_message(const std::string &title, const std::string &text,
                              const std::string &ok, const std::string &cancel,
                              const std::string &other)
 {
-  int res = [[NSAlert alertWithMessageText: wrap_nsstring(title)
-                             defaultButton: ok.empty() ? nil : wrap_nsstring(ok)
-                           alternateButton: cancel.empty() ? nil : wrap_nsstring(cancel)
-                               otherButton: other.empty() ? nil : wrap_nsstring(other)
-                 informativeTextWithFormat: @"%@",
-              [wrap_nsstring(text) stringByReplacingOccurrencesOfString: @"%"
-                                                             withString: @"%%"]] runModal];
-  if (res == NSAlertDefaultReturn)
+  NSAlert *alert = [NSAlert new];
+  alert.messageText = wrap_nsstring(title);
+  alert.informativeText = [wrap_nsstring(text) stringByReplacingOccurrencesOfString: @"%" withString: @"%%"];
+  if (!ok.empty())
+    [alert addButtonWithTitle: wrap_nsstring(ok)];
+  if (!cancel.empty())
+    [alert addButtonWithTitle: wrap_nsstring(cancel)];
+  if (!other.empty())
+    [alert addButtonWithTitle: wrap_nsstring(other)];
+
+  NSModalResponse response = [alert runModal];
+  if (response == NSAlertFirstButtonReturn)
     return mforms::ResultOk;
-  else if (res == NSAlertOtherReturn)
+  else if (response == NSAlertThirdButtonReturn)
     return mforms::ResultOther;
   else
     return mforms::ResultCancel;
@@ -58,33 +62,33 @@ static int util_show_message_with_checkbox(const std::string &title, const std::
                                            const std::string &other,
                                            const std::string &cb_message, bool &cb_answer)
 {
-  NSAlert *alert = [[NSAlert alloc] init];
+  NSAlert *alert = [NSAlert new];
   
-  [alert setMessageText: wrap_nsstring(title)];
-  [alert setInformativeText: [wrap_nsstring(text) stringByReplacingOccurrencesOfString:@"%" withString:@"%%"]];
+  alert.messageText = wrap_nsstring(title);
+  alert.informativeText = [wrap_nsstring(text) stringByReplacingOccurrencesOfString:@"%" withString:@"%%"];
   [alert setShowsSuppressionButton: YES];
   if (!cb_message.empty())
     alert.suppressionButton.title = wrap_nsstring(cb_message);
   
   if (!ok.empty())
-    [[alert addButtonWithTitle: wrap_nsstring(ok)] setTag: NSAlertDefaultReturn];
+    [alert addButtonWithTitle: wrap_nsstring(ok)];
   
   if (!cancel.empty())
-    [[alert addButtonWithTitle: wrap_nsstring(cancel)] setTag: NSAlertOtherReturn];
+    [alert addButtonWithTitle: wrap_nsstring(cancel)];
   
   if (!other.empty())
-    [[alert addButtonWithTitle: wrap_nsstring(other)] setTag: NSAlertAlternateReturn];
+    [alert addButtonWithTitle: wrap_nsstring(other)];
   
-  int res = [alert runModal];
+  NSModalResponse res = [alert runModal];
 
-  cb_answer = [[alert suppressionButton] state] == NSOnState;
+  cb_answer = alert.suppressionButton.state == NSOnState;
   
-  if (res == NSAlertDefaultReturn)
+  if (res == NSAlertFirstButtonReturn)
     return mforms::ResultOk;
-  else if (res == NSAlertOtherReturn)
-    return mforms::ResultCancel;
-  else
+  else if (res == NSAlertThirdButtonReturn)
     return mforms::ResultOther;
+  else
+    return mforms::ResultCancel;
 }
 
 
@@ -109,7 +113,7 @@ static void util_open_url(const std::string &url)
   else
     if (![[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString: [@(url.c_str())
                                                                        stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]]])
-      log_error("Could not open URL %s\n", url.c_str());
+      logError("Could not open URL %s\n", url.c_str());
 }
 
 
@@ -195,7 +199,7 @@ static base::Mutex timeout_lock;
   }
   catch (std::exception &exc)
   {
-    log_error("Unhandled exception calling timer callback: %s\n", exc.what());
+    logError("Unhandled exception calling timer callback: %s\n", exc.what());
   }
 }
 
@@ -225,7 +229,7 @@ static void util_cancel_timeout(mforms::TimeoutHandle handle)
     active_timeouts.erase(it);
   }
   else
-    log_warning("cancel_timeout called on invalid handle %i\n", handle);
+    logWarning("cancel_timeout called on invalid handle %i\n", handle);
 }
 
 

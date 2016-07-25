@@ -70,11 +70,11 @@ def make_panel_header(icon, title, subtitle, button=None):
     label = mforms.newLabel(title)
     label.set_text_align(mforms.BottomLeft)
     label.set_style(mforms.SmallStyle)
-    table.add(label, 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+    table.add(label, 1, 2, 0, 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
     label = mforms.newLabel(subtitle)
     label.set_text_align(mforms.TopLeft)
     label.set_style(mforms.VeryBigStyle)
-    table.add(label, 1, 2, 1, 2, mforms.HFillFlag|mforms.HExpandFlag)
+    table.add(label, 1, 2, 1, 2, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
     if button:
         table.add(button, 2, 3, 0, 2, mforms.VFillFlag | mforms.HFillFlag)
     return table

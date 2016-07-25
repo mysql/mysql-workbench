@@ -1,0 +1,34 @@
+/*
+* Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License as
+* published by the Free Software Foundation; version 2 of the
+* License.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+* 02110-1301  USA
+*/
+
+#pragma once
+
+#include "grts/structs.db.ng.h"
+#include "grtpp_util.h"
+#include "wbpublic_public_interface.h"
+
+class WBPUBLICBACKEND_PUBLIC_FUNC db_ng_Sheet::ImplData
+{
+public:
+  ImplData();
+  virtual ~ImplData() {};
+  virtual db_ng_EditorRef editor() const = 0;
+  virtual void execute(ssize_t currentStatementOnly) = 0;
+  virtual db_mgmt_ConnectionRef getConnection() const = 0;
+};

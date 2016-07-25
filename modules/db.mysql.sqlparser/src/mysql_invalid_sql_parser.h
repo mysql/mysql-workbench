@@ -18,8 +18,7 @@
  */
 
 
-#ifndef _MYSQL_INVALID_SQL_PARSER_H_
-#define _MYSQL_INVALID_SQL_PARSER_H_
+#pragma once
 
 
 #include "mysql_sql_parser.h"
@@ -35,10 +34,10 @@ class Mysql_invalid_sql_parser
 {
 public:
   typedef std::shared_ptr<Mysql_invalid_sql_parser> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_invalid_sql_parser(grt)); }
+  static Ref create() { return Ref(new Mysql_invalid_sql_parser()); }
   virtual ~Mysql_invalid_sql_parser() { }
 protected:
-  Mysql_invalid_sql_parser(grt::GRT *grt);
+  Mysql_invalid_sql_parser();
 
 public:
   int parse_inserts(db_TableRef table, const std::string &sql);
@@ -92,6 +91,3 @@ protected:
     Mysql_invalid_sql_parser *_sql_parser;
   };
 };
-
-
-#endif // _MYSQL_INVALID_SQL_PARSER_H_

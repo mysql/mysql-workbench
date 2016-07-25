@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ void Logger::EnableLogLevel(LogLevel level)
 
 void Logger::LogError(String^ domain, String^ message)
 {
-  base::Logger::log(base::Logger::LogError, NativeToCppStringRaw(domain).c_str(), "%s", 
+  base::Logger::log(base::Logger::LogLevel::Error, NativeToCppStringRaw(domain).c_str(), "%s", 
     NativeToCppString(message).c_str());
 }
 
@@ -56,7 +56,7 @@ void Logger::LogError(String^ domain, String^ message)
 
 void Logger::LogWarning(String^ domain, String^ message)
 {
-  base::Logger::log(base::Logger::LogWarning, NativeToCppStringRaw(domain).c_str(), "%s",
+  base::Logger::log(base::Logger::LogLevel::Warning, NativeToCppStringRaw(domain).c_str(), "%s",
     NativeToCppString(message).c_str());
 }
 
@@ -64,7 +64,7 @@ void Logger::LogWarning(String^ domain, String^ message)
 
 void Logger::LogInfo(String^ domain, String^ message)
 {
-  base::Logger::log(base::Logger::LogInfo, NativeToCppStringRaw(domain).c_str(), "%s", 
+  base::Logger::log(base::Logger::LogLevel::Info, NativeToCppStringRaw(domain).c_str(), "%s",
     NativeToCppString(message).c_str());
 }
 
@@ -75,15 +75,15 @@ void Logger::LogDebug(String^ domain, int verbosity, String^ message)
   switch (verbosity)
   {
   case 1:
-    base::Logger::log(base::Logger::LogDebug, NativeToCppStringRaw(domain).c_str(), "%s",
+    base::Logger::log(base::Logger::LogLevel::Debug, NativeToCppStringRaw(domain).c_str(), "%s",
       NativeToCppString(message).c_str());
     break;
   case 2:
-    base::Logger::log(base::Logger::LogDebug2, NativeToCppStringRaw(domain).c_str(), "%s",
+    base::Logger::log(base::Logger::LogLevel::Debug2, NativeToCppStringRaw(domain).c_str(), "%s",
       NativeToCppString(message).c_str());
     break;
   case 3:
-    base::Logger::log(base::Logger::LogDebug3, NativeToCppStringRaw(domain).c_str(), "%s",
+    base::Logger::log(base::Logger::LogLevel::Debug3, NativeToCppStringRaw(domain).c_str(), "%s",
       NativeToCppString(message).c_str());
     break;
   }

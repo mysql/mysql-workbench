@@ -249,19 +249,19 @@ int SqlScriptApplyPage::on_exec_stat(long success_count, long err_count)
 
 grt::ValueRef SqlScriptApplyPage::do_execute_sql_script(const std::string &sql_script)
 {
-  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, "Executing:\n"+sql_script+"\n"));
+  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, "Executing:\n"+sql_script+"\n"));
 
   apply_sql_script(sql_script);
 
   if (_err_count)
   {
     values().gset("has_errors", 1);
-    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, _log));
+    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, _log));
     throw std::runtime_error(_("There was an error while applying the SQL script to the database."));
   }
   else
   {
-    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text,
+    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text,
                                                         this, _("SQL script was successfully applied to the database.")));
   }
 

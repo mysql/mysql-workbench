@@ -144,7 +144,7 @@ FileChooser::StringPairVector FileChooser::split_extensions(const std::string &e
     
     if (pattern[0] != '*' && file_extensions)
     {
-      log_warning("ERROR: extension list %s contains errors (file extension pattern should start with *)\n",
+      logWarning("ERROR: extension list %s contains errors (file extension pattern should start with *)\n",
              extensions.c_str());
       continue;
     }

@@ -59,7 +59,7 @@ public:
 
     _process_sql_statement= boost::bind(&Mysql_sql_statement_info::process_sql_statement, this, _1);
 
-    Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
+    Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get()->get_app_option_string("SqlMode"));
     sql_parser_fe.ignore_dml= false;
     Mysql_sql_parser_base::parse_sql_script(sql_parser_fe, sql.c_str());
 
@@ -252,7 +252,7 @@ sqlide::QuoteVar::Escape_sql_string Mysql_sql_specifics::escape_sql_string()
 {
   bool ansi_sql_strings= false;
 
-  grt::ValueRef sql_mode_value= bec::GRTManager::get().get_app_option("SqlMode");
+  grt::ValueRef sql_mode_value= bec::GRTManager::get()->get_app_option("SqlMode");
   if (sql_mode_value.is_valid() && grt::StringRef::can_wrap(sql_mode_value))
   {
     std::string sql_mode_string= toupper(grt::StringRef::cast_from(sql_mode_value));

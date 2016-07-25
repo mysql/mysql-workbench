@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -99,8 +99,8 @@ namespace base {
 
     // Note: these 4 routines do not move the rectangle but only a given side
     //       adjusting the width to keep all other sides constant.
-    inline void set_xmin(double x) { size.width += x - pos.x; pos.x = x; };
-    inline void set_ymin(double y) { size.height += y - pos.y; pos.y = y; };
+    inline void set_xmin(double x) { size.width -= x - pos.x; pos.x = x; };
+    inline void set_ymin(double y) { size.height -= y - pos.y; pos.y = y; };
     inline void set_xmax(double x) { size.width = x - pos.x; };
     inline void set_ymax(double y) { size.height = y - pos.y; };
 

@@ -317,7 +317,7 @@ void WbModelImpl::initializeReporting()
 ssize_t WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates)
 {
   // get pointer to the GRT
-  string basedir= bec::GRTManager::get().get_basedir();
+  string basedir= bec::GRTManager::get()->get_basedir();
   string template_base_dir= base::makePath(basedir, "modules/data/wb_model_reporting");
   GDir *dir;
   const char *entry;
@@ -880,7 +880,7 @@ static int count_template_files(const string template_dir)
 ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::DictRef& options)
 {
   // get pointer to the GRT
-  string basedir= bec::GRTManager::get().get_basedir();
+  string basedir= bec::GRTManager::get()->get_basedir();
   string template_base_dir= base::makePath(basedir, "modules/data/wb_model_reporting");
 
   db_mysql_CatalogRef catalog= db_mysql_CatalogRef::cast_from(model->catalog());

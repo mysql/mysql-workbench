@@ -23,6 +23,12 @@
 
 #ifdef __cplusplus
 
+#include <stack>
+
+#include <glib.h>
+
+#include <antlr3.h>
+
 #include "grts/structs.db.mysql.h"
 
 #endif

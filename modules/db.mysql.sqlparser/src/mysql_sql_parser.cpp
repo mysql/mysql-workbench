@@ -207,7 +207,7 @@ int Mysql_sql_parser::parse_sql_script(db_CatalogRef &catalog, const std::string
   _process_sql_statement= boost::bind(&Mysql_sql_parser::process_sql_statement, this, _1);
 
   int res;
-  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.processing_create_statements= _processing_create_statements;
   sql_parser_fe.processing_alter_statements= _processing_alter_statements;
   sql_parser_fe.processing_drop_statements= _processing_drop_statements;

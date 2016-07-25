@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,7 +101,7 @@ TextEntryImpl::TextEntryImpl(::mforms::TextEntry *self, TextEntryType type)
     _entry->signal_icon_press().connect(sigc::mem_fun(this, &TextEntryImpl::icon_pressed));
     break;
   }
-
+  _entry->set_width_chars(1); // We need to reset it to 1 so set_size_request will work.
   _entry->signal_changed().connect(sigc::bind(sigc::mem_fun(this, &TextEntryImpl::changed), self));
   _entry->signal_activate().connect(sigc::bind(sigc::mem_fun(this, &TextEntryImpl::activated), self));
   _entry->signal_key_press_event().connect(sigc::bind(sigc::mem_fun(this, &TextEntryImpl::key_press), self));
@@ -112,6 +112,8 @@ TextEntryImpl::TextEntryImpl(::mforms::TextEntry *self, TextEntryType type)
   _text_color = _entry->get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL);
   Gdk::Color color("#888888");
   _placeholder_color = color_to_rgba(color);
+
+  setup();
 }
 
 

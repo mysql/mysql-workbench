@@ -18,10 +18,12 @@
  */
 
 #pragma once
-
+#pragma unmanaged
+#include "sqlide/wb_sql_editor_tree_controller.h"
 #include "sqlide/wb_sql_editor_form.h"
 #include "sqlide/wb_sql_editor_panel.h"
 
+#pragma managed
 #include "db_sql_editor_history_wr.h"
 #include "Overview.h"
 
@@ -51,7 +53,7 @@ public:
 
   MySQL::Grt::ActionList ^action_list;
 
-  GrtManager ^ grt_manager() { return gcnew GrtManager(&bec::GRTManager::get()); }
+  GrtManager ^ grt_manager() { return gcnew GrtManager(); }
 
   void new_sql_script_file() { (*_ref)->new_sql_script_file(); }
   

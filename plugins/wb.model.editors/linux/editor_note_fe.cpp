@@ -29,7 +29,7 @@ public:
   {
     set_border_width(8);
     
-    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("modules/data/editor_note.glade"));
+    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("modules/data/editor_note.glade"));
 
     Gtk::Widget *widget;
     _xml->get_widget("base_table", widget);

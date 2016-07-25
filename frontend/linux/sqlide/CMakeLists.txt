@@ -1,5 +1,6 @@
 include_directories(.
     ${PROJECT_SOURCE_DIR}/frontend/linux
+    ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/backend/wbprivate
     ${PROJECT_SOURCE_DIR}/generated

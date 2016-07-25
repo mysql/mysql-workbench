@@ -6,6 +6,7 @@ set(DATA_FILES
     structs.db.mysql.xml
     structs.db.oracle.xml
     structs.db.query.xml
+    structs.db.ng.xml
     structs.db.sybase.xml
     structs.db.xml
     structs.eer.xml

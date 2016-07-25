@@ -29,6 +29,7 @@
 #define NOMINMAX
 
 #include <windows.h>
+#include <shellapi.h>
 
 #include <stdexcept>
 #include <functional>
@@ -45,6 +46,7 @@
 #include <sstream>
 #include <unordered_set>
 #include <list>
+#include <inttypes.h>
 #include <string>
 #include <map>
 #include <vector>
@@ -65,6 +67,5 @@
 
 #include <glib/glib.h>
 #include <glib/gstdio.h>
-
 #include <iosfwd>
 #include <fstream>

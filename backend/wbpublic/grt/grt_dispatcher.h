@@ -21,7 +21,7 @@
 
 #include "base/threading.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 #include "grtpp_shell.h"
 
@@ -127,7 +127,7 @@ namespace bec {
 
     inline bool is_finished() { return _finished; }
 
-    virtual grt::ValueRef execute(grt::GRT *grt)= 0;
+    virtual grt::ValueRef execute()= 0;
 
     void cancel();
     inline bool is_cancelled() { return _cancelled; }
@@ -201,26 +201,26 @@ namespace bec {
     typedef std::shared_ptr<GRTTask> Ref;
 
     static Ref create_task(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
-      const boost::function<grt::ValueRef(grt::GRT*)> &function);
+      const boost::function<grt::ValueRef()> &function);
 
     //XXX replace with direct slots?
-    StartedSignal *signal_started() { return &_started; }
-    FinishedSignal *signal_finished() { return &_finished; }
-    FailedSignal *signal_failed() { return &_failed; }
+    StartedSignal *signal_started() { return &_sigStarted; }
+    FinishedSignal *signal_finished() { return &_sigFinished; }
+    FailedSignal *signal_failed() { return &_sigFailed; }
     ProcessMessageSignal *signal_message() { return &_message; }
     
   protected:
-    boost::function<grt::ValueRef (grt::GRT*)> _function;
+    boost::function<grt::ValueRef ()> _function;
     
-    StartedSignal _started;
-    FinishedSignal _finished;
-    FailedSignal _failed;
+    StartedSignal _sigStarted;
+    FinishedSignal _sigFinished;
+    FailedSignal _sigFailed;
     ProcessMessageSignal _message;
     
-    virtual grt::ValueRef execute(grt::GRT *grt);
+    virtual grt::ValueRef execute();
 
     GRTTask(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
-      const boost::function<grt::ValueRef(grt::GRT*)> &function);
+      const boost::function<grt::ValueRef()> &function);
     virtual void started_m();
     virtual void finished_m(const grt::ValueRef &result);
     virtual void failed_m(const std::exception &error);
@@ -252,7 +252,7 @@ namespace bec {
     GRTShellTask(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
       const std::string &command);
 
-    virtual grt::ValueRef execute(grt::GRT *grt);
+    virtual grt::ValueRef execute();
     virtual void finished_m(const grt::ValueRef &result);
 
     virtual bool process_message(const grt::Message &msg);
@@ -287,16 +287,16 @@ namespace bec {
     volatile bool _shutdown_callback;
     bool _is_main_dispatcher;
     bool _shut_down;
+    bool _started;
     
     GAsyncQueue *_callback_queue;
     GThread *_thread;
     
     static gpointer worker_thread(gpointer data);
 
-    grt::GRT *_grt;
     GRTTaskBase::Ref _current_task;
 
-    GRTDispatcher(grt::GRT *grt, bool threaded, bool is_main_dispatcher);
+    GRTDispatcher(bool threaded, bool is_main_dispatcher);
 
     void prepare_task(const GRTTaskBase::Ref task);
     void execute_task(const GRTTaskBase::Ref task);
@@ -310,11 +310,9 @@ namespace bec {
     bool message_callback(const grt::Message &msg, void *sender);
 
   public:
-    static Ref create_dispatcher(grt::GRT *grt, bool threaded, bool is_main_dispatcher);
+    static Ref create_dispatcher(bool threaded, bool is_main_dispatcher);
 
     virtual ~GRTDispatcher();
-
-    grt::GRT *grt() { return _grt; };
 
     void execute_now(const GRTTaskBase::Ref task);
     
@@ -322,10 +320,10 @@ namespace bec {
     grt::ValueRef add_task_and_wait(const GRTTaskBase::Ref task) THROW (grt::grt_runtime_error);
 
     grt::ValueRef execute_sync_function(const std::string &name,
-      const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
+      const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     void execute_async_function(const std::string &name,
-      const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
+      const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     void wait_task(const GRTTaskBase::Ref task);
     

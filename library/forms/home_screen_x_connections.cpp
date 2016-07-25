@@ -24,7 +24,9 @@
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/log.h"
+#include "base/session_wrapper.h"
 #include "mforms/home_screen.h"
+#include "mforms/ProjectForm.h"
 
 DEFAULT_LOG_DOMAIN("home");
 
@@ -41,7 +43,7 @@ inline void delete_surface(cairo_surface_t* surface)
 class mforms::XConnectionInfoPopup : public mforms::Popup
 {
 private:
-  HomeScreen *_owner;
+  XConnectionsSection *_owner;
 
   base::Rect _free_area;
   int _info_width;
@@ -69,7 +71,7 @@ public:
   const int DETAILS_LINE_HEIGHT = 18;
   const int DETAILS_LINE_WIDTH = 340;
 
-  XConnectionInfoPopup(HomeScreen *owner, const dataTypes::XProject &project,
+  XConnectionInfoPopup(XConnectionsSection *owner, const dataTypes::XProject &project,
                        base::Rect host_bounds, base::Rect free_area, int info_width)
   : Popup(mforms::PopupPlain)
   {
@@ -320,7 +322,7 @@ public:
       // We are going to destroy ourselves when starting an action, so we have to cache
       // values we need after destruction. The self destruction is also the reason why we
       // use mouse_up instead of mouse_click.
-      HomeScreen *owner = _owner;
+      XConnectionsSection *owner = _owner;
       dataTypes::XProject project = _project;
 //      db_mgmt_ConnectionRef connection = _connection;
 //
@@ -345,11 +347,11 @@ public:
       if (_button4_rect.contains(x, y))
       {
         set_modal_result(1);
-        owner->openConnection(project);
+        owner->triggerCallback(HomeScreenAction::ActionOpenXProject, project);
       }
       else
-      if (_close_button_rect.contains(x, y))
-      set_modal_result(1);
+        if (_close_button_rect.contains(x, y))
+          set_modal_result(1);
     }
     return false;
   }
@@ -358,7 +360,7 @@ public:
 
 //----------------- XConnectionsSection -------------------------------------------------------------
 
-class mforms::XConnectionEntry: mforms::Accessible
+class mforms::XProjectEntry : mforms::Accessible
 {
   friend class XConnectionsSection;
 public:
@@ -368,9 +370,9 @@ protected:
   XConnectionsSection *owner;
 
   std::string title;
-  base::Rect titleBounds;
+  base::Size titleSize;
   std::string description;
-  base::Rect descriptionBounds;
+  base::Size descriptionSize;
 
   bool computeStrings; // True after creation to indicate the need to compute the final display strings.
   bool draw_info_tab;
@@ -442,8 +444,8 @@ public:
     Other
   };
 
-  XConnectionEntry(XConnectionsSection *aowner)
-  : owner(aowner), computeStrings(false)
+  XProjectEntry(XConnectionsSection *aowner)
+    : owner(aowner), computeStrings(false)
   {
     draw_info_tab = true;
   }
@@ -478,7 +480,7 @@ public:
     return nullptr;
   }
 
-  void draw_tile_background(cairo_t *cr, bool hot, double alpha, bool for_dragging)
+  void draw_tile_background(cairo_t *cr, bool hot, double alpha, bool for_dragging, bool forNewProjects)
   {
     base::Color backColor = getBackgroundColor(hot);
 
@@ -520,26 +522,42 @@ public:
     if (for_dragging)
       bounds.pos = base::Point(0, 0);
 
-    draw_tile_background(cr, hot, alpha, for_dragging);
+    bool isNewJsProjectEntry = false;
+    bool isNewPyProjectEntry = false;
 
-    if (owner->_xTileIcon != nullptr)
+    if (project.placeholder)
+    {
+      isNewJsProjectEntry = project.connection.language == dataTypes::EditorJavaScript;
+      isNewPyProjectEntry = project.connection.language == dataTypes::EditorPython;
+    }
+
+    draw_tile_background(cr, hot, alpha, for_dragging, isNewJsProjectEntry || isNewPyProjectEntry);
+
+    cairo_surface_t *icon = owner->_xTileIcon;
+    if (isNewJsProjectEntry)
+      icon = owner->_xJsTileIcon;
+    else
+      if (isNewPyProjectEntry)
+        icon = owner->_xPyTileIcon;
+
+    if (icon != nullptr)
     {
       bounds.use_inter_pixel = false;
 
-      base::Size imageSize = mforms::Utilities::getImageSize(owner->_xTileIcon);
+      base::Size imageSize = mforms::Utilities::getImageSize(icon);
       double y = bounds.top() + (bounds.height() - imageSize.height) / 2;
-      mforms::Utilities::paint_icon(cr, owner->_xTileIcon, bounds.left() + 10, y);
+      mforms::Utilities::paint_icon(cr, icon, bounds.left() + 10, y);
 
       bounds.set_xmin(bounds.left() + 10 + imageSize.width);
     }
 
     draw_tile_text(cr, bounds, alpha);
 
-    if (hot && owner->_showDetails && draw_info_tab)
+    if (hot && owner->_showDetails && draw_info_tab && !(isNewJsProjectEntry || isNewPyProjectEntry))
     {
 #ifdef __APPLE__
       // On OS X we show the usual italic small i letter instead of the peeling corner.
-      cairo_select_font_face(cr, HOME_INFO_FONT, CAIRO_FONT_SLANT_ITALIC, CAIRO_FONT_WEIGHT_BOLD);
+      cairo_select_font_face(cr, HomeScreenSettings::HOME_INFO_FONT, CAIRO_FONT_SLANT_ITALIC, CAIRO_FONT_WEIGHT_BOLD);
       cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
 
       owner->_info_button_rect = base::Rect(bounds.right() - 15, bounds.bottom() - 10, 10, 10);
@@ -573,16 +591,13 @@ public:
       title = mforms::Utilities::shorten_string(cr, title, bounds.width() - 21);
 
       cairo_text_extents(cr, title.c_str(), &extents);
-      titleBounds = base::Rect((int)bounds.left() + 10.5, bounds.top() + ceil(extents.height / 2), ceil(extents.width), ceil(extents.height));
+      titleSize = { ceil(extents.width), ceil(extents.height) };
 
       cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SMALL_INFO_FONT_SIZE);
       description = mforms::Utilities::shorten_string(cr, description, bounds.width() - 21);
 
       cairo_text_extents(cr, description.c_str(), &extents);
-      descriptionBounds = base::Rect((int)bounds.left() + 10.5, bounds.top(), ceil(extents.width), ceil(extents.height));
-
-      titleBounds.pos.y += (bounds.height() - titleBounds.height() - descriptionBounds.height()) / 2;
-      descriptionBounds.pos.y = titleBounds.bottom() + 4;
+      descriptionSize = { ceil(extents.width), ceil(extents.height) };
 
       computeStrings = false;
     }
@@ -592,7 +607,8 @@ public:
     base::Color color = getTitleColor();
     cairo_set_source_rgba(cr, color.red, color.green, color.blue, alpha);
 
-    cairo_move_to(cr, titleBounds.left(), titleBounds.top());
+    double y = bounds.top() + (bounds.height() - descriptionSize.height) / 2;
+    cairo_move_to(cr, (int)bounds.left() + 10.5, y);
     cairo_show_text(cr, title.c_str());
     cairo_stroke(cr);
 
@@ -601,15 +617,16 @@ public:
     color = getDescriptionColor();
     cairo_set_source_rgba(cr, color.red, color.green, color.blue, alpha);
 
-    cairo_move_to(cr, descriptionBounds.left(), descriptionBounds.top());
+    y += titleSize.height + 4;
+    cairo_move_to(cr, ceil(bounds.left()) + 10.5, y);
     cairo_show_text(cr, description.c_str());
     cairo_stroke(cr);
   }
 
 
-  virtual void activate(std::shared_ptr<XConnectionEntry> conn, int x, int y)
+  virtual void activate(std::shared_ptr<XProjectEntry> conn, int x, int y)
   {
-    owner->_owner->openConnection(conn->project);
+    owner->triggerCallback(HomeScreenAction::ActionOpenXProject, conn->project);
   }
 
   virtual mforms::Menu *context_menu()
@@ -620,16 +637,16 @@ public:
   virtual void menu_open(ItemPosition pos)
   {
     mforms::Menu *menu = context_menu();
-
-    menu->set_item_enabled(menu->get_item_index("edit_connection"), true);
-    menu->set_item_enabled(menu->get_item_index("move_connection_to_group"), true);
-    menu->set_item_enabled(menu->get_item_index("delete_connection"), true);
-    menu->set_item_enabled(menu->get_item_index("delete_connection_all"), true);
-
-    menu->set_item_enabled(menu->get_item_index("move_connection_to_top"), pos != First);
-    menu->set_item_enabled(menu->get_item_index("move_connection_up"), pos != First);
-    menu->set_item_enabled(menu->get_item_index("move_connection_down"), pos != Last);
-    menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
+//    menu->set_item_enabled(menu->get_item_index("edit_project"), true);
+    menu->set_item_enabled(menu->get_item_index("open_project"), true);
+//    menu->set_item_enabled(menu->get_item_index("move_connection_to_group"), true);
+    menu->set_item_enabled(menu->get_item_index("delete_project"), !project.placeholder);
+//    menu->set_item_enabled(menu->get_item_index("delete_connection_all"), true);
+//
+//    menu->set_item_enabled(menu->get_item_index("move_connection_to_top"), pos != First);
+//    menu->set_item_enabled(menu->get_item_index("move_connection_up"), pos != First);
+//    menu->set_item_enabled(menu->get_item_index("move_connection_down"), pos != Last);
+//    menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
   }
 
   /**
@@ -662,12 +679,12 @@ public:
     if (info_width < 735)
       info_width = (int)host_bounds.width();
 
-    return mforms::manage(new XConnectionInfoPopup(owner->_owner, project, host_bounds, item_bounds, info_width));
+    return mforms::manage(new XConnectionInfoPopup(owner, project, host_bounds, item_bounds, info_width));
   }
 };
 
 
-class mforms::XFolderEntry : public XConnectionEntry
+class mforms::XFolderEntry : public XProjectEntry
 {
 protected:
   virtual std::string get_acc_name() override
@@ -679,7 +696,7 @@ public:
   XConnectionsSection::XConnectionVector children;
 
   XFolderEntry(XConnectionsSection *aowner)
-  : XConnectionEntry(aowner)
+  : XProjectEntry(aowner)
   {
     draw_info_tab = false;
   }
@@ -710,7 +727,7 @@ public:
     menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
   }
 
-  virtual void activate(std::shared_ptr<XConnectionEntry> thisptr, int x, int y) override
+  virtual void activate(std::shared_ptr<XProjectEntry> thisptr, int x, int y) override
   {
     owner->change_to_folder(std::dynamic_pointer_cast<XFolderEntry>(thisptr));
     // force a refresh of the hot_entry even if we don't move the mouse after clicking
@@ -734,11 +751,11 @@ public:
 };
 
 
-class mforms::XFolderBackEntry : public XConnectionEntry
+class mforms::XFolderBackEntry : public XProjectEntry
 {
 public:
   XFolderBackEntry(XConnectionsSection *aowner)
-  : XConnectionEntry(aowner)
+  : XProjectEntry(aowner)
   {
     title = "< back";
   }
@@ -763,7 +780,7 @@ public:
    */
   virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging) override
   {
-    draw_tile_background(cr, hot, alpha, for_dragging);
+    draw_tile_background(cr, hot, alpha, for_dragging, false);
 
     // Title string.
     double x = bounds.left() + 10;
@@ -790,7 +807,7 @@ public:
     return NULL;
   }
 
-  virtual void activate(std::shared_ptr<XConnectionEntry> thisptr, int x, int y) override
+  virtual void activate(std::shared_ptr<XProjectEntry> thisptr, int x, int y) override
   {
     owner->change_to_folder(std::shared_ptr<XFolderEntry>());
     // force a refresh of the hot_entry even if we don't move the mouse after clicking
@@ -801,7 +818,7 @@ public:
 //------------------------------------------------------------------------------------------------
 
 XConnectionsSection::XConnectionsSection(HomeScreen *owner) :
-    HomeScreenSection("wb_starter_grt_shell_52.png")
+    HomeScreenSection("sidebar_wbx.png")
 {
   _owner = owner;
   _connection_context_menu = NULL;
@@ -824,6 +841,8 @@ XConnectionsSection::XConnectionsSection(HomeScreen *owner) :
   _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
   _manage_icon = mforms::Utilities::load_icon("wb_tile_manage.png");
   _xTileIcon = mforms::Utilities::load_icon("wb_x_tile.png");
+  _xJsTileIcon = mforms::Utilities::load_icon("wb_x_js_tile.png");
+  _xPyTileIcon = mforms::Utilities::load_icon("wb_x_py_tile.png");
   _info_popup = NULL;
 
   update_colors();
@@ -831,8 +850,7 @@ XConnectionsSection::XConnectionsSection(HomeScreen *owner) :
 
   set_padding(0, 30, CONNECTIONS_RIGHT_PADDING, 0);
 
-  _accessible_click_handler = boost::bind(&XConnectionsSection::mouse_click, this,
-                                          mforms::MouseButtonLeft, _1, _2);
+  _accessible_click_handler = boost::bind(&XConnectionsSection::mouse_click, this, mforms::MouseButtonLeft, _1, _2);
 
   _addButton.name = "Add Connection";
   _addButton.default_action = "Open New Connection Wizard";
@@ -851,7 +869,7 @@ XConnectionsSection::XConnectionsSection(HomeScreen *owner) :
   _tutorialButton.default_handler = _accessible_click_handler;
 
   _useTraditionalButton.name = "Use traditional MySQL >";
-  _useTraditionalButton.default_action = "Open traditional MySQL";
+  _useTraditionalButton.default_action = "Open classic MySQL Workbench";
   _useTraditionalButton.default_handler = _accessible_click_handler;
 }
 
@@ -872,6 +890,8 @@ XConnectionsSection::~XConnectionsSection()
   delete_surface(_plus_icon);
   delete_surface(_manage_icon);
   delete_surface(_xTileIcon);
+  delete_surface(_xJsTileIcon);
+  delete_surface(_xPyTileIcon);
 
   if (_info_popup != NULL)
     delete _info_popup;
@@ -934,10 +954,10 @@ ssize_t XConnectionsSection::calculate_index_from_point(int x, int y)
 
 //------------------------------------------------------------------------------------------------
 
-std::shared_ptr<XConnectionEntry> XConnectionsSection::entry_from_point(int x, int y, bool &in_details_area)
+std::shared_ptr<XProjectEntry> XConnectionsSection::entry_from_point(int x, int y, bool &in_details_area)
 {
   in_details_area = false;
-  std::shared_ptr<XConnectionEntry> entry;
+  std::shared_ptr<XProjectEntry> entry;
 
   XConnectionVector connections(displayed_connections());
   for (XConnectionVector::iterator conn = connections.begin(); conn != connections.end(); ++conn)
@@ -959,14 +979,14 @@ std::shared_ptr<XConnectionEntry> XConnectionsSection::entry_from_point(int x, i
 }
 
 
-std::shared_ptr<XConnectionEntry> XConnectionsSection::entry_from_index(ssize_t index)
+std::shared_ptr<XProjectEntry> XConnectionsSection::entry_from_index(ssize_t index)
 {
   ssize_t count = displayed_connections().size();
   if (index < count)
   {
     return displayed_connections()[index];
   }
-  return std::shared_ptr<XConnectionEntry>();
+  return std::shared_ptr<XProjectEntry>();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1031,7 +1051,7 @@ int XConnectionsSection::drawHeading(cairo_t *cr)
     x = get_width()/2 - (extents.width / 2 + extents.x_bearing);
     cairo_move_to(cr, x,  yoffset);
     cairo_show_text(cr, txt.c_str());
-    yoffset += extents.height + 10;
+    yoffset += (int)extents.height + 10;
   }
 
   yoffset += 40;
@@ -1048,7 +1068,7 @@ int XConnectionsSection::drawHeading(cairo_t *cr)
     x = get_width() * pos - (extents.width / 2 + extents.x_bearing);
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, btn->name.c_str());
-    btn->bounds = base::Rect(x, yoffset, x + extents.width, yoffset + extents.height);
+    btn->bounds = base::Rect(x, yoffset, extents.width, extents.height);
     pos += 0.25;
   }
 
@@ -1065,10 +1085,14 @@ void XConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, 
   updateHeight();
 
   int yoffset = drawHeading(cr);
+  if (get_width() <= CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING)
+    return;
 
   int width = get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING;
 
   int tiles_per_row = width / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+  if (tiles_per_row < 1)
+    tiles_per_row = 1;
 
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
@@ -1223,7 +1247,7 @@ int XConnectionsSection::calculateHeight()
   if (connections->empty() || tiles_per_row <=1 )
     return 0;
 
-  return (connections->size() / tiles_per_row) * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING) + CONNECTIONS_TOP_PADDING;
+  return (int)((connections->size() / tiles_per_row) * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING) + CONNECTIONS_TOP_PADDING);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1233,32 +1257,58 @@ std::shared_ptr<XFolderEntry> XConnectionsSection::createFolder(const dataTypes:
   std::shared_ptr<XFolderEntry> folder(new XFolderEntry(this));
   folder->title = holder.name;
   folder->computeStrings = true;
-  folder->children.push_back(std::shared_ptr<XConnectionEntry>(new XFolderBackEntry(this)));
+  folder->children.push_back(std::make_shared<XFolderBackEntry>(this));
   return folder;
 }
 
 //------------------------------------------------------------------------------------------------
 
-std::shared_ptr<XConnectionEntry> XConnectionsSection::createConnection(const dataTypes::XProject &project)
+std::shared_ptr<XProjectEntry> XConnectionsSection::createProjectEntry(const dataTypes::XProject &project)
 {
-  std::shared_ptr<XConnectionEntry> entry = std::shared_ptr<XConnectionEntry>(new XConnectionEntry(this));
+  std::shared_ptr<XProjectEntry> entry = std::make_shared<XProjectEntry>(this);
   entry->project = project;
-  entry->title = _("X Session with ") + entry->project.name;
 
-  entry->description = _("Connection URI: ");
-  switch(entry->project.connection.language)
+  bool addDescriptionDetails = false;
+
+
+  if (project.placeholder)
   {
-  case dataTypes::EditorJavaScript:
-    entry->description += "js:///";
-    break;
-  case dataTypes::EditorPython:
-    entry->description += "py:///";
-    break;
-  case dataTypes::EditorSql:
-    entry->description += "py:///";
-    break;
+    if (project.connection.language == dataTypes::EditorJavaScript)
+    {
+      entry->title = _("Start New JS Project");
+      entry->description = _("Create and open a new JS Project");
+    }
+    if (project.connection.language == dataTypes::EditorPython)
+    {
+      entry->title = _("Start New Python Project");
+      entry->description = _("Create and open a new Python Project");
+    }
   }
-  entry->description += entry->project.connection.hostName + ":" + std::to_string(entry->project.connection.port);
+  else
+  {
+    entry->title = _("Project with ") + entry->project.name;
+    entry->description = _("Connection URI: ");
+    addDescriptionDetails = true;
+  }
+
+  if (addDescriptionDetails)
+  {
+    switch(entry->project.connection.language)
+    {
+      case dataTypes::EditorJavaScript:
+        entry->description += "js:///";
+        break;
+      case dataTypes::EditorPython:
+        entry->description += "py:///";
+        break;
+      case dataTypes::EditorSql:
+        entry->description += "sql:///";
+        break;
+    }
+
+    entry->description += entry->project.connection.hostName + ":" + std::to_string(entry->project.connection.port);
+  }
+
   entry->computeStrings = true;
 
   entry->default_handler = boost::bind(&XConnectionsSection::mouse_click, this, mforms::MouseButtonLeft, _1, _2);
@@ -1279,11 +1329,11 @@ void XConnectionsSection::updateHeight()
 
   if (_filtered)
     connections = &_filtered_connections;
-  float tilesPerRow = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+  float tilesPerRow = (float)(get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
 
   if (tilesPerRow > 1)
   {
-    int rowCount = ceil(connections->size() / tilesPerRow);
+    int rowCount = (int)ceil(connections->size() / tilesPerRow);
     if (rowCount > 0)
       height += rowCount * CONNECTIONS_TILE_HEIGHT + (rowCount - 1 ) * CONNECTIONS_SPACING;
     if (height != get_height())
@@ -1307,6 +1357,14 @@ void XConnectionsSection::setFocus()
 
 bool XConnectionsSection::canHandle(HomeScreenMenuType type)
 {
+  switch(type)
+  {
+    case HomeMenuXConnection:
+    case HomeMenuXConnectionGeneric:
+      return true;
+    default:
+      return false;
+  }
   return false;
 }
 
@@ -1314,7 +1372,36 @@ bool XConnectionsSection::canHandle(HomeScreenMenuType type)
 
 void XConnectionsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType type)
 {
-  // pass
+  if (canHandle(type))
+  {
+    switch (type)
+    {
+      case HomeMenuXConnection:
+        if (_connection_context_menu != NULL)
+          _connection_context_menu->release();
+        _connection_context_menu = menu;
+        if (_connection_context_menu != NULL)
+        {
+          _connection_context_menu->retain();
+          menu->set_handler(boost::bind(&XConnectionsSection::handle_command, this, _1));
+        }
+        break;
+
+      default:
+        if (_generic_context_menu != NULL)
+          _generic_context_menu->release();
+        _generic_context_menu = menu;
+        if (_generic_context_menu != NULL)
+        {
+          _generic_context_menu->retain();
+          menu->set_handler(boost::bind(&XConnectionsSection::handle_command, this, _1));
+        }
+        break;
+    }
+
+    if (menu != NULL)
+      scoped_connect(menu->signal_will_show(), boost::bind(&XConnectionsSection::menu_open, this));
+  }
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1340,7 +1427,7 @@ void XConnectionsSection::loadProjects(const dataTypes::ProjectHolder &holder, X
 {
   if (holder.children.empty() && holder.project.isValid())
   {
-    auto entry = createConnection(holder.project);
+    auto entry = createProjectEntry(holder.project);
     children.push_back(entry);
   }
   else
@@ -1349,7 +1436,7 @@ void XConnectionsSection::loadProjects(const dataTypes::ProjectHolder &holder, X
     {
       if (!it.isGroup)
       {
-        auto entry = createConnection(it.project);
+        auto entry = createProjectEntry(it.project);
         children.push_back(entry);
       }
       else
@@ -1360,6 +1447,14 @@ void XConnectionsSection::loadProjects(const dataTypes::ProjectHolder &holder, X
       }
     }
   }
+
+  dataTypes::XProject createNewProject;
+  createNewProject.placeholder = true;
+  createNewProject.connection.language = dataTypes::EditorJavaScript;
+  children.push_back(createProjectEntry(createNewProject));
+
+  createNewProject.connection.language = dataTypes::EditorPython;
+  children.push_back(createProjectEntry(createNewProject));
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1443,31 +1538,31 @@ bool XConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
     {
       if (_addButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionNewXConnection, base::any());
+        triggerCallback(HomeScreenAction::ActionNewJSXProject, base::any());
         return true;
       }
 
       if (_manageButton.bounds.contains(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionManageXConnections, base::any());
+        triggerCallback(HomeScreenAction::ActionManageXProjects, base::any());
         return true;
       }
 
-      if (_learnButton.bounds.contains(x, y))
+      if (_learnButton.bounds.contains_flipped(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenXLearnMore, base::any());
+        triggerCallback(HomeScreenAction::ActionOpenXLearnMore, base::any());
         return true;
       }
 
-      if (_tutorialButton.bounds.contains(x, y))
+      if (_tutorialButton.bounds.contains_flipped(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenXTutorial, base::any());
+        triggerCallback(HomeScreenAction::ActionOpenXTutorial, base::any());
         return true;
       }
 
-      if (_useTraditionalButton.bounds.contains(x, y))
+      if (_useTraditionalButton.bounds.contains_flipped(x, y))
       {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenXTraditional, base::any());
+        triggerCallback(HomeScreenAction::ActionOpenXTraditional, base::any());
         return true;
       }
 
@@ -1541,7 +1636,7 @@ bool XConnectionsSection::mouse_leave()
 bool XConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y)
 {
   bool in_details_area;
-  std::shared_ptr<XConnectionEntry> entry = entry_from_point(x, y, in_details_area);
+  std::shared_ptr<XProjectEntry> entry = entry_from_point(x, y, in_details_area);
 
   if (entry && !_mouse_down_position.empty() && (!_mouse_down_position.contains(x, y)))
   {
@@ -1606,10 +1701,26 @@ void XConnectionsSection::handle_command(const std::string &command)
     else
     {
       project  = &_entry_for_menu->project;
+      if (command == "open_project")
+      {
+        triggerCallback(mforms::HomeScreenAction::ActionOpenXProject, *project);
+        return;
+      }
+      if (command == "delete_project")
+      {
+         int answer = mforms::Utilities::show_warning(_("Delete Connection"), base::strfmt(_("Do you want to delete project %s?"), project->name.c_str()),  _("Delete"), _("Cancel"));
+         if (answer == mforms::ResultOk)
+         {
+           deleteSession(*project);
+           clear_connections(true);
+           loadProjects(ng::loadNgSessions());
+         }
+         return;
+      }
     }
   }
 
-  _owner->handle_context_menu(project, command);
+  _owner->handleContextMenu(project, command);
   _entry_for_menu.reset();
 }
 
@@ -1626,7 +1737,7 @@ void XConnectionsSection::handle_folder_command(const std::string &command)
 
     title += "/";
 
-    _owner->handle_context_menu(title, command);
+    _owner->handleContextMenu(title, command);
     _entry_for_menu.reset();
   }
 
@@ -1641,13 +1752,13 @@ void XConnectionsSection::menu_open()
     XConnectionVector &items(displayed_connections());
   
     if (items.empty())
-      _entry_for_menu->menu_open(XConnectionEntry::Other);
+      _entry_for_menu->menu_open(XProjectEntry::Other);
     else if (items.front() == _entry_for_menu)
-      _entry_for_menu->menu_open(XConnectionEntry::First);
+      _entry_for_menu->menu_open(XProjectEntry::First);
     else if (items.back() == _entry_for_menu)
-      _entry_for_menu->menu_open(XConnectionEntry::Last);
+      _entry_for_menu->menu_open(XProjectEntry::Last);
     else
-      _entry_for_menu->menu_open(XConnectionEntry::Other);
+      _entry_for_menu->menu_open(XProjectEntry::Other);
   }
 }
 
@@ -1772,7 +1883,7 @@ mforms::Accessible* XConnectionsSection::hit_test(int x, int y)
   else
   {
     bool in_details_area = false;
-    std::shared_ptr<XConnectionEntry> entry = entry_from_point(x, y, in_details_area);
+    std::shared_ptr<XProjectEntry> entry = entry_from_point(x, y, in_details_area);
 
     if (entry)
       accessible = entry.get();
@@ -1801,7 +1912,7 @@ bool XConnectionsSection::do_tile_drag(ssize_t index, int x, int y)
     details.hotspot.y = y - bounds.pos.y;
 
     // We know we have no back tile here.
-    std::shared_ptr<XConnectionEntry> entry = entry_from_index(index);
+    std::shared_ptr<XProjectEntry> entry = entry_from_index(index);
     if (entry)
     {
       entry->draw_tile(cr, false, 1, true);
@@ -1836,7 +1947,7 @@ mforms::DragOperation XConnectionsSection::drag_over(View *sender, base::Point p
   {
     // Indicate we can accept files if one of the connection tiles is hit.
     bool in_details_area;
-    std::shared_ptr<XConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
+    std::shared_ptr<XProjectEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
 
     if (!entry)
       return mforms::DragOperationNone;
@@ -1923,7 +2034,7 @@ mforms::DragOperation XConnectionsSection::drag_over(View *sender, base::Point p
         // Folder tiles have "before", "on" and "after" positions. Connection tiles only have "before"
         // and "after".
         base::Rect bounds = bounds_for_entry(index);
-        std::shared_ptr<XConnectionEntry> entry = entry_from_index(index);
+        std::shared_ptr<XProjectEntry> entry = entry_from_index(index);
         if (entry && dynamic_cast<XFolderEntry*>(entry.get()))
         {
           // In a group take the first third as hit area for "before", the second as "on" and the
@@ -1977,7 +2088,7 @@ mforms::DragOperation XConnectionsSection::files_dropped(View *sender, base::Poi
                                     const std::vector<std::string> &file_names)
 {
   bool in_details_area;
-  std::shared_ptr<XConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
+  std::shared_ptr<XProjectEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
   if (!entry)
     return mforms::DragOperationNone;
 
@@ -2014,9 +2125,9 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
     mforms::DragOperation result = mforms::DragOperationNone;
 
     // Can be invalid if we move a group.
-    XConnectionEntry *source_entry = static_cast<XConnectionEntry*>(data);
+    XProjectEntry *source_entry = static_cast<XProjectEntry *>(data);
 
-    std::shared_ptr<XConnectionEntry> entry;
+    std::shared_ptr<XProjectEntry> entry;
     if (_filtered)
     {
       if (_dropIndex < (int)_filtered_connections.size())
@@ -2050,7 +2161,7 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
       else
         dropInfo.group = entry->title;
 
-      _owner->trigger_callback(HomeScreenAction::ActionMoveConnectionToGroup, dropInfo);
+      triggerCallback(HomeScreenAction::ActionMoveConnectionToGroup, dropInfo);
     }
     else
     {
@@ -2061,7 +2172,7 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
       if (_dropPosition == mforms::DropPositionRight)
         to++;
       dropInfo.to = to;
-      _owner->trigger_callback(HomeScreenAction::ActionMoveConnection, dropInfo);
+      triggerCallback(HomeScreenAction::ActionMoveConnection, dropInfo);
     }
     result = mforms::DragOperationMove;
 
@@ -2071,6 +2182,53 @@ mforms::DragOperation XConnectionsSection::data_dropped(mforms::View *sender, ba
     return result;
   }
   return mforms::DragOperationNone;
+}
+
+void XConnectionsSection::triggerCallback(HomeScreenAction action, const base::any &object)
+{
+  switch (action)
+ {
+   case mforms::HomeScreenAction::ActionNewJSXProject:
+   case mforms::HomeScreenAction::ActionNewPythonXProject:
+     addNewSession();
+     break;
+
+   case mforms::HomeScreenAction::ActionManageXProjects:
+     break;
+
+   case mforms::HomeScreenAction::ActionOpenXTutorial:
+     mforms::Utilities::open_url("http://dev.mysql.com/doc/refman/5.7/en/mysql-shell-tutorial-javascript.html");
+     break;
+
+   case mforms::HomeScreenAction::ActionOpenXLearnMore:
+     mforms::Utilities::open_url("http://dev.mysql.com/doc/refman/5.7/en/document-store.html");
+     break;
+
+   default:
+     _owner->onHomeScreenAction(action, object);
+ }
+}
+
+
+void XConnectionsSection::addNewSession()
+{
+  Workbench::X::ProjectForm pf;
+  pf.center();
+  pf.show();
+
+  if (pf._project.isValid())
+  {
+    ng::storeNgSession(pf._project);
+    clear_connections(true);
+    loadProjects(ng::loadNgSessions());
+  }
+}
+
+void XConnectionsSection::deleteSession(const dataTypes::XProject &project)
+{
+  ng::deleteNgSession(project);
+  clear_connections(true);
+  loadProjects(ng::loadNgSessions());
 }
 
 XConnectionsSection::XConnectionVector &XConnectionsSection::displayed_connections()

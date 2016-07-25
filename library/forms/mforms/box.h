@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +19,9 @@
 
 #pragma once
 
-#include <mforms/container.h>
 #include <map>
+
+#include "mforms/container.h"
 
 namespace mforms {
   
@@ -65,7 +66,8 @@ namespace mforms {
      use only its minimum required size. If not set then the subview is centered within
      the computed space (vertically in horizontal layout, horizontally in vertical layout).
      */
-    void add(View *subview, bool expand, bool fill= false);
+    void add(View *subview, bool expand, bool fill = true);
+
     /** Adds a child view, from right to left or bottom to top.
      
      @param subview - subview to be added
@@ -74,7 +76,7 @@ namespace mforms {
      use only its minimum required size. Only makes sense if the target size is larger
      than the preferred view size (if set to expand, homogeneous mode enabled).
      */
-    void add_end(View *subview, bool expand, bool fill= false);
+    void add_end(View *subview, bool expand, bool fill = true);
     
     /** Remove a subview */
     virtual void remove(View *subview);
@@ -87,6 +89,7 @@ namespace mforms {
     
     /** Returns the orientation of the box. */
     bool is_horizontal();
+    
   protected:
     BoxImplPtrs *_box_impl;
     bool _is_horizontal;

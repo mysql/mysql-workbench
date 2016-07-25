@@ -33,6 +33,7 @@
 #include <list>
 #include <vector>
 #include <hash_set>
+#include <stack>
 
 #include <stdio.h>
 #include <float.h>
@@ -63,6 +64,8 @@
 #include <gl/glu.h>
 
 #include <glib.h>
+
+#include <antlr3.h>
 
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"

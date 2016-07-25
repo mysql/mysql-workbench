@@ -59,20 +59,20 @@ public:
                                "and the source is left untouched.");
     add(&_description_text,false,true);
     _show_description_check.set_text("Always show this page");
-    _show_description_check.set_active(bec::GRTManager::get().get_app_option_int("db.mysql.synchronizeAny:show_sync_help_page", 1) != 0);
+    _show_description_check.set_active(bec::GRTManager::get()->get_app_option_int("db.mysql.synchronizeAny:show_sync_help_page", 1) != 0);
     add_end(&_show_description_check,false, true);
   }
 
   virtual void leave(bool advancing)
   {
     if (advancing)
-      bec::GRTManager::get().set_app_option("db.mysql.synchronizeAny:show_sync_help_page", grt::IntegerRef(_show_description_check.get_active()));
+      bec::GRTManager::get()->set_app_option("db.mysql.synchronizeAny:show_sync_help_page", grt::IntegerRef(_show_description_check.get_active()));
   }
   
   virtual void enter(bool advancing)
   {
     if (advancing)
-      if (!bec::GRTManager::get().get_app_option_int("db.mysql.synchronizeAny:show_sync_help_page", 1))
+      if (!bec::GRTManager::get()->get_app_option_int("db.mysql.synchronizeAny:show_sync_help_page", 1))
         _form->go_to_next();
   }
 };

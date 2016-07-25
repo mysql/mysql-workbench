@@ -26,7 +26,7 @@ public:
   {
     set_border_width(8);
     
-    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("modules/data/editor_image.glade"));
+    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("modules/data/editor_image.glade"));
 
     Gtk::Widget *widget;
     _xml->get_widget("editor_image_hbox", widget);

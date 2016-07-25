@@ -246,7 +246,7 @@ void ModelDiagramPanel::InlineEditor::set_multiline(bool flag)
 
 ModelDiagramPanel *ModelDiagramPanel::create()
 {
-  Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("diagram_view.glade"));
+  Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("diagram_view.glade"));
 
   ModelDiagramPanel *panel = 0;
   xml->get_widget_derived("diagram_pane", panel);
@@ -417,11 +417,11 @@ void ModelDiagramPanel::init(const std::string &view_id)
     }
 
     mforms::ToolBar *tools_toolbar = _be->get_tools_toolbar();
-    log_debug3("ModelDiagramPanel::init got tools toolbar %p\n", tools_toolbar);
+    logDebug3("ModelDiagramPanel::init got tools toolbar %p\n", tools_toolbar);
     if (tools_toolbar)
     {
       _tools_toolbar = dynamic_cast<Gtk::Box*>(mforms::widget_for_toolbar(tools_toolbar));
-      log_debug3("ModelDiagramPanel::init cast _tools_toolbar = %p\n", _tools_toolbar);
+      logDebug3("ModelDiagramPanel::init cast _tools_toolbar = %p\n", _tools_toolbar);
       if (_tools_toolbar)
       {
         _diagram_hbox->pack_start(*_tools_toolbar, false, true);
@@ -466,9 +466,9 @@ void ModelDiagramPanel::init(const std::string &view_id)
   _sig_restore_sidebar = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
   
   //  Set the sidebar pane sizes
-  _sidebar->set_position(bec::GRTManager::get().get_app_option_int("Sidebar:VBox1:Position", _sidebar->get_position()));
+  _sidebar->set_position(bec::GRTManager::get()->get_app_option_int("Sidebar:VBox1:Position", _sidebar->get_position()));
 
-  _side_model_pane2->set_position(bec::GRTManager::get().get_app_option_int("Sidebar:VBox2:Position", _side_model_pane2->get_position()));
+  _side_model_pane2->set_position(bec::GRTManager::get()->get_app_option_int("Sidebar:VBox2:Position", _side_model_pane2->get_position()));
     
 }
 bool ModelDiagramPanel::drag_motion(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y, guint time)
@@ -636,9 +636,9 @@ void ModelDiagramPanel::update_tool_cursor()
 
 bool ModelDiagramPanel::on_close()
 {
-  bec::GRTManager::get().set_app_option("Sidebar:VBox1:Position", grt::IntegerRef(_sidebar->get_position()));
+  bec::GRTManager::get()->set_app_option("Sidebar:VBox1:Position", grt::IntegerRef(_sidebar->get_position()));
   
-  bec::GRTManager::get().set_app_option("Sidebar:VBox2:Position", grt::IntegerRef(_side_model_pane2->get_position()));
+  bec::GRTManager::get()->set_app_option("Sidebar:VBox2:Position", grt::IntegerRef(_side_model_pane2->get_position()));
 
   _be->set_closed(true);
   get_parent()->hide(); // hide the container

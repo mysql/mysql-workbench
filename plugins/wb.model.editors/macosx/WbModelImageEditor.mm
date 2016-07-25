@@ -152,7 +152,7 @@ static void call_refresh(void *theEditor)
 }
 
 
-- (IBAction)browse:(id)sender
+- (IBAction)browse: (id)sender
 {
   NSOpenPanel *panel= [NSOpenPanel openPanel];
   
@@ -162,15 +162,19 @@ static void call_refresh(void *theEditor)
   
   [panel setTitle: @"Open Image"];
   [panel setAllowedFileTypes: @[@"png"]];
-  if ([panel runModal] == NSOKButton)
+  if ([panel runModal] == NSModalResponseOK)
   {
     NSString *path= panel.URL.path;
     NSImage *image= [[NSImage alloc] initWithContentsOfFile: path];
     if (!image)
     {
-      NSRunAlertPanel(NSLocalizedString(@"Invalid Image", nil),
-                      NSLocalizedString(@"Could not load the image.", nil),
-                      NSLocalizedString(@"OK", nil), nil, nil, nil);
+      NSAlert *alert = [NSAlert new];
+      alert.messageText = @"Invalid Image";
+      alert.informativeText = @"Could not load the image.";
+      alert.alertStyle = NSWarningAlertStyle;
+      [alert addButtonWithTitle: @"Close"];
+      [alert runModal];
+
       return;
     }
     

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,8 +86,6 @@ BASELIBRARY_PUBLIC_FUNC boost::int64_t get_physical_memory_size(void);
 BASELIBRARY_PUBLIC_FUNC boost::int64_t get_file_size(const char *filename); 
 
 BASELIBRARY_PUBLIC_FUNC char *strcasestr_len(const char *haystack, int haystack_len, const char *needle);
-
-BASELIBRARY_PUBLIC_FUNC char * get_value_from_text_ex(const char *txt, int txt_length, const char *regexpr, unsigned int substring_nr);
 
 BASELIBRARY_PUBLIC_FUNC const char *strfindword(const char *str, const char *word);
 

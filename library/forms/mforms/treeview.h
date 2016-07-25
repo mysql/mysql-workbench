@@ -142,6 +142,7 @@ namespace mforms {
     TreeNode *operator->();
 
     operator bool () const { return node !=0; }
+    bool operator < (const TreeNodeRef &other) const { return node < other.node;  }
     bool operator == (const TreeNodeRef &other) const;
     bool operator != (const TreeNodeRef &other) const;
 
@@ -247,6 +248,7 @@ namespace mforms {
 
     void (*clear_selection)(TreeView *self);
     void (*set_selected)(TreeView *self, TreeNodeRef node, bool state);
+    void(*scrollToNode)(TreeView *self, TreeNodeRef node);
     
     int (*row_for_node)(TreeView *self, TreeNodeRef node);
     TreeNodeRef (*node_at_row)(TreeView *self, int row);
@@ -260,6 +262,10 @@ namespace mforms {
       
     void (*set_column_width)(TreeView *self, int column, int width);
     int (*get_column_width)(TreeView *self, int column);
+
+    void (*BeginUpdate)(TreeView *self);
+    void (*EndUpdate)(TreeView *self);
+
   };
 #endif
 #endif
@@ -322,6 +328,7 @@ namespace mforms {
     /** Sets the selection state of the node */
     void select_node(TreeNodeRef node);
     void set_node_selected(TreeNodeRef node, bool flag);
+    void scrollToNode(TreeNodeRef node);
     
     int row_for_node(TreeNodeRef node);
     TreeNodeRef node_at_row(int row);
@@ -376,6 +383,7 @@ namespace mforms {
      
      if this handler is set, it must call set() itself whenever a cell is edited
      otherwise changes will not be committed.
+
      */
     void set_cell_edit_handler(const std::function<void (TreeNodeRef, int, std::string)> &handler);
 #endif
@@ -455,6 +463,9 @@ namespace mforms {
     // Called when right clicking on a header/title of a column, so that the context menu handler can know
     // what column is it being shown for
     void header_clicked(int column);
+
+    void BeginUpdate();
+    void EndUpdate();
 #endif
 #endif
 

@@ -28,7 +28,7 @@
 
 namespace mforms
 {
-  class XConnectionEntry;
+  class XProjectEntry;
   class XFolderBackEntry;
   class XFolderEntry;
   class XConnectionInfoPopup;
@@ -36,12 +36,13 @@ namespace mforms
 
   class MFORMS_EXPORT XConnectionsSection : public HomeScreenSection, public mforms::DropDelegate
   {
-    friend class XConnectionEntry;
+    friend class XProjectEntry;
     friend class XFolderBackEntry;
     friend class XFolderEntry;
+    friend class XConnectionInfoPopup;
 
   public:
-    typedef std::vector<std::shared_ptr<XConnectionEntry>> XConnectionVector;
+    typedef std::vector<std::shared_ptr<XProjectEntry>> XConnectionVector;
 
   private:
     HomeScreen *_owner;
@@ -52,6 +53,8 @@ namespace mforms
     cairo_surface_t* _plus_icon;
     cairo_surface_t* _manage_icon;
     cairo_surface_t* _xTileIcon;
+    cairo_surface_t* _xJsTileIcon;
+    cairo_surface_t* _xPyTileIcon;
 
     base::Color _titleColor;
     base::Color _descriptionColor;
@@ -75,8 +78,8 @@ namespace mforms
     mforms::Menu *_folder_context_menu;
     mforms::Menu *_generic_context_menu;
 
-    std::shared_ptr<XConnectionEntry> _hot_entry; // The connection entry under the mouse.
-    std::shared_ptr<XConnectionEntry> _entry_for_menu; // The entry that was hot when the context menu was opened.
+    std::shared_ptr<XProjectEntry> _hot_entry; // The connection entry under the mouse.
+    std::shared_ptr<XProjectEntry> _entry_for_menu; // The entry that was hot when the context menu was opened.
     bool _showDetails;      // If there's a hot connection this indicates if we just show the hot state or the connection details.
 
     ssize_t _dragIndex;     // The index of the entry that is being dragged.
@@ -102,8 +105,8 @@ namespace mforms
     void update_colors();
 
     ssize_t calculate_index_from_point(int x, int y);
-    std::shared_ptr<XConnectionEntry> entry_from_point(int x, int y, bool &in_details_area);
-    std::shared_ptr<XConnectionEntry> entry_from_index(ssize_t index);
+    std::shared_ptr<XProjectEntry> entry_from_point(int x, int y, bool &in_details_area);
+    std::shared_ptr<XProjectEntry> entry_from_index(ssize_t index);
     base::Rect bounds_for_entry(ssize_t index);
 
     dataTypes::XProject projectFromIndex(ssize_t index);
@@ -146,7 +149,9 @@ namespace mforms
                                         const std::vector<std::string> &file_names);
     mforms::DragOperation data_dropped(mforms::View *sender, base::Point p,
                                        mforms::DragOperation allowedOperations, void *data, const std::string &format);
-
+    void triggerCallback(HomeScreenAction action, const base::any &object);
+    void addNewSession();
+    void deleteSession(const dataTypes::XProject &project);
   public:
     static const int CONNECTIONS_LEFT_PADDING = 40;
     static const int CONNECTIONS_RIGHT_PADDING = 40; // The tile spacing right to the last tile in the row does not belong to this padding.
@@ -161,7 +166,7 @@ namespace mforms
     void clear_connections(bool clear_state = true);
 
     std::shared_ptr<XFolderEntry> createFolder(const dataTypes::ProjectHolder &holder);
-    std::shared_ptr<XConnectionEntry> createConnection(const dataTypes::XProject &project);
+    std::shared_ptr<XProjectEntry> createProjectEntry(const dataTypes::XProject &project);
     void loadProjects(const dataTypes::ProjectHolder &holder);
     void loadProjects(const dataTypes::ProjectHolder &holder, XConnectionVector &children);
 

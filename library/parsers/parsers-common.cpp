@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,7 @@
 #include <antlr3.h>
 #include <regex>
 
+#include "base/string_utilities.h"
 #include "parsers-common.h"
 
 extern "C" {
@@ -38,6 +39,53 @@ extern "C" {
     return std::regex_match((const char*)text->chars, std::regex(pattern));
   }
   
+}
+
+//------------------ IRecognizer ------------------------------------------------------------------
+
+std::string IRecognizer::dumpTree(pANTLR3_UINT8 *tokenNames, pANTLR3_BASE_TREE tree, const std::string &indentation)
+{
+  std::string result;
+
+  ANTLR3_UINT32 char_pos = tree->getCharPositionInLine(tree);
+  ANTLR3_UINT32 line = tree->getLine(tree);
+  pANTLR3_STRING token_text = tree->getText(tree);
+
+  pANTLR3_COMMON_TOKEN token = tree->getToken(tree);
+  const char* utf8 = (const char*)token_text->chars;
+  if (token != NULL)
+  {
+    ANTLR3_UINT32 token_type = token->getType(token);
+
+    pANTLR3_UINT8 token_name;
+    if (token_type == EOF)
+      token_name = (pANTLR3_UINT8)"EOF";
+    else
+      token_name = tokenNames[token_type];
+
+#ifdef ANTLR3_USE_64BIT
+    result = base::strfmt("%s(line: %i, offset: %i, length: %" PRId64 ", index: %" PRId64 ", %s[%i])    %s\n",
+                          indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
+                          token_type, utf8);
+#else
+    result = base::strfmt("%s(line: %i, offset: %i, length: %i, index: %i, %s[%i])    %s\n",
+                          indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
+                          token_type, utf8);
+#endif
+
+  }
+  else
+  {
+    result = base::strfmt("%s(line: %i, offset: %i, nil)    %s\n", indentation.c_str(), line, char_pos, utf8);
+  }
+
+  for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++)
+  {
+    pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)tree->getChild(tree, index);
+    std::string child_text = dumpTree(tokenNames, child, indentation + "\t");
+    result += child_text;
+  }
+  return result;
 }
 
 //----------------- MySQLTreeWalker ----------------------------------------------------------------
@@ -259,10 +307,7 @@ bool RecognizerTreeWalker::advanceToPosition(int line, int offset)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Advances to the next token with the given type. The parameter type can be any token id listed in
- * MySQLParser.h (search for "Symbolic definitions"). It can be either a simple lexical token
- * like DIV_OPERATOR or SELECT_SYMBOL, a more complex lexical token like IDENTIFIER or a parser token like
- * GROUP_BY or MISSING_ID.
+ * Advances to the next token with the given lexical type.
  *
  * @param type The token type to search.
  * @param recurse If false search only siblings, otherwise any node in any tree level.
@@ -290,7 +335,7 @@ bool RecognizerTreeWalker::advanceToType(uint32_t type, bool recurse)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Steps over a number of tokens and positions the walker at the first token after the last one.
+ * Steps over a number of tokens and positions in the walker.
  * The tokens must all be siblings of the current token and are traversed in exactly the given order
  * without intermediate tokens. The current token must be start_token.
  *

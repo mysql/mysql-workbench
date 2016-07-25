@@ -50,13 +50,6 @@
   [[NSNotificationCenter defaultCenter] removeObserver: self];
 }
 
-
-- (bec::GRTManager*)grtManager
-{
-  return _grtm;
-}
-
-
 - (id)identifier
 {
   return nil;
@@ -247,7 +240,8 @@ static void text_changed(int line, int linesAdded, void *editor_)
                                                name: NSTextDidEndEditingNotification
                                              object: nsviewForView(mforms_editor)];
 
-  std::string font = grt::StringRef::cast_from(self.editorBE->get_grt_manager()->get_app_option("workbench.general.Editor:Font"));
+
+  std::string font = grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("workbench.general.Editor:Font"));
   mforms_editor->set_font(font); 
 
   mforms_editor->signal_changed()->connect(boost::bind(text_changed, _1, _2, (__bridge void *)self));
@@ -266,12 +260,12 @@ static void text_changed(int line, int linesAdded, void *editor_)
 
 - (void)enablePluginDocking:(NSTabView*)tabView
 {
-  mEditorGRTObject = ui_ObjectEditorRef(_grtm->get_grt());
+  mEditorGRTObject = ui_ObjectEditorRef(grt::Initialized);
 
   // setup docking point for mUpperTabView
   mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(tabView, "editor"), true));
 
-  mEditorGRTObject->dockingPoint(mforms_to_grt(_grtm->get_grt(), mDockingPoint));
+  mEditorGRTObject->dockingPoint(mforms_to_grt(mDockingPoint));
 }
 
 @end

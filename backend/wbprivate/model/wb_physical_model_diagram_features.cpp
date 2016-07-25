@@ -71,7 +71,6 @@ public:
   void set_text(const std::string &text)
   {
     _label.set_text(text);
-    set_size(_label.get_preferred_width(), _label.get_preferred_height());
   }
 };
 
@@ -483,11 +482,11 @@ mdc::CanvasView *PhysicalModelDiagramFeatures::get_canvas_view()
 
 bec::GRTManager::Timer *PhysicalModelDiagramFeatures::run_every(const boost::function<bool ()> &slot, double seconds)
 {
-  return bec::GRTManager::get().run_every(slot, seconds);
+  return bec::GRTManager::get()->run_every(slot, seconds);
 }
 
 
 void PhysicalModelDiagramFeatures::cancel_timer(bec::GRTManager::Timer *timer)
 {
-  bec::GRTManager::get().cancel_timer(timer);
+  bec::GRTManager::get()->cancel_timer(timer);
 }

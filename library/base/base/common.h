@@ -22,6 +22,14 @@
 #define MIN_SERVER_VERSION 50100
 #define MAX_SERVER_VERSION 99999
 
+#if defined(__GNUC__) || defined(__APPLE)
+  #define WB_UNUSED __attribute__((unused))
+  #define WB_UNUSED_RETURN_VALUE __attribute__((warn_unused_result))
+#else
+  #define WB_UNUSED
+  #define WB_UNUSED_RETURN_VALUE
+#endif
+
 // set OS-independent debug flag
 #if defined(_WIN32)
   #ifdef _DEBUG

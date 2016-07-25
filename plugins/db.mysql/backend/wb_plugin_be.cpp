@@ -24,16 +24,16 @@ void Wb_plugin::exec_task(bool sync)
 {
   set_task_proc();
 
-  bec::GRTTask::Ref task = bec::GRTTask::create_task(task_desc(), bec::GRTManager::get().get_dispatcher(), _task_proc_cb);
+  bec::GRTTask::Ref task = bec::GRTTask::create_task(task_desc(), bec::GRTManager::get()->get_dispatcher(), _task_proc_cb);
 
   scoped_connect(task->signal_message(),boost::bind(&Wb_plugin::process_task_msg, this, _1));
   scoped_connect(task->signal_failed(),boost::bind(&Wb_plugin::process_task_fail, this, _1));
   scoped_connect(task->signal_finished(),boost::bind(&Wb_plugin::process_task_finish, this, _1));
 
   if (sync)
-    bec::GRTManager::get().get_dispatcher()->add_task_and_wait(task);
+    bec::GRTManager::get()->get_dispatcher()->add_task_and_wait(task);
   else
-    bec::GRTManager::get().get_dispatcher()->add_task(task);
+    bec::GRTManager::get()->get_dispatcher()->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ void Wb_plugin::process_task_finish(grt::ValueRef res)
 {
   grt::GRT::get()->send_info(grt::StringRef::cast_from(res));
   //grt::GRT::get()->make_output_visible();
-  bec::GRTManager::get().perform_idle_tasks();
+  bec::GRTManager::get()->perform_idle_tasks();
   if (_task_fail_cb)
     _task_finish_cb();
 }

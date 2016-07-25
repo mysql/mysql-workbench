@@ -20,6 +20,7 @@ include_directories(.
     ${GRT_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}
+    ${Boost_INCLUDE_DIRS}
     ${MySQL_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
 )
@@ -29,9 +30,8 @@ if (MYSQL_DEFINITIONS)
 endif()
 
 if (UNIX)
-    add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
+  add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
 endif()
-    
 
 add_library(db.mysql.sqlparser.grt
     src/db.mysql.sqlparser.cpp
@@ -90,8 +90,8 @@ add_library(db.mysql.sqlparser.grt
     ${PROJECT_SOURCE_DIR}/library/sql.parser/source/xml.cpp
 )
 
-#We need to wait for mysqlparser, because we're including some antlr headers which parser depends on
-add_dependencies(db.mysql.sqlparser.grt mysqlparser)
+#We need to wait for parsers, because we're including some antlr headers which parser depends on
+add_dependencies(db.mysql.sqlparser.grt parsers)
 
 
 target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ void XMLTraverser::cache_object_nodes(xmlNodePtr node)
 {
   if (node == NULL)
   {
-    log_error("XMLTraverser::cache_object_nodes node is NULL");
+    logError("XMLTraverser::cache_object_nodes node is NULL");
     return;
   }
   xmlNodePtr child= node->children;

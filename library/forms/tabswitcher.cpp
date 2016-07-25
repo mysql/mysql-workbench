@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -268,8 +268,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
 
       _last_visible = ii;
 
-      int iwidth, iheight;
-      Utilities::get_icon_size((*i)->icon, iwidth, iheight);
+      base::Size size = Utilities::getImageSize((*i)->icon);
 
       if (_selected == ii)
       {
@@ -278,12 +277,12 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
         cairo_rectangle(cr, 0, y, VERTICAL_STYLE_WIDTH, VERTICAL_STYLE_HEIGHT);
         cairo_fill(cr);
 
-        Utilities::paint_icon(cr, _selection_image, 0, iy + (VERTICAL_STYLE_WIDTH - iheight)/2 + iheight/2);
+        Utilities::paint_icon(cr, _selection_image, 0, iy + (VERTICAL_STYLE_WIDTH - size.width) / 2 + size.height / 2);
       }
       
       Utilities::paint_icon(cr, (*i)->icon,
-                            (VERTICAL_STYLE_WIDTH - (VERTICAL_STYLE_WIDTH/64.0)*iheight)/2,
-                            iy + (VERTICAL_STYLE_WIDTH - iheight)/2 - font_size,
+                            (VERTICAL_STYLE_WIDTH - (VERTICAL_STYLE_WIDTH/64.0) * size.width) / 2,
+                            iy + (VERTICAL_STYLE_WIDTH - size.height) / 2 - font_size,
                             _selected == ii ? 1.0f : 0.4f);
       if (_selected == ii)
       {
@@ -302,7 +301,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
         cairo_text_extents_t ext;
         cairo_text_extents(cr, (*i)->title.c_str(), &ext);
         
-        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext.width)/2, y + iheight);
+        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext.width)/2, y + size.height);
         cairo_show_text(cr, (*i)->title.c_str());
       }
       else
@@ -313,10 +312,10 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
         cairo_text_extents(cr, l1.c_str(), &ext1);
         cairo_text_extents(cr, l2.c_str(), &ext2);
         
-        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext1.width)/2, y + iheight + 4 - (font_size + ext1.y_bearing) + (VERTICAL_STYLE_WIDTH - iheight)/2);
+        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext1.width)/2, y + size.height + 4 - (font_size + ext1.y_bearing) + (VERTICAL_STYLE_WIDTH - size.height) / 2);
         cairo_show_text(cr, l1.c_str());
         cairo_stroke(cr);
-        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext2.width)/2, y + iheight + 4 + font_size - (font_size + ext2.y_bearing) + (VERTICAL_STYLE_WIDTH - iheight)/2);
+        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext2.width)/2, y + size.height + 4 + font_size - (font_size + ext2.y_bearing) + (VERTICAL_STYLE_WIDTH - size.height) / 2);
         cairo_show_text(cr, l2.c_str());
         cairo_stroke(cr);
       }
@@ -355,7 +354,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
           cairo_paint_with_alpha(cr, 0.4);
       }
       else
-        log_error("Could not load arrow_up/down.png\n");
+        logError("Could not load arrow_up/down.png\n");
     }
     else
     {

@@ -116,7 +116,7 @@ void HistoryTree::handle_change()
   if (!_refresh_pending)
   {
     _refresh_pending = true;
-    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&HistoryTree::refresh, this));
+    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&HistoryTree::refresh, this));
   }
 }
 

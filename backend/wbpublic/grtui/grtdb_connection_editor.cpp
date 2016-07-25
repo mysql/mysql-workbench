@@ -30,22 +30,6 @@
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 
 //------------------------------------------------------------------------------
-/*
-grtui::DbConnectionEditor::DbConnectionEditor(const db_mgmt_ManagementRef &mgmt, const grt::ListRef<db_mgmt_Rdbms> &allowed_rdbms)
-  : mforms::Form(0)
-  , _mgmt(mgmt)
-  , _connection_list(mgmt->otherStoredConns())
-  , _panel(false)
-  , _top_vbox(false)
-  , _top_hbox(true)
-  , _conn_list_buttons_hbox(true)
-  , _stored_connection_list(mforms::TreeDefault|mforms::TreeFlatList)
-  , _bottom_hbox(true)
-{
-  _panel.init(_mgmt, allowed_rdbms);
-
-  init();
-}*/
 
 // for MySQL only connection editors
 grtui::DbConnectionEditor::DbConnectionEditor(const db_mgmt_ManagementRef &mgmt)
@@ -310,7 +294,7 @@ void grtui::DbConnectionEditor::del_stored_conn()
       }
       catch (std::exception &exc)
       {
-        log_warning("Exception caught when clearning the password: %s", exc.what());
+        logWarning("Exception caught when clearning the password: %s", exc.what());
         mforms::Utilities::show_error("Clear Password", 
                                       base::strfmt("Could not clear password: %s", exc.what()),
                                       "OK");

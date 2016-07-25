@@ -119,7 +119,7 @@ void ShellBE::shell_finished_cb(ShellCommand result, const std::string &prompt, 
 {
   if (result == ShellCommandExit)
   {
-    bec::GRTManager::get().terminate();
+    bec::GRTManager::get()->terminate();
     _current_statement.clear();
   }
   else if (result == ShellCommandUnknown)
@@ -322,7 +322,7 @@ void ShellBE::writef(const char *fmt, ...)
 
   // Cache the text if there is no output slot set yet (usually at app start).
   // Flush this queue when we have an output slot and are running in the main thread currently.
-  if (bec::GRTManager::get().is_threaded())
+  if (bec::GRTManager::get()->is_threaded())
   {
     {
       base::MutexLock lock(_text_queue_mutex);
@@ -330,7 +330,7 @@ void ShellBE::writef(const char *fmt, ...)
     }
 
     // if we're in the main thread, flush the message queue
-    if (bec::GRTManager::get().in_main_thread() && _output_slot)
+    if (bec::GRTManager::get()->in_main_thread() && _output_slot)
       flush_shell_output();
   }
   else 

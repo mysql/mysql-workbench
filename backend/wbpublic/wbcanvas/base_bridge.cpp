@@ -20,20 +20,14 @@
 #include "base_bridge.h"
 #include "grt/grt_manager.h"
 
-/**
- * @file  base_bridge.cpp
- * @brief 
- */
-
-
 bool BridgeBase::is_main_thread()
 {
-  return bec::GRTManager::get().in_main_thread();
+  return bec::GRTManager::get()->in_main_thread();
 }
 
 
 void BridgeBase::run_later(const boost::function<void ()> &slot)
 {
-    bec::GRTManager::get().run_once_when_idle(this, slot);
+  bec::GRTManager::get()->run_once_when_idle(this, slot);
 }
 

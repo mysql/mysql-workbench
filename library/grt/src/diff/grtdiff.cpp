@@ -57,9 +57,7 @@ std::shared_ptr<DiffChange> diff_make(const ValueRef &source, const ValueRef &ta
 #endif
   std::shared_ptr<DiffChange> result = GrtDiff(omf, dont_clone_values).diff(source, target, omf);
 #ifdef LOG_DIFF_TIME
-  XXX log_* calls are not meant to be switched at compile time. Either make this always-on log_debug3 or
-  just use g_message or something.
-  log_debug2("Diff took %li ticks\n", timestamp() - start);
+  logDebug2("Diff took %li ticks\n", timestamp() - start);
   printf("Diff took %li ticks\n", timestamp() - start);
 #endif
   return result;

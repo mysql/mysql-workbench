@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 
 #include "lf_base.h"
 #include "lf_mforms.h"
+#include "main_app.h"
 
 namespace mforms { namespace gtk {
 
@@ -40,6 +41,9 @@ public:
   void *GetData() { return _data; };
 };
 
+mforms::ModifierKey GetModifiers(const guint state, const guint keyval);
+mforms::KeyCode GetKeys(const guint keyval);
+
 class ViewImpl : public ObjectImpl
 {
 public:
@@ -51,12 +55,13 @@ protected:
   ViewImpl(::mforms::View *view);
   static void destroy(::mforms::View *self);
   static void show(::mforms::View *self, bool show);
+  virtual void show(bool show);
   static bool is_shown(::mforms::View *self);
   static bool is_fully_visible(::mforms::View *self);
   static void set_tooltip(::mforms::View *self, const std::string &text);
   static void set_font(::mforms::View *self, const std::string &fontDescription);
-  static int get_width(::mforms::View *self);
-  static int get_height(::mforms::View *self);
+  static int get_width(const ::mforms::View *self);
+  static int get_height(const ::mforms::View *self);
   static int get_preferred_width(::mforms::View *self);
   virtual int get_preferred_width();
   static int get_preferred_height(::mforms::View *self);
@@ -117,6 +122,7 @@ protected:
 
   //can be null
   cairo_surface_t *_drag_image;
+  runtime::loop _loop;
 //
 //  /**
 //   * holds a void ptr to the data being dragged and std::string mime type

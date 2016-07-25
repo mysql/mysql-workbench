@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,9 +48,9 @@ bool TextBoxEx::ProcessCmdKey(Message %msg, Keys keyData)
         bool result;
         mforms::TextBox *backend = TextBoxWrapper::GetBackend<mforms::TextBox>(this);
         if (((msg.LParam.ToInt32() >> 16) & KF_EXTENDED) == KF_EXTENDED)
-          result = backend->key_event(mforms::KeyReturn, GetModifiers(keyData), "");
+          result = backend->key_event(mforms::KeyReturn, ViewWrapper::GetModifiers(keyData), "");
         else
-          result = backend->key_event(mforms::KeyEnter, GetModifiers(keyData), "");
+          result = backend->key_event(mforms::KeyEnter, ViewWrapper::GetModifiers(keyData), "");
 
         if (result)
           return __super::ProcessCmdKey(msg, keyData);
@@ -84,7 +84,7 @@ void TextBoxEx::OnKeyDown(KeyEventArgs ^args)
 {
   __super::OnKeyDown(args);
 
-  modifiers = GetModifiers(args->KeyData);
+  modifiers = ViewWrapper::GetModifiers(args->KeyData);
 
   // Don't call the backend for the return key. We have already done that.
   if (args->KeyCode != Keys::Return)
@@ -140,23 +140,6 @@ void TextBoxEx::OnKeyPress(KeyPressEventArgs^ args)
     if (!backend->key_event(mforms::KeyChar, modifiers, NativeToCppString(string)))
       args->Handled = true;
   }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-mforms::ModifierKey TextBoxEx::GetModifiers(Keys keyData)
-{
-  mforms::ModifierKey modifiers = mforms::ModifierNoModifier;
-  if ((keyData & Keys::Control) == Keys::Control)
-    modifiers = modifiers | mforms::ModifierControl;
-  if ((keyData & Keys::Alt) == Keys::Alt)
-    modifiers = modifiers | mforms::ModifierAlt;
-  if ((keyData & Keys::Shift) == Keys::Shift)
-    modifiers = modifiers | mforms::ModifierShift;
-  if ((keyData & Keys::LWin) == Keys::LWin)
-    modifiers = modifiers | mforms::ModifierCommand;
-
-  return modifiers;
 }
 
 //----------------- TextBoxWrapper --------------------------------------------------------------------
@@ -272,7 +255,7 @@ void TextBoxWrapper::set_monospaced(mforms::TextBox *backend, bool flag)
     catch (System::ArgumentException^ e)
     {
       // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-      log_error("TextBoxWrapper::set_monospaced failed. %s\n", e->Message);
+      logError("TextBoxWrapper::set_monospaced failed. %s\n", e->Message);
     }
   else
     textbox->ResetFont();

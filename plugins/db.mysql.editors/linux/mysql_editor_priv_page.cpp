@@ -174,7 +174,7 @@ void DbMySQLEditorPrivPage::remove_privilege_handler()
 //------------------------------------------------------------------------------
 void DbMySQLEditorPrivPage::switch_be(bec::DBObjectEditorBE* be)
 {
-  log_debug("Switching BE for table editor privileges page\n");
+  logDebug("Switching BE for table editor privileges page\n");
   _be = be;
 
   ::bec::ObjectRoleListBE *object_roles_list_be = _object_roles_list_be;

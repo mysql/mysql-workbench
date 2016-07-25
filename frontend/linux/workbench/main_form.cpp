@@ -58,6 +58,7 @@
 #include "mforms/../gtk/lf_form.h"
 
 #include <base/log.h>
+#include "main_app.h"
 
 using base::strfmt;
 
@@ -83,7 +84,7 @@ MainForm::MainForm() : _exiting(false)
 {
   setup_mforms_app();
   
-  _ui= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("wb.glade"));
+  _ui= Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("wb.glade"));
   if(get_upper_note())
   {
     Glib::RefPtr<Atk::Object> acc = get_upper_note()->get_accessible();
@@ -315,7 +316,7 @@ void MainForm::show_status_text_becb(const std::string& text)
 
   _ui->get_widget("statusbar1", status);
 
-  if (bec::GRTManager::get().in_main_thread())
+  if (bec::GRTManager::get()->in_main_thread())
     change_status(status, text);
   else
     // execute when idle in case we're being called from the worker thread
@@ -343,7 +344,7 @@ bool MainForm::quit_app_becb()
         return false;
     }
   }
-  Gtk::Main::quit();
+  runtime::app::get().quit();
 
   return true;
 }
@@ -374,7 +375,7 @@ NativeHandle MainForm::open_plugin_becb(grt::Module *grtmodule,
   if (!(flags & bec::ForceNewWindowFlag) && !(flags & bec::StandaloneWindowFlag))
   {
     std::vector<NativeHandle> handles =
-        bec::GRTManager::get().get_plugin_manager()->get_similar_open_plugins(grtmodule, editor_class, args);
+        bec::GRTManager::get()->get_plugin_manager()->get_similar_open_plugins(grtmodule, editor_class, args);
 
     if (!handles.empty())
     {
@@ -394,7 +395,7 @@ NativeHandle MainForm::open_plugin_becb(grt::Module *grtmodule,
 
       if (editor && !editor->is_editing_live_object() && editor->can_close() && editor->switch_edited_object(args))
       {
-        bec::GRTManager::get().get_plugin_manager()->forget_gui_plugin_handle(handles[0]);
+        bec::GRTManager::get()->get_plugin_manager()->forget_gui_plugin_handle(handles[0]);
         return handles[0];
       }
     }
@@ -964,7 +965,7 @@ void MainForm::destroy_view_becb(mdc::CanvasView* view)
 {
   Gtk::Notebook *note= get_upper_note();
 
-  if (!bec::GRTManager::get().in_main_thread())
+  if (!bec::GRTManager::get()->in_main_thread())
     G_BREAKPOINT();
   
   for (int c= note->get_n_pages(), i= 1; i < c; i++)
@@ -1691,7 +1692,7 @@ void MainForm::prepare_close_document()
 
 bool MainForm::fire_timer()
 {
-  bec::GRTManager::get().flush_timers();
+  bec::GRTManager::get()->flush_timers();
 
   update_timer();
   return false;
@@ -1700,7 +1701,7 @@ bool MainForm::fire_timer()
 
 void MainForm::update_timer()
 {
-  int delay_ms= (int)(1000 * bec::GRTManager::get().delay_for_next_timeout());
+  int delay_ms= (int)(1000 * bec::GRTManager::get()->delay_for_next_timeout());
 
   if (delay_ms >= 0)
     Glib::signal_timeout().connect(sigc::mem_fun(this, &MainForm::fire_timer), delay_ms);
@@ -1741,23 +1742,23 @@ void MainForm::show_page_setup()
 
 static std::string get_resource_path(mforms::App* app, const std::string& file)
 {
-  if (file.empty()) return bec::GRTManager::get().get_data_file_path("");
+  if (file.empty()) return bec::GRTManager::get()->get_data_file_path("");
   if (file[0] == '/') return file;
 
   if (g_str_has_suffix(file.c_str(), ".png") || g_str_has_suffix(file.c_str(), ".xpm"))
     return bec::IconManager::get_instance()->get_icon_path(file);
   else if (g_str_has_suffix(file.c_str(), ".vbs"))
   {
-    return bec::GRTManager::get().get_data_file_path(file);
+    return bec::GRTManager::get()->get_data_file_path(file);
   }
 
-  return bec::GRTManager::get().get_data_file_path(file);
+  return bec::GRTManager::get()->get_data_file_path(file);
 }
 
 
 static std::string get_executable_path(mforms::App* app, const std::string& file)
 {
-  std::string path = bec::GRTManager::get().get_data_file_path(file);
+  std::string path = bec::GRTManager::get()->get_data_file_path(file);
   if (!path.empty() && base::file_exists(path))
     return path;
 
@@ -1814,6 +1815,7 @@ struct EventLoopFrame
   int exit_code;
   bool timedout;
   bool ended;
+  runtime::loop loop;
 };
 
 static std::list<EventLoopFrame*> event_loop_exit_codes;
@@ -1826,7 +1828,7 @@ static bool event_loop_timeout()
     if (!frame->timedout && !frame->ended)
     {
       frame->timedout = true;
-      Gtk::Main::quit();
+      frame->loop.quit();
     }
   }
   return false;
@@ -1845,8 +1847,7 @@ static int begin_event_loop(mforms::App*,float timeout)
     timeout_conn = Glib::signal_timeout().connect(sigc::ptr_fun(event_loop_timeout), (unsigned int)(timeout * 1000)); 
 
   event_loop_exit_codes.push_back(&frame);
-
-  Gtk::Main::run();
+  frame.loop.run();
 
   timeout_conn.disconnect();
   if (event_loop_exit_codes.empty() || event_loop_exit_codes.back() != &frame)
@@ -1858,7 +1859,7 @@ static int begin_event_loop(mforms::App*,float timeout)
   if (!frame.ended && !frame.timedout)
   {
     // means something other than end_event_loop() called quit(), could mean the app is being quit.. 
-    Gtk::Main::quit();
+    runtime::app::get().quit();
     return -1;
   }
   else
@@ -1881,7 +1882,7 @@ static void end_event_loop(mforms::App *,int rc)
   {
     event_loop_exit_codes.back()->exit_code = rc;
     event_loop_exit_codes.back()->ended = true;
-    Gtk::Main::quit();
+    event_loop_exit_codes.back()->loop.quit();
   }
 }
 

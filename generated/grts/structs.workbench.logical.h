@@ -1,8 +1,10 @@
 #pragma once
+
 #ifndef _WIN32
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -16,9 +18,9 @@
   #define GRT_STRUCTS_WORKBENCH_LOGICAL_PUBLIC
 #endif
 
-#include <grts/structs.h>
-#include <grts/structs.model.h>
-#include <grts/structs.eer.h>
+#include "grts/structs.h"
+#include "grts/structs.model.h"
+#include "grts/structs.eer.h"
 
 
 class workbench_logical_Connection;
@@ -531,8 +533,7 @@ public:
   friend class ImplData;
   workbench_logical_Diagram(grt::MetaClass *meta=0)
   : model_Diagram(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -590,8 +591,7 @@ public:
   friend class ImplData;
   workbench_logical_Model(grt::MetaClass *meta=0)
   : model_Model(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0)
-
+    _data(nullptr)
   {
     _diagrams.content().__retype(grt::ObjectType, "workbench.logical.Diagram");
   }
@@ -671,3 +671,4 @@ static struct _autoreg__structs_workbench_logical_xml { _autoreg__structs_workbe
 #ifndef _WIN32
   #pragma GCC diagnostic pop
 #endif
+

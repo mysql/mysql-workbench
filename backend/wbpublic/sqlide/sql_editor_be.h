@@ -51,33 +51,11 @@ namespace mforms {
   class DropDelegate;
 };
 
-class AutoCompleteCache;
+class MySQLObjectNamesCache;
 class MySQLRecognizer;
 
-// Identifiers for images used in auto completion lists.
-// In the header file for unit tests.
-#define AC_KEYWORD_IMAGE        1
-#define AC_SCHEMA_IMAGE         2
-#define AC_TABLE_IMAGE          3
-#define AC_ROUTINE_IMAGE        4 // For SQL stored procedures + functions.
-#define AC_FUNCTION_IMAGE       5 // For MySQL library (runtime) functions and UDFs.
-#define AC_VIEW_IMAGE           6
-#define AC_COLUMN_IMAGE         7
-#define AC_OPERATOR_IMAGE       8
-#define AC_ENGINE_IMAGE         9
-#define AC_TRIGGER_IMAGE       10
-#define AC_LOGFILE_GROUP_IMAGE 11
-#define AC_USER_VAR_IMAGE      12
-#define AC_SYSTEM_VAR_IMAGE    13
-#define AC_TABLESPACE_IMAGE    14
-#define AC_EVENT_IMAGE         15
-#define AC_INDEX_IMAGE         16
-#define AC_USER_IMAGE          17
-#define AC_CHARSET_IMAGE       18
-#define AC_COLLATION_IMAGE     19
-
 /**
- * The central MySQL editor class.
+ * The legacy MySQL editor class.
  */
 
 class WBPUBLICBACKEND_PUBLIC_FUNC MySQLEditor : public base::trackable
@@ -95,8 +73,8 @@ public:
   typedef std::shared_ptr<MySQLEditor> Ref;
   typedef std::weak_ptr<MySQLEditor> Ptr;
 
-  static Ref create(parser::ParserContext::Ref syntax_check_context,
-                    parser::ParserContext::Ref autocopmlete_context,
+  static Ref create(parser::MySQLParserContext::Ref syntax_check_context,
+                    parser::MySQLParserContext::Ref autocopmlete_context,
                     db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
 
   virtual ~MySQLEditor();
@@ -140,10 +118,10 @@ public:
   bool is_sql_check_enabled() const;
   void set_sql_check_enabled(bool val);
   
-  void show_auto_completion(bool auto_choose_single, parser::ParserContext::Ref parser_context);
-  std::vector<std::pair<int, std::string> > update_auto_completion(const std::string &typed_part);
+  void show_auto_completion(bool auto_choose_single, parser::MySQLParserContext::Ref parser_context);
+  std::vector<std::pair<int, std::string>> update_auto_completion(const std::string &typed_part);
   void cancel_auto_completion();
-  void set_auto_completion_cache(AutoCompleteCache *cache);
+  void set_auto_completion_cache(MySQLObjectNamesCache *cache);
 
   std::string selected_text();
   void set_selected_text(const std::string &new_text);
@@ -169,19 +147,19 @@ public:
   void set_continue_on_error(bool value);
 
 protected:
-  MySQLEditor(parser::ParserContext::Ref syntax_check_context,
-              parser::ParserContext::Ref autocopmlete_context);
+  MySQLEditor(parser::MySQLParserContext::Ref syntax_check_context,
+              parser::MySQLParserContext::Ref autocopmlete_context);
 
 private:
   class Private;
-  Private *d; // d-pointer idiom.
+  Private *d;
   
   void set_grtobj(db_query_QueryBufferRef grtobj);
 
   void setup_auto_completion();
   void* run_code_completion();
 
-  std::string get_written_part(size_t position);
+  std::string getWrittenPart(size_t position);
 
   void text_changed(int position, int length, int lines_changed, bool added);
   void char_added(int char_code);
@@ -206,12 +184,10 @@ private:
   bool auto_start_code_completion();
   bool make_keywords_uppercase();
 
-  // These members are shared with sql_editor_autocomplete.cpp, so they cannot go into the private class.
-
   // Entries determined the last time we started auto completion. The actually shown list
   // is derived from these entries filtered by the current input.
   std::vector<std::pair<int, std::string> > _auto_completion_entries;
-  AutoCompleteCache *_auto_completion_cache;
+  MySQLObjectNamesCache *_auto_completion_cache;
 
   mforms::CodeEditor* _code_editor;
   mforms::CodeEditorConfig *_editor_config;

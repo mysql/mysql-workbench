@@ -227,7 +227,7 @@ ValueRef grt::get_value_by_path(const ValueRef &root, const std::string &path)
   }
   
   if (!ok)
-    log_error("Invalid path element '%s' in path: %s\n", prefix.c_str(), path.c_str());
+    logError("Invalid path element '%s' in path: %s\n", prefix.c_str(), path.c_str());
   return value;
 }
 

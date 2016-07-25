@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -419,42 +419,19 @@ std::vector<std::pair<std::size_t, std::size_t>> ECMARecognizer::statementRanges
 {
   std::vector<std::pair<std::size_t, std::size_t>> result;
 
-  uint32_t count = _ast->getChildCount(_ast);
-  if (count == 0)
-    return result;
-
-  --count;  // There must always be one child (EOF) if there's an AST at all.
-
   // Iterate over all children of the top level node and get their start end end positions.
-  for (uint32_t i = 0; i < count; ++i)
+  for (uint32_t i = 0; i < _ast->getChildCount(_ast); ++i)
   {
-    pANTLR3_BASE_TREE topLevelNode = (pANTLR3_BASE_TREE)_ast->getChild(_ast, i);
+    pANTLR3_BASE_TREE node = (pANTLR3_BASE_TREE)_ast->getChild(_ast, i);
+    pANTLR3_COMMON_TOKEN token = node->getToken(node);
+    if (token->type == EOF)
+      break;
 
-    // Find the start of the first real node (no virtual nodes).
-    pANTLR3_BASE_TREE child = topLevelNode;
-    while (child->getChildCount(child) > 0)
-      child = (pANTLR3_BASE_TREE)child->getChild(child, 0);
-
-    pANTLR3_COMMON_TOKEN startToken = child->getToken(child);
-    if (startToken->type == ANTLR3_TOKEN_INVALID)
-      continue;
-
-    // Similar for the last node.
-    child = topLevelNode;
-    while (child->getChildCount(child) > 0)
-      child = (pANTLR3_BASE_TREE)child->getChild(child, child->getChildCount(child) - 1);
-
-    // The grammar is designed in a way that ensures we always have a terminating token.
-    // Either semicolon (if it was given in the text) or EOL (which is a whitespace but gets
-    // promoted to a default channel token in that case).
-    pANTLR3_COMMON_TOKEN stopToken = child->getToken(child);
-
-    uint64_t temp = stopToken->stop - startToken->start + 1;
-    if (stopToken->type == ANTLR3_TOKEN_INVALID)
-      continue;
-
-    result.push_back({ (uint64_t)startToken->start - (uint64_t)_text, stopToken->stop - startToken->start + 1});
+    // This code actually uses only the length of the root token (if it is a subtree),
+    // but we are currently only interested in the start of the token, actually.
+    result.push_back({(uint64_t)token->start - (uint64_t)_text, token->stop - token->start + 1});
   }
+
   return result;
 }
 

@@ -439,11 +439,11 @@ model_ObjectRef WBComponentBasic::paste_object(ModelDiagramForm *view, const grt
 void WBComponentBasic::activate_canvas_object(const model_ObjectRef &figure, bool newwindow)
 {
   if (figure.is_instance(workbench_model_NoteFigure::static_class_name()))
-    bec::GRTManager::get().open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get()->open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
   else if (figure.is_instance(workbench_model_ImageFigure::static_class_name()))
-    bec::GRTManager::get().open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get()->open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
   else if (figure.is_instance(model_Layer::static_class_name()))
-    bec::GRTManager::get().open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get()->open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
 }
 
 

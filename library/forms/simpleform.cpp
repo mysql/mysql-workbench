@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,20 +30,20 @@ using namespace mforms;
 SimpleForm::SimpleForm(const std::string &title, const std::string &ok_caption)
 : Form(NULL)
 {
-  set_name("form");
-  _caption_width= 0;
-  _view_width= 0;
-  _title_width= 0;
+  set_name("simple form");
+  _caption_width = 0;
+  _view_width = 0;
+  _title_width = 0;
 
-  _button_box= 0;
-  _ok_button= 0;
-  _cancel_button= 0;
+  _button_box = 0;
+  _ok_button = 0;
+  _cancel_button = 0;
 
-  _ok_caption= ok_caption;
+  _ok_caption = ok_caption;
 
   set_title(title);
   
-  _content= new Table();
+  _content = new Table();
   _content->set_padding(12);
   _content->set_row_spacing(8);
   _content->set_column_spacing(4);
@@ -190,8 +190,6 @@ void SimpleForm::add_label(const std::string &text, bool bold)
   _content->set_row_count((int)_rows.size() + 1);
   _content->add(l, 0, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag);
 
-  _title_width= max(_title_width, l->get_preferred_width());
-
   Row row;
   row.caption= l;
   row.view= 0;
@@ -218,17 +216,12 @@ void SimpleForm::add_text_entry(const std::string &name, const std::string &capt
     l= new Label(caption);
     l->set_text_align(MiddleRight);
     _content->add(l, 0, 1, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag);
-
-    int w= l->get_preferred_width();
-    _caption_width= max(w, _caption_width);
   }
 
   TextEntry *t= new TextEntry();
   t->set_value(default_value);
   t->set_name(name);
   _content->add(t, 1, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag | HExpandFlag);
-
-  _view_width= max(_view_width, t->get_preferred_width()*2);
 
   Row row;
   row.caption= l;
@@ -250,9 +243,6 @@ void SimpleForm::add_text_area(const std::string &name, const std::string &capti
     l= new Label(caption);
     l->set_text_align(BottomRight);
     _content->add(l, 0, 1, (int)_rows.size(), (int)_rows.size() + 1, 0);
-
-    int w= l->get_preferred_width();
-    _caption_width= max(w, _caption_width);
   }
 
   TextBox *t= new TextBox(BothScrollBars);
@@ -260,8 +250,6 @@ void SimpleForm::add_text_area(const std::string &name, const std::string &capti
   t->set_name(name);
 //  t->set_size(t->get_preferred_width(), t->get_preferred_height()*rows);
   _content->add(t, caption.empty() ? 0 : 1, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag | HExpandFlag | VFillFlag | VExpandFlag);
-
-  _view_width= max(_view_width, t->get_preferred_width());
 
   Row row;
 
@@ -290,8 +278,6 @@ void SimpleForm::add_checkbox(const std::string &name, const std::string &captio
   _content->set_row_count((int)_rows.size() + 1);
   _content->add(t, 0, 2, (int)_rows.size(), (int)_rows.size() + 1, 0);
 
-  _view_width= max(_view_width, t->get_preferred_width());
-
   Row row;
   row.caption= 0;
   row.view= t;
@@ -312,9 +298,6 @@ void SimpleForm::add_select(const std::string &name, const std::string &caption,
     l= new Label(caption);
     l->set_text_align(MiddleRight);
     _content->add(l, 0, 1, (int)_rows.size(), (int)_rows.size() + 1, 0);
-
-    int w= l->get_preferred_width();
-    _caption_width= max(w, _caption_width);
   }
 
   Selector *t= new Selector();
@@ -322,8 +305,6 @@ void SimpleForm::add_select(const std::string &name, const std::string &caption,
   t->add_items(items);
   t->set_name(name);
   _content->add(t, 1, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag);
-
-  _view_width= max(_view_width, t->get_preferred_width());
 
   Row row;
   row.caption= l;

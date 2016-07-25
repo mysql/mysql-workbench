@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -13,8 +18,8 @@
   #define GRT_STRUCTS_WORKBENCH_MODEL_PUBLIC
 #endif
 
-#include <grts/structs.h>
-#include <grts/structs.model.h>
+#include "grts/structs.h"
+#include "grts/structs.model.h"
 
 
 class workbench_model_ImageFigure;
@@ -42,7 +47,7 @@ public:
   : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _filename(""),
      _keepAspectRatio(0),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -147,7 +152,7 @@ public:
      _font(""),
      _text(""),
      _textColor(""),
-    _data(0)
+    _data(nullptr)
 
   {
   }
@@ -257,5 +262,9 @@ inline void register_structs_workbench_model_xml()
 
 #ifdef AUTO_REGISTER_GRT_CLASSES
 static struct _autoreg__structs_workbench_model_xml { _autoreg__structs_workbench_model_xml() { register_structs_workbench_model_xml(); } } __autoreg__structs_workbench_model_xml;
+#endif
+
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
 #endif
 

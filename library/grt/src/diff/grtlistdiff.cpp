@@ -185,7 +185,7 @@ std::shared_ptr<MultiChange> GrtListDiff::diff(const BaseListRef &source, const 
     if (It == target.content().raw_end())
     {
   #ifdef DEBUG_DIFF
-      log_info("Removing %s from list\n", grt::ObjectRef::cast_from(v)->get_string_member("name").c_str());
+      logInfo("Removing %s from list\n", grt::ObjectRef::cast_from(v)->get_string_member("name").c_str());
       if (grt::ObjectRef::cast_from(v)->get_string_member("name") == "fk_tblClientApp_base_tblClient_base1_idx")
         dump_value(target);
   #endif

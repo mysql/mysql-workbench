@@ -117,7 +117,7 @@ bool RecordsetView::activate_toolbar_item(const std::string &action)
   }
   catch (const std::exception &exc)
   {
-    log_error("Unhandled exception in activate_toolbar_item(%s): %s", action.c_str(), exc.what());
+    logError("Unhandled exception in activate_toolbar_item(%s): %s", action.c_str(), exc.what());
     mforms::Utilities::show_error(_("Unhandled Error"), exc.what(), "OK", "", "");
   }
   return false;

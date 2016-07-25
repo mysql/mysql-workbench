@@ -18,4 +18,3 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()= 0;
 };
-

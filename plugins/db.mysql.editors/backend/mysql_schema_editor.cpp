@@ -51,7 +51,7 @@ void MySQLSchemaEditorBE::refactor_catalog_upon_schema_rename(const std::string 
   }
   catch (std::exception &exc)
   {
-    log_error("Exception refactoring for schema rename: %s\n", exc.what());
+    logError("Exception refactoring for schema rename: %s\n", exc.what());
     mforms::Utilities::show_error("Refactor Schema",
                                   base::strfmt("An error occurred while renaming objects from the schema.\n%s", exc.what()),
                                   "OK", "", "");
@@ -84,7 +84,7 @@ void MySQLSchemaEditorBE::refactor_catalog()
   }
   catch (std::exception &exc)
   {
-    log_error("Exception refactoring for schema rename: %s\n", exc.what());
+    logError("Exception refactoring for schema rename: %s\n", exc.what());
     mforms::Utilities::show_error("Refactor Schema",
                                   base::strfmt("An error occurred while changing object references.\n%s", exc.what()),
                                   "OK", "", "");

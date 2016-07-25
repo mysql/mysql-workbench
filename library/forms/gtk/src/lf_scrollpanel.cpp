@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,6 +37,7 @@ mforms::gtk::ScrollPanelImpl::ScrollPanelImpl(::mforms::ScrollPanel *self, mform
   else
     _swin->set_shadow_type(Gtk::SHADOW_NONE);
   _swin->show();
+  setup();
 }
 
 mforms::gtk::ScrollPanelImpl::~ScrollPanelImpl()

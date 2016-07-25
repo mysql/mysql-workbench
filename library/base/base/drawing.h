@@ -39,13 +39,8 @@
 #elif defined(__APPLE__)
   #define DEFAULT_FONT_FAMILY "Helvetica"
   #define DEFAULT_FONT_SIZE 11
-<<<<<<< HEAD
-
-  #define DEFAULT_MONOSPACE_FONT_FAMILY "AndaleMono"
-=======
   #define DEFAULT_SMALL_FONT "Helvetica"
   #define DEFAULT_MONOSPACE_FONT_FAMILY "Consolas"
->>>>>>> f93aa47... OSX, Liunux: fix build, add missing DEFAULT_SMALL_FONT
 #else
   #define DEFAULT_FONT_FAMILY "Helvetica"
   #define DEFAULT_FONT_SIZE 11
@@ -170,11 +165,12 @@ namespace base {
 
   class BASELIBRARY_PUBLIC_FUNC OSConstants
   {
-    std::string defaultFontName() const;
+  public:
+    static std::string defaultFontName();
 
-    float systemFontSize() const;
-    float smallSystemFontSize() const;
-    float labelFontSize() const;
+    static float systemFontSize();
+    static float smallSystemFontSize();
+    static float labelFontSize();
   };
 
 } // namespace base

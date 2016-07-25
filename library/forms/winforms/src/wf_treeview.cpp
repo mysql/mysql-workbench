@@ -513,7 +513,7 @@ public:
       ++freezeCount;
     else
       if (freezeCount == 0)
-        log_error("TreeView: attempt to thaw an unfrozen tree");
+        logError("TreeView: attempt to thaw an unfrozen tree");
       else
         --freezeCount;
 
@@ -1198,6 +1198,13 @@ void TreeViewWrapper::set_selected(mforms::TreeView *backend, mforms::TreeNodeRe
   wrapper->set_selected(node, flag);
 }
 
+//--------------------------------------------------------------------------------------------------
+
+void TreeViewWrapper::scrollToNode(mforms::TreeView *backend, mforms::TreeNodeRef node)
+{
+  TreeViewWrapper *wrapper = backend->get_data<TreeViewWrapper>();
+  wrapper->scrollToNode(node);
+}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -1309,6 +1316,22 @@ int TreeViewWrapper::get_column_width(mforms::TreeView *backend, int column)
 {
   TreeViewWrapper *wrapper = backend->get_data<TreeViewWrapper>();
   return wrapper->get_column_width(column);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeViewWrapper::BeginUpdate(mforms::TreeView *backend)
+{
+  TreeViewWrapper *wrapper = backend->get_data<TreeViewWrapper>();
+  wrapper->BeginUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeViewWrapper::EndUpdate(mforms::TreeView *backend)
+{
+  TreeViewWrapper *wrapper = backend->get_data<TreeViewWrapper>();
+  wrapper->EndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1561,10 +1584,35 @@ void TreeViewWrapper::set_selected(mforms::TreeNodeRef node, bool flag)
 
 //--------------------------------------------------------------------------------------------------
 
+void TreeViewWrapper::scrollToNode(mforms::TreeNodeRef node)
+{
+  TreeNodeWrapper *wrapper = dynamic_cast<TreeNodeWrapper*>(node.ptr());
+  wrapper->scrollToNode();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
 void TreeViewWrapper::freeze_refresh(bool flag)
 {
   MformsTree ^tree = GetManagedObject<MformsTree>();
   tree->FreezeRefresh(flag);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeViewWrapper::BeginUpdate()
+{
+  MformsTree ^tree = GetManagedObject<MformsTree>();
+  tree->BeginUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeViewWrapper::EndUpdate()
+{
+  MformsTree ^tree = GetManagedObject<MformsTree>();
+  tree->EndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1581,6 +1629,7 @@ void TreeViewWrapper::init()
   f->_treeview_impl.get_selection = &TreeViewWrapper::get_selection;
   f->_treeview_impl.get_selected_node = &TreeViewWrapper::get_selected_node;
   f->_treeview_impl.set_selected = &TreeViewWrapper::set_selected;
+  f->_treeview_impl.scrollToNode = &TreeViewWrapper::scrollToNode;
   f->_treeview_impl.set_allow_sorting = &TreeViewWrapper::set_allow_sorting;
   f->_treeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
   f->_treeview_impl.freeze_refresh = &TreeViewWrapper::freeze_refresh;
@@ -1599,6 +1648,9 @@ void TreeViewWrapper::init()
 
   f->_treeview_impl.set_column_width = &TreeViewWrapper::set_column_width;
   f->_treeview_impl.get_column_width = &TreeViewWrapper::get_column_width;
+
+  f->_treeview_impl.BeginUpdate = &TreeViewWrapper::BeginUpdate;
+  f->_treeview_impl.EndUpdate = &TreeViewWrapper::EndUpdate;
 }
 
 //--------------------------------------------------------------------------------------------------

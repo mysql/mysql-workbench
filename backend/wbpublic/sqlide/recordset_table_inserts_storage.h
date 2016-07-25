@@ -32,11 +32,11 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Recordset_table_inserts_storage : public Recor
 {
 public:
   typedef std::shared_ptr<Recordset_table_inserts_storage> Ref;
-  static Ref create(bec::GRTManager *grtm) { return create_with_path(grtm,grtm->get_db_file_path()); }
-  static Ref create_with_path(bec::GRTManager *grtm, const std::string& path) { return Ref(new Recordset_table_inserts_storage(grtm,path)); }
+  static Ref create() { return create_with_path(bec::GRTManager::get()->get_db_file_path()); }
+  static Ref create_with_path(const std::string& path) { return Ref(new Recordset_table_inserts_storage(path)); }
   virtual ~Recordset_table_inserts_storage();
 protected:
-  Recordset_table_inserts_storage(bec::GRTManager *grtm,const std::string& path);
+  Recordset_table_inserts_storage(const std::string& path);
 
 protected:
   virtual void do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commit);

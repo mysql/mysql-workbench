@@ -383,6 +383,7 @@ private:
   static TreeNodeRef get_selected_node(TreeView *self);
   static std::list<TreeNodeRef> get_selection(TreeView *self);
   static void set_selected(TreeView* self, TreeNodeRef node, bool flag);
+  static void scrollToNode(TreeView* self, TreeNodeRef node);
   static TreeSelectionMode get_selection_mode(TreeView *self);
   static void set_selection_mode(TreeView *self, TreeSelectionMode mode);
   static void clear_selection(TreeView *self);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,12 +17,60 @@
  * 02110-1301  USA
  */
 
-
-#include "base/util_functions.h"
+#include <pcre.h>
 #include "grtpp_shell.h"
 
 using namespace grt;
 
+#define O_VECTOR_COUNT 64 // max # of ()*2+2
+
+char * get_value_from_text_ex_opt(const char *txt, int txt_length,
+                                  const char *regexpr,
+                                  unsigned int substring_nr,
+                                  int options_for_exec)
+{
+  pcre *pcre_exp;
+  const char *error_str;
+  int erroffset;
+  int o_vector[O_VECTOR_COUNT];
+  int rc;
+  const char *ret_val;
+  char *value= NULL;
+
+  if(txt && *txt)
+  {
+    pcre_exp= pcre_compile(regexpr, PCRE_CASELESS, &error_str, &erroffset, NULL);
+    if (pcre_exp)
+    {
+      if ((rc= pcre_exec(pcre_exp, NULL, txt, txt_length, 0, 
+                          options_for_exec, o_vector, O_VECTOR_COUNT) ) > 0)
+      {
+        if (o_vector[substring_nr * 2] != -1)
+        {
+          pcre_get_substring(txt, o_vector, rc, substring_nr, &ret_val);
+
+          value= g_strdup(ret_val);
+
+          pcre_free_substring((char*)ret_val);
+        }
+      }
+
+      pcre_free(pcre_exp);
+    }
+  }
+
+  return value;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+char * get_value_from_text_ex(const char *txt, int txt_length,
+                              const char *regexpr, unsigned int substring_nr)
+{
+  return get_value_from_text_ex_opt(txt,txt_length,regexpr,substring_nr,0);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 Shell::Shell()
 {
@@ -130,9 +178,9 @@ bool Shell::set_disable_quit(bool flag)
 
 /** 
  ****************************************************************************
- * @brief Executes a Lua command in the Lua shell
+ * @brief Executes a Python command in the Python shell
  *
- * This will execute the given Lua command in the Lua Shell from the 
+ * This will execute the given Python command in the Python Shell from the 
  * GRT environment. Some pre-processing will be performed in the command
  * to handle special GRT shell commands.
  * 
@@ -300,7 +348,7 @@ ShellCommand Shell::execute(const std::string &linebuf)
     g_free(path);
   }
 
-  //If the command is still unknown, it needs to be a Lua command
+  //If the command is still unknown, it needs to be a Python command
   if ((res == ShellCommandUnknown) || (res == ShellCommandStatement))
   {
     int i;

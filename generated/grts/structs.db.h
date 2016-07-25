@@ -1,8 +1,10 @@
 #pragma once
+
 #ifndef _WIN32
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -16,7 +18,7 @@
   #define GRT_STRUCTS_DB_PUBLIC
 #endif
 
-#include <grts/structs.h>
+#include "grts/structs.h"
 
 
 class db_DatabaseSyncObject;
@@ -6095,3 +6097,4 @@ static struct _autoreg__structs_db_xml { _autoreg__structs_db_xml() { register_s
 #ifndef _WIN32
   #pragma GCC diagnostic pop
 #endif
+

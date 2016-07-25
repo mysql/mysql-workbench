@@ -29,7 +29,7 @@ using namespace base;
 static App *singleton= 0;
 
 App::App(DockingPointDelegate *delegate, bool delete_on_destroy)
-: DockingPoint(delegate, delete_on_destroy)
+: DockingPoint(delegate, delete_on_destroy), _app_impl(nullptr)
 {
 }
 

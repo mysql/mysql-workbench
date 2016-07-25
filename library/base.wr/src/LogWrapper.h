@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __LOGWRAPPER_H__
-#define __LOGWRAPPER_H__
+#pragma once
 
 #include "base/log.h"
 
@@ -31,14 +30,14 @@ namespace Workbench {
    * all modules.
    */
   public enum class LogLevel {
-    LogNone     = base::Logger::LogNone, 
-    LogError    = base::Logger::LogError,
-    LogWarning  = base::Logger::LogWarning,
-    LogInfo     = base::Logger::LogInfo,
-    LogDebug    = base::Logger::LogDebug,
-    LogDebug2   = base::Logger::LogDebug2,
-    LogDebug3   = base::Logger::LogDebug3
-  };
+    Disabled = base::Logger::LogLevel::Disabled, 
+    Error    = base::Logger::LogLevel::Error,
+    Warning  = base::Logger::LogLevel::Warning,
+    Info     = base::Logger::LogLevel::Info,
+    Debug    = base::Logger::LogLevel::Debug,
+    Debug2   = base::Logger::LogLevel::Debug2,
+    Debug3   = base::Logger::LogLevel::Debug3
+  }; 
 
   public ref class Logger
   {
@@ -60,5 +59,3 @@ namespace Workbench {
 
 } // namespace Workbench
 } // namespace MySQL
-
-#endif // __LOGWRAPPER_H__

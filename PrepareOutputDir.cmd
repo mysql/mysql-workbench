@@ -83,8 +83,12 @@ xcopy /i /s /y /d %RES_DIR%\wbdata\*.xml %TARGET_DIR%\data\. 1> nul 2> nul
 xcopy /i /s /y /d %RES_DIR%\wbdata\data.db %TARGET_DIR%\data\. 1> nul 2> nul
 
 echo Copy parser grammar + support files
-xcopy /i /s /y /d %LIBRARY_DIR%\mysql.parser\MySQL.tokens %TARGET_DIR%\data 1> nul 2> nul
-xcopy /i /s /y /d %LIBRARY_DIR%\mysql.parser\grammar\MySQL.g %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\MySQL.tokens %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\MySQLSimpleParser.tokens %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\ECMA.tokens %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\MySQL.g %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\MySQLSimpleParser.g %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\ECMA.g %TARGET_DIR%\data 1> nul 2> null
 
 if not exist %TARGET_DIR%\mysql.profiles mkdir %TARGET_DIR%\mysql.profiles
 copy %RES_DIR%\mysql.profiles\*.xml %TARGET_DIR%\mysql.profiles\. 1> nul 2> nul
@@ -214,6 +218,11 @@ copy %EXT_LIB_DIR%\tinyxml\%2\tinyxml.dll %TARGET_DIR%\.
 echo * gdal library + tools ...
 copy %EXT_LIB_DIR%\gdal\gdal.dll %TARGET_DIR%\.
 copy %EXT_LIB_DIR%\gdal\*.exe %TARGET_DIR%\.
+
+echo * ng library ...
+copy %EXT_LIB_DIR%\ngshell\%2\*.dll %TARGET_DIR%\.
+if not exist %TARGET_DIR%\modules\js mkdir %TARGET_DIR%\modules\js
+copy %EXT_LIB_DIR%\ngshell\%2\modules\js\*.* %TARGET_DIR%\modules\js.
 
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide

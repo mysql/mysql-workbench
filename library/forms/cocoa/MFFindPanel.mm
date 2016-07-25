@@ -142,8 +142,8 @@ using namespace mforms;
     [self setFrameSize: NSMakeSize(NSWidth(self.frame), 46)];
   }
   mFindLabel.stringValue = @"";
-  if ([self.superview respondsToSelector: @selector(subviewMinimumSizeChanged)])
-    [(id)self.superview subviewMinimumSizeChanged];
+  if ([self.superview respondsToSelector: @selector(relayout)])
+    [(id)self.superview relayout];
 }
 
 

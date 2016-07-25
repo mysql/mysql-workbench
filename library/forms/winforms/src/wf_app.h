@@ -63,8 +63,6 @@ namespace MySQL {
       static int enter_event_loop(mforms::App *app, float max_wait_time);
       static void exit_event_loop(mforms::App *app, int ret_code);
 
-      static base::Color get_system_color(mforms::SystemColor type);
-
     public:
       AppWrapper(ManagedApplication ^managed);
 

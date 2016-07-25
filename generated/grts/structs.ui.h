@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
 #include "grt.h"
 
 #ifdef _WIN32
@@ -13,10 +18,10 @@
   #define GRT_STRUCTS_UI_PUBLIC
 #endif
 
-#include <grts/structs.h>
-#include <grts/structs.db.mgmt.h>
-#include <grts/structs.model.h>
-#include <grts/structs.wrapper.h>
+#include "grts/structs.h"
+#include "grts/structs.db.mgmt.h"
+#include "grts/structs.model.h"
+#include "grts/structs.wrapper.h"
 
 
 class ui_db_ConnectPanel;
@@ -43,8 +48,7 @@ public:
   friend class ImplData;
   ui_db_ConnectPanel(grt::MetaClass *meta=0)
   : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -148,8 +152,7 @@ public:
   ui_ObjectEditor(grt::MetaClass *meta=0)
   : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false),
-    _data(0)
-
+    _data(nullptr)
   {
   }
 
@@ -376,5 +379,9 @@ inline void register_structs_ui_xml()
 
 #ifdef AUTO_REGISTER_GRT_CLASSES
 static struct _autoreg__structs_ui_xml { _autoreg__structs_ui_xml() { register_structs_ui_xml(); } } __autoreg__structs_ui_xml;
+#endif
+
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
 #endif
 

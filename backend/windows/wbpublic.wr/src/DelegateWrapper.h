@@ -22,7 +22,7 @@
 
 #include <boost/function.hpp>
 
-#include "sqlide/recordset_be.h"
+#include "sqlide/recordset_data_storage.h"
 
 using namespace System;
 using namespace System::Runtime::InteropServices;

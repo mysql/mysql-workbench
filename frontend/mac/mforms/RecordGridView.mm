@@ -178,7 +178,7 @@ void RecordGridView::set_font(const std::string &font_desc)
                                            size: size]];
   }
   else
-    log_error("Invalid font specification: %s\n", font_desc.c_str());
+    logError("Invalid font specification: %s\n", font_desc.c_str());
 }
 
 

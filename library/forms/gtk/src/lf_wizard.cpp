@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -146,7 +146,7 @@ void WizardImpl::cancel(::mforms::Wizard* wiz)
   if (wiz->_cancel_slot())
   {
     wiz_impl->get_window()->hide();
-    Gtk::Main::quit();
+    wiz_impl->_loop.quit();
   }
 }
 
@@ -157,7 +157,7 @@ bool WizardImpl::delete_event(GdkEventAny* ev, ::mforms::Wizard* wiz)
 
   wiz->_cancel_slot();
   wiz_impl->get_window()->hide();
-  Gtk::Main::quit();
+  wiz_impl->_loop.quit();
   return true;
 }
     
@@ -187,8 +187,10 @@ void WizardImpl::run_modal(::mforms::Wizard *self)
     {
       _wnd->set_modal(true);
       _wnd->show();
-      _wnd->set_transient_for(*get_mainwindow());
-      Gtk::Main::run();
+      if (get_mainwindow() != nullptr)
+        _wnd->set_transient_for(*get_mainwindow());
+
+      wiz->_loop.run();
       _wnd->set_modal(false);
     }
   }
@@ -204,7 +206,7 @@ void WizardImpl::close(::mforms::Wizard *self)
     if (_wnd)
       _wnd->hide();
   }
-  Gtk::Main::quit();
+  wiz->_loop.quit();
 }
 
 //------------------------------------------------------------------------------
