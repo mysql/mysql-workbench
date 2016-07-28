@@ -280,19 +280,16 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 %doc %{license_file} README
 
 %attr(0755,root,root) %{_bindir}/mysql-workbench
-%attr(0755,root,root) %{_bindir}/workbench.x
 %attr(0755,root,root) %{_bindir}/wbcopytables
 
 %dir %{_libexecdir}/mysql-workbench
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql-workbench-bin
-%attr(0755,root,root) %{_libexecdir}/mysql-workbench/workbench.x-bin
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/wbcopytables-bin
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/iodbcadm-gtk
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysqldump
 
 %{_libdir}/mysql-workbench
-%{_libdir}/workbench.x
 
 %{_datadir}/mysql-workbench
 %attr(0755,root,root) %{_datadir}/mysql-workbench/extras/*.sh
