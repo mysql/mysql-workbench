@@ -1081,29 +1081,6 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       break;
     }
 
-    case mforms::HomeScreenAction::ActionNewJSXProject:
-      break;
-
-    case mforms::HomeScreenAction::ActionNewPythonXProject:
-      break;
-
-    case mforms::HomeScreenAction::ActionManageXProjects:
-      break;
-
-    case mforms::HomeScreenAction::ActionOpenXTutorial:
-      mforms::Utilities::open_url("http://dev.mysql.com/doc/refman/5.7/en/mysql-shell-tutorial-javascript.html");
-      break;
-
-    case mforms::HomeScreenAction::ActionOpenXLearnMore:
-      mforms::Utilities::open_url("http://dev.mysql.com/doc/refman/5.7/en/document-store.html");
-      break;
-
-    case mforms::HomeScreenAction::ActionOpenXTraditional:
-    {
-      _home_screen->showSection(1);
-      break;
-    }
-
     default:
       logError("Unknown Action.\n");
   }
