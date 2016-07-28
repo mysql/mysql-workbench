@@ -82,16 +82,7 @@ namespace mforms
     ActionNewEERModel,
     ActionOpenEERModelFromList,
     ActionNewModelFromDB,
-    ActionNewModelFromScript,
-
-    ActionOpenXProject,
-    ActionNewJSXProject,
-    ActionNewPythonXProject,
-    ActionManageXProjects,
-
-    ActionOpenXTutorial,
-    ActionOpenXLearnMore,
-    ActionOpenXTraditional
+    ActionNewModelFromScript
   };
 
   enum HomeScreenMenuType
