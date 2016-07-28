@@ -69,7 +69,6 @@ endif
 WBDIRNAME=mysql-workbench-@edition@
 
 WBLIBPATH=$(INSTALL_PREFIX)/lib/mysql-workbench
-WBLIBXPATH=$(INSTALL_PREFIX)/lib/workbench.x
 WBDATADIRPATH=$(INSTALL_PREFIX)/share/mysql-workbench
 WBDOCPATH=$(INSTALL_PREFIX)/share/doc/mysql-workbench-@edition@
 
@@ -193,7 +192,7 @@ binary-arch: build install
 	dh_installdeb
 	dh_shlibdeps \
           --dpkg-shlibdeps-params=--ignore-missing-info \
-          -l$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH):$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBXPATH)
+          -l$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
