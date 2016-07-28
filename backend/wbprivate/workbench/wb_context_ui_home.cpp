@@ -1081,42 +1081,6 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       break;
     }
 
-    case HomeScreenAction::ActionOpenXProject:
-    {
-      dataTypes::XProject project = anyObject;
-#ifdef _WIN32
-      std::string exeName = "MySQLWorkbench.X.exe";
-#elif __APPLE__
-      std::string exeName = "MySQLWorkbench.X.app";
-#else
-      std::string exeName = mforms::App::get()->get_executable_path("workbench.x");
-#endif
-      logInfo("About to execute: %s --open %s\n", exeName.c_str(), project.connection.uuid.c_str());
-      try
-      {
-        if (project.placeholder)
-        {
-
-          if (project.connection.language == dataTypes::EditorJavaScript)
-            base::launchApplication(exeName, { "--new", "js" });
-          else if (project.connection.language == dataTypes::EditorPython)
-            base::launchApplication(exeName, { "--new", "python" });
-          else
-            throw std::runtime_error("Unhandled session type");
-
-        }
-        else
-          base::launchApplication(exeName, { "--open", project.connection.uuid });
-      } catch (std::runtime_error &e)
-      {
-        std::string message = "Unable to execute: " + exeName + "\nError: " + e.what();
-        logError("%s\n", message.c_str());
-        mforms::Utilities::show_warning(_("Launch Error"), message, _("Close"));
-      }
-
-      break;
-    }
-
     case mforms::HomeScreenAction::ActionNewJSXProject:
       break;
 
