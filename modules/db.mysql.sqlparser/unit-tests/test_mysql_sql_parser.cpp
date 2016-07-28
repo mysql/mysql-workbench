@@ -36,7 +36,7 @@ using namespace parser;
 
 BEGIN_TEST_DATA_CLASS(highlevel_mysql_parser_test)
 protected:
-  WBTester *_tester;
+  WBTester _tester;
   SqlFacade::Ref _sqlFacade;
   
   MySQLParserContext::Ref _context;
@@ -45,9 +45,9 @@ protected:
   DictRef _options;
 
   void test_import_sql(int test_no, const char *old_schema_name = NULL, const char *new_schema_name= NULL);
+
   TEST_DATA_CONSTRUCTOR(highlevel_mysql_parser_test)
   {
-    _tester = new WBTester();
   }
 
 END_TEST_DATA_CLASS
@@ -57,17 +57,17 @@ TEST_MODULE(highlevel_mysql_parser_test, "High level MySQL parser tests");
 TEST_FUNCTION(10)
 {
   // init datatypes
-  populate_grt(*_tester);
+  populate_grt(_tester);
 
   _options = DictRef(true);
   _options.set("gen_fk_names_when_empty", IntegerRef(0));
 
-  _sqlFacade = SqlFacade::instance_for_rdbms(_tester->get_rdbms());
+  _sqlFacade = SqlFacade::instance_for_rdbms(_tester.get_rdbms());
   ensure("failed to get sqlparser module", _sqlFacade != NULL);
 
   _services = MySQLParserServices::get();
-  _context = MySQLParserServices::createParserContext(_tester->get_rdbms()->characterSets(),
-    _tester->get_rdbms()->version(), false);
+  _context = MySQLParserServices::createParserContext(_tester.get_rdbms()->characterSets(),
+    _tester.get_rdbms()->version(), false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,10 +96,10 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
     if (g_file_test(test_catalog_state_filename.c_str(), G_FILE_TEST_EXISTS)) // Some newer tests are only done for the new parser.
     {
       db_mysql_CatalogRef res_catalog(grt::Initialized);
-      res_catalog->version(_tester->get_rdbms()->version());
+      res_catalog->version(_tester.get_rdbms()->version());
       res_catalog->defaultCharacterSetName("utf8");
       res_catalog->defaultCollationName("utf8_general_ci");
-      grt::replace_contents(res_catalog->simpleDatatypes(), _tester->get_rdbms()->simpleDatatypes());
+      grt::replace_contents(res_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
       _sqlFacade->parseSqlScriptFileEx(res_catalog, test_sql_filename, _options);
 
@@ -116,7 +116,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
       // Before comparing set the simple data types list to that of the rdbms. Its not part of the
       // parsing process we test here. The test data additionally doesn't contain full lists,
       // so we would get a test failure on that.
-      grt::replace_contents(test_catalog->simpleDatatypes(), _tester->get_rdbms()->simpleDatatypes());
+      grt::replace_contents(test_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
       grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);
     }
@@ -130,10 +130,10 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "a_res.xml";
 
     db_mysql_CatalogRef res_catalog(grt::Initialized);
-    res_catalog->version(_tester->get_rdbms()->version());
+    res_catalog->version(_tester.get_rdbms()->version());
     res_catalog->defaultCharacterSetName("utf8");
     res_catalog->defaultCollationName("utf8_general_ci");
-    grt::replace_contents(res_catalog->simpleDatatypes(), _tester->get_rdbms()->simpleDatatypes());
+    grt::replace_contents(res_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
     std::string sql = base::getTextFileContent(test_sql_filename);
     tut::ensure("Query failed to parse", 
@@ -148,7 +148,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
 
     // Unserialize the result so we can compare that with the generated catalog.
     db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(grt::GRT::get()->unserialize(test_catalog_state_filename)));
-    grt::replace_contents(test_catalog->simpleDatatypes(), _tester->get_rdbms()->simpleDatatypes());
+    grt::replace_contents(test_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
     grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);
     //*/
@@ -239,7 +239,7 @@ TEST_FUNCTION(90)
 // we can't have this inside of the d-tor.
 TEST_FUNCTION(99)
 {
-  delete _tester;
+  //delete _tester;
 }
 
 END_TESTS
