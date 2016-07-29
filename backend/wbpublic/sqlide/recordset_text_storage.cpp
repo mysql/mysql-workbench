@@ -33,14 +33,12 @@
 
 #define WIN32 // required by ctemplate to compile on win
 
-#include <ctemplate/template.h>
+#include "mtemplate/template.h"
+#include <iostream>
 
 using namespace bec;
 using namespace grt;
 using namespace base;
-
-using ctemplate::Template;
-using ctemplate::TemplateDictionary;
 
 typedef std::map<std::string, Recordset_text_storage::TemplateInfo> Templates;
 static Templates _templates; // data format name -> template
@@ -104,38 +102,31 @@ static void scan_templates()
 #define APPEND(literal)  out->Emit("" literal "", sizeof(literal)-1)
 
 // string escaper for CSV tokens, encloses fields with " if needed, depending on the separator
-class CSVTokenQuote : public ctemplate::TemplateModifier {
-  void Modify(const char* in, size_t inlen,
-              const ctemplate::PerExpandData* per_expand_data,
-              ctemplate::ExpandEmitter* out, const std::string& arg) const 
+struct CSVTokenQuoteModifier : public mtemplate::Modifier
+{
+  virtual std::string modify(const std::string &input, const std::string arg = "")
   {
-    int ch;
+    std::string search_for = " \"\t\r\n";
+    std::string result = input;
+    
     if (arg == "=comma")
-      ch = ',';
+      search_for += ',';
     else if (arg == "=tab")
-      ch = '\t';
+      search_for = '\t';        //  TODO: verify if this argument is ever used, since it is in the generic searches
     else if (arg == "=semicolon")
-      ch = ';';
+      search_for += ';';
     else
-      ch = ';';
-    // check if quotation needed
-    if (memchr(in, ch, inlen) || memchr(in, ' ', inlen) || memchr(in, '"', inlen)
-        || memchr(in, '\t', inlen) || memchr(in, '\r', inlen) || memchr(in, '\n', inlen))
+      search_for += ';';
+    
+    if (input.find_first_of(search_for) != std::string::npos)
     {
-      out->Emit(std::string("\""));
-      for (size_t i = 0; i < inlen; ++i) {
-        if (in[i] == '"') 
-          APPEND("\"\"");
-        else 
-          out->Emit(in[i]);
-      } 
-      out->Emit(std::string("\""));
+      base::replaceString(result, "\"", "\"\"");
+      result = std::string("\"") + result + std::string("\"");
     }
-    else
-      out->Emit(std::string(in, inlen));
+    
+    return result;
   }
 };
-CSVTokenQuote csv_quote;
 
 
 Recordset_text_storage::Recordset_text_storage()
@@ -146,8 +137,7 @@ Recordset_data_storage()
   if (!registered_csvquote)
   {
     registered_csvquote = true;
-    ctemplate::AddModifier("x-csv_quote=", &csv_quote);
-    //XXX ctemplate::AddModifier("x-sql_quote", &sql_quote);
+    mtemplate::Modifier::add_modifier<CSVTokenQuoteModifier>("csv_quote");
   }
 }
 
@@ -186,12 +176,12 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   std::string include_column_types(info.include_column_types);
   std::string null_syntax(info.null_syntax);
   std::string tpl_path(info.path);
-  Template *pre_tpl = 0;
-  Template *post_tpl = 0;
-  Template *tpl= Template::GetTemplate(tpl_path, ctemplate::DO_NOT_STRIP);
-  if (!tpl)
+  mtemplate::Template *pre_template = NULL;
+  mtemplate::Template *post_template = NULL;
+  mtemplate::Template *mtpl = mtemplate::GetTemplate(tpl_path);
+  
+  if (!mtpl)
   {
-    Template::ClearCache();
     throw std::runtime_error(strfmt("Failed to open template file: `%s`", tpl_path.c_str()));
   }
   
@@ -205,20 +195,16 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
     if (g_file_test((name+".pre.tpl").c_str(), G_FILE_TEST_EXISTS))
     {
       pre_tpl_path = name+".pre.tpl";
-      pre_tpl= Template::GetTemplate(pre_tpl_path, ctemplate::DO_NOT_STRIP);
-      if (!pre_tpl)
+      pre_template = mtemplate::GetTemplate(pre_tpl_path);
+      if (!pre_template)
         g_warning("Failed to open template file: `%s`", pre_tpl_path.c_str()); 
-      else
-        pre_tpl->ReloadAllIfChanged();
     }      
     if (g_file_test((name+".post.tpl").c_str(), G_FILE_TEST_EXISTS))
     {
       post_tpl_path = name+".post.tpl";
-      post_tpl= Template::GetTemplate(post_tpl_path, ctemplate::DO_NOT_STRIP);
-      if (!post_tpl)
+      post_template = mtemplate::GetTemplate(post_tpl_path);
+      if (!post_template)
         g_warning("Failed to open template file: `%s`", post_tpl_path.c_str());
-      else
-        post_tpl->ReloadAllIfChanged();
     }
   }    
   
@@ -227,12 +213,10 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
       throw std::runtime_error(strfmt("Failed to open output file: `%s`", _file_path.c_str()));
   }
 
-  tpl->ReloadAllIfChanged();
-
-  std::auto_ptr<TemplateDictionary> dict(new TemplateDictionary("/"));
+  mtemplate::Dictionary *dictionary = mtemplate::CreateMainDictionary();
   BOOST_FOREACH (const Parameters::value_type &param, _parameters)
-    dict->SetValue(param.first, param.second);
-
+    dictionary->set_value(param.first, param.second);
+    
   const Recordset::Column_names *column_names= recordset->column_names();
   const Recordset::Column_types &column_types= get_column_types(recordset);
   const Recordset::Column_types &real_column_types= get_real_column_types(recordset);
@@ -254,18 +238,18 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   }
 
   // global variables
-  TemplateDictionary::SetGlobalValue("INDENT", "\t");
+  mtemplate::SetGlobalValue("INDENT", "\t");
   
   // misc subst variables valid for header/footer
-  dict->SetValue("GENERATOR_QUERY", recordset->generator_query());
+  dictionary->set_value("GENERATOR_QUERY", recordset->generator_query());
 
   // headers
   sqlide::TypeOfVar tv;
   std::vector<std::string> out_column_types;
   for (ColumnId col= 0; col < visible_col_count; ++col)
   {
-    TemplateDictionary* col_dict = dict->AddSectionDictionary("COLUMN");
-    col_dict->SetValueWithoutCopy("COLUMN_NAME", (*column_names)[col]);
+    mtemplate::DictionaryInterface *col_dictionary = dictionary->add_section_dictionary("COLUMN");
+    col_dictionary->set_value("COLUMN_NAME", (*column_names)[col]);
 
     // Gets the column real data type and maps it to a classification: Numeric or String
     // Right now the data types are needed for the excel format,  if in the future this
@@ -282,8 +266,8 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
 
       if (out_col_type == "String")
       {
-        TemplateDictionary* col_index_dict = dict->AddSectionDictionary("STRING_COLUMN");
-        col_index_dict->SetIntValue("STRING_COLUMN_INDEX", (long)col + 1);
+        mtemplate::DictionaryInterface *col_index_dictionary = dictionary->add_section_dictionary("STRING_COLUMN");
+        col_index_dictionary->set_int_value("STRING_COLUMN_INDEX", (long)col + 1);
       }
     }
   }
@@ -293,19 +277,11 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   // 2. for each row, dump the row
   // 3. dump post
   // otherwise, the whole thing is dumped at once
-  if (pre_tpl || post_tpl)
+  mtemplate::TemplateOutputFile output(_file_path);
+  if (pre_template || post_template)
   {
-    FILE *outf = base_fopen(_file_path.c_str(), "w+");
-    if (!outf)
-      throw std::runtime_error(strfmt("Could not create file `%s`: %s", _file_path.c_str(), g_strerror(errno)));
-
-    if (pre_tpl)
-    {
-      std::string result_text;
-      pre_tpl->Expand(&result_text, dict.get());
-
-      fprintf(outf, "%s", result_text.c_str());
-    }
+    if (pre_template)
+      pre_template->expand(dictionary, &output);
     
     // data
     {
@@ -320,11 +296,11 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
         sqlite::variant_t v;
         do
         {
-          TemplateDictionary row_dict_base("/");
-          TemplateDictionary* row_dict = row_dict_base.AddSectionDictionary("ROW");
+          mtemplate::DictionaryInterface *row_dictionary_base = mtemplate::CreateMainDictionary();
+          mtemplate::DictionaryInterface *row_dictionary = row_dictionary_base->add_section_dictionary("ROW");
           
           BOOST_FOREACH (const Parameters::value_type &param, _parameters)
-            row_dict_base.SetValue(param.first, param.second);
+            row_dictionary_base->set_value(param.first, param.second);
 
           // process a single row
           for (size_t partition= 0; partition < partition_count; ++partition)
@@ -333,23 +309,23 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
             for (ColumnId col_begin= partition * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT, col= col_begin,
                  col_end= std::min<ColumnId>(visible_col_count, (partition + 1) * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
             {
-              TemplateDictionary* field_dict;
               ColumnId partition_column= col - col_begin;
               bool is_null;
               v = data_rs->get_variant((int)partition_column);
 
               is_null = sqlide::is_var_null(v); // for some reason, the apply_visitor stuff isnt handling NULL
 
-              field_dict = row_dict->AddSectionDictionary("FIELD");
+              mtemplate::DictionaryInterface *field_dictionary = row_dictionary->add_section_dictionary("FIELD");
+              
               if (is_null)
-                field_dict->AddSectionDictionary("FIELD_is_null");
+                field_dictionary->add_section_dictionary("FIELD_is_null");
               else
-                field_dict->AddSectionDictionary("FIELD_is_not_null");
+                field_dictionary->add_section_dictionary("FIELD_is_not_null");
 
               if (!include_column_types.empty())
-                field_dict->SetValueWithoutCopy("FIELD_TYPE", out_column_types[col]);
+                field_dictionary->set_value("FIELD_TYPE", out_column_types[col]);
 
-              field_dict->SetValueWithoutCopy("FIELD_NAME", (*column_names)[col]);
+              field_dictionary->set_value("FIELD_NAME", (*column_names)[col]);
 
               std::string field_value;
               sqlide::VarToStr var_to_str;
@@ -362,7 +338,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
                      boost::apply_visitor(var_to_str, v);
               else
                 field_value= boost::apply_visitor(var_to_str, v);
-              field_dict->SetValue("FIELD_VALUE", field_value);
+              field_dictionary->set_value("FIELD_VALUE", field_value);
             }
           }
 
@@ -370,31 +346,19 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
             next_row_exists= data_rs->next_row();
 
           if (next_row_exists)
-            row_dict->SetValue("ROW_SEPARATOR", info.row_separator);
+            row_dictionary->set_value("ROW_SEPARATOR", info.row_separator);
           else
-            row_dict->SetValue("ROW_SEPARATOR", "");
+            row_dictionary->set_value("ROW_SEPARATOR", "");
 
           // expand template & flush row
-          {
-            std::string result_text;
-            tpl->Expand(&result_text, &row_dict_base);
-            
-            fwrite(result_text.data(), 1, result_text.size(), outf);
-          }                  
+          mtpl->expand(row_dictionary_base, &output);
         }
         while (next_row_exists);
       }
     }
 
-    if (post_tpl)
-    {
-      std::string result_text;
-      post_tpl->Expand(&result_text, dict.get());
-
-      fwrite(result_text.data(), 1, result_text.size(), outf);
-    }
-
-    fclose(outf);
+    if (post_template)
+      post_template->expand(dictionary, &output);
   }
   else // no pre/post separation
   {
@@ -410,7 +374,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
         sqlite::variant_t v;
         do
         {
-          TemplateDictionary* row_dict = dict->AddSectionDictionary("ROW");
+          mtemplate::DictionaryInterface *row_dictionary = dictionary->add_section_dictionary("ROW");
           for (size_t partition= 0; partition < partition_count; ++partition)
           {
             std::shared_ptr<sqlite::result> &data_rs = data_results[partition];
@@ -419,8 +383,8 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
             {
               ColumnId partition_column= col - col_begin;
               v = data_rs->get_variant((int)partition_column);
-              TemplateDictionary* field_dict = row_dict->AddSectionDictionary("FIELD");
-              field_dict->SetValueWithoutCopy("FIELD_NAME", (*column_names)[col]);
+              mtemplate::DictionaryInterface *field_dictionary = row_dictionary->add_section_dictionary("FIELD");
+              field_dictionary->set_value("FIELD_NAME", (*column_names)[col]);
               std::string field_value;
               sqlide::VarToStr var_to_str;
               
@@ -430,7 +394,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
                     boost::apply_visitor(var_to_str, v);
               else
                 field_value= boost::apply_visitor(var_to_str, v);
-              field_dict->SetValue("FIELD_VALUE", field_value);                
+              field_dictionary->set_value("FIELD_VALUE", field_value);                
             }
           }
           BOOST_FOREACH (std::shared_ptr<sqlite::result> &data_rs, data_results)
@@ -441,19 +405,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
     }
     
     // expand tempalte & flush result
-    {
-      std::string result_text;
-      tpl->Expand(&result_text, dict.get());
-      GError *error = 0;
-      
-      // use g_file_set because it can handle utf8 filenames
-      if (!g_file_set_contents(_file_path.c_str(), result_text.data(), (gssize)result_text.size(), &error))
-      {
-        std::string message = error->message;
-        g_free(error);
-        throw std::runtime_error(strfmt("Failed to write to output file `%s`: %s", _file_path.c_str(), message.c_str()));
-      }
-    }
+    mtpl->expand(dictionary, &output);
   }
 }
 

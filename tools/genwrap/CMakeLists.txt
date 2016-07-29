@@ -18,4 +18,4 @@ else()
   set_target_properties(genwrap PROPERTIES COMPILE_FLAGS "-fPIE -pie")
 endif()
 
-target_link_libraries(genwrap grt wbbase wbpublic ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES} ${CTemplate_LIBRARIES})
+target_link_libraries(genwrap grt wbbase wbpublic mtemplate ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES})

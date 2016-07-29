@@ -1,0 +1,428 @@
+/* 
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#include "types.h"
+#include "output.h"
+#include "dictionary.h"
+
+#include <iostream>
+
+#include <string_utilities.h>
+
+
+namespace mtemplate 
+{
+  
+#define TEMPLATE_TAG_BEGINNING "{{"
+#define TEMPLATE_TAG_END "}}"
+#define TEMPLATE_SECTION_BEGINNING "#"
+#define TEMPLATE_SECTION_END "/"
+#define TEMPLATE_STRLEN(str) (int)g_utf8_strlen(str, -1)
+  
+static std::string TEMPLATE_TAG_CHARACTERS("#/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+  
+std::size_t GetTextLength(const std::string &temp_template, bool check_new_lines = true);
+bool IsBlankString(const std::string &text);
+std::string FormatErrorLog(const std::string &template_string, std::size_t pos);
+
+
+
+//-----------------------------------------------------------------------------------
+//  NodeText stuff
+//-----------------------------------------------------------------------------------
+NodeText::NodeText(const std::string& text, std::size_t length)
+    : NodeTextInterface(TemplateObject_Text, text, length)  {  }
+
+bool NodeText::expand(TemplateOutput* output, DictionaryInterface *dict)
+{
+  if (is_hidden())
+    return true;
+  
+  output->out(_text);
+  return true; 
+}
+//-----------------------------------------------------------------------------------
+void NodeText::dump(int indent) 
+{
+  std::string hidden = is_hidden() ? "[hidden]" : "";
+  std::string indent_str(indent * 2, ' ');
+  std::cout << indent_str << "[Text]" << hidden << " = " << _text << std::endl;
+}
+//-----------------------------------------------------------------------------------
+NodeText *NodeText::parse(const std::string &template_string, PARSE_TYPE type)
+{
+  std::size_t end = GetTextLength(template_string);
+
+  if (end == std::string::npos)
+    end = template_string.length();
+
+  std::string text = template_string.substr(0, end);
+  
+  return new NodeText(text, end);  
+}
+
+//-----------------------------------------------------------------------------------
+//  NodeNewLine stuff
+//-----------------------------------------------------------------------------------
+void NodeNewLine::dump(int indent)
+{
+  std::string hidden = is_hidden() ? "[hidden]" : "";
+  std::string indent_str(indent * 2, ' ');
+  std::cout << indent_str << "[NewLine]" << hidden << std::endl;
+}
+
+bool NodeNewLine::expand(TemplateOutput* output, DictionaryInterface* dict) 
+{
+  if (is_hidden())
+    return true;
+  
+  output->out("\n");
+  return true;
+}
+
+NodeNewLine *NodeNewLine::parse(const std::string &template_string, PARSE_TYPE type)
+{
+  return new NodeNewLine();
+}
+//-----------------------------------------------------------------------------------
+//  NodeVariable stuff
+//-----------------------------------------------------------------------------------
+bool NodeVariable::expand(TemplateOutput* output, DictionaryInterface *dict)
+{
+  if (is_hidden())
+    return true;
+  
+  std::string result = dict->get_value(_text);
+  
+  if (result == "")
+    std::cout << "WARNING: value for " << _text << " is an empty string" << std::endl;
+  
+  for (std::vector<ModifierAndArgument>::iterator iter = _modifiers.begin(); iter != _modifiers.end(); ++iter)
+  {
+    Modifier *mod = mtemplate::GetModifier(iter->_name);
+    if (mod)
+      result = mod->modify(result, iter->_arg);
+  }
+  
+  output->out(result);
+  return true; 
+}
+//-----------------------------------------------------------------------------------
+void NodeVariable::dump(int indent) 
+{
+  std::string hidden = is_hidden() ? "[hidden]" : "";
+  std::string indent_str(indent * 2, ' ');
+  std::cout << indent_str << "[Variable]" << hidden << " = " << _text << std::endl;
+}
+//-----------------------------------------------------------------------------------
+NodeVariable *NodeVariable::parse(const std::string &template_string, PARSE_TYPE type)
+{
+  std::string::size_type end = template_string.find(TEMPLATE_TAG_END);
+  
+  if (end == std::string::npos)
+    throw std::logic_error(std::string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
+  
+  std::string::size_type begin = TEMPLATE_STRLEN(TEMPLATE_TAG_END);
+  std::string variableName = template_string.substr(begin, end - begin);
+    
+  std::vector<std::string> parts = base::split(variableName, ":");
+  
+  variableName = parts[0];
+  
+  std::vector<ModifierAndArgument> modifiers;
+  
+  //    Parse modifiers from "parts"
+  for (std::size_t index = 1; index < parts.size(); ++index)
+  {
+    std::string part = parts[index];
+    std::size_t equal = part.find('=');
+    std::string arg = "";
+    
+    if (equal != std::string::npos)
+    {
+      arg = part.substr(equal);
+      part = part.substr(0, equal);
+    }
+    
+    modifiers.push_back({part, arg});
+  }
+  
+  return new NodeVariable(variableName, end + TEMPLATE_STRLEN(TEMPLATE_TAG_END), modifiers);
+}
+  
+//-----------------------------------------------------------------------------------
+//  NodeSection stuff
+//-----------------------------------------------------------------------------------
+NodeSection::NodeSection(const std::string& text, std::size_t length, TemplateDocument& contents)
+  : NodeInterface(TemplateObject_Section, text, length)
+  , _contents(contents) 
+  , _is_separator(false)
+{
+
+}
+//-----------------------------------------------------------------------------------
+bool NodeSection::expand(TemplateOutput* output, DictionaryInterface* dict)
+{
+  if (is_hidden())
+    return true;
+  
+  for (TemplateDocument::const_iterator iter = _contents.begin(); iter != _contents.end(); ++iter)
+  {
+    NodeStorageType node = *iter;
+    
+    if (node->type() == TemplateObject_Section)
+    {
+      //    Check for separator sections special marker
+      NodeSection *sec = dynamic_cast<NodeSection *>(node.get());
+      if (sec->is_separator() && dict->is_last() == false)
+      {
+          node->expand(output, dict);
+          continue;
+      }
+        
+      DictionaryInterface::section_dictionary_storage &section_dicts = dict->get_section_dictionaries(node->_text);
+      
+      std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
+      
+      for (DictionaryInterface::section_dictionary_storage_iterator section_iter = section_dicts.begin(); section_iter != section_dicts.end(); ++section_iter)
+        node->expand(output, *section_iter);
+    }
+    else
+      node->expand(output, dict);
+  }
+  return true; 
+}
+//-----------------------------------------------------------------------------------
+void NodeSection::dump(int indent) 
+{
+  std::string hidden = is_hidden() ? "[hidden]" : "";
+  std::string indent_str(indent * 2, ' ');
+  std::cout << indent_str << "[Section]" << hidden << " = " << _text << std::endl
+            << indent_str << "{" << std::endl
+            ;
+  
+  for (TemplateDocument::const_iterator iter = _contents.begin(); iter != _contents.end(); ++iter)
+    (*iter)->dump(indent + 1);
+
+  std::cout << indent_str << "}" << std::endl;
+            
+}
+//-----------------------------------------------------------------------------------
+NodeSection *NodeSection::parse(const std::string &template_string, PARSE_TYPE type)
+{
+  std::string::size_type end = template_string.find(TEMPLATE_TAG_END);
+  
+  if (end == std::string::npos)
+    throw std::logic_error(std::string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
+  
+  std::string::size_type begin = TEMPLATE_STRLEN(TEMPLATE_TAG_END) + TEMPLATE_STRLEN(TEMPLATE_SECTION_BEGINNING);
+  std::string sectionName = template_string.substr(begin, end - begin);
+  
+  begin = end + TEMPLATE_STRLEN(TEMPLATE_TAG_END);
+  
+  end = template_string.find(std::string(TEMPLATE_TAG_BEGINNING) + std::string(TEMPLATE_SECTION_END) + sectionName + std::string(TEMPLATE_TAG_END), begin);
+
+  if (end == std::string::npos)
+    throw std::logic_error(std::string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
+  
+  std::string inner_string = template_string.substr(begin, end - begin);
+  
+  TemplateDocument contents = parse_template(inner_string, type);
+  
+  //  Check for separators...only the last one will be taken into account
+  std::string separator_text = sectionName + "_separator";
+  for (TemplateDocument::iterator iter = contents.begin(); iter != contents.end(); ++iter)
+  {
+    NodeSection *node_section = dynamic_cast<NodeSection *>((*iter).get());
+    if (node_section == NULL)
+      continue;
+    
+    if (node_section->text() == separator_text)
+    {
+      node_section->set_is_separator();
+      break;
+    }
+  }
+  
+  end += TEMPLATE_STRLEN((std::string(TEMPLATE_TAG_BEGINNING) + std::string(TEMPLATE_SECTION_END) + sectionName + std::string(TEMPLATE_TAG_END)).c_str());
+  
+  return  new NodeSection(sectionName, end, contents);
+}
+
+
+//-----------------------------------------------------------------------------------
+//  Template stuff
+//-----------------------------------------------------------------------------------
+std::size_t GetTextLength(const std::string &temp_template, bool check_new_lines)
+{
+  std::size_t begin = 0;
+  
+  while (begin < temp_template.size())
+  {
+    std::size_t pos = temp_template.find(TEMPLATE_TAG_BEGINNING, begin);
+    
+    if (check_new_lines)
+    {
+      std::size_t new_line_pos = temp_template.find("\n", begin);
+      if (new_line_pos < pos)
+        pos = new_line_pos;
+    }
+    
+    
+    //  Check if the whole string is valid text
+    if (pos == std::string::npos)
+      return temp_template.length();
+    
+    //  Check if a line feed was found
+    if (temp_template.at(pos) == '\n')
+      return pos;
+    
+    //  Check if it's a valid node. It's only a valid node when it starts with {{ and it's 
+    //  followed by one of the characters in TEMPLATE_TAG_CHARACTERS 
+    if (TEMPLATE_TAG_CHARACTERS.find(temp_template[pos + 2]) != std::string::npos)
+      return pos;
+    
+    begin = pos;
+  }
+  
+  return std::string::npos;
+}
+
+TemplateDocument parse_template(const std::string &template_string, PARSE_TYPE type)
+{
+  TemplateDocument doc;
+  std::string temp_template = template_string;
+    
+  while (temp_template.length() > 0)
+  {
+    if (temp_template[0] == '\n')
+    {
+      NodeNewLine *item = NodeNewLine::parse(temp_template, type);
+      temp_template = temp_template.substr(item->_length);
+      doc.push_back(NodeStorageType(item));
+      
+      if (type == DO_NOT_STRIP)
+        continue;
+
+      if (doc.size() == 1)
+      {
+        item->hide();
+        continue;
+      }
+      
+      mtemplate::TemplateDocument::iterator last = --(--doc.end());
+      NodeStorageType last_node = *last;
+      
+      if (last_node->type() == TemplateObject_Text && IsBlankString(last_node->text()))
+      {
+        last_node->hide();
+        item->hide();
+      }
+      else if (last_node->type() == TemplateObject_NewLine)
+      {
+        item->hide();
+      }
+      
+      if (doc.size() == 2)
+        continue;
+      
+      mtemplate::TemplateDocument::iterator second_last = --last;
+      NodeStorageType second_last_node = *second_last;
+      
+      if (last_node->type() == TemplateObject_Section)
+      {
+        if (second_last_node->type() == TemplateObject_NewLine)
+          item->hide();
+      }
+      else if (last_node->type() == TemplateObject_Text && IsBlankString(last_node->text()))
+      {
+        if (second_last_node->type() == TemplateObject_NewLine)
+        {
+          item->hide();
+          last_node->hide();
+        }
+      }
+    }
+    else if (base::hasPrefix(temp_template, "{{{{"))
+    {
+      throw std::logic_error("mtemplate: File contains invalid character sequence '{{{{'");
+    }
+    else if (base::hasPrefix(temp_template, "{{{"))
+    {// Special case of {{{
+      NodeText *item = NodeText::parse("{", type);
+      temp_template = temp_template.substr(item->_length);
+      doc.push_back(NodeStorageType(item));
+    }
+    else if (base::hasPrefix(temp_template, "{{"))
+    {//  A node was found {{SOME_NOME}}
+      char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
+      switch (first_char)
+      {
+        case '#':
+        {
+          NodeSection *item = NodeSection::parse(temp_template, type);
+          doc.push_back(NodeStorageType(item));
+          temp_template = temp_template.substr(item->_length);
+          break;
+        }
+        case '>':   //  includes
+          throw std::logic_error("mtemplate: Includes not implemented");
+        case '%':   //  pragma
+          throw std::logic_error("mtemplate: Pragma not implemented");
+        case '!':   //  comment
+          throw std::logic_error("mtemplate: Comment not implemented");
+        default:
+        {
+          NodeVariable *item = NodeVariable::parse(temp_template, type);
+          doc.push_back(NodeStorageType(item));
+          temp_template = temp_template.substr(item->_length);
+        }
+      }
+    }
+    else
+    {
+      NodeText *item = NodeText::parse(temp_template, type);
+      temp_template = temp_template.substr(item->_length);
+      doc.push_back(NodeStorageType(item));
+    }
+  }
+  
+  return doc;
+}
+
+bool IsBlankString(const std::string &text)
+{
+  return text.find_first_not_of(" \t\n\v\f\r") == std::string::npos;
+}
+
+std::string FormatErrorLog(const std::string &template_string, std::size_t pos, const std::string &error)
+{
+  std::size_t eol = template_string.find('\n');
+  if (eol == std::string::npos)
+    eol = template_string.length();
+  std::string result = template_string.substr(0, eol);
+  
+  result += '\n';
+  result += std::string(pos, ' ') + "^\n";
+  result += error;
+  return result;
+}
+
+
+}
