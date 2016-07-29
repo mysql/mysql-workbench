@@ -1086,7 +1086,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
             if(!was_null)
             {
-              char *utf8_data;
+              char *utf8_data = nullptr;
               char *final_data = _blob_buffer;
               size_t final_length = len_or_indicator;
 
@@ -1108,7 +1108,8 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                   logError("%s", msg.c_str());
                   throw std::invalid_argument(msg);
                 }
-                final_data = utf8_data;
+                if( len_or_indicator > 0 )
+                  final_data = utf8_data;
               }
 
               if (_use_bulk_inserts)
