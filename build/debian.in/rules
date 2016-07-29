@@ -44,7 +44,6 @@ endif
 
 ODBC_HOME=$(LINUXRES_BINARIES)/odbc
 PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
-CTEMPLATE_HOME=$(LINUXRES_BINARIES)/ctemplate
 
 @ifdef community
 SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite-gpl
@@ -93,9 +92,7 @@ configure-stamp:
 	  -DIODBC_INCLUDE_PATH=$(ODBC_HOME)/include \
 	  -DIODBC_LIBRARIES_PATH=$(ODBC_HOME)/lib \
 	  -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
-	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
-	  -DCTemplate_INCLUDE_DIR=${CTEMPLATE_HOME}/include \
-	  -DCTemplate_LIBRARIES="-L${CTEMPLATE_HOME}/lib -lctemplate"
+	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" 
 
 	touch configure-stamp
 
@@ -138,7 +135,6 @@ install: build
 	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.*    $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(GDAL_HOME)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(CTEMPLATE_HOME)/lib/libctemplate*   $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(SQLITE_HOME)/lib/libsqlite3.so*     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(PYSQLITE2_HOME)                     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/
 

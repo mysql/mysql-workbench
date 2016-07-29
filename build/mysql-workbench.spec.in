@@ -57,7 +57,6 @@
 %endif
 
 %define odbc_home        %{linuxres_binaries}/odbc
-%define ctemplate_dir    %{linuxres_binaries}/ctemplate
 %define sqlite_dir       %{linuxres_binaries}/sqlite-%{lictag}
 %define pysqlite_dir     %{linuxres_binaries}/pysqlite2-%{lictag}
 %define pyodbc_dir       %{linuxres_binaries}/pyodbc
@@ -188,8 +187,6 @@ CXXFLAGS="-std=c++11 $CXXFLAGS" \
        -DIODBC_LIBRARIES_PATH=%{odbc_home}/lib \
        -DGDAL_INCLUDE_DIR=%{gdal_dir}/include \
        -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
-       -DCTemplate_INCLUDE_DIR=%{ctemplate_dir}/include \
-       -DCTemplate_LIBRARIES="-L%{ctemplate_dir}/lib -lctemplate" \
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp"
 
@@ -231,7 +228,6 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
 # i.e. is linked into the WB binaries
 # cp -a %%{mysqlshell_dir}/lib/*.so*                  %%{buildroot}%%{_libdir}/mysql-workbench/
   cp -a %{vsqlite_dir}/lib/libvsqlitepp.so*           %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{ctemplate_dir}/lib/libctemplate.so*         %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{odbc_home}/lib/libiodbc{,inst,adm}.so*      %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{odbc_home}/bin/iodbcadm-gtk                 %{buildroot}%{_libexecdir}/mysql-workbench/
 %if %{with paramiko}

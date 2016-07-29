@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "ctemplate/template.h"
 #include <fstream>
 #include <string>
 
@@ -41,9 +40,6 @@ RegisterTemplateFilename(TEST_01_FN, "data/modules_grt/schema_reporting/schema_r
 
 using namespace std;
 
-using ctemplate::Template;
-using ctemplate::TemplateDictionary;
-using ctemplate::STRIP_WHITESPACE;
 
 BEGIN_TEST_DATA_CLASS(module_db_mysql_schema_reporting)
 public:

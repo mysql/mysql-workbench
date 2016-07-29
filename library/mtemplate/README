@@ -1,0 +1,42 @@
+This is a Google CTemplate replacement
+
+Features
+----------------------------------------------------------------------
+Nodes
+    - Text
+    - Variables
+    - Sections, sub-sections, section separators
+
+Dictionaries
+    - Dictionary inheritance
+    - Main dictionary
+    - Global dictionary
+    
+Parsing
+    - DO_NOT_STRIP
+    - STRIP_BLANK_LINES
+
+Modifiers
+    - Modifier interface
+    - User modifier support
+    
+Output
+    - Output interface
+    - Output to string
+    - Output to file
+
+    
+    
+Missing Features
+----------------------------------------------------------------------
+Nodes
+    - Comments
+    - Includes
+    - Pragmas
+    - Thread safety
+
+
+Parsing
+    - STRIP_WHITE_SPACE
+
+- Per-expand data

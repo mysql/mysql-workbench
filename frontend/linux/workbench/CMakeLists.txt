@@ -107,8 +107,8 @@ target_link_libraries(mysql-workbench-bin
     mdcanvasgtk
     mdcanvas
     parsers
+    mtemplate
     ${MYSQLCPPCONN_LIBRARIES}
-    ${CTemplate_LIBRARIES}
     ${X11_LIBRARIES}
     ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
