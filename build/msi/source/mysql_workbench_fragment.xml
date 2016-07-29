@@ -89,8 +89,6 @@
                 <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
                 <File Id="file1121" Name="vsqlite++.dll"/>
                 <File Id="file1122" Name="tinyxml.dll"/>
-                <File Id="mysqlshcore.dll" Name="mysqlshcore.dll"/>
-                <File Id="v8.dll" Name="v8.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
@@ -160,8 +158,6 @@
                 <File Id="file1116" Name="wbadminhelper.exe"/>
                 <File Id="file1118" Name="mysqlwbmeb.py"/>
                 <File Id="file1119" Name="mysqlwbmeb.vbs"/>
-                <File Id="wb.x.ide.dll" Name="wb.x.ide.dll"/>
-                <File Id="mysqlworkbench.x.wr.dll" Name="mysqlworkbench.x.wr.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="47641656-8430-4722-B558-DAE76CA7C0CA" Id="MySQLWorkbench.exe" Location="either">
@@ -186,11 +182,6 @@
                   <RegistryValue Action="write" Id="Reg.Class.SQL.Command" Key="Shell\Open\Command" Type="string" Value="&quot;[#file1056]&quot; &quot;%1&quot;"/>
                 </RegistryKey>
 
-              </Component>
-
-              <Component DiskId="1" Guid="0EAA6EB3-47DD-463F-8749-A30091DABF3E" Id="MySQLWorkbench.X" Location="either">
-                <File Id="MySQLWorkbench.X.exe" KeyPath="yes" Name="MySQLWorkbench.X.exe"/>
-                <File Id="MySQLWorkbench.X.exe.config" Name="MySQLWorkbench.X.exe.config"/>
               </Component>
 
               <Component DiskId="1" Guid="5EDFE6C6-57CB-44BB-97B9-CA7CAA96E0A0" Id="MySQLWorkbenchProgramLink" Location="either">
