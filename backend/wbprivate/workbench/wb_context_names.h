@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,5 @@
 #define WB_CONTEXT_EDITOR "editor" // object editors
 #define WB_CONTEXT_PHYSICAL_OVERVIEW "overview.physical"
 #define WB_CONTEXT_QUERY "dbquery"
-#define WB_CONTEXT_NG   "ng"
 
 #endif
