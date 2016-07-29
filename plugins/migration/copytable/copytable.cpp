@@ -1096,7 +1096,8 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                 //XXX take care of case where the utf8 data is bigger than _max_blob_chunk_size
                 try
                 {
-                  ucs2_to_utf8(_blob_buffer, len_or_indicator, utf8_data, final_length);
+                  if( len_or_indicator > 0 )
+                    ucs2_to_utf8(_blob_buffer, len_or_indicator, utf8_data, final_length);
                 }
                 catch (std::logic_error &)
                 {
