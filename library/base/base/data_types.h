@@ -290,7 +290,7 @@ public:
   {
     std::stringstream ss;
     ss << binaryName;
-    ss << " [<options>] [name of a model file or sql script>]";
+    ss << " [<options>] [<name of a model file or sql script>]";
     ss << std::endl;
     ss << "Options:";
     ss << std::endl;
@@ -303,17 +303,17 @@ public:
         param += "-";
         param += entry.shortName;
         if (!entry.argName.empty())
-          param += " <" + entry.argName + ">";
+          param += " " + entry.argName;
         param += ", ";
       }
 
       param += "--" + entry.longName;
       if (!entry.argName.empty())
-          param += " <" + entry.argName + ">";
+          param += " " + entry.argName;
 
 
-      ss << '\t' << std::setw(20) << std::left << param;
-      ss << std::setw(15) << entry.description;
+      ss << '\t' << std::setw(30) << std::left << param;
+      ss << std::setw(20) << entry.description;
       ss << std::endl;
     }
     ss << std::endl;
