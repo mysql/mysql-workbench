@@ -14,6 +14,8 @@
 #include <gdk/gdkx.h>
 #include <iostream>
 #include "main_app.h"
+#include "base/data_types.h"
+
 DEFAULT_LOG_DOMAIN("main")
 
 #if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
@@ -58,9 +60,6 @@ extern  void lf_record_grid_init();
 
 int main(int argc, char **argv)
 {
-
-
-
   if (!getenv("MWB_DATA_DIR"))
   {
     std::string script_name = argv[0];
@@ -105,7 +104,7 @@ int main(int argc, char **argv)
   }
   #endif
 
-  wb::WBOptions wboptions;
+  wb::WBOptions wboptions(argv[0]);
   wboptions.user_data_dir = user_data_dir;
 
   wboptions.basedir = getenv("MWB_DATA_DIR");
@@ -118,11 +117,9 @@ int main(int argc, char **argv)
 
   Program program;
 
-  runtime::app::get().parseParams = [&wboptions](int argc, char **argv, int *retval)->bool{
-    return wboptions.parse_args(argv, argc, retval);
-  };
-
   runtime::app::get().onBeforeActivate = [&wboptions, &program]()-> bool{
+    wboptions.analyzeCommandLineArguments();
+
     if (getenv("WB_VERBOSE"))
       wboptions.verbose = true;
 
@@ -138,8 +135,8 @@ int main(int argc, char **argv)
     return true;
   };
 
-  runtime::app::get().showWbHelpCb = [&](const char* arg0) {
-    wboptions.show_help(arg0);
+  runtime::app::get().getCmdOptions = [&wboptions](){
+    return wboptions.programOptions;
   };
 
 #pragma GCC diagnostic push
