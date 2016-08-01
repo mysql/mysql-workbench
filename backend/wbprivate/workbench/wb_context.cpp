@@ -194,219 +194,140 @@ static void set_app_option(const std::string &option, grt::ValueRef value, WBCon
 
 //----------------- WBOptions ----------------------------------------------------------------------
 
-WBOptions::WBOptions()
-  : force_sw_rendering(false), force_opengl_rendering(false), verbose(false), quit_when_done(false),
-  testing(false), init_python(true), full_init(true), showClassicHome(false)
-{
-  logDebug("Creating WBOptions\n");
-}
-
-
-#ifdef _WIN32
-# define OPPREFIX "-"
-#else
-# define OPPREFIX "--"
-#endif
-void WBOptions::show_help(const char *arg0)
-{
-  const char *p = strrchr(arg0, '/');
-  if (p)
-    arg0 = p+1;
-  p = strrchr(arg0, '\\');
-  if (p)
-    arg0 = p+1;
-
-  printf("%s [<options>] [<name of a model file or sql script>]\n", arg0);
-  printf("Options:\n");
-#ifdef _WIN32
-  printf("  %sswrendering           Force the diagram canvas to use software rendering instead of OpenGL\n", OPPREFIX);
-#elif defined(__APPLE__)
-#else
-  printf("  %sforce-sw-render       Force Xlib rendering\n", OPPREFIX);
-  printf("  %sforce-opengl-render   Force OpenGL rendering\n", OPPREFIX);
-#endif
-  printf("  %squery [<connection>|<connection string>] \n"
-         "                          Open a query tab and ask for connection if nothing is specified.\n"
-         "                          If named connection is specified it will be opened,\n"
-         "                          else connection will be created based on the given connection string,\n"
-         "                          which should be in form <user>@<host>:<port>\n", OPPREFIX);
-  printf("  %sadmin <instance>      Open a administration tab to the named instance\n", OPPREFIX);
-  printf("  %supgrade-mysql-dbs     Open a migration wizard tab\n", OPPREFIX);
-  printf("  %smodel <model file>    Open the given EER model file\n", OPPREFIX);
-  printf("  %sscript <sql file>     Open the given SQL file in an connection, best in conjunction with a query parameter\n", OPPREFIX);
-  printf("  %srun-script <file>     Execute Python code from a file\n", OPPREFIX);
-  printf("  %srun <code>            Execute the given Python code\n", OPPREFIX);
-  printf("  %srun-python <code>     Execute the given Python code\n", OPPREFIX);
-  printf("  %smigration             Open the Migration Wizard tab\n", OPPREFIX);
-  printf("  %squit-when-done        Quit Workbench when the script is done\n", OPPREFIX);
-  printf("  %slog-to-stderr         Also log to stderr\n", OPPREFIX);
-  printf("  %shelp, -h              Show command line options and exit\n", OPPREFIX);
-  printf("  %slog-level=<level>     Valid levels are: error, warning, info, debug1, debug2, debug3\n", OPPREFIX);
-  printf("  %sverbose, -v           Enable diagnostics output\n", OPPREFIX);
-  printf("  %sversion               Show Workbench version number and exit\n", OPPREFIX);
-  printf("  %sopen <file>           Open the given file at startup (deprecated, use script, model etc.)\n", OPPREFIX);
-  printf("  %sconfigdir <path>      Specify configuration directory location, default is platform specific.\n", OPPREFIX);
-}
-
 static bool parse_loglevel(const std::string& line)
 {
   bool ret = false;
 
-  const size_t eq_char_pos = line.find("=");
-  if (eq_char_pos != std::string::npos)
-  {
-    std::string level = line.substr(eq_char_pos + 1);
-    level = base::tolower(level);
-    ret = base::Logger::active_level(level);
-    if (ret)
-      printf("Logger set to level '%s'. '%s'\n", level.c_str(), base::Logger::get_state().c_str());
-  }
+  ret = base::Logger::active_level(line);
+  if (ret)
+    printf("Logger set to level '%s'. '%s'\n", line.c_str(), base::Logger::get_state().c_str());
 
   return ret;
 }
 
-static bool check_arg_with_value(char **argv, int &argi, const char *arg, char *&value)
+WBOptions::WBOptions(const std::string &appBinaryName)
+  : binaryName(appBinaryName), force_sw_rendering(false), force_opengl_rendering(false), verbose(false), quit_when_done(false),
+  testing(false), init_python(true), full_init(true), showClassicHome(false), logLevelSet(false)
 {
-  char *a;
-  if (strncmp(argv[argi], OPPREFIX, sizeof(OPPREFIX)-1) == 0)
-    a = argv[argi] + sizeof(OPPREFIX)-1;
-  else
-    return false;
+  //Allocate this on heap so we silent gcc
+  programOptions = new dataTypes::OptionsList();
+  logDebug("Creating WBOptions\n");
 
-  if (strcmp(a, arg) == 0)
-  {
-    // value must be in next arg
-    if (argv[argi+1] != NULL)
-    {
-      ++argi;
-      value = argv[argi];
-    }
-    else
-      value = NULL;
-    return true;
-  }
-  else if (strncmp(a, arg, strlen(arg)) == 0 && a[strlen(arg)] == '=')
-  {
-    // value must be after =
-    value = a + strlen(arg)+1;
-    return true;
-  }
+
+#if defined(_WIN32) || defined(__APPLE__)
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 'h', "help", "Show help options", [this](const dataTypes::OptionEntry &entry, int *retval){
+    std::cout << programOptions->getHelp(binaryName);
+  *retval = 0;
   return false;
-}
-
-
-bool WBOptions::parse_args(char **argv, int argc, int *retval)
-{
-  argv0 = argv[0];
-  
-  logInfo("Parsing application arguments.\n");
-  for (int j = 0; j < argc; j++)
-    logInfo("    %s\n", argv[j]);
-
-  bool log_level_set = false;
-  int i = 1;
-  while (i < argc)
-  {
-    int start_index = i; // Keep the current index in case we check further entries and need it for
-                         // error messages.
-    char *argval = NULL;
-
-#ifndef __APPLE__
-    if (strcmp(argv[i], OPPREFIX"force-sw-render") == 0 || strcmp(argv[i], OPPREFIX"swrendering") == 0)
-      force_sw_rendering= true;
-    else if (strcmp(argv[i], OPPREFIX"force-opengl-render") == 0)
-      force_opengl_rendering= true;
-    else 
+}));
 #endif
-    if (strcmp(argv[i], OPPREFIX"help") == 0 || strcmp(argv[i], "-h") == 0)
-    {
-      show_help(argv[0]);
-      if (retval)
-        *retval = 0;
-      return false;
-    }
-    else if ((strcmp(argv[i], OPPREFIX"migration") == 0) || (strcmp(argv[i], OPPREFIX"upgrade-mysql-dbs") == 0))
-    {
-      open_at_startup_type= argv[start_index] + strlen(OPPREFIX);
-    }
-    else if (check_arg_with_value(argv, i, "model", argval)
-             || check_arg_with_value(argv, i, "query", argval)
-             || check_arg_with_value(argv, i, "admin", argval)
-             || check_arg_with_value(argv, i, "script", argval))
-    {
-      open_at_startup_type= argv[start_index] + strlen(OPPREFIX);
-      std::string::size_type p = open_at_startup_type.find('=');
-      if (p != std::string::npos)
-        open_at_startup_type = open_at_startup_type.substr(0, p);
 
-      if (argval)
-      {
-        if (open_at_startup_type == "query" || open_at_startup_type == "admin")
-          open_connection = argval;
-        else
-          open_at_startup = argval;
-      }
-      else
-      {
-        // --query can also work with no args
-        if (open_at_startup_type != "query")
-        {
-          printf("%s: Missing argument for option %s\n", argv[0], argv[start_index]);
-          if (retval)
-            *retval = 1;
-          return false;
-        }
-      }
-    }
-    else if (check_arg_with_value(argv, i, "run", argval))
+
+
+#ifdef _WIN32
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "swrendering", "Force the diagram canvas to use software rendering instead of OpenGL", [force_sw_rendering](const dataTypes::OptionEntry &entry, int *retval){
+    force_sw_rendering = entry.value.logicalValue;
+    return true;
+  }));
+#elif __APPLE__
+#else
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "force-sw-render", "Force Xlib rendering", [this](const dataTypes::OptionEntry &entry, int *retval){
+    force_sw_rendering = entry.value.logicalValue;
+    return true;
+  }));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "force-opengl-render", "Force OpenGL rendering", [this](const dataTypes::OptionEntry &entry, int *retval){
+    force_opengl_rendering = entry.value.logicalValue;
+    return true;
+  }));
+#endif
+
+  auto func = [this](const dataTypes::OptionEntry &entry, int *retval) {
+    if (!entry.value.textValue.empty())
     {
-      if (argval)
-        run_at_startup= argval;
+      open_at_startup_type = entry.longName;
+      if (entry.longName == "query" || entry.longName == "admin")
+        open_connection = entry.value.textValue;
       else
-      {
-        printf("%s: Missing argument for option %s\n", argv[0], argv[start_index]);
-        if (retval)
-          *retval = 1;
-        return false;
-      }
+        open_at_startup = entry.value.textValue;
     }
-    else if (check_arg_with_value(argv, i, "run-script", argval))
+    return true;
+  };
+
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "query", "Open a query tab and ask for connection if nothing is specified.\n"
+                                                "If named connection is specified it will be opened,\n"
+                                                "else connection will be created based on the given connection string,",
+                                                func, "<connection>|<connection string>"));
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "admin", "Open a administration tab to the named instance", func, "<instance>"));
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "model", "Open the given EER model file", func, "<model file>"));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "upgrade-mysql-dbs", "Open a migration wizard tab", [this](const dataTypes::OptionEntry &entry, int *retval){
+    if (entry.value.logicalValue)
+      open_at_startup_type= entry.longName;
+    return true;
+  }));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "migration", "Open a migration wizard tab", [this](const dataTypes::OptionEntry &entry, int *retval){
+    if (entry.value.logicalValue)
+      open_at_startup_type= entry.longName;
+    return true;
+  }));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, 0, "script", "Open the given SQL file in an connection, best in conjunction with a query parameter", func, "<sql file>"));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, "run-script", "Execute Python code from a file", [this](const dataTypes::OptionEntry &entry, int *retval){
+    if (!entry.value.textValue.empty())
     {
-      if (argval)
+      run_language= "python";
+      open_at_startup_type = "run-script";
+      open_at_startup = entry.value.textValue;
+    }
+    return true;
+  }, "<file>"));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "run", "Execute the given Python code", [this](const dataTypes::OptionEntry &entry, int *retval){
+    if (!entry.value.textValue.empty())
+      run_at_startup = entry.value.textValue;
+    return true;
+  }, "<code>"));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, "run-python", "Execute Python code from a file", [this](const dataTypes::OptionEntry &entry, int *retval){
+    if (!entry.value.textValue.empty())
+    {
+      run_language= "python";
+      run_at_startup= entry.value.textValue;
+    }
+    return true;
+  }, "<code>"));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "quit-when-done", "Quit Workbench when the script is done", [this](const dataTypes::OptionEntry &entry, int *retval) {
+    quit_when_done = entry.value.logicalValue;
+    return true;
+  }));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "log-to-stderr", "Also log to stderr", [](const dataTypes::OptionEntry &entry, int *retval){
+    Logger::log_to_stderr(true);
+    return true;
+  }));
+
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "log-level", "Valid levels are: error, warning, info, debug1, debug2, debug3", [](const dataTypes::OptionEntry &entry, int *retval) {
+      if (!parse_loglevel(entry.value.textValue))
       {
-        run_language= "python";
-        open_at_startup_type = "run-script";
-        open_at_startup = argval;
-      }
-      else
-      {
-        printf("%s: Missing argument for option %s\n", argv[0], argv[start_index]);
-        if (retval)
+        printf("Unable to parse log level value %s\n", entry.value.textValue.c_str());
         *retval = 1;
         return false;
       }
-    }
-    else if (check_arg_with_value(argv, i, "run-lua", argval))
-    {
-      printf("Lua is no longer supported in this version");
-      return false;
-    }
-    else if (check_arg_with_value(argv, i, "run-python", argval))
-    {
-      run_language= "python";
-      if (argval)
-        run_at_startup= argval;
-      else
-      {
-        printf("%s: Missing argument for option %s", argv[0], argv[start_index]);
-        if (retval)
-          *retval = 1;
-        return false;
-      }
-    }    
-    else if (strcmp(argv[i], OPPREFIX"quit-when-done") == 0)
-      quit_when_done= true;
-    else if (strcmp(argv[i], OPPREFIX"version") == 0)
+      return true;
+    }, "<level>"));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 'v', "verbose", "Enable diagnostics output", [this](const dataTypes::OptionEntry &entry, int *retval){
+    verbose = entry.value.logicalValue;
+    return true;
+  }));
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "version", "Show Workbench version number and exit", [](const dataTypes::OptionEntry &entry, int *retval){
+    if (entry.value.logicalValue)
     {
       const char *type = APP_EDITION_NAME;
       if (strcmp(APP_EDITION_NAME, "Community") == 0)
@@ -420,123 +341,77 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
              , APP_RELEASE_TYPE
              , APP_BUILD_NUMBER
             );
-      
-      if (retval)
-        *retval = 0;
-      
-      return false;
-    }
-    else if (strcmp(argv[i], OPPREFIX"verbose") == 0 || strcmp(argv[i], "-v") == 0)
-      verbose = true;
-    else if (strncmp(argv[i], OPPREFIX"log-level", 10) == 0)
-    {
-      if (!parse_loglevel(argv[i]) && (i+1) < argc) // If parse failed try to add next arg from CLI
-      {
-        std::string line(argv[i]);
-        line += argv[i + 1];
+      *retval = 0;
 
-        if (!parse_loglevel(line))
-        {
-          if ( (i + 2) < argc ) // Yet, we may have three CLI args if it was written like --log-level = <level>. Handle extra spaces
-          {
-            line += argv[i+2];
-            if (parse_loglevel(line))
-            {
-              i += 2; // correct arg count, so we do not parse log-level parts as smth different
-              log_level_set = true;
-            }
-          }
-        }
-        else
-        {
-          ++i; // correct arg count, so we do not parse log-level parts as smth different
-          log_level_set = true;        }
-      }
-      else // Parse succeeded
-        log_level_set = true;
-    }
-    else if (!strncmp(argv[i], OPPREFIX"log-to-stderr", sizeof(OPPREFIX"log-to-stderr")))
-    {
-        Logger::log_to_stderr(true);
-    }
-    else if (check_arg_with_value(argv, i, "configdir", argval))
-    {
-      if (argval == NULL)
-      {
-        printf("Invalid path specified as the configuration folder.\n");
-        return false;
-      }
-      user_data_dir = argval;
-      printf("Using %s as data directory.\n", argval);
-    }
-    else if (strcmp(argv[i], OPPREFIX"classic") == 0)
-    {
-      showClassicHome = true;
-    }
-    else if (check_arg_with_value(argv, i, "open", argval))
-    {
-      printf("Note: the \"open\" parameter is deprecated and will be removed in a future version"
-        " of MySQL Workbench\n");
-      if (argval)
-        open_at_startup = argval;
-      else
-      {
-        printf("%s: missing argument for option %s\n", argv[0], argv[start_index]);
-        if (retval)
-          *retval = 1;
-        return false;
-      }
-    }
-#ifdef __APPLE__
-    else if (strncmp(argv[i], "-psn_", 5) == 0 || strncmp(argv[i], "-NS", 3) == 0)
-    {
-      if (strcmp(argv[i], "-NSDocumentRevisionsDebugMode") == 0)
-        ++i;
-      // ignore system argv
-    }
-#endif
-    else if (g_file_test(argv[i], G_FILE_TEST_EXISTS))
-    {
-      open_at_startup= argv[i];
+      return false;
     }
     else
-    {
-      printf("%s: Unknown option %s\n", argv[0], argv[i]);
-      if (retval)
-        *retval = 2;
-      return false;
-    }
-    i++;
-  }
+      return true;
+  }));
 
-  // Set the log level from environment var WB_LOG_LEVEL if specified or set a default log level.
-  if (!log_level_set)
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "configdir", "Specify configuration directory location, default is platform specific.", [this](const dataTypes::OptionEntry &entry, int *retval){
+    if (!entry.value.textValue.empty())
+    {
+      printf("Using %s as data directory.\n", entry.value.textValue.c_str());
+      user_data_dir = entry.value.textValue;
+    }
+    return true;
+  }, "<path>"));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "classic", "Initially show classic workbench tab", [this](const dataTypes::OptionEntry &entry, int *retval){
+    showClassicHome = entry.value.logicalValue;
+    return true;
+  }));
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "open", "Open the given file at startup (deprecated, use script, model etc.)", [this](const dataTypes::OptionEntry &entry, int *retval){
+   if (!entry.value.textValue.empty())
+   {
+     printf("Note: the \"open\" parameter is deprecated and will be removed in a future version"
+                " of MySQL Workbench\n");
+     open_at_startup = entry.value.textValue;
+   }
+
+    return true;
+  }));
+}
+
+
+WBOptions::~WBOptions()
+{
+  delete programOptions;
+}
+
+void WBOptions::analyzeCommandLineArguments()
+{
+  auto entry = programOptions->getEntry("log-level");
+  if (entry->value.textValue.empty())
   {
     const char* log_setting = getenv("WB_LOG_LEVEL");
     if (log_setting == NULL)
     {
-#if defined(_DEBUG) || defined(ENABLE_DEBUG)
+      #if defined(_DEBUG) || defined(ENABLE_DEBUG)
       log_setting = "debug2";
-#else
+      #else
       log_setting = "info";
-#endif
+      #endif
     }
     else
-      log_level_set = true;
+      logLevelSet = true;
 
     std::string level = base::tolower(log_setting);
     base::Logger::active_level(level);
   }
-
-  if (log_level_set)
+  else
   {
     logInfo("Logger set to level '%s'\n", base::Logger::active_level().c_str());
     base::Logger::setLogLevelSpecifiedByUser();
   }
 
-  return true;
-}
+  //Get last path and use it
+  if (!programOptions->pathArgs.empty())
+    open_at_startup= programOptions->pathArgs.back();
 
+}
 //----------------- WBContext ----------------------------------------------------------------------
 
 extern void register_all_metaclasses();
