@@ -150,7 +150,7 @@ TEST_FUNCTION(10)
   ensure("WbModel module initialization", NULL != module);
 
   grt::DictRef options(true);
-  options.gset("basedir", wbt->wboptions.basedir);//wbt->wb->get_wb_options().get_string("basedir"));
+  options.gset("basedir", wbt->wboptions->basedir);//wbt->wb->get_wb_options().get_string("basedir"));
   options.gset("title", "Test Report");
   options.gset("filename", "TestReport");
   options.gset("fk_show_parent_and_child_table", 1);
