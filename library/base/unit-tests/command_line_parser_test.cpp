@@ -21,18 +21,18 @@
 #include "wb_helpers.h"
 
 
-BEGIN_TEST_DATA_CLASS(commandline_parser_test)
+BEGIN_TEST_DATA_CLASS(command_line_parser_test)
   protected:
     bool callbackTriggered;
 
-TEST_DATA_CONSTRUCTOR(commandline_parser_test)
+TEST_DATA_CONSTRUCTOR(command_line_parser_test)
 {
   callbackTriggered = false;
 }
 END_TEST_DATA_CLASS;
 
 
-TEST_MODULE(commandline_parser_test, "Base library commandline handling");
+TEST_MODULE(command_line_parser_test, "Base library command line handling");
 
 using namespace base;
 using dataTypes::OptionsList;
