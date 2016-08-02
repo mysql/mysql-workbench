@@ -328,6 +328,11 @@ if(GCOV)
     set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
 endif()
 
+if(GCOV)
+    set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
+endif()
+
+
 
 
 #-----------------------------------------------------------------------
