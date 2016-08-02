@@ -215,34 +215,39 @@ WBOptions::WBOptions(const std::string &appBinaryName)
 
 
 #if defined(_WIN32) || defined(__APPLE__)
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 'h', "help", "Show help options", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 'h', "help", "Show help options", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     std::cout << programOptions->getHelp(binaryName);
-  *retval = 0;
-  return false;
-}));
+    *retval = 0;
+    return false;
+  }));
 #endif
 
 
 
 #ifdef _WIN32
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "swrendering", "Force the diagram canvas to use software rendering instead of OpenGL", [force_sw_rendering](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "swrendering", "Force the diagram canvas to use software rendering instead of OpenGL", [force_sw_rendering](const dataTypes::OptionEntry &entry, int *retval)
+  {
     force_sw_rendering = entry.value.logicalValue;
     return true;
   }));
 #elif __APPLE__
 #else
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "force-sw-render", "Force Xlib rendering", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "force-sw-render", "Force Xlib rendering", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     force_sw_rendering = entry.value.logicalValue;
     return true;
   }));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "force-opengl-render", "Force OpenGL rendering", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "force-opengl-render", "Force OpenGL rendering", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     force_opengl_rendering = entry.value.logicalValue;
     return true;
   }));
 #endif
 
-  auto func = [this](const dataTypes::OptionEntry &entry, int *retval) {
+  auto func = [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     if (!entry.value.textValue.empty())
     {
       open_at_startup_type = entry.longName;
@@ -262,46 +267,52 @@ WBOptions::WBOptions(const std::string &appBinaryName)
   programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "admin", "Open a administration tab to the named instance", func, "<instance>"));
   programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "model", "Open the given EER model file", func, "<model file>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "upgrade-mysql-dbs", "Open a migration wizard tab", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "upgrade-mysql-dbs", "Open a migration wizard tab", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     if (entry.value.logicalValue)
-      open_at_startup_type= entry.longName;
+      open_at_startup_type = entry.longName;
     return true;
   }));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "migration", "Open a migration wizard tab", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "migration", "Open a migration wizard tab", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     if (entry.value.logicalValue)
-      open_at_startup_type= entry.longName;
+      open_at_startup_type = entry.longName;
     return true;
   }));
 
   programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, 0, "script", "Open the given SQL file in an connection, best in conjunction with a query parameter", func, "<sql file>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, "run-script", "Execute Python code from a file", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, "run-script", "Execute Python code from a file", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     if (!entry.value.textValue.empty())
     {
-      run_language= "python";
+      run_language = "python";
       open_at_startup_type = "run-script";
       open_at_startup = entry.value.textValue;
     }
     return true;
   }, "<file>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "run", "Execute the given Python code", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "run", "Execute the given Python code", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     if (!entry.value.textValue.empty())
       run_at_startup = entry.value.textValue;
     return true;
   }, "<code>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, "run-python", "Execute Python code from a file", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, "run-python", "Execute Python code from a file", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     if (!entry.value.textValue.empty())
     {
-      run_language= "python";
-      run_at_startup= entry.value.textValue;
+      run_language = "python";
+      run_at_startup = entry.value.textValue;
     }
     return true;
   }, "<code>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "quit-when-done", "Quit Workbench when the script is done", [this](const dataTypes::OptionEntry &entry, int *retval) {
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "quit-when-done", "Quit Workbench when the script is done", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     quit_when_done = entry.value.logicalValue;
     return true;
   }));
@@ -312,21 +323,25 @@ WBOptions::WBOptions(const std::string &appBinaryName)
   }));
 
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "log-level", "Valid levels are: error, warning, info, debug1, debug2, debug3", [](const dataTypes::OptionEntry &entry, int *retval) {
-      if (!parse_loglevel(entry.value.textValue))
-      {
-        printf("Unable to parse log level value %s\n", entry.value.textValue.c_str());
-        *retval = 1;
-        return false;
-      }
-      return true;
-    }, "<level>"));
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "log-level", "Valid levels are: error, warning, info, debug1, debug2, debug3", [](const dataTypes::OptionEntry &entry, int *retval)
+  {
+    if (!parse_loglevel(entry.value.textValue))
+    {
+      printf("Unable to parse log level value %s\n", entry.value.textValue.c_str());
+      *retval = 1;
+      return false;
+    }
+    return true;
+  }, "<level>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 'v', "verbose", "Enable diagnostics output", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 'v', "verbose", "Enable diagnostics output", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     verbose = entry.value.logicalValue;
     return true;
   }));
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "version", "Show Workbench version number and exit", [](const dataTypes::OptionEntry &entry, int *retval){
+
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "version", "Show Workbench version number and exit", [](const dataTypes::OptionEntry &entry, int *retval)
+  {
     if (entry.value.logicalValue)
     {
       const char *type = APP_EDITION_NAME;
@@ -349,7 +364,8 @@ WBOptions::WBOptions(const std::string &appBinaryName)
       return true;
   }));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "configdir", "Specify configuration directory location, default is platform specific.", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "configdir", "Specify configuration directory location, default is platform specific.", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     if (!entry.value.textValue.empty())
     {
       printf("Using %s as data directory.\n", entry.value.textValue.c_str());
@@ -358,18 +374,20 @@ WBOptions::WBOptions(const std::string &appBinaryName)
     return true;
   }, "<path>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "classic", "Initially show classic workbench tab", [this](const dataTypes::OptionEntry &entry, int *retval){
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "classic", "Initially show classic workbench tab", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
     showClassicHome = entry.value.logicalValue;
     return true;
   }));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "open", "Open the given file at startup (deprecated, use script, model etc.)", [this](const dataTypes::OptionEntry &entry, int *retval){
-   if (!entry.value.textValue.empty())
-   {
-     printf("Note: the \"open\" parameter is deprecated and will be removed in a future version"
-                " of MySQL Workbench\n");
-     open_at_startup = entry.value.textValue;
-   }
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "open", "Open the given file at startup (deprecated, use script, model etc.)", [this](const dataTypes::OptionEntry &entry, int *retval)
+  {
+    if (!entry.value.textValue.empty())
+    {
+      printf("Note: the \"open\" parameter is deprecated and will be removed in a future version"
+              " of MySQL Workbench\n");
+      open_at_startup = entry.value.textValue;
+    }
 
     return true;
   }));
