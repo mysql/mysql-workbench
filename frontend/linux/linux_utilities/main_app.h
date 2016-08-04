@@ -21,6 +21,7 @@
 #include <gtkmm/application.h>
 #include <stack>
 #include "base/threading.h"
+#include "base/data_types.h"
 
 namespace runtime
 {
@@ -51,14 +52,15 @@ public:
   void quit();
   bool isMainThread();
 
-  std::function<bool(int argc, char **argv, int *retval)> parseParams;
   std::function<void()> onActivate;
 
   /**
    * if this function is not empty, it should return true if application should be started
    */
   std::function<bool()> onBeforeActivate;
-  std::function<void(const char* arg0)> showWbHelpCb;
+  std::function<dataTypes::OptionsList*()> getCmdOptions;
+
+
 };
 
 }
