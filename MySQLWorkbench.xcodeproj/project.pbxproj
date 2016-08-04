@@ -2700,6 +2700,7 @@
 		447272031C58F97D005F840F /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		447272041C58F991005F840F /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		447272051C59014A005F840F /* utilities.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 447271FA1C58F170005F840F /* utilities.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4475EA351D508526007E6367 /* command_line_parser_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4475EA331D508520007E6367 /* command_line_parser_test.cpp */; };
 		448F6B2B1CEDEB3100D1BF6B /* ProjectForm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 448F6B291CEDEB2800D1BF6B /* ProjectForm.cpp */; };
 		448F6B2D1CEDEB7000D1BF6B /* ProjectForm.h in Headers */ = {isa = PBXBuildFile; fileRef = 448F6B2C1CEDEB6400D1BF6B /* ProjectForm.h */; };
 		44B7DC961C0C7A39000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC951C0C7A39000D608D /* wba_firewall */; };
@@ -6733,6 +6734,7 @@
 		447271FA1C58F170005F840F /* utilities.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = utilities.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		447271FB1C58F1CC005F840F /* utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utilities.cpp; path = modules/utilities/src/utilities.cpp; sourceTree = "<group>"; };
 		447271FE1C58F2BA005F840F /* utilities.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utilities.grt_prefix.h; path = prefix/utilities.grt_prefix.h; sourceTree = "<group>"; };
+		4475EA331D508520007E6367 /* command_line_parser_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = command_line_parser_test.cpp; path = "library/base/unit-tests/command_line_parser_test.cpp"; sourceTree = "<group>"; };
 		448F6B291CEDEB2800D1BF6B /* ProjectForm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProjectForm.cpp; path = library/forms/ProjectForm.cpp; sourceTree = "<group>"; };
 		448F6B2C1CEDEB6400D1BF6B /* ProjectForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProjectForm.h; path = library/forms/mforms/ProjectForm.h; sourceTree = "<group>"; };
 		44B7DC951C0C7A39000D608D /* wba_firewall */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_firewall; path = plugins/wb.admin/internal/wba_firewall; sourceTree = "<group>"; };
@@ -7734,6 +7736,7 @@
 		27050A1E1B34396F00D6135D /* library_base */ = {
 			isa = PBXGroup;
 			children = (
+				4475EA331D508520007E6367 /* command_line_parser_test.cpp */,
 				27050A701B343FB300D6135D /* config_file_test.cpp */,
 				27050A711B343FB300D6135D /* file_utilities_test.cpp */,
 				27050A721B343FB300D6135D /* sqlstring_test.cpp */,
@@ -14601,6 +14604,7 @@
 				27050A8B1B343FF400D6135D /* view.cpp in Sources */,
 				27FE9ED91B344A27008F6827 /* test_mysql_sql_facade.cpp in Sources */,
 				27050A641B343EBC00D6135D /* dbc_result_set_test.cpp in Sources */,
+				4475EA351D508526007E6367 /* command_line_parser_test.cpp in Sources */,
 				27ABB5EE1BED021300BD039F /* json_test.cpp in Sources */,
 				27050B251B34456600D6135D /* recordset_test.cpp in Sources */,
 				27050A781B343FB300D6135D /* sqlstring_test.cpp in Sources */,
