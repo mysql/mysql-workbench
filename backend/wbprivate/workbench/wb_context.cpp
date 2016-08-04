@@ -226,7 +226,7 @@ WBOptions::WBOptions(const std::string &appBinaryName)
 
 
 #ifdef _WIN32
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "swrendering", "Force the diagram canvas to use software rendering instead of OpenGL", [force_sw_rendering](const dataTypes::OptionEntry &entry, int *retval)
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "swrendering", "Force the diagram canvas to use software rendering instead of OpenGL", [this](const dataTypes::OptionEntry &entry, int *retval)
   {
     force_sw_rendering = entry.value.logicalValue;
     return true;
