@@ -922,7 +922,10 @@ static NSString *applicationSupportFolder()
  */
 - (void)setupOptionsAndParseCommandline
 {
-  _options= new wb::WBOptions();
+  int argc= *_NSGetArgc();
+  char **argv= *_NSGetArgv();
+  _options= new wb::WBOptions(argv[0]);
+  
   
   _options->basedir = [NSBundle mainBundle].resourcePath.fileSystemRepresentation;
   _options->struct_search_path = _options->basedir + "/grt";
@@ -931,15 +934,18 @@ static NSString *applicationSupportFolder()
   _options->library_search_path = std::string([NSBundle mainBundle].resourcePath.fileSystemRepresentation) + "/libraries";
   _options->cdbc_driver_search_path = std::string([NSBundle mainBundle].privateFrameworksPath.fileSystemRepresentation);
 
-
-  int argc= *_NSGetArgc();
-  char **argv= *_NSGetArgv();
-  
-  int rc = 0;
-  if (!_options->parse_args(argv, argc, &rc))
+  try
   {
-    logInfo("Exiting with rc %i after parsing arguments\n", rc);
-    exit(rc);
+    int rc = 0;
+    if (!_options->programOptions->parse(std::vector<std::string>(argv + 1, argv + argc), rc))
+    {
+      logInfo("Exiting with rc %i after parsing arguments\n", rc);
+      exit(rc);
+    }
+  } catch (std::exception &exc)
+  {
+    logInfo("Exiting with error message: %s\n", exc.what());
+    exit(1);
   }
   
   if (!_options->user_data_dir.empty())
