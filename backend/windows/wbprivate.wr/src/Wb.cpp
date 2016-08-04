@@ -32,6 +32,8 @@
 #include "mforms/menubar.h"
 #include "mforms/appview.h"
 
+using namespace System::IO;
+using namespace System::Reflection;
 using namespace System::Text;
 using namespace System::Threading;
 using namespace System::Windows::Forms;
@@ -49,7 +51,8 @@ using namespace MySQL::Workbench;
 
 WbOptions::WbOptions(String^ baseDir, String^ userDir, bool full_init)
 {
-  inner = new wb::WBOptions();
+  String ^exeName = Path::GetFileName(Assembly::GetEntryAssembly()->Location);
+  inner = new wb::WBOptions(NativeToCppStringRaw(exeName));
   inner->basedir = NativeToCppStringRaw(baseDir);
   inner->plugin_search_path = inner->basedir;
   inner->module_search_path = inner->basedir + "/modules";
@@ -93,6 +96,7 @@ bool WbOptions::parse_args(array<String^>^ args, String^ app_path)
 
   // Collect the managed string arrays into a c-like char* for parsing.
   char** arguments = new char*[managed_utf8->Length];
+  bool ret = true;
   try
   {
     for (int i = 0; i < managed_utf8->Length; i++)
@@ -101,14 +105,25 @@ bool WbOptions::parse_args(array<String^>^ args, String^ app_path)
       arguments[i] = (char*)chars;
     }
 
-    return inner->parse_args(arguments, managed_utf8->Length);
+    int rc = 0;
+    std::vector<std::string> arguments(arguments + 1, arguments + managed_utf8->Length);
+    if (!inner->programOptions->parse(arguments, rc))
+    {
+      Logger::LogInfo("WBContext managed", String::Format("Exiting with rc {0} after parsing arguments\n", rc));
+      ret = false;
+    }
+  }
+  catch (std::exception &exc)
+  {
+    Logger::LogInfo("WBContext managed", String::Format("Exiting with error message: {0}\n", CppStringToNative(exc.what())));
+    ret = false;
   }
   finally
   {
     delete arguments;
   }
   
-  return true;
+  return ret;
 }
 
 //--------------------------------------------------------------------------------------------------
