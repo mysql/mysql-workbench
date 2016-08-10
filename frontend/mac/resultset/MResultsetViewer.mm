@@ -279,8 +279,8 @@ static void record_add(void *view)
 
 static void record_del(void *view)
 {
-  MGridView *gridView = (__bridge MGridView *)view;
-  [gridView deleteBackward: nil];
+  MResultsetViewer *viewer = (__bridge MResultsetViewer *)view;
+  [viewer.gridView deleteSelectedRows];
 }
 
 static void selected_record_changed(void *theViewer)
@@ -448,7 +448,6 @@ static int onRefresh(void *viewer)
     [aTableView noteNumberOfRowsChanged];
   }
 }
-
 
 
 - (void) tableView: (NSTableView*) aTableView
