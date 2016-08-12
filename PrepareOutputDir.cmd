@@ -219,11 +219,6 @@ echo * gdal library + tools ...
 copy %EXT_LIB_DIR%\gdal\gdal.dll %TARGET_DIR%\.
 copy %EXT_LIB_DIR%\gdal\*.exe %TARGET_DIR%\.
 
-echo * ng library ...
-copy %EXT_LIB_DIR%\ngshell\%2\*.dll %TARGET_DIR%\.
-if not exist %TARGET_DIR%\modules\js mkdir %TARGET_DIR%\modules\js
-copy %EXT_LIB_DIR%\ngshell\%2\modules\js\*.* %TARGET_DIR%\modules\js.
-
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide
 xcopy /i /s /y /d %RES_DIR%\sqlidedata\templates\*.* %TARGET_DIR%\modules\data\sqlide\. 1> nul 2> nul

@@ -52,7 +52,6 @@ PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2-gpl
 CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl
 GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl
 VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-gpl
-NGSHELL_HOME=$(LINUXRES_BINARIES)/ngshell-gpl
 ifndef MYSQL_HOME
 MYSQL_HOME=$(HOME)/mysql-server/
 endif
@@ -62,7 +61,6 @@ PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2-com
 CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com
 GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com
 VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-com
-NGSHELL_HOME=$(LINUXRES_BINARIES)/ngshell-com
 ifndef MYSQL_HOME
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 endif
@@ -71,7 +69,6 @@ endif
 WBDIRNAME=mysql-workbench-@edition@
 
 WBLIBPATH=$(INSTALL_PREFIX)/lib/mysql-workbench
-WBLIBXPATH=$(INSTALL_PREFIX)/lib/workbench.x
 WBDATADIRPATH=$(INSTALL_PREFIX)/share/mysql-workbench
 WBDOCPATH=$(INSTALL_PREFIX)/share/doc/mysql-workbench-@edition@
 
@@ -90,8 +87,6 @@ configure-stamp:
 	  -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE \
 	  -DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
 	  -DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
-	  -DMYSQLNG_LIBRARIES=$(NGSHELL_HOME)/lib \
-	  -DMYSQLNG_INCLUDE_DIR=$(NGSHELL_HOME)/include/mysqlsh \
 	  -DGDAL_INCLUDE_DIR=$(GDAL_HOME)/include \
 	  -DGDAL_LIBRARY=$(GDAL_HOME)/lib/libgdal.so \
 	  -DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \
@@ -197,7 +192,7 @@ binary-arch: build install
 	dh_installdeb
 	dh_shlibdeps \
           --dpkg-shlibdeps-params=--ignore-missing-info \
-          -l$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH):$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBXPATH)
+          -l$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

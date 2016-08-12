@@ -710,10 +710,10 @@ TEST_FUNCTION(55)
 
   db_mgmt_ManagementRef mgmt(db_mgmt_ManagementRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt")));
 
-  ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(grt::GRT::get()->unserialize(tester->wboptions.basedir + "/data/db_datatype_groups.xml"));
+  ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(grt::GRT::get()->unserialize(tester->wboptions->basedir + "/data/db_datatype_groups.xml"));
   grt::replace_contents(mgmt->datatypeGroups(), grouplist);
 
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(tester->wboptions.basedir + "/modules/data/mysql_rdbms_info.xml"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(tester->wboptions->basedir + "/modules/data/mysql_rdbms_info.xml"));
   ensure("db_mgmt_Rdbms initialization", rdbms.is_valid());
   grt::GRT::get()->set("/rdbms", rdbms);
 

@@ -18,6 +18,11 @@
  */
 
 #include "main_app.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#include <gtkmm.h>
+#pragma GCC diagnostic pop
+#include <iostream>
 
 runtime::loop::loop() : _loop(nullptr) {}
 
@@ -66,25 +71,54 @@ runtime::app::~app()
 
 }
 
+static GOptionArg convertOptionType(dataTypes::OptionArgumentType type)
+{
+  switch (type)
+  {
+  case dataTypes::OptionArgumentNumeric:
+    return G_OPTION_ARG_INT;
+  case dataTypes::OptionArgumentText:
+    return G_OPTION_ARG_STRING;
+   case dataTypes::OptionArgumentFilename:
+     return G_OPTION_ARG_FILENAME;
+   case dataTypes::OptionArgumentLogical:
+   default:
+    return G_OPTION_ARG_NONE;
+  }
+}
+
 void runtime::app::init(const std::string &name, int argc, char **argv)
 {
+  auto cmdOptions = getCmdOptions();
+  std::vector<GOptionEntry> entries;
+  for (auto &o : *(cmdOptions->getEntries()))
+  {
+    entries.push_back({o.second.longName.c_str(), o.second.shortName, G_OPTION_FLAG_IN_MAIN, convertOptionType(o.second.value.type), nullptr, o.second.description.c_str(), o.second.argName.empty() ? nullptr : o.second.argName.c_str()});
+    if (!o.second.callback)
+    {
+      switch(o.second.value.type)
+      {
+      case dataTypes::OptionArgumentNumeric:
+        entries.back().arg_data = &o.second.value.numericValue;
+        break;
+      case dataTypes::OptionArgumentLogical:
+        entries.back().arg_data = &o.second.value.logicalValue;
+        break;
+      default:
+        break;
+      }
+    }
 
+  }
+
+  entries.push_back({ NULL, 0, 0, G_OPTION_ARG_NONE, nullptr, NULL, nullptr});
   _app = Gtk::Application::create(argc, argv, name, Gio::APPLICATION_HANDLES_COMMAND_LINE);
+
+  g_application_add_main_option_entries((GApplication*)_app->gobj(), entries.data());
   _app->signal_command_line().connect(sigc::mem_fun(this, &app::onCommand), false);
 
-  // We need to add separate workbench help option entry,
-  // so we can handle it in our parse
-  #if GLIB_CHECK_VERSION(2, 48, 0)
-  #else
-  GOptionEntry entries[] = {
-      { "help-wb", 0, G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE, nullptr, "Show MySQL Workbench Help", nullptr },
-      { NULL, 0, 0, G_OPTION_ARG_NONE, nullptr, NULL, nullptr} // Last entry must be null, but gcc will complain, make it happy :)
-  };
-
-  g_application_add_main_option_entries((GApplication*)_app->gobj(), entries);
-  #endif
-
-  _app->signal_activate().connect([&](){
+  _app->signal_activate().connect([&]()
+  {
     bool activate = true;
     if (onBeforeActivate)
       activate = onBeforeActivate();
@@ -101,26 +135,42 @@ void runtime::app::init(const std::string &name, int argc, char **argv)
 
 int runtime::app::onCommand(const Glib::RefPtr<Gio::ApplicationCommandLine> &appCmdLine)
 {
-  int argc = 0, retval;
-  char** argv = appCmdLine->get_arguments(argc);
-  #if GLIB_CHECK_VERSION(2, 48, 0)
-  #else
-
-  const auto options = appCmdLine->get_options_dict();
-
-  // We need to handle help different way in gtk
-  bool showHelp = false;
-  options->lookup_value("help-wb", showHelp);
-
-  if (showHelp && showWbHelpCb)
+  auto optDict = appCmdLine->get_options_dict();
+  auto cmdOptions = getCmdOptions();
+  for (auto &o : *(cmdOptions->getEntries()))
   {
-    showWbHelpCb(argv[0]);
-    return EXIT_SUCCESS;
+
+    if (o.second.value.type == dataTypes::OptionArgumentText || o.second.value.type == dataTypes::OptionArgumentFilename)
+    {
+      Glib::ustring tmp;
+      if (!optDict->lookup_value(o.second.longName.c_str(), tmp))
+        continue;
+      o.second.value.textValue = tmp.c_str();
+    }
+    else if (o.second.value.type == dataTypes::OptionArgumentLogical)
+    {
+      bool tmp;
+      if (!optDict->lookup_value(o.second.longName.c_str(), tmp))
+        continue;
+      o.second.value.logicalValue = tmp;
+    }
+    else if (o.second.value.type == dataTypes::OptionArgumentNumeric)
+    {
+      int tmp;
+      if (!optDict->lookup_value(o.second.longName.c_str(), tmp))
+        continue;
+      o.second.value.numericValue = tmp;
+    }
+
+    if (o.second.callback)
+    {
+      int retval = -1; //continue
+      if (!o.second.callback(o.second, &retval))
+        return retval;
+    }
   }
 
-  #endif
-  if (parseParams && !parseParams(argc, argv, &retval))
-    return retval;
+  optDict->lookup_value(G_OPTION_REMAINING, cmdOptions->pathArgs);
 
   _app->activate();
   return EXIT_SUCCESS;

@@ -8,8 +8,8 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 7.0.0' \
-#                                   --define='release 1' 
+#                                   --define='version 6.3.8' \
+#                                   --define='release 1'
 ####################################################################
 
 # Enable use of "--with" and "--without" options to "rpmbuld"
@@ -62,7 +62,6 @@
 %define pysqlite_dir     %{linuxres_binaries}/pysqlite2-%{lictag}
 %define pyodbc_dir       %{linuxres_binaries}/pyodbc
 %define mysqlcppconn_dir %{linuxres_binaries}/cppconn-%{lictag}
-%define mysqlshell_dir   %{linuxres_binaries}/ngshell-%{lictag}
 %define gdal_dir         %{linuxres_binaries}/gdal-%{lictag}
 %define vsqlite_dir      %{linuxres_binaries}/vsqlite-%{lictag}
 %define python_dir       %{linuxres_home}/python
@@ -184,8 +183,6 @@ CXXFLAGS="-std=c++11 $CXXFLAGS" \
 %endif
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
-       -DMYSQLNG_LIBRARIES="%{mysqlshell_dir}/lib" \
-       -DMYSQLNG_INCLUDE_DIR=%{mysqlshell_dir}/include/mysqlsh \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
        -DIODBC_INCLUDE_PATH=%{odbc_home}/include \
        -DIODBC_LIBRARIES_PATH=%{odbc_home}/lib \
@@ -283,19 +280,16 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 %doc %{license_file} README
 
 %attr(0755,root,root) %{_bindir}/mysql-workbench
-%attr(0755,root,root) %{_bindir}/workbench.x
 %attr(0755,root,root) %{_bindir}/wbcopytables
 
 %dir %{_libexecdir}/mysql-workbench
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql-workbench-bin
-%attr(0755,root,root) %{_libexecdir}/mysql-workbench/workbench.x-bin
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/wbcopytables-bin
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/iodbcadm-gtk
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysqldump
 
 %{_libdir}/mysql-workbench
-%{_libdir}/workbench.x
 
 %{_datadir}/mysql-workbench
 %attr(0755,root,root) %{_datadir}/mysql-workbench/extras/*.sh

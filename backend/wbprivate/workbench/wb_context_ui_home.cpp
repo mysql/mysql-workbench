@@ -883,20 +883,8 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
 
-        bool is_ng = connection.is_valid() && connection->driver()->name() == "MySQLX";
-        if (is_ng)
-        {
-          _wb->show_status_text("Opening XShell...");
-          bec::ArgumentPool argument_pool;
-          argument_pool.add_entries_for_object("connection", connection, db_mgmt_Connection::static_class_name());
-          start_plugin("NG IDE", "plugin:com.mysql.wb.ng", argument_pool);
-          _wb->show_status_text("XSHell opened...");
-        }
-        else
-        {
-          _wb->show_status_text("Opening SQL Editor...");
-          _wb->add_new_query_window(connection);
-        }
+        _wb->show_status_text("Opening SQL Editor...");
+        _wb->add_new_query_window(connection);
       }
       _processing_action_open_connection = false;
       break;
@@ -1078,65 +1066,6 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       }
       else
         _wb->show_status_text("Error creating document");
-      break;
-    }
-
-    case HomeScreenAction::ActionOpenXProject:
-    {
-      dataTypes::XProject project = anyObject;
-#ifdef _WIN32
-      std::string exeName = "MySQLWorkbench.X.exe";
-#elif __APPLE__
-      std::string exeName = "MySQLWorkbench.X.app";
-#else
-      std::string exeName = mforms::App::get()->get_executable_path("workbench.x");
-#endif
-      logInfo("About to execute: %s --open %s\n", exeName.c_str(), project.connection.uuid.c_str());
-      try
-      {
-        if (project.placeholder)
-        {
-
-          if (project.connection.language == dataTypes::EditorJavaScript)
-            base::launchApplication(exeName, { "--new", "js" });
-          else if (project.connection.language == dataTypes::EditorPython)
-            base::launchApplication(exeName, { "--new", "python" });
-          else
-            throw std::runtime_error("Unhandled session type");
-
-        }
-        else
-          base::launchApplication(exeName, { "--open", project.connection.uuid });
-      } catch (std::runtime_error &e)
-      {
-        std::string message = "Unable to execute: " + exeName + "\nError: " + e.what();
-        logError("%s\n", message.c_str());
-        mforms::Utilities::show_warning(_("Launch Error"), message, _("Close"));
-      }
-
-      break;
-    }
-
-    case mforms::HomeScreenAction::ActionNewJSXProject:
-      break;
-
-    case mforms::HomeScreenAction::ActionNewPythonXProject:
-      break;
-
-    case mforms::HomeScreenAction::ActionManageXProjects:
-      break;
-
-    case mforms::HomeScreenAction::ActionOpenXTutorial:
-      mforms::Utilities::open_url("http://dev.mysql.com/doc/refman/5.7/en/mysql-shell-tutorial-javascript.html");
-      break;
-
-    case mforms::HomeScreenAction::ActionOpenXLearnMore:
-      mforms::Utilities::open_url("http://dev.mysql.com/doc/refman/5.7/en/document-store.html");
-      break;
-
-    case mforms::HomeScreenAction::ActionOpenXTraditional:
-    {
-      _home_screen->showSection(1);
       break;
     }
 
