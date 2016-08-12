@@ -3,7 +3,7 @@
 //  mysql.parser
 //
 //  Created by Mike on 03.04.12.
-//  Copyright 2012, 2015 Oracle Corporation. All rights reserved.
+//  Copyright 2012, 2016, Oracle Corporation. All rights reserved.
 //
 
 #include "MySQLLexer.h"
@@ -13,9 +13,12 @@
 
 @interface mysql_parserAppDelegate : NSObject <NSApplicationDelegate, NSTextViewDelegate> {
   IBOutlet NSTextView *singleQueryText;
+  IBOutlet NSScrollView *singleQueryTextScrollView;
   IBOutlet NSTextView *errorText;
   IBOutlet NSTextView *output;
+  IBOutlet NSScrollView *outputScrollView;
   IBOutlet NSTextField *pathEdit;
+  IBOutlet NSTextView *parseTreeView;
   
   IBOutlet NSTextField *statusText;
   IBOutlet NSTextView *errorQueryText;
@@ -38,14 +41,12 @@
   IBOutlet NSButton *modeNoBackslashEscapeButton;
 
 @private
-  NSWindow *window;
-  
   NSUInteger queryCount;
   BOOL stopTests;
   BOOL running;
 }
 
-@property (assign) IBOutlet NSWindow *window;
+@property (weak) IBOutlet NSWindow *window;
 
 - (IBAction)parse: (id)sender;
 - (IBAction)selectFile: (id)sender;

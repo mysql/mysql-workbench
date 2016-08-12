@@ -34,10 +34,10 @@ then
   exit 1
 fi
 
-TARGET_DIRECTORY=..
+TARGET_DIRECTORY=../mysql
 GENERATE_FILES=false
 BASE_DIRECTORY=../../../..
-LINUX_RES_JAR_PATH=$BASE_DIRECTORY/linux-res/bin/antlr-3.4-complete.jar
+LINUX_RES_JAR_PATH=$BASE_DIRECTORY/linux-res/bin/antlr-4.5.4-complete.jar
 
 if [ $1 = $MYSQL ]; then
   if [ ! -f "$TARGET_DIRECTORY/MySQLLexer.c" ]  || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLLexer.c" ];  then GENERATE_FILES=true; fi
@@ -64,7 +64,7 @@ if [ $GENERATE_FILES == true ]; then
     if [ -f "$LINUX_RES_JAR_PATH" ]; then
       ANTLR_JAR_PATH="$LINUX_RES_JAR_PATH"
     else
-      echo "The antlr-3.4-complete.jar file could not be found."
+      echo "The antlr-4.5.4-complete.jar file could not be found."
       echo "Please make sure that linux-res is in `cd $BASE_DIRECTORY; pwd` or add the ANTLR_JAR_PATH enviroment variable with the path to the file."
       echo "You'll also need Java Runtime Enviroment installed, so the parser files can be regenerated."
       exit 1

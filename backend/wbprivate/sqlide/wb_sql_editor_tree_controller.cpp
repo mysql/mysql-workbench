@@ -63,7 +63,7 @@ using namespace grt;
 using namespace bec;
 using namespace wb;
 using namespace base;
-using namespace parser;
+using namespace parsers;
 
 using boost::signals2::scoped_connection;
 
@@ -1656,7 +1656,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
     return ""; // get_object_create_script() already showed an error.
   
   db_mysql_RoutineRef routine(grt::Initialized);
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
 
   db_mysql_CatalogRef catalog(grt::Initialized);
   catalog->version(_owner->rdbms_version());
@@ -1671,24 +1671,24 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
   schema->routines().insert(routine);
 
   std::string previous_sql_mode;
-  std::string sql_mode = _owner->work_parser_context()->get_sql_mode();
+  std::string sql_mode = _owner->work_parser_context()->sqlMode();
   if (!script.first.empty())
   {
     previous_sql_mode = sql_mode;
     sql_mode = script.first;
-    _owner->work_parser_context()->use_sql_mode(script.first);
+    _owner->work_parser_context()->updateSqlMode(script.first);
   }
 
   size_t error_count = services->parseRoutine(_owner->work_parser_context(), routine, script.second);
 
   if (!previous_sql_mode.empty())
-    _owner->work_parser_context()->use_sql_mode(previous_sql_mode);
+    _owner->work_parser_context()->updateSqlMode(previous_sql_mode);
 
   if (error_count > 0)
   {
     logWarning("Error parsing SQL code for %s.%s:\n%s\n", schema_name.c_str(), obj_name.c_str(), script.second.c_str());
 
-    std::vector<ParserErrorEntry> errors = _owner->work_parser_context()->get_errors_with_offset(0, false);
+    std::vector<ParserErrorInfo> errors = _owner->work_parser_context()->errorsWithOffset(0);
     mforms::Utilities::show_error(_("Error parsing sql code for object"), errors[0].message, "OK");
     return "";
   }
@@ -2217,16 +2217,16 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog,
   const std::string &objectDescription, const std::string &sql, std::string sqlMode, const std::string &schema)
 {
-  std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
+  std::string currentSqlMode = _owner->work_parser_context()->sqlMode();
 
   grt::DictRef options(true);
   options.set("reuse_existing_objects", grt::IntegerRef(1));
   options.set("schema", grt::StringRef(schema));
 
   if (!sqlMode.empty())
-    _owner->work_parser_context()->use_sql_mode(sqlMode);
+    _owner->work_parser_context()->updateSqlMode(sqlMode);
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   size_t errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
 
   bool haveErrors = false;
@@ -2237,10 +2237,10 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
       sqlMode = base::replaceString(sqlMode, "ANSI_QUOTES", "");
     else
       sqlMode += ", ANSI_QUOTES";
-    _owner->work_parser_context()->use_sql_mode(sqlMode);
+    _owner->work_parser_context()->updateSqlMode(sqlMode);
 
     errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
-    _owner->work_parser_context()->use_sql_mode(currentSqlMode);
+    _owner->work_parser_context()->updateSqlMode(currentSqlMode);
 
     if (errorCount == 0) // Error(s) solved by new sql mode -> inconsistency.
     {
@@ -2263,7 +2263,7 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
   else
     haveErrors = errorCount > 0;
 
-  _owner->work_parser_context()->use_sql_mode(currentSqlMode);
+  _owner->work_parser_context()->updateSqlMode(currentSqlMode);
   if (haveErrors)
   {
     if (mforms::Utilities::show_error(strfmt(_("Error Parsing DDL for %s"), objectDescription.c_str()),

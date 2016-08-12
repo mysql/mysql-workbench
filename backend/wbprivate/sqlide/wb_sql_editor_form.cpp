@@ -1450,9 +1450,9 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
         _lower_case_table_names = base::atoi<int>(value, 0);
 
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-      _work_parser_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
-      _work_parser_context->use_sql_mode(_sql_mode);
+      parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+      _work_parser_context = services->createParserContext(rdbms()->characterSets(), _version, _sql_mode,
+                                                           _lower_case_table_names != 0);
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   }
@@ -1496,10 +1496,9 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503), true);
-      _work_parser_context->use_sql_mode(_sql_mode);
-
+      parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503),
+                                                           _sql_mode, true);
       return grt::StringRef();
     }
     else if (exc.getErrorCode() == 3032)
@@ -1522,9 +1521,9 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503), true);
-      _work_parser_context->use_sql_mode(_sql_mode);
+      parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503),
+                                                           _sql_mode, true);
 
       return grt::StringRef();
     }

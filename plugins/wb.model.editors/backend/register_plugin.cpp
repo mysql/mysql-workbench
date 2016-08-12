@@ -51,7 +51,7 @@ public:
   DEFINE_INIT_MODULE(MODULE_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION(WbEditorsModuleImpl::getPluginInfo), NULL);
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo()
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override
   {
     return get_mysql_plugins_info();
   }

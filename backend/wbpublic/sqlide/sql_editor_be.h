@@ -57,7 +57,6 @@ class MySQLRecognizer;
 /**
  * The legacy MySQL editor class.
  */
-
 class WBPUBLICBACKEND_PUBLIC_FUNC MySQLEditor : public base::trackable
 {
 public:
@@ -73,8 +72,8 @@ public:
   typedef std::shared_ptr<MySQLEditor> Ref;
   typedef std::weak_ptr<MySQLEditor> Ptr;
 
-  static Ref create(parser::MySQLParserContext::Ref syntax_check_context,
-                    parser::MySQLParserContext::Ref autocopmlete_context,
+  static Ref create(parsers::MySQLParserContext::Ref syntax_check_context,
+                    parsers::MySQLParserContext::Ref autocopmlete_context,
                     db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
 
   virtual ~MySQLEditor();
@@ -118,7 +117,7 @@ public:
   bool is_sql_check_enabled() const;
   void set_sql_check_enabled(bool val);
   
-  void show_auto_completion(bool auto_choose_single, parser::MySQLParserContext::Ref parser_context);
+  void show_auto_completion(bool auto_choose_single, parsers::MySQLParserContext::Ref parser_context);
   std::vector<std::pair<int, std::string>> update_auto_completion(const std::string &typed_part);
   void cancel_auto_completion();
   void set_auto_completion_cache(MySQLObjectNamesCache *cache);
@@ -147,8 +146,8 @@ public:
   void set_continue_on_error(bool value);
 
 protected:
-  MySQLEditor(parser::MySQLParserContext::Ref syntax_check_context,
-              parser::MySQLParserContext::Ref autocopmlete_context);
+  MySQLEditor(parsers::MySQLParserContext::Ref syntax_check_context,
+              parsers::MySQLParserContext::Ref autocopmlete_context);
 
 private:
   class Private;

@@ -33,6 +33,8 @@
 #include <algorithm>
 #include <functional>
 
+#include "mysql_parser_services.h"
+
 using namespace grt;
 
 std::string get_qualified_schema_object_name(GrtNamedObjectRef object, const bool case_sensitive)
@@ -668,7 +670,8 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   GrtVersionRef version1;
   if (catalog1.is_valid())
     version1 = catalog1->version();
-  if (!bec::parse_type_definition(type1, version1, types1, user_types1, default_type_list1,
+  parsers::MySQLParserServices *services = parsers::MySQLParserServices::get();
+  if (!services->parseTypeDefinition(type1, version1, types1, user_types1, default_type_list1,
       simpleType1, userType1, precision1, scale1, length1, datatypeExplicitParams1))
       return false;
 
@@ -698,7 +701,7 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   GrtVersionRef version2;
   if (catalog2.is_valid())
     version2 = catalog1->version();
-  if (!bec::parse_type_definition(type2, version2, types2, user_types2, default_type_list2,
+  if (!services->parseTypeDefinition(type2, version2, types2, user_types2, default_type_list2,
       simpleType2, userType2, precision2, scale2, length2, datatypeExplicitParams2))
       return false;
 

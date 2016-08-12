@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,11 @@
 #include "workbench/wb_backend_public_interface.h"
 #include "wb_sql_editor_help.h"
 
-#include <antlr3.h>
-#include "mysql-parser.h"
-#include "mysql-scanner.h"
-#include "MySQLLexer.h"
+#include "parsers-common.h"
 
 DEFAULT_LOG_DOMAIN("Context help")
+
+using namespace parsers;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -229,9 +228,9 @@ static std::string query_type_to_help_topic[] = {
  * 
  * On entry we are on the text/id token. On exit we are on the following token.
  */
-bool skip_text_or_identifier(MySQLScanner &scanner)
-{
-  switch (scanner.token_type())
+bool skip_text_or_identifier(Scanner &scanner)
+{/* XXX:
+  switch (scanner.tokenType())
   {
     case NCHAR_TEXT:
       scanner.next(true);
@@ -254,7 +253,7 @@ bool skip_text_or_identifier(MySQLScanner &scanner)
         return true;
       }
   }
-
+*/
   return false;
 }
 
@@ -264,8 +263,8 @@ bool skip_text_or_identifier(MySQLScanner &scanner)
  * Determines the object type from the current position (after one of the DML keywords like
  * alter, create, drop). Default is table if we cannot determine the real one.
  */
-std::string object_from_token(MySQLScanner &scanner)
-{
+std::string object_from_token(Scanner &scanner)
+{/* XXX:
   // Not all object types support a definer clause, but we are flexible.
   // Skip over it if there's one, regardless.
   if (scanner.token_type() == DEFINER_SYMBOL)
@@ -378,6 +377,8 @@ std::string object_from_token(MySQLScanner &scanner)
   default:
     return "table";
   }
+  */
+  return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,7 +426,7 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
   
   // Ensure our translation list has the same size as there are query types.
   g_assert((sizeof(query_type_to_help_topic) / sizeof(query_type_to_help_topic[0])) == QtSentinel);
-
+/* XXX:
   // The strategy here is this:
   //   1) Try to find help for the word at the caret position by a simple scan for the given position.
   //      Some cases need parser support already at this stage, so try the parser first for these cases
@@ -550,6 +551,8 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
   }
 
   return topic_from_position(form, query, std::make_pair(0, 0));
+ */
+  return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -560,7 +563,7 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
 bool is_token_without_topic(unsigned type)
 {
   switch (type)
-  {
+  {/* XXX:
     case DOT_SYMBOL:
     case COMMA_SYMBOL:
     case SEMICOLON_SYMBOL:
@@ -574,7 +577,7 @@ bool is_token_without_topic(unsigned type)
     case BACK_TICK_QUOTED_ID:
     case DOUBLE_QUOTED_TEXT:
       return true;
-
+*/
   default:
     return false;
   }
@@ -586,15 +589,15 @@ bool is_token_without_topic(unsigned type)
  * Start from the given position in the query and construct a topic if possible.
  * This includes all single word topics, so they don't need to be covered later again.
  */
-std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref &form,
+static std::string topic_from_position(const SqlEditorForm::Ref &form,
   const std::string &query, std::pair<ssize_t, ssize_t> caret)
-{
+{/* XXX:
   // TODO: switch to use a parser context instead of the form reference.
   logDebug2("Trying to get help topic at position <%li, %li>, from query: %s...\n", (long)caret.first,
     (long)caret.second, query.substr(0, 300).c_str());
   
   // First collect all tokens up to the caret position.
-  MySQLScanner scanner(query.c_str(), query.length(), true, form->server_version(), form->sql_mode(),
+  Scanner scanner(query.c_str(), query.length(), true, form->server_version(), form->sql_mode(),
     form->valid_charsets());
 
   scanner.seek((int)caret.second, (int)caret.first);
@@ -964,6 +967,8 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
   }
 
   return topic; // Could be empty. This is checked at the caller level.
+  */
+  return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -972,8 +977,8 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
  * Handles the search for a single word topic, a topic which requires text transformation or
  * a topic which has several variants and one of them is a single word topic.
  */
-std::string DbSqlEditorContextHelp::topic_with_single_topic_equivalent(MySQLScanner &scanner)
-{
+static std::string topic_with_single_topic_equivalent(Scanner &scanner)
+{/* XXX:
   logDebug2("Trying single word topics\n");
 
   std::string topic = base::tolower(scanner.token_text());
@@ -1564,6 +1569,8 @@ std::string DbSqlEditorContextHelp::topic_with_single_topic_equivalent(MySQLScan
   }
 
   return topic;
+  */
+  return "";
 }
 
 //--------------------------------------------------------------------------------------------------

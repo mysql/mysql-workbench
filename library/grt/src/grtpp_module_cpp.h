@@ -248,7 +248,7 @@ namespace grt {
 
 // this must be put in the public section of the modules class
 #define DEFINE_INIT_MODULE(VERSION, AUTHOR, parent_class, first_function, ...)\
-  virtual void init_module()\
+  virtual void init_module() override \
   {\
     set_name(grt::get_type_name(typeid(*this)));\
     _meta_version= VERSION; _meta_author= AUTHOR;\
@@ -260,7 +260,7 @@ namespace grt {
   }
 
 #define DEFINE_INIT_MODULE_DOC(VERSION, AUTHOR, DOC, parent_class, first_function, ...)\
-  virtual void init_module()\
+  virtual void init_module() override \
   {\
     set_name(grt::get_type_name(typeid(*this)));\
     _meta_version= VERSION; _meta_author= AUTHOR; _meta_description= DOC;\

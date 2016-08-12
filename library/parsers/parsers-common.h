@@ -31,133 +31,105 @@
 
 #ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
-#include <stdint.h>
-#include <stack>
-
-#include <antlr3.h>
 #endif
 
 // Generally used types by the recognizers/scanners, as well as their consumers.
+#undef EOF
 
-#define	INVALID_TOKEN	0
+namespace antlr4 {
+  class Token;
+  class BufferedTokenStream;
+}
 
-struct ParserErrorInfo
-{
-  std::string message;
-  uint32_t token_type;
-  size_t charOffset;   // Offset (in bytes) from the beginning of the input to the error position.
-  size_t line;         // Error line.
-  uint32_t offset;     // Byte offset in the error line to the error start position.
-  size_t length;
-};
+namespace parsers {
 
-struct ParserToken
-{
-  uint32_t type;       // The type as defined in the grammar.
-  uint32_t line;       // One-based line number of this token.
-  int32_t position;    // Zero-based position in the line.
-  uint64_t index;      // The index of the token in the input.
-  uint32_t channel;    // 0 for normally visible tokens. 99  for the hidden channel (whitespaces, comments).
-
-  char *line_start;    // Pointer into the input to the beginning of the line where this token is located.
-  char *start;         // Points to the start of the token in the input.
-  char *stop;          // Points to the last character of the token.
-
-  std::string text;    // The text of the token.
-
-  ParserToken()
+  struct PARSERS_PUBLIC_TYPE ParserErrorInfo
   {
-    type = INVALID_TOKEN;
-    line = 0;
-    position = 0;
-    index = -1;
-    channel = 0;
-    line_start = nullptr;
-    start = nullptr;
-    stop = nullptr;
-  }
-};
 
-// Interface for recognizer specific functionality.
-class PARSERS_PUBLIC_TYPE IRecognizer
-{
-public:
-  virtual std::string text() const = 0;
-  virtual const char* lineStart() const = 0;
+    std::string message;
+    ssize_t tokenType;
+    size_t charOffset; // Offset (in bytes) from the beginning of the input to the error position.
+    size_t line;       // Error line.
+    size_t offset;     // Byte offset in the error line to the error start position.
+    size_t length;
+  };
 
-  virtual std::string tokenText(pANTLR3_BASE_TREE node, bool keepQuotes = false) const = 0;
-  virtual std::string textForTree(pANTLR3_BASE_TREE tree) const = 0;
+  // A token struct to abstract from antlr4 Token class.
+  struct PARSERS_PUBLIC_TYPE ParserToken
+  {
+    // Same as in antlr4::Token.
+    static const size_t INVALID_TYPE = 0;
+    static const size_t DEFAULT_CHANNEL = 0;
+    static const size_t HIDDEN_CHANNEL = 1;
+    static const ssize_t EOF = -1;
 
-  virtual bool isIdentifier(uint32_t type) const = 0;
-  virtual bool isKeyword(uint32_t type) const = 0;
+    ssize_t type;     // The type as defined in the grammar.
+    size_t line;      // One-based line number of this token.
+    size_t position;  // Zero-based position in the line.
+    ssize_t index;    // The index of the token in the input.
+    size_t channel;   // One of the channel constants.
 
-  static std::string dumpTree(pANTLR3_UINT8 *tokenNames, pANTLR3_BASE_TREE tree, const std::string &indentation);
-};
+    char *lineStart;  // Pointer into the input to the beginning of the line where this token is located.
+    char *start;      // Points to the start of the token in the input.
+    char *stop;       // Points to the last character of the token.
 
-#ifdef _WIN32
-  #pragma warning(disable: 4251) // DLL interface required for std::string member.
-#endif
+    std::string text; // The text of the token.
 
-class PARSERS_PUBLIC_TYPE RecognizerTreeWalker
-{
-public:
-  RecognizerTreeWalker(IRecognizer *recognizer, pANTLR3_BASE_TREE tree);
+    ParserToken()
+    {
+      type = INVALID_TYPE;
+      line = 0;
+      position = 0;
+      index = -1;
+      channel = DEFAULT_CHANNEL;
+      lineStart = nullptr;
+      start = nullptr;
+      stop = nullptr;
+    }
+  };
 
-  void printToken(pANTLR3_BASE_TREE tree);
+  class PARSERS_PUBLIC_TYPE Scanner
+  {
+  public:
+    Scanner(antlr4::BufferedTokenStream *input);
 
-  // Standard navigation.
-  bool next(std::size_t count = 1);
-  bool nextSibling();
-  bool previous();
-  bool previousByIndex();
-  bool previousSibling();
-  bool up();
+    //void printToken(pANTLR3_BASE_TREE tree);
 
-  // Advanced navigation.
-  bool advanceToPosition(int line, int offset);
-  bool advanceToType(uint32_t type, bool recurse);
-  bool skipTokenSequence(uint32_t startToken, ...);
-  bool skipIf(uint32_t token, size_t count = 1);
-  void skipSubtree();
+    // Standard navigation.
+    bool next(std::size_t count = 1);
+    bool previous();
 
-  uint32_t lookAhead(bool recursive);
-  uint32_t parentType();
-  uint32_t previousType();
+    // Advanced navigation.
+    bool advanceToPosition(size_t line, size_t offset);
+    bool advanceToType(ssize_t type);
+    bool skipTokenSequence(ssize_t startToken, ...);
+    bool skipIf(ssize_t token, size_t count = 1);
 
-  // Stacking.
-  void reset();
-  void push();
-  bool pop();
-  void removeTos();
+    ssize_t lookAhead();
+    ssize_t parentType();
+    ssize_t previousType();
 
-  // Properties of current token.
-  bool is(uint32_t type) const;
-  bool isNil() const;
-  bool isSubtree() const;
-  bool isFirstChild() const;
-  bool isIdentifier() const;
-  bool isKeyword() const;
+    // Stacking.
+    void reset();
+    void push();
+    bool pop();
+    void removeTos();
 
-  std::string tokenText(bool keepQuotes = false) const;
-  uint32_t tokenType() const;
-  uint32_t tokenLine() const;
-  uint32_t tokenStart() const;
-  int64_t tokenIndex() const;
-  size_t tokenOffset() const;
-  int64_t tokenLength() const;
-  std::string textForTree() const;
+    // Properties of current token.
+    bool is(ssize_t type) const;
 
-protected:
-  IRecognizer *_recognizer;
+    std::string tokenText(bool keepQuotes = false) const;
+    ssize_t tokenType() const;
+    size_t tokenLine() const;
+    size_t tokenStart() const;
+    size_t tokenIndex() const;
+    size_t tokenOffset() const;
+    size_t tokenLength() const;
 
-  pANTLR3_BASE_TREE _origin;
-  pANTLR3_BASE_TREE _tree;
-  std::stack<pANTLR3_BASE_TREE> _tokenStack;
-  std::vector<pANTLR3_BASE_TREE> _tokenList; // A list of all tokens in incoming order (no hierarchy).
+  private:
+    std::vector<antlr4::Token *> _tokens; // Only valid so long as the input stream passed in to the c-tor is alive.
+    std::stack<size_t> _tokenStack;
+    size_t _index;
+  };
 
-  pANTLR3_BASE_TREE getNext(pANTLR3_BASE_TREE node, bool recurse) const;
-  pANTLR3_BASE_TREE getPrevious(pANTLR3_BASE_TREE node, bool recurse) const;
-  pANTLR3_BASE_TREE getPreviousByIndex(pANTLR3_BASE_TREE node) const;
-
-  bool isSubtree(struct ANTLR3_BASE_TREE_struct *tree) const;
-};
+} // namespace parsers

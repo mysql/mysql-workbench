@@ -293,7 +293,7 @@ private:
 
   std::string _sql_mode;
   int _lower_case_table_names;
-  parser::MySQLParserContext::Ref _work_parser_context; // Never use in a background thread.
+  parsers::MySQLParserContext::Ref _work_parser_context; // Never use in a background thread.
 private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
   void init_connection(sql::Connection* dbc_conn_ref, const db_mgmt_ConnectionRef& connectionProperties, sql::Dbc_connection_handler::Ref& dbc_conn, bool user_connection);
@@ -306,7 +306,7 @@ private:
 
 public:
   base::RecMutexLock ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn);
-  parser::MySQLParserContext::Ref work_parser_context() { return _work_parser_context;  };
+  parsers::MySQLParserContext::Ref work_parser_context() { return _work_parser_context;  };
 
 private:
   int         _keep_alive_task_id;

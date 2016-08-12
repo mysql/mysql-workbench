@@ -85,9 +85,9 @@ namespace bec {
     boost::function<bool (DBObjectEditorBE*, std::string&, std::string&)> on_expand_live_table_stub;
 
   protected:
-    parser::MySQLParserContext::Ref _parser_context;
-    parser::MySQLParserContext::Ref _autocompletion_context; // Temporary.
-    parser::MySQLParserServices::Ref _parser_services;
+    parsers::MySQLParserContext::Ref _parser_context;
+    parsers::MySQLParserContext::Ref _autocompletion_context; // Temporary.
+    parsers::MySQLParserServices::Ref _parser_services;
 
     DBObjectEditorBE(const db_DatabaseObjectRef &object);
 

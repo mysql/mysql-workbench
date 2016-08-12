@@ -32,7 +32,7 @@
 
 #include "grtsqlparser/mysql_parser_services.h"
 
-using namespace parser;
+using namespace parsers;
 
 BEGIN_TEST_DATA_CLASS(highlevel_mysql_parser_test)
 protected:
@@ -66,8 +66,8 @@ TEST_FUNCTION(10)
   ensure("failed to get sqlparser module", _sqlFacade != NULL);
 
   _services = MySQLParserServices::get();
-  _context = MySQLParserServices::createParserContext(_tester->get_rdbms()->characterSets(),
-    _tester->get_rdbms()->version(), false);
+  _context = MySQLParserServices::get()->createParserContext(_tester->get_rdbms()->characterSets(),
+    _tester->get_rdbms()->version(), "", false);
 }
 
 //--------------------------------------------------------------------------------------------------

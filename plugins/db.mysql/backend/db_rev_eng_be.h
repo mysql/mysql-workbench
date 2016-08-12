@@ -30,7 +30,7 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC Db_rev_eng : public Db_plugin, public Sql_im
 {
 private:
   std::string task_desc();
-  void parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::MySQLParserContext::Ref context, db_CatalogRef &catalog, const std::string &sql_scrtipt, grt::DictRef &options);
+  void parse_sql_script(parsers::MySQLParserServices::Ref sql_parser, parsers::MySQLParserContext::Ref context, db_CatalogRef &catalog, const std::string &sql_scrtipt, grt::DictRef &options);
   db_CatalogRef target_catalog();
 
 public:

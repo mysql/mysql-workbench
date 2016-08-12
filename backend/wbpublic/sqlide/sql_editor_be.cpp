@@ -42,8 +42,7 @@
 
 #include "grts/structs.db.mysql.h"
 
-#include "mysql-scanner.h"
-#include "code-completion/mysql-code-completion.h"
+//#include "code-completion/mysql-code-completion.h"
 #include "sql_editor_be.h"
 
 DEFAULT_LOG_DOMAIN("MySQL editor");
@@ -52,7 +51,7 @@ using namespace bec;
 using namespace grt;
 using namespace base;
 
-using namespace parser;
+using namespace parsers;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -88,7 +87,7 @@ public:
 
   std::pair<const char*, size_t> _text_info; // Only valid during a parse run.
 
-  std::vector<ParserErrorEntry> _recognition_errors; // List of errors from the last sql check run.
+  std::vector<ParserErrorInfo> _recognition_errors; // List of errors from the last sql check run.
   std::set<size_t> _error_marker_lines;
 
   bool _splitting_required;
@@ -97,7 +96,7 @@ public:
   base::RecMutex _sql_statement_borders_mutex;
 
   // Each entry is a pair of statement position (byte position) and statement length (also bytes).
-  std::vector<std::pair<size_t, size_t> > _statement_ranges;
+  std::vector<std::pair<size_t, size_t>> _statement_ranges;
 
   bool _is_refresh_enabled;   // whether FE control is permitted to replace its contents from BE
   bool _is_sql_check_enabled; // Enables automatic syntax checks.
@@ -154,7 +153,7 @@ public:
       if (_parse_unit == MySQLParseUnit::PuGeneric)
       {
         double start = timestamp();
-        determineStatementRanges(_text_info.first, _text_info.second, ";", _statement_ranges);
+        _services->determineStatementRanges(_text_info.first, _text_info.second, ";", _statement_ranges);
         logDebug3("Splitting ended after %f ticks\n", timestamp() - start);
       }
       else
@@ -239,7 +238,7 @@ MySQLEditor::MySQLEditor(MySQLParserContext::Ref syntax_check_context, MySQLPars
   _code_editor->set_features(mforms::FeatureConvertEolOnPaste | mforms::FeatureAutoIndent, true);
   _code_editor->set_name("Code Editor");
 
-  GrtVersionRef version = syntax_check_context->get_server_version();
+  GrtVersionRef version = syntax_check_context->serverVersion();
   _editor_config = NULL;
   create_editor_config_for_version(version);
 
@@ -673,7 +672,7 @@ boost::signals2::signal<void ()>* MySQLEditor::text_change_signal()
 void MySQLEditor::set_sql_mode(const std::string &value)
 {
   _sql_mode = value;
-  d->_parser_context->use_sql_mode(value);
+  d->_parser_context->updateSqlMode(value);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -683,7 +682,7 @@ void MySQLEditor::set_sql_mode(const std::string &value)
  */
 void MySQLEditor::set_server_version(GrtVersionRef version)
 {
-  d->_parser_context->use_server_version(version);
+  d->_parser_context->updateServerVersion(version);
   create_editor_config_for_version(version);
   start_sql_processing();
 }
@@ -766,8 +765,8 @@ void MySQLEditor::dwell_event(bool started, size_t position, int x, int y)
       // TODO: sort by position and do a binary search.
       for (size_t i = 0; i < d->_recognition_errors.size(); ++i)
       {
-        ParserErrorEntry entry = d->_recognition_errors[i];
-        if (entry.position <= position && position <= entry.position + entry.length)
+        ParserErrorInfo entry = d->_recognition_errors[i];
+        if (entry.charOffset <= position && position <= entry.charOffset + entry.length)
         {
           _code_editor->show_calltip(true, position, entry.message);
           break;
@@ -833,7 +832,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
     if (d->_services->checkSqlSyntax(d->_parser_context, d->_text_info.first + range_iterator->first,
                                  range_iterator->second, d->_parse_unit) > 0)
     {
-      std::vector<ParserErrorEntry> errors = d->_parser_context->get_errors_with_offset(range_iterator->first, true);
+      std::vector<ParserErrorInfo> errors = d->_parser_context->errorsWithOffset(range_iterator->first);
       d->_recognition_errors.insert(d->_recognition_errors.end(), errors.begin(), errors.end());
     }
   }
@@ -908,8 +907,9 @@ void* MySQLEditor::update_error_markers()
 
     for (size_t i = 0; i < d->_recognition_errors.size(); ++i)
     {
-      _code_editor->show_indicator(mforms::RangeIndicatorError, d->_recognition_errors[i].position, d->_recognition_errors[i].length);
-      lines.insert(_code_editor->line_from_position(d->_recognition_errors[i].position));
+      _code_editor->show_indicator(mforms::RangeIndicatorError, d->_recognition_errors[i].charOffset,
+                                   d->_recognition_errors[i].length);
+      lines.insert(_code_editor->line_from_position(d->_recognition_errors[i].charOffset));
     }
   }
   else
@@ -1178,7 +1178,7 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
 //--------------------------------------------------------------------------------------------------
 
 void MySQLEditor::setup_auto_completion()
-{
+{/* XXX:
   _code_editor->auto_completion_max_size(80, 15);
 
   static std::vector<std::pair<int, std::string>> ccImages = {
@@ -1200,6 +1200,7 @@ void MySQLEditor::setup_auto_completion()
 
   std::string grammarPath = base::makePath(bec::GRTManager::get()->get_basedir(), "data/MySQL.g");
   initializeMySQLCodeCompletionIfNeeded(grammarPath);
+  */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1261,7 +1262,7 @@ std::string MySQLEditor::getWrittenPart(size_t position)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLEditor::show_auto_completion(bool auto_choose_single, parser::MySQLParserContext::Ref parser_context)
+void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLParserContext::Ref parser_context)
 {
   if (!code_completion_enabled())
     return;
@@ -1314,9 +1315,11 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, parser::MySQLPar
   }
 
   std::string writtenPart = getWrittenPart(caretPosition);
+  /* XXX:
   _auto_completion_entries = getCodeCompletionList(caretLine, caretOffset, writtenPart, _current_schema,
     make_keywords_uppercase(), parser_context->createScanner(statement), _editor_config->get_keywords()["Functions"],
     _auto_completion_cache);
+   */
   update_auto_completion(writtenPart);
 }
 
@@ -1505,8 +1508,6 @@ void MySQLEditor::stop_processing()
     bec::GRTManager::get()->cancel_timer(d->_current_delay_timer);
     d->_current_delay_timer = NULL;
   }
-
-  d->_services->stopProcessing();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1541,8 +1542,9 @@ void MySQLEditor::set_continue_on_error(bool value)
   
   for (size_t i = 0; i < d->_recognition_errors.size(); ++i)
   {
-    _code_editor->show_indicator(mforms::RangeIndicatorError, d->_recognition_errors[i].position, d->_recognition_errors[i].length);
-    lines.push_back(_code_editor->line_from_position(d->_recognition_errors[i].position));
+    _code_editor->show_indicator(mforms::RangeIndicatorError, d->_recognition_errors[i].charOffset,
+                                 d->_recognition_errors[i].length);
+    lines.push_back(_code_editor->line_from_position(d->_recognition_errors[i].charOffset));
   }
 
   for (std::vector<size_t>::iterator iter = lines.begin(); iter != lines.end(); ++iter)

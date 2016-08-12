@@ -48,7 +48,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <antlr3.h>
+#include <antlr4-runtime.h>
 
 #include <boost/bind.hpp>
 #include <boost/optional.hpp>

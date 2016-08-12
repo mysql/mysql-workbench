@@ -56,7 +56,7 @@
   is taken from the GRT tree, and this is not tested here.
 */
 
-using namespace parser;
+using namespace parsers;
 
 class DbMySQLScriptSyncTest : public DbMySQLScriptSync {
 protected:
@@ -152,7 +152,7 @@ db_mysql_CatalogRef tut::Test_object_base<db_mysql_plugin_test>::create_catalog_
   db_mysql_CatalogRef cat = create_empty_catalog_for_import();
   MySQLParserServices::Ref services = MySQLParserServices::get();
   MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
-    tester->get_rdbms()->version(), false);
+    tester->get_rdbms()->version(), "", false);
 
   grt::DictRef options(true);
   if (services->parseSQLIntoCatalog(context, cat, sql, options) != 0)

@@ -25,8 +25,6 @@
 #include "grts/structs.db.mysql.h"
 #include "grtpp_module_cpp.h"
 
-#include "mysql-parser.h"
-
 #define MysqlSqlFacade_VERSION "2.0"
  
 #define DOC_MysqlSqlFacadeImpl \
@@ -110,41 +108,41 @@ public:
                                 "sql a SQL script, with one or more statements"),
     NULL);
 
-  int splitSqlScript(const std::string &sql, std::list<std::string> &statements);
-  int splitSqlScript(const char *sql, std::size_t length, const std::string &initial_delimiter,
-    std::vector<std::pair<std::size_t, std::size_t> > &ranges, const std::string &line_break = "\n");
+  virtual int splitSqlScript(const std::string &sql, std::list<std::string> &statements) override;
+  virtual int splitSqlScript(const char *sql, std::size_t length, const std::string &initial_delimiter,
+    std::vector<std::pair<std::size_t, std::size_t> > &ranges, const std::string &line_break = "\n") override;
   
-  Sql_parser::Ref sqlParser();
-  int parseSqlScriptString(db_CatalogRef catalog, const std::string sql);
-  int parseSqlScriptStringEx(db_CatalogRef catalog, const std::string sql, const grt::DictRef options);
-  int parseSqlScriptFile(db_CatalogRef catalog, const std::string filename);
-  int parseSqlScriptFileEx(db_CatalogRef catalog, const std::string filename, const grt::DictRef options);
+  virtual Sql_parser::Ref sqlParser() override;
+  virtual int parseSqlScriptString(db_CatalogRef catalog, const std::string sql) override;
+  virtual int parseSqlScriptStringEx(db_CatalogRef catalog, const std::string sql, const grt::DictRef options) override;
+  virtual int parseSqlScriptFile(db_CatalogRef catalog, const std::string filename) override;
+  virtual int parseSqlScriptFileEx(db_CatalogRef catalog, const std::string filename, const grt::DictRef options) override;
 
-  Invalid_sql_parser::Ref invalidSqlParser();
-  int parseInserts(db_TableRef table, const std::string &sql);
-  int parseTrigger(db_TriggerRef trigger, const std::string &sql);
-  int parseRoutine(db_RoutineRef routine, const std::string &sql);
-  int parseRoutines(db_RoutineGroupRef routineGroup, const std::string &sql);
-  int parseView(db_ViewRef view, const std::string &sql);
+  virtual Invalid_sql_parser::Ref invalidSqlParser() override;
+  virtual int parseInserts(db_TableRef table, const std::string &sql) override;
+  virtual int parseTrigger(db_TriggerRef trigger, const std::string &sql) override;
+  virtual int parseRoutine(db_RoutineRef routine, const std::string &sql) override;
+  virtual int parseRoutines(db_RoutineGroupRef routineGroup, const std::string &sql) override;
+  virtual int parseView(db_ViewRef view, const std::string &sql) override;
 
-  Sql_syntax_check::Ref sqlSyntaxCheck();
-  int checkSqlSyntax(const std::string &sql);
-  int checkTriggerSyntax(const std::string &sql);
-  int checkViewSyntax(const std::string &sql);
-  int checkRoutineSyntax(const std::string &sql);
+  virtual Sql_syntax_check::Ref sqlSyntaxCheck() override;
+  virtual int checkSqlSyntax(const std::string &sql) override;
+  virtual int checkTriggerSyntax(const std::string &sql) override;
+  virtual int checkViewSyntax(const std::string &sql) override;
+  virtual int checkRoutineSyntax(const std::string &sql) override;
 
-  Sql_semantic_check::Ref sqlSemanticCheck();
+  virtual Sql_semantic_check::Ref sqlSemanticCheck() override;
 
-  Sql_specifics::Ref sqlSpecifics();
+  virtual Sql_specifics::Ref sqlSpecifics() override;
 
-  Sql_normalizer::Ref sqlNormalizer();
-  std::string normalizeSqlStatement(const std::string sql, const std::string schema_name);
-  virtual std::string removeInterTokenSpaces(const std::string sql);
+  virtual Sql_normalizer::Ref sqlNormalizer() override;
+  virtual std::string normalizeSqlStatement(const std::string sql, const std::string schema_name) override;
+  virtual std::string removeInterTokenSpaces(const std::string sql) override;
 
-  Sql_inserts_loader::Ref sqlInsertsLoader();
+  virtual Sql_inserts_loader::Ref sqlInsertsLoader() override;
 
-  Sql_schema_rename::Ref sqlSchemaRenamer();
-  int renameSchemaReferences(db_CatalogRef catalog, const std::string old_schema_name, const std::string new_schema_name);
+  virtual Sql_schema_rename::Ref sqlSchemaRenamer() override;
+  virtual int renameSchemaReferences(db_CatalogRef catalog, const std::string old_schema_name, const std::string new_schema_name) override;
 
   grt::StringListRef splitSqlStatements(const std::string &sql);
   grt::BaseListRef getSqlStatementRanges(const std::string &sql);
@@ -152,17 +150,20 @@ public:
   // AST is returned as a list of tree of lists in the format [[symbol-name, value, [child-nodes], base_offset, begin_offs, end_offs], ...], 
   // one list item per statement in the script. If there is a syntax error in the statement, a string with the error
   // message will be there instead of the AST
-  grt::BaseListRef parseAstFromSqlScript(const std::string &sql); 
+  grt::BaseListRef parseAstFromSqlScript(const std::string &sql);
 
-  Sql_statement_decomposer::Ref sqlStatementDecomposer(grt::DictRef db_opts = grt::DictRef());
+  virtual Sql_statement_decomposer::Ref sqlStatementDecomposer(grt::DictRef db_opts = grt::DictRef()) override;
 
-  grt::BaseListRef getItemFromPath(const std::string& path, const grt::BaseListRef source);
+  virtual grt::BaseListRef getItemFromPath(const std::string& path, const grt::BaseListRef source);
   std::string getTypeDescription(grt::BaseListRef type_node, std::vector<std::string> *additional_type_data_paths = NULL);
-  virtual bool parseSelectStatementForEdit(const std::string &sql, std::string &schema_name, std::string &table_name, String_tuple_list &column_names);
-  virtual bool parseRoutineDetails(const std::string &sql, std::string &type, std::string &name, String_tuple_list &parameters, std::string& return_value, std::string& comments);
-  virtual bool parseDropStatement(const std::string &sql, std::string &object_type, std::vector<std::pair<std::string, std::string> > &object_names);
+  virtual bool parseSelectStatementForEdit(const std::string &sql, std::string &schema_name, std::string &table_name,
+                                           String_tuple_list &column_names) override;
+  virtual bool parseRoutineDetails(const std::string &sql, std::string &type, std::string &name,
+                                   String_tuple_list &parameters, std::string& return_value, std::string& comments) override;
+  virtual bool parseDropStatement(const std::string &sql, std::string &object_type,
+                                  std::vector<std::pair<std::string, std::string>> &object_names) override;
 
-  void stop_processing();
+  void stop_processing() override;
 private:
   bool _stop;
 };

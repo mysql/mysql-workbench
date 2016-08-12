@@ -22,7 +22,7 @@
 #include "grt.h"
 #include "grtsqlparser/mysql_parser_services.h"
 
-using namespace parser;
+using namespace parsers;
 
 // Contains tests for the parser module implementing the ANTLR based parser services.
 // Many of the APIs are also used in other tests.
@@ -43,7 +43,7 @@ protected:
     version->majorNumber(5);
     version->minorNumber(7);
     version->releaseNumber(10);
-    _context = MySQLParserServices::createParserContext(_tester->get_rdbms()->characterSets(), version, true);
+    _context = MySQLParserServices::get()->createParserContext(_tester->get_rdbms()->characterSets(), version, "", true);
   }
 
 END_TEST_DATA_CLASS

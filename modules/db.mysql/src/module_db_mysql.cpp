@@ -48,6 +48,8 @@
 #include "module_db_mysql_shared_code.h"
 #include "grtdb/db_helpers.h"
 
+#include "grtsqlparser/mysql_parser_services.h"
+
 using namespace grt;
 using namespace base;
 
@@ -3042,7 +3044,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
   };
   
   grt::ListRef<db_UserDatatype> list(true);
-  
+
   for (size_t i= 0; i < sizeof(type_init_data)/sizeof(*type_init_data); i++)
   {
     std::string type= type_init_data[i].sql_def;
@@ -3050,8 +3052,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
     if (paren != std::string::npos)
       type= type.substr(0, paren);
     
-    db_SimpleDatatypeRef simpletype(bec::CatalogHelper::get_datatype(rdbms->simpleDatatypes(), 
-                                                                     type));
+    db_SimpleDatatypeRef simpletype(parsers::MySQLParserServices::findDataType(rdbms->simpleDatatypes(), GrtVersionRef(), type));
     
     if (!simpletype.is_valid()) // unlikely
     {

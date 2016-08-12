@@ -57,12 +57,6 @@ namespace bec {
   {
     static void apply_defaults(db_mysql_CatalogRef catalog, std::string default_engine);
 
-    // XXX: factor out a common routine for these 2 and the findType function in mysql_parser_module.cpp.
-    static db_SimpleDatatypeRef get_datatype(grt::ListRef<db_SimpleDatatype> types,
-      const std::string &name);
-    static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &types,
-      const GrtVersionRef &target_version, const std::string &name);
-
     static bool is_type_valid_for_version(const db_SimpleDatatypeRef &type, const GrtVersionRef &target_version);
 
     static std::string dbobject_list_to_dragdata(const std::list<db_DatabaseObjectRef> &object);
@@ -217,17 +211,6 @@ namespace bec {
     Schema_action sa(cat, rdbms);
     ct::for_each<ct::Schemata>(cat, sa);
   }
-  bool WBPUBLICBACKEND_PUBLIC_FUNC parse_type_definition(const std::string &type,
-    const GrtVersionRef &target_version,
-    const grt::ListRef<db_SimpleDatatype> &typeList,
-    const grt::ListRef<db_UserDatatype>& user_types,
-    const grt::ListRef<db_SimpleDatatype>& default_type_list,
-    db_SimpleDatatypeRef &simpleType,
-    db_UserDatatypeRef& userType,
-    int &precision,
-    int &scale,
-    int &length,
-    std::string &datatypeExplicitParams);
 
   inline bool is_int_datatype(const std::string &type)
   {

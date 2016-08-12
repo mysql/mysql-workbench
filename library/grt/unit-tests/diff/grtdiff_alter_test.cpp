@@ -25,7 +25,7 @@
 #include "grtdb/db_helpers.h"
 #include "wb_helpers.h"
 
-using namespace parser;
+using namespace parsers;
 using namespace tut;
 
 #define VERBOSE_TESTING 0
@@ -1209,8 +1209,8 @@ TEST_FUNCTION(10)
   }
 
   MySQLParserServices::Ref services = MySQLParserServices::get();
-  parser::MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
-    tester->get_rdbms()->version(), false);
+  parsers::MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
+    tester->get_rdbms()->version(), "", false);
   grt::DictRef options(true);
   for (int i = 0; data[i].description != NULL; i++)
   {
@@ -1374,7 +1374,7 @@ TEST_FUNCTION(20)
 
   MySQLParserServices::Ref services = MySQLParserServices::get();
   MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
-    tester->get_rdbms()->version(), false);
+    tester->get_rdbms()->version(), "", false);
 
   grt::DictRef options(true);
   for (int i = 0; data[i].description != NULL; i++)
@@ -1552,7 +1552,7 @@ TEST_FUNCTION(30)
 
   MySQLParserServices::Ref services = MySQLParserServices::get();
   MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
-    tester->get_rdbms()->version(), false);
+    tester->get_rdbms()->version(), "", false);
 
   grt::DictRef options(true);
   for (int i = 0; neg_data[i].description != NULL; i++)

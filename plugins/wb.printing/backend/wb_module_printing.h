@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@ public:
     );
 
 private:
-  virtual grt::ListRef<app_Plugin> getPluginInfo();
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override;
 
   int printDiagramsToFile(grt::ListRef<model_Diagram> view, const std::string &path, const std::string &format,
                           grt::DictRef options);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,8 @@
 #include <string>
 
 typedef grt::ListRef<db_CharacterSet> GrtCharacterSetsRef;
+typedef grt::ListRef<db_SimpleDatatype> SimpleDatatypeListRef;
+typedef grt::ListRef<db_UserDatatype> UserDatatypeListRef;
 
 namespace bec {
   std::string WBPUBLICBACKEND_PUBLIC_FUNC get_host_identifier_for_connection(const db_mgmt_ConnectionRef &connection);

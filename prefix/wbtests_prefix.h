@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,7 +85,7 @@
 #endif
 
 // Common headers.
-#include <antlr3.h>
+#include <antlr4-runtime.h>
 
 #include "grts/structs.model.h"
 #include "grts/structs.db.query.h"

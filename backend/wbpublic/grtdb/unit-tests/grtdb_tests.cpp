@@ -23,6 +23,8 @@
 #include "grtdb/db_object_helpers.h"
 #include "wb_helpers.h"
 
+#include "grtsqlparser/mysql_parser_services.h" // TODO: data type parsing is no longer grtdb related - move tests
+
 #include <boost/assign/list_of.hpp>
 using namespace boost::assign;
 
@@ -636,6 +638,7 @@ TEST_FUNCTION(22)
   version->releaseNumber(4);
   version->buildNumber(-1);
 
+  parsers::MySQLParserServices *services = parsers::MySQLParserServices::get();
   for (std::vector<std::string>::iterator iterator = definitions.begin(); iterator != definitions.end(); ++iterator)
   {
     db_SimpleDatatypeRef simple_type;
@@ -647,7 +650,7 @@ TEST_FUNCTION(22)
 
     std::string sql = *iterator;
     ensure("Data type parsing failed for: \"" + sql + "\"",
-      parse_type_definition(sql, version, type_list, user_types, type_list, simple_type,
+      services->parseTypeDefinition(sql, version, type_list, user_types, type_list, simple_type,
       user_type, precision, scale, length, explicit_params));
   }
 }

@@ -165,7 +165,7 @@ public:
     );
 
 protected:
-  virtual void initialization_done()
+  virtual void initialization_done() override
   {
     // Called after init_module (defined by DEFINE_INIT_MODULE above) is done.
     // Here we register platform dependent functions.
@@ -197,7 +197,7 @@ private:
   int _last_wmi_monitor_id;
 #endif
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo();
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override;
 
   int copyToClipboard(const std::string &str);
 

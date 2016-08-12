@@ -26,6 +26,8 @@
 #include "grt/common.h"
 #include "grtdb/db_object_helpers.h"
 
+#include "grtsqlparser/mysql_parser_services.h"
+
 using namespace base;
 
 //================================================================================
@@ -221,8 +223,9 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
   std::string datatypeExplicitParams;
   grt::AutoUndo undo(!is_global());
 
-  // if the available release number is negative, that's meant to signify "any release number",
-  if (!bec::parse_type_definition(type, targetVersion, typeList, user_types, default_type_list,
+  // If the available release number is negative, that's meant to signify "any release number".
+  parsers::MySQLParserServices *services = parsers::MySQLParserServices::get();
+  if (!services->parseTypeDefinition(type, targetVersion, typeList, user_types, default_type_list,
       simpleType, userType, precision, scale, length, datatypeExplicitParams))
       return 0;
   this->userType(userType);

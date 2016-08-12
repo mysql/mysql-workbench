@@ -48,7 +48,7 @@ std::string Db_rev_eng::sql_script()
 }
 
 
-void Db_rev_eng::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::MySQLParserContext::Ref context, db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
+void Db_rev_eng::parse_sql_script(parsers::MySQLParserServices::Ref sql_parser, parsers::MySQLParserContext::Ref context, db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
 {
   grt::AutoUndo undo;
   sql_parser->parseSQLIntoCatalog(context, db_mysql_CatalogRef::cast_from(catalog), sql_script, options);

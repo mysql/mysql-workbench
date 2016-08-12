@@ -501,10 +501,10 @@ TEST_FUNCTION(70)
 
   catalog->schemata()[0]->name("sakila_test");
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   GrtVersionRef version = bec::parse_version("5.6.0");
-  parser::MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
-    version, false);
+  parsers::MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
+    version, "", false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
 
   cmp.init_omf(&omf);

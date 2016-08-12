@@ -41,12 +41,11 @@ std::ostream& operator << (std::ostream& os, const DiffNode&);
 std::string get_old_name_or_name(GrtNamedObjectRef obj);
 
 template<typename T>
-std::string get_catalog_map_key(Ref<T> t)
+std::string get_catalog_map_key(grt::Ref<T> t)
 {
   typedef typename ct::Traits<T>::ParentType Parent;
 
-  std::string parent_key(
-    utf_to_upper(get_catalog_map_key(Ref<Parent>::cast_from(t->owner())).c_str()));
+  std::string parent_key(utf_to_upper(get_catalog_map_key(grt::Ref<Parent>::cast_from(t->owner())).c_str()));
 
   std::string obj_key(
     utf_to_upper(get_old_name_or_name(t).c_str()));

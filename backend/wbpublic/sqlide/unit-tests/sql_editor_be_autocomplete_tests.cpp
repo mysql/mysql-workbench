@@ -58,7 +58,7 @@ protected:
   base::RecMutex _connection_mutex;
   sql::Dbc_connection_handler::Ref _conn;
   MySQLObjectNamesCache *_cache;
-  parser::MySQLParserContext::Ref _autocomplete_context;
+  parsers::MySQLParserContext::Ref _autocomplete_context;
   int version;
 
 public:
@@ -152,12 +152,12 @@ TEST_FUNCTION(5)
   else
     fail("Could not copy code editor configuration");
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-  parser::MySQLParserContext::Ref context = services->createParserContext(_tester->get_rdbms()->characterSets(),
-    _version, false);
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+  parsers::MySQLParserContext::Ref context = services->createParserContext(_tester->get_rdbms()->characterSets(),
+    _version, "", false);
 
   _autocomplete_context = services->createParserContext(_tester->get_rdbms()->characterSets(),
-    _version, false);
+    _version, "", false);
 
   _sql_editor = MySQLEditor::create(context, _autocomplete_context);
   _sql_editor->set_current_schema("sakila");

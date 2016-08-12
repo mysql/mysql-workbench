@@ -6,20 +6,19 @@ then
   exit
 fi
 
-
+LOCATION=../../../../mysql-mac-res/bin/antlr-4.5.4-complete.jar
 case "$1" in
- "mysql") echo "Building MySQL parser"
-   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQL.g -o .. -Xmaxswitchcaselabels=30
-   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQLSimpleParser.g -o .. -Xmaxswitchcaselabels=30
- ;;
- "js") echo "Building JS Parser"
-   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make ECMA.g -o .. -Xmaxswitchcaselabels=30
- ;;
- "python") echo "Building Python parser"
-   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make Python25.g -o .. -Xmaxswitchcaselabels=30
- ;;
- *) echo "Unknown parser type $1"
- exit 1
- ;;
+  "mysql") echo "Building MySQL parser"
+    java -jar $LOCATION -Dlanguage=Cpp -listener -visitor -o ../mysql -package parsers MySQLLexer.g4 MySQLParser.g4
+  ;;
+  "js") echo "Building JS Parser"
+    java -jar $LOCATION -Dlanguage=Cpp -listener -visitor -o ../ecma -package parsers ECMALexer.g4 ECMAParser.g4
+  ;;
+  "python") echo "Building Python parser"
+    java -jar $LOCATION -Dlanguage=Cpp -listener -visitor -o ../python -package parsers PythonLexer.g4 PythonParser.g4
+  ;;
+  *) echo "Unknown parser type $1"
+  exit 1
+  ;;
 esac
 

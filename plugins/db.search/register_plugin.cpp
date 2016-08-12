@@ -259,7 +259,7 @@ public:
                      NULL);
 
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo()
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override
   {
     grt::ListRef<app_Plugin> plugins(true);
     {

@@ -449,7 +449,7 @@ TEST_FUNCTION(20)
 }
 
 template <class ItemType>
-void test_list_value(ListRef<ItemType>& lv, Ref<ItemType> v[])
+void test_list_value(ListRef<ItemType>& lv, grt::Ref<ItemType> v[])
 {
   Type grt_type(v[0].type());
   lv.retain();

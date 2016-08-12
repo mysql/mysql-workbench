@@ -20,7 +20,6 @@
 #pragma once
 
 #include "parsers-common.h"
-#include "mysql-scanner.h"
 
 // Identifiers for images used in auto completion lists.
 #define AC_KEYWORD_IMAGE        1
@@ -55,6 +54,6 @@ PARSERS_PUBLIC_TYPE std::vector<std::pair<int, std::string>> getCodeCompletionLi
   const std::string &writtenPart,
   const std::string &defaultSchema,
   bool uppercaseKeywords,
-  std::shared_ptr<MySQLScanner> scanner,
+  Scanner &scanner,
   const std::string &functionNames,
   MySQLObjectNamesCache *cache);

@@ -54,8 +54,8 @@ TEST_FUNCTION(1)
 
   GrtVersionRef version = bec::parse_version("5.6.10");
   version->name("MySQL Community Server (GPL)");
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-  parser::MySQLParserContext::Ref parser = services->createParserContext(rdbms->characterSets(), version, 1);
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+  parsers::MySQLParserContext::Ref parser = services->createParserContext(rdbms->characterSets(), version, "", 1);
 	ensure("failed to retrieve RDBMS list", rdbms_list.is_valid());
 	for (int n= 0, count= rdbms_list.count(); n < count; ++n)
 	{

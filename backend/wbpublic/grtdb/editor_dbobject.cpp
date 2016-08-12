@@ -36,7 +36,7 @@
 #define DEFAULT_COLLATION_CAPTION "default collation"
 
 using namespace bec;
-using namespace parser;
+using namespace parsers;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -61,16 +61,14 @@ DBObjectEditorBE::DBObjectEditorBE(const db_DatabaseObjectRef &object)
   GrtVersionRef version = get_catalog()->version();
   if (!version.is_valid())
     version = bec::parse_version("5.5.1");
-  _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
-
+  std::string sqlMode;
   if (object->customData().has_key("sqlMode"))
-    _parser_context->use_sql_mode(object->customData().get_string("sqlMode"));
+    sqlMode = object->customData().get_string("sqlMode");
+  _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, sqlMode, case_sensitive);
 
-  // Because syntax checks and auto completion are done in different threads we need 2 different parser.
+  // Because syntax checks and auto completion are done in different threads we need 2 different parser contexts.
   // With the refactoring of the auto completion code this second parser will go.
-  _autocompletion_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
-  if (object->customData().has_key("sqlMode"))
-    _autocompletion_context->use_sql_mode(object->customData().get_string("sqlMode"));
+  _autocompletion_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, sqlMode, case_sensitive);
 
   _val_notify_conn = ValidationManager::signal_notify()->connect(boost::bind(&DBObjectEditorBE::notify_from_validation, this, _1, _2, _3, _4));
 
@@ -102,7 +100,7 @@ void DBObjectEditorBE::handle_grt_notification(const std::string &name, grt::Obj
     {
       // We want to see changes for the server version.
       GrtVersionRef version = get_catalog()->version();
-      _parser_context->use_server_version(version);
+      _parser_context->updateServerVersion(version);
       get_sql_editor()->set_server_version(version);
     }
   }

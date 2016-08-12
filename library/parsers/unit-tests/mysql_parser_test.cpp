@@ -20,19 +20,21 @@
 #include "wb_helpers.h"
 
 #include "MySQLLexer.h"
+#include "MySQLParser.h"
+#include "MySQLParserBaseListener.h"
+#include "MySQLParserBaseVisitor.h"
 
-#include "grtsqlparser/sql_facade.h"
-#include "mysql-parser.h"
+#include "grtsqlparser/mysql_parser_services.h"
 
-
-#include <boost/assign/list_of.hpp>
-
-// This file contains unit tests for the sql facade based statement splitter and the ANTLR based parser.
+// This file contains unit tests for the statement splitter and the ANTLR based parser.
 // These are low level tests. There's another set of high level tests (see test_mysql_sql_parser.cpp).
 
 #define VERBOSE_OUTPUT 0
 
-using namespace boost::assign;
+using namespace parsers;
+using namespace antlr4;
+using namespace antlr4::atn;
+using namespace antlr4::tree;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -40,13 +42,23 @@ BEGIN_TEST_DATA_CLASS(mysql_parser_tests)
 protected:
   WBTester *_tester;
   std::set<std::string> _charsets;
-  //std::auto_ptr<MySQLRecognizer> _recognizer;
 
-  bool parse(const char *sql, size_t size, bool is_utf8, long server_version, const std::string &sql_mode);
+  ANTLRInputStream _input;
+  MySQLLexer _lexer;
+  CommonTokenStream _tokens;
+  MySQLParser _parser;
+  Ref<BailErrorStrategy> _bailOutErrorStrategy = std::make_shared<BailErrorStrategy>();
+  Ref<DefaultErrorStrategy> _defaultErrorStrategy = std::make_shared<DefaultErrorStrategy>();
+  Ref<MySQLParser::QueryContext> _lastParseTree;
 
-TEST_DATA_CONSTRUCTOR(mysql_parser_tests)
+  MySQLParserServices *_services;
+
+  size_t parse(const std::string sql, long version, const std::string &mode);
+  bool parseAndCompare(const std::string &sql, long version, const std::string &mode, std::vector<int> tokens,
+                       size_t expectedErrorCount = 0);
+
+TEST_DATA_CONSTRUCTOR(mysql_parser_tests) : _lexer(&_input), _tokens(&_lexer), _parser(&_tokens)
 {
-  bec::GRTManager::get(); // make GRTManagaer live longer than wbtester
   _tester = new WBTester();
   // init datatypes
   populate_grt(*_tester);
@@ -54,9 +66,13 @@ TEST_DATA_CONSTRUCTOR(mysql_parser_tests)
   // The charset list contains also the 3 charsets that were introduced in 5.5.3.
   grt::ListRef<db_CharacterSet> list= _tester->get_rdbms()->characterSets();
   for (size_t i = 0; i < list->count(); i++)
-    _charsets.insert(base::tolower(*list[i]->name()));
+    _charsets.insert("_" + base::tolower(*list[i]->name()));
 
-  //_recognizer.reset(new MySQLRecognizer(50620, "", _charsets));
+  _lexer.charsets = _charsets;
+  _lexer.removeErrorListeners();
+  _parser.removeErrorListeners();
+
+  _services = MySQLParserServices::get();
 }
 END_TEST_DATA_CLASS
 
@@ -65,21 +81,43 @@ TEST_MODULE(mysql_parser_tests, "MySQL parser test suite (ANTLR)");
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Parses the given string and returns true if no error occurred, otherwise false.
+ * Parses the given string and returns the number of errors found.
  */
-bool Test_object_base<mysql_parser_tests>::parse(const char *sql, size_t size, bool is_utf8, long server_version, const std::string &sql_mode)
+size_t Test_object_base<mysql_parser_tests>::parse(const std::string sql, long version, const std::string &mode)
 {
-  // When reusing the recognizer at least one query consumes endless memory (until system crawls to hold).
-  // So stay for now with a fresh parser on each test (which makes them slower than they need to be).
+  _parser.serverVersion = version;
+  _lexer.serverVersion = version;
+  _parser.sqlModeFromString(mode);
+  _lexer.sqlModeFromString(mode);
 
-  MySQLRecognizer recognizer(server_version, sql_mode, _charsets);
-  //_recognizer->set_server_version(server_version);
-  //_recognizer->set_sql_mode(sql_mode);
-  //_recognizer->parse(sql, size, is_utf8, PuGeneric);
-  recognizer.parse(sql, size, is_utf8, MySQLParseUnit::PuGeneric);
-  bool result = recognizer.error_info().size() == 0;
+  _input.load(sql);
+  _lexer.reset();
+  _lexer.setInputStream(&_input); // Not just reset(), which only rewinds the current position.
+  _tokens.setTokenSource(&_lexer);
 
-  return result;
+  _parser.reset();
+  _parser.setErrorHandler(_bailOutErrorStrategy); // Bail out at the first found error.
+  _parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::SLL);
+
+  try {
+    _tokens.fill();
+  } catch (IllegalStateException &) {
+    return 1;
+  }
+
+  try {
+    _lastParseTree = _parser.query();
+  } catch (ParseCancellationException &pce) {
+    // If parsing was cancelled we either really have a syntax error or we need to do a second step,
+    // now with the default strategy and LL parsing.
+    _tokens.reset();
+    _parser.reset();
+    _parser.setErrorHandler(_defaultErrorStrategy);
+    _parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::LL);
+    _lastParseTree = _parser.query();
+  }
+
+  return _lexer.getNumberOfSyntaxErrors() + _parser.getNumberOfSyntaxErrors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,26 +127,19 @@ bool Test_object_base<mysql_parser_tests>::parse(const char *sql, size_t size, b
  */
 TEST_FUNCTION(5)
 {
-  const char *filename = "data/db/sakila-db/sakila-data.sql";
-  const char *statement_filename = "data/db/sakila-db/single_statement.sql";
+  std::string filename = "data/db/sakila-db/sakila-data.sql";
+  std::string statement_filename = "data/db/sakila-db/single_statement.sql";
 
-  ensure("SQL file does not exist.", g_file_test(filename, G_FILE_TEST_EXISTS) == TRUE);
-  ensure("Statement file does not exist.", g_file_test(statement_filename, G_FILE_TEST_EXISTS) == TRUE);
-
-  gchar *sql = NULL;
-  gsize  size = 0;
-  GError *error = NULL;
-  g_file_get_contents(filename, &sql, &size, &error);
-  ensure("Error loading sql file", error == NULL);
-
-  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
+  std::ifstream stream(filename, std::ios::binary);
+  ensure("Error loading sql file", stream.good());
+  std::string sql((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
 #if VERBOSE_OUTPUT
   test_time_point t1;
 #endif
 
-  std::vector<std::pair<size_t, size_t> > ranges;
-  sql_facade->splitSqlScript(sql, size, ";", ranges);
+  std::vector<std::pair<size_t, size_t>> ranges;
+  _services->determineStatementRanges(sql.c_str(), sql.size(), ";", ranges);
  
 #if VERBOSE_OUTPUT
   test_time_point t2;
@@ -129,41 +160,38 @@ TEST_FUNCTION(5)
 
   std::string s2(sql, ranges[30].first, ranges[30].second);
 
-  g_free(sql);
+  stream.close();
+  stream.open(statement_filename, std::ios::binary);
+  ensure("Error loading result file", stream.good());
 
-  sql = NULL;
-  size = 0;
-  error = NULL;
-  g_file_get_contents(statement_filename, &sql, &size, &error);
-  ensure("Error loading statement sql file", error == NULL);
-  ensure("Wrong statement", s2 == sql);
+  sql = std::string((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+  ensure_equals("Wrong statement", s2, sql);
 }
 
 struct TestFile 
 {
-  const char *name;
+  std::string name;
   const char *line_break;
   const char *initial_delmiter;
-  bool is_utf8;
 };
 
 static const TestFile test_files[] = {
   // Large set of all possible query types in different combinations.
-  {"data/db/statements.txt", "\n", "$$", true}, 
+  {"data/db/statements.txt", "\n", "$$"},
 
   // A file with a number of create tables statements that stresses the use
   // of the grammar (e.g. using weird but still valid object names including \n, long
   // list of indices, all possible data types + the default values etc.).
   // Note: it is essential to use \r\n as normal line break in the file to allow usage of \n
   //       in object names.
-  {"data/db/nasty_tables.sql", "\r\n", ";", true},
+  {"data/db/nasty_tables.sql", "\r\n", ";"},
 
-  // Not so many statements, but some very long insert statements.
-  {"data/db/sakila-db/sakila-data.sql", "\n", ";", false}
+  // Not so many, but some very long insert statements.
+  {"data/db/sakila-db/sakila-data.sql", "\n", ";"}
 };
 
 /**
- * Parse a number files with various statements.
+ * Parse a number of files with various statements.
  */
 TEST_FUNCTION(10)
 {
@@ -171,34 +199,30 @@ TEST_FUNCTION(10)
   test_time_point t1;
 #endif
 
-  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
   size_t count = 0;
   for (size_t i = 0; i < sizeof(test_files) / sizeof(test_files[0]); ++i)
   {
-    ensure(base::strfmt("Statements file '%s' does not exist.", test_files[i].name),
-      g_file_test(test_files[i].name, G_FILE_TEST_EXISTS) == TRUE);
+#ifdef _WIN32
+    std::ifstream stream(base::string_to_wstring(test_files[i].name), std::ios::binary);
+#else
+    std::ifstream stream(test_files[i].name, std::ios::binary);
+#endif
+    ensure("Error loading sql file: " + test_files[i].name, stream.good());
+    std::string sql((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
-    gchar *sql = NULL;
-    gsize  size = 0;
-    GError *error = NULL;
-    g_file_get_contents(test_files[i].name, &sql, &size, &error);
-    ensure("Error loading sql file", error == NULL);
-
-    std::vector<std::pair<size_t, size_t> >::const_iterator iterator;
-    std::vector<std::pair<size_t, size_t> > ranges;
-    sql_facade->splitSqlScript(sql, size, test_files[i].initial_delmiter, ranges, test_files[i].line_break);
+    std::vector<std::pair<size_t, size_t>> ranges;
+    _services->determineStatementRanges(sql.c_str(), sql.size(), test_files[i].initial_delmiter, ranges, test_files[i].line_break);
     count += ranges.size();
 
-    for (iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
+    for (auto &range : ranges)
     {
-      if (!parse(sql + iterator->first, iterator->second, test_files[i].is_utf8, 50604, "ANSI_QUOTES"))
+      if (parse(std::string(sql.c_str() + range.first, range.second), 50610, "ANSI_QUOTES") > 0U)
       {
-        std::string query(sql + iterator->first, iterator->second);
+        std::string query(sql.c_str() + range.first, range.second);
+        parse(query, 50610, "ANSI_QUOTES");
         ensure("This query failed to parse:\n" + query, false);
       }
     }
-
-    g_free(sql);
   }
 
 #if VERBOSE_OUTPUT
@@ -441,317 +465,432 @@ TEST_FUNCTION(20)
   for (int i = 0; i < count; i++)
   {
     std::string query = base::strfmt(query1, functions[i]);
-    ensure("A statement failed to parse", parse(query.c_str(), query.size(), true, 50530, "ANSI_QUOTES"));
+    ensure_equals("A statement failed to parse", parse(query, 50530, "ANSI_QUOTES"), 0U);
 
     query = base::strfmt(query2, functions[i], functions[i]);
-    ensure("A statement failed to parse", parse(query.c_str(), query.size(), true, 50530, "ANSI_QUOTES"));
+    ensure_equals("A statement failed to parse", parse(query, 50530, "ANSI_QUOTES"), 0U);
   }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void collectTokenTypes(Ref<RuleContext> context, std::vector<int> &list)
+{
+  for (size_t index = 0; index < context->getChildCount(); ++index)
+  {
+    Ref<tree::ParseTree> child = context->getChild(index);
+    if (antlrcpp::is<RuleContext>(child))
+      collectTokenTypes(std::dynamic_pointer_cast<RuleContext>(child), list);
+    else {
+      // A terminal node.
+      Ref<tree::TerminalNode> node = std::dynamic_pointer_cast<tree::TerminalNode>(child);
+      antlr4::Token *token = node->getSymbol();
+      list.push_back(token->getType());
+    }
+  }
+}
+
 /**
  * Parses the given string and checks the built AST. Returns true if no error occurred, otherwise false.
  */
-bool parse_and_compare(const std::string &sql, long server_version, const std::string &sql_mode,
-  const std::set<std::string> &charsets, std::vector<ANTLR3_UINT32> tokens, size_t error_count = 0)
+bool Test_object_base<mysql_parser_tests>::parseAndCompare(const std::string &sql, long version, const std::string &mode,
+  std::vector<int> expected, size_t expectedErrorCount)
 {
-  MySQLRecognizer recognizer(server_version, sql_mode, charsets);
-  recognizer.parse(sql.c_str(), sql.size(), true, MySQLParseUnit::PuGeneric);
-  if (recognizer.error_info().size() != error_count)
+  if (parse(sql, version, mode) != expectedErrorCount)
     return false;
 
-  // Walk the list of AST nodes recursively and match exactly the given list of tokens.
-  MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
-  size_t i = 0;
-  do
-  {
-    if (i >= tokens.size())
-      return false;
+  // Walk the tokens stored in the parse tree produced by the parse call above and match exactly the given list of token types.
+  std::vector<int> tokens;
+  collectTokenTypes(_lastParseTree, tokens);
 
-    if (walker.tokenType() != tokens[i++])
-      return false;
-  } while (walker.next());
-
-  return i == tokens.size();
+  return tokens == expected;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
+using namespace antlrcpp;
+
+// This evaluator only implements the necessary parts for this test. It's not a full blown evaluator.
+struct EvalValue
+{
+  enum ValueType { Float, Int, Null, NotNull } type; // NULL and NOT NULL are possible literals, so we need an enum for them.
+  double number;
+
+  EvalValue (ValueType aType, double aNumber) : type(aType), number(aNumber) {}
+  bool isNullType() { return type == Null || type == NotNull; }
+
+  static EvalValue fromBool(bool value) { return EvalValue(Int, value ? 1 : 0); };
+  static EvalValue fromNumber(double number) { return EvalValue(Float, number); };
+  static EvalValue fromInt(long long number) { return EvalValue(Int, number); };
+  static EvalValue fromNull() { return EvalValue(Null, 0); };
+  static EvalValue fromNotNull() { return EvalValue(NotNull, 0); };
+};
+
+class EvalParseVisitor : public MySQLParserBaseVisitor
+{
+public:
+  std::vector<EvalValue> results; // One entry for each select item.
+
+  bool asBool(EvalValue in)
+  {
+    if (!in.isNullType() && in.number != 0)
+      return true;
+    return false;
+  };
+
+  virtual Any visitSelect_item(MySQLParser::Select_itemContext *context) override
+  {
+    Any result = visitChildren(context);
+    results.push_back(result.as<EvalValue>());
+    return result;
+  }
+
+  virtual Any visitExprNot(MySQLParser::ExprNotContext *context) override
+  {
+    EvalValue value = visit(context->expr().get());
+    switch (value.type)
+    {
+      case EvalValue::Null:
+        return EvalValue::fromNotNull();
+      case EvalValue::NotNull:
+        return EvalValue::fromNull();
+      default:
+        return EvalValue::fromBool(!asBool(value));
+    }
+  }
+
+  virtual Any visitExprAnd(MySQLParser::ExprAndContext *context) override
+  {
+    EvalValue left = visit(context->expr(0).get());
+    EvalValue right = visit(context->expr(1).get());
+
+    if (left.isNullType() || right.isNullType())
+      return EvalValue::fromNull();
+    return EvalValue::fromBool(asBool(left) && asBool(right));
+
+    return visitChildren(context);
+  }
+  
+  virtual Any visitExprXor(MySQLParser::ExprXorContext *context) override
+  {
+    EvalValue left = visit(context->expr(0).get());
+    EvalValue right = visit(context->expr(1).get());
+
+    if (left.isNullType() || right.isNullType())
+      return EvalValue::fromNull();
+    return EvalValue::fromBool(asBool(left) != asBool(right));
+  }
+
+  virtual Any visitExprOr(MySQLParser::ExprOrContext *context) override
+  {
+    EvalValue left = visit(context->expr(0).get());
+    EvalValue right = visit(context->expr(1).get());
+
+    if (left.isNullType() || right.isNullType())
+      return EvalValue::fromNull();
+    return EvalValue::fromBool(asBool(left) || asBool(right));
+  }
+  
+  virtual Any visitExprIs(MySQLParser::ExprIsContext *context) override
+  {
+    EvalValue value = visit(context->bool_pri().get());
+    if (context->IS_SYMBOL() == nullptr)
+      return value;
+
+    bool result = false;
+    switch (context->type->getType())
+    {
+      case MySQLLexer::FALSE_SYMBOL:
+      case MySQLLexer::TRUE_SYMBOL:
+        if (!value.isNullType())
+          result = asBool(value);
+        break;
+      default: // Must be UNKOWN.
+        result = value.isNullType();
+        break;
+    }
+
+    if (context->not_rule() != nullptr)
+      result = !result;
+    return EvalValue::fromBool(result);
+  }
+
+  virtual Any visitPrimaryExprIsNull(MySQLParser::PrimaryExprIsNullContext *context) override
+  {
+    EvalValue value = visit(context->bool_pri().get());
+    if (context->not_rule() == nullptr)
+      return EvalValue::fromBool(value.type == EvalValue::Null);
+    return EvalValue::fromBool(value.type != EvalValue::Null);
+  }
+
+  virtual Any visitPrimaryExprCompare(MySQLParser::PrimaryExprCompareContext *context) override
+  {
+    EvalValue left = visit(context->bool_pri().get());
+    EvalValue right = visit(context->predicate().get());
+
+    ssize_t op = context->comp_op()->getStart()->getType();
+    if (left.isNullType() || right.isNullType())
+    {
+      if (op == MySQLLexer::NULL_SAFE_EQUAL_OPERATOR)
+        return EvalValue::fromBool(left.type == right.type);
+      return EvalValue::fromNull();
+    }
+
+    switch (op)
+    {
+      case MySQLLexer::EQUAL_OPERATOR:
+      case MySQLLexer::NULL_SAFE_EQUAL_OPERATOR:
+        return EvalValue::fromBool(left.number == right.number);
+      case MySQLLexer::GREATER_OR_EQUAL_OPERATOR:
+        return EvalValue::fromBool(left.number >= right.number);
+      case MySQLLexer::GREATER_THAN_OPERATOR:
+        return EvalValue::fromBool(left.number > right.number);
+      case MySQLLexer::LESS_OR_EQUAL_OPERATOR:
+        return EvalValue::fromBool(left.number <= right.number);
+      case MySQLLexer::LESS_THAN_OPERATOR:
+        return EvalValue::fromBool(left.number < right.number);
+      case MySQLLexer::NOT_EQUAL_OPERATOR:
+        return EvalValue::fromBool(left.number != right.number);
+    }
+    return EvalValue::fromBool(false);
+  }
+
+  virtual Any visitPredicateExprOperations(MySQLParser::PredicateExprOperationsContext *context) override
+  {
+    return visit(context->bit_expr().get());
+  }
+
+  template <class Op>
+  Any evalBitExpression(MySQLParser::Bit_exprContext *context, Op op)
+  {
+    // Always in the form "bit_expr op bit_expr".
+    EvalValue left = visit(context->children[0].get());
+    EvalValue right = visit(context->children[2].get());
+
+    if (left.isNullType() || right.isNullType())
+      return EvalValue::fromNull();
+
+    return EvalValue::fromNumber(op(left.number, right.number));
+  }
+  
+  virtual Any visitBitExprXor(MySQLParser::BitExprXorContext *context) override
+  {
+    return evalBitExpression(context, std::bit_xor<int>());
+  }
+  
+  virtual Any visitBitExprMult(MySQLParser::BitExprMultContext *context) override
+  {
+    switch (context->op->getType())
+    {
+      case MySQLLexer::MULT_OPERATOR:
+        return evalBitExpression(context, std::multiplies<double>());
+      case MySQLLexer::DIV_OPERATOR:
+        return evalBitExpression(context, std::divides<double>());
+      case MySQLLexer::DIV_SYMBOL:
+        return evalBitExpression(context, std::divides<long long>());
+      case MySQLLexer::MOD_OPERATOR:
+      case MySQLLexer::MOD_SYMBOL:
+      {
+        EvalValue left = visit(context->bit_expr(0).get());
+        EvalValue right = visit(context->bit_expr(1).get());
+
+        if (left.isNullType() || right.isNullType())
+          return EvalValue::fromNull();
+
+        if (left.type == EvalValue::Int && right.type == EvalValue::Int)
+          return EvalValue::fromInt((long long)left.number % (long long)right.number);
+        return EvalValue::fromNumber(fmod(left.number, right.number));
+      }
+    }
+    return EvalValue::fromNull();
+  }
+
+  virtual Any visitBitExprAdd(MySQLParser::BitExprAddContext *context) override
+  {
+    if (context->op->getType() == MySQLLexer::PLUS_OPERATOR)
+      return evalBitExpression(context, std::plus<double>());
+    return evalBitExpression(context, std::minus<double>());
+  }
+
+  static unsigned long long shiftLeftWithOverflow(double l, double r)
+  {
+    // Shift with overflow if r is larger than the data type size of unsigned long long (64)
+    // (which would be undefined if using the standard << operator).
+    std::bitset<64> bits = (unsigned long long)llround(l);
+    bits <<= (unsigned long long)llround(r);
+    return bits.to_ullong();
+  }
+
+  virtual Any visitBitExprShift(MySQLParser::BitExprShiftContext *context) override
+  {
+    if (context->op->getType() == MySQLLexer::SHIFT_LEFT_OPERATOR)
+      return evalBitExpression(context, [](double l, double r) { return shiftLeftWithOverflow(l, r); });
+    return evalBitExpression(context, [](double l, double r) { return (unsigned long long)llround(l) >> (unsigned long long)llround(r); });
+  }
+
+  virtual Any visitBitExprAnd(MySQLParser::BitExprAndContext *context) override
+  {
+    return evalBitExpression(context, std::bit_and<int>());
+  }
+
+  virtual Any visitBitExprOr(MySQLParser::BitExprOrContext *context) override
+  {
+    return evalBitExpression(context, std::bit_or<int>());
+  }
+
+  virtual Any visitExpression_list_with_parentheses(MySQLParser::Expression_list_with_parenthesesContext *context) override
+  {
+    return visit(context->expression_list().get());
+  }
+
+  virtual Any visitSimpleExprList(MySQLParser::SimpleExprListContext *context) override
+  {
+    return visit(context->expression_list().get());
+  }
+
+  virtual Any visitSimpleExprLiteral(MySQLParser::SimpleExprLiteralContext *context) override
+  {
+    switch (context->start->getType())
+    {
+      case MySQLLexer::TRUE_SYMBOL:
+        return EvalValue::fromBool(true);
+      case MySQLLexer::FALSE_SYMBOL:
+        return EvalValue::fromBool(false);
+      case MySQLLexer::NULL_SYMBOL:
+        return EvalValue::fromNull();
+      case MySQLLexer::HEX_NUMBER:
+        return EvalValue::fromInt(std::stoul(context->start->getText(), nullptr, 16));
+      case MySQLLexer::BIN_NUMBER:
+      {
+        std::bitset<64> bits(context->start->getText());
+        return EvalValue::fromInt(bits.to_ullong());
+      }
+      case MySQLLexer::INT_NUMBER:
+      {
+        std::string text = context->start->getText();
+        return EvalValue::fromInt(std::stoul(text, nullptr, 10));
+      }
+      default:
+        return EvalValue::fromNumber(std::atof(context->start->getText().c_str()));
+    }
+  }
+
+  virtual Any visitSimpleExprNot(MySQLParser::SimpleExprNotContext *context) override
+  {
+    EvalValue value = visit(context->simple_expr().get());
+    if (value.isNullType())
+      return EvalValue::fromNull();
+    return EvalValue::fromBool(!asBool(value));
+  }
+};
+
+
 /**
- * Operator precedence tests. These were taken from the server parser test suite.
+ * Operator precedence tests.
  */
-
-static std::vector<std::string> precedenceTestQueries = list_of(
-  "select A, B, A OR B, A XOR B, A AND B from t1_30237_bool where C is null order by A, B")
-  ("select A, B, C, (A OR B) OR C, A OR (B OR C), A OR B OR C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where ((A OR B) OR C) != (A OR (B OR C))")
-  ("select A, B, C, (A XOR B) XOR C, A XOR (B XOR C), A XOR B XOR C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where ((A XOR B) XOR C) != (A XOR (B XOR C))")
-  ("select A, B, C, (A AND B) AND C, A AND (B AND C), A AND B AND C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where ((A AND B) AND C) != (A AND (B AND C))")
-  ("select A, B, C, (A OR B) AND C, A OR (B AND C), A OR B AND C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where (A OR (B AND C)) != (A OR B AND C)")
-  ("select A, B, C, (A AND B) OR C, A AND (B OR C), A AND B OR C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where ((A AND B) OR C) != (A AND B OR C)")
-  ("select A, B, C, (A XOR B) AND C, A XOR (B AND C), A XOR B AND C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where (A XOR (B AND C)) != (A XOR B AND C)")
-  ("select A, B, C, (A AND B) XOR C, A AND (B XOR C), A AND B XOR C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where ((A AND B) XOR C) != (A AND B XOR C)")
-  ("select A, B, C, (A XOR B) OR C, A XOR (B OR C), A XOR B OR C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where ((A XOR B) OR C) != (A XOR B OR C)")
-  ("select A, B, C, (A OR B) XOR C, A OR (B XOR C), A OR B XOR C from t1_30237_bool order by A, B, C")
-  ("select count(*) from t1_30237_bool where (A OR (B XOR C)) != (A OR B XOR C)")
-  ("select (NOT FALSE) OR TRUE, NOT (FALSE OR TRUE), NOT FALSE OR TRUE")
-  ("select (NOT FALSE) XOR FALSE, NOT (FALSE XOR FALSE), NOT FALSE XOR FALSE")
-  ("select (NOT FALSE) AND FALSE, NOT (FALSE AND FALSE), NOT FALSE AND FALSE")
-  ("select NOT NOT TRUE, NOT NOT NOT FALSE")
-  ("select (NOT NULL) IS TRUE, NOT (NULL IS TRUE), NOT NULL IS TRUE")
-  ("select (NOT NULL) IS NOT TRUE, NOT (NULL IS NOT TRUE), NOT NULL IS NOT TRUE")
-  ("select (NOT NULL) IS FALSE, NOT (NULL IS FALSE), NOT NULL IS FALSE")
-  ("select (NOT NULL) IS NOT FALSE, NOT (NULL IS NOT FALSE), NOT NULL IS NOT FALSE")
-  ("select (NOT TRUE) IS UNKNOWN, NOT (TRUE IS UNKNOWN), NOT TRUE IS UNKNOWN")
-  ("select (NOT TRUE) IS NOT UNKNOWN, NOT (TRUE IS NOT UNKNOWN), NOT TRUE IS NOT UNKNOWN")
-  ("select (NOT TRUE) IS NULL, NOT (TRUE IS NULL), NOT TRUE IS NULL")
-  ("select (NOT TRUE) IS NOT NULL, NOT (TRUE IS NOT NULL), NOT TRUE IS NOT NULL")
-  ("select FALSE IS NULL IS NULL IS NULL")
-  ("select TRUE IS NOT NULL IS NOT NULL IS NOT NULL")
-  ("select 1 <=> 2 <=> 2, (1 <=> 2) <=> 2, 1 <=> (2 <=> 2)")
-  ("select 1 = 2 = 2, (1 = 2) = 2, 1 = (2 = 2)")
-  ("select 1 != 2 != 3, (1 != 2) != 3, 1 != (2 != 3)")
-  ("select 1 <> 2 <> 3, (1 <> 2) <> 3, 1 <> (2 <> 3)")
-  ("select 1 < 2 < 3, (1 < 2) < 3, 1 < (2 < 3)")
-  ("select 3 <= 2 <= 1, (3 <= 2) <= 1, 3 <= (2 <= 1)")
-  ("select 1 > 2 > 3, (1 > 2) > 3, 1 > (2 > 3)")
-  ("select 1 >= 2 >= 3, (1 >= 2) >= 3, 1 >= (2 >= 3)")
-  ("select 0xF0 | 0x0F | 0x55, (0xF0 | 0x0F) | 0x55, 0xF0 | (0x0F | 0x55)")
-  ("select 0xF5 & 0x5F & 0x55, (0xF5 & 0x5F) & 0x55, 0xF5 & (0x5F & 0x55)")
-  ("select 4 << 3 << 2, (4 << 3) << 2, 4 << (3 << 2)")
-  ("select 256 >> 3 >> 2, (256 >> 3) >> 2, 256 >> (3 >> 2)")
-  ("select 0xF0 & 0x0F | 0x55, (0xF0 & 0x0F) | 0x55, 0xF0 & (0x0F | 0x55)")
-  ("select 0x55 | 0xF0 & 0x0F, (0x55 | 0xF0) & 0x0F, 0x55 | (0xF0 & 0x0F)")
-  ("select 0x0F << 4 | 0x0F, (0x0F << 4) | 0x0F, 0x0F << (4 | 0x0F)")
-  ("select 0x0F | 0x0F << 4, (0x0F | 0x0F) << 4, 0x0F | (0x0F << 4)")
-  ("select 0xF0 >> 4 | 0xFF, (0xF0 >> 4) | 0xFF, 0xF0 >> (4 | 0xFF)")
-  ("select 0xFF | 0xF0 >> 4, (0xFF | 0xF0) >> 4, 0xFF | (0xF0 >> 4)")
-  ("select 0x0F << 4 & 0xF0, (0x0F << 4) & 0xF0, 0x0F << (4 & 0xF0)")
-  ("select 0xF0 & 0x0F << 4, (0xF0 & 0x0F) << 4, 0xF0 & (0x0F << 4)")
-  ("select 0xF0 >> 4 & 0x55, (0xF0 >> 4) & 0x55, 0xF0 >> (4 & 0x55)")
-  ("select 0x0F & 0xF0 >> 4, (0x0F & 0xF0) >> 4, 0x0F & (0xF0 >> 4)")
-  ("select 0xFF >> 4 << 2, (0xFF >> 4) << 2, 0xFF >> (4 << 2)")
-  ("select 0x0F << 4 >> 2, (0x0F << 4) >> 2, 0x0F << (4 >> 2)")
-  ("select 1 + 2 + 3, (1 + 2) + 3, 1 + (2 + 3)")
-  ("select 1 - 2 - 3, (1 - 2) - 3, 1 - (2 - 3)")
-  ("select 1 + 2 - 3, (1 + 2) - 3, 1 + (2 - 3)")
-  ("select 1 - 2 + 3, (1 - 2) + 3, 1 - (2 + 3)")
-  ("select 0xF0 + 0x0F | 0x55, (0xF0 + 0x0F) | 0x55, 0xF0 + (0x0F | 0x55)")
-  ("select 0x55 | 0xF0 + 0x0F, (0x55 | 0xF0) + 0x0F, 0x55 | (0xF0 + 0x0F)")
-  ("select 0xF0 + 0x0F & 0x55, (0xF0 + 0x0F) & 0x55, 0xF0 + (0x0F & 0x55)")
-  ("select 0x55 & 0xF0 + 0x0F, (0x55 & 0xF0) + 0x0F, 0x55 & (0xF0 + 0x0F)")
-  ("select 2 + 3 << 4, (2 + 3) << 4, 2 + (3 << 4)")
-  ("select 3 << 4 + 2, (3 << 4) + 2, 3 << (4 + 2)")
-  ("select 4 + 3 >> 2, (4 + 3) >> 2, 4 + (3 >> 2)")
-  ("select 3 >> 2 + 1, (3 >> 2) + 1, 3 >> (2 + 1)")
-  ("select 0xFF - 0x0F | 0x55, (0xFF - 0x0F) | 0x55, 0xFF - (0x0F | 0x55)")
-  ("select 0x55 | 0xFF - 0xF0, (0x55 | 0xFF) - 0xF0, 0x55 | (0xFF - 0xF0)")
-  ("select 0xFF - 0xF0 & 0x55, (0xFF - 0xF0) & 0x55, 0xFF - (0xF0 & 0x55)")
-  ("select 0x55 & 0xFF - 0xF0, (0x55 & 0xFF) - 0xF0, 0x55 & (0xFF - 0xF0)")
-  ("select 16 - 3 << 2, (16 - 3) << 2, 16 - (3 << 2)")
-  ("select 4 << 3 - 2, (4 << 3) - 2, 4 << (3 - 2)")
-  ("select 16 - 3 >> 2, (16 - 3) >> 2, 16 - (3 >> 2)")
-  ("select 16 >> 3 - 2, (16 >> 3) - 2, 16 >> (3 - 2)")
-  ("select 2 * 3 * 4, (2 * 3) * 4, 2 * (3 * 4)")
-  ("select 2 * 0x40 | 0x0F, (2 * 0x40) | 0x0F, 2 * (0x40 | 0x0F)")
-  ("select 0x0F | 2 * 0x40, (0x0F | 2) * 0x40, 0x0F | (2 * 0x40)")
-  ("select 2 * 0x40 & 0x55, (2 * 0x40) & 0x55, 2 * (0x40 & 0x55)")
-  ("select 0xF0 & 2 * 0x40, (0xF0 & 2) * 0x40, 0xF0 & (2 * 0x40)")
-  ("select 5 * 3 << 4, (5 * 3) << 4, 5 * (3 << 4)")
-  ("select 2 << 3 * 4, (2 << 3) * 4, 2 << (3 * 4)")
-  ("select 3 * 4 >> 2, (3 * 4) >> 2, 3 * (4 >> 2)")
-  ("select 4 >> 2 * 3, (4 >> 2) * 3, 4 >> (2 * 3)")
-  ("select 2 * 3 + 4, (2 * 3) + 4, 2 * (3 + 4)")
-  ("select 2 + 3 * 4, (2 + 3) * 4, 2 + (3 * 4)")
-  ("select 4 * 3 - 2, (4 * 3) - 2, 4 * (3 - 2)")
-  ("select 4 - 3 * 2, (4 - 3) * 2, 4 - (3 * 2)")
-  ("select 15 / 5 / 3, (15 / 5) / 3, 15 / (5 / 3)")
-  ("select 105 / 5 | 2, (105 / 5) | 2, 105 / (5 | 2)")
-  ("select 105 | 2 / 5, (105 | 2) / 5, 105 | (2 / 5)")
-  ("select 105 / 5 & 0x0F, (105 / 5) & 0x0F, 105 / (5 & 0x0F)")
-  ("select 0x0F & 105 / 5, (0x0F & 105) / 5, 0x0F & (105 / 5)")
-  ("select 0x80 / 4 << 2, (0x80 / 4) << 2, 0x80 / (4 << 2)")
-  ("select 0x80 << 4 / 2, (0x80 << 4) / 2, 0x80 << (4 / 2)")
-  ("select 0x80 / 4 >> 2, (0x80 / 4) >> 2, 0x80 / (4 >> 2)")
-  ("select 0x80 >> 4 / 2, (0x80 >> 4) / 2, 0x80 >> (4 / 2)")
-  ("select 0x80 / 2 + 2, (0x80 / 2) + 2, 0x80 / (2 + 2)")
-  ("select 0x80 + 2 / 2, (0x80 + 2) / 2, 0x80 + (2 / 2)")
-  ("select 0x80 / 4 - 2, (0x80 / 4) - 2, 0x80 / (4 - 2)")
-  ("select 0x80 - 4 / 2, (0x80 - 4) / 2, 0x80 - (4 / 2)")
-  ("select 0xFF ^ 0xF0 ^ 0x0F, (0xFF ^ 0xF0) ^ 0x0F, 0xFF ^ (0xF0 ^ 0x0F)")
-  ("select 0xFF ^ 0xF0 ^ 0x55, (0xFF ^ 0xF0) ^ 0x55, 0xFF ^ (0xF0 ^ 0x55)")
-  ("select 0xFF ^ 0xF0 | 0x0F, (0xFF ^ 0xF0) | 0x0F, 0xFF ^ (0xF0 | 0x0F)")
-  ("select 0xF0 | 0xFF ^ 0xF0, (0xF0 | 0xFF) ^ 0xF0, 0xF0 | (0xFF ^ 0xF0)")
-  ("select 0xFF ^ 0xF0 & 0x0F, (0xFF ^ 0xF0) & 0x0F, 0xFF ^ (0xF0 & 0x0F)")
-  ("select 0x0F & 0xFF ^ 0xF0, (0x0F & 0xFF) ^ 0xF0, 0x0F & (0xFF ^ 0xF0)")
-  ("select 0xFF ^ 0xF0 << 2, (0xFF ^ 0xF0) << 2, 0xFF ^ (0xF0 << 2)")
-  ("select 0x0F << 2 ^ 0xFF, (0x0F << 2) ^ 0xFF, 0x0F << (2 ^ 0xFF)")
-  ("select 0xFF ^ 0xF0 >> 2, (0xFF ^ 0xF0) >> 2, 0xFF ^ (0xF0 >> 2)")
-  ("select 0xFF >> 2 ^ 0xF0, (0xFF >> 2) ^ 0xF0, 0xFF >> (2 ^ 0xF0)")
-  ("select 0xFF ^ 0xF0 + 0x0F, (0xFF ^ 0xF0) + 0x0F, 0xFF ^ (0xF0 + 0x0F)")
-  ("select 0x0F + 0xFF ^ 0xF0, (0x0F + 0xFF) ^ 0xF0, 0x0F + (0xFF ^ 0xF0)")
-  ("select 0xFF ^ 0xF0 - 1, (0xFF ^ 0xF0) - 1, 0xFF ^ (0xF0 - 1)")
-  ("select 0x55 - 0x0F ^ 0x55, (0x55 - 0x0F) ^ 0x55, 0x55 - (0x0F ^ 0x55)")
-  ("select 0xFF ^ 0xF0 * 2, (0xFF ^ 0xF0) * 2, 0xFF ^ (0xF0 * 2)")
-  ("select 2 * 0xFF ^ 0xF0, (2 * 0xFF) ^ 0xF0, 2 * (0xFF ^ 0xF0)")
-  ("select 0xFF ^ 0xF0 / 2, (0xFF ^ 0xF0) / 2, 0xFF ^ (0xF0 / 2)")
-  ("select 0xF2 / 2 ^ 0xF0, (0xF2 / 2) ^ 0xF0, 0xF2 / (2 ^ 0xF0)")
-  ("select 0xFF ^ 0xF0 % 0x20, (0xFF ^ 0xF0) % 0x20, 0xFF ^ (0xF0 % 0x20)")
-  ("select 0xFF % 0x20 ^ 0xF0, (0xFF % 0x20) ^ 0xF0, 0xFF % (0x20 ^ 0xF0)")
-  ("select 0xFF ^ 0xF0 DIV 2, (0xFF ^ 0xF0) DIV 2, 0xFF ^ (0xF0 DIV 2)")
-  ("select 0xF2 DIV 2 ^ 0xF0, (0xF2 DIV 2) ^ 0xF0, 0xF2 DIV (2 ^ 0xF0)")
-  ("select 0xFF ^ 0xF0 MOD 0x20, (0xFF ^ 0xF0) MOD 0x20, 0xFF ^ (0xF0 MOD 0x20)")
-  ("select 0xFF MOD 0x20 ^ 0xF0, (0xFF MOD 0x20) ^ 0xF0, 0xFF MOD (0x20 ^ 0xF0)"
-);
-
-typedef std::vector<ANTLR3_UINT32> TokenVector;
-
-const std::vector<TokenVector> precedenceTestResults = list_of(
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(NULL_SYMBOL)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(AND_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(ORDER_SYMBOL)(BY_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(COMMA_SYMBOL)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(RUNTIME_FUNCTION_TOKEN)(COUNT_SYMBOL)(OPEN_PAR_SYMBOL)(MULT_OPERATOR)(CLOSE_PAR_SYMBOL)(FROM_SYMBOL)(TABLE_REF_TOKEN)(IDENTIFIER)(WHERE_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(CLOSE_PAR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(XOR_SYMBOL)(COLUMN_REF_TOKEN)(IDENTIFIER)(COLUMN_REF_TOKEN)(IDENTIFIER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(FALSE_SYMBOL)(CLOSE_PAR_SYMBOL)(TRUE_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(OR_SYMBOL)(FALSE_SYMBOL)(TRUE_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(OR_SYMBOL)(NOT_SYMBOL)(FALSE_SYMBOL)(TRUE_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(FALSE_SYMBOL)(CLOSE_PAR_SYMBOL)(FALSE_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(XOR_SYMBOL)(FALSE_SYMBOL)(FALSE_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(XOR_SYMBOL)(NOT_SYMBOL)(FALSE_SYMBOL)(FALSE_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(FALSE_SYMBOL)(CLOSE_PAR_SYMBOL)(FALSE_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(AND_SYMBOL)(FALSE_SYMBOL)(FALSE_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(AND_SYMBOL)(NOT_SYMBOL)(FALSE_SYMBOL)(FALSE_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(NOT_SYMBOL)(TRUE_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(NOT_SYMBOL)(NOT_SYMBOL)(FALSE_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(NULL_SYMBOL)(CLOSE_PAR_SYMBOL)(TRUE_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(NULL_SYMBOL)(TRUE_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(IS_SYMBOL)(NULL_SYMBOL)(TRUE_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(NULL_SYMBOL)(CLOSE_PAR_SYMBOL)(NOT_SYMBOL)(TRUE_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(NULL_SYMBOL)(NOT_SYMBOL)(TRUE_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(IS_SYMBOL)(NULL_SYMBOL)(NOT_SYMBOL)(TRUE_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(NULL_SYMBOL)(CLOSE_PAR_SYMBOL)(FALSE_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(NULL_SYMBOL)(FALSE_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(IS_SYMBOL)(NULL_SYMBOL)(FALSE_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(NULL_SYMBOL)(CLOSE_PAR_SYMBOL)(NOT_SYMBOL)(FALSE_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(NULL_SYMBOL)(NOT_SYMBOL)(FALSE_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(IS_SYMBOL)(NULL_SYMBOL)(NOT_SYMBOL)(FALSE_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(TRUE_SYMBOL)(CLOSE_PAR_SYMBOL)(UNKNOWN_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(TRUE_SYMBOL)(UNKNOWN_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(IS_SYMBOL)(TRUE_SYMBOL)(UNKNOWN_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(TRUE_SYMBOL)(CLOSE_PAR_SYMBOL)(NOT_SYMBOL)(UNKNOWN_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(TRUE_SYMBOL)(NOT_SYMBOL)(UNKNOWN_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(IS_SYMBOL)(TRUE_SYMBOL)(NOT_SYMBOL)(UNKNOWN_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(TRUE_SYMBOL)(CLOSE_PAR_SYMBOL)(NULL_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(TRUE_SYMBOL)(NULL_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(IS_SYMBOL)(TRUE_SYMBOL)(NULL_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_SYMBOL)(TRUE_SYMBOL)(CLOSE_PAR_SYMBOL)(NOT_SYMBOL)(NULL_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(IS_SYMBOL)(TRUE_SYMBOL)(NOT_SYMBOL)(NULL_SYMBOL)(CLOSE_PAR_SYMBOL)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(IS_SYMBOL)(TRUE_SYMBOL)(NOT_SYMBOL)(NULL_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(IS_SYMBOL)(IS_SYMBOL)(FALSE_SYMBOL)(NULL_SYMBOL)(NULL_SYMBOL)(NULL_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(IS_SYMBOL)(IS_SYMBOL)(IS_SYMBOL)(TRUE_SYMBOL)(NOT_SYMBOL)(NULL_SYMBOL)(NOT_SYMBOL)(NULL_SYMBOL)(NOT_SYMBOL)(NULL_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NULL_SAFE_EQUAL_OPERATOR)(NULL_SAFE_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NULL_SAFE_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NULL_SAFE_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NULL_SAFE_EQUAL_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NULL_SAFE_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(EQUAL_OPERATOR)(EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(EQUAL_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(NOT_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_EQUAL2_OPERATOR)(NOT_EQUAL2_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_EQUAL2_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL2_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_EQUAL2_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(NOT_EQUAL2_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LESS_THAN_OPERATOR)(LESS_THAN_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LESS_THAN_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(LESS_THAN_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LESS_THAN_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(LESS_THAN_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LESS_OR_EQUAL_OPERATOR)(LESS_OR_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LESS_OR_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(LESS_OR_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LESS_OR_EQUAL_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(LESS_OR_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(GREATER_THAN_OPERATOR)(GREATER_THAN_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(GREATER_THAN_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(GREATER_THAN_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(GREATER_THAN_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(GREATER_THAN_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(GREATER_OR_EQUAL_OPERATOR)(GREATER_OR_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(GREATER_OR_EQUAL_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(GREATER_OR_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(GREATER_OR_EQUAL_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(GREATER_OR_EQUAL_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(INT_NUMBER)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(INT_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_OR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_AND_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_LEFT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(SHIFT_RIGHT_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(PLUS_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MINUS_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MULT_OPERATOR)(INT_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MOD_OPERATOR)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MOD_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MOD_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MOD_OPERATOR)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MOD_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MOD_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_SYMBOL)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(INT_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_SYMBOL)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_SYMBOL)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(DIV_SYMBOL)(HEX_NUMBER)(INT_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(DIV_SYMBOL)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(INT_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MOD_SYMBOL)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MOD_SYMBOL)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MOD_SYMBOL)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>() )
-  (list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MOD_SYMBOL)(HEX_NUMBER)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(MOD_SYMBOL)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(HEX_NUMBER)(COMMA_SYMBOL)(SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(MOD_SYMBOL)(HEX_NUMBER)(PAR_EXPRESSION_TOKEN)(OPEN_PAR_SYMBOL)(EXPRESSION_TOKEN)(BITWISE_XOR_OPERATOR)(HEX_NUMBER)(HEX_NUMBER)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF).convert_to_container<TokenVector>()
-);
-
 TEST_FUNCTION(25)
 {
-  ensure_equals("Data and result list must be equal in size", precedenceTestQueries.size(), precedenceTestResults.size());
+  // This file is an unmodified copy from the server parser test suite.
+  const std::string filename = "data/parser/parser_precedence.result";
 
-  for (size_t i = 0; i < precedenceTestQueries.size(); ++i)
+  std::ifstream stream(filename, std::ios::binary);
+  ensure("25.0 Could not open precedence test file", stream.good());
+
+  std::string line;
+
+  // Start with skipping over some lines that contain results which require a real server (querying from a table).
+  while (!std::getline(stream, line).eof())
   {
-    if (!parse_and_compare(precedenceTestQueries[i], 50530, "ANSI_QUOTES", _charsets, precedenceTestResults[i]))
-      fail("Operator precedence test - query failed: " + precedenceTestQueries[i]);
+    if (line == "drop table t1_30237_bool;")
+      break;
+  }
+
+  int skip = 0; // Used to skip not relevant tests while fixing a test.
+  int counter = 1;
+  while (!std::getline(stream, line).eof())
+  {
+    if (base::trim(line).empty())
+      continue;
+
+    // Start of a new test. The test description is optional.
+    std::string sql;
+    if (base::hasPrefix(line, "Testing "))
+    {
+      ensure("25.1 - invalid test file format", !std::getline(stream, sql).eof());
+    }
+    else
+      sql = line;
+    ensure("25.2 - invalid test file format", base::hasPrefix(sql, "select"));
+
+    // The next line either repeats (parts of) the query or contains a server error.
+    ensure("25.3 - invalid test file format", !std::getline(stream, line).eof());
+
+    bool expectError = false;
+    if (base::hasPrefix(line, "ERROR "))
+      expectError = true;
+    ensure_equals("25.4 - error status is unexpected for query: \"\n" + sql + "\"\n", (parse(sql, 50630, "") == 0), !expectError);
+
+    if (expectError) // No results to compare in an error case.
+    {
+      ++counter;
+      --skip;
+      continue;
+    }
+
+    // Compare results if there was no error.
+    ensure("25.5 - invalid test file format", !std::getline(stream, line).eof());
+    std::vector<EvalValue> expectedResults;
+    std::string temp;
+    std::stringstream stream(line);
+    while (stream >> temp)
+    {
+      if (base::same_string(temp, "true"))
+        expectedResults.push_back(EvalValue::fromBool(true));
+      if (base::same_string(temp, "false"))
+        expectedResults.push_back(EvalValue::fromBool(true));
+      if (base::same_string(temp, "null"))
+        expectedResults.push_back(EvalValue::fromNull());
+      expectedResults.push_back(EvalValue::fromNumber(std::atof(temp.c_str())));
+    }
+
+    if (--skip >= 0)
+    {
+      ++counter;
+      continue;
+    }
+
+    EvalParseVisitor evaluator;
+    try
+    {
+      evaluator.visit(_lastParseTree.get());
+    }
+    catch (std::bad_cast &)
+    {
+      std::cout << "25.6 Query failed to evaluate: \"\n" + sql + "\"\n";
+      std::cout << "25.7 Parse tree: " << _lastParseTree->toStringTree(&_parser) << std::endl;
+      throw;
+    }
+
+    ensure_equals("25.8 - result counts differ for query (" + std::to_string(counter) + "): \n\"" + sql + "\"\n",
+                  evaluator.results.size(), expectedResults.size());
+
+    static std::string dataTypes[] = { "FLOAT", "INT", "NULL", "NOT NULL" };
+    for (size_t i = 0; i < expectedResults.size(); ++i)
+    {
+      // We have no int type in expected results. So we make float and int being the same.
+      EvalValue::ValueType type = evaluator.results[i].type;
+      if (type == EvalValue::Int)
+        type = EvalValue::Float;
+      EvalValue::ValueType expectedType = expectedResults[i].type;
+      
+      ensure_equals("25.9 - result type " + std::to_string(i) + " differs for query (" + std::to_string(counter) + "): \n\"" + sql + "\"\n",
+                    dataTypes[type], dataTypes[expectedType]);
+      if (!expectedResults[i].isNullType())
+        ensure_equals("25.10 - result " + std::to_string(i) + " differs for query (" + std::to_string(counter) + "): \n\"" + sql + "\"\n",
+                      evaluator.results[i].number, expectedResults[i].number);
+    }
+
+    ++counter;
   }
 }
 
@@ -770,7 +909,7 @@ static const std::vector<SqlModeTestEntry> sqlModeTestQueries = {
   // IGNORE_SPACE
   { "create table count (id int)", "", 0 },
   { "create table count(id int)", "", 1 },
-  { "create table count (id int)", "IGNORE_SPACE", 1 },
+  { "create table count (id int)", "IGNORE_SPACE", 2 },
   { "create table count(id int)", "IGNORE_SPACE", 1 },
   { "create table xxx (id int)", "", 0 },
   { "create table xxx(id int)", "", 0 },
@@ -778,8 +917,9 @@ static const std::vector<SqlModeTestEntry> sqlModeTestQueries = {
   { "create table xxx(id int)", "IGNORE_SPACE", 0 },
 
   // ANSI_QUOTES
-  { "select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "", 0 }, // Double quoted text concatenated + alias.
-  { "select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "ANSI_QUOTES", 1 }, // column ref + alias + invalid single quoted text.
+  { "select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "", 0 }, // Double + single quoted text concatenated.
+  { "select \"abc\" \"def\" as 'ghi\\n\\Z\\z'", "", 0 }, // Double quoted text concatenated + alias.
+  { "select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "ANSI_QUOTES", 2 }, // column ref + alias + invalid single quoted text.
   
   // PIPES_AS_CONCAT
   { "select \"abc\" || \"def\"", "", 0 },
@@ -796,32 +936,39 @@ static const std::vector<SqlModeTestEntry> sqlModeTestQueries = {
   // TODO: add tests for sql modes that are synonyms for a combination of the base modes.
 };
 
-static const std::vector<TokenVector> sqlModeTestResults = {
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_NAME_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_NAME_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_NAME_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_NAME_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_NAME_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_NAME_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_NAME_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_NAME_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(DOUBLE_QUOTED_TEXT)(SINGLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (ANTLR3_TOKEN_INVALID)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LOGICAL_OR_OPERATOR)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(CONCAT_PIPES_SYMBOL)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(BETWEEN_SYMBOL)(INT_NUMBER)(MINUS_OPERATOR)(INT_NUMBER)(AND_SYMBOL)(INT_NUMBER)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BETWEEN_SYMBOL)(NOT2_SYMBOL)(INT_NUMBER)(MINUS_OPERATOR)(INT_NUMBER)(AND_SYMBOL)(INT_NUMBER)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (ANTLR3_TOKEN_INVALID)(ANTLR3_TOKEN_EOF),
+using P = MySQLParser;
+
+static const std::vector<std::vector<int>> sqlModeTestResults = {
+  { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::IDENTIFIER, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
+  { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::COUNT_SYMBOL, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
+  { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
+  { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::COUNT_SYMBOL, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
+  { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::IDENTIFIER, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
+  { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::IDENTIFIER, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
+  { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::IDENTIFIER, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
+  { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::IDENTIFIER, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
+
+  { P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::DOUBLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT, Token::EOF },
+  { P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::DOUBLE_QUOTED_TEXT, P::AS_SYMBOL, P::SINGLE_QUOTED_TEXT, Token::EOF },
+  { P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::DOUBLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT, Token::EOF },
+
+  { P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::LOGICAL_OR_OPERATOR, P::DOUBLE_QUOTED_TEXT, Token::EOF },
+  { P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::CONCAT_PIPES_SYMBOL, P::DOUBLE_QUOTED_TEXT, Token::EOF },
+
+  { P::SELECT_SYMBOL, P::NOT_SYMBOL, P::INT_NUMBER, P::BETWEEN_SYMBOL, P::MINUS_OPERATOR, P::INT_NUMBER, P::AND_SYMBOL, P::INT_NUMBER, Token::EOF },
+  { P::SELECT_SYMBOL, P::NOT2_SYMBOL, P::INT_NUMBER, P::BETWEEN_SYMBOL, P::MINUS_OPERATOR, P::INT_NUMBER, P::AND_SYMBOL, P::INT_NUMBER, Token::EOF },
+
+  { P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, Token::EOF },
+  { P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::IDENTIFIER, Token::EOF },
 };
 
 TEST_FUNCTION(30)
 {
   for (size_t i = 0; i < sqlModeTestQueries.size(); i++)
-    if (!parse_and_compare(sqlModeTestQueries[i].query, 50610, sqlModeTestQueries[i].sqlMode,
-      _charsets, sqlModeTestResults[i], sqlModeTestQueries[i].errors))
+    if (!parseAndCompare(sqlModeTestQueries[i].query, 50610, sqlModeTestQueries[i].sqlMode,
+      sqlModeTestResults[i], sqlModeTestQueries[i].errors))
     {
-      fail("SQL mode test - query failed: " + sqlModeTestQueries[i].query);
+      fail("30." + std::to_string(i) + ": SQL mode test - query failed: " + sqlModeTestQueries[i].query);
     }
 }
 
@@ -830,15 +977,21 @@ TEST_FUNCTION(30)
  */
 TEST_FUNCTION(35)
 {
-  std::string sql = "select \"abc\" \"def\" 'ghi''\\n\\z'";
+  class TestListener : public MySQLParserBaseListener {
+  public:
+    std::string text;
 
-  MySQLRecognizer recognizer(50610, "", _charsets);
-  recognizer.parse(sql.c_str(), sql.size(), true, MySQLParseUnit::PuGeneric);
-  ensure_equals("35.1 String concatenation", recognizer.error_info().size(), 0U);
-  
-  MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
-  ensure("35.2 String concatenation", walker.advanceToType(STRING_TOKEN, true));
-  ensure_equals("35.3 String concatenation", walker.tokenText(), "abcdefghi'\nz");
+    virtual void exitString_literal(MySQLParser::String_literalContext *ctx) override
+    {
+      text = MySQLParser::getText(ctx, true);
+    }
+
+  };
+
+  ensure_equals("35.1 String concatenation", parse("select \"abc\" \"def\" 'ghi''\\n\\z'", 50610, ""), 0U);
+  TestListener listener;
+  tree::ParseTreeWalker::DEFAULT.walk(&listener, _lastParseTree);
+  ensure_equals("35.2 String concatenation", listener.text, "abcdefghi'\nz");
 }
 
 struct VersionTestData
@@ -855,21 +1008,21 @@ struct VersionTestData
 
 };
 
-const std::vector<VersionTestData> versionTestResults = list_of
-  (VersionTestData(50100, "grant all privileges on a to mike", 0U))
-  (VersionTestData(50100, "grant all privileges on a to mike identified by 'blah'", 0U))
-  (VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U))
-  (VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U))
-  (VersionTestData(50500, "grant all privileges on a to mike identified by password 'blah'", 0U))
-  (VersionTestData(50710, "grant all privileges on a to mike identified by password 'blah'", 0U))
-  (VersionTestData(50100, "grant select on *.* to mike identified with 'blah'", 1U))
-  (VersionTestData(50600, "grant select on *.* to mike identified with 'blah'", 0U))
-  (VersionTestData(50100, "grant select on *.* to mike identified with blah as 'blubb'", 1U))
-  (VersionTestData(50600, "grant select on *.* to mike identified with blah as 'blubb'", 0U))
-  (VersionTestData(50100, "grant select on *.* to mike identified with blah by 'blubb'", 1U))
-  (VersionTestData(50600, "grant select on *.* to mike identified with blah by 'blubb'", 1U))
-  (VersionTestData(50706, "grant select on *.* to mike identified with blah by 'blubb'", 0U))
-;
+const std::vector<VersionTestData> versionTestResults = {
+  VersionTestData(50100, "grant all privileges on a to mike", 0U),
+  VersionTestData(50100, "grant all privileges on a to mike identified by 'blah'", 0U),
+  VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U),
+  VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U),
+  VersionTestData(50500, "grant all privileges on a to mike identified by password 'blah'", 0U),
+  VersionTestData(50710, "grant all privileges on a to mike identified by password 'blah'", 0U),
+  VersionTestData(50100, "grant select on *.* to mike identified with 'blah'", 2U),
+  VersionTestData(50600, "grant select on *.* to mike identified with 'blah'", 0U),
+  VersionTestData(50100, "grant select on *.* to mike identified with blah as 'blubb'", 2U),
+  VersionTestData(50600, "grant select on *.* to mike identified with blah as 'blubb'", 0U),
+  VersionTestData(50100, "grant select on *.* to mike identified with blah by 'blubb'", 2U),
+  VersionTestData(50600, "grant select on *.* to mike identified with blah by 'blubb'", 1U),
+  VersionTestData(50706, "grant select on *.* to mike identified with blah by 'blubb'", 0U)
+};
 
 // TODO: create tests for all server version dependent features.
 // Will be obsolete if we support versions in the statements test file (or similar file).
@@ -877,17 +1030,10 @@ const std::vector<VersionTestData> versionTestResults = list_of
 TEST_FUNCTION(40)
 {
   // Version dependent parts of GRANT.
-  MySQLRecognizer recognizer(50100, "", _charsets);
   for (size_t i = 0; i < versionTestResults.size(); ++i)
   {
-    recognizer.set_server_version(versionTestResults[i].version);
-    recognizer.parse(versionTestResults[i].sql.c_str(), versionTestResults[i].sql.size(), true, MySQLParseUnit::PuGeneric);
-    if (versionTestResults[i].errorCount != recognizer.error_info().size())
-    {
-      std::stringstream ss;
-      ss << "40." << i << " grant";
-      ensure_equals(ss.str(), recognizer.error_info().size(), versionTestResults[i].errorCount);
-    }
+    ensure_equals("40." + std::to_string(i) + " grant",
+      parse(versionTestResults[i].sql, versionTestResults[i].version, ""), versionTestResults[i].errorCount);
   }
 }
 
