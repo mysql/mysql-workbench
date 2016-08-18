@@ -14043,7 +14043,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Need to copy some binaries manually. A copy build phase won't work.\n\n# This dylib is part of a plugin framework, but can only be used directly.\ncp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Frameworks/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Frameworks/\n\n# The test binary must be in the MacOS folder to find its resource paths.\ncp ${BUILT_PRODUCTS_DIR}/wbtests ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/";
+			shellScript = "# Need to copy some binaries manually. A copy build phase won't work.\n\n# This dylib is part of a plugin framework, but can only be used directly.\ncp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Frameworks/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Frameworks/\n\n# The test binary must be in the MacOS folder to find its resource paths (when run outside of XCode).\ncp ${BUILT_PRODUCTS_DIR}/wbtests ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n\n# When running the test from XCode however the test binary's location cannot be changed and we have to\n# manually copy some needed libraries.\ncp ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Frameworks/libantlr4-runtime.dylib ${BUILT_PRODUCTS_DIR}/";
 			showEnvVarsInLog = 0;
 		};
 		27BDFA3A184366000028B97E /* Regenerate ANTLR parsers if necessary */ = {
