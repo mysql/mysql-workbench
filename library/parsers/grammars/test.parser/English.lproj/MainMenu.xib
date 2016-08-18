@@ -764,7 +764,7 @@ DQ
                     <constraint firstItem="644" firstAttribute="leading" secondItem="648" secondAttribute="leading" id="wrk-oO-Qqw"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="-259.5" y="-214"/>
+            <point key="canvasLocation" x="-322.5" y="-436"/>
         </window>
         <customObject id="494" customClass="mysql_parserAppDelegate">
             <connections>

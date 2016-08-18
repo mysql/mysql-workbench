@@ -77,48 +77,48 @@ query:
 
 statement:
     // DDL
-    alter_statement
-    | create_statement
-    | drop_statement
-    | rename_table_statement
-    | truncate_table_statement
+    alterStatement
+    | createStatement
+    | dropStatement
+    | renameTableStatement
+    | truncateTableStatement
 
     // DML
-    | call_statement
-    | delete_statement
-    | do_statement
-    | handler_statement
-    | insert_statement
-    | load_statement
-    | replace_statement
-    | select_statement
-    | update_statement
+    | callStatement
+    | deleteStatement
+    | doStatement
+    | handlerStatement
+    | insertStatement
+    | loadStatement
+    | replaceStatement
+    | selectStatement
+    | updateStatement
 
-    | transaction_or_locking_statement
+    | transactionOrLockingStatement
 
-    | replication_statement
+    | replicationStatement
 
-    | prepared_statement
+    | preparedStatement
 
     // Database administration
-    | account_management_statement
-    | table_administration_statement
-    | install_uninstall_statment
-    | set_statement // SET PASSWORD is handled in account_management_statement.
-    | show_statement
-    | other_administrative_statement
+    | accountManagementStatement
+    | tableAdministrationStatement
+    | installUninstallStatment
+    | setStatement // SET PASSWORD is handled in accountManagementStatement.
+    | showStatement
+    | otherAdministrativeStatement
 
     // MySQL utilitity statements
-    | utility_statement
+    | utilityStatement
 
-    | {serverVersion >= 50604}? get_diagnostics
-    | {serverVersion >= 50500}? signal_statement
-    | {serverVersion >= 50500}? resignal_statement
+    | {serverVersion >= 50604}? getDiagnostics
+    | {serverVersion >= 50500}? signalStatement
+    | {serverVersion >= 50500}? resignalStatement
 ;
 
 //----------------- DDL statements -----------------------------------------------------------------
 
-alter_statement:
+alterStatement:
   ALTER_SYMBOL
   (
     alter_table
@@ -325,7 +325,7 @@ alter_view:
     (ALGORITHM_SYMBOL EQUAL_OPERATOR (UNDEFINED_SYMBOL | MERGE_SYMBOL | TEMPTABLE_SYMBOL))?
         definer_clause?
         (SQL_SYMBOL SECURITY_SYMBOL (DEFINER_SYMBOL | INVOKER_SYMBOL))?
-        VIEW_SYMBOL view_ref identifier_list_with_parentheses? AS_SYMBOL select_statement
+        VIEW_SYMBOL view_ref identifier_list_with_parentheses? AS_SYMBOL selectStatement
         (WITH_SYMBOL (CASCADED_SYMBOL | LOCAL_SYMBOL)? CHECK_SYMBOL OPTION_SYMBOL)?
 ;
 
@@ -334,7 +334,7 @@ alter_view:
 // This is an optimized collector rule for all create statements so that we don't have disambiguities.
 // In addition we have rules not referenced anywhere to parse individual create statements. These are used
 // in object editors when parsing create statements only.
-create_statement:
+createStatement:
     CREATE_SYMBOL
     (
         create_table_tail
@@ -541,7 +541,7 @@ table_creation_source: // create3 in sql_yacc.yy
 
 // The select statement allowed for CREATE TABLE (and certain others) differs from the standard select statement.
 create_select:
-    SELECT_SYMBOL select_option* select_item_list table_expression
+    SELECT_SYMBOL select_option* select_item_list tableExpression
 ;
 
 create_tablespace: // For external use only. Don't reference this in the normal grammar.
@@ -589,7 +589,7 @@ create_view: // For external use only. Don't reference this in the normal gramma
 create_view_tail:
     (SQL_SYMBOL SECURITY_SYMBOL (DEFINER_SYMBOL | INVOKER_SYMBOL))?
         VIEW_SYMBOL view_name identifier_list_with_parentheses?
-        AS_SYMBOL select_statement
+        AS_SYMBOL selectStatement
         (WITH_SYMBOL (CASCADED_SYMBOL | LOCAL_SYMBOL)? CHECK_SYMBOL OPTION_SYMBOL)?
 ;
 
@@ -604,7 +604,7 @@ view_algorithm:
 
 //--------------------------------------------------------------------------------------------------
 
-drop_statement:
+dropStatement:
     DROP_SYMBOL
     (
         DATABASE_SYMBOL if_exists? schema_ref
@@ -630,24 +630,24 @@ drop_logfile_group_option:
 
 //--------------------------------------------------------------------------------------------------
 
-rename_table_statement:
+renameTableStatement:
     RENAME_SYMBOL (TABLE_SYMBOL | TABLES_SYMBOL)
         table_ref TO_SYMBOL table_name (COMMA_SYMBOL table_ref TO_SYMBOL table_name)*
 ;
 
 //--------------------------------------------------------------------------------------------------
 
-truncate_table_statement:
+truncateTableStatement:
     TRUNCATE_SYMBOL TABLE_SYMBOL? table_ref
 ;
 
 //--------------- DML statements -------------------------------------------------------------------
 
-call_statement:
+callStatement:
     CALL_SYMBOL procedure_ref (OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL)?
 ;
 
-delete_statement:
+deleteStatement:
     DELETE_SYMBOL delete_option*
         (
             FROM_SYMBOL
@@ -668,7 +668,7 @@ delete_option:
     LOW_PRIORITY_SYMBOL | QUICK_SYMBOL | IGNORE_SYMBOL
 ;
 
-do_statement:
+doStatement:
     DO_SYMBOL
     (
         {serverVersion < 50709}? expression_list
@@ -676,7 +676,7 @@ do_statement:
     )
 ;
 
-handler_statement:
+handlerStatement:
     HANDLER_SYMBOL
     (
         table_ref OPEN_SYMBOL (AS_SYMBOL? identifier)?
@@ -700,7 +700,7 @@ handler_read_or_scan:
 
 //--------------------------------------------------------------------------------------------------
 
-insert_statement:
+insertStatement:
     INSERT_SYMBOL insert_lock_option? IGNORE_SYMBOL? INTO_SYMBOL? table_ref use_partition?
         insert_field_spec duplicate_key_update?
 ;
@@ -715,7 +715,7 @@ insert_field_spec:
     (OPEN_PAR_SYMBOL fields? CLOSE_PAR_SYMBOL)?
         (
             insert_values
-            | insert_query_expression
+            | insertQueryExpression
         )
     | SET_SYMBOL column_assignment_list_with_default
 ;
@@ -728,7 +728,7 @@ insert_values:
     (VALUES_SYMBOL | VALUE_SYMBOL) insert_value_list
 ;
 
-insert_query_expression:
+insertQueryExpression:
     create_select union_clause?
     | OPEN_PAR_SYMBOL create_select CLOSE_PAR_SYMBOL union_or_order_by_or_limit?
 ;
@@ -747,7 +747,7 @@ duplicate_key_update:
 
 //--------------------------------------------------------------------------------------------------
 
-load_statement:
+loadStatement:
     LOAD_SYMBOL data_or_xml (LOW_PRIORITY_SYMBOL | CONCURRENT_SYMBOL)? LOCAL_SYMBOL? INFILE_SYMBOL string_literal
         (REPLACE_SYMBOL | IGNORE_SYMBOL)? INTO_SYMBOL TABLE_SYMBOL table_ref
         use_partition? charset_clause?
@@ -779,14 +779,14 @@ field_or_variable_list:
 
 //--------------------------------------------------------------------------------------------------
 
-replace_statement:
+replaceStatement:
     REPLACE_SYMBOL (LOW_PRIORITY_SYMBOL | DELAYED_SYMBOL)? INTO_SYMBOL? table_ref
         use_partition? insert_field_spec
 ;
 
 //--------------------------------------------------------------------------------------------------
 
-select_statement:
+selectStatement:
     SELECT_SYMBOL select_part2 union_clause?
     | OPEN_PAR_SYMBOL select_paren CLOSE_PAR_SYMBOL union_or_order_by_or_limit?
 ;
@@ -810,7 +810,7 @@ select_part2:
         select_lock_type?
 ;
 
-table_expression:
+tableExpression:
     from_clause?
     where_clause?
     group_by_clause?
@@ -956,7 +956,7 @@ join:
 ;
 
 table_factor:
-    SELECT_SYMBOL select_option* select_item_list table_expression
+    SELECT_SYMBOL select_option* select_item_list tableExpression
     | OPEN_PAR_SYMBOL select_table_factor_union CLOSE_PAR_SYMBOL table_alias?
     | table_ref use_partition? table_alias? index_hint_list?
 ;
@@ -966,12 +966,12 @@ select_table_factor_union:
 ;
 
 query_specification:
-    SELECT_SYMBOL select_part2_derived table_expression
+    SELECT_SYMBOL select_part2_derived tableExpression
     | OPEN_PAR_SYMBOL select_paren_derived CLOSE_PAR_SYMBOL order_by_or_limit?
 ;
 
 select_paren_derived:
-    SELECT_SYMBOL select_part2_derived table_expression
+    SELECT_SYMBOL select_part2_derived tableExpression
     | OPEN_PAR_SYMBOL select_paren_derived CLOSE_PAR_SYMBOL
 ;
 
@@ -991,7 +991,7 @@ join_table: // Like the same named rule in sql_yacc.yy but with removed left rec
 ;
 
 union_clause:
-  UNION_SYMBOL union_option? select_statement
+  UNION_SYMBOL union_option? selectStatement
  ;
 
 union_option:
@@ -1047,14 +1047,14 @@ index_list_element:
 
 //--------------------------------------------------------------------------------------------------
 
-update_statement:
+updateStatement:
     UPDATE_SYMBOL LOW_PRIORITY_SYMBOL? IGNORE_SYMBOL? join_table_list
         SET_SYMBOL column_assignment_list_with_default where_clause? order_clause? simple_limit_clause?
 ;
 
 //--------------------------------------------------------------------------------------------------
 
-transaction_or_locking_statement:
+transactionOrLockingStatement:
     transaction_statement
     | savepoint_statement
     | lock_statement
@@ -1070,7 +1070,7 @@ transaction_statement:
             | TO_SYMBOL SAVEPOINT_SYMBOL? identifier // Belongs to the savepoint_statement, but this way we don't need a predicate.
         )
     // In order to avoid needing a predicate to solve ambiquity between this and general SET statements with global/session variables the following
-    // alternative is moved to the set_statement rule.
+    // alternative is moved to the setStatement rule.
     //| SET_SYMBOL option_type? TRANSACTION_SYMBOL set_transaction_characteristic (COMMA_SYMBOL set_transaction_characteristic)*
 ;
 
@@ -1137,7 +1137,7 @@ xid:
 
 //--------------------------------------------------------------------------------------------------
 
-replication_statement:
+replicationStatement:
     PURGE_SYMBOL (BINARY_SYMBOL | MASTER_SYMBOL) LOGS_SYMBOL (TO_SYMBOL string_literal | BEFORE_SYMBOL expr)
     | change_master
     | {serverVersion >= 50700}? change_replication
@@ -1266,7 +1266,7 @@ group_replication:
 
 //--------------------------------------------------------------------------------------------------
 
-prepared_statement:
+preparedStatement:
     PREPARE_SYMBOL identifier FROM_SYMBOL (string_literal | user_variable)
     | execute_statement
     | (DEALLOCATE_SYMBOL | DROP_SYMBOL) PREPARE_SYMBOL identifier
@@ -1282,7 +1282,7 @@ execute_var_list:
 
 //--------------------------------------------------------------------------------------------------
 
-account_management_statement:
+accountManagementStatement:
     {serverVersion >= 50606}? alter_user
     | create_user
     | drop_user
@@ -1442,7 +1442,7 @@ grant_option:
 
 //--------------------------------------------------------------------------------------------------
 
-table_administration_statement:
+tableAdministrationStatement:
     ANALYZE_SYMBOL no_write_to_bin_log? TABLE_SYMBOL table_ref_list
     | CHECK_SYMBOL TABLE_SYMBOL table_ref_list check_option*
     | CHECKSUM_SYMBOL TABLE_SYMBOL table_ref_list (QUICK_SYMBOL | EXTENDED_SYMBOL)?
@@ -1463,14 +1463,14 @@ repair_option:
 
 //--------------------------------------------------------------------------------------------------
 
-install_uninstall_statment:
+installUninstallStatment:
     INSTALL_SYMBOL PLUGIN_SYMBOL identifier SONAME_SYMBOL string_literal
     | UNINSTALL_SYMBOL PLUGIN_SYMBOL identifier
 ;
 
 //--------------------------------------------------------------------------------------------------
 
-set_statement:
+setStatement:
     SET_SYMBOL
         (
              option_type? TRANSACTION_SYMBOL set_transaction_characteristic
@@ -1488,17 +1488,17 @@ option_value_no_option_type:
             equal expr
             | charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
         )
-    | variable_name equal set_expression_or_default
+    | variable_name equal setExpressionOrDefault
     | user_variable equal expr
-    | system_variable equal set_expression_or_default
+    | system_variable equal setExpressionOrDefault
     | charset_clause
 ;
 
 option_value_following_option_type:
-    variable_name equal set_expression_or_default
+    variable_name equal setExpressionOrDefault
 ;
 
-set_expression_or_default:
+setExpressionOrDefault:
     expr
     | (DEFAULT_SYMBOL | ON_SYMBOL | ALL_SYMBOL | BINARY_SYMBOL)
 ;
@@ -1508,13 +1508,13 @@ option_value_list:
 ;
 
 option_value:
-    option_type variable_name equal set_expression_or_default
+    option_type variable_name equal setExpressionOrDefault
     | option_value_no_option_type
 ;
 
 //--------------------------------------------------------------------------------------------------
 
-show_statement:
+showStatement:
     SHOW_SYMBOL
     (
         {serverVersion < 50700}? AUTHORS_SYMBOL
@@ -1591,7 +1591,7 @@ profile_type:
 
 //--------------------------------------------------------------------------------------------------
 
-other_administrative_statement:
+otherAdministrativeStatement:
     BINLOG_SYMBOL string_literal
     | CACHE_SYMBOL INDEX_SYMBOL key_cache_list_or_parts IN_SYMBOL (identifier | DEFAULT_SYMBOL)
     | FLUSH_SYMBOL no_write_to_bin_log?
@@ -1677,7 +1677,7 @@ reset_option:
 
 //--------------------------------------------------------------------------------------------------
 
-utility_statement:
+utilityStatement:
     describe_command
         (
             table_ref (text_string | identifier)?
@@ -1700,13 +1700,13 @@ describe_command:
 
 // Before server version 5.6 only select statements were explainable.
 explainable_statement:
-    select_statement
+    selectStatement
     | {serverVersion >= 50603}?
         (
-            delete_statement
-            | insert_statement
-            | replace_statement
-            | update_statement
+            deleteStatement
+            | insertStatement
+            | replaceStatement
+            | updateStatement
         )
     | {serverVersion >= 50700}? FOR_SYMBOL CONNECTION_SYMBOL real_ulong_number
 ;
@@ -1726,10 +1726,10 @@ expr:
 ;
 
 bool_pri:
-    bool_pri IS_SYMBOL not_rule? NULL_SYMBOL                                                # primaryExprIsNull
+    predicate                                                                               # primaryExprPredicate
+    | bool_pri IS_SYMBOL not_rule? NULL_SYMBOL                                              # primaryExprIsNull
     | bool_pri comp_op predicate                                                            # primaryExprCompare
     | bool_pri comp_op (ALL_SYMBOL | ANY_SYMBOL) OPEN_PAR_SYMBOL subselect CLOSE_PAR_SYMBOL # primaryExprAllAny
-    | predicate                                                                             # primaryExprPredicate
 ;
 
 comp_op:
@@ -1755,16 +1755,16 @@ predicateOperations:
 ;
 
 bit_expr:
-    bit_expr BITWISE_XOR_OPERATOR bit_expr                                         # bitExprXor
+    simple_expr
+    | bit_expr op = BITWISE_XOR_OPERATOR bit_expr
     | bit_expr op = (
         MULT_OPERATOR | DIV_OPERATOR | MOD_OPERATOR | DIV_SYMBOL | MOD_SYMBOL
-    ) bit_expr                                                                     # bitExprMult
-    | bit_expr op = (PLUS_OPERATOR | MINUS_OPERATOR) bit_expr                      # bitExprAdd
-    | bit_expr op = (PLUS_OPERATOR | MINUS_OPERATOR) INTERVAL_SYMBOL expr interval # bitExprInterval
-    | bit_expr op = (SHIFT_LEFT_OPERATOR | SHIFT_RIGHT_OPERATOR) bit_expr          # bitExprShift
-    | bit_expr BITWISE_AND_OPERATOR bit_expr                                       # bitExprAnd
-    | bit_expr BITWISE_OR_OPERATOR bit_expr                                        # bitExprOr
-    | simple_expr                                                                  # bitExprSimple
+    ) bit_expr
+    | bit_expr op = (PLUS_OPERATOR | MINUS_OPERATOR) bit_expr
+    | bit_expr op = (PLUS_OPERATOR | MINUS_OPERATOR) INTERVAL_SYMBOL expr interval
+    | bit_expr op = (SHIFT_LEFT_OPERATOR | SHIFT_RIGHT_OPERATOR) bit_expr
+    | bit_expr op = BITWISE_AND_OPERATOR bit_expr
+    | bit_expr op = BITWISE_OR_OPERATOR bit_expr
 ;
 
 simple_expr:
@@ -1787,7 +1787,7 @@ simple_expr:
         OPEN_PAR_SYMBOL bit_expr fulltext_options CLOSE_PAR_SYMBOL                      # simpleExprMatch
     | BINARY_SYMBOL simple_expr                                                         # simpleExprBinary
     | CAST_SYMBOL OPEN_PAR_SYMBOL expr AS_SYMBOL cast_type CLOSE_PAR_SYMBOL             # simpleExprCast
-    | CASE_SYMBOL expr?  (when_expression then_expression)+ else_expression? END_SYMBOL # simpleExprCase
+    | CASE_SYMBOL expr? (whenExpression thenExpression)+ elseExpression? END_SYMBOL     # simpleExprCase
     | CONVERT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL cast_type CLOSE_PAR_SYMBOL       # simpleExprConvert
     | CONVERT_SYMBOL OPEN_PAR_SYMBOL expr USING_SYMBOL charset_name CLOSE_PAR_SYMBOL    # simpleExprConvertUsing
     | DEFAULT_SYMBOL OPEN_PAR_SYMBOL simple_ident CLOSE_PAR_SYMBOL                      # simpleExprDefault
@@ -1975,10 +1975,10 @@ function_call:
 ;
 
 aliased_expression_list:
-    aliased_expr (COMMA_SYMBOL aliased_expr)*
+    aliasedExpression (COMMA_SYMBOL aliasedExpression)*
 ;
 
-aliased_expr:
+aliasedExpression:
     expr select_alias?
 ;
 
@@ -2002,16 +2002,16 @@ variable_name:
     | DEFAULT_SYMBOL dot_identifier
 ;
 
-when_expression:
+whenExpression:
     WHEN_SYMBOL expr
 ;
 
-then_expression:
+thenExpression:
     THEN_SYMBOL expr
 ;
 
-else_expression:
-    ELSE_SYMBOL expr
+elseExpression:
+   ELSE_SYMBOL expr
 ;
 
 cast_type:
@@ -2132,10 +2132,10 @@ if_statement:
 ;
 
 if_body:
-    expr then_statement (ELSEIF_SYMBOL if_body | ELSE_SYMBOL compound_statement_list)?
+    expr thenStatement (ELSEIF_SYMBOL if_body | ELSE_SYMBOL compound_statement_list)?
 ;
 
-then_statement:
+thenStatement:
     THEN_SYMBOL compound_statement_list
 ;
 
@@ -2143,9 +2143,8 @@ compound_statement_list:
     (compound_statement SEMICOLON_SYMBOL)+
 ;
 
-// CASE rule solely for stored programs. There's another variant (case_expression) used in (primary) exprs.
 case_statement:
-    CASE_SYMBOL expr? (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
+    CASE_SYMBOL expr? (whenExpression thenStatement)+ else_statement? END_SYMBOL CASE_SYMBOL
 ;
 
 else_statement:
@@ -2240,7 +2239,7 @@ handler_condition:
 ;
 
 cursor_declaration:
-    identifier CURSOR_SYMBOL FOR_SYMBOL select_statement
+    identifier CURSOR_SYMBOL FOR_SYMBOL selectStatement
 ;
 
 iterate_statement:
@@ -2251,7 +2250,7 @@ leave_statement:
     LEAVE_SYMBOL label_identifier
 ;
 
-get_diagnostics:
+getDiagnostics:
     GET_SYMBOL
     (
         CURRENT_SYMBOL
@@ -2293,11 +2292,11 @@ signal_information_item_name:
     | MYSQL_ERRNO_SYMBOL
 ;
 
-signal_statement:
+signalStatement:
     SIGNAL_SYMBOL (identifier | sqlstate) (SET_SYMBOL signal_information_item (COMMA_SYMBOL signal_information_item)*)?
 ;
 
-resignal_statement:
+resignalStatement:
     RESIGNAL_SYMBOL (SQLSTATE_SYMBOL VALUE_SYMBOL? text_or_identifier)?
         (SET_SYMBOL signal_information_item (COMMA_SYMBOL signal_information_item)*)?
 ;
@@ -2377,7 +2376,7 @@ gcol_attribute:
 
 /* Internal to server.
 parse_gcol_expr:
-    PARSE_GCOL_EXPR_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    PARSE_GCOL_expr_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
 ;
 */
 
@@ -2597,7 +2596,7 @@ partitioning:
         SUBPARTITION_SYMBOL BY_SYMBOL LINEAR_SYMBOL?
         (
             (
-                 HASH_SYMBOL OPEN_PAR_SYMBOL bit_expr CLOSE_PAR_SYMBOL
+                HASH_SYMBOL OPEN_PAR_SYMBOL bit_expr CLOSE_PAR_SYMBOL
                 | KEY_SYMBOL partition_key_algorithm? identifier_list_with_parentheses
             )
             (SUBPARTITIONS_SYMBOL real_ulong_number)?

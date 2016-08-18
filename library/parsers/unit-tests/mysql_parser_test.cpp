@@ -219,7 +219,6 @@ TEST_FUNCTION(10)
       if (parse(std::string(sql.c_str() + range.first, range.second), 50610, "ANSI_QUOTES") > 0U)
       {
         std::string query(sql.c_str() + range.first, range.second);
-        parse(query, 50610, "ANSI_QUOTES");
         ensure("This query failed to parse:\n" + query, false);
       }
     }
@@ -476,9 +475,9 @@ TEST_FUNCTION(20)
 
 void collectTokenTypes(Ref<RuleContext> context, std::vector<int> &list)
 {
-  for (size_t index = 0; index < context->getChildCount(); ++index)
+  for (size_t index = 0; index < context->children.size(); ++index)
   {
-    Ref<tree::ParseTree> child = context->getChild(index);
+    Ref<tree::Tree> child = context->children[index];
     if (antlrcpp::is<RuleContext>(child))
       collectTokenTypes(std::dynamic_pointer_cast<RuleContext>(child), list);
     else {
@@ -660,58 +659,6 @@ public:
     return visit(context->bit_expr().get());
   }
 
-  template <class Op>
-  Any evalBitExpression(MySQLParser::Bit_exprContext *context, Op op)
-  {
-    // Always in the form "bit_expr op bit_expr".
-    EvalValue left = visit(context->children[0].get());
-    EvalValue right = visit(context->children[2].get());
-
-    if (left.isNullType() || right.isNullType())
-      return EvalValue::fromNull();
-
-    return EvalValue::fromNumber(op(left.number, right.number));
-  }
-  
-  virtual Any visitBitExprXor(MySQLParser::BitExprXorContext *context) override
-  {
-    return evalBitExpression(context, std::bit_xor<int>());
-  }
-  
-  virtual Any visitBitExprMult(MySQLParser::BitExprMultContext *context) override
-  {
-    switch (context->op->getType())
-    {
-      case MySQLLexer::MULT_OPERATOR:
-        return evalBitExpression(context, std::multiplies<double>());
-      case MySQLLexer::DIV_OPERATOR:
-        return evalBitExpression(context, std::divides<double>());
-      case MySQLLexer::DIV_SYMBOL:
-        return evalBitExpression(context, std::divides<long long>());
-      case MySQLLexer::MOD_OPERATOR:
-      case MySQLLexer::MOD_SYMBOL:
-      {
-        EvalValue left = visit(context->bit_expr(0).get());
-        EvalValue right = visit(context->bit_expr(1).get());
-
-        if (left.isNullType() || right.isNullType())
-          return EvalValue::fromNull();
-
-        if (left.type == EvalValue::Int && right.type == EvalValue::Int)
-          return EvalValue::fromInt((long long)left.number % (long long)right.number);
-        return EvalValue::fromNumber(fmod(left.number, right.number));
-      }
-    }
-    return EvalValue::fromNull();
-  }
-
-  virtual Any visitBitExprAdd(MySQLParser::BitExprAddContext *context) override
-  {
-    if (context->op->getType() == MySQLLexer::PLUS_OPERATOR)
-      return evalBitExpression(context, std::plus<double>());
-    return evalBitExpression(context, std::minus<double>());
-  }
-
   static unsigned long long shiftLeftWithOverflow(double l, double r)
   {
     // Shift with overflow if r is larger than the data type size of unsigned long long (64)
@@ -721,21 +668,48 @@ public:
     return bits.to_ullong();
   }
 
-  virtual Any visitBitExprShift(MySQLParser::BitExprShiftContext *context) override
+  virtual Any visitBit_expr(MySQLParser::Bit_exprContext *context) override
   {
-    if (context->op->getType() == MySQLLexer::SHIFT_LEFT_OPERATOR)
-      return evalBitExpression(context, [](double l, double r) { return shiftLeftWithOverflow(l, r); });
-    return evalBitExpression(context, [](double l, double r) { return (unsigned long long)llround(l) >> (unsigned long long)llround(r); });
-  }
+    if (context->simple_expr() != nullptr)
+      return visit(context->simple_expr().get());
 
-  virtual Any visitBitExprAnd(MySQLParser::BitExprAndContext *context) override
-  {
-    return evalBitExpression(context, std::bit_and<int>());
-  }
+    EvalValue left = visit(context->bit_expr(0).get());
+    EvalValue right = visit(context->bit_expr(1).get());
 
-  virtual Any visitBitExprOr(MySQLParser::BitExprOrContext *context) override
-  {
-    return evalBitExpression(context, std::bit_or<int>());
+    if (left.isNullType() || right.isNullType())
+      return EvalValue::fromNull();
+      
+    switch (context->op->getType())
+    {
+      case MySQLLexer::BITWISE_OR_OPERATOR:
+        return EvalValue::fromNumber(llround(left.number) | llround(right.number));
+      case MySQLLexer::BITWISE_AND_OPERATOR:
+        return EvalValue::fromNumber(llround(left.number) & llround(right.number));
+      case MySQLLexer::BITWISE_XOR_OPERATOR:
+        return EvalValue::fromNumber(llround(left.number) ^ llround(right.number));
+      case MySQLLexer::SHIFT_LEFT_OPERATOR:
+        return EvalValue::fromNumber(shiftLeftWithOverflow(left.number, right.number));
+      case MySQLLexer::SHIFT_RIGHT_OPERATOR:
+        return EvalValue::fromNumber(llround(left.number) >> llround(right.number));
+      case MySQLLexer::PLUS_OPERATOR: // Not handling INTERVAL here for +/-.
+        return EvalValue::fromNumber(left.number + right.number);
+      case MySQLLexer::MINUS_OPERATOR:
+        return EvalValue::fromNumber(left.number - right.number);
+      case MySQLLexer::MULT_OPERATOR:
+        return EvalValue::fromNumber(left.number * right.number);
+      case MySQLLexer::DIV_OPERATOR:
+        return EvalValue::fromNumber(left.number / right.number);
+      case MySQLLexer::DIV_SYMBOL: // Integer div
+        return EvalValue::fromNumber(llround(left.number) / llround(right.number));
+      case MySQLLexer::MOD_OPERATOR:
+      case MySQLLexer::MOD_SYMBOL:
+      {
+        if (left.type == EvalValue::Int && right.type == EvalValue::Int)
+          return EvalValue::fromInt((long long)left.number % (long long)right.number);
+        return EvalValue::fromNumber(fmod(left.number, right.number));
+      }
+    }
+    return EvalValue::fromNull();
   }
 
   virtual Any visitExpression_list_with_parentheses(MySQLParser::Expression_list_with_parenthesesContext *context) override
@@ -828,32 +802,33 @@ TEST_FUNCTION(25)
     bool expectError = false;
     if (base::hasPrefix(line, "ERROR "))
       expectError = true;
-    ensure_equals("25.4 - error status is unexpected for query: \"\n" + sql + "\"\n", (parse(sql, 50630, "") == 0), !expectError);
 
-    if (expectError) // No results to compare in an error case.
-    {
-      ++counter;
-      --skip;
-      continue;
-    }
-
-    // Compare results if there was no error.
-    ensure("25.5 - invalid test file format", !std::getline(stream, line).eof());
     std::vector<EvalValue> expectedResults;
-    std::string temp;
-    std::stringstream stream(line);
-    while (stream >> temp)
+    if (!expectError) // No results to compare in an error case.
     {
-      if (base::same_string(temp, "true"))
-        expectedResults.push_back(EvalValue::fromBool(true));
-      if (base::same_string(temp, "false"))
-        expectedResults.push_back(EvalValue::fromBool(true));
-      if (base::same_string(temp, "null"))
-        expectedResults.push_back(EvalValue::fromNull());
-      expectedResults.push_back(EvalValue::fromNumber(std::atof(temp.c_str())));
+      ensure("25.5 - invalid test file format", !std::getline(stream, line).eof());
+      std::string temp;
+      std::stringstream stream(line);
+      while (stream >> temp)
+      {
+        if (base::same_string(temp, "true"))
+          expectedResults.push_back(EvalValue::fromBool(true));
+        if (base::same_string(temp, "false"))
+          expectedResults.push_back(EvalValue::fromBool(true));
+        if (base::same_string(temp, "null"))
+          expectedResults.push_back(EvalValue::fromNull());
+        expectedResults.push_back(EvalValue::fromNumber(std::atof(temp.c_str())));
+      }
     }
 
     if (--skip >= 0)
+    {
+      ++counter;
+      continue;
+    }
+
+    ensure_equals("25.4 - error status is unexpected for query (" + std::to_string(counter) + "): \n" + sql + "\n", (parse(sql, 50630, "") == 0), !expectError);
+    if (expectError)
     {
       ++counter;
       continue;

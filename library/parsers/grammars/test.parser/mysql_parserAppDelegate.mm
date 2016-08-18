@@ -61,6 +61,43 @@ NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 't
 
 static std::set<std::string> charsets = { "_utf8", "_ucs2", "_big5", "_latin2", "_ujis", "_binary", "_cp1250", "_latin1" };
 
+@interface mysql_parserAppDelegate () {
+  IBOutlet NSTextView *singleQueryText;
+  IBOutlet NSScrollView *singleQueryTextScrollView;
+  IBOutlet NSTextView *errorText;
+  IBOutlet NSTextView *output;
+  IBOutlet NSScrollView *outputScrollView;
+  IBOutlet NSTextField *pathEdit;
+  IBOutlet NSTextView *parseTreeView;
+
+  IBOutlet NSTextField *statusText;
+  IBOutlet NSTextView *errorQueryText;
+  IBOutlet NSButton *startStopButton;
+  IBOutlet NSTextField *progressLabel;
+  IBOutlet NSTextView *stepsList;
+
+  IBOutlet NSView *topView;
+
+  // For query to token conversion.
+  IBOutlet NSTextView *queryList;
+  IBOutlet NSTextView *tokenList;
+  IBOutlet NSTextField *conversionErrorText;
+  IBOutlet NSTextField *versionText;
+
+  IBOutlet NSButton *modeIgnoreSpaceButton;
+  IBOutlet NSButton *modeAnsiQuotesButton;
+  IBOutlet NSButton *modePipesAsConcatButton;
+  IBOutlet NSButton *modeHighNotPrecedenceButton;
+  IBOutlet NSButton *modeNoBackslashEscapeButton;
+
+  NSUInteger queryCount;
+  BOOL stopTests;
+  BOOL running;
+
+  NSTimeInterval lastDuration;
+}
+@end
+
 @implementation mysql_parserAppDelegate
 
 @synthesize window;
@@ -90,15 +127,16 @@ static std::set<std::string> charsets = { "_utf8", "_ucs2", "_big5", "_latin2", 
     singleQueryText.string = text;
 }
 
-std::string dumpTree(Ref<RuleContext> context, Parser &parser, const std::string &indentation)
+static size_t tokenCount = 0;
+
+std::string dumpTree(const Ref<RuleContext> &context, const dfa::Vocabulary &vocabulary, const std::string &indentation)
 {
   std::stringstream stream;
 
-  const dfa::Vocabulary &vocabulary = parser.getVocabulary();
-
-  for (size_t index = 0; index < context->getChildCount(); ++index)
+  Ref<ParserRuleContext> parserContext = std::dynamic_pointer_cast<ParserRuleContext>(context);
+  for (size_t index = 0; index < context->children.size(); ++index)
   {
-    Ref<tree::ParseTree> child = context->getChild(index);
+    Ref<tree::Tree> child = context->children[index];
     if (antlrcpp::is<RuleContext>(child)) {
       auto ruleContext = std::dynamic_pointer_cast<RuleContext>(child);
       if (antlrcpp::is<MySQLParser::String_literalContext>(child))
@@ -108,9 +146,14 @@ std::string dumpTree(Ref<RuleContext> context, Parser &parser, const std::string
           << interval.a << ".." << interval.b << ", string literal) " << MySQLParser::getText(ruleContext.get(), true) << std::endl;
       }
       else
-        stream << dumpTree(ruleContext, parser, indentation + "  ");
+      {
+        stream << dumpTree(ruleContext, vocabulary, indentation.size() < 100 ? indentation + " " : indentation);
+      }
     }
-    else {
+    else
+    {
+      ++tokenCount;
+
       // A terminal node.
       stream << indentation;
 
@@ -182,6 +225,8 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
             modes: (MySQLRecognizerCommon::SqlMode)sqlModes
      dumpToOutput: (BOOL)dump
 {
+  NSDate *start = [NSDate new];
+
   TestErrorListener errorListener;
 
   ANTLRInputStream input(query.UTF8String);
@@ -224,12 +269,17 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     tree = parser.query();
   }
 
+  lastDuration = -[start timeIntervalSinceNow];
+
   if (dump)
   {
+    std::string t = tree->getText();
     parseTreeView.string = [NSString stringWithUTF8String: tree->toStringTree(&parser).c_str()];
 
     Ref<RuleContext> context = std::dynamic_pointer_cast<RuleContext>(tree);
-    std::string text = dumpTree(context, parser, "");
+    std::string text = dumpTree(context, parser.getVocabulary(), "");
+    text = "Token count: " + std::to_string(tokenCount) + "\n" + text;
+    tokenCount = 0;
     NSString *utf8 = [NSString stringWithUTF8String: text.c_str()];
     if (utf8 == nil)
     {
@@ -249,16 +299,19 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   [defaults setObject: singleQueryText.string forKey: @"single-query"];
 
   last_error = "";
-  [errorText setString: @""];
+  errorText.string = @"";
+  [errorText setNeedsDisplay: YES];
+  output.string = @"";
+  [output setNeedsDisplay: YES];
+  parseTreeView.string = @"";
+  [parseTreeView setNeedsDisplay: YES];
 
-  NSDate *start = [NSDate new];
   int errorCount = [self parseQuery: singleQueryText.string
                             version: [self getServerVersion]
                               modes: [self getSqlModes]
-                       dumpToOutput: NO];
+                       dumpToOutput: YES];
 
-  NSTimeInterval duration = [start timeIntervalSinceNow];
-  NSString *combinedErrorText = [NSString stringWithFormat: @"Parse time: %.3f\n\n", -duration];
+  NSString *combinedErrorText = [NSString stringWithFormat: @"Parse time: %.6fs\n\n", lastDuration];
 
   if (errorCount > 0) {
     combinedErrorText = [combinedErrorText stringByAppendingFormat: @"%i errors found\n%s", errorCount, last_error.c_str()];
@@ -359,6 +412,8 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
 - (void)runTestsWithData: (NSString*)data
 {
+  NSDate *start = [NSDate new];
+
   try {
     // 1. Part: parse example queries from file.
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -403,12 +458,15 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
       gotError = ![self runFunctionNamesTest];
     }
     
+    NSTimeInterval duration = [start timeIntervalSinceNow];
+    NSString *durationText = [NSString stringWithFormat: @"Parse time: %.3fs\n\n", -duration];
     dispatch_async(dispatch_get_main_queue(), ^{
       if (stopTests)
         statusText.stringValue = @"Execution stopped by user.";
       else
         if (!gotError)
           statusText.stringValue = @"All queries parsed fine. Great!";
+      [self appendStepText: durationText];
     });
     running = NO;
   } catch (std::exception& e) {
@@ -686,14 +744,14 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
 #include "MySQLParserBaseListener.h"
 
-NSString* dumpTokens(Ref<ParserRuleContext> context, MySQLParser &parser)
+NSString* dumpTokens(const Ref<ParserRuleContext> &context, MySQLParser &parser)
 {
   NSString *result = @"";
 
   const dfa::Vocabulary &vocabulary = parser.getVocabulary();
-  for (size_t index = 0; index < context->getChildCount(); ++index)
+  for (size_t index = 0; index < context->children.size(); ++index)
   {
-    Ref<tree::ParseTree> child = context->getChild(index);
+    Ref<tree::Tree> child = context->children[index];
     if (antlrcpp::is<RuleContext>(child))
     {
       NSString *childText = dumpTokens(std::dynamic_pointer_cast<ParserRuleContext>(child), parser);

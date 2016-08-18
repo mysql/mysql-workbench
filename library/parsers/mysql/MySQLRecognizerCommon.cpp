@@ -70,9 +70,9 @@ std::string MySQLRecognizerCommon::dumpTree(Ref<RuleContext> context, Parser &pa
 
   const std::vector<std::string>& tokenNames = parser.getTokenNames();
 
-  for (size_t index = 0; index < context->getChildCount(); ++index)
+  for (size_t index = 0; index < context->children.size(); ++index)
   {
-    Ref<tree::ParseTree> child = context->getChild(index);
+    Ref<tree::Tree> child = context->children[index];
     if (antlrcpp::is<RuleContext>(child))
       stream << dumpTree(std::dynamic_pointer_cast<RuleContext>(child), parser, indentation + "\t");
     else {
