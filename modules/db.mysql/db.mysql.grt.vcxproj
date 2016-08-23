@@ -293,6 +293,9 @@
     <ProjectReference Include="..\..\library\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\library\mtemplate\mtemplate.vcxproj">
+      <Project>{85fcf582-b354-4a7d-b31c-534d71bea53a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1673,6 +1673,7 @@ _file_ops_classes.append(FileOpsRemoteUnix)
 class FileOpsRemoteWindows(object):
     @classmethod
     def match(cls, target_os, connection_method):
+        print "AAAAAAAAA - TARGETOS: %s - %s" % (target_os, wbaOS.windows)
         return connection_method == "ssh" and target_os == wbaOS.windows
 
     def __init__(self, process_ops, ssh, target_os):
@@ -1913,13 +1914,19 @@ class ServerManagementHelper(object):
                 klass = k
                 break
         if klass:
+            print "STEP 1"
             sudo_prefix=profile.sudo_prefix
             
+            print "STEP 2"
             if not sudo_prefix:
+                print "STEP 3"
                 sudo_prefix = default_sudo_prefix
 
+            print "STEP 4"
             self.shell = klass(sudo_prefix=sudo_prefix, ssh=ssh)
+            print "STEP 5"
             self.shell.post_init()
+            print "STEP 6"
         else:
             raise Exception("Unsupported administration target type: %s"%str(match_tuple))
 
