@@ -17,6 +17,8 @@
  * 02110-1301  USA
  */
 
+/*
+
 #include <fstream>
 #include <string>
 
@@ -184,3 +186,4 @@ TEST_FUNCTION(99)
 }
 
 END_TESTS
+*/
