@@ -48,7 +48,7 @@ public:
 
 };
 
-Template *GetTemplate(const std::string &path, PARSE_TYPE type = DO_NOT_STRIP);
+Template *GetTemplate(const base::utf8string &path, PARSE_TYPE type = DO_NOT_STRIP);
 
 }   //  namespace mtemplate
 

@@ -29,6 +29,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library/base/base
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff 
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include

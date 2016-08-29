@@ -104,10 +104,10 @@ static void scan_templates()
 // string escaper for CSV tokens, encloses fields with " if needed, depending on the separator
 struct CSVTokenQuoteModifier : public mtemplate::Modifier
 {
-  virtual std::string modify(const std::string &input, const std::string arg = "")
+  virtual base::utf8string modify(const base::utf8string &input, const base::utf8string arg = "")
   {
-    std::string search_for = " \"\t\r\n";
-    std::string result = input;
+    base::utf8string search_for = " \"\t\r\n";
+    base::utf8string result = input;
     
     if (arg == "=comma")
       search_for += ',';
@@ -121,7 +121,7 @@ struct CSVTokenQuoteModifier : public mtemplate::Modifier
     if (input.find_first_of(search_for) != std::string::npos)
     {
       base::replaceString(result, "\"", "\"\"");
-      result = std::string("\"") + result + std::string("\"");
+      result = base::utf8string("\"") + result + base::utf8string("\"");
     }
     
     return result;
@@ -137,7 +137,7 @@ Recordset_data_storage()
   if (!registered_csvquote)
   {
     registered_csvquote = true;
-    mtemplate::Modifier::add_modifier<CSVTokenQuoteModifier>("csv_quote");
+    mtemplate::Modifier::addModifier<CSVTokenQuoteModifier>("csv_quote");
   }
 }
 
@@ -215,7 +215,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
 
   mtemplate::Dictionary *dictionary = mtemplate::CreateMainDictionary();
   BOOST_FOREACH (const Parameters::value_type &param, _parameters)
-    dictionary->set_value(param.first, param.second);
+    dictionary->setValue(param.first, param.second);
     
   const Recordset::Column_names *column_names= recordset->column_names();
   const Recordset::Column_types &column_types= get_column_types(recordset);
@@ -241,15 +241,15 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   mtemplate::SetGlobalValue("INDENT", "\t");
   
   // misc subst variables valid for header/footer
-  dictionary->set_value("GENERATOR_QUERY", recordset->generator_query());
+  dictionary->setValue("GENERATOR_QUERY", recordset->generator_query());
 
   // headers
   sqlide::TypeOfVar tv;
   std::vector<std::string> out_column_types;
   for (ColumnId col= 0; col < visible_col_count; ++col)
   {
-    mtemplate::DictionaryInterface *col_dictionary = dictionary->add_section_dictionary("COLUMN");
-    col_dictionary->set_value("COLUMN_NAME", (*column_names)[col]);
+    mtemplate::DictionaryInterface *col_dictionary = dictionary->addSectionDictionary("COLUMN");
+    col_dictionary->setValue("COLUMN_NAME", (*column_names)[col]);
 
     // Gets the column real data type and maps it to a classification: Numeric or String
     // Right now the data types are needed for the excel format,  if in the future this
@@ -266,8 +266,8 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
 
       if (out_col_type == "String")
       {
-        mtemplate::DictionaryInterface *col_index_dictionary = dictionary->add_section_dictionary("STRING_COLUMN");
-        col_index_dictionary->set_int_value("STRING_COLUMN_INDEX", (long)col + 1);
+        mtemplate::DictionaryInterface *col_index_dictionary = dictionary->addSectionDictionary("STRING_COLUMN");
+        col_index_dictionary->setIntValue("STRING_COLUMN_INDEX", (long)col + 1);
       }
     }
   }
@@ -297,10 +297,10 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
         do
         {
           mtemplate::DictionaryInterface *row_dictionary_base = mtemplate::CreateMainDictionary();
-          mtemplate::DictionaryInterface *row_dictionary = row_dictionary_base->add_section_dictionary("ROW");
+          mtemplate::DictionaryInterface *row_dictionary = row_dictionary_base->addSectionDictionary("ROW");
           
           BOOST_FOREACH (const Parameters::value_type &param, _parameters)
-            row_dictionary_base->set_value(param.first, param.second);
+            row_dictionary_base->setValue(param.first, param.second);
 
           // process a single row
           for (size_t partition= 0; partition < partition_count; ++partition)
@@ -315,17 +315,17 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
 
               is_null = sqlide::is_var_null(v); // for some reason, the apply_visitor stuff isnt handling NULL
 
-              mtemplate::DictionaryInterface *field_dictionary = row_dictionary->add_section_dictionary("FIELD");
+              mtemplate::DictionaryInterface *field_dictionary = row_dictionary->addSectionDictionary("FIELD");
               
               if (is_null)
-                field_dictionary->add_section_dictionary("FIELD_is_null");
+                field_dictionary->addSectionDictionary("FIELD_is_null");
               else
-                field_dictionary->add_section_dictionary("FIELD_is_not_null");
+                field_dictionary->addSectionDictionary("FIELD_is_not_null");
 
               if (!include_column_types.empty())
-                field_dictionary->set_value("FIELD_TYPE", out_column_types[col]);
+                field_dictionary->setValue("FIELD_TYPE", out_column_types[col]);
 
-              field_dictionary->set_value("FIELD_NAME", (*column_names)[col]);
+              field_dictionary->setValue("FIELD_NAME", (*column_names)[col]);
 
               std::string field_value;
               sqlide::VarToStr var_to_str;
@@ -338,7 +338,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
                      boost::apply_visitor(var_to_str, v);
               else
                 field_value= boost::apply_visitor(var_to_str, v);
-              field_dictionary->set_value("FIELD_VALUE", field_value);
+              field_dictionary->setValue("FIELD_VALUE", field_value);
             }
           }
 
@@ -346,9 +346,9 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
             next_row_exists= data_rs->next_row();
 
           if (next_row_exists)
-            row_dictionary->set_value("ROW_SEPARATOR", info.row_separator);
+            row_dictionary->setValue("ROW_SEPARATOR", info.row_separator);
           else
-            row_dictionary->set_value("ROW_SEPARATOR", "");
+            row_dictionary->setValue("ROW_SEPARATOR", "");
 
           // expand template & flush row
           mtpl->expand(row_dictionary_base, &output);
@@ -374,7 +374,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
         sqlite::variant_t v;
         do
         {
-          mtemplate::DictionaryInterface *row_dictionary = dictionary->add_section_dictionary("ROW");
+          mtemplate::DictionaryInterface *row_dictionary = dictionary->addSectionDictionary("ROW");
           for (size_t partition= 0; partition < partition_count; ++partition)
           {
             std::shared_ptr<sqlite::result> &data_rs = data_results[partition];
@@ -383,8 +383,8 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
             {
               ColumnId partition_column= col - col_begin;
               v = data_rs->get_variant((int)partition_column);
-              mtemplate::DictionaryInterface *field_dictionary = row_dictionary->add_section_dictionary("FIELD");
-              field_dictionary->set_value("FIELD_NAME", (*column_names)[col]);
+              mtemplate::DictionaryInterface *field_dictionary = row_dictionary->addSectionDictionary("FIELD");
+              field_dictionary->setValue("FIELD_NAME", (*column_names)[col]);
               std::string field_value;
               sqlide::VarToStr var_to_str;
               
@@ -394,7 +394,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
                     boost::apply_visitor(var_to_str, v);
               else
                 field_value= boost::apply_visitor(var_to_str, v);
-              field_dictionary->set_value("FIELD_VALUE", field_value);                
+              field_dictionary->setValue("FIELD_VALUE", field_value);                
             }
           }
           BOOST_FOREACH (std::shared_ptr<sqlite::result> &data_rs, data_results)

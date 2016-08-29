@@ -35,23 +35,23 @@ namespace mtemplate
 #define TEMPLATE_SECTION_END "/"
 #define TEMPLATE_STRLEN(str) (int)g_utf8_strlen(str, -1)
   
-static std::string TEMPLATE_TAG_CHARACTERS("#/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+static base::utf8string TEMPLATE_TAG_CHARACTERS("#/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
   
-std::size_t GetTextLength(const std::string &temp_template, bool check_new_lines = true);
-bool IsBlankString(const std::string &text);
-std::string FormatErrorLog(const std::string &template_string, std::size_t pos);
+std::size_t GetTextLength(const base::utf8string &temp_template, bool check_new_lines = true);
+bool IsBlankString(const base::utf8string &text);
+base::utf8string FormatErrorLog(const base::utf8string &template_string, std::size_t pos);
 
 
 
 //-----------------------------------------------------------------------------------
 //  NodeText stuff
 //-----------------------------------------------------------------------------------
-NodeText::NodeText(const std::string& text, std::size_t length)
+NodeText::NodeText(const base::utf8string& text, std::size_t length)
     : NodeTextInterface(TemplateObject_Text, text, length)  {  }
 
 bool NodeText::expand(TemplateOutput* output, DictionaryInterface *dict)
 {
-  if (is_hidden())
+  if (isHidden())
     return true;
   
   output->out(_text);
@@ -60,19 +60,19 @@ bool NodeText::expand(TemplateOutput* output, DictionaryInterface *dict)
 //-----------------------------------------------------------------------------------
 void NodeText::dump(int indent) 
 {
-  std::string hidden = is_hidden() ? "[hidden]" : "";
-  std::string indent_str(indent * 2, ' ');
+  base::utf8string hidden = isHidden() ? "[hidden]" : "";
+  base::utf8string indent_str(indent * 2, ' ');
   std::cout << indent_str << "[Text]" << hidden << " = " << _text << std::endl;
 }
 //-----------------------------------------------------------------------------------
-NodeText *NodeText::parse(const std::string &template_string, PARSE_TYPE type)
+NodeText *NodeText::parse(const base::utf8string &template_string, PARSE_TYPE type)
 {
   std::size_t end = GetTextLength(template_string);
 
-  if (end == std::string::npos)
+  if (end == base::utf8string::npos)
     end = template_string.length();
 
-  std::string text = template_string.substr(0, end);
+  base::utf8string text = template_string.substr(0, end);
   
   return new NodeText(text, end);  
 }
@@ -82,21 +82,21 @@ NodeText *NodeText::parse(const std::string &template_string, PARSE_TYPE type)
 //-----------------------------------------------------------------------------------
 void NodeNewLine::dump(int indent)
 {
-  std::string hidden = is_hidden() ? "[hidden]" : "";
-  std::string indent_str(indent * 2, ' ');
+  base::utf8string hidden = isHidden() ? "[hidden]" : "";
+  base::utf8string indent_str(indent * 2, ' ');
   std::cout << indent_str << "[NewLine]" << hidden << std::endl;
 }
 
 bool NodeNewLine::expand(TemplateOutput* output, DictionaryInterface* dict) 
 {
-  if (is_hidden())
+  if (isHidden())
     return true;
   
   output->out("\n");
   return true;
 }
 
-NodeNewLine *NodeNewLine::parse(const std::string &template_string, PARSE_TYPE type)
+NodeNewLine *NodeNewLine::parse(const base::utf8string &template_string, PARSE_TYPE type)
 {
   return new NodeNewLine();
 }
@@ -105,10 +105,10 @@ NodeNewLine *NodeNewLine::parse(const std::string &template_string, PARSE_TYPE t
 //-----------------------------------------------------------------------------------
 bool NodeVariable::expand(TemplateOutput* output, DictionaryInterface *dict)
 {
-  if (is_hidden())
+  if (isHidden())
     return true;
   
-  std::string result = dict->get_value(_text);
+  base::utf8string result = dict->getValue(_text);
   
   if (result == "")
     std::cout << "WARNING: value for " << _text << " is an empty string" << std::endl;
@@ -126,22 +126,22 @@ bool NodeVariable::expand(TemplateOutput* output, DictionaryInterface *dict)
 //-----------------------------------------------------------------------------------
 void NodeVariable::dump(int indent) 
 {
-  std::string hidden = is_hidden() ? "[hidden]" : "";
-  std::string indent_str(indent * 2, ' ');
+  base::utf8string hidden = isHidden() ? "[hidden]" : "";
+  base::utf8string indent_str(indent * 2, ' ');
   std::cout << indent_str << "[Variable]" << hidden << " = " << _text << std::endl;
 }
 //-----------------------------------------------------------------------------------
-NodeVariable *NodeVariable::parse(const std::string &template_string, PARSE_TYPE type)
+NodeVariable *NodeVariable::parse(const base::utf8string &template_string, PARSE_TYPE type)
 {
-  std::string::size_type end = template_string.find(TEMPLATE_TAG_END);
+  base::utf8string::size_type end = template_string.find(TEMPLATE_TAG_END);
   
-  if (end == std::string::npos)
-    throw std::logic_error(std::string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
+  if (end == base::utf8string::npos)
+    throw std::logic_error(base::utf8string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
   
-  std::string::size_type begin = TEMPLATE_STRLEN(TEMPLATE_TAG_END);
-  std::string variableName = template_string.substr(begin, end - begin);
+  base::utf8string::size_type begin = TEMPLATE_STRLEN(TEMPLATE_TAG_END);
+  base::utf8string variableName = template_string.substr(begin, end - begin);
     
-  std::vector<std::string> parts = base::split(variableName, ":");
+  std::vector<base::utf8string> parts = variableName.split(":");
   
   variableName = parts[0];
   
@@ -150,11 +150,11 @@ NodeVariable *NodeVariable::parse(const std::string &template_string, PARSE_TYPE
   //    Parse modifiers from "parts"
   for (std::size_t index = 1; index < parts.size(); ++index)
   {
-    std::string part = parts[index];
+    base::utf8string part = parts[index];
     std::size_t equal = part.find('=');
-    std::string arg = "";
+    base::utf8string arg = "";
     
-    if (equal != std::string::npos)
+    if (equal != base::utf8string::npos)
     {
       arg = part.substr(equal);
       part = part.substr(0, equal);
@@ -169,7 +169,7 @@ NodeVariable *NodeVariable::parse(const std::string &template_string, PARSE_TYPE
 //-----------------------------------------------------------------------------------
 //  NodeSection stuff
 //-----------------------------------------------------------------------------------
-NodeSection::NodeSection(const std::string& text, std::size_t length, TemplateDocument& contents)
+NodeSection::NodeSection(const base::utf8string& text, std::size_t length, TemplateDocument& contents)
   : NodeInterface(TemplateObject_Section, text, length)
   , _contents(contents) 
   , _is_separator(false)
@@ -179,7 +179,7 @@ NodeSection::NodeSection(const std::string& text, std::size_t length, TemplateDo
 //-----------------------------------------------------------------------------------
 bool NodeSection::expand(TemplateOutput* output, DictionaryInterface* dict)
 {
-  if (is_hidden())
+  if (isHidden())
     return true;
   
   for (TemplateDocument::const_iterator iter = _contents.begin(); iter != _contents.end(); ++iter)
@@ -190,13 +190,13 @@ bool NodeSection::expand(TemplateOutput* output, DictionaryInterface* dict)
     {
       //    Check for separator sections special marker
       NodeSection *sec = dynamic_cast<NodeSection *>(node.get());
-      if (sec->is_separator() && dict->is_last() == false)
+      if (sec->is_separator() && dict->isLast() == false)
       {
           node->expand(output, dict);
           continue;
       }
         
-      DictionaryInterface::section_dictionary_storage &section_dicts = dict->get_section_dictionaries(node->_text);
+      DictionaryInterface::section_dictionary_storage &section_dicts = dict->getSectionDictionaries(node->_text);
       
       std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
       
@@ -211,8 +211,8 @@ bool NodeSection::expand(TemplateOutput* output, DictionaryInterface* dict)
 //-----------------------------------------------------------------------------------
 void NodeSection::dump(int indent) 
 {
-  std::string hidden = is_hidden() ? "[hidden]" : "";
-  std::string indent_str(indent * 2, ' ');
+  base::utf8string hidden = isHidden() ? "[hidden]" : "";
+  base::utf8string indent_str(indent * 2, ' ');
   std::cout << indent_str << "[Section]" << hidden << " = " << _text << std::endl
             << indent_str << "{" << std::endl
             ;
@@ -224,29 +224,29 @@ void NodeSection::dump(int indent)
             
 }
 //-----------------------------------------------------------------------------------
-NodeSection *NodeSection::parse(const std::string &template_string, PARSE_TYPE type)
+NodeSection *NodeSection::parse(const base::utf8string &template_string, PARSE_TYPE type)
 {
-  std::string::size_type end = template_string.find(TEMPLATE_TAG_END);
+  base::utf8string::size_type end = template_string.find(TEMPLATE_TAG_END);
   
-  if (end == std::string::npos)
-    throw std::logic_error(std::string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
+  if (end == base::utf8string::npos)
+    throw std::logic_error(base::utf8string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
   
-  std::string::size_type begin = TEMPLATE_STRLEN(TEMPLATE_TAG_END) + TEMPLATE_STRLEN(TEMPLATE_SECTION_BEGINNING);
-  std::string sectionName = template_string.substr(begin, end - begin);
+  base::utf8string::size_type begin = TEMPLATE_STRLEN(TEMPLATE_TAG_END) + TEMPLATE_STRLEN(TEMPLATE_SECTION_BEGINNING);
+  base::utf8string sectionName = template_string.substr(begin, end - begin);
   
   begin = end + TEMPLATE_STRLEN(TEMPLATE_TAG_END);
   
-  end = template_string.find(std::string(TEMPLATE_TAG_BEGINNING) + std::string(TEMPLATE_SECTION_END) + sectionName + std::string(TEMPLATE_TAG_END), begin);
+  end = template_string.find(base::utf8string(TEMPLATE_TAG_BEGINNING) + base::utf8string(TEMPLATE_SECTION_END) + sectionName + base::utf8string(TEMPLATE_TAG_END), begin);
 
-  if (end == std::string::npos)
-    throw std::logic_error(std::string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
+  if (end == base::utf8string::npos)
+    throw std::logic_error(base::utf8string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
   
-  std::string inner_string = template_string.substr(begin, end - begin);
+  base::utf8string inner_string = template_string.substr(begin, end - begin);
   
-  TemplateDocument contents = parse_template(inner_string, type);
+  TemplateDocument contents = parseTemplate(inner_string, type);
   
   //  Check for separators...only the last one will be taken into account
-  std::string separator_text = sectionName + "_separator";
+  base::utf8string separator_text = sectionName + "_separator";
   for (TemplateDocument::iterator iter = contents.begin(); iter != contents.end(); ++iter)
   {
     NodeSection *node_section = dynamic_cast<NodeSection *>((*iter).get());
@@ -260,7 +260,7 @@ NodeSection *NodeSection::parse(const std::string &template_string, PARSE_TYPE t
     }
   }
   
-  end += TEMPLATE_STRLEN((std::string(TEMPLATE_TAG_BEGINNING) + std::string(TEMPLATE_SECTION_END) + sectionName + std::string(TEMPLATE_TAG_END)).c_str());
+  end += TEMPLATE_STRLEN((base::utf8string(TEMPLATE_TAG_BEGINNING) + base::utf8string(TEMPLATE_SECTION_END) + sectionName + base::utf8string(TEMPLATE_TAG_END)).c_str());
   
   return  new NodeSection(sectionName, end, contents);
 }
@@ -269,7 +269,7 @@ NodeSection *NodeSection::parse(const std::string &template_string, PARSE_TYPE t
 //-----------------------------------------------------------------------------------
 //  Template stuff
 //-----------------------------------------------------------------------------------
-std::size_t GetTextLength(const std::string &temp_template, bool check_new_lines)
+std::size_t GetTextLength(const base::utf8string &temp_template, bool check_new_lines)
 {
   std::size_t begin = 0;
   
@@ -286,7 +286,7 @@ std::size_t GetTextLength(const std::string &temp_template, bool check_new_lines
     
     
     //  Check if the whole string is valid text
-    if (pos == std::string::npos)
+    if (pos == base::utf8string::npos)
       return temp_template.length();
     
     //  Check if a line feed was found
@@ -295,19 +295,19 @@ std::size_t GetTextLength(const std::string &temp_template, bool check_new_lines
     
     //  Check if it's a valid node. It's only a valid node when it starts with {{ and it's 
     //  followed by one of the characters in TEMPLATE_TAG_CHARACTERS 
-    if (TEMPLATE_TAG_CHARACTERS.find(temp_template[pos + 2]) != std::string::npos)
+    if (TEMPLATE_TAG_CHARACTERS.find(temp_template[pos + 2]) != base::utf8string::npos)
       return pos;
     
     begin = pos;
   }
   
-  return std::string::npos;
+  return base::utf8string::npos;
 }
 
-TemplateDocument parse_template(const std::string &template_string, PARSE_TYPE type)
+TemplateDocument parseTemplate(const base::utf8string &template_string, PARSE_TYPE type)
 {
   TemplateDocument doc;
-  std::string temp_template = template_string;
+  base::utf8string temp_template = template_string;
     
   while (temp_template.length() > 0)
   {
@@ -359,19 +359,41 @@ TemplateDocument parse_template(const std::string &template_string, PARSE_TYPE t
         }
       }
     }
-    else if (base::hasPrefix(temp_template, "{{{{"))
+    else if (temp_template.starts_with("{{{{"))
     {
       throw std::logic_error("mtemplate: File contains invalid character sequence '{{{{'");
     }
-    else if (base::hasPrefix(temp_template, "{{{"))
+    else if (temp_template.starts_with("{{{"))
     {// Special case of {{{
       NodeText *item = NodeText::parse("{", type);
       temp_template = temp_template.substr(item->_length);
       doc.push_back(NodeStorageType(item));
     }
-    else if (base::hasPrefix(temp_template, "{{"))
+    else if (temp_template.starts_with("{{"))
     {//  A node was found {{SOME_NOME}}
-      char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
+//       char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
+      base::utf8string::utf8char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
+      
+//       if (first_char == "#")
+//       {
+//         NodeSection *item = NodeSection::parse(temp_template, type);
+//         doc.push_back(NodeStorageType(item));
+//         temp_template = temp_template.substr(item->_length);
+//         break;
+//       }
+//       else if (first_char == ">")   //  includes
+//         throw std::logic_error("mtemplate: Includes not implemented");
+//       else if (first_char == "%")   //  pragma
+//         throw std::logic_error("mtemplate: Pragma not implemented");
+//       else if (first_char == "!")   //  comment
+//         throw std::logic_error("mtemplate: Comment not implemented");
+//       else
+//       {
+//         NodeVariable *item = NodeVariable::parse(temp_template, type);
+//         doc.push_back(NodeStorageType(item));
+//         temp_template = temp_template.substr(item->_length);
+//       }
+      
       switch (first_char)
       {
         case '#':
@@ -394,6 +416,7 @@ TemplateDocument parse_template(const std::string &template_string, PARSE_TYPE t
           temp_template = temp_template.substr(item->_length);
         }
       }
+      
     }
     else
     {
@@ -406,20 +429,20 @@ TemplateDocument parse_template(const std::string &template_string, PARSE_TYPE t
   return doc;
 }
 
-bool IsBlankString(const std::string &text)
+bool IsBlankString(const base::utf8string &text)
 {
-  return text.find_first_not_of(" \t\n\v\f\r") == std::string::npos;
+  return text.find_first_not_of(" \t\n\v\f\r") == base::utf8string::npos;
 }
 
-std::string FormatErrorLog(const std::string &template_string, std::size_t pos, const std::string &error)
+base::utf8string FormatErrorLog(const base::utf8string &template_string, std::size_t pos, const base::utf8string &error)
 {
   std::size_t eol = template_string.find('\n');
-  if (eol == std::string::npos)
+  if (eol == base::utf8string::npos)
     eol = template_string.length();
-  std::string result = template_string.substr(0, eol);
+  base::utf8string result = template_string.substr(0, eol);
   
   result += '\n';
-  result += std::string(pos, ' ') + "^\n";
+  result += base::utf8string(pos, ' ') + "^\n";
   result += error;
   return result;
 }

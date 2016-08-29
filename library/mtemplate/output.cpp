@@ -33,12 +33,12 @@ TemplateOutput::~TemplateOutput()
 //-----------------------------------------------------------------------------------
 //  TemplateOutputString stuff
 //-----------------------------------------------------------------------------------
-void TemplateOutputString::out(const std::string& str)
+void TemplateOutputString::out(const base::utf8string& str)
 { 
   _buffer += str; 
 }
 
-const std::string &TemplateOutputString::get()
+const base::utf8string &TemplateOutputString::get()
 { 
   return _buffer; 
 }
@@ -46,13 +46,13 @@ const std::string &TemplateOutputString::get()
 //-----------------------------------------------------------------------------------
 //  TemplateOutputFile stuff
 //-----------------------------------------------------------------------------------
-TemplateOutputFile::TemplateOutputFile(const std::string &filename)
+TemplateOutputFile::TemplateOutputFile(const base::utf8string &filename)
   : _file(filename.c_str(), "w+")
 { 
   
 }
 
-void TemplateOutputFile::out(const std::string &str)
+void TemplateOutputFile::out(const base::utf8string &str)
 { 
    fwrite(str.data(), 1, str.size(), _file.file());
 }
