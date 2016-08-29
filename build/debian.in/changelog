@@ -1,4 +1,16 @@
-mysql-workbench-@edition@ (7.0.0-1@distrov@) @distro@; urgency=low
+mysql-workbench-@edition@ (6.3.8-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Mike Lischke <mike.lischke@oracle.com>  Tue, 14 Jun 2016 11:14:47 +0200
+
+mysql-workbench-@edition@ (6.3.7-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Milosz Bodzek <milosz.bodzek@oracle.com>  Mon, 09 May 2016 14:54:36 +0200
+
+mysql-workbench-@edition@ (6.3.6-1@distrov@) @distro@; urgency=low
 
   * New release
 
@@ -426,4 +438,3 @@ mysql-workbench (5.1.1-1) unstable; urgency=low
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
 
  -- Alfredo Kojima <kojima@sun.com>  Mon, 06 Oct 2008 13:58:14 +0300
-
