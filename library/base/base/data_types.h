@@ -22,12 +22,17 @@
 
 #pragma once
 
+#include <cstring>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "common.h"
 #include "jsonparser.h"
 #include <typeinfo>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 namespace dataTypes {
 
@@ -59,6 +64,287 @@ struct BASELIBRARY_PUBLIC_FUNC AppOptions
    std::string cdbcDriverSearchPath;
    std::string userDataDir;
 };
+
+enum OptionArgumentType {
+  OptionArgumentNumeric,
+  OptionArgumentText,
+  OptionArgumentLogical,
+  OptionArgumentFilename
+};
+
+class BASELIBRARY_PUBLIC_FUNC OptionEntry
+{
+public:
+  struct mixType {
+    bool logicalValue;
+    std::string textValue;
+    int numericValue;
+    OptionArgumentType type;
+
+    mixType () : logicalValue(false), textValue(""), numericValue(0), type(OptionArgumentLogical) {}
+    mixType (int i) : logicalValue(false), textValue(""), numericValue(i), type(OptionArgumentNumeric) {}
+    mixType (const std::string &s) : logicalValue(false), textValue(s), numericValue(0), type(OptionArgumentText) {}
+    mixType (bool b) : logicalValue(b), textValue(""), numericValue(0), type(OptionArgumentLogical) {}
+
+
+    int& operator=(int&& other)
+    {
+      if (type != OptionArgumentNumeric)
+        throw std::runtime_error("Can't mix types");
+      numericValue = other;
+      return numericValue;
+    }
+
+    std::string& operator=(std::string&& other)
+    {
+      if (type != OptionArgumentText && type != OptionArgumentFilename)
+        throw std::runtime_error("Can't mix types");
+      textValue = std::move(other);
+      return textValue;
+    }
+
+    bool& operator=(bool&& other)
+    {
+      if (type != OptionArgumentLogical)
+        throw std::runtime_error("Can't mix types");
+      logicalValue = other;
+      return logicalValue;
+    }
+
+    ~mixType() {}
+  };
+
+  char shortName;
+  std::string longName;
+  std::string argName;
+  std::string description;
+  mixType value;
+  typedef std::function<bool (const OptionEntry&, int *retval)> optionCb;
+  optionCb callback;
+  OptionEntry(OptionArgumentType argType, const std::string &l, const std::string &d, optionCb cb = nullptr, const std::string &a = "")
+    : shortName(0), longName(l), argName(a), description(d), callback(cb)
+  {
+    value.type = argType;
+    switch(argType)
+    {
+    case OptionArgumentNumeric:
+      value.numericValue = 0;
+      break;
+    case OptionArgumentLogical:
+      value.logicalValue = false;
+      break;
+    case OptionArgumentText:
+    case OptionArgumentFilename:
+      break;
+    }
+
+  }
+
+  OptionEntry(OptionArgumentType argType, char s, const std::string &l, const std::string &d, optionCb cb = nullptr, const std::string &a = "")
+      : shortName(s), longName(l), argName(a), description(d), callback(cb)
+  {
+    value.type = argType;
+    switch(argType)
+    {
+    case OptionArgumentNumeric:
+      value.numericValue = 0;
+      break;
+    case OptionArgumentLogical:
+      value.logicalValue = false;
+      break;
+    case OptionArgumentText:
+    case OptionArgumentFilename:
+      break;
+    }
+  }
+};
+
+class BASELIBRARY_PUBLIC_FUNC ArgumentParser
+{
+  const char *ptr;
+public:
+  ArgumentParser(const std::string &line) : ptr(line.data()) {};
+
+  std::string getArgName()
+  {
+    if (std::strncmp(ptr, "--", sizeof("--") - 1) != 0)
+    {
+      // This means it's not an argument name
+      return std::string();
+    }
+    ptr += 2;
+    std::string argName;
+    while(true)
+    {
+      if (*ptr == ' ' || *ptr == '=' || *ptr == '\0')
+        break;
+      else
+        argName.push_back(*ptr);
+      ++ptr;
+    }
+    return argName;
+  }
+  std::string getArgValue()
+  {
+    std::string retVal;
+    do
+    {
+      if (*ptr == '\0')
+        return retVal;
+      if (*ptr != ' ' && *ptr != '=')
+      {
+        retVal.assign(ptr);
+        return retVal;
+      }
+      ++ptr;
+    } while(true);
+
+    return retVal;
+  }
+};
+
+
+class BASELIBRARY_PUBLIC_FUNC OptionsList
+{
+public:
+  typedef std::map<std::string, OptionEntry> entryList;
+  OptionsList() {};
+  void addEntry(const OptionEntry &entry)
+  {
+    _list.insert({entry.longName, entry});
+  }
+
+  entryList* getEntries()
+  {
+    return &_list;
+  }
+
+  OptionEntry* getEntry(const std::string name)
+  {
+    auto it = _list.find(name);
+    if (it != _list.end())
+      return &it->second;
+    return nullptr;
+  }
+  std::vector<std::string> pathArgs;
+
+  bool parse(const std::vector<std::string> &args, int &retVal)
+  {
+    for (auto it = args.begin(); it != args.end(); it++)
+    {
+      ArgumentParser a(*it);
+
+      std::string name = a.getArgName();
+      if (!name.empty())
+      {
+        auto optIt = _list.find(name);
+        if (optIt == _list.end())
+          throw std::runtime_error("Unknown argument");
+
+
+        if (optIt->second.value.type != OptionArgumentLogical)
+        {
+          if (!a.getArgValue().empty())
+          {
+            if (!setArgumentValue(optIt->second, a.getArgValue(), &retVal))
+              return false;
+          }
+          else
+          {
+            auto nextIt = it;
+            do
+            {
+              ++nextIt;
+              if (nextIt == args.end())
+                throw std::runtime_error("Argument is missing value");
+              ArgumentParser nextArg(*nextIt);
+              if (!nextArg.getArgName().empty())
+                throw std::runtime_error("Argument is missing value");
+
+              if (!setArgumentValue(optIt->second, *nextIt, &retVal))
+                return false;
+
+              ++it;
+              break;
+
+            } while(nextIt != args.end());
+          }
+        }
+        else
+        {
+          optIt->second.value.logicalValue = true;
+          if (optIt->second.callback)
+          {
+            if (!optIt->second.callback(optIt->second, &retVal))
+              return false;
+          }
+        }
+      }
+      else
+        pathArgs.push_back(*it);
+    }
+    return true;
+  }
+
+  std::string getHelp(const std::string &binaryName)
+  {
+    std::stringstream ss;
+    ss << binaryName;
+    ss << " [<options>] [<name of a model file or sql script>]";
+    ss << std::endl;
+    ss << "Options:";
+    ss << std::endl;
+    for(auto &o: _list)
+    {
+      auto entry = o.second;
+      std::string param;
+      if (entry.shortName != 0)
+      {
+        param += "-";
+        param += entry.shortName;
+        if (!entry.argName.empty())
+          param += " " + entry.argName;
+        param += ", ";
+      }
+
+      param += "--" + entry.longName;
+      if (!entry.argName.empty())
+          param += " " + entry.argName;
+
+
+      ss << '\t' << std::setw(30) << std::left << param;
+      ss << std::setw(20) << entry.description;
+      ss << std::endl;
+    }
+    ss << std::endl;
+    return ss.str();
+  }
+
+
+protected:
+  entryList _list;
+  bool setArgumentValue(OptionEntry &entry, const std::string &val, int *retval)
+  {
+    switch(entry.value.type)
+    {
+    case OptionArgumentNumeric:
+      entry.value.numericValue = atoi((val).c_str());
+    break;
+    case OptionArgumentFilename:
+    case OptionArgumentText:
+      entry.value.textValue = val;
+    break;
+    default:
+      throw std::runtime_error("Unhandled value type");
+    }
+
+    if (entry.callback)
+      return entry.callback(entry, retval);
+
+    return true;
+  }
+};
+
 
 class BASELIBRARY_PUBLIC_FUNC BaseConnection {
 private:
