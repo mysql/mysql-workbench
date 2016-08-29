@@ -28,6 +28,7 @@ using boost::locale::conv::utf_to_utf;
 
 namespace base
 {
+  
 utf8string::utf8string(): std::string()
 {
   
@@ -55,6 +56,11 @@ utf8string::utf8string(const std::wstring &s)
 
 utf8string::utf8string(const utf8string &s)
 : std::string(s)
+{
+}
+
+utf8string::utf8string(size_t size, char c)
+: std::string(size, c)
 {
 }
 
@@ -90,11 +96,12 @@ utf8string utf8string::substr(const size_t start, size_t count) const
   return result;
 }
 
-utf8string utf8string::operator[](const size_t index) const
+utf8string::utf8char utf8string::operator[](const size_t index) const
 {
   gchar* start = g_utf8_offset_to_pointer(this->c_str(), index);
   gchar* sub = g_utf8_substring(start, 0, 1);
-  utf8string result(sub);
+  
+  utf8char result(sub);
   g_free(sub);
   return result;
 }
@@ -134,7 +141,23 @@ int utf8string::compareNormalized(const utf8string &s) const
   return g_utf8_collate(this->normalize().c_str(), s.normalize().c_str());
 }
 
+utf8string &utf8string::operator=(char c)
+{
+  *this = std::string(1, c);
+  return *this;
+}
+
 bool utf8string::operator==(const utf8string &s) const
+{
+  return 0 == this->compareNormalized(s);
+}
+
+bool utf8string::operator==(const std::string &s) const
+{
+  return 0 == this->compareNormalized(s);
+}
+
+bool utf8string::operator==(const char *s) const
 {
   return 0 == this->compareNormalized(s);
 }
@@ -218,6 +241,33 @@ utf8string utf8string::truncate(const size_t max_length)
     return shortened;
   }
   return *this;
+}
+
+std::vector<utf8string> utf8string::split(const utf8string &sep, int count)
+{
+  std::vector<utf8string> parts;
+
+  if (empty())
+    return parts;
+
+  if (count == 0)
+    count= -1;
+
+  utf8string ss = *this;
+  std::string::size_type p;
+
+  p = ss.find(sep);
+  while (!ss.empty() && p != std::string::npos && (count < 0 || count > 0))
+  {
+    parts.push_back(ss.substr(0, p));
+    ss= ss.substr(p+sep.size());
+
+    --count;
+    p= ss.find(sep);
+  }
+  parts.push_back(ss);
+
+  return parts;
 }
 
 bool utf8string::starts_with(const utf8string& s) const
@@ -325,10 +375,10 @@ utf8string::iterator& utf8string::iterator::operator--()
   return *this;
 }
 
-utf8string utf8string::iterator::operator*() const
+utf8string::utf8char utf8string::iterator::operator*() const
 {
   gchar* s = g_utf8_substring(pos, 0, 1);
-  utf8string result(s);
+  utf8char result(s);
   g_free(s);
   return result;
 }
