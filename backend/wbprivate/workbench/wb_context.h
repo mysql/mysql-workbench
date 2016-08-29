@@ -37,7 +37,7 @@
 #include "mforms/utilities.h"
 #include "base/trackable.h"
 #include "base/threading.h"
-
+#include "base/data_types.h"
 
 #include "wb_version.h"
 
@@ -59,6 +59,7 @@ namespace bec {
 class SqlEditorForm;
 
 namespace wb {
+
   class WBContextUI;
   class WBContextModel;
   class WBContextSQLIDE;
@@ -185,6 +186,7 @@ namespace wb {
     std::string open_connection;
     std::string run_at_startup; // script to be executed when started
     std::string run_language; // language of the script in run_at_startup
+    std::string binaryName;
     bool force_sw_rendering;
     bool force_opengl_rendering;
     bool verbose;
@@ -193,10 +195,11 @@ namespace wb {
     bool init_python; // True by default. Can be switched off for testing.
     bool full_init; // True by default. Should be switched off when the options are created for an already running instance of WB.
     bool showClassicHome; // Set when we want to show the classic home screen by default (e.g. when started from WB.X).
-
-    WBOptions();
-    bool parse_args(char **argv, int argc, int *retval = NULL);
-    void show_help(const char *arg0);
+    bool logLevelSet;
+    WBOptions(const std::string &appBinaryName);
+    ~WBOptions();
+    void analyzeCommandLineArguments();
+    dataTypes::OptionsList *programOptions;
   };
 
   

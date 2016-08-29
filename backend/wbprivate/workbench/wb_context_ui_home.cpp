@@ -883,20 +883,8 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
 
-        bool is_ng = connection.is_valid() && connection->driver()->name() == "MySQLX";
-        if (is_ng)
-        {
-          _wb->show_status_text("Opening XShell...");
-          bec::ArgumentPool argument_pool;
-          argument_pool.add_entries_for_object("connection", connection, db_mgmt_Connection::static_class_name());
-          start_plugin("NG IDE", "plugin:com.mysql.wb.ng", argument_pool);
-          _wb->show_status_text("XSHell opened...");
-        }
-        else
-        {
-          _wb->show_status_text("Opening SQL Editor...");
-          _wb->add_new_query_window(connection);
-        }
+        _wb->show_status_text("Opening SQL Editor...");
+        _wb->add_new_query_window(connection);
       }
       _processing_action_open_connection = false;
       break;

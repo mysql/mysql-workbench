@@ -8,8 +8,8 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 7.0.0' \
-#                                   --define='release 1' 
+#                                   --define='version 6.3.8' \
+#                                   --define='release 1'
 ####################################################################
 
 # Enable use of "--with" and "--without" options to "rpmbuld"
