@@ -24,15 +24,15 @@
 
 namespace mtemplate{
 
-std::map<std::string, Modifier *> StockModifierMap;
-std::map<std::string, Modifier *> UserModifierMap;
+std::map<base::utf8string, Modifier *> StockModifierMap;
+std::map<base::utf8string, Modifier *> UserModifierMap;
 
 
-Modifier *GetModifier(const std::string &name)
+Modifier *GetModifier(const base::utf8string &name)
 {
   if (base::hasPrefix(name, "x-"))
   {
-    std::string user_name = name.substr(2);
+    base::utf8string user_name = name.substr(2);
     if (UserModifierMap.find(user_name) != UserModifierMap.end())
       return UserModifierMap[user_name];
   }
@@ -49,10 +49,10 @@ Modifier::~Modifier()
 {
 }
 
-std::string Modifier_HtmlEscape::modify(const std::string& input, const std::string arg) 
+base::utf8string Modifier_HtmlEscape::modify(const base::utf8string& input, const base::utf8string arg) 
 {
-  std::string result;
-  for (std::string::const_iterator iter = input.begin(); iter != input.end(); ++iter)
+  base::utf8string result;
+  for (base::utf8string::iterator iter = input.begin(); iter != input.end(); ++iter)
   {
     switch (*iter)
     {
@@ -75,10 +75,10 @@ std::string Modifier_HtmlEscape::modify(const std::string& input, const std::str
 }
 
 
-std::string Modifier_XmlEscape::modify(const std::string& input, const std::string arg) 
+base::utf8string Modifier_XmlEscape::modify(const base::utf8string& input, const base::utf8string arg) 
 {
-  std::string result;
-  for (std::string::const_iterator iter = input.begin(); iter != input.end(); ++iter)
+  base::utf8string result;
+  for (base::utf8string::iterator iter = input.begin(); iter != input.end(); ++iter)
   {
     switch (*iter)
     {

@@ -22,7 +22,7 @@
 
 #include "common.h"
 
-#include <string>
+#include <utf8string.h>
 #include <map>
 #include <vector>
 
@@ -39,20 +39,20 @@ class DictionaryInterface
 {
 protected:
   
-  std::string _name;
+  base::utf8string _name;
   bool _is_last;
   
-  DictionaryInterface(const std::string &name) : _name(name), _is_last(false)    {  }
+  DictionaryInterface(const base::utf8string &name) : _name(name), _is_last(false)    {  }
   
-  typedef std::map<std::string, std::string> dictionary_storage;
+  typedef std::map<base::utf8string, base::utf8string> dictionary_storage;
   typedef dictionary_storage::iterator dictionary_storage_iterator;
   
   typedef std::vector<DictionaryInterface *> section_dictionary_storage;
   typedef section_dictionary_storage::iterator section_dictionary_storage_iterator;
   
-  typedef std::map<std::string, section_dictionary_storage> section_storage;
+  typedef std::map<base::utf8string, section_dictionary_storage> section_storage;
 
-  virtual DictionaryInterface *get_parent() = 0;
+  virtual DictionaryInterface *getParent() = 0;
 
   friend NodeSection;
   friend Template;
@@ -61,18 +61,18 @@ public:
   
   virtual ~DictionaryInterface()                                {  }
   
-  virtual void set_value(const std::string &key, const std::string &value) = 0;
-  virtual std::string get_value(const std::string &key) = 0;
+  virtual void setValue(const base::utf8string &key, const base::utf8string &value) = 0;
+  virtual base::utf8string getValue(const base::utf8string &key) = 0;
   
-  void set_int_value(const std::string &key, long value);
-  void set_value_and_show_section(const std::string &key, const std::string &value, const std::string &section);
-  void set_formated_value(const std::string &key, const char *format, ...); // G_GNUC_PRINTF(2, 3);
+  void setIntValue(const base::utf8string &key, long value);
+  void setValueAndShowSection(const base::utf8string &key, const base::utf8string &value, const base::utf8string &section);
+  void setFormatedValue(const base::utf8string &key, const char *format, ...); // G_GNUC_PRINTF(2, 3);
 
-  virtual DictionaryInterface *add_section_dictionary(const std::string &name) = 0;
-  virtual section_dictionary_storage &get_section_dictionaries(const std::string &sections) = 0;
+  virtual DictionaryInterface *addSectionDictionary(const base::utf8string &name) = 0;
+  virtual section_dictionary_storage &getSectionDictionaries(const base::utf8string &sections) = 0;
   
-  void set_is_last(bool value)  { _is_last = value; }
-  bool is_last()                { return _is_last; }
+  void setIsLast(bool value)  { _is_last = value; }
+  bool isLast()                { return _is_last; }
   
   virtual void dump(int indent = 0) = 0;
   
@@ -88,27 +88,27 @@ protected:
   section_storage _section_dictionaries;
   section_dictionary_storage _no_section;
 
-  DictionaryInterface *get_parent(){ return _parent; }
+  DictionaryInterface *getParent(){ return _parent; }
   
 public:
   
-  Dictionary(const std::string &name, DictionaryInterface *parent = NULL) 
+  Dictionary(const base::utf8string &name, DictionaryInterface *parent = NULL) 
     : DictionaryInterface(name), _parent(parent)                                  {  }
   virtual ~Dictionary()                                             {  }
   
   //  DictionaryInterface
-  virtual void set_value(const std::string &key, const std::string &value);
-  virtual std::string get_value(const std::string &key);
+  virtual void setValue(const base::utf8string &key, const base::utf8string &value);
+  virtual base::utf8string getValue(const base::utf8string &key);
   
-  virtual DictionaryInterface *add_section_dictionary(const std::string &name);
-  virtual section_dictionary_storage &get_section_dictionaries(const std::string &section);
+  virtual DictionaryInterface *addSectionDictionary(const base::utf8string &name);
+  virtual section_dictionary_storage &getSectionDictionaries(const base::utf8string &section);
 
   virtual void dump(int indent = 0);
 };
 
 
 Dictionary *CreateMainDictionary();
-void SetGlobalValue(const std::string &key, const std::string &value);
+void SetGlobalValue(const base::utf8string &key, const base::utf8string &value);
 
 }   //  namespace mtemplate
 

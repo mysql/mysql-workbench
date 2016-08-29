@@ -28,27 +28,27 @@ namespace mtemplate {
 //-----------------------------------------------------------------------------------
 //  DictionaryInterface stuff
 //-----------------------------------------------------------------------------------
-void DictionaryInterface::set_int_value(const std::string& key, long int value) 
+void DictionaryInterface::setIntValue(const base::utf8string& key, long int value) 
 {
-  set_value(key, base::strfmt("%ld", value));
+  setValue(key, base::strfmt("%ld", value));
 }
   
-void DictionaryInterface::set_value_and_show_section(const std::string& key, const std::string &value, const std::string& section) 
+void DictionaryInterface::setValueAndShowSection(const base::utf8string& key, const base::utf8string &value, const base::utf8string& section) 
 {
   if (value.size() == 0)
     return;
-  DictionaryInterface *dict = add_section_dictionary(section);
-  dict->set_value(key, value);
+  DictionaryInterface *dict = addSectionDictionary(section);
+  dict->setValue(key, value);
 }
 
-void DictionaryInterface::set_formated_value(const std::string& key, const char *format, ...)
+void DictionaryInterface::setFormatedValue(const base::utf8string& key, const char *format, ...)
 {
   va_list args;
   va_start(args, format);
-  std::string result = base::strfmt(format, args);
+  base::utf8string result = base::strfmt(format, args);
   va_end(args);
   
-  set_value(key, result);
+  setValue(key, result);
 }
 
   
@@ -61,7 +61,7 @@ protected:
   dictionary_storage _dictionary;
   section_dictionary_storage _no_section;
 
-  DictionaryInterface *get_parent()                                     { return NULL; }
+  DictionaryInterface *getParent()                                     { return NULL; }
   
 public:
   
@@ -69,21 +69,21 @@ public:
   ~DictionaryGlobal()                                                   {  }
   
   //  DictionaryInterface
-  virtual void set_value(const std::string &key, const std::string &value)                  { _dictionary[key] = value; }
-  virtual std::string get_value(const std::string &key)                                      { return _dictionary.find(key) == _dictionary.end() ? "" : _dictionary[key]; }
+  virtual void setValue(const base::utf8string &key, const base::utf8string &value)                  { _dictionary[key] = value; }
+  virtual base::utf8string getValue(const base::utf8string &key)                                      { return _dictionary.find(key) == _dictionary.end() ? "" : _dictionary[key]; }
   
-  virtual DictionaryInterface *add_section_dictionary(const std::string &name)              { return NULL; }
-  virtual section_dictionary_storage &get_section_dictionaries(const std::string &sections) { return _no_section; }
+  virtual DictionaryInterface *addSectionDictionary(const base::utf8string &name)              { return NULL; }
+  virtual section_dictionary_storage &getSectionDictionaries(const base::utf8string &sections) { return _no_section; }
 
   virtual void dump(int indent)
   {
-    std::string indent_str(indent * 2, ' ');
-    std::string indent_plus_str((indent + 1) * 2, ' ');
+    base::utf8string indent_str(indent * 2, ' ');
+    base::utf8string indent_plus_str((indent + 1) * 2, ' ');
 
     std::cout << indent_str << "[" << _name << "] = " << std::endl
               << indent_str << "{" << std::endl;
     
-    for (std::map<std::string, std::string>::iterator iter = _dictionary.begin(); iter != _dictionary.end(); ++iter)
+    for (std::map<base::utf8string, base::utf8string>::iterator iter = _dictionary.begin(); iter != _dictionary.end(); ++iter)
       std::cout << indent_plus_str << "[" << iter->first << "] = \"" << iter->second << "\"" << std::endl;
     
     std::cout << indent_str << "}" << std::endl;
@@ -93,36 +93,36 @@ public:
 //-----------------------------------------------------------------------------------
 //  Dictionary stuff
 //-----------------------------------------------------------------------------------
-void Dictionary::set_value(const std::string& key, const std::string& value)
+void Dictionary::setValue(const base::utf8string& key, const base::utf8string& value)
 { 
   _dictionary[ key ] = value; 
 }
 
-std::string Dictionary::get_value(const std::string& key)                      
+base::utf8string Dictionary::getValue(const base::utf8string& key)                      
 { 
   if (_dictionary.find(key) != _dictionary.end())
     return _dictionary[key];
   
   if (_parent)
-    return _parent->get_value(key);
+    return _parent->getValue(key);
   
-  return GlobalDictionary.get_value(key);
+  return GlobalDictionary.getValue(key);
 }
 
-DictionaryInterface* Dictionary::add_section_dictionary(const std::string& name) 
+DictionaryInterface* Dictionary::addSectionDictionary(const base::utf8string& name) 
 { 
-  std::string newName = _name + name + std::string("/");
+  base::utf8string newName = _name + name + base::utf8string("/");
   DictionaryInterface *_sectionDict = new Dictionary(newName, this);
   
   if (_section_dictionaries[name].size() > 0)
-    _section_dictionaries[name].back()->set_is_last(false);
+    _section_dictionaries[name].back()->setIsLast(false);
   
-  _sectionDict->set_is_last(true);
+  _sectionDict->setIsLast(true);
   _section_dictionaries[name].push_back(_sectionDict);
   return _sectionDict;
 }
 
-Dictionary::section_dictionary_storage &Dictionary::get_section_dictionaries(const std::string& section)
+Dictionary::section_dictionary_storage &Dictionary::getSectionDictionaries(const base::utf8string& section)
 {
   if (_section_dictionaries.find(section) == _section_dictionaries.end())
     return _no_section;
@@ -131,8 +131,8 @@ Dictionary::section_dictionary_storage &Dictionary::get_section_dictionaries(con
 
 void Dictionary::dump(int indent) 
 {
-  std::string indent_str(indent * 2, ' ');
-  std::string indent_plus_str((indent + 1) * 2, ' ');
+  base::utf8string indent_str(indent * 2, ' ');
+  base::utf8string indent_plus_str((indent + 1) * 2, ' ');
   
   if (_dictionary.size() == 0 && _section_dictionaries.size() == 0)
   {
@@ -144,10 +144,10 @@ void Dictionary::dump(int indent)
   std::cout << indent_str << "[" << _name << "] = " << std::endl
             << indent_str << "{" << std::endl;
   
-  for (std::map<std::string, std::string>::iterator iter = _dictionary.begin(); iter != _dictionary.end(); ++iter)
+  for (std::map<base::utf8string, base::utf8string>::iterator iter = _dictionary.begin(); iter != _dictionary.end(); ++iter)
     std::cout << indent_plus_str << "[" << iter->first << "] = \"" << iter->second << "\"" << std::endl;
   
-  for (std::map<std::string, std::vector<DictionaryInterface *> >::iterator iter = _section_dictionaries.begin(); iter != _section_dictionaries.end(); ++iter)
+  for (std::map<base::utf8string, std::vector<DictionaryInterface *> >::iterator iter = _section_dictionaries.begin(); iter != _section_dictionaries.end(); ++iter)
     for (std::vector<DictionaryInterface *>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
       (*iter2)->dump(indent + 1);
 
@@ -162,9 +162,9 @@ Dictionary *CreateMainDictionary()
   return new Dictionary("/", NULL);
 }
 
-void SetGlobalValue(const std::string& key, const std::string& value)
+void SetGlobalValue(const base::utf8string& key, const base::utf8string& value)
 { 
-  GlobalDictionary.set_value(key, value);
+  GlobalDictionary.setValue(key, value);
 }
 
 

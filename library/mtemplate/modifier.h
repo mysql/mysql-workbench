@@ -21,28 +21,28 @@
 #pragma once
 
 #include "common.h"
-#include <string>
+#include <utf8string.h>
 #include <map>
 
 namespace mtemplate {
 
 struct ModifierAndArgument
 {
-  std::string _name;
-  std::string _arg;
+  base::utf8string _name;
+  base::utf8string _arg;
 };
 
 struct Modifier;
-extern std::map<std::string, Modifier *> UserModifierMap;
+extern std::map<base::utf8string, Modifier *> UserModifierMap;
 
 struct Modifier
 {
   virtual ~Modifier();
   
-  virtual std::string modify(const std::string &input, const std::string arg = "") = 0;
+  virtual base::utf8string modify(const base::utf8string &input, const base::utf8string arg = "") = 0;
 
   template <typename T>
-  static void add_modifier(const std::string &name)
+  static void addModifier(const base::utf8string &name)
   {
     if (UserModifierMap.find(name) != UserModifierMap.end())
       delete UserModifierMap[name];
@@ -53,15 +53,15 @@ struct Modifier
 
 struct Modifier_HtmlEscape : public Modifier
 {
-  virtual std::string modify(const std::string &input, const std::string arg = "");
+  virtual base::utf8string modify(const base::utf8string &input, const base::utf8string arg = "");
 };
 
 struct Modifier_XmlEscape : public Modifier
 {
-  virtual std::string modify(const std::string &input, const std::string arg = "");
+  virtual base::utf8string modify(const base::utf8string &input, const base::utf8string arg = "");
 };
 
-Modifier *GetModifier(const std::string &name);
+Modifier *GetModifier(const base::utf8string &name);
 
 
 }   //  namespace mtemplate

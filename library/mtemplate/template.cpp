@@ -41,8 +41,8 @@ Template::~Template()
 
 void Template::dump(int indent)
 {
-  std::string indent_str(indent * 2, ' ');
-  std::string indent_plus_str((indent + 1)* 2, ' ');
+  base::utf8string indent_str(indent * 2, ' ');
+  base::utf8string indent_plus_str((indent + 1)* 2, ' ');
   
   std::cout << indent_str << "[Temaplate] = " << std::endl
             << indent_str << "{" << std::endl;
@@ -61,7 +61,7 @@ void Template::expand(DictionaryInterface *dict, TemplateOutput* output)
     
     if (node->type() == TemplateObject_Section)
     {
-      DictionaryInterface::section_dictionary_storage &section_dicts = dict->get_section_dictionaries(node->_text);
+      DictionaryInterface::section_dictionary_storage &section_dicts = dict->getSectionDictionaries(node->_text);
       
       std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
       
@@ -74,7 +74,7 @@ void Template::expand(DictionaryInterface *dict, TemplateOutput* output)
 }
 
 
-Template *GetTemplate(const std::string &path, PARSE_TYPE type)
+Template *GetTemplate(const base::utf8string &path, PARSE_TYPE type)
 {
   if (type == STRIP_WHITESPACE)
     throw std::invalid_argument("STRIP_WHITESPACE");
@@ -87,7 +87,7 @@ Template *GetTemplate(const std::string &path, PARSE_TYPE type)
   buffer << file.rdbuf();
 
   
-  Template *temp = new Template(parse_template(buffer.str(), type));
+  Template *temp = new Template(parseTemplate(buffer.str(), type));
   
   return temp;
 }
