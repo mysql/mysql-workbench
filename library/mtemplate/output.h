@@ -21,7 +21,7 @@
 
 #include "common.h"
 
-#include <string>
+#include <utf8string.h>
 #include "base/file_utilities.h"
 // class FILE;
 
@@ -33,17 +33,17 @@ struct TemplateOutput
   TemplateOutput();
   virtual ~TemplateOutput();
   
-  virtual void out(const std::string &str) = 0;
+  virtual void out(const base::utf8string &str) = 0;
 };
 
 
 class TemplateOutputString : public TemplateOutput
 {
-  std::string _buffer;
+  base::utf8string _buffer;
 public:
-  virtual void out(const std::string &str);
+  virtual void out(const base::utf8string &str);
   
-  const std::string &get();
+  const base::utf8string &get();
 };
 
 
@@ -51,8 +51,8 @@ class TemplateOutputFile : public TemplateOutput
 {
   base::FileHandle _file;
 public:
-  TemplateOutputFile(const std::string &filename);
-  virtual void out(const std::string &str);
+  TemplateOutputFile(const base::utf8string &filename);
+  virtual void out(const base::utf8string &str);
 };
 
 }   //  namespace mtemplate
