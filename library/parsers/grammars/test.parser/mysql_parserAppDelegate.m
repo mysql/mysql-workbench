@@ -477,7 +477,9 @@ NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 't
 
   last_error = "";
   [errorText setString: @""];
-  
+
+  NSDate *start = [NSDate new];
+
   pANTLR3_INPUT_STREAM input;
   pMySQLLexer lexer;
   pANTLR3_COMMON_TOKEN_STREAM tokens;
@@ -497,12 +499,16 @@ NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 't
   parser->pParser->rec->state->userp = &context;
 
   pANTLR3_BASE_TREE tree = parser->query(parser).tree;
-  
-  NSString *combinedErrorText = @"No errors found";
+
+  NSTimeInterval lastDuration = -[start timeIntervalSinceNow];
+
+  NSString *combinedErrorText = [NSString stringWithFormat: @"Parse time: %.6fs\n\n", lastDuration];
   ANTLR3_UINT32 error_count = parser->pParser->rec->state->errorCount;
   error_count += lexer->pLexer->rec->state->errorCount;
   if (error_count > 0) {
-    combinedErrorText = [NSString stringWithFormat: @"%i errors found\n%s", error_count, last_error.c_str()];
+    combinedErrorText = [combinedErrorText stringByAppendingFormat: @"%i errors found\n%s", error_count, last_error.c_str()];
+  } else {
+    combinedErrorText = [combinedErrorText stringByAppendingString: @"No errors found"];
   }
   [errorText setString: combinedErrorText];
 
@@ -676,6 +682,8 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
 
 - (void)runTestsWithData: (NSString*)data
 {
+  NSDate *start = [NSDate new];
+
   try {
     // 1. Part: parse example queries from file.
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -720,12 +728,15 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
       gotError = ![self runFunctionNamesTest];
     }
     
+    NSTimeInterval duration = [start timeIntervalSinceNow];
+    NSString *durationText = [NSString stringWithFormat: @"Parse time: %.3fs\n\n", -duration];
     dispatch_async(dispatch_get_main_queue(), ^{
       if (stopTests)
         statusText.stringValue = @"Execution stopped by user.";
       else
         if (!gotError)
           statusText.stringValue = @"All queries parsed fine. Great!";
+      [self appendStepText: durationText];
     });
     running = NO;
   } catch (std::exception& e) {

@@ -64,7 +64,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only grt_dispatcher_test"
+            argument = "only highlevel_mysql_parser_test"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
