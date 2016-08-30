@@ -1416,7 +1416,7 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
         }
 
         // Add new unique index for that column.
-        db_mysql_IndexRef index;
+        db_mysql_IndexRef index(grt::Initialized);
         index->owner(table);
         index->unique(1);
         index->indexType("UNIQUE");
