@@ -1033,7 +1033,6 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
             if(!was_null)
             {
-              char *utf8_data = nullptr;
               char *final_data = _blob_buffer.data();
               size_t final_length = len_or_indicator;
 
