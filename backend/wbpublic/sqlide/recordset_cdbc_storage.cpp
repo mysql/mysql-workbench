@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,21 +48,6 @@ _gather_field_info(false)
 
 Recordset_cdbc_storage::~Recordset_cdbc_storage()
 {
-}
-
-
-sql::Dbc_connection_handler::ConnectionRef Recordset_cdbc_storage::dbms_conn_ref()
-{
-  if (!_dbms_conn || !_dbms_conn->ref.get_ptr())
-    throw std::runtime_error("No connection to DBMS");
-  return _dbms_conn->ref;
-}
-
-sql::Dbc_connection_handler::ConnectionRef Recordset_cdbc_storage::aux_dbms_conn_ref()
-{
-  if (!_aux_dbms_conn || !_aux_dbms_conn->ref.get_ptr())
-  throw std::runtime_error("No connection to DBMS");
-  return _aux_dbms_conn->ref;
 }
 
 class FetchVar : public boost::static_visitor<sqlite::variant_t>
@@ -124,50 +109,52 @@ private:
 size_t Recordset_cdbc_storage::determine_pkey_columns(Recordset::Column_names &column_names, Recordset::Column_types &column_types, Recordset::Column_types &real_column_types)
 {
   // a connection other than the user connection must be used for fetching metadata, otherwise we change the state of the connection
-  sql::Dbc_connection_handler::ConnectionRef aux_dbms_conn_ref= this->aux_dbms_conn_ref();
-
-  sql::DatabaseMetaData *conn_meta(aux_dbms_conn_ref->getMetaData());
-  try
+  sql::Dbc_connection_handler::Ref conn;
+  base::RecMutexLock lock(_getAuxConnection(conn));
   {
-    // XXX this can be slow because of the I_S queries, depending on the server
-    std::auto_ptr<sql::ResultSet> rs(conn_meta->getBestRowIdentifier("", _schema_name, _table_name, 0, 0));
-    size_t rowid_col_count= rs->rowsCount();
-    if (rowid_col_count > 0)
+    sql::DatabaseMetaData *conn_meta(conn->ref->getMetaData());
+    try
     {
-      _pkey_columns.reserve(rowid_col_count);
-      while (rs->next())
+      // XXX this can be slow because of the I_S queries, depending on the server
+      std::auto_ptr<sql::ResultSet> rs(conn_meta->getBestRowIdentifier("", _schema_name, _table_name, 0, 0));
+      size_t rowid_col_count= rs->rowsCount();
+      if (rowid_col_count > 0)
       {
-        Recordset::Column_names::const_iterator i=
-        std::find(column_names.begin(), column_names.end(), rs->getString("COLUMN_NAME"));
-        if (i != column_names.end())
+        _pkey_columns.reserve(rowid_col_count);
+        while (rs->next())
         {
-          ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
-          column_names.push_back(column_names[col]);
-          column_types.push_back(column_types[col]);
-          real_column_types.push_back(real_column_types[col]);
-          _pkey_columns.push_back(col); // copy original value of pk field(s)
+          Recordset::Column_names::const_iterator i=
+          std::find(column_names.begin(), column_names.end(), rs->getString("COLUMN_NAME"));
+          if (i != column_names.end())
+          {
+            ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
+            column_names.push_back(column_names[col]);
+            column_types.push_back(column_types[col]);
+            real_column_types.push_back(real_column_types[col]);
+            _pkey_columns.push_back(col); // copy original value of pk field(s)
+          }
+          else
+            rowid_col_count--;
         }
-        else
-          rowid_col_count--;
-      }
 
-      if (rowid_col_count != rs->rowsCount())
+        if (rowid_col_count != rs->rowsCount())
+        {
+          _readonly = true;
+          _readonly_reason = "To edit table data, the SELECT statement must include the primary key column(s).";
+        }
+      }
+      else
       {
         _readonly = true;
-        _readonly_reason = "To edit table data, the SELECT statement must include the primary key column(s).";
+        _readonly_reason = "The table has no unique row identifier (primary key or a NOT NULL unique index)";
       }
+      return rowid_col_count;
     }
-    else
+    catch (sql::SQLException &exc)
     {
       _readonly = true;
-      _readonly_reason = "The table has no unique row identifier (primary key or a NOT NULL unique index)";
+      _readonly_reason = base::strfmt("Could not determine a unique row identifier (%s)", exc.what());
     }
-    return rowid_col_count;
-  }
-  catch (sql::SQLException &exc)
-  {
-    _readonly = true;
-    _readonly_reason = base::strfmt("Could not determine a unique row identifier (%s)", exc.what());
   }
   return 0;
 }
@@ -176,87 +163,88 @@ size_t Recordset_cdbc_storage::determine_pkey_columns(Recordset::Column_names &c
 size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_names &column_names, Recordset::Column_types &column_types, Recordset::Column_types &real_column_types)
 {
   // a connection other than the user connection must be used for fetching metadata, otherwise we change the state of the connection
-  sql::Dbc_connection_handler::ConnectionRef aux_dbms_conn_ref= this->aux_dbms_conn_ref();
-
-  std::auto_ptr<sql::Statement> stmt(aux_dbms_conn_ref->createStatement());
-  std::string q = base::sqlstring("SHOW INDEX FROM !.!", 0) << _schema_name << _table_name;
-  try
+  sql::Dbc_connection_handler::Ref conn;
+  base::RecMutexLock lock(_getAuxConnection(conn));
   {
-    std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(q));
-    std::list<std::string> primary_columns;
-    std::list<std::string> unique_notnull_columns, columns;
-
-    bool found_not_null = false;
-    std::string prev_key;
-    while (rs->next())
+    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::string q = base::sqlstring("SHOW INDEX FROM !.!", 0) << _schema_name << _table_name;
+    try
     {
-      std::string column = rs->getString("Column_name");
-      std::string null = rs->getString("Null");
-      std::string key = rs->getString("Key_name");
+      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(q));
+      std::list<std::string> primary_columns;
+      std::list<std::string> unique_notnull_columns, columns;
 
-      if (key == "PRIMARY")
+      bool found_not_null = false;
+      std::string prev_key;
+      while (rs->next())
       {
-        primary_columns.push_back(column);
-      }
-      else
-      {
-        // at least one of the columns must be NOT NULL in a UNIQUE key
-        if (prev_key != key)
+        std::string column = rs->getString("Column_name");
+        std::string null = rs->getString("Null");
+        std::string key = rs->getString("Key_name");
+
+        if (key == "PRIMARY")
         {
-          prev_key = key;
-          if (found_not_null && unique_notnull_columns.empty())
-            unique_notnull_columns = columns;
-          found_not_null = false;
-          columns.clear();
-        }
-        columns.push_back(column);
-        if (null == "")
-          found_not_null = true;
-      }
-    }
-    if (found_not_null && unique_notnull_columns.empty() && !columns.empty())
-      unique_notnull_columns = columns;
-
-    if (!primary_columns.empty())
-      columns = primary_columns;
-    else
-      columns = unique_notnull_columns;
-
-    if (!columns.empty())
-    {
-      size_t rowid_col_count= columns.size();
-      // now check whether the query contains all the columns in the keys
-      for (std::list<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
-      {
-        Recordset::Column_names::const_iterator i = std::find(column_names.begin(), column_names.end(), *column);
-
-        if (i != column_names.end())
-        {
-          ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
-          column_names.push_back(column_names[col]);
-          column_types.push_back(column_types[col]);
-          real_column_types.push_back(real_column_types[col]);
-          _pkey_columns.push_back(col); // copy original value of pk field(s)
+          primary_columns.push_back(column);
         }
         else
-          rowid_col_count--;
+        {
+          // at least one of the columns must be NOT NULL in a UNIQUE key
+          if (prev_key != key)
+          {
+            prev_key = key;
+            if (found_not_null && unique_notnull_columns.empty())
+              unique_notnull_columns = columns;
+            found_not_null = false;
+            columns.clear();
+          }
+          columns.push_back(column);
+          if (null == "")
+            found_not_null = true;
+        }
       }
+      if (found_not_null && unique_notnull_columns.empty() && !columns.empty())
+        unique_notnull_columns = columns;
 
-      if (rowid_col_count != columns.size())
+      if (!primary_columns.empty())
+        columns = primary_columns;
+      else
+        columns = unique_notnull_columns;
+
+      if (!columns.empty())
       {
-        _readonly = true;
-        _readonly_reason = "To edit table data, the SELECT statement must include the primary key column(s).";
-      }
-      return rowid_col_count;
-    }
-  }
-  catch (sql::SQLException &exc)
-  {
-    _readonly = true;
-    _readonly_reason = base::strfmt("Could not determine a unique row identifier (%s)", exc.what());
-    return 0;
-  }
+        size_t rowid_col_count= columns.size();
+        // now check whether the query contains all the columns in the keys
+        for (std::list<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
+        {
+          Recordset::Column_names::const_iterator i = std::find(column_names.begin(), column_names.end(), *column);
 
+          if (i != column_names.end())
+          {
+            ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
+            column_names.push_back(column_names[col]);
+            column_types.push_back(column_types[col]);
+            real_column_types.push_back(real_column_types[col]);
+            _pkey_columns.push_back(col); // copy original value of pk field(s)
+          }
+          else
+            rowid_col_count--;
+        }
+
+        if (rowid_col_count != columns.size())
+        {
+          _readonly = true;
+          _readonly_reason = "To edit table data, the SELECT statement must include the primary key column(s).";
+        }
+        return rowid_col_count;
+      }
+    }
+    catch (sql::SQLException &exc)
+    {
+      _readonly = true;
+      _readonly_reason = base::strfmt("Could not determine a unique row identifier (%s)", exc.what());
+      return 0;
+    }
+    }
   _readonly = true;
   _readonly_reason = "The table has no unique row identifier (primary key or a NOT NULL unique index)";
 
@@ -266,8 +254,8 @@ size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_name
 
 void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connection *data_swap_db)
 {
-  sql::Dbc_connection_handler::ConnectionRef dbms_conn_ref= this->dbms_conn_ref();
-  sql::Connection *dbms_conn= dbms_conn_ref.get();
+  sql::Dbc_connection_handler::Ref conn;
+  base::RecMutexLock lock(_getUserConnection(conn));
 
   Recordset_sql_storage::do_unserialize(recordset, data_swap_db);
 
@@ -292,7 +280,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   {
     if (!_reloadable)
       throw std::runtime_error("Recordset can't be reloaded, original statement must be reexecuted instead");
-    stmt.reset(dbms_conn->createStatement());
+    stmt.reset(conn->ref->createStatement());
     //if (!_schema_name.empty()) //! default schema is to be set for connector
     //  stmt->execute(strfmt("use `%s`", _schema_name.c_str()));
     //stmt->setFetchSize(100); //! setFetchSize is not implemented. param value to be customized.
@@ -487,7 +475,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
         row_values[editable_col_count+n]= row_values[_pkey_columns[n]];
       add_data_swap_record(insert_commands, row_values);
 
-      if (_dbms_conn->is_stop_query_requested)
+      if (conn->is_stop_query_requested)
         throw std::runtime_error(_("Query execution has been stopped, the connection to the DB server was not restarted, any open transaction remains open"));
     }
 
@@ -502,7 +490,9 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
 
 void Recordset_cdbc_storage::do_fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value)
 {
-  sql::Dbc_connection_handler::ConnectionRef dbms_conn= dbms_conn_ref();
+
+  sql::Dbc_connection_handler::Ref conn;
+  base::RecMutexLock lock(_getUserConnection(conn));
 
   Recordset::Column_names &column_names= get_column_names(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
@@ -526,7 +516,7 @@ void Recordset_cdbc_storage::do_fetch_blob_value(Recordset *recordset, sqlite::c
 
   if (!_reloadable)
     throw std::runtime_error("Recordset can't be reloaded, original statement must be reexecuted instead");
-  boost::shared_ptr<sql::Statement> stmt(dbms_conn->createStatement());
+  boost::shared_ptr<sql::Statement> stmt(conn->ref->createStatement());
   stmt->execute(sql_query);
   boost::shared_ptr<sql::ResultSet> rs(stmt->getResultSet());
 
@@ -569,7 +559,8 @@ public:
 
 void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool skip_transaction)
 {
-  sql::Dbc_connection_handler::ConnectionRef dbms_conn= dbms_conn_ref();
+  sql::Dbc_connection_handler::Ref conn;
+  base::RecMutexLock lock(_getUserConnection(conn));
 
   float progress_state= 0.f;
   float progress_state_inc= sql_script.statements.empty() ? 1.f : 1.f / sql_script.statements.size();
@@ -583,7 +574,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
   {
     try
     {
-      stmt.reset(dbms_conn->prepareStatement(sql));
+      stmt.reset(conn->ref->prepareStatement(sql));
       std::list<boost::shared_ptr<std::stringstream> > blob_streams;
       if (sql_script.statements_bindings.end() != sql_bindings)
       {
@@ -622,7 +613,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
   if (err_count)
   {
     if (!skip_transaction)
-      dbms_conn->rollback();
+      conn->ref->rollback();
     msg= strfmt("%i error(s) saving changes to table %s", err_count, full_table_name().c_str());
     on_sql_script_run_statistics((processed_statement_count - err_count), err_count);
     throw std::runtime_error(msg.c_str());
@@ -630,7 +621,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
   else
   {
     if (!skip_transaction)
-      dbms_conn->commit();
+      conn->ref->commit();
     on_sql_script_run_statistics((processed_statement_count - err_count), err_count);
   }
 }
