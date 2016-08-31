@@ -55,8 +55,8 @@ public:
   std::string decorated_sql_query(); // adds limit clause if defined by options
 
 public:
-  void setAuxConnectionGetter(std::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> getConnection) { _getAuxConnection = getConnection; };
-  void setUserConnectionGetter(std::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> getConnection) { _getUserConnection = getConnection; };
+  void setAuxConnectionGetter(boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> getConnection) { _getAuxConnection = getConnection; };
+  void setUserConnectionGetter(boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> getConnection) { _getUserConnection = getConnection; };
 
   void dbc_resultset(boost::shared_ptr<sql::ResultSet>& value) { _dbc_resultset= value; }
   void dbc_statement(boost::shared_ptr<sql::Statement>& value) { _dbc_statement= value; }
