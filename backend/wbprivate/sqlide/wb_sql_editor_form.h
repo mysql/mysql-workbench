@@ -325,8 +325,10 @@ private:
   ServerState _last_server_running_state;
 
   AutoCompleteCache *_auto_completion_cache;
-  base::RecMutexLock get_autocompletion_connection(sql::Dbc_connection_handler::Ref &conn);
   void on_cache_action(bool active);
+  base::RecMutexLock getAuxConnection(sql::Dbc_connection_handler::Ref &conn);
+  base::RecMutexLock getUserConnection(sql::Dbc_connection_handler::Ref &conn);
+
 
   ColumnWidthCache *_column_width_cache;
 public:
