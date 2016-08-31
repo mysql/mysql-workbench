@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,14 +49,23 @@ TEST_FUNCTION(1)
 
   dbc_conn = sql::Dbc_connection_handler::Ref(new sql::Dbc_connection_handler());
   dbc_conn->ref = dbc_drv_man->getConnection(wbt.get_connection_properties(), boost::bind(dummy));
+
   ensure("connection", dbc_conn->ref.get() != 0);
 }
 
+static base::RecMutexLock getAuxConn(sql::Dbc_connection_handler::Ref &internalConn, sql::Dbc_connection_handler::Ref &conn)
+{
+  base::RecMutex _connLock;
+  base::RecMutexLock lock(_connLock, false);
+  conn = internalConn;
+  return lock;
+}
 
 TEST_FUNCTION(2)
 {
   Recordset_cdbc_storage::Ref data_storage(Recordset_cdbc_storage::create(wbt.wb->get_grt_manager()));
-  data_storage->dbms_conn(dbc_conn);
+
+  data_storage->setUserConnectionGetter(boost::bind(&getAuxConn, dbc_conn, _1));
 
   Recordset::Ref rs = Recordset::create(wbt.wb->get_grt_manager());
   rs->data_storage(data_storage);
@@ -66,7 +75,6 @@ TEST_FUNCTION(2)
 
   boost::shared_ptr<sql::ResultSet> rset(dbc_statement->getResultSet());
   data_storage->dbc_resultset(rset);
-  data_storage->dbms_conn(dbc_conn); 
 
   rs->reset(true);
 
