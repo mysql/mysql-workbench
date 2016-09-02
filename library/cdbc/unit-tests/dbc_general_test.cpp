@@ -32,6 +32,11 @@ public:
     grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
     grt::GRT::get()->end_loading_metaclasses();
 
+    for (MetaClass *item : grt::GRT::get()->get_metaclasses())
+    {
+      std::cout << item->name() << std::endl;
+    }
+    
     ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
   
     db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
