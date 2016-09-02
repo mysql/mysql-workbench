@@ -119,13 +119,13 @@ utf8string utf8string::normalize() const
   return result;
 }
 
-utf8string utf8string::trim_right()
+utf8string utf8string::trimRight()
 {
   std::string::erase(std::find_if(std::string::rbegin(), std::string::rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), std::string::end());
   return *this;
 }
 
-utf8string utf8string::trim_left()
+utf8string utf8string::trimLeft()
 {
   std::string::erase(std::string::begin(), std::find_if(std::string::begin(), std::string::end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
   return *this;
@@ -133,7 +133,7 @@ utf8string utf8string::trim_left()
 
 utf8string utf8string::trim()
 {
-  return trim_left().trim_right();
+  return trimLeft().trimRight();
 }
 
 int utf8string::compareNormalized(const utf8string &s) const
@@ -270,12 +270,12 @@ std::vector<utf8string> utf8string::split(const utf8string &sep, int count)
   return parts;
 }
 
-bool utf8string::starts_with(const utf8string& s) const
+bool utf8string::startsWith(const utf8string& s) const
 {
   return 0 == this->compare(0, s.bytes(), s);
 }
 
-bool utf8string::ends_with(const utf8string& s) const
+bool utf8string::endsWith(const utf8string& s) const
 {
   if( s.bytes() > this->bytes() )
     return false;
