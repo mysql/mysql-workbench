@@ -48,7 +48,7 @@ namespace base
       bool operator == (const utf8char &c) const        { return _c == c._c; }
       bool operator == (char c) const           { return _c == (uint32_t)c; }
       bool operator == (const char *c) const    { return _c == g_utf8_get_char(c); }
-      operator int () const                     { return _c; }
+      operator unsigned int () const                     { return _c; }
     };
     
     utf8string();
@@ -96,7 +96,6 @@ namespace base
      * @param pos Position of character to get.
      * @return Return character at pos.
      */
-//     utf8string operator[](const size_t pos) const;
     utf8char operator[](const size_t pos) const;
 
     /**
@@ -104,8 +103,8 @@ namespace base
      */
     bool validate() const;
     utf8string normalize() const;
-    utf8string trim_right();
-    utf8string trim_left();
+    utf8string trimRight();
+    utf8string trimLeft();
     utf8string trim();
     utf8string &operator=(char c);
     bool operator==(const utf8string &s) const;
@@ -126,8 +125,8 @@ namespace base
     static utf8string strfmt(const char* fmt, ...);
     utf8string truncate(const size_t max_length);
     std::vector<utf8string> split(const utf8string &sep, int count = -1);
-    bool starts_with(const utf8string& s) const;
-    bool ends_with(const utf8string& s) const;
+    bool startsWith(const utf8string& s) const;
+    bool endsWith(const utf8string& s) const;
     bool contains(const utf8string& s, const bool case_sensitive = true) const;
     size_t charIndexToByteOffset(const size_t index) const;
     size_t byteOffsetToCharIndex(const size_t offset) const;
@@ -140,7 +139,6 @@ namespace base
       bool operator!=(iterator const& rhs) const;
       utf8string::iterator& operator++();
       utf8string::iterator& operator--();
-//       utf8string operator*() const;
       utf8char operator*() const;
 
     private:

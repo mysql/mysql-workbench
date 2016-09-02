@@ -192,12 +192,12 @@ TEST_FUNCTION(55)
 TEST_FUNCTION(60)
 {
    base::utf8string str = std::string("zażółć");
-   ensure_equals("TEST 60.1: starts_with", str.starts_with("za"), true);
-   ensure_equals("TEST 60.2: starts_with", str.starts_with("kk"), false);
-   ensure_equals("TEST 60.3: starts_with", str.starts_with("toolongstring"), false);
-   ensure_equals("TEST 60.4: ends_with", str.ends_with("ółć"), true);
-   ensure_equals("TEST 60.5: ends_with", str.ends_with("ÓŁa"), false);
-   ensure_equals("TEST 60.6: ends_with", str.ends_with("toolongstring"), false);
+   ensure_equals("TEST 60.1: starts_with", str.startsWith("za"), true);
+   ensure_equals("TEST 60.2: starts_with", str.startsWith("kk"), false);
+   ensure_equals("TEST 60.3: starts_with", str.startsWith("toolongstring"), false);
+   ensure_equals("TEST 60.4: ends_with", str.endsWith("ółć"), true);
+   ensure_equals("TEST 60.5: ends_with", str.endsWith("ÓŁa"), false);
+   ensure_equals("TEST 60.6: ends_with", str.endsWith("toolongstring"), false);
    ensure_equals("TEST 60.7: contains", str.contains("żół"), true);
    ensure_equals("TEST 60.8: contains", str.contains("ŻÓŁ"), false);
    ensure_equals("TEST 60.9: contains", str.contains("ŻÓŁ", false), true);
