@@ -391,7 +391,7 @@ void SqlEditorForm::finish_startup()
       try
       {
         _auto_completion_cache = new AutoCompleteCache(sanitize_file_name(get_session_name()),
-          boost::bind(&SqlEditorForm::get_autocompletion_connection, this, _1), cache_dir,
+          boost::bind(&SqlEditorForm::getAuxConnection, this, _1), cache_dir,
           boost::bind(&SqlEditorForm::on_cache_action, this, _1));
         _auto_completion_cache->refresh_schema_list(); // Start fetching schema names immediately.
       }
@@ -1520,15 +1520,6 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
   
   _connection_info.append("</body></html>");
   return grt::StringRef();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-base::RecMutexLock SqlEditorForm::get_autocompletion_connection(sql::Dbc_connection_handler::Ref &conn)
-{
-  RecMutexLock lock(ensure_valid_aux_connection());
-  conn = _aux_dbc_conn;
-  return lock;
 }
 
 //--------------------------------------------------------------------------------------------------
