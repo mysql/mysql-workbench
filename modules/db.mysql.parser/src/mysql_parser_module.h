@@ -139,7 +139,8 @@ public:
     const std::string &sqlMode, int case_sensitive);
 
   virtual size_t tokenFromString(parsers::MySQLParserContext::Ref context, const std::string &token) override;
-
+  virtual MySQLQueryType determineQueryType(parsers::MySQLParserContext::Ref context, const std::string &text) override;
+  
   // DB objects.
   virtual size_t parseTable(parsers::MySQLParserContext::Ref context, db_mysql_TableRef table,
     const std::string &sql) override;

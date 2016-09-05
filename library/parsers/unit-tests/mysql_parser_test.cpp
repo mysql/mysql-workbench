@@ -956,7 +956,7 @@ TEST_FUNCTION(35)
   public:
     std::string text;
 
-    virtual void exitString_literal(MySQLParser::String_literalContext *ctx) override
+    virtual void exitStringLiteral(MySQLParser::StringLiteralContext *ctx) override
     {
       text = MySQLParser::getText(ctx, true);
     }
@@ -965,7 +965,7 @@ TEST_FUNCTION(35)
 
   ensure_equals("35.1 String concatenation", parse("select \"abc\" \"def\" 'ghi''\\n\\z'", 50610, ""), 0U);
   TestListener listener;
-  tree::ParseTreeWalker::DEFAULT.walk(&listener, _lastParseTree);
+  tree::ParseTreeWalker::DEFAULT.walk(&listener, _lastParseTree.get());
   ensure_equals("35.2 String concatenation", listener.text, "abcdefghi'\nz");
 }
 

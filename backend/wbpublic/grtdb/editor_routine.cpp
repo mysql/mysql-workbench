@@ -30,7 +30,15 @@ RoutineEditorBE::RoutineEditorBE(const db_RoutineRef &routine)
 {
   MySQLEditor::Ref sql_editor = get_sql_editor();
   if (sql_editor)
-    sql_editor->restrict_content_to(MySQLEditor::ContentTypeRoutine);
+  {
+    std::string routineType = get_routine()->routineType();
+    if (routineType == "procedure")
+      sql_editor->restrict_content_to(MySQLEditor::ContentTypeProcedure);
+    else if (routineType == "function")
+      sql_editor->restrict_content_to(MySQLEditor::ContentTypeFunction);
+    else
+      sql_editor->restrict_content_to(MySQLEditor::ContentTypeUdf);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,9 +48,9 @@ std::string RoutineEditorBE::get_sql()
   std::string sql = DBObjectEditorBE::get_sql();
   if (sql.empty())
   {
-    std::string routine_type = get_routine()->routineType();
+    std::string routineType = get_routine()->routineType();
 
-    if (routine_type == "function")
+    if (routineType == "function")
       return "CREATE FUNCTION `" + get_name() + "` ()\nRETURNS INTEGER\nBEGIN\n\nRETURN 1;\nEND\n";
 
     return "CREATE PROCEDURE `" + get_name() + "` ()\nBEGIN\n\nEND\n";

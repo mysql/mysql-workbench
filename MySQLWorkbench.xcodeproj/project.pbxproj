@@ -598,6 +598,8 @@
 		27C5903614C9755100FFC45E /* code_editor.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 27C5903514C9755100FFC45E /* code_editor.xml */; };
 		27C6887F10B58C9B00B8D810 /* new_server_instance_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C6887D10B58C9A00B8D810 /* new_server_instance_wizard.cpp */; };
 		27C6888010B58C9B00B8D810 /* new_server_instance_wizard.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C6887E10B58C9A00B8D810 /* new_server_instance_wizard.h */; };
+		27C792DE1D6700B600944C87 /* ObjectListeners.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C792DC1D6700B600944C87 /* ObjectListeners.cpp */; };
+		27C792DF1D6700B600944C87 /* ObjectListeners.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C792DD1D6700B600944C87 /* ObjectListeners.h */; };
 		27CAD24D16C24A9A00A4FA02 /* wb_sql_editor_help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAD24B16C24A9A00A4FA02 /* wb_sql_editor_help.cpp */; };
 		27CAD24E16C24A9A00A4FA02 /* wb_sql_editor_help.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CAD24C16C24A9A00A4FA02 /* wb_sql_editor_help.h */; };
 		27CD25181A6AAB5B009DB982 /* migration_bulk_copy_data.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 27CD25141A6A9807009DB982 /* migration_bulk_copy_data.py */; };
@@ -4426,6 +4428,8 @@
 		27C5903514C9755100FFC45E /* code_editor.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = code_editor.xml; path = res/wbdata/code_editor.xml; sourceTree = "<group>"; };
 		27C6887D10B58C9A00B8D810 /* new_server_instance_wizard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = new_server_instance_wizard.cpp; path = frontend/common/new_server_instance_wizard.cpp; sourceTree = "<group>"; };
 		27C6887E10B58C9A00B8D810 /* new_server_instance_wizard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = new_server_instance_wizard.h; path = frontend/common/new_server_instance_wizard.h; sourceTree = "<group>"; };
+		27C792DC1D6700B600944C87 /* ObjectListeners.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ObjectListeners.cpp; path = modules/db.mysql.parser/src/ObjectListeners.cpp; sourceTree = "<group>"; };
+		27C792DD1D6700B600944C87 /* ObjectListeners.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjectListeners.h; path = modules/db.mysql.parser/src/ObjectListeners.h; sourceTree = "<group>"; };
 		27CAD24B16C24A9A00A4FA02 /* wb_sql_editor_help.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_sql_editor_help.cpp; path = backend/wbprivate/sqlide/wb_sql_editor_help.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		27CAD24C16C24A9A00A4FA02 /* wb_sql_editor_help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_sql_editor_help.h; path = backend/wbprivate/sqlide/wb_sql_editor_help.h; sourceTree = "<group>"; };
 		27CC86001741336B00AAA267 /* MySQL-WB-about-screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MySQL-WB-about-screen.png"; sourceTree = "<group>"; };
@@ -7745,6 +7749,8 @@
 				27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.h */,
 				27CE5FA019179DA5005574D4 /* mysql_parser_module.cpp */,
 				27CE5FA119179DA5005574D4 /* mysql_parser_module.h */,
+				27C792DC1D6700B600944C87 /* ObjectListeners.cpp */,
+				27C792DD1D6700B600944C87 /* ObjectListeners.h */,
 			);
 			name = db.mysql.parser;
 			sourceTree = "<group>";
@@ -11546,6 +11552,7 @@
 			files = (
 				27BFE4561924B80D0070B8FB /* db.mysql.parser.grt_prefix.h in Headers */,
 				27CE5FA319179DA5005574D4 /* mysql_parser_module.h in Headers */,
+				27C792DF1D6700B600944C87 /* ObjectListeners.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -14223,6 +14230,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27C792DE1D6700B600944C87 /* ObjectListeners.cpp in Sources */,
 				27CE5FA219179DA5005574D4 /* mysql_parser_module.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -42,10 +42,10 @@ void MySQLBaseRecognizer::reset()
 
 std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscapes)
 {
-  if (antlrcpp::is<MySQLParser::String_literalContext *>(context))
+  if (antlrcpp::is<MySQLParser::StringLiteralContext *>(context))
   {
     std::string result;
-    auto list = ((MySQLParser::String_literalContext *)context)->textList;
+    auto list = ((MySQLParser::StringLiteralContext *)context)->textList;
 
     int lastType = Token::INVALID_TYPE;
     int lastIndex = -1;

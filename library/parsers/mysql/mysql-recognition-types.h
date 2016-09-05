@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,10 +24,14 @@
 // Determines the sub parts of a query that can be parsed individually.
 enum class MySQLParseUnit {
   PuGeneric,
+  PuCreateSchema,
   PuCreateTable,
   PuCreateTrigger,
   PuCreateView,
-  PuCreateRoutine,
+  PuCreateFunction,
+  PuCreateProcedure,
+  PuCreateRoutine,   // Compatibility enum for function/procedure/UDF, deprecated.
+  PuCreateUdf,
   PuCreateEvent,
   PuCreateIndex,
   PuGrant,

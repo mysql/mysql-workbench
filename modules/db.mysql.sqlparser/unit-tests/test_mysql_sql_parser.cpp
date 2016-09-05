@@ -45,6 +45,7 @@ protected:
   DictRef _options;
 
   void test_import_sql(int test_no, const char *old_schema_name = NULL, const char *new_schema_name= NULL);
+
   TEST_DATA_CONSTRUCTOR(highlevel_mysql_parser_test)
   {
     _tester = new WBTester();
@@ -66,8 +67,7 @@ TEST_FUNCTION(10)
   ensure("failed to get sqlparser module", _sqlFacade != NULL);
 
   _services = MySQLParserServices::get();
-  _context = MySQLParserServices::get()->createParserContext(_tester->get_rdbms()->characterSets(),
-    _tester->get_rdbms()->version(), "", false);
+  _context = _services->createParserContext(_tester->get_rdbms()->characterSets(), _tester->get_rdbms()->version(), "", false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
     grt::replace_contents(res_catalog->simpleDatatypes(), _tester->get_rdbms()->simpleDatatypes());
 
     std::string sql = base::getTextFileContent(test_sql_filename);
-    tut::ensure("Query failed to parse", 
+    tut::ensure("Query failed to parse (" + number_string + "):\n" + sql +"\n",
       _services->parseSQLIntoCatalog(_context, res_catalog, sql, _options) == 0);
 
     // Rename the schema if asked.
@@ -158,30 +158,29 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
 // Table
 TEST_FUNCTION(20)
 {
-  for (int i = 16; i <= 18; ++i)
+  for (int i = 0; i <= 18; ++i)
     test_import_sql(i);
 }
 
 // Index
 TEST_FUNCTION(30)
 {
-  test_import_sql(50);
-  test_import_sql(51);
+  for (size_t i : { 50, 51 })
+    test_import_sql(i);
 }
 
 // View
 TEST_FUNCTION(40)
 {
-  test_import_sql(100);
-  test_import_sql(101);
+  for (size_t i : { 100, 101 })
+    test_import_sql(i);
 }
 
 // Routines
 TEST_FUNCTION(50)
 {
-  test_import_sql(150);
-  test_import_sql(151);
-  test_import_sql(152);
+  for (size_t i : { 150, 151, 152 })
+    test_import_sql(i);
 }
 
 // Triggers
@@ -193,7 +192,7 @@ TEST_FUNCTION(60)
 // Events
 TEST_FUNCTION(70)
 {
-  for (int i = 250; i < 254; ++i)
+  for (size_t i : { 250, 251, 252, 253 })
     test_import_sql(i);
 }
 
@@ -239,6 +238,7 @@ TEST_FUNCTION(90)
 // we can't have this inside of the d-tor.
 TEST_FUNCTION(99)
 {
+  _context.reset(); // TODO: find out what the context is using from the tester, so that we have to release it first.
   delete _tester;
 }
 

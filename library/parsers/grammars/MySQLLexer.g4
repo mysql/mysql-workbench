@@ -79,10 +79,6 @@ tokens {
  */
 }
 
-@lexer::declarations {
-typedef MySQLBaseLexer super;
-}
-
 //-------------------------------------------------------------------------------------------------
 
 // Operators
@@ -966,7 +962,7 @@ VERSION_COMMENT_START: ('/*!' DIGITS) (
 // inVersionComment is a variable in the base lexer.
 MYSQL_COMMENT_START: '/*!' { inVersionComment = true; setChannel(HIDDEN); };
 VERSION_COMMENT_END: '*/' {inVersionComment}? { inVersionComment = false; setChannel(HIDDEN); };
-BLOCK_COMMENT: '/*'~[!] .*? '*/' -> channel(HIDDEN);
+BLOCK_COMMENT: '/*' ~[!] .*? '*/' -> channel(HIDDEN);
 
 POUND_COMMENT: '#' ~([\n\r])*  -> channel(HIDDEN);
 DASHDASH_COMMENT: DOUBLE_DASH ([ \t] (~[\n\r])* | LINEBREAK | EOF) -> channel(HIDDEN);

@@ -64,7 +64,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only mysql_parser_tests"
+            argument = "only highlevel_mysql_parser_test"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

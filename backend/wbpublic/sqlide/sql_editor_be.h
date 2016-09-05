@@ -65,6 +65,9 @@ public:
     ContentTypeGeneral,
     ContentTypeTrigger,
     ContentTypeView,
+    ContentTypeFunction,
+    ContentTypeProcedure,
+    ContentTypeUdf,
     ContentTypeRoutine,
     ContentTypeEvent,
   };

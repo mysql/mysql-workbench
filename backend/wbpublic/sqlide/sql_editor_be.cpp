@@ -693,22 +693,31 @@ void MySQLEditor::restrict_content_to(ContentType type)
 {
   switch (type)
   {
-  case ContentTypeTrigger:
-    d->_parse_unit = MySQLParseUnit::PuCreateTrigger;
-    break;
-  case ContentTypeView:
-    d->_parse_unit = MySQLParseUnit::PuCreateView;
-    break;
-  case ContentTypeRoutine:
-    d->_parse_unit = MySQLParseUnit::PuCreateRoutine;
-    break;
-  case ContentTypeEvent:
-    d->_parse_unit = MySQLParseUnit::PuCreateEvent;
-    break;
+    case ContentTypeTrigger:
+      d->_parse_unit = MySQLParseUnit::PuCreateTrigger;
+      break;
+    case ContentTypeView:
+      d->_parse_unit = MySQLParseUnit::PuCreateView;
+      break;
+    case ContentTypeFunction:
+      d->_parse_unit = MySQLParseUnit::PuCreateFunction;
+      break;
+    case ContentTypeProcedure:
+      d->_parse_unit = MySQLParseUnit::PuCreateProcedure;
+      break;
+    case ContentTypeUdf:
+      d->_parse_unit = MySQLParseUnit::PuCreateUdf;
+      break;
+    case ContentTypeRoutine:
+      d->_parse_unit = MySQLParseUnit::PuCreateRoutine;
+      break;
+    case ContentTypeEvent:
+      d->_parse_unit = MySQLParseUnit::PuCreateEvent;
+      break;
 
-  default:
-    d->_parse_unit = MySQLParseUnit::PuGeneric;
-    break;
+    default:
+      d->_parse_unit = MySQLParseUnit::PuGeneric;
+      break;
   }
 }
 

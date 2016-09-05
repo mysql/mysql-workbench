@@ -139,7 +139,7 @@ std::string dumpTree(const Ref<RuleContext> &context, const dfa::Vocabulary &voc
     Ref<tree::Tree> child = context->children[index];
     if (antlrcpp::is<RuleContext>(child)) {
       auto ruleContext = std::dynamic_pointer_cast<RuleContext>(child);
-      if (antlrcpp::is<MySQLParser::String_literalContext>(child))
+      if (antlrcpp::is<MySQLParser::StringLiteralContext>(child))
       {
         misc::Interval interval = ruleContext->getSourceInterval();
         stream << indentation << "(index range: "

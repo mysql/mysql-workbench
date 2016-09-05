@@ -44,6 +44,7 @@ struct WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserContext {
   virtual GrtVersionRef serverVersion() const = 0;
   virtual std::string sqlMode() const = 0;
   virtual std::vector<ParserErrorInfo> errorsWithOffset(size_t offset) const = 0;
+
 };
 
 /**
@@ -60,7 +61,9 @@ public:
   virtual MySQLParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version,
     const std::string &sqlMode, bool caseSensitive) = 0;
 
+  // Info services.
   virtual size_t tokenFromString(MySQLParserContext::Ref context, const std::string &token) = 0;
+  virtual MySQLQueryType determineQueryType(MySQLParserContext::Ref context, const std::string &text) = 0;
 
   // DB objects.
   virtual size_t parseTable(MySQLParserContext::Ref context, db_mysql_TableRef table, const std::string &sql) = 0;
