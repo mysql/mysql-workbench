@@ -23,10 +23,10 @@
 #include "common.h"
 
 #include <base/utf8string.h>
-#include <map>
-#include <vector>
 
-#if !defined(_WIN32) && !defined(__APPLE)
+#ifndef HAVE_PRECOMPILED_HEADERS
+  #include <map>
+  #include <vector>
   #include <glib.h>
 #endif
 
