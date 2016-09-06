@@ -17,16 +17,16 @@
  * 02110-1301  USA
  */
 
-//
-//#ifdef _WIN32
-//  #pragma warning(disable:4251) // class needs to have dll-interface
-//
-//  #ifdef MTEMPLATELIBRARY_EXPORTS
-//    #define MTEMPLATELIBRARY_PUBLIC_FUNC __declspec(dllexport)
-//  #else
-//    #define MTEMPLATELIBRARY_PUBLIC_FUNC __declspec(dllimport)
-//  #endif
-//#else
-//  #define MTEMPLATELIBRARY_PUBLIC_FUNC
-//#endif
-//
+
+#ifdef _WIN32
+  #pragma warning(disable:4251) // class needs to have dll-interface
+
+  #ifdef MTEMPLATELIBRARY_EXPORTS
+    #define MTEMPLATELIBRARY_PUBLIC_FUNC __declspec(dllexport)
+  #else
+    #define MTEMPLATELIBRARY_PUBLIC_FUNC __declspec(dllimport)
+  #endif
+#else
+  #define MTEMPLATELIBRARY_PUBLIC_FUNC
+#endif
+

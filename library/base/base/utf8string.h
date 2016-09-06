@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#include "common.h"
 #include <string>
 #include <iterator>
 #include <glib.h>
@@ -28,7 +29,7 @@ namespace base
   /**
    * @brief Class to store UTF-8 encoded string.
    */
-  class utf8string: public std::string
+  class BASELIBRARY_PUBLIC_FUNC utf8string : public std::string
   {
   private:
     int compareNormalized(const utf8string &s) const;
@@ -38,7 +39,7 @@ namespace base
   /**
    * @brief Class to store UTF-8 encoded character.
    */
-    class utf8char
+    class BASELIBRARY_PUBLIC_FUNC utf8char
     {
       uint32_t _c;
     public:

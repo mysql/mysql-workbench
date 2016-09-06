@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-#include <string_utilities.h>
+#include <base/string_utilities.h>
 
 
 namespace mtemplate 

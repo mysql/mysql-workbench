@@ -18,7 +18,7 @@
  * 
  */
 #include "modifier.h"
-#include "base/string_utilities.h"
+#include <base/string_utilities.h>
 
 #include <map>
 
