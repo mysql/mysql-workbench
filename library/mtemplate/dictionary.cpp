@@ -17,9 +17,8 @@
  * 02110-1301  USA
  * 
  */
-#include "stdafx.h"
 #include "dictionary.h"
-#include "string_utilities.h"
+#include <base/string_utilities.h>
 
 #include <iostream>
 

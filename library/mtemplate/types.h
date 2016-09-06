@@ -22,7 +22,7 @@
 #include "common.h"
 #include "modifier.h"
 
-#include <utf8string.h>
+#include <base/utf8string.h>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
