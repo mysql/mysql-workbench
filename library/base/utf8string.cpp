@@ -23,6 +23,8 @@
 #include <boost/locale/encoding_utf.hpp>
 #include <glib.h>
 #include <cstring>
+#include <functional>
+#include <cctype>
 
 using boost::locale::conv::utf_to_utf;
 
@@ -88,9 +90,9 @@ utf8string utf8string::substr(const size_t start, size_t count) const
 {
   gchar* sub = nullptr;
   if( std::string::npos == count )
-    sub = g_utf8_substring(this->c_str(), start, std::string::size());
+    sub = g_utf8_substring(this->c_str(), (glong)start, (glong)std::string::size());
   else
-    sub = g_utf8_substring(this->c_str(), start, start + count);
+    sub = g_utf8_substring(this->c_str(), (glong)start, (glong)(start + count));
   utf8string result(sub);
   g_free(sub);
   return result;
@@ -98,7 +100,7 @@ utf8string utf8string::substr(const size_t start, size_t count) const
 
 utf8string::utf8char utf8string::operator[](const size_t index) const
 {
-  gchar* start = g_utf8_offset_to_pointer(this->c_str(), index);
+  gchar* start = g_utf8_offset_to_pointer(this->c_str(), (glong)index);
   gchar* sub = g_utf8_substring(start, 0, 1);
   
   utf8char result(sub);
@@ -108,7 +110,7 @@ utf8string::utf8char utf8string::operator[](const size_t index) const
 
 bool utf8string::validate() const
 {
-  return g_utf8_validate(this->c_str(), -1, nullptr);
+  return g_utf8_validate(this->c_str(), -1, nullptr) == TRUE;
 }
 
 utf8string utf8string::normalize() const
@@ -232,7 +234,7 @@ utf8string utf8string::truncate(const size_t max_length)
   if( this->length() > max_length )
   {
     utf8string shortened = this->substr(0, max_length);
-    const char *prev = g_utf8_find_prev_char(shortened.c_str(), g_utf8_offset_to_pointer(shortened.c_str(), max_length - 1));
+    const char *prev = g_utf8_find_prev_char(shortened.c_str(), g_utf8_offset_to_pointer(shortened.c_str(), (glong)(max_length - 1)));
     if (prev)
     {
       shortened.resize(prev - shortened.c_str(), 0);
@@ -336,7 +338,7 @@ bool utf8string::contains(const utf8string& s, const bool case_sensitive) const
 
 size_t utf8string::charIndexToByteOffset(const size_t index) const
 {
-  return g_utf8_offset_to_pointer(this->c_str(), index) - this->c_str();
+  return g_utf8_offset_to_pointer(this->c_str(), (glong)index) - this->c_str();
 }
 
 size_t utf8string::byteOffsetToCharIndex(const size_t offset) const

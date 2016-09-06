@@ -17,14 +17,14 @@
  * 02110-1301  USA
  */
 #include "template.h"
-#include <file_functions.h>
+#include <base/file_functions.h>
 #include <sstream>
 #include <iostream>
 #include "dictionary.h"
 #include "modifier.h"
 
-#include <string_utilities.h>
-#include <file_utilities.h>
+#include <base/string_utilities.h>
+#include <base/file_utilities.h>
 
 namespace mtemplate{
 
