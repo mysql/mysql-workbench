@@ -2611,9 +2611,9 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(MySQLParserContext::Ref con
 
 //--------------------------------------------------------------------------------------------------
 
-static bool doParseType(const std::string &type, GrtVersionRef targetVersion,SimpleDatatypeListRef,
+static bool doParseType(const std::string &type, GrtVersionRef targetVersion, SimpleDatatypeListRef typeList,
   db_SimpleDatatypeRef &simpleType, int &precision, int &scale, int &length, std::string &explicitParams)
-{/* XXX:
+{
   // No char sets necessary for parsing data types as there's no repertoire necessary/allowed in any
   // data type part. Neither do we need an sql mode (string lists in enum defs only allow
   // single quoted text). Hence we don't require to pass in a parsing context but create a local parser.
@@ -2621,124 +2621,48 @@ static bool doParseType(const std::string &type, GrtVersionRef targetVersion,Sim
   // Note: we parse here more than the pure data type name + precision/scale (namely additional parameters
   // like charsets etc.). That doesn't affect the main task here, however. Additionally stuff
   // is simply ignored for now (but it must be a valid definition).
-  MySQLRecognizer recognizer(bec::version_to_int(targetVersion), "", std::set<std::string>());
-  recognizer.parse(type.c_str(), type.size(), true, MySQLParseUnit::PuDataType);
-  if (!recognizer.error_info().empty())
+  ANTLRInputStream input(type);
+  MySQLLexer lexer(&input);
+  CommonTokenStream tokens(&lexer);
+  MySQLParser parser(&tokens);
+
+  lexer.serverVersion = bec::version_to_int(targetVersion);
+  parser.serverVersion = lexer.serverVersion;
+  parser.setBuildParseTree(true);
+
+  parser.removeParseListeners();
+  parser.removeErrorListeners();
+
+  parser.setErrorHandler(std::make_shared<BailErrorStrategy>());
+  parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::SLL);
+
+  ::Ref<ParseTree> tree;
+  try
+  {
+    tree = parser.dataTypeDefinition();
+  }
+  catch (ParseCancellationException &pce)
+  {
+    tokens.reset();
+    parser.reset();
+    parser.setErrorHandler(std::make_shared<DefaultErrorStrategy>());
+    parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::LL);
+    tree = parser.dataTypeDefinition();
+  }
+
+  if (parser.getNumberOfSyntaxErrors() > 0)
     return false;
 
-  Scanner scanner = recognizer.tree_scanner();
+  auto dataTypeContext = std::dynamic_pointer_cast<MySQLParser::DataTypeDefinitionContext>(tree);
+  grt::StringListRef flags(grt::Initialized); // Unused.
+  DataTypeListener typeListener(dataTypeContext->dataType().get(), targetVersion, typeList, flags, "");
 
-  // A type name can consist of up to 3 parts (e.g. "national char varying").
-  std::string type_name = scanner.tokenText();
+  simpleType = typeListener.dataType;
+  scale = typeListener.scale;
+  precision = typeListener.precision;
+  length = typeListener.length;
+  explicitParams = typeListener.explicitParams;
 
-  switch (scanner.tokenType())
-  {
-    case MySQLLexer::DOUBLE_SYMBOL:
-      scanner.next();
-      if (scanner.tokenType() == PRECISION_SYMBOL)
-        scanner.next(); // Simply ignore syntactic sugar.
-      break;
-
-    case MySQLLexer::NATIONAL_SYMBOL:
-      scanner.next();
-      type_name += " " + scanner.tokenText();
-      scanner.next();
-      if (scanner.tokenType() == VARYING_SYMBOL)
-      {
-        type_name += " " + scanner.tokenText();
-        scanner.next();
-      }
-      break;
-
-    case MySQLLexer::NCHAR_SYMBOL:
-      scanner.next();
-      if (scanner.tokenType() == VARCHAR_SYMBOL || scanner.tokenType() == VARYING_SYMBOL)
-      {
-        type_name += " " + scanner.tokenText();
-        scanner.next();
-      }
-      break;
-
-    case MySQLLexer::CHAR_SYMBOL:
-      scanner.next();
-      if (scanner.tokenType() == VARYING_SYMBOL)
-      {
-        type_name += " " + scanner.tokenText();
-        scanner.next();
-      }
-      break;
-
-    case MySQLLexer::LONG_SYMBOL:
-      scanner.next();
-      switch (scanner.tokenType())
-    {
-      case MySQLLexer::CHAR_SYMBOL: // LONG CHAR VARYING
-        if (scanner.lookAhead(true) == VARYING_SYMBOL) // Otherwise we may get e.g. LONG CHAR SET...
-        {
-          type_name += " " + scanner.tokenText();
-          scanner.next();
-          type_name += " " + scanner.tokenText();
-          scanner.next();
-        }
-        break;
-
-      case MySQLLexer::VARBINARY_SYMBOL:
-      case MySQLLexer::VARCHAR_SYMBOL:
-        type_name += " " + scanner.tokenText();
-        scanner.next();
-    }
-      break;
-
-    default:
-      scanner.next();
-  }
-
-  simpleType = findDataType(typeList, targetVersion, type_name);
-
-  if (!simpleType.is_valid()) // Should always be valid at this point or we have messed up our type list.
-    return false;
-
-  if (!scanner.is(MySQLLexer::OPEN_PAR_SYMBOL))
-    return true;
-
-  scanner.next();
-
-  // We use the simple type properties for char length to learn if we have a length here or a precision.
-  // We could indicate that in the grammar instead, however the handling in WB is a bit different
-  // than what the server grammar would suggest (e.g. the length is also used for integer types, in the grammar).
-  if (simpleType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH
-      || simpleType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH)
-  {
-    if (scanner.tokenType() != INT_NUMBER)
-      return false;
-    length = base::atoi<int>(scanner.tokenText().c_str());
-    return true;
-  }
-
-  if (!scanner.is(MySQLLexer::INT_NUMBER))
-  {
-    // ENUM or SET.
-    do
-    {
-      if (!explicitParams.empty())
-        explicitParams += ", ";
-      explicitParams += scanner.tokenText(true);
-      scanner.next();
-      scanner.skipIf(MySQLLexer::COMMA_SYMBOL); // We normalize the whitespace around the commas.
-    } while (!scanner.is(MySQLLexer::CLOSE_PAR_SYMBOL));
-    explicitParams = "(" + explicitParams + ")";
-
-    return true;
-  }
-
-  // Finally all cases with either precision, scale or both.
-  precision = base::atoi<int>(scanner.tokenText().c_str());
-  scanner.next();
-  if (scanner.tokenType() != COMMA_SYMBOL)
-    return true;
-  scanner.next();
-  scale = base::atoi<int>(scanner.tokenText().c_str());
-  */
   return true;
 }
 
@@ -2749,18 +2673,18 @@ bool MySQLParserServicesImpl::parseTypeDefinition(const std::string &typeDefinit
   db_SimpleDatatypeRef &simpleType, db_UserDatatypeRef &userType, int &precision, int &scale, int &length,
   std::string &datatypeExplicitParams)
 {
-  if (user_types.is_valid())
+  if (userTypes.is_valid())
   {
-    std::string::size_type argp = type.find('(');
-    std::string typeName = type;
+    std::string::size_type argp = typeDefinition.find('(');
+    std::string typeName = typeDefinition;
 
     if (argp != std::string::npos)
-      typeName = type.substr(0, argp);
+      typeName = typeDefinition.substr(0, argp);
 
     // 1st check if this is a user defined type
-    for (size_t c = user_types.count(), i = 0; i < c; i++)
+    for (size_t c = userTypes.count(), i = 0; i < c; i++)
     {
-      db_UserDatatypeRef utype(user_types[i]);
+      db_UserDatatypeRef utype(userTypes[i]);
 
       if (base::string_compare(utype->name(), typeName, false) == 0)
       {
@@ -2776,37 +2700,37 @@ bool MySQLParserServicesImpl::parseTypeDefinition(const std::string &typeDefinit
     // with the one provided by the user.
     std::string finalType = userType->sqlDefinition();
     std::string::size_type tp;
-    bool overriden_args = false;
+    bool overridenArgs = false;
 
-    if ((tp = type.find('(')) != std::string::npos) // Are there user specified args?
+    if ((tp = typeDefinition.find('(')) != std::string::npos) // Are there user specified args?
     {
       std::string::size_type p = finalType.find('(');
       if (p != std::string::npos) // Strip the original args.
         finalType = finalType.substr(0, p);
 
       // Extract the user specified args and append to the specification.
-      finalType.append(type.substr(tp));
+      finalType.append(typeDefinition.substr(tp));
 
-      overriden_args = true;
+      overridenArgs = true;
     }
 
     // Parse user type definition.
-    if (!parse_type(finalType, targetVersion, typeList.is_valid() ? typeList : default_type_list,
+    if (!doParseType(finalType, targetVersion, typeList.is_valid() ? typeList : defaultTypeList,
                     simpleType, precision, scale, length, datatypeExplicitParams))
       return false;
 
     simpleType = db_SimpleDatatypeRef();
-    if (!overriden_args)
+    if (!overridenArgs)
     {
-      precision = bec::MySQLLexer::EMPTY_COLUMN_PRECISION;
-      scale = bec::MySQLLexer::EMPTY_COLUMN_SCALE;
-      length = bec::MySQLLexer::EMPTY_COLUMN_LENGTH;
+      precision = bec::EMPTY_COLUMN_PRECISION;
+      scale = bec::EMPTY_COLUMN_SCALE;
+      length = bec::EMPTY_COLUMN_LENGTH;
       datatypeExplicitParams = "";
     }
   }
   else
   {
-    if (!parse_type(type, targetVersion, typeList.is_valid() ? typeList : default_type_list,
+    if (!doParseType(typeDefinition, targetVersion, typeList.is_valid() ? typeList : defaultTypeList,
                     simpleType, precision, scale, length, datatypeExplicitParams))
       return false;
     

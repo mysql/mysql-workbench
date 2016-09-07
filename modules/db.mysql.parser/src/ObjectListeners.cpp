@@ -259,9 +259,9 @@ public:
   {
     column->owner(_table);
     column->userType(db_UserDatatypeRef()); // We always have normal data types here.
-    column->scale(-1);
-    column->precision(-1);
-    column->length(-1);
+    column->scale(bec::EMPTY_COLUMN_SCALE);
+    column->precision(bec::EMPTY_COLUMN_PRECISION);
+    column->length(bec::EMPTY_COLUMN_LENGTH);
 
     tree::ParseTreeWalker::DEFAULT.walk(this, tree);
   }
@@ -272,6 +272,16 @@ public:
     IdentifierListener listener(ctx->fieldSpec()->fieldIdentifier().get());
     column->name(listener.parts.back());
     column->oldName(listener.parts.back());
+
+    DataTypeListener typeListener(ctx->fieldSpec()->dataType().get(), _catalog->version(), _catalog->simpleDatatypes(),
+                                  column->flags(), _table->defaultCharacterSetName());
+    column->simpleType(typeListener.dataType);
+    column->scale(typeListener.scale);
+    column->precision(typeListener.precision);
+    column->length(typeListener.length);
+    column->datatypeExplicitParams(typeListener.explicitParams);
+    column->characterSetName(typeListener.charsetName);
+    column->collationName(typeListener.collationName);
 
     if (column->simpleType().is_valid() && base::same_string(column->simpleType()->name(), "TIMESTAMP", false))
     {
@@ -285,150 +295,6 @@ public:
     // The CHECK expression is ignored by the server. And so do we.
 
     _table->columns().insert(column);
-  }
-
-  virtual void exitDataType(MySQLParser::DataTypeContext *ctx) override
-  {
-    // A type name can consist of up to 3 parts. Most however just have a single part.
-    std::string typeName = base::toupper(ctx->type->getText());
-    switch (ctx->type->getType())
-    {
-      case MySQLLexer::NATIONAL_SYMBOL:
-        if (ctx->CHAR_SYMBOL() != nullptr)
-          typeName += " CHAR";
-        if (ctx->VARYING_SYMBOL() != nullptr)
-          typeName += " VARYING";
-        if (ctx->VARCHAR_SYMBOL() != nullptr)
-          typeName += " VARCHAR";
-        break;
-
-      case MySQLLexer::CHAR_SYMBOL:
-        if (ctx->VARYING_SYMBOL() != nullptr)
-          typeName += " VARYING";
-        break;
-
-      case MySQLLexer::NCHAR_SYMBOL:
-        if (ctx->VARCHAR_SYMBOL() != nullptr)
-          typeName += " VARCHAR";
-        if (ctx->VARYING_SYMBOL() != nullptr)
-          typeName += " VARYING";
-        break;
-
-      case MySQLLexer::LONG_SYMBOL:
-        if (ctx->VARBINARY_SYMBOL() != nullptr)
-          typeName += " VARBINARY";
-        if (ctx->CHAR_SYMBOL() != nullptr)
-          typeName += " CHAR VARYING";
-        if (ctx->VARCHAR_SYMBOL() != nullptr)
-          typeName += " VARCHAR";
-        break;
-
-      default:
-        break;
-    }
-
-    db_SimpleDatatypeRef type = MySQLParserServices::findDataType(_catalog->simpleDatatypes(), _catalog->version(), typeName);
-    if (type.is_valid()) // Should always be valid at this point.
-    {
-      column->simpleType(type);
-
-      // Unfortunately, the length + precision handling in WB is a bit crude and we cannot simply use what the grammar
-      // dictates. So we have to inspect the associated simple data type to know where to store the parsed length/precision values.
-      if (column->simpleType()->numericPrecision() != bec::EMPTY_TYPE_PRECISION && _length > -1)
-      {
-        // This is in some case not the correct semantic (e.g. for BIT fields there is no precision, yet we manage it currently that way).
-        _precision = _length;
-        _length = -1;
-      }
-    }
-    column->length(_length);
-    column->precision(_precision);
-  }
-
-  virtual void exitFieldLength(MySQLParser::FieldLengthContext *ctx) override
-  {
-    if (ctx->DECIMAL_NUMBER() != nullptr)
-      _length = std::stoul(ctx->DECIMAL_NUMBER()->getText());
-    else
-      _length = std::stoul(ctx->real_ulonglong_number()->getText());
-  }
-
-  virtual void exitPrecision(MySQLParser::PrecisionContext *ctx) override
-  {
-    _precision = std::stoul(ctx->INT_NUMBER(0)->getText());
-    column->scale(std::stoul(ctx->INT_NUMBER(1)->getText()));
-  }
-
-  virtual void exitFieldOptions(MySQLParser::FieldOptionsContext *ctx) override
-  {
-    StringListRef flags = column->flags();
-    if (!ctx->UNSIGNED_SYMBOL().empty())
-    {
-      if (flags.get_index("UNSIGNED") == BaseListRef::npos)
-        flags.insert("UNSIGNED");
-    }
-    if (!ctx->SIGNED_SYMBOL().empty())
-    {
-      if (flags.get_index("SIGNED") == BaseListRef::npos)
-        flags.insert("SIGNED");
-        }
-    if (!ctx->ZEROFILL_SYMBOL().empty())
-    {
-      if (flags.get_index("ZEROFILL") == BaseListRef::npos)
-        flags.insert("ZEROFILL");
-    }
-  }
-
-  virtual void exitStringBinary(MySQLParser::StringBinaryContext *ctx) override
-  {
-    StringListRef flags = column->flags();
-    std::string flag;
-    bool insertBinary = false;
-
-    if (ctx->ascii() != nullptr)
-    {
-      flag = "ASCII";
-      insertBinary = ctx->ascii()->BINARY_SYMBOL() != nullptr;
-    }
-    else if (ctx->unicode() != nullptr)
-    {
-      flag = "UNICODE";
-      insertBinary = ctx->unicode()->BINARY_SYMBOL() != nullptr;
-    }
-    else if (ctx->BYTE_SYMBOL() != nullptr)
-      flag = "BYTE";
-    else if (ctx->BINARY_SYMBOL() != nullptr || ctx->charset() != nullptr)
-      insertBinary = ctx->BINARY_SYMBOL() != nullptr;
-
-    if (!flag.empty() && flags.get_index(flag) == BaseListRef::npos)
-      flags.insert(flag);
-    if (insertBinary && flags.get_index("BINARY") == BaseListRef::npos)
-      flags.insert("BINARY");
-  }
-
-  virtual void exitCharsetName(MySQLParser::CharsetNameContext *ctx) override
-  {
-    std::pair<std::string, std::string> info = detailsForCharset(base::unquote(ctx->getText()),
-      column->collationName(), _table->defaultCharacterSetName());
-    column->characterSetName(info.first);
-    column->collationName(info.second);
-  }
-
-  virtual void exitTypeDatetimePrecision(MySQLParser::TypeDatetimePrecisionContext *ctx) override
-  {
-    _precision = std::stoul(ctx->INT_NUMBER()->getText());
-  }
-  
-  virtual void exitStringList(MySQLParser::StringListContext *ctx) override
-  {
-    std::string params;
-    for (auto &entry : ctx->textString())
-    {
-      if (!params.empty())
-        params += ", ";
-      params += entry->getText();
-    }
-    column->datatypeExplicitParams("(" + params +")");
   }
 
   virtual void exitFieldDefinition(MySQLParser::FieldDefinitionContext *ctx) override
@@ -622,8 +488,6 @@ private:
 
   bool _explicitNullValue = false;
   bool _explicitDefaultValue = false;
-  long _length = -1;
-  long _precision = -1;
 };
 
 class KeyDefinitionListener : public DetailsListener {
@@ -760,8 +624,7 @@ private:
 
 //----------------- ObjectListener -------------------------------------------------------------------------------------
 
-ObjectListener::ObjectListener(db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject,
-                               bool caseSensitive)
+ObjectListener::ObjectListener(db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive)
   : DetailsListener(catalog, caseSensitive), _object(anObject)
 {
 }
@@ -796,6 +659,173 @@ db_mysql_SchemaRef ObjectListener::ensureSchemaExists(db_CatalogRef catalog, con
     catalog->schemata().insert(result);
   }
   return db_mysql_SchemaRef::cast_from(result);
+}
+
+//----------------- DataTypeListener -----------------------------------------------------------------------------------
+
+DataTypeListener::DataTypeListener(tree::ParseTree *tree, GrtVersionRef version,
+  const grt::ListRef<db_SimpleDatatype> &typeList, StringListRef flags, const std::string &defaultCharsetName)
+: _version(version), _typeList(typeList), _flags(flags), _defaultCharsetName(defaultCharsetName)
+{
+  tree::ParseTreeWalker::DEFAULT.walk(this, tree);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DataTypeListener::exitDataType(MySQLParser::DataTypeContext *ctx)
+{
+  // A type name can consist of up to 3 parts. Most however just have a single part.
+  std::string typeName = base::toupper(ctx->type->getText());
+  switch (ctx->type->getType())
+  {
+    case MySQLLexer::NATIONAL_SYMBOL:
+      if (ctx->CHAR_SYMBOL() != nullptr)
+        typeName += " CHAR";
+      if (ctx->VARYING_SYMBOL() != nullptr)
+        typeName += " VARYING";
+      if (ctx->VARCHAR_SYMBOL() != nullptr)
+        typeName += " VARCHAR";
+      break;
+
+    case MySQLLexer::CHAR_SYMBOL:
+      if (ctx->VARYING_SYMBOL() != nullptr)
+        typeName += " VARYING";
+      break;
+
+    case MySQLLexer::NCHAR_SYMBOL:
+      if (ctx->VARCHAR_SYMBOL() != nullptr)
+        typeName += " VARCHAR";
+      if (ctx->VARYING_SYMBOL() != nullptr)
+        typeName += " VARYING";
+      break;
+
+    case MySQLLexer::LONG_SYMBOL:
+      if (ctx->VARBINARY_SYMBOL() != nullptr)
+        typeName += " VARBINARY";
+      if (ctx->CHAR_SYMBOL() != nullptr)
+        typeName += " CHAR VARYING";
+      if (ctx->VARCHAR_SYMBOL() != nullptr)
+        typeName += " VARCHAR";
+      break;
+
+    default:
+      break;
+  }
+
+  dataType = MySQLParserServices::findDataType(_typeList, _version, typeName);
+  if (dataType.is_valid()) // Should always be valid at this point.
+  {
+    // Unfortunately, the length + precision handling in WB is a bit crude and we cannot simply use what the grammar
+    // dictates. So we have to inspect the associated simple data type to know where to store the parsed length/precision values.
+    if (dataType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH
+      || dataType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH)
+    {
+      // Move an eventual precision value into the length field.
+      if (precision != bec::EMPTY_COLUMN_PRECISION)
+      {
+        length = precision;
+        precision = bec::EMPTY_COLUMN_PRECISION;
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DataTypeListener::exitFieldLength(MySQLParser::FieldLengthContext *ctx)
+{
+  // Value should be stored in the length field, but as commented above WB's handling is a bit crude.
+  if (ctx->DECIMAL_NUMBER() != nullptr)
+    precision = std::stoul(ctx->DECIMAL_NUMBER()->getText());
+  else
+    precision = std::stoul(ctx->real_ulonglong_number()->getText());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DataTypeListener::exitPrecision(MySQLParser::PrecisionContext *ctx)
+{
+  precision = std::stoul(ctx->INT_NUMBER(0)->getText());
+  scale = std::stoul(ctx->INT_NUMBER(1)->getText());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DataTypeListener::exitFieldOptions(MySQLParser::FieldOptionsContext *ctx)
+{
+  if (!ctx->UNSIGNED_SYMBOL().empty())
+  {
+    if (_flags.get_index("UNSIGNED") == BaseListRef::npos)
+      _flags.insert("UNSIGNED");
+  }
+  if (!ctx->SIGNED_SYMBOL().empty())
+  {
+    if (_flags.get_index("SIGNED") == BaseListRef::npos)
+      _flags.insert("SIGNED");
+  }
+  if (!ctx->ZEROFILL_SYMBOL().empty())
+  {
+    if (_flags.get_index("ZEROFILL") == BaseListRef::npos)
+      _flags.insert("ZEROFILL");
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DataTypeListener::exitStringBinary(MySQLParser::StringBinaryContext *ctx)
+{
+  std::string flag;
+  bool insertBinary = false;
+
+  if (ctx->ascii() != nullptr)
+  {
+    flag = "ASCII";
+    insertBinary = ctx->ascii()->BINARY_SYMBOL() != nullptr;
+  }
+  else if (ctx->unicode() != nullptr)
+  {
+    flag = "UNICODE";
+    insertBinary = ctx->unicode()->BINARY_SYMBOL() != nullptr;
+  }
+  else if (ctx->BYTE_SYMBOL() != nullptr)
+    flag = "BYTE";
+  else if (ctx->BINARY_SYMBOL() != nullptr || ctx->charset() != nullptr)
+    insertBinary = ctx->BINARY_SYMBOL() != nullptr;
+
+  if (!flag.empty() && _flags.get_index(flag) == BaseListRef::npos)
+    _flags.insert(flag);
+  if (insertBinary && _flags.get_index("BINARY") == BaseListRef::npos)
+    _flags.insert("BINARY");
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DataTypeListener::exitCharsetName(MySQLParser::CharsetNameContext *ctx)
+{
+  auto info = detailsForCharset(base::unquote(ctx->getText()), collationName, _defaultCharsetName);
+  charsetName = info.first;
+  collationName = info.second;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DataTypeListener::exitTypeDatetimePrecision(MySQLParser::TypeDatetimePrecisionContext *ctx)
+{
+  precision = std::stoul(ctx->INT_NUMBER()->getText());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DataTypeListener::exitStringList(MySQLParser::StringListContext *ctx)
+{
+  std::string params;
+  for (auto &entry : ctx->textString())
+  {
+    if (!params.empty())
+      params += ", ";
+    params += entry->getText();
+  }
+  explicitParams = "(" + params +")";
 }
 
 //----------------- SchemaListener -------------------------------------------------------------------------------------

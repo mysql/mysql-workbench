@@ -25,9 +25,6 @@
 
 #include "grtsqlparser/mysql_parser_services.h" // TODO: data type parsing is no longer grtdb related - move tests
 
-#include <boost/assign/list_of.hpp>
-using namespace boost::assign;
-
 using namespace grt;
 using namespace bec;
 using namespace std;
@@ -117,30 +114,31 @@ TEST_FUNCTION(15)
  * Checks the values for precision and scale, as well as character and octet length against the given
  * values depending on the actual type.
  */
-void check_type_cardinalities(db_SimpleDatatypeRef type, db_ColumnRef column, int precision, int scale)
+void checkTypeCardinalities(size_t testNo, db_SimpleDatatypeRef type, db_ColumnRef column, int precision, int scale)
 {
+  std::string numberString = " (" + std::to_string(testNo) + ")";
   if (type->numericPrecision() != EMPTY_TYPE_PRECISION)
   {
     // Precision is optional, so both values must be equal: either both are set to EMTPY_TYPE_PRECISION 
     // or both have the same precision value.
-    ensure_equals("Comparing precisions", *column->precision(), precision);
+    ensure_equals("Comparing precisions" + numberString, *column->precision(), precision);
 
     // Scale can only be given if we also have a precision.
     if (type->numericScale() != EMPTY_TYPE_SCALE)
       // Scale is optional, so both values must be equal: either both are set to EMTPY_TYPE_SCALE 
       // or both have the same scale value.
-      ensure_equals("Comparing scales", *column->scale(), scale);
+      ensure_equals("Comparing scales" + numberString, *column->scale(), scale);
     else
-      ensure("Unexpected scale parameter found", *column->scale() == EMPTY_COLUMN_SCALE);
+      ensure_equals("Unexpected scale parameter found" + numberString, *column->scale(), EMPTY_COLUMN_SCALE);
   }
   else
   {
     // If there's no numeric precision then check for character or octet cardinalities.
     if (type->characterMaximumLength() != EMPTY_TYPE_MAXIMUM_LENGTH
       || type->characterOctetLength() != EMPTY_TYPE_OCTET_LENGTH)
-      ensure_equals("Comparing char or octet length", *column->length(), precision);
+      ensure_equals("Comparing char or octet length" + numberString, *column->length(), precision);
     else
-      ensure("Unexpected precision parameter found", *column->length() == EMPTY_COLUMN_LENGTH);
+      ensure_equals("Unexpected length parameter found" + numberString, *column->length(), EMPTY_COLUMN_LENGTH);
   }
 }
 
@@ -183,7 +181,7 @@ TEST_FUNCTION(20)
     ensure("Invalid data type validity", validity.empty() || validity.size() > 2);
 
     if (validity.empty())
-      validity = "<5.7.9"; // Default is latest GA server at this time.
+      validity = "<5.7.13"; // Default is latest GA server at this time.
 
     std::size_t offset = 1;
     if (validity[1] == '=')
@@ -238,7 +236,7 @@ TEST_FUNCTION(20)
     {
       case 0: // no params
         ensure_parse_ok(no_params);
-        check_type_cardinalities(types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
+        checkTypeCardinalities(i, types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
         ensure_parse_fail(single_num_param);
         ensure_parse_fail(double_num_params);
         ensure_parse_fail(param_list);
@@ -246,15 +244,15 @@ TEST_FUNCTION(20)
       case 1: // (n)
         ensure_parse_fail(no_params);
         ensure_parse_ok(single_num_param);
-        check_type_cardinalities(types[i], column, 777, EMPTY_COLUMN_SCALE);
+        checkTypeCardinalities(i, types[i], column, 777, EMPTY_COLUMN_SCALE);
         ensure_parse_fail(double_num_params);
         ensure_parse_fail(param_list);
         break;
       case 2: // [(n)]
         ensure_parse_ok(no_params);
-        check_type_cardinalities(types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
+        checkTypeCardinalities(i, types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
         ensure_parse_ok(single_num_param);
-        check_type_cardinalities(types[i], column, 777, EMPTY_COLUMN_SCALE);
+        checkTypeCardinalities(i, types[i], column, 777, EMPTY_COLUMN_SCALE);
         ensure_parse_fail(double_num_params);
         ensure_parse_fail(param_list);
         break;
@@ -262,32 +260,32 @@ TEST_FUNCTION(20)
         ensure_parse_fail(no_params);
         ensure_parse_fail(single_num_param);
         ensure_parse_ok(double_num_params);
-        check_type_cardinalities(types[i], column, 111, 5);
+        checkTypeCardinalities(i, types[i], column, 111, 5);
         ensure_parse_fail(param_list);
         break;
       case 4: // (m[,n])
         ensure_parse_fail(no_params);
         ensure_parse_ok(single_num_param);
-        check_type_cardinalities(types[i], column, 777, EMPTY_COLUMN_SCALE);
+        checkTypeCardinalities(i, types[i], column, 777, EMPTY_COLUMN_SCALE);
         ensure_parse_ok(double_num_params);
-        check_type_cardinalities(types[i], column, 111, 5);
+        checkTypeCardinalities(i, types[i], column, 111, 5);
         ensure_parse_fail(param_list);
         break;
       case 5: // [(m,n)]
         ensure_parse_ok(no_params);
-        check_type_cardinalities(types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
+        checkTypeCardinalities(i, types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
         ensure_parse_fail(single_num_param);
         ensure_parse_ok(double_num_params);
-        check_type_cardinalities(types[i], column, 111, 5);
+        checkTypeCardinalities(i, types[i], column, 111, 5);
         ensure_parse_fail(param_list);
         break;
       case 6: // [(m[,n])]
         ensure_parse_ok(no_params);
-        check_type_cardinalities(types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
+        checkTypeCardinalities(i, types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
         ensure_parse_ok(single_num_param);
-        check_type_cardinalities(types[i], column, 777, EMPTY_COLUMN_SCALE);
+        checkTypeCardinalities(i, types[i], column, 777, EMPTY_COLUMN_SCALE);
         ensure_parse_ok(double_num_params);
-        check_type_cardinalities(types[i], column, 111, 5);
+        checkTypeCardinalities(i, types[i], column, 111, 5);
         ensure_parse_fail(param_list);
         break;
       case 10: // ('a','b','c' ...)
@@ -320,230 +318,227 @@ static std::string special_id = "\xE2\x86\xB2\xE2\x86\xB3"; // ↲↳
 
 // This is the node of which a sequence consists.
 struct GrammarNode {
-  bool is_terminal;
-  bool is_required;  // false for * and ? operators, otherwise true.
+  bool isTerminal;
+  bool isRequired;  // false for * and ? operators, otherwise true.
   bool multiple;     // true for + and * operators, otherwise false.
   std::string value; // Either the text of a terminal or the name of a non-terminal.
-
-  GrammarNode(bool _terminal, bool _required, bool _multiple, std::string _value)
-    : is_terminal(_terminal), is_required(_required), multiple(_multiple), value(_value)
-  {};
 };
 
 // A sequence of grammar nodes (either terminal or non-terminal) in the order they appear in the grammar.
 // Expressions in parentheses are extracted into an own rule with a private name.
 // A sequence can have an optional predicate (min/max server version).
 struct GrammarSequence {
-  int min_version;
-  int max_version;
   std::vector<GrammarNode> nodes;
-  
-  GrammarSequence(std::vector<GrammarNode> _nodes, int _min_version = MIN_SERVER_VERSION, int _max_version = MAX_SERVER_VERSION)
-    : min_version(_min_version), max_version(_max_version), nodes(_nodes)
-  {};
-
+  int min_version; // = MIN_SERVER_VERSION; TODO: can be used with C++14
+  int max_version; // = MAX_SERVER_VERSION;
 };
 
 // A list of alternatives for a given rule.
 typedef std::vector<GrammarSequence> RuleAlternatives;
 
-static std::map<std::string, RuleAlternatives> rules = map_list_of<std::string, RuleAlternatives>
+static std::map<std::string, RuleAlternatives> rules = {
   // First the root rule. Everything starts with this.
-  ("data_type", list_of<GrammarSequence>
-    (list_of<GrammarNode>(false, true, false, "integer_type") (false, false, false, "field_length") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(false, true, false, "real_literal") (false, false, false, "precision") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "FLOAT") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "BIT") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "BOOL").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "BOOLEAN").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "CHAR") (false, false, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(false, true, false, "nchar_literal") (false, false, false, "field_length") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, " BINARY") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(false, true, false, "varchar_literal") (false, true, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(false, true, false, "nvarchar_literal") (false, true, false, "field_length") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "VARBINARY") (false, true, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "YEAR") (false, false, false, "field_length") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "DATE").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "TIME") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "TIMESTAMP") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "DATETIME") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "TINYBLOB").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "BLOB") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "MEDIUMBLOB").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "LONGBLOB").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "LONG") (true, true, false, "VARBINARY").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "LONG") (false, false, false, "varchar_literal") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "TINYTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "TEXT") (false, false, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "MEDIUMTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "LONGTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "DECIMAL") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "NUMERIC") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "FIXED") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "ENUM") (false, true, false, "string_list") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "SET") (false, true, false, "string_list") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "SERIAL").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(false, true, false, "spatial_type").convert_to_container<std::vector<GrammarNode> >())
-  )
+  { "data_type", { // vector<GrammarSequence>
+    { // GrammarSequence
+      { // nodes
+        { false, true, false, "integer_type" }, { false, false, false, "field_length" }, { false, false, false, "field_options" }
+      }, MIN_SERVER_VERSION, MAX_SERVER_VERSION
+    },
+    {{{ false, true, false, "real_literal" }, { false, false, false, "precision" }, { false, false, false, "field_options" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "FLOAT" }, { false, false, false, "float_options" }, { false, false, false, "field_options" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BIT" }, { false, false, false, "field_length" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BOOL" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BOOLEAN" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "CHAR" }, { false, false, false, "field_length" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ false, true, false, "nchar_literal" }, { false, false, false, "field_length" }, { true, false, false, "BINARY" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, " BINARY" }, { false, false, false, "field_length" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ false, true, false, "varchar_literal" }, { false, true, false, "field_length" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ false, true, false, "nvarchar_literal" }, { false, true, false, "field_length" }, { true, false, false, "BINARY" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "VARBINARY" }, { false, true, false, "field_length" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "YEAR" }, { false, false, false, "field_length" }, { false, false, false, "field_options" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "DATE" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "TIME" }, { false, false, false, "type_datetime_precision" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "TIMESTAMP" }, { false, false, false, "type_datetime_precision" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "DATETIME" }, { false, false, false, "type_datetime_precision" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "TINYBLOB" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BLOB" }, { false, false, false, "field_length" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "MEDIUMBLOB" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "LONGBLOB" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "LONG" }, { true, true, false, "VARBINARY" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "LONG" }, { false, false, false, "varchar_literal" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "TINYTEXT" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "TEXT" }, { false, false, false, "field_length" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "MEDIUMTEXT" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "LONGTEXT" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "DECIMAL" }, { false, false, false, "float_options" }, { false, false, false, "field_options" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "NUMERIC" }, { false, false, false, "float_options" }, { false, false, false, "field_options" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "FIXED" }, { false, false, false, "float_options" }, { false, false, false, "field_options" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "ENUM" }, { false, true, false, "string_list" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "SET" }, { false, true, false, "string_list" }, { false, false, false, "string_binary" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "SERIAL" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ false, true, false, "spatial_type" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
   // Rules referenced from the main rule or sub rules.
-  ("integer_type", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "INTEGER").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "INT").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "INT1").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "INT2").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "INT3").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "INT4").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "INT8").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "TINYINT").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "SMALLINT").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "MEDIUMINT").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "BIGINT").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "integer_type", {
+    {{{ true, true, false, "INTEGER" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "INT" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "INT1" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "INT2" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "INT3" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "INT4" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "INT8" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "TINYINT" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "SMALLINT" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "MEDIUMINT" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BIGINT" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("field_length", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "6") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "field_length", {
+    {{{ true, true, false, "(" }, { true, true, false, "6" }, { true, true, false, ")" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("field_options", list_of<GrammarSequence>
-    (list_of<GrammarNode>(false, true, true, "field_options_alt1").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "field_options", {
+    {{{ false, true, true, "field_options_alt1" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("field_options_alt1", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "SIGNED").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "UNSIGNED").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "ZEROFILL").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "field_options_alt1", {
+    {{{ true, true, false, "SIGNED" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "UNSIGNED" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "ZEROFILL" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("real_literal", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "REAL").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "DOUBLE") (true, false, false, "PRECISION").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "real_literal", {
+    {{{ true, true, false, "REAL" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "DOUBLE" }, { true, false, false, "PRECISION" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("precision", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "12") (true, true, false, ",") (true, true, false, "5") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "precision", {
+    {{{ true, true, false, "(" }, { true, true, false, "12" }, { true, true, false, "," }, { true, true, false, "5" },
+      { true, true, false, ")" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("float_options", list_of<GrammarSequence>
-    (list_of<GrammarNode>(false, true, false, "float_options_alt1").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "float_options", {
+    {{{ false, true, false, "float_options_alt1" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("float_options_alt1", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "12") (false, false, false, "float_options_alt1_seq1") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "float_options_alt1", {
+    {{{ true, true, false, "(" }, { true, true, false, "12" }, { false, false, false, "float_options_alt1_seq1" },
+      { true, true, false, ")" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("float_options_alt1_seq1", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, ",") (true, true, false, "6").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "float_options_alt1_seq1", {
+    {{{ true, true, false, "," }, { true, true, false, "6" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("string_binary", list_of<GrammarSequence>
-    (list_of<GrammarNode>(false, true, false, "ascii").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(false, true, false, "unicode").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "BYTE").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(false, true, false, "charset") (false, true, false, "charset_name") (true, true, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "BINARY") (false, false, false, "string_binary_seq1").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "string_binary", {
+    {{{ false, true, false, "ascii" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ false, true, false, "unicode" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BYTE" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ false, true, false, "charset" }, { false, true, false, "charset_name" }, { true, true, false, "BINARY" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BINARY" }, { false, false, false, "string_binary_seq1" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("string_binary_seq1", list_of<GrammarSequence>
-    (list_of<GrammarNode>(false, true, false, "charset") (false, true, false, "charset_name").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "string_binary_seq1", {
+    {{{ false, true, false, "charset" }, { false, true, false, "charset_name" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("ascii", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "ASCII") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode> (true, true, false, "BINARY") (true, true, false, "ASCII"), 50500).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "ascii", {
+    {{{ true, true, false, "ASCII" }, { true, false, false, "BINARY" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BINARY" }, { true, true, false, "ASCII" }}, 50500, MAX_SERVER_VERSION }
+  }},
 
-  ("unicode", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "UNICODE") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode> (true, true, false, "BINARY") (true, true, false, "UNICODE"), 50500).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "unicode", {
+    {{{ true, true, false, "UNICODE" }, { true, false, false, "BINARY" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BINARY" }, { true, true, false, "UNICODE" }}, 50500, MAX_SERVER_VERSION }
+  }},
 
-  ("charset", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "CHAR") (true, true, false, "SET").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "CHARSET").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "charset", {
+    {{{ true, true, false, "CHAR" }, { true, true, false, "SET" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "CHARSET" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("charset_name", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "'utf8'").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "utf8").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "BINARY").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "charset_name", {
+    {{{ true, true, false, "'utf8'" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "utf8" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "BINARY" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("text_or_identifier", list_of<GrammarSequence>
-    (list_of<GrammarNode>(false, true, false, "string_literal").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(false, true, false, "identifier").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "text_or_identifier", {
+    {{{ false, true, false, "string_literal" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ false, true, false, "identifier" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("string_literal", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "n'text'").convert_to_container<std::vector<GrammarNode> >()) // NCHAR_TEXT
-    (list_of<GrammarNode>(true, false, false, "_utf8") (false, true, true, "string_literal_seq1").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "string_literal", {
+    {{{ true, true, false, "n'text'" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }, // NCHAR_TEXT
+    {{{ true, false, false, "_utf8" }, { false, true, true, "string_literal_seq1" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("string_literal_seq1", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "'text'").convert_to_container<std::vector<GrammarNode> >()) // SINGLE_QUOTED_TEXT
-    (list_of<GrammarNode>(true, true, false, "\"text\"").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >() // DOUBLE_QUOTED_TEXT
-  )
+  { "string_literal_seq1", {
+    {{{ true, true, false, "'text'" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }, // SINGLE_QUOTED_TEXT
+    {{{ true, true, false, "\"text\"" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION } // DOUBLE_QUOTED_TEXT
+  }},
 
-  ("identifier", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, special_id).convert_to_container<std::vector<GrammarNode> >()) // IDENTIFIER
-    (list_of<GrammarNode>(true, true, false, "`identifier`").convert_to_container<std::vector<GrammarNode> >()) // BACK_TICK_QUOTED_ID
-    (list_of<GrammarNode>(true, true, false, "host").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >() // (certain) keywords
-  )
+  { "identifier", {
+    {{{ true, true, false, special_id }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }, // IDENTIFIER
+    {{{ true, true, false, "`identifier`" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }, // BACK_TICK_QUOTED_ID
+    {{{ true, true, false, "host" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION } // (certain } keywords
+  }},
 
-  ("nchar_literal", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "NCHAR").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "NATIONAL\tCHAR").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "nchar_literal", {
+    {{{ true, true, false, "NCHAR" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "NATIONAL\tCHAR" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("varchar_literal", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "VARCHAR").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "varchar_literal", {
+    {{{ true, true, false, "CHAR" }, { true, true, false, "VARYING" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "VARCHAR" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("nvarchar_literal", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "NATIONAL CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "NVARCHAR").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARCHAR").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "NATIONAL") (true, true, false, "CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "nvarchar_literal", {
+    {{{ true, true, false, "NATIONAL CHAR" }, { true, true, false, "VARYING" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "NVARCHAR" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "NCHAR" }, { true, true, false, "VARCHAR" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "NATIONAL" }, { true, true, false, "CHAR" }, { true, true, false, "VARYING" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "NCHAR" }, { true, true, false, "VARYING" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("type_datetime_precision", list_of<GrammarSequence>
-    (list_of<GrammarNode> (true, true, false, "(") (true, true, false, "6")  (true, true, false, ")"), 50600).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "type_datetime_precision", {
+    {{{ true, true, false, "(" }, { true, true, false, "6" }, { true, true, false, ")" }}, 50600, MAX_SERVER_VERSION }
+  }},
 
-  ("string_list", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "(") (false, true, false, "text_string") (false, false, true, "string_list_seq1") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "string_list", {
+    {{{ true, true, false, "(" }, { false, true, false, "text_string" }, { false, false, true, "string_list_seq1" },
+      { true, true, false, ")" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("string_list_seq1", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, ",") (false, true, false, "text_string").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
+  { "string_list_seq1", {
+    {{{ true, true, false, "," }, { false, true, false, "text_string" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
 
-  ("text_string", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "'text'").convert_to_container<std::vector<GrammarNode> >()) // SINGLE_QUOTED_TEXT
-    (list_of<GrammarNode>(true, true, false, "0x12345AABBCCDDEEFF").convert_to_container<std::vector<GrammarNode> >()) // HEXNUMBER
-    (list_of<GrammarNode>(true, true, false, "0b1000111101001011").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >() // BITNUMBER
-  )
+  { "text_string", {
+    {{{ true, true, false, "'text'" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }, // SINGLE_QUOTED_TEXT
+    {{{ true, true, false, "0x12345AABBCCDDEEFF" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }, // HEXNUMBER
+    {{{ true, true, false, "0b1000111101001011" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION } // BITNUMBER
+  }},
 
-  ("spatial_type", list_of<GrammarSequence>
-    (list_of<GrammarNode>(true, true, false, "GEOMETRY").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "GEOMETRYCOLLECTION").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "POINT").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "MULTIPOINT").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "LINESTRING").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "MULTILINESTRING").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "POLYGON").convert_to_container<std::vector<GrammarNode> >())
-    (list_of<GrammarNode>(true, true, false, "MULTIPOLYGON").convert_to_container<std::vector<GrammarNode> >()).convert_to_container<std::vector<GrammarSequence> >()
-  )
-
-;
+  { "spatial_type", {
+    {{{ true, true, false, "GEOMETRY" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "GEOMETRYCOLLECTION" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "POINT" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "MULTIPOINT" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "LINESTRING" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "MULTILINESTRING" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "POLYGON" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION },
+    {{{ true, true, false, "MULTIPOLYGON" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }
+  }},
+};
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> get_variations_for_rule(std::string rule_name);
+std::vector<std::string> getVariationsForRule(std::string rule_name);
 
-std::vector<std::string> get_variations_for_sequence(const GrammarSequence &sequence)
+std::vector<std::string> getVariationsForSequence(const GrammarSequence &sequence)
 {
   std::vector<std::string> result;
   result.push_back(""); // Start with an empty entry to get the code rolling.
@@ -555,13 +550,13 @@ std::vector<std::string> get_variations_for_sequence(const GrammarSequence &sequ
   for (std::vector<tut::GrammarNode>::const_iterator iterator = sequence.nodes.begin(); iterator != sequence.nodes.end(); ++iterator)
   {
     std::vector<std::string> variations;
-    if (iterator->is_terminal)
+    if (iterator->isTerminal)
       variations.push_back(iterator->value); // Only one variation.
     else
-      variations = get_variations_for_rule(iterator->value); // Potentially many variations.
+      variations = getVariationsForRule(iterator->value); // Potentially many variations.
 
     std::vector<std::string> intermediate;
-    if (!iterator->is_required)
+    if (!iterator->isRequired)
       intermediate.insert(intermediate.begin(), result.begin(), result.end());
 
     for (std::vector<std::string>::iterator result_iterator = result.begin(); result_iterator != result.end(); ++result_iterator)
@@ -602,7 +597,7 @@ std::vector<std::string> get_variations_for_sequence(const GrammarSequence &sequ
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> get_variations_for_rule(std::string rule_name)
+std::vector<std::string> getVariationsForRule(std::string rule_name)
 {
   std::vector<std::string> result;
 
@@ -615,7 +610,7 @@ std::vector<std::string> get_variations_for_rule(std::string rule_name)
 
   for (tut::RuleAlternatives::const_iterator iterator = rule->second.begin(); iterator != rule->second.end(); ++iterator)
   {
-    std::vector<std::string> values = get_variations_for_sequence(*iterator);
+    std::vector<std::string> values = getVariationsForSequence(*iterator);
     result.insert(result.end(), values.begin(), values.end());
   }
   return result;
@@ -626,7 +621,7 @@ std::vector<std::string> get_variations_for_rule(std::string rule_name)
 TEST_FUNCTION(22)
 {
   // First generate all possible combinations.
-  std::vector<std::string> definitions = get_variations_for_rule("data_type");
+  std::vector<std::string> definitions = getVariationsForRule("data_type");
 
   grt::ListRef<db_UserDatatype> user_types;
   grt::ListRef<db_SimpleDatatype> type_list = tester->get_catalog()->simpleDatatypes();
@@ -651,7 +646,7 @@ TEST_FUNCTION(22)
     std::string sql = *iterator;
     ensure("Data type parsing failed for: \"" + sql + "\"",
       services->parseTypeDefinition(sql, version, type_list, user_types, type_list, simple_type,
-      user_type, precision, scale, length, explicit_params));
+        user_type, precision, scale, length, explicit_params));
   }
 }
 

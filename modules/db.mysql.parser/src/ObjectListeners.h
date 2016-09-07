@@ -105,6 +105,32 @@ namespace parsers {
     static db_mysql_SchemaRef ensureSchemaExists(db_CatalogRef catalog, const std::string &name, bool caseSensitive);
   };
 
+  class DataTypeListener : public parsers::MySQLParserBaseListener {
+  public:
+    db_SimpleDatatypeRef dataType;
+    long scale = bec::EMPTY_COLUMN_SCALE;
+    long precision = bec::EMPTY_COLUMN_PRECISION;
+    long length = bec::EMPTY_COLUMN_LENGTH;
+    std::string charsetName, collationName, explicitParams;
+
+    DataTypeListener(tree::ParseTree *tree, GrtVersionRef version, const grt::ListRef<db_SimpleDatatype> &typeList,
+                     grt::StringListRef flags, const std::string &defaultCharsetName);
+
+    virtual void exitDataType(MySQLParser::DataTypeContext *ctx) override;
+    virtual void exitFieldLength(MySQLParser::FieldLengthContext *ctx) override;
+    virtual void exitPrecision(MySQLParser::PrecisionContext *ctx) override;
+    virtual void exitFieldOptions(MySQLParser::FieldOptionsContext *ctx) override;
+    virtual void exitStringBinary(MySQLParser::StringBinaryContext *ctx) override;
+    virtual void exitCharsetName(MySQLParser::CharsetNameContext *ctx) override;
+    virtual void exitTypeDatetimePrecision(MySQLParser::TypeDatetimePrecisionContext *ctx) override;
+    virtual void exitStringList(MySQLParser::StringListContext *ctx) override;
+  private:
+    GrtVersionRef _version;
+    grt::ListRef<db_SimpleDatatype> _typeList;
+    grt::StringListRef _flags;
+    std::string _defaultCharsetName;
+  };
+
   class SchemaListener : public ObjectListener {
   public:
     SchemaListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
