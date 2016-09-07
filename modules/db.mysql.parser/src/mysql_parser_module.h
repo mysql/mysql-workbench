@@ -111,17 +111,6 @@ public:
       "into account properly. The found ranges are returned as grt list.",
       "sql the sql script to process\n"),
 
-    DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::replaceTokenSequence,
-      "Parses the given SQL code and searches for the given token. If found this and the following "
-      "tokens (determined by the count) is replaced by the text in the string array (one string "
-      "entry per replaced token). It is attempted to maintain the current text casing.",
-      "sql the sql script to process\n"
-      "start_token the token to search for. The first found instance is used.\n"
-      "count the number of tokens to replace (including the start token).\n"
-      "replacements the strings to use instead of the text for the found tokens.\n"
-      "             If more than count the rest is simply appended.\n"
-      "             If less than count then entries are removed."),
-
     DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::parseStatementDetails,
       "Parses the given statement and extracts various details into a dict. The values returned depend "
       "on what statement is parsed. This routine only parses single statments.",
@@ -200,12 +189,4 @@ public:
     SimpleDatatypeListRef typeList, UserDatatypeListRef userTypes, SimpleDatatypeListRef defaultTypeList,
     db_SimpleDatatypeRef &simpleType, db_UserDatatypeRef &userType, int &precision, int &scale, int &length,
     std::string &datatypeExplicitParams) override;
-
-  // Query manipulation.
-  std::string replaceTokenSequence(parser_ContextReferenceRef context_ref, const std::string &sql, size_t start_token,
-    size_t count, grt::StringListRef replacements);
-  virtual std::string replaceTokenSequenceWithText(parsers::MySQLParserContext::Ref context, const std::string &sql,
-    size_t start_token, size_t count, const std::vector<std::string> replacements) override;
-
-private:
 };

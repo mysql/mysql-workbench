@@ -98,9 +98,6 @@ public:
     db_SimpleDatatypeRef &simpleType, db_UserDatatypeRef &userType, int &precision, int &scale, int &length,
     std::string &datatypeExplicitParams) = 0;
 
-  // Query manipulation services.
-  virtual std::string replaceTokenSequenceWithText(MySQLParserContext::Ref context,
-    const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements) = 0;
 };
 
 } // namespace parsers

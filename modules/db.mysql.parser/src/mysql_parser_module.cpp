@@ -231,7 +231,7 @@ private:
       case MySQLParseUnit::PuCreateIndex:
         return parser.createIndex();
       case MySQLParseUnit::PuGrant:
-        return parser.parse_grant();
+        return parser.grant();
       case MySQLParseUnit::PuDataType:
         return parser.dataTypeDefinition();
       case MySQLParseUnit::PuCreateLogfileGroup:
@@ -262,16 +262,6 @@ private:
     ::Ref<ParseTree> tree;
     try
     {
-      tokens.fill();
-    }
-    catch (IllegalStateException &)
-    {
-      // XXX: addError("Error: illegal state found, probably unfinished string.", 0, 0, 0, 0, 1);
-      return tree;
-    }
-
-    try
-    {
       tree = parseUnit(unit);
     }
     catch (ParseCancellationException &pce)
@@ -288,6 +278,16 @@ private:
       }
     }
 
+    if (errors.empty() && !lexer.hitEOF)
+    {
+      // There is more input than needed for the given parse unit. Make this a fail as we don't allow
+      // extra input after the specific rule.
+      Token *token = tokens.LT(1);
+      ParserErrorInfo info = { "extraneous input found, expecting '<EOF>'", token->getType(),
+        (size_t)token->getStartIndex(), (size_t)token->getLine(),
+        (size_t)token->getCharPositionInLine(), (size_t)(token->getStopIndex() - token->getStartIndex() + 1) };
+      errors.push_back(info);
+    }
     return tree;
   }
 };
@@ -736,7 +736,7 @@ size_t MySQLParserServicesImpl::parseTrigger(MySQLParserContext::Ref context, db
     // TODO: the code below is almost duplicating the work done in the listener.
     //       Better is probably to always walk the generated parse tree (also in error case).
     //       We cannot get more out then as we do here, anyway.
-    //       This is an approach valid for any of the parseXXX routines.
+    //       This is an approach valid for any of the parseXYZ routines.
 
     // Finished with errors. See if we can get at least the trigger name out.
     auto triggerTree = std::dynamic_pointer_cast<MySQLParser::CreateTriggerContext>(tree);
@@ -2368,207 +2368,119 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/*
- * Provides a dictionary with the definition of a user.
- * The scanner must be at the starting point of a user definition.
- * returned dictionary:
- *              user : the username or CURRENT_USER
- *   (optional) host : the host name if available
- *   (optional) id_method : the authentication method if available
- *   (optional) id_password: the authentication string if available
- */
-grt::DictRef parseUserDefinition(Scanner &scanner)
-{
-  grt::DictRef result(true);
-
-  result.gset("user", scanner.tokenText());
-
-  if (scanner.is(MySQLLexer::CURRENT_USER_SYMBOL) && scanner.lookAhead() == MySQLLexer::OPEN_PAR_SYMBOL)
-    scanner.next(3);
-  else
-    scanner.next();
-
-  if (scanner.is(MySQLLexer::COMMA_SYMBOL) || scanner.is(MySQLLexer::EOF))
-    return result; // Most simple case. No further options.
-
-  if (scanner.is(MySQLLexer::AT_SIGN_SYMBOL) || scanner.is(MySQLLexer::AT_TEXT_SUFFIX))
-  {
-    std::string host;
-    if (scanner.skipIf(MySQLLexer::AT_SIGN_SYMBOL))
-      host = scanner.tokenText();
-    else
-      host = scanner.tokenText().substr(1); // Skip leading @.
-    result.gset("host", host);
-    scanner.next();
-  }
-
-  if (scanner.is(MySQLLexer::IDENTIFIED_SYMBOL))
-  {
-    scanner.next();
-    if (scanner.is(MySQLLexer::BY_SYMBOL))
-    {
-      scanner.next();
-      scanner.skipIf(MySQLLexer::PASSWORD_SYMBOL);
-
-      result.gset("id_method", "PASSWORD");
-      result.gset("id_string", scanner.tokenText());
-      scanner.next();
-    }
-    else // Must be WITH then.
-    {
-      scanner.next();
-      result.gset("id_method", scanner.tokenText());
-      scanner.next();
-
-      if (scanner.is(MySQLLexer::AS_SYMBOL) || scanner.is(MySQLLexer::BY_SYMBOL))
-      {
-        scanner.next();
-        result.gset("id_string", scanner.tokenText());
-        scanner.next();
-      }
-    }
-  }
-
-  return result;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/* XXX:
-grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer)
-{
+class GrantListener : public parsers::MySQLParserBaseListener {
+public:
   grt::DictRef data = grt::DictRef(true);
 
-  Scanner scanner = recognizer->tree_scanner();
-
-  scanner.next(); // Skip GRANT.
-
-  // Collect all privileges.
-  grt::StringListRef list = grt::StringListRef(grt::Initialized);
-  while (true)
+  GrantListener(ParseTree *tree)
   {
-    std::string privileges = scanner.tokenText();
-    scanner.next();
-    if (scanner.is(MySQLLexer::OPEN_PAR_SYMBOL))
-    {
-      privileges += " (";
-      scanner.next();
-      std::string list;
-      while (true)
-      {
-        if (!list.empty())
-          list += ", ";
-        list += scanner.tokenText();
-        scanner.next();
-        if (!scanner.is(MySQLLexer::COMMA_SYMBOL))
-          break;
-        scanner.next();
-      }
+    data.set("privileges", _privileges);
+    data.set("users", _users);
 
-      privileges += list + ")";
-      scanner.next();
+    tree::ParseTreeWalker::DEFAULT.walk(this, tree);
+  }
+
+  virtual void exitGrant(MySQLParser::GrantContext *ctx) override
+  {
+    // The subtree for the target details includes the ON keyword at the beginning, which we have to remove.
+    data.gset("target", base::trim(MySQLBaseLexer::sourceTextForContext(ctx->privilegeTarget().get()).substr(2)));
+    if (ctx->WITH_SYMBOL() != nullptr)
+      data.set("options", _options);
+  }
+
+  virtual void exitGrantPrivileges(MySQLParser::GrantPrivilegesContext *ctx) override
+  {
+    if (ctx->ALL_SYMBOL() != nullptr)
+      _privileges.insert(MySQLBaseLexer::sourceTextForContext(ctx));
+  }
+
+  virtual void exitPrivilegeType(MySQLParser::PrivilegeTypeContext *ctx) override
+  {
+    std::string privilege;
+    for (auto child : ctx->children)
+    {
+      if (!privilege.empty())
+        privilege += " ";
+      if (antlrcpp::is<TerminalNode>(child))
+        privilege += std::dynamic_pointer_cast<TerminalNode>(child)->getText();
+      else
+        privilege += MySQLBaseLexer::sourceTextForContext(std::dynamic_pointer_cast<ParserRuleContext>(child).get());
     }
+    _privileges.insert(privilege);
+  }
+
+  virtual void enterGrantUser(MySQLParser::GrantUserContext *ctx) override
+  {
+    _currentUser = grt::DictRef(true); // Starting a new user.
+  }
+
+  virtual void exitGrantUser(MySQLParser::GrantUserContext *ctx) override
+  {
+    if (ctx->BY_SYMBOL() != nullptr)
+    {
+      _currentUser.gset("id_method", "PASSWORD");
+      _currentUser.gset("id_string", base::unquote(ctx->textString()->getText()));
+    }
+
+    if (ctx->WITH_SYMBOL() != nullptr)
+    {
+      _currentUser.gset("id_method", base::unquote(ctx->textOrIdentifier()->getText()));
+      if (ctx->textString() != nullptr)
+        _currentUser.gset("id_string", base::unquote(ctx->textString()->getText()));
+    }
+  }
+
+  virtual void exitUser(MySQLParser::UserContext *ctx) override
+  {
+    std::string name;
+    if (ctx->CURRENT_USER_SYMBOL() != nullptr)
+      name = ctx->CURRENT_USER_SYMBOL()->getText();
     else
     {
-      // Just a list of identifiers or certain keywords not allowed as identifiers.
-      while (scanner.isIdentifier() || scanner.is(MySQLLexer::OPTION_SYMBOL) || scanner.is(MySQLLexer::DATABASES_SYMBOL))
+      name = MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier()[0].get());
+
+      if (ctx->AT_SIGN_SYMBOL() != nullptr)
       {
-        privileges += " " + scanner.tokenText();
-        scanner.next();
+        // Host part.
+        if (ctx->AT_TEXT_SUFFIX() != nullptr)
+          _currentUser.gset("host", ctx->AT_TEXT_SUFFIX()->getText().substr(1)); // Omit the @ char.
+        else
+          _currentUser.gset("host", MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier()[1].get()));
       }
     }
 
-    list.insert(privileges);
-    if (!scanner.is(MySQLLexer::COMMA_SYMBOL))
-      break;
-    scanner.next();
+    _currentUser.gset("user", name);
+    _users.set(name, _currentUser);
   }
 
-  data.set("privileges", list);
-
-  // The subtree for the target details includes the ON keyword at the beginning, which we have to remove.
-  // XXX: data.gset("target", base::trim(scanner.textForTree().substr(2)));
-  // XXX: scanner.skipSubtree();
-  scanner.next(); // Skip TO.
-
-  // Now the user definitions.
-  grt::DictRef users = grt::DictRef(true);
-  data.set("users", users);
-
-  while (true)
+  virtual void exitRequireClause(MySQLParser::RequireClauseContext *ctx) override
   {
-    grt::DictRef user = parseUserDefinition(scanner);
-    users.set(user.get_string("user"), user);
-    if (!scanner.is(MySQLLexer::COMMA_SYMBOL))
-      break;
-    scanner.next();
+    if (ctx->option != nullptr)
+      _requirements.gset(base::unquote(ctx->option->getText()), "");
+    data.set("requirements", _requirements);
   }
-
-  if (scanner.is(MySQLLexer::REQUIRE_SYMBOL))
+  
+  virtual void exitRequireListElement(MySQLParser::RequireListElementContext *ctx) override
   {
-    grt::DictRef requirements(true);
-    scanner.next();
-    switch (scanner.tokenType())
-    {
-    case MySQLLexer::SSL_SYMBOL:
-    case MySQLLexer::X509_SYMBOL:
-    case MySQLLexer::NONE_SYMBOL:
-      requirements.gset(scanner.tokenText(), "");
-      scanner.next();
-      break;
-
-    default:
-      while (scanner.is(MySQLLexer::CIPHER_SYMBOL) || scanner.is(MySQLLexer::ISSUER_SYMBOL) || scanner.is(MySQLLexer::SUBJECT_SYMBOL))
-      {
-        std::string option = scanner.tokenText();
-        scanner.next();
-        requirements.gset(option, scanner.tokenText());
-        scanner.next();
-        scanner.skipIf(MySQLLexer::AND_SYMBOL);
-      }
-      break;
-    }
-    data.set("requirements", requirements);
+    _requirements.gset(ctx->element->getText(), base::unquote(ctx->textString()->getText()));
   }
 
-  if (scanner.is(MySQLLexer::WITH_SYMBOL))
+  virtual void exitGrantOption(MySQLParser::GrantOptionContext *ctx) override
   {
-    grt::DictRef options(true);
-    scanner.next();
-    bool done = false;
-    while (!done)
-    {
-      switch (scanner.tokenType())
-      {
-      case MySQLLexer::GRANT_SYMBOL:
-        options.gset("grant", "");
-        scanner.next(2);
-        break;
-
-      case MySQLLexer::MAX_QUERIES_PER_HOUR_SYMBOL:
-      case MySQLLexer::MAX_UPDATES_PER_HOUR_SYMBOL:
-      case MySQLLexer::MAX_CONNECTIONS_PER_HOUR_SYMBOL:
-      case MySQLLexer::MAX_USER_CONNECTIONS_SYMBOL:
-      {
-        std::string option = scanner.tokenText();
-        scanner.next();
-        options.gset(option, scanner.tokenText());
-        scanner.next();
-        break;
-      }
-
-      default:
-        done = true;
-        break;
-      }
-    }
-
-    data.set("options", options);
+    std::string value;
+    if (ctx->ulong_number() != nullptr)
+      value = ctx->ulong_number()->getText();
+    _options.gset(ctx->option->getText(), value);
   }
 
-  return data;
-}
-*/
+private:
+  grt::StringListRef _privileges = grt::StringListRef(grt::Initialized);
+  grt::DictRef _users = grt::DictRef(true);
+  grt::DictRef _currentUser;
+  grt::DictRef _requirements = grt::DictRef(true);
+  grt::DictRef _options = grt::DictRef(true);
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 
 grt::DictRef MySQLParserServicesImpl::parseStatementDetails(parser_ContextReferenceRef context_ref, const std::string &sql)
@@ -2584,7 +2496,7 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(MySQLParserContext::Ref con
   // This part can potentially grow very large because of the sheer amount of possible query types.
   // So it should be moved into an own file if it grows beyond a few 100 lines.
   MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
-  impl->parse(sql, MySQLParseUnit::PuGeneric);
+  auto tree = impl->parse(sql, MySQLParseUnit::PuGeneric);
   if (!impl->errors.empty())
   {
     // Return the error message in case of syntax errors.
@@ -2598,7 +2510,10 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(MySQLParserContext::Ref con
   switch (queryType) {
     case QtGrant:
     case QtGrantProxy:
-      // XXX: return collectGrantDetails(recognizer);
+    {
+      GrantListener listener(tree.get());
+      return listener.data;
+    }
 
     default:
     {
@@ -2737,89 +2652,6 @@ bool MySQLParserServicesImpl::parseTypeDefinition(const std::string &typeDefinit
     userType = db_UserDatatypeRef();
   }
   return true;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-std::string MySQLParserServicesImpl::replaceTokenSequence(parser_ContextReferenceRef context_ref,
-  const std::string &sql, size_t start_token, size_t count, grt::StringListRef replacements)
-{
-  MySQLParserContext::Ref context = parser_context_from_grt(context_ref);
-
-  std::vector<std::string> list;
-  list.reserve(replacements->count());
-  std::copy(replacements.begin(), replacements.end(), std::back_inserter(list));
-  return replaceTokenSequenceWithText(context, sql, start_token, count, list);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-std::string MySQLParserServicesImpl::replaceTokenSequenceWithText(MySQLParserContext::Ref context,
-  const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements)
-{
-  std::string result;
-  /* XXX:
-  context->recognizer()->parse(sql.c_str(), sql.size(), true, MySQLParseUnit::PuGeneric);
-  size_t error_count = context->recognizer()->error_info().size();
-  if (error_count > 0)
-    return "";
-
-  Scanner scanner = context->recognizer()->tree_scanner();
-  if (!scanner.advanceToType((unsigned)start_token, true))
-    return sql;
-
-  // Get the index of each token in the input stream and use that in the input lexer to find
-  // tokens to replace. Don't touch any other (including whitespaces).
-  // The given start_token can only be a visible token.
-
-  // First find the range of the text before the start token and copy that unchanged.
-  ANTLR3_MARKER current_index = scanner.tokenIndex();
-  if (current_index > 0)
-  {
-    ParserToken token = context->recognizer()->token_at_index(current_index - 1);
-    result = sql.substr(0, token.stop - sql.c_str() + 1);
-  }
-
-  // Next replace all tokens we have replacements for. Remember tokens are separated by hidden tokens
-  // which must be added to the result unchanged.
-  size_t c = std::min(count, replacements.size());
-  size_t i = 0;
-  for (; i < c; ++i)
-  {
-    ++current_index; // Ignore the token.
-    result += replacements[i];
-
-    // Append the following separator token.
-    ParserToken token = context->recognizer()->token_at_index(current_index++);
-    if (token.type == ANTLR3_TOKEN_INVALID)
-      return result; // Premature end. Too many values given to replace.
-    result += token.text;
-
-    --count;
-  }
-
-  if (i < replacements.size())
-  {
-    // Something left to add before continuing with the rest of the SQL.
-    // In order to separate replacements properly they must include necessary whitespaces.
-    // We don't add any here.
-    while (i < replacements.size())
-      result += replacements[i++];
-  }
-
-  if (count > 0)
-  {
-    // Some tokens left without replacement. Skip them and add the rest of the query unchanged.
-    // Can be a large number to indicate the removal of anything left.
-    current_index += count;
-  }
-
-  // Finally add the remaining text.
- ParserToken token = context->recognizer()->token_at_index(current_index);
-  if (token.type != ANTLR3_TOKEN_INVALID)
-    result += token.start; // Implicitly zero-terminated.
-*/
-  return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

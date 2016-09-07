@@ -54,30 +54,30 @@ TEST_MODULE(mysql_parser_module_tests, "parser module tests");
 // Each test function tests a group of statements from the grammar, as listed in the top rule.
 // Not all query types are implemented in parseStatement. So most of the functions are empty atm.
 
-// alter_statement
+// alterStatement
 TEST_FUNCTION(5)
 {
 }
 
-// create_statement
-// drop_statement
-// rename_table_statement
-// truncate_table_statement
-// call_statement
-// delete_statement
-// do_statement
-// handler_statement
-// insert_statement
-// load_statement
-// replace_statement
-// select_statement
-// update_statement
+// createStatement
+// dropStatement
+// renameTableStatement
+// truncate_tableStatement
+// callStatement
+// deleteStatement
+// doStatement
+// handlerStatement
+// insertStatement
+// loadStatement
+// replaceStatement
+// selectStatement
+// updateStatement
 // partitioning
-// transaction_or_locking_statement
-// replication_statement
-// prepared_statement
+// transactionOrLockingStatement
+// replicationStatement
+// preparedStatement
 
-// account_management_statement
+// account_managementStatement
 TEST_FUNCTION(95)
 {
   // ----- Grant statements.
@@ -197,17 +197,18 @@ TEST_FUNCTION(95)
 
 }
 
-// table_administration_statement
+// table_administrationStatement
 // install_uninstall_statment
-// set_statement
-// show_statement
-// other_administrative_statement
-// utility_statement
+// setStatement
+// showStatement
+// other_administrativeStatement
+// utilityStatement
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
 TEST_FUNCTION(99)
 {
+  _context.reset();
   delete _tester;
 }
 

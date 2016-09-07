@@ -1218,39 +1218,39 @@ execute_var_list:
 //--------------------------------------------------------------------------------------------------
 
 accountManagementStatement:
-    {serverVersion >= 50606}? alter_user
-    | create_user
-    | drop_user
-    | {serverVersion >= 50500}? grant_proxy
+    {serverVersion >= 50606}? alterUser
+    | createUser
+    | dropUser
+    | {serverVersion >= 50500}? grantProxy
     | grant
-    | rename_user
-    | revoke_statement
-    | set_password
+    | renameUser
+    | revokeStatement
+    | setPassword
 ;
 
-alter_user:
-    ALTER_SYMBOL USER_SYMBOL ({serverVersion >= 50706}? ifExists | /* empty */) alter_user_tail
+alterUser:
+    ALTER_SYMBOL USER_SYMBOL ({serverVersion >= 50706}? ifExists | /* empty */) alterUser_tail
 ;
 
-alter_user_tail:
-    grant_list create_user_tail
+alterUser_tail:
+    grantList createUserTail
     | {serverVersion >= 50706}? USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL textString
 ;
 
-create_user:
-    CREATE_SYMBOL USER_SYMBOL ({serverVersion >= 50706}? ifNotExists | /* empty */) grant_list create_user_tail
+createUser:
+    CREATE_SYMBOL USER_SYMBOL ({serverVersion >= 50706}? ifNotExists | /* empty */) grantList createUserTail
 ;
 
-create_user_tail:
-    {serverVersion >= 50706}? require_clause? connect_options? account_lock_password_expire_options?
+createUserTail:
+    {serverVersion >= 50706}? requireClause? connectOptions? accountLockPasswordExpireOptions?
     | /* empty */
 ;
 
-require_clause:
-    REQUIRE_SYMBOL (require_list | (SSL_SYMBOL | X509_SYMBOL | NONE_SYMBOL))
+requireClause:
+    REQUIRE_SYMBOL (requireList | option = (SSL_SYMBOL | X509_SYMBOL | NONE_SYMBOL))
 ;
 
-connect_options:
+connectOptions:
     WITH_SYMBOL
     (
         MAX_QUERIES_PER_HOUR_SYMBOL ulong_number
@@ -1260,7 +1260,7 @@ connect_options:
     )+
 ;
 
-account_lock_password_expire_options:
+accountLockPasswordExpireOptions:
     ACCOUNT_SYMBOL (LOCK_SYMBOL | UNLOCK_SYMBOL)
     | PASSWORD_SYMBOL EXPIRE_SYMBOL
         (
@@ -1269,42 +1269,38 @@ account_lock_password_expire_options:
         )?
 ;
 
-drop_user:
+dropUser:
     DROP_SYMBOL USER_SYMBOL ({serverVersion >= 50706}? ifExists | /* empty */) user_list
 ;
 
-parse_grant: // For external use only. Don't reference this in the normal grammar.
-    grant EOF
-;
-
 grant:
-    GRANT_SYMBOL grant_privileges privilege_target
-        TO_SYMBOL grant_list require_clause? (WITH_SYMBOL grant_option+)?
+    GRANT_SYMBOL grantPrivileges privilegeTarget
+        TO_SYMBOL grantList requireClause? (WITH_SYMBOL grantOption+)?
 ;
 
-grant_proxy:
-    GRANT_SYMBOL PROXY_SYMBOL ON_SYMBOL grant_user TO_SYMBOL grant_user (COMMA_SYMBOL grant_user)*
+grantProxy:
+    GRANT_SYMBOL PROXY_SYMBOL ON_SYMBOL grantUser TO_SYMBOL grantUser (COMMA_SYMBOL grantUser)*
         (WITH_SYMBOL GRANT_SYMBOL OPTION_SYMBOL)?
 ;
 
-rename_user:
+renameUser:
     RENAME_SYMBOL USER_SYMBOL user TO_SYMBOL user (COMMA_SYMBOL user TO_SYMBOL user)*
 ;
 
-revoke_statement:
+revokeStatement:
     REVOKE_SYMBOL
     (
         ALL_SYMBOL PRIVILEGES_SYMBOL? COMMA_SYMBOL GRANT_SYMBOL OPTION_SYMBOL FROM_SYMBOL user_list
-        | grant_privileges privilege_target FROM_SYMBOL user_list
+        | grantPrivileges privilegeTarget FROM_SYMBOL user_list
         | {serverVersion >= 50500}? PROXY_SYMBOL ON_SYMBOL user FROM_SYMBOL user_list
     )
 ;
 
-privilege_target:
-    ON_SYMBOL grant_object_type privilege_level
+privilegeTarget:
+    ON_SYMBOL grant_object_type privilegeLevel
 ;
 
-set_password:
+setPassword:
     SET_SYMBOL PASSWORD_SYMBOL (FOR_SYMBOL user)? equal
     (
         PASSWORD_SYMBOL OPEN_PAR_SYMBOL textString CLOSE_PAR_SYMBOL
@@ -1318,19 +1314,19 @@ grant_object_type:
     | (FUNCTION_SYMBOL | PROCEDURE_SYMBOL)
 ;
 
-grant_privileges:
+grantPrivileges:
     ALL_SYMBOL PRIVILEGES_SYMBOL?
-    | privilege_type (COMMA_SYMBOL privilege_type)*
+    | privilegeType (COMMA_SYMBOL privilegeType)*
 ;
 
-privilege_type:
+privilegeType:
     ALTER_SYMBOL ROUTINE_SYMBOL?
-    | CREATE_SYMBOL (TEMPORARY_SYMBOL TABLES_SYMBOL | (ROUTINE_SYMBOL | TABLESPACE_SYMBOL | USER_SYMBOL | VIEW_SYMBOL))?
+    | CREATE_SYMBOL (TEMPORARY_SYMBOL object = TABLES_SYMBOL | object = (ROUTINE_SYMBOL | TABLESPACE_SYMBOL | USER_SYMBOL | VIEW_SYMBOL))?
     | GRANT_SYMBOL OPTION_SYMBOL
     | INSERT_SYMBOL identifierListWithParentheses?
     | LOCK_SYMBOL TABLES_SYMBOL
     | REFERENCES_SYMBOL identifierListWithParentheses?
-    | REPLICATION_SYMBOL (CLIENT_SYMBOL | SLAVE_SYMBOL)
+    | REPLICATION_SYMBOL object = (CLIENT_SYMBOL | SLAVE_SYMBOL)
     | SELECT_SYMBOL identifierListWithParentheses?
     | SHOW_SYMBOL DATABASES_SYMBOL
     | SHOW_SYMBOL VIEW_SYMBOL
@@ -1352,27 +1348,27 @@ privilege_type:
       )
 ;
 
-privilege_level:
+privilegeLevel:
     MULT_OPERATOR (DOT_SYMBOL MULT_OPERATOR)?
     | identifier (DOT_SYMBOL MULT_OPERATOR | dotIdentifier)?
 ;
 
-require_list:
-    require_list_element (AND_SYMBOL? require_list_element)*
+requireList:
+    requireListElement (AND_SYMBOL? requireListElement)*
 ;
 
-require_list_element:
-    CIPHER_SYMBOL textString
-    | ISSUER_SYMBOL textString
-    | SUBJECT_SYMBOL textString
+requireListElement:
+    element = CIPHER_SYMBOL textString
+    | element = ISSUER_SYMBOL textString
+    | element = SUBJECT_SYMBOL textString
 ;
 
-grant_option:
-    GRANT_SYMBOL OPTION_SYMBOL
-    | MAX_QUERIES_PER_HOUR_SYMBOL ulong_number
-    | MAX_UPDATES_PER_HOUR_SYMBOL ulong_number
-    | MAX_CONNECTIONS_PER_HOUR_SYMBOL ulong_number
-    | MAX_USER_CONNECTIONS_SYMBOL ulong_number
+grantOption:
+    option = GRANT_SYMBOL OPTION_SYMBOL
+    | option = MAX_QUERIES_PER_HOUR_SYMBOL ulong_number
+    | option = MAX_UPDATES_PER_HOUR_SYMBOL ulong_number
+    | option = MAX_CONNECTIONS_PER_HOUR_SYMBOL ulong_number
+    | option = MAX_USER_CONNECTIONS_SYMBOL ulong_number
 ;
 
 //--------------------------------------------------------------------------------------------------
@@ -2643,11 +2639,11 @@ user_list:
     user (COMMA_SYMBOL user)*
 ;
 
-grant_list:
-    grant_user (COMMA_SYMBOL grant_user)*
+grantList:
+    grantUser (COMMA_SYMBOL grantUser)*
 ;
 
-grant_user:
+grantUser:
     user
     (
         IDENTIFIED_SYMBOL
