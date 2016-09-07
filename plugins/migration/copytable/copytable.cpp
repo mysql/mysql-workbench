@@ -605,13 +605,7 @@ ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
                                        const std::string &source_rdbms_type)
 : _connstring(connstring), _stmt_ok(false), _source_rdbms_type(source_rdbms_type)
 {
-  _blob_buffer = (char*)malloc(_max_blob_chunk_size);
-  if (!_blob_buffer)
-    throw std::runtime_error(base::strfmt("malloc(%lu) failed for blob transfer buffer", (unsigned long)_max_blob_chunk_size));
-
-  _utf8_blob_buffer = (char*)malloc(_max_blob_chunk_size);
-  if (!_utf8_blob_buffer)
-    throw std::runtime_error(base::strfmt("malloc(%lu) failed for blob transfer buffer", (unsigned long)_max_blob_chunk_size));
+  _blob_buffer = std::vector<char>(_max_blob_chunk_size);
 
   _force_utf8_input = force_utf8_input;
 
@@ -640,52 +634,10 @@ ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
 
 ODBCCopyDataSource::~ODBCCopyDataSource()
 {
-  if (_blob_buffer)
-    free(_blob_buffer);
-  if (_utf8_blob_buffer)
-    free(_utf8_blob_buffer);
-
   if (_stmt_ok)
     SQLFreeHandle(SQL_HANDLE_ENV, _stmt);
   SQLFreeHandle(SQL_HANDLE_DBC, _dbc);
 }
-
-
-void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8buf, size_t &utf8buf_len)
-{
-  size_t outbuf_len = _max_blob_chunk_size;
-
-  // outside Windows, SQLWCHAR is wchar_t, which is not always 2 bytes
-  if (sizeof(SQLWCHAR) > sizeof(unsigned short))
-  {
-    SQLWCHAR *in = (SQLWCHAR*)inbuf;
-    unsigned short *out = (unsigned short*)inbuf;
-    for (size_t i = 0; i < inbuf_len/sizeof(SQLWCHAR); i++)
-      out[i] = in[i];
-    inbuf_len = (inbuf_len/sizeof(SQLWCHAR)) * sizeof(unsigned short);
-  }
-  else if (sizeof(SQLWCHAR) < sizeof(unsigned short))
-    throw std::logic_error("Unexpected architecture. sizeof(SQLWCHAR) < sizeof(unsigned short)!");
-
-  // convert data from UCS-2 to utf-8
-  std::string s_outbuf = base::wstring_to_string((wchar_t*)inbuf);
-  outbuf_len = s_outbuf.size();
-  if (outbuf_len > _max_blob_chunk_size - 1)
-    throw std::logic_error("Output buffer size is greater than max blob chunk size.");
-
-  //if (s_outbuf.empty())
-  //  throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
-
-  std::strcpy(_utf8_blob_buffer, s_outbuf.c_str());
-
-  if (inbuf_len > 0)
-    logWarning("%li characters could not be converted to UTF-8 during copy\n",
-                (long)inbuf_len);
-
-  utf8buf = _utf8_blob_buffer;
-  utf8buf_len = outbuf_len;
-}
-
 
 SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int column)
 {
@@ -1029,7 +981,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
       // if this column is a blob, handle it as such
       if (rowbuffer.check_if_blob() || (*_columns)[i-1].is_long_data)
       {
-        ret = SQLGetData(_stmt, i,_column_types[i-1], _blob_buffer, _max_blob_chunk_size, &len_or_indicator);
+        ret = SQLGetData(_stmt, i,_column_types[i-1], _blob_buffer.data(), _max_blob_chunk_size, &len_or_indicator);
 
         // Saves the column length, at the first call it is the total column size
         if (len_or_indicator > _max_parameter_size)
@@ -1063,7 +1015,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             // This should be done ONLY if no bulk updates
             // are being used
             if (native == 1014 && !_use_bulk_inserts)
-              rowbuffer.send_blob_data(_blob_buffer, len_or_indicator);
+              rowbuffer.send_blob_data(_blob_buffer.data(), len_or_indicator);
 
             // Unrecognized characters were changed to ?? but data was read
             else if (native == 2403)
@@ -1072,7 +1024,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
               break;
             }
 
-            ret = SQLGetData(_stmt, i, _column_types[i-1], _blob_buffer, _max_blob_chunk_size, &len_or_indicator);
+            ret = SQLGetData(_stmt, i, _column_types[i-1], _blob_buffer.data(), _max_blob_chunk_size, &len_or_indicator);
           }
 
           if (ret == SQL_SUCCESS)
@@ -1081,30 +1033,19 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
             if(!was_null)
             {
-              char *utf8_data = nullptr;
-              char *final_data = _blob_buffer;
+              char *final_data = _blob_buffer.data();
               size_t final_length = len_or_indicator;
 
               // Convers the data to utf8 if needed
-              if (_column_types[i-1] == SQL_C_WCHAR)
+              if (_column_types[i - 1] == SQL_C_WCHAR && len_or_indicator > 0)
               {
-                //XXX take care of case where the utf8 data is bigger than _max_blob_chunk_size
-                try
-                {
-                  if( len_or_indicator > 0 )
-                    ucs2_to_utf8(_blob_buffer, len_or_indicator, utf8_data, final_length);
-                }
-                catch (std::logic_error &)
-                {
-                  const std::string msg = base::strfmt("Could not successfully convert UCS-2 string to UTF-8 "
-                    "in table %s.%s (column %s). Original string: \"%s\"",
-                    _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
-                  );
-                  logError("%s", msg.c_str());
-                  throw std::invalid_argument(msg);
-                }
-                if( len_or_indicator > 0 )
-                  final_data = utf8_data;
+                std::string outbuf = base::wstring_to_string((wchar_t*)_blob_buffer.data());
+                //TODO take care of case where the utf8 data is bigger than _max_blob_chunk_size
+                if (outbuf.size() > _max_blob_chunk_size - 1)
+                  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+                memset(_blob_buffer.data(), 0, _max_blob_chunk_size);
+                std::strcpy(_blob_buffer.data(), outbuf.c_str());
+                final_length = outbuf.size();
               }
 
               if (_use_bulk_inserts)

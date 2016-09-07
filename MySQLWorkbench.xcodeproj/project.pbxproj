@@ -607,9 +607,6 @@
 		27CD3E9C18E3253000CDBD39 /* myx_sql_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CD3E9A18E3253000CDBD39 /* myx_sql_parser.cpp */; };
 		27CD3E9D18E3253000CDBD39 /* myx_sql_parser.tab.hh in Headers */ = {isa = PBXBuildFile; fileRef = 27CD3E9B18E3253000CDBD39 /* myx_sql_parser.tab.hh */; };
 		27CD3E9E18E3254500CDBD39 /* myx_sql_parser.tab.hh in Headers */ = {isa = PBXBuildFile; fileRef = 27CD3E9B18E3253000CDBD39 /* myx_sql_parser.tab.hh */; };
-		27CDD5CF1C4D1EA200DC6700 /* db_ng_Editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 276FB41C1C4CDCE8009F30BA /* db_ng_Editor.cpp */; };
-		27CDD5D01C4D1EA200DC6700 /* db_ng_Ide.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 276FB41E1C4CDCE8009F30BA /* db_ng_Ide.cpp */; };
-		27CDD5D11C4D1EA200DC6700 /* db_ng_Sheet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 276FB4201C4CDCE8009F30BA /* db_ng_Sheet.cpp */; };
 		27CE5FA219179DA5005574D4 /* mysql_parser_module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5FA019179DA5005574D4 /* mysql_parser_module.cpp */; };
 		27CE5FA319179DA5005574D4 /* mysql_parser_module.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CE5FA119179DA5005574D4 /* mysql_parser_module.h */; };
 		27CE5FAF1917B48D005574D4 /* mysql_parser_services.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CE5FA41917A260005574D4 /* mysql_parser_services.h */; };
@@ -4272,12 +4269,6 @@
 		2769C87E1726761F0096ACF5 /* ui_ObjectEditor_impl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_ObjectEditor_impl.cpp; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor_impl.cpp; sourceTree = "<group>"; };
 		2769C87F1726761F0096ACF5 /* ui_ObjectEditor_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui_ObjectEditor_impl.h; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor_impl.h; sourceTree = "<group>"; };
 		2769C8801726761F0096ACF5 /* ui_ObjectEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_ObjectEditor.cpp; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor.cpp; sourceTree = "<group>"; };
-		276FB41C1C4CDCE8009F30BA /* db_ng_Editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = db_ng_Editor.cpp; path = backend/wbpublic/objimpl/db.ng/db_ng_Editor.cpp; sourceTree = "<group>"; };
-		276FB41D1C4CDCE8009F30BA /* db_ng_Editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_ng_Editor.h; path = backend/wbpublic/objimpl/db.ng/db_ng_Editor.h; sourceTree = "<group>"; };
-		276FB41E1C4CDCE8009F30BA /* db_ng_Ide.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = db_ng_Ide.cpp; path = backend/wbpublic/objimpl/db.ng/db_ng_Ide.cpp; sourceTree = "<group>"; };
-		276FB41F1C4CDCE8009F30BA /* db_ng_Ide.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_ng_Ide.h; path = backend/wbpublic/objimpl/db.ng/db_ng_Ide.h; sourceTree = "<group>"; };
-		276FB4201C4CDCE8009F30BA /* db_ng_Sheet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = db_ng_Sheet.cpp; path = backend/wbpublic/objimpl/db.ng/db_ng_Sheet.cpp; sourceTree = "<group>"; };
-		276FB4211C4CDCE8009F30BA /* db_ng_Sheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_ng_Sheet.h; path = backend/wbpublic/objimpl/db.ng/db_ng_Sheet.h; sourceTree = "<group>"; };
 		2773B87D11006A21000CA2F9 /* splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = splitter.h; path = library/forms/mforms/splitter.h; sourceTree = "<group>"; };
 		2773B87F11006A2D000CA2F9 /* splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = splitter.cpp; path = library/forms/splitter.cpp; sourceTree = "<group>"; };
 		2773B88411006B53000CA2F9 /* MFSplitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFSplitter.h; path = library/forms/cocoa/MFSplitter.h; sourceTree = "<group>"; };
@@ -7845,19 +7836,6 @@
 			name = Images;
 			sourceTree = "<group>";
 		};
-		276FB41B1C4CDCBF009F30BA /* db.ng */ = {
-			isa = PBXGroup;
-			children = (
-				276FB41C1C4CDCE8009F30BA /* db_ng_Editor.cpp */,
-				276FB41D1C4CDCE8009F30BA /* db_ng_Editor.h */,
-				276FB41E1C4CDCE8009F30BA /* db_ng_Ide.cpp */,
-				276FB41F1C4CDCE8009F30BA /* db_ng_Ide.h */,
-				276FB4201C4CDCE8009F30BA /* db_ng_Sheet.cpp */,
-				276FB4211C4CDCE8009F30BA /* db_ng_Sheet.h */,
-			);
-			name = db.ng;
-			sourceTree = "<group>";
-		};
 		279EF96A10D6B02A00C1ED1B /* Scripts */ = {
 			isa = PBXGroup;
 			children = (
@@ -10432,7 +10410,6 @@
 			children = (
 				2BAE1A7B0F368EB200BE725E /* db */,
 				2BAD7A7C156CA45E0025F13F /* db.migration */,
-				276FB41B1C4CDCBF009F30BA /* db.ng */,
 				2B0DE77111E916B700989395 /* db.query */,
 				2BAE1A740F368EB200BE725E /* model */,
 				2BE9FD23151A692800CC0894 /* ui */,
@@ -14565,7 +14542,6 @@
 				2B7511500E87E28F0003120A /* connection_figure.cpp in Sources */,
 				2B7511510E87E2900003120A /* figure_common.cpp in Sources */,
 				2B7511520E87E2900003120A /* image_figure.cpp in Sources */,
-				27CDD5CF1C4D1EA200DC6700 /* db_ng_Editor.cpp in Sources */,
 				2B7511530E87E2910003120A /* layer_figure.cpp in Sources */,
 				2B7511540E87E2910003120A /* model_connection_impl.cpp in Sources */,
 				2B7511550E87E2920003120A /* model_figure_impl.cpp in Sources */,
@@ -14609,7 +14585,6 @@
 				2B1BFF6019A00F2D00022FD8 /* spatial_handler.cpp in Sources */,
 				2BAE1A8E0F368EB200BE725E /* model_Layer.cpp in Sources */,
 				2BAE1A8F0F368EB200BE725E /* model_Model.cpp in Sources */,
-				27CDD5D11C4D1EA200DC6700 /* db_ng_Sheet.cpp in Sources */,
 				2BAE1A900F368EB200BE725E /* model_Object.cpp in Sources */,
 				2BAE1A910F368EB200BE725E /* db_Column.cpp in Sources */,
 				2BAE1A920F368EB200BE725E /* db_DatabaseObject.cpp in Sources */,
@@ -14632,7 +14607,6 @@
 				2B738FFD0F5EB37F0084CA96 /* grtdb_connection_editor.cpp in Sources */,
 				2B7390B90F5F00BA0084CA96 /* refresh_ui.cpp in Sources */,
 				2B7390BF0F5F04140084CA96 /* grt_wizard_plugin.cpp in Sources */,
-				27CDD5D01C4D1EA200DC6700 /* db_ng_Ide.cpp in Sources */,
 				2B869C540F7E8DBF0005CB9B /* badge_figure.cpp in Sources */,
 				2B41EE210F8B837900F5EB1E /* recordset_cdbc_storage.cpp in Sources */,
 				2B41EE230F8B837900F5EB1E /* recordset_data_storage.cpp in Sources */,

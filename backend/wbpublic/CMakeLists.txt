@@ -144,9 +144,6 @@ add_library(wbpublic
     objimpl/db.query/db_query_QueryBuffer.cpp
     objimpl/db.query/db_query_Editor.cpp
     objimpl/db.query/db_query_EditableResultset.cpp
-    objimpl/db.ng/db_ng_Sheet.cpp
-    objimpl/db.ng/db_ng_Ide.cpp
-    objimpl/db.ng/db_ng_Editor.cpp
     objimpl/db.migration/db_migration_Migration.cpp
     objimpl/ui/ui_db_ConnectPanel.cpp
     objimpl/ui/ui_ObjectEditor.cpp

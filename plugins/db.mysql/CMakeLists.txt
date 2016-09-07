@@ -32,7 +32,7 @@ include_directories(.
     ${Boost_INCLUDE_DIRS}
 )
 
-add_library(db.mysql.wbp MODULE
+set(LIBRARY_SOURCES
     backend/db_frw_eng_be.cpp
     backend/db_mysql_sql_export.cpp
     backend/db_mysql_sql_script_sync.cpp
@@ -55,14 +55,26 @@ add_library(db.mysql.wbp MODULE
     frontend/synchronize_differences_page.cpp
 )
 
-set_target_properties(db.mysql.wbp PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-  VERSION   ${WB_VERSION}
-  SOVERSION ${WB_VERSION}
+add_library(db.mysql.wbp MODULE ${LIBRARY_SOURCES})
+set_target_properties(db.mysql.wbp  PROPERTIES  PREFIX ""
+                                                VERSION   ${WB_VERSION}
+                                                SOVERSION ${WB_VERSION}
 )
+install(TARGETS db.mysql.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})
 
-#target_link_libraries(db.mysql.wbp linux_utilities wbscintilla)
+if (BUILD_FOR_TESTS)
+  # Generate a regular shared library (as opposed to a module) with the sames contents
+  # as the module library. The module library is not supposed to be linked (since it's a plugin)
+  # but we need to link it on TUT. Until we find a better way to do this, we just generate
+  # both libraries, but on different directories, so it doesn't interfeer with the packaging
+  # process.
+  add_library(db.mysql.wbp.debug ${LIBRARY_SOURCES})
+  set_target_properties(db.mysql.wbp.debug 
+                        PROPERTIES  VERSION   ${WB_VERSION}
+                                    SOVERSION ${WB_VERSION}
+  )
+  install(TARGETS db.mysql.wbp.debug DESTINATION "${WB_PACKAGE_PLUGINS_DIR}_tests")
+endif()
 
 if(COMMAND cotire)
     set_target_properties(db.mysql.wbp PROPERTIES
@@ -70,4 +82,3 @@ if(COMMAND cotire)
 
   cotire(db.mysql.wbp)
 endif()
-install(TARGETS db.mysql.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})
