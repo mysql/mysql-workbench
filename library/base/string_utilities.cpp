@@ -332,7 +332,7 @@ std::wstring string_to_wstring(const std::string &str)
 std::string wstring_to_string(const std::wstring &str)
 {
   if (sizeof(wchar_t) > 2)
-    return utf_to_utf<char>((char32_t*)str.c_str(), (char32_t*)str.c_str() + str.size());
+    return utf_to_utf<char>((int32_t*)str.c_str(), (int32_t*)str.c_str() + str.size());
   else
     return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
 }
