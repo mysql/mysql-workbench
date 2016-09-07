@@ -45,6 +45,11 @@ namespace parsers {
     bool isSqlModeActive(size_t mode);
     void sqlModeFromString(std::string modes);
 
-    std::string dumpTree(Ref<antlr4::RuleContext> context, antlr4::Parser &parser, const std::string &indentation);
+    static std::string dumpTree(Ref<antlr4::RuleContext> context, antlr4::Parser &parser, const std::string &indentation);
+    static std::string sourceTextForContext(antlr4::ParserRuleContext *ctx, bool keepQuotes = false);
+
+    //----------------------------------------------------------------------------------------------------------------------
+    
+
   };
 }

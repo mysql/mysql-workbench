@@ -18,6 +18,7 @@
  */
 
 #include "MySQLRecognizerCommon.h"
+#include "base/string_utilities.h"
 
 using namespace parsers;
 using namespace antlr4;
@@ -92,3 +93,13 @@ std::string MySQLRecognizerCommon::dumpTree(Ref<RuleContext> context, Parser &pa
 
 //----------------------------------------------------------------------------------------------------------------------
 
+std::string MySQLRecognizerCommon::sourceTextForContext(ParserRuleContext *ctx, bool keepQuotes)
+{
+  CharStream *cs = ctx->start->getTokenSource()->getInputStream();
+  std::string result = cs->getText(misc::Interval(ctx->start->getStartIndex(), ctx->stop->getStopIndex()));
+  if (keepQuotes)
+    return result;
+  return base::unquote(result);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
