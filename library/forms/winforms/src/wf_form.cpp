@@ -26,21 +26,21 @@
 using namespace System;
 using namespace System::IO;
 using namespace Drawing;
-using namespace Windows::Forms;
+using namespace System::Windows::Forms;
 
 using namespace MySQL;
 using namespace MySQL::Forms;
 
 //----------------- FillForm -----------------------------------------------------------------------
 
-ref class FillForm : public Windows::Forms::Form
+ref class FillForm : public System::Windows::Forms::Form
 {
 private:
   FormFillLayout^ layoutEngine;
 
 public:
   FormWrapper *wrapper;
-  delegate Windows::Forms::DialogResult ShowModalDelegate(Windows::Forms::IWin32Window ^parent);
+  delegate System::Windows::Forms::DialogResult ShowModalDelegate(System::Windows::Forms::IWin32Window ^parent);
 
   //------------------------------------------------------------------------------------------------
 
@@ -171,9 +171,9 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
+  virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine
   {
-    Windows::Forms::Layout::LayoutEngine^ get() override
+    System::Windows::Forms::Layout::LayoutEngine^ get() override
     {
       if (layoutEngine == nullptr)
         layoutEngine = gcnew FormFillLayout();
@@ -310,14 +310,14 @@ void FormWrapper::show_modal(mforms::Form *backend, mforms::Button *accept,mform
 
   if (accept != NULL)
   {
-    form->AcceptButton = FormWrapper::GetManagedObject<Windows::Forms::Button>(accept);
-    form->AcceptButton->DialogResult = Windows::Forms::DialogResult::OK;
+    form->AcceptButton = FormWrapper::GetManagedObject<System::Windows::Forms::Button>(accept);
+    form->AcceptButton->DialogResult = System::Windows::Forms::DialogResult::OK;
   }
 
   if (cancel != NULL)
   {
-    form->CancelButton = FormWrapper::GetManagedObject<Windows::Forms::Button>(cancel);
-    form->CancelButton->DialogResult = Windows::Forms::DialogResult::Cancel;
+    form->CancelButton = FormWrapper::GetManagedObject<System::Windows::Forms::Button>(cancel);
+    form->CancelButton->DialogResult = System::Windows::Forms::DialogResult::Cancel;
   }
 
   // Make the window top most (so it stays above all others), but non-blocking.
@@ -341,31 +341,31 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
 
   if (accept)
   {
-    form->AcceptButton = FormWrapper::GetManagedObject<Windows::Forms::Button>(accept);
-    form->AcceptButton->DialogResult = Windows::Forms::DialogResult::OK;
+    form->AcceptButton = FormWrapper::GetManagedObject<System::Windows::Forms::Button>(accept);
+    form->AcceptButton->DialogResult = System::Windows::Forms::DialogResult::OK;
   }
 
   if (cancel)
   {
-    form->CancelButton = FormWrapper::GetManagedObject<Windows::Forms::Button>(cancel);
-    form->CancelButton->DialogResult = Windows::Forms::DialogResult::Cancel;
+    form->CancelButton = FormWrapper::GetManagedObject<System::Windows::Forms::Button>(cancel);
+    form->CancelButton->DialogResult = System::Windows::Forms::DialogResult::Cancel;
   }
 
   ViewWrapper::set_full_auto_resize(form);
 
-  Windows::Forms::DialogResult dialog_result;
+  System::Windows::Forms::DialogResult dialog_result;
   if (form->InvokeRequired)
   {
     Object^ invocation_result = form->Invoke(gcnew FillForm::ShowModalDelegate(form, &Windows::Forms::Form::ShowDialog),
       gcnew array<Object^> {wrapper->_owner});
-    dialog_result = *(Windows::Forms::DialogResult ^)(invocation_result);
+    dialog_result = *(System::Windows::Forms::DialogResult ^)(invocation_result);
   }
   else
   {
     // If there is currently no active form then we are being called while the application
     // is not active. Focus the accept button if possible in that case to avoid having any
     // text field with keyboard focus, which might appear as if they were active (but are not in fact).
-    Windows::Forms::Form ^active_form = Windows::Forms::Form::ActiveForm;
+    System::Windows::Forms::Form ^active_form = System::Windows::Forms::Form::ActiveForm;
     if (active_form == nullptr)
     {
       if (form->AcceptButton != nullptr)
@@ -376,12 +376,12 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
     }
 
     mforms::Utilities::enter_modal_loop();
-    Windows::Forms::Form ^owner = (Windows::Forms::Form ^)wrapper->_owner;
+    System::Windows::Forms::Form ^owner = (System::Windows::Forms::Form ^)wrapper->_owner;
     dialog_result = form->ShowDialog(owner);
     mforms::Utilities::leave_modal_loop();
   }
 
-  bool result = (dialog_result == Windows::Forms::DialogResult::OK);
+  bool result = (dialog_result == System::Windows::Forms::DialogResult::OK);
 
   form->Hide();
 
@@ -392,7 +392,7 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
 
 void FormWrapper::end_modal(mforms::Form *backend, bool result)
 {
-  FormWrapper::GetManagedObject<Form>(backend)->DialogResult = result ? Windows::Forms::DialogResult::OK : Windows::Forms::DialogResult::Cancel;
+  FormWrapper::GetManagedObject<Form>(backend)->DialogResult = result ? System::Windows::Forms::DialogResult::OK : System::Windows::Forms::DialogResult::Cancel;
 }
 
 //--------------------------------------------------------------------------------------------------

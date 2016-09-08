@@ -27,13 +27,13 @@ namespace MySQL {
       NativeWrapper(mforms::NativeContainer *native);
 
     public:
-      static mforms::NativeContainer *from_control(Windows::Forms::Control ^control);
+      static mforms::NativeContainer *from_control(System::Windows::Forms::Control ^control);
     };
 
     public ref class Native
     {
     public:
-      static mforms::View *wrapper_for_control(Windows::Forms::Control ^control);
+      static mforms::View *wrapper_for_control(System::Windows::Forms::Control ^control);
     };
   };
 };

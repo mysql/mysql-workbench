@@ -236,7 +236,7 @@ void BaseWindowsCanvasView::OnSizeChanged(int w, int h)
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseWindowsCanvasView::SetOwnerForm(Windows::Forms::Form^ ownerForm)
+void BaseWindowsCanvasView::SetOwnerForm(System::Windows::Forms::Form^ ownerForm)
 {
   owner_form = ownerForm;
 }

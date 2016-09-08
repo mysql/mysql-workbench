@@ -54,7 +54,7 @@ static mforms::MouseButton convert_mouse_button(MouseButtons button)
 
 //----------------- PopoverControl -----------------------------------------------------------------
 
-ref class MySQL::Forms::PopoverControl : Windows::Forms::Form
+ref class MySQL::Forms::PopoverControl : System::Windows::Forms::Form
 {
 private:
   int cornerSize;
@@ -338,16 +338,16 @@ protected:
 public:
   PopoverControl()
   {
-    AutoScaleMode = Windows::Forms::AutoScaleMode::Font;
-    AutoValidate = Windows::Forms::AutoValidate::Disable;
-    FormBorderStyle = Windows::Forms::FormBorderStyle::None;
+    AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+    AutoValidate = System::Windows::Forms::AutoValidate::Disable;
+    FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
     Owner = UtilitiesWrapper::get_mainform();
     Name = "PopoverControl";
     ShowIcon = false;
     ShowInTaskbar = false;
     StartPosition = FormStartPosition::Manual;
     UseWaitCursor = false;
-    Padding = Windows::Forms::Padding(7);
+    Padding = System::Windows::Forms::Padding(7);
 
     cornerSize = 14;
     animationSteps = 8;
@@ -437,11 +437,11 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::CreateParams^ CreateParams	
+  virtual property System::Windows::Forms::CreateParams^ CreateParams	
   {
-    Windows::Forms::CreateParams^ get() override
+    System::Windows::Forms::CreateParams^ get() override
     {
-      Windows::Forms::CreateParams^ cp = Form::CreateParams;
+      System::Windows::Forms::CreateParams^ cp = Form::CreateParams;
 
       cp->ExStyle |= (int) MySQL::Utilities::SysUtils::WS::EX_NOACTIVATE;
       cp->ClassStyle |= CS_DROPSHADOW;

@@ -25,9 +25,9 @@ namespace MySQL {
     private ref class FillLayout : public System::Windows::Forms::Layout::LayoutEngine
     {
     public:
-      System::Drawing::Size ComputeLayout(Windows::Forms::Control^ control, Drawing::Size proposedSize, bool resizeChildren);
-      virtual bool Layout(Object^ container, Windows::Forms::LayoutEventArgs^ arguments) override;
-      System::Drawing::Size GetPreferredSize(Windows::Forms::Control^ control, Drawing::Size proposedSize);
+      System::Drawing::Size ComputeLayout(System::Windows::Forms::Control^ control, Drawing::Size proposedSize, bool resizeChildren);
+      virtual bool Layout(Object^ container, System::Windows::Forms::LayoutEventArgs^ arguments) override;
+      System::Drawing::Size GetPreferredSize(System::Windows::Forms::Control^ control, Drawing::Size proposedSize);
     };
 
     private interface class ValueSetter
@@ -41,22 +41,22 @@ namespace MySQL {
     /**
      * A group box with a fill layout.
      */
-    public ref class FillGroupBox : public Windows::Forms::GroupBox, ValueSetter
+    public ref class FillGroupBox : public System::Windows::Forms::GroupBox, ValueSetter
     {
     private:
       FillLayout^ layoutEngine;
 
     protected:
-      virtual void OnPaintBackground(Windows::Forms::PaintEventArgs^ args) override;
+      virtual void OnPaintBackground(System::Windows::Forms::PaintEventArgs^ args) override;
 
     public:
       FillGroupBox();
 
       virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override;
 
-      virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
+      virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine
       {
-        Windows::Forms::Layout::LayoutEngine^ get() override
+        System::Windows::Forms::Layout::LayoutEngine^ get() override
         {
           if (layoutEngine == nullptr)
             layoutEngine = gcnew FillLayout();
@@ -75,22 +75,22 @@ namespace MySQL {
     /**
      * A panel with a fill layout.
      */
-    public ref class FillPanel : public Windows::Forms::Panel, ValueSetter
+    public ref class FillPanel : public System::Windows::Forms::Panel, ValueSetter
     {
     private:
       FillLayout^ layoutEngine;
 
     protected:
-      virtual void OnPaintBackground(Windows::Forms::PaintEventArgs^ args) override;
+      virtual void OnPaintBackground(System::Windows::Forms::PaintEventArgs^ args) override;
 
     public:
       FillPanel();
 
       virtual System::Drawing::Size GetPreferredSize(Drawing::Size proposedSize) override;
 
-      virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
+      virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine
       {
-        Windows::Forms::Layout::LayoutEngine^ get() override
+        System::Windows::Forms::Layout::LayoutEngine^ get() override
         {
           if (layoutEngine == nullptr)
             layoutEngine = gcnew FillLayout();
@@ -120,9 +120,9 @@ namespace MySQL {
 
       virtual Drawing::Size GetPreferredSize(Drawing::Size proposedSize) override;
 
-      virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
+      virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine
       {
-        Windows::Forms::Layout::LayoutEngine^ get() override
+        System::Windows::Forms::Layout::LayoutEngine^ get() override
         {
           if (layoutEngine == nullptr)
             layoutEngine = gcnew FillLayout();

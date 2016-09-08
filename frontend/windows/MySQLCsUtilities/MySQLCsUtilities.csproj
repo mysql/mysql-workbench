@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MySQL.Utilities</RootNamespace>
     <AssemblyName>MySQLCsUtilities</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -77,9 +77,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GridView.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="GridView.cs" />
     <Compile Include="GrtListModel.cs" />
     <Compile Include="GrtListNode.cs" />
     <Compile Include="GrtToolTipProvider.cs" />

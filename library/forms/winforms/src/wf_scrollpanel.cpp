@@ -39,7 +39,7 @@ public:
   virtual bool Layout(Object ^sender, LayoutEventArgs ^args) override;
 };
 
-ref class WheelMessageFilter : Windows::Forms::IMessageFilter
+ref class WheelMessageFilter : System::Windows::Forms::IMessageFilter
 {
 private:
   ScrollFillPanel ^panel;
@@ -55,7 +55,7 @@ public:
 public ref class MySQL::Forms::ScrollFillPanel : public Control
 {
 private:
-  Windows::Forms::IMessageFilter ^wheelMessageFilter;
+  System::Windows::Forms::IMessageFilter ^wheelMessageFilter;
   ScrollFillLayout ^layoutEngine;
   bool autoHideScrollbars;
   bool hideHorizontalScrollbar;
@@ -423,9 +423,9 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
+  virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine
   {
-    Windows::Forms::Layout::LayoutEngine^ get() override
+    System::Windows::Forms::Layout::LayoutEngine^ get() override
     {
       if (layoutEngine == nullptr)
         layoutEngine = gcnew ScrollFillLayout();

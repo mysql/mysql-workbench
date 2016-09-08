@@ -22,10 +22,10 @@
 namespace MySQL {
   namespace Forms {
 
-    private ref class DrawBoxLayout : public Windows::Forms::Layout::LayoutEngine
+    private ref class DrawBoxLayout : public System::Windows::Forms::Layout::LayoutEngine
     {
     public:
-      virtual bool Layout(Object ^sender, Windows::Forms::LayoutEventArgs ^arguments) override;
+      virtual bool Layout(Object ^sender, System::Windows::Forms::LayoutEventArgs ^arguments) override;
     };
 
     public ref class WBControlAccessibleObject: System::Windows::Forms::Control::ControlAccessibleObject
@@ -70,27 +70,27 @@ namespace MySQL {
     };
 
     // A helper class to set a few things which are only accessible from a descendant.
-    private ref class CanvasControl : Windows::Forms::Control
+    private ref class CanvasControl : System::Windows::Forms::Control
     {
     private:
       mforms::DrawBox *backend;
 
       DrawBoxLayout ^layoutEngine;
-      Collections::Generic::Dictionary<Windows::Forms::Control ^, int> alignments;
+      Collections::Generic::Dictionary<System::Windows::Forms::Control ^, int> alignments;
     public:
       CanvasControl::CanvasControl();
       virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override;
-      void Add(Windows::Forms::Control ^control, mforms::Alignment alignment);
-      void Remove(Windows::Forms::Control ^control);
-      void Move(Windows::Forms::Control ^control, int x, int y);
-      mforms::Alignment GetAlignment(Windows::Forms::Control ^control);
+      void Add(System::Windows::Forms::Control ^control, mforms::Alignment alignment);
+      void Remove(System::Windows::Forms::Control ^control);
+      void Move(System::Windows::Forms::Control ^control, int x, int y);
+      mforms::Alignment GetAlignment(System::Windows::Forms::Control ^control);
       void SetBackend(mforms::DrawBox* backend);
       void DoRepaint();
 
-      virtual void OnKeyDown(Windows::Forms::KeyEventArgs ^args) override;
-      virtual void OnPaint(Windows::Forms::PaintEventArgs ^args) override;
+      virtual void OnKeyDown(System::Windows::Forms::KeyEventArgs ^args) override;
+      virtual void OnPaint(System::Windows::Forms::PaintEventArgs ^args) override;
 
-      virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine { Windows::Forms::Layout::LayoutEngine^ get() override;}
+      virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine { System::Windows::Forms::Layout::LayoutEngine^ get() override;}
 
       virtual System::Windows::Forms::AccessibleObject^ CreateAccessibilityInstance() override;
     };
@@ -106,8 +106,8 @@ namespace MySQL {
       static void remove(mforms::DrawBox *backend, mforms::View *view);
       static void move(mforms::DrawBox *backend, mforms::View *view, int x, int y);
 
-      void OnRepaint(System::Object ^sender, Windows::Forms::PaintEventArgs ^e);
-      void OnKeyDown(System::Object ^sender, Windows::Forms::KeyEventArgs ^e);
+      void OnRepaint(System::Object ^sender, System::Windows::Forms::PaintEventArgs ^e);
+      void OnKeyDown(System::Object ^sender, System::Windows::Forms::KeyEventArgs ^e);
 
     public:
       static void init();
