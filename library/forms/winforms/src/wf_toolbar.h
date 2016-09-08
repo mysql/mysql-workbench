@@ -28,26 +28,26 @@ namespace MySQL {
      * Custom layout engine to allow to use expander and segmented tool strip items.
      * This engine only supports horizontal toolstrips.
      */
-    private ref class MformsToolStripLayout : public Windows::Forms::Layout::LayoutEngine
+    private ref class MformsToolStripLayout : public System::Windows::Forms::Layout::LayoutEngine
     {
     public:
       System::Drawing::Size ComputeLayout(MformsToolStrip^ toolstrip, System::Drawing::Size proposedSize,
         bool preferredSizeOnly);
-      virtual bool Layout(Object^ container, Windows::Forms::LayoutEventArgs^ arguments) override;
+      virtual bool Layout(Object^ container, System::Windows::Forms::LayoutEventArgs^ arguments) override;
     };
 
-    private ref class MformsToolStrip : public Windows::Forms::ToolStrip
+    private ref class MformsToolStrip : public System::Windows::Forms::ToolStrip
     {
     private:
       MformsToolStripLayout^ layoutEngine;
 
     public:
       virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override;
-      void ApplyLocation(Windows::Forms::ToolStripItem^ item, Drawing::Point location);
+      void ApplyLocation(System::Windows::Forms::ToolStripItem^ item, Drawing::Point location);
 
-      virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
+      virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine
       {
-        Windows::Forms::Layout::LayoutEngine^ get() override
+        System::Windows::Forms::Layout::LayoutEngine^ get() override
         {
           if (layoutEngine == nullptr)
             layoutEngine = gcnew MformsToolStripLayout();

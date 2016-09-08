@@ -49,7 +49,6 @@ typedef int ssize_t;
 #include <sstream>
 #include <string>
 #include <assert.h>
-#include <hash_map>
 
 #include <cairo/cairo.h>
 #include <cairo/cairo-Win32.h>

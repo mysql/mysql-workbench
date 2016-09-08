@@ -38,8 +38,8 @@ namespace MySQL {
       System::String ^GetContextName();
 
       mforms::AppView* GetBackend();
-      Windows::Forms::MenuStrip^ GetMenuBar();
-      Windows::Forms::ToolStrip^ GetToolBar();
+      System::Windows::Forms::MenuStrip^ GetMenuBar();
+      System::Windows::Forms::ToolStrip^ GetToolBar();
 
       String^ GetTitle();
       void SetTitle(String ^title);

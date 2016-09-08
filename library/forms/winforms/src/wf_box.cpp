@@ -130,7 +130,7 @@ void apply_bounds(ControlList% list, bool horizontal)
     // The WebBrowser class doesn't like being resized via DeferWindowPos, so we do it the straight way.
     // Also, if DeferWindowPos (or BeginDeferWindowPos for that matter) returned an empty handle
     // then we need to do the resizing that way for all controls.
-    if (hdwp == 0  || is<Windows::Forms::WebBrowser>(entry->control))
+    if (hdwp == 0  || is<System::Windows::Forms::WebBrowser>(entry->control))
       entry->control->Bounds = newBounds;
     else
     {

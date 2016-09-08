@@ -93,7 +93,7 @@ public:
       sidebarOverlay = nullptr;
 
     BackColor = Color::White;
-    FormBorderStyle = Windows::Forms::FormBorderStyle::SizableToolWindow;
+    FormBorderStyle = System::Windows::Forms::FormBorderStyle::SizableToolWindow;
     MaximizeBox = false;      
     MinimizeBox = false;
     StartPosition = FormStartPosition::CenterScreen;
@@ -106,7 +106,7 @@ public:
     footer->ColumnCount = 2;
     footer->AutoSize = true;
     footer->Dock = DockStyle::Bottom;
-    footer->Padding = Windows::Forms::Padding(10);
+    footer->Padding = System::Windows::Forms::Padding(10);
     footer->Controls->Add(extraButton, 0, 0);
 
     buttonBar->FlowDirection = FlowDirection::RightToLeft;
@@ -115,7 +115,7 @@ public:
     buttonBar->Controls->Add(backButton);
     buttonBar->Dock = DockStyle::Right;
     buttonBar->AutoSize = true;
-    buttonBar->Margin = Windows::Forms::Padding(0);
+    buttonBar->Margin = System::Windows::Forms::Padding(0);
     footer->Controls->Add(buttonBar, 1, 0);
 
     // We need to keep a reference to the wizard in the buttons to be able
@@ -160,7 +160,7 @@ public:
 
     title->ForeColor = ColorTranslator::FromHtml("#003392");
     title->Location = Point(sidebar->Width, 0);
-    title->Padding = Windows::Forms::Padding(15);
+    title->Padding = System::Windows::Forms::Padding(15);
 
     // Other initialization.
     Controls->Add(content);
@@ -301,7 +301,7 @@ public:
         }
 
         label->BackColor = Drawing::Color::Transparent;
-        label->Padding = Windows::Forms::Padding(7);
+        label->Padding = System::Windows::Forms::Padding(7);
         label->Size = Drawing::Size(sidebar->Width, label->PreferredHeight);
         sidebar->Controls->Add(label);
       }

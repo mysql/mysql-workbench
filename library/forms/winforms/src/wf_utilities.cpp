@@ -34,7 +34,7 @@
 
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 
-using namespace Windows::Forms;
+using namespace System::Windows::Forms;
 using namespace System::Drawing;
 using namespace System::Media;
 
@@ -49,12 +49,12 @@ CustomMessageBox::CustomMessageBox()
 {
   logDebug("Creating custom message box in old style\n");
     
-  _picture = gcnew Windows::Forms::PictureBox();
-  _button1 = gcnew Windows::Forms::Button();
-  _button2 = gcnew Windows::Forms::Button();
-  _button3 = gcnew Windows::Forms::Button();
-  _messageLabel = gcnew Windows::Forms::Label();
-  _checkbox = gcnew Windows::Forms::CheckBox();
+  _picture = gcnew System::Windows::Forms::PictureBox();
+  _button1 = gcnew System::Windows::Forms::Button();
+  _button2 = gcnew System::Windows::Forms::Button();
+  _button3 = gcnew System::Windows::Forms::Button();
+  _messageLabel = gcnew System::Windows::Forms::Label();
+  _checkbox = gcnew System::Windows::Forms::CheckBox();
 
   SuspendLayout();
 
@@ -90,7 +90,7 @@ CustomMessageBox::CustomMessageBox()
 
   // messageText
   _messageLabel->Name = "messageLabel";
-  _messageLabel->Padding = Windows::Forms::Padding(2);
+  _messageLabel->Padding = System::Windows::Forms::Padding(2);
   _messageLabel->TabIndex = 4;
   _messageLabel->Text = "label1";
 
@@ -98,10 +98,10 @@ CustomMessageBox::CustomMessageBox()
   _checkbox->TabIndex = 5;
 
   // Form
-  this->Padding = Windows::Forms::Padding(8, 16, 8, 8);
+  this->Padding = System::Windows::Forms::Padding(8, 16, 8, 8);
   this->FormBorderStyle = ::FormBorderStyle::FixedDialog;
   this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
-  this->AutoScaleMode = Windows::Forms::AutoScaleMode::Font;
+  this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
   this->StartPosition = FormStartPosition::CenterScreen;
   this->Name = "CustomMessageBox";
   this->Text = "";
@@ -219,7 +219,7 @@ mforms::DialogResult CustomMessageBox::ShowInternal(const std::string& title, co
 //--------------------------------------------------------------------------------------------------
 
 // A little helper for repeating a button setup.
-void AdjustButton(Windows::Forms::Button^ button)
+void AdjustButton(System::Windows::Forms::Button^ button)
 {
   // Note: we need to set the Enabled property too as indicator if this button should be considered
   // when layouting the form. The Visible property cannot be used as long as the button's parent
@@ -417,7 +417,7 @@ void CustomMessageBox::ButtonClick(Object^ sender, EventArgs^ arguments)
 {
   logDebug2("Button was clicked in custom message box\n");
 
-  DialogResult = ((Windows::Forms::Button^)sender)->DialogResult;
+  DialogResult = ((System::Windows::Forms::Button^)sender)->DialogResult;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,17 +468,17 @@ Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ t
   checked = isChecked;
   mforms::Utilities::leave_modal_loop();
 
-  Windows::Forms::DialogResult native_result;
+  System::Windows::Forms::DialogResult native_result;
   switch (result)
   {
   case mforms::ResultCancel:
-    native_result = Windows::Forms::DialogResult::Cancel;
+    native_result = System::Windows::Forms::DialogResult::Cancel;
     break;
   case mforms::ResultOther:
-    native_result = Windows::Forms::DialogResult::Ignore;
+    native_result = System::Windows::Forms::DialogResult::Ignore;
     break;
   default:
-    native_result = Windows::Forms::DialogResult::OK;
+    native_result = System::Windows::Forms::DialogResult::OK;
     break;
   }
   return native_result;
@@ -680,12 +680,12 @@ bool UtilitiesWrapper::run_cancelable_wait_message(const std::string &title, con
   HUDForm::CancelDelegate ^cancelDelegate = gcnew HUDForm::CancelDelegate(caller, &CallSlotDelegate::call_cancel);
 
   logDebug2("Running the HUD window\n");
-  Windows::Forms::DialogResult result = HUDForm::ShowModal(CppStringToNative(title),
+  System::Windows::Forms::DialogResult result = HUDForm::ShowModal(CppStringToNative(title),
     CppStringToNative(text), true, readyDelegate, cancelDelegate);
   logDebug2("HUD window returned with code: %i\n", result);
 
   // Abort is used if the window was forcibly closed (e.g. when showing another dialog, like password query).
-  return (result == Windows::Forms::DialogResult::OK) || (result == Windows::Forms::DialogResult::Abort);
+  return (result == System::Windows::Forms::DialogResult::OK) || (result == System::Windows::Forms::DialogResult::Abort);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ namespace MySQL {
     public class ViewWrapper : public ObjectWrapper
     {
     private:
-      gcroot<Windows::Forms::ToolTip ^> tooltip;
+      gcroot<System::Windows::Forms::ToolTip ^> tooltip;
       gcroot<Drawing::Image ^> backgroundImage;
       gcroot<ViewEventTarget ^> eventTarget;
 
@@ -87,7 +87,7 @@ namespace MySQL {
         const std::string &format);
       static mforms::DropPosition get_drop_position(mforms::View *backend);
 
-      static void SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDetails details);
+      static void SetDragImage(System::Windows::Forms::DataObject ^data, mforms::DragDetails details);
 
       static void focus(mforms::View *backend);
       static bool has_focus(mforms::View *backend);
@@ -105,26 +105,26 @@ namespace MySQL {
 
       // Only containers allow drawing a background (restriction imposed by other platforms)
       // so we simulate this here by triggering background drawing only for those classes.
-      void DrawBackground(Windows::Forms::PaintEventArgs ^args);
+      void DrawBackground(System::Windows::Forms::PaintEventArgs ^args);
       void set_resize_mode(AutoResizeMode mode);
 
       // Utility functions need for event handlers.
-      static bool use_min_width_for_layout(Windows::Forms::Control ^control);
-      static bool use_min_height_for_layout(Windows::Forms::Control ^control);
-      static void remove_auto_resize(Windows::Forms::Control ^control, AutoResizeMode mode);
-      static AutoResizeMode get_auto_resize(Windows::Forms::Control ^control);
-      static bool can_auto_resize_vertically(Windows::Forms::Control ^control);
-      static void set_full_auto_resize(Windows::Forms::Control ^control);
-      static bool can_auto_resize_horizontally(Windows::Forms::Control ^control);
-      static void set_auto_resize(Windows::Forms::Control ^control, AutoResizeMode mode);
-      static bool is_layout_dirty(Windows::Forms::Control ^control);
-      static void set_layout_dirty(Windows::Forms::Control ^control, bool value);
-      static void resize_with_docking(Windows::Forms::Control ^control, System::Drawing::Size &size);
-      static void adjust_auto_resize_from_docking(Windows::Forms::Control ^control);
-      static bool can_layout(Windows::Forms::Control ^control, String ^reason);
+      static bool use_min_width_for_layout(System::Windows::Forms::Control ^control);
+      static bool use_min_height_for_layout(System::Windows::Forms::Control ^control);
+      static void remove_auto_resize(System::Windows::Forms::Control ^control, AutoResizeMode mode);
+      static AutoResizeMode get_auto_resize(System::Windows::Forms::Control ^control);
+      static bool can_auto_resize_vertically(System::Windows::Forms::Control ^control);
+      static void set_full_auto_resize(System::Windows::Forms::Control ^control);
+      static bool can_auto_resize_horizontally(System::Windows::Forms::Control ^control);
+      static void set_auto_resize(System::Windows::Forms::Control ^control, AutoResizeMode mode);
+      static bool is_layout_dirty(System::Windows::Forms::Control ^control);
+      static void set_layout_dirty(System::Windows::Forms::Control ^control, bool value);
+      static void resize_with_docking(System::Windows::Forms::Control ^control, System::Drawing::Size &size);
+      static void adjust_auto_resize_from_docking(System::Windows::Forms::Control ^control);
+      static bool can_layout(System::Windows::Forms::Control ^control, String ^reason);
 
-      static mforms::View* source_view_from_data(Windows::Forms::IDataObject ^data);
-      static mforms::ModifierKey GetModifiers(Windows::Forms::Keys keyData);
+      static mforms::View* source_view_from_data(System::Windows::Forms::IDataObject ^data);
+      static mforms::ModifierKey GetModifiers(System::Windows::Forms::Keys keyData);
 
       static void init();
     };

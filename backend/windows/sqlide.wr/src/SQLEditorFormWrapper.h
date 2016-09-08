@@ -77,8 +77,8 @@ public:
   bool can_close() { return (*_ref)->can_close(); }
 
   // Native UI control factory methods.
-  Windows::Forms::Control^ get_sidebar_control();
-  Windows::Forms::Control^ get_palette_control();
+  System::Windows::Forms::Control^ get_sidebar_control();
+  System::Windows::Forms::Control^ get_palette_control();
 
   void set_tool_item_checked(String^ name, bool value);
   void set_docking_delegate(MySQL::Forms::ManagedDockDelegate ^theDelegate);

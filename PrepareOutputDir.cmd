@@ -138,11 +138,11 @@ echo * MySQL cdbc driver ...
 rem copy %EXT_LIB_DIR%\cppconn\mysql\%2\mysqlcppconn.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * glib libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libglib-2.0-0.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libgmodule-2.0-0.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libgobject-2.0-0.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libgthread-2.0-0.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libintl-8.dll %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\glib.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gmodule.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gobject.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gthread.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libintl-8.dll %TARGET_DIR%\.
 
 echo * libxml2 libraries ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\libxml\libxml2.dll %TARGET_DIR%\.
@@ -247,11 +247,11 @@ goto EndOfScript
 :Usage
 
 echo This script sets up the output directory so that applications can be started from there and find
-echo all directories and files as in the final distribution. The script takes 3 parameters, the 
+echo all directories and files as in the final distribution. The script takes 3 parameters, the
 echo SolutionDirectory and ConfigurationName.
 echo Use an ABSOLUTE PATH to the solution directory and end it with a backslash!
 echo .
-echo Usage: 
+echo Usage:
 echo   %0 SolutionDirectory ConfigurationName Architecture
 echo .
 echo Example:

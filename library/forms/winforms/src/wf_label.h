@@ -25,7 +25,7 @@ namespace MySQL {
     /**
      * Defines a label with an auto wrapping feature.
      */
-    private ref class WrapControlLabel : Windows::Forms::Label
+    private ref class WrapControlLabel : System::Windows::Forms::Label
     {
     private:
       bool autoWrapping;
