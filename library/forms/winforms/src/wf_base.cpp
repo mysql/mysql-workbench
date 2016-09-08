@@ -92,14 +92,14 @@ Component^ ObjectMapper::GetManagedComponent(mforms::Object *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::Object* ObjectMapper::GetUnmanagedControl(Windows::Forms::Control^ control)
+mforms::Object* ObjectMapper::GetUnmanagedControl(System::Windows::Forms::Control^ control)
 {
   return ObjectWrapper::GetBackend<mforms::Object>(control);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void* ObjectMapper::ManagedToNativeDragData(Windows::Forms::IDataObject ^dataObject, String ^format)
+void* ObjectMapper::ManagedToNativeDragData(System::Windows::Forms::IDataObject ^dataObject, String ^format)
 {
   DataWrapper ^wrapper = dynamic_cast<DataWrapper ^>(dataObject->GetData(format, false));
   if (wrapper == nullptr)

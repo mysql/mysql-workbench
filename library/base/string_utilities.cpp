@@ -283,7 +283,7 @@ namespace base {
 //--------------------------------------------------------------------------------------------------
 
 static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> utf16Converter;
-static std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> utf32Converter;
+static std::wstring_convert<std::codecvt_utf8<__int32>, __int32> utf32Converter;
 
 /**
  * Converts an UTF-8 encoded string to an UTF-16 string.
@@ -307,7 +307,7 @@ std::wstring string_to_wstring(const std::string &s)
 std::string wstring_to_string(const std::wstring &s)
 {
   if (sizeof(wchar_t) > 2)
-    return utf32Converter.to_bytes((char32_t*)s.c_str());
+    return utf32Converter.to_bytes((__int32*)s.c_str());
   else
     return utf16Converter.to_bytes(s);
 }

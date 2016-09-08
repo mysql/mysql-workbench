@@ -23,7 +23,7 @@
 
 #include "base/log.h"
 
-using namespace Windows::Forms;
+using namespace System::Windows::Forms;
 
 using namespace MySQL;
 using namespace MySQL::Forms;

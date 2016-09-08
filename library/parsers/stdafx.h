@@ -37,6 +37,7 @@
 #include <list>
 #include <inttypes.h>
 #include <sstream>
+#include <iterator>
 
 #include "antlr3.h"
 #include <glib.h>

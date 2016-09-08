@@ -32,7 +32,6 @@
 
 #include <list>
 #include <vector>
-#include <hash_set>
 #include <stack>
 
 #include <stdio.h>

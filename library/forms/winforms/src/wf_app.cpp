@@ -119,7 +119,7 @@ void AppWrapper::set_status_text(mforms::App *app, const std::string &text)
 
 base::Rect AppWrapper::get_application_bounds(mforms::App *app)
 {
-  Windows::Forms::Form ^form = UtilitiesWrapper::get_mainform();
+  System::Windows::Forms::Form ^form = UtilitiesWrapper::get_mainform();
   Drawing::Rectangle bounds = form->Bounds;
   return base::Rect(bounds.Left, bounds.Top, bounds.Width, bounds.Height);
 }

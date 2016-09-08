@@ -16,10 +16,8 @@
 
 /* A lexical scanner on a temporary buffer with a yacc interface */
 
-#ifdef _WIN32
-#include <hash_map>
-using stdext::hash_multimap;
-#elif defined(__APPLE__)
+
+#if defined(__APPLE__) || defined (_WIN32)
 #include <unordered_map>
 #else
 #include <tr1/unordered_map>
@@ -113,9 +111,7 @@ namespace mysql_parser
 
 static inline SYMBOL *get_hash_symbol(const char *s, unsigned int len, bool function)
 {
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
-  typedef hash_multimap<size_t, SYMBOL *> Hash_ind;
-#elif defined(__APPLE__)
+#if defined(__APPLE__) || defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
   typedef std::unordered_multimap<size_t, SYMBOL *> Hash_ind;
 #else
   typedef std::tr1::unordered_multimap<size_t, SYMBOL *> Hash_ind;

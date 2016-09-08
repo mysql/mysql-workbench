@@ -22,15 +22,15 @@
 namespace MySQL {
   namespace Forms {
 
-    private ref class TextBoxEx : public Windows::Forms::TextBox
+    private ref class TextBoxEx : public System::Windows::Forms::TextBox
     {
     private:
       mforms::ModifierKey modifiers; // Converted modifier keys for key down and key press events.
     protected:
-      virtual bool ProcessCmdKey(Windows::Forms::Message% msg, Windows::Forms::Keys keyData) override;
+      virtual bool ProcessCmdKey(System::Windows::Forms::Message% msg, System::Windows::Forms::Keys keyData) override;
       virtual void OnTextChanged(EventArgs ^args) override;
-      virtual void OnKeyDown(Windows::Forms::KeyEventArgs ^args) override;
-      virtual void OnKeyPress(Windows::Forms::KeyPressEventArgs ^args) override;
+      virtual void OnKeyDown(System::Windows::Forms::KeyEventArgs ^args) override;
+      virtual void OnKeyPress(System::Windows::Forms::KeyPressEventArgs ^args) override;
     };
 
     public class TextBoxWrapper : public ViewWrapper

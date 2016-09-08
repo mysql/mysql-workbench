@@ -218,11 +218,11 @@ public:
 
   GrtManager^ get_grt_manager();
 
-  Windows::Forms::MenuStrip^ menu_for_form(MySQL::Base::UIForm^ form);
-  Windows::Forms::MenuStrip^ menu_for_appview(MySQL::Forms::AppViewDockContent ^content);
+  System::Windows::Forms::MenuStrip^ menu_for_form(MySQL::Base::UIForm^ form);
+  System::Windows::Forms::MenuStrip^ menu_for_appview(MySQL::Forms::AppViewDockContent ^content);
   void validate_menu_for_form(MySQL::Base::UIForm^ form);
-  Windows::Forms::ToolStrip^ toolbar_for_form(MySQL::Base::UIForm^ form);
-  Windows::Forms::Control ^shared_secondary_sidebar();
+  System::Windows::Forms::ToolStrip^ toolbar_for_form(MySQL::Base::UIForm^ form);
+  System::Windows::Forms::Control ^shared_secondary_sidebar();
 
   void focus_search_box(MySQL::Base::UIForm^ form);
   String^ get_search_string(MySQL::Base::UIForm^ form);

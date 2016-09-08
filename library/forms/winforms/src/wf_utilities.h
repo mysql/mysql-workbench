@@ -36,19 +36,19 @@ namespace MySQL {
      * A custom message box for the output as there is no predefined dialog which allows to
      * have custom button captions.
      */
-    public ref class CustomMessageBox : Windows::Forms::Form
+    public ref class CustomMessageBox : System::Windows::Forms::Form
     {
     private:
       // Constructor is private. CustomMessageBox should be accessed through the public Show() method
       CustomMessageBox();
 
       // GUI Elements, we have 3 buttons whose text can be customized.
-      Windows::Forms::Label^ _messageLabel;
-      Windows::Forms::Button^ _button1;
-      Windows::Forms::Button^ _button2;
-      Windows::Forms::Button^ _button3;
-      Windows::Forms::PictureBox^ _picture;
-      Windows::Forms::CheckBox^ _checkbox;
+      System::Windows::Forms::Label^ _messageLabel;
+      System::Windows::Forms::Button^ _button1;
+      System::Windows::Forms::Button^ _button2;
+      System::Windows::Forms::Button^ _button3;
+      System::Windows::Forms::PictureBox^ _picture;
+      System::Windows::Forms::CheckBox^ _checkbox;
 
       void ComputeLayout();
       void ButtonClick(System::Object ^sender, EventArgs ^e);
@@ -63,9 +63,9 @@ namespace MySQL {
         const std::string& buttonOther, const std::string& checkbox, bool& checked);
 
       // C# interface
-      static Windows::Forms::DialogResult Show(MessageType type,  String ^title,  String ^text,  String ^buttonOK,
+      static System::Windows::Forms::DialogResult Show(MessageType type,  String ^title,  String ^text,  String ^buttonOK,
          String ^buttonCancel,  String ^buttonOther,  String ^checkbox, [Out] bool% checked);
-      static Windows::Forms::DialogResult Show(MessageType type,  String ^title,  String ^text,  String ^buttonOK);
+      static System::Windows::Forms::DialogResult Show(MessageType type,  String ^title,  String ^text,  String ^buttonOK);
     };
 
     private ref class InvokationResult
@@ -104,7 +104,7 @@ namespace MySQL {
       }
     };
 
-    private ref class DispatchControl : Windows::Forms::Control
+    private ref class DispatchControl : System::Windows::Forms::Control
     {
     private:
       InvokationResult^ RunSlot(SlotWrapper ^wrapper);
@@ -159,7 +159,7 @@ namespace MySQL {
 
       static double get_text_width(const std::string &text, const std::string &font);
     public:
-      static Windows::Forms::Form^ get_mainform();
+      static System::Windows::Forms::Form^ get_mainform();
 
       static void init();
     };

@@ -182,7 +182,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  std::vector<std::string> get_available_formats(Windows::Forms::IDataObject ^data)
+  std::vector<std::string> get_available_formats(System::Windows::Forms::IDataObject ^data)
   {
     std::vector<std::string> result;
     array<String ^> ^formats = data->GetFormats();
@@ -406,7 +406,7 @@ bool ViewWrapper::use_min_width_for_layout(Control ^control)
       || is<TreeViewAdv>(control)
       || is<ListBox>(control)
       || is<SplitContainer>(control)
-      || is<Windows::Forms::WebBrowser>(control)
+      || is<System::Windows::Forms::WebBrowser>(control)
       || is<HtmlLabel>(control)
       || is<HtmlPanel>(control)
       || is<ProgressBar>(control)
@@ -433,7 +433,7 @@ bool ViewWrapper::use_min_height_for_layout(Control ^control)
       || is<ListBox>(control)
       || is<TreeViewAdv>(control)
       || is<SplitContainer>(control)
-      || is<Windows::Forms::WebBrowser>(control)
+      || is<System::Windows::Forms::WebBrowser>(control)
       || is<ScintillaControl>(control)
       || is<DataGridView>(control)
     ;
@@ -862,7 +862,7 @@ void ViewWrapper::set_back_image(mforms::View *backend, const std::string &path,
 void ViewWrapper::focus(mforms::View *backend)
 {
   Control ^control = GetManagedObject<Control>(backend);
-  Windows::Forms::Form ^form = control->FindForm();
+  System::Windows::Forms::Form ^form = control->FindForm();
   if (form != nullptr)
     form->ActiveControl = control;
   else
@@ -988,7 +988,7 @@ mforms::DragOperation ViewWrapper::drag_text(mforms::View *backend, mforms::Drag
   const std::string &text)
 {
   Control ^control = GetManagedObject<Control>(backend);
-  Windows::Forms::DataObject ^dataObject = gcnew Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
+  System::Windows::Forms::DataObject ^dataObject = gcnew System::Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
   WBIDataObjectExtensions::SetDataEx(dataObject, DataFormats::UnicodeText, CppStringToNative(text));
 
   // Store the backend pointer in the data object, so we can distinguish between internal and
@@ -1057,7 +1057,7 @@ mforms::DropPosition ViewWrapper::get_drop_position(mforms::View *backend)
 /**
 *	Tries to get a reference to the source backend view in a drag operation, if there's one.
 */
-mforms::View* ViewWrapper::source_view_from_data(Windows::Forms::IDataObject ^data)
+mforms::View* ViewWrapper::source_view_from_data(System::Windows::Forms::IDataObject ^data)
 {
   if (data->GetDataPresent(DRAG_SOURCE_FORMAT_NAME))
   {
@@ -1073,7 +1073,7 @@ mforms::View* ViewWrapper::source_view_from_data(Windows::Forms::IDataObject ^da
 /**
  * Creates and sets a drag image from the given details for the data object.
  */
-void ViewWrapper::SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDetails details)
+void ViewWrapper::SetDragImage(System::Windows::Forms::DataObject ^data, mforms::DragDetails details)
 {
   BITMAPINFO bmpInfo = {0};
   bmpInfo.bmiHeader.biSize = sizeof(bmpInfo);
@@ -1319,7 +1319,7 @@ void ViewWrapper::set_front_color(String ^color)
 void ViewWrapper::set_padding(int left, int top, int right, int bottom)
 {
   Control ^control = GetManagedObject<Control>();
-  control->Padding = Windows::Forms::Padding(left, top, right, bottom);
+  control->Padding = System::Windows::Forms::Padding(left, top, right, bottom);
 }
 
 //--------------------------------------------------------------------------------------------------

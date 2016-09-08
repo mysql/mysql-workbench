@@ -34,7 +34,7 @@ NativeWrapper::NativeWrapper(mforms::NativeContainer *native)
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::NativeContainer *NativeWrapper::from_control(Windows::Forms::Control ^control)
+mforms::NativeContainer *NativeWrapper::from_control(System::Windows::Forms::Control ^control)
 {
   mforms::NativeContainer *backend = new mforms::NativeContainer();
   
@@ -46,7 +46,7 @@ mforms::NativeContainer *NativeWrapper::from_control(Windows::Forms::Control ^co
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::View *MySQL::Forms::Native::wrapper_for_control(Windows::Forms::Control ^control)
+mforms::View *MySQL::Forms::Native::wrapper_for_control(System::Windows::Forms::Control ^control)
 {
   return NativeWrapper::from_control(control);
 }
