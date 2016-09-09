@@ -378,7 +378,7 @@ std::string get_local_hardware_info()
   }
   else
   {
-    sprintf_s(total_phys_ram, BUFSIZE, "%d B RAM", total_phys_ram_val);
+    sprintf_s(total_phys_ram, BUFSIZE, "%l B RAM", total_phys_ram_val);
   }
    
   target_size= 16 + (int)strlen(processor_name) + (int)strlen(total_phys_ram);
