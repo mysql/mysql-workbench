@@ -17,7 +17,7 @@
   <?else ?>
       <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
   <?endif ?>
-  
+
   <Fragment>
 
     <!-- *****************************************************************************************
@@ -29,7 +29,7 @@
 
     <!-- *****************************************************************************************
       Directories / Files
-      
+
       Current manual added files max id: file111
     -->
 
@@ -61,10 +61,10 @@
                 <File Id="file1034" Name="libmysql.dll"/>
                 <File Id="file1035" Name="libpng.dll"/>
                 <File Id="file1036" Name="libxml2.dll"/>
-                <File Id="file1030" Name="libglib-2.0-0.dll"/>
-                <File Id="file1031" Name="libgmodule-2.0-0.dll"/>
-                <File Id="file1032" Name="libgobject-2.0-0.dll"/>
-                <File Id="file1033" Name="libgthread-2.0-0.dll"/>
+                <File Id="file1030" Name="glib.dll"/>
+                <File Id="file1031" Name="gmodule.dll"/>
+                <File Id="file1032" Name="gobject.dll"/>
+                <File Id="file1033" Name="gthread.dll"/>
                 <File Id="file1050" Name="Aga.Controls.dll"/>
                 <File Id="file1064" Name="libctemplate.dll"/>
                 <File Id="file1065" Name="libzip.dll"/>
@@ -173,9 +173,9 @@
                   <RegistryValue Id="Reg.Class.MWB.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
                   <RegistryValue Action="write" Id="Reg.Class.MWB.Command" Key="Shell\Open\Command" Type="string" Value="&quot;[#file1056]&quot; &quot;%1&quot;"/>
                 </RegistryKey>
-                
-                <RegistryValue Action="write" Id="Reg.Extn.SQL" Key=".sql" Root="HKCR" Type="string" Value="SQLFile"/>	
-                
+
+                <RegistryValue Action="write" Id="Reg.Extn.SQL" Key=".sql" Root="HKCR" Type="string" Value="SQLFile"/>
+
                 <RegistryKey ForceCreateOnInstall="yes" Id="Reg.Class.SQL" Key="SQLfile" Root="HKCR">
                   <RegistryValue Id="Reg.Class.SQL.Value" Type="string" Value="SQL Text File"/>
                   <RegistryValue Id="Reg.Class.SQL.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
@@ -777,7 +777,7 @@
                     <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
 
                     <File Id="file60670" Name="Close_16x16.png"/>
-                    
+
                     <File Id="file60675" Name="firewall-header.png"/>
                     <File Id="session" Name="session.png"/>
                     <File Id="folder" Name="folder.png"/>
@@ -917,9 +917,9 @@
                     <File Id="file606614" Name="qe_sql-editor-resultset-tb-pin.png"/>
                     <File Id="file606615" Name="qe_sql-editor-resultset-tb-pinned.png"/>
                     <File Id="file606616" Name="qe_sql-editor-explain-tb-overview.png"/>
-        
+
                   </Component>
-                  
+
                 </Directory>
 
               </Directory>
@@ -1368,7 +1368,7 @@
                       <File Id="file68728" Name="dump.py"/>
                     </Component>
                   </Directory>
-                  
+
                   <Directory Id="python_lib_xml" Name="xml">
                     <Component DiskId="1" Guid="e0a72eda-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml" Location="either">
                       <File Id="file70000" Name="__init__.py"/>
@@ -1785,7 +1785,7 @@
 
                   <File Id="file66911" Name="db_msaccess_re_grt.py"/>
                   <File Id="file66912" Name="db_msaccess_migration_grt.py"/>
-                  
+
                   <File Id="file66204" Name="DataMigrator.py"/>
 
                   <File Id="file66221" Name="explain_renderer.py"/>
@@ -1833,7 +1833,7 @@
                     <File Id="wba_meb09" Name="wb_admin_meb.py"/>
                   </Component>
                 </Directory>
- 
+
                 <Directory Id="modules_wba_firewall" Name="wba_firewall">
                   <Component DiskId="1" Guid="514f4fc3-d405-492f-85b4-c5295bf78360" Id="modules_wba_firewall" Location="either">
                     <File Id="wba_firewall01" Name="__init__.py"/>
@@ -2232,14 +2232,14 @@
                     <File Id="wbsys138" Name="sys_config_update_set_user.sql"/>
                   </Component>
                 </Directory>
-              </Directory>   
-              
+              </Directory>
+
               <Directory Id="sample_models_dir" Name="extras">
                 <Component DiskId="1" Guid="16209AE8-6388-4DD8-ADFB-6548FC014BCA" Id="extras" Location="either">
                   <File Id="sample001" Name="sakila_full.mwb"/>
                 </Component>
               </Directory>
-              
+
             </Directory>
           </Directory>
         </Directory>
