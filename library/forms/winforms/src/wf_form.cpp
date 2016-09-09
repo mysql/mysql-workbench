@@ -356,7 +356,7 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
   System::Windows::Forms::DialogResult dialog_result;
   if (form->InvokeRequired)
   {
-    Object^ invocation_result = form->Invoke(gcnew FillForm::ShowModalDelegate(form, &Windows::Forms::Form::ShowDialog),
+    Object^ invocation_result = form->Invoke(gcnew FillForm::ShowModalDelegate(form, &System::Windows::Forms::Form::ShowDialog),
       gcnew array<Object^> {wrapper->_owner});
     dialog_result = *(System::Windows::Forms::DialogResult ^)(invocation_result);
   }

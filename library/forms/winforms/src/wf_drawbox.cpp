@@ -314,7 +314,7 @@ System::Windows::Forms::AccessibleObject^ CanvasControl::CreateAccessibilityInst
 
 //--------------------------------------------------------------------------------------------------
 
-Windows::Forms::Layout::LayoutEngine^ CanvasControl::LayoutEngine::get()
+System::Windows::Forms::Layout::LayoutEngine^ CanvasControl::LayoutEngine::get()
 {
   if (layoutEngine == nullptr)
     layoutEngine = gcnew DrawBoxLayout();

@@ -197,7 +197,7 @@ void ScintillaControl::SelectAll()
 
 //--------------------------------------------------------------------------------------------------
 
-Windows::Forms::CreateParams^ ScintillaControl::CreateParams::get()
+System::Windows::Forms::CreateParams^ ScintillaControl::CreateParams::get()
 {
   System::Windows::Forms::CreateParams^ params = Control::CreateParams::get();
   params->ClassName = "Scintilla";
