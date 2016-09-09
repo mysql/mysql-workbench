@@ -438,7 +438,7 @@ mforms::DialogResult CustomMessageBox::Show(const std::string& title, const std:
 
 //--------------------------------------------------------------------------------------------------
 
-Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ title,  String^ text,  
+System::Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ title,  String^ text,  
    String^ buttonOK,  String^ buttonCancel,  String^ buttonOther,  String^ checkbox, [Out] bool% checked)
 {
   logDebug("About to show a custom message box\n");
@@ -486,7 +486,7 @@ Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ t
 
 //--------------------------------------------------------------------------------------------------
 
-Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ title,  String^ text,
+System::Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ title,  String^ text,
    String^ buttonOK)
 {
   bool checked = false;
@@ -1160,7 +1160,7 @@ double UtilitiesWrapper::get_text_width(const std::string &text, const std::stri
 /**
  * Returns the main form of the application.
  */
-Windows::Forms::Form^ UtilitiesWrapper::get_mainform()
+System::Windows::Forms::Form^ UtilitiesWrapper::get_mainform()
 {
   logDebug2("Returning main form\n");
 

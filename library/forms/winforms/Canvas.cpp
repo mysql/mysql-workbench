@@ -243,7 +243,7 @@ void BaseWindowsCanvasView::SetOwnerForm(System::Windows::Forms::Form^ ownerForm
 
 //--------------------------------------------------------------------------------------------------
 
-Windows::Forms::Form^ BaseWindowsCanvasView::GetOwnerForm()
+System::Windows::Forms::Form^ BaseWindowsCanvasView::GetOwnerForm()
 {
   return owner_form;
 }
