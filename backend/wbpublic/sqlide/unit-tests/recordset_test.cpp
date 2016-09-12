@@ -53,6 +53,7 @@ TEST_FUNCTION(1)
 
   dbc_conn = sql::Dbc_connection_handler::Ref(new sql::Dbc_connection_handler());
   dbc_conn->ref = dbc_drv_man->getConnection(wbt->get_connection_properties(), boost::bind(dummy));
+
   ensure("connection", dbc_conn->ref.get() != 0);
 }
 
@@ -60,7 +61,14 @@ TEST_FUNCTION(1)
 TEST_FUNCTION(2)
 {
   Recordset_cdbc_storage::Ref data_storage(Recordset_cdbc_storage::create());
-  data_storage->dbms_conn(dbc_conn);
+
+//  data_storage->dbms_conn(dbc_conn);
+  base::RecMutex _connLock;
+  data_storage->setUserConnectionGetter([&](sql::Dbc_connection_handler::Ref &conn) -> base::RecMutexLock{
+    base::RecMutexLock lock(_connLock, false);
+    conn = dbc_conn;
+    return lock;
+  });
 
   Recordset::Ref rs = Recordset::create();
   rs->data_storage(data_storage);
@@ -70,7 +78,6 @@ TEST_FUNCTION(2)
 
   std::shared_ptr<sql::ResultSet> rset(dbc_statement->getResultSet());
   data_storage->dbc_resultset(rset);
-  data_storage->dbms_conn(dbc_conn); 
 
   rs->reset(true);
 

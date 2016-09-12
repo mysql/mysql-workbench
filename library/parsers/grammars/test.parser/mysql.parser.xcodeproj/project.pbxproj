@@ -450,6 +450,10 @@
 				GCC_PREFIX_HEADER = mysql_parser_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					"../../../../ext/antlr-runtime/include",
+					/usr/local/include,
+				);
 				INFOPLIST_FILE = "mysql_parser-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;

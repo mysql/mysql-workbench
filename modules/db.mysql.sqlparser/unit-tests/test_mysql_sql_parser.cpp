@@ -158,7 +158,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
 // Table
 TEST_FUNCTION(20)
 {
-  for (int i = 16; i <= 18; ++i)
+  for (int i = 0; i <= 18; ++i)
     test_import_sql(i);
 }
 
