@@ -329,6 +329,9 @@ private:
 
   ServerState _last_server_running_state;
 
+  base::RecMutexLock getAuxConnection(sql::Dbc_connection_handler::Ref &conn);
+  base::RecMutexLock getUserConnection(sql::Dbc_connection_handler::Ref &conn);
+
   MySQLObjectNamesCache *_auto_completion_cache;
   void onCacheAction(bool active);
 

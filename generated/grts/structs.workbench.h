@@ -21,7 +21,6 @@
 #include "grts/structs.h"
 #include "grts/structs.app.h"
 #include "grts/structs.db.h"
-#include "grts/structs.db.ng.h"
 #include "grts/structs.db.query.h"
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.workbench.physical.h"
@@ -61,10 +60,11 @@ public:
      _itemDisplayMode(0),
      _itemInfoFunction(""),
      _nodeId(""),
-    _selectedItems(grt::Initialized, this, false),
+     _selectedItems(grt::Initialized, this, false),
      _tabActivationFunction(""),
      _tabCountFunction(""),
      _tabInfoFunction("")
+
   {
   }
 
@@ -592,8 +592,8 @@ public:
   workbench_Workbench(grt::MetaClass *meta=0)
   : app_Application(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _docPath(""),
-    _ngSheets(this, false),
     _sqlEditors(this, false)
+
   {
   }
 
@@ -657,24 +657,6 @@ obj.migration = value
     owned_member_changed("migration", ovalue, value);
   }
 
-  // ngSheets is owned by workbench_Workbench
-  /** Getter for attribute ngSheets (read-only)
-   
-    list of open NG Sheet instances
-   \par In Python:
-value = obj.ngSheets
-   */
-  grt::ListRef<db_ng_Sheet> ngSheets() const { return _ngSheets; }
-private: // the next attribute is read-only
-  virtual void ngSheets(const grt::ListRef<db_ng_Sheet> &value)
-  {
-    grt::ValueRef ovalue(_ngSheets);
-
-    _ngSheets= value;
-    owned_member_changed("ngSheets", ovalue, value);
-  }
-public:
-
   // rdbmsMgmt is owned by workbench_Workbench
   /** Getter for attribute rdbmsMgmt
    
@@ -719,7 +701,6 @@ protected:
 
   grt::StringRef _docPath;
   db_migration_MigrationRef _migration;// owned
-  grt::ListRef<db_ng_Sheet> _ngSheets;// owned
   db_mgmt_ManagementRef _rdbmsMgmt;// owned
   grt::ListRef<db_query_Editor> _sqlEditors;// owned
 private: // wrapper methods for use by grt
@@ -749,11 +730,6 @@ public:
       void (workbench_Workbench::*setter)(const db_migration_MigrationRef &)= &workbench_Workbench::migration;
       db_migration_MigrationRef (workbench_Workbench::*getter)() const= &workbench_Workbench::migration;
       meta->bind_member("migration", new grt::MetaClass::Property<workbench_Workbench,db_migration_MigrationRef >(getter,setter));
-    }
-    {
-      void (workbench_Workbench::*setter)(const grt::ListRef<db_ng_Sheet> &)= &workbench_Workbench::ngSheets;
-      grt::ListRef<db_ng_Sheet> (workbench_Workbench::*getter)() const= &workbench_Workbench::ngSheets;
-      meta->bind_member("ngSheets", new grt::MetaClass::Property<workbench_Workbench,grt::ListRef<db_ng_Sheet> >(getter,setter));
     }
     {
       void (workbench_Workbench::*setter)(const db_mgmt_ManagementRef &)= &workbench_Workbench::rdbmsMgmt;
