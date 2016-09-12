@@ -44,12 +44,6 @@
     <Filter Include="grtdb Source Files">
       <UniqueIdentifier>{a8aae8af-d1d2-4571-91c8-3b27a2947f4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="db_ng Header Files">
-      <UniqueIdentifier>{e3157aa3-6318-44b3-9110-47224057c79e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="db_ng Source Files">
-      <UniqueIdentifier>{1252ad35-b208-4eba-b39f-69836165f44d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -491,15 +485,6 @@
     <ClInclude Include="grtsqlparser\parser_services_common.h">
       <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="objimpl\db.ng\db_ng_Editor.h">
-      <Filter>db_ng Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="objimpl\db.ng\db_ng_Ide.h">
-      <Filter>db_ng Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="objimpl\db.ng\db_ng_Sheet.h">
-      <Filter>db_ng Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\generated\grts\structs.db.ng.h">
       <Filter>Generated Header Files</Filter>
     </ClInclude>
@@ -931,15 +916,6 @@
     </ClCompile>
     <ClCompile Include="grtui\geom_draw_box.cpp">
       <Filter>grtui Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="objimpl\db.ng\db_ng_Editor.cpp">
-      <Filter>db_ng Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="objimpl\db.ng\db_ng_Ide.cpp">
-      <Filter>db_ng Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="objimpl\db.ng\db_ng_Sheet.cpp">
-      <Filter>db_ng Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

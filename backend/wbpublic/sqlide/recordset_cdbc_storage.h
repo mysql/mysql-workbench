@@ -55,10 +55,8 @@ public:
   std::string decorated_sql_query(); // adds limit clause if defined by options
 
 public:
-  void dbms_conn(const sql::Dbc_connection_handler::Ref &val) { _dbms_conn= val; }
-  sql::Dbc_connection_handler::Ref dbms_conn() { return _dbms_conn; }
-  void aux_dbms_conn(const sql::Dbc_connection_handler::Ref &val) { _aux_dbms_conn= val; }
-  sql::Dbc_connection_handler::Ref aux_dbms_conn() { return _aux_dbms_conn; }
+  void setAuxConnectionGetter(std::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> getConnection) { _getAuxConnection = getConnection; };
+  void setUserConnectionGetter(std::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> getConnection) { _getUserConnection = getConnection; };
 
   void dbc_resultset(std::shared_ptr<sql::ResultSet>& value) { _dbc_resultset= value; }
   void dbc_statement(std::shared_ptr<sql::Statement>& value) { _dbc_statement= value; }
@@ -67,12 +65,11 @@ public:
 
   void set_gather_field_info(bool flag) { _gather_field_info = flag; }
   std::vector<FieldInfo> &field_info() { return _field_info; }
-protected:
-  sql::Dbc_connection_handler::ConnectionRef dbms_conn_ref();
-  sql::Dbc_connection_handler::ConnectionRef aux_dbms_conn_ref();
+
 private:
-  sql::Dbc_connection_handler::Ref _dbms_conn;
-  sql::Dbc_connection_handler::Ref _aux_dbms_conn;
+  std::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> _getAuxConnection;
+  std::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> _getUserConnection;
+
   std::shared_ptr<sql::ResultSet> _dbc_resultset; // for 1-time unserialization
   std::shared_ptr<sql::Statement> _dbc_statement; // for 1-time unserialization
   std::vector<FieldInfo> _field_info;
