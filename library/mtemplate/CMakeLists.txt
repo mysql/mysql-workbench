@@ -10,6 +10,9 @@ add_library(mtemplate
             output.cpp
            )
 
+set_target_properties(mtemplate
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
            
 install(TARGETS mtemplate DESTINATION ${WB_INSTALL_LIB_DIR})
 

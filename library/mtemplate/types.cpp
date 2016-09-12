@@ -359,17 +359,17 @@ TemplateDocument parseTemplate(const base::utf8string &template_string, PARSE_TY
         }
       }
     }
-    else if (temp_template.startsWith("{{{{"))
+    else if (temp_template.starts_with("{{{{"))
     {
       throw std::logic_error("mtemplate: File contains invalid character sequence '{{{{'");
     }
-    else if (temp_template.startsWith("{{{"))
+    else if (temp_template.starts_with("{{{"))
     {// Special case of {{{
       NodeText *item = NodeText::parse("{", type);
       temp_template = temp_template.substr(item->_length);
       doc.push_back(NodeStorageType(item));
     }
-    else if (temp_template.startsWith("{{"))
+    else if (temp_template.starts_with("{{"))
     {//  A node was found {{SOME_NOME}}
 //       char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
       base::utf8string::utf8char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
