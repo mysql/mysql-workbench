@@ -4,8 +4,8 @@ include_directories(${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/ext
     ${GRT_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 #TODO: Set other compiler flags
@@ -17,6 +17,8 @@ add_library(cdbc
     src/driver_manager.cpp
     src/sql_batch_exec.cpp
 )
+
+target_compile_options(cdbc PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(cdbc ${MYSQLCPPCONN_LIBRARY})
 

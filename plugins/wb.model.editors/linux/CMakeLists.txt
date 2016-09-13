@@ -23,11 +23,11 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}
-    ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
 #     ${CAIRO_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.model.editors.wbp MODULE
@@ -41,6 +41,9 @@ add_library(wb.model.editors.wbp MODULE
     editor_layer_fe.cpp
     editor_stored_note_fe.cpp
 )
+
+
+target_compile_options(wb.model.editors.wbp PUBLIC ${WB_CXXFLAGS})
 
 add_dependencies(wb.model.editors.wbp parsers)
 

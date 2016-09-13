@@ -5,8 +5,8 @@ include_directories(.
     .. 
     ${PROJECT_SOURCE_DIR}/generated 
     ${GRT_INCLUDE_DIRS} 
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS})
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS})
 
 #TODO: Set compiler flags 
 #set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} "-Wall -Wsign-compare ${CAIRO_CFLAGS}")
@@ -38,6 +38,8 @@ add_library(grt
     python_grtobject.cpp
     python_module.cpp
 )
+
+target_compile_options(grt PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(grt wbbase ${GLIB_LIBRARIES} ${GMODULE_LIBRARIES} ${GRT_LIBRARIES} ${UUID_LIBRARIES})
 

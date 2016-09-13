@@ -1,14 +1,14 @@
 add_definitions(${USE_BUNDLED_MYSQLDUMP})
 
 include_directories(.
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${LIBZIP_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${LIBZIP_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
-    ${ANTLR3C_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
@@ -25,10 +25,10 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbpublic/grt 
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${VSQLITE_INCLUDE_DIRS}
-    ${TINYXML_INCLUDE_DIRS}
-    ${GDAL_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${TINYXML_INCLUDE_DIRS}
+    SYSTEM ${GDAL_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wbprivate
@@ -98,6 +98,8 @@ add_library(wbprivate
     ${PROJECT_SOURCE_DIR}/frontend/common/select_option_dialog.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/snippet_list.cpp
 )
+
+target_compile_options(wbprivate PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wbprivate
     grt
