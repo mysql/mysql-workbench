@@ -316,15 +316,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 if(GCOV)
-    set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
+    set(WB_CXXFLAGS "${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage")
+    set(WB_CFLAGS "${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage")
 endif()
-
-if(GCOV)
-    set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
-endif()
-
-
-
 
 #-----------------------------------------------------------------------
 # Define some useful variables and options
