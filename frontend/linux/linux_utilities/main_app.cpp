@@ -42,9 +42,13 @@ void runtime::loop::run()
     throw std::runtime_error("Loop already started");
 
   _loop = g_main_loop_new(NULL, FALSE);
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   gdk_threads_leave();
+  G_GNUC_END_IGNORE_DEPRECATIONS
   g_main_loop_run(_loop);
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   gdk_threads_enter();
+  G_GNUC_END_IGNORE_DEPRECATIONS
   g_main_loop_unref(_loop);
   _loop = nullptr;
 }

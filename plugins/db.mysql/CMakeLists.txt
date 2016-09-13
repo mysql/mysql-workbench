@@ -20,16 +20,16 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/library/mysql.parser/
     backend
-    ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     ${GRT_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${ANTLR3C_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 set(LIBRARY_SOURCES
@@ -56,6 +56,9 @@ set(LIBRARY_SOURCES
 )
 
 add_library(db.mysql.wbp MODULE ${LIBRARY_SOURCES})
+
+target_compile_options(db.mysql.wbp PUBLIC ${WB_CXXFLAGS})
+
 set_target_properties(db.mysql.wbp  PROPERTIES  PREFIX ""
                                                 VERSION   ${WB_VERSION}
                                                 SOVERSION ${WB_VERSION}
