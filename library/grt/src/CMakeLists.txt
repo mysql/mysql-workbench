@@ -4,7 +4,7 @@ endif()
 include_directories(. 
     .. 
     ${PROJECT_SOURCE_DIR}/generated 
-    ${GRT_INCLUDE_DIRS} 
+    SYSTEM ${GRT_INCLUDE_DIRS} 
     SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS})
 
