@@ -26,7 +26,7 @@ include_directories(.
     SYSTEM ${GTK3_INCLUDE_DIRS}
 #     ${CAIRO_INCLUDE_DIRS}
     SYSTEM ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
