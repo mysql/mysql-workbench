@@ -7,12 +7,14 @@ include_directories(${LIBXML2_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/library/parsers   
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/generated
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.mysql.parser.grt
     src/mysql_parser_module.cpp
 )
+
+target_compile_options(db.mysql.parser.grt PUBLIC ${WB_CXXFLAGS})
 
 add_dependencies(db.mysql.parser.grt parsers)
 

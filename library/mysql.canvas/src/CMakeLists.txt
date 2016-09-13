@@ -1,9 +1,9 @@
 include_directories(.
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/library/base
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 #if (UNIX)
@@ -52,6 +52,9 @@ add_library(mdcanvas
     mdc_line_segment_handle.cpp
     mdc_box_side_magnet.cpp
 )
+
+target_compile_options(mdcanvas PUBLIC ${WB_CXXFLAGS})
+
 target_link_libraries(mdcanvas ${CAIRO_LIBRARIES})
 
 set_target_properties(mdcanvas        
@@ -70,6 +73,8 @@ add_library(mdcanvasgtk
     gtk/mdc_gtk_canvas_view.cpp
     gtk/mdc_gtk_canvas_scroller.cpp
 )
+
+target_compile_options(mdcanvasgtk PUBLIC ${WB_CXXFLAGS})
 target_link_libraries(mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES})
 
 set_target_properties(mdcanvasgtk

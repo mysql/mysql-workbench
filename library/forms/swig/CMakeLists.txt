@@ -15,19 +15,19 @@ set(MODULE_DATA_FILES
 install(FILES ${MODULE_DATA_FILES} DESTINATION ${WB_PYTHON_MODULES_DIR})
 
 include_directories(.
-    ${CAIRO_INCLUDEDIR}
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${LIBXML2_INCLUDE_DIR}
-    ${SIGC++_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDEDIR}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${LIBXML2_INCLUDE_DIR}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${PYTHON_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 set(CMAKE_SWIG_FLAGS -w312)
@@ -44,9 +44,13 @@ swig_add_module(mforms python mforms.i)
 swig_link_libraries(mforms mforms wbscintilla ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
 set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "-Wno-missing-field-initializers -Wno-parentheses")
 
+target_compile_options(_mforms PUBLIC ${WB_CXXFLAGS})
+
 set_target_properties(_mforms
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
+
+target_compile_options(_cairo PUBLIC ${WB_CXXFLAGS})
 
 set_target_properties(_cairo
                       PROPERTIES VERSION   ${WB_VERSION}

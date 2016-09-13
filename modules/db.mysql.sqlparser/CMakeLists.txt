@@ -14,15 +14,14 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
     ${PROJECT_SOURCE_DIR}/library/parsers
-    ${VSQLITE_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIR}
+    SYSTEM ${PCRE_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
-    ${MySQL_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${MySQL_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 if (MYSQL_DEFINITIONS)
@@ -89,6 +88,8 @@ add_library(db.mysql.sqlparser.grt
     ${PROJECT_SOURCE_DIR}/library/sql.parser/source/linux/myx_sql_parser.cpp
     ${PROJECT_SOURCE_DIR}/library/sql.parser/source/xml.cpp
 )
+
+target_compile_options(db.mysql.sqlparser.grt PUBLIC ${WB_CXXFLAGS})
 
 #We need to wait for parsers, because we're including some antlr headers which parser depends on
 add_dependencies(db.mysql.sqlparser.grt parsers)

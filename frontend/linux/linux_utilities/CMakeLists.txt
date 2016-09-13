@@ -19,12 +19,12 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/generated/grti
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/parsers
-    ${GTK3_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(linux_utilities
@@ -42,6 +42,8 @@ add_library(linux_utilities
     widget_saver.cpp
     main_app.cpp
 )
+
+target_compile_options(linux_utilities PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(linux_utilities ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
 

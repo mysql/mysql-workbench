@@ -34,13 +34,13 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
-    ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${GTK3_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 set(LIBRARY_SOURCES
@@ -69,6 +69,8 @@ set(LIBRARY_SOURCES
 )
 
 add_library(db.mysql.editors.wbp MODULE ${LIBRARY_SOURCES})
+target_compile_options(db.mysql.editors.wbp PUBLIC ${WB_CXXFLAGS})
+
 add_dependencies(db.mysql.editors.wbp parsers)
 target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES})
 set_target_properties(db.mysql.editors.wbp
