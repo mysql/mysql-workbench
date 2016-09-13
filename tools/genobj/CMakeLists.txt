@@ -15,8 +15,10 @@ add_executable(genobj
 )
 
 target_compile_options(genobj PUBLIC ${WB_CXXFLAGS})
-target_compile_options(genobj PUBLIC "$<$<STREQUAL:${CMAKE_CXX_COMPILER_ID}, CLANG>:-fPIE>")
-target_compile_options(genobj PUBLIC $<$<NOT:$<STREQUAL:${CMAKE_CXX_COMPILER_ID}, CLANG>>:-fPIE -pie>)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  target_compile_options(genobj PUBLIC -fPIE)
+else()
+  target_compile_options(genobj PUBLIC -fPIE -pie)
+endif()
 
 target_link_libraries(genobj grt wbbase ${GRT_LIBRARIES} ${PCRE_LIBRARIES})
-
