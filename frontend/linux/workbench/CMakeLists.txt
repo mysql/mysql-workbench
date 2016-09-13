@@ -81,8 +81,12 @@ add_executable(mysql-workbench-bin
 
 
 target_compile_options(mysql-workbench-bin PUBLIC ${WB_CXXFLAGS})
-target_compile_options(mysql-workbench-bin PUBLIC $<$<STREQUAL:${CMAKE_CXX_COMPILER_ID}, CLANG>:-fPIE>)
-target_compile_options(mysql-workbench-bin PUBLIC $<$<NOT:$<STREQUAL:${CMAKE_CXX_COMPILER_ID}, CLANG>>:-fPIE -pie>)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  target_compile_options(mysql-workbench-bin PUBLIC -fPIE)
+else()
+  target_compile_options(mysql-workbench-bin PUBLIC -fPIE -pie)
+endif()
 
 if (KEYRING_DEFINITION)
 	set_target_properties(mysql-workbench-bin PROPERTIES

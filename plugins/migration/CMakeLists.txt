@@ -21,8 +21,11 @@ if (UNIX)
 
   target_compile_options(wbcopytables-bin PUBLIC ${WB_CXXFLAGS})
 
-  target_compile_options(wbcopytables-bin PUBLIC $<$<STREQUAL:${CMAKE_CXX_COMPILER_ID}, CLANG>:-fPIE>)
-  target_compile_options(wbcopytables-bin PUBLIC $<$<NOT:$<STREQUAL:${CMAKE_CXX_COMPILER_ID}, CLANG>>:-fPIE -pie>)
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(wbcopytables-bin PUBLIC -fPIE)
+  else()
+    target_compile_options(wbcopytables-bin PUBLIC -fPIE -pie)
+  endif()
 
   target_link_libraries(wbcopytables-bin wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
    if(COMMAND cotire)
@@ -41,8 +44,12 @@ else()
   )
 
   target_compile_options(wbcopytables PUBLIC ${WB_CXXFLAGS})
-  target_compile_options(wbcopytables PUBLIC $<$<STREQUAL:${CMAKE_CXX_COMPILER_ID}, CLANG>:-fPIE>)
-  target_compile_options(wbcopytables PUBLIC $<$<NOT:$<STREQUAL:${CMAKE_CXX_COMPILER_ID}, CLANG>>:-fPIE -pie>)
+
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(wbcopytables PUBLIC -fPIE)
+  else()
+    target_compile_options(wbcopytables PUBLIC -fPIE -pie)
+  endif()
 
    target_link_libraries(wbcopytables wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
    if(COMMAND cotire)
