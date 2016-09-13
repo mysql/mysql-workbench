@@ -86,6 +86,8 @@ if (BUILD_FOR_TESTS)
   # both libraries, but on different directories, so it doesn't interfeer with the packaging
   # process.
   add_library(db.mysql.editors.wbp.debug ${LIBRARY_SOURCES})
+  target_compile_options(db.mysql.editors.wbp.debug PUBLIC ${WB_CXXFLAGS})
+
   add_dependencies(db.mysql.editors.wbp.debug parsers)
   target_link_libraries(db.mysql.editors.wbp.debug linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES})
   set_target_properties(db.mysql.editors.wbp.debug

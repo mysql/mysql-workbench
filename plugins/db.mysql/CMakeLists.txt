@@ -72,6 +72,8 @@ if (BUILD_FOR_TESTS)
   # both libraries, but on different directories, so it doesn't interfeer with the packaging
   # process.
   add_library(db.mysql.wbp.debug ${LIBRARY_SOURCES})
+  target_compile_options(db.mysql.wbp.debug PUBLIC ${WB_CXXFLAGS})
+
   set_target_properties(db.mysql.wbp.debug 
                         PROPERTIES  VERSION   ${WB_VERSION}
                                     SOVERSION ${WB_VERSION}
