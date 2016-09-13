@@ -33,8 +33,9 @@ add_library(parsers
   ${PARSERS_SOURCES}
 )
 
+string(REPLACE "-Werror" "" ${WB_CFLAGS} NEW_WB_CFLAGS)
+target_compile_options(parsers PUBLIC ${NEW_WB_CFLAGS})
 
-target_compile_options(parsers PUBLIC ${WB_CFLAGS})
 
 foreach(ITEM in ${PARSERS_SOURCES})
   get_filename_component(FILEEXT ${ITEM} EXT)
@@ -56,8 +57,8 @@ set_source_files_properties(MySQLLexer.c
     PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
 set_source_files_properties(grammar-parser/ANTLRv3Lexer.c
      PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
-
 endif()
+
 
 if (SKIP_BUNDLED_ANTLR)
 else ()
