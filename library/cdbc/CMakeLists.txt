@@ -3,7 +3,7 @@ include_directories(${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/ext
-    ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
     SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )

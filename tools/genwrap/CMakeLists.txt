@@ -3,7 +3,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/generated
-    ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
     SYSTEM ${PCRE_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
