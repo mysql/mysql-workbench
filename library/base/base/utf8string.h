@@ -103,8 +103,10 @@ namespace base
     utf8string(const std::wstring &s);
     utf8string(const utf8string &s);
     utf8string(size_t size, char c);
-    utf8string(size_t size, utf8char c);
+    utf8string(size_t size, const utf8char &c);
     utf8string(const utf8string &str, size_t pos, size_t len);
+    utf8string(const std::string &str, size_t pos, size_t len);
+    utf8string(const char *s, size_t pos, size_t len);
     
     operator std::string () const { return _inner_string; }
 

@@ -7,148 +7,330 @@ using namespace base;
 
 TEST_MODULE(utf8string_test, "utf8string");
 
-const base::utf8string GlobalTestStringEnglish(u8"This is a lazy test");    //  string for non-unicode tests
-const base::utf8string GlobalTestStringPolish(u8"zażółć");
-const base::utf8string GlobalTestStringGreek(u8"ὕαλον ϕαγεῖν");
-const base::utf8string GlobalTestStringRussian(u8"Я могу есть стекло");
-const base::utf8string GlobalTestStringArabic(u8"هذا لا يؤلمني");
-const base::utf8string GlobalTestStringChinese(u8"我可以吞下茶");
-const base::utf8string GlobalTestStringJapanese(u8"私はお茶を飲み込むことができます");
-const base::utf8string GlobalTestStringPortuguese(u8"Há açores e cães ávidos no chão");
-
 struct lang_string_details
 {
-  const base::utf8string _text;
+  const char * const _text;
+  const wchar_t * const _wtext;
   size_t _length;
   size_t _bytes;
+//   lang_string_details() : _text(nullptr), _wtext(nullptr), _length(0), _bytes(0){}
+  lang_string_details() = default;
+  lang_string_details(const char *text, const wchar_t *wtext, size_t length, size_t bytes) : _text(text), _wtext(wtext), _length(length), _bytes(bytes){}
+//   lang_string_details(const lang_string_details &other) : _text(other._text), _wtext(other._wtext), _length(other._length), _bytes(other._bytes){}
+  lang_string_details(const lang_string_details &) = default;
+  
 };
 
 // u8"هذا لا يؤلمني"
 
 
-std::map<std::string, lang_string_details> LanguageStrings = 
+const std::map<std::string, lang_string_details> LanguageStrings = 
 {
-  { "english"   , {base::utf8string(u8"This is a lazy test"), 19, 19} }
-, { "polish"    , {base::utf8string(u8"zażółć"), 6, 10 } }
-, { "greek"     , {base::utf8string(u8"ὕαλον ϕαγεῖν"), 12, 25 } }
-, { "russian"   , {base::utf8string(u8"Я могу есть стекло"), 18, 33 } }      
-//, { "arabic"    , {base::utf8string(u8"هذا لا يؤلمني")    }
-, { "chinese"   , {base::utf8string(u8"我可以吞下茶"), 6, 18 } }
-, { "japanese"  , {base::utf8string(u8"私はお茶を飲み込むことができます"), 16, 48 } }
-, { "portuguese", {base::utf8string(u8"Há açores e cães ávidos no chão"), 31, 36 } }
+  { "english"   , {u8"This is a lazy test", L"This is a lazy test", 19, 19} }
+, { "polish"    , {u8"zażółć", L"zażółć", 6, 10 } }
+, { "greek"     , {u8"ὕαλον ϕαγεῖν", L"ὕαλον ϕαγεῖν", 12, 25 } }
+, { "russian"   , {u8"Я могу есть стекло", L"Я могу есть стекло", 18, 33 } }      
+, { "arabic"    , {u8"هذا لا يؤلمني", L"هذا لا يؤلمني", (size_t)13, 24} }
+, { "chinese"   , {u8"我可以吞下茶", L"我可以吞下茶", 6, 18 } }
+, { "japanese"  , {u8"私はお茶を飲み込むことができます", L"私はお茶を飲み込むことができます", 16, 48 } }
+, { "portuguese", {u8"Há açores e cães ávidos no chão", L"Há açores e cães ávidos no chão", 31, 36 } }
 };
 
+template<unsigned int TestCaseNumber>
+struct __test_data
+{
+  unsigned int _test_item_number;
+  std::string _section;
+  std::string _location;
+  std::string _description;
+  __test_data() : _test_item_number(0), _section("general") {  }
+  
+  void set_section(const std::string &section) { _section = section; }
+  void set_test(const std::string &location, const std::string &description){ _location = location; _description = description; ++_test_item_number; }
+  
+  template<typename T, typename Q>
+  void throw_exception(const T &first, const Q &second)
+  {
+    std::stringstream ss;
+    ss << "[" << _section << "] TEST " << TestCaseNumber << "." << _test_item_number;
+    
+    if (!_description.empty())
+      ss << " - " << _description;
+    
+    ss << std::endl 
+       << "  location: "  << _location << std::endl
+       << "  section : "  << _section << std::endl
+       << "  expected: '" << second << "'" << std::endl 
+       << "  actual  : '" << first << "'"
+       ;
+    throw failure(ss.str());
+  }
+  
+  template<typename T, typename Q>
+  void test(const T &first, const Q &second)
+  { 
+    if (first != second)
+      throw_exception(first, second);
+  }
+  
+  template<typename Q>
+  void test(size_t first, const Q &second)
+  { 
+    if (first != (size_t)second)
+      throw_exception(first, second);
+  }
+  
+
+  template<typename T, typename Q>
+  void test_not_equal(const T &first, const Q &second)
+  { 
+    if (first == second)
+      throw_exception(first, second);
+  }  
+  
+  void test_true(bool first) { test(first, true);}
+  void test_false(bool first) { test(first, false); }
+  void test_null(const void *first) { test(first, nullptr); }
+  void test_not_null(const void *first) { test_not_equal(first, nullptr); }
+};
+
+#define INITIALIZE_TEST_FUNCTION(number) __test_data<number> __test_data__
+#define SECTION(sec) __test_data__.set_section(sec)
+#define TEST(desc, first, second)   __test_data__.set_test(__LOCATION, desc); __test_data__.test(first, second)
+#define TEST_TRUE(desc, first)      __test_data__.set_test(__LOCATION, desc); __test_data__.test_true(first)
+#define TEST_FALSE(desc, first)     __test_data__.set_test(__LOCATION, desc); __test_data__.test_false(first)
+#define TEST_NULL(desc, first)      __test_data__.set_test(__LOCATION, desc); __test_data__.test_null(first)
+#define TEST_NOT_NULL(desc, first)  __test_data__.set_test(__LOCATION, desc); __test_data__.test_not_null(first)
+
+
 /*
- * Testing empty constructors
- */
+ * Constructor tests
+ * */
 TEST_FUNCTION(5)
 {
-  base::utf8string str1;
-  ensure_equals("TEST 5.1: has length", str1.length(), (size_t)0);
-  ensure_equals("TEST 5.2: has bytes", str1.bytes(), (size_t)0);
-  ensure_equals("TEST 5.3: empty", str1.empty(), true);
+  INITIALIZE_TEST_FUNCTION(5);
 
-  base::utf8string str2 = "";
-  ensure_equals("TEST 5.4: has length", str2.length(), (size_t)0);
-  ensure_equals("TEST 5.5: has bytes", str2.bytes(), (size_t)0);
-  ensure_equals("TEST 5.6: empty", str2.empty(), true);
-}
+  {
+    SECTION("utf8string()");
+    
+    base::utf8string str1;
+    TEST_TRUE("validate string", str1.validate());
+    TEST("verify length", str1.length(), (size_t)0);
+    TEST("verify bytes", str1.bytes(), (size_t)0);
+    TEST_TRUE("verify empty", str1.empty());
 
-TEST_FUNCTION(6)
-{
-  ensure_equals("TEST 6.1 - utf8string(const utf8string &str, size_t pos, size_t len)", base::utf8string(LanguageStrings["polish"]._text, 1, 4), base::utf8string(u8"ażół"));
-  ensure_equals("TEST 6.2 - utf8string(const utf8string &s)", base::utf8string(LanguageStrings["polish"]._text), LanguageStrings["polish"]._text);
-  ensure_equals("TEST 6.3 - utf8string(size_t size, char c)", base::utf8string(10, 'a'), "aaaaaaaaaa");
-  ensure_equals("TEST 6.3 - utf8string(size_t size, utf8char c)", base::utf8string(10, base::utf8string::utf8char(u8"ł")), "łłłłłłłłłł");
+    base::utf8string str2 = "";
+    TEST_TRUE("validate string", str2.validate());
+    TEST("verify length", str2.length(), (size_t)0);
+    TEST("verify bytes", str2.bytes(), (size_t)0);
+    TEST_TRUE("verify empty", str2.empty());
+  }
+  
+  for(auto iter : LanguageStrings)
+  {
+    SECTION(std::string("utf8string(const char *s) - ") + iter.first);
+    lang_string_details &current = iter.second;
+    base::utf8string str1(current._text);   //  from char *
 
-}
+    TEST_TRUE("validate string", str1.validate());
+    TEST("compare to char * string", str1, current._text);
+    TEST("verify length", str1.length(), current._length);
+    TEST("verify bytes", str1.bytes(), current._bytes);
+    TEST_FALSE("verify empty", str1.empty());
+  }
 
-/*
- * Testing utf8string created from char*
- */
-TEST_FUNCTION(10)
-{
-//   std::string test_name_base = "TEST 10.";
-//   for(auto iter : LanguageStrings)
-//   {
-//     std::cout << iter.first << std::endl;
-//     ensure_equals("TEST 10.1: has length", GlobalTestStringEnglish.length(), (size_t)19);
-//     ensure_equals("TEST 10.2: has bytes", GlobalTestStringEnglish.bytes(), (size_t)19);
-//     ensure_equals("TEST 10.3: empty", GlobalTestStringEnglish.empty(), false);
-//   
-// //     ++count;
-//   }
-  ensure_equals("TEST 10.1: has length", GlobalTestStringEnglish.length(), (size_t)19);
-  ensure_equals("TEST 10.2: has bytes", GlobalTestStringEnglish.bytes(), (size_t)19);
-  ensure_equals("TEST 10.3: empty", GlobalTestStringEnglish.empty(), false);
+  for(auto iter : LanguageStrings)
+  {
+    SECTION(std::string("utf8string(const std::string &s) - ") + iter.first);
+    lang_string_details &current = iter.second;
+    std::string str_to_init(current._text);
+    base::utf8string str2(str_to_init);     //  from std::string
+    
+    TEST_TRUE("validate string", str2.validate());
+    TEST("compare to char * string", str2, current._text);
+    TEST("verify length", str2.length(), current._length);
+    TEST("verify bytes", str2.bytes(), current._bytes);
+    TEST_FALSE("verify empty", str2.empty());
+  }
+  
+  for(auto iter : LanguageStrings)
+  {
+    SECTION(std::string("utf8string(const char *s) - ") + iter.first);
+    lang_string_details &current = iter.second;
+    base::utf8string str_to_init(current._text);
+    base::utf8string str1(str_to_init);   //  from char *
+    
+    TEST_TRUE("validate string", str1.validate());
+    TEST("compare to char * string", str1, current._text);
+    TEST("verify length", str1.length(), current._length);
+    TEST("verify bytes", str1.bytes(), current._bytes);
+    TEST_FALSE("verify empty", str1.empty());
+  }
+  
+  SECTION(std::string("utf8string(const wchar_t *s)"));
+  //    TODO: implement this section
+  
+  SECTION(std::string("utf8string(const std::wstring &s)"));
+  //    TODO: implement this section
+  
+  
+  
+  {
+    std::map<std::string, const char *> substrings = 
+    {
+      { "english"   , u8"his "}
+    , { "polish"    , u8"ażół"}
+    , { "greek"     , u8"αλον"}
+    , { "russian"   , u8" мог"}
+    , { "arabic"    , u8"ذا ل"}
+    , { "chinese"   , u8"可以吞下"}
+    , { "japanese"  , u8"はお茶を"}
+    , { "portuguese", u8"á aç"}
+    };
+    
+    for(auto iter : LanguageStrings)
+    {
+      SECTION(std::string("utf8string(const char *s, size_t pos, size_t len) - ") + iter.first);
+      lang_string_details &current = iter.second;
+      
+      base::utf8string str1(current._text, 1, 4);       //  from char *
+      base::utf8string str2(current._text, 500, 4);     //  sub-string from invalid index
+      base::utf8string str3(current._text, 1, 500);     //  sub-string with huge length
+      base::utf8string str4(current._text, 1, 0);       //  sub-string with zero length
+      
+      base::utf8string right_to_compare = base::utf8string(current._text).right(current._length - 1);
+      
+      TEST_TRUE("validate string", str1.validate());
+      TEST("data compare", str1, substrings[iter.first]);
+      TEST("size test", str1.size(), (size_t)4);
+      TEST_FALSE("verify empty", str1.empty());
+      
+      TEST_TRUE("validate string", str2.validate());
+      TEST("size test", str2.size(), 0);
+      TEST("length test", str2.length(), 0);
+      TEST_TRUE("verify empty", str2.empty());
 
-  ensure_equals("TEST 10.1: has length", GlobalTestStringPolish.length(), (size_t)6);
-  ensure_equals("TEST 10.2: has bytes", GlobalTestStringPolish.bytes(), (size_t)10);
-  ensure_equals("TEST 10.3: empty", GlobalTestStringPolish.empty(), false);
+      TEST_TRUE("validate string", str3.validate());
+      TEST("data compare", str3, right_to_compare);
+      TEST("size test", str3.size(), current._length - 1);
+      TEST("length test", str3.length(), current._length - 1);
+      TEST_FALSE("verify empty", str3.empty());
+      
+      TEST_TRUE("validate string", str4.validate());
+      TEST("size test", str4.size(), 0);
+      TEST("length test", str4.length(), 0);
+      TEST_TRUE("verify empty", str4.empty());
+    }
+    
+    for(auto iter : LanguageStrings)
+    {
+      SECTION(std::string("utf8string(const std::string &str, size_t pos, size_t len); - ") + iter.first);
+      lang_string_details &current = iter.second;
+      
+      std::string str_to_init(current._text);
+      
+      base::utf8string str1(str_to_init, 1, 4);       //  from char *
+      base::utf8string str2(str_to_init, 500, 4);     //  sub-string from invalid index
+      base::utf8string str3(str_to_init, 1, 500);     //  sub-string with huge length
+      base::utf8string str4(str_to_init, 1, 0);       //  sub-string with zero length
+      
+      base::utf8string right_to_compare = base::utf8string(current._text).right(current._length - 1);
+      
+      TEST_TRUE("validate string", str1.validate());
+      TEST("data compare", str1, substrings[iter.first]);
+      TEST("size test", str1.size(), (size_t)4);
+      TEST_FALSE("verify empty", str1.empty());
+      
+      TEST_TRUE("validate string", str2.validate());
+      TEST("size test", str2.size(), 0);
+      TEST("length test", str2.length(), 0);
+      TEST_TRUE("verify empty", str2.empty());
 
-  ensure_equals("TEST 10.4: has length", GlobalTestStringGreek.length(), (size_t)12);
-  ensure_equals("TEST 10.5: has bytes", GlobalTestStringGreek.bytes(), (size_t)25);
-  ensure_equals("TEST 10.6: empty", GlobalTestStringGreek.empty(), false);
+      TEST_TRUE("validate string", str3.validate());
+      TEST("data compare", str3, right_to_compare);
+      TEST("size test", str3.size(), current._length - 1);
+      TEST("length test", str3.length(), current._length - 1);
+      TEST_FALSE("verify empty", str3.empty());
+      
+      TEST_TRUE("validate string", str4.validate());
+      TEST("size test", str4.size(), 0);
+      TEST("length test", str4.length(), 0);
+      TEST_TRUE("verify empty", str4.empty());
+    }
+    
+    for(auto iter : LanguageStrings)
+    {
+      SECTION(std::string("utf8string(const utf8string &str, size_t pos, size_t len) - ") + iter.first);
+      lang_string_details &current = iter.second;
+      
+      base::utf8string str_to_init(current._text);
+      
+      base::utf8string str1(str_to_init, 1, 4);       //  from char *
+      base::utf8string str2(str_to_init, 500, 4);     //  sub-string from invalid index
+      base::utf8string str3(str_to_init, 1, 500);     //  sub-string with huge length
+      base::utf8string str4(str_to_init, 1, 0);       //  sub-string with zero length
+      
+      base::utf8string right_to_compare = base::utf8string(current._text).right(current._length - 1);
+      
+      TEST_TRUE("validate string", str1.validate());
+      TEST("data compare", str1, substrings[iter.first]);
+      TEST("size test", str1.size(), (size_t)4);
+      TEST_FALSE("verify empty", str1.empty());
+      
+      TEST_TRUE("validate string", str2.validate());
+      TEST("size test", str2.size(), 0);
+      TEST("length test", str2.length(), 0);
+      TEST_TRUE("verify empty", str2.empty());
 
-  ensure_equals("TEST 10.7: has length", GlobalTestStringRussian.length(), (size_t)18);
-  ensure_equals("TEST 10.8: has bytes", GlobalTestStringRussian.bytes(), (size_t)33);
-  ensure_equals("TEST 10.9: empty", GlobalTestStringRussian.empty(), false);
+      TEST_TRUE("validate string", str3.validate());
+      TEST("data compare", str3, right_to_compare);
+      TEST("size test", str3.size(), current._length - 1);
+      TEST("length test", str3.length(), current._length - 1);
+      TEST_FALSE("verify empty", str3.empty());
+      
+      TEST_TRUE("validate string", str4.validate());
+      TEST("size test", str4.size(), 0);
+      TEST("length test", str4.length(), 0);
+      TEST_TRUE("verify empty", str4.empty());
+    }    
 
-  ensure_equals("TEST 10.10: has length", GlobalTestStringArabic.length(), (size_t)13);
-  ensure_equals("TEST 10.11: has bytes", GlobalTestStringArabic.bytes(), (size_t)24);
-  ensure_equals("TEST 10.12: empty", GlobalTestStringArabic.empty(), false);
-
-  ensure_equals("TEST 10.13: has length", GlobalTestStringChinese.length(), (size_t)6);
-  ensure_equals("TEST 10.14: has bytes", GlobalTestStringChinese.bytes(), (size_t)18);
-  ensure_equals("TEST 10.15: empty", GlobalTestStringChinese.empty(), false);
-
-  ensure_equals("TEST 10.16: has length", GlobalTestStringJapanese.length(), (size_t)16);
-  ensure_equals("TEST 10.17: has bytes", GlobalTestStringJapanese.bytes(), (size_t)48);
-  ensure_equals("TEST 10.18: empty", GlobalTestStringJapanese.empty(), false);
-
-  ensure_equals("TEST 10.19: has length", GlobalTestStringPortuguese.length(), (size_t)31);
-  ensure_equals("TEST 10.20: has bytes", GlobalTestStringPortuguese.bytes(), (size_t)36);
-  ensure_equals("TEST 10.21: empty", GlobalTestStringPortuguese.empty(), false);
-}
-
-/*
- * Testing utf8string created from std::string
- */
-TEST_FUNCTION(15)
-{
-   base::utf8string str = std::string("zażółć");
-   ensure_equals("TEST 15.1: has length", str.length(), (size_t)6);
-   ensure_equals("TEST 15.2: has bytes", str.bytes(), (size_t)10);
-   ensure_equals("TEST 15.3: empty", str.empty(), false);
-   str = std::string("ὕαλον ϕαγεῖν");
-   ensure_equals("TEST 15.4: has length", str.length(), (size_t)12);
-   ensure_equals("TEST 15.5: has bytes", str.bytes(), (size_t)25);
-   ensure_equals("TEST 15.6: empty", str.empty(), false);
-   str = std::string("Я могу есть стекло");
-   ensure_equals("TEST 15.7: has length", str.length(), (size_t)18);
-   ensure_equals("TEST 15.8: has bytes", str.bytes(), (size_t)33);
-   ensure_equals("TEST 15.9: empty", str.empty(), false);
-   str = std::string("هذا لا يؤلمني");
-   ensure_equals("TEST 15.10: has length", str.length(), (size_t)13);
-   ensure_equals("TEST 15.11: has bytes", str.bytes(), (size_t)24);
-   ensure_equals("TEST 15.12: empty", str.empty(), false);
-   str = std::string("我能吞");
-   ensure_equals("TEST 15.13: has length", str.length(), (size_t)3);
-   ensure_equals("TEST 15.14: has bytes", str.bytes(), (size_t)9);
-   ensure_equals("TEST 15.15: empty", str.empty(), false);
-}
-
-/*
- * Testing utf8string copy constructor
- */
-TEST_FUNCTION(20)
-{
-  base::utf8string str1 = std::string("zażółć");
-  base::utf8string str2 = str1;
-  ensure_equals("TEST 20.1: has length", str2.length(), (size_t)6);
-  ensure_equals("TEST 20.2: has bytes", str2.bytes(), (size_t)10);
-  ensure_equals("TEST 20.3: empty", str2.empty(), false);
-
+  }
+  
+  {
+    SECTION("utf8string(size_t size, char c)");
+    base::utf8string str(10, 'a');
+    
+    TEST_TRUE("validate string", str.validate());
+    TEST("compare data", str, "aaaaaaaaaa");
+    TEST("size test", str.size(), 10);
+    TEST("length test", str.length(), 10);
+    TEST("bytes test", str.bytes(), 10);
+    TEST_FALSE("verify empty", str.empty());
+  }
+  
+  {
+    SECTION("utf8string(size_t size, utf8char c) [unicode]");
+    base::utf8string str(10, base::utf8string::utf8char(u8"ł"));
+    
+    TEST_TRUE("validate string", str.validate());
+    TEST("compare data", str, "łłłłłłłłłł");
+    TEST("size test", str.size(), 10);
+    TEST("length test", str.length(), 10);
+    TEST("bytes test", str.bytes(), 20);
+    TEST_FALSE("verify empty", str.empty());
+  }
+  
+  {
+    SECTION("utf8string(size_t size, utf8char c) [non-unicode]");
+    base::utf8string str(10, base::utf8string::utf8char("a"));
+    
+    TEST_TRUE("validate string", str.validate());
+    TEST("compare data", str, "aaaaaaaaaa");
+    TEST("size test", str.size(), 10);
+    TEST("length test", str.length(), 10);
+    TEST("bytes test", str.bytes(), 10);
+    TEST_FALSE("verify empty", str.empty());
+  }
 }
 
 /*
@@ -251,31 +433,31 @@ TEST_FUNCTION(55)
 TEST_FUNCTION(56)
 {
    ensure_equals("TEST 56.1: truncate",  base::utf8string("zażółć").truncate(0), base::utf8string("..."));
-   ensure_equals("TEST 56.1: truncate",  base::utf8string("zażółć").truncate(1), base::utf8string("z..."));
-   ensure_equals("TEST 56.1: truncate",  base::utf8string("zażółć").truncate(2), base::utf8string("za..."));
-   ensure_equals("TEST 56.2: truncate",  base::utf8string("zażółć").truncate(3), "zażółć");
-   ensure_equals("TEST 56.3: truncate",  base::utf8string("zażółć").truncate(4), "zażółć");
-   ensure_equals("TEST 56.4: truncate",  base::utf8string("zażółć").truncate(5), "zażółć");
-   ensure_equals("TEST 56.5: truncate",  base::utf8string("zażółć").truncate(6), "zażółć");
-   ensure_equals("TEST 56.6: truncate",  base::utf8string("zażółć").truncate(7), "zażółć");
+   ensure_equals("TEST 56.2: truncate",  base::utf8string("zażółć").truncate(1), base::utf8string("z..."));
+   ensure_equals("TEST 56.3: truncate",  base::utf8string("zażółć").truncate(2), base::utf8string("za..."));
+   ensure_equals("TEST 56.4: truncate",  base::utf8string("zażółć").truncate(3), "zażółć");
+   ensure_equals("TEST 56.5: truncate",  base::utf8string("zażółć").truncate(4), "zażółć");
+   ensure_equals("TEST 56.6: truncate",  base::utf8string("zażółć").truncate(5), "zażółć");
+   ensure_equals("TEST 56.7: truncate",  base::utf8string("zażółć").truncate(6), "zażółć");
+   ensure_equals("TEST 56.8: truncate",  base::utf8string("zażółć").truncate(7), "zażółć");
    
-   ensure_equals("TEST 56.6: left",  base::utf8string("zażółć").left(0), "");
-   ensure_equals("TEST 56.6: left",  base::utf8string("zażółć").left(1), "z");
-   ensure_equals("TEST 56.6: left",  base::utf8string("zażółć").left(2), "za");
-   ensure_equals("TEST 56.6: left",  base::utf8string("zażółć").left(3), "zaż");
-   ensure_equals("TEST 56.6: left",  base::utf8string("zażółć").left(4), "zażó");
-   ensure_equals("TEST 56.6: left",  base::utf8string("zażółć").left(5), "zażół");
-   ensure_equals("TEST 56.6: left",  base::utf8string("zażółć").left(6), "zażółć");
-   ensure_equals("TEST 56.6: left",  base::utf8string("zażółć").left(7), "zażółć");
+   ensure_equals("TEST 56.9: left",  base::utf8string("zażółć").left(0), "");
+   ensure_equals("TEST 56.10: left",  base::utf8string("zażółć").left(1), "z");
+   ensure_equals("TEST 56.11: left",  base::utf8string("zażółć").left(2), "za");
+   ensure_equals("TEST 56.12: left",  base::utf8string("zażółć").left(3), "zaż");
+   ensure_equals("TEST 56.13: left",  base::utf8string("zażółć").left(4), "zażó");
+   ensure_equals("TEST 56.14: left",  base::utf8string("zażółć").left(5), "zażół");
+   ensure_equals("TEST 56.15: left",  base::utf8string("zażółć").left(6), "zażółć");
+   ensure_equals("TEST 56.16: left",  base::utf8string("zażółć").left(7), "zażółć");
    
-   ensure_equals("TEST 56.6: right",  base::utf8string("zażółć").right(0), "");
-   ensure_equals("TEST 56.6: right",  base::utf8string("zażółć").right(1), "ć");
-   ensure_equals("TEST 56.6: right",  base::utf8string("zażółć").right(2), "łć");
-   ensure_equals("TEST 56.6: right",  base::utf8string("zażółć").right(3), "ółć");
-   ensure_equals("TEST 56.6: right",  base::utf8string("zażółć").right(4), "żółć");
-   ensure_equals("TEST 56.6: right",  base::utf8string("zażółć").right(5), "ażółć");
-   ensure_equals("TEST 56.6: right",  base::utf8string("zażółć").right(6), "zażółć");
-   ensure_equals("TEST 56.6: right",  base::utf8string("zażółć").right(7), "zażółć");
+   ensure_equals("TEST 56.17: right",  base::utf8string("zażółć").right(0), "");
+   ensure_equals("TEST 56.18: right",  base::utf8string("zażółć").right(1), "ć");
+   ensure_equals("TEST 56.19: right",  base::utf8string("zażółć").right(2), "łć");
+   ensure_equals("TEST 56.20: right",  base::utf8string("zażółć").right(3), "ółć");
+   ensure_equals("TEST 56.21: right",  base::utf8string("zażółć").right(4), "żółć");
+   ensure_equals("TEST 56.22: right",  base::utf8string("zażółć").right(5), "ażółć");
+   ensure_equals("TEST 56.23: right",  base::utf8string("zażółć").right(6), "zażółć");
+   ensure_equals("TEST 56.24: right",  base::utf8string("zażółć").right(7), "zażółć");
 }
 
 
@@ -332,3 +514,4 @@ TEST_FUNCTION(70)
 }
 
 END_TESTS
+
