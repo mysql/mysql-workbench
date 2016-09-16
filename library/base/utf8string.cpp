@@ -133,17 +133,25 @@ utf8string::size_type utf8_find_first_of(const std::string& str, utf8string::siz
 
 struct utf8string::bounds
 {
-  utf8string::size_type i;
-  utf8string::size_type n;
+  utf8string::size_type _index;
+  utf8string::size_type _count;
 
-  bounds(const std::string& str, utf8string::size_type ci, utf8string::size_type cn)
+  bounds(const std::string& str, utf8string::size_type index, utf8string::size_type count)
   :
-    i (utf8_byte_offset(str, ci)),
-    n (utf8string::npos)
+    _index (utf8_byte_offset(str, index)),
+    _count (utf8string::npos)
   {
-    if(i != utf8string::npos)
-      n = utf8_byte_offset(str.data() + i, cn, str.size() - i);
+    if (_index == utf8string::npos)
+    {
+      _index = str.size();
+      _count = 0;
+    }
+    else
+      _count = utf8_byte_offset(str.data() + _index, count, str.size() - _index);
   }
+  
+  utf8string::size_type index() const { return _index; }
+  utf8string::size_type count() const { return _count; }
 };
   
   
@@ -182,7 +190,7 @@ utf8string::utf8string(size_t size, char c)
 {
 }
 
-utf8string::utf8string(size_t size, utf8string::utf8char c) 
+utf8string::utf8string(size_t size, const utf8string::utf8char &c) 
 {
   if((uint32_t)c < 0x80)    // Optimize to the most used case
     _inner_string.assign(size, static_cast<char>(c));
@@ -196,11 +204,22 @@ utf8string::utf8string(size_t size, utf8string::utf8char c)
   }
 }
 
+utf8string::utf8string(const std::string &str, size_t pos, size_t len)
+{
+  const bounds b(str, pos, len);
+  _inner_string.assign(str, b.index(), b.count());
+}
+
+utf8string::utf8string(const char *s, size_t pos, size_t len)
+{
+  const bounds b(s, pos, len);
+  _inner_string.assign(s, b.index(), b.count());
+}
 
 utf8string::utf8string(const utf8string& str, size_t pos, size_t len) 
 {
   const bounds b(str._inner_string, pos, len);
-  _inner_string.assign(str._inner_string, b.i, b.n);
+  _inner_string.assign(str._inner_string, b.index(), b.count());
 }
 
 size_t utf8string::bytes() const
@@ -510,7 +529,7 @@ utf8string::iterator utf8string::end() const
 utf8string& utf8string::erase(size_type index, size_type count) 
 {
   const bounds b(_inner_string, index, count);
-  _inner_string.erase(b.i, b.n);  
+  _inner_string.erase(b.index(), b.count());  
   return *this;
 }
 //
