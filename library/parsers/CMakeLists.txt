@@ -2,15 +2,16 @@ add_definitions(-Wno-sign-compare -Wno-type-limits -Wno-unused
 -Wno-missing-field-initializers)
 
 include_directories(.
-    ${GTK3_INCLUDE_DIRS}
-    ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library/base
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_subdirectory(grammars)
 
-add_library(parsers
+
+set(PARSERS_SOURCES
     MySQLLexer.c
     MySQLSimpleParser.c
     MySQLParser.c
@@ -28,6 +29,21 @@ add_library(parsers
     grammar-parser/ANTLRv3Parser.c
 )
 
+add_library(parsers
+  ${PARSERS_SOURCES}
+)
+
+string(REPLACE "-Werror" "" ${WB_CFLAGS} NEW_WB_CFLAGS)
+target_compile_options(parsers PUBLIC ${NEW_WB_CFLAGS})
+
+
+foreach(ITEM in ${PARSERS_SOURCES})
+  get_filename_component(FILEEXT ${ITEM} EXT)
+  if ("${FILEEXT}" STREQUAL ".cpp")
+    set_source_files_properties(${ITEM} PROPERTIES COMPILE_FLAGS -std=c++11)
+  endif()
+endforeach(ITEM in ${PARSERS_SOURCES})
+
 add_dependencies(parsers
     antlr-wb
     generate_parser_mysql
@@ -41,8 +57,8 @@ set_source_files_properties(MySQLLexer.c
     PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
 set_source_files_properties(grammar-parser/ANTLRv3Lexer.c
      PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
-
 endif()
+
 
 if (SKIP_BUNDLED_ANTLR)
 else ()

@@ -57,6 +57,9 @@ add_library(wbscintilla
     ../lexers/LexSQL.cxx
 )
 
+string(REPLACE "-Werror" "" ${WB_CXXFLAGS} NEW_WB_CXXFLAGS)
+target_compile_options(wbscintilla PUBLIC ${NEW_WB_CXXFLAGS})
+
 target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
 if(COMMAND cotire)
     set_target_properties(wbscintilla PROPERTIES
@@ -64,4 +67,5 @@ if(COMMAND cotire)
     
   cotire(wbscintilla)
 endif()
+
 install(TARGETS wbscintilla DESTINATION ${WB_INSTALL_LIB_DIR})
