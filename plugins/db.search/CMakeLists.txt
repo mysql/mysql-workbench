@@ -10,13 +10,13 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${GRT_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.search.wbp MODULE
@@ -24,6 +24,8 @@ add_library(db.search.wbp MODULE
     DbSearchPanel.cpp
     register_plugin.cpp
 )
+
+target_compile_options(db.search.wbp PUBLIC ${WB_CXXFLAGS})
 
 set_target_properties(db.search.wbp PROPERTIES
 #	LINK_FLAGS "-module"

@@ -1,8 +1,8 @@
 include_directories(. 
     ../include 
     ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlparser/src 
-    ${MySQL_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS})
+    SYSTEM ${MySQL_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS})
 
 if (UNIX)
 	include_directories(./linux)
@@ -56,6 +56,9 @@ add_library(sqlparser
     linux/myx_sql_parser.cpp
     xml.cpp
 )
+
+
+target_compile_options(sqlparser PUBLIC ${WB_CXXFLAGS})
 
 set_target_properties(sqlparser
                       PROPERTIES VERSION   ${WB_VERSION}
