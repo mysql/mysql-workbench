@@ -7,15 +7,15 @@ set(DATA_FILES
 install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR})
 
 include_directories(.
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${GNOME_KEYRING_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${TINYXML_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GNOME_KEYRING_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${TINYXML_INCLUDE_DIRS}
+    SYSTEM ${PROJECT_SOURCE_DIR}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/base
@@ -27,7 +27,7 @@ include_directories(.
 if (UNIX)
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
 endif()
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(mforms
@@ -129,6 +129,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	  COMPILE_FLAGS "-DSCI_NAMESPACE"
 	)
 endif()
+
+target_compile_options(mforms PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
 
