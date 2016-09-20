@@ -19,6 +19,8 @@
 
 #include "test.h"
 #include "mforms/jsonview.h"
+#include "wb_helpers.h"
+
 using namespace mforms;
 using namespace JsonParser;
 
