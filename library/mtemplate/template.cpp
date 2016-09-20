@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,7 +63,7 @@ void Template::expand(DictionaryInterface *dict, TemplateOutput* output)
     {
       DictionaryInterface::section_dictionary_storage &section_dicts = dict->getSectionDictionaries(node->_text);
       
-      std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
+//       std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
       
       for (DictionaryInterface::section_dictionary_storage_iterator section_iter = section_dicts.begin(); section_iter != section_dicts.end(); ++section_iter)
         node->expand(output, *section_iter);
