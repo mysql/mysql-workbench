@@ -145,7 +145,7 @@ void MyxStatementParser::process(std::istream& is, process_sql_statement_callbac
   ParserState state= start, prevState;
   std::string stmt_buffer;
   std::string delim_buffer;
-  char strchar;
+  char strchar = 0;
   _stmt_boffset= 0;
   _stmt_first_line_first_symbol_pos= 0;
   _symbols_since_newline= 0;

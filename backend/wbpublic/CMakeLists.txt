@@ -1,17 +1,18 @@
 include_directories(.
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${MySQL_INCLUDE_DIRS}
-    ${SQLITE3_INCLUDE_DIRS}
-    ${OPENGL_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${MySQL_INCLUDE_DIRS}
+    SYSTEM ${SQLITE3_INCLUDE_DIRS}
+    SYSTEM ${CTemplate_INCLUDE_DIRS}
+    SYSTEM ${OPENGL_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${VSQLITE_INCLUDE_DIR}
-    ${MYSQLCPPCONN_INCLUDE_DIR}
-    ${ANTLR3C_INCLUDE_DIRS}
-    ${GDAL_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIR}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIR}
+    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${GDAL_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
@@ -25,7 +26,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wbpublic
@@ -179,7 +180,9 @@ add_library(wbpublic
 #	)
 #endif()
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
+target_compile_options(wbpublic PUBLIC ${WB_CXXFLAGS})
+
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTemplate_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set_source_files_properties(sqlide/grammar-parser/ANTLRv3Lexer.c
           PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
