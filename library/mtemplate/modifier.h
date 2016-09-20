@@ -33,9 +33,9 @@ struct ModifierAndArgument
 };
 
 struct Modifier;
-extern std::map<base::utf8string, Modifier *> UserModifierMap;
+MTEMPLATELIBRARY_PUBLIC_FUNC extern std::map<base::utf8string, Modifier *> UserModifierMap;
 
-struct Modifier
+struct MTEMPLATELIBRARY_PUBLIC_FUNC Modifier
 {
   virtual ~Modifier();
   
@@ -51,17 +51,17 @@ struct Modifier
   }
 };
 
-struct Modifier_HtmlEscape : public Modifier
+struct MTEMPLATELIBRARY_PUBLIC_FUNC Modifier_HtmlEscape : public Modifier
 {
   virtual base::utf8string modify(const base::utf8string &input, const base::utf8string arg = "");
 };
 
-struct Modifier_XmlEscape : public Modifier
+struct MTEMPLATELIBRARY_PUBLIC_FUNC Modifier_XmlEscape : public Modifier
 {
   virtual base::utf8string modify(const base::utf8string &input, const base::utf8string arg = "");
 };
 
-Modifier *GetModifier(const base::utf8string &name);
+MTEMPLATELIBRARY_PUBLIC_FUNC Modifier *GetModifier(const base::utf8string &name);
 
 
 }   //  namespace mtemplate

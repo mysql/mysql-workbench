@@ -43,7 +43,7 @@ namespace base
 
   public:
       class utf8char;
-      typedef typename std::string::size_type size_type;
+      typedef std::string::size_type size_type;
       typedef const utf8char const_reference;
 /*      typedef _Traits                   traits_type;
       typedef typename _Traits::char_type       value_type;
@@ -81,7 +81,7 @@ namespace base
     
     struct bounds;
     
-    class iterator : public std::iterator<std::bidirectional_iterator_tag, utf8string>
+    class BASELIBRARY_PUBLIC_FUNC iterator : public std::iterator<std::bidirectional_iterator_tag, utf8string>
     {
     public:
       iterator(char *s, char *p = nullptr);
@@ -337,11 +337,11 @@ namespace base
     bool contains(const utf8string& s, const bool case_sensitive = true) const;
   };
   
-std::ostream &operator<<(std::ostream &o, const utf8string &str);
-std::ostream &operator<<(std::ostream &o, const utf8string::utf8char &c);
+BASELIBRARY_PUBLIC_FUNC std::ostream &operator<<(std::ostream &o, const utf8string &str);
+BASELIBRARY_PUBLIC_FUNC std::ostream &operator<<(std::ostream &o, const utf8string::utf8char &c);
 
 };
 
-base::utf8string operator + (const base::utf8string& str1, const base::utf8string &str2);
-base::utf8string operator + (const base::utf8string& str, const char *s);
-base::utf8string operator + (const base::utf8string& str, const char c);
+BASELIBRARY_PUBLIC_FUNC base::utf8string operator + (const base::utf8string& str1, const base::utf8string &str2);
+BASELIBRARY_PUBLIC_FUNC base::utf8string operator + (const base::utf8string& str, const char *s);
+BASELIBRARY_PUBLIC_FUNC base::utf8string operator + (const base::utf8string& str, const char c);

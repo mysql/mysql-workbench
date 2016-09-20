@@ -35,7 +35,7 @@ namespace mtemplate {
 struct NodeSection;
 class Template;
   
-class DictionaryInterface
+class MTEMPLATELIBRARY_PUBLIC_FUNC DictionaryInterface
 {
 protected:
   
@@ -78,7 +78,7 @@ public:
   
 };
   
-class Dictionary : public DictionaryInterface
+class MTEMPLATELIBRARY_PUBLIC_FUNC Dictionary : public DictionaryInterface
 {
 protected:
   
@@ -107,8 +107,8 @@ public:
 };
 
 
-Dictionary *CreateMainDictionary();
-void SetGlobalValue(const base::utf8string &key, const base::utf8string &value);
+MTEMPLATELIBRARY_PUBLIC_FUNC Dictionary *CreateMainDictionary();
+MTEMPLATELIBRARY_PUBLIC_FUNC void SetGlobalValue(const base::utf8string &key, const base::utf8string &value);
 
 }   //  namespace mtemplate
 

@@ -625,7 +625,7 @@ base::utf8string::const_reference utf8string::at(size_type pos) const
 
 utf8string::const_reference utf8string::operator[](size_type pos) const 
 {
-  return g_utf8_get_char(g_utf8_offset_to_pointer(_inner_string.data(), pos));
+  return g_utf8_get_char(g_utf8_offset_to_pointer(_inner_string.data(), (glong)pos));
 }
 
 
@@ -703,7 +703,7 @@ utf8string::size_type utf8string::find(const utf8string::utf8char& ch, size_type
 
 utf8string::size_type utf8string::find_first_of(const utf8string& str, size_type pos) const 
 {
-  return utf8_find_first_of(_inner_string, pos, str._inner_string.data(), str._inner_string.size(), false);
+  return utf8_find_first_of(_inner_string, pos, str._inner_string.data(), (long)str._inner_string.size(), false);
 }
 
 
