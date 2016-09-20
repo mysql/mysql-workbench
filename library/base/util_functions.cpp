@@ -192,7 +192,7 @@ char *auto_line_break(const char *txt, unsigned int width, char sep)
       if (txt[i] == sep)
         p= i;
 
-        i++;
+      i++;
     }
   }
 
