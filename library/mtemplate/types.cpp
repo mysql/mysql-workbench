@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -192,13 +192,14 @@ bool NodeSection::expand(TemplateOutput* output, DictionaryInterface* dict)
       NodeSection *sec = dynamic_cast<NodeSection *>(node.get());
       if (sec->is_separator() && dict->isLast() == false)
       {
+        std::cout << "Adding separator " << sec->text() << std::endl;
           node->expand(output, dict);
           continue;
       }
         
       DictionaryInterface::section_dictionary_storage &section_dicts = dict->getSectionDictionaries(node->_text);
       
-      std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
+//       std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
       
       for (DictionaryInterface::section_dictionary_storage_iterator section_iter = section_dicts.begin(); section_iter != section_dicts.end(); ++section_iter)
         node->expand(output, *section_iter);
@@ -371,28 +372,7 @@ TemplateDocument parseTemplate(const base::utf8string &template_string, PARSE_TY
     }
     else if (temp_template.starts_with("{{"))
     {//  A node was found {{SOME_NOME}}
-//       char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
       base::utf8string::utf8char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
-      
-//       if (first_char == "#")
-//       {
-//         NodeSection *item = NodeSection::parse(temp_template, type);
-//         doc.push_back(NodeStorageType(item));
-//         temp_template = temp_template.substr(item->_length);
-//         break;
-//       }
-//       else if (first_char == ">")   //  includes
-//         throw std::logic_error("mtemplate: Includes not implemented");
-//       else if (first_char == "%")   //  pragma
-//         throw std::logic_error("mtemplate: Pragma not implemented");
-//       else if (first_char == "!")   //  comment
-//         throw std::logic_error("mtemplate: Comment not implemented");
-//       else
-//       {
-//         NodeVariable *item = NodeVariable::parse(temp_template, type);
-//         doc.push_back(NodeStorageType(item));
-//         temp_template = temp_template.substr(item->_length);
-//       }
       
       switch (first_char)
       {
