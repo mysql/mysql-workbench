@@ -32,7 +32,7 @@
 namespace mtemplate{
 
   
-class Template
+class MTEMPLATELIBRARY_PUBLIC_FUNC Template
 {
 protected:
   
@@ -48,7 +48,7 @@ public:
 
 };
 
-Template *GetTemplate(const base::utf8string &path, PARSE_TYPE type = DO_NOT_STRIP);
+MTEMPLATELIBRARY_PUBLIC_FUNC Template *GetTemplate(const base::utf8string &path, PARSE_TYPE type = DO_NOT_STRIP);
 
 }   //  namespace mtemplate
 
