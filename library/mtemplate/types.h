@@ -28,8 +28,8 @@
 
 namespace mtemplate
 {
-enum PARSE_TYPE{ DO_NOT_STRIP, STRIP_BLANK_LINES, STRIP_WHITESPACE };
-enum TemplateObjectType { TemplateObject_Text, TemplateObject_Variable, TemplateObject_Section, TemplateObject_SectionSeparator, TemplateObject_NewLine };
+enum MTEMPLATELIBRARY_PUBLIC_FUNC PARSE_TYPE{ DO_NOT_STRIP, STRIP_BLANK_LINES, STRIP_WHITESPACE };
+enum MTEMPLATELIBRARY_PUBLIC_FUNC TemplateObjectType { TemplateObject_Text, TemplateObject_Variable, TemplateObject_Section, TemplateObject_SectionSeparator, TemplateObject_NewLine };
 
 struct TemplateOutput;
 class DictionaryInterface;
@@ -38,7 +38,7 @@ class DictionaryInterface;
  * @brief This is the base type for all other node types
  * 
  */
-struct NodeInterface
+struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeInterface
 {
   TemplateObjectType _type;
   base::utf8string _text;
@@ -70,7 +70,7 @@ typedef boost::shared_ptr<NodeInterface> NodeStorageType;
 typedef std::vector<NodeStorageType> TemplateDocument;
 
 
-struct NodeTextInterface : public NodeInterface
+struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeTextInterface : public NodeInterface
 {
 protected:
   NodeInterface *_associatedWith;
@@ -84,7 +84,7 @@ public:
   void associateWith(NodeInterface *node)               { _associatedWith = node; }
 };
 
-struct NodeText : public NodeTextInterface
+struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeText : public NodeTextInterface
 {
   bool _isBlank;
   NodeInterface *_associatedWith;
@@ -99,7 +99,7 @@ struct NodeText : public NodeTextInterface
   
 };
 
-struct NodeNewLine : public NodeTextInterface
+struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeNewLine : public NodeTextInterface
 {
   NodeNewLine()
     : NodeTextInterface(TemplateObject_NewLine, "\n", 1)    {  }
@@ -111,7 +111,7 @@ struct NodeNewLine : public NodeTextInterface
 };
 
 
-struct NodeVariable : public NodeTextInterface
+struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeVariable : public NodeTextInterface
 {
   std::vector<ModifierAndArgument> _modifiers;
   NodeVariable(const base::utf8string &text, std::size_t length, const std::vector<ModifierAndArgument> &modifiers)
@@ -124,7 +124,7 @@ struct NodeVariable : public NodeTextInterface
 };
 
 
-struct NodeSection : public NodeInterface
+struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeSection : public NodeInterface
 {
   TemplateDocument _contents;
   TemplateDocument::iterator _separator;
@@ -143,7 +143,7 @@ struct NodeSection : public NodeInterface
 };
 
 
-TemplateDocument parseTemplate(const base::utf8string &template_string, PARSE_TYPE type);
+MTEMPLATELIBRARY_PUBLIC_FUNC TemplateDocument parseTemplate(const base::utf8string &template_string, PARSE_TYPE type);
 
 
 }   // namespace mtemplate

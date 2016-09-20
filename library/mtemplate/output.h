@@ -28,7 +28,7 @@
 namespace mtemplate {
 
 
-struct TemplateOutput
+struct MTEMPLATELIBRARY_PUBLIC_FUNC TemplateOutput
 {
   TemplateOutput();
   virtual ~TemplateOutput();
@@ -37,7 +37,7 @@ struct TemplateOutput
 };
 
 
-class TemplateOutputString : public TemplateOutput
+class MTEMPLATELIBRARY_PUBLIC_FUNC TemplateOutputString : public TemplateOutput
 {
   base::utf8string _buffer;
 public:
@@ -47,7 +47,7 @@ public:
 };
 
 
-class TemplateOutputFile : public TemplateOutput
+class MTEMPLATELIBRARY_PUBLIC_FUNC TemplateOutputFile : public TemplateOutput
 {
   base::FileHandle _file;
 public:
