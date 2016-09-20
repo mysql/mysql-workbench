@@ -19,12 +19,13 @@ install(FILES ${BASIC_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/modules/data/d
 
 
 include_directories(.
-    ${GTK3_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${CTemplate_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/library/grt/src 
@@ -35,7 +36,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
     ${PROJECT_SOURCE_DIR}/library/sql-parser/source
     ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.mysql.grt

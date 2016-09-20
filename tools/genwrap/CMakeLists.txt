@@ -3,19 +3,21 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/generated
-    ${GRT_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(genwrap
     genwrap.cpp
 )
 
+target_compile_options(genwrap PUBLIC ${WB_CXXFLAGS})
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set_target_properties(genwrap PROPERTIES COMPILE_FLAGS "-fPIE")
+  target_compile_options(genwrap PUBLIC -fPIE)
 else()
-  set_target_properties(genwrap PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+  target_compile_options(genwrap PUBLIC -fPIE -pie)
 endif()
 
 target_link_libraries(genwrap grt wbbase wbpublic mtemplate ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES})

@@ -15,14 +15,13 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/plugins
     ../backend
     ${PROJECT_SOURCE_DIR}
-    ${GTK3_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${VSQLITE_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.model.snippets.wbp MODULE
@@ -30,6 +29,8 @@ add_library(wb.model.snippets.wbp MODULE
     merge_model.cpp
     register_plugin.cpp
 )
+
+target_compile_options(wb.model.snippets.wbp PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wb.model.snippets.wbp wbscintilla)
 

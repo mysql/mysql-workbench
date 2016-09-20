@@ -3,20 +3,22 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/generated
-    ${GRT_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(genobj
     genobj.cpp
 )
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set_target_properties(genobj PROPERTIES COMPILE_FLAGS "-fPIE")
-else()
-  set_target_properties(genobj PROPERTIES COMPILE_FLAGS "-fPIE -pie")
-endif()
-target_link_libraries(genobj grt wbbase ${GRT_LIBRARIES} ${PCRE_LIBRARIES})
 
+target_compile_options(genobj PUBLIC ${WB_CXXFLAGS})
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  target_compile_options(genobj PUBLIC -fPIE)
+else()
+  target_compile_options(genobj PUBLIC -fPIE -pie)
+endif()
+
+target_link_libraries(genobj grt wbbase ${GRT_LIBRARIES} ${PCRE_LIBRARIES})
