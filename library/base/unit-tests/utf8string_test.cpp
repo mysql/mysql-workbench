@@ -1,3 +1,22 @@
+/* 
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
 #include <base/utf8string.h>
 #include <utility>
 #include "wb_helpers.h"
@@ -13,16 +32,11 @@ struct lang_string_details
   const wchar_t * const _wtext;
   size_t _length;
   size_t _bytes;
-//   lang_string_details() : _text(nullptr), _wtext(nullptr), _length(0), _bytes(0){}
   lang_string_details() = default;
-  lang_string_details(const char *text, const wchar_t *wtext, size_t length, size_t bytes) : _text(text), _wtext(wtext), _length(length), _bytes(bytes){}
-//   lang_string_details(const lang_string_details &other) : _text(other._text), _wtext(other._wtext), _length(other._length), _bytes(other._bytes){}
   lang_string_details(const lang_string_details &) = default;
+  lang_string_details(const char *text, const wchar_t *wtext, size_t length, size_t bytes) : _text(text), _wtext(wtext), _length(length), _bytes(bytes){}
   
 };
-
-// u8"هذا لا يؤلمني"
-
 
 const std::map<std::string, lang_string_details> LanguageStrings = 
 {
@@ -334,7 +348,7 @@ TEST_FUNCTION(5)
 }
 
 /*
- * Testing utf8string operator[]
+ * Testing utf8string operator[], at()
  */
 TEST_FUNCTION(25)
 {
@@ -343,6 +357,8 @@ TEST_FUNCTION(25)
   base::utf8string::utf8char res2("ć");
   ensure_equals("TEST 25.1: index of 3", str[3], res1);
   ensure_equals("TEST 25.2: index of 5", str[5], res2);
+  
+  // TODO: test utf8string::at()
 }
 
 /*
@@ -380,10 +396,11 @@ TEST_FUNCTION(35)
  */
 TEST_FUNCTION(40)
 {
-   base::utf8string str = std::string("zażółć");
-   ensure_equals("TEST 40.1: c_str", strcmp(str.c_str(), "zażółć"), 0);
-   ensure_equals("TEST 40.2: toString", str.to_string() == std::string("zażółć"), true);
-   ensure_equals("TEST 40.3: toWString", str.to_wstring() == std::wstring(L"zażółć"), true);
+  //  TODO: test in all languages
+  base::utf8string str = std::string("zażółć");
+  ensure_equals("TEST 40.1: c_str", strcmp(str.c_str(), "zażółć"), 0);
+  ensure_equals("TEST 40.2: toString", str.to_string() == std::string("zażółć"), true);
+  ensure_equals("TEST 40.3: toWString", str.to_wstring() == std::wstring(L"zażółć"), true);
 }
 
 /*
@@ -391,15 +408,16 @@ TEST_FUNCTION(40)
  */
 TEST_FUNCTION(45)
 {
-   base::utf8string str1(std::string("za") + std::string("żółć")) ;
-   ensure_equals("TEST 45.1: has length", str1.length(), (size_t)6);
-   ensure_equals("TEST 45.2: has bytes", str1.bytes(), (size_t)10);
-   ensure_equals("TEST 45.3: empty", str1.empty(), false);
+  //  TODO: test in all languages
+  base::utf8string str1(std::string("za") + std::string("żółć")) ;
+  ensure_equals("TEST 45.1: has length", str1.length(), (size_t)6);
+  ensure_equals("TEST 45.2: has bytes", str1.bytes(), (size_t)10);
+  ensure_equals("TEST 45.3: empty", str1.empty(), false);
 
-   base::utf8string str2 = std::move(str1);
-   ensure_equals("TEST 45.4: str2 has length", str2.length(), (size_t)6);
-   ensure_equals("TEST 45.5: str2 has bytes", str2.bytes(), (size_t)10);
-   ensure_equals("TEST 45.6: str2 empty", str2.empty(), false);
+  base::utf8string str2 = std::move(str1);
+  ensure_equals("TEST 45.4: str2 has length", str2.length(), (size_t)6);
+  ensure_equals("TEST 45.5: str2 has bytes", str2.bytes(), (size_t)10);
+  ensure_equals("TEST 45.6: str2 empty", str2.empty(), false);
 }
 
 /*
@@ -407,12 +425,13 @@ TEST_FUNCTION(45)
  */
 TEST_FUNCTION(50)
 {
-   ensure_equals("TEST 50.1: has length", base::utf8string("  zażółć    ").trim_left().length(), (size_t)10);
-   ensure_equals("TEST 50.2: has bytes", base::utf8string("  zażółć    ").trim_left().bytes(), (size_t)14);
-   ensure_equals("TEST 50.3: has length", base::utf8string("  zażółć    ").trim_right().length(), (size_t)8);
-   ensure_equals("TEST 50.4: has bytes", base::utf8string("  zażółć    ").trim_right().bytes(), (size_t)12);
-   ensure_equals("TEST 50.5: has length", base::utf8string("  zażółć    ").trim().length(), (size_t)6);
-   ensure_equals("TEST 50.6: has bytes", base::utf8string("  zażółć    ").trim().bytes(), (size_t)10);
+  //  TODO: test in all languages
+  ensure_equals("TEST 50.1: has length", base::utf8string("  zażółć    ").trim_left().length(), (size_t)10);
+  ensure_equals("TEST 50.2: has bytes", base::utf8string("  zażółć    ").trim_left().bytes(), (size_t)14);
+  ensure_equals("TEST 50.3: has length", base::utf8string("  zażółć    ").trim_right().length(), (size_t)8);
+  ensure_equals("TEST 50.4: has bytes", base::utf8string("  zażółć    ").trim_right().bytes(), (size_t)12);
+  ensure_equals("TEST 50.5: has length", base::utf8string("  zażółć    ").trim().length(), (size_t)6);
+  ensure_equals("TEST 50.6: has bytes", base::utf8string("  zażółć    ").trim().bytes(), (size_t)10);
 }
 
 /*
@@ -420,11 +439,11 @@ TEST_FUNCTION(50)
  */
 TEST_FUNCTION(55)
 {
-   ensure_equals("TEST 55.1: toUpper",  base::utf8string("zażółć").to_upper(), base::utf8string("ZAŻÓŁĆ"));
-   ensure_equals("TEST 55.1: toLower",  base::utf8string("ZAŻÓŁĆ").to_lower(), base::utf8string("zażółć"));
-   
-   ensure_equals("TEST 55.4: tocaseFold",  base::utf8string("zAżóŁć").to_case_fold(), base::utf8string("zażółć"));
-   ensure_equals("TEST 55.5: validate",  base::utf8string("grüßen").validate(), true);
+  ensure_equals("TEST 55.1: toUpper",  base::utf8string("zażółć").to_upper(), base::utf8string("ZAŻÓŁĆ"));
+  ensure_equals("TEST 55.1: toLower",  base::utf8string("ZAŻÓŁĆ").to_lower(), base::utf8string("zażółć"));
+  
+  ensure_equals("TEST 55.4: tocaseFold",  base::utf8string("zAżóŁć").to_case_fold(), base::utf8string("zażółć"));
+  ensure_equals("TEST 55.5: validate",  base::utf8string("grüßen").validate(), true);
 }
 
 /*
@@ -432,32 +451,32 @@ TEST_FUNCTION(55)
  */
 TEST_FUNCTION(56)
 {
-   ensure_equals("TEST 56.1: truncate",  base::utf8string("zażółć").truncate(0), base::utf8string("..."));
-   ensure_equals("TEST 56.2: truncate",  base::utf8string("zażółć").truncate(1), base::utf8string("z..."));
-   ensure_equals("TEST 56.3: truncate",  base::utf8string("zażółć").truncate(2), base::utf8string("za..."));
-   ensure_equals("TEST 56.4: truncate",  base::utf8string("zażółć").truncate(3), "zażółć");
-   ensure_equals("TEST 56.5: truncate",  base::utf8string("zażółć").truncate(4), "zażółć");
-   ensure_equals("TEST 56.6: truncate",  base::utf8string("zażółć").truncate(5), "zażółć");
-   ensure_equals("TEST 56.7: truncate",  base::utf8string("zażółć").truncate(6), "zażółć");
-   ensure_equals("TEST 56.8: truncate",  base::utf8string("zażółć").truncate(7), "zażółć");
-   
-   ensure_equals("TEST 56.9: left",  base::utf8string("zażółć").left(0), "");
-   ensure_equals("TEST 56.10: left",  base::utf8string("zażółć").left(1), "z");
-   ensure_equals("TEST 56.11: left",  base::utf8string("zażółć").left(2), "za");
-   ensure_equals("TEST 56.12: left",  base::utf8string("zażółć").left(3), "zaż");
-   ensure_equals("TEST 56.13: left",  base::utf8string("zażółć").left(4), "zażó");
-   ensure_equals("TEST 56.14: left",  base::utf8string("zażółć").left(5), "zażół");
-   ensure_equals("TEST 56.15: left",  base::utf8string("zażółć").left(6), "zażółć");
-   ensure_equals("TEST 56.16: left",  base::utf8string("zażółć").left(7), "zażółć");
-   
-   ensure_equals("TEST 56.17: right",  base::utf8string("zażółć").right(0), "");
-   ensure_equals("TEST 56.18: right",  base::utf8string("zażółć").right(1), "ć");
-   ensure_equals("TEST 56.19: right",  base::utf8string("zażółć").right(2), "łć");
-   ensure_equals("TEST 56.20: right",  base::utf8string("zażółć").right(3), "ółć");
-   ensure_equals("TEST 56.21: right",  base::utf8string("zażółć").right(4), "żółć");
-   ensure_equals("TEST 56.22: right",  base::utf8string("zażółć").right(5), "ażółć");
-   ensure_equals("TEST 56.23: right",  base::utf8string("zażółć").right(6), "zażółć");
-   ensure_equals("TEST 56.24: right",  base::utf8string("zażółć").right(7), "zażółć");
+  ensure_equals("TEST 56.1: truncate",  base::utf8string("zażółć").truncate(0), base::utf8string("..."));
+  ensure_equals("TEST 56.2: truncate",  base::utf8string("zażółć").truncate(1), base::utf8string("z..."));
+  ensure_equals("TEST 56.3: truncate",  base::utf8string("zażółć").truncate(2), base::utf8string("za..."));
+  ensure_equals("TEST 56.4: truncate",  base::utf8string("zażółć").truncate(3), "zażółć");
+  ensure_equals("TEST 56.5: truncate",  base::utf8string("zażółć").truncate(4), "zażółć");
+  ensure_equals("TEST 56.6: truncate",  base::utf8string("zażółć").truncate(5), "zażółć");
+  ensure_equals("TEST 56.7: truncate",  base::utf8string("zażółć").truncate(6), "zażółć");
+  ensure_equals("TEST 56.8: truncate",  base::utf8string("zażółć").truncate(7), "zażółć");
+  
+  ensure_equals("TEST 56.9: left",  base::utf8string("zażółć").left(0), "");
+  ensure_equals("TEST 56.10: left",  base::utf8string("zażółć").left(1), "z");
+  ensure_equals("TEST 56.11: left",  base::utf8string("zażółć").left(2), "za");
+  ensure_equals("TEST 56.12: left",  base::utf8string("zażółć").left(3), "zaż");
+  ensure_equals("TEST 56.13: left",  base::utf8string("zażółć").left(4), "zażó");
+  ensure_equals("TEST 56.14: left",  base::utf8string("zażółć").left(5), "zażół");
+  ensure_equals("TEST 56.15: left",  base::utf8string("zażółć").left(6), "zażółć");
+  ensure_equals("TEST 56.16: left",  base::utf8string("zażółć").left(7), "zażółć");
+  
+  ensure_equals("TEST 56.17: right",  base::utf8string("zażółć").right(0), "");
+  ensure_equals("TEST 56.18: right",  base::utf8string("zażółć").right(1), "ć");
+  ensure_equals("TEST 56.19: right",  base::utf8string("zażółć").right(2), "łć");
+  ensure_equals("TEST 56.20: right",  base::utf8string("zażółć").right(3), "ółć");
+  ensure_equals("TEST 56.21: right",  base::utf8string("zażółć").right(4), "żółć");
+  ensure_equals("TEST 56.22: right",  base::utf8string("zażółć").right(5), "ażółć");
+  ensure_equals("TEST 56.23: right",  base::utf8string("zażółć").right(6), "zażółć");
+  ensure_equals("TEST 56.24: right",  base::utf8string("zażółć").right(7), "zażółć");
 }
 
 
@@ -466,17 +485,17 @@ TEST_FUNCTION(56)
  */
 TEST_FUNCTION(60)
 {
-   base::utf8string str = std::string("zażółć");
-   ensure_equals("TEST 60.1: starts_with", str.starts_with("za"), true);
-   ensure_equals("TEST 60.2: starts_with", str.starts_with("kk"), false);
-   ensure_equals("TEST 60.3: starts_with", str.starts_with("toolongstring"), false);
-   ensure_equals("TEST 60.4: ends_with", str.ends_with("ółć"), true);
-   ensure_equals("TEST 60.5: ends_with", str.ends_with("ÓŁa"), false);
-   ensure_equals("TEST 60.6: ends_with", str.ends_with("toolongstring"), false);
-   ensure_equals("TEST 60.7: contains", str.contains("żół"), true);
-   ensure_equals("TEST 60.8: contains", str.contains("ŻÓŁ"), false);
-   ensure_equals("TEST 60.9: contains", str.contains("ŻÓŁ", false), true);
-   ensure_equals("TEST 60.10: contains", str.contains("", false), false);
+  base::utf8string str = std::string("zażółć");
+  ensure_equals("TEST 60.1: starts_with", str.starts_with("za"), true);
+  ensure_equals("TEST 60.2: starts_with", str.starts_with("kk"), false);
+  ensure_equals("TEST 60.3: starts_with", str.starts_with("toolongstring"), false);
+  ensure_equals("TEST 60.4: ends_with", str.ends_with("ółć"), true);
+  ensure_equals("TEST 60.5: ends_with", str.ends_with("ÓŁa"), false);
+  ensure_equals("TEST 60.6: ends_with", str.ends_with("toolongstring"), false);
+  ensure_equals("TEST 60.7: contains", str.contains("żół"), true);
+  ensure_equals("TEST 60.8: contains", str.contains("ŻÓŁ"), false);
+  ensure_equals("TEST 60.9: contains", str.contains("ŻÓŁ", false), true);
+  ensure_equals("TEST 60.10: contains", str.contains("", false), false);
 }
 
 /*
@@ -484,13 +503,13 @@ TEST_FUNCTION(60)
  */
 TEST_FUNCTION(65)
 {
-   base::utf8string str = std::string("zażółć");
-   ensure_equals("TEST 65.1: charIndexToByteOffset", str.charIndexToByteOffset(2), (size_t)2);
-   ensure_equals("TEST 65.2: charIndexToByteOffset", str.charIndexToByteOffset(3), (size_t)4);
-   ensure_equals("TEST 65.3: charIndexToByteOffset", str.charIndexToByteOffset(4), (size_t)6);
-   ensure_equals("TEST 65.4: byteOffsetToCharIndex", str.byteOffsetToCharIndex(2), (size_t)2);
-   ensure_equals("TEST 65.5: byteOffsetToCharIndex", str.byteOffsetToCharIndex(5), (size_t)4);
-   ensure_equals("TEST 65.6: byteOffsetToCharIndex", str.byteOffsetToCharIndex(6), (size_t)4);
+  base::utf8string str = std::string("zażółć");
+  ensure_equals("TEST 65.1: charIndexToByteOffset", str.charIndexToByteOffset(2), (size_t)2);
+  ensure_equals("TEST 65.2: charIndexToByteOffset", str.charIndexToByteOffset(3), (size_t)4);
+  ensure_equals("TEST 65.3: charIndexToByteOffset", str.charIndexToByteOffset(4), (size_t)6);
+  ensure_equals("TEST 65.4: byteOffsetToCharIndex", str.byteOffsetToCharIndex(2), (size_t)2);
+  ensure_equals("TEST 65.5: byteOffsetToCharIndex", str.byteOffsetToCharIndex(5), (size_t)4);
+  ensure_equals("TEST 65.6: byteOffsetToCharIndex", str.byteOffsetToCharIndex(6), (size_t)4);
 }
 
 /*
@@ -498,19 +517,19 @@ TEST_FUNCTION(65)
  */
 TEST_FUNCTION(70)
 {
-   base::utf8string str = std::string("zażółć");
-   base::utf8string::iterator it = str.begin();
-   ensure_equals("TEST 70.1: begin", *it, base::utf8string::utf8char("z"));
-   ensure_equals("TEST 70.1: == begin", it == str.begin(), true);
-   ensure_equals("TEST 70.2: != end", it != str.end(), true);
-   ++it;
-   ensure_equals("TEST 70.3: ++it", *it, base::utf8string::utf8char("a"));
-   for (size_t i = 0; i < 5; i++) {
-     ++it;
-   }
-   ensure_equals("TEST 70.4: ==end", it == str.end(), true);
-   --it;
-   ensure_equals("TEST 70.5: --it", *it, base::utf8string::utf8char("ć"));
+  base::utf8string str = std::string("zażółć");
+  base::utf8string::iterator it = str.begin();
+  ensure_equals("TEST 70.1: begin", *it, base::utf8string::utf8char("z"));
+  ensure_equals("TEST 70.1: == begin", it == str.begin(), true);
+  ensure_equals("TEST 70.2: != end", it != str.end(), true);
+  ++it;
+  ensure_equals("TEST 70.3: ++it", *it, base::utf8string::utf8char("a"));
+  for (size_t i = 0; i < 5; i++) {
+    ++it;
+  }
+  ensure_equals("TEST 70.4: ==end", it == str.end(), true);
+  --it;
+  ensure_equals("TEST 70.5: --it", *it, base::utf8string::utf8char("ć"));
 }
 
 END_TESTS
