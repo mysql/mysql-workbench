@@ -1,6 +1,6 @@
 include_directories(.
-    ${Boost_INCLUDE_DIRS}
-    ${MYSQLNG_INCLUDE_DIR}
+    SYSTEM ${Boost_INCLUDE_DIRS}
+    SYSTEM ${MYSQLNG_INCLUDE_DIR}
 )
 
 add_library(wbbase 
@@ -24,6 +24,8 @@ add_library(wbbase
     boost_fix.cpp
     utf8string.cpp
     )
+
+target_compile_options(wbbase PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wbbase ${CAIRO_LIBRARIES} ${GLIB_LIBRARIES} ${MySQL_LIBRARIES} ${MYSQLNG_LIBRARY} ${GTHREAD_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${SSL_LIBRARIES} ${GTK3_LIBRARIES})
 

@@ -72,12 +72,13 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlide/src
-    ${GTK3_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${MySQL_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${MySQL_INCLUDE_DIRS}
+    SYSTEM ${CTemplate_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.model.grt
@@ -85,7 +86,9 @@ add_library(wb.model.grt
     src/wb_model.cpp
 )
 
-target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES})
+target_compile_options(wb.model.grt PUBLIC ${WB_CXXFLAGS})
+
+target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTemplate_LIBRARIES})
 
 set_target_properties(wb.model.grt
                       PROPERTIES PREFIX    ""

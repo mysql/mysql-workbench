@@ -17,14 +17,14 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/plugins/db.mysql
     ${PROJECT_SOURCE_DIR}
     backend
-    ${VSQLITE_INCLUDE_DIRS}
-    ${LIBXML2_INCLUDE_DIR}
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${LIBXML2_INCLUDE_DIR}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.mysql.diff.reporting.wbp MODULE
@@ -34,6 +34,8 @@ add_library(db.mysql.diff.reporting.wbp MODULE
     ${PROJECT_SOURCE_DIR}/plugins/db.mysql/backend/db_plugin_be.cpp
     ${PROJECT_SOURCE_DIR}/plugins/db.mysql/backend/wb_plugin_be.cpp
 )
+
+target_compile_options(db.mysql.diff.reporting.wbp PUBLIC ${WB_CXXFLAGS})
 
 set_target_properties(db.mysql.diff.reporting.wbp PROPERTIES
 #	LINK_FLAGS "-module"
