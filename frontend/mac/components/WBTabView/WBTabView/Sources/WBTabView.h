@@ -19,10 +19,14 @@
 
 #import "WBTabItem.h"
 
-@class ResponderLayer;
 @class WBRightClickThroughView;
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_11_4
 @interface WBTabView : NSTabView <WBTabItemDelegateProtocol, CALayerDelegate>
+#else
+@interface WBTabView : NSTabView <WBTabItemDelegateProtocol>
+#endif
+
 {
   NSTabView* mTabView;
   ResponderLayer* mTabRowLayer;
