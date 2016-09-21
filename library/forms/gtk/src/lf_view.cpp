@@ -813,8 +813,8 @@ bool ViewImpl::slot_drag_drop(const Glib::RefPtr<Gdk::DragContext> &context, int
       target = *it;
     else //Try STRING
       it = std::find(targets.begin(), targets.end(), "STRING");
-      if (it != targets.end())
-        target = *it;
+    if (it != targets.end())
+      target = *it;
   }
 
   widget->drag_get_data(context, target, time);

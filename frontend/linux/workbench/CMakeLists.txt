@@ -43,15 +43,14 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/library/parsers
-    ${GTK3_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${LIBZIP_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${GNOME_KEYRING_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${VSQLITE_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${LIBZIP_INCLUDE_DIRS}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GNOME_KEYRING_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 #link_directories(${PROJECT_BINARY_DIR}/mysqlcppconnector/lib ${PROJECT_BINARY_DIR}/antlr-wb)
@@ -81,11 +80,12 @@ add_executable(mysql-workbench-bin
 )
 
 
+target_compile_options(mysql-workbench-bin PUBLIC ${WB_CXXFLAGS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE")
+  target_compile_options(mysql-workbench-bin PUBLIC -fPIE)
 else()
-  set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+  target_compile_options(mysql-workbench-bin PUBLIC -fPIE -pie)
 endif()
 
 if (KEYRING_DEFINITION)

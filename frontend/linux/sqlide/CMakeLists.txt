@@ -9,14 +9,14 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${VSQLITE_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(sqlide
@@ -25,6 +25,8 @@ add_library(sqlide
     recordset_view.cpp
     ../mforms/record_grid_view.cpp
 )
+
+target_compile_options(sqlide PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(sqlide ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
 

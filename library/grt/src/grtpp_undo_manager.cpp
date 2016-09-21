@@ -1177,11 +1177,7 @@ AutoUndo::~AutoUndo()
       UndoGroup *group= dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_latest_undo_action());
 
       if (group && group->is_open())
-      {
         logWarning("automatically cancelling unclosed undo group");
-        if (strcmp(tmp, "throw") == 0)
-          throw std::logic_error("unclosed undo group");
-      }
     }
 
     cancel();

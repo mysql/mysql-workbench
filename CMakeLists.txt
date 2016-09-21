@@ -300,40 +300,25 @@ add_definitions(-DGTK_DISABLE_SINGLE_INCLUDES)
 add_definitions(-DGDK_DISABLE_DEPRECATED)
 add_definitions(-DGTK_DISABLE_DEPRECATED)
 add_definitions(-DGSEAL_ENABLE)
+add_definitions(-DTIXML_USE_STL=1)
 
 set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 SET(GCOV OFF CACHE BOOL "Add gcov flags")
 
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g ${MY_CXXFLAGS}")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g ${MY_CXXFLAGS}") 
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -std=c++11)
+set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
     message(FATAL_ERROR "Insufficient gcc version. You need gcc v4.7 or newer to build this project")
   endif()
-  set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 ${MY_CXXFLAGS}")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -ggdb3 ${MY_CXXFLAGS}")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
-endif()
-
-string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE_UPPER)
-message("CMAKE_CXX_FLAGS_${BUILD_TYPE_UPPER} : ${CMAKE_CXX_FLAGS_${BUILD_TYPE_UPPER}}")
-
-if(GCOV)
-    set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
 endif()
 
 if(GCOV)
-    set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
+    set(WB_CXXFLAGS "${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage")
+    set(WB_CFLAGS "${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage")
 endif()
-
-
-
 
 #-----------------------------------------------------------------------
 # Define some useful variables and options

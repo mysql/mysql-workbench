@@ -2830,20 +2830,22 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
                 {
                   bool trigger_found = false;
                   for(size_t c1= triggers.count(), j= 0; j < c1; j++)
+                  {
                     if (db_triggers.get(i)->name() == triggers.get(j)->name())
                     {
                       trigger_found = true;
                       break;
                     }
-                    if (!trigger_found)
+                  }
+                  if (!trigger_found)
+                  {
+                    std::string trigger_code = result.get_string(get_full_object_name_for_key(db_triggers.get(i),case_sensitive != 0), "");
+                    if (!trigger_code.empty())
                     {
-                      std::string trigger_code = result.get_string(get_full_object_name_for_key(db_triggers.get(i),case_sensitive != 0), "");
-                      if (!trigger_code.empty())
-                      {
-                        sql.append("USE `").append(db_table->owner()->name()).append("`;\n").append("\nDELIMITER ").append(non_std_sql_delimiter).append("\n\n");
-                        sql.append(trigger_code).append(non_std_sql_delimiter).append("\nDELIMITER ;\n");
-                      }
+                      sql.append("USE `").append(db_table->owner()->name()).append("`;\n").append("\nDELIMITER ").append(non_std_sql_delimiter).append("\n\n");
+                      sql.append(trigger_code).append(non_std_sql_delimiter).append("\nDELIMITER ;\n");
                     }
+                  }
                     
                 }
               }
