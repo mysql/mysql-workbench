@@ -18,10 +18,10 @@
  */
 
 #include "MySQLRecognizerCommon.h"
-#include "base/string_utilities.h"
 
 using namespace parsers;
 using namespace antlr4;
+using namespace antlr4::tree;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -36,6 +36,8 @@ static void trim(std::string &s) {
   s.erase(s.begin(), std::find_if_not(s.begin(), s.end(), [] (char c) { return std::isspace(c); }));
   s.erase(std::find_if_not(s.rbegin(), s.rend(), [] (char c) { return std::isspace(c); }).base(), s.end());
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void MySQLRecognizerCommon::sqlModeFromString(std::string modes)
 {
@@ -97,9 +99,54 @@ std::string MySQLRecognizerCommon::sourceTextForContext(ParserRuleContext *ctx, 
 {
   CharStream *cs = ctx->start->getTokenSource()->getInputStream();
   std::string result = cs->getText(misc::Interval(ctx->start->getStartIndex(), ctx->stop->getStopIndex()));
-  if (keepQuotes)
+  if (keepQuotes || result.size() < 2)
     return result;
-  return base::unquote(result);
+
+  char quoteChar = result[0];
+  if ((quoteChar == '"' || quoteChar == '`' || quoteChar == '\'') && quoteChar == result.back())
+    return result.substr(1, result.size() - 2);
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the child context from root which spans the given position. The result is usually a terminal node.
+ * If the position is between 2 tokens then the one right before the given position is returned. In this case
+ * also a non-terminal could be returned.
+ * Note: the line is one-based.
+ */
+Ref<Tree> contextFromPosition(Ref<Tree> root, std::pair<ssize_t, ssize_t> position)
+{
+  // Does the root node actually contain the position? If not we don't need to look further.
+  if (antlrcpp::is<TerminalNode>(root))
+  {
+    Token *token = std::dynamic_pointer_cast<TerminalNode>(root)->getSymbol();
+    if (token->getLine() != position.second)
+      return Ref<Tree>();
+    if (token->getStartIndex() <= position.first && token->getStopIndex() >= position.first)
+      return root;
+    return Ref<Tree>();
+  }
+  else
+  {
+    Token *start = std::dynamic_pointer_cast<ParserRuleContext>(root)->start;
+    Token *stop = std::dynamic_pointer_cast<ParserRuleContext>(root)->stop;
+    if (start->getLine() > position.second || (start->getLine() == position.second && position.first < start->getStartIndex()))
+      return Ref<Tree>();
+
+    if (stop->getLine() < position.second || (stop->getLine() == position.second && stop->getStopIndex() < position.first))
+      return Ref<Tree>();
+  }
+
+  for (auto &child : root->children)
+  {
+    Ref<Tree> result = contextFromPosition(child, position);
+    if (result != nullptr)
+      return result;
+  }
+
+  return Ref<Tree>();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

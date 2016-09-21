@@ -2309,7 +2309,7 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
       {
         // As managed as string, an additional byte is added to the length, so
         // we remove that here to know the real legth in bytes
-        std::div_t length= std::div((*_row_buffer)[col_index].buffer_length - 1, 8);
+        std::div_t length= std::div((int)(*_row_buffer)[col_index].buffer_length - 1, 8);
 
         if (length.rem)
           ++length.quot;

@@ -149,7 +149,7 @@ TEST_MODULE(db_mysql_plugin_test, "db.mysql plugin test");
 db_mysql_CatalogRef tut::Test_object_base<db_mysql_plugin_test>::create_catalog_from_script(
   const std::string& sql)
 {
-  db_mysql_CatalogRef cat = create_empty_catalog_for_import();
+  db_mysql_CatalogRef cat = createEmptyCatalog();
   MySQLParserServices::Ref services = MySQLParserServices::get();
   MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
     tester->get_rdbms()->version(), "", false);

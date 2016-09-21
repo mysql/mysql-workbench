@@ -280,7 +280,7 @@ namespace base {
     {
       char pid[32];
       // couldn't lock file, check if we own it ourselves
-      int c = read(fd, pid, sizeof(pid)-1);
+      ssize_t c = read(fd, pid, sizeof(pid)-1);
       close(fd);
       if (c < 0)
         return LockedOther;

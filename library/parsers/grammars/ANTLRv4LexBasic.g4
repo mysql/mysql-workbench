@@ -27,12 +27,12 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** 
+/**
  * A generally reusable set of fragments for import in to Lexer grammars.
  *
- *	Modified 2015.06.16 gbr - 
+ *	Modified 2015.06.16 gbr -
  *	-- generalized for inclusion into the ANTLRv4 grammar distribution
- * 
+ *
  */
 lexer grammar LexBasic;
 

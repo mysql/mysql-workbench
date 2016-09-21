@@ -2,25 +2,30 @@
 
 if [ $# -lt 1 ]
 then
-  echo "Usage: $0 [mysql|python|js]"
+  echo "Usage: $0 [antlr|mysql|python|js]"
   exit
 fi
 
+ANTLR="antlr"
 MYSQL="mysql"
 ECMA="ecma"
 PYTHON="python"
 
 case "$1" in
+ $ANTLR) echo "Selected ANTLR parser"
+ SOURCE_FILE="ANTLRv4Parser.g4"
+ SOURCE_FILE2="ANTLRv4Lexer.g4"
+ ;;
  $MYSQL) echo "Selected MySQL parser"
- SOURCE_FILE=MySQL.g
- SOURCE_FILE2=MySQLSimpleParser.g
+ SOURCE_FILE="MySQL.g4"
+ SOURCE_FILE2="MySQLSimpleParser.g4"
  ;;
  $ECMA) echo "Selected JS Parser"
- SOURCE_FILE="ECMA.g"
+ SOURCE_FILE="ECMA.g4"
  SOURCE_FILE2=""
  ;;
  $PYTHON) echo "Selected Python parser"
- SOURCE_FILE="Python25.g"
+ SOURCE_FILE="Python25.g4"
  SOURCE_FILE2=""
  ;;
  *) echo "Unknown parser type $1"

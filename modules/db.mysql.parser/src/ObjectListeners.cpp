@@ -1004,7 +1004,7 @@ void TableListener::exitPartitionDefHash(MySQLParser::PartitionDefHashContext *c
   else
     table->partitionType("HASH");
 
-  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bit_expr().get()));
+  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr().get()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1014,7 +1014,7 @@ void TableListener::exitPartitionDefRangeList(MySQLParser::PartitionDefRangeList
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   table->partitionType(ctx->RANGE_SYMBOL() != nullptr ? "RANGE" : "LISTE");
 
-  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bit_expr().get()));
+  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr().get()));
 
   if (ctx->COLUMNS_SYMBOL() != nullptr)
   {
@@ -1023,7 +1023,7 @@ void TableListener::exitPartitionDefRangeList(MySQLParser::PartitionDefRangeList
       table->partitionExpression(getIdentifierList(list.get()));
   }
   else
-    table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bit_expr().get()));
+    table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr().get()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1038,7 +1038,7 @@ void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx)
   if (ctx->HASH_SYMBOL() != nullptr)
   {
     table->partitionType(linearPrefix + "HASH");
-    table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bit_expr().get()));
+    table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr().get()));
   }
   else
   {

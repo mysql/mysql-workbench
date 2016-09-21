@@ -4296,6 +4296,9 @@
 		278234411CD3491F003A2649 /* libtinyxml.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtinyxml.dylib; path = "../mysql-mac-res/lib/libtinyxml.dylib"; sourceTree = "<group>"; };
 		278234561CD34983003A2649 /* libpcrecpp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcrecpp.0.dylib; path = "../mysql-mac-res/lib/libpcrecpp.0.dylib"; sourceTree = "<group>"; };
 		278234571CD34983003A2649 /* libzip.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libzip.1.0.0.dylib; path = "../mysql-mac-res/lib/libzip.1.0.0.dylib"; sourceTree = "<group>"; };
+		2782F1031D92C4DA0090D2C1 /* ANTLRv4LexBasic.g4 */ = {isa = PBXFileReference; lastKnownFileType = text; name = ANTLRv4LexBasic.g4; path = library/parsers/grammars/ANTLRv4LexBasic.g4; sourceTree = "<group>"; };
+		2782F1041D92C4DA0090D2C1 /* ANTLRv4Lexer.g4 */ = {isa = PBXFileReference; lastKnownFileType = text; name = ANTLRv4Lexer.g4; path = library/parsers/grammars/ANTLRv4Lexer.g4; sourceTree = "<group>"; };
+		2782F1051D92C4DA0090D2C1 /* ANTLRv4Parser.g4 */ = {isa = PBXFileReference; lastKnownFileType = text; name = ANTLRv4Parser.g4; path = library/parsers/grammars/ANTLRv4Parser.g4; sourceTree = "<group>"; };
 		278874851189DA8500E477EF /* webbrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webbrowser.h; path = library/forms/mforms/webbrowser.h; sourceTree = "<group>"; };
 		278874871189DA9300E477EF /* webbrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webbrowser.cpp; path = library/forms/webbrowser.cpp; sourceTree = "<group>"; };
 		278874951189DEA500E477EF /* webbrowser_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webbrowser_view.cpp; sourceTree = "<group>"; };
@@ -7685,6 +7688,9 @@
 		27227B531C454AF60098910A /* grammars */ = {
 			isa = PBXGroup;
 			children = (
+				2782F1031D92C4DA0090D2C1 /* ANTLRv4LexBasic.g4 */,
+				2782F1041D92C4DA0090D2C1 /* ANTLRv4Lexer.g4 */,
+				2782F1051D92C4DA0090D2C1 /* ANTLRv4Parser.g4 */,
 				27227B561C454BFF0098910A /* ECMA.g */,
 				279DDF431D12A52700857C36 /* MySQLLexer.g4 */,
 				279DDF441D12A52700857C36 /* MySQLParser.g4 */,
@@ -14042,7 +14048,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${SRCROOT}/library/parsers/grammars\n\nif [ MySQLParser.g4 -nt ../mysql/MySQLParser.cpp  -o  MySQLLexer.g4 -nt ../mysql/MySQLLexer.cpp ]; then\n  ./build-parsers-mac mysql;\nfi\n\n";
+			shellScript = "cd ${SRCROOT}/library/parsers/grammars\n\nif [ ANTLRv4Parser.g4 -nt ../antlr/ANTLRv4Parser.cpp  -o  ANTLRv4Lexer.g4 -nt ../antlr/ANTLRv4Lexer.cpp ]; then\n./build-parsers-mac antlr;\nfi\n\nif [ MySQLParser.g4 -nt ../mysql/MySQLParser.cpp  -o  MySQLLexer.g4 -nt ../mysql/MySQLLexer.cpp ]; then\n./build-parsers-mac mysql;\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		27BF79541CD35BED00FBB3F3 /* Create symlinks */ = {

@@ -45,7 +45,6 @@ namespace parsers {
 
   struct PARSERS_PUBLIC_TYPE ParserErrorInfo
   {
-
     std::string message;
     ssize_t tokenType;
     size_t charOffset; // Offset (in bytes) from the beginning of the input to the error position.

@@ -42,15 +42,17 @@ void MySQLBaseRecognizer::reset()
 
 std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscapes)
 {
-  if (antlrcpp::is<MySQLParser::StringLiteralContext *>(context))
+  if (antlrcpp::is<MySQLParser::TextLiteralContext *>(context))
   {
+    // TODO: take the optional repertoire prefix into account.
     std::string result;
-    auto list = ((MySQLParser::StringLiteralContext *)context)->textList;
+    auto list = ((MySQLParser::TextLiteralContext *)context)->textStringLiteral();
 
     int lastType = Token::INVALID_TYPE;
     int lastIndex = -1;
-    for (Token *token : list)
+    for (auto entry : list)
     {
+      Token *token = entry->value;
       switch (token->getType())
       {
         case MySQLParser::DOUBLE_QUOTED_TEXT:

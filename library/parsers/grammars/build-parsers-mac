@@ -2,12 +2,15 @@
 
 if [ $# -lt 1 ]
 then
-  echo "Usage: $0 [mysql|python|js]"
+  echo "Usage: $0 [antlr|mysql|python|js]"
   exit
 fi
 
 LOCATION=../../../../mysql-mac-res/bin/antlr-4.5.4-complete.jar
 case "$1" in
+  "antlr") echo "Building ANTLR parser"
+    java -jar $LOCATION -Dlanguage=Cpp -listener -no-visitor -o ../antlr -package parsers ANTLRv4Parser.g4 ANTLRv4Lexer.g4
+  ;;
   "mysql") echo "Building MySQL parser"
     java -jar $LOCATION -Dlanguage=Cpp -listener -visitor -o ../mysql -package parsers MySQLLexer.g4 MySQLParser.g4
   ;;

@@ -125,6 +125,9 @@ static std::set<std::string> charsets = { "_utf8", "_ucs2", "_big5", "_latin2", 
   text = [defaults objectForKey: @"single-query"];
   if (text != nil)
     singleQueryText.string = text;
+  text = [defaults objectForKey: @"version"];
+  if (text != nil)
+    versionText.stringValue = text;
 }
 
 static size_t tokenCount = 0;
@@ -139,7 +142,7 @@ std::string dumpTree(const Ref<RuleContext> &context, const dfa::Vocabulary &voc
     Ref<tree::Tree> child = context->children[index];
     if (antlrcpp::is<RuleContext>(child)) {
       auto ruleContext = std::dynamic_pointer_cast<RuleContext>(child);
-      if (antlrcpp::is<MySQLParser::StringLiteralContext>(child))
+      if (antlrcpp::is<MySQLParser::TextLiteralContext>(child))
       {
         misc::Interval interval = ruleContext->getSourceInterval();
         stream << indentation << "(index range: "
@@ -221,9 +224,9 @@ using SqlMode = MySQLRecognizerCommon::SqlMode;
 
 static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy>();
 
-- (int)parseQuery: (NSString *)query version: (unsigned)serverVersion
-            modes: (MySQLRecognizerCommon::SqlMode)sqlModes
-     dumpToOutput: (BOOL)dump
+- (unsigned long)parseQuery: (NSString *)query version: (unsigned)serverVersion
+                      modes: (MySQLRecognizerCommon::SqlMode)sqlModes
+               dumpToOutput: (BOOL)dump
 {
   NSDate *start = [NSDate new];
 
@@ -297,6 +300,7 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 {
   NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
   [defaults setObject: singleQueryText.string forKey: @"single-query"];
+  [defaults setObject: versionText.stringValue forKey: @"version"];
 
   last_error = "";
   errorText.string = @"";
@@ -306,15 +310,15 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   parseTreeView.string = @"";
   [parseTreeView setNeedsDisplay: YES];
 
-  int errorCount = [self parseQuery: singleQueryText.string
-                            version: [self getServerVersion]
-                              modes: [self getSqlModes]
-                       dumpToOutput: YES];
+  size_t errorCount = [self parseQuery: singleQueryText.string
+                               version: [self getServerVersion]
+                                 modes: [self getSqlModes]
+                          dumpToOutput: YES];
 
   NSString *combinedErrorText = [NSString stringWithFormat: @"Parse time: %.6fs\n\n", lastDuration];
 
   if (errorCount > 0) {
-    combinedErrorText = [combinedErrorText stringByAppendingFormat: @"%i errors found\n%s", errorCount, last_error.c_str()];
+    combinedErrorText = [combinedErrorText stringByAppendingFormat: @"%zu errors found\n%s", errorCount, last_error.c_str()];
   } else {
     combinedErrorText = [combinedErrorText stringByAppendingString: @"No errors found"];
   }

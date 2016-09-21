@@ -1218,8 +1218,8 @@ TEST_FUNCTION(10)
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat = create_empty_catalog_for_import();
-    db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import();
+    db_mysql_CatalogRef org_cat = createEmptyCatalog();
+    db_mysql_CatalogRef mod_cat = createEmptyCatalog();
 
     {
       std::string org_script;
@@ -1385,8 +1385,8 @@ TEST_FUNCTION(20)
 
     for (int j = 0; j <= 1; ++j)
     {
-      db_mysql_CatalogRef org_cat = create_empty_catalog_for_import();
-      db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import();
+      db_mysql_CatalogRef org_cat = createEmptyCatalog();
+      db_mysql_CatalogRef mod_cat = createEmptyCatalog();
 
       {
         std::string org_script;
@@ -1561,8 +1561,8 @@ TEST_FUNCTION(30)
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat= create_empty_catalog_for_import();
-    db_mysql_CatalogRef mod_cat= create_empty_catalog_for_import();
+    db_mysql_CatalogRef org_cat= createEmptyCatalog();
+    db_mysql_CatalogRef mod_cat= createEmptyCatalog();
 
     {
       std::string org_script;
