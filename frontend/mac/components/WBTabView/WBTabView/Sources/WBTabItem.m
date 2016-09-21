@@ -355,11 +355,7 @@
   else {
     mClickInCloseBox = NO;
     mMouseInCloseBox = NO;
-<<<<<<< HEAD
-    [self.delegate selectTab: self];
-=======
     [(id)[self delegate] selectTab: self];
->>>>>>> workbench-6.3
   }
   
   return self;
@@ -384,11 +380,7 @@
 - (void) mouseUp;
 {
   if (mMouseInCloseBox) {
-<<<<<<< HEAD
-    [self.delegate closeTab: self];
-=======
     [(id)[self delegate] closeTab: self];
->>>>>>> workbench-6.3
     [self setCloseButtonState: NSOffState];
   }
 }
