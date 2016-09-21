@@ -21,7 +21,8 @@
 
 @class WBRightClickThroughView;
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_11_4
+// Temporary solution until we are completely on XCode 8 or higher.
+#if MAC_OS_X_VERSION_MAX_ALLOWED > 101104
 @interface WBTabView : NSTabView <WBTabItemDelegateProtocol, CALayerDelegate>
 #else
 @interface WBTabView : NSTabView <WBTabItemDelegateProtocol>
