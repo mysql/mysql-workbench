@@ -47,24 +47,20 @@ void Template::dump(int indent)
   std::cout << indent_str << "[Temaplate] = " << std::endl
             << indent_str << "{" << std::endl;
   
-  for (TemplateDocument::const_iterator iter = _document.begin(); iter != _document.end(); ++iter)
-    (*iter)->dump(indent + 1);
+  for (NodeStorageType node : _document)
+    node->dump(indent + 1);
   
   std::cout << indent_str << "}" << std::endl;
 }
 
 void Template::expand(DictionaryInterface *dict, TemplateOutput* output) 
 {
-  for (TemplateDocument::iterator iter = _document.begin(); iter != _document.end(); ++iter)
+  for (NodeStorageType node : _document)
   {
-    NodeStorageType node = *iter;
-    
     if (node->type() == TemplateObject_Section)
     {
       DictionaryInterface::section_dictionary_storage &section_dicts = dict->getSectionDictionaries(node->_text);
-      
-//       std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
-      
+            
       for (DictionaryInterface::section_dictionary_storage_iterator section_iter = section_dicts.begin(); section_iter != section_dicts.end(); ++section_iter)
         node->expand(output, *section_iter);
     }
