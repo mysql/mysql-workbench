@@ -72,7 +72,7 @@ public:
   virtual section_dictionary_storage &getSectionDictionaries(const base::utf8string &sections) = 0;
   
   void setIsLast(bool value)  { _is_last = value; }
-  bool isLast()                { return _is_last; }
+  bool isLast()               { return _is_last; }
   
   virtual void dump(int indent = 0) = 0;
   
@@ -93,8 +93,8 @@ protected:
 public:
   
   Dictionary(const base::utf8string &name, DictionaryInterface *parent = NULL) 
-    : DictionaryInterface(name), _parent(parent)                                  {  }
-  virtual ~Dictionary()                                             {  }
+    : DictionaryInterface(name), _parent(parent) {  }
+  virtual ~Dictionary() {  }
   
   //  DictionaryInterface
   virtual void setValue(const base::utf8string &key, const base::utf8string &value);

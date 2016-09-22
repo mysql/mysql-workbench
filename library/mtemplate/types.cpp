@@ -28,15 +28,13 @@
 
 namespace mtemplate 
 {
-  
-#define TEMPLATE_TAG_BEGINNING "{{"
-#define TEMPLATE_TAG_END "}}"
-#define TEMPLATE_SECTION_BEGINNING "#"
-#define TEMPLATE_SECTION_END "/"
-#define TEMPLATE_STRLEN(str) (int)g_utf8_strlen(str, -1)
-  
-static base::utf8string TEMPLATE_TAG_CHARACTERS("#/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-  
+static const base::utf8string TEMPLATE_TAG_BEGINNING("{{");
+static const base::utf8string TEMPLATE_TAG_END("}}");
+static const base::utf8string TEMPLATE_SECTION_BEGINNING("#");
+static const base::utf8string TEMPLATE_SECTION_END("/");
+
+static const base::utf8string TEMPLATE_TAG_CHARACTERS("#/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+
 std::size_t GetTextLength(const base::utf8string &temp_template, bool check_new_lines = true);
 bool IsBlankString(const base::utf8string &text);
 base::utf8string FormatErrorLog(const base::utf8string &template_string, std::size_t pos);
@@ -47,7 +45,7 @@ base::utf8string FormatErrorLog(const base::utf8string &template_string, std::si
 //  NodeText stuff
 //-----------------------------------------------------------------------------------
 NodeText::NodeText(const base::utf8string& text, std::size_t length)
-    : NodeTextInterface(TemplateObject_Text, text, length)  {  }
+  : NodeTextInterface(TemplateObject_Text, text, length)  {  }
 
 bool NodeText::expand(TemplateOutput* output, DictionaryInterface *dict)
 {
@@ -110,8 +108,8 @@ bool NodeVariable::expand(TemplateOutput* output, DictionaryInterface *dict)
   
   base::utf8string result = dict->getValue(_text);
   
-  if (result == "")
-    std::cout << "WARNING: value for " << _text << " is an empty string" << std::endl;
+//   if (result == "")
+//     std::cout << "WARNING: value for " << _text << " is an empty string" << std::endl;
   
   for (std::vector<ModifierAndArgument>::iterator iter = _modifiers.begin(); iter != _modifiers.end(); ++iter)
   {
@@ -138,7 +136,7 @@ NodeVariable *NodeVariable::parse(const base::utf8string &template_string, PARSE
   if (end == base::utf8string::npos)
     throw std::logic_error(base::utf8string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
   
-  base::utf8string::size_type begin = TEMPLATE_STRLEN(TEMPLATE_TAG_END);
+  base::utf8string::size_type begin = TEMPLATE_TAG_END.length();
   base::utf8string variableName = template_string.substr(begin, end - begin);
     
   std::vector<base::utf8string> parts = variableName.split(":");
@@ -163,7 +161,7 @@ NodeVariable *NodeVariable::parse(const base::utf8string &template_string, PARSE
     modifiers.push_back({part, arg});
   }
   
-  return new NodeVariable(variableName, end + TEMPLATE_STRLEN(TEMPLATE_TAG_END), modifiers);
+  return new NodeVariable(variableName, end + TEMPLATE_TAG_END.length(), modifiers);
 }
   
 //-----------------------------------------------------------------------------------
@@ -182,27 +180,22 @@ bool NodeSection::expand(TemplateOutput* output, DictionaryInterface* dict)
   if (isHidden())
     return true;
   
-  for (TemplateDocument::const_iterator iter = _contents.begin(); iter != _contents.end(); ++iter)
+  for (NodeStorageType node : _contents)
   {
-    NodeStorageType node = *iter;
-    
     if (node->type() == TemplateObject_Section)
     {
       //    Check for separator sections special marker
       NodeSection *sec = dynamic_cast<NodeSection *>(node.get());
       if (sec->is_separator() && dict->isLast() == false)
       {
-        std::cout << "Adding separator " << sec->text() << std::endl;
-          node->expand(output, dict);
-          continue;
+        node->expand(output, dict);
+        continue;
       }
         
       DictionaryInterface::section_dictionary_storage &section_dicts = dict->getSectionDictionaries(node->_text);
       
-//       std::cout << "Expanding section " << node->_text << " to expand " << section_dicts.size() << " times" << std::endl;
-      
-      for (DictionaryInterface::section_dictionary_storage_iterator section_iter = section_dicts.begin(); section_iter != section_dicts.end(); ++section_iter)
-        node->expand(output, *section_iter);
+      for (DictionaryInterface *item : section_dicts)
+        node->expand(output, item);
     }
     else
       node->expand(output, dict);
@@ -218,8 +211,8 @@ void NodeSection::dump(int indent)
             << indent_str << "{" << std::endl
             ;
   
-  for (TemplateDocument::const_iterator iter = _contents.begin(); iter != _contents.end(); ++iter)
-    (*iter)->dump(indent + 1);
+  for (NodeStorageType node : _contents)
+    node->dump(indent + 1);
 
   std::cout << indent_str << "}" << std::endl;
             
@@ -232,12 +225,12 @@ NodeSection *NodeSection::parse(const base::utf8string &template_string, PARSE_T
   if (end == base::utf8string::npos)
     throw std::logic_error(base::utf8string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
   
-  base::utf8string::size_type begin = TEMPLATE_STRLEN(TEMPLATE_TAG_END) + TEMPLATE_STRLEN(TEMPLATE_SECTION_BEGINNING);
+  base::utf8string::size_type begin = TEMPLATE_TAG_END.length() + TEMPLATE_SECTION_BEGINNING.length();
   base::utf8string sectionName = template_string.substr(begin, end - begin);
   
-  begin = end + TEMPLATE_STRLEN(TEMPLATE_TAG_END);
+  begin = end + TEMPLATE_TAG_END.length();
   
-  end = template_string.find(base::utf8string(TEMPLATE_TAG_BEGINNING) + base::utf8string(TEMPLATE_SECTION_END) + sectionName + base::utf8string(TEMPLATE_TAG_END), begin);
+  end = template_string.find(TEMPLATE_TAG_BEGINNING + TEMPLATE_SECTION_END + sectionName + TEMPLATE_TAG_END, begin);
 
   if (end == base::utf8string::npos)
     throw std::logic_error(base::utf8string("mtemplate: Could not find the end of the tag '}}'.\n") + template_string);
@@ -248,9 +241,10 @@ NodeSection *NodeSection::parse(const base::utf8string &template_string, PARSE_T
   
   //  Check for separators...only the last one will be taken into account
   base::utf8string separator_text = sectionName + "_separator";
-  for (TemplateDocument::iterator iter = contents.begin(); iter != contents.end(); ++iter)
+
+  for (NodeStorageType node : contents)
   {
-    NodeSection *node_section = dynamic_cast<NodeSection *>((*iter).get());
+    NodeSection *node_section = dynamic_cast<NodeSection *>(node.get());
     if (node_section == NULL)
       continue;
     
@@ -261,7 +255,7 @@ NodeSection *NodeSection::parse(const base::utf8string &template_string, PARSE_T
     }
   }
   
-  end += TEMPLATE_STRLEN((base::utf8string(TEMPLATE_TAG_BEGINNING) + base::utf8string(TEMPLATE_SECTION_END) + sectionName + base::utf8string(TEMPLATE_TAG_END)).c_str());
+  end += (TEMPLATE_TAG_BEGINNING + TEMPLATE_SECTION_END + sectionName + TEMPLATE_TAG_END).length();
   
   return  new NodeSection(sectionName, end, contents);
 }
@@ -372,7 +366,7 @@ TemplateDocument parseTemplate(const base::utf8string &template_string, PARSE_TY
     }
     else if (temp_template.starts_with("{{"))
     {//  A node was found {{SOME_NOME}}
-      base::utf8string::utf8char first_char = temp_template[ TEMPLATE_STRLEN(TEMPLATE_TAG_BEGINNING) ];
+      base::utf8string::utf8char first_char = temp_template[ TEMPLATE_TAG_BEGINNING.length() ];
       
       switch (first_char)
       {
