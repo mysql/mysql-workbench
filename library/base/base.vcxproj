@@ -159,6 +159,7 @@
     <ClCompile Include="threaded_timer.cpp" />
     <ClCompile Include="threading.cpp" />
     <ClCompile Include="ui_form.cpp" />
+    <ClCompile Include="utf8string.cpp" />
     <ClCompile Include="util_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +188,7 @@
     <ClInclude Include="base\threading.h" />
     <ClInclude Include="base\trackable.h" />
     <ClInclude Include="base\ui_form.h" />
+    <ClInclude Include="base\utf8string.h" />
     <ClInclude Include="base\util_functions.h" />
     <ClInclude Include="base\wb_iterators.h" />
     <ClInclude Include="base\wb_memory.h" />

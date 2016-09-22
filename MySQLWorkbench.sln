@@ -551,14 +551,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "linux", "linux", "{FADA09F1
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "utilities.grt", "modules\utilities\utilities.grt.vcxproj", "{B94B7613-CBA5-4B30-834D-E16F414D1B1C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mtemplate", "library\mtemplate\mtemplate.vcxproj", "{85FCF582-B354-4A7D-B31C-534D71BEA53A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
 		Release_OSS|x64 = Release_OSS|x64
 		Release_Testing|x64 = Release_Testing|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EC37D95-8840-4881-8814-6943938B43BF}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{1EC37D95-8840-4881-8814-6943938B43BF}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{1EC37D95-8840-4881-8814-6943938B43BF}.Debug|Win32.ActiveCfg = Debug|x86
+		{1EC37D95-8840-4881-8814-6943938B43BF}.Debug|Win32.Build.0 = Debug|x86
 		{1EC37D95-8840-4881-8814-6943938B43BF}.Debug|x64.ActiveCfg = Debug|x64
 		{1EC37D95-8840-4881-8814-6943938B43BF}.Debug|x64.Build.0 = Debug|x64
 		{1EC37D95-8840-4881-8814-6943938B43BF}.Release_OSS|x64.ActiveCfg = Release_OSS|x64
@@ -1068,5 +1076,6 @@ Global
 		{0F784E6B-0382-43A0-9251-28DE3FBA9550} = {1BBD1428-D18C-48EB-BA2E-01667E0A9A59}
 		{FADA09F1-53E8-4972-B77B-AEF3945D383A} = {1BBD1428-D18C-48EB-BA2E-01667E0A9A59}
 		{B94B7613-CBA5-4B30-834D-E16F414D1B1C} = {72E9A6AB-79B2-461F-B45A-924CC08E9007}
+		{85FCF582-B354-4A7D-B31C-534D71BEA53A} = {DD440C70-F958-4557-8883-5A0ACEF109BC}
 	EndGlobalSection
 EndGlobal
