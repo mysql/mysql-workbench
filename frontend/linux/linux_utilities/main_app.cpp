@@ -23,6 +23,7 @@
 #include <gtkmm.h>
 #pragma GCC diagnostic pop
 #include <iostream>
+#include "base/log.h"
 
 runtime::loop::loop() : _loop(nullptr) {}
 
@@ -30,7 +31,11 @@ runtime::loop::loop() : _loop(nullptr) {}
 runtime::loop::~loop()
 {
   if (_loop != nullptr)
-    throw std::runtime_error("Loop not stopped");
+  {
+    static const char* const default_log_domain = "runtime";
+    logError("loop d-tor: loop is still active calling loop::quit ");
+    quit();
+  }
 }
 
 void runtime::loop::run()

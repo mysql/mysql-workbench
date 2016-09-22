@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,10 +19,15 @@
 
 #import "WBTabItem.h"
 
-@class ResponderLayer;
 @class WBRightClickThroughView;
 
+// Temporary solution until we are completely on XCode 8 or higher.
+#if MAC_OS_X_VERSION_MAX_ALLOWED > 101104
+@interface WBTabView : NSTabView <WBTabItemDelegateProtocol, CALayerDelegate>
+#else
 @interface WBTabView : NSTabView <WBTabItemDelegateProtocol>
+#endif
+
 {
   NSTabView* mTabView;
   ResponderLayer* mTabRowLayer;

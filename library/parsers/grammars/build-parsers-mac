@@ -12,12 +12,6 @@ case "$1" in
    java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQL.g -o .. -Xmaxswitchcaselabels=30
    java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQLSimpleParser.g -o .. -Xmaxswitchcaselabels=30
  ;;
- "js") echo "Building JS Parser"
-   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make ECMA.g -o .. -Xmaxswitchcaselabels=30
- ;;
- "python") echo "Building Python parser"
-   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make Python25.g -o .. -Xmaxswitchcaselabels=30
- ;;
  *) echo "Unknown parser type $1"
  exit 1
  ;;
