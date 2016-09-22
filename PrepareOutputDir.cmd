@@ -216,8 +216,8 @@ echo * tinyxml library ...
 copy %EXT_LIB_DIR%\tinyxml\%2\tinyxml.dll %TARGET_DIR%\.
 
 echo * gdal library + tools ...
-copy %EXT_LIB_DIR%\gdal\gdal.dll %TARGET_DIR%\.
-copy %EXT_LIB_DIR%\gdal\*.exe %TARGET_DIR%\.
+copy %EXT_LIB_DIR%\gdal\%2\gdal.dll %TARGET_DIR%\.
+copy %EXT_LIB_DIR%\gdal\%2\*.exe %TARGET_DIR%\.
 
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide
