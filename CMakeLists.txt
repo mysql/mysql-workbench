@@ -69,14 +69,6 @@ endif ()
 find_package(Threads)
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
-include(ssl)
-
-IF (WITH_SSL)
-  MYSQL_CHECK_SSL()
-  MESSAGE(STATUS "SSL_LIBRARIES:    ${SSL_LIBRARIES}")
-  MESSAGE(STATUS "SSL_DEFINES:      ${SSL_DEFINES}")
-  MESSAGE(STATUS "SSL_INCLUDE_DIRS: ${SSL_INCLUDE_DIRS}")
-ENDIF()
 
 
 # All known publicly available versions of Antlr3C are buggy

@@ -451,7 +451,7 @@ void HostAndRemoteTypePage::refresh_profile_list()
        iter != _presets[system].end(); ++iter)
     profiles.push_back(iter->first);
 
-    _type_selector.add_items(profiles);
+  _type_selector.add_items(profiles);
 }
 
 //--------------------------------------------------------------------------------------------------

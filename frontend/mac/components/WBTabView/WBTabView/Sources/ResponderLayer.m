@@ -8,7 +8,7 @@
 
 
 #import "ResponderLayer.h"
-
+#import "WBTabItem.h"
 
 
 @implementation ResponderLayer
@@ -67,8 +67,9 @@
 
 - (void) mouseDraggedToPoint: (CGPoint) mouse;
 {
-	if ([self.delegate respondsToSelector: @selector(mouseDraggedToPoint:)]) {
-		[self.delegate mouseDraggedToPoint: mouse];
+  id delegate = self.delegate;
+  if ([delegate respondsToSelector: @selector(mouseDraggedToPoint:)]) {
+    [delegate mouseDraggedToPoint: mouse];
 	}
 }
 
@@ -76,8 +77,9 @@
 
 - (void) mouseUp;
 {
-	if ([self.delegate respondsToSelector: @selector(mouseUp)]) {
-		[self.delegate mouseUp];
+  id delegate = self.delegate;
+	if ([delegate respondsToSelector: @selector(mouseUp)]) {
+		[delegate mouseUp];
 	}
 }
 

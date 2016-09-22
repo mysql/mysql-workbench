@@ -438,7 +438,7 @@ bool UtilitiesImpl::find_password(const std::string &service, const std::string 
   {
     if (kpwd)
       gnome_keyring_free_password(kpwd);
-      kpwd = 0;
+    kpwd = 0;
     throw std::runtime_error(gnome_keyring_result_to_message(res));
   }
 
