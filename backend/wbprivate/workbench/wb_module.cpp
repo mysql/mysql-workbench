@@ -2110,24 +2110,23 @@ int WorkbenchImpl::createInstancesFromLocalServers()
           if ((*iterator)->driver()->id() != "com.mysql.rdbms.mysql.driver.native")
             continue;
         }
-        else
-          if (can_use_socket_or_pipe)
-          {
-            parameter = parameters.get_string("socket");
-            if (parameter.size() == 0)
-              parameter = "MySQL"; // Default pipe/socket name.
+        else if (can_use_socket_or_pipe)
+        {
+          parameter = parameters.get_string("socket");
+          if (parameter.size() == 0)
+            parameter = "MySQL"; // Default pipe/socket name.
 
-            if (parameter != socket_or_pipe_name)
-              continue;
+          if (parameter != socket_or_pipe_name)
+            continue;
 
-            // Only native socket/pipe connections for now.
-            if ((*iterator)->driver()->id() != "com.mysql.rdbms.mysql.driver.native_socket")
-              continue;
-          }
+          // Only native socket/pipe connections for now.
+          if ((*iterator)->driver()->id() != "com.mysql.rdbms.mysql.driver.native_socket")
+            continue;
+        }
 
-          // All parameters are ok. This is a connection we can use.
-          connection = *iterator;
-          break;
+        // All parameters are ok. This is a connection we can use.
+        connection = *iterator;
+        break;
       }
 
       // If we did not find a connection for this instance then create a new one.
