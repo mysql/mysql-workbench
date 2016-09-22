@@ -22,6 +22,7 @@ add_library(wbbase
     jsonparser.cpp
     drawing_gtk.cpp
     boost_fix.cpp
+    utf8string.cpp
     )
 
 target_compile_options(wbbase PUBLIC ${WB_CXXFLAGS})

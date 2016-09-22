@@ -23,8 +23,6 @@
 #include "config.h"
 #endif
 
-#include <ctemplate/template.h>
-
 #include "grt.h"
 #include "grtpp_util.h"
 #include "grtdb/db_object_helpers.h"

@@ -11,7 +11,6 @@
 #endif
 
 #include <cstddef>
-#include <ctemplate/template.h>
 
 #include "grt/common.h"
 
@@ -26,15 +25,19 @@
 #include "../res/reporting_includes/basic_text_report.txt.tpl.varnames.h"
 
 using namespace grt;
-using ctemplate::TemplateDictionary;
-using ctemplate::Template;
+
+namespace mtemplate
+{
+  class DictionaryInterface;
+};
 
 class ActionGenerateReport : public DiffSQLGeneratorBEActionInterface
 {
   std::string fname;
-  TemplateDictionary dict;
-  TemplateDictionary *curr_table;
-  TemplateDictionary *curr_schema;
+  mtemplate::DictionaryInterface *dictionary;
+  mtemplate::DictionaryInterface *current_table_dictionary;
+  mtemplate::DictionaryInterface *current_schema_dictionary;
+  
   bool has_attributes, has_partitioning;//, schema_altered;
 
 public:
