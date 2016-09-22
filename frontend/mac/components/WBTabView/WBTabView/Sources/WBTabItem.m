@@ -61,16 +61,18 @@
   mLocation.x= self.frame.size.width - mouse.x;
   mLocation.y= self.frame.size.height - mouse.y;
   
-  if ([self.delegate respondsToSelector: @selector(tabViewDragged:atPoint:)])
-    [self.delegate tabViewDragged: self atPoint: mLocation];
+  id delegate = self.delegate;
+  if ([delegate respondsToSelector: @selector(tabViewDragged:atPoint:)])
+    [delegate tabViewDragged: self atPoint: mLocation];
 
   return self;
 }
 
 - (void) mouseDraggedToPoint: (CGPoint) mouse
 {  
-  if ([self.delegate respondsToSelector: @selector(tabViewDragged:atPoint:)])
-    [self.delegate tabViewDragged: self atPoint: mLocation];
+  id delegate = self.delegate;
+  if ([delegate respondsToSelector: @selector(tabViewDragged:atPoint:)])
+    [delegate tabViewDragged: self atPoint: mLocation];
   
   mDragged= YES;
 }
@@ -353,7 +355,7 @@
   else {
     mClickInCloseBox = NO;
     mMouseInCloseBox = NO;
-    [self.delegate selectTab: self];
+    [(id)[self delegate] selectTab: self];
   }
   
   return self;
@@ -378,7 +380,7 @@
 - (void) mouseUp;
 {
   if (mMouseInCloseBox) {
-    [self.delegate closeTab: self];
+    [(id)[self delegate] closeTab: self];
     [self setCloseButtonState: NSOffState];
   }
 }

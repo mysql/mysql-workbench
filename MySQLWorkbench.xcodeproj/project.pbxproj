@@ -144,8 +144,6 @@
 		27227B661C454CE10098910A /* ANTLRv3Parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 27227B621C454CE10098910A /* ANTLRv3Parser.c */; };
 		27227B671C454CE10098910A /* ANTLRv3Lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 27227B631C454CE10098910A /* ANTLRv3Lexer.h */; };
 		27227B681C454CE10098910A /* ANTLRv3Parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 27227B641C454CE10098910A /* ANTLRv3Parser.h */; };
-		27227B7E1C454D2E0098910A /* ecma-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27227B691C454D2E0098910A /* ecma-parser.cpp */; };
-		27227B7F1C454D2E0098910A /* ecma-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 27227B6A1C454D2E0098910A /* ecma-parser.h */; };
 		27227B801C454D2E0098910A /* mysql-parser-common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27227B6B1C454D2E0098910A /* mysql-parser-common.cpp */; };
 		27227B811C454D2E0098910A /* mysql-parser-common.h in Headers */ = {isa = PBXBuildFile; fileRef = 27227B6C1C454D2E0098910A /* mysql-parser-common.h */; };
 		27227B821C454D2E0098910A /* mysql-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27227B6D1C454D2E0098910A /* mysql-parser.cpp */; };
@@ -163,10 +161,6 @@
 		27227B8E1C454D2E0098910A /* MySQLSimpleParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 27227B7A1C454D2E0098910A /* MySQLSimpleParser.h */; };
 		27227B8F1C454D2E0098910A /* parsers-common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27227B7C1C454D2E0098910A /* parsers-common.cpp */; };
 		27227B901C454D2E0098910A /* parsers-common.h in Headers */ = {isa = PBXBuildFile; fileRef = 27227B7D1C454D2E0098910A /* parsers-common.h */; };
-		27227B951C4551270098910A /* ECMALexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 27227B911C4551270098910A /* ECMALexer.c */; };
-		27227B961C4551270098910A /* ECMALexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 27227B921C4551270098910A /* ECMALexer.h */; };
-		27227B971C4551270098910A /* ECMAParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 27227B931C4551270098910A /* ECMAParser.c */; };
-		27227B981C4551270098910A /* ECMAParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 27227B941C4551270098910A /* ECMAParser.h */; };
 		27257468191BBD6A00094162 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		27276AFF19406D050019FB0E /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		27327BA1172FAFC800DE65D7 /* python_copy_data_source.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */; };
@@ -4246,7 +4240,6 @@
 		2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scope_exit_trigger.h; path = library/base/base/scope_exit_trigger.h; sourceTree = "<group>"; };
 		271A795110A1D8F600058CB4 /* wbtests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = wbtests; sourceTree = BUILT_PRODUCTS_DIR; };
 		2720518D111847920013E88B /* message_wb_lock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = message_wb_lock.png; sourceTree = "<group>"; };
-		27227B561C454BFF0098910A /* ECMA.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ECMA.g; path = library/parsers/grammars/ECMA.g; sourceTree = "<group>"; };
 		27227B571C454BFF0098910A /* MySQL.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQL.g; path = library/parsers/grammars/MySQL.g; sourceTree = "<group>"; };
 		27227B581C454BFF0098910A /* MySQLSimpleParser.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQLSimpleParser.g; path = library/parsers/grammars/MySQLSimpleParser.g; sourceTree = "<group>"; };
 		27227B591C454C180098910A /* mysql_object_names_cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_object_names_cache.cpp; path = "library/parsers/code-completion/mysql_object_names_cache.cpp"; sourceTree = "<group>"; };
@@ -4257,8 +4250,6 @@
 		27227B621C454CE10098910A /* ANTLRv3Parser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ANTLRv3Parser.c; path = "library/parsers/grammar-parser/ANTLRv3Parser.c"; sourceTree = "<group>"; };
 		27227B631C454CE10098910A /* ANTLRv3Lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ANTLRv3Lexer.h; path = "library/parsers/grammar-parser/ANTLRv3Lexer.h"; sourceTree = "<group>"; };
 		27227B641C454CE10098910A /* ANTLRv3Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ANTLRv3Parser.h; path = "library/parsers/grammar-parser/ANTLRv3Parser.h"; sourceTree = "<group>"; };
-		27227B691C454D2E0098910A /* ecma-parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "ecma-parser.cpp"; path = "library/parsers/ecma-parser.cpp"; sourceTree = "<group>"; };
-		27227B6A1C454D2E0098910A /* ecma-parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "ecma-parser.h"; path = "library/parsers/ecma-parser.h"; sourceTree = "<group>"; };
 		27227B6B1C454D2E0098910A /* mysql-parser-common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "mysql-parser-common.cpp"; path = "library/parsers/mysql-parser-common.cpp"; sourceTree = "<group>"; };
 		27227B6C1C454D2E0098910A /* mysql-parser-common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-parser-common.h"; path = "library/parsers/mysql-parser-common.h"; sourceTree = "<group>"; };
 		27227B6D1C454D2E0098910A /* mysql-parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "mysql-parser.cpp"; path = "library/parsers/mysql-parser.cpp"; sourceTree = "<group>"; };
@@ -4276,10 +4267,6 @@
 		27227B7A1C454D2E0098910A /* MySQLSimpleParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLSimpleParser.h; path = library/parsers/MySQLSimpleParser.h; sourceTree = "<group>"; };
 		27227B7C1C454D2E0098910A /* parsers-common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "parsers-common.cpp"; path = "library/parsers/parsers-common.cpp"; sourceTree = "<group>"; };
 		27227B7D1C454D2E0098910A /* parsers-common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "parsers-common.h"; path = "library/parsers/parsers-common.h"; sourceTree = "<group>"; };
-		27227B911C4551270098910A /* ECMALexer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ECMALexer.c; path = library/parsers/ECMALexer.c; sourceTree = "<group>"; };
-		27227B921C4551270098910A /* ECMALexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECMALexer.h; path = library/parsers/ECMALexer.h; sourceTree = "<group>"; };
-		27227B931C4551270098910A /* ECMAParser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ECMAParser.c; path = library/parsers/ECMAParser.c; sourceTree = "<group>"; };
-		27227B941C4551270098910A /* ECMAParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECMAParser.h; path = library/parsers/ECMAParser.h; sourceTree = "<group>"; };
 		27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_copy_data_source.cpp; path = plugins/migration/copytable/python_copy_data_source.cpp; sourceTree = "<group>"; };
 		27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_copy_data_source.h; path = plugins/migration/copytable/python_copy_data_source.h; sourceTree = "<group>"; };
 		27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_manage.png; path = images/home/wb_tile_manage.png; sourceTree = "<group>"; };
@@ -7798,7 +7785,6 @@
 			isa = PBXGroup;
 			children = (
 				277D405D1C60F0FE00BE8DCB /* MySQL.tokens */,
-				27227B561C454BFF0098910A /* ECMA.g */,
 				27227B571C454BFF0098910A /* MySQL.g */,
 				27227B581C454BFF0098910A /* MySQLSimpleParser.g */,
 			);
@@ -7852,12 +7838,6 @@
 		27227B9A1C4551730098910A /* ECMA */ = {
 			isa = PBXGroup;
 			children = (
-				27227B691C454D2E0098910A /* ecma-parser.cpp */,
-				27227B6A1C454D2E0098910A /* ecma-parser.h */,
-				27227B911C4551270098910A /* ECMALexer.c */,
-				27227B921C4551270098910A /* ECMALexer.h */,
-				27227B931C4551270098910A /* ECMAParser.c */,
-				27227B941C4551270098910A /* ECMAParser.h */,
 			);
 			name = ECMA;
 			sourceTree = "<group>";
@@ -11713,7 +11693,6 @@
 				27467EF7154A97BC00021708 /* antlr3convertutf.h in Headers */,
 				27227B881C454D2E0098910A /* mysql-syntax-check.h in Headers */,
 				27467EF8154A97BC00021708 /* antlr3cyclicdfa.h in Headers */,
-				27227B961C4551270098910A /* ECMALexer.h in Headers */,
 				27467EF9154A97BC00021708 /* antlr3debugeventlistener.h in Headers */,
 				27467EFA154A97BC00021708 /* antlr3defs.h in Headers */,
 				27227B8C1C454D2E0098910A /* MySQLParser.h in Headers */,
@@ -11734,11 +11713,9 @@
 				27467F04154A97BC00021708 /* antlr3parser.h in Headers */,
 				27467F05154A97BC00021708 /* antlr3parsetree.h in Headers */,
 				27467F06154A97BC00021708 /* antlr3recognizersharedstate.h in Headers */,
-				27227B7F1C454D2E0098910A /* ecma-parser.h in Headers */,
 				27467F07154A97BC00021708 /* antlr3rewritestreams.h in Headers */,
 				27227B841C454D2E0098910A /* mysql-recognition-types.h in Headers */,
 				27467F08154A97BC00021708 /* antlr3string.h in Headers */,
-				27227B981C4551270098910A /* ECMAParser.h in Headers */,
 				27467F09154A97BC00021708 /* antlr3tokenstream.h in Headers */,
 				27467F0A154A97BC00021708 /* antlr3treeparser.h in Headers */,
 			);
@@ -14263,7 +14240,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${SRCROOT}/library/parsers/grammars\n\nif [ MySQL.g -nt ../MySQLParser.c  -o  MySQLSimpleParser.g -nt ../MySQLSimpleParser.c ]; then\n  ./build-parsers-mac mysql;\nfi\n\nif [ ECMA.g -nt ../ECMAParser.c ]; then\n  ./build-parsers-mac js;\nfi\n";
+			shellScript = "cd ${SRCROOT}/library/parsers/grammars\n\nif [ MySQL.g -nt ../MySQLParser.c  -o  MySQLSimpleParser.g -nt ../MySQLSimpleParser.c ]; then\n  ./build-parsers-mac mysql;\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		27BF79541CD35BED00FBB3F3 /* Create symlinks */ = {
@@ -14427,11 +14404,9 @@
 			files = (
 				27227B8D1C454D2E0098910A /* MySQLSimpleParser.c in Sources */,
 				27467F22154A97D200021708 /* antlr3baserecognizer.c in Sources */,
-				27227B971C4551270098910A /* ECMAParser.c in Sources */,
 				27227B661C454CE10098910A /* ANTLRv3Parser.c in Sources */,
 				27467F23154A97D200021708 /* antlr3basetree.c in Sources */,
 				27467F24154A97D200021708 /* antlr3basetreeadaptor.c in Sources */,
-				27227B7E1C454D2E0098910A /* ecma-parser.cpp in Sources */,
 				27467F25154A97D200021708 /* antlr3bitset.c in Sources */,
 				27467F26154A97D200021708 /* antlr3collections.c in Sources */,
 				27227B5E1C454C180098910A /* mysql-code-completion.cpp in Sources */,
@@ -14457,7 +14432,6 @@
 				27467F35154A97D200021708 /* antlr3rewritestreams.c in Sources */,
 				27227B801C454D2E0098910A /* mysql-parser-common.cpp in Sources */,
 				27467F36154A97D200021708 /* antlr3string.c in Sources */,
-				27227B951C4551270098910A /* ECMALexer.c in Sources */,
 				27227B871C454D2E0098910A /* mysql-syntax-check.cpp in Sources */,
 				27467F37154A97D200021708 /* antlr3tokenstream.c in Sources */,
 				27227B8F1C454D2E0098910A /* parsers-common.cpp in Sources */,

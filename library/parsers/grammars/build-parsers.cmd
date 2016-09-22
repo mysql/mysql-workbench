@@ -8,12 +8,6 @@ IF %1 == mysql (
 ) ELSE IF %1 == mysqls (
   echo Selected simple MySQL parser
   java -Xmx1024m -jar ..\..\..\..\mysql-win-res\bin\antlr-3.4-complete.jar  -make MySQLSimpleParser.g -o .. -Xmaxswitchcaselabels 30
-) ELSE IF %1 == js (
-  echo Selected JS parser
-  java -Xmx1024m -jar ..\..\..\..\mysql-win-res\bin\antlr-3.4-complete.jar  -make ECMA.g -o .. -Xmaxswitchcaselabels 30
-) ELSE IF %1 == python (
-  echo Selected Python parser
-  java -Xmx1024m -jar ..\..\..\..\mysql-win-res\bin\antlr-3.4-complete.jar  -make Python2.5.g -o .. -Xmaxswitchcaselabels 30
 ) ELSE (
   echo Unknown parser type %1
 )

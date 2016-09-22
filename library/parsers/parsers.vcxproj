@@ -189,9 +189,6 @@ cd ..
   <ItemGroup>
     <ClInclude Include="code-completion\mysql-code-completion.h" />
     <ClInclude Include="code-completion\mysql_object_names_cache.h" />
-    <ClInclude Include="ecma-parser.h" />
-    <ClInclude Include="ECMALexer.h" />
-    <ClInclude Include="ECMAParser.h" />
     <ClInclude Include="grammar-parser\ANTLRv3Lexer.h" />
     <ClInclude Include="grammar-parser\ANTLRv3Parser.h" />
     <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3.h" />
@@ -238,29 +235,6 @@ cd ..
   <ItemGroup>
     <ClCompile Include="code-completion\mysql-code-completion.cpp" />
     <ClCompile Include="code-completion\mysql_object_names_cache.cpp" />
-    <ClCompile Include="ecma-parser.cpp" />
-    <ClCompile Include="ECMALexer.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ForcedIncludeFiles>
-    </ClCompile>
-    <ClCompile Include="ECMAParser.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ForcedIncludeFiles>
-    </ClCompile>
     <ClCompile Include="grammar-parser\ANTLRv3Lexer.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
@@ -512,11 +486,6 @@ cd ..
   <ItemGroup>
     <None Include="grammars\MySQLSimpleParser.g">
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="grammars\ECMA.g">
-      <FileType>Document</FileType>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="grammars\predefined.tokens" />
