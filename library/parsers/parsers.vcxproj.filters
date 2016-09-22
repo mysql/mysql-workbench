@@ -20,12 +20,6 @@
     <Filter Include="MySQL\generated">
       <UniqueIdentifier>{954b35b8-de19-4857-abd2-75b3600ef4ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ECMA">
-      <UniqueIdentifier>{09d678a0-b2e0-4a80-9bc2-e11646af2d9e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ECMA\generated">
-      <UniqueIdentifier>{387fc3c5-67b0-4cb9-83c2-65946f43d67d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3baserecognizer.c">
@@ -130,15 +124,6 @@
     </ClCompile>
     <ClCompile Include="mysql-syntax-check.cpp">
       <Filter>MySQL</Filter>
-    </ClCompile>
-    <ClCompile Include="ecma-parser.cpp">
-      <Filter>ECMA</Filter>
-    </ClCompile>
-    <ClCompile Include="ECMALexer.c">
-      <Filter>ECMA\generated</Filter>
-    </ClCompile>
-    <ClCompile Include="ECMAParser.c">
-      <Filter>ECMA\generated</Filter>
     </ClCompile>
     <ClCompile Include="parsers-common.cpp" />
   </ItemGroup>
@@ -270,21 +255,7 @@
     <ClInclude Include="code-completion\mysql-code-completion.h">
       <Filter>Code Completion</Filter>
     </ClInclude>
-    <ClInclude Include="ecma-parser.h">
-      <Filter>ECMA</Filter>
-    </ClInclude>
-    <ClInclude Include="ECMALexer.h">
-      <Filter>ECMA\generated</Filter>
-    </ClInclude>
-    <ClInclude Include="ECMAParser.h">
-      <Filter>ECMA\generated</Filter>
-    </ClInclude>
     <ClInclude Include="parsers-common.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="grammars\ECMA.g">
-      <Filter>Grammars</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="grammars\predefined.tokens">
