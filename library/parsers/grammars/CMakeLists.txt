@@ -17,24 +17,6 @@ add_custom_target(generate_parser_mysql
                   COMMENT "[mysql] Checking if we should regenerate parser files..."
 )
 
-
-message("[ecma] Generating parser files...")
-execute_process(COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/build-parsers" ecma
-                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" RESULT_VARIABLE res_var 
-)
-
-if(NOT "${res_var}" STREQUAL "0")
-  message(FATAL_ERROR "[ecma] Generating parsers files failed with result='${res_var}'")
-endif()
-
-# Update the parser files when needed
-add_custom_target(generate_parser_ecma
-                  ALL
-                  "${CMAKE_CURRENT_SOURCE_DIR}/build-parsers" ecma
-                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                  COMMENT "[ecma] Checking if we should regenerate parser files..."
-)
-
 set(DATA_FILES 
     MySQL.g
     # JS.g
