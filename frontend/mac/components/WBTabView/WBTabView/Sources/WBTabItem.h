@@ -61,6 +61,10 @@ typedef NS_ENUM(NSInteger, WBTabSize) {
   CGPoint mLocation;
   BOOL mDragged;
 }
+
+- (void)mouseDraggedToPoint: (CGPoint)mouse;
+- (void)mouseUp;
+
 @end
 
 
@@ -123,7 +127,8 @@ typedef NS_ENUM(NSInteger, WBTabSize) {
   NSGradient *mGradient;
 }
 
-
+- (void)mouseDraggedToPoint: (CGPoint)mouse;
+- (void)mouseUp;
 
 - (void) updateAppearance;
 - (void) setState: (NSCellStateValue) value;
