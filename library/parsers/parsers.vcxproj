@@ -90,23 +90,14 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
-    <CustomBuild>
-      <LinkObjects>false</LinkObjects>
-      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\SQLSimpleParser.tokens;$(SolutionDir)\library\parsers\ECMAParser.h;$(SolutionDir)\library\parsers\ECMAParser.c;$(SolutionDir)\library\parsers\ECMALexer.h;$(SolutionDir)\library\parsers\ECMALexer.c;$(SolutionDir)\library\parsers\ECMA.tokens;%(Outputs)</Outputs>
       <Command>cd grammars
-call build-parsers.cmd js
 call build-parsers.cmd mysql
 call build-parsers.cmd mysqls
-cd ..
-</Command>
-    </CustomBuild>
+cd ..</Command>
+      <Message>
+      </Message>
+      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\MySQLSimpleParser.tokens;%(Outputs)</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -129,23 +120,14 @@ cd ..
       <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
-    <CustomBuild>
-      <LinkObjects>false</LinkObjects>
-      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\SQLSimpleParser.tokens;$(SolutionDir)\library\parsers\ECMAParser.h;$(SolutionDir)\library\parsers\ECMAParser.c;$(SolutionDir)\library\parsers\ECMALexer.h;$(SolutionDir)\library\parsers\ECMALexer.c;$(SolutionDir)\library\parsers\ECMA.tokens;%(Outputs)</Outputs>
       <Command>cd grammars
-call build-parsers.cmd js
 call build-parsers.cmd mysql
 call build-parsers.cmd mysqls
-cd ..
-</Command>
-    </CustomBuild>
+cd ..</Command>
+      <Message>
+      </Message>
+      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\MySQLSimpleParser.tokens;%(Outputs)</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
     <ClCompile>
@@ -168,23 +150,14 @@ cd ..
       <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
-    <CustomBuild>
-      <LinkObjects>false</LinkObjects>
-      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\SQLSimpleParser.tokens;$(SolutionDir)\library\parsers\ECMAParser.h;$(SolutionDir)\library\parsers\ECMAParser.c;$(SolutionDir)\library\parsers\ECMALexer.h;$(SolutionDir)\library\parsers\ECMALexer.c;$(SolutionDir)\library\parsers\ECMA.tokens;%(Outputs)</Outputs>
       <Command>cd grammars
-call build-parsers.cmd js
 call build-parsers.cmd mysql
 call build-parsers.cmd mysqls
-cd ..
-</Command>
-    </CustomBuild>
+cd ..</Command>
+      <Message>
+      </Message>
+      <Outputs>$(SolutionDir)\library\parsers\MySQLParser.h;$(SolutionDir)\library\parsers\MySQLParser.c;$(SolutionDir)\library\parsers\MySQLLexer.h;$(SolutionDir)\library\parsers\MySQLLexer.c;$(SolutionDir)\library\parsers\MySQL.tokens;$(SolutionDir)\library\parsers\MySQLSimpleParser.h;$(SolutionDir)\library\parsers\MySQLSimpleParser.c;$(SolutionDir)\library\parsers\MySQLSimpleParser.tokens;%(Outputs)</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="code-completion\mysql-code-completion.h" />
