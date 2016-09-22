@@ -23,7 +23,7 @@
 #include <base/utf8string.h>
 #include "../dictionary.h"
 #include "mtemplate/template.h"
-
+#include <fstream>
 
 using namespace base;
 
@@ -55,6 +55,27 @@ std::map<std::string, base::utf8string> language_details_map =
 };
 
 
+bool compare_file_contents(const std::string &filename1, const std::string &filename2)
+{
+  std::ifstream file1(filename1, std::ifstream::binary|std::ifstream::ate);
+  std::ifstream file2(filename2, std::ifstream::binary|std::ifstream::ate);
+
+  if (file1.fail() || file2.fail()) 
+    return false; //file problem
+
+  if (file1.tellg() != file2.tellg()) 
+    return false; //size mismatch
+
+  //seek back to beginning and use std::equal to compare contents
+  file1.seekg(0, std::ifstream::beg);
+  file2.seekg(0, std::ifstream::beg);
+  return std::equal(std::istreambuf_iterator<char>(file1.rdbuf()),
+                    std::istreambuf_iterator<char>(),
+                    std::istreambuf_iterator<char>(file2.rdbuf()));
+}
+
+
+
 // string escaper for CSV tokens, encloses fields with " if needed, depending on the separator
 struct CSVTokenQuoteModifier : public mtemplate::Modifier
 {
@@ -82,38 +103,176 @@ struct CSVTokenQuoteModifier : public mtemplate::Modifier
   }
 };
 
+
+struct SQLQuoteModifier : public mtemplate::Modifier
+{
+  virtual base::utf8string modify(const base::utf8string &input, const base::utf8string arg = "")
+  {
+    return base::utf8string("\"") + input + base::utf8string("\"");
+  }
+};
+
+
 TEST_FUNCTION(1)
 {
-  mtemplate::Template *pre_template = mtemplate::GetTemplate("data/mtemplate/CSV_semicolon.pre.tpl");
-  mtemplate::Template *data_template = mtemplate::GetTemplate("data/mtemplate/CSV_semicolon.tpl");
-  mtemplate::TemplateOutputFile output("test_output/test1.csv");
-  mtemplate::DictionaryInterface *pre_dictionary = mtemplate::CreateMainDictionary();
-  mtemplate::DictionaryInterface *data_dictionary = mtemplate::CreateMainDictionary();
-  
-  mtemplate::Modifier::addModifier<CSVTokenQuoteModifier>("csv_quote");
-
-//   pre_dictionary->setValue("COLUMN_separator", ",");
-  
-  pre_dictionary->addSectionDictionary("COLUMN")->setValue("COLUMN_NAME", "Language");
-  pre_dictionary->addSectionDictionary("COLUMN")->setValue("COLUMN_NAME", "Phrase");
-  
-  pre_template->expand(pre_dictionary, &output);
-  
-  
-  
-  for (auto item : language_details_map)
+  //    This test creates a CSV file from a template + the data above. Also tests the usage of a modifier
   {
-    mtemplate::DictionaryInterface *row_dictionary = data_dictionary->addSectionDictionary("ROW");
-    row_dictionary->setValue("ROW_separator", "\n");
-    mtemplate::DictionaryInterface *field_dictionary_col1 = row_dictionary->addSectionDictionary("FIELD");
-    field_dictionary_col1->setValue("FIELD_VALUE", item.first);
-    mtemplate::DictionaryInterface *field_dictionary_col2 = row_dictionary->addSectionDictionary("FIELD");
-    field_dictionary_col2->setValue("FIELD_VALUE", item.second);
+    //    setup modifiers
+    mtemplate::Modifier::addModifier<CSVTokenQuoteModifier>("csv_quote");
+    
+    //    create output streams
+    mtemplate::TemplateOutputFile output("test_output/test_result.csv");
+
+    {//   Header of the files
+      mtemplate::Template *template_csv = mtemplate::GetTemplate("data/mtemplate/CSV_semicolon.pre.tpl");
+      
+      mtemplate::DictionaryInterface *dictionary = mtemplate::CreateMainDictionary();
+      
+      dictionary->addSectionDictionary("COLUMN")->setValue("COLUMN_NAME", "Language");
+      dictionary->addSectionDictionary("COLUMN")->setValue("COLUMN_NAME", "Phrase");
+      
+      template_csv->expand(dictionary, &output);
+    }
+
+    {//   data
+      mtemplate::Template *template_data = mtemplate::GetTemplate("data/mtemplate/CSV_semicolon.tpl");
+      
+      for (auto item : language_details_map)
+      {
+        mtemplate::DictionaryInterface *data_dictionary = mtemplate::CreateMainDictionary();
+        mtemplate::DictionaryInterface *row_dictionary = data_dictionary->addSectionDictionary("ROW");
+        
+        mtemplate::DictionaryInterface *field_dictionary_col1 = row_dictionary->addSectionDictionary("FIELD");
+        field_dictionary_col1->setValue("FIELD_VALUE", item.first);
+        
+        mtemplate::DictionaryInterface *field_dictionary_col2 = row_dictionary->addSectionDictionary("FIELD");
+        field_dictionary_col2->setValue("FIELD_VALUE", item.second);
+        
+        template_data->expand(data_dictionary, &output);
+      }
+    }
   }
   
-  data_template->expand(data_dictionary, &output);
+  ensure_true("Comparing CSV file", compare_file_contents("data/mtemplate/test_result.csv", "test_output/test_result.csv"));
+}
+
+
+TEST_FUNCTION(2)
+{
+  {
+    mtemplate::SetGlobalValue("INDENT", "\t");
+    
+    //    create output streams
+    mtemplate::TemplateOutputFile output_json("test_output/test_result.json");
+
+    //   Header of the files (no data)
+    mtemplate::GetTemplate("data/mtemplate/JSON.pre.tpl")->expand(nullptr, &output_json);
+
+    {//   data
+      mtemplate::Template *data_template_json = mtemplate::GetTemplate("data/mtemplate/JSON.tpl");
+      
+      for (auto item : language_details_map)
+      {
+        mtemplate::DictionaryInterface *data_dictionary = mtemplate::CreateMainDictionary();
+        mtemplate::DictionaryInterface *row_dictionary = data_dictionary->addSectionDictionary("ROW");
+        
+        mtemplate::DictionaryInterface *field_dictionary_col1 = row_dictionary->addSectionDictionary("FIELD");
+        field_dictionary_col1->setValue("FIELD_NAME", "Language");
+        field_dictionary_col1->setValue("FIELD_VALUE", item.first);
+        
+        mtemplate::DictionaryInterface *field_dictionary_col2 = row_dictionary->addSectionDictionary("FIELD");
+        field_dictionary_col2->setValue("FIELD_NAME", "Phrase");
+        field_dictionary_col2->setValue("FIELD_VALUE", item.second);
+        
+        data_template_json->expand(data_dictionary, &output_json);
+      }
+    }
+    
+    //   Footer for the files (no data)
+    mtemplate::GetTemplate("data/mtemplate/JSON.post.tpl")->expand(nullptr, &output_json);
+  }
+  ensure_true("Comparing JSON file", compare_file_contents("data/mtemplate/test_result.json", "test_output/test_result.json"));
+}
+
+
+TEST_FUNCTION(3)
+{
+  {
+    mtemplate::SetGlobalValue("TABLE_NAME", "some_table");
+    
+    //    setup modifiers
+    mtemplate::Modifier::addModifier<SQLQuoteModifier>("sql_quote");
+    
+    //    create output streams
+    mtemplate::TemplateOutputFile output_json("test_output/test_result.sql");
+
+    {//   Header of the files
+      mtemplate::Template *header_json = mtemplate::GetTemplate("data/mtemplate/SQL_inserts.pre.tpl");
+      mtemplate::DictionaryInterface *dictionary = mtemplate::CreateMainDictionary();
+      header_json->expand(dictionary, &output_json);
+    }
+
+    {//   data
+      mtemplate::Template *data_template_json = mtemplate::GetTemplate("data/mtemplate/SQL_inserts.tpl");
+      
+      for (auto item : language_details_map)
+      {
+        mtemplate::DictionaryInterface *data_dictionary = mtemplate::CreateMainDictionary();
+        mtemplate::DictionaryInterface *row_dictionary = data_dictionary->addSectionDictionary("ROW");
+        
+        mtemplate::DictionaryInterface *field_dictionary_col1 = row_dictionary->addSectionDictionary("FIELD");
+        field_dictionary_col1->setValue("FIELD_NAME", "Language");
+        field_dictionary_col1->setValue("FIELD_VALUE", item.first);
+        
+        mtemplate::DictionaryInterface *field_dictionary_col2 = row_dictionary->addSectionDictionary("FIELD");
+        field_dictionary_col2->setValue("FIELD_NAME", "Phrase");
+        field_dictionary_col2->setValue("FIELD_VALUE", item.second);
+        
+        data_template_json->expand(data_dictionary, &output_json);
+      }
+    }
+  }
   
+  ensure_true("Comparing SQL file", compare_file_contents("data/mtemplate/test_result.sql", "test_output/test_result.sql"));
+}
+
+
+TEST_FUNCTION(4)
+{
+  {
+    //    create output streams
+    mtemplate::TemplateOutputFile output_json("test_output/test_result.html");
+
+    {//   Header of the files
+      mtemplate::Template *template_json = mtemplate::GetTemplate("data/mtemplate/HTML.pre.tpl");
+      mtemplate::DictionaryInterface *dictionary = mtemplate::CreateMainDictionary();
+      dictionary->setValueAndShowSection("COLUMN_NAME", "Language", "COLUMN");
+      dictionary->setValueAndShowSection("COLUMN_NAME", "Phrase", "COLUMN");
+      template_json->expand(dictionary, &output_json);
+    }
+
+    {//   data
+      mtemplate::Template *data_template_json = mtemplate::GetTemplate("data/mtemplate/HTML.tpl");
+      
+      for (auto item : language_details_map)
+      {
+        mtemplate::DictionaryInterface *data_dictionary = mtemplate::CreateMainDictionary();
+        mtemplate::DictionaryInterface *row_dictionary = data_dictionary->addSectionDictionary("ROW");
+        
+        row_dictionary->setValueAndShowSection("FIELD_VALUE", item.first, "FIELD");
+        row_dictionary->setValueAndShowSection("FIELD_VALUE", item.second, "FIELD");
+        
+        data_template_json->expand(data_dictionary, &output_json);
+      }
+    }
+    
+    //   Footer for the files(no data)
+    mtemplate::GetTemplate("data/mtemplate/HTML.post.tpl")->expand(nullptr, &output_json);
+  }
+  
+  ensure_true("Comparing HTML file", compare_file_contents("data/mtemplate/test_result.html", "test_output/test_result.html"));
 }
 
 
 END_TESTS
+

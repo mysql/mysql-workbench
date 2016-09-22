@@ -52,16 +52,16 @@ protected:
     
 public:
   
-  virtual ~NodeInterface()          {  }
+  virtual ~NodeInterface() {  }
   
-  TemplateObjectType type() const   { return _type;   }
-  const base::utf8string &text() const   { return _text;   }
-  std::size_t length() const        { return _length; }
+  TemplateObjectType type() const { return _type;   }
+  const base::utf8string &text() const { return _text;   }
+  std::size_t length() const { return _length; }
   
   virtual bool expand(TemplateOutput *output, DictionaryInterface *dict) = 0;
   virtual void dump(int indent) = 0;
-  void hide(bool hidden = true)     { _hidden = hidden; }
-  bool isHidden()                  { return _hidden; }
+  void hide(bool hidden = true) { _hidden = hidden; }
+  bool isHidden() { return _hidden; }
 };
 
 
@@ -80,8 +80,8 @@ protected:
     
 public:
   
-  NodeInterface *getAssociation()                       { return _associatedWith; }
-  void associateWith(NodeInterface *node)               { _associatedWith = node; }
+  NodeInterface *getAssociation() { return _associatedWith; }
+  void associateWith(NodeInterface *node) { _associatedWith = node; }
 };
 
 struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeText : public NodeTextInterface
@@ -93,7 +93,7 @@ struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeText : public NodeTextInterface
   virtual bool expand(TemplateOutput *output, DictionaryInterface *dict);
   virtual void dump(int indent);
   
-  bool isBlank()     { return _isBlank; }
+  bool isBlank() { return _isBlank; }
   
   static NodeText *parse(const base::utf8string &template_string, PARSE_TYPE type);
   
@@ -102,7 +102,7 @@ struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeText : public NodeTextInterface
 struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeNewLine : public NodeTextInterface
 {
   NodeNewLine()
-    : NodeTextInterface(TemplateObject_NewLine, "\n", 1)    {  }
+    : NodeTextInterface(TemplateObject_NewLine, "\n", 1) {  }
     
   virtual bool expand(TemplateOutput *output, DictionaryInterface *dict);
   virtual void dump(int indent);
@@ -133,7 +133,7 @@ struct MTEMPLATELIBRARY_PUBLIC_FUNC NodeSection : public NodeInterface
   NodeSection(const base::utf8string &text, std::size_t length, TemplateDocument &contents);
   
   void set_is_separator(bool value = true) { _is_separator = value; }
-  bool is_separator()                   { return _is_separator; }
+  bool is_separator()  { return _is_separator; }
   
   //  NodeInterface
   virtual bool expand(TemplateOutput *output, DictionaryInterface *dict);

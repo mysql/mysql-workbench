@@ -60,18 +60,18 @@ protected:
   dictionary_storage _dictionary;
   section_dictionary_storage _no_section;
 
-  DictionaryInterface *getParent()                                     { return NULL; }
+  DictionaryInterface *getParent() { return nullptr; }
   
 public:
   
-  DictionaryGlobal() : DictionaryInterface("global")                    {  }
-  ~DictionaryGlobal()                                                   {  }
+  DictionaryGlobal() : DictionaryInterface("global") {  }
+  ~DictionaryGlobal() {  }
   
   //  DictionaryInterface
-  virtual void setValue(const base::utf8string &key, const base::utf8string &value)                  { _dictionary[key] = value; }
-  virtual base::utf8string getValue(const base::utf8string &key)                                      { return _dictionary.find(key) == _dictionary.end() ? "" : _dictionary[key]; }
+  virtual void setValue(const base::utf8string &key, const base::utf8string &value) { _dictionary[key] = value; }
+  virtual base::utf8string getValue(const base::utf8string &key) { return _dictionary.find(key) == _dictionary.end() ? "" : _dictionary[key]; }
   
-  virtual DictionaryInterface *addSectionDictionary(const base::utf8string &name)              { return NULL; }
+  virtual DictionaryInterface *addSectionDictionary(const base::utf8string &name) { return NULL; }
   virtual section_dictionary_storage &getSectionDictionaries(const base::utf8string &sections) { return _no_section; }
 
   virtual void dump(int indent)
@@ -82,8 +82,8 @@ public:
     std::cout << indent_str << "[" << _name << "] = " << std::endl
               << indent_str << "{" << std::endl;
     
-    for (std::map<base::utf8string, base::utf8string>::iterator iter = _dictionary.begin(); iter != _dictionary.end(); ++iter)
-      std::cout << indent_plus_str << "[" << iter->first << "] = \"" << iter->second << "\"" << std::endl;
+    for (auto item : _dictionary)
+      std::cout << indent_plus_str << "[" << item.first << "] = \"" << item.second << "\"" << std::endl;
     
     std::cout << indent_str << "}" << std::endl;
   }
@@ -143,12 +143,12 @@ void Dictionary::dump(int indent)
   std::cout << indent_str << "[" << _name << "] = " << std::endl
             << indent_str << "{" << std::endl;
   
-  for (std::map<base::utf8string, base::utf8string>::iterator iter = _dictionary.begin(); iter != _dictionary.end(); ++iter)
-    std::cout << indent_plus_str << "[" << iter->first << "] = \"" << iter->second << "\"" << std::endl;
+  for (auto item : _dictionary)
+    std::cout << indent_plus_str << "[" << item.first << "] = \"" << item.second << "\"" << std::endl;
   
-  for (std::map<base::utf8string, std::vector<DictionaryInterface *> >::iterator iter = _section_dictionaries.begin(); iter != _section_dictionaries.end(); ++iter)
-    for (std::vector<DictionaryInterface *>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
-      (*iter2)->dump(indent + 1);
+  for (auto dict_item : _section_dictionaries)
+    for (auto sect_item : dict_item.second)
+      sect_item->dump(indent + 1);
 
   std::cout << indent_str << "}" << std::endl;
 }

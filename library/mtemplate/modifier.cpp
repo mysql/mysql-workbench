@@ -42,7 +42,7 @@ Modifier *GetModifier(const base::utf8string &name)
       return StockModifierMap[name];
   }
   
-  return NULL;
+  return nullptr;
 }
 
 Modifier::~Modifier()

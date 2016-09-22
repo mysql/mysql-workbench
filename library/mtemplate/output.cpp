@@ -54,7 +54,7 @@ TemplateOutputFile::TemplateOutputFile(const base::utf8string &filename)
 
 void TemplateOutputFile::out(const base::utf8string &str)
 { 
-   fwrite(str.data(), 1, str.size(), _file.file());
+   fwrite(str.data(), 1, str.bytes(), _file.file());
 }
 
 
