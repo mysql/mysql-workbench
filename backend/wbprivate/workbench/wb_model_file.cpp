@@ -93,7 +93,7 @@ void ModelFile::copy_file(const std::string &srcfile, const std::string &destfil
   if (!sf)
     throw grt::os_error("Could not open file "+srcfile, errno);
 
-  FILE *tf= base_fopen(destfile.c_str(), "wb+");
+  FILE *tf= base_fopen(destfile.c_str(), "w+");
   if (!tf)
   {
     fclose(sf);
@@ -592,7 +592,7 @@ std::list<std::string> ModelFile::unpack_zip(const std::string &zipfile, const s
     outpath.append("/");
     outpath.append(basename);
 
-    FILE *outfile= base_fopen(outpath.c_str(), "wb+");
+	    FILE *outfile= base_fopen(outpath.c_str(), "w+");
     if (!outfile)
     {
       zip_fclose(file);

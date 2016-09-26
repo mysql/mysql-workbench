@@ -46,7 +46,8 @@ FILE* base_fopen(const char *filename, const char *mode)
   std::wstring wmode;
   while (*mode != '\0')
     wmode += *mode++;
-  wmode += L"b"; // Always open in binary mode.
+  if(wmode.find_first_of(L"b") == std::wstring::npos)
+	  wmode += L"b"; // Always open in binary mode.
   return _wfsopen(string_to_wstring(filename).c_str(), wmode.c_str(), _SH_DENYWR);
 
 #else
