@@ -29,7 +29,7 @@ using namespace MySQL::Forms;
 
 //----------------- MformsWebBrowser ---------------------------------------------------------------
 
-ref class MformsWebBrowser : public Windows::Forms::WebBrowser
+ref class MformsWebBrowser : public System::Windows::Forms::WebBrowser
 {
 public:
   mforms::WebBrowser *backend;
@@ -95,7 +95,7 @@ bool WebBrowserWrapper::create(mforms::WebBrowser *backend)
 
 void WebBrowserWrapper::set_html(mforms::WebBrowser *backend, const std::string& code)
 {
-  Windows::Forms::WebBrowser ^browser = WebBrowserWrapper::GetManagedObject<Windows::Forms::WebBrowser>(backend);
+  System::Windows::Forms::WebBrowser ^browser = WebBrowserWrapper::GetManagedObject<System::Windows::Forms::WebBrowser>(backend);
   browser->DocumentText = CppStringToNative(code);
 }
 
@@ -103,7 +103,7 @@ void WebBrowserWrapper::set_html(mforms::WebBrowser *backend, const std::string&
 
 void WebBrowserWrapper::navigate(mforms::WebBrowser *backend, const std::string& url)
 {
-  Windows::Forms::WebBrowser ^browser = WebBrowserWrapper::GetManagedObject<Windows::Forms::WebBrowser>(backend);
+  System::Windows::Forms::WebBrowser ^browser = WebBrowserWrapper::GetManagedObject<System::Windows::Forms::WebBrowser>(backend);
   browser->Navigate(CppStringToNative(url));
 }
 
@@ -111,7 +111,7 @@ void WebBrowserWrapper::navigate(mforms::WebBrowser *backend, const std::string&
 
 std::string WebBrowserWrapper::get_document_title(mforms::WebBrowser *backend)
 {
-  Windows::Forms::WebBrowser ^browser = WebBrowserWrapper::GetManagedObject<Windows::Forms::WebBrowser>(backend);
+  System::Windows::Forms::WebBrowser ^browser = WebBrowserWrapper::GetManagedObject<System::Windows::Forms::WebBrowser>(backend);
   return NativeToCppString(browser->DocumentTitle);
 }
 

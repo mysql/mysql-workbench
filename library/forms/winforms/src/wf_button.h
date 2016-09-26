@@ -28,7 +28,7 @@ namespace MySQL {
     public class ButtonWrapper : public ViewWrapper
     {
     private:
-      gcroot<Windows::Forms::Button ^> button;
+      gcroot<System::Windows::Forms::Button ^> button;
       bool internal_padding;
       void enable_internal_padding(bool flag);
     protected:

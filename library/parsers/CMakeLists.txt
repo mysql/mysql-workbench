@@ -10,14 +10,11 @@ include_directories(.
 
 add_subdirectory(grammars)
 
-add_library(parsers
+set(PARSERS_SOURCES
     mysql/*.cpp
-    ecma/*.cpp
     parsers-common.cpp
     code-completion/mysql-code-completion.cpp
     code-completion/mysql_object_names_cache.cpp
-    grammar-parser/ANTLRv3Lexer.c
-    grammar-parser/ANTLRv3Parser.c
 )
 
 add_library(parsers
@@ -38,12 +35,9 @@ endforeach(ITEM in ${PARSERS_SOURCES})
 add_dependencies(parsers
     antlr-wb
     generate_parser_mysql
-    generate_parser_ecma
 )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-set_source_files_properties(ECMALexer.c 
-    PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
 set_source_files_properties(MySQLLexer.c 
     PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
 set_source_files_properties(grammar-parser/ANTLRv3Lexer.c

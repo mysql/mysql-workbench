@@ -86,7 +86,7 @@ void apply_bounds(CellList% list)
     // The WebBrowser class doesn't like being resized via DeferWindowPos, so we do it the straight way.
     // Also, if DeferWindowPos (or BeginDeferWindowPos for that matter) returned an empty handle
     // then we need to do the resizing that way for all controls.
-    if (hdwp == 0  || is<Windows::Forms::WebBrowser>(entry->control))
+    if (hdwp == 0  || is<System::Windows::Forms::WebBrowser>(entry->control))
       entry->control->Bounds = newBounds;
     else
     {
@@ -617,9 +617,9 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
+  virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine
   {
-    Windows::Forms::Layout::LayoutEngine^ get() override
+    System::Windows::Forms::Layout::LayoutEngine^ get() override
     {
       if (layoutEngine == nullptr)
         layoutEngine = gcnew GtkTableLayout();

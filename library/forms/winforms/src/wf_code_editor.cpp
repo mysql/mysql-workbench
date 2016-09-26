@@ -197,9 +197,9 @@ void ScintillaControl::SelectAll()
 
 //--------------------------------------------------------------------------------------------------
 
-Windows::Forms::CreateParams^ ScintillaControl::CreateParams::get()
+System::Windows::Forms::CreateParams^ ScintillaControl::CreateParams::get()
 {
-  Windows::Forms::CreateParams^ params = Control::CreateParams::get();
+  System::Windows::Forms::CreateParams^ params = Control::CreateParams::get();
   params->ClassName = "Scintilla";
 
   return params;
@@ -229,14 +229,14 @@ mforms::KeyCode ScintillaControl::GetKeyCode(int code)
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::ModifierKey ScintillaControl::GetModifiers(Windows::Forms::Keys keyData)
+mforms::ModifierKey ScintillaControl::GetModifiers(System::Windows::Forms::Keys keyData)
 {
   return ViewWrapper::GetModifiers(keyData);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ScintillaControl::ProcessCmdKey(Windows::Forms::Message% msg, Windows::Forms::Keys keyData)
+bool ScintillaControl::ProcessCmdKey(System::Windows::Forms::Message% msg, System::Windows::Forms::Keys keyData)
 {
   if (msg.Msg == WM_KEYDOWN)
   {
@@ -250,7 +250,7 @@ bool ScintillaControl::ProcessCmdKey(Windows::Forms::Message% msg, Windows::Form
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::WndProc(Windows::Forms::Message %m)
+void ScintillaControl::WndProc(System::Windows::Forms::Message %m)
 {
   switch (m.Msg)
   {
@@ -335,12 +335,12 @@ void ScintillaControl::ShowFindPanel(bool doReplace)
 
 void ScintillaControl::OnMouseDown(MouseEventArgs^ e)
 {
-  if (e->Button == Windows::Forms::MouseButtons::Right)
+  if (e->Button == System::Windows::Forms::MouseButtons::Right)
   {
     // Update the associated context menu.
     if (backend->get_context_menu() != NULL)
     {
-      Windows::Forms::ContextMenuStrip ^menu = CodeEditorWrapper::GetManagedObject<Windows::Forms::ContextMenuStrip>(backend->get_context_menu());
+      System::Windows::Forms::ContextMenuStrip ^menu = CodeEditorWrapper::GetManagedObject<System::Windows::Forms::ContextMenuStrip>(backend->get_context_menu());
       if (menu != ContextMenuStrip)
       {
         ContextMenuStrip = menu;

@@ -18,10 +18,10 @@
   <?define COMPONENT_REG_GUID  = "4AB9F1DE-7679-4728-9BC4-5FE2176E8483"?>
 <?endif?>
 
-    <Product Id="*" Language="1033" Manufacturer="Oracle Corporation" Name="$(var.PRODUCT_NAME)" 
+    <Product Id="*" Language="1033" Manufacturer="Oracle Corporation" Name="$(var.PRODUCT_NAME)"
       UpgradeCode="$(var.UPGRADE_CODE)" Version="$(var.VERSION_DETAIL)">
 
-        <Package Compressed="yes" Description="MySQL Workbench" InstallerVersion="200" Keywords="Installer,MSI,Database" 
+        <Package Compressed="yes" Description="MySQL Workbench" InstallerVersion="200" Keywords="Installer,MSI,Database"
           Languages="1033" Manufacturer="Oracle Corporation" Platform="$(sys.BUILDARCH)" />
 
         <MajorUpgrade
@@ -50,25 +50,25 @@
         <Binary Id="NewBinary8" SourceFile="resources/binary/binary8" />
         <Binary Id="NewBinary12" SourceFile="resources/binary/binary12" />
 
-		<PropertyRef Id="NETFRAMEWORK45" />
-		<Property Id="CPP_120_RUNTIMES" Secure="yes">
-			<DirectorySearch Id="CPP_120_RUNTIMES" Path="[WindowsFolder]" Depth="2">
-                <FileSearch Name="msvcr120.dll" MinVersion="12.0.0.0" />
+		<PropertyRef Id="WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED" />
+		<Property Id="CPP_140_RUNTIMES" Secure="yes">
+			<DirectorySearch Id="CPP_140_RUNTIMES" Path="[WindowsFolder]" Depth="2">
+                <FileSearch Name="msvcr140.dll" MinVersion="14.0.0.0" />
 			</DirectorySearch>
 		</Property>
 
 		<Property Id="OLDINSTALLDIR">
 		  <RegistrySearch Id="OldMySQLWBLocation" Type="raw"
 			Root="HKLM" Key="Software\MySQL AB\$(var.OLD_PRODUCT_NAME)" Name="Location" />
-		</Property>		
-		
+		</Property>
+
         <Condition Message="The operating system is not adequate for running [ProductName]. You need Windows 7 or newer and .Net 4.0 Client Profile installed.">
           VersionNT &gt;= 601</Condition>
         <Condition Message="The processor is not adequate for running [ProductName].">Intel &gt;= 5</Condition>
         <Condition Message="The amount of RAM is not adequate for running [ProductName].">PhysicalMemory &gt;= 64</Condition>
         <Condition Message="You need Administrator privileges to be able to install [ProductName].">Privileged</Condition>
-        <Condition Message="MySQL Workbench requires the Visual C++ 2013 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR CPP_120_RUNTIMES]]></Condition>
-        <Condition Message="MySQL Workbench requires the .Net Framework 4.5 to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR NETFRAMEWORK45]]></Condition>
+        <Condition Message="MySQL Workbench requires the Visual C++ 2015 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR CPP_140_RUNTIMES]]></Condition>
+        <Condition Message="MySQL Workbench requires the .Net Framework 4.5.2 to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED]]></Condition>
 
         <CustomAction Id="NewerVersionInstalled" Error="A newer version of this product is already installed." />
 
@@ -86,7 +86,7 @@
               Property="LEFTOVERDIR3"
               Value="[INSTALLDIR]workbench\graphics" />
       <Binary Id="MySQLCA" SourceFile="..\..\..\mysql-win-res\bin\MySQLCA.CA.dll" />
-      
+
       <CustomAction Id="PrecompilePythonFiles" BinaryKey="MySQLCA" DllEntry="PrecompilePythonFiles" Execute="deferred" Impersonate="no" Return="asyncWait" />
       <CustomAction Id="PrecompilePythonFiles.SetProperty" Return="check" Property="PrecompilePythonFiles" Value="[INSTALLDIR]"/>
 
@@ -98,30 +98,30 @@
 
       <CustomAction Id="DeletePycFiles" BinaryKey="MySQLCA" DllEntry="DeleteFilesWildcard" Execute="deferred" Impersonate="no" Return="ignore"/>
       <CustomAction Id="DeletePycFiles.SetProperty" Return="check" Property="DeletePycFiles" Value="[INSTALLDIR],*.pyc"/>
-	  
+
       <CustomAction Id="DeletePythonFolderOldInstall" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
       <CustomAction Id="DeletePythonFolderOldInstall.SetProperty" Return="check" Property="DeletePythonFolderOldInstall" Value="[OLDINSTALLDIR]python"/>
-  
+
       <CustomAction Id="DeleteUtilitiesFolderOldInstall" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
       <CustomAction Id="DeleteUtilitiesFolderOldInstall.SetProperty" Return="check" Property="DeleteUtilitiesFolderOldInstall" Value="[OLDINSTALLDIR]utilities"/>
 
       <DirectoryRef Id="INSTALLDIR">
           <Component Id="RegKeys" Guid="$(var.COMPONENT_REG_GUID)" DiskId="1">
             <RegistryKey Id="MysqlKey" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes"/>
-                      
-            <RegistryValue Id="Version" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
-                      Name="Version" Type="string" 
+
+            <RegistryValue Id="Version" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]"
+                      Name="Version" Type="string"
                       Value="[ProductVersion]"/>
-                      
-            <RegistryValue Id="Location" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
-                      Name="Location" Type="string" 
+
+            <RegistryValue Id="Location" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]"
+                      Name="Location" Type="string"
                       Value="[INSTALLDIR]"/>
             <?if $(var.SETUP_TYPE) = "commercial" ?>
               <RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
             <?endif?>
 			<RemoveFile Id="pyc_cleanup41" Name="*.pyc" On="both" Directory="python_site_packages_ecdsa" />
-            <RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />			
-            <RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />			
+            <RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />
+            <RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />
             <RemoveFile Id="pyc_cleanup27" Name="pyodbc*.pyd" On="both" Directory="python_site_packages" />
             <RemoveFile Id="pyc_cleanup28" Name="*.pyc" On="both" Directory="python_site_packages_crypto_signature" />
             <RemoveFile Id="pyc_cleanup29" Name="*.pyc" On="both" Directory="python_lib_ctypes" />
@@ -266,14 +266,14 @@
 
           <Custom Action="DeletePycFiles.SetProperty" Before="DeletePycFiles">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
           <Custom Action="DeletePycFiles" Before="InstallFinalize">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
-		  
+
           <Custom Action="DeletePythonFolderOldInstall.SetProperty" Before="DeletePythonFolderOldInstall">NOT(REMOVE="ALL")</Custom>
           <Custom Action="DeletePythonFolderOldInstall" Before="InstallFinalize">NOT(REMOVE="ALL")</Custom>
-		  
+
           <Custom Action="DeleteUtilitiesFolderOldInstall.SetProperty" Before="DeleteUtilitiesFolderOldInstall">NOT(REMOVE="ALL")</Custom>
           <Custom Action="DeleteUtilitiesFolderOldInstall" Before="InstallFinalize">NOT(REMOVE="ALL")</Custom>
-		  
-		  
+
+
         </InstallExecuteSequence>
 
         <InstallUISequence>

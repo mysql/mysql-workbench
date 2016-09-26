@@ -52,8 +52,8 @@ namespace MySQL {
     public ref class LayoutBox : public System::Windows::Forms::Panel
     {
     private:
-      System::Collections::Generic::Dictionary<Windows::Forms::Control^, bool> expandInfo;
-      System::Collections::Generic::Dictionary<Windows::Forms::Control^, bool> fillInfo;
+      System::Collections::Generic::Dictionary<System::Windows::Forms::Control^, bool> expandInfo;
+      System::Collections::Generic::Dictionary<System::Windows::Forms::Control^, bool> fillInfo;
 
       GtkBoxLayout^ layoutEngine;
       bool horizontal;
@@ -65,19 +65,19 @@ namespace MySQL {
     public:
       LayoutBox();
 
-      bool GetControlExpands(Windows::Forms::Control ^ctl)
+      bool GetControlExpands(System::Windows::Forms::Control ^ctl)
       {
         return expandInfo[ctl];
       }
 
-      bool GetControlFills(Windows::Forms::Control ^ctl)
+      bool GetControlFills(System::Windows::Forms::Control ^ctl)
       {
         return fillInfo[ctl];
       }
 
       virtual Drawing::Size GetPreferredSize(Drawing::Size proposedSize) override;
 
-      void Add(Windows::Forms::Control ^ctl, bool expands, bool fills)
+      void Add(System::Windows::Forms::Control ^ctl, bool expands, bool fills)
       {
         ViewWrapper::set_layout_dirty(this, true);
         expandInfo[ctl]= expands;
@@ -85,16 +85,16 @@ namespace MySQL {
         Controls->Add(ctl);
       }
 
-      void Remove(Windows::Forms::Control ^ctl)
+      void Remove(System::Windows::Forms::Control ^ctl)
       {
         Controls->Remove(ctl);
         expandInfo.Remove(ctl);
         fillInfo.Remove(ctl);
       }
 
-      virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
+      virtual property System::Windows::Forms::Layout::LayoutEngine^ LayoutEngine
       {
-        Windows::Forms::Layout::LayoutEngine^ get() override
+        System::Windows::Forms::Layout::LayoutEngine^ get() override
         {
           if (layoutEngine == nullptr)
           {

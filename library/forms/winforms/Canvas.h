@@ -55,7 +55,7 @@ private:
   // needed for fixed pointer
   GCHandle m_gch;
 
-  Windows::Forms::Form^ owner_form;
+  System::Windows::Forms::Form^ owner_form;
 
   // void (int,int,int,int)
   [UnmanagedFunctionPointerAttribute(CallingConvention::Cdecl)]
@@ -99,8 +99,8 @@ public:
   bool OnKeyDown(KeyEventArgs^ e, Keys keystate);
   void OnKeyUp(KeyEventArgs^ e, Keys keystate);
   void OnSizeChanged(int w, int h);
-  void SetOwnerForm(Windows::Forms::Form^ ownerForm);
-  Windows::Forms::Form^ GetOwnerForm();
+  void SetOwnerForm(System::Windows::Forms::Form^ ownerForm);
+  System::Windows::Forms::Form^ GetOwnerForm();
 
   void get_viewport_range([Out] double %x, [Out] double %y, [Out] double %w, [Out] double %h);
   void get_viewport([Out] double %x, [Out] double %y, [Out] double %w, [Out] double %h);

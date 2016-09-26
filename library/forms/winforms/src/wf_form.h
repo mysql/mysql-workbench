@@ -22,11 +22,11 @@
 namespace MySQL {
   namespace Forms {
 
-    private ref class FormFillLayout : public Windows::Forms::Layout::LayoutEngine
+    private ref class FormFillLayout : public System::Windows::Forms::Layout::LayoutEngine
     {
     public:
-      virtual bool Layout(Object^ container, Windows::Forms::LayoutEventArgs^ arguments) override;
-      System::Drawing::Size GetPreferredSize(Windows::Forms::Control^ container, System::Drawing::Size proposedSize);
+      virtual bool Layout(Object^ container, System::Windows::Forms::LayoutEventArgs^ arguments) override;
+      System::Drawing::Size GetPreferredSize(System::Windows::Forms::Control^ container, System::Drawing::Size proposedSize);
     };
 
     public class FormWrapper : public ViewWrapper
@@ -34,7 +34,7 @@ namespace MySQL {
     private:
       bool hideOnClose;
     protected:
-      gcroot<Windows::Forms::Form ^> _owner;
+      gcroot<System::Windows::Forms::Form ^> _owner;
 
       FormWrapper(mforms::Form *form, mforms::Form *owner, mforms::FormFlag flag);
 

@@ -76,7 +76,7 @@ public:
     // If the splitter is within any of the min size areas of the two panels set it to the center
     // between both. If that still fails it can only mean the container is smaller than the sum of
     // the min sizes. In that case don't assign a splitter position at all.
-    int size = Orientation == Windows::Forms::Orientation::Horizontal ? Height : Width;
+    int size = Orientation == System::Windows::Forms::Orientation::Horizontal ? Height : Width;
     if (distance < Panel1MinSize)
       distance = Panel1MinSize;
     if (distance > size - Panel2MinSize)
@@ -100,13 +100,13 @@ public:
   {
     // Similar as for the splitter distance the split container will throw an exception if the
     // min sizes don't match the size.
-    int size = (Orientation == Windows::Forms::Orientation::Horizontal) ? Height : Width;
+    int size = (Orientation == System::Windows::Forms::Orientation::Horizontal) ? Height : Width;
     if (first)
     {
       if (size - Panel2MinSize - SplitterWidth <= min_size)
       {
         int new_size = Panel2MinSize + SplitterWidth + min_size;
-        if (Orientation == Windows::Forms::Orientation::Horizontal) 
+        if (Orientation == System::Windows::Forms::Orientation::Horizontal) 
           Height = new_size;
         else
           Width = new_size;
@@ -125,7 +125,7 @@ public:
       if (size - Panel1MinSize - SplitterWidth <= min_size)
       {
         int new_size = Panel1MinSize + SplitterWidth + min_size;
-        if (Orientation == Windows::Forms::Orientation::Horizontal) 
+        if (Orientation == System::Windows::Forms::Orientation::Horizontal) 
           Height = new_size;
         else
           Width = new_size;

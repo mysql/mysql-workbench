@@ -53,7 +53,7 @@ static mforms::MouseButton convert_mouse_button(MouseButtons button)
 
 //----------------- PopupControl ------------------------------------------------------------------
 
-ref class MySQL::Forms::PopupControl : Windows::Forms::Form
+ref class MySQL::Forms::PopupControl : System::Windows::Forms::Form
 {
 protected:
   int modalResult;
@@ -63,9 +63,9 @@ public:
 
   PopupControl()
   {
-    AutoScaleMode = Windows::Forms::AutoScaleMode::Font;
-    AutoValidate = Windows::Forms::AutoValidate::Disable;
-    FormBorderStyle = Windows::Forms::FormBorderStyle::None;
+    AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+    AutoValidate = System::Windows::Forms::AutoValidate::Disable;
+    FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
     Name = "PopupControl";
     ShowIcon = false;
     ShowInTaskbar = false;
@@ -298,11 +298,11 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::CreateParams^ CreateParams
+  virtual property System::Windows::Forms::CreateParams^ CreateParams
   {
-    Windows::Forms::CreateParams^ get() override
+    System::Windows::Forms::CreateParams^ get() override
     {
-      Windows::Forms::CreateParams^ cp = PopupControl::CreateParams;
+      System::Windows::Forms::CreateParams^ cp = PopupControl::CreateParams;
       cp->ExStyle |= WS_EX_LAYERED | WS_EX_NOACTIVATE;
       return cp;
     }
@@ -333,7 +333,7 @@ public:
     BackColor = Color::Black;
     ForeColor = Color::White;
     Name = "BezelPopupControl";
-    Padding = Windows::Forms::Padding(26, 14, 26, 14);
+    Padding = System::Windows::Forms::Padding(26, 14, 26, 14);
     borderSize = 3;
     shadowSize = 20;
     shadowColor = Color::Black;
@@ -613,11 +613,11 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::CreateParams^ CreateParams
+  virtual property System::Windows::Forms::CreateParams^ CreateParams
   {
-    Windows::Forms::CreateParams^ get() override
+    System::Windows::Forms::CreateParams^ get() override
     {
-      Windows::Forms::CreateParams^ cp = __super::CreateParams;
+      System::Windows::Forms::CreateParams^ cp = __super::CreateParams;
 
       cp->ExStyle |= (int) MySQL::Utilities::SysUtils::WS::EX_LAYERED;
       cp->ExStyle |= (int) MySQL::Utilities::SysUtils::WS::EX_NOACTIVATE;

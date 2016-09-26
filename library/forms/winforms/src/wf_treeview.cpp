@@ -742,7 +742,7 @@ public:
           ToolStrip ^menu = MenuBarWrapper::GetManagedObject<ToolStrip>(context_menu);
           if (menu != ContextMenuStrip)
           {
-            ContextMenuStrip = (Windows::Forms::ContextMenuStrip^)menu;
+            ContextMenuStrip = (System::Windows::Forms::ContextMenuStrip^)menu;
             if (Conversions::UseWin8Drawing())
               ContextMenuStrip->Renderer = gcnew Win8MenuStripRenderer();
             else
@@ -800,7 +800,7 @@ public:
             text += node->FullCaption;
           }
 
-          Windows::Forms::DataObject ^dataObject = gcnew Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
+          System::Windows::Forms::DataObject ^dataObject = gcnew System::Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
           WBIDataObjectExtensions::SetDataEx(dataObject, DataFormats::UnicodeText, text);
 
           // Store the backend pointer in the data object, so we can distinguish between internal and

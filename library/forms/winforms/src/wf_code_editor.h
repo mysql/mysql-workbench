@@ -22,7 +22,7 @@
 namespace MySQL {
   namespace Forms {
 
-    public ref class ScintillaControl : public Windows::Forms::Control
+    public ref class ScintillaControl : public System::Windows::Forms::Control
     {
     private:
       sptr_t direct_pointer;
@@ -33,13 +33,13 @@ namespace MySQL {
 
     protected:
 
-      virtual void WndProc(Windows::Forms::Message %m) override;
-      virtual void OnMouseDown(Windows::Forms::MouseEventArgs ^args) override;
-      virtual bool ProcessCmdKey(Windows::Forms::Message% msg, Windows::Forms::Keys keyData) override;
+      virtual void WndProc(System::Windows::Forms::Message %m) override;
+      virtual void OnMouseDown(System::Windows::Forms::MouseEventArgs ^args) override;
+      virtual bool ProcessCmdKey(System::Windows::Forms::Message% msg, System::Windows::Forms::Keys keyData) override;
 
-      virtual property Windows::Forms::CreateParams^ CreateParams
+      virtual property System::Windows::Forms::CreateParams^ CreateParams
       {
-        Windows::Forms::CreateParams^ get() override;
+        System::Windows::Forms::CreateParams^ get() override;
       }
 
     public:
@@ -50,7 +50,7 @@ namespace MySQL {
       void SetDropTarget(mforms::DropDelegate *target);
 
       mforms::KeyCode GetKeyCode(int code);
-      mforms::ModifierKey GetModifiers(Windows::Forms::Keys keyData);
+      mforms::ModifierKey GetModifiers(System::Windows::Forms::Keys keyData);
 
       // For interaction with the UI we need some public methods/properties and forward these events
       // to the backend.

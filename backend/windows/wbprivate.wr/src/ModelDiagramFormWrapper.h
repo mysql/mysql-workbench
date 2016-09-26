@@ -36,22 +36,22 @@ namespace MySQL {
 
       wb::ModelDiagramForm* get_unmanaged_object();
 
-      void OnMouseMove(Windows::Forms::MouseEventArgs ^e, int X, int Y, Windows::Forms::Keys keystate,
-        Windows::Forms::MouseButtons buttons);
-      void OnMouseDown(Windows::Forms::MouseEventArgs ^e, int X, int Y, Windows::Forms::Keys keystate,
-        Windows::Forms::MouseButtons buttons);
-      void OnMouseUp(Windows::Forms::MouseEventArgs ^e, int X, int Y, Windows::Forms::Keys keystate,
-        Windows::Forms::MouseButtons buttons);
-      void OnMouseDoubleClick(Windows::Forms::MouseEventArgs ^e, int X, int Y,
-        Windows::Forms::Keys keystate, Windows::Forms::MouseButtons buttons);
-      void OnKeyDown(Windows::Forms::KeyEventArgs^ e, Windows::Forms::Keys keystate);
-      void OnKeyUp(Windows::Forms::KeyEventArgs^ e, Windows::Forms::Keys keystate);
+      void OnMouseMove(System::Windows::Forms::MouseEventArgs ^e, int X, int Y, System::Windows::Forms::Keys keystate,
+        System::Windows::Forms::MouseButtons buttons);
+      void OnMouseDown(System::Windows::Forms::MouseEventArgs ^e, int X, int Y, System::Windows::Forms::Keys keystate,
+        System::Windows::Forms::MouseButtons buttons);
+      void OnMouseUp(System::Windows::Forms::MouseEventArgs ^e, int X, int Y, System::Windows::Forms::Keys keystate,
+        System::Windows::Forms::MouseButtons buttons);
+      void OnMouseDoubleClick(System::Windows::Forms::MouseEventArgs ^e, int X, int Y,
+        System::Windows::Forms::Keys keystate, System::Windows::Forms::MouseButtons buttons);
+      void OnKeyDown(System::Windows::Forms::KeyEventArgs^ e, System::Windows::Forms::Keys keystate);
+      void OnKeyUp(System::Windows::Forms::KeyEventArgs^ e, System::Windows::Forms::Keys keystate);
       
       String^ get_tool_cursor();
       
-      bool accepts_drop(int x, int y, Windows::Forms::IDataObject ^data);
+      bool accepts_drop(int x, int y, System::Windows::Forms::IDataObject ^data);
       bool accepts_drop(int x, int y, String ^type, String ^text);
-      bool perform_drop(int x, int y, Windows::Forms::IDataObject ^data);
+      bool perform_drop(int x, int y, System::Windows::Forms::IDataObject ^data);
       bool perform_drop(int x, int y, String ^type, String ^text);
 
       void set_closed(bool flag);
@@ -65,8 +65,8 @@ namespace MySQL {
       void set_zoom(double zoom);
 
       String^ get_title();
-      Windows::Forms::ToolStrip^ get_tools_toolbar();
-      Windows::Forms::ToolStrip^ get_options_toolbar();
+      System::Windows::Forms::ToolStrip^ get_tools_toolbar();
+      System::Windows::Forms::ToolStrip^ get_options_toolbar();
       Aga::Controls::Tree::TreeViewAdv^ get_layer_tree();
       Aga::Controls::Tree::TreeViewAdv^ get_catalog_tree();
     };
