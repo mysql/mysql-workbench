@@ -1011,7 +1011,7 @@ void grt::helper::generate_struct_code(const std::string &target_file,
 
       path= g_build_path("/", outpath.c_str(), outfile.c_str(), NULL);
 
-      fhdr= base_fopen(path, "wb+");
+      fhdr= base_fopen(path, "w+");
       if (!fhdr)
       {
         g_free(path);
@@ -1122,7 +1122,7 @@ void grt::helper::generate_struct_code(const std::string &target_file,
 
       body_file.append(gen.cname).append(".cpp.new");
       g_message("CREATE %s", body_file.c_str());
-      FILE *f= base_fopen(body_file.c_str(), "wb+");
+      FILE *f= base_fopen(body_file.c_str(), "w+");
 
       fprintf(f, "\n#include \"grts/%s.h\"\n", header_file.c_str());
       fprintf(f, "\n#include \"grtpp_util.h\"\n");
@@ -1336,7 +1336,7 @@ static void export_module_function(FILE *f, const Module::Function &function)
 void grt::helper::generate_module_wrappers(const std::string &outpath,
                                            const std::vector<Module*> &modules)
 {
-  FILE *f = base_fopen(outpath.c_str(), "wb+");
+  FILE *f = base_fopen(outpath.c_str(), "w+");
   if (!f)
     throw grt::os_error(errno);
 
