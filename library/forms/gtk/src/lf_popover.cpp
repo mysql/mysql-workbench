@@ -384,7 +384,7 @@ void PopoverWidget::show_popover(const int rx, const int ry, const mforms::Start
   if (_style == mforms::PopoverStyleTooltip)
   {
     Glib::RefPtr<Gdk::Window> wnd = this->get_window();
-    if (wnd != 0)
+    if (wnd)
     {
       int xx;
       int yy;
@@ -399,13 +399,13 @@ void PopoverWidget::show_popover(const int rx, const int ry, const mforms::Start
   if (x < 0 && y < 0)
   {
     Glib::RefPtr<Gdk::Display> dsp = Gdk::Display::get_default();
-    if (dsp != 0)
+    if (dsp)
     {
       Glib::RefPtr<Gdk::DeviceManager> dvm = dsp->get_device_manager();
-      if (dvm != 0)
+      if (dvm)
       {
         Glib::RefPtr<Gdk::Device> dev = dvm->get_client_pointer();
-        if (dev != 0)
+        if (dev)
           dev->get_position(x, y);
       }
     }
