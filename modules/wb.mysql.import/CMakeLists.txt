@@ -29,6 +29,10 @@ target_compile_options(wb.mysql.import.grt PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wb.mysql.import.grt wbscintilla ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${TINYXML_LIBRARIES} ${MYSQL_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wb.mysql.import.grt gcov)
+endif()
+
 set_target_properties(wb.mysql.import.grt
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}

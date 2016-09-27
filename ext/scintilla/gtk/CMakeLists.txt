@@ -61,6 +61,11 @@ string(REPLACE "-Werror" "" ${WB_CXXFLAGS} NEW_WB_CXXFLAGS)
 target_compile_options(wbscintilla PUBLIC ${NEW_WB_CXXFLAGS})
 
 target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wbscintilla gcov)
+endif()
+
 if(COMMAND cotire)
     set_target_properties(wbscintilla PROPERTIES
         COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")

@@ -22,6 +22,10 @@ target_compile_options(cdbc PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(cdbc ${MYSQLCPPCONN_LIBRARY})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(cdbc gcov)
+endif()
+
 set_target_properties(cdbc
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
