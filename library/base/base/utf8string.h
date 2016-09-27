@@ -28,6 +28,7 @@
 #include <glib.h>
 #include <vector>
 #include <cstring>
+#include <string.h>
 #endif
 
 namespace base
@@ -68,7 +69,7 @@ namespace base
       uint32_t _char;  //  same as gunichar
     public:
       utf8char(uint32_t c) : _char(c)                      { std::memset(_buffer, 0, sizeof _buffer); _length = g_unichar_to_utf8(c, _buffer); }
-      utf8char(const utf8char &c) : _char(c._char)         { std::strcpy(_buffer, c._buffer); _length = std::strlen(_buffer); }
+      utf8char(const utf8char &c) : _char(c._char)         { strcpy_s(_buffer, sizeof(_buffer), c._buffer); _length = std::strlen(_buffer); }
       utf8char(const char *c) : _char(g_utf8_get_char(c))  { std::memset(_buffer, 0, sizeof _buffer); _length = g_unichar_to_utf8(_char, _buffer); }
       bool operator == (const utf8char &c) const        { return _char == c._char; }
       bool operator == (char c) const                   { return _char == (uint32_t)c; }
