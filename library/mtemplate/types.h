@@ -22,9 +22,9 @@
 #include "common.h"
 #include "modifier.h"
 
-#include <base/utf8string.h>
+#include "base/utf8string.h"
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace mtemplate
 {
@@ -66,7 +66,7 @@ public:
 
 
 
-typedef boost::shared_ptr<NodeInterface> NodeStorageType;
+typedef std::shared_ptr<NodeInterface> NodeStorageType;
 typedef std::vector<NodeStorageType> TemplateDocument;
 
 
