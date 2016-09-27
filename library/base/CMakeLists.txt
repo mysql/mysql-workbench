@@ -28,6 +28,10 @@ target_compile_options(wbbase PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wbbase ${CAIRO_LIBRARIES} ${GLIB_LIBRARIES} ${MySQL_LIBRARIES} ${MYSQLNG_LIBRARY} ${GTHREAD_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${GTK3_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wbbase gcov)
+endif()
+
 if(COMMAND cotire)
 set_target_properties(wbbase PROPERTIES
         COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")

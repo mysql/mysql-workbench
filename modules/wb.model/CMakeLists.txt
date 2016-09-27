@@ -88,6 +88,10 @@ target_compile_options(wb.model.grt PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTemplate_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wb.model.grt gcov)
+endif()
+
 set_target_properties(wb.model.grt
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}
