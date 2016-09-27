@@ -134,6 +134,10 @@ target_compile_options(mforms PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(mforms gcov)
+endif()
+
 set_target_properties(mforms
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})

@@ -49,6 +49,10 @@ add_dependencies(wb.model.editors.wbp parsers)
 
 target_link_libraries(wb.model.editors.wbp linux_utilities ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wb.model.editors.wbp gcov)
+endif()
+
 set_target_properties(wb.model.editors.wbp
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}

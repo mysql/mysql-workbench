@@ -97,6 +97,10 @@ add_dependencies(db.mysql.sqlparser.grt parsers)
 
 target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.mysql.sqlparser.grt gcov)
+endif()
+
 set_target_properties(db.mysql.sqlparser.grt
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}

@@ -23,6 +23,10 @@ set_target_properties(utilities.grt PROPERTIES
 
 target_link_libraries(utilities.grt ${GRT_LIBRARIES} ${GDAL_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(utilities.grt gcov)
+endif()
+
 set_target_properties(utilities.grt
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
