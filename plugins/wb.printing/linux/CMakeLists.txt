@@ -30,6 +30,10 @@ target_compile_options(wb.printing.wbp PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wb.printing.wbp linux_utilities ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wb.printing.wbp gcov)
+endif()
+
 set_target_properties(wb.printing.wbp
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}

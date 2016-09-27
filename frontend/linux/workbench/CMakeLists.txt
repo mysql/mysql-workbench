@@ -121,6 +121,10 @@ target_link_libraries(mysql-workbench-bin
     ${GNOME_KEYRING_LIBRARIES}
 )
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(mysql-workbench-bin gcov)
+endif()
+
 if(COMMAND cotire)
   set_target_properties(mysql-workbench-bin PROPERTIES
     COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")

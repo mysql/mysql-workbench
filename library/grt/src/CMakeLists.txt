@@ -43,6 +43,10 @@ target_compile_options(grt PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(grt wbbase ${GLIB_LIBRARIES} ${GMODULE_LIBRARIES} ${GRT_LIBRARIES} ${UUID_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(grt gcov)
+endif()
+
 set_target_properties(grt
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})

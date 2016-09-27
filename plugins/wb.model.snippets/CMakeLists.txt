@@ -34,6 +34,10 @@ target_compile_options(wb.model.snippets.wbp PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wb.model.snippets.wbp wbscintilla)
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wb.model.snippets.wbp gcov)
+endif()
+
 set_target_properties(wb.model.snippets.wbp
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}

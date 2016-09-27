@@ -47,6 +47,10 @@ add_library(db.mysql.grt
 
 target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.mysql.grt gcov)
+endif()
+
 set_target_properties(db.mysql.grt
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}

@@ -28,6 +28,11 @@ set_target_properties(db.mysql.parser.grt PROPERTIES
 
 
 # target_link_libraries(db.mysql.parser.grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.mysql.parser.grt gcov)
+endif()
+
 if(COMMAND cotire)
     set_target_properties(db.mysql.parser.grt PROPERTIES
         COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")

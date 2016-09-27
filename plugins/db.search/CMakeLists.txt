@@ -35,6 +35,11 @@ set_target_properties(db.search.wbp PROPERTIES
 )
 
 #target_link_libraries(db.mysql.wbp linux_utilities wbscintilla)
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.search.wbp gcov)
+endif()
+
 if(COMMAND cotire)
     set_target_properties(db.search.wbp PROPERTIES
         COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
