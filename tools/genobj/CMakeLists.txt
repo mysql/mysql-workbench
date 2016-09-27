@@ -22,3 +22,7 @@ else()
 endif()
 
 target_link_libraries(genobj grt wbbase ${GRT_LIBRARIES} ${PCRE_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(genobj gcov)
+endif()
