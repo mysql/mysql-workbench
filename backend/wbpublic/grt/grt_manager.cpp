@@ -883,7 +883,7 @@ std::string GRTManager::get_tmp_dir()
 {
   // Add the current process ID to the path to make this unique.
   std::string res = g_get_tmp_dir();
-  if( ends_with(res, "/") || ends_with(res, "\\"))
+  if( base::ends_with(res, "/") || base::ends_with(res, "\\"))
     res.resize( res.size() - 1 );
   res += "/" + std::string("mysql-workbench-");
 #ifdef _WIN32
