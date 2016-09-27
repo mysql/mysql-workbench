@@ -100,7 +100,6 @@ BuildRequires: mysql-devel >= 5.7
 BuildRequires: boost-devel
 BuildRequires: sqlite-devel
 BuildRequires: vsqlite++-devel
-BuildRequires: ctemplate-devel
 %endif
 
 %if 0%{?fedora} >= 18
@@ -140,7 +139,7 @@ Conflicts: mysql-workbench-commercial
 
 # Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering (from EL7)
 # FIXME if using system installs of one of these, this list is not correct
-%global __requires_exclude ^lib(antlr3c_wb|cdbc|ctemplate|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla)\\.so.*$
+%global __requires_exclude ^lib(antlr3c_wb|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla)\\.so.*$
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*)$
 
 
