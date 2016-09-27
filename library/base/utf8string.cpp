@@ -131,6 +131,9 @@ utf8string::size_type utf8_find_first_of(const std::string& str, utf8string::siz
   return utf8string::npos;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//  utf8string::bounds class
+//////////////////////////////////////////////////////////////////////////////
 struct utf8string::bounds
 {
   utf8string::size_type _index;
@@ -153,8 +156,72 @@ struct utf8string::bounds
   utf8string::size_type index() const { return _index; }
   utf8string::size_type count() const { return _count; }
 };
-  
-  
+
+//////////////////////////////////////////////////////////////////////////////
+//  utf8string::utf8char class
+//////////////////////////////////////////////////////////////////////////////
+utf8string::utf8char::utf8char(uint32_t c) 
+  : _char(c)                      
+{ 
+  std::memset(_buffer, 0, sizeof _buffer); 
+  _length = g_unichar_to_utf8(c, _buffer); 
+}
+
+utf8string::utf8char::utf8char(const utf8char &c) 
+  : _char(c._char)         
+{ 
+  strncpy(_buffer, c._buffer, sizeof(_buffer)); 
+  _length = std::strlen(_buffer); 
+}
+
+utf8string::utf8char::utf8char(const char *c) 
+  : _char(g_utf8_get_char(c))  
+{ 
+  std::memset(_buffer, 0, sizeof _buffer); 
+  _length = g_unichar_to_utf8(_char, _buffer); 
+}
+
+bool utf8string::utf8char::operator == (const utf8char &c) const        
+{ 
+  return _char == c._char; 
+}
+
+bool utf8string::utf8char::operator == (char c) const                   
+{ 
+  return _char == (uint32_t)c; 
+}
+
+bool utf8string::utf8char::operator == (uint32_t c) const               
+{ 
+  return _char == c; 
+}
+
+bool utf8string::utf8char::operator == (const char *c) const            
+{ 
+  return _char == g_utf8_get_char(c); 
+}
+
+utf8string::utf8char::operator uint32_t () const                        
+{ 
+  return _char; 
+}
+
+utf8string::utf8char::operator const char * () const                          
+{ 
+  return _buffer; 
+}
+
+size_t utf8string::utf8char::length() const 
+{ 
+  return _length; 
+} 
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  utf8string class
+//////////////////////////////////////////////////////////////////////////////
+
+
 utf8string::utf8string()
 {
   

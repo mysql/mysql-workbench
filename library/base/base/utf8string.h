@@ -28,7 +28,6 @@
 #include <glib.h>
 #include <vector>
 #include <cstring>
-#include <string.h>
 #endif
 
 namespace base
@@ -68,16 +67,16 @@ namespace base
       size_t _length;
       uint32_t _char;  //  same as gunichar
     public:
-      utf8char(uint32_t c) : _char(c)                      { std::memset(_buffer, 0, sizeof _buffer); _length = g_unichar_to_utf8(c, _buffer); }
-      utf8char(const utf8char &c) : _char(c._char)         { strcpy_s(_buffer, sizeof(_buffer), c._buffer); _length = std::strlen(_buffer); }
-      utf8char(const char *c) : _char(g_utf8_get_char(c))  { std::memset(_buffer, 0, sizeof _buffer); _length = g_unichar_to_utf8(_char, _buffer); }
-      bool operator == (const utf8char &c) const        { return _char == c._char; }
-      bool operator == (char c) const                   { return _char == (uint32_t)c; }
-      bool operator == (uint32_t c) const               { return _char == c; }
-      bool operator == (const char *c) const            { return _char == g_utf8_get_char(c); }
-      operator uint32_t () const                        { return _char; }
-      operator const char * () const                          { return _buffer; }
-      size_t length() const { return _length; }
+      utf8char(uint32_t c);
+      utf8char(const utf8char &c);
+      utf8char(const char *c);
+      bool operator == (const utf8char &c) const;
+      bool operator == (char c) const;
+      bool operator == (uint32_t c) const;
+      bool operator == (const char *c) const;
+      operator uint32_t () const;
+      operator const char * () const;
+      size_t length() const;
     };
     
     struct bounds;
