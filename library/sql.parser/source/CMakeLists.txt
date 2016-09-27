@@ -57,6 +57,9 @@ add_library(sqlparser
     xml.cpp
 )
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(sqlparser gcov)
+endif()
 
 target_compile_options(sqlparser PUBLIC ${WB_CXXFLAGS})
 

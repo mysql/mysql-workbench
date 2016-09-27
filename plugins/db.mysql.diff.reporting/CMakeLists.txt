@@ -44,6 +44,10 @@ set_target_properties(db.mysql.diff.reporting.wbp PROPERTIES
 
 target_link_libraries(db.mysql.diff.reporting.wbp grt mforms wbscintilla ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.mysql.diff.reporting.wbp gcov)
+endif()
+
 set_target_properties(db.mysql.diff.reporting.wbp
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}

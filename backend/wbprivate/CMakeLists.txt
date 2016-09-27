@@ -114,6 +114,10 @@ target_link_libraries(wbprivate
     ${GDAL_LIBRARIES}
 )
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wbprivate gcov)
+endif()
+
 set_target_properties(wbprivate
                       PROPERTIES VERSION   ${WB_VERSION}
                       SOVERSION ${WB_VERSION})

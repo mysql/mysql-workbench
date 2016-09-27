@@ -28,6 +28,9 @@ if (UNIX)
   endif()
 
   target_link_libraries(wbcopytables-bin wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+  if(BUILD_FOR_TESTS)
+    target_link_libraries(wbcopytables-bin gcov)
+  endif()
    if(COMMAND cotire)
        set_target_properties(wbcopytables-bin PROPERTIES
            COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS};/usr/include/unixodbc_conf.h;/usr/include/sql.h;/usr/include/sqltypes.h;/usr/include/sqlext.h;/usr/include/sqlucode.h")
@@ -52,6 +55,9 @@ else()
   endif()
 
    target_link_libraries(wbcopytables wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+   if(BUILD_FOR_TESTS)
+    target_link_libraries(wbcopytables gcov)
+   endif()
    if(COMMAND cotire)
        set_target_properties(wbcopytables PROPERTIES
            COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS};/usr/include/unixodbc_conf.h;/usr/include/sql.h;/usr/include/sqltypes.h;/usr/include/sqlext.h;/usr/include/sqlucode.h")
