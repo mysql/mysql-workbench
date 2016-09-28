@@ -309,7 +309,7 @@ endif()
 if(BUILD_FOR_TESTS)
     message ("Enable GCOV due to BUILD_FOR_TESTS")
     set(WB_CXXFLAGS ${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage)
-    set(WB_CFLAGS ${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage)
+    set(WB_CFLAGS ${WB_CFLAGS} -fprofile-arcs -ftest-coverage)
 endif()
 
 #-----------------------------------------------------------------------
