@@ -1,5 +1,5 @@
 
-include_directories(${PROJECT_SOURCE_DIR}/library/base/base
+include_directories(${PROJECT_SOURCE_DIR}/library/base
                    )
 
 add_library(mtemplate
@@ -9,6 +9,12 @@ add_library(mtemplate
             modifier.cpp
             output.cpp
            )
+
+target_compile_options(mtemplate PUBLIC ${WB_CXXFLAGS})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(mtemplate gcov)
+endif()
 
 set_target_properties(mtemplate
                       PROPERTIES VERSION   ${WB_VERSION}
