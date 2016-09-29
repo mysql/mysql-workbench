@@ -115,6 +115,7 @@ struct SQLQuoteModifier : public mtemplate::Modifier
 
 TEST_FUNCTION(1)
 {
+  base::create_directory("test_output", 0700);
   //    This test creates a CSV file from a template + the data above. Also tests the usage of a modifier
   {
     //    setup modifiers
