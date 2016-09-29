@@ -19,7 +19,7 @@
 
 #include <cstring>
 #include "db_mysql_catalog_report.h"
-#include "../mtemplate/template.h"
+#include "mtemplate/template.h"
 
 
 ///XXX TODO 
@@ -255,6 +255,9 @@ void ActionGenerateReport::create_table_delay_key_write(grt::IntegerRef value)
 void ActionGenerateReport::create_table_charset(grt::StringRef value)
 {
   has_attributes= true;
+  
+  mtemplate::DictionaryInterface *e= current_table_dictionary->addSectionDictionary(kbtr_TABLE_ATTR_CHARSET);
+  e->setValue(kbtr_TABLE_CHARSET, (std::string)value);
 }
 
 void ActionGenerateReport::create_table_collate(grt::StringRef value)
