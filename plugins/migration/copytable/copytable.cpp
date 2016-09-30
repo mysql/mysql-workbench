@@ -799,16 +799,15 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
   if (!SQL_SUCCEEDED(ret = SQLAllocHandle(SQL_HANDLE_STMT, _dbc, &stmt)))
     throw ConnectionError("SQLAllocHandle", ret, SQL_HANDLE_DBC, _dbc);
 
-  std::string q;
-  std::string countStr = _source_rdbms_type == "Mssql" ? "count_big" : "count";
+  QueryBuilder q;
+  q.select_columns(base::strfmt("%s(*)", _source_rdbms_type == "Mssql" ? "count_big" : "count"));
+  q.select_from_table(table, schema);
 
   switch (spec.type)
   {
     case CopyAll:
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
-      else
-        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
+        q.add_where(get_where_condition(pk_columns, last_pkeys));
       break;
     case CopyRange:
     {
@@ -819,28 +818,26 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
         end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
       start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
       if (!end_expr.empty())
-        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s AND %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
+        q.add_where(base::strfmt("%s AND %s", start_expr.c_str(), end_expr.c_str()));
       else
-        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str());
+        q.add_where(start_expr);
       break;
     }
     case CopyCount:
     {
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
-      else
-        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
+        q.add_where(get_where_condition(pk_columns, last_pkeys));
       break;
     }
     case CopyWhere:
     {
-      q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), spec.where_expression.c_str());
+      q.add_where(spec.where_expression);
       break;
     }
   }
-  log_debug("Executing query: %s\n", q.c_str());
-  if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
-    throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, stmt);
+  log_debug("Executing query: %s\n", q.build_query().c_str());
+  if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.build_query().c_str(), SQL_NTS)))
+    throw ConnectionError("SQLExecDirect("+q.build_query()+")", ret, SQL_HANDLE_STMT, stmt);
 
   long long count = 0;
   if (SQL_SUCCEEDED(SQLFetch(stmt)))
@@ -982,13 +979,13 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
       size_t out_buffer_len;
 
       //log_debug3("Copy %i from type %i to %i\n", i,
-//                 _column_types[i-1],
-//                 rowbuffer[i-1].buffer_type);
+//                 _column_types[i - 1],
+//                 rowbuffer[i - 1].buffer_type);
 
       // if this column is a blob, handle it as such
-      if (rowbuffer.check_if_blob() || (*_columns)[i-1].is_long_data)
+      if (rowbuffer.check_if_blob() || (*_columns)[i - 1].is_long_data)
       {
-        ret = SQLGetData(_stmt, i,_column_types[i-1], _blob_buffer.data(), _max_blob_chunk_size, &len_or_indicator);
+        ret = SQLGetData(_stmt, i,_column_types[i - 1], _blob_buffer.data(), _max_blob_chunk_size, &len_or_indicator);
 
         // Saves the column length, at the first call it is the total column size
         if (len_or_indicator > _max_parameter_size)
@@ -1031,7 +1028,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
               break;
             }
 
-            ret = SQLGetData(_stmt, i, _column_types[i-1], _blob_buffer.data(), _max_blob_chunk_size, &len_or_indicator);
+            ret = SQLGetData(_stmt, i, _column_types[i - 1], _blob_buffer.data(), _max_blob_chunk_size, &len_or_indicator);
           }
 
           if (ret == SQL_SUCCESS)
@@ -1050,21 +1047,21 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                 //TODO take care of case where the utf8 data is bigger than _max_blob_chunk_size
                 if (outbuf.size() > _max_blob_chunk_size - 1)
                   throw std::logic_error("Output buffer size is greater than max blob chunk size.");
-                memset(_blob_buffer.data(), 0, _max_blob_chunk_size);
+                std::fill(_blob_buffer.begin(), _blob_buffer.end(), 0);
                 std::strcpy(_blob_buffer.data(), outbuf.c_str());
                 final_length = outbuf.size();
               }
 
               if (_use_bulk_inserts)
               {
-                if (rowbuffer[i-1].buffer_length)
-                  free(rowbuffer[i-1].buffer);
+                if (rowbuffer[i - 1].buffer_length)
+                  free(rowbuffer[i - 1].buffer);
 
                 *rowbuffer[i - 1].length = (unsigned long)final_length;
                 rowbuffer[i - 1].buffer_length = (unsigned long)final_length;
-                rowbuffer[i-1].buffer = malloc(final_length);
+                rowbuffer[i - 1].buffer = malloc(final_length);
 
-                memcpy(rowbuffer[i-1].buffer, final_data, final_length);
+                memcpy(rowbuffer[i - 1].buffer, final_data, final_length);
               }
               else
                 rowbuffer.send_blob_data(final_data, final_length);
@@ -1081,7 +1078,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         }
       }
 
-      switch (_column_types[i-1])
+      switch (_column_types[i - 1])
       {
         case SQL_C_BIT:
           rowbuffer.prepare_add_tiny(out_buffer, out_buffer_len);
@@ -1091,7 +1088,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
           break;
         case SQL_C_FLOAT:
         case SQL_C_DOUBLE:
-          if (rowbuffer[i-1].buffer_type == MYSQL_TYPE_FLOAT)
+          if (rowbuffer[i - 1].buffer_type == MYSQL_TYPE_FLOAT)
           {
             rowbuffer.prepare_add_float(out_buffer, out_buffer_len);
             ret = SQLGetData(_stmt, i, SQL_C_FLOAT, out_buffer, out_buffer_len, &len_or_indicator);
@@ -1118,7 +1115,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         case SQL_C_UBIGINT:
         case SQL_C_SBIGINT:
           rowbuffer.prepare_add_bigint(out_buffer, out_buffer_len);
-          ret = SQLGetData(_stmt, i, _column_types[i-1], out_buffer, out_buffer_len, &len_or_indicator);
+          ret = SQLGetData(_stmt, i, _column_types[i - 1], out_buffer, out_buffer_len, &len_or_indicator);
           if (SQL_SUCCEEDED(ret))
             rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
           break;
@@ -1128,7 +1125,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             long tmp_buffer;
             bool unsig;
             enum enum_field_types target_type;
-            ret = SQLGetData(_stmt, i, _column_types[i-1], &tmp_buffer, sizeof(tmp_buffer), &len_or_indicator);
+            ret = SQLGetData(_stmt, i, _column_types[i - 1], &tmp_buffer, sizeof(tmp_buffer), &len_or_indicator);
             if (SQL_SUCCEEDED(ret))
             {
               switch ((target_type = rowbuffer.target_type(unsig)))
@@ -1158,32 +1155,32 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         case SQL_C_USHORT:
         case SQL_C_SSHORT:
           rowbuffer.prepare_add_short(out_buffer, out_buffer_len);
-          ret = SQLGetData(_stmt, i, _column_types[i-1], out_buffer, out_buffer_len, &len_or_indicator);
+          ret = SQLGetData(_stmt, i, _column_types[i - 1], out_buffer, out_buffer_len, &len_or_indicator);
           if (SQL_SUCCEEDED(ret))
             rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
           break;
         case SQL_C_UTINYINT:
         case SQL_C_STINYINT:
           rowbuffer.prepare_add_tiny(out_buffer, out_buffer_len);
-          ret = SQLGetData(_stmt, i, _column_types[i-1], out_buffer, out_buffer_len, &len_or_indicator);
+          ret = SQLGetData(_stmt, i, _column_types[i - 1], out_buffer, out_buffer_len, &len_or_indicator);
           if (SQL_SUCCEEDED(ret))
             rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
           break;
         case SQL_C_WCHAR:
         case SQL_C_CHAR:
-          switch (rowbuffer[i-1].buffer_type)
+          switch (rowbuffer[i - 1].buffer_type)
           {
           case MYSQL_TYPE_TIME:
           case MYSQL_TYPE_DATE:
           case MYSQL_TYPE_DATETIME:
           case MYSQL_TYPE_NEWDATE:
-            ret = get_date_time_data(rowbuffer, i, rowbuffer[i-1].buffer_type);
+            ret = get_date_time_data(rowbuffer, i, rowbuffer[i - 1].buffer_type);
             break;
           case MYSQL_TYPE_GEOMETRY:
             ret = get_geometry_buffer_data(rowbuffer, i);
             break;
           default:
-            if (_column_types[i-1] == SQL_C_WCHAR)
+            if (_column_types[i - 1] == SQL_C_WCHAR)
               ret = get_wchar_buffer_data(rowbuffer, i);
             else
               ret = get_char_buffer_data(rowbuffer, i);
@@ -1196,7 +1193,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
             // During the migration process some non standard data types are migrated as strings
             // Those will come as SQL_C_BINARY but will be migrated as NULL for now
-            if (rowbuffer[i-1].buffer_type != MYSQL_TYPE_STRING)
+            if (rowbuffer[i - 1].buffer_type != MYSQL_TYPE_STRING)
             {
               was_null = false;
               ret = get_char_buffer_data(rowbuffer, i);
@@ -1207,7 +1204,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
           break;
 
         default:
-          throw std::logic_error(base::strfmt("Unhandled type %i", _column_types[i-1]));
+          throw std::logic_error(base::strfmt("Unhandled type %i", _column_types[i - 1]));
       }
       if (!SQL_SUCCEEDED(ret))
       {
