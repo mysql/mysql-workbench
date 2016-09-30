@@ -1544,9 +1544,9 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         
         if not mysqldump_version:
             if about_to_run:
-                mforms.Utilities.show_error("Could not get mysqldump version", "Workbench was unable to get musqldump version. Please verify the log for more information.", "OK", "", "")
+                mforms.Utilities.show_error("Could not get mysqldump version", "Workbench was unable to get mysqldump version. Please verify the log for more information.", "OK", "", "")
             else:
-                self.print_log_message("Workbench was unable to get musqldump version")
+                self.print_log_message("Workbench was unable to get mysqldump version")
               
             return False
         
