@@ -18,7 +18,6 @@
 */
 
 #include <pcre.h>
-#include "ctemplate/template.h"
 
 #include "testgrt.h"
 #include "grt_test_utility.h"
@@ -41,9 +40,6 @@
 
 using namespace std;
 
-using ctemplate::Template;
-using ctemplate::TemplateDictionary;
-using ctemplate::STRIP_WHITESPACE;
 
 // these functions are defined in grtdiff_alter_test.cpp
 void populate_grt(GRT *grt, const char *);

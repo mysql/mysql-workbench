@@ -59,6 +59,8 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library/base/base
+    ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
@@ -73,7 +75,6 @@ include_directories(.
     SYSTEM ${GTK3_INCLUDE_DIRS}
     SYSTEM ${PCRE_INCLUDE_DIRS}
     SYSTEM ${MySQL_INCLUDE_DIRS}
-    SYSTEM ${CTemplate_INCLUDE_DIRS}
     SYSTEM ${GRT_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     SYSTEM ${Boost_INCLUDE_DIRS}
@@ -86,7 +87,11 @@ add_library(wb.model.grt
 
 target_compile_options(wb.model.grt PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTemplate_LIBRARIES})
+target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wb.model.grt gcov)
+endif()
 
 set_target_properties(wb.model.grt
                       PROPERTIES PREFIX    ""

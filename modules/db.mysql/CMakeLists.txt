@@ -23,13 +23,14 @@ include_directories(.
     SYSTEM ${PCRE_INCLUDE_DIRS}
     SYSTEM ${GRT_INCLUDE_DIRS}
     SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${CTemplate_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/library/grt/src 
+    ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library/base/base
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff 
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
@@ -45,7 +46,11 @@ add_library(db.mysql.grt
     src/module_db_mysql.cpp
 )
 
-target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES} ${CTemplate_LIBRARIES})
+target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.mysql.grt gcov)
+endif()
 
 set_target_properties(db.mysql.grt
                       PROPERTIES PREFIX    ""

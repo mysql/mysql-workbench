@@ -6,7 +6,6 @@ include_directories(.
     SYSTEM ${PCRE_INCLUDE_DIRS}
     SYSTEM ${MySQL_INCLUDE_DIRS}
     SYSTEM ${SQLITE3_INCLUDE_DIRS}
-    SYSTEM ${CTemplate_INCLUDE_DIRS}
     SYSTEM ${OPENGL_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     SYSTEM ${VSQLITE_INCLUDE_DIR}
@@ -182,7 +181,12 @@ add_library(wbpublic
 
 target_compile_options(wbpublic PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTemplate_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wbpublic gcov)
+endif()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set_source_files_properties(sqlide/grammar-parser/ANTLRv3Lexer.c
           PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")

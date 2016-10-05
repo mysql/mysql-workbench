@@ -73,6 +73,11 @@ target_compile_options(db.mysql.editors.wbp PUBLIC ${WB_CXXFLAGS})
 
 add_dependencies(db.mysql.editors.wbp parsers)
 target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.mysql.editors.wbp gcov)
+endif()
+
 set_target_properties(db.mysql.editors.wbp
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}
@@ -90,6 +95,7 @@ if (BUILD_FOR_TESTS)
 
   add_dependencies(db.mysql.editors.wbp.debug parsers)
   target_link_libraries(db.mysql.editors.wbp.debug linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES})
+  target_link_libraries(db.mysql.editors.wbp.debug gcov)
   set_target_properties(db.mysql.editors.wbp.debug
                         PROPERTIES VERSION   ${WB_VERSION}
                                   SOVERSION ${WB_VERSION})

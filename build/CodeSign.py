@@ -22,7 +22,6 @@ exclude_files=[
 "iconv.dll", 
 "intl.dll", 
 "libcairo.dll", 
-"libctemplate.dll", 
 "libglib-2.0-0.dll",
 "libgmodule-2.0-0.dll", 
 "libgobject-2.0-0.dll", 

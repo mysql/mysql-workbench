@@ -30,7 +30,6 @@
 #include "base/geometry.h"
 #include "base/log.h"
 #include "base/util_functions.h"
-#include "base/file_utilities.h"
 
 #include "mforms/code_editor.h"
 
@@ -50,11 +49,10 @@
 #endif
 #include "SciLexer.h"
 
+#include "mtemplate/template.h"
+
 using namespace std;
 using namespace base;
-
-using ctemplate::Template;
-using ctemplate::TemplateDictionary;
 
 //----------------- LexerDocument ------------------------------------------------------------------
 
@@ -425,31 +423,30 @@ void read_option(string& var, const char* field, const grt::DictRef& dict)
 /**
  * Assigns the given value to the dictionary if it is not empty. Otherwise the text "n/a" is added.
  **/
-void assignValueOrNA(TemplateDictionary* dict, const char* key, const string& value)
+void assignValueOrNA(mtemplate::DictionaryInterface *dict, const char* key, const string& value)
 {
   if (value.size() == 0)
-    dict->SetValue(key, "<span class=\"report_na_entry\">n/a</span>");
+    dict->setValue(key, "<span class=\"report_na_entry\">n/a</span>");
   else
-    dict->SetValue(key, value);
+    dict->setValue(key, value);
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void fillTablePropertyDict(const db_mysql_TableRef& table, TemplateDictionary* table_dict)
+void fillTablePropertyDict(const db_mysql_TableRef& table, mtemplate::DictionaryInterface *table_dict)
 {
   assignValueOrNA(table_dict, REPORT_TABLE_AVG_ROW_LENGTH, *table->avgRowLength());
-  table_dict->SetValue(REPORT_TABLE_USE_CHECKSUM, (table->checksum() == 1) ? "yes" : "no");
+  table_dict->setValue(REPORT_TABLE_USE_CHECKSUM, (table->checksum() == 1) ? "yes" : "no");
   assignValueOrNA(table_dict, REPORT_TABLE_CONNECTION_STRING, *table->connectionString());
   assignValueOrNA(table_dict, REPORT_TABLE_CHARSET, *table->defaultCharacterSetName());
   assignValueOrNA(table_dict, REPORT_TABLE_COLLATION, *table->defaultCollationName());
-  table_dict->SetValue(REPORT_TABLE_DELAY_KEY_UPDATES, (table->delayKeyWrite() == 1) ? "yes" : "no");
+  table_dict->setValue(REPORT_TABLE_DELAY_KEY_UPDATES, (table->delayKeyWrite() == 1) ? "yes" : "no");
   assignValueOrNA(table_dict, REPORT_TABLE_MAX_ROW_COUNT, *table->maxRows());
   assignValueOrNA(table_dict, REPORT_TABLE_MIN_ROW_COUNT, *table->minRows());
   assignValueOrNA(table_dict, REPORT_TABLE_UNION_TABLES, *table->mergeUnion());
   assignValueOrNA(table_dict, REPORT_TABLE_MERGE_METHOD, *table->mergeInsert());
   assignValueOrNA(table_dict, REPORT_TABLE_AUTO_INCREMENT, *table->nextAutoInc());
   assignValueOrNA(table_dict, REPORT_TABLE_PACK_KEYS, *table->packKeys());
-  table_dict->SetValue(REPORT_TABLE_HAS_PASSWORD, ((*table->password()).size() == 0) ? "no" : "yes");
+  table_dict->setValue(REPORT_TABLE_HAS_PASSWORD, ((*table->password()).size() == 0) ? "no" : "yes");
   assignValueOrNA(table_dict, REPORT_TABLE_ROW_FORMAT, *table->rowFormat());
   assignValueOrNA(table_dict, REPORT_TABLE_KEY_BLOCK_SIZE, *table->keyBlockSize());
   assignValueOrNA(table_dict, REPORT_TABLE_DATA_DIR, *table->tableDataDir());
@@ -459,24 +456,24 @@ void fillTablePropertyDict(const db_mysql_TableRef& table, TemplateDictionary* t
   // Partitions.
   if (table->partitionCount() > 0)
   {
-    TemplateDictionary* partitions_dict= table_dict->AddSectionDictionary(REPORT_PARTITION_LISTING);
-    partitions_dict->SetIntValue(REPORT_PARTITION_COUNT, table->partitionCount());
-    partitions_dict->SetValue(REPORT_PARTITION_TYPE, *table->partitionType());
-    partitions_dict->SetValue(REPORT_PARTITION_EXPRESSION, *table->partitionExpression());
+    mtemplate::DictionaryInterface *partitions_dict= table_dict->addSectionDictionary(REPORT_PARTITION_LISTING);
+    partitions_dict->setIntValue(REPORT_PARTITION_COUNT, table->partitionCount());
+    partitions_dict->setValue(REPORT_PARTITION_TYPE, *table->partitionType());
+    partitions_dict->setValue(REPORT_PARTITION_EXPRESSION, *table->partitionExpression());
     
-    partitions_dict->SetIntValue(REPORT_PARTITION_SUB_COUNT, table->subpartitionCount());
-    partitions_dict->SetValue(REPORT_PARTITION_SUB_TYPE, *table->subpartitionType());
-    partitions_dict->SetValue(REPORT_PARTITION_SUB_EXPRESSION, *table->subpartitionExpression());
+    partitions_dict->setIntValue(REPORT_PARTITION_SUB_COUNT, table->subpartitionCount());
+    partitions_dict->setValue(REPORT_PARTITION_SUB_TYPE, *table->subpartitionType());
+    partitions_dict->setValue(REPORT_PARTITION_SUB_EXPRESSION, *table->subpartitionExpression());
 
     for (int i= 0; i < table->partitionCount(); i++)
     {
       db_mysql_PartitionDefinitionRef partition= table->partitionDefinitions().get(i);
     
-      TemplateDictionary* partition_dict= table_dict->AddSectionDictionary(REPORT_PARTITIONS);
+      mtemplate::DictionaryInterface *partition_dict= table_dict->addSectionDictionary(REPORT_PARTITIONS);
       
-      partition_dict->SetValue(REPORT_PARTITION_NAME, *partition->name());
+      partition_dict->setValue(REPORT_PARTITION_NAME, *partition->name());
       assignValueOrNA(partition_dict, REPORT_PARTITION_VALUE, *partition->value());
-      partition_dict->SetValue(REPORT_PARTITION_COMMENT, *partition->comment());
+      partition_dict->setValue(REPORT_PARTITION_COMMENT, *partition->comment());
       assignValueOrNA(partition_dict, REPORT_PARTITION_MAX_ROW_COUNT, *partition->maxRows());
       assignValueOrNA(partition_dict, REPORT_PARTITION_MIN_ROW_COUNT, *partition->minRows());
       assignValueOrNA(partition_dict, REPORT_PARTITION_DATA_DIR, *partition->indexDirectory());
@@ -487,11 +484,11 @@ void fillTablePropertyDict(const db_mysql_TableRef& table, TemplateDictionary* t
       {
         db_mysql_PartitionDefinitionRef sub_partition= partition->subpartitionDefinitions().get(j);
         
-        TemplateDictionary* sub_partition_dict= partition_dict->AddSectionDictionary(REPORT_PARTITION_SUB_PARTITIONS);
+        mtemplate::DictionaryInterface *sub_partition_dict= partition_dict->addSectionDictionary(REPORT_PARTITION_SUB_PARTITIONS);
         
-        sub_partition_dict->SetValue(REPORT_PARTITION_SUB_NAME, *sub_partition->name());
+        sub_partition_dict->setValue(REPORT_PARTITION_SUB_NAME, *sub_partition->name());
         assignValueOrNA(sub_partition_dict, REPORT_PARTITION_SUB_VALUE, *sub_partition->value());
-        sub_partition_dict->SetValue(REPORT_PARTITION_SUB_COMMENT, *sub_partition->comment());
+        sub_partition_dict->setValue(REPORT_PARTITION_SUB_COMMENT, *sub_partition->comment());
         assignValueOrNA(sub_partition_dict, REPORT_PARTITION_SUB_MAX_ROW_COUNT, *sub_partition->maxRows());
         assignValueOrNA(sub_partition_dict, REPORT_PARTITION_SUB_MIN_ROW_COUNT, *sub_partition->minRows());
         assignValueOrNA(sub_partition_dict, REPORT_PARTITION_SUB_DATA_DIR, *sub_partition->indexDirectory());
@@ -501,29 +498,29 @@ void fillTablePropertyDict(const db_mysql_TableRef& table, TemplateDictionary* t
   }
 }
 
-//--------------------------------------------------------------------------------------------------
 
-void fillColumnDict(const db_mysql_ColumnRef& col, const db_mysql_TableRef& table, TemplateDictionary *col_dict, bool detailed)
+//--------------------------------------------------------------------------------------------------
+void fillColumnDict(const db_mysql_ColumnRef& col, const db_mysql_TableRef& table, mtemplate::DictionaryInterface *col_dict, bool detailed)
 {
   if (*table->isPrimaryKeyColumn(col))
   {
     if (*table->isForeignKeyColumn(col))
-      col_dict->SetValue(REPORT_COLUMN_KEY, "FK");
+      col_dict->setValue(REPORT_COLUMN_KEY, "FK");
     else
-      col_dict->SetValue(REPORT_COLUMN_KEY, "PK");
+      col_dict->setValue(REPORT_COLUMN_KEY, "PK");
   }
 
-  col_dict->SetValue(REPORT_COLUMN_NAME, *col->name());
+  col_dict->setValue(REPORT_COLUMN_NAME, *col->name());
 
-  col_dict->SetValue(REPORT_COLUMN_NOTNULL, (col->isNotNull() == 1) ? "Yes" : "No");
-  col_dict->SetValue(REPORT_COLUMN_DEFAULTVALUE, (col->defaultValueIsNull() == 1) ? "NULL" : 
+  col_dict->setValue(REPORT_COLUMN_NOTNULL, (col->isNotNull() == 1) ? "Yes" : "No");
+  col_dict->setValue(REPORT_COLUMN_DEFAULTVALUE, (col->defaultValueIsNull() == 1) ? "NULL" : 
     *col->defaultValue());
-  col_dict->SetValue(REPORT_COLUMN_COMMENT, *col->comment());
-  col_dict->SetValue(REPORT_COLUMN_DATATYPE, *col->formattedRawType());
+  col_dict->setValue(REPORT_COLUMN_COMMENT, *col->comment());
+  col_dict->setValue(REPORT_COLUMN_DATATYPE, *col->formattedRawType());
 
   if (detailed)
   {
-    col_dict->SetValue(REPORT_TABLE_NAME, *table->name());
+    col_dict->setValue(REPORT_TABLE_NAME, *table->name());
     
     string key_part= "";
     if (table->isPrimaryKeyColumn(col))
@@ -531,105 +528,100 @@ void fillColumnDict(const db_mysql_ColumnRef& col, const db_mysql_TableRef& tabl
     if (table->isForeignKeyColumn(col))
       key_part += "Foreign key, ";
 
-    col_dict->SetValue(REPORT_COLUMN_KEY_PART, key_part.substr(0, key_part.size() - 2));
-    col_dict->SetValue(REPORT_COLUMN_NULLABLE, (col->isNotNull() == 1) ? "No" : "Yes");
-    col_dict->SetValue(REPORT_COLUMN_AUTO_INC, (col->autoIncrement() == 1) ? "Yes" : "No");
+    col_dict->setValue(REPORT_COLUMN_KEY_PART, key_part.substr(0, key_part.size() - 2));
+    col_dict->setValue(REPORT_COLUMN_NULLABLE, (col->isNotNull() == 1) ? "No" : "Yes");
+    col_dict->setValue(REPORT_COLUMN_AUTO_INC, (col->autoIncrement() == 1) ? "Yes" : "No");
     if (!col->characterSetName().empty())
-      col_dict->SetValue(REPORT_COLUMN_CHARSET, *col->characterSetName());
+      col_dict->setValue(REPORT_COLUMN_CHARSET, *col->characterSetName());
     else
-      col_dict->SetValue(REPORT_COLUMN_CHARSET, "Schema Default");
+      col_dict->setValue(REPORT_COLUMN_CHARSET, "Schema Default");
     
     if (!col->collationName().empty())
-      col_dict->SetValue(REPORT_COLUMN_COLLATION, *col->collationName());
+      col_dict->setValue(REPORT_COLUMN_COLLATION, *col->collationName());
     else
-      col_dict->SetValue(REPORT_COLUMN_COLLATION, "Schema Default");
+      col_dict->setValue(REPORT_COLUMN_COLLATION, "Schema Default");
 
     if (col->userType().is_valid())
-      col_dict->SetValue(REPORT_COLUMN_IS_USERTYPE, "Yes");
+      col_dict->setValue(REPORT_COLUMN_IS_USERTYPE, "Yes");
     else 
-      col_dict->SetValue(REPORT_COLUMN_IS_USERTYPE, "No");
+      col_dict->setValue(REPORT_COLUMN_IS_USERTYPE, "No");
   }
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void fillIndexDict(const db_mysql_IndexRef& idx, const db_mysql_TableRef& table, TemplateDictionary *idx_dict, bool detailed)
+void fillIndexDict(const db_mysql_IndexRef& idx, const db_mysql_TableRef& table, mtemplate::DictionaryInterface *idx_dict, bool detailed)
 {
-  idx_dict->SetValue(REPORT_INDEX_NAME, *idx->name());
+  idx_dict->setValue(REPORT_INDEX_NAME, *idx->name());
 
-  idx_dict->SetValue(REPORT_INDEX_PRIMARY, (idx->isPrimary() == 1) ? "Yes" : "No");
-  idx_dict->SetValue(REPORT_INDEX_UNIQUE, (idx->unique() == 1) ? "Yes" : "No");
-  idx_dict->SetValue(REPORT_INDEX_TYPE, *idx->indexType());
-  idx_dict->SetValue(REPORT_INDEX_KIND, *idx->indexKind());
-  idx_dict->SetValue(REPORT_INDEX_COMMENT, *idx->comment());
+  idx_dict->setValue(REPORT_INDEX_PRIMARY, (idx->isPrimary() == 1) ? "Yes" : "No");
+  idx_dict->setValue(REPORT_INDEX_UNIQUE, (idx->unique() == 1) ? "Yes" : "No");
+  idx_dict->setValue(REPORT_INDEX_TYPE, *idx->indexType());
+  idx_dict->setValue(REPORT_INDEX_KIND, *idx->indexKind());
+  idx_dict->setValue(REPORT_INDEX_COMMENT, *idx->comment());
 
   for (std::size_t l= 0; l < idx->columns().count(); l++)
   {
     db_mysql_IndexColumnRef idx_col= idx->columns().get(l);
 
-    TemplateDictionary *idx_col_dict= idx_dict->AddSectionDictionary(REPORT_INDEX_COLUMNS);
-    idx_col_dict->SetValue(REPORT_INDEX_COLUMN_NAME, *idx_col->referencedColumn()->name());
-    idx_col_dict->SetValue(REPORT_INDEX_COLUMN_ORDER, (idx_col->descend() == 1) ? "Descending" : "Ascending");
+    mtemplate::DictionaryInterface *idx_col_dict= idx_dict->addSectionDictionary(REPORT_INDEX_COLUMNS);
+    idx_col_dict->setValue(REPORT_INDEX_COLUMN_NAME, *idx_col->referencedColumn()->name());
+    idx_col_dict->setValue(REPORT_INDEX_COLUMN_ORDER, (idx_col->descend() == 1) ? "Descending" : "Ascending");
     if (idx_col->comment().empty())
-      idx_col_dict->SetValue(REPORT_INDEX_COLUMN_COMMENT, "no comment");
+      idx_col_dict->setValue(REPORT_INDEX_COLUMN_COMMENT, "no comment");
     else
-      idx_col_dict->SetValue(REPORT_INDEX_COLUMN_COMMENT, *idx_col->comment());
+      idx_col_dict->setValue(REPORT_INDEX_COLUMN_COMMENT, *idx_col->comment());
   }
 
   if (detailed)
   {
-    idx_dict->SetValue(REPORT_TABLE_NAME, *table->name());
-    idx_dict->SetIntValue(REPORT_INDEX_KEY_BLOCK_SIZE, idx->keyBlockSize());
+    idx_dict->setValue(REPORT_TABLE_NAME, *table->name());
+    idx_dict->setIntValue(REPORT_INDEX_KEY_BLOCK_SIZE, idx->keyBlockSize());
   }
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void fillForeignKeyDict(const db_mysql_ForeignKeyRef& fk, const db_mysql_TableRef& table, TemplateDictionary *fk_dict, bool detailed)
+void fillForeignKeyDict(const db_mysql_ForeignKeyRef& fk, const db_mysql_TableRef& table, mtemplate::DictionaryInterface *fk_dict, bool detailed)
 {
-  fk_dict->SetValue(REPORT_REL_NAME, *fk->name());
-  fk_dict->SetValue(REPORT_REL_TYPE, bec::TableHelper::is_identifying_foreign_key(table, fk) ? "Identifying" : "Non-Identifying");
+  fk_dict->setValue(REPORT_REL_NAME, *fk->name());
+  fk_dict->setValue(REPORT_REL_TYPE, bec::TableHelper::is_identifying_foreign_key(table, fk) ? "Identifying" : "Non-Identifying");
   if (fk->referencedTable().is_valid())
-    fk_dict->SetValue(REPORT_REL_PARENTTABLE, *fk->referencedTable()->name());
-  fk_dict->SetValue(REPORT_REL_CHILDTABLE, *table->name());
-  fk_dict->SetValue(REPORT_REL_CARD, (fk->many() == 1) ? "1:n" : "1:1");
+    fk_dict->setValue(REPORT_REL_PARENTTABLE, *fk->referencedTable()->name());
+  fk_dict->setValue(REPORT_REL_CHILDTABLE, *table->name());
+  fk_dict->setValue(REPORT_REL_CARD, (fk->many() == 1) ? "1:n" : "1:1");
 
   if (detailed)
   {
-    fk_dict->SetValue(REPORT_TABLE_NAME, *table->name());
-    fk_dict->SetValue(REPORT_FK_DELETE_RULE, *fk->deleteRule());
-    fk_dict->SetValue(REPORT_FK_UPDATE_RULE, *fk->updateRule());
-    fk_dict->SetValue(REPORT_FK_MANDATORY, fk->mandatory() ? "Yes" : "No");
+    fk_dict->setValue(REPORT_TABLE_NAME, *table->name());
+    fk_dict->setValue(REPORT_FK_DELETE_RULE, *fk->deleteRule());
+    fk_dict->setValue(REPORT_FK_UPDATE_RULE, *fk->updateRule());
+    fk_dict->setValue(REPORT_FK_MANDATORY, fk->mandatory() ? "Yes" : "No");
   }
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void fillTriggerDict(const db_mysql_TriggerRef& trigger, const db_mysql_TableRef& table, 
-                     TemplateDictionary *trigger_dict)
+void fillTriggerDict(const db_mysql_TriggerRef& trigger, const db_mysql_TableRef& table, mtemplate::DictionaryInterface *trigger_dict)
 {
-  trigger_dict->SetValue(REPORT_TRIGGER_NAME, *trigger->name());
-  trigger_dict->SetValue(REPORT_TRIGGER_TIMING, *trigger->timing());
-  trigger_dict->SetValue(REPORT_TRIGGER_ENABLED, (trigger->enabled() == 1) ? "yes" : "no");
+  trigger_dict->setValue(REPORT_TRIGGER_NAME, *trigger->name());
+  trigger_dict->setValue(REPORT_TRIGGER_TIMING, *trigger->timing());
+  trigger_dict->setValue(REPORT_TRIGGER_ENABLED, (trigger->enabled() == 1) ? "yes" : "no");
   
-  trigger_dict->SetValue(REPORT_TABLE_NAME, table->name().c_str());
-  trigger_dict->SetValue(REPORT_TRIGGER_DEFINER, *trigger->definer());
-  trigger_dict->SetValue(REPORT_TRIGGER_EVENT, *trigger->event());
-  trigger_dict->SetValue(REPORT_TRIGGER_ORDER, *trigger->ordering());
-  trigger_dict->SetValue(REPORT_TRIGGER_OTHER_TRIGGER, *trigger->otherTrigger());
-  trigger_dict->SetValue(REPORT_TRIGGER_TIMING, *trigger->timing());
+  trigger_dict->setValue(REPORT_TABLE_NAME, table->name().c_str());
+  trigger_dict->setValue(REPORT_TRIGGER_DEFINER, *trigger->definer());
+  trigger_dict->setValue(REPORT_TRIGGER_EVENT, *trigger->event());
+  trigger_dict->setValue(REPORT_TRIGGER_ORDER, *trigger->ordering());
+  trigger_dict->setValue(REPORT_TRIGGER_OTHER_TRIGGER, *trigger->otherTrigger());
+  trigger_dict->setValue(REPORT_TRIGGER_TIMING, *trigger->timing());
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void fillViewDict(const db_mysql_ViewRef& view, TemplateDictionary *view_dict)
+void fillViewDict(const db_mysql_ViewRef& view, mtemplate::DictionaryInterface *view_dict)
 {
-  view_dict->SetValue(REPORT_VIEW_NAME, *view->name());
-  view_dict->SetValueAndShowSection(REPORT_VIEW_COMMENT, *view->comment(), REPORT_VIEW_COMMENT_LISTING);
+  view_dict->setValue(REPORT_VIEW_NAME, *view->name());
+  view_dict->setValueAndShowSection(REPORT_VIEW_COMMENT, *view->comment(), REPORT_VIEW_COMMENT_LISTING);
   
-  view_dict->SetValue(REPORT_VIEW_COLUMNS, *view->name());
-  view_dict->SetValue(REPORT_VIEW_READ_ONLY, view->isReadOnly() ? "read only" : "writable");
-  view_dict->SetValue(REPORT_VIEW_WITH_CHECK, view->withCheckCondition() ? "yes" : "no");
+  view_dict->setValue(REPORT_VIEW_COLUMNS, *view->name());
+  view_dict->setValue(REPORT_VIEW_READ_ONLY, view->isReadOnly() ? "read only" : "writable");
+  view_dict->setValue(REPORT_VIEW_WITH_CHECK, view->withCheckCondition() ? "yes" : "no");
   
   string columns= "";
   for (grt::StringListRef::const_iterator iterator= view->columns().begin(); 
@@ -642,27 +634,26 @@ void fillViewDict(const db_mysql_ViewRef& view, TemplateDictionary *view_dict)
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void fillRoutineDict(const db_mysql_RoutineRef& routine, TemplateDictionary *routine_dict)
+void fillRoutineDict(const db_mysql_RoutineRef& routine, mtemplate::DictionaryInterface *routine_dict)
 {
   string value;
 
-  routine_dict->SetValue(REPORT_ROUTINE_NAME, *routine->name());
-  routine_dict->SetValue(REPORT_ROUTINE_TYPE, *routine->routineType());
+  routine_dict->setValue(REPORT_ROUTINE_NAME, *routine->name());
+  routine_dict->setValue(REPORT_ROUTINE_TYPE, *routine->routineType());
   
   assignValueOrNA(routine_dict, REPORT_ROUTINE_RETURN_TYPE, routine->returnDatatype());
   assignValueOrNA(routine_dict, REPORT_ROUTINE_SECURITY, value= routine->security());
 
-  routine_dict->SetIntValue(REPORT_ROUTINE_PARAMETER_COUNT, (long)routine->params().count());
+  routine_dict->setIntValue(REPORT_ROUTINE_PARAMETER_COUNT, (long)routine->params().count());
   for (std::size_t j = 0; j < routine->params().count(); j++)
   {
     db_mysql_RoutineParamRef parameter= routine->params().get(j);
     
-    TemplateDictionary *parameter_dict= routine_dict->AddSectionDictionary(REPORT_ROUTINE_PARAMETERS);
+    mtemplate::DictionaryInterface *parameter_dict= routine_dict->addSectionDictionary(REPORT_ROUTINE_PARAMETERS);
     
-    parameter_dict->SetValue(REPORT_ROUTINE_PARAMETER_NAME, *parameter->name());
-    parameter_dict->SetValue(REPORT_ROUTINE_PARAMETER_TYPE, *parameter->paramType());
-    parameter_dict->SetValue(REPORT_ROUTINE_PARAMETER_DATA_TYPE, *parameter->datatype());
+    parameter_dict->setValue(REPORT_ROUTINE_PARAMETER_NAME, *parameter->name());
+    parameter_dict->setValue(REPORT_ROUTINE_PARAMETER_TYPE, *parameter->paramType());
+    parameter_dict->setValue(REPORT_ROUTINE_PARAMETER_DATA_TYPE, *parameter->datatype());
   }
 }
 
@@ -792,8 +783,7 @@ const string markupFromStyle(int style)
 }
 
 //--------------------------------------------------------------------------------------------------
-
-void set_ddl(TemplateDictionary *target, SQLGeneratorInterfaceImpl* sqlgenModule, 
+void set_ddl(mtemplate::DictionaryInterface *target, SQLGeneratorInterfaceImpl* sqlgenModule, 
              const GrtNamedObjectRef& object, const Scintilla::LexerModule* lexer,
              bool ddl_enabled)
 {
@@ -834,7 +824,7 @@ void set_ddl(TemplateDictionary *target, SQLGeneratorInterfaceImpl* sqlgenModule
 
     // The DDL script is wrapped in an own section dir to allow switching it off entirely (including
     // the surrounding HTML code).
-    target->SetValueAndShowSection(REPORT_DDL_SCRIPT, fixed_line_breaks, REPORT_DDL_LISTING);
+    target->setValueAndShowSection(REPORT_DDL_SCRIPT, fixed_line_breaks, REPORT_DDL_LISTING);
   }
 }
 
@@ -899,6 +889,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   bool fks_show_referred_fks= true;
   bool show_ddl= true;
   bool use_highlighting= false;
+  std::unique_ptr<mtemplate::TemplateOutputFile> single_file_output;
   
   if (options.is_valid())
   {
@@ -989,28 +980,30 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
 
   // --------------------------------------------------------------------------------------------
   // create main dictionary that will be used to expand the templates
-  TemplateDictionary main_dict("basic index");
+  mtemplate::DictionaryInterface *main_dictionary = mtemplate::CreateMainDictionary();
 
   // Set some global project info.
-  main_dict.SetValue(REPORT_TITLE, title);
+  main_dictionary->setValue(REPORT_TITLE, title);
 
   string time= base::fmttime(0, DATETIME_FMT);
-  main_dict.SetValue(REPORT_GENERATED, time);
+  main_dictionary->setValue(REPORT_GENERATED, time);
 
   workbench_DocumentRef document= workbench_DocumentRef::cast_from(model->owner());
-  main_dict.SetValue(REPORT_PROJECT_NAME, document->info()->project().c_str());
-  main_dict.SetValue(REPORT_PROJECT_AUTHOR, document->info()->author().c_str());
-  main_dict.SetValue(REPORT_PROJECT_TITLE, document->info()->caption().c_str());
-  main_dict.SetValue(REPORT_PROJECT_CHANGED, document->info()->dateChanged().c_str());
-  main_dict.SetValue(REPORT_PROJECT_CREATED, document->info()->dateCreated().c_str());
-  main_dict.SetValue(REPORT_PROJECT_DESCRIPTION, document->info()->description().c_str());
-  main_dict.SetValue(REPORT_PROJECT_VERSION, document->info()->version().c_str());
-
+  main_dictionary->setValue(REPORT_PROJECT_NAME, (std::string)document->info()->project());
+  main_dictionary->setValue(REPORT_PROJECT_AUTHOR, (std::string)document->info()->author());
+  main_dictionary->setValue(REPORT_PROJECT_TITLE, (std::string)document->info()->caption());
+  main_dictionary->setValue(REPORT_PROJECT_CHANGED, (std::string)document->info()->dateChanged());
+  main_dictionary->setValue(REPORT_PROJECT_CREATED, (std::string)document->info()->dateCreated());
+  main_dictionary->setValue(REPORT_PROJECT_DESCRIPTION, (std::string)document->info()->description());
+  main_dictionary->setValue(REPORT_PROJECT_VERSION, (std::string)document->info()->version());
+  
+  main_dictionary->dump();
+  
   workbench_model_reporting_TemplateStyleInfoRef styleInfo= get_template_style_from_name(template_name, template_style_name);
   if (styleInfo.is_valid())
-    main_dict.SetValue(REPORT_STYLE_NAME, (string)styleInfo->styleTagValue());
+    main_dictionary->setValue(REPORT_STYLE_NAME, (string)styleInfo->styleTagValue());
 
-  main_dict.SetIntValue(REPORT_SCHEMA_COUNT, (int)catalog->schemata().count());
+  main_dictionary->setIntValue(REPORT_SCHEMA_COUNT, catalog->schemata().count());
 
   int total_column_count= 0;
   int total_index_count= 0;
@@ -1045,14 +1038,14 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   {
     db_mysql_SchemaRef schema= catalog->schemata().get(i);
 
-    TemplateDictionary *schema_dict= main_dict.AddSectionDictionary(REPORT_SCHEMATA);
-    schema_dict->SetIntValue(REPORT_SCHEMA_ID, i);
-    schema_dict->SetIntValue(REPORT_SCHEMA_NUMBER, i + 1);
-    schema_dict->SetValue(REPORT_SCHEMA_NAME, *schema->name());
+    mtemplate::DictionaryInterface *schema_dictionary = main_dictionary->addSectionDictionary(REPORT_SCHEMATA);
+    schema_dictionary->setIntValue(REPORT_SCHEMA_ID, i);
+    schema_dictionary->setIntValue(REPORT_SCHEMA_NUMBER, i + 1);
+    schema_dictionary->setValue(REPORT_SCHEMA_NAME, *schema->name());
 
-    set_ddl(schema_dict, sqlgenModule, schema, lexer, show_ddl);
+    set_ddl(schema_dictionary, sqlgenModule, schema, lexer, show_ddl);
 
-    schema_dict->SetIntValue(REPORT_TABLE_COUNT, (int)schema->tables().count());
+    schema_dictionary->setIntValue(REPORT_TABLE_COUNT, (int)schema->tables().count());
 
     // Loop over all tables. Build the nested tables sub groups and at the same time the
     // full collection of all columns, indices and foreign keys.
@@ -1060,91 +1053,97 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
     {
       db_mysql_TableRef table= schema->tables().get(j);
 
-      TemplateDictionary *table_dict= schema_dict->AddSectionDictionary(REPORT_TABLES);
+      mtemplate::DictionaryInterface *table_dictionary = schema_dictionary->addSectionDictionary(REPORT_TABLES);
       
       // The table id is used as unique id, e.g. in HTML anchors.
-      table_dict->SetIntValue(REPORT_TABLE_ID, total_table_count++);
+      table_dictionary->setIntValue(REPORT_TABLE_ID, total_table_count++);
       
       // The table number is used in visible counts like "Table 1 of 20".
-      table_dict->SetIntValue(REPORT_TABLE_NUMBER, j + 1);
+      table_dictionary->setIntValue(REPORT_TABLE_NUMBER, j + 1);
       
-      table_dict->SetValue(REPORT_TABLE_NAME, *table->name());
-      table_dict->SetValueAndShowSection(REPORT_TABLE_COMMENT, *table->comment(), REPORT_TABLE_COMMENT_LISTING);
+      table_dictionary->setValue(REPORT_TABLE_NAME, *table->name());
+      table_dictionary->setValueAndShowSection(REPORT_TABLE_COMMENT, *table->comment(), REPORT_TABLE_COMMENT_LISTING);
 
-      fillTablePropertyDict(table, table_dict);
-      set_ddl(table_dict, sqlgenModule, table, lexer, show_ddl);
+      fillTablePropertyDict(table, table_dictionary);
+      set_ddl(table_dictionary, sqlgenModule, table, lexer, show_ddl);
 
       if (columns_show)
       {
-        TemplateDictionary *columns_list_dict = NULL;
-        schema_dict->SetIntValue(REPORT_COLUMN_COUNT, (long)table->columns().count());
+        mtemplate::DictionaryInterface *columns_list_dictionary = NULL;
+        
+        schema_dictionary->setIntValue(REPORT_COLUMN_COUNT, (long)table->columns().count());
 
         for (int k= 0; k < (int)table->columns().count(); k++)
         {
           // Create the dict for the outer section (including header)
           if (k == 0)
-            columns_list_dict= table_dict->AddSectionDictionary(REPORT_COLUMNS_LISTING);
+            columns_list_dictionary = table_dictionary->addSectionDictionary(REPORT_COLUMNS_LISTING);
 
           db_mysql_ColumnRef col= table->columns().get(k);
 
           // Fill data for table details.
-          TemplateDictionary *col_dict= columns_list_dict->AddSectionDictionary(REPORT_COLUMNS);
-          fillColumnDict(col, table, col_dict, false);
+          mtemplate::DictionaryInterface *col_dictionary = columns_list_dictionary->addSectionDictionary(REPORT_COLUMNS);
+          
+          fillColumnDict(col, table, col_dictionary, false);
 
           // Fill data for full details.
-          col_dict= schema_dict->AddSectionDictionary(REPORT_COLUMNS);
-          fillColumnDict(col, table, col_dict, true);
+          col_dictionary = schema_dictionary->addSectionDictionary(REPORT_COLUMNS);
+          
+          fillColumnDict(col, table, col_dictionary, true);
 
-          col_dict->SetIntValue(REPORT_COLUMN_ID, total_column_count++);
-          col_dict->SetIntValue(REPORT_COLUMN_NUMBER, k + 1);
+          col_dictionary->setIntValue(REPORT_COLUMN_ID, total_column_count++);
+          col_dictionary->setIntValue(REPORT_COLUMN_NUMBER, k + 1);
         }
       }
 
       if (indices_show)
       {
-        TemplateDictionary *idx_list_dict = NULL;
-        schema_dict->SetIntValue(REPORT_INDEX_COUNT, (long)table->indices().count());
+        mtemplate::DictionaryInterface *idx_list_dictionary = NULL;
+        
+        schema_dictionary->setIntValue(REPORT_INDEX_COUNT, (long)table->indices().count());
 
         for (int k= 0; k < (int)table->indices().count(); k++)
         {
           // Create the dict for the outer section (including header)
           if (k == 0)
-            idx_list_dict= table_dict->AddSectionDictionary(REPORT_INDICES_LISTING);
+            idx_list_dictionary = table_dictionary->addSectionDictionary(REPORT_INDICES_LISTING);
 
           db_mysql_IndexRef idx= table->indices().get(k);
 
-          TemplateDictionary *idx_dict = idx_list_dict->AddSectionDictionary(REPORT_INDICES);
-          fillIndexDict(idx, table, idx_dict, false);
+          mtemplate::DictionaryInterface *idx_dictionary = idx_list_dictionary->addSectionDictionary(REPORT_INDICES);
+          
+          fillIndexDict(idx, table, idx_dictionary, false);
 
-          idx_dict= schema_dict->AddSectionDictionary(REPORT_INDICES);
-          fillIndexDict(idx, table, idx_dict, true);
+          idx_dictionary = schema_dictionary->addSectionDictionary(REPORT_INDICES);
+          fillIndexDict(idx, table, idx_dictionary, true);
 
-          idx_dict->SetIntValue(REPORT_INDEX_ID, total_index_count++);
-          idx_dict->SetIntValue(REPORT_INDEX_NUMBER, k + 1);
+          idx_dictionary->setIntValue(REPORT_INDEX_ID, total_index_count++);
+          idx_dictionary->setIntValue(REPORT_INDEX_NUMBER, k + 1);
         }
       }
 
       if (fks_show)
       {
-        TemplateDictionary *fk_list_dict= NULL;
-        schema_dict->SetIntValue(REPORT_FOREIGN_KEY_COUNT, (long)table->foreignKeys().count());
+        mtemplate::DictionaryInterface *fk_list_dictionary = NULL;
+        
+        schema_dictionary->setIntValue(REPORT_FOREIGN_KEY_COUNT, (long)table->foreignKeys().count());
 
         for (int k= 0; k < (int)table->foreignKeys().count(); k++)
         {
           // Create the dict for the outer section (inluding header)
           if (k == 0)
-            fk_list_dict= table_dict->AddSectionDictionary(REPORT_REL_LISTING);
+            fk_list_dictionary = table_dictionary->addSectionDictionary(REPORT_REL_LISTING);
 
           db_mysql_ForeignKeyRef fk= table->foreignKeys().get(k);
 
-          TemplateDictionary *fk_dict= fk_list_dict->AddSectionDictionary(REPORT_REL);
-          fillForeignKeyDict(fk, table, fk_dict, false);
+          mtemplate::DictionaryInterface *fk_dictionary= fk_list_dictionary->addSectionDictionary(REPORT_REL);
+          fillForeignKeyDict(fk, table, fk_dictionary, false);
 
-          fk_dict= schema_dict->AddSectionDictionary(REPORT_FOREIGN_KEYS);
-          fillForeignKeyDict(fk, table, fk_dict, true);
+          fk_dictionary = schema_dictionary->addSectionDictionary(REPORT_FOREIGN_KEYS);
+          fillForeignKeyDict(fk, table, fk_dictionary, true);
 
-          fk_dict->SetIntValue(REPORT_FOREIGN_KEY_ID, total_fk_count++);
-          fk_dict->SetIntValue(REPORT_FOREIGN_KEY_NUMBER, k + 1);
+          fk_dictionary->setIntValue(REPORT_FOREIGN_KEY_ID, total_fk_count++);
+          fk_dictionary->setIntValue(REPORT_FOREIGN_KEY_NUMBER, k + 1);
         }
 
         if (fks_show_referred_fks)
@@ -1156,76 +1155,74 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
             vector<db_mysql_ForeignKeyRef>::iterator fk_it= tbl_fk_map_it->second.begin();
             for (; fk_it != tbl_fk_map_it->second.end(); fk_it++)
             {
-              if (fk_list_dict == NULL)
-                fk_list_dict= table_dict->AddSectionDictionary(REPORT_REL_LISTING);
+              if (fk_list_dictionary == NULL)
+                fk_list_dictionary = table_dictionary->addSectionDictionary(REPORT_REL_LISTING);
 
               db_mysql_ForeignKeyRef fk = *fk_it;
 
-              TemplateDictionary *fk_dict= fk_list_dict->AddSectionDictionary(REPORT_REL);
-              fk_dict->SetValue(REPORT_REL_NAME, *fk->name());
-              fk_dict->SetValue(REPORT_REL_TYPE, 
-                bec::TableHelper::is_identifying_foreign_key(table, fk) ? "Identifying" : "Non-Identifying");
-              fk_dict->SetValue(REPORT_REL_PARENTTABLE, *table->name());
-              fk_dict->SetValue(REPORT_REL_CHILDTABLE, *fk->owner()->name());
-              fk_dict->SetValue(REPORT_REL_CARD, (fk->many() == 1) ? "1:n" : "1:1");
+              mtemplate::DictionaryInterface *fk_dictionary = fk_list_dictionary->addSectionDictionary(REPORT_REL);
+              fk_dictionary->setValue(REPORT_REL_NAME, *fk->name());
+              fk_dictionary->setValue(REPORT_REL_TYPE, bec::TableHelper::is_identifying_foreign_key(table, fk) ? "Identifying" : "Non-Identifying");
+              fk_dictionary->setValue(REPORT_REL_PARENTTABLE, *table->name());
+              fk_dictionary->setValue(REPORT_REL_CHILDTABLE, *fk->owner()->name());
+              fk_dictionary->setValue(REPORT_REL_CARD, (fk->many() == 1) ? "1:n" : "1:1");
             }
           }
         }
         
         // Triggers.
-        schema_dict->SetIntValue(REPORT_TRIGGER_COUNT, (long)table->triggers().count());
+        schema_dictionary->setIntValue(REPORT_TRIGGER_COUNT, (long)table->triggers().count());
 
         for (int k= 0; k < (int)table->triggers().count(); k++)
         {
           db_mysql_TriggerRef trigger= table->triggers().get(k);
           
-          TemplateDictionary *trigger_dict= schema_dict->AddSectionDictionary(REPORT_TRIGGERS);
-          fillTriggerDict(trigger, table, trigger_dict);
-          set_ddl(trigger_dict, sqlgenModule, trigger, lexer, show_ddl);
+          mtemplate::DictionaryInterface *trigger_dictionary= schema_dictionary->addSectionDictionary(REPORT_TRIGGERS);
+          fillTriggerDict(trigger, table, trigger_dictionary);
+          set_ddl(trigger_dictionary, sqlgenModule, trigger, lexer, show_ddl);
           
-          trigger_dict->SetIntValue(REPORT_TRIGGER_ID, total_trigger_count++);
-          trigger_dict->SetIntValue(REPORT_TRIGGER_NUMBER, k + 1);
+          trigger_dictionary->setIntValue(REPORT_TRIGGER_ID, total_trigger_count++);
+          trigger_dictionary->setIntValue(REPORT_TRIGGER_NUMBER, k + 1);
         }
       }
     }
     
     // View section.
-    schema_dict->SetIntValue(REPORT_VIEW_COUNT, (long)schema->views().count());
+    schema_dictionary->setIntValue(REPORT_VIEW_COUNT, (long)schema->views().count());
     for (int j= 0; j < (int)schema->views().count(); j++)
     {
       db_mysql_ViewRef view= schema->views().get(j);
 
-      TemplateDictionary *view_dict= schema_dict->AddSectionDictionary(REPORT_VIEWS);
-      view_dict->SetIntValue(REPORT_VIEW_ID, total_view_count++);
-      view_dict->SetIntValue(REPORT_VIEW_NUMBER, j + 1);
-      set_ddl(view_dict, sqlgenModule, view, lexer, show_ddl);
+      mtemplate::DictionaryInterface *view_dictionary= schema_dictionary->addSectionDictionary(REPORT_VIEWS);
+      view_dictionary->setIntValue(REPORT_VIEW_ID, total_view_count++);
+      view_dictionary->setIntValue(REPORT_VIEW_NUMBER, j + 1);
+      set_ddl(view_dictionary, sqlgenModule, view, lexer, show_ddl);
 
-      fillViewDict(view, view_dict);
+      fillViewDict(view, view_dictionary);
     }
 
     // Routine section.
-    schema_dict->SetIntValue(REPORT_ROUTINE_COUNT, (long)schema->routines().count());
+    schema_dictionary->setIntValue(REPORT_ROUTINE_COUNT, (long)schema->routines().count());
     for (int j= 0; j < (int)schema->routines().count(); j++)
     {
       db_mysql_RoutineRef routine= schema->routines().get(j);
       
-      TemplateDictionary *routine_dict= schema_dict->AddSectionDictionary(REPORT_ROUTINES);
-      routine_dict->SetIntValue(REPORT_ROUTINE_ID, total_sp_count++);
-      routine_dict->SetIntValue(REPORT_ROUTINE_NUMBER, j + 1);
-      set_ddl(routine_dict, sqlgenModule, routine, lexer, show_ddl);
+      mtemplate::DictionaryInterface *routine_dictionary= schema_dictionary->addSectionDictionary(REPORT_ROUTINES);
+      routine_dictionary->setIntValue(REPORT_ROUTINE_ID, total_sp_count++);
+      routine_dictionary->setIntValue(REPORT_ROUTINE_NUMBER, j + 1);
+      set_ddl(routine_dictionary, sqlgenModule, routine, lexer, show_ddl);
       
-      fillRoutineDict(routine, routine_dict);
+      fillRoutineDict(routine, routine_dictionary);
     }
   }
 
-  main_dict.SetIntValue(REPORT_TOTAL_COLUMN_COUNT, total_column_count);
-  main_dict.SetIntValue(REPORT_TOTAL_INDEX_COUNT, total_index_count);
-  main_dict.SetIntValue(REPORT_TOTAL_FK_COUNT, total_fk_count);
-  main_dict.SetIntValue(REPORT_TOTAL_TABLE_COUNT, total_table_count);
-  main_dict.SetIntValue(REPORT_TOTAL_VIEW_COUNT, total_view_count);
-  main_dict.SetIntValue(REPORT_TOTAL_TRIGGER_COUNT, total_trigger_count);
-  main_dict.SetIntValue(REPORT_TOTAL_ROUTINE_COUNT, total_sp_count);
-
+  main_dictionary->setIntValue(REPORT_TOTAL_COLUMN_COUNT, total_column_count);
+  main_dictionary->setIntValue(REPORT_TOTAL_INDEX_COUNT, total_index_count);
+  main_dictionary->setIntValue(REPORT_TOTAL_FK_COUNT, total_fk_count);
+  main_dictionary->setIntValue(REPORT_TOTAL_TABLE_COUNT, total_table_count);
+  main_dictionary->setIntValue(REPORT_TOTAL_VIEW_COUNT, total_view_count);
+  main_dictionary->setIntValue(REPORT_TOTAL_TRIGGER_COUNT, total_trigger_count);
+  main_dictionary->setIntValue(REPORT_TOTAL_ROUTINE_COUNT, total_sp_count);
   // --------------------------------------------------------------------------------------------
   // Process template files
 
@@ -1252,28 +1249,19 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
         if (g_str_has_suffix(entry, ".tpl"))
         {          
           // load template file
-          Template *tpl_index= Template::GetTemplate(path, ctemplate::DO_NOT_STRIP);
-          if (tpl_index == 0)
+          mtemplate::Template *template_index = mtemplate::GetTemplate(path, mtemplate::DO_NOT_STRIP);
+          if (template_index == 0)
           {
-            grt::GRT::get()->send_error("Error while loading template files.");
+            grt::GRT::get()->send_error("Error while loading template files. Please check the log for more information.");
             grt::GRT::get()->send_error(path);
-            ctemplate::TemplateNamelist::SyntaxListType bad_list= ctemplate::TemplateNamelist::GetBadSyntaxList(true, 
-              ctemplate::DO_NOT_STRIP);
-            if (bad_list.size() > 0)
-            {
-              grt::GRT::get()->send_error("Syntax errors found in file:");
-              for (ctemplate::TemplateNamelist::SyntaxListType::iterator iterator= bad_list.begin(); 
-                iterator != bad_list.end(); iterator++)
-                  grt::GRT::get()->send_error(*iterator);
-            }
             grt::GRT::get()->make_output_visible();
             g_free(path);
             return 0;
           }
 
           // expand the template based on the dictionary
-          string output;
-          tpl_index->Expand(&output, &main_dict);
+          mtemplate::TemplateOutputString string_output;
+          template_index->expand(main_dictionary, &string_output);
 
           // build output file name
           string output_filename;
@@ -1291,18 +1279,19 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
             string::size_type p = name.rfind('.');
             if (p != string::npos)
               output_filename += name.substr(p);
+            
+            if (single_file_output == nullptr)
+              single_file_output = std::unique_ptr<mtemplate::TemplateOutputFile>(new mtemplate::TemplateOutputFile(output_filename));
+            
+            template_index->expand(main_dictionary, single_file_output.get());
           }
           else
           {
             string template_filename(entry);
             output_filename= base::makePath(output_path, template_filename.substr(0, template_filename.size() - 4));
+            mtemplate::TemplateOutputFile output(output_filename);
+            template_index->expand(main_dictionary, &output);
           }
-
-          // write output to file
-          ofstream fs;
-          fs.open(output_filename.c_str(), ios::out);
-          fs << output;
-          fs.close();
         }
         else
         {

@@ -66,7 +66,6 @@
                 <File Id="file1032" Name="gobject.dll"/>
                 <File Id="file1033" Name="gthread.dll"/>
                 <File Id="file1050" Name="Aga.Controls.dll"/>
-                <File Id="file1064" Name="libctemplate.dll"/>
                 <File Id="file1065" Name="libzip.dll"/>
                 <File Id="file1083" Name="zlib.dll"/>
                 <File Id="file1087" Name="wb.py"/>

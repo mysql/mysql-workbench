@@ -107,8 +107,8 @@ target_link_libraries(mysql-workbench-bin
     mdcanvasgtk
     mdcanvas
     parsers
+    mtemplate
     ${MYSQLCPPCONN_LIBRARIES}
-    ${CTemplate_LIBRARIES}
     ${X11_LIBRARIES}
     ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
@@ -120,6 +120,10 @@ target_link_libraries(mysql-workbench-bin
     ${SQLITE3_LIBRARIES}
     ${GNOME_KEYRING_LIBRARIES}
 )
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(mysql-workbench-bin gcov)
+endif()
 
 if(COMMAND cotire)
   set_target_properties(mysql-workbench-bin PROPERTIES

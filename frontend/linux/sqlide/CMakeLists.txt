@@ -30,6 +30,10 @@ target_compile_options(sqlide PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(sqlide ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(sqlide gcov)
+endif()
+
 set_target_properties(sqlide
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})

@@ -20,4 +20,8 @@ else()
   target_compile_options(genwrap PUBLIC -fPIE -pie)
 endif()
 
-target_link_libraries(genwrap grt wbbase wbpublic ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES} ${CTemplate_LIBRARIES})
+target_link_libraries(genwrap grt wbbase wbpublic mtemplate ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(genwrap gcov)
+endif()

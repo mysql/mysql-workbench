@@ -132,7 +132,6 @@ find_package(LibXml2 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 
-find_package(CTemplate 2.2 REQUIRED)
 find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
@@ -295,7 +294,7 @@ add_definitions(-DGSEAL_ENABLE)
 add_definitions(-DTIXML_USE_STL=1)
 
 set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
-SET(GCOV OFF CACHE BOOL "Add gcov flags")
+# SET(GCOV OFF CACHE BOOL "Add gcov flags")
 
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
@@ -307,9 +306,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   endif()
 endif()
 
-if(GCOV)
-    set(WB_CXXFLAGS "${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage")
-    set(WB_CFLAGS "${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage")
+if(BUILD_FOR_TESTS)
+    message ("Enable GCOV due to BUILD_FOR_TESTS")
+    set(WB_CXXFLAGS ${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage)
+    set(WB_CFLAGS ${WB_CFLAGS} -fprofile-arcs -ftest-coverage)
 endif()
 
 #-----------------------------------------------------------------------
