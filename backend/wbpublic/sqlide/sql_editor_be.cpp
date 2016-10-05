@@ -255,8 +255,7 @@ MySQLEditor::MySQLEditor(MySQLParserContext::Ref syntax_check_context, MySQLPars
   setup_auto_completion();
 
   _auto_completion_cache = NULL;
-
-  _sql_mode = "";
+  _continue_on_error = false;
 
   setup_editor_menu();
 }

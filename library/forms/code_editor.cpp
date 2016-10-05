@@ -38,6 +38,7 @@ using namespace base;
 
 // Marker ID assignments. Markers with higher number overlay lower ones.
 // Note: the order here matches the LineMarkup enum, so we can directly use the enum as marker flags.
+//       The LineMarkup is a bitmask (so we can create what Scintilla calls a marker set).
 #define CE_STATEMENT_MARKER      0
 #define CE_ERROR_MARKER          1
 #define CE_BREAKPOINT_MARKER     2
