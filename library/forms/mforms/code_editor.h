@@ -58,16 +58,16 @@ namespace mforms {
   };
 
   /**
-   * A number of flags used to specify visual appearance of an editor line.
+   * A number of flags used to specify additional markup for a line (usually shown in the gutter).
    */
   enum LineMarkup {
     LineMarkupNone          = 0,      // No markup for the given line.
     LineMarkupStatement     = 1 << 0, // Marks a line as having a statement starting on it.
-    LineMarkupError         = 1 << 1, // Line's background is drawn in red to mark an execution error.
+    LineMarkupError         = 1 << 1, // Marks a syntax error in that line.
     LineMarkupBreakpoint    = 1 << 2, // Line has a marker set for a break point.
     LineMarkupBreakpointHit = 1 << 3, // Line has a marker set for a break point which is currently hit.
     LineMarkupCurrent       = 1 << 4, // Current execution line.
-    LineMarkupErrorContinue = 1 << 5, // ine's background is drawn in red to mark an execution error on continue.
+    LineMarkupErrorContinue = 1 << 5, // Line's background is drawn in red to mark an execution error on continue.
 
     LineMarkupAll           = 0xFF,   // All markup, useful for remove_markup.
   };
