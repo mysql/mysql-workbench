@@ -38,6 +38,7 @@ using namespace base;
 
 // Marker ID assignments. Markers with higher number overlay lower ones.
 // Note: the order here matches the LineMarkup enum, so we can directly use the enum as marker flags.
+//       The LineMarkup is a bitmask (so we can create what Scintilla calls a marker set).
 #define CE_STATEMENT_MARKER      0
 #define CE_ERROR_MARKER          1
 #define CE_BREAKPOINT_MARKER     2
@@ -357,7 +358,7 @@ void CodeEditor::setup()
   setup_marker(CE_BREAKPOINT_MARKER, "editor_breakpoint");
   setup_marker(CE_BREAKPOINT_HIT_MARKER, "editor_breakpoint_hit");
   setup_marker(CE_CURRENT_LINE_MARKER, "editor_current_pos");
-  setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");//editor_continue_on_error
+  setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");
 
   // Other settings.
   Color color = App::get()->get_system_color(mforms::SystemColorHighlight);
