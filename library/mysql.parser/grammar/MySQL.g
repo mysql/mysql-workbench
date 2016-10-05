@@ -2713,10 +2713,8 @@ compound_statement_list:
 ;
 
 // CASE rule solely for stored programs. There's another variant (case_expression) used in (primary) expressions.
-// In the server grammar there are 2 variants of this rule actually (one simple and one searched).
-// They differ only in action code, not syntax.
 case_statement:
-	CASE_SYMBOL^ expression (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
+	CASE_SYMBOL^ expression? (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
 ;
 
 else_statement:
