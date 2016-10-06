@@ -557,7 +557,7 @@ class ProgressMainView(WizardPage):
                       self.main.plan.migrationSource.connection, source_password,
                       self.main.plan.migrationTarget.connection, target_password)
 
-        self._transferer.copytable_path = self.main.plan.wbcopytables_path
+        self._transferer.copytable_path = self.main.plan.wbcopytables_path_bin
         for idx, schema_name in enumerate(self.main.plan.migrationSource.selectedSchemataNames):
             self._tasks.extend(
               [
