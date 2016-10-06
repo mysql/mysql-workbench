@@ -418,7 +418,7 @@ class TransferMainView(WizardProgressPage):
                           self.main.plan.migrationSource.connection, source_password,
                           self.main.plan.migrationTarget.connection, target_password)
 
-            self._transferer.copytable_path = self.main.plan.wbcopytables_path
+            self._transferer.copytable_path = self.main.plan.wbcopytables_path_bin
         WizardProgressPage.page_activated(self, advancing)
 
 
