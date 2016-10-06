@@ -62,4 +62,8 @@ set_target_properties(_cairo
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(_cairo gcov)
+endif()                                 
+                                 
 install(TARGETS _mforms _cairo DESTINATION ${WB_PYTHON_MODULES_DIR})

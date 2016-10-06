@@ -21,7 +21,6 @@
 #include "wb_helpers.h"
 
 #include "base/utf8string.h"
-#include "../dictionary.h"
 #include "mtemplate/template.h"
 #include <fstream>
 
