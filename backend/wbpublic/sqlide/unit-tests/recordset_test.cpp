@@ -64,7 +64,7 @@ TEST_FUNCTION(2)
 
 //  data_storage->dbms_conn(dbc_conn);
   base::RecMutex _connLock;
-  data_storage->setUserConnectionGetter([&](sql::Dbc_connection_handler::Ref &conn) -> base::RecMutexLock{
+  data_storage->setUserConnectionGetter([&](sql::Dbc_connection_handler::Ref &conn, bool LockOnly = false) -> base::RecMutexLock{
     base::RecMutexLock lock(_connLock, false);
     conn = dbc_conn;
     return lock;
