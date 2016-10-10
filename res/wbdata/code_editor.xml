@@ -179,7 +179,7 @@
 		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext JSgeomfromwkb get_format get_lock glength
 			greatest group_concat
 		hex hour
-		if ifnull in inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
+		if ifnull inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
 			issimple
 		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
 			log2 log lower lpad ltrim make_set
@@ -284,7 +284,7 @@
 		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
 			greatest group_concat
 		hex hour
-		if ifnull in inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
+		if ifnull inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
 			issimple
 		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
 			log2 log lower lpad ltrim make_set
@@ -394,7 +394,7 @@
 		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
 			greatest group_concat
 		hex hour
-		if ifnull in inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
+		if ifnull inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
 			issimple
 		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
 			log2 log lower lpad ltrim make_set
@@ -505,7 +505,7 @@
 		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
 			greatest group_concat gtid_subset gtid_subtract
 		hex hour
-		if ifnull in inet_aton inet_ntoa inet6_aton inet6_ntoa insert instr interiorringn intersects interval is_free_lock is_ipv4_compat
+		if ifnull inet_aton inet_ntoa inet6_aton inet6_ntoa insert instr interiorringn intersects interval is_free_lock is_ipv4_compat
 			is_ipv4_mapped is_ipv4 is_ipv6 is_used_lock isclosed isempty isnull issimple
 		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
 			log2 log lower lpad ltrim make_set
@@ -626,7 +626,7 @@
 		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
 			greatest group_concat gtid_subset gtid_subtract
 		hex hour
-		if ifnull in inet_aton inet_ntoa inet6_aton inet6_ntoa insert instr interiorringn intersects interval is_free_lock is_ipv4_compat
+		if ifnull inet_aton inet_ntoa inet6_aton inet6_ntoa insert instr interiorringn intersects interval is_free_lock is_ipv4_compat
 			is_ipv4_mapped is_ipv4 is_ipv6 is_used_lock isclosed isempty isnull issimple
 		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
 			log2 log lower lpad ltrim make_set
@@ -650,6 +650,127 @@
 	</keywords>
   </language> <!-- SCLEX_MYSQL_57 -->
 
+  <language name="SCLEX_MYSQL_80">
+    <keywords name="Major Keywords">
+      alter analyze
+      begin binlog
+      cache call change check checksum commit create
+      deallocate delete desc describe do drop
+      execute
+      flush
+      grant
+      handler help
+      insert install
+      kill
+      load lock
+      optimize
+      partition prepare purge
+      release rename repair replace reset revoke rollback
+      savepoint select set show start stop
+      truncate
+      uninstall unlock update use
+      xa
+    </keywords>
+
+    <keywords name="Keywords">
+      accessible account action add adddate admin after against aggregate algorithm all always analyse and any as asc ascii asensitive at
+        autoextend_size auto_increment avg_row_length avg
+      backup before between bigint binary bin_num bit_and bit_or bit bit_xor blob block boolean bool both btree by byte
+      cascade cascaded case cast catalog_name chain changed channel charset character char cipher class_origin client close
+        coalesce code collate collation columns column column_name column_format comment committed compact completion component
+        compressed compression concurrent condition connection consistent constraint constraint_catalog constraint_name constraint_schema
+        contains context continue convert count cpu cross cube curdate current current_timestamp current_user
+        cursor cursor_name curtime 
+      database databases datafile data datetime date_add date_add_interval date_sub date_sub_interval date dayofmonth day_hour
+        day_microsecond day_minute day_second day dec decimal_num decimal declare default default_auth definer delayed
+        delay_key_write des_key_file deterministic diagnostics directory disable discard disk distinct distinctrow div
+        double dual dumpfile duplicate dynamic
+      each else elseif enable enclosed end ends end_of_input engines engine enum error errors escaped escape events event
+        every except exchange exists exit expansion expire explain export extended extent_size extract
+      false fast faults fetch fields file file_block_size filter first fixed float4 float8 float follows force foreign for format found
+        frac_second from full fulltext function
+      get general generated geometrycollection geometry get_format global grants group group_concat group_replication
+      hash having high_priority host hosts hour_microsecond hour_minute hour_second hour
+      identified if ignore ignore_server_ids import indexes index infile initial_size inner innodb inout insensitive
+        insert_method integer interval into int int1 int2 int3 int4 int8 invisible invoker in io_after_gtids io_before_gtids io_thread
+        io ipc is isolation issuer iterate
+      join json
+      keys key_block_size key
+      language last leading leaves leave left less level like limit linear lines linestring list localtime localtimestamp
+        local locator locks logfile logs longblob longtext long_num long loop low_priority
+      master_auto_position master_bind master_connect_retry master_delay master_host master_log_file master_log_pos
+        master_password master_port master_retry_count master_server_id master_ssl_capath master_ssl_ca master_ssl_cert
+        master_ssl_cipher master_ssl_crl master_ssl_crlpath master_ssl_key master_ssl master_ssl_verify_server_cert master
+        master_user master_heartbeat_period match max_connections_per_hour max_queries_per_hour max_rows max_size max max_statement_time
+        max_updates_per_hour max_user_connections maxvalue mediumblob mediumint mediumtext medium memory merge message_text
+        microsecond mid middleint migrate minute_microsecond minute_second minute min_rows min mode modifies modify mod month
+        multilinestring multipoint multipolygon mutex mysql_errno
+      names name national natural nchar_string nchar ndb ndbcluster neg never new next nodegroup none nonblocking not now no no_wait
+        no_write_to_binlog null number numeric nvarchar
+      offline offset on one_shot one online only open optimizer_costs options option optionally order or outer outfile out owner
+      pack_keys page param_marker parser partial partitioning partitions password persist phase plugins plugin_dir plugin point
+        polygon port position precedes precision preserve prev primary privileges procedure process processlist profile profiles proxy
+      quarter query quick
+      range reads read_only read read_write real rebuild recover redofile redo_buffer_size redundant references regexp relay
+        relaylog relay_log_file relay_log_pos relay_thread reload remove reorganize repeatable repeat replication replicate_do_db
+        replicate_ignore_db replicate_do_table replicate_ignore_table replicate_wild_do_table replicate_wild_ignore_table
+        replicate_rewrite_db require resignal restore restrict resume returned_sqlstate returns return reverse right rlike role rollup
+        routine rows row_count row_format row rtree
+      schedule schema schema_name schemas second_microsecond second security sensitive separator serializable serial session
+        server server_options session_user set_var share shutdown signal signed simple slave slow smallint snapshot socket
+        soname sounds source spatial specific sqlexception sqlstate sqlwarning sql_after_gtids sql_after_mts_gaps
+        sql_before_gtids sql_big_result sql_buffer_result sql_cache sql_calc_found_rows sql_no_cache sql_small_result
+        sql sql_thread sql_tsi_frac_second sql_tsi_second sql_tsi_minute sql_tsi_hour sql_tsi_day sql_tsi_week sql_tsi_month
+        sql_tsi_quarter sql_tsi_year ssl stacked starting starts stats_auto_recalc stats_persistent stats_sample_pages status
+        stddev_samp stddev stddev_pop std storage stored straight_join string subclass_origin subdate subject subpartitions subpartition
+        substr substring sum super suspend swaps switches sysdate system_user
+      tables tablespace table_ref_priority table table_checksum table_name temporary temptable terminated text than then timestamp
+        timestamp_add timestamp_diff time tinyblob tinyint tinytext to trailing transaction triggers trigger trim true types type
+      udf_returns ulonglong_num uncommitted undefined undofile undo_buffer_size undo unicode union unique unknown unsigned until
+        upgrade usage user_resources user use_frm using utc_date utc_timestamp utc_time
+      validation values value varbinary varchar varcharacter variables variance varying var_pop var_samp view virtual visible
+      wait warnings week weight_string when where while with with_cube with_rollup work wrapper write
+      x509 xid xml xor
+      year_month year
+      zerofill
+    </keywords>
+
+	<keywords name="Functions">
+		abs acos adddate addtime aes_decrypt aes_encrypt area asbinary ascii asin astext atan atan2 atan avg
+		benchmark bin bit_and bit_count bit_length bit_or bit_xor boundary buffer
+		cast ceil ceiling char_length char character_length charset coalesce coercibility collation compress concat_ws concat connection_id
+			contains conv convert_tz convert cos cot count(distinct) count crc32 crosses curdate current_date current_time current_timestamp
+			current_user curtime
+		database date_add date_format date_sub date datediff day dayname dayofmonth dayofweek dayofyear decode default degrees des_decrypt
+			des_encrypt dimension disjoint
+		elt encode encrypt endpoint envelope equals exp export_set exteriorring extract extractvalue
+		field find_in_set floor format found_rows from_base64 from_days from_unixtime
+		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
+			greatest group_concat gtid_subset gtid_subtract
+		hex hour
+		if ifnull inet_aton inet_ntoa inet6_aton inet6_ntoa insert instr interiorringn intersects interval is_free_lock is_ipv4_compat
+			is_ipv4_mapped is_ipv4 is_ipv6 is_used_lock isclosed isempty isnull issimple
+		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
+			log2 log lower lpad ltrim make_set
+		makedate maketime master_pos_wait max mbrcontains mbrdisjoint mbrequal mbrintersects mbroverlaps mbrtouches mbrwithin md5
+			microsecond mid min minute mlinefromtext mlinefromwkb mod month monthname mpointfromtext mpointfromwkb mpolyfromtext
+			mpolyfromwkb multilinestring multipoint multipolygon
+		name_const now nullif numgeometries numinteriorrings numpoints
+		oct octet_length old_password ord overlaps password
+		period_add period_diff pi point pointfromtext pointfromwkb pointn polyfromtext polyfromwkb polygon position pow power
+		quarter quote
+		radians rand random_bytes release_lock repeat replace reverse right round row_count rpad rtrim
+		schema sec_to_time second session_user sha sha1 sha2 sign sin sleep soundex space sqrt srid st_contains
+			st_crosses st_disjoint st_equals st_intersects st_overlaps st_touches st_within startpoint std stddev_pop stddev_samp
+			stddev str_to_date strcmp subdate substr substring_index substring subtime sum sysdate system_user
+		tan time_format time_to_sec time timediff timestamp timestampadd timestampdiff to_base64 to_days to_seconds touches trim truncate
+		ucase uncompress uncompressed_length unhex unix_timestamp upper user utc_date utc_time utc_timestamp updatexml uuid uuid_short
+		validate_password_strength values var_pop var_samp variance version wait_until_sql_thread_after_gtids
+		week weekday weekofyear weight_string within
+		x
+		y year yearweek
+	</keywords>
+  </language> <!-- SCLEX_MYSQL_80 -->
 
   <language name="SCLEX_PYTHON">
 

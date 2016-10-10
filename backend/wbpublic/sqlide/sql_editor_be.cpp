@@ -1136,15 +1136,27 @@ void MySQLEditor::create_editor_config_for_version(GrtVersionRef version)
   delete _editor_config;
 
   mforms::SyntaxHighlighterLanguage lang = mforms::LanguageMySQL;
-  if (version.is_valid() && version->majorNumber() == 5)
+  if (version.is_valid())
   {
-    switch (version->minorNumber())
+    switch (version->majorNumber())
     {
-      case 0: lang = mforms::LanguageMySQL50; break;
-      case 1: lang = mforms::LanguageMySQL51; break;
-      case 5: lang = mforms::LanguageMySQL55; break;
-      case 6: lang = mforms::LanguageMySQL56; break;
-      case 7: lang = mforms::LanguageMySQL57; break;
+      case 5:
+        switch (version->minorNumber())
+        {
+          case 0: lang = mforms::LanguageMySQL50; break;
+          case 1: lang = mforms::LanguageMySQL51; break;
+          case 5: lang = mforms::LanguageMySQL55; break;
+          case 6: lang = mforms::LanguageMySQL56; break;
+          case 7: lang = mforms::LanguageMySQL57; break;
+        }
+        break;
+
+      case 8:
+        switch (version->minorNumber())
+        {
+          case 0: lang = mforms::LanguageMySQL80; break;
+        }
+        break;
     }
   }
   _editor_config = new mforms::CodeEditorConfig(lang);

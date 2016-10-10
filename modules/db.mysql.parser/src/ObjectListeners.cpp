@@ -429,7 +429,7 @@ public:
       }
 
       case MySQLLexer::COMMENT_SYMBOL:
-        column->comment(MySQLBaseLexer::sourceTextForContext(ctx->stringLiteral().get()));
+        column->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral().get()));
         break;
 
       case MySQLLexer::COLLATE_SYMBOL:
@@ -593,7 +593,7 @@ public:
     if (ctx->KEY_BLOCK_SIZE_SYMBOL() != nullptr)
       _currentIndex->keyBlockSize(std::stoul(ctx->ulong_number()->getText()));
     if (ctx->COMMENT_SYMBOL() != nullptr)
-      _currentIndex->comment(ctx->stringLiteral()->getText());
+      _currentIndex->comment(ctx->textLiteral()->getText());
   }
 
   virtual void exitFulltextKeyOption(MySQLParser::FulltextKeyOptionContext *ctx) override
@@ -1075,23 +1075,23 @@ static void evaluatePartitionOption(db_mysql_PartitionDefinitionRef definition, 
       break;
 
     case MySQLLexer::MAX_ROWS_SYMBOL:
-      definition->maxRows(ctx->stringLiteral()->getText());
+      definition->maxRows(ctx->textLiteral()->getText());
       break;
 
     case MySQLLexer::MIN_ROWS_SYMBOL:
-      definition->minRows(ctx->stringLiteral()->getText());
+      definition->minRows(ctx->textLiteral()->getText());
       break;
 
     case MySQLLexer::DATA_SYMBOL:
-      definition->dataDirectory(ctx->stringLiteral()->getText());
+      definition->dataDirectory(ctx->textLiteral()->getText());
       break;
 
     case MySQLLexer::INDEX_SYMBOL:
-      definition->indexDirectory(ctx->stringLiteral()->getText());
+      definition->indexDirectory(ctx->textLiteral()->getText());
       break;
 
     case MySQLLexer::COMMENT_SYMBOL:
-      definition->comment(ctx->stringLiteral()->getText());
+      definition->comment(ctx->textLiteral()->getText());
       break;
 
     default:
@@ -1421,7 +1421,7 @@ void LogfileGroupListener::exitCreateLogfileGroup(MySQLParser::CreateLogfileGrou
   group->oldName(listener.parts[0]);
 
   // TODO: no info is stored about UNDO or REDO.
-  group->undoFile(MySQLBaseLexer::sourceTextForContext(ctx->stringLiteral().get()));
+  group->undoFile(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral().get()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1472,7 +1472,7 @@ void LogfileGroupListener::exitLogfileGroupOption(MySQLParser::LogfileGroupOptio
       break;
 
     case MySQLLexer::COMMENT_SYMBOL:
-      group->comment(MySQLBaseLexer::sourceTextForContext(ctx->stringLiteral().get()));
+      group->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral().get()));
       // XXX: scanner.skipSubtree();
       break;
 
@@ -1582,7 +1582,7 @@ void RoutineListener::exitRoutineOption(MySQLParser::RoutineOptionContext *ctx)
       break;
 
     case MySQLLexer::COMMENT_SYMBOL:
-      routine->comment(MySQLBaseLexer::sourceTextForContext(ctx->stringLiteral().get()));
+      routine->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral().get()));
       break;
 
     default:
@@ -1684,7 +1684,7 @@ void IndexListener::exitAllKeyOption(MySQLParser::AllKeyOptionContext *ctx)
   if (ctx->KEY_BLOCK_SIZE_SYMBOL() != nullptr)
     index->keyBlockSize(std::stoul(ctx->ulong_number()->getText()));
   if (ctx->COMMENT_SYMBOL() != nullptr)
-    index->comment(ctx->stringLiteral()->getText());
+    index->comment(ctx->textLiteral()->getText());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1888,22 +1888,22 @@ void ServerListener::exitServerOption(MySQLParser::ServerOptionContext *ctx)
   switch (ctx->option->getType())
   {
     case MySQLLexer::HOST_SYMBOL:
-      server->host(base::unquote(ctx->stringLiteral()->getText()));
+      server->host(base::unquote(ctx->textLiteral()->getText()));
       break;
     case MySQLLexer::DATABASE_SYMBOL:
-      server->schema(base::unquote(ctx->stringLiteral()->getText()));
+      server->schema(base::unquote(ctx->textLiteral()->getText()));
       break;
     case MySQLLexer::USER_SYMBOL:
-      server->user(base::unquote(ctx->stringLiteral()->getText()));
+      server->user(base::unquote(ctx->textLiteral()->getText()));
       break;
     case MySQLLexer::PASSWORD_SYMBOL:
-      server->password(base::unquote(ctx->stringLiteral()->getText()));
+      server->password(base::unquote(ctx->textLiteral()->getText()));
       break;
     case MySQLLexer::SOCKET_SYMBOL:
-      server->socket(base::unquote(ctx->stringLiteral()->getText()));
+      server->socket(base::unquote(ctx->textLiteral()->getText()));
       break;
     case MySQLLexer::OWNER_SYMBOL:
-      server->ownerUser(base::unquote(ctx->stringLiteral()->getText()));
+      server->ownerUser(base::unquote(ctx->textLiteral()->getText()));
       break;
     case MySQLLexer::PORT_SYMBOL:
       server->port(ctx->ulong_number()->getText()); // TODO: the grt definition should be int not string.
@@ -1931,7 +1931,7 @@ void TablespaceListener::exitCreateTablespace(MySQLParser::CreateTablespaceConte
   tablespace->name(listener.parts.back());
   tablespace->oldName(listener.parts.back());
 
-  tablespace->dataFile(base::unquote(ctx->stringLiteral()->getText()));
+  tablespace->dataFile(base::unquote(ctx->textLiteral()->getText()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2008,7 +2008,7 @@ void TablespaceListener::exitTablespaceOption(MySQLParser::TablespaceOptionConte
       break;
 
     case MySQLLexer::COMMENT_SYMBOL:
-      tablespace->comment(base::unquote(ctx->stringLiteral()->getText()));
+      tablespace->comment(base::unquote(ctx->textLiteral()->getText()));
       break;
 
     case MySQLLexer::ENGINE_SYMBOL:
@@ -2063,7 +2063,7 @@ void EventListener::exitCreateEvent(MySQLParser::CreateEventContext *ctx)
     event->enabled(ctx->ENABLE_SYMBOL() != nullptr);
 
   if (ctx->COMMENT_SYMBOL() != nullptr)
-    event->comment(base::unquote(ctx->stringLiteral()->getText()));
+    event->comment(base::unquote(ctx->textLiteral()->getText()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------

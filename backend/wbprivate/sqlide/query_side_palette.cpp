@@ -48,6 +48,7 @@ DEFAULT_LOG_DOMAIN("QuerySidebar");
 
 using namespace mforms;
 using namespace base;
+using namespace help;
 
 //----------------- SnippetListView --------------------------------------------------------------------
 
@@ -271,6 +272,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _switching_help = false;
   _help_task = GrtThreadedTask::create();
   _help_task->desc("Context Help Task");
+  _helpContext = new HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
 
   _pending_snippets_refresh = true;
 
@@ -352,6 +354,8 @@ QuerySidePalette::~QuerySidePalette()
   cancel_timer();
   if (_help_task->is_busy() && _help_task->task())
     _help_task->task()->cancel();
+
+  delete _helpContext;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -449,7 +453,9 @@ grt::StringRef QuerySidePalette::get_help_text_threaded()
 
   std::string title, text, html_text;
 
-  if (DbSqlEditorContextHelp::get_help_text(form, _last_topic, title, text))
+  // XXX: fix it
+  /*
+  if (DbSqlEditorContextHelp::get()->helpTextForTopic(_last_topic, title, text))
   {
 #ifdef _WIN32
     std::string additional_space = "<div style=\"font-size:4pt\"> </div>";
@@ -470,7 +476,7 @@ grt::StringRef QuerySidePalette::get_help_text_threaded()
 
   // At this point the previous task has already finished (it's the one that triggered this function).
   _help_task->execute_in_main_thread(boost::bind(&QuerySidePalette::update_help_ui, this), false, false);
-
+*/
   return "";
 }
 
@@ -559,11 +565,7 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor)
  */
 grt::StringRef QuerySidePalette::get_help_topic_threaded(const std::string &query, std::pair<ssize_t, ssize_t> caret)
 {
-  SqlEditorForm::Ref form = _owner.lock();
-  if (!form)
-    return "";
-
-  std::string topic = DbSqlEditorContextHelp::find_help_topic_from_position(form, query, caret);
+  std::string topic = DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, query, caret);
 
   if (!_help_task->task()->is_cancelled())
     _help_task->execute_in_main_thread(boost::bind(&QuerySidePalette::process_help_topic, this, topic), false, false);

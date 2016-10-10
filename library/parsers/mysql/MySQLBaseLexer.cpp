@@ -48,7 +48,7 @@ void MySQLBaseLexer::reset()
  * Returns true if the given token is an identifier. This includes all those keywords that are
  * allowed as identifiers too.
  */
-bool MySQLBaseLexer::isIdentifier(ssize_t type) const
+bool MySQLBaseLexer::isIdentifier(size_t type) const
 {
   if ((type == MySQLLexer::IDENTIFIER) || (type == MySQLLexer::BACK_TICK_QUOTED_ID) || (type == MySQLLexer::DOT_IDENTIFIER))
     return true;
@@ -878,7 +878,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool MySQLBaseLexer::isKeyword(ssize_t type) const
+bool MySQLBaseLexer::isKeyword(size_t type) const
 {
   switch (type)
   {
@@ -1081,13 +1081,13 @@ bool MySQLBaseLexer::checkVersion(const std::string &text)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-ssize_t MySQLBaseLexer::determineFunction(size_t proposed)
+size_t MySQLBaseLexer::determineFunction(size_t proposed)
 {
   // Skip any whitespace character if the sql mode says they should be ignored,
   // before actually trying to match the open parenthesis.
   if (isSqlModeActive(IgnoreSpace))
   {
-    ssize_t input = _input->LA(1);
+    size_t input = _input->LA(1);
     while (input == ' ' || input == '\t' || input == '\r' || input == '\n') {
       getInterpreter<atn::LexerATNSimulator>()->consume(_input);
       channel = HIDDEN;
@@ -1101,7 +1101,7 @@ ssize_t MySQLBaseLexer::determineFunction(size_t proposed)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-ssize_t MySQLBaseLexer::determineNumericType(const std::string &text)
+size_t MySQLBaseLexer::determineNumericType(const std::string &text)
 {
   static const char *long_str                 = "2147483647";
   static const unsigned long_len              = 10;
@@ -1195,7 +1195,7 @@ ssize_t MySQLBaseLexer::determineNumericType(const std::string &text)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-ssize_t MySQLBaseLexer::checkCharset(const std::string &text)
+size_t MySQLBaseLexer::checkCharset(const std::string &text)
 {
   return charsets.count(text) > 0 ? MySQLLexer::UNDERSCORE_CHARSET : MySQLLexer::IDENTIFIER;
 }

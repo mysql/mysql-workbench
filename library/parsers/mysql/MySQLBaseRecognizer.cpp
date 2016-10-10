@@ -48,8 +48,8 @@ std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscap
     std::string result;
     auto list = ((MySQLParser::TextLiteralContext *)context)->textStringLiteral();
 
-    int lastType = Token::INVALID_TYPE;
-    int lastIndex = -1;
+    size_t lastType = Token::INVALID_TYPE;
+    size_t lastIndex = INVALID_INDEX;
     for (auto entry : list)
     {
       Token *token = entry->value;

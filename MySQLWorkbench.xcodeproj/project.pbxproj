@@ -166,6 +166,10 @@
 		275051101D521F7B005B5C12 /* libantlr4-runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 275B07F61D4618CA00DDC958 /* libantlr4-runtime.dylib */; };
 		27512ED11240F4F600EF37DD /* code_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27512ED01240F4F600EF37DD /* code_editor.cpp */; };
 		27512ED31240F50200EF37DD /* code_editor.h in Headers */ = {isa = PBXBuildFile; fileRef = 27512ED21240F50200EF37DD /* code_editor.h */; };
+		275256481D950CEF0028ACAB /* libantlr4-runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 275B07F61D4618CA00DDC958 /* libantlr4-runtime.dylib */; };
+		275256491D9517DB0028ACAB /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		2752564A1D951B060028ACAB /* MySQLRecognizerCommon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 279DDF641D12A55F00857C36 /* MySQLRecognizerCommon.cpp */; };
+		2752564B1D951B3B0028ACAB /* libparsers.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* libparsers.dylib */; };
 		2753E59918E95FBC0079DAA8 /* sshtunnel.py in Resources */ = {isa = PBXBuildFile; fileRef = 2753E59818E95FBC0079DAA8 /* sshtunnel.py */; };
 		2754DF60142CAA9800D1D419 /* snippet_clipboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */; };
 		275749491CD753E900D637A9 /* libzip.1.0.0.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 275749481CD753E900D637A9 /* libzip.1.0.0.dylib */; };
@@ -175,7 +179,6 @@
 		275B07F71D4618CA00DDC958 /* libantlr4-runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 275B07F61D4618CA00DDC958 /* libantlr4-runtime.dylib */; };
 		275B07F91D46423C00DDC958 /* db.mysql.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE733040EFAFB8B00287AE0 /* db.mysql.grt.dylib */; };
 		275B07FA1D464AAC00DDC958 /* libantlr4-runtime.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 275B07F61D4618CA00DDC958 /* libantlr4-runtime.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		275B07FB1D464AD000DDC958 /* libantlr4-runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 275B07F61D4618CA00DDC958 /* libantlr4-runtime.dylib */; };
 		275E55CE11AD35F100B3886E /* popup.h in Headers */ = {isa = PBXBuildFile; fileRef = 275E55CD11AD35F100B3886E /* popup.h */; };
 		275E55D011AD35FE00B3886E /* popup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 275E55CF11AD35FE00B3886E /* popup.cpp */; };
 		275E560911AD41C400B3886E /* MFPopup.h in Headers */ = {isa = PBXBuildFile; fileRef = 275E560711AD41C300B3886E /* MFPopup.h */; };
@@ -268,6 +271,7 @@
 		2777A7E41A30A36400A5441E /* cdbc_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2777A7E31A30A36400A5441E /* cdbc_prefix.h */; };
 		27781AD41CCF887C0070AC40 /* wb_tile_folder_mini.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDC9196C8B7D004D7596 /* wb_tile_folder_mini.png */; };
 		277A7B961C15E2E6003C009D /* mysql_parser_module_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 277A7B951C15E2E6003C009D /* mysql_parser_module_tests.cpp */; };
+		277BBC101DA3C8DB00CFA962 /* libantlr4-runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 275B07F61D4618CA00DDC958 /* libantlr4-runtime.dylib */; };
 		278234421CD34920003A2649 /* libcairo.2.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 2782342F1CD3491F003A2649 /* libcairo.2.dylib */; };
 		278234451CD34920003A2649 /* libgdal.1.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 278234321CD3491F003A2649 /* libgdal.1.dylib */; };
 		278234461CD34920003A2649 /* libglib-2.0.0.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
@@ -433,7 +437,6 @@
 		279DDF841D12A55F00857C36 /* MySQLParserListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 279DDF611D12A55F00857C36 /* MySQLParserListener.h */; };
 		279DDF851D12A55F00857C36 /* MySQLParserVisitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 279DDF621D12A55F00857C36 /* MySQLParserVisitor.cpp */; };
 		279DDF861D12A55F00857C36 /* MySQLParserVisitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 279DDF631D12A55F00857C36 /* MySQLParserVisitor.h */; };
-		279DDF871D12A55F00857C36 /* MySQLRecognizerCommon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 279DDF641D12A55F00857C36 /* MySQLRecognizerCommon.cpp */; };
 		279DDF881D12A55F00857C36 /* MySQLRecognizerCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 279DDF651D12A55F00857C36 /* MySQLRecognizerCommon.h */; };
 		279EC891185214A7007D1252 /* wb-toolbar_automatic-help-off.png in Resources */ = {isa = PBXBuildFile; fileRef = 279EC88B185214A6007D1252 /* wb-toolbar_automatic-help-off.png */; };
 		279EC892185214A7007D1252 /* wb-toolbar_automatic-help-off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 279EC88C185214A6007D1252 /* wb-toolbar_automatic-help-off@2x.png */; };
@@ -461,7 +464,6 @@
 		27A3EC91164BA9AB001B6D8F /* IconCollectionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 27A3EC8F164BA9AB001B6D8F /* IconCollectionView.xib */; };
 		27A5768810FE061C00A948A6 /* fs_object_selector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27A5768610FE061C00A948A6 /* fs_object_selector.cpp */; };
 		27A5768A10FE065000A948A6 /* fs_object_selector.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A5768910FE065000A948A6 /* fs_object_selector.h */; };
-		27A7330F16C2706300C326E0 /* libparsers.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* libparsers.dylib */; };
 		27AB27731D2133CB004AC480 /* parsers-common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27AB27711D2133C4004AC480 /* parsers-common.cpp */; };
 		27ABB5EA1BED01BA00BD039F /* jsonview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27ABB5E91BED01BA00BD039F /* jsonview.cpp */; };
 		27ABB5EC1BED01E400BD039F /* jsonview.h in Headers */ = {isa = PBXBuildFile; fileRef = 27ABB5EB1BED01E400BD039F /* jsonview.h */; };
@@ -2211,7 +2213,6 @@
 		2BCE4A0415F646A200FA0CDC /* Python in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2BCE4A0515F6476F00FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2BCE4A0615F6478200FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
-		2BCE4A0715F6479900FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2BCE4A0815F647A400FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2BCE4A0915F647AE00FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2BCE53DC122C6BE60019C95B /* confirm_save_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCE53DA122C6BE60019C95B /* confirm_save_dialog.h */; };
@@ -6700,10 +6701,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				275B07FB1D464AD000DDC958 /* libantlr4-runtime.dylib in Frameworks */,
 				27468002154ACDCC00021708 /* libwbbase.dylib in Frameworks */,
 				27BF78FE1CD34B9200FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
 				27BF78FF1CD34B9400FBB3F3 /* libgthread-2.0.0.dylib in Frameworks */,
+				277BBC101DA3C8DB00CFA962 /* libantlr4-runtime.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7069,7 +7070,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				27A7330F16C2706300C326E0 /* libparsers.dylib in Frameworks */,
+				2752564B1D951B3B0028ACAB /* libparsers.dylib in Frameworks */,
+				275256481D950CEF0028ACAB /* libantlr4-runtime.dylib in Frameworks */,
 				2BCB31990E884615005C8ED2 /* libmysql.canvas.dylib in Frameworks */,
 				2BCB31DB0E88493F005C8ED2 /* libwbpublic.be.dylib in Frameworks */,
 				2BCB31D70E88493F005C8ED2 /* libgrt.dylib in Frameworks */,
@@ -7077,7 +7079,6 @@
 				2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */,
 				2B6A60C00EB0BBF1008E6D11 /* libcdbc.dylib in Frameworks */,
 				2B30C0A70F7039EC00D3E2B1 /* libmforms.dylib in Frameworks */,
-				2BCE4A0715F6479900FA0CDC /* Python in Frameworks */,
 				27BF79221CD34F9F00FBB3F3 /* libcairo.2.dylib in Frameworks */,
 				27BF79231CD34FA500FBB3F3 /* libpcrecpp.0.dylib in Frameworks */,
 				27BF79241CD34FBC00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
@@ -7085,6 +7086,7 @@
 				27BF79321CD3508900FBB3F3 /* libpcre.1.dylib in Frameworks */,
 				27BF79331CD3509A00FBB3F3 /* libmysqlcppconn.7.1.1.7.dylib in Frameworks */,
 				27BF79391CD3521D00FBB3F3 /* libzip.1.0.0.dylib in Frameworks */,
+				275256491D9517DB0028ACAB /* Python in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -14163,7 +14165,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
+			shellPath = /bin/bash;
 			shellScript = "cd ${SRCROOT}/library/parsers/grammars\n\nif [ ANTLRv4Parser.g4 -nt ../antlr/ANTLRv4Parser.cpp  -o  ANTLRv4Lexer.g4 -nt ../antlr/ANTLRv4Lexer.cpp ]; then\n./build-parsers-mac antlr;\nfi\n\nif [ MySQLParser.g4 -nt ../mysql/MySQLParser.cpp  -o  MySQLLexer.g4 -nt ../mysql/MySQLLexer.cpp ]; then\n./build-parsers-mac mysql;\nfi\n";
 			showEnvVarsInLog = 0;
 		};
@@ -14311,8 +14313,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				279DDF871D12A55F00857C36 /* MySQLRecognizerCommon.cpp in Sources */,
 				279DDF751D12A55F00857C36 /* MySQLBaseRecognizer.cpp in Sources */,
+				2752564A1D951B060028ACAB /* MySQLRecognizerCommon.cpp in Sources */,
 				279DDF711D12A55F00857C36 /* MySQLBaseLexer.cpp in Sources */,
 				27AB27731D2133CB004AC480 /* parsers-common.cpp in Sources */,
 				279DDF7D1D12A55F00857C36 /* MySQLParser.cpp in Sources */,
@@ -15997,7 +15999,6 @@
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					HAVE_PRECOMPILED_HEADERS,
@@ -16011,7 +16012,6 @@
 					"$(inherited)",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = parsers;
 				SKIP_INSTALL = YES;
 				WARNING_CFLAGS = (
@@ -16033,7 +16033,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
-				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_PRECOMPILED_HEADERS;
 				GCC_WARN_SIGN_COMPARE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
@@ -16043,7 +16042,6 @@
 					"$(inherited)",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = parsers;
 				SKIP_INSTALL = YES;
 				WARNING_CFLAGS = (
@@ -16051,7 +16049,6 @@
 					"-Wno-unused-function",
 					"-Wno-unused-variable",
 				);
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -18314,6 +18311,10 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
+				OTHER_LDFLAGS = (
+					"-Wl,-stack_size,0x10000000",
+					"-headerpad_max_install_names",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.workbench.MySQLWorkbench;
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx;
@@ -18362,6 +18363,10 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
+				OTHER_LDFLAGS = (
+					"-Wl,-stack_size,0x10000000",
+					"-headerpad_max_install_names",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.workbench.MySQLWorkbench;
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx;

@@ -36,6 +36,9 @@
 // Generally used types by the recognizers/scanners, as well as their consumers.
 #undef EOF
 
+// Same as in antlr4-common.h.
+#define INVALID_INDEX (size_t)-1
+
 namespace antlr4 {
   class Token;
   class BufferedTokenStream;
@@ -46,7 +49,7 @@ namespace parsers {
   struct PARSERS_PUBLIC_TYPE ParserErrorInfo
   {
     std::string message;
-    ssize_t tokenType;
+    size_t tokenType;
     size_t charOffset; // Offset (in bytes) from the beginning of the input to the error position.
     size_t line;       // Error line.
     size_t offset;     // Byte offset in the error line to the error start position.
@@ -60,12 +63,12 @@ namespace parsers {
     static const size_t INVALID_TYPE = 0;
     static const size_t DEFAULT_CHANNEL = 0;
     static const size_t HIDDEN_CHANNEL = 1;
-    static const ssize_t EOF = -1;
+    static const size_t EOF = (size_t)-1;
 
-    ssize_t type;     // The type as defined in the grammar.
+    size_t type;      // The type as defined in the grammar.
     size_t line;      // One-based line number of this token.
     size_t position;  // Zero-based position in the line.
-    ssize_t index;    // The index of the token in the input.
+    size_t index;     // The index of the token in the input.
     size_t channel;   // One of the channel constants.
 
     char *lineStart;  // Pointer into the input to the beginning of the line where this token is located.
@@ -79,7 +82,7 @@ namespace parsers {
       type = INVALID_TYPE;
       line = 0;
       position = 0;
-      index = -1;
+      index = INVALID_INDEX;
       channel = DEFAULT_CHANNEL;
       lineStart = nullptr;
       start = nullptr;
@@ -100,13 +103,13 @@ namespace parsers {
 
     // Advanced navigation.
     bool advanceToPosition(size_t line, size_t offset);
-    bool advanceToType(ssize_t type);
-    bool skipTokenSequence(ssize_t startToken, ...);
-    bool skipIf(ssize_t token, size_t count = 1);
+    bool advanceToType(size_t type);
+    bool skipTokenSequence(size_t startToken, ...);
+    bool skipIf(size_t token, size_t count = 1);
 
-    ssize_t lookAhead();
-    ssize_t parentType();
-    ssize_t previousType();
+    size_t lookAhead();
+    size_t parentType();
+    size_t previousType();
 
     // Stacking.
     void reset();
@@ -115,10 +118,10 @@ namespace parsers {
     void removeTos();
 
     // Properties of current token.
-    bool is(ssize_t type) const;
+    bool is(size_t type) const;
 
     std::string tokenText(bool keepQuotes = false) const;
-    ssize_t tokenType() const;
+    size_t tokenType() const;
     size_t tokenLine() const;
     size_t tokenStart() const;
     size_t tokenIndex() const;

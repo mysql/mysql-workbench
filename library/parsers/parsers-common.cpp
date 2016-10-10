@@ -132,7 +132,7 @@ bool Scanner::advanceToPosition(size_t line, size_t offset)
  * @param type The token type to search.
  * @return True if such a node exists, false otherwise (no change performed then).
  */
-bool Scanner::advanceToType(ssize_t type)
+bool Scanner::advanceToType(size_t type)
 {
   for (size_t i = _index; i < _tokens.size(); ++i)
   {
@@ -158,7 +158,7 @@ bool Scanner::advanceToType(ssize_t type)
  *         in the list, false otherwise. If the token sequence could not be found or there is no more
  *         token the internal state is undefined.
  */
-bool Scanner::skipTokenSequence(ssize_t startToken, ...)
+bool Scanner::skipTokenSequence(size_t startToken, ...)
 {
   bool result = false;
 
@@ -192,7 +192,7 @@ bool Scanner::skipTokenSequence(ssize_t startToken, ...)
  * Advances to the nth next token if the current one is that given by @token.
  * Returns true if we skipped actually.
  */
-bool Scanner::skipIf(ssize_t token, size_t count)
+bool Scanner::skipIf(size_t token, size_t count)
 {
   if (_tokens[_index]->getType() == token)
   {
@@ -207,7 +207,7 @@ bool Scanner::skipIf(ssize_t token, size_t count)
 /**
  * Returns the type of the next token without changing the internal state.
  */
-ssize_t Scanner::lookAhead()
+size_t Scanner::lookAhead()
 {
   if (_index + 1 >= _tokens.size())
     return ParserToken::INVALID_TYPE;
@@ -221,7 +221,7 @@ ssize_t Scanner::lookAhead()
  * Look back in the stream (physical order) what was before the current token, without
  * modifying the current position.
  */
-ssize_t Scanner::previousType()
+size_t Scanner::previousType()
 {
   if (_index == 0)
     return ParserToken::INVALID_TYPE;
@@ -283,7 +283,7 @@ void Scanner::removeTos()
 /**
  * Returns true if the current token is of the given type.
  */
-bool Scanner::is(ssize_t type) const
+bool Scanner::is(size_t type) const
 {
   return _tokens[_index]->getType() == type;
 }
@@ -303,7 +303,7 @@ std::string Scanner::tokenText(bool keepQuotes) const
 /**
  * Returns the type of the current token. Same as the type you can specify in advance_to().
  */
-ssize_t Scanner::tokenType() const
+size_t Scanner::tokenType() const
 {
   return _tokens[_index]->getType();
 }

@@ -35,8 +35,8 @@ namespace parsers {
 
     virtual void reset() override;
 
-    bool isIdentifier(ssize_t type) const;
-    bool isKeyword(ssize_t type) const;
+    bool isIdentifier(size_t type) const;
+    bool isKeyword(size_t type) const;
 
     // Scans from the current token position to find out which query type we are dealing with in the input.
     MySQLQueryType determineQueryType();
@@ -53,14 +53,14 @@ namespace parsers {
     // Called when a keyword was consumed that represents an internal MySQL function and checks if that
     // keyword is followed by an open parenthesis. If not then it is not considered a keyword but
     // treated like a normal identifier.
-    ssize_t determineFunction(size_t proposed);
+    size_t determineFunction(size_t proposed);
 
     // Checks the given text and determines the smallest number type from it. Code has been taken from sql_lex.cc.
-    ssize_t determineNumericType(const std::string &text);
+    size_t determineNumericType(const std::string &text);
 
     // Checks if the given text corresponds to a charset defined in the server (text is preceded by an underscore).
     // Returns UNDERSCORE_CHARSET if so, otherwise IDENTIFIER.
-    ssize_t checkCharset(const std::string &text);
+    size_t checkCharset(const std::string &text);
 
   private:
     std::unique_ptr<antlr4::Token> nextDefaultChannelToken();

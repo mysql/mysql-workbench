@@ -86,7 +86,7 @@ public:
 
   ContextErrorListener(MySQLParserContextImpl *aOwner) : owner(aOwner) {}
 
-  virtual void syntaxError(IRecognizer *recognizer, Token * offendingSymbol, size_t line, int charPositionInLine,
+  virtual void syntaxError(IRecognizer *recognizer, Token * offendingSymbol, size_t line, size_t charPositionInLine,
                            const std::string &msg, std::exception_ptr e) override;
 };
 
@@ -165,8 +165,8 @@ struct MySQLParserContextImpl : public MySQLParserContext {
 
   void addError(const std::string &message, Token *token)
   {
-    ParserErrorInfo info = { message, token->getType(), (size_t)token->getStartIndex(), (size_t)token->getLine(),
-      (size_t)token->getCharPositionInLine(), (size_t)(token->getStopIndex() - token->getStartIndex() + 1) };
+    ParserErrorInfo info = { message, token->getType(), token->getStartIndex(), token->getLine(),
+      token->getCharPositionInLine(), token->getStopIndex() - token->getStartIndex() + 1 };
     errors.push_back(info);
   }
 
@@ -284,8 +284,8 @@ private:
       // extra input after the specific rule.
       Token *token = tokens.LT(1);
       ParserErrorInfo info = { "extraneous input found, expecting '<EOF>'", token->getType(),
-        (size_t)token->getStartIndex(), (size_t)token->getLine(),
-        (size_t)token->getCharPositionInLine(), (size_t)(token->getStopIndex() - token->getStartIndex() + 1) };
+        token->getStartIndex(), token->getLine(),
+        token->getCharPositionInLine(), token->getStopIndex() - token->getStartIndex() + 1 };
       errors.push_back(info);
     }
     return tree;
@@ -295,7 +295,7 @@ private:
 //----------------------------------------------------------------------------------------------------------------------
 
 void ContextErrorListener::syntaxError(IRecognizer *recognizer, Token *offendingSymbol, size_t line,
-  int charPositionInLine, const std::string &msg, std::exception_ptr e)
+  size_t charPositionInLine, const std::string &msg, std::exception_ptr e)
 {
   owner->addError(msg, offendingSymbol);
 }
@@ -1980,7 +1980,7 @@ size_t MySQLParserServicesImpl::checkSqlSyntax(MySQLParserContext::Ref context, 
   size_t length, MySQLParseUnit type)
 {
   MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
-  impl->errorCheck(sql, type);
+  impl->errorCheck({ sql, length }, type);
 
   return impl->errors.size();
 }

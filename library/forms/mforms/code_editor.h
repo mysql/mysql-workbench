@@ -47,6 +47,7 @@ namespace mforms {
     LanguageMySQL55,
     LanguageMySQL56,
     LanguageMySQL57,
+    LanguageMySQL80,
 
     LanguageHtml,   // includes embedded xml, javascript, php, vb, python
     LanguagePython,
@@ -54,7 +55,7 @@ namespace mforms {
     LanguageJS,
     LanguageJson,
 
-    LanguageMySQL = LanguageMySQL56, // Always the latest (released) language.
+    LanguageMySQL = LanguageMySQL57, // Always the latest (released) language.
   };
 
   /**

@@ -20,19 +20,33 @@
 #pragma once
 
 // Helper class to find context sensitive help based on a statement and a position in it.
-// Once a topic could be constructed the mysql help tables are used to get the help text.
-// This makes it necessary however that the help tables are loaded.
 
-#include "sqlide/wb_sql_editor_form.h"
+namespace help {
+
+class MYSQLWBBACKEND_PUBLIC_FUNC HelpContext {
+public:
+  HelpContext(GrtCharacterSetsRef charsets, const std::string &sqlMode, long serverVersion);
+  ~HelpContext();
+
+private:
+  friend class DbSqlEditorContextHelp;
+  
+  class Private;
+  Private *_d;
+};
 
 class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorContextHelp // Made public for tests only.
 {
 public:
-  static bool get_help_text(const SqlEditorForm::Ref &form, const std::string &topic, std::string &title, std::string &text);
-  static std::string find_help_topic_from_position(const SqlEditorForm::Ref &form,
-    const std::string &query, std::pair<ssize_t, ssize_t> caret);
+  static DbSqlEditorContextHelp* get();
+
+  bool helpTextForTopic(const std::string &topic, std::string &title, std::string &text);
+  std::string helpTopicFromPosition(HelpContext *context, const std::string &query, std::pair<size_t, size_t> caret);
 
 protected:
-  static std::string lookup_topic_for_string(const SqlEditorForm::Ref &form, std::string topic);
-  static std::string topic_from_position(const SqlEditorForm::Ref &form, const std::string &query, std::pair<ssize_t, ssize_t> caret);
+  DbSqlEditorContextHelp() {};
+
+  bool topicExists(const std::string &topic);
 };
+
+} // namespace help

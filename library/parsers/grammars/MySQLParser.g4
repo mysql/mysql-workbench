@@ -980,18 +980,16 @@ updateStatement:
 //--------------------------------------------------------------------------------------------------
 
 transactionOrLockingStatement:
-    transaction_statement
+    transactionStatement
     | savepointStatement
     | lockStatement
     | xaStatement
 ;
 
-transaction_statement:
+transactionStatement:
     START_SYMBOL TRANSACTION_SYMBOL transactionCharacteristic*
     | COMMIT_SYMBOL WORK_SYMBOL? (AND_SYMBOL NO_SYMBOL? CHAIN_SYMBOL)? (NO_SYMBOL? RELEASE_SYMBOL)?
-    // In order to avoid needing a predicate to solve ambiquity between this and general SET statements with global/session variables the following
-    // alternative is moved to the setStatement rule.
-    //| SET_SYMBOL optionType? TRANSACTION_SYMBOL setTransactionCharacteristic (COMMA_SYMBOL setTransactionCharacteristic)*
+    // SET TRANSACTION is part of setStatement.
 ;
 
 // BEGIN WORK is separated from transactional statements as it must not appear as part of a stored program.
@@ -1195,9 +1193,9 @@ groupReplication:
 //--------------------------------------------------------------------------------------------------
 
 preparedStatement:
-    PREPARE_SYMBOL identifier FROM_SYMBOL (textLiteral | userVariable)
+    type = PREPARE_SYMBOL identifier FROM_SYMBOL (textLiteral | userVariable)
     | executeStatement
-    | (DEALLOCATE_SYMBOL | DROP_SYMBOL) PREPARE_SYMBOL identifier
+    | type = (DEALLOCATE_SYMBOL | DROP_SYMBOL) PREPARE_SYMBOL identifier
 ;
 
 executeStatement:
@@ -1441,55 +1439,55 @@ optionValue:
 showStatement:
     SHOW_SYMBOL
     (
-        {serverVersion < 50700}? AUTHORS_SYMBOL
-        | DATABASES_SYMBOL likeOrWhere?
-        | FULL_SYMBOL? TABLES_SYMBOL inDb? likeOrWhere?
-        | FULL_SYMBOL? TRIGGERS_SYMBOL inDb? likeOrWhere?
-        | EVENTS_SYMBOL inDb? likeOrWhere?
-        | TABLE_SYMBOL STATUS_SYMBOL inDb? likeOrWhere?
-        | OPEN_SYMBOL TABLES_SYMBOL inDb? likeOrWhere?
-        | {(serverVersion >= 50105) && (serverVersion < 50500)}? PLUGIN_SYMBOL // Supported between 5.1.5 and 5.5.0.
-        | {serverVersion >= 50500}? PLUGINS_SYMBOL
-        | ENGINE_SYMBOL engineRef (STATUS_SYMBOL | MUTEX_SYMBOL)
-        | FULL_SYMBOL? COLUMNS_SYMBOL (FROM_SYMBOL | IN_SYMBOL) tableRef inDb? likeOrWhere?
-        | (BINARY_SYMBOL | MASTER_SYMBOL) LOGS_SYMBOL
-        | SLAVE_SYMBOL
+        {serverVersion < 50700}? value = AUTHORS_SYMBOL
+        | value = DATABASES_SYMBOL likeOrWhere?
+        | FULL_SYMBOL? value = TABLES_SYMBOL inDb? likeOrWhere?
+        | FULL_SYMBOL? value = TRIGGERS_SYMBOL inDb? likeOrWhere?
+        | value = EVENTS_SYMBOL inDb? likeOrWhere?
+        | value = TABLE_SYMBOL STATUS_SYMBOL inDb? likeOrWhere?
+        | value = OPEN_SYMBOL TABLES_SYMBOL inDb? likeOrWhere?
+        | {(serverVersion >= 50105) && (serverVersion < 50500)}? value = PLUGIN_SYMBOL // Supported between 5.1.5 and 5.5.0.
+        | {serverVersion >= 50500}? value = PLUGINS_SYMBOL
+        | value = ENGINE_SYMBOL engineRef (STATUS_SYMBOL | MUTEX_SYMBOL)
+        | FULL_SYMBOL? value = COLUMNS_SYMBOL (FROM_SYMBOL | IN_SYMBOL) tableRef inDb? likeOrWhere?
+        | (BINARY_SYMBOL | MASTER_SYMBOL) value = LOGS_SYMBOL
+        | value = SLAVE_SYMBOL
             (
                 HOSTS_SYMBOL
                 | STATUS_SYMBOL nonBlocking channel?
             )
-        | (BINLOG_SYMBOL | RELAYLOG_SYMBOL) EVENTS_SYMBOL (IN_SYMBOL textString)? (FROM_SYMBOL ulonglong_number)? limitClause? channel?
-        | (INDEX_SYMBOL | INDEXES_SYMBOL | KEYS_SYMBOL) fromOrIn tableRef inDb? whereClause?
-        | STORAGE_SYMBOL? ENGINES_SYMBOL
-        | PRIVILEGES_SYMBOL
-        | COUNT_SYMBOL OPEN_PAR_SYMBOL MULT_OPERATOR CLOSE_PAR_SYMBOL (WARNINGS_SYMBOL | ERRORS_SYMBOL)
-        | WARNINGS_SYMBOL limitClause?
-        | ERRORS_SYMBOL limitClause?
-        | PROFILES_SYMBOL
-        | PROFILE_SYMBOL (profileType (COMMA_SYMBOL profileType)*)? (FOR_SYMBOL QUERY_SYMBOL INT_NUMBER)? limitClause?
-        | optionType? (STATUS_SYMBOL | VARIABLES_SYMBOL) likeOrWhere?
-        | FULL_SYMBOL? PROCESSLIST_SYMBOL
+        | value = (BINLOG_SYMBOL | RELAYLOG_SYMBOL) EVENTS_SYMBOL (IN_SYMBOL textString)? (FROM_SYMBOL ulonglong_number)? limitClause? channel?
+        | value = (INDEX_SYMBOL | INDEXES_SYMBOL | KEYS_SYMBOL) fromOrIn tableRef inDb? whereClause?
+        | STORAGE_SYMBOL? value = ENGINES_SYMBOL
+        | value = PRIVILEGES_SYMBOL
+        | COUNT_SYMBOL OPEN_PAR_SYMBOL MULT_OPERATOR CLOSE_PAR_SYMBOL value = (WARNINGS_SYMBOL | ERRORS_SYMBOL)
+        | value = WARNINGS_SYMBOL limitClause?
+        | value = ERRORS_SYMBOL limitClause?
+        | value = PROFILES_SYMBOL
+        | value = PROFILE_SYMBOL (profileType (COMMA_SYMBOL profileType)*)? (FOR_SYMBOL QUERY_SYMBOL INT_NUMBER)? limitClause?
+        | optionType? value = (STATUS_SYMBOL | VARIABLES_SYMBOL) likeOrWhere?
+        | FULL_SYMBOL? value = PROCESSLIST_SYMBOL
         | charset likeOrWhere?
-        | COLLATION_SYMBOL likeOrWhere?
-        | {serverVersion < 50700}? CONTRIBUTORS_SYMBOL
-        | GRANTS_SYMBOL (FOR_SYMBOL user)?
-        | MASTER_SYMBOL STATUS_SYMBOL
-        | CREATE_SYMBOL
+        | value = COLLATION_SYMBOL likeOrWhere?
+        | {serverVersion < 50700}? value = CONTRIBUTORS_SYMBOL
+        | value = GRANTS_SYMBOL (FOR_SYMBOL user)?
+        | value = MASTER_SYMBOL STATUS_SYMBOL
+        | value = CREATE_SYMBOL
             (
-                DATABASE_SYMBOL ifNotExists? schemaRef
-                | EVENT_SYMBOL eventRef
-                | FUNCTION_SYMBOL functionRef
-                | PROCEDURE_SYMBOL procedureRef
-                | TABLE_SYMBOL tableRef
-                | TRIGGER_SYMBOL triggerRef
-                | VIEW_SYMBOL viewRef
-                | {serverVersion >= 50704}? USER_SYMBOL user
+                object = DATABASE_SYMBOL ifNotExists? schemaRef
+                | object = EVENT_SYMBOL eventRef
+                | object = FUNCTION_SYMBOL functionRef
+                | object = PROCEDURE_SYMBOL procedureRef
+                | object = TABLE_SYMBOL tableRef
+                | object = TRIGGER_SYMBOL triggerRef
+                | object = VIEW_SYMBOL viewRef
+                | {serverVersion >= 50704}? object = USER_SYMBOL user
             )
-        | PROCEDURE_SYMBOL STATUS_SYMBOL likeOrWhere?
-        | FUNCTION_SYMBOL STATUS_SYMBOL likeOrWhere?
-        | PROCEDURE_SYMBOL CODE_SYMBOL procedureRef
-        | FUNCTION_SYMBOL CODE_SYMBOL functionRef
-        | {serverVersion < 50500}? INNODB_SYMBOL STATUS_SYMBOL // Deprecated in 5.5.
+        | value = PROCEDURE_SYMBOL STATUS_SYMBOL likeOrWhere?
+        | value = FUNCTION_SYMBOL STATUS_SYMBOL likeOrWhere?
+        | value = PROCEDURE_SYMBOL CODE_SYMBOL procedureRef
+        | value = FUNCTION_SYMBOL CODE_SYMBOL functionRef
+        | {serverVersion < 50500}? value = INNODB_SYMBOL STATUS_SYMBOL // Deprecated in 5.5.
     )
 ;
 
@@ -1717,25 +1715,18 @@ jsonOperator:
 ;
 
 sumExpr:
-    AVG_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | AVG_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | BITWISE_AND_OPERATOR OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | BITWISE_OR_OPERATOR OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | BITWISE_XOR_OPERATOR OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | COUNT_SYMBOL OPEN_PAR_SYMBOL ALL_SYMBOL? MULT_OPERATOR CLOSE_PAR_SYMBOL
-    | COUNT_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | COUNT_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL expressionList CLOSE_PAR_SYMBOL
-    | MIN_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | MIN_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | MAX_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | MAX_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | STD_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | VARIANCE_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | STDDEV_SAMP_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | VAR_SAMP_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | SUM_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | SUM_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
-    | GROUP_CONCAT_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expressionList orderClause?
+    name = AVG_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? inSumExpr CLOSE_PAR_SYMBOL
+    | name = (BIT_AND_SYMBOL | BIT_OR_SYMBOL | BIT_XOR_SYMBOL) OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
+    | name = COUNT_SYMBOL OPEN_PAR_SYMBOL ALL_SYMBOL? MULT_OPERATOR CLOSE_PAR_SYMBOL
+    | name = COUNT_SYMBOL OPEN_PAR_SYMBOL (inSumExpr | DISTINCT_SYMBOL expressionList) CLOSE_PAR_SYMBOL
+    | name = MIN_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? inSumExpr CLOSE_PAR_SYMBOL
+    | name = MAX_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? inSumExpr CLOSE_PAR_SYMBOL
+    | name = STD_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
+    | name = VARIANCE_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
+    | name = STDDEV_SAMP_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
+    | name = VAR_SAMP_SYMBOL OPEN_PAR_SYMBOL inSumExpr CLOSE_PAR_SYMBOL
+    | name = SUM_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? inSumExpr CLOSE_PAR_SYMBOL
+    | name = GROUP_CONCAT_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expressionList orderClause?
         (SEPARATOR_SYMBOL textString)? CLOSE_PAR_SYMBOL
 ;
 
@@ -1759,61 +1750,61 @@ fulltext_options:
 
 runtimeFunctionCall:
     // Function names that are keywords.
-    CHAR_SYMBOL OPEN_PAR_SYMBOL expressionList (USING_SYMBOL charsetName)? CLOSE_PAR_SYMBOL
-    | CURRENT_USER_SYMBOL parentheses?
-    | DATE_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | DAY_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | HOUR_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | INSERT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | INTERVAL_SYMBOL OPEN_PAR_SYMBOL expr (COMMA_SYMBOL expr)+ CLOSE_PAR_SYMBOL
-    | LEFT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | MINUTE_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | MONTH_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | RIGHT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | SECOND_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | TIME_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | TIMESTAMP_SYMBOL OPEN_PAR_SYMBOL expr (COMMA_SYMBOL expr)? CLOSE_PAR_SYMBOL
+    name = CHAR_SYMBOL OPEN_PAR_SYMBOL expressionList (USING_SYMBOL charsetName)? CLOSE_PAR_SYMBOL
+    | name = CURRENT_USER_SYMBOL parentheses?
+    | name = DATE_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = DAY_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = HOUR_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = INSERT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = INTERVAL_SYMBOL OPEN_PAR_SYMBOL expr (COMMA_SYMBOL expr)+ CLOSE_PAR_SYMBOL
+    | name = LEFT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = MINUTE_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = MONTH_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = RIGHT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = SECOND_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = TIME_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = TIMESTAMP_SYMBOL OPEN_PAR_SYMBOL expr (COMMA_SYMBOL expr)? CLOSE_PAR_SYMBOL
     | trimFunction
-    | USER_SYMBOL parentheses
-    | VALUES_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | YEAR_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = USER_SYMBOL parentheses
+    | name = VALUES_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = YEAR_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
 
     // Function names that are not keywords.
-    | (ADDDATE_SYMBOL | SUBDATE_SYMBOL) OPEN_PAR_SYMBOL expr COMMA_SYMBOL (expr | INTERVAL_SYMBOL expr interval) CLOSE_PAR_SYMBOL
-    | CURDATE_SYMBOL parentheses?
-    | CURTIME_SYMBOL timeFunctionParameters?
-    | (DATE_ADD_SYMBOL | DATE_SUB_SYMBOL) OPEN_PAR_SYMBOL expr COMMA_SYMBOL INTERVAL_SYMBOL expr interval CLOSE_PAR_SYMBOL
-    | EXTRACT_SYMBOL OPEN_PAR_SYMBOL interval FROM_SYMBOL expr CLOSE_PAR_SYMBOL
-    | GET_FORMAT_SYMBOL OPEN_PAR_SYMBOL dateTimeTtype  COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | NOW_SYMBOL timeFunctionParameters?
-    | POSITION_SYMBOL OPEN_PAR_SYMBOL bitExpr IN_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = (ADDDATE_SYMBOL | SUBDATE_SYMBOL) OPEN_PAR_SYMBOL expr COMMA_SYMBOL (expr | INTERVAL_SYMBOL expr interval) CLOSE_PAR_SYMBOL
+    | name = CURDATE_SYMBOL parentheses?
+    | name = CURTIME_SYMBOL timeFunctionParameters?
+    | name = (DATE_ADD_SYMBOL | DATE_SUB_SYMBOL) OPEN_PAR_SYMBOL expr COMMA_SYMBOL INTERVAL_SYMBOL expr interval CLOSE_PAR_SYMBOL
+    | name = EXTRACT_SYMBOL OPEN_PAR_SYMBOL interval FROM_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = GET_FORMAT_SYMBOL OPEN_PAR_SYMBOL dateTimeTtype  COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = NOW_SYMBOL timeFunctionParameters?
+    | name = POSITION_SYMBOL OPEN_PAR_SYMBOL bitExpr IN_SYMBOL expr CLOSE_PAR_SYMBOL
     | substringFunction
-    | SYSDATE_SYMBOL timeFunctionParameters?
-    | (TIMESTAMP_ADD_SYMBOL | TIMESTAMP_DIFF_SYMBOL) OPEN_PAR_SYMBOL intervalTimeStamp COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | UTC_DATE_SYMBOL parentheses?
-    | UTC_TIME_SYMBOL timeFunctionParameters?
-    | UTC_TIMESTAMP_SYMBOL timeFunctionParameters?
+    | name = SYSDATE_SYMBOL timeFunctionParameters?
+    | name = (TIMESTAMP_ADD_SYMBOL | TIMESTAMP_DIFF_SYMBOL) OPEN_PAR_SYMBOL intervalTimeStamp COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = UTC_DATE_SYMBOL parentheses?
+    | name = UTC_TIME_SYMBOL timeFunctionParameters?
+    | name = UTC_TIMESTAMP_SYMBOL timeFunctionParameters?
 
     // Function calls with other conflicts.
-    | ASCII_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | CHARSET_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | COALESCE_SYMBOL expressionListWithParentheses
-    | COLLATION_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | DATABASE_SYMBOL parentheses
-    | IF_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | FORMAT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr (COMMA_SYMBOL expr)? CLOSE_PAR_SYMBOL
-    | MICROSECOND_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | MOD_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | {serverVersion < 50607}? OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL textLiteral CLOSE_PAR_SYMBOL
-    | PASSWORD_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | QUARTER_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | REPEAT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | REPLACE_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | REVERSE_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
-    | ROW_COUNT_SYMBOL parentheses
-    | TRUNCATE_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | WEEK_SYMBOL OPEN_PAR_SYMBOL expr (COMMA_SYMBOL expr)? CLOSE_PAR_SYMBOL
-    | {serverVersion >= 50600}? WEIGHT_STRING_SYMBOL OPEN_PAR_SYMBOL expr
+    | name = ASCII_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = CHARSET_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = COALESCE_SYMBOL expressionListWithParentheses
+    | name = COLLATION_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = DATABASE_SYMBOL parentheses
+    | name = IF_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = FORMAT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr (COMMA_SYMBOL expr)? CLOSE_PAR_SYMBOL
+    | name = MICROSECOND_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = MOD_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | {serverVersion < 50607}? name = OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL textLiteral CLOSE_PAR_SYMBOL
+    | name = PASSWORD_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = QUARTER_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = REPEAT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = REPLACE_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = REVERSE_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = ROW_COUNT_SYMBOL parentheses
+    | name = TRUNCATE_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = WEEK_SYMBOL OPEN_PAR_SYMBOL expr (COMMA_SYMBOL expr)? CLOSE_PAR_SYMBOL
+    | {serverVersion >= 50600}? name = WEIGHT_STRING_SYMBOL OPEN_PAR_SYMBOL expr
         (
             (AS_SYMBOL CHAR_SYMBOL fieldLength)? weightStringLevels?
             | AS_SYMBOL BINARY_SYMBOL fieldLength
@@ -1824,14 +1815,14 @@ runtimeFunctionCall:
 ;
 
 geometryFunction:
-    GEOMETRYCOLLECTION_SYMBOL OPEN_PAR_SYMBOL expressionList? CLOSE_PAR_SYMBOL
-    | LINESTRING_SYMBOL expressionListWithParentheses
-    | MULTILINESTRING_SYMBOL expressionListWithParentheses
-    | MULTIPOINT_SYMBOL expressionListWithParentheses
-    | MULTIPOLYGON_SYMBOL expressionListWithParentheses
-    | POINT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
-    | POLYGON_SYMBOL expressionListWithParentheses
-    | {serverVersion < 50706}? CONTAINS_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    name = GEOMETRYCOLLECTION_SYMBOL OPEN_PAR_SYMBOL expressionList? CLOSE_PAR_SYMBOL
+    | name = LINESTRING_SYMBOL expressionListWithParentheses
+    | name = MULTILINESTRING_SYMBOL expressionListWithParentheses
+    | name = MULTIPOINT_SYMBOL expressionListWithParentheses
+    | name = MULTIPOLYGON_SYMBOL expressionListWithParentheses
+    | name = POINT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
+    | name = POLYGON_SYMBOL expressionListWithParentheses
+    | {serverVersion < 50706}? name = CONTAINS_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
 ;
 
 timeFunctionParameters:
@@ -1886,7 +1877,7 @@ substringFunction:
 ;
 
 functionCall:
-    name = pureIdentifier OPEN_PAR_SYMBOL aliasedExpressionList? CLOSE_PAR_SYMBOL // For both UDF + other functions.
+    pureIdentifier OPEN_PAR_SYMBOL aliasedExpressionList? CLOSE_PAR_SYMBOL // For both UDF + other functions.
     | qualifiedIdentifier OPEN_PAR_SYMBOL expressionList? CLOSE_PAR_SYMBOL // Other functions only.
 ;
 
@@ -2115,21 +2106,18 @@ spDeclarations:
 ;
 
 spDeclaration:
-    DECLARE_SYMBOL
-    (
-        variableDeclaration
-        | conditionDeclaration
-        | handlerDeclaration
-        | cursorDeclaration
-    )
+    variableDeclaration
+    | conditionDeclaration
+    | handlerDeclaration
+    | cursorDeclaration
 ;
 
 variableDeclaration:
-    identifierList dataType (COLLATE_SYMBOL collationNameOrDefault)? (DEFAULT_SYMBOL expr)?
+    DECLARE_SYMBOL identifierList dataType (COLLATE_SYMBOL collationNameOrDefault)? (DEFAULT_SYMBOL expr)?
 ;
 
 conditionDeclaration:
-    identifier CONDITION_SYMBOL FOR_SYMBOL spCondition
+    DECLARE_SYMBOL identifier CONDITION_SYMBOL FOR_SYMBOL spCondition
 ;
 
 spCondition:
@@ -2142,7 +2130,7 @@ sqlstate:
 ;
 
 handlerDeclaration:
-    (CONTINUE_SYMBOL | EXIT_SYMBOL | UNDO_SYMBOL) HANDLER_SYMBOL
+    DECLARE_SYMBOL (CONTINUE_SYMBOL | EXIT_SYMBOL | UNDO_SYMBOL) HANDLER_SYMBOL
         FOR_SYMBOL handlerCondition (COMMA_SYMBOL handlerCondition)* compoundStatement
 ;
 
@@ -2155,7 +2143,7 @@ handlerCondition:
 ;
 
 cursorDeclaration:
-    identifier CURSOR_SYMBOL FOR_SYMBOL selectStatement
+    DECLARE_SYMBOL identifier CURSOR_SYMBOL FOR_SYMBOL selectStatement
 ;
 
 iterateStatement:

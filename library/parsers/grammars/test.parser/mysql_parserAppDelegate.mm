@@ -180,7 +180,7 @@ std::string dumpTree(const Ref<RuleContext> &context, const dfa::Vocabulary &voc
 
 class TestErrorListener : public BaseErrorListener {
 public:
-  virtual void syntaxError(IRecognizer *recognizer, antlr4::Token *offendingSymbol, size_t line, int charPositionInLine,
+  virtual void syntaxError(IRecognizer *recognizer, antlr4::Token *offendingSymbol, size_t line, size_t charPositionInLine,
                            const std::string &msg, std::exception_ptr e) override {
     // Here we use the message provided by the DefaultErrorStrategy class.
     last_error = "line " + std::to_string(line) + ":" + std::to_string(charPositionInLine) + " " + msg;
@@ -222,11 +222,24 @@ using SqlMode = MySQLRecognizerCommon::SqlMode;
   [self parse: sender];
 }
 
+template<typename E>
+void rethrow_unwrapped(const E& e)
+{
+  try {
+    std::rethrow_if_nested(e);
+  } catch(const std::nested_exception& e) {
+    rethrow_unwrapped(e);
+  } catch(...) {
+    throw;
+  }
+}
+
 static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy>();
 
 - (unsigned long)parseQuery: (NSString *)query version: (unsigned)serverVersion
                       modes: (MySQLRecognizerCommon::SqlMode)sqlModes
                dumpToOutput: (BOOL)dump
+                   needTree: (BOOL)buildParseTree
 {
   NSDate *start = [NSDate new];
 
@@ -245,7 +258,7 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   MySQLParser parser(&tokens);
   parser.serverVersion = serverVersion;
   parser.sqlMode = sqlModes;
-  parser.setBuildParseTree(true);
+  parser.setBuildParseTree(buildParseTree);
 
   parser.setErrorHandler(errorStrategy); // Bail out at the first found error.
   parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::SLL);
@@ -257,7 +270,7 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     return 1;
   }
 
-  Ref<tree::ParseTree> tree;
+  Ref<ParserRuleContext> tree;
   try {
     tree = parser.query();
   } catch (ParseCancellationException &) {
@@ -274,23 +287,27 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
   lastDuration = -[start timeIntervalSinceNow];
 
-  if (dump)
+  if (dump && buildParseTree)
   {
-    std::string t = tree->getText();
-    parseTreeView.string = [NSString stringWithUTF8String: tree->toStringTree(&parser).c_str()];
-
-    Ref<RuleContext> context = std::dynamic_pointer_cast<RuleContext>(tree);
-    std::string text = dumpTree(context, parser.getVocabulary(), "");
-    text = "Token count: " + std::to_string(tokenCount) + "\n" + text;
-    tokenCount = 0;
-    NSString *utf8 = [NSString stringWithUTF8String: text.c_str()];
-    if (utf8 == nil)
-    {
-      output.string = @"dump contains invalid utf8 chars";
-      printf("%s\n", text.c_str());
-    }
+    if (tree == nullptr)
+      output.string = @"No parse tree available";
     else
-      [output setString: utf8];
+    {
+      std::string t = tree->getText();
+      parseTreeView.string = [NSString stringWithUTF8String: tree->toStringTree(&parser).c_str()];
+
+      std::string text = dumpTree(tree, parser.getVocabulary(), "");
+      text = "Token count: " + std::to_string(tokenCount) + "\n" + text;
+      tokenCount = 0;
+      NSString *utf8 = [NSString stringWithUTF8String: text.c_str()];
+      if (utf8 == nil)
+      {
+        output.string = @"dump contains invalid utf8 chars";
+        printf("%s\n", text.c_str());
+      }
+      else
+        [output setString: utf8];
+    }
   }
 
   return parser.getNumberOfSyntaxErrors() + lexer.getNumberOfSyntaxErrors();
@@ -313,7 +330,8 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   size_t errorCount = [self parseQuery: singleQueryText.string
                                version: [self getServerVersion]
                                  modes: [self getSqlModes]
-                          dumpToOutput: YES];
+                          dumpToOutput: YES
+                              needTree: YES];
 
   NSString *combinedErrorText = [NSString stringWithFormat: @"Parse time: %.6fs\n\n", lastDuration];
 
@@ -438,7 +456,7 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
         // The progress label is updated in the worker thread, otherwise it would not show changes in realtime.
         progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %lu", ++count, queryCount];
         [progressLabel setNeedsDisplay];
-        if ([self parseQuery: query version: serverVersion modes: sqlModes dumpToOutput: NO] > 0)
+        if ([self parseQuery: query version: serverVersion modes: sqlModes dumpToOutput: NO needTree: NO] > 0)
         {
           dispatch_async(dispatch_get_main_queue(), ^{
             statusText.stringValue = @"Error encountered, offending query below:";
@@ -720,7 +738,7 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     if (query.length > 0) {
       progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %li", i + 1, count];
       [progressLabel setNeedsDisplay];
-      if ([self parseQuery: query version: serverVersion modes: sqlModes dumpToOutput: NO] > 0)
+      if ([self parseQuery: query version: serverVersion modes: sqlModes dumpToOutput: NO needTree: NO] > 0)
       {
         statusText.stringValue = @"Error encountered, offending query below:";
         errorQueryText.string = query;
@@ -731,7 +749,7 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     query = [NSString stringWithFormat: [NSString stringWithUTF8String: query2], functions[i], functions[i]];
     if (query.length > 0) {
       [progressLabel setNeedsDisplay];
-      if ([self parseQuery: query version: serverVersion modes: sqlModes dumpToOutput: NO] > 0)
+      if ([self parseQuery: query version: serverVersion modes: sqlModes dumpToOutput: NO needTree: NO] > 0)
       {
         dispatch_async(dispatch_get_main_queue(), ^{
           statusText.stringValue = @"Error encountered, offending query below:";

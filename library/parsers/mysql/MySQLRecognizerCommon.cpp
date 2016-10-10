@@ -111,42 +111,135 @@ std::string MySQLRecognizerCommon::sourceTextForContext(ParserRuleContext *ctx, 
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Returns the child context from root which spans the given position. The result is usually a terminal node.
- * If the position is between 2 tokens then the one right before the given position is returned. In this case
- * also a non-terminal could be returned.
+ * Returns the previous sibling of the given tree, which could be a non-terminal. Requires that tree has a valid parent.
+ */
+Tree* getPreviousSibling(Tree *tree)
+{
+  Tree *parent = tree->parent.lock().get();
+  if (parent == nullptr)
+    return nullptr;
+
+  if (parent->children.front().get() == tree)
+    return nullptr;
+
+  for (auto iterator = parent->children.begin(); iterator != parent->children.end(); ++iterator)
+    if (iterator->get() == tree)
+      return (--iterator)->get(); // We know we have another node before this, because of the test above.
+
+  return nullptr; // We actually never arrive here, but compilers want to be silenced.
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the terminal node right before the given position. Parameter tree can be a terminal or non-terminal node.
+ * Returns nullptr if there is no such node.
+ */
+Tree* MySQLRecognizerCommon::getPrevious(Tree *tree)
+{
+  do {
+    Tree *sibling = getPreviousSibling(tree);
+    if (sibling != nullptr)
+    {
+      if (antlrcpp::is<tree::TerminalNode *>(sibling))
+        return sibling;
+
+      tree = sibling;
+      while (!tree->children.empty())
+        tree = tree->children.back().get();
+      if (antlrcpp::is<tree::TerminalNode *>(tree))
+        return tree;
+    }
+    else
+      tree = tree->parent.lock().get();
+  } while (tree != nullptr);
+
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the next sibling of the given tree, which could be a non-terminal. Requires that tree has a valid parent.
+ */
+Tree* getNextSibling(Tree *tree)
+{
+  Tree *parent = tree->parent.lock().get();
+  if (parent == nullptr)
+    return nullptr;
+
+  if (parent->children.back().get() == tree)
+    return nullptr;
+
+  for (auto iterator = parent->children.begin(); iterator != parent->children.end(); ++iterator)
+    if (iterator->get() == tree)
+      return (++iterator)->get(); // We know we have another node after this, because of the test above.
+
+  return nullptr; // We actually never arrive here, but compilers want to be silenced.
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the terminal node right after the given position. Parameter tree can be a terminal or non-terminal node.
+ * Returns nullptr if there is no such node.
+ */
+Tree* MySQLRecognizerCommon::getNext(Tree *tree)
+{
+  // If we have children return the first one.
+  if (!tree->children.empty())
+  {
+    do { tree = tree->children.front().get(); } while (!tree->children.empty());
+    return tree;
+  }
+
+  // No children, so try our next sibling (or that of our parent(s)).
+  do {
+    Tree *sibling = getNextSibling(tree);
+    if (sibling != nullptr)
+    {
+      if (antlrcpp::is<tree::TerminalNode *>(sibling))
+        return sibling;
+      return getNext(sibling);
+    }
+    tree = tree->parent.lock().get();
+  } while (tree != nullptr);
+
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the terminal node at the given position. If there is no terminal node at the given position (or if it is EOF)
+ * then the previous terminal node is returned instead. If there is none then the one after the position is returned
+ * instead (which could also be EOF).
  * Note: the line is one-based.
  */
-Ref<Tree> contextFromPosition(Ref<Tree> root, std::pair<ssize_t, ssize_t> position)
+Tree* MySQLRecognizerCommon::contextFromPosition(Tree *root, std::pair<size_t, size_t> position)
 {
-  // Does the root node actually contain the position? If not we don't need to look further.
-  if (antlrcpp::is<TerminalNode>(root))
-  {
-    Token *token = std::dynamic_pointer_cast<TerminalNode>(root)->getSymbol();
-    if (token->getLine() != position.second)
-      return Ref<Tree>();
-    if (token->getStartIndex() <= position.first && token->getStopIndex() >= position.first)
-      return root;
-    return Ref<Tree>();
-  }
-  else
-  {
-    Token *start = std::dynamic_pointer_cast<ParserRuleContext>(root)->start;
-    Token *stop = std::dynamic_pointer_cast<ParserRuleContext>(root)->stop;
-    if (start->getLine() > position.second || (start->getLine() == position.second && position.first < start->getStartIndex()))
-      return Ref<Tree>();
+  do {
+    root = getNext(root);
+    if (antlrcpp::is<TerminalNode *>(root))
+    {
+      Token *token = ((TerminalNode *)root)->getSymbol();
+      if (token->getType() == Token::EOF)
+        return getPrevious(root);
 
-    if (stop->getLine() < position.second || (stop->getLine() == position.second && stop->getStopIndex() < position.first))
-      return Ref<Tree>();
-  }
+      // If we reached a position after the given one then we found a situation where that position is
+      // between two terminals. Return the previous one in this case.
+      if (position.second < token->getLine())
+        return getPrevious(root);
+      if (position.second == token->getLine() && position.first < token->getCharPositionInLine())
+        return getPrevious(root);
 
-  for (auto &child : root->children)
-  {
-    Ref<Tree> result = contextFromPosition(child, position);
-    if (result != nullptr)
-      return result;
-  }
+      size_t length = token->getStopIndex() - token->getStartIndex() + 1;
+      if (position.second == token->getLine() && (position.first < token->getCharPositionInLine() + length))
+        return root;
+    }
+  } while (root != nullptr);
 
-  return Ref<Tree>();
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

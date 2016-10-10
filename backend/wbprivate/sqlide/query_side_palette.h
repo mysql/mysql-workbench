@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,10 @@ namespace mforms {
   class ToolBarItem;
 }
 
+namespace help {
+  class HelpContext;
+}
+
 #include "base/notifications.h"
 #include "mforms/tabview.h"
 
@@ -36,6 +40,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC QuerySidePalette : public mforms::TabView, base
 private:
   SqlEditorForm::Ptr _owner;
 
+  help::HelpContext *_helpContext;
   mforms::ToolBar* _help_toolbar;
   mforms::HyperText* _help_text;
   bec::GRTManager::Timer* _help_timer;
@@ -87,6 +92,7 @@ private:
   std::string format_help_as_html(const std::string &text);
 
   void snippet_selection_changed();
+
 public:
   QuerySidePalette(const SqlEditorForm::Ref &owner);
   ~QuerySidePalette();

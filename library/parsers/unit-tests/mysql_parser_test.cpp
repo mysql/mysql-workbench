@@ -54,7 +54,7 @@ protected:
   MySQLParserServices *_services;
 
   size_t parse(const std::string sql, long version, const std::string &mode);
-  bool parseAndCompare(const std::string &sql, long version, const std::string &mode, std::vector<int> tokens,
+  bool parseAndCompare(const std::string &sql, long version, const std::string &mode, std::vector<size_t> tokens,
                        size_t expectedErrorCount = 0);
 
 TEST_DATA_CONSTRUCTOR(mysql_parser_tests) : _lexer(&_input), _tokens(&_lexer), _parser(&_tokens)
@@ -473,7 +473,7 @@ TEST_FUNCTION(20)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void collectTokenTypes(Ref<RuleContext> context, std::vector<int> &list)
+void collectTokenTypes(Ref<RuleContext> context, std::vector<size_t> &list)
 {
   for (size_t index = 0; index < context->children.size(); ++index)
   {
@@ -493,13 +493,13 @@ void collectTokenTypes(Ref<RuleContext> context, std::vector<int> &list)
  * Parses the given string and checks the built AST. Returns true if no error occurred, otherwise false.
  */
 bool Test_object_base<mysql_parser_tests>::parseAndCompare(const std::string &sql, long version, const std::string &mode,
-  std::vector<int> expected, size_t expectedErrorCount)
+  std::vector<size_t> expected, size_t expectedErrorCount)
 {
   if (parse(sql, version, mode) != expectedErrorCount)
     return false;
 
   // Walk the tokens stored in the parse tree produced by the parse call above and match exactly the given list of token types.
-  std::vector<int> tokens;
+  std::vector<size_t> tokens;
   collectTokenTypes(_lastParseTree, tokens);
 
   return tokens == expected;
@@ -537,7 +537,7 @@ public:
     return false;
   };
 
-  virtual Any visitSelect_item(MySQLParser::Select_itemContext *context) override
+  virtual Any visitSelectItem(MySQLParser::SelectItemContext *context) override
   {
     Any result = visitChildren(context);
     results.push_back(result.as<EvalValue>());
@@ -592,7 +592,7 @@ public:
   
   virtual Any visitExprIs(MySQLParser::ExprIsContext *context) override
   {
-    EvalValue value = visit(context->bool_pri().get());
+    EvalValue value = visit(context->boolPri().get());
     if (context->IS_SYMBOL() == nullptr)
       return value;
 
@@ -609,25 +609,25 @@ public:
         break;
     }
 
-    if (context->not_rule() != nullptr)
+    if (context->notRule() != nullptr)
       result = !result;
     return EvalValue::fromBool(result);
   }
 
   virtual Any visitPrimaryExprIsNull(MySQLParser::PrimaryExprIsNullContext *context) override
   {
-    EvalValue value = visit(context->bool_pri().get());
-    if (context->not_rule() == nullptr)
+    EvalValue value = visit(context->boolPri().get());
+    if (context->notRule() == nullptr)
       return EvalValue::fromBool(value.type == EvalValue::Null);
     return EvalValue::fromBool(value.type != EvalValue::Null);
   }
 
   virtual Any visitPrimaryExprCompare(MySQLParser::PrimaryExprCompareContext *context) override
   {
-    EvalValue left = visit(context->bool_pri().get());
+    EvalValue left = visit(context->boolPri().get());
     EvalValue right = visit(context->predicate().get());
 
-    ssize_t op = context->comp_op()->getStart()->getType();
+    ssize_t op = context->compOp()->getStart()->getType();
     if (left.isNullType() || right.isNullType())
     {
       if (op == MySQLLexer::NULL_SAFE_EQUAL_OPERATOR)
@@ -656,7 +656,7 @@ public:
 
   virtual Any visitPredicateExprOperations(MySQLParser::PredicateExprOperationsContext *context) override
   {
-    return visit(context->bit_expr().get());
+    return visit(context->bitExpr().get());
   }
 
   static unsigned long long shiftLeftWithOverflow(double l, double r)
@@ -668,13 +668,13 @@ public:
     return bits.to_ullong();
   }
 
-  virtual Any visitBit_expr(MySQLParser::Bit_exprContext *context) override
+  virtual Any visitBitExpr(MySQLParser::BitExprContext *context) override
   {
-    if (context->simple_expr() != nullptr)
-      return visit(context->simple_expr().get());
+    if (context->simpleExpr() != nullptr)
+      return visit(context->simpleExpr().get());
 
-    EvalValue left = visit(context->bit_expr(0).get());
-    EvalValue right = visit(context->bit_expr(1).get());
+    EvalValue left = visit(context->bitExpr(0).get());
+    EvalValue right = visit(context->bitExpr(1).get());
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -712,14 +712,14 @@ public:
     return EvalValue::fromNull();
   }
 
-  virtual Any visitExpression_list_with_parentheses(MySQLParser::Expression_list_with_parenthesesContext *context) override
+  virtual Any visitExpressionListWithParentheses(MySQLParser::ExpressionListWithParenthesesContext *context) override
   {
-    return visit(context->expression_list().get());
+    return visit(context->expressionList().get());
   }
 
   virtual Any visitSimpleExprList(MySQLParser::SimpleExprListContext *context) override
   {
-    return visit(context->expression_list().get());
+    return visit(context->expressionList().get());
   }
 
   virtual Any visitSimpleExprLiteral(MySQLParser::SimpleExprLiteralContext *context) override
@@ -751,7 +751,7 @@ public:
 
   virtual Any visitSimpleExprNot(MySQLParser::SimpleExprNotContext *context) override
   {
-    EvalValue value = visit(context->simple_expr().get());
+    EvalValue value = visit(context->simpleExpr().get());
     if (value.isNullType())
       return EvalValue::fromNull();
     return EvalValue::fromBool(!asBool(value));
@@ -913,7 +913,7 @@ static const std::vector<SqlModeTestEntry> sqlModeTestQueries = {
 
 using P = MySQLParser;
 
-static const std::vector<std::vector<int>> sqlModeTestResults = {
+static const std::vector<std::vector<size_t>> sqlModeTestResults = {
   { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::IDENTIFIER, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
   { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::COUNT_SYMBOL, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
   { P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF },
@@ -956,7 +956,7 @@ TEST_FUNCTION(35)
   public:
     std::string text;
 
-    virtual void exitStringLiteral(MySQLParser::StringLiteralContext *ctx) override
+    virtual void exitTextLiteral(MySQLParser::TextLiteralContext *ctx) override
     {
       text = MySQLParser::getText(ctx, true);
     }

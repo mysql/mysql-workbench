@@ -48,6 +48,8 @@ namespace parsers {
     static std::string dumpTree(Ref<antlr4::RuleContext> context, antlr4::Parser &parser, const std::string &indentation);
     static std::string sourceTextForContext(antlr4::ParserRuleContext *ctx, bool keepQuotes = false);
 
-    static Ref<antlr4::tree::Tree> contextFromPosition(Ref<antlr4::tree::Tree> root, std::pair<ssize_t, ssize_t> position);
+    static antlr4::tree::Tree* getPrevious(antlr4::tree::Tree *tree);
+    static antlr4::tree::Tree* getNext(antlr4::tree::Tree *tree);
+    static antlr4::tree::Tree* contextFromPosition(antlr4::tree::Tree *root, std::pair<size_t, size_t> position);
   };
 }
