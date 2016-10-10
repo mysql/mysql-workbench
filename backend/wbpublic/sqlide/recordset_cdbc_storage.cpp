@@ -110,7 +110,7 @@ size_t Recordset_cdbc_storage::determine_pkey_columns(Recordset::Column_names &c
 {
   // a connection other than the user connection must be used for fetching metadata, otherwise we change the state of the connection
   sql::Dbc_connection_handler::Ref conn;
-  base::RecMutexLock lock(_getAuxConnection(conn));
+  base::RecMutexLock lock(_getAuxConnection(conn, true)); //we can't perform full connection check, hence we use the simple one
   {
     sql::DatabaseMetaData *conn_meta(conn->ref->getMetaData());
     try
@@ -164,7 +164,7 @@ size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_name
 {
   // a connection other than the user connection must be used for fetching metadata, otherwise we change the state of the connection
   sql::Dbc_connection_handler::Ref conn;
-  base::RecMutexLock lock(_getAuxConnection(conn));
+  base::RecMutexLock lock(_getAuxConnection(conn, true)); //we can't perform full connection check, hence we use the simple one
   {
     std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
     std::string q = base::sqlstring("SHOW INDEX FROM !.!", 0) << _schema_name << _table_name;
@@ -255,7 +255,7 @@ size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_name
 void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connection *data_swap_db)
 {
   sql::Dbc_connection_handler::Ref conn;
-  base::RecMutexLock lock(_getUserConnection(conn));
+  base::RecMutexLock lock(_getUserConnection(conn, true)); //we can't perform full connection check, hence we use the simple one
 
   Recordset_sql_storage::do_unserialize(recordset, data_swap_db);
 
@@ -492,7 +492,7 @@ void Recordset_cdbc_storage::do_fetch_blob_value(Recordset *recordset, sqlite::c
 {
 
   sql::Dbc_connection_handler::Ref conn;
-  base::RecMutexLock lock(_getUserConnection(conn));
+  base::RecMutexLock lock(_getUserConnection(conn, true)); //we can't perform full connection check, hence we use the simple one
 
   Recordset::Column_names &column_names= get_column_names(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
@@ -560,7 +560,7 @@ public:
 void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool skip_transaction)
 {
   sql::Dbc_connection_handler::Ref conn;
-  base::RecMutexLock lock(_getUserConnection(conn));
+  base::RecMutexLock lock(_getUserConnection(conn, true));  //we can't perform full connection check, hence we use the simple one
 
   float progress_state= 0.f;
   float progress_state_inc= sql_script.statements.empty() ? 1.f : 1.f / sql_script.statements.size();

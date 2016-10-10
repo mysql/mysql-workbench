@@ -471,9 +471,9 @@ void SqlEditorForm::finish_startup()
 
 //--------------------------------------------------------------------------------------------------
 
-base::RecMutexLock SqlEditorForm::getAuxConnection(sql::Dbc_connection_handler::Ref &conn)
+base::RecMutexLock SqlEditorForm::getAuxConnection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly)
  {
-   RecMutexLock lock(ensure_valid_aux_connection());
+   RecMutexLock lock(ensure_valid_aux_connection(false, lockOnly));
    conn = _aux_dbc_conn;
    return lock;
  }
@@ -482,9 +482,9 @@ base::RecMutexLock SqlEditorForm::getAuxConnection(sql::Dbc_connection_handler::
 
 //--------------------------------------------------------------------------------------------------
 
-base::RecMutexLock SqlEditorForm::getUserConnection(sql::Dbc_connection_handler::Ref &conn)
+base::RecMutexLock SqlEditorForm::getUserConnection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly)
 {
-  RecMutexLock lock(ensure_valid_usr_connection());
+  RecMutexLock lock(ensure_valid_usr_connection(false, lockOnly));
   conn = _usr_dbc_conn;
   return lock;
 }
@@ -1644,23 +1644,23 @@ bool SqlEditorForm::ping() const
   return false;
 }
 
-base::RecMutexLock SqlEditorForm::ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn)
+base::RecMutexLock SqlEditorForm::ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly)
 {
-  RecMutexLock lock(ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex));
+  RecMutexLock lock(ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex, lockOnly));
   conn = _aux_dbc_conn;
   return lock;
 }
 
 
-RecMutexLock SqlEditorForm::ensure_valid_aux_connection(bool throw_on_block)
+RecMutexLock SqlEditorForm::ensure_valid_aux_connection(bool throw_on_block, bool lockOnly)
 {
-  return ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex, throw_on_block);
+  return ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex, throw_on_block, lockOnly);
 }
 
 
-RecMutexLock SqlEditorForm::ensure_valid_usr_connection(bool throw_on_block)
+RecMutexLock SqlEditorForm::ensure_valid_usr_connection(bool throw_on_block, bool lockOnly)
 {
-  return ensure_valid_dbc_connection(_usr_dbc_conn, _usr_dbc_conn_mutex, throw_on_block);
+  return ensure_valid_dbc_connection(_usr_dbc_conn, _usr_dbc_conn_mutex, throw_on_block, lockOnly);
 }
 
 
@@ -1682,7 +1682,7 @@ void SqlEditorForm::close_connection(sql::Dbc_connection_handler::Ref &dbc_conn)
 
 
 RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex,
-                                                        bool throw_on_block)
+                                                        bool throw_on_block, bool lockOnly)
 {
   RecMutexLock mutex_lock(dbc_conn_mutex, throw_on_block);
   bool valid = false;
@@ -1690,6 +1690,9 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
   sql::Dbc_connection_handler::Ref myref(dbc_conn);
   if (dbc_conn && dbc_conn->ref.get_ptr())
   {
+    if (lockOnly) //this is a special case, we need it in some situations like for example recordset_cdbc
+      return mutex_lock;
+
     try
     {
       //use connector::isValid to check if server connection is valid
@@ -2118,8 +2121,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
           data_storage= Recordset_cdbc_storage::create();
           data_storage->set_gather_field_info(true);
           data_storage->rdbms(rdbms());
-          data_storage->setUserConnectionGetter(std::bind(&SqlEditorForm::getUserConnection, this, std::placeholders::_1));
-          data_storage->setAuxConnectionGetter(std::bind(&SqlEditorForm::getAuxConnection, this, std::placeholders::_1));
+          data_storage->setUserConnectionGetter(std::bind(&SqlEditorForm::getUserConnection, this, std::placeholders::_1, std::placeholders::_2));
+          data_storage->setAuxConnectionGetter(std::bind(&SqlEditorForm::getAuxConnection, this, std::placeholders::_1, std::placeholders::_2));
           
           SqlFacade::String_tuple_list column_names;
 
@@ -2226,10 +2229,10 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
               {
                 int count= 0;
                 const sql::SQLWarning *w = warnings;
-                while (w) 
+                while (w)
                 {
                   warnings_message.append(strfmt("\n%i %s", w->getErrorCode(), w->getMessage().c_str()));
-                  count++; 
+                  count++;
                   w= w->getNextWarning();
                 }
                 message.append(strfmt(_(", %i warning(s):"), count));
@@ -2240,7 +2243,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
             }
             if (!last_statement_info->empty())
               message.append("\n").append(last_statement_info);
-            set_log_message(log_message_index, has_warning ? DbSqlEditorLog::WarningMsg : DbSqlEditorLog::OKMsg, message, statement, statement_exec_timer.duration_formatted());            
+            set_log_message(log_message_index, has_warning ? DbSqlEditorLog::WarningMsg : DbSqlEditorLog::OKMsg, message, statement, statement_exec_timer.duration_formatted());
           }
 
           if (query_ps_stats)
@@ -2332,8 +2335,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                       data_storage= Recordset_cdbc_storage::create();
                       data_storage->set_gather_field_info(true);
                       data_storage->rdbms(rdbms());
-                      data_storage->setUserConnectionGetter(std::bind(&SqlEditorForm::getUserConnection, this, std::placeholders::_1));
-                      data_storage->setAuxConnectionGetter(std::bind(&SqlEditorForm::getAuxConnection, this, std::placeholders::_1));
+                      data_storage->setUserConnectionGetter(std::bind(&SqlEditorForm::getUserConnection, this, std::placeholders::_1, std::placeholders::_2));
+                      data_storage->setAuxConnectionGetter(std::bind(&SqlEditorForm::getAuxConnection, this, std::placeholders::_1, std::placeholders::_2));
                       if (table_name.empty())
                         data_storage->sql_query(statement);
                       data_storage->schema_name(schema_name);
