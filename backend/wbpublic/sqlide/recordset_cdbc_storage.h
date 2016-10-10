@@ -55,8 +55,8 @@ public:
   std::string decorated_sql_query(); // adds limit clause if defined by options
 
 public:
-  void setAuxConnectionGetter(boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> getConnection) { _getAuxConnection = getConnection; };
-  void setUserConnectionGetter(boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> getConnection) { _getUserConnection = getConnection; };
+  void setAuxConnectionGetter(boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &, bool)> getConnection) { _getAuxConnection = getConnection; };
+  void setUserConnectionGetter(boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &, bool)> getConnection) { _getUserConnection = getConnection; };
 
   void dbc_resultset(boost::shared_ptr<sql::ResultSet>& value) { _dbc_resultset= value; }
   void dbc_statement(boost::shared_ptr<sql::Statement>& value) { _dbc_statement= value; }
@@ -69,8 +69,8 @@ public:
 private:
   boost::shared_ptr<sql::ResultSet> _dbc_resultset; // for 1-time unserialization
   boost::shared_ptr<sql::Statement> _dbc_statement; // for 1-time unserialization
-  boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> _getAuxConnection;
-  boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> _getUserConnection;
+  boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &, bool)> _getAuxConnection;
+  boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &, bool)> _getUserConnection;
 
   std::vector<FieldInfo> _field_info;
   bool _reloadable; // whether can be reloaded using stored sql query
