@@ -2,7 +2,7 @@ mysql-workbench-@edition@ (6.4.0-1@distrov@) @distro@; urgency=low
 
   * New release
 
- -- Milosz Bodzek (milosz.bodzek@oracle.com)  czw, 06 paź 2016 13:53:36 +0200
+ -- Milosz Bodzek <milosz.bodzek@oracle.com>  Thurs, 06 Oct 2016 13:53:36 +0200
 
 mysql-workbench-@edition@ (6.3.8-1@distrov@) @distro@; urgency=low
 
