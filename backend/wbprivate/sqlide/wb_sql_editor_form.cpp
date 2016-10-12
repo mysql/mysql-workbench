@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
@@ -2649,12 +2649,16 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
 
   try
   {
-    RecMutexLock usr_dbc_conn_mutex= ensure_valid_usr_connection();
+    bool auto_commit = false;
+
 
     // we need transaction to enforce atomicity of change set
     // so if autocommit is currently enabled disable it temporarily
-    bool auto_commit= _usr_dbc_conn->ref->getAutoCommit();
-    base::ScopeExitTrigger autocommit_mode_keeper;
+    {
+      RecMutexLock usr_dbc_conn_mutex = ensure_valid_usr_connection();
+      auto_commit = _usr_dbc_conn->ref->getAutoCommit();
+    }
+    ScopeExitTrigger autocommit_mode_keeper;
     int res= -2;
 
     if (!auto_commit)
@@ -2672,6 +2676,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
       autocommit_mode_keeper.slot= boost::bind(
         &sql::Connection::setAutoCommit, _usr_dbc_conn->ref.get(), 
         auto_commit);
+      RecMutexLock usr_dbc_conn_mutex = ensure_valid_usr_connection();
       _usr_dbc_conn->ref->setAutoCommit(false);
     }
 
