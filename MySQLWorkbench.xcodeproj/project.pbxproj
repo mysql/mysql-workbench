@@ -134,6 +134,7 @@
 		271790191C97000B00B6DAC9 /* jsonparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271790171C97000B00B6DAC9 /* jsonparser.cpp */; };
 		2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901B1C97004A00B6DAC9 /* jsonparser.h */; };
 		2717901F1C97004A00B6DAC9 /* scope_exit_trigger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */; };
+		27183E891DA54E0100257580 /* libmtemplate.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 4401E1971D994DA50027AD13 /* libmtemplate.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		2720518E111847920013E88B /* message_wb_lock.png in Resources */ = {isa = PBXBuildFile; fileRef = 2720518D111847920013E88B /* message_wb_lock.png */; };
 		27227B5D1C454C180098910A /* mysql_object_names_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27227B591C454C180098910A /* mysql_object_names_cache.cpp */; };
@@ -3939,6 +3940,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				27183E891DA54E0100257580 /* libmtemplate.dylib in Copy Files (dylibs) */,
 				27BF79501CD3559700FBB3F3 /* libpixman-1.0.dylib in Copy Files (dylibs) */,
 				27BF79401CD352EB00FBB3F3 /* libintl.8.dylib in Copy Files (dylibs) */,
 				27E0E23015517BAE0073FD6F /* libparsers.dylib in Copy Files (dylibs) */,
