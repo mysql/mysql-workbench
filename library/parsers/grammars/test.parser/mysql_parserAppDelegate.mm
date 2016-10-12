@@ -130,54 +130,6 @@ static std::set<std::string> charsets = { "_utf8", "_ucs2", "_big5", "_latin2", 
     versionText.stringValue = text;
 }
 
-static size_t tokenCount = 0;
-
-std::string dumpTree(const Ref<RuleContext> &context, const dfa::Vocabulary &vocabulary, const std::string &indentation)
-{
-  std::stringstream stream;
-
-  Ref<ParserRuleContext> parserContext = std::dynamic_pointer_cast<ParserRuleContext>(context);
-  for (size_t index = 0; index < context->children.size(); ++index)
-  {
-    Ref<tree::Tree> child = context->children[index];
-    if (antlrcpp::is<RuleContext>(child)) {
-      auto ruleContext = std::dynamic_pointer_cast<RuleContext>(child);
-      if (antlrcpp::is<MySQLParser::TextLiteralContext>(child))
-      {
-        misc::Interval interval = ruleContext->getSourceInterval();
-        stream << indentation << "(index range: "
-          << interval.a << ".." << interval.b << ", string literal) " << MySQLParser::getText(ruleContext.get(), true) << std::endl;
-      }
-      else
-      {
-        stream << dumpTree(ruleContext, vocabulary, indentation.size() < 100 ? indentation + " " : indentation);
-      }
-    }
-    else
-    {
-      ++tokenCount;
-
-      // A terminal node.
-      stream << indentation;
-
-      misc::Interval interval = context->getSourceInterval();
-      Ref<tree::TerminalNode> node = std::dynamic_pointer_cast<tree::TerminalNode>(child);
-      if (antlrcpp::is<tree::ErrorNode>(child))
-        stream << "Syntax Error: ";
-
-      antlr4::Token *token = node->getSymbol();
-
-      ssize_t type = token->getType();
-      std::string tokenName = type == Token::EOF ? "<EOF>" : vocabulary.getSymbolicName(token->getType());
-      stream << "(line: " << token->getLine() << ", offset: " << token->getCharPositionInLine()
-        << ", index: " << token->getTokenIndex()
-        << ", " << tokenName << " [" << token->getType() << "]) " << token->getText() << std::endl;
-    }
-  }
-
-  return stream.str();
-}
-
 class TestErrorListener : public BaseErrorListener {
 public:
   virtual void syntaxError(IRecognizer *recognizer, antlr4::Token *offendingSymbol, size_t line, size_t charPositionInLine,
@@ -236,7 +188,7 @@ void rethrow_unwrapped(const E& e)
 
 static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy>();
 
-- (unsigned long)parseQuery: (NSString *)query version: (unsigned)serverVersion
+- (unsigned long)parseQuery: (NSString *)query version: (long)serverVersion
                       modes: (MySQLRecognizerCommon::SqlMode)sqlModes
                dumpToOutput: (BOOL)dump
                    needTree: (BOOL)buildParseTree
@@ -270,7 +222,7 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     return 1;
   }
 
-  Ref<ParserRuleContext> tree;
+  ParserRuleContext *tree;
   try {
     tree = parser.query();
   } catch (ParseCancellationException &) {
@@ -296,9 +248,8 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
       std::string t = tree->getText();
       parseTreeView.string = [NSString stringWithUTF8String: tree->toStringTree(&parser).c_str()];
 
-      std::string text = dumpTree(tree, parser.getVocabulary(), "");
-      text = "Token count: " + std::to_string(tokenCount) + "\n" + text;
-      tokenCount = 0;
+      std::string text = MySQLRecognizerCommon::dumpTree(tree, parser.getVocabulary());
+      text = "Token count: " + std::to_string(tokens.size()) + "\n" + text;
       NSString *utf8 = [NSString stringWithUTF8String: text.c_str()];
       if (utf8 == nil)
       {
@@ -766,23 +717,23 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
 #include "MySQLParserBaseListener.h"
 
-NSString* dumpTokens(const Ref<ParserRuleContext> &context, MySQLParser &parser)
+NSString* dumpTokens(ParserRuleContext *context, MySQLParser &parser)
 {
   NSString *result = @"";
 
   const dfa::Vocabulary &vocabulary = parser.getVocabulary();
   for (size_t index = 0; index < context->children.size(); ++index)
   {
-    Ref<tree::Tree> child = context->children[index];
-    if (antlrcpp::is<RuleContext>(child))
+    tree::ParseTree *child = context->children[index];
+    if (antlrcpp::is<RuleContext *>(child))
     {
-      NSString *childText = dumpTokens(std::dynamic_pointer_cast<ParserRuleContext>(child), parser);
+      NSString *childText = dumpTokens(dynamic_cast<ParserRuleContext *>(child), parser);
       result = [result stringByAppendingString: childText];
     }
     else
     {
       // A terminal node.
-      Ref<tree::TerminalNode> node = std::dynamic_pointer_cast<tree::TerminalNode>(child);
+      tree::TerminalNode *node = dynamic_cast<tree::TerminalNode *>(child);
       Token *token = node->getSymbol();
 
       NSString *childText;
@@ -828,7 +779,7 @@ NSString* dumpTokens(const Ref<ParserRuleContext> &context, MySQLParser &parser)
     parser.removeErrorListeners();
     parser.addErrorListener(&errorListener);
 
-    Ref<ParserRuleContext> tree = parser.query();
+    ParserRuleContext *tree = parser.query();
 
     errorCount += parser.getNumberOfSyntaxErrors();
 
