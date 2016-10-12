@@ -373,7 +373,7 @@ class ExplainNode(VBoxFigure):
         
             self._context.tooltip.set_content(box)
             self._context.tooltip.add_close_callback(self._context.close_tooltip)
-            self._context.tooltip.show_and_track(self._context._view, xx, yy, mforms.Right)
+            self._context.tooltip.show_and_track(self._context._view, xx, yy, mforms.StartRight)
 
 
 
