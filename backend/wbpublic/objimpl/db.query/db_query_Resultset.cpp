@@ -407,7 +407,7 @@ public:
   {
     if (column_by_name.find(column) != column_by_name.end())
     {
-      return grt::DoubleRef(recordset->getDouble((long)column_by_name[column]));
+      return grt::DoubleRef(recordset->getDouble((uint32_t)column_by_name[column]));
     }
     throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
     return grt::DoubleRef(0.0);

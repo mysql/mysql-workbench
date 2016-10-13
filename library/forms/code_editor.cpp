@@ -368,7 +368,7 @@ void CodeEditor::setup()
 
   // Other settings.
   Color color = Color::getSystemColor(base::SelectedTextBackgroundColor);
-  int rawColor = color.toBGR();
+  sptr_t rawColor = color.toBGR();
   _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, rawColor);
   //_code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, 0xFFFFFF);
 

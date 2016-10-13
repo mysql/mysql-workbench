@@ -81,9 +81,11 @@
   NSImage *icon= editor.tabIcon;
   if (icon && [editorTabView respondsToSelector: @selector(setIcon:forTabViewItem:)])
     [(id)editorTabView setIcon:icon forTabViewItem:editor.identifier];
-  
-  if ([editor respondsToSelector: @selector(didShow)])
-    [editor performSelector: @selector(didShow)];
+
+  SEL selector = NSSelectorFromString(@"didShow");
+  if ([editor respondsToSelector: selector])
+    ((void (*)(id, SEL))[editor methodForSelector: selector])(editor, selector);
+
 }
 
 - (BOOL)closeEditorWithIdentifier:(id)ident
@@ -149,19 +151,22 @@
   return nil;
 }
 
-
-- (WBBasePanel*)findPanelForPluginType:(Class)klass
+- (WBBasePanel*)findPanelForPluginType: (Class)klass
 {
   for (NSTabViewItem *item in editorTabView.tabViewItems)
   {
     id editor = _editorById[item.identifier];
-    if ([editor respondsToSelector:@selector(pluginEditor)] &&
-        [[editor performSelector:@selector(pluginEditor)] isKindOfClass: klass])
-      return editor;
+    SEL selector = NSSelectorFromString(@"pluginEditor");
+    if ([editor respondsToSelector: selector])
+    {
+      //id panel = [editor performSelector: selector];
+      id panel = ((id (*)(id, SEL))[editor methodForSelector: selector])(editor, selector);
+      if ([panel isKindOfClass: klass])
+        return editor;
+    }
   }
   return nil;
 }
-
 
 - (BOOL)closeActiveEditorTab
 {

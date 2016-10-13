@@ -123,7 +123,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   _backgroundView = [[WBOverviewBackgroundView alloc] initWithFrame:
                      NSMakeRect(0, 0, self.contentSize.width, self.contentSize.height)];
-  _backgroundView.autoresizingMask = NSViewWidthSizable||NSViewMaxYMargin|NSViewMinXMargin|NSViewMaxXMargin;
+  _backgroundView.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin| NSViewMinXMargin | NSViewMaxXMargin;
   self.documentView = _backgroundView;
   
   _itemContainers= [[NSMutableDictionary alloc] init];

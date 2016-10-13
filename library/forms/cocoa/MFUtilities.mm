@@ -246,19 +246,19 @@ static void util_store_password(const std::string &service, const std::string &a
 {
   // See if we already have a password for this service + account. If so, modify this, otherwise add a new password.
   SecKeychainItemRef item;
-  OSErr code = SecKeychainFindGenericPassword(NULL, service.length(), service.c_str(), account.length(),
+  OSErr code = SecKeychainFindGenericPassword(NULL, (uint32_t)service.length(), service.c_str(), (uint32_t)account.length(),
                                               account.c_str(), NULL, NULL, &item);
   if (code == 0)
   {
-    code = SecKeychainItemModifyAttributesAndData(item, NULL, password.length(), password.c_str());
+    code = SecKeychainItemModifyAttributesAndData(item, NULL, (uint32_t)password.length(), password.c_str());
     CFRelease(item);
     if (code == 0)
       return;
   }
   else
   {
-    code = SecKeychainAddGenericPassword(NULL, service.length(), service.c_str(), account.length(),
-                                         account.c_str(), password.length(), password.c_str(), NULL);
+    code = SecKeychainAddGenericPassword(NULL, (uint32_t)service.length(), service.c_str(), (uint32_t)account.length(),
+                                         account.c_str(), (uint32_t)password.length(), password.c_str(), NULL);
     if (code == 0)
       return;
   }
@@ -273,9 +273,9 @@ static bool util_find_password(const std::string &service, const std::string &ac
   void *password_data= NULL;
   
   if (SecKeychainFindGenericPassword(NULL,
-                                     service.length(),
+                                     (uint32_t)service.length(),
                                      service.c_str(),
-                                     account.length(),
+                                     (uint32_t)account.length(),
                                      account.c_str(),
                                      &password_length,
                                      &password_data,
@@ -297,9 +297,9 @@ static void util_forget_password(const std::string &service, const std::string &
   OSErr code;
   
   if ((code = SecKeychainFindGenericPassword(NULL,
-                                             service.length(),
+                                             (uint32_t)service.length(),
                                              service.c_str(),
-                                             account.length(),
+                                             (uint32_t)account.length(),
                                              account.c_str(),
                                              NULL,
                                              NULL,

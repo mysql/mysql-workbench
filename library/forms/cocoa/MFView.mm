@@ -693,8 +693,10 @@ NSView *nsviewForView(mforms::View *view)
 static void view_destroy(::mforms::View *self)
 {
   id view = self->get_data();
-  if (view && [view respondsToSelector: @selector(destroy)])
-    [view performSelector: @selector(destroy)];
+  SEL selector = NSSelectorFromString(@"destroy");
+  if (view && [view respondsToSelector: selector])
+    ((void (*)(id, SEL))[view methodForSelector: selector])(view, selector);
+
   if ([view respondsToSelector: @selector(superview)] && [view superview])
     [view removeFromSuperview];
 }

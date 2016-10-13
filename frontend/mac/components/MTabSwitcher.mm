@@ -1395,7 +1395,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
   NSTabViewItem *item = [sender representedObject];
 
   [mTabView selectTabViewItem: item];
-  int index = [mTabView indexOfTabViewItem: item];
+  int index = (int)[mTabView indexOfTabViewItem: item];
   if (index < mFirstVisibleTabIndex)
   {
     mFirstVisibleTabIndex = index;
@@ -1565,7 +1565,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
         mReorderingTab = YES;
         if (item)
         {
-          int idx = [mTabView indexOfTabViewItem: item];
+          NSInteger idx = [mTabView indexOfTabViewItem: item];
           [mTabView removeTabViewItem: draggedItem];
           [mTabView insertTabViewItem: draggedItem atIndex: idx];
 
@@ -1578,7 +1578,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
           if (clickPos.x < [self _sizeOfTabViewItem: nil].width)
             idx = 0;
           else
-            idx = mTabView.numberOfTabViewItems;
+            idx = (int)mTabView.numberOfTabViewItems;
           [mTabView removeTabViewItem: draggedItem];
           if (idx == 0)
             [mTabView insertTabViewItem: draggedItem atIndex: 0];

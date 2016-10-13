@@ -121,7 +121,7 @@ static void call_refresh(void *theEditor)
     mBackEnd->get_size(w, h);
     if (w != [widthField integerValue])
     {
-      mBackEnd->set_width([widthField integerValue]);
+      mBackEnd->set_width([widthField intValue]);
       [self refresh];
     }
   }
@@ -131,7 +131,7 @@ static void call_refresh(void *theEditor)
     mBackEnd->get_size(w, h);
     if (h != [heightField integerValue])
     {
-      mBackEnd->set_height([heightField integerValue]);
+      mBackEnd->set_height([heightField intValue]);
       [self refresh];
     }
   }

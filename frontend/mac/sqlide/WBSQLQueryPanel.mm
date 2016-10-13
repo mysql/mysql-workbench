@@ -241,7 +241,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   if (sender == mHistoryTable)
   {
     if (mHistoryTable.selectedRow >= 0)
-      mBackEnd->history()->current_entry(mHistoryTable.selectedRow);
+      mBackEnd->history()->current_entry((int)mHistoryTable.selectedRow);
     [mHistoryDetailsTable reloadData];
   }
   else if (sender == mHistoryDetailsTable)
@@ -254,7 +254,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     if (sel.count > 0)
     {
       for (NSUInteger i = sel.firstIndex; i <= sel.lastIndex and i != NSNotFound; i = [sel indexGreaterThanIndex: i])
-        selection.push_back(i);
+        selection.push_back((int)i);
     }
     mBackEnd->log()->set_selection(selection);
   }
@@ -289,7 +289,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   
   if (iset.count > 0)
     for (NSUInteger row = iset.firstIndex; row <= iset.lastIndex and row != NSNotFound; row = [iset indexGreaterThanIndex: row])
-      sel_indexes.push_back(row);
+      sel_indexes.push_back((int)row);
 
   if (sel_indexes.empty() || mBackEnd->history()->current_entry() < 0)
     return "";
@@ -425,11 +425,11 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
   item.label = editor.title;
   [mUpperTabView addTabViewItem: item];
   [mUpperTabView selectLastTabViewItem: nil];
-  
-  if ([editor respondsToSelector: @selector(didShow)])
-    [editor performSelector: @selector(didShow)];
-}
 
+  SEL selector = NSSelectorFromString(@"didShow");
+  if ([editor respondsToSelector: selector])
+    ((void (*)(id, SEL))[editor methodForSelector: selector])(editor, selector);
+}
 
 - (void)closeActiveEditorTab
 {
@@ -722,16 +722,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
     }
   }
 }
-/*
-- (void)tabViewDidChangeNumberOfTabViewItems:(NSTabView*)tabView
-{
-  if (tabView == mUpperTabView)
-  {
-    if ([tabView numberOfTabViewItems] == 0)
-      mBackEnd->new_sql_script_file();
-  }
-}*/
-
 
 - (BOOL)tabView:(NSTabView *)tabView itemHasCloseButton:(NSTabViewItem *)item
 {
@@ -741,13 +731,13 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 }
 
 
-- (void)tabView:(NSTabView *)tabView didReorderTabViewItem:(NSTabViewItem *)item toIndex:(NSInteger)index
+- (void)tabView:(NSTabView *)tabView didReorderTabViewItem: (NSTabViewItem *)item toIndex: (NSInteger)index
 {
   if (tabView == mUpperTabView)
   {
-    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel((int)[tabView indexOfTabViewItem: item]);
     if (editor)
-      mBackEnd->sql_editor_reordered(editor, index);
+      mBackEnd->sql_editor_reordered(editor, (int)index);
   }
 }
 
@@ -817,7 +807,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   if (tabView == mUpperTabView)
   {
-    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel((int)[tabView indexOfTabViewItem: item]);
     if (editor)
       return [NSString stringWithCPPString: editor->filename()];
   }
@@ -829,7 +819,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   if (tabView == mUpperTabView)
   {
-    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel((int)[tabView indexOfTabViewItem: item]);
     if (editor)
     {
       if (!editor->filename().empty())
@@ -845,21 +835,21 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 
 - (IBAction)handleMenuAction:(id)sender
 {
-  int clicked_tab = [mUpperTabView indexOfTabViewItem: mUpperTabSwitcher.clickedItem];
+  NSInteger clicked_tab = [mUpperTabView indexOfTabViewItem: mUpperTabSwitcher.clickedItem];
 
   switch ([sender tag])
   {
     case 50: // new tab
-      mBackEnd->handle_tab_menu_action("new_tab", clicked_tab);
+      mBackEnd->handle_tab_menu_action("new_tab", (int)clicked_tab);
       break;
     case 51: // save tab
     {
-      mBackEnd->handle_tab_menu_action("save_tab", clicked_tab);
+      mBackEnd->handle_tab_menu_action("save_tab", (int)clicked_tab);
       break;
     }
     case 60: // copy path to clipboard
     {
-      mBackEnd->handle_tab_menu_action("copy_path", clicked_tab);
+      mBackEnd->handle_tab_menu_action("copy_path", (int)clicked_tab);
       break;
     }
   }

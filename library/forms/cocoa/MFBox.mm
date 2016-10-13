@@ -369,7 +369,7 @@ static void expandVertically(std::vector<ChildEntry> &list, int fraction, bool m
   // is not set to auto resizing in horizontal direction (otherwise it adjusts itself to the content).
   int commonWidth = 0;
 
-  int controlCount = leftAligned.size() + rightAligned.size();
+  int controlCount = int(leftAligned.size() + rightAligned.size());
   if ((controlCount > 0) && mHomogeneous)
   {
     // In this mode we resize all controls so that they entirely fill the width of the container.
@@ -535,7 +535,7 @@ static void expandVertically(std::vector<ChildEntry> &list, int fraction, bool m
   // We can have two special cases here: distributed and "use all" mode, but only if the container
   // is not set to auto resizing in horizontal direction (otherwise it adjusts itself to the content).
   int commonHeight = 0;
-  int controlCount = topAligned.size() + bottomAligned.size();
+  int controlCount = int(topAligned.size() + bottomAligned.size());
   if (controlCount > 0 && mHomogeneous)
   {
     // In this mode we resize all controls so that they entirely fill the width of the container.

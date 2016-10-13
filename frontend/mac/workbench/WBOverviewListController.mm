@@ -55,29 +55,29 @@
 
 - (void)relayoutCollectionView:(NSCollectionView*)collection
 {
-  int count= mItems.count;
+  NSUInteger count = mItems.count;
   NSRect itemRect= collection.itemPrototype.view.frame;
-  int itemsPerRow;
-  int rowCount= 0;
+  NSUInteger itemsPerRow;
+  NSUInteger rowCount = 0;
   NSSize newSize;
   
-  itemsPerRow= (int)floor(NSWidth(collection.frame) / NSWidth(itemRect));
+  itemsPerRow= floor(NSWidth(collection.frame) / NSWidth(itemRect));
   if (itemsPerRow > 0)
   {
-    rowCount= ceil((count + (itemsPerRow/2)) / itemsPerRow);
+    rowCount = ceil((count + (itemsPerRow/2)) / itemsPerRow);
     if (rowCount * itemsPerRow < count)
       rowCount++;
   }
   if (rowCount == 0)
     rowCount= 1;
   
-  newSize.width= NSWidth(collection.frame);
-  newSize.height= NSHeight(itemRect) * rowCount;
+  newSize.width = NSWidth(collection.frame);
+  newSize.height = NSHeight(itemRect) * rowCount;
   
   if (!NSEqualSizes(collection.frame.size, newSize))
-    [collection setFrameSize:newSize];
+    [collection setFrameSize: newSize];
   
-  [collection setNeedsDisplay:YES];
+  [collection setNeedsDisplay: YES];
 }
 
 

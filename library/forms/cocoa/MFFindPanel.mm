@@ -218,9 +218,9 @@ using namespace mforms;
   if (mUseRegex)
     flags = flags | mforms::FindRegex;
   
-  return mOwner->get_editor()->find_and_replace_text((findText.stringValue).CPPString,
-                                                     mReplaceText.stringValue.CPPString, 
-                                                     flags, true);  
+  return (int)mOwner->get_editor()->find_and_replace_text((findText.stringValue).CPPString,
+                                                          mReplaceText.stringValue.CPPString,
+                                                          flags, true);
 }
 
 

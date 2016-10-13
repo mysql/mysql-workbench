@@ -27,10 +27,10 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
 
 @interface MGridView()
 {
-  int mSelectedColumnIndex;
-  int mSelectedRowIndex;
-  int mOSelectedColumnIndex;
-  int mOSelectedRowIndex;
+  NSInteger mSelectedColumnIndex;
+  NSInteger mSelectedRowIndex;
+  NSInteger mOSelectedColumnIndex;
+  NSInteger mOSelectedRowIndex;
 
   Recordset *mRecordset;
 }
@@ -414,12 +414,12 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
 
 - (int) selectedColumnIndex;
 {
-  return mSelectedColumnIndex;
+  return (int)mSelectedColumnIndex;
 }
 
 - (int) selectedRowIndex;
 {
-  return mSelectedRowIndex;
+  return (int)mSelectedRowIndex;
 }
 
 - (void)highlightSelectionInClipRect: (NSRect)clipRect
@@ -434,12 +434,12 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow)
   NSUInteger index = iset.firstIndex;
   while (index != NSNotFound)
   {
-    indexes.push_back(index);
+    indexes.push_back((int)index);
     index = [iset indexGreaterThanIndex: index];
   }
 
   if (indexes.empty() && clickedRow >= 0)
-    indexes.push_back(clickedRow);
+    indexes.push_back((int)clickedRow);
   
   return indexes;
 }

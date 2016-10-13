@@ -235,7 +235,7 @@ static int splitter_get_divider_position(::mforms::Splitter *self)
 
 static void splitter_add(::mforms::Splitter *self, ::mforms::View *child, int minsize, bool fixed)
 {
-  int idx;
+  NSUInteger idx;
   MFSplitterImpl *impl = self->get_data();
   if ((idx = impl.subviews.count) > 2)
   {

@@ -86,7 +86,7 @@ static void call_refresh(void *theEditor)
 
   if (mBackEnd->is_editing_live_object())
   {
-    int i = [tabView indexOfTabViewItemWithIdentifier: @"comments"];
+    NSInteger i = [tabView indexOfTabViewItemWithIdentifier: @"comments"];
     if (i > 0)
       [tabView removeTabViewItem: [tabView tabViewItemAtIndex: i]];
     commentText = nil;

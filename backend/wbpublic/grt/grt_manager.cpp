@@ -43,16 +43,14 @@ using namespace base;
 
 DEFAULT_LOG_DOMAIN("GRTManager");
 
-static GThread *main_thread= 0;
+static GThread *main_thread = nullptr;
 
 static void init_all()
 {
-  if (!main_thread)
+  if (main_thread == nullptr)
    {
     base::threading_init();
-    main_thread= g_thread_self();
-    if (!g_thread_supported())
-      throw std::runtime_error("Could not initialize Glib thread support");
+    main_thread = g_thread_self();
   }
 }
 
