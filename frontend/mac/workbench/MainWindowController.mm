@@ -1172,7 +1172,7 @@ public:
 
   virtual int view_count()
   {
-    return controller->topTabView.numberOfTabViewItems;
+    return (int)controller->topTabView.numberOfTabViewItems;
   }
 
   virtual mforms::AppView *selected_view()

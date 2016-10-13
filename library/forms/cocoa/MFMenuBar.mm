@@ -29,18 +29,24 @@
   mforms::MenuItem *item;
 }
 
-- (instancetype)initWithTitle:(NSString*)title
-               slot:(boost::function<void ()>)aslot NS_DESIGNATED_INITIALIZER;
-
 @end
 
 static NSMenuItem *applicationMenuTemplate = nil;
 static NSMenuItem *defaultEditMenu = nil;
 
-@implementation  MFMenuItem
+@implementation MFMenuItem
 
-- (instancetype)initWithTitle:(NSString*)title
-               slot:(boost::function<void ()>)aslot
+- (instancetype)initWithCoder:(NSCoder *)decoder
+{
+  return [super initWithCoder: decoder];
+}
+
+- (instancetype)initWithTitle: (NSString *)string action: (nullable SEL)selector keyEquivalent: (NSString *)charCode
+{
+  return [self initWithTitle: string slot: boost::function<void ()>()];
+}
+
+- (instancetype)initWithTitle:(NSString*)title slot:(boost::function<void ()>)aslot
 {
   self = [super initWithTitle: title action: @selector(callSlot:) keyEquivalent:@""];
   if (self)

@@ -170,7 +170,7 @@ void DbDriverParam::set_value(const grt::ValueRef &value)
         grt::StringRef s= grt::StringRef::cast_from(value);
         if (s.is_valid() && !(*s).empty())
         {
-          int n= atol((*s).c_str());
+          int n= atoi((*s).c_str());
           _value= grt::IntegerRef(n);
         }
         else

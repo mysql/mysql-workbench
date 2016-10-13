@@ -172,11 +172,10 @@ static const char *viewFlagsKey = "viewFlagsKey";
   }
 
   float rowHeight = 0;
-  for (int index= 0, count= (*mData)->get_column_count(); index < count; ++index)
+  for (size_t index = 0, count = (*mData)->get_column_count(); index < count; ++index)
   {
     std::string label= base::sanitize_utf8((*mData)->get_column_caption(index));
-    //bec::GridModel::ColumnType type= (*mData)->get_column_type(index);
-    NSTableColumn *column= [[NSTableColumn alloc] initWithIdentifier: [NSString stringWithFormat: @"%i", index]];
+    NSTableColumn *column= [[NSTableColumn alloc] initWithIdentifier: [NSString stringWithFormat: @"%zu", index]];
 
     [column.headerCell setTitle: @(label.c_str())];
 
@@ -204,7 +203,7 @@ static const char *viewFlagsKey = "viewFlagsKey";
   mFont = font;
 
   float rowHeight = 0;
-  for (int index= 0, count= (*mData)->get_column_count(); index <= count; ++index)
+  for (size_t index = 0, count = (*mData)->get_column_count(); index <= count; ++index)
   {
     NSTableColumn *column= gridView.tableColumns[index];
     if (mFont)
@@ -268,8 +267,8 @@ static void record_edit(void *view)
 static void record_add(void *view)
 {
   MResultsetViewer *viewer = (__bridge MResultsetViewer *)view;
-  [viewer.gridView scrollRowToVisible: (*viewer->mData)->count()-1];
-  [viewer.gridView selectCellAtRow: (*viewer->mData)->count()-1 column: 1];
+  [viewer.gridView scrollRowToVisible: (*viewer->mData)->count() - 1];
+  [viewer.gridView selectCellAtRow: (int)(*viewer->mData)->count() - 1 column: 1];
 
   [viewer.gridView editColumn: viewer.gridView.selectedColumnIndex
                           row: viewer.gridView.selectedRowIndex
@@ -288,7 +287,7 @@ static void selected_record_changed(void *theViewer)
   MResultsetViewer *viewer = (__bridge MResultsetViewer *)theViewer;
   [viewer.gridView scrollRowToVisible: (*viewer->mData)->edited_field_row()-1];
   [viewer.gridView deselectAll: nil];
-  [viewer.gridView selectCellAtRow: (*viewer->mData)->edited_field_row() column: (*viewer->mData)->edited_field_column()];
+  [viewer.gridView selectCellAtRow: (int)(*viewer->mData)->edited_field_row() column: (int)(*viewer->mData)->edited_field_column()];
 }
 
 - (void)actionTriggered
@@ -331,16 +330,16 @@ static void selected_record_changed(void *theViewer)
       }
       else if (action == "record_next")
       {
-        int row = gridView.selectedRowIndex + 1;
-        if (row >= (int)(*mData)->count()-1)
-          row = (*mData)->count()-1;
+        size_t row = gridView.selectedRowIndex + 1;
+        if (row >= (*mData)->count() - 1)
+          row = (*mData)->count() - 1;
         [gridView scrollRowToVisible: row];
-        [gridView selectCellAtRow: row column: 1];
+        [gridView selectCellAtRow: (int)row column: 1];
       }
       else if (action == "record_last")
       {
         [gridView scrollRowToVisible: (*mData)->count()-1];
-        [gridView selectCellAtRow: (*mData)->count()-1 column: 1];
+        [gridView selectCellAtRow: (int)(*mData)->count() - 1 column: 1];
       }
       else if (action == "record_wrap_vertical")
       {

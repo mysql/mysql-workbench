@@ -32,11 +32,10 @@
 
 - (ResponderLayer*) mouseDownAtPoint: (CGPoint) mouse;
 {
-  if ([self.delegate respondsToSelector: @selector(tabViewMenuAction:)]) {
-    [self.delegate performSelector: @selector(tabViewMenuAction:)
-                          withObject: self];
-  }
-  
+  SEL selector = NSSelectorFromString(@"tabViewMenuAction:");
+  if ([self.delegate respondsToSelector: selector])
+    ((void (*)(id, SEL, id))[(id)self.delegate methodForSelector: selector])(self.delegate, selector, self);
+
   return self;
 }
 
@@ -79,10 +78,9 @@
 
 - (void)mouseUp
 {
-  if (!mDragged && [self.delegate respondsToSelector: @selector(tabViewDraggerAction:)]) {
-    [self.delegate performSelector: @selector(tabViewDraggerAction:)
-                          withObject: self];
-  }
+  SEL selector = NSSelectorFromString(@"tabViewDraggerAction:");
+  if (!mDragged && [self.delegate respondsToSelector: selector])
+    ((void (*)(id, SEL, id))[(id)self.delegate methodForSelector: selector])(self.delegate, selector, self);
 }
 
 @end
@@ -98,11 +96,10 @@
 
 - (ResponderLayer*) mouseDownAtPoint: (CGPoint) mouse;
 {
-  if ([self.delegate respondsToSelector: @selector(tabViewArrowAction:)]) {
-    [self.delegate performSelector: @selector(tabViewArrowAction:)
-                          withObject: self];
-  }
-  
+  SEL selector = NSSelectorFromString(@"tabViewArrowAction:");
+  if ([self.delegate respondsToSelector: selector])
+    ((void (*)(id, SEL, id))[(id)self.delegate methodForSelector: selector])(self.delegate, selector, self);
+
   return self;
 }
 

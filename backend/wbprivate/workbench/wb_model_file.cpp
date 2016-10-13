@@ -753,7 +753,7 @@ void ModelFile::pack_zip(const std::string &zipfile, const std::string &destdir,
 #if defined(zip_uint16_t) || defined(_WIN32)
   zip_set_archive_comment(z, zip_comment.c_str(), (zip_uint16_t)zip_comment.size());
 #else
-  zip_set_archive_comment(z, zip_comment.c_str(), zip_comment.size());
+  zip_set_archive_comment(z, zip_comment.c_str(), (int)zip_comment.size());
 #endif
 
   try

@@ -125,9 +125,9 @@
 
   mdc::CairoCtx cairoctx(surface);
       
-  int page= [[NSPrintOperation currentOperation] currentPage] - 1;
+  NSInteger page = [[NSPrintOperation currentOperation] currentPage] - 1;
     
-  _printer->render_page(&cairoctx, page % _xpages, page / _xpages);
+  _printer->render_page(&cairoctx, page % _xpages, (int)page / _xpages);
   
   cairoctx.show_page();
   

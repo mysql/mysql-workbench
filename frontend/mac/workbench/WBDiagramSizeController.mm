@@ -107,9 +107,9 @@ static void update_size_entries(void *theController)
 - (void)controlTextDidEndEditing:(NSNotification *)aNotification
 {
   if (aNotification.object == widthField)
-    _be->set_xpages(widthField.integerValue);
+    _be->set_xpages((int)widthField.integerValue);
   else if (aNotification.object == heightField)
-    _be->set_ypages(heightField.integerValue);
+    _be->set_ypages((int)heightField.integerValue);
 }  
 
 

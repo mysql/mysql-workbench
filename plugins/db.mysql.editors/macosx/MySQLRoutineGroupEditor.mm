@@ -135,7 +135,7 @@ static void call_refresh(void *theEditor)
 
 - (IBAction)doubleClickRoutine:(id)sender
 {
-  int row = [routineTable selectedRow];
+  NSInteger row = [routineTable selectedRow];
   if (row >= 0)
     mBackEnd->open_editor_for_routine_at_index(row);
 }

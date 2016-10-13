@@ -150,7 +150,7 @@ public:
   virtual int count() const
   {
     NSMutableArray *children = _self.children;
-    return children.count;
+    return (int)children.count;
   }
   
   virtual mforms::TreeNodeRef insert_child(int index)
@@ -190,7 +190,7 @@ public:
   virtual int get_child_index(mforms::TreeNodeRef node) const
   {
     id child = from_ref(node)->self();
-    return [_self.children indexOfObject: child];
+    return (int)[_self.children indexOfObject: child];
   }
 
   virtual mforms::TreeNodeRef previous_sibling() const
@@ -517,7 +517,7 @@ public:
   {
     // 0 for the root node, 1 for top level nodes etc.
     // NSOutlineView returns 0 for the top level nodes, however.
-    return [_self.treeView.outlineView levelForItem: _self] + 1;
+    return (int)[_self.treeView.outlineView levelForItem: _self] + 1;
   }
 
   virtual void set_icon_path(int column, const std::string &icon)
@@ -852,7 +852,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     }
     if (row >= 0 && NSPointInRect(p, [self rectOfRow: row]))
     {
-      mforms::TreeNodeRef node(mOwner->node_at_row(row));
+      mforms::TreeNodeRef node(mOwner->node_at_row((int)row));
       if (node)
       {
         std::vector<std::string> icons = mOwner->overlay_icons_for_node(node);
@@ -879,7 +879,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
             iconRect.size.width = img.size.width;
 
             if (NSPointInRect(p, iconRect) && mOverOverlay < 0)
-              mOverOverlay = icons.size() - i - 1;
+              mOverOverlay = int(icons.size() - i - 1);
           }
           [self setNeedsDisplay: YES];
         }
@@ -925,7 +925,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 {
   if (mOverOverlay >= 0 && mOverOverlay == mClickingOverlay)
   {
-    mforms::TreeNodeRef node(mOwner->node_at_row(mOverlayedRow));
+    mforms::TreeNodeRef node(mOwner->node_at_row((int)mOverlayedRow));
     if (node)
       mOwner->overlay_icon_for_node_clicked(node, mClickingOverlay);
     else
@@ -989,8 +989,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   if (outline)
   {
     mforms::ContextMenu *menu = outline->mOwner->get_header_menu();
-    int column = [outline.headerView columnAtPoint: [outline.headerView convertPoint: event.locationInWindow
-                                                                                fromView: nil]];
+    int column = (int)[outline.headerView columnAtPoint: [outline.headerView convertPoint: event.locationInWindow
+                                                                                 fromView: nil]];
     outline->mOwner->header_clicked(column);
     
     if (menu)
@@ -1123,8 +1123,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (NSInteger)addColumnWithTitle:(NSString*)title type:(mforms::TreeColumnType)type editable:(BOOL)editable
                           width:(int)width
 {
-  int idx = mOutline.tableColumns.count;
-  NSString *columnKey = [NSString stringWithFormat: @"%i", idx];
+  NSUInteger idx = mOutline.tableColumns.count;
+  NSString *columnKey = [NSString stringWithFormat: @"%lu", idx];
   NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier: columnKey];
 
   [mColumnKeys addObject: columnKey];
@@ -1324,7 +1324,7 @@ static void sortChildrenOfNode(MFTreeNodeImpl *node,
 - (void)outlineView:(NSOutlineView *)outlineView
 sortDescriptorsDidChange:(NSArray *)oldDescriptors
 {
-  int selectedRow = outlineView.selectedRow;
+  NSInteger selectedRow = outlineView.selectedRow;
   id selectedItem = [outlineView itemAtRow: selectedRow];
   
   sortChildrenOfNode(mRootNode, outlineView.sortDescriptors);
@@ -1503,7 +1503,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   if (row >= 0)
   {
     id item = [mOutline itemAtRow: mOutline.clickedRow];
-    mOwner->node_activated([item nodeRef], mOutline.clickedColumn);
+    mOwner->node_activated([item nodeRef], (int)mOutline.clickedColumn);
   }
 }
 
@@ -1512,7 +1512,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   if (mOwner == nil)
     return;
 
-  mOwner->column_resized(mOutline.headerView.resizedColumn);
+  mOwner->column_resized((int)mOutline.headerView.resizedColumn);
 }
 
 #pragma mark - Drag'n drop
@@ -1775,7 +1775,7 @@ static int treeview_add_column(mforms::TreeView *self, mforms::TreeColumnType ty
   MFTreeViewImpl *tree= self->get_data();
   if (tree)
   {
-    return [tree addColumnWithTitle:wrap_nsstring(name) type:type editable:editable width:width];
+    return (int)[tree addColumnWithTitle:wrap_nsstring(name) type:type editable: editable width: width];
   }
   return -1;
 }
@@ -1819,7 +1819,7 @@ static mforms::TreeNodeRef treeview_get_selected(mforms::TreeView *self)
       return [draggedNodes[0] nodeRef];
     else
     {
-      int row = tree->mOutline.selectedRow;
+      NSInteger row = tree->mOutline.selectedRow;
       if (row >= 0)
         return [[tree->mOutline itemAtRow: row] nodeRef];
     }
@@ -1932,7 +1932,7 @@ static void treeview_freeze_refresh(mforms::TreeView *self, bool flag)
       if (tree->mFreezeCount == 0)
       {
         // remember and restore row selection
-        int row = tree->mOutline.selectedRow;
+        NSInteger row = tree->mOutline.selectedRow;
         id item = row >= 0 ? [tree->mOutline itemAtRow: row] : nil;
         
         sortChildrenOfNode(tree->mRootNode, tree->mOutline.sortDescriptors);
@@ -1991,14 +1991,14 @@ static int count_rows_in_node(NSOutlineView *outline, MFTreeNodeImpl *node)
 {
   if ([outline isItemExpanded: node])
   {
-    int count = node.children.count;
-    for (int i = 0, c = count; i < c; i++)
+    NSUInteger count = node.children.count;
+    for (NSUInteger i = 0, c = count; i < c; i++)
     {
       MFTreeNodeImpl *child = node.children[i];
       if (child)
         count += count_rows_in_node(outline, child);
     }
-    return count;
+    return (int)count;
   }
   return 0;
 }
@@ -2007,17 +2007,17 @@ static int count_rows_in_node(NSOutlineView *outline, MFTreeNodeImpl *node)
 static int row_for_node(NSOutlineView *outline, MFTreeNodeImpl *node)
 {
   MFTreeNodeImpl *parent = node.parent;
-  int node_index = [parent.children indexOfObject: node];
-  int row = node_index;
+  NSUInteger node_index = [parent.children indexOfObject: node];
+  NSUInteger row = node_index;
 
   if (parent)
   {
-    for (int i = 0; i < node_index; i++)
+    for (NSUInteger i = 0; i < node_index; i++)
       row += count_rows_in_node(outline, parent.children[i]);
 
     row += row_for_node(outline, parent);
   }
-  return row;
+  return (int)row;
 }
 
 
@@ -2030,12 +2030,12 @@ static int treeview_row_for_node(mforms::TreeView *self, mforms::TreeNodeRef nod
     if (tree.frozen)
     {
       if (tree->mFlatTable)
-        return [tree->mRootNode.children indexOfObject: nodei->self()];
+        return (int)[tree->mRootNode.children indexOfObject: nodei->self()];
       else
         return row_for_node(tree->mOutline, nodei->self());
     }
     else
-      return [tree->mOutline rowForItem: nodei->self()]; // doesn't work if reloadData not called yet
+      return (int)[tree->mOutline rowForItem: nodei->self()]; // doesn't work if reloadData not called yet
   }
   return -1;
 }

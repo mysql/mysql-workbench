@@ -323,8 +323,8 @@ static void textbox_get_selected_range(::mforms::TextBox *self, int &start, int 
     
     NSRange range = [textbox->mContentView selectedRange];
     
-    start= range.location;
-    end= start+range.length;
+    start = (int)range.location;
+    end = int(start + range.length);
   }
 }
 
