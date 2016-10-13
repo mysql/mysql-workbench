@@ -144,7 +144,7 @@
   NSImage *executed= [NSImage imageNamed: @"DotGrey"];
   
   {
-    int delcount= titles.count - stepList.subviews.count;
+    int delcount= int(titles.count - stepList.subviews.count);
     
     if (delcount > 0)
     {

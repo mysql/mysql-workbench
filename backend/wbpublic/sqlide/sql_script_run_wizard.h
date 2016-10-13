@@ -57,7 +57,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC SqlScriptApplyPage : public grtui::WizardProgr
 {
 private:
   std::string _log;
-  int _err_count;
+  long _err_count;
   mforms::Button *_abort_btn;
 
   void abort_exec();

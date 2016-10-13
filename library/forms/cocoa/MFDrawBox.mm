@@ -244,10 +244,11 @@ static void drawbox_set_needs_repaint(mforms::DrawBox *self)
 
 static void drawbox_set_needs_repaint_area(mforms::DrawBox *self, int x, int y, int w, int h)
 {
-    // Invalidate the draw box in a thread safe manner.
-    [self->get_data() performSelectorOnMainThread: @selector(invalidateRect)
-                                       withObject: NSStringFromRect(NSMakeRect(x, y, w, h))
-                                    waitUntilDone: NO];
+  // Invalidate the draw box in a thread safe manner.
+  SEL selector = NSSelectorFromString(@"invalidateRect");
+  [self->get_data() performSelectorOnMainThread: selector
+                                     withObject: NSStringFromRect(NSMakeRect(x, y, w, h))
+                                  waitUntilDone: NO];
 }
 
 //--------------------------------------------------------------------------------------------------

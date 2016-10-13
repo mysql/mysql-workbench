@@ -32,9 +32,10 @@
 
 - (void)delete: (id)foo
 {
-  if ([[self delegate] respondsToSelector: @selector(userDeleteSelectedRowInTableView:)])
-    [[self delegate] performSelector: @selector(userDeleteSelectedRowInTableView:)
-                          withObject: self];
+  SEL selector = NSSelectorFromString(@"userDeleteSelectedRowInTableView:");
+
+  if ([self.delegate respondsToSelector: selector])
+    ((void (*)(id, SEL, id))[(id)self.delegate methodForSelector: selector])(self.delegate, selector, self);
 }
 
 

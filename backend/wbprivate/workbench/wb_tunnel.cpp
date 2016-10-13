@@ -166,7 +166,7 @@ int TunnelManager::lookup_tunnel(const char *server, const char *username, const
     Py_XDECREF(ret);
     return -1;
   }
-  int port = PyInt_AsLong(ret);
+  int port = (int)PyInt_AsLong(ret);
   Py_XDECREF(ret);
   return port;
 }
@@ -221,7 +221,7 @@ int TunnelManager::open_tunnel(const char *server, const char *username, const c
   }
   else
   {
-    int port = PyInt_AsLong(value);
+    int port = (int)PyInt_AsLong(value);
     Py_XDECREF(ret);
     return port;
   }
@@ -444,7 +444,7 @@ std::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Conn
         if (tunnel)
         {
           tunnel->connect(connectionProperties);
-          set_keepalive(tunnel_port, bec::GRTManager::get()->get_app_option_int("sshkeepalive", 0));
+          set_keepalive(tunnel_port, (int)bec::GRTManager::get()->get_app_option_int("sshkeepalive", 0));
           logInfo("SSH tunnel connect executed OK\n");
         }
       }

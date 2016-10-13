@@ -151,7 +151,7 @@
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
   std::string strvalue;
-  int column= tableColumn.identifier.integerValue;
+  int column= tableColumn.identifier.intValue;
 
   if (!_tree || !_tree->get_field([self nodeIdForItem:item], column, strvalue))
     return nil;
@@ -162,7 +162,7 @@
 
 - (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
-  int column= tableColumn.identifier.integerValue;
+  int column= tableColumn.identifier.intValue;
   
   if ([object respondsToSelector:@selector(UTF8String)])
     _tree->set_field([self nodeIdForItem:item], column, [object UTF8String]);
@@ -239,7 +239,7 @@ static void restore_expanded_child_nodes(NSMutableSet *mset,
     [outlineView expandItem: node];
   }
   
-  for (int c = [ds outlineView:outlineView numberOfChildrenOfItem:node], i = 0; i < c; i++)
+  for (NSInteger c = [ds outlineView:outlineView numberOfChildrenOfItem: node], i = 0; i < c; i++)
   {
     id child = [ds outlineView:outlineView child:i ofItem:node];
     NSString *suffix = [ds outlineView:outlineView objectValueForTableColumn:column byItem:child];
@@ -273,7 +273,7 @@ static void save_expanded_child_nodes(NSMutableSet *mset,
   if ([outlineView isItemExpanded: node])
     [mset addObject: prefix];
   
-  for (int c = [ds outlineView:outlineView numberOfChildrenOfItem:node], i = 0; i < c; i++)
+  for (NSInteger c = [ds outlineView: outlineView numberOfChildrenOfItem: node], i = 0; i < c; i++)
   {
     id child = [ds outlineView:outlineView child:i ofItem:node];
     NSString *suffix = [ds outlineView:outlineView objectValueForTableColumn:column byItem:child];

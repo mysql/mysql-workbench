@@ -24,7 +24,7 @@
 + (void)fillMenu:(NSMenu*)menu withItems:(const bec::MenuItemList&)items 
         selector:(SEL)selector target:(id)target
 {
-  int oldCount= menu.numberOfItems;
+  NSInteger oldCount = menu.numberOfItems;
   [menu setAutoenablesItems: NO];
   
   for (bec::MenuItemList::const_iterator iter= items.begin();
@@ -67,7 +67,7 @@
       NSLog(@"unknown context menu item type in %s", iter->name.c_str());
   }
   
-  for (int i= oldCount-1; i >= 0; i--)
+  for (NSInteger i= oldCount - 1; i >= 0; i--)
     [menu removeItemAtIndex:0];
 }
 @end

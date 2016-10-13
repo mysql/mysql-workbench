@@ -194,20 +194,9 @@ bool CommandUI::validate_command_item(const app_CommandItemRef &item, const wb::
   {
     std::list<std::string> results;
     
-    /* VS2010 doesn't like this (even tho 2008 was fine)
-    //_wb->foreach_component(sigc::compose(
-               boost::bind(&std::list<std::string>::push_back, results),
-               boost::bind(&WBComponent::get_command_option_value, _1, cmd.name)));
-               */
     _wb->foreach_component(boost::bind(add_option_value_to_list, _1, cmd.name, &results));
     
     return true;
-    for (std::list<std::string>::iterator i= results.begin(); i != results.end(); ++i)
-    {
-//      if (!i->empty())
- //       return *i == "1" ? ItemEnabledAndChecked : ItemEnabled;
-    }
-    return true; // not sure
   }
   
   if (cmd.type == "plugin")

@@ -1165,7 +1165,7 @@ void SqlEditorPanel::lower_tab_switched()
   // if a lower tab view selection has changed, we make sure it's visible
   if (!_busy && _lower_tabview.page_count() > 0) // if we're running a query, then let dock_result handle this
   {
-    int position = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
+    int position = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
     _splitter.set_divider_position(position);
@@ -1281,7 +1281,7 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
   _splitter.set_expanded(false, true);
   if (_was_empty)
   {
-    int position = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
+    int position = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
     _splitter.set_divider_position(position);

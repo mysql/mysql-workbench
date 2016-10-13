@@ -191,7 +191,7 @@ static int selector_add_item(::mforms::Selector *self, const std::string &item)
           break;
       }
     }
-    return [selector numberOfItems] - 1;
+    return (int)[selector numberOfItems] - 1;
   }
   return -1;
 }
@@ -278,7 +278,7 @@ static int selector_get_index(::mforms::Selector *self)
   if (self != NULL)
   {
     id selector = self->get_data();
-    return [selector indexOfSelectedItem];
+    return (int)[selector indexOfSelectedItem];
   }
   return -1;
 }
@@ -290,7 +290,7 @@ static int selector_get_item_count(::mforms::Selector *self)
   if (self != NULL)
   {
     id selector = self->get_data();
-    return [selector numberOfItems];
+    return (int)[selector numberOfItems];
   }
   return 0;
 }

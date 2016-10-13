@@ -702,7 +702,7 @@ void Layouter::prepare_layout_stages()
   std::sort(_figures.begin(), _figures.end(), compare_node_links);
 
   // reset layout
-  for (std::size_t i = 0; i < _figures.size(); ++i)
+  for (size_t i = 0; i < _figures.size(); ++i)
   {
     Node& n = _figures[i];
     // place all tables in some initial position
@@ -712,19 +712,12 @@ void Layouter::prepare_layout_stages()
     total_w += n.w;
     total_h += n.h;
     if (_cell_w < n.w)
-      _cell_w = n.w;
+      _cell_w = (int)n.w;
     if (_cell_h < n.h)
-      _cell_h = n.h;
+      _cell_h = (int)n.h;
   }
   _cell_w = (int) (1.1 * _cell_w);
 
-  //printf("_cell_w = %i, _cell_h = %i, _w = %.1f, _h = %.1f, total_w = %.1f, total_h = %.1f\n", _cell_w, _cell_h, _w, _h, total_w, total_h);
-  //if (_w < total_w)
-  //  _layer->width(total_w);
-  //if (_h < total_h)
-  //  _layer->height(total_h);
-
-  // find nodes with most links
 }
 
 //------------------------------------------------------------------------------

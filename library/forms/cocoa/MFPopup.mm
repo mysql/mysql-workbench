@@ -444,7 +444,7 @@ static int popup_show(mforms::Popup *self, int x, int y)
   switch (popup.popupStyle)
   {
     case mforms::PopupBezel:
-      return [popup runModalAtPosition: NSMakePoint(x, y)];
+      return (int)[popup runModalAtPosition: NSMakePoint(x, y)];
       break;
 
     default:

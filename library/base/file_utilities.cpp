@@ -280,7 +280,7 @@ namespace base {
     {
       char pid[32];
       // couldn't lock file, check if we own it ourselves
-      int c = read(fd, pid, sizeof(pid)-1);
+      ssize_t c = read(fd, pid, sizeof(pid) -1);
       close(fd);
       if (c < 0)
         return LockedOther;
@@ -647,7 +647,12 @@ std::string makePath(const std::string &prefix, const std::string &file)
 std::string joinPath(const char *prefix, ...)
 {
   std::string path = prefix;
-  char wrong_path_separator = G_DIR_SEPARATOR == '/' ? '\\' : '/';
+#ifdef _WIN32
+  char wrong_path_separator = '\\';
+#else
+  char wrong_path_separator = '/';
+#endif
+
   std::replace(path.begin(), path.end(), wrong_path_separator, G_DIR_SEPARATOR);
   std::string arg = const_cast<char*>(prefix);
   va_list ap;
