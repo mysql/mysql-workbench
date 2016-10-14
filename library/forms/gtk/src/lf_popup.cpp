@@ -81,7 +81,8 @@ void PopupImpl::on_screen_changed(const Glib::RefPtr<Gdk::Screen>& screen)
 {
   d("\n");
   Glib::RefPtr<Gdk::Colormap> colormap = screen->get_rgba_colormap();
-  _have_rgba = colormap;
+  if (colormap)
+    _have_rgba = true;
 
   if (!_have_rgba)
     colormap = screen->get_rgb_colormap();
