@@ -236,7 +236,13 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
     return true;
   }
 
-  std::vector<std::string> supportedOsList {
+  if (os.find("x86_64") == std::string::npos && os.find("Windows") == std::string::npos)
+  {
+    logWarning("Detected 32-bit non-Windows OS. OS string: '%s'\n", os.c_str());
+    return false;
+  }
+
+  static std::vector<std::string> supportedOsList {
     "Ubuntu 16.04",
     "Debian 8",
 
@@ -265,7 +271,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
     }
   }
 
-  logWarning("OS not found on supported OS list.  OS string: '%s'\n", os.c_str());
+  logWarning("OS not found on supported OS list. OS string: '%s'\n", os.c_str());
   return false;
 }
 //--------------------------------------------------------------------------------------------------
