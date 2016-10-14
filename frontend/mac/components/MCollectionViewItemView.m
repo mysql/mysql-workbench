@@ -470,7 +470,6 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
 
     SEL selector = NSSelectorFromString(@"itemRenameDidEnd:withName:");
     if (accepted && [self.delegate respondsToSelector: selector])
-      //[self.delegate performSelector: selector withObject: self withObject: label.stringValue];
       ((void (*)(id, SEL, id, NSString*))[self.delegate methodForSelector: selector])(self.delegate, selector, self, label.stringValue);
   }
 }
