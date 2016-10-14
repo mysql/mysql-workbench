@@ -204,3 +204,5 @@ testing/tut/wbdata
 testing/tut/output
 
 wb-build
+
+.vscode
