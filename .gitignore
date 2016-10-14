@@ -197,3 +197,4 @@ testing/tut/output
 
 wb-build
 library/parsers/antlr
+.vscode

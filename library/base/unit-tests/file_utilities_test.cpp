@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,10 +96,6 @@ TEST_DATA_CONSTRUCTOR(file_utilities_test)
   remove(TEST_FILE_NAME04);
   remove(dir_unicode_name);
   remove(file_unicode_name);
-
-  // Initialize the thread system
-  if (!g_thread_supported())
-    base::threading_init();
 }
 
 TEST_DATA_DESTRUCTOR(file_utilities_test)
@@ -2273,16 +2269,16 @@ TEST_FUNCTION(60)
 {
   try
   {
+    // ml: very questionable what is tested here.
     // test cases for constructors
     try
     {
       base::file_locked_error error("File Locked Error Message");
       throw(error);
-      fail("TEST 60.1: Invalid file_locked_error");
     }
     catch (const base::file_locked_error)
     {
-      //Nothing to do, just catch the error and continue
+      // Nothing to do, just catch the error and continue.
     }
 
     try
@@ -2290,11 +2286,10 @@ TEST_FUNCTION(60)
       base::file_locked_error first_error("File Locked Error Message");
       base::file_locked_error second_error(first_error);
       throw(second_error);
-      fail("TEST 60.2: Invalid file_locked_error (copy-constructor)");
     }
     catch (const base::file_locked_error)
     {
-      //Nothing to do, just catch the error and continue
+      // Nothing to do, just catch the error and continue.
     }
 
   }
