@@ -606,9 +606,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)selectNode: (const bec::NodeId&)node
 {
-  size_t index = node.back();
-  
-  iconController.selectedIndexes = [NSIndexSet indexSetWithIndex: index];
+  iconController.selectedIndexes = [NSIndexSet indexSetWithIndex: node.back()];
 }
 
 

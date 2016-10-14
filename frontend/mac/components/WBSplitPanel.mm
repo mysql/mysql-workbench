@@ -159,7 +159,6 @@
     SEL selector = NSSelectorFromString(@"pluginEditor");
     if ([editor respondsToSelector: selector])
     {
-      //id panel = [editor performSelector: selector];
       id panel = ((id (*)(id, SEL))[editor methodForSelector: selector])(editor, selector);
       if ([panel isKindOfClass: klass])
         return editor;
