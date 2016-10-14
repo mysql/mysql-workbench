@@ -81,7 +81,7 @@
     mOptionsView = [[NSView alloc] initWithFrame: NSMakeRect(0, 0, 420, 30)];
   
   NSPopUpButton *pop = [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 250, 20)];
-  for (int c = values.count, i = 0; i < c; i+= 2)
+  for (NSUInteger c = values.count, i = 0; i < c; i+= 2)
   {
     [pop addItemWithTitle: values[i]];
     pop.lastItem.representedObject = values[i+1];
@@ -158,27 +158,11 @@ static bool filechooser_run_modal(mforms::FileChooser *self)
     if (chooser->mOptionsView)
       chooser->mPanel.accessoryView = chooser->mOptionsView;
     
-    if (chooser->mParent && 0)
-    {// XXX this is not working as expected, need a modal loop to block the call until the sheet is done
-      chooser->mPanel.message = chooser->mPanel.title;
-      chooser->mPanel.delegate = chooser;
-      if (filename != nil)
-        chooser->mPanel.nameFieldStringValue = filename;
-      __block bool retval = false;
-      [chooser->mPanel beginSheetModalForWindow: chooser->mParent->get_data()
-                              completionHandler: ^(NSInteger result) {
-                                retval = result == NSFileHandlingPanelOKButton;
-                              }];
-      return retval;
-    }
-    else
-    {
-      chooser->mPanel.message = @"";
-      if (filename != nil)
-        chooser->mPanel.nameFieldStringValue = filename;
-      if ([chooser->mPanel runModal] == NSFileHandlingPanelOKButton)
-        return true;
-    }
+    chooser->mPanel.message = @"";
+    if (filename != nil)
+      chooser->mPanel.nameFieldStringValue = filename;
+    if ([chooser->mPanel runModal] == NSFileHandlingPanelOKButton)
+      return true;
   }
   return false;
 }

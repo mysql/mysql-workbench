@@ -224,7 +224,7 @@ public:
 
     grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNLiveDBObjectSelectionDidChange", editor);
 
-    _filter_panel.set_search_type(bec::GRTManager::get()->get_app_option_int("db.search:SearchType", 0));
+    _filter_panel.set_search_type((int)bec::GRTManager::get()->get_app_option_int("db.search:SearchType", 0));
     _filter_panel.set_limit_total(base::strfmt("%li", bec::GRTManager::get()->get_app_option_int("db.search:SearchLimit", 10000)));
     _filter_panel.set_limit_table(base::strfmt("%li", bec::GRTManager::get()->get_app_option_int("db.search:SearchLimitPerTable", 100)));
     _filter_panel.set_exclude(bec::GRTManager::get()->get_app_option_int("db.search:SearchInvert", 0) != 0);

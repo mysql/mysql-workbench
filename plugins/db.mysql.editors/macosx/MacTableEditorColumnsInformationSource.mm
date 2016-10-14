@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,16 +27,13 @@
 
 @implementation MacTableEditorColumnsInformationSource
 
-
 - (NSImage*) iconAtRow: (NSInteger) rowIndex;
 {
-  int icon_id = [self listModel]->get_field_icon(rowIndex, bec::TableColumnsListBE::Name, bec::Icon16);
+  bec::IconId icon_id = [self listModel]->get_field_icon(rowIndex, bec::TableColumnsListBE::Name, bec::Icon16);
   NSImage* img = [[GRTIconCache sharedIconCache] imageForIconId: icon_id];
   
   return img;
 }
-
-
 
 - (instancetype) initWithListModel: (bec::ListModel*) model
             tableBackEnd: (MySQLTableEditorBE*) tableBackend;

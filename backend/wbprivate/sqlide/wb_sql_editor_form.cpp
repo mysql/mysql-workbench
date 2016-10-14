@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
@@ -283,7 +283,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
 
   _last_log_message_timestamp = timestamp();
 
-  int keep_alive_interval= bec::GRTManager::get()->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+  long keep_alive_interval= bec::GRTManager::get()->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
 
   if (keep_alive_interval != 0)
   {
@@ -450,7 +450,7 @@ void SqlEditorForm::finish_startup()
 
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
 
-  int keep_alive_interval= bec::GRTManager::get()->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+  int keep_alive_interval= (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
 
   //  We have to set these variables so that the server doesn't timeout before we ping everytime
   // From http://dev.mysql.com/doc/refman/5.7/en/communication-errors.html for reasones to loose the connection
@@ -1129,11 +1129,11 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
 
   db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(grt::CopyContext().copy(db_mgmt_conn));
 
-  int read_timeout = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ReadTimeOut");
+  int read_timeout = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ReadTimeOut");
   if (read_timeout > 0)
     temp_connection->parameterValues().set("OPT_READ_TIMEOUT", grt::IntegerRef(read_timeout));
 
-  int connect_timeout = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ConnectionTimeOut");
+  int connect_timeout = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ConnectionTimeOut");
   if (connect_timeout  > 0)
     temp_connection->parameterValues().set("OPT_CONNECT_TIMEOUT", grt::IntegerRef(connect_timeout));
 
@@ -2016,10 +2016,10 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
   bool query_ps_stats = collect_ps_statement_events();
   std::string query_ps_statement_events_error;
   std::string statement;
-  int max_query_size_to_log = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
+  int max_query_size_to_log = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
   int limit_rows = 0;
   if (bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows") != 0)
-    limit_rows = bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRowsCount", 0);
+    limit_rows = (int)bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRowsCount", 0);
 
   bec::GRTManager::get()->replace_status_text(_("Executing Query..."));
 
@@ -2648,12 +2648,16 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
 
   try
   {
-    RecMutexLock usr_dbc_conn_mutex= ensure_valid_usr_connection();
+    bool auto_commit = false;
+
 
     // we need transaction to enforce atomicity of change set
     // so if autocommit is currently enabled disable it temporarily
-    bool auto_commit= _usr_dbc_conn->ref->getAutoCommit();
-    base::ScopeExitTrigger autocommit_mode_keeper;
+    {
+      RecMutexLock usr_dbc_conn_mutex = ensure_valid_usr_connection();
+      auto_commit = _usr_dbc_conn->ref->getAutoCommit();
+    }
+    ScopeExitTrigger autocommit_mode_keeper;
     int res= -2;
 
     if (!auto_commit)
@@ -2671,6 +2675,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
       autocommit_mode_keeper.slot= boost::bind(
         &sql::Connection::setAutoCommit, _usr_dbc_conn->ref.get(), 
         auto_commit);
+      RecMutexLock usr_dbc_conn_mutex = ensure_valid_usr_connection();
       _usr_dbc_conn->ref->setAutoCommit(false);
     }
 
@@ -2751,7 +2756,7 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
   std::list<std::string> statements;
   sql_splitter->splitSqlScript(alter_script, statements);
   
-  int max_query_size_to_log = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
+  int max_query_size_to_log = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
   
 /* this doesn't really work
   std::list<std::string> failback_statements;
@@ -2882,7 +2887,7 @@ void SqlEditorForm::apply_data_changes_commit(const std::string &sql_script_text
   if (!sql_storage)
     return;
 
-  int max_query_size_to_log = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
+  int max_query_size_to_log = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
 
   Sql_script sql_script= sql_storage->sql_script_substitute();
   sql_script.statements.clear();

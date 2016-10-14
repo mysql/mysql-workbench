@@ -1591,7 +1591,7 @@ GRTCodeEditor* GRTShellWindow::get_editor_for(const std::string& path, bool sele
     if ((*editor)->get_path() == path)
     {
       if (select_tab)
-        _main_tab.set_active_tab(editor - _editors.begin() + EDITOR_TAB_OFFSET);
+        _main_tab.set_active_tab(int(editor - _editors.begin() + EDITOR_TAB_OFFSET));
 
       return *editor;
     }

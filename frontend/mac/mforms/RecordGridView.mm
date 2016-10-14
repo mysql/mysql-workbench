@@ -62,7 +62,7 @@ void cf_record_grid_init()
     id theColumn = notif.userInfo[@"NSTableColumn"];
     NSInteger i = [iter->first.tableColumns indexOfObject: theColumn];
     if (i != NSNotFound)
-      (*iter->second->signal_column_resized())(i-1);
+      (*iter->second->signal_column_resized())((int)i - 1);
   }
 }
 
@@ -107,7 +107,7 @@ RecordGridView::~RecordGridView()
 
 int RecordGridView::get_column_count()
 {
-  return viewer.gridView.numberOfColumns;
+  return (int)viewer.gridView.numberOfColumns;
 }
 
 
@@ -145,7 +145,7 @@ bool RecordGridView::current_cell(size_t &row, int &column)
 
 void RecordGridView::set_current_cell(size_t row, int column)
 {
-  [viewer.gridView selectCellAtRow: row column: column];
+  [viewer.gridView selectCellAtRow: (int)row column: column];
 }
 
 
@@ -153,8 +153,8 @@ static void set_clicked_column(RecordGridView *grid, void *table)
 {
   NSTableView *gridView = (__bridge NSTableView*)table;
   NSPoint point = [gridView convertPoint: gridView.window.mouseLocationOutsideOfEventStream fromView: nil];
-  int column = [gridView columnAtPoint: NSMakePoint(point.x, 20)];
-  grid->clicked_header_column(column - 1);
+  NSInteger column = [gridView columnAtPoint: NSMakePoint(point.x, 20)];
+  grid->clicked_header_column((int)column - 1);
 }
 
 

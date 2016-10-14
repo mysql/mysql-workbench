@@ -100,7 +100,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
   NSAssert(child_type == wb::OverviewBE::OSection, @"unexpected child type for group");
 
-  for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+  for (size_t c = _be->count_children(*_nodeId), i = 0; i < c; i++)
   {
     bec::NodeId child(_be->get_child(*_nodeId, i));
 
@@ -297,7 +297,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     std::string item_uid= [item.identifier UTF8String]; // item identifier is node_unique_id
     BOOL found= NO;
 
-    for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+    for (size_t c = _be->count_children(*_nodeId), i = 0; i < c; i++)
     {
       if (item_uid == _be->get_node_unique_id(_be->get_child(*_nodeId, i)))
       {
@@ -318,7 +318,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   }
     
   // insert new items
-  for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+  for (size_t c = _be->count_children(*_nodeId), i = 0; i < c; i++)
   {
     bec::NodeId child(_be->get_child(*_nodeId, i));
     if (existing_groups.find(_be->get_node_unique_id(child)) == existing_groups.end())
@@ -385,7 +385,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   _updating = YES;
 
   // create a tabview page for each group
-  for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+  for (size_t c = _be->count_children(*_nodeId), i = 0; i < c; i++)
   {
     bec::NodeId child(_be->get_child(*_nodeId, i));
 
@@ -430,7 +430,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {
   if (self.numberOfTabViewItems > 0)
   {
-    int selected= [self indexOfTabViewItem: self.selectedTabViewItem];
+    NSInteger selected = [self indexOfTabViewItem: self.selectedTabViewItem];
     _be->request_delete_object(_be->get_child(*_nodeId, selected));
   }
 }
@@ -604,11 +604,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 }
 
 
-- (void)selectNode:(const bec::NodeId&)node
+- (void)selectNode: (const bec::NodeId&)node
 {
-  int index= node.back();
-  
-  iconController.selectedIndexes = [NSIndexSet indexSetWithIndex: index];
+  iconController.selectedIndexes = [NSIndexSet indexSetWithIndex: node.back()];
 }
 
 
@@ -846,7 +844,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {  
   [super refreshChildren];
   
-  int count= _be->count_children(*_nodeId) - 1;
+  size_t count = _be->count_children(*_nodeId) - 1;
   if (count != 1)
     [self setSubTitle: [NSString stringWithFormat: NSLocalizedString(@"(%i items)", @"!=1 items"), count]];
   else

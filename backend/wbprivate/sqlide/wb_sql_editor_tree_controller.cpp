@@ -200,7 +200,7 @@ void SqlEditorTreeController::finish_init()
     _task_tabview->add_page(_admin_side_bar, _("Management"));
     _task_tabview->add_page(_schema_side_bar, _("Schemas"));
 
-    int i = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ActiveTaskTab", 0);
+    int i = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ActiveTaskTab", 0);
     if (i < 0)
       i = 0;
     else if (i >= 2)
@@ -219,7 +219,7 @@ void SqlEditorTreeController::finish_init()
   _schema_side_bar->set_filtered_schema_model(&_filtered_schema_tree);
   _schema_side_bar->set_selection_color(base::HighlightColor);
 
-  int initial_splitter_pos = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
+  int initial_splitter_pos = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
   _side_splitter = mforms::manage(new mforms::Splitter(false, true));
 
 #ifdef _WIN32
@@ -2439,15 +2439,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
     if (dry_run)
       return true; // some changes were detected
 
-    //bool is_live_object_alteration_wizard_enabled= (0 != _options.get_int("DbSqlEditor:IsLiveObjectAlterationWizardEnabled", 1));
-    if (true/*is_live_object_alteration_wizard_enabled*/)
-    {
-      return _owner->run_live_object_alteration_wizard(alter_script, obj_editor, log_id, log_descr);
-    }
-    else
-    {
-      _owner->apply_object_alter_script(alter_script, obj_editor, log_id);
-    }
+    return _owner->run_live_object_alteration_wizard(alter_script, obj_editor, log_id, log_descr);
   }
   catch (const std::exception &e)
   {

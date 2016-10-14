@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,23 +17,14 @@
  * 02110-1301  USA
  */
 
-
-#import <Cocoa/Cocoa.h>
-
 #import "MacTableEditorInformationSource.h"
 
-
-
 class MySQLTableEditorBE;
-
-
 
 @interface MacTableEditorColumnsInformationSource : MacTableEditorInformationSource
 {
   MySQLTableEditorBE* mBackEnd;
 }
-
-
 
 - (NSImage*) iconAtRow: (NSInteger) rowIndex;
 - (void) moveColumnAtRow: (NSInteger) from
@@ -41,8 +32,5 @@ class MySQLTableEditorBE;
 
 - (instancetype) initWithListModel: (bec::ListModel*) model
             tableBackEnd: (MySQLTableEditorBE*) tableBackend;
-
-- (void) moveColumnAtRow: (NSInteger) from
-                   toRow: (NSInteger) to;
 
 @end

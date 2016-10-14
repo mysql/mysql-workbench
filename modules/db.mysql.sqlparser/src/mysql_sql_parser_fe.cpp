@@ -405,7 +405,7 @@ int Mysql_sql_parser_fe::escape_string(const std::string &in_text, std::string &
 int Mysql_sql_parser_fe::escape_string(char *out, unsigned long out_size, const char *in, unsigned long in_size)
 {
   static CHARSET_INFO *cs= get_charset_by_name(MYSQL_DEFAULT_CHARSET, MYF(0));
-  return mysql_parser::escape_string_for_mysql(cs, out, out_size, in, in_size);
+  return (int)mysql_parser::escape_string_for_mysql(cs, out, out_size, in, in_size);
 }
 
 

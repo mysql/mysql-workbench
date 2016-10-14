@@ -296,7 +296,7 @@ static bool form_run_modal(mforms::Form *self, mforms::Button *accept, mforms::B
     if (cancel)
       cancel->signal_clicked()->connect(boost::bind(&mforms::Form::end_modal, self, false));
     
-    int dialog_result = NSModalResponseCancel;
+    long dialog_result = NSModalResponseCancel;
     if ([NSThread isMainThread])
       dialog_result = [form runModal];
     else

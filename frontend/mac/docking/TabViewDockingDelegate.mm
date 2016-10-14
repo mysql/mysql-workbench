@@ -144,7 +144,7 @@ mforms::AppView *TabViewDockingPointDelegate::selected_view()
 
 int TabViewDockingPointDelegate::view_count()
 {
-  return _tabView.numberOfTabViewItems;
+  return (int)_tabView.numberOfTabViewItems;
 }
 
 

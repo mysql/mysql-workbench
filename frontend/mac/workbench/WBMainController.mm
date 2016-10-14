@@ -493,8 +493,9 @@ static bool validate_select_all()
 static bool validate_delete()
 {
   NSResponder* responder = NSApp.keyWindow.firstResponder;
-  if ([responder respondsToSelector: @selector(canDeleteItem:)])
-    return [responder performSelector: @selector(canDeleteItem:) withObject: nil];
+  SEL selector = NSSelectorFromString(@"canDeleteItem:");
+  if ([responder respondsToSelector: selector])
+    return [responder performSelector: selector withObject: nil];
   
   if ([responder respondsToSelector: @selector(selectedRange)])
   {

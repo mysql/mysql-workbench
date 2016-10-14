@@ -467,9 +467,10 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     [self.window endEditingFor: label];
     [fieldEditor removeFromSuperview];
     [self.window makeFirstResponder: self];
-    
-    if (accepted && [self.delegate respondsToSelector: @selector(itemRenameDidEnd:withName:)]) 
-      [self.delegate performSelector: @selector(itemRenameDidEnd:withName:) withObject: self withObject: label.stringValue];
+
+    SEL selector = NSSelectorFromString(@"itemRenameDidEnd:withName:");
+    if (accepted && [self.delegate respondsToSelector: selector])
+      ((void (*)(id, SEL, id, NSString*))[self.delegate methodForSelector: selector])(self.delegate, selector, self, label.stringValue);
   }
 }
 

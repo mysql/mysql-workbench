@@ -316,7 +316,7 @@
   // Apply the scroll offset to tab left edges.
   NSMutableArray* offsetLeftEdges = [NSMutableArray array];
   {
-    int i, c = leftEdges.count;
+    NSUInteger i, c = leftEdges.count;
     for (i = 0; i < c; i++) {
       float tabLeftX = [leftEdges[i] floatValue];
       tabLeftX += mTabScrollOffset;
@@ -331,7 +331,7 @@
       mTabScrollOffset += (rightEdge - lastTabRightEdge);
       mTabScrollOffset = MIN(mTabScrollOffset, 0);
       offsetLeftEdges = [NSMutableArray array];
-      int i, c = leftEdges.count;
+      NSUInteger i, c = leftEdges.count;
       for (i = 0; i < c; i++) {
         float tabLeftX = [leftEdges[i] floatValue];
         tabLeftX += mTabScrollOffset;
@@ -356,7 +356,7 @@
   // Apply the new scroll offset to tab left edges.
   offsetLeftEdges = [NSMutableArray array];
   {
-    int i, c = leftEdges.count;
+    NSUInteger i, c = leftEdges.count;
     for (i = 0; i < c; i++) {
       float tabLeftX = [leftEdges[i] floatValue];
       tabLeftX += mTabScrollOffset;
@@ -377,7 +377,7 @@
   [self updateTabArrowPositions: overflow];
     
   // Position the actual tab layers.
-  int i, c = mTabItems.count;
+  NSUInteger i, c = mTabItems.count;
   for (i = 0; i < c; i++) {
     WBTabItem* item = mTabItems[i];
     CGRect itemFrame = item.frame;

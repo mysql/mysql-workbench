@@ -137,7 +137,8 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
     _menu = _wbsql->get_cmdui()->create_menubar_for_context(WB_CONTEXT_QUERY);
 
     // special handling for Query -> Row Limit submenu
-    int limit_count = bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows") ? bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRowsCount") : 0;
+    int limit_count = int(bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows") ?
+                          bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRowsCount") : 0);
 
     mforms::MenuItem *limit_item = _menu->find_item("limit_rows");
     if (limit_item)
@@ -354,7 +355,7 @@ void SqlEditorForm::setup_side_palette()
   _side_palette_host = _side_palette;
 #endif
 
-  _side_palette->set_active_tab(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ActiveSidePaletteTab", 0));
+  _side_palette->set_active_tab((int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ActiveSidePaletteTab", 0));
 }
 
 //--------------------------------------------------------------------------------------------------

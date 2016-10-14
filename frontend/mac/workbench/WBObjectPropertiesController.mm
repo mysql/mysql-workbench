@@ -233,7 +233,7 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   NSInteger rowIndex = mTableView.selectedRow;
   PropertyType pt = [self propertyTypeForRowIndex: rowIndex];
   if (pt == PROPERTY_TYPE_COLOR) {
-    [self updateColorPickerPanelWithColorAtRowIndex: rowIndex];
+    [self updateColorPickerPanelWithColorAtRowIndex: (int)rowIndex];
     {
       NSColorPanel* scp = [NSColorPanel sharedColorPanel];
       [scp setTarget: self];
@@ -281,7 +281,7 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
     NSInteger rowIndex = mTableView.selectedRow;
     PropertyType pt = [self propertyTypeForRowIndex: rowIndex];
     if (pt == PROPERTY_TYPE_COLOR) {
-      [self updateColorPickerPanelWithColorAtRowIndex: rowIndex];
+      [self updateColorPickerPanelWithColorAtRowIndex: (int)rowIndex];
     }
   }
   

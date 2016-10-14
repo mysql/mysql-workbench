@@ -601,7 +601,7 @@ static void dump_node(TreeModel *model, int show_field, const NodeId &node_id)
       left= (char*) "+";
 
     std::stringstream ss;
-    ss << std::setw(child.depth());
+    ss << std::setw((int)child.depth());
     ss << left;
     g_print("%s %s\n", ss.str().c_str(), value.c_str());
 

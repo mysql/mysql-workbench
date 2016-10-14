@@ -58,8 +58,9 @@
       
         default:
         {
+          SEL selector = NSSelectorFromString(@"activateMenuItem:");
           NSMenuItem *item= [menu addItemWithTitle: [NSString stringWithCPPString: iter->caption]
-                                            action: @selector(activateMenuItem:)
+                                            action: selector
                                      keyEquivalent: @""];
           item.target = target;
           if (!iter->enabled)

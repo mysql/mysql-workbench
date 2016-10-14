@@ -98,7 +98,7 @@ static int menu_add_item(mforms::Menu *self, const std::string &caption, const s
   item.enabled = true;
   
   [menu addItem: item];
-  return menu.numberOfItems - 1;
+  return (int)menu.numberOfItems - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ static int menu_add_separator(mforms::Menu *self)
   NSMenuItem* item;
   item = [NSMenuItem separatorItem];
   [menu addItem: item];
-  return menu.numberOfItems - 1;
+  return (int)menu.numberOfItems - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ static int menu_add_submenu(mforms::Menu *self, const std::string &caption, mfor
   [menu addItem: item];
   MFMenuImpl* theSubMenu = submenu->get_data();
   [menu setSubmenu: theSubMenu forItem: item];
-  return menu.numberOfItems - 1;
+  return (int)menu.numberOfItems - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
