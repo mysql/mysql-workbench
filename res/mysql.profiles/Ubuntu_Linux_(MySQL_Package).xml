@@ -10,7 +10,7 @@
     <value type="int" key="sys.usesudo">1</value>
 
     <value type="string" key="sys.system">Linux</value>
-    <value type="string" key="serverVersion">5.1</value>
+    <value type="string" key="serverVersion">5.7</value>
   </value>
 </data>
  
