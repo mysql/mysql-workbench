@@ -202,7 +202,7 @@ testing/tut/build/
 testing/tut/temp
 testing/tut/wbdata
 testing/tut/output
-
 wb-build
-
 .vscode
+*.[Vv][Cc].db
+*.[Vv][Cc].opendb
