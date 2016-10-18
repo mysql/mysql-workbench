@@ -1974,10 +1974,11 @@
 
               <Directory Id="mysql.profiles_dir" Name="mysql.profiles">
                 <Component DiskId="1" Guid="{6818AA27-3CA1-4e52-9BE6-94004D7A81D8}" Id="mysql.profiles" Location="either">
+                  <File Id="file12100c" Name="CentOS_7_(MySQL_Package).xml"/>
                   <File Id="file12100" Name="Fedora_Linux_(MySQL_Package).xml"/>
                   <File Id="file12101" Name="Fedora_Linux_(Vendor_Package).xml"/>
-                  <File Id="file121012" Name="Fedora_Linux_15_(Vendor_Package).xml"/>
-                  <File Id="file121012a" Name="Fedora_Linux_16_(Vendor_Package).xml"/>
+                  <File Id="file121012" Name="Fedora_Linux_24_(Vendor_Package).xml"/>
+                  <File Id="file121012a" Name="Fedora_Linux_25_(Vendor_Package).xml"/>
                   <File Id="file12102" Name="FreeBSD_(MySQL_Package).xml"/>
                   <File Id="file12103" Name="Generic_Linux_(MySQL_tar_package).xml"/>
                   <File Id="file12104" Name="MacOS_X_(MySQL_Package).xml"/>
@@ -1989,21 +1990,16 @@
                   <File Id="file12108u" Name="Ubuntu_Linux_(sysvinit,_MySQL_Package).xml"/>
                   <File Id="file12109u" Name="Ubuntu_Linux_(sysvinit,_Vendor_Package).xml"/>
                   <File Id="file12113" Name="Linux_(Custom).xml"/>
-                  <File Id="file12114" Name="Windows_(MySQL_5.0_x86_Installer_Package).xml"/>
-                  <File Id="file12115" Name="Windows_(MySQL_5.0_x64_Installer_Package).xml"/>
-                  <File Id="file12116" Name="Windows_(MySQL_5.1_x86_Installer_Package).xml"/>
-                  <File Id="file12117" Name="Windows_(MySQL_5.1_x64_Installer_Package).xml"/>
-                  <File Id="file12118" Name="Windows_(MySQL_x86_zip_Package).xml"/>
-                  <File Id="file12119" Name="Windows_(MySQL_x64_zip_Package).xml"/>
-                  <File Id="file12120" Name="Windows_x64_(MySQL_5.0_x86_Installer_Package).xml"/>
-                  <File Id="file12121" Name="Windows_x64_(MySQL_5.1_x86_Installer_Package).xml"/>
                   <File Id="file12122" Name="Windows_x64_(MySQL_x86_zip_Package).xml"/>
                   <File Id="file12123" Name="Windows_(MySQL_5.5_Installer_Package).xml"/>
                   <File Id="file12126" Name="Windows_(MySQL_5.6_Installer_Package).xml"/>
-				  <File Id="file12127" Name="Windows_(MySQL_5.7_Installer_Package).xml"/>
+				          <File Id="file12127" Name="Windows_(MySQL_5.7_Installer_Package).xml"/>
+                  <File Id="file12128" Name="Windows_(MySQL_8.0_Installer_Package).xml"/>
                   <File Id="file12129" Name="Oracle_Linux_6_(MySQL_Package).xml"/>
                   <File Id="file12130" Name="Oracle_Linux_7_(MySQL_Package).xml"/>
                   <File Id="file12131" Name="RHEL_7_(MySQL_Package).xml"/>
+                  <File Id="file12132" Name="MySQL_Sandbox_Linux(MySQL_tar_package).xml"/>
+                  <File Id="file12133" Name="MySQL_Sandbox_MacOS(MySQL_tar_package).xml"/>
                 </Component>
               </Directory>
 
