@@ -325,39 +325,7 @@ void WBContextUI::show_home_screen(bool startClassic)
     _launchersSection = mforms::manage(new mforms::LaunchersSection(_home_screen));
     _launchersSection->set_name("Launchers Section");
     _home_screen->addSection(_launchersSection);
-//
-//    _launchersSection->addLauncher("wb_starter_mysql_utilities_52.png", "MySQL Utilities", []()->bool{
-//        grt::GRT::get()->call_module_function("PyWbUtils", "startUtilitiesShell", grt::BaseListRef(true));
-//      return true; }, "lorem ipsum mit dolor sit ame");
-//
-//    _launchersSection->addLauncher("wb_starter_mysql_bug_reporter_52.png", "My Oracle Support", [&]()->bool{
-//      show_web_page("http://support.oracle.com", false);
-//        return true; }, "lorem ipsum mit dolor sit ame");
-//
-//    _launchersSection->addLauncher("wb_starter_mysql_wb_blog_52.png", "Workbench Blogs", [&]()->bool{
-//      show_web_page("http://mysqlworkbench.org", false);
-//      return true; }, "lorem ipsum mit dolor sit ame");
-//
-//    _launchersSection->addLauncher("wb_starter_planet_mysql_52.png", "Planet MySQL", [&]()->bool{
-//      show_web_page("http://planet.mysql.com/", false);
-//      return true; }, "lorem ipsum mit dolor sit ame");
-//
-//    _launchersSection->addLauncher("wb_starter_mysql_forums_52.png", "Workbench Forum", [&]()->bool{
-//      show_web_page("http://forums.mysql.com/index.php?152", false);
-//      return true; }, "lorem ipsum mit dolor sit ame");
-//
-//    _launchersSection->addLauncher("wb_starter_grt_shell_52.png", "Scripting Shell", []()->bool{
-//      grt::GRT::get()->call_module_function("Workbench", "showGRTShell", grt::BaseListRef(true));
-//      return true; }, "lorem ipsum mit dolor sit ame");
-//
-//    _launchersSection->addLauncher("wb_starter_edelivery_52.png", "Oracle eDelivery", [&]()->bool{
-//      show_web_page("http://edelivery.oracle.com", false);
-//      return true; }, "lorem ipsum mit dolor sit ame");
-//
-//    _launchersSection->addLauncher("wb_starter_support_52.png", "Oracle Support", [&]()->bool{
-//      show_web_page("http://support.oracle.com", false);
-//      return true; }, "lorem ipsum mit dolor sit ame");
-//
+
     _home_screen->addSectionEntry("sidebar_migration.png", nullptr, [this]() {
       logInfo("Opening Migration Wizard...\n");
       _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
