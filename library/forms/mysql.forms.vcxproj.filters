@@ -181,6 +181,9 @@
     <ClCompile Include="ProjectForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="home_screen_launchers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -353,6 +356,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\ProjectForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_launchers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
