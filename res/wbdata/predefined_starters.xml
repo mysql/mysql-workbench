@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+
+<data grt_format="2.0" document_type="MySQL Workbench Starters" version="1.0.0">
+  <value type="list" key="items" content-type="object" content-struct-name="app.Starter">
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.utilities">
+      <value type="string" key="type">WB Plugin</value>
+      <value type="string" key="title">MySQL Utilities</value>
+      <value type="string" key="description">The MySQL Utilities terminal shell window.</value>
+      <value type="string" key="publisher">Oracle Corp.</value>
+      <value type="string" key="authorHome">http://www.mysql.com</value>
+      <value type="string" key="smallIcon">wb_starter_mysql_utilities_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_mysql_utilities_68.png</value>
+      <value type="string" key="command">plugin:wb.tools.utilitiesShell</value>
+      <value type="string" key="introduction">5.2.31</value>
+    </value>
+
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.bug-reporter-ce">
+      <value type="string" key="type">Website</value>
+      <value type="string" key="title">MySQL Bug Reporter</value>
+      <value type="string" key="description">The easiest way to report a bug found in a MySQL product.</value>
+      <value type="string" key="publisher">Oracle Corp.</value>
+      <value type="string" key="authorHome">http://www.mysql.com</value>
+      <value type="string" key="smallIcon">wb_starter_mysql_bug_reporter_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_mysql_bug_reporter_68.png</value>
+      <value type="string" key="command">browse:http://bugs.mysql.com</value>
+      <value type="string" key="edition">ce</value>
+    </value>
+
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.bug-reporter-se">
+      <value type="string" key="type">Website</value>
+      <value type="string" key="title">My Oracle Support</value>
+      <value type="string" key="description">Open a service request at the MyOracle website.</value>
+      <value type="string" key="publisher">Oracle Corp.</value>
+      <value type="string" key="authorHome">http://www.oracle.com</value>
+      <value type="string" key="smallIcon">wb_starter_mysql_bug_reporter_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_mysql_bug_reporter_68.png</value>
+      <value type="string" key="command">browse:http://support.oracle.com</value>
+	  <value type="string" key="edition">se</value>
+	  <value type="string" key="introduction">5.2.35</value>
+    </value>
+
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.team-blog">
+      <value type="string" key="type">Website</value>
+      <value type="string" key="title">Workbench Blogs</value>
+      <value type="string" key="description">Read the latest information about MySQL Workbench.</value>
+      <value type="string" key="publisher">Workbench Community</value>
+      <value type="string" key="authorHome">http://www.mysql.com</value>
+      <value type="string" key="smallIcon">wb_starter_mysql_wb_blog_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_mysql_wb_blog_68.png</value>
+      <value type="string" key="command">browse:http://planet.mysql.com/?search=workbench</value>
+    </value>
+
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.planet-mysql">
+      <value type="string" key="type">Website</value>
+      <value type="string" key="title">Planet MySQL</value>
+      <value type="string" key="description">Read the best Community Blogs about MySQL on Planet MySQL.</value>
+      <value type="string" key="publisher">Community</value>
+      <value type="string" key="authorHome">http://www.mysql.com</value>
+      <value type="string" key="smallIcon">wb_starter_planet_mysql_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_planet_mysql_68.png</value>
+      <value type="string" key="command">browse:http://planet.mysql.com</value>
+    </value>
+
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.forum">
+      <value type="string" key="type">Website</value>
+      <value type="string" key="title">Workbench Forum</value>
+      <value type="string" key="description">Discuss MySQL Workbench topics on the forum.</value>
+      <value type="string" key="publisher">Oracle Corp.</value>
+      <value type="string" key="authorHome">http://www.mysql.com</value>
+      <value type="string" key="smallIcon">wb_starter_mysql_forums_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_mysql_forums_68.png</value>
+      <value type="string" key="command">browse:http://forums.mysql.com/index.php?152</value>
+    </value>
+
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.grt-shell">
+      <value type="string" key="type">WB Plugin</value>
+      <value type="string" key="title">Scripting Shell</value>
+      <value type="string" key="description">The MySQL Workbench GRT Scripting IDE.</value>
+      <value type="string" key="publisher">Oracle Corp.</value>
+      <value type="string" key="authorHome">http://www.mysql.com</value>
+      <value type="string" key="smallIcon">wb_starter_grt_shell_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_grt_shell_68.png</value>
+      <value type="string" key="command">plugin:wb.form.showGRTShell</value>
+    </value>
+
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.edelivery">
+      <value type="string" key="type">Website</value>
+      <value type="string" key="title">Oracle eDelivery</value>
+      <value type="string" key="description">Oracle Software Delivery Cloud</value>
+      <value type="string" key="publisher">Oracle Corp.</value>
+      <value type="string" key="authorHome">http://www.oracle.com</value>
+      <value type="string" key="smallIcon">wb_starter_edelivery_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_edelivery_68.png</value>
+      <value type="string" key="command">browse:http://edelivery.oracle.com</value>
+      <value type="string" key="introduction">6.0.4</value>
+      <value type="string" key="edition">se</value>
+    </value>
+
+    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.support">
+      <value type="string" key="type">Website</value>
+      <value type="string" key="title">Oracle Support</value>
+      <value type="string" key="description">The main Oracle support site</value>
+      <value type="string" key="publisher">Oracle Corp.</value>
+      <value type="string" key="authorHome">http://www.oracle.com</value>
+      <value type="string" key="smallIcon">wb_starter_support_52.png</value>
+      <value type="string" key="largeIcon">wb_starter_support_68.png</value>
+      <value type="string" key="command">browse:http://support.oracle.com</value>
+      <value type="string" key="introduction">6.0.4</value>
+      <value type="string" key="edition">se</value>
+    </value>
+
+ </value>
+    
+</data>
+  
