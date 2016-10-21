@@ -455,6 +455,8 @@ namespace wb {
 
     void load_app_state(std::shared_ptr<grt::internal::Unserializer> unserializer);
     void save_app_state();
+    void loadStarters();
+    void saveStarters();
 
     grt::ValueRef save_grt();
     
