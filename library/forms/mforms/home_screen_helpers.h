@@ -67,6 +67,9 @@ namespace mforms
   {
     ActionNone,
 
+    ActionShortcut,
+    ActionRemoveShortcut,
+
     ActionOpenConnectionFromList,
     ActionNewConnection,
     ActionManageConnections,

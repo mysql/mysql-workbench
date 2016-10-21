@@ -52,6 +52,7 @@
 #include "mforms/home_screen.h"
 #include "mforms/home_screen_connections.h"
 #include "mforms/home_screen_documents.h"
+#include "mforms/home_screen_launchers.h"
 #include <zip.h>
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
@@ -321,6 +322,42 @@ void WBContextUI::show_home_screen(bool startClassic)
     _documentsSection->set_name("Documents Section");
     _home_screen->addSection(_documentsSection);
 
+    _launchersSection = mforms::manage(new mforms::LaunchersSection(_home_screen));
+    _launchersSection->set_name("Launchers Section");
+    _home_screen->addSection(_launchersSection);
+//
+//    _launchersSection->addLauncher("wb_starter_mysql_utilities_52.png", "MySQL Utilities", []()->bool{
+//        grt::GRT::get()->call_module_function("PyWbUtils", "startUtilitiesShell", grt::BaseListRef(true));
+//      return true; }, "lorem ipsum mit dolor sit ame");
+//
+//    _launchersSection->addLauncher("wb_starter_mysql_bug_reporter_52.png", "My Oracle Support", [&]()->bool{
+//      show_web_page("http://support.oracle.com", false);
+//        return true; }, "lorem ipsum mit dolor sit ame");
+//
+//    _launchersSection->addLauncher("wb_starter_mysql_wb_blog_52.png", "Workbench Blogs", [&]()->bool{
+//      show_web_page("http://mysqlworkbench.org", false);
+//      return true; }, "lorem ipsum mit dolor sit ame");
+//
+//    _launchersSection->addLauncher("wb_starter_planet_mysql_52.png", "Planet MySQL", [&]()->bool{
+//      show_web_page("http://planet.mysql.com/", false);
+//      return true; }, "lorem ipsum mit dolor sit ame");
+//
+//    _launchersSection->addLauncher("wb_starter_mysql_forums_52.png", "Workbench Forum", [&]()->bool{
+//      show_web_page("http://forums.mysql.com/index.php?152", false);
+//      return true; }, "lorem ipsum mit dolor sit ame");
+//
+//    _launchersSection->addLauncher("wb_starter_grt_shell_52.png", "Scripting Shell", []()->bool{
+//      grt::GRT::get()->call_module_function("Workbench", "showGRTShell", grt::BaseListRef(true));
+//      return true; }, "lorem ipsum mit dolor sit ame");
+//
+//    _launchersSection->addLauncher("wb_starter_edelivery_52.png", "Oracle eDelivery", [&]()->bool{
+//      show_web_page("http://edelivery.oracle.com", false);
+//      return true; }, "lorem ipsum mit dolor sit ame");
+//
+//    _launchersSection->addLauncher("wb_starter_support_52.png", "Oracle Support", [&]()->bool{
+//      show_web_page("http://support.oracle.com", false);
+//      return true; }, "lorem ipsum mit dolor sit ame");
+//
     _home_screen->addSectionEntry("sidebar_migration.png", nullptr, [this]() {
       logInfo("Opening Migration Wizard...\n");
       _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
@@ -454,6 +491,7 @@ void WBContextUI::show_home_screen(bool startClassic)
   {
     refresh_home_documents();
     refresh_home_connections();
+    refreshHomeStarters();
   }
   catch (const std::exception *exc)
   { error = exc->what(); }
@@ -870,6 +908,33 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
     case HomeScreenAction::ActionNone:
       break;
 
+    case HomeScreenAction::ActionShortcut:
+    {
+      app_StarterRef starter;
+      if (!anyObject.isNull())
+        starter = anyObject;
+
+      if (starter.is_valid())
+        start_plugin(starter->title(), starter->command(), bec::ArgumentPool());
+    }
+
+    break;
+
+    case HomeScreenAction::ActionRemoveShortcut:
+    {
+      app_StarterRef starter;
+      if (!anyObject.isNull())
+        starter = anyObject;
+
+      if (starter.is_valid())
+      {
+        _wb->get_root()->starters()->displayList()->remove(starter);
+        _wb->saveStarters();
+        refreshHomeStarters();
+      }
+    }
+    break;
+
     case HomeScreenAction::ActionOpenConnectionFromList:
     {
       if (_processing_action_open_connection)
@@ -1271,3 +1336,20 @@ void WBContextUI::refresh_home_documents()
 }
 
 //--------------------------------------------------------------------------------------------------
+
+void WBContextUI::refreshHomeStarters()
+{
+  _launchersSection->clearLaunchers();
+
+  if (_launchersSection  == nullptr || _home_screen == nullptr)
+    return;
+
+  grt::ListRef<app_Starter> starters= _wb->get_root()->starters()->displayList();
+  for (grt::ListRef<app_Starter>::const_iterator it = starters.begin(); it != starters.end();
+      it++)
+  {
+    _launchersSection->addLauncher((*it)->smallIcon(), (*it)->title(), (*it)->description(), base::any(*it));
+  }
+
+
+}
