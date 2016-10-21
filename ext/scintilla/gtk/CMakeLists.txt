@@ -1,4 +1,4 @@
-add_definitions(-Wno-missing-braces -Wno-missing-field-initializers -Wno-char-subscripts -DGTK -DSCI_LEXER -DSCI_NAMESPACE)
+add_definitions(-Wno-missing-braces -Wno-missing-field-initializers -Wno-char-subscripts -Wno-deprecated-declarations -DGTK -DSCI_LEXER -DSCI_NAMESPACE)
 
 include_directories(.
     ../include
