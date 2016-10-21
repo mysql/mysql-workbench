@@ -633,6 +633,19 @@
                     <File Id="file62070" Name="tiny_rollback.png"/>
                     <File Id="file62071" Name="tiny_rollback_disabled.png"/>
                     <File Id="file62080" Name="admin_firewall.png"/>
+                    <File Id="wb_starter_edelivery_52" Name="wb_starter_edelivery_52.png"/>
+                    <File Id="wb_starter_generic_52" Name="wb_starter_generic_52.png"/>
+                    <File Id="wb_starter_grt_shell_52" Name="wb_starter_grt_shell_52.png"/>
+                    <File Id="wb_starter_mysql_bug_reporter_52" Name="wb_starter_mysql_bug_reporter_52.png"/>
+                    <File Id="wb_starter_mysql_doc_lib_52" Name="wb_starter_mysql_doc_lib_52.png"/>
+                    <File Id="wb_starter_mysql_forums_52" Name="wb_starter_mysql_forums_52.png"/>
+                    <File Id="wb_starter_mysql_migration_52" Name="wb_starter_mysql_migration_52.png"/>
+                    <File Id="wb_starter_mysql_news_52" Name="wb_starter_mysql_news_52.png"/>
+                    <File Id="wb_starter_mysql_utilities_52" Name="wb_starter_mysql_utilities_52.png"/>
+                    <File Id="wb_starter_mysql_wb_blog_52" Name="wb_starter_mysql_wb_blog_52.png"/>
+                    <File Id="wb_starter_mysql_wb_twitters_52" Name="wb_starter_mysql_wb_twitters_52.png"/>
+                    <File Id="wb_starter_planet_mysql_52" Name="wb_starter_planet_mysql_52.png"/>
+                    <File Id="wb_starter_support_52" Name="wb_starter_support_52.png"/>
                   </Component>
                 </Directory>
 
