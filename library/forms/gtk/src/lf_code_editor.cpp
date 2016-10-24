@@ -21,7 +21,6 @@
 
 #include "base/string_utilities.h"
 #include "../lf_code_editor.h"
-#include "tinyxml.h"
 #include <memory>
 #include <ctype.h>
 #include <stdlib.h>
