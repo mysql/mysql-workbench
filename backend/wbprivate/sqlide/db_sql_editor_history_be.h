@@ -106,12 +106,12 @@ public:
   public:
     bool insert_entry(const std::tm &t);
     void delete_all_entries();
-    void delete_entries(const std::vector<size_t> &rows);
+    void delete_entries(const std::vector<std::size_t> &rows);
     void set_ui_usage(bool value) { _ui_usage = value; }
     bool get_ui_usage() { return _ui_usage; }
 
-    std::string entry_path(size_t index);
-    std::tm entry_date(size_t index);
+    std::string entry_path(std::size_t index);
+    std::tm entry_date(std::size_t index);
 
     virtual void reset();
     void load();

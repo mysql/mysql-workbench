@@ -267,7 +267,7 @@ bool DbSqlEditorHistory::EntriesModel::activate_popup_item_for_nodes(const std::
 {
   if (action == "delete_selection")
   {
-    std::vector<size_t> rows;
+    std::vector<std::size_t> rows;
     rows.reserve(orig_nodes.size());
     BOOST_FOREACH (const bec::NodeId &node, orig_nodes)
       rows.push_back(node[0]);
@@ -292,14 +292,14 @@ void DbSqlEditorHistory::EntriesModel::delete_all_entries()
                                       "Delete All", "Cancel", "") == mforms::ResultCancel)
     return;
   
-  std::vector<size_t> rows;
+  std::vector<std::size_t> rows;
   rows.reserve(_row_count);
   for (RowId row= 0; row < _row_count; ++row)
     rows.push_back(row);
   delete_entries(rows);  
 }
 
-void DbSqlEditorHistory::EntriesModel::delete_entries(const std::vector<size_t> &rows)
+void DbSqlEditorHistory::EntriesModel::delete_entries(const std::vector<std::size_t> &rows)
 {
   if (rows.empty())
     return;
@@ -325,7 +325,7 @@ void DbSqlEditorHistory::EntriesModel::delete_entries(const std::vector<size_t> 
   _owner->current_entry(-1);
 }
 
-std::string DbSqlEditorHistory::EntriesModel::entry_path(size_t index)
+std::string DbSqlEditorHistory::EntriesModel::entry_path(std::size_t index)
 {
   std::string name;
   get_field(index, 0, name);
@@ -334,7 +334,7 @@ std::string DbSqlEditorHistory::EntriesModel::entry_path(size_t index)
   return storage_file_path;
 }
 
-std::tm DbSqlEditorHistory::EntriesModel::entry_date(size_t index)
+std::tm DbSqlEditorHistory::EntriesModel::entry_date(std::size_t index)
 {
   tm t;
   std::string name;
