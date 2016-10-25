@@ -1778,8 +1778,10 @@ void WBContext::set_default_options(grt::DictRef options)
 
   set_default(options, "@ColorScheme/Items", "System Default:0,Windows 7:1,Windows 8:2,Windows 8 (alternative):3,High Contrast:4");
 
-  //Advanced options
-  set_default(options, "sshkeepalive", 0); // by default turned off
+  // Advanced options
+  // Option can't be turned off by default. We've got a situation with connector c++ on windows
+  // if tunnel will get closed just before calling mysql_ping() (keep alive) then ping will try to use invalid mysql->net structure.
+  set_default(options, "sshkeepalive", 60);
   set_default(options, "sshtimeout", 10);
 
   // Other options
