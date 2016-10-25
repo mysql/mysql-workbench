@@ -812,30 +812,21 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
   {
     bec::ArgumentPool argument_pool;
     _wb->update_plugin_arguments_pool(argument_pool);
-
+    
     if (object.is<std::string>())
     {
       std::string val = object;
-      if (base::hasSuffix(val, ".mwb"))
+      db_mgmt_ConnectionRef connection = getConnectionById(val);
+      
+      if (connection.is_valid())
+        argument_pool.add_entries_for_object("selectedConnection", connection);
+      else if (base::hasSuffix(val, ".mwb"))
         argument_pool.add_simple_value("selectedModelFile", grt::StringRef(val)); // assume a model file
       else
         argument_pool.add_simple_value("selectedGroupName", grt::StringRef(val)); // assume a connection group name
-      get_command_ui()->activate_command(action, argument_pool);
     }
-    else if (object.is<grt::ValueRef>())
-    {
-      grt::ValueRef val = object;
-      if (db_mgmt_ConnectionRef::can_wrap(val))
-      {
-        argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef::cast_from(val));
-        get_command_ui()->activate_command(action, argument_pool);
-      }
-      else
-        get_command_ui()->activate_command(action, argument_pool);
-    }
-    else
-      get_command_ui()->activate_command(action, argument_pool);
-
+    
+    get_command_ui()->activate_command(action, argument_pool);
   }
 }
 
