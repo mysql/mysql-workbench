@@ -39,7 +39,7 @@ SSH_PORT = 22
 REMOTE_PORT = 3306
 
 # timeout for closing an unused tunnel
-TUNNEL_TIMEOUT = 3
+TUNNEL_TIMEOUT = 60
 
 # paramiko 1.6 didn't have this class
 if hasattr(paramiko, "WarningPolicy"):
