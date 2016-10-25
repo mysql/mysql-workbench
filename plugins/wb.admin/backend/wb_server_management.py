@@ -1914,19 +1914,13 @@ class ServerManagementHelper(object):
                 klass = k
                 break
         if klass:
-            print "STEP 1"
             sudo_prefix=profile.sudo_prefix
             
-            print "STEP 2"
             if not sudo_prefix:
-                print "STEP 3"
                 sudo_prefix = default_sudo_prefix
 
-            print "STEP 4"
             self.shell = klass(sudo_prefix=sudo_prefix, ssh=ssh)
-            print "STEP 5"
             self.shell.post_init()
-            print "STEP 6"
         else:
             raise Exception("Unsupported administration target type: %s"%str(match_tuple))
 
