@@ -22,6 +22,7 @@
 #include "base/threading.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
+#include "base/xml.h"
 
 #include "grt.h"
 #include "grtpp_util.h"
@@ -357,13 +358,13 @@ void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requ
   xmlNodePtr root;
   xmlDocPtr doc;
   
-  doc= internal::Unserializer::load_xmldoc(file);
+  doc = base::xml::loadXMLDoc(file);
   
-  root= xmlDocGetRootElement(doc);
+  root = xmlDocGetRootElement(doc);
   
   if (root && xmlStrcmp(root->name, (xmlChar*)"gstructs")==0)
   {
-    root= root->children;
+    root = root->children;
     while (root)
     {
       if (xmlStrcmp(root->name, (xmlChar*)"gstruct")==0)
@@ -673,13 +674,13 @@ ValueRef GRT::unserialize(const std::string &path, std::string &doctype_ret, std
 
 xmlDocPtr GRT::load_xml(const std::string &path)
 {
-  return internal::Unserializer::load_xmldoc(path);
+  return base::xml::loadXMLDoc(path);
 }
 
 
 void GRT::get_xml_metainfo(xmlDocPtr doc, std::string &doctype_ret, std::string &version_ret)
 {  
-  internal::Unserializer::get_xmldoc_metainfo(doc, doctype_ret, version_ret);
+  base::xml::getXMLDocMetainfo(doc, doctype_ret, version_ret);
 }
 
 
