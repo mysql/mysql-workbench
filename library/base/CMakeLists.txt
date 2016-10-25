@@ -1,6 +1,7 @@
 include_directories(.
     SYSTEM ${Boost_INCLUDE_DIRS}
     SYSTEM ${MYSQLNG_INCLUDE_DIR}
+    SYSTEM ${LIBXML2_INCLUDE_DIR}
 )
 
 add_library(wbbase 
@@ -23,11 +24,12 @@ add_library(wbbase
     drawing_gtk.cpp
     boost_fix.cpp
     utf8string.cpp
+    xml.cpp
     )
 
 target_compile_options(wbbase PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(wbbase ${CAIRO_LIBRARIES} ${GLIB_LIBRARIES} ${MySQL_LIBRARIES} ${MYSQLNG_LIBRARY} ${GTHREAD_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${GTK3_LIBRARIES})
+target_link_libraries(wbbase ${CAIRO_LIBRARIES} ${GLIB_LIBRARIES} ${MySQL_LIBRARIES} ${MYSQLNG_LIBRARY} ${GTHREAD_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(wbbase gcov)
