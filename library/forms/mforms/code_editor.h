@@ -26,6 +26,7 @@
 
 #include <mforms/view.h>
 #include <mforms/utilities.h>
+#include <libxml/tree.h>
 
 /**
  * Provides a code editor with syntax highlighting for mforms.
@@ -165,8 +166,10 @@ private:
   std::map<std::string, std::string> _settings;
   std::map<int, std::map<std::string, std::string> > _styles;
 
-  TiXmlDocument *_document;
-  TiXmlElement *_language_element;
+//  TiXmlDocument *_document;
+//  TiXmlElement *_language_element;
+  xmlDocPtr _xmlDocument;
+  xmlNodePtr _xmlLanguageElement;
 protected:
   void parse_properties();
   void parse_settings();
