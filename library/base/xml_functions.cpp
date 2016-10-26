@@ -19,9 +19,11 @@
 
 
 #include "base/xml_functions.h"
+#include <libxml/HTMLparser.h>
 
 #include <glib.h>
 #include <stdexcept>
+#include <vector>
 
 xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntityt)
 {
@@ -91,4 +93,28 @@ std::string base::xml::getContent(xmlNodePtr node)
   std::string tmp = prop ? (char*)prop : "";
   xmlFree(prop);
   return tmp;
+}
+
+std::string base::xml::getContentRecursive(xmlNodePtr node)
+{
+  std::string result;
+  result = base::xml::getContent(node);
+  auto current = node->children;
+  while (current != nullptr)
+  {
+    result += base::xml::getContent(current);
+    current = current->next;
+  }
+  return result;
+}
+
+std::string base::xml::encodeEntities(const std::string &input)
+{
+  int buffSize = input.size()*2 + 1;
+  std::vector<unsigned char> buff(buffSize, '\0');
+  int outLen = buffSize - 1, inLen = input.size();
+
+  htmlEncodeEntities(buff.data(), &outLen, (const unsigned char*)(input.c_str()), &inLen, '"');
+  buff.erase(buff.begin() + outLen, buff.end());
+  return std::string(buff.begin(), buff.end());
 }

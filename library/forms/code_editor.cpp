@@ -24,7 +24,6 @@
 #include "base/drawing.h"
 #include "base/xml_functions.h"
 
-//#include "tinyxml.h"
 #include "SciLexer.h"
 
 #include "mforms/mforms.h"
@@ -58,8 +57,6 @@ using namespace base;
 CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
 {
   _used_language = language;
-//  _language_element = NULL;
-//  _document = NULL;
   _xmlDocument = nullptr;
   _xmlLanguageElement = nullptr;
 
@@ -208,90 +205,6 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
       parse_styles();
     }
   }
-
-//
-//  _document = new TiXmlDocument(config_file.c_str()); // Remove c_str() as soon as we compile against libc++ on Mac.
-//  if (!_document->LoadFile())
-//  {
-//    logError("Code Editor Config: cannot load configuration file \"%s\":\n\t%s (row: %d, column: %d)\n",
-//      config_file.c_str(), _document->ErrorDesc(), _document->ErrorRow(), _document->ErrorCol());
-//    return;
-//  }
-//
-//  TiXmlElement *element = _document->FirstChildElement("languages");
-//  if (element == NULL)
-//  {
-//    logError("Code Editor: invalid configuration file \"%s\"\n", config_file.c_str());
-//    return;
-//  }
-//
-//  // Load the available language identifiers. All remaining values are loaded on demand.
-//  for (TiXmlElement *language_element = element->FirstChildElement(); language_element != NULL;
-//    language_element = language_element->NextSiblingElement())
-//  {
-//    std::string language_name = language_element->Attribute("name");
-//    if (language_name == lexer)
-//      _language_element = language_element;
-//    _languages.push_back(language_name);
-//  }
-//
-//  if (_language_element == NULL)
-//  {
-//    logWarning("Code Editor: could not find settings for language %s in configuration file "
-//      "\"%s\"\n", lexer.c_str(), config_file.c_str());
-//    return;
-//  }
-//
-//  parse_properties();
-//  parse_settings();
-//  parse_keywords();
-//  parse_styles();
-//
-//  // check if there's another config section containing values that should override the base one
-//  if (!override_lexer.empty() && override_lexer != lexer)
-//  {
-//    bool found = false;
-//    // Load the available language identifiers. All remaining values are loaded on demand.
-//    for (TiXmlElement *language_element = element->FirstChildElement(); language_element != NULL;
-//         language_element = language_element->NextSiblingElement())
-//    {
-//      std::string language_name = language_element->Attribute("name");
-//      if (language_name == override_lexer)
-//      {
-//        _language_element = language_element;
-//        found = true;
-//        break;
-//      }
-//    }
-//
-//
-//
-//
-//      // Load the available language identifiers. All remaining values are loaded on demand.
-//
-//      auto current = rootElement->children;
-//      while (current != nullptr)
-//      {
-//        if (base::xml::compareName(current, "language"))
-//        {
-//          std::string languageName = base::xml::getProp(current, "name");
-//          if (languageName == override_lexer)
-//          {
-//            _xmlLanguageElement = current;
-//            break;
-//          }
-//        }
-//        current = current->next;
-//      }
-//
-//    if (found)
-//    {
-//      parse_properties();
-//      parse_settings();
-//      parse_keywords();
-//      parse_styles();
-//    }
-//  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,7 +214,6 @@ CodeEditorConfig::~CodeEditorConfig()
   if (_xmlDocument != nullptr)
     xmlFree(_xmlDocument);
   _xmlDocument = nullptr;
-//  delete _document;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,15 +232,6 @@ void CodeEditorConfig::parse_properties()
     }
     current = current->next;
   }
-
-//  for (TiXmlElement *entry = _language_element->FirstChildElement("property"); entry != NULL;
-//    entry = entry->NextSiblingElement("property"))
-//  {
-//    const char* property_name = entry->Attribute("name");
-//    const char* property_value = entry->Attribute("value");
-//    if (property_name != NULL && property_value != NULL)
-//      _properties[property_name] = property_value;
-//  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -347,48 +250,9 @@ void CodeEditorConfig::parse_settings()
     }
     current = current->next;
   }
-
-//  for (TiXmlElement *entry = _language_element->FirstChildElement("setting"); entry != NULL;
-//    entry = entry->NextSiblingElement("setting"))
-//  {
-//    const char* property_name = entry->Attribute("name");
-//    const char* property_value = entry->Attribute("value");
-//    if (property_name != NULL && property_value != NULL)
-//      _settings[property_name] = property_value;
-//  }
 }
 
 //--------------------------------------------------------------------------------------------------
-
-/**
- * Recursively collects text of this and all its child entries.
- */
-//std::string collect_text(TiXmlNode *entry)
-//{
-//  std::string result;
-//  for (TiXmlNode* child = entry->FirstChild(); child!= NULL; child = child->NextSibling())
-//  {
-//    const TiXmlText* childText = child->ToText();
-//    if (childText)
-//      result += childText->ValueStr() + collect_text(child);
-//  }
-//
-//  return result;
-//}
-
-//--------------------------------------------------------------------------------------------------
-std::string getContentRecursive(xmlNodePtr node)
-{
-  std::string result;
-  result = base::xml::getContent(node);
-  auto current = node->children;
-  while (current != nullptr)
-  {
-    result += base::xml::getContent(current);
-    current = current->next;
-  }
-  return result;
-}
 
 void CodeEditorConfig::parse_keywords()
 {
@@ -398,20 +262,12 @@ void CodeEditorConfig::parse_keywords()
     if (base::xml::compareName(current, "keywords"))
     {
       std::string pName = base::xml::getProp(current, "name");
-      std::string text = getContentRecursive(current);
+      std::string text = base::xml::getContentRecursive(current);
       if (!pName.empty() && !text.empty())
         _keywords[pName] = text;
     }
     current = current->next;
   }
-
-//  for (TiXmlElement* entry = _language_element->FirstChildElement("keywords"); entry != NULL;
-//    entry = entry->NextSiblingElement("keywords"))
-//  {
-//    std::string property_name = entry->Attribute("name");
-//    std::string text = collect_text(entry);
-//    _keywords[property_name] = text;
-//  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -447,26 +303,6 @@ void CodeEditorConfig::parse_styles()
     }
     current = current->next;
   }
-
-//  for (TiXmlElement* entry = _language_element->FirstChildElement("style"); entry != NULL;
-//    entry = entry->NextSiblingElement("style"))
-//  {
-//    int id = -1;
-//    entry->Attribute("id", &id);
-//    if (id < 0)
-//      continue;
-//
-//    std::map<std::string, std::string> entries;
-//    for (TiXmlAttribute *attribute = entry->FirstAttribute(); attribute != NULL; attribute = attribute->Next())
-//    {
-//      if (strcmp(attribute->Name(), "id") == 0)
-//        continue;
-//      fprintf(stderr, "ATiny Name: %s\n", attribute->Name());
-//      fprintf(stderr, "ATiny Value: %s\n", attribute->Value());
-//      entries[attribute->Name()] = attribute->Value();
-//    }
-//    _styles[id] = entries;
-//  }
 }
 
 //----------------- CodeEditor ---------------------------------------------------------------------
@@ -1337,7 +1173,7 @@ void CodeEditor::on_notify(SCNotification* notification)
     mforms::ModifierKey modifiers = getModifiers(notification->modifiers);
     _gutter_clicked_event(notification->margin, (int)line, modifiers);
     break;
-  };
+  }
   
   case SCN_MODIFIED:
   {
