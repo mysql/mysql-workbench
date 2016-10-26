@@ -166,8 +166,6 @@ private:
   std::map<std::string, std::string> _settings;
   std::map<int, std::map<std::string, std::string> > _styles;
 
-//  TiXmlDocument *_document;
-//  TiXmlElement *_language_element;
   xmlDocPtr _xmlDocument;
   xmlNodePtr _xmlLanguageElement;
 protected:

@@ -21,7 +21,6 @@
 #include <glib/gstdio.h>
 #include <stdlib.h>
 
-#include "tinyxml.h"
 #include <boost/foreach.hpp>
 #include <pcre.h>
 
@@ -488,8 +487,8 @@ void DbSqlEditorHistory::DetailsModel::save()
         last_saved_statement = sql;
 
       std::string xml_time, xml_sql;
-      TiXmlBase::EncodeString(time, &xml_time); 
-      TiXmlBase::EncodeString(sql, &xml_sql); 
+      xml_time = base::xml::encodeEntities(time);
+      xml_sql = base::xml::encodeEntities(sql);
       ofs << "<ENTRY timestamp=\'" << xml_time << "\'>" << xml_sql << "</ENTRY>\n";
     }
     _last_loaded_row = (int)_row_count - 1;
