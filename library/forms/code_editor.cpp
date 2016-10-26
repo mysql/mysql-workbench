@@ -22,7 +22,7 @@
 #include "base/string_utilities.h"
 #include "base/notifications.h"
 #include "base/drawing.h"
-#include "base/xml.h"
+#include "base/xml_functions.h"
 
 //#include "tinyxml.h"
 #include "SciLexer.h"

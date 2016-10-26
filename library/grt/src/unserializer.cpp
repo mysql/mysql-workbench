@@ -18,11 +18,12 @@
  */
 
 #include "unserializer.h"
+
+#include "../../base/base/xml_functions.h"
 #include "grtpp_util.h"
 
 #include "base/string_utilities.h"
 #include "base/log.h"
-#include "base/xml.h"
 
 DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 

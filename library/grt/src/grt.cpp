@@ -22,8 +22,6 @@
 #include "base/threading.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
-#include "base/xml.h"
-
 #include "grt.h"
 #include "grtpp_util.h"
 #include "grtpp_shell.h"
@@ -35,6 +33,7 @@
 #include <algorithm>
 #include <glib.h>
 
+#include "../../base/base/xml_functions.h"
 #include "serializer.h"
 #include "unserializer.h"
 
