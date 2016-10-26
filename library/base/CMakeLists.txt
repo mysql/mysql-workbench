@@ -24,7 +24,7 @@ add_library(wbbase
     drawing_gtk.cpp
     boost_fix.cpp
     utf8string.cpp
-    xml.cpp
+    xml_functions.cpp
     )
 
 target_compile_options(wbbase PUBLIC ${WB_CXXFLAGS})

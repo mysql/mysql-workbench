@@ -18,11 +18,12 @@
  */
 
 
+#include "base/xml_functions.h"
+
 #include <glib.h>
 #include <stdexcept>
-#include "base/xml.h"
 
-xmlDocPtr base::xml::loadXMLDoc(const std::string &path)
+xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntityt)
 {
   xmlDocPtr doc;
 
@@ -30,9 +31,9 @@ xmlDocPtr base::xml::loadXMLDoc(const std::string &path)
   if ((localFilename = g_filename_from_utf8(path.c_str(),-1,NULL,NULL,NULL)) == NULL)
     throw std::runtime_error("can't open XML file " + path);
 
-//  if (parseEntity)
-//    doc = xmlParseEntity(localFilename);
-//  else
+  if (asEntityt)
+    doc = xmlParseEntity(localFilename);
+  else
     doc = xmlParseFile(localFilename);
 
   g_free(localFilename);
