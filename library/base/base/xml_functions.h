@@ -31,5 +31,7 @@ BASELIBRARY_PUBLIC_FUNC bool compareName(xmlAttrPtr attrib, const std::string &n
 BASELIBRARY_PUBLIC_FUNC void getXMLDocMetainfo(xmlDocPtr doc, std::string &doctype, std::string &docversion);
 BASELIBRARY_PUBLIC_FUNC std::string getProp(xmlNodePtr node, const std::string &name);
 BASELIBRARY_PUBLIC_FUNC std::string getContent(xmlNodePtr node);
+BASELIBRARY_PUBLIC_FUNC std::string getContentRecursive(xmlNodePtr node);
+BASELIBRARY_PUBLIC_FUNC std::string encodeEntities(const std::string &input);
 }; /* end of namespace xml */
 }; /* end of namespace base */
