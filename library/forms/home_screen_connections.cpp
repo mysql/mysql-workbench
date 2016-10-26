@@ -392,9 +392,9 @@ public:
           line_bounds.pos.y += 6 * DETAILS_LINE_HEIGHT; // Same layout as for remote mgm. So config file is at bottom.
           print_info_line(cr, line_bounds, _("Config Path"), getAnyMapValue<std::string>(serverInfo,"sys.config.path"));
         }
-        else
+        else if (!connectionInfo["loginInfo"].isNull())
         {
-          auto loginInfo = connectionInfo["loginInfo"];
+          mforms::anyMap loginInfo = connectionInfo["loginInfo"];
           bool windowsAdmin = getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 1;
 
           std::string os = getAnyMapValue<std::string>(serverInfo, "serverOS");
