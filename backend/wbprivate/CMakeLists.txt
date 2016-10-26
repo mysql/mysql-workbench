@@ -26,7 +26,6 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    SYSTEM ${TINYXML_INCLUDE_DIRS}
     SYSTEM ${GDAL_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
@@ -109,7 +108,6 @@ target_link_libraries(wbprivate
     ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
     ${LIBZIP_LIBRARIES}
-    ${TINYXML_LIBRARY}
     ${PCRE_LIBRARIES}
     ${GDAL_LIBRARIES}
 )
