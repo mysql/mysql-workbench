@@ -583,12 +583,12 @@ anyMap WBContextUI::connectionToMap(db_mgmt_ConnectionRef connection)
 
   output = grt::convert(connection->parameterValues());
 
-  if (instance->serverInfo().is_valid())
+  if (instance.is_valid() && instance->serverInfo().is_valid())
     output.insert({"serverInfo", grt::convert(instance->serverInfo())});
   else
     output.insert({"serverInfo", base::any()});
 
-  if (instance->loginInfo().is_valid())
+  if (instance.is_valid() && instance->loginInfo().is_valid())
       output.insert({"loginInfo", grt::convert(instance->loginInfo())});
   else
     output.insert({"loginInfo", base::any()});
