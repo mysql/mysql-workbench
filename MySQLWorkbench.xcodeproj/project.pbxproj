@@ -119,7 +119,6 @@
 		27050AC61B3443C100D6135D /* stub_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050AB91B3443C100D6135D /* stub_view.cpp */; };
 		27050AC71B3443C100D6135D /* stub_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050ABA1B3443C100D6135D /* stub_wizard.cpp */; };
 		27050B191B34449700D6135D /* sql_create_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B181B34449700D6135D /* sql_create_test.cpp */; };
-		27050B1B1B3444A500D6135D /* test_wb_mysql_import_dbd4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B1A1B3444A500D6135D /* test_wb_mysql_import_dbd4.cpp */; };
 		27050B1E1B34450500D6135D /* mysql_parser_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B1D1B34450500D6135D /* mysql_parser_test.cpp */; };
 		27050B201B34451D00D6135D /* sql_parser_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B1F1B34451D00D6135D /* sql_parser_test.cpp */; };
 		27050B241B34456600D6135D /* mysql_objects_name_cache_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B211B34456600D6135D /* mysql_objects_name_cache_test.cpp */; };
@@ -178,7 +177,6 @@
 		273F6B0017044B37002117F2 /* threading.h in Headers */ = {isa = PBXBuildFile; fileRef = 273F6AFE17044B37002117F2 /* threading.h */; };
 		2740F52C10FF4C19007ADBE5 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2740F53610FF4C8E007ADBE5 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		2740F53F10FF4CFB007ADBE5 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2740F55C10FF4F7C007ADBE5 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2740F59410FF5B1E007ADBE5 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2744E68A0FC183FC00E85C33 /* Scintilla.framework in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -350,7 +348,6 @@
 		2782344F1CD34920003A2649 /* libpixman-1.0.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 2782343C1CD3491F003A2649 /* libpixman-1.0.dylib */; };
 		278234501CD34920003A2649 /* libpng16.16.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 2782343D1CD3491F003A2649 /* libpng16.16.dylib */; };
 		278234511CD34920003A2649 /* libproj.0.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 2782343E1CD3491F003A2649 /* libproj.0.dylib */; };
-		278234521CD34920003A2649 /* libtinyxml.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 2782343F1CD3491F003A2649 /* libtinyxml.dylib */; };
 		278234531CD34920003A2649 /* libvsqlitepp.0.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 278234401CD3491F003A2649 /* libvsqlitepp.0.dylib */; };
 		278234581CD34983003A2649 /* libpcrecpp.0.dylib in Copy 3rd party libraries */ = {isa = PBXBuildFile; fileRef = 278234561CD34983003A2649 /* libpcrecpp.0.dylib */; };
 		278874861189DA8500E477EF /* webbrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 278874851189DA8500E477EF /* webbrowser.h */; };
@@ -506,7 +503,6 @@
 		27A00CE81BF0A56B0087684B /* db.mysql.sqlparser.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE7362A0EFB3CED00287AE0 /* db.mysql.sqlparser.grt.dylib */; };
 		27A00CEB1BF0ABED0087684B /* libcdbc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B750DAF0E877D030003120A /* libcdbc.dylib */; };
 		27A00CEC1BF0AC150087684B /* libmysqlclient.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC7896717D7BE24005E03D5 /* libmysqlclient.dylib */; };
-		27A00CED1BF0AC440087684B /* wb.mysql.import.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B52860F0F1C1E01005FBF7C /* wb.mysql.import.grt.dylib */; };
 		27A00CF01BF0B32C0087684B /* db.mysql.editors.wbp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B5284410F1A87AB005FBF7C /* db.mysql.editors.wbp.dylib */; };
 		27A3EC8E164BA997001B6D8F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 27A3EC8C164BA997001B6D8F /* MainMenu.xib */; };
 		27A3EC91164BA9AB001B6D8F /* IconCollectionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 27A3EC8F164BA9AB001B6D8F /* IconCollectionView.xib */; };
@@ -559,7 +555,6 @@
 		27BF79061CD34BE800FBB3F3 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27BF79051CD34BE800FBB3F3 /* libcairo.2.dylib */; };
 		27BF79071CD34BF800FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
 		27BF79081CD34C0700FBB3F3 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27BF79051CD34BE800FBB3F3 /* libcairo.2.dylib */; };
-		27BF79091CD34C0E00FBB3F3 /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234411CD3491F003A2649 /* libtinyxml.dylib */; };
 		27BF790A1CD34C1900FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
 		27BF790B1CD34C2F00FBB3F3 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27BF79051CD34BE800FBB3F3 /* libcairo.2.dylib */; };
 		27BF790C1CD34C4300FBB3F3 /* libgdal.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234321CD3491F003A2649 /* libgdal.1.dylib */; };
@@ -588,8 +583,6 @@
 		27BF79281CD34FF400FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
 		27BF79291CD3500300FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
 		27BF792A1CD3501300FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
-		27BF792B1CD3502D00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
-		27BF792C1CD3503200FBB3F3 /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234411CD3491F003A2649 /* libtinyxml.dylib */; };
 		27BF792D1CD3504600FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
 		27BF792E1CD3505600FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
 		27BF792F1CD3506400FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
@@ -612,7 +605,6 @@
 		27BF79441CD3530600FBB3F3 /* libpcrecpp.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 278234561CD34983003A2649 /* libpcrecpp.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27BF79451CD3530900FBB3F3 /* libpng16.16.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2782343D1CD3491F003A2649 /* libpng16.16.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27BF79461CD3530D00FBB3F3 /* libproj.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2782343E1CD3491F003A2649 /* libproj.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		27BF79471CD3531100FBB3F3 /* libtinyxml.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 278234411CD3491F003A2649 /* libtinyxml.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27BF79481CD3531500FBB3F3 /* libvsqlitepp.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 278234401CD3491F003A2649 /* libvsqlitepp.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27BF794A1CD3536000FBB3F3 /* libzip.1.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 278234571CD34983003A2649 /* libzip.1.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27BF794B1CD353BC00FBB3F3 /* libmysqlcppconn.7.1.1.7.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 278234391CD3491F003A2649 /* libmysqlcppconn.7.1.1.7.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -1437,7 +1429,6 @@
 		2B3D4A050F3E734C009238A7 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2B3D4A060F3E7356009238A7 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2B3D4A0F0F3E73D2009238A7 /* wb.model.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B5284060F1A572C005FBF7C /* wb.model.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		2B3D4A100F3E73D2009238A7 /* wb.mysql.import.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B52860F0F1C1E01005FBF7C /* wb.mysql.import.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2B3D4A180F3E73F1009238A7 /* db.mysql.wbp.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B3D495B0F3E6E51009238A7 /* db.mysql.wbp.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2B3D4A350F3E78A7009238A7 /* db_conn_be.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B750FF00E87966E0003120A /* db_conn_be.cpp */; };
 		2B3D4A370F3E78A7009238A7 /* grt_wizard_form.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B750FF30E87966E0003120A /* grt_wizard_form.cpp */; };
@@ -1609,10 +1600,6 @@
 		2B5284DC0F1AEA5A005FBF7C /* db.mysql.editors.mwbplugin in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B52845C0F1A8838005FBF7C /* db.mysql.editors.mwbplugin */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2B52851A0F1B6FB2005FBF7C /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2B5285280F1B6FE7005FBF7C /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		2B52862F0F1C1EB6005FBF7C /* wb_mysql_import.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B52862B0F1C1EB6005FBF7C /* wb_mysql_import.cpp */; };
-		2B5286300F1C1EB6005FBF7C /* wb_mysql_import.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B52862C0F1C1EB6005FBF7C /* wb_mysql_import.h */; };
-		2B5286310F1C1EB6005FBF7C /* wb_mysql_import_dbd4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B52862D0F1C1EB6005FBF7C /* wb_mysql_import_dbd4.cpp */; };
-		2B5286320F1C1EB6005FBF7C /* wb_mysql_import_dbd4.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B52862E0F1C1EB6005FBF7C /* wb_mysql_import_dbd4.h */; };
 		2B5286360F1C1ED1005FBF7C /* register_plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5286330F1C1ED1005FBF7C /* register_plugin.cpp */; };
 		2B5286370F1C1ED1005FBF7C /* wb_module_validation_mysql.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5286340F1C1ED1005FBF7C /* wb_module_validation_mysql.cpp */; };
 		2B5286380F1C1ED1005FBF7C /* wb_module_validation_mysql.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5286350F1C1ED1005FBF7C /* wb_module_validation_mysql.h */; };
@@ -2267,10 +2254,6 @@
 		2BCEBFBB13DBDBF500A23E75 /* MSpinProgressCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCEBFB913DBDBF500A23E75 /* MSpinProgressCell.m */; };
 		2BCEC00013DC565B00A23E75 /* record_autosize.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCEBFFF13DC565B00A23E75 /* record_autosize.png */; };
 		2BD1FA490F33756400FFC762 /* libmforms.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		2BD1FA630F3375FE00FFC762 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
-		2BD1FA6C0F33768900FFC762 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
-		2BD1FA7D0F3377BB00FFC762 /* sql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC262A0E85671D0018CE34 /* sql.parser.dylib */; };
-		2BD1FAA00F337D0E00FFC762 /* db.mysql.sqlparser.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE7362A0EFB3CED00287AE0 /* db.mysql.sqlparser.grt.dylib */; };
 		2BD1FB170F33D2B000FFC762 /* WBExtras.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BD1FB0E0F33D29400FFC762 /* WBExtras.framework */; };
 		2BD1FB1F0F33D2E900FFC762 /* WBPluginEditorBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD1FADD0F33C74D00FFC762 /* WBPluginEditorBase.h */; };
 		2BD1FB200F33D2EA00FFC762 /* WBPluginEditorBase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD1FADE0F33C74D00FFC762 /* WBPluginEditorBase.mm */; };
@@ -2732,6 +2715,9 @@
 		4475EA351D508526007E6367 /* command_line_parser_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4475EA331D508520007E6367 /* command_line_parser_test.cpp */; };
 		448F6B2B1CEDEB3100D1BF6B /* ProjectForm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 448F6B291CEDEB2800D1BF6B /* ProjectForm.cpp */; };
 		448F6B2D1CEDEB7000D1BF6B /* ProjectForm.h in Headers */ = {isa = PBXBuildFile; fileRef = 448F6B2C1CEDEB6400D1BF6B /* ProjectForm.h */; };
+		44A338921DC1FED800FFAC83 /* xml_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 44A3388F1DC1FED200FFAC83 /* xml_functions.h */; };
+		44A338931DC1FED800FFAC83 /* xml_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44A338901DC1FED200FFAC83 /* xml_functions.cpp */; };
+		44A338961DC2006500FFAC83 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		44B7DC961C0C7A39000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC951C0C7A39000D608D /* wba_firewall */; };
 		44B7DC9C1C0C7A72000D608D /* admin_firewall_reports.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC971C0C7A72000D608D /* admin_firewall_reports.png */; };
 		44B7DC9D1C0C7A72000D608D /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC981C0C7A72000D608D /* admin_firewall.png */; };
@@ -2817,13 +2803,6 @@
 			remoteInfo = base;
 		};
 		2740F53410FF4C82007ADBE5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2B825D280E0B59A100BE52DF;
-			remoteInfo = base;
-		};
-		2740F53D10FF4CF4007ADBE5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
@@ -3187,13 +3166,6 @@
 			remoteGlobalIDString = 2B7510D70E8799D00003120A;
 			remoteInfo = wbpublic.be;
 		};
-		2B3D4AA20F3E7E06009238A7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2BE733790EFAFEDC00287AE0;
-			remoteInfo = db.mysql.sqlparser.grt;
-		};
 		2B3D4FE60F40CABB009238A7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -3516,27 +3488,6 @@
 			remoteGlobalIDString = 2B7510D70E8799D00003120A;
 			remoteInfo = wbcanvas;
 		};
-		2BD1FA5B0F3375E600FFC762 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2B825D910E0B604400BE52DF;
-			remoteInfo = grt;
-		};
-		2BD1FA610F3375EA00FFC762 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2B7510D70E8799D00003120A;
-			remoteInfo = wbcanvas.be;
-		};
-		2BD1FA9B0F337CF500FFC762 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2B52860E0F1C1E01005FBF7C;
-			remoteInfo = wb.mysql.import.grt;
-		};
 		2BD1FAB30F33C2A700FFC762 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -3704,7 +3655,6 @@
 				2782344F1CD34920003A2649 /* libpixman-1.0.dylib in Copy 3rd party libraries */,
 				278234501CD34920003A2649 /* libpng16.16.dylib in Copy 3rd party libraries */,
 				278234511CD34920003A2649 /* libproj.0.dylib in Copy 3rd party libraries */,
-				278234521CD34920003A2649 /* libtinyxml.dylib in Copy 3rd party libraries */,
 				278234531CD34920003A2649 /* libvsqlitepp.0.dylib in Copy 3rd party libraries */,
 			);
 			name = "Copy 3rd party libraries";
@@ -3911,7 +3861,6 @@
 				2B3D4A0F0F3E73D2009238A7 /* wb.model.grt.dylib in Copy Files (plugins) */,
 				2B2DF88C105EA1A900F267F9 /* db.mysql.query.grt.dylib in Copy Files (plugins) */,
 				2B5284DC0F1AEA5A005FBF7C /* db.mysql.editors.mwbplugin in Copy Files (plugins) */,
-				2B3D4A100F3E73D2009238A7 /* wb.mysql.import.grt.dylib in Copy Files (plugins) */,
 				2B3D4A180F3E73F1009238A7 /* db.mysql.wbp.dylib in Copy Files (plugins) */,
 				2BB589300F44E5D000089423 /* db.mysql.diff.reporting.wbp.dylib in Copy Files (plugins) */,
 				2B17B03C0F4D99560087ED42 /* wb.model.editors.mwbplugin in Copy Files (plugins) */,
@@ -3987,7 +3936,6 @@
 				27BF79441CD3530600FBB3F3 /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
 				27BF79451CD3530900FBB3F3 /* libpng16.16.dylib in Copy Files (dylibs) */,
 				27BF79461CD3530D00FBB3F3 /* libproj.0.dylib in Copy Files (dylibs) */,
-				27BF79471CD3531100FBB3F3 /* libtinyxml.dylib in Copy Files (dylibs) */,
 				27BF79481CD3531500FBB3F3 /* libvsqlitepp.0.dylib in Copy Files (dylibs) */,
 				27BF794A1CD3536000FBB3F3 /* libzip.1.0.0.dylib in Copy Files (dylibs) */,
 				27BF794B1CD353BC00FBB3F3 /* libmysqlcppconn.7.1.1.7.dylib in Copy Files (dylibs) */,
@@ -4474,7 +4422,6 @@
 		2782343C1CD3491F003A2649 /* libpixman-1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libpixman-1.0.dylib"; path = "../mysql-mac-res/lib/libpixman-1.0.dylib"; sourceTree = "<group>"; };
 		2782343D1CD3491F003A2649 /* libpng16.16.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpng16.16.dylib; path = "../mysql-mac-res/lib/libpng16.16.dylib"; sourceTree = "<group>"; };
 		2782343E1CD3491F003A2649 /* libproj.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libproj.0.dylib; path = "../mysql-mac-res/lib/libproj.0.dylib"; sourceTree = "<group>"; };
-		2782343F1CD3491F003A2649 /* libtinyxml.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtinyxml.dylib; path = "../mysql-mac-res/lib/libtinyxml.dylib"; sourceTree = "<group>"; };
 		278234401CD3491F003A2649 /* libvsqlitepp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.0.dylib; path = "../mysql-mac-res/lib/libvsqlitepp.0.dylib"; sourceTree = "<group>"; };
 		278234411CD3491F003A2649 /* libtinyxml.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtinyxml.dylib; path = "../mysql-mac-res/lib/libtinyxml.dylib"; sourceTree = "<group>"; };
 		278234561CD34983003A2649 /* libpcrecpp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcrecpp.0.dylib; path = "../mysql-mac-res/lib/libpcrecpp.0.dylib"; sourceTree = "<group>"; };
@@ -5584,7 +5531,6 @@
 		2B52846D0F1A8A1C005FBF7C /* MySQLSchemaEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLSchemaEditor.h; path = plugins/db.mysql.editors/macosx/MySQLSchemaEditor.h; sourceTree = "<group>"; };
 		2B52846E0F1A8A1C005FBF7C /* MySQLSchemaEditor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MySQLSchemaEditor.mm; path = plugins/db.mysql.editors/macosx/MySQLSchemaEditor.mm; sourceTree = "<group>"; };
 		2B5284740F1A8B52005FBF7C /* MySQLSchemaEditor.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MySQLSchemaEditor.xib; path = plugins/db.mysql.editors/macosx/MySQLSchemaEditor.xib; sourceTree = "<group>"; };
-		2B52860F0F1C1E01005FBF7C /* wb.mysql.import.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = wb.mysql.import.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B52861A0F1C1E08005FBF7C /* wb.validation.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = wb.validation.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B5286230F1C1E10005FBF7C /* wb.mysql.validation.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = wb.mysql.validation.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B52862B0F1C1EB6005FBF7C /* wb_mysql_import.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_mysql_import.cpp; path = modules/wb.mysql.import/src/wb_mysql_import.cpp; sourceTree = "<group>"; };
@@ -6811,6 +6757,8 @@
 		4475EA331D508520007E6367 /* command_line_parser_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = command_line_parser_test.cpp; path = "library/base/unit-tests/command_line_parser_test.cpp"; sourceTree = "<group>"; };
 		448F6B291CEDEB2800D1BF6B /* ProjectForm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProjectForm.cpp; path = library/forms/ProjectForm.cpp; sourceTree = "<group>"; };
 		448F6B2C1CEDEB6400D1BF6B /* ProjectForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProjectForm.h; path = library/forms/mforms/ProjectForm.h; sourceTree = "<group>"; };
+		44A3388F1DC1FED200FFAC83 /* xml_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xml_functions.h; path = library/base/base/xml_functions.h; sourceTree = "<group>"; };
+		44A338901DC1FED200FFAC83 /* xml_functions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xml_functions.cpp; path = library/base/xml_functions.cpp; sourceTree = "<group>"; };
 		44B7DC951C0C7A39000D608D /* wba_firewall */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_firewall; path = plugins/wb.admin/internal/wba_firewall; sourceTree = "<group>"; };
 		44B7DC971C0C7A72000D608D /* admin_firewall_reports.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_firewall_reports.png; path = images/admin/admin_firewall_reports.png; sourceTree = "<group>"; };
 		44B7DC981C0C7A72000D608D /* admin_firewall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_firewall.png; path = images/admin/admin_firewall.png; sourceTree = "<group>"; };
@@ -6898,7 +6846,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				27A00CF01BF0B32C0087684B /* db.mysql.editors.wbp.dylib in Frameworks */,
-				27A00CED1BF0AC440087684B /* wb.mysql.import.grt.dylib in Frameworks */,
 				27A00CEB1BF0ABED0087684B /* libcdbc.dylib in Frameworks */,
 				27A00CE81BF0A56B0087684B /* db.mysql.sqlparser.grt.dylib in Frameworks */,
 				27A00CE71BF0A5020087684B /* wb.model.grt.dylib in Frameworks */,
@@ -7018,20 +6965,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2B52860D0F1C1E01005FBF7C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2BD1FA630F3375FE00FFC762 /* libgrt.dylib in Frameworks */,
-				2BD1FA6C0F33768900FFC762 /* libwbpublic.be.dylib in Frameworks */,
-				2BD1FA7D0F3377BB00FFC762 /* sql.parser.dylib in Frameworks */,
-				2BD1FAA00F337D0E00FFC762 /* db.mysql.sqlparser.grt.dylib in Frameworks */,
-				2740F53F10FF4CFB007ADBE5 /* libwbbase.dylib in Frameworks */,
-				27BF792B1CD3502D00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
-				27BF792C1CD3503200FBB3F3 /* libtinyxml.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2B5286180F1C1E08005FBF7C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -7143,13 +7076,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44A338961DC2006500FFAC83 /* libxml2.2.dylib in Frameworks */,
 				2760C4E3107499F800FD1366 /* libwbbase.dylib in Frameworks */,
 				2BB37A121108026800DA4577 /* Security.framework in Frameworks */,
 				2798BEBA118AAAD50090590E /* WebKit.framework in Frameworks */,
 				2B83E5B51992B2C600781432 /* libmysql.canvas.dylib in Frameworks */,
 				27E1EEA912796BD700CF6290 /* Scintilla.framework in Frameworks */,
 				27BF79081CD34C0700FBB3F3 /* libcairo.2.dylib in Frameworks */,
-				27BF79091CD34C0E00FBB3F3 /* libtinyxml.dylib in Frameworks */,
 				27BF790A1CD34C1900FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7548,7 +7481,6 @@
 				2B5284060F1A572C005FBF7C /* wb.model.grt.dylib */,
 				2B5284410F1A87AB005FBF7C /* db.mysql.editors.wbp.dylib */,
 				2B52845C0F1A8838005FBF7C /* db.mysql.editors.mwbplugin */,
-				2B52860F0F1C1E01005FBF7C /* wb.mysql.import.grt.dylib */,
 				2B52861A0F1C1E08005FBF7C /* wb.validation.grt.dylib */,
 				2B5286230F1C1E10005FBF7C /* wb.mysql.validation.grt.dylib */,
 				2B3D495B0F3E6E51009238A7 /* db.mysql.wbp.dylib */,
@@ -10141,6 +10073,8 @@
 		2B825D2F0E0B59CC00BE52DF /* base */ = {
 			isa = PBXGroup;
 			children = (
+				44A3388F1DC1FED200FFAC83 /* xml_functions.h */,
+				44A338901DC1FED200FFAC83 /* xml_functions.cpp */,
 				4401E1C41D9959440027AD13 /* utf8string.h */,
 				4401E1C51D9959440027AD13 /* utf8string.cpp */,
 				2B299C4612CF8C3D008B57C9 /* boost_smart_ptr_helpers.h */,
@@ -11964,15 +11898,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2B52860B0F1C1E01005FBF7C /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2B5286300F1C1EB6005FBF7C /* wb_mysql_import.h in Headers */,
-				2B5286320F1C1EB6005FBF7C /* wb_mysql_import_dbd4.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2B5286160F1C1E08005FBF7C /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -12074,6 +11999,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED69F9E815DECA0C00FF2FE3 /* profiling.h in Headers */,
+				44A338921DC1FED800FFAC83 /* xml_functions.h in Headers */,
 				27C3A1311070C3B200DD5717 /* common.h in Headers */,
 				2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */,
 				27C47B3F1C80A2BD00559C2B /* data_types.h in Headers */,
@@ -12758,27 +12684,6 @@
 			productReference = 2B52845C0F1A8838005FBF7C /* db.mysql.editors.mwbplugin */;
 			productType = "com.apple.product-type.bundle";
 		};
-		2B52860E0F1C1E01005FBF7C /* wb.mysql.import.grt */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2B5286280F1C1E58005FBF7C /* Build configuration list for PBXNativeTarget "wb.mysql.import.grt" */;
-			buildPhases = (
-				2B52860B0F1C1E01005FBF7C /* Headers */,
-				2B52860C0F1C1E01005FBF7C /* Sources */,
-				2B52860D0F1C1E01005FBF7C /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				2740F53E10FF4CF4007ADBE5 /* PBXTargetDependency */,
-				2BD1FA5C0F3375E600FFC762 /* PBXTargetDependency */,
-				2BD1FA620F3375EA00FFC762 /* PBXTargetDependency */,
-				2B3D4AA30F3E7E06009238A7 /* PBXTargetDependency */,
-			);
-			name = wb.mysql.import.grt;
-			productName = wb.mysql.import.grt;
-			productReference = 2B52860F0F1C1E01005FBF7C /* wb.mysql.import.grt.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
 		2B5286190F1C1E08005FBF7C /* wb.validation.grt */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2B5286290F1C1E58005FBF7C /* Build configuration list for PBXNativeTarget "wb.validation.grt" */;
@@ -13250,7 +13155,6 @@
 				2BD1FB160F33D2AC00FFC762 /* PBXTargetDependency */,
 				2B5284150F1A57D2005FBF7C /* PBXTargetDependency */,
 				2BE733510EFAFE1500287AE0 /* PBXTargetDependency */,
-				2BD1FA9C0F337CF500FFC762 /* PBXTargetDependency */,
 				2B3D49DA0F3E7141009238A7 /* PBXTargetDependency */,
 				2BD1FAB40F33C2A700FFC762 /* PBXTargetDependency */,
 				2B5284650F1A8871005FBF7C /* PBXTargetDependency */,
@@ -13324,7 +13228,6 @@
 				27CE5F921917993B005574D4 /* db.mysql.parser.grt */,
 				2BE733790EFAFEDC00287AE0 /* db.mysql.sqlparser.grt */,
 				2B5284050F1A572C005FBF7C /* wb.model.grt */,
-				2B52860E0F1C1E01005FBF7C /* wb.mysql.import.grt */,
 				2B5286190F1C1E08005FBF7C /* wb.validation.grt */,
 				2B5286220F1C1E10005FBF7C /* wb.mysql.validation.grt */,
 				2B6BBEBE16BAC53300F8A39E /* db.search.wbp */,
@@ -14776,7 +14679,6 @@
 				27050A891B343FF400D6135D /* layouting.cpp in Sources */,
 				27050A6E1B343F9700D6135D /* mysql_routinegroup_editor_test.cpp in Sources */,
 				27050AC71B3443C100D6135D /* stub_wizard.cpp in Sources */,
-				27050B1B1B3444A500D6135D /* test_wb_mysql_import_dbd4.cpp in Sources */,
 				27050AC41B3443C100D6135D /* stub_treenode.cpp in Sources */,
 				27050B1E1B34450500D6135D /* mysql_parser_test.cpp in Sources */,
 				27050AA91B34434B00D6135D /* value_test.cpp in Sources */,
@@ -14892,15 +14794,6 @@
 				16B2EA630F54A3D200D583B1 /* MacTableEditorColumnsInformationSource.mm in Sources */,
 				2B869A180F7DE2BA0005CB9B /* DbPrivilegeEditorTab.mm in Sources */,
 				2B9EC6AA15DF5BD700570C95 /* MySQLTableEditor.mm in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2B52860C0F1C1E01005FBF7C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2B52862F0F1C1EB6005FBF7C /* wb_mysql_import.cpp in Sources */,
-				2B5286310F1C1EB6005FBF7C /* wb_mysql_import_dbd4.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15114,6 +15007,7 @@
 				27C47B3E1C80A2B900559C2B /* data_types.cpp in Sources */,
 				2B22CAC1146DF8C000625F5C /* notifications.cpp in Sources */,
 				2BAD7A73156C8A6E0025F13F /* threading.cpp in Sources */,
+				44A338931DC1FED800FFAC83 /* xml_functions.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15637,11 +15531,6 @@
 			target = 2B825D280E0B59A100BE52DF /* base */;
 			targetProxy = 2740F53410FF4C82007ADBE5 /* PBXContainerItemProxy */;
 		};
-		2740F53E10FF4CF4007ADBE5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2B825D280E0B59A100BE52DF /* base */;
-			targetProxy = 2740F53D10FF4CF4007ADBE5 /* PBXContainerItemProxy */;
-		};
 		2740F55B10FF4F6C007ADBE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2B825D280E0B59A100BE52DF /* base */;
@@ -15892,11 +15781,6 @@
 			target = 2B7510D70E8799D00003120A /* wbpublic.be */;
 			targetProxy = 2B3D4A030F3E7344009238A7 /* PBXContainerItemProxy */;
 		};
-		2B3D4AA30F3E7E06009238A7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2BE733790EFAFEDC00287AE0 /* db.mysql.sqlparser.grt */;
-			targetProxy = 2B3D4AA20F3E7E06009238A7 /* PBXContainerItemProxy */;
-		};
 		2B3D4FE70F40CABB009238A7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2B750DAE0E877D030003120A /* cdbc */;
@@ -16126,21 +16010,6 @@
 			isa = PBXTargetDependency;
 			target = 2B7510D70E8799D00003120A /* wbpublic.be */;
 			targetProxy = 2BCB31A50E884634005C8ED2 /* PBXContainerItemProxy */;
-		};
-		2BD1FA5C0F3375E600FFC762 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2B825D910E0B604400BE52DF /* grt */;
-			targetProxy = 2BD1FA5B0F3375E600FFC762 /* PBXContainerItemProxy */;
-		};
-		2BD1FA620F3375EA00FFC762 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2B7510D70E8799D00003120A /* wbpublic.be */;
-			targetProxy = 2BD1FA610F3375EA00FFC762 /* PBXContainerItemProxy */;
-		};
-		2BD1FA9C0F337CF500FFC762 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2B52860E0F1C1E01005FBF7C /* wb.mysql.import.grt */;
-			targetProxy = 2BD1FA9B0F337CF500FFC762 /* PBXContainerItemProxy */;
 		};
 		2BD1FAB40F33C2A700FFC762 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -17241,67 +17110,6 @@
 				PRODUCT_NAME = db.mysql.editors;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = mwbplugin;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		2B5286120F1C1E01005FBF7C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					TIXML_USE_STL,
-					ENABLE_PYTHON_MODULES,
-					ENABLE_DEBUG,
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/library/sql-parser/include",
-					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
-					"$(SRCROOT)/library/canvas/src",
-					"$(SRCROOT)/library/grt/src",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
-				);
-				INSTALL_PATH = "@executable_path/../PlugIns";
-				PRODUCT_NAME = wb.mysql.import.grt;
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		2B5286130F1C1E01005FBF7C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					TIXML_USE_STL,
-					ENABLE_PYTHON_MODULES,
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/library/sql-parser/include",
-					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
-					"$(SRCROOT)/library/canvas/src",
-					"$(SRCROOT)/library/grt/src",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
-				);
-				INSTALL_PATH = "@executable_path/../PlugIns";
-				PRODUCT_NAME = wb.mysql.import.grt;
-				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -18953,15 +18761,6 @@
 			buildConfigurations = (
 				2B52845E0F1A8839005FBF7C /* Debug */,
 				2B52845F0F1A8839005FBF7C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		2B5286280F1C1E58005FBF7C /* Build configuration list for PBXNativeTarget "wb.mysql.import.grt" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2B5286120F1C1E01005FBF7C /* Debug */,
-				2B5286130F1C1E01005FBF7C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
