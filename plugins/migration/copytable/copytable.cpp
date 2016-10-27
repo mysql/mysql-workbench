@@ -47,10 +47,12 @@ DEFAULT_LOG_DOMAIN("copytable");
 #define TMP_TRIGGER_TABLE "wb_tmp_triggers"
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-#define MYSQL_CHECK_VERSION(major,minor,micro) \
-    (MYSQL_VERSION_MAJOR > (major) || \
-    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR > (minor)) || \
-    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR == (minor) && MYSQL_VERSION_PATCH >= (micro)))
+  #define MYSQL_CHECK_VERSION(major,minor,micro) \
+      (MYSQL_VERSION_MAJOR > (major) || \
+      (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR > (minor)) || \
+      (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR == (minor) && MYSQL_VERSION_PATCH >= (micro)))
+#else
+  #define MYSQL_CHECK_VERSION(major,minor,micro) false
 #endif
 
 static const char *mysql_field_type_to_name(enum enum_field_types type)
@@ -603,8 +605,8 @@ ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
                                        const std::string &source_rdbms_type)
 : _connstring(connstring), _stmt_ok(false), _source_rdbms_type(source_rdbms_type)
 {
-  _blob_buffer = NULL;
-  _utf8_blob_buffer = NULL;
+  _blob_buffer = std::vector<char>(_max_blob_chunk_size);
+
   _force_utf8_input = force_utf8_input;
 
   SQLAllocHandle(SQL_HANDLE_DBC, env, &_dbc);
@@ -632,54 +634,10 @@ ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
 
 ODBCCopyDataSource::~ODBCCopyDataSource()
 {
-  if (_blob_buffer)
-    free(_blob_buffer);
-  if (_utf8_blob_buffer)
-    free(_utf8_blob_buffer);
-
   if (_stmt_ok)
     SQLFreeHandle(SQL_HANDLE_ENV, _stmt);
   SQLFreeHandle(SQL_HANDLE_DBC, _dbc);
 }
-
-
-void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8buf, size_t &utf8buf_len)
-{
-  size_t outbuf_len = _max_blob_chunk_size;
-
-  // outside Windows, SQLWCHAR is wchar_t, which is not always 2 bytes
-  if (sizeof(SQLWCHAR) > sizeof(unsigned short))
-  {
-    SQLWCHAR *in = (SQLWCHAR*)inbuf;
-    unsigned short *out = (unsigned short*)inbuf;
-    for (size_t i = 0; i < inbuf_len/sizeof(SQLWCHAR); i++)
-      out[i] = in[i];
-    inbuf_len = (inbuf_len/sizeof(SQLWCHAR)) * sizeof(unsigned short);
-  }
-  else if (sizeof(SQLWCHAR) < sizeof(unsigned short))
-    throw std::logic_error("Unexpected architecture. sizeof(SQLWCHAR) < sizeof(unsigned short)!");
-
-  //log_debug3("Convert string with %i chars to buffer size %i\n", inbuf_len, outbuf_len);
-
-  // convert data from UCS-2 to utf-8
-  std::string s_outbuf = base::wstring_to_string((wchar_t*)inbuf);
-  outbuf_len = s_outbuf.size();
-  if (outbuf_len > _max_blob_chunk_size - 1)
-	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
-
-  if (s_outbuf.empty())
-    throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
-
-  std::strcpy(_utf8_blob_buffer, s_outbuf.c_str());
-
-  if (inbuf_len > 0)
-    log_warning("%li characters could not be converted to UTF-8 during copy\n",
-                (long)inbuf_len);//, (*_columns)[column-1].source_name.c_str());
-
-  utf8buf = _utf8_blob_buffer;
-  utf8buf_len = _max_blob_chunk_size - outbuf_len;
-}
-
 
 SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int column)
 {
@@ -717,12 +675,18 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
       if (outbuf_len > _max_blob_chunk_size - 1)
       	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
 
-      if (s_outbuf.empty())
+      // The following lengths are valid as length/indicator values: 
+      // - n, where n > 0, 
+      // - 0
+      // - SQL_NTS. A string sent to the driver in the corresponding data buffer is null-terminated; this is a convenient 
+      //            way for C programmers to pass strings without having to calculate their byte length. 
+      //            This value is legal only when the application sends data to the driver.
+      if (s_outbuf.empty() && len_or_indicator > 0)
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
-      std::strcpy(out_buffer, s_outbuf.c_str());
-
-      *out_length = outbuf_len;
+      if (len_or_indicator > 0)
+        std::strcpy(out_buffer, s_outbuf.c_str());
+      *out_length = (unsigned long)outbuf_len;
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
@@ -813,12 +777,13 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
       if (outbuf_len > _max_blob_chunk_size - 1)
       	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
 
-      if (s_outbuf.empty())
+      if (s_outbuf.empty() && len_or_indicator > 0)
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
-      std::strcpy(out_buffer, s_outbuf.c_str());
+      if (len_or_indicator)
+        std::strcpy(out_buffer, s_outbuf.c_str());
 
-      *out_length = outbuf_len;
+      *out_length = (unsigned long)outbuf_len;
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
@@ -834,16 +799,15 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
   if (!SQL_SUCCEEDED(ret = SQLAllocHandle(SQL_HANDLE_STMT, _dbc, &stmt)))
     throw ConnectionError("SQLAllocHandle", ret, SQL_HANDLE_DBC, _dbc);
 
-  std::string q;
-  std::string countStr = _source_rdbms_type == "Mssql" ? "count_big" : "count";
+  QueryBuilder q;
+  q.select_columns(base::strfmt("%s(*)", _source_rdbms_type == "Mssql" ? "count_big" : "count"));
+  q.select_from_table(table, schema);
 
   switch (spec.type)
   {
     case CopyAll:
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
-      else
-        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
+        q.add_where(get_where_condition(pk_columns, last_pkeys));
       break;
     case CopyRange:
     {
@@ -854,28 +818,26 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
         end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
       start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
       if (!end_expr.empty())
-        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s AND %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
+        q.add_where(base::strfmt("%s AND %s", start_expr.c_str(), end_expr.c_str()));
       else
-        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str());
+        q.add_where(start_expr);
       break;
     }
     case CopyCount:
     {
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
-      else
-        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
+        q.add_where(get_where_condition(pk_columns, last_pkeys));
       break;
     }
     case CopyWhere:
     {
-      q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), spec.where_expression.c_str());
+      q.add_where(spec.where_expression);
       break;
     }
   }
-  log_debug("Executing query: %s\n", q.c_str());
-  if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
-    throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, stmt);
+  log_debug("Executing query: %s\n", q.build_query().c_str());
+  if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.build_query().c_str(), SQL_NTS)))
+    throw ConnectionError("SQLExecDirect("+q.build_query()+")", ret, SQL_HANDLE_STMT, stmt);
 
   long long count = 0;
   if (SQL_SUCCEEDED(SQLFetch(stmt)))
@@ -1017,24 +979,13 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
       size_t out_buffer_len;
 
       //log_debug3("Copy %i from type %i to %i\n", i,
-//                 _column_types[i-1],
-//                 rowbuffer[i-1].buffer_type);
+//                 _column_types[i - 1],
+//                 rowbuffer[i - 1].buffer_type);
 
       // if this column is a blob, handle it as such
-      if (rowbuffer.check_if_blob() || (*_columns)[i-1].is_long_data)
+      if (rowbuffer.check_if_blob() || (*_columns)[i - 1].is_long_data)
       {
-        if (!_blob_buffer)
-        {
-          _blob_buffer = (char*)malloc(_max_blob_chunk_size);
-          if (!_blob_buffer)
-            throw std::runtime_error(base::strfmt("malloc(%lu) failed for blob transfer buffer", (unsigned long)_max_blob_chunk_size));
-
-          _utf8_blob_buffer = (char*)malloc(_max_blob_chunk_size);
-          if (!_utf8_blob_buffer)
-            throw std::runtime_error(base::strfmt("malloc(%lu) failed for blob transfer buffer", (unsigned long)_max_blob_chunk_size));
-        }
-
-        ret = SQLGetData(_stmt, i,_column_types[i-1], _blob_buffer, _max_blob_chunk_size, &len_or_indicator);
+        ret = SQLGetData(_stmt, i,_column_types[i - 1], _blob_buffer.data(), _max_blob_chunk_size, &len_or_indicator);
 
         // Saves the column length, at the first call it is the total column size
         if (len_or_indicator > _max_parameter_size)
@@ -1068,7 +1019,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             // This should be done ONLY if no bulk updates
             // are being used
             if (native == 1014 && !_use_bulk_inserts)
-              rowbuffer.send_blob_data(_blob_buffer, len_or_indicator);
+              rowbuffer.send_blob_data(_blob_buffer.data(), len_or_indicator);
 
             // Unrecognized characters were changed to ?? but data was read
             else if (native == 2403)
@@ -1077,7 +1028,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
               break;
             }
 
-            ret = SQLGetData(_stmt, i, _column_types[i-1], _blob_buffer, _max_blob_chunk_size, &len_or_indicator);
+            ret = SQLGetData(_stmt, i, _column_types[i - 1], _blob_buffer.data(), _max_blob_chunk_size, &len_or_indicator);
           }
 
           if (ret == SQL_SUCCESS)
@@ -1086,40 +1037,31 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
             if(!was_null)
             {
-              char *utf8_data;
-              char *final_data = _blob_buffer;
+              char *final_data = _blob_buffer.data();
               size_t final_length = len_or_indicator;
 
               // Convers the data to utf8 if needed
-              if (_column_types[i-1] == SQL_C_WCHAR)
+              if (_column_types[i - 1] == SQL_C_WCHAR && len_or_indicator > 0)
               {
-                //XXX take care of case where the utf8 data is bigger than _max_blob_chunk_size
-                try
-                {
-                  ucs2_to_utf8(_blob_buffer, len_or_indicator, utf8_data, final_length);
-                }
-                catch (std::logic_error &)
-                {
-                  const std::string msg = base::strfmt("Could not successfully convert UCS-2 string to UTF-8 "
-                    "in table %s.%s (column %s). Original string: \"%s\"",
-                    _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
-                  );
-                  log_error("%s", msg.c_str());
-                  throw std::invalid_argument(msg);
-                }
-                final_data = utf8_data;
+                std::string outbuf = base::wstring_to_string((wchar_t*)_blob_buffer.data());
+                //TODO take care of case where the utf8 data is bigger than _max_blob_chunk_size
+                if (outbuf.size() > _max_blob_chunk_size - 1)
+                  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+                std::fill(_blob_buffer.begin(), _blob_buffer.end(), 0);
+                std::strcpy(_blob_buffer.data(), outbuf.c_str());
+                final_length = outbuf.size();
               }
 
               if (_use_bulk_inserts)
               {
-                if (rowbuffer[i-1].buffer_length)
-                  free(rowbuffer[i-1].buffer);
+                if (rowbuffer[i - 1].buffer_length)
+                  free(rowbuffer[i - 1].buffer);
 
                 *rowbuffer[i - 1].length = (unsigned long)final_length;
                 rowbuffer[i - 1].buffer_length = (unsigned long)final_length;
-                rowbuffer[i-1].buffer = malloc(final_length);
+                rowbuffer[i - 1].buffer = malloc(final_length);
 
-                memcpy(rowbuffer[i-1].buffer, final_data, final_length);
+                memcpy(rowbuffer[i - 1].buffer, final_data, final_length);
               }
               else
                 rowbuffer.send_blob_data(final_data, final_length);
@@ -1136,7 +1078,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         }
       }
 
-      switch (_column_types[i-1])
+      switch (_column_types[i - 1])
       {
         case SQL_C_BIT:
           rowbuffer.prepare_add_tiny(out_buffer, out_buffer_len);
@@ -1146,7 +1088,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
           break;
         case SQL_C_FLOAT:
         case SQL_C_DOUBLE:
-          if (rowbuffer[i-1].buffer_type == MYSQL_TYPE_FLOAT)
+          if (rowbuffer[i - 1].buffer_type == MYSQL_TYPE_FLOAT)
           {
             rowbuffer.prepare_add_float(out_buffer, out_buffer_len);
             ret = SQLGetData(_stmt, i, SQL_C_FLOAT, out_buffer, out_buffer_len, &len_or_indicator);
@@ -1173,7 +1115,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         case SQL_C_UBIGINT:
         case SQL_C_SBIGINT:
           rowbuffer.prepare_add_bigint(out_buffer, out_buffer_len);
-          ret = SQLGetData(_stmt, i, _column_types[i-1], out_buffer, out_buffer_len, &len_or_indicator);
+          ret = SQLGetData(_stmt, i, _column_types[i - 1], out_buffer, out_buffer_len, &len_or_indicator);
           if (SQL_SUCCEEDED(ret))
             rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
           break;
@@ -1183,7 +1125,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             long tmp_buffer;
             bool unsig;
             enum enum_field_types target_type;
-            ret = SQLGetData(_stmt, i, _column_types[i-1], &tmp_buffer, sizeof(tmp_buffer), &len_or_indicator);
+            ret = SQLGetData(_stmt, i, _column_types[i - 1], &tmp_buffer, sizeof(tmp_buffer), &len_or_indicator);
             if (SQL_SUCCEEDED(ret))
             {
               switch ((target_type = rowbuffer.target_type(unsig)))
@@ -1213,32 +1155,32 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         case SQL_C_USHORT:
         case SQL_C_SSHORT:
           rowbuffer.prepare_add_short(out_buffer, out_buffer_len);
-          ret = SQLGetData(_stmt, i, _column_types[i-1], out_buffer, out_buffer_len, &len_or_indicator);
+          ret = SQLGetData(_stmt, i, _column_types[i - 1], out_buffer, out_buffer_len, &len_or_indicator);
           if (SQL_SUCCEEDED(ret))
             rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
           break;
         case SQL_C_UTINYINT:
         case SQL_C_STINYINT:
           rowbuffer.prepare_add_tiny(out_buffer, out_buffer_len);
-          ret = SQLGetData(_stmt, i, _column_types[i-1], out_buffer, out_buffer_len, &len_or_indicator);
+          ret = SQLGetData(_stmt, i, _column_types[i - 1], out_buffer, out_buffer_len, &len_or_indicator);
           if (SQL_SUCCEEDED(ret))
             rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
           break;
         case SQL_C_WCHAR:
         case SQL_C_CHAR:
-          switch (rowbuffer[i-1].buffer_type)
+          switch (rowbuffer[i - 1].buffer_type)
           {
           case MYSQL_TYPE_TIME:
           case MYSQL_TYPE_DATE:
           case MYSQL_TYPE_DATETIME:
           case MYSQL_TYPE_NEWDATE:
-            ret = get_date_time_data(rowbuffer, i, rowbuffer[i-1].buffer_type);
+            ret = get_date_time_data(rowbuffer, i, rowbuffer[i - 1].buffer_type);
             break;
           case MYSQL_TYPE_GEOMETRY:
             ret = get_geometry_buffer_data(rowbuffer, i);
             break;
           default:
-            if (_column_types[i-1] == SQL_C_WCHAR)
+            if (_column_types[i - 1] == SQL_C_WCHAR)
               ret = get_wchar_buffer_data(rowbuffer, i);
             else
               ret = get_char_buffer_data(rowbuffer, i);
@@ -1251,7 +1193,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
             // During the migration process some non standard data types are migrated as strings
             // Those will come as SQL_C_BINARY but will be migrated as NULL for now
-            if (rowbuffer[i-1].buffer_type != MYSQL_TYPE_STRING)
+            if (rowbuffer[i - 1].buffer_type != MYSQL_TYPE_STRING)
             {
               was_null = false;
               ret = get_char_buffer_data(rowbuffer, i);
@@ -1262,7 +1204,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
           break;
 
         default:
-          throw std::logic_error(base::strfmt("Unhandled type %i", _column_types[i-1]));
+          throw std::logic_error(base::strfmt("Unhandled type %i", _column_types[i - 1]));
       }
       if (!SQL_SUCCEEDED(ret))
       {
@@ -1312,14 +1254,12 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
   }
 
 
-#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,5,27)
   my_bool use_cleartext = use_cleartext_plugin;
   mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
 #else
   if (use_cleartext_plugin)
     log_warning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
-#endif
 #endif
 
   if (!mysql_real_connect(&_mysql, host.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
@@ -1922,11 +1862,9 @@ _use_bulk_inserts(true), _bulk_insert_buffer(this), _bulk_insert_record(this),
     _incoming_data_charset = "latin1";
 
   mysql_init(&_mysql);
-#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,6,6)
   if (is_mysql_version_at_least(5,6,6))
     mysql_options4(&_mysql, MYSQL_OPT_CONNECT_ATTR_ADD, "program_name", app_name.c_str());
-#endif
 #endif
 
   // _bulk_insert_record is used to prepare a single record string, the connection
@@ -1960,14 +1898,12 @@ _use_bulk_inserts(true), _bulk_insert_buffer(this), _bulk_insert_record(this),
            socket.c_str(), username.c_str());
   }
 
-#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,5,27)
   my_bool use_cleartext = use_cleartext_plugin;
   mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
 #else
   if (use_cleartext_plugin)
     log_warning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
-#endif
 #endif
 
 
@@ -2040,7 +1976,7 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
         if ( column_count > (int)columns->size())
           get_generated_columns(schema, table, generated_columns);
         
-        int gc_count = generated_columns.size();
+        int gc_count = (int)generated_columns.size();
         std::string target_name;
 
         if ((column_count - gc_count) == (int)columns->size())
@@ -2909,17 +2845,21 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
   // This function is used to create a legal SQL string that you can use in an SQL statement
   // This is needed because the escaping depends on the character set in use by the server
-  length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-//  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-//  #if MYSQL_CHECK_VERSION(5, 7, 6)
-//    if (_target->is_mysql_version_at_least(5, 7, 6))
-//      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
-//    else
-//      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-//  #else
-//    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-//  #endif
-//  #endif
+  unsigned long ret_length = 0;
+  
+  #if MYSQL_CHECK_VERSION(5, 7, 6)
+    if (_target->is_mysql_version_at_least(5, 7, 6))
+      ret_length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
+    else
+      ret_length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+  #else
+    ret_length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+  #endif
+
+  if( ret_length != (unsigned long) -1)
+    length += ret_length;
+  else
+    throw std::runtime_error("mysql_real_escape_string: Cannot convert data to legal SQL string.");
 
   return true;
 }

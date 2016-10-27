@@ -411,15 +411,28 @@ class MigrationPlan(object):
         self.migrationTarget = None
         
         if sys.platform == "win32":
-            self.wbcopytables_path = mforms.App.get().get_executable_path("wbcopytables.exe")
+            self.wbcopytables_path_bin = mforms.App.get().get_executable_path("wbcopytables.exe")
         elif sys.platform == "darwin":
-            self.wbcopytables_path = mforms.App.get().get_executable_path("wbcopytables")
+            self.wbcopytables_path_bin = mforms.App.get().get_executable_path("wbcopytables")
         else:
-            self.wbcopytables_path = mforms.App.get().get_executable_path("wbcopytables-bin")
+            self.wbcopytables_path_bin = mforms.App.get().get_executable_path("wbcopytables-bin")
+            if not os.path.exists(self.wbcopytables_path_bin):
+                self.wbcopytables_path_bin = os.path.join(os.path.dirname(grt.root.wb.registry.appExecutablePath), "wbcopytables-bin")
+            if not os.path.exists(self.wbcopytables_path_bin):
+                self.wbcopytables_path_bin = "wbcopytables-bin"
+        
+        if "linux" in sys.platform:
+            self.wbcopytables_path = mforms.App.get().get_executable_path("wbcopytables")
             if not os.path.exists(self.wbcopytables_path):
-                self.wbcopytables_path = os.path.join(os.path.dirname(grt.root.wb.registry.appExecutablePath), "wbcopytables-bin")
+                self.wbcopytables_path = os.path.join(os.path.dirname(grt.root.wb.registry.appExecutablePath), "wbcopytables")
             if not os.path.exists(self.wbcopytables_path):
-                self.wbcopytables_path = "wbcopytables-bin"
+                self.wbcopytables_path = "wbcopytables"
+        else:
+            self.wbcopytables_path = self.wbcopytables_path_bin
+
+        if type(self.wbcopytables_path_bin) == unicode:
+            self.wbcopytables_path_bin = self.wbcopytables_path_bin.encode("UTF-8")
+
         if type(self.wbcopytables_path) == unicode:
             self.wbcopytables_path = self.wbcopytables_path.encode("UTF-8")
 

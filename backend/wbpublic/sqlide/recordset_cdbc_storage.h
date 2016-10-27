@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,10 +55,8 @@ public:
   std::string decorated_sql_query(); // adds limit clause if defined by options
 
 public:
-  void dbms_conn(const sql::Dbc_connection_handler::Ref &val) { _dbms_conn= val; }
-  sql::Dbc_connection_handler::Ref dbms_conn() { return _dbms_conn; }
-  void aux_dbms_conn(const sql::Dbc_connection_handler::Ref &val) { _aux_dbms_conn= val; }
-  sql::Dbc_connection_handler::Ref aux_dbms_conn() { return _aux_dbms_conn; }
+  void setAuxConnectionGetter(boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &, bool)> getConnection) { _getAuxConnection = getConnection; };
+  void setUserConnectionGetter(boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &, bool)> getConnection) { _getUserConnection = getConnection; };
 
   void dbc_resultset(boost::shared_ptr<sql::ResultSet>& value) { _dbc_resultset= value; }
   void dbc_statement(boost::shared_ptr<sql::Statement>& value) { _dbc_statement= value; }
@@ -67,14 +65,13 @@ public:
 
   void set_gather_field_info(bool flag) { _gather_field_info = flag; }
   std::vector<FieldInfo> &field_info() { return _field_info; }
-protected:
-  sql::Dbc_connection_handler::ConnectionRef dbms_conn_ref();
-  sql::Dbc_connection_handler::ConnectionRef aux_dbms_conn_ref();
+
 private:
-  sql::Dbc_connection_handler::Ref _dbms_conn;
-  sql::Dbc_connection_handler::Ref _aux_dbms_conn;
   boost::shared_ptr<sql::ResultSet> _dbc_resultset; // for 1-time unserialization
   boost::shared_ptr<sql::Statement> _dbc_statement; // for 1-time unserialization
+  boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &, bool)> _getAuxConnection;
+  boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &, bool)> _getUserConnection;
+
   std::vector<FieldInfo> _field_info;
   bool _reloadable; // whether can be reloaded using stored sql query
   bool _gather_field_info;

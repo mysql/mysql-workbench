@@ -182,7 +182,7 @@ def getCatalogNames(connection):
 
     [NOTE] From MSDN: [A catalog] is equivalent to a databases in SQL Server.
     """
-    query_pre_90 = 'SELECT name FROM sys.databases'
+    query_pre_90 = 'SELECT name FROM master.dbo.sysdatabases'
     query_post_90 = 'exec sys.sp_databases'
     
     serverVersion = connected_server_version(connection)
@@ -1078,9 +1078,13 @@ def reverseEngineerTriggers(connection, schema):
     execute_query(connection, 'USE %s' % quoteIdentifier(schema.owner.name))  # catalog
     query_post_90 = """SELECT st.object_id,
     st.name AS trigger_name,
-    OBJECT_NAME(st.parent_id) AS table_name, 
-    sm.definition as trigger_code, 
-    is_disabled, is_instead_of_trigger, ''
+    OBJECT_NAME(st.parent_id) AS table_name,
+    sm.definition as trigger_code,
+    is_disabled, is_instead_of_trigger, STUFF((
+          SELECT ';' + ste.type_desc
+          FROM sys.trigger_events ste
+          WHERE st.object_id = ste.object_id
+          FOR XML PATH('')), 1, 1, '') as type_desc_detail
 FROM sys.triggers st JOIN sys.sql_modules sm ON st.object_id = sm.object_id
 WHERE st.parent_class = 1 AND OBJECT_SCHEMA_NAME(st.object_id) = '%s'
 ORDER BY st.parent_id"""
@@ -1115,9 +1119,9 @@ WHERE so.type = 'TR' AND su.name='%s'"""
             trigger.enabled = not is_disabled
             if serverVersion.majorNumber < 9:
                 trigger.event = event.strip(';')  # It would take values as 'INSERT;UPDATE'
-            else:
-                trigger.event = ';'.join(row[0] for row in execute_query(connection, 
-                                     'SELECT type_desc FROM sys.trigger_events WHERE sys.trigger_events.object_id = %d' % trigger_id))
+#            else:
+#                trigger.event = ';'.join(row[0] for row in execute_query(connection, 
+#                                     'SELECT type_desc FROM sys.trigger_events WHERE sys.trigger_events.object_id = %d' % trigger_id))
 #            trigger.orientation = 'ROW'  # TODO: This needs extra analysis
             trigger.timing = 'INSTEADOF' if is_instead_of_trigger else 'AFTER'  # NOTE: There's no equivalent for mysql BEFORE in mssql
 
