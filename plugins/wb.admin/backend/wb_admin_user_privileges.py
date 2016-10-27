@@ -234,31 +234,36 @@ class UserHostPrivileges(object):
             if result:
                 while result.nextRow():
                     statement = result.stringByIndex(1)
+                    grant_data = None
+                    
+                    try:
+                        grant_data = grt.modules.MySQLParserServices.parseStatementDetails(context, statement)
+                        if not grant_data['error']:
+                            # Gets the target scope for the privileges
+                            target_string = grant_data['target']
             
-                    grant_data = grt.modules.MySQLParserServices.parseStatementDetails(context, statement)
-                    if not grant_data['error']:
-                        # Gets the target scope for the privileges
-                        target_string = grant_data['target']
-        
-                        target = None
-        
-                        # Search for an already existing target
-                        for tgt in self._granted_privileges.keys():
-                            if tgt.identical(target_string):
-                                target = tgt
-        
-                        # If not found, creates one
-                        if not target:
-                            target = PrivilegeTarget()
-                            target.set_from_string(target_string)
-        
-                        # Gets the privilege list
-                        priv_list = grant_data['privileges']
-        
-                        # Adds the privileges to the granted list
-                        self.add_privileges(target, priv_list)
-                    else:
-                        log_error('An error occurred parsing GRANT statement: %s\n -> %s\n' % (statement, grant_data['error']))
+                            target = None
+            
+                            # Search for an already existing target
+                            for tgt in self._granted_privileges.keys():
+                                if tgt.identical(target_string):
+                                    target = tgt
+            
+                            # If not found, creates one
+                            if not target:
+                                target = PrivilegeTarget()
+                                target.set_from_string(target_string)
+            
+                            # Gets the privilege list
+                            priv_list = grant_data['privileges']
+            
+                            # Adds the privileges to the granted list
+                            self.add_privileges(target, priv_list)
+                        else:
+                            log_error('An error occurred parsing GRANT statement: %s\n -> %s\n' % (statement, grant_data['error']))
+                    except Exception, exc:
+                        log_error('An error occurred parsing GRANT statement: %s\n -> %s\n' % (statement, exc))
+
             else:
                 log_warning('There are no grants defined for %s@%s\n' % (self.user, self.host))
 

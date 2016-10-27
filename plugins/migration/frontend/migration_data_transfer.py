@@ -135,6 +135,10 @@ class SetupMainView(WizardPage):
         self._debug_copy = mforms.newCheckBox()
         self._debug_copy.set_text("Enable debug output for table copy")
         self.options_box.add(self._debug_copy, False, True)
+        
+        self._driver_sends_utf8 = mforms.newCheckBox()
+        self._driver_sends_utf8.set_text("Driver sends data already encoded as UTF-8.")
+        self.options_box.add(self._driver_sends_utf8, False, True)
 
 
         ###
@@ -196,6 +200,7 @@ All tables are copied by default.""")
 
         self.main.plan.state.dataBulkTransferParams["LiveDataCopy"] = 1 if self._copy_db.get_active() else 0
         self.main.plan.state.dataBulkTransferParams["DebugTableCopy"] = 1 if self._debug_copy.get_active() else 0
+        self.main.plan.state.dataBulkTransferParams["DriverSendsDataAsUTF8"] = 1 if self._driver_sends_utf8.get_active() else 0
         self.main.plan.state.dataBulkTransferParams["TruncateTargetTables"] = 1 if self._truncate_db.get_active() else 0
 
         for key in self.main.plan.state.dataBulkTransferParams.keys():
@@ -413,7 +418,7 @@ class TransferMainView(WizardProgressPage):
                           self.main.plan.migrationSource.connection, source_password,
                           self.main.plan.migrationTarget.connection, target_password)
 
-            self._transferer.copytable_path = self.main.plan.wbcopytables_path
+            self._transferer.copytable_path = self.main.plan.wbcopytables_path_bin
         WizardProgressPage.page_activated(self, advancing)
 
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +17,18 @@
  * 02110-1301  USA
  */
 
-#include <grtpp_module_python.h>
-#include <grtpp_module_cpp.h>
+#include "base/threading.h"
+#include "base/log.h"
+#include "base/file_utilities.h"
 
-#include <python_context.h>
+#include "grtpp_module_python.h"
+#include "grtpp_module_cpp.h"
+
+#include "python_context.h"
 
 #include "grt/grt_manager.h"
-#include "base/threading.h"
+
 #include "glib/gstdio.h"
-#include "base/log.h"
 #include "objimpl/wrapper/grt_PyObject_impl.h"
 
 #include "base/notifications.h"
@@ -878,13 +881,17 @@ long GRTManager::get_app_option_int(const std::string &name, long default_)
 
 std::string GRTManager::get_tmp_dir()
 {
-  std::string res;
+  // Add the current process ID to the path to make this unique.
+  std::string res = g_get_tmp_dir();
+  if( base::ends_with(res, "/") || base::ends_with(res, "\\"))
+    res.resize( res.size() - 1 );
+  res += "/" + std::string("mysql-workbench-");
 #ifdef _WIN32
-  res.append(g_get_tmp_dir()).append("/MySQL Workbench/");
+  res += base::to_string(GetCurrentProcessId()) + "/";
 #else
-  res.append(g_get_tmp_dir()).append("/mysql-workbench.").append(g_get_user_name()).append("/");
+  res += base::to_string(::getpid()) + "/";
 #endif
-  g_mkdir(res.c_str(), 0700);
+  base::create_directory(res, 0700, true);
   return res;
 }
 

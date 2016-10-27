@@ -281,14 +281,21 @@ namespace base {
 
 //--------------------------------------------------------------------------------------------------
 
-static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> utf16Converter;
+static std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> utf32Converter;
 
 /**
  * Converts an UTF-8 encoded string to an UTF-16 string.
  */
 std::wstring string_to_wstring(const std::string &s)
 {
-  return converter.from_bytes(s);
+  if (sizeof(wchar_t) > 2)
+  {
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t>::wide_string utf32String = utf32Converter.from_bytes(s);
+    return std::wstring(utf32String.begin(), utf32String.end());
+  }
+  else
+    return utf16Converter.from_bytes(s);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,7 +305,10 @@ std::wstring string_to_wstring(const std::string &s)
  */
 std::string wstring_to_string(const std::wstring &s)
 {
-  return converter.to_bytes(s);
+  if (sizeof(wchar_t) > 2)
+    return utf32Converter.to_bytes((char32_t*)s.c_str());
+  else
+    return utf16Converter.to_bytes(s);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,7 +331,10 @@ std::wstring string_to_wstring(const std::string &str)
 
 std::string wstring_to_string(const std::wstring &str)
 {
-  return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
+  if (sizeof(wchar_t) > 2)
+    return utf_to_utf<char>((int32_t*)str.c_str(), (int32_t*)str.c_str() + str.size());
+  else
+    return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
 }
 
 //--------------------------------------------------------------------------------------------------

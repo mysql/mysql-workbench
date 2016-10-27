@@ -296,12 +296,12 @@ private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
   void init_connection(sql::Connection* dbc_conn_ref, const db_mgmt_ConnectionRef& connectionProperties, sql::Dbc_connection_handler::Ref& dbc_conn, bool user_connection);
   void close_connection(sql::Dbc_connection_handler::Ref &dbc_conn);
-  base::RecMutexLock ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex, bool throw_on_block = false);
-  base::RecMutexLock ensure_valid_usr_connection(bool throw_on_block = false);
-  base::RecMutexLock ensure_valid_aux_connection(bool throw_on_block = false);
+  base::RecMutexLock ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex, bool throw_on_block = false, bool lockOnly = false);
+  base::RecMutexLock ensure_valid_usr_connection(bool throw_on_block = false, bool lockOnly = false);
+  base::RecMutexLock ensure_valid_aux_connection(bool throw_on_block = false, bool lockOnly = false);
 
 public:
-  base::RecMutexLock ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn);
+  base::RecMutexLock ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly = false);
   parser::ParserContext::Ref work_parser_context() { return _work_parser_context;  };
 
 private:
@@ -325,8 +325,10 @@ private:
   ServerState _last_server_running_state;
 
   AutoCompleteCache *_auto_completion_cache;
-  base::RecMutexLock get_autocompletion_connection(sql::Dbc_connection_handler::Ref &conn);
   void on_cache_action(bool active);
+  base::RecMutexLock getAuxConnection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly = false);
+  base::RecMutexLock getUserConnection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly = false);
+
 
   ColumnWidthCache *_column_width_cache;
 public:

@@ -401,12 +401,15 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   }
 }
 
-- (void)deleteBackward:(id)sender
+- (void) deleteSelectedRows;
 {
-  [[self dataSource] tableView: self
-                setObjectValue: nil
-                forTableColumn: nil
-                           row: mSelectedRowIndex];
+  std::vector<int> rows = get_indexes([self selectedRowIndexes], [self selectedRowIndex]);
+  std::vector<bec::NodeId> nodes;
+  for (std::vector<int>::reverse_iterator iter = rows.rbegin(); iter != rows.rend(); ++iter)
+    nodes.push_back(bec::NodeId(*iter));
+  
+  mRecordset->delete_nodes(nodes);
+  [self noteNumberOfRowsChanged];
 }
 
 - (int) selectedColumnIndex;
