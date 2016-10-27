@@ -227,8 +227,7 @@ class ODBCCopyDataSource : public CopyDataSource
   std::vector<SQLSMALLINT> _column_types;
   int _column_count;
 
-  char *_blob_buffer;
-  char *_utf8_blob_buffer;
+  std::vector<char> _blob_buffer;
 
   bool _stmt_ok;
   bool _force_utf8_input;

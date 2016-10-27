@@ -2290,7 +2290,7 @@ primary:
 		literal
 		| function_call
 		| runtime_function_call // Complete functions defined in the grammar.
-		| column_ref ( {SERVER_VERSION >= 50708}? (JSON_SEPARATOR_SYMBOL text_string)? | /* empty*/ )
+		| column_ref jsonOperator?
 		| PARAM_MARKER
 		| variable
 		| EXISTS_SYMBOL subquery
@@ -2303,6 +2303,11 @@ primary:
 	)
 	// Consume any collation expression locally to avoid ambiguities with the recursive cast_expression.
 	( options { greedy = true; }: COLLATE_SYMBOL collation_name)*
+;
+
+jsonOperator:
+  {SERVER_VERSION >= 50708}? JSON_SEPARATOR_SYMBOL text_string
+  | {SERVER_VERSION >= 50713}? JSON_UNQUOTED_SEPARATOR_SYMBOL text_string
 ;
 
 // This part is tricky, because all alternatives can have an unlimited nesting within parentheses.
@@ -2708,10 +2713,8 @@ compound_statement_list:
 ;
 
 // CASE rule solely for stored programs. There's another variant (case_expression) used in (primary) expressions.
-// In the server grammar there are 2 variants of this rule actually (one simple and one searched).
-// They differ only in action code, not syntax.
 case_statement:
-	CASE_SYMBOL^ expression (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
+	CASE_SYMBOL^ expression? (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
 ;
 
 else_statement:
@@ -4139,6 +4142,7 @@ CLOSE_CURLY_SYMBOL:			'}';
 UNDERLINE_SYMBOL:			'_';
 
 JSON_SEPARATOR_SYMBOL:		'->'	{ $type = TYPE_FROM_VERSION(50708, $type); };
+JSON_UNQUOTED_SEPARATOR_SYMBOL: '->>' { $type = TYPE_FROM_VERSION(50713, $type); };
 
 // The MySQL parser uses custom code in its lexer to allow base alphanum chars (and ._$) as variable name.
 // For this it handles user variables in 2 different ways and we have to model this to match that behavior.

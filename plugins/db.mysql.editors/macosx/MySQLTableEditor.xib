@@ -425,7 +425,7 @@
                                                     <font key="font" metaFont="smallSystem"/>
                                                 </buttonCell>
                                             </tableColumn>
-                                            <tableColumn identifier="generated" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as AUTO_INCREMENT" id="Pii-GS-Al3" userLabel="G">
+                                            <tableColumn identifier="generated" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as Generated Column" id="Pii-GS-Al3" userLabel="G">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="G">
                                                     <font key="font" metaFont="smallSystem"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1261,7 +1261,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="2" width="85" minWidth="10" maxWidth="3.4028229999999999e+38" id="562">
+                                                <tableColumn identifier="4" width="85" minWidth="10" maxWidth="3.4028229999999999e+38" id="562">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Data Directory">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1274,7 +1274,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="3" width="91" minWidth="10" maxWidth="3.4028229999999999e+38" id="564">
+                                                <tableColumn identifier="5" width="91" minWidth="10" maxWidth="3.4028229999999999e+38" id="564">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Index Directory">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1287,7 +1287,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="4" width="59" minWidth="10" maxWidth="3.4028229999999999e+38" id="566">
+                                                <tableColumn identifier="2" width="59" minWidth="10" maxWidth="3.4028229999999999e+38" id="566">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Min Rows">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1300,7 +1300,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="5" width="64" minWidth="10" maxWidth="3.4028229999999999e+38" id="568">
+                                                <tableColumn identifier="3" width="64" minWidth="10" maxWidth="3.4028229999999999e+38" id="568">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Max Rows">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
