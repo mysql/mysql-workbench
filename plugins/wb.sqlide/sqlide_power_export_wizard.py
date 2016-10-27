@@ -504,12 +504,15 @@ class DataInputPage(WizardPage):
         self.suspend_layout()
         self.set_spacing(16)
         
+        headingBox = mforms.newBox(True)
+        headingBox.set_spacing(16)
+        
         self.simple_export_box = mforms.newBox(False)
         self.simple_export_box.set_spacing(16)
         
         label = mforms.newLabel("Select source table for export.")
         label.set_style(mforms.BoldInfoCaptionStyle)
-        self.simple_export_box.add(label, False, True)
+        headingBox.add(label, False, True)
         
         self.source_table_sel = mforms.newSelector()
         self.source_table_sel.set_size(self.get_width(), -1)
@@ -521,7 +524,9 @@ class DataInputPage(WizardPage):
         if table_name in self.table_list.keys():
             self.source_table_sel.set_selected(sorted_keys.index(table_name))
         self.source_table_sel.add_changed_callback(lambda selector = self.source_table_sel: self.source_table_changed(selector.get_string_value()))
-        self.simple_export_box.add(self.source_table_sel, False, True)
+        headingBox.add(self.source_table_sel, False, True)
+        
+        self.simple_export_box.add(headingBox, False, True)
         
         self.simple_export = SimpleTabExport(self.main.editor, self)
         self.simple_export_box.add(self.simple_export, True, True)
