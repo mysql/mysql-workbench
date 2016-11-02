@@ -948,7 +948,8 @@ int MYSQLlex(void **arg, void *yyl)
 	  if (my_isdigit(cs,yyPeek()))	// Number must have digit after sign
 	  {
 	    yySkip();
-	    while (my_isdigit(cs,yyGet())) ;
+	    while (my_isdigit(cs,yyGet()))
+	      ;
       tmp_lex_string=get_token(lex,yyLength());
       new_ast_terminal_node(lex, /*tmp_lex_string.str, */tmp_lex_string.length, 0);
 #if 0
@@ -1108,7 +1109,8 @@ int MYSQLlex(void **arg, void *yyl)
 	  state= MY_LEX_CHAR;
 	  break;
 	}
-	while (my_isdigit(cs,yyGet())) ;
+	while (my_isdigit(cs,yyGet()))
+	  ;
   tmp_lex_string= get_token(lex,yyLength());
   new_ast_terminal_node(lex, /*tmp_lex_string.str, */tmp_lex_string.length, tmp_lex_string.str);
 #if 0

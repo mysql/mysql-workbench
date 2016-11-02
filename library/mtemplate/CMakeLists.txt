@@ -1,5 +1,6 @@
 
 include_directories(${PROJECT_SOURCE_DIR}/library/base
+                    SYSTEM ${Boost_INCLUDE_DIRS}
                    )
 
 add_library(mtemplate
