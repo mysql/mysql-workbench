@@ -101,6 +101,10 @@ if(BUILD_FOR_TESTS)
   target_link_libraries(db.mysql.sqlparser.grt gcov)
 endif()
 
+set_source_files_properties(src/mysql_sql_parser_utils.cpp PROPERTIES COMPILE_FLAGS -Wno-varargs)
+set_source_files_properties(${PROJECT_SOURCE_DIR}/library/sql.parser/source/myx_sql_tree_item.cpp PROPERTIES COMPILE_FLAGS -Wno-varargs)
+
+
 set_target_properties(db.mysql.sqlparser.grt
                       PROPERTIES PREFIX    ""
                                  VERSION   ${WB_VERSION}
