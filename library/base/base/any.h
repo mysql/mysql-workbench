@@ -34,10 +34,10 @@ struct any
     return !ptr;
   }
 
-  template<typename U> any(U&& value) :
-      ptr(new Derived<StorageType<U>>(std::forward<U>(value)))
+  template<typename U> 
+  any(U&& value, typename std::enable_if<!std::is_same<typename std::decay<U>::type, any>::value>::type * = nullptr) 
+    : ptr(new Derived<StorageType<U>>(std::forward<U>(value)))
   {
-
   }
 
   template<class U> bool is() const
