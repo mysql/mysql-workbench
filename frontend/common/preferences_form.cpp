@@ -222,10 +222,11 @@ public:
 
     mforms::Label* label = new_label(caption, right_aligned);
     _table.add(label, 0, 1, _rows - 1, _rows, mforms::HFillFlag);
-    _table.add(control, 1, 2, _rows - 1, _rows, mforms::HFillFlag);
-    control->set_size(50, -1);
-
+    label->set_size(170, -1);
+    _table.add(control, 1, 2, _rows - 1, _rows, mforms::HFillFlag | mforms::HExpandFlag);
+    control->set_size(150, -1);
     _table.add(new_label(help, false, true), 2, 3, _rows - 1, _rows, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
+    
   }
 
   mforms::TextEntry *add_entry_option(const std::string &option, const std::string &caption, const std::string &tooltip)
@@ -2034,7 +2035,7 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page()
                       _("Script Editor:"),
                       _("Code editors in scripting shell"));
 
-    content->add(table, false, true);
+    content->add(table, true, true);
   }
 
 #ifdef _WIN32
