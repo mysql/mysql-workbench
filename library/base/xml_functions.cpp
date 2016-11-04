@@ -19,30 +19,55 @@
 
 
 #include "base/xml_functions.h"
+#include "base/log.h"
+#include "base/string_utilities.h"
+#include "base/file_utilities.h"
 #include <libxml/HTMLparser.h>
 
 #include <glib.h>
 #include <stdexcept>
 #include <vector>
 
-xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntityt)
+DEFAULT_LOG_DOMAIN("XML Functions")
+
+static void xmlErrorHandling(void *ctx, const char *msg, ...)
 {
-  xmlDocPtr doc;
+  va_list args;
+  va_start(args, msg);
+  va_list args_copy;
+  va_copy(args_copy, args);
+  std::vector<char> buff(1+ std::vsnprintf(NULL, 0, msg, args_copy));
+  va_end(args_copy);
+  std::vsnprintf(buff.data(), buff.size(), msg, args);
+  va_end(args);
+  logError("LibXml: %s\n", buff.data());
+}
 
-  char * localFilename = nullptr;
-  if ((localFilename = g_filename_from_utf8(path.c_str(),-1,NULL,NULL,NULL)) == NULL)
-    throw std::runtime_error("can't open XML file " + path);
+xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntity)
+{
+  xmlSetGenericErrorFunc(nullptr, xmlErrorHandling);
+  xmlDocPtr doc = nullptr;
 
-  if (asEntityt)
-    doc = xmlParseEntity(localFilename);
+
+  std::string localFilename = base::path_from_utf8(path);
+  if (!base::file_exists(localFilename))
+    throw std::runtime_error("unable to open XML file, doesn't exists: " + path);
+
+
+  if (asEntity)
+    doc = xmlParseEntity(localFilename.c_str());
   else
-    doc = xmlParseFile(localFilename);
+    doc = xmlParseFile(localFilename.c_str());
 
-  g_free(localFilename);
   if (doc == nullptr)
     throw std::runtime_error("unable to parse XML file " + path);
 
   return doc;
+}
+
+xmlDocPtr base::xml::xmlParseFragment(const std::string &buff)
+{
+  return xmlParseMemory(buff.data(), buff.size());
 }
 
 xmlNodePtr base::xml::getXmlRoot(xmlDocPtr doc)
@@ -53,14 +78,14 @@ xmlNodePtr base::xml::getXmlRoot(xmlDocPtr doc)
   return cur;
 }
 
-bool base::xml::compareName(xmlNodePtr node, const std::string &name)
+bool base::xml::nameIs(xmlNodePtr node, const std::string &name)
 {
-  return !xmlStrcmp(node->name, (const xmlChar *) name.c_str());
+  return xmlStrcmp(node->name, (const xmlChar *) name.c_str()) == 0;
 }
 
-bool base::xml::compareName(xmlAttrPtr attrib, const std::string &name)
+bool base::xml::nameIs(xmlAttrPtr attrib, const std::string &name)
 {
-  return !xmlStrcmp(attrib->name, (const xmlChar *) name.c_str());
+  return xmlStrcmp(attrib->name, (const xmlChar *) name.c_str()) == 0;
 }
 
 void base::xml::getXMLDocMetainfo(xmlDocPtr doc, std::string &doctype, std::string &docversion)
@@ -110,7 +135,7 @@ std::string base::xml::getContentRecursive(xmlNodePtr node)
 
 std::string base::xml::encodeEntities(const std::string &input)
 {
-  int buffSize = input.size()*2 + 1;
+  int buffSize = input.size() * 2 + 1;
   std::vector<unsigned char> buff(buffSize, '\0');
   int outLen = buffSize - 1, inLen = input.size();
 
