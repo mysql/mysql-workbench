@@ -24,10 +24,11 @@
 
 namespace base {
 namespace xml {
-BASELIBRARY_PUBLIC_FUNC xmlDocPtr loadXMLDoc(const std::string &path, bool asEntityt = false);
+BASELIBRARY_PUBLIC_FUNC xmlDocPtr loadXMLDoc(const std::string &path, bool asEntity = false);
+BASELIBRARY_PUBLIC_FUNC xmlDocPtr xmlParseFragment(const std::string &buff);
 BASELIBRARY_PUBLIC_FUNC xmlNodePtr getXmlRoot(xmlDocPtr doc);
-BASELIBRARY_PUBLIC_FUNC bool compareName(xmlNodePtr node, const std::string &name);
-BASELIBRARY_PUBLIC_FUNC bool compareName(xmlAttrPtr attrib, const std::string &name);
+BASELIBRARY_PUBLIC_FUNC bool nameIs(xmlNodePtr node, const std::string &name);
+BASELIBRARY_PUBLIC_FUNC bool nameIs(xmlAttrPtr attrib, const std::string &name);
 BASELIBRARY_PUBLIC_FUNC void getXMLDocMetainfo(xmlDocPtr doc, std::string &doctype, std::string &docversion);
 BASELIBRARY_PUBLIC_FUNC std::string getProp(xmlNodePtr node, const std::string &name);
 BASELIBRARY_PUBLIC_FUNC std::string getContent(xmlNodePtr node);

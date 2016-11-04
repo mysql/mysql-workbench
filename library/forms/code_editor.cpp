@@ -119,12 +119,12 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
   // Load the user's config file if it exists, otherwise use the default one.
   std::string config_file = mforms::Utilities::get_special_folder(mforms::ApplicationData) + "/MySQL/Workbench/code_editor.xml";
 
-  if (!base::file_exists(config_file.c_str()))
+  if (!base::file_exists(config_file))
     config_file = App::get()->get_resource_path("") + "/data/code_editor.xml";
 
   try
   {
-    _xmlDocument = base::xml::loadXMLDoc(config_file.c_str());
+    _xmlDocument = base::xml::loadXMLDoc(config_file);
     if (_xmlDocument == nullptr)
     {
       logError("Code Editor Config: cannot load configuration file \"%s\"\n",
@@ -140,7 +140,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
 
 
   auto rootElement = base::xml::getXmlRoot(_xmlDocument);
-  if (!base::xml::compareName(rootElement, "languages"))
+  if (!base::xml::nameIs(rootElement, "languages"))
   {
     logError("Code Editor: invalid configuration file \"%s\"\n", config_file.c_str());
     return;
@@ -152,7 +152,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
     // Load the available language identifiers. All remaining values are loaded on demand.
     while (current != nullptr)
     {
-      if (base::xml::compareName(current, "language"))
+      if (base::xml::nameIs(current, "language"))
       {
         std::string languageName = base::xml::getProp(current, "name");
         if (languageName == lexer)
@@ -184,7 +184,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
     auto current = rootElement->children;
     while (current != nullptr)
     {
-      if (base::xml::compareName(current, "language"))
+      if (base::xml::nameIs(current, "language"))
       {
         std::string languageName = base::xml::getProp(current, "name");
         if (languageName == override_lexer)
@@ -223,7 +223,7 @@ void CodeEditorConfig::parse_properties()
   auto current = _xmlLanguageElement->children;
   while (current != nullptr)
   {
-    if (base::xml::compareName(current, "property"))
+    if (base::xml::nameIs(current, "property"))
     {
       std::string pName = base::xml::getProp(current, "name");
       std::string pValue = base::xml::getProp(current, "value");
@@ -241,7 +241,7 @@ void CodeEditorConfig::parse_settings()
   auto current = _xmlLanguageElement->children;
   while (current != nullptr)
   {
-    if (base::xml::compareName(current, "setting"))
+    if (base::xml::nameIs(current, "setting"))
     {
       std::string pName = base::xml::getProp(current, "name");
       std::string pValue = base::xml::getProp(current, "value");
@@ -259,7 +259,7 @@ void CodeEditorConfig::parse_keywords()
   auto current = _xmlLanguageElement->children;
   while (current != nullptr)
   {
-    if (base::xml::compareName(current, "keywords"))
+    if (base::xml::nameIs(current, "keywords"))
     {
       std::string pName = base::xml::getProp(current, "name");
       std::string text = base::xml::getContentRecursive(current);
@@ -277,7 +277,7 @@ void CodeEditorConfig::parse_styles()
   auto current = _xmlLanguageElement->children;
   while (current != nullptr)
   {
-    if (base::xml::compareName(current, "style"))
+    if (base::xml::nameIs(current, "style"))
     {
       ssize_t id = std::strtol(base::xml::getProp(current, "id").c_str(), nullptr, 10);
       if (id < 0)
@@ -290,7 +290,7 @@ void CodeEditorConfig::parse_styles()
       auto attribute = current->properties;
       while (attribute != nullptr)
       {
-        if (base::xml::compareName(attribute, "id"))
+        if (base::xml::nameIs(attribute, "id"))
         {
           attribute = attribute->next;
           continue;
