@@ -386,7 +386,7 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
   if (base::file_exists(storage_file_path))
   {
 
-    std::ifstream historyXml(base::path_from_utf8(storage_file_path));
+    std::ifstream historyXml(storage_file_path);
     if (historyXml.is_open())
     {
       std::string line;
