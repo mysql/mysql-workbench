@@ -1,6 +1,0 @@
-#!/bin/bash
-
-sh autogen.sh --prefix=/usr
-
-make
-make install DESTDIR=`pwd`

@@ -577,7 +577,6 @@
 		27BF79221CD34F9F00FBB3F3 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27BF79051CD34BE800FBB3F3 /* libcairo.2.dylib */; };
 		27BF79231CD34FA500FBB3F3 /* libpcrecpp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234561CD34983003A2649 /* libpcrecpp.0.dylib */; };
 		27BF79241CD34FBC00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
-		27BF79251CD34FC000FBB3F3 /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234411CD3491F003A2649 /* libtinyxml.dylib */; };
 		27BF79261CD34FCE00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
 		27BF79271CD34FDC00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
 		27BF79281CD34FF400FBB3F3 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278234331CD3491F003A2649 /* libglib-2.0.0.dylib */; };
@@ -4423,7 +4422,6 @@
 		2782343D1CD3491F003A2649 /* libpng16.16.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpng16.16.dylib; path = "../mysql-mac-res/lib/libpng16.16.dylib"; sourceTree = "<group>"; };
 		2782343E1CD3491F003A2649 /* libproj.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libproj.0.dylib; path = "../mysql-mac-res/lib/libproj.0.dylib"; sourceTree = "<group>"; };
 		278234401CD3491F003A2649 /* libvsqlitepp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.0.dylib; path = "../mysql-mac-res/lib/libvsqlitepp.0.dylib"; sourceTree = "<group>"; };
-		278234411CD3491F003A2649 /* libtinyxml.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtinyxml.dylib; path = "../mysql-mac-res/lib/libtinyxml.dylib"; sourceTree = "<group>"; };
 		278234561CD34983003A2649 /* libpcrecpp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcrecpp.0.dylib; path = "../mysql-mac-res/lib/libpcrecpp.0.dylib"; sourceTree = "<group>"; };
 		278234571CD34983003A2649 /* libzip.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libzip.1.0.0.dylib; path = "../mysql-mac-res/lib/libzip.1.0.0.dylib"; sourceTree = "<group>"; };
 		278874851189DA8500E477EF /* webbrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webbrowser.h; path = library/forms/mforms/webbrowser.h; sourceTree = "<group>"; };
@@ -7158,7 +7156,6 @@
 				27BF79221CD34F9F00FBB3F3 /* libcairo.2.dylib in Frameworks */,
 				27BF79231CD34FA500FBB3F3 /* libpcrecpp.0.dylib in Frameworks */,
 				27BF79241CD34FBC00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
-				27BF79251CD34FC000FBB3F3 /* libtinyxml.dylib in Frameworks */,
 				27BF79321CD3508900FBB3F3 /* libpcre.1.dylib in Frameworks */,
 				27BF79331CD3509A00FBB3F3 /* libmysqlcppconn.7.1.1.7.dylib in Frameworks */,
 				27BF79391CD3521D00FBB3F3 /* libzip.1.0.0.dylib in Frameworks */,
@@ -9696,7 +9693,6 @@
 				27BF794F1CD3559700FBB3F3 /* libpixman-1.0.dylib */,
 				2782343D1CD3491F003A2649 /* libpng16.16.dylib */,
 				2782343E1CD3491F003A2649 /* libproj.0.dylib */,
-				278234411CD3491F003A2649 /* libtinyxml.dylib */,
 				278234401CD3491F003A2649 /* libvsqlitepp.0.dylib */,
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
 				275749481CD753E900D637A9 /* libzip.1.0.0.dylib */,
@@ -16786,7 +16782,6 @@
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/plugins",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.wbp;
@@ -16819,7 +16814,6 @@
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/plugins",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.wbp;
@@ -16846,7 +16840,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ext/scintilla/include",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
@@ -16877,7 +16870,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ext/scintilla/include",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
@@ -17528,7 +17520,6 @@
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/**",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(SRCROOT)/library/mysql.canvas/src/cocoa",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
@@ -17571,7 +17562,6 @@
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/**",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(SRCROOT)/library/mysql.canvas/src/cocoa",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
@@ -17727,7 +17717,6 @@
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/plugins/db.mysql",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.diff.reporting.wbp;
@@ -17759,7 +17748,6 @@
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/plugins/db.mysql",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.diff.reporting.wbp;
@@ -17876,7 +17864,6 @@
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbprivate.be;
@@ -17915,7 +17902,6 @@
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbprivate.be;
@@ -18220,7 +18206,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ext/scintilla/include",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
@@ -18251,7 +18236,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ext/scintilla/include",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
