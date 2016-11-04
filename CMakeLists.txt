@@ -134,7 +134,6 @@ find_package(OpenGL REQUIRED)
 
 find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
-find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(Boost REQUIRED)
 
