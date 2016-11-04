@@ -13,7 +13,6 @@ include_directories(.
     SYSTEM ${GRT_INCLUDE_DIRS}
     SYSTEM ${GNOME_KEYRING_INCLUDE_DIRS}
     SYSTEM ${PCRE_INCLUDE_DIRS}
-    SYSTEM ${TINYXML_INCLUDE_DIRS}
     SYSTEM ${PROJECT_SOURCE_DIR}
     SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library
@@ -133,7 +132,7 @@ endif()
 
 target_compile_options(mforms PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
+target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(mforms gcov)

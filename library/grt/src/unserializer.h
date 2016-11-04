@@ -33,10 +33,7 @@ namespace grt
 
       ValueRef load_from_xml(const std::string &path, 
                        std::string *doctype= 0, std::string *docversion= 0);
-      
-      static xmlDocPtr load_xmldoc(const std::string &path);
-      xmlDocPtr load_grt_xmldoc(const std::string &path);
-      static void get_xmldoc_metainfo(xmlDocPtr doc, std::string &doctype, std::string &docversion);
+
       ValueRef unserialize_xmldoc(xmlDocPtr doc, const std::string &source_path= "");
 
       ValueRef unserialize_xmldata(const char *data, size_t size);
@@ -47,17 +44,13 @@ namespace grt
       std::set<std::string> _invalid_cache;
       bool _check_serialized_crc;
 
-      bool update_grt_document(xmlDocPtr doc);
-
       ValueRef unserialize_from_xml(xmlNodePtr node);
-      
       ValueRef traverse_xml_recreating_tree(xmlNodePtr node);
       void traverse_xml_creating_objects(xmlNodePtr node);
 
       ObjectRef unserialize_object_step1(xmlNodePtr node);
       ObjectRef unserialize_object_step2(xmlNodePtr node);
       void unserialize_object_contents(const ObjectRef &object, xmlNodePtr node);
-      
       ValueRef find_cached(const std::string &id);
     };
   };
