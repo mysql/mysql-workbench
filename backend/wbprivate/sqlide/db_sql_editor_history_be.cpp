@@ -385,27 +385,37 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
 {
   if (base::file_exists(storage_file_path))
   {
-    xmlDocPtr xmlDoc = nullptr;
-    try
-    {
-      xmlDoc = base::xml::loadXMLDoc(storage_file_path, true);
-    } catch (std::runtime_error &re)
-    {
-      logError("Can't open SQL history file %s, error was: %s\n", storage_file_path.c_str(), re.what());
-      return;
-    }
 
+    std::ifstream historyXml(base::path_from_utf8(storage_file_path));
+    if (historyXml.is_open())
     {
+      std::string line;
+
+      // Skips the first line in the file as is the xml header
+      std::getline(historyXml, line);
+      _row_count = 0;
+
       base::RecMutexLock data_mutex(_data_mutex);
       _data.clear();
       _data.reserve(_data.size() + _column_count);
-
-      auto current = xmlDoc->children;
-      _row_count = 0;
-      while (current != nullptr)
+      while (historyXml.good())
       {
-        std::string timestamp = base::xml::getProp(current, "timestamp");
-        std::string statement = base::xml::getContent(current);
+        std::getline(historyXml, line);
+
+        xmlDocPtr xmlDoc = base::xml::xmlParseFragment(line);
+        if (xmlDoc == nullptr)
+        {
+          logError("Can't parse %s, of file: %s\n", line.c_str(), storage_file_path.c_str());
+          continue;
+        }
+
+        // In history we've got one element per line.
+        auto element = xmlDoc->children;
+        if (element->next != nullptr) // If there's something more, we log proper information and parse only that one element.
+          logError("History line contains too many elements %s, of file: %s\n", line.c_str(), storage_file_path.c_str());
+
+        std::string timestamp = base::xml::getProp(element, "timestamp");
+        std::string statement = base::xml::getContent(element);
         // decides whether to use or not the existing data
         if (timestamp != _last_timestamp.toString() && timestamp != "~")
           _last_timestamp = timestamp;
@@ -417,15 +427,16 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
         _data.push_back(_last_timestamp);
 
         _row_count++;
-        current = current->next;
+
+        xmlFree(xmlDoc);
       }
 
-      xmlFree(xmlDoc);
       std::reverse(_data.begin(),_data.end());
 
       _data_frame_end= _row_count;
 
       _last_loaded_row = (int)_row_count - 1;
+
     }
   }
   else
