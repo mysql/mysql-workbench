@@ -48,16 +48,13 @@ xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntity)
   xmlSetGenericErrorFunc(nullptr, xmlErrorHandling);
   xmlDocPtr doc = nullptr;
 
-
-  std::string localFilename = base::path_from_utf8(path);
-  if (!base::file_exists(localFilename))
+  if (!base::file_exists(path))
     throw std::runtime_error("unable to open XML file, doesn't exists: " + path);
 
-
   if (asEntity)
-    doc = xmlParseEntity(localFilename.c_str());
+    doc = xmlParseEntity(path.c_str());
   else
-    doc = xmlParseFile(localFilename.c_str());
+    doc = xmlParseFile(path.c_str());
 
   if (doc == nullptr)
     throw std::runtime_error("unable to parse XML file " + path);
