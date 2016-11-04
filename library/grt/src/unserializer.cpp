@@ -18,40 +18,23 @@
  */
 
 #include "unserializer.h"
+
+
 #include "grtpp_util.h"
 
 #include "base/string_utilities.h"
 #include "base/log.h"
+#include "base/xml_functions.h"
 
 DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 
 using namespace grt;
 using namespace grt::internal;
 
-
-inline std::string get_prop(xmlNodePtr node, const char *name)
-{
-  xmlChar *prop= xmlGetProp(node, (xmlChar*)name);
-  std::string tmp= prop ? (char*)prop : "";
-  xmlFree(prop);
-  return tmp;
-}
-
-inline std::string get_content(xmlNodePtr node)
-{
-  xmlChar *prop= xmlNodeGetContent(node);
-  std::string tmp= prop ? (char*)prop : "";
-  xmlFree(prop);
-  return tmp;
-}
-
-
-
 internal::Unserializer::Unserializer(bool check_crc)
 : _check_serialized_crc(check_crc)
 {
 }
-
 
 ValueRef internal::Unserializer::find_cached(const std::string &id)
 {
@@ -62,65 +45,14 @@ ValueRef internal::Unserializer::find_cached(const std::string &id)
   return iter->second;
 }
 
-
-xmlDocPtr internal::Unserializer::load_xmldoc(const std::string &path)
-{
-  xmlDocPtr doc;
-
-  char * local_filename;
-  if ((local_filename= g_filename_from_utf8(path.c_str(),-1,NULL,NULL,NULL)) == NULL)
-    throw std::runtime_error("can't open XML file "+path);
-  doc= xmlParseFile(local_filename);
-  g_free(local_filename);
-  
-  return doc;
-}
-
-
-xmlDocPtr internal::Unserializer::load_grt_xmldoc(const std::string &path)
-{
-  xmlDocPtr doc;
-  
-  _source_name= path;
-
-  if (!(doc = load_xmldoc(path)))
-    throw std::runtime_error("can't open XML file "+path);
-
-  if (!update_grt_document(doc))
-  {
-    xmlFreeDoc(doc);
-    throw std::runtime_error("unsupported data format in "+path);
-  }
-  
-  return doc;
-}
-
-
-void internal::Unserializer::get_xmldoc_metainfo(xmlDocPtr doc, std::string &doctype, std::string &docversion)
-{
-  xmlNodePtr root= xmlDocGetRootElement(doc);
-
-  while (root)
-  {
-    if (root->type == XML_ELEMENT_NODE)
-    {
-      doctype= get_prop(root, "document_type");
-      docversion= get_prop(root, "version");
-      break;
-    }
-    root= root->next;
-  }
-}
-
-
 ValueRef internal::Unserializer::load_from_xml(const std::string &path, std::string *doctype, std::string *docversion)
 {
-  xmlDocPtr doc= load_xmldoc(path);
+  xmlDocPtr doc= base::xml::loadXMLDoc(path);
 
   ValueRef value= unserialize_xmldoc(doc, path);
 
   if (doctype && docversion)
-    get_xmldoc_metainfo(doc, *doctype, *docversion);
+    base::xml::getXMLDocMetainfo(doc, *doctype, *docversion);
 
   xmlFreeDoc(doc);
   
@@ -156,7 +88,6 @@ ValueRef internal::Unserializer::unserialize_from_xml(xmlNodePtr node)
   return traverse_xml_recreating_tree(node);
 }
 
-
 void internal::Unserializer::traverse_xml_creating_objects(xmlNodePtr node)
 {
   xmlNodePtr child;
@@ -165,7 +96,7 @@ void internal::Unserializer::traverse_xml_creating_objects(xmlNodePtr node)
   if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, (xmlChar*)"value")!=0)
     return;
   
-  prop= get_prop(node, "type");
+  prop= base::xml::getProp(node, "type");
   if (prop.empty())
     throw std::runtime_error(std::string("Node ").append((char*)node->name).append(" in xml doesn't have a type property"));
   
@@ -200,7 +131,6 @@ void internal::Unserializer::traverse_xml_creating_objects(xmlNodePtr node)
   }
 }
 
-
 ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
 {  
   if (strcmp((char*)node->name, "link")==0)
@@ -209,13 +139,13 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
     
     // this is a link instead of a value, look up for the original value and
     // return it
-    link_id= get_content(node);
+    link_id= base::xml::getContent(node);
     ValueRef value= find_cached(link_id);
 
     if (!value.is_valid() && (_invalid_cache.find(link_id) == _invalid_cache.end()))
     {
       // if link is not object, then quit
-      std::string node_type= get_prop(node, "type");
+      std::string node_type= base::xml::getProp(node, "type");
       if (node_type.empty() || node_type != "object")
       {
         logWarning("%s: link of type '%s' could not be resolved during unserialized", _source_name.c_str(), node_type.c_str());
@@ -234,12 +164,12 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
         _invalid_cache.insert(link_id);
       value= object;
 
-      if (!value.is_valid() /*&& get_prop(node, "key") != "owner"*/)
+      if (!value.is_valid() /*&& base::xml::getProp(node, "key") != "owner"*/)
         logWarning("%s:%i: link '%s' <%s %s> key=%s could not be resolved\n", 
                   _source_name.c_str(), node->line, link_id.c_str(),                 
-                  get_prop(node, "type").c_str(), 
-                  get_prop(node, "struct-name").c_str(),
-                  get_prop(node, "key").c_str());
+                  base::xml::getProp(node, "type").c_str(),
+                  base::xml::getProp(node, "struct-name").c_str(),
+                  base::xml::getProp(node, "key").c_str());
     }
 
     return value;
@@ -247,22 +177,22 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
   else if (strcmp((char*)node->name, "value")!=0)
     return ValueRef();
   
-  std::string node_type= get_prop(node, "type");  
+  std::string node_type = base::xml::getProp(node, "type");
   if (node_type.empty())
     throw std::runtime_error(std::string("Node '").append((char*)node->name).append("' in xml doesn't have a type property"));
   
-  Type vtype= str_to_type(node_type);
+  Type vtype = str_to_type(node_type);
   ValueRef value;
 
   switch (vtype)
   {
   case IntegerType:
-    value= IntegerRef(strtol((char*)get_content(node).c_str(), NULL, 0));
+    value = IntegerRef(strtol((char*)base::xml::getContent(node).c_str(), NULL, 0));
     break;
       
   case DoubleType:
   {
-    std::string tmp= get_content(node);
+    std::string tmp = base::xml::getContent(node);
     static char decimal_point= 0;
 
     // now this is a hack for locales that treat . as a thousand separator instead of
@@ -287,7 +217,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
   }
 
   case StringType:
-    value= StringRef(get_content(node));
+    value = StringRef(base::xml::getContent(node));
     break;
 
   case DictType:
@@ -296,19 +226,19 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
     DictRef dict;
     
     // check if the dictionary was already created
-    ptr= get_prop(node, "_ptr_");
+    ptr= base::xml::getProp(node, "_ptr_");
     if (!ptr.empty())
       value= find_cached(ptr);      
     
     if (!value.is_valid())
     {      
-      std::string prop= get_prop(node, "content-type");
+      std::string prop = base::xml::getProp(node, "content-type");
       if (!prop.empty())
       {
         Type content_type= str_to_type(prop);
         if (content_type != UnknownType)
         {
-          std::string content_class_name= get_prop(node, "content-struct-name");
+          std::string content_class_name= base::xml::getProp(node, "content-struct-name");
           
           value= dict= DictRef(content_type, content_class_name);
         }
@@ -329,7 +259,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
     {      
       if (child->type == XML_ELEMENT_NODE)
       {
-        std::string key= get_prop(child, "key");
+        std::string key= base::xml::getProp(child, "key");
         if (!key.empty())
         {
           ValueRef sub_value= traverse_xml_recreating_tree(child);
@@ -343,13 +273,13 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
       
   case ListType:
   {
-    Type content_type= str_to_type(get_prop(node, "content-type"));
-    std::string cclass_name= get_prop(node, "content-struct-name");
+    Type content_type= str_to_type(base::xml::getProp(node, "content-type"));
+    std::string cclass_name= base::xml::getProp(node, "content-struct-name");
     xmlNodePtr child;
     std::string prop;
     BaseListRef list;
       
-    prop= get_prop(node, "_ptr_");
+    prop= base::xml::getProp(node, "_ptr_");
     
     if (!prop.empty())
     {
@@ -431,11 +361,11 @@ ObjectRef internal::Unserializer::unserialize_object_step1(xmlNodePtr node)
   MetaClass *gstruct;
   std::string id;
   
-  std::string prop= get_prop(node, "type");
+  std::string prop= base::xml::getProp(node, "type");
   if (prop != "object")
     throw std::runtime_error("error unserializing object (unexpected type)");
   
-  prop= get_prop(node, "struct-name");
+  prop= base::xml::getProp(node, "struct-name");
   if (prop.empty())
     throw std::runtime_error("error unserializing object (missing struct-name)");
   
@@ -448,11 +378,11 @@ ObjectRef internal::Unserializer::unserialize_object_step1(xmlNodePtr node)
     throw std::runtime_error(base::strfmt("error unserializing object (struct '%s' unknown)", prop.c_str()));
   }
 
-  id= get_prop(node, "id");
+  id= base::xml::getProp(node, "id");
   if (id.empty())
     throw std::runtime_error("missing id in unserialized object");
   
-  prop= get_prop(node, "struct-checksum");
+  prop= base::xml::getProp(node, "struct-checksum");
   if (!prop.empty())
   {
     unsigned int checksum= (unsigned int)strtol(prop.c_str(), NULL, 0);
@@ -472,7 +402,7 @@ ObjectRef internal::Unserializer::unserialize_object_step1(xmlNodePtr node)
 
 ObjectRef internal::Unserializer::unserialize_object_step2(xmlNodePtr node)
 {
-  std::string id= get_prop(node, "id");
+  std::string id= base::xml::getProp(node, "id");
   
   if (id.empty())
     throw std::runtime_error(std::string("missing id property unserializing node ").append((char*)node->name));
@@ -500,7 +430,7 @@ void internal::Unserializer::unserialize_object_contents(const ObjectRef &object
     
     if (child->type == XML_ELEMENT_NODE)
     {
-      std::string key= get_prop(child, "key");
+      std::string key= base::xml::getProp(child, "key");
   
       if (!key.empty())
       {
@@ -517,7 +447,7 @@ void internal::Unserializer::unserialize_object_contents(const ObjectRef &object
           sub_value= object->get_member(key);
           if (sub_value.is_valid())
           {
-            std::string ptr= get_prop(child, "_ptr_");
+            std::string ptr= base::xml::getProp(child, "_ptr_");
             if (!ptr.empty())
               _cache[ptr]= sub_value;
           }
@@ -551,15 +481,6 @@ void internal::Unserializer::unserialize_object_contents(const ObjectRef &object
     child= child->next;
   }
 }
-
-
-bool internal::Unserializer::update_grt_document(xmlDocPtr doc)
-{
-  return true;
-}
-
-
-
 
 
 ValueRef internal::Unserializer::unserialize_xmldata(const char *data, size_t size)
