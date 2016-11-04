@@ -103,14 +103,13 @@ BuildRequires: vsqlite++-devel
 %endif
 
 %if 0%{?fedora} >= 18
-BuildRequires: libgnome-keyring-devel libuuid-devel tinyxml-devel
+BuildRequires: libgnome-keyring-devel libuuid-devel
 %else
 BuildRequires: gnome-keyring-devel
 %endif
 
 Provides: mysql-workbench = %{version}-%{release}
 Provides: mysql-workbench%{?_isa} = %{version}-%{release}
-Requires: tinyxml
 Requires: libzip
 %if %{without paramiko}
 Requires: python-paramiko >= 1.15.1
@@ -206,11 +205,10 @@ rm -fr %{buildroot}/usr/share/doc/mysql-workbench
 %endif
 
 #
-# Don't bundle libzip.so neither libtinyxml.so. Those can be found in EPEL.
+# Don't bundle libzip.so. Those can be found in EPEL.
 #
 #%%if 0%%{?rhel}
 #  cp -a /usr/lib64/libzip.so* %%{buildroot}%%{_libdir}/mysql-workbench/
-#  cp -a /usr/lib64/libtinyxml.so* %%{buildroot}%%{_libdir}/mysql-workbench/
 #%%endif
 
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.a  -exec rm {} \; -print
