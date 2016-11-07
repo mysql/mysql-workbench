@@ -120,7 +120,6 @@
                 <File Id="file1068" Name="wb.model.editors.wbp.fe.dll"/>
                 <File Id="file1069" Name="wb.model.editors.wbp.wr.dll"/>
                 <File Id="file1070" Name="wb.model.grt.dll"/>
-                <File Id="file1074" Name="wb.mysql.import.grt.dll"/>
                 <?if $(var.SETUP_TYPE) != "community" ?>
                 <File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
                 <File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
