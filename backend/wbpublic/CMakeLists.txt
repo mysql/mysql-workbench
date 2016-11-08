@@ -181,7 +181,7 @@ add_library(wbpublic
 
 target_compile_options(wbpublic PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt mtemplate ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(wbpublic gcov)

@@ -64,7 +64,7 @@ xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntity)
 
 xmlDocPtr base::xml::xmlParseFragment(const std::string &buff)
 {
-  return xmlParseMemory(buff.data(), buff.size());
+  return xmlParseMemory(buff.data(), (int)buff.size());
 }
 
 xmlNodePtr base::xml::getXmlRoot(xmlDocPtr doc)
@@ -132,9 +132,9 @@ std::string base::xml::getContentRecursive(xmlNodePtr node)
 
 std::string base::xml::encodeEntities(const std::string &input)
 {
-  int buffSize = input.size() * 2 + 1;
+  int buffSize = (int)input.size() * 2 + 1;
   std::vector<unsigned char> buff(buffSize, '\0');
-  int outLen = buffSize - 1, inLen = input.size();
+  int outLen = buffSize - 1, inLen = (int)input.size();
 
   htmlEncodeEntities(buff.data(), &outLen, (const unsigned char*)(input.c_str()), &inLen, '"');
   buff.erase(buff.begin() + outLen, buff.end());
