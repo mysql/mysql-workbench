@@ -290,7 +290,19 @@ class AddSchemaPrivilegeForm(mforms.Form):
     def schema_radio_changed(self):
         self.schema2entry.set_enabled(self.schema2.get_active())
         self.schema3sel.set_enabled(self.schema3.get_active())
+        self.secman.async_refresh(self.update_schemas)
 
+
+    def update_schemas(self):
+        selected_schema = self.schema3.get_string_value()
+        self.schema3sel.clear()
+
+        for item in self.secman.schema_names:
+            self.schema3sel.add_item(item)
+            
+        for index in range(0, self.schema3sel.get_item_count()):
+            if self.schema3sel.get_item_title(index) == selected_schema:
+                self.schema3sel.set_index(index)
 
     def run(self):
         if self.run_modal(self.ok, self.cancel):
