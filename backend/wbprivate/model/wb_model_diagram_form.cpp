@@ -1475,7 +1475,7 @@ static mdc::CanvasItem* extractItem(const model_ObjectRef &object)
   }
   else
   {
-    logWarning("Unhandled CanvasItem: %s", object.class_name());
+    logWarning("Unhandled CanvasItem: %s\n", object.class_name().c_str());
   }
   return item;
 }
