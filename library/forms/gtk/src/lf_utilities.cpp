@@ -126,14 +126,13 @@ void set_dialog_transcient(Gtk::MessageDialog &dialog)
     gtk_window_set_transient_for(((Gtk::Window *)&dialog)->gobj(), parent_window);
 }
 //--------------------------------------------------------------------------------
-  
 
-int UtilitiesImpl::show_message(const std::string &title, const std::string &text,
-                        const std::string &ok, const std::string &cancel,
-                        const std::string &other)
+static int gtkDialog(Gtk::MessageType type, const std::string &title, const std::string &text,
+                             const std::string &ok, const std::string &cancel,
+                             const std::string &other)
 {
   Gtk::MessageDialog dlg("<b>"+title+"</b>", true,
-                         Gtk::MESSAGE_INFO, Gtk::BUTTONS_NONE, true);
+                         type, Gtk::BUTTONS_NONE, true);
   dlg.set_secondary_text(text);
   dlg.add_button(ok, mforms::ResultOk);
   if (!cancel.empty())
@@ -147,6 +146,13 @@ int UtilitiesImpl::show_message(const std::string &title, const std::string &tex
   if (r == Gtk::RESPONSE_DELETE_EVENT)
     return mforms::ResultCancel;
   return r;
+}
+
+int UtilitiesImpl::show_message(const std::string &title, const std::string &text,
+                        const std::string &ok, const std::string &cancel,
+                        const std::string &other)
+{
+  return gtkDialog(Gtk::MESSAGE_INFO, title, text, ok, cancel, other);
 }
 
 
@@ -154,42 +160,14 @@ int UtilitiesImpl::show_error(const std::string &title, const std::string &text,
                       const std::string &ok, const std::string &cancel,
                       const std::string &other)
 {
-  Gtk::MessageDialog dlg("<b>"+title+"</b>", true,
-                         Gtk::MESSAGE_ERROR, Gtk::BUTTONS_NONE, true);
-  dlg.set_secondary_text(text);
-  dlg.add_button(ok, mforms::ResultOk);
-  if (!cancel.empty())
-    dlg.add_button(cancel, mforms::ResultCancel);
-  if (!other.empty())
-    dlg.add_button(other, mforms::ResultOther);
-
-  set_dialog_transcient(dlg);
-
-  int r= dlg.run();
-  if (r == Gtk::RESPONSE_DELETE_EVENT)
-    return mforms::ResultCancel;
-  return r;
+  return gtkDialog(Gtk::MESSAGE_ERROR, title, text, ok, cancel, other);
 }
 
 int UtilitiesImpl::show_warning(const std::string &title, const std::string &text,
                       const std::string &ok, const std::string &cancel,
                       const std::string &other)
 {
-  Gtk::MessageDialog dlg("<b>"+title+"</b>", true,
-                         Gtk::MESSAGE_WARNING, Gtk::BUTTONS_NONE, true);
-  dlg.set_secondary_text(text);
-  dlg.add_button(ok, mforms::ResultOk);
-  if (!cancel.empty())
-    dlg.add_button(cancel, mforms::ResultCancel);
-  if (!other.empty())
-    dlg.add_button(other, mforms::ResultOther);
-
-  set_dialog_transcient(dlg);
-  
-  int r= dlg.run();
-  if (r == Gtk::RESPONSE_DELETE_EVENT)
-    return mforms::ResultCancel;
-  return r;
+  return gtkDialog(Gtk::MESSAGE_WARNING, title, text, ok, cancel, other);
 }
 
 static void handle_click(Gtk::CheckButton* btn, bool* state)

@@ -1371,9 +1371,9 @@ void ModelDiagramForm::select_all()
 }
 
 
-void ModelDiagramForm::remove_selection()
+void ModelDiagramForm::remove_selection(bool deleteSelection)
 {
-  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
+  grt::UndoManager *um = grt::GRT::get()->get_undo_manager();
   grt::ListRef<model_Object> selection= get_selection();
   
   std::vector<model_ObjectRef> objects;
@@ -1381,46 +1381,40 @@ void ModelDiagramForm::remove_selection()
   
   um->begin_undo_group();
   
-  for (size_t c= selection.count(), i= 0; i < c; i++)
+  for (size_t c = selection.count(), i= 0; i < c; i++)
   {
     if (selection.get(i).is_instance(model_Object::static_class_name()))
       objects.push_back(model_ObjectRef::cast_from(selection.get(i)));
   }
   
-  for (size_t c= objects.size(), i= 0; i < c; i++)
-    _owner->get_wb()->get_model_context()->remove_figure(objects[i]);
-  
-  um->end_undo_group();
-  um->set_action_description(strfmt(_("Remove %s"), edit_target_name.c_str()));
+  std::string actionDescription;
+  std::string statusText;
+  if (deleteSelection)
+  {
+    for (size_t c = objects.size(), i = 0; i < c; i++)
+      _owner->get_wb()->get_model_context()->delete_object(objects[i]);
 
-  _owner->get_wb()->show_status_text(strfmt(_("%i figure(s) removed. The corresponding DB objects were kept."), (int)objects.size()));
+    actionDescription = strfmt(_("Delete %s"), edit_target_name.c_str());
+    statusText = strfmt(_("%i object(s) deleted."), (int)objects.size());
+  }
+  else
+  {
+    for (size_t c = objects.size(), i = 0; i < c; i++)
+      _owner->get_wb()->get_model_context()->remove_figure(objects[i]);
+
+    actionDescription = strfmt(_("Remove %s"), edit_target_name.c_str());
+    statusText = strfmt(_("%i figure(s) removed. The corresponding DB objects were kept."), (int)objects.size());
+  }
+
+  um->end_undo_group();
+  um->set_action_description(actionDescription);
+
+  _owner->get_wb()->show_status_text(statusText);
 }
 
-
-//XXX unused? but it's virtual, need to check if this is used anywhere...
 void ModelDiagramForm::delete_selection()
 {
-  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
-  grt::ListRef<model_Object> selection= get_selection();
-
-  std::vector<model_ObjectRef> objects;
-  std::string edit_target_name= get_edit_target_name();
-
-  um->begin_undo_group();
-
-  for (size_t c= selection.count(), i= 0; i < c; i++)
-  {
-    if (selection.get(i).is_instance(model_Object::static_class_name()))
-      objects.push_back(model_ObjectRef::cast_from(selection.get(i)));
-  }
-
-  for (size_t c= objects.size(), i= 0; i < c; i++)
-    _owner->get_wb()->get_model_context()->delete_object(objects[i]);
-
-  um->end_undo_group();
-  um->set_action_description(strfmt(_("Delete %s"), edit_target_name.c_str()));
-
-  _owner->get_wb()->show_status_text(strfmt(_("%i object(s) deleted."), (int)objects.size()));
+  remove_selection(true);
 }
 
 
@@ -1463,30 +1457,36 @@ bool ModelDiagramForm::has_selection()
   return _model_diagram->selection().count() > 0;
 }
 
-
-bool ModelDiagramForm::is_visible(const model_ObjectRef &object, bool partially)
+static mdc::CanvasItem* extractItem(const model_ObjectRef &object)
 {
-  mdc::CanvasItem *item= 0;
-  
+  mdc::CanvasItem *item = nullptr;
+
   if (object.is_instance(model_Figure::static_class_name()))
   {
-    item= model_FigureRef::cast_from(object)->get_data()->get_canvas_item();
+    item = model_FigureRef::cast_from(object)->get_data()->get_canvas_item();
   }
   else if (object.is_instance(model_Connection::static_class_name()))
   {
-    item= model_ConnectionRef::cast_from(object)->get_data()->get_canvas_item();
+    item = model_ConnectionRef::cast_from(object)->get_data()->get_canvas_item();
   }
   else if (object.is_instance(model_Layer::static_class_name()))
   {
-    item= model_LayerRef::cast_from(object)->get_data()->get_area_group();
+    item = model_LayerRef::cast_from(object)->get_data()->get_area_group();
   }
   else
   {
-    g_warning("unhandled");
-    return false;
+    logWarning("Unhandled CanvasItem: %s", object.class_name());
   }
+  return item;
+}
 
-  if (!item) return false;
+
+bool ModelDiagramForm::is_visible(const model_ObjectRef &object, bool partially)
+{
+  mdc::CanvasItem *item = extractItem(object);
+
+  if (item == nullptr)
+    return false;
 
   Rect bounds= item->get_root_bounds();
   Rect viewport= _view->get_viewport();
@@ -1499,21 +1499,7 @@ bool ModelDiagramForm::is_visible(const model_ObjectRef &object, bool partially)
 
 void ModelDiagramForm::focus_and_make_visible(const model_ObjectRef &object, bool select)
 {
-  mdc::CanvasItem *item= 0;
-
-  if (object.is_instance(model_Figure::static_class_name()))
-  {
-    item= model_FigureRef::cast_from(object)->get_data()->get_canvas_item();
-  }
-  else if (object.is_instance(model_Connection::static_class_name()))
-  {
-    item= model_ConnectionRef::cast_from(object)->get_data()->get_canvas_item();
-  }
-  else if (object.is_instance(model_Layer::static_class_name()))
-  {
-    item= model_LayerRef::cast_from(object)->get_data()->get_area_group();
-  }
-
+  mdc::CanvasItem *item = extractItem(object);
   if (item)
   {
     mdc::CanvasView *view= item->get_view();

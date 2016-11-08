@@ -2922,33 +2922,22 @@ bool WBContext::can_close_document()
  */
 bool WBContext::close_document()
 {
-  if (!_asked_for_saving && has_unsaved_changes())
+  if (can_close_document())
   {
-    int answer= execute_in_main_thread<int>("check save changes", boost::bind(
-      mforms::Utilities::show_message, _("Close Document"),
-      _("Do you want to save pending changes to the document?\n\n"
-      "If you don't save your changes, they will be lost."),
-      _("Save"),  _("Cancel"), _("Don't Save")));
-    if (answer == mforms::ResultOk)
-    {
-      if (!save_as(_filename))
-        return false;
-    }
-    else if (answer == mforms::ResultCancel)
-      return false;
-  }
-  _asked_for_saving= false;
-  
-  block_user_interaction(true);
-  
-  // close the current document
-  execute_in_main_thread("close document", boost::bind(&WBContext::do_close_document, this, false), true);  
-  
-  block_user_interaction(false);
+    _asked_for_saving = false;
 
-  _grtManager->has_unsaved_changes(false);
-  
-  return true;
+    block_user_interaction(true);
+
+    // close the current document
+    execute_in_main_thread("close document", boost::bind(&WBContext::do_close_document, this, false), true);
+
+    block_user_interaction(false);
+
+    _grtManager->has_unsaved_changes(false);
+
+    return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
