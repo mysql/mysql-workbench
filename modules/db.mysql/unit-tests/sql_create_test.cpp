@@ -24,7 +24,6 @@
 #include "synthetic_mysql_model.h"
 #include "grtdb/diff_dbobjectmatch.h"
 #include "interfaces/sqlgenerator.h"
-#include "wb_mysql_import.h"
 #include "backend/db_mysql_sql_export.h"
 
 #include "db_mysql_diffsqlgen.h"
@@ -34,19 +33,15 @@
 BEGIN_TEST_DATA_CLASS(sql_create)
 protected:
     WBTester *tester;
-    WbMysqlImportImpl *wb_mysql_import_module;
     SQLGeneratorInterfaceImpl *diffsql_module;
     sql::ConnectionWrapper connection;
     
     TEST_DATA_CONSTRUCTOR(sql_create)
     {
       tester = new WBTester;
-        wb_mysql_import_module= NULL;
         diffsql_module= NULL;
 
         // load modules
-        wb_mysql_import_module= grt::GRT::get()->get_native_module<WbMysqlImportImpl>();
-        ensure("WBModuleImport module initialization", NULL != wb_mysql_import_module);
         diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
         ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 

@@ -87,7 +87,6 @@
                 <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
                 <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
                 <File Id="file1121" Name="vsqlite++.dll"/>
-                <File Id="file1122" Name="tinyxml.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
@@ -121,7 +120,6 @@
                 <File Id="file1068" Name="wb.model.editors.wbp.fe.dll"/>
                 <File Id="file1069" Name="wb.model.editors.wbp.wr.dll"/>
                 <File Id="file1070" Name="wb.model.grt.dll"/>
-                <File Id="file1074" Name="wb.mysql.import.grt.dll"/>
                 <?if $(var.SETUP_TYPE) != "community" ?>
                 <File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
                 <File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
