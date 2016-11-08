@@ -218,8 +218,8 @@ public:
     {
       mforms::anyMap serverInfo = connectionInfo["serverInfo"];
       pending = serverInfo["setupPending"].as<ssize_t>() == 1;
-      if (!pending && !connectionInfo["isLocalConnection"].as<bool>() && getAnyMapValue<ssize_t>(serverInfo, "remoteAdmin") == 0
-          && getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 0)
+      if (!pending && !connectionInfo["isLocalConnection"].as<bool>() && getAnyMapValueAs<ssize_t>(serverInfo, "remoteAdmin") == 0
+          && getAnyMapValueAs<ssize_t>(serverInfo, "windowsAdmin") == 0)
         pending = true;
     }
     else
@@ -290,30 +290,29 @@ public:
     line_bounds.size.width = (bounds.width() - POPUP_LR_PADDING) / 2;
 
 
-    auto connectionInfo = _owner->getConnectionInfoCallback(_connectionId);
-    mforms::anyMap serverInfo;
-    if (!connectionInfo["serverInfo"].isNull())
-      serverInfo = connectionInfo["serverInfo"].as<mforms::anyMap>();
+    mforms::anyMap connectionInfo = _owner->getConnectionInfoCallback(_connectionId);
+    mforms::anyMap serverInfo = mforms::getAnyMapValue(connectionInfo, std::string("serverInfo"));
 
-
-    std::string server_version = connectionInfo["serverVersion"];
-    if (server_version.empty() && !serverInfo.empty())
-      server_version = serverInfo["serverVersion"].as<std::string>();
-
+    std::string server_version = getAnyMapValueAs<std::string>(connectionInfo, "serverVersion");
+    
     print_info_line(cr, line_bounds, _("MySQL Version"), server_version);
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    time_t time = connectionInfo["lastConnected"].as<ssize_t>();
-    if (time == 0)
-    print_info_line(cr, line_bounds, _("Last connected"), "");
-    else
+    
+    if (connectionInfo.find("lastConnected") != connectionInfo.end())
     {
-      struct tm * ptm = localtime(&time);
-      char buffer[32];
-      strftime(buffer, 32, "%d %B %Y %H:%M", ptm);
-      print_info_line(cr, line_bounds, _("Last connected"), buffer);
+      time_t time = connectionInfo["lastConnected"].as<ssize_t>();
+      if (time == 0)
+      print_info_line(cr, line_bounds, _("Last connected"), "");
+      else
+      {
+        struct tm * ptm = localtime(&time);
+        char buffer[32];
+        strftime(buffer, 32, "%d %B %Y %H:%M", ptm);
+        print_info_line(cr, line_bounds, _("Last connected"), buffer);
+      }
+      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     }
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
+    
     if (connectionInfo.find("sshHost") != connectionInfo.end())
     {
       std::string sshHost = connectionInfo["sshHost"];
@@ -325,10 +324,12 @@ public:
     }
 
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    std::string user_name = connectionInfo["userName"];
+    
+    std::string user_name = getAnyMapValueAs<std::string>(connectionInfo, "userName");
+    
     print_info_line(cr, line_bounds, _("User Account"), user_name);
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
+    
     std::string password_stored = _("<not stored>");
     std::string password;
     bool find_result = false;
@@ -349,9 +350,9 @@ public:
     }
     print_info_line(cr, line_bounds, _("Password"), password_stored);
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    print_info_line(cr, line_bounds, _("Network Address"), getAnyMapValue<std::string>(connectionInfo, "hostName"));
+    print_info_line(cr, line_bounds, _("Network Address"), getAnyMapValueAs<std::string>(connectionInfo, "hostName"));
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    ssize_t port = getAnyMapValue<ssize_t>(connectionInfo, "port");
+    ssize_t port = getAnyMapValueAs<ssize_t>(connectionInfo, "port");
     print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
 
 
@@ -370,8 +371,8 @@ public:
       {
         mforms::anyMap serverInfo = connectionInfo["serverInfo"];
         pending = serverInfo["setupPending"].as<ssize_t>() == 1;
-        if (!pending && !connectionInfo["isLocalConnection"].as<bool>() && getAnyMapValue<ssize_t>(serverInfo, "remoteAdmin") == 0
-            && getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 0)
+        if (!pending && !connectionInfo["isLocalConnection"].as<bool>() && getAnyMapValueAs<ssize_t>(serverInfo, "remoteAdmin") == 0
+            && getAnyMapValueAs<ssize_t>(serverInfo, "windowsAdmin") == 0)
           pending = true;
       }
       else
@@ -380,9 +381,9 @@ public:
       if (pending)
       {
         if (connectionInfo["isLocalConnection"].as<bool>())
-        print_info_line(cr, line_bounds, _("Local management not set up"), " ");
+          print_info_line(cr, line_bounds, _("Local management not set up"), " ");
         else
-        print_info_line(cr, line_bounds, _("Remote management not set up"), " ");
+          print_info_line(cr, line_bounds, _("Remote management not set up"), " ");
       }
       else
       {
@@ -390,16 +391,16 @@ public:
         {
           print_info_line(cr, line_bounds, _("Local management"), "Enabled");
           line_bounds.pos.y += 6 * DETAILS_LINE_HEIGHT; // Same layout as for remote mgm. So config file is at bottom.
-          print_info_line(cr, line_bounds, _("Config Path"), getAnyMapValue<std::string>(serverInfo,"sys.config.path"));
+          print_info_line(cr, line_bounds, _("Config Path"), getAnyMapValueAs<std::string>(serverInfo,"sys.config.path"));
         }
         else if (!connectionInfo["loginInfo"].isNull())
         {
           mforms::anyMap loginInfo = connectionInfo["loginInfo"];
-          bool windowsAdmin = getAnyMapValue<ssize_t>(serverInfo, "windowsAdmin") == 1;
+          bool windowsAdmin = getAnyMapValueAs<ssize_t>(serverInfo, "windowsAdmin") == 1;
 
-          std::string os = getAnyMapValue<std::string>(serverInfo, "serverOS");
+          std::string os = getAnyMapValueAs<std::string>(serverInfo, "serverOS");
           if (os.empty()) // If there's no OS set (yet) then use the generic system identifier (which is not that specific, but better than nothing).
-          os = getAnyMapValue<std::string>(serverInfo, "sys.system");
+          os = getAnyMapValueAs<std::string>(serverInfo, "sys.system");
           if (os.empty() && windowsAdmin)
           os = "Windows";
           print_info_line(cr, line_bounds, _("Operating System"), os);
@@ -410,14 +411,14 @@ public:
             print_info_line(cr, line_bounds, _("Remote management via"), "WMI");
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-            std::string host_name = getAnyMapValue<std::string>(loginInfo, "wmi.hostName");
-            print_info_line(cr, line_bounds, _("Target Server"), getAnyMapValue<std::string>(loginInfo, "wmi.hostName"));
+            std::string host_name = getAnyMapValueAs<std::string>(loginInfo, "wmi.hostName");
+            print_info_line(cr, line_bounds, _("Target Server"), getAnyMapValueAs<std::string>(loginInfo, "wmi.hostName"));
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("WMI user"), getAnyMapValue<std::string>(loginInfo, "wmi.userName"));
+            print_info_line(cr, line_bounds, _("WMI user"), getAnyMapValueAs<std::string>(loginInfo, "wmi.userName"));
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
             std::string password_key = "wmi@" + host_name;
-            user_name = getAnyMapValue<std::string>(loginInfo, "wmi.userName");
+            user_name = getAnyMapValueAs<std::string>(loginInfo, "wmi.userName");
             if (mforms::Utilities::find_password(password_key, user_name, password))
             {
               password = "";
@@ -429,7 +430,7 @@ public:
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
             line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
-            print_info_line(cr, line_bounds, _("Config Path"), getAnyMapValue<std::string>(serverInfo, "sys.config.path"));
+            print_info_line(cr, line_bounds, _("Config Path"), getAnyMapValueAs<std::string>(serverInfo, "sys.config.path"));
           }
           else
           {
@@ -438,16 +439,16 @@ public:
 
             line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
 
-            std::string host_name = getAnyMapValue<std::string>(loginInfo, "ssh.hostName");
+            std::string host_name = getAnyMapValueAs<std::string>(loginInfo, "ssh.hostName");
             print_info_line(cr, line_bounds, _("SSH Target"), host_name);
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("SSH User"), getAnyMapValue<std::string>(loginInfo, "ssh.userName"));
+            print_info_line(cr, line_bounds, _("SSH User"), getAnyMapValueAs<std::string>(loginInfo, "ssh.userName"));
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-            std::string security = (getAnyMapValue<ssize_t>(loginInfo,  "ssh.useKey", 0) != 0) ? _("Public Key") : _("Password ") + password_stored;
+            std::string security = (getAnyMapValueAs<ssize_t>(loginInfo,  "ssh.useKey", 0) != 0) ? _("Public Key") : _("Password ") + password_stored;
             print_info_line(cr, line_bounds, _("SSH Security"), security);
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("SSH Port"),  getAnyMapValue<std::string>(loginInfo, "ssh.port", "22"));
+            print_info_line(cr, line_bounds, _("SSH Port"),  getAnyMapValueAs<std::string>(loginInfo, "ssh.port", "22"));
           }
         }
       }
