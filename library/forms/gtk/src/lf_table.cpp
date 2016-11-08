@@ -27,23 +27,26 @@ Gtk::Widget *mforms::gtk::TableImpl::get_outer() const
 //------------------------------------------------------------------------------
 Gtk::Widget *mforms::gtk::TableImpl::get_inner() const
 {
-  return _table;
+  return _grid;
 }
 //------------------------------------------------------------------------------
 mforms::gtk::TableImpl::TableImpl(::mforms::Table *self) : ViewImpl(self)
 {
   _outerBox = new Gtk::Box();
-  _table= new Gtk::Table();
-  _outerBox->pack_start(*_table, true, true);
+  _grid= new Gtk::Grid();
+  _outerBox->pack_start(*_grid, true, true);
   _outerBox->show_all();
-  _table->set_halign(Gtk::ALIGN_FILL);
-  _table->set_valign(Gtk::ALIGN_FILL);
+  _grid->set_halign(Gtk::ALIGN_FILL);
+  _grid->set_valign(Gtk::ALIGN_FILL);
+
+  _rowCount = 0;
+  _colCount = 0;
   setup();
 }
 
 mforms::gtk::TableImpl::~TableImpl()
 {
-  delete _table;
+  delete _grid;
   delete _outerBox;
 }
 //------------------------------------------------------------------------------
@@ -54,16 +57,19 @@ bool mforms::gtk::TableImpl::create(::mforms::Table *self)
 //------------------------------------------------------------------------------
 void mforms::gtk::TableImpl::set_row_count(Table *self, int count)
 {
+  // Gtk::set_row_count is deprecated.
   TableImpl *table= self->get_data<TableImpl>();
-
-  table->_table->property_n_rows()= count;
+  if (table)
+    table->_rowCount = count;
 }
 //------------------------------------------------------------------------------
 void mforms::gtk::TableImpl::set_col_count(Table *self, int count)
 {
+  // Gtk::set_col_count is deprecated.
   TableImpl *table= self->get_data<TableImpl>();
+  if (table)
+    table->_colCount = count;
 
-  table->_table->property_n_columns()= count;
 }
 //------------------------------------------------------------------------------
 void mforms::gtk::TableImpl::add(Table *self, View *child, int left, int right,
@@ -72,29 +78,27 @@ void mforms::gtk::TableImpl::add(Table *self, View *child, int left, int right,
   TableImpl *table= self->get_data<TableImpl>();
   if (table)
   {
-    if ((int)table->_table->property_n_columns() < right || (int)table->_table->property_n_rows() < bottom)
+    if ((int)table->_colCount < right || (int)table->_rowCount < bottom)
       throw std::logic_error(base::strfmt("Tried to use col %d, row %d, but the table has got only %d cols, %d rows.",
-                              right, bottom, (int)table->_table->property_n_columns(), (int)table->_table->property_n_rows()));
+                              right, bottom, (int)table->_colCount, (int)table->_rowCount));
+    Gtk::Widget *widget = child->get_data<ViewImpl>()->get_outer();
+    if (widget)
+    {
+      int height = bottom - top;
+      int width = right - left;
+      table->_grid->attach(*widget, left, top, width, height);
 
-    Gtk::AttachOptions roptions= (Gtk::AttachOptions)0, coptions= (Gtk::AttachOptions)0;
+      if (flags & mforms::VExpandFlag)
+        widget->set_vexpand();
+      if (flags & mforms::VFillFlag)
+        widget->set_valign(Gtk::ALIGN_FILL);
+      if (flags & mforms::HExpandFlag)
+        widget->set_hexpand();
+      if (flags & mforms::HFillFlag)
+        widget->set_halign(Gtk::ALIGN_FILL);
 
-    roptions= Gtk::SHRINK;
-    coptions= Gtk::SHRINK;
-
-    if (flags & mforms::VExpandFlag)
-      roptions|= Gtk::EXPAND;
-    if (flags & mforms::VFillFlag)
-      roptions|= Gtk::FILL;
-
-    if (flags & mforms::HExpandFlag)
-      coptions|= Gtk::EXPAND;
-    if (flags & mforms::HFillFlag)
-      coptions|= Gtk::FILL;
-
-    table->_table->attach(*child->get_data<ViewImpl>()->get_outer(),
-                                           left, right, top, bottom,
-                                           coptions, roptions);
-    child->show();
+      widget->show();
+    }
   }
 }
 //------------------------------------------------------------------------------
@@ -102,43 +106,44 @@ void mforms::gtk::TableImpl::remove(Table *self, View *child)
 {
   TableImpl *table= self->get_data<TableImpl>();
 
-  table->_table->remove(*child->get_data<ViewImpl>()->get_outer());
+  table->_grid->remove(*child->get_data<ViewImpl>()->get_outer());
 }
 //------------------------------------------------------------------------------
 void mforms::gtk::TableImpl::set_row_spacing(Table *self, int space)
 {
   TableImpl *table= self->get_data<TableImpl>();
 
-  table->_table->set_row_spacings(space);
+  table->_grid->set_row_spacing(space);
 }
 //------------------------------------------------------------------------------
 void mforms::gtk::TableImpl::set_col_spacing(Table *self, int space)
 {
   TableImpl *table= self->get_data<TableImpl>();
 
-  table->_table->set_col_spacings(space);
+  table->_grid->set_column_spacing(space);
 }
 //------------------------------------------------------------------------------
 void mforms::gtk::TableImpl::set_homogeneous(Table *self, bool flag)
 {
   TableImpl *table= self->get_data<TableImpl>();
 
-  table->_table->set_homogeneous(flag);
+  table->_grid->set_column_homogeneous(flag);
+  table->_grid->set_row_homogeneous(flag);
 }
 //------------------------------------------------------------------------------
 void mforms::gtk::TableImpl::set_padding_impl(int left, int top, int right, int bottom)
 {
   if (left < 0 && top < 0 && right < 0 && bottom < 0)
   {
-    _table->set_valign(Gtk::ALIGN_CENTER);
-    _table->set_halign(Gtk::ALIGN_CENTER);
-    _table->set_border_width(0);
+    _grid->set_valign(Gtk::ALIGN_CENTER);
+    _grid->set_halign(Gtk::ALIGN_CENTER);
+    _grid->set_border_width(0);
   }
   else
   {
-    _table->set_valign(Gtk::ALIGN_FILL);
-    _table->set_halign(Gtk::ALIGN_FILL);
-    _table->set_border_width(left);
+    _grid->set_valign(Gtk::ALIGN_FILL);
+    _grid->set_halign(Gtk::ALIGN_FILL);
+    _grid->set_border_width(left);
   }
 }
 //------------------------------------------------------------------------------
