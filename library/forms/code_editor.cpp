@@ -308,7 +308,7 @@ void CodeEditorConfig::parse_styles()
 //----------------- CodeEditor ---------------------------------------------------------------------
 
 CodeEditor::CodeEditor(void *host, bool showInfo)
-  : _host(host), _previousDocumentHeight(0)
+  : _host(host)
 {
   _code_editor_impl= &ControlFactory::get_instance()->_code_editor_impl;
 
@@ -1190,15 +1190,6 @@ void CodeEditor::on_notify(SCNotification* notification)
       _change_event(notification->position, notification->length, notification->linesAdded,
         (notification->modificationType & SC_MOD_INSERTTEXT) != 0);
     }
-
-
-
-    int newDocumentHeight = (int)_code_editor_impl->send_editor(this, SCI_GETDOCUMENTHEIGHT, 0, 0);
-    if (newDocumentHeight > _previousDocumentHeight)
-      _signalLineWrapped(true, newDocumentHeight, _previousDocumentHeight);
-    else
-      _signalLineWrapped(false, newDocumentHeight, _previousDocumentHeight);
-    _previousDocumentHeight = newDocumentHeight;
 
     break;
   }
