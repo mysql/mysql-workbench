@@ -885,28 +885,29 @@ void SqlEditorResult::create_column_info_panel()
   }
 }
 
+static struct ColorDefinitions {
+    double r, g, b;
+} colors[] = {
+  {0.17, 0.34, 0.89},
+  {0.89, 0.34, 0.17},
+  {0.34, 0.89, 0.17},
+
+  {1.00, 0.37, 0.37},
+
+  {0.17, 0.89, 0.89},
+  {0.89, 0.89, 0.17},
+  {0.89, 0.17, 0.89},
+
+  {0.37, 0.64, 0.64},
+  {0.64, 0.37, 0.64},
+  {0.64, 0.64, 0.37},
+};
 
 static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
 {
   std::string path = mforms::Utilities::get_special_folder(mforms::ApplicationData) + "/stages.png";
-  static struct Color {
-    double r, g, b;
-  } colors[] = {
-    {0.17, 0.34, 0.89},
-    {0.89, 0.34, 0.17},
-    {0.34, 0.89, 0.17},
 
-    {1.00, 0.37, 0.37},
-
-    {0.17, 0.89, 0.89},
-    {0.89, 0.89, 0.17},
-    {0.89, 0.17, 0.89},
-
-    {0.37, 0.64, 0.64},
-    {0.64, 0.37, 0.64},
-    {0.64, 0.64, 0.37},
-  };
-  int ncolors = sizeof(colors)/sizeof(Color);
+  int ncolors = sizeof(colors)/sizeof(ColorDefinitions);
   double total = 0;
 
   for (size_t i = 0; i < stages.size(); i++)
@@ -972,24 +973,8 @@ static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
 static std::string render_waits(std::vector<SqlEditorForm::PSWait> &waits)
 {
   std::string path = mforms::Utilities::get_special_folder(mforms::ApplicationData) + "/waits.png";
-  static struct Color {
-    double r, g, b;
-  } colors[] = {
-    {0.17, 0.34, 0.89},
-    {0.89, 0.34, 0.17},
-    {0.34, 0.89, 0.17},
 
-    {1.00, 0.37, 0.37},
-
-    {0.17, 0.89, 0.89},
-    {0.89, 0.89, 0.17},
-    {0.89, 0.17, 0.89},
-
-    {0.37, 0.64, 0.64},
-    {0.64, 0.37, 0.64},
-    {0.64, 0.64, 0.37},
-  };
-  int ncolors = sizeof(colors)/sizeof(Color);
+  int ncolors = sizeof(colors)/sizeof(ColorDefinitions);
   double total = 0;
 
   for (size_t i = 0; i < waits.size(); i++)
