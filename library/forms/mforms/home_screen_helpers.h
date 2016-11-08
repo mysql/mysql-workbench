@@ -30,36 +30,23 @@ namespace mforms
 
   typedef std::map<std::string, base::any> anyMap;
 
-  template <typename T> T getAnyMapValue(const anyMap &map, const std::string &key, base::any a = base::any())
+  //    Use this variation to get a base::any. Use type cast directly only if you know the key exists in the map and
+  //    the item (base::any) does not contain a nullptr value
+  base::any getAnyMapValue(const anyMap &map, const std::string &key, base::any defaultValue = base::any());
+
+  //    Use this variation to cast a base::any safely without throwing and exception
+  template <typename T> 
+  T getAnyMapValueAs(const anyMap &map, const std::string &key, base::any defaultValue = base::any())
   {
-    T tmp;
-    try {
-      return map.at(key);
-    } catch (std::out_of_range &/*err*/)
-    {
-      if (a.isNull())
-        tmp = 0;
-      else
-        tmp = a.as<T>();
-      return tmp;
-    }
+    anyMap::const_iterator iter = map.find(key);
+    
+    if (iter == map.end())
+      return defaultValue.isNull() ? T() : defaultValue.as<T>();
+    
+    return iter->second;
   }
 
-  template<>
-  inline std::string getAnyMapValue(const anyMap &map, const std::string &key, base::any a)
-  {
-      std::string tmp;
-      try {
-        return map.at(key);
-      } catch (std::out_of_range &/*err*/)
-      {
-        if (a.isNull())
-          return tmp;
-        else
-          return a.as<std::string>();
-      }
-  }
-
+  
   /**
    * Value to tell observers which action was triggered on the home screen.
    */
