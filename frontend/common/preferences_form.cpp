@@ -27,6 +27,7 @@
 #include "mforms/textbox.h"
 #include "mforms/panel.h"
 #include "mforms/radiobutton.h"
+#include "mforms/scrollpanel.h"
 
 #include "grt.h"
 
@@ -424,7 +425,12 @@ mforms::TreeNodeRef PreferencesForm::add_page(mforms::TreeNodeRef parent, const 
 {
   mforms::TreeNodeRef node = parent ? parent->add_child() : _switcher.add_node();
   node->set_string(0, title);
-  _tabview.add_page(view, title);
+
+  mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel());
+  scroll->set_autohide_scrollers(true);
+  scroll->set_visible_scrollers(true, false);
+  scroll->add(view);
+  _tabview.add_page(scroll, title);
 
   return node;
 }
