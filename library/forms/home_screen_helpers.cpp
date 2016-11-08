@@ -42,6 +42,18 @@ const char* mforms::HomeScreenSettings::TILE_DRAG_FORMAT = "com.mysql.workbench-
 
 //--------------------------------------------------------------------------------------------------
 
+base::any mforms::getAnyMapValue(const mforms::anyMap &map, const std::string &key, base::any defaultValue)
+{
+  mforms::anyMap::const_iterator iter = map.find(key);
+  
+  if (iter == map.end())
+    return defaultValue;
+  
+  return iter->second;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::string mforms::HomeAccessibleButton::get_acc_name()
 {
   return name;
