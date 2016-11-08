@@ -70,7 +70,11 @@ extern NSString *const SCIUpdateUINotification;
  * SCIContentView is the Cocoa interface to the Scintilla backend. It handles text input and
  * provides a canvas for painting the output.
  */
-@interface SCIContentView : NSView <NSTextInputClient, NSUserInterfaceValidations>
+@interface SCIContentView : NSView <
+  NSTextInputClient,
+  NSUserInterfaceValidations,
+  NSDraggingSource,
+  NSDraggingDestination>
 {
 @private
   ScintillaView* mOwner;

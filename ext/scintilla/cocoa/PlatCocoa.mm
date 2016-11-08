@@ -26,12 +26,13 @@
 #import <Foundation/NSGeometry.h>
 
 #import "Platform.h"
-#import "ScintillaView.h"
-#import "ScintillaCocoa.h"
-#import "PlatCocoa.h"
 
 #include "StringCopy.h"
 #include "XPM.h"
+
+#import "ScintillaView.h"
+#import "ScintillaCocoa.h"
+#import "PlatCocoa.h"
 
 using namespace Scintilla;
 
@@ -223,7 +224,7 @@ void SurfaceImpl::Init(SurfaceID sid, WindowID)
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::InitPixMap(int width, int height, Surface* /* surface_ */, WindowID /* wid */)
+void SurfaceImpl::InitPixMap(int width, int height, Surface* surface_, WindowID /* wid */)
 {
   Release();
 
@@ -268,6 +269,18 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface* /* surface_ */, Win
     CGContextClearRect( gc, CGRectMake( 0, 0, width, height ) );
     CGContextSetRGBFillColor( gc, 1.0, 1.0, 1.0, 1.0 );
     CGContextFillRect( gc, CGRectMake( 0, 0, width, height ) );
+  }
+
+  if (surface_)
+  {
+    SurfaceImpl *psurfOther = static_cast<SurfaceImpl *>(surface_);
+    unicodeMode = psurfOther->unicodeMode;
+    codePage = psurfOther->codePage;
+  }
+  else
+  {
+    unicodeMode = true;
+    codePage = SC_CP_UTF8;
   }
 }
 
@@ -468,14 +481,14 @@ void SurfaceImpl::FillRectangle(PRectangle rc, ColourDesired back)
 
 //--------------------------------------------------------------------------------------------------
 
-void drawImageRefCallback(CGImageRef pattern, CGContextRef gc)
+static void drawImageRefCallback(CGImageRef pattern, CGContextRef gc)
 {
   CGContextDrawImage(gc, CGRectMake(0, 0, CGImageGetWidth(pattern), CGImageGetHeight(pattern)), pattern);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void releaseImageRefCallback(CGImageRef pattern)
+static void releaseImageRefCallback(CGImageRef pattern)
 {
   CGImageRelease(pattern);
 }
@@ -1094,21 +1107,7 @@ Window::~Window()
 {
 }
 
-//--------------------------------------------------------------------------------------------------
-
-void Window::Destroy()
-{
-  if (wid)
-  {
-    id idWin = reinterpret_cast<id>(wid);
-    if ([idWin isKindOfClass: [NSWindow class]])
-    {
-      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
-      [win release];
-    }
-  }
-  wid = 0;
-}
+// Window::Destroy needs to see definition of ListBoxImpl so is located after ListBoxImpl
 
 //--------------------------------------------------------------------------------------------------
 
@@ -1120,7 +1119,7 @@ bool Window::HasFocus()
 
 //--------------------------------------------------------------------------------------------------
 
-static CGFloat ScreenMax(NSWindow* win)
+static CGFloat ScreenMax()
 {
   return NSMaxY([[NSScreen mainScreen] frame]);
 }
@@ -1148,7 +1147,7 @@ PRectangle Window::GetPosition()
       win = reinterpret_cast<NSWindow*>(idWin);
       rect = [win frame];
     }
-    CGFloat screenHeight = ScreenMax(win);
+    CGFloat screenHeight = ScreenMax();
     // Invert screen positions to match Scintilla
     return PRectangle(
         static_cast<XYPOSITION>(NSMinX(rect)), static_cast<XYPOSITION>(screenHeight - NSMaxY(rect)),
@@ -1181,7 +1180,7 @@ void Window::SetPosition(PRectangle rc)
       // NSWindow
       PLATFORM_ASSERT([idWin isKindOfClass: [NSWindow class]]);
       NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
-      CGFloat screenHeight = ScreenMax(win);
+      CGFloat screenHeight = ScreenMax();
       NSRect nsrc = NSMakeRect(rc.left, screenHeight - rc.bottom,
           rc.Width(), rc.Height());
       [win setFrame: nsrc display:YES];
@@ -1300,7 +1299,7 @@ void Window::SetCursor(Cursor curs)
   if (wid)
   {
     id idWin = reinterpret_cast<id>(wid);
-    if ([idWin isMemberOfClass: [SCIContentView class]])
+    if ([idWin isKindOfClass: [SCIContentView class]])
     {
       SCIContentView* container = reinterpret_cast<SCIContentView*>(idWin);
       [container setCursor: curs];
@@ -1331,16 +1330,28 @@ PRectangle Window::GetMonitorRect(Point)
   if (wid)
   {
     id idWin = reinterpret_cast<id>(wid);
+    if ([idWin isKindOfClass: [NSView class]])
+    {
+      NSView* view = reinterpret_cast<NSView*>(idWin);
+      idWin = [view window];
+    }
     if ([idWin isKindOfClass: [NSWindow class]])
     {
+      PRectangle rcPosition = GetPosition();
+
       NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
       NSScreen* screen = [win screen];
-      NSRect rect = [screen frame];
+      NSRect rect = [screen visibleFrame];
       CGFloat screenHeight = rect.origin.y + rect.size.height;
       // Invert screen positions to match Scintilla
-      return PRectangle(
+      PRectangle rcWork(
           static_cast<XYPOSITION>(NSMinX(rect)), static_cast<XYPOSITION>(screenHeight - NSMaxY(rect)),
           static_cast<XYPOSITION>(NSMaxX(rect)), static_cast<XYPOSITION>(screenHeight - NSMinY(rect)));
+      PRectangle rcMonitor(rcWork.left - rcPosition.left,
+                           rcWork.top - rcPosition.top,
+                           rcWork.right - rcPosition.left,
+                           rcWork.bottom - rcPosition.top);
+      return rcMonitor;
     }
   }
   return PRectangle();
@@ -1379,6 +1390,8 @@ static NSImage* ImageFromXPM(XPM* pxpm)
 
 //----------------- ListBox and related classes ----------------------------------------------------
 
+//----------------- IListBox -----------------------------------------------------------------------
+
 namespace {
 
 // unnamed namespace hides IListBox interface
@@ -1398,7 +1411,7 @@ public:
 @interface AutoCompletionDataSource :
 NSObject
 #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
-<NSTableViewDataSource, NSTableViewDelegate>
+<NSTableViewDataSource>
 #endif
 {
   IListBox* box;
@@ -1449,20 +1462,6 @@ NSObject
 	if (!box)
 		return 0;
 	return box->Rows();
-}
-
-- (void)tableView: (NSTableView *)tableView
-  willDisplayCell: (id)cell
-   forTableColumn: (NSTableColumn *)tableColumn
-              row: (NSInteger)row
-{
-  if ([cell isKindOfClass: NSTextFieldCell.class])
-  {
-    if (row == tableView.selectedRow)
-      [cell setTextColor: NSColor.whiteColor];
-    else
-      [cell setTextColor: NSColor.darkGrayColor];
-  }
 }
 
 @end
@@ -1554,9 +1553,21 @@ private:
   void* doubleClickActionData;
 
 public:
-  ListBoxImpl() : lineHeight(10), unicodeMode(false),
-    desiredVisibleRows(5), maxItemWidth(0), aveCharWidth(8), maxIconWidth(0),
-    doubleClickAction(NULL), doubleClickActionData(NULL)
+  ListBoxImpl() :
+    lineHeight(10),
+    unicodeMode(false),
+    desiredVisibleRows(5),
+    maxItemWidth(0),
+    aveCharWidth(8),
+    maxIconWidth(0),
+    maxWidth(2000),
+    table(nil),
+    scroller(nil),
+    colIcon(nil),
+    colText(nil),
+    ds(nil),
+    doubleClickAction(nullptr),
+    doubleClickActionData(nullptr)
   {
   }
   ~ListBoxImpl() {}
@@ -1585,6 +1596,9 @@ public:
     doubleClickActionData = data;
   }
   void SetList(const char* list, char separator, char typesep);
+
+  // To clean up when closed
+  void ReleaseViews();
 
   // For access from AutoCompletionDataSource implement IListBox
   int Rows();
@@ -1628,12 +1642,12 @@ void ListBoxImpl::Create(Window& /*parent*/, int /*ctrlID*/, Scintilla::Point pt
   ds = [[AutoCompletionDataSource alloc] init];
   [ds setBox:this];
   [table setDataSource: ds];	// Weak reference
-  table.delegate = ds;
   [scroller setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
   [[winLB contentView] addSubview: scroller];
 
   [table setTarget:ds];
   [table setDoubleAction:@selector(doubleClick:)];
+  table.selectionHighlightStyle = NSTableViewSelectionHighlightStyleSourceList;
   wid = winLB;
 }
 
@@ -1702,6 +1716,21 @@ int ListBoxImpl::CaretFromEdge()
     return 3;
   else
     return 6 + static_cast<int>([colIcon width]);
+}
+
+void ListBoxImpl::ReleaseViews()
+{
+  [table setDataSource:nil];
+  [table release];
+  table = nil;
+  [scroller release];
+  scroller = nil;
+  [colIcon release];
+  colIcon = nil;
+  [colText release ];
+  colText = nil;
+  [ds release];
+  ds = nil;
 }
 
 void ListBoxImpl::Clear()
@@ -1918,6 +1947,28 @@ ListBox* ListBox::Allocate()
 	ListBoxImpl* lb = new ListBoxImpl();
 	return lb;
 }
+
+//--------------------------------------------------------------------------------------------------
+
+void Window::Destroy()
+{
+  ListBoxImpl *listbox = dynamic_cast<ListBoxImpl *>(this);
+  if (listbox)
+  {
+    listbox->ReleaseViews();
+  }
+  if (wid)
+  {
+    id idWin = reinterpret_cast<id>(wid);
+    if ([idWin isKindOfClass: [NSWindow class]])
+    {
+      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
+      [win release];
+    }
+  }
+  wid = 0;
+}
+
 
 //----------------- ScintillaContextMenu -----------------------------------------------------------
 
