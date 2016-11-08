@@ -21,7 +21,6 @@
 #include <glib/gstdio.h>
 #include <stdlib.h>
 
-#include "tinyxml.h"
 #include <boost/foreach.hpp>
 #include <pcre.h>
 
@@ -34,6 +33,7 @@
 #include "base/log.h"
 #include "base/file_utilities.h"
 #include "base/scope_exit_trigger.h"
+#include "base/xml_functions.h"
 
 #include "mforms/utilities.h"
 
@@ -381,93 +381,66 @@ void DbSqlEditorHistory::DetailsModel::reset()
   refresh_ui();
 }
 
-
 void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path)
 {
   if (base::file_exists(storage_file_path))
   {
-    std::ifstream history_xml(base::path_from_utf8(storage_file_path).c_str());
 
-    if (history_xml.is_open())
+    std::ifstream historyXml(storage_file_path);
+    if (historyXml.is_open())
     {
-      base::RecMutexLock data_mutex(_data_mutex);
-      _data.clear();
-      _data.reserve(_data.size() + _column_count);
-
       std::string line;
 
       // Skips the first line in the file as is the xml header
-      std::getline(history_xml, line);
-
-      const char *errptr;
-      int erroffs=0;
-      const char *pattern = "<ENTRY( timestamp\\=\'(.*)\')?>(.*)<\\/ENTRY>";
-      int patres[64];
-
-      pcre *patre= pcre_compile(pattern, 0, &errptr, &erroffs, NULL);
-      if (!patre)
-        throw std::logic_error("error compiling regex "+std::string(errptr));
-
-      // process the file
+      std::getline(historyXml, line);
       _row_count = 0;
-      while (history_xml.good())
+
+      base::RecMutexLock data_mutex(_data_mutex);
+      _data.clear();
+      _data.reserve(_data.size() + _column_count);
+      while (historyXml.good())
       {
-        std::string timestamp;
-        std::string statement;
-        const char *value;
+        std::getline(historyXml, line);
 
-        std::getline(history_xml, line);
-
-        // executes the regexp against the new line
-        int rc = pcre_exec(patre, NULL, line.c_str(), (int)line.length(), 0, 0, patres,
-          sizeof(patres) / sizeof(int));
-
-        if ( rc > 0 )
+        xmlDocPtr xmlDoc = base::xml::xmlParseFragment(line);
+        if (xmlDoc == nullptr)
         {
-          // gets the values timestamp and 
-          pcre_get_substring(line.c_str(), patres, rc, 2, &value);
-          timestamp = value ? std::string(value) : "";
-          if (value)
-            pcre_free_substring(value);
-
-          TiXmlText sql_text("");
-          pcre_get_substring(line.c_str(), patres, rc, 3, &value);
-           
-          if (value && *value)
-            sql_text.Parse(value, 0, /*TiXmlEncoding::*/TIXML_ENCODING_UTF8);
-
-          if (value)
-            pcre_free_substring(value);
- 
-          statement = sql_text.ValueStr();
-
-          // decides whether to use or not the existing data
-          if (timestamp != _last_timestamp.toString() && timestamp != "~")
-            _last_timestamp = timestamp;
-
-          if (statement != _last_statement.toString() && statement != "~")
-            _last_statement = statement;
-
-          _data.push_back(_last_statement);
-          _data.push_back(_last_timestamp);
-        
-          _row_count++;
+          logError("Can't parse %s, of file: %s\n", line.c_str(), storage_file_path.c_str());
+          continue;
         }
+
+        // In history we've got one element per line.
+        auto element = xmlDoc->children;
+        if (element->next != nullptr) // If there's something more, we log proper information and parse only that one element.
+          logError("History line contains too many elements %s, of file: %s\n", line.c_str(), storage_file_path.c_str());
+
+        std::string timestamp = base::xml::getProp(element, "timestamp");
+        std::string statement = base::xml::getContent(element);
+        // decides whether to use or not the existing data
+        if (timestamp != _last_timestamp.toString() && timestamp != "~")
+          _last_timestamp = timestamp;
+
+        if (statement != _last_statement.toString() && statement != "~")
+          _last_statement = statement;
+
+        _data.push_back(_last_statement);
+        _data.push_back(_last_timestamp);
+
+        _row_count++;
+
+        xmlFree(xmlDoc);
       }
 
       std::reverse(_data.begin(),_data.end());
 
-      pcre_free(patre);
-
-      history_xml.close();
-
       _data_frame_end= _row_count;
 
       _last_loaded_row = (int)_row_count - 1;
+
     }
-    else
-      logError("Can't open SQL history file %s\n", storage_file_path.c_str());
   }
+  else
+    logError("Can't open SQL history file %s\n", storage_file_path.c_str());
 }
 
 std::string DbSqlEditorHistory::DetailsModel::storage_file_path() const
@@ -525,8 +498,8 @@ void DbSqlEditorHistory::DetailsModel::save()
         last_saved_statement = sql;
 
       std::string xml_time, xml_sql;
-      TiXmlBase::EncodeString(time, &xml_time); 
-      TiXmlBase::EncodeString(sql, &xml_sql); 
+      xml_time = base::xml::encodeEntities(time);
+      xml_sql = base::xml::encodeEntities(sql);
       ofs << "<ENTRY timestamp=\'" << xml_time << "\'>" << xml_sql << "</ENTRY>\n";
     }
     _last_loaded_row = (int)_row_count - 1;

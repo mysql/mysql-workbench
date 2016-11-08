@@ -24,7 +24,6 @@
 #include "synthetic_mysql_model.h"
 #include "grtdb/diff_dbobjectmatch.h"
 #include "grtdb/sync_profile.h"
-#include "wb_mysql_import.h"
 #include "db_mysql_public_interface.h"
 
 #include "db_mysql_diffsqlgen.h"
