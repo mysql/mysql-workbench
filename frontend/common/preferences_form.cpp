@@ -225,7 +225,9 @@ public:
     label->set_size(170, -1);
     _table.add(control, 1, 2, _rows - 1, _rows, mforms::HFillFlag | mforms::HExpandFlag);
     control->set_size(150, -1);
-    _table.add(new_label(help, false, true), 2, 3, _rows - 1, _rows, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
+    label = new_label(help, false, true);
+    label->set_size(200, -1);
+    _table.add(label, 2, 3, _rows - 1, _rows, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
     
   }
 
@@ -1469,9 +1471,9 @@ mforms::View *PreferencesForm::create_others_page()
   return content;
 }
 
-void PreferencesForm::createLogLevelSelectionPulldown( mforms::Box *content )
+void PreferencesForm::createLogLevelSelectionPulldown(mforms::Box *content)
 {
-  OptionTable *logTable = mforms::manage( new OptionTable(this, _("Logs"), true) );
+  OptionTable *logTable = mforms::manage(new OptionTable(this, _("Logs"), true));
   content->add(logTable, false, true);
 
   // put together comma-separated list of all loglevels (i.e: "none,error,warning,info,debug1,...")
