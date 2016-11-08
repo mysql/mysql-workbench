@@ -2,15 +2,29 @@
 
 #include <string.h>
 
+#include <stdexcept>
 #include <algorithm>
 
 #include "Platform.h"
 
+#include "Position.h"
 #include "SplitVector.h"
 
 #include "catch.hpp"
 
 // Test SplitVector.
+
+struct StringSetHolder {
+	SplitVector<std::string> sa;
+	bool Check() {
+		for (int i = 0; i < sa.Length(); i++) {
+			if (sa[i].empty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+};
 
 const int lengthTestArray = 4;
 static const int testArray[4] = {3, 4, 5, 6};
@@ -38,6 +52,98 @@ TEST_CASE("SplitVector") {
 		for (int i=0; i<sv.Length(); i++) {
 			REQUIRE(0 == sv.ValueAt(i));
 		}
+	}
+
+	SECTION("InsertionString") {
+		// This test failed an earlier version of SplitVector that copied backwards incorrectly
+		StringSetHolder ssh;
+		ssh.sa.Insert(0, "Alpha");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(0, "Beta");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(0, "Cat");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(1, "Dog");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(0, "Elephant");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(1, "Fox");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(0, "Grass");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(1, "Hat");
+		REQUIRE(ssh.Check());
+		ssh.sa.Delete(4);
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(0, "Indigo");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(1, "Jackal");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(0, "Kanga");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(1, "Lion");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(0, "Mango");
+		REQUIRE(ssh.Check());
+		ssh.sa.Insert(1, "Neon");
+		REQUIRE(ssh.Check());
+	}
+
+	SECTION("InsertionPattern") {
+		sv.Insert(0, 1);	// 1
+		sv.Insert(0, 2);	// 21
+		sv.Insert(0, 3);	// 321
+		sv.Insert(1, 4);	// 3421
+		sv.Insert(0, 5);	// 53421
+		sv.Insert(1, 6);	// 563421
+		sv.Insert(0, 7);	// 7563421
+		sv.Insert(1, 8);	// 78563421
+
+		REQUIRE(8 == sv.Length());
+
+		REQUIRE(7 == sv.ValueAt(0));
+		REQUIRE(8 == sv.ValueAt(1));
+		REQUIRE(5 == sv.ValueAt(2));
+		REQUIRE(6 == sv.ValueAt(3));
+		REQUIRE(3 == sv.ValueAt(4));
+		REQUIRE(4 == sv.ValueAt(5));
+		REQUIRE(2 == sv.ValueAt(6));
+		REQUIRE(1 == sv.ValueAt(7));
+
+		sv.Delete(4);	// 7856421
+
+		REQUIRE(7 == sv.Length());
+
+		REQUIRE(7 == sv.ValueAt(0));
+		REQUIRE(8 == sv.ValueAt(1));
+		REQUIRE(5 == sv.ValueAt(2));
+		REQUIRE(6 == sv.ValueAt(3));
+		REQUIRE(4 == sv.ValueAt(4));
+		REQUIRE(2 == sv.ValueAt(5));
+		REQUIRE(1 == sv.ValueAt(6));
+
+		sv.Insert(0, 9);		// 97856421
+		sv.Insert(1, 0xa);	// 9a7856421
+		sv.Insert(0, 0xb);	// b9a7856421
+		sv.Insert(1, 0xc);	// bc9a7856421
+		sv.Insert(0, 0xd);	// dbc9a7856421
+		sv.Insert(1, 0xe);	// debc9a7856421
+
+		REQUIRE(13 == sv.Length());
+
+		REQUIRE(0xd == sv.ValueAt(0));
+		REQUIRE(0xe == sv.ValueAt(1));
+		REQUIRE(0xb == sv.ValueAt(2));
+		REQUIRE(0xc == sv.ValueAt(3));
+		REQUIRE(9 == sv.ValueAt(4));
+		REQUIRE(0xa == sv.ValueAt(5));
+		REQUIRE(7 == sv.ValueAt(6));
+		REQUIRE(8 == sv.ValueAt(7));
+		REQUIRE(5 == sv.ValueAt(8));
+		REQUIRE(6 == sv.ValueAt(9));
+		REQUIRE(4 == sv.ValueAt(10));
+		REQUIRE(2 == sv.ValueAt(11));
+		REQUIRE(1 == sv.ValueAt(12));
 	}
 
 	SECTION("EnsureLength") {
