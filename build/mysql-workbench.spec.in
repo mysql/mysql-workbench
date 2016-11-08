@@ -138,7 +138,7 @@ Conflicts: mysql-workbench-commercial
 
 # Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering (from EL7)
 # FIXME if using system installs of one of these, this list is not correct
-%global __requires_exclude ^lib(antlr3c_wb|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla)\\.so.*$
+%global __requires_exclude ^lib(antlr3c_wb|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate)\\.so.*$
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*)$
 
 
