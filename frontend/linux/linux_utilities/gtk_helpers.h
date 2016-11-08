@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,6 +48,7 @@ class Paned;
 #include <grt/tree_model.h>
 
 #include <sigc++/sigc++.h>
+#include <boost/function.hpp>
 
 //!
 //! \addtogroup linuxutils Linux utils
@@ -56,6 +57,7 @@ class Paned;
 class TextListColumnsModel;
 class TreeModelWrapper;
 void expand_tree_nodes_as_in_be(const Glib::RefPtr<TreeModelWrapper> &model, Gtk::TreeView *tv);
+
 
 Gtk::Box &create_icon_label(const std::string &icon, const std::string &label);
 

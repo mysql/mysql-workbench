@@ -518,7 +518,7 @@ namespace wb {
     boost::function<void (bool)> lock_gui;
 
     boost::function<void (std::string)> perform_command;
-    
+
     boost::function<bool ()> quit_application;
 
   private:

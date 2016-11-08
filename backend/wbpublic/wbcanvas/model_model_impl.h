@@ -32,6 +32,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC ModelBridgeDelegate
 {
 public:
+  virtual ~ModelBridgeDelegate() {};
   virtual mdc::CanvasView *create_diagram(const model_DiagramRef &mview)= 0;
   virtual void free_canvas_view(mdc::CanvasView *view)= 0;
   

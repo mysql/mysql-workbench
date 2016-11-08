@@ -46,7 +46,7 @@ class PrivilegeObjectNode : public OverviewBE::ObjectNode
 {  
   boost::signals2::connection _changed_conn;
 public:
-  PrivilegeObjectNode(GrtObjectRef o, const boost::function<void (const std::string&,const grt::ValueRef&)> &refresh_slot) 
+  PrivilegeObjectNode(GrtObjectRef o, const std::function<void (const std::string&,const grt::ValueRef&)> &refresh_slot)
   {
     object= o; 
     
@@ -59,7 +59,7 @@ public:
     _changed_conn.disconnect();
   }
 
-  boost::function<void (WBComponentPhysical*)> remove;
+  std::function<void (WBComponentPhysical*)> remove;
 
   virtual void delete_object(WBContext *wb) 
   {
@@ -155,13 +155,13 @@ public:
     
     for (size_t c= _list.count(), i= 0; i < c; i++)
     {
-      PrivilegeObjectNode *node= new PrivilegeObjectNode(_list[i], boost::bind(&UserListNode::refresh, this, _1, _2));
+      PrivilegeObjectNode *node= new PrivilegeObjectNode(_list[i], std::bind(&UserListNode::refresh, this, std::placeholders::_1, std::placeholders::_2));
       
       node->type= OverviewBE::OItem;
       node->label= _list[i]->name();
       node->small_icon= IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon16);
       node->large_icon= IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon48);
-      node->remove= boost::bind(_remove, _1, db_UserRef::cast_from(_list[i]));
+      node->remove= std::bind(_remove, std::placeholders::_1, db_UserRef::cast_from(_list[i]));
 
       children.push_back(node);
     }
@@ -224,13 +224,13 @@ public:
     for (size_t c= _list.count(), i= 0; i < c; i++)
     {
       PrivilegeObjectNode *node= new PrivilegeObjectNode(_list[i], 
-                                                         boost::bind(&RoleListNode::refresh, this, _1, _2));
+                                                         std::bind(&RoleListNode::refresh, this, std::placeholders::_1, std::placeholders::_2));
       
       node->type= OverviewBE::OItem;
       node->label= _list[i]->name();
       node->small_icon= IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon16);
       node->large_icon= IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon48);
-      node->remove= boost::bind(_remove, _1, db_RoleRef::cast_from(_list[i]));
+      node->remove= std::bind(_remove, std::placeholders::_1, db_RoleRef::cast_from(_list[i]));
 
       children.push_back(node);
     }

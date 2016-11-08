@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -567,6 +567,38 @@ std::vector<std::string> split_by_set(const std::string &s, const std::string &s
 
 //--------------------------------------------------------------------------------------------------
 
+static void findUntil(const char elem, const std::string &str, const int sep, std::string::size_type &p, std::string::size_type &pe, std::string::size_type &end, std::vector<std::string> &parts)
+{
+  // keep going until we find closing '
+  while (pe < end)
+  {
+    auto it = str[pe++];
+    if (it == elem)
+    {
+      if (pe < end && str[pe] == elem)
+        pe++;
+      else
+        break;
+    }
+    else if (it == '\\')
+    {
+      if (pe < end)
+        pe++;
+    }
+  }
+  parts.push_back(str.substr(p, pe-p));
+  p = pe;
+  // skip whitespace
+  while (p < end && (str[p] == ' ' || str[p] == '\t' || str[p] == '\r' || str[p] == '\n')) p++;
+  if (p < end)
+  {
+    if (str[p] != sep)
+      logDebug("Error splitting string list\n");
+    else
+      p++;
+  }
+}
+
 std::vector<std::string> split_token_list(const std::string &s, int sep)
 {
   std::vector<std::string> parts;
@@ -575,9 +607,7 @@ std::vector<std::string> split_token_list(const std::string &s, int sep)
   std::string::size_type end = s.size(), pe, p = 0;
   
   {
-    bool done;
     bool empty_pending = true;
-
     while (p < end)
     {
       empty_pending = false;
@@ -585,68 +615,12 @@ std::vector<std::string> split_token_list(const std::string &s, int sep)
       {
         case '\'':
           pe = p+1;
-          done = false;
-          // keep going until we find closing '
-          while (pe < end && !done)
-          {
-            switch (s[pe++])
-            {
-              case '\'':
-                if (pe < end && s[pe] == '\'')
-                  pe++;
-                else
-                  done = true;
-                break;
-              case '\\':
-                if (pe < end)
-                  pe++;
-                break;
-            }
-          }
-          parts.push_back(s.substr(p, pe-p));
-          p = pe;
-          // skip whitespace
-          while (p < end && (s[p] == ' ' || s[p] == '\t' || s[p] == '\r' || s[p] == '\n')) p++;
-          if (p < end)
-          {
-            if (s[p] != sep)
-              logDebug("Error splitting string list\n");
-            else
-              p++;
-          }
+          findUntil('\'', s, sep, p, pe, end, parts);
           break;
 
         case '"':
           pe = p+1;
-          done = false;
-          // keep going until we find closing "
-          while (pe < end && !done)
-          {
-            switch (s[pe++])
-            {
-              case '"':
-                if (pe < end && s[pe] == '"')
-                  pe++;
-                else
-                  done = true;
-                break;
-              case '\\':
-                if (pe < end)
-                  pe++;
-                break;
-            }
-          }
-          parts.push_back(s.substr(p, pe-p));
-          p = pe;
-          // skip whitespace
-          while (p < end && (s[p] == ' ' || s[p] == '\t' || s[p] == '\r' || s[p] == '\n')) p++;
-          if (p < end)
-          {
-            if (s[p] != sep)
-              logDebug("Error splitting string list\n");
-            else
-              p++;
-          }
+          findUntil('"', s, sep, p, pe, end, parts);
           break;
 
         case ' ':
