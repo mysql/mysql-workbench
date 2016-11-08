@@ -30,8 +30,12 @@ namespace gtk {
 class TableImpl : public ViewImpl
 {  
 protected:
-  Gtk::Table *_table;
+  Gtk::Grid *_grid;
   Gtk::Box *_outerBox;
+  // We need this to mimic Table functionality so we know if
+  // we're not trying to add to many elements
+  int _rowCount;
+  int _colCount;
   virtual Gtk::Widget *get_outer() const;
   virtual Gtk::Widget *get_inner() const;
   

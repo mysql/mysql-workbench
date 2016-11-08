@@ -73,8 +73,28 @@ void mforms::gtk::ScrollPanelImpl::set_visible_scrollers(::mforms::ScrollPanel *
   mforms::gtk::ScrollPanelImpl *panel= self->get_data<mforms::gtk::ScrollPanelImpl>();
   panel->_vertical = vertical;
   panel->_horizontal = horizontal;
-  panel->_swin->set_policy(panel->_autohide ? Gtk::POLICY_AUTOMATIC : (horizontal ? Gtk::POLICY_ALWAYS : Gtk::POLICY_NEVER),
-  panel->_autohide ? Gtk::POLICY_AUTOMATIC : (vertical ? Gtk::POLICY_ALWAYS : Gtk::POLICY_NEVER));
+
+  Gtk::PolicyType hPolicy = Gtk::POLICY_AUTOMATIC, vPolicy = Gtk::POLICY_AUTOMATIC;
+  if (!panel->_vertical)
+    vPolicy = Gtk::POLICY_NEVER;
+  else
+  {
+    if (panel->_autohide)
+      vPolicy = Gtk::POLICY_AUTOMATIC;
+    else
+      vPolicy = Gtk::POLICY_ALWAYS;
+  }
+
+  if (!panel->_horizontal)
+    hPolicy = Gtk::POLICY_NEVER;
+  else
+  {
+    if (panel->_autohide)
+      hPolicy = Gtk::POLICY_AUTOMATIC;
+    else
+      hPolicy = Gtk::POLICY_ALWAYS;
+  }
+  panel->_swin->set_policy(hPolicy, vPolicy);
 }
 
 void mforms::gtk::ScrollPanelImpl::set_autohide_scrollers(::mforms::ScrollPanel *self, bool flag)
