@@ -78,7 +78,8 @@ else
 CTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
 endif
 
-CXXTFLAGS:=--std=gnu++0x $(CTFLAGS) $(REFLAGS)
+#CXXTFLAGS:=--std=gnu++0x $(CTFLAGS) $(REFLAGS)
+CXXTFLAGS:=--std=c++11 $(CTFLAGS) $(REFLAGS)
 
 CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
 MARSHALLER=scintilla-marshal.o
