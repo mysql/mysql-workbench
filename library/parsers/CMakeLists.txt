@@ -29,7 +29,8 @@ add_library(parsers
   ${PARSERS_SOURCES}
 )
 
-string(REPLACE "-Werror" "" ${WB_CFLAGS} NEW_WB_CFLAGS)
+set(NEW_WB_CFLAGS ${WB_CFLAGS})
+list(REMOVE_ITEM NEW_WB_CFLAGS -Werror)
 target_compile_options(parsers PUBLIC ${NEW_WB_CFLAGS})
 
 

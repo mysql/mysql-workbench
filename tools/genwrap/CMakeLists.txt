@@ -15,9 +15,9 @@ add_executable(genwrap
 target_compile_options(genwrap PUBLIC ${WB_CXXFLAGS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  target_compile_options(genwrap PUBLIC -fPIE)
+  target_compile_options(genwrap PRIVATE -fPIE)
 else()
-  target_compile_options(genwrap PUBLIC -fPIE -pie)
+  target_compile_options(genwrap PRIVATE -fPIE -pie)
 endif()
 
 target_link_libraries(genwrap grt wbbase wbpublic mtemplate ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES})
