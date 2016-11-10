@@ -718,7 +718,7 @@ bool WBContextSQLIDE::auto_save_workspaces()
     if (_auto_save_handle)
       mforms::Utilities::cancel_timeout(_auto_save_handle);
     // schedule new interval
-    _auto_save_handle = mforms::Utilities::add_timeout((float)interval, boost::bind(&WBContextSQLIDE::auto_save_workspaces, this));
+    _auto_save_handle = mforms::Utilities::add_timeout((float)interval, std::bind(&WBContextSQLIDE::auto_save_workspaces, this));
     return false;
   }
   
@@ -984,8 +984,8 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
     if (!mforms::Utilities::run_cancelable_task(_("Opening SQL Editor"),
                                                 strfmt(_("An SQL editor instance for '%s' is opening and should be available in a "
                                                          "moment.\n\nPlease stand by..."), conn->name().c_str()),
-                                                boost::bind(connect_editor, editor, tunnel),
-                                                boost::bind(cancel_connect_editor, editor),
+                                                std::bind(connect_editor, editor, tunnel),
+                                                std::bind(cancel_connect_editor, editor),
                                                 result_ptr))
       throw grt::user_cancelled("canceled");
     if (!result_ptr)
@@ -1057,7 +1057,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
     _auto_save_active= true;
     ssize_t interval = wb::WBContextUI::get()->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
     if (interval > 0)
-        _auto_save_handle = mforms::Utilities::add_timeout((float)interval, boost::bind(&WBContextSQLIDE::auto_save_workspaces, this));
+        _auto_save_handle = mforms::Utilities::add_timeout((float)interval, std::bind(&WBContextSQLIDE::auto_save_workspaces, this));
     _auto_save_interval = interval;
 
     if (!_option_change_signal_connected)

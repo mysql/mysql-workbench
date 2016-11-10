@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,8 +86,8 @@ namespace mforms {
     int item_count();
 
 #ifndef SWIG
-    MenuItem *add_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name="");
-    MenuItem *add_check_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name="");
+    MenuItem *add_item_with_title(const std::string &title, std::function<void ()> action, const std::string &name="");
+    MenuItem *add_check_item_with_title(const std::string &title, std::function<void ()> action, const std::string &name="");
 #endif
     MenuItem *add_separator();
 
@@ -111,7 +111,7 @@ namespace mforms {
   class MFORMS_EXPORT MenuItem : public MenuBase
   {
   public:
-    typedef boost::function<bool ()> validator_function;
+    typedef std::function<bool ()> validator_function;
 
     /** Constructor
      

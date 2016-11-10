@@ -106,7 +106,7 @@ void SqlEditorForm::limit_rows(const std::string &limit_text)
   {
     std::string s = base::strfmt("Limit to %i rows", limit);
     if (!citem)
-      citem = menu->add_item_with_title(s, boost::bind(&SqlEditorForm::limit_rows, this, s), "custom");
+      citem = menu->add_item_with_title(s, std::bind(&SqlEditorForm::limit_rows, this, s), "custom");
     else
       citem->set_title(s);
     citem->set_checked(true);

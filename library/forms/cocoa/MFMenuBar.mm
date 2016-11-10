@@ -24,7 +24,7 @@
 
 @interface MFMenuItem : NSMenuItem <NSMenuDelegate>
 {
-  boost::function<void ()> slot;
+  std::function<void ()> slot;
 @public
   mforms::MenuItem *item;
 }
@@ -43,10 +43,10 @@ static NSMenuItem *defaultEditMenu = nil;
 
 - (instancetype)initWithTitle: (NSString *)string action: (nullable SEL)selector keyEquivalent: (NSString *)charCode
 {
-  return [self initWithTitle: string slot: boost::function<void ()>()];
+  return [self initWithTitle: string slot: std::function<void ()>()];
 }
 
-- (instancetype)initWithTitle:(NSString*)title slot:(boost::function<void ()>)aslot
+- (instancetype)initWithTitle:(NSString*)title slot:(std::function<void ()>)aslot
 {
   self = [super initWithTitle: title action: @selector(callSlot:) keyEquivalent:@""];
   if (self)
@@ -132,7 +132,7 @@ static bool create_menu_item(MenuItem *aitem, const std::string &title, MenuItem
   }
   else
   {
-    MFMenuItem *item = [[MFMenuItem alloc] initWithTitle: wrap_nsstring(title) slot: boost::bind(&MenuItem::callback, aitem)];
+    MFMenuItem *item = [[MFMenuItem alloc] initWithTitle: wrap_nsstring(title) slot: std::bind(&MenuItem::callback, aitem)];
     item->item = aitem;
     aitem->set_data(item);
   }

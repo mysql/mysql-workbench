@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -116,7 +116,7 @@ void Wizard::set_next_caption(const std::string &caption)
 }
 
 
-void Wizard::set_cancel_handler(const boost::function<bool ()> &slot)
+void Wizard::set_cancel_handler(const std::function<bool ()> &slot)
 {
   _cancel_slot= slot;
 }

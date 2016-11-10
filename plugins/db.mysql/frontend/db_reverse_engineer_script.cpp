@@ -51,7 +51,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form)
 
   std::string initial_filename= form->module()->document_string_data("input_filename", "");
   _file_selector.initialize(initial_filename, mforms::OpenFile, "SQL Files (*.sql)|*.sql",
-    false, boost::bind(&WizardPage::validate, this));
+    false, std::bind(&WizardPage::validate, this));
   scoped_connect(_file_selector.signal_changed(),boost::bind(&ImportInputPage::file_changed, this));
 
   _file_codeset_caption.set_text(_("File encoding:"));

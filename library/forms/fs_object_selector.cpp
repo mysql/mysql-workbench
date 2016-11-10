@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@ using namespace mforms;
  * container for the other (implicitly created) controls.
  */
 FsObjectSelector::FsObjectSelector(bool horizontal)
-: Box(horizontal)
+: Box(horizontal), _type(OpenFile), _show_hidden(false)
 {
   _browse_button = mforms::manage(new Button(), false);
   _browse_button->retain();
@@ -52,7 +52,7 @@ FsObjectSelector::FsObjectSelector(bool horizontal)
  * show up empty (unless you explicitly add the given controls to this selector).
  */
 FsObjectSelector::FsObjectSelector(Button* button, TextEntry* edit)
-: Box(true)
+: Box(true), _type(OpenFile), _show_hidden(false)
 {
   _browse_button= button;
   _browse_button->retain();
@@ -71,7 +71,7 @@ FsObjectSelector::~FsObjectSelector()
 //--------------------------------------------------------------------------------------------------
 
 void FsObjectSelector::initialize(const std::string& initial_path, FileChooserType type,
-                                  const std::string& extensions, bool show_hidden, boost::function<void ()> on_validate)
+                                  const std::string& extensions, bool show_hidden, std::function<void ()> on_validate)
 {
   _type= type;
   _show_hidden = show_hidden;
@@ -114,8 +114,8 @@ void FsObjectSelector::set_filename(const std::string &path)
 
 void FsObjectSelector::enable_file_browsing()
 {
-  scoped_connect(_edit->signal_changed(),boost::bind(&FsObjectSelector::filename_changed, this));
-  _browse_connection= _browse_button->signal_clicked()->connect(boost::bind(&FsObjectSelector::browse_file_callback, this));
+  scoped_connect(_edit->signal_changed(),std::bind(&FsObjectSelector::filename_changed, this));
+  _browse_connection= _browse_button->signal_clicked()->connect(std::bind(&FsObjectSelector::browse_file_callback, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ void FsObjectSelector::filename_changed()
  * Note: setting a different browse callback moves reponsibilities to this callback (e.g. setting
  * the text of the edit control, triggering validation).
  */
-void FsObjectSelector::set_browse_callback(boost::function<void ()> browse_callback)
+void FsObjectSelector::set_browse_callback(std::function<void ()> browse_callback)
 {
   _browse_connection= _browse_button->signal_clicked()->connect(browse_callback);
 }

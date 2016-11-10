@@ -39,8 +39,8 @@ WebBrowserView::WebBrowserView(WBContextUI *wbui)
   : AppView(false, "Browse", true), _wbui(wbui)
 {
   add(&_browser, true, true);
-  _browser.set_link_click_handler(boost::bind(&WebBrowserView::handle_url, this, _1));
-  UIForm::scoped_connect(_browser.signal_loaded(),boost::bind(&WebBrowserView::document_loaded, this, _1));
+  _browser.set_link_click_handler(std::bind(&WebBrowserView::handle_url, this, std::placeholders::_1));
+  UIForm::scoped_connect(_browser.signal_loaded(), std::bind(&WebBrowserView::document_loaded, this, std::placeholders::_1));
 }
 
 //--------------------------------------------------------------------------------------------------

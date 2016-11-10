@@ -1160,7 +1160,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title("Set Field to NULL",
-                                       boost::bind(&Recordset::activate_menu_item, this, "set_to_null", rows, clicked_column),
+                                       std::bind(&Recordset::activate_menu_item, this, "set_to_null", rows, clicked_column),
                                        "set_to_null");
 
     // On Windows we can select individual cells, so it is perfectly ok to allow acting on multiple
@@ -1173,7 +1173,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
   #endif
 
     item = _context_menu->add_item_with_title("Mark Field Value as a Function/Literal",
-                                      boost::bind(&Recordset::activate_menu_item, this, "set_to_function", rows, clicked_column),
+                                      std::bind(&Recordset::activate_menu_item, this, "set_to_function", rows, clicked_column),
                                       "set_to_function");
   #ifdef _WIN32
     item->set_enabled(clicked_column >= 0 && !ro);
@@ -1182,57 +1182,57 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
   #endif
     
     item = _context_menu->add_item_with_title("Delete Row(s)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "delete_row", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "delete_row", rows, clicked_column),
                                               "delete_row");
     item->set_enabled(rows.size() > 0 && !ro);
 
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title("Load Value From File...",
-                                              boost::bind(&Recordset::activate_menu_item, this, "load_from_file", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "load_from_file", rows, clicked_column),
                                               "load_from_file");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
 
     item = _context_menu->add_item_with_title("Save Value To File...",
-                                              boost::bind(&Recordset::activate_menu_item, this, "save_to_file", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "save_to_file", rows, clicked_column),
                                               "save_to_file");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
 
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title("Copy Row",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row", rows, clicked_column),
                                               "copy_row");
     item->set_enabled(rows.size() > 0);
     item = _context_menu->add_item_with_title("Copy Row (with names)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_with_names", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row_with_names", rows, clicked_column),
                                               "copy_row_with_names");
 
     item = _context_menu->add_item_with_title("Copy Row (unquoted)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted", rows, clicked_column),
                                               "copy_row_unquoted");
     item->set_enabled(rows.size() > 0);
     item = _context_menu->add_item_with_title("Copy Row (with names, unquoted)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted_with_names", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted_with_names", rows, clicked_column),
                                               "copy_row_unquoted_with_names");
 
     item = _context_menu->add_item_with_title("Copy Row (tab separated)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_tabsep", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row_tabsep", rows, clicked_column),
                                               "copy_row_tabsep");
     item->set_enabled(rows.size() > 0);
 
     item = _context_menu->add_item_with_title("Copy Field",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_field", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_field", rows, clicked_column),
                                               "copy_field");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1);
 
     item = _context_menu->add_item_with_title("Copy Field (unquoted)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_field_unquoted", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_field_unquoted", rows, clicked_column),
                                               "copy_field_unquoted");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1);
 
     item = _context_menu->add_item_with_title("Paste Row",
-                                              boost::bind(&Recordset::activate_menu_item, this, "paste_row", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "paste_row", rows, clicked_column),
                                               "paste_row");
     item->set_enabled(rows.size() <= 1 && !mforms::Utilities::get_clipboard_text().empty() && !ro);
 

@@ -295,7 +295,7 @@ static std::map<TimeoutHandle, sigc::connection> timeouts;
 static TimeoutHandle last_timeout_handle = 0;
 static base::Mutex timeout_mutex;
 
-inline bool run_slot(const boost::function<bool ()> slot, TimeoutHandle handle)
+inline bool run_slot(const std::function<bool ()> slot, TimeoutHandle handle)
 {
   if (!slot())
   {
@@ -309,7 +309,7 @@ inline bool run_slot(const boost::function<bool ()> slot, TimeoutHandle handle)
 }
 
 //------------------------------------------------------------------------------
-TimeoutHandle UtilitiesImpl::add_timeout(float interval, const boost::function<bool ()> &slot)
+TimeoutHandle UtilitiesImpl::add_timeout(float interval, const std::function<bool ()> &slot)
 {
   try
   {
@@ -942,7 +942,7 @@ void UtilitiesImpl::beep()
 
 
 bool UtilitiesImpl::run_cancelable_wait_message(const std::string &title, const std::string &text,
-                                                 const boost::function<void ()> &start_task, const boost::function<bool ()> &cancel_task)
+                                                 const std::function<void ()> &start_task, const std::function<bool ()> &cancel_task)
 {
   if (!start_task)
     throw std::invalid_argument("start_task param cannot be empty");
@@ -951,7 +951,7 @@ bool UtilitiesImpl::run_cancelable_wait_message(const std::string &title, const 
     tmc = new TransparentMessage();
   if (tmc)
   {
-    tmc->show_message(title, text, sigc::mem_fun(&cancel_task,&boost::function<bool ()>::operator()));
+    tmc->show_message(title, text, sigc::mem_fun(&cancel_task,&std::function<bool ()>::operator()));
     tmc->running_modal = true;
 
     Glib::signal_idle().connect(sigc::bind_return(start_task, false));
@@ -974,7 +974,7 @@ void UtilitiesImpl::stop_cancelable_wait_message()
     if (Utilities::in_main_thread())
       tmc->stop();
     else
-      Utilities::perform_from_main_thread(sigc::bind_return(sigc::mem_fun(tmc, &TransparentMessage::stop), (void*)NULL));
+      Utilities::perform_from_main_thread([]()->void*{ if (tmc != nullptr) tmc->stop(); return nullptr; });
   }
 }
 
@@ -1148,7 +1148,7 @@ MainThreadRequestQueue *MainThreadRequestQueue::get()
   return q;
 }
 
-void *MainThreadRequestQueue::perform(const boost::function<void* ()> &slot, bool wait)
+void *MainThreadRequestQueue::perform(const std::function<void* ()> &slot, bool wait)
 {
   if (Utilities::in_main_thread())
     return slot();

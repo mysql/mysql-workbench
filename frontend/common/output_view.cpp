@@ -52,10 +52,10 @@ OutputView::OutputView(WBContext* context)
   
   _output_text.set_read_only(true);
   
-  set_on_close(boost::bind(&OutputView::will_close, this));
+  set_on_close(std::bind(&OutputView::will_close, this));
 
-  _context_menu.add_item_with_title(_("Copy selected entries to clipboard"), boost::bind(&OutputView::handle_command, this, "copy"));
-  _context_menu.add_item_with_title(_("Clear output"), boost::bind(&OutputView::handle_command, this, "clear"));
+  _context_menu.add_item_with_title(_("Copy selected entries to clipboard"), std::bind(&OutputView::handle_command, this, "copy"));
+  _context_menu.add_item_with_title(_("Clear output"), std::bind(&OutputView::handle_command, this, "clear"));
   _message_list.set_context_menu(&_context_menu);
 }
 

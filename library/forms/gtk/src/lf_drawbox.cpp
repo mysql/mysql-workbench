@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -256,7 +256,7 @@ void DrawBoxImpl::set_needs_repaint(::mforms::DrawBox *self)
   // request a repaint so that this can be called from any thread
   DrawBoxImpl *impl = self->get_data<DrawBoxImpl>();
 
-  mforms::Utilities::perform_from_main_thread(sigc::mem_fun(impl, &DrawBoxImpl::on_repaint), false);
+  mforms::Utilities::perform_from_main_thread(std::bind(&DrawBoxImpl::on_repaint, impl), false);
 }
 void DrawBoxImpl::add(::mforms::View *view, mforms::Alignment alignment)
 {
