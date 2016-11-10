@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -108,13 +108,13 @@ namespace MySQL {
       virtual void set_attributes(int column, const mforms::TreeNodeTextAttributes &attrs);
       virtual void set_string(int column, const std::string &value);
       virtual void set_int(int column, int value);
-      virtual void set_long(int column, boost::int64_t value);
+      virtual void set_long(int column, std::int64_t value);
       virtual void set_bool(int column, bool value);
       virtual void set_float(int column, double value);
 
       virtual std::string get_string(int column) const;
       virtual int get_int(int column) const;
-      virtual boost::int64_t get_long(int column) const;
+      virtual std::int64_t get_long(int column) const;
       virtual bool get_bool(int column) const;
       virtual double get_float(int column) const;
     

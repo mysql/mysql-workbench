@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -391,7 +391,7 @@ void RootTreeNodeImpl::set_int(int column, int value)
 { // noop
 }
 
-void RootTreeNodeImpl::set_long(int column, boost::int64_t value)
+void RootTreeNodeImpl::set_long(int column, std::int64_t value)
 { // noop
 }
 
@@ -413,7 +413,7 @@ int RootTreeNodeImpl::get_int(int column) const
   return 0;
 }
 
-boost::int64_t RootTreeNodeImpl::get_long(int column) const
+std::int64_t RootTreeNodeImpl::get_long(int column) const
 {
   return 0;
 }
@@ -739,7 +739,7 @@ void TreeNodeImpl::set_int(int column, int value)
   }
 }
 
-void TreeNodeImpl::set_long(int column, boost::int64_t value)
+void TreeNodeImpl::set_long(int column, std::int64_t value)
 {
   if (is_valid() && !is_root())
   {
@@ -800,12 +800,12 @@ int TreeNodeImpl::get_int(int column) const
   return 0;
 }
 
-boost::int64_t TreeNodeImpl::get_long(int column) const
+std::int64_t TreeNodeImpl::get_long(int column) const
 {
   if (is_valid() && !is_root())
   {
     Gtk::TreeRow row = *iter();
-    boost::int64_t value;
+    std::int64_t value;
     row.get_value(_treeview->index_for_column(column), value);
     return value;
   }
@@ -1122,7 +1122,7 @@ template std::pair<Gtk::TreeViewColumn*,int> TreeViewImpl::ColumnRecord::create_
                                                       bool align_right = false );
 template std::pair<Gtk::TreeViewColumn*,int> TreeViewImpl::ColumnRecord::create_column<int>(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
                                                       bool align_right = true );
-template std::pair<Gtk::TreeViewColumn*,int> TreeViewImpl::ColumnRecord::create_column<boost::int64_t>(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
+template std::pair<Gtk::TreeViewColumn*,int> TreeViewImpl::ColumnRecord::create_column<std::int64_t>(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
                                                       bool align_right = true );
 template std::pair<Gtk::TreeViewColumn*,int> TreeViewImpl::ColumnRecord::create_column<double>(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
                                                       bool align_right = true );
@@ -1143,7 +1143,7 @@ int TreeViewImpl::ColumnRecord::add_string(Gtk::TreeView *tree, const std::strin
 
 int TreeViewImpl::ColumnRecord::add_long_integer(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr)
 {
-  std::pair<Gtk::TreeViewColumn*, int> ret = create_column<boost::int64_t>(tree, title, editable, attr, false, true);
+  std::pair<Gtk::TreeViewColumn*, int> ret = create_column<std::int64_t>(tree, title, editable, attr, false, true);
   return ret.second;
 }
 

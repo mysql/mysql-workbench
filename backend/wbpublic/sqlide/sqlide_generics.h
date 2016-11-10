@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -133,11 +133,11 @@ public:
 };
 
 
-class VarToInt : public boost::static_visitor<boost::int64_t>
+class VarToInt : public boost::static_visitor<std::int64_t>
 {
 public:
   result_type operator()(const int &v) const { return v; }
-  result_type operator()(const boost::int64_t &v) const { return v; }
+  result_type operator()(const std::int64_t &v) const { return v; }
   result_type operator()(const null_t &v) const { return 0; }
 
   template<typename T>
@@ -168,7 +168,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC VarToLongDouble : public boost::static_visitor
 public:
   result_type operator()(const long double &v) const { return v; }
   result_type operator()(const int &v) const { return v; }
-  result_type operator()(const boost::int64_t &v) const { return (long double)v; }
+  result_type operator()(const std::int64_t &v) const { return (long double)v; }
   result_type operator()(const null_t &v) const { return 0; }
 
   template<typename T>

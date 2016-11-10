@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,8 +85,8 @@ TEST_MODULE(sqlstring_test, "sqlstring");
  */
 TEST_FUNCTION(5)
 {
-  boost::int64_t int64_t_value1 = 1999;
-  boost::int64_t int64_t_value2 = -1999;
+  std::int64_t int64_t_value1 = 1999;
+  std::int64_t int64_t_value2 = -1999;
   int int_value1 = -2001;
   int int_value2 = 2001;
   float float_value1 = (float)3.141592;
@@ -532,8 +532,8 @@ TEST_FUNCTION(45)
  */
 TEST_FUNCTION(50)
 {
-  boost::int64_t int64_t_value1 = 1999;
-  boost::int64_t int64_t_value2 = -1999;
+  std::int64_t int64_t_value1 = 1999;
+  std::int64_t int64_t_value2 = -1999;
   int int_value1 = -2001;
   int int_value2 = 2001;
   float float_value1 = (float)3.141592;
@@ -855,7 +855,7 @@ TEST_FUNCTION(70)
   sqlstring c_tor_empty_constructor;
 
   // miscellaneous variables
-  boost::int64_t int64_t_value = 1999;
+  std::int64_t int64_t_value = 1999;
   int int_value = -2001;
   float float_value = (float)3.141592;
   double double_value = 2.718281;

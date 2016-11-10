@@ -107,7 +107,7 @@ public:
 
     double duration;
     std::string ps_stat_error;
-    std::map<std::string, boost::int64_t> ps_stat_info;
+    std::map<std::string, std::int64_t> ps_stat_info;
     std::vector<PSStage> ps_stage_info;
     std::vector<PSWait> ps_wait_info;
   };
@@ -286,10 +286,10 @@ private:
   void cache_sql_mode();
   void update_sql_mode_for_editors();
 
-  void query_ps_statistics(boost::int64_t conn_id, std::map<std::string, boost::int64_t> &stats);
+  void query_ps_statistics(std::int64_t conn_id, std::map<std::string, std::int64_t> &stats);
 
-  std::vector<SqlEditorForm::PSStage> query_ps_stages(boost::int64_t stmt_event_id);
-  std::vector<SqlEditorForm::PSWait> query_ps_waits(boost::int64_t stmt_event_id);
+  std::vector<SqlEditorForm::PSStage> query_ps_stages(std::int64_t stmt_event_id);
+  std::vector<SqlEditorForm::PSWait> query_ps_waits(std::int64_t stmt_event_id);
 
   std::string _sql_mode;
   int _lower_case_table_names;

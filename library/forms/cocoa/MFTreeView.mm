@@ -559,7 +559,7 @@ public:
               forKey: key];
   }
   
-  virtual void set_long(int column, boost::int64_t value)
+  virtual void set_long(int column, std::int64_t value)
   {
     [_self setObject: @(value)
               forKey: [_self.treeView keyForColumn: column]];
@@ -599,7 +599,7 @@ public:
     return 0;
   }
 
-  virtual boost::int64_t get_long(int column) const
+  virtual std::int64_t get_long(int column) const
   {
     NSNumber *n = [_self objectForKey: [_self.treeView keyForColumn: column]];
     if (n)
