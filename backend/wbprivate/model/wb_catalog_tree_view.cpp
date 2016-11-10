@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -372,7 +372,7 @@ void CatalogTreeView::context_menu_will_show(mforms::MenuItem *parent_item)
       }
 
       if (!caption.empty())
-        parent->add_item_with_title(caption, boost::bind(&CatalogTreeView::menu_action, this, "edit", value));
+        parent->add_item_with_title(caption, std::bind(&CatalogTreeView::menu_action, this, "edit", value));
     }
   }
 

@@ -488,8 +488,8 @@ public:
     _trigger_list.add_column(mforms::StringColumnType, _("Name"), 200, false, true);
     _trigger_list.end_columns();
     _trigger_list.signal_changed()->connect(boost::bind(&MySQLTriggerPanel::selection_changed, this));
-    _trigger_list.set_row_overlay_handler(boost::bind(&MySQLTriggerPanel::overlay_icons_for_node, this, _1));
-    scoped_connect(_trigger_list.signal_node_activated(), boost::bind(&MySQLTriggerPanel::node_activated, this, _1, _2));
+    _trigger_list.set_row_overlay_handler(std::bind(&MySQLTriggerPanel::overlay_icons_for_node, this, std::placeholders::_1));
+    scoped_connect(_trigger_list.signal_node_activated(), std::bind(&MySQLTriggerPanel::node_activated, this, std::placeholders::_1, std::placeholders::_2));
     trigger_list_host->add(&_trigger_list, true, true);
 
     _warning_label.set_text(_("Warning: the current server version does not allow multiple triggers "
@@ -502,23 +502,23 @@ public:
 
     _trigger_menu.signal_will_show()->connect(boost::bind(&MySQLTriggerPanel::trigger_menu_will_show, this, _1));
     _trigger_menu.add_item_with_title("Move trigger up",
-      boost::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_up"), "trigger_up");
+      std::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_up"), "trigger_up");
     _trigger_menu.add_item_with_title("Move trigger down",
-      boost::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_down"), "trigger_down");
+      std::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_down"), "trigger_down");
     _trigger_menu.add_separator();
 
     _trigger_menu.add_item_with_title("Add new trigger",
-      boost::bind(&MySQLTriggerPanel::trigger_action, this, "add_trigger"), "add_trigger");
+      std::bind(&MySQLTriggerPanel::trigger_action, this, "add_trigger"), "add_trigger");
     _trigger_menu.add_item_with_title("Duplicate trigger",
-      boost::bind(&MySQLTriggerPanel::trigger_action, this, "duplicate_trigger"), "duplicate_trigger");
+      std::bind(&MySQLTriggerPanel::trigger_action, this, "duplicate_trigger"), "duplicate_trigger");
     _trigger_menu.add_separator();
 
     _trigger_menu.add_item_with_title("Delete trigger",
-      boost::bind(&MySQLTriggerPanel::trigger_action, this, "delete_trigger"), "delete_trigger");
+      std::bind(&MySQLTriggerPanel::trigger_action, this, "delete_trigger"), "delete_trigger");
     _trigger_menu.add_item_with_title("Delete all triggers with this timing",
-      boost::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers_in_group"), "delete_triggers_in_group");
+      std::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers_in_group"), "delete_triggers_in_group");
     _trigger_menu.add_item_with_title("Delete all triggers",
-      boost::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers"), "delete_triggers");
+      std::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers"), "delete_triggers");
     _trigger_list.set_context_menu(&_trigger_menu);
 
     add(_editor_host, true, true);

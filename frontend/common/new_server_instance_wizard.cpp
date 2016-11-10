@@ -634,7 +634,7 @@ SSHConfigurationPage::SSHConfigurationPage(WizardForm* host)
     "~";
 #endif
   _file_selector->initialize(homedir + "/.ssh/id_rsa", mforms::OpenFile, "", true,
-    boost::bind(&WizardPage::validate, this));
+    std::bind(&WizardPage::validate, this));
   use_ssh_key_changed();
   
   add(&_ssh_settings_table, false, true);
@@ -776,7 +776,7 @@ WindowsManagementPage::WindowsManagementPage(WizardForm* host, wb::WBContext* co
 
   // Setup for configuration file browsing.
   _file_selector= mforms::manage(new FsObjectSelector(&_browse_button, &_config_path));
-  _file_selector->initialize("", mforms::OpenFile, "", true, boost::bind(&WizardPage::validate, this));
+  _file_selector->initialize("", mforms::OpenFile, "", true, std::bind(&WizardPage::validate, this));
 
   add(&_layout_table, false, true);
 }
@@ -1277,7 +1277,7 @@ PathsPage::PathsPage(WizardForm* host, wb::WBContext* context)
   
   // Setup for local config file browsing. This will be adjusted if we are at a remote location.
   _file_selector= mforms::manage(new FsObjectSelector(&_browse_button, &_config_path));
-  _file_selector->initialize("", mforms::OpenFile, "", true, boost::bind(&WizardPage::validate, this));
+  _file_selector->initialize("", mforms::OpenFile, "", true, std::bind(&WizardPage::validate, this));
 
   _test_config_path_button.set_text(_("Check Path"));
   scoped_connect(_test_config_path_button.signal_clicked(),boost::bind(&PathsPage::test_path, this));
@@ -1327,7 +1327,7 @@ void PathsPage::enter(bool advancing)
   if (ssh_management)
   {
     // Setup for remote browsing.
-    _file_selector->set_browse_callback(boost::bind(&PathsPage::browse_remote_config_file, this));
+    _file_selector->set_browse_callback(std::bind(&PathsPage::browse_remote_config_file, this));
   }
   
 }

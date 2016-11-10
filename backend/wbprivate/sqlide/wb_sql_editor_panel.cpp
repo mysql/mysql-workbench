@@ -101,7 +101,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   code_editor->set_font(grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("workbench.general.Editor:Font")));
   code_editor->set_status_text("");
-  code_editor->set_show_find_panel_callback(boost::bind(&SqlEditorPanel::show_find_panel, this, _1, _2));
+  code_editor->set_show_find_panel_callback(std::bind(&SqlEditorPanel::show_find_panel, this, std::placeholders::_1, std::placeholders::_2));
 
   if (start_collapsed)
     _editor->get_editor_control()->set_size(-1, 25);
@@ -140,18 +140,18 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _lower_tabview.signal_tab_closing()->connect(boost::bind(&SqlEditorPanel::lower_tab_closing, this, _1));
   _lower_tabview.signal_tab_closed()->connect(boost::bind(&SqlEditorPanel::lower_tab_closed, this, _1, _2));
   _lower_tabview.signal_tab_pin_changed()->connect(boost::bind(&SqlEditorPanel::tab_pinned, this, _1, _2));
-  _lower_tabview.is_pinned = boost::bind(&SqlEditorPanel::is_pinned, this, _1);
+  _lower_tabview.is_pinned = std::bind(&SqlEditorPanel::is_pinned, this, std::placeholders::_1);
   _lower_tabview.set_tab_menu(&_lower_tab_menu);
 
   _splitter.set_expanded(false, false);
-  set_on_close(boost::bind(&SqlEditorPanel::on_close_by_user, this));
+  set_on_close(std::bind(&SqlEditorPanel::on_close_by_user, this));
 
   _lower_tab_menu.signal_will_show()->connect(boost::bind(&SqlEditorPanel::tab_menu_will_show, this));
-  _lower_tab_menu.add_item_with_title("Rename Tab", boost::bind(&SqlEditorPanel::rename_tab_clicked, this), "rename");
-  _lower_tab_menu.add_check_item_with_title("Pin Tab", boost::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
+  _lower_tab_menu.add_item_with_title("Rename Tab", std::bind(&SqlEditorPanel::rename_tab_clicked, this), "rename");
+  _lower_tab_menu.add_check_item_with_title("Pin Tab", std::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
   _lower_tab_menu.add_separator();
-  _lower_tab_menu.add_item_with_title("Close Tab", boost::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
-  _lower_tab_menu.add_item_with_title("Close Other Tabs", boost::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
+  _lower_tab_menu.add_item_with_title("Close Tab", std::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
+  _lower_tab_menu.add_item_with_title("Close Other Tabs", std::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
 }
 
 //--------------------------------------------------------------------------------------------------

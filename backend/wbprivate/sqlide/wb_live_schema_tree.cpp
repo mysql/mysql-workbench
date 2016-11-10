@@ -2073,10 +2073,10 @@ void LiveSchemaTree::set_model_view(mforms::TreeView* target)
 
   if (_model_view)
   {
-    scoped_connect(_model_view->signal_expand_toggle(),boost::bind(&LiveSchemaTree::expand_toggled, this, _1, _2));
-    scoped_connect(_model_view->signal_node_activated(),boost::bind(&LiveSchemaTree::node_activated, this, _1, _2));
+    scoped_connect(_model_view->signal_expand_toggle(),std::bind(&LiveSchemaTree::expand_toggled, this, std::placeholders::_1, std::placeholders::_2));
+    scoped_connect(_model_view->signal_node_activated(),std::bind(&LiveSchemaTree::node_activated, this, std::placeholders::_1, std::placeholders::_2));
 
-    _model_view->set_row_overlay_handler(boost::bind(&LiveSchemaTree::overlay_icons_for_tree_node, this, _1));
+    _model_view->set_row_overlay_handler(std::bind(&LiveSchemaTree::overlay_icons_for_tree_node, this, std::placeholders::_1));
   }
 }
 

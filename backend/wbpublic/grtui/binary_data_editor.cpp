@@ -253,7 +253,7 @@ public:
     
     scoped_connect(_text.signal_changed(),boost::bind(&TextDataViewer::edited, this));
 
-    _text.set_show_find_panel_callback(boost::bind(&TextDataViewer::embed_find_panel, this, _2));
+    _text.set_show_find_panel_callback(std::bind(&TextDataViewer::embed_find_panel, this, std::placeholders::_2));
   }
 
   virtual void data_changed()

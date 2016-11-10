@@ -67,7 +67,7 @@ private:
   SidebarEntry *_hotEntry;
   SidebarEntry *_activeEntry; // For the context menu.
 
-  boost::function <bool (int, int)> _accessible_click_handler;
+  std::function <bool (int, int)> _accessible_click_handler;
 
 public:
 
@@ -85,8 +85,8 @@ public:
     _hotEntry = nullptr;
     _activeEntry = nullptr;
 
-    _accessible_click_handler = boost::bind(&SidebarSection::mouse_click, this,
-      mforms::MouseButtonLeft, _1, _2);
+    _accessible_click_handler = std::bind(&SidebarSection::mouse_click, this,
+      mforms::MouseButtonLeft, std::placeholders::_1, std::placeholders::_2);
   }
 
   //--------------------------------------------------------------------------------------------------
@@ -423,7 +423,7 @@ HomeScreen::HomeScreen(bool singleSection)
 
   update_colors();
 
-  Box::scoped_connect(signal_resized(), boost::bind(&HomeScreen::on_resize, this));
+  Box::scoped_connect(signal_resized(), std::bind(&HomeScreen::on_resize, this));
   base::NotificationCenter::get()->add_observer(this, "GNColorsChanged");
 }
 

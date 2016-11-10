@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,7 +74,7 @@ int Menu::add_submenu(const std::string &caption, Menu *submenu)
 {
   // Connect our action handler to the sub menu so all commands can be triggered via the top
   // menu in the hierarchy.
-  submenu->signal_on_action()->connect(boost::bind(&Menu::handle_action, this, _1));
+  submenu->signal_on_action()->connect(std::bind(&Menu::handle_action, this, std::placeholders::_1));
   return _menu_impl->add_submenu(this, caption, submenu);
 }
 
@@ -120,7 +120,7 @@ void Menu::set_item_enabled(const std::string &action, bool flag)
 }
 
 
-void Menu::set_handler(const boost::function<void (const std::string&)> &action_handler)
+void Menu::set_handler(const std::function<void (const std::string&)> &action_handler)
 {
   _action_handler = action_handler;
 }

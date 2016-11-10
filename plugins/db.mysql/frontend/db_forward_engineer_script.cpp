@@ -60,7 +60,7 @@ public:
     _file_selector= mforms::manage(new FsObjectSelector(&_browse_button, &_filename));
     std::string initial_value= form->module()->document_string_data("create_sql_output_filename", "");
     _file_selector->initialize(initial_value, mforms::SaveFile, "SQL Files (*.sql)|*.sql", 
-      false, boost::bind(&WizardPage::validate, this));
+      false, std::bind(&WizardPage::validate, this));
     scoped_connect(_file_selector->signal_changed(),boost::bind(&ExportInputPage::file_changed, this));
     
     _caption.set_text(_("Output SQL Script File:"));

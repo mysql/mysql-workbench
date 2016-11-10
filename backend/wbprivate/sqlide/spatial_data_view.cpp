@@ -241,9 +241,9 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
 
   _map_menu = new mforms::ContextMenu();
-  _map_menu->add_item_with_title("Copy Coordinates", boost::bind(&SpatialDataView::copy_coordinates, this));
-  _map_menu->add_item_with_title("Copy Record for Feature", boost::bind(&SpatialDataView::copy_record, this));
-  _map_menu->add_item_with_title("View Record for Feature", boost::bind(&SpatialDataView::view_record, this));
+  _map_menu->add_item_with_title("Copy Coordinates", std::bind(&SpatialDataView::copy_coordinates, this));
+  _map_menu->add_item_with_title("Copy Record for Feature", std::bind(&SpatialDataView::copy_record, this));
+  _map_menu->add_item_with_title("View Record for Feature", std::bind(&SpatialDataView::view_record, this));
   _map_menu->signal_will_show()->connect(boost::bind(&SpatialDataView::map_menu_will_show, this));
 
   _viewer->set_context_menu(_map_menu);
@@ -258,13 +258,13 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
    _layer_menu->add_item(mitem);
 
   _layer_menu->add_separator();
-  _layer_menu->add_item_with_title("Refresh", boost::bind(&SpatialDataView::refresh_layers, this), "refresh");
+  _layer_menu->add_item_with_title("Refresh", std::bind(&SpatialDataView::refresh_layers, this), "refresh");
 
   _layer_menu->add_separator();
   _layer_menu->add_item_with_title("Move Layer Up",
-        boost::bind(&SpatialDataView::layer_menu_action, this, "layer_up"), "layer_up");
+        std::bind(&SpatialDataView::layer_menu_action, this, "layer_up"), "layer_up");
   _layer_menu->add_item_with_title("Move Layer Down",
-        boost::bind(&SpatialDataView::layer_menu_action, this, "layer_down"), "layer_down");
+        std::bind(&SpatialDataView::layer_menu_action, this, "layer_down"), "layer_down");
 
 
   _layer_menu->signal_will_show()->connect(boost::bind(&SpatialDataView::layer_menu_will_show, this));
@@ -280,7 +280,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->signal_changed()->connect(boost::bind(&SpatialDataView::activate_layer, this, mforms::TreeNodeRef(), -42));// unused dummy value... should just not conflict with possibly valid values
 
 
-  _layer_tree->set_row_overlay_handler(boost::bind(&SpatialDataView::layer_overlay_handler, this, _1));
+  _layer_tree->set_row_overlay_handler(std::bind(&SpatialDataView::layer_overlay_handler, this, std::placeholders::_1));
   _option_box->add(_layer_tree, true, true);
 
   _mouse_pos_label = mforms::manage(new mforms::Label("Lat:\nLon:"));
@@ -293,7 +293,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _option_box->set_size(220, -1);
   _splitter->add(_option_box, 200);
 
-  _splitter->signal_position_changed()->connect(boost::bind(&SpatialDataView::call_refresh_viewer, this));
+  _splitter->signal_position_changed()->connect(std::bind(&SpatialDataView::call_refresh_viewer, this));
 
   add(_splitter, true, true);
 }
@@ -315,7 +315,7 @@ void SpatialDataView::call_refresh_viewer()
       mforms::Utilities::cancel_timeout(_spliter_change_timeout);
       _spliter_change_timeout = 0;
     }
-    _spliter_change_timeout = mforms::Utilities::add_timeout(0.5, boost::bind(&SpatialDataView::refresh_viewer, this));
+    _spliter_change_timeout = mforms::Utilities::add_timeout(0.5, std::bind(&SpatialDataView::refresh_viewer, this));
   }
 }
 

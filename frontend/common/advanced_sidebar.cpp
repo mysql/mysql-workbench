@@ -1603,7 +1603,7 @@ void AdvancedSidebar::add_items_from_list(mforms::MenuBase &menu, const bec::Men
   {
     if (item->type == bec::MenuAction)
     {
-      mforms::MenuItem *mitem = menu.add_item_with_title(item->caption, boost::bind(&AdvancedSidebar::handle_menu_command, this, item->name));
+      mforms::MenuItem *mitem = menu.add_item_with_title(item->caption, std::bind(&AdvancedSidebar::handle_menu_command, this, item->name));
       mitem->set_name(item->name);
       mitem->set_enabled(item->enabled);
     }

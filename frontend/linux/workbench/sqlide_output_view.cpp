@@ -144,7 +144,7 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *
   _entries_grid.set_context_menu_responder(sigc::mem_fun(this, &QueryOutputView::history_context_menu_responder));
 
   context_menu = be->history()->details_model()->get_context_menu();
-  context_menu->set_handler(sigc::mem_fun(this, &QueryOutputView::handle_history_context_menu));
+  context_menu->set_handler(std::bind(&QueryOutputView::handle_history_context_menu, this, std::placeholders::_1));
   _details_grid.set_context_menu(context_menu);
 
   _refresh_ui_sig_entries = _be->history()->entries_model()->refresh_ui_signal.connect(sigc::mem_fun(this, &QueryOutputView::on_history_entries_refresh));

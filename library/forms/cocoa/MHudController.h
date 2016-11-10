@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,7 +18,6 @@
  */
 
 #import "MFBase.h"
-#include <boost/function.hpp>
 
 @interface MHudController : NSObject
 
@@ -28,8 +27,8 @@
 + (BOOL)hideHud;
 
 + (BOOL)runModalHudWithTitle: (NSString*) title andDescription: (NSString*) description
-                 notifyReady: (boost::function<void ()>)signalReady
-                cancelAction: (boost::function<bool ()>)cancelAction;
+                 notifyReady: (std::function<void ()>)signalReady
+                cancelAction: (std::function<bool ()>)cancelAction;
 + (void)stopModalHud;
 
 - (IBAction)cancelClicked:(id)sender;
