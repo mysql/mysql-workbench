@@ -26,7 +26,7 @@ bool BridgeBase::is_main_thread()
 }
 
 
-void BridgeBase::run_later(const boost::function<void ()> &slot)
+void BridgeBase::run_later(const std::function<void ()> &slot)
 {
   bec::GRTManager::get()->run_once_when_idle(this, slot);
 }

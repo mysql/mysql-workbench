@@ -318,18 +318,18 @@ namespace wb {
         
    template<class R>
     R execute_in_main_thread(const std::string &name, 
-                             const boost::function<R ()> &function) THROW (grt::grt_runtime_error)
+                             const std::function<R ()> &function) THROW (grt::grt_runtime_error)
     {
       return bec::GRTManager::get()->get_dispatcher()->call_from_main_thread/*<R>*/(function, true, false); 
     }
     void execute_in_main_thread(const std::string &name, 
-                              const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);
+                              const std::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);
  
     grt::ValueRef execute_in_grt_thread(const std::string &name, 
-                                            const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
+                                            const std::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     void execute_async_in_grt_thread(const std::string &name, 
-                                     const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
+                                     const std::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     bool activate_live_object(const GrtObjectRef &object);
 

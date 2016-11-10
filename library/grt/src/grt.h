@@ -26,6 +26,7 @@
 #include <typeinfo>
 #include <list>
 #include <map>
+#include <unordered_map>
 //#include <deque>
 #include <vector>
 #include <stdexcept>
@@ -1959,7 +1960,7 @@ namespace grt {
   class Validator
   {
   public:
-    typedef boost::function<void (const ObjectRef&, const std::string&, const int)> MessageSlot;
+    typedef std::function<void (const ObjectRef&, const std::string&, const int)> MessageSlot;
 
     typedef std::string Tag;
     
@@ -2238,7 +2239,7 @@ namespace grt {
     
     Allocator _alloc;
     
-    boost::unordered_map<std::string, std::string> _attributes;
+    std::unordered_map<std::string, std::string> _attributes;
 //    std::map<std::string,std::string> _attributes;
     MemberList _members;
     MethodList _methods;
@@ -2308,7 +2309,7 @@ namespace grt {
       TypeSpec ret_type;
       ArgSpecList arg_types;
 
-      boost::function<ValueRef (const grt::BaseListRef&)> call;
+      std::function<ValueRef (const grt::BaseListRef&)> call;
     };
 
     bool has_function(const std::string &name) const;
@@ -2370,7 +2371,7 @@ namespace grt {
      * Ex.:
      *  doSomething:s:i count,l<i> poslist,o<db.mysql.Table> table,d args
      */
-    virtual bool add_parse_function_spec(const std::string &spec, const boost::function<ValueRef (BaseListRef, Module*, Module::Function)> &caller);
+    virtual bool add_parse_function_spec(const std::string &spec, const std::function<ValueRef (BaseListRef, Module*, Module::Function)> &caller);
     
     void add_function(const Function &func);
 
@@ -2441,8 +2442,8 @@ namespace grt {
     std::string format(bool withtype= false) const;
   };
 
-  typedef boost::function<bool (const Message&, void*)> MessageSlot;
-  typedef boost::function<bool ()> StatusQuerySlot;
+  typedef std::function<bool (const Message&, void*)> MessageSlot;
+  typedef std::function<bool ()> StatusQuerySlot;
 
   //-----------------------------------------------------------------------------------------------
   

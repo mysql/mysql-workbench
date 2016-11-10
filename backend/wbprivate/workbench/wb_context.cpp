@@ -478,11 +478,11 @@ WBContext::WBContext(bool verbose)
   _attachments_changed = false;
 
   _grtManager->setVerbose(verbose);
-  _grtManager->set_app_option_slots(boost::bind(get_app_option, _1, this),
-                                 boost::bind(set_app_option, _1, _2, this));
-  _grtManager->update_plugin_arguments_pool = boost::bind(&WBContext::update_plugin_arguments_pool, this, _1);
+  _grtManager->set_app_option_slots(std::bind(get_app_option, std::placeholders::_1, this),
+                                 std::bind(set_app_option, std::placeholders::_1, std::placeholders::_2, this));
+  _grtManager->update_plugin_arguments_pool = std::bind(&WBContext::update_plugin_arguments_pool, this, std::placeholders::_1);
 
-  _grtManager->set_timeout_request_slot(boost::bind(&WBContext::request_refresh, this, RefreshTimer,"", static_cast<NativeHandle>(0)));
+  _grtManager->set_timeout_request_slot(std::bind(&WBContext::request_refresh, this, RefreshTimer,"", static_cast<NativeHandle>(0)));
 
   NotificationCenter::get()->add_observer(this, "GNDocumentOpened");
   
@@ -492,7 +492,7 @@ WBContext::WBContext(bool verbose)
   _clipboard= new bec::Clipboard();
   _grtManager->set_clipboard(_clipboard);
   scoped_connect(_grt->get_undo_manager()->signal_changed(),
-    boost::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
+    std::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
 
   if (getenv("DEBUG_UNDO"))
     _grt->get_undo_manager()->enable_logging_to(&std::cout);
@@ -906,7 +906,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
                                             callbacks->show_editor,
                                             callbacks->hide_editor);
   
-  _grt->push_message_handler(boost::bind(&WBContext::handle_message, this, _1));
+  _grt->push_message_handler(std::bind(&WBContext::handle_message, this, std::placeholders::_1));
 
   // Set options
   _datadir= options->basedir;
@@ -975,7 +975,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   _grt->send_output(strfmt("Looking for user plugins in %s\n", user_modules_path.c_str()));
 
   // Listen to output-show messages.
-  _grtManager->get_messages_list()->signal_new_message()->connect(boost::bind(&WBContext::handle_grt_message, this, _1));
+  _grtManager->get_messages_list()->signal_new_message()->connect(std::bind(&WBContext::handle_grt_message, this, std::placeholders::_1));
 
   show_status_text(_("Initializing Workbench components..."));
   res = setup_context_grt(options);
@@ -997,7 +997,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   }
     
   get_root()->options()->signal_dict_changed()->
-    connect(boost::bind(&WBContext::option_dict_changed, this, _1, _2, _3));
+    connect(std::bind(&WBContext::option_dict_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   _send_messages_to_shell= false;
 
@@ -1220,7 +1220,7 @@ void WBContext::init_finish_(WBOptions *options)
     {
       std::string script_file= options->open_at_startup;
 
-      _grt->push_message_handler(boost::bind(output_to_stdout, _1, _2));
+      _grt->push_message_handler(std::bind(output_to_stdout, std::placeholders::_1, std::placeholders::_2));
       _grtManager->get_shell()->run_script_file(script_file);
       _grt->pop_message_handler();
     }
@@ -1240,7 +1240,7 @@ void WBContext::init_finish_(WBOptions *options)
       std::string lang= options->run_language;
       if (lang.empty())
         lang= "python";
-      _grt->push_message_handler(boost::bind(output_to_stdout, _1, _2));
+      _grt->push_message_handler(std::bind(output_to_stdout, std::placeholders::_1, std::placeholders::_2));
       _grtManager->get_shell()->run_script(options->run_at_startup, lang);
       _grt->pop_message_handler();
     }
@@ -1293,7 +1293,7 @@ void WBContext::handle_grt_message(MessageListStorage::MessageEntryRef message)
   if (message->icon == -1)
   {
     if (message->message == "show")
-      _grtManager->run_once_when_idle(boost::bind(&WBContextUI::show_output, wb::WBContextUI::get()));
+      _grtManager->run_once_when_idle(std::bind(&WBContextUI::show_output, wb::WBContextUI::get()));
     return;
   }
 }
@@ -1863,7 +1863,7 @@ void WBContext::load_app_options(bool update)
           "The file will skipped and settings are reset to their default values."));
       }
 
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(std::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       _grt->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2110,7 +2110,7 @@ void WBContext::load_app_state(std::shared_ptr<grt::internal::Unserializer> unse
     try 
     {
       xmlDocument= _grt->load_xml(state_xml);
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(std::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       _grt->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2179,7 +2179,7 @@ static grt::ListRef<app_Starter> loadStartersFile(const std::string &datadir, co
     try
     {
       xmlDocument= grt::GRT::get()->load_xml(startersFile);
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(std::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       grt::GRT::get()->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2512,7 +2512,7 @@ void WBContext::new_document()
     _file= new ModelFile(get_auto_save_dir());
 
     scoped_connect(_file->signal_changed(),
-                   boost::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
+                   std::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
 
     _file->create();
     _grtManager->set_db_file_path(_file->get_db_file_path());
@@ -2528,8 +2528,8 @@ void WBContext::new_document()
     _save_point= _grt->get_undo_manager()->get_latest_undo_action();
     request_refresh(RefreshDocument, "");
     
-    _grtManager->run_once_when_idle(boost::bind(perform_command, "reset_layout"));
-    _grtManager->run_once_when_idle(boost::bind(&WBContext::block_user_interaction, this, false));
+    _grtManager->run_once_when_idle(std::bind(perform_command, "reset_layout"));
+    _grtManager->run_once_when_idle(std::bind(&WBContext::block_user_interaction, this, false));
 
     show_status_text(_("New document."));
   }
@@ -2553,7 +2553,7 @@ void WBContext::new_model_finish()
 void WBContext::open_script_file(const std::string &file)
 {
   execute_in_main_thread("openscript", 
-                         boost::bind(&WBContextSQLIDE::open_document, _sqlide_context, file),
+                         std::bind(&WBContextSQLIDE::open_document, _sqlide_context, file),
                          false);
 }
 
@@ -2681,7 +2681,7 @@ bool WBContext::open_document(const std::string &file)
     // if there are any.
     if (has_unsaved_changes())
     {
-      int answer= execute_in_main_thread<int>("check save changes", boost::bind(
+      int answer = execute_in_main_thread<int>("check save changes", std::bind(
         mforms::Utilities::show_message, _("Open Document"),
         _("Only one model can be open at a time. Do you wish to "
         "save pending changes to the currently open model?\n\n"
@@ -2698,7 +2698,7 @@ bool WBContext::open_document(const std::string &file)
     }
     else
     {
-      int answer= execute_in_main_thread<int>("replace document", boost::bind(
+      int answer = execute_in_main_thread<int>("replace document", std::bind(
         mforms::Utilities::show_message, _("Open Document"),
         _("Opening another model will close the currently open model.\n\n"
         "Do you wish to proceed opening it?"),
@@ -2708,7 +2708,7 @@ bool WBContext::open_document(const std::string &file)
         return false;
     }
 
-    execute_in_main_thread("close document", boost::bind(&WBContext::do_close_document, this, false), true);
+    execute_in_main_thread("close document", std::bind(&WBContext::do_close_document, this, false), true);
     
   }
   
@@ -2729,7 +2729,7 @@ bool WBContext::open_document(const std::string &file)
 
   _file= new ModelFile(get_auto_save_dir());
   scoped_connect(_file->signal_changed(),
-    boost::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
+    std::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
 
   try
   {
@@ -2872,7 +2872,7 @@ bool WBContext::open_document(const std::string &file)
   _grtManager->unblock_idle_tasks();
 
   if(perform_command)
-    _grtManager->run_once_when_idle(boost::bind(perform_command, "reset_layout"));
+    _grtManager->run_once_when_idle(std::bind(perform_command, "reset_layout"));
   
   return true;
 }
@@ -2891,7 +2891,7 @@ bool WBContext::can_close_document()
 {
   if (!_asked_for_saving && has_unsaved_changes())
   {
-    int answer= execute_in_main_thread<int>("check save changes", boost::bind(
+    int answer= execute_in_main_thread<int>("check save changes", std::bind(
       mforms::Utilities::show_message, _("Close Document"),
       _("Do you want to save pending changes to the document?\n\n"
       "If you don't save your changes, they will be lost."),
@@ -2929,7 +2929,7 @@ bool WBContext::close_document()
     block_user_interaction(true);
 
     // close the current document
-    execute_in_main_thread("close document", boost::bind(&WBContext::do_close_document, this, false), true);
+    execute_in_main_thread("close document", std::bind(&WBContext::do_close_document, this, false), true);
 
     block_user_interaction(false);
 
@@ -3107,13 +3107,13 @@ bool WBContext::save_as(const std::string &path)
 {
   if(refresh_gui)
     execute_in_main_thread("commit_changes", 
-         boost::bind(refresh_gui, RefreshFinishEdits, "", (NativeHandle)0), true);
+         std::bind(refresh_gui, RefreshFinishEdits, "", (NativeHandle)0), true);
 
   if (path.empty())
   {
     std::string s= 
       execute_in_main_thread<std::string>("save", 
-        boost::bind(show_file_dialog,
+        std::bind(show_file_dialog,
               "save", _("Save Model"), "mwb"));
     if (s.empty())
       return false;
@@ -3129,10 +3129,7 @@ bool WBContext::save_as(const std::string &path)
   try
   {
     show_status_text(strfmt(_("Saving %s..."), _filename.c_str()));
-    //grt::ValueRef ret= 
-    //  execute_in_grt_thread("Save", boost::bind(&WBContext::save_grt, this));
 
-    //if (grt::IntegerRef::cast_from(ret) == 1)
     if (grt::IntegerRef::cast_from(save_grt()) == 1)
     {
       show_status_text(strfmt(_("%s saved."), _filename.c_str()));
@@ -3256,8 +3253,8 @@ void WBContext::execute_plugin(const std::string &plugin_name, const ArgumentPoo
   else
   {
     _grtManager->execute_grt_task(strfmt(_("Performing %s..."), plugin->caption().c_str()),
-                               boost::bind(&WBContext::execute_plugin_grt, this, plugin, fargs),
-                               boost::bind(&WBContext::plugin_finished, this, _1, plugin));
+                               std::bind(&WBContext::execute_plugin_grt, this, plugin, fargs),
+                               std::bind(&WBContext::plugin_finished, this, std::placeholders::_1, plugin));
   }
 }
 
@@ -3589,7 +3586,7 @@ grt::DictRef WBContext::get_wb_options()
 
 // XXX: we have mforms::Utilities::perform_from_main_thread.
 void WBContext::execute_in_main_thread(const std::string &name, 
-                              const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error)
+                              const std::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error)
 {
   _grtManager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
 }
@@ -3603,7 +3600,7 @@ void WBContext::show_exception(const std::string &operation, const std::exceptio
     if (_grtManager->in_main_thread())
       show_error(operation, std::string(rt->what()) + "\n" + rt->detail);
     else
-      _grtManager->run_once_when_idle(boost::bind(&WBContext::show_error, this,
+      _grtManager->run_once_when_idle(std::bind(&WBContext::show_error, this,
         operation, std::string(rt->what()) + "\n" + rt->detail));
   }
   else
@@ -3611,7 +3608,7 @@ void WBContext::show_exception(const std::string &operation, const std::exceptio
     if (_grtManager->in_main_thread())
       show_error(operation, exc.what());
     else
-      _grtManager->run_once_when_idle(boost::bind(&WBContext::show_error, this,
+      _grtManager->run_once_when_idle(std::bind(&WBContext::show_error, this,
         operation, std::string(exc.what())));
   }
 }
@@ -3622,7 +3619,7 @@ void WBContext::show_exception(const std::string &operation, const grt::grt_runt
   if (_grtManager->in_main_thread())
     show_error(operation, std::string(exc.what()) + "\n" + exc.detail);
   else
-    _grtManager->run_once_when_idle(boost::bind(&WBContext::show_error, this,
+    _grtManager->run_once_when_idle(std::bind(&WBContext::show_error, this,
       operation, std::string(exc.what()) + "\n" + exc.detail));
 }
 

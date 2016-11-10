@@ -34,10 +34,10 @@ HistoryTree::HistoryTree(UndoManager *undom)
 
   _icon = bec::IconManager::get_instance()->get_icon_path("history.png");
 
-  scoped_connect(undom->signal_redo(),boost::bind(&HistoryTree::handle_redo, this, _1));
-  scoped_connect(undom->signal_undo(),boost::bind(&HistoryTree::handle_undo, this, _1));
-  scoped_connect(undom->signal_changed(),boost::bind(&HistoryTree::handle_change, this));
-  scoped_connect(signal_node_activated(),boost::bind(&HistoryTree::activate_node, this, _1, _2));
+  scoped_connect(undom->signal_redo(), std::bind(&HistoryTree::handle_redo, this, std::placeholders::_1));
+  scoped_connect(undom->signal_undo(), std::bind(&HistoryTree::handle_undo, this, std::placeholders::_1));
+  scoped_connect(undom->signal_changed(), std::bind(&HistoryTree::handle_change, this));
+  scoped_connect(signal_node_activated(), std::bind(&HistoryTree::activate_node, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -116,7 +116,7 @@ void HistoryTree::handle_change()
   if (!_refresh_pending)
   {
     _refresh_pending = true;
-    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&HistoryTree::refresh, this));
+    bec::GRTManager::get()->run_once_when_idle(this, std::bind(&HistoryTree::refresh, this));
   }
 }
 

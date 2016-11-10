@@ -36,9 +36,9 @@ public:
   virtual ~Sql_import() {};
   void grtm();
 
-  boost::function<grt::ValueRef ()> get_task_slot();
+  std::function<grt::ValueRef ()> get_task_slot();
 
-  boost::function<grt::ValueRef ()> get_autoplace_task_slot();
+  std::function<grt::ValueRef ()> get_autoplace_task_slot();
   
 private:
   grt::StringRef parse_sql_script(db_CatalogRef catalog, const std::string &sql_script);

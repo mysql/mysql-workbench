@@ -262,7 +262,7 @@ void DbSqlEditorView::tab_menu_handler(const std::string& action, ActiveLabel *s
   PluginEditorBase *_pluginView = dynamic_cast<PluginEditorBase *>(widget);
   
   if (_pluginView)
-    bec::GRTManager::get()->run_once_when_idle(boost::bind(&FormViewBase::close_plugin_tab, this, _pluginView));
+    bec::GRTManager::get()->run_once_when_idle(std::bind(&FormViewBase::close_plugin_tab, this, _pluginView));
   else if (widget)
   {
     int page = _editor_note->page_num(*widget);

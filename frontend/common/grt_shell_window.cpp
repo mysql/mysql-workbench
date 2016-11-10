@@ -437,10 +437,10 @@ _lower_tab(mforms::TabViewDocument),
   // Minimum size for the entire window.
   set_size(800, 600);
 
-  bec::GRTManager::get()->run_once_when_idle(boost::bind(&GRTShellWindow::set_splitter_positions, this));
+  bec::GRTManager::get()->run_once_when_idle(std::bind(&GRTShellWindow::set_splitter_positions, this));
 
-  bec::GRTManager::get()->get_shell()->set_ready_handler(boost::bind(&GRTShellWindow::handle_prompt, this, _1));
-  bec::GRTManager::get()->get_shell()->set_output_handler(boost::bind(&GRTShellWindow::handle_output, this, _1));
+  bec::GRTManager::get()->get_shell()->set_ready_handler(std::bind(&GRTShellWindow::handle_prompt, this, std::placeholders::_1));
+  bec::GRTManager::get()->get_shell()->set_output_handler(std::bind(&GRTShellWindow::handle_output, this, std::placeholders::_1));
 
   on_tab_changed();
   snippet_selected();
@@ -565,9 +565,9 @@ bool GRTShellWindow::capture_output(const grt::Message &msg, void *sender, bool 
     else
     {
       if (send_to_output)
-        bec::GRTManager::get()->run_once_when_idle(boost::bind(&GRTShellWindow::add_output, this, msg.text));
+        bec::GRTManager::get()->run_once_when_idle(std::bind(&GRTShellWindow::add_output, this, msg.text));
       else
-        bec::GRTManager::get()->run_once_when_idle(boost::bind(&GRTShellWindow::handle_output, this, msg.text));
+        bec::GRTManager::get()->run_once_when_idle(std::bind(&GRTShellWindow::handle_output, this, msg.text));
     }
     return true;
   }
@@ -580,7 +580,7 @@ void GRTShellWindow::execute_file()
   GRTCodeEditor *editor = get_active_editor();
   if (!editor) return;
 
-  grt::GRT::get()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, true));
+  grt::GRT::get()->push_message_handler(std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, true));
 
   if (_debugger && g_str_has_suffix(editor->get_path().c_str(), ".py"))
   {
@@ -626,7 +626,7 @@ void GRTShellWindow::debug_step()
     else 
     {
       // start the program stopping at the 1st line
-      grt::GRT::get()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, true));
+      grt::GRT::get()->push_message_handler(std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, true));
     
       _run_button->show(false);
       _continue_button->show(true);
@@ -1026,7 +1026,7 @@ void GRTShellWindow::scriptize_snippet()
   }
 }
 
-bool run_return_true(boost::function<void (const std::string&)> f, const std::string& param)
+bool run_return_true(std::function<void (const std::string&)> f, const std::string& param)
 {
   f(param);
   return true;
@@ -1044,7 +1044,7 @@ void GRTShellWindow::run_snippet()
 
     handle_output("Running snippet...\n");
     // redirect snippet output to the shell
-    grt::GRT::get()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, false));
+    grt::GRT::get()->push_message_handler(std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, false));
     
     try
     {

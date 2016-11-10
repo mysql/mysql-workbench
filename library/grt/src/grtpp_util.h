@@ -177,7 +177,7 @@ namespace grt
 
   MYSQLGRT_PUBLIC std::string join_string_list(const StringListRef &list, const std::string &separator);
   
-  MYSQLGRT_PUBLIC void remove_list_items_matching(ObjectListRef list, const boost::function<bool (grt::ObjectRef)> &matcher);
+  MYSQLGRT_PUBLIC void remove_list_items_matching(ObjectListRef list, const std::function<bool (grt::ObjectRef)> &matcher);
   
   //XXX don't use this for objects, use CopyContext::copy() instead
   MYSQLGRT_PUBLIC ValueRef copy_value(ValueRef value, bool deep);
@@ -237,7 +237,7 @@ namespace grt
   // diffing
   
   class DiffChange;
-  typedef boost::function<bool (ValueRef, ValueRef,std::string)> TSlotNormalizerSlot;
+  typedef std::function<bool (ValueRef, ValueRef,std::string)> TSlotNormalizerSlot;
 
   struct MYSQLGRT_PUBLIC Omf
   {

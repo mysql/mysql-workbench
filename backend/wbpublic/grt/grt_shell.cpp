@@ -106,10 +106,10 @@ void ShellBE::process_line_async(const std::string &line)
 {
   GRTShellTask::Ref task= GRTShellTask::create_task("User shell command", _dispatcher, line);
 
-  task->signal_message().connect(boost::bind(&ShellBE::handle_msg, this, _1));
+  task->signal_message().connect(std::bind(&ShellBE::handle_msg, this, std::placeholders::_1));
   task->set_handle_messages_from_thread();
 
-  task->signal_finished().connect(boost::bind(&ShellBE::shell_finished_cb, this, _1, _2, line));
+  task->signal_finished().connect(std::bind(&ShellBE::shell_finished_cb, this, std::placeholders::_1, std::placeholders::_2, line));
   
   _dispatcher->execute_now(task);
 }

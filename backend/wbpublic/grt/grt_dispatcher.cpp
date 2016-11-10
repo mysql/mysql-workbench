@@ -117,7 +117,7 @@ void GRTTaskBase::cancel()
 void GRTTaskBase::started()
 {
   signal_starting_task();
-  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::started_m, this), false, false);
+  _dispatcher->call_from_main_thread<void>(std::bind(&GRTTaskBase::started_m, this), false, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ void GRTTaskBase::started_m()
 void GRTTaskBase::finished(const grt::ValueRef &result)
 {
   signal_finishing_task();
-  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::finished_m, this, result), true, false);
+  _dispatcher->call_from_main_thread<void>(std::bind(&GRTTaskBase::finished_m, this, result), true, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +153,7 @@ void GRTTaskBase::failed(const std::exception &exc)
     _exception = new grt::grt_runtime_error(exc.what(), "");
 
   signal_failing_task();
-  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::failed_m, this, exc), false, false);
+  _dispatcher->call_from_main_thread<void>(std::bind(&GRTTaskBase::failed_m, this, exc), false, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ void GRTTaskBase::failed_m(const std::exception &exc)
 bool GRTTaskBase::process_message(const grt::Message &msg)
 {
   if (_messages_to_main_thread)
-    _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::process_message_m, this, msg), false, false);
+    _dispatcher->call_from_main_thread<void>(std::bind(&GRTTaskBase::process_message_m, this, msg), false, false);
   else
     process_message_m(msg);
 
@@ -203,14 +203,14 @@ public:
   typedef std::shared_ptr<GRTSimpleTask> Ref;
 
   static Ref create_task(const std::string &name, const GRTDispatcher::Ref dispatcher,
-    const boost::function<grt::ValueRef()> &function)
+    const std::function<grt::ValueRef()> &function)
   {
     return Ref(new GRTSimpleTask(name, dispatcher, function));
   }
 
 protected:
   GRTSimpleTask(const std::string &name, const GRTDispatcher::Ref dispatcher,
-    const boost::function<grt::ValueRef ()> &function)
+    const std::function<grt::ValueRef ()> &function)
     : GRTTaskBase(name, dispatcher), _function(function)
   {
   }
@@ -243,13 +243,13 @@ protected:
   }
 
 private:
-  boost::function<grt::ValueRef ()> _function;
+  std::function<grt::ValueRef ()> _function;
 };
 
 //----------------- GRTTask ------------------------------------------------------------------------
 
 GRTTask::GRTTask(const std::string &name, const GRTDispatcher::Ref dispatcher,
-  const boost::function<grt::ValueRef ()> &function)
+  const std::function<grt::ValueRef ()> &function)
   : GRTTaskBase(name, dispatcher), _function(function)
 {
 }
@@ -257,7 +257,7 @@ GRTTask::GRTTask(const std::string &name, const GRTDispatcher::Ref dispatcher,
 //--------------------------------------------------------------------------------------------------
 
 GRTTask::Ref GRTTask::create_task(const std::string &name, const GRTDispatcher::Ref dispatcher,
-  const boost::function<grt::ValueRef()> &function)
+  const std::function<grt::ValueRef()> &function)
 {
   return Ref(new GRTTask(name, dispatcher, function));
 }
@@ -443,7 +443,7 @@ void GRTDispatcher::start()
   _grtm.lock()->add_dispatcher(shared_from_this());
 
   if (_is_main_dispatcher)
-    grt::GRT::get()->push_message_handler(boost::bind(&GRTDispatcher::message_callback, this, _1, _2));
+    grt::GRT::get()->push_message_handler(std::bind(&GRTDispatcher::message_callback, this, std::placeholders::_1, std::placeholders::_2));
 
   _started = true;
 }
@@ -739,7 +739,7 @@ void GRTDispatcher::prepare_task(const GRTTaskBase::Ref gtask)
   
   // Directly set the task callbacks.
   if (_is_main_dispatcher)
-    grt::GRT::get()->push_message_handler(boost::bind(call_process_message, _1, _2, gtask));
+    grt::GRT::get()->push_message_handler(std::bind(call_process_message, std::placeholders::_1, std::placeholders::_2, gtask));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -837,7 +837,7 @@ grt::ValueRef GRTDispatcher::add_task_and_wait(const GRTTaskBase::Ref task) THRO
 //--------------------------------------------------------------------------------------------------
 
 grt::ValueRef GRTDispatcher::execute_sync_function(const std::string &name,
-  const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error)
+  const std::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error)
 {
   GRTSimpleTask::Ref task(GRTSimpleTask::create_task(name, shared_from_this(), function));
   add_task_and_wait(task);
@@ -848,7 +848,7 @@ grt::ValueRef GRTDispatcher::execute_sync_function(const std::string &name,
 //--------------------------------------------------------------------------------------------------
 
 void GRTDispatcher::execute_async_function(const std::string &name,
-  const boost::function<grt::ValueRef()> &function) THROW (grt::grt_runtime_error)
+  const std::function<grt::ValueRef()> &function) THROW (grt::grt_runtime_error)
 {
   add_task(GRTSimpleTask::create_task(name, shared_from_this(), function));
 }
