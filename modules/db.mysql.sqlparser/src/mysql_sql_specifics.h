@@ -40,8 +40,8 @@ public:
   std::string limit_select_query(const std::string &sql, int *row_count, int *offset);
   void get_connection_startup_script(std::list<std::string> &sql_script);
   std::string query_connection_id();
-  std::string query_kill_connection(boost::int64_t connection_id);
-  std::string query_kill_query(boost::int64_t connection_id);
+  std::string query_kill_connection(std::int64_t connection_id);
+  std::string query_kill_query(std::int64_t connection_id);
   std::string query_variable(const std::string &name);
   sqlide::QuoteVar::Escape_sql_string escape_sql_string();
   sqlide::QuoteVar::Blob_to_string blob_to_string();

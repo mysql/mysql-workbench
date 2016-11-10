@@ -178,7 +178,7 @@ public:
   typedef ConnectionWrapper ConnectionRef;
   ConnectionRef ref;
   std::string name;
-  boost::int64_t id;
+  std::int64_t id;
   std::string active_schema;
   std::string ssl_cipher;
   bool autocommit_mode;
