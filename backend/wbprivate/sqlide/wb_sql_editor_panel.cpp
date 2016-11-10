@@ -343,7 +343,7 @@ void SqlEditorPanel::splitter_resized()
 static bool check_if_file_too_big_to_restore(const std::string &path, const std::string &file_caption,
                                              bool allow_save_as = false)
 {
-  boost::int64_t length;
+  std::int64_t length;
   if ((length = get_file_size(path.c_str())) > MAX_FILE_SIZE_FOR_AUTO_RESTORE)
   {
   again:

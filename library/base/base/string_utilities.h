@@ -43,7 +43,7 @@
 #define _(s) s // TODO: replace with localization code.
 
 using boost::uint64_t;
-using boost::int64_t;
+using std::int64_t;
 
 namespace base
 {

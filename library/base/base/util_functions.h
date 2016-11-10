@@ -81,9 +81,9 @@ BASELIBRARY_PUBLIC_FUNC void set_os_specific_password_functions(char*(*store_fun
 BASELIBRARY_PUBLIC_FUNC std::string get_local_os_name(void);
 BASELIBRARY_PUBLIC_FUNC std::string get_local_hardware_info(void);
 
-BASELIBRARY_PUBLIC_FUNC boost::int64_t get_physical_memory_size(void);
+BASELIBRARY_PUBLIC_FUNC std::int64_t get_physical_memory_size(void);
 
-BASELIBRARY_PUBLIC_FUNC boost::int64_t get_file_size(const char *filename); 
+BASELIBRARY_PUBLIC_FUNC std::int64_t get_file_size(const char *filename); 
 
 BASELIBRARY_PUBLIC_FUNC char *strcasestr_len(const char *haystack, int haystack_len, const char *needle);
 

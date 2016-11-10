@@ -771,7 +771,7 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
 }
 
 
-static std::string format_ps_time(boost::int64_t t)
+static std::string format_ps_time(std::int64_t t)
 {
   int hours, mins;
   double secs;
@@ -1067,7 +1067,7 @@ void SqlEditorResult::create_query_stats_panel()
     // show basic stats
     box->add(bold_label("Timing (as measured at client side):"), false, true);
     info.clear();
-    info = strfmt("Execution time: %s\n", format_ps_time(boost::int64_t(rsdata->duration * 1000000000000.0)).c_str());
+    info = strfmt("Execution time: %s\n", format_ps_time(std::int64_t(rsdata->duration * 1000000000000.0)).c_str());
     box->add(mforms::manage(new mforms::Label(info)), false, true);
     
     // if we're in a server with PS, show some extra PS goodies
@@ -1076,7 +1076,7 @@ void SqlEditorResult::create_query_stats_panel()
     for (auto &it : rsdata->ps_stat_info)
       ps_stats[it.first] = (long long int)it.second;
 
-//    std::map<std::string, boost::int64_t> &ps_stats(rsdata->ps_stat_info);
+//    std::map<std::string, std::int64_t> &ps_stats(rsdata->ps_stat_info);
 
     if (ps_stats.size() <= 1) //  "EVENT_ID" is always present
     {

@@ -833,7 +833,7 @@ void SqlEditorForm::cache_sql_mode()
 }
 
 
-void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::string, boost::int64_t> &stats)
+void SqlEditorForm::query_ps_statistics(std::int64_t conn_id, std::map<std::string, std::int64_t> &stats)
 {
   static const char *stat_fields[] = {
     "EVENT_ID",
@@ -885,7 +885,7 @@ void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::st
 }
 
 
-std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(boost::int64_t stmt_event_id)
+std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(std::int64_t stmt_event_id)
 {
   RecMutexLock lock(ensure_valid_aux_connection());
 
@@ -934,7 +934,7 @@ std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(boost::int64_
 }
 
 
-std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(boost::int64_t stmt_event_id)
+std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(std::int64_t stmt_event_id)
 {
   RecMutexLock lock(ensure_valid_aux_connection());
 
@@ -2011,7 +2011,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
 {
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;
   bool dont_add_limit_clause = (flags & DontAddLimitClause) != 0;
-  std::map<std::string, boost::int64_t> ps_stats;
+  std::map<std::string, std::int64_t> ps_stats;
   std::vector<PSStage> ps_stages;
   std::vector<PSWait> ps_waits;
   bool query_ps_stats = collect_ps_statement_events();

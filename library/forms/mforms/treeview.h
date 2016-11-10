@@ -169,7 +169,7 @@ namespace mforms {
 
     virtual void set_string(int column, const std::string &value) = 0;
     virtual void set_int(int column, int value) = 0;
-    virtual void set_long(int column, boost::int64_t value) = 0;
+    virtual void set_long(int column, std::int64_t value) = 0;
     virtual void set_bool(int column, bool value) = 0;
     virtual void set_float(int column, double value) = 0;
 
@@ -177,7 +177,7 @@ namespace mforms {
 
     virtual std::string get_string(int column) const = 0;
     virtual int get_int(int column) const = 0;
-    virtual boost::int64_t get_long(int column) const = 0;
+    virtual std::int64_t get_long(int column) const = 0;
     virtual bool get_bool(int column) const = 0;
     virtual double get_float(int column) const = 0;
     
