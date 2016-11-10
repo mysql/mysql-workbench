@@ -55,9 +55,9 @@ namespace grtui {
     {
       mforms::ImageBox icon;
       mforms::Label label;
-      boost::function<bool ()> execute; //! return value indicates whether an asynchronous function was actually executed
-      boost::function<bool ()> process_fail; //! return value indicates whether it can continue executing ok
-      boost::function<void (grt::ValueRef)> process_finish;
+      std::function<bool ()> execute; //! return value indicates whether an asynchronous function was actually executed
+      std::function<bool ()> process_fail; //! return value indicates whether it can continue executing ok
+      std::function<void (grt::ValueRef)> process_finish;
       std::string status_text;
       bool enabled;
       bool async;
@@ -96,11 +96,11 @@ namespace grtui {
     bool _got_error_messages;
 
     TaskRow *add_async_task(const std::string &caption,
-                            const boost::function<bool ()> &execute,
+                            const std::function<bool ()> &execute,
                             const std::string &status_text);
 
     TaskRow *add_task(const std::string &caption,
-                      const boost::function<bool ()> &execute,
+                      const std::function<bool ()> &execute,
                       const std::string &status_text);
 
     TaskRow *add_disabled_task(const std::string &caption);
@@ -124,11 +124,11 @@ namespace grtui {
   private:
     TaskRow *add_task(bool async, 
                       const std::string &caption,
-                      const boost::function<bool ()> &execute,
+                      const std::function<bool ()> &execute,
                       const std::string &status_text);
 
   public:
-    void execute_grt_task(const boost::function<grt::ValueRef ()> &slot, bool sync);
+    void execute_grt_task(const std::function<grt::ValueRef ()> &slot, bool sync);
 
     void process_grt_task_message(const grt::Message &msg);
     void process_grt_task_fail(const std::exception &error, bec::GRTTask* task);

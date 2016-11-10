@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ MessageListStorage::MessageListStorage(GRTManager *grtm)
   _warning_icon= IconManager::get_instance()->get_icon_id("mini_warning.png");
   _info_icon= IconManager::get_instance()->get_icon_id("mini_notice.png");
   
-  scoped_connect(ValidationManager::signal_notify(),boost::bind(&MessageListStorage::validation_notify, this, _1, _2, _3, _4));
+  scoped_connect(ValidationManager::signal_notify(), std::bind(&MessageListStorage::validation_notify, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ void MessageListStorage::handle_message(const grt::Message &msg)
   if (msg.type == grt::OutputMsg)
   {
     if (_output_handler)
-      _grtm->run_once_when_idle(boost::bind(_output_handler,msg.text));
+      _grtm->run_once_when_idle(std::bind(_output_handler,msg.text));
     return;
   }
   
@@ -99,7 +99,7 @@ void MessageListStorage::handle_message(const grt::Message &msg)
 
 //--------------------------------------------------------------------------------------------------
 
-void MessageListStorage::set_output_handler(const boost::function<void(std::string)> &handler)
+void MessageListStorage::set_output_handler(const std::function<void(std::string)> &handler)
 {
   _output_handler = handler;
 }
@@ -128,7 +128,7 @@ MessageListBE::MessageListBE(MessageListStorage *owner)
 {
   _notified= false;
 
-  _conn = _owner->signal_new_message()->connect(boost::bind(&MessageListBE::add_message, this, _1));
+  _conn = _owner->signal_new_message()->connect(std::bind(&MessageListBE::add_message, this, std::placeholders::_1));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ void MessageListBE::add_message(MessageListStorage::MessageEntryRef message)
 
   if (!_owner->_grtm->in_main_thread())
   {
-    _owner->_grtm->run_once_when_idle(boost::bind(&MessageListBE::add_message, this, message));
+    _owner->_grtm->run_once_when_idle(std::bind(&MessageListBE::add_message, this, message));
     return;
   }
   if (_wanted_sources.empty() || _wanted_sources.find(message->source) != _wanted_sources.end())

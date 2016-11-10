@@ -52,14 +52,14 @@ namespace bec {
     void clear_all();
      
     void handle_message(const grt::Message &msg);
-    void set_output_handler(const boost::function<void (std::string)> &handler);
+    void set_output_handler(const std::function<void (std::string)> &handler);
     
   private:
     friend class MessageListBE;
 
     GRTManager *_grtm;
     boost::signals2::signal<void (MessageEntryRef)> _new_message;
-    boost::function<void (std::string)> _output_handler;
+    std::function<void (std::string)> _output_handler;
     std::vector<MessageEntryRef> _entries;
     IconId _error_icon;
     IconId _warning_icon;

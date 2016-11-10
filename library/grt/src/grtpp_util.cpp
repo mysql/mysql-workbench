@@ -1061,7 +1061,7 @@ bool grt::compare_list_contents(const ObjectListRef &l1, const ObjectListRef &l2
 }
 
 
-void grt::remove_list_items_matching(ObjectListRef list, const boost::function<bool (grt::ObjectRef)> &matcher)
+void grt::remove_list_items_matching(ObjectListRef list, const std::function<bool (grt::ObjectRef)> &matcher)
 {
   for (size_t i= list.count(); i >= 1; --i)
   {

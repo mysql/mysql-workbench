@@ -49,10 +49,10 @@ class MYSQLGRT_PUBLIC SimpleUndoAction : public UndoAction
 {
   std::string _description;
 
-  boost::function<void ()> _undo_slot;
+  std::function<void ()> _undo_slot;
 
 public:  
-  SimpleUndoAction(const boost::function<void ()> &undoslot)
+  SimpleUndoAction(const std::function<void ()> &undoslot)
     : _undo_slot(undoslot) {};
 
   virtual void dump(std::ostream &out, int indent=0) const;
@@ -246,7 +246,7 @@ public:
   void cancel_undo_group();
 
   virtual void add_undo(UndoAction *cmd);
-  virtual void add_simple_undo(const boost::function<void ()> &slot);
+  virtual void add_simple_undo(const std::function<void ()> &slot);
   void set_action_description(const std::string &descr);
   std::string get_action_description() const;
 

@@ -1173,7 +1173,7 @@ bool process_reset_references_for_member(const MetaClass::Member* m, Object* obj
 void Object::reset_references()
 {
   //g_log("grt", G_LOG_LEVEL_DEBUG, "Object::reset_references for '%s':'%s'", class_name().c_str(), id().c_str());
-  _metaclass->foreach_member(boost::bind(&process_reset_references_for_member, _1, this));
+  _metaclass->foreach_member(std::bind(&process_reset_references_for_member, std::placeholders::_1, this));
 }
 
 void Object::init()
@@ -1196,7 +1196,7 @@ void Object::mark_global() const
 {
   _is_global++;
   if (_is_global == 1)
-    _metaclass->foreach_member(boost::bind(&mark_global_, _1, this));
+    _metaclass->foreach_member(std::bind(&mark_global_, std::placeholders::_1, this));
 }
 
 
@@ -1216,7 +1216,7 @@ void Object::unmark_global() const
 {
   _is_global--;
   if (_is_global == 0)
-    _metaclass->foreach_member(boost::bind(&unmark_global_, _1, this));
+    _metaclass->foreach_member(std::bind(&unmark_global_, std::placeholders::_1, this));
 }
 
 

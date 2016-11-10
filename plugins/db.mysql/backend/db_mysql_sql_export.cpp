@@ -248,9 +248,9 @@ void DbMySQLSQLExport::start_export(bool wait_finish)
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL export", 
       bec::GRTManager::get()->get_dispatcher(),
-    boost::bind(&DbMySQLSQLExport::export_task, this, grt::StringRef()));
+    std::bind(&DbMySQLSQLExport::export_task, this, grt::StringRef()));
 
-  scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::export_finished, this, _1));
+  scoped_connect(task->signal_finished(), std::bind(&DbMySQLSQLExport::export_finished, this, std::placeholders::_1));
   
   if (wait_finish)
     bec::GRTManager::get()->get_dispatcher()->add_task_and_wait(task);
