@@ -736,17 +736,17 @@ void DBSearchPanel::prepare_menu()
     {
 //        item = _context_menu.add_item_with_title(_("Query Matching Rows"), boost::bind(&DBSearchPanel::activate_menu_item, this, "show_matches"), "show_matches");
 //        item->set_enabled(table_selected == 0);
-        item = _context_menu.add_item_with_title(_("Copy Query"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
+        item = _context_menu.add_item_with_title(_("Copy Query"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
         if (searcher_is_working)
           item->set_enabled(false);
 
-        item = _context_menu.add_item_with_title(_("Copy Query for Matches"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_query_for_selected"), "copy_query_for_selected");
+        item = _context_menu.add_item_with_title(_("Copy Query for Matches"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query_for_selected"), "copy_query_for_selected");
         if (searcher_is_working)
           item->set_enabled(false);
         else
           item->set_enabled(table_selected == 0);
 
-        item = _context_menu.add_item_with_title(_("Copy Keys"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_pks"), "copy_pks");
+        item = _context_menu.add_item_with_title(_("Copy Keys"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_pks"), "copy_pks");
         if (searcher_is_working)
           item->set_enabled(false);
         else
@@ -756,19 +756,19 @@ void DBSearchPanel::prepare_menu()
     {
 //        item = _context_menu.add_item_with_title(_("Query Matching Rows"), boost::bind(&DBSearchPanel::activate_menu_item, this, "view_matches"), "show_matches");
 //        item->set_enabled(table_selected > 0);
-        item = _context_menu.add_item_with_title(_("Copy Query"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
+        item = _context_menu.add_item_with_title(_("Copy Query"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
         if (searcher_is_working)
           item->set_enabled(false);
         else
           item->set_enabled(table_selected > 0);
 
-        item = _context_menu.add_item_with_title(_("Copy Query for Matches"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_query_for_selected_table"), "copy_query_for_selected_table");
+        item = _context_menu.add_item_with_title(_("Copy Query for Matches"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query_for_selected_table"), "copy_query_for_selected_table");
         if (searcher_is_working)
           item->set_enabled(false);
         else
           item->set_enabled(table_selected == 1);
 
-        item = _context_menu.add_item_with_title(_("Copy Keys"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_pks_table"), "copy_pks_table");
+        item = _context_menu.add_item_with_title(_("Copy Keys"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_pks_table"), "copy_pks_table");
         if (searcher_is_working)
           item->set_enabled(false);
         else

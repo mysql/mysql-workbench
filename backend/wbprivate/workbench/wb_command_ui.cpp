@@ -492,7 +492,7 @@ void CommandUI::add_plugins_menu_items(mforms::MenuItem *parent, const std::stri
   {
     mforms::MenuItem *item = mforms::manage(new mforms::MenuItem((*iter)->caption()));
     item->set_name(std::string("plugin:").append(*(*iter)->name()));
-    item->add_validator(boost::bind(&CommandUI::validate_plugin_command, this, *iter));
+    item->add_validator(std::bind(&CommandUI::validate_plugin_command, this, *iter));
     item->validate();
     scoped_connect(item->signal_clicked(),boost::bind((void(CommandUI::*)(const std::string&))&CommandUI::activate_command, this, item->get_name()));
     parent->add_item(item);
@@ -552,7 +552,7 @@ void CommandUI::add_scripts_menu(mforms::MenuItem *parent)
     std::sort(files.begin(), files.end());
 
     for (std::vector<std::string>::const_iterator f = files.begin(); f != files.end(); ++f)
-      parent->add_item_with_title(base::basename(*f), boost::bind(&WBContext::run_script_file, _wb, *f));
+      parent->add_item_with_title(base::basename(*f), std::bind(&WBContext::run_script_file, _wb, *f));
   }
   catch (...)
   {
@@ -652,7 +652,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         std::string caption = mitem->caption();
 
         bool enabled = true;
-        boost::function<bool ()> validator;
+        std::function<bool ()> validator;
         if (cmd.type == "plugin")
         {
           app_PluginRef plugin(_wb->get_plugin_manager()->get_plugin(cmd.name));
@@ -675,7 +675,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
 #endif
           }
           else
-            validator = boost::bind(&CommandUI::validate_plugin_command, this, plugin);
+            validator = std::bind(&CommandUI::validate_plugin_command, this, plugin);
         }
         else if (cmd.type == "call")
         {
@@ -1045,8 +1045,8 @@ void CommandUI::remove_builtin_command(const std::string &name)
 }
 
 void CommandUI::add_builtin_command(const std::string &name, 
-                         const boost::function<void ()> &slot,
-                         const boost::function<bool()> &validate)
+                         const std::function<void ()> &slot,
+                         const std::function<bool()> &validate)
 {
   BuiltinCommand cmd;
 

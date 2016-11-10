@@ -472,7 +472,7 @@ mforms::View* MySQLEditor::get_container()
     d->_container = new mforms::Box(false);
 
     d->_container->add(get_toolbar(), false, true);
-    get_editor_control()->set_show_find_panel_callback(boost::bind(embed_find_panel, _1, _2, d->_container));
+    get_editor_control()->set_show_find_panel_callback(std::bind(embed_find_panel, std::placeholders::_1, std::placeholders::_2, d->_container));
     d->_container->add_end(get_editor_control(), true, true);
   }
   return d->_container;

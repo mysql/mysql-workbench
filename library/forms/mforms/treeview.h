@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -302,7 +302,7 @@ namespace mforms {
      Callback must return path to an icon if it wants it to be displayed. When the user clicks it,
      the node_activated() handler is called, with a negated, one-based index of the icon index (-1, -2 etc.).
      */
-    void set_row_overlay_handler(const boost::function<std::vector<std::string> (TreeNodeRef)> &overlay_icon_for_node);
+    void set_row_overlay_handler(const std::function<std::vector<std::string> (TreeNodeRef)> &overlay_icon_for_node);
 
     int get_column_count() const { return (int)_column_types.size(); }
     TreeColumnType get_column_type(int column);
@@ -476,7 +476,7 @@ namespace mforms {
     boost::signals2::signal<void (TreeNodeRef, bool)> _signal_expand_toggle;
     std::function<void (TreeNodeRef, int, std::string)> _cell_edited;
     boost::signals2::signal<void (int)> _signal_column_resized;
-    boost::function<std::vector<std::string> (TreeNodeRef)> _overlay_icons_for_node;
+    std::function<std::vector<std::string> (TreeNodeRef)> _overlay_icons_for_node;
     ContextMenu *_context_menu;
     ContextMenu *_header_menu;
     std::vector<TreeColumnType> _column_types;

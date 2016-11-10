@@ -36,7 +36,7 @@ MenuBase::~MenuBase()
   _items.clear();  
 }
 
-MenuItem *MenuBase::add_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name)
+MenuItem *MenuBase::add_item_with_title(const std::string &title, std::function<void ()> action, const std::string &name)
 {
   MenuItem *item = manage(new MenuItem(title));
   item->signal_clicked()->connect(action);
@@ -45,7 +45,7 @@ MenuItem *MenuBase::add_item_with_title(const std::string &title, boost::functio
   return item;
 }
 
-MenuItem *MenuBase::add_check_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name)
+MenuItem *MenuBase::add_check_item_with_title(const std::string &title, std::function<void ()> action, const std::string &name)
 {
   MenuItem *item = manage(new MenuItem(title, CheckedMenuItem));
   item->signal_clicked()->connect(action);

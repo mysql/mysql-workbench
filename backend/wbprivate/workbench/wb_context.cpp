@@ -766,7 +766,7 @@ bool WBContext::find_connection_password(const db_mgmt_ConnectionRef &conn, std:
                                    conn->parameterValues().get_string("userName").c_str(),
                                    &password));*/
   void *ret = mforms::Utilities::perform_from_main_thread(
-                      boost::bind(&WBContext::do_find_connection_password, this,
+                      std::bind(&WBContext::do_find_connection_password, this,
                                   conn->hostIdentifier(),
                                   conn->parameterValues().get_string("userName"),
                                   &password));
@@ -782,7 +782,7 @@ std::string WBContext::request_connection_password(const db_mgmt_ConnectionRef &
   std::string password_tmp;
   std::string user_tmp = conn->parameterValues().get_string("userName");
   void *ret = mforms::Utilities::perform_from_main_thread(
-                      boost::bind(&WBContext::do_request_password, this,
+                      std::bind(&WBContext::do_request_password, this,
                                   _("Connect to MySQL Server"),
                                   conn->hostIdentifier(),
                                   reset_password,
@@ -886,7 +886,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
     dbc_driver_man->setPasswordFindFunction(boost::bind(&WBContext::find_connection_password, this, _1, _2));
     dbc_driver_man->setPasswordRequestFunction(boost::bind(&WBContext::request_connection_password, this, _1, _2));
 
-    mforms::Utilities::add_driver_shutdown_callback(boost::bind(&sql::DriverManager::thread_cleanup, dbc_driver_man));
+    mforms::Utilities::add_driver_shutdown_callback(std::bind(&sql::DriverManager::thread_cleanup, dbc_driver_man));
 
 #ifdef _WIN32
     dbc_driver_man->set_driver_dir(options->basedir);

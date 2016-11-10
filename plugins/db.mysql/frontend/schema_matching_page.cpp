@@ -98,8 +98,8 @@ SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name
   set_short_title(_("Select Schemata"));
   set_title(_("Select the Schemata to be Synchronized"));
 
-  _menu.add_item_with_title("Select All", boost::bind(select_all, &_tree, this));
-  _menu.add_item_with_title("Unselect All", boost::bind(unselect_all, &_tree, this));
+  _menu.add_item_with_title("Select All", std::bind(select_all, &_tree, this));
+  _menu.add_item_with_title("Unselect All", std::bind(unselect_all, &_tree, this));
 
   _tree.add_column(mforms::CheckColumnType, "", 20, true);
   _tree.add_column(mforms::IconStringColumnType, left_name, 150, false);

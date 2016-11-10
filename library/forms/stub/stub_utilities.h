@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@ namespace stub {
 
 class UtilitiesWrapper
 {
-  static boost::function<void (std::string)> open_url_slot;
-  static boost::function<mforms::DialogResult (void)> message_callback;
+  static std::function<void (std::string)> open_url_slot;
+  static std::function<mforms::DialogResult (void)> message_callback;
   static std::map<const std::string, std::string>& passwords();
 
   static int show_message(const std::string &title, const std::string &text,
@@ -48,7 +48,7 @@ class UtilitiesWrapper
   static void show_wait_message(const std::string &title, const std::string &text);
   static bool hide_wait_message();
   static bool run_cancelable_wait_message(const std::string &title, const std::string &text,
-                        const boost::function<void ()> &start_task, const boost::function<bool ()> &cancel_task);
+                        const std::function<void ()> &start_task, const std::function<bool ()> &cancel_task);
   static void stop_cancelable_wait_message();
     
   static void set_clipboard_text(const std::string &text);
@@ -58,17 +58,17 @@ class UtilitiesWrapper
 
 
   static void open_url(const std::string &url);
-  static mforms::TimeoutHandle add_timeout(float interval, const boost::function<bool ()> &slot);
+  static mforms::TimeoutHandle add_timeout(float interval, const std::function<bool ()> &slot);
   static void cancel_timeout(mforms::TimeoutHandle);
 
   static void store_password(const std::string &service, const std::string &account, const std::string &password);
   static bool find_password(const std::string &service, const std::string &account, std::string &password);
   static void forget_password(const std::string &service, const std::string &account);
-  static void* perform_from_main_thread(const boost::function<void* ()>& slot, bool wait);
+  static void* perform_from_main_thread(const std::function<void* ()>& slot, bool wait);
 
 public:
   static void init();
-  static void set_message_callback(boost::function<mforms::DialogResult (void)> callback);
+  static void set_message_callback(std::function<mforms::DialogResult (void)> callback);
 };
 
 };

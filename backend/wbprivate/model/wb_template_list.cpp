@@ -83,8 +83,8 @@ std::string TableTemplateList::get_selected_template()
 void TableTemplateList::prepare_context_menu()
 {
   _context_menu = manage(new Menu());
-  _context_menu->set_handler(boost::bind(&TableTemplatePanel::on_action, _owner, _1));
-  _context_menu->signal_will_show()->connect(boost::bind(&TableTemplateList::menu_will_show, this));
+  _context_menu->set_handler(std::bind(&TableTemplatePanel::on_action, _owner, std::placeholders::_1));
+  _context_menu->signal_will_show()->connect(std::bind(&TableTemplateList::menu_will_show, this));
 
   _context_menu->add_item("New Table from Template", "use_template");
   _context_menu->add_separator();

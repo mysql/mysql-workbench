@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -90,7 +90,7 @@ namespace mforms {
     
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-    void set_cancel_handler(const boost::function<bool ()> &slot);
+    void set_cancel_handler(const std::function<bool ()> &slot);
     boost::signals2::signal<void ()>* signal_next_clicked() { return &_next_signal; }
     boost::signals2::signal<void ()>* signal_back_clicked() { return &_back_signal; }
     boost::signals2::signal<void ()>* signal_extra_clicked() { return &_extra_signal; }
@@ -111,7 +111,7 @@ namespace mforms {
       _extra_signal();
     }
     
-    boost::function<bool ()> _cancel_slot;
+    std::function<bool ()> _cancel_slot;
 #endif
 #endif
   protected:

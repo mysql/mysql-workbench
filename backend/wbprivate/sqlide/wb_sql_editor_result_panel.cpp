@@ -134,7 +134,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
     _grtobj->dockingPoint(mforms_to_grt(&_tabdock));
   }
 
-  set_on_close(boost::bind(&SqlEditorResult::can_close, this));
+  set_on_close(std::bind(&SqlEditorResult::can_close, this));
 }
 
 
@@ -222,11 +222,11 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   rset->get_toolbar()->find_item("record_sort_reset")->signal_activated()->connect(boost::bind(&SqlEditorResult::reset_sorting, this));
 
   _grid_header_menu = new mforms::ContextMenu();
-  _grid_header_menu->add_item_with_title("Copy Field Name", boost::bind(&SqlEditorResult::copy_column_name, this));
-  _grid_header_menu->add_item_with_title("Copy All Field Names", boost::bind(&SqlEditorResult::copy_all_column_names, this));
+  _grid_header_menu->add_item_with_title("Copy Field Name", std::bind(&SqlEditorResult::copy_column_name, this));
+  _grid_header_menu->add_item_with_title("Copy All Field Names", std::bind(&SqlEditorResult::copy_all_column_names, this));
   _grid_header_menu->add_separator();
-  _grid_header_menu->add_item_with_title("Reset Sorting", boost::bind(&SqlEditorResult::reset_sorting, this));
-  _grid_header_menu->add_item_with_title("Reset Column Widths", boost::bind(&SqlEditorResult::reset_column_widths, this));
+  _grid_header_menu->add_item_with_title("Reset Sorting", std::bind(&SqlEditorResult::reset_sorting, this));
+  _grid_header_menu->add_item_with_title("Reset Column Widths", std::bind(&SqlEditorResult::reset_column_widths, this));
 
   mforms::GridView* grid = mforms::manage(mforms::GridView::create(rset));
   {
@@ -860,8 +860,8 @@ void SqlEditorResult::create_column_info_panel()
       tree->set_selection_mode(mforms::TreeSelectMultiple);
 
       _column_info_menu = new mforms::ContextMenu();
-      _column_info_menu->add_item_with_title("Copy", boost::bind(&SqlEditorResult::copy_column_info, this, tree));
-      _column_info_menu->add_item_with_title("Copy Name", boost::bind(&SqlEditorResult::copy_column_info_name, this, tree));
+      _column_info_menu->add_item_with_title("Copy", std::bind(&SqlEditorResult::copy_column_info, this, tree));
+      _column_info_menu->add_item_with_title("Copy Name", std::bind(&SqlEditorResult::copy_column_info_name, this, tree));
       tree->set_context_menu(_column_info_menu);
 
       int i = 0;

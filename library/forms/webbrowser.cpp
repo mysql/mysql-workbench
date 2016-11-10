@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,7 +45,7 @@ void WebBrowser::navigate(const std::string& url)
 }
 
 //--------------------------------------------------------------------------------------------------
-void WebBrowser::set_link_click_handler(const boost::function<bool (const std::string &)> &slot)
+void WebBrowser::set_link_click_handler(const std::function<bool (const std::string &)> &slot)
 {
   _handle_link_click = slot;
 }

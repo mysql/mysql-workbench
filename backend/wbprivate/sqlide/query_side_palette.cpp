@@ -88,8 +88,8 @@ private:
   void prepare_context_menu()
   {
     _context_menu = manage(new Menu());
-    _context_menu->set_handler(boost::bind(&SnippetListView::on_action, this, _1));
-    _context_menu->signal_will_show()->connect(boost::bind(&SnippetListView::menu_will_show, this));
+    _context_menu->set_handler(std::bind(&SnippetListView::on_action, this, std::placeholders::_1));
+    _context_menu->signal_will_show()->connect(std::bind(&SnippetListView::menu_will_show, this));
 
     _context_menu->add_item(_("Insert Snippet at Cursor"), "insert_text");
     _context_menu->add_item(_("Replace Editor Content with Snippet"), "replace_text");

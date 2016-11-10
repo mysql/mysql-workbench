@@ -80,7 +80,7 @@ private:
       else
       {
         if (_last_selection_change == 0 && _check_selection_timeout == 0)
-          _check_selection_timeout = mforms::Utilities::add_timeout(1, boost::bind(&DBSearchView::check_selection, this));
+          _check_selection_timeout = mforms::Utilities::add_timeout(1, std::bind(&DBSearchView::check_selection, this));
         _last_selection_change = time(NULL);
       }
     }
@@ -138,7 +138,7 @@ private:
   {
     //we need to call this from timeout or idle, cause in gtk, we're blocking the application
     if (action == mforms::EntryActivate && _search_timeout == 0)
-      _search_timeout = mforms::Utilities::add_timeout(0.1f, boost::bind(&DBSearchView::search_activate_from_timeout, this));
+      _search_timeout = mforms::Utilities::add_timeout(0.1f, std::bind(&DBSearchView::search_activate_from_timeout, this));
   }
 
   void finished_search()

@@ -43,7 +43,7 @@ WizardForm::WizardForm()
   scoped_connect(signal_next_clicked(),boost::bind(&WizardForm::go_to_next, this));
   scoped_connect(signal_back_clicked(),boost::bind(&WizardForm::go_to_back, this));
   scoped_connect(signal_extra_clicked(),boost::bind(&WizardForm::extra_clicked, this));
-  set_cancel_handler(boost::bind(&WizardForm::cancel, this));
+  set_cancel_handler(std::bind(&WizardForm::cancel, this));
   
   _values= grt::DictRef(true);
 }

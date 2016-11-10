@@ -51,7 +51,7 @@ GRTCodeEditor::GRTCodeEditor(GRTShellWindow *owner, bool module, const std::stri
 
   _top.add_end(&_text, true, true);
 
-  _text.set_show_find_panel_callback(boost::bind(embed_find_panel, _1, _2, &_top));
+  _text.set_show_find_panel_callback(std::bind(embed_find_panel, std::placeholders::_1, std::placeholders::_2, &_top));
 
 
   if (_language == "python")
