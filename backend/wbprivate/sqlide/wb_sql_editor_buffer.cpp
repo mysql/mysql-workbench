@@ -543,7 +543,7 @@ void SqlEditorForm::sql_editor_panel_switched()
 {
   SqlEditorPanel *panel = active_sql_editor_panel();
   if (panel)
-    bec::GRTManager::get()->run_once_when_idle((bec::UIForm*)panel, boost::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
+    bec::GRTManager::get()->run_once_when_idle((bec::UIForm*)panel, std::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
 
   validate_menubar();
 }

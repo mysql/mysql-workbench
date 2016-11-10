@@ -167,7 +167,7 @@ int VarGridModel::refresh_ui()
   if (GRTManager::get()->in_main_thread())
     refresh_ui_signal();
   else
-    _refresh_connection = GRTManager::get()->run_once_when_idle(this, boost::bind(&VarGridModel::refresh_ui, this));
+    _refresh_connection = GRTManager::get()->run_once_when_idle(this, std::bind(&VarGridModel::refresh_ui, this));
   return 0;
 }
 

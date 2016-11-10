@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,16 +21,12 @@
 
 #include "common.h"
 
-#ifndef HAVE_PREDEFINED_HEADERS
-  #include <boost/function.hpp>
-#endif
-
 namespace base {
 
   class ScopeExitTrigger
   {
   public:
-    typedef boost::function<void ()> Slot;
+    typedef std::function<void ()> Slot;
     ScopeExitTrigger() {}
     ScopeExitTrigger(const Slot &cb) : slot(cb) {}
     ~ScopeExitTrigger() { if (slot) slot(); }

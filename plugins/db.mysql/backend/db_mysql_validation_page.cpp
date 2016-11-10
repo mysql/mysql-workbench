@@ -51,10 +51,10 @@ void DbMySQLValidationPage::run_validation()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("Catalog validation", 
       bec::GRTManager::get()->get_dispatcher(),
-    boost::bind(&DbMySQLSQLExport::validation_task, this, grt::StringRef()));
+    std::bind(&DbMySQLSQLExport::validation_task, this, grt::StringRef()));
 
-  scoped_connect(task->signal_message(),boost::bind(&DbMySQLSQLExport::validation_message, this, _1));
-  scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::validation_finished, this, _1));
+  scoped_connect(task->signal_message(),std::bind(&DbMySQLSQLExport::validation_message, this, std::placeholders::_1));
+  scoped_connect(task->signal_finished(),std::bind(&DbMySQLSQLExport::validation_finished, this, std::placeholders::_1));
   bec::GRTManager::get()->get_dispatcher()->add_task(task);
 }
 
@@ -111,7 +111,7 @@ ValueRef DbMySQLValidationPage::validation_task(grt::StringRef)
         int validation_res= (int)(*module)->validate("All", catalog);
 
         bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<int>(
-			boost::bind(_validation_step_finished_cb, validation_res), true, false);
+			std::bind(_validation_step_finished_cb, validation_res), true, false);
       }
     }
   }

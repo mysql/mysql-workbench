@@ -68,7 +68,7 @@ namespace bec {
     
     grt::ValueRef find_match(const app_PluginInputDefinitionRef &pdef, std::string &searched_key_name_ret, bool strict=true) const;
     
-    void dump_keys(const boost::function<void (std::string)> &dump_function) const;
+    void dump_keys(const std::function<void (std::string)> &dump_function) const;
 
     void add_file_input(const app_PluginFileInputRef &pdef,
                         const std::string &value);

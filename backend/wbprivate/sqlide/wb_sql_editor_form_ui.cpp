@@ -146,14 +146,14 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
       std::string dont_limit = _("Don't Limit");
       std::string active_limit = base::strfmt(_("Limit to %i rows"), limit_count);
 
-      limit_item->add_check_item_with_title(dont_limit, boost::bind(&SqlEditorForm::limit_rows, this, dont_limit), dont_limit);
+      limit_item->add_check_item_with_title(dont_limit, std::bind(&SqlEditorForm::limit_rows, this, dont_limit), dont_limit);
       limit_item->add_separator();
       for (int i = 0; limit_counts[i] != 0; i++)
       {
         std::string tmp = base::strfmt(_("Limit to %i rows"), limit_counts[i]);
         if (limit_counts[i] == limit_count)
           active_limit = tmp;
-        limit_item->add_check_item_with_title(tmp, boost::bind(&SqlEditorForm::limit_rows, this, tmp), tmp);
+        limit_item->add_check_item_with_title(tmp, std::bind(&SqlEditorForm::limit_rows, this, tmp), tmp);
       }
       if (limit_count <= 0)
         limit_rows(dont_limit);
@@ -216,7 +216,7 @@ void SqlEditorForm::update_menu_and_toolbar()
 {
   if (!bec::GRTManager::get()->in_main_thread())
   {
-    exec_sql_task->execute_in_main_thread(boost::bind(&SqlEditorForm::update_menu_and_toolbar, this),
+    exec_sql_task->execute_in_main_thread(std::bind(&SqlEditorForm::update_menu_and_toolbar, this),
                                           false,
                                           false);
     return;
@@ -514,21 +514,21 @@ bool SqlEditorForm::run_live_object_alteration_wizard(const std::string &alter_s
   
   SqlScriptRunWizard wizard(rdbms_version(), algorithm, lock);
   if (obj_editor)
-    wizard.regenerate_script = boost::bind(&SqlEditorTreeController::generate_alter_script, get_live_tree(), rdbms(),
-                                           obj_editor->get_dbobject(), _1, _2);
-  scoped_connection c1(on_sql_script_run_error.connect(boost::bind(&SqlScriptApplyPage::on_error, wizard.apply_page, _1, _2, _3)));
-  scoped_connection c2(on_sql_script_run_progress.connect(boost::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, _1)));
-  scoped_connection c3(on_sql_script_run_statistics.connect(boost::bind(&SqlScriptApplyPage::on_exec_stat, wizard.apply_page, _1, _2)));
+    wizard.regenerate_script = std::bind(&SqlEditorTreeController::generate_alter_script, get_live_tree(), rdbms(),
+                                           obj_editor->get_dbobject(), std::placeholders::_1, std::placeholders::_2);
+  scoped_connection c1(on_sql_script_run_error.connect(std::bind(&SqlScriptApplyPage::on_error, wizard.apply_page, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)));
+  scoped_connection c2(on_sql_script_run_progress.connect(std::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, std::placeholders::_1)));
+  scoped_connection c3(on_sql_script_run_statistics.connect(std::bind(&SqlScriptApplyPage::on_exec_stat, wizard.apply_page, std::placeholders::_1, std::placeholders::_2)));
   
   std::string errors;
   
-  scoped_connection c4(on_sql_script_run_error.connect(boost::bind(&SqlEditorForm::sql_script_apply_error, this, _1, _2, _3, boost::ref(errors))));
-  scoped_connection c5(on_sql_script_run_progress.connect(boost::bind(&SqlEditorForm::sql_script_apply_progress, this, _1)));
-  scoped_connection c6(on_sql_script_run_statistics.connect(boost::bind(&SqlEditorForm::sql_script_stats, this, _1, _2)));
+  scoped_connection c4(on_sql_script_run_error.connect(std::bind(&SqlEditorForm::sql_script_apply_error, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::ref(errors))));
+  scoped_connection c5(on_sql_script_run_progress.connect(std::bind(&SqlEditorForm::sql_script_apply_progress, this, std::placeholders::_1)));
+  scoped_connection c6(on_sql_script_run_statistics.connect(std::bind(&SqlEditorForm::sql_script_stats, this, std::placeholders::_1, std::placeholders::_2)));
   
   wizard.values().gset("sql_script", alter_script);
-  wizard.apply_page->apply_sql_script= boost::bind(&SqlEditorForm::apply_object_alter_script, this, _1, obj_editor, log_id);
-  wizard.abort_apply = boost::bind(&SqlEditorForm::abort_apply_object_alter_script, this);
+  wizard.apply_page->apply_sql_script = std::bind(&SqlEditorForm::apply_object_alter_script, this, std::placeholders::_1, obj_editor, log_id);
+  wizard.abort_apply = std::bind(&SqlEditorForm::abort_apply_object_alter_script, this);
   wizard.run_modal();
   
   if (wizard.applied() && !wizard.has_errors())
@@ -588,7 +588,7 @@ void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_in
   else if (action == "close_tab")
   {
     if (_tabdock->view_at_index(tab_index)->on_close())
-      bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&mforms::DockingPoint::close_view_at_index, _tabdock, tab_index));
+      bec::GRTManager::get()->run_once_when_idle(this, std::bind(&mforms::DockingPoint::close_view_at_index, _tabdock, tab_index));
   }
   else if (action == "close_other_tabs")
   {

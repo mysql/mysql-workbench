@@ -64,7 +64,7 @@ SqlScriptReviewPage::SqlScriptReviewPage(grtui::WizardForm *form, GrtVersionRef 
     line_box->add(label, false, false);
 
     _algorithm_selector = mforms::manage(new mforms::Selector());
-    scoped_connect(_algorithm_selector->signal_changed(), boost::bind(&SqlScriptReviewPage::option_changed, this));
+    scoped_connect(_algorithm_selector->signal_changed(), std::bind(&SqlScriptReviewPage::option_changed, this));
     _algorithm_selector->add_item("Default");
     _algorithm_selector->add_item("In place");
     _algorithm_selector->add_item("Copy");
@@ -81,7 +81,7 @@ SqlScriptReviewPage::SqlScriptReviewPage(grtui::WizardForm *form, GrtVersionRef 
     line_box->add(label, false, false);
 
     _lock_selector = mforms::manage(new mforms::Selector());
-    scoped_connect(_lock_selector->signal_changed(), boost::bind(&SqlScriptReviewPage::option_changed, this));
+    scoped_connect(_lock_selector->signal_changed(), std::bind(&SqlScriptReviewPage::option_changed, this));
     _lock_selector->add_item("Default");
     _lock_selector->add_item("None");
     _lock_selector->add_item("Shared");
@@ -198,7 +198,7 @@ _err_count(0)
 
   /*TaskRow *task=*/ add_async_task(
     _("Execute SQL Statements"), 
-    boost::bind(&SqlScriptApplyPage::execute_sql_script, this),
+    std::bind(&SqlScriptApplyPage::execute_sql_script, this),
     _("Executing SQL Statements..."));
 
   end_adding_tasks(_("SQL script was successfully applied to the database."));
@@ -206,7 +206,7 @@ _err_count(0)
   {
     _abort_btn = mforms::manage(new mforms::Button());
     _abort_btn->set_text("Abort");
-    _abort_btn->signal_clicked()->connect(boost::bind(&SqlScriptApplyPage::abort_exec, this));
+    _abort_btn->signal_clicked()->connect(std::bind(&SqlScriptApplyPage::abort_exec, this));
     _progress_bar_box->add_end(_abort_btn, false, true);
   }
   set_status_text("");
@@ -249,19 +249,19 @@ int SqlScriptApplyPage::on_exec_stat(long success_count, long err_count)
 
 grt::ValueRef SqlScriptApplyPage::do_execute_sql_script(const std::string &sql_script)
 {
-  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, "Executing:\n"+sql_script+"\n"));
+  bec::GRTManager::get()->run_once_when_idle(this, std::bind(&SqlScriptApplyPage::add_log_text, this, "Executing:\n"+sql_script+"\n"));
 
   apply_sql_script(sql_script);
 
   if (_err_count)
   {
     values().gset("has_errors", 1);
-    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, _log));
+    bec::GRTManager::get()->run_once_when_idle(this, std::bind(&SqlScriptApplyPage::add_log_text, this, _log));
     throw std::runtime_error(_("There was an error while applying the SQL script to the database."));
   }
   else
   {
-    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text,
+    bec::GRTManager::get()->run_once_when_idle(this, std::bind(&SqlScriptApplyPage::add_log_text,
                                                         this, _("SQL script was successfully applied to the database.")));
   }
 
@@ -277,7 +277,7 @@ bool SqlScriptApplyPage::execute_sql_script()
 
   //apply_sql_script(sql_script);
 
-  execute_grt_task(boost::bind(&SqlScriptApplyPage::do_execute_sql_script, this, sql_script), false);
+  execute_grt_task(std::bind(&SqlScriptApplyPage::do_execute_sql_script, this, sql_script), false);
 
   return true;
 }

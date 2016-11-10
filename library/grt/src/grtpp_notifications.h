@@ -47,7 +47,6 @@ namespace grt {
   public:
     static GRTNotificationCenter *get();
     
-    //void add_observer(Observer *observer, boost::function<void (const std::string &, void*, NotificationInfo &)> &callback, const std::string &name = "");
     void add_grt_observer(GRTObserver *observer, const std::string &name = "", ObjectRef object = ObjectRef());
     bool remove_grt_observer(GRTObserver *observer, const std::string &name = "", ObjectRef object = ObjectRef());
     

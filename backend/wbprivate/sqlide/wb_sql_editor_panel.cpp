@@ -1251,7 +1251,7 @@ void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
   }
   else
     bec::GRTManager::get()->run_once_when_idle(dynamic_cast<bec::UIForm*>(this),
-      boost::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
+      std::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
 }
 
 //--------------------------------------------------------------------------------------------------

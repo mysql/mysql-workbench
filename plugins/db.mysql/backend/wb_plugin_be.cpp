@@ -26,9 +26,9 @@ void Wb_plugin::exec_task(bool sync)
 
   bec::GRTTask::Ref task = bec::GRTTask::create_task(task_desc(), bec::GRTManager::get()->get_dispatcher(), _task_proc_cb);
 
-  scoped_connect(task->signal_message(),boost::bind(&Wb_plugin::process_task_msg, this, _1));
-  scoped_connect(task->signal_failed(),boost::bind(&Wb_plugin::process_task_fail, this, _1));
-  scoped_connect(task->signal_finished(),boost::bind(&Wb_plugin::process_task_finish, this, _1));
+  scoped_connect(task->signal_message(), std::bind(&Wb_plugin::process_task_msg, this, std::placeholders::_1));
+  scoped_connect(task->signal_failed(), std::bind(&Wb_plugin::process_task_fail, this, std::placeholders::_1));
+  scoped_connect(task->signal_finished(), std::bind(&Wb_plugin::process_task_finish, this, std::placeholders::_1));
 
   if (sync)
     bec::GRTManager::get()->get_dispatcher()->add_task_and_wait(task);

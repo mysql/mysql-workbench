@@ -94,7 +94,7 @@ namespace bec {
 
     void add_listeners(const grt::Ref<GrtObject> &object);
 
-    void run_from_grt(const boost::function<void ()> &slot);
+    void run_from_grt(const std::function<void ()> &slot);
 
   private:
     friend class AutoUndoEdit;

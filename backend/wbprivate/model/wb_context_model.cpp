@@ -75,37 +75,37 @@ WBContextModel::WBContextModel()
 {  
   _overview= new PhysicalOverviewBE(wb::WBContextUI::get()->get_wb());
 
-  scoped_connect(bec::GRTManager::get()->get_clipboard()->signal_changed(),boost::bind(&WBContextModel::selection_changed, this));
-  scoped_connect(_overview->signal_selection_changed(),boost::bind(&WBContextModel::selection_changed, this)); // make edit menu captions to update
+  scoped_connect(bec::GRTManager::get()->get_clipboard()->signal_changed(), std::bind(&WBContextModel::selection_changed, this));
+  scoped_connect(_overview->signal_selection_changed(), std::bind(&WBContextModel::selection_changed, this)); // make edit menu captions to update
 
   CommandUI *cmdui = wb::WBContextUI::get()->get_command_ui();
-  boost::function<bool ()> validate = boost::bind(&WBContextModel::has_selected_schema, this);
+  std::function<bool ()> validate = std::bind(&WBContextModel::has_selected_schema, this);
   cmdui->add_builtin_command("addModelDiagram",
-                             boost::bind(&WBContextModel::add_model_diagram, this),
-                             boost::bind(&WBContextModel::has_selected_model, this));
+                             std::bind(&WBContextModel::add_model_diagram, this),
+                             std::bind(&WBContextModel::has_selected_model, this));
   cmdui->add_builtin_command("addModelSchema",
-                             boost::bind(&WBContextModel::add_model_schema, this),
-                             boost::bind(&WBContextModel::has_selected_model, this));
+                             std::bind(&WBContextModel::add_model_schema, this),
+                             std::bind(&WBContextModel::has_selected_model, this));
   cmdui->add_builtin_command("addModelTable",
-                             boost::bind(&WBContextModel::add_model_table, this),
+                             std::bind(&WBContextModel::add_model_table, this),
                              validate);
   cmdui->add_builtin_command("addModelView",
-                             boost::bind(&WBContextModel::add_model_view, this),
+                             std::bind(&WBContextModel::add_model_view, this),
                              validate);
   cmdui->add_builtin_command("addModelRoutine",
-                             boost::bind(&WBContextModel::add_model_rgroup, this),
+                             std::bind(&WBContextModel::add_model_rgroup, this),
                              validate);
 
   cmdui->add_builtin_command("removeFigure",
-                             boost::bind(&WBContextModel::remove_figure, this),
-                             boost::bind(&WBContextModel::has_selected_figures, this));
+                             std::bind([this](){ remove_figure(); }),
+                             std::bind(&WBContextModel::has_selected_figures, this));
   
   base::NotificationCenter::get()->add_observer(this, "GNMainFormChanged");
 
   // Setup auto-save for model, only full seconds.
   int interval = (int)wb::WBContextUI::get()->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveModelInterval", 60);
   if (interval > 0)
-    _auto_save_timer = bec::GRTManager::get()->run_every(boost::bind(&WBContextModel::auto_save_document, this), interval);
+    _auto_save_timer = bec::GRTManager::get()->run_every(std::bind(&WBContextModel::auto_save_document, this), interval);
   _auto_save_interval = interval;
 
   // DON'T set up any UI here. This is running on a background thread!
@@ -113,7 +113,7 @@ WBContextModel::WBContextModel()
   _sidebar_dockpoint = NULL;
   _template_panel = NULL;
 
-  scoped_connect(wb::WBContextUI::get()->get_wb()->get_root()->options()->signal_dict_changed(),boost::bind(&WBContextModel::option_changed, this, _1, _2, _3));
+  scoped_connect(wb::WBContextUI::get()->get_wb()->get_root()->options()->signal_dict_changed(), std::bind(&WBContextModel::option_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   setup_secondary_sidebar();
 }
@@ -192,7 +192,7 @@ mforms::TreeView *WBContextModel::create_user_type_list()
   type_list->set_catalog(wb::WBContextUI::get()->get_wb()->get_document()->physicalModels()[0]->catalog());
   type_list->refresh();
 
-  type_list->scoped_connect(&_udt_list_changed, boost::bind(&UserDatatypeList::refresh, type_list));
+  type_list->scoped_connect(&_udt_list_changed, std::bind(&UserDatatypeList::refresh, type_list));
 
   return type_list;
 }
@@ -251,7 +251,7 @@ bool WBContextModel::auto_save_document()
     if (_auto_save_timer)
       bec::GRTManager::get()->cancel_timer(_auto_save_timer);
     // schedule new interval
-    _auto_save_timer = bec::GRTManager::get()->run_every(boost::bind(&WBContextModel::auto_save_document, this), (double)interval);
+    _auto_save_timer = bec::GRTManager::get()->run_every(std::bind(&WBContextModel::auto_save_document, this), (double)interval);
     return false;
   }
   
@@ -368,7 +368,7 @@ void WBContextModel::model_created(ModelFile *file, workbench_DocumentRef doc)
   wb::WBContextUI::get()->get_wb()->get_component<WBComponentLogical>()->setup_logical_model(_doc);
   wb::WBContextUI::get()->get_wb()->get_component<WBComponentPhysical>()->setup_physical_model(_doc, "Mysql", target_version);
   
-  wb::WBContextUI::get()->get_wb()->foreach_component(boost::bind(&WBComponent::reset_document, _1));
+  wb::WBContextUI::get()->get_wb()->foreach_component(std::bind(&WBComponent::reset_document, std::placeholders::_1));
   
   _doc->physicalModels().get(0)->get_data()->set_delegate(this);
   
@@ -394,9 +394,9 @@ void WBContextModel::model_loaded(ModelFile *file, workbench_DocumentRef doc)
   _file= file;
   _doc= doc;
   
-  wb::WBContextUI::get()->get_wb()->foreach_component(boost::bind(&WBComponent::reset_document, _1));
+  wb::WBContextUI::get()->get_wb()->foreach_component(std::bind(&WBComponent::reset_document, std::placeholders::_1));
   
-  wb::WBContextUI::get()->get_wb()->foreach_component(boost::bind(&WBComponent::document_loaded, _1));
+  wb::WBContextUI::get()->get_wb()->foreach_component(std::bind(&WBComponent::document_loaded, std::placeholders::_1));
   
   _doc->physicalModels().get(0)->get_data()->set_delegate(this);
     
@@ -436,7 +436,7 @@ void WBContextModel::model_closed()
 
 void WBContextModel::realize()
 {
-  _page_settings_conn = _doc->pageSettings()->signal_changed()->connect(boost::bind(&WBContextModel::page_settings_changed, this, _1, _2));
+  _page_settings_conn = _doc->pageSettings()->signal_changed()->connect(std::bind(&WBContextModel::page_settings_changed, this, std::placeholders::_1, std::placeholders::_2));
   
   _doc->physicalModels()[0]->get_data()->realize();
 }
@@ -517,7 +517,7 @@ void WBContextModel::release_image(const std::string &file)
  */
 mdc::CanvasView *WBContextModel::create_diagram(const model_DiagramRef &view)
 {
-  return wb::WBContextUI::get()->get_wb()->execute_in_main_thread<mdc::CanvasView*>("create_diagram", boost::bind(&WBContextModel::create_diagram_main, this, view));
+  return wb::WBContextUI::get()->get_wb()->execute_in_main_thread<mdc::CanvasView*>("create_diagram", std::bind(&WBContextModel::create_diagram_main, this, view));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -540,7 +540,7 @@ void WBContextModel::free_canvas_view(mdc::CanvasView *view)
       wb::WBContextUI::get()->get_wb()->destroy_view(view);
     else
       wb::WBContextUI::get()->get_wb()->execute_in_main_thread<void>("destroy view", 
-      boost::bind(wb::WBContextUI::get()->get_wb()->destroy_view, view));
+      std::bind(wb::WBContextUI::get()->get_wb()->destroy_view, view));
   }
 }
 
@@ -571,9 +571,9 @@ mdc::CanvasView *WBContextModel::create_diagram_main(const model_DiagramRef &dia
     return 0;
   }
   
-  scoped_connect(diagram_reference->signal_objectActivated(),(boost::bind(&WBContextModel::activate_canvas_object, this, _1, _2)));
+  scoped_connect(diagram_reference->signal_objectActivated(),(std::bind(&WBContextModel::activate_canvas_object, this, std::placeholders::_1, std::placeholders::_2)));
     
-  scoped_connect(diagram_reference->signal_list_changed(),boost::bind(&WBContextModel::diagram_object_list_changed, this, _1, _2, _3, diagram));
+  scoped_connect(diagram_reference->signal_list_changed(),std::bind(&WBContextModel::diagram_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, diagram));
   
   register_diagram_form(diagram);
   
@@ -587,7 +587,7 @@ mdc::CanvasView *WBContextModel::create_diagram_main(const model_DiagramRef &dia
     
     // use this signal instead of selection_change from canvas so that when the callback is called
     // the grt diagram object already reflects the selection changes
-    scoped_connect(diagram_reference->get_data()->signal_selection_changed(),boost::bind(&WBContextModel::selection_changed, this));
+    scoped_connect(diagram_reference->get_data()->signal_selection_changed(), std::bind(&WBContextModel::selection_changed, this));
 
     wb->request_refresh(RefreshNewDiagram, diagram_reference.id(), (NativeHandle)view->get_user_data());
   }
@@ -639,7 +639,7 @@ ModelDiagramForm *WBContextModel::get_diagram_form(mdc::CanvasView *view)
 void WBContextModel::notify_diagram_created(ModelDiagramForm *view)
 {
    view->scoped_connect(view->get_model_diagram()->signal_changed(),
-        boost::bind(&WBContextModel::diagram_object_changed, this, _1, _2, view));
+        std::bind(&WBContextModel::diagram_object_changed, this, std::placeholders::_1, std::placeholders::_2, view));
     
   // now called from wb_component_physical.cpp:model_list_changed
   //wb::WBContextUI::get()->get_physical_overview()->send_refresh_diagram(model_DiagramRef());
@@ -1200,7 +1200,7 @@ void WBContextModel::selection_changed()
 {
   if (!bec::GRTManager::get()->in_main_thread())
   {
-    bec::GRTManager::get()->run_once_when_idle(boost::bind(&WBContextModel::selection_changed, this));
+    bec::GRTManager::get()->run_once_when_idle(std::bind(&WBContextModel::selection_changed, this));
     return;
   }
     
@@ -1406,9 +1406,7 @@ void WBContextModel::export_ps(const std::string &path)
 void WBContextModel::add_new_diagram(const model_ModelRef &model)
 {
   wb::WBContextUI::get()->get_wb()->show_status_text(_("Creating Diagram..."));
-  
- // model_DiagramRef view(model_DiagramRef::cast_from(wb::WBContextUI::get()->get_wb()->execute_in_grt_thread("Create new diagram",
-   //                                                                       boost::bind(&model_Model::addNewDiagram, &model.content(), true))));
+
   wb::WBContextUI::get()->get_wb()->lock_gui(true);
   model_DiagramRef view = model->addNewDiagram(true);
   if (view.is_valid())
@@ -1556,7 +1554,7 @@ void WBContextModel::show_user_type_editor(workbench_physical_ModelRef model)
   if (_current_user_type_editor == NULL)
   {
     _current_user_type_editor = new UserDefinedTypeEditor(model);
-    scoped_connect(_current_user_type_editor->signal_closed(), boost::bind(userTypeEditorClosed, &_current_user_type_editor));
+    scoped_connect(_current_user_type_editor->signal_closed(), std::bind(userTypeEditorClosed, &_current_user_type_editor));
   }
   _current_user_type_editor->show_modal(NULL, NULL);
 }

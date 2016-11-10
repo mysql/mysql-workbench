@@ -713,10 +713,10 @@ std::string MetaClass::get_attribute(const std::string &attr, bool search_parent
 {
   MetaClass *root = this;
 
-  boost::unordered_map<std::string, std::string>::const_iterator iter;
+  std::unordered_map<std::string, std::string>::const_iterator iter;
   do
   {
-    iter= root->_attributes.find(attr);
+    iter = root->_attributes.find(attr);
     if (iter != root->_attributes.end())
         return iter->second;
     if (root->_parent && search_parents)
@@ -737,10 +737,10 @@ std::string MetaClass::get_member_attribute(const std::string &member, const std
   MetaClass *root = this;
   const std::string search_string = member+":"+attr;
 
-  boost::unordered_map<std::string, std::string>::const_iterator iter;
+  std::unordered_map<std::string, std::string>::const_iterator iter;
   do
   {
-    iter= root->_attributes.find(search_string);
+    iter = root->_attributes.find(search_string);
     if (iter != root->_attributes.end())
         return iter->second;
     if (root->_parent && search_parents)

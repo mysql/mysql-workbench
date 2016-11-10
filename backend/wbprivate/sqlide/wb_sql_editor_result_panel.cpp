@@ -559,7 +559,7 @@ void SqlEditorResult::onRecordsetColumnsResized(const std::vector<int> cols)
   if (!widths.empty())
   {
     boost::function<void()> f = boost::bind(&ColumnWidthCache::save_columns_width, _owner->owner()->column_width_cache(), widths);
-    bec::GRTManager::get()->get_dispatcher()->execute_async_function("store column widths", boost::bind(&run_and_return, f));
+    bec::GRTManager::get()->get_dispatcher()->execute_async_function("store column widths", std::bind(&run_and_return, f));
   }
 }
 
