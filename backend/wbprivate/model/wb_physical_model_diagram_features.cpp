@@ -418,7 +418,7 @@ void PhysicalModelDiagramFeatures::tooltip_setup(const model_ObjectRef &object)
     {
       if (object.is_valid())
       {
-        boost::function<void ()> f = boost::bind(&PhysicalModelDiagramFeatures::show_tooltip, this, object, _last_over_item);
+        std::function<void ()> f = std::bind(&PhysicalModelDiagramFeatures::show_tooltip, this, object, _last_over_item);
         _tooltip_timer= 
             run_every(boost::bind(&base::run_and_return_value<bool>,f),
                   TOOLTIP_DELAY);
