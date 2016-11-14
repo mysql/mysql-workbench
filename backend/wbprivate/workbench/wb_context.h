@@ -504,7 +504,7 @@ namespace wb {
     WBFrontendCallbacks _frontendCallbacks;
 
     // Internal, used for gui plugins
-    boost::function<void (std::string,void*)> show_gui_plugin;
+    std::function<void (std::string,void*)> show_gui_plugin;
 
   private:
     std::shared_ptr<grt::GRT> _grt; // Keep a local reference to the singleton to avoid static fiasco.
