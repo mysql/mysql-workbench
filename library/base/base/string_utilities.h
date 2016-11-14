@@ -35,14 +35,13 @@
   #include <string.h>
 
   #include <boost/optional.hpp>
-  #include <boost/cstdint.hpp>
   #include <memory>
 
 #endif
 
 #define _(s) s // TODO: replace with localization code.
 
-using boost::uint64_t;
+
 using std::int64_t;
 
 namespace base

@@ -740,7 +740,7 @@ std::int64_t get_physical_memory_size()
   
   return memstat.dwTotalPhys;
 #elif defined(__APPLE__)
-  boost::uint64_t mem64;
+  std::uint64_t mem64;
   int mib[2];
   int mem32;
   size_t length;
