@@ -172,7 +172,7 @@ bool MainForm::close_window(GdkEventAny *ev)
     get_mainwindow()->hide();
     _wbui_context->perform_quit();
   }*/
-  wb::WBContextUI::get()->get_wb()->quit_application();
+  wb::WBContextUI::get()->get_wb()->_frontendCallbacks.quit_application();
   return true; // true means stop processing the event
 }
 //------------------------------------------------------------------------------
