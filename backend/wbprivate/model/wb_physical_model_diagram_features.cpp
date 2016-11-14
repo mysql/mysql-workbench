@@ -165,19 +165,19 @@ PhysicalModelDiagramFeatures::PhysicalModelDiagramFeatures(ModelDiagramForm *dia
   model_Diagram::ImplData *impl= diagram->get_model_diagram()->get_data();
   
   scoped_connect(impl->signal_selection_changed(),
-    boost::bind(&PhysicalModelDiagramFeatures::on_selection_changed, this));
+    std::bind(&PhysicalModelDiagramFeatures::on_selection_changed, this));
   
   scoped_connect(impl->signal_item_crossed(),
-    boost::bind(&PhysicalModelDiagramFeatures::on_figure_crossed, this, _1, _2, _3, _4));
+    std::bind(&PhysicalModelDiagramFeatures::on_figure_crossed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
   scoped_connect(impl->signal_item_double_click(),
-    boost::bind(&PhysicalModelDiagramFeatures::on_figure_double_click, this, _1, _2, _3, _4, _5));
+    std::bind(&PhysicalModelDiagramFeatures::on_figure_double_click, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
   scoped_connect(impl->signal_item_mouse_button(),
-    boost::bind(&PhysicalModelDiagramFeatures::on_figure_mouse_button, this, _1, _2, _3, _4, _5, _6));
+    std::bind(&PhysicalModelDiagramFeatures::on_figure_mouse_button, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
   scoped_connect(impl->signal_object_will_unrealize(),
-    boost::bind(&PhysicalModelDiagramFeatures::on_figure_will_unrealize, this, _1));
+    std::bind(&PhysicalModelDiagramFeatures::on_figure_will_unrealize, this, std::placeholders::_1));
 
   scoped_connect(mforms::Form::main_form()->signal_deactivated(),
-                 boost::bind(&PhysicalModelDiagramFeatures::tooltip_cancel, this));
+                 std::bind(&PhysicalModelDiagramFeatures::tooltip_cancel, this));
 }
 
 
@@ -420,7 +420,7 @@ void PhysicalModelDiagramFeatures::tooltip_setup(const model_ObjectRef &object)
       {
         std::function<void ()> f = std::bind(&PhysicalModelDiagramFeatures::show_tooltip, this, object, _last_over_item);
         _tooltip_timer= 
-            run_every(boost::bind(&base::run_and_return_value<bool>,f),
+            run_every(std::bind(&base::run_and_return_value<bool>,f),
                   TOOLTIP_DELAY);
       }
     }
@@ -480,7 +480,7 @@ mdc::CanvasView *PhysicalModelDiagramFeatures::get_canvas_view()
 }
 
 
-bec::GRTManager::Timer *PhysicalModelDiagramFeatures::run_every(const boost::function<bool ()> &slot, double seconds)
+bec::GRTManager::Timer *PhysicalModelDiagramFeatures::run_every(const std::function<bool ()> &slot, double seconds)
 {
   return bec::GRTManager::get()->run_every(slot, seconds);
 }

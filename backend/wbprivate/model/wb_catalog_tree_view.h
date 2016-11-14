@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@ namespace wb {
     bool _initialized;
 
     void context_menu_will_show(mforms::MenuItem *parent_item);
-    boost::function<void (grt::ValueRef)> _activate_callback;
+    std::function<void (grt::ValueRef)> _activate_callback;
   protected:
     virtual bool get_drag_data(mforms::DragDetails &details, void **data, std::string &format);
     void menu_action(const std::string &name, grt::ValueRef val);
@@ -86,7 +86,7 @@ namespace wb {
     virtual ~CatalogTreeView();
     virtual void node_activated(mforms::TreeNodeRef row, int column);
     void refill(bool force = false);
-    void set_activate_callback(const boost::function<void (grt::ValueRef)> &active_callback);
+    void set_activate_callback(const std::function<void (grt::ValueRef)> &active_callback);
     void mark_node(grt::ValueRef val, bool mark = true);
     void add_update_node_caption(grt::ValueRef val);
     void remove_node(grt::ValueRef val);

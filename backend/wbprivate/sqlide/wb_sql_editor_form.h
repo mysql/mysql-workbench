@@ -122,7 +122,7 @@ public:
   void set_tab_dock(mforms::DockingPoint *dp);
 
   /* Callback must be set by frontend to show a busy indicator on the tab with the given index. -1 means remove it from all */
-  boost::function<void (int)> set_busy_tab;
+  std::function<void (int)> set_busy_tab;
 
 protected:
   SqlEditorForm(wb::WBContextSQLIDE *wbsql);
@@ -373,7 +373,7 @@ private:
 public:
   GrtThreadedTask::Ref exec_sql_task;
 
-  boost::function<void()> post_query_slot; // called after a query is executed
+  std::function<void()> post_query_slot; // called after a query is executed
 private:
   int on_exec_sql_finished();
   bool _is_running_query;
@@ -450,7 +450,7 @@ public:
   std::shared_ptr<SqlEditorTreeController> get_live_tree() { return _live_tree; }
   void schema_tree_did_populate();
 
-  boost::function<void (const std::string&, bool)> output_text_slot;
+  std::function<void (const std::string&, bool)> output_text_slot;
 protected:
   DbSqlEditorLog::Ref _log;
   DbSqlEditorHistory::Ref _history;

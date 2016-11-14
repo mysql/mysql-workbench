@@ -145,9 +145,9 @@ void WBComponentBasic::setup_canvas_tool(ModelDiagramForm *view, const std::stri
     return;
   }
 
-  view->set_button_callback(boost::bind(&WBComponentBasic::handle_button_event, this, _1, _2, _3, _4, _5, data));
-  view->set_motion_callback(boost::bind(&WBComponentBasic::handle_motion_event, this, _1, _2, _3, data));
-  view->set_reset_tool_callback(boost::bind(&WBComponentBasic::reset_tool, this, _1, data));
+  view->set_button_callback(std::bind(&WBComponentBasic::handle_button_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, data));
+  view->set_motion_callback(std::bind(&WBComponentBasic::handle_motion_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, data));
+  view->set_reset_tool_callback(std::bind(&WBComponentBasic::reset_tool, this, std::placeholders::_1, data));
 }
 
 

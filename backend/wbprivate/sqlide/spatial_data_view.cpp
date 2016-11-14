@@ -121,12 +121,12 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
   _main_box = mforms::manage(new mforms::Box(true));
   _viewer = mforms::manage(new SpatialDrawBox());
-  _viewer->position_changed_cb = boost::bind(&SpatialDataView::update_coordinates, this, _1);
-  _viewer->position_clicked_cb = boost::bind(&SpatialDataView::handle_click, this, _1);
-  _viewer->work_started = boost::bind(&SpatialDataView::work_started, this, _1, _2);
-  _viewer->work_finished = boost::bind(&SpatialDataView::work_finished, this, _1);
-  _viewer->get_option = boost::bind(&SpatialDataView::get_option, this, _1, _2);
-  _viewer->area_selected = boost::bind(&SpatialDataView::area_selected, this);
+  _viewer->position_changed_cb = std::bind(&SpatialDataView::update_coordinates, this, std::placeholders::_1);
+  _viewer->position_clicked_cb = std::bind(&SpatialDataView::handle_click, this, std::placeholders::_1);
+  _viewer->work_started = std::bind(&SpatialDataView::work_started, this, std::placeholders::_1, std::placeholders::_2);
+  _viewer->work_finished = std::bind(&SpatialDataView::work_finished, this, std::placeholders::_1);
+  _viewer->get_option = std::bind(&SpatialDataView::get_option, this, std::placeholders::_1, std::placeholders::_2);
+  _viewer->area_selected = std::bind(&SpatialDataView::area_selected, this);
 
   _active_layer = 0;
 
@@ -152,7 +152,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _projection_picker = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
     _projection_picker->set_selector_items(projection_types);
 
-    scoped_connect(_projection_picker->signal_activated(),boost::bind(&SpatialDataView::projection_item_activated, this, _1));
+    scoped_connect(_projection_picker->signal_activated(), std::bind(&SpatialDataView::projection_item_activated, this, std::placeholders::_1));
 
     _toolbar->add_item(_projection_picker);
 
@@ -166,7 +166,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item->set_name("reset_tool");
     item->set_icon(mforms::App::get()->get_resource_path("wb_arrow.png"));
     item->set_tooltip("Pan map and select feature to view");
-    item->signal_activated()->connect(boost::bind(&SpatialDataView::change_tool, this, item));
+    item->signal_activated()->connect(std::bind(&SpatialDataView::change_tool, this, item));
     _toolbar->add_item(item);
     item->set_checked(true);
 
@@ -174,7 +174,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item->set_name("zoom_to_area");
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-area.png"));
     item->set_tooltip("Zoom to area. Click and drag in the map to select an area to be zoomed into.");
-    item->signal_activated()->connect(boost::bind(&SpatialDataView::change_tool, this, item));
+    item->signal_activated()->connect(std::bind(&SpatialDataView::change_tool, this, item));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
@@ -186,19 +186,19 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-out.png"));
     item->set_tooltip("Zoom out one step");
-    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_out, _viewer));
+    item->signal_activated()->connect(std::bind(&SpatialDrawBox::zoom_out, _viewer));
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-in.png"));
     item->set_tooltip("Zoom in one step");
-    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
+    item->signal_activated()->connect(std::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-reset.png"));
     item->set_tooltip("Reset zoom to the outermost zoom level");
-    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::reset_view, _viewer));
+    item->signal_activated()->connect(std::bind(&SpatialDrawBox::reset_view, _viewer));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
@@ -210,7 +210,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-jump.png"));
     item->set_tooltip("Specify coordinates to center screen on.");
-    item->signal_activated()->connect(boost::bind(&SpatialDataView::jump_to, this));
+    item->signal_activated()->connect(std::bind(&SpatialDataView::jump_to, this));
     _toolbar->add_item(item);
 
 
@@ -223,7 +223,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("record_export.png"));
     item->set_tooltip(_("Export visible area as PNG image."));
-    item->signal_activated()->connect(boost::bind(&SpatialDataView::export_image, this));
+    item->signal_activated()->connect(std::bind(&SpatialDataView::export_image, this));
     _toolbar->add_item(item);
 
   }
@@ -244,7 +244,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _map_menu->add_item_with_title("Copy Coordinates", std::bind(&SpatialDataView::copy_coordinates, this));
   _map_menu->add_item_with_title("Copy Record for Feature", std::bind(&SpatialDataView::copy_record, this));
   _map_menu->add_item_with_title("View Record for Feature", std::bind(&SpatialDataView::view_record, this));
-  _map_menu->signal_will_show()->connect(boost::bind(&SpatialDataView::map_menu_will_show, this));
+  _map_menu->signal_will_show()->connect(std::bind(&SpatialDataView::map_menu_will_show, this));
 
   _viewer->set_context_menu(_map_menu);
 
@@ -254,7 +254,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
    mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
    mitem->set_name("fillup_polygon");
-   mitem->signal_clicked()->connect(boost::bind(&SpatialDataView::fillup_polygon, this, mitem));
+   mitem->signal_clicked()->connect(std::bind(&SpatialDataView::fillup_polygon, this, mitem));
    _layer_menu->add_item(mitem);
 
   _layer_menu->add_separator();
@@ -267,7 +267,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
         std::bind(&SpatialDataView::layer_menu_action, this, "layer_down"), "layer_down");
 
 
-  _layer_menu->signal_will_show()->connect(boost::bind(&SpatialDataView::layer_menu_will_show, this));
+  _layer_menu->signal_will_show()->connect(std::bind(&SpatialDataView::layer_menu_will_show, this));
 
   _layer_tree = mforms::manage(new mforms::TreeView(mforms::TreeFlatList));
   _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
@@ -276,8 +276,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(std::bind(&SpatialDataView::tree_toggled, this, std::placeholders::_1, std::placeholders::_3));
   _layer_tree->set_context_menu(_layer_menu);
-  _layer_tree->signal_node_activated()->connect(boost::bind(&SpatialDataView::activate_layer, this, _1, _2));
-  _layer_tree->signal_changed()->connect(boost::bind(&SpatialDataView::activate_layer, this, mforms::TreeNodeRef(), -42));// unused dummy value... should just not conflict with possibly valid values
+  _layer_tree->signal_node_activated()->connect(std::bind(&SpatialDataView::activate_layer, this, std::placeholders::_1, std::placeholders::_2));
+  _layer_tree->signal_changed()->connect(std::bind(&SpatialDataView::activate_layer, this, mforms::TreeNodeRef(), -42));// unused dummy value... should just not conflict with possibly valid values
 
 
   _layer_tree->set_row_overlay_handler(std::bind(&SpatialDataView::layer_overlay_handler, this, std::placeholders::_1));

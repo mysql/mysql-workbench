@@ -114,17 +114,17 @@ class SpatialDrawBox : public mforms::DrawBox
   void restrict_displayed_area(int x1, int y1, int x2, int y2, bool no_invalidate = false);
 
 public:
-  boost::function<void (mforms::View*, bool reprojecting)> work_started;
-  boost::function<void (mforms::View*)> work_finished;
-  boost::function<int (const char*, int)> get_option;
-  boost::function<void ()> area_selected;
+  std::function<void (mforms::View*, bool reprojecting)> work_started;
+  std::function<void (mforms::View*)> work_finished;
+  std::function<int (const char*, int)> get_option;
+  std::function<void ()> area_selected;
 
 public:
   SpatialDrawBox();
   ~SpatialDrawBox();
 
-  boost::function<void (base::Point)> position_changed_cb;
-  boost::function<void (base::Point)> position_clicked_cb;
+  std::function<void (base::Point)> position_changed_cb;
+  std::function<void (base::Point)> position_clicked_cb;
 
   void set_context_menu(mforms::ContextMenu *menu);
   std::pair<double,double> clicked_coordinates() { return _clicked_coordinates; }

@@ -142,9 +142,9 @@ namespace wb {
     void zoom_in();
     void zoom_out();
 
-    void set_button_callback(const boost::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, base::Point, mdc::EventState)> &cb);
-    void set_motion_callback(const boost::function<bool (ModelDiagramForm*, base::Point, mdc::EventState)> &cb);
-    void set_reset_tool_callback(const boost::function<void (ModelDiagramForm*)> &cb);
+    void set_button_callback(const std::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, base::Point, mdc::EventState)> &cb);
+    void set_motion_callback(const std::function<bool (ModelDiagramForm*, base::Point, mdc::EventState)> &cb);
+    void set_reset_tool_callback(const std::function<void (ModelDiagramForm*)> &cb);
     
     std::string get_tool() { return _tool; }
     void set_tool(std::string tool);
@@ -257,9 +257,9 @@ namespace wb {
     
     boost::signals2::signal<void (std::string)> _tool_argument_changed;
 
-    boost::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, base::Point, mdc::EventState)> _handle_button;
-    boost::function<bool (ModelDiagramForm*, base::Point, mdc::EventState)> _handle_motion;
-    boost::function<void (ModelDiagramForm*)> _reset_tool;
+    std::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, base::Point, mdc::EventState)> _handle_button;
+    std::function<bool (ModelDiagramForm*, base::Point, mdc::EventState)> _handle_motion;
+    std::function<void (ModelDiagramForm*)> _reset_tool;
 
     bool _drag_panning;
     bool _space_panning;
@@ -269,9 +269,9 @@ namespace wb {
     // saved state for tmp panning
     std::string _old_tool;
     std::string _old_cursor;
-    boost::function<void (ModelDiagramForm*)> _old_reset_tool;
-    boost::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, base::Point, mdc::EventState)> _old_handle_button;
-    boost::function<bool (ModelDiagramForm*, base::Point, mdc::EventState)> _old_handle_motion;
+    std::function<void (ModelDiagramForm*)> _old_reset_tool;
+    std::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, base::Point, mdc::EventState)> _old_handle_button;
+    std::function<bool (ModelDiagramForm*, base::Point, mdc::EventState)> _old_handle_motion;
   
     void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
     void update_toolbar_icons();

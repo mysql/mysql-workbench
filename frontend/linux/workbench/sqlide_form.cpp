@@ -68,7 +68,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   _be->set_frontend_data(dynamic_cast<FormViewBase*>(this));
   _toolbar = _be->get_toolbar();
 
-  _be->set_busy_tab = boost::bind(&DbSqlEditorView::set_busy_tab, this, _1);
+  _be->set_busy_tab = std::bind(&DbSqlEditorView::set_busy_tab, this, std::placeholders::_1);
 
   mforms::View *sbview  = _be->get_sidebar();
   Gtk::Widget  *sidebar = mforms::gtk::ViewImpl::get_widget_for_view(sbview);
@@ -127,8 +127,8 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   show_all();
 
   // Connect signals
-  _be->post_query_slot = sigc::mem_fun(this, &DbSqlEditorView::on_exec_sql_done);
-  _be->output_text_slot= sigc::mem_fun(this, &DbSqlEditorView::output_text);
+  _be->post_query_slot = std::bind(&DbSqlEditorView::on_exec_sql_done, this);
+  _be->output_text_slot= std::bind(&DbSqlEditorView::output_text, this, std::placeholders::_1, std::placeholders::_2);
 
   _editor_note->signal_switch_page().connect(sigc::mem_fun(this, &DbSqlEditorView::editor_page_switched));
   _editor_note->signal_page_reordered().connect(sigc::mem_fun(this, &DbSqlEditorView::editor_page_reordered));

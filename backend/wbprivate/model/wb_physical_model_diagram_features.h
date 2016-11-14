@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,7 +68,7 @@ namespace wb {
     void show_tooltip(const model_ObjectRef &owner, mdc::CanvasItem *item);
     
     mdc::CanvasView *get_canvas_view();
-    bec::GRTManager::Timer *run_every(const boost::function<bool ()> &slot, double seconds);
+    bec::GRTManager::Timer *run_every(const std::function<bool ()> &slot, double seconds);
     void cancel_timer(bec::GRTManager::Timer *timer);
     
   public:
