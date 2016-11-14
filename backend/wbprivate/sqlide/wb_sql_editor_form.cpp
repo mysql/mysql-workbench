@@ -1143,7 +1143,7 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
   try
   {
     dbc_conn->ref= dbc_drv_man->getConnection(temp_connection, tunnel, auth,
-                                              boost::bind(&SqlEditorForm::init_connection, this, _1, _2, dbc_conn, user_connection));
+                                              std::bind(&SqlEditorForm::init_connection, this, std::placeholders::_1, std::placeholders::_2, dbc_conn, user_connection));
 
     note_connection_open_outcome(0); // success
   }
@@ -2760,40 +2760,13 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
   
   int max_query_size_to_log = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
   
-/* this doesn't really work
-  std::list<std::string> failback_statements;
-  if (obj_editor)
-  {
-    // in case of alter script failure:
-    // try to restore object since it could had been successfully dropped before the alter script failed
-    db_DatabaseObjectRef db_object= obj_editor->get_dbobject();
-    std::string original_object_ddl_script= db_object->customData().get_string("originalObjectDDL", "");
-    if (!original_object_ddl_script.empty())
-    {
-      // reuse the setting schema statement which is the first statement of the alter script
-      std::string sql= *statements.begin();
-      if ((0 == sql.find("use")) || (0 == sql.find("USE")))
-        failback_statements.push_back(sql);
-      sql_splitter->splitSqlScript(original_object_ddl_script, failback_statements);
-    }
-  }*/
-  
+
   sql::SqlBatchExec sql_batch_exec;
   sql_batch_exec.stop_on_error(true);
-//  if (!failback_statements.empty())
-//    sql_batch_exec.failback_statements(failback_statements);
 
-  sql_batch_exec.error_cb(boost::ref(on_sql_script_run_error));
-  sql_batch_exec.batch_exec_progress_cb(boost::ref(on_sql_script_run_progress));
-  sql_batch_exec.batch_exec_stat_cb(boost::ref(on_sql_script_run_statistics));
-  
-  /*
-   if (obj_editor)
-   {
-   on_sql_script_run_error.connect(obj_editor->on_live_object_change_error);
-   on_sql_script_run_progress.connect(obj_editor->on_live_object_change_progress);
-   on_sql_script_run_statistics.connect(obj_editor->on_live_object_change_statistics);
-   }*/
+  sql_batch_exec.error_cb(std::ref(on_sql_script_run_error));
+  sql_batch_exec.batch_exec_progress_cb(std::ref(on_sql_script_run_progress));
+  sql_batch_exec.batch_exec_stat_cb(std::ref(on_sql_script_run_statistics));
   
   long sql_batch_exec_err_count= 0;
   {

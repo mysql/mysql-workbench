@@ -7,7 +7,7 @@
 #include <cppconn/connection.h>
 #include <list>
 #include <string>
-#include <boost/function.hpp>
+#include <functional>
 
 
 namespace sql
@@ -25,9 +25,9 @@ private:
   void exec_sql_script(sql::Statement *stmt, std::list<std::string> &statements, long &batch_exec_err_count);
 
 public:
-  typedef boost::function<int (long long, const std::string&, const std::string&)> Error_cb;
-  typedef boost::function<int (float)> Batch_exec_progress_cb;
-  typedef boost::function<int (long, long)> Batch_exec_stat_cb;
+  typedef std::function<int (long long, const std::string&, const std::string&)> Error_cb;
+  typedef std::function<int (float)> Batch_exec_progress_cb;
+  typedef std::function<int (long, long)> Batch_exec_stat_cb;
 
   Error_cb _error_cb;
   Batch_exec_progress_cb _batch_exec_progress_cb;

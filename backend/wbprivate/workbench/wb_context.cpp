@@ -881,10 +881,10 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
 
     // set the tunnel factory
     if (_tunnel_manager)
-      dbc_driver_man->setTunnelFactoryFunction(boost::bind(&TunnelManager::create_tunnel, _tunnel_manager, _1));
+      dbc_driver_man->setTunnelFactoryFunction(std::bind(&TunnelManager::create_tunnel, _tunnel_manager, std::placeholders::_1));
     // set function to request connection password for user
-    dbc_driver_man->setPasswordFindFunction(boost::bind(&WBContext::find_connection_password, this, _1, _2));
-    dbc_driver_man->setPasswordRequestFunction(boost::bind(&WBContext::request_connection_password, this, _1, _2));
+    dbc_driver_man->setPasswordFindFunction(std::bind(&WBContext::find_connection_password, this, std::placeholders::_1, std::placeholders::_2));
+    dbc_driver_man->setPasswordRequestFunction(std::bind(&WBContext::request_connection_password, this, std::placeholders::_1, std::placeholders::_2));
 
     mforms::Utilities::add_driver_shutdown_callback(std::bind(&sql::DriverManager::thread_cleanup, dbc_driver_man));
 
