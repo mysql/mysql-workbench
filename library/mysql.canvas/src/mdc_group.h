@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include "mdc_layouter.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class Layer;
   
@@ -40,7 +40,7 @@ public:
   std::list<CanvasItem*> &get_contents() { return _contents; };
   bool empty() const { return _contents.empty(); };
 
-  virtual void foreach(const boost::function<void (CanvasItem*)> &slot);
+  virtual void foreach(const std::function<void (CanvasItem*)> &slot);
 
   void freeze();
   void thaw();
@@ -83,6 +83,6 @@ protected:
 #endif
 };
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 #endif /* _MDC_GROUP_H_ */

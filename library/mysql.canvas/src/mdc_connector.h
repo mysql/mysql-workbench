@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #include "mdc_common.h"
 #include "base/trackable.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class Magnet;
 class CanvasItem;
@@ -34,7 +34,7 @@ public:
   Connector(CanvasItem *owner);
   virtual ~Connector();
 
-  void set_update_handler(const boost::function<void (Connector*)> &update_handler);
+  void set_update_handler(const std::function<void (Connector*)> &update_handler);
   
   virtual bool try_connect(Magnet *magnet);
   virtual bool try_disconnect();
@@ -66,11 +66,11 @@ protected:
 
   bool _draggable;
   
-  boost::function<void (Connector*)> _update_handler;
+  std::function<void (Connector*)> _update_handler;
 };
 
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 #endif
 

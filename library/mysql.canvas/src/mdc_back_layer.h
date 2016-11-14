@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include "mdc_layer.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class MYSQLCANVAS_PUBLIC_FUNC BackLayer : public Layer {  
 public:
@@ -60,7 +60,7 @@ protected:
   void render_grid(const base::Rect &aBounds);
 };
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 
 #endif

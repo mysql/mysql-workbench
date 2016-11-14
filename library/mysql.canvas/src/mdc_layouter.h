@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,7 @@ public:
   virtual void remove(CanvasItem *item)= 0;
   virtual void remove_all();
 
-  virtual void foreach(const boost::function<void (CanvasItem*)> &slot)= 0;
+  virtual void foreach(const std::function<void (CanvasItem*)> &slot)= 0;
 
   virtual void render(CairoCtx *cr);
   virtual void render_gl(mdc::CairoCtx *cr);
