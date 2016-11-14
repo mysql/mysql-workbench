@@ -298,13 +298,13 @@ namespace wb
       virtual std::string get_object_name() { return _("Schema"); }
     };
 
-    typedef boost::function<void(const std::string& schema_name, base::StringListPtr tables,
+    typedef std::function<void(const std::string& schema_name, base::StringListPtr tables,
       base::StringListPtr views, base::StringListPtr procedures, base::StringListPtr functions,
       bool just_append)> NewSchemaContentArrivedSlot;
-    typedef boost::function<void (const std::string& schema_name, const std::string& object_name,
+    typedef std::function<void (const std::string& schema_name, const std::string& object_name,
       ObjectType obj_type, ObjectType child_type, const std::map<std::string, LSTData*> &children)> NewObjectDetailsArrivedSlot;
-    typedef boost::function<bool(mforms::TreeNodeRef, base::StringListPtr, ObjectType, bool sorted,
-      bool just_append)>NodeChildrenUpdaterSlot;
+    typedef std::function<bool(mforms::TreeNodeRef, base::StringListPtr, ObjectType, bool sorted,
+      bool just_append)> NodeChildrenUpdaterSlot;
 
     struct FetchDelegate
     {

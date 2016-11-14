@@ -116,8 +116,8 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _switcher.set_collapsed(bec::GRTManager::get()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
 
   add(&_switcher, false, true);
-  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
-  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
+  _switcher.signal_changed()->connect(std::bind(&SqlEditorResult::switch_tab, this));
+  _switcher.signal_collapse_changed()->connect(std::bind(&SqlEditorResult::switcher_collapsed, this));
   
   _execution_plan_placeholder = NULL;
 
@@ -194,7 +194,7 @@ void SqlEditorResult::update_selection_for_menu_extra(mforms::ContextMenu *menu,
   if (item)
   {
     if (item->signal_clicked()->empty() && !rows.empty())
-      item->signal_clicked()->connect(boost::bind(&SqlEditorResult::open_field_editor, this, rows[0], column));
+      item->signal_clicked()->connect(std::bind(&SqlEditorResult::open_field_editor, this, rows[0], column));
   }
 }
 
@@ -212,14 +212,16 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   else
     _grtobj->resultset(grtwrap_recordset(grtobj(), rset));
 
-  rset->update_selection_for_menu_extra = boost::bind(&SqlEditorResult::update_selection_for_menu_extra, this, _1, _2, _3);
+  rset->update_selection_for_menu_extra = std::bind(
+      &SqlEditorResult::update_selection_for_menu_extra, this,
+      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 
-  rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_export_recordset, this));
+  rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(std::bind(&SqlEditorResult::show_export_recordset, this));
   if (rset->get_toolbar()->find_item("record_import"))
-    rset->get_toolbar()->find_item("record_import")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_import_recordset, this));
+    rset->get_toolbar()->find_item("record_import")->signal_activated()->connect(std::bind(&SqlEditorResult::show_import_recordset, this));
 
   // reset the column header indicators
-  rset->get_toolbar()->find_item("record_sort_reset")->signal_activated()->connect(boost::bind(&SqlEditorResult::reset_sorting, this));
+  rset->get_toolbar()->find_item("record_sort_reset")->signal_activated()->connect(std::bind(&SqlEditorResult::reset_sorting, this));
 
   _grid_header_menu = new mforms::ContextMenu();
   _grid_header_menu->add_item_with_title("Copy Field Name", std::bind(&SqlEditorResult::copy_column_name, this));
@@ -244,17 +246,17 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
                        ++_owner->_rs_sequence));
 
   bec::UIForm::scoped_connect(rset->get_context_menu()->signal_will_show(),
-                              boost::bind(&SqlEditorPanel::on_recordset_context_menu_show, _owner, Recordset::Ptr(rset)));
+                              std::bind(&SqlEditorPanel::on_recordset_context_menu_show, _owner, Recordset::Ptr(rset)));
 
   restore_grid_column_widths();
   bec::UIForm::scoped_connect(_result_grid->signal_column_resized(),
-                              boost::bind(&SqlEditorResult::on_recordset_column_resized, this, _1));
+                              std::bind(&SqlEditorResult::on_recordset_column_resized, this, std::placeholders::_1));
 
   bec::UIForm::scoped_connect(_result_grid->signal_columns_resized(),
-                                boost::bind(&SqlEditorResult::onRecordsetColumnsResized, this, _1));
+                                std::bind(&SqlEditorResult::onRecordsetColumnsResized, this, std::placeholders::_1));
 
-  rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
-  rset->data_edited_signal.connect(boost::bind(&mforms::View::set_needs_repaint, grid));
+  rset->data_edited_signal.connect(std::bind(&SqlEditorPanel::resultset_edited, _owner));
+  rset->data_edited_signal.connect(std::bind(&mforms::View::set_needs_repaint, grid));
 }
 
 
@@ -537,12 +539,6 @@ void SqlEditorResult::on_recordset_column_resized(int column)
   }
 }
 
-grt::ValueRef run_and_return(const boost::function<void()>& f)
-{
-  f();
-  return grt::ValueRef();
-}
-
 void SqlEditorResult::onRecordsetColumnsResized(const std::vector<int> cols)
 {
   std::vector<int>::const_iterator it;
@@ -558,8 +554,10 @@ void SqlEditorResult::onRecordsetColumnsResized(const std::vector<int> cols)
   }
   if (!widths.empty())
   {
-    boost::function<void()> f = boost::bind(&ColumnWidthCache::save_columns_width, _owner->owner()->column_width_cache(), widths);
-    bec::GRTManager::get()->get_dispatcher()->execute_async_function("store column widths", std::bind(&run_and_return, f));
+    bec::GRTManager::get()->get_dispatcher()->execute_async_function(
+        "store column widths",
+        [this, widths]() {_owner->owner()->column_width_cache()->save_columns_width(widths); return grt::ValueRef();});
+
   }
 }
 

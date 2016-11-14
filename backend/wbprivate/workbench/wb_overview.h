@@ -265,7 +265,7 @@ namespace wb {
       boost::function<bool (WBContext*)> _add_slot;
 
     public:
-      AddObjectNode(const boost::function<bool (WBContext*)> &add_slot)
+      AddObjectNode(const std::function<bool (WBContext*)> &add_slot)
         : _add_slot(add_slot) 
       {
         type= OverviewBE::OItem;

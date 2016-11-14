@@ -42,7 +42,6 @@
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/log.h"
-#include <boost/lambda/bind.hpp>
 
 #include "mforms/menubar.h"
 
@@ -557,7 +556,7 @@ CatalogTreeView* ModelDiagramForm::get_catalog_tree()
   if (_catalog_tree == NULL)
   {
     _catalog_tree = new CatalogTreeView(this);
-    _catalog_tree->set_activate_callback(boost::bind(&ModelDiagramForm::activate_catalog_tree_item, this, _1));
+    _catalog_tree->set_activate_callback(std::bind(&ModelDiagramForm::activate_catalog_tree_item, this, std::placeholders::_1));
   }
   return _catalog_tree;
 }
@@ -587,7 +586,7 @@ void ModelDiagramForm::refill_catalog_tree()
   if (!_catalog_tree)
   {
     _catalog_tree = new CatalogTreeView(this);
-    _catalog_tree->set_activate_callback(boost::bind(&ModelDiagramForm::activate_catalog_tree_item, this, _1));
+    _catalog_tree->set_activate_callback(std::bind(&ModelDiagramForm::activate_catalog_tree_item, this, std::placeholders::_1));
   }
 
   _catalog_tree->refill(true);
@@ -606,19 +605,19 @@ bool ModelDiagramForm::is_closed()
 }
 
 
-void ModelDiagramForm::set_button_callback(const boost::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, Point, mdc::EventState)> &cb)
+void ModelDiagramForm::set_button_callback(const std::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, Point, mdc::EventState)> &cb)
 {
-  _handle_button= cb;
+  _handle_button = cb;
 }
 
 
-void ModelDiagramForm::set_motion_callback(const boost::function<bool (ModelDiagramForm*, Point, mdc::EventState)> &cb)
+void ModelDiagramForm::set_motion_callback(const std::function<bool (ModelDiagramForm*, Point, mdc::EventState)> &cb)
 {
-  _handle_motion= cb;
+  _handle_motion = cb;
 }
 
 
-void ModelDiagramForm::set_reset_tool_callback(const boost::function<void (ModelDiagramForm*)> &cb)
+void ModelDiagramForm::set_reset_tool_callback(const std::function<void (ModelDiagramForm*)> &cb)
 {
   _reset_tool= cb;
 }
@@ -1096,10 +1095,11 @@ void ModelDiagramForm::reset_tool(bool notify)
     _reset_tool(this);
 
   _cursor= "";
-  boost::function<bool ()> f = boost::lambda::constant(false);
-  _handle_button = (boost::bind(f));
-  _handle_motion = (boost::bind(f));
-  _reset_tool = (boost::bind(f));
+
+  std::function<bool ()> f = []() { return false; };
+  _handle_button = (std::bind(f));
+  _handle_motion = (std::bind(f));
+  _reset_tool = (std::bind(f));
 
   if (notify && _owner->get_wb()->tool_changed)
     _owner->get_wb()->tool_changed(_view);
