@@ -819,10 +819,10 @@ mforms::MenuBar *CommandUI::create_menubar_for_context(const std::string &contex
 
 mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file)
 {
-  return create_toolbar(toolbar_file, boost::bind(&CommandUI::activate_command, this, _1));
+  return create_toolbar(toolbar_file, [this](const std::string &str) { activate_command(str); });
 }
 
-mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, const boost::function<void (std::string)> &activate_slot)
+mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, const std::function<void (std::string)> &activate_slot)
 {
   app_ToolbarRef toolbar(app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(bec::GRTManager::get()->get_data_file_path(toolbar_file))));
   

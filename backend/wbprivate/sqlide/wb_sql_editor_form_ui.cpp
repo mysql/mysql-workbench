@@ -61,7 +61,7 @@ mforms::ToolBar *SqlEditorForm::get_toolbar()
 {
   if (!_toolbar)
   {
-    _toolbar = _wbsql->get_cmdui()->create_toolbar("data/dbquery_toolbar.xml", boost::bind(&SqlEditorForm::activate_command, this, _1));
+    _toolbar = _wbsql->get_cmdui()->create_toolbar("data/dbquery_toolbar.xml", std::bind(&SqlEditorForm::activate_command, this, std::placeholders::_1));
     _toolbar->set_name("dbquery");
     
     update_menu_and_toolbar();
