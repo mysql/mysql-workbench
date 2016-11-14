@@ -194,7 +194,7 @@ bool CommandUI::validate_command_item(const app_CommandItemRef &item, const wb::
   {
     std::list<std::string> results;
     
-    _wb->foreach_component(boost::bind(add_option_value_to_list, _1, cmd.name, &results));
+    _wb->foreach_component(std::bind(add_option_value_to_list, std::placeholders::_1, cmd.name, &results));
     
     return true;
   }
@@ -432,7 +432,7 @@ std::vector<WBShortcut> CommandUI::get_shortcuts_for_context(const std::string &
   {
     grt::ListRef<app_ShortcutItem> model_items;
 
-    _wb->foreach_component(boost::bind(&CommandUI::append_shortcut_items, this, boost::bind(&WBComponent::get_shortcut_items,_1)
+    _wb->foreach_component(std::bind(&CommandUI::append_shortcut_items, this, std::bind(&WBComponent::get_shortcut_items, std::placeholders::_1)
         , context, &shortcuts));
   }
 
@@ -1017,10 +1017,10 @@ void CommandUI::add_frontend_commands(const std::list<std::string> &commands)
     if (iter->compare("diagram_size")==0
         || iter->compare("wb.page_setup")==0)
       add_builtin_command(*iter, 
-        std::bind(_wb->perform_command, *iter),
+        std::bind(_wb->_frontendCallbacks.perform_command, *iter),
         std::bind(has_active_view, _wb));
     else
-      add_builtin_command(*iter, std::bind(_wb->perform_command, *iter));
+      add_builtin_command(*iter, std::bind(_wb->_frontendCallbacks.perform_command, *iter));
   }
 }
 

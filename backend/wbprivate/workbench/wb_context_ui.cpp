@@ -229,7 +229,7 @@ void WBContextUI::perform_quit()
 {
   _quitting = true;
   _wb->do_close_document(true);
-  _wb->quit_application();
+  _wb->_frontendCallbacks.quit_application();
 }
 
 
@@ -315,7 +315,7 @@ void WBContextUI::load_app_options(bool update)
 
 static void add_script_file(WBContextUI *wbui)
 {
-  std::string file= wbui->get_wb()->show_file_dialog("open", _("Add SQL Script File"), "sql");
+  std::string file= wbui->get_wb()->_frontendCallbacks.show_file_dialog("open", _("Add SQL Script File"), "sql");
   if (!file.empty())
   {
     workbench_physical_ModelRef model;
@@ -329,7 +329,7 @@ static void add_script_file(WBContextUI *wbui)
 
 static void add_note_file(WBContextUI *wbui)
 {
-  std::string file= wbui->get_wb()->show_file_dialog("open", _("Add Note File"), "Text Files (*.txt)|*.txt");
+  std::string file= wbui->get_wb()->_frontendCallbacks.show_file_dialog("open", _("Add Note File"), "Text Files (*.txt)|*.txt");
   if (!file.empty())
   {
     workbench_physical_ModelRef model;

@@ -59,7 +59,7 @@ WBComponentPhysical::RelationshipToolContext::RelationshipToolContext(WBComponen
     floater= 0;
     last_message= _("Select the Table to receive the Foreign Key.");
   }
-  owner->get_wb()->show_status_text(last_message);
+  owner->get_wb()->_frontendCallbacks.show_status_text(last_message);
 }
 
 
@@ -87,7 +87,7 @@ void WBComponentPhysical::RelationshipToolContext::cancel()
     leave_table(hovering);
   
   if (state != RFinished)
-    owner->get_wb()->show_status_text(_("Cancelled."));
+    owner->get_wb()->_frontendCallbacks.show_status_text(_("Cancelled."));
 }
 
 
@@ -607,7 +607,7 @@ bool WBComponentPhysical::RelationshipToolContext::button_press(ModelDiagramForm
   if (!result.empty())
   {
     last_message= result;
-    owner->get_wb()->show_status_text(last_message);
+    owner->get_wb()->_frontendCallbacks.show_status_text(last_message);
   }
   
   if (state == RFinished)
@@ -627,6 +627,6 @@ void WBComponentPhysical::RelationshipToolContext::source_picking_done()
     state= RPickingEnd;
     last_message= _("Please pick referenced columns or table.");
     
-    owner->get_wb()->show_status_text(last_message);
+    owner->get_wb()->_frontendCallbacks.show_status_text(last_message);
   }
 }
