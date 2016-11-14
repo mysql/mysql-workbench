@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,9 +52,9 @@ CanvasViewExtras::CanvasViewExtras(CanvasView *view)
 }
 
 
-void CanvasViewExtras::set_progress_callback(const boost::function<void (int, int)> &progress)
+void CanvasViewExtras::set_progress_callback(const std::function<void (int, int)> &progress)
 {
-  _progress_cb= progress;
+  _progress_cb = progress;
 }
 
 
@@ -153,7 +153,7 @@ Size CanvasViewExtras::get_adjusted_paper_size()
 Rect CanvasViewExtras::get_adjusted_printable_area()
 {
   Rect rect;
-  
+
   rect.pos.x= _margin_left;
   rect.pos.y= _margin_top;
   rect.size= Size(_page_width, _page_height);
@@ -184,7 +184,7 @@ int CanvasViewExtras::print_to_pdf(const std::string &path)
   try
   {
     FileHandle fh(path.c_str(), "wb");
-    surf= cairo_pdf_surface_create_for_stream(&write_to_surface, fh.file(), 
+    surf= cairo_pdf_surface_create_for_stream(&write_to_surface, fh.file(),
                             MM_TO_PT(paper_size.width), MM_TO_PT(paper_size.height));
 
     PDFSurface surface(surf);
@@ -252,7 +252,7 @@ int CanvasViewExtras::print_to_surface(Surface *surf, const std::string &header_
     _view->unlock();
     throw;
   }
-  
+
   _view->unlock();
   return count;
 }
@@ -269,7 +269,7 @@ int CanvasViewExtras::print_to_ps(const std::string &path)
   try
   {
     FileHandle fh(path.c_str(), "wb");
-    surf= cairo_ps_surface_create_for_stream(&write_to_surface, fh.file(), 
+    surf= cairo_ps_surface_create_for_stream(&write_to_surface, fh.file(),
                             MM_TO_PT(paper_size.width), MM_TO_PT(paper_size.height));
 
     PSSurface surface(surf);
@@ -344,7 +344,7 @@ int CanvasViewExtras::render_pages(CairoCtx *cr, double render_scale, int page, 
   mdc::FontSpec header_font(_view->get_default_font());
 
   _view->get_page_layout(xc, yc);
- 
+
   bounds.size= content_area.size;
   bounds.size.width= bounds.size.width*_xscale;
   bounds.size.height= bounds.size.height*_yscale;
@@ -368,7 +368,7 @@ int CanvasViewExtras::render_pages(CairoCtx *cr, double render_scale, int page, 
           cr->translate(-render_scale * paper_size.height/2, -render_scale * paper_size.width/2);
 
           cr->translate(render_scale * content_area.left(), render_scale * content_area.top());
-          
+
           cr->scale(render_scale/_xscale, render_scale/_yscale);
         }
         else
@@ -447,10 +447,10 @@ void CanvasViewExtras::render_page(CairoCtx *cr, int x, int y)
 {
   Rect content_area= get_adjusted_printable_area();
   Rect bounds;
-    
+
   bounds.pos.x+= content_area.width() * x;
   bounds.pos.y+= content_area.height() * y;
-  
+
   if (_orientation == Landscape)
     std::swap(content_area.size.width, content_area.size.height);
 
@@ -462,9 +462,9 @@ void CanvasViewExtras::render_page(CairoCtx *cr, int x, int y)
   cr->scale(_xscale, _yscale);
   cr->translate(content_area.left(), content_area.top());
   _view->render_for_export(bounds, cr);
-  
+
   cr->restore();
-  
+
   if (_print_border)
   {
     cr->save();
@@ -476,10 +476,10 @@ void CanvasViewExtras::render_page(CairoCtx *cr, int x, int y)
     cr->stroke();
     cr->restore();
   }
-  
+
   // needed in mac but not in linux
   //  cr->show_page();
-    
+
   _view->set_printout_mode(false);
 }
 

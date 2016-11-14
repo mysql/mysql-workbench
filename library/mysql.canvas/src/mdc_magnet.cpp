@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,8 +27,8 @@ using namespace mdc;
 Magnet::Magnet(CanvasItem *owner)
 : _owner(owner)
 {
-  scoped_connect(_owner->signal_bounds_changed(), boost::bind(&Magnet::owner_bounds_changed, this, _1));
-  scoped_connect(_owner->signal_parent_bounds_changed(), boost::bind(&Magnet::owner_parent_bounds_changed, this, _1, _2));
+  scoped_connect(_owner->signal_bounds_changed(), std::bind(&Magnet::owner_bounds_changed, this, std::placeholders::_1));
+  scoped_connect(_owner->signal_parent_bounds_changed(), std::bind(&Magnet::owner_parent_bounds_changed, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -72,13 +72,13 @@ void Magnet::notify_connected()
 }
 
 
-void Magnet::set_connection_validator(const boost::function<bool (Connector*)> &slot)
+void Magnet::set_connection_validator(const std::function<bool (Connector*)> &slot)
 {
   _connection_slot= slot;
 }
 
 
-void Magnet::set_disconnection_validator(const boost::function<bool (Connector*)> &slot)
+void Magnet::set_disconnection_validator(const std::function<bool (Connector*)> &slot)
 {
   _disconnection_slot= slot;
 }

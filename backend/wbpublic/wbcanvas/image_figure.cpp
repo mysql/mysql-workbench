@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,11 +70,11 @@ void Image::keep_aspect_ratio(bool flag)
       if (fabs(_image.get_size().height-new_height) > 1)
         set_fixed_size(Size(width, new_height));
 
-      set_drag_handle_constrainer(boost::bind(constrain_aspect_ratio, _1, _2, aspect));
+      set_drag_handle_constrainer(std::bind(constrain_aspect_ratio, std::placeholders::_1, std::placeholders::_2, aspect));
     }
   }
   else
-    set_drag_handle_constrainer(boost::function<void (mdc::ItemHandle*,Size&) >());
+    set_drag_handle_constrainer(std::function<void (mdc::ItemHandle*,Size&) >());
 }
 
 

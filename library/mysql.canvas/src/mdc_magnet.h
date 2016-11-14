@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,8 +47,8 @@ namespace mdc {
 
     virtual double constrain_angle(double angle) const { return angle; }
 
-    void set_connection_validator(const boost::function<bool(Connector*)> &slot);
-    void set_disconnection_validator(const boost::function<bool(Connector*)> &slot);
+    void set_connection_validator(const std::function<bool(Connector*)> &slot);
+    void set_disconnection_validator(const std::function<bool(Connector*)> &slot);
 
     CanvasItem *get_owner() const { return _owner; }
 
@@ -57,8 +57,8 @@ namespace mdc {
 
     std::list<Connector*> _connectors;
 
-    boost::function<bool(Connector*)> _connection_slot;
-    boost::function<bool(Connector*)> _disconnection_slot;
+    std::function<bool(Connector*)> _connection_slot;
+    std::function<bool(Connector*)> _disconnection_slot;
 
     virtual void notify_connected();
 
@@ -66,7 +66,7 @@ namespace mdc {
     virtual void owner_parent_bounds_changed(CanvasItem *item, const base::Rect &obounds);
   };
 
-}
+} // end of mdc namespace
 
 #endif
 

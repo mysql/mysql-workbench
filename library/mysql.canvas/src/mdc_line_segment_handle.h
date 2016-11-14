@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,23 +22,25 @@
 
 #include "mdc_item_handle.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
-class MYSQLCANVAS_PUBLIC_FUNC LineSegmentHandle : public ItemHandle {
+class MYSQLCANVAS_PUBLIC_FUNC LineSegmentHandle : public ItemHandle
+{
 public:
   LineSegmentHandle(InteractionLayer *ilayer, CanvasItem *item, const base::Point &pos,
-    bool vertical);
+      bool vertical);
   virtual ~LineSegmentHandle();
 
   virtual base::Rect get_bounds() const;
 
   void set_vertical(bool flag);
-  bool is_vertical() { return _vertical; }
+  bool is_vertical() {return _vertical;}
 
 private:
   bool _vertical;
 };
 
-END_MDC_DECLS
+}
+  // end of mdc namespace
 
 #endif

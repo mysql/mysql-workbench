@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@
 #include <glib.h>
 #endif
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class Line;
 
@@ -144,7 +144,7 @@ public:
   CanvasItem *get_leaf_item_at(int x, int y);
   CanvasItem *get_leaf_item_at(const base::Point &point);
   
-  typedef boost::function<bool (CanvasItem*)> ItemCheckFunc;
+  typedef std::function<bool (CanvasItem*)> ItemCheckFunc;
   std::list<CanvasItem*> get_items_bounded_by(const base::Rect &rect, 
                                               const ItemCheckFunc &pred= ItemCheckFunc());
 
@@ -195,9 +195,9 @@ public:
   void export_ps(const std::string &filename, const base::Size &size_in_pt);
   void export_svg(const std::string &filename, const base::Size &size_in_pt);
 
-  void set_event_callbacks(const boost::function<bool (CanvasView*, MouseButton, bool, base::Point, EventState)> &button_handler,
-                           const boost::function<bool (CanvasView*, base::Point, EventState)> &motion_handler,
-                           const boost::function<bool (CanvasView*, KeyInfo, EventState, bool)> &key_handler);
+  void set_event_callbacks(const std::function<bool (CanvasView*, MouseButton, bool, base::Point, EventState)> &button_handler,
+                           const std::function<bool (CanvasView*, base::Point, EventState)> &motion_handler,
+                           const std::function<bool (CanvasView*, KeyInfo, EventState, bool)> &key_handler);
 
 
   boost::signals2::signal<void ()>* signal_resized() { return &_resized_signal; }
@@ -263,9 +263,9 @@ protected:
   boost::signals2::signal<void ()> _viewport_changed_signal;
   boost::signals2::signal<void ()> _zoom_changed_signal;
   
-  boost::function<bool (CanvasView*, MouseButton, bool, base::Point, EventState)> _button_event_relay;
-  boost::function<bool (CanvasView*, base::Point, EventState)> _motion_event_relay;
-  boost::function<bool (CanvasView*, KeyInfo, EventState, bool)> _key_event_relay;
+  std::function<bool (CanvasView*, MouseButton, bool, base::Point, EventState)> _button_event_relay;
+  std::function<bool (CanvasView*, base::Point, EventState)> _motion_event_relay;
+  std::function<bool (CanvasView*, KeyInfo, EventState, bool)> _key_event_relay;
 
   CanvasView(int width, int height);
 
@@ -303,6 +303,6 @@ private:
 };
 
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 #endif /* _MDC_CANVAS_VIEW_H_ */
