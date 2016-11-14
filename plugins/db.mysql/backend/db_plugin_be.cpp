@@ -542,9 +542,9 @@ grt::StringRef Db_plugin::apply_script_to_db()
 
   sql::SqlBatchExec sql_batch_exec;
 
-  sql_batch_exec.error_cb(boost::bind(&Db_plugin::process_sql_script_error, this, _1, _2, _3));
-  sql_batch_exec.batch_exec_progress_cb(boost::bind(&Db_plugin::process_sql_script_progress, this, _1));
-  sql_batch_exec.batch_exec_stat_cb(boost::bind(&Db_plugin::process_sql_script_statistics, this, _1, _2));
+  sql_batch_exec.error_cb(std::bind(&Db_plugin::process_sql_script_error, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+  sql_batch_exec.batch_exec_progress_cb(std::bind(&Db_plugin::process_sql_script_progress, this, std::placeholders::_1));
+  sql_batch_exec.batch_exec_stat_cb(std::bind(&Db_plugin::process_sql_script_statistics, this, std::placeholders::_1, std::placeholders::_2));
 
   sql_batch_exec(stmt.get(), statements);
 
