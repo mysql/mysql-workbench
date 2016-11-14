@@ -3426,7 +3426,9 @@ Recordset::Ref TableEditorBE::get_inserts_model()
     _inserts_storage->table(get_table());
 
     _inserts_model = Recordset::create();
-    _inserts_model->update_selection_for_menu_extra = boost::bind(&TableEditorBE::update_selection_for_menu_extra, this, _1, _2, _3);
+    _inserts_model->update_selection_for_menu_extra = std::bind(
+        &TableEditorBE::update_selection_for_menu_extra, this,
+        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     _inserts_model->set_inserts_editor(true);
     _inserts_model->data_storage(_inserts_storage);
     _inserts_model->refresh();

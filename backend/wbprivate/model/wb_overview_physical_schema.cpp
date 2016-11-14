@@ -201,12 +201,12 @@ class wb::internal::PhysicalSchemaContentNode : public OverviewBE::ContainerNode
 private:
   std::string id;
   grt::ListRef<db_DatabaseObject> _list;
-  boost::function<SchemaObjectNode* (const db_DatabaseObjectRef&)> _create_node;
+  std::function<SchemaObjectNode* (const db_DatabaseObjectRef&)> _create_node;
 
 public:
   PhysicalSchemaContentNode(const std::string &name, const db_SchemaRef &owner,
                             grt::ListRef<db_DatabaseObject> list,
-                            boost::function<SchemaObjectNode* (const db_DatabaseObjectRef&)> create_node)
+                            std::function<SchemaObjectNode* (const db_DatabaseObjectRef&)> create_node)
     : ContainerNode(OverviewBE::OItem), _list(list), _create_node(create_node)
   {
     id= owner->id() + "/" + name;
@@ -237,21 +237,23 @@ public:
     if (add_node)
       children.push_back(add_node);
 
-    for (size_t c= _list.count(), i= 0; i < c; i++)
-    {
+    for (size_t c = _list.count(), i = 0; i < c; i++) {
       db_DatabaseObjectRef object(_list[i]);
 
-      SchemaObjectNode *node= _create_node(object);
-    
-      node->type= OverviewBE::OItem;
-      node->label= object->name();
-      node->small_icon= IconManager::get_instance()->get_icon_id(object->get_metaclass(), Icon16);
-      node->large_icon= IconManager::get_instance()->get_icon_id(object->get_metaclass(), Icon48);
+      SchemaObjectNode *node = _create_node(object);
+
+      node->type = OverviewBE::OItem;
+      node->label = object->name();
+      node->small_icon = IconManager::get_instance()->get_icon_id(
+          object->get_metaclass(), Icon16);
+      node->large_icon = IconManager::get_instance()->get_icon_id(
+          object->get_metaclass(), Icon48);
 
       children.push_back(node);
     }
     // sort items after add_node
-    std::sort(children.begin()+(add_node?1:0), children.end(), CompNodeLabel);
+    std::sort(children.begin() + (add_node ? 1 : 0), children.end(),
+              CompNodeLabel);
   }
 
 
@@ -301,7 +303,7 @@ void PhysicalSchemaNode::init()
 
   node= new PhysicalSchemaContentNode("Tables", schema,
     grt::ListRef<db_DatabaseObject>::cast_from(schema->tables()),
-    boost::bind(&PhysicalSchemaNode::create_table_node, this, _1));
+    std::bind(&PhysicalSchemaNode::create_table_node, this, std::placeholders::_1));
   fields.clear();
   fields.push_back(_("Engine"));
   fields.push_back(_("Created"));
@@ -310,16 +312,20 @@ void PhysicalSchemaNode::init()
   node->set_detail_fields(fields);
   children.push_back(node);
 
-  OverviewBE::AddObjectNode *add_node= new OverviewBE::AddObjectNode(boost::bind(&PhysicalSchemaNode::add_new_db_table, this, _1));
-  add_node->label= _("Add Table");
-  add_node->type= OverviewBE::OItem;
-  add_node->small_icon= IconManager::get_instance()->get_icon_id("db.Table.$.png", Icon16, "add");
-  add_node->large_icon= IconManager::get_instance()->get_icon_id("db.Table.$.png", Icon48, "add");
-  node->children.insert(node->children.begin(), add_node); // Add special node in front of all others.
+  OverviewBE::AddObjectNode *add_node = new OverviewBE::AddObjectNode(
+      std::bind(&PhysicalSchemaNode::add_new_db_table, this,
+                std::placeholders::_1));
+  add_node->label = _("Add Table");
+  add_node->type = OverviewBE::OItem;
+  add_node->small_icon = IconManager::get_instance()->get_icon_id(
+      "db.Table.$.png", Icon16, "add");
+  add_node->large_icon = IconManager::get_instance()->get_icon_id(
+      "db.Table.$.png", Icon48, "add");
+  node->children.insert(node->children.begin(), add_node);  // Add special node in front of all others.
 
-  node= new PhysicalSchemaContentNode("Views", schema, 
+  node = new PhysicalSchemaContentNode("Views", schema,
     grt::ListRef<db_DatabaseObject>::cast_from(schema->views()),
-    boost::bind(&PhysicalSchemaNode::create_view_node, this, _1));
+    std::bind(&PhysicalSchemaNode::create_view_node, this, std::placeholders::_1));
   fields.clear();
   fields.push_back(_("Created"));
   fields.push_back(_("Modified"));
@@ -327,16 +333,20 @@ void PhysicalSchemaNode::init()
   node->set_detail_fields(fields);
   children.push_back(node);
 
-  add_node= new OverviewBE::AddObjectNode(boost::bind(&PhysicalSchemaNode::add_new_db_view, this, _1));
-  add_node->label= _("Add View");
-  add_node->type= OverviewBE::OItem;
-  add_node->small_icon= IconManager::get_instance()->get_icon_id("db.View.$.png", Icon16, "add");
-  add_node->large_icon= IconManager::get_instance()->get_icon_id("db.View.$.png", Icon48, "add");
+  add_node = new OverviewBE::AddObjectNode(
+      std::bind(&PhysicalSchemaNode::add_new_db_view, this,
+                std::placeholders::_1));
+  add_node->label = _("Add View");
+  add_node->type = OverviewBE::OItem;
+  add_node->small_icon = IconManager::get_instance()->get_icon_id(
+      "db.View.$.png", Icon16, "add");
+  add_node->large_icon = IconManager::get_instance()->get_icon_id(
+      "db.View.$.png", Icon48, "add");
   node->children.insert(node->children.begin(), add_node);
 
   node= new PhysicalSchemaContentNode("Routines", schema, 
     grt::ListRef<db_DatabaseObject>::cast_from(schema->routines()),
-    boost::bind(&PhysicalSchemaNode::create_routine_node, this, _1));
+    std::bind(&PhysicalSchemaNode::create_routine_node, this, std::placeholders::_1));
   fields.clear();
   fields.push_back(_("Created"));
   fields.push_back(_("Modified"));
@@ -344,18 +354,22 @@ void PhysicalSchemaNode::init()
   node->set_detail_fields(fields);
   children.push_back(node);
 
-  add_node= new OverviewBE::AddObjectNode(boost::bind(&PhysicalSchemaNode::add_new_db_routine, this, _1));
-  add_node->label= _("Add Routine");
-  add_node->type= OverviewBE::OItem;
-  add_node->small_icon= IconManager::get_instance()->get_icon_id("db.Routine.$.png", Icon16, "add");
-  add_node->large_icon= IconManager::get_instance()->get_icon_id("db.Routine.$.png", Icon48, "add");
+  add_node = new OverviewBE::AddObjectNode(
+      std::bind(&PhysicalSchemaNode::add_new_db_routine, this,
+                std::placeholders::_1));
+  add_node->label = _("Add Routine");
+  add_node->type = OverviewBE::OItem;
+  add_node->small_icon = IconManager::get_instance()->get_icon_id(
+      "db.Routine.$.png", Icon16, "add");
+  add_node->large_icon = IconManager::get_instance()->get_icon_id(
+      "db.Routine.$.png", Icon48, "add");
   node->children.insert(node->children.begin(), add_node);
 
   if (_is_routine_group_enabled)
   {
     node= new PhysicalSchemaContentNode("Routine Groups", schema, 
       grt::ListRef<db_DatabaseObject>::cast_from(schema->routineGroups()),
-      boost::bind(&PhysicalSchemaNode::create_routine_group_node, this, _1));
+      std::bind(&PhysicalSchemaNode::create_routine_group_node, this, std::placeholders::_1));
     fields.clear();
     fields.push_back(_("Created"));
     fields.push_back(_("Modified"));
@@ -363,11 +377,15 @@ void PhysicalSchemaNode::init()
     node->set_detail_fields(fields);
     children.push_back(node);
 
-    add_node= new OverviewBE::AddObjectNode(boost::bind(&PhysicalSchemaNode::add_new_db_routine_group, this, _1));
-    add_node->label= _("Add Group");
-    add_node->type= OverviewBE::OItem;
-    add_node->small_icon= IconManager::get_instance()->get_icon_id("db.RoutineGroup.$.png", Icon16, "add");
-    add_node->large_icon= IconManager::get_instance()->get_icon_id("db.RoutineGroup.$.png", Icon48, "add");
+    add_node = new OverviewBE::AddObjectNode(
+        std::bind(&PhysicalSchemaNode::add_new_db_routine_group, this,
+                  std::placeholders::_1));
+    add_node->label = _("Add Group");
+    add_node->type = OverviewBE::OItem;
+    add_node->small_icon = IconManager::get_instance()->get_icon_id(
+        "db.RoutineGroup.$.png", Icon16, "add");
+    add_node->large_icon = IconManager::get_instance()->get_icon_id(
+        "db.RoutineGroup.$.png", Icon48, "add");
     node->children.insert(node->children.begin(), add_node);
   }
 }

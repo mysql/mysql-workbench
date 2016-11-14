@@ -2257,14 +2257,14 @@ void WBComponentPhysical::add_schema_listeners(const db_SchemaRef &schema)
   {
     // listener for changes in schema itself
     _object_listeners[schema.id()]=
-        schema->signal_changed()->connect(boost::bind(&WBComponentPhysical::schema_member_changed, this, _1, _2, schema));
+        schema->signal_changed()->connect(std::bind(&WBComponentPhysical::schema_member_changed, this, std::placeholders::_1, std::placeholders::_2, schema));
   
     _schema_content_listeners[schema.id()]= schema->signal_refreshDisplay()->connect
-        (boost::bind(&WBComponentPhysical::schema_content_object_changed, this, _1));
+        (std::bind(&WBComponentPhysical::schema_content_object_changed, this, std::placeholders::_1));
 
     // for changes in table, view, SP/function, routine (and other) lists
     _schema_list_listeners[schema.id()]= schema->signal_list_changed()->connect(
-        boost::bind(&WBComponentPhysical::schema_object_list_changed, this, _1, _2, _3, schema));
+        std::bind(&WBComponentPhysical::schema_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, schema));
   }
 }
 
@@ -2320,7 +2320,7 @@ void WBComponentPhysical::reset_document()
 
       if (catalog.is_valid())
         _catalog_object_list_listener= 
-        catalog->signal_list_changed()->connect(boost::bind(&WBComponentPhysical::catalog_object_list_changed, this, _1, _2, _3, catalog));
+        catalog->signal_list_changed()->connect(std::bind(&WBComponentPhysical::catalog_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, catalog));
 
       for (std::size_t sc= catalog->schemata().count(), si= 0; si < sc; si++)
       {
@@ -2341,11 +2341,11 @@ void WBComponentPhysical::reset_document()
         model_DiagramRef view(model->diagrams().get(i));
         _figure_list_listeners[view.id()]=
           view->signal_list_changed()->connect(
-              boost::bind(&WBComponentPhysical::view_object_list_changed, this, _1, _2, _3, view));
+              std::bind(&WBComponentPhysical::view_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, view));
       }
 
       _model_list_listener= model->signal_list_changed()->
-        connect(boost::bind(&WBComponentPhysical::model_object_list_changed, this, _1, _2, _3));
+        connect(std::bind(&WBComponentPhysical::model_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     }
   }
 
@@ -2446,7 +2446,7 @@ void WBComponentPhysical::add_schema_object_listeners(const grt::ObjectRef &obje
     if (_object_listeners.find(object.id()) != _object_listeners.end())
       _object_listeners[object.id()].disconnect();
     _object_listeners[object.id()]= db_TableRef::cast_from(object)->signal_foreignKeyChanged()->connect(
-        boost::bind(&WBComponentPhysical::foreign_key_changed, this, _1));
+        std::bind(&WBComponentPhysical::foreign_key_changed, this, std::placeholders::_1));
   }
 }
 
@@ -2570,7 +2570,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
         
         _figure_list_listeners[view.id()]=
         view->signal_list_changed()->connect(
-                  boost::bind(&WBComponentPhysical::view_object_list_changed, this, _1, _2, _3, view));
+                  std::bind(&WBComponentPhysical::view_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, view));
         
         wb::WBContextUI::get()->get_physical_overview()->send_refresh_diagram(model_DiagramRef());
         return;
@@ -2980,10 +2980,10 @@ void WBComponentPhysical::setup_canvas_tool(ModelDiagramForm *view, const std::s
     _wb->show_status_text("Invalid tool "+tool);
     return;
   }
-  view->set_button_callback(boost::bind(&WBComponentPhysical::handle_button_event, this, _1, _2, _3, _4, _5, data));
+  view->set_button_callback(std::bind(&WBComponentPhysical::handle_button_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, data));
   if (relationship)
     view->set_reset_tool_callback(
-      boost::bind(&WBComponentPhysical::cancel_relationship, this, _1,
+      std::bind(&WBComponentPhysical::cancel_relationship, this, std::placeholders::_1,
         reinterpret_cast<RelationshipToolContext*>(data)));
 }
 

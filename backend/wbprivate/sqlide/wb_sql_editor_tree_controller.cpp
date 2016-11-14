@@ -497,7 +497,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(std::weak_
     StringListPtr functions(new std::list<std::string>());
 
     MutexLock schema_contents_mutex(_schema_contents_mutex);
-    if (arrived_slot.empty())
+    if (!arrived_slot)
       return grt::StringRef("");
 
     {

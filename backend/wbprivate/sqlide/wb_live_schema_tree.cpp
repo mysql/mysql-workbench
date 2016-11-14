@@ -890,7 +890,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, base::Stri
     std::string icon_path = get_node_icon_path(type);
 
     if (sorted)
-      children->sort(boost::bind(base::stl_string_compare, _1, _2, _case_sensitive_identifiers));
+      children->sort(std::bind(base::stl_string_compare, std::placeholders::_1, std::placeholders::_2, _case_sensitive_identifiers));
     
     if (!children->empty())
     {
@@ -1317,7 +1317,7 @@ void LiveSchemaTree::fetch_table_details(ObjectType object_type, const std::stri
     {
 
       delegate->fetch_object_details(schema_name, object_name, object_type, fetch_mask,
-                                    boost::bind(&LiveSchemaTree::update_node_children, this, _1, _2, _3, _4, _5));
+                                    std::bind(&LiveSchemaTree::update_node_children, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
     }
 }
 
@@ -1347,7 +1347,7 @@ void LiveSchemaTree::load_data_for_filter(const std::string& schema_filter, cons
       std::string remote_schema_filter = get_filter_wildcard(schema_filter, RemoteLike);
       std::string remote_object_filter = get_filter_wildcard(object_filter, RemoteLike);
       delegate->fetch_data_for_filter(remote_schema_filter, remote_object_filter, 
-                              boost::bind(&LiveSchemaTree::schema_contents_arrived, this, _1, _2, _3, _4, _5, _6));
+                              std::bind(&LiveSchemaTree::schema_contents_arrived, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
     }
 }
 
@@ -1380,7 +1380,7 @@ void LiveSchemaTree::load_schema_content(mforms::TreeNodeRef& schema_node)
     if (std::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock())
     {
       delegate->fetch_schema_contents(name, 
-                              boost::bind(&LiveSchemaTree::schema_contents_arrived, this, _1, _2, _3, _4, _5, _6));
+                              std::bind(&LiveSchemaTree::schema_contents_arrived, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
     }
   }
 }
@@ -2195,7 +2195,7 @@ void LiveSchemaTree::update_schemata(base::StringListPtr schema_list)
       root = _model_view->root_node();
     }
     
-    schema_list->sort(boost::bind(base::stl_string_compare, _1, _2, _case_sensitive_identifiers));
+    schema_list->sort(std::bind(base::stl_string_compare, std::placeholders::_1, std::placeholders::_2, _case_sensitive_identifiers));
     
     update_node_children(root, schema_list, Schema, true);
 

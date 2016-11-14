@@ -25,6 +25,7 @@
 #ifndef HAVE_PRECOMPILED_HEADERS
   #include "glib.h"
   #include <list>
+  #include <functional>
 #endif
 
 #include "base/threading.h"

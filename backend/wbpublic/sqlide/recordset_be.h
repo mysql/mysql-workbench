@@ -161,7 +161,7 @@ public:
   mforms::ContextMenu *get_context_menu();
 
   void update_selection_for_menu(const std::vector<int> &rows, int clicked_column);
-  boost::function<void (mforms::ContextMenu*, const std::vector<int> &, int)> update_selection_for_menu_extra;
+  std::function<void (mforms::ContextMenu*, const std::vector<int> &, int)> update_selection_for_menu_extra;
 
   std::vector<int> selected_rows() { return _selected_rows; }
   int selected_column() { return _selected_column; }
