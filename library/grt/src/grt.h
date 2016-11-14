@@ -22,18 +22,16 @@
 #ifdef __GNUC__
 #include <cxxabi.h>
 #endif
-#include <cstring>
 #include <typeinfo>
 #include <list>
 #include <map>
 #include <unordered_map>
-//#include <deque>
+
 #include <vector>
 #include <stdexcept>
 #include <boost/function.hpp>
 #include <libxml/xmlmemory.h>
 #include "base/threading.h"
-#include <boost/unordered_map.hpp>
 #include <string>
 #include <gmodule.h>
 
@@ -84,8 +82,8 @@ namespace grt {
   {
   public:
     os_error(const std::string &msg) : std::runtime_error(msg) {}
-    os_error(int err) : std::runtime_error(g_strerror(err)) {}
-    os_error(const std::string &msg, int err) : std::runtime_error(msg+": "+g_strerror(err)) {}
+    os_error(int err) : std::runtime_error(std::strerror(err)) {}
+    os_error(const std::string &msg, int err) : std::runtime_error(msg + ": " + std::strerror(err)) {}
   };
 
   class MYSQLGRT_PUBLIC null_value : public std::logic_error

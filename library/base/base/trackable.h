@@ -22,6 +22,7 @@
 #include <list>
 #include <boost/signals2/connection.hpp>
 #include <map>
+#include <functional>
 #include "common.h"
 
 namespace base {
@@ -31,12 +32,10 @@ namespace base {
         template<typename T>
         inline std::string is_valid_slot(const T&){ return std::string(); }
 
-        template<>
-        inline std::string is_valid_slot(const boost::function_base& f)
+        template<class R, class... Args>
+        inline std::string is_valid_slot(const std::function<R(Args...)>& f)
         { 
-            if(f.empty())
-                return "Attempted to connect empty boost::func";
-            return std::string(); 
+          return !f ? "Attempted to connect empty std::func" : std::string();
         }
 
     }
@@ -44,7 +43,7 @@ namespace base {
 class BASELIBRARY_PUBLIC_FUNC trackable
 {
 public:
-    typedef boost::function<void* (void*)> destroy_func;
+    typedef std::function<void* (void*)> destroy_func;
     void remove_destroy_notify_callback(void* data)
     {
       _destroy_functions.erase(data);
@@ -86,14 +85,14 @@ private:
 };
 
 template<typename TRetval>
-TRetval run_and_return_value(const boost::function<void()>& f)
+TRetval run_and_return_value(const std::function<void()>& f)
 {
   f();
   return TRetval();
 }
 
 template <bool ret>
-bool run_and_return_value(const boost::function<void()>& f)
+bool run_and_return_value(const std::function<void()>& f)
 {
   f();
   return ret;
