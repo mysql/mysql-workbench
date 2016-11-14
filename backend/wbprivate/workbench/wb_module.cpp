@@ -755,7 +755,7 @@ int WorkbenchImpl::editSelectedFigure(const model_DiagramRef &view)
 
     for (size_t c= list.count(), i= 0; i < c; i++)
     {
-      _wb->foreach_component(boost::bind(activate_object, _1, list.get(i), false));
+      _wb->foreach_component(std::bind(activate_object, std::placeholders::_1, list.get(i), false));
     }
   }
   return 0;
@@ -770,7 +770,7 @@ int WorkbenchImpl::editSelectedFigureInNewWindow(const model_DiagramRef &view)
 
     for (size_t c= list.count(), i= 0; i < c; i++)
     {
-      _wb->foreach_component(boost::bind(activate_object, _1, list.get(i), true));
+      _wb->foreach_component(std::bind(activate_object, std::placeholders::_1, list.get(i), true));
     }
   }
   return 0;
@@ -1038,7 +1038,7 @@ int WorkbenchImpl::highlightFigure(const model_ObjectRef &figure)
 
       if (form)
       {
-        _wb->switched_view(form->get_view());
+        _wb->_frontendCallbacks.switched_view(form->get_view());
         form->focus_and_make_visible(model_FigureRef::cast_from(figure), true);
       }
     }
@@ -1380,14 +1380,14 @@ int WorkbenchImpl::confirm(const std::string &title, const std::string &caption)
 std::string WorkbenchImpl::requestFileOpen(const std::string &caption, const std::string &extensions)
 {
   return bec::GRTManager::get()->get_dispatcher()->
-    call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "open", caption, extensions), true, false);
+    call_from_main_thread<std::string>(std::bind(_wb->_frontendCallbacks.show_file_dialog, "open", caption, extensions), true, false);
 }
 
 
 std::string WorkbenchImpl::requestFileSave(const std::string &caption, const std::string &extensions)
 {
   return bec::GRTManager::get()->get_dispatcher()->
-    call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "save", caption, extensions), true, false);
+    call_from_main_thread<std::string>(std::bind(_wb->_frontendCallbacks.show_file_dialog, "save", caption, extensions), true, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1484,9 +1484,9 @@ int WorkbenchImpl::reportBug(const std::string error_info)
 int WorkbenchImpl::showConnectionManager()
 {
   grtui::DbConnectionEditor editor(_wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Connection Manager Opened.");
+  _wb->_frontendCallbacks.show_status_text("Connection Manager Opened.");
   editor.run();
-  _wb->show_status_text("");
+  _wb->_frontendCallbacks.show_status_text("");
   wb::WBContextUI::get()->refresh_home_connections();
   _wb->save_connections();
 
@@ -1497,9 +1497,9 @@ int WorkbenchImpl::showConnectionManager()
 int WorkbenchImpl::showInstanceManager()
 {
   ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Server Profile Manager Opened.");
+  _wb->_frontendCallbacks.show_status_text("Server Profile Manager Opened.");
   db_mgmt_ServerInstanceRef instance(editor.run());
-  _wb->show_status_text("");
+  _wb->_frontendCallbacks.show_status_text("");
   // save instance list now
   _wb->save_instances();
   return 0;
@@ -1508,9 +1508,9 @@ int WorkbenchImpl::showInstanceManager()
 int WorkbenchImpl::showInstanceManagerFor(const db_mgmt_ConnectionRef &conn)
 {
   ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Server Profile Manager Opened.");
+  _wb->_frontendCallbacks.show_status_text("Server Profile Manager Opened.");
   db_mgmt_ServerInstanceRef instance(editor.run(conn, true));
-  _wb->show_status_text("");
+  _wb->_frontendCallbacks.show_status_text("");
   // save instance list now
   _wb->save_instances();
   return 0;

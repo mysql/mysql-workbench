@@ -635,9 +635,9 @@ int OverviewBE::request_delete_selected()
       }
     }
     if (ok)
-      _wb->show_status_text(strfmt(_("%i object(s) deleted."), count));
+      _wb->_frontendCallbacks.show_status_text(strfmt(_("%i object(s) deleted."), count));
     else
-      _wb->show_status_text(_("Could not delete selection."));
+      _wb->_frontendCallbacks.show_status_text(_("Could not delete selection."));
     return count;
   }
   return 0;
@@ -878,7 +878,7 @@ void OverviewBE::cut()
   copy();
   int count= request_delete_selected();
   undo.end(strfmt(_("Cut %s"), get_edit_target_name().c_str()));
-  _wb->show_status_text(strfmt(_("%i object(s) cut."), count));
+  _wb->_frontendCallbacks.show_status_text(strfmt(_("%i object(s) cut."), count));
 }
 
 
@@ -907,7 +907,7 @@ void OverviewBE::copy()
   }
 
   if (count > 0)
-    _wb->show_status_text(strfmt(_("%i object(s) copied."), count));
+    _wb->_frontendCallbacks.show_status_text(strfmt(_("%i object(s) copied."), count));
 }
 
 
