@@ -1935,7 +1935,7 @@ std::list<TreeNodeRef> TreeNodeViewImpl::get_selection(TreeNodeView *self)
     if (size > 0)
     {
       for(size_t index = 0; index < size; index++)
-        selection.push_back(TreeNodeRef(new TreeNodeImpl(tree, tree->_tree_store, path_selection[index])));
+        selection.push_back(TreeNodeRef(new TreeNodeImpl(tree, tree->_tree_store, tree->_sort_model->convert_path_to_child_path(path_selection[index]))));
     }
   }
   else
