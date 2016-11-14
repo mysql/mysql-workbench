@@ -100,7 +100,7 @@ namespace wb
     CommandUI(WBContext *wb);
 
     mforms::ToolBar *create_toolbar(const std::string &toolbar_file);
-    mforms::ToolBar *create_toolbar(const std::string &toolbar_file, const boost::function<void (std::string)> &activate_slot);
+    mforms::ToolBar *create_toolbar(const std::string &toolbar_file, const std::function<void (std::string)> &activate_slot);
     
     void load_data();
 

@@ -968,7 +968,7 @@ OverviewPanel::OverviewPanel(wb::OverviewBE *overview)
   //_container->modify_bg(Gtk::STATE_NORMAL, _container->get_style()->get_white());
   //_container->get_parent()->modify_bg(Gtk::STATE_NORMAL, _container->get_style()->get_white());
 
-  _overview_be->pre_refresh_groups= sigc::mem_fun(this, &OverviewPanel::pre_refresh_groups);
+  _overview_be->pre_refresh_groups = std::bind(&OverviewPanel::pre_refresh_groups, this);
 
   _freeze= true;
   _rebuilding= false;

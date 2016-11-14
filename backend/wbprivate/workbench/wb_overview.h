@@ -140,7 +140,7 @@ namespace wb {
     void send_refresh_children(const bec::NodeId &node);
 
     // for use by frontend
-    boost::function<void ()> pre_refresh_groups;
+    std::function<void ()> pre_refresh_groups;
     void refresh();
 #ifndef _WIN32
   #pragma GCC diagnostic push
@@ -262,7 +262,7 @@ namespace wb {
 
     class MYSQLWBBACKEND_PUBLIC_FUNC AddObjectNode : public virtual Node
     {
-      boost::function<bool (WBContext*)> _add_slot;
+      std::function<bool (WBContext*)> _add_slot;
 
     public:
       AddObjectNode(const std::function<bool (WBContext*)> &add_slot)
