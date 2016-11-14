@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ namespace base
 };
 
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class CanvasView;
 
@@ -44,7 +44,7 @@ class MYSQLCANVAS_PUBLIC_FUNC CanvasViewExtras {
 public:
   CanvasViewExtras(CanvasView *view);
 
-  void set_progress_callback(const boost::function<void (int, int)> &progress);
+  void set_progress_callback(const std::function<void (int, int)> &progress);
 
   void enable_custom_layout();
   void set_show_print_guides(bool flag);
@@ -78,12 +78,12 @@ public:
 
   int render_pages(CairoCtx *cr, double render_scale, int page= -1, bool rotate_for_landscape=false, const std::string &header_text="",
                    const std::string &footer_text="", int gpage_start=0, int gtotal_pages=0);
-  
+
   // final version
   void render_page(CairoCtx *cr, int x, int y);
 
   void get_page_counts(Count &xpages, Count &ypages);
-  
+
 protected:
   base::Size get_adjusted_paper_size();
   base::Rect get_adjusted_printable_area();
@@ -91,7 +91,7 @@ protected:
 
   CanvasView *_view;
 
-  boost::function<void (int, int)> _progress_cb;
+  std::function<void (int, int)> _progress_cb;
 
   double _page_width; // in mm
   double _page_height; // in mm
@@ -112,7 +112,7 @@ protected:
 
 
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 
 #endif

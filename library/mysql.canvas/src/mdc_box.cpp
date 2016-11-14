@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ void Box::set_spacing(float sp)
 }
 
 
-void Box::foreach(const boost::function<void (CanvasItem*)> &slot)
+void Box::foreach(const std::function<void (CanvasItem*)> &slot)
 {
   for (ItemList::const_iterator iter= _children.begin(); iter != _children.end(); )
   {

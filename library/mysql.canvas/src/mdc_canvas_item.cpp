@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1207,9 +1207,9 @@ mdc::Magnet *CanvasItem::get_closest_magnet(const Point &point)
 }
 
 
-void CanvasItem::set_drag_handle_constrainer(const boost::function<void (ItemHandle*,Size&)> &slot)
+void CanvasItem::set_drag_handle_constrainer(const std::function<void (ItemHandle*,Size&)> &slot)
 {
-  _drag_handle_constrainer= slot;
+  _drag_handle_constrainer = slot;
 }
 
 //------------------------------------------------------------------------------

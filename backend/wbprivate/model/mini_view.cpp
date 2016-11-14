@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,9 +37,9 @@ MiniView::MiniView(mdc::Layer *layer)
 #ifndef __APPLE__
   set_cache_toplevel_contents(true);
 #endif
-  layer->get_view()->set_event_callbacks(boost::bind(&MiniView::view_button_cb, this, _1, _2, _3, _4, _5),
-    boost::bind(&MiniView::view_motion_cb, this, _1, _2, _3),
-    boost::function<bool (CanvasView*, KeyInfo, EventState, bool)>());
+  layer->get_view()->set_event_callbacks(std::bind(&MiniView::view_button_cb, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5),
+    std::bind(&MiniView::view_motion_cb, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+    std::function<bool (CanvasView*, KeyInfo, EventState, bool)>());
 }
 
 
