@@ -35,8 +35,6 @@
   #include <sys/time.h>
 
   #include "glib.h"
-
-  #include <boost/cstdint.hpp>
 #endif
 
 #ifdef _WIN32

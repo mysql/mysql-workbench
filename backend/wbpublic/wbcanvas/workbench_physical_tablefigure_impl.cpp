@@ -40,7 +40,7 @@ workbench_physical_TableFigure::ImplData::ImplData(workbench_physical_TableFigur
   _pending_index_sync= false;
   _pending_trigger_sync= false;
 
-  scoped_connect(self->signal_changed(),boost::bind(&ImplData::member_changed, this, _1, _2));
+  scoped_connect(self->signal_changed(),std::bind(&ImplData::member_changed, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -124,9 +124,9 @@ void workbench_physical_TableFigure::ImplData::set_table(const db_TableRef &tabl
     if (self()->_owner.is_valid())
       workbench_physical_DiagramRef::cast_from(self()->_owner)->get_data()->add_mapping(table, self());
     
-    _table_fk_conn= table->signal_foreignKeyChanged()->connect(boost::bind(&ImplData::fk_changed, this, _1));
-    _refresh_conn = table->signal_refreshDisplay()->connect(boost::bind(&ImplData::content_changed, this, _1));
-    _changed_conn = table->signal_changed()->connect(boost::bind(&ImplData::table_member_changed, this, _1, _2));
+    _table_fk_conn= table->signal_foreignKeyChanged()->connect(std::bind(&ImplData::fk_changed, this, std::placeholders::_1));
+    _refresh_conn = table->signal_refreshDisplay()->connect(std::bind(&ImplData::content_changed, this, std::placeholders::_1));
+    _changed_conn = table->signal_changed()->connect(std::bind(&ImplData::table_member_changed, this, std::placeholders::_1, std::placeholders::_2));
 
     self()->_name= self()->_table->name();
 
@@ -134,9 +134,9 @@ void workbench_physical_TableFigure::ImplData::set_table(const db_TableRef &tabl
     {
       // Refresh everything because table has been replaced.
       _figure->get_title()->set_title(*self()->_table->name());
-      run_later(boost::bind(&workbench_physical_TableFigure::ImplData::sync_columns, this));
-      run_later(boost::bind(&workbench_physical_TableFigure::ImplData::sync_indexes, this));
-      run_later(boost::bind(&workbench_physical_TableFigure::ImplData::sync_triggers, this));
+      run_later(std::bind(&workbench_physical_TableFigure::ImplData::sync_columns, this));
+      run_later(std::bind(&workbench_physical_TableFigure::ImplData::sync_indexes, this));
+      run_later(std::bind(&workbench_physical_TableFigure::ImplData::sync_triggers, this));
     }
     else
     {
@@ -167,7 +167,7 @@ void workbench_physical_TableFigure::ImplData::table_member_changed(const std::s
       if (!_pending_columns_sync)
       {
         _pending_columns_sync= true;
-        run_later(boost::bind(&workbench_physical_TableFigure::ImplData::sync_columns, this));
+        run_later(std::bind(&workbench_physical_TableFigure::ImplData::sync_columns, this));
       }
     }
   }
@@ -182,7 +182,7 @@ void workbench_physical_TableFigure::ImplData::fk_changed(const db_ForeignKeyRef
     if (!_pending_columns_sync)
     {
       _pending_columns_sync= true;
-      run_later(boost::bind(&workbench_physical_TableFigure::ImplData::sync_columns, this));
+      run_later(std::bind(&workbench_physical_TableFigure::ImplData::sync_columns, this));
     }
   }  
 }
@@ -194,19 +194,19 @@ void workbench_physical_TableFigure::ImplData::content_changed(const std::string
       _figure && !_pending_columns_sync)
   {
     _pending_columns_sync= true;
-    run_later(boost::bind(&workbench_physical_TableFigure::ImplData::sync_columns, this));
+    run_later(std::bind(&workbench_physical_TableFigure::ImplData::sync_columns, this));
   }
 
   if (where == "index" && _figure && !_pending_index_sync)
   {
     _pending_index_sync= true;
-    run_later(boost::bind(&workbench_physical_TableFigure::ImplData::sync_indexes, this));
+    run_later(std::bind(&workbench_physical_TableFigure::ImplData::sync_indexes, this));
   }
 
   if (where == "trigger" && _figure && !_pending_trigger_sync)
   {
     _pending_trigger_sync= true;
-    run_later(boost::bind(&workbench_physical_TableFigure::ImplData::sync_triggers, this));
+    run_later(std::bind(&workbench_physical_TableFigure::ImplData::sync_triggers, this));
   }  
 }
 
@@ -447,7 +447,7 @@ bool workbench_physical_TableFigure::ImplData::realize()
   
   if (!is_main_thread())
   {
-    run_later(boost::bind(&ImplData::realize, this));
+    run_later(std::bind(&ImplData::realize, this));
     return true;
   }
   
@@ -480,16 +480,16 @@ bool workbench_physical_TableFigure::ImplData::realize()
       _figure->get_title()->set_title(*self()->_table->name());
 
     scoped_connect(_figure->get_title()->signal_expand_toggle(),
-      boost::bind(&workbench_physical_TableFigure::ImplData::toggle_title, this, _1, _figure->get_title()));
+      std::bind(&workbench_physical_TableFigure::ImplData::toggle_title, this, std::placeholders::_1, _figure->get_title()));
     if (_figure->get_index_title())
     {
       scoped_connect(_figure->get_index_title()->signal_expand_toggle(),
-        boost::bind(&workbench_physical_TableFigure::ImplData::toggle_title, this, _1, _figure->get_index_title()));
+        std::bind(&workbench_physical_TableFigure::ImplData::toggle_title, this, std::placeholders::_1, _figure->get_index_title()));
     }
     if (_figure->get_trigger_title())
     {
       scoped_connect(_figure->get_trigger_title()->signal_expand_toggle(),
-        boost::bind(&workbench_physical_TableFigure::ImplData::toggle_title, this, _1, _figure->get_trigger_title()));
+        std::bind(&workbench_physical_TableFigure::ImplData::toggle_title, this, std::placeholders::_1, _figure->get_trigger_title()));
     }
 
     _figure->set_dependant(self()->_table->isDependantTable() != 0);

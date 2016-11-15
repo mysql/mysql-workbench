@@ -165,7 +165,7 @@ TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   item->set_icon(mforms::App::get()->get_resource_path("snippet_add.png"));
   item->set_name("add_template");
   item->set_tooltip("Create a table template from the selected table object.");
-  scoped_connect(item->signal_activated(), boost::bind(&TableTemplatePanel::toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&TableTemplatePanel::toolbar_item_activated, this, std::placeholders::_1));
   _toolbar->add_item(item);
 */
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));

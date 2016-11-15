@@ -119,9 +119,9 @@ void GrtThreadedTask::exec(bool sync, Proc_cb proc_cb)
 
   _task = bec::GRTTask::create_task(desc(), dispatcher, proc_cb);
 
-  scoped_connect(_task->signal_message(), boost::bind(&GrtThreadedTask::process_msg, this, _1));
-  scoped_connect(_task->signal_failed(), boost::bind(&GrtThreadedTask::process_fail, this, _1));
-  scoped_connect(_task->signal_finished(), boost::bind(&GrtThreadedTask::process_finish, this, _1));
+  scoped_connect(_task->signal_message(), std::bind(&GrtThreadedTask::process_msg, this, std::placeholders::_1));
+  scoped_connect(_task->signal_failed(), std::bind(&GrtThreadedTask::process_fail, this, std::placeholders::_1));
+  scoped_connect(_task->signal_finished(), std::bind(&GrtThreadedTask::process_finish, this, std::placeholders::_1));
   if (sync)
     dispatcher->add_task_and_wait(_task);
   else

@@ -163,14 +163,14 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     _content_box.add(hbox, false, true);
   }
   _name_entry.set_name("Connection Name");
-  scoped_connect(_name_entry.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this, &_name_entry));
+  scoped_connect(_name_entry.signal_changed(),std::bind(&ServerInstanceEditor::entry_changed, this, &_name_entry));
 
   _content_box.add(&_tabview, true, true);
   _top_hbox.add(&_content_box, true, true);
 
   _connect_panel->set_driver_changed_cb(std::bind(&ServerInstanceEditor::driver_changed_cb, this, std::placeholders::_1));
-  scoped_connect(_tabview.signal_tab_changed(), boost::bind(&ServerInstanceEditor::tab_changed, this));
-  scoped_connect(_stored_connection_list.signal_changed(),boost::bind(&ServerInstanceEditor::show_connection, this));
+  scoped_connect(_tabview.signal_tab_changed(), std::bind(&ServerInstanceEditor::tab_changed, this));
+  scoped_connect(_stored_connection_list.signal_changed(),std::bind(&ServerInstanceEditor::show_connection, this));
   
   _remote_param_box.set_padding(MF_PANEL_PADDING);
   _sys_box.set_padding(MF_PANEL_PADDING);
@@ -187,14 +187,14 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     mforms::Table* remote_param_table = NewTable(6, 2);
     
     _no_remote_admin.set_text(_("Do not use remote management"));
-    scoped_connect(_no_remote_admin.signal_clicked(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
+    scoped_connect(_no_remote_admin.signal_clicked(),std::bind(&ServerInstanceEditor::toggle_administration, this));
     _win_remote_admin.set_text(_("Native Windows remote management (only available on Windows)"));
-    scoped_connect(_win_remote_admin.signal_clicked(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
+    scoped_connect(_win_remote_admin.signal_clicked(),std::bind(&ServerInstanceEditor::toggle_administration, this));
 #ifndef _WIN32
     _win_remote_admin.set_enabled(false);
 #endif
     _ssh_remote_admin.set_text(_("SSH login based management"));
-    scoped_connect(_ssh_remote_admin.signal_clicked(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
+    scoped_connect(_ssh_remote_admin.signal_clicked(),std::bind(&ServerInstanceEditor::toggle_administration, this));
 
     _remote_admin_box.add(&_no_remote_admin, false, true);
     _remote_admin_box.add(&_win_remote_admin, false, true);
@@ -210,20 +210,20 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     _remote_host.set_size(200, -1);
     box->add(&_remote_host, true, true);
     scoped_connect(_remote_host.signal_changed(),
-      boost::bind(&ServerInstanceEditor::entry_changed, this, &_remote_host));
+      std::bind(&ServerInstanceEditor::entry_changed, this, &_remote_host));
     
     box->add(manage(RLabel(_("Port:"))), false, true);
     _ssh_port.set_size(50, -1);
     _ssh_port.set_placeholder_text("22");
     box->add(&_ssh_port, true, true);
     scoped_connect(_ssh_port.signal_changed(),
-      boost::bind(&ServerInstanceEditor::entry_changed, this, &_ssh_port));
+      std::bind(&ServerInstanceEditor::entry_changed, this, &_ssh_port));
     remote_param_table->add(box, 1, 2, 0, 1, HFillFlag | HExpandFlag | mforms::VFillFlag);
     
     remote_param_table->add(manage(RLabel(_("Username:"))), 0, 1, 1, 2, HFillFlag);
     remote_param_table->add(&_remote_user, 1, 2, 1, 2, HExpandFlag | HFillFlag);
     scoped_connect(_remote_user.signal_changed(),
-      boost::bind(&ServerInstanceEditor::entry_changed, this,  &_remote_user));
+      std::bind(&ServerInstanceEditor::entry_changed, this,  &_remote_user));
     remote_param_table->add(manage(RLabel(_("Password:"))), 0, 1, 2, 3, HFillFlag);
     remote_param_table->add(&_password_box, 1, 2, 2, 3, HExpandFlag | HFillFlag | mforms::VFillFlag);
 
@@ -239,8 +239,8 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     _password_clear.set_tooltip(_("Remove previously stored password from the system's keychain"));
 #endif
 
-    scoped_connect(_password_set.signal_clicked(),boost::bind(&ServerInstanceEditor::set_password, this, false));
-    scoped_connect(_password_clear.signal_clicked(),boost::bind(&ServerInstanceEditor::set_password, this, true));
+    scoped_connect(_password_set.signal_clicked(),std::bind(&ServerInstanceEditor::set_password, this, false));
+    scoped_connect(_password_clear.signal_clicked(),std::bind(&ServerInstanceEditor::set_password, this, true));
     
     _password_box.set_spacing(8);
     _password_box.add(&_password_set, true, true);
@@ -248,7 +248,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     
     _ssh_usekey.set_text(_("Authenticate Using SSH Key"));
     scoped_connect(_ssh_usekey.signal_clicked(),
-      boost::bind(&ServerInstanceEditor::check_changed, this, &_ssh_usekey));
+      std::bind(&ServerInstanceEditor::check_changed, this, &_ssh_usekey));
     remote_param_table->add(&_ssh_usekey, 1, 2, 3, 4, HFillFlag);
 
     mforms::Label *l;
@@ -262,12 +262,12 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     _ssh_keypath.set_tooltip(_("Path to the SSH private key to use for connecting to the remote SSH server.\n"
                                "The key must be in the format used by OpenSSH. If you do not use OpenSSH to\n"
                                "generate the key (ssh-keygen), you may need to convert your key to that format."));
-    scoped_connect(_ssh_keypath.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,  
+    scoped_connect(_ssh_keypath.signal_changed(),std::bind(&ServerInstanceEditor::entry_changed, this,  
                                                   &_ssh_keypath));
     Button *b = manage(new Button());
     b->set_text(_("Browse"));
     box->add(b, false, true);
-    scoped_connect(b->signal_clicked(),boost::bind(&ServerInstanceEditor::browse_file, this));
+    scoped_connect(b->signal_clicked(),std::bind(&ServerInstanceEditor::browse_file, this));
     remote_param_table->add(box, 1, 2, 4, 5, HFillFlag | mforms::VFillFlag);
 
     _remote_admin_box.add(&_remote_param_box, true, true);
@@ -283,7 +283,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
                                      "such as operating system type, path to configuration file, how to start/stop MySQL etc"));
     
     box->add(&_autodetect_button, true, false);
-    scoped_connect(_autodetect_button.signal_clicked(),boost::bind(&ServerInstanceEditor::autodetect_system, this));
+    scoped_connect(_autodetect_button.signal_clicked(),std::bind(&ServerInstanceEditor::autodetect_system, this));
   }
   
   
@@ -301,13 +301,13 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     {
       table->add(manage(RLabel(_("System Type:"))), 0, 1, 0, 1, HFillFlag);
       table->add(&_os_type, 1, 2, 0, 1, HFillFlag | HExpandFlag);
-      scoped_connect(_os_type.signal_changed(),boost::bind(&ServerInstanceEditor::system_type_changed, this));
+      scoped_connect(_os_type.signal_changed(),std::bind(&ServerInstanceEditor::system_type_changed, this));
     }
     {
       label= manage(RLabel(_("Installation Type:")));
       table->add(label, 0, 1, 1, 2, HFillFlag);
 
-      scoped_connect(_sys_profile_type.signal_changed(),boost::bind(&ServerInstanceEditor::profile_changed, this));
+      scoped_connect(_sys_profile_type.signal_changed(),std::bind(&ServerInstanceEditor::profile_changed, this));
       table->add(&_sys_profile_type, 1, 2, 1, 2, HFillFlag | HExpandFlag);
     }
 
@@ -320,20 +320,20 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
       _sys_config_path_browse.enable_internal_padding(false);
       _sys_config_path_browse.set_text("...");
       box->add(&_sys_config_path_browse, false, true);
-      scoped_connect(_sys_config_path_browse.signal_clicked(),boost::bind(&ServerInstanceEditor::run_filechooser_wrapper, this, &_sys_config_path));
+      scoped_connect(_sys_config_path_browse.signal_clicked(),std::bind(&ServerInstanceEditor::run_filechooser_wrapper, this, &_sys_config_path));
       table->add(box, 1, 2, 2, 3, HFillFlag | HExpandFlag | mforms::VFillFlag);
     }
 
-    scoped_connect(_sys_config_path.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,  
+    scoped_connect(_sys_config_path.signal_changed(),std::bind(&ServerInstanceEditor::entry_changed, this,  
                                                   &_sys_config_path));
     table->add(manage(RLabel(_("Configuration File Section:"))), 0, 1, 3, 4, HFillFlag);
     table->add(&_sys_myini_section, 1, 2, 3, 4, HFillFlag | HExpandFlag);
-    scoped_connect(_sys_myini_section.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,  
+    scoped_connect(_sys_myini_section.signal_changed(),std::bind(&ServerInstanceEditor::entry_changed, this,  
                                                   &_sys_myini_section));
 
     table->add(_sys_win_service_name_label = manage(RLabel(_("Windows Service Name:"))), 0, 1, 4, 5, HFillFlag);
     table->add(&_sys_win_service_name, 1, 2, 4, 5, HFillFlag | HExpandFlag);
-    scoped_connect(_sys_win_service_name.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,  
+    scoped_connect(_sys_win_service_name.signal_changed(),std::bind(&ServerInstanceEditor::entry_changed, this,  
                                                   &_sys_win_service_name));
 
     _sys_win_hint_label.set_text(WINDOWS_CONFIG_HINT_TEXT);
@@ -357,11 +357,11 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     
     table->add(manage(RLabel(_("Start MySQL:"))), 0, 1, 0, 1, HFillFlag);
     table->add(&_start_cmd, 1, 2, 0, 1, HFillFlag | HExpandFlag);
-    scoped_connect(_start_cmd.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,  
+    scoped_connect(_start_cmd.signal_changed(),std::bind(&ServerInstanceEditor::entry_changed, this,  
                                                   &_start_cmd));
     table->add(manage(RLabel(_("Stop MySQL:"))), 0, 1, 1, 2, HFillFlag);
     table->add(&_stop_cmd, 1, 2, 1, 2, HFillFlag | HExpandFlag);
-    scoped_connect(_stop_cmd.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,  
+    scoped_connect(_stop_cmd.signal_changed(),std::bind(&ServerInstanceEditor::entry_changed, this,  
                                                   &_stop_cmd));
 
     table->add(&_sudo_check, 1, 2, 2, 3, HFillFlag | HExpandFlag);
@@ -379,9 +379,9 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     _custom_sudo_box.add(manage(RLabel(_("Override sudo command line:"))), false, true);
     _custom_sudo_box.add(&_sudo_prefix, true, true);
     
-    scoped_connect(_sudo_prefix.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,
+    scoped_connect(_sudo_prefix.signal_changed(),std::bind(&ServerInstanceEditor::entry_changed, this,
                                                           &_sudo_prefix));
-    scoped_connect(_sudo_check.signal_clicked(),boost::bind(&ServerInstanceEditor::check_changed, this,
+    scoped_connect(_sudo_check.signal_clicked(),std::bind(&ServerInstanceEditor::check_changed, this,
                                                       &_sudo_check));
     
     _sys_box.add(&_custom_sudo_box, false, true);
@@ -390,17 +390,17 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
   
 
   _dup_inst_button.set_text(_("Duplicate"));
-  scoped_connect(_dup_inst_button.signal_clicked(),boost::bind(&ServerInstanceEditor::duplicate_instance, this));
+  scoped_connect(_dup_inst_button.signal_clicked(),std::bind(&ServerInstanceEditor::duplicate_instance, this));
 
   _del_inst_button.set_text(_("Delete"));
-  scoped_connect(_del_inst_button.signal_clicked(),boost::bind(&ServerInstanceEditor::delete_instance, this));
+  scoped_connect(_del_inst_button.signal_clicked(),std::bind(&ServerInstanceEditor::delete_instance, this));
   _add_inst_button.set_text(_("New"));
-  scoped_connect(_add_inst_button.signal_clicked(),boost::bind(&ServerInstanceEditor::add_instance, this));
+  scoped_connect(_add_inst_button.signal_clicked(),std::bind(&ServerInstanceEditor::add_instance, this));
   
   _move_up_button.set_text(_("Move Up"));
-  scoped_connect(_move_up_button.signal_clicked(),boost::bind(&ServerInstanceEditor::reorder_instance, this, true));
+  scoped_connect(_move_up_button.signal_clicked(),std::bind(&ServerInstanceEditor::reorder_instance, this, true));
   _move_down_button.set_text(_("Move Down"));
-  scoped_connect(_move_down_button.signal_clicked(),boost::bind(&ServerInstanceEditor::reorder_instance, this, false));
+  scoped_connect(_move_down_button.signal_clicked(),std::bind(&ServerInstanceEditor::reorder_instance, this, false));
   
   _bottom_hbox.add(&_add_inst_button, false, true);
   _bottom_hbox.add(&_del_inst_button, false, true);
@@ -416,7 +416,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
 
   _test_button.set_text(_("Test Connection"));
 //  _test_button.set_enabled(grt::GRT::get()->get_module("WbAdmin")!=0);
-  scoped_connect(_test_button.signal_clicked(),boost::bind(&ServerInstanceEditor::test_settings, this));
+  scoped_connect(_test_button.signal_clicked(),std::bind(&ServerInstanceEditor::test_settings, this));
   
   _add_inst_button.enable_internal_padding(true);
   _del_inst_button.enable_internal_padding(true);

@@ -48,7 +48,6 @@ class Paned;
 #include <grt/tree_model.h>
 
 #include <sigc++/sigc++.h>
-#include <boost/function.hpp>
 
 //!
 //! \addtogroup linuxutils Linux utils

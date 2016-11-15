@@ -367,7 +367,7 @@ void Recordset_sql_storage::get_pkey_predicate_for_data_cache_rowid(Recordset *r
   sqlide::QuoteVar qv;
   init_variant_quoter(qv);
   // turn blob values into hex strings when building a primary key, since we can't bind those
-  //  qv.blob_to_string= boost::bind(sqlide::QuoteVar::blob_to_hex_string, _1, _2);
+  //  qv.blob_to_string= std::bind(sqlide::QuoteVar::blob_to_hex_string, std::placeholders::_1, std::placeholders::_2);
   PrimaryKeyPredicate pkey_pred(&column_types, &column_names, &_pkey_columns, &qv);
   pkey_predicate= pkey_pred(data_row_results);
 }

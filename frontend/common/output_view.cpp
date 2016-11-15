@@ -34,7 +34,7 @@ OutputView::OutputView(WBContext* context)
 
   _splitter.add(&_message_list);
   _splitter.add(&_output_text);
-  Box::scoped_connect(_splitter.signal_position_changed(), boost::bind(&OutputView::splitter_moved, this));
+  Box::scoped_connect(_splitter.signal_position_changed(), std::bind(&OutputView::splitter_moved, this));
   
   _message_list.add_column(mforms::IconStringColumnType, "", 100, false);
   _message_list.add_column(mforms::StringColumnType, "Message", 500, false);
@@ -42,13 +42,13 @@ OutputView::OutputView(WBContext* context)
   _message_list.end_columns();
   
   _storage = bec::GRTManager::get()->get_messages_list();
-  _storage->set_output_handler(boost::bind(&mforms::TextBox::append_text, &_output_text, _1, true));
+  _storage->set_output_handler(std::bind(&mforms::TextBox::append_text, &_output_text, std::placeholders::_1, true));
   
   _messages = _storage->create_list();
   _message_list.set_selection_mode(mforms::TreeSelectMultiple);
   refresh();
   
-  UIForm::scoped_connect(_messages->signal_row_added(),boost::bind(&OutputView::row_added, this));
+  UIForm::scoped_connect(_messages->signal_row_added(),std::bind(&OutputView::row_added, this));
   
   _output_text.set_read_only(true);
   

@@ -26,7 +26,6 @@
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
 #include <sqlite/query.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 #include <ctype.h>

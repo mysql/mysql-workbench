@@ -213,7 +213,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext* context)
   add_tool_separator();
   //  if (_editing_module)
   {
-    //   add_tool_button("tiny_refresh.png", boost::bind(&GRTCodeEditor::execute, this),
+    //   add_tool_button("tiny_refresh.png", std::bind(&GRTCodeEditor::execute, this),
     //                   "Refresh the module");
   }
   //  else

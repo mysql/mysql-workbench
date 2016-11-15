@@ -537,7 +537,7 @@ ListModelWrapper::ListModelWrapper(bec::ListModel* tm, Gtk::TreeView *treeview, 
 {
   _invalid = false;
 
-  scoped_connect(tm->tree_changed_signal(), boost::bind(&::ListModelWrapper::model_changed, this, _1, _2));
+  scoped_connect(tm->tree_changed_signal(), std::bind(&::ListModelWrapper::model_changed, this, std::placeholders::_1, std::placeholders::_2));
 
   // keep an indirect pointer because sometimes bec::ListModel is destroyed before the wrapper
   // and in that case we don't want to keep using the dead pointer

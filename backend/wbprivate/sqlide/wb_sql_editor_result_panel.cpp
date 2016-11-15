@@ -438,10 +438,10 @@ void SqlEditorResult::add_switch_toggle_toolbar_item(mforms::ToolBar *tbar)
   item->set_name("sidetoggle");
   item->set_icon(app->get_resource_path("output_type-toggle-on.png"));
   item->set_alt_icon(app->get_resource_path("output_type-toggle-off.png"));
-  item->signal_activated()->connect(boost::bind(&SqlEditorResult::toggle_switcher_collapsed, this));
+  item->signal_activated()->connect(std::bind(&SqlEditorResult::toggle_switcher_collapsed, this));
   item->set_checked(!_switcher.get_collapsed());
   tbar->add_item(item);
-  _collapse_toggled_sig = _collapse_toggled.connect(boost::bind(&mforms::ToolBarItem::set_checked, item, _1));
+  _collapse_toggled_sig = _collapse_toggled.connect(std::bind(&mforms::ToolBarItem::set_checked, item, std::placeholders::_1));
 }
 
 

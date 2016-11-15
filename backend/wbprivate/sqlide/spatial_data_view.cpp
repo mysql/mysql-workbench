@@ -249,8 +249,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _viewer->set_context_menu(_map_menu);
 
   _layer_menu = new mforms::ContextMenu();
-//  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
-//  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
+//  _layer_menu->add_item_with_title("Set Color...", std::bind(&SpatialDataView::activate, this));
+//  _layer_menu->add_item_with_title("Properties...", std::bind(&SpatialDataView::activate, this));
 
    mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
    mitem->set_name("fillup_polygon");

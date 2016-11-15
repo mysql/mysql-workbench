@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ ViewTextPage::ViewTextPage(WizardForm *form, const char *name, Buttons buttons, 
     {
       _button_box.add(&_save_button, false, true);
       _save_button.enable_internal_padding(true);
-      scoped_connect(_save_button.signal_clicked(),boost::bind(&ViewTextPage::save_clicked, this));
+      scoped_connect(_save_button.signal_clicked(), std::bind(&ViewTextPage::save_clicked, this));
       _save_button.set_text(_("Save to File..."));
       _save_button.set_tooltip(_("Save the text to a new file."));
     }
@@ -49,7 +49,7 @@ ViewTextPage::ViewTextPage(WizardForm *form, const char *name, Buttons buttons, 
     {
       _button_box.add(&_copy_button, false, true);
       _copy_button.enable_internal_padding(true);
-      scoped_connect(_copy_button.signal_clicked(),boost::bind(&ViewTextPage::copy_clicked, this));    
+      scoped_connect(_copy_button.signal_clicked(), std::bind(&ViewTextPage::copy_clicked, this));
       _copy_button.set_text(_("Copy to Clipboard"));
       _copy_button.set_tooltip(_("Copy the text to the clipboard."));
     }

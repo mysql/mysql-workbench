@@ -73,7 +73,7 @@ static void table_list_changed(grt::internal::OwnedList *list, bool added, const
 void db_Table::init()
 {
   //No need in disconnet management since signal it part of object
-  _list_changed_signal.connect(boost::bind(&table_list_changed, _1, _2, _3, this));
+  _list_changed_signal.connect(std::bind(&table_list_changed, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, this));
 }
 
 

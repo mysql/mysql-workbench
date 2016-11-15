@@ -525,7 +525,7 @@ db_CatalogRef Db_plugin::db_catalog()
 
 void Db_plugin::set_task_proc()
 {
-  _task_proc_cb= boost::bind(&Db_plugin::apply_script_to_db, this);
+  _task_proc_cb= std::bind(&Db_plugin::apply_script_to_db, this);
 }
 
 

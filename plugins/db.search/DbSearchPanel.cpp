@@ -732,7 +732,7 @@ void DBSearchPanel::prepare_menu()
     mforms::MenuItem *item;
     if (column_selected)
     {
-//        item = _context_menu.add_item_with_title(_("Query Matching Rows"), boost::bind(&DBSearchPanel::activate_menu_item, this, "show_matches"), "show_matches");
+//        item = _context_menu.add_item_with_title(_("Query Matching Rows"), std::bind(&DBSearchPanel::activate_menu_item, this, "show_matches"), "show_matches");
 //        item->set_enabled(table_selected == 0);
         item = _context_menu.add_item_with_title(_("Copy Query"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
         if (searcher_is_working)
@@ -752,7 +752,7 @@ void DBSearchPanel::prepare_menu()
     }
     else
     {
-//        item = _context_menu.add_item_with_title(_("Query Matching Rows"), boost::bind(&DBSearchPanel::activate_menu_item, this, "view_matches"), "show_matches");
+//        item = _context_menu.add_item_with_title(_("Query Matching Rows"), std::bind(&DBSearchPanel::activate_menu_item, this, "view_matches"), "show_matches");
 //        item->set_enabled(table_selected > 0);
         item = _context_menu.add_item_with_title(_("Copy Query"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
         if (searcher_is_working)
@@ -830,7 +830,7 @@ void DBSearchPanel::search(sql::ConnectionWrapper connection, const std::string&
     _searcher = std::shared_ptr<DBSearch>(new DBSearch(connection, search_keyword, filter_list, search_mode, limit_total, limt_per_table, invert, search_data_type, cast_to));
     load_model(_results_tree.root_node());
     std::function<void ()> fsearch = (std::bind(&DBSearch::search, _searcher.get()));
-    //fsearch = (boost::bind(&DBSearch::count, _searcher.get()));//COUNT test
+    //fsearch = (std::bind(&DBSearch::count, _searcher.get()));//COUNT test
     _searcher->prepare();
     bec::GRTManager::get()->execute_grt_task("Search",
         std::bind(call_search, fsearch, failed_callback),

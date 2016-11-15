@@ -110,10 +110,10 @@ void merge_list(grt::ListRef<T> list1, const grt::ListRef<T> &list2, const GrtOb
 
     std::set<std::string>::const_iterator (std::set<std::string>::*findFn)(const std::string&) const = &std::set<std::string>::find;
     std::string new_name = grt::get_name_suggestion(
-            boost::bind(
+            std::bind(
                     std::not_equal_to<std::set<std::string>::const_iterator>(),
-                            boost::bind(findFn, &existing_names, 
-                              boost::bind(&tolower_pred::tolower,tolower_pred(),_1)
+                            std::bind(findFn, &existing_names, 
+                              std::bind(&tolower_pred::tolower,tolower_pred(), std::placeholders::_1)
                             ),
                             existing_names.end()
             ),name,false);

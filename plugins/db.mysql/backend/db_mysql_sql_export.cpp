@@ -483,7 +483,7 @@ void DbMySQLSQLExport::setup_grt_string_list_models_from_catalog(bec::GrtStringL
 //      GrtObjectRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")));
 //
 //    _manager->get_dispatcher()->call_from_main_thread<int>(
-//      boost::bind(_validation_step_finished_cb, validation_res), true);
+//      std::bind(_validation_step_finished_cb, validation_res), true);
 //
 //    WbValidationMySQLInterfaceModule *mysql_validation_module=
 //      static_cast<WbValidationMySQLInterfaceModule *>(
@@ -498,7 +498,7 @@ void DbMySQLSQLExport::setup_grt_string_list_models_from_catalog(bec::GrtStringL
 //      GrtObjectRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")));
 //
 //    _manager->get_dispatcher()->call_from_main_thread<int>(
-//      boost::bind(_validation_step_finished_cb, validation_res), true);
+//      std::bind(_validation_step_finished_cb, validation_res), true);
 //  }
 //  catch(std::exception& ex)
 //  {

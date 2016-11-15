@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ void StringCheckBoxList::set_strings(const std::vector<std::string> &strings)
     cb->set_text(*iter);
     cb->set_name(*iter);
     
-    scoped_connect(cb->signal_clicked(),boost::bind(&StringCheckBoxList::toggled, this));
+    scoped_connect(cb->signal_clicked(),std::bind(&StringCheckBoxList::toggled, this));
 
     _box.add(cb, false, false);
     _items.push_back(cb);
@@ -66,7 +66,7 @@ void StringCheckBoxList::set_strings(const grt::StringListRef &strings)
     cb->set_text(*iter);
     cb->set_name(*iter);
     
-    scoped_connect(cb->signal_clicked(),boost::bind(&StringCheckBoxList::toggled, this));
+    scoped_connect(cb->signal_clicked(),std::bind(&StringCheckBoxList::toggled, this));
 
     _box.add(cb, false, false);
     _items.push_back(cb);
