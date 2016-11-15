@@ -429,8 +429,8 @@ WbPluginDbSynchronize::WbPluginDbSynchronize(grt::Module *module)
 
   SynchronizeDifferencesPage *diffs_page= new SynchronizeDifferencesPage(this, &_be);
   diffs_page->set_title(_("Model and Database Differences"));
-  diffs_page->set_catalog_getter_slot(boost::bind(&Db_plugin::model_catalog, &_db_be),
-                                      boost::bind(&Db_plugin::db_catalog, &_db_be));
+  diffs_page->set_catalog_getter_slot(std::bind(&Db_plugin::model_catalog, &_db_be),
+                                      std::bind(&Db_plugin::db_catalog, &_db_be));
   add_page(mforms::manage(diffs_page));
   
   add_page(mforms::manage(new PreviewScriptPage(this)));

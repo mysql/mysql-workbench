@@ -31,15 +31,15 @@ public:
     set_short_title(_("Connect to DBMS"));
 
     add_async_task(_("Connect to DBMS"),
-                   boost::bind(&FetchSchemaNamesProgressPage::perform_connect, this),
+                   std::bind(&FetchSchemaNamesProgressPage::perform_connect, this),
                    _("Connecting to DBMS..."));
 
     add_async_task(_("Retrieve Schema List from Database"),
-                   boost::bind(&FetchSchemaNamesProgressPage::perform_fetch, this),
+                   std::bind(&FetchSchemaNamesProgressPage::perform_fetch, this),
                    _("Retrieving schema list from database..."));
 
     add_async_task(_("Check Common Server Configuration Issues"),
-                     boost::bind(&FetchSchemaNamesProgressPage::perform_check_case, this),
+                     std::bind(&FetchSchemaNamesProgressPage::perform_check_case, this),
                      _("Checking common server configuration issues..."));
 
     end_adding_tasks(_("Execution Completed Successfully"));
@@ -52,12 +52,12 @@ public:
     _dbconn= dbc;
   }
 
-  void set_load_schemas_slot(const boost::function<std::vector<std::string> ()> &slot)
+  void set_load_schemas_slot(const std::function<std::vector<std::string> ()> &slot)
   {
     _load_schemas= slot;
   }
   
-  void set_check_case_slot(const boost::function<int ()> &slot)
+  void set_check_case_slot(const std::function<int ()> &slot)
   {
     _check_case_problems = slot;
   }
@@ -68,7 +68,7 @@ protected:
   {
     db_mgmt_ConnectionRef conn = _dbconn->get_connection();
 
-    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_connect, this), false);
+    execute_grt_task(std::bind(&FetchSchemaNamesProgressPage::do_connect, this), false);
 
     return true;
   }
@@ -84,7 +84,7 @@ protected:
 
   bool perform_fetch()
   {
-    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_fetch, this),
+    execute_grt_task(std::bind(&FetchSchemaNamesProgressPage::do_fetch, this),
                      false);
     return true;
   }
@@ -113,7 +113,7 @@ protected:
 
   bool perform_check_case()
   {
-    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_check_case, this), false);
+    execute_grt_task(std::bind(&FetchSchemaNamesProgressPage::do_check_case, this), false);
     return true;
   }
 
@@ -150,8 +150,8 @@ protected:
 
 private:
   DbConnection *_dbconn;
-  boost::function<std::vector<std::string> () > _load_schemas;
-  boost::function<int () > _check_case_problems;
+  std::function<std::vector<std::string> () > _load_schemas;
+  std::function<int () > _check_case_problems;
   bool _finished;
 };
 

@@ -29,8 +29,6 @@
 
 #include "catalog_validation_page.h"
 
-#include <boost/lambda/bind.hpp>
-
 using namespace grtui;
 using namespace mforms;
 
@@ -96,7 +94,7 @@ public:
     // tables
     _skip_foreign_keys_check.set_text(_("Skip creation of FOREIGN KEYS"));
     _table_options_box.add(&_skip_foreign_keys_check, false, false);
-    scoped_connect(_skip_foreign_keys_check.signal_clicked(),boost::bind(&ExportInputPage::SkipFKToggled, this));
+    scoped_connect(_skip_foreign_keys_check.signal_clicked(), std::bind(&ExportInputPage::SkipFKToggled, this));
     _skip_FK_indexes_check.set_text(_("Skip creation of FK Indexes as well"));
     _table_options_box.add(&_skip_FK_indexes_check, false, false);
     _generate_create_index_check.set_text(_("Generate separate CREATE INDEX statements"));
@@ -126,7 +124,7 @@ public:
 
     _omit_schema_qualifier_check.set_text(_("Omit schema qualifier in object names"));
     _options_box.add(&_omit_schema_qualifier_check, false, false);
-    scoped_connect(_omit_schema_qualifier_check.signal_clicked(),boost::bind(&ExportInputPage::OmitSchemaToggled, this));
+    scoped_connect(_omit_schema_qualifier_check.signal_clicked(), std::bind(&ExportInputPage::OmitSchemaToggled, this));
     _generate_use_check.set_text(_("Generate USE statements"));
     _options_box.add(&_generate_use_check, false, false);
     _generate_show_warnings_check.set_text(_("Add SHOW WARNINGS after every DDL statement"));
@@ -138,7 +136,7 @@ public:
     add(&_options, false, false);
 
 
-    scoped_connect(signal_leave(),boost::bind(&ExportInputPage::gather_options, this, _1));
+    scoped_connect(signal_leave(), std::bind(&ExportInputPage::gather_options, this, std::placeholders::_1));
     
     grt::Module *module= ((WizardPlugin*)_form)->module();
     _generate_drop_check.set_active(module->document_int_data("GenerateDrops", 0) != 0);
@@ -381,7 +379,7 @@ public:
       _form->update_buttons();
       Db_frw_eng *backend= ((WbPluginDbExport*)_form)->be();
       
-      backend->export_task_finish_cb(boost::bind(&PreviewScriptPage::export_task_finished, this));
+      backend->export_task_finish_cb(std::bind(&PreviewScriptPage::export_task_finished, this));
       backend->start_export();
     }
   }
@@ -466,31 +464,34 @@ class ExportProgressPage : public WizardProgressPage
   MyConnectionPage  *_conn_page;
 
 public:
-  ExportProgressPage(WizardForm *form) : WizardProgressPage(form, "progress", false)
-                                       , _finished(false)
-                                       , _conn_page(0)
-  {
+  ExportProgressPage(WizardForm *form)
+      : WizardProgressPage(form, "progress", false),
+        _finished(false),
+        _conn_page(0) {
     set_title(_("Forward Engineering Progress"));
     set_short_title(_("Commit Progress"));
 
     add_async_task(_("Connect to DBMS"),
-             boost::bind(&ExportProgressPage::do_connect, this),
-             _("Connecting to DBMS..."));
+                   std::bind(&ExportProgressPage::do_connect, this),
+                   _("Connecting to DBMS..."));
 
     add_async_task(_("Execute Forward Engineered Script"),
-                   boost::bind(&ExportProgressPage::do_export, this),
+                   std::bind(&ExportProgressPage::do_export, this),
                    _("Executing forward engineered SQL script in DBMS..."));
 
-    add_async_task(_("Read Back Changes Made by Server"),
-                   boost::bind(&ExportProgressPage::back_sync, this),
-                   _("Fetching back object definitions reformatted by server..."));
+    add_async_task(
+        _("Read Back Changes Made by Server"),
+        std::bind(&ExportProgressPage::back_sync, this),
+        _("Fetching back object definitions reformatted by server..."));
 
-    TaskRow *task= add_task(_("Save Synchronization State"),
-                            boost::bind(&ExportProgressPage::save_sync_profile, this),
-                            _("Storing state information to synchronization profile..."));
+    TaskRow *task = add_task(
+        _("Save Synchronization State"),
+        std::bind(&ExportProgressPage::save_sync_profile, this),
+        _("Storing state information to synchronization profile..."));
 
-    task->process_finish= boost::bind(&ExportProgressPage::export_finished, this, _1);
-    
+    task->process_finish = std::bind(&ExportProgressPage::export_finished, this,
+                                     std::placeholders::_1);
+
     end_adding_tasks(_("Forward Engineer Finished Successfully"));
 
     set_status_text("");
@@ -521,21 +522,23 @@ public:
 
   bool do_connect()
   {
-    execute_grt_task(boost::bind(boost::function<grt::ValueRef (bool)> (boost::lambda::constant(grt::ValueRef())),
-        boost::bind(&DbConnection::test_connection, ((WbPluginDbExport*)_form)->be()->db_conn())), false);
+    execute_grt_task([this]() {
+      ((WbPluginDbExport*) _form)->be()->db_conn()->test_connection();
+      return grt::ValueRef();
+    }, false);
     return true;
   }  
   
   bool do_export()
   {
-    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbExport*)_form)->be()), false);
+    execute_grt_task(std::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbExport*)_form)->be()), false);
 
     return true;
   }
 
   bool back_sync()
   {
-    execute_grt_task(boost::bind(&ExportProgressPage::back_sync_, this), false);
+    execute_grt_task(std::bind(&ExportProgressPage::back_sync_, this), false);
     return true;
   }
 

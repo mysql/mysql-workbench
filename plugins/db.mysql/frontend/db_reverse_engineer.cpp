@@ -262,7 +262,7 @@ WbPluginDbImport::WbPluginDbImport(grt::Module *module)
 
   _fetch_progress_page= new FetchSchemaNamesProgressPage(this);
   _fetch_progress_page->set_db_connection(db_plugin()->db_conn());
-  _fetch_progress_page->set_load_schemas_slot(boost::bind(&WbPluginDbImport::load_schemas, this));
+  _fetch_progress_page->set_load_schemas_slot(std::bind(&WbPluginDbImport::load_schemas, this));
 
   _schema_selection_page= new SchemaSelectionPage(this);
   _schema_selection_page->set_db_plugin(db_plugin());
@@ -411,11 +411,11 @@ WbPluginDbImport::WbPluginDbImport(grt::Module *module)
     set_short_title(_("Reverse Engineer"));
 
     add_async_task(_("Reverse Engineer Selected Objects"),
-                   boost::bind(&DBImportProgressPage::perform_import, this),
+                   std::bind(&DBImportProgressPage::perform_import, this),
                    _("Reverse engineering DDL from selected objects..."));
 
     _place_task= add_async_task(_("Place Objects on Diagram"), 
-             boost::bind(&DBImportProgressPage::perform_place, this),
+             std::bind(&DBImportProgressPage::perform_place, this),
              _("Placing objects..."));
 
     end_adding_tasks(_("Operation Completed Successfully"));
