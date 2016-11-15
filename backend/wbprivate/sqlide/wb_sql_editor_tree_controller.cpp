@@ -2671,10 +2671,10 @@ void SqlEditorTreeController::handle_grt_notification(const std::string &name, g
       db_DatabaseObjectRef obj(db_DatabaseObjectRef::cast_from(object));
       if (obj->customData().get("ownerSqlEditor") == _owner->wbsql()->get_grt_editor_object(_owner))
       {
-        editor->on_apply_changes_to_live_object= boost::bind(&SqlEditorTreeController::apply_changes_to_object, this, _1, _2);
-        editor->on_refresh_live_object= boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor, this, _1, true);
-        editor->on_create_live_table_stubs= boost::bind(&SqlEditorTreeController::create_live_table_stubs, this, _1);
-        editor->on_expand_live_table_stub= boost::bind(&SqlEditorTreeController::expand_live_table_stub, this, _1, _2, _3);
+        editor->on_apply_changes_to_live_object = std::bind(&SqlEditorTreeController::apply_changes_to_object, this, std::placeholders::_1, std::placeholders::_2);
+        editor->on_refresh_live_object = std::bind(&SqlEditorTreeController::refresh_live_object_in_editor, this, std::placeholders::_1, true);
+        editor->on_create_live_table_stubs = std::bind(&SqlEditorTreeController::create_live_table_stubs, this, std::placeholders::_1);
+        editor->on_expand_live_table_stub = std::bind(&SqlEditorTreeController::expand_live_table_stub, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
       }
     }
   }

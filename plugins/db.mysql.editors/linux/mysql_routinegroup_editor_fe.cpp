@@ -73,7 +73,7 @@ DbMySQLRoutineGroupEditor::DbMySQLRoutineGroupEditor(grt::Module *m, const grt::
   xml()->get_widget("rg_image", image);
   image->set(ImageCache::get_instance()->image_from_filename("db.RoutineGroup.editor.48x48.png", false));
   
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoutineGroupEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLRoutineGroupEditor::refresh_form_data, this));
   
   _editor_notebook->reparent(*this);
   _editor_notebook->show();
@@ -131,7 +131,7 @@ bool DbMySQLRoutineGroupEditor::switch_edited_object(const grt::BaseListRef &arg
   _be = new MySQLRoutineGroupEditorBE(db_mysql_RoutineGroupRef::cast_from(args[0]));
   embed_code_editor(_be->get_sql_editor()->get_container(), code_win);
   _be->load_routines_sql();
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoutineGroupEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLRoutineGroupEditor::refresh_form_data, this));
 
   refresh_form_data();
   

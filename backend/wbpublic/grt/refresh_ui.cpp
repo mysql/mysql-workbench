@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ void bec::RefreshUI::set_partial_refresh_ui_slot(const PartialRefreshSlot &slot)
 
 void bec::RefreshUI::do_partial_ui_refresh(const int what)
 {
-  if (!_partial_refresh_blocked && !_partial_refresh_ui.empty())
+  if (!_partial_refresh_blocked && !_partial_refresh_ui)
     _partial_refresh_ui(what);
 }
 

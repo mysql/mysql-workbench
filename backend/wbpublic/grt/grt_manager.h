@@ -46,7 +46,7 @@ namespace bec {
 
     struct Timer
     {
-      boost::function<bool ()> slot;
+      std::function<bool ()> slot;
       GTimeVal next_trigger;
       double interval;
 
@@ -109,9 +109,6 @@ namespace bec {
     void replace_status_text(const std::string &message);
     void pop_status_text();
     void set_status_slot(const std::function<void (std::string)> &slot);
-
-    void push_cancel_query_callback(const boost::function<bool ()> &slot);
-    void pop_cancel_query_callback();
   public:
     GRTDispatcher::Ref get_dispatcher() const { return _dispatcher; };
 

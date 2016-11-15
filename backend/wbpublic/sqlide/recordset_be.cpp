@@ -94,7 +94,7 @@ Recordset::Recordset()
 
   task->desc("Recordset task");
   task->send_task_res_msg(false);
-  apply_changes_cb= boost::bind(&Recordset::apply_changes_, this);
+  apply_changes_cb = [this]() { apply_changes_(); };
   register_default_actions();
   reset();
 }
@@ -110,7 +110,7 @@ Recordset::Recordset(GrtThreadedTask::Ref parent_task)
   g_atomic_int_inc(&next_id);
 
   task->send_task_res_msg(false);
-  apply_changes_cb= boost::bind(&Recordset::apply_changes_, this);
+  apply_changes_cb = [this]() { apply_changes_(); };
   register_default_actions();
   reset();
 }
@@ -923,7 +923,7 @@ void Recordset::rebuild_data_index(sqlite::connection *data_swap_db, bool do_cac
     {
       sqlide::QuoteVar qv;
       {
-        qv.escape_string= boost::bind(sqlide::QuoteVar::escape_ansi_sql_string, _1);
+        qv.escape_string = std::bind(sqlide::QuoteVar::escape_ansi_sql_string, std::placeholders::_1);
         qv.store_unknown_as_string= true;
         qv.allow_func_escaping= false;
       }
@@ -1367,25 +1367,24 @@ void Recordset::activate_menu_item(const std::string &action, const std::vector<
 
 void Recordset::copy_rows_to_clipboard(const std::vector<int> &indeces, std::string sep, bool quoted, bool with_header)
 {
-  ColumnId editable_col_count= get_column_count();
+  ColumnId editable_col_count = get_column_count();
   if (!editable_col_count)
     return;
 
   sqlide::QuoteVar qv;
   {
-    qv.escape_string= boost::bind(base::escape_sql_string, _1, false);
-    qv.store_unknown_as_string= true;
-    qv.allow_func_escaping= true;
+    qv.escape_string = std::bind(base::escape_sql_string, std::placeholders::_1,
+                                 false);
+    qv.store_unknown_as_string = true;
+    qv.allow_func_escaping = true;
   }
 
   Cell cell;
   std::string text;
 
-  if (with_header)
-  {
+  if (with_header) {
     text = "# ";
-    for (ColumnId col= 0; editable_col_count > col; ++col)
-    {
+    for (ColumnId col = 0; editable_col_count > col; ++col) {
       if (col > 0)
         text.append(sep);
       text.append(get_column_caption(col));
@@ -1393,23 +1392,21 @@ void Recordset::copy_rows_to_clipboard(const std::vector<int> &indeces, std::str
     text.append("\n");
   }
 
-  for (auto row : indeces)
-  {
+  for (auto row : indeces) {
     std::string line;
-    for (ColumnId col= 0; editable_col_count > col; ++col)
-    {
+    for (ColumnId col = 0; editable_col_count > col; ++col) {
       bec::NodeId node(row);
       if (!get_cell(cell, node, col, false))
         continue;
       if (col > 0)
-        line+= sep;
+        line += sep;
       if (quoted)
-        line+= boost::apply_visitor(qv, _column_types[col], *cell);
+        line += boost::apply_visitor(qv, _column_types[col], *cell);
       else
-        line+= boost::apply_visitor(_var_to_str, *cell);
+        line += boost::apply_visitor(_var_to_str, *cell);
     }
     if (!line.empty())
-      text+= line+"\n";
+      text += line + "\n";
   }
   mforms::Utilities::set_clipboard_text(text);
 }
@@ -1419,19 +1416,19 @@ void Recordset::copy_field_to_clipboard(int row, ColumnId column, bool quoted)
 {
   sqlide::QuoteVar qv;
   {
-    qv.escape_string= boost::bind(sqlide::QuoteVar::escape_ansi_sql_string, _1);
-    qv.store_unknown_as_string= true;
-    qv.allow_func_escaping= true;
+    qv.escape_string = std::bind(sqlide::QuoteVar::escape_ansi_sql_string,
+                                 std::placeholders::_1);
+    qv.store_unknown_as_string = true;
+    qv.allow_func_escaping = true;
   }
   std::string text;
   bec::NodeId node(row);
   Cell cell;
-  if (get_cell(cell, node, column, false))
-  {
+  if (get_cell(cell, node, column, false)) {
     if (quoted)
-      text= boost::apply_visitor(qv, _column_types[column], *cell);
+      text = boost::apply_visitor(qv, _column_types[column], *cell);
     else
-      text= boost::apply_visitor(_var_to_str, *cell);
+      text = boost::apply_visitor(_var_to_str, *cell);
   }
   mforms::Utilities::set_clipboard_text(text);
 }
@@ -1595,7 +1592,7 @@ mforms::ToolBar *Recordset::get_toolbar()
 
 void Recordset::apply_changes()
 {
-  if (!flush_ui_changes_cb.empty())
+  if (flush_ui_changes_cb)
     flush_ui_changes_cb();
 
   apply_changes_cb();
@@ -1616,19 +1613,19 @@ ActionList & Recordset::action_list()
 void Recordset::register_default_actions()
 {
   _action_list.register_action("record_sort_reset",
-    boost::bind(&Recordset::sort_by, this, 0, 0, false));
+    std::bind(&Recordset::sort_by, this, 0, 0, false));
 
   _action_list.register_action("scroll_rows_frame_forward",
-    boost::bind(&Recordset::scroll_rows_frame_forward, this));
+    std::bind(&Recordset::scroll_rows_frame_forward, this));
 
   _action_list.register_action("scroll_rows_frame_backward",
-    boost::bind(&Recordset::scroll_rows_frame_backward, this));
+    std::bind(&Recordset::scroll_rows_frame_backward, this));
 
   _action_list.register_action("record_fetch_all",
-    boost::bind(&Recordset::toggle_limit_rows, this));
+    std::bind(&Recordset::toggle_limit_rows, this));
 
   _action_list.register_action("record_refresh",
-    boost::bind(&Recordset::refresh, this));
+    std::bind(&Recordset::refresh, this));
 }
 
 

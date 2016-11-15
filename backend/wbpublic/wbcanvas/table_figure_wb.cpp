@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -298,40 +298,40 @@ WBTable::ItemList::iterator WBTable::sync_next_column(ItemList::iterator iter,
   if (flags & wbfig::ColumnListTruncated)
   {
     iter= sync_next(_column_box, _columns, iter, id, 0, text, 
-                    boost::bind(&WBTable::create_truncated_item, this, _1, _2));
+                    std::bind(&WBTable::create_truncated_item, this, std::placeholders::_1, std::placeholders::_2));
     return iter;
   }
 
   if ((flags & (wbfig::ColumnPK|wbfig::ColumnFK)) == (wbfig::ColumnPK|wbfig::ColumnFK))
     iter= sync_next(_column_box, _columns, iter, id,
                     mdc::ImageManager::get_instance()->get_image("db.Column.pkfk.11x11.png"), text,
-                    boost::bind(&WBTable::create_column_item, this, _1, _2),
-                    boost::bind(&WBTable::update_column_item, this, _1, flags));
+                    std::bind(&WBTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                    std::bind(&WBTable::update_column_item, this, std::placeholders::_1, flags));
   else if (flags & wbfig::ColumnPK)
     iter= sync_next(_column_box, _columns, iter, id, 
                     mdc::ImageManager::get_instance()->get_image("db.Column.pk.11x11.png"), text, 
-                    boost::bind(&WBTable::create_column_item, this, _1, _2),
-                    boost::bind(&WBTable::update_column_item, this, _1, flags));
+                    std::bind(&WBTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                    std::bind(&WBTable::update_column_item, this, std::placeholders::_1, flags));
   else if ((flags & (wbfig::ColumnFK|wbfig::ColumnNotNull)) == (wbfig::ColumnFK|wbfig::ColumnNotNull))
     iter= sync_next(_column_box, _columns, iter, id, 
                     mdc::ImageManager::get_instance()->get_image("db.Column.fknn.11x11.png"), text, 
-                    boost::bind(&WBTable::create_column_item, this, _1, _2),
-                    boost::bind(&WBTable::update_column_item, this, _1, flags));
+                    std::bind(&WBTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                    std::bind(&WBTable::update_column_item, this, std::placeholders::_1, flags));
   else if (flags & wbfig::ColumnFK)
     iter= sync_next(_column_box, _columns, iter, id, 
                     mdc::ImageManager::get_instance()->get_image("db.Column.fk.11x11.png"), text, 
-                    boost::bind(&WBTable::create_column_item, this, _1, _2),
-                    boost::bind(&WBTable::update_column_item, this, _1, flags));
+                    std::bind(&WBTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                    std::bind(&WBTable::update_column_item, this, std::placeholders::_1, flags));
   else if (flags & wbfig::ColumnNotNull)
     iter= sync_next(_column_box, _columns, iter, id, 
                     mdc::ImageManager::get_instance()->get_image("db.Column.nn.11x11.png"), text, 
-                    boost::bind(&WBTable::create_column_item, this, _1, _2),
-                    boost::bind(&WBTable::update_column_item, this, _1, flags));
+                    std::bind(&WBTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                    std::bind(&WBTable::update_column_item, this, std::placeholders::_1, flags));
   else
     iter= sync_next(_column_box, _columns, iter, id, 
                     mdc::ImageManager::get_instance()->get_image("db.Column.11x11.png"), text,
-                    boost::bind(&WBTable::create_column_item, this, _1, _2),
-                    boost::bind(&WBTable::update_column_item, this, _1, flags));
+                    std::bind(&WBTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                    std::bind(&WBTable::update_column_item, this, std::placeholders::_1, flags));
   
   return iter;
 }
@@ -354,7 +354,7 @@ WBTable::ItemList::iterator WBTable::sync_next_index(ItemList::iterator iter,
                                                   const std::string &text)
 {
   return sync_next(_index_box, _indexes, iter, id, NULL, text,
-                   boost::bind(&WBTable::create_index_item, this, _1, _2));
+                   std::bind(&WBTable::create_index_item, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
