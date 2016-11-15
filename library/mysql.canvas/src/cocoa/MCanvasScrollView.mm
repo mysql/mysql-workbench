@@ -163,7 +163,7 @@ static void canvas_view_viewport_changed(void *self)
 {
   _contentView= canvas;
 
-  canvas.canvas->signal_viewport_changed()->connect(boost::bind(canvas_view_viewport_changed, (__bridge void *)self));
+  canvas.canvas->signal_viewport_changed()->connect(std::bind(canvas_view_viewport_changed, (__bridge void *)self));
   
   [self addSubview:canvas];
   [self tile];

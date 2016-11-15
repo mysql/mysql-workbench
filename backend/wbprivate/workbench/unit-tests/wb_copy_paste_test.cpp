@@ -64,7 +64,7 @@ static void ensure_simple_contents_match(const grt::ObjectRef &copy, const grt::
 {
   grt::MetaClass *mc= copy.get_metaclass();
   
-  mc->foreach_member(boost::bind(&match_member, _1, copy, source));
+  mc->foreach_member(std::bind(&match_member, std::placeholders::_1, copy, source));
 }
 
 

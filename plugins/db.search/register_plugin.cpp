@@ -196,7 +196,7 @@ private:
     _search_panel.search(wrapper, search_keyword, filters,
                          SearchMode(search_type), limit_total, limit_table, invert,
                          _filter_panel.search_all_types() ? search_all_types : text_type, _filter_panel.search_all_types() ? "CHAR" : "",
-                         boost::bind(&DBSearchView::finished_search, this), boost::bind(&DBSearchView::failed_search, this));
+                         std::bind(&DBSearchView::finished_search, this), std::bind(&DBSearchView::failed_search, this));
   }
 
 public:
@@ -217,8 +217,8 @@ public:
     add(&_filter_panel, false, true);
     add(&_search_panel, true, true);
 
-    _filter_panel.search_field()->signal_action()->connect(boost::bind(&DBSearchView::search_activate, this, _1));
-    _filter_panel.search_button()->signal_clicked()->connect(boost::bind(&DBSearchView::start_search, this));
+    _filter_panel.search_field()->signal_action()->connect(std::bind(&DBSearchView::search_activate, this, std::placeholders::_1));
+    _filter_panel.search_button()->signal_clicked()->connect(std::bind(&DBSearchView::start_search, this));
 
     _search_panel.show(false);
 

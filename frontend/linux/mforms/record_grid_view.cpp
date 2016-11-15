@@ -47,8 +47,8 @@ RecordGridView::RecordGridView(Recordset::Ref rset)
 {
 
   viewer = RecordsetView::create(rset);
-  viewer->grid_view()->view_model()->columns_resized = boost::bind(&RecordGridView::columns_resized, this, _1);
-  viewer->grid_view()->view_model()->column_right_clicked = boost::bind(&RecordGridView::column_right_clicked, this, _1, _2, _3);
+  viewer->grid_view()->view_model()->columns_resized = std::bind(&RecordGridView::columns_resized, this, std::placeholders::_1);
+  viewer->grid_view()->view_model()->column_right_clicked = std::bind(&RecordGridView::column_right_clicked, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
   viewer->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
   set_data(new gtk::NativeContainerImpl(this, viewer), destroy_nativecontainer);
   viewer->show_all();

@@ -22,7 +22,7 @@
 #include "grt.h"
 
 #include "wbpublic_public_interface.h"
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 namespace bec {
   typedef ssize_t IconId;
@@ -46,7 +46,7 @@ namespace bec {
     std::map<IconId,std::string> _icon_files;
     std::vector<std::string> _search_path;
 
-    boost::unordered_map<std::string, std::string> _icon_paths;
+    std::unordered_map<std::string, std::string> _icon_paths;
 
     IconId _next_id;
     

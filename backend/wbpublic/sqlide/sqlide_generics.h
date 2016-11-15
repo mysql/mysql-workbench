@@ -27,7 +27,6 @@
 #include <limits>
 #include <ctime>
 #include <base/string_utilities.h>
-#include <boost/function.hpp>
 #include <sstream>
 
 

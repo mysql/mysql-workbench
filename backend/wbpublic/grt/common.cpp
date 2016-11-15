@@ -138,7 +138,7 @@ namespace bec {
   {
     bool failed = false;
     grt::MetaClass *mc = object->get_metaclass();
-    mc->foreach_member(boost::bind(validate_member, _1, GrtObjectRef::cast_from(object), failed));
+    mc->foreach_member(std::bind(validate_member, std::placeholders::_1, GrtObjectRef::cast_from(object), failed));
     return !failed;
   }
 

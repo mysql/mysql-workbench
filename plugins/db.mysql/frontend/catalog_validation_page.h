@@ -55,7 +55,7 @@ public:
 
       if (!caption.empty())
         add_async_task(caption,
-                       boost::bind(&CatalogValidationPage::validation_step, this, *module, caption),
+                       std::bind(&CatalogValidationPage::validation_step, this, *module, caption),
                        _("Performing catalog validations..."));
     }
 
@@ -73,7 +73,7 @@ public:
 #else
       _run_button->set_text(_("_Run Validations"));
 #endif
-      scoped_connect(_run_button->signal_clicked(),boost::bind(&CatalogValidationPage::run_validations, this));
+      scoped_connect(_run_button->signal_clicked(),std::bind(&CatalogValidationPage::run_validations, this));
 
       _run_box->add_end(_run_button, false, false);
       _run_button->set_size(160, -1);
@@ -102,7 +102,7 @@ public:
   {
     add_log_text("Starting "+caption);
 
-    execute_grt_task(boost::bind(&CatalogValidationPage::execute_validation_module, this, module), false);
+    execute_grt_task(std::bind(&CatalogValidationPage::execute_validation_module, this, module), false);
     
     return true;
   }

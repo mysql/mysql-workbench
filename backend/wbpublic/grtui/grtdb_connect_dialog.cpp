@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,8 +47,8 @@ DbConnectionDialog::DbConnectionDialog(const db_mgmt_ManagementRef &mgmt)
   
   set_title(_("Connect to Database"));
   
-  scoped_connect(_ok_button.signal_clicked(),boost::bind(&DbConnectionDialog::ok_clicked, this));
-  scoped_connect(_cancel_button.signal_clicked(),boost::bind(&DbConnectionDialog::cancel_clicked, this));
+  scoped_connect(_ok_button.signal_clicked(), std::bind(&DbConnectionDialog::ok_clicked, this));
+  scoped_connect(_cancel_button.signal_clicked(), std::bind(&DbConnectionDialog::cancel_clicked, this));
   
   set_size(700, 500);
   center();

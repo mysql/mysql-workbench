@@ -22,7 +22,6 @@
 #include <errno.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <boost/bind.hpp>
 
 #include "sqlide/wb_sql_editor_form.h"
 
@@ -761,7 +760,7 @@ bool WBContext::find_connection_password(const db_mgmt_ConnectionRef &conn, std:
 {
   /*
   return execute_in_main_thread<bool>("find_password",
-                        boost::bind(&WBContext::do_find_connection_password, this,
+                        std::bind(&WBContext::do_find_connection_password, this,
                                    conn->hostIdentifier().c_str(),
                                    conn->parameterValues().get_string("userName").c_str(),
                                    &password));*/

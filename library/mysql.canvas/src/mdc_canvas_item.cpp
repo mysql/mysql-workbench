@@ -80,9 +80,9 @@ CanvasItem::CanvasItem(Layer *layer)
   _fixed_min_size= Size(-1, -1);
   _fixed_size= Size(-1, -1);
 
-  _bounds_changed_signal.connect(boost::bind(&CanvasItem::update_handles, this));
+  _bounds_changed_signal.connect(std::bind(&CanvasItem::update_handles, this));
 
-  scoped_connect(layer->get_view()->signal_zoom_changed(),boost::bind(&CanvasItem::invalidate_cache, this));
+  scoped_connect(layer->get_view()->signal_zoom_changed(), std::bind(&CanvasItem::invalidate_cache, this));
 }
 
 
@@ -334,9 +334,9 @@ void CanvasItem::set_parent(CanvasItem *parent)
   {
     _reparent_signal();
 
-    _parent_bounds_con= parent->signal_bounds_changed()->connect(boost::bind(&CanvasItem::parent_bounds_changed, this, _1, parent));
+    _parent_bounds_con = parent->signal_bounds_changed()->connect(std::bind(&CanvasItem::parent_bounds_changed, this, std::placeholders::_1, parent));
 
-    _grand_parent_bounds_con= parent->signal_parent_bounds_changed()->connect(boost::bind(&CanvasItem::grand_parent_bounds_changed, this, _1, _2));
+    _grand_parent_bounds_con = parent->signal_parent_bounds_changed()->connect(std::bind(&CanvasItem::grand_parent_bounds_changed, this, std::placeholders::_1, std::placeholders::_2));
   }
 }
 

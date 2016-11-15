@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,7 +119,7 @@ static std::string get_icon_file_for_size(const std::string &aicon_file, IconSiz
 
 std::string IconManager::get_icon_path(const std::string &file)
 {
-  boost::unordered_map<std::string, std::string>::const_iterator it = _icon_paths.find(file);
+  std::unordered_map<std::string, std::string>::const_iterator it = _icon_paths.find(file);
   if (it != _icon_paths.end())
     return it->second;
 

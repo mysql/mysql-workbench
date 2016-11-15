@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,7 +66,7 @@ public:
     _tree.add_column(mforms::StringColumnType, _("Target Table"), 200, false);
     _tree.add_column(mforms::IconStringColumnType, _("Expected Action"), 100, false);
     _tree.end_columns();
-    _tree.signal_changed()->connect(boost::bind(&TableNameMappingEditor::list_selection_changed, this));
+    _tree.signal_changed()->connect(std::bind(&TableNameMappingEditor::list_selection_changed, this));
 
     mforms::Panel *p = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     _panel = p;
@@ -87,7 +87,7 @@ public:
     table->add(l, 0, 1, 2, 3, 0);
     table->add(&_remap_selector, 1, 2, 2, 3, mforms::HFillFlag|mforms::HExpandFlag);
 
-    scoped_connect(_remap_selector.signal_changed(), boost::bind(&TableNameMappingEditor::remap_selected, this));
+    scoped_connect(_remap_selector.signal_changed(), std::bind(&TableNameMappingEditor::remap_selected, this));
 
     _vbox.add(p, false, true);
     p->add(table);
@@ -361,7 +361,7 @@ public:
     _tree.add_column(mforms::StringColumnType, _("Target Column"), 200, false);
     _tree.add_column(mforms::IconStringColumnType, _("Expected Action"), 100, false);
     _tree.end_columns();
-    _tree.signal_changed()->connect(boost::bind(&ColumnNameMappingEditor::list_selection_changed, this));
+    _tree.signal_changed()->connect(std::bind(&ColumnNameMappingEditor::list_selection_changed, this));
 
     mforms::Panel *p = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     _panel = p;
@@ -382,7 +382,7 @@ public:
     table->add(l, 0, 1, 2, 3, 0);
     table->add(&_remap_selector, 1, 2, 2, 3, mforms::HFillFlag|mforms::HExpandFlag);
 
-    scoped_connect(_remap_selector.signal_changed(), boost::bind(&ColumnNameMappingEditor::remap_selected, this));
+    scoped_connect(_remap_selector.signal_changed(), std::bind(&ColumnNameMappingEditor::remap_selected, this));
 
     _vbox.add(p, false, true);
     p->add(table);

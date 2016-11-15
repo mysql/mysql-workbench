@@ -40,7 +40,7 @@ using namespace base;
 model_Layer::ImplData::ImplData(model_Layer *self)
   : model_Object::ImplData(self), _area_group(0)
 {
-  scoped_connect(self->signal_changed(),boost::bind(&ImplData::member_changed, this, _1, _2));
+  scoped_connect(self->signal_changed(),std::bind(&ImplData::member_changed, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -233,7 +233,7 @@ bool model_Layer::ImplData::realize()
 
   if (!is_main_thread())
   {
-    run_later(boost::bind(&model_Layer::ImplData::realize, this));
+    run_later(std::bind(&model_Layer::ImplData::realize, this));
     return true;
   }
 
@@ -272,8 +272,8 @@ bool model_Layer::ImplData::realize()
 
     layer->add_item(_area_group);
 
-    scoped_connect(figure->signal_bounds_changed(),boost::bind(&model_Layer::ImplData::layer_bounds_changed, this, _1));
-    scoped_connect(figure->signal_interactive_resize(),boost::bind(&model_Layer::ImplData::interactive_layer_resized, this, _1));
+    scoped_connect(figure->signal_bounds_changed(),std::bind(&model_Layer::ImplData::layer_bounds_changed, this, std::placeholders::_1));
+    scoped_connect(figure->signal_interactive_resize(),std::bind(&model_Layer::ImplData::interactive_layer_resized, this, std::placeholders::_1));
 
     _area_group->set_needs_render();
 

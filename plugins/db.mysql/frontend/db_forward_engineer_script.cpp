@@ -61,7 +61,7 @@ public:
     std::string initial_value= form->module()->document_string_data("create_sql_output_filename", "");
     _file_selector->initialize(initial_value, mforms::SaveFile, "SQL Files (*.sql)|*.sql", 
       false, std::bind(&WizardPage::validate, this));
-    scoped_connect(_file_selector->signal_changed(),boost::bind(&ExportInputPage::file_changed, this));
+    scoped_connect(_file_selector->signal_changed(),std::bind(&ExportInputPage::file_changed, this));
     
     _caption.set_text(_("Output SQL Script File:"));
 
@@ -81,13 +81,13 @@ public:
 
     _skip_foreign_keys_check.set_text(_("Skip Creation of FOREIGN KEYS"));
     _options_box.add(&_skip_foreign_keys_check, false, false);
-    scoped_connect(_skip_foreign_keys_check.signal_clicked(),boost::bind(&ExportInputPage::SkipFKToggled, this));
+    scoped_connect(_skip_foreign_keys_check.signal_clicked(),std::bind(&ExportInputPage::SkipFKToggled, this));
     _skip_FK_indexes_check.set_text(_("Skip creation of FK Indexes as well"));
     _options_box.add(&_skip_FK_indexes_check, false, false);
 
     _omit_schema_qualifier_check.set_text(_("Omit Schema Qualifier in Object Names"));
     _options_box.add(&_omit_schema_qualifier_check, false, false);
-    scoped_connect(_omit_schema_qualifier_check.signal_clicked(),boost::bind(&ExportInputPage::OmitSchemaToggled, this));
+    scoped_connect(_omit_schema_qualifier_check.signal_clicked(),std::bind(&ExportInputPage::OmitSchemaToggled, this));
     _generate_use_check.set_text(_("Generate USE statements"));
     _options_box.add(&_generate_use_check, false, false);
 

@@ -61,8 +61,8 @@ DocumentPropertiesForm::DocumentPropertiesForm()
   _table.add(&_bottom_box, 0, 2, 7, 8, mforms::HFillFlag);
   _bottom_box.set_spacing(8);
 
-  scoped_connect(_ok_button.signal_clicked(),boost::bind(&DocumentPropertiesForm::ok_clicked, this));
-  scoped_connect(_cancel_button.signal_clicked(),boost::bind(&DocumentPropertiesForm::cancel_clicked, this));
+  scoped_connect(_ok_button.signal_clicked(),std::bind(&DocumentPropertiesForm::ok_clicked, this));
+  scoped_connect(_cancel_button.signal_clicked(),std::bind(&DocumentPropertiesForm::cancel_clicked, this));
   
   _ok_button.enable_internal_padding(true);
   _cancel_button.enable_internal_padding(true);

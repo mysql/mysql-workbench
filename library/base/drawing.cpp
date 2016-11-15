@@ -25,13 +25,11 @@
 #include <vector>
 #include <map>
 
-#include "boost/assign.hpp"
-
 #include "base/drawing.h"
 #include "base/string_utilities.h"
 #include "base/threading.h"
 
-using namespace boost::assign;
+
 using namespace base;
 
 typedef struct
@@ -583,19 +581,18 @@ bool Color::is_high_contrast_scheme()
 
 void Color::load_custom_colors(const std::map<std::string, std::string> &colors)
 {
-  static const std::map<std::string, int> app_color_map = map_list_of
-    ("main-tab", AppColorMainTab)
-    ("main", AppColorMainBackground)
-    ("panel-header", AppColorPanelHeader)
-    ("panel-header-focused", AppColorPanelHeaderFocused)
-    ("panel-toolbar", AppColorPanelToolbar)
-    ("panel-content", AppColorPanelContentArea)
-    ("tab-unselected", AppColorTabUnselected)
-    ("bottom-tab-selected", AppColorBottomTabSelected)
-    ("top-tab-selected-focused", AppColorTopTabSelectedFocused)
-    ("top-selected-unfocused", AppColorTopTabSelectedUnfocused)
-    ("statusbar", AppColorStatusbar)
-    ;
+  static const std::map<std::string, int> app_color_map = {
+      {"main-tab", AppColorMainTab},
+    {"main", AppColorMainBackground},
+    {"panel-header", AppColorPanelHeader},
+    {"panel-header-focused", AppColorPanelHeaderFocused},
+    {"panel-toolbar", AppColorPanelToolbar},
+    {"panel-content", AppColorPanelContentArea},
+    {"tab-unselected", AppColorTabUnselected},
+    {"bottom-tab-selected", AppColorBottomTabSelected},
+    {"top-tab-selected-focused", AppColorTopTabSelectedFocused},
+    {"top-selected-unfocused", AppColorTopTabSelectedUnfocused},
+    {"statusbar", AppColorStatusbar}};
 
   // Syntax example: "CustomColor:panel-header:fore", "#ffffff".
   for (std::map<std::string, std::string>::const_iterator iterator = colors.begin(); iterator != colors.end(); iterator++)
@@ -624,19 +621,18 @@ void Color::load_custom_colors(const std::map<std::string, std::string> &colors)
 
 void Color::save_custom_colors(std::map<std::string, std::string> &colors)
 {
-  static const std::map<std::string, int> app_color_map = map_list_of
-    ("main-tab", AppColorMainTab)
-    ("main", AppColorMainBackground)
-    ("panel-header", AppColorPanelHeader)
-    ("panel-header-focused", AppColorPanelHeaderFocused)
-    ("panel-toolbar", AppColorPanelToolbar)
-    ("panel-content", AppColorPanelContentArea)
-    ("tab-unselected", AppColorTabUnselected)
-    ("bottom-tab-selected", AppColorBottomTabSelected)
-    ("top-tab-selected-focused", AppColorTopTabSelectedFocused)
-    ("top-selected-unfocused", AppColorTopTabSelectedUnfocused)
-    ("statusbar", AppColorStatusbar)
-    ;
+  static const std::map<std::string, int> app_color_map = {
+      {"main-tab", AppColorMainTab},
+    {"main", AppColorMainBackground},
+    {"panel-header", AppColorPanelHeader},
+    {"panel-header-focused", AppColorPanelHeaderFocused},
+    {"panel-toolbar", AppColorPanelToolbar},
+    {"panel-content", AppColorPanelContentArea},
+    {"tab-unselected", AppColorTabUnselected},
+    {"bottom-tab-selected", AppColorBottomTabSelected},
+    {"top-tab-selected-focused", AppColorTopTabSelectedFocused},
+    {"top-selected-unfocused", AppColorTopTabSelectedUnfocused},
+    {"statusbar", AppColorStatusbar}};
 
   colors.clear();
   colors["CustomColor:main-tab:back"] = custom_colors[AppColorMainTab].first;

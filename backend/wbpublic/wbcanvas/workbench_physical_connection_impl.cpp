@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +62,7 @@ workbench_physical_Connection::ImplData::ImplData(workbench_physical_Connection 
 {
   _highlighting= false;
 
-  scoped_connect(owner->signal_changed(),boost::bind(&ImplData::member_changed, this, _1, _2));
+  scoped_connect(owner->signal_changed(),std::bind(&ImplData::member_changed, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -79,7 +79,7 @@ void workbench_physical_Connection::ImplData::set_in_view(bool flag)
   {
     if (!_line && diagram.is_valid() && !_realize_conn.connected())
         _realize_conn= diagram->get_data()->signal_object_realized()->connect(
-        boost::bind(&ImplData::object_realized, this, _1));
+        std::bind(&ImplData::object_realized, this, std::placeholders::_1));
   }
   else
     _realize_conn.disconnect();
@@ -91,7 +91,7 @@ void workbench_physical_Connection::ImplData::set_in_view(bool flag)
   {
     // force another realize attempt once in the idle loop if the notation is connect to columns
     // because at this time it could be that the target columns are not yet created
-    run_later(boost::bind(&ImplData::try_realize, this));
+    run_later(std::bind(&ImplData::try_realize, this));
   }
 }
 
@@ -113,17 +113,17 @@ void workbench_physical_Connection::ImplData::set_foreign_key(const db_ForeignKe
 
   if (!_line && owner_valid && !_realize_conn.connected())
     _realize_conn= model_DiagramRef::cast_from(self()->owner())->get_data()->signal_object_realized()->connect(
-    boost::bind(&ImplData::object_realized, this, _1));
+    std::bind(&ImplData::object_realized, this, std::placeholders::_1));
 
   _fk_member_changed_conn.disconnect();
   _fk_changed_conn.disconnect();
   
   if (fk.is_valid())
   {
-      _fk_member_changed_conn= fk->signal_changed()->connect(boost::bind(&ImplData::fk_member_changed, this, _1, _2));
+      _fk_member_changed_conn= fk->signal_changed()->connect(std::bind(&ImplData::fk_member_changed, this, std::placeholders::_1, std::placeholders::_2));
     
     if (fk->owner().is_valid())
-        _fk_changed_conn= fk->owner()->signal_foreignKeyChanged()->connect(boost::bind(&ImplData::fk_changed, this, _1));
+        _fk_changed_conn= fk->owner()->signal_foreignKeyChanged()->connect(std::bind(&ImplData::fk_changed, this, std::placeholders::_1));
   }
 }
 
@@ -276,7 +276,7 @@ void workbench_physical_Connection::ImplData::fk_member_changed(const std::strin
   {
     _fk_changed_conn.disconnect();
     if (self()->foreignKey()->owner().is_valid())
-        _fk_changed_conn= self()->foreignKey()->owner()->signal_foreignKeyChanged()->connect(boost::bind(&ImplData::fk_changed, this ,_1));
+        _fk_changed_conn= self()->foreignKey()->owner()->signal_foreignKeyChanged()->connect(std::bind(&ImplData::fk_changed, this, std::placeholders::_1));
   }
 }
 
@@ -451,7 +451,7 @@ bool workbench_physical_Connection::ImplData::realize()
   
   if (!is_main_thread())
   {
-    run_later(boost::bind(&ImplData::realize, this));
+    run_later(std::bind(&ImplData::realize, this));
     return true;
   }
 
@@ -471,12 +471,12 @@ bool workbench_physical_Connection::ImplData::realize()
     if (workbench_physical_TableFigureRef::cast_from(self()->_startFigure)->table() == self()->_foreignKey->owner())
     {
         _table_changed_conn= db_TableRef::cast_from(self()->_foreignKey->owner())->signal_refreshDisplay()->connect(
-        boost::bind(&workbench_physical_Connection::ImplData::table_changed, this, _1));
+        std::bind(&workbench_physical_Connection::ImplData::table_changed, this, std::placeholders::_1));
     }
     else
     {
         _table_changed_conn= self()->_foreignKey->referencedTable()->signal_refreshDisplay()->connect(
-        boost::bind(&workbench_physical_Connection::ImplData::table_changed, this, _1));
+        std::bind(&workbench_physical_Connection::ImplData::table_changed, this, std::placeholders::_1));
     }
 
     _line->set_start_figure(start_item);
@@ -485,9 +485,9 @@ bool workbench_physical_Connection::ImplData::realize()
     _line->set_segment_offset(0, self()->_middleSegmentOffset);
     _line->get_layouter()->update();
 
-    scoped_connect(_line->signal_layout_changed(),boost::bind(&workbench_physical_Connection::ImplData::layout_changed, this));
+    scoped_connect(_line->signal_layout_changed(),std::bind(&workbench_physical_Connection::ImplData::layout_changed, this));
 
-    scoped_connect(_line->get_layouter()->signal_changed(),boost::bind(&workbench_physical_Connection::ImplData::layout_changed, this));
+    scoped_connect(_line->get_layouter()->signal_changed(),std::bind(&workbench_physical_Connection::ImplData::layout_changed, this));
     if (workbench_physical_ModelRef::cast_from(self()->owner()->owner())->get_data()->get_relationship_notation() == PRFromColumnNotation)
     {
       dynamic_cast<wbfig::ConnectionLineLayouter*>(_line->get_layouter())->

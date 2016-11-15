@@ -53,8 +53,8 @@ public:
       _mock_propagate_update_node_children(false)
 
   {
-    updater_slot = boost::bind(&EditorFormTester::mock_update_node_children, this, _1, _2, _3, _4, _5);
-    schema_content_arrived_slot = boost::bind(&EditorFormTester::mock_schema_content_arrived, this, _1, _2, _3, _4, _5, _6);
+    updater_slot = std::bind(&EditorFormTester::mock_update_node_children, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, _5);
+    schema_content_arrived_slot = std::bind(&EditorFormTester::mock_schema_content_arrived, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, _5, _6);
   }
   void set_target(const SqlEditorForm::Ref& sql_editor)
   {

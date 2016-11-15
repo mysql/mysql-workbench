@@ -94,20 +94,20 @@ TestDatabaseSettingsPage::TestDatabaseSettingsPage(WizardForm* host)
 
 
   add_task(_("Open Database Connection"),
-                  boost::bind(&TestDatabaseSettingsPage::open_connection, this),
+                  std::bind(&TestDatabaseSettingsPage::open_connection, this),
                   _("Connecting to database server..."));
 
   add_task(_("Get Server Version"),
-           boost::bind(&TestDatabaseSettingsPage::get_server_version, this),
+           std::bind(&TestDatabaseSettingsPage::get_server_version, this),
            _("Querying server version..."));
 
   add_task(_("Get Server OS"),
-           boost::bind(&TestDatabaseSettingsPage::get_server_platform, this),
+           std::bind(&TestDatabaseSettingsPage::get_server_platform, this),
            _("Querying server OS type..."));
 
   /*XXX Improve rights checks.
    add_task(_("Check Account Privileges"),
-   boost::bind(&TestDatabaseSettingsPage::get_server_platform, this),
+   std::bind(&TestDatabaseSettingsPage::get_server_platform, this),
    _("Checking if account being used has enough privileges..."));
    - check the privs the account has and warn if it can't do something:
    - creating and modifying user accts
@@ -283,12 +283,12 @@ HostAndRemoteTypePage::HostAndRemoteTypePage(WizardForm* host)
   _management_type_panel.add(&_management_type_box);
 
   _win_remote_admin.set_text(_("Native Windows remote management (only available on Windows)"));
-  scoped_connect(_win_remote_admin.signal_clicked(),boost::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
+  scoped_connect(_win_remote_admin.signal_clicked(),std::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
 #ifndef _WIN32
   _win_remote_admin.set_enabled(false);
 #endif
   _ssh_remote_admin.set_text(_("SSH login based management"));
-  scoped_connect(_ssh_remote_admin.signal_clicked(),boost::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
+  scoped_connect(_ssh_remote_admin.signal_clicked(),std::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
 
   _management_type_box.add(&_win_remote_admin, false, true);
   _management_type_box.add(&_ssh_remote_admin, false, true);
@@ -323,7 +323,7 @@ HostAndRemoteTypePage::HostAndRemoteTypePage(WizardForm* host)
   _os_label.set_text(_("Operating System:"));
   _params.add(&_os_label, 0, 1, 0, 1, mforms::HFillFlag);
   _params.add(&_os_selector, 1, 2, 0, 1, mforms::HFillFlag|mforms::HExpandFlag);
-  scoped_connect(_os_selector.signal_changed(),boost::bind(&HostAndRemoteTypePage::refresh_profile_list, this));
+  scoped_connect(_os_selector.signal_changed(),std::bind(&HostAndRemoteTypePage::refresh_profile_list, this));
 
   _type_label.set_text_align(mforms::MiddleRight);
   _type_label.set_text(_("MySQL Installation Type:"));
@@ -618,7 +618,7 @@ SSHConfigurationPage::SSHConfigurationPage(WizardForm* host)
   _ssh_settings_table.add(&_username, 2, 3, 1, 2, HFillFlag | HExpandFlag);
 
   _use_ssh_key.set_text(_("Authenticate Using SSH Key"));
-  scoped_connect(_use_ssh_key.signal_clicked(),boost::bind(&SSHConfigurationPage::use_ssh_key_changed, this));
+  scoped_connect(_use_ssh_key.signal_clicked(),std::bind(&SSHConfigurationPage::use_ssh_key_changed, this));
   _ssh_settings_table.add(&_use_ssh_key, 1, 5, 4, 5, HFillFlag);
   
   _ssh_path_label.set_text(_("SSH Private Key Path:"));
@@ -765,7 +765,7 @@ WindowsManagementPage::WindowsManagementPage(WizardForm* host, wb::WBContext* co
     "find the configuration file."));
   _layout_table.add(&_service_label, 0, 4, 3, 4, HFillFlag | VFillFlag);
 
-  scoped_connect(_service_selector.signal_changed(),boost::bind(&WindowsManagementPage::refresh_config_path, this));
+  scoped_connect(_service_selector.signal_changed(),std::bind(&WindowsManagementPage::refresh_config_path, this));
   _layout_table.add(&_service_selector, 1, 4, 4, 5, HFillFlag);
 
   _config_path_label.set_text(_("Path to Configuration File:"));
@@ -1006,15 +1006,15 @@ TestHostMachineSettingsPage::TestHostMachineSettingsPage(WizardForm* host)
   set_heading(_("The connection to the host machine is being tested. This might take a few "
     "moments depending on your network connection."));
   _connect_task= add_task(_("Connect to host machine"),
-    boost::bind(&TestHostMachineSettingsPage::connect_to_host, this),
+    std::bind(&TestHostMachineSettingsPage::connect_to_host, this),
     _("Trying to find host machine and connecting to it..."));
 
   _commands_task = add_async_task(_("Check location of start/stop commands"),
-    boost::bind(&TestHostMachineSettingsPage::check_admin_commands, this),
+    std::bind(&TestHostMachineSettingsPage::check_admin_commands, this),
     _("Checking if commands to start and stop server are in the expected location..."));
 
   add_async_task(_("Check MySQL configuration file"),
-    boost::bind(&TestHostMachineSettingsPage::find_config_file, this),
+    std::bind(&TestHostMachineSettingsPage::find_config_file, this),
     _("Looking for the configuration file of the database server..."));
 
   end_adding_tasks(_("Testing host machine settings is done."));
@@ -1051,7 +1051,7 @@ bool TestHostMachineSettingsPage::find_config_file()
 {
   // Native remote Windows management uses a direct URI for the files.
   bool use_local = wizard()->is_local() || values().get_int("windowsAdmin", 0) == 1;
-  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(),
+  execute_grt_task(std::bind(&NewServerInstanceWizard::test_setting_grt, wizard(),
                               use_local ? "find_config_file/local" : "find_config_file"), false);
   return true;
 }
@@ -1061,7 +1061,7 @@ bool TestHostMachineSettingsPage::find_config_file()
 bool TestHostMachineSettingsPage::find_error_files()
 {
   bool use_local = wizard()->is_local() || values().get_int("windowsAdmin", 0) == 1;
-  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(),
+  execute_grt_task(std::bind(&NewServerInstanceWizard::test_setting_grt, wizard(),
                               use_local ? "find_error_files/local" : "find_error_files"), false);
   return true;
 }
@@ -1070,7 +1070,7 @@ bool TestHostMachineSettingsPage::find_error_files()
 
 bool TestHostMachineSettingsPage::check_admin_commands()
 {
-  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(), 
+  execute_grt_task(std::bind(&NewServerInstanceWizard::test_setting_grt, wizard(), 
                               wizard()->is_local() ? "check_admin_commands/local" : "check_admin_commands"), false);
   return true;
 }
@@ -1138,7 +1138,7 @@ ReviewPage::ReviewPage(WizardForm* host)
   add(&_label, false, true);
   add(&_text, true, true);
   _customize_check.set_text("Change Parameters");
-  scoped_connect(_customize_check.signal_clicked(), boost::bind(&ReviewPage::customize_changed, this));
+  scoped_connect(_customize_check.signal_clicked(), std::bind(&ReviewPage::customize_changed, this));
   add(&_customize_check, false, true);
 }
 
@@ -1280,7 +1280,7 @@ PathsPage::PathsPage(WizardForm* host, wb::WBContext* context)
   _file_selector->initialize("", mforms::OpenFile, "", true, std::bind(&WizardPage::validate, this));
 
   _test_config_path_button.set_text(_("Check Path"));
-  scoped_connect(_test_config_path_button.signal_clicked(),boost::bind(&PathsPage::test_path, this));
+  scoped_connect(_test_config_path_button.signal_clicked(),std::bind(&PathsPage::test_path, this));
   _content.add(&_test_config_path_button, 1, 2, 2, 3, HFillFlag);
   _test_config_path_description.set_text(_("Click to test if your path is correct."));
   _content.add(&_test_config_path_description, 2, 3, 2, 3, HFillFlag | HExpandFlag);
@@ -1291,7 +1291,7 @@ PathsPage::PathsPage(WizardForm* host, wb::WBContext* context)
   _content.add(&_section_name, 1, 3, 3, 4, HFillFlag);
   
   _test_section_button.set_text(_("Check Name"));
-  scoped_connect(_test_section_button.signal_clicked(),boost::bind(&PathsPage::test_section, this));
+  scoped_connect(_test_section_button.signal_clicked(),std::bind(&PathsPage::test_section, this));
   _content.add(&_test_section_button, 1, 2, 4, 5, HFillFlag);
   _test_section_description.set_text(_("Click to test if your instance name is correct."));
   _content.add(&_test_section_description, 2, 3, 4, 5, HFillFlag | HExpandFlag);

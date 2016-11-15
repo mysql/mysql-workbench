@@ -72,7 +72,7 @@ DBObjectEditorBE::DBObjectEditorBE(const db_DatabaseObjectRef &object)
   if (object->customData().has_key("sqlMode"))
     _autocompletion_context->use_sql_mode(object->customData().get_string("sqlMode"));
 
-  _val_notify_conn = ValidationManager::signal_notify()->connect(boost::bind(&DBObjectEditorBE::notify_from_validation, this, _1, _2, _3, _4));
+  _val_notify_conn = ValidationManager::signal_notify()->connect(std::bind(&DBObjectEditorBE::notify_from_validation, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
   // Get notified about version number changes.
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");

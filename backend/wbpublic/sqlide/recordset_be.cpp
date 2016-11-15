@@ -625,7 +625,7 @@ bool Recordset::apply_changes_and_gather_messages(std::string &messages)
   int error_count = 0;
   GrtThreadedTask::Msg_cb cb(task->msg_cb());
 
-  task->msg_cb(boost::bind(process_task_msg, _1, _2, _3, boost::ref(error_count), boost::ref(messages)));
+  task->msg_cb(std::bind(process_task_msg, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, boost::ref(error_count), boost::ref(messages)));
   apply_changes();
   task->msg_cb(cb);
 
@@ -638,7 +638,7 @@ void Recordset::rollback_and_gather_messages(std::string &messages)
   int error_count = 0;
   GrtThreadedTask::Msg_cb cb(task->msg_cb());
   
-  task->msg_cb(boost::bind(process_task_msg, _1, _2, _3, boost::ref(error_count), boost::ref(messages)));
+  task->msg_cb(std::bind(process_task_msg, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, boost::ref(error_count), boost::ref(messages)));
   rollback();
   task->msg_cb(cb);
 }
@@ -1524,13 +1524,13 @@ void Recordset::rebuild_toolbar()
     if (!_data_storage || _data_storage->reloadable())
     {
       item = add_toolbar_action_item(_toolbar, im, "record_refresh.png", "record_refresh", "Refresh data re-executing the original query");
-      item->signal_activated()->connect(boost::bind(&Recordset::refresh, this));
+      item->signal_activated()->connect(std::bind(&Recordset::refresh, this));
     }
 
     add_toolbar_label_item(_toolbar, "Filter Rows:");
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::SearchFieldItem));
-    item->signal_activated()->connect(boost::bind(&Recordset::search_activated, this, _1));
+    item->signal_activated()->connect(std::bind(&Recordset::search_activated, this, std::placeholders::_1));
     _toolbar->add_item(item);
 
     if (!is_readonly() || _inserts_editor)
@@ -1561,9 +1561,9 @@ void Recordset::rebuild_toolbar()
       _toolbar->add_separator_item();
       add_toolbar_label_item(_toolbar, "Fetch rows:");
       item = add_toolbar_action_item(_toolbar, im, "record_fetch_prev.png", "scroll_rows_frame_backward", "Fetch previous frame of records from the data source");
-      item->signal_activated()->connect(boost::bind(&Recordset::scroll_rows_frame_backward, this));
+      item->signal_activated()->connect(std::bind(&Recordset::scroll_rows_frame_backward, this));
       item = add_toolbar_action_item(_toolbar, im, "record_fetch_next.png", "scroll_rows_frame_forward", "Fetch next frame of records from the data source");
-      item->signal_activated()->connect(boost::bind(&Recordset::scroll_rows_frame_forward, this));
+      item->signal_activated()->connect(std::bind(&Recordset::scroll_rows_frame_forward, this));
     }
 
     if (_inserts_editor/* && !is_readonly()*/)
@@ -1571,9 +1571,9 @@ void Recordset::rebuild_toolbar()
       _toolbar->add_separator_item();
       add_toolbar_label_item(_toolbar, "Apply changes:");
       item = add_toolbar_action_item(_toolbar, im, "record_save", "Apply changes to data");
-      item->signal_activated()->connect(boost::bind(&Recordset::apply_changes, this));
+      item->signal_activated()->connect(std::bind(&Recordset::apply_changes, this));
       item = add_toolbar_action_item(_toolbar, im, "record_discard", "Discard changes to data");
-      item->signal_activated()->connect(boost::bind(&Recordset::rollback, this));
+      item->signal_activated()->connect(std::bind(&Recordset::rollback, this));
     }
   }
 }
@@ -1702,7 +1702,7 @@ void Recordset::open_field_data_editor(RowId row, ColumnId column, const std::st
       return;
     data_editor->set_title(base::strfmt("Edit Data for %s (%s)", _column_names[column].c_str(), logical_type.c_str()));
     data_editor->set_release_on_close(true);
-    data_editor->signal_saved.connect(boost::bind(&Recordset::set_field_value,this, row, column, data_editor));
+    data_editor->signal_saved.connect(std::bind(&Recordset::set_field_value,this, row, column, data_editor));
     data_editor->show(true);
   }
   CATCH_AND_DISPATCH_EXCEPTION(false, "Open field editor")

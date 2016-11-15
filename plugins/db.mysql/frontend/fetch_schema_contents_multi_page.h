@@ -34,7 +34,7 @@ public:
 
   bool perform_fetch(bool source)
   {
-    execute_grt_task(boost::bind(&FetchSchemaContentsSourceTargetProgressPage::do_fetch, this, source),
+    execute_grt_task(std::bind(&FetchSchemaContentsSourceTargetProgressPage::do_fetch, this, source),
                      false);
     return true;
   }
@@ -73,12 +73,12 @@ public:
 
       if (_source_page->get_left_source() == DataSourceSelector::ServerSource)
         add_async_task(_("Retrieve Source Objects from Selected Schemata"),
-                       boost::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, true),
+                       std::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, true),
                        _("Retrieving object lists from selected schemata..."));
 
       if (_source_page->get_right_source() == DataSourceSelector::ServerSource)
         add_async_task(_("Retrieve Target Objects from Selected Schemata"),
-                       boost::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, false),
+                       std::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, false),
                        _("Retrieving object lists from selected schemata..."));
 
       end_adding_tasks(_("Retrieval Completed Successfully"));

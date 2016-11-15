@@ -28,7 +28,6 @@
 
 #include "diff/diffchange.h"
 #include "diff_dbobjectmatch.h"
-#include <boost/lambda/bind.hpp>
 #include <boost/assign/list_of.hpp>
 #include <algorithm>
 #include <functional>
