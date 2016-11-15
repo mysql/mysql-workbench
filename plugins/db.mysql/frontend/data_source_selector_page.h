@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ struct DataSourceSelector: public base::trackable
     browse_box.add(&file_selector, true, true);
 
     file_selector.initialize("", SaveFile ? mforms::SaveFile : mforms::OpenFile, "SQL Files (*.sql)|*.sql");
-    scoped_connect(file_radio->signal_clicked(),boost::bind(&DataSourceSelector::file_source_selected, this));
+    scoped_connect(file_radio->signal_clicked(), std::bind(&DataSourceSelector::file_source_selected, this));
   }
 
   void file_source_selected()
@@ -78,7 +78,7 @@ struct DataSourceSelector: public base::trackable
     file_selector.set_enabled(file_radio->get_active());
   }
 
-  void set_change_slot(const boost::function<void()> &change_slot)
+  void set_change_slot(const std::function<void()> &change_slot)
   {
     scoped_connect(model_radio->signal_clicked(),change_slot);
     scoped_connect(server_radio->signal_clicked(),change_slot);

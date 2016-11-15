@@ -53,11 +53,11 @@ public:
 
     _left.add_column(mforms::IconStringColumnType, "Source Schema", 300, false);
     _left.end_columns();
-    _left.signal_changed()->connect(boost::bind(&MultiSchemaSelectionPage::validate, this));
+    _left.signal_changed()->connect(std::bind(&MultiSchemaSelectionPage::validate, this));
 
     _right.add_column(mforms::IconStringColumnType, "Target Schema", 300, false);
     _right.end_columns();
-    _right.signal_changed()->connect(boost::bind(&MultiSchemaSelectionPage::validate, this));
+    _right.signal_changed()->connect(std::bind(&MultiSchemaSelectionPage::validate, this));
   }
 
   virtual void enter(bool advancing)
@@ -128,9 +128,9 @@ public:
     _text.set_language(mforms::LanguageNone);
   }
 
-  void set_generate_text_slot(const boost::function<std::string ()> &slot)
+  void set_generate_text_slot(const std::function<std::string ()> &slot)
   {
-    _generate= slot;
+    _generate = slot;
   }
 
   virtual void enter(bool advancing)
@@ -143,7 +143,7 @@ public:
   virtual bool next_closes_wizard() { return true; }
 
 protected:  
-  boost::function<std::string ()> _generate;
+  std::function<std::string ()> _generate;
 };
 
 
@@ -163,12 +163,12 @@ public:
 
     ConnectionPage *connect;
     // Pick source connection (optional)
-    add_page(mforms::manage(connect= new ConnectionPage(this, "connect_source", "db.mysql.compareSchema:left_source_connection")));
+    add_page(mforms::manage(connect = new ConnectionPage(this, "connect_source", "db.mysql.compareSchema:left_source_connection")));
     connect->set_db_connection(_left_db.db_conn());
     connect->set_title(std::string("Source Database: ").append(connect->get_title()));
     connect->set_short_title("Source Database");
     // Pick target connection (optional)
-    add_page(mforms::manage(connect= new ConnectionPage(this, "connect_target", "db.mysql.compareSchema:right_source_connection")));
+    add_page(mforms::manage(connect = new ConnectionPage(this, "connect_target", "db.mysql.compareSchema:right_source_connection")));
     connect->set_db_connection(_right_db.db_conn());
     connect->set_title(std::string("Target Database: ").append(connect->get_title()));
     connect->set_short_title("Target Database");
@@ -176,8 +176,8 @@ public:
     // Fetch names from source and target if they're DBs, reveng script if they're files
     FetchSchemaNamesSourceTargetProgressPage *fetch_names_page;
     add_page(mforms::manage(fetch_names_page= new FetchSchemaNamesSourceTargetProgressPage(this, _source_page, "fetch_names")));
-    fetch_names_page->set_load_schemata_slot(_left_db.db_conn(), boost::bind(&WbPluginDiffReport::load_schemata, this, &_left_db),
-                                             _right_db.db_conn(), boost::bind(&WbPluginDiffReport::load_schemata, this, &_right_db));
+    fetch_names_page->set_load_schemata_slot(_left_db.db_conn(), std::bind(&WbPluginDiffReport::load_schemata, this, &_left_db),
+                                             _right_db.db_conn(), std::bind(&WbPluginDiffReport::load_schemata, this, &_right_db));
     fetch_names_page->set_model_catalog(_be.get_model_catalog());
 
     // Pick what to synchronize
@@ -191,7 +191,7 @@ public:
 
     ViewResultPage *page;
     add_page(mforms::manage(page= new ViewResultPage(this)));
-    page->set_generate_text_slot(boost::bind(&WbPluginDiffReport::generate_report, this));
+    page->set_generate_text_slot(std::bind(&WbPluginDiffReport::generate_report, this));
 
     set_title(_("Compare and Report Differences in Catalogs"));
   }
@@ -200,7 +200,6 @@ public:
   {
     std::vector<std::string> names;
     db->load_schemata(names);
-//    _be.set_db_options(db->load_db_options());
     return names;
   }
 
