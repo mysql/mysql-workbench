@@ -4225,7 +4225,6 @@
 		2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scope_exit_trigger.h; path = library/base/base/scope_exit_trigger.h; sourceTree = "<group>"; };
 		271A795110A1D8F600058CB4 /* wbtests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = wbtests; sourceTree = BUILT_PRODUCTS_DIR; };
 		2720518D111847920013E88B /* message_wb_lock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = message_wb_lock.png; sourceTree = "<group>"; };
-		27227B561C454BFF0098910A /* ECMA.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ECMA.g; path = library/parsers/grammars/ECMA.g; sourceTree = "<group>"; };
 		27227B591C454C180098910A /* mysql_object_names_cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_object_names_cache.cpp; path = "library/parsers/code-completion/mysql_object_names_cache.cpp"; sourceTree = "<group>"; };
 		27227B5B1C454C180098910A /* mysql_object_names_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mysql_object_names_cache.h; path = "library/parsers/code-completion/mysql_object_names_cache.h"; sourceTree = "<group>"; };
 		27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_copy_data_source.cpp; path = plugins/migration/copytable/python_copy_data_source.cpp; sourceTree = "<group>"; };
@@ -4314,8 +4313,6 @@
 		2777A7E31A30A36400A5441E /* cdbc_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cdbc_prefix.h; path = prefix/cdbc_prefix.h; sourceTree = SOURCE_ROOT; };
 		277A7B951C15E2E6003C009D /* mysql_parser_module_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_parser_module_tests.cpp; path = "modules/db.mysql.parser/unit-tests/mysql_parser_module_tests.cpp"; sourceTree = "<group>"; };
 		2782342F1CD3491F003A2649 /* libcairo.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcairo.2.dylib; path = "../mysql-mac-res/lib/libcairo.2.dylib"; sourceTree = "<group>"; };
-		278234301CD3491F003A2649 /* libcdbc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcdbc.dylib; path = DerivedData/Workbench/Build/Products/Debug/libcdbc.dylib; sourceTree = "<group>"; };
-		278234311CD3491F003A2649 /* libctemplate.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libctemplate.2.dylib; path = "../mysql-mac-res/lib/libctemplate.2.dylib"; sourceTree = "<group>"; };
 		278234321CD3491F003A2649 /* libgdal.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.1.dylib; path = "../mysql-mac-res/lib/libgdal.1.dylib"; sourceTree = "<group>"; };
 		278234331CD3491F003A2649 /* libglib-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libglib-2.0.0.dylib"; path = "../mysql-mac-res/lib/libglib-2.0.0.dylib"; sourceTree = "<group>"; };
 		278234341CD3491F003A2649 /* libgmodule-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgmodule-2.0.0.dylib"; path = "../mysql-mac-res/lib/libgmodule-2.0.0.dylib"; sourceTree = "<group>"; };
@@ -7753,7 +7750,6 @@
 				2782F1031D92C4DA0090D2C1 /* ANTLRv4LexBasic.g4 */,
 				2782F1041D92C4DA0090D2C1 /* ANTLRv4Lexer.g4 */,
 				2782F1051D92C4DA0090D2C1 /* ANTLRv4Parser.g4 */,
-				27227B561C454BFF0098910A /* ECMA.g */,
 				279DDF431D12A52700857C36 /* MySQLLexer.g4 */,
 				279DDF441D12A52700857C36 /* MySQLParser.g4 */,
 			);
@@ -9521,8 +9517,6 @@
 			children = (
 				275B07F61D4618CA00DDC958 /* libantlr4-runtime.dylib */,
 				27BF79051CD34BE800FBB3F3 /* libcairo.2.dylib */,
-				278234301CD3491F003A2649 /* libcdbc.dylib */,
-				278234311CD3491F003A2649 /* libctemplate.2.dylib */,
 				278234321CD3491F003A2649 /* libgdal.1.dylib */,
 				278234331CD3491F003A2649 /* libglib-2.0.0.dylib */,
 				27BF78FC1CD34B7B00FBB3F3 /* libgmodule-2.0.0.dylib */,
@@ -16021,6 +16015,7 @@
 					"-Wno-unused-function",
 					"-Wno-unused-variable",
 					"-Wno-shorten-64-to-32",
+					"-Wno-unused-local-typedef",
 				);
 			};
 			name = Debug;
@@ -16052,6 +16047,7 @@
 					"-Wno-unused-function",
 					"-Wno-unused-variable",
 					"-Wno-shorten-64-to-32",
+					"-Wno-unused-local-typedef",
 				);
 			};
 			name = Release;
@@ -16729,7 +16725,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/ext/scintilla/**",
 					"$(SRCROOT)/library/forms",
-					"$(SRCROOT)/library/cppconn",
+					"$(SRCROOT)/library",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/modules",
@@ -16761,7 +16757,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/ext/scintilla/**",
 					"$(SRCROOT)/library/forms",
-					"$(SRCROOT)/library/cppconn",
+					"$(SRCROOT)/library",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/modules",
@@ -17207,6 +17203,7 @@
 					"$(SRCROOT)/ext/antlr-runtime/include",
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/generated",
+					"$(SRCROOT)/library",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/dbc/src",
 					"$(SRCROOT)/library/forms",
@@ -17247,6 +17244,7 @@
 					"$(SRCROOT)/ext/antlr-runtime/include",
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/generated",
+					"$(SRCROOT)/library",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/dbc/src",
 					"$(SRCROOT)/library/forms",
@@ -17972,13 +17970,14 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
+					"$(SRCROOT)/library",
 					"$(SRCROOT)/library/canvas/src",
-					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(SRCROOT)/library/grt/src",
-					"$(inherited)",
+					"$(SRCROOT)/modules",
+					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.grt;
@@ -17996,13 +17995,14 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
+					"$(SRCROOT)/library",
 					"$(SRCROOT)/library/canvas/src",
-					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(SRCROOT)/library/grt/src",
-					"$(inherited)",
+					"$(SRCROOT)/modules",
+					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.grt;

@@ -1198,7 +1198,7 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
       {
         db_query_ResultsetRef rset(qeditor->resultPanels()[i]->resultset());
 
-        if (rset.is_valid() && dynamic_cast<WBRecordsetResultset*>(rset->get_data())->recordset == rs)
+        if (rset.is_valid() && dynamic_cast<WBRecordsetResultset*>(rset->get_data())->recordset.get() == rs.get())
         {
           grt::GRTNotificationCenter::get()->send_grt("GRNSQLResultsetMenuWillShow", rset, info);
           break;

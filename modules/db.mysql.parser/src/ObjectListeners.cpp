@@ -103,7 +103,7 @@ static std::pair<std::string, std::string> detailsForCollation(const std::string
 
 static void parseReferences(MySQLParser::ReferencesContext *ctx, const std::string &schemaName, DbObjectReferences &references)
 {
-  IdentifierListener listener(ctx->tableRef().get());
+  IdentifierListener listener(ctx->tableRef());
   Identifier identifier;
   if (listener.parts.size() == 1)
   {
@@ -129,15 +129,15 @@ static void parseReferences(MySQLParser::ReferencesContext *ctx, const std::stri
   {
     if (ctx->option->getType() == MySQLLexer::UPDATE_SYMBOL)
     {
-      references.foreignKey->updateRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(0).get()));
+      references.foreignKey->updateRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(0)));
       if (ctx->deleteOption().size() > 1) // 2 rules actually: UPDATE DELETE
-        references.foreignKey->deleteRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(1).get()));
+        references.foreignKey->deleteRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(1)));
     }
     else
     {
-      references.foreignKey->deleteRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(0).get()));
+      references.foreignKey->deleteRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(0)));
       if (ctx->deleteOption().size() > 1) // 2 rules actually: DELETE UPDATE
-        references.foreignKey->updateRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(1).get()));
+        references.foreignKey->updateRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(1)));
     }
   }
 }
@@ -171,7 +171,7 @@ static void parseKeyList(MySQLParser::KeyListContext *ctx, db_mysql_TableRef tab
 
     if (part->fieldLength() != nullptr)
     {
-      auto child = std::dynamic_pointer_cast<tree::ParseTree>(part->fieldLength()->children[1]);
+      auto child = dynamic_cast<tree::ParseTree *>(part->fieldLength()->children[1]);
       indexColumn->columnLength(std::stoul(child->getText()));
     }
 
@@ -258,11 +258,11 @@ public:
   virtual void exitColumnDefinition(MySQLParser::ColumnDefinitionContext *ctx) override
   {
     // The column name can be qualified, but only with the current schema + table.
-    IdentifierListener listener(ctx->fieldSpec()->fieldIdentifier().get());
+    IdentifierListener listener(ctx->fieldSpec()->fieldIdentifier());
     column->name(listener.parts.back());
     column->oldName(listener.parts.back());
 
-    DataTypeListener typeListener(ctx->fieldSpec()->dataType().get(), _catalog->version(), _catalog->simpleDatatypes(),
+    DataTypeListener typeListener(ctx->fieldSpec()->dataType(), _catalog->version(), _catalog->simpleDatatypes(),
                                   column->flags(), _table->defaultCharacterSetName());
     column->simpleType(typeListener.dataType);
     column->scale(typeListener.scale);
@@ -292,7 +292,7 @@ public:
     {
       // Only there for generated columns.
       column->generated(1);
-      column->expression(MySQLBaseLexer::sourceTextForContext(ctx->expr().get()));
+      column->expression(MySQLBaseLexer::sourceTextForContext(ctx->expr()));
 
       if (ctx->VIRTUAL_SYMBOL() != nullptr)
         column->generatedStorage("VIRTUAL");
@@ -340,7 +340,7 @@ public:
           // precision, which we may have to handle later.
           std::string newDefault = "CURRENT_TIMESTAMP";
           if (ctx->timeFunctionParameters() != nullptr) // Additional precision.
-            newDefault += MySQLBaseLexer::sourceTextForContext(ctx->timeFunctionParameters().get());
+            newDefault += MySQLBaseLexer::sourceTextForContext(ctx->timeFunctionParameters());
           if (!existingDefault.empty())
             newDefault += " " + existingDefault;
           column->defaultValue(newDefault);
@@ -348,7 +348,7 @@ public:
         else
         {
           // signed literal
-          std::string newDefault = MySQLBaseLexer::sourceTextForContext(ctx->signedLiteral().get(), true);
+          std::string newDefault = MySQLBaseLexer::sourceTextForContext(ctx->signedLiteral(), true);
           column->defaultValue(newDefault);
 
           if (base::same_string(newDefault, "NULL", false))
@@ -369,7 +369,7 @@ public:
           newDefault = "ON UPDATE CURRENT_TIMESTAMP";
 
         if (ctx->timeFunctionParameters() != nullptr) // Additional precision.
-          newDefault += MySQLBaseLexer::sourceTextForContext(ctx->timeFunctionParameters().get());
+          newDefault += MySQLBaseLexer::sourceTextForContext(ctx->timeFunctionParameters());
 
         column->defaultValue(newDefault);
         _explicitDefaultValue = true;
@@ -429,7 +429,7 @@ public:
       }
 
       case MySQLLexer::COMMENT_SYMBOL:
-        column->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral().get()));
+        column->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
         break;
 
       case MySQLLexer::COLLATE_SYMBOL:
@@ -496,13 +496,13 @@ public:
 
     if (ctx->constraintName() != nullptr)
     {
-      IdentifierListener listener(ctx->constraintName().get());
+      IdentifierListener listener(ctx->constraintName());
       constraintName = listener.parts.back();
     }
 
     if (ctx->fieldIdentifier() != nullptr) // Another constraint name variant.
     {
-      IdentifierListener listener(ctx->fieldIdentifier().get());
+      IdentifierListener listener(ctx->fieldIdentifier());
       constraintName = listener.parts.back();
     }
 
@@ -542,13 +542,13 @@ public:
           references.targetIdentifier.second = _table->name();
           references.table = _table;
 
-          columnNamesFromKeyList(ctx->keyList().get(), references);
+          columnNamesFromKeyList(ctx->keyList(), references);
           _refCache.push_back(references);
         }
 
         DbObjectReferences references(fk, DbObjectReferences::Referenced);
         references.table = _table;
-        parseReferences(ctx->references().get(), _schemaName, references);
+        parseReferences(ctx->references(), _schemaName, references);
         _table->foreignKeys().insert(fk);
         _refCache.push_back(references);
 
@@ -576,7 +576,7 @@ public:
 
     if (!isForeignKey)
     {
-      parseKeyList(ctx->keyList().get(), _table, _currentIndex, _refCache);
+      parseKeyList(ctx->keyList(), _table, _currentIndex, _refCache);
       _currentIndex->name(constraintName);
       _currentIndex->oldName(constraintName);
       _table->indices().insert(_currentIndex);
@@ -843,7 +843,7 @@ void SchemaListener::enterCreateDatabase(MySQLParser::CreateDatabaseContext *ctx
 void SchemaListener::exitCreateDatabase(MySQLParser::CreateDatabaseContext *ctx)
 {
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object);
-  schema->name(MySQLBaseLexer::sourceTextForContext(ctx->schemaName().get()));
+  schema->name(MySQLBaseLexer::sourceTextForContext(ctx->schemaName()));
   schema->oldName(schema->name());
   ignoreIfExists = ctx->ifNotExists() != nullptr;
 }
@@ -857,7 +857,7 @@ void SchemaListener::exitCharsetNameOrDefault(MySQLParser::CharsetNameOrDefaultC
   if (ctx->DEFAULT_SYMBOL() != nullptr)
     charsetName = "default";
   else
-    charsetName = base::tolower(MySQLBaseLexer::sourceTextForContext(ctx->charsetName().get()));
+    charsetName = base::tolower(MySQLBaseLexer::sourceTextForContext(ctx->charsetName()));
 
   auto info = detailsForCharset(charsetName, schema->defaultCollationName(), _catalog->defaultCharacterSetName());
   schema->defaultCharacterSetName(info.first);
@@ -871,7 +871,7 @@ void SchemaListener::exitCollationNameOrDefault(MySQLParser::CollationNameOrDefa
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object);
   std::string collationName;
   if (ctx->DEFAULT_SYMBOL() == nullptr)
-    collationName = base::tolower(MySQLBaseLexer::sourceTextForContext(ctx->collationName().get()));
+    collationName = base::tolower(MySQLBaseLexer::sourceTextForContext(ctx->collationName()));
   else
     collationName = "default";
 
@@ -924,12 +924,12 @@ void TableListener::exitCreateTable(MySQLParser::CreateTableContext *ctx)
   ignoreIfExists = ctx->ifNotExists() != nullptr;
 
   std::string schemaName = _schema.is_valid() ? _schema->name() : "";
-  for (auto &item : ctx->createFieldList()->createItem())
+  for (auto item : ctx->createFieldList()->createItem())
   {
     if (item->columnDefinition() != nullptr)
-      ColumnDefinitionListener(item.get(), _catalog, schemaName, table, _refCache);
+      ColumnDefinitionListener(item, _catalog, schemaName, table, _refCache);
     else
-      KeyDefinitionListener(item.get(), _catalog, schemaName, table, _refCache, _autoGenerateFkNames);
+      KeyDefinitionListener(item, _catalog, schemaName, table, _refCache, _autoGenerateFkNames);
   }
   table->owner(_schema);
 }
@@ -991,7 +991,7 @@ void TableListener::exitPartitionDefKey(MySQLParser::PartitionDefKeyContext *ctx
 
   auto list = ctx->identifierList();
   if (list != nullptr)
-    table->partitionExpression(getIdentifierList(list.get()));
+    table->partitionExpression(getIdentifierList(list));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1004,7 +1004,7 @@ void TableListener::exitPartitionDefHash(MySQLParser::PartitionDefHashContext *c
   else
     table->partitionType("HASH");
 
-  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr().get()));
+  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1014,16 +1014,16 @@ void TableListener::exitPartitionDefRangeList(MySQLParser::PartitionDefRangeList
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   table->partitionType(ctx->RANGE_SYMBOL() != nullptr ? "RANGE" : "LISTE");
 
-  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr().get()));
+  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr()));
 
   if (ctx->COLUMNS_SYMBOL() != nullptr)
   {
     auto list = ctx->identifierList();
     if (list != nullptr)
-      table->partitionExpression(getIdentifierList(list.get()));
+      table->partitionExpression(getIdentifierList(list));
   }
   else
-    table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr().get()));
+    table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1038,7 +1038,7 @@ void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx)
   if (ctx->HASH_SYMBOL() != nullptr)
   {
     table->partitionType(linearPrefix + "HASH");
-    table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr().get()));
+    table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr()));
   }
   else
   {
@@ -1048,7 +1048,7 @@ void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx)
       table->partitionKeyAlgorithm(std::stoul(ctx->partitionKeyAlgorithm()->real_ulong_number()->getText()));
     
     auto list = ctx->identifierListWithParentheses()->identifierList();
-    table->partitionExpression(getIdentifierList(list.get()));
+    table->partitionExpression(getIdentifierList(list));
   }
 
   if (ctx->SUBPARTITION_SYMBOL() != nullptr)
@@ -1126,21 +1126,21 @@ void TableListener::exitPartitionDefinition(MySQLParser::PartitionDefinitionCont
         if (value->MAXVALUE_SYMBOL() != nullptr)
           expression += "MAXVALUE";
         else
-          expression += MySQLBaseLexer::sourceTextForContext(value->expr().get());
+          expression += MySQLBaseLexer::sourceTextForContext(value->expr());
       }
       definition->value(expression);
     }
   }
 
   for (auto &option : ctx->partitionOption())
-    evaluatePartitionOption(definition, option.get());
+    evaluatePartitionOption(definition, option);
 
   for (auto &subPartition : ctx->subpartitionDefinition())
   {
     db_mysql_PartitionDefinitionRef subDefinition(grt::Initialized);
     subDefinition->name(subPartition->identifier()->getText());
     for (auto &option : subPartition->partitionOption())
-      evaluatePartitionOption(subDefinition, option.get());
+      evaluatePartitionOption(subDefinition, option);
     definition->subpartitionDefinitions().insert(subDefinition);
   }
 
@@ -1176,13 +1176,13 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
       // Collation/Charset handling.
       if (option->COLLATE_SYMBOL() != nullptr)
       {
-        auto info = detailsForCollation(MySQLBaseLexer::sourceTextForContext(option->collationNameOrDefault().get()), defaultCollation);
+        auto info = detailsForCollation(MySQLBaseLexer::sourceTextForContext(option->collationNameOrDefault()), defaultCollation);
         table->defaultCharacterSetName(info.first);
         table->defaultCollationName(info.second);
       }
       else
       {
-        auto info = detailsForCharset(MySQLBaseLexer::sourceTextForContext(option->charsetNameOrDefault().get()), defaultCollation, defaultCharset);
+        auto info = detailsForCharset(MySQLBaseLexer::sourceTextForContext(option->charsetNameOrDefault()), defaultCollation, defaultCharset);
         table->defaultCharacterSetName(info.first);
         table->defaultCollationName(info.second); // Collation name or DEFAULT.
       }
@@ -1209,11 +1209,11 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         break;
 
       case MySQLLexer::PASSWORD_SYMBOL:
-        table->password(MySQLBaseLexer::sourceTextForContext(option->textString().get()));
+        table->password(MySQLBaseLexer::sourceTextForContext(option->textString()));
         break;
 
       case MySQLLexer::COMMENT_SYMBOL:
-        table->comment(MySQLBaseLexer::sourceTextForContext(option->textString().get()));
+        table->comment(MySQLBaseLexer::sourceTextForContext(option->textString()));
         break;
 
       case MySQLLexer::COMPRESSION_SYMBOL:
@@ -1278,7 +1278,7 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         std::string value;
         for (auto &tableRef : option->tableRefList()->tableRef())
         {
-          IdentifierListener listener(tableRef.get());
+          IdentifierListener listener(tableRef);
 
           if (!value.empty())
             value += ", ";
@@ -1309,11 +1309,11 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         break;
 
       case MySQLLexer::DATA_SYMBOL:
-        table->tableDataDir(MySQLBaseLexer::sourceTextForContext(option->textString().get()));
+        table->tableDataDir(MySQLBaseLexer::sourceTextForContext(option->textString()));
         break;
 
       case MySQLLexer::INDEX_SYMBOL:
-        table->tableIndexDir(MySQLBaseLexer::sourceTextForContext(option->textString().get()));
+        table->tableIndexDir(MySQLBaseLexer::sourceTextForContext(option->textString()));
         break;
 
       case MySQLLexer::TABLESPACE_SYMBOL:
@@ -1325,7 +1325,7 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         break;
         
       case MySQLLexer::CONNECTION_SYMBOL:
-        table->connectionString(MySQLBaseLexer::sourceTextForContext(option->textString().get()));
+        table->connectionString(MySQLBaseLexer::sourceTextForContext(option->textString()));
         break;
         
       case MySQLLexer::KEY_BLOCK_SIZE_SYMBOL:
@@ -1370,12 +1370,12 @@ void TableAlterListener::exitAlterListItem(MySQLParser::AlterListItemContext *ct
 
   // Many changes can go here, but we add them as needed.
   if (ctx->keyDefinition() != nullptr && table.is_valid())
-    KeyDefinitionListener(ctx->keyDefinition().get(), _catalog, schema->name(), table, _refCache, _autoGenerateFkNames);
+    KeyDefinitionListener(ctx->keyDefinition(), _catalog, schema->name(), table, _refCache, _autoGenerateFkNames);
 
   if (ctx->tableRef() != nullptr)
   {
     // Rename table or view. Can be a move as well (but not for views).
-    IdentifierListener listener(ctx->tableRef().get());
+    IdentifierListener listener(ctx->tableRef());
 
     db_mysql_SchemaRef targetSchema = schema;
     if (listener.parts.size() > 1 && !listener.parts[0].empty())
@@ -1414,14 +1414,14 @@ LogfileGroupListener::LogfileGroupListener(tree::ParseTree *tree, db_mysql_Catal
 
 void LogfileGroupListener::exitCreateLogfileGroup(MySQLParser::CreateLogfileGroupContext *ctx)
 {
-  IdentifierListener listener(ctx->logfileGroupName().get());
+  IdentifierListener listener(ctx->logfileGroupName());
 
   db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
   group->name(listener.parts[0]);
   group->oldName(listener.parts[0]);
 
   // TODO: no info is stored about UNDO or REDO.
-  group->undoFile(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral().get()));
+  group->undoFile(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1472,12 +1472,12 @@ void LogfileGroupListener::exitLogfileGroupOption(MySQLParser::LogfileGroupOptio
       break;
 
     case MySQLLexer::COMMENT_SYMBOL:
-      group->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral().get()));
+      group->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
       // XXX: scanner.skipSubtree();
       break;
 
     case MySQLLexer::ENGINE_SYMBOL:
-      group->engine(MySQLBaseLexer::sourceTextForContext(ctx->engineRef().get()));
+      group->engine(MySQLBaseLexer::sourceTextForContext(ctx->engineRef()));
       break;
 
     default:
@@ -1502,7 +1502,7 @@ RoutineListener::RoutineListener(tree::ParseTree *tree, db_mysql_CatalogRef cata
 void RoutineListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
 {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
-  routine->definer(MySQLBaseLexer::sourceTextForContext(ctx->user().get(), true));
+  routine->definer(MySQLBaseLexer::sourceTextForContext(ctx->user(), true));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1512,7 +1512,7 @@ void RoutineListener::exitCreateProcedure(MySQLParser::CreateProcedureContext *c
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
   routine->routineType("procedure");
-  readRoutineName(ctx->procedureName().get());
+  readRoutineName(ctx->procedureName());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1521,10 +1521,10 @@ void RoutineListener::exitCreateFunction(MySQLParser::CreateFunctionContext *ctx
 {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
-  routine->returnDatatype(MySQLBaseLexer::sourceTextForContext(ctx->typeWithOptCollate().get()));
+  routine->returnDatatype(MySQLBaseLexer::sourceTextForContext(ctx->typeWithOptCollate()));
 
   routine->routineType("function");
-  readRoutineName(ctx->functionName().get());
+  readRoutineName(ctx->functionName());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1534,7 +1534,7 @@ void RoutineListener::exitCreateUdf(MySQLParser::CreateUdfContext *ctx)
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
   routine->routineType("udf");
-  readRoutineName(ctx->udfName().get());
+  readRoutineName(ctx->udfName());
 
   routine->returnDatatype(ctx->type->getText());
 
@@ -1564,8 +1564,8 @@ void RoutineListener::enterFunctionParameter(MySQLParser::FunctionParameterConte
 void RoutineListener::exitFunctionParameter(MySQLParser::FunctionParameterContext *ctx)
 {
   // Called for both functions and procedures.
-  _currentParameter->name(MySQLBaseLexer::sourceTextForContext(ctx->identifier().get()));
-  _currentParameter->datatype(MySQLBaseLexer::sourceTextForContext(ctx->typeWithOptCollate().get()));
+  _currentParameter->name(MySQLBaseLexer::sourceTextForContext(ctx->parameterName()));
+  _currentParameter->datatype(MySQLBaseLexer::sourceTextForContext(ctx->typeWithOptCollate()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1582,7 +1582,7 @@ void RoutineListener::exitRoutineOption(MySQLParser::RoutineOptionContext *ctx)
       break;
 
     case MySQLLexer::COMMENT_SYMBOL:
-      routine->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral().get()));
+      routine->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
       break;
 
     default:
@@ -1658,7 +1658,7 @@ void IndexListener::exitCreateIndexTarget(MySQLParser::CreateIndexTargetContext 
 {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
-  IdentifierListener listener(ctx->tableRef().get());
+  IdentifierListener listener(ctx->tableRef());
 
   db_mysql_TableRef table;
   db_mysql_SchemaRef schema = _schema;
@@ -1670,7 +1670,7 @@ void IndexListener::exitCreateIndexTarget(MySQLParser::CreateIndexTargetContext 
     if (table.is_valid())
     {
       index->owner(table);
-      parseKeyList(ctx->keyList().get(), table, index, _refCache);
+      parseKeyList(ctx->keyList(), table, index, _refCache);
     }
   }
 }
@@ -1748,7 +1748,7 @@ void TriggerListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
 {
   db_mysql_TriggerRef trigger = db_mysql_TriggerRef::cast_from(_object);
 
-  trigger->definer(MySQLBaseLexer::sourceTextForContext(ctx->user().get(), true));
+  trigger->definer(MySQLBaseLexer::sourceTextForContext(ctx->user(), true));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1757,7 +1757,7 @@ void TriggerListener::exitCreateTrigger(MySQLParser::CreateTriggerContext *ctx)
 {
   db_mysql_TriggerRef trigger = db_mysql_TriggerRef::cast_from(_object);
 
-  IdentifierListener listener(ctx->triggerName().get());
+  IdentifierListener listener(ctx->triggerName());
 
   // We store triggers relative to the tables they act on, so we ignore here any qualifying schema.
   trigger->name(listener.parts.back());
@@ -1770,7 +1770,7 @@ void TriggerListener::exitCreateTrigger(MySQLParser::CreateTriggerContext *ctx)
   // the table now to add the trigger to it. We cannot defer that to the resolveReferences() call.
   // This has the implication that we can only work with tables we have found so far.
   listener.parts.clear();
-  tree::ParseTreeWalker::DEFAULT.walk(&listener, ctx->tableRef().get());
+  tree::ParseTreeWalker::DEFAULT.walk(&listener, ctx->tableRef());
 
   if (listener.parts.size() > 1 && !listener.parts[0].empty())
     _schema = ensureSchemaExists(_catalog, listener.parts[0], _caseSensitive);
@@ -1797,7 +1797,7 @@ void TriggerListener::exitTriggerFollowsPrecedesClause(MySQLParser::TriggerFollo
   db_mysql_TriggerRef trigger = db_mysql_TriggerRef::cast_from(_object);
 
   trigger->ordering(ctx->ordering->getText());
-  trigger->otherTrigger(MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier().get()));
+  trigger->otherTrigger(MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier()));
 
   // Note: ignoreIfExists cannot be derived from the existance of OR REPLACE, which has the opposite meaning of IF NOT EXISTS.
 }
@@ -1818,7 +1818,7 @@ void ViewListener::exitCreateView(MySQLParser::CreateViewContext *ctx)
   db_mysql_ViewRef view = db_mysql_ViewRef::cast_from(_object);
   view->modelOnly(0);
 
-  IdentifierListener listener(ctx->viewName().get());
+  IdentifierListener listener(ctx->viewName());
   view->name(listener.parts.back());
   view->oldName(listener.parts.back());
 
@@ -1853,7 +1853,7 @@ void ViewListener::exitViewAlgorithm(MySQLParser::ViewAlgorithmContext *ctx)
 void ViewListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
 {
   db_mysql_ViewRef view = db_mysql_ViewRef::cast_from(_object);
-  view->definer(MySQLBaseLexer::sourceTextForContext(ctx->user().get(), true));
+  view->definer(MySQLBaseLexer::sourceTextForContext(ctx->user(), true));
 }
 
 //----------------- ServerListener -------------------------------------------------------------------------------------
@@ -1872,7 +1872,7 @@ void ServerListener::exitCreateServer(MySQLParser::CreateServerContext *ctx)
   db_mysql_ServerLinkRef server = db_mysql_ServerLinkRef::cast_from(_object);
   server->modelOnly(0);
 
-  IdentifierListener listener(ctx->serverName().get());
+  IdentifierListener listener(ctx->serverName());
   server->name(listener.parts.back());
   server->oldName(listener.parts.back());
   
@@ -1927,7 +1927,7 @@ void TablespaceListener::exitCreateTablespace(MySQLParser::CreateTablespaceConte
   db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
   tablespace->modelOnly(0);
 
-  IdentifierListener listener(ctx->tablespaceName().get());
+  IdentifierListener listener(ctx->tablespaceName());
   tablespace->name(listener.parts.back());
   tablespace->oldName(listener.parts.back());
 
@@ -2038,7 +2038,7 @@ EventListener::EventListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog,
 void EventListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
 {
   db_mysql_EventRef event = db_mysql_EventRef::cast_from(_object);
-  event->definer(MySQLBaseLexer::sourceTextForContext(ctx->user().get(), true));
+  event->definer(MySQLBaseLexer::sourceTextForContext(ctx->user(), true));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2049,7 +2049,7 @@ void EventListener::exitCreateEvent(MySQLParser::CreateEventContext *ctx)
 
   ignoreIfExists = ctx->ifNotExists() != nullptr;
 
-  IdentifierListener listener(ctx->eventName().get());
+  IdentifierListener listener(ctx->eventName());
   event->name(listener.parts.back());
   event->oldName(listener.parts.back());
 
@@ -2072,18 +2072,18 @@ void EventListener::exitSchedule(MySQLParser::ScheduleContext *ctx)
 {
   db_mysql_EventRef event = db_mysql_EventRef::cast_from(_object);
 
-  event->at(MySQLBaseLexer::sourceTextForContext(ctx->expr(0).get()));
+  event->at(MySQLBaseLexer::sourceTextForContext(ctx->expr(0)));
   event->useInterval(ctx->EVERY_SYMBOL() != nullptr);
   if (event->useInterval())
   {
-    event->intervalUnit(MySQLBaseLexer::sourceTextForContext(ctx->interval().get()));
+    event->intervalUnit(MySQLBaseLexer::sourceTextForContext(ctx->interval()));
 
     size_t expressionIndex = 1;
     if (ctx->STARTS_SYMBOL() != nullptr)
-      event->intervalStart(MySQLBaseLexer::sourceTextForContext(ctx->expr(expressionIndex++).get()));
+      event->intervalStart(MySQLBaseLexer::sourceTextForContext(ctx->expr(expressionIndex++)));
 
     if (ctx->ENDS_SYMBOL() != nullptr)
-      event->intervalEnd(MySQLBaseLexer::sourceTextForContext(ctx->expr(expressionIndex).get()));
+      event->intervalEnd(MySQLBaseLexer::sourceTextForContext(ctx->expr(expressionIndex)));
   }
 }
 

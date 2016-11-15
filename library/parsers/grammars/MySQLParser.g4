@@ -1657,8 +1657,10 @@ compOp:
 ;
 
 predicate:
-    bitExpr (notRule? predicateOperations)?     # predicateExprOperations
-    | bitExpr SOUNDS_SYMBOL LIKE_SYMBOL bitExpr # predicateExprSoundsLike
+    bitExpr (
+        (notRule? predicateOperations)?
+        | SOUNDS_SYMBOL LIKE_SYMBOL bitExpr
+    )
 ;
 
 predicateOperations:
@@ -1683,7 +1685,7 @@ bitExpr:
 
 simpleExpr:
     variable                                                                         # simpleExprVariable
-    | simpleIdentifier jsonOperator?                                                 # simpleExprIdentifier
+    | columnRef jsonOperator?                                                        # simpleExprColumnRef
     | runtimeFunctionCall                                                            # simpleExprRuntimeFunction
     | functionCall                                                                   # simpleExprFunction
     | simpleExpr COLLATE_SYMBOL textOrIdentifier                                     # simpleExprCollate
@@ -2559,7 +2561,7 @@ procedureParameter:
 ;
 
 functionParameter:
-    identifier typeWithOptCollate
+    parameterName typeWithOptCollate
 ;
 
 typeWithOptCollate:
@@ -2572,10 +2574,6 @@ schema_identifier_pair:
 
 viewRefList:
     viewRef (COMMA_SYMBOL viewRef)*
-;
-
-field_name_list:
-    columnRef (COMMA_SYMBOL columnRef)*
 ;
 
 columnAssignmentListWithDefault:
@@ -2739,7 +2737,7 @@ triggerRef:
 ;
 
 viewName:
-    tableNameVariants
+    qualifiedIdentifier | dotIdentifier
 ;
 
 viewRef:
@@ -2787,7 +2785,7 @@ engineRef:
 ;
 
 tableName:
-    tableNameVariants
+    qualifiedIdentifier | dotIdentifier
 ;
 
 filterTableRef: // Always qualified.
@@ -2803,16 +2801,11 @@ tableRefWithWildcard:
 ;
 
 tableRef:
-    tableNameVariants
+    qualifiedIdentifier | dotIdentifier
 ;
 
 tableRefNoDb:
     identifier
-;
-
-tableNameVariants:
-    qualifiedIdentifier
-    | dotIdentifier
 ;
 
 tableRefList:
@@ -2821,6 +2814,10 @@ tableRefList:
 
 tableRefListWithWildcard:
     tableRefWithWildcard (COMMA_SYMBOL tableRefWithWildcard)*
+;
+
+parameterName:
+    identifier
 ;
 
 //----------------- Common basic rules -------------------------------------------------------------

@@ -1704,7 +1704,7 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
     }
     if (!valid)
     {
-      bool user_connection = _usr_dbc_conn ? dbc_conn->ref.get_ptr() == _usr_dbc_conn->ref.get_ptr() : false;
+      bool user_connection = _usr_dbc_conn ? dbc_conn->ref.get_ptr().get() == _usr_dbc_conn->ref.get_ptr().get() : false;
 
       if (dbc_conn->autocommit_mode)
       {

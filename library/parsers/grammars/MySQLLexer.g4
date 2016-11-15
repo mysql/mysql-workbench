@@ -126,7 +126,7 @@ UNDERLINE_SYMBOL:           '_';
 JSON_SEPARATOR_SYMBOL:          '->'  {serverVersion >= 50708}?;
 JSON_UNQUOTED_SEPARATOR_SYMBOL: '->>' {serverVersion >= 50713}?;
 
-// The MySQL parser uses custom code in its lexer to allow base alphanum chars (and ._$) as variable name.
+// The MySQL server parser uses custom code in its lexer to allow base alphanum chars (and ._$) as variable name.
 // For this it handles user variables in 2 different ways and we have to model this to match that behavior.
 AT_SIGN_SYMBOL:             '@';
 AT_TEXT_SUFFIX:             '@' SIMPLE_IDENTIFIER;
@@ -170,7 +170,7 @@ DECIMAL_NUMBER: DIGITS? DOT_SYMBOL DIGITS;
 
 // Special rule that should also match all keywords if they are directly preceded by a dot.
 // Hence it's defined before all keywords.
-DOT_IDENTIFIER: DOT_SYMBOL IDENTIFIER;
+DOT_IDENTIFIER: DOT_SYMBOL LETTER_WHEN_UNQUOTED_NO_DIGIT LETTER_WHEN_UNQUOTED*;
 
 /*
    Comments for TOKENS.
@@ -962,7 +962,7 @@ VERSION_COMMENT_START: ('/*!' DIGITS) (
 // inVersionComment is a variable in the base lexer.
 MYSQL_COMMENT_START: '/*!' { inVersionComment = true; setChannel(HIDDEN); };
 VERSION_COMMENT_END: '*/' {inVersionComment}? { inVersionComment = false; setChannel(HIDDEN); };
-BLOCK_COMMENT: '/*' ~[!] .*? '*/' -> channel(HIDDEN);
+BLOCK_COMMENT: ( '/**/' | '/*' ~[!] .*? '*/') -> channel(HIDDEN);
 
 POUND_COMMENT: '#' ~([\n\r])*  -> channel(HIDDEN);
 DASHDASH_COMMENT: DOUBLE_DASH ([ \t] (~[\n\r])* | LINEBREAK | EOF) -> channel(HIDDEN);

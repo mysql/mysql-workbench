@@ -49,7 +49,7 @@ public:
 
   std::unordered_set<std::string> _functionNames;
 
-  ::Ref<ParserRuleContext> parse(const std::string &query)
+  ParserRuleContext* parse(const std::string &query)
   {
     input.load(query);
     lexer.reset();
@@ -813,13 +813,13 @@ bool DbSqlEditorContextHelp::helpTextForTopic(const std::string &topic, std::str
 //----------------------------------------------------------------------------------------------------------------------
 
 // Determines if the given tree is a terminal node and if so, if it is of the given type.
-bool isToken(Ref<tree::Tree> tree, size_t type)
+bool isToken(tree::ParseTree *tree, size_t type)
 {
-  auto terminal = std::dynamic_pointer_cast<tree::TerminalNode>(tree);
+  auto terminal = dynamic_cast<tree::TerminalNode *>(tree);
   if (terminal != nullptr)
     return terminal->getSymbol()->getType() == type;
 
-  auto token = std::dynamic_pointer_cast<ParserRuleContext>(tree)->start;
+  auto token = dynamic_cast<ParserRuleContext *>(tree)->start;
   if (token == nullptr)
     return false;
   return token->getType() == type;
@@ -836,9 +836,9 @@ bool isToken(Token *token, size_t type)
 //----------------------------------------------------------------------------------------------------------------------
 
 // Determines if the parent of the given tree is a specific context.
-bool isParentContext(tree::Tree *tree, size_t type)
+bool isParentContext(tree::ParseTree *tree, size_t type)
 {
-  auto parent = (ParserRuleContext *)(tree->parent.lock().get());
+  auto parent = (ParserRuleContext *)(tree->parent);
   return parent->getRuleIndex() == type;
 }
 
@@ -1100,9 +1100,9 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
   // We are not interested in validity here. We simply parse in default mode (LL) and examine the returned parse tree.
   // This usually will give us a good result, except in cases where the query has an error before the caret such that
   // we cannot predict the path through the rules.
-  Ref<ParserRuleContext> parseTree = context->_d->parse(query);
+  ParserRuleContext *parseTree = context->_d->parse(query);
   ++caret.second; // ANTLR lines are one-based.
-  tree::Tree *tree = MySQLRecognizerCommon::contextFromPosition(parseTree.get(), caret);
+  tree::ParseTree *tree = MySQLRecognizerCommon::contextFromPosition(parseTree, caret);
 
   if (tree == nullptr)
     return "";
@@ -1137,7 +1137,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         if (isParentContext(tree, MySQLParser::RuleSimpleExpr) || isParentContext(tree, MySQLParser::RuleCastType))
           return "BINARY OPERATOR";
 
-        tree = tree->parent.lock().get();
+        tree = tree->parent;
         break;
 
       case MySQLLexer::CHANGE_SYMBOL:
@@ -1146,7 +1146,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         if (isParentContext(tree, MySQLParser::RuleChangeReplication))
           return "CHANGE REPLICATION FILTER";
 
-        tree = tree->parent.lock().get();
+        tree = tree->parent;
         break;
 
       // Other keywords connected to topics.
@@ -1164,7 +1164,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         if (isParentContext(tree, MySQLParser::RuleShowStatement))
           return "SHOW BINLOG EVENTS";
 
-        tree = tree->parent.lock().get();
+        tree = tree->parent;
         break;
 
       default:
@@ -1174,7 +1174,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         
         // No specific help topic for the given terminal. Jump to the token's parent and start the
         // context search then.
-        tree = tree->parent.lock().get();
+        tree = tree->parent;
         break;
     }
   }
@@ -1203,7 +1203,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         if (!context->children.empty())
         {
           // Some keyword topics have variants with a leading NOT.
-          auto parent = std::dynamic_pointer_cast<MySQLParser::PredicateExprOperationsContext>(context->parent.lock());
+          auto parent = dynamic_cast<MySQLParser::PredicateContext *>(context->parent);
           bool isNot = parent->notRule() != nullptr;
 
           // IN, BETWEEN (with special help topic name), LIKE, REGEXP
@@ -1215,7 +1215,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
             return "BETWEEN AND";
           }
           std::string topic = isNot ? "NOT " : "";
-          return topic + base::toupper(std::dynamic_pointer_cast<tree::ParseTree>(predicateContext->children[0])->getText());
+          return topic + base::toupper(predicateContext->children[0]->getText());
         }
         break;
       }
@@ -1303,9 +1303,9 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
         ParserRuleContext *variableName = nullptr;
         if (setStatementContext->optionValueFollowingOptionType() != nullptr)
-          variableName = setStatementContext->optionValueFollowingOptionType()->variableName().get();
+          variableName = setStatementContext->optionValueFollowingOptionType()->variableName();
         else if (setStatementContext->optionValueNoOptionType() != nullptr)
-          variableName = setStatementContext->optionValueNoOptionType()->variableName().get();
+          variableName = setStatementContext->optionValueNoOptionType()->variableName();
         if (variableName != nullptr)
         {
           std::string option = base::toupper(variableName->getText());
@@ -1331,8 +1331,8 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
           if (isToken(context->children[1], MySQLLexer::NOT_SYMBOL) || isToken(context->children[1], MySQLLexer::NOT2_SYMBOL))
           {
             // For NOT BETWEEN, NOT LIKE, NOT IN, NOT REGEXP.
-            auto predicateContext = std::dynamic_pointer_cast<MySQLParser::PredicateOperationsContext>(context->children[2]);
-            return "NOT " + base::toupper(std::dynamic_pointer_cast<tree::ParseTree>(predicateContext->children[0])->getText());
+            auto predicateContext = dynamic_cast<MySQLParser::PredicateOperationsContext *>(context->children[2]);
+            return "NOT " + base::toupper(predicateContext->children[0]->getText());
           }
           if (isToken(context->children[1], MySQLLexer::SOUNDS_SYMBOL))
             return "SOUNDS LIKE";
@@ -1448,9 +1448,9 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         return "HELP COMMAND";
 
       case MySQLParser::RuleSimpleExpr:
-        if (!context->children.empty() && antlrcpp::is<tree::TerminalNode>(context->children[0]))
+        if (!context->children.empty() && antlrcpp::is<tree::TerminalNode *>(context->children[0]))
         {
-          size_t type = std::dynamic_pointer_cast<tree::TerminalNode>(context->children[0])->getSymbol()->getType();
+          size_t type = dynamic_cast<tree::TerminalNode *>(context->children[0])->getSymbol()->getType();
           switch (type)
           {
             case MySQLLexer::MATCH_SYMBOL:
@@ -1476,7 +1476,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       case MySQLParser::RuleSlave:
         if (!context->children.empty())
         {
-          return base::toupper(std::dynamic_pointer_cast<tree::ParseTree>(context->children[0])->getText()) + " SLAVE";
+          return base::toupper(context->children[0]->getText()) + " SLAVE";
         }
 
       case MySQLParser::RuleDataType:
@@ -1577,7 +1577,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
     }
 
-    tree = tree->parent.lock().get();
+    tree = tree->parent;
   }
 
   return "";

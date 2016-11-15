@@ -880,6 +880,7 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language)
   case mforms::LanguageMySQL55:
   case mforms::LanguageMySQL56:
   case mforms::LanguageMySQL57:
+  case mforms::LanguageMySQL80:
     _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_MYSQL, 0);
     break;
 

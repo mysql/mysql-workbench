@@ -796,7 +796,7 @@ static spatial::Layer *find_layer_for(std::deque<spatial::Layer*> &layers, Recor
   for (std::deque<spatial::Layer*>::iterator l = layers.begin(); l != layers.end(); ++l)
   {
     RecordsetLayer *rsl = dynamic_cast<RecordsetLayer*>(*l);
-    if (rsl && rsl->recordset() == rset)
+    if (rsl && rsl->recordset().get() == rset.get())
       return *l;
   }
   return NULL;
@@ -885,7 +885,7 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
       {
         for (std::vector<SpatialDataSource>::const_iterator iter = sources.begin(); iter != sources.end(); ++iter)
         {
-          if (!iter->resultset.expired() && iter->resultset.lock() == rset)
+          if (!iter->resultset.expired() && iter->resultset.lock().get() == rset.get())
           {
             found = true;
             break;
