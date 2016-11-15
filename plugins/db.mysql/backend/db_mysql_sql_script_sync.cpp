@@ -959,8 +959,8 @@ public:
                   //GCC doesn' like this :(
 /*
                   iterate_object(model_obj,
-                  boost::bind(&std::set<std::string>::insert, boost::ref(removed_objects),
-                  boost::bind(&GrtObjectRef::RefType::id, boost::bind(&GrtObjectRef::content,_1))));
+                  std::bind(&std::set<std::string>::insert, boost::ref(removed_objects),
+                  std::bind(&GrtObjectRef::RefType::id, std::bind(&GrtObjectRef::content,_1))));
 */
                   owner_list.remove_value(model_obj);
               }

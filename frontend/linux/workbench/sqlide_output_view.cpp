@@ -139,7 +139,7 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *
 
   mforms::Menu* context_menu = be->log()->get_context_menu();
   _action_output.set_context_menu(context_menu);
-  context_menu->signal_will_show()->connect(boost::bind(&QueryOutputView::output_menu_will_show, this));
+  context_menu->signal_will_show()->connect(std::bind(&QueryOutputView::output_menu_will_show, this));
 
   _entries_grid.set_context_menu_responder(sigc::mem_fun(this, &QueryOutputView::history_context_menu_responder));
 

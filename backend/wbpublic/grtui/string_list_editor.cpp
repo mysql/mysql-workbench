@@ -55,8 +55,8 @@ StringListEditor::StringListEditor(mforms::Form *owner, const bool reorderable)
   _button_box.add_end(&_ok_button, false, true);
   _button_box.add_end(&_cancel_button, false, true);
   
-  scoped_connect(_add_button.signal_clicked(),boost::bind(&StringListEditor::add, this));
-  scoped_connect(_del_button.signal_clicked(),boost::bind(&StringListEditor::del, this));
+  scoped_connect(_add_button.signal_clicked(), std::bind(&StringListEditor::add, this));
+  scoped_connect(_del_button.signal_clicked(), std::bind(&StringListEditor::del, this));
   
   set_size(400, 320);
 }

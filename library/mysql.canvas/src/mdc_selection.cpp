@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,15 +31,11 @@ Selection::Selection(CanvasView *view)
 : _view(view)
 {
   _block_signals= 0;
-
-//  _view->get_interaction_layer()->signal_custom_repaint().connect(boost::bind(&Selection::render_drag_images, this));
-
 }
 
 
 Selection::~Selection()
 {
-//  clear();
 }
 
 

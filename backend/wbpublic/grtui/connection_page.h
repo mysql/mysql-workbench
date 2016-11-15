@@ -18,7 +18,7 @@ public:
     add(&_connect, true, true);
     
     scoped_connect(_connect.signal_validation_state_changed(),
-      boost::bind(&ConnectionPage::connection_validation_changed, this, _1, _2));
+      std::bind(&ConnectionPage::connection_validation_changed, this, std::placeholders::_1, std::placeholders::_2));
   }
  
   void set_db_connection(DbConnection *conn)

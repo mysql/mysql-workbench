@@ -112,10 +112,10 @@ public:
     _back.set_text("< Previous");
     _next.set_text("Next >");
     _last.set_text("Last >>");
-    scoped_connect(_first.signal_clicked(),boost::bind(&HexDataViewer::go, this, -2));
-    scoped_connect(_back.signal_clicked(),boost::bind(&HexDataViewer::go, this, -1));
-    scoped_connect(_next.signal_clicked(),boost::bind(&HexDataViewer::go, this, 1));
-    scoped_connect(_last.signal_clicked(),boost::bind(&HexDataViewer::go, this, 2));
+    scoped_connect(_first.signal_clicked(),std::bind(&HexDataViewer::go, this, -2));
+    scoped_connect(_back.signal_clicked(),std::bind(&HexDataViewer::go, this, -1));
+    scoped_connect(_next.signal_clicked(),std::bind(&HexDataViewer::go, this, 1));
+    scoped_connect(_last.signal_clicked(),std::bind(&HexDataViewer::go, this, 2));
     
     _tree.add_column(mforms::StringColumnType, "Offset", 100, true);
 
@@ -123,7 +123,7 @@ public:
       _tree.add_column(mforms::StringColumnType, base::strfmt("%X", i), 25, !read_only);
     _tree.end_columns();
 
-    _tree.set_cell_edit_handler(boost::bind(&HexDataViewer::set_cell_value, this, _1, _2, _3));
+    _tree.set_cell_edit_handler(std::bind(&HexDataViewer::set_cell_value, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   }
 
   virtual void data_changed()
@@ -251,7 +251,7 @@ public:
     _text.set_features(mforms::FeatureWrapText, true);
     _text.set_features(mforms::FeatureReadOnly, read_only);
     
-    scoped_connect(_text.signal_changed(),boost::bind(&TextDataViewer::edited, this));
+    scoped_connect(_text.signal_changed(),std::bind(&TextDataViewer::edited, this));
 
     _text.set_show_find_panel_callback(std::bind(&TextDataViewer::embed_find_panel, this, std::placeholders::_2));
   }
@@ -365,7 +365,7 @@ public:
     set_spacing(8);
     _jsonView.setJson(value);
     add(&_jsonView, true, true);
-    scoped_connect(_jsonView.editorDataChanged(), boost::bind(&JsonDataViewer::edited, this, _1));
+    scoped_connect(_jsonView.editorDataChanged(), std::bind(&JsonDataViewer::edited, this, std::placeholders::_1));
   }
 
   virtual void data_changed()
@@ -457,7 +457,7 @@ public:
     _selector.add_item("View as GML");
     _selector.add_item("View as KML");
 
-    _selector.signal_changed()->connect(boost::bind(&GeomTextDataViewer::data_changed, this));
+    _selector.signal_changed()->connect(std::bind(&GeomTextDataViewer::data_changed, this));
   }
 
   virtual void data_changed()
@@ -597,12 +597,12 @@ void BinaryDataEditor::setup()
   _export.set_text("Save...");
   _import.set_text("Load...");
   
-  scoped_connect(_tab_view.signal_tab_changed(),boost::bind(&BinaryDataEditor::tab_changed, this));
+  scoped_connect(_tab_view.signal_tab_changed(),std::bind(&BinaryDataEditor::tab_changed, this));
   
-  scoped_connect(_save.signal_clicked(),boost::bind(&BinaryDataEditor::save, this));
-  scoped_connect(_close.signal_clicked(),boost::bind(&BinaryDataEditor::close, this));
-  scoped_connect(_import.signal_clicked(),boost::bind(&BinaryDataEditor::import_value, this));
-  scoped_connect(_export.signal_clicked(),boost::bind(&BinaryDataEditor::export_value, this));
+  scoped_connect(_save.signal_clicked(),std::bind(&BinaryDataEditor::save, this));
+  scoped_connect(_close.signal_clicked(),std::bind(&BinaryDataEditor::close, this));
+  scoped_connect(_import.signal_clicked(),std::bind(&BinaryDataEditor::import_value, this));
+  scoped_connect(_export.signal_clicked(),std::bind(&BinaryDataEditor::export_value, this));
 
   set_size(800, 500); // Golden ratio.
   center();

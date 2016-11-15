@@ -64,22 +64,22 @@ void grtui::DbConnectionEditor::init()
   
   _bottom_hbox.set_spacing(12);
     
-  scoped_connect(_stored_connection_list.signal_changed(),boost::bind(&grtui::DbConnectionEditor::change_active_stored_conn, this));
+  scoped_connect(_stored_connection_list.signal_changed(), std::bind(&grtui::DbConnectionEditor::change_active_stored_conn, this));
 
   _conn_name= _panel.get_name_entry();
-  scoped_connect(_conn_name->signal_changed(),boost::bind(&grtui::DbConnectionEditor::name_changed, this));
+  scoped_connect(_conn_name->signal_changed(), std::bind(&grtui::DbConnectionEditor::name_changed, this));
 
 
   _dup_conn_button.set_text(_("Duplicate"));
-  scoped_connect(_dup_conn_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::add_stored_conn, this, true));
+  scoped_connect(_dup_conn_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::add_stored_conn, this, true));
   _del_conn_button.set_text(_("Delete"));
-  scoped_connect(_del_conn_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::del_stored_conn, this));
+  scoped_connect(_del_conn_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::del_stored_conn, this));
   _add_conn_button.set_text(_("New"));
-  scoped_connect(_add_conn_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::add_stored_conn, this, false));
+  scoped_connect(_add_conn_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::add_stored_conn, this, false));
   _move_up_button.set_text(_("Move Up"));
-  scoped_connect(_move_up_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::reorder_conn, this, true));
+  scoped_connect(_move_up_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::reorder_conn, this, true));
   _move_down_button.set_text(_("Move Down"));
-  scoped_connect(_move_down_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::reorder_conn, this, false));
+  scoped_connect(_move_down_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::reorder_conn, this, false));
   
   _top_hbox.add(&_stored_connection_list, false, true);  
   _top_hbox.add(&_panel, true, true);
@@ -95,11 +95,9 @@ void grtui::DbConnectionEditor::init()
   _bottom_hbox.add_end(&_test_button, false, true);
   
   _ok_button.set_text(_("Close"));
-  scoped_connect(_ok_button.signal_clicked(),boost::bind(&DbConnectionEditor::ok_clicked, this));
-//  _cancel_button.set_text(_("Cancel"));
-//  _cancel_button.signal_clicked().connect(boost::bind(&DbConnectionEditor::cancel_clicked, this));
+  scoped_connect(_ok_button.signal_clicked(), std::bind(&DbConnectionEditor::ok_clicked, this));
   _test_button.set_text(_("Test Connection"));
-  scoped_connect(_test_button.signal_clicked(),boost::bind(&DbConnectPanel::test_connection, boost::ref(_panel)));
+  scoped_connect(_test_button.signal_clicked(),std::bind(&DbConnectPanel::test_connection, std::ref(_panel)));
 
   _add_conn_button.enable_internal_padding(true);
   _del_conn_button.enable_internal_padding(true);

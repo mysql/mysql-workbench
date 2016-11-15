@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -261,7 +261,7 @@ PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
   _stack_list->add_column(StringColumnType, "File", 300, false);
   _stack_list->end_columns();
   spl->add(_stack_list);
-  scoped_connect(_stack_list->signal_changed(),boost::bind(&PythonDebugger::stack_selected, this));
+  scoped_connect(_stack_list->signal_changed(),std::bind(&PythonDebugger::stack_selected, this));
   //_stack_list->signal_row_activated().connect();
   
   _variable_list= manage(new TreeView(TreeDefault|TreeFlatList));
@@ -313,8 +313,8 @@ void PythonDebugger::init_pdb()
 
 void PythonDebugger::editor_added(GRTCodeEditor *editor)
 {
-  scoped_connect(editor->get_editor()->signal_gutter_clicked(),boost::bind(&PythonDebugger::line_gutter_clicked, this, _1, _2, _3, editor));
-  scoped_connect(editor->get_editor()->signal_changed(),boost::bind(&PythonDebugger::editor_text_changed, this, _1, _2, editor));
+  scoped_connect(editor->get_editor()->signal_gutter_clicked(),std::bind(&PythonDebugger::line_gutter_clicked, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, editor));
+  scoped_connect(editor->get_editor()->signal_changed(),std::bind(&PythonDebugger::editor_text_changed, this, std::placeholders::_1, std::placeholders::_2, editor));
 }
 
 

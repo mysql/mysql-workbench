@@ -510,7 +510,7 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
 int WorkbenchImpl::copyToClipboard(const std::string &astr)
 {
   bec::GRTManager::get()->get_dispatcher()
-    ->call_from_main_thread<void>(boost::bind(mforms::Utilities::set_clipboard_text, astr), true, false);
+    ->call_from_main_thread<void>(std::bind(mforms::Utilities::set_clipboard_text, astr), true, false);
 
   return 1;
 }
@@ -623,7 +623,7 @@ static void quit()
 int WorkbenchImpl::exit()
 {
   bec::GRTManager::get()->get_dispatcher()->
-  call_from_main_thread<void>(boost::bind(quit), false, false);
+  call_from_main_thread<void>(std::bind(quit), false, false);
 
   return 0;
 }
@@ -974,7 +974,7 @@ int WorkbenchImpl::goToMarker(const std::string &marker)
       diagram->y(mk->y());
 
       bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<void>(
-        boost::bind(&WBContextModel::switch_diagram, _wb->get_model_context(), diagram), false, false);
+        std::bind(&WBContextModel::switch_diagram, _wb->get_model_context(), diagram), false, false);
     }
   }
 
@@ -1312,7 +1312,7 @@ static int traverse_value(const ObjectRef &owner, const std::string &member, con
       ObjectRef object(ObjectRef::cast_from(value));
       MetaClass *gstruct= object->get_metaclass();
 
-      gstruct->foreach_member(boost::bind(traverse_member, _1, owner, object));
+      gstruct->foreach_member(std::bind(traverse_member, std::placeholders::_1, owner, object));
     }
     break;
 
@@ -1373,7 +1373,7 @@ int WorkbenchImpl::refreshHomeConnections()
 int WorkbenchImpl::confirm(const std::string &title, const std::string &caption)
 {
   return bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<int>(
-    boost::bind(mforms::Utilities::show_message, title, caption, _("OK"), _("Cancel"), ""), true, false);
+    std::bind(mforms::Utilities::show_message, title, caption, _("OK"), _("Cancel"), ""), true, false);
 }
 
 

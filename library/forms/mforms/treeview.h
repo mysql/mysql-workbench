@@ -20,7 +20,6 @@
 #pragma once
 
 #include <mforms/view.h>
-#include <boost/cstdint.hpp>
 
 /**
  * Implementation of a control class for a treeview control based on node objects.

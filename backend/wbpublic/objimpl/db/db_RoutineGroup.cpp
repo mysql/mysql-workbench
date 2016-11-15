@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ static void routine_group_list_changed(grt::internal::OwnedList *list, bool adde
 void db_RoutineGroup::init()
 {
   //No need in disconnet management since signal it part of object
-  _list_changed_signal.connect(boost::bind(&routine_group_list_changed, _1, _2, _3, this));
+  _list_changed_signal.connect(std::bind(&routine_group_list_changed, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, this));
 
 }
 

@@ -121,7 +121,7 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, void *viewer)
 - (void)setupQuartz
 {
   _view = new mdc::QuartzCanvasView(NSWidth(self.frame), NSHeight(self.frame));
-  _view->signal_repaint()->connect(boost::bind(canvas_view_needs_repaint, _1, _2, _3, _4, (__bridge void *)self));
+  _view->signal_repaint()->connect(std::bind(canvas_view_needs_repaint, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, (__bridge void *)self));
 }
 
 

@@ -34,7 +34,7 @@ model_Figure::ImplData::ImplData(model_Figure *owner)
 {
   _connected_update_options= false;
   
-  scoped_connect(owner->signal_changed(),boost::bind(&model_Figure::ImplData::member_changed, this, _1, _2));
+  scoped_connect(owner->signal_changed(),std::bind(&model_Figure::ImplData::member_changed, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -292,13 +292,13 @@ void model_Figure::ImplData::finish_realize()
   if (!_connected_update_options)
   {
     _connected_update_options= true;
-    scoped_connect(self()->owner()->owner()->get_data()->signal_options_changed(),boost::bind(&model_Figure::ImplData::update_options, this, _1));
+    scoped_connect(self()->owner()->owner()->get_data()->signal_options_changed(),std::bind(&model_Figure::ImplData::update_options, this, std::placeholders::_1));
   }
 
   figure->set_tag(self()->id());
 
-  scoped_connect(figure->signal_bounds_changed(),boost::bind(&model_Figure::ImplData::figure_bounds_changed, this, _1));
-  scoped_connect(figure->signal_interactive_resize(),boost::bind(&model_Figure::ImplData::figure_resized, this, _1));
+  scoped_connect(figure->signal_bounds_changed(),std::bind(&model_Figure::ImplData::figure_bounds_changed, this, std::placeholders::_1));
+  scoped_connect(figure->signal_interactive_resize(),std::bind(&model_Figure::ImplData::figure_resized, this, std::placeholders::_1));
 
   pos.x= *self()->_left;
   pos.y= *self()->_top;

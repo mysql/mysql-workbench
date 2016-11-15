@@ -40,7 +40,7 @@ Layer::Layer(CanvasView *view)
   _root_area->set_accepts_selection(false);
   _root_area->set_draw_background(false);
   
-  scoped_connect(view->signal_resized(),boost::bind(&Layer::view_resized, this));
+  scoped_connect(view->signal_resized(), std::bind(&Layer::view_resized, this));
 }
 
 

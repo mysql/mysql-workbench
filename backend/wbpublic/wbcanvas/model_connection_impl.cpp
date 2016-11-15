@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ model_Connection::ImplData::ImplData(model_Connection *self)
   : model_Object::ImplData(self), _line(0),
   _above_caption(0), _below_caption(0), _start_caption(0), _end_caption(0)
 {
-  scoped_connect(self->signal_changed(),boost::bind(&ImplData::member_changed, this, _1, _2));
+  scoped_connect(self->signal_changed(),std::bind(&ImplData::member_changed, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -88,7 +88,7 @@ void model_Connection::ImplData::member_changed(const std::string &name, const g
     {
       if (!_object_realized.connected() && self()->owner().is_valid())
         _object_realized= self()->owner()->get_data()->signal_object_realized()->connect(
-        boost::bind(&ImplData::object_realized, this, _1));
+        std::bind(&ImplData::object_realized, this, std::placeholders::_1));
     }
   }
 }
@@ -178,7 +178,7 @@ wbfig::CaptionFigure *model_Connection::ImplData::create_caption()
   figure->set_highlight_through_text(true);
   figure->set_visible(*self()->_visible != 0);
   scoped_connect(figure->signal_bounds_changed(),
-                 boost::bind(&model_Connection::ImplData::caption_bounds_changed, this, _1, figure));
+                 std::bind(&model_Connection::ImplData::caption_bounds_changed, this, std::placeholders::_1, figure));
   return figure;
 }
 
@@ -361,7 +361,7 @@ void model_Connection::ImplData::finish_realize()
   if (!font.empty())
     _caption_font = mdc::FontSpec::from_string(font);
 
-  scoped_connect(_line->signal_layout_changed(),boost::bind(&model_Connection::ImplData::layout_changed, this));
+  scoped_connect(_line->signal_layout_changed(),std::bind(&model_Connection::ImplData::layout_changed, this));
 
   self()->owner()->get_data()->stack_connection(model_ConnectionRef(self()), _line);
 

@@ -81,7 +81,7 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
     
   _conn_name= _panel.get_name_entry();
 
-  scoped_connect(_config_button.signal_clicked(), boost::bind(&NewConnectionWizard::open_remote_mgm_config, this));
+  scoped_connect(_config_button.signal_clicked(), std::bind(&NewConnectionWizard::open_remote_mgm_config, this));
   _config_button.set_text(_("Configure Server Management..."));
   _config_button.enable_internal_padding(true);
 
@@ -93,7 +93,7 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
   _ok_button.set_text(_("OK"));
   _cancel_button.set_text(_("Cancel"));
   _test_button.set_text(_("Test Connection"));
-  scoped_connect(_test_button.signal_clicked(), boost::bind(&grtui::DbConnectPanel::test_connection, &_panel));
+  scoped_connect(_test_button.signal_clicked(), std::bind(&grtui::DbConnectPanel::test_connection, &_panel));
   
   _ok_button.enable_internal_padding(true);
   _cancel_button.enable_internal_padding(true);  

@@ -24,7 +24,6 @@
 #include "workbench/wb_backend_public_interface.h"
 #include <string>
 #include <vector>
-#include <boost/function.hpp>
 
 #include "mforms/form.h"
 #include "mforms/selector.h"

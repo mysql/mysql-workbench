@@ -110,10 +110,10 @@ _last_active_tab(-1)
 
   _stored_connection_sel.set_name("Connection List");
   if (_show_connection_combo)
-    scoped_connect(_stored_connection_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_stored_conn, this));
-  scoped_connect(_rdbms_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_rdbms, this));
-  scoped_connect(_driver_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_driver, this));
-  scoped_connect(_name_entry.signal_changed(), boost::bind(&DbConnectPanel::change_connection_name, this));
+    scoped_connect(_stored_connection_sel.signal_changed(), std::bind(&DbConnectPanel::change_active_stored_conn, this));
+  scoped_connect(_rdbms_sel.signal_changed(), std::bind(&DbConnectPanel::change_active_rdbms, this));
+  scoped_connect(_driver_sel.signal_changed(), std::bind(&DbConnectPanel::change_active_driver, this));
+  scoped_connect(_name_entry.signal_changed(), std::bind(&DbConnectPanel::change_connection_name, this));
 
   _table.set_name("connect_panel:table");
   _table.set_row_count(flags & DbConnectPanelShowRDBMSCombo ? 4 : 2);
@@ -1145,11 +1145,11 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       
       if (driver_param->object()->name() == "sslWizard")
       {
-        scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::launch_ssl_wizard, this));
+        scoped_connect(btn->signal_clicked(), std::bind(&DbConnectPanel::launch_ssl_wizard, this));
       }
       else if (driver_param->object()->name() == "openSSLWizardDirectory")
       {
-        scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::open_ssl_wizard_directory, this));
+        scoped_connect(btn->signal_clicked(), std::bind(&DbConnectPanel::open_ssl_wizard_directory, this));
       }
       
       break;
@@ -1169,7 +1169,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
           ctrl->set_active(*value != "" && *value != "0" && *value != "NULL");
       }
 
-      scoped_connect(ctrl->signal_clicked(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, false));
+      scoped_connect(ctrl->signal_clicked(), std::bind(&DbConnectPanel::param_value_changed, this, ctrl, false));
 
       box->add(mforms::manage(ctrl), false, true);
       _views.push_back(ctrl);
@@ -1190,7 +1190,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       
       box->add(mforms::manage(btn), false, true);
       _views.push_back(btn);
-      scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::set_keychain_password, this, driver_param, false));
+      scoped_connect(btn->signal_clicked(), std::bind(&DbConnectPanel::set_keychain_password, this, driver_param, false));
 
       btn = new Button();
       btn->set_text("Clear");
@@ -1202,7 +1202,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 #endif
       box->add(mforms::manage(btn), false, true);
       _views.push_back(btn);
-      scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::set_keychain_password, this, driver_param, true));
+      scoped_connect(btn->signal_clicked(), std::bind(&DbConnectPanel::set_keychain_password, this, driver_param, true));
 
       break;
     }
@@ -1222,7 +1222,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       ctrl->set_size(bounds.width, -1);
 
-      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, true));
+      scoped_connect(ctrl->signal_changed(), std::bind(&DbConnectPanel::param_value_changed, this, ctrl, true));
 
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
@@ -1243,7 +1243,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       ctrl->set_size(bounds.width, -1);
 
-      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, false));
+      scoped_connect(ctrl->signal_changed(), std::bind(&DbConnectPanel::param_value_changed, this, ctrl, false));
 
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
@@ -1305,7 +1305,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
         ctrl->set_selected(idx);
       enum_param_value_changed(ctrl, option_ids);
 
-      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::enum_param_value_changed, this, ctrl, option_ids));
+      scoped_connect(ctrl->signal_changed(), std::bind(&DbConnectPanel::enum_param_value_changed, this, ctrl, option_ids));
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
       break;

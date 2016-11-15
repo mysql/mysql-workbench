@@ -107,8 +107,8 @@ model_Diagram::ImplData::ImplData(model_Diagram *self)
   _updating_selection= 0;
   _connected_update= false;
   
-  scoped_connect(self->signal_changed(),boost::bind(&model_Diagram::ImplData::member_changed, this, _1 ,_2));
-  scoped_connect(self->signal_list_changed(),boost::bind(&model_Diagram::ImplData::member_list_changed, this, _1, _2, _3));
+  scoped_connect(self->signal_changed(),std::bind(&model_Diagram::ImplData::member_changed, this, std::placeholders::_1 , std::placeholders::_2));
+  scoped_connect(self->signal_list_changed(),std::bind(&model_Diagram::ImplData::member_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 
@@ -223,7 +223,7 @@ void model_Diagram::ImplData::update_size()
     Size pageSize(get_size_for_page(_self->owner()->get_data()->get_page_settings()));
 
     if (!is_main_thread())
-      run_later(boost::bind(&mdc::CanvasView::set_page_size, _canvas_view, pageSize));
+      run_later(std::bind(&mdc::CanvasView::set_page_size, _canvas_view, pageSize));
     else
       _canvas_view->set_page_size(pageSize);
 
@@ -236,7 +236,7 @@ void model_Diagram::ImplData::update_size()
     if (yc < 1) yc= 1;
 
     if (!is_main_thread())
-      run_later(boost::bind(&mdc::CanvasView::set_page_layout, _canvas_view, xc, yc));
+      run_later(std::bind(&mdc::CanvasView::set_page_layout, _canvas_view, xc, yc));
     else
       _canvas_view->set_page_layout(xc, yc);
   }
@@ -336,7 +336,7 @@ bool model_Diagram::ImplData::realize()
   
   if (!is_main_thread())
   {
-    run_later(boost::bind(&model_Diagram::ImplData::realize, this));
+    run_later(std::bind(&model_Diagram::ImplData::realize, this));
     return true;
   }
 
@@ -345,7 +345,7 @@ bool model_Diagram::ImplData::realize()
     model_Model::ImplData *model= _self->owner()->get_data();
     
     if (!_connected_update)
-      scoped_connect(model->signal_options_changed(),boost::bind(&model_Diagram::ImplData::update_options, this, _1));
+      scoped_connect(model->signal_options_changed(),std::bind(&model_Diagram::ImplData::update_options, this, std::placeholders::_1));
     _connected_update= true;
 
     _canvas_view= model->get_delegate()->create_diagram(model_DiagramRef(_self));
@@ -355,7 +355,7 @@ bool model_Diagram::ImplData::realize()
     update_options("");
 
     _selection_signal_conn= _canvas_view->get_selection()->signal_changed()->connect(
-      boost::bind(&model_Diagram::ImplData::canvas_selection_changed, this, _1, _2));
+      std::bind(&model_Diagram::ImplData::canvas_selection_changed, this, std::placeholders::_1, std::placeholders::_2));
 
     update_size();
 
@@ -366,7 +366,7 @@ bool model_Diagram::ImplData::realize()
     
     realize_contents();
 
-    run_later(boost::bind(&model_Diagram::ImplData::realize_selection, this));
+    run_later(std::bind(&model_Diagram::ImplData::realize_selection, this));
   }
   if (!_canvas_view)
   {
@@ -977,7 +977,7 @@ void model_Diagram::ImplData::add_tag_badge_to_figure(const model_FigureRef &fig
   badge->set_gradient_from_color(Color::parse(*tag->color()));
   badge->set_text_color(Color::parse("#ffffff"));
 
-  badge->updater_connection= tag->signal_changed()->connect(boost::bind(&update_badge, _1, _2, tag, badge));
+  badge->updater_connection= tag->signal_changed()->connect(std::bind(&update_badge, std::placeholders::_1, std::placeholders::_2, tag, badge));
 
   get_canvas_view()->get_current_layer()->add_item(badge,
                                                    get_canvas_view()->get_current_layer()->get_root_area_group());

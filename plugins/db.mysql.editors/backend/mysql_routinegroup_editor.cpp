@@ -30,7 +30,7 @@ MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(const db_mysql_RoutineGroup
 {
   _routine_group = group;
   if (!is_editing_live_object())
-    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), boost::bind(&MySQLRoutineGroupEditorBE::commit_changes, this));
+    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), std::bind(&MySQLRoutineGroupEditorBE::commit_changes, this));
 }
 
 //--------------------------------------------------------------------------------------------------

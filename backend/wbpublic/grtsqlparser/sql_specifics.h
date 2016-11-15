@@ -22,8 +22,6 @@
 #include "wbpublic_public_interface.h"
 #include "sqlide/sqlide_generics.h"
 #include "grt.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/cstdint.hpp>
 #include <list>
 #include <string>
 

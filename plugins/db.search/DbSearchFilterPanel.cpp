@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #include "DbSearchFilterPanel.h"
 #include <sstream>
 #include <string>
-#include <boost/lambda/bind.hpp>
 #include "base/string_utilities.h"
 
 void update_numeric(mforms::TextEntry& te)
@@ -66,13 +65,13 @@ DBSearchFilterPanel::DBSearchFilterPanel(): Box(false), _search_box(true), _filt
   _limits_box.add(&_limit_table, false, true);
   _limit_table.set_size(80, -1);
   _limit_table.set_value("100");
-  _limit_table.signal_changed()->connect(boost::bind(update_numeric, boost::ref(_limit_table)));
+  _limit_table.signal_changed()->connect(std::bind(update_numeric, boost::ref(_limit_table)));
   _limit_total_hint.set_text("Max. total matches");
   _limit_total_hint.set_text_align(mforms::MiddleRight);
   _limit_total.set_size(80, -1);
   _limits_box.add(&_limit_total_hint, false, true);
   _limits_box.add(&_limit_total, false, true);
-  _limit_total.signal_changed()->connect(boost::bind(update_numeric, boost::ref(_limit_total)));
+  _limit_total.signal_changed()->connect(std::bind(update_numeric, boost::ref(_limit_total)));
   _limit_total.set_value("100000");
 
 

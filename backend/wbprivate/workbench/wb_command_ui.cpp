@@ -39,7 +39,6 @@
 
 #include <mforms/toolbar.h>
 #include <mforms/menubar.h>
-#include <boost/lambda/bind.hpp>
 
 using namespace bec;
 using namespace wb;
@@ -1204,7 +1203,7 @@ void CommandUI::revalidate_edit_menu_items()
     _validate_edit_menu_items();
   else
     bec::GRTManager::get()->run_once_when_idle(std::bind(&CommandUI::revalidate_edit_menu_items, this));
-  //mforms::Utilities::perform_from_main_thread((boost::bind(&CommandUI::revalidate_edit_menu_items, this), (void*)0));
+  //mforms::Utilities::perform_from_main_thread((std::bind(&CommandUI::revalidate_edit_menu_items, this), (void*)0));
 
   // NOTE : using perform_from_main_thread causes a _grtm reference on the BaseEditor to to get lost in the process, 
   //        this causes the application to crash while attempting to create AutoUndoUpdate objects.

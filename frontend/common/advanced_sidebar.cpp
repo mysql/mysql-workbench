@@ -1425,14 +1425,14 @@ void AdvancedSidebar::setup_schema_tree()
 #ifndef __APPLE__
   _new_schema_tree.set_back_color(background_color);
 #endif
-  scoped_connect(_new_schema_tree.signal_changed(), boost::bind(&AdvancedSidebar::on_tree_node_selected, this));
+  scoped_connect(_new_schema_tree.signal_changed(), std::bind(&AdvancedSidebar::on_tree_node_selected, this));
 
   _filtered_schema_tree.add_column(mforms::IconStringColumnType, _("Schema"), 100, false, true);
   _filtered_schema_tree.set_selection_mode(mforms::TreeSelectMultiple);
 #ifndef __APPLE__
   _filtered_schema_tree.set_back_color(background_color);
 #endif
-  scoped_connect(_filtered_schema_tree.signal_changed(), boost::bind(&AdvancedSidebar::on_tree_node_selected, this));
+  scoped_connect(_filtered_schema_tree.signal_changed(), std::bind(&AdvancedSidebar::on_tree_node_selected, this));
 
   _new_schema_tree.set_context_menu(&_tree_context_menu);
   _new_schema_tree.end_columns();
@@ -1440,7 +1440,7 @@ void AdvancedSidebar::setup_schema_tree()
   _filtered_schema_tree.set_context_menu(&_tree_context_menu);
   _filtered_schema_tree.end_columns();
 
-  scoped_connect(_tree_context_menu.signal_will_show(),boost::bind(&AdvancedSidebar::on_show_menu, this, _1));
+  scoped_connect(_tree_context_menu.signal_will_show(),std::bind(&AdvancedSidebar::on_show_menu, this, std::placeholders::_1));
 
   _schema_search_box.set_back_color(background_color);
   _schema_search_box.set_name("schema-search-box");
@@ -1467,8 +1467,8 @@ void AdvancedSidebar::setup_schema_tree()
       );
   _schema_search_text.set_name("Schema Filter Entry");
   _schema_search_box.add(&_schema_search_text, true, true);
-  scoped_connect(_schema_search_text.signal_changed(), boost::bind(&AdvancedSidebar::on_search_text_changed_prepare, this));
-  scoped_connect(_remote_search.signal_clicked(), boost::bind(&AdvancedSidebar::on_remote_search_clicked, this));
+  scoped_connect(_schema_search_text.signal_changed(), std::bind(&AdvancedSidebar::on_search_text_changed_prepare, this));
+  scoped_connect(_remote_search.signal_clicked(), std::bind(&AdvancedSidebar::on_remote_search_clicked, this));
 
   // Add the tree itself and its section caption to the container.
   _schema_box.set_back_color(background_color);
@@ -1522,7 +1522,7 @@ void AdvancedSidebar::on_search_text_changed_prepare()
   if (_filterTimer)
     bec::GRTManager::get()->cancel_timer(_filterTimer);
   
-  _filterTimer = bec::GRTManager::get()->run_every(boost::bind(&AdvancedSidebar::on_search_text_changed, this), 1.0);
+  _filterTimer = bec::GRTManager::get()->run_every(std::bind(&AdvancedSidebar::on_search_text_changed, this), 1.0);
 }
 
 

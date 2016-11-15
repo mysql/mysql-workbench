@@ -233,7 +233,7 @@ static void call_refresh(void *theEditor)
   
   mBackEnd = new bec::RoleEditorBE(db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
   
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
   
   [objectListDS setBackEnd: mBackEnd];
   

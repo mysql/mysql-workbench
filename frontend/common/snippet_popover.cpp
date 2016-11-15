@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,7 +88,7 @@ SnippetPopover::SnippetPopover()
   _editor->set_language(mforms::LanguageMySQL);
   _editor->set_text("USE SQL CODE;");
   _editor->set_features(mforms::FeatureGutter, false);
-  _editor->signal_changed()->connect(boost::bind(&SnippetPopover::text_changed, this, _1, _2));
+  _editor->signal_changed()->connect(std::bind(&SnippetPopover::text_changed, this, std::placeholders::_1, std::placeholders::_2));
   border_panel->add(_editor);
 
   Box* button_box = manage(new Box(true));
@@ -103,17 +103,17 @@ SnippetPopover::SnippetPopover()
     "tiny_undo.png"
 #endif
   ));
-  _revert_button->signal_clicked()->connect(boost::bind(&SnippetPopover::revert_clicked, this));
+  _revert_button->signal_clicked()->connect(std::bind(&SnippetPopover::revert_clicked, this));
 
   _edit_button = manage(new Button());
   _edit_button->set_text("Edit");
   _edit_button->set_size(65, -1);
-  _edit_button->signal_clicked()->connect(boost::bind(&SnippetPopover::edit_clicked, this));
+  _edit_button->signal_clicked()->connect(std::bind(&SnippetPopover::edit_clicked, this));
 
   _close_button = manage(new Button());
   _close_button->set_text("Done");
   _close_button->set_size(65, -1);
-  _close_button->signal_clicked()->connect(boost::bind(&SnippetPopover::close_clicked, this));
+  _close_button->signal_clicked()->connect(std::bind(&SnippetPopover::close_clicked, this));
   
   button_box->add(_revert_button, false, true);
   button_box->add_end(_close_button, false, true);

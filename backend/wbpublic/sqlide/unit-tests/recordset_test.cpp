@@ -52,7 +52,7 @@ TEST_FUNCTION(1)
   sql::Authentication::Ref auth;
 
   dbc_conn = sql::Dbc_connection_handler::Ref(new sql::Dbc_connection_handler());
-  dbc_conn->ref = dbc_drv_man->getConnection(wbt->get_connection_properties(), boost::bind(dummy));
+  dbc_conn->ref = dbc_drv_man->getConnection(wbt->get_connection_properties(), std::bind(dummy));
 
   ensure("connection", dbc_conn->ref.get() != 0);
 }
