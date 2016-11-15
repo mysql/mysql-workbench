@@ -11,6 +11,15 @@ include(sepbuild.pri)
 
 VERSION = $$SCINTILLA_VERSION
 
+unix {
+    # <regex> requires C++11 support
+    greaterThan(QT_MAJOR_VERSION, 4){    
+        CONFIG += c++11
+    } else {
+        QMAKE_CXXFLAGS += -std=c++0x -Wno-deprecated-declarations
+    }
+}
+
 win32 {
 	DebugBuild {
 		TARGET_EXT = _d.pyd
@@ -107,6 +116,9 @@ HEADERS  += \
     ../ScintillaEditBase/ScintillaEditBase.h
 
 DEFINES += SCINTILLA_QT=1 MAKING_LIBRARY=1 SCI_LEXER=1 _CRT_SECURE_NO_DEPRECATE=1
+CONFIG(release, debug|release) {
+    DEFINES += NDEBUG=1
+}
 
 DESTDIR = ../../bin
 

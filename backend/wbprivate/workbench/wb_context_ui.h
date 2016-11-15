@@ -53,6 +53,7 @@ namespace mforms {
   class XConnectionsSection;
   class ConnectionsSection;
   class DocumentsSection;
+  class LaunchersSection;
 }
 
 namespace wb {
@@ -158,6 +159,7 @@ namespace wb {
     
     void refresh_home_connections(bool clear_state = true);
     void refresh_home_documents();
+    void refreshHomeStarters();
 
     bool start_plugin_install(const std::string &path);
     void start_plugin_net_install(const std::string &url);
@@ -210,6 +212,7 @@ namespace wb {
     mforms::XConnectionsSection *_xConnectionsSection;
     mforms::ConnectionsSection *_connectionsSection;
     mforms::DocumentsSection *_documentsSection;
+    mforms::LaunchersSection *_launchersSection;
     std::vector<db_mgmt_ConnectionRef> _oldAuthList;
 
     OutputView *_output_view;

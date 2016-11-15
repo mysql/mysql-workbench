@@ -87,7 +87,6 @@
                 <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
                 <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
                 <File Id="file1121" Name="vsqlite++.dll"/>
-                <File Id="file1122" Name="tinyxml.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
@@ -121,7 +120,6 @@
                 <File Id="file1068" Name="wb.model.editors.wbp.fe.dll"/>
                 <File Id="file1069" Name="wb.model.editors.wbp.wr.dll"/>
                 <File Id="file1070" Name="wb.model.grt.dll"/>
-                <File Id="file1074" Name="wb.mysql.import.grt.dll"/>
                 <?if $(var.SETUP_TYPE) != "community" ?>
                 <File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
                 <File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
@@ -632,7 +630,7 @@
                     <File Id="file62069" Name="query_stop_on_error.png"/>
                     <File Id="file62070" Name="tiny_rollback.png"/>
                     <File Id="file62071" Name="tiny_rollback_disabled.png"/>
-                    <File Id="file62080" Name="admin_firewall.png"/>
+                    <File Id="file62080" Name="admin_firewall.png"/>                    
                   </Component>
                 </Directory>
 
@@ -812,9 +810,19 @@
                     <File Id="home28" Name="wb_tile_manage.png"/>
                     <File Id="home29" Name="wb_tile_more.png"/>
                     <File Id="home30" Name="wb_tile_open.png"/>
-                    <File Id="wb_x_tile.png" Name="wb_x_tile.png"/>
-                    <File Id="wb_x_js_tile.png" Name="wb_x_js_tile.png"/>
-                    <File Id="wb_x_py_tile.png" Name="wb_x_py_tile.png"/>
+                    <File Id="wb_starter_edelivery_52" Name="wb_starter_edelivery_52.png"/>
+                    <File Id="wb_starter_generic_52" Name="wb_starter_generic_52.png"/>
+                    <File Id="wb_starter_grt_shell_52" Name="wb_starter_grt_shell_52.png"/>
+                    <File Id="wb_starter_mysql_bug_reporter_52" Name="wb_starter_mysql_bug_reporter_52.png"/>
+                    <File Id="wb_starter_mysql_doc_lib_52" Name="wb_starter_mysql_doc_lib_52.png"/>
+                    <File Id="wb_starter_mysql_forums_52" Name="wb_starter_mysql_forums_52.png"/>
+                    <File Id="wb_starter_mysql_migration_52" Name="wb_starter_mysql_migration_52.png"/>
+                    <File Id="wb_starter_mysql_news_52" Name="wb_starter_mysql_news_52.png"/>
+                    <File Id="wb_starter_mysql_utilities_52" Name="wb_starter_mysql_utilities_52.png"/>
+                    <File Id="wb_starter_mysql_wb_blog_52" Name="wb_starter_mysql_wb_blog_52.png"/>
+                    <File Id="wb_starter_mysql_wb_twitters_52" Name="wb_starter_mysql_wb_twitters_52.png"/>
+                    <File Id="wb_starter_planet_mysql_52" Name="wb_starter_planet_mysql_52.png"/>
+                    <File Id="wb_starter_support_52" Name="wb_starter_support_52.png"/>
                   </Component>
                 </Directory>
 
@@ -1974,10 +1982,11 @@
 
               <Directory Id="mysql.profiles_dir" Name="mysql.profiles">
                 <Component DiskId="1" Guid="{6818AA27-3CA1-4e52-9BE6-94004D7A81D8}" Id="mysql.profiles" Location="either">
+                  <File Id="file12100c" Name="CentOS_7_(MySQL_Package).xml"/>
                   <File Id="file12100" Name="Fedora_Linux_(MySQL_Package).xml"/>
                   <File Id="file12101" Name="Fedora_Linux_(Vendor_Package).xml"/>
-                  <File Id="file121012" Name="Fedora_Linux_15_(Vendor_Package).xml"/>
-                  <File Id="file121012a" Name="Fedora_Linux_16_(Vendor_Package).xml"/>
+                  <File Id="file121012" Name="Fedora_Linux_24_(Vendor_Package).xml"/>
+                  <File Id="file121012a" Name="Fedora_Linux_25_(Vendor_Package).xml"/>
                   <File Id="file12102" Name="FreeBSD_(MySQL_Package).xml"/>
                   <File Id="file12103" Name="Generic_Linux_(MySQL_tar_package).xml"/>
                   <File Id="file12104" Name="MacOS_X_(MySQL_Package).xml"/>
@@ -1989,21 +1998,16 @@
                   <File Id="file12108u" Name="Ubuntu_Linux_(sysvinit,_MySQL_Package).xml"/>
                   <File Id="file12109u" Name="Ubuntu_Linux_(sysvinit,_Vendor_Package).xml"/>
                   <File Id="file12113" Name="Linux_(Custom).xml"/>
-                  <File Id="file12114" Name="Windows_(MySQL_5.0_x86_Installer_Package).xml"/>
-                  <File Id="file12115" Name="Windows_(MySQL_5.0_x64_Installer_Package).xml"/>
-                  <File Id="file12116" Name="Windows_(MySQL_5.1_x86_Installer_Package).xml"/>
-                  <File Id="file12117" Name="Windows_(MySQL_5.1_x64_Installer_Package).xml"/>
-                  <File Id="file12118" Name="Windows_(MySQL_x86_zip_Package).xml"/>
-                  <File Id="file12119" Name="Windows_(MySQL_x64_zip_Package).xml"/>
-                  <File Id="file12120" Name="Windows_x64_(MySQL_5.0_x86_Installer_Package).xml"/>
-                  <File Id="file12121" Name="Windows_x64_(MySQL_5.1_x86_Installer_Package).xml"/>
                   <File Id="file12122" Name="Windows_x64_(MySQL_x86_zip_Package).xml"/>
                   <File Id="file12123" Name="Windows_(MySQL_5.5_Installer_Package).xml"/>
                   <File Id="file12126" Name="Windows_(MySQL_5.6_Installer_Package).xml"/>
-				  <File Id="file12127" Name="Windows_(MySQL_5.7_Installer_Package).xml"/>
+				          <File Id="file12127" Name="Windows_(MySQL_5.7_Installer_Package).xml"/>
+                  <File Id="file12128" Name="Windows_(MySQL_8.0_Installer_Package).xml"/>
                   <File Id="file12129" Name="Oracle_Linux_6_(MySQL_Package).xml"/>
                   <File Id="file12130" Name="Oracle_Linux_7_(MySQL_Package).xml"/>
                   <File Id="file12131" Name="RHEL_7_(MySQL_Package).xml"/>
+                  <File Id="file12132" Name="MySQL_Sandbox_Linux(MySQL_tar_package).xml"/>
+                  <File Id="file12133" Name="MySQL_Sandbox_MacOS(MySQL_tar_package).xml"/>
                 </Component>
               </Directory>
 

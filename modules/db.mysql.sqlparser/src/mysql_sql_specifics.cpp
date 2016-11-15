@@ -37,7 +37,7 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_statement_info : protected Mysql_sq
 {
 public:
   Mysql_sql_statement_info() : _row_count(nullptr), _row_offset(nullptr), _contains_limit_clause(nullptr),
-  _limit_ins_pos(nullptr), _statement_valid(nullptr) { NULL_STATE_KEEPER }
+  _limit_ins_pos(nullptr), _statement_valid(false) { NULL_STATE_KEEPER }
   virtual ~Mysql_sql_statement_info() {}
 
 private:

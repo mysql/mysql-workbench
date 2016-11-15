@@ -455,6 +455,8 @@ namespace wb {
 
     void load_app_state(std::shared_ptr<grt::internal::Unserializer> unserializer);
     void save_app_state();
+    void loadStarters();
+    void saveStarters();
 
     grt::ValueRef save_grt();
     
@@ -516,7 +518,7 @@ namespace wb {
     boost::function<void (bool)> lock_gui;
 
     boost::function<void (std::string)> perform_command;
-    
+
     boost::function<bool ()> quit_application;
 
   private:

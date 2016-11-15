@@ -101,6 +101,14 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT)
 #define STATE_DOCUMENT_FORMAT "MySQL Workbench Application State"
 #define STATE_DOCUMENT_VERSION "1.0.0"
 
+// Starters files.
+#define STARTERS_PREDEFINED_FILE_NAME "data/predefined_starters.xml"
+#define STARTERS_USER_FILE_NAME "user_starters.xml"
+#define STARTERS_SETTINGS_FILE_NAME "starters_settings.xml"
+#define STARTERS_DOCUMENT_FORMAT "MySQL Workbench Starters"
+#define STARTERS_DOCUMENT_VERSION "1.0.0"
+
+
 // Don't send a given refresh_request unless no new ones arrive in this time.
 #define UI_REQUEST_THROTTLE 0.3
 
@@ -613,7 +621,7 @@ void WBContext::finalize()
   {
     save_app_options();
     save_app_state();
-
+    saveStarters();
     save_connections();
   }
 
@@ -1320,6 +1328,8 @@ grt::ValueRef WBContext::setup_context_grt(WBOptions *options)
   // when they are loading/initializing.
   load_app_state(unserializer);
 
+  loadStarters();
+
   init_plugin_groups_grt(options);
 
   run_init_scripts_grt(options);
@@ -1768,8 +1778,10 @@ void WBContext::set_default_options(grt::DictRef options)
 
   set_default(options, "@ColorScheme/Items", "System Default:0,Windows 7:1,Windows 8:2,Windows 8 (alternative):3,High Contrast:4");
 
-  //Advanced options
-  set_default(options, "sshkeepalive", 0); // by default turned off
+  // Advanced options
+  // Option can't be turned off by default. We've got a situation with connector c++ on windows
+  // if tunnel will get closed just before calling mysql_ping() (keep alive) then ping will try to use invalid mysql->net structure.
+  set_default(options, "sshkeepalive", 60);
   set_default(options, "sshtimeout", 10);
 
   // Other options
@@ -2152,6 +2164,143 @@ void WBContext::save_app_state()
     std::string message = base::strfmt("Error saving GRT shell state: %s", exc.what());
     _grt->send_error(message);
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static grt::ListRef<app_Starter> loadStartersFile(const std::string &datadir, const std::string &filename)
+{
+  grt::ListRef<app_Starter> newStarters;
+
+  std::string startersFile = base::makePath(datadir, filename);
+  if (base::file_exists(startersFile))
+  {
+    xmlDocPtr xmlDocument= NULL;
+    try
+    {
+      xmlDocument= grt::GRT::get()->load_xml(startersFile);
+      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+
+      std::string doctype, version;
+      grt::GRT::get()->get_xml_metainfo(xmlDocument, doctype, version);
+
+      if (doctype != STARTERS_DOCUMENT_FORMAT)
+      {
+        throw std::runtime_error(_("The file is not a valid MySQL Workbench starters file.\n"
+        "The file will be skipped and starters are reset to their initial set."));
+      }
+
+      return grt::ListRef<app_Starter>::cast_from(grt::GRT::get()->unserialize_xml(xmlDocument, startersFile));
+    }
+    catch (std::exception &exc)
+    {
+      mforms::Utilities::show_error(_("Error while loading starters"),
+      strfmt("The file '%s' could not be loaded: %s", startersFile.c_str(), exc.what()), _("Close"));
+      grt::GRT::get()->send_warning(strfmt("Error while loading '%s': %s",
+      startersFile.c_str(), exc.what()));
+    }
+  }
+
+  return newStarters;
+}
+
+void WBContext::loadStarters()
+{
+  // Initialize starters object.
+   app_StartersRef starters(grt::Initialized);
+   starters->owner(get_root());
+   get_root()->starters(starters);
+
+   // Load predefined starters.
+   auto newPredefinedStarters = loadStartersFile(_datadir, STARTERS_PREDEFINED_FILE_NAME);
+   if (newPredefinedStarters.is_valid())
+   {
+      BaseListRef predefined = starters->predefined();
+      for (size_t c= predefined.count(), i= 0; i < c; i++)
+        predefined.remove(0);
+
+      std::string edition;
+      if (is_commercial())
+        edition = "se";
+      else
+        edition = "ce";
+      for (size_t c= newPredefinedStarters.count(), i= 0; i < c; i++)
+      {
+        std::string starter_edition = newPredefinedStarters[i]->edition();
+        if (starter_edition == "" || starter_edition.find(edition) != std::string::npos)
+          predefined.ginsert(newPredefinedStarters[i]);
+      }
+   }
+
+   // Load user starters if there are any.
+   auto newCustomStarters = loadStartersFile(_datadir, STARTERS_USER_FILE_NAME);
+   if (newCustomStarters.is_valid())
+     grt::replace_contents(starters->custom(), newCustomStarters);
+
+   // Finally fill the the starter display list. If there is no saved list use the
+   // predefined starters for this.
+   auto starterLinks = loadStartersFile(_datadir, STARTERS_SETTINGS_FILE_NAME);
+
+   // Check if we could load the links and if not, add the predefined ones as list.
+   if (!starterLinks.is_valid() || starterLinks.count() == 0)
+     grt::replace_contents(starters->displayList(), starters->predefined());
+   else
+     grt::replace_contents(starters->displayList(), starterLinks);
+
+   // Check if there are starters introduced in a new version of WB and this is the first run for it.
+   // In that case we add the starter also to the display list (if it isn't already there).
+   GrtVersionRef last_version = bec::parse_version(read_state("last-run-as", "global", std::string("5.0.0")));
+
+   for (grt::ListRef<app_Starter>::const_iterator iterator= starters->predefined().begin();
+     iterator != starters->predefined().end(); iterator++)
+   {
+     std::string introduction = (*iterator)->introduction();
+     if (introduction.empty())
+       continue; // No action needed if there was never an introduction set.
+
+     GrtVersionRef entry_version = bec::parse_version(introduction);
+     bool ignore = !bec::version_greater(entry_version, last_version);
+     if (!ignore)
+     {
+       // Look if that starter is already in the display list.
+       for (grt::ListRef<app_Starter>::const_iterator display_iterator= starters->displayList().begin();
+         display_iterator != starters->displayList().end(); display_iterator++)
+       {
+         if ((*display_iterator)->id() == (*iterator)->id())
+         {
+           ignore = true;
+           break;
+         }
+       }
+     }
+     if (!ignore)
+       starters->displayList().insert(*iterator);
+   }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void WBContext::saveStarters()
+{
+  //nothing to save
+   if(!get_root()->starters().is_valid())
+     return;
+   // User starters.
+
+   std::string starters_file= base::makePath(_user_datadir, STARTERS_USER_FILE_NAME);
+
+   _grt->serialize(get_root()->starters()->custom(), starters_file + ".tmp",
+     STARTERS_DOCUMENT_FORMAT, STARTERS_DOCUMENT_VERSION);
+   g_remove(starters_file.c_str());
+   g_rename(std::string(starters_file + ".tmp").c_str(), starters_file.c_str());
+
+   // Starter settings.
+   starters_file= base::makePath(_user_datadir, STARTERS_SETTINGS_FILE_NAME);
+   _grt->serialize(get_root()->starters()->displayList(), starters_file + ".tmp",
+     STARTERS_DOCUMENT_FORMAT, STARTERS_DOCUMENT_VERSION, true);
+   base::remove(starters_file.c_str());
+   base::rename(std::string(starters_file + ".tmp").c_str(), starters_file.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2773,33 +2922,22 @@ bool WBContext::can_close_document()
  */
 bool WBContext::close_document()
 {
-  if (!_asked_for_saving && has_unsaved_changes())
+  if (can_close_document())
   {
-    int answer= execute_in_main_thread<int>("check save changes", boost::bind(
-      mforms::Utilities::show_message, _("Close Document"),
-      _("Do you want to save pending changes to the document?\n\n"
-      "If you don't save your changes, they will be lost."),
-      _("Save"),  _("Cancel"), _("Don't Save")));
-    if (answer == mforms::ResultOk)
-    {
-      if (!save_as(_filename))
-        return false;
-    }
-    else if (answer == mforms::ResultCancel)
-      return false;
-  }
-  _asked_for_saving= false;
-  
-  block_user_interaction(true);
-  
-  // close the current document
-  execute_in_main_thread("close document", boost::bind(&WBContext::do_close_document, this, false), true);  
-  
-  block_user_interaction(false);
+    _asked_for_saving = false;
 
-  _grtManager->has_unsaved_changes(false);
-  
-  return true;
+    block_user_interaction(true);
+
+    // close the current document
+    execute_in_main_thread("close document", boost::bind(&WBContext::do_close_document, this, false), true);
+
+    block_user_interaction(false);
+
+    _grtManager->has_unsaved_changes(false);
+
+    return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------

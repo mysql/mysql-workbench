@@ -52,6 +52,7 @@
 #include "mforms/home_screen.h"
 #include "mforms/home_screen_connections.h"
 #include "mforms/home_screen_documents.h"
+#include "mforms/home_screen_launchers.h"
 #include <zip.h>
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
@@ -321,6 +322,10 @@ void WBContextUI::show_home_screen(bool startClassic)
     _documentsSection->set_name("Documents Section");
     _home_screen->addSection(_documentsSection);
 
+    _launchersSection = mforms::manage(new mforms::LaunchersSection(_home_screen));
+    _launchersSection->set_name("Launchers Section");
+    _home_screen->addSection(_launchersSection);
+
     _home_screen->addSectionEntry("sidebar_migration.png", nullptr, [this]() {
       logInfo("Opening Migration Wizard...\n");
       _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
@@ -454,6 +459,7 @@ void WBContextUI::show_home_screen(bool startClassic)
   {
     refresh_home_documents();
     refresh_home_connections();
+    refreshHomeStarters();
   }
   catch (const std::exception *exc)
   { error = exc->what(); }
@@ -577,12 +583,12 @@ anyMap WBContextUI::connectionToMap(db_mgmt_ConnectionRef connection)
 
   output = grt::convert(connection->parameterValues());
 
-  if (instance->serverInfo().is_valid())
+  if (instance.is_valid() && instance->serverInfo().is_valid())
     output.insert({"serverInfo", grt::convert(instance->serverInfo())});
   else
     output.insert({"serverInfo", base::any()});
 
-  if (instance->loginInfo().is_valid())
+  if (instance.is_valid() && instance->loginInfo().is_valid())
       output.insert({"loginInfo", grt::convert(instance->loginInfo())});
   else
     output.insert({"loginInfo", base::any()});
@@ -806,30 +812,21 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
   {
     bec::ArgumentPool argument_pool;
     _wb->update_plugin_arguments_pool(argument_pool);
-
+    
     if (object.is<std::string>())
     {
       std::string val = object;
-      if (base::hasSuffix(val, ".mwb"))
+      db_mgmt_ConnectionRef connection = getConnectionById(val);
+      
+      if (connection.is_valid())
+        argument_pool.add_entries_for_object("selectedConnection", connection);
+      else if (base::hasSuffix(val, ".mwb"))
         argument_pool.add_simple_value("selectedModelFile", grt::StringRef(val)); // assume a model file
       else
         argument_pool.add_simple_value("selectedGroupName", grt::StringRef(val)); // assume a connection group name
-      get_command_ui()->activate_command(action, argument_pool);
     }
-    else if (object.is<grt::ValueRef>())
-    {
-      grt::ValueRef val = object;
-      if (db_mgmt_ConnectionRef::can_wrap(val))
-      {
-        argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef::cast_from(val));
-        get_command_ui()->activate_command(action, argument_pool);
-      }
-      else
-        get_command_ui()->activate_command(action, argument_pool);
-    }
-    else
-      get_command_ui()->activate_command(action, argument_pool);
-
+    
+    get_command_ui()->activate_command(action, argument_pool);
   }
 }
 
@@ -869,6 +866,33 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
   {
     case HomeScreenAction::ActionNone:
       break;
+
+    case HomeScreenAction::ActionShortcut:
+    {
+      app_StarterRef starter;
+      if (!anyObject.isNull())
+        starter = anyObject;
+
+      if (starter.is_valid())
+        start_plugin(starter->title(), starter->command(), bec::ArgumentPool());
+    }
+
+    break;
+
+    case HomeScreenAction::ActionRemoveShortcut:
+    {
+      app_StarterRef starter;
+      if (!anyObject.isNull())
+        starter = anyObject;
+
+      if (starter.is_valid())
+      {
+        _wb->get_root()->starters()->displayList()->remove(starter);
+        _wb->saveStarters();
+        refreshHomeStarters();
+      }
+    }
+    break;
 
     case HomeScreenAction::ActionOpenConnectionFromList:
     {
@@ -1271,3 +1295,20 @@ void WBContextUI::refresh_home_documents()
 }
 
 //--------------------------------------------------------------------------------------------------
+
+void WBContextUI::refreshHomeStarters()
+{
+  _launchersSection->clearLaunchers();
+
+  if (_launchersSection  == nullptr || _home_screen == nullptr)
+    return;
+
+  grt::ListRef<app_Starter> starters= _wb->get_root()->starters()->displayList();
+  for (grt::ListRef<app_Starter>::const_iterator it = starters.begin(); it != starters.end();
+      it++)
+  {
+    _launchersSection->addLauncher((*it)->smallIcon(), (*it)->title(), (*it)->description(), base::any(*it));
+  }
+
+
+}

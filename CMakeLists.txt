@@ -60,7 +60,7 @@ list(REMOVE_DUPLICATES GTK3_INCLUDE_DIRS)
 set(GTK3_LIBRARIES ${GTK3_LIBRARIES} ${GTKMM_LIBRARIES} ${GTHREAD_LIBRARIES} ${GMODULE_LIBRARIES})
 list(REMOVE_DUPLICATES GTK3_LIBRARIES)
 
-pkg_check_modules(GLIB REQUIRED glib-2.0)
+pkg_check_modules(GLIB REQUIRED glib-2.0>=2.30)
 
 if (USE_BUNDLED_MYSQLDUMP)
   set(USE_BUNDLED_MYSQLDUMP -DHAVE_BUNDLED_MYSQLDUMP=1)
@@ -134,7 +134,6 @@ find_package(OpenGL REQUIRED)
 
 find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
-find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(Boost REQUIRED)
 
@@ -306,8 +305,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   endif()
 endif()
 
-if(BUILD_FOR_TESTS)
-    message ("Enable GCOV due to BUILD_FOR_TESTS")
+if(BUILD_FOR_GCOV)
+    message ("Enable GCOV due to BUILD_FOR_GCOV")
     set(WB_CXXFLAGS ${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage)
     set(WB_CFLAGS ${WB_CFLAGS} -fprofile-arcs -ftest-coverage)
 endif()

@@ -16,10 +16,11 @@
 #include <cstdio>
 
 #include <Cocoa/Cocoa.h>
-#include "QuartzTextLayout.h"
 
 #include "Platform.h"
 #include "Scintilla.h"
+
+#include "QuartzTextLayout.h"
 
 NSRect PRectangleToNSRect(Scintilla::PRectangle& rc);
 Scintilla::PRectangle NSRectToPRectangle(NSRect& rc);

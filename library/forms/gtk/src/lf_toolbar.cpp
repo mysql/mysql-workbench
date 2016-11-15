@@ -204,6 +204,7 @@ bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolB
       w = btn;
       break;
     }
+    case mforms::SegmentedToggleItem:
     case mforms::ToggleItem:
     {
       Gtk::ToggleButton *btn = Gtk::manage(new Gtk::ToggleButton());
@@ -296,17 +297,6 @@ bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolB
       auto provider = Gtk::CssProvider::create();
       provider->load_from_data("* { color: #333; font-weight: bold; }");
       w->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
-      break;
-    }
-    case mforms::SegmentedToggleItem:
-    {
-      Gtk::ToggleButton *btn = Gtk::manage(new Gtk::ToggleButton());
-      btn->set_focus_on_click(false);
-      btn->set_relief(Gtk::RELIEF_NONE);
-      btn->signal_toggled().connect(sigc::bind(sigc::ptr_fun(process_ctrl_action), btn, item));
-      btn->set_inconsistent(false);
-
-      w = btn;
       break;
     }
 

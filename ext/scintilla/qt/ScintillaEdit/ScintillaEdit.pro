@@ -11,7 +11,16 @@ TARGET = ScintillaEdit
 TEMPLATE = lib
 CONFIG += lib_bundle
 
-VERSION = 3.5.4
+unix {
+    # <regex> requires C++11 support
+    greaterThan(QT_MAJOR_VERSION, 4){
+        CONFIG += c++11
+    } else {
+        QMAKE_CXXFLAGS += -std=c++0x
+    }
+}
+
+VERSION = 3.7.0
 
 SOURCES += \
     ScintillaEdit.cpp \
@@ -70,6 +79,9 @@ OTHER_FILES +=
 INCLUDEPATH += ../ScintillaEditBase ../../include ../../src ../../lexlib
 
 DEFINES += SCINTILLA_QT=1 MAKING_LIBRARY=1 SCI_LEXER=1 _CRT_SECURE_NO_DEPRECATE=1
+CONFIG(release, debug|release) {
+    DEFINES += NDEBUG=1
+}
 
 DESTDIR = ../../bin
 DLLDESTDIR = ../../bin

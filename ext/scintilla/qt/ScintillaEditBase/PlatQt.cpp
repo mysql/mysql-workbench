@@ -182,7 +182,7 @@ void SurfaceImpl::Init(SurfaceID sid, WindowID /*wid*/)
 
 void SurfaceImpl::InitPixMap(int width,
         int height,
-        Surface * /*surface*/,
+        Surface *surface,
         WindowID /*wid*/)
 {
 	Release();
@@ -190,6 +190,9 @@ void SurfaceImpl::InitPixMap(int width,
 	if (height < 1) height = 1;
 	deviceOwned = true;
 	device = new QPixmap(width, height);
+	SurfaceImpl *psurfOther = static_cast<SurfaceImpl *>(surface);
+	SetUnicodeMode(psurfOther->unicodeMode);
+	SetDBCSMode(psurfOther->codePage);
 }
 
 void SurfaceImpl::Release()
@@ -293,15 +296,13 @@ void SurfaceImpl::RectangleDraw(PRectangle rc,
 {
 	PenColour(fore);
 	BrushColour(back);
-	QRect rect = QRect(rc.left, rc.top, rc.Width() - 1, rc.Height() - 1);
+	QRectF rect(rc.left, rc.top, rc.Width() - 1, rc.Height() - 1);
 	GetPainter()->drawRect(rect);
 }
 
 void SurfaceImpl::FillRectangle(PRectangle rc, ColourDesired back)
 {
-	BrushColour(back);
-	GetPainter()->setPen(Qt::NoPen);
-	GetPainter()->drawRect(QRectFromPRect(rc));
+	GetPainter()->fillRect(QRectFFromPRect(rc), QColorFromCA(back));
 }
 
 void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern)
@@ -329,7 +330,7 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc,
 {
 	PenColour(fore);
 	BrushColour(back);
-	GetPainter()->drawRoundRect(QRectFromPRect(rc));
+	GetPainter()->drawRoundRect(QRectFFromPRect(rc));
 }
 
 void SurfaceImpl::AlphaRectangle(PRectangle rc,
@@ -350,7 +351,7 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc,
 
 	// A radius of 1 shows no curve so add 1
 	qreal radius = cornerSize+1;
-	QRect rect(rc.left, rc.top, rc.Width() - 1, rc.Height() - 1);
+	QRectF rect(rc.left, rc.top, rc.Width() - 1, rc.Height() - 1);
 	GetPainter()->drawRoundedRect(rect, radius, radius);
 }
 
@@ -378,7 +379,7 @@ void SurfaceImpl::Ellipse(PRectangle rc,
 {
 	PenColour(fore);
 	BrushColour(back);
-	GetPainter()->drawEllipse(QRectFromPRect(rc));
+	GetPainter()->drawEllipse(QRectFFromPRect(rc));
 }
 
 void SurfaceImpl::Copy(PRectangle rc, Point from, Surface &surfaceSource)
@@ -436,7 +437,7 @@ void SurfaceImpl::DrawTextTransparent(PRectangle rc,
 
 void SurfaceImpl::SetClip(PRectangle rc)
 {
-	GetPainter()->setClipRect(QRectFromPRect(rc));
+	GetPainter()->setClipRect(QRectFFromPRect(rc));
 }
 
 static size_t utf8LengthFromLead(unsigned char uch)
@@ -475,11 +476,11 @@ void SurfaceImpl::MeasureWidths(Font &font,
 			int codeUnits = (lenChar < 4) ? 1 : 2;
 			qreal xPosition = tl.cursorToX(ui+codeUnits);
 			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
-				positions[i++] = qRound(xPosition);
+				positions[i++] = xPosition;
 			}
 			ui += codeUnits;
 		}
-		int lastPos = 0;
+		XYPOSITION lastPos = 0;
 		if (i > 0)
 			lastPos = positions[i-1];
 		while (i<len) {
@@ -492,21 +493,21 @@ void SurfaceImpl::MeasureWidths(Font &font,
 			size_t lenChar = Platform::IsDBCSLeadByte(codePage, s[i]) ? 2 : 1;
 			qreal xPosition = tl.cursorToX(ui+1);
 			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
-				positions[i++] = qRound(xPosition);
+				positions[i++] = xPosition;
 			}
 			ui++;
 		}
 	} else {
 		// Single byte encoding
 		for (int i=0; i<len; i++) {
-			positions[i] = qRound(tl.cursorToX(i+1));
+			positions[i] = tl.cursorToX(i+1);
 		}
 	}
 }
 
 XYPOSITION SurfaceImpl::WidthText(Font &font, const char *s, int len)
 {
-	QFontMetrics metrics(*FontPointer(font), device);
+	QFontMetricsF metrics(*FontPointer(font), device);
 	SetCodec(font);
 	QString string = codec->toUnicode(s, len);
 	return metrics.width(string);
@@ -514,19 +515,19 @@ XYPOSITION SurfaceImpl::WidthText(Font &font, const char *s, int len)
 
 XYPOSITION SurfaceImpl::WidthChar(Font &font, char ch)
 {
-	QFontMetrics metrics(*FontPointer(font), device);
+	QFontMetricsF metrics(*FontPointer(font), device);
 	return metrics.width(ch);
 }
 
 XYPOSITION SurfaceImpl::Ascent(Font &font)
 {
-	QFontMetrics metrics(*FontPointer(font), device);
+	QFontMetricsF metrics(*FontPointer(font), device);
 	return metrics.ascent();
 }
 
 XYPOSITION SurfaceImpl::Descent(Font &font)
 {
-	QFontMetrics metrics(*FontPointer(font), device);
+	QFontMetricsF metrics(*FontPointer(font), device);
 	// Qt returns 1 less than true descent
 	// See: QFontEngineWin::descent which says:
 	// ### we subtract 1 to even out the historical +1 in QFontMetrics's
@@ -541,19 +542,19 @@ XYPOSITION SurfaceImpl::InternalLeading(Font & /* font */)
 
 XYPOSITION SurfaceImpl::ExternalLeading(Font &font)
 {
-	QFontMetrics metrics(*FontPointer(font), device);
+	QFontMetricsF metrics(*FontPointer(font), device);
 	return metrics.leading();
 }
 
 XYPOSITION SurfaceImpl::Height(Font &font)
 {
-	QFontMetrics metrics(*FontPointer(font), device);
+	QFontMetricsF metrics(*FontPointer(font), device);
 	return metrics.height();
 }
 
 XYPOSITION SurfaceImpl::AverageCharWidth(Font &font)
 {
-	QFontMetrics metrics(*FontPointer(font), device);
+	QFontMetricsF metrics(*FontPointer(font), device);
 	return metrics.averageCharWidth();
 }
 
@@ -782,7 +783,7 @@ private:
 
 class ListWidget : public QListWidget {
 public:
-	ListWidget(QWidget *parent);
+	explicit ListWidget(QWidget *parent);
 	virtual ~ListWidget();
 
 	void setDoubleClickAction(CallBackAction action, void *data);
@@ -818,7 +819,11 @@ void ListBoxImpl::Create(Window &parent,
 #if defined(Q_OS_WIN)
 	// On Windows, Qt::ToolTip causes a crash when the list is clicked on
 	// so Qt::Tool is used.
-	list->setParent(0, Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+	list->setParent(0, Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+		| Qt::WindowDoesNotAcceptFocus
+#endif
+	);
 #else
 	// On OS X, Qt::Tool takes focus so main window loses focus so
 	// keyboard stops working. Qt::ToolTip works but its only really
@@ -983,7 +988,7 @@ void ListBoxImpl::RegisterQPixmapImage(int type, const QPixmap& pm)
 	if (list != NULL) {
 		QSize iconSize = list->iconSize();
 		if (pm.width() > iconSize.width() || pm.height() > iconSize.height())
-			list->setIconSize(QSize(qMax(pm.width(), iconSize.width()), 
+			list->setIconSize(QSize(qMax(pm.width(), iconSize.width()),
 						 qMax(pm.height(), iconSize.height())));
 	}
 
@@ -1004,7 +1009,7 @@ void ListBoxImpl::RegisterRGBAImage(int type, int width, int height, const unsig
 void ListBoxImpl::ClearRegisteredImages()
 {
 	images.clear();
-	
+
 	ListWidget *list = static_cast<ListWidget *>(wid);
 	if (list != NULL)
 		list->setIconSize(QSize(0, 0));
@@ -1112,7 +1117,7 @@ class DynamicLibraryImpl : public DynamicLibrary {
 protected:
 	QLibrary *lib;
 public:
-	DynamicLibraryImpl(const char *modulePath) {
+	explicit DynamicLibraryImpl(const char *modulePath) {
 		QString path = QString::fromUtf8(modulePath);
 		lib = new QLibrary(path);
 	}

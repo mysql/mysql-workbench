@@ -212,9 +212,6 @@ copy %EXT_LIB_DIR%\sqlite\%2\sqlite3.dll %TARGET_DIR%\.
 echo * vsqlite++ library ...
 copy "%EXT_LIB_DIR%\vsqlite++\%2\vsqlite++.dll" %TARGET_DIR%\.
 
-echo * tinyxml library ...
-copy %EXT_LIB_DIR%\tinyxml\%2\tinyxml.dll %TARGET_DIR%\.
-
 echo * gdal library + tools ...
 copy %EXT_LIB_DIR%\gdal\%2\gdal.dll %TARGET_DIR%\.
 copy %EXT_LIB_DIR%\gdal\%2\*.exe %TARGET_DIR%\.
