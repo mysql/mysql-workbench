@@ -687,7 +687,7 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
 
     SelectOptionDialog dialog(_("Move To Group"), _("Pick a group to move the selected connection "
       "to\nor type a name to move it to a new one."), groups);
-    dialog.set_validation_function(boost::bind(&validate_group_for_movement<db_mgmt_Connection>, connections, val, _1));
+    dialog.set_validation_function(std::bind(&validate_group_for_movement<db_mgmt_Connection>, connections, val, std::placeholders::_1));
     std::string result = dialog.run();
 
     // At this point the movement is considered valid so we just do it.
