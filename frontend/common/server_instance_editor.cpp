@@ -168,7 +168,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
   _content_box.add(&_tabview, true, true);
   _top_hbox.add(&_content_box, true, true);
 
-  _connect_panel->set_driver_changed_cb(boost::bind(&ServerInstanceEditor::driver_changed_cb, this, _1));
+  _connect_panel->set_driver_changed_cb(std::bind(&ServerInstanceEditor::driver_changed_cb, this, std::placeholders::_1));
   scoped_connect(_tabview.signal_tab_changed(), boost::bind(&ServerInstanceEditor::tab_changed, this));
   scoped_connect(_stored_connection_list.signal_changed(),boost::bind(&ServerInstanceEditor::show_connection, this));
   

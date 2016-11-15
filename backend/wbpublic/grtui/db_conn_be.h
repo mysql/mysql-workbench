@@ -118,11 +118,11 @@ public:
   void init(
     const db_mgmt_DriverRef &driver,
     const db_mgmt_ConnectionRef &stored_conn,
-    const boost::function<void (bool)> &suspend_layout,
-    const boost::function<void ()> &begin_layout,
-    const boost::function<void (DbDriverParam*, ControlType, const base::ControlBounds&,
+    const std::function<void (bool)> &suspend_layout,
+    const std::function<void ()> &begin_layout,
+    const std::function<void (DbDriverParam*, ControlType, const base::ControlBounds&,
       const std::string &)> &create_control,
-    const boost::function<void ()> &end_layout,
+    const std::function<void ()> &end_layout,
     bool skip_schema=false,
     int first_row_label_width= 100,
     int hmargin= 10,
@@ -143,10 +143,10 @@ private:
   db_mgmt_ConnectionRef _connection;
   bool _skip_schema;
   
-  boost::function<void ()> _begin_layout;
-  boost::function<void ()> _end_layout;
-  boost::function<void (bool)> _suspend_layout;
-  boost::function<void (DbDriverParam*, ControlType, const base::ControlBounds&,
+  std::function<void ()> _begin_layout;
+  std::function<void ()> _end_layout;
+  std::function<void (bool)> _suspend_layout;
+  std::function<void (DbDriverParam*, ControlType, const base::ControlBounds&,
     const std::string &)> _create_control;
 
   void init_dbc_connection(sql::Connection* dbc_conn, const db_mgmt_ConnectionRef& connectionProperties);
@@ -157,11 +157,11 @@ public:
   ~DbConnection();
   
   void set_control_callbacks(
-    const boost::function<void (bool)> &suspend_layout,
-    const boost::function<void ()> &begin_layout,
-    const boost::function<void (DbDriverParam*, ControlType, const base::ControlBounds&,
+    const std::function<void (bool)> &suspend_layout,
+    const std::function<void ()> &begin_layout,
+    const std::function<void (DbDriverParam*, ControlType, const base::ControlBounds&,
       const std::string &)> &create_control,
-    const boost::function<void ()> &end_layout);
+    const std::function<void ()> &end_layout);
 
   DbDriverParams *get_db_driver_param_handles() { return &_db_driver_param_handles; }
   
