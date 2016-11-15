@@ -233,10 +233,10 @@ void DbConnectPanel::init(DbConnection *conn, const db_mgmt_ConnectionRef &defau
   _connection= conn;
   _delete_connection_be= false;
     
-  _connection->set_control_callbacks(boost::bind(&DbConnectPanel::suspend_view_layout, this, _1),
-                                     boost::bind(&DbConnectPanel::begin_layout, this),
-                                     boost::bind(&DbConnectPanel::create_control, this, _1, _2, _3, _4),
-                                     boost::bind(&DbConnectPanel::end_layout, this));
+  _connection->set_control_callbacks(std::bind(&DbConnectPanel::suspend_view_layout, this, std::placeholders::_1),
+                                     std::bind(&DbConnectPanel::begin_layout, this),
+                                     std::bind(&DbConnectPanel::create_control, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4),
+                                     std::bind(&DbConnectPanel::end_layout, this));
   
   if (default_conn.is_valid())
     _anonymous_connection= default_conn;
