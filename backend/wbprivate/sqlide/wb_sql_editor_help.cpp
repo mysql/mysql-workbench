@@ -1350,7 +1350,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       case MySQLParser::RulePreparedStatement:
       {
         auto preparedContext = (MySQLParser::PreparedStatementContext *)context;
-        int type = 0;
+        size_t type = 0;
         if (preparedContext->type != nullptr)
           type = preparedContext->type->getType();
         if (type == MySQLLexer::PREPARE_SYMBOL)

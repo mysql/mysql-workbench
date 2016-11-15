@@ -495,7 +495,7 @@ static bool validate_delete()
   NSResponder* responder = NSApp.keyWindow.firstResponder;
   SEL selector = NSSelectorFromString(@"canDeleteItem:");
   if ([responder respondsToSelector: selector])
-    return [responder performSelector: selector withObject: nil];
+    return ((BOOL (*)(id, SEL, id))[responder methodForSelector: selector])(responder, selector, nil);
   
   if ([responder respondsToSelector: @selector(selectedRange)])
   {
@@ -656,8 +656,9 @@ static void call_undo(MainWindowController *controller)
 {
   id firstResponder = NSApp.keyWindow.firstResponder;
 
-  if ([firstResponder respondsToSelector: @selector(undo:)])
-    [firstResponder tryToPerform: @selector(undo:) with:nil];
+  SEL selector = NSSelectorFromString(@"undo:");
+  if ([firstResponder respondsToSelector: selector])
+    [firstResponder tryToPerform: selector with: nil];
   else if ([firstResponder isKindOfClass: [NSTextView class]])
     return [[firstResponder undoManager] undo];
   else
@@ -684,9 +685,10 @@ static bool validate_undo(MainWindowController *controller)
 static void call_redo(MainWindowController *controller)
 {
   id firstResponder = NSApp.keyWindow.firstResponder;
-  
-  if ([firstResponder respondsToSelector: @selector(redo:)])
-    [firstResponder tryToPerform: @selector(redo:) with:nil];
+
+  SEL selector = NSSelectorFromString(@"redo:");
+  if ([firstResponder respondsToSelector: selector])
+    [firstResponder tryToPerform: selector with: nil];
   else if ([firstResponder isKindOfClass: [NSTextView class]])
     return [[firstResponder undoManager] redo];
   else

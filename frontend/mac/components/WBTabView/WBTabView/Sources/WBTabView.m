@@ -425,7 +425,7 @@
   else
   {
     [mTabItems insertObject: item atIndex: index];
-    [mTabRowLayer insertSublayer: item atIndex: index];
+    [mTabRowLayer insertSublayer: item atIndex: (unsigned)index];
   }
 }
 
@@ -794,8 +794,8 @@
   BOOL didMoveOne;
   do {
     didMoveOne = NO;
-    NSInteger ix = [mTabItems indexOfObject: sender];
-    int i, c = mTabItems.count;
+    NSUInteger ix = [mTabItems indexOfObject: sender];
+    NSUInteger i, c = mTabItems.count;
     for (i = 0; i < c; i++) {
       WBTabItem* peer = mTabItems[i];
       if (! [tabsToDisregard containsObject: peer]) {
@@ -852,9 +852,9 @@
     
     if (event.clickCount > 1) {
       // This was a double click.
-      if ([self.delegate respondsToSelector: @selector(tabViewItemDidReceiveDoubleClick:)]) {
-        [self.delegate performSelector: @selector(tabViewItemDidReceiveDoubleClick:)
-                              withObject: self.selectedTabViewItem];
+      if ([(id)self.delegate respondsToSelector: @selector(tabViewItemDidReceiveDoubleClick:)]) {
+        [(id)self.delegate performSelector: @selector(tabViewItemDidReceiveDoubleClick:)
+                                withObject: self.selectedTabViewItem];
       }
     }
     
@@ -909,9 +909,9 @@
     CGPoint cgp = NSPointToCGPoint(loc);
     ResponderLayer* item = [mTabRowLayer responderLayerAtPoint: cgp];
     if ([item isKindOfClass: [WBTabItem class]]) {
-      menu = [self.delegate performSelector: @selector(tabView:menuForIdentifier:)
-                                   withObject: self
-                                   withObject: ((WBTabItem*)item).identifier];
+      menu = [(id)self.delegate performSelector: @selector(tabView:menuForIdentifier:)
+                                     withObject: self
+                                     withObject: ((WBTabItem*)item).identifier];
     }
   }
   
@@ -923,7 +923,7 @@
 // Called when user clicks arrows in tab row to switch tabs.
 - (void) tabViewArrowAction: (id) sender;
 {
-  int selectedIndex = mLastSelectedTabIndex;
+  NSInteger selectedIndex = mLastSelectedTabIndex;
   if (sender == mLeftArrow) {
     selectedIndex --;
   }

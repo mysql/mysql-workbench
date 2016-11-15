@@ -48,7 +48,7 @@ static NSMenuItem *defaultEditMenu = nil;
 
 - (instancetype)initWithTitle:(NSString*)title slot:(boost::function<void ()>)aslot
 {
-  self = [super initWithTitle: title action: @selector(callSlot:) keyEquivalent:@""];
+  self = [super initWithTitle: title action: @selector(callSlot:) keyEquivalent: @""];
   if (self)
   {
     slot = aslot;

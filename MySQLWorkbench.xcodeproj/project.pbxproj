@@ -12983,7 +12983,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
@@ -17489,11 +17489,7 @@
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/plugins/db.mysql",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-<<<<<<< HEAD
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(inherited)",
-=======
->>>>>>> develop
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.diff.reporting.wbp;
@@ -17524,11 +17520,7 @@
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/plugins/db.mysql",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-<<<<<<< HEAD
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(inherited)",
-=======
->>>>>>> develop
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.diff.reporting.wbp;
@@ -17643,12 +17635,8 @@
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-<<<<<<< HEAD
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(inherited)",
-=======
->>>>>>> develop
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbprivate.be;
@@ -17685,12 +17673,8 @@
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
-<<<<<<< HEAD
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
-					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 					"$(inherited)",
-=======
->>>>>>> develop
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbprivate.be;
