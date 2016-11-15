@@ -63,7 +63,7 @@ OutputView::OutputView(WBContext* context)
 
 OutputView::~OutputView()
 {
-  _storage->set_output_handler(boost::function<void (std::string)>());
+  _storage->set_output_handler(std::function<void (std::string)>());
   delete _messages;
   _messages = 0;
 }

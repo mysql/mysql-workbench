@@ -61,7 +61,7 @@ void RecordsetView::init()
 
   _grid->get_selection()->set_mode(Gtk::SELECTION_MULTIPLE);
 
-  _grid->_copy_func_ptr = sigc::mem_fun(this,&RecordsetView::copy);
+  _grid->_copy_func_ptr = std::bind(&RecordsetView::copy, this, std::placeholders::_1);
 
   add(*_grid);
   show_all();

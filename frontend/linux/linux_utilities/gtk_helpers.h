@@ -130,7 +130,7 @@ public:
       PANED_VISIBLE, //Paned position is between 0 and it's max position.
       PANED_FULLY_VISIBLE //Paned position is set to it's max position.
     };
-  typedef boost::function<void (PanedInfo)> state_notifier;
+  typedef std::function<void (PanedInfo)> state_notifier;
 
   /** Add sticky behaviour or limit size for Gtk::Paned widget.
      *

@@ -49,37 +49,55 @@ using namespace mforms;
 //--------------------------------------------------------------------------------------------------
 
 GRTShellWindow::GRTShellWindow(wb::WBContext* context)
-: mforms::Form(mforms::Form::main_form(), (mforms::FormFlag)(mforms::FormResizable | mforms::FormMinimizable | mforms::FormHideOnClose)), 
-  _context(context),
-  _toolbar(true),
-  _content(false), _padding_box(false), _hsplitter(true), _side_tab(mforms::TabViewPalette),
-  _main_tab(mforms::TabViewDocumentClosable),
-  _global_box1(false), _global_box2(false), _global_splitter(false), _global_combo(mforms::SelectorCombobox),
-  _global_tree(mforms::TreeDefault), _global_list(mforms::TreeFlatList), 
-  _classes_box(false), _classes_splitter(false), _classes_tree(mforms::TreeNoBorder),
-  _classes_text(mforms::VerticalScrollBar),
-  _modules_splitter(false), _modules_tree(mforms::TreeNoBorder), _modules_text(mforms::VerticalScrollBar),
-  _notifs_splitter(false), _notifs_tree(mforms::TreeNoBorder), _notifs_text(mforms::VerticalScrollBar),
-  _right_splitter(false), 
-  _shell_box(false), _shell_text(mforms::VerticalScrollBar), _shell_hbox(true),
+    : mforms::Form(
+          mforms::Form::main_form(),
+          (mforms::FormFlag) (mforms::FormResizable | mforms::FormMinimizable
+              | mforms::FormHideOnClose)),
+      _context(context),
+      _toolbar(true),
+      _content(false),
+      _padding_box(false),
+      _hsplitter(true),
+      _side_tab(mforms::TabViewPalette),
+      _main_tab(mforms::TabViewDocumentClosable),
+      _global_box1(false),
+      _global_box2(false),
+      _global_splitter(false),
+      _global_combo(mforms::SelectorCombobox),
+      _global_tree(mforms::TreeDefault),
+      _global_list(mforms::TreeFlatList),
+      _classes_box(false),
+      _classes_splitter(false),
+      _classes_tree(mforms::TreeNoBorder),
+      _classes_text(mforms::VerticalScrollBar),
+      _modules_splitter(false),
+      _modules_tree(mforms::TreeNoBorder),
+      _modules_text(mforms::VerticalScrollBar),
+      _notifs_splitter(false),
+      _notifs_tree(mforms::TreeNoBorder),
+      _notifs_text(mforms::VerticalScrollBar),
+      _right_splitter(false),
+      _shell_box(false),
+      _shell_text(mforms::VerticalScrollBar),
+      _shell_hbox(true),
 #ifdef _WIN32
-_side_header_panel(mforms::FilledHeaderPanel),
-_lower_tab(mforms::TabViewPalette),
-_lower_header_panel(mforms::FilledHeaderPanel),
+      _side_header_panel(mforms::FilledHeaderPanel),
+      _lower_tab(mforms::TabViewPalette),
+      _lower_header_panel(mforms::FilledHeaderPanel),
 #else
-_lower_tab(mforms::TabViewDocument),
+      _lower_tab(mforms::TabViewDocument),
 #endif
-  _output_text(mforms::VerticalScrollBar),
-  _snippet_splitter(false),
-  _snippet_text()
-{
+      _output_text(mforms::VerticalScrollBar),
+      _snippet_splitter(false),
+      _snippet_text() {
   set_title(("Workbench Scripting Shell"));
   set_name("shell_window");
   set_content(&_content);
   set_menubar(&_menu);
-  scoped_connect(signal_closed(),boost::bind(&GRTShellWindow::shell_closed, this));
+  scoped_connect(signal_closed(),
+                 std::bind(&GRTShellWindow::shell_closed, this));
   set_on_close(std::bind(&GRTShellWindow::can_close, this));
- 
+
   _content.add(&_toolbar, false, true);
 
   // setup the menubar
@@ -87,20 +105,28 @@ _lower_tab(mforms::TabViewDocument),
     mforms::MenuItem *menu = mforms::manage(new mforms::MenuItem("File"));
     mforms::MenuItem *item;
     _menu.add_submenu(menu);
-    item = menu->add_item_with_title("New...", std::bind(&GRTShellWindow::add_new_script, this));
+    item = menu->add_item_with_title(
+        "New...", std::bind(&GRTShellWindow::add_new_script, this));
     item->set_shortcut("Modifier+N");
-    menu->add_item_with_title("New Script", std::bind(&GRTShellWindow::add_editor, this, true, "python"));
-    item = menu->add_item_with_title("Open...", std::bind(&GRTShellWindow::open_script_file, this));
+    menu->add_item_with_title(
+        "New Script",
+        std::bind(&GRTShellWindow::add_editor, this, true, "python"));
+    item = menu->add_item_with_title(
+        "Open...", std::bind(&GRTShellWindow::open_script_file, this));
     item->set_shortcut("Modifier+O");
     menu->add_separator();
-    item = menu->add_item_with_title("Save", std::bind(&GRTShellWindow::save_file, this, false));
+    item = menu->add_item_with_title(
+        "Save", std::bind(&GRTShellWindow::save_file, this, false));
     item->set_shortcut("Modifier+S");
-    item = menu->add_item_with_title("Save As...", std::bind(&GRTShellWindow::save_file, this, true));
+    item = menu->add_item_with_title(
+        "Save As...", std::bind(&GRTShellWindow::save_file, this, true));
     item->set_shortcut("Modifier+Shift+S");
     menu->add_separator();
-    item = menu->add_item_with_title("Close Script", std::bind(&GRTShellWindow::close_tab, this));
+    item = menu->add_item_with_title(
+        "Close Script", std::bind(&GRTShellWindow::close_tab, this));
     item->set_shortcut("Modifier+W");
-    item = menu->add_item_with_title("Close Window", std::bind(&GRTShellWindow::close, this));
+    item = menu->add_item_with_title("Close Window",
+                                     std::bind(&GRTShellWindow::close, this));
 #ifdef _WIN32
     item->set_shortcut("Control+F4");
 #else
@@ -109,24 +135,31 @@ _lower_tab(mforms::TabViewDocument),
     menu = mforms::manage(new mforms::MenuItem("Edit"));
     _menu.add_submenu(menu);
 
-    item = menu->add_item_with_title("Cut", std::bind(&GRTShellWindow::cut, this));
+    item = menu->add_item_with_title("Cut",
+                                     std::bind(&GRTShellWindow::cut, this));
     item->set_shortcut("Modifier+X");
-    item = menu->add_item_with_title("Copy", std::bind(&GRTShellWindow::copy, this));
+    item = menu->add_item_with_title("Copy",
+                                     std::bind(&GRTShellWindow::copy, this));
     item->set_shortcut("Modifier+C");
-    item = menu->add_item_with_title("Paste", std::bind(&GRTShellWindow::paste, this));
+    item = menu->add_item_with_title("Paste",
+                                     std::bind(&GRTShellWindow::paste, this));
     item->set_shortcut("Modifier+V");
-    item = menu->add_item_with_title("Select All", std::bind(&GRTShellWindow::select_all, this));
+    item = menu->add_item_with_title(
+        "Select All", std::bind(&GRTShellWindow::select_all, this));
     item->set_shortcut("Modifier+A");
     menu->add_separator();
-    item = menu->add_item_with_title("Find...", std::bind(&GRTShellWindow::show_find_panel, this));
+    item = menu->add_item_with_title(
+        "Find...", std::bind(&GRTShellWindow::show_find_panel, this));
     item->set_shortcut("Modifier+F");
-    item = menu->add_item_with_title("Replace...", std::bind(&GRTShellWindow::show_replace_panel, this));
+    item = menu->add_item_with_title(
+        "Replace...", std::bind(&GRTShellWindow::show_replace_panel, this));
     item->set_shortcut("Modifier+H");
 
     menu = mforms::manage(new mforms::MenuItem("Script"));
     _menu.add_submenu(menu);
-    
-    item = menu->add_item_with_title("Run", std::bind(&GRTShellWindow::execute_file, this));
+
+    item = menu->add_item_with_title(
+        "Run", std::bind(&GRTShellWindow::execute_file, this));
     item->set_shortcut("Modifier+R");
     item->set_name("run");
   }
@@ -146,7 +179,8 @@ _lower_tab(mforms::TabViewDocument),
   _hsplitter.add(&_side_tab);
 #endif
 
-  scoped_connect(_side_tab.signal_tab_changed(),boost::bind(&GRTShellWindow::side_tab_changed, this));
+  scoped_connect(_side_tab.signal_tab_changed(),
+                 std::bind(&GRTShellWindow::side_tab_changed, this));
 
   _hsplitter.add(&_right_splitter);
 
@@ -161,16 +195,20 @@ _lower_tab(mforms::TabViewDocument),
   _toolbar.set_padding(2);
   _toolbar.set_spacing(4);
 
-  add_tool_button("tiny_new_doc.png", boost::bind(&GRTShellWindow::add_new_script, this),
-    _("Create a new file from a template"));
-  add_tool_button("tiny_load.png", boost::bind(&GRTShellWindow::open_script_file, this),
-    _("Open a script file"));
+  add_tool_button("tiny_new_doc.png",
+                  std::bind(&GRTShellWindow::add_new_script, this),
+                  _("Create a new file from a template"));
+  add_tool_button("tiny_load.png",
+                  std::bind(&GRTShellWindow::open_script_file, this),
+                  _("Open a script file"));
 
   add_tool_separator();
-  _save_button = add_tool_button("tiny_save.png", boost::bind(&GRTShellWindow::save_file, this, false),
-    _("Save file"));
-  _save_as_button = add_tool_button("tiny_saveas.png", boost::bind(&GRTShellWindow::save_file, this, true),
-    _("Save file with a new name"));
+  _save_button = add_tool_button(
+      "tiny_save.png", std::bind(&GRTShellWindow::save_file, this, false),
+      _("Save file"));
+  _save_as_button = add_tool_button(
+      "tiny_saveas.png", std::bind(&GRTShellWindow::save_file, this, true),
+      _("Save file with a new name"));
 
   add_tool_separator();
   //  if (_editing_module)
@@ -180,20 +218,28 @@ _lower_tab(mforms::TabViewDocument),
   }
   //  else
   {
-    _run_button = add_tool_button("qe_sql-editor-tb-icon_execute.png", boost::bind(&GRTShellWindow::execute_file, this),
-      _("Execute script"));
-    _continue_button = add_tool_button("debug_continue.png", boost::bind(&GRTShellWindow::debug_continue, this), 
-      _("Continue execution until next breakpoint"));
-    _pause_button = add_tool_button("debug_pause.png", boost::bind(&GRTShellWindow::debug_pause, this),
-                                    "Pause script execution");
-    _step_button = add_tool_button("debug_step.png", boost::bind(&GRTShellWindow::debug_step, this), 
-      _("Step to next statement"));
-    _step_into_button = add_tool_button("debug_step_into.png", boost::bind(&GRTShellWindow::debug_step_into, this), 
-      _("Step into next function"));
-    _step_out_button = add_tool_button("debug_step_out.png", boost::bind(&GRTShellWindow::debug_step_out, this),
-      _("Finish execution of current function"));
-    _stop_button = add_tool_button("debug_stop.png", boost::bind(&GRTShellWindow::debug_stop, this),
-      _("Stop executing script"));
+    _run_button = add_tool_button(
+        "qe_sql-editor-tb-icon_execute.png",
+        std::bind(&GRTShellWindow::execute_file, this), _("Execute script"));
+    _continue_button = add_tool_button(
+        "debug_continue.png", std::bind(&GRTShellWindow::debug_continue, this),
+        _("Continue execution until next breakpoint"));
+    _pause_button = add_tool_button(
+        "debug_pause.png", std::bind(&GRTShellWindow::debug_pause, this),
+        "Pause script execution");
+    _step_button = add_tool_button("debug_step.png",
+                                   std::bind(&GRTShellWindow::debug_step, this),
+                                   _("Step to next statement"));
+    _step_into_button = add_tool_button(
+        "debug_step_into.png",
+        std::bind(&GRTShellWindow::debug_step_into, this),
+        _("Step into next function"));
+    _step_out_button = add_tool_button(
+        "debug_step_out.png", std::bind(&GRTShellWindow::debug_step_out, this),
+        _("Finish execution of current function"));
+    _stop_button = add_tool_button("debug_stop.png",
+                                   std::bind(&GRTShellWindow::debug_stop, this),
+                                   _("Stop executing script"));
 
     _continue_button->show(false);
     _step_button->set_enabled(false);
@@ -202,61 +248,79 @@ _lower_tab(mforms::TabViewDocument),
     _continue_button->set_enabled(false);
     _stop_button->set_enabled(false);
     _pause_button->set_enabled(false);
-  }  
+  }
 
 #if !defined(_WIN32) && !defined(__APPLE__)
   // TODO: remove as soon as all platforms support closable tabs.
-  _close_script_tab_button = add_tool_button("Discard.png", boost::bind(&GRTShellWindow::close_tab, this),
-    _("Close this script tab"), false);
+  _close_script_tab_button = add_tool_button(
+      "Discard.png", std::bind(&GRTShellWindow::close_tab, this),
+      _("Close this script tab"), false);
 #else
   _close_script_tab_button = NULL;
 #endif
   add_tool_separator();
 
-  _clear_script_output_button = add_tool_button("clear_output.png", boost::bind(&mforms::TextBox::set_value, &_output_text, ""), 
-    _("Clear script output"), false);
+  _clear_script_output_button = add_tool_button(
+      "clear_output.png",
+      std::bind(&mforms::TextBox::set_value, &_output_text, ""),
+      _("Clear script output"), false);
 
-  add_tool_button("snippet_add.png", boost::bind(&GRTShellWindow::add_snippet, this), 
-    _("Add a new snippet"));
-  _snippet_delete_button = add_tool_button("snippet_del.png", boost::bind(&GRTShellWindow::del_snippet, this), 
-    _("Delete the selected snippet"));
-  _snippet_copy_button = add_tool_button("snippet_clipboard.png", boost::bind(&GRTShellWindow::copy_snippet, this), 
-    _("Copy snippet text to the clipboard"));
+  add_tool_button("snippet_add.png",
+                  std::bind(&GRTShellWindow::add_snippet, this),
+                  _("Add a new snippet"));
+  _snippet_delete_button = add_tool_button(
+      "snippet_del.png", std::bind(&GRTShellWindow::del_snippet, this),
+      _("Delete the selected snippet"));
+  _snippet_copy_button = add_tool_button(
+      "snippet_clipboard.png", std::bind(&GRTShellWindow::copy_snippet, this),
+      _("Copy snippet text to the clipboard"));
   add_tool_separator();
 
-  _show_find_button = add_tool_button("qe_sql-editor-tb-icon_find.png", boost::bind(&GRTShellWindow::show_find_panel, this),
-    _("Show the Find panel for the editor"));
+  _show_find_button = add_tool_button(
+      "qe_sql-editor-tb-icon_find.png",
+      std::bind(&GRTShellWindow::show_find_panel, this),
+      _("Show the Find panel for the editor"));
   _show_find_button->set_enabled(false);
 
-
   // Files
-  mforms::Box *files_box= mforms::manage(new mforms::Box(false));
-  
+  mforms::Box *files_box = mforms::manage(new mforms::Box(false));
+
 #ifdef _WIN32
   _files_tree = mforms::manage(new mforms::TreeView(mforms::TreeNoBorder|mforms::TreeNoHeader));
 #else
-  _files_tree = mforms::manage(new mforms::TreeView(mforms::TreeDefault|mforms::TreeNoHeader));
+  _files_tree = mforms::manage(
+      new mforms::TreeView(mforms::TreeDefault | mforms::TreeNoHeader));
 #endif
 
-  _files_menu.add_item_with_title("Add New File", std::bind(&GRTShellWindow::file_menu_activate, this, "file-from-template"));
-  _files_menu.add_item_with_title("Open Script File", std::bind(&GRTShellWindow::file_menu_activate, this, "open-script"));
+  _files_menu.add_item_with_title(
+      "Add New File",
+      std::bind(&GRTShellWindow::file_menu_activate, this,
+                "file-from-template"));
+  _files_menu.add_item_with_title(
+      "Open Script File",
+      std::bind(&GRTShellWindow::file_menu_activate, this, "open-script"));
   _files_menu.add_separator();
-  _files_menu.add_item_with_title("Delete Script", std::bind(&GRTShellWindow::file_menu_activate, this, "delete-script"));
+  _files_menu.add_item_with_title(
+      "Delete Script",
+      std::bind(&GRTShellWindow::file_menu_activate, this, "delete-script"));
 
   _files_tree->set_context_menu(&_files_menu);
 
   _files_tree->add_column(IconStringColumnType, "", 400, false);
   _files_tree->end_columns();
 
-  scoped_connect(_files_tree->signal_node_activated(),boost::bind(&GRTShellWindow::file_list_activated, this, _1, _2));
-  
+  scoped_connect(
+      _files_tree->signal_node_activated(),
+      std::bind(&GRTShellWindow::file_list_activated, this,
+                std::placeholders::_1, std::placeholders::_2));
+
   files_box->add(_files_tree, true, true);
 #ifdef _WIN32
   files_box->set_back_color("#FFFFFF");
   files_box->set_padding(0, 0, 0, 2);
 #endif
   _side_tab.add_page(files_box, "Files");
-      
+
   // 1) Globals tree
 #ifdef _WIN32
   _global_splitter.set_back_color("#FFFFFF");
@@ -278,22 +342,34 @@ _lower_tab(mforms::TabViewDocument),
 #if defined(_WIN32) | defined(__APPLE__)
   _global_entry.set_back_color("#FFFFFF");
 #endif
-  
+
   _global_box2.add(&_global_list, true, true);
   _global_list.add_column(mforms::IconStringColumnType, "Name", 100);
   _global_list.add_column(mforms::StringColumnType, "Value", 100);
   _global_list.end_columns();
-  _global_tree.add_column(mforms::IconStringColumnType, "GRT Globals", 200, false);
+  _global_tree.add_column(mforms::IconStringColumnType, "GRT Globals", 200,
+                          false);
   _global_tree.add_column(mforms::StringColumnType, "Type", 100, false);
   _global_tree.end_columns();
-  scoped_connect(_global_tree.signal_expand_toggle(), boost::bind(&GRTShellWindow::globals_expand_toggle, this, _1, _2));
-  scoped_connect(_global_tree.signal_changed(),boost::bind(&GRTShellWindow::global_selected, this));
-  scoped_connect(_global_combo.signal_changed(),boost::bind(&GRTShellWindow::refresh_globals_tree, this));
-  _inspector= 0;
+  scoped_connect(
+      _global_tree.signal_expand_toggle(),
+      std::bind(&GRTShellWindow::globals_expand_toggle, this,
+                std::placeholders::_1, std::placeholders::_2));
+  scoped_connect(_global_tree.signal_changed(),
+                 std::bind(&GRTShellWindow::global_selected, this));
+  scoped_connect(_global_combo.signal_changed(),
+                 std::bind(&GRTShellWindow::refresh_globals_tree, this));
+  _inspector = 0;
 
-  _global_menu.add_item_with_title(_("Copy Value"), std::bind(&GRTShellWindow::handle_global_menu, this, "copy_value"));
-  _global_menu.add_item_with_title(_("Copy Path"), std::bind(&GRTShellWindow::handle_global_menu, this, "copy_path"));
-  _global_menu.add_item_with_title(_("Copy Path for Python"), std::bind(&GRTShellWindow::handle_global_menu, this, "copy_path_py"));
+  _global_menu.add_item_with_title(
+      _("Copy Value"),
+      std::bind(&GRTShellWindow::handle_global_menu, this, "copy_value"));
+  _global_menu.add_item_with_title(
+      _("Copy Path"),
+      std::bind(&GRTShellWindow::handle_global_menu, this, "copy_path"));
+  _global_menu.add_item_with_title(
+      _("Copy Path for Python"),
+      std::bind(&GRTShellWindow::handle_global_menu, this, "copy_path_py"));
 
   _global_tree.set_context_menu(&_global_menu);
   // 2) Classes tree
@@ -314,12 +390,14 @@ _lower_tab(mforms::TabViewDocument),
   _classes_tree.add_column(mforms::StringColumnType, "Type", 100, false);
   _classes_tree.add_column(mforms::StringColumnType, "Caption", 100, false);
   _classes_tree.end_columns();
-  scoped_connect(_classes_tree.signal_changed(),boost::bind(&GRTShellWindow::class_selected, this));
+  scoped_connect(_classes_tree.signal_changed(),
+                 std::bind(&GRTShellWindow::class_selected, this));
   _classes_sorting.add_item("Group by Name");
   _classes_sorting.add_item("Group by Hierarchy");
   _classes_sorting.add_item("Group by Package");
-  scoped_connect(_classes_sorting.signal_changed(),boost::bind(&GRTShellWindow::refresh_classes_tree, this));
-  
+  scoped_connect(_classes_sorting.signal_changed(),
+                 std::bind(&GRTShellWindow::refresh_classes_tree, this));
+
   // 3) Modules tree
 #ifdef _WIN32
   _modules_splitter.set_back_color("#FFFFFF");
@@ -330,10 +408,12 @@ _lower_tab(mforms::TabViewDocument),
   _modules_splitter.add(&_modules_text, 0);
   _modules_text.set_read_only(true);
   _modules_text.set_back_color("#FFFFFF");
-  _modules_tree.add_column(mforms::IconStringColumnType, "GRT Modules", 220, false);
+  _modules_tree.add_column(mforms::IconStringColumnType, "GRT Modules", 220,
+                           false);
   _modules_tree.end_columns();
-  scoped_connect(_modules_tree.signal_changed(),boost::bind(&GRTShellWindow::module_selected, this));
-  
+  scoped_connect(_modules_tree.signal_changed(),
+                 std::bind(&GRTShellWindow::module_selected, this));
+
   _right_splitter.add(&_main_tab);
 
   // 4) Notifications tree
@@ -346,10 +426,12 @@ _lower_tab(mforms::TabViewDocument),
   _notifs_splitter.add(&_notifs_text, 0);
   _notifs_text.set_read_only(true);
   _notifs_text.set_back_color("#FFFFFF");
-  _notifs_tree.add_column(mforms::IconStringColumnType, "Notifications", 220, false);
+  _notifs_tree.add_column(mforms::IconStringColumnType, "Notifications", 220,
+                          false);
   _notifs_tree.end_columns();
-  scoped_connect(_notifs_tree.signal_changed(),boost::bind(&GRTShellWindow::notif_selected, this));
-  
+  scoped_connect(_notifs_tree.signal_changed(),
+                 std::bind(&GRTShellWindow::notif_selected, this));
+
 #ifdef _WIN32
   _right_splitter.set_back_color("#283752");
   _lower_header_panel.add(&_lower_tab);
@@ -358,13 +440,14 @@ _lower_tab(mforms::TabViewDocument),
   _lower_header_panel.set_back_color("#283752");
 #else
   _right_splitter.add(&_lower_tab);
- #endif
- 
+#endif
+
   // setup shell
 #ifdef _WIN32
   _snippet_list = mforms::manage(new TreeView(mforms::TreeNoBorder|mforms::TreeFlatList));
 #else
-  _snippet_list = mforms::manage(new TreeView(mforms::TreeDefault|mforms::TreeFlatList));
+  _snippet_list = mforms::manage(
+      new TreeView(mforms::TreeDefault | mforms::TreeFlatList));
 #endif
 
   _shell_box.add(&_shell_text, true, true);
@@ -379,8 +462,9 @@ _lower_tab(mforms::TabViewDocument),
   _shell_hbox.add(&_shell_prompt, false, true);
   _shell_hbox.add(&_shell_entry, true, true);
   _main_tab.add_page(&_shell_box, "Shell");
-  
-  scoped_connect(_shell_entry.signal_action(),boost::bind(&GRTShellWindow::shell_action, this, _1));
+
+  scoped_connect(_shell_entry.signal_action(),
+                 std::bind(&GRTShellWindow::shell_action, this, std::placeholders::_1));
 
   // snippets tab
 #ifdef _WIN32
@@ -393,58 +477,75 @@ _lower_tab(mforms::TabViewDocument),
   _snippet_splitter.add(_snippet_list, 50, true);
   _snippet_splitter.add(&_snippet_text, 50, false);
 
-  _snippet_menu.add_item_with_title("Execute Snippet", std::bind(&GRTShellWindow::snippet_menu_activate, this, "execute"));
-  _snippet_menu.add_item_with_title("Send to Script Editor", std::bind(&GRTShellWindow::snippet_menu_activate, this, "new_with_snippet"));
+  _snippet_menu.add_item_with_title(
+      "Execute Snippet",
+      std::bind(&GRTShellWindow::snippet_menu_activate, this, "execute"));
+  _snippet_menu.add_item_with_title(
+      "Send to Script Editor",
+      std::bind(&GRTShellWindow::snippet_menu_activate, this,
+                "new_with_snippet"));
   _snippet_menu.add_separator();
-  _snippet_menu.add_item_with_title("Copy to Clipboard", std::bind(&GRTShellWindow::snippet_menu_activate, this, "copy_clipboard"));
+  _snippet_menu.add_item_with_title(
+      "Copy to Clipboard",
+      std::bind(&GRTShellWindow::snippet_menu_activate, this,
+                "copy_clipboard"));
   _snippet_menu.add_separator();
-  _snippet_menu.add_item_with_title("Delete Snippet", std::bind(&GRTShellWindow::snippet_menu_activate, this, "delete"));
+  _snippet_menu.add_item_with_title(
+      "Delete Snippet",
+      std::bind(&GRTShellWindow::snippet_menu_activate, this, "delete"));
 
   _snippet_list->set_context_menu(&_snippet_menu);
 
-  scoped_connect(_snippet_list->signal_changed(),boost::bind(&GRTShellWindow::snippet_selected, this));
+  scoped_connect(_snippet_list->signal_changed(),
+                 std::bind(&GRTShellWindow::snippet_selected, this));
   _snippet_text.set_language(LanguagePython);
 
-  scoped_connect(_snippet_text.signal_changed(),boost::bind(&GRTShellWindow::snippet_changed, this, _1, _2));
+  scoped_connect(
+      _snippet_text.signal_changed(),
+      std::bind(&GRTShellWindow::snippet_changed, this, std::placeholders::_1,
+                std::placeholders::_2));
 
   _snippet_list->add_column(mforms::StringColumnType, "Snippet", 500, false);
   _snippet_list->end_columns();
   _main_tab.add_page(&_snippet_splitter, "Snippets");
 
-  scoped_connect(_main_tab.signal_tab_closing(),boost::bind(&GRTShellWindow::on_tab_closing, this, _1));
-  scoped_connect(_main_tab.signal_tab_changed(),boost::bind(&GRTShellWindow::on_tab_changed, this));
+  scoped_connect(
+      _main_tab.signal_tab_closing(),
+      std::bind(&GRTShellWindow::on_tab_closing, this, std::placeholders::_1));
+  scoped_connect(_main_tab.signal_tab_changed(),
+                 std::bind(&GRTShellWindow::on_tab_changed, this));
 
   //
-  
+
   _output_text.set_read_only(true);
   _output_text.set_monospaced(true);
   _lower_tab.add_page(&_output_text, "Output");
-  
+
   _debugger = new PythonDebugger(this, &_lower_tab);
-  
-  try
-  {
+
+  try {
     _debugger->init_pdb();
-  }
-  catch (const std::exception &exc)
-  {
+  } catch (const std::exception &exc) {
     logError("Could not initialize the debugger: %s\n", exc.what());
     add_output("Could not initialize the debugger\n");
     delete _debugger;
-    _debugger= 0;
+    _debugger = 0;
   }
-  
+
   // Minimum size for the entire window.
   set_size(800, 600);
 
-  bec::GRTManager::get()->run_once_when_idle(std::bind(&GRTShellWindow::set_splitter_positions, this));
+  bec::GRTManager::get()->run_once_when_idle(
+      std::bind(&GRTShellWindow::set_splitter_positions, this));
 
-  bec::GRTManager::get()->get_shell()->set_ready_handler(std::bind(&GRTShellWindow::handle_prompt, this, std::placeholders::_1));
-  bec::GRTManager::get()->get_shell()->set_output_handler(std::bind(&GRTShellWindow::handle_output, this, std::placeholders::_1));
+  bec::GRTManager::get()->get_shell()->set_ready_handler(
+      std::bind(&GRTShellWindow::handle_prompt, this, std::placeholders::_1));
+  bec::GRTManager::get()->get_shell()->set_output_handler(
+      std::bind(&GRTShellWindow::handle_output, this, std::placeholders::_1));
 
   on_tab_changed();
   snippet_selected();
-  side_tab_changed();  
+  side_tab_changed();
 }
 
 bool GRTShellWindow::can_close()
@@ -1405,16 +1506,14 @@ void GRTShellWindow::delete_selected_file()
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::Button *GRTShellWindow::add_tool_button(const std::string &image,
-                                    const boost::function<void ()> &action,
-                                    const std::string &tooltip,
-                                    bool left)
-{
-  App *app= App::get();
+mforms::Button *GRTShellWindow::add_tool_button(
+    const std::string &image, const std::function<void()> &action,
+    const std::string &tooltip, bool left) {
+  App *app = App::get();
   Button *b = manage(new Button(ToolButton));
   b->set_icon(app->get_resource_path(image));
   b->set_tooltip(tooltip);
-  scoped_connect(b->signal_clicked(),action);
+  scoped_connect(b->signal_clicked(), action);
   if (left)
     _toolbar.add(b, false, true);
   else
@@ -2038,7 +2137,7 @@ static void globals_get_node_info(const grt::ValueRef &value,
       
       grt::MetaClass *meta= o.get_metaclass();
       
-      meta->foreach_member(boost::bind(&find_expandable_member, _1, &expandable));
+      meta->foreach_member(std::bind(&find_expandable_member, std::placeholders::_1, &expandable));
     }
       break;
       
@@ -2167,7 +2266,7 @@ static void globals_rescan_object(mforms::TreeNodeRef &node,
   grt::MetaClass *meta= value.get_metaclass();
   
   node->remove_children();
-  meta->foreach_member(boost::bind(&globals_rescan_member, _1, node, value));
+  meta->foreach_member(std::bind(&globals_rescan_member, std::placeholders::_1, node, value));
 }
 
 
