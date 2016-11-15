@@ -37,8 +37,8 @@ This is a shared header for validation page on SQL export pluigns
 class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLValidationPage : public base::trackable
 {
 public:
-  typedef boost::function<int ()> Validation_finished_cb;
-  typedef boost::function<int (int)> Validation_step_finished_cb;
+  typedef std::function<int ()> Validation_finished_cb;
+  typedef std::function<int (int)> Validation_step_finished_cb;
 
 private:
   Validation_finished_cb _validation_finished_cb;

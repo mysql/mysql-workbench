@@ -18,7 +18,6 @@
  */
 
 #include <iconv.h>
-#include <boost/foreach.hpp>
 
 #include "db_reverse_engineer_script.h"
 #include "base/string_utilities.h"
@@ -52,7 +51,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form)
   std::string initial_filename= form->module()->document_string_data("input_filename", "");
   _file_selector.initialize(initial_filename, mforms::OpenFile, "SQL Files (*.sql)|*.sql",
     false, std::bind(&WizardPage::validate, this));
-  scoped_connect(_file_selector.signal_changed(),boost::bind(&ImportInputPage::file_changed, this));
+  scoped_connect(_file_selector.signal_changed(), std::bind(&ImportInputPage::file_changed, this));
 
   _file_codeset_caption.set_text(_("File encoding:"));
   _file_codeset_caption.set_text_align(mforms::WizardLabelAlignment);
@@ -69,7 +68,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form)
   _autoplace_check.set_text(_("Place imported objects on a diagram"));
   _autoplace_check.set_active(true);
 
-  scoped_connect(signal_leave(),boost::bind(&ImportInputPage::gather_options, this, _1));
+  scoped_connect(signal_leave(), std::bind(&ImportInputPage::gather_options, this, std::placeholders::_1));
 
   _autoplace_check.set_active(form->module()->document_int_data("place_figures", 0) != 0);
 }
@@ -152,7 +151,7 @@ void ImportInputPage::gather_options(bool advancing)
 
 //--------------------------------------------------------------------------------------------------
 
-ImportProgressPage::ImportProgressPage(WizardForm *form, const boost::function<void (bool,std::string)> &finished_cb)
+ImportProgressPage::ImportProgressPage(WizardForm *form, const std::function<void (bool,std::string)> &finished_cb)
   : WizardProgressPage(form, "progress", true)
 {
   set_title(_("Reverse Engineering Progress"));
@@ -170,17 +169,17 @@ ImportProgressPage::ImportProgressPage(WizardForm *form, const boost::function<v
 
   TaskRow *task=
     add_async_task(_("Reverse Engineer SQL Script"), 
-                   boost::bind(&ImportProgressPage::import_objects, this),
+                   std::bind(&ImportProgressPage::import_objects, this),
                    _("Reverse engineering and importing objects from script..."));
-  task->process_finish= boost::bind(&ImportProgressPage::import_objects_finished, this, _1);
+  task->process_finish= std::bind(&ImportProgressPage::import_objects_finished, this, std::placeholders::_1);
 
   add_task(_("Verify Results"), 
-           boost::bind(&ImportProgressPage::verify_results, this),
+           std::bind(&ImportProgressPage::verify_results, this),
            _("Verifying imported objects..."));
 
   _auto_place_task= 
     add_async_task(_("Place Objects on Diagram"), 
-                   boost::bind(&ImportProgressPage::place_objects, this),
+                   std::bind(&ImportProgressPage::place_objects, this),
                    _("Placing imported objects on a new diagram..."));
 
   end_adding_tasks(_("Import finished."));
@@ -302,7 +301,7 @@ WbPluginSQLImport::WbPluginSQLImport(grt::Module *module)
 {
   set_name("sql_import_wizard");
   _input_page= new ImportInputPage(this);
-  _progress_page= new ImportProgressPage(this, boost::bind(&WbPluginSQLImport::update_summary, this, _1, _2));
+  _progress_page= new ImportProgressPage(this, std::bind(&WbPluginSQLImport::update_summary, this, std::placeholders::_1, std::placeholders::_2));
   
   _finish_page= new WizardFinishedPage(this, _("SQL Import Finished"));
 

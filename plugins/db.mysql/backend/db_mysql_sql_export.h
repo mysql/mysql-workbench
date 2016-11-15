@@ -102,7 +102,7 @@ public:
   void export_finished(grt::ValueRef res);
   grt::ValueRef export_task(grt::StringRef);
 
-  typedef boost::function<int ()> Task_finish_cb;
+  typedef std::function<int ()> Task_finish_cb;
   void task_finish_cb(Task_finish_cb cb) { _task_finish_cb= cb; }
 
   void setup_grt_string_list_models_from_catalog(bec::GrtStringListModel **users_model, 
