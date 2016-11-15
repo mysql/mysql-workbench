@@ -57,7 +57,7 @@ DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, const grt::BaseListRef &arg
   xml()->get_widget("view_editor_image2", image);
   image->set(ImageCache::get_instance()->image_from_filename("db.View.editor.48x48.png", false));
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLViewEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLViewEditor::refresh_form_data, this));
   
   _editor_notebook->reparent(*this);
   _editor_notebook->show();
@@ -115,7 +115,7 @@ bool DbMySQLViewEditor::switch_edited_object(const grt::BaseListRef &args)
   if (!is_editing_live_object())
     _privs_page->switch_be(_be);
   
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLViewEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLViewEditor::refresh_form_data, this));
 
   do_refresh_form_data();
   

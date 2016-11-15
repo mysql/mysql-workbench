@@ -130,9 +130,9 @@ protected:
   Recordset_data_storage_Ref _data_storage;
 
 public:
-  boost::function<void ()> apply_changes_cb;
+  std::function<void ()> apply_changes_cb;
   // force UI to save any ongoing edits by the user 
-  boost::function<void()> flush_ui_changes_cb;
+  std::function<void()> flush_ui_changes_cb;
 public:
   bool apply_changes_and_gather_messages(std::string &messages);
   void rollback_and_gather_messages(std::string &messages);

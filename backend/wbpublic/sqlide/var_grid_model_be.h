@@ -49,7 +49,7 @@ protected:
 public:
   virtual void reset();
   virtual void refresh() {}
-  boost::function<void ()> rows_changed;
+  std::function<void ()> rows_changed;
   boost::signals2::signal<void ()> refresh_ui_signal;
 
 protected:
@@ -183,7 +183,7 @@ public:
   ColumnId edited_field_column() { return _edited_field_col; }
 
   // called when the backend changes the current edited field row/column and the frontend must reselect
-  boost::function<void ()> update_edited_field;
+  std::function<void ()> update_edited_field;
 protected:
   bool _is_field_value_truncation_enabled;
   RowId _edited_field_row;
