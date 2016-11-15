@@ -125,21 +125,25 @@ void Recordset_sql_storage::init_variant_quoter(sqlide::QuoteVar &qv) const
 {
   if (_rdbms.is_valid())
   {
-    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_rdbms);
-    Sql_specifics::Ref sql_specifics= sql_facade->sqlSpecifics();
-    qv.escape_string= sql_specifics->escape_sql_string();
-    qv.store_unknown_as_string= false;
-    qv.allow_func_escaping= true;
+    SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms(_rdbms);
+    Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
+    qv.escape_string = sql_specifics->escape_sql_string();
+    qv.store_unknown_as_string = false;
+    qv.allow_func_escaping = true;
   }
   else
   {
     // used for sqlite storage and others
-    qv.escape_string= boost::bind(sqlide::QuoteVar::escape_ansi_sql_string, _1);
+    qv.escape_string = std::bind(sqlide::QuoteVar::escape_ansi_sql_string,
+                                   std::placeholders::_1);
     // swap db (sqlite) stores unknown values as quoted strings
-    qv.store_unknown_as_string= true;
-    qv.allow_func_escaping= false;
+    qv.store_unknown_as_string = true;
+    qv.allow_func_escaping = false;
   }
-  qv.blob_to_string= (_binding_blobs) ? sqlide::QuoteVar::Blob_to_string() : boost::bind(sqlide::QuoteVar::blob_to_hex_string, _1, _2);
+  qv.blob_to_string =
+      (_binding_blobs) ?
+          sqlide::QuoteVar::Blob_to_string() :
+          std::bind(sqlide::QuoteVar::blob_to_hex_string, std::placeholders::_1, std::placeholders::_2);
 }
 
 
@@ -158,7 +162,7 @@ void Recordset_sql_storage::do_unserialize(Recordset *recordset, sqlite::connect
     Var_list var_list;
     SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms_name("Mysql"); //!
     Sql_inserts_loader::Ref loader= sql_facade->sqlInsertsLoader();
-    loader->process_insert_cb(boost::bind(&Recordset_sql_storage::load_insert_statement, this, _1, _2, _3, _4, _5, &column_names, &var_list));
+    loader->process_insert_cb(std::bind(&Recordset_sql_storage::load_insert_statement, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, &column_names, &var_list));
     loader->load(sql_script(), schema_name());
 
     // column types
@@ -394,7 +398,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
   sqlide::QuoteVar pk_qv;
   init_variant_quoter(pk_qv);
   // turn blob values into hex strings when building a primary key, since we can't bind those
-  pk_qv.blob_to_string= boost::bind(sqlide::QuoteVar::blob_to_hex_string, _1, _2);
+  pk_qv.blob_to_string = std::bind(sqlide::QuoteVar::blob_to_hex_string, std::placeholders::_1, std::placeholders::_2);
 
   std::string full_table_name= this->full_table_name();
 

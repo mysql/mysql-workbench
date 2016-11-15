@@ -41,7 +41,7 @@ struct WBPUBLICBACKEND_PUBLIC_FUNC DbObjectMatchAlterOmf : public Omf
   virtual bool equal(const ValueRef& , const ValueRef&) const;
 };
 
-typedef boost::function<bool (const ValueRef obj1, const ValueRef obj2, const std::string name)> comparison_rule;
+typedef std::function<bool (const ValueRef obj1, const ValueRef obj2, const std::string name)> comparison_rule;
 class WBPUBLICBACKEND_PUBLIC_FUNC NormalizedComparer
 {
 protected:

@@ -22,10 +22,13 @@
 #define _SQL_INSERTS_LOADER_H_
 
 
-#include "wbpublic_public_interface.h"
-#include <boost/function.hpp>
-#include <vector>
+#include <functional>
+#include <memory>
 #include <string>
+#include <utility>
+#include <vector>
+
+#include "../wbpublic_public_interface.h"
 
 
 /**
@@ -45,7 +48,7 @@ public:
   virtual void load(const std::string &sql, const std::string &schema_name)= 0;
 
   typedef std::vector<std::string> Strings;
-  typedef boost::function<void (const std::string&, const std::pair<std::string, std::string>&, const Strings&, const Strings&, const std::vector<bool>&)> Process_insert; // sql, schema_name, table_name, fields_names, fields_values
+  typedef std::function<void (const std::string&, const std::pair<std::string, std::string>&, const Strings&, const Strings&, const std::vector<bool>&)> Process_insert; // sql, schema_name, table_name, fields_names, fields_values
   void process_insert_cb(Process_insert cb) { _process_insert= cb; }
 
 protected:

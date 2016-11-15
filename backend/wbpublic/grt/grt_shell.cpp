@@ -266,15 +266,15 @@ void ShellBE::reset_history_position()
 }
 
 
-void ShellBE::set_ready_handler(const boost::function<void (const std::string&)> &slot)
+void ShellBE::set_ready_handler(const std::function<void (const std::string&)> &slot)
 {
-  _ready_slot= slot;
+  _ready_slot = slot;
 }
 
 
-void ShellBE::set_output_handler(const boost::function<void (const std::string&)> &slot)
+void ShellBE::set_output_handler(const std::function<void (const std::string&)> &slot)
 {
-  _output_slot= slot;
+  _output_slot = slot;
   if (_output_slot)
     flush_shell_output(); // Write out any pending text we might have.
 }

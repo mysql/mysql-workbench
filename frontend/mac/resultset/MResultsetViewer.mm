@@ -83,7 +83,7 @@ static NSImage *descendingSortIndicator= nil;
       (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, (__bridge void *)self));
 
       (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, (__bridge void *)self));
-      (*mData)->rows_changed = boost::bind(onRefresh, (__bridge void *)self);
+      (*mData)->rows_changed = std::bind(onRefresh, (__bridge void *)self);
 
       gridView.intercellSpacing = NSMakeSize(0, 1);
       gridView.actionDelegate = self;

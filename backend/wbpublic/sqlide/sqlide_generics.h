@@ -184,10 +184,10 @@ class WBPUBLICBACKEND_PUBLIC_FUNC QuoteVar : public VarConvBase
 {
 public:
   QuoteVar() : quote("'"), store_unknown_as_string(true), allow_func_escaping(false) {}
-  typedef boost::function<std::string (const std::string&)> Escape_sql_string;
+  typedef std::function<std::string (const std::string&)> Escape_sql_string;
   Escape_sql_string escape_string;
   std::string quote;
-  typedef boost::function<std::string (const unsigned char*, size_t)> Blob_to_string;
+  typedef std::function<std::string (const unsigned char*, size_t)> Blob_to_string;
   Blob_to_string blob_to_string;
   bool store_unknown_as_string;
   bool allow_func_escaping;
@@ -268,19 +268,19 @@ public:
   template<typename T>
   result_type operator()(const T&, const blob_ref_t &v) const
   {
-    return (blob_to_string.empty()) ? "?" /*bind variable placeholder*/ : blob_to_string(&(*v)[0], v->size());
+    return !blob_to_string ? "?" /*bind variable placeholder*/ : blob_to_string(&(*v)[0], v->size());
   }
   result_type operator()(const blob_ref_t&, const blob_ref_t& v) const
   {
-    return (blob_to_string.empty()) ? "?" /*bind variable placeholder*/ : blob_to_string(&(*v)[0], v->size());
+    return !blob_to_string ? "?" /*bind variable placeholder*/ : blob_to_string(&(*v)[0], v->size());
   }
   result_type operator()(const blob_ref_t&, const std::string& v) const
   {
-    return (blob_to_string.empty()) ? "?" /*bind variable placeholder*/ : blob_to_string((const unsigned char*)v.data(), v.size());
+    return !blob_to_string ? "?" /*bind variable placeholder*/ : blob_to_string((const unsigned char*)v.data(), v.size());
   }
   result_type operator()(const blob_ref_t&, const null_t&) const
   {
-    return (blob_to_string.empty()) ? "?" /*bind variable placeholder*/ : "NULL";
+    return !blob_to_string ? "?" /*bind variable placeholder*/ : "NULL";
   }
 
   template<typename T, typename V>

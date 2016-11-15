@@ -82,7 +82,7 @@ DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, const grt::BaseListRef &arg
 {
   xml()->get_widget("mysql_role_editor_notebook", _editor_notebook);
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoleEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLRoleEditor::refresh_form_data, this));
 
   _editor_notebook->reparent(*this);
   _editor_notebook->show();
@@ -147,7 +147,7 @@ bool DbMySQLRoleEditor::switch_edited_object(const grt::BaseListRef &args)
 
   _be = new bec::RoleEditorBE(db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoleEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLRoleEditor::refresh_form_data, this));
 
   _role_tree_model    = TreeModelWrapper::create(_be->get_role_tree(), _role_tree_tv, "RoleTree");
   _role_objects_model = ListModelWrapper::create(_be->get_object_list(), _role_objects_tv, "RoleObjectsTree");
