@@ -1236,7 +1236,7 @@ void WBContext::init_finish_(WBOptions *options)
       _grt->pop_message_handler();
     }
   }
-  catch (std::runtime_error e)
+  catch (std::runtime_error &e)
   {
     // Errors from script execution are logged to the command line so we don't need to print out
     // another message. Notify user about it in the UI if we are supposed to not quit when done.
