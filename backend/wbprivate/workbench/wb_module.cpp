@@ -484,8 +484,8 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
 
   def_model_plugin("model", "newDiagram", "Add New Diagram", "Add a New Diagram to the Model");
 
-  def_file_plugin("tools", "runScriptFile", STANDALONE_GUI_PLUGIN_TYPE, "Run Script File", "Select a Script File to Execute", "Open Script and Execute", "open", "py,lua");
-  def_file_plugin("tools", "installModuleFile", STANDALONE_GUI_PLUGIN_TYPE, "Install Plugin", "Select a Module or Plugin File to Install", "Select Module to Install", "open", "py,lua,mwbplugin,mwbpluginz");
+  def_file_plugin("tools", "runScriptFile", STANDALONE_GUI_PLUGIN_TYPE, "Run Script File", "Select a Script File to Execute", "Open Script and Execute", "open", "py");
+  def_file_plugin("tools", "installModuleFile", STANDALONE_GUI_PLUGIN_TYPE, "Install Plugin", "Select a Module or Plugin File to Install", "Select Module to Install", "open", "py,mwbplugin,mwbpluginz");
 
   def_form_model_plugin("form", "showUserTypeEditor", "User Types Editor", "Open User Defined Types Editor");
   def_form_model_plugin("form", "showModelOptions", "Show Model Options", "Open Model Options Window");
