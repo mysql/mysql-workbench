@@ -654,13 +654,13 @@ public:
 
   void call_start()
   {
-    if (!task_slot->empty())
+    if (*task_slot)
       (*task_slot)();
   }
 
   bool call_cancel()
   {
-    if (!cancel_slot->empty())
+    if (*cancel_slot)
       return (*cancel_slot)();
     return true;
   }
