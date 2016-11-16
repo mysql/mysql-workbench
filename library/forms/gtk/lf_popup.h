@@ -25,6 +25,7 @@
 #include "lf_base.h"
 #include "main_app.h"
 
+
 namespace mforms {
 namespace gtk {
 
@@ -39,6 +40,7 @@ class PopupImpl : public ObjectImpl
   bool              _inside;
   int               _result;
   mforms::PopupStyle  _style;
+  sigc::connection  _idleClose;
 
   bool handle_draw_event(const ::Cairo::RefPtr< ::Cairo::Context>&  context);
   bool mouse_cross_event(GdkEventCrossing *event);

@@ -76,6 +76,8 @@ PopupImpl::PopupImpl(::mforms::Popup *self, mforms::PopupStyle style)
 //------------------------------------------------------------------------------
 PopupImpl::~PopupImpl()
 {
+  if (!_idleClose.empty())
+    _idleClose.disconnect();
 }
 
 //------------------------------------------------------------------------------
@@ -312,7 +314,9 @@ void PopupImpl::set_modal_result(Popup *self, int result)
 
   // must call closed() cb when idle, because it can delete the popup
   // in the middle of an event handler
-  Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(self, &Popup::closed), false));
+  if (!impl->_idleClose.empty())
+    impl->_idleClose.disconnect();
+  impl->_idleClose = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(self, &Popup::closed), false));
 }
 
 //------------------------------------------------------------------------------
