@@ -475,7 +475,7 @@ void JsonTreeBaseView::openInputJsonWindow(TreeNodeRef node, bool updateMode /*=
             obj.insert(objectName, value);
           auto newNode = (updateMode) ? node : node->add_child();
           generateTree(objectName.empty() ? jv : obj[objectName], 0, newNode);
-          newNode->set_string(0, objectName + "{" + base::to_string(obj.size()) + "}");
+          newNode->set_string(0, objectName + "{" + std::to_string(obj.size()) + "}");
           newNode->set_tag(objectName);
           _dataChanged(false);
           break;
@@ -497,7 +497,7 @@ void JsonTreeBaseView::openInputJsonWindow(TreeNodeRef node, bool updateMode /*=
           size_t size = array.size();
           auto newNode = (updateMode) ? node : node->add_child();
           generateTree((updateMode) ? jv : array[size - 1], 0, newNode);
-          newNode->set_string(0, objectName + "[" + base::to_string(array.size()) + "]");
+          newNode->set_string(0, objectName + "[" + std::to_string(array.size()) + "]");
           _dataChanged(false);
           break;
         }
@@ -1186,15 +1186,15 @@ void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*colu
   switch (value.getType())
   {
   case VDouble:
-    node->set_string(1, base::to_string((double)value));
+    node->set_string(1, std::to_string((double)value));
     node->set_string(2, "Double");
     break;
   case VInt64:
-    node->set_string(1, base::to_string((int64_t)value));
+    node->set_string(1, std::to_string((int64_t)value));
     node->set_string(2, "Long Integer");
     break;
   case VUint64:
-    node->set_string(1, base::to_string((uint64_t)value));
+    node->set_string(1, std::to_string((uint64_t)value));
     node->set_string(2, "Unsigned Long Integer");
     break;
   default:
@@ -1588,7 +1588,7 @@ void JsonGridView::generateObjectInTree(JsonParser::JsonValue &value, int column
   std::stringstream textSize;
   auto end = object.end();
   child->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->set_string(0, base::to_string(_rowNum++));
+  node->set_string(0, std::to_string(_rowNum++));
   for (auto it = object.begin(); it != end; ++it)
   {
     if (it->second.isDeleted())
@@ -1664,7 +1664,7 @@ void JsonGridView::generateArrayInTree(JsonParser::JsonValue &value, int /*colum
     if (it->isDeleted())
       return;
     mforms::TreeNodeRef arrrayNode = _treeView->root_node()->add_child();
-    arrrayNode->set_string(0, base::to_string(_rowNum++));
+    arrrayNode->set_string(0, std::to_string(_rowNum++));
     switch (it->getType())
     {
     case VArray:

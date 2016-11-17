@@ -2770,7 +2770,7 @@ size_t MySQLParserServicesImpl::parseRoutines(parser::MySQLParserContext::Ref co
       routine->owner(schema);
       schema_routines.insert(routine);
 
-      routine->name(*group->name() + "_SYNTAX_ERROR_" + base::to_string(syntax_error_counter++));
+      routine->name(*group->name() + "_SYNTAX_ERROR_" + std::to_string(syntax_error_counter++));
       routine->routineType("unknown");
       routine->modelOnly(1);
       routine->sqlDefinition(base::trim(routineSQL));
@@ -5020,7 +5020,7 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(parser::MySQLParserContext:
     default:
     {
       grt::DictRef result(true);
-      result.gset("error", "Unsupported query type (" + base::to_string(queryType) + ")");
+      result.gset("error", "Unsupported query type (" + std::to_string(queryType) + ")");
       return result;
     }
   }

@@ -148,7 +148,7 @@ static BOOL modalHUDRunning = NO;
   instance->modalSession = nil;
 
   // make sure shared_refs bound to it are not kept dangling
-  instance->cancelAction.clear();
+  instance->cancelAction = std::function<bool()>();
   
   if (ret == NSModalResponseAbort)
   {

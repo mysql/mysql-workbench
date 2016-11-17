@@ -97,7 +97,7 @@ std::string Integer::debugDescription(const std::string &indentation) const
 
 std::string Integer::toString() const
 {
-  return base::to_string(_value);
+  return std::to_string(_value);
 }
 
 Integer::Integer(storage_type value)
@@ -141,7 +141,7 @@ std::string Double::debugDescription(const std::string &indentation) const
 
 std::string Double::toString() const
 {
-  return base::to_string(_value);
+  return std::to_string(_value);
 }
 
 Double::Double(storage_type value)
@@ -1430,7 +1430,7 @@ public:
 
     std::string toString(const TypeHandle& handle) const
     {
-      return base::to_string(handle.double_value);
+      return std::to_string(handle.double_value);
     };
 };
 
@@ -1471,7 +1471,7 @@ public:
 
     std::string toString(const TypeHandle& handle) const
     {
-      return base::to_string(handle.int_value);
+      return std::to_string(handle.int_value);
     };
 };
 
