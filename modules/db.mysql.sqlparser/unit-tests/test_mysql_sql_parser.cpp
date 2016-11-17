@@ -78,7 +78,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
   static const char* TEST_DATA_DIR = "data/modules_grt/wb_mysql_import/sql/";
 
   // Set filenames & messages based on test number.
-  std::string number_string = base::to_string(test_no);
+  std::string number_string = std::to_string(test_no);
   std::string test_message = "SQL (" + number_string + ")";
   std::string test_sql_filename = TEST_DATA_DIR + number_string + ".sql";
 

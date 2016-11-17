@@ -346,7 +346,7 @@ public:
   virtual void set_value(const std::string &value, bool is_null)
   {
     _image.set_data(value);
-    _srid.set_text("SRID: "+base::to_string(_image.getSrid()));
+    _srid.set_text("SRID: "+ std::to_string(_image.getSrid()));
     _text.set_read_only(false);
     _raw_data = value;
     update();

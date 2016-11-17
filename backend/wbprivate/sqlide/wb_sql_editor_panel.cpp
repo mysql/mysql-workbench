@@ -706,10 +706,10 @@ void SqlEditorPanel::auto_save(const std::string &path)
       content += "word_wrap=0\n";
 
     size_t caret_pos = _editor->get_editor_control()->get_caret_pos();
-    content += "caret_pos=" + base::to_string(caret_pos) + "\n";
+    content += "caret_pos=" + std::to_string(caret_pos) + "\n";
 
     size_t first_line = _editor->get_editor_control()->send_editor(SCI_GETFIRSTVISIBLELINE, 0, 0);
-    content += "first_visible_line=" + base::to_string(first_line) + "\n";
+    content += "first_visible_line=" + std::to_string(first_line) + "\n";
 
     if (f.good())
       f << base::string_to_wstring(content);

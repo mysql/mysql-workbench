@@ -2073,7 +2073,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       
       // If the display name is invalid will create one using the port
       if (display_name=="invalid")
-        display_name = base::to_string(port);
+        display_name = std::to_string(port);
 
       instance->name("Local " + display_name);
 
