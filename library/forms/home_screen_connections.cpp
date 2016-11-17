@@ -353,7 +353,7 @@ public:
     print_info_line(cr, line_bounds, _("Network Address"), getAnyMapValueAs<std::string>(connectionInfo, "hostName"));
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     ssize_t port = getAnyMapValueAs<ssize_t>(connectionInfo, "port");
-    print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
+    print_info_line(cr, line_bounds, _("TCP/IP Port"), std::to_string(port));
 
 
     line_bounds = bounds;
@@ -833,7 +833,7 @@ public:
     base::Color titleColor = getTitleColor();
     cairo_set_source_rgba(cr, titleColor.red, titleColor.green, titleColor.blue, titleColor.alpha);
 
-    std::string info = base::to_string(children.size() - 1) + " " + _("Connections");
+    std::string info = std::to_string(children.size() - 1) + " " + _("Connections");
     y = bounds.top() + 55;
     cairo_move_to(cr, x, y);
     cairo_show_text(cr, info.c_str());

@@ -1457,7 +1457,7 @@ void JsonReader::checkJsonEmpty(const std::string &text/* = "null" */)
   for (size_t i = 0; i < text.size() && !eos(); ++i)
   {
     char ch = peek();
-    if(isspace(ch))
+    if(std::isspace(ch))
       break;
     emptyString += ch;
     moveAhead();

@@ -146,13 +146,6 @@ namespace base
     return s;
   }
 
-  template <typename T> std::string to_string(const T &value)
-  {
-    std::stringstream out;
-    out << value;
-    return out.str();
-  }
-
   BASELIBRARY_PUBLIC_FUNC void setTextFileContent(const std::string &filename, const std::string &data);
   BASELIBRARY_PUBLIC_FUNC std::string getTextFileContent(const std::string &filename);
 

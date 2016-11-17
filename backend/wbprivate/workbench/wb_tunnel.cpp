@@ -363,7 +363,7 @@ std::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Conn
     std::string target = parameter_values.get_string("hostName");
     size_t target_port = parameter_values.get_int("port", 3306);
 
-    target += ":" + base::to_string(target_port);
+    target += ":" + std::to_string(target_port);
 
     // before anything, check if a tunnel already exists for this server/user/target tuple
     bec::GRTManager::get()->replace_status_text("Looking for existing SSH tunnel to "+server+"...");

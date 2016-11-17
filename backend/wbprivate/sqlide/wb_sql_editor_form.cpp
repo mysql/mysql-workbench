@@ -2374,7 +2374,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                       if (editor)
                         editor->add_panel_for_recordset_from_main(rs);
 
-                      std::string statement_res_msg = base::to_string(rs->row_count()) + _(" row(s) returned");
+                      std::string statement_res_msg = std::to_string(rs->row_count()) + _(" row(s) returned");
                       if (!last_statement_info->empty())
                         statement_res_msg.append("\n").append(last_statement_info);
 

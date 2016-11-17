@@ -1690,7 +1690,7 @@ bec::MenuItemList LiveSchemaTree::get_popup_items_for_nodes(const std::list<mfor
           if (limit_rows && (limit_rows_count <= 0))
             limit_rows= false;
           if (limit_rows)
-            caption += _(" - Limit ") + base::to_string(limit_rows_count);
+            caption += _(" - Limit ") + std::to_string(limit_rows_count);
         }
         view_item.caption= caption;
       }

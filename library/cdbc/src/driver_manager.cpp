@@ -239,9 +239,9 @@ void DriverManager::thread_cleanup()
 void DriverManager::getClientLibVersion(Driver * driver)
 {
   assert(driver != NULL);
-  _versionInfo = "C++ " + base::to_string(driver->getMajorVersion()) + ".";
-  _versionInfo += base::to_string(driver->getMinorVersion()) + ".";
-  _versionInfo += base::to_string(driver->getPatchVersion());
+  _versionInfo = "C++ " + std::to_string(driver->getMajorVersion()) + ".";
+  _versionInfo += std::to_string(driver->getMinorVersion()) + ".";
+  _versionInfo += std::to_string(driver->getPatchVersion());
 }
 
 //--------------------------------------------------------------------------------------------------

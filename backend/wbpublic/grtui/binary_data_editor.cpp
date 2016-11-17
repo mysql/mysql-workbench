@@ -481,7 +481,7 @@ public:
         break;
     }
     _text.set_value(text);
-    _srid.set_text("SRID: " + base::to_string(importer.getSrid()));
+    _srid.set_text("SRID: " + std::to_string(importer.getSrid()));
   }
 
 private:
