@@ -55,6 +55,8 @@
 #include <stdio.h>
 #include <winevt.h>
 #include <iterator>
+#include <cctype>
+
 
 #include <VersionHelpers.h>
 
