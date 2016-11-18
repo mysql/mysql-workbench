@@ -426,7 +426,6 @@ namespace wb {
     bool _other_connections_loaded;
     // setup
     void init_grt_tree(WBOptions *options, std::shared_ptr<grt::internal::Unserializer> unserializer);
-    void run_init_scripts_grt(WBOptions *options);
     void init_plugins_grt(WBOptions *options);
     void init_plugin_groups_grt(WBOptions *options);
     void init_object_listeners_grt();

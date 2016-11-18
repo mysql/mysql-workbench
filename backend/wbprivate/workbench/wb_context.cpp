@@ -77,16 +77,6 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT)
 #define FILE_CONNECTION_LIST "connections.xml"
 #define FILE_OTHER_CONNECTION_LIST "other_connections.xml"
 
-#define SYS_INIT_FILE "wbinit.lua"
-
-#ifdef _WIN32
-# define USER_INIT_FILE "wbinit.lua"
-#elif defined(__APPLE__)
-# define USER_INIT_FILE "Library/Application Support/MySQL/Workbench/wbinit.lua"
-#else
-# define USER_INIT_FILE ".mysqlgui/workbench/wbinit.lua"
-#endif
-
 #define PAPER_LANDSCAPE "landscape"
 #define PAPER_PORTRAIT "portrait"
 
@@ -210,6 +200,7 @@ static bool parse_loglevel(const std::string& line)
     printf("Logger set to level '%s'. '%s'\n", line.c_str(), base::Logger::get_state().c_str());
 
   return ret;
+
 }
 
 WBOptions::WBOptions(const std::string &appBinaryName)
@@ -1224,7 +1215,7 @@ void WBContext::init_finish_(WBOptions *options)
       _grt->pop_message_handler();
     }
   }
-  catch (std::runtime_error e)
+  catch (std::runtime_error &e)
   {
     // Errors from script execution are logged to the command line so we don't need to print out
     // another message. Notify user about it in the UI if we are supposed to not quit when done.
@@ -1310,8 +1301,6 @@ grt::ValueRef WBContext::setup_context_grt(WBOptions *options)
   loadStarters();
 
   init_plugin_groups_grt(options);
-
-  run_init_scripts_grt(options);
 
   init_plugins_grt(options);
 
@@ -1408,23 +1397,6 @@ void WBContext::init_grt_tree(WBOptions *options, std::shared_ptr<grt::internal:
     }
   }
 }
-
-
-
-void WBContext::run_init_scripts_grt(WBOptions *options)
-{
-  std::string sysinitpath= base::makePath(options->basedir, SYS_INIT_FILE);
-  std::string userinitpath= base::makePath(g_get_home_dir(), USER_INIT_FILE);
-
-  // first try the user's custom init script
-  if (g_file_test(userinitpath.c_str(), G_FILE_TEST_EXISTS))
-    _grtManager->get_shell()->run_script_file(userinitpath);
-
-  // if it doesn't exist, use the system one
-  else if (g_file_test(sysinitpath.c_str(), G_FILE_TEST_EXISTS))
-    _grtManager->get_shell()->run_script_file(sysinitpath);
-}
-
 
 void WBContext::init_plugin_groups_grt(WBOptions *options)
 {
