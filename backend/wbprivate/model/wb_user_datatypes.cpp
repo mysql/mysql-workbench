@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ UserDatatypeList::UserDatatypeList(WBContext *wb)
   end_columns();
 
   _menu = new mforms::ContextMenu();
-  _menu->add_item_with_title("Edit User Types...", boost::bind(&UserDatatypeList::handle_menu_action, this, "edit"));
+  _menu->add_item_with_title("Edit User Types...", std::bind(&UserDatatypeList::handle_menu_action, this, "edit"));
   set_context_menu(_menu);
 }
 

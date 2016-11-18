@@ -43,7 +43,7 @@ static void notify_visible_member_change(const std::string &member, const grt::V
 void db_Column::init()
 {
   // No need to disconnect management since the signal is part of the object.
-  _changed_signal.connect(boost::bind(notify_visible_member_change, _1, _2, this));
+  _changed_signal.connect(std::bind(notify_visible_member_change, std::placeholders::_1, std::placeholders::_2, this));
 }
 
 db_Column::~db_Column()

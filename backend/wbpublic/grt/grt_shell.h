@@ -58,8 +58,8 @@ public:
   void write(const std::string &text);
   void writef(const char *fmt, ...);
 
-  void set_output_handler(const boost::function<void (const std::string&)> &slot);
-  void set_ready_handler(const boost::function<void (const std::string&)> &slot);
+  void set_output_handler(const std::function<void (const std::string&)> &slot);
+  void set_ready_handler(const std::function<void (const std::string&)> &slot);
 
   void flush_shell_output();
 
@@ -92,9 +92,9 @@ protected:
   std::list<std::string> _history; // most recent first
   std::list<std::string>::iterator _history_ptr;
 
-  boost::function<void (const std::string&)> _ready_slot;
+  std::function<void (const std::string&)> _ready_slot;
 
-  boost::function<void (const std::string&)> _output_slot;
+  std::function<void (const std::string&)> _output_slot;
 
   base::Mutex _text_queue_mutex;
 

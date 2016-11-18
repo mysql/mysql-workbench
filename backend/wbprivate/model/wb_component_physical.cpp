@@ -414,7 +414,7 @@ db_SchemaRef WBComponentPhysical::add_new_db_schema(const workbench_physical_Mod
 
   undo.end(_("Create New Schema"));
 
-  _wb->show_status_text(strfmt(_("Schema '%s' created."), schema->name().c_str()));
+  _wb->_frontendCallbacks.show_status_text(strfmt(_("Schema '%s' created."), schema->name().c_str()));
 
   return schema;
 }
@@ -491,7 +491,7 @@ void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema)
 {
   grt::DictRef info;
   
-  _wb->show_status_text(_("Deleting schema..."));
+  _wb->_frontendCallbacks.show_status_text(_("Deleting schema..."));
 
   info= delete_db_schema(schema, true);
 
@@ -520,7 +520,7 @@ void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema)
       _("Delete"), _("Cancel"));
     if (res != mforms::ResultOk)
     {
-      _wb->show_status_text(_("Delete schema cancelled."));
+      _wb->_frontendCallbacks.show_status_text(_("Delete schema cancelled."));
       return;
     }
 
@@ -528,9 +528,9 @@ void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema)
   }
 
   if (!info.is_valid())
-    _wb->show_status_text(_("Schema deleted."));
+    _wb->_frontendCallbacks.show_status_text(_("Schema deleted."));
   else
-    _wb->show_status_text(_("Could not delete schema."));
+    _wb->_frontendCallbacks.show_status_text(_("Could not delete schema."));
 }
 
 #include "grts/structs.meta.h"
@@ -565,11 +565,11 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_table(const db_SchemaRef &s
 
   if (table.is_valid())
   {
-    _wb->show_status_text(strfmt(_("Table '%s' created in schema '%s'"), table->name().c_str(),
+    _wb->_frontendCallbacks.show_status_text(strfmt(_("Table '%s' created in schema '%s'"), table->name().c_str(),
                          table->owner()->name().c_str()));
   }
   else
-    _wb->show_status_text(_("Could not create new table."));
+    _wb->_frontendCallbacks.show_status_text(_("Could not create new table."));
 
   return table;
 }
@@ -585,11 +585,11 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_view(const db_SchemaRef &sc
   undo.end(_("Create View"));
   if (view.is_valid())
   {
-    _wb->show_status_text(strfmt(_("View '%s' created in schema '%s'"), view->name().c_str(),
+    _wb->_frontendCallbacks.show_status_text(strfmt(_("View '%s' created in schema '%s'"), view->name().c_str(),
                          view->owner()->name().c_str()));
   }
   else
-    _wb->show_status_text(_("Could not create new view"));
+    _wb->_frontendCallbacks.show_status_text(_("Could not create new view"));
 
   return view;
 }
@@ -605,11 +605,11 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine_group(const db_Sche
   undo.end(_("Create Routine Group"));
   if (rgroup.is_valid())
   {
-    _wb->show_status_text(strfmt(_("Routine group '%s' created in schema '%s'"), rgroup->name().c_str(),
+    _wb->_frontendCallbacks.show_status_text(strfmt(_("Routine group '%s' created in schema '%s'"), rgroup->name().c_str(),
                          rgroup->owner()->name().c_str()));
   }
   else
-    _wb->show_status_text(_("Could not create new routine group"));
+    _wb->_frontendCallbacks.show_status_text(_("Could not create new routine group"));
 
   return rgroup;
 }
@@ -625,11 +625,11 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine(const db_SchemaRef 
   undo.end(_("Create Routine"));
   if (routine.is_valid())
   {
-    _wb->show_status_text(strfmt(_("Routine '%s' created in schema '%s'"), routine->name().c_str(),
+    _wb->_frontendCallbacks.show_status_text(strfmt(_("Routine '%s' created in schema '%s'"), routine->name().c_str(),
                          routine->owner()->name().c_str()));
   }
   else
-    _wb->show_status_text(_("Could not create new routine"));
+    _wb->_frontendCallbacks.show_status_text(_("Could not create new routine"));
 
   return routine;
 }
@@ -813,7 +813,7 @@ model_FigureRef WBComponentPhysical::place_db_object(ModelDiagramForm *view,
   }
   catch (std::invalid_argument &)
   {
-    _wb->show_status_text(_("Cannot place object."));
+    _wb->_frontendCallbacks.show_status_text(_("Cannot place object."));
     return model_FigureRef();
   }
   catch (grt::grt_runtime_error &exc)
@@ -823,9 +823,9 @@ model_FigureRef WBComponentPhysical::place_db_object(ModelDiagramForm *view,
   }
 
   if (figure.is_valid())
-    _wb->show_status_text(strfmt(_("Placed %s"), figure->name().c_str()));
+    _wb->_frontendCallbacks.show_status_text(strfmt(_("Placed %s"), figure->name().c_str()));
   else
-    _wb->show_status_text(_("Failed placing db object."));
+    _wb->_frontendCallbacks.show_status_text(_("Failed placing db object."));
 
 
   return figure;
@@ -2257,14 +2257,14 @@ void WBComponentPhysical::add_schema_listeners(const db_SchemaRef &schema)
   {
     // listener for changes in schema itself
     _object_listeners[schema.id()]=
-        schema->signal_changed()->connect(boost::bind(&WBComponentPhysical::schema_member_changed, this, _1, _2, schema));
+        schema->signal_changed()->connect(std::bind(&WBComponentPhysical::schema_member_changed, this, std::placeholders::_1, std::placeholders::_2, schema));
   
     _schema_content_listeners[schema.id()]= schema->signal_refreshDisplay()->connect
-        (boost::bind(&WBComponentPhysical::schema_content_object_changed, this, _1));
+        (std::bind(&WBComponentPhysical::schema_content_object_changed, this, std::placeholders::_1));
 
     // for changes in table, view, SP/function, routine (and other) lists
     _schema_list_listeners[schema.id()]= schema->signal_list_changed()->connect(
-        boost::bind(&WBComponentPhysical::schema_object_list_changed, this, _1, _2, _3, schema));
+        std::bind(&WBComponentPhysical::schema_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, schema));
   }
 }
 
@@ -2320,7 +2320,7 @@ void WBComponentPhysical::reset_document()
 
       if (catalog.is_valid())
         _catalog_object_list_listener= 
-        catalog->signal_list_changed()->connect(boost::bind(&WBComponentPhysical::catalog_object_list_changed, this, _1, _2, _3, catalog));
+        catalog->signal_list_changed()->connect(std::bind(&WBComponentPhysical::catalog_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, catalog));
 
       for (std::size_t sc= catalog->schemata().count(), si= 0; si < sc; si++)
       {
@@ -2341,11 +2341,11 @@ void WBComponentPhysical::reset_document()
         model_DiagramRef view(model->diagrams().get(i));
         _figure_list_listeners[view.id()]=
           view->signal_list_changed()->connect(
-              boost::bind(&WBComponentPhysical::view_object_list_changed, this, _1, _2, _3, view));
+              std::bind(&WBComponentPhysical::view_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, view));
       }
 
       _model_list_listener= model->signal_list_changed()->
-        connect(boost::bind(&WBComponentPhysical::model_object_list_changed, this, _1, _2, _3));
+        connect(std::bind(&WBComponentPhysical::model_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     }
   }
 
@@ -2446,7 +2446,7 @@ void WBComponentPhysical::add_schema_object_listeners(const grt::ObjectRef &obje
     if (_object_listeners.find(object.id()) != _object_listeners.end())
       _object_listeners[object.id()].disconnect();
     _object_listeners[object.id()]= db_TableRef::cast_from(object)->signal_foreignKeyChanged()->connect(
-        boost::bind(&WBComponentPhysical::foreign_key_changed, this, _1));
+        std::bind(&WBComponentPhysical::foreign_key_changed, this, std::placeholders::_1));
   }
 }
 
@@ -2570,7 +2570,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
         
         _figure_list_listeners[view.id()]=
         view->signal_list_changed()->connect(
-                  boost::bind(&WBComponentPhysical::view_object_list_changed, this, _1, _2, _3, view));
+                  std::bind(&WBComponentPhysical::view_object_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, view));
         
         wb::WBContextUI::get()->get_physical_overview()->send_refresh_diagram(model_DiagramRef());
         return;
@@ -2927,17 +2927,17 @@ void WBComponentPhysical::setup_canvas_tool(ModelDiagramForm *view, const std::s
   if (tool == WB_TOOL_PTABLE)
   {
     view->set_cursor("table");
-    _wb->show_status_text(_("Select location for new table."));
+    _wb->_frontendCallbacks.show_status_text(_("Select location for new table."));
   }
   else if (tool == WB_TOOL_PVIEW)
   {
     view->set_cursor("view");
-    _wb->show_status_text(_("Select location for new view."));
+    _wb->_frontendCallbacks.show_status_text(_("Select location for new view."));
   }
   else if (tool == WB_TOOL_PROUTINEGROUP)
   {
     view->set_cursor("routine");
-    _wb->show_status_text(_("Select location for new routine group."));
+    _wb->_frontendCallbacks.show_status_text(_("Select location for new routine group."));
   }
   else if (tool == WB_TOOL_PREL11)
   {
@@ -2977,13 +2977,13 @@ void WBComponentPhysical::setup_canvas_tool(ModelDiagramForm *view, const std::s
   }
   else
   {
-    _wb->show_status_text("Invalid tool "+tool);
+    _wb->_frontendCallbacks.show_status_text("Invalid tool "+tool);
     return;
   }
-  view->set_button_callback(boost::bind(&WBComponentPhysical::handle_button_event, this, _1, _2, _3, _4, _5, data));
+  view->set_button_callback(std::bind(&WBComponentPhysical::handle_button_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, data));
   if (relationship)
     view->set_reset_tool_callback(
-      boost::bind(&WBComponentPhysical::cancel_relationship, this, _1,
+      std::bind(&WBComponentPhysical::cancel_relationship, this, std::placeholders::_1,
         reinterpret_cast<RelationshipToolContext*>(data)));
 }
 
@@ -3091,7 +3091,7 @@ db_UserRef WBComponentPhysical::add_new_user(const workbench_physical_ModelRef &
 
   undo.end(strfmt(_("Create User '%s'"), user->name().c_str()));
 
-  _wb->show_status_text(strfmt(_("User '%s' created"), user->name().c_str()));
+  _wb->_frontendCallbacks.show_status_text(strfmt(_("User '%s' created"), user->name().c_str()));
 
   return user;
 }
@@ -3105,7 +3105,7 @@ void WBComponentPhysical::remove_user(const db_UserRef &user)
   catalog->users().remove_value(user);
   undo.end(strfmt(_("Remove User '%s'"), user->name().c_str()));
 
-  _wb->show_status_text(strfmt(_("Removed user '%s'"), user->name().c_str()));
+  _wb->_frontendCallbacks.show_status_text(strfmt(_("Removed user '%s'"), user->name().c_str()));
 }
 
 
@@ -3126,7 +3126,7 @@ db_RoleRef WBComponentPhysical::add_new_role(const workbench_physical_ModelRef &
   catalog->roles().insert(role);
   undo.end(strfmt(_("Create Role '%s'"), role->name().c_str()));
 
-  _wb->show_status_text(strfmt(_("Role '%s' created"), role->name().c_str()));
+  _wb->_frontendCallbacks.show_status_text(strfmt(_("Role '%s' created"), role->name().c_str()));
 
   return role;
 }
@@ -3140,7 +3140,7 @@ void WBComponentPhysical::remove_role(const db_RoleRef &role)
   catalog->roles().remove_value(role);
   undo.end(strfmt(_("Remove Role '%s'"), role->name().c_str()));
 
-  _wb->show_status_text(strfmt(_("Removed role '%s'"), role->name().c_str()));
+  _wb->_frontendCallbacks.show_status_text(strfmt(_("Removed role '%s'"), role->name().c_str()));
 }
 
 

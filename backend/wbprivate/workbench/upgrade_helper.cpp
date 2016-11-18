@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -288,7 +288,7 @@ std::list<xmlNodePtr> XMLTraverser::scan_nodes_with_key(const char *name, xmlNod
 }
 
 
-static void traverse_subtree_node(xmlNodePtr parent, const boost::function<bool (xmlNodePtr, xmlNodePtr)> &callback)
+static void traverse_subtree_node(xmlNodePtr parent, const std::function<bool (xmlNodePtr, xmlNodePtr)> &callback)
 {
   for (xmlNodePtr node= parent->children; node != NULL; node= node->next)
   {
@@ -302,7 +302,7 @@ static void traverse_subtree_node(xmlNodePtr parent, const boost::function<bool 
 }
 
 
-void XMLTraverser::traverse_subtree(const char *path, const boost::function<bool (xmlNodePtr, xmlNodePtr)> &callback)
+void XMLTraverser::traverse_subtree(const char *path, const std::function<bool (xmlNodePtr, xmlNodePtr)> &callback)
 {
   xmlNodePtr node= get_object_by_path(path);
   

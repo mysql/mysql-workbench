@@ -160,7 +160,7 @@ static void set_clicked_column(RecordGridView *grid, void *table)
 
 void RecordGridView::set_header_menu(ContextMenu *menu)
 {
-  menu->signal_will_show()->connect(boost::bind(set_clicked_column, this, (__bridge void *)viewer.gridView));
+  menu->signal_will_show()->connect(std::bind(set_clicked_column, this, (__bridge void *)viewer.gridView));
   viewer.gridView.headerView.menu = menu->get_data();
 }
 

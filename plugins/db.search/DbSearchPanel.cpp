@@ -19,8 +19,6 @@
 
 #include "DbSearchPanel.h"
 #include <sstream>
-#include <boost/assign/list_of.hpp>
-#include <boost/lambda/bind.hpp>
 #include "grtui/grt_wizard_form.h"
 #include "grtui/connection_page.h"
 #include "grt/grt_string_list_model.h"
@@ -30,7 +28,7 @@
 
 DEFAULT_LOG_DOMAIN("db.search");
 
-grt::ValueRef call_search(boost::function<void ()> search, boost::function<void ()> fail_cb)
+grt::ValueRef call_search(std::function<void ()> search, std::function<void ()> fail_cb)
 {
     try {
       search();
@@ -45,7 +43,7 @@ grt::ValueRef call_search(boost::function<void ()> search, boost::function<void 
 bool is_string_type(const std::string& type)
 {
     //The string types are CHAR, VARCHAR, BINARY, VARBINARY, BLOB, TEXT, ENUM, and SET
-    static const std::set<std::string> chartypes = boost::assign::list_of(std::string("char"))("varchar")("binary")("varbinary")("blob")("text")("enum")("set");
+    static const std::set<std::string> chartypes = {"char", "varchar", "binary", "varbinary", "blob", "text", "enum", "set"};
     std::string searchtype = type.substr(0,type.find("("));
     return chartypes.find(searchtype) != chartypes.end();
 };
@@ -60,8 +58,8 @@ bool is_numeric_type(const std::string& type)
     (a nonstandard extension). MySQL also treats REAL as a synonym for DOUBLE PRECISION (a nonstandard variation), 
     unless the REAL_AS_FLOAT SQL mode is enabled. 
     */
-    static const std::set<std::string> chartypes = boost::assign::list_of(std::string("integer"))("smallint")("decimal")("numeric")("float")
-        ("real")("double precision")("int")("dec")("fixed")("double")("double precision")("real");
+    static const std::set<std::string> chartypes = {"integer", "smallint", "decimal", "numeric", "float",
+        "real", "double precision", "int", "dec", "fixed", "double", "double precision", "real"};
     std::string searchtype = type.substr(0,type.find("("));
     return chartypes.find(searchtype) != chartypes.end();
 };
@@ -69,7 +67,7 @@ bool is_numeric_type(const std::string& type)
 bool is_datetime_type(const std::string& type)
 {
     //The date and time types for representing temporal values are DATE, TIME, DATETIME, TIMESTAMP, and YEAR. 
-    static const std::set<std::string> chartypes = boost::assign::list_of(std::string("date"))("time")("datetime")("timestamp")("year");
+    static const std::set<std::string> chartypes = {"date", "time", "datetime", "timestamp", "year"};
     std::string searchtype = type.substr(0,type.find("("));
     return chartypes.find(searchtype) != chartypes.end();
 };
@@ -111,7 +109,7 @@ private:
     base::Mutex _pause_mutex;
 
 protected:
-    typedef boost::function<void (const std::string&, const std::string&, const std::list<std::string>&, const std::list<std::string>&, const std::string&, const bool match_PK)> select_func_t;
+    typedef std::function<void (const std::string&, const std::string&, const std::list<std::string>&, const std::list<std::string>&, const std::string&, const bool match_PK)> select_func_t;
     void run(select_func_t select_func);
     void select_data(const std::string& schema_name, const std::string& table_name, const std::list<std::string>& pk_columns, const std::list<std::string>& select_columns, const std::string& limit_clause, const bool match_PK);
     void count_data(const std::string& schema_name, const std::string& table_name, const std::list<std::string>& pk_columns, const std::list<std::string>& select_columns, const std::string& limit_clause, const bool match_PK);
@@ -186,8 +184,8 @@ void DBSearch::stop()
 
 std::string DBSearch::build_where(const std::string& col, const std::string& data) const
 {
-  static const std::vector<std::string> select_modes = boost::assign::list_of(std::string("LIKE"))("=")("LIKE")("REGEXP");
-  static const std::vector<std::string> inverted_select_modes = boost::assign::list_of(std::string("LIKE"))("<>")("NOT LIKE")("NOT REGEXP");
+  static const std::vector<std::string> select_modes = {"LIKE", "=", "LIKE", "REGEXP"};
+  static const std::vector<std::string> inverted_select_modes = {"LIKE", "<>", "NOT LIKE", "NOT REGEXP"};
 
   std::string where_condition;
   if (_cast_to.empty())
@@ -274,8 +272,8 @@ void DBSearch::count_data(const std::string& schema_name, const std::string& tab
     if (query.empty())
         return;
 
-    boost::scoped_ptr<sql::Statement> stmt(_db_conn->createStatement());
-    boost::scoped_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+    std::unique_ptr<sql::Statement> stmt(_db_conn->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
     if (_limit_counter > 0)
       _limit_counter -= (int)rs->rowsCount();
     SearchResultEntry result;
@@ -300,8 +298,8 @@ void DBSearch::select_data(const std::string& schema_name, const std::string& ta
     std::string query = build_select_query(schema_name, table_name, select_columns, limit_clause, match_PK);
     if (query.empty())
         return;
-    boost::scoped_ptr<sql::Statement> stmt(_db_conn->createStatement());
-    boost::scoped_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+    std::unique_ptr<sql::Statement> stmt(_db_conn->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
     if (_limit_counter > 0)
       _limit_counter -= (int)rs->rowsCount();
     SearchResultEntry result;
@@ -329,12 +327,12 @@ void DBSearch::select_data(const std::string& schema_name, const std::string& ta
 
 void DBSearch::search()
 {
-    run(boost::bind(&DBSearch::select_data, this, _1, _2, _3, _4, _5, _6));
+    run(std::bind(&DBSearch::select_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 };
 
 void DBSearch::count()
 {
-    run(boost::bind(&DBSearch::count_data, this, _1, _2, _3, _4, _5, _6));
+    run(std::bind(&DBSearch::count_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 };
 
 void DBSearch::run(select_func_t select_func)
@@ -358,7 +356,7 @@ void DBSearch::run(select_func_t select_func)
     std::map<std::string, std::vector<std::string> > schemas;
     std::map<std::string, std::vector<std::string> > schemas_tables;
     {
-        boost::scoped_ptr<sql::Statement> stmt(_db_conn->createStatement());
+        std::unique_ptr<sql::Statement> stmt(_db_conn->createStatement());
         for(size_t count= _filter_list.count(), i= 0; i < count; i++)
         {
             wait_if_paused();
@@ -376,7 +374,7 @@ void DBSearch::run(select_func_t select_func)
             if (schema_pattern.empty() || schema_pattern.find('%') != std::string::npos)
             {
                 schema_pattern = "%";
-                boost::scoped_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(base::sqlstring("SHOW DATABASES LIKE ?", 0) << schema_pattern)));
+                std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(base::sqlstring("SHOW DATABASES LIKE ?", 0) << schema_pattern)));
                 while(rs->next())
                 {
                     std::string schema = rs->getString(1);
@@ -388,7 +386,7 @@ void DBSearch::run(select_func_t select_func)
         }
     }
     {
-        boost::scoped_ptr<sql::Statement> stmt(_db_conn->createStatement());
+         std::unique_ptr<sql::Statement> stmt(_db_conn->createStatement());
         for (std::map<std::string, std::vector<std::string> >::const_iterator It = schemas.begin(); It != schemas.end(); ++It)
         {
             std::string schema_name = It->first;
@@ -422,7 +420,7 @@ void DBSearch::run(select_func_t select_func)
                 {
                   query.append(base::sqlstring("SHOW TABLES FROM ! LIKE ?", 0) << schema_name << table_pattern);
                 }
-                boost::scoped_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+                std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
                 while(rs->next())
                 {
                     std::string table = rs->getString(1);
@@ -459,8 +457,8 @@ void DBSearch::run(select_func_t select_func)
         std::list<std::string> select_columns;
         try 
         {
-            boost::scoped_ptr<sql::Statement> stmt(_db_conn->createStatement());
-            boost::scoped_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(base::sqlstring("SHOW COLUMNS FROM !.! WHERE ", base::QuoteOnlyIfNeeded) << schema_name << table_name).append(like_clause)));
+            std::unique_ptr<sql::Statement> stmt(_db_conn->createStatement());
+            std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(base::sqlstring("SHOW COLUMNS FROM !.! WHERE ", base::QuoteOnlyIfNeeded) << schema_name << table_name).append(like_clause)));
             while(rs->next())
             {
               std::string column = rs->getString(1);
@@ -498,8 +496,8 @@ void DBSearch::run(select_func_t select_func)
         {
           try
           {
-            boost::scoped_ptr<sql::Statement> stmt(_db_conn->createStatement());
-            boost::scoped_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(base::sqlstring("SHOW COLUMNS FROM !.! WHERE `Key` = 'PRI'", base::QuoteOnlyIfNeeded) << schema_name << table_name)));
+            std::unique_ptr<sql::Statement> stmt(_db_conn->createStatement());
+            std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(base::sqlstring("SHOW COLUMNS FROM !.! WHERE `Key` = 'PRI'", base::QuoteOnlyIfNeeded) << schema_name << table_name)));
             while (rs->next())
             {
               select_columns.push_back(rs->getString(1));
@@ -560,7 +558,7 @@ DBSearchPanel::DBSearchPanel(): Box(false),
     set_spacing(8);
 
     _pause_button.set_text("Pause");
-    scoped_connect(_pause_button.signal_clicked(), boost::bind(&DBSearchPanel::toggle_pause, this));
+    scoped_connect(_pause_button.signal_clicked(), std::bind(&DBSearchPanel::toggle_pause, this));
 
     _progress_box.set_spacing(4);
 
@@ -580,7 +578,7 @@ DBSearchPanel::DBSearchPanel(): Box(false),
     add(&_results_tree, true, true);
 
     _results_tree.set_context_menu(&_context_menu);
-    _context_menu.signal_will_show()->connect(boost::bind(&DBSearchPanel::prepare_menu, this));
+    _context_menu.signal_will_show()->connect(std::bind(&DBSearchPanel::prepare_menu, this));
 
     _matches_label.set_text(_("Matches:"));
     add(&_matches_label, false, true);
@@ -734,19 +732,19 @@ void DBSearchPanel::prepare_menu()
     mforms::MenuItem *item;
     if (column_selected)
     {
-//        item = _context_menu.add_item_with_title(_("Query Matching Rows"), boost::bind(&DBSearchPanel::activate_menu_item, this, "show_matches"), "show_matches");
+//        item = _context_menu.add_item_with_title(_("Query Matching Rows"), std::bind(&DBSearchPanel::activate_menu_item, this, "show_matches"), "show_matches");
 //        item->set_enabled(table_selected == 0);
-        item = _context_menu.add_item_with_title(_("Copy Query"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
+        item = _context_menu.add_item_with_title(_("Copy Query"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
         if (searcher_is_working)
           item->set_enabled(false);
 
-        item = _context_menu.add_item_with_title(_("Copy Query for Matches"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_query_for_selected"), "copy_query_for_selected");
+        item = _context_menu.add_item_with_title(_("Copy Query for Matches"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query_for_selected"), "copy_query_for_selected");
         if (searcher_is_working)
           item->set_enabled(false);
         else
           item->set_enabled(table_selected == 0);
 
-        item = _context_menu.add_item_with_title(_("Copy Keys"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_pks"), "copy_pks");
+        item = _context_menu.add_item_with_title(_("Copy Keys"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_pks"), "copy_pks");
         if (searcher_is_working)
           item->set_enabled(false);
         else
@@ -754,21 +752,21 @@ void DBSearchPanel::prepare_menu()
     }
     else
     {
-//        item = _context_menu.add_item_with_title(_("Query Matching Rows"), boost::bind(&DBSearchPanel::activate_menu_item, this, "view_matches"), "show_matches");
+//        item = _context_menu.add_item_with_title(_("Query Matching Rows"), std::bind(&DBSearchPanel::activate_menu_item, this, "view_matches"), "show_matches");
 //        item->set_enabled(table_selected > 0);
-        item = _context_menu.add_item_with_title(_("Copy Query"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
+        item = _context_menu.add_item_with_title(_("Copy Query"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query"), "copy_query");
         if (searcher_is_working)
           item->set_enabled(false);
         else
           item->set_enabled(table_selected > 0);
 
-        item = _context_menu.add_item_with_title(_("Copy Query for Matches"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_query_for_selected_table"), "copy_query_for_selected_table");
+        item = _context_menu.add_item_with_title(_("Copy Query for Matches"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_query_for_selected_table"), "copy_query_for_selected_table");
         if (searcher_is_working)
           item->set_enabled(false);
         else
           item->set_enabled(table_selected == 1);
 
-        item = _context_menu.add_item_with_title(_("Copy Keys"), boost::bind(&DBSearchPanel::activate_menu_item, this, "copy_pks_table"), "copy_pks_table");
+        item = _context_menu.add_item_with_title(_("Copy Keys"), std::bind(&DBSearchPanel::activate_menu_item, this, "copy_pks_table"), "copy_pks_table");
         if (searcher_is_working)
           item->set_enabled(false);
         else
@@ -816,7 +814,7 @@ void DBSearchPanel::load_model(mforms::TreeNodeRef tnode)
 
 void DBSearchPanel::search(sql::ConnectionWrapper connection, const std::string& search_keyword, const grt::StringListRef& filter_list,
                           const SearchMode search_mode, const int limit_total, const int limt_per_table, const bool invert, const int search_data_type,
-                          const std::string cast_to, boost::function<void (grt::ValueRef)> finished_callback, boost::function<void ()> failed_callback)
+                          const std::string cast_to, std::function<void (grt::ValueRef)> finished_callback, std::function<void ()> failed_callback)
 {
     if (_searcher)
       return;
@@ -831,14 +829,14 @@ void DBSearchPanel::search(sql::ConnectionWrapper connection, const std::string&
       bec::GRTManager::get()->cancel_timer(_update_timer);
     _searcher = std::shared_ptr<DBSearch>(new DBSearch(connection, search_keyword, filter_list, search_mode, limit_total, limt_per_table, invert, search_data_type, cast_to));
     load_model(_results_tree.root_node());
-    boost::function<void ()> fsearch = (boost::bind(&DBSearch::search, _searcher.get()));
-    //fsearch = (boost::bind(&DBSearch::count, _searcher.get()));//COUNT test
+    std::function<void ()> fsearch = (std::bind(&DBSearch::search, _searcher.get()));
+    //fsearch = (std::bind(&DBSearch::count, _searcher.get()));//COUNT test
     _searcher->prepare();
     bec::GRTManager::get()->execute_grt_task("Search",
-        boost::bind(call_search, fsearch, failed_callback),
+        std::bind(call_search, fsearch, failed_callback),
         finished_callback);
     while (_searcher->is_starting());
-    _update_timer = bec::GRTManager::get()->run_every(boost::bind(&DBSearchPanel::update, this), 1);
+    _update_timer = bec::GRTManager::get()->run_every(std::bind(&DBSearchPanel::update, this), 1);
 }
   
 bool DBSearchPanel::update()

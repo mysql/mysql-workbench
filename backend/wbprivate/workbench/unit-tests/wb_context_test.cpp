@@ -210,11 +210,11 @@ TEST_FUNCTION(25)
     tester->interactive_place_db_objects(10, 150, objects);
 
     grt::BaseListRef figures(tester->get_pview()->figures());
-    tester->flush_until(1, boost::bind(&grt::BaseListRef::count, figures), 2);
+    tester->flush_until(1, std::bind(&grt::BaseListRef::count, figures), 2);
     ensure_equals("There must be 2 tables in the view now", tester->get_pview()->figures().count(), 2U);
 
     grt::BaseListRef connections(tester->get_pview()->connections());
-    tester->flush_until(5, boost::bind(&grt::BaseListRef::count, connections), 1);
+    tester->flush_until(5, std::bind(&grt::BaseListRef::count, connections), 1);
 
     ensure_equals("connections created", tester->get_pview()->connections().count(), 1U);
 
@@ -431,24 +431,24 @@ TEST_FUNCTION(40)
 
   grt::BaseListRef connections(tester->get_pview()->connections());
 
-  tester->flush_until(2, boost::bind(&BaseListRef::count, connections), 1);
+  tester->flush_until(2, std::bind(&BaseListRef::count, connections), 1);
 
   ensure_equals("connection created", connections.count(), 1U);
 
   um->undo();
 
-  tester->flush_until(2, boost::bind(&BaseListRef::count, connections), 0);
+  tester->flush_until(2, std::bind(&BaseListRef::count, connections), 0);
 
   ensure_equals("connection undone", connections.count(), 0U);
 
   um->redo();
 
-  tester->flush_until(2, boost::bind(&BaseListRef::count, connections), 1);
+  tester->flush_until(2, std::bind(&BaseListRef::count, connections), 1);
 
   ensure_equals("connection redone", connections.count(), 1U);
 
   um->undo();
-  tester->flush_until(2, boost::bind(&BaseListRef::count, connections), 0);
+  tester->flush_until(2, std::bind(&BaseListRef::count, connections), 0);
 
   ensure("Could not close document", tester->close_document());
   tester->wb->close_document_finish();
@@ -599,7 +599,7 @@ TEST_FUNCTION(60)
   fk->referencedTable(table1);
 
   grt::BaseListRef connections(tester->get_pview()->connections());
-  tester->flush_until(2, boost::bind(&grt::BaseListRef::count, connections), 1);
+  tester->flush_until(2, std::bind(&grt::BaseListRef::count, connections), 1);
 
   ensure_equals("rel count", tester->get_pview()->connections().count(), 1U);
 
@@ -673,7 +673,7 @@ TEST_FUNCTION(85)
   tester->open_all_diagrams();
   tester->sync_view();
 
-  tester->flush_while(3, boost::bind(&mdc::Selection::empty, tester->last_view->get_selection()));
+  tester->flush_while(3, std::bind(&mdc::Selection::empty, tester->last_view->get_selection()));
 
   ensure("has selection in canvas", !tester->last_view->get_selection()->empty());
 

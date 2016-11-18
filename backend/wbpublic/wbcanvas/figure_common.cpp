@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ Titlebar::Titlebar(mdc::Layer *layer, FigureEventHub *hub, BaseFigure *owner, bo
   if (expander)
   {
     _expander= new mdc::Button(layer, mdc::ExpanderButton);
-    scoped_connect(_expander->signal_activate(),boost::bind(&Titlebar::expand_toggled, this));
+    scoped_connect(_expander->signal_activate(), std::bind(&Titlebar::expand_toggled, this));
     _expander->set_pen_color(Color(0.4, 0.4, 0.4));
     
     add(_expander, false, false);
@@ -663,7 +663,7 @@ bool CaptionFigure::on_double_click(mdc::CanvasItem *target, const Point &point,
 //--------------------------------------------------------------------------------------------------
 
 ShrinkableBox::ShrinkableBox(mdc::Layer *layer, mdc::Box::Orientation orientation)
-: mdc::Box(layer, orientation), _manual_resizing(false)
+: mdc::Box(layer, orientation), _visible_part_size(0.0), _manual_resizing(false)
 {
   _hidden_item_count= 0;
   _limit_item_count= 0;

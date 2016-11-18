@@ -73,7 +73,7 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
     _sql_editor = MySQLEditor::create(context, autocomplete_context);
 
     scoped_connect(_sql_editor->text_change_signal(),
-      boost::bind(&StoredNoteEditorBE::do_partial_ui_refresh, this, (int)BaseEditor::RefreshTextChanged));
+      std::bind(&StoredNoteEditorBE::do_partial_ui_refresh, this, (int)BaseEditor::RefreshTextChanged));
 
     if (is_script())
     {
@@ -105,7 +105,7 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
       item->set_selector_items(sync_choices);
       item->set_name("syncscript");
       item->set_tooltip(_("Position to insert this in synchronization output scripts"));
-      item->signal_activated()->connect(boost::bind(&StoredNoteEditorBE::changed_selector, this, item));
+      item->signal_activated()->connect(std::bind(&StoredNoteEditorBE::changed_selector, this, item));
       item->set_text(syncvalue);
       tbar->add_item(item);
 
@@ -116,7 +116,7 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
       item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
       item->set_selector_items(fw_choices);
       item->set_name("forwardscript");
-      item->signal_activated()->connect(boost::bind(&StoredNoteEditorBE::changed_selector, this, item));
+      item->signal_activated()->connect(std::bind(&StoredNoteEditorBE::changed_selector, this, item));
       item->set_tooltip(_("Position to insert this in forward engineering output scripts"));
       item->set_text(fwvalue);
       tbar->add_item(item);

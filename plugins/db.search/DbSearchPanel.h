@@ -67,7 +67,7 @@ public:
     ~DBSearchPanel();
     void search(sql::ConnectionWrapper connection, const std::string& search_keyword, const grt::StringListRef& filter_list,
         const SearchMode search_mode, const int limit_total, const int limt_per_table, const bool invert,const int search_data_type,
-        const std::string cast_to, boost::function<void (grt::ValueRef)> finished_callback, boost::function<void ()> failed_callback);
+        const std::string cast_to, std::function<void (grt::ValueRef)> finished_callback, std::function<void ()> failed_callback);
     void toggle_pause();
     bool stop_search_if_working();
     bool update();

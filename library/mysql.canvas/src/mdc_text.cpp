@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,7 +52,7 @@ TextFigure::TextFigure(Layer *layer)
   _fill_background= false;
   _draw_outline= false;
   _highlight_through_text = false;
-  scoped_connect(signal_bounds_changed(),boost::bind(&TextFigure::reset_shrinked_text, this));
+  scoped_connect(signal_bounds_changed(), std::bind(&TextFigure::reset_shrinked_text, this));
 }
 
 /**

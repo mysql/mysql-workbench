@@ -46,7 +46,7 @@ plugin_info_panel(LineBorderPanel), plugin_info_box(false), plugin_details_box(f
   middle->add(&plugin_info_panel, true, true);
   
   
-  scoped_connect(plugin_list.signal_changed(),boost::bind(&PluginManagerWindow::list_selection_changed, this));
+  scoped_connect(plugin_list.signal_changed(),std::bind(&PluginManagerWindow::list_selection_changed, this));
 
   plugin_info_panel.set_back_color("#ffffff");
   plugin_info_panel.add(&plugin_info_box);
@@ -100,9 +100,9 @@ plugin_info_panel(LineBorderPanel), plugin_info_box(false), plugin_details_box(f
     vbox->add_end(hbox, false, true);
     
     plugin_enabled.set_text("Enable Plugin");
-    scoped_connect(plugin_enabled.signal_clicked(),boost::bind(&PluginManagerWindow::toggle_enable, this));
+    scoped_connect(plugin_enabled.signal_clicked(),std::bind(&PluginManagerWindow::toggle_enable, this));
     plugin_uninstall.set_text("Uninstall");
-    scoped_connect(plugin_uninstall.signal_clicked(),boost::bind(&PluginManagerWindow::uninstall, this));
+    scoped_connect(plugin_uninstall.signal_clicked(),std::bind(&PluginManagerWindow::uninstall, this));
     
     hbox->add(&plugin_enabled, true, true);
     hbox->add(&plugin_uninstall, false, true);
@@ -122,7 +122,7 @@ plugin_info_panel(LineBorderPanel), plugin_info_box(false), plugin_details_box(f
   
   plugin_list.set_row_height(24);
   
-  scoped_connect(plugin_show_details.signal_clicked(),boost::bind(&PluginManagerWindow::toggle_show_details, this));
+  scoped_connect(plugin_show_details.signal_clicked(),std::bind(&PluginManagerWindow::toggle_show_details, this));
   toggle_show_details();
 
   list_selection_changed();

@@ -311,7 +311,7 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
 
   _switcher.add_column(mforms::StringColumnType, "", 150);
   _switcher.end_columns();
-  _switcher.signal_changed()->connect(boost::bind(&PreferencesForm::switch_page, this));
+  _switcher.signal_changed()->connect(std::bind(&PreferencesForm::switch_page, this));
 
   _switcher.set_size(150, -1);
   _hbox.add(&_switcher, false, true);
@@ -327,8 +327,8 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
   _button_box.set_spacing(8);
   _button_box.set_homogeneous(true);
 
-  scoped_connect(_ok_button.signal_clicked(),boost::bind(&PreferencesForm::ok_clicked, this));
-  scoped_connect(_cancel_button.signal_clicked(),boost::bind(&PreferencesForm::cancel_clicked, this));
+  scoped_connect(_ok_button.signal_clicked(), std::bind(&PreferencesForm::ok_clicked, this));
+  scoped_connect(_cancel_button.signal_clicked(), std::bind(&PreferencesForm::cancel_clicked, this));
 
   _cancel_button.set_text(_("Cancel"));
   _cancel_button.enable_internal_padding(true);
@@ -348,7 +348,7 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
       _use_global.set_front_color("#000000");
 #endif
     _bottom_box.add(&_use_global, true, true);
-    scoped_connect(_use_global.signal_clicked(),boost::bind(&PreferencesForm::toggle_use_global, this));
+    scoped_connect(_use_global.signal_clicked(),std::bind(&PreferencesForm::toggle_use_global, this));
   }
 
   mforms::TreeNodeRef node;
@@ -671,87 +671,96 @@ mforms::TextEntry *PreferencesForm::new_entry_option(const std::string &option_n
   mforms::TextEntry *entry= new mforms::TextEntry();
 
   option->view= mforms::manage(entry);
-  option->show_value= boost::bind(&PreferencesForm::show_entry_option, this, option_name, entry, numeric);
-  option->update_value= boost::bind(&PreferencesForm::update_entry_option, this, option_name, entry, numeric);
+  option->show_value = std::bind(&PreferencesForm::show_entry_option, this, option_name, entry, numeric);
+  option->update_value = std::bind(&PreferencesForm::update_entry_option, this, option_name, entry, numeric);
   _options.push_back(option);
 
   return entry;
 }
 
 
-mforms::FsObjectSelector *PreferencesForm::new_path_option(const std::string &option_name, bool file)
-{
-  Option *option= new Option();
-  mforms::FsObjectSelector *entry= new mforms::FsObjectSelector();
-  
+mforms::FsObjectSelector *PreferencesForm::new_path_option(
+    const std::string &option_name, bool file) {
+  Option *option = new Option();
+  mforms::FsObjectSelector *entry = new mforms::FsObjectSelector();
+
   entry->initialize("", file ? mforms::OpenFile : mforms::OpenDirectory, "");
-  
-  option->view= mforms::manage(entry);
-  option->show_value= boost::bind(&PreferencesForm::show_path_option, this, option_name, entry);
-  option->update_value= boost::bind(&PreferencesForm::update_path_option, this, option_name, entry);
+
+  option->view = mforms::manage(entry);
+  option->show_value = std::bind(&PreferencesForm::show_path_option, this,
+                                 option_name, entry);
+  option->update_value = std::bind(&PreferencesForm::update_path_option, this,
+                                   option_name, entry);
   _options.push_back(option);
-  
+
+  return entry;
+}
+
+mforms::TextEntry *PreferencesForm::new_numeric_entry_option(
+    const std::string &option_name, int minrange, int maxrange) {
+  Option *option = new Option();
+  mforms::TextEntry *entry = new mforms::TextEntry();
+
+  option->view = mforms::manage(entry);
+  option->show_value = std::bind(&PreferencesForm::show_entry_option, this,
+                                 option_name, entry, true);
+  option->update_value = std::bind(
+      &PreferencesForm::update_entry_option_numeric, this, option_name, entry,
+      minrange, maxrange);
+  _options.push_back(option);
+
   return entry;
 }
 
 
-mforms::TextEntry *PreferencesForm::new_numeric_entry_option(const std::string &option_name, int minrange, int maxrange)
-{
-  Option *option= new Option();
-  mforms::TextEntry *entry= new mforms::TextEntry();
-  
-  option->view= mforms::manage(entry);
-  option->show_value= boost::bind(&PreferencesForm::show_entry_option, this, option_name, entry, true);
-  option->update_value= boost::bind(&PreferencesForm::update_entry_option_numeric, this, option_name, entry, minrange, maxrange);
-  _options.push_back(option);
-  
-  return entry;  
-}
+mforms::CheckBox *PreferencesForm::new_checkbox_option(
+    const std::string &option_name) {
+  Option *option = new Option();
+  mforms::CheckBox *checkbox = new mforms::CheckBox();
 
-
-mforms::CheckBox *PreferencesForm::new_checkbox_option(const std::string &option_name)
-{
-  Option *option= new Option();
-  mforms::CheckBox *checkbox= new mforms::CheckBox();
-
-  option->view= mforms::manage(checkbox);
-  option->show_value= boost::bind(&PreferencesForm::show_checkbox_option, this, option_name, checkbox);
-  option->update_value= boost::bind(&PreferencesForm::update_checkbox_option, this, option_name, checkbox);
+  option->view = mforms::manage(checkbox);
+  option->show_value = std::bind(&PreferencesForm::show_checkbox_option, this,
+                                 option_name, checkbox);
+  option->update_value = std::bind(&PreferencesForm::update_checkbox_option,
+                                   this, option_name, checkbox);
   _options.push_back(option);
 
   return checkbox;
 }
 
 
-mforms::Selector *PreferencesForm::new_selector_option(const std::string &option_name, std::string choices_string, bool as_number)
-{
-  Option *option= new Option();
-  mforms::Selector *selector= new mforms::Selector();
+mforms::Selector *PreferencesForm::new_selector_option(
+    const std::string &option_name, std::string choices_string,
+    bool as_number) {
+  Option *option = new Option();
+  mforms::Selector *selector = new mforms::Selector();
 
   if (choices_string.empty())
-    wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", "@"+option_name+"/Items", choices_string);
+    wb::WBContextUI::get()->get_wb_options_value(
+        _model.is_valid() ? _model.id() : "", "@" + option_name + "/Items",
+        choices_string);
 
-  std::vector<std::string> choices, parts= base::split(choices_string, ",");
+  std::vector<std::string> choices, parts = base::split(choices_string, ",");
 
-  for (std::vector<std::string>::const_iterator iter= parts.begin();
-       iter != parts.end(); ++iter)
-  {
-    std::vector<std::string> tmp= base::split(*iter, ":", 1);
-    if (tmp.size() == 1)
-    {
+  for (std::vector<std::string>::const_iterator iter = parts.begin();
+      iter != parts.end(); ++iter) {
+    std::vector<std::string> tmp = base::split(*iter, ":", 1);
+    if (tmp.size() == 1) {
       selector->add_item(*iter);
       choices.push_back(*iter);
-    }
-    else
-    {
+    } else {
       selector->add_item(tmp[0]);
       choices.push_back(tmp[1]);
     }
   }
 
-  option->view= mforms::manage(selector);
-  option->show_value= boost::bind(&PreferencesForm::show_selector_option, this, option_name, selector, choices);
-  option->update_value= boost::bind(&PreferencesForm::update_selector_option, this, option_name, selector, choices, choices.empty() ? "" : choices[0], as_number);
+  option->view = mforms::manage(selector);
+  option->show_value = std::bind(&PreferencesForm::show_selector_option, this,
+                                 option_name, selector, choices);
+  option->update_value = std::bind(&PreferencesForm::update_selector_option,
+                                   this, option_name, selector, choices,
+                                   choices.empty() ? "" : choices[0],
+                                   as_number);
   _options.push_back(option);
 
   return selector;
@@ -861,7 +870,7 @@ mforms::View *PreferencesForm::create_sqlide_page()
                                                    _("Create new tabs as Query tabs instead of File"),
                                                    _("Unsaved Query tabs do not get a close confirmation, unlike File tabs.\nHowever, once saved, such tabs will also get unsaved change confirmations.\n"
                                                      "If Snapshot saving is enabled, query tabs are always autosaved to temporary files when the connection is closed."));
-      save_workspace->signal_clicked()->connect(boost::bind(force_checkbox_on_toggle, save_workspace, discard_unsaved, true, true));
+      save_workspace->signal_clicked()->connect(std::bind(force_checkbox_on_toggle, save_workspace, discard_unsaved, true, true));
       (*save_workspace->signal_clicked())();
 
       table->add_checkbox_option("DbSqlEditor:SchemaTreeRestoreState",
@@ -1046,7 +1055,7 @@ mforms::View *PreferencesForm::create_editor_page()
       subsettings_box->set_spacing(8);
       {
         mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:CodeCompletionEnabled");
-        scoped_connect(check->signal_clicked(), boost::bind(&PreferencesForm::code_completion_changed,
+        scoped_connect(check->signal_clicked(), std::bind(&PreferencesForm::code_completion_changed,
                                                             this, check, subsettings_box));
 
         check->set_text(_("Enable Code Completion in Editors"));
@@ -1641,81 +1650,85 @@ static void update_target_version(workbench_physical_ModelRef model, mforms::Tex
 }
 
 
-mforms::View *PreferencesForm::create_mysql_page()
-{
-  mforms::Box *box= mforms::manage(new mforms::Box(false));
+mforms::View *PreferencesForm::create_mysql_page() {
+  mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
 
   {
-    mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    mforms::Panel *frame = mforms::manage(
+        new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Model"));
 
-    mforms::Table *table= mforms::manage(new mforms::Table());
+    mforms::Table *table = mforms::manage(new mforms::Table());
 
     table->set_padding(8);
 
     frame->add(table);
     table->set_row_count(2);
     table->set_column_count(2);
-    
-    if (!_model.is_valid())
-    {
-      table->add(new_label(_("Default Target MySQL Version:"), true), 0, 1, 0, 1, 0);
+
+    if (!_model.is_valid()) {
+      table->add(new_label(_("Default Target MySQL Version:"), true), 0, 1, 0,
+                 1, 0);
       version_entry = new_entry_option("DefaultTargetMySQLVersion", false);
       version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
-      version_entry->signal_changed()->connect(boost::bind(&PreferencesForm::version_changed, this));
-      table->add(version_entry, 1, 2, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
-    }
-    else
-    {
+      version_entry->signal_changed()->connect(
+          std::bind(&PreferencesForm::version_changed, this));
+      table->add(version_entry, 1, 2, 0, 1,
+                 mforms::HExpandFlag | mforms::HFillFlag);
+    } else {
       // if editing model options, display the catalog version
-      Option *option= new Option();
-      mforms::TextEntry *entry= new mforms::TextEntry();
-      
-      option->view= mforms::manage(entry);
-      option->show_value= boost::bind(show_target_version, _model, entry);
-      option->update_value= boost::bind(update_target_version, _model, entry);
+      Option *option = new Option();
+      mforms::TextEntry *entry = new mforms::TextEntry();
 
-      option->view= mforms::manage(entry);
-      option->show_value= boost::bind(show_target_version, _model, entry);
-      option->update_value= boost::bind(update_target_version, _model, entry);
+      option->view = mforms::manage(entry);
+      option->show_value = std::bind(show_target_version, _model, entry);
+      option->update_value = std::bind(update_target_version, _model, entry);
+
+      option->view = mforms::manage(entry);
+      option->show_value = std::bind(show_target_version, _model, entry);
+      option->update_value = std::bind(update_target_version, _model, entry);
       _options.push_back(option);
-      
+
       table->add(new_label(_("Target MySQL Version:"), true), 0, 1, 0, 1, 0);
-      table->add(entry, 1, 2, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
+      table->add(entry, 1, 2, 0, 1, mforms::HExpandFlag | mforms::HFillFlag);
     }
     box->add(frame, false);
   }
 
   {
-    mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    mforms::Panel *frame = mforms::manage(
+        new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Model Table Defaults"));
-    
-    mforms::Box *tbox= mforms::manage(new mforms::Box(true));
-    
+
+    mforms::Box *tbox = mforms::manage(new mforms::Box(true));
+
     tbox->set_padding(8);
-    
+
     frame->add(tbox);
-    
+
     tbox->add(new_label(_("Default Storage Engine:"), true), false, false);
     tbox->add(new_selector_option("db.mysql.Table:tableEngine"), true, true);
-    
+
     box->add(frame, false);
   }
 
   {
-    mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    mforms::Panel *frame = mforms::manage(
+        new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Forward Engineering and Synchronization"));
-    
-    mforms::Box *tbox= mforms::manage(new mforms::Box(true));
+
+    mforms::Box *tbox = mforms::manage(new mforms::Box(true));
     mforms::TextEntry *entry;
     tbox->set_padding(8);
-    
+
     frame->add(tbox);
-    tbox->add(new_label(_("SQL_MODE to be used in generated scripts:"), true), false, false);    
-    tbox->add(entry = new_entry_option("SqlGenerator.Mysql:SQL_MODE", false), true, true);
+    tbox->add(new_label(_("SQL_MODE to be used in generated scripts:"), true),
+              false, false);
+    tbox->add(entry = new_entry_option("SqlGenerator.Mysql:SQL_MODE", false),
+              true, true);
     entry->set_tooltip(_("The default value of TRADITIONAL is recommended."));
-    
+
     box->add(frame, false);
   }
 
@@ -1927,55 +1940,63 @@ void PreferencesForm::font_preset_changed()
 }
 
 
-mforms::View *PreferencesForm::create_appearance_page()
-{
-  mforms::Box *box= mforms::manage(new mforms::Box(false));
+mforms::View *PreferencesForm::create_appearance_page() {
+  mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
-  
+
   {
-    mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    mforms::Panel *frame = mforms::manage(
+        new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Color Presets"));
 
-    mforms::Table *table= mforms::manage(new mforms::Table());
+    mforms::Table *table = mforms::manage(new mforms::Table());
 
     table->set_padding(8);
     table->set_row_spacing(4);
-    table->set_column_spacing(4);    
+    table->set_column_spacing(4);
     table->set_row_count(2);
     table->set_column_count(2);
 
     frame->add(table);
 
     mforms::TextBox *text;
-    
-    table->add(new_label(_("Colors available when creating tables, views etc")), 0, 1, 0, 1, mforms::HFillFlag);
-    text= mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
+
+    table->add(new_label(_("Colors available when creating tables, views etc")),
+               0, 1, 0, 1, mforms::HFillFlag);
+    text = mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
     text->set_size(200, 100);
     table->add(text, 0, 1, 1, 2, mforms::FillAndExpand);
-    
-    Option *option= new Option();
+
+    Option *option = new Option();
     _options.push_back(option);
-    option->view= text;
-    option->show_value= boost::bind(show_text_option, get_options(), "workbench.model.ObjectFigure:ColorList", text);
-    option->update_value= boost::bind(update_text_option, get_options(), "workbench.model.ObjectFigure:ColorList", text);
-    
-    table->add(new_label(_("Colors available when creating layers, notes etc")), 1, 2, 0, 1, mforms::HFillFlag);
-    text= mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
+    option->view = text;
+    option->show_value = std::bind(show_text_option, get_options(),
+                                   "workbench.model.ObjectFigure:ColorList",
+                                   text);
+    option->update_value = std::bind(update_text_option, get_options(),
+                                     "workbench.model.ObjectFigure:ColorList",
+                                     text);
+
+    table->add(new_label(_("Colors available when creating layers, notes etc")),
+               1, 2, 0, 1, mforms::HFillFlag);
+    text = mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
     text->set_size(200, 100);
     table->add(text, 1, 2, 1, 2, mforms::FillAndExpand);
 
-    option= new Option();
+    option = new Option();
     _options.push_back(option);
-    option->view= text;
-    option->show_value= boost::bind(&show_text_option, get_options(), "workbench.model.Figure:ColorList", text);
-    option->update_value= boost::bind(&update_text_option, get_options(), "workbench.model.Figure:ColorList", text);
-
+    option->view = text;
+    option->show_value = std::bind(&show_text_option, get_options(),
+                                   "workbench.model.Figure:ColorList", text);
+    option->update_value = std::bind(&update_text_option, get_options(),
+                                     "workbench.model.Figure:ColorList", text);
 
     box->add(frame, false);
   }
 
   {
-    mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    mforms::Panel *frame = mforms::manage(
+        new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Fonts"));
 
     mforms::Box *content = mforms::manage(new mforms::Box(false));
@@ -1987,22 +2008,25 @@ mforms::View *PreferencesForm::create_appearance_page()
     hbox->set_spacing(12);
     hbox->set_padding(12);
 
-    _font_preset.signal_changed()->connect(boost::bind(&PreferencesForm::font_preset_changed, this));
-    
+    _font_preset.signal_changed()->connect(
+        std::bind(&PreferencesForm::font_preset_changed, this));
+
     std::string font_name;
-    wb::WBContextUI::get()->get_wb_options_value(_model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name", font_name);
-    
-    for (size_t i = 0; font_sets[i].name; i++)
-    {
+    wb::WBContextUI::get()->get_wb_options_value(
+        _model.is_valid() ? _model.id() : "", "workbench.physical.FontSet:Name",
+        font_name);
+
+    for (size_t i = 0; font_sets[i].name; i++) {
       // skip font options that are not modeling specific
-      if (base::hasPrefix(font_sets[i].name, "workbench.general") ||
-          base::hasPrefix(font_sets[i].name, "workbench.scripting"))
+      if (base::hasPrefix(font_sets[i].name, "workbench.general")
+          || base::hasPrefix(font_sets[i].name, "workbench.scripting"))
         continue;
       _font_preset.add_item(font_sets[i].name);
       if (font_sets[i].name == font_name)
-        _font_preset.set_selected((int)i);
+        _font_preset.set_selected((int) i);
     }
-    hbox->add(mforms::manage(new mforms::Label("Configure Fonts For:")), false, true);
+    hbox->add(mforms::manage(new mforms::Label("Configure Fonts For:")), false,
+              true);
     hbox->add(&_font_preset, true, true);
 
     _font_list.add_column(mforms::StringColumnType, _("Location"), 150, false);

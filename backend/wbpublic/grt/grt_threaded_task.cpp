@@ -110,18 +110,18 @@ const bec::GRTTask::Ref GrtThreadedTask::task()
 
 void GrtThreadedTask::exec(bool sync, Proc_cb proc_cb)
 {
-  if (proc_cb.empty())
+  if (!proc_cb)
     proc_cb= _proc_cb;
-  if (proc_cb.empty())
+  if (!proc_cb)
     return;
 
   bec::GRTDispatcher::Ref dispatcher = this->dispatcher();
 
   _task = bec::GRTTask::create_task(desc(), dispatcher, proc_cb);
 
-  scoped_connect(_task->signal_message(), boost::bind(&GrtThreadedTask::process_msg, this, _1));
-  scoped_connect(_task->signal_failed(), boost::bind(&GrtThreadedTask::process_fail, this, _1));
-  scoped_connect(_task->signal_finished(), boost::bind(&GrtThreadedTask::process_finish, this, _1));
+  scoped_connect(_task->signal_message(), std::bind(&GrtThreadedTask::process_msg, this, std::placeholders::_1));
+  scoped_connect(_task->signal_failed(), std::bind(&GrtThreadedTask::process_fail, this, std::placeholders::_1));
+  scoped_connect(_task->signal_finished(), std::bind(&GrtThreadedTask::process_finish, this, std::placeholders::_1));
   if (sync)
     dispatcher->add_task_and_wait(_task);
   else
@@ -235,7 +235,7 @@ void GrtThreadedTask::send_progress(float percentage, const std::string &msg, co
 
 //--------------------------------------------------------------------------------------------------
 
-void GrtThreadedTask::execute_in_main_thread(const boost::function<void()> &function, bool wait, bool force_queue)
+void GrtThreadedTask::execute_in_main_thread(const std::function<void()> &function, bool wait, bool force_queue)
 {
   dispatcher()->call_from_main_thread<void>(function, wait, force_queue);
 }

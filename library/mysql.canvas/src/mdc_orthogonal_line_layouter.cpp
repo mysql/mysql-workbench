@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,8 +33,8 @@ using namespace base;
 OrthogonalLineLayouter::OrthogonalLineLayouter(Connector *sconn, Connector *econn)
 : _linfo(sconn, econn)
 {
-  sconn->set_update_handler(boost::bind(&OrthogonalLineLayouter::connector_changed, this, _1));
-  econn->set_update_handler(boost::bind(&OrthogonalLineLayouter::connector_changed, this, _1));
+  sconn->set_update_handler(std::bind(&OrthogonalLineLayouter::connector_changed, this, std::placeholders::_1));
+  econn->set_update_handler(std::bind(&OrthogonalLineLayouter::connector_changed, this, std::placeholders::_1));
 
   _updating= false;
 }

@@ -882,15 +882,15 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
         be->set_tab_dock(mDockingPoint);
       }
       mBackEnd= be;
-      mBackEnd->log()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mMessagesTable, (__bridge void *)self));
-      mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mHistoryTable, (__bridge void *)self));
-      mBackEnd->history()->details_model()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mHistoryDetailsTable, (__bridge void *)self));
+      mBackEnd->log()->refresh_ui_signal.connect(std::bind(reloadTable, (__bridge void *)mMessagesTable, (__bridge void *)self));
+      mBackEnd->history()->entries_model()->refresh_ui_signal.connect(std::bind(reloadTable, (__bridge void *)mHistoryTable, (__bridge void *)self));
+      mBackEnd->history()->details_model()->refresh_ui_signal.connect(std::bind(reloadTable, (__bridge void *)mHistoryDetailsTable, (__bridge void *)self));
 
-      mBackEnd->output_text_slot = boost::bind(addTextToOutput, _1, _2, (__bridge void *)self);
+      mBackEnd->output_text_slot = std::bind(addTextToOutput, std::placeholders::_1, std::placeholders::_2, (__bridge void *)self);
 
-      mBackEnd->post_query_slot = boost::bind(processTaskFinish, (__bridge void *)self);
+      mBackEnd->post_query_slot = std::bind(processTaskFinish, (__bridge void *)self);
 
-      mBackEnd->set_busy_tab = boost::bind(set_busy_tab, _1, (__bridge void *)self);
+      mBackEnd->set_busy_tab = std::bind(set_busy_tab, std::placeholders::_1, (__bridge void *)self);
 
       mBackEnd->set_frontend_data((__bridge void *)self);
       mUpperTabSwitcher.tabStyle = MEditorTabSwitcher;

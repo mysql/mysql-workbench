@@ -107,28 +107,53 @@ void Program::init(wb::WBOptions &wboptions)
   wb::WBFrontendCallbacks wbcallbacks;
   
   // Assign those callback methods
-  wbcallbacks.show_file_dialog= sigc::mem_fun(this, &Program::show_file_dialog_becb);
-  wbcallbacks.show_status_text= sigc::mem_fun(_main_form, &MainForm::show_status_text_becb);
-  wbcallbacks.open_editor= sigc::mem_fun(_main_form, &MainForm::open_plugin_becb);
-  wbcallbacks.show_editor= sigc::mem_fun(_main_form, &MainForm::show_plugin_becb);
-  wbcallbacks.hide_editor= sigc::mem_fun(_main_form, &MainForm::hide_plugin_becb);
-  wbcallbacks.perform_command= sigc::mem_fun(_main_form, &MainForm::perform_command_becb);
-  wbcallbacks.create_diagram= sigc::mem_fun(_main_form, &MainForm::create_view_becb);
-  wbcallbacks.destroy_view= sigc::mem_fun(_main_form, &MainForm::destroy_view_becb);
-  wbcallbacks.switched_view= sigc::mem_fun(_main_form, &MainForm::switched_view_becb);
-  wbcallbacks.create_main_form_view= sigc::mem_fun(_main_form, &MainForm::create_main_form_view_becb);
-  wbcallbacks.destroy_main_form_view= sigc::mem_fun(_main_form, &MainForm::destroy_main_form_view_becb);
-  wbcallbacks.tool_changed= sigc::mem_fun(_main_form, &MainForm::tool_changed_becb);
-  wbcallbacks.refresh_gui= sigc::mem_fun(_main_form, &MainForm::refresh_gui_becb);
-  wbcallbacks.lock_gui= sigc::mem_fun(_main_form, &MainForm::lock_gui_becb);
-  wbcallbacks.quit_application= sigc::mem_fun(_main_form, &MainForm::quit_app_becb);
+  wbcallbacks.show_file_dialog = std::bind(&Program::show_file_dialog_becb,
+                                           this, std::placeholders::_1,
+                                           std::placeholders::_2,
+                                           std::placeholders::_3);
+  wbcallbacks.show_status_text = std::bind(&MainForm::show_status_text_becb,
+                                           _main_form, std::placeholders::_1);
+  wbcallbacks.open_editor = std::bind(&MainForm::open_plugin_becb, _main_form,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2,
+                                      std::placeholders::_3,
+                                      std::placeholders::_4,
+                                      std::placeholders::_5);
+  wbcallbacks.show_editor = std::bind(&MainForm::show_plugin_becb, _main_form,
+                                      std::placeholders::_1);
+  wbcallbacks.hide_editor = std::bind(&MainForm::hide_plugin_becb, _main_form,
+                                      std::placeholders::_1);
+  wbcallbacks.perform_command = std::bind(&MainForm::perform_command_becb,
+                                          _main_form, std::placeholders::_1);
+  wbcallbacks.create_diagram = std::bind(&MainForm::create_view_becb,
+                                         _main_form, std::placeholders::_1);
+  wbcallbacks.destroy_view = std::bind(&MainForm::destroy_view_becb, _main_form,
+                                       std::placeholders::_1);
+  wbcallbacks.switched_view = std::bind(&MainForm::switched_view_becb,
+                                        _main_form, std::placeholders::_1);
+  wbcallbacks.create_main_form_view = std::bind(
+      &MainForm::create_main_form_view_becb, _main_form, std::placeholders::_1,
+      std::placeholders::_2);
+  wbcallbacks.destroy_main_form_view = std::bind(
+      &MainForm::destroy_main_form_view_becb, _main_form,
+      std::placeholders::_1);
+  wbcallbacks.tool_changed = std::bind(&MainForm::tool_changed_becb, _main_form,
+                                       std::placeholders::_1);
+  wbcallbacks.refresh_gui = std::bind(&MainForm::refresh_gui_becb, _main_form,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2,
+                                      std::placeholders::_3);
+  wbcallbacks.lock_gui = std::bind(&MainForm::lock_gui_becb, _main_form,
+                                   std::placeholders::_1);
+  wbcallbacks.quit_application = std::bind(&MainForm::quit_app_becb,
+                                           _main_form);
 
   wboptions.basedir = getenv("MWB_DATA_DIR");
   wboptions.plugin_search_path = getenv("MWB_PLUGIN_DIR");
   wboptions.struct_search_path = wboptions.basedir + "/grt";
   wboptions.module_search_path = getenv("MWB_MODULE_DIR");
   wboptions.library_search_path = getenv("MWB_LIBRARY_DIR");
-  wboptions.cdbc_driver_search_path = getenv("DBC_DRIVER_PATH")?:"";
+  wboptions.cdbc_driver_search_path = getenv("DBC_DRIVER_PATH") ? : "";
   if (wboptions.cdbc_driver_search_path.empty())
     wboptions.cdbc_driver_search_path= wboptions.library_search_path;
 

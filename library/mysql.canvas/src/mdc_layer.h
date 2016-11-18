@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@
 #include "mdc_events.h"
 #include "base/trackable.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class CanvasView;
 class CanvasItem;
@@ -70,7 +70,7 @@ public:
 
   AreaGroup *get_root_area_group() const { return _root_area; }
 
-  typedef boost::function<bool (CanvasItem*)> ItemCheckFunc;
+  typedef std::function<bool (CanvasItem*)> ItemCheckFunc;
 
   std::list<CanvasItem*> get_items_bounded_by(const base::Rect &rect, 
                                               const ItemCheckFunc &pred= ItemCheckFunc(),
@@ -102,7 +102,7 @@ private:
 };
 
   
-END_MDC_DECLS
+} // end of mdc namespace 
 
 
 #endif /* _MDC_LAYER_H_ */

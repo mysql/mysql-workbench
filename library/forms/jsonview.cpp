@@ -173,9 +173,9 @@ void JsonInputDlg::setup(bool showTextEntry)
   _save->set_text("Save");
   _save->set_enabled(false);
   _cancel->set_text("Cancel");
-  scoped_connect(check->signal_clicked(), boost::bind(&JsonInputDlg::validate, this));
-  scoped_connect(_save->signal_clicked(), boost::bind(&JsonInputDlg::save, this));
-  scoped_connect(_textEditor->signal_changed(), boost::bind(&JsonInputDlg::editorContentChanged, this, _1, _2, _3, _4));
+  scoped_connect(check->signal_clicked(), std::bind(&JsonInputDlg::validate, this));
+  scoped_connect(_save->signal_clicked(), std::bind(&JsonInputDlg::save, this));
+  scoped_connect(_textEditor->signal_changed(), std::bind(&JsonInputDlg::editorContentChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
   set_size(800, 500);
   center();
 }
@@ -349,7 +349,7 @@ JsonTreeBaseView::JsonTreeBaseView()
   : _useFilter(false), _searchIdx(0)
 {
   _contextMenu = mforms::manage(new mforms::ContextMenu());
-  _contextMenu->signal_will_show()->connect(boost::bind(&JsonTreeBaseView::prepareMenu, this));
+  _contextMenu->signal_will_show()->connect(std::bind(&JsonTreeBaseView::prepareMenu, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -376,18 +376,18 @@ void JsonTreeBaseView::prepareMenu()
 
       auto *item = mforms::manage(new mforms::MenuItem("Add new value"));
       item->set_name("add_new_doc");
-      item->signal_clicked()->connect(boost::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
       item->set_enabled(showAddModify);
       _contextMenu->add_item(item);
 
       item = mforms::manage(new mforms::MenuItem("Delete JSON"));
       item->set_name("delete_doc");
-      item->signal_clicked()->connect(boost::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
       _contextMenu->add_item(item);
 
       item = mforms::manage(new mforms::MenuItem("Modify JSON"));
       item->set_name("modify_doc");
-      item->signal_clicked()->connect(boost::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
       item->set_enabled(showAddModify);
       _contextMenu->add_item(item);
     }
@@ -475,7 +475,7 @@ void JsonTreeBaseView::openInputJsonWindow(TreeNodeRef node, bool updateMode /*=
             obj.insert(objectName, value);
           auto newNode = (updateMode) ? node : node->add_child();
           generateTree(objectName.empty() ? jv : obj[objectName], 0, newNode);
-          newNode->set_string(0, objectName + "{" + base::to_string(obj.size()) + "}");
+          newNode->set_string(0, objectName + "{" + std::to_string(obj.size()) + "}");
           newNode->set_tag(objectName);
           _dataChanged(false);
           break;
@@ -497,7 +497,7 @@ void JsonTreeBaseView::openInputJsonWindow(TreeNodeRef node, bool updateMode /*=
           size_t size = array.size();
           auto newNode = (updateMode) ? node : node->add_child();
           generateTree((updateMode) ? jv : array[size - 1], 0, newNode);
-          newNode->set_string(0, objectName + "[" + base::to_string(array.size()) + "]");
+          newNode->set_string(0, objectName + "[" + std::to_string(array.size()) + "]");
           _dataChanged(false);
           break;
         }
@@ -1186,15 +1186,15 @@ void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*colu
   switch (value.getType())
   {
   case VDouble:
-    node->set_string(1, base::to_string((double)value));
+    node->set_string(1, std::to_string((double)value));
     node->set_string(2, "Double");
     break;
   case VInt64:
-    node->set_string(1, base::to_string((int64_t)value));
+    node->set_string(1, std::to_string((int64_t)value));
     node->set_string(2, "Long Integer");
     break;
   case VUint64:
-    node->set_string(1, base::to_string((uint64_t)value));
+    node->set_string(1, std::to_string((uint64_t)value));
     node->set_string(2, "Unsigned Long Integer");
     break;
   default:
@@ -1260,8 +1260,8 @@ void JsonGridView::init()
   _treeView = manage(new mforms::TreeView(mforms::TreeAltRowColors | mforms::TreeShowRowLines | mforms::TreeShowColumnLines | mforms::TreeNoBorder));
   assert(_treeView != nullptr);
   _treeView->add_column(StringLTColumnType, "", 30, false, false);
-  _treeView->set_cell_edit_handler(boost::bind(&JsonGridView::setCellValue, this, _1, _2, _3));
-  _treeView->signal_node_activated()->connect(boost::bind(&JsonGridView::nodeActivated, this, _1, _2));
+  _treeView->set_cell_edit_handler(std::bind(&JsonGridView::setCellValue, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+  _treeView->signal_node_activated()->connect(std::bind(&JsonGridView::nodeActivated, this, std::placeholders::_1, std::placeholders::_2));
 
   _treeView->set_selection_mode(TreeSelectSingle);
   _treeView->set_context_menu(_contextMenu);
@@ -1269,7 +1269,7 @@ void JsonGridView::init()
   _goUpButton = manage(new Button());
   _goUpButton->set_text("Back <<<");
   _goUpButton->set_enabled(false);
-  scoped_connect(_goUpButton->signal_clicked(), boost::bind(&JsonGridView::goUp, this));
+  scoped_connect(_goUpButton->signal_clicked(), std::bind(&JsonGridView::goUp, this));
 
   _content = manage(new Box(false));
   _content->add(_treeView, true, true);
@@ -1449,7 +1449,7 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
     return;
 
   const std::map<std::string, int>::const_iterator it = std::find_if(_colNameToColId.begin(),
-    _colNameToColId.end(), boost::bind(&std::map<std::string, int>::value_type::second, _1) == column);
+    _colNameToColId.end(), [&column](const std::pair<std::string, int> &elem){ return column == elem.second; });
 
   std::string key;
   if (it != _colNameToColId.end())
@@ -1588,7 +1588,7 @@ void JsonGridView::generateObjectInTree(JsonParser::JsonValue &value, int column
   std::stringstream textSize;
   auto end = object.end();
   child->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->set_string(0, base::to_string(_rowNum++));
+  node->set_string(0, std::to_string(_rowNum++));
   for (auto it = object.begin(); it != end; ++it)
   {
     if (it->second.isDeleted())
@@ -1664,7 +1664,7 @@ void JsonGridView::generateArrayInTree(JsonParser::JsonValue &value, int /*colum
     if (it->isDeleted())
       return;
     mforms::TreeNodeRef arrrayNode = _treeView->root_node()->add_child();
-    arrrayNode->set_string(0, base::to_string(_rowNum++));
+    arrrayNode->set_string(0, std::to_string(_rowNum++));
     switch (it->getType())
     {
     case VArray:
@@ -1723,7 +1723,7 @@ void JsonGridView::nodeActivated(TreeNodeRef node, int column)
     if (storedValue.getType() == VObject)
     {
       const std::map<std::string, int>::const_iterator it = std::find_if(_colNameToColId.begin(),
-        _colNameToColId.end(), boost::bind(&std::map<std::string, int>::value_type::second, _1) == column);
+        _colNameToColId.end(), [&column](const std::pair<std::string, int> &elem){ return column == elem.second; });
 
       if (it != _colNameToColId.end())
       {
@@ -1817,10 +1817,10 @@ void JsonTabView::Setup()
   _tabId.gridViewTabId = _tabView->add_page(_gridView, "Grid");
   add(_tabView);
 
-  scoped_connect(_textView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
-  scoped_connect(_treeView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
-  scoped_connect(_gridView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
-  scoped_connect(_tabView->signal_tab_changed(), boost::bind(&JsonTabView::tabChanged, this));
+  scoped_connect(_textView->dataChanged(), std::bind(&JsonTabView::dataChanged, this, std::placeholders::_1));
+  scoped_connect(_treeView->dataChanged(), std::bind(&JsonTabView::dataChanged, this, std::placeholders::_1));
+  scoped_connect(_gridView->dataChanged(), std::bind(&JsonTabView::dataChanged, this, std::placeholders::_1));
+  scoped_connect(_tabView->signal_tab_changed(), std::bind(&JsonTabView::tabChanged, this));
 
 }
 

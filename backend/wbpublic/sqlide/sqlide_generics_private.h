@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ protected:
 public:
   result_type operator()(const long double &v) const { (*_sql_command) % (double)v; }
   result_type operator()(const int &v) const { (*_sql_command) % v; }
-  result_type operator()(const boost::int64_t &v) const { (*_sql_command) % v; }
+  result_type operator()(const std::int64_t &v) const { (*_sql_command) % v; }
   result_type operator()(const std::string &v) const { (*_sql_command) % v; }
   result_type operator()(const null_t &v) const { (*_sql_command) % sqlite::nil; }
   result_type operator()(const unknown_t &v) const { (*_sql_command) % sqlite::nil; }

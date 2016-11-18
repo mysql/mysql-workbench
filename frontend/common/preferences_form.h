@@ -42,8 +42,8 @@ public:
   struct Option
   {
     mforms::View *view;
-    boost::function<void ()> show_value;
-    boost::function<void ()> update_value;
+    std::function<void ()> show_value;
+    std::function<void ()> update_value;
   };
   
 private:
@@ -70,8 +70,6 @@ private:
   mforms::TextEntry *version_entry;
 
   workbench_physical_ModelRef _model; // nil unless we're showing model specific options
-
-  boost::function<std::string (std::string,std::string)> _edit_font;
 
   void change_font_option(const std::string &option, const std::string &value);
   void font_preset_changed();
@@ -139,9 +137,6 @@ private:
 public:
   PreferencesForm(const workbench_physical_ModelRef &model = workbench_physical_ModelRef());
   virtual ~PreferencesForm();
-  
-  // returned font, title, current font
-  void set_font_panel_function(const boost::function<std::string (std::string,std::string)> &edit_font);
 
   void show();
 };

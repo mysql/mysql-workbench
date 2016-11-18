@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,7 +72,7 @@ void Layouter::stroke_outline_gl(float offset) const
 
 void Layouter::remove_all()
 {
-  foreach(boost::bind(&Layouter::remove, this, _1));
+  foreach(std::bind(&Layouter::remove, this, std::placeholders::_1));
 
   set_needs_relayout();
 }
@@ -99,7 +99,7 @@ static void find_item(mdc::CanvasItem *item, const std::string &tag,
 CanvasItem *Layouter::find_item_with_tag(const std::string &tag)
 {
   CanvasItem *ret= 0;  
-  foreach(boost::bind(&find_item, _1, tag, &ret));
+  foreach(std::bind(&find_item, std::placeholders::_1, tag, &ret));
   return ret;
 }
 

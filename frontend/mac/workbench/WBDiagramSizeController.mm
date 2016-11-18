@@ -66,7 +66,7 @@
 
       _be = wb::WBContextUI::get()->create_diagram_options_be(canvas.canvas);
       _be->update_size();
-      _be->signal_changed()->connect(boost::bind(update_size_entries, (__bridge void *)self));
+      _be->signal_changed()->connect(std::bind(update_size_entries, (__bridge void *)self));
 
       nameField.stringValue = [NSString stringWithCPPString: _be->get_name()];
 

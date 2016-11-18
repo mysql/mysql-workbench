@@ -207,7 +207,7 @@ static bool parse_param_spec(char *arg, ArgSpec &aspec)
 }
 
 
-bool Module::add_parse_function_spec(const std::string &spec, const boost::function<ValueRef (BaseListRef, Module*, Module::Function)> &caller)
+bool Module::add_parse_function_spec(const std::string &spec, const std::function<ValueRef (BaseListRef, Module*, Module::Function)> &caller)
 {
   if (!spec.empty())
   {
@@ -254,7 +254,7 @@ bool Module::add_parse_function_spec(const std::string &spec, const boost::funct
     g_strfreev(args);
     
     // add slot for calling the function
-    func.call= boost::bind(caller,_1,this,func);
+    func.call = std::bind(caller, std::placeholders::_1, this, func);
     
     _functions.push_back(func);
     

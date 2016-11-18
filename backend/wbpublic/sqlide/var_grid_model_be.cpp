@@ -167,7 +167,7 @@ int VarGridModel::refresh_ui()
   if (GRTManager::get()->in_main_thread())
     refresh_ui_signal();
   else
-    _refresh_connection = GRTManager::get()->run_once_when_idle(this, boost::bind(&VarGridModel::refresh_ui, this));
+    _refresh_connection = GRTManager::get()->run_once_when_idle(this, std::bind(&VarGridModel::refresh_ui, this));
   return 0;
 }
 
@@ -186,7 +186,7 @@ public:
   typedef VarGridModel::ColumnType result_type;
   result_type operator()(const sqlite::blob_ref_t &) const { return VarGridModel::BlobType; }
   result_type operator()(int) const { return VarGridModel::NumericType; }
-  result_type operator()(const boost::int64_t &) const { return VarGridModel::NumericType; }
+  result_type operator()(const std::int64_t &) const { return VarGridModel::NumericType; }
   result_type operator()(const long double &) const { return VarGridModel::FloatType; }
   template<typename T> result_type operator()(const T &v) const { return VarGridModel::StringType; }
 };
@@ -480,7 +480,7 @@ bool VarGridModel::set_field(const NodeId &node, ColumnId column, double value)
 
 bool VarGridModel::set_field(const NodeId &node, ColumnId column, ssize_t value)
 {
-  return set_field(node, column, sqlite::variant_t((boost::int64_t)value));
+  return set_field(node, column, sqlite::variant_t((std::int64_t)value));
 }
 
 

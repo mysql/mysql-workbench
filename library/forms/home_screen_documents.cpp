@@ -520,7 +520,7 @@ void DocumentsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType typ
     if (_model_context_menu != NULL)
       _model_context_menu->retain();
 
-    menu->set_handler(boost::bind(&DocumentsSection::handle_command, this, _1));
+    menu->set_handler(std::bind(&DocumentsSection::handle_command, this, std::placeholders::_1));
   }
 }
 
@@ -536,7 +536,7 @@ void DocumentsSection::setContextMenuAction(mforms::Menu *menu, HomeScreenMenuTy
     if (_model_context_menu != NULL)
       _model_action_menu->retain();
 
-    menu->set_handler(boost::bind(&DocumentsSection::handle_command, this, _1));
+    menu->set_handler(std::bind(&DocumentsSection::handle_command, this, std::placeholders::_1));
   }
 }
 

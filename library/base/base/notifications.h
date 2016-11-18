@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,6 @@
 #include <list>
 #include <string>
 #include <map>
-#include <boost/function.hpp>
 
 #include "base/common.h"
 
@@ -50,7 +49,6 @@ namespace base
     {
       std::string observed_notification;
       Observer *observer;
-      //boost::function<void (const std::string &, void*, NotificationInfo &)> callback;
     };
     
     std::list<ObserverEntry> _observers;
@@ -81,7 +79,6 @@ namespace base
     const std::map<std::string, NotificationHelp> &get_registered_notifications() { return _notification_help; }
     NotificationHelp get_registered_notification(const std::string &name) { return _notification_help[name]; }
     
-    //void add_observer(Observer *observer, boost::function<void (const std::string &, void*, NotificationInfo &)> &callback, const std::string &name = "");
     void add_observer(Observer *observer, const std::string &name = "");
     bool remove_observer(Observer *observer, const std::string &name = "");
     bool is_registered(Observer *observer);

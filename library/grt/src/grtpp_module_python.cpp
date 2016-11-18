@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -160,7 +160,7 @@ void PythonModule::add_parse_function(const std::string &name, PyObject *return_
   if (doc && doc != Py_None)
     func.description = PyString_AsString(doc);
   
-  func.call= boost::bind(&PythonModule::call_python_function, this, _1, callable, func);
+  func.call= std::bind(&PythonModule::call_python_function, this, std::placeholders::_1, callable, func);
   
   add_function(func);
 }

@@ -230,9 +230,8 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
 // If we will not free the mem then after wb close we will get error about "threads didn't exit"
 void DriverManager::thread_cleanup()
 {
-  std::map<std::string, boost::function<void ()> >::iterator it;
-  for(it = _drivers.begin(); it != _drivers.end(); ++it)
-    it->second();
+  for ( auto &it: _drivers)
+    it.second();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,9 +239,9 @@ void DriverManager::thread_cleanup()
 void DriverManager::getClientLibVersion(Driver * driver)
 {
   assert(driver != NULL);
-  _versionInfo = "C++ " + base::to_string(driver->getMajorVersion()) + ".";
-  _versionInfo += base::to_string(driver->getMinorVersion()) + ".";
-  _versionInfo += base::to_string(driver->getPatchVersion());
+  _versionInfo = "C++ " + std::to_string(driver->getMajorVersion()) + ".";
+  _versionInfo += std::to_string(driver->getMinorVersion()) + ".";
+  _versionInfo += std::to_string(driver->getPatchVersion());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,7 +307,7 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
   if (driver == NULL)
     throw SQLException("Database driver: Failed to get driver instance. Check  settings.");
   else
-    _drivers[library] = boost::bind(&Driver::threadEnd, driver);
+    _drivers[library] = std::bind(&Driver::threadEnd, driver);
 
   getClientLibVersion(driver);
 
@@ -334,7 +333,7 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
     param_types["CLIENT_NO_SCHEMA"] = "boolean";
   }
   ConnectOptionsMap properties;
-  parameter_values.foreach(boost::bind(&conv_to_dbc_value, _1, _2, boost::ref(properties), param_types));
+  parameter_values.foreach(std::bind(&conv_to_dbc_value, std::placeholders::_1, std::placeholders::_2, std::ref(properties), param_types));
 
   {
     ConnectPropertyVal tmp;
@@ -474,8 +473,9 @@ retry:
     // TODO: there's a client lib option to do this, but C/C++ does not support as of 1.1.4
     if (parameter_values.get_int("useSSL", 0) > 1)
     {
-      boost::scoped_ptr<sql::Statement> statement(conn.get()->createStatement());
-      boost::scoped_ptr<sql::ResultSet> rs(statement->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
+
+      std::unique_ptr<sql::Statement> statement(conn.get()->createStatement());
+      std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
       if (rs->next())
       {
         ssl_cipher = rs->getString(2);
@@ -486,8 +486,8 @@ retry:
     
     // make sure the user we got logged in is the user we wanted
     {
-      boost::scoped_ptr<sql::Statement> statement(conn.get()->createStatement());
-      boost::scoped_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT current_user()"));
+      std::unique_ptr<sql::Statement> statement(conn.get()->createStatement());
+      std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT current_user()"));
       if (rs->next())
       {
         std::string current_user = rs->getString(1);
@@ -515,7 +515,7 @@ retry:
     std::string sql_mode = parameter_values.get_string("SQL_MODE", "");
     if (!sql_mode.empty())
     {
-      boost::scoped_ptr<sql::Statement> statement(conn.get()->createStatement());
+      std::unique_ptr<sql::Statement> statement(conn.get()->createStatement());
       statement->execute("SET SESSION SQL_MODE='"+sql_mode+"'");
     }
 

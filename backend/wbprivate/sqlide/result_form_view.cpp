@@ -58,10 +58,10 @@ class ResultFormView::FieldView
 
 protected:
 
-  boost::function<void (const std::string &s)> _change_callback;
+  std::function<void (const std::string &s)> _change_callback;
 
 public:
-  FieldView(const std::string &name, const boost::function<void (const std::string &s)> &change_callback)
+  FieldView(const std::string &name, const std::function<void (const std::string &s)> &change_callback)
   : _label(name), _change_callback(change_callback)
   {
     _label.set_text_align(mforms::TopRight);
@@ -70,8 +70,8 @@ public:
   virtual ~FieldView() {}
 
   static ResultFormView::FieldView *create(const Recordset_cdbc_storage::FieldInfo &field, const std::string &full_type, bool editable,
-                           const boost::function<void (const std::string &s)> &callback,
-                           const boost::function<void ()> &view_blob_callback);
+                           const std::function<void (const std::string &s)> &callback,
+                           const std::function<void ()> &view_blob_callback);
 
   mforms::Label *label() { return &_label; }
   virtual mforms::View *value() = 0;
@@ -93,12 +93,12 @@ class StringFieldView : public ResultFormView::FieldView
   }
 
 public:
-  StringFieldView(const std::string &name, int max_length, bool editable, const boost::function<void (const std::string &s)> &change_callback)
+  StringFieldView(const std::string &name, int max_length, bool editable, const std::function<void (const std::string &s)> &change_callback)
   : FieldView(name, change_callback), _expands(false)
   {
     _entry = new mforms::TextEntry();
     _entry->set_enabled(editable);
-    _entry->signal_changed()->connect(boost::bind(&StringFieldView::changed, this));
+    _entry->signal_changed()->connect(std::bind(&StringFieldView::changed, this));
     if (max_length > 64)
       _expands = true;
     else
@@ -135,12 +135,12 @@ class SelectorFieldView : public ResultFormView::FieldView
 
 public:
   SelectorFieldView(const std::string &name, const std::list<std::string> &items,
-                    bool editable, const boost::function<void (const std::string &s)> &change_callback)
+                    bool editable, const std::function<void (const std::string &s)> &change_callback)
   : FieldView(name, change_callback)
   {
     _selector.add_items(items);
     _selector.set_enabled(editable);
-    _selector.signal_changed()->connect(boost::bind(&SelectorFieldView::changed, this));
+    _selector.signal_changed()->connect(std::bind(&SelectorFieldView::changed, this));
   }
 
   virtual ~SelectorFieldView()
@@ -179,7 +179,7 @@ class SetFieldView : public ResultFormView::FieldView
 
 public:
   SetFieldView(const std::string &name, const std::list<std::string> &items,
-               bool editable, const boost::function<void (const std::string &s)> &change_callback)
+               bool editable, const std::function<void (const std::string &s)> &change_callback)
   : FieldView(name, change_callback), _tree(mforms::TreeFlatList|mforms::TreeNoHeader)
   {
     _tree.add_column(mforms::CheckColumnType, "", 30, true);
@@ -196,7 +196,7 @@ public:
     _tree.set_size(250, height > 100 ? 100 : (int)height);
 
     _tree.set_enabled(editable);
-    _tree.signal_changed()->connect(boost::bind(&SetFieldView::changed, this));
+    _tree.signal_changed()->connect(std::bind(&SetFieldView::changed, this));
   }
 
   virtual mforms::View *value() { return &_tree; }
@@ -227,12 +227,12 @@ class TextFieldView : public ResultFormView::FieldView
   }
 
 public:
-  TextFieldView(const std::string &name, bool editable, const boost::function<void (const std::string &s)> &change_callback)
+  TextFieldView(const std::string &name, bool editable, const std::function<void (const std::string &s)> &change_callback)
   : FieldView(name, change_callback)
   {
     _tbox = new mforms::TextBox(mforms::VerticalScrollBar);
     _tbox->set_enabled(editable);
-    _tbox->signal_changed()->connect(boost::bind(&TextFieldView::changed, this));
+    _tbox->signal_changed()->connect(std::bind(&TextFieldView::changed, this));
     _tbox->set_size(-1, 60);
   }
 
@@ -266,8 +266,8 @@ class BlobFieldView : public ResultFormView::FieldView
   }
 
 public:
-  BlobFieldView(const std::string &name, const std::string &type, bool editable, const boost::function<void (const std::string &s)> &change_callback,
-                const boost::function<void ()> &view_callback)
+  BlobFieldView(const std::string &name, const std::string &type, bool editable, const std::function<void (const std::string &s)> &change_callback,
+                const std::function<void ()> &view_callback)
   : FieldView(name, change_callback), _box(true), _blob(type), _type_desc(type)
   {
     _box.set_spacing(8);
@@ -326,8 +326,8 @@ class GeomFieldView : public ResultFormView::FieldView
   }
 
 public:
-  GeomFieldView(const std::string &name, const std::string &type, bool editable, const boost::function<void (const std::string &s)> &change_callback,
-                const boost::function<void ()> &view_callback)
+  GeomFieldView(const std::string &name, const std::string &type, bool editable, const std::function<void (const std::string &s)> &change_callback,
+                const std::function<void ()> &view_callback)
   : FieldView(name, change_callback), _box(true), _imageBox(false), _text(mforms::VerticalScrollBar)
   {
     _view_type = 0;
@@ -346,7 +346,7 @@ public:
   virtual void set_value(const std::string &value, bool is_null)
   {
     _image.set_data(value);
-    _srid.set_text("SRID: "+base::to_string(_image.getSrid()));
+    _srid.set_text("SRID: "+ std::to_string(_image.getSrid()));
     _text.set_read_only(false);
     _raw_data = value;
     update();
@@ -401,8 +401,8 @@ inline std::string format_label(const std::string &label)
 
 ResultFormView::FieldView *ResultFormView::FieldView::create(const Recordset_cdbc_storage::FieldInfo &field,
                                                              const std::string &full_type, bool editable,
-                                                             const boost::function<void (const std::string &s)> &callback,
-                                                             const boost::function<void ()> &view_blob_callback)
+                                                             const std::function<void (const std::string &s)> &callback,
+                                                             const std::function<void ()> &view_blob_callback)
 {
   if (field.type == "VARCHAR")
   {
@@ -538,14 +538,14 @@ _editable(editable)
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("first");
   item->set_tooltip("Go to the first row in the recordset.");
-  item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
+  item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
   item->set_icon(app->get_resource_path("record_first.png"));
   _tbar.add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("back");
   item->set_tooltip("Go back one row in the recordset.");
-  item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
+  item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
   item->set_icon(app->get_resource_path("record_back.png"));
   _tbar.add_item(item);
 
@@ -556,14 +556,14 @@ _editable(editable)
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("next");
   item->set_tooltip("Go next one row in the recordset.");
-  item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
+  item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
   item->set_icon(app->get_resource_path("record_next.png"));
   _tbar.add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("last");
   item->set_tooltip("Go to the last row in the recordset.");
-  item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
+  item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
   item->set_icon(app->get_resource_path("record_last.png"));
   _tbar.add_item(item);
 
@@ -578,14 +578,14 @@ _editable(editable)
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_name("delete");
     item->set_tooltip("Delete current row from the recordset.");
-    item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
+    item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
     item->set_icon(app->get_resource_path("record_del.png"));
     _tbar.add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_name("last");
     item->set_tooltip("Add a new row to the recordset.");
-    item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
+    item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
     item->set_icon(app->get_resource_path("record_add.png"));
     _tbar.add_item(item);
   }
@@ -600,7 +600,7 @@ _editable(editable)
     options.push_back("View Geometry as GML");
     options.push_back("View Geometry as KML");
     item->set_selector_items(options);
-    item->signal_activated()->connect(boost::bind(&ResultFormView::geom_type_changed, this));
+    item->signal_activated()->connect(std::bind(&ResultFormView::geom_type_changed, this));
     _tbar.add_item(item);
   }
 
@@ -652,7 +652,7 @@ int ResultFormView::display_record()
   Recordset::Ref rset(_rset.lock());
   if (rset)
   {
-    int c = 0;
+    unsigned int c = 0;
 
     for (std::vector<FieldView*>::const_iterator i = _fields.begin(); i != _fields.end(); ++i, ++c)
     {
@@ -703,7 +703,7 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
   if (rset)
   {
     _refresh_ui_connection.disconnect();
-    rset->refresh_ui_signal.connect(boost::bind(&ResultFormView::display_record, this));
+    rset->refresh_ui_signal.connect([this]() { display_record(); });
 
     if (rset->edited_field_row() == (RowId)-1 && rset->count() > 0)
     {
@@ -734,8 +734,8 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
       }
 
       FieldView *fview = FieldView::create(*iter, full_type, _editable,
-                                           boost::bind(&ResultFormView::update_value, this, i, _1),
-                                           boost::bind(&ResultFormView::open_field_editor, this, i, iter->type));
+                                           std::bind(&ResultFormView::update_value, this, i, std::placeholders::_1),
+                                           std::bind(&ResultFormView::open_field_editor, this, i, iter->type));
       if (fview)
       {
         _table.add(fview->label(), 0, 1, i, i+1, mforms::HFillFlag);

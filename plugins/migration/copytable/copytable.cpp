@@ -34,7 +34,7 @@
 
 #undef min
 
-#include <boost/bind.hpp>
+
 #include <boost/algorithm/string.hpp>
 
 #ifdef __APPLE__
@@ -204,7 +204,7 @@ std::string ConnectionError::process(SQLRETURN retcode, SQLSMALLINT htype, SQLHA
 
 
 RowBuffer::RowBuffer(std::shared_ptr<std::vector<ColumnInfo> > columns,
-                     boost::function<void (int, const char*, size_t)> send_blob_data,
+                     std::function<void (int, const char*, size_t)> send_blob_data,
                      size_t max_packet_size)
 : _current_field(0), _send_blob_data(send_blob_data)
 {
@@ -2063,7 +2063,7 @@ void MySQLCopyDataTarget::begin_inserts()
   if (_row_buffer)
     delete _row_buffer;
 
-  _row_buffer = new RowBuffer(_columns, boost::bind(&MySQLCopyDataTarget::send_long_data, this, _1, _2, _3), _max_allowed_packet);
+  _row_buffer = new RowBuffer(_columns, std::bind(&MySQLCopyDataTarget::send_long_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), _max_allowed_packet);
 
   if (!_use_bulk_inserts)
   {
@@ -2682,7 +2682,7 @@ bool TaskQueue::get_task(TableParam& task)
   return ret_val;
 }
 
-CopyDataTask::CopyDataTask(const std::string name, CopyDataSource*psource, MySQLCopyDataTarget* ptarget, TaskQueue* ptasks, bool show_progress):
+CopyDataTask::CopyDataTask(const std::string name, CopyDataSource* psource, MySQLCopyDataTarget* ptarget, TaskQueue* ptasks, bool show_progress):
 _source(psource),
 _target(ptarget)
 {

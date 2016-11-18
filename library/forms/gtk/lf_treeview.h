@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -137,7 +137,7 @@ public:
 
   virtual void set_int(int column, int value);
 
-  virtual void set_long(int column, boost::int64_t value);
+  virtual void set_long(int column, std::int64_t value);
 
   virtual void set_bool(int column, bool value);
 
@@ -147,7 +147,7 @@ public:
 
   virtual int get_int(int column) const;
 
-  virtual boost::int64_t get_long(int column) const;
+  virtual std::int64_t get_long(int column) const;
 
   virtual bool get_bool(int column) const;
 
@@ -225,7 +225,7 @@ public:
 
   virtual void set_int(int column, int value);
 
-  virtual void set_long(int column, boost::int64_t value);
+  virtual void set_long(int column, std::int64_t value);
 
   virtual void set_bool(int column, bool value);
 
@@ -235,7 +235,7 @@ public:
 
   virtual int get_int(int column) const;
 
-  virtual boost::int64_t get_long(int column) const;
+  virtual std::int64_t get_long(int column) const;
 
   virtual bool get_bool(int column) const;
 

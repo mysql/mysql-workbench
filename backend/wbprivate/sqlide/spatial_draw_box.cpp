@@ -59,10 +59,10 @@ public:
     _progress.set_value(pct);
   }
 
-  void start(boost::function<bool (std::string&, float&)> progress_fetcher, float interval)
+  void start(std::function<bool (std::string&, float&)> progress_fetcher, float interval)
   {
     _progress_fetcher = progress_fetcher;
-    _timer = mforms::Utilities::add_timeout(interval, boost::bind(&ProgressPanel::update, this));
+    _timer = mforms::Utilities::add_timeout(interval, std::bind(&ProgressPanel::update, this));
   }
 
   void stop()
@@ -76,7 +76,7 @@ private:
   mforms::Label _title;
   mforms::Label _label;
   mforms::ProgressBar _progress;
-  boost::function<bool (std::string&, float&)> _progress_fetcher;
+  std::function<bool (std::string&, float&)> _progress_fetcher;
 
   bool update()
   {
@@ -100,7 +100,7 @@ void *SpatialDrawBox::do_render_layers(void *data)
     base::MutexLock lock(self->_thread_mutex);
     self->render(self->_needs_reprojection);
     if (!self->_quitting)
-      mforms::Utilities::perform_from_main_thread(boost::bind(&SpatialDrawBox::render_done, self));
+      mforms::Utilities::perform_from_main_thread(std::bind(&SpatialDrawBox::render_done, self));
     else
       delete self->_progress;
   }
@@ -116,7 +116,7 @@ void SpatialDrawBox::render_in_thread(bool reproject)
     _current_layer = NULL;
     _rendering = true;
     _progress = new ProgressPanel("Rendering spatial data, please wait.");
-    _progress->start(boost::bind(&SpatialDrawBox::get_progress, this, _1, _2), 0.2f);
+    _progress->start(std::bind(&SpatialDrawBox::get_progress, this, std::placeholders::_1, std::placeholders::_2), 0.2f);
     base::create_thread(do_render_layers, this);
     work_started(_progress, reproject);
 

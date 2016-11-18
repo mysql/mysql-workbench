@@ -41,7 +41,7 @@ GThread *_mforms_main_thread = NULL;
 static std::map<std::string, int> remembered_message_answers;
 static std::string remembered_message_answer_file;
 
-boost::function<void ()> mforms::Utilities::_driver_shutdown_cb;
+std::function<void ()> mforms::Utilities::_driver_shutdown_cb;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ int Utilities::show_message(const std::string &title, const std::string &text,
   if (Utilities::in_main_thread())
     return void_to_int(_show_dialog(DialogMessage, title, text, ok, cancel, other));
   else
-    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogMessage, title, text, ok, cancel, other)));
+    return void_to_int(Utilities::perform_from_main_thread(std::bind(&_show_dialog, DialogMessage, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ int Utilities::show_error(const std::string &title, const std::string &text,
   if (Utilities::in_main_thread())
     return void_to_int(_show_dialog(DialogError, title, text, ok, cancel, other));
   else
-    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogError, title, text, ok, cancel, other)));
+    return void_to_int(Utilities::perform_from_main_thread(std::bind(&_show_dialog, DialogError, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ int Utilities::show_warning(const std::string &title, const std::string &text,
   if (Utilities::in_main_thread())
     return void_to_int(_show_dialog(DialogWarning, title, text, ok, cancel, other));
   else
-    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogWarning, title, text, ok, cancel, other)));
+    return void_to_int(Utilities::perform_from_main_thread(std::bind(&_show_dialog, DialogWarning, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ bool Utilities::hide_wait_message()
 class CancellableTaskData
 {
 public:
-  boost::function<void* ()> task;
+  std::function<void* ()> task;
   bool finished;
   std::shared_ptr<void*> result_ptr;
 
@@ -262,8 +262,8 @@ static void* cancellable_task_thread(void *)
 }
 
 bool Utilities::run_cancelable_task(const std::string &title, const std::string &text,
-                                    const boost::function<void* ()> &task,
-                                    const boost::function<bool ()> &cancel_task,
+                                    const std::function<void* ()> &task,
+                                    const std::function<bool ()> &cancel_task,
                                     void *&task_result)
 {
   std::shared_ptr<void*> result(new void*((void*)-1));
@@ -301,7 +301,7 @@ bool Utilities::run_cancelable_task(const std::string &title, const std::string 
   }
 
   // Callback for the frontend to signal the worker thread that it's ready.
-  boost::function<void ()> signal_ready = boost::bind(&base::Semaphore::post, &data->semaphore);
+  std::function<void ()> signal_ready = std::bind(&base::Semaphore::post, &data->semaphore);
 
   bool function_result = false;
 
@@ -399,7 +399,7 @@ void Utilities::reveal_file(const std::string &path)
 
 //--------------------------------------------------------------------------------------------------
 
-TimeoutHandle Utilities::add_timeout(float interval, const boost::function<bool ()> &callback)
+TimeoutHandle Utilities::add_timeout(float interval, const std::function<bool ()> &callback)
 {
   return ControlFactory::get_instance()->_utilities_impl.add_timeout(interval, callback);
 }
@@ -468,7 +468,7 @@ bool Utilities::request_input(const std::string &title, const std::string &descr
 
   edit.set_size(150, -1);
   edit.set_value(default_value);
-  edit.signal_action()->connect(boost::bind(&on_request_action, _1, &ok_button));
+  edit.signal_action()->connect(std::bind(&on_request_action, std::placeholders::_1, &ok_button));
 
   content.add(&description_label, 1, 2, 0, 1, HFillFlag | VFillFlag);
   content.add(&edit, 2, 3, 0, 1, HFillFlag | VFillFlag);
@@ -543,7 +543,7 @@ void Utilities::forget_password(const std::string &service, const std::string &a
 
 //-------------------------------------------------------------------------------
 
-void *Utilities::perform_from_main_thread(const boost::function<void* ()> &slot, bool wait_done)
+void *Utilities::perform_from_main_thread(const std::function<void* ()> &slot, bool wait_done)
 {
   return ControlFactory::get_instance()->_utilities_impl.perform_from_main_thread(slot, wait_done);
 }
@@ -656,7 +656,7 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   password_form.center();
   
   password_edit.focus();
-  password_edit.signal_action()->connect(boost::bind(&on_request_action, _1, &ok_button));
+  password_edit.signal_action()->connect(std::bind(&on_request_action, std::placeholders::_1, &ok_button));
   
   bool result= password_form.run_modal(&ok_button, &cancel_button);
   if (result)
@@ -680,7 +680,7 @@ static bool _ask_for_password(const std::string &title, const std::string &servi
   if (Utilities::in_main_thread())
     return _ask_for_password_main(title, service, &username, prompt_storage, &ret_password, &ret_store) != NULL;
   else
-    return Utilities::perform_from_main_thread(boost::bind(&_ask_for_password_main,
+    return Utilities::perform_from_main_thread(std::bind(&_ask_for_password_main,
                                                title, service, &username, prompt_storage, &ret_password, &ret_store)) != NULL;
 }
 
@@ -983,7 +983,7 @@ void Utilities::driver_shutdown()
     Utilities::_driver_shutdown_cb();
 }
 
-void Utilities::add_driver_shutdown_callback(const boost::function<void ()> &slot)
+void Utilities::add_driver_shutdown_callback(const std::function<void ()> &slot)
 {
   Utilities::_driver_shutdown_cb = slot;
 }

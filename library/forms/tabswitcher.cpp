@@ -461,7 +461,7 @@ void TabSwitcher::attach_to_tabview(TabView *tabView)
   _tabView= tabView;
   set_needs_relayout();
   
-  scoped_connect(_tabView->signal_tab_changed(),boost::bind(&TabSwitcher::tab_changed, this));
+  scoped_connect(_tabView->signal_tab_changed(),std::bind(&TabSwitcher::tab_changed, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -633,7 +633,7 @@ bool TabSwitcher::mouse_leave()
   if (_was_collapsed)
   {
     _was_collapsed = false;
-    _timeout = mforms::Utilities::add_timeout(0.3f, boost::bind(&TabSwitcher::collapse, this));
+    _timeout = mforms::Utilities::add_timeout(0.3f, std::bind(&TabSwitcher::collapse, this));
   }
   return true;
 }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #include "grt/icon_manager.h"
 #include "wb_model_diagram_form.h"
 #include "wb_catalog_tree_view.h"
-#include <boost/unordered_set.hpp>
+#include <unordered_set>
 
 using namespace wb;
 
@@ -206,7 +206,7 @@ CatalogTreeView::CatalogTreeView(ModelDiagramForm *owner)
   end_columns();
 
   _menu = new mforms::ContextMenu();
-  _menu->signal_will_show()->connect(boost::bind(&CatalogTreeView::context_menu_will_show, this, _1));
+  _menu->signal_will_show()->connect(std::bind(&CatalogTreeView::context_menu_will_show, this, std::placeholders::_1));
   set_context_menu(_menu);
 }
 
@@ -250,7 +250,7 @@ void CatalogTreeView::refill(bool force)
   clear();
   model_ModelRef model = _owner->get_model_diagram()->owner();
 
-  boost::unordered_set<grt::internal::Value*> uset;
+  std::unordered_set<grt::internal::Value*> uset;
   grt::ListRef<model_Figure> figures(_owner->get_model_diagram()->figures());
   for (size_t c= figures.count(), i= 0; i < c; i++)
   {
@@ -331,9 +331,9 @@ void CatalogTreeView::refill(bool force)
   _initialized = true;
 }
 
-void CatalogTreeView::set_activate_callback(const boost::function<void (grt::ValueRef)> &active_callback)
+void CatalogTreeView::set_activate_callback(const std::function<void (grt::ValueRef)> &active_callback)
 {
-  _activate_callback= active_callback;
+  _activate_callback = active_callback;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -372,7 +372,7 @@ void CatalogTreeView::context_menu_will_show(mforms::MenuItem *parent_item)
       }
 
       if (!caption.empty())
-        parent->add_item_with_title(caption, boost::bind(&CatalogTreeView::menu_action, this, "edit", value));
+        parent->add_item_with_title(caption, std::bind(&CatalogTreeView::menu_action, this, "edit", value));
     }
   }
 

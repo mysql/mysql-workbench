@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include "mdc_magnet.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class Connector;
 class CanvasItem;
@@ -38,8 +38,9 @@ public:
   };
 
   BoxSideMagnet(CanvasItem *owner);
+  virtual ~BoxSideMagnet() {};
 
-  void set_compare_slot(const boost::function<bool (Connector*, Connector*, Side)> &compare);
+  void set_compare_slot(const std::function<bool (Connector*, Connector*, Side)> &compare);
 
   virtual double constrain_angle(double angle) const;
 
@@ -74,7 +75,7 @@ protected:
 
 
   std::map<Connector*, Side> _connector_info;
-  boost::function<bool (Connector*, Connector*, Side)> _compare;
+  std::function<bool (Connector*, Connector*, Side)> _compare;
   short _counts[5];
 
   Side get_connector_side(Connector *conn) const;
@@ -86,7 +87,7 @@ protected:
 };
 
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 #endif
 

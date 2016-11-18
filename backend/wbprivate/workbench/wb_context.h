@@ -132,43 +132,43 @@ namespace wb {
   struct MYSQLWBBACKEND_PUBLIC_FUNC WBFrontendCallbacks
   {
     // Args: type, title, file extensions
-    boost::function<std::string (std::string,std::string,std::string)> show_file_dialog;
+    std::function<std::string (std::string,std::string,std::string)> show_file_dialog;
 
     // Show some text in the application's status bar: must be thread-safe
-    boost::function<void (std::string)> show_status_text;
+    std::function<void (std::string)> show_status_text;
 
     // Open an editor
     // Args: grtmanager, module containing plugin, editor dll, editor class, edited object
-    boost::function<NativeHandle (grt::Module*, std::string, std::string, grt::BaseListRef, bec::GUIPluginFlags)> open_editor;
+    std::function<NativeHandle (grt::Module*, std::string, std::string, grt::BaseListRef, bec::GUIPluginFlags)> open_editor;
     // Show/Hide an editor
     // Args: editor handle (e.g: window handle)
-    boost::function<void (NativeHandle)> show_editor;
-    boost::function<void (NativeHandle)> hide_editor;
+    std::function<void (NativeHandle)> show_editor;
+    std::function<void (NativeHandle)> hide_editor;
 
     // Execute a built-in command
-    boost::function<void (std::string)> perform_command;
+    std::function<void (std::string)> perform_command;
 
     // Create a new diagram.
-    boost::function<mdc::CanvasView* (const model_DiagramRef&)> create_diagram;
+    std::function<mdc::CanvasView* (const model_DiagramRef&)> create_diagram;
     // Destroy a previously created canvas view
-    boost::function<void (mdc::CanvasView*)> destroy_view;
+    std::function<void (mdc::CanvasView*)> destroy_view;
     // Signals the current view has been changed
-    boost::function<void (mdc::CanvasView*)> switched_view;
+    std::function<void (mdc::CanvasView*)> switched_view;
 
     // Open the named type of main view tab with the given form object. ownership is passed to frontend
     // Args: type (eg query), bec::UIForm*
-    boost::function<void (std::string, std::shared_ptr<bec::UIForm>) > create_main_form_view;
-    boost::function<void (bec::UIForm*)> destroy_main_form_view;
+    std::function<void (std::string, std::shared_ptr<bec::UIForm>) > create_main_form_view;
+    std::function<void (bec::UIForm*)> destroy_main_form_view;
     
     // The tool for the view has been changed
-    boost::function<void (mdc::CanvasView*)> tool_changed;
+    std::function<void (mdc::CanvasView*)> tool_changed;
 
     // Refresh interface
-    boost::function<void (RefreshType, std::string, NativeHandle)> refresh_gui;
-    boost::function<void (bool)> lock_gui;
+    std::function<void (RefreshType, std::string, NativeHandle)> refresh_gui;
+    std::function<void (bool)> lock_gui;
 
     // Closes the application
-    boost::function<bool ()> quit_application;
+    std::function<bool ()> quit_application;
   };
 
 
@@ -296,7 +296,7 @@ namespace wb {
 
     WBComponent *get_component_handling(const model_ObjectRef &object);
 
-    void foreach_component(const boost::function<void (WBComponent*)> &slot);
+    void foreach_component(const std::function<void (WBComponent*)> &slot);
 
     WorkbenchImpl* get_workbench() { return _workbench; };
 
@@ -318,18 +318,18 @@ namespace wb {
         
    template<class R>
     R execute_in_main_thread(const std::string &name, 
-                             const boost::function<R ()> &function) THROW (grt::grt_runtime_error)
+                             const std::function<R ()> &function) THROW (grt::grt_runtime_error)
     {
       return bec::GRTManager::get()->get_dispatcher()->call_from_main_thread/*<R>*/(function, true, false); 
     }
     void execute_in_main_thread(const std::string &name, 
-                              const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);
+                              const std::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);
  
     grt::ValueRef execute_in_grt_thread(const std::string &name, 
-                                            const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
+                                            const std::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     void execute_async_in_grt_thread(const std::string &name, 
-                                     const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
+                                     const std::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     bool activate_live_object(const GrtObjectRef &object);
 
@@ -500,25 +500,10 @@ namespace wb {
     std::string request_connection_password(const db_mgmt_ConnectionRef &conn, bool force_asking);
 
   public: // front end callbacks
-    boost::function<std::string (std::string,std::string,std::string)> show_file_dialog;
-    boost::function<void (std::string)> show_status_text;
-    boost::function<void (std::string,void*)> show_gui_plugin;
+    WBFrontendCallbacks _frontendCallbacks;
 
-    boost::function<mdc::CanvasView* (const model_DiagramRef&)> create_diagram;
-    boost::function<void (mdc::CanvasView*)> destroy_view;
-    boost::function<void (mdc::CanvasView*)> switched_view;
-
-    boost::function<void (std::string, std::shared_ptr<bec::UIForm> )> create_main_form_view;
-    boost::function<void (bec::UIForm*)> destroy_main_form_view;
-
-    boost::function<void (mdc::CanvasView*)> tool_changed;
-
-    boost::function<void (RefreshType, std::string, NativeHandle)> refresh_gui;
-    boost::function<void (bool)> lock_gui;
-
-    boost::function<void (std::string)> perform_command;
-
-    boost::function<bool ()> quit_application;
+    // Internal, used for gui plugins
+    std::function<void (std::string,void*)> show_gui_plugin;
 
   private:
     std::shared_ptr<grt::GRT> _grt; // Keep a local reference to the singleton to avoid static fiasco.

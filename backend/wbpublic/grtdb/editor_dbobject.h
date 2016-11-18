@@ -79,10 +79,10 @@ namespace bec {
     virtual void refresh_live_object();
     virtual bool can_close();
 
-    boost::function<bool (DBObjectEditorBE*, bool)> on_apply_changes_to_live_object;
-    boost::function<void (DBObjectEditorBE*)> on_refresh_live_object;
-    boost::function<void (DBObjectEditorBE*)> on_create_live_table_stubs;
-    boost::function<bool (DBObjectEditorBE*, std::string&, std::string&)> on_expand_live_table_stub;
+    std::function<bool (DBObjectEditorBE*, bool)> on_apply_changes_to_live_object;
+    std::function<void (DBObjectEditorBE*)> on_refresh_live_object;
+    std::function<void (DBObjectEditorBE*)> on_create_live_table_stubs;
+    std::function<bool (DBObjectEditorBE*, std::string&, std::string&)> on_expand_live_table_stub;
 
   protected:
     parser::MySQLParserContext::Ref _parser_context;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,7 +79,7 @@ public:
 
   void save_connection_as(const std::string &name);
   
-  void set_driver_changed_cb(const boost::function<void (db_mgmt_DriverRef)> &cb) {_driver_changed_cb = cb;};
+  void set_driver_changed_cb(const std::function<void (db_mgmt_DriverRef)> &cb) {_driver_changed_cb = cb;};
   
   bool test_connection();
 
@@ -178,7 +178,7 @@ private:
 
   grt::StringListRef get_enum_values(db_mgmt_DriverParameterRef param);
 
-  boost::function<void (const db_mgmt_DriverRef &)> _driver_changed_cb;
+  std::function<void (const db_mgmt_DriverRef &)> _driver_changed_cb;
 };
 
 };

@@ -35,15 +35,14 @@
   #include <string.h>
 
   #include <boost/optional.hpp>
-  #include <boost/cstdint.hpp>
   #include <memory>
 
 #endif
 
 #define _(s) s // TODO: replace with localization code.
 
-using boost::uint64_t;
-using boost::int64_t;
+
+using std::int64_t;
 
 namespace base
 {
@@ -145,13 +144,6 @@ namespace base
       s.append(*i);
     }
     return s;
-  }
-
-  template <typename T> std::string to_string(const T &value)
-  {
-    std::stringstream out;
-    out << value;
-    return out.str();
   }
 
   BASELIBRARY_PUBLIC_FUNC void setTextFileContent(const std::string &filename, const std::string &data);

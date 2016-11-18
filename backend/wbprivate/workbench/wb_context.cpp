@@ -22,7 +22,6 @@
 #include <errno.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <boost/bind.hpp>
 
 #include "sqlide/wb_sql_editor_form.h"
 
@@ -469,11 +468,11 @@ WBContext::WBContext(bool verbose)
   _attachments_changed = false;
 
   _grtManager->setVerbose(verbose);
-  _grtManager->set_app_option_slots(boost::bind(get_app_option, _1, this),
-                                 boost::bind(set_app_option, _1, _2, this));
-  _grtManager->update_plugin_arguments_pool = boost::bind(&WBContext::update_plugin_arguments_pool, this, _1);
+  _grtManager->set_app_option_slots(std::bind(get_app_option, std::placeholders::_1, this),
+                                 std::bind(set_app_option, std::placeholders::_1, std::placeholders::_2, this));
+  _grtManager->update_plugin_arguments_pool = std::bind(&WBContext::update_plugin_arguments_pool, this, std::placeholders::_1);
 
-  _grtManager->set_timeout_request_slot(boost::bind(&WBContext::request_refresh, this, RefreshTimer,"", static_cast<NativeHandle>(0)));
+  _grtManager->set_timeout_request_slot(std::bind(&WBContext::request_refresh, this, RefreshTimer,"", static_cast<NativeHandle>(0)));
 
   NotificationCenter::get()->add_observer(this, "GNDocumentOpened");
   
@@ -483,7 +482,7 @@ WBContext::WBContext(bool verbose)
   _clipboard= new bec::Clipboard();
   _grtManager->set_clipboard(_clipboard);
   scoped_connect(_grt->get_undo_manager()->signal_changed(),
-    boost::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
+    std::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
 
   if (getenv("DEBUG_UNDO"))
     _grt->get_undo_manager()->enable_logging_to(&std::cout);
@@ -555,7 +554,7 @@ WBComponent *WBContext::get_component_named(const std::string &name)
 }
 
 
-void WBContext::foreach_component(const boost::function<void (WBComponent*)> &slot)
+void WBContext::foreach_component(const std::function<void (WBComponent*)> &slot)
 {
   FOREACH_COMPONENT(_components, iter)
     slot(*iter);
@@ -640,13 +639,13 @@ void WBContext::block_user_interaction(bool flag)
 
   if (_user_interaction_blocked == 1 && flag)
   {
-    if (lock_gui)
-        lock_gui(true);
+    if (_frontendCallbacks.lock_gui)
+      _frontendCallbacks.lock_gui(true);
   }
   else if (_user_interaction_blocked == 0 && !flag)
   {
-    if (lock_gui)
-        lock_gui(false);
+    if (_frontendCallbacks.lock_gui)
+      _frontendCallbacks.lock_gui(false);
   }
 }
 
@@ -752,12 +751,12 @@ bool WBContext::find_connection_password(const db_mgmt_ConnectionRef &conn, std:
 {
   /*
   return execute_in_main_thread<bool>("find_password",
-                        boost::bind(&WBContext::do_find_connection_password, this,
+                        std::bind(&WBContext::do_find_connection_password, this,
                                    conn->hostIdentifier().c_str(),
                                    conn->parameterValues().get_string("userName").c_str(),
                                    &password));*/
   void *ret = mforms::Utilities::perform_from_main_thread(
-                      boost::bind(&WBContext::do_find_connection_password, this,
+                      std::bind(&WBContext::do_find_connection_password, this,
                                   conn->hostIdentifier(),
                                   conn->parameterValues().get_string("userName"),
                                   &password));
@@ -773,7 +772,7 @@ std::string WBContext::request_connection_password(const db_mgmt_ConnectionRef &
   std::string password_tmp;
   std::string user_tmp = conn->parameterValues().get_string("userName");
   void *ret = mforms::Utilities::perform_from_main_thread(
-                      boost::bind(&WBContext::do_request_password, this,
+                      std::bind(&WBContext::do_request_password, this,
                                   _("Connect to MySQL Server"),
                                   conn->hostIdentifier(),
                                   reset_password,
@@ -793,29 +792,9 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   _force_sw_rendering = options->force_sw_rendering;
 
   // Copy callbacks
-  this->show_file_dialog= callbacks->show_file_dialog;
-
-  this->create_diagram= callbacks->create_diagram;
-  this->destroy_view= callbacks->destroy_view;
-  this->switched_view= callbacks->switched_view;
-
-  this->create_main_form_view= callbacks->create_main_form_view;
-  this->destroy_main_form_view= callbacks->destroy_main_form_view;
-
-  this->show_status_text= callbacks->show_status_text;
+  _frontendCallbacks = *callbacks;
   
-  _grtManager->set_status_slot(this->show_status_text);
-
-  this->tool_changed= callbacks->tool_changed;
-
-  this->refresh_gui= callbacks->refresh_gui;
-
-  this->perform_command= callbacks->perform_command;
-
-  this->lock_gui= callbacks->lock_gui;
-  
-  // XXX: merge with other application commands?
-  this->quit_application= callbacks->quit_application;
+  _grtManager->set_status_slot(_frontendCallbacks.show_status_text);
 
   // Already blocked (when constructed), but call it again so that lock_gui() gets called now.
   // Unlock not before a new document is created (see new_document()).
@@ -872,12 +851,12 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
 
     // set the tunnel factory
     if (_tunnel_manager)
-      dbc_driver_man->setTunnelFactoryFunction(boost::bind(&TunnelManager::create_tunnel, _tunnel_manager, _1));
+      dbc_driver_man->setTunnelFactoryFunction(std::bind(&TunnelManager::create_tunnel, _tunnel_manager, std::placeholders::_1));
     // set function to request connection password for user
-    dbc_driver_man->setPasswordFindFunction(boost::bind(&WBContext::find_connection_password, this, _1, _2));
-    dbc_driver_man->setPasswordRequestFunction(boost::bind(&WBContext::request_connection_password, this, _1, _2));
+    dbc_driver_man->setPasswordFindFunction(std::bind(&WBContext::find_connection_password, this, std::placeholders::_1, std::placeholders::_2));
+    dbc_driver_man->setPasswordRequestFunction(std::bind(&WBContext::request_connection_password, this, std::placeholders::_1, std::placeholders::_2));
 
-    mforms::Utilities::add_driver_shutdown_callback(boost::bind(&sql::DriverManager::thread_cleanup, dbc_driver_man));
+    mforms::Utilities::add_driver_shutdown_callback(std::bind(&sql::DriverManager::thread_cleanup, dbc_driver_man));
 
 #ifdef _WIN32
     dbc_driver_man->set_driver_dir(options->basedir);
@@ -897,7 +876,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
                                             callbacks->show_editor,
                                             callbacks->hide_editor);
   
-  _grt->push_message_handler(boost::bind(&WBContext::handle_message, this, _1));
+  _grt->push_message_handler(std::bind(&WBContext::handle_message, this, std::placeholders::_1));
 
   // Set options
   _datadir= options->basedir;
@@ -945,7 +924,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   // init major parts of the app
   get_sqlide_context()->init();
   
-  show_status_text(_("Initializing GRT..."));
+  _frontendCallbacks.show_status_text(_("Initializing GRT..."));
   // Initialize GRT Manager.
   _grtManager->initialize(options->init_python, loader_module_path);
 
@@ -966,9 +945,9 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   _grt->send_output(strfmt("Looking for user plugins in %s\n", user_modules_path.c_str()));
 
   // Listen to output-show messages.
-  _grtManager->get_messages_list()->signal_new_message()->connect(boost::bind(&WBContext::handle_grt_message, this, _1));
+  _grtManager->get_messages_list()->signal_new_message()->connect(std::bind(&WBContext::handle_grt_message, this, std::placeholders::_1));
 
-  show_status_text(_("Initializing Workbench components..."));
+  _frontendCallbacks.show_status_text(_("Initializing Workbench components..."));
   res = setup_context_grt(options);
 
   if (res.is_valid() && *grt::IntegerRef::cast_from(res) != 1)
@@ -988,7 +967,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   }
     
   get_root()->options()->signal_dict_changed()->
-    connect(boost::bind(&WBContext::option_dict_changed, this, _1, _2, _3));
+    connect(std::bind(&WBContext::option_dict_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   _send_messages_to_shell= false;
 
@@ -1117,7 +1096,7 @@ void WBContext::init_finish_(WBOptions *options)
 
   // SSH tunnel manager is created on first creation of a connection.
 
-  show_status_text(_("Ready."));
+  _frontendCallbacks.show_status_text(_("Ready."));
 
   if (options->open_at_startup_type != "run-script") // <--- so that our runtime tests don't lock up when a modal warning dialog is displayed
     warnIfRunningOnUnsupportedOS();
@@ -1211,7 +1190,7 @@ void WBContext::init_finish_(WBOptions *options)
     {
       std::string script_file= options->open_at_startup;
 
-      _grt->push_message_handler(boost::bind(output_to_stdout, _1, _2));
+      _grt->push_message_handler(std::bind(output_to_stdout, std::placeholders::_1, std::placeholders::_2));
       _grtManager->get_shell()->run_script_file(script_file);
       _grt->pop_message_handler();
     }
@@ -1231,7 +1210,7 @@ void WBContext::init_finish_(WBOptions *options)
       std::string lang= options->run_language;
       if (lang.empty())
         lang= "python";
-      _grt->push_message_handler(boost::bind(output_to_stdout, _1, _2));
+      _grt->push_message_handler(std::bind(output_to_stdout, std::placeholders::_1, std::placeholders::_2));
       _grtManager->get_shell()->run_script(options->run_at_startup, lang);
       _grt->pop_message_handler();
     }
@@ -1252,7 +1231,7 @@ void WBContext::init_finish_(WBOptions *options)
 
   if (options->quit_when_done && 
     (!options->run_at_startup.empty() || options->open_at_startup_type == "script" || options->open_at_startup_type == "run-script"))
-    quit_application();
+    _frontendCallbacks.quit_application();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1284,7 +1263,7 @@ void WBContext::handle_grt_message(MessageListStorage::MessageEntryRef message)
   if (message->icon == -1)
   {
     if (message->message == "show")
-      _grtManager->run_once_when_idle(boost::bind(&WBContextUI::show_output, wb::WBContextUI::get()));
+      _grtManager->run_once_when_idle(std::bind(&WBContextUI::show_output, wb::WBContextUI::get()));
     return;
   }
 }
@@ -1835,7 +1814,7 @@ void WBContext::load_app_options(bool update)
           "The file will skipped and settings are reset to their default values."));
       }
 
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(std::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       _grt->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2082,7 +2061,7 @@ void WBContext::load_app_state(std::shared_ptr<grt::internal::Unserializer> unse
     try 
     {
       xmlDocument= _grt->load_xml(state_xml);
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(std::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       _grt->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2151,7 +2130,7 @@ static grt::ListRef<app_Starter> loadStartersFile(const std::string &datadir, co
     try
     {
       xmlDocument= grt::GRT::get()->load_xml(startersFile);
-      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(std::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       grt::GRT::get()->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2359,7 +2338,7 @@ void WBContext::flush_idle_tasks()
     // send the refresh requests
     for (std::list<RefreshRequest>::iterator iter= refreshes.begin();
       iter != refreshes.end(); ++iter)
-      refresh_gui(iter->type, iter->str, iter->ptr);
+      _frontendCallbacks.refresh_gui(iter->type, iter->str, iter->ptr);
   }
   catch (std::exception &exc)
   {
@@ -2397,8 +2376,8 @@ void WBContext::request_refresh(RefreshType type, const std::string &str, Native
   // XXX: check this requirement. Probably already fixed since this hack was added.
 
   // Do not remove the following refresh! W/o it linux version hangs at times.
-  if (refresh_gui && _pending_refreshes.empty())
-    refresh_gui(RefreshNeeded, "", (NativeHandle)0);
+  if (_frontendCallbacks.refresh_gui && _pending_refreshes.empty())
+    _frontendCallbacks.refresh_gui(RefreshNeeded, "", (NativeHandle)0);
 #endif
 
   _pending_refreshes.push_back(refresh);
@@ -2413,7 +2392,7 @@ void WBContext::request_refresh(RefreshType type, const std::string &str, Native
 void WBContext::new_document()
 {
   try {
-    show_status_text(_("Creating new document..."));
+    _frontendCallbacks.show_status_text(_("Creating new document..."));
 
     // Ask whether unsaved changes should be saved.
     if (has_unsaved_changes())
@@ -2484,7 +2463,7 @@ void WBContext::new_document()
     _file= new ModelFile(get_auto_save_dir());
 
     scoped_connect(_file->signal_changed(),
-                   boost::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
+                   std::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
 
     _file->create();
     _grtManager->set_db_file_path(_file->get_db_file_path());
@@ -2500,15 +2479,15 @@ void WBContext::new_document()
     _save_point= _grt->get_undo_manager()->get_latest_undo_action();
     request_refresh(RefreshDocument, "");
     
-    _grtManager->run_once_when_idle(boost::bind(perform_command, "reset_layout"));
-    _grtManager->run_once_when_idle(boost::bind(&WBContext::block_user_interaction, this, false));
+    _grtManager->run_once_when_idle(std::bind(_frontendCallbacks.perform_command, "reset_layout"));
+    _grtManager->run_once_when_idle(std::bind(&WBContext::block_user_interaction, this, false));
 
-    show_status_text(_("New document."));
+    _frontendCallbacks.show_status_text(_("New document."));
   }
   catch (grt::grt_runtime_error &error)
   {
     show_error(error.what(), error.detail);
-    show_status_text(_("Error creating new document."));
+    _frontendCallbacks.show_status_text(_("Error creating new document."));
   }
 }
 
@@ -2525,7 +2504,7 @@ void WBContext::new_model_finish()
 void WBContext::open_script_file(const std::string &file)
 {
   execute_in_main_thread("openscript", 
-                         boost::bind(&WBContextSQLIDE::open_document, _sqlide_context, file),
+                         std::bind(&WBContextSQLIDE::open_document, _sqlide_context, file),
                          false);
 }
 
@@ -2653,7 +2632,7 @@ bool WBContext::open_document(const std::string &file)
     // if there are any.
     if (has_unsaved_changes())
     {
-      int answer= execute_in_main_thread<int>("check save changes", boost::bind(
+      int answer = execute_in_main_thread<int>("check save changes", std::bind(
         mforms::Utilities::show_message, _("Open Document"),
         _("Only one model can be open at a time. Do you wish to "
         "save pending changes to the currently open model?\n\n"
@@ -2670,7 +2649,7 @@ bool WBContext::open_document(const std::string &file)
     }
     else
     {
-      int answer= execute_in_main_thread<int>("replace document", boost::bind(
+      int answer = execute_in_main_thread<int>("replace document", std::bind(
         mforms::Utilities::show_message, _("Open Document"),
         _("Opening another model will close the currently open model.\n\n"
         "Do you wish to proceed opening it?"),
@@ -2680,11 +2659,11 @@ bool WBContext::open_document(const std::string &file)
         return false;
     }
 
-    execute_in_main_thread("close document", boost::bind(&WBContext::do_close_document, this, false), true);
+    execute_in_main_thread("close document", std::bind(&WBContext::do_close_document, this, false), true);
     
   }
   
-  show_status_text(strfmt(_("Loading %s..."), file.c_str()));
+  _frontendCallbacks.show_status_text(strfmt(_("Loading %s..."), file.c_str()));
   ValidationManager::clear();
   
   GUILock lock(this, _("Model file is being loaded"), strfmt(_("The model %s is loading now and will be available "
@@ -2701,7 +2680,7 @@ bool WBContext::open_document(const std::string &file)
 
   _file= new ModelFile(get_auto_save_dir());
   scoped_connect(_file->signal_changed(),
-    boost::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
+    std::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
 
   try
   {
@@ -2839,12 +2818,12 @@ bool WBContext::open_document(const std::string &file)
 
   request_refresh(RefreshDocument, "");
 
-  show_status_text(_("Document loaded."));
+  _frontendCallbacks.show_status_text(_("Document loaded."));
 
   _grtManager->unblock_idle_tasks();
 
-  if(perform_command)
-    _grtManager->run_once_when_idle(boost::bind(perform_command, "reset_layout"));
+  if(_frontendCallbacks.perform_command)
+    _grtManager->run_once_when_idle(std::bind(_frontendCallbacks.perform_command, "reset_layout"));
   
   return true;
 }
@@ -2863,7 +2842,7 @@ bool WBContext::can_close_document()
 {
   if (!_asked_for_saving && has_unsaved_changes())
   {
-    int answer= execute_in_main_thread<int>("check save changes", boost::bind(
+    int answer= execute_in_main_thread<int>("check save changes", std::bind(
       mforms::Utilities::show_message, _("Close Document"),
       _("Do you want to save pending changes to the document?\n\n"
       "If you don't save your changes, they will be lost."),
@@ -2901,7 +2880,7 @@ bool WBContext::close_document()
     block_user_interaction(true);
 
     // close the current document
-    execute_in_main_thread("close document", boost::bind(&WBContext::do_close_document, this, false), true);
+    execute_in_main_thread("close document", std::bind(&WBContext::do_close_document, this, false), true);
 
     block_user_interaction(false);
 
@@ -2922,10 +2901,10 @@ void WBContext::do_close_document(bool destroying)
   if (_model_context)
     _model_context->model_closed();
 
-  if (!destroying && refresh_gui)
+  if (!destroying && _frontendCallbacks.refresh_gui)
   {
     // close all open editors
-    refresh_gui(RefreshCloseEditor, "", (NativeHandle)0);
+    _frontendCallbacks.refresh_gui(RefreshCloseEditor, "", (NativeHandle)0);
   }
   
   ValidationManager::clear();
@@ -2941,12 +2920,12 @@ void WBContext::do_close_document(bool destroying)
   FOREACH_COMPONENT(_components, iter)
     (*iter)->close_document();
 
-  if (!destroying && refresh_gui)
+  if (!destroying && _frontendCallbacks.refresh_gui)
   {
     // Cancel all pending model related events.
     _pending_refreshes.remove_if(CancelRefreshCandidate());
 
-    refresh_gui(RefreshCloseDocument, "", (NativeHandle)0);
+    _frontendCallbacks.refresh_gui(RefreshCloseDocument, "", (NativeHandle)0);
   }
 }
 
@@ -3077,15 +3056,15 @@ void WBContext::cleanup_options()
 
 bool WBContext::save_as(const std::string &path)
 {
-  if(refresh_gui)
+  if(_frontendCallbacks.refresh_gui)
     execute_in_main_thread("commit_changes", 
-         boost::bind(refresh_gui, RefreshFinishEdits, "", (NativeHandle)0), true);
+         std::bind(_frontendCallbacks.refresh_gui, RefreshFinishEdits, "", (NativeHandle)0), true);
 
   if (path.empty())
   {
     std::string s= 
       execute_in_main_thread<std::string>("save", 
-        boost::bind(show_file_dialog,
+        std::bind(_frontendCallbacks.show_file_dialog,
               "save", _("Save Model"), "mwb"));
     if (s.empty())
       return false;
@@ -3100,23 +3079,20 @@ bool WBContext::save_as(const std::string &path)
 
   try
   {
-    show_status_text(strfmt(_("Saving %s..."), _filename.c_str()));
-    //grt::ValueRef ret= 
-    //  execute_in_grt_thread("Save", boost::bind(&WBContext::save_grt, this));
+    _frontendCallbacks.show_status_text(strfmt(_("Saving %s..."), _filename.c_str()));
 
-    //if (grt::IntegerRef::cast_from(ret) == 1)
     if (grt::IntegerRef::cast_from(save_grt()) == 1)
     {
-      show_status_text(strfmt(_("%s saved."), _filename.c_str()));
+      _frontendCallbacks.show_status_text(strfmt(_("%s saved."), _filename.c_str()));
       return true;
     }
     else
-      show_status_text(_("Error saving document."));
+      _frontendCallbacks.show_status_text(_("Error saving document."));
   }
   catch (grt::grt_runtime_error &error) 
   {
     show_exception(_("Error saving document"), error);
-    show_status_text(_("Error saving document."));
+    _frontendCallbacks.show_status_text(_("Error saving document."));
   }
   return false;
 }
@@ -3207,10 +3183,10 @@ void WBContext::execute_plugin(const std::string &plugin_name, const ArgumentPoo
   {
     std::string fname;
 
-    fname= show_file_dialog(finput->dialogType(), finput->dialogTitle(), finput->fileExtensions());
+    fname = _frontendCallbacks.show_file_dialog(finput->dialogType(), finput->dialogTitle(), finput->fileExtensions());
     if (fname.empty())
     {
-      show_status_text(_("Cancelled."));
+      _frontendCallbacks.show_status_text(_("Cancelled."));
       return;
     }    
     argpool.add_file_input(finput, fname);
@@ -3228,8 +3204,8 @@ void WBContext::execute_plugin(const std::string &plugin_name, const ArgumentPoo
   else
   {
     _grtManager->execute_grt_task(strfmt(_("Performing %s..."), plugin->caption().c_str()),
-                               boost::bind(&WBContext::execute_plugin_grt, this, plugin, fargs),
-                               boost::bind(&WBContext::plugin_finished, this, _1, plugin));
+                               std::bind(&WBContext::execute_plugin_grt, this, plugin, fargs),
+                               std::bind(&WBContext::plugin_finished, this, std::placeholders::_1, plugin));
   }
 }
 
@@ -3316,7 +3292,7 @@ grt::ValueRef WBContext::execute_plugin_grt(const app_PluginRef &plugin, const g
 void WBContext::plugin_finished(const grt::ValueRef &result, const app_PluginRef &plugin)
 {
   if (*plugin->showProgress())
-    show_status_text(strfmt(_("Execution of \"%s\" finished."), plugin->caption().c_str()));
+    _frontendCallbacks.show_status_text(strfmt(_("Execution of \"%s\" finished."), plugin->caption().c_str()));
 
   if (result.is_valid())
   {
@@ -3386,17 +3362,17 @@ std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_Con
     if (!target.is_valid())
     {
       logDebug("Connection selection dialog was cancelled\n");
-      show_status_text(_("Connection cancelled"));
+      _frontendCallbacks.show_status_text(_("Connection cancelled"));
       return SqlEditorForm::Ref();
     }
   }
 
-  show_status_text(_("Opening SQL Editor..."));
+  _frontendCallbacks.show_status_text(_("Opening SQL Editor..."));
   
   SqlEditorForm::Ref form;
   try
   {
-    show_status_text(_("Connecting..."));
+    _frontendCallbacks.show_status_text(_("Connecting..."));
     
     form = get_sqlide_context()->create_connected_editor(target);
     
@@ -3415,7 +3391,7 @@ std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_Con
                                                          bec::sanitize_server_version_number(form->connection_details()["dbmsProductVersion"]).c_str()),
                                             "Continue Anyway", "Cancel") != mforms::ResultOk)
         {
-          show_status_text(_("Unsupported server"));
+          _frontendCallbacks.show_status_text(_("Unsupported server"));
           return SqlEditorForm::Ref();
         }
       }
@@ -3430,7 +3406,7 @@ std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_Con
     else
       logInfo("Connection cancelled by user: %s\n", e.what());
 
-    show_status_text(_("Connection cancelled"));
+    _frontendCallbacks.show_status_text(_("Connection cancelled"));
     return SqlEditorForm::Ref();
   }
   catch (grt::server_denied &sd)
@@ -3446,11 +3422,11 @@ std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_Con
   
   try
   {
-    create_main_form_view(WB_MAIN_VIEW_DB_QUERY, form);
+    _frontendCallbacks.create_main_form_view(WB_MAIN_VIEW_DB_QUERY, form);
   }
   catch (std::exception &exc)
   {
-    show_status_text(_("Could not open SQL Editor."));
+    _frontendCallbacks.show_status_text(_("Could not open SQL Editor."));
 
     show_error(_("Cannot Open SQL Editor"), strfmt(_("Error in frontend for SQL Editor: %s"), exc.what()));
     return SqlEditorForm::Ref();
@@ -3460,7 +3436,7 @@ std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_Con
   if (restore_session)
     form->restore_last_workspace();
 
-  show_status_text(_("SQL Editor Opened."));
+  _frontendCallbacks.show_status_text(_("SQL Editor Opened."));
 
   return form;
 }
@@ -3468,24 +3444,24 @@ std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_Con
 
 std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window()
 {
-  show_status_text(_("Opening SQL Editor..."));
+  _frontendCallbacks.show_status_text(_("Opening SQL Editor..."));
 
   SqlEditorForm::Ref form;
   form= get_sqlide_context()->create_connected_editor(db_mgmt_ConnectionRef());
 
   try
   {
-    create_main_form_view(WB_MAIN_VIEW_DB_QUERY, form);
+    _frontendCallbacks.create_main_form_view(WB_MAIN_VIEW_DB_QUERY, form);
   }
   catch (std::exception &exc)
   {
-    show_status_text(_("Could not open SQL Editor."));
+    _frontendCallbacks.show_status_text(_("Could not open SQL Editor."));
 
     show_error(_("Cannot Open SQL Editor"), strfmt(_("Error in frontend for SQL Editor: %s"), exc.what()));
     return SqlEditorForm::Ref();
   }
 
-  show_status_text(_("SQL Editor Opened."));
+  _frontendCallbacks.show_status_text(_("SQL Editor Opened."));
 
   form->update_title();
   
@@ -3515,7 +3491,7 @@ void WBContext::add_new_admin_window(const db_mgmt_ConnectionRef &target)
 
 void WBContext::add_new_plugin_window(const std::string &plugin_id, const std::string &caption)
 {  
-  show_status_text(strfmt(_("Starting %s Module..."), caption.c_str()));
+  _frontendCallbacks.show_status_text(strfmt(_("Starting %s Module..."), caption.c_str()));
   
   try
   {
@@ -3527,14 +3503,14 @@ void WBContext::add_new_plugin_window(const std::string &plugin_id, const std::s
       _plugin_manager->open_plugin(plugin, args);
     else
     {
-      show_status_text(strfmt(_("%s plugin not found"), caption.c_str()));
+      _frontendCallbacks.show_status_text(strfmt(_("%s plugin not found"), caption.c_str()));
       return;
     }
   }
   catch (std::exception &exc)
   {
     logError("Error opening %s: %s\n", caption.c_str(), exc.what());
-    show_status_text(strfmt(_("Could not open %s: %s"), caption.c_str(), exc.what()));
+    _frontendCallbacks.show_status_text(strfmt(_("Could not open %s: %s"), caption.c_str(), exc.what()));
     return;
   }
 }
@@ -3561,7 +3537,7 @@ grt::DictRef WBContext::get_wb_options()
 
 // XXX: we have mforms::Utilities::perform_from_main_thread.
 void WBContext::execute_in_main_thread(const std::string &name, 
-                              const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error)
+                              const std::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error)
 {
   _grtManager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
 }
@@ -3575,7 +3551,7 @@ void WBContext::show_exception(const std::string &operation, const std::exceptio
     if (_grtManager->in_main_thread())
       show_error(operation, std::string(rt->what()) + "\n" + rt->detail);
     else
-      _grtManager->run_once_when_idle(boost::bind(&WBContext::show_error, this,
+      _grtManager->run_once_when_idle(std::bind(&WBContext::show_error, this,
         operation, std::string(rt->what()) + "\n" + rt->detail));
   }
   else
@@ -3583,7 +3559,7 @@ void WBContext::show_exception(const std::string &operation, const std::exceptio
     if (_grtManager->in_main_thread())
       show_error(operation, exc.what());
     else
-      _grtManager->run_once_when_idle(boost::bind(&WBContext::show_error, this,
+      _grtManager->run_once_when_idle(std::bind(&WBContext::show_error, this,
         operation, std::string(exc.what())));
   }
 }
@@ -3594,7 +3570,7 @@ void WBContext::show_exception(const std::string &operation, const grt::grt_runt
   if (_grtManager->in_main_thread())
     show_error(operation, std::string(exc.what()) + "\n" + exc.detail);
   else
-    _grtManager->run_once_when_idle(boost::bind(&WBContext::show_error, this,
+    _grtManager->run_once_when_idle(std::bind(&WBContext::show_error, this,
       operation, std::string(exc.what()) + "\n" + exc.detail));
 }
 
@@ -3699,7 +3675,7 @@ bool WBContext::install_module_file(const std::string &path)
 
   std::string message = strfmt("Plugin %s installed.", path.c_str());
   logInfo("%s\n", message.c_str());
-  show_status_text(message);
+  _frontendCallbacks.show_status_text(message);
   mforms::Utilities::show_message("Plugin Installed",
                                   strfmt("Plugin %s was installed, please restart Workbench to use it.",
                                          path.c_str()),

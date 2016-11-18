@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +56,7 @@ namespace mforms {
     std::string get_document_title();
 
     /** Sets a handle for link clicks */
-    void set_link_click_handler(const boost::function<bool (const std::string &)> &slot);
+    void set_link_click_handler(const std::function<bool (const std::string &)> &slot);
 
 #ifndef SWIG
     /** Signal emitted when the document finishes loading 
@@ -75,6 +75,6 @@ namespace mforms {
   protected:
     WebBrowserImplPtrs *_webbrowser_impl;
     boost::signals2::signal<void (const std::string&)> _document_loaded;
-    boost::function<bool (const std::string&)> _handle_link_click;
+    std::function<bool (const std::string&)> _handle_link_click;
   };
 };

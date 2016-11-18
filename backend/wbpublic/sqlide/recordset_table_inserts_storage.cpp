@@ -107,7 +107,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
             if (8 < simple_datatype->numericPrecision())
               mapped_type= int();
             else
-              mapped_type= boost::int64_t();
+              mapped_type= std::int64_t();
           }
           else
           {

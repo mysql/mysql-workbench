@@ -68,7 +68,7 @@ public:
   int on_error(long long err_code, const std::string& err_msg, const std::string& err_sql);
   int on_exec_progress(float progress);
   int on_exec_stat(long success_count, long err_count);
-  boost::function<void (const std::string &)> apply_sql_script;
+  std::function<void (const std::string &)> apply_sql_script;
   bool execute_sql_script();
   virtual std::string next_button_caption();
   virtual bool allow_back();
@@ -89,11 +89,11 @@ public:
   bool has_errors();
   bool applied();
 
-  boost::function<void ()> abort_apply;
+  std::function<void ()> abort_apply;
 
   // Used by the wizard if an option changed.
   // Parameters: online DDL algorithm and lock.
-  boost::function<std::string (const std::string&, const std::string&)> regenerate_script;
+  std::function<std::string (const std::string&, const std::string&)> regenerate_script;
 };
 
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #include "mdc_figure.h"
 #include "mdc_draw_util.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class MYSQLCANVAS_PUBLIC_FUNC ImageFigure : public Figure {
 public:  
@@ -45,4 +45,4 @@ protected:
 
 MYSQLCANVAS_PUBLIC_FUNC cairo_surface_t *surface_from_png_image(const std::string &file_name);
 
-END_MDC_DECLS
+} // end of mdc namespace 

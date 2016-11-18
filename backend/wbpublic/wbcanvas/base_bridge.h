@@ -32,7 +32,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC BridgeBase : public base::trackable
 {
 protected:
-  void run_later(const boost::function<void ()> &slot);
+  void run_later(const std::function<void ()> &slot);
 
   virtual GrtObject *get_object()= 0;
 

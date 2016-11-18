@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ RoutineGroup::RoutineGroup(mdc::Layer *layer, FigureEventHub *hub, const model_O
 {
   _title.set_icon(mdc::ImageManager::get_instance()->get_image("workbench.physical.RoutineGroupFigure.16x16.png"));
 
-  scoped_connect(_title.signal_expand_toggle(),boost::bind(&RoutineGroup::toggle, this, _1));
+  scoped_connect(_title.signal_expand_toggle(),std::bind(&RoutineGroup::toggle, this, std::placeholders::_1));
 
   set_allowed_resizing(false, false);
   set_accepts_focus(true);

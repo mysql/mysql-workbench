@@ -117,13 +117,13 @@ struct ColumnInfo
 class RowBuffer : public std::vector<MYSQL_BIND>
 {
   int _current_field;
-  boost::function<void (int, const char*, size_t)> _send_blob_data;
+  std::function<void (int, const char*, size_t)> _send_blob_data;
 
-  RowBuffer(const RowBuffer &o) : std::vector<MYSQL_BIND>() {}
+  RowBuffer(const RowBuffer &o) : std::vector<MYSQL_BIND>(), _current_field(0) {}
 
 public:
   RowBuffer(std::shared_ptr<std::vector<ColumnInfo> > columns,
-            boost::function<void (int, const char*, size_t)> send_blob_data,
+            std::function<void (int, const char*, size_t)> send_blob_data,
             size_t max_packet_size);
   ~RowBuffer();
 
@@ -408,8 +408,8 @@ class CopyDataTask
 {
 private:
   std::string _name;
-  boost::scoped_ptr<CopyDataSource> _source;
-  boost::scoped_ptr<MySQLCopyDataTarget> _target;
+  std::unique_ptr<CopyDataSource> _source;
+  std::unique_ptr<MySQLCopyDataTarget> _target;
   TaskQueue *_tasks;
   bool _show_progress;
 
@@ -422,7 +422,7 @@ private:
   void report_progress(const std::string &schema, const std::string &table, long long current, long long total);
 
 public:
-  CopyDataTask(const std::string name, CopyDataSource*psource, MySQLCopyDataTarget* ptarget, TaskQueue *ptasks, bool show_progress);
+  CopyDataTask(const std::string name, CopyDataSource* psource, MySQLCopyDataTarget* ptarget, TaskQueue *ptasks, bool show_progress);
   ~CopyDataTask();
   void wait() { g_thread_join(_thread); }
 };

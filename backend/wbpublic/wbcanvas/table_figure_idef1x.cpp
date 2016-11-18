@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -133,21 +133,21 @@ Table::ItemList::iterator Idef1xTable::sync_next_column(ItemList::iterator iter,
     _unique_oids.insert(id);
     if (flags & wbfig::ColumnFK)
       return sync_next(_column_box, _columns, iter, id, NULL, text+" (FK)", 
-                       boost::bind(&Idef1xTable::create_column_item, this, _1, _2),
-                       boost::bind(&Idef1xTable::update_column_item, this, _1, flags));
+                       std::bind(&Idef1xTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                       std::bind(&Idef1xTable::update_column_item, this, std::placeholders::_1, flags));
     else
       return sync_next(_column_box, _columns, iter, id, NULL, text, 
-                       boost::bind(&Idef1xTable::create_column_item, this, _1, _2),
-                       boost::bind(&Idef1xTable::update_column_item, this, _1, flags));
+                       std::bind(&Idef1xTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                       std::bind(&Idef1xTable::update_column_item, this, std::placeholders::_1, flags));
   }
   else if (flags & wbfig::ColumnFK)
     return sync_next(_column_box, _columns, iter, id, NULL, text+" (FK)", 
-                     boost::bind(&Idef1xTable::create_column_item, this, _1, _2),
-                     boost::bind(&Idef1xTable::update_column_item, this, _1, flags));
+                     std::bind(&Idef1xTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                     std::bind(&Idef1xTable::update_column_item, this, std::placeholders::_1, flags));
   else
     return sync_next(_column_box, _columns, iter, id, NULL, text, 
-                     boost::bind(&Idef1xTable::create_column_item, this, _1, _2),
-                     boost::bind(&Idef1xTable::update_column_item, this, _1, flags));
+                     std::bind(&Idef1xTable::create_column_item, this, std::placeholders::_1, std::placeholders::_2),
+                     std::bind(&Idef1xTable::update_column_item, this, std::placeholders::_1, flags));
 }
 
 

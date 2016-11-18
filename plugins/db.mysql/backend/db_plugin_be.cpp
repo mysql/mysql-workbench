@@ -132,19 +132,19 @@ int Db_plugin::check_case_sensitivity_problems()
 {
 
   sql::ConnectionWrapper dbc_conn = _db_conn->get_dbc_connection();
-  boost::scoped_ptr<sql::Statement> statement(dbc_conn->createStatement());
+  std::unique_ptr<sql::Statement> statement(dbc_conn->createStatement());
 
   std::string compile_os;
   int lower_case_table_names = -1;
   {
-    boost::scoped_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT @@version_compile_os"));
+    std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT @@version_compile_os"));
     if (rs->next())
     {
       compile_os = rs->getString(1);
     }
   }
   {
-    boost::scoped_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT @@lower_case_table_names"));
+    std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT @@lower_case_table_names"));
     if (rs->next())
     {
       lower_case_table_names = rs->getInt(1);
@@ -525,7 +525,7 @@ db_CatalogRef Db_plugin::db_catalog()
 
 void Db_plugin::set_task_proc()
 {
-  _task_proc_cb= boost::bind(&Db_plugin::apply_script_to_db, this);
+  _task_proc_cb= std::bind(&Db_plugin::apply_script_to_db, this);
 }
 
 
@@ -542,9 +542,9 @@ grt::StringRef Db_plugin::apply_script_to_db()
 
   sql::SqlBatchExec sql_batch_exec;
 
-  sql_batch_exec.error_cb(boost::bind(&Db_plugin::process_sql_script_error, this, _1, _2, _3));
-  sql_batch_exec.batch_exec_progress_cb(boost::bind(&Db_plugin::process_sql_script_progress, this, _1));
-  sql_batch_exec.batch_exec_stat_cb(boost::bind(&Db_plugin::process_sql_script_statistics, this, _1, _2));
+  sql_batch_exec.error_cb(std::bind(&Db_plugin::process_sql_script_error, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+  sql_batch_exec.batch_exec_progress_cb(std::bind(&Db_plugin::process_sql_script_progress, this, std::placeholders::_1));
+  sql_batch_exec.batch_exec_stat_cb(std::bind(&Db_plugin::process_sql_script_statistics, this, std::placeholders::_1, std::placeholders::_2));
 
   sql_batch_exec(stmt.get(), statements);
 

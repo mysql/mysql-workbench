@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ using namespace mforms;
 using namespace stub;
 using namespace tut;
 
-boost::function<mforms::DialogResult (void)> UtilitiesWrapper::message_callback;
+std::function<mforms::DialogResult (void)> UtilitiesWrapper::message_callback;
 
 // the only reason why we're wrapping this map is so our unit tests don't segfault.  We're running into static initialisation order fiasco,
 // because the unit tests are created before main() runs, at which point they call different things.  Feel free to remove the wrapper once the problem is amended.
@@ -100,7 +100,7 @@ bool UtilitiesWrapper::hide_wait_message()
 }
 
 bool UtilitiesWrapper::run_cancelable_wait_message(const std::string &title, const std::string &text,
-                      const boost::function<void ()> &start_task, const boost::function<bool ()> &cancel_task)
+                      const std::function<void ()> &start_task, const std::function<bool ()> &cancel_task)
 {
   return true;
 }
@@ -129,7 +129,7 @@ std::string UtilitiesWrapper::get_special_folder(mforms::FolderType type)
   return "./";
 }
 
-mforms::TimeoutHandle UtilitiesWrapper::add_timeout(float interval, const boost::function<bool ()> &slot)
+mforms::TimeoutHandle UtilitiesWrapper::add_timeout(float interval, const std::function<bool ()> &slot)
 {
   return 0;
 }
@@ -216,7 +216,7 @@ enum {Gnome_keyring_results_size = 10};
 
 //--------------------------------------------------------------------------------------------------
 
-void* UtilitiesWrapper::perform_from_main_thread(const boost::function<void* ()>& slot, bool wait)
+void* UtilitiesWrapper::perform_from_main_thread(const std::function<void* ()>& slot, bool wait)
 {
   return slot();
 };
@@ -250,7 +250,7 @@ void UtilitiesWrapper::init()
 
 //--------------------------------------------------------------------------------------------------
 
-void UtilitiesWrapper::set_message_callback(boost::function<mforms::DialogResult (void)> callback)
+void UtilitiesWrapper::set_message_callback(std::function<mforms::DialogResult (void)> callback)
 {
   message_callback = callback;
 }

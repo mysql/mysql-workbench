@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,7 @@ RadioButton::RadioButton(int group_id)
 
   _radio_impl->create(this, group_id);
   
-  scoped_connect(&_radio_activated, boost::bind(&RadioButton::radio_activated, this, _1));
+  scoped_connect(&_radio_activated, std::bind(&RadioButton::radio_activated, this, std::placeholders::_1));
 }
 
 

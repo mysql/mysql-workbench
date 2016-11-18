@@ -49,14 +49,14 @@ class UtilitiesImpl
   static void show_wait_message(const std::string &title, const std::string &text);
   static bool hide_wait_message();
   static bool run_cancelable_wait_message(const std::string &title, const std::string &text,
-                                          const boost::function<void ()> &start_task, const boost::function<bool ()> &cancel_task);
+                                          const std::function<void ()> &start_task, const std::function<bool ()> &cancel_task);
   static void stop_cancelable_wait_message();
 
   static void set_clipboard_text(const std::string &text);
   static std::string get_clipboard_text();
   static void open_url(const std::string &url);
   static std::string get_special_folder(mforms::FolderType type);
-  static TimeoutHandle  add_timeout(float interval, const boost::function<bool ()> &slot);
+  static TimeoutHandle  add_timeout(float interval, const std::function<bool ()> &slot);
   static void cancel_timeout(TimeoutHandle h);
 
   static void store_password(const std::string &service, const std::string &account, const std::string &password);
@@ -83,7 +83,7 @@ class MainThreadRequestQueue
 {
   struct Request
   {
-    boost::function<void* ()> slot;
+    std::function<void* ()> slot;
     void *result;
     Glib::Mutex mutex;
     Glib::Cond cond;
@@ -98,7 +98,7 @@ class MainThreadRequestQueue
 public:
   MainThreadRequestQueue();
   static MainThreadRequestQueue *get();
-  static void *perform(const boost::function<void* ()> &slot, bool wait);
+  static void *perform(const std::function<void* ()> &slot, bool wait);
 };
 
 };

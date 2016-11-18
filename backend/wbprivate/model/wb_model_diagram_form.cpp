@@ -42,7 +42,6 @@
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/log.h"
-#include <boost/lambda/bind.hpp>
 
 #include "mforms/menubar.h"
 
@@ -84,8 +83,7 @@ ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &v
   _update_count = 0;
   _layer_tree = 0;
 
-//  scoped_connect(_model_diagram->signal_refreshDisplay(), boost::bind(&ModelDiagramForm::diagram_changed, this, _1));
-  scoped_connect(_model_diagram->signal_list_changed(), boost::bind(&ModelDiagramForm::diagram_changed, this, _1, _2, _3));
+  scoped_connect(_model_diagram->signal_list_changed(), std::bind(&ModelDiagramForm::diagram_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   _current_mouse_x= -1;
   _current_mouse_y= -1;
@@ -99,7 +97,7 @@ ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &v
   _paste_offset= 0;
   _shortcuts = WBContextUI::get()->get_command_ui()->get_shortcuts_for_context(WB_CONTEXT_MODEL);
 
-  scoped_connect(owner->get_wb()->get_clipboard()->signal_changed(), boost::bind(&ModelDiagramForm::clipboard_changed, this));
+  scoped_connect(owner->get_wb()->get_clipboard()->signal_changed(), std::bind(&ModelDiagramForm::clipboard_changed, this));
   
   _features= new PhysicalModelDiagramFeatures(this);
   
@@ -239,7 +237,7 @@ mforms::ToolBar *ModelDiagramForm::get_tools_toolbar()
         
           item->set_icon(IconManager::get_instance()->get_icon_path(*titem->icon()));
           item->set_name((*titem->command()).substr(strlen("tool:")));
-          scoped_connect(item->signal_activated(),boost::bind(&ModelDiagramForm::set_tool, this, item->get_name()));
+          scoped_connect(item->signal_activated(), std::bind(&ModelDiagramForm::set_tool, this, item->get_name()));
         }
         std::string shortcut;
         for (std::vector<WBShortcut>::const_iterator iter= _shortcuts.begin(); iter != _shortcuts.end(); ++iter)
@@ -279,14 +277,14 @@ mforms::MenuBar *ModelDiagramForm::get_menubar()
   if (!_menu)
   {
     _menu = WBContextUI::get()->get_command_ui()->create_menubar_for_context(WB_CONTEXT_MODEL);
-    scoped_connect(_menu->signal_will_show(),boost::bind(&ModelDiagramForm::revalidate_menu, this));
+    scoped_connect(_menu->signal_will_show(), std::bind(&ModelDiagramForm::revalidate_menu, this));
     
     mforms::MenuItem *item = _menu->find_item("wb.edit.editSelectedFigure");
     if (item)
-      item->add_validator(boost::bind(&ModelDiagramForm::has_selection, this));
+      item->add_validator(std::bind(&ModelDiagramForm::has_selection, this));
     item = _menu->find_item("wb.edit.editSelectedFigureInNewWindow");
     if (item)
-      item->add_validator(boost::bind(&ModelDiagramForm::has_selection, this));
+      item->add_validator(std::bind(&ModelDiagramForm::has_selection, this));
   }
   revalidate_menu();
   return _menu;
@@ -384,7 +382,7 @@ void ModelDiagramForm::update_options_toolbar()
         item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
       item->set_selector_items(items);
       item->set_text(selected);
-      scoped_connect(item->signal_activated(),boost::bind(&ModelDiagramForm::select_dropdown_item, this, titem->command(), item));
+      scoped_connect(item->signal_activated(), std::bind(&ModelDiagramForm::select_dropdown_item, this, titem->command(), item));
     }
     else if (type == "separator")
       item = mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem));
@@ -494,7 +492,7 @@ void ModelDiagramForm::selection_changed()
   if (bec::GRTManager::get()->in_main_thread())
     revalidate_menu();
   else
-    bec::GRTManager::get()->run_once_when_idle(boost::bind(&ModelDiagramForm::revalidate_menu, this));
+    bec::GRTManager::get()->run_once_when_idle(std::bind(&ModelDiagramForm::revalidate_menu, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -504,7 +502,7 @@ void ModelDiagramForm::diagram_changed(grt::internal::OwnedList* olist, bool add
 {
   _idle_node_mark.disconnect();
   if (added)
-    _idle_node_mark = bec::GRTManager::get()->run_once_when_idle(boost::bind(&ModelDiagramForm::mark_catalog_node, this, val, true));
+    _idle_node_mark = bec::GRTManager::get()->run_once_when_idle(std::bind(&ModelDiagramForm::mark_catalog_node, this, val, true));
 }
 
 void ModelDiagramForm::mark_catalog_node(grt::ValueRef val, bool mark)
@@ -526,9 +524,9 @@ void ModelDiagramForm::attach_canvas_view(mdc::CanvasView *cview)
   cview->get_background_layer()->set_grid_visible(_model_diagram->options().get_int("ShowGrid", 1)!=0);
   cview->get_background_layer()->set_paper_visible(_model_diagram->options().get_int("ShowPageGrid", 1)!=0);
 
-  scoped_connect(cview->get_selection()->signal_begin_dragging(),boost::bind(&ModelDiagramForm::begin_selection_drag, this));
-  scoped_connect(cview->get_selection()->signal_end_dragging(),boost::bind(&ModelDiagramForm::end_selection_drag, this));
-  scoped_connect(_model_diagram->get_data()->signal_selection_changed(),boost::bind(&ModelDiagramForm::selection_changed, this));
+  scoped_connect(cview->get_selection()->signal_begin_dragging(), std::bind(&ModelDiagramForm::begin_selection_drag, this));
+  scoped_connect(cview->get_selection()->signal_end_dragging(), std::bind(&ModelDiagramForm::end_selection_drag, this));
+  scoped_connect(_model_diagram->get_data()->signal_selection_changed(), std::bind(&ModelDiagramForm::selection_changed, this));
   
   _main_layer= _view->get_current_layer();
   _badge_layer= _view->new_layer("badges");
@@ -558,7 +556,7 @@ CatalogTreeView* ModelDiagramForm::get_catalog_tree()
   if (_catalog_tree == NULL)
   {
     _catalog_tree = new CatalogTreeView(this);
-    _catalog_tree->set_activate_callback(boost::bind(&ModelDiagramForm::activate_catalog_tree_item, this, _1));
+    _catalog_tree->set_activate_callback(std::bind(&ModelDiagramForm::activate_catalog_tree_item, this, std::placeholders::_1));
   }
   return _catalog_tree;
 }
@@ -588,7 +586,7 @@ void ModelDiagramForm::refill_catalog_tree()
   if (!_catalog_tree)
   {
     _catalog_tree = new CatalogTreeView(this);
-    _catalog_tree->set_activate_callback(boost::bind(&ModelDiagramForm::activate_catalog_tree_item, this, _1));
+    _catalog_tree->set_activate_callback(std::bind(&ModelDiagramForm::activate_catalog_tree_item, this, std::placeholders::_1));
   }
 
   _catalog_tree->refill(true);
@@ -607,19 +605,19 @@ bool ModelDiagramForm::is_closed()
 }
 
 
-void ModelDiagramForm::set_button_callback(const boost::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, Point, mdc::EventState)> &cb)
+void ModelDiagramForm::set_button_callback(const std::function<bool (ModelDiagramForm*, mdc::MouseButton, bool, Point, mdc::EventState)> &cb)
 {
-  _handle_button= cb;
+  _handle_button = cb;
 }
 
 
-void ModelDiagramForm::set_motion_callback(const boost::function<bool (ModelDiagramForm*, Point, mdc::EventState)> &cb)
+void ModelDiagramForm::set_motion_callback(const std::function<bool (ModelDiagramForm*, Point, mdc::EventState)> &cb)
 {
-  _handle_motion= cb;
+  _handle_motion = cb;
 }
 
 
-void ModelDiagramForm::set_reset_tool_callback(const boost::function<void (ModelDiagramForm*)> &cb)
+void ModelDiagramForm::set_reset_tool_callback(const std::function<void (ModelDiagramForm*)> &cb)
 {
   _reset_tool= cb;
 }
@@ -888,7 +886,7 @@ void ModelDiagramForm::handle_mouse_button(mdc::MouseButton button, bool press, 
       
       _context_menu.clear();
       _context_menu.add_items_from_list(items);
-      _context_menu.set_handler(boost::bind(&CommandUI::activate_command, wb::WBContextUI::get()->get_command_ui(), _1));
+      _context_menu.set_handler([](const std::string &str){ wb::WBContextUI::get()->get_command_ui()->activate_command(str); });
       
       _context_menu.popup_at(NULL, x, y);
     }
@@ -1072,8 +1070,8 @@ void ModelDiagramForm::set_tool(std::string tool)
     }
   }
 
-  if (_owner->get_wb()->tool_changed)
-    _owner->get_wb()->tool_changed(_view);
+  if (_owner->get_wb()->_frontendCallbacks.tool_changed)
+    _owner->get_wb()->_frontendCallbacks.tool_changed(_view);
 }
 
 
@@ -1097,13 +1095,14 @@ void ModelDiagramForm::reset_tool(bool notify)
     _reset_tool(this);
 
   _cursor= "";
-  boost::function<bool ()> f = boost::lambda::constant(false);
-  _handle_button = (boost::bind(f));
-  _handle_motion = (boost::bind(f));
-  _reset_tool = (boost::bind(f));
 
-  if (notify && _owner->get_wb()->tool_changed)
-    _owner->get_wb()->tool_changed(_view);
+  std::function<bool ()> f = []() { return false; };
+  _handle_button = (std::bind(f));
+  _handle_motion = (std::bind(f));
+  _reset_tool = (std::bind(f));
+
+  if (notify && _owner->get_wb()->_frontendCallbacks.tool_changed)
+    _owner->get_wb()->_frontendCallbacks.tool_changed(_view);
 }
 
 
@@ -1190,7 +1189,7 @@ bool ModelDiagramForm::can_paste()
       return false;
     }
     bool result= false;
-    wb->foreach_component(boost::bind(check_if_can_paste, _1, *iter, &result));
+    wb->foreach_component(std::bind(check_if_can_paste, std::placeholders::_1, *iter, &result));
     if (!result)
       return false;
   }
@@ -1250,7 +1249,7 @@ void ModelDiagramForm::cut()
   um->end_undo_group();
   um->set_action_description(strfmt(_("Cut %s"), edit_target_name.c_str()));
 
-  _owner->get_wb()->show_status_text(strfmt(_("%i figure(s) cut."), count));
+  _owner->get_wb()->_frontendCallbacks.show_status_text(strfmt(_("%i figure(s) cut."), count));
 }
 
 
@@ -1278,7 +1277,7 @@ void ModelDiagramForm::copy()
   copy_context.finish();
   clip->changed();
   
-  _owner->get_wb()->show_status_text(strfmt(_("%i object(s) copied."), count));
+  _owner->get_wb()->_frontendCallbacks.show_status_text(strfmt(_("%i object(s) copied."), count));
 }
 
 
@@ -1308,7 +1307,7 @@ void ModelDiagramForm::paste()
 
   _paste_offset+= 20;
   
-  _owner->get_wb()->show_status_text(_("Pasting figures..."));
+  _owner->get_wb()->_frontendCallbacks.show_status_text(_("Pasting figures..."));
   
   grt::CopyContext context;
 
@@ -1339,7 +1338,7 @@ void ModelDiagramForm::paste()
   {    
     // paste the object
     WBComponent *compo= 0;
-    wb->foreach_component(boost::bind(get_component_that_can_paste, _1, *iter, &compo));
+    wb->foreach_component(std::bind(get_component_that_can_paste, std::placeholders::_1, *iter, &compo));
     if (compo)
     {
       if (skip_objects.find((*iter)->id()) == skip_objects.end())
@@ -1355,9 +1354,9 @@ void ModelDiagramForm::paste()
   undo.end(strfmt(_("Paste %s"), get_clipboard()->get_content_description().c_str()));
 
   if (duplicated == 0)
-    _owner->get_wb()->show_status_text(strfmt(_("%i figure(s) pasted."), count));
+    _owner->get_wb()->_frontendCallbacks.show_status_text(strfmt(_("%i figure(s) pasted."), count));
   else
-    _owner->get_wb()->show_status_text(strfmt(_("%i figure(s) pasted, %i duplicated."), count, duplicated));
+    _owner->get_wb()->_frontendCallbacks.show_status_text(strfmt(_("%i figure(s) pasted, %i duplicated."), count, duplicated));
 }
 
 
@@ -1409,7 +1408,7 @@ void ModelDiagramForm::remove_selection(bool deleteSelection)
   um->end_undo_group();
   um->set_action_description(actionDescription);
 
-  _owner->get_wb()->show_status_text(statusText);
+  _owner->get_wb()->_frontendCallbacks.show_status_text(statusText);
 }
 
 void ModelDiagramForm::delete_selection()
@@ -1843,7 +1842,7 @@ void ModelDiagramForm::set_inline_editor_context(InlineEditContext *context)
   _inline_edit_context= context;
   
   scoped_connect(_inline_edit_context->signal_edit_finished(),
-    boost::bind(forward_edit_finished, _1, _2, this));
+    std::bind(forward_edit_finished, std::placeholders::_1, std::placeholders::_2, this));
 }
 
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 
 #include "mdc_icon_text.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 enum ButtonType {
   ActionButton,
@@ -67,7 +67,7 @@ protected:
 };
   
   
-END_MDC_DECLS
+} // end of mdc namespace 
 
 
 #endif /* __MDC_BUTTON_H__ */

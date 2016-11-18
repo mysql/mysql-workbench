@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -394,7 +394,7 @@ xmlNodePtr internal::Serializer::serialize_object(const ObjectRef &object, xmlNo
 
   MetaClass *stru= object->get_metaclass();
   
-  stru->foreach_member(boost::bind(&Serializer::serialize_member, this, _1, object, node));
+  stru->foreach_member(std::bind(&Serializer::serialize_member, this, std::placeholders::_1, object, node));
   
   return node;
 }
