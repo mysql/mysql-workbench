@@ -92,7 +92,7 @@ public:
   virtual bec::IconId get_field_icon(const bec::NodeId &node, ColumnId column, bec::IconSize size);
 private:
   class IconForVal;
-  boost::scoped_ptr<IconForVal> _icon_for_val;
+  std::unique_ptr<IconForVal> _icon_for_val;
 public:
   virtual bool set_field(const bec::NodeId &node, ColumnId column, const sqlite::variant_t &value);
   virtual bool set_field(const bec::NodeId &node, ColumnId column, const std::string &value);
