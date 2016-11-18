@@ -23,7 +23,7 @@
  * Implementation some miscellaneous stuff needed in mforms.
  */
 #include <cairo/cairo.h>
-
+#include <functional>
 #include "base/geometry.h"
 #include "mforms/base.h"
 
