@@ -101,53 +101,53 @@ void WBComponentBasic::setup_canvas_tool(ModelDiagramForm *view, const std::stri
   if (tool == WB_TOOL_SELECT)
   {
     view->set_cursor("select");
-    _wb->show_status_text("");
+    _wb->_frontendCallbacks.show_status_text("");
   }
   else if (tool == WB_TOOL_HAND)
   {
     data= new HandToolContext;
     view->set_cursor("hand");
-    _wb->show_status_text(_("Drag the canvas to move it around."));
+    _wb->_frontendCallbacks.show_status_text(_("Drag the canvas to move it around."));
   }
   else if (tool == WB_TOOL_DELETE)
   {
     view->set_cursor("rubber");
-    _wb->show_status_text(_("Click the object to delete."));
+    _wb->_frontendCallbacks.show_status_text(_("Click the object to delete."));
   }
   else if (tool == WB_TOOL_LAYER)
   {
     view->set_cursor("layer");
-    _wb->show_status_text(_("Select an area for the new layer."));
+    _wb->_frontendCallbacks.show_status_text(_("Select an area for the new layer."));
   }
   else if (tool == WB_TOOL_NOTE)
   {
     view->set_cursor("note");
-    _wb->show_status_text(_("Select an area for a text object."));
+    _wb->_frontendCallbacks.show_status_text(_("Select an area for a text object."));
   }
   else if (tool == WB_TOOL_IMAGE)
   {
     view->set_cursor("image");
-    _wb->show_status_text(_("Select a location for the image object."));
+    _wb->_frontendCallbacks.show_status_text(_("Select a location for the image object."));
   }
   else if (tool == WB_TOOL_ZOOM_IN)
   {
     view->set_cursor("zoom_in");
-    _wb->show_status_text(_("Left-click anywhere on the diagram to zoom in."));
+    _wb->_frontendCallbacks.show_status_text(_("Left-click anywhere on the diagram to zoom in."));
   }
   else if (tool == WB_TOOL_ZOOM_OUT)
   {
     view->set_cursor("zoom_out");
-    _wb->show_status_text(_("Left-click anywhere on the diagram to zoom out."));
+    _wb->_frontendCallbacks.show_status_text(_("Left-click anywhere on the diagram to zoom out."));
   }
   else
   {
-    _wb->show_status_text("Invalid tool "+tool);
+    _wb->_frontendCallbacks.show_status_text("Invalid tool "+tool);
     return;
   }
 
-  view->set_button_callback(boost::bind(&WBComponentBasic::handle_button_event, this, _1, _2, _3, _4, _5, data));
-  view->set_motion_callback(boost::bind(&WBComponentBasic::handle_motion_event, this, _1, _2, _3, data));
-  view->set_reset_tool_callback(boost::bind(&WBComponentBasic::reset_tool, this, _1, data));
+  view->set_button_callback(std::bind(&WBComponentBasic::handle_button_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, data));
+  view->set_motion_callback(std::bind(&WBComponentBasic::handle_motion_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, data));
+  view->set_reset_tool_callback(std::bind(&WBComponentBasic::reset_tool, this, std::placeholders::_1, data));
 }
 
 
@@ -238,7 +238,7 @@ grt::ValueRef WBComponentBasic::place_layer(ModelDiagramForm *form, const Rect &
 
     undo.end(_("Place New Layer"));
   
-    _wb->show_status_text(_("Created new layer."));
+    _wb->_frontendCallbacks.show_status_text(_("Created new layer."));
     return layer;
   }
   catch (std::exception &exc)
@@ -310,7 +310,7 @@ void WBComponentBasic::delete_object(ModelDiagramForm *view, const Point &pos)
   if (object.is_valid())
   {
     if (_wb->get_model_context()->remove_figure(object))
-      _wb->show_status_text(strfmt(_("Removed %s"), object.get_metaclass()->get_attribute("caption").c_str()));
+      _wb->_frontendCallbacks.show_status_text(strfmt(_("Removed %s"), object.get_metaclass()->get_attribute("caption").c_str()));
   }
 }
 
@@ -406,7 +406,7 @@ model_ObjectRef WBComponentBasic::paste_object(ModelDiagramForm *view, const grt
       
       // paste the object
       WBComponent *compo= 0;
-      _wb->foreach_component(boost::bind(get_component_that_can_paste, _1, figure, &compo));
+      _wb->foreach_component(std::bind(get_component_that_can_paste, std::placeholders::_1, figure, &compo));
       if (compo)
       {
         model_ObjectRef tmp = compo->paste_object(view, figure, copy_context);
@@ -490,7 +490,7 @@ bool WBComponentBasic::handle_button_event(ModelDiagramForm *view, mdc::MouseBut
 
       if (rect.width() < 5 || rect.height() < 5)
       {
-        _wb->show_status_text(_("Please select a larger area."));
+        _wb->_frontendCallbacks.show_status_text(_("Please select a larger area."));
       }
       else
       {
@@ -515,7 +515,7 @@ bool WBComponentBasic::handle_button_event(ModelDiagramForm *view, mdc::MouseBut
 
       if (rect.width() < 5 || rect.height() < 5)
       {
-        _wb->show_status_text(_("Please select a larger area."));
+        _wb->_frontendCallbacks.show_status_text(_("Please select a larger area."));
       }
       else*/
       if (press) {
@@ -540,7 +540,7 @@ bool WBComponentBasic::handle_button_event(ModelDiagramForm *view, mdc::MouseBut
     if (press)
     {
       workbench_model_ImageFigureRef image;
-      std::string filename= _wb->show_file_dialog("open", _("Place Image"), "PNG Image Files (*.png)|*.png");
+      std::string filename= _wb->_frontendCallbacks.show_file_dialog("open", _("Place Image"), "PNG Image Files (*.png)|*.png");
 
       if (!filename.empty())
       {

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #pragma once
 
 #include <mforms/view.h>
-#include <boost/cstdint.hpp>
 
 /**
  * Implementation of a control class for a treeview control based on node objects.
@@ -169,7 +168,7 @@ namespace mforms {
 
     virtual void set_string(int column, const std::string &value) = 0;
     virtual void set_int(int column, int value) = 0;
-    virtual void set_long(int column, boost::int64_t value) = 0;
+    virtual void set_long(int column, std::int64_t value) = 0;
     virtual void set_bool(int column, bool value) = 0;
     virtual void set_float(int column, double value) = 0;
 
@@ -177,7 +176,7 @@ namespace mforms {
 
     virtual std::string get_string(int column) const = 0;
     virtual int get_int(int column) const = 0;
-    virtual boost::int64_t get_long(int column) const = 0;
+    virtual std::int64_t get_long(int column) const = 0;
     virtual bool get_bool(int column) const = 0;
     virtual double get_float(int column) const = 0;
     
@@ -302,7 +301,7 @@ namespace mforms {
      Callback must return path to an icon if it wants it to be displayed. When the user clicks it,
      the node_activated() handler is called, with a negated, one-based index of the icon index (-1, -2 etc.).
      */
-    void set_row_overlay_handler(const boost::function<std::vector<std::string> (TreeNodeRef)> &overlay_icon_for_node);
+    void set_row_overlay_handler(const std::function<std::vector<std::string> (TreeNodeRef)> &overlay_icon_for_node);
 
     int get_column_count() const { return (int)_column_types.size(); }
     TreeColumnType get_column_type(int column);
@@ -476,7 +475,7 @@ namespace mforms {
     boost::signals2::signal<void (TreeNodeRef, bool)> _signal_expand_toggle;
     std::function<void (TreeNodeRef, int, std::string)> _cell_edited;
     boost::signals2::signal<void (int)> _signal_column_resized;
-    boost::function<std::vector<std::string> (TreeNodeRef)> _overlay_icons_for_node;
+    std::function<std::vector<std::string> (TreeNodeRef)> _overlay_icons_for_node;
     ContextMenu *_context_menu;
     ContextMenu *_header_menu;
     std::vector<TreeColumnType> _column_types;

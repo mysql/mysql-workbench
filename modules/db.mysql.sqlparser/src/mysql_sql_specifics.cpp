@@ -215,7 +215,7 @@ std::string Mysql_sql_specifics::query_connection_id()
 }
 
 
-std::string Mysql_sql_specifics::query_kill_connection(boost::int64_t connection_id)
+std::string Mysql_sql_specifics::query_kill_connection(std::int64_t connection_id)
 {
 #ifdef __GNUC__
   return strfmt("KILL CONNECTION %lli", (long long int)connection_id);
@@ -225,7 +225,7 @@ std::string Mysql_sql_specifics::query_kill_connection(boost::int64_t connection
 }
 
 
-std::string Mysql_sql_specifics::query_kill_query(boost::int64_t connection_id)
+std::string Mysql_sql_specifics::query_kill_query(std::int64_t connection_id)
 {
 #ifdef __GNUC__
   return strfmt("KILL QUERY %lli", (long long int)connection_id);

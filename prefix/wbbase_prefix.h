@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 #include <sys/types.h>
 #include <sys/time.h>

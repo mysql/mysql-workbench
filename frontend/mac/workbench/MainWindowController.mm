@@ -1078,7 +1078,7 @@ void setup_mforms_app(MainWindowController *mwin);
 
 - (BOOL)windowShouldClose:(id)window
 {
-  return wb::WBContextUI::get()->get_wb()->quit_application();
+  return wb::WBContextUI::get()->get_wb()->_frontendCallbacks.quit_application();
 }
 
 //--------------------------------------------------------------------------------------------------

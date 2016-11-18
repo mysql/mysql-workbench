@@ -34,7 +34,7 @@ OutputView::OutputView(WBContext* context)
 
   _splitter.add(&_message_list);
   _splitter.add(&_output_text);
-  Box::scoped_connect(_splitter.signal_position_changed(), boost::bind(&OutputView::splitter_moved, this));
+  Box::scoped_connect(_splitter.signal_position_changed(), std::bind(&OutputView::splitter_moved, this));
   
   _message_list.add_column(mforms::IconStringColumnType, "", 100, false);
   _message_list.add_column(mforms::StringColumnType, "Message", 500, false);
@@ -42,20 +42,20 @@ OutputView::OutputView(WBContext* context)
   _message_list.end_columns();
   
   _storage = bec::GRTManager::get()->get_messages_list();
-  _storage->set_output_handler(boost::bind(&mforms::TextBox::append_text, &_output_text, _1, true));
+  _storage->set_output_handler(std::bind(&mforms::TextBox::append_text, &_output_text, std::placeholders::_1, true));
   
   _messages = _storage->create_list();
   _message_list.set_selection_mode(mforms::TreeSelectMultiple);
   refresh();
   
-  UIForm::scoped_connect(_messages->signal_row_added(),boost::bind(&OutputView::row_added, this));
+  UIForm::scoped_connect(_messages->signal_row_added(),std::bind(&OutputView::row_added, this));
   
   _output_text.set_read_only(true);
   
-  set_on_close(boost::bind(&OutputView::will_close, this));
+  set_on_close(std::bind(&OutputView::will_close, this));
 
-  _context_menu.add_item_with_title(_("Copy selected entries to clipboard"), boost::bind(&OutputView::handle_command, this, "copy"));
-  _context_menu.add_item_with_title(_("Clear output"), boost::bind(&OutputView::handle_command, this, "clear"));
+  _context_menu.add_item_with_title(_("Copy selected entries to clipboard"), std::bind(&OutputView::handle_command, this, "copy"));
+  _context_menu.add_item_with_title(_("Clear output"), std::bind(&OutputView::handle_command, this, "clear"));
   _message_list.set_context_menu(&_context_menu);
 }
 
@@ -63,7 +63,7 @@ OutputView::OutputView(WBContext* context)
 
 OutputView::~OutputView()
 {
-  _storage->set_output_handler(boost::function<void (std::string)>());
+  _storage->set_output_handler(std::function<void (std::string)>());
   delete _messages;
   _messages = 0;
 }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ public:
 
 /* actions that doesn't require context node(s) */
 public:
-  typedef boost::function<void ()> ActionSlot;
+  typedef std::function<void ()> ActionSlot;
   void register_action(const std::string &name, const ActionSlot &slot);
   void unregister_action(const std::string &name);
   bool trigger_action(const std::string &name);
@@ -44,7 +44,7 @@ private:
 
 /* actions for single node */
 public:
-  typedef boost::function<void (const bec::NodeId&)> NodeActionSlot;
+  typedef std::function<void (const bec::NodeId&)> NodeActionSlot;
   void register_node_action(const std::string &name, const NodeActionSlot &slot);
   void unregister_node_action(const std::string &name);
   bool trigger_action(const std::string &name, const bec::NodeId &node);
@@ -54,7 +54,7 @@ private:
 
 /* actions for multiple nodes */
 public:
-  typedef boost::function<void (const std::vector<bec::NodeId>&)> NodesActionSlot;
+  typedef std::function<void (const std::vector<bec::NodeId>&)> NodesActionSlot;
   void register_nodes_action(const std::string &name, const NodesActionSlot &slot);
   void unregister_nodes_action(const std::string &name);
   bool trigger_action(const std::string &name, const std::vector<bec::NodeId> &nodes);
@@ -64,7 +64,7 @@ private:
 
 /* actions for multiple row indexes plus column index */
 public:
-  typedef boost::function<void (const std::vector<int>&, int)> RowsColActionSlot;
+  typedef std::function<void (const std::vector<int>&, int)> RowsColActionSlot;
   void register_rows_col_action(const std::string &name, const RowsColActionSlot &slot);
   void unregister_rows_col_action(const std::string &name);
   bool trigger_action(const std::string &name, const std::vector<int> &rows, int column);

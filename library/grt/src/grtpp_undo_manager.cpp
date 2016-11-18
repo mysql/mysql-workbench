@@ -24,7 +24,6 @@
 
 #include <iostream>
 #include <time.h>
-#include <boost/bind.hpp>
 
 #ifdef _WIN32
 #undef max
@@ -84,7 +83,7 @@ static std::string member_for_object_list(const ObjectRef &object, const BaseLis
   MetaClass *meta= object.get_metaclass();
   std::string name;
   
-  meta->foreach_member(boost::bind(&find_member_for_list,_1,(internal::Object*)object.valueptr(), (internal::List*)list.valueptr(),&name));
+  meta->foreach_member(std::bind(&find_member_for_list, std::placeholders::_1, (internal::Object*)object.valueptr(), (internal::List*)list.valueptr(),&name));
   return name;
 }
 
@@ -109,7 +108,7 @@ static std::string member_for_object_dict(const ObjectRef &object, const DictRef
   MetaClass *meta= object.get_metaclass();
   std::string name;
   
-  meta->foreach_member(boost::bind(&find_member_for_dict, _1, object, dict, &name));
+  meta->foreach_member(std::bind(&find_member_for_dict, std::placeholders::_1, object, dict, &name));
   
   return name;
 }
@@ -1103,7 +1102,7 @@ void UndoManager::add_undo(UndoAction *cmd)
 }
 
 
-void UndoManager::add_simple_undo(const boost::function<void ()> &slot)
+void UndoManager::add_simple_undo(const std::function<void ()> &slot)
 {
   add_undo(new SimpleUndoAction(slot));
 }

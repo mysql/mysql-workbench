@@ -236,7 +236,7 @@ void ToolBarItem::search(const std::string& text)
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarItem::set_validator(const boost::function<bool ()> &slot)
+void ToolBarItem::set_validator(const std::function<bool ()> &slot)
 {
   _validate = slot;
   validate();
@@ -244,7 +244,7 @@ void ToolBarItem::set_validator(const boost::function<bool ()> &slot)
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarItem::set_search_handler(const boost::function<void (const std::string&)> &slot)
+void ToolBarItem::set_search_handler(const std::function<void (const std::string&)> &slot)
 {
   _search = slot;
 }

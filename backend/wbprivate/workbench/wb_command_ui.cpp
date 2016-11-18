@@ -39,7 +39,6 @@
 
 #include <mforms/toolbar.h>
 #include <mforms/menubar.h>
-#include <boost/lambda/bind.hpp>
 
 using namespace bec;
 using namespace wb;
@@ -194,7 +193,7 @@ bool CommandUI::validate_command_item(const app_CommandItemRef &item, const wb::
   {
     std::list<std::string> results;
     
-    _wb->foreach_component(boost::bind(add_option_value_to_list, _1, cmd.name, &results));
+    _wb->foreach_component(std::bind(add_option_value_to_list, std::placeholders::_1, cmd.name, &results));
     
     return true;
   }
@@ -432,7 +431,7 @@ std::vector<WBShortcut> CommandUI::get_shortcuts_for_context(const std::string &
   {
     grt::ListRef<app_ShortcutItem> model_items;
 
-    _wb->foreach_component(boost::bind(&CommandUI::append_shortcut_items, this, boost::bind(&WBComponent::get_shortcut_items,_1)
+    _wb->foreach_component(std::bind(&CommandUI::append_shortcut_items, this, std::bind(&WBComponent::get_shortcut_items, std::placeholders::_1)
         , context, &shortcuts));
   }
 
@@ -478,7 +477,7 @@ void CommandUI::add_recent_menu(mforms::MenuItem *parent)
     item = mforms::manage(new mforms::MenuItem(caption));
     item->set_name(strfmt("wb.file.openRecentModel:%li", (long)i+1));
 
-    scoped_connect(item->signal_clicked(), boost::bind(&WBContext::open_recent_document, _wb, (int)i + 1));
+    scoped_connect(item->signal_clicked(), std::bind(&WBContext::open_recent_document, _wb, (int)i + 1));
     parent->add_item(item);
   }
 }
@@ -492,9 +491,9 @@ void CommandUI::add_plugins_menu_items(mforms::MenuItem *parent, const std::stri
   {
     mforms::MenuItem *item = mforms::manage(new mforms::MenuItem((*iter)->caption()));
     item->set_name(std::string("plugin:").append(*(*iter)->name()));
-    item->add_validator(boost::bind(&CommandUI::validate_plugin_command, this, *iter));
+    item->add_validator(std::bind(&CommandUI::validate_plugin_command, this, *iter));
     item->validate();
-    scoped_connect(item->signal_clicked(),boost::bind((void(CommandUI::*)(const std::string&))&CommandUI::activate_command, this, item->get_name()));
+    scoped_connect(item->signal_clicked(),std::bind((void(CommandUI::*)(const std::string&))&CommandUI::activate_command, this, item->get_name()));
     parent->add_item(item);
   }
 }
@@ -552,7 +551,7 @@ void CommandUI::add_scripts_menu(mforms::MenuItem *parent)
     std::sort(files.begin(), files.end());
 
     for (std::vector<std::string>::const_iterator f = files.begin(); f != files.end(); ++f)
-      parent->add_item_with_title(base::basename(*f), boost::bind(&WBContext::run_script_file, _wb, *f));
+      parent->add_item_with_title(base::basename(*f), std::bind(&WBContext::run_script_file, _wb, *f));
   }
   catch (...)
   {
@@ -572,7 +571,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
     std::set<std::string> added_menu_items;
 
     grt::ListRef<app_MenuItem> plist(menu->subItems());
-    boost::function<void (std::string)> activate_slot = boost::bind(&CommandUI::activate_command, this, _1);
+    auto activate_slot = [this](const std::string &str) { activate_command(str); };
 
     for (size_t c= plist.count(), i= 0; i < c; i++)
     {
@@ -652,7 +651,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         std::string caption = mitem->caption();
 
         bool enabled = true;
-        boost::function<bool ()> validator;
+        std::function<bool ()> validator;
         if (cmd.type == "plugin")
         {
           app_PluginRef plugin(_wb->get_plugin_manager()->get_plugin(cmd.name));
@@ -675,7 +674,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
 #endif
           }
           else
-            validator = boost::bind(&CommandUI::validate_plugin_command, this, plugin);
+            validator = std::bind(&CommandUI::validate_plugin_command, this, plugin);
         }
         else if (cmd.type == "call")
         {
@@ -719,7 +718,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         item->set_name(cmd.args.empty() ? cmd.name : cmd.name+":"+cmd.args);
         if (!mitem->shortcut().empty())
           item->set_shortcut(mitem->shortcut());
-        scoped_connect(item->signal_clicked(),boost::bind(activate_slot, mitem->command()));
+        scoped_connect(item->signal_clicked(),std::bind(activate_slot, mitem->command()));
         //update_item_state(mitem, cmd, item);
         if (!enabled)
           item->set_enabled(false);
@@ -752,7 +751,7 @@ static void connect_validate_to_signal(boost::signals2::signal<void ()> &validat
 {
   for (std::vector<mforms::MenuItem*>::iterator i = items.begin(); i != items.end(); ++i)
   {
-    (*i)->scoped_connect(&validate_edit_menu_items,boost::bind(&mforms::MenuItem::validate, *i));
+    (*i)->scoped_connect(&validate_edit_menu_items,std::bind(&mforms::MenuItem::validate, *i));
     connect_validate_to_signal(validate_edit_menu_items, (*i)->get_subitems());
   }
 }
@@ -775,7 +774,7 @@ mforms::MenuBar *CommandUI::create_menubar_for_context(const std::string &contex
 {
   mforms::MenuBar *menubar = new mforms::MenuBar();
  
-  menubar->signal_will_show()->connect(boost::bind(&CommandUI::menu_will_show, this, _1));
+  menubar->signal_will_show()->connect(std::bind(&CommandUI::menu_will_show, this, std::placeholders::_1));
   
   grt::ListRef<app_MenuItem> main_menu(grt::ListRef<app_MenuItem>::cast_from(grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(), "data/main_menu.xml"))));
 
@@ -819,10 +818,10 @@ mforms::MenuBar *CommandUI::create_menubar_for_context(const std::string &contex
 
 mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file)
 {
-  return create_toolbar(toolbar_file, boost::bind(&CommandUI::activate_command, this, _1));
+  return create_toolbar(toolbar_file, [this](const std::string &str) { activate_command(str); });
 }
 
-mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, const boost::function<void (std::string)> &activate_slot)
+mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, const std::function<void (std::string)> &activate_slot)
 {
   app_ToolbarRef toolbar(app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(bec::GRTManager::get()->get_data_file_path(toolbar_file))));
   
@@ -864,7 +863,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, cons
       std::string s = IconManager::get_instance()->get_icon_path(titem->icon());
       tbitem->set_icon(s);
       
-      scoped_connect(tbitem->signal_activated(),boost::bind(activate_slot, titem->command()));
+      scoped_connect(tbitem->signal_activated(),std::bind(activate_slot, titem->command()));
     }
     else if (titem->itemType() == "toggle")
     {
@@ -877,7 +876,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, cons
         s = IconManager::get_instance()->get_icon_path(titem->altIcon());
       tbitem->set_alt_icon(s);
       
-      scoped_connect(tbitem->signal_activated(),boost::bind(activate_slot, titem->command()));
+      scoped_connect(tbitem->signal_activated(),std::bind(activate_slot, titem->command()));
     }
     else if (titem->itemType() == "segmentedToggle")
     {
@@ -887,7 +886,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, cons
       if (strlen(titem->altIcon().c_str()) > 0)
         tbitem->set_alt_icon(IconManager::get_instance()->get_icon_path(titem->altIcon()));
       tbitem->set_checked(titem->initialState() != 0);
-      tbitem->signal_activated()->connect(boost::bind(activate_slot, titem->command()));
+      tbitem->signal_activated()->connect(std::bind(activate_slot, titem->command()));
       tbar->add_item(tbitem);
       continue;
     }
@@ -904,7 +903,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, cons
       tbitem = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
       tbitem->set_name(titem->name());
 
-      scoped_connect(tbitem->signal_activated(),boost::bind(activate_slot, titem->command()));
+      scoped_connect(tbitem->signal_activated(),std::bind(activate_slot, titem->command()));
     }
     else if (titem->itemType() == "imagebox")
     {
@@ -917,7 +916,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, cons
     {
       tbitem = mforms::manage(new mforms::ToolBarItem(mforms::SearchFieldItem));
 
-      scoped_connect(tbitem->signal_activated(),boost::bind(activate_slot, titem->command()));
+      scoped_connect(tbitem->signal_activated(),std::bind(activate_slot, titem->command()));
     }
     else if (titem->itemType() == "expander")
     {
@@ -1017,10 +1016,10 @@ void CommandUI::add_frontend_commands(const std::list<std::string> &commands)
     if (iter->compare("diagram_size")==0
         || iter->compare("wb.page_setup")==0)
       add_builtin_command(*iter, 
-        boost::bind(_wb->perform_command, *iter),
-        boost::bind(has_active_view, _wb));
+        std::bind(_wb->_frontendCallbacks.perform_command, *iter),
+        std::bind(has_active_view, _wb));
     else
-      add_builtin_command(*iter, boost::bind(_wb->perform_command, *iter));
+      add_builtin_command(*iter, std::bind(_wb->_frontendCallbacks.perform_command, *iter));
   }
 }
 
@@ -1045,8 +1044,8 @@ void CommandUI::remove_builtin_command(const std::string &name)
 }
 
 void CommandUI::add_builtin_command(const std::string &name, 
-                         const boost::function<void ()> &slot,
-                         const boost::function<bool()> &validate)
+                         const std::function<void ()> &slot,
+                         const std::function<bool()> &validate)
 {
   BuiltinCommand cmd;
 
@@ -1203,8 +1202,8 @@ void CommandUI::revalidate_edit_menu_items()
   if (mforms::Utilities::in_main_thread())
     _validate_edit_menu_items();
   else
-    bec::GRTManager::get()->run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, this));
-  //mforms::Utilities::perform_from_main_thread((boost::bind(&CommandUI::revalidate_edit_menu_items, this), (void*)0));
+    bec::GRTManager::get()->run_once_when_idle(std::bind(&CommandUI::revalidate_edit_menu_items, this));
+  //mforms::Utilities::perform_from_main_thread((std::bind(&CommandUI::revalidate_edit_menu_items, this), (void*)0));
 
   // NOTE : using perform_from_main_thread causes a _grtm reference on the BaseEditor to to get lost in the process, 
   //        this causes the application to crash while attempting to create AutoUndoUpdate objects.

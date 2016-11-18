@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ namespace mforms {
     FileChooserType _type;
     std::string _extensions;
     std::string _default_extension;
-    boost::function<void ()> _on_validate;
+    std::function<void ()> _on_validate;
     boost::signals2::scoped_connection _browse_connection; // The connection created when connecting the browse callback.
     bool _show_hidden;
   protected:
@@ -55,11 +55,11 @@ namespace mforms {
     ~FsObjectSelector();
     
     void initialize(const std::string& initial_path, FileChooserType type, const std::string& extensions,
-                    bool show_hidden = false, boost::function<void ()> on_validate= boost::function<void ()>());
+                    bool show_hidden = false, std::function<void ()> on_validate= std::function<void ()>());
     void set_filename(const std::string &path);
     std::string get_filename();
     void set_enabled(bool value);
-    void set_browse_callback(boost::function<void ()> browse_callback);
+    void set_browse_callback(std::function<void ()> browse_callback);
 
     TextEntry *get_entry() const { return _edit; }
     

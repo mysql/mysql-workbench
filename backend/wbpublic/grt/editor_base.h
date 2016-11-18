@@ -94,7 +94,7 @@ namespace bec {
 
     void add_listeners(const grt::Ref<GrtObject> &object);
 
-    void run_from_grt(const boost::function<void ()> &slot);
+    void run_from_grt(const std::function<void ()> &slot);
 
   private:
     friend class AutoUndoEdit;
@@ -132,9 +132,9 @@ namespace bec {
       if (group)
       {
         editor->scoped_connect(grt::GRT::get()->get_undo_manager()->
-          signal_undo(),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+          signal_undo(),std::bind(&AutoUndoEdit::undo_applied, std::placeholders::_1, group, editor));
         editor->scoped_connect(grt::GRT::get()->get_undo_manager()->
-          signal_redo(),boost::bind(&AutoUndoEdit::undo_applied,_1, group, editor));
+          signal_redo(),std::bind(&AutoUndoEdit::undo_applied, std::placeholders::_1, group, editor));
 
       }
     }
@@ -145,9 +145,9 @@ namespace bec {
       if (group)
       {
         editor->scoped_connect((grt::GRT::get()->get_undo_manager()->
-          signal_undo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+          signal_undo()),std::bind(&AutoUndoEdit::undo_applied, std::placeholders::_1, group, editor));
         editor->scoped_connect((grt::GRT::get()->get_undo_manager()->
-          signal_redo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+          signal_redo()),std::bind(&AutoUndoEdit::undo_applied, std::placeholders::_1, group, editor));
 
       }
     }

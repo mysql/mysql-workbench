@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +38,7 @@ using namespace base;
 
 void ValueInspectorBE::monitor_object_changes(const grt::ObjectRef& obj)
 {
-  _changed_conn = obj->signal_changed()->connect(boost::bind(&ValueInspectorBE::changed_slot, this, _1, _2));
+  _changed_conn = obj->signal_changed()->connect(std::bind(&ValueInspectorBE::changed_slot, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ public:
   {
     MetaClass *gstruct(object.get_metaclass());
 
-    gstruct->foreach_member(boost::bind(&ObjectWrapper::setup_member, this, _1, object));
+    gstruct->foreach_member(std::bind(&ObjectWrapper::setup_member, this, std::placeholders::_1, object));
   }
 
   //------------------------------------------------------------------------------------------------
@@ -978,7 +978,7 @@ public:
 
 			MetaClass *meta= _list[i].get_metaclass();
 
-			meta->foreach_member(boost::bind(&GRTObjectListValueInspectorBE::refresh_member, this, _1, &keys, meta));
+			meta->foreach_member(std::bind(&GRTObjectListValueInspectorBE::refresh_member, this, std::placeholders::_1, &keys, meta));
 		}
 
 		_items.clear();

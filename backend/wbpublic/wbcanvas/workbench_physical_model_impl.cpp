@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,10 +35,10 @@ workbench_physical_Model::ImplData::ImplData(workbench_physical_Model *self)
   _relationship_notation= PRCrowFoofnotation;
   _figure_notation= PFWorkbenchNotation;
   
-  scoped_connect(self->signal_changed(),boost::bind(&ImplData::member_changed_comm, this, _1, _2));
+  scoped_connect(self->signal_changed(),std::bind(&ImplData::member_changed_comm, this, std::placeholders::_1, std::placeholders::_2));
   
-  scoped_connect(self->signal_list_changed(),boost::bind(&ImplData::list_changed, this, _1, _2, _3));
-  scoped_connect(self->signal_dict_changed(),boost::bind(&ImplData::dict_changed, this, _1, _2, _3));
+  scoped_connect(self->signal_list_changed(),std::bind(&ImplData::list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+  scoped_connect(self->signal_dict_changed(),std::bind(&ImplData::dict_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");
   
   if (self->tags().count() > 0) g_warning("tagcount in model starts > 0");
@@ -48,8 +48,8 @@ void workbench_physical_Model::ImplData::handle_grt_notification(const std::stri
 {
 //  if (name == "GRNPreferencesDidClose" && info.get_int("saved") == 1)
   {
-//    run_later(boost::bind(&workbench_physical_Model::ImplData::reset_figures, this));
-//    run_later(boost::bind(&workbench_physical_Model::ImplData::reset_connections, this));
+//    run_later(std::bind(&workbench_physical_Model::ImplData::reset_figures, this));
+//    run_later(std::bind(&workbench_physical_Model::ImplData::reset_connections, this));
   }
 }
 
@@ -75,7 +75,7 @@ void workbench_physical_Model::ImplData::member_changed_comm(const std::string &
     if (_relationship_notation != rnot)
     {
       _relationship_notation= rnot;
-      run_later(boost::bind(&workbench_physical_Model::ImplData::reset_connections, this));
+      run_later(std::bind(&workbench_physical_Model::ImplData::reset_connections, this));
     }
   }
   else if (name == "figureNotation")
@@ -91,8 +91,8 @@ void workbench_physical_Model::ImplData::member_changed_comm(const std::string &
     if (_figure_notation != fnot)
     {
       _figure_notation= fnot;
-      run_later(boost::bind(&workbench_physical_Model::ImplData::reset_figures, this));
-      run_later(boost::bind(&workbench_physical_Model::ImplData::reset_connections, this));  /* needed to restore the connection attachments */ 
+      run_later(std::bind(&workbench_physical_Model::ImplData::reset_figures, this));
+      run_later(std::bind(&workbench_physical_Model::ImplData::reset_connections, this));  /* needed to restore the connection attachments */ 
     }
   }
 }
@@ -312,7 +312,7 @@ void workbench_physical_Model::ImplData::list_changed(grt::internal::OwnedList *
       
       // monitor changes to list of objects tagged
       _tag_connections[tag.id()]=
-          tag->signal_list_changed()->connect(boost::bind(&ImplData::tag_list_changed, this, _1, _2, _3, tag));
+          tag->signal_list_changed()->connect(std::bind(&ImplData::tag_list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, tag));
     }
     else
     {
@@ -334,7 +334,7 @@ void workbench_physical_Model::ImplData::dict_changed(grt::internal::OwnedDict *
       || g_str_has_prefix(key.c_str(), "workbench.physical.ViewFigure:")
       || g_str_has_prefix(key.c_str(), "workbench.physical.RoutineGroupFigure:"))
   {
-    run_later(boost::bind(&workbench_physical_Model::ImplData::reset_figures, this));
+    run_later(std::bind(&workbench_physical_Model::ImplData::reset_figures, this));
   }
 }
 

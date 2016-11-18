@@ -148,7 +148,7 @@ TEST_FUNCTION(10)
 
   grt::ListRef<model_Connection> tmp(tester->get_pview()->connections());
   
-  tester->flush_until(3, boost::bind(&grt::ListRef<model_Connection>::count, tmp), 1);
+  tester->flush_until(3, std::bind(&grt::ListRef<model_Connection>::count, tmp), 1);
 
   ensure_equals("connection created", tester->get_pview()->connections().count(), 1U);
   tester->wb->close_document();
@@ -188,7 +188,7 @@ TEST_FUNCTION(15)
   ensure("fk created", table->foreignKeys().count()>0);
 
   grt::ListRef<model_Connection> tmp(tester->get_pview()->connections());
-  tester->flush_until(3, boost::bind(&grt::ListRef<model_Connection>::count, tmp), 1);
+  tester->flush_until(3, std::bind(&grt::ListRef<model_Connection>::count, tmp), 1);
 
   ensure_equals("connection created", tester->get_pview()->connections().count(), 1U);
 

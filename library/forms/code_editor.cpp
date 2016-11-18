@@ -337,7 +337,7 @@ CodeEditor::~CodeEditor()
 
 void CodeEditor::setup()
 {
-  scoped_connect(Form::main_form()->signal_deactivated(), boost::bind(&CodeEditor::auto_completion_cancel, this));
+  scoped_connect(Form::main_form()->signal_deactivated(), std::bind(&CodeEditor::auto_completion_cancel, this));
 
   _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_NULL, 0);
   _code_editor_impl->send_editor(this, SCI_STYLERESETDEFAULT, 0, 0); // Reset default style to what it was initially.
@@ -1569,7 +1569,7 @@ void CodeEditor::hide_find_panel()
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::set_show_find_panel_callback(boost::function<void (CodeEditor*, bool)> callback)
+void CodeEditor::set_show_find_panel_callback(std::function<void (CodeEditor*, bool)> callback)
 {
   _show_find_panel = callback;
 }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,7 +79,7 @@ namespace mforms {
     bool _release_on_close;
     bool _active;
 
-    boost::function<bool()> _can_close_slot;
+    std::function<bool()> _can_close_slot;
     boost::signals2::signal<void ()> _closed_signal;
     boost::signals2::signal<void ()> _activated_signal;
     boost::signals2::signal<void ()> _deactivated_signal;
@@ -164,7 +164,7 @@ namespace mforms {
 
      In Python use on_close()
      */
-    void set_on_close(const boost::function<bool ()> &slot) { _can_close_slot = slot; }
+    void set_on_close(const std::function<bool ()> &slot) { _can_close_slot = slot; }
 
     /** Signal sent when the user clicks the close button in the window.
      

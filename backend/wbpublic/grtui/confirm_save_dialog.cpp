@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,7 +50,7 @@ ConfirmSaveDialog::ConfirmSaveDialog(mforms::Form *owner,
     _cancel_button.set_text(("Cancel"));
     discard->set_text(("Discard Changes"));
   
-    scoped_connect(discard->signal_clicked(),boost::bind(&ConfirmSaveDialog::discard_clicked, this));
+    scoped_connect(discard->signal_clicked(),std::bind(&ConfirmSaveDialog::discard_clicked, this));
 #ifdef __APPLE__
     bbox->add(discard, false, true);
     bbox->add_end(&_review_button, false, true);

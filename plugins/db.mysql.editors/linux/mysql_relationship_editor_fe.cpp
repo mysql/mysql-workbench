@@ -86,7 +86,7 @@ DbMySQLRelationshipEditor::DbMySQLRelationshipEditor(grt::Module *m, const grt::
   Gtk::Notebook *editor_window(0);
   xml()->get_widget("mysql_relationship_editor", editor_window);
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRelationshipEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLRelationshipEditor::refresh_form_data, this));
 
   editor_window->reparent(*this);
   editor_window->show(); 
@@ -148,7 +148,7 @@ bool DbMySQLRelationshipEditor::switch_edited_object(const grt::BaseListRef &arg
   
   _be = new RelationshipEditorBE(workbench_physical_ConnectionRef::cast_from(args[0]));
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRelationshipEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLRelationshipEditor::refresh_form_data, this));
 
   _signal_title_changed.emit(_be->get_title());
   do_refresh_form_data();

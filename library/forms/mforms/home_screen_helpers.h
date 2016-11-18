@@ -140,7 +140,7 @@ namespace mforms
     std::string name;
     std::string default_action;
     base::Rect bounds;
-    boost::function <bool (int, int)> default_handler;
+    std::function <bool (int, int)> default_handler;
 
     // ------ Accesibility Customized Methods -----
 

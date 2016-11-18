@@ -241,15 +241,15 @@ void GRTManager::task_error_cb(const std::exception &error, const std::string &t
 
 
 void GRTManager::execute_grt_task(const std::string &title,
-                                  const boost::function<grt::ValueRef ()> &function,
-                                  const boost::function<void (grt::ValueRef)> &finished_cb)
+                                  const std::function<grt::ValueRef ()> &function,
+                                  const std::function<void (grt::ValueRef)> &finished_cb)
 {
   GRTTask::Ref task = GRTTask::create_task(title, _dispatcher, function);
 
   // connect finished_cb provided by caller (after ours)
   task->signal_finished()->connect(finished_cb);
 
-  scoped_connect(task->signal_failed(),boost::bind(&GRTManager::task_error_cb, this, _1, title));
+  scoped_connect(task->signal_failed(), std::bind(&GRTManager::task_error_cb, this, std::placeholders::_1, title));
 
   _dispatcher->add_task(task);
 }
@@ -423,14 +423,14 @@ void GRTManager::perform_idle_tasks()
       // shared refs to be released immediately.. should investigate why is this happening at all
       // how to test: put a bp in ~DbSqlEditorForm() and close the SQL Editor... if it is deleted immediately,
       // it works as expected, if it only gets deleted after opening another editor, then its broken
-      _idle_signals[signal_to_emit].connect(boost::bind(nothing));
+      _idle_signals[signal_to_emit].connect(std::bind(nothing));
       unblock_idle_tasks();
     }
   }
 }
 
 
-boost::signals2::connection GRTManager::run_once_when_idle(const boost::function<void ()> &slot)
+boost::signals2::connection GRTManager::run_once_when_idle(const std::function<void ()> &slot)
 {
   if (!slot)
     throw std::invalid_argument("Adding null slot for idle");
@@ -440,7 +440,7 @@ boost::signals2::connection GRTManager::run_once_when_idle(const boost::function
 }
 
 
-boost::signals2::connection GRTManager::run_once_when_idle(base::trackable *owner, const boost::function<void ()> &slot)
+boost::signals2::connection GRTManager::run_once_when_idle(base::trackable *owner, const std::function<void ()> &slot)
 {
   if (!slot)
     throw std::invalid_argument("Adding null slot for idle");
@@ -464,7 +464,7 @@ void GRTManager::unblock_idle_tasks()
 }
 
 
-GRTManager::Timer::Timer(const boost::function<bool ()> &slot, double interval)
+GRTManager::Timer::Timer(const std::function<bool ()> &slot, double interval)
 {
   this->slot= slot;
   this->interval= interval;
@@ -496,7 +496,7 @@ double GRTManager::Timer::delay_for_next_trigger(const GTimeVal &now)
 }
 
 
-GRTManager::Timer *GRTManager::run_every(const boost::function<bool ()> &slot, double seconds)
+GRTManager::Timer *GRTManager::run_every(const std::function<bool ()> &slot, double seconds)
 {
   Timer *timer= new Timer(slot, seconds);
   GTimeVal now;
@@ -636,7 +636,7 @@ double GRTManager::delay_for_next_timeout()
 }
 
 
-void GRTManager::set_timeout_request_slot(const boost::function<void ()> &slot)
+void GRTManager::set_timeout_request_slot(const std::function<void ()> &slot)
 {
   _timeout_request= slot;
 }
@@ -819,8 +819,8 @@ void GRTManager::scan_modules_grt(const std::list<std::string> &extensions, bool
 }
 
 
-void GRTManager::set_app_option_slots(const boost::function<grt::ValueRef (std::string)> &slot,
-                                      const boost::function<void (std::string, grt::ValueRef)> &set_slot)
+void GRTManager::set_app_option_slots(const std::function<grt::ValueRef (std::string)> &slot,
+                                      const std::function<void (std::string, grt::ValueRef)> &set_slot)
 {
   _get_app_option_slot= slot;
   _set_app_option_slot= set_slot;
@@ -916,7 +916,7 @@ void GRTManager::pop_status_text()
 }
 
 
-void GRTManager::set_status_slot(const boost::function<void (std::string)> &slot)
+void GRTManager::set_status_slot(const std::function<void (std::string)> &slot)
 {
   _status_text_slot= slot;
 }
@@ -993,9 +993,9 @@ bool GRTManager::check_plugin_runnable(const app_PluginRef &plugin, const bec::A
                                        plugin->name().c_str(), searched_key.c_str()));
         _grt->send_output("Debug: Available arguments:\n");
 
-        argpool.dump_keys(boost::bind<void>([this](const std::string &str) {
+        argpool.dump_keys(std::bind<void>([this](const std::string &str) {
           _grt->send_output(str);
-        }, _1));
+        }, std::placeholders::_1));
       }
       return false;
     }

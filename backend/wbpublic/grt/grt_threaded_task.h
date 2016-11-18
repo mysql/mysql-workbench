@@ -71,11 +71,11 @@ private:
   bool _send_task_res_msg;
 
 public:
-  typedef boost::function<grt::StringRef ()> Proc_cb;
-  typedef boost::function<int (int, const std::string&, const std::string&)> Msg_cb;
-  typedef boost::function<int (float, const std::string&)> Progress_cb;
-  typedef boost::function<void ()> Finish_cb;
-  typedef boost::function<void (const std::string&)> Fail_cb;
+  typedef std::function<grt::StringRef ()> Proc_cb;
+  typedef std::function<int (int, const std::string&, const std::string&)> Msg_cb;
+  typedef std::function<int (float, const std::string&)> Progress_cb;
+  typedef std::function<void ()> Finish_cb;
+  typedef std::function<void (const std::string&)> Fail_cb;
 
 public:
   void exec(bool sync= false, Proc_cb proc_cb= Proc_cb());
@@ -106,5 +106,5 @@ private:
   bool _onetime_fail_cb;
 
 public:
-  void execute_in_main_thread(const boost::function<void ()> &function, bool wait, bool force_queue);
+  void execute_in_main_thread(const std::function<void ()> &function, bool wait, bool force_queue);
 };

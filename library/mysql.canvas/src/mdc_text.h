@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@
  * text as well as the actual text figure.
  */
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 /**
  * Determines how text is to be aligned within the figure.
@@ -147,7 +147,7 @@ protected:
 };
 
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 
 #endif /* _MDC_TEXT_H_ */

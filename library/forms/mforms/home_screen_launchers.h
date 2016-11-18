@@ -76,7 +76,7 @@ namespace mforms
     ssize_t _hot_entry;
     ssize_t _active_entry;
 
-    boost::function<bool(int, int)> _accessible_click_handler;
+    std::function<bool(int, int)> _accessible_click_handler;
     base::Rect _use_default_button_rect;
     base::Rect _launcher_heading_rect;
 

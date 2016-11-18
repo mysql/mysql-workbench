@@ -94,7 +94,7 @@ Recordset::Recordset()
 
   task->desc("Recordset task");
   task->send_task_res_msg(false);
-  apply_changes_cb= boost::bind(&Recordset::apply_changes_, this);
+  apply_changes_cb = [this]() { apply_changes_(); };
   register_default_actions();
   reset();
 }
@@ -110,7 +110,7 @@ Recordset::Recordset(GrtThreadedTask::Ref parent_task)
   g_atomic_int_inc(&next_id);
 
   task->send_task_res_msg(false);
-  apply_changes_cb= boost::bind(&Recordset::apply_changes_, this);
+  apply_changes_cb = [this]() { apply_changes_(); };
   register_default_actions();
   reset();
 }
@@ -597,9 +597,9 @@ grt::StringRef Recordset::do_apply_changes(Ptr self_ptr, Recordset_data_storage:
 void Recordset::apply_changes_(Recordset_data_storage::Ptr data_storage_ptr)
 {
   // TODO: not sure we need this function anymore. The SQL IDE form always redirects apply_changes now.
-  task->finish_cb(boost::bind(&Recordset::on_apply_changes_finished, this));
+  task->finish_cb(std::bind(&Recordset::on_apply_changes_finished, this));
   task->exec(true,
-    boost::bind(&Recordset::do_apply_changes, this, weak_ptr_from(this), data_storage_ptr, false));
+    std::bind(&Recordset::do_apply_changes, this, weak_ptr_from(this), data_storage_ptr, false));
 }
 
 
@@ -625,7 +625,7 @@ bool Recordset::apply_changes_and_gather_messages(std::string &messages)
   int error_count = 0;
   GrtThreadedTask::Msg_cb cb(task->msg_cb());
 
-  task->msg_cb(boost::bind(process_task_msg, _1, _2, _3, boost::ref(error_count), boost::ref(messages)));
+  task->msg_cb(std::bind(process_task_msg, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::ref(error_count), std::ref(messages)));
   apply_changes();
   task->msg_cb(cb);
 
@@ -638,7 +638,7 @@ void Recordset::rollback_and_gather_messages(std::string &messages)
   int error_count = 0;
   GrtThreadedTask::Msg_cb cb(task->msg_cb());
   
-  task->msg_cb(boost::bind(process_task_msg, _1, _2, _3, boost::ref(error_count), boost::ref(messages)));
+  task->msg_cb(std::bind(process_task_msg, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::ref(error_count), std::ref(messages)));
   rollback();
   task->msg_cb(cb);
 }
@@ -923,7 +923,7 @@ void Recordset::rebuild_data_index(sqlite::connection *data_swap_db, bool do_cac
     {
       sqlide::QuoteVar qv;
       {
-        qv.escape_string= boost::bind(sqlide::QuoteVar::escape_ansi_sql_string, _1);
+        qv.escape_string = std::bind(sqlide::QuoteVar::escape_ansi_sql_string, std::placeholders::_1);
         qv.store_unknown_as_string= true;
         qv.allow_func_escaping= false;
       }
@@ -1160,7 +1160,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title("Set Field to NULL",
-                                       boost::bind(&Recordset::activate_menu_item, this, "set_to_null", rows, clicked_column),
+                                       std::bind(&Recordset::activate_menu_item, this, "set_to_null", rows, clicked_column),
                                        "set_to_null");
 
     // On Windows we can select individual cells, so it is perfectly ok to allow acting on multiple
@@ -1173,7 +1173,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
   #endif
 
     item = _context_menu->add_item_with_title("Mark Field Value as a Function/Literal",
-                                      boost::bind(&Recordset::activate_menu_item, this, "set_to_function", rows, clicked_column),
+                                      std::bind(&Recordset::activate_menu_item, this, "set_to_function", rows, clicked_column),
                                       "set_to_function");
   #ifdef _WIN32
     item->set_enabled(clicked_column >= 0 && !ro);
@@ -1182,57 +1182,57 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
   #endif
     
     item = _context_menu->add_item_with_title("Delete Row(s)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "delete_row", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "delete_row", rows, clicked_column),
                                               "delete_row");
     item->set_enabled(rows.size() > 0 && !ro);
 
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title("Load Value From File...",
-                                              boost::bind(&Recordset::activate_menu_item, this, "load_from_file", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "load_from_file", rows, clicked_column),
                                               "load_from_file");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
 
     item = _context_menu->add_item_with_title("Save Value To File...",
-                                              boost::bind(&Recordset::activate_menu_item, this, "save_to_file", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "save_to_file", rows, clicked_column),
                                               "save_to_file");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
 
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title("Copy Row",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row", rows, clicked_column),
                                               "copy_row");
     item->set_enabled(rows.size() > 0);
     item = _context_menu->add_item_with_title("Copy Row (with names)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_with_names", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row_with_names", rows, clicked_column),
                                               "copy_row_with_names");
 
     item = _context_menu->add_item_with_title("Copy Row (unquoted)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted", rows, clicked_column),
                                               "copy_row_unquoted");
     item->set_enabled(rows.size() > 0);
     item = _context_menu->add_item_with_title("Copy Row (with names, unquoted)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted_with_names", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted_with_names", rows, clicked_column),
                                               "copy_row_unquoted_with_names");
 
     item = _context_menu->add_item_with_title("Copy Row (tab separated)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_tabsep", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_row_tabsep", rows, clicked_column),
                                               "copy_row_tabsep");
     item->set_enabled(rows.size() > 0);
 
     item = _context_menu->add_item_with_title("Copy Field",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_field", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_field", rows, clicked_column),
                                               "copy_field");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1);
 
     item = _context_menu->add_item_with_title("Copy Field (unquoted)",
-                                              boost::bind(&Recordset::activate_menu_item, this, "copy_field_unquoted", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "copy_field_unquoted", rows, clicked_column),
                                               "copy_field_unquoted");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1);
 
     item = _context_menu->add_item_with_title("Paste Row",
-                                              boost::bind(&Recordset::activate_menu_item, this, "paste_row", rows, clicked_column),
+                                              std::bind(&Recordset::activate_menu_item, this, "paste_row", rows, clicked_column),
                                               "paste_row");
     item->set_enabled(rows.size() <= 1 && !mforms::Utilities::get_clipboard_text().empty() && !ro);
 
@@ -1367,25 +1367,24 @@ void Recordset::activate_menu_item(const std::string &action, const std::vector<
 
 void Recordset::copy_rows_to_clipboard(const std::vector<int> &indeces, std::string sep, bool quoted, bool with_header)
 {
-  ColumnId editable_col_count= get_column_count();
+  ColumnId editable_col_count = get_column_count();
   if (!editable_col_count)
     return;
 
   sqlide::QuoteVar qv;
   {
-    qv.escape_string= boost::bind(base::escape_sql_string, _1, false);
-    qv.store_unknown_as_string= true;
-    qv.allow_func_escaping= true;
+    qv.escape_string = std::bind(base::escape_sql_string, std::placeholders::_1,
+                                 false);
+    qv.store_unknown_as_string = true;
+    qv.allow_func_escaping = true;
   }
 
   Cell cell;
   std::string text;
 
-  if (with_header)
-  {
+  if (with_header) {
     text = "# ";
-    for (ColumnId col= 0; editable_col_count > col; ++col)
-    {
+    for (ColumnId col = 0; editable_col_count > col; ++col) {
       if (col > 0)
         text.append(sep);
       text.append(get_column_caption(col));
@@ -1393,23 +1392,21 @@ void Recordset::copy_rows_to_clipboard(const std::vector<int> &indeces, std::str
     text.append("\n");
   }
 
-  for (auto row : indeces)
-  {
+  for (auto row : indeces) {
     std::string line;
-    for (ColumnId col= 0; editable_col_count > col; ++col)
-    {
+    for (ColumnId col = 0; editable_col_count > col; ++col) {
       bec::NodeId node(row);
       if (!get_cell(cell, node, col, false))
         continue;
       if (col > 0)
-        line+= sep;
+        line += sep;
       if (quoted)
-        line+= boost::apply_visitor(qv, _column_types[col], *cell);
+        line += boost::apply_visitor(qv, _column_types[col], *cell);
       else
-        line+= boost::apply_visitor(_var_to_str, *cell);
+        line += boost::apply_visitor(_var_to_str, *cell);
     }
     if (!line.empty())
-      text+= line+"\n";
+      text += line + "\n";
   }
   mforms::Utilities::set_clipboard_text(text);
 }
@@ -1419,19 +1416,19 @@ void Recordset::copy_field_to_clipboard(int row, ColumnId column, bool quoted)
 {
   sqlide::QuoteVar qv;
   {
-    qv.escape_string= boost::bind(sqlide::QuoteVar::escape_ansi_sql_string, _1);
-    qv.store_unknown_as_string= true;
-    qv.allow_func_escaping= true;
+    qv.escape_string = std::bind(sqlide::QuoteVar::escape_ansi_sql_string,
+                                 std::placeholders::_1);
+    qv.store_unknown_as_string = true;
+    qv.allow_func_escaping = true;
   }
   std::string text;
   bec::NodeId node(row);
   Cell cell;
-  if (get_cell(cell, node, column, false))
-  {
+  if (get_cell(cell, node, column, false)) {
     if (quoted)
-      text= boost::apply_visitor(qv, _column_types[column], *cell);
+      text = boost::apply_visitor(qv, _column_types[column], *cell);
     else
-      text= boost::apply_visitor(_var_to_str, *cell);
+      text = boost::apply_visitor(_var_to_str, *cell);
   }
   mforms::Utilities::set_clipboard_text(text);
 }
@@ -1527,13 +1524,13 @@ void Recordset::rebuild_toolbar()
     if (!_data_storage || _data_storage->reloadable())
     {
       item = add_toolbar_action_item(_toolbar, im, "record_refresh.png", "record_refresh", "Refresh data re-executing the original query");
-      item->signal_activated()->connect(boost::bind(&Recordset::refresh, this));
+      item->signal_activated()->connect(std::bind(&Recordset::refresh, this));
     }
 
     add_toolbar_label_item(_toolbar, "Filter Rows:");
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::SearchFieldItem));
-    item->signal_activated()->connect(boost::bind(&Recordset::search_activated, this, _1));
+    item->signal_activated()->connect(std::bind(&Recordset::search_activated, this, std::placeholders::_1));
     _toolbar->add_item(item);
 
     if (!is_readonly() || _inserts_editor)
@@ -1564,9 +1561,9 @@ void Recordset::rebuild_toolbar()
       _toolbar->add_separator_item();
       add_toolbar_label_item(_toolbar, "Fetch rows:");
       item = add_toolbar_action_item(_toolbar, im, "record_fetch_prev.png", "scroll_rows_frame_backward", "Fetch previous frame of records from the data source");
-      item->signal_activated()->connect(boost::bind(&Recordset::scroll_rows_frame_backward, this));
+      item->signal_activated()->connect(std::bind(&Recordset::scroll_rows_frame_backward, this));
       item = add_toolbar_action_item(_toolbar, im, "record_fetch_next.png", "scroll_rows_frame_forward", "Fetch next frame of records from the data source");
-      item->signal_activated()->connect(boost::bind(&Recordset::scroll_rows_frame_forward, this));
+      item->signal_activated()->connect(std::bind(&Recordset::scroll_rows_frame_forward, this));
     }
 
     if (_inserts_editor/* && !is_readonly()*/)
@@ -1574,9 +1571,9 @@ void Recordset::rebuild_toolbar()
       _toolbar->add_separator_item();
       add_toolbar_label_item(_toolbar, "Apply changes:");
       item = add_toolbar_action_item(_toolbar, im, "record_save", "Apply changes to data");
-      item->signal_activated()->connect(boost::bind(&Recordset::apply_changes, this));
+      item->signal_activated()->connect(std::bind(&Recordset::apply_changes, this));
       item = add_toolbar_action_item(_toolbar, im, "record_discard", "Discard changes to data");
-      item->signal_activated()->connect(boost::bind(&Recordset::rollback, this));
+      item->signal_activated()->connect(std::bind(&Recordset::rollback, this));
     }
   }
 }
@@ -1595,7 +1592,7 @@ mforms::ToolBar *Recordset::get_toolbar()
 
 void Recordset::apply_changes()
 {
-  if (!flush_ui_changes_cb.empty())
+  if (flush_ui_changes_cb)
     flush_ui_changes_cb();
 
   apply_changes_cb();
@@ -1616,19 +1613,19 @@ ActionList & Recordset::action_list()
 void Recordset::register_default_actions()
 {
   _action_list.register_action("record_sort_reset",
-    boost::bind(&Recordset::sort_by, this, 0, 0, false));
+    std::bind(&Recordset::sort_by, this, 0, 0, false));
 
   _action_list.register_action("scroll_rows_frame_forward",
-    boost::bind(&Recordset::scroll_rows_frame_forward, this));
+    std::bind(&Recordset::scroll_rows_frame_forward, this));
 
   _action_list.register_action("scroll_rows_frame_backward",
-    boost::bind(&Recordset::scroll_rows_frame_backward, this));
+    std::bind(&Recordset::scroll_rows_frame_backward, this));
 
   _action_list.register_action("record_fetch_all",
-    boost::bind(&Recordset::toggle_limit_rows, this));
+    std::bind(&Recordset::toggle_limit_rows, this));
 
   _action_list.register_action("record_refresh",
-    boost::bind(&Recordset::refresh, this));
+    std::bind(&Recordset::refresh, this));
 }
 
 
@@ -1705,7 +1702,7 @@ void Recordset::open_field_data_editor(RowId row, ColumnId column, const std::st
       return;
     data_editor->set_title(base::strfmt("Edit Data for %s (%s)", _column_names[column].c_str(), logical_type.c_str()));
     data_editor->set_release_on_close(true);
-    data_editor->signal_saved.connect(boost::bind(&Recordset::set_field_value,this, row, column, data_editor));
+    data_editor->signal_saved.connect(std::bind(&Recordset::set_field_value,this, row, column, data_editor));
     data_editor->show(true);
   }
   CATCH_AND_DISPATCH_EXCEPTION(false, "Open field editor")

@@ -218,7 +218,7 @@ private:
   void select_all();
   
   mforms::Button *add_tool_button(const std::string &image,
-                       const boost::function<void ()> &action,
+                       const std::function<void ()> &action,
                        const std::string &tooltip,
                        bool left=true);
   void add_tool_separator();

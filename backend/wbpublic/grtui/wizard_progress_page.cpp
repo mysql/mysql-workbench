@@ -94,7 +94,7 @@ void WizardProgressPage::TaskRow::set_enabled(bool flag)
 
 
 WizardProgressPage::WizardProgressPage(WizardForm *form, const std::string &id, bool has_progressbar)
-: WizardPage(form, id), _log_panel(mforms::TitledBoxPanel), _log_text(mforms::VerticalScrollBar)
+: WizardPage(form, id), _log_panel(mforms::TitledBoxPanel), _log_text(mforms::VerticalScrollBar), _done(false)
 {  
   _progress_bar= 0;
   _progress_bar_box = NULL;
@@ -175,7 +175,7 @@ void WizardProgressPage::clear_tasks()
 }
 
 WizardProgressPage::TaskRow *WizardProgressPage::add_async_task(const std::string &caption,
-                                                                const boost::function<bool ()> &execute,
+                                                                const std::function<bool ()> &execute,
                                                                 const std::string &status_text)
 {
   return add_task(true, caption, execute, status_text);
@@ -184,7 +184,7 @@ WizardProgressPage::TaskRow *WizardProgressPage::add_async_task(const std::strin
 
 
 WizardProgressPage::TaskRow *WizardProgressPage::add_task(const std::string &caption,
-                                                          const boost::function<bool ()> &execute,
+                                                          const std::function<bool ()> &execute,
                                                           const std::string &status_text)
 {
   return add_task(false, caption, execute, status_text);
@@ -193,7 +193,7 @@ WizardProgressPage::TaskRow *WizardProgressPage::add_task(const std::string &cap
 
 WizardProgressPage::TaskRow *WizardProgressPage::add_task(bool async,
                                                           const std::string &caption, 
-                                                          const boost::function<bool ()> &execute,
+                                                          const std::function<bool ()> &execute,
                                                           const std::string &status_text)
 {
   TaskRow *row= new TaskRow;
@@ -371,7 +371,7 @@ void WizardProgressPage::set_status_text(const std::string &text, bool is_error)
 {
   if (!bec::GRTManager::get()->in_main_thread())
   {
-    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&WizardProgressPage::set_status_text, this, text, is_error));
+    bec::GRTManager::get()->run_once_when_idle(this, std::bind(&WizardProgressPage::set_status_text, this, text, is_error));
     return;
   }
 
@@ -387,7 +387,7 @@ void WizardProgressPage::update_progress(float pct, const std::string &caption)
 {
   if (!bec::GRTManager::get()->in_main_thread())
   {
-    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&WizardProgressPage::update_progress, this, pct, caption));
+    bec::GRTManager::get()->run_once_when_idle(this, std::bind(&WizardProgressPage::update_progress, this, pct, caption));
     return;
   }
 
@@ -457,7 +457,7 @@ void WizardProgressPage::extra_clicked()
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef ()> &slot, bool sync)
+void WizardProgressPage::execute_grt_task(const std::function<grt::ValueRef ()> &slot, bool sync)
 {
 
   bec::GRTTask::Ref task= bec::GRTTask::create_task("wizard task", bec::GRTManager::get()->get_dispatcher(), slot);
@@ -466,9 +466,9 @@ void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef ()
   _task_list.insert(std::make_pair(task.get(), task));
 
   // We need to pass task to the signals, so we can remove it from the _task_list and allow shared_ptr to release the task
-  scoped_connect(task->signal_message(),boost::bind(&WizardProgressPage::process_grt_task_message, this, _1));
-  scoped_connect(task->signal_failed(),boost::bind(&WizardProgressPage::process_grt_task_fail, this, _1, task.get()));
-  scoped_connect(task->signal_finished(),boost::bind(&WizardProgressPage::process_grt_task_finish, this, _1, task.get()));
+  scoped_connect(task->signal_message(), std::bind(&WizardProgressPage::process_grt_task_message, this, std::placeholders::_1));
+  scoped_connect(task->signal_failed(), std::bind(&WizardProgressPage::process_grt_task_fail, this, std::placeholders::_1, task.get()));
+  scoped_connect(task->signal_finished(),std::bind(&WizardProgressPage::process_grt_task_finish, this, std::placeholders::_1, task.get()));
 
   if (sync)
     bec::GRTManager::get()->get_dispatcher()->add_task_and_wait(task);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,13 +43,13 @@ std::string Sql_specifics::query_connection_id()
 }
 
 
-std::string Sql_specifics::query_kill_connection(boost::int64_t connection_id)
+std::string Sql_specifics::query_kill_connection(std::int64_t connection_id)
 {
   return "";
 }
 
 
-std::string Sql_specifics::query_kill_query(boost::int64_t connection_id)
+std::string Sql_specifics::query_kill_query(std::int64_t connection_id)
 {
   return "";
 }

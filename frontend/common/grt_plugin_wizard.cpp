@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2011, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -105,9 +105,9 @@ NewPluginDialog::NewPluginDialog(Form* owner, const std::string& template_dir)
     table->add(manage(newDescr(_("Python modules containing functions exported to be used by other scripts, modules or plugins in Workbench."))),
                1, 2, 3, 4, HExpandFlag|HFillFlag);
 
-    scoped_connect(_python_script.signal_clicked(),boost::bind(&NewPluginDialog::changed_type, this));
-    scoped_connect(_python_module.signal_clicked(),boost::bind(&NewPluginDialog::changed_type, this));
-    scoped_connect(_python_plugin.signal_clicked(),boost::bind(&NewPluginDialog::changed_type, this));
+    scoped_connect(_python_script.signal_clicked(),std::bind(&NewPluginDialog::changed_type, this));
+    scoped_connect(_python_module.signal_clicked(),std::bind(&NewPluginDialog::changed_type, this));
+    scoped_connect(_python_plugin.signal_clicked(),std::bind(&NewPluginDialog::changed_type, this));
 
     for (std::vector<PluginTemplate>::const_iterator tpl= _plugin_template_list.begin();
             tpl != _plugin_template_list.end(); ++tpl)
@@ -125,7 +125,7 @@ NewPluginDialog::NewPluginDialog(Form* owner, const std::string& template_dir)
     _script_args.set_column_spacing(8);
     _script_args.add(manage(new Label(_("Script File Name:"))), 0, 1, 0, 1, HFillFlag);
     _script_args.add(&_filename, 1, 2, 0, 1, HExpandFlag|HFillFlag);
-    scoped_connect(_filename.signal_changed(),boost::bind(&NewPluginDialog::validate, this));
+    scoped_connect(_filename.signal_changed(),std::bind(&NewPluginDialog::validate, this));
     _script_args.add(manage(newDescr(_("The default location for scripts is in the scripts folder\nof your Workbench configuration folder."))),
                      2, 3, 0, 1, HFillFlag);
     _tab.add_page(&_script_args, "");
@@ -143,13 +143,13 @@ NewPluginDialog::NewPluginDialog(Form* owner, const std::string& template_dir)
 
     _plugin_args.add(manage(new Label(_("Plugin Name:"))), 0, 1, 1, 2, HFillFlag);
     _plugin_args.add(&_plugin_name, 1, 2, 1, 2, HFillFlag|HExpandFlag);
-    scoped_connect(_plugin_name.signal_changed(),boost::bind(&NewPluginDialog::name_changed, this, &_plugin_name));
+    scoped_connect(_plugin_name.signal_changed(),std::bind(&NewPluginDialog::name_changed, this, &_plugin_name));
     _plugin_args.add(manage(newDescr(_("Provide a unique name for the plugin. Use alphanumeric\ncharacters and _ only."))),
                      2, 3, 1, 2, HFillFlag);
 
     _plugin_args.add(manage(new Label(_("File Name:"))), 0, 1, 2, 3, HFillFlag);
     _plugin_args.add(&_plugin_file, 1, 2, 2, 3, HExpandFlag|HFillFlag);
-    scoped_connect(_plugin_file.signal_changed(),boost::bind(&NewPluginDialog::validate, this));
+    scoped_connect(_plugin_file.signal_changed(),std::bind(&NewPluginDialog::validate, this));
     _plugin_args.add(manage(newDescr(_("Name of the plugin file, must be unique and contain only\nalphanumeric chars and _. Specify name only, without a path."))),
                      2, 3, 2, 3, HFillFlag);
 
@@ -167,18 +167,18 @@ NewPluginDialog::NewPluginDialog(Form* owner, const std::string& template_dir)
     _module_args.add(&_module_name, 1, 2, 0, 1, HFillFlag|HExpandFlag);
     _module_args.add(manage(newDescr(_("Provide a name for the module. Use alphanumeric\ncharacters and _ only."))),
                      2, 3, 0, 1, HFillFlag);
-    scoped_connect(_module_name.signal_changed(),boost::bind(&NewPluginDialog::name_changed, this, &_module_name));
+    scoped_connect(_module_name.signal_changed(),std::bind(&NewPluginDialog::name_changed, this, &_module_name));
     _module_args.add(manage(new Label(_("Function Name:"))), 0, 1, 1, 2, HFillFlag);
     _module_args.add(&_function_name, 1, 2, 1, 2, HFillFlag|HExpandFlag);
     _module_args.add(manage(newDescr(_("Provide a name for the module function. Use alphanumeric\ncharacters and _ only."))),
                      2, 3, 1, 2, HFillFlag);
-    scoped_connect(_function_name.signal_changed(),boost::bind(&NewPluginDialog::validate, this));
+    scoped_connect(_function_name.signal_changed(),std::bind(&NewPluginDialog::validate, this));
 
     _module_args.add(manage(new Label(_("File Name:"))), 0, 1, 2, 3, HFillFlag);
     _module_args.add(&_module_file, 1, 2, 2, 3, HExpandFlag|HFillFlag);
     _module_args.add(manage(newDescr(_("Name of the module file, must be unique and contain only\nalphanumeric chars and _. Specify name only, without a path."))),
                      2, 3, 2, 3, HFillFlag);
-    scoped_connect(_module_file.signal_changed(),boost::bind(&NewPluginDialog::validate, this));
+    scoped_connect(_module_file.signal_changed(),std::bind(&NewPluginDialog::validate, this));
 
     _module_name.set_value("mymodule");
     name_changed(&_module_name);

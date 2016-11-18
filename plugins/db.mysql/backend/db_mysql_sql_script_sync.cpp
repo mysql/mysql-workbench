@@ -319,9 +319,9 @@ void DbMySQLScriptSync::start_sync()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL sync", 
     bec::GRTManager::get()->get_dispatcher(),
-    boost::bind(&DbMySQLScriptSync::sync_task, this, grt::StringRef()));
+    std::bind(&DbMySQLScriptSync::sync_task, this, grt::StringRef()));
 
-  scoped_connect(task->signal_finished(),boost::bind(&DbMySQLScriptSync::sync_finished, this, _1));
+  scoped_connect(task->signal_finished(), std::bind(&DbMySQLScriptSync::sync_finished, this, std::placeholders::_1));
   bec::GRTManager::get()->get_dispatcher()->add_task(task);
 }
 
@@ -889,7 +889,7 @@ public:
                   {
                       const ChangeSet* changeset = dynamic_cast<grt::MultiChange*>(attr_change->get_subchange().get())->subchanges();
                       std::for_each(changeset->begin(),changeset->end(),
-                                    boost::bind(&ChangesApplier::apply_change_to_model, this, _1, GrtNamedObjectRef::cast_from(obj)));
+                                    std::bind(&ChangesApplier::apply_change_to_model, this, std::placeholders::_1, GrtNamedObjectRef::cast_from(obj)));
                   }
               }
               build_obj_mapping(old_obj, obj);
@@ -955,12 +955,12 @@ public:
                   if (!model_obj.is_valid())
                       break;
                   ObjectListRef owner_list = ObjectListRef::cast_from(owner->get_member(attr_name));
-                  iterate_object(model_obj, boost::bind(save_id, _1, boost::ref(removed_objects)));
+                  iterate_object(model_obj, std::bind(save_id, std::placeholders::_1, std::ref(removed_objects)));
                   //GCC doesn' like this :(
 /*
                   iterate_object(model_obj,
-                  boost::bind(&std::set<std::string>::insert, boost::ref(removed_objects),
-                  boost::bind(&GrtObjectRef::RefType::id, boost::bind(&GrtObjectRef::content,_1))));
+                  std::bind(&std::set<std::string>::insert, boost::ref(removed_objects),
+                  std::bind(&GrtObjectRef::RefType::id, std::bind(&GrtObjectRef::content,_1))));
 */
                   owner_list.remove_value(model_obj);
               }
@@ -1034,7 +1034,7 @@ public:
       return;//There is no need go deeper inside nodes as all subchanges will be processed with parent's change
     }
 
-    std::for_each(node->get_children_begin(), node->get_children_end(), boost::bind(&ChangesApplier::apply_node_to_model, this, _1));
+    std::for_each(node->get_children_begin(), node->get_children_end(), std::bind(&ChangesApplier::apply_node_to_model, this, std::placeholders::_1));
   }
 
 
@@ -1261,7 +1261,7 @@ public:
               fk->referencedColumns().set(l, new_col);
           }
         } // handle FKs
-        for_each(dead_keys.begin(), dead_keys.end(), boost::bind(&grt::ListRef<db_ForeignKey>::remove, table->foreignKeys(), _1));
+        for_each(dead_keys.begin(), dead_keys.end(), std::bind(&grt::ListRef<db_ForeignKey>::remove, table->foreignKeys(), std::placeholders::_1));
         
         // same thing for indexes
         for (size_t k= 0; k < table->indices().count(); k++)

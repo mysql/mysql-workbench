@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ workbench_physical_RoutineGroupFigure::ImplData::ImplData(workbench_physical_Rou
 {
   _resizable= false;
   
-  scoped_connect(self->signal_changed(),boost::bind(&ImplData::member_changed, this, _1, _2));
+  scoped_connect(self->signal_changed(),std::bind(&ImplData::member_changed, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -92,12 +92,12 @@ void workbench_physical_RoutineGroupFigure::ImplData::set_routine_group(const db
   
   if (self()->routineGroup().is_valid())
   {
-    rgroup->signal_contentChanged()->connect(boost::bind(&workbench_physical_RoutineGroupFigure::ImplData::contents_changed, this));
+    rgroup->signal_contentChanged()->connect(std::bind(&workbench_physical_RoutineGroupFigure::ImplData::contents_changed, this));
   
     if (self()->_owner.is_valid())
       workbench_physical_DiagramRef::cast_from(self()->_owner)->get_data()->add_mapping(rgroup, self());
 
-    _figure_conn= self()->routineGroup()->signal_changed()->connect(boost::bind(&ImplData::routinegroup_member_changed, this, _1, _2));
+    _figure_conn= self()->routineGroup()->signal_changed()->connect(std::bind(&ImplData::routinegroup_member_changed, this, std::placeholders::_1, std::placeholders::_2));
     self()->_name= self()->routineGroup()->name();
   }
 
@@ -170,7 +170,7 @@ bool workbench_physical_RoutineGroupFigure::ImplData::realize()
 
   if (!is_main_thread())
   {
-    run_later(boost::bind(&ImplData::realize, this));
+    run_later(std::bind(&ImplData::realize, this));
     return true;
   }
 

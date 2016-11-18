@@ -224,7 +224,6 @@ namespace wb {
     virtual bool perform_drop(ModelDiagramForm *view, int x, int y, const std::string &type, const std::string &data);
 
   public:
-    boost::function<void (model_ModelRef)> _refresh_catalog_tree_view;
     virtual GrtObjectRef get_object_for_figure(const model_ObjectRef &object);
   private:
     grt::DictRef delete_db_schema(const db_SchemaRef &schema, bool check_empty);

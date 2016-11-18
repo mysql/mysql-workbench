@@ -41,15 +41,15 @@ public:
   virtual std::string task_desc() = 0;
   void exec_task(bool sync= false);
 protected:
-  typedef boost::function<grt::StringRef ()> Task_proc_cb;
+  typedef std::function<grt::StringRef ()> Task_proc_cb;
   virtual void set_task_proc() = 0;
   Task_proc_cb _task_proc_cb;
 
 public:
-  typedef boost::function<int (int, const std::string&)> Task_msg_cb;
-  typedef boost::function<int (float, const std::string&)> Task_progress_cb;
-  typedef boost::function<int ()> Task_finish_cb;
-  typedef boost::function<int (const std::string&)> Task_fail_cb;
+  typedef std::function<int (int, const std::string&)> Task_msg_cb;
+  typedef std::function<int (float, const std::string&)> Task_progress_cb;
+  typedef std::function<int ()> Task_finish_cb;
+  typedef std::function<int (const std::string&)> Task_fail_cb;
 
   void task_msg_cb(Task_msg_cb cb) { _task_msg_cb= cb; }
   void task_progress_cb(Task_progress_cb cb) { _task_progress_cb= cb; }

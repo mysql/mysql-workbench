@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ class DockingPointDelegate : public mforms::DockingPointDelegate
 
 DockingPointDelegate deleg;
 
-boost::function<void (std::string)> mforms::stub::UtilitiesWrapper::open_url_slot;
+std::function<void (std::string)> mforms::stub::UtilitiesWrapper::open_url_slot;
 
 void ::mforms::stub::init(wb::WBOptions *options)
 {

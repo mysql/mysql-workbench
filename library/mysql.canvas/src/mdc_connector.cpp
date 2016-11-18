@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,9 +31,9 @@ Connector::Connector(CanvasItem *owner)
 }
 
 
-void Connector::set_update_handler(const boost::function<void (Connector*)> &update_handler)
+void Connector::set_update_handler(const std::function<void (Connector*)> &update_handler)
 {
-  _update_handler= update_handler;
+  _update_handler = update_handler;
 }
 
 

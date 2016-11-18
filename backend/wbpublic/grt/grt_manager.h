@@ -46,11 +46,11 @@ namespace bec {
 
     struct Timer
     {
-      boost::function<bool ()> slot;
+      std::function<bool ()> slot;
       GTimeVal next_trigger;
       double interval;
 
-      Timer(const boost::function<bool ()> &slot, double interval);
+      Timer(const std::function<bool ()> &slot, double interval);
 
       bool trigger();
 
@@ -108,10 +108,7 @@ namespace bec {
     void push_status_text(const std::string &message);
     void replace_status_text(const std::string &message);
     void pop_status_text();
-    void set_status_slot(const boost::function<void (std::string)> &slot);
-
-    void push_cancel_query_callback(const boost::function<bool ()> &slot);
-    void pop_cancel_query_callback();
+    void set_status_slot(const std::function<void (std::string)> &slot);
   public:
     GRTDispatcher::Ref get_dispatcher() const { return _dispatcher; };
 
@@ -130,8 +127,8 @@ namespace bec {
     ShellBE *get_shell();
 
     void execute_grt_task(const std::string &title,
-                          const boost::function<grt::ValueRef ()> &function,
-                          const boost::function<void (grt::ValueRef)> &finished_cb);
+                          const std::function<grt::ValueRef ()> &function,
+                          const std::function<void (grt::ValueRef)> &finished_cb);
 
 
     // message displaying (as dialogs)
@@ -143,24 +140,24 @@ namespace bec {
     MessageListStorage *get_messages_list();
 
     //
-    void set_app_option_slots(const boost::function<grt::ValueRef (std::string)> &slot,
-                              const boost::function<void (std::string, grt::ValueRef)> &set_slot);
+    void set_app_option_slots(const std::function<grt::ValueRef (std::string)> &slot,
+                              const std::function<void (std::string, grt::ValueRef)> &set_slot);
     grt::ValueRef get_app_option(const std::string &name);
     std::string get_app_option_string(const std::string &name);
     long get_app_option_int(const std::string &name, long default_= 0);
     void set_app_option(const std::string &name, const grt::ValueRef &value);
     
-    boost::signals2::connection run_once_when_idle(const boost::function<void ()> &func);
-    boost::signals2::connection run_once_when_idle(base::trackable *owner, const boost::function<void ()> &func);
+    boost::signals2::connection run_once_when_idle(const std::function<void ()> &func);
+    boost::signals2::connection run_once_when_idle(base::trackable *owner, const std::function<void ()> &func);
 
     void block_idle_tasks();
     void unblock_idle_tasks();
 
-    Timer *run_every(const boost::function<bool ()> &slot, double seconds);
+    Timer *run_every(const std::function<bool ()> &slot, double seconds);
     void cancel_timer(Timer *timer);
     double delay_for_next_timeout();
 
-    void set_timeout_request_slot(const boost::function<void ()> &slot);
+    void set_timeout_request_slot(const std::function<void ()> &slot);
 
     void flush_timers();
 
@@ -183,7 +180,7 @@ namespace bec {
     
     
   public:
-    boost::function<void (bec::ArgumentPool&)> update_plugin_arguments_pool; // set by WBContext
+    std::function<void (bec::ArgumentPool&)> update_plugin_arguments_pool; // set by WBContext
     
     bec::MenuItemList get_plugin_context_menu_items(const std::list<std::string> &groups,
                                                     const bec::ArgumentPool &argument_pool);
@@ -216,11 +213,11 @@ namespace bec {
 
     MessageListStorage *_messages_list;
 
-    boost::function<void (std::string)> _status_text_slot;
+    std::function<void (std::string)> _status_text_slot;
     
     std::list<Timer*> _timers;
     std::set<Timer*> _cancelled_timers;
-    boost::function<void ()> _timeout_request;
+    std::function<void ()> _timeout_request;
 
     // Using two signals to manage the idle tasks
     boost::signals2::signal<void ()> _idle_signals[2];
@@ -242,8 +239,8 @@ namespace bec {
     std::string _user_library_path;
     std::string _user_script_path;
 
-    boost::function<grt::ValueRef (std::string)> _get_app_option_slot;
-    boost::function<void (std::string, grt::ValueRef)> _set_app_option_slot;
+    std::function<grt::ValueRef (std::string)> _get_app_option_slot;
+    std::function<void (std::string, grt::ValueRef)> _set_app_option_slot;
     
     bool _threaded;
     bool _verbose;

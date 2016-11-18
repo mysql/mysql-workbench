@@ -299,8 +299,8 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
   // Register a callback that will call [self refresh] when the edited object is
   // changed from somewhere else in the application.
   // Note: with ARC we need to bridge via void*. Otherwise we'd get a ref cycle.
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
-  mBackEnd->set_partial_refresh_ui_slot(boost::bind(call_partial_refresh, _1, (__bridge void *)self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_partial_refresh_ui_slot(std::bind(call_partial_refresh, std::placeholders::_1, (__bridge void *)self));
 
   [self updateFKPlaceholder];
   {

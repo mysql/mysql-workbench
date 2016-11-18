@@ -106,10 +106,10 @@ void ShellBE::process_line_async(const std::string &line)
 {
   GRTShellTask::Ref task= GRTShellTask::create_task("User shell command", _dispatcher, line);
 
-  task->signal_message().connect(boost::bind(&ShellBE::handle_msg, this, _1));
+  task->signal_message().connect(std::bind(&ShellBE::handle_msg, this, std::placeholders::_1));
   task->set_handle_messages_from_thread();
 
-  task->signal_finished().connect(boost::bind(&ShellBE::shell_finished_cb, this, _1, _2, line));
+  task->signal_finished().connect(std::bind(&ShellBE::shell_finished_cb, this, std::placeholders::_1, std::placeholders::_2, line));
   
   _dispatcher->execute_now(task);
 }
@@ -266,15 +266,15 @@ void ShellBE::reset_history_position()
 }
 
 
-void ShellBE::set_ready_handler(const boost::function<void (const std::string&)> &slot)
+void ShellBE::set_ready_handler(const std::function<void (const std::string&)> &slot)
 {
-  _ready_slot= slot;
+  _ready_slot = slot;
 }
 
 
-void ShellBE::set_output_handler(const boost::function<void (const std::string&)> &slot)
+void ShellBE::set_output_handler(const std::function<void (const std::string&)> &slot)
 {
-  _output_slot= slot;
+  _output_slot = slot;
   if (_output_slot)
     flush_shell_output(); // Write out any pending text we might have.
 }

@@ -67,7 +67,7 @@ FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string
   vbox->add(bbox, false, true);
   bbox->set_spacing(12);
 
-  _run->signal_clicked()->connect(boost::bind(&FileCharsetDialog::run_clicked, this));
+  _run->signal_clicked()->connect(std::bind(&FileCharsetDialog::run_clicked, this));
 
   _ok->set_text(_("OK"));
   _cancel->set_text(_("Cancel"));

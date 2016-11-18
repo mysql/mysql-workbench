@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,7 @@ namespace wbfig {
 class FigureEventHub
 {
 public:
+  virtual ~FigureEventHub() {};
   virtual bool figure_click(const model_ObjectRef &owner, mdc::CanvasItem *target, 
     const base::Point &point, mdc::MouseButton button, mdc::EventState state)= 0;
   virtual bool figure_double_click(const model_ObjectRef &owner, mdc::CanvasItem *target,
@@ -213,8 +214,8 @@ protected:
   void invalidate_min_sizes();
   static void invalidate_min_sizes(mdc::CanvasItem *item);
   
-  typedef boost::function<FigureItem* (mdc::Layer*, FigureEventHub*)> CreateItemSlot;
-  typedef boost::function<void (FigureItem*)> UpdateItemSlot;
+  typedef std::function<FigureItem* (mdc::Layer*, FigureEventHub*)> CreateItemSlot;
+  typedef std::function<void (FigureItem*)> UpdateItemSlot;
 
   virtual ItemList::iterator begin_sync(mdc::Box &box, ItemList &list);
   virtual ItemList::iterator sync_next(mdc::Box &box, ItemList &list,

@@ -4,7 +4,7 @@
 #include "mdc_figure.h"
 #include "mdc_draw_util.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class MYSQLCANVAS_PUBLIC_FUNC RectangleFigure : public Figure {
 public:  
@@ -29,7 +29,7 @@ protected:
 };
 
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 
 #endif /* _MDC_RECTANGLE_H_ */

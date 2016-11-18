@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,11 +26,10 @@ namespace sql
 {
 
 SqlBatchExec::SqlBatchExec()
-:
-_stop_on_error(true)
+: _batch_exec_success_count(0), _batch_exec_err_count(0), _batch_exec_progress_state(0),
+  _batch_exec_progress_inc(0), _stop_on_error(true)
 {
 }
-
 
 long SqlBatchExec::operator()(sql::Statement *stmt, std::list<std::string> &statements)
 {
@@ -52,7 +51,6 @@ long SqlBatchExec::operator()(sql::Statement *stmt, std::list<std::string> &stat
   return _batch_exec_err_count;
 }
 
-
 void SqlBatchExec::exec_sql_script(sql::Statement *stmt, std::list<std::string> &statements, long &batch_exec_err_count)
 {
   _batch_exec_progress_state= 0;
@@ -70,7 +68,7 @@ void SqlBatchExec::exec_sql_script(sql::Statement *stmt, std::list<std::string> 
     catch (SQLException &e)
     {
       ++batch_exec_err_count;
-      if (_error_cb.empty())
+      if (!_error_cb)
         throw;
       else
       {
@@ -87,6 +85,5 @@ void SqlBatchExec::exec_sql_script(sql::Statement *stmt, std::list<std::string> 
       break;
   }
 }
-
 
 } // namespace sql

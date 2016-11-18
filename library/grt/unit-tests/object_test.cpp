@@ -179,7 +179,7 @@ TEST_FUNCTION(11)
   test_BookRef book(grt::Initialized);
 
   int count= 0;
-  book->get_metaclass()->foreach_member(boost::bind(&count_member, _1, &count));
+  book->get_metaclass()->foreach_member(std::bind(&count_member, std::placeholders::_1, &count));
   ensure_equals("book item count", count, 6);
 }
 

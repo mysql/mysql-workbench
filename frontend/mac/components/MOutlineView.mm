@@ -77,7 +77,7 @@ static void refresh_tree(const bec::NodeId &node, int ocount, void *tree)
   {
     bec::TreeModel *model = [self getTreeModel];
     if (model)
-      model->tree_changed_signal()->connect(boost::bind(refresh_tree, _1, _2, (__bridge void *)self));
+      model->tree_changed_signal()->connect(std::bind(refresh_tree, std::placeholders::_1, std::placeholders::_2, (__bridge void *)self));
     mConnectedRefresh= YES;
   }
 }

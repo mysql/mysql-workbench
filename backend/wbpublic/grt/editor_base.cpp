@@ -70,8 +70,8 @@ std::string BaseEditor::get_form_context_name() const
 
 void BaseEditor::add_listeners(const grt::Ref<GrtObject> &object)
 {
-  scoped_connect(object->signal_changed(),boost::bind(&BaseEditor::object_member_changed, this, _1,_2));
-  scoped_connect(object->signal_list_changed(),boost::bind(&BaseEditor::on_object_changed, this));
+  scoped_connect(object->signal_changed(), std::bind(&BaseEditor::object_member_changed, this, std::placeholders::_1, std::placeholders::_2));
+  scoped_connect(object->signal_list_changed(), std::bind(&BaseEditor::on_object_changed, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ void BaseEditor::on_object_changed()
     if (bec::GRTManager::get()->in_main_thread())
       do_ui_refresh();
     else
-      _ui_refresh_conn = bec::GRTManager::get()->run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
+      _ui_refresh_conn = bec::GRTManager::get()->run_once_when_idle(std::bind(&RefreshUI::do_ui_refresh, this));
   }
   else
     _ignored_object_changes_for_ui_refresh++;
@@ -175,15 +175,15 @@ void BaseEditor::on_object_changed()
 
 void BaseEditor::undo_applied()
 {
-  _ui_refresh_conn = bec::GRTManager::get()->run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
+  _ui_refresh_conn = bec::GRTManager::get()->run_once_when_idle(std::bind(&RefreshUI::do_ui_refresh, this));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditor::run_from_grt(const boost::function<void()> &slot)
+void BaseEditor::run_from_grt(const std::function<void()> &slot)
 {
   bec::GRTManager::get()->get_dispatcher()->execute_sync_function("editor action",
-    boost::bind(boost::bind(&base::run_and_return_value<grt::ValueRef>, slot)));
+    std::bind(std::bind(&base::run_and_return_value<grt::ValueRef>, slot)));
 }
 
 //--------------------------------------------------------------------------------------------------

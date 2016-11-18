@@ -47,7 +47,7 @@ WizardSchemaFilterPage::WizardSchemaFilterPage(WizardForm *form, const char *nam
     
   add(&_check_list, true, true);
 
-  scoped_connect(_check_list.signal_changed(),boost::bind(&WizardSchemaFilterPage::validate, this));
+  scoped_connect(_check_list.signal_changed(), std::bind(&WizardSchemaFilterPage::validate, this));
 }
  
 

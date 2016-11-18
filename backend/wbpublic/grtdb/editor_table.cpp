@@ -1607,7 +1607,7 @@ bool IndexColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
       if (i < 0)
         value = grt::StringRef("");
       else
-        value = grt::StringRef(base::to_string(i + 1));
+        value = grt::StringRef(std::to_string(i + 1));
       return true;
     }
   }
@@ -1858,7 +1858,7 @@ bool IndexListBE::set_field(const NodeId &node, ColumnId column, const std::stri
       return true;
     }
     else
-      _owner->add_index(("index" + base::to_string(count())).c_str());
+      _owner->add_index(("index" + std::to_string(count())).c_str());
   }
 
   index= _owner->get_table()->indices().get(node[0]);
@@ -2916,7 +2916,7 @@ TableEditorBE::TableEditorBE(const db_TableRef &table)
   if (table.class_name() == "db.Table")
     throw std::logic_error("table object is abstract");
 
-  scoped_connect(get_catalog()->signal_changed(), boost::bind(&TableEditorBE::catalogChanged, this, _1, _2));
+  scoped_connect(get_catalog()->signal_changed(), std::bind(&TableEditorBE::catalogChanged, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 #ifdef _WIN32
@@ -3083,7 +3083,7 @@ bool TableEditorBE::remove_fk(const NodeId &fk)
   std::string name= fklist[fk[0]]->name();
   // needs to execute from GRT thread so that side-effects get executed properly
   get_table()->removeForeignKey(fklist[fk[0]], false);
-//  run_from_grt(boost::bind(&db_Table::removeForeignKey, get_table().content(), fklist[fk[0]], 0));
+//  run_from_grt(std::bind(&db_Table::removeForeignKey, get_table().content(), fklist[fk[0]], 0));
   //bec::TableHelper::remove_foreign_key(get_table(), fklist[fk[0]], false, get_undo_manager());
   update_change_date();
   undo.end(strfmt(_("Remove Foreign Key '%s'.'%s'"), get_name().c_str(), name.c_str()));
@@ -3310,8 +3310,8 @@ bool TableEditorBE::parse_column_type(const std::string &str, db_ColumnRef &colu
 
     // call _refresh_ui when this parse column type action is undone
     // XXX: everytime we parse a column type 2 new connections are added without removing the old ones!
-    scoped_connect(um->signal_undo(), boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
-    scoped_connect(um->signal_redo(), boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
+    scoped_connect(um->signal_undo(), std::bind(&TableEditorBE::undo_called, this, std::placeholders::_1, um->get_latest_undo_action()));
+    scoped_connect(um->signal_redo(), std::bind(&TableEditorBE::undo_called, this, std::placeholders::_1, um->get_latest_undo_action()));
   }
   return flag;
 }
@@ -3409,7 +3409,7 @@ void TableEditorBE::update_selection_for_menu_extra(mforms::ContextMenu *menu, c
   if (item != NULL && !rows.empty())
   {
     if (item->signal_clicked()->empty())
-      item->signal_clicked()->connect(boost::bind(&TableEditorBE::open_field_editor, this, rows[0], column));
+      item->signal_clicked()->connect(std::bind(&TableEditorBE::open_field_editor, this, rows[0], column));
   }
 }
 
@@ -3426,7 +3426,9 @@ Recordset::Ref TableEditorBE::get_inserts_model()
     _inserts_storage->table(get_table());
 
     _inserts_model = Recordset::create();
-    _inserts_model->update_selection_for_menu_extra = boost::bind(&TableEditorBE::update_selection_for_menu_extra, this, _1, _2, _3);
+    _inserts_model->update_selection_for_menu_extra = std::bind(
+        &TableEditorBE::update_selection_for_menu_extra, this,
+        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     _inserts_model->set_inserts_editor(true);
     _inserts_model->data_storage(_inserts_storage);
     _inserts_model->refresh();
@@ -3439,13 +3441,13 @@ mforms::View *TableEditorBE::get_inserts_panel()
   if (!_inserts_panel)
   {
     mforms::ToolBar *tbar = get_inserts_model()->get_toolbar();
-    tbar->find_item("record_export")->signal_activated()->connect(boost::bind(&TableEditorBE::show_export_wizard, this, (mforms::Form*)0));
+    tbar->find_item("record_export")->signal_activated()->connect(std::bind(&TableEditorBE::show_export_wizard, this, (mforms::Form*)0));
     if (tbar->find_item("record_import"))
-      tbar->find_item("record_import")->signal_activated()->connect(boost::bind(&TableEditorBE::show_import_wizard, this));
+      tbar->find_item("record_import")->signal_activated()->connect(std::bind(&TableEditorBE::show_import_wizard, this));
 
     _inserts_grid = mforms::GridView::create(get_inserts_model());
     restore_inserts_columns();
-    _inserts_grid->signal_column_resized()->connect(boost::bind(&TableEditorBE::inserts_column_resized, this, _1));
+    _inserts_grid->signal_column_resized()->connect(std::bind(&TableEditorBE::inserts_column_resized, this, std::placeholders::_1));
 
     _inserts_panel = mforms::manage(new mforms::Box(false));
     _inserts_panel->add(mforms::manage(tbar), false, true);

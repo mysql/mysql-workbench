@@ -65,7 +65,7 @@ public:
     _be = new LayerEditorBE(workbench_physical_LayerRef::cast_from(args[0]));
     delete old_be;
 
-    _be->set_refresh_ui_slot(sigc::mem_fun(this, &LayerEditor::refresh_form_data));
+    _be->set_refresh_ui_slot(std::bind(&LayerEditor::refresh_form_data, this));
 
     bind_entry_and_be_setter("layer_name", this, &LayerEditor::set_name);
 

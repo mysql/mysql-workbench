@@ -29,8 +29,6 @@
 #include <math.h>
 #include <errno.h>
 #include <string.h>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <fstream>
 #include <boost/locale/encoding_utf.hpp>
 #endif
@@ -885,13 +883,13 @@ BASELIBRARY_PUBLIC_FUNC std::string sizefmt(int64_t s, bool metric)
 std::string strip_text(const std::string &text, bool left, bool right)
 {//TODO sigc rewrite it in std/boost way
   std::locale loc;
-  boost::function<bool (std::string::value_type)> is_space=
-    boost::bind(&std::isspace<std::string::value_type>, _1, loc);
+  std::function<bool (std::string::value_type)> is_space =
+    std::bind(&std::isspace<std::string::value_type>, std::placeholders::_1, loc);
 
   std::string::const_iterator l_edge= !left ? text.begin() :
-    std::find_if(text.begin(), text.end(), boost::bind(std::logical_not<bool>(), boost::bind(is_space,_1)));
+    std::find_if(text.begin(), text.end(), std::bind(std::logical_not<bool>(), std::bind(is_space, std::placeholders::_1)));
   std::string::const_reverse_iterator r_edge= !right ? text.rbegin() :
-    std::find_if(text.rbegin(), text.rend(), boost::bind(std::logical_not<bool>(), boost::bind(is_space,_1)));
+    std::find_if(text.rbegin(), text.rend(), std::bind(std::logical_not<bool>(), std::bind(is_space, std::placeholders::_1)));
 
   return std::string(l_edge, r_edge.base());
 }

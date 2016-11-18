@@ -1061,7 +1061,7 @@ bool grt::compare_list_contents(const ObjectListRef &l1, const ObjectListRef &l2
 }
 
 
-void grt::remove_list_items_matching(ObjectListRef list, const boost::function<bool (grt::ObjectRef)> &matcher)
+void grt::remove_list_items_matching(ObjectListRef list, const std::function<bool (grt::ObjectRef)> &matcher)
 {
   for (size_t i= list.count(); i >= 1; --i)
   {
@@ -1152,7 +1152,7 @@ static void dump_value(const grt::ValueRef &value, int level, bool skip_spacing)
       grt::ObjectRef object(grt::ObjectRef::cast_from(value));
       grt::MetaClass *mc = object.get_metaclass();
       printf("%*s%s", level, "  ", "  {\n");
-      mc->foreach_member(boost::bind(::dump_member, object, _1, level+1));
+      mc->foreach_member(std::bind(::dump_member, object, std::placeholders::_1, level+1));
       printf("%*s%s", level, "  ", "}");
       break;
     }

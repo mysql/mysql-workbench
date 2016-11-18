@@ -47,11 +47,11 @@ public:
   virtual void sql_mode(const std::string &value) {}
 
 public:
-  typedef boost::function<int (int, int, int, const std::string &)> Parse_error_cb;
+  typedef std::function<int (int, int, int, const std::string &)> Parse_error_cb;
   void parse_error_cb(Parse_error_cb cb);
   Parse_error_cb & parse_error_cb();
 public:
-  typedef boost::function<int (int, int, int, int)> Report_sql_statement_border;
+  typedef std::function<int (int, int, int, int)> Report_sql_statement_border;
   Report_sql_statement_border report_sql_statement_border;
 protected:
   void do_report_sql_statement_border(int begin_lineno, int begin_line_pos, int end_lineno, int end_line_pos);

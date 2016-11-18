@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -112,7 +112,7 @@ bool workbench_model_NoteFigure::ImplData::realize()
   
   if (!is_main_thread())
   {
-    run_later(boost::bind(&ImplData::realize, this));
+    run_later(std::bind(&ImplData::realize, this));
     return true;
   }
 

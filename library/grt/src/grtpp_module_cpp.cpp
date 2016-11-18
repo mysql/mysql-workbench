@@ -138,11 +138,11 @@ void CPPModule::register_functions(ModuleFunctorBase *first, ...)
     {
       Function f;
       
-      f.name= func->get_name();
-      f.description= func->get_doc();
-      f.ret_type= func->get_return_type();
-      f.arg_types= func->get_signature();
-      f.call= boost::bind(&ModuleFunctorBase::perform_call, func, _1);
+      f.name = func->get_name();
+      f.description = func->get_doc();
+      f.ret_type = func->get_return_type();
+      f.arg_types = func->get_signature();
+      f.call = std::bind(&ModuleFunctorBase::perform_call, func, std::placeholders::_1);
       
       add_function(f);
 

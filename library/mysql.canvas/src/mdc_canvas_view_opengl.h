@@ -5,7 +5,7 @@
 #include "mdc_canvas_view.h"
 
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 MYSQLCANVAS_PUBLIC_FUNC std::string detect_opengl_version();
 
@@ -29,6 +29,6 @@ public:
   virtual void end_repaint();
 };
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 #endif /* _MDC_CANVAS_VIEW_OPENGL_H_ */

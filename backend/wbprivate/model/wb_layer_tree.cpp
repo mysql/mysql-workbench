@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,10 +40,10 @@ LayerTree::LayerTree(ModelDiagramForm *form, const model_DiagramRef &diagram)
 
   set_selection_mode(mforms::TreeSelectMultiple);
 
-  signal_node_activated()->connect(boost::bind(&LayerTree::activate_node, this, _1, _2));
-  signal_changed()->connect(boost::bind(&LayerTree::selection_changed, this));
+  signal_node_activated()->connect(std::bind(&LayerTree::activate_node, this, std::placeholders::_1, std::placeholders::_2));
+  signal_changed()->connect(std::bind(&LayerTree::selection_changed, this));
 
-  scoped_connect(diagram->signal_list_changed(), boost::bind(&LayerTree::diagram_objects_changed, this, _1, _2, _3));
+  scoped_connect(diagram->signal_list_changed(), std::bind(&LayerTree::diagram_objects_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 
@@ -65,7 +65,7 @@ void LayerTree::add_figure_node(mforms::TreeNodeRef parent, model_FigureRef figu
   fnode->set_tag(figure->id());
   fnode->set_icon_path(0, im->get_icon_path(im->get_icon_id(figure, bec::Icon16)));
 
-  fchild->conn = figure->signal_changed()->connect(boost::bind(&LayerTree::object_changed, this, _1, _2, fnode));
+  fchild->conn = figure->signal_changed()->connect(std::bind(&LayerTree::object_changed, this, std::placeholders::_1, std::placeholders::_2, fnode));
 
   std::string conn_icon = im->get_icon_path("db.Column.fknn.16x16.png");
   std::string id = figure->id();

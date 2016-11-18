@@ -490,7 +490,7 @@ void PropertiesTree::update()
     _inspector_view.populate();
     _inspector_view.update();
 
-    _inspector->set_refresh_ui_slot(sigc::mem_fun(this, &PropertiesTree::refresh));
+    _inspector->set_refresh_ui_slot(std::bind(&PropertiesTree::refresh, this));
   }
 }
 

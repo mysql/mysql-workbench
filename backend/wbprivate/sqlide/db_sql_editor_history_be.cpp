@@ -169,7 +169,7 @@ void DbSqlEditorHistory::EntriesModel::load()
     }
     // files are not read in alpha-order, so we need to sort them before inserting
     std::set<std::string> entries;
-    base::ScopeExitTrigger on_scope_exit(boost::bind(&g_dir_close, dir));
+    base::ScopeExitTrigger on_scope_exit(std::bind(&g_dir_close, dir));
     while (const char *name_= g_dir_read_name(dir))
     {
       // file name is expected in "YYYY-MM-DD" format
