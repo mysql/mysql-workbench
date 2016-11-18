@@ -65,13 +65,13 @@ DBSearchFilterPanel::DBSearchFilterPanel(): Box(false), _search_box(true), _filt
   _limits_box.add(&_limit_table, false, true);
   _limit_table.set_size(80, -1);
   _limit_table.set_value("100");
-  _limit_table.signal_changed()->connect(std::bind(update_numeric, boost::ref(_limit_table)));
+  _limit_table.signal_changed()->connect(std::bind(update_numeric, std::ref(_limit_table)));
   _limit_total_hint.set_text("Max. total matches");
   _limit_total_hint.set_text_align(mforms::MiddleRight);
   _limit_total.set_size(80, -1);
   _limits_box.add(&_limit_total_hint, false, true);
   _limits_box.add(&_limit_total, false, true);
-  _limit_total.signal_changed()->connect(std::bind(update_numeric, boost::ref(_limit_total)));
+  _limit_total.signal_changed()->connect(std::bind(update_numeric, std::ref(_limit_total)));
   _limit_total.set_value("100000");
 
 

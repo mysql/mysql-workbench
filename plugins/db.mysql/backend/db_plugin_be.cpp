@@ -132,19 +132,19 @@ int Db_plugin::check_case_sensitivity_problems()
 {
 
   sql::ConnectionWrapper dbc_conn = _db_conn->get_dbc_connection();
-  boost::scoped_ptr<sql::Statement> statement(dbc_conn->createStatement());
+  std::unique_ptr<sql::Statement> statement(dbc_conn->createStatement());
 
   std::string compile_os;
   int lower_case_table_names = -1;
   {
-    boost::scoped_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT @@version_compile_os"));
+    std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT @@version_compile_os"));
     if (rs->next())
     {
       compile_os = rs->getString(1);
     }
   }
   {
-    boost::scoped_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT @@lower_case_table_names"));
+    std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT @@lower_case_table_names"));
     if (rs->next())
     {
       lower_case_table_names = rs->getInt(1);
