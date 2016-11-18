@@ -63,7 +63,7 @@ _vbox(false), _type_list(mforms::TreeAllowReorderRows|mforms::TreeFlatList), _ar
   _type_list.add_column(mforms::StringColumnType, _("Definition"), 200, false);
   _type_list.add_column(mforms::StringColumnType, _("Flags"), -1, false);
   _type_list.end_columns();
-  scoped_connect(_type_list.signal_changed(),boost::bind(&UserDefinedTypeEditor::selected_row, this));
+  scoped_connect(_type_list.signal_changed(),std::bind(&UserDefinedTypeEditor::selected_row, this));
 
   _namel.set_text(_("Name:"));
   _namel.set_text_align(mforms::MiddleRight);
@@ -82,7 +82,7 @@ _vbox(false), _type_list(mforms::TreeAllowReorderRows|mforms::TreeFlatList), _ar
   _args_box.add(&_args_edit, false, true);
   _args_edit.set_text("...");
   _args_edit.set_tooltip(_("Edit value list as string list."));
-  scoped_connect(_args_edit.signal_clicked(),boost::bind(&UserDefinedTypeEditor::edit_arguments, this));
+  scoped_connect(_args_edit.signal_clicked(),std::bind(&UserDefinedTypeEditor::edit_arguments, this));
   _flagsl.set_text(_("Flags:"));
   _flagsl.set_text_align(mforms::TopRight);
   _table.add(&_flagsl, 0, 1, 3, 4, mforms::HFillFlag | mforms::VFillFlag);
@@ -116,14 +116,14 @@ _vbox(false), _type_list(mforms::TreeAllowReorderRows|mforms::TreeFlatList), _ar
   if (_type_list.count() > 0)
     _type_list.select_node(_type_list.root_node()->get_child(0));
   
-  scoped_connect(_add_button.signal_clicked(),boost::bind(&UserDefinedTypeEditor::add_clicked, this));
-  scoped_connect(_delete_button.signal_clicked(),boost::bind(&UserDefinedTypeEditor::delete_clicked, this));
+  scoped_connect(_add_button.signal_clicked(),std::bind(&UserDefinedTypeEditor::add_clicked, this));
+  scoped_connect(_delete_button.signal_clicked(),std::bind(&UserDefinedTypeEditor::delete_clicked, this));
 
-  scoped_connect(_ok_button.signal_clicked(),boost::bind(&UserDefinedTypeEditor::ok_clicked, this));
-  scoped_connect(_cancel_button.signal_clicked(),boost::bind(&UserDefinedTypeEditor::cancel_clicked, this));
+  scoped_connect(_ok_button.signal_clicked(),std::bind(&UserDefinedTypeEditor::ok_clicked, this));
+  scoped_connect(_cancel_button.signal_clicked(),std::bind(&UserDefinedTypeEditor::cancel_clicked, this));
 
-  scoped_connect(_name.signal_changed(),boost::bind(&UserDefinedTypeEditor::name_changed, this));
-  scoped_connect(_args.signal_changed(),boost::bind(&UserDefinedTypeEditor::args_changed, this));
+  scoped_connect(_name.signal_changed(),std::bind(&UserDefinedTypeEditor::name_changed, this));
+  scoped_connect(_args.signal_changed(),std::bind(&UserDefinedTypeEditor::args_changed, this));
   
   // fill simple type combo
   grt::ListRef<db_SimpleDatatype> types(_model->catalog()->simpleDatatypes());
@@ -141,7 +141,7 @@ _vbox(false), _type_list(mforms::TreeAllowReorderRows|mforms::TreeFlatList), _ar
     _type.add_item((*t)->name());
     _valid_types.push_back(*t);
   }
-  scoped_connect(_type.signal_changed(),boost::bind(&UserDefinedTypeEditor::type_changed, this));
+  scoped_connect(_type.signal_changed(),std::bind(&UserDefinedTypeEditor::type_changed, this));
 
   selected_row();
 }
@@ -320,7 +320,7 @@ void UserDefinedTypeEditor::type_changed()
       mforms::CheckBox *ch= new mforms::CheckBox();
       ch->set_text(**iter);
       ch->set_name(**iter);
-      scoped_connect(ch->signal_clicked(),boost::bind(&UserDefinedTypeEditor::flag_toggled, this));
+      scoped_connect(ch->signal_clicked(),std::bind(&UserDefinedTypeEditor::flag_toggled, this));
       _flags_box.add(ch, false, true);
       _flags.push_back(ch);
     }
@@ -448,7 +448,7 @@ void UserDefinedTypeEditor::ok_clicked()
   // check for deleted types
   grt::AutoUndo undo;
   
-  grt::remove_list_items_matching(udts, boost::bind(is_missing, _1, _user_types));
+  grt::remove_list_items_matching(udts, std::bind(is_missing, std::placeholders::_1, _user_types));
 
   // add new types, update existing ones
   for (size_t i= 0; i < _user_types.size(); i++)

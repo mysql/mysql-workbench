@@ -142,7 +142,7 @@ namespace mforms
 
     boost::signals2::signal<void (int, bool)>* signal_tab_pin_changed() { return &_signal_tab_pin_changed; }
 
-    boost::function<bool (int)> is_pinned;
+    std::function<bool (int)> is_pinned;
 #endif
   };
 };

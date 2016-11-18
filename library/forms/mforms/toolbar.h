@@ -147,8 +147,8 @@ namespace mforms {
 
     void set_selector_items(const std::vector<std::string>& values);
 
-    void set_validator(const boost::function<bool ()> &slot);
-    void set_search_handler(const boost::function<void (const std::string&)> &slot);
+    void set_validator(const std::function<bool ()> &slot);
+    void set_search_handler(const std::function<void (const std::string&)> &slot);
     
   public:
     void callback();
@@ -163,7 +163,7 @@ namespace mforms {
     bool _updating;
     const bool _expandable;
     boost::signals2::signal<void (ToolBarItem*)> _clicked_signal;
-    boost::function<bool ()> _validate;
-    boost::function<void (const std::string&)> _search;
+    std::function<bool ()> _validate;
+    std::function<void (const std::string&)> _search;
   };
 };

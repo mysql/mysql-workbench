@@ -38,17 +38,17 @@ template <class T>
 struct CatalogIterator
 {
   typedef int (T::*CGrtCb)(const GrtObjectRef &);
-  typedef boost::function<int (GrtObjectRef)> CGrtSlot;
+  typedef std::function<int (GrtObjectRef)> CGrtSlot;
   std::vector<CGrtSlot> allTypesSlots;
-  void append_allTypesCb(T* self, CGrtCb cb) {allTypesSlots.push_back(boost::bind(cb, self, _1));}
+  void append_allTypesCb(T* self, CGrtCb cb) {allTypesSlots.push_back(std::bind(cb, self, std::placeholders::_1));}
 
 #define WB_ITERATOR_SUPPORT_OBJECT_TYPE(type) \
   typedef int (T::*C##type##Cb)(const grt::Ref<type>&); \
-    typedef boost::function<int (grt::Ref<type>) > C##type##Slot; \
+    typedef std::function<int (grt::Ref<type>) > C##type##Slot; \
     std::vector<C##type##Slot> type##Slots;\
     std::vector<CGrtSlot> type##GrtSlots;\
-    void append(T* self, C##type##Cb cb)   {type##Slots.push_back(boost::bind(cb, self, _1));}\
-    void append_##type##GrtCb(T* self, CGrtCb cb)   {type##GrtSlots.push_back(boost::bind(cb, self, _1));}
+    void append(T* self, C##type##Cb cb)   {type##Slots.push_back(std::bind(cb, self, std::placeholders::_1));}\
+    void append_##type##GrtCb(T* self, CGrtCb cb)   {type##GrtSlots.push_back(std::bind(cb, self, std::placeholders::_1));}
 
     WB_ITERATOR_SUPPORT_OBJECT_TYPE(db_Schema);
     WB_ITERATOR_SUPPORT_OBJECT_TYPE(db_Table);

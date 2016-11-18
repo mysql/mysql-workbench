@@ -97,7 +97,7 @@ std::string Integer::debugDescription(const std::string &indentation) const
 
 std::string Integer::toString() const
 {
-  return base::to_string(_value);
+  return std::to_string(_value);
 }
 
 Integer::Integer(storage_type value)
@@ -141,7 +141,7 @@ std::string Double::debugDescription(const std::string &indentation) const
 
 std::string Double::toString() const
 {
-  return base::to_string(_value);
+  return std::to_string(_value);
 }
 
 Double::Double(storage_type value)
@@ -1173,7 +1173,7 @@ bool process_reset_references_for_member(const MetaClass::Member* m, Object* obj
 void Object::reset_references()
 {
   //g_log("grt", G_LOG_LEVEL_DEBUG, "Object::reset_references for '%s':'%s'", class_name().c_str(), id().c_str());
-  _metaclass->foreach_member(boost::bind(&process_reset_references_for_member, _1, this));
+  _metaclass->foreach_member(std::bind(&process_reset_references_for_member, std::placeholders::_1, this));
 }
 
 void Object::init()
@@ -1196,7 +1196,7 @@ void Object::mark_global() const
 {
   _is_global++;
   if (_is_global == 1)
-    _metaclass->foreach_member(boost::bind(&mark_global_, _1, this));
+    _metaclass->foreach_member(std::bind(&mark_global_, std::placeholders::_1, this));
 }
 
 
@@ -1216,7 +1216,7 @@ void Object::unmark_global() const
 {
   _is_global--;
   if (_is_global == 0)
-    _metaclass->foreach_member(boost::bind(&unmark_global_, _1, this));
+    _metaclass->foreach_member(std::bind(&unmark_global_, std::placeholders::_1, this));
 }
 
 
@@ -1430,7 +1430,7 @@ public:
 
     std::string toString(const TypeHandle& handle) const
     {
-      return base::to_string(handle.double_value);
+      return std::to_string(handle.double_value);
     };
 };
 
@@ -1471,7 +1471,7 @@ public:
 
     std::string toString(const TypeHandle& handle) const
     {
-      return base::to_string(handle.int_value);
+      return std::to_string(handle.int_value);
     };
 };
 

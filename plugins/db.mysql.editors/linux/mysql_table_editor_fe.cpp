@@ -95,8 +95,8 @@ DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, const grt::BaseListRef &a
 
   focus_widget_when_idle(entry);
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLTableEditor::refresh_form_data));
-  _be->set_partial_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLTableEditor::partial_refresh));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLTableEditor::refresh_form_data, this));
+  _be->set_partial_refresh_ui_slot(std::bind(&DbMySQLTableEditor::partial_refresh, this, std::placeholders::_1));
 
   _be->reset_editor_undo_stack();
   //Gtk::Paned* table_page_paned = 0;
@@ -219,8 +219,8 @@ bool DbMySQLTableEditor::switch_edited_object(const grt::BaseListRef &args)
 
     _privs_page->switch_be(_be);
   }
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLTableEditor::refresh_form_data));
-  _be->set_partial_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLTableEditor::partial_refresh));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLTableEditor::refresh_form_data, this));
+  _be->set_partial_refresh_ui_slot(std::bind(&DbMySQLTableEditor::partial_refresh, this, std::placeholders::_1));
 
   delete old_be;
 

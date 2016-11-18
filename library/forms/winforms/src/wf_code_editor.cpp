@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -357,7 +357,7 @@ void ScintillaControl::OnMouseDown(MouseEventArgs^ e)
 CodeEditorWrapper::CodeEditorWrapper(mforms::CodeEditor *backend)
   : ViewWrapper(backend)
 {
-  backend->set_show_find_panel_callback(boost::bind(show_find_panel, _1, _2));
+  backend->set_show_find_panel_callback(std::bind(show_find_panel, std::placeholders::_1, std::placeholders::_2));
 }
 
 //--------------------------------------------------------------------------------------------------

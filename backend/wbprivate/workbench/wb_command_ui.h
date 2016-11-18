@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,8 +59,8 @@ namespace wb
     
     struct BuiltinCommand
     {
-      boost::function<void ()> execute;
-      boost::function<bool ()> validate;
+      std::function<void ()> execute;
+      std::function<bool ()> validate;
     };
 
     WBContext *_wb;
@@ -100,7 +100,7 @@ namespace wb
     CommandUI(WBContext *wb);
 
     mforms::ToolBar *create_toolbar(const std::string &toolbar_file);
-    mforms::ToolBar *create_toolbar(const std::string &toolbar_file, const boost::function<void (std::string)> &activate_slot);
+    mforms::ToolBar *create_toolbar(const std::string &toolbar_file, const std::function<void (std::string)> &activate_slot);
     
     void load_data();
 
@@ -112,8 +112,8 @@ namespace wb
     void add_frontend_commands(const std::list<std::string> &commands);
     void remove_frontend_commands(const std::list<std::string> &commands);
     void add_builtin_command(const std::string &name, 
-                             const boost::function<void ()> &slot,
-                             const boost::function<bool ()> &validate= boost::function<bool ()>());
+                             const std::function<void ()> &slot,
+                             const std::function<bool ()> &validate= std::function<bool ()>());
     void remove_builtin_command(const std::string &name);    
   };
 };

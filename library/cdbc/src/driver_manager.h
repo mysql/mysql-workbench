@@ -23,7 +23,6 @@
 #include "cppdbc_public_interface.h"
 
 #include <cppconn/driver.h>
-#include <boost/cstdint.hpp>
 #include <memory>
 #include <set>
 
@@ -115,7 +114,7 @@ class CPPDBC_PUBLIC_FUNC DriverManager
 
   //Functions added to this map can be called from multiple unrelated threads, multiple times
   //be sure that the function is protected before that before appending any new call
-  std::map<std::string, boost::function<void ()> > _drivers;
+  std::map<std::string, std::function<void ()> > _drivers;
 
 public:
   // Returns the DriverManager singleton
@@ -127,7 +126,7 @@ public:
   void set_driver_dir(const std::string &path);
 
   // Callback to initialize connection with DBMS specific startup script
-  typedef boost::function<void (Connection*, const db_mgmt_ConnectionRef&)> ConnectionInitSlot;
+  typedef std::function<void (Connection*, const db_mgmt_ConnectionRef&)> ConnectionInitSlot;
 
   // Returns a Connection object for the give connection params
   ConnectionWrapper getConnection(const db_mgmt_ConnectionRef &connectionProperties, ConnectionInitSlot connection_init_slot= ConnectionInitSlot());
@@ -142,9 +141,9 @@ public:
   std::list<Driver *> getDrivers();
   
 public:
-  typedef boost::function<std::shared_ptr<TunnelConnection> (const db_mgmt_ConnectionRef &)> TunnelFactoryFunction;
-  typedef boost::function<bool (const db_mgmt_ConnectionRef &, std::string &)> PasswordFindFunction;
-  typedef boost::function<std::string (const db_mgmt_ConnectionRef &, bool)> PasswordRequestFunction;
+  typedef std::function<std::shared_ptr<TunnelConnection> (const db_mgmt_ConnectionRef &)> TunnelFactoryFunction;
+  typedef std::function<bool (const db_mgmt_ConnectionRef &, std::string &)> PasswordFindFunction;
+  typedef std::function<std::string (const db_mgmt_ConnectionRef &, bool)> PasswordRequestFunction;
 
   void setTunnelFactoryFunction(TunnelFactoryFunction function);
   void setPasswordFindFunction(PasswordFindFunction function);
@@ -178,7 +177,7 @@ public:
   typedef ConnectionWrapper ConnectionRef;
   ConnectionRef ref;
   std::string name;
-  boost::int64_t id;
+  std::int64_t id;
   std::string active_schema;
   std::string ssl_cipher;
   bool autocommit_mode;

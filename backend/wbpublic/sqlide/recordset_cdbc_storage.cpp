@@ -26,7 +26,6 @@
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
 #include <sqlite/query.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 #include <ctype.h>
@@ -58,7 +57,7 @@ public:
   result_type operator()(const sqlite::null_t &v, const sqlite::variant_t &index) const { return sqlite::null_t(); }
   result_type operator()(const std::string &v, const sqlite::variant_t &index) const { return _rs->getString(boost::get<int>(index)); }
   result_type operator()(const int &v, const sqlite::variant_t &index) const { return _rs->getInt(boost::get<int>(index)); }
-  result_type operator()(const boost::int64_t &v, const sqlite::variant_t &index) const { return (boost::int64_t)_rs->getInt64(boost::get<int>(index)); }
+  result_type operator()(const std::int64_t &v, const sqlite::variant_t &index) const { return (std::int64_t)_rs->getInt64(boost::get<int>(index)); }
   result_type operator()(const long double &v, const sqlite::variant_t &index) const { return _rs->getDouble(boost::get<int>(index)); }
   result_type operator()(const sqlite::blob_ref_t &v, const sqlite::variant_t &index)
   {
@@ -318,7 +317,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
         known_types["SMALLINT"]= std::string();//!int();
         known_types["INT"]= std::string();//!int();
         known_types["MEDIUMINT"]= std::string();//!int();
-        known_types["BIGINT"]= std::string();//!boost::int64_t();
+        known_types["BIGINT"]= std::string();//!std::int64_t();
 
         known_types["FLOAT"]= std::string();//!ld;
         known_types["DOUBLE"]= std::string();//!ld;
@@ -357,7 +356,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
           known_real_types["SMALLINT"]= int();
           known_real_types["INT"]= int();
           known_real_types["MEDIUMINT"]= int();
-          known_real_types["BIGINT"]= boost::int64_t();
+          known_real_types["BIGINT"]= std::int64_t();
 
           known_real_types["FLOAT"]= ld;
           known_real_types["DOUBLE"]= ld;

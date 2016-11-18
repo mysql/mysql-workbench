@@ -31,7 +31,7 @@
   NSModalSession modalSession;
   BOOL stopped;
 
-  boost::function<bool ()> cancelAction;
+  std::function<bool ()> cancelAction;
 
   NSMutableArray *nibObjects;
 }
@@ -99,8 +99,8 @@ static BOOL modalHUDRunning = NO;
 }
 
 + (BOOL)runModalHudWithTitle: (NSString*) title andDescription: (NSString*) description
-                 notifyReady: (boost::function<void ()>)signalReady
-                cancelAction: (boost::function<bool ()>)cancelAction
+                 notifyReady: (std::function<void ()>)signalReady
+                cancelAction: (std::function<bool ()>)cancelAction
 {
   if (instance == nil)
     instance = [[MHudController alloc] init];
@@ -148,7 +148,7 @@ static BOOL modalHUDRunning = NO;
   instance->modalSession = nil;
 
   // make sure shared_refs bound to it are not kept dangling
-  instance->cancelAction.clear();
+  instance->cancelAction = std::function<bool()>();
   
   if (ret == NSModalResponseAbort)
   {

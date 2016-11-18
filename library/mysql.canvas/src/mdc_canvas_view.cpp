@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1252,18 +1252,18 @@ std::list<CanvasItem*> CanvasView::get_items_bounded_by(const Rect &rect,
 // Base Event Handling
 
 
-void CanvasView::set_event_callbacks(const boost::function<bool (CanvasView*, MouseButton, bool, Point, EventState)> &button_handler,
-                                     const boost::function<bool (CanvasView*, Point, EventState)> &motion_handler,
-                                     const boost::function<bool (CanvasView*, KeyInfo, EventState, bool)> &key_handler)
+void CanvasView::set_event_callbacks(const std::function<bool (CanvasView*, MouseButton, bool, Point, EventState)> &button_handler,
+                                     const std::function<bool (CanvasView*, Point, EventState)> &motion_handler,
+                                     const std::function<bool (CanvasView*, KeyInfo, EventState, bool)> &key_handler)
 {
-  _button_event_relay= button_handler;
-  _motion_event_relay= motion_handler;
-  _key_event_relay= key_handler;
+  _button_event_relay = button_handler;
+  _motion_event_relay = motion_handler;
+  _key_event_relay = key_handler;
 }
 
 
 static bool propagate_event(mdc::CanvasItem *item, 
-  const boost::function<bool (mdc::CanvasItem*, mdc::CanvasItem*, const Point&)> &functor,
+  const std::function<bool (mdc::CanvasItem*, mdc::CanvasItem*, const Point&)> &functor,
                             const Point &pos)
 {
   mdc::CanvasItem *target= item;
@@ -1290,7 +1290,7 @@ static bool propagate_event(mdc::CanvasItem *item,
 
 
 static bool propagate_event(mdc::CanvasItem *item, 
-  const boost::function<bool (mdc::CanvasItem*, mdc::CanvasItem*, const Point&, mdc::EventState)> &functor,
+  const std::function<bool (mdc::CanvasItem*, mdc::CanvasItem*, const Point&, mdc::EventState)> &functor,
                             const Point &pos, mdc::EventState arg1)
 {
   mdc::CanvasItem *target= item;
@@ -1316,7 +1316,7 @@ static bool propagate_event(mdc::CanvasItem *item,
 }
 
 static bool propagate_event(mdc::CanvasItem *item, 
-  const boost::function<bool (mdc::CanvasItem*, mdc::CanvasItem*, const Point&, mdc::MouseButton, mdc::EventState)> &functor,
+  const std::function<bool (mdc::CanvasItem*, mdc::CanvasItem*, const Point&, mdc::MouseButton, mdc::EventState)> &functor,
                             const Point &pos, mdc::MouseButton arg1, mdc::EventState arg2)
 {
   mdc::CanvasItem *target= item;
@@ -1416,7 +1416,7 @@ void CanvasView::handle_mouse_move(int x, int y, EventState state)
     // that was under the cursor when the press happened (not the current item)
 
     propagate_event(_last_click_item,
-                             boost::bind(&CanvasItem::on_drag, _1, _2, _3, _4),
+                             std::bind(&CanvasItem::on_drag, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4),
                              point, state);
 
     return; // if dragging, then don't process boundary crossings (?)
@@ -1462,7 +1462,7 @@ void CanvasView::handle_mouse_move(int x, int y, EventState state)
     for (it= _last_over_item; it != ancestor; it= it->get_parent())
     {
       propagate_event(it, 
-        boost::bind(&CanvasItem::on_leave, _1, _2, _3),
+        std::bind(&CanvasItem::on_leave, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
                       point);
     }
 
@@ -1478,7 +1478,7 @@ void CanvasView::handle_mouse_move(int x, int y, EventState state)
     {
       it= *i;
       propagate_event(it,
-        boost::bind(&CanvasItem::on_enter, _1, _2, _3),
+        std::bind(&CanvasItem::on_enter, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
                       point);
     }
 
@@ -1525,7 +1525,7 @@ void CanvasView::handle_mouse_button(MouseButton button, bool press, int x, int 
   {
     // if it's a button press, send the press event to the item at the point
     handled= propagate_event(item,
-      boost::bind(&CanvasItem::on_button_press, _1, _2, _3, _4, _5),
+      std::bind(&CanvasItem::on_button_press, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5),
                              point, button, state);
   }
   else if (_last_click_item && !press)
@@ -1534,7 +1534,7 @@ void CanvasView::handle_mouse_button(MouseButton button, bool press, int x, int 
     // was originally pressed (not the item we're over now)
   
     handled= propagate_event(_last_click_item, 
-      boost::bind(&CanvasItem::on_button_release, _1, _2, _3, _4, _5),
+      std::bind(&CanvasItem::on_button_release, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5),
                              point, button, state);
   }
 
@@ -1542,7 +1542,7 @@ void CanvasView::handle_mouse_button(MouseButton button, bool press, int x, int 
   {
     // send click if the button was released over the same item it was pressed
     handled= propagate_event(item,
-                             boost::bind(&CanvasItem::on_click, _1, _2, _3, _4, _5),
+                             std::bind(&CanvasItem::on_click, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5),
                              point, button, state);
   }
 
@@ -1571,7 +1571,7 @@ void CanvasView::handle_mouse_double_click(MouseButton button, int x, int y, Eve
 
   // send click if the button was released over the same item it was pressed
   propagate_event(item,
-    boost::bind(&CanvasItem::on_double_click, _1, _2, _3, _4, _5),
+    std::bind(&CanvasItem::on_double_click, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5),
                            point, button, state);
 
   set_last_click_item(item);
@@ -1602,7 +1602,7 @@ void CanvasView::handle_mouse_leave(int x, int y, EventState state)
      // that was under the cursor when the press happened (not the current item)
 
      propagate_event(_last_click_item,
-                              boost::bind(&CanvasItem::on_drag, _1, _2, _3, _4),
+                              std::bind(&CanvasItem::on_drag, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4),
                               point, state);
 
      return; // if dragging, then don't process boundary crossings (?)
@@ -1616,7 +1616,7 @@ void CanvasView::handle_mouse_leave(int x, int y, EventState state)
      for (it= _last_over_item; it != 0; it= it->get_parent())
      {
        propagate_event(it,
-         boost::bind(&CanvasItem::on_leave, _1, _2, _3),
+         std::bind(&CanvasItem::on_leave, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
                        point);
      }
 

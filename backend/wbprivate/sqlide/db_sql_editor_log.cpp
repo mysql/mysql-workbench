@@ -61,7 +61,7 @@ DbSqlEditorLog::DbSqlEditorLog(SqlEditorForm *owner, int max_entry_count)
   _context_menu.add_item("Replace SQL Script With Selected Items", "replace_sql_script");
   _context_menu.add_separator();
   _context_menu.add_item("Clear", "clear");
-  _context_menu.set_handler(boost::bind(&DbSqlEditorLog::handle_context_menu, this, _1));
+  _context_menu.set_handler(std::bind(&DbSqlEditorLog::handle_context_menu, this, std::placeholders::_1));
   
   for (int i = 0; i < 8; i++)
     _context_menu.set_item_enabled(i, false);

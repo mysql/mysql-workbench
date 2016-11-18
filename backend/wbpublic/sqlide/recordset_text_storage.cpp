@@ -216,7 +216,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   mtemplate::Dictionary *dictionary = mtemplate::CreateMainDictionary();
   BOOST_FOREACH (const Parameters::value_type &param, _parameters)
     dictionary->setValue(param.first, param.second);
-    
+
   const Recordset::Column_names *column_names= recordset->column_names();
   const Recordset::Column_types &column_types= get_column_types(recordset);
   const Recordset::Column_types &real_column_types= get_real_column_types(recordset);

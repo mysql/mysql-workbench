@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -478,14 +478,14 @@ static bool add_method_to_list(const grt::MetaClass::Method *method, PyObject *l
 static PyObject *object_get_members(PyGRTObjectObject *self, void *closure)
 {
   PyObject *members= PyList_New(0);
-  self->object->get_metaclass()->foreach_member(boost::bind(&add_member_to_list, _1, members));
+  self->object->get_metaclass()->foreach_member(std::bind(&add_member_to_list, std::placeholders::_1, members));
   return members;
 }
 
 static PyObject *object_get_methods(PyGRTObjectObject *self, void *closure)
 {
   PyObject *methods= PyList_New(0);
-  self->object->get_metaclass()->foreach_method(boost::bind(&add_method_to_list, _1, methods));
+  self->object->get_metaclass()->foreach_method(std::bind(&add_method_to_list, std::placeholders::_1, methods));
   return methods;
 }
 

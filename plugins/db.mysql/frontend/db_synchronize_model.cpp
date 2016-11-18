@@ -99,7 +99,7 @@ public:
     add(&_db_options, false, false);
     add(&_options, false, false);
 
-    scoped_connect(signal_leave(),boost::bind(&SyncOptionsPage::gather_options, this, _1));
+    scoped_connect(signal_leave(),std::bind(&SyncOptionsPage::gather_options, this, std::placeholders::_1));
 
     grt::Module *module= ((WizardPlugin*)_form)->module();
     _skip_routine_definer_check.set_active(module->document_int_data("SkipRoutineDefiner", 0) != 0);
@@ -282,7 +282,7 @@ public:
     _model_only.set_text("Skip DB changes and update model only");
     _button_box.add(&_model_only, true, true);
     
-    scoped_connect(signal_leave(),boost::bind(&PreviewScriptPage::apply_changes, this, _1));
+    scoped_connect(signal_leave(),std::bind(&PreviewScriptPage::apply_changes, this, std::placeholders::_1));
   }
 
 
@@ -326,15 +326,15 @@ public:
     set_short_title(_("Synchronize Progress"));
 
     db_task = add_async_task(_("Apply Changes to Database"),
-                   boost::bind(&DBSynchronizeProgressPage::perform_sync_db, this),
+                   std::bind(&DBSynchronizeProgressPage::perform_sync_db, this),
                    _("Applying selected changes from model to the database..."));
 
     read_back_task = add_async_task(_("Read Back Changes Made by Server"),
-                   boost::bind(&DBSynchronizeProgressPage::back_sync, this),
+                   std::bind(&DBSynchronizeProgressPage::back_sync, this),
                    _("Fetching back object definitions reformatted by server..."));
 
     add_task(_("Apply Changes to Model"),
-             boost::bind(&DBSynchronizeProgressPage::perform_sync_model, this),
+             std::bind(&DBSynchronizeProgressPage::perform_sync_model, this),
              _("Applying selected changes from database to the model..."));
 
     end_adding_tasks(_("Synchronization Completed Successfully"));
@@ -362,14 +362,14 @@ public:
   {
     grt::GRT::get()->send_info("Applying synchronization scripts to server...");
     
-    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbSynchronize*)_form)->get_db_be()), false);
+    execute_grt_task(std::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbSynchronize*)_form)->get_db_be()), false);
     
     return true;
   }
 
   bool back_sync()
   {
-    execute_grt_task(boost::bind(&DBSynchronizeProgressPage::back_sync_, this), false);
+    execute_grt_task(std::bind(&DBSynchronizeProgressPage::back_sync_, this), false);
     return true;
   }
 
@@ -416,8 +416,8 @@ WbPluginDbSynchronize::WbPluginDbSynchronize(grt::Module *module)
 
   FetchSchemaNamesProgressPage *fetch_progress_page= new FetchSchemaNamesProgressPage(this);
   fetch_progress_page->set_db_connection(_db_be.db_conn());
-  fetch_progress_page->set_load_schemas_slot(boost::bind(&WbPluginDbSynchronize::load_schemas, this));
-  fetch_progress_page->set_check_case_slot(boost::bind(&Db_plugin::check_case_sensitivity_problems, &_db_be));
+  fetch_progress_page->set_load_schemas_slot(std::bind(&WbPluginDbSynchronize::load_schemas, this));
+  fetch_progress_page->set_check_case_slot(std::bind(&Db_plugin::check_case_sensitivity_problems, &_db_be));
   add_page(mforms::manage(fetch_progress_page));
 
   SchemaMatchingPage *schema_selection_page= new ModelSchemaMatchingPage(this, &_db_be, "pickSchemata", "Model Schema", "RDBMS Schema");
@@ -429,8 +429,8 @@ WbPluginDbSynchronize::WbPluginDbSynchronize(grt::Module *module)
 
   SynchronizeDifferencesPage *diffs_page= new SynchronizeDifferencesPage(this, &_be);
   diffs_page->set_title(_("Model and Database Differences"));
-  diffs_page->set_catalog_getter_slot(boost::bind(&Db_plugin::model_catalog, &_db_be),
-                                      boost::bind(&Db_plugin::db_catalog, &_db_be));
+  diffs_page->set_catalog_getter_slot(std::bind(&Db_plugin::model_catalog, &_db_be),
+                                      std::bind(&Db_plugin::db_catalog, &_db_be));
   add_page(mforms::manage(diffs_page));
   
   add_page(mforms::manage(new PreviewScriptPage(this)));

@@ -81,11 +81,11 @@ TEST_FUNCTION(2)
 
 struct test_params
 {
-    test_params(const bool cr, const bool clr, const boost::function<void (SynteticMySQLModel&, SynteticMySQLModel&)>& f, const std::string &c):
+    test_params(const bool cr, const bool clr, const std::function<void (SynteticMySQLModel&, SynteticMySQLModel&)>& f, const std::string &c):
         case_result(cr), caseless_result(clr), model_init(f), comment(c) {};
     bool case_result;
     bool caseless_result;
-    boost::function<void (SynteticMySQLModel&, SynteticMySQLModel&)> model_init;
+    std::function<void (SynteticMySQLModel&, SynteticMySQLModel&)> model_init;
     std::string comment;
 };
 

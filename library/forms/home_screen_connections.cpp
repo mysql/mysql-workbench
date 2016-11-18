@@ -353,7 +353,7 @@ public:
     print_info_line(cr, line_bounds, _("Network Address"), getAnyMapValueAs<std::string>(connectionInfo, "hostName"));
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     ssize_t port = getAnyMapValueAs<ssize_t>(connectionInfo, "port");
-    print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
+    print_info_line(cr, line_bounds, _("TCP/IP Port"), std::to_string(port));
 
 
     line_bounds = bounds;
@@ -524,7 +524,7 @@ protected:
   std::string search_user;
   std::string search_schema;
 
-  boost::function <void (int, int)> default_handler;
+  std::function <void (int, int)> default_handler;
 
   base::Rect bounds;
 
@@ -833,7 +833,7 @@ public:
     base::Color titleColor = getTitleColor();
     cairo_set_source_rgba(cr, titleColor.red, titleColor.green, titleColor.blue, titleColor.alpha);
 
-    std::string info = base::to_string(children.size() - 1) + " " + _("Connections");
+    std::string info = std::to_string(children.size() - 1) + " " + _("Connections");
     y = bounds.top() + 55;
     cairo_move_to(cr, x, y);
     cairo_show_text(cr, info.c_str());
@@ -1014,13 +1014,13 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _search_text.set_placeholder_text("Filter connections");
   _search_text.set_bordered(false);
   _search_box.add(&_search_text, true, true);
-  scoped_connect(_search_text.signal_changed(), boost::bind(&ConnectionsSection::on_search_text_changed, this));
-  scoped_connect(_search_text.signal_action(), boost::bind(&ConnectionsSection::on_search_text_action, this, _1));
+  scoped_connect(_search_text.signal_changed(), std::bind(&ConnectionsSection::on_search_text_changed, this));
+  scoped_connect(_search_text.signal_action(), std::bind(&ConnectionsSection::on_search_text_action, this, std::placeholders::_1));
   add(&_search_box, mforms::TopRight);
   set_padding(0, 30, CONNECTIONS_RIGHT_PADDING, 0);
 
-  _accessible_click_handler = boost::bind(&ConnectionsSection::mouse_click, this,
-                                          mforms::MouseButtonLeft, _1, _2);
+  _accessible_click_handler = std::bind(&ConnectionsSection::mouse_click, this,
+                                          mforms::MouseButtonLeft, std::placeholders::_1, std::placeholders::_2);
 
   _add_button.name = "Add Connection";
   _add_button.default_action = "Open New Connection Wizard";
@@ -1476,7 +1476,7 @@ void ConnectionsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType t
         if (_folder_context_menu != NULL)
         {
           _folder_context_menu->retain();
-          menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1));
+          menu->set_handler(std::bind(&ConnectionsSection::handle_folder_command, this, std::placeholders::_1));
         }
         break;
 
@@ -1487,7 +1487,7 @@ void ConnectionsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType t
         if (_connection_context_menu != NULL)
         {
           _connection_context_menu->retain();
-          menu->set_handler(boost::bind(&ConnectionsSection::handle_command, this, _1));
+          menu->set_handler(std::bind(&ConnectionsSection::handle_command, this, std::placeholders::_1));
         }
         break;
 
@@ -1498,13 +1498,13 @@ void ConnectionsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType t
         if (_generic_context_menu != NULL)
         {
           _generic_context_menu->retain();
-          menu->set_handler(boost::bind(&ConnectionsSection::handle_command, this, _1));
+          menu->set_handler(std::bind(&ConnectionsSection::handle_command, this, std::placeholders::_1));
         }
         break;
     }
 
     if (menu != NULL)
-      scoped_connect(menu->signal_will_show(), boost::bind(&ConnectionsSection::menu_open, this));
+      scoped_connect(menu->signal_will_show(), std::bind(&ConnectionsSection::menu_open, this));
   }
 }
 
@@ -1537,8 +1537,8 @@ void ConnectionsSection::addConnection(const std::string &connectionId, const st
   entry->search_user = user;
   entry->search_schema = schema;
 
-  entry->default_handler = boost::bind(&ConnectionsSection::mouse_click, this,
-                                      mforms::MouseButtonLeft, _1, _2);
+  entry->default_handler = std::bind(&ConnectionsSection::mouse_click, this,
+                                      mforms::MouseButtonLeft, std::placeholders::_1, std::placeholders::_2);
 
   std::string::size_type slash_position = title.find("/");
   if (slash_position != std::string::npos)
@@ -1692,7 +1692,7 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
 
         if (show_info && !_info_popup && _parent && (_info_popup = _hot_entry->show_info_popup()))
         {
-          scoped_connect(_info_popup->on_close(), boost::bind(&ConnectionsSection::popup_closed, this));
+          scoped_connect(_info_popup->on_close(), std::bind(&ConnectionsSection::popup_closed, this));
 
           return true;
         }

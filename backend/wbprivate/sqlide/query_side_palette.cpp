@@ -88,8 +88,8 @@ private:
   void prepare_context_menu()
   {
     _context_menu = manage(new Menu());
-    _context_menu->set_handler(boost::bind(&SnippetListView::on_action, this, _1));
-    _context_menu->signal_will_show()->connect(boost::bind(&SnippetListView::menu_will_show, this));
+    _context_menu->set_handler(std::bind(&SnippetListView::on_action, this, std::placeholders::_1));
+    _context_menu->signal_will_show()->connect(std::bind(&SnippetListView::menu_will_show, this));
 
     _context_menu->add_item(_("Insert Snippet at Cursor"), "insert_text");
     _context_menu->add_item(_("Replace Editor Content with Snippet"), "replace_text");
@@ -148,7 +148,7 @@ public:
 
     _snippet_popover = new wb::SnippetPopover();
     _snippet_popover->set_size(376, 257);
-    _snippet_popover->signal_closed()->connect(boost::bind(&SnippetListView::popover_closed, this));
+    _snippet_popover->signal_closed()->connect(std::bind(&SnippetListView::popover_closed, this));
 
     prepare_context_menu();
   }
@@ -282,7 +282,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   Box* content_border = manage(new Box(false));
 
   // No scoped_connect needed since _help_text is a member variable.
-  scoped_connect(_help_text->signal_link_click(), boost::bind(&QuerySidePalette::click_link, this, _1));
+  scoped_connect(_help_text->signal_link_click(), std::bind(&QuerySidePalette::click_link, this, std::placeholders::_1));
 
 #if _WIN32
   _help_text->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
@@ -327,7 +327,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   snippet_page->add(content_border, true, true);
   add_page(snippet_page, "Snippets");
 
-  scoped_connect(_snippet_list->signal_selection_changed(), boost::bind(&QuerySidePalette::snippet_selection_changed, this));
+  scoped_connect(_snippet_list->signal_selection_changed(), std::bind(&QuerySidePalette::snippet_selection_changed, this));
 
   std::string old_category = bec::GRTManager::get()->get_app_option_string("DbSqlEditor:SelectedSnippetCategory");
   if (!old_category.empty())
@@ -397,7 +397,7 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
       {
         check_format_structures(editor);
         cancel_timer();
-        _help_timer = bec::GRTManager::get()->run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
+        _help_timer = bec::GRTManager::get()->run_every(std::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
       }
     }
   }
@@ -433,7 +433,7 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic)
     return;
 
   _last_topic = topic_upper;
-  _help_task->exec(false, boost::bind(&QuerySidePalette::get_help_text_threaded, this));
+  _help_task->exec(false, std::bind(&QuerySidePalette::get_help_text_threaded, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -469,7 +469,7 @@ grt::StringRef QuerySidePalette::get_help_text_threaded()
   }
 
   // At this point the previous task has already finished (it's the one that triggered this function).
-  _help_task->execute_in_main_thread(boost::bind(&QuerySidePalette::update_help_ui, this), false, false);
+  _help_task->execute_in_main_thread(std::bind(&QuerySidePalette::update_help_ui, this), false, false);
 
   return "";
 }
@@ -544,7 +544,7 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor)
   // Caret position as <column, row>.
   std::pair<size_t, size_t> caret = editor->cursor_pos_row_column(true);
 
-  _help_task->exec(false, boost::bind(&QuerySidePalette::get_help_topic_threaded, this,
+  _help_task->exec(false, std::bind(&QuerySidePalette::get_help_topic_threaded, this,
     editor->current_statement(), caret));
 
   return false; // Don't re-run this task, it's a single-shot.
@@ -566,7 +566,7 @@ grt::StringRef QuerySidePalette::get_help_topic_threaded(const std::string &quer
   std::string topic = DbSqlEditorContextHelp::find_help_topic_from_position(form, query, caret);
 
   if (!_help_task->task()->is_cancelled())
-    _help_task->execute_in_main_thread(boost::bind(&QuerySidePalette::process_help_topic, this, topic), false, false);
+    _help_task->execute_in_main_thread(std::bind(&QuerySidePalette::process_help_topic, this, topic), false, false);
 
   return "";
 }
@@ -639,7 +639,7 @@ ToolBar* QuerySidePalette::prepare_snippet_toolbar()
 
   DbSqlEditorSnippets* snippets_model = DbSqlEditorSnippets::get_instance();
   item->set_selector_items(snippets_model->get_category_list());
-  scoped_connect(item->signal_activated(), boost::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, std::placeholders::_1));
   item->set_text(USER_SNIPPETS);
   item->set_tooltip(_("Select a snippet category for display"));
   toolbar->add_item(item);
@@ -652,21 +652,21 @@ ToolBar* QuerySidePalette::prepare_snippet_toolbar()
   item->set_name("replace_text");
   item->set_icon(App::get()->get_resource_path("snippet_use.png"));
   item->set_tooltip(_("Replace the current text by this snippet"));
-  scoped_connect(item->signal_activated(), boost::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, std::placeholders::_1));
   toolbar->add_item(item);
 
   item = mforms::manage(new ToolBarItem(mforms::ActionItem));
   item->set_name("insert_text");
   item->set_icon(App::get()->get_resource_path("snippet_insert.png"));
   item->set_tooltip(_("Insert the snippet text at the current caret position replacing selected text if there is any"));
-  scoped_connect(item->signal_activated(), boost::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, std::placeholders::_1));
   toolbar->add_item(item);
 
   item = manage(new ToolBarItem(mforms::ActionItem));
   item->set_name("copy_to_clipboard");
   item->set_icon(App::get()->get_resource_path("snippet_clipboard.png"));
   item->set_tooltip(_("Copy the snippet text to the clipboard"));
-  scoped_connect(item->signal_activated(), boost::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, std::placeholders::_1));
   toolbar->add_item(item);
 
   return toolbar;
@@ -732,7 +732,7 @@ ToolBar* QuerySidePalette::prepare_help_toolbar()
   _back_item->set_icon(App::get()->get_resource_path("wb-toolbar_nav-back.png"));
   _back_item->set_tooltip(_("One topic back"));
   _back_item->set_enabled(false);
-  scoped_connect(_back_item->signal_activated(), boost::bind(&QuerySidePalette::help_toolbar_item_activated, this, _1));
+  scoped_connect(_back_item->signal_activated(), std::bind(&QuerySidePalette::help_toolbar_item_activated, this, std::placeholders::_1));
   toolbar->add_item(_back_item);
 
   _forward_item = manage(new ToolBarItem(mforms::ActionItem));
@@ -740,7 +740,7 @@ ToolBar* QuerySidePalette::prepare_help_toolbar()
   _forward_item->set_icon(App::get()->get_resource_path("wb-toolbar_nav-forward.png"));
   _forward_item->set_tooltip(_("One topic forward"));
   _forward_item->set_enabled(false);
-  scoped_connect(_forward_item->signal_activated(), boost::bind(&QuerySidePalette::help_toolbar_item_activated, this, _1));
+  scoped_connect(_forward_item->signal_activated(), std::bind(&QuerySidePalette::help_toolbar_item_activated, this, std::placeholders::_1));
   toolbar->add_item(_forward_item);
 
   toolbar->add_item(manage(new ToolBarItem(mforms::SeparatorItem)));
@@ -751,7 +751,7 @@ ToolBar* QuerySidePalette::prepare_help_toolbar()
   item->set_alt_icon(App::get()->get_resource_path("wb-toolbar_automatic-help-on.png"));
   item->set_tooltip(_("Toggle automatic context help"));
   item->set_checked(_automatic_help);
-  scoped_connect(item->signal_activated(), boost::bind(&QuerySidePalette::help_toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&QuerySidePalette::help_toolbar_item_activated, this, std::placeholders::_1));
   toolbar->add_item(item);
 
   _manual_help_item = manage(new ToolBarItem(mforms::ActionItem));
@@ -759,7 +759,7 @@ ToolBar* QuerySidePalette::prepare_help_toolbar()
   _manual_help_item->set_icon(App::get()->get_resource_path("wb-toolbar_manual-help.png"));
   _manual_help_item->set_tooltip(_("Get context help for the item at the current caret position"));
   _manual_help_item->set_enabled(!_automatic_help);
-  scoped_connect(_manual_help_item->signal_activated(), boost::bind(&QuerySidePalette::help_toolbar_item_activated, this, _1));
+  scoped_connect(_manual_help_item->signal_activated(), std::bind(&QuerySidePalette::help_toolbar_item_activated, this, std::placeholders::_1));
   toolbar->add_item(_manual_help_item);
 
   toolbar->add_item(manage(new ToolBarItem(mforms::SeparatorItem)));
@@ -780,7 +780,7 @@ ToolBar* QuerySidePalette::prepare_help_toolbar()
   topic_entries.push_back("ALTER TABLE");
   _quick_jump_item->set_selector_items(topic_entries);
   _quick_jump_item->set_text(_("Jump To"));
-  scoped_connect(_quick_jump_item->signal_activated(), boost::bind(&QuerySidePalette::help_toolbar_item_activated, this, _1));
+  scoped_connect(_quick_jump_item->signal_activated(), std::bind(&QuerySidePalette::help_toolbar_item_activated, this, std::placeholders::_1));
   toolbar->add_item(_quick_jump_item);
 
   return toolbar;

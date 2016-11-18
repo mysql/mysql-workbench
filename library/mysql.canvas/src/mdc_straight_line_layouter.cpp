@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@ using namespace base;
 StraightLineLayouter::StraightLineLayouter(Connector *sconn, Connector *econn)
    : _start_conn(sconn), _end_conn(econn)
 {
-  sconn->set_update_handler(boost::bind(&StraightLineLayouter::connector_changed, this, _1));
-  econn->set_update_handler(boost::bind(&StraightLineLayouter::connector_changed, this, _1));
+  sconn->set_update_handler(std::bind(&StraightLineLayouter::connector_changed, this, std::placeholders::_1));
+  econn->set_update_handler(std::bind(&StraightLineLayouter::connector_changed, this, std::placeholders::_1));
 
   _start= sconn->get_position();
   _end= econn->get_position();

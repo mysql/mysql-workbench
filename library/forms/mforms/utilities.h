@@ -22,11 +22,8 @@
 /**
  * Implementation some miscellaneous stuff needed in mforms.
  */
-
-#include <boost/function.hpp>
-
 #include <cairo/cairo.h>
-
+#include <functional>
 #include "base/geometry.h"
 #include "mforms/base.h"
 
@@ -131,7 +128,7 @@ namespace mforms {
     void (*show_wait_message)(const std::string &title, const std::string &text);
     bool (*hide_wait_message)();
     bool (*run_cancelable_wait_message)(const std::string &title, const std::string &text,
-                                                  const boost::function<void ()> &start_task, const boost::function<bool ()> &cancel_task);
+                                                  const std::function<void ()> &start_task, const std::function<bool ()> &cancel_task);
     void (*stop_cancelable_wait_message)();
     
     void (*set_clipboard_text)(const std::string &text);
@@ -142,14 +139,14 @@ namespace mforms {
     void (*reveal_file)(const std::string &url);
     bool (*move_to_trash)(const std::string &path);
     
-    TimeoutHandle (*add_timeout)(float delay, const boost::function<bool ()> &callback);
+    TimeoutHandle (*add_timeout)(float delay, const std::function<bool ()> &callback);
     void (*cancel_timeout)(TimeoutHandle handle);
 
     void (*store_password)(const std::string &service, const std::string &account, const std::string &password);
     bool (*find_password)(const std::string &service, const std::string &account, std::string &password);
     void (*forget_password)(const std::string &service, const std::string &account);
 
-    void* (*perform_from_main_thread)(const boost::function<void* ()> &slot, bool wait_completion);
+    void* (*perform_from_main_thread)(const std::function<void* ()> &slot, bool wait_completion);
     void (*set_thread_name)(const std::string &name);
 
     double (*get_text_width)(const std::string &text, const std::string &font);
@@ -203,8 +200,8 @@ namespace mforms {
     static bool hide_wait_message();
     
     static bool run_cancelable_task(const std::string &title, const std::string &text,
-                                    const boost::function<void* ()> &task,
-                                    const boost::function<bool ()> &cancel_task,
+                                    const std::function<void* ()> &task,
+                                    const std::function<bool ()> &cancel_task,
                                     void *&task_result);
 
     /** Asks the user to enter a string, which is returned to the caller.
@@ -318,7 +315,7 @@ namespace mforms {
      Interval is in seconds, with fractional values allowed.
      The callback must return true if it wants to be triggered again
      */
-    static TimeoutHandle add_timeout(float interval, const boost::function<bool ()> &callback) WB_UNUSED_RETURN_VALUE;
+    static TimeoutHandle add_timeout(float interval, const std::function<bool ()> &callback) WB_UNUSED_RETURN_VALUE;
 #endif
     static void cancel_timeout(TimeoutHandle handle);
 
@@ -354,7 +351,7 @@ namespace mforms {
 #endif
 #endif
     
-    static void *perform_from_main_thread(const boost::function<void* ()> &slot, bool wait_completion = true);
+    static void *perform_from_main_thread(const std::function<void* ()> &slot, bool wait_completion = true);
 #endif // !SWIG
 
     static bool in_main_thread();
@@ -366,12 +363,12 @@ namespace mforms {
 
 #ifndef SWIG
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    static void add_driver_shutdown_callback(const boost::function<void ()> &slot);
+    static void add_driver_shutdown_callback(const std::function<void ()> &slot);
 #endif
 #endif
 
   private:
-    static boost::function<void()> _driver_shutdown_cb;
+    static std::function<void()> _driver_shutdown_cb;
 
     static void save_message_answers();
   };

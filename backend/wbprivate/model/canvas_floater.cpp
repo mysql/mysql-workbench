@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,7 +86,7 @@ Floater::Floater(mdc::Layer *layer, const std::string &title)
   _content_box.set_padding(8, 8);
   add(&_content_box, true, true);
 
-  scoped_connect(get_view()->signal_viewport_changed(),boost::bind(&Floater::update_position, this));
+  scoped_connect(get_view()->signal_viewport_changed(), std::bind(&Floater::update_position, this));
 }
 
 

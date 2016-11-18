@@ -12,11 +12,11 @@ public:
     set_short_title(_("Retrieve Objects"));
 
     add_async_task(_("Retrieve Objects from Selected Schemata"),
-                   boost::bind(&FetchSchemaContentsProgressPage::perform_fetch, this),
+                   std::bind(&FetchSchemaContentsProgressPage::perform_fetch, this),
                    _("Retrieving object lists from selected schemata..."));
 
     add_task(_("Check Results"), 
-             boost::bind(&FetchSchemaContentsProgressPage::perform_check, this),
+             std::bind(&FetchSchemaContentsProgressPage::perform_check, this),
              _("Checking Retrieved data..."));
 
     end_adding_tasks(_("Retrieval Completed Successfully"));
@@ -27,7 +27,7 @@ public:
   
   bool perform_fetch()
   {
-    execute_grt_task(boost::bind(&FetchSchemaContentsProgressPage::do_fetch, this),
+    execute_grt_task(std::bind(&FetchSchemaContentsProgressPage::do_fetch, this),
                      false);
     return true;
   }

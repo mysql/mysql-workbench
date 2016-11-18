@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,40 +61,40 @@ void RecordsetView::init()
 
   _grid->get_selection()->set_mode(Gtk::SELECTION_MULTIPLE);
 
-  _grid->_copy_func_ptr = sigc::mem_fun(this,&RecordsetView::copy);
+  _grid->_copy_func_ptr = std::bind(&RecordsetView::copy, this, std::placeholders::_1);
 
   add(*_grid);
   show_all();
 
   ActionList &action_list= _model->action_list();
-  action_list.register_action("record_first", sigc::mem_fun(this, &RecordsetView::on_goto_first_row_btn_clicked));
-  action_list.register_action("record_back", sigc::mem_fun(this, &RecordsetView::on_record_prev));
-  action_list.register_action("record_next", sigc::mem_fun(this, &RecordsetView::on_record_next));
-  action_list.register_action("record_last", sigc::mem_fun(this, &RecordsetView::on_goto_last_row_btn_clicked));
+  action_list.register_action("record_first", std::bind(&RecordsetView::on_goto_first_row_btn_clicked, this));
+  action_list.register_action("record_back", std::bind(&RecordsetView::on_record_prev, this));
+  action_list.register_action("record_next", std::bind(&RecordsetView::on_record_next, this));
+  action_list.register_action("record_last", std::bind(&RecordsetView::on_goto_last_row_btn_clicked, this));
   //action_list.register_action("record_fetch_all", sigc::mem_fun(this, &RecordsetView::));
-  action_list.register_action("record_wrap_vertical", sigc::mem_fun(this, &RecordsetView::on_toggle_vertical_sizing));
-  action_list.register_action("record_sort_asc", sigc::mem_fun(this, &RecordsetView::on_record_sort_asc));
-  action_list.register_action("record_sort_desc", sigc::mem_fun(this, &RecordsetView::on_record_sort_desc));
+  action_list.register_action("record_wrap_vertical", std::bind(&RecordsetView::on_toggle_vertical_sizing, this));
+  action_list.register_action("record_sort_asc", std::bind(&RecordsetView::on_record_sort_asc, this));
+  action_list.register_action("record_sort_desc", std::bind(&RecordsetView::on_record_sort_desc, this));
   //action_list.register_action("record_refresh", sigc::mem_fun(this, &RecordsetView::));
 
   mforms::ToolBar *tbar = _model->get_toolbar();
   if (tbar->find_item("record_edit"))
   {
-    tbar->find_item("record_edit")->signal_activated()->connect(boost::bind(&RecordsetView::on_record_edit, this));
-    tbar->find_item("record_add")->signal_activated()->connect(boost::bind(&RecordsetView::on_record_add, this));
-    tbar->find_item("record_del")->signal_activated()->connect(boost::bind(&RecordsetView::on_record_del, this));
+    tbar->find_item("record_edit")->signal_activated()->connect(std::bind(&RecordsetView::on_record_edit, this));
+    tbar->find_item("record_add")->signal_activated()->connect(std::bind(&RecordsetView::on_record_add, this));
+    tbar->find_item("record_del")->signal_activated()->connect(std::bind(&RecordsetView::on_record_del, this));
   }
 
   _grid->signal_event().connect(sigc::mem_fun(this, &RecordsetView::on_event));
 
-  _model->update_edited_field = boost::bind(&RecordsetView::selected_record_changed, this);
+  _model->update_edited_field = std::bind(&RecordsetView::selected_record_changed, this);
 }
 
 void RecordsetView::model(Recordset::Ref value)
 {
   _model= value;
   _refresh_ui_sig = _model->refresh_ui_signal.connect(sigc::mem_fun(this, &RecordsetView::refresh));
-  _model->update_edited_field = boost::bind(&RecordsetView::selected_record_changed, this);
+  _model->update_edited_field = std::bind(&RecordsetView::selected_record_changed, this);
   //_model->task->msg_cb(sigc::mem_fun(this, &RecordsetView::process_task_msg));
 
   if (_grid)

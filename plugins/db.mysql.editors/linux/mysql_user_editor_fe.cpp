@@ -90,7 +90,7 @@ DbMySQLUserEditor::DbMySQLUserEditor(grt::Module *m, const grt::BaseListRef &arg
   xml()->get_widget("user_editor_image", image);
   image->set(ImageCache::get_instance()->image_from_filename("db.User.editor.48x48.png", false));
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLUserEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLUserEditor::refresh_form_data, this));
 
   bind_entry_and_be_setter("user_name",     this, &DbMySQLUserEditor::set_name);
   bind_entry_and_be_setter("user_password", this, &DbMySQLUserEditor::set_password);
@@ -142,7 +142,7 @@ bool DbMySQLUserEditor::switch_edited_object(const grt::BaseListRef &args)
   bec::UserEditorBE *old_be = _be;
 
   _be = new bec::UserEditorBE(db_UserRef::cast_from(args[0]));
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLUserEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLUserEditor::refresh_form_data, this));
 
   _assigned_roles_model = model_from_string_list(_be->get_roles(), &_assigned_roles_columns);
   _roles_model          = ListModelWrapper::create(_be->get_role_tree(), _all_roles_tv, "AllRoles");

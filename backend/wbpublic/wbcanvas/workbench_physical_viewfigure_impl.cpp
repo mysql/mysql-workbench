@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,7 +84,7 @@ void workbench_physical_ViewFigure::ImplData::set_view(const db_ViewRef &view)
     if (self()->_owner.is_valid())
       workbench_physical_DiagramRef::cast_from(self()->_owner)->get_data()->add_mapping(view, self());
 
-    _figure_conn= self()->view()->signal_changed()->connect(boost::bind(&ImplData::view_member_changed, this, _1, _2));
+    _figure_conn= self()->view()->signal_changed()->connect(std::bind(&ImplData::view_member_changed, this, std::placeholders::_1, std::placeholders::_2));
     self()->_name= self()->view()->name();
   }
 
@@ -164,7 +164,7 @@ bool workbench_physical_ViewFigure::ImplData::realize()
   
   if (!is_main_thread())
   {
-    run_later(boost::bind(&ImplData::realize, this));
+    run_later(std::bind(&ImplData::realize, this));
     return true;
   }
   

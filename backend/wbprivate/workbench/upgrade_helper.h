@@ -74,7 +74,7 @@ public:
   double get_object_double_value(xmlNodePtr object, const char *key);
 
   // return value of callback determines if that node should be traversed too
-  void traverse_subtree(const char *path, const boost::function<bool (xmlNodePtr, xmlNodePtr)> &callback);
+  void traverse_subtree(const char *path, const std::function<bool (xmlNodePtr, xmlNodePtr)> &callback);
 };
 
 xmlNodePtr create_grt_object_node(const char *id, const char *struct_type);

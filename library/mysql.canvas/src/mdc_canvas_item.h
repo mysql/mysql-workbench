@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@
 
 #include <boost/signals2.hpp>
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class CanvasView;
 class Layer;
@@ -193,7 +193,7 @@ public:
   BoundsMagnet *get_bounds_magnet();
   Magnet *get_closest_magnet(const base::Point &point);
 
-  void set_drag_handle_constrainer(const boost::function<void (ItemHandle*,base::Size&)> &slot);
+  void set_drag_handle_constrainer(const std::function<void (ItemHandle*,base::Size&)> &slot);
 
   // signals
 
@@ -246,7 +246,7 @@ protected:
   std::vector<ItemHandle*> _handles;
   std::vector<Magnet*> _magnets;
 
-  boost::function<void (ItemHandle*,base::Size&)> _drag_handle_constrainer;
+  std::function<void (ItemHandle*,base::Size&)> _drag_handle_constrainer;
   
   boost::signals2::signal<void (const base::Rect &)> _bounds_changed_signal;
   boost::signals2::signal<void (CanvasItem*,const base::Rect&)> _parent_bounds_changed_signal;
@@ -305,7 +305,7 @@ protected:
 };
 
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 
 

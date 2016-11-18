@@ -34,7 +34,7 @@ MySQLViewEditorBE::MySQLViewEditorBE(const db_mysql_ViewRef &view)
   // In modeling we apply the text on focus change. For live editing however we don't.
   // The user has to explicitly commit his changes.
   if (!is_editing_live_object())
-    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), boost::bind(&MySQLViewEditorBE::commit_changes, this));
+    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), std::bind(&MySQLViewEditorBE::commit_changes, this));
 }
 
 //--------------------------------------------------------------------------------------------------

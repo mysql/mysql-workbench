@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include "mdc_group.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class CanvasItem;
 
@@ -54,7 +54,7 @@ protected:
   virtual bool on_drag(CanvasItem *target, const base::Point &point, EventState state);
 };
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 
 #endif

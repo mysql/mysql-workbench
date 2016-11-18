@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -497,7 +497,7 @@ System::Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  S
 
 delegate InvokationResult^ RunSlotDelegate(SlotWrapper ^wrapper);
 
-void* DispatchControl::RunOnMainThread(const boost::function<void* ()> &slot, bool wait)
+void* DispatchControl::RunOnMainThread(const std::function<void* ()> &slot, bool wait)
 {
   logDebug("Running slot on main thread (%swaiting for it)\n", wait ? "" : "not ");
 
@@ -643,24 +643,24 @@ bool UtilitiesWrapper::hide_wait_message()
 ref class CallSlotDelegate
 {
 private:
-  const boost::function<void ()> *task_slot;
-  const boost::function<bool ()> *cancel_slot;
+  const std::function<void ()> *task_slot;
+  const std::function<bool ()> *cancel_slot;
 
 public:
-  CallSlotDelegate(const boost::function<void ()> *start, const boost::function<bool ()> *cancel)
+  CallSlotDelegate(const std::function<void ()> *start, const std::function<bool ()> *cancel)
     : task_slot(start), cancel_slot(cancel)
   {
   }
 
   void call_start()
   {
-    if (!task_slot->empty())
+    if (*task_slot)
       (*task_slot)();
   }
 
   bool call_cancel()
   {
-    if (!cancel_slot->empty())
+    if (*cancel_slot)
       return (*cancel_slot)();
     return true;
   }
@@ -669,8 +669,8 @@ public:
 //-------------------------------------------------------------------------------------------------
 
 bool UtilitiesWrapper::run_cancelable_wait_message(const std::string &title, const std::string &text, 
-                                                   const boost::function<void ()> &signal_ready,
-                                                   const boost::function<bool ()> &cancel_slot)
+                                                   const std::function<void ()> &signal_ready,
+                                                   const std::function<bool ()> &cancel_slot)
 {
   logDebug("Running a cancelable wait message\n");
 
@@ -1078,7 +1078,7 @@ void UtilitiesWrapper::forget_password(const std::string &service, const std::st
 
 //--------------------------------------------------------------------------------------------------
 
-void* UtilitiesWrapper::perform_from_main_thread(const boost::function<void* ()>& slot, bool wait)
+void* UtilitiesWrapper::perform_from_main_thread(const std::function<void* ()>& slot, bool wait)
 {
   return dispatcher->RunOnMainThread(slot, wait);
 }
@@ -1177,13 +1177,13 @@ ref class TimerHandler
   static Dictionary<mforms::TimeoutHandle, TimerHandler^> ^timeout_handles = gcnew Dictionary<mforms::TimeoutHandle, TimerHandler^>();
 
 public:
-  TimerHandler(float interval, const boost::function<bool ()> &slot)
+  TimerHandler(float interval, const std::function<bool ()> &slot)
   {
     logDebug("Creating new TimerHandler\n");
 
     _timer = gcnew System::Windows::Forms::Timer();
 
-    _slot = new boost::function<bool ()>(slot);
+    _slot = new std::function<bool ()>(slot);
 
     _timer->Interval = (int) (interval * 1000);
     _timer->Tick += gcnew EventHandler(this, &TimerHandler::timer_tick);
@@ -1220,7 +1220,7 @@ public:
   }
 
 private:
-  boost::function<bool ()> *_slot;
+  std::function<bool ()> *_slot;
   System::Windows::Forms::Timer ^_timer;
   mforms::TimeoutHandle _handle;
 
@@ -1251,7 +1251,7 @@ private:
 
 //-------------------------------------------------------------------------------------------------
 
-mforms::TimeoutHandle UtilitiesWrapper::add_timeout(float interval, const boost::function<bool ()> &slot)
+mforms::TimeoutHandle UtilitiesWrapper::add_timeout(float interval, const std::function<bool ()> &slot)
 {
   logDebug("Adding new timeout\n");
 

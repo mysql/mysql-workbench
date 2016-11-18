@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,6 @@
 #include <limits>
 #include <ctime>
 #include <base/string_utilities.h>
-#include <boost/function.hpp>
 #include <sstream>
 
 
@@ -133,11 +132,11 @@ public:
 };
 
 
-class VarToInt : public boost::static_visitor<boost::int64_t>
+class VarToInt : public boost::static_visitor<std::int64_t>
 {
 public:
   result_type operator()(const int &v) const { return v; }
-  result_type operator()(const boost::int64_t &v) const { return v; }
+  result_type operator()(const std::int64_t &v) const { return v; }
   result_type operator()(const null_t &v) const { return 0; }
 
   template<typename T>
@@ -168,7 +167,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC VarToLongDouble : public boost::static_visitor
 public:
   result_type operator()(const long double &v) const { return v; }
   result_type operator()(const int &v) const { return v; }
-  result_type operator()(const boost::int64_t &v) const { return (long double)v; }
+  result_type operator()(const std::int64_t &v) const { return (long double)v; }
   result_type operator()(const null_t &v) const { return 0; }
 
   template<typename T>
@@ -184,10 +183,10 @@ class WBPUBLICBACKEND_PUBLIC_FUNC QuoteVar : public VarConvBase
 {
 public:
   QuoteVar() : quote("'"), store_unknown_as_string(true), allow_func_escaping(false) {}
-  typedef boost::function<std::string (const std::string&)> Escape_sql_string;
+  typedef std::function<std::string (const std::string&)> Escape_sql_string;
   Escape_sql_string escape_string;
   std::string quote;
-  typedef boost::function<std::string (const unsigned char*, size_t)> Blob_to_string;
+  typedef std::function<std::string (const unsigned char*, size_t)> Blob_to_string;
   Blob_to_string blob_to_string;
   bool store_unknown_as_string;
   bool allow_func_escaping;
@@ -268,19 +267,19 @@ public:
   template<typename T>
   result_type operator()(const T&, const blob_ref_t &v) const
   {
-    return (blob_to_string.empty()) ? "?" /*bind variable placeholder*/ : blob_to_string(&(*v)[0], v->size());
+    return !blob_to_string ? "?" /*bind variable placeholder*/ : blob_to_string(&(*v)[0], v->size());
   }
   result_type operator()(const blob_ref_t&, const blob_ref_t& v) const
   {
-    return (blob_to_string.empty()) ? "?" /*bind variable placeholder*/ : blob_to_string(&(*v)[0], v->size());
+    return !blob_to_string ? "?" /*bind variable placeholder*/ : blob_to_string(&(*v)[0], v->size());
   }
   result_type operator()(const blob_ref_t&, const std::string& v) const
   {
-    return (blob_to_string.empty()) ? "?" /*bind variable placeholder*/ : blob_to_string((const unsigned char*)v.data(), v.size());
+    return !blob_to_string ? "?" /*bind variable placeholder*/ : blob_to_string((const unsigned char*)v.data(), v.size());
   }
   result_type operator()(const blob_ref_t&, const null_t&) const
   {
-    return (blob_to_string.empty()) ? "?" /*bind variable placeholder*/ : "NULL";
+    return !blob_to_string ? "?" /*bind variable placeholder*/ : "NULL";
   }
 
   template<typename T, typename V>

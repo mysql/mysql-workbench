@@ -64,19 +64,19 @@ SynchronizeDifferencesPage::SynchronizeDifferencesPage(grtui::WizardForm *form, 
   _bottom_box.add_end(&_edit_column_mapping, false, true);
   _bottom_box.add_end(&_edit_table_mapping, false, true);
 
-  scoped_connect(_update_source.signal_clicked(),boost::bind(&SynchronizeDifferencesPage::update_source, this));
-  scoped_connect(_update_model.signal_clicked(),boost::bind(&SynchronizeDifferencesPage::update_model, this));
-  scoped_connect(_skip.signal_clicked(),boost::bind(&SynchronizeDifferencesPage::update_none, this));
-  scoped_connect(_edit_table_mapping.signal_clicked(),boost::bind(&SynchronizeDifferencesPage::edit_table_mapping, this));
-  scoped_connect(_edit_column_mapping.signal_clicked(),boost::bind(&SynchronizeDifferencesPage::edit_column_mapping, this));
+  scoped_connect(_update_source.signal_clicked(), std::bind(&SynchronizeDifferencesPage::update_source, this));
+  scoped_connect(_update_model.signal_clicked(), std::bind(&SynchronizeDifferencesPage::update_model, this));
+  scoped_connect(_skip.signal_clicked(), std::bind(&SynchronizeDifferencesPage::update_none, this));
+  scoped_connect(_edit_table_mapping.signal_clicked(), std::bind(&SynchronizeDifferencesPage::edit_table_mapping, this));
+  scoped_connect(_edit_column_mapping.signal_clicked(), std::bind(&SynchronizeDifferencesPage::edit_column_mapping, this));
   
   _tree.add_column(mforms::IconStringColumnType, _be->get_col_name(0), 200, false);
   _tree.add_column(mforms::IconStringColumnType, _be->get_col_name(1), 50, false);
   _tree.add_column(mforms::IconStringColumnType, _be->get_col_name(2), 200, false);
   _tree.end_columns();
   
-  scoped_connect(_tree.signal_node_activated(),boost::bind(&SynchronizeDifferencesPage::activate_node, this, _1, _2));
-  scoped_connect(_tree.signal_changed(),boost::bind(&SynchronizeDifferencesPage::select_row, this));
+  scoped_connect(_tree.signal_node_activated(),std::bind(&SynchronizeDifferencesPage::activate_node, this, std::placeholders::_1, std::placeholders::_2));
+  scoped_connect(_tree.signal_changed(), std::bind(&SynchronizeDifferencesPage::select_row, this));
 }
 
 SynchronizeDifferencesPage::~SynchronizeDifferencesPage()
@@ -288,11 +288,11 @@ void SynchronizeDifferencesPage::refresh_node(mforms::TreeNodeRef node)
     refresh_node(node->get_child(i));
 }
 
-void SynchronizeDifferencesPage::set_catalog_getter_slot(const boost::function<db_CatalogRef () > &source_catalog_slot,
-                                                         const boost::function<db_CatalogRef () > &target_catalog_slot)
-{
-  get_source_catalog= source_catalog_slot;
-  get_target_catalog= target_catalog_slot;
+void SynchronizeDifferencesPage::set_catalog_getter_slot(
+    const std::function<db_CatalogRef()> &source_catalog_slot,
+    const std::function<db_CatalogRef()> &target_catalog_slot) {
+  get_source_catalog = source_catalog_slot;
+  get_target_catalog = target_catalog_slot;
 }
 
 void SynchronizeDifferencesPage::set_src(const db_CatalogRef cat)

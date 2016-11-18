@@ -96,7 +96,7 @@ namespace mforms
       Nothing, ModelsOnly, ScriptsOnly, Mixed
     } _display_mode;
 
-    boost::function<bool(int, int)> _accessible_click_handler;
+    std::function<bool(int, int)> _accessible_click_handler;
 
     HomeAccessibleButton _add_button;
     HomeAccessibleButton _open_button;

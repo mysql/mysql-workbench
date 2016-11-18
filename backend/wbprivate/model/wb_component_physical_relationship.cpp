@@ -41,14 +41,14 @@ WBComponentPhysical::RelationshipToolContext::RelationshipToolContext(WBComponen
 {
   workbench_physical_Diagram::ImplData *view_bridge= workbench_physical_DiagramRef::cast_from(form->get_model_diagram())->get_data();
   if (view_bridge)
-    scoped_connect(view_bridge->signal_item_crossed(),boost::bind(&RelationshipToolContext::on_figure_crossed, this, _1, _2, _3, _4));
+    scoped_connect(view_bridge->signal_item_crossed(), std::bind(&RelationshipToolContext::on_figure_crossed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
     
   if (type == RelationshipPick)
   {
     floater= new RelationshipFloater(view);
     view->add_floater(floater);
     
-    scoped_connect(floater->signal_done_clicked(),boost::bind(&RelationshipToolContext::source_picking_done, this));
+    scoped_connect(floater->signal_done_clicked(), std::bind(&RelationshipToolContext::source_picking_done, this));
 
     last_message= _("Select the Table to receive the Foreign Key or the Column(s) to turn into a Foreign Key.");
   }
@@ -59,7 +59,7 @@ WBComponentPhysical::RelationshipToolContext::RelationshipToolContext(WBComponen
     floater= 0;
     last_message= _("Select the Table to receive the Foreign Key.");
   }
-  owner->get_wb()->show_status_text(last_message);
+  owner->get_wb()->_frontendCallbacks.show_status_text(last_message);
 }
 
 
@@ -87,7 +87,7 @@ void WBComponentPhysical::RelationshipToolContext::cancel()
     leave_table(hovering);
   
   if (state != RFinished)
-    owner->get_wb()->show_status_text(_("Cancelled."));
+    owner->get_wb()->_frontendCallbacks.show_status_text(_("Cancelled."));
 }
 
 
@@ -607,7 +607,7 @@ bool WBComponentPhysical::RelationshipToolContext::button_press(ModelDiagramForm
   if (!result.empty())
   {
     last_message= result;
-    owner->get_wb()->show_status_text(last_message);
+    owner->get_wb()->_frontendCallbacks.show_status_text(last_message);
   }
   
   if (state == RFinished)
@@ -627,6 +627,6 @@ void WBComponentPhysical::RelationshipToolContext::source_picking_done()
     state= RPickingEnd;
     last_message= _("Please pick referenced columns or table.");
     
-    owner->get_wb()->show_status_text(last_message);
+    owner->get_wb()->_frontendCallbacks.show_status_text(last_message);
   }
 }

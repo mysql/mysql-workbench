@@ -116,8 +116,8 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _switcher.set_collapsed(bec::GRTManager::get()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
 
   add(&_switcher, false, true);
-  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
-  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
+  _switcher.signal_changed()->connect(std::bind(&SqlEditorResult::switch_tab, this));
+  _switcher.signal_collapse_changed()->connect(std::bind(&SqlEditorResult::switcher_collapsed, this));
   
   _execution_plan_placeholder = NULL;
 
@@ -134,7 +134,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
     _grtobj->dockingPoint(mforms_to_grt(&_tabdock));
   }
 
-  set_on_close(boost::bind(&SqlEditorResult::can_close, this));
+  set_on_close(std::bind(&SqlEditorResult::can_close, this));
 }
 
 
@@ -194,7 +194,7 @@ void SqlEditorResult::update_selection_for_menu_extra(mforms::ContextMenu *menu,
   if (item)
   {
     if (item->signal_clicked()->empty() && !rows.empty())
-      item->signal_clicked()->connect(boost::bind(&SqlEditorResult::open_field_editor, this, rows[0], column));
+      item->signal_clicked()->connect(std::bind(&SqlEditorResult::open_field_editor, this, rows[0], column));
   }
 }
 
@@ -212,21 +212,23 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   else
     _grtobj->resultset(grtwrap_recordset(grtobj(), rset));
 
-  rset->update_selection_for_menu_extra = boost::bind(&SqlEditorResult::update_selection_for_menu_extra, this, _1, _2, _3);
+  rset->update_selection_for_menu_extra = std::bind(
+      &SqlEditorResult::update_selection_for_menu_extra, this,
+      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 
-  rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_export_recordset, this));
+  rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(std::bind(&SqlEditorResult::show_export_recordset, this));
   if (rset->get_toolbar()->find_item("record_import"))
-    rset->get_toolbar()->find_item("record_import")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_import_recordset, this));
+    rset->get_toolbar()->find_item("record_import")->signal_activated()->connect(std::bind(&SqlEditorResult::show_import_recordset, this));
 
   // reset the column header indicators
-  rset->get_toolbar()->find_item("record_sort_reset")->signal_activated()->connect(boost::bind(&SqlEditorResult::reset_sorting, this));
+  rset->get_toolbar()->find_item("record_sort_reset")->signal_activated()->connect(std::bind(&SqlEditorResult::reset_sorting, this));
 
   _grid_header_menu = new mforms::ContextMenu();
-  _grid_header_menu->add_item_with_title("Copy Field Name", boost::bind(&SqlEditorResult::copy_column_name, this));
-  _grid_header_menu->add_item_with_title("Copy All Field Names", boost::bind(&SqlEditorResult::copy_all_column_names, this));
+  _grid_header_menu->add_item_with_title("Copy Field Name", std::bind(&SqlEditorResult::copy_column_name, this));
+  _grid_header_menu->add_item_with_title("Copy All Field Names", std::bind(&SqlEditorResult::copy_all_column_names, this));
   _grid_header_menu->add_separator();
-  _grid_header_menu->add_item_with_title("Reset Sorting", boost::bind(&SqlEditorResult::reset_sorting, this));
-  _grid_header_menu->add_item_with_title("Reset Column Widths", boost::bind(&SqlEditorResult::reset_column_widths, this));
+  _grid_header_menu->add_item_with_title("Reset Sorting", std::bind(&SqlEditorResult::reset_sorting, this));
+  _grid_header_menu->add_item_with_title("Reset Column Widths", std::bind(&SqlEditorResult::reset_column_widths, this));
 
   mforms::GridView* grid = mforms::manage(mforms::GridView::create(rset));
   {
@@ -244,17 +246,17 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
                        ++_owner->_rs_sequence));
 
   bec::UIForm::scoped_connect(rset->get_context_menu()->signal_will_show(),
-                              boost::bind(&SqlEditorPanel::on_recordset_context_menu_show, _owner, Recordset::Ptr(rset)));
+                              std::bind(&SqlEditorPanel::on_recordset_context_menu_show, _owner, Recordset::Ptr(rset)));
 
   restore_grid_column_widths();
   bec::UIForm::scoped_connect(_result_grid->signal_column_resized(),
-                              boost::bind(&SqlEditorResult::on_recordset_column_resized, this, _1));
+                              std::bind(&SqlEditorResult::on_recordset_column_resized, this, std::placeholders::_1));
 
   bec::UIForm::scoped_connect(_result_grid->signal_columns_resized(),
-                                boost::bind(&SqlEditorResult::onRecordsetColumnsResized, this, _1));
+                                std::bind(&SqlEditorResult::onRecordsetColumnsResized, this, std::placeholders::_1));
 
-  rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
-  rset->data_edited_signal.connect(boost::bind(&mforms::View::set_needs_repaint, grid));
+  rset->data_edited_signal.connect(std::bind(&SqlEditorPanel::resultset_edited, _owner));
+  rset->data_edited_signal.connect(std::bind(&mforms::View::set_needs_repaint, grid));
 }
 
 
@@ -436,10 +438,10 @@ void SqlEditorResult::add_switch_toggle_toolbar_item(mforms::ToolBar *tbar)
   item->set_name("sidetoggle");
   item->set_icon(app->get_resource_path("output_type-toggle-on.png"));
   item->set_alt_icon(app->get_resource_path("output_type-toggle-off.png"));
-  item->signal_activated()->connect(boost::bind(&SqlEditorResult::toggle_switcher_collapsed, this));
+  item->signal_activated()->connect(std::bind(&SqlEditorResult::toggle_switcher_collapsed, this));
   item->set_checked(!_switcher.get_collapsed());
   tbar->add_item(item);
-  _collapse_toggled_sig = _collapse_toggled.connect(boost::bind(&mforms::ToolBarItem::set_checked, item, _1));
+  _collapse_toggled_sig = _collapse_toggled.connect(std::bind(&mforms::ToolBarItem::set_checked, item, std::placeholders::_1));
 }
 
 
@@ -537,12 +539,6 @@ void SqlEditorResult::on_recordset_column_resized(int column)
   }
 }
 
-grt::ValueRef run_and_return(const boost::function<void()>& f)
-{
-  f();
-  return grt::ValueRef();
-}
-
 void SqlEditorResult::onRecordsetColumnsResized(const std::vector<int> cols)
 {
   std::vector<int>::const_iterator it;
@@ -558,8 +554,10 @@ void SqlEditorResult::onRecordsetColumnsResized(const std::vector<int> cols)
   }
   if (!widths.empty())
   {
-    boost::function<void()> f = boost::bind(&ColumnWidthCache::save_columns_width, _owner->owner()->column_width_cache(), widths);
-    bec::GRTManager::get()->get_dispatcher()->execute_async_function("store column widths", boost::bind(&run_and_return, f));
+    bec::GRTManager::get()->get_dispatcher()->execute_async_function(
+        "store column widths",
+        [this, widths]() {_owner->owner()->column_width_cache()->save_columns_width(widths); return grt::ValueRef();});
+
   }
 }
 
@@ -771,7 +769,7 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
 }
 
 
-static std::string format_ps_time(boost::int64_t t)
+static std::string format_ps_time(std::int64_t t)
 {
   int hours, mins;
   double secs;
@@ -860,8 +858,8 @@ void SqlEditorResult::create_column_info_panel()
       tree->set_selection_mode(mforms::TreeSelectMultiple);
 
       _column_info_menu = new mforms::ContextMenu();
-      _column_info_menu->add_item_with_title("Copy", boost::bind(&SqlEditorResult::copy_column_info, this, tree));
-      _column_info_menu->add_item_with_title("Copy Name", boost::bind(&SqlEditorResult::copy_column_info_name, this, tree));
+      _column_info_menu->add_item_with_title("Copy", std::bind(&SqlEditorResult::copy_column_info, this, tree));
+      _column_info_menu->add_item_with_title("Copy Name", std::bind(&SqlEditorResult::copy_column_info_name, this, tree));
       tree->set_context_menu(_column_info_menu);
 
       int i = 0;
@@ -1067,7 +1065,7 @@ void SqlEditorResult::create_query_stats_panel()
     // show basic stats
     box->add(bold_label("Timing (as measured at client side):"), false, true);
     info.clear();
-    info = strfmt("Execution time: %s\n", format_ps_time(boost::int64_t(rsdata->duration * 1000000000000.0)).c_str());
+    info = strfmt("Execution time: %s\n", format_ps_time(std::int64_t(rsdata->duration * 1000000000000.0)).c_str());
     box->add(mforms::manage(new mforms::Label(info)), false, true);
     
     // if we're in a server with PS, show some extra PS goodies
@@ -1076,7 +1074,7 @@ void SqlEditorResult::create_query_stats_panel()
     for (auto &it : rsdata->ps_stat_info)
       ps_stats[it.first] = (long long int)it.second;
 
-//    std::map<std::string, boost::int64_t> &ps_stats(rsdata->ps_stat_info);
+//    std::map<std::string, std::int64_t> &ps_stats(rsdata->ps_stat_info);
 
     if (ps_stats.size() <= 1) //  "EVENT_ID" is always present
     {

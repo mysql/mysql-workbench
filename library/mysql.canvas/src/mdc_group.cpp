@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ Group::Group(Layer *layer)
   set_accepts_focus(true);
   set_accepts_selection(true);  
 
-  scoped_connect(signal_focus_change(),boost::bind(&Group::focus_changed,this, _1, this));
+  scoped_connect(signal_focus_change(), std::bind(&Group::focus_changed,this, std::placeholders::_1, this));
 }
 
 
@@ -110,7 +110,7 @@ void Group::add(CanvasItem *item)
   ItemInfo info;
   
   info.connection= 
-      item->signal_focus_change()->connect(boost::bind(&Group::focus_changed, this, _1, item));
+      item->signal_focus_change()->connect(std::bind(&Group::focus_changed, this, std::placeholders::_1, item));
   _content_info[item]= info;
 }
 
@@ -211,7 +211,7 @@ void Group::update_bounds()
 }
 
 
-void Group::foreach(const boost::function<void (CanvasItem*)> &slot)
+void Group::foreach(const std::function<void (CanvasItem*)> &slot)
 {
   for (std::list<CanvasItem*>::const_iterator it= _contents.begin(); it != _contents.end(); )
   {

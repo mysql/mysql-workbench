@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@ bool tokenize_string_list(const std::string &str, int quote_char, bool quoted_on
         state= UnquotedString;
         word_start= p;
       }
-      else if (isspace(*p))
+      else if (std::isspace(*p))
         ;
       else
         return false;
@@ -70,7 +70,7 @@ bool tokenize_string_list(const std::string &str, int quote_char, bool quoted_on
         escaping= false;
       break;
     case UnquotedString:
-      if (isspace(*p))
+      if (std::isspace(*p))
       {
         tokens.push_back(std::string(word_start, p));
         state= WaitingComma;
@@ -82,7 +82,7 @@ bool tokenize_string_list(const std::string &str, int quote_char, bool quoted_on
       }
       break;
     case WaitingComma:
-      if (isspace(*p))
+      if (std::isspace(*p))
         ;
       else if (*p == ',')
         state= Start;

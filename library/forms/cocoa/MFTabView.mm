@@ -148,7 +148,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         break;
 
       default:
-        throw std::runtime_error("mforms: invalid tab type: " + base::to_string(tabType));
+        throw std::runtime_error("mforms: invalid tab type: " + std::to_string(tabType));
         break;
     }
     [mTabView setDrawsBackground: NO];

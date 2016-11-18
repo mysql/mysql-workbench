@@ -193,8 +193,8 @@ public:
 
     _left.panel.set_title(_("Source – Database To Take Updates From"));
 
-    _left.set_change_slot(boost::bind(&MultiSourceSelectPage::left_changed, this));
-    _right.set_change_slot(boost::bind(&MultiSourceSelectPage::right_changed, this));
+    _left.set_change_slot(std::bind(&MultiSourceSelectPage::left_changed, this));
+    _right.set_change_slot(std::bind(&MultiSourceSelectPage::right_changed, this));
 
     _left.model_radio->set_active(true);
     _right.model_radio->set_enabled(false);

@@ -35,7 +35,6 @@ using namespace base;
 #include "fetch_schema_contents_page.h"
 #include "synchronize_differences_page.h"
 
-#include <boost/lambda/bind.hpp>
 
 
 class DescriptionPage : public WizardPage
@@ -95,9 +94,9 @@ public:
 
   }
 
-  void set_generate_text_slot(const boost::function<std::string()> &slot)
+  void set_generate_text_slot(const std::function<std::string()> &slot)
   {
-    _generate= slot;
+    _generate = slot;
   }
 
   virtual void enter(bool advancing)
@@ -130,7 +129,7 @@ public:
   virtual bool next_closes_wizard() { return values().get_int("result") != DataSourceSelector::ServerSource; }
 
 protected:  
-  boost::function<std::string()> _generate;
+  std::function<std::string()> _generate;
 };
 
 
@@ -148,18 +147,18 @@ public:
     set_short_title(_("Alter Progress"));
 
     add_async_task(_("Connect to DBMS"),
-      boost::bind(&AlterApplyProgressPage::do_connect, this),
+      std::bind(&AlterApplyProgressPage::do_connect, this),
       _("Connecting to DBMS..."));
 
     add_async_task(_("Execute Alter Script"),
-      boost::bind(&AlterApplyProgressPage::do_export, this),
+      std::bind(&AlterApplyProgressPage::do_export, this),
       _("Applying Alter engineered SQL script in DBMS..."));
 
     TaskRow *task = add_async_task(_("Read Back Changes Made by Server"),
-                                    boost::bind(&AlterApplyProgressPage::back_sync, this),
+                                    std::bind(&AlterApplyProgressPage::back_sync, this),
                                     _("Fetching back object definitions reformatted by server..."));
 
-    task->process_finish= boost::bind(&AlterApplyProgressPage::export_finished, this, _1);
+    task->process_finish= std::bind(&AlterApplyProgressPage::export_finished, this, std::placeholders::_1);
 
     end_adding_tasks(_("Applying Alter Finished Successfully"));
 
@@ -191,22 +190,25 @@ public:
 
   bool do_connect()
   {
-    execute_grt_task(boost::bind(boost::function<grt::ValueRef (bool)> (boost::lambda::constant(grt::ValueRef())),
-        boost::bind(&DbConnection::test_connection,_dbplugin->db_conn())), false);
+    execute_grt_task([this]() {
+      _dbplugin->db_conn()->test_connection();
+      return grt::ValueRef();
+    },
+                     false);
     return true;
   }  
 
   bool do_export()
   {
     _dbplugin->sql_script(values().get_string("script"));
-    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, _dbplugin), false);
+    execute_grt_task(std::bind(&Db_plugin::apply_script_to_db, _dbplugin), false);
 
     return true;
   }
 
   bool back_sync()
   {
-    execute_grt_task(boost::bind(&AlterApplyProgressPage::back_sync_, this), false);
+    execute_grt_task(std::bind(&AlterApplyProgressPage::back_sync_, this), false);
     return true;
   }
 
@@ -293,8 +295,8 @@ public:
     // Fetch names from source and target if they're DBs, reveng script if they're files
     FetchSchemaNamesSourceTargetProgressPage *fetch_names_page;
     add_page(mforms::manage(fetch_names_page= new FetchSchemaNamesSourceTargetProgressPage(this, _source_page, "fetch_names")));
-    fetch_names_page->set_load_schemata_slot(_left_db.db_conn(), boost::bind(&WbSynchronizeAnyWizard::load_schemata, this, &_left_db),
-                                             _right_db.db_conn(), boost::bind(&WbSynchronizeAnyWizard::load_schemata, this, &_right_db));
+    fetch_names_page->set_load_schemata_slot(_left_db.db_conn(), std::bind(&WbSynchronizeAnyWizard::load_schemata, this, &_left_db),
+                                             _right_db.db_conn(), std::bind(&WbSynchronizeAnyWizard::load_schemata, this, &_right_db));
     fetch_names_page->set_model_catalog(_be.get_model_catalog());
 
     // Pick what to synchronize
@@ -313,7 +315,7 @@ public:
 
     AlterViewResultPage *page;
     add_page(mforms::manage(page= new AlterViewResultPage(this)));
-    page->set_generate_text_slot(boost::bind(&WbSynchronizeAnyWizard::generate_alter, this));
+    page->set_generate_text_slot(std::bind(&WbSynchronizeAnyWizard::generate_alter, this));
     add_page(mforms::manage(_apply_page = new AlterApplyProgressPage(this)));
     _apply_page->set_db_plugin(&_right_db);
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ void TreeNodeWrapper::set_string(int column, const std::string &value)
 }
 
 void TreeNodeWrapper::set_int(int column, int value){}
-void TreeNodeWrapper::set_long(int column, boost::int64_t value){}
+void TreeNodeWrapper::set_long(int column, std::int64_t value){}
 void TreeNodeWrapper::set_bool(int column, bool value){}
 void TreeNodeWrapper::set_float(int column, double value){}
 
@@ -84,7 +84,7 @@ int TreeNodeWrapper::get_int(int column) const
   return 0;
 }
 
-boost::int64_t TreeNodeWrapper::get_long(int column) const
+std::int64_t TreeNodeWrapper::get_long(int column) const
 {
   return 0;
 }

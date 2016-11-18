@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 #ifndef HAVE_PRECOMPILED_HEADERS
   #include "glib.h"
   #include <list>
-  #include <boost/function.hpp>
+  #include <functional>
 #endif
 
 #include "base/threading.h"
@@ -33,7 +33,7 @@
 // The callback type used for timer events. It gets the id of the task returned from add_task
 // and must return a boolean value which tells us if the task should continue to run or
 // immediately be stopped. For one-shot tasks the return value has no meaning.
-typedef boost::function<bool (int)> TimerFunction;
+typedef std::function<bool (int)> TimerFunction;
 
 #ifdef _WIN32
   #pragma warning(disable: 4251) // We don't want to DLL export TimerTask, and we don't need a warning for that.

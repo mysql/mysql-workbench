@@ -61,7 +61,7 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _icon.set_size(48, 48);
   
   _check.set_text("Include Objects of This Type"); // this text will be updated later on
-  scoped_connect(_check.signal_clicked(),boost::bind(&DBObjectFilterFrame::toggle_enabled, this));
+  scoped_connect(_check.signal_clicked(), std::bind(&DBObjectFilterFrame::toggle_enabled, this));
 
   _summary_table.add(&_icon, 0, 1, 0, 2, 0);
 
@@ -74,7 +74,7 @@ DBObjectFilterFrame::DBObjectFilterFrame()
 
   _show_button.enable_internal_padding(true);
   _show_button.set_text(_("Show Filter"));
-  scoped_connect(_show_button.signal_clicked(),boost::bind(&DBObjectFilterFrame::toggle_detailed, this));
+  scoped_connect(_show_button.signal_clicked(), std::bind(&DBObjectFilterFrame::toggle_detailed, this));
   
   _summary_table.add(&_show_button, 2, 3, 0, 2, mforms::HFillFlag);
   
@@ -109,20 +109,20 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _object_list.set_size(120, -1); // Need a minimum size for Windows, or layouting does not work properly.
 #endif
   _detailed_table.add(&_object_list, 0, 1, 1, 8, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
-  scoped_connect(_object_list.signal_changed(),boost::bind(&DBObjectFilterFrame::update_button_enabled, this));
+  scoped_connect(_object_list.signal_changed(), std::bind(&DBObjectFilterFrame::update_button_enabled, this));
 
   _add1_button.set_text(">");
-  scoped_connect(_add1_button.signal_clicked(),boost::bind(&DBObjectFilterFrame::add_clicked, this, false));
+  scoped_connect(_add1_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_clicked, this, false));
   _del1_button.set_text("<");
-  scoped_connect(_del1_button.signal_clicked(),boost::bind(&DBObjectFilterFrame::del_clicked, this, false));
+  scoped_connect(_del1_button.signal_clicked(), std::bind(&DBObjectFilterFrame::del_clicked, this, false));
 
   _add2_button.set_text(">>");
-  scoped_connect(_add2_button.signal_clicked(),boost::bind(&DBObjectFilterFrame::add_clicked, this, true));
+  scoped_connect(_add2_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_clicked, this, true));
   _del2_button.set_text("<<");
-  scoped_connect(_del2_button.signal_clicked(),boost::bind(&DBObjectFilterFrame::del_clicked, this, true));
+  scoped_connect(_del2_button.signal_clicked(), std::bind(&DBObjectFilterFrame::del_clicked, this, true));
   
   _mask_button.set_text("+");
-  scoped_connect(_mask_button.signal_clicked(),boost::bind(&DBObjectFilterFrame::add_mask, this));
+  scoped_connect(_mask_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_mask, this));
 
   _detailed_table.add(&_add1_button, 1, 2, 2, 3, mforms::HFillFlag);
   _detailed_table.add(&_del1_button, 1, 2, 3, 4, mforms::HFillFlag);
@@ -135,7 +135,7 @@ DBObjectFilterFrame::DBObjectFilterFrame()
 #endif
   _mask_list.set_heading(_("Excluded Objects"));
   _detailed_table.add(&_mask_list, 2, 3, 1, 8, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
-  scoped_connect(_mask_list.signal_changed(),boost::bind(&DBObjectFilterFrame::update_button_enabled, this));
+  scoped_connect(_mask_list.signal_changed(), std::bind(&DBObjectFilterFrame::update_button_enabled, this));
   
   _filter_help_label.set_style(mforms::SmallHelpTextStyle);
   _filter_help_label.set_text(_("Use the + button to exclude objects matching wildcards such as * and ?"));

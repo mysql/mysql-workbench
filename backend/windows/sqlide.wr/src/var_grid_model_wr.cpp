@@ -89,7 +89,7 @@ void VarGridModelWrapper::set_update_selection_delegate(DelegateSlot0<void, void
   else
   {
     _update_selection = nullptr;
-    _ref->update_edited_field = boost::function<void ()>();
+    _ref->update_edited_field = std::function<void ()>();
   }
 }
 
@@ -105,7 +105,7 @@ void VarGridModelWrapper::set_rows_changed(DelegateSlot0<void, void>::ManagedDel
   else
   {
     _rows_changed = nullptr;
-    _ref->rows_changed = boost::function<void ()>();
+    _ref->rows_changed = std::function<void ()>();
   }
 }
 

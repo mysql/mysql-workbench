@@ -34,7 +34,7 @@ bec::ValidationMessagesBE::ValidationMessagesBE()
   _warning_icon = IconManager::get_instance()->get_icon_id("mini_warning.png");
   _info_icon    = IconManager::get_instance()->get_icon_id("mini_notice.png");
 
-  scoped_connect(bec::ValidationManager::signal_notify(),boost::bind(&bec::ValidationMessagesBE::validation_message, this, _1, _2, _3, _4));
+  scoped_connect(bec::ValidationManager::signal_notify(),std::bind(&bec::ValidationMessagesBE::validation_message, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ void bec::ValidationMessagesBE::remove_messages(bec::ValidationMessagesBE::Messa
 
   while (was_remove)
   {
-    it = std::remove_if(ml->begin(), ml->end(),  boost::bind(&bec::ValidationMessagesBE::match_message, _1, obj, tag));
+    it = std::remove_if(ml->begin(), ml->end(),  std::bind(&bec::ValidationMessagesBE::match_message, std::placeholders::_1, obj, tag));
     if (it != ml->end())
     {
       was_remove = true;

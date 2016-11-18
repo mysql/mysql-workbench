@@ -247,10 +247,10 @@ MySQLEditor::MySQLEditor(MySQLParserContext::Ref syntax_check_context, MySQLPars
   _code_editor->send_editor(SCI_SETINDENT, bec::GRTManager::get()->get_app_option_int("Editor:IndentWidth", 4), 0);
   _code_editor->send_editor(SCI_SETUSETABS, !bec::GRTManager::get()->get_app_option_int("Editor:TabIndentSpaces", 0), 0);
 
-  scoped_connect(_code_editor->signal_changed(), boost::bind(&MySQLEditor::text_changed, this, _1, _2, _3, _4));
-  scoped_connect(_code_editor->signal_char_added(), boost::bind(&MySQLEditor::char_added, this, _1));
-  scoped_connect(_code_editor->signal_dwell(), boost::bind(&MySQLEditor::dwell_event, this, _1, _2, _3, _4));
-  scoped_connect(_code_editor->signal_marker_changed(), boost::bind(&MySQLEditor::Private::marker_changed, d, _1, _2));
+  scoped_connect(_code_editor->signal_changed(), std::bind(&MySQLEditor::text_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+  scoped_connect(_code_editor->signal_char_added(), std::bind(&MySQLEditor::char_added, this, std::placeholders::_1));
+  scoped_connect(_code_editor->signal_dwell(), std::bind(&MySQLEditor::dwell_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+  scoped_connect(_code_editor->signal_marker_changed(), std::bind(&MySQLEditor::Private::marker_changed, d, std::placeholders::_1, std::placeholders::_2));
 
   setup_auto_completion();
 
@@ -420,14 +420,14 @@ void MySQLEditor::set_base_toolbar(mforms::ToolBar *toolbar)
     item->set_name("query.beautify");
     item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_beautifier.png"));
     item->set_tooltip(_("Beautify/reformat the SQL script"));
-    scoped_connect(item->signal_activated(), boost::bind(beautify_script, this));
+    scoped_connect(item->signal_activated(), std::bind(beautify_script, this));
     d->_toolbar->add_item(item);
   }
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.search");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_find.png"));
   item->set_tooltip(_("Show the Find panel for the editor"));
-  scoped_connect(item->signal_activated(), boost::bind(show_find_panel_for_active_editor, this));
+  scoped_connect(item->signal_activated(), std::bind(show_find_panel_for_active_editor, this));
   d->_toolbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
@@ -435,7 +435,7 @@ void MySQLEditor::set_base_toolbar(mforms::ToolBar *toolbar)
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_special-chars-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_special-chars-off.png"));
   item->set_tooltip(_("Toggle display of invisible characters (spaces, tabs, newlines)"));
-  scoped_connect(item->signal_activated(),boost::bind(toggle_show_special_chars, item, this));
+  scoped_connect(item->signal_activated(),std::bind(toggle_show_special_chars, item, this));
   d->_toolbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
@@ -443,7 +443,7 @@ void MySQLEditor::set_base_toolbar(mforms::ToolBar *toolbar)
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_word-wrap-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_word-wrap-off.png"));
   item->set_tooltip(_("Toggle wrapping of long lines (keep this off for large files)"));
-  scoped_connect(item->signal_activated(),boost::bind(toggle_word_wrap, item, this));
+  scoped_connect(item->signal_activated(),std::bind(toggle_word_wrap, item, this));
   d->_toolbar->add_item(item);
 }
 
@@ -472,7 +472,7 @@ mforms::View* MySQLEditor::get_container()
     d->_container = new mforms::Box(false);
 
     d->_container->add(get_toolbar(), false, true);
-    get_editor_control()->set_show_find_panel_callback(boost::bind(embed_find_panel, _1, _2, d->_container));
+    get_editor_control()->set_show_find_panel_callback(std::bind(embed_find_panel, std::placeholders::_1, std::placeholders::_2, d->_container));
     d->_container->add_end(get_editor_control(), true, true);
   }
   return d->_container;
@@ -498,14 +498,14 @@ mforms::ToolBar* MySQLEditor::get_toolbar(bool include_file_actions)
       item->set_name("query.openFile");
       item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_open.png"));
       item->set_tooltip(_("Open a script file in this editor"));
-      scoped_connect(item->signal_activated(),boost::bind(open_file, this));
+      scoped_connect(item->signal_activated(),std::bind(open_file, this));
       d->_toolbar->add_item(item);
 
       item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
       item->set_name("query.saveFile");
       item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_save.png"));
       item->set_tooltip(_("Save the script to a file."));
-      scoped_connect(item->signal_activated(),boost::bind(save_file, this));
+      scoped_connect(item->signal_activated(),std::bind(save_file, this));
       d->_toolbar->add_item(item);
 
       d->_toolbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
@@ -736,7 +736,7 @@ void MySQLEditor::text_changed(int position, int length, int lines_changed, bool
   d->_splitting_required = true;
   d->_text_info = _code_editor->get_text_ptr();
   if (d->_is_sql_check_enabled)
-    d->_current_delay_timer = bec::GRTManager::get()->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.001);
+    d->_current_delay_timer = bec::GRTManager::get()->run_every(std::bind(&MySQLEditor::start_sql_processing, this), 0.001);
   else
     d->_text_change_signal(); // If there is no timer set up then trigger change signals directly.
 }
@@ -801,7 +801,7 @@ bool MySQLEditor::start_sql_processing()
   _code_editor->set_status_text("");
   if (d->_text_info.first != NULL && d->_text_info.second > 0)
     d->_current_work_timer_id = ThreadedTimer::get()->add_task(TimerTimeSpan, 0.05, true,
-      boost::bind(&MySQLEditor::do_statement_split_and_check, this, _1));
+      std::bind(&MySQLEditor::do_statement_split_and_check, this, std::placeholders::_1));
   return false; // Don't re-run this task, it's a single-shot.
 }
 
@@ -814,7 +814,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
   d->split_statements_if_required();
   
   // Start tasks that depend on the statement ranges (markers + auto completion).
-  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&MySQLEditor::splitting_done, this));
+  bec::GRTManager::get()->run_once_when_idle(this, std::bind(&MySQLEditor::splitting_done, this));
 
   if (d->_stop_processing)
     return false;
@@ -837,7 +837,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
     }
   }
 
-  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&MySQLEditor::update_error_markers, this));
+  bec::GRTManager::get()->run_once_when_idle(this, std::bind(&MySQLEditor::update_error_markers, this));
 
   return false;
 }
@@ -984,7 +984,7 @@ void MySQLEditor::sql_check_progress_msg_throttle(double val)
 void MySQLEditor::setup_editor_menu()
 {
   d->_editor_context_menu = new mforms::Menu();
-  scoped_connect(d->_editor_context_menu->signal_will_show(), boost::bind(&MySQLEditor::editor_menu_opening, this));
+  scoped_connect(d->_editor_context_menu->signal_will_show(), std::bind(&MySQLEditor::editor_menu_opening, this));
   
   d->_editor_context_menu->add_item(_("Undo"), "undo");
   d->_editor_context_menu->add_item(_("Redo"), "redo");
@@ -1030,7 +1030,7 @@ void MySQLEditor::setup_editor_menu()
     d->_editor_context_menu->add_submenu(_("Text"), d->_editor_text_submenu);
   }
   _code_editor->set_context_menu(d->_editor_context_menu);
-  scoped_connect(d->_editor_context_menu->signal_on_action(), boost::bind(&MySQLEditor::activate_context_menu_item, this, _1));
+  scoped_connect(d->_editor_context_menu->signal_on_action(), std::bind(&MySQLEditor::activate_context_menu_item, this, std::placeholders::_1));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1167,7 +1167,7 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
     {
       ThreadedTimer::get()->remove_task(d->_current_work_timer_id); // Does nothing if the id is -1.
       if (d->_current_delay_timer == NULL)
-        d->_current_delay_timer = bec::GRTManager::get()->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.01);
+        d->_current_delay_timer = bec::GRTManager::get()->run_every(std::bind(&MySQLEditor::start_sql_processing, this), 0.01);
     }
     else
       stop_processing();

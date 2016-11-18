@@ -150,27 +150,30 @@ public:
 
 
 
-DiagramOptionsBE::DiagramOptionsBE(mdc::CanvasView *view, model_DiagramRef target_view, WBContext *wb)
-: _view(view), _target_view(target_view) 
-{
+DiagramOptionsBE::DiagramOptionsBE(mdc::CanvasView *view,
+                                   model_DiagramRef target_view, WBContext *wb)
+    : _view(view),
+      _target_view(target_view) {
   view->get_background_layer()->set_visible(false);
   view->get_background_layer()->set_grid_visible(false);
   view->set_page_layout(1, 1);
   view->set_page_size(view->get_viewable_size());
 
-  _sizer= 0;
-  if (target_view.is_valid())                
-  {
-    Size size(model_Diagram::ImplData::get_size_for_page(wb->get_document()->pageSettings()));
+  _sizer = 0;
+  if (target_view.is_valid()) {
+    Size size(
+        model_Diagram::ImplData::get_size_for_page(
+            wb->get_document()->pageSettings()));
 
-    _sizer= new SizerFigure(view->get_current_layer(), this, size,
-      target_view->width(), target_view->height());
+    _sizer = new SizerFigure(view->get_current_layer(), this, size,
+                             target_view->width(), target_view->height());
 
     view->get_current_layer()->add_item(_sizer);
-    
-    _name= target_view->name();
+
+    _name = target_view->name();
   }
-  scoped_connect(view->signal_viewport_changed(),boost::bind(&DiagramOptionsBE::update_size, this));
+  scoped_connect(view->signal_viewport_changed(),
+                 std::bind(&DiagramOptionsBE::update_size, this));
 }
 
 

@@ -108,7 +108,7 @@ public:
       }
     }
     
-    editor->sql_editor_list_changed.connect(boost::bind(&db_query_EditorConcreteImplData::sql_editor_list_changed, this, _1, _2));
+    editor->sql_editor_list_changed.connect(std::bind(&db_query_EditorConcreteImplData::sql_editor_list_changed, this, std::placeholders::_1, std::placeholders::_2));
   }
   
   std::shared_ptr<SqlEditorForm> editor_object() const { return _editor; }
@@ -718,7 +718,7 @@ bool WBContextSQLIDE::auto_save_workspaces()
     if (_auto_save_handle)
       mforms::Utilities::cancel_timeout(_auto_save_handle);
     // schedule new interval
-    _auto_save_handle = mforms::Utilities::add_timeout((float)interval, boost::bind(&WBContextSQLIDE::auto_save_workspaces, this));
+    _auto_save_handle = mforms::Utilities::add_timeout((float)interval, std::bind(&WBContextSQLIDE::auto_save_workspaces, this));
     return false;
   }
   
@@ -781,62 +781,62 @@ void WBContextSQLIDE::init()
 {
   DbSqlEditorSnippets::setup(this, base::makePath(bec::GRTManager::get()->get_user_datadir(), "snippets"));
   
-  //scoped_connect(wb::WBContextUI::get()->get_wb()->signal_app_closing(),boost::bind(&WBContextSQLIDE::finalize, this));
+  //scoped_connect(wb::WBContextUI::get()->get_wb()->signal_app_closing(),std::bind(&WBContextSQLIDE::finalize, this));
   base::NotificationCenter::get()->add_observer(this, "GNAppClosing");
   
   // Setup some builtin commands handled by ourselves for the SQL IDE.
   wb::CommandUI *cmdui = wb::WBContextUI::get()->get_command_ui();
 
-  cmdui->add_builtin_command("alias.wb.toggleSidebar", boost::bind(call_toolbar_alias_toggle, this, "wb.toggleSidebar"), boost::bind(validate_toolbar_alias_toggle, this, "wb.toggleSidebar"));
-  cmdui->add_builtin_command("alias.wb.toggleSecondarySidebar", boost::bind(call_toolbar_alias_toggle, this, "wb.toggleSecondarySidebar"), boost::bind(validate_toolbar_alias_toggle, this, "wb.toggleSecondarySidebar"));
-  cmdui->add_builtin_command("alias.wb.toggleOutputArea", boost::bind(call_toolbar_alias_toggle, this, "wb.toggleOutputArea"), boost::bind(validate_toolbar_alias_toggle, this, "wb.toggleOutputArea"));
+  cmdui->add_builtin_command("alias.wb.toggleSidebar", std::bind(call_toolbar_alias_toggle, this, "wb.toggleSidebar"), std::bind(validate_toolbar_alias_toggle, this, "wb.toggleSidebar"));
+  cmdui->add_builtin_command("alias.wb.toggleSecondarySidebar", std::bind(call_toolbar_alias_toggle, this, "wb.toggleSecondarySidebar"), std::bind(validate_toolbar_alias_toggle, this, "wb.toggleSecondarySidebar"));
+  cmdui->add_builtin_command("alias.wb.toggleOutputArea", std::bind(call_toolbar_alias_toggle, this, "wb.toggleOutputArea"), std::bind(validate_toolbar_alias_toggle, this, "wb.toggleOutputArea"));
 
-  cmdui->add_builtin_command("query.execute", boost::bind(call_exec_sql, this, false), boost::bind(validate_exec_sql, this));
-  cmdui->add_builtin_command("query.execute_current_statement", boost::bind(call_exec_sql, this, true), boost::bind(validate_exec_sql, this));
+  cmdui->add_builtin_command("query.execute", std::bind(call_exec_sql, this, false), std::bind(validate_exec_sql, this));
+  cmdui->add_builtin_command("query.execute_current_statement", std::bind(call_exec_sql, this, true), std::bind(validate_exec_sql, this));
 
-  cmdui->add_builtin_command("query.explain_current_statement", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::explain_current_statement), boost::bind(validate_exec_sql, this));
+  cmdui->add_builtin_command("query.explain_current_statement", std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::explain_current_statement), std::bind(validate_exec_sql, this));
   
-  cmdui->add_builtin_command("query.save_edits", boost::bind(call_save_edits, this), boost::bind(validate_save_edits, this));
-  cmdui->add_builtin_command("query.discard_edits", boost::bind(call_discard_edits, this), boost::bind(validate_save_edits, this));
+  cmdui->add_builtin_command("query.save_edits", std::bind(call_save_edits, this), std::bind(validate_save_edits, this));
+  cmdui->add_builtin_command("query.discard_edits", std::bind(call_discard_edits, this), std::bind(validate_save_edits, this));
   
-  cmdui->add_builtin_command("query.commit", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::commit));
-  cmdui->add_builtin_command("query.rollback", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::rollback));
-  cmdui->add_builtin_command("query.autocommit", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_autocommit));
-  cmdui->add_builtin_command("query.gatherPSInfo", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_collect_ps_statement_events));
+  cmdui->add_builtin_command("query.commit", std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::commit));
+  cmdui->add_builtin_command("query.rollback", std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::rollback));
+  cmdui->add_builtin_command("query.autocommit", std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_autocommit));
+  cmdui->add_builtin_command("query.gatherPSInfo", std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_collect_ps_statement_events));
 
-  cmdui->add_builtin_command("query.new_schema", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_schema"));
-  cmdui->add_builtin_command("query.show_inspector", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.show_inspector"));
-  cmdui->add_builtin_command("query.new_table", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_table")); 
-  cmdui->add_builtin_command("query.new_view", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_view"));
-  cmdui->add_builtin_command("query.new_routine", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_routine"));
-  cmdui->add_builtin_command("query.new_function", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_function"));
+  cmdui->add_builtin_command("query.new_schema", std::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_schema"));
+  cmdui->add_builtin_command("query.show_inspector", std::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.show_inspector"));
+  cmdui->add_builtin_command("query.new_table", std::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_table")); 
+  cmdui->add_builtin_command("query.new_view", std::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_view"));
+  cmdui->add_builtin_command("query.new_routine", std::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_routine"));
+  cmdui->add_builtin_command("query.new_function", std::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_function"));
 
-  cmdui->add_builtin_command("query.new_connection", boost::bind(call_new_connection, this),
-                             boost::bind(validate_has_connection, this));
+  cmdui->add_builtin_command("query.new_connection", std::bind(call_new_connection, this),
+                             std::bind(validate_has_connection, this));
 
 
-  cmdui->add_builtin_command("query.openScriptNoConnection", boost::bind(call_open_script, this));
+  cmdui->add_builtin_command("query.openScriptNoConnection", std::bind(call_open_script, this));
 
-  cmdui->add_builtin_command("query.newQueryNoconnection", boost::bind(call_no_connection_empty_tab, this));
-  cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
-  //cmdui->add_builtin_command("query.newFile", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_sql_script_file));
-  cmdui->add_builtin_command("query.newFile", boost::bind(new_script_tab, this));
-  cmdui->add_builtin_command("query.openFile", boost::bind(&WBContextSQLIDE::call_in_editor_str2, this, (void(SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, "", true, true));
-  cmdui->add_builtin_command("query.saveFile", boost::bind(call_save_file, this));
-  cmdui->add_builtin_command("query.saveFileAs", boost::bind(call_save_file_as, this));
-  cmdui->add_builtin_command("query.revert", boost::bind(call_revert, this), boost::bind(validate_revert, this));
+  cmdui->add_builtin_command("query.newQueryNoconnection", std::bind(call_no_connection_empty_tab, this));
+  cmdui->add_builtin_command("query.newQuery", std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
+  //cmdui->add_builtin_command("query.newFile", std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_sql_script_file));
+  cmdui->add_builtin_command("query.newFile", std::bind(new_script_tab, this));
+  cmdui->add_builtin_command("query.openFile", std::bind(&WBContextSQLIDE::call_in_editor_str2, this, (void(SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, "", true, true));
+  cmdui->add_builtin_command("query.saveFile", std::bind(call_save_file, this));
+  cmdui->add_builtin_command("query.saveFileAs", std::bind(call_save_file_as, this));
+  cmdui->add_builtin_command("query.revert", std::bind(call_revert, this), std::bind(validate_revert, this));
 
-  cmdui->add_builtin_command("query.export", boost::bind(call_export, this), boost::bind(validate_export, this));
+  cmdui->add_builtin_command("query.export", std::bind(call_export, this), std::bind(validate_export, this));
   
-  cmdui->add_builtin_command("query.cancel", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::cancel_query));
+  cmdui->add_builtin_command("query.cancel", std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::cancel_query));
 
-  cmdui->add_builtin_command("query.reconnect", boost::bind(call_reconnect, this));
+  cmdui->add_builtin_command("query.reconnect", std::bind(call_reconnect, this));
 
-  cmdui->add_builtin_command("query.continueOnError", boost::bind(call_continue_on_error, this));
+  cmdui->add_builtin_command("query.continueOnError", std::bind(call_continue_on_error, this));
 
-  cmdui->add_builtin_command("query.jump_to_placeholder", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::jump_to_placeholder));
-  cmdui->add_builtin_command("list-members", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::list_members),
-                             boost::bind(validate_list_members, this));
+  cmdui->add_builtin_command("query.jump_to_placeholder", std::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::jump_to_placeholder));
+  cmdui->add_builtin_command("list-members", std::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::list_members),
+                             std::bind(validate_list_members, this));
 }
 
 
@@ -984,8 +984,8 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
     if (!mforms::Utilities::run_cancelable_task(_("Opening SQL Editor"),
                                                 strfmt(_("An SQL editor instance for '%s' is opening and should be available in a "
                                                          "moment.\n\nPlease stand by..."), conn->name().c_str()),
-                                                boost::bind(connect_editor, editor, tunnel),
-                                                boost::bind(cancel_connect_editor, editor),
+                                                std::bind(connect_editor, editor, tunnel),
+                                                std::bind(cancel_connect_editor, editor),
                                                 result_ptr))
       throw grt::user_cancelled("canceled");
     if (!result_ptr)
@@ -1057,12 +1057,12 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
     _auto_save_active= true;
     ssize_t interval = wb::WBContextUI::get()->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
     if (interval > 0)
-        _auto_save_handle = mforms::Utilities::add_timeout((float)interval, boost::bind(&WBContextSQLIDE::auto_save_workspaces, this));
+        _auto_save_handle = mforms::Utilities::add_timeout((float)interval, std::bind(&WBContextSQLIDE::auto_save_workspaces, this));
     _auto_save_interval = interval;
 
     if (!_option_change_signal_connected)
     {
-      scoped_connect(wb::WBContextUI::get()->get_wb()->get_root()->options()->signal_dict_changed(),boost::bind(&WBContextSQLIDE::option_changed, this, _1, _2, _3));
+      scoped_connect(wb::WBContextUI::get()->get_wb()->get_root()->options()->signal_dict_changed(),std::bind(&WBContextSQLIDE::option_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
       _option_change_signal_connected= true;
     }
   }
@@ -1120,7 +1120,7 @@ static bool compare(SqlEditorForm::Ptr ptr, SqlEditorForm *editor)
 void WBContextSQLIDE::editor_will_close(SqlEditorForm* editor)
 {
   std::list<SqlEditorForm::Ptr>::iterator iter = std::find_if(_open_editors.begin(), _open_editors.end(), 
-                                                              boost::bind(compare, _1, editor));
+                                                              std::bind(compare, std::placeholders::_1, editor));
   if (iter != _open_editors.end())
   {
     // delete entry from grt tree
