@@ -625,7 +625,7 @@ bool Recordset::apply_changes_and_gather_messages(std::string &messages)
   int error_count = 0;
   GrtThreadedTask::Msg_cb cb(task->msg_cb());
 
-  task->msg_cb(std::bind(process_task_msg, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, boost::ref(error_count), boost::ref(messages)));
+  task->msg_cb(std::bind(process_task_msg, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::ref(error_count), std::ref(messages)));
   apply_changes();
   task->msg_cb(cb);
 
@@ -638,7 +638,7 @@ void Recordset::rollback_and_gather_messages(std::string &messages)
   int error_count = 0;
   GrtThreadedTask::Msg_cb cb(task->msg_cb());
   
-  task->msg_cb(std::bind(process_task_msg, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, boost::ref(error_count), boost::ref(messages)));
+  task->msg_cb(std::bind(process_task_msg, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::ref(error_count), std::ref(messages)));
   rollback();
   task->msg_cb(cb);
 }
