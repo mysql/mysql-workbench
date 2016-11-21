@@ -26,7 +26,7 @@ import os
 
 import mforms
 
-from mforms import newBox, newLabel, newButton, newTextEntry, newTreeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
+from mforms import newBox, newLabel, newButton, newTextEntry, newTreeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, newScrollPanel, App
 from wb_admin_utils import not_running_warning_label, make_panel_header
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
 from wb_common import PermissionDeniedError
@@ -339,7 +339,13 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.privs_list.end_columns()
         self.privs_list.add_changed_callback(self.schema_priv_selected)
 
-        self.add(self.privs_list, True, True)
+
+        topbox = newBox(False)
+        topbox.set_spacing(8)
+        
+        topbox.add(self.privs_list, True, True)
+        
+        splitter = mforms.newSplitter(False)
 
         bbox = newBox(True)
         bbox.set_spacing(8)
@@ -362,10 +368,13 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.revoke_all_button.add_clicked_callback(self._owner.revoke_all)
         self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
 
-        self.add(bbox, False, True)
+        topbox.add(bbox, False, True)
 
         self.schema_priv_label = newLabel("")
-        self.add(self.schema_priv_label, False, True)
+        topbox.add(self.schema_priv_label, False, True)
+        
+        splitter.add(topbox, 200)
+
 
         hbox = newBox(True)
         hbox.set_spacing(8)
@@ -394,7 +403,12 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.other_rights_box = box
         panel.add(box)
         hbox.add(panel, False, True)
-        self.add(hbox, False, True)
+        
+        scrollbox = newScrollPanel(0)
+        scrollbox.add(hbox)
+
+        splitter.add(scrollbox, 200)
+        self.add(splitter, True, True)
 
         bottom_box = newBox(True)
         bottom_box.set_spacing(8)
@@ -425,7 +439,7 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.add(bottom_box, False, True)
 
         self.resume_layout()
-
+        splitter.set_divider_position(200)
 
     ####
 
