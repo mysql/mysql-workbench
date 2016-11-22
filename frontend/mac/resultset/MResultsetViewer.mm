@@ -257,11 +257,11 @@ static int onRefreshWhenIdle(void *viewer_)
   
 static void record_edit(void *view)
 {
-  MGridView *gridView = (__bridge MGridView *)view;
-  [gridView editColumn: gridView.selectedColumnIndex
-                   row: gridView.selectedRowIndex
-             withEvent: nil
-                select: NO];
+  MResultsetViewer *viewer = (__bridge MResultsetViewer *)view;
+  [viewer.gridView editColumn: viewer.gridView.selectedColumnIndex
+                          row: viewer.gridView.selectedRowIndex
+                    withEvent: nil
+                       select: NO];
 }
 
 static void record_add(void *view)
