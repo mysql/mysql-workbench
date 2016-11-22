@@ -1,5 +1,5 @@
 %module mforms
-
+%include "stdint.i"
 #pragma SWIG nowarn=401,402,509
 
 %{
