@@ -152,10 +152,13 @@ namespace mforms {
   protected:
     std::string _iconName;
 
+    base::Color _indicatorColor;
   public:
-    HomeScreenSection(const std::string& icon) : _iconName(icon) {
+    HomeScreenSection(const std::string &icon) : _iconName(icon), _indicatorColor("#ffffff") {
     }
-    virtual ~HomeScreenSection(){};
+    virtual ~HomeScreenSection() {
+    }
+    ;
     std::string getIcon() {
       return _iconName;
     }
@@ -166,6 +169,7 @@ namespace mforms {
     virtual void setContextMenu(mforms::Menu* menu, HomeScreenMenuType type) = 0;
     virtual void setContextMenuAction(mforms::Menu* menu, HomeScreenMenuType type) = 0;
     std::function<void()> callback;
+    base::Color getIndicatorColor() { return _indicatorColor; };
   };
 
   // The following helpers are just temporary. They will be replaced by a cairo context class.
