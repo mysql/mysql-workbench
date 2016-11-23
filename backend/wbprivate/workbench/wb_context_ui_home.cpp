@@ -304,9 +304,7 @@ void WBContextUI::show_home_screen(bool startClassic) {
     _documentsSection->set_name("Documents Section");
     _home_screen->addSection(_documentsSection);
 
-    _launchersSection = mforms::manage(new mforms::LaunchersSection(_home_screen));
-    _launchersSection->set_name("Launchers Section");
-    _home_screen->addSection(_launchersSection);
+
 
     _home_screen->addSectionEntry("sidebar_migration.png", nullptr,
                                   [this]() {
@@ -1161,11 +1159,13 @@ void WBContextUI::refresh_home_documents() {
 
 //--------------------------------------------------------------------------------------------------
 
+
 void WBContextUI::refreshHomeStarters() {
-  _launchersSection->clearLaunchers();
 
   if (_launchersSection == nullptr || _home_screen == nullptr)
     return;
+
+  _launchersSection->clearLaunchers();
 
   grt::ListRef<app_Starter> starters = _wb->get_root()->starters()->displayList();
   for (grt::ListRef<app_Starter>::const_iterator it = starters.begin(); it != starters.end(); it++) {
