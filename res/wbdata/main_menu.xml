@@ -2945,7 +2945,31 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.help.version_check">
           <value type="string" key="itemType">separator</value>
         </value>
-        
+
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_docs">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">MySQL Workbench Documentation</value>
+          <value type="string" key="name">web_mysql_docs</value>
+          <value type="string" key="command">builtin:web_mysql_docs</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_blog">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">MySQL Workbench Blog</value>
+          <value type="string" key="name">web_mysql_blog</value>
+          <value type="string" key="command">builtin:web_mysql_blog</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_forum">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">MySQL Workbench Forums</value>
+          <value type="string" key="name">web_mysql_forum</value>
+          <value type="string" key="command">builtin:web_mysql_forum</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+       
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_home">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
           <value type="string" key="caption">MySQL.com Website</value>
@@ -2961,6 +2985,30 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="command">builtin:web_home</value>
           <value type="string" key="itemType">action</value>
         </value>
+        
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.help.web_standard_edition/SE">
+          <value type="string" key="itemType">separator</value>
+        </value>
+        
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_edelivery/SE">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">Oracle eDelivery</value>
+          <value type="string" key="name">web_edelivery</value>
+          <value type="string" key="command">builtin:web_edelivery</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+        
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_support/SE">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">Oracle Support</value>
+          <value type="string" key="name">web_support</value>
+          <value type="string" key="command">builtin:web_support</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+        
+        
+        
+        
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.help.web_community">
           <value type="string" key="itemType">separator</value>

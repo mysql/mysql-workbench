@@ -291,11 +291,13 @@ void WBContextUI::show_home_screen(bool startClassic) {
     // now we have to add sections
     _connectionsSection = mforms::manage(new mforms::ConnectionsSection(_home_screen));
     _connectionsSection->set_name("Home Connections Section");
+    _connectionsSection->showWelcomeHeading(bec::GRTManager::get()->get_app_option_int("HomeScreen:HeadingMessage", 1) == 1);
     _connectionsSection->getConnectionInfoCallback = std::bind(
       [=](const std::string &connectionId) -> mforms::anyMap {
         return connectionToMap(getConnectionById(connectionId));
       },
       std::placeholders::_1);
+
     _home_screen->addSection(_connectionsSection);
 
     _documentsSection = mforms::manage(new mforms::DocumentsSection(_home_screen));
@@ -969,6 +971,18 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
         _wb->_frontendCallbacks->show_status_text("Error creating document");
       break;
     }
+
+    case HomeScreenAction::ActionOpenBlog:
+      _command_ui->activate_command("builtin:web_mysql_blog");
+      break;
+
+    case HomeScreenAction::ActionOpenDocs:
+      _command_ui->activate_command("builtin:web_mysql_docs");
+      break;
+
+    case HomeScreenAction::ActionOpenForum:
+      _command_ui->activate_command("builtin:web_mysql_forum");
+      break;
 
     default:
       logError("Unknown Action.\n");
