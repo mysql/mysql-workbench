@@ -48,6 +48,7 @@ struct SidebarEntry : mforms::Accessible {
   std::string title;       // Shorted title, depending on available space.
   base::Rect title_bounds; // Relative bounds of the title text.
   base::Rect acc_bounds;   // Bounds to be used for accessibility
+  base::Color indicatorColor; // Color of the indicator triangle
 
   // ------ Accesibility Methods -----
   virtual std::string get_acc_name() {
@@ -105,9 +106,9 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, float alpha) {
-    cairo_set_source_rgba(cr, 255.0, 255.0, 255.0, alpha);
 
+  void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, base::Color &color, float alpha) {
+    cairo_set_source_rgba(cr, color.red, color.green, color.blue, alpha);
     cairo_move_to(cr, x2, y1 + abs(y2 - y1) / 3);
     cairo_line_to(cr, x1 + abs(x2 - x1) * 0.6, y1 + abs(y2 - y1) / 2);
     cairo_line_to(cr, x2, y2 - abs(y2 - y1) / 3);
@@ -149,9 +150,10 @@ public:
         if (!iterator.first->title.empty())
           cairo_set_source_rgba(cr, 0, 0, 0, alpha);
 
-        if (iterator.first == _activeEntry) // we need to draw an indicator
+
+        if (iterator.first == _activeEntry)  //we need to draw an indicator
           drawTriangle(cr, get_width() - SIDEBAR_RIGHT_PADDING, yoffset, get_width(), yoffset + SIDEBAR_ROW_HEIGHT,
-                       alpha);
+                       iterator.first->indicatorColor, alpha);
 
         yoffset += SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING;
         if (yoffset >= height)
@@ -195,6 +197,10 @@ public:
 
     entry->callback = callback;
     entry->canSelect = canSelect;
+    if (section)
+      entry->indicatorColor = section->getIndicatorColor();
+    else
+      entry->indicatorColor = base::Color("#ffffff"); // Use white as default indicator color
 
     // See if we can load the icon. If not use the placeholder.
     entry->icon = mforms::Utilities::load_icon(icon_name, true);
