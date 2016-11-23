@@ -91,7 +91,7 @@ TEST_FUNCTION(1)
   type= vinsp->get_field_type(node, ValueInspectorBE::Value);
   ensure("get", flag);
   ensure_equals("7) value", name, "[7]");
-  ensure_equals("7) value", value, "{item1 = 1, item2 = 2.2, item3 = test}");
+  ensure_equals("7) value", value, "{item1 = 1, item2 = 2.200000, item3 = test}");
   ensure_equals("7) type", type, DictType);
 
   NodeId nd;
