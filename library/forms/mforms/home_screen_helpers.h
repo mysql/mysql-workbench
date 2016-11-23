@@ -68,7 +68,11 @@ namespace mforms {
     ActionNewEERModel,
     ActionOpenEERModelFromList,
     ActionNewModelFromDB,
-    ActionNewModelFromScript
+    ActionNewModelFromScript,
+
+    ActionOpenDocs,
+    ActionOpenBlog,
+    ActionOpenForum
   };
 
   enum HomeScreenMenuType {
