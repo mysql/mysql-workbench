@@ -866,7 +866,9 @@ public:
 //------------------------------------------------------------------------------------------------
 
 ConnectionsSection::ConnectionsSection(HomeScreen *owner)
-  : HomeScreenSection("sidebar_wb.png"), _search_box(true), _search_text(mforms::SmallSearchEntry) {
+    : HomeScreenSection("sidebar_wb.png"), _search_box(true), _search_text(mforms::SmallSearchEntry),
+      _showWelcomeHeading(true) {
+
   _owner = owner;
   _connection_context_menu = NULL;
   _folder_context_menu = NULL;
@@ -937,6 +939,18 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _manage_button.name = "Manage Connections";
   _manage_button.default_action = "Open Connection Management Dialog";
   _manage_button.default_handler = _accessible_click_handler;
+
+  _browseDocButton.name = "Browse Documentation >";
+  _browseDocButton.default_action = "Open documentation";
+  _browseDocButton.default_handler = _accessible_click_handler;
+
+  _readBlogButton.name = "Read the Blog >";
+  _readBlogButton.default_action = "Open MySQL Workbench Blog webpage";
+  _readBlogButton.default_handler = _accessible_click_handler;
+
+  _discussButton.name = "Discuss on the Forums >";
+  _discussButton.default_action = "Open MySQL Workbench Forums";
+  _discussButton.default_handler = _accessible_click_handler;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -991,7 +1005,17 @@ void ConnectionsSection::focus_search_box() {
 
 //------------------------------------------------------------------------------------------------
 
+
+void ConnectionsSection::showWelcomeHeading(bool state)
+{
+  _showWelcomeHeading = state;
+  set_needs_repaint();
+}
+
+//------------------------------------------------------------------------------------------------
+
 void ConnectionsSection::on_search_text_changed() {
+
   std::string filter = _search_text.get_string_value();
   _filtered_connections.clear();
 
@@ -1158,7 +1182,76 @@ std::string ConnectionsSection::connectionIdFromIndex(ssize_t index) {
 
 //------------------------------------------------------------------------------------------------
 
-void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
+int ConnectionsSection::drawHeading(cairo_t *cr) {
+  int yoffset = 100;
+  cairo_save(cr);
+  cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT,
+                         CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3);
+  cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
+
+  std::string heading = "Welcome to MySQL Workbench";
+
+  cairo_text_extents_t extents;
+  cairo_text_extents(cr, heading.c_str(), &extents);
+  double x;
+  x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
+  cairo_move_to(cr, x, yoffset);
+  cairo_show_text(cr, heading.c_str());
+  yoffset += mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3;
+
+  std::vector<std::string> description = {
+          "MySQL Workbench is the official graphical user interface (GUI) tool for MySQL. It allows you to design,",
+          "create and browse your database schemas, work with database objects and insert data as well as",
+          "design and run SQL queries to work with stored data. You can also migrate schemas and data from other",
+          "databse vendors to your MySQL database." };
+
+  for (auto txt : description) {
+    cairo_set_font_size(cr,
+                        mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
+    cairo_text_extents(cr, txt.c_str(), &extents);
+    x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
+    cairo_move_to(cr, x, yoffset);
+    cairo_show_text(cr, txt.c_str());
+    yoffset += extents.height + 10;
+  }
+
+  yoffset += 40;
+
+  // Draw heading links
+  cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT,
+                         CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr,
+                      mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
+
+  cairo_set_source_rgb(cr, 0x1b / 255.0, 0xad / 255.0, 0xe8 / 255.0);
+  double pos = 0.25;
+  for (auto btn : { &_browseDocButton, &_readBlogButton, &_discussButton }) {
+    cairo_text_extents(cr, btn->name.c_str(), &extents);
+    x = get_width() * pos - (extents.width / 2 + extents.x_bearing);
+    cairo_move_to(cr, x, yoffset);
+    cairo_show_text(cr, btn->name.c_str());
+    btn->bounds = base::Rect(x, yoffset, x + extents.width,
+                             yoffset + extents.height);
+    pos += 0.25;
+  }
+
+  cairo_restore(cr);
+
+  yoffset += 60;
+  return yoffset;
+}
+
+//------------------------------------------------------------------------------------------------
+
+void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah)
+{
+
+  int yoffset = 45;
+
+  if (_showWelcomeHeading)
+    yoffset = drawHeading(cr);
+
   int width = get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING;
 
   int tiles_per_row = width / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
@@ -1170,7 +1263,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
 
   cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
-  cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, 45);
+  cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, yoffset);
 
   ConnectionVector *connections;
   std::string title = _("MySQL Connections");
@@ -1190,13 +1283,13 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_text_extents(cr, title.c_str(), &extents);
   double text_width = ceil(extents.width);
 
-  _add_button.bounds = base::Rect(CONNECTIONS_LEFT_PADDING + text_width + 10, 45 - imageHeight(_plus_icon),
+  _add_button.bounds = base::Rect(CONNECTIONS_LEFT_PADDING + text_width + 10, yoffset - imageHeight(_plus_icon),
                                   imageWidth(_plus_icon), imageHeight(_plus_icon));
 
   cairo_set_source_surface(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top());
   cairo_paint(cr);
 
-  _manage_button.bounds = base::Rect(_add_button.bounds.right() + 10, 45 - imageHeight(_manage_icon),
+  _manage_button.bounds = base::Rect(_add_button.bounds.right() + 10, yoffset - imageHeight(_manage_icon),
                                      imageWidth(_manage_icon), imageHeight(_manage_icon));
   cairo_set_source_surface(cr, _manage_icon, _manage_button.bounds.left(), _manage_button.bounds.top());
   cairo_paint(cr);
@@ -1205,7 +1298,11 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   // number of tiles that act as a filler
   int filler_tiles = 0;
   std::string current_section;
-  base::Rect bounds(0, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
+  int topDistance = CONNECTIONS_TOP_PADDING;
+  if (_showWelcomeHeading)
+    topDistance = yoffset + 25;
+
+  base::Rect bounds(0, topDistance, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   std::size_t index = 0;
   bool done = false;
   while (!done) {
@@ -1514,6 +1611,22 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
 
       if (_manage_button.bounds.contains(x, y)) {
         _owner->trigger_callback(HomeScreenAction::ActionManageConnections, base::any());
+        return true;
+      }
+
+
+      if (_browseDocButton.bounds.contains(x, y)) {
+        _owner->trigger_callback(HomeScreenAction::ActionOpenDocs, base::any());
+        return true;
+      }
+
+      if (_discussButton.bounds.contains(x, y)) {
+        _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
+        return true;
+      }
+
+      if (_readBlogButton.bounds.contains(x, y)) {
+        _owner->trigger_callback(HomeScreenAction::ActionOpenBlog, base::any());
         return true;
       }
 
