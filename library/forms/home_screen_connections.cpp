@@ -1001,7 +1001,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _search_box.set_size(-1, 18);
 #else
   _search_box.set_padding(8, 1, 8, 5);
-  _search_box.set_size(150, 25);
+  _search_box.set_size(160, 25);
 #endif
 
 #ifdef _WIN32
