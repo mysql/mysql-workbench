@@ -12,7 +12,7 @@ Replaces: mysql-workbench-com-se
 @ifdef paramiko
 Depends: ${shlibs:Depends}, python-pysqlite2, mysql-client|virtual-mysql-client, libglib2.0-0 (>= 2.28)
 @else
-Depends: ${shlibs:Depends}, python-paramiko (>= 1.15.1), python-pysqlite2, mysql-client|virtual-mysql-client, libglib2.0-0 (>= 2.28)
+Depends: ${shlibs:Depends}, python-paramiko (>= 1.16.0), python-pysqlite2, mysql-client|virtual-mysql-client, libglib2.0-0 (>= 2.28)
 @endif
 
 Suggests: gnome-keyring

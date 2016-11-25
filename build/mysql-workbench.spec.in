@@ -106,7 +106,7 @@ Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 Requires: tinyxml
 Requires: libzip
 %if %{without paramiko}
-Requires: python-paramiko >= 1.15.1
+Requires: python-paramiko >= 1.16.0
 %endif
 Requires: gnome-keyring
 Requires: proj
