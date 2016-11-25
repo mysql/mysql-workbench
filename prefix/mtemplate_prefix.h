@@ -29,6 +29,7 @@
 #include <vector>
 #include <glib.h>
 #include <string>
+#include <iomanip>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 #endif
