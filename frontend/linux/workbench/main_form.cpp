@@ -1278,6 +1278,29 @@ void MainForm::lock_gui_becb(bool lock)
 }
 
 //------------------------------------------------------------------------------
+/**
+ * @note Ubuntu Unity Desktop
+ * Each page in Notebook has a Gtk::MenuBar than are moved to the menuproxy
+ * This means that some menu item are duplicated
+ * This function fix it by hidding the menubar not visible
+ */
+static void FIX_BUG_UBUNTU_MENUPROXY(Gtk::Notebook* notebook, int page_num)
+{
+    int num_pages = notebook->get_n_pages();
+    int i;
+    for(i=0; i<num_pages; i++) {
+        Gtk::Widget *page = notebook->get_nth_page(i);
+        Gtk::Widget *widget = *static_cast<Gtk::Container*>(page)->get_children().begin();
+        if (widget->get_name() == "gtkmm__GtkMenuBar" || widget->get_name() == "home") {
+            if (i==page_num) {
+                widget->show_all();// show the menubar
+            } else {
+                widget->hide_all();// hide the menubar
+            }
+        }
+    }
+}
+
 void MainForm::switch_page(GtkNotebookPage*, guint pagenum)
 {
   if (_gui_locked)
@@ -1296,6 +1319,8 @@ void MainForm::switch_page(GtkNotebookPage*, guint pagenum)
       form->on_activate();
   }
   _wbui_context->get_command_ui()->revalidate_edit_menu_items();
+
+  FIX_BUG_UBUNTU_MENUPROXY(note, (int) pagenum);
 }
 
 
