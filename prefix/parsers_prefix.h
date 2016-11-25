@@ -44,6 +44,7 @@
 #include <algorithm>
 #include <fstream>
 #include <vector>
+#include <iomanip>
 
 #include <glib.h>
 #include <glib/gstdio.h>
