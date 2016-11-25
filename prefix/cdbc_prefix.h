@@ -24,6 +24,7 @@
 #ifdef __cplusplus
 
 #include <sstream>
+#include <iomanip>
 
 #include <glib.h>
 #include <glib/gstdio.h>

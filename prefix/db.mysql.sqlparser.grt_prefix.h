@@ -28,6 +28,7 @@
 #include <sstream>
 #include <vector>
 #include <list>
+#include <iomanip>
 
 #include <glib.h>
 

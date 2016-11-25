@@ -26,6 +26,7 @@
 #include <string>
 #include <math.h>
 #include <sstream>
+#include <iomanip>
 
 #include <glib.h>
 
