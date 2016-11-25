@@ -234,6 +234,12 @@ namespace JsonParser {
     #define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
   #endif
 #endif
+
+#if defined(_WIN32)
+  // C4275 can be ignored in Visual C++ if you are deriving from a type in the Standard C++ Library
+  #pragma warning(push)
+  #pragma warning(disable: 4275) 
+#endif
   class BASELIBRARY_PUBLIC_FUNC ParserException : public std::exception
   {
   public:
@@ -244,6 +250,9 @@ namespace JsonParser {
   private:
     std::string _msgText;
   };
+#if defined(_WIN32)
+  #pragma warning(pop)
+#endif
 
   class BASELIBRARY_PUBLIC_FUNC JsonReader
   {
