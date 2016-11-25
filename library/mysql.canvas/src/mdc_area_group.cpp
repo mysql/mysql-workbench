@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ using namespace mdc;
 using namespace base;
 
 AreaGroup::AreaGroup(Layer *layer)
-: Group(layer)
+: Group(layer), _dragged(false)
 {
   resize_to(Size(100,100));
 

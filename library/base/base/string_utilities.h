@@ -36,7 +36,7 @@
 
   #include <boost/optional.hpp>
   #include <memory>
-
+  #include <iomanip>
 #endif
 
 #define _(s) s // TODO: replace with localization code.
@@ -163,7 +163,6 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC bool isBool(const std::string &text);
 
 
-
   /**
    * XXX: remove that, this is a totally wrong place (parser related and version dependent).
    * @brief Check if @word is a reserved word. 
@@ -242,6 +241,21 @@ namespace base
  **/
 BASELIBRARY_PUBLIC_FUNC std::string reflow_text(const std::string &text, unsigned int line_length,
   const std::string &left_fill = "", bool indent_first = true, unsigned int max_lines = 30);
+
+template<typename T> std::string to_string(T val, const std::locale &loc =
+                                               std::locale("en_US.UTF-8")) {
+
+  static_assert(std::is_same<float, typename std::decay<T>::type>::value || std::is_same<double, typename std::decay<T>::type>::value, "Only float or double data types are allowed.");
+
+  struct NoThousandsSep : std::numpunct<char> {
+    std::string do_grouping() const { return ""; } // groups of 1 digit
+  };
+
+  std::stringstream ss;
+  ss.imbue(std::locale(loc, new NoThousandsSep));
+  ss << std::setprecision(15) << val;
+  return ss.str();
+}
 
 /**
  * @brief Parse a string and return a numeric value if the content of the string can be interpreted as such.
