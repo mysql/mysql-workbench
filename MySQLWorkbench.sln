@@ -971,8 +971,8 @@ Global
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Debug|x64.Build.0 = Debug|x64
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release_OSS|x64.ActiveCfg = Release_OSS|x64
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release_OSS|x64.Build.0 = Release_OSS|x64
-		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release_Testing|x64.ActiveCfg = Release_OSS|x64
-		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release_Testing|x64.Build.0 = Release_OSS|x64
+		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release_Testing|x64.ActiveCfg = Release|x64
+		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release_Testing|x64.Build.0 = Release|x64
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release|x64.ActiveCfg = Release|x64
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
