@@ -242,9 +242,15 @@ namespace base
 BASELIBRARY_PUBLIC_FUNC std::string reflow_text(const std::string &text, unsigned int line_length,
   const std::string &left_fill = "", bool indent_first = true, unsigned int max_lines = 30);
 
-template<typename T> std::string to_string(T val, const std::locale &loc =
-                                               std::locale("en_US.UTF-8")) {
+#ifdef _WIN32
+const static std::string Locale = "en-US";
+#else
+const static std::string Locale = "en_US.UTF-8";
+#endif
 
+template<typename T> 
+std::string to_string(T val, const std::locale &loc = std::locale(Locale)) 
+{
   static_assert(std::is_same<float, typename std::decay<T>::type>::value || std::is_same<double, typename std::decay<T>::type>::value, "Only float or double data types are allowed.");
 
   struct NoThousandsSep : std::numpunct<char> {
