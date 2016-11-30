@@ -40,7 +40,7 @@ void Win32Api::Undo(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND) box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
+  LRESULT res = SendMessage((HWND) box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_UNDO, 0, 0);
 }
@@ -54,7 +54,7 @@ void Win32Api::Cut(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_CUT, 0, 0);
 }
@@ -68,7 +68,7 @@ void Win32Api::Copy(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_COPY, 0, 0);
 }
@@ -82,7 +82,7 @@ void Win32Api::Paste(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_PASTE, 0, 0);
 }
@@ -96,7 +96,7 @@ bool Win32Api::CanUndo(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     return SendMessage(info.hwndItem, EM_CANUNDO, 0, 0) != 0;
 
@@ -153,7 +153,7 @@ bool Win32Api::RedirectConsole()
 {
   AttachConsole(ATTACH_PARENT_PROCESS);
 
-  stdOutIndex= _open_osfhandle((long) GetStdHandle(STD_OUTPUT_HANDLE),  _O_TEXT);
+  stdOutIndex= _open_osfhandle((INT_PTR)GetStdHandle(STD_OUTPUT_HANDLE),  _O_TEXT);
   if (stdOutIndex < 0)
     return false;
 

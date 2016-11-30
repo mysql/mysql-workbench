@@ -37,6 +37,7 @@
 #include <typeinfo>
 #include <time.h>
 #include <float.h>
+#include <memory>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -49,8 +50,6 @@
 
 #include <gl/gl.h>
 //#include <gl/glu.h>
-
-#include <boost/shared_ptr.hpp>
 
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>

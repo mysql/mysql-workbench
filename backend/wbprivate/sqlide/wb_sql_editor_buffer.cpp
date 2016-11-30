@@ -280,7 +280,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 
     SqlEditorPanel *editor(add_sql_editor());
 
-    BOOST_FOREACH(std::string file, editor_files)
+    for(std::string file : editor_files)
     {
       std::string info_file = base::makePath(workspace_path, file+".info");
       std::string text_file = base::makePath(workspace_path, file+".scratch");
@@ -352,7 +352,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 
     SqlEditorPanel *editor(add_sql_editor());
 
-    BOOST_FOREACH(FileItem file, editor_files)
+    for(FileItem file : editor_files)
     {
       try
       {

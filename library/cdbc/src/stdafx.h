@@ -30,14 +30,12 @@
 #include <memory>
 #include <set>
 #include <sstream>
+#include <memory>
 
 #include <gmodule.h>
 
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/foreach.hpp>
 #include <boost/scoped_array.hpp>
-#include <boost/foreach.hpp>
 
 #include "grts/structs.h"
 

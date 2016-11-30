@@ -50,9 +50,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 

@@ -20,8 +20,6 @@
 #ifndef __DELEGATEWRAPPER_H__
 #define __DELEGATEWRAPPER_H__
 
-#include <boost/function.hpp>
-
 #include "sqlide/recordset_data_storage.h"
 
 using namespace System;

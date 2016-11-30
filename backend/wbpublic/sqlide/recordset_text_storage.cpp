@@ -26,7 +26,6 @@
 #include "base/file_utilities.h"
 #include "base/config_file.h"
 
-#include <boost/foreach.hpp>
 #include <fstream>
 #include <memory>
 #include <errno.h>
@@ -214,7 +213,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   }
 
   mtemplate::Dictionary *dictionary = mtemplate::CreateMainDictionary();
-  BOOST_FOREACH (const Parameters::value_type &param, _parameters)
+  for (const Parameters::value_type &param : _parameters)
     dictionary->setValue(param.first, param.second);
 
   const Recordset::Column_names *column_names= recordset->column_names();
@@ -299,7 +298,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
           mtemplate::DictionaryInterface *row_dictionary_base = mtemplate::CreateMainDictionary();
           mtemplate::DictionaryInterface *row_dictionary = row_dictionary_base->addSectionDictionary("ROW");
           
-          BOOST_FOREACH (const Parameters::value_type &param, _parameters)
+          for (const Parameters::value_type &param : _parameters)
             row_dictionary_base->setValue(param.first, param.second);
 
           // process a single row
@@ -342,7 +341,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
             }
           }
 
-          BOOST_FOREACH (std::shared_ptr<sqlite::result> &data_rs, data_results)
+          for (std::shared_ptr<sqlite::result> &data_rs : data_results)
             next_row_exists= data_rs->next_row();
 
           if (next_row_exists)
@@ -397,8 +396,8 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
               field_dictionary->setValue("FIELD_VALUE", field_value);                
             }
           }
-          BOOST_FOREACH (std::shared_ptr<sqlite::result> &data_rs, data_results)
-          next_row_exists= data_rs->next_row();
+          for (std::shared_ptr<sqlite::result> &data_rs : data_results)
+            next_row_exists= data_rs->next_row();
         }
         while (next_row_exists);
       }

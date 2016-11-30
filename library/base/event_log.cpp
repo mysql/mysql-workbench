@@ -255,7 +255,7 @@ DWORD EventLogReader::PrintEvent(EVT_HANDLE eventHandle)
     snprintf(buf, sizeof(buf), "%u", (renderedValues[EvtSystemOpcode].Type == EvtVarTypeNull) ? 0 : renderedValues[EvtSystemOpcode].UInt16Val);
     eventData["opcode"] = buf;
 
-    snprintf(buf, sizeof(buf), "%0x%I64x", (renderedValues[EvtSystemKeywords].Type == EvtVarTypeNull) ? 0 : renderedValues[EvtSystemOpcode].UInt64Val);
+    snprintf(buf, sizeof(buf), "0x%I64x", (renderedValues[EvtSystemKeywords].Type == EvtVarTypeNull) ? 0 : renderedValues[EvtSystemOpcode].UInt64Val);
     eventData["keywords"] = buf;
 
     ULONGLONG ullTimeStamp = renderedValues[EvtSystemTimeCreated].FileTimeVal;

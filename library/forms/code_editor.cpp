@@ -279,7 +279,7 @@ void CodeEditorConfig::parse_styles()
   {
     if (base::xml::nameIs(current, "style"))
     {
-      ssize_t id = std::strtol(base::xml::getProp(current, "id").c_str(), nullptr, 10);
+      int id = (int)std::strtol(base::xml::getProp(current, "id").c_str(), nullptr, 10);
       if (id < 0)
       {
         current = current->next;

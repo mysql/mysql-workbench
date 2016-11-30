@@ -92,7 +92,7 @@ int Mysql_sql_statement_decomposer::process_sql_statement(const std::string &sql
   if (res != 0)
     return res;
 
-  BOOST_FOREACH (FromItem &from_item, _select_statement->from_items)
+  for (FromItem &from_item : _select_statement->from_items)
   {
     if (!from_item.subquery.empty())
     {
@@ -179,12 +179,12 @@ Mysql_sql_parser_base::Parse_result Mysql_sql_statement_decomposer::decompose_qu
         }
       };
       std::list<const SqlAstNode*> table_factor_list;
-      BOOST_FOREACH (const SqlAstNode *esc_table_ref, *derived_table_list->subitems())
+      for (const SqlAstNode *esc_table_ref : *derived_table_list->subitems())
         if (const SqlAstNode *table_ref= esc_table_ref->subitem(sql::_table_ref))
           Helper::process(table_ref, table_factor_list);
 
       // process table_factor nodes
-      BOOST_FOREACH (const SqlAstNode *table_factor, table_factor_list)
+      for (const SqlAstNode *table_factor : table_factor_list)
       {
         FromItem from_item;
 
@@ -197,7 +197,7 @@ Mysql_sql_parser_base::Parse_result Mysql_sql_statement_decomposer::decompose_qu
         // table ref
         {
           std::list<std::string> idents;
-          BOOST_FOREACH (const SqlAstNode *ident, *table_ident->subitems())
+          for (const SqlAstNode *ident : *table_ident->subitems())
             if (ident->name_equals(sql::_ident))
               idents.push_back(ident->restore_sql_text(_sql_statement));
           std::list<std::string>::const_reverse_iterator i= idents.rbegin(), end= idents.rend();
@@ -248,7 +248,7 @@ Mysql_sql_parser_base::Parse_result Mysql_sql_statement_decomposer::decompose_qu
     }
     else
     {
-      BOOST_FOREACH (const SqlAstNode *select_item, *select_item_list->subitems())
+      for (const SqlAstNode *select_item : *select_item_list->subitems())
       {
         if (select_item->name_equals(sql::_select_item))
         {
@@ -258,7 +258,7 @@ Mysql_sql_parser_base::Parse_result Mysql_sql_statement_decomposer::decompose_qu
           // table wildcard
           {
             std::list<std::string> idents;
-            BOOST_FOREACH (const SqlAstNode *ident, *table_wild->subitems())
+            for (const SqlAstNode *ident : *table_wild->subitems())
               if (ident->name_equals(sql::_ident))
                 idents.push_back(ident->restore_sql_text(_sql_statement));
             std::list<std::string>::const_reverse_iterator i= idents.rbegin(), end= idents.rend();
@@ -294,7 +294,7 @@ Mysql_sql_parser_base::Parse_result Mysql_sql_statement_decomposer::decompose_qu
               if (simple_ident_q)
               {
                 std::list<std::string> idents;
-                BOOST_FOREACH (const SqlAstNode *ident, *simple_ident_q->subitems())
+                for (const SqlAstNode *ident : *simple_ident_q->subitems())
                   if (ident->name_equals(sql::_ident))
                     idents.push_back(ident->restore_sql_text(_sql_statement));
                 std::list<std::string>::const_reverse_iterator i= idents.rbegin(), end= idents.rend();
@@ -380,7 +380,7 @@ Mysql_sql_parser_base::Parse_result Mysql_sql_statement_decomposer::do_decompose
   // save explicit columns names if any
   if (const SqlAstNode *view_list= view_tail->subitem(sql::_view_list_opt, sql::_view_list))
   {
-    BOOST_FOREACH (const SqlAstNode *ident, *view_list->subitems())
+    for (const SqlAstNode *ident : *view_list->subitems())
       if (ident->name_equals(sql::_ident))
         _view_columns_names.push_back(ident->restore_sql_text(_sql_statement));
   }
@@ -405,7 +405,7 @@ int Mysql_sql_statement_decomposer::decompose_view(db_ViewRef view, SelectStatem
     if (!_view_columns_names.empty())
     {
       std::list<std::string>::iterator alias= _view_columns_names.begin();
-      BOOST_FOREACH (SelectItem &select_item, _select_statement->select_items)
+      for (SelectItem &select_item : _select_statement->select_items)
       {
         select_item.alias= *alias;
         ++alias;
@@ -423,7 +423,7 @@ void Mysql_sql_statement_decomposer::expand_wildcards(SelectStatement::Ref selec
   for (SelectItems::iterator i= select_statement->select_items.begin(), i_end= select_statement->select_items.end(); i != i_end; ++i)
     if ((*i).wildcard)
       wildcard_fields.push_back(i);
-  BOOST_FOREACH (SelectItems::iterator &wildcard_field, wildcard_fields)
+  for (SelectItems::iterator &wildcard_field : wildcard_fields)
   {
     std::string active_schema= normalize_identifier_case(db_schema->name());
     std::string context_schema= normalize_identifier_case(wildcard_field->schema);
@@ -434,7 +434,7 @@ void Mysql_sql_statement_decomposer::expand_wildcards(SelectStatement::Ref selec
       SelectStatement::Ref context_statement= select_statement;
       while (context_statement)
       {
-        BOOST_FOREACH (FromItem &from_item, context_statement->from_items)
+        for (FromItem &from_item : context_statement->from_items)
         {
           std::string alias= normalize_identifier_case(from_item.alias);
           std::string table= normalize_identifier_case(from_item.table);
@@ -451,7 +451,7 @@ void Mysql_sql_statement_decomposer::expand_wildcards(SelectStatement::Ref selec
               if (from_item.statement)
               {
                 expand_wildcards(from_item.statement, db_schema, db_schemata);
-                BOOST_FOREACH (const SelectItem &select_item, from_item.statement->select_items)
+                for (const SelectItem &select_item : from_item.statement->select_items)
                 {
                   SelectItem new_select_item;
                   new_select_item.schema= schema;
@@ -500,6 +500,6 @@ void Mysql_sql_statement_decomposer::expand_wildcards(SelectStatement::Ref selec
     }
   }
 
-  BOOST_FOREACH (SelectItems::iterator &wildcard_field, wildcard_fields)
+  for (SelectItems::iterator &wildcard_field : wildcard_fields)
     select_statement->select_items.erase(wildcard_field);
 }

@@ -17,10 +17,6 @@
  * 02110-1301  USA
  */
 
-#ifndef _WIN32
-  #include <boost/foreach.hpp>
-#endif
-
 #include "base/boost_smart_ptr_helpers.h"
 #include "base/log.h"
 #include "base/string_utilities.h"

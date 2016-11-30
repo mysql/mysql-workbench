@@ -26,7 +26,6 @@
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
 #include <sqlite/query.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <ctype.h>
 
@@ -79,7 +78,7 @@ public:
       blob_ref.reset(new sqlite::blob_t(chunks.size() * BUFF_SIZE));
       sqlite::blob_t *blob= blob_ref.get();
       int n= 0;
-      BOOST_FOREACH (const std::vector<char> &chunk, chunks)
+      for (const std::vector<char> &chunk : chunks)
       {
         memcpy(&(*blob)[n * BUFF_SIZE], &chunk[0], BUFF_SIZE);
         ++n;
@@ -569,7 +568,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
   BlobVarToStream blob_var_to_stream;
   Sql_script::Statements_bindings::const_iterator sql_bindings= sql_script.statements_bindings.begin();
   std::auto_ptr<sql::PreparedStatement> stmt;
-  BOOST_FOREACH (const std::string &sql, sql_script.statements)
+  for (const std::string &sql : sql_script.statements)
   {
     try
     {
@@ -578,7 +577,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
       if (sql_script.statements_bindings.end() != sql_bindings)
       {
         int bind_var_index= 1;
-        BOOST_FOREACH (const sqlite::variant_t &bind_var, *sql_bindings)
+        for (const sqlite::variant_t &bind_var : *sql_bindings)
         {
           if (sqlide::is_var_null(bind_var))
           {

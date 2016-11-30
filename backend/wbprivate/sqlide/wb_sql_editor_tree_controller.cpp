@@ -34,7 +34,7 @@
 #include "workbench/wb_context_ui.h"
 
 #include <pcre.h>
-#include <boost/foreach.hpp>
+
 #include <boost/signals2/connection.hpp>
 
 #include "diff/diffchange.h"
@@ -1326,7 +1326,7 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
       first_text[full_table_name].append(changes[i].detail);
     }
 
-    BOOST_FOREACH(const TableStringMap::value_type &table_columns, first_text)
+    for(const TableStringMap::value_type &table_columns : first_text)
       text += strfmt("SELECT %s\nFROM %s;\n", table_columns.second.c_str(), table_columns.first.c_str());
 
     _owner->run_sql_in_scratch_tab(text, false, true);
@@ -2391,7 +2391,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
 
         RecMutexLock lock(_owner->ensure_valid_aux_connection(conn));
 
-        BOOST_FOREACH (const std::string &obj_type, obj_types)
+        for (const std::string &obj_type : obj_types)
         {
           std::string query = validation_queries.front();
           validation_queries.pop_front();

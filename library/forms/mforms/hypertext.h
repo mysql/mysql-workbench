@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include <mforms/view.h>
-#include <boost/signals2.hpp>
+#include "mforms/view.h"
 
 namespace mforms {
   

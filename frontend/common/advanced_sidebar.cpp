@@ -192,8 +192,8 @@ SidebarSection::Button::Button(const std::string &accessible_name, const std::st
   else if (alt_icon != nullptr)
     size = Utilities::getImageSize(alt_icon);
 
-  bounds_width = size.width + 5;
-  bounds_height = size.height + 5;
+  bounds_width = (int)size.width + 5;
+  bounds_height = (int)size.height + 5;
 }
 
 
@@ -222,8 +222,8 @@ void SidebarSection::Button::draw(cairo_t *cr)
     else if (alt_icon != nullptr)
       size = Utilities::getImageSize(alt_icon);
 
-    bounds_width = size.width + 5;
-    bounds_height = size.height + 5;
+    bounds_width = (int)size.width + 5;
+    bounds_height = (int)size.height + 5;
   }
 
   cairo_surface_t *image = (state && alt_icon != NULL) ? alt_icon : icon;
