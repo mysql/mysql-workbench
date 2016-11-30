@@ -2004,13 +2004,10 @@ bool LiveSchemaTree::filter_children(ObjectType type, mforms::TreeNodeRef& sourc
       if (type == Schema || type == Table || type == View)
         filter_children_collection(source_node, group_added_nodes[0]);
 
-      if (source_node->is_expanded() != group_added_nodes[0]->is_expanded())
-      {
-        if (group_added_nodes[0]->is_expanded())
+      if (source_node->is_expanded())
           group_added_nodes[0]->expand();
-        else
-          group_added_nodes[0]->collapse();
-      }
+      else
+        group_added_nodes[0]->collapse();
     }
   }
 
