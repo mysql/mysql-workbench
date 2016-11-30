@@ -197,7 +197,7 @@ class PSHelperViewTab(mforms.Box):
         self.refresh()
 
 
-    def _fmt_node(self, node):
+    def _get_node_values(self, node):
         row = []
         for col in range(len(self._column_types)):
             if self._column_types[col] in [mforms.IntegerColumnType, mforms.LongIntegerColumnType]:
@@ -206,25 +206,30 @@ class PSHelperViewTab(mforms.Box):
                 row.append(str(node.get_float(col)))
             else:
                 row.append(node.get_string(col))
-        return ", ".join(row)
+        return row
+    
+    def _fmt_node(self, node):
+        return ", ".join(self._get_node_values(node))
 
     def do_export(self):
         chooser = mforms.FileChooser(mforms.SaveFile)
         chooser.set_title("Export Report")
+        chooser.add_selector_option("format", "Format:", "CSV|csv")
         if chooser.run_modal():
-            try:
-                f = open(chooser.get_path(), "w+")
-                f.write(self.caption+"\n\n")
-                f.write(", ".join(self._column_titles)+"\n\n")
-                root = self._tree.root_node()
-                for r in range(root.count()):
-                    node = root.get_child(r)
-                    f.write(self._fmt_node(node)+"\n")
-                f.close()
-            except Exception, e:
-                log_error("Error exporting PS report: %s\n" % e)
-                mforms.Utilities.show_error("Export Report", "Error exporting PS report.\n%s" % e, "OK", "", "")
-
+            save_path = "%s.csv" % chooser.get_path() if not chooser.get_path().endswith(".csv") else chooser.get_path()
+            with open(save_path, 'wb') as csvfile:
+                try:
+                    import csv
+                    output = csv.writer(csvfile, quoting = csv.QUOTE_MINIMAL)
+                    output.writerow([self.caption])
+                    output.writerow(self._column_titles)
+                    root = self._tree.root_node()
+                    for r in range(root.count()):
+                        node = root.get_child(r)
+                        output.writerow(self._get_node_values(node))
+                except Exception, e:
+                    log_error("Error exporting PS report: %s\n" % e)
+                    mforms.Utilities.show_error("Export Report", "Error exporting PS report.\n%s" % e, "OK", "", "")
 
     def do_copy_query(self):
         mforms.Utilities.set_clipboard_text(self.get_query())
