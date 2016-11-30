@@ -87,7 +87,7 @@ Mysql_sql_inserts_loader::process_insert_statement(const SqlAstNode *tree)
       const SqlAstNode *fields= insert_field_spec->subitem(sql::_fields);
       if (fields)
       {
-        BOOST_FOREACH (const SqlAstNode *item, *fields->subitems())
+        for (const SqlAstNode *item : *fields->subitems())
           if (item->name_equals(sql::_insert_ident))
             fields_names.push_back(item->restore_sql_text(_sql_statement));
       }
@@ -99,7 +99,7 @@ Mysql_sql_inserts_loader::process_insert_statement(const SqlAstNode *tree)
       null_fields.reserve(fields_names.size());
 
       const SqlAstNode *insert_values= insert_field_spec->subitem(sql::_insert_values, sql::_values_list);
-      BOOST_FOREACH (const SqlAstNode *item, *insert_values->subitems())
+      for (const SqlAstNode *item : *insert_values->subitems())
       {
         if (item->name_equals(sql::_no_braces))
         {
@@ -107,7 +107,7 @@ Mysql_sql_inserts_loader::process_insert_statement(const SqlAstNode *tree)
           null_fields.clear();
           
           const SqlAstNode *values= item->subitem(sql::_opt_values, sql::_values);
-          BOOST_FOREACH (const SqlAstNode *item, *values->subitems())
+          for (const SqlAstNode *item : *values->subitems())
           {
             if (item->name_equals(sql::_expr_or_default))
             {

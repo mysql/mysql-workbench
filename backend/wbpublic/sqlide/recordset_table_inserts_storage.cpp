@@ -24,7 +24,6 @@
 #include "recordset_be.h"
 #include "base/string_utilities.h"
 
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <list>
 #include <ctype.h>
@@ -220,7 +219,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
         if (!mcn.empty())
         {
           // alter table structure
-          BOOST_FOREACH (const std::string &cn, mcn)
+          for (const std::string &cn : mcn)
           {
             sqlite::execute(conn,
               strfmt("alter table %s add column `%s` varchar",

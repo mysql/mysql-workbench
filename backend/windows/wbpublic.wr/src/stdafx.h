@@ -52,8 +52,6 @@
 
 #include <pcre.h>
 
-#include <boost/foreach.hpp>
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
 #include <boost/ref.hpp>
 

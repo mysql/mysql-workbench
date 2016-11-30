@@ -33,9 +33,6 @@
 #include <string>
 #include <stdexcept>
 
-#include <boost/function.hpp>
-#include <boost/scoped_ptr.hpp>
-
 #ifdef __APPLE
   #pragma GCC diagnostic ignored "-Wdeprecated-register"
 #endif

@@ -28,8 +28,6 @@
 
 #include "grtpp_notifications.h"
 
-#include <boost/enable_shared_from_this.hpp>
-
 class SqlEditorForm;
 
 namespace bec {

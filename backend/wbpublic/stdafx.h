@@ -55,14 +55,7 @@
 
 #include <glib.h>
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/function.hpp>
-#include <boost/foreach.hpp>
-
 #include <cairo/cairo.h>
 #include <cairo/cairo-pdf.h>
 #include <cairo/cairo-ps.h>

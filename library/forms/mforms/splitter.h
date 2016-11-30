@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include <mforms/container.h>
-#include <boost/signals2.hpp>
+#include "mforms/container.h"
 #include <map>
 
 namespace mforms {

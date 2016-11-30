@@ -26,5 +26,6 @@
 #include <math.h>
 #include <algorithm>
 #include <stdlib.h>
+#include <memory>
 
 #include <glib.h>

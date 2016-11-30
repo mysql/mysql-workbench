@@ -130,7 +130,7 @@ TEST_FUNCTION(1)
   Mysql_sql_parser_fe sql_parser_fe(GRTManagerTest::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml = false;
 
-  for(int i= 0; test_function_1_input[i] != NULL; i++)
+  for(ssize_t i= 0; test_function_1_input[i] != NULL; i++)
   {
     sql_parser_fe.parse_sql_script(test_function_1_input[i], test_function_1_cb, reinterpret_cast<void *>(i));
     ensure("test 20", test_function_1_success_flag);

@@ -33,7 +33,6 @@
 
 #include <glib.h>
 
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 

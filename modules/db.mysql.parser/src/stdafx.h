@@ -37,7 +37,6 @@
 
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"
