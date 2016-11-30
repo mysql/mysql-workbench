@@ -19,7 +19,6 @@
 
 #include "tree_model.h"
 #include <grtpp_util.h>
-#include <boost/lexical_cast.hpp>
 #include <iomanip>
 
 using namespace grt;
@@ -377,30 +376,24 @@ bool ListModel::set_field(const NodeId &node, ColumnId column, double value)
 
 bool ListModel::set_convert_field(const NodeId &node, ColumnId column, const std::string &value)
 {
-  switch (get_field_type(node, column))
-  {
-  case IntegerType:
   try
   {
-    set_field(node, column, boost::lexical_cast<ssize_t>(value));
+    switch (get_field_type(node, column))
+    {
+    case IntegerType:
+      return set_field(node, column, base::atoi<ssize_t>(value));
+
+    case DoubleType:
+      return set_field(node, column, base::atof<double>(value));
+
+    case StringType:
+      return set_field(node, column, value);
+
+    default:
+      return false;
+    }
   } catch(...)
   {
-    return false;
-  }
-
-  case DoubleType:
-  try
-  {
-    set_field(node, column, boost::lexical_cast<double>(value));
-  } catch(...)
-  {
-    return false;
-  }
-
-  case StringType:
-    return set_field(node, column, value);
-
-  default:
     return false;
   }
   
@@ -439,7 +432,7 @@ ValueRef ListModel::parse_value(Type type, const std::string &value)
   case IntegerType:
     try
     {
-      return IntegerRef(boost::lexical_cast<ssize_t>(value));
+      return IntegerRef(base::atoi<ssize_t>(value));
     } catch(...)
     {
       break;
@@ -448,7 +441,7 @@ ValueRef ListModel::parse_value(Type type, const std::string &value)
   case DoubleType:
     try
     {
-      return DoubleRef(boost::lexical_cast<double>(value));
+      return DoubleRef(base::atof<double>(value));
     } catch(...)
     {
       break;
