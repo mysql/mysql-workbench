@@ -22,7 +22,6 @@
 #include "recordset_data_storage.h"
 #include "base/string_utilities.h"
 #include "base/boost_smart_ptr_helpers.h"
-#include <boost/foreach.hpp>
 
 
 using namespace bec;
@@ -135,16 +134,16 @@ void Recordset_data_storage::create_data_swap_tables(sqlite::connection *data_sw
   }
 
   // execute sql
-  BOOST_FOREACH (const std::string &ddl, data_partitions_drops)
+  for (const std::string &ddl : data_partitions_drops)
     sqlite::execute(*data_swap_db, ddl, true);
   sqlite::execute(*data_swap_db, "drop table if exists `data_index`", true);
-  BOOST_FOREACH (const std::string &ddl, deleted_rows_partitions_drops)
+  for (const std::string &ddl : deleted_rows_partitions_drops)
     sqlite::execute(*data_swap_db, ddl, true);
   sqlite::execute(*data_swap_db, "drop table if exists `changes`", true);
-  BOOST_FOREACH (const std::string &ddl, data_partitions_creates)
+  for (const std::string &ddl : data_partitions_creates)
     sqlite::execute(*data_swap_db, ddl, true);
   sqlite::execute(*data_swap_db, "create table if not exists `data_index` (`id` integer)", true);
-  BOOST_FOREACH (const std::string &ddl, deleted_rows_partitions_creates)
+  for (const std::string &ddl : deleted_rows_partitions_creates)
     sqlite::execute(*data_swap_db, ddl, true);
   sqlite::execute(*data_swap_db, "create table if not exists `changes` (`id` integer primary key autoincrement, `record` integer, `action` integer, `column` integer)", true);
   sqlite::execute(*data_swap_db, "create index if not exists `changes_idx_1` on `changes` (`record`, `action`, `column`)", true);
@@ -187,7 +186,7 @@ std::list<std::shared_ptr<sqlite::command> > Recordset_data_storage::prepare_dat
 void Recordset_data_storage::add_data_swap_record(std::list<std::shared_ptr<sqlite::command> > &insert_commands, const Var_vector &values)
 {
   size_t partition= 0;
-  BOOST_FOREACH (std::shared_ptr<sqlite::command> &insert_command, insert_commands)
+  for (std::shared_ptr<sqlite::command> &insert_command : insert_commands)
   {
     insert_command->clear();
     sqlide::BindSqlCommandVar bind_sql_command_var(insert_command.get());

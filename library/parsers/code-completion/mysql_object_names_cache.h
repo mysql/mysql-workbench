@@ -213,7 +213,9 @@ private:
   // (schema, (table name, type)): column/trigger names set
   // e.g. (sakila, (actor, TriggersCacheType)): actor_id, ...
   // Note: did not use a tuple here as it doesn't easily work with a map.
-  std::map<std::string, std::map<std::string, std::map<CacheObjectType, std::set<std::string>>>> _tableObjectsCache;
+  struct CacheObjectMap { std::map<CacheObjectType, std::set<std::string>> element; };
+  struct TableObjectsMap { std::map<std::string, CacheObjectMap> element; };
+  std::map<std::string, TableObjectsMap> _tableObjectsCache;
 
   public:
     using TableObjectsCacheType = std::pair<std::string, std::map<std::string, std::map<CacheObjectType, std::set<std::string>>>>;

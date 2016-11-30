@@ -81,6 +81,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cppconn;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -101,6 +102,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cppconn;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -123,6 +125,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cppconn;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

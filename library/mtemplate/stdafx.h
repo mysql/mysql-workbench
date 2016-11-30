@@ -45,16 +45,13 @@
 #include <sddl.h>
 #include <stdio.h>
 #include <winevt.h>
+#include <memory>
 
 #include <VersionHelpers.h>
-
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 #include <boost/locale/encoding_utf.hpp>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <glib/glib.h>
 #include <glib/gstdio.h>

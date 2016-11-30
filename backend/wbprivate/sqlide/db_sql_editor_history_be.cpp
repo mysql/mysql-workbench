@@ -123,7 +123,7 @@ std::string DbSqlEditorHistory::restore_sql_from_history(int entry_index, std::l
       details_model->load(_entries_model->entry_path(entry_index));
     }
     std::string statement;
-    BOOST_FOREACH (int row, detail_indexes)
+    for (int row : detail_indexes)
     {
       details_model->get_field(row, 1, statement);
       sql+= statement + ";\n";
@@ -206,7 +206,7 @@ void DbSqlEditorHistory::EntriesModel::add_statements(const std::list<std::strin
   std::string time= format_time(timestamp, "%X");
   std::list<std::string> timed_statements;
 
-  BOOST_FOREACH(std::string statement, statements)
+  for(std::string statement : statements)
   {
     timed_statements.push_back(time);
     timed_statements.push_back(base::strip_text(statement));
@@ -269,7 +269,7 @@ bool DbSqlEditorHistory::EntriesModel::activate_popup_item_for_nodes(const std::
   {
     std::vector<std::size_t> rows;
     rows.reserve(orig_nodes.size());
-    BOOST_FOREACH (const bec::NodeId &node, orig_nodes)
+    for (const bec::NodeId &node : orig_nodes)
       rows.push_back(node[0]);
     delete_entries(rows);
 
@@ -522,7 +522,7 @@ void DbSqlEditorHistory::DetailsModel::add_entries(const std::list<std::string> 
     try
     {
       int index=0;
-      BOOST_FOREACH (std::string statement, statements)
+      for (std::string statement : statements)
       {
         if (index % 2)
         {

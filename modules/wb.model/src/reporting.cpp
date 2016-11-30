@@ -1003,7 +1003,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   if (styleInfo.is_valid())
     main_dictionary->setValue(REPORT_STYLE_NAME, (string)styleInfo->styleTagValue());
 
-  main_dictionary->setIntValue(REPORT_SCHEMA_COUNT, catalog->schemata().count());
+  main_dictionary->setIntValue(REPORT_SCHEMA_COUNT, (long int)catalog->schemata().count());
 
   int total_column_count= 0;
   int total_index_count= 0;

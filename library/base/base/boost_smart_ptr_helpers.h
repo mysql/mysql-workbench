@@ -21,9 +21,7 @@
 #ifndef _BOOST_SMART_PTR_HELPERS_H_
 #define _BOOST_SMART_PTR_HELPERS_H_
 
-#include <boost/shared_ptr.hpp>
 #include "base/log.h"
-
 
 
 namespace BoostHelper {

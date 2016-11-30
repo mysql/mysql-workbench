@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,6 @@
 #include <boost/signals2.hpp>
 
 #include "wbpublic_public_interface.h"
-
 
 class WBPUBLICBACKEND_PUBLIC_FUNC BadgeFigure : public mdc::Figure
 {

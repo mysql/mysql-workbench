@@ -64,7 +64,7 @@ sptr_t ScintillaControl::direct_call(unsigned int message, uptr_t wParam, sptr_t
   if (destroying || Disposing || IsDisposed)
     return -1;
 
-  HWND handle = (HWND)Handle.ToInt32();
+  HWND handle = (HWND)Handle.ToPointer();
   if (handle == 0)
     return -1;
 

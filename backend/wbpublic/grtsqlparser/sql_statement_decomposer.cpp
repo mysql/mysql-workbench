@@ -20,7 +20,6 @@
 #include "sql_statement_decomposer.h"
 #include "base/string_utilities.h"
 
-#include <boost/foreach.hpp>
 #include <iomanip>
 
 
@@ -46,10 +45,10 @@ std::ostream& operator << (std::ostream &os, SelectStatement &s)
   for (SelectStatement::Ref parent= s.parent; parent; parent= parent->parent)
     ++indent;
   os << std::setw(indent*2) << "" << "{SELECT\n";
-  BOOST_FOREACH (const SelectItem &select_item, s.select_items)
+  for (const SelectItem &select_item : s.select_items)
     os << std::setw((indent+1)*2) << "" << select_item.state_as_string() << "\n";
   os << std::setw(indent*2) << "" << "FROM\n";
-  BOOST_FOREACH (const FromItem &from_item, s.from_items)
+  for(const FromItem &from_item : s.from_items)
   {
     if (from_item.statement)
       os << *from_item.statement;

@@ -79,6 +79,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
+      <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -102,6 +103,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -124,6 +126,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\mysql-win-res\include\;$(ProjectDir)..\..\..\mysql-win-res\include\pcre;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

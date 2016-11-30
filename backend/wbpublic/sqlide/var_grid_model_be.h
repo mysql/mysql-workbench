@@ -25,7 +25,6 @@
 #include "grt/grt_threaded_task.h"
 #include "grt/tree_model.h"
 #include "grt/grt_manager.h"
-#include <boost/scoped_ptr.hpp>
 #include <vector>
 
 class Recordset_data_storage;

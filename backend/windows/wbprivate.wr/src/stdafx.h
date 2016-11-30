@@ -56,11 +56,7 @@ using namespace System;
 #include <time.h>
 #endif
 
-#include <boost/foreach.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"

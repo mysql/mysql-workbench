@@ -32,10 +32,9 @@
 #include <vector>
 #include <list>
 #include <sstream>
-
+#include <memory>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <pcre.h>
 
