@@ -87,8 +87,6 @@ _edited_field_col(-1)
 
 VarGridModel::~VarGridModel()
 {
-  _refresh_connection.disconnect();
-
   _data_swap_db.reset();
   // clean temporary file to prevent crowding of files
   if (!_data_swap_db_path.empty())
@@ -195,6 +193,7 @@ public:
 
 VarGridModel::ColumnType VarGridModel::get_column_type(ColumnId column)
 {
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   static VarType vt;
   return boost::apply_visitor(vt, _column_types[column]);
 }
@@ -203,6 +202,7 @@ VarGridModel::ColumnType VarGridModel::get_column_type(ColumnId column)
 
 VarGridModel::ColumnType VarGridModel::get_real_column_type(ColumnId column)
 {
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   static VarType vt;
   return boost::apply_visitor(vt, _real_column_types[column]);
 }
@@ -211,6 +211,7 @@ VarGridModel::ColumnType VarGridModel::get_real_column_type(ColumnId column)
 
 std::string VarGridModel::get_column_caption(ColumnId column)
 {
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   return _column_names.at(column);
 }
 
