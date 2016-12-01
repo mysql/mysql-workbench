@@ -56,6 +56,7 @@ namespace MySQL.Grt.Db
       gridView.BorderStyle = BorderStyle.None;
       gridView.StandardTab = false; // Let Tab move the cursor to the next cell instead next control in parent tab order.
       gridView.AllowAutoResizeColumns = false; // this will mess up our custom sizing/column width saving
+      gridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
       recordset.register_edit_actions();
 
