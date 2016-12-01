@@ -52,7 +52,7 @@ public:
   boost::signals2::signal<void ()> refresh_ui_signal;
 
 protected:
-  boost::signals2::connection _refresh_connection;
+  boost::signals2::scoped_connection _refresh_connection;
 
   virtual int refresh_ui();
 
