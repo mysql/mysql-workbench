@@ -33,12 +33,10 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <cstring>
 
 #include "base/log.h"
 #include "base/sqlstring.h"
-
-#include "boost/scoped_ptr.hpp"
 
 #undef tolower
 #undef toupper
