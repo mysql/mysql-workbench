@@ -125,6 +125,7 @@ Recordset::~Recordset()
 
 bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow)
 {
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   VarGridModel::reset();
 
   std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
