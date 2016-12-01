@@ -32,6 +32,8 @@
 #include <map>
 #include <string>
 #include <stdexcept>
+#include <memory>
+#include <functional>
 
 #ifdef __APPLE
   #pragma GCC diagnostic ignored "-Wdeprecated-register"
