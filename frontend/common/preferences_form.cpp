@@ -251,9 +251,8 @@ public:
     _table.add(entry, 1, 2, _rows-1, _rows, _help_column ? mforms::HFillFlag : mforms::HFillFlag | mforms::HExpandFlag);
     if (_help_column)
     {
-      label = new_label(tooltip);
-      label->set_style(mforms::SmallHelpTextStyle);
-      label->set_wrap_text(true);
+      label = new_label(tooltip, false, true);
+      label->set_size(200, -1);
       _table.add(label, 2, 3, _rows - 1, _rows, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
     }
     return entry;
