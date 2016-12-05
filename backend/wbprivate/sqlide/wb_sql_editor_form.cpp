@@ -2350,6 +2350,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
 
                     Recordset::Ref rs = Recordset::create(exec_sql_task);
                     rs->is_field_value_truncation_enabled(true);
+                    rs->setPreserveRowFilter(bec::GRTManager::get()->get_app_option_int("SqlEditor:PreserveRowFilter") == 1);
                     rs->apply_changes_cb = std::bind(&SqlEditorForm::apply_changes_to_recordset, this, Recordset::Ptr(rs));
                     rs->generator_query(statement);
 
@@ -2874,6 +2875,7 @@ void SqlEditorForm::apply_data_changes_commit(const std::string &sql_script_text
   scoped_connection on_sql_script_run_statistics_conn(sql_storage->on_sql_script_run_statistics.connect(on_sql_script_run_statistics));
 
   sql_storage->sql_script_substitute(sql_script);
+  rs->setPreserveRowFilter(bec::GRTManager::get()->get_app_option_int("SqlEditor:PreserveRowFilter") == 1);
   rs->do_apply_changes(rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
 
   if (!max_query_size_to_log || max_query_size_to_log >= (int)sql_script_text.size() )
