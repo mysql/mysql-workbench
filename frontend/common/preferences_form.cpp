@@ -1336,6 +1336,13 @@ mforms::View *PreferencesForm::create_query_page()
       vbox->add(check, false);
     }
     
+    {
+      mforms::CheckBox *check= new_checkbox_option("SqlEditor:PreserveRowFilter");
+      check->set_text(_("Preserve Row Filter"));
+      check->set_tooltip(_("If set, keep row filter active on result set changes. Otherwise the filter is reset."));
+      vbox->add(check, false);
+    }
+
     /*{
      mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:IsLiveObjectAlterationWizardEnabled");
      check->set_text(_("Enable Live Object Alteration Wizard"));
