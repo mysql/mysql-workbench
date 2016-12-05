@@ -84,7 +84,7 @@ Recordset::Ref Recordset::create(GrtThreadedTask::Ref parent_task)
 static gint next_id = 0;
 
 Recordset::Recordset()
-  : VarGridModel(), _inserts_editor(false), task(GrtThreadedTask::create())
+  : VarGridModel(), _preserveRowFilters(false), _inserts_editor(false), task(GrtThreadedTask::create())
 {
   _toolbar = NULL;
   _client_data = NULL;
@@ -183,6 +183,30 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
       res = true;
     }
     CATCH_AND_DISPATCH_EXCEPTION(rethrow, "Reset recordset")
+  }
+  
+  // We need to reapply filters once everything is loaded.
+  if (_preserveRowFilters)
+  {
+      if ( _toolbar != nullptr )
+      {
+        auto item = _toolbar->find_item("Search Field");
+        if (item != nullptr)
+        {
+          _data_search_string = item->get_text();
+          rebuild_data_index(data_swap_db.get(), true, false);
+        }
+      }
+  }
+  else
+  {
+    // Otherwise, we clear up toolbar.
+    if ( _toolbar != nullptr )
+    {
+      auto item = _toolbar->find_item("Search Field");
+      if (item != nullptr)
+        item->set_text("");
+    }
   }
 
   // Don't use refresh() to send update requests for the UI. It's regularly called from a background thread.
@@ -1531,6 +1555,7 @@ void Recordset::rebuild_toolbar()
     add_toolbar_label_item(_toolbar, "Filter Rows:");
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::SearchFieldItem));
+    item->set_name("Search Field");
     item->signal_activated()->connect(std::bind(&Recordset::search_activated, this, std::placeholders::_1));
     _toolbar->add_item(item);
 

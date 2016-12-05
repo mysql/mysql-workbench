@@ -217,8 +217,10 @@ public:
   const std::string & data_search_string() const;
   void set_data_search_string(const std::string &value);
   void reset_data_search_string();
+  void setPreserveRowFilter(bool value) { _preserveRowFilters = value; }
 private:
   std::string _data_search_string;
+  bool _preserveRowFilters;
 
 private:
   void rebuild_data_index(sqlite::connection *data_swap_db, bool do_cache_data_frame, bool do_refresh_ui);
