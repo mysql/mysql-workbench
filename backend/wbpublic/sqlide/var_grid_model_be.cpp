@@ -87,8 +87,6 @@ _edited_field_col(-1)
 
 VarGridModel::~VarGridModel()
 {
-  _refresh_connection.disconnect();
-
   _data_swap_db.reset();
   // clean temporary file to prevent crowding of files
   if (!_data_swap_db_path.empty())
@@ -167,7 +165,7 @@ int VarGridModel::refresh_ui()
   if (GRTManager::get()->in_main_thread())
     refresh_ui_signal();
   else
-    _refresh_connection = GRTManager::get()->run_once_when_idle(this, boost::bind(&VarGridModel::refresh_ui, this));
+    _refresh_connection = GRTManager::get()->run_once_when_idle(this, std::bind(&VarGridModel::refresh_ui, this));
   return 0;
 }
 
@@ -186,7 +184,7 @@ public:
   typedef VarGridModel::ColumnType result_type;
   result_type operator()(const sqlite::blob_ref_t &) const { return VarGridModel::BlobType; }
   result_type operator()(int) const { return VarGridModel::NumericType; }
-  result_type operator()(const boost::int64_t &) const { return VarGridModel::NumericType; }
+  result_type operator()(const std::int64_t &) const { return VarGridModel::NumericType; }
   result_type operator()(const long double &) const { return VarGridModel::FloatType; }
   template<typename T> result_type operator()(const T &v) const { return VarGridModel::StringType; }
 };
@@ -195,6 +193,7 @@ public:
 
 VarGridModel::ColumnType VarGridModel::get_column_type(ColumnId column)
 {
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   static VarType vt;
   return boost::apply_visitor(vt, _column_types[column]);
 }
@@ -203,6 +202,7 @@ VarGridModel::ColumnType VarGridModel::get_column_type(ColumnId column)
 
 VarGridModel::ColumnType VarGridModel::get_real_column_type(ColumnId column)
 {
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   static VarType vt;
   return boost::apply_visitor(vt, _real_column_types[column]);
 }
@@ -211,6 +211,7 @@ VarGridModel::ColumnType VarGridModel::get_real_column_type(ColumnId column)
 
 std::string VarGridModel::get_column_caption(ColumnId column)
 {
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   return _column_names.at(column);
 }
 
@@ -480,7 +481,7 @@ bool VarGridModel::set_field(const NodeId &node, ColumnId column, double value)
 
 bool VarGridModel::set_field(const NodeId &node, ColumnId column, ssize_t value)
 {
-  return set_field(node, column, sqlite::variant_t((boost::int64_t)value));
+  return set_field(node, column, sqlite::variant_t((std::int64_t)value));
 }
 
 

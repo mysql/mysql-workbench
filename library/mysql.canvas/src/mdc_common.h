@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,9 +52,6 @@
 
 #include "mdc_canvas_public.h"
 
-#define BEGIN_MDC_DECLS namespace mdc {
-#define END_MDC_DECLS };
-
 
 #ifdef _WIN32
 #define DEFAULT_FONT_FACE "Arial"
@@ -71,7 +68,7 @@
 #define GL_BGRA GL_BGRA_EXT
 #endif
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 typedef unsigned int Count;
 typedef double Timestamp;
@@ -328,4 +325,4 @@ MYSQLCANVAS_PUBLIC_FUNC Timestamp get_time();
 
 cairo_status_t write_to_surface(void *closure, const unsigned char *data, unsigned int length);
 
-END_MDC_DECLS
+} // End of mdc namespace

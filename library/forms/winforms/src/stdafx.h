@@ -58,8 +58,8 @@ typedef int ssize_t;
 #include <iosfwd>
 #include <fstream>
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
+
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 

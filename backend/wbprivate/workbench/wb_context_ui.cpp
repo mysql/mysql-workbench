@@ -96,14 +96,13 @@ WBContextUI::WBContextUI()
   _home_screen = nullptr;
 
   // to notify that the save status of the doc has changed
-  //grt::GRT::get()->get_undo_manager()->signal_changed().connect(boost::bind(&WBContextUI::history_changed, this));
-  scoped_connect(grt::GRT::get()->get_undo_manager()->signal_changed(),boost::bind(&WBContextUI::history_changed, this));
+  scoped_connect(grt::GRT::get()->get_undo_manager()->signal_changed(),std::bind(&WBContextUI::history_changed, this));
   
   // stuff to do when the active form is switched in the UI (through set_active_form)
-  _form_change_signal.connect(boost::bind(&WBContextUI::form_changed, this));
+  _form_change_signal.connect(std::bind(&WBContextUI::form_changed, this));
 
   _output_view = mforms::manage(new OutputView(_wb));
-  scoped_connect(_output_view->get_be()->signal_show(), boost::bind(&WBContextUI::show_output, this));
+  scoped_connect(_output_view->get_be()->signal_show(), std::bind(&WBContextUI::show_output, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +229,7 @@ void WBContextUI::perform_quit()
 {
   _quitting = true;
   _wb->do_close_document(true);
-  _wb->quit_application();
+  _wb->_frontendCallbacks.quit_application();
 }
 
 
@@ -241,7 +240,7 @@ void WBContextUI::reset()
   if (!dynamic_cast<OverviewBE*>(_active_main_form))
     _active_main_form= 0;
   
-  scoped_connect(get_physical_overview()->signal_selection_changed(),boost::bind(&WBContextUI::overview_selection_changed, this));
+  scoped_connect(get_physical_overview()->signal_selection_changed(), std::bind(&WBContextUI::overview_selection_changed, this));
   
   get_physical_overview()->set_model(_wb->get_document()->physicalModels()[0]);
   
@@ -261,7 +260,7 @@ void WBContextUI::history_changed()
   if (_wb->has_unsaved_changes() != _last_unsaved_changes_state)
     _wb->request_refresh(RefreshDocument, "", (NativeHandle)0);
 
-  bec::GRTManager::get()->run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, get_command_ui()));
+  bec::GRTManager::get()->run_once_when_idle(std::bind(&CommandUI::revalidate_edit_menu_items, get_command_ui()));
 
   _last_unsaved_changes_state= _wb->has_unsaved_changes();
 }
@@ -316,7 +315,7 @@ void WBContextUI::load_app_options(bool update)
 
 static void add_script_file(WBContextUI *wbui)
 {
-  std::string file= wbui->get_wb()->show_file_dialog("open", _("Add SQL Script File"), "sql");
+  std::string file= wbui->get_wb()->_frontendCallbacks.show_file_dialog("open", _("Add SQL Script File"), "sql");
   if (!file.empty())
   {
     workbench_physical_ModelRef model;
@@ -330,7 +329,7 @@ static void add_script_file(WBContextUI *wbui)
 
 static void add_note_file(WBContextUI *wbui)
 {
-  std::string file= wbui->get_wb()->show_file_dialog("open", _("Add Note File"), "Text Files (*.txt)|*.txt");
+  std::string file= wbui->get_wb()->_frontendCallbacks.show_file_dialog("open", _("Add Note File"), "Text Files (*.txt)|*.txt");
   if (!file.empty())
   {
     workbench_physical_ModelRef model;
@@ -347,25 +346,25 @@ static void add_note_file(WBContextUI *wbui)
 void WBContextUI::add_backend_builtin_commands()
 {
   _command_ui->add_builtin_command("show_about",
-                                   boost::bind(&WBContextUI::show_about, this));
+                                   std::bind(&WBContextUI::show_about, this));
   _command_ui->add_builtin_command("overview.home",
-                                     boost::bind(&WBContextUI::show_home_screen, this, true));
+                                     std::bind(&WBContextUI::show_home_screen, this, true));
   _command_ui->add_builtin_command("show_output_form", 
-                                  boost::bind(&WBContextUI::show_output, this));
+                                  std::bind(&WBContextUI::show_output, this));
 
   _command_ui->add_builtin_command("add_script_file", 
-    boost::bind(add_script_file, this));
+    std::bind(add_script_file, this));
   _command_ui->add_builtin_command("add_note_file", 
-    boost::bind(add_note_file, this));
+    std::bind(add_note_file, this));
   _command_ui->add_builtin_command("web_mysql_home",
-    boost::bind(&WBContextUI::show_web_page, this, "http://mysql.com/", true));
+    std::bind(&WBContextUI::show_web_page, this, "http://mysql.com/", true));
   _command_ui->add_builtin_command("web_home",
-    boost::bind(&WBContextUI::show_web_page, this, "http://mysql.com/products/tools/workbench/", true));
+    std::bind(&WBContextUI::show_web_page, this, "http://mysql.com/products/tools/workbench/", true));
   _command_ui->add_builtin_command("list_bugs",
-    boost::bind(&WBContextUI::show_web_page, this, "http://bugs.mysql.com/saved/WBBugs", true));
-  _command_ui->add_builtin_command("help_index", boost::bind(&WBContextUI::show_help_index, this));
-  _command_ui->add_builtin_command("locate_log_file", boost::bind(&WBContextUI::locate_log_file, this));
-  _command_ui->add_builtin_command("show_log_file", boost::bind(&WBContextUI::show_log_file, this));
+    std::bind(&WBContextUI::show_web_page, this, "http://bugs.mysql.com/saved/WBBugs", true));
+  _command_ui->add_builtin_command("help_index", std::bind(&WBContextUI::show_help_index, this));
+  _command_ui->add_builtin_command("locate_log_file", std::bind(&WBContextUI::locate_log_file, this));
+  _command_ui->add_builtin_command("show_log_file", std::bind(&WBContextUI::show_log_file, this));
 }
 
 #ifndef ___specialforms

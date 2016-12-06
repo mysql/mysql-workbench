@@ -2011,9 +2011,9 @@ protected:
                     if(alias_name.size() > 64)
                     {
                         std::string new_name = get_name_suggestion(
-                            boost::bind(std::not_equal_to<std::vector<std::string>::iterator>(),
-                            boost::bind(
-                            std::find<std::vector<std::string>::iterator, std::string>,used_colnames.begin(),used_colnames.end(), _1),
+                            std::bind(std::not_equal_to<std::vector<std::string>::iterator>(),
+                            std::bind(
+                            std::find<std::vector<std::string>::iterator, std::string>,used_colnames.begin(),used_colnames.end(), std::placeholders::_1),
                             used_colnames.end()),
                             "Col_placeholder", true);
                         alias_map[view.id()].push_back(std::pair<std::string,std::string>(new_name,alias_name));

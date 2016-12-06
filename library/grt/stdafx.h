@@ -26,7 +26,6 @@
 #include <windows.h>
 #include <winevt.h>
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
 #include <glib.h>
@@ -36,3 +35,4 @@
 #include <iosfwd>
 #include <fstream>
 #include <sstream>
+#include <iomanip>

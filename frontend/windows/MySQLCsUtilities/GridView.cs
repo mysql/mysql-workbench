@@ -106,7 +106,7 @@ namespace MySQL.Controls
       VirtualMode = true;
       AllowUserToOrderColumns = true;
       AllowUserToResizeRows = false;
-      ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+      ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       ShowCellToolTips = true;
       SelectionMode = DataGridViewSelectionMode.CellSelect;
 

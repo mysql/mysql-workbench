@@ -286,9 +286,9 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::st
         // Columns/triggers from all tables in all schemas.
         for (auto &schemaEntry : _tableObjectsCache)
         {
-          for (auto &tableEntry : schemaEntry.second)
+          for (auto &tableEntry : schemaEntry.second.element)
           {
-            for (auto &objectEntry : tableEntry.second[type])
+            for (auto &objectEntry : tableEntry.second.element[type])
             {
               if (base::hasPrefix(objectEntry, prefix))
                 items.push_back(objectEntry);
@@ -302,7 +302,7 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::st
       {
         // Objects only from a specific table in a specific schema.
         // This is the most common case, hence optimized.
-        for (auto &objectEntry : _tableObjectsCache[schema][table][type])
+        for (auto &objectEntry : _tableObjectsCache[schema].element[table].element[type])
         {
           if (base::hasPrefix(objectEntry, prefix))
             items.push_back(objectEntry);
@@ -313,9 +313,9 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::st
       if (!schema.empty())
       {
         // Objects from all tables in a specific schema.
-        for (auto &schemaEntry : _tableObjectsCache[schema])
+        for (auto &schemaEntry : _tableObjectsCache[schema].element)
         {
-          for (auto objectEntry : schemaEntry.second[type])
+          for (auto objectEntry : schemaEntry.second.element[type])
           {
             if (base::hasPrefix(objectEntry, prefix))
               items.push_back(objectEntry);
@@ -327,7 +327,7 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::st
       // Objects from all schemas, using the same table in all of them.
       for (auto &schemaEntry : _tableObjectsCache)
       {
-        for (auto &objectEntry : schemaEntry.second[table][type])
+        for (auto &objectEntry : schemaEntry.second.element[table].element[type])
         {
           if (base::hasPrefix(objectEntry, prefix))
             items.push_back(objectEntry);
@@ -1027,7 +1027,7 @@ void MySQLObjectNamesCache::updateObjectNames(const std::string &context, const 
   if (type == OtherCacheType)
     _schemaObjectsCache[{schema, context}] = objects;
   else
-    _tableObjectsCache[schema][context][type] = objects;
+    _tableObjectsCache[schema].element[context].element[type] = objects;
 }
 
 //--------------------------------------------------------------------------------------------------

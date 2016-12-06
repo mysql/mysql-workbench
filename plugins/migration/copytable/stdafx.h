@@ -45,12 +45,9 @@ typedef int ssize_t;
 #include <vector>
 #include <sstream>
 #include <typeinfo>
+#include <memory>
 
 #include <glib.h>
-
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/scoped_ptr.hpp>
 
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>

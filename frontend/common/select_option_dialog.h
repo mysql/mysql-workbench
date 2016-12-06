@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,6 @@
 #include "workbench/wb_backend_public_interface.h"
 #include <string>
 #include <vector>
-#include <boost/function.hpp>
 
 #include "mforms/form.h"
 #include "mforms/selector.h"
@@ -40,7 +39,7 @@ public:
   SelectOptionDialog(const std::string &title, const std::string &description, std::vector<std::string>& options, mforms::SelectorStyle style = SelectorCombobox);
   ~SelectOptionDialog();
   
-  void set_validation_function(boost::function<bool (std::string)> target) { validate = target;  }
+  void set_validation_function(std::function<bool (std::string)> target) { validate = target;  }
   std::string run();
   
 protected:
@@ -52,7 +51,7 @@ protected:
   mforms::Button _ok_button;
   mforms::Button _cancel_button;
 
-  boost::function<bool (std::string)> validate;
+  std::function<bool (std::string)> validate;
 };
 
 #endif /* _SELECTOPTIONWIZARD_H_ */

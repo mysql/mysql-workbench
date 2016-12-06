@@ -280,7 +280,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 
     SqlEditorPanel *editor(add_sql_editor());
 
-    BOOST_FOREACH(std::string file, editor_files)
+    for(std::string file : editor_files)
     {
       std::string info_file = base::makePath(workspace_path, file+".info");
       std::string text_file = base::makePath(workspace_path, file+".scratch");
@@ -352,7 +352,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 
     SqlEditorPanel *editor(add_sql_editor());
 
-    BOOST_FOREACH(FileItem file, editor_files)
+    for(FileItem file : editor_files)
     {
       try
       {
@@ -543,7 +543,7 @@ void SqlEditorForm::sql_editor_panel_switched()
 {
   SqlEditorPanel *panel = active_sql_editor_panel();
   if (panel)
-    bec::GRTManager::get()->run_once_when_idle((bec::UIForm*)panel, boost::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
+    bec::GRTManager::get()->run_once_when_idle((bec::UIForm*)panel, std::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
 
   validate_menubar();
 }

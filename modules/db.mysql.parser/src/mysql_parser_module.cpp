@@ -2518,7 +2518,7 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(MySQLParserContext::Ref con
     default:
     {
       grt::DictRef result(true);
-      result.gset("error", "Unsupported query type (" + base::to_string(queryType) + ")");
+      result.gset("error", "Unsupported query type (" + std::to_string(queryType) + ")");
       return result;
     }
   }

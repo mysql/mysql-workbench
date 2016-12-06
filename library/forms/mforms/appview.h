@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ namespace mforms {
 #ifdef _WIN32
     AppViewImplPtrs* _app_view_impl;
 #endif
-    boost::function<bool ()> _on_close_slot;
+    std::function<bool ()> _on_close_slot;
     std::string _context_name;
     std::string _identifier;
     std::string _title;
@@ -107,7 +107,7 @@ namespace mforms {
      This is called when eg. the user closes the tab view. Return true from the 
      callback if the view should be undocked and false to prevent that.
      */
-    void set_on_close(const boost::function<bool ()> &slot) { _on_close_slot= slot; }
+    void set_on_close(const std::function<bool ()> &slot) { _on_close_slot= slot; }
 #endif
 
     mforms::MenuBar *get_menubar() { return _menubar; }

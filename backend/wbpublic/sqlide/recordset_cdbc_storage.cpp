@@ -26,8 +26,6 @@
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
 #include <sqlite/query.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <ctype.h>
 
@@ -58,7 +56,7 @@ public:
   result_type operator()(const sqlite::null_t &v, const sqlite::variant_t &index) const { return sqlite::null_t(); }
   result_type operator()(const std::string &v, const sqlite::variant_t &index) const { return _rs->getString(boost::get<int>(index)); }
   result_type operator()(const int &v, const sqlite::variant_t &index) const { return _rs->getInt(boost::get<int>(index)); }
-  result_type operator()(const boost::int64_t &v, const sqlite::variant_t &index) const { return (boost::int64_t)_rs->getInt64(boost::get<int>(index)); }
+  result_type operator()(const std::int64_t &v, const sqlite::variant_t &index) const { return (std::int64_t)_rs->getInt64(boost::get<int>(index)); }
   result_type operator()(const long double &v, const sqlite::variant_t &index) const { return _rs->getDouble(boost::get<int>(index)); }
   result_type operator()(const sqlite::blob_ref_t &v, const sqlite::variant_t &index)
   {
@@ -80,7 +78,7 @@ public:
       blob_ref.reset(new sqlite::blob_t(chunks.size() * BUFF_SIZE));
       sqlite::blob_t *blob= blob_ref.get();
       int n= 0;
-      BOOST_FOREACH (const std::vector<char> &chunk, chunks)
+      for (const std::vector<char> &chunk : chunks)
       {
         memcpy(&(*blob)[n * BUFF_SIZE], &chunk[0], BUFF_SIZE);
         ++n;
@@ -318,7 +316,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
         known_types["SMALLINT"]= std::string();//!int();
         known_types["INT"]= std::string();//!int();
         known_types["MEDIUMINT"]= std::string();//!int();
-        known_types["BIGINT"]= std::string();//!boost::int64_t();
+        known_types["BIGINT"]= std::string();//!std::int64_t();
 
         known_types["FLOAT"]= std::string();//!ld;
         known_types["DOUBLE"]= std::string();//!ld;
@@ -357,7 +355,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
           known_real_types["SMALLINT"]= int();
           known_real_types["INT"]= int();
           known_real_types["MEDIUMINT"]= int();
-          known_real_types["BIGINT"]= boost::int64_t();
+          known_real_types["BIGINT"]= std::int64_t();
 
           known_real_types["FLOAT"]= ld;
           known_real_types["DOUBLE"]= ld;
@@ -570,7 +568,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
   BlobVarToStream blob_var_to_stream;
   Sql_script::Statements_bindings::const_iterator sql_bindings= sql_script.statements_bindings.begin();
   std::auto_ptr<sql::PreparedStatement> stmt;
-  BOOST_FOREACH (const std::string &sql, sql_script.statements)
+  for (const std::string &sql : sql_script.statements)
   {
     try
     {
@@ -579,7 +577,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
       if (sql_script.statements_bindings.end() != sql_bindings)
       {
         int bind_var_index= 1;
-        BOOST_FOREACH (const sqlite::variant_t &bind_var, *sql_bindings)
+        for (const sqlite::variant_t &bind_var : *sql_bindings)
         {
           if (sqlide::is_var_null(bind_var))
           {

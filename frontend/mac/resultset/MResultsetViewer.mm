@@ -79,11 +79,11 @@ static NSImage *descendingSortIndicator= nil;
 
       [gridView setRecordset: mData->get()];
 
-      (*mData)->update_edited_field = boost::bind(selected_record_changed, (__bridge void *)self);
-      (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, (__bridge void *)self));
+      (*mData)->update_edited_field = std::bind(selected_record_changed, (__bridge void *)self);
+      (*mData)->tree_changed_signal()->connect(std::bind(onRefreshWhenIdle, (__bridge void *)self));
 
-      (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, (__bridge void *)self));
-      (*mData)->rows_changed = boost::bind(onRefresh, (__bridge void *)self);
+      (*mData)->refresh_ui_signal.connect(std::bind(onRefresh, (__bridge void *)self));
+      (*mData)->rows_changed = std::bind(onRefresh, (__bridge void *)self);
 
       gridView.intercellSpacing = NSMakeSize(0, 1);
       gridView.actionDelegate = self;
@@ -94,9 +94,9 @@ static NSImage *descendingSortIndicator= nil;
       mforms::ToolBar *tbar = (*mData)->get_toolbar();
       if (tbar->find_item("record_edit"))
       {
-        tbar->find_item("record_edit")->signal_activated()->connect(boost::bind(record_edit, (__bridge void *)self));
-        tbar->find_item("record_add")->signal_activated()->connect(boost::bind(record_add, (__bridge void *)self));
-        tbar->find_item("record_del")->signal_activated()->connect(boost::bind(record_del, (__bridge void *)self));
+        tbar->find_item("record_edit")->signal_activated()->connect(std::bind(record_edit, (__bridge void *)self));
+        tbar->find_item("record_add")->signal_activated()->connect(std::bind(record_add, (__bridge void *)self));
+        tbar->find_item("record_del")->signal_activated()->connect(std::bind(record_del, (__bridge void *)self));
       }
       [self rebuildColumns];
     }
@@ -109,7 +109,7 @@ static NSImage *descendingSortIndicator= nil;
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   (*mData)->refresh_ui_signal.disconnect_all_slots();
 
-  std::for_each(mSigConns.begin(), mSigConns.end(), boost::bind(&boost::signals2::connection::disconnect, _1));
+  std::for_each(mSigConns.begin(), mSigConns.end(), std::bind(&boost::signals2::connection::disconnect, std::placeholders::_1));
   delete mData;
 }
 
@@ -257,11 +257,11 @@ static int onRefreshWhenIdle(void *viewer_)
   
 static void record_edit(void *view)
 {
-  MGridView *gridView = (__bridge MGridView *)view;
-  [gridView editColumn: gridView.selectedColumnIndex
-                   row: gridView.selectedRowIndex
-             withEvent: nil
-                select: NO];
+  MResultsetViewer *viewer = (__bridge MResultsetViewer *)view;
+  [viewer.gridView editColumn: viewer.gridView.selectedColumnIndex
+                          row: viewer.gridView.selectedRowIndex
+                    withEvent: nil
+                       select: NO];
 }
 
 static void record_add(void *view)

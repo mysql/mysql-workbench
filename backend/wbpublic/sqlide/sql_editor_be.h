@@ -27,8 +27,6 @@
 #include <memory>
 #include <set>
 
-#include <boost/function.hpp>
-
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.query.h"
 

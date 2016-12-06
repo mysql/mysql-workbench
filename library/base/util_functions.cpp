@@ -81,7 +81,7 @@ struct hardware_info
   std::string _cpu;
   std::string _clock;
   unsigned int _cpu_count;
-  boost::int64_t _memory_in_bytes;
+  std::int64_t _memory_in_bytes;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -378,7 +378,8 @@ std::string get_local_hardware_info()
   }
   else
   {
-    sprintf_s(total_phys_ram, BUFSIZE, "%l B RAM", total_phys_ram_val);
+    sprintf_s(total_phys_ram, BUFSIZE, "%lld B RAM", total_phys_ram_val);
+
   }
    
   target_size= 16 + (int)strlen(processor_name) + (int)strlen(total_phys_ram);
@@ -731,7 +732,7 @@ std::string get_local_hardware_info()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-boost::int64_t get_physical_memory_size()
+std::int64_t get_physical_memory_size()
 {
 #if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
   MEMORYSTATUS memstat;
@@ -740,7 +741,7 @@ boost::int64_t get_physical_memory_size()
   
   return memstat.dwTotalPhys;
 #elif defined(__APPLE__)
-  boost::uint64_t mem64;
+  std::uint64_t mem64;
   int mib[2];
   int mem32;
   size_t length;
@@ -759,7 +760,7 @@ boost::int64_t get_physical_memory_size()
   return mem64;
 #else
   FILE *proc;
-  boost::int64_t mem64;
+  std::int64_t mem64;
   mem64= 0;
   // fetch physical memory info from /proc/meminfo
   proc= fopen("/proc/meminfo", "r");
@@ -804,7 +805,7 @@ boost::int64_t get_physical_memory_size()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-boost::int64_t get_file_size(const char *filename)
+std::int64_t get_file_size(const char *filename)
 {
 #if _WIN32
   DWORD dwSizeLow;
@@ -827,7 +828,7 @@ boost::int64_t get_file_size(const char *filename)
     }
     else
     {
-      return (((boost::int64_t) dwSizeHigh << 32) + dwSizeLow);
+      return (((std::int64_t) dwSizeHigh << 32) + dwSizeLow);
     }
   }
   else

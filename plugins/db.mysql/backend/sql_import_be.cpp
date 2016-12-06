@@ -48,15 +48,15 @@ db_CatalogRef Sql_import::target_catalog()
 }
 
 
-boost::function<grt::ValueRef ()> Sql_import::get_task_slot()
+std::function<grt::ValueRef ()> Sql_import::get_task_slot()
 {
-  return boost::bind(&Sql_import::parse_sql_script, this, target_catalog(), sql_script());
+  return [this]() { return parse_sql_script(target_catalog(), sql_script()); };
 }
 
 
-boost::function<grt::ValueRef ()> Sql_import::get_autoplace_task_slot()
+std::function<grt::ValueRef ()> Sql_import::get_autoplace_task_slot()
 {
-  return boost::bind(&Sql_import::autoplace_grt, this);
+  return std::bind(&Sql_import::autoplace_grt, this);
 }
 
 

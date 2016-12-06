@@ -373,7 +373,7 @@ public:
      *  shows/hides it as requested. This allows to decouple platform specific needs for embedding
      *  the find panel in various parts of the application (even non-mforms).
      */
-    void set_show_find_panel_callback(boost::function<void (CodeEditor*, bool)> callback);
+    void set_show_find_panel_callback(std::function<void (CodeEditor*, bool)> callback);
 
     /** Searches for the given text according to the parameters and selects the first occurrence.
      *  Returns true if something was found, false otherwise. */
@@ -563,6 +563,6 @@ public:
     boost::signals2::signal<void(const LineMarkupChangeset &changeset, bool deleted)> _marker_changed_event;
     boost::signals2::signal<bool(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text)> _key_event_signal;
 
-    boost::function<void (CodeEditor*, bool)> _show_find_panel;
+    std::function<void (CodeEditor*, bool)> _show_find_panel;
   };
 };

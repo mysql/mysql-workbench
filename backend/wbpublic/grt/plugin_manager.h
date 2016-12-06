@@ -68,7 +68,7 @@ namespace bec {
     
     grt::ValueRef find_match(const app_PluginInputDefinitionRef &pdef, std::string &searched_key_name_ret, bool strict=true) const;
     
-    void dump_keys(const boost::function<void (std::string)> &dump_function) const;
+    void dump_keys(const std::function<void (std::string)> &dump_function) const;
 
     void add_file_input(const app_PluginFileInputRef &pdef,
                         const std::string &value);
@@ -89,9 +89,9 @@ namespace bec {
     typedef grt::CPPModule superclass;
 
   public:
-    typedef boost::function<NativeHandle (grt::Module*, std::string, std::string, grt::BaseListRef, GUIPluginFlags)> OpenGUIPluginSlot;
-    typedef boost::function<void (NativeHandle)> ShowGUIPluginSlot;
-    typedef boost::function<void (NativeHandle)> CloseGUIPluginSlot;
+    typedef std::function<NativeHandle (grt::Module*, std::string, std::string, grt::BaseListRef, GUIPluginFlags)> OpenGUIPluginSlot;
+    typedef std::function<void (NativeHandle)> ShowGUIPluginSlot;
+    typedef std::function<void (NativeHandle)> CloseGUIPluginSlot;
     
   public:
     // NOTE: not to be directly instantiated

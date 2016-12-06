@@ -271,10 +271,10 @@ static void form_show_modal(mforms::Form *self, mforms::Button *accept, mforms::
     if (accept)
     {
       [form setDefaultButtonCell:[accept->get_data() cell]];
-      accept->signal_clicked()->connect(boost::bind(show_modal_button_action, (__bridge void *)form, accept));
+      accept->signal_clicked()->connect(std::bind(show_modal_button_action, (__bridge void *)form, accept));
     }
     if (cancel)
-      cancel->signal_clicked()->connect(boost::bind(show_modal_button_action, (__bridge void *)form, cancel));
+      cancel->signal_clicked()->connect(std::bind(show_modal_button_action, (__bridge void *)form, cancel));
     
     [form makeKeyAndOrderFront: nil];
     [form performSelectorOnMainThread: @selector(runModal) withObject: nil waitUntilDone: YES];
@@ -291,10 +291,10 @@ static bool form_run_modal(mforms::Form *self, mforms::Button *accept, mforms::B
     if (accept)
     {
       form.defaultButtonCell = [accept->get_data() cell];
-      accept->signal_clicked()->connect(boost::bind(&mforms::Form::end_modal, self, true));
+      accept->signal_clicked()->connect(std::bind(&mforms::Form::end_modal, self, true));
     }
     if (cancel)
-      cancel->signal_clicked()->connect(boost::bind(&mforms::Form::end_modal, self, false));
+      cancel->signal_clicked()->connect(std::bind(&mforms::Form::end_modal, self, false));
     
     long dialog_result = NSModalResponseCancel;
     if ([NSThread isMainThread])

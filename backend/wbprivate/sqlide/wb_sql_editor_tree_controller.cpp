@@ -34,7 +34,7 @@
 #include "workbench/wb_context_ui.h"
 
 #include <pcre.h>
-#include <boost/foreach.hpp>
+
 #include <boost/signals2/connection.hpp>
 
 #include "diff/diffchange.h"
@@ -144,16 +144,16 @@ SqlEditorTreeController::SqlEditorTreeController(SqlEditorForm *owner)
   _base_schema_tree.is_schema_contents_enabled(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
   _filtered_schema_tree.is_schema_contents_enabled(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
 
-  _base_schema_tree.sql_editor_text_insert_signal.connect(boost::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, _1));
-  _filtered_schema_tree.sql_editor_text_insert_signal.connect(boost::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, _1));
+  _base_schema_tree.sql_editor_text_insert_signal.connect(std::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, std::placeholders::_1));
+  _filtered_schema_tree.sql_editor_text_insert_signal.connect(std::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, std::placeholders::_1));
 
   live_schemata_refresh_task->desc("Live Schema Refresh Task");
   live_schemata_refresh_task->send_task_res_msg(false);
-  live_schemata_refresh_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, _owner, _1, _2, _3, ""));
+  live_schemata_refresh_task->msg_cb(std::bind(&SqlEditorForm::add_log_message, _owner, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ""));
 
   live_schema_fetch_task->desc("Live Schema Fetch Task");
   live_schema_fetch_task->send_task_res_msg(false);
-  live_schema_fetch_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, _owner, _1, _2, _3, ""));
+  live_schema_fetch_task->msg_cb(std::bind(&SqlEditorForm::add_log_message, _owner, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ""));
 }
 
 
@@ -186,9 +186,9 @@ void SqlEditorTreeController::finish_init()
   // Left hand sidebar tabview with admin and schema tree pages.
   _task_tabview = new mforms::TabView(mforms::TabViewSelectorSecondary);
   _schema_side_bar = (wb::SimpleSidebar *)mforms::TaskSidebar::create("SchemaTree");
-  scoped_connect(_schema_side_bar->on_section_command(), boost::bind(&SqlEditorTreeController::sidebar_action, this, _1));
+  scoped_connect(_schema_side_bar->on_section_command(), std::bind(&SqlEditorTreeController::sidebar_action, this, std::placeholders::_1));
   _admin_side_bar = (wb::SimpleSidebar *)mforms::TaskSidebar::create("Simple");
-  scoped_connect(_admin_side_bar->on_section_command(), boost::bind(&SqlEditorTreeController::sidebar_action, this, _1));
+  scoped_connect(_admin_side_bar->on_section_command(), std::bind(&SqlEditorTreeController::sidebar_action, this, std::placeholders::_1));
 
   mforms::TaskSectionFlags flags = mforms::TaskSectionRefreshable | mforms::TaskSectionToggleModeButton;
   if (_unified_mode)
@@ -214,7 +214,7 @@ void SqlEditorTreeController::finish_init()
     _taskbar_box->add(_schema_side_bar, true, true);
   }
 
-  _schema_side_bar->get_context_menu()->signal_will_show()->connect(boost::bind(&SqlEditorTreeController::context_menu_will_show, this, _1));
+  _schema_side_bar->get_context_menu()->signal_will_show()->connect(std::bind(&SqlEditorTreeController::context_menu_will_show, this, std::placeholders::_1));
   _schema_side_bar->set_schema_model(&_base_schema_tree);
   _schema_side_bar->set_filtered_schema_model(&_filtered_schema_tree);
   _schema_side_bar->set_selection_color(base::HighlightColor);
@@ -263,8 +263,8 @@ void SqlEditorTreeController::finish_init()
 
   _session_info->set_markup_text(_owner->get_connection_info());
 
-  scoped_connect(_schema_side_bar->signal_filter_changed(),boost::bind(&SqlEditorTreeController::side_bar_filter_changed, this, _1));
-  scoped_connect(_schema_side_bar->tree_node_selected(),boost::bind(&SqlEditorTreeController::schema_row_selected, this));
+  scoped_connect(_schema_side_bar->signal_filter_changed(),std::bind(&SqlEditorTreeController::side_bar_filter_changed, this, std::placeholders::_1));
+  scoped_connect(_schema_side_bar->tree_node_selected(),std::bind(&SqlEditorTreeController::schema_row_selected, this));
 
   // update the info box
   schema_row_selected();
@@ -272,10 +272,10 @@ void SqlEditorTreeController::finish_init()
   tree_refresh();
 
   // make sure to restore the splitter pos after layout is ready
-  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&mforms::Splitter::set_divider_position, _side_splitter, initial_splitter_pos));
+  bec::GRTManager::get()->run_once_when_idle(this, std::bind(&mforms::Splitter::set_divider_position, _side_splitter, initial_splitter_pos));
 
   // Connect the splitter change event after the setup is done to avoid wrong triggering.
-  _splitter_connection = _side_splitter->signal_position_changed()->connect(boost::bind(&SqlEditorTreeController::sidebar_splitter_changed, this));
+  _splitter_connection = _side_splitter->signal_position_changed()->connect(std::bind(&SqlEditorTreeController::sidebar_splitter_changed, this));
 
   // Setup grt access to sidebar.
   db_query_EditorRef editor(_owner->wbsql()->get_grt_editor_object(_owner));
@@ -402,7 +402,7 @@ bool SqlEditorTreeController::fetch_data_for_filter(const std::string &schema_fi
     logDebug3("Fetch data for filter %s.%s\n", schema_filter.c_str(), object_filter.c_str());
 
     live_schema_fetch_task->exec(sync,
-                                 boost::bind(&SqlEditorTreeController::do_fetch_data_for_filter, this,
+                                 std::bind(&SqlEditorTreeController::do_fetch_data_for_filter, this,
                                              weak_ptr_from(this), schema_filter, object_filter, arrived_slot));
 
   }
@@ -463,7 +463,7 @@ bool SqlEditorTreeController::fetch_schema_contents(const std::string &schema_na
   logDebug3("Fetch schema contents for %s\n", schema_name.c_str());
 
   live_schema_fetch_task->exec(sync,
-                               boost::bind(&SqlEditorTreeController::do_fetch_live_schema_contents, this,
+                               std::bind(&SqlEditorTreeController::do_fetch_live_schema_contents, this,
                                            weak_ptr_from(this), schema_name, arrived_slot));
 
   return true;//!
@@ -497,7 +497,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(std::weak_
     StringListPtr functions(new std::list<std::string>());
 
     MutexLock schema_contents_mutex(_schema_contents_mutex);
-    if (arrived_slot.empty())
+    if (!arrived_slot)
       return grt::StringRef("");
 
     {
@@ -571,7 +571,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(std::weak_
 
     if (arrived_slot)
     {
-      boost::function<void ()> schema_contents_arrived = boost::bind(arrived_slot, schema_name, tables, views, procedures, functions, false);
+      std::function<void ()> schema_contents_arrived = std::bind(arrived_slot, schema_name, tables, views, procedures, functions, false);
       bec::GRTManager::get()->run_once_when_idle(this, schema_contents_arrived);
     }
 
@@ -586,7 +586,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(std::weak_
     if (arrived_slot)
     {
       StringListPtr empty_list;
-      boost::function<void ()> schema_contents_arrived = boost::bind(arrived_slot, schema_name, empty_list, empty_list, empty_list, empty_list, false);
+      std::function<void ()> schema_contents_arrived = std::bind(arrived_slot, schema_name, empty_list, empty_list, empty_list, empty_list, false);
       bec::GRTManager::get()->run_once_when_idle(this, schema_contents_arrived);
     }
   }
@@ -635,7 +635,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(std::weak_ptr<S
         if (schema != last_schema && last_schema != "")
         {
           if (arrived_slot)
-            bec::GRTManager::get()->run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
+            bec::GRTManager::get()->run_once_when_idle(this, std::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
 
           tables->clear();
           views->clear();
@@ -656,7 +656,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(std::weak_ptr<S
       }
 
       if (last_schema != "" && arrived_slot)
-        bec::GRTManager::get()->run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
+        bec::GRTManager::get()->run_once_when_idle(this, std::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
     }
     else
     {
@@ -1235,7 +1235,7 @@ void SqlEditorTreeController::tree_refresh()
   if (_owner->connected())
   {
     live_schemata_refresh_task->exec(false,
-                                   boost::bind((grt::StringRef(SqlEditorTreeController::*)(SqlEditorForm::Ptr))&SqlEditorTreeController::do_refresh_schema_tree_safe, this,
+                                   std::bind((grt::StringRef(SqlEditorTreeController::*)(SqlEditorForm::Ptr))&SqlEditorTreeController::do_refresh_schema_tree_safe, this,
                                                weak_ptr_from(_owner)));
     _schema_tree->set_enabled(true);
   }
@@ -1326,7 +1326,7 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
       first_text[full_table_name].append(changes[i].detail);
     }
 
-    BOOST_FOREACH(const TableStringMap::value_type &table_columns, first_text)
+    for(const TableStringMap::value_type &table_columns : first_text)
       text += strfmt("SELECT %s\nFROM %s;\n", table_columns.second.c_str(), table_columns.first.c_str());
 
     _owner->run_sql_in_scratch_tab(text, false, true);
@@ -1915,7 +1915,7 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
       if (bec::GRTManager::get()->in_main_thread())
         mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK", "", "");
       else
-        bec::GRTManager::get()->run_once_when_idle(boost::bind(&mforms::Utilities::show_error, "Error getting DDL for object", err, "OK", "", ""));
+        bec::GRTManager::get()->run_once_when_idle(std::bind(&mforms::Utilities::show_error, "Error getting DDL for object", err, "OK", "", ""));
     }
   }
   return ddl_script;
@@ -2391,7 +2391,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
 
         RecMutexLock lock(_owner->ensure_valid_aux_connection(conn));
 
-        BOOST_FOREACH (const std::string &obj_type, obj_types)
+        for (const std::string &obj_type : obj_types)
         {
           std::string query = validation_queries.front();
           validation_queries.pop_front();
@@ -2620,7 +2620,7 @@ void SqlEditorTreeController::on_active_schema_change(const std::string &schema)
   _filtered_schema_tree.set_active_schema(schema);
 
   if (_schema_side_bar != NULL)
-    bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&mforms::View::set_needs_repaint, _schema_side_bar->get_schema_tree()));
+    bec::GRTManager::get()->run_once_when_idle(this, std::bind(&mforms::View::set_needs_repaint, _schema_side_bar->get_schema_tree()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2645,8 +2645,8 @@ grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(SqlEditorFor
 
   std::list<std::string> fsl = fetch_schema_list();
   schema_list->assign(fsl.begin(), fsl.end());
-  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
-  bec::GRTManager::get()->run_once_when_idle(this, boost::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
+  bec::GRTManager::get()->run_once_when_idle(this, std::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
+  bec::GRTManager::get()->run_once_when_idle(this, std::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
 
   _is_refreshing_schema_tree= false;
 
@@ -2671,10 +2671,10 @@ void SqlEditorTreeController::handle_grt_notification(const std::string &name, g
       db_DatabaseObjectRef obj(db_DatabaseObjectRef::cast_from(object));
       if (obj->customData().get("ownerSqlEditor") == _owner->wbsql()->get_grt_editor_object(_owner))
       {
-        editor->on_apply_changes_to_live_object= boost::bind(&SqlEditorTreeController::apply_changes_to_object, this, _1, _2);
-        editor->on_refresh_live_object= boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor, this, _1, true);
-        editor->on_create_live_table_stubs= boost::bind(&SqlEditorTreeController::create_live_table_stubs, this, _1);
-        editor->on_expand_live_table_stub= boost::bind(&SqlEditorTreeController::expand_live_table_stub, this, _1, _2, _3);
+        editor->on_apply_changes_to_live_object = std::bind(&SqlEditorTreeController::apply_changes_to_object, this, std::placeholders::_1, std::placeholders::_2);
+        editor->on_refresh_live_object = std::bind(&SqlEditorTreeController::refresh_live_object_in_editor, this, std::placeholders::_1, true);
+        editor->on_create_live_table_stubs = std::bind(&SqlEditorTreeController::create_live_table_stubs, this, std::placeholders::_1);
+        editor->on_expand_live_table_stub = std::bind(&SqlEditorTreeController::expand_live_table_stub, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
       }
     }
   }

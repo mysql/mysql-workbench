@@ -183,7 +183,7 @@ class SchemaListUpdater :
   std::vector<OverviewBE::Node*> &_nodes;
   std::set<OverviewBE::Node*> _reused_items;
   grt::ListRef<db_Schema> _schemata;
-  typedef boost::function<OverviewBE::Node * (db_SchemaRef)> SchemaNodeInstantiationSlot;
+  typedef std::function<OverviewBE::Node * (db_SchemaRef)> SchemaNodeInstantiationSlot;
   SchemaNodeInstantiationSlot _schema_node_instantiation_slot;
 
 public:
@@ -198,7 +198,7 @@ void PhysicalSchemataNode::refresh_children()
 {
   focused= 0;
 
-  SchemaListUpdater updater(children, db_CatalogRef::cast_from(object)->schemata(), boost::bind(&PhysicalSchemataNode::create_child_node, this, _1));
+  SchemaListUpdater updater(children, db_CatalogRef::cast_from(object)->schemata(), std::bind(&PhysicalSchemataNode::create_child_node, this, std::placeholders::_1));
 
   updater.execute();
 }
@@ -333,31 +333,35 @@ static void script_object_changed(const std::string &member, const grt::ValueRef
     owner->send_refresh_scripts();
 }
 
-void SQLScriptsNode::refresh_children()
-{
+void SQLScriptsNode::refresh_children() {
   clear_children();
-  if (_model->scripts().is_valid())
-  {
-    for (size_t c= _model->scripts().count(), i= 0; i < c; i++)
-    {
+  if (_model->scripts().is_valid()) {
+    for (size_t c = _model->scripts().count(), i = 0; i < c; i++) {
       db_ScriptRef script(_model->scripts()[i]);
-      ModelObjectNode *node= new ModelObjectNode();
-      
-      node->member= "scripts";
-      node->label= script->name();
-      node->object= script;
-      node->small_icon= IconManager::get_instance()->get_icon_id(script.get_metaclass(), Icon16);
-      node->large_icon= IconManager::get_instance()->get_icon_id(script.get_metaclass(), Icon48);
-      
-      script->signal_changed()->connect(boost::bind(script_object_changed, _1, _2, _owner));
+      ModelObjectNode *node = new ModelObjectNode();
+
+      node->member = "scripts";
+      node->label = script->name();
+      node->object = script;
+      node->small_icon = IconManager::get_instance()->get_icon_id(
+          script.get_metaclass(), Icon16);
+      node->large_icon = IconManager::get_instance()->get_icon_id(
+          script.get_metaclass(), Icon48);
+
+      script->signal_changed()->connect(
+          std::bind(script_object_changed, std::placeholders::_1,
+                    std::placeholders::_2, _owner));
       children.push_back(node);
     }
-    
-    OverviewBE::AddObjectNode *add_node= new OverviewBE::AddObjectNode(boost::bind(&SQLScriptsNode::add_new, this, _1));
-    
-    add_node->label= _("Add Script");
-    add_node->small_icon= IconManager::get_instance()->get_icon_id("db.Script.$.png", Icon16, "add");
-    add_node->large_icon= IconManager::get_instance()->get_icon_id("db.Script.$.png", Icon48, "add");
+
+    OverviewBE::AddObjectNode *add_node = new OverviewBE::AddObjectNode(
+        std::bind(&SQLScriptsNode::add_new, this, std::placeholders::_1));
+
+    add_node->label = _("Add Script");
+    add_node->small_icon = IconManager::get_instance()->get_icon_id(
+        "db.Script.$.png", Icon16, "add");
+    add_node->large_icon = IconManager::get_instance()->get_icon_id(
+        "db.Script.$.png", Icon48, "add");
     children.insert(children.begin(), add_node);
   }
 }
@@ -427,11 +431,11 @@ void NotesNode::refresh_children()
       node->small_icon= IconManager::get_instance()->get_icon_id(note.get_metaclass(), Icon16);
       node->large_icon= IconManager::get_instance()->get_icon_id(note.get_metaclass(), Icon48);
       
-      note->signal_changed()->connect(boost::bind(note_object_changed, _1, _2, _owner));
+      note->signal_changed()->connect(std::bind(note_object_changed, std::placeholders::_1, std::placeholders::_2, _owner));
       children.push_back(node);
     }
     
-    OverviewBE::AddObjectNode *add_node= new OverviewBE::AddObjectNode(boost::bind(&NotesNode::add_new, this, _1));
+    OverviewBE::AddObjectNode *add_node= new OverviewBE::AddObjectNode(std::bind(&NotesNode::add_new, this, std::placeholders::_1));
     add_node->label= _("Add Note");
     add_node->small_icon= IconManager::get_instance()->get_icon_id("GrtStoredNote.$.png", Icon16, "add");
     add_node->large_icon= IconManager::get_instance()->get_icon_id("GrtStoredNote.$.png", Icon48, "add");
@@ -670,10 +674,10 @@ mforms::MenuBar *PhysicalOverviewBE::get_menubar()
     
     mforms::MenuItem *item = _menu->find_item("wb.edit.editObject");
     if (item)
-      item->add_validator(boost::bind(has_selection, this));
+      item->add_validator(std::bind(has_selection, this));
     item = _menu->find_item("wb.edit.editObjectInNewWindow");
     if (item)
-      item->add_validator(boost::bind(has_selection, this));    
+      item->add_validator(std::bind(has_selection, this));
   }
   return _menu;
 }

@@ -90,7 +90,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _editor->set_sql_mode(owner->sql_mode());
   _editor->set_current_schema(owner->active_schema());
   UIForm::scoped_connect(_editor->text_change_signal(),
-                         boost::bind(&SqlEditorPanel::update_title, this));
+                         std::bind(&SqlEditorPanel::update_title, this));
 
   add(&_splitter, true, true);
 
@@ -101,7 +101,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   code_editor->set_font(grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("workbench.general.Editor:Font")));
   code_editor->set_status_text("");
-  code_editor->set_show_find_panel_callback(boost::bind(&SqlEditorPanel::show_find_panel, this, _1, _2));
+  code_editor->set_show_find_panel_callback(std::bind(&SqlEditorPanel::show_find_panel, this, std::placeholders::_1, std::placeholders::_2));
 
   if (start_collapsed)
     _editor->get_editor_control()->set_size(-1, 25);
@@ -109,7 +109,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _splitter.add(&_editor_box);
   _splitter.add(&_lower_tabview);
 
-  UIForm::scoped_connect(_splitter.signal_position_changed(), boost::bind(&SqlEditorPanel::splitter_resized, this));
+  UIForm::scoped_connect(_splitter.signal_position_changed(), std::bind(&SqlEditorPanel::splitter_resized, this));
   _tab_action_box.set_spacing(4);
   _tab_action_box.add_end(&_tab_action_info, false, true);
   _tab_action_box.add_end(&_tab_action_icon, false, true);
@@ -120,10 +120,10 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_info.show(false);
   _tab_action_apply.enable_internal_padding(true);
   _tab_action_apply.set_text("Apply");
-  _tab_action_apply.signal_clicked()->connect(boost::bind(&SqlEditorPanel::apply_clicked, this));
+  _tab_action_apply.signal_clicked()->connect(std::bind(&SqlEditorPanel::apply_clicked, this));
   _tab_action_revert.enable_internal_padding(true);
   _tab_action_revert.set_text("Revert");
-  _tab_action_revert.signal_clicked()->connect(boost::bind(&SqlEditorPanel::revert_clicked, this));
+  _tab_action_revert.signal_clicked()->connect(std::bind(&SqlEditorPanel::revert_clicked, this));
 
 #ifdef _WIN32
   // 19 is the size of the tabs in the bottom tabview.
@@ -135,23 +135,23 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _lower_tabview.set_aux_view(&_tab_action_box);
   _lower_tabview.set_allows_reordering(true);
-  _lower_tabview.signal_tab_reordered()->connect(boost::bind(&SqlEditorPanel::lower_tab_reordered, this, _1, _2, _3));
-  _lower_tabview.signal_tab_changed()->connect(boost::bind(&SqlEditorPanel::lower_tab_switched, this));
-  _lower_tabview.signal_tab_closing()->connect(boost::bind(&SqlEditorPanel::lower_tab_closing, this, _1));
-  _lower_tabview.signal_tab_closed()->connect(boost::bind(&SqlEditorPanel::lower_tab_closed, this, _1, _2));
-  _lower_tabview.signal_tab_pin_changed()->connect(boost::bind(&SqlEditorPanel::tab_pinned, this, _1, _2));
-  _lower_tabview.is_pinned = boost::bind(&SqlEditorPanel::is_pinned, this, _1);
+  _lower_tabview.signal_tab_reordered()->connect(std::bind(&SqlEditorPanel::lower_tab_reordered, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+  _lower_tabview.signal_tab_changed()->connect(std::bind(&SqlEditorPanel::lower_tab_switched, this));
+  _lower_tabview.signal_tab_closing()->connect(std::bind(&SqlEditorPanel::lower_tab_closing, this, std::placeholders::_1));
+  _lower_tabview.signal_tab_closed()->connect(std::bind(&SqlEditorPanel::lower_tab_closed, this, std::placeholders::_1, std::placeholders::_2));
+  _lower_tabview.signal_tab_pin_changed()->connect(std::bind(&SqlEditorPanel::tab_pinned, this, std::placeholders::_1, std::placeholders::_2));
+  _lower_tabview.is_pinned = std::bind(&SqlEditorPanel::is_pinned, this, std::placeholders::_1);
   _lower_tabview.set_tab_menu(&_lower_tab_menu);
 
   _splitter.set_expanded(false, false);
-  set_on_close(boost::bind(&SqlEditorPanel::on_close_by_user, this));
+  set_on_close(std::bind(&SqlEditorPanel::on_close_by_user, this));
 
-  _lower_tab_menu.signal_will_show()->connect(boost::bind(&SqlEditorPanel::tab_menu_will_show, this));
-  _lower_tab_menu.add_item_with_title("Rename Tab", boost::bind(&SqlEditorPanel::rename_tab_clicked, this), "rename");
-  _lower_tab_menu.add_check_item_with_title("Pin Tab", boost::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
+  _lower_tab_menu.signal_will_show()->connect(std::bind(&SqlEditorPanel::tab_menu_will_show, this));
+  _lower_tab_menu.add_item_with_title("Rename Tab", std::bind(&SqlEditorPanel::rename_tab_clicked, this), "rename");
+  _lower_tab_menu.add_check_item_with_title("Pin Tab", std::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
   _lower_tab_menu.add_separator();
-  _lower_tab_menu.add_item_with_title("Close Tab", boost::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
-  _lower_tab_menu.add_item_with_title("Close Other Tabs", boost::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
+  _lower_tab_menu.add_item_with_title("Close Tab", std::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
+  _lower_tab_menu.add_item_with_title("Close Other Tabs", std::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,7 +343,7 @@ void SqlEditorPanel::splitter_resized()
 static bool check_if_file_too_big_to_restore(const std::string &path, const std::string &file_caption,
                                              bool allow_save_as = false)
 {
-  boost::int64_t length;
+  std::int64_t length;
   if ((length = get_file_size(path.c_str())) > MAX_FILE_SIZE_FOR_AUTO_RESTORE)
   {
   again:
@@ -706,10 +706,10 @@ void SqlEditorPanel::auto_save(const std::string &path)
       content += "word_wrap=0\n";
 
     size_t caret_pos = _editor->get_editor_control()->get_caret_pos();
-    content += "caret_pos=" + base::to_string(caret_pos) + "\n";
+    content += "caret_pos=" + std::to_string(caret_pos) + "\n";
 
     size_t first_line = _editor->get_editor_control()->send_editor(SCI_GETFIRSTVISIBLELINE, 0, 0);
-    content += "first_visible_line=" + base::to_string(first_line) + "\n";
+    content += "first_visible_line=" + std::to_string(first_line) + "\n";
 
     if (f.good())
       f << base::string_to_wstring(content);
@@ -796,14 +796,14 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.openFile");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_open.png"));
   item->set_tooltip(_("Open a script file in this editor"));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind((void (SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, _form, "", false, true));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind((void (SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, _form, "", false, true));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.saveFile");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_save.png"));
   item->set_tooltip(_("Save the script to a file."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorPanel::save, this));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorPanel::save, this));
   tbar->add_item(item);
 
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
@@ -812,28 +812,28 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.execute");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_execute.png"));
   item->set_tooltip(_("Execute the selected portion of the script or everything, if there is no selection"));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::run_editor_contents, _form, false));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::run_editor_contents, _form, false));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.execute_current_statement");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_execute-current.png"));
   item->set_tooltip(_("Execute the statement under the keyboard cursor"));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::run_editor_contents, _form, true));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::run_editor_contents, _form, true));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.explain_current_statement");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_explain.png"));
   item->set_tooltip(_("Execute the EXPLAIN command on the statement under the cursor"));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::explain_current_statement, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::explain_current_statement, _form));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.cancel");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop.png"));
   item->set_tooltip(_("Stop the query being executed (the connection to the DB server will not be restarted and any open transactions will remain open)"));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::cancel_query, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::cancel_query, _form));
   tbar->add_item(item);
 
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
@@ -843,7 +843,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-off.png"));
   item->set_tooltip(_("Toggle whether execution of SQL script should continue after failed statements"));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(toggle_continue_on_error, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(toggle_continue_on_error, _form));
 
   tbar->add_item(item);
 
@@ -853,14 +853,14 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.commit");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_commit.png"));
   item->set_tooltip(_("Commit the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::commit, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::commit, _form));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.rollback");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_rollback.png"));
   item->set_tooltip(_("Rollback the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::rollback, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::rollback, _form));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
@@ -868,7 +868,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_autocommit-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_autocommit-off.png"));
   item->set_tooltip(_("Toggle autocommit mode. When enabled, each statement will be committed immediately.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::toggle_autocommit, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::toggle_autocommit, _form));
   tbar->add_item(item);
 
   tbar->add_separator_item();
@@ -876,7 +876,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
   item->set_name("limit_rows");
   item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbench will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
-  bec::UIForm::scoped_connect(item->signal_activated(), boost::bind(&SqlEditorPanel::limit_rows, this, item));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorPanel::limit_rows, this, item));
   tbar->add_item(item);
 
   tbar->add_separator_item();
@@ -885,7 +885,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("add_snippet");
   item->set_icon(IconManager::get_instance()->get_icon_path("snippet_add.png"));
   item->set_tooltip(_("Save current statement or selection to the snippet list."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::save_snippet, _form));
   tbar->add_item(item);
 
   tbar->add_separator_item();
@@ -1251,7 +1251,7 @@ void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
   }
   else
     bec::GRTManager::get()->run_once_when_idle(dynamic_cast<bec::UIForm*>(this),
-      boost::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
+      std::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
 }
 
 //--------------------------------------------------------------------------------------------------

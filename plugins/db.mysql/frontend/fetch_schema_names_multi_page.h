@@ -23,7 +23,7 @@ class FetchSchemaNamesSourceTargetProgressPage : public WizardProgressPage
 {
 public:
   FetchSchemaNamesSourceTargetProgressPage(WizardForm *form, MultiSourceSelectPage *source_page, const char *name= "fetchNames")
-  : WizardProgressPage(form, name, true), _source_page(source_page), _source_dbconn(0), _target_dbconn(0)
+  : WizardProgressPage(form, name, true), _source_page(source_page), _source_dbconn(0), _target_dbconn(0), _finished(0)
   {
     set_title(_("Retrieve Source and Target Schema Names"));
     set_short_title(_("Get Source and Target"));
@@ -31,13 +31,13 @@ public:
     set_status_text("");
   }
 
-  void set_load_schemata_slot(DbConnection *sdbc, const boost::function<std::vector<std::string> ()> &sslot,
-                              DbConnection *tdbc, const boost::function<std::vector<std::string> ()> &tslot)
+  void set_load_schemata_slot(DbConnection *sdbc, const std::function<std::vector<std::string> ()> &sslot,
+                              DbConnection *tdbc, const std::function<std::vector<std::string> ()> &tslot)
   {
-    _source_dbconn= sdbc;
-    _target_dbconn= tdbc;
-    _load_source_schemata= sslot;
-    _load_target_schemata= tslot;
+    _source_dbconn = sdbc;
+    _target_dbconn = tdbc;
+    _load_source_schemata = sslot;
+    _load_target_schemata = tslot;
   }
 
   void set_model_catalog(db_CatalogRef catalog)
@@ -52,7 +52,7 @@ protected:
     DbConnection *dbc = source ? _source_dbconn : _target_dbconn;
     db_mgmt_ConnectionRef conn = dbc->get_connection();
 
-    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_connect, this, dbc), false);
+    execute_grt_task(std::bind(&FetchSchemaNamesSourceTargetProgressPage::do_connect, this, dbc), false);
 
     return true;
   }
@@ -69,7 +69,7 @@ protected:
 
   bool perform_fetch(bool source)
   {
-    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_fetch, this, source),
+    execute_grt_task(std::bind(&FetchSchemaNamesSourceTargetProgressPage::do_fetch, this, source),
                      false);
     return true;
   }
@@ -178,20 +178,20 @@ protected:
       {
         case DataSourceSelector::ServerSource:
           add_async_task(_("Connect to Source DBMS"),
-                         boost::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_connect, this, true),
+                         std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_connect, this, true),
                          _("Connecting to Source DBMS..."));
 
           add_async_task(_("Retrieve Schema List from Source Database"),
-                         boost::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_fetch, this, true),
+                         std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_fetch, this, true),
                          _("Retrieving schema list from source database..."));
           break;
         case DataSourceSelector::FileSource:
           add_task(_("Retrieve database objects from source file"),
-                   boost::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_script_fetch, this, true),
+                   std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_script_fetch, this, true),
                    _("Retrieving objects from selected source file..."));
           break;
         case DataSourceSelector::ModelSource:
-          add_task(_("Load schemas from source model"), boost::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_model_fetch, this, true),
+          add_task(_("Load schemas from source model"), std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_model_fetch, this, true),
                    _("Loading schemas from source model..."));
           break;
       }
@@ -199,20 +199,20 @@ protected:
       {
         case DataSourceSelector::ServerSource:
           add_async_task(_("Connect to Target DBMS"),
-                         boost::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_connect, this, false),
+                         std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_connect, this, false),
                          _("Connecting to Target DBMS..."));
 
           add_async_task(_("Retrieve Schema List from Target Database"),
-                         boost::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_fetch, this, false),
+                         std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_fetch, this, false),
                          _("Retrieving schema list from target database..."));
           break;
         case DataSourceSelector::FileSource:
           add_task(_("Retrieve database objects from target file"),
-                   boost::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_script_fetch, this, false),
+                   std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_script_fetch, this, false),
                    _("Retrieving objects from selected target file..."));
           break;
         case DataSourceSelector::ModelSource:
-          add_task(_("Load schemas from target model"), boost::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_model_fetch, this, false),
+          add_task(_("Load schemas from target model"), std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_model_fetch, this, false),
                    _("Loading schemas from target model..."));
           break;
       }
@@ -237,8 +237,8 @@ private:
 
   DbConnection *_source_dbconn;
   DbConnection *_target_dbconn;
-  boost::function<std::vector<std::string> () > _load_source_schemata;
-  boost::function<std::vector<std::string> () > _load_target_schemata;
+  std::function<std::vector<std::string> () > _load_source_schemata;
+  std::function<std::vector<std::string> () > _load_target_schemata;
   
   int _finished;
 };

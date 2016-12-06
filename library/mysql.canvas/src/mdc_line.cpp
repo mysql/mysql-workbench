@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -127,7 +127,7 @@ void Line::set_layouter(LineLayouter *layouter)
 {
   _layouter= layouter;
 
-  scoped_connect(_layouter->signal_changed(),boost::bind(&Line::update_layout, this));
+  scoped_connect(_layouter->signal_changed(), std::bind(&Line::update_layout, this));
 
   _layouter->update();
 }

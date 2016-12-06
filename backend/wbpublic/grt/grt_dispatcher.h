@@ -63,7 +63,7 @@ namespace bec {
   class DispatcherCallback : public DispatcherCallbackBase
   {
   public:
-    typedef boost::function<R()> slot_type;
+    typedef std::function<R()> slot_type;
     typedef std::shared_ptr<DispatcherCallback<R> > Ref;
 
     static Ref create_callback(const slot_type &slot)
@@ -93,7 +93,7 @@ namespace bec {
   class DispatcherCallback<void> : public DispatcherCallbackBase
   {
   public:
-    typedef boost::function<void()> slot_type;
+    typedef std::function<void()> slot_type;
     typedef std::shared_ptr<DispatcherCallback<void> > Ref;
 
     static Ref create_callback(const slot_type &slot = slot_type())
@@ -201,7 +201,7 @@ namespace bec {
     typedef std::shared_ptr<GRTTask> Ref;
 
     static Ref create_task(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
-      const boost::function<grt::ValueRef()> &function);
+      const std::function<grt::ValueRef()> &function);
 
     //XXX replace with direct slots?
     StartedSignal *signal_started() { return &_sigStarted; }
@@ -210,7 +210,7 @@ namespace bec {
     ProcessMessageSignal *signal_message() { return &_message; }
     
   protected:
-    boost::function<grt::ValueRef ()> _function;
+    std::function<grt::ValueRef ()> _function;
     
     StartedSignal _sigStarted;
     FinishedSignal _sigFinished;
@@ -220,7 +220,7 @@ namespace bec {
     virtual grt::ValueRef execute();
 
     GRTTask(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
-      const boost::function<grt::ValueRef()> &function);
+      const std::function<grt::ValueRef()> &function);
     virtual void started_m();
     virtual void finished_m(const grt::ValueRef &result);
     virtual void failed_m(const std::exception &error);
@@ -320,15 +320,15 @@ namespace bec {
     grt::ValueRef add_task_and_wait(const GRTTaskBase::Ref task) THROW (grt::grt_runtime_error);
 
     grt::ValueRef execute_sync_function(const std::string &name,
-      const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
+      const std::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     void execute_async_function(const std::string &name,
-      const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
+      const std::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     void wait_task(const GRTTaskBase::Ref task);
     
     template<class R>
-    R call_from_main_thread(const boost::function<R ()> &callback, bool wait, bool force_queue)
+    R call_from_main_thread(const std::function<R ()> &callback, bool wait, bool force_queue)
     {
       typename DispatcherCallback<R>::Ref cb = DispatcherCallback<R>::create_callback(callback);
       call_from_main_thread(cb, wait, force_queue);
@@ -353,7 +353,7 @@ namespace bec {
   };
 
   template<>
-    inline void GRTDispatcher::call_from_main_thread<void>(const boost::function<void ()> &callback, bool wait, bool force_queue)
+    inline void GRTDispatcher::call_from_main_thread<void>(const std::function<void ()> &callback, bool wait, bool force_queue)
     {
       DispatcherCallback<void>::Ref cb = DispatcherCallback<void>::create_callback(callback);
       call_from_main_thread(cb, wait, force_queue);

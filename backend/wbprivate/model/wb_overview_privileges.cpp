@@ -109,11 +109,11 @@ class UserListNode : public OverviewBE::ContainerNode
 private:
   std::string id;
   grt::ListRef<GrtNamedObject> _list;
-  boost::function<void (WBComponentPhysical*, db_UserRef)> _remove;
+  std::function<void (WBComponentPhysical*, db_UserRef)> _remove;
   PhysicalOverviewBE *_owner;
 public:
   UserListNode(const std::string &name, const db_CatalogRef &catalog, grt::ListRef<GrtNamedObject> list,
-    const boost::function<void (WBComponentPhysical*, db_UserRef)> &remove, PhysicalOverviewBE *owner)
+    const std::function<void (WBComponentPhysical*, db_UserRef)> &remove, PhysicalOverviewBE *owner)
     : ContainerNode(OverviewBE::OItem), _list(list), _remove(remove), _owner(owner)
   {
     id= catalog->id() + "/" + name;
@@ -178,11 +178,11 @@ class RoleListNode : public OverviewBE::ContainerNode
 private:
   std::string id;
   grt::ListRef<GrtNamedObject> _list;
-  boost::function<void (WBComponentPhysical*, db_RoleRef)> _remove;
+  std::function<void (WBComponentPhysical*, db_RoleRef)> _remove;
   PhysicalOverviewBE *_owner;
 public:
   RoleListNode(const std::string &name, const db_CatalogRef &catalog, grt::ListRef<GrtNamedObject> list,
-    const boost::function<void (WBComponentPhysical*, db_RoleRef)> &remove, PhysicalOverviewBE *owner)
+    const std::function<void (WBComponentPhysical*, db_RoleRef)> &remove, PhysicalOverviewBE *owner)
     : ContainerNode(OverviewBE::OItem), _list(list), _remove(remove), _owner(owner)
   {
     id= catalog->id() + "/" + name;
@@ -322,30 +322,36 @@ wb::internal::PrivilegeInfoNode::PrivilegeInfoNode(const db_CatalogRef &catalog,
   description= "Privileges";
   display_mode= OverviewBE::MSmallIcon;
 
-  OverviewBE::AddObjectNode *add_node= new OverviewBE::AddObjectNode(boost::bind(&PrivilegeInfoNode::add_new_user, this, _1));
-  add_node->label= _("Add User");
-  add_node->type= OverviewBE::OItem;
-  add_node->small_icon= IconManager::get_instance()->get_icon_id("db.User.$.png", Icon16, "add");
-  add_node->large_icon= IconManager::get_instance()->get_icon_id("db.User.$.png", Icon48, "add");
+  OverviewBE::AddObjectNode *add_node = new OverviewBE::AddObjectNode(
+      std::bind(&PrivilegeInfoNode::add_new_user, this, std::placeholders::_1));
+  add_node->label = _("Add User");
+  add_node->type = OverviewBE::OItem;
+  add_node->small_icon = IconManager::get_instance()->get_icon_id(
+      "db.User.$.png", Icon16, "add");
+  add_node->large_icon = IconManager::get_instance()->get_icon_id(
+      "db.User.$.png", Icon48, "add");
 
   {
     UserListNode *node;
     node= new UserListNode("Users", catalog, grt::ListRef<GrtNamedObject>::cast_from(catalog->users()),
-      boost::bind(&WBComponentPhysical::remove_user, _1, _2), owner);
+      std::bind(&WBComponentPhysical::remove_user, std::placeholders::_1, std::placeholders::_2), owner);
     children.push_back(node);
     node->children.insert(node->children.begin(), add_node);
   }
 
 
-  add_node= new OverviewBE::AddObjectNode(boost::bind(&PrivilegeInfoNode::add_new_role, this, _1));
-  add_node->label= _("Add Role");
-  add_node->type= OverviewBE::OItem;
-  add_node->small_icon= IconManager::get_instance()->get_icon_id("db.Role.$.png", Icon16, "add");
-  add_node->large_icon= IconManager::get_instance()->get_icon_id("db.Role.$.png", Icon48, "add");
+  add_node = new OverviewBE::AddObjectNode(
+      std::bind(&PrivilegeInfoNode::add_new_role, this, std::placeholders::_1));
+  add_node->label = _("Add Role");
+  add_node->type = OverviewBE::OItem;
+  add_node->small_icon = IconManager::get_instance()->get_icon_id(
+      "db.Role.$.png", Icon16, "add");
+  add_node->large_icon = IconManager::get_instance()->get_icon_id(
+      "db.Role.$.png", Icon48, "add");
 
   {
     RoleListNode *node= new RoleListNode("Roles", catalog, grt::ListRef<GrtNamedObject>::cast_from(catalog->roles()),
-      boost::bind(&WBComponentPhysical::remove_role, _1, _2), owner);
+      std::bind(&WBComponentPhysical::remove_role, std::placeholders::_1, std::placeholders::_2), owner);
     children.push_back(node);
 
     node->children.insert(node->children.begin(), add_node);

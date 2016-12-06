@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,9 +37,9 @@ MiniView::MiniView(mdc::Layer *layer)
 #ifndef __APPLE__
   set_cache_toplevel_contents(true);
 #endif
-  layer->get_view()->set_event_callbacks(boost::bind(&MiniView::view_button_cb, this, _1, _2, _3, _4, _5),
-    boost::bind(&MiniView::view_motion_cb, this, _1, _2, _3),
-    boost::function<bool (CanvasView*, KeyInfo, EventState, bool)>());
+  layer->get_view()->set_event_callbacks(std::bind(&MiniView::view_button_cb, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5),
+    std::bind(&MiniView::view_motion_cb, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+    std::function<bool (CanvasView*, KeyInfo, EventState, bool)>());
 }
 
 
@@ -322,7 +322,7 @@ void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_Diagram
     _viewport_figure->set_draggable(true);
     _viewport_figure->set_needs_render();
 
-    scoped_connect(_viewport_figure->signal_bounds_changed(),boost::bind(&MiniView::viewport_dragged, this, _1));
+    scoped_connect(_viewport_figure->signal_bounds_changed(), std::bind(&MiniView::viewport_dragged, this, std::placeholders::_1));
   }
 
   if (_view_repaint_connection.connected())
@@ -334,10 +334,10 @@ void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_Diagram
   if (_canvas_view)
   {
     _view_viewport_change_connection= _canvas_view->signal_viewport_changed()->connect(
-    boost::bind(&MiniView::viewport_changed, this));
+    std::bind(&MiniView::viewport_changed, this));
 
     _view_repaint_connection= _canvas_view->signal_repaint()->connect(
-    (boost::bind(&CanvasItem::set_needs_render, this)));
+    (std::bind(&CanvasItem::set_needs_render, this)));
 
     _viewport_figure->set_visible(true);
 

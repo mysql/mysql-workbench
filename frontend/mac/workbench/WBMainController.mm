@@ -756,35 +756,35 @@ static bool validate_redo(MainWindowController *controller)
 
   wb::WBContextUI::get()->get_command_ui()->add_frontend_commands(commands);
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("closetab", boost::bind(call_closetab_old, mainController),
-                                               boost::bind(validate_closetab_old, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("close_tab", boost::bind(call_close_tab, mainController),
-                                               boost::bind(validate_close_tab, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("close_editor", boost::bind(call_close_editor, mainController),
-                                               boost::bind(validate_close_editor, mainController));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("closetab", std::bind(call_closetab_old, mainController),
+                                               std::bind(validate_closetab_old, mainController));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("close_tab", std::bind(call_close_tab, mainController),
+                                               std::bind(validate_close_tab, mainController));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("close_editor", std::bind(call_close_editor, mainController),
+                                               std::bind(validate_close_editor, mainController));
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("toggle_fullscreen", boost::bind(call_toggle_fullscreen, mainController),
-                                               boost::bind(validate_toggle_fullscreen, mainController));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("toggle_fullscreen", std::bind(call_toggle_fullscreen, mainController),
+                                               std::bind(validate_toggle_fullscreen, mainController));
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find", boost::bind(call_find, mainController),
-                                               boost::bind(validate_find, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find_replace", boost::bind(call_find_replace, true),
-                                               boost::bind(validate_find_replace));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find", std::bind(call_find, mainController),
+                                               std::bind(validate_find, mainController));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find_replace", std::bind(call_find_replace, true),
+                                               std::bind(validate_find_replace));
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("undo", boost::bind(call_undo, mainController),
-                                               boost::bind(validate_undo, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("redo", boost::bind(call_redo, mainController),
-                                               boost::bind(validate_redo, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("copy", boost::bind(call_copy),
-                                               boost::bind(validate_copy));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("cut", boost::bind(call_cut),
-                                               boost::bind(validate_cut));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("paste", boost::bind(call_paste),
-                                               boost::bind(validate_paste));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("delete", boost::bind(call_delete),
-                                               boost::bind(validate_delete));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("selectAll", boost::bind(call_select_all),
-                                               boost::bind(validate_select_all));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("undo", std::bind(call_undo, mainController),
+                                               std::bind(validate_undo, mainController));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("redo", std::bind(call_redo, mainController),
+                                               std::bind(validate_redo, mainController));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("copy", std::bind(call_copy),
+                                               std::bind(validate_copy));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("cut", std::bind(call_cut),
+                                               std::bind(validate_cut));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("paste", std::bind(call_paste),
+                                               std::bind(validate_paste));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("delete", std::bind(call_delete),
+                                               std::bind(validate_delete));
+  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("selectAll", std::bind(call_select_all),
+                                               std::bind(validate_select_all));
 }
 
 static void flush_main_thread()
@@ -876,21 +876,21 @@ static NSString *applicationSupportFolder()
     wb::WBFrontendCallbacks wbcallbacks;
     
     // Assign those callback methods
-    wbcallbacks.show_file_dialog= boost::bind(showFileDialog, _1, _2, _3);
-    wbcallbacks.show_status_text= boost::bind(windowShowStatusText, _1, mainController);
-    wbcallbacks.open_editor= boost::bind(windowOpenPlugin, _1, _2, _3, _4, _5, mainController);
-    wbcallbacks.show_editor= boost::bind(windowShowPlugin, _1, mainController);
-    wbcallbacks.hide_editor= boost::bind(windowHidePlugin, _1, mainController);
-    wbcallbacks.perform_command= boost::bind(windowPerformCommand, _1, mainController, self);
-    wbcallbacks.create_diagram= boost::bind(windowCreateView, _1, mainController);
-    wbcallbacks.destroy_view= boost::bind(windowDestroyView, _1, mainController);
-    wbcallbacks.switched_view= boost::bind(windowSwitchedView, _1, mainController);
-    wbcallbacks.create_main_form_view= boost::bind(windowCreateMainFormView, _1, _2, self, mainController);
-    wbcallbacks.destroy_main_form_view= boost::bind(windowDestroyMainFormView, _1, mainController);
-    wbcallbacks.tool_changed= boost::bind(windowToolChanged, _1, mainController);
-    wbcallbacks.refresh_gui= boost::bind(windowRefreshGui, _1, _2, _3, mainController);
-    wbcallbacks.lock_gui= boost::bind(windowLockGui, _1, mainController);
-    wbcallbacks.quit_application= boost::bind(quitApplication, mainController);
+    wbcallbacks.show_file_dialog= std::bind(showFileDialog, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    wbcallbacks.show_status_text= std::bind(windowShowStatusText, std::placeholders::_1, mainController);
+    wbcallbacks.open_editor= std::bind(windowOpenPlugin, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, mainController);
+    wbcallbacks.show_editor= std::bind(windowShowPlugin, std::placeholders::_1, mainController);
+    wbcallbacks.hide_editor= std::bind(windowHidePlugin, std::placeholders::_1, mainController);
+    wbcallbacks.perform_command= std::bind(windowPerformCommand, std::placeholders::_1, mainController, self);
+    wbcallbacks.create_diagram= std::bind(windowCreateView, std::placeholders::_1, mainController);
+    wbcallbacks.destroy_view= std::bind(windowDestroyView, std::placeholders::_1, mainController);
+    wbcallbacks.switched_view= std::bind(windowSwitchedView, std::placeholders::_1, mainController);
+    wbcallbacks.create_main_form_view= std::bind(windowCreateMainFormView, std::placeholders::_1, std::placeholders::_2, self, mainController);
+    wbcallbacks.destroy_main_form_view= std::bind(windowDestroyMainFormView, std::placeholders::_1, mainController);
+    wbcallbacks.tool_changed= std::bind(windowToolChanged, std::placeholders::_1, mainController);
+    wbcallbacks.refresh_gui= std::bind(windowRefreshGui, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, mainController);
+    wbcallbacks.lock_gui= std::bind(windowLockGui, std::placeholders::_1, mainController);
+    wbcallbacks.quit_application= std::bind(quitApplication, mainController);
 
       
     // Add shipped python module search path to PYTHONPATH.

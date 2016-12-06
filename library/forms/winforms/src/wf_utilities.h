@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -90,12 +90,12 @@ namespace MySQL {
     private ref class SlotWrapper
     {
     public:
-      const boost::function<void* ()> *_slot;
+      const std::function<void* ()> *_slot;
 
-      SlotWrapper(const boost::function<void* ()> &slot)
+      SlotWrapper(const std::function<void* ()> &slot)
       {
         // Make a copy of the slot or it will be invalid at the time we want to run it.
-        _slot = new boost::function<void* ()>(slot);
+        _slot = new std::function<void* ()>(slot);
       }
 
       ~SlotWrapper()
@@ -109,7 +109,7 @@ namespace MySQL {
     private:
       InvokationResult^ RunSlot(SlotWrapper ^wrapper);
     public:
-      void* RunOnMainThread(const boost::function<void* ()>& slot, bool wait);
+      void* RunOnMainThread(const std::function<void* ()>& slot, bool wait);
     };
 
     public class UtilitiesWrapper
@@ -136,7 +136,7 @@ namespace MySQL {
       static void show_wait_message(const std::string &title, const std::string &text);
       static bool hide_wait_message();
       static bool run_cancelable_wait_message(const std::string &title, const std::string &text, 
-        const boost::function<void ()> &signal_ready, const boost::function<bool ()> &cancel_slot);
+        const std::function<void ()> &signal_ready, const std::function<bool ()> &cancel_slot);
       static void stop_cancelable_wait_message();
 
       static void set_clipboard_text(const std::string &content);
@@ -147,14 +147,14 @@ namespace MySQL {
       static bool move_to_trash(const std::string &file_name);
       static void reveal_file(const std::string &path);
 
-      static mforms::TimeoutHandle add_timeout(float interval, const boost::function<bool ()> &slot);
+      static mforms::TimeoutHandle add_timeout(float interval, const std::function<bool ()> &slot);
       static void cancel_timeout(mforms::TimeoutHandle h);
 
       static void store_password(const std::string &service, const std::string &account, const std::string &password);
       static bool find_password(const std::string &service, const std::string &account, std::string &password);
       static void forget_password(const std::string &service, const std::string &account);
 
-      static void* perform_from_main_thread(const boost::function<void* ()> &slot, bool wait);
+      static void* perform_from_main_thread(const std::function<void* ()> &slot, bool wait);
       static void set_thread_name(const std::string &name);
 
       static double get_text_width(const std::string &text, const std::string &font);

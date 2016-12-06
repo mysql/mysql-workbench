@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,8 +36,6 @@
 
 #define new_node(node, name, value)\
   xmlNewTextChild(node, NULL, (xmlChar*)name, (xmlChar*)value)
-
-#define DBL_MAX_PRECISION 64
 
 
 DEFAULT_LOG_DOMAIN("serializer")
@@ -166,35 +164,6 @@ bool internal::Serializer::seen(const ValueRef &value)
 }
 
 
-static void format_real_value(char buffer[], size_t buffer_size, double pvalue)
-{
-  char val_format[8];
-  char* symbol= NULL;
-  char* e_part= NULL;
-  size_t e_part_len= 0;
-  size_t n= 0;
-  
-  if (buffer_size > DBL_MAX_PRECISION*sizeof(char)+strlen("1.e+000\n"))
-  {
-    char *c;
-    g_snprintf(val_format, sizeof(val_format), "%%.%ie", DBL_MAX_PRECISION);
-    g_snprintf(buffer, (gulong)buffer_size, val_format, pvalue);
-    symbol= buffer+strlen(buffer);
-    while ('e' != *--symbol);
-    e_part= symbol--;
-    while ('0' == *--symbol);
-    ++symbol;
-    e_part_len= strlen(e_part);
-    for (n= 0; n<=e_part_len; n++)
-      symbol[n]= e_part[n];
-    
-    // replace decimal , with . for locale variations
-    c= strchr(buffer, ',');
-    if (c)
-      *c= '.';
-  }
-}
-
 /*
  *****************************************************************************
  * @brief Encodes a GRT value (and its sub-values) to a XML tree. (internal)
@@ -223,11 +192,11 @@ xmlNodePtr internal::Serializer::serialize_value(const ValueRef &value, xmlNodeP
       set_prop(node, "type", "int");
       break;
     case DoubleType:
-      format_real_value(buffer, sizeof(buffer), *DoubleRef::cast_from(value));
-      node= new_node(parent, "value", buffer);
-      
+    {
+      node= new_node(parent, "value", base::to_string(*DoubleRef::cast_from(value)).c_str());
       set_prop(node, "type", "real");
       break;
+    }
     case StringType:
       node= new_node(parent, "value", StringRef::cast_from(value).c_str());
 
@@ -394,7 +363,7 @@ xmlNodePtr internal::Serializer::serialize_object(const ObjectRef &object, xmlNo
 
   MetaClass *stru= object->get_metaclass();
   
-  stru->foreach_member(boost::bind(&Serializer::serialize_member, this, _1, object, node));
+  stru->foreach_member(std::bind(&Serializer::serialize_member, this, std::placeholders::_1, object, node));
   
   return node;
 }

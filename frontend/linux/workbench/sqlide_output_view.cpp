@@ -139,12 +139,12 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *
 
   mforms::Menu* context_menu = be->log()->get_context_menu();
   _action_output.set_context_menu(context_menu);
-  context_menu->signal_will_show()->connect(boost::bind(&QueryOutputView::output_menu_will_show, this));
+  context_menu->signal_will_show()->connect(std::bind(&QueryOutputView::output_menu_will_show, this));
 
   _entries_grid.set_context_menu_responder(sigc::mem_fun(this, &QueryOutputView::history_context_menu_responder));
 
   context_menu = be->history()->details_model()->get_context_menu();
-  context_menu->set_handler(sigc::mem_fun(this, &QueryOutputView::handle_history_context_menu));
+  context_menu->set_handler(std::bind(&QueryOutputView::handle_history_context_menu, this, std::placeholders::_1));
   _details_grid.set_context_menu(context_menu);
 
   _refresh_ui_sig_entries = _be->history()->entries_model()->refresh_ui_signal.connect(sigc::mem_fun(this, &QueryOutputView::on_history_entries_refresh));

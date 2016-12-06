@@ -252,7 +252,20 @@ GRT::~GRT()
 {
   delete _shell;
   delete _default_undo_manager;
-  
+
+
+  // We need to first release PythonLoader so we don't end up Python calling some WB modules
+  for (std::list<ModuleLoader*>::iterator iter= _loaders.begin();
+         iter != _loaders.end(); ++iter)
+  {
+    if ((*iter)->get_loader_name() == grt::LanguagePython)
+    {
+      delete *iter;
+      _loaders.erase(iter);
+      break;
+    }
+  }
+
   for (std::vector<Module*>::iterator iter= _modules.begin();
        iter != _modules.end(); ++iter)
   {
@@ -264,7 +277,7 @@ GRT::~GRT()
   }
 
   _modules.clear();
-
+  
   for (std::map<std::string,Interface*>::iterator iter= _interfaces.begin();
        iter != _interfaces.end(); ++iter)
     delete iter->second;

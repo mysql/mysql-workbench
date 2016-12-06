@@ -880,7 +880,7 @@ static PyObject *grt_push_message_handler(PyObject *self, PyObject *args)
   if (!PyCallable_Check(o))
     return NULL;
   
-  grt::GRT::get()->push_message_handler(boost::bind(&call_handle_message, _1, _2, AutoPyObject(o)));
+  grt::GRT::get()->push_message_handler(std::bind(&call_handle_message, std::placeholders::_1, std::placeholders::_2, AutoPyObject(o)));
 
   return Py_BuildValue("i", grt::GRT::get()->message_handler_count());
 }
@@ -937,7 +937,7 @@ static PyObject *grt_push_status_query_handler(PyObject *self, PyObject *args)
   if (!PyCallable_Check(o))
     return NULL;
   
-  grt::GRT::get()->push_status_query_handler(boost::bind(&call_status_query, AutoPyObject(o)));
+  grt::GRT::get()->push_status_query_handler(std::bind(&call_status_query, AutoPyObject(o)));
   
   Py_RETURN_NONE;
 }

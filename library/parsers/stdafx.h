@@ -38,10 +38,10 @@
 #include <inttypes.h>
 #include <sstream>
 #include <iterator>
+#include <memory>
 
 #include "antlr3.h"
 #include <glib.h>
 
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>

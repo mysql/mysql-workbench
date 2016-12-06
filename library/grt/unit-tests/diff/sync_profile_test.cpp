@@ -31,8 +31,6 @@
 #include "diff/changeobjects.h"
 #include "diff/changelistobjects.h"
 
-#include <boost/lambda/bind.hpp>
-
 BEGIN_TEST_DATA_CLASS(sync_profile_test)
 protected:
   WBTester *tester;
@@ -114,7 +112,7 @@ TEST_FUNCTION(2)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     NormalizedComparer cmp;
     //Kind of hack, atm we doesn't propertly cut server representation of procedures and vews, so just skip it
-    cmp.add_comparison_rule("sqlDefinition",boost::bind(boost::function<bool ()> (boost::lambda::constant(true))));
+    cmp.add_comparison_rule("sqlDefinition", std::bind([]() { return true; }));
 
 
     tester->wb->new_document();

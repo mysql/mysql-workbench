@@ -70,7 +70,7 @@ DBObjectEditorBE::DBObjectEditorBE(const db_DatabaseObjectRef &object)
   // With the refactoring of the auto completion code this second parser will go.
   _autocompletion_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, sqlMode, case_sensitive);
 
-  _val_notify_conn = ValidationManager::signal_notify()->connect(boost::bind(&DBObjectEditorBE::notify_from_validation, this, _1, _2, _3, _4));
+  _val_notify_conn = ValidationManager::signal_notify()->connect(std::bind(&DBObjectEditorBE::notify_from_validation, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
   // Get notified about version number changes.
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");
@@ -146,7 +146,7 @@ bool DBObjectEditorBE::can_close()
   // Note: the result of the BaseEditor::can_close() is only used if there's no apply callback set.
   //       Otherwise we always use the callback for checks (because there can be other changes than
   //       just the code editor which is checked in the BaseEditor).
-  if (!on_apply_changes_to_live_object.empty())
+  if (on_apply_changes_to_live_object)
   {
     bool is_object_modified = on_apply_changes_to_live_object(this, true);
     if (is_object_modified)

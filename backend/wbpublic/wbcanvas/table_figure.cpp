@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -180,16 +180,16 @@ void TableColumnItem::draw_contents(mdc::CairoCtx *cr)
 Table::Table(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self, bool collapsible)
 : BaseFigure(layer, hub, self), _background(layer), _title(layer, hub, this, collapsible)
 {
-  _original_column_box_height= 0.0;
+  _original_column_box_height = 0.0;
 
-  _hide_columns= false;
-  _hide_indexes= false;
-  _hide_triggers= false;
+  _hide_columns = false;
+  _hide_indexes = false;
+  _hide_triggers = false;
 
-  _show_flags= false;
+  _show_flags = false;
 
-  add_magnet(_sides_magnet= new mdc::BoxSideMagnet(this));
-  _sides_magnet->set_compare_slot(boost::bind(&Table::compare_connection_position, this, _1, _2, _3));
+  add_magnet(_sides_magnet = new mdc::BoxSideMagnet(this));
+  _sides_magnet->set_compare_slot(std::bind(&Table::compare_connection_position, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 

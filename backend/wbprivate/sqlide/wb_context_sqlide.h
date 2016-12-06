@@ -25,7 +25,6 @@
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.app.h"
 //#include "dialogs/search_replace.h"
-#include <boost/weak_ptr.hpp>
 #include "base/trackable.h"
 #include "base/notifications.h"
 #include "mforms/utilities.h"

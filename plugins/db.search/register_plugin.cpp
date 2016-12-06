@@ -80,7 +80,7 @@ private:
       else
       {
         if (_last_selection_change == 0 && _check_selection_timeout == 0)
-          _check_selection_timeout = mforms::Utilities::add_timeout(1, boost::bind(&DBSearchView::check_selection, this));
+          _check_selection_timeout = mforms::Utilities::add_timeout(1, std::bind(&DBSearchView::check_selection, this));
         _last_selection_change = time(NULL);
       }
     }
@@ -138,7 +138,7 @@ private:
   {
     //we need to call this from timeout or idle, cause in gtk, we're blocking the application
     if (action == mforms::EntryActivate && _search_timeout == 0)
-      _search_timeout = mforms::Utilities::add_timeout(0.1f, boost::bind(&DBSearchView::search_activate_from_timeout, this));
+      _search_timeout = mforms::Utilities::add_timeout(0.1f, std::bind(&DBSearchView::search_activate_from_timeout, this));
   }
 
   void finished_search()
@@ -196,7 +196,7 @@ private:
     _search_panel.search(wrapper, search_keyword, filters,
                          SearchMode(search_type), limit_total, limit_table, invert,
                          _filter_panel.search_all_types() ? search_all_types : text_type, _filter_panel.search_all_types() ? "CHAR" : "",
-                         boost::bind(&DBSearchView::finished_search, this), boost::bind(&DBSearchView::failed_search, this));
+                         std::bind(&DBSearchView::finished_search, this), std::bind(&DBSearchView::failed_search, this));
   }
 
 public:
@@ -217,8 +217,8 @@ public:
     add(&_filter_panel, false, true);
     add(&_search_panel, true, true);
 
-    _filter_panel.search_field()->signal_action()->connect(boost::bind(&DBSearchView::search_activate, this, _1));
-    _filter_panel.search_button()->signal_clicked()->connect(boost::bind(&DBSearchView::start_search, this));
+    _filter_panel.search_field()->signal_action()->connect(std::bind(&DBSearchView::search_activate, this, std::placeholders::_1));
+    _filter_panel.search_button()->signal_clicked()->connect(std::bind(&DBSearchView::start_search, this));
 
     _search_panel.show(false);
 

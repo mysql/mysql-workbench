@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,7 +86,6 @@ void NotificationCenter::register_notification(const std::string &name,
   _notification_help[name] = help;
 }
 
-
 void NotificationCenter::add_observer(Observer *observer, const std::string &name)
 {
   ObserverEntry entry;
@@ -94,17 +93,6 @@ void NotificationCenter::add_observer(Observer *observer, const std::string &nam
   entry.observed_notification = name;
   _observers.push_back(entry);
 }
-
-/*
-void NotificationCenter::add_observer(Observer *observer, boost::function<void (const std::string &, void*, NotificationInfo &)> &callback, const std::string &name)
-{
-  ObserverEntry entry;
-  entry.observer = observer;
-  entry.callback = callback;
-  entry.observed_notification = name;
-  _observers.push_back(entry);
-}*/
-
 
 bool NotificationCenter::remove_observer(Observer *observer, const std::string &name)
 {

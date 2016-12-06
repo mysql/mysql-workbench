@@ -139,10 +139,10 @@ static std::string get_special_folder(mforms::FolderType type)
 
 @interface MFTimerHandler : NSObject
 {
-  boost::function<bool ()> *callback;
+  std::function<bool ()> *callback;
 }
 
-- (instancetype)initWithSlot:(boost::function<bool ()>)slot NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSlot:(std::function<bool ()>)slot NS_DESIGNATED_INITIALIZER;
 - (void)fire:(NSTimer*)timer;
 
 @end
@@ -154,19 +154,19 @@ static base::Mutex timeout_lock;
 
 @implementation MFTimerHandler
 
-- (instancetype)initWithSlot:(boost::function<bool ()>)slot
+- (instancetype)initWithSlot:(std::function<bool ()>)slot
 {
   self = [super init];
   if (self)
   {
-    callback = new boost::function<bool ()>(slot);
+    callback = new std::function<bool ()>(slot);
   }
   return self;
 }
 
 -(instancetype)init
 {
-  return [self initWithSlot: boost::function<bool ()>()];
+  return [self initWithSlot: std::function<bool ()>()];
 }
 
 - (void)dealloc
@@ -205,7 +205,7 @@ static base::Mutex timeout_lock;
 
 @end
 
-static mforms::TimeoutHandle util_add_timeout(float interval, const boost::function<bool ()> &callback)
+static mforms::TimeoutHandle util_add_timeout(float interval, const std::function<bool ()> &callback)
 {
   base::MutexLock lock(timeout_lock);
   
@@ -324,8 +324,8 @@ static void util_show_wait_message(const std::string &title, const std::string &
 
 
 static bool util_run_cancelable_wait_message(const std::string &title, const std::string &text,
-                                             const boost::function<void ()> &start_task, 
-                                             const boost::function<bool ()> &cancel_task)
+                                             const std::function<void ()> &start_task, 
+                                             const std::function<bool ()> &cancel_task)
 {
   return [MHudController runModalHudWithTitle: @(title.c_str())
                                andDescription: @(text.c_str())
@@ -371,7 +371,7 @@ static void reveal_file(const std::string &path)
 @interface MainThreadRunner : NSObject
 {
 @public
-  boost::function<void* ()> slot;
+  std::function<void* ()> slot;
   void *result;
 }
 
@@ -395,7 +395,7 @@ static void reveal_file(const std::string &path)
 @end
 
 
-static void *util_perform_from_main_thread(const boost::function<void* ()> &slot, bool wait_response)
+static void *util_perform_from_main_thread(const std::function<void* ()> &slot, bool wait_response)
 {
   if ([NSThread isMainThread])
     return slot ? slot() : NULL;

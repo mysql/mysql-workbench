@@ -103,7 +103,7 @@ static void call_refresh(void *theEditor)
   
   mBackEnd = new RelationshipEditorBE(workbench_physical_ConnectionRef::cast_from(args[0]));
   
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
   
   // update the UI
   [self refresh];

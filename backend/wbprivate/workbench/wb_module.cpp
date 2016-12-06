@@ -484,8 +484,8 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
 
   def_model_plugin("model", "newDiagram", "Add New Diagram", "Add a New Diagram to the Model");
 
-  def_file_plugin("tools", "runScriptFile", STANDALONE_GUI_PLUGIN_TYPE, "Run Script File", "Select a Script File to Execute", "Open Script and Execute", "open", "py,lua");
-  def_file_plugin("tools", "installModuleFile", STANDALONE_GUI_PLUGIN_TYPE, "Install Plugin", "Select a Module or Plugin File to Install", "Select Module to Install", "open", "py,lua,mwbplugin,mwbpluginz");
+  def_file_plugin("tools", "runScriptFile", STANDALONE_GUI_PLUGIN_TYPE, "Run Script File", "Select a Script File to Execute", "Open Script and Execute", "open", "py");
+  def_file_plugin("tools", "installModuleFile", STANDALONE_GUI_PLUGIN_TYPE, "Install Plugin", "Select a Module or Plugin File to Install", "Select Module to Install", "open", "py,mwbplugin,mwbpluginz");
 
   def_form_model_plugin("form", "showUserTypeEditor", "User Types Editor", "Open User Defined Types Editor");
   def_form_model_plugin("form", "showModelOptions", "Show Model Options", "Open Model Options Window");
@@ -510,7 +510,7 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
 int WorkbenchImpl::copyToClipboard(const std::string &astr)
 {
   bec::GRTManager::get()->get_dispatcher()
-    ->call_from_main_thread<void>(boost::bind(mforms::Utilities::set_clipboard_text, astr), true, false);
+    ->call_from_main_thread<void>(std::bind(mforms::Utilities::set_clipboard_text, astr), true, false);
 
   return 1;
 }
@@ -623,7 +623,7 @@ static void quit()
 int WorkbenchImpl::exit()
 {
   bec::GRTManager::get()->get_dispatcher()->
-  call_from_main_thread<void>(boost::bind(quit), false, false);
+  call_from_main_thread<void>(std::bind(quit), false, false);
 
   return 0;
 }
@@ -755,7 +755,7 @@ int WorkbenchImpl::editSelectedFigure(const model_DiagramRef &view)
 
     for (size_t c= list.count(), i= 0; i < c; i++)
     {
-      _wb->foreach_component(boost::bind(activate_object, _1, list.get(i), false));
+      _wb->foreach_component(std::bind(activate_object, std::placeholders::_1, list.get(i), false));
     }
   }
   return 0;
@@ -770,7 +770,7 @@ int WorkbenchImpl::editSelectedFigureInNewWindow(const model_DiagramRef &view)
 
     for (size_t c= list.count(), i= 0; i < c; i++)
     {
-      _wb->foreach_component(boost::bind(activate_object, _1, list.get(i), true));
+      _wb->foreach_component(std::bind(activate_object, std::placeholders::_1, list.get(i), true));
     }
   }
   return 0;
@@ -974,7 +974,7 @@ int WorkbenchImpl::goToMarker(const std::string &marker)
       diagram->y(mk->y());
 
       bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<void>(
-        boost::bind(&WBContextModel::switch_diagram, _wb->get_model_context(), diagram), false, false);
+        std::bind(&WBContextModel::switch_diagram, _wb->get_model_context(), diagram), false, false);
     }
   }
 
@@ -1038,7 +1038,7 @@ int WorkbenchImpl::highlightFigure(const model_ObjectRef &figure)
 
       if (form)
       {
-        _wb->switched_view(form->get_view());
+        _wb->_frontendCallbacks.switched_view(form->get_view());
         form->focus_and_make_visible(model_FigureRef::cast_from(figure), true);
       }
     }
@@ -1312,7 +1312,7 @@ static int traverse_value(const ObjectRef &owner, const std::string &member, con
       ObjectRef object(ObjectRef::cast_from(value));
       MetaClass *gstruct= object->get_metaclass();
 
-      gstruct->foreach_member(boost::bind(traverse_member, _1, owner, object));
+      gstruct->foreach_member(std::bind(traverse_member, std::placeholders::_1, owner, object));
     }
     break;
 
@@ -1373,21 +1373,21 @@ int WorkbenchImpl::refreshHomeConnections()
 int WorkbenchImpl::confirm(const std::string &title, const std::string &caption)
 {
   return bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<int>(
-    boost::bind(mforms::Utilities::show_message, title, caption, _("OK"), _("Cancel"), ""), true, false);
+    std::bind(mforms::Utilities::show_message, title, caption, _("OK"), _("Cancel"), ""), true, false);
 }
 
 
 std::string WorkbenchImpl::requestFileOpen(const std::string &caption, const std::string &extensions)
 {
   return bec::GRTManager::get()->get_dispatcher()->
-    call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "open", caption, extensions), true, false);
+    call_from_main_thread<std::string>(std::bind(_wb->_frontendCallbacks.show_file_dialog, "open", caption, extensions), true, false);
 }
 
 
 std::string WorkbenchImpl::requestFileSave(const std::string &caption, const std::string &extensions)
 {
   return bec::GRTManager::get()->get_dispatcher()->
-    call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "save", caption, extensions), true, false);
+    call_from_main_thread<std::string>(std::bind(_wb->_frontendCallbacks.show_file_dialog, "save", caption, extensions), true, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1484,9 +1484,9 @@ int WorkbenchImpl::reportBug(const std::string error_info)
 int WorkbenchImpl::showConnectionManager()
 {
   grtui::DbConnectionEditor editor(_wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Connection Manager Opened.");
+  _wb->_frontendCallbacks.show_status_text("Connection Manager Opened.");
   editor.run();
-  _wb->show_status_text("");
+  _wb->_frontendCallbacks.show_status_text("");
   wb::WBContextUI::get()->refresh_home_connections();
   _wb->save_connections();
 
@@ -1497,9 +1497,9 @@ int WorkbenchImpl::showConnectionManager()
 int WorkbenchImpl::showInstanceManager()
 {
   ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Server Profile Manager Opened.");
+  _wb->_frontendCallbacks.show_status_text("Server Profile Manager Opened.");
   db_mgmt_ServerInstanceRef instance(editor.run());
-  _wb->show_status_text("");
+  _wb->_frontendCallbacks.show_status_text("");
   // save instance list now
   _wb->save_instances();
   return 0;
@@ -1508,9 +1508,9 @@ int WorkbenchImpl::showInstanceManager()
 int WorkbenchImpl::showInstanceManagerFor(const db_mgmt_ConnectionRef &conn)
 {
   ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Server Profile Manager Opened.");
+  _wb->_frontendCallbacks.show_status_text("Server Profile Manager Opened.");
   db_mgmt_ServerInstanceRef instance(editor.run(conn, true));
-  _wb->show_status_text("");
+  _wb->_frontendCallbacks.show_status_text("");
   // save instance list now
   _wb->save_instances();
   return 0;
@@ -2073,7 +2073,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       
       // If the display name is invalid will create one using the port
       if (display_name=="invalid")
-        display_name = base::to_string(port);
+        display_name = std::to_string(port);
 
       instance->name("Local " + display_name);
 

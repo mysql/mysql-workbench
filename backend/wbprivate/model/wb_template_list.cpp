@@ -83,8 +83,8 @@ std::string TableTemplateList::get_selected_template()
 void TableTemplateList::prepare_context_menu()
 {
   _context_menu = manage(new Menu());
-  _context_menu->set_handler(boost::bind(&TableTemplatePanel::on_action, _owner, _1));
-  _context_menu->signal_will_show()->connect(boost::bind(&TableTemplateList::menu_will_show, this));
+  _context_menu->set_handler(std::bind(&TableTemplatePanel::on_action, _owner, std::placeholders::_1));
+  _context_menu->signal_will_show()->connect(std::bind(&TableTemplateList::menu_will_show, this));
 
   _context_menu->add_item("New Table from Template", "use_template");
   _context_menu->add_separator();
@@ -154,7 +154,7 @@ TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   item->set_name("edit_templates");
   item->set_icon(mforms::App::get()->get_resource_path("edit_table_templates.png"));
   item->set_tooltip("Open the table template editor.");
-  scoped_connect(item->signal_activated(), boost::bind(&TableTemplatePanel::toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&TableTemplatePanel::toolbar_item_activated, this, std::placeholders::_1));
   _toolbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem));
@@ -165,14 +165,14 @@ TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   item->set_icon(mforms::App::get()->get_resource_path("snippet_add.png"));
   item->set_name("add_template");
   item->set_tooltip("Create a table template from the selected table object.");
-  scoped_connect(item->signal_activated(), boost::bind(&TableTemplatePanel::toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&TableTemplatePanel::toolbar_item_activated, this, std::placeholders::_1));
   _toolbar->add_item(item);
 */
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("use_template");
   item->set_icon(mforms::App::get()->get_resource_path("tiny_new_table.png"));
   item->set_tooltip("Create a new table based on the selected table template.");
-  scoped_connect(item->signal_activated(), boost::bind(&TableTemplatePanel::toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&TableTemplatePanel::toolbar_item_activated, this, std::placeholders::_1));
   _toolbar->add_item(item);
 
   add(_toolbar, false, true);

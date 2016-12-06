@@ -96,7 +96,7 @@ void DataBreakpoint::Set(void* address, int size, Condition when)
   // Find an available hardware register.
   for (_register_index = 0; _register_index < 4; ++_register_index)
   {
-    if ((context.Dr7 & (REGISTER_TYPE)(1 << (2 * _register_index))) == 0)
+    if ((context.Dr7 & (REGISTER_TYPE)(1ULL << (2 * _register_index))) == 0)
 		  break;
   }
   if (_register_index >= 4)

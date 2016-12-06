@@ -29,13 +29,11 @@ using namespace base;
 #include "base/string_utilities.h"
 #include "base/log.h"
 
-#include <boost/scoped_array.hpp>
 #include <algorithm>
 #include <cctype>
 #include <algorithm>
 #include <memory>
 #include <set>
-#include <boost/assign/list_of.hpp>
 #include <string>
 
 #undef max
@@ -349,23 +347,26 @@ bool DbDriverParams::parameter_not_valid(const db_mgmt_DriverRef &driver, const 
   const std::string& name = driver->name();
   if (name == "MysqlNativeSocket")
   {
-    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("port"))
-      ("connections_created")("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName")
-      ("sshPassword")("sshKeyFile")("sshHost")("sshUserName");
+    static const std::set<std::string> restricted_params = { "port",
+        "connections_created", "haGroupFilter", "managedConnectionsUpdateTime",
+        "mysqlUserName", "sshPassword", "sshKeyFile", "sshHost", "sshUserName" };
     if (restricted_params.count(param) > 0)
       return true;
   }
   else if (name == "MysqlNative")
   {
-    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("connections_created"))("socked")
-      ("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName")("sshPassword")("sshKeyFile")("sshHost")("sshUserName");
+    static const std::set<std::string> restricted_params = {
+        "connections_created", "socked", "haGroupFilter",
+        "managedConnectionsUpdateTime", "mysqlUserName", "sshPassword",
+        "sshKeyFile", "sshHost", "sshUserName" };
+
     if (restricted_params.count(param) > 0)
       return true;
   }
   else if (name == "MysqlNativeSSH")
   {
-    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("socket"))
-      ("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName");
+    static const std::set<std::string> restricted_params = { "socket",
+        "haGroupFilter", "managedConnectionsUpdateTime", "mysqlUserName" };
     if (restricted_params.count(param) > 0)
       return true;
   }
@@ -378,10 +379,10 @@ typedef std::list<LayoutRow> LayoutRows;
 void DbDriverParams::init(
   const db_mgmt_DriverRef &driver,
   const db_mgmt_ConnectionRef &stored_conn,
-  const boost::function<void (bool)> &suspend_layout,
-  const boost::function<void ()> &begin_layout,
-  const boost::function<void (DbDriverParam*, ControlType, const ControlBounds&, const std::string &)> &create_control,
-  const boost::function<void ()> &end_layout,
+  const std::function<void (bool)> &suspend_layout,
+  const std::function<void ()> &begin_layout,
+  const std::function<void (DbDriverParam*, ControlType, const ControlBounds&, const std::string &)> &create_control,
+  const std::function<void ()> &end_layout,
   bool skip_schema,
   int first_row_label_width,
   int hmargin,
@@ -653,10 +654,10 @@ DbConnection::DbConnection(const db_mgmt_ManagementRef &mgmt, const db_mgmt_Driv
 
 
 void DbConnection::set_control_callbacks(
-  const boost::function<void (bool)> &suspend_layout,
-  const boost::function<void ()> &begin_layout,
-  const boost::function<void (DbDriverParam*, ControlType, const ControlBounds&, const std::string &)> &create_control,
-  const boost::function<void ()> &end_layout)
+  const std::function<void (bool)> &suspend_layout,
+  const std::function<void ()> &begin_layout,
+  const std::function<void (DbDriverParam*, ControlType, const ControlBounds&, const std::string &)> &create_control,
+  const std::function<void ()> &end_layout)
 {
   _suspend_layout = suspend_layout;
   _begin_layout = begin_layout;
@@ -779,7 +780,7 @@ sql::ConnectionWrapper DbConnection::get_dbc_connection()
   
   sql::ConnectionWrapper dbc_conn= sql::DriverManager::getDriverManager()->getConnection(
     get_connection(),
-    boost::bind(&DbConnection::init_dbc_connection, this, _1, _2));
+    std::bind(&DbConnection::init_dbc_connection, this, std::placeholders::_1, std::placeholders::_2));
 
   /* This is not used by modeling
   if (dbc_conn.get() != NULL)

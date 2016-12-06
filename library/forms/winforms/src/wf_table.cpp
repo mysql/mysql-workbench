@@ -90,7 +90,7 @@ void apply_bounds(CellList% list)
       entry->control->Bounds = newBounds;
     else
     {
-      HDWP new_hdwp = DeferWindowPos(hdwp, (HWND)entry->control->Handle.ToInt32(), 0, newBounds.X, newBounds.Y,
+      HDWP new_hdwp = DeferWindowPos(hdwp, (HWND)entry->control->Handle.ToPointer(), 0, newBounds.X, newBounds.Y,
         newBounds.Width, newBounds.Height, SWP_NOZORDER);
       if (new_hdwp == 0)
       {

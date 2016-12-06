@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -368,7 +368,7 @@ void TreeView::node_activated(TreeNodeRef row, int column)
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::set_row_overlay_handler(const boost::function<std::vector<std::string> (TreeNodeRef)> &overlay_icons_for_node)
+void TreeView::set_row_overlay_handler(const std::function<std::vector<std::string> (TreeNodeRef)> &overlay_icons_for_node)
 {
   _overlay_icons_for_node = overlay_icons_for_node;
 }

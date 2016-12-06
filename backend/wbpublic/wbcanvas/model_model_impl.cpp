@@ -36,9 +36,9 @@ model_Model::ImplData::ImplData(model_Model *owner)
   _options_signal_installed= false;
   _delegate = NULL;
   
-  scoped_connect(_owner->signal_dict_changed(),boost::bind(&ImplData::option_changed, this, _1, _2, _3));
+  scoped_connect(_owner->signal_dict_changed(),std::bind(&ImplData::option_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   
-  scoped_connect(_owner->signal_list_changed(),boost::bind(&ImplData::list_changed, this, _1, _2, _3));
+  scoped_connect(_owner->signal_list_changed(),std::bind(&ImplData::list_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 
@@ -70,9 +70,9 @@ void model_Model::ImplData::option_changed(grt::internal::OwnedDict *dict,
        || option == "workbench.physical.Diagram:DrawLineCrossings"))
   {
     _reset_pending= true;
-//    run_later(boost::bind(&model_Model::ImplData::reset_figures, this));
-    run_later(boost::bind(&model_Model::ImplData::reset_layers, this));
-    run_later(boost::bind(&model_Model::ImplData::reset_connections, this));
+//    run_later(std::bind(&model_Model::ImplData::reset_figures, this));
+    run_later(std::bind(&model_Model::ImplData::reset_layers, this));
+    run_later(std::bind(&model_Model::ImplData::reset_connections, this));
   }
 }
 
@@ -110,7 +110,7 @@ bool model_Model::ImplData::realize()
     
     if (object.is_valid())
       scoped_connect(app_ApplicationRef::cast_from(object)->options()->signal_dict_changed()
-      ,boost::bind(&ImplData::option_changed, this, _1, _2, _3));
+      ,std::bind(&ImplData::option_changed, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   }
   
   // do not use __diagrams because it will get the wrong instance

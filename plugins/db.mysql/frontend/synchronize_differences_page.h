@@ -40,8 +40,8 @@ public:
   void edit_column_mapping();
   void select_row();
   void activate_node(mforms::TreeNodeRef node, int column);
-  void set_catalog_getter_slot(const boost::function<db_CatalogRef () > &source_catalog_slot,
-                               const boost::function<db_CatalogRef () > &target_catalog_slot);
+  void set_catalog_getter_slot(const std::function<db_CatalogRef () > &source_catalog_slot,
+                               const std::function<db_CatalogRef () > &target_catalog_slot);
 
   void set_src(const db_CatalogRef cat);
   void set_dst(const db_CatalogRef cat);
@@ -62,8 +62,8 @@ protected:
 //  bool node_has_changes(std::shared_ptr<DiffTreeBE> model, bec::NodeId);
 
   SynchronizeDifferencesPageBEInterface *_be;
-  boost::function<db_CatalogRef ()> get_source_catalog;
-  boost::function<db_CatalogRef ()> get_target_catalog;
+  std::function<db_CatalogRef ()> get_source_catalog;
+  std::function<db_CatalogRef ()> get_target_catalog;
   db_CatalogRef _src, _dst;
 
   std::map<bec::IconId, std::string> _icons;

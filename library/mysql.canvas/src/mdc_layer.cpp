@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ Layer::Layer(CanvasView *view)
   _root_area->set_accepts_selection(false);
   _root_area->set_draw_background(false);
   
-  scoped_connect(view->signal_resized(),boost::bind(&Layer::view_resized, this));
+  scoped_connect(view->signal_resized(), std::bind(&Layer::view_resized, this));
 }
 
 
@@ -133,7 +133,7 @@ void Layer::invalidate_caches()
 
 void Layer::set_needs_repaint_all_items()
 {
-  _root_area->foreach(boost::bind(&CanvasItem::set_needs_repaint, _1));
+  _root_area->foreach(std::bind(&CanvasItem::set_needs_repaint, std::placeholders::_1));
 }
 
 

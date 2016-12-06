@@ -32,7 +32,7 @@ public:
   {
     set_spacing(8);
     _button.set_text("Override Target");
-    _button.signal_clicked()->connect(boost::bind(&OverridePanel::override, this));
+    _button.signal_clicked()->connect(std::bind(&OverridePanel::override, this));
     add(mforms::manage(new mforms::Label("Override target schema to be synchronized with:")), false, true);
     add(&_selector, true, true);
     add(&_button, false, true);
@@ -98,8 +98,8 @@ SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name
   set_short_title(_("Select Schemata"));
   set_title(_("Select the Schemata to be Synchronized"));
 
-  _menu.add_item_with_title("Select All", boost::bind(select_all, &_tree, this));
-  _menu.add_item_with_title("Unselect All", boost::bind(unselect_all, &_tree, this));
+  _menu.add_item_with_title("Select All", std::bind(select_all, &_tree, this));
+  _menu.add_item_with_title("Unselect All", std::bind(unselect_all, &_tree, this));
 
   _tree.add_column(mforms::CheckColumnType, "", 20, true);
   _tree.add_column(mforms::IconStringColumnType, left_name, 150, false);
@@ -108,7 +108,7 @@ SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name
   _tree.end_columns();
   _tree.set_context_menu(&_menu);
   _tree.set_cell_edit_handler(std::bind(&SchemaMatchingPage::cell_edited, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-  scoped_connect(_tree.signal_changed(), boost::bind(&SchemaMatchingPage::selection_changed, this));
+  scoped_connect(_tree.signal_changed(), std::bind(&SchemaMatchingPage::selection_changed, this));
 
   add(&_tree, true, true);
 
@@ -205,14 +205,14 @@ void SchemaMatchingPage::enter(bool advancing)
       std::list<std::string> db_schema_names;
       for (grt::StringListRef::const_iterator j= target_db_list.begin(); j != target_db_list.end(); ++j)
         db_schema_names.push_back(*j);
-      db_schema_names.sort(boost::bind(base::same_string, _1, _2, true));
+      db_schema_names.sort(std::bind(base::same_string, std::placeholders::_1, std::placeholders::_2, true));
 
       _override->set_schemas(db_schema_names);
 
       std::vector<std::string> sorted_names;
       for (grt::StringListRef::const_iterator sname= db_list.begin(); sname != db_list.end(); ++sname)
         sorted_names.push_back(*sname);
-      std::sort(sorted_names.begin(), sorted_names.end(), boost::bind(base::same_string, _1, _2, true));
+      std::sort(sorted_names.begin(), sorted_names.end(), std::bind(base::same_string, std::placeholders::_1, std::placeholders::_2, true));
 
       // check for schemas that exist only in the model and not in DB
       for (std::vector<std::string>::const_iterator sname = sorted_names.begin(); sname != sorted_names.end(); ++sname)

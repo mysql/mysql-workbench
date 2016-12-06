@@ -3,7 +3,7 @@
 
 #include "mdc_common.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
 class MYSQLCANVAS_PUBLIC_FUNC ImageManager
 {
@@ -27,6 +27,6 @@ public:
 };
 
 
-END_MDC_DECLS
+} // end of mdc namespace 
 
 #endif /* _MDC_IMAGE_MANAGER_H_ */

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 #define __REFRESH_UI_H__
 
 #include "wbpublic_public_interface.h"
-#include <boost/function.hpp>
+#include <functional>
 
 namespace bec
 {
@@ -33,8 +33,8 @@ class WBPUBLICBACKEND_PUBLIC_FUNC RefreshUI
     RefreshUI() {unblock_auto_refresh();}
     virtual ~RefreshUI() {}
     
-    typedef boost::function<void ()>          RefreshSlot;
-    typedef boost::function<void (const int)> PartialRefreshSlot;
+    typedef std::function<void ()>          RefreshSlot;
+    typedef std::function<void (const int)> PartialRefreshSlot;
 
     void set_refresh_ui_slot(const RefreshSlot &slot);
 

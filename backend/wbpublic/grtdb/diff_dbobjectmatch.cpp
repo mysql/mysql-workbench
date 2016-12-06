@@ -28,7 +28,6 @@
 
 #include "diff/diffchange.h"
 #include "diff_dbobjectmatch.h"
-#include <boost/lambda/bind.hpp>
 #include <boost/assign/list_of.hpp>
 #include <algorithm>
 #include <functional>
@@ -825,45 +824,101 @@ static bool table_name_list_compare(const ValueRef obj1, const ValueRef obj2, co
 
 void grt::NormalizedComparer::load_rules()
 {
-  static const std::vector<std::string> rules_defaults = boost::assign::list_of(std::string("RESTRICT"));
+  static const std::vector<std::string> rules_defaults = { "RESTRICT" };
   rules.clear();
-  rules["owner"].push_back(boost::bind(boost::function<bool ()> (boost::lambda::constant(true))));
+  rules["owner"].push_back(std::bind([]() {return true;}));
 
-  if(!_case_sensitive)
-  {
-    rules["name"].push_back(boost::bind(&name_compare, _1 ,_2, _3));
-    rules["oldName"].push_back(boost::bind(&name_compare, _1 ,_2, _3));
-    rules["referencedTable"].push_back(boost::bind(&ref_table_compare, _1 ,_2, _3));
+  if (!_case_sensitive) {
+    rules["name"].push_back(
+        std::bind(&name_compare, std::placeholders::_1, std::placeholders::_2,
+                  std::placeholders::_3));
+    rules["oldName"].push_back(
+        std::bind(&name_compare, std::placeholders::_1, std::placeholders::_2,
+                  std::placeholders::_3));
+    rules["referencedTable"].push_back(
+        std::bind(&ref_table_compare, std::placeholders::_1,
+                  std::placeholders::_2, std::placeholders::_3));
   }
 
   //For IndexColumn names should be ignored
-  rules["name"].push_back(boost::bind(&ignore_index_col_name, _1 ,_2, _3));
+  rules["name"].push_back(
+      std::bind(&ignore_index_col_name, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
 
-  rules["rowFormat"].push_back(boost::bind(&caseless_compare, _1 ,_2, _3,"DEFAULT"));
-  rules["packKeys"].push_back(boost::bind(&caseless_compare, _1 ,_2, _3,"DEFAULT"));
-  rules["tableEngine"].push_back(boost::bind(&caseless_compare, _1 ,_2, _3,""));
-  rules["returnDatatype"].push_back(boost::bind(&caseless_compare, _1 ,_2, _3,""));
-  rules["deleteRule"].push_back(boost::bind(&caseless_compare_arr, _1 ,_2, _3,rules_defaults));
-  rules["updateRule"].push_back(boost::bind(&caseless_compare_arr, _1 ,_2, _3,rules_defaults));
-  rules["mergeUnion"].push_back(boost::bind(&table_name_list_compare, _1 ,_2, _3));
-  rules["comment"].push_back(boost::bind(&grt::NormalizedComparer::comment_compare,this , _1 ,_2, _3));
-  rules["collationName"].push_back(boost::bind(&charset_collation_compare, _1 ,_2, _3));
-  rules["defaultCollationName"].push_back(boost::bind(&charset_collation_compare, _1 ,_2, _3));
-  rules["characterSetName"].push_back(boost::bind(&charset_collation_compare, _1 ,_2, _3));
-  rules["defaultCharacterSetName"].push_back(boost::bind(&charset_collation_compare, _1 ,_2, _3));
-  rules["foreignKeys"].push_back(boost::bind(&fk_compare, _1 ,_2, _3));
-  rules["formattedRawType"].push_back(boost::bind(&formatted_type_compare, _1 ,_2, _3));
-  rules["formattedType"].push_back(boost::bind(&formatted_type_compare, _1 ,_2, _3));
-  rules["sqlDefinition"].push_back(boost::bind(&sql_definition_compare, _1 ,_2, _3));
-  rules["precision"].push_back(boost::bind(&default_int_compare, _1 ,_2, _3));
-  rules["length"].push_back(boost::bind(&default_int_compare, _1 ,_2, _3));
-  rules["definer"].push_back(boost::bind(&caseless_compare, _1 ,_2, _3,"ROOT`@`LOCALHOST"));
-  rules["defaultValue"].push_back(boost::bind(&default_value_compare, _1 ,_2, _3));
-  rules["autoIncrement"].push_back(boost::bind(&autoincrement_compare, _1 ,_2, _3));
-  rules["returnDatatype"].push_back(boost::bind(&returnDatatype_compare, _1 ,_2, _3));
-  rules["datatypeExplicitParams"].push_back(boost::bind(&datatypeExplicitParams_compare, _1 ,_2, _3));
+  rules["rowFormat"].push_back(
+      std::bind(&caseless_compare, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3, "DEFAULT"));
+  rules["packKeys"].push_back(
+      std::bind(&caseless_compare, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3, "DEFAULT"));
+  rules["tableEngine"].push_back(
+      std::bind(&caseless_compare, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3, ""));
+  rules["returnDatatype"].push_back(
+      std::bind(&caseless_compare, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3, ""));
+  rules["deleteRule"].push_back(
+      std::bind(&caseless_compare_arr, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3, rules_defaults));
+  rules["updateRule"].push_back(
+      std::bind(&caseless_compare_arr, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3, rules_defaults));
+  rules["mergeUnion"].push_back(
+      std::bind(&table_name_list_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["comment"].push_back(
+      std::bind(&grt::NormalizedComparer::comment_compare, this,
+                std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
+  rules["collationName"].push_back(
+      std::bind(&charset_collation_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["defaultCollationName"].push_back(
+      std::bind(&charset_collation_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["characterSetName"].push_back(
+      std::bind(&charset_collation_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["defaultCharacterSetName"].push_back(
+      std::bind(&charset_collation_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["foreignKeys"].push_back(
+      std::bind(&fk_compare, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
+  rules["formattedRawType"].push_back(
+      std::bind(&formatted_type_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["formattedType"].push_back(
+      std::bind(&formatted_type_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["sqlDefinition"].push_back(
+      std::bind(&sql_definition_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["precision"].push_back(
+      std::bind(&default_int_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["length"].push_back(
+      std::bind(&default_int_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["definer"].push_back(
+      std::bind(&caseless_compare, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3, "ROOT`@`LOCALHOST"));
+  rules["defaultValue"].push_back(
+      std::bind(&default_value_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["autoIncrement"].push_back(
+      std::bind(&autoincrement_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["returnDatatype"].push_back(
+      std::bind(&returnDatatype_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+  rules["datatypeExplicitParams"].push_back(
+      std::bind(&datatypeExplicitParams_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
 
-  rules["flags"].push_back(boost::bind(&column_flags_compare, _1 ,_2, _3));
+  rules["flags"].push_back(
+      std::bind(&column_flags_compare, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
 };
 
 bool grt::NormalizedComparer::normalizedComparison(const ValueRef obj1, const ValueRef obj2, const std::string name)
@@ -879,7 +934,7 @@ void grt::NormalizedComparer::init_omf(Omf* omf)
 {
     omf->case_sensitive = _case_sensitive;
     omf->skip_routine_definer = _skip_routine_definer;
-    omf->normalizer = boost::bind(&NormalizedComparer::normalizedComparison,this, _1, _2, _3);
+    omf->normalizer = std::bind(&NormalizedComparer::normalizedComparison, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 };
 
 //TODO: This shouldn't be here but rather in DBPlugin, but QE doesn't use that

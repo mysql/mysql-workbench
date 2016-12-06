@@ -193,26 +193,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
   case DoubleType:
   {
     std::string tmp = base::xml::getContent(node);
-    static char decimal_point= 0;
-
-    // now this is a hack for locales that treat . as a thousand separator instead of
-    // decimal. 1st find out what is used as decimal point, then hackup the string to parse if 
-    // needed
-    if (decimal_point == 0)
-    {
-      char buf[4];
-      snprintf(buf, sizeof(buf) - 1, "%.1f", 0.0); // 0.0
-      decimal_point= buf[1];
-    }
-
-    if (decimal_point != '.')
-    {
-      // serializer always saves using . as decimal
-      std::string::size_type dot= tmp.find('.');
-      if (dot != std::string::npos)
-        tmp[dot]= decimal_point;
-    }
-    value= DoubleRef(strtod(tmp.c_str(), NULL));
+    value = DoubleRef(base::atof<double>(tmp));
     break;
   }
 

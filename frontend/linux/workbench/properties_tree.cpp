@@ -490,7 +490,7 @@ void PropertiesTree::update()
     _inspector_view.populate();
     _inspector_view.update();
 
-    _inspector->set_refresh_ui_slot(sigc::mem_fun(this, &PropertiesTree::refresh));
+    _inspector->set_refresh_ui_slot(std::bind(&PropertiesTree::refresh, this));
   }
 }
 
@@ -521,37 +521,12 @@ void PropertiesTree::set_value(const bec::NodeId& node, const std::string& value
 { 
   if (node.is_valid())
   {
-    switch ( type )
+    try
     {
-      case grt::IntegerType:
-      {
-        try
-        {
-          _inspector->set_field(node, ::bec::ValueInspectorBE::Value, boost::lexical_cast<ssize_t>(value));
-        } catch(...)
-        {
-          g_message("PropertiesTree::set_value: can't convert value %s to ssize_t", value.c_str());
-        }
-        break;
-      }
-      case grt::DoubleType:
-      {
-        try
-        {
-          _inspector->set_field(node, ::bec::ValueInspectorBE::Value, boost::lexical_cast<double>(value));
-        } catch(...)
-        {
-          g_message("PropertiesTree::set_value: can't convert value %s to double", value.c_str());
-        }
-        break;
-      }
-      case grt::StringType:
-      {
-        _inspector->set_field(node, ::bec::ValueInspectorBE::Value, value);
-        break;
-      }
-      default:
-        g_message("PropertiesTree::set_value: unhandled value type");
+      _inspector->set_convert_field(node, ::bec::ValueInspectorBE::Value, value);
+    } catch(...)
+    {
+      g_message("PropertiesTree::set_value: can't convert value %s to ssize_t", value.c_str());
     }
   }
 }

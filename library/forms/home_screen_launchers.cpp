@@ -32,7 +32,7 @@ using namespace mforms;
 
 bool LauncherEntry::operator <(const LauncherEntry & other) const
 {
-  return base::string_compare(other.title, title);
+  return base::string_compare(other.title, title) != 0;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ void LaunchersSection::drawEntry(cairo_t *cr, const LauncherEntry &entry,
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL,
       CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
-  int x = (int) entry.bounds.left() + iconSize.width + 10;
+  int x = (int) entry.bounds.left() + (int)iconSize.width + 10;
   int y = (int) entry.bounds.top() + 18;
   cairo_text_extents_t headingExtents;
   cairo_text_extents(cr, entry.title.c_str(), &headingExtents);
@@ -213,13 +213,13 @@ void LaunchersSection::drawEntry(cairo_t *cr, const LauncherEntry &entry,
 
    cairo_set_source_rgb(cr, 0.41, 0.41, 0.41);
 
-   y += headingExtents.height;
+   y += (int)headingExtents.height;
    cairo_move_to(cr, x, y);
 
    for (auto &line: entry.descriptionLines)
    {
      cairo_show_text(cr, line.c_str());
-     y += extents.height +2;
+     y += (int)extents.height +2;
      cairo_move_to(cr, x, y);
    }
 

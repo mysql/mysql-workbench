@@ -155,7 +155,7 @@ namespace grt {
     bool set_cwd(const std::string &path);
     std::string get_cwd() const { return _cwd; }
 
-    boost::function<std::string ()> stdin_readline_slot;
+    std::function<std::string ()> stdin_readline_slot;
 
     static void set_user_interrupted(const grt::user_cancelled &exc);
     static void set_db_access_denied(const grt::db_access_denied &exc);

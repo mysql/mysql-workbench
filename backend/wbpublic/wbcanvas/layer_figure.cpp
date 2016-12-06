@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -116,7 +116,7 @@ bool LayerAreaGroup::on_drag_handle(mdc::ItemHandle *handle, const Point &pos, b
     _initial_bounds= get_root_bounds();
     _resizing= true;
 
-    foreach(boost::bind(get_bounding_area, _1, &maxpos));
+    foreach(std::bind(get_bounding_area, std::placeholders::_1, &maxpos));
 
     _min_size.width= max(maxpos.x, MIN_LAYER_SIZE);
     _min_size.height= max(maxpos.y, MIN_LAYER_SIZE);

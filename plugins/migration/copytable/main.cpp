@@ -33,12 +33,10 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <cstring>
 
 #include "base/log.h"
 #include "base/sqlstring.h"
-
-#include "boost/scoped_ptr.hpp"
 
 #undef tolower
 #undef toupper
@@ -59,7 +57,7 @@ public:
 DEFAULT_LOG_DOMAIN("copytable");
 
 
-static void count_rows(boost::scoped_ptr<CopyDataSource>& source, const std::string &source_schema,
+static void count_rows(std::unique_ptr<CopyDataSource>& source, const std::string &source_schema,
                        const std::string &source_table, const std::vector<std::string> &pk_columns,
                        const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
@@ -700,7 +698,7 @@ int main(int argc, char **argv)
   {
     if (count_only)
     {
-      boost::scoped_ptr<CopyDataSource> psource;
+      std::unique_ptr<CopyDataSource> psource;
 
       if (source_type == ST_ODBC)
       {
@@ -714,7 +712,7 @@ int main(int argc, char **argv)
       else
         psource.reset(new PythonCopyDataSource(source_connstring, source_password));
 
-      boost::scoped_ptr<MySQLCopyDataTarget> ptarget;
+      std::unique_ptr<MySQLCopyDataTarget> ptarget;
       TableParam task;
       while(tables.get_task(task))
       {
@@ -730,7 +728,7 @@ int main(int argc, char **argv)
     }
     else if (reenable_triggers || disable_triggers)
     {
-      boost::scoped_ptr<MySQLCopyDataTarget> ptarget;
+      std::unique_ptr<MySQLCopyDataTarget> ptarget;
       ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type, target_connection_timeout));
 
       if (disable_triggers)
@@ -742,7 +740,7 @@ int main(int argc, char **argv)
     {
       std::vector<CopyDataTask*> threads;
 
-      boost::scoped_ptr<MySQLCopyDataTarget> ptarget_conn;
+      std::unique_ptr<MySQLCopyDataTarget> ptarget_conn;
       MySQLCopyDataTarget *ptarget = NULL;
       CopyDataSource *psource = NULL;
 

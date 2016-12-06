@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@ namespace mforms {
   {
   private:
     MenuImplPtrs *_menu_impl;
-    boost::function<void (const std::string&)> _action_handler;
+    std::function<void (const std::string&)> _action_handler;
     boost::signals2::signal<void ()> _on_will_show;
     boost::signals2::signal<void (const std::string&)> _on_action;
     std::map<const std::string, int> _item_map;
@@ -73,7 +73,7 @@ namespace mforms {
     void set_item_enabled(int i, bool flag);
     void set_item_enabled(const std::string &action, bool flag);
 #ifndef SWIG
-    void set_handler(const boost::function<void (const std::string&)> &action_handler);
+    void set_handler(const std::function<void (const std::string&)> &action_handler);
 #endif
     void popup_at(Object *control, int x, int y);
     void popup();

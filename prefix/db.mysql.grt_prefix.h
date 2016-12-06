@@ -28,6 +28,7 @@
 #include <vector>
 #include <list>
 #include <stack>
+#include <iomanip>
 
 #include <glib.h>
 #include <glib/gstdio.h>

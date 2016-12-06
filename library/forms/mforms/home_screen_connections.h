@@ -92,7 +92,7 @@ namespace mforms
 
     ConnectionInfoPopup *_info_popup;
 
-    boost::function <bool (int, int)> _accessible_click_handler;
+    std::function <bool (int, int)> _accessible_click_handler;
 
     mforms::Box _search_box;
     mforms::TextEntry _search_text;

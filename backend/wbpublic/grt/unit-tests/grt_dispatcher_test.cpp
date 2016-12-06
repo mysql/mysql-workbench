@@ -68,8 +68,8 @@ TEST_FUNCTION(1)
   grt::ValueRef result;
   bool finish_called= false;
   
-  bec::GRTTask::Ref task = GRTTask::create_task("test", _dispatcher, boost::bind(normal_test_function));
-  task->signal_finished()->connect(boost::bind(&finished, _1, &finish_called));
+  bec::GRTTask::Ref task = GRTTask::create_task("test", _dispatcher, std::bind(normal_test_function));
+  task->signal_finished()->connect(std::bind(&finished, std::placeholders::_1, &finish_called));
   
   result = _dispatcher->add_task_and_wait(task);
   
@@ -79,8 +79,8 @@ TEST_FUNCTION(1)
   ensure("finish callback called", finish_called);
   
   finish_called = false;
-  task = GRTTask::create_task("test", _dispatcher, boost::bind(normal_test_function));
-  task->signal_finished()->connect(boost::bind(&finished_with_wait, _1, &finish_called));
+  task = GRTTask::create_task("test", _dispatcher, std::bind(normal_test_function));
+  task->signal_finished()->connect(std::bind(&finished_with_wait, std::placeholders::_1, &finish_called));
   
   result = _dispatcher->add_task_and_wait(task);
   

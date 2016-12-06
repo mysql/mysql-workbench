@@ -32,9 +32,7 @@ typedef int ssize_t;
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <stdexcept>
 #include <string>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,12 @@
  * 02110-1301  USA
  */
 
-#ifndef _SNIPPET_LIST_H_
-#define _SNIPPET_LIST_H_
+#pragma once
 
 #include <mforms/drawbox.h>
 #include <vector>
 
 #include <boost/signals2/signal.hpp>
-
 #include "grt/tree_model.h"
 
 class Snippet;
@@ -98,6 +96,3 @@ public:
   virtual mforms::Accessible* hit_test(int x, int y);
 
 };
-
-
-#endif

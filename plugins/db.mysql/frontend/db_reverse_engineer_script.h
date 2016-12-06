@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,12 +70,12 @@ class ImportProgressPage : public WizardProgressPage
 private:
   Sql_import _import_be;
   TaskRow *_auto_place_task;
-  boost::function<void (bool,std::string)> _finished_cb;
+  std::function<void (bool,std::string)> _finished_cb;
   bool _auto_place;
   bool _done;
   
 public:
-  ImportProgressPage(WizardForm *form, const boost::function<void (bool,std::string)> &finished_cb);
+  ImportProgressPage(WizardForm *form, const std::function<void (bool,std::string)> &finished_cb);
   void import_objects_finished(grt::ValueRef value);
   bool import_objects();
   bool verify_results();

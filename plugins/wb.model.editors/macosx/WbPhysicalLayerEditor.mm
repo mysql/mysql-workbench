@@ -77,7 +77,7 @@ static void call_refresh(PhysicalLayerEditor *self)
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, self));
   // update the UI
   [self refresh];
 }
