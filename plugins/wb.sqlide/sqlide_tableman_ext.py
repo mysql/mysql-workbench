@@ -29,7 +29,10 @@ from mforms import IconStringColumnType, StringColumnType, IntegerColumnType
 from wb_admin_utils import make_panel_header
 from workbench.utils import human_size, Version
 
-
+def make_title(t):
+    l = mforms.newLabel(t)
+    l.set_style(mforms.BoldStyle)
+    return l
 
 def show_table_inspector(editor, selection, page = None):
     for schema, table in selection:
@@ -84,11 +87,6 @@ class TableInfoPanel(mforms.Box):
         self.table.set_column_count(2)
         self.table.set_row_spacing(8)
         self.table.set_column_spacing(8)
-
-        def make_title(t):
-            l = mforms.newLabel(t)
-            l.set_style(mforms.BoldStyle)
-            return l
 
         self.panel_header_box = mforms.newBox(True)
         self.panel_header_box.set_padding(10)
@@ -311,7 +309,48 @@ class TableInfoPanel(mforms.Box):
 
         self.refresh()
 
+class TableDDL(mforms.Box):
+    caption = "DDL"
+    node_name = "structure"
+    def __init__(self, editor):
+        mforms.Box.__init__(self, False)
+        self.set_managed()
+        self.set_release_on_add()
 
+        self.editor = editor
+        self.set_spacing(15)
+        self.set_padding(15)
+        self.title_box = mforms.newBox(False)
+        self.title_box.set_spacing(1)
+
+        self.add(self.title_box, False, True)
+
+        self.code_editor = mforms.CodeEditor()
+        self.code_editor.set_language(mforms.LanguageMySQL)
+        self.code_editor.set_managed()
+        self.code_editor.set_read_only(True)
+        self.code_editor.set_release_on_add()
+        self.add(self.code_editor, True, True)
+
+    def refresh(self):
+        try:
+            rset = self.editor.executeManagementQuery("show create table `%s`.`%s`" % (self._schema, self._table), 0)
+        except grt.DBError, e:
+            log_error("show create table `%s`.`%s` : %s\n" % (self._schema, self._table, e))
+            rset = None
+
+        if rset:
+            ok = rset.goToFirstRow()
+            if ok:
+                self.code_editor.set_read_only(False)
+                self.code_editor.set_value(rset.stringFieldValue(1));
+                self.code_editor.set_read_only(True)
+
+    def show_table(self, schema, table):
+        self._schema = schema
+        self._table = table
+        self.title_box.add(make_title("DDL for %s.%s" % (self._schema, self._table)), False, True)
+        self.refresh()
 
 class CreateIndexForm(mforms.Form):
     def __init__(self, owner, editor, schema, table, columns, engine):
@@ -516,11 +555,6 @@ class TableIndexInfoPanel(mforms.Box):
         table.set_row_spacing(4)
         table.set_column_spacing(8)
         self.add(table, False, True)
-
-        def make_title(t):
-            l = mforms.newLabel(t)
-            l.set_style(mforms.BoldStyle)
-            return l
 
         table.add(make_title("Indexes in Table"), 0, 1, 0, 1, mforms.HFillFlag)
         self.index_list = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
@@ -1031,11 +1065,6 @@ class GrantsManager(TableManDefs, mforms.Box):
         self.set_managed()
         self.set_release_on_add()
 
-        def make_title(t):
-            l = mforms.newLabel(t)
-            l.set_style(mforms.BoldStyle)
-            return l
-
         self.editor = editor
 
         self.set_padding(8)
@@ -1087,7 +1116,7 @@ class TableInspector(mforms.AppView):
         self.tab = mforms.newTabView()
         self.add(self.tab, True, True)
 
-        tabs = [TableInfoPanel, TableColumnManager, TableIndexInfoPanel, TableTriggerManager, ConstraintManager, PartitionManager, GrantsManager]
+        tabs = [TableInfoPanel, TableColumnManager, TableIndexInfoPanel, TableTriggerManager, ConstraintManager, PartitionManager, GrantsManager, TableDDL]
 
         i =0
         for Tab in tabs:

@@ -1028,8 +1028,6 @@ class SchemaInfoPanel(mforms.Box):
                 self.database_size.set_text(human_size(rset.floatFieldValueByName("database_size")))
                 self.table_count.set_text(rset.stringFieldValueByName("table_count"))
 
-
-
 class SchemaManager(mforms.AppView):
     def __init__(self, editor, schema_name):
         mforms.AppView.__init__(self, False, "schema_inspector", False)
