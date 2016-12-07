@@ -1305,7 +1305,10 @@ grt::ValueRef WBContext::setup_context_grt(WBOptions *options)
   init_plugins_grt(options);
 
   // Initialize RDBMS specific modules. must happen before connections are loaded.
-  init_rdbms_modules(); 
+  init_rdbms_modules();
+
+  // Table templates can be initialized only after rdbms info because it needs column datatypes.
+  init_templates();
 
   FOREACH_COMPONENT(_components, iter)
     (*iter)->setup_context_grt(options);
@@ -1315,10 +1318,20 @@ grt::ValueRef WBContext::setup_context_grt(WBOptions *options)
 
   // Rescan plugins so that list of disabled plugins is applied.
   _plugin_manager->rescan_plugins();
-  
+
   return grt::IntegerRef(1);
 }
 
+void WBContext::init_templates()
+{
+  // Default table templates list
+  grt::DictRef options(get_root()->options()->options());
+  if (!options.has_key("TableTemplates"))
+  {
+    grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(_grt->unserialize(base::makePath(get_datadir(), "data/table_templates.xml")));
+    options.set("TableTemplates", templates);
+  }
+}
 
 void WBContext::init_grt_tree(WBOptions *options, std::shared_ptr<grt::internal::Unserializer> unserializer)
 {
@@ -1387,15 +1400,6 @@ void WBContext::init_grt_tree(WBOptions *options, std::shared_ptr<grt::internal:
 
   _grt->set_root(root);
 
-  {
-    // Default table templates list
-    grt::DictRef options(get_root()->options()->options());
-    if (!options.has_key("TableTemplates"))
-    {
-      grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(_grt->unserialize(base::makePath(get_datadir(), "data/table_templates.xml")));
-      options.set("TableTemplates", templates);
-    }
-  }
 }
 
 void WBContext::init_plugin_groups_grt(WBOptions *options)
