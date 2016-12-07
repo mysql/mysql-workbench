@@ -37,6 +37,7 @@
 #include <list>
 #include <sstream>
 #include <typeinfo>
+#include <typeindex>
 #include <unistd.h>
 #include <stdexcept>
 #include <functional>

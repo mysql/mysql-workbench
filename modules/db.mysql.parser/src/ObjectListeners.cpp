@@ -209,19 +209,7 @@ IdentifierListener::IdentifierListener(tree::ParseTree *tree)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IdentifierListener::exitDotIdentifier(MySQLParser::DotIdentifierContext *ctx)
-{
-  // If this is the first identifier we saw then insert an empty entry first to denote the fact that the dot identifier
-  // specifies a qualified identifier without an actual qualification.
-  if (parts.empty())
-    parts.push_back("");
-    if (ctx->DOT_IDENTIFIER() != nullptr)
-      parts.push_back(base::unquote(ctx->DOT_IDENTIFIER()->getText().substr(1, std::string::npos)));
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void IdentifierListener::exitIdentifier(MySQLParser::IdentifierContext *ctx)
+void IdentifierListener::enterIdentifier(MySQLParser::IdentifierContext *ctx)
 {
   parts.push_back(base::unquote(ctx->getText()));
 }
@@ -258,19 +246,18 @@ public:
   virtual void exitColumnDefinition(MySQLParser::ColumnDefinitionContext *ctx) override
   {
     // The column name can be qualified, but only with the current schema + table.
-    IdentifierListener listener(ctx->fieldSpec()->fieldIdentifier());
+    IdentifierListener listener(ctx->fieldIdentifier());
     column->name(listener.parts.back());
     column->oldName(listener.parts.back());
 
-    DataTypeListener typeListener(ctx->fieldSpec()->dataType(), _catalog->version(), _catalog->simpleDatatypes(),
+    DataTypeListener typeListener(ctx->fieldDefinition()->dataType(), _catalog->version(), _catalog->simpleDatatypes(),
                                   column->flags(), _table->defaultCharacterSetName());
     column->simpleType(typeListener.dataType);
     column->scale(typeListener.scale);
     column->precision(typeListener.precision);
     column->length(typeListener.length);
     column->datatypeExplicitParams(typeListener.explicitParams);
-    column->characterSetName(typeListener.charsetName);
-    column->collationName(typeListener.collationName);
+    column->characterSetName(typeListener.charsetName); // Charset comes from data type, collation from column attributes.
 
     if (column->simpleType().is_valid() && base::same_string(column->simpleType()->name(), "TIMESTAMP", false))
     {
@@ -282,7 +269,6 @@ public:
       bec::ColumnHelper::set_default_value(column, "NULL");
 
     // The CHECK expression is ignored by the server. And so do we.
-
     _table->columns().insert(column);
   }
 
@@ -299,7 +285,7 @@ public:
       if (ctx->STORED_SYMBOL() != nullptr)
         column->generatedStorage("STORED");
 
-      if (ctx->COLLATE_SYMBOL() != nullptr)
+      if (ctx->COLLATE_SYMBOL() != nullptr) // Collation clause for generated columns.
       {
         auto info = detailsForCollation(ctx->collationName()->getText(), _table->defaultCollationName());
         column->characterSetName(info.first);
@@ -308,7 +294,7 @@ public:
     }
   }
 
-  virtual void exitAttribute(MySQLParser::AttributeContext *ctx) override
+  virtual void exitColumnAttribute(MySQLParser::ColumnAttributeContext *ctx) override
   {
     if (ctx->nullLiteral() != nullptr)
     {
@@ -490,7 +476,7 @@ public:
     tree::ParseTreeWalker::DEFAULT.walk(this, tree);
   }
 
-  virtual void exitKeyDefinition(MySQLParser::KeyDefinitionContext *ctx) override
+  virtual void exitTableConstraintDef(MySQLParser::TableConstraintDefContext *ctx) override
   {
     std::string constraintName;
 
@@ -500,13 +486,16 @@ public:
       constraintName = listener.parts.back();
     }
 
-    if (ctx->fieldIdentifier() != nullptr) // Another constraint name variant.
+    if (ctx->columnInternalRef() != nullptr) // Another constraint name variant.
     {
-      IdentifierListener listener(ctx->fieldIdentifier());
+      IdentifierListener listener(ctx->columnInternalRef());
       constraintName = listener.parts.back();
     }
 
     bool isForeignKey = false; // Need the new index only for non-FK constraints.
+    if (ctx->type == nullptr) // Currently null for check constraints (which we ignore).
+      return;
+
     switch (ctx->type->getType())
     {
       case MySQLLexer::PRIMARY_SYMBOL:
@@ -570,7 +559,7 @@ public:
 
         break;
 
-      default: // here CHECK() is "handled" (ignored as in the server parser).
+      default: // Anything else we ignore for now.
         return;
     }
 
@@ -583,12 +572,12 @@ public:
     }
   }
 
-  virtual void exitKeyAlgorithm(MySQLParser::KeyAlgorithmContext *ctx) override
+  virtual void exitIndexType(MySQLParser::IndexTypeContext *ctx) override
   {
     _currentIndex->indexKind(base::toupper(ctx->algorithm->getText()));
   }
 
-  virtual void exitAllKeyOption(MySQLParser::AllKeyOptionContext *ctx) override
+  virtual void exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx) override
   {
     if (ctx->KEY_BLOCK_SIZE_SYMBOL() != nullptr)
       _currentIndex->keyBlockSize(std::stoul(ctx->ulong_number()->getText()));
@@ -596,7 +585,7 @@ public:
       _currentIndex->comment(ctx->textLiteral()->getText());
   }
 
-  virtual void exitFulltextKeyOption(MySQLParser::FulltextKeyOptionContext *ctx) override
+  virtual void exitFulltextIndexOption(MySQLParser::FulltextIndexOptionContext *ctx) override
   {
     if (ctx->WITH_SYMBOL() != nullptr)
       _currentIndex->withParser(ctx->identifier()->getText());
@@ -664,8 +653,9 @@ DataTypeListener::DataTypeListener(tree::ParseTree *tree, GrtVersionRef version,
 void DataTypeListener::exitDataType(MySQLParser::DataTypeContext *ctx)
 {
   // A type name can consist of up to 3 parts. Most however just have a single part.
-  std::string typeName = base::toupper(ctx->type->getText());
-  switch (ctx->type->getType())
+  size_t type = (ctx->nchar() != nullptr) ? ctx->nchar()->type->getType() : ctx->type->getType();
+  std::string typeName = (ctx->nchar() != nullptr) ? "NCHAR" : base::toupper(ctx->type->getText());
+  switch (type)
   {
     case MySQLLexer::NATIONAL_SYMBOL:
       if (ctx->CHAR_SYMBOL() != nullptr)
@@ -707,9 +697,10 @@ void DataTypeListener::exitDataType(MySQLParser::DataTypeContext *ctx)
     // Unfortunately, the length + precision handling in WB is a bit crude and we cannot simply use what the grammar
     // dictates. So we have to inspect the associated simple data type to know where to store the parsed length/precision values.
     if (dataType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH
-      || dataType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH)
+      || dataType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH
+      || dataType->dateTimePrecision() != bec::EMPTY_TYPE_MAXIMUM_LENGTH)
     {
-      // Move an eventual precision value into the length field.
+      // Move a potential precision value into the length field.
       if (precision != bec::EMPTY_COLUMN_PRECISION)
       {
         length = precision;
@@ -761,7 +752,7 @@ void DataTypeListener::exitFieldOptions(MySQLParser::FieldOptionsContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitStringBinary(MySQLParser::StringBinaryContext *ctx)
+void DataTypeListener::exitCharsetWithOptBinary(MySQLParser::CharsetWithOptBinaryContext *ctx)
 {
   std::string flag;
   bool insertBinary = false;
@@ -791,9 +782,8 @@ void DataTypeListener::exitStringBinary(MySQLParser::StringBinaryContext *ctx)
 
 void DataTypeListener::exitCharsetName(MySQLParser::CharsetNameContext *ctx)
 {
-  auto info = detailsForCharset(base::unquote(ctx->getText()), collationName, _defaultCharsetName);
+  auto info = detailsForCharset(base::unquote(ctx->getText()), "", _defaultCharsetName);
   charsetName = info.first;
-  collationName = info.second;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -924,12 +914,12 @@ void TableListener::exitCreateTable(MySQLParser::CreateTableContext *ctx)
   ignoreIfExists = ctx->ifNotExists() != nullptr;
 
   std::string schemaName = _schema.is_valid() ? _schema->name() : "";
-  for (auto item : ctx->createFieldList()->createItem())
+  for (auto item : ctx->tableElementList()->tableElement())
   {
     if (item->columnDefinition() != nullptr)
-      ColumnDefinitionListener(item, _catalog, schemaName, table, _refCache);
+      ColumnDefinitionListener(item->columnDefinition(), _catalog, schemaName, table, _refCache);
     else
-      KeyDefinitionListener(item, _catalog, schemaName, table, _refCache, _autoGenerateFkNames);
+      KeyDefinitionListener(item->tableConstraintDef(), _catalog, schemaName, table, _refCache, _autoGenerateFkNames);
   }
   table->owner(_schema);
 }
@@ -960,7 +950,7 @@ void TableListener::exitTableRef(MySQLParser::TableRefContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitPartition(MySQLParser::PartitionContext *ctx)
+void TableListener::exitPartitionClause(MySQLParser::PartitionClauseContext *ctx)
 {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   if (ctx->PARTITIONS_SYMBOL() != nullptr)
@@ -1059,6 +1049,9 @@ void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx)
 
 static void evaluatePartitionOption(db_mysql_PartitionDefinitionRef definition, MySQLParser::PartitionOptionContext *ctx)
 {
+  if (ctx->option == nullptr)
+    return;
+  
   switch (ctx->option->getType())
   {
     case MySQLLexer::TABLESPACE_SYMBOL:
@@ -1107,29 +1100,26 @@ void TableListener::exitPartitionDefinition(MySQLParser::PartitionDefinitionCont
 
   db_mysql_PartitionDefinitionRef definition(grt::Initialized);
   definition->owner(table);
-
   definition->name(ctx->identifier()->getText());
 
-  // TODO: we don't store here whether this was a LESS THAN or IN partition def.
-  //       How's WB supposed to generate proper sql without that info?
-  if (ctx->VALUES_SYMBOL() != nullptr)
-  {
+  // Collect the expression text of the partition VALUES part if there is any. Don't include parentheses.
+  if (ctx->VALUES_SYMBOL() != nullptr) {
+    std::string expression;
     if (ctx->MAXVALUE_SYMBOL() != nullptr)
-      definition->value("MAXVALUE");
+      expression = "MAX_VALUE";
+    else if (ctx->partitionValueItemListParen() != nullptr)
+      expression = MySQLBaseLexer::sourceTextForRange(ctx->partitionValueItemListParen()->partitionValueItem().front(),
+                                                      ctx->partitionValueItemListParen()->partitionValueItem().back());
     else
-    {
-      std::string expression;
-      for (auto &value : ctx->partitionValueList()->partitionValue())
-      {
-        if (!expression.empty())
-          expression += ", ";
-        if (value->MAXVALUE_SYMBOL() != nullptr)
-          expression += "MAXVALUE";
-        else
-          expression += MySQLBaseLexer::sourceTextForContext(value->expr());
-      }
-      definition->value(expression);
-    }
+      /*
+       TODO: At the moment WB (in particular code generation) is not able to cope with lists of lists here.
+       So for now we pretend there is only a single list.
+      expression = MySQLBaseLexer::sourceTextForRange(ctx->partitionValuesIn()->partitionValueItemListParen().front(),
+                                                      ctx->partitionValuesIn()->partitionValueItemListParen().back());
+       */
+      expression = MySQLBaseLexer::sourceTextForRange(ctx->partitionValuesIn()->partitionValueItemListParen(0)->partitionValueItem().front(),
+                                                      ctx->partitionValuesIn()->partitionValueItemListParen(0)->partitionValueItem().back());
+    definition->value(expression);
   }
 
   for (auto &option : ctx->partitionOption())
@@ -1138,7 +1128,7 @@ void TableListener::exitPartitionDefinition(MySQLParser::PartitionDefinitionCont
   for (auto &subPartition : ctx->subpartitionDefinition())
   {
     db_mysql_PartitionDefinitionRef subDefinition(grt::Initialized);
-    subDefinition->name(subPartition->identifier()->getText());
+    subDefinition->name(subPartition->textOrIdentifier()->getText());
     for (auto &option : subPartition->partitionOption())
       evaluatePartitionOption(subDefinition, option);
     definition->subpartitionDefinitions().insert(subDefinition);
@@ -1149,7 +1139,7 @@ void TableListener::exitPartitionDefinition(MySQLParser::PartitionDefinitionCont
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitTableCreationSource(MySQLParser::TableCreationSourceContext *ctx)
+void TableListener::exitDuplicateAsQueryExpression(MySQLParser::DuplicateAsQueryExpressionContext *ctx)
 {
   // This is a creation-only part, i.e. it is not returned by the server when asking for the creation SQL code.
   // Similar for createSelect, which is used either in this context or createTable.
@@ -1174,15 +1164,15 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
     if (option->option == nullptr)
     {
       // Collation/Charset handling.
-      if (option->COLLATE_SYMBOL() != nullptr)
+      if (option->defaultCollation() != nullptr)
       {
-        auto info = detailsForCollation(MySQLBaseLexer::sourceTextForContext(option->collationNameOrDefault()), defaultCollation);
+        auto info = detailsForCollation(MySQLBaseLexer::sourceTextForContext(option->defaultCollation()->collationNameOrDefault()), defaultCollation);
         table->defaultCharacterSetName(info.first);
         table->defaultCollationName(info.second);
       }
       else
       {
-        auto info = detailsForCharset(MySQLBaseLexer::sourceTextForContext(option->charsetNameOrDefault()), defaultCollation, defaultCharset);
+        auto info = detailsForCharset(MySQLBaseLexer::sourceTextForContext(option->defaultCharset()->charsetNameOrDefault()), defaultCollation, defaultCharset);
         table->defaultCharacterSetName(info.first);
         table->defaultCollationName(info.second); // Collation name or DEFAULT.
       }
@@ -1232,32 +1222,32 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         break;
 
       case MySQLLexer::PACK_KEYS_SYMBOL:
-        if (option->DEFAULT_SYMBOL() != nullptr)
-          table->packKeys(option->DEFAULT_SYMBOL()->getText());
+        if (option->ternaryOption()->DEFAULT_SYMBOL() != nullptr)
+          table->packKeys(option->ternaryOption()->DEFAULT_SYMBOL()->getText());
         else
-          table->packKeys(option->ulong_number()->getText());
+          table->packKeys(option->ternaryOption()->ulong_number()->getText());
         break;
 
       case MySQLLexer::STATS_AUTO_RECALC_SYMBOL:
-        if (option->DEFAULT_SYMBOL() != nullptr)
-          table->statsAutoRecalc(option->DEFAULT_SYMBOL()->getText());
+        if (option->ternaryOption()->DEFAULT_SYMBOL() != nullptr)
+          table->statsAutoRecalc(option->ternaryOption()->DEFAULT_SYMBOL()->getText());
         else
-          table->statsAutoRecalc(option->ulong_number()->getText());
+          table->statsAutoRecalc(option->ternaryOption()->ulong_number()->getText());
         break;
 
       case MySQLLexer::STATS_PERSISTENT_SYMBOL:
-        if (option->DEFAULT_SYMBOL() != nullptr)
-          table->statsPersistent(option->DEFAULT_SYMBOL()->getText());
+        if (option->ternaryOption()->DEFAULT_SYMBOL() != nullptr)
+          table->statsPersistent(option->ternaryOption()->DEFAULT_SYMBOL()->getText());
         else
-          table->statsPersistent(option->ulong_number()->getText());
+          table->statsPersistent(option->ternaryOption()->ulong_number()->getText());
         break;
 
       case MySQLLexer::STATS_SAMPLE_PAGES_SYMBOL:
         // Note: we denote the default as value 0 (like it is done in the server).
-        if (option->DEFAULT_SYMBOL() != nullptr)
+        if (option->ternaryOption()->DEFAULT_SYMBOL() != nullptr)
           table->statsSamplePages(0);
         else
-          table->statsSamplePages(std::stoul(option->ulong_number()->getText()));
+          table->statsSamplePages(std::stoul(option->ternaryOption()->ulong_number()->getText()));
         break;
 
       case MySQLLexer::CHECKSUM_SYMBOL:
@@ -1369,13 +1359,13 @@ void TableAlterListener::exitAlterListItem(MySQLParser::AlterListItemContext *ct
   }
 
   // Many changes can go here, but we add them as needed.
-  if (ctx->keyDefinition() != nullptr && table.is_valid())
-    KeyDefinitionListener(ctx->keyDefinition(), _catalog, schema->name(), table, _refCache, _autoGenerateFkNames);
+  if (ctx->tableConstraintDef() != nullptr && table.is_valid())
+    KeyDefinitionListener(ctx->tableConstraintDef(), _catalog, schema->name(), table, _refCache, _autoGenerateFkNames);
 
-  if (ctx->tableRef() != nullptr)
+  if (ctx->tableName() != nullptr)
   {
     // Rename table or view. Can be a move as well (but not for views).
-    IdentifierListener listener(ctx->tableRef());
+    IdentifierListener listener(ctx->tableName());
 
     db_mysql_SchemaRef targetSchema = schema;
     if (listener.parts.size() > 1 && !listener.parts[0].empty())
@@ -1473,7 +1463,6 @@ void LogfileGroupListener::exitLogfileGroupOption(MySQLParser::LogfileGroupOptio
 
     case MySQLLexer::COMMENT_SYMBOL:
       group->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
-      // XXX: scanner.skipSubtree();
       break;
 
     case MySQLLexer::ENGINE_SYMBOL:
@@ -1640,13 +1629,18 @@ void IndexListener::exitCreateIndex(MySQLParser::CreateIndexContext *ctx)
       break;
   }
 
-  index->name(base::unquote(ctx->indexName()->getText()));
-  index->oldName(base::unquote(ctx->indexName()->getText()));
+  if (ctx->indexNameAndType() != nullptr) {
+    index->name(base::unquote(ctx->indexNameAndType()->indexName()->getText()));
+    index->oldName(base::unquote(ctx->indexNameAndType()->indexName()->getText()));
+  } else {
+    index->name(base::unquote(ctx->indexName()->getText()));
+    index->oldName(base::unquote(ctx->indexName()->getText()));
+  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitKeyAlgorithm(MySQLParser::KeyAlgorithmContext *ctx)
+void IndexListener::exitIndexType(MySQLParser::IndexTypeContext *ctx)
 {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
   index->indexKind(ctx->algorithm->getText());
@@ -1677,7 +1671,7 @@ void IndexListener::exitCreateIndexTarget(MySQLParser::CreateIndexTargetContext 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitAllKeyOption(MySQLParser::AllKeyOptionContext *ctx)
+void IndexListener::exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx)
 {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
@@ -1689,7 +1683,7 @@ void IndexListener::exitAllKeyOption(MySQLParser::AllKeyOptionContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitFulltextKeyOption(MySQLParser::FulltextKeyOptionContext *ctx)
+void IndexListener::exitFulltextIndexOption(MySQLParser::FulltextIndexOptionContext *ctx)
 {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
@@ -1824,8 +1818,13 @@ void ViewListener::exitCreateView(MySQLParser::CreateViewContext *ctx)
 
   if (listener.parts.size() > 1 && !listener.parts[0].empty())
     view->owner(ensureSchemaExists(listener.parts[0]));
+}
 
-  view->withCheckCondition(ctx->check != nullptr);
+//----------------------------------------------------------------------------------------------------------------------
+
+void ViewListener::exitViewCheckOption(MySQLParser::ViewCheckOptionContext *ctx) {
+  db_mysql_ViewRef view = db_mysql_ViewRef::cast_from(_object);
+  view->withCheckCondition(true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,198 +30,199 @@
 
 #include "grtsqlparser/mysql_parser_services.h"
 
-BEGIN_TEST_DATA_CLASS(sql_create)
+BEGIN_TEST_DATA_CLASS(sql_create_test)
 protected:
-    WBTester *tester;
-    SQLGeneratorInterfaceImpl *diffsql_module;
-    sql::ConnectionWrapper connection;
-    
-    TEST_DATA_CONSTRUCTOR(sql_create)
-    {
-      tester = new WBTester;
-        diffsql_module= NULL;
+WBTester *tester;
+SQLGeneratorInterfaceImpl *diffsql_module;
+sql::ConnectionWrapper connection;
 
-        // load modules
-        diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
-        ensure("DiffSQLGen module initialization", NULL != diffsql_module);
+TEST_DATA_CONSTRUCTOR(sql_create_test)
+{
+  tester = new WBTester;
+  diffsql_module= NULL;
 
-        // init datatypes
-        populate_grt(*tester);
+  // load modules
+  diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
+  ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
-        // init database connection
-        connection = tester->create_connection_for_import();
-    }
-    
-    TEST_DATA_DESTRUCTOR(sql_create)
-    {
-      std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-      std::string script = "DROP SCHEMA IF EXISTS `A` ; DROP SCHEMA IF EXISTS `B` ;";
-      execute_script(stmt.get(), script);
-    }
+  // init datatypes
+  populate_grt(*tester);
+
+  // init database connection
+  connection = tester->create_connection_for_import();
+}
+
+TEST_DATA_DESTRUCTOR(sql_create_test)
+{
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  stmt->execute("DROP SCHEMA IF EXISTS `A`;");
+  stmt->execute("DROP SCHEMA IF EXISTS `B`;");
+}
 
 END_TEST_DATA_CLASS
 
-TEST_MODULE(sql_create, "sql create");
+TEST_MODULE(sql_create_test, "sql create");
 
 // Test if sql generated for synthetic model is valid.
 TEST_FUNCTION(10)
 {
-    grt::ValueRef e;
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp;
-    grt::DbObjectMatchAlterOmf omf;
+  grt::ValueRef e;
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  NormalizedComparer cmp;
+  grt::DbObjectMatchAlterOmf omf;
 
-    SynteticMySQLModel model;
-    db_mysql_ViewRef view(grt::Initialized);
-    model.schema->views().insert(view);
-    view->owner(model.schema);
-    view->name("v2");
-    view->sqlDefinition("create view v2 as SELECT "
-        "if(t1.id > 2, 'active, very active', 'inactive, very very very inactive'), "
-        "if(t1.id > 4, 'active, very active', 'inactive, very very very inactive') "
-            "FROM t1");
+  SynteticMySQLModel model;
+  db_mysql_ViewRef view(grt::Initialized);
+  model.schema->views().insert(view);
+  view->owner(model.schema);
+  view->name("v2");
+  view->sqlDefinition("create view v2 as SELECT "
+                      "if(t1.id > 2, 'active, very active', 'inactive, very very very inactive'), "
+                      "if(t1.id > 4, 'active, very active', 'inactive, very very very inactive') "
+                      "FROM t1");
 
-    db_mysql_CatalogRef catalog = model.catalog;
-    
-    cmp.init_omf(&omf);
+  db_mysql_CatalogRef catalog = model.catalog;
 
-    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
-    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
+  cmp.init_omf(&omf);
 
-    DictRef create_map(true);
-    DictRef drop_map(true);
-    grt::DictRef options(true);
-    options.set("UseFilteredLists", grt::IntegerRef(0));
-    options.set("OutputContainer", create_map);
-    options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
-    options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-    options.set("GenerateDrops", grt::IntegerRef(1));
-    diffsql_module->generateSQL(catalog, options, create_change);
+  std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+  std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
-    options.set("OutputContainer", drop_map);
-    diffsql_module->generateSQL(catalog, options, drop_change);
+  DictRef create_map(true);
+  DictRef drop_map(true);
+  grt::DictRef options(true);
+  options.set("UseFilteredLists", grt::IntegerRef(0));
+  options.set("OutputContainer", create_map);
+  options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
+  options.set("GenerateSchemaDrops", grt::IntegerRef(1));
+  options.set("GenerateDrops", grt::IntegerRef(1));
+  diffsql_module->generateSQL(catalog, options, create_change);
 
-    diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-    std::string export_sql_script= options.get_string("OutputScript");
-    ensure("DROP TABLE missing in generated sql", export_sql_script.find("DROP TABLE IF EXISTS `test_schema`.`t1`") != std::string::npos);
-    execute_script(stmt.get(), export_sql_script);
+  options.set("OutputContainer", drop_map);
+  diffsql_module->generateSQL(catalog, options, drop_change);
+
+  diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
+  std::string export_sql_script= options.get_string("OutputScript");
+  ensure("DROP TABLE missing in generated sql", export_sql_script.find("DROP TABLE IF EXISTS `test_schema`.`t1`") != std::string::npos);
+
+  execute_script(stmt.get(), export_sql_script);
 }
 
 // Forward engineer synthetic model without qualifying schema, but inserting USE statements instead.
 TEST_FUNCTION(20)
 {
-    grt::ValueRef e;
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp;
-    grt::DbObjectMatchAlterOmf omf;
+  grt::ValueRef e;
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  NormalizedComparer cmp;
+  grt::DbObjectMatchAlterOmf omf;
 
-    SynteticMySQLModel model;
+  SynteticMySQLModel model;
 
-    db_mysql_CatalogRef catalog = model.catalog;
-    
-    cmp.init_omf(&omf);
+  db_mysql_CatalogRef catalog = model.catalog;
 
-    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
-    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
+  cmp.init_omf(&omf);
 
-    DictRef create_map(true);
-    DictRef drop_map(true);
-    grt::DictRef options(true);
-    options.set("UseFilteredLists", grt::IntegerRef(0));
-    options.set("OutputContainer", create_map);
-    options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
-    options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-    options.set("UseShortNames", grt::IntegerRef(1));
-    options.set("GenerateUse", grt::IntegerRef(1));
-    options.set("GenerateDrops", grt::IntegerRef(1));
-    diffsql_module->generateSQL(catalog, options, create_change);
+  std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+  std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
-    options.set("OutputContainer", drop_map);
-    diffsql_module->generateSQL(catalog, options, drop_change);
+  DictRef create_map(true);
+  DictRef drop_map(true);
+  grt::DictRef options(true);
+  options.set("UseFilteredLists", grt::IntegerRef(0));
+  options.set("OutputContainer", create_map);
+  options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
+  options.set("GenerateSchemaDrops", grt::IntegerRef(1));
+  options.set("UseShortNames", grt::IntegerRef(1));
+  options.set("GenerateUse", grt::IntegerRef(1));
+  options.set("GenerateDrops", grt::IntegerRef(1));
+  diffsql_module->generateSQL(catalog, options, create_change);
 
-    diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-    std::string export_sql_script= options.get_string("OutputScript");
-    execute_script(stmt.get(), export_sql_script);
+  options.set("OutputContainer", drop_map);
+  diffsql_module->generateSQL(catalog, options, drop_change);
+
+  diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
+  std::string export_sql_script= options.get_string("OutputScript");
+  execute_script(stmt.get(), export_sql_script);
 }
 
 //Test case for Bug #11926862 NO WAY TO SORT SCHEMAS ON EXPORT
 TEST_FUNCTION(30)
 {
-    grt::ValueRef e;
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp;
-    grt::DbObjectMatchAlterOmf omf;
+  grt::ValueRef e;
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  NormalizedComparer cmp;
+  grt::DbObjectMatchAlterOmf omf;
 
-    tester->wb->open_document("data/workbench/11926862.mwb");
-    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
-    
-    cmp.init_omf(&omf);
+  tester->wb->open_document("data/workbench/11926862.mwb");
+  db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
 
-    std::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-    std::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+  cmp.init_omf(&omf);
 
-    DictRef create_map(true);
-    DictRef drop_map(true);
-    grt::DictRef options(true);
-    options.set("UseFilteredLists", grt::IntegerRef(0));
-    options.set("OutputContainer", create_map);
-    options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
-    options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-    options.set("UseShortNames", grt::IntegerRef(1));
-    options.set("GenerateUse", grt::IntegerRef(1));
-    options.set("GenerateDrops", grt::IntegerRef(1));
-    diffsql_module->generateSQL(catalog, options, create_change);
+  std::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
+  std::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-    options.set("OutputContainer", drop_map);
-    diffsql_module->generateSQL(catalog, options, drop_change);
+  DictRef create_map(true);
+  DictRef drop_map(true);
+  grt::DictRef options(true);
+  options.set("UseFilteredLists", grt::IntegerRef(0));
+  options.set("OutputContainer", create_map);
+  options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
+  options.set("GenerateSchemaDrops", grt::IntegerRef(1));
+  options.set("UseShortNames", grt::IntegerRef(1));
+  options.set("GenerateUse", grt::IntegerRef(1));
+  options.set("GenerateDrops", grt::IntegerRef(1));
+  diffsql_module->generateSQL(catalog, options, create_change);
 
-    diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-    std::string export_sql_script= options.get_string("OutputScript");
-    execute_script(stmt.get(), export_sql_script);
+  options.set("OutputContainer", drop_map);
+  diffsql_module->generateSQL(catalog, options, drop_change);
+
+  diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
+  std::string export_sql_script= options.get_string("OutputScript");
+  execute_script(stmt.get(), export_sql_script);
 }
 
 // Test case for Bug #14278043 DB SYNCRONIZE MODEL GENERATES INCORRECT COLLATION
-// If somehow the collation doesn't correspond to the charset it should be skipped during 
+// If somehow the collation doesn't correspond to the charset it should be skipped during
 // sql generation to avoid creating invalid DDL.
 TEST_FUNCTION(40)
 {
-    grt::ValueRef e;
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp;
-    grt::DbObjectMatchAlterOmf omf;
+  grt::ValueRef e;
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  NormalizedComparer cmp;
+  grt::DbObjectMatchAlterOmf omf;
 
-    SynteticMySQLModel model;
-    
-    model.schema->defaultCharacterSetName("utf8");
-    model.schema->defaultCollationName("latin_1_swedish_ci");
-    model.table->defaultCharacterSetName("utf8");
-    model.table->defaultCollationName("latin_1_swedish_ci");
-    model.columnText->characterSetName("utf8");
-    model.columnText->collationName("latin_1_swedish_ci");
+  SynteticMySQLModel model;
 
-    db_mysql_CatalogRef catalog = model.catalog;
-    
-    cmp.init_omf(&omf);
+  model.schema->defaultCharacterSetName("utf8");
+  model.schema->defaultCollationName("latin_1_swedish_ci");
+  model.table->defaultCharacterSetName("utf8");
+  model.table->defaultCollationName("latin_1_swedish_ci");
+  model.columnText->characterSetName("utf8");
+  model.columnText->collationName("latin_1_swedish_ci");
 
-    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
-    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
+  db_mysql_CatalogRef catalog = model.catalog;
 
-    DictRef create_map(true);
-    DictRef drop_map(true);
-    grt::DictRef options(true);
-    options.set("UseFilteredLists", grt::IntegerRef(0));
-    options.set("OutputContainer", create_map);
-    options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
-    options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-    options.set("GenerateDrops", grt::IntegerRef(1));
-    diffsql_module->generateSQL(catalog, options, create_change);
+  cmp.init_omf(&omf);
 
-    options.set("OutputContainer", drop_map);
-    diffsql_module->generateSQL(catalog, options, drop_change);
+  std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+  std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
-    diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-    std::string export_sql_script= options.get_string("OutputScript");
-    execute_script(stmt.get(), export_sql_script);
+  DictRef create_map(true);
+  DictRef drop_map(true);
+  grt::DictRef options(true);
+  options.set("UseFilteredLists", grt::IntegerRef(0));
+  options.set("OutputContainer", create_map);
+  options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
+  options.set("GenerateSchemaDrops", grt::IntegerRef(1));
+  options.set("GenerateDrops", grt::IntegerRef(1));
+  diffsql_module->generateSQL(catalog, options, create_change);
+
+  options.set("OutputContainer", drop_map);
+  diffsql_module->generateSQL(catalog, options, drop_change);
+
+  diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
+  std::string export_sql_script= options.get_string("OutputScript");
+  execute_script(stmt.get(), export_sql_script);
 }
 
 static std::string strrange(const std::string &s, const std::string &start, const std::string &end)
@@ -252,14 +253,14 @@ TEST_FUNCTION(50)
   grt::DbObjectMatchAlterOmf omf;
 
   SynteticMySQLModel model;
-   
+
   db_mysql_CatalogRef catalog = model.catalog;
 
   db_mysql_TableRef table = catalog->schemata()[0]->tables()[0];
 
   cmp.init_omf(&omf);
 
-  // before 5.5.3, column comments <= 255, table <= 60 
+  // before 5.5.3, column comments <= 255, table <= 60
   {
     table->comment(comment_60);
     table->columns()[1]->comment(comment_255);
@@ -309,7 +310,7 @@ TEST_FUNCTION(50)
   grt::DictRef dbsett(diffsql_module->getTraitsForServerVersion(5, 5, 4));
   dbsett.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
 
-   {
+  {
     table->comment(comment_2048);
     table->columns()[1]->comment(comment_1024);
     std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
@@ -407,9 +408,9 @@ TEST_FUNCTION(60)
 
     while (ref.good() && ss.good())
     {
-     getline(ref, refline);
-     getline(ss, line);
-     tut::ensure_equals("Different lines", line, refline);
+      getline(ref, refline);
+      getline(ss, line);
+      tut::ensure_equals("Different lines", line, refline);
     }
 
     if (ref.good() || ss.good())
@@ -420,66 +421,66 @@ TEST_FUNCTION(60)
   }
 
   {
-      grt::ValueRef e;
-      std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-      NormalizedComparer cmp;
-      grt::DbObjectMatchAlterOmf omf;
+    grt::ValueRef e;
+    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    NormalizedComparer cmp;
+    grt::DbObjectMatchAlterOmf omf;
 
-      std::string modelfile = "data/forward_engineer/view_mixed_case.mwb";
-      tester->wb->open_document(modelfile);
-      db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
+    std::string modelfile = "data/forward_engineer/view_mixed_case.mwb";
+    tester->wb->open_document(modelfile);
+    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
 
-      cmp.init_omf(&omf);
+    cmp.init_omf(&omf);
 
-      std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
-      std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
-      DictRef create_map(true);
-      DictRef drop_map(true);
-      DictRef db_opts(true);
-      grt::DictRef options(true);
-      options.set("UseFilteredLists", grt::IntegerRef(0));
-      options.set("OutputContainer", create_map);
-      options.set("CaseSensitive", grt::IntegerRef(1));
-      options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-      options.set("UseShortNames", grt::IntegerRef(1));
-      options.set("GenerateUse", grt::IntegerRef(1));
-      options.set("GenerateDrops", grt::IntegerRef(1));
-      options.set("GenerateDocumentProperties", grt::IntegerRef(0));
-      diffsql_module->generateSQL(catalog, options, create_change);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    DictRef db_opts(true);
+    grt::DictRef options(true);
+    options.set("UseFilteredLists", grt::IntegerRef(0));
+    options.set("OutputContainer", create_map);
+    options.set("CaseSensitive", grt::IntegerRef(1));
+    options.set("GenerateSchemaDrops", grt::IntegerRef(1));
+    options.set("UseShortNames", grt::IntegerRef(1));
+    options.set("GenerateUse", grt::IntegerRef(1));
+    options.set("GenerateDrops", grt::IntegerRef(1));
+    options.set("GenerateDocumentProperties", grt::IntegerRef(0));
+    diffsql_module->generateSQL(catalog, options, create_change);
 
-      //Case sensitive in db set to false
-      db_opts.set("CaseSensitive", grt::IntegerRef(0));
-      options.set("DBSettings",db_opts);
+    //Case sensitive in db set to false
+    db_opts.set("CaseSensitive", grt::IntegerRef(0));
+    options.set("DBSettings",db_opts);
 
-      options.set("OutputContainer", drop_map);
-      diffsql_module->generateSQL(catalog, options, drop_change);
+    options.set("OutputContainer", drop_map);
+    diffsql_module->generateSQL(catalog, options, drop_change);
 
-      diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-      std::string export_sql_script= options.get_string("OutputScript");
+    diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
+    std::string export_sql_script= options.get_string("OutputScript");
 
-      std::string expected_sql = "data/forward_engineer/view_mixed_case.expected.good.sql";
+    std::string expected_sql = "data/forward_engineer/view_mixed_case.expected.good.sql";
 
-      std::ifstream ref(expected_sql.c_str());
-      std::stringstream ss(export_sql_script);
+    std::ifstream ref(expected_sql.c_str());
+    std::stringstream ss(export_sql_script);
 
-      std::string line, refline;
+    std::string line, refline;
 
-      tut::ensure(expected_sql, ref.is_open());
+    tut::ensure(expected_sql, ref.is_open());
 
-      std::string error_msg("Forward engineer of:");
-      error_msg += modelfile;
-      error_msg += " and ";
-      error_msg += expected_sql;
-      error_msg += " failed";
+    std::string error_msg("Forward engineer of:");
+    error_msg += modelfile;
+    error_msg += " and ";
+    error_msg += expected_sql;
+    error_msg += " failed";
 
-      while (ref.good() && ss.good())
-      {
-       getline(ref, refline);
-       getline(ss, line);
-       tut::ensure_equals(error_msg, line, refline);
-      }
+    while (ref.good() && ss.good())
+    {
+      getline(ref, refline);
+      getline(ss, line);
+      tut::ensure_equals(error_msg, line, refline);
     }
+  }
 }
 
 // Test forward engineering after renaming a schema, if it generates proper sql.
@@ -499,7 +500,7 @@ TEST_FUNCTION(70)
   parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   GrtVersionRef version = bec::parse_version("5.6.0");
   parsers::MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
-    version, "", false);
+                                                                           version, "", false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
 
   cmp.init_omf(&omf);
@@ -536,9 +537,9 @@ TEST_FUNCTION(70)
 
   while (ref.good() && ss.good())
   {
-   getline(ref, refline);
-   getline(ss, line);
-   tut::ensure_equals(error_msg, line, refline);
+    getline(ref, refline);
+    getline(ss, line);
+    tut::ensure_equals(error_msg, line, refline);
   }
 
   tester->wb->close_document();

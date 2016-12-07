@@ -811,19 +811,20 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language)
 
   // Key word list sets are from currently active lexer, so that must be set before calling here.
   sptr_t length = _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, 0);
+  if (length > 0) {
+    char* keyword_sets = (char*)malloc(length + 1);
+    _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, (sptr_t)keyword_sets);
+    std::vector<std::string> keyword_list_names = base::split(keyword_sets, "\n");
+    free(keyword_sets);
 
-  char* keyword_sets = (char*)malloc(length + 1);
-  _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, (sptr_t)keyword_sets);
-  std::vector<std::string> keyword_list_names = base::split(keyword_sets, "\n");
-  free(keyword_sets);
-
-  for (std::map<std::string, std::string>::const_iterator iterator = keywords.begin();
-    iterator != keywords.end(); ++iterator)
-  {
-    std::string list_name = iterator->first;
-    int list_index = base::index_of(keyword_list_names, list_name);
-    if (list_index > -1)
-      _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, list_index, (sptr_t)iterator->second.c_str());
+    for (std::map<std::string, std::string>::const_iterator iterator = keywords.begin();
+         iterator != keywords.end(); ++iterator)
+    {
+      std::string list_name = iterator->first;
+      int list_index = base::index_of(keyword_list_names, list_name);
+      if (list_index > -1)
+        _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, list_index, (sptr_t)iterator->second.c_str());
+    }
   }
 
   // Properties.

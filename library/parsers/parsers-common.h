@@ -39,6 +39,27 @@
 // Same as in antlr4-common.h.
 #define INVALID_INDEX (size_t)-1
 
+// Identifiers for images used in auto completion lists.
+#define AC_KEYWORD_IMAGE        1
+#define AC_SCHEMA_IMAGE         2
+#define AC_TABLE_IMAGE          3
+#define AC_ROUTINE_IMAGE        4 // For MySQL stored procedures + functions.
+#define AC_FUNCTION_IMAGE       5 // For MySQL library (runtime) functions.
+#define AC_VIEW_IMAGE           6
+#define AC_COLUMN_IMAGE         7
+#define AC_OPERATOR_IMAGE       8
+#define AC_ENGINE_IMAGE         9
+#define AC_TRIGGER_IMAGE       10
+#define AC_LOGFILE_GROUP_IMAGE 11
+#define AC_USER_VAR_IMAGE      12
+#define AC_SYSTEM_VAR_IMAGE    13
+#define AC_TABLESPACE_IMAGE    14
+#define AC_EVENT_IMAGE         15
+#define AC_INDEX_IMAGE         16
+#define AC_USER_IMAGE          17
+#define AC_CHARSET_IMAGE       18
+#define AC_COLLATION_IMAGE     19
+
 namespace antlr4 {
   class Token;
   class BufferedTokenStream;
@@ -98,8 +119,8 @@ namespace parsers {
     //void printToken(pANTLR3_BASE_TREE tree);
 
     // Standard navigation.
-    bool next(std::size_t count = 1);
-    bool previous();
+    bool next(bool skipHidden = true);
+    bool previous(bool skipHidden = true);
 
     // Advanced navigation.
     bool advanceToPosition(size_t line, size_t offset);
@@ -107,9 +128,8 @@ namespace parsers {
     bool skipTokenSequence(size_t startToken, ...);
     bool skipIf(size_t token, size_t count = 1);
 
-    size_t lookAhead();
-    size_t parentType();
-    size_t previousType();
+    size_t lookAhead(bool skipHidden = true);
+    size_t lookBack(bool skipHidden = true);
 
     // Stacking.
     void reset();
@@ -127,6 +147,7 @@ namespace parsers {
     size_t tokenIndex() const;
     size_t tokenOffset() const;
     size_t tokenLength() const;
+    size_t tokenChannel() const;
 
   private:
     std::vector<antlr4::Token *> _tokens; // Only valid so long as the input stream passed in to the c-tor is alive.

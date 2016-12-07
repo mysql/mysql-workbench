@@ -125,7 +125,7 @@ std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscap
   return context->getText();
 }
 
-bool MySQLBaseRecognizer::look(ssize_t position, ssize_t expected)
+bool MySQLBaseRecognizer::look(ssize_t position, size_t expected)
 {
   return _input->LA(position) == expected;
 }

@@ -47,6 +47,8 @@ namespace parsers {
 
     static std::string dumpTree(antlr4::RuleContext *context, const antlr4::dfa::Vocabulary &vocabulary);
     static std::string sourceTextForContext(antlr4::ParserRuleContext *ctx, bool keepQuotes = false);
+    static std::string sourceTextForRange(antlr4::Token *start, antlr4::Token *stop, bool keepQuotes = false);
+    static std::string sourceTextForRange(antlr4::tree::ParseTree *start, antlr4::tree::ParseTree *stop, bool keepQuotes = false);
 
     static antlr4::tree::ParseTree* getPrevious(antlr4::tree::ParseTree *tree);
     static antlr4::tree::ParseTree* getNext(antlr4::tree::ParseTree *tree);

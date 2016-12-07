@@ -30,7 +30,11 @@
   #include "grts/structs.db.mysql.h"
 #endif
 
+class MySQLObjectNamesCache;
+
 namespace parsers {
+
+class MySQLParser;
 
 struct WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserContext {
   typedef std::shared_ptr<MySQLParserContext> Ref;
@@ -44,7 +48,6 @@ struct WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserContext {
   virtual GrtVersionRef serverVersion() const = 0;
   virtual std::string sqlMode() const = 0;
   virtual std::vector<ParserErrorInfo> errorsWithOffset(size_t offset) const = 0;
-
 };
 
 /**
@@ -97,6 +100,11 @@ public:
     SimpleDatatypeListRef typeList, UserDatatypeListRef userTypes, SimpleDatatypeListRef defaultTypeList,
     db_SimpleDatatypeRef &simpleType, db_UserDatatypeRef &userType, int &precision, int &scale, int &length,
     std::string &datatypeExplicitParams) = 0;
+
+  // Others.
+  virtual std::vector<std::pair<int, std::string>> getCodeCompletionCandidates(MySQLParserContext::Ref context,
+    std::pair<size_t, size_t> caret, std::string const& sql, std::string const& defaultSchema, bool uppercaseKeywords,
+    std::string const& functionNames, MySQLObjectNamesCache *cache) = 0;
 
 };
 

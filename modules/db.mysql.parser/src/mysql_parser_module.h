@@ -189,4 +189,9 @@ public:
     SimpleDatatypeListRef typeList, UserDatatypeListRef userTypes, SimpleDatatypeListRef defaultTypeList,
     db_SimpleDatatypeRef &simpleType, db_UserDatatypeRef &userType, int &precision, int &scale, int &length,
     std::string &datatypeExplicitParams) override;
+
+  // Others.
+  virtual std::vector<std::pair<int, std::string>> getCodeCompletionCandidates(parsers::MySQLParserContext::Ref context,
+    std::pair<size_t, size_t> caret, std::string const& sql, std::string const& defaultSchema, bool uppercaseKeywords,
+    std::string const& functionNames, MySQLObjectNamesCache *cache) override;
 };

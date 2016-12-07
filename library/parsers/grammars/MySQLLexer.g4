@@ -20,18 +20,19 @@ lexer grammar MySQLLexer;
  */
 
 /*
- * Merged in all changes up to mysql-5.7 git revision [f84d8da] (26 April 2016).
+ * Merged in all changes up to mysql-trunk git revision [4a3279d] (1 December 2016).
  *
- * MySQL grammar for ANTLR 4.5 with language features from MySQL 4.0 up to MySQL 5.7.13 (except for
+ * MySQL grammar for ANTLR 4.5 with language features from MySQL 4.0.0 up to MySQL 8.0.0 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
  *
- * This grammar is a port of the ANTLR v3 variant for v4.
+ * This grammar is a port of the ANTLR v3 version to v4 + some ehancements for newer server versions.
  * The coverage of the MySQL language should be 100%, but there might still be bugs or omissions.
  *
  * To use this grammar you will need a few support classes (which should be included in the package).
- * See the demo project for further details.
+ * These classes implement the target specific action code, so we don't clutter the grammar with that
+ * and make it simpler to adjust it for other targets. See the demo project for further details.
  *
  * Written by Mike Lischke. Direct all bug reports, omissions etc. to mike.lischke@oracle.com.
  */
@@ -123,8 +124,8 @@ OPEN_CURLY_SYMBOL:          '{';
 CLOSE_CURLY_SYMBOL:         '}';
 UNDERLINE_SYMBOL:           '_';
 
-JSON_SEPARATOR_SYMBOL:          '->'  {serverVersion >= 50708}?;
-JSON_UNQUOTED_SEPARATOR_SYMBOL: '->>' {serverVersion >= 50713}?;
+JSON_SEPARATOR_SYMBOL:          '->'  {serverVersion >= 50708}?; // MYSQL
+JSON_UNQUOTED_SEPARATOR_SYMBOL: '->>' {serverVersion >= 50713}?; // MYSQL
 
 // The MySQL server parser uses custom code in its lexer to allow base alphanum chars (and ._$) as variable name.
 // For this it handles user variables in 2 different ways and we have to model this to match that behavior.
@@ -163,30 +164,79 @@ fragment X: [xX];
 fragment Y: [yY];
 fragment Z: [zZ];
 
+fragment DIGIT:    [0-9];
+fragment DIGITS:   DIGIT+;
+fragment HEXDIGIT: [0-9a-fA-F];
+
+// Only lower case 'x' and 'b' count for hex + bin numbers. Otherwise it's an identifier.
+HEX_NUMBER:     ('0x' HEXDIGIT+) | ('x\'' HEXDIGIT+ '\'');
+BIN_NUMBER:     ('0b' [01]+) | ('b\'' [01]+ '\'');
+
+NUMBER: DIGITS { setType(determineNumericType(getText())); };
+
 // Float types must be handled first or the DOT_IDENTIIFER rule will make them to identifiers
 // (if there is no leading digit before the dot).
-FLOAT_NUMBER: DECIMAL_NUMBER [eE] (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS;
 DECIMAL_NUMBER: DIGITS? DOT_SYMBOL DIGITS;
+FLOAT_NUMBER: (DIGITS? DOT_SYMBOL)? DIGITS [eE] (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS;
 
 // Special rule that should also match all keywords if they are directly preceded by a dot.
 // Hence it's defined before all keywords.
-DOT_IDENTIFIER: DOT_SYMBOL LETTER_WHEN_UNQUOTED_NO_DIGIT LETTER_WHEN_UNQUOTED*;
+// Here we make use of the ability in our base lexer to emit multiple tokens with a single rule.
+DOT_IDENTIFIER: DOT_SYMBOL LETTER_WHEN_UNQUOTED_NO_DIGIT LETTER_WHEN_UNQUOTED* { emitDot(); } -> type(IDENTIFIER);
 
 /*
-   Comments for TOKENS.
+  The following comment is from the server grammar and gives some information about the source of tokens.
+  Additionally there is a section describing how to handle tokens there, which does not apply to this ANTLR grammar.
+
+   MAINTAINER:
+
+   1) Comments for TOKENS.
+
    For each token, please include in the same line a comment that contains
-   the following tags_SYMBOL:
-   SQL-2003-R _SYMBOL: Reserved keyword as per SQL-2003
-   SQL-2003-N _SYMBOL: Non Reserved keyword as per SQL-2003
-   SQL-1999-R _SYMBOL: Reserved keyword as per SQL-1999
-   SQL-1999-N _SYMBOL: Non Reserved keyword as per SQL-1999
-   MYSQL      _SYMBOL: MySQL extention (unspecified)
-   MYSQL-FUNC _SYMBOL: MySQL extention, function
-   INTERNAL   _SYMBOL: Not a real token, lex optimization
-   OPERATOR   _SYMBOL: SQL operator
-   FUTURE-USE _SYMBOL: Reserved for futur use
+   the following tags:
+   SQL-2015-R : Reserved keyword as per SQL-2015 draft
+   SQL-2003-R : Reserved keyword as per SQL-2003
+   SQL-2003-N : Non Reserved keyword as per SQL-2003
+   SQL-1999-R : Reserved keyword as per SQL-1999
+   SQL-1999-N : Non Reserved keyword as per SQL-1999
+   MYSQL      : MySQL extention (unspecified)
+   MYSQL-FUNC : MySQL extention, function
+   INTERNAL   : Not a real token, lex optimization
+   OPERATOR   : SQL operator
+   FUTURE-USE : Reserved for futur use
 
    This makes the code grep-able, and helps maintenance.
+
+   2) About token values
+
+   Token values are assigned by bison, in order of declaration.
+
+   Token values are used in query DIGESTS.
+   To make DIGESTS stable, it is desirable to avoid changing token values.
+
+   In practice, this means adding new tokens at the end of the list,
+   in the current release section (8.0),
+   instead of adding them in the middle of the list.
+
+   Failing to comply with instructions below will trigger build failure,
+   as this process is enforced by gen_lex_token.
+
+   3) Instructions to add a new token:
+
+   Add the new token at the end of the list,
+   in the MySQL 8.0 section.
+
+   4) Instructions to remove an old token:
+
+   Do not remove the token, rename it as follows:
+   %token OBSOLETE_TOKEN_<NNN> / * was: TOKEN_FOO * /
+   where NNN is the token value (found in sql_yacc.h)
+
+   For example, see OBSOLETE_TOKEN_820
+*/
+
+/*
+   Tokens from MySQL 5.7, keep in alphabetical order.
 */
 
 //ABORT_SYMBOL: 'ABORT';                     // INTERNAL (used in lex)
@@ -302,7 +352,7 @@ DATABASE_SYMBOL:                        D A T A B A S E;
 DATABASES_SYMBOL:                       D A T A B A S E S;
 DATAFILE_SYMBOL:                        D A T A F I L E;
 DATA_SYMBOL:                            D A T A;                                                    // SQL-2003-N
-DATETIME_SYMBOL:                        D A T E T I M E;
+DATETIME_SYMBOL:                        D A T E T I M E;                                            // MYSQL
 DATE_ADD_SYMBOL:                        D A T E '_' A D D                                           { setType(determineFunction(DATE_ADD_SYMBOL)); };
 DATE_SUB_SYMBOL:                        D A T E '_' S U B                                           { setType(determineFunction(DATE_SUB_SYMBOL)); };
 DATE_SYMBOL:                            D A T E;                                                    // SQL-2003-R
@@ -353,7 +403,7 @@ ENDS_SYMBOL:                            E N D S;
 END_OF_INPUT_SYMBOL:                    E N D '_' O F '_' I N P U T;                                // INTERNAL
 ENGINES_SYMBOL:                         E N G I N E S;
 ENGINE_SYMBOL:                          E N G I N E;
-ENUM_SYMBOL:                            E N U M;
+ENUM_SYMBOL:                            E N U M;                                                    // MYSQL
 ERROR_SYMBOL:                           E R R O R;
 ERRORS_SYMBOL:                          E R R O R S;
 ESCAPED_SYMBOL:                         E S C A P E D;
@@ -401,7 +451,7 @@ GET_SYMBOL:                             G E T                                   
 GENERAL_SYMBOL:                         G E N E R A L                                               {serverVersion >= 50500}?;
 GENERATED_SYMBOL:                       G E N E R A T E D                                           {serverVersion >= 50707}?;
 GROUP_REPLICATION_SYMBOL:               G R O U P '_' R E P L I C A T I O N                         {serverVersion >= 50707}?;
-GEOMETRYCOLLECTION_SYMBOL:              G E O M E T R Y C O L L E C T I O N;
+GEOMETRYCOLLECTION_SYMBOL:              G E O M E T R Y C O L L E C T I O N;                        // MYSQL
 GEOMETRY_SYMBOL:                        G E O M E T R Y;
 GET_FORMAT_SYMBOL:                      G E T '_' F O R M A T;                                      // MYSQL-FUNC
 GLOBAL_SYMBOL:                          G L O B A L;                                                // SQL-2003-R
@@ -453,7 +503,7 @@ ISOLATION_SYMBOL:                       I S O L A T I O N;                      
 ISSUER_SYMBOL:                          I S S U E R;
 ITERATE_SYMBOL:                         I T E R A T E                                               {serverVersion >= 50000}?;
 JOIN_SYMBOL:                            J O I N;                                                    // SQL-2003-R
-JSON_SYMBOL:                            J S O N                                                     {serverVersion >= 50708}?;
+JSON_SYMBOL:                            J S O N                                                     {serverVersion >= 50708}?; // MYSQL
 KEYS_SYMBOL:                            K E Y S;
 KEY_BLOCK_SIZE_SYMBOL:                  K E Y '_' B L O C K '_' S I Z E;
 KEY_SYMBOL:                             K E Y;                                                      // SQL-2003-N
@@ -470,7 +520,7 @@ LIKE_SYMBOL:                            L I K E;                                
 LIMIT_SYMBOL:                           L I M I T;
 LINEAR_SYMBOL:                          L I N E A R                                                 {serverVersion >= 50100}?;
 LINES_SYMBOL:                           L I N E S;
-LINESTRING_SYMBOL:                      L I N E S T R I N G;
+LINESTRING_SYMBOL:                      L I N E S T R I N G;                                        // MYSQL
 LIST_SYMBOL:                            L I S T;
 LOAD_SYMBOL:                            L O A D;
 LOCALTIME_SYMBOL:                       L O C A L T I M E                                           {serverVersion >= 40000}? -> type(NOW_SYMBOL); // Synonym
@@ -481,8 +531,8 @@ LOCKS_SYMBOL:                           L O C K S;
 LOCK_SYMBOL:                            L O C K;
 LOGFILE_SYMBOL:                         L O G F I L E;
 LOGS_SYMBOL:                            L O G S;
-LONGBLOB_SYMBOL:                        L O N G B L O B;
-LONGTEXT_SYMBOL:                        L O N G T E X T;
+LONGBLOB_SYMBOL:                        L O N G B L O B;                                            // MYSQL
+LONGTEXT_SYMBOL:                        L O N G T E X T;                                            // MYSQL
 LONG_NUM_SYMBOL:                        L O N G '_' N U M;
 LONG_SYMBOL:                            L O N G;
 LOOP_SYMBOL:                            L O O P                                                     {serverVersion >= 50000}?;
@@ -521,9 +571,9 @@ MAX_SYMBOL:                             M A X                                   
 MAX_UPDATES_PER_HOUR_SYMBOL:            M A X '_' U P D A T E S '_' P E R '_' H O U R;
 MAX_USER_CONNECTIONS_SYMBOL:            M A X '_' U S E R '_' C O N N E C T I O N S;
 MAXVALUE_SYMBOL:                        M A X V A L U E                                             {serverVersion >= 50500}?; // SQL-2003-N
-MEDIUMBLOB_SYMBOL:                      M E D I U M B L O B;
-MEDIUMINT_SYMBOL:                       M E D I U M I N T;
-MEDIUMTEXT_SYMBOL:                      M E D I U M T E X T;
+MEDIUMBLOB_SYMBOL:                      M E D I U M B L O B;                                        // MYSQL
+MEDIUMINT_SYMBOL:                       M E D I U M I N T;                                          // MYSQL
+MEDIUMTEXT_SYMBOL:                      M E D I U M T E X T;                                        // MYSQL
 MEDIUM_SYMBOL:                          M E D I U M;
 MEMORY_SYMBOL:                          M E M O R Y;
 MERGE_SYMBOL:                           M E R G E;                                                  // SQL-2003-R
@@ -542,9 +592,9 @@ MODIFIES_SYMBOL:                        M O D I F I E S                         
 MODIFY_SYMBOL:                          M O D I F Y;
 MOD_SYMBOL:                             M O D;                                                      // SQL-2003-N
 MONTH_SYMBOL:                           M O N T H;                                                  // SQL-2003-R
-MULTILINESTRING_SYMBOL:                 M U L T I L I N E S T R I N G;
-MULTIPOINT_SYMBOL:                      M U L T I P O I N T;
-MULTIPOLYGON_SYMBOL:                    M U L T I P O L Y G O N;
+MULTILINESTRING_SYMBOL:                 M U L T I L I N E S T R I N G;                              // MYSQL
+MULTIPOINT_SYMBOL:                      M U L T I P O I N T;                                        // MYSQL
+MULTIPOLYGON_SYMBOL:                    M U L T I P O L Y G O N;                                    // MYSQL
 MUTEX_SYMBOL:                           M U T E X;
 MYSQL_ERRNO_SYMBOL:                     M Y S Q L '_' E R R N O;
 NAMES_SYMBOL:                           N A M E S;                                                  // SQL-2003-N
@@ -594,7 +644,6 @@ OWNER_SYMBOL:                           O W N E R;
 PACK_KEYS_SYMBOL:                       P A C K '_' K E Y S;
 PAGE_SYMBOL:                            P A G E;
 PARSER_SYMBOL:                          P A R S E R;
-// PARSE_GCOL_EXPR                         P A R S E '_' G C O L '_' E X P R                           {serverVersion >= 50707}?;
 PARTIAL_SYMBOL:                         P A R T I A L;                                              // SQL-2003-N
 PARTITIONING_SYMBOL:                    P A R T I T I O N I N G;
 PARTITIONS_SYMBOL:                      P A R T I T I O N S;
@@ -605,7 +654,7 @@ PLUGINS_SYMBOL:                         P L U G I N S;
 PLUGIN_DIR_SYMBOL:                      P L U G I N '_' D I R                                       {serverVersion >= 50604}?; // Internal
 PLUGIN_SYMBOL:                          P L U G I N;
 POINT_SYMBOL:                           P O I N T;
-POLYGON_SYMBOL:                         P O L Y G O N;
+POLYGON_SYMBOL:                         P O L Y G O N;                                              // MYSQL
 PORT_SYMBOL:                            P O R T;
 POSITION_SYMBOL:                        P O S I T I O N                                             { setType(determineFunction(POSITION_SYMBOL)); }; // SQL-2003-N
 PRECEDES_SYMBOL:                        P R E C E D E S                                             {serverVersion >= 50700}?;
@@ -766,7 +815,7 @@ SYSDATE_SYMBOL:                         S Y S D A T E                           
 SYSTEM_USER_SYMBOL:                     S Y S T E M '_' U S E R                                     { setType(determineFunction(USER_SYMBOL)); };
 TABLES_SYMBOL:                          T A B L E S;
 TABLESPACE_SYMBOL:                      T A B L E S P A C E;
-TABLE_REF_PRIORITY_SYMBOL:              T A B L E '_' R E F '_' P R I O R I T Y;
+TABLE_REF_PRIORITY_SYMBOL:              T A B L E '_' R E F '_' P R I O R I T Y                     {serverVersion < 80000}?;
 TABLE_SYMBOL:                           T A B L E;                                                  // SQL-2003-R
 TABLE_CHECKSUM_SYMBOL:                  T A B L E '_' C H E C K S U M;
 TABLE_NAME_SYMBOL:                      T A B L E '_' N A M E;                                      // SQL-2003-N
@@ -780,9 +829,9 @@ TIMESTAMP_SYMBOL:                       T I M E S T A M P;                      
 TIMESTAMP_ADD_SYMBOL:                   T I M E S T A M P '_' A D D;
 TIMESTAMP_DIFF_SYMBOL:                  T I M E S T A M P '_' D I F F;
 TIME_SYMBOL:                            T I M E;                                                    // SQL-2003-R
-TINYBLOB_SYMBOL:                        T I N Y B L O B;
-TINYINT_SYMBOL:                         T I N Y I N T;
-TINYTEXT_SYMBOL:                        T I N Y T E X T;
+TINYBLOB_SYMBOL:                        T I N Y B L O B;                                            // MYSQL
+TINYINT_SYMBOL:                         T I N Y I N T;                                              // MYSQL
+TINYTEXT_SYMBOL:                        T I N Y T E X T;                                            // MYSQL
 TO_SYMBOL:                              T O;                                                        // SQL-2003-R
 TRAILING_SYMBOL:                        T R A I L I N G;                                            // SQL-2003-R
 TRANSACTION_SYMBOL:                     T R A N S A C T I O N;
@@ -805,12 +854,12 @@ UNION_SYMBOL:                           U N I O N;                              
 UNIQUE_SYMBOL:                          U N I Q U E;
 UNKNOWN_SYMBOL:                         U N K N O W N;                                              // SQL-2003-R
 UNLOCK_SYMBOL:                          U N L O C K;
-UNSIGNED_SYMBOL:                        U N S I G N E D;
+UNSIGNED_SYMBOL:                        U N S I G N E D;                                            // MYSQL
 UNTIL_SYMBOL:                           U N T I L;
 UPDATE_SYMBOL:                          U P D A T E;                                                // SQL-2003-R
 UPGRADE_SYMBOL:                         U P G R A D E                                               {serverVersion >= 50000}?;
 USAGE_SYMBOL:                           U S A G E;                                                  // SQL-2003-N
-USER_RESOURCES_SYMBOL:                  U S E R '_' R E S O U R C E S;
+USER_RESOURCES_SYMBOL:                  U S E R '_' R E S O U R C E S;                              // Represented only as RESOURCES in server grammar.
 USER_SYMBOL:                            U S E R;                                                    // SQL-2003-R
 USE_FRM_SYMBOL:                         U S E '_' F R M;
 USE_SYMBOL:                             U S E;
@@ -821,7 +870,7 @@ UTC_TIME_SYMBOL:                        U T C '_' T I M E                       
 VALIDATION_SYMBOL:                      V A L I D A T I O N                                         {serverVersion >= 50706}?;
 VALUES_SYMBOL:                          V A L U E S;                                                // SQL-2003-R
 VALUE_SYMBOL:                           V A L U E;                                                  // SQL-2003-R
-VARBINARY_SYMBOL:                       V A R B I N A R Y;
+VARBINARY_SYMBOL:                       V A R B I N A R Y;                                          // SQL-2008-R
 VARCHAR_SYMBOL:                         V A R C H A R;                                              // SQL-2003-R
 VARCHARACTER_SYMBOL:                    V A R C H A R A C T E R                                     {serverVersion >= 40100}? -> type(VARCHAR_SYMBOL); // Synonym
 VARIABLES_SYMBOL:                       V A R I A B L E S;
@@ -839,7 +888,7 @@ WHEN_SYMBOL:                            W H E N;                                
 WHERE_SYMBOL:                           W H E R E;                                                  // SQL-2003-R
 WHILE_SYMBOL:                           W H I L E                                                   {serverVersion >= 50000}?;
 WITH_SYMBOL:                            W I T H;                                                    // SQL-2003-R
-WITH_CUBE_SYMBOL:                       W I T H '_' C U B E;                                        // INTERNAL
+WITH_CUBE_SYMBOL:                       W I T H '_' C U B E                                         {serverVersion < 80000}?; // INTERNAL
 WITH_ROLLUP_SYMBOL:                     W I T H '_' R O L L U P;                                    // INTERNAL
 WITHOUT_SYMBOL:                         W I T H O U T;                                              // SQL-2003-R
 WORK_SYMBOL:                            W O R K;                                                    // SQL-2003-N
@@ -852,7 +901,23 @@ XML_SYMBOL:                             X M L;
 XOR_SYMBOL:                             X O R                                                       {serverVersion >= 40000}?;
 YEAR_MONTH_SYMBOL:                      Y E A R '_' M O N T H;
 YEAR_SYMBOL:                            Y E A R;                                                    // SQL-2003-R
-ZEROFILL_SYMBOL:                        Z E R O F I L L;
+ZEROFILL_SYMBOL:                        Z E R O F I L L;                                            // MYSQL
+
+/*
+   Tokens from MySQL 8.0
+*/
+PERSIST_SYMBOL:                         P E R S I S T                                               {serverVersion >= 80000}?;
+ROLE_SYMBOL:                            R O L E                                                     {serverVersion >= 80000}?; // SQL-1999-R
+ADMIN_SYMBOL:                           A D M I N                                                   {serverVersion >= 80000}?; // SQL-1999-R
+INVISIBLE_SYMBOL:                       I N V I S I B L E                                           {serverVersion >= 80000}?;
+VISIBLE_SYMBOL:                         V I S I B L E                                               {serverVersion >= 80000}?;
+EXCEPT_SYMBOL:                          E X C E P T                                                 {serverVersion >= 80000}?; // SQL-1999-R
+COMPONENT_SYMBOL:                       C O M P O N E N T                                           {serverVersion >= 80000}?; // MYSQL
+//GRAMMAR_SELECTOR_EXPR:;               // synthetic token: starts single expr.
+//GRAMMAR_SELECTOR_GCOL:;               // synthetic token: starts generated col.
+//GRAMMAR_SELECTOR_PART:;               // synthetic token: starts partition expr.
+JSON_OBJECTAGG_SYMBOL:                  J S O N '_' O B J E C T A G G                              {serverVersion >= 80000}?; // SQL-2015-R
+JSON_ARRAYAGG_SYMBOL:                   J S O N '_' A R R A Y A G G                                {serverVersion >= 80000}?; // SQL-2015-R
 
 // Additional tokens which are mapped to existing tokens.
 INT1_SYMBOL:                            I N T '1'                                                   -> type(TINYINT_SYMBOL); // Synonym
@@ -884,13 +949,6 @@ INVALID_INPUT:
     | ']'
 ;
 
-// Basic tokens. Tokens used in parser rules must not be fragments!
-
-HEX_NUMBER:     ('0'[xX] HEXDIGIT+) | ([xX] '\'' HEXDIGIT+ '\'');
-BIN_NUMBER:     ('0'[bB] [01]+) | ([bB] '\'' [01]+ '\'');
-
-NUMBER: DIGITS { setType(determineNumericType(getText())); };
-
 // String and text types.
 
 // The underscore charset token is used to defined the repertoire of a string, though it conflicts
@@ -898,7 +956,13 @@ NUMBER: DIGITS { setType(determineNumericType(getText())); };
 UNDERSCORE_CHARSET: UNDERLINE_SYMBOL IDENTIFIER { setType(checkCharset(getText())); };
 
 // Identifiers might start with a digit, even tho it is discouraged, and may not consist entirely of digits only.
-IDENTIFIER: DIGIT* LETTER_WHEN_UNQUOTED_NO_DIGIT LETTER_WHEN_UNQUOTED*; // All keywords above are automatically excluded.
+// All keywords above are automatically excluded.
+IDENTIFIER:
+  DIGITS+ [eE] (LETTER_WHEN_UNQUOTED_NO_DIGIT LETTER_WHEN_UNQUOTED*)? // Have to exclude float pattern, as this rule matches more.
+  | DIGITS+ LETTER_WITHOUT_FLOAT_PART LETTER_WHEN_UNQUOTED*
+  | LETTER_WHEN_UNQUOTED_NO_DIGIT LETTER_WHEN_UNQUOTED* // INT_NUMBER matches first if there are only digits.
+;
+
 NCHAR_TEXT: [nN] SINGLE_QUOTED_TEXT;
 
 // For all 3 quoted types:
@@ -970,9 +1034,6 @@ DASHDASH_COMMENT: DOUBLE_DASH ([ \t] (~[\n\r])* | LINEBREAK | EOF) -> channel(HI
 fragment DOUBLE_DASH: '--';
 fragment LINEBREAK:   [\n\r];
 
-fragment DIGIT:    [0-9];
-fragment DIGITS:   DIGIT+;
-fragment HEXDIGIT: DIGIT | [a-fA-F];
 fragment SIMPLE_IDENTIFIER: (DIGIT | [a-zA-Z_$] | DOT_SYMBOL)+;
 
 fragment ML_COMMENT_HEAD: '/*';
@@ -986,5 +1047,10 @@ fragment LETTER_WHEN_UNQUOTED:
 
 fragment LETTER_WHEN_UNQUOTED_NO_DIGIT:
     [a-zA-Z_$\u0080-\uffff]
+;
+
+// Any letter but without e/E and digits (which are used to match a decimal number).
+fragment LETTER_WITHOUT_FLOAT_PART:
+    [a-df-zA-DF-Z_$\u0080-\uffff]
 ;
 

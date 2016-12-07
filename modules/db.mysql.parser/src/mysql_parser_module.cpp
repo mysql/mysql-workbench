@@ -32,17 +32,19 @@
 
 #include "grtpp_util.h"
 
-#include "mysql_parser_module.h"
 #include "mysql-recognition-types.h"
 
-#include "MySQLLexer.h"
-#include "MySQLParser.h"
-#include "MySQLParserBaseListener.h"
+#include "MySQL/MySQLLexer.h"
+#include "MySQL/MySQLParser.h"
+#include "MySQL/MySQLParserBaseListener.h"
 
 #include "objimpl/wrapper/parser_ContextReference_impl.h"
 #include "grtdb/db_object_helpers.h"
+#include "code-completion/mysql-code-completion.h"
 
 #include "ObjectListeners.h"
+
+#include "mysql_parser_module.h"
 
 using namespace grt;
 using namespace parsers;
@@ -200,9 +202,27 @@ struct MySQLParserContextImpl : public MySQLParserContext {
 
   MySQLQueryType determineQueryType(const std::string &text)
   {
+    // Important: this call invalidates any previous parse result (because we have to reset lexer and parser to avoid
+    //            dangling token references).
+    parser.reset();
+
     input.load(text);
     lexer.setInputStream(&input);
+    tokens.setTokenSource(&lexer);
+
     return lexer.determineQueryType();
+  }
+
+  std::vector<std::pair<int, std::string>> getCodeCompletionCandidates(std::pair<size_t, size_t> caret,
+    std::string const& sql, std::string const& defaultSchema, bool uppercaseKeywords, std::string const& functionNames,
+    MySQLObjectNamesCache *cache) {
+
+    // We don't need to parse the sql actually. Only load it into the lexer/input stream.
+    input.load(sql);
+    lexer.setInputStream(&input);
+    tokens.setTokenSource(&lexer);
+    return getCodeCompletionList(caret.second, caret.first, defaultSchema, uppercaseKeywords, &parser, functionNames,
+                                 cache);
   }
 
 private:
@@ -289,6 +309,15 @@ private:
       errors.push_back(info);
     }
     return tree;
+  }
+
+  /**
+   * Debugging helper that prints all tokens recognized by the lexer with the current input.
+   */
+  void dumpTokens() {
+    tokens.fill();
+    for (auto token : tokens.getTokens())
+      std::cout << token->toString() << std::endl;
   }
 };
 
@@ -410,7 +439,7 @@ static std::string getDotIdentifier(Scanner &scanner)
 static Identifier getIdentifier(Scanner &scanner)
 {
   Identifier result;
-  if (scanner.is(MySQLLexer::DOT_SYMBOL) || scanner.is(MySQLLexer::DOT_IDENTIFIER))
+  if (scanner.is(MySQLLexer::DOT_SYMBOL))
   {
     // Starting with a dot (ODBC style).
     result.second = getDotIdentifier(scanner);
@@ -419,7 +448,7 @@ static Identifier getIdentifier(Scanner &scanner)
   {
     result.second = scanner.tokenText();
     scanner.next();
-    if (scanner.is(MySQLLexer::DOT_SYMBOL) || scanner.is(MySQLLexer::DOT_IDENTIFIER))
+    if (scanner.is(MySQLLexer::DOT_SYMBOL))
     {
       result.first = result.second;
       result.second = getDotIdentifier(scanner);
@@ -733,11 +762,6 @@ size_t MySQLParserServicesImpl::parseTrigger(MySQLParserContext::Ref context, db
   {
     trigger->modelOnly(1);
 
-    // TODO: the code below is almost duplicating the work done in the listener.
-    //       Better is probably to always walk the generated parse tree (also in error case).
-    //       We cannot get more out then as we do here, anyway.
-    //       This is an approach valid for any of the parseXYZ routines.
-
     // Finished with errors. See if we can get at least the trigger name out.
     auto triggerTree = dynamic_cast<MySQLParser::CreateTriggerContext *>(tree);
     if (triggerTree->triggerName() != nullptr)
@@ -779,10 +803,10 @@ size_t MySQLParserServicesImpl::parseViewSql(parser_ContextReferenceRef context_
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
-* Parses the given sql as a create view script and fills all found details in the given view ref.
-* If there's an error nothing changes. If the sql contains a schema reference other than that the
-* the view is in the view's name will be changed (adds _WRONG_SCHEMA) to indicate that.
-*/
+ * Parses the given sql as a create view script and fills all found details in the given view ref.
+ * If there's an error nothing changes. If the sql contains a schema reference other than that the
+ * the view is in the view's name will be changed (adds _WRONG_SCHEMA) to indicate that.
+ */
 size_t MySQLParserServicesImpl::parseView(MySQLParserContext::Ref context,
   db_mysql_ViewRef view, const std::string &sql)
 {
@@ -838,20 +862,17 @@ std::pair<std::string, std::string> getRoutineNameAndType(ParseTree *context)
   if (routineTree->createProcedure() != nullptr)
   {
     result.second = "procedure";
-    if (routineTree->createProcedure()->procedureName() != nullptr)
-      result.first = routineTree->createProcedure()->procedureName()->getText();
+    result.first = routineTree->createProcedure()->procedureName()->getText();
   }
   else if (routineTree->createFunction() != nullptr)
   {
     result.second = "function";
-    if (routineTree->createFunction()->functionName() != nullptr)
-      result.first = routineTree->createProcedure()->procedureName()->getText();
+    result.first = routineTree->createFunction()->functionName()->getText();
   }
   else if (routineTree->createUdf() != nullptr)
   {
     result.second = "udf";
-    if (routineTree->createUdf()->udfName() != nullptr)
-      result.first = routineTree->createProcedure()->procedureName()->getText();
+    result.first = routineTree->createUdf()->udfName()->getText();
   }
   return result;
 }
@@ -994,7 +1015,7 @@ size_t MySQLParserServicesImpl::parseRoutines(MySQLParserContext::Ref context,
       routine->owner(schema);
       schema_routines.insert(routine);
 
-      routine->name(*group->name() + "_SYNTAX_ERROR_" + base::to_string(syntaxErrorCounter++));
+      routine->name(*group->name() + "_SYNTAX_ERROR_" + std::to_string(syntaxErrorCounter++));
       routine->routineType("unknown");
       routine->modelOnly(1);
       routine->sqlDefinition(base::trim(routineSQL));
@@ -1085,7 +1106,7 @@ size_t MySQLParserServicesImpl::parseSchema(MySQLParserContext::Ref context, db_
   {
     // Finished with errors. See if we can get at least the schema name out.
     auto context = dynamic_cast<MySQLParser::QueryContext *>(tree);
-    auto createDatabaseContext = context->statement()->createStatement()->createDatabase();
+    auto createDatabaseContext = context->simpleStatement()->createStatement()->createDatabase();
     if (createDatabaseContext != nullptr && createDatabaseContext->schemaName() != nullptr)
       schema->name(createDatabaseContext->schemaName()->getText() + "_SYNTAX_ERROR");
   }
@@ -1360,7 +1381,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
       continue;
     }
 
-    auto statementContext = dynamic_cast<MySQLParser::QueryContext *>(tree)->statement();
+    auto statementContext = dynamic_cast<MySQLParser::QueryContext *>(tree)->simpleStatement();
     switch (queryType)
     {
       case QtCreateDatabase:
@@ -1641,7 +1662,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
 
       case QtDropDatabase:
       {
-        std::string name = base::unquote(statementContext->dropStatement()->schemaRef()->getText());
+        std::string name = base::unquote(statementContext->dropStatement()->dropDatabase()->schemaRef()->getText());
         db_SchemaRef schema = find_named_object_in_list(catalog->schemata(), name);
         if (schema.is_valid())
         {
@@ -1660,7 +1681,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
 
       case QtDropEvent:
       {
-        IdentifierListener listener(statementContext->dropStatement()->eventRef());
+        IdentifierListener listener(statementContext->dropStatement()->dropEvent()->eventRef());
 
         db_SchemaRef schema = currentSchema;
         if (listener.parts.size() > 1 && !listener.parts[0].empty())
@@ -1677,9 +1698,9 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
       {
         tree::ParseTree *nameContext;
         if (queryType == QtDropFunction)
-          nameContext = statementContext->dropStatement()->functionRef();
+          nameContext = statementContext->dropStatement()->dropFunction()->functionRef();
         else
-          nameContext = statementContext->dropStatement()->procedureRef();
+          nameContext = statementContext->dropStatement()->dropProcedure()->procedureRef();
         IdentifierListener listener(nameContext);
 
         db_SchemaRef schema = currentSchema;
@@ -1696,11 +1717,11 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
       {
         std::string name;
         {
-          IdentifierListener listener(statementContext->dropStatement()->indexRef());
+          IdentifierListener listener(statementContext->dropStatement()->dropIndex()->indexRef());
           name = listener.parts.back();
         }
 
-        IdentifierListener listener(statementContext->dropStatement()->tableRef());
+        IdentifierListener listener(statementContext->dropStatement()->dropIndex()->tableRef());
 
         db_SchemaRef schema = currentSchema;
         if (listener.parts.size() > 1 && !listener.parts[0].empty())
@@ -1720,7 +1741,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
 
       case QtDropLogfileGroup:
       {
-        IdentifierListener listener(statementContext->dropStatement()->logfileGroupRef());
+        IdentifierListener listener(statementContext->dropStatement()->dropLogfileGroup()->logfileGroupRef());
 
         db_LogFileGroupRef group = find_named_object_in_list(catalog->logFileGroups(), listener.parts.back());
         if (group.is_valid())
@@ -1734,7 +1755,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
 
       case QtDropServer:
       {
-        IdentifierListener listener(statementContext->dropStatement()->logfileGroupRef());
+        IdentifierListener listener(statementContext->dropStatement()->dropServer()->serverRef());
         db_ServerLinkRef server = find_named_object_in_list(catalog->serverLinks(), listener.parts.back());
         if (server.is_valid())
         {
@@ -1748,7 +1769,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
       case QtDropTable:
       {
         // We can have a list of tables to drop here.
-        for (auto tableRef : statementContext->dropStatement()->tableRefList()->tableRef())
+        for (auto tableRef : statementContext->dropStatement()->dropTable()->tableRefList()->tableRef())
         {
           IdentifierListener listener(tableRef);
           db_SchemaRef schema = currentSchema;
@@ -1769,7 +1790,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
       case QtDropView:
       {
         // We can have a list of views to drop here.
-        for (auto tableRef : statementContext->dropStatement()->viewRefList()->viewRef())
+        for (auto tableRef : statementContext->dropStatement()->dropView()->viewRefList()->viewRef())
         {
           IdentifierListener listener(tableRef);
           db_SchemaRef schema = currentSchema;
@@ -1789,7 +1810,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
 
       case QtDropTablespace:
       {
-        IdentifierListener listener(statementContext->dropStatement()->tablespaceRef());
+        IdentifierListener listener(statementContext->dropStatement()->dropTableSpace()->tablespaceRef());
         db_TablespaceRef tablespace = find_named_object_in_list(catalog->tablespaces(), listener.parts.back());
         if (tablespace.is_valid())
         {
@@ -1802,7 +1823,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
 
       case QtDropTrigger:
       {
-        IdentifierListener listener(statementContext->dropStatement()->triggerRef());
+        IdentifierListener listener(statementContext->dropStatement()->dropTrigger()->triggerRef());
 
         // Even though triggers are schema level objects they work on specific tables
         // and that's why we store them under the affected tables, not in the schema object.
@@ -2004,18 +2025,27 @@ public:
     checkIdentifierContext(ctx->identifier());
   }
   
-  virtual void exitColumnRefWithWildcard(MySQLParser::ColumnRefWithWildcardContext *ctx) override
+  virtual void exitTableWild(MySQLParser::TableWildContext *ctx) override
   {
-    // There can only be a schema reference if the colum references is complete (schema.table.column).
-    if (ctx->dotIdentifier().size() > 1)
-      checkIdentifierContext(ctx->identifier());
+    checkIdentifierContext(ctx->identifier());
   }
-  
+
   virtual void exitQualifiedIdentifier(MySQLParser::QualifiedIdentifierContext *ctx) override
   {
-    // Act only if there is really a qualified identifier.
-    if (ctx->dotIdentifier() != nullptr)
+    // The handling is the same for all top level objects (tables, views, triggers etc.), so we use their commonon
+    // rule structure (qualifiedIdentifier), however we have to make sure not to include field references by this
+    // as they require an additional level (and also use the qualifiedIdentifier rule).
+    ParserRuleContext *parent = dynamic_cast<ParserRuleContext *>(ctx->parent);
+    if (parent->getRuleIndex() != MySQLParser::RuleFieldIdentifier && ctx->dotIdentifier() != nullptr) // Only if we really have 2 id parts.
       checkIdentifierContext(ctx->identifier());
+  }
+
+  virtual void exitFieldIdentifier(MySQLParser::FieldIdentifierContext *ctx) override
+  {
+    // Includes column + index references.
+    // There can only be a schema name if we have a full field identifier.
+    if (ctx->dotIdentifier() != nullptr && ctx->qualifiedIdentifier() != nullptr)
+      checkIdentifierContext(ctx->qualifiedIdentifier()->identifier());
   }
 
 private:
@@ -2374,13 +2404,15 @@ public:
 
   GrantListener(ParseTree *tree)
   {
+    // TODO: currently we only handle standard grants here. What's missing is handling for
+    //       proxy and role grants.
     data.set("privileges", _privileges);
     data.set("users", _users);
 
     tree::ParseTreeWalker::DEFAULT.walk(this, tree);
   }
 
-  virtual void exitGrant(MySQLParser::GrantContext *ctx) override
+  virtual void exitGrantCommand(MySQLParser::GrantCommandContext *ctx) override
   {
     // The subtree for the target details includes the ON keyword at the beginning, which we have to remove.
     data.gset("target", base::trim(MySQLBaseLexer::sourceTextForContext(ctx->privilegeTarget()).substr(2)));
@@ -2394,7 +2426,7 @@ public:
       _privileges.insert(MySQLBaseLexer::sourceTextForContext(ctx));
   }
 
-  virtual void exitPrivilegeType(MySQLParser::PrivilegeTypeContext *ctx) override
+  virtual void exitObjectPrivilege(MySQLParser::ObjectPrivilegeContext *ctx) override
   {
     std::string privilege;
     for (auto child : ctx->children)
@@ -2496,6 +2528,10 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(MySQLParserContext::Ref con
   // This part can potentially grow very large because of the sheer amount of possible query types.
   // So it should be moved into an own file if it grows beyond a few 100 lines.
   MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
+
+  // First do the query determination, then parse, or we invalidate the tokens from the parse run.
+  MySQLQueryType queryType = impl->determineQueryType(sql);
+
   auto tree = impl->parse(sql, MySQLParseUnit::PuGeneric);
   if (!impl->errors.empty())
   {
@@ -2504,8 +2540,6 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(MySQLParserContext::Ref con
     result.gset("error", impl->errors[0].message);
     return result;
   }
-
-  MySQLQueryType queryType = impl->determineQueryType(sql);
 
   switch (queryType) {
     case QtGrant:
@@ -2655,3 +2689,17 @@ bool MySQLParserServicesImpl::parseTypeDefinition(const std::string &typeDefinit
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+std::vector<std::pair<int, std::string>> MySQLParserServicesImpl::getCodeCompletionCandidates(
+  MySQLParserContext::Ref context, std::pair<size_t, size_t> caret, std::string const& sql,
+  std::string const& defaultSchema, bool uppercaseKeywords, std::string const& functionNames, MySQLObjectNamesCache *cache) {
+
+  MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
+  std::vector<std::pair<int, std::string>> candidates = impl->getCodeCompletionCandidates(caret, sql, defaultSchema,
+    uppercaseKeywords, functionNames, cache);
+
+  return candidates;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+

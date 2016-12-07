@@ -57,9 +57,9 @@ TEST_FUNCTION(1)
   parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   parsers::MySQLParserContext::Ref parser = services->createParserContext(rdbms->characterSets(), version, "", 1);
 	ensure("failed to retrieve RDBMS list", rdbms_list.is_valid());
-	for (int n= 0, count= rdbms_list.count(); n < count; ++n)
+	for (size_t n = 0, count = rdbms_list.count(); n < count; ++n)
 	{
-		db_mgmt_RdbmsRef rdbms= rdbms_list[n];
+		db_mgmt_RdbmsRef rdbms = rdbms_list[n];
 		MySQLEditor::Ref sql_editor = MySQLEditor::create(parser, parser);
 		ensure(("failed to get sql editor for " + rdbms->name().toString() + " RDBMS").c_str(), (NULL != sql_editor.get()));
 	}

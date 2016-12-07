@@ -49,7 +49,7 @@ protected:
   MySQLParser _parser;
   Ref<BailErrorStrategy> _bailOutErrorStrategy = std::make_shared<BailErrorStrategy>();
   Ref<DefaultErrorStrategy> _defaultErrorStrategy = std::make_shared<DefaultErrorStrategy>();
-  Ref<MySQLParser::QueryContext> _lastParseTree;
+  MySQLParser::QueryContext *_lastParseTree;
 
   MySQLParserServices *_services;
 
@@ -473,16 +473,16 @@ TEST_FUNCTION(20)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void collectTokenTypes(Ref<RuleContext> context, std::vector<size_t> &list)
+void collectTokenTypes(RuleContext *context, std::vector<size_t> &list)
 {
   for (size_t index = 0; index < context->children.size(); ++index)
   {
-    Ref<tree::Tree> child = context->children[index];
-    if (antlrcpp::is<RuleContext>(child))
-      collectTokenTypes(std::dynamic_pointer_cast<RuleContext>(child), list);
+    tree::ParseTree *child = context->children[index];
+    if (antlrcpp::is<RuleContext *>(child))
+      collectTokenTypes(dynamic_cast<RuleContext *>(child), list);
     else {
       // A terminal node.
-      Ref<tree::TerminalNode> node = std::dynamic_pointer_cast<tree::TerminalNode>(child);
+      tree::TerminalNode *node = dynamic_cast<tree::TerminalNode *>(child);
       antlr4::Token *token = node->getSymbol();
       list.push_back(token->getType());
     }
@@ -546,7 +546,7 @@ public:
 
   virtual Any visitExprNot(MySQLParser::ExprNotContext *context) override
   {
-    EvalValue value = visit(context->expr().get());
+    EvalValue value = visit(context->expr());
     switch (value.type)
     {
       case EvalValue::Null:
@@ -560,8 +560,8 @@ public:
 
   virtual Any visitExprAnd(MySQLParser::ExprAndContext *context) override
   {
-    EvalValue left = visit(context->expr(0).get());
-    EvalValue right = visit(context->expr(1).get());
+    EvalValue left = visit(context->expr(0));
+    EvalValue right = visit(context->expr(1));
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -572,8 +572,8 @@ public:
   
   virtual Any visitExprXor(MySQLParser::ExprXorContext *context) override
   {
-    EvalValue left = visit(context->expr(0).get());
-    EvalValue right = visit(context->expr(1).get());
+    EvalValue left = visit(context->expr(0));
+    EvalValue right = visit(context->expr(1));
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -582,8 +582,8 @@ public:
 
   virtual Any visitExprOr(MySQLParser::ExprOrContext *context) override
   {
-    EvalValue left = visit(context->expr(0).get());
-    EvalValue right = visit(context->expr(1).get());
+    EvalValue left = visit(context->expr(0));
+    EvalValue right = visit(context->expr(1));
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -592,7 +592,7 @@ public:
   
   virtual Any visitExprIs(MySQLParser::ExprIsContext *context) override
   {
-    EvalValue value = visit(context->boolPri().get());
+    EvalValue value = visit(context->boolPri());
     if (context->IS_SYMBOL() == nullptr)
       return value;
 
@@ -616,7 +616,7 @@ public:
 
   virtual Any visitPrimaryExprIsNull(MySQLParser::PrimaryExprIsNullContext *context) override
   {
-    EvalValue value = visit(context->boolPri().get());
+    EvalValue value = visit(context->boolPri());
     if (context->notRule() == nullptr)
       return EvalValue::fromBool(value.type == EvalValue::Null);
     return EvalValue::fromBool(value.type != EvalValue::Null);
@@ -624,8 +624,8 @@ public:
 
   virtual Any visitPrimaryExprCompare(MySQLParser::PrimaryExprCompareContext *context) override
   {
-    EvalValue left = visit(context->boolPri().get());
-    EvalValue right = visit(context->predicate().get());
+    EvalValue left = visit(context->boolPri());
+    EvalValue right = visit(context->predicate());
 
     ssize_t op = context->compOp()->getStart()->getType();
     if (left.isNullType() || right.isNullType())
@@ -654,9 +654,9 @@ public:
     return EvalValue::fromBool(false);
   }
 
-  virtual Any visitPredicateExprOperations(MySQLParser::PredicateExprOperationsContext *context) override
+  virtual Any visitPredicate(MySQLParser::PredicateContext *context) override
   {
-    return visit(context->bitExpr().get());
+    return visit(context->bitExpr()[0]);
   }
 
   static unsigned long long shiftLeftWithOverflow(double l, double r)
@@ -671,10 +671,10 @@ public:
   virtual Any visitBitExpr(MySQLParser::BitExprContext *context) override
   {
     if (context->simpleExpr() != nullptr)
-      return visit(context->simpleExpr().get());
+      return visit(context->simpleExpr());
 
-    EvalValue left = visit(context->bitExpr(0).get());
-    EvalValue right = visit(context->bitExpr(1).get());
+    EvalValue left = visit(context->bitExpr(0));
+    EvalValue right = visit(context->bitExpr(1));
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -712,14 +712,14 @@ public:
     return EvalValue::fromNull();
   }
 
-  virtual Any visitExpressionListWithParentheses(MySQLParser::ExpressionListWithParenthesesContext *context) override
+  virtual Any visitExprListWithParentheses(MySQLParser::ExprListWithParenthesesContext *context) override
   {
-    return visit(context->expressionList().get());
+    return visit(context->exprList());
   }
 
   virtual Any visitSimpleExprList(MySQLParser::SimpleExprListContext *context) override
   {
-    return visit(context->expressionList().get());
+    return visit(context->exprList());
   }
 
   virtual Any visitSimpleExprLiteral(MySQLParser::SimpleExprLiteralContext *context) override
@@ -751,7 +751,7 @@ public:
 
   virtual Any visitSimpleExprNot(MySQLParser::SimpleExprNotContext *context) override
   {
-    EvalValue value = visit(context->simpleExpr().get());
+    EvalValue value = visit(context->simpleExpr());
     if (value.isNullType())
       return EvalValue::fromNull();
     return EvalValue::fromBool(!asBool(value));
@@ -837,7 +837,7 @@ TEST_FUNCTION(25)
     EvalParseVisitor evaluator;
     try
     {
-      evaluator.visit(_lastParseTree.get());
+      evaluator.visit(_lastParseTree);
     }
     catch (std::bad_cast &)
     {
@@ -965,7 +965,7 @@ TEST_FUNCTION(35)
 
   ensure_equals("35.1 String concatenation", parse("select \"abc\" \"def\" 'ghi''\\n\\z'", 50610, ""), 0U);
   TestListener listener;
-  tree::ParseTreeWalker::DEFAULT.walk(&listener, _lastParseTree.get());
+  tree::ParseTreeWalker::DEFAULT.walk(&listener, _lastParseTree);
   ensure_equals("35.2 String concatenation", listener.text, "abcdefghi'\nz");
 }
 
@@ -1013,6 +1013,85 @@ TEST_FUNCTION(40)
 }
 
 // TODO: create tests for restricted content parsing (e.g. routines only, views only etc.).
+
+// Test hex, binary, float, decimal and int number handling.
+static const std::vector<SqlModeTestEntry> numbersTestQueries = {
+  { "select 0x;", "", 0 },
+  { "select 0xa;", "", 0 },
+  { "select 0xx;", "", 0 },
+  { "select 0x2111;", "", 0 },
+  { "select 0X2111x;", "", 0 },
+  { "select x'2111';", "", 0 },
+  { "select x'2111x';", "", 0 },
+
+  { "select 0b;", "", 0 },
+  { "select 0b0;", "", 0 },
+  { "select 0b2;", "", 0 },
+  { "select 0b111;", "", 0 },
+  { "select 0b2111;", "", 0 },
+  { "select b'0111';", "", 0 },
+  { "select b'2111';", "", 0 },
+
+  { "select .1union select 2;", "", 0 },
+  { "select 1 from dual where 1e1=1e1union select 2;", "", 0 },
+
+  { "select 1;", "", 0 },
+  { "select 1.1;", "", 0 },
+  { "select 1.1e1;", "", 0 },
+  { "select 1.1a1;", "", 0 },
+  { "select .1a1;", "", 0 },
+  { "select .1e2a1;", "", 0 },
+  { "select 1e;", "", 0 },
+  { "select 1f;", "", 0 },
+  { "select .a from b;", "", 0 },
+  { "select 1e-2;", "", 0 },
+  { "select 1e-a;", "", 0 },
+};
+
+static const std::vector<std::vector<size_t>> numbersTestResults = {
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::HEX_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::HEX_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::HEX_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SINGLE_QUOTED_TEXT, P::SEMICOLON_SYMBOL, Token::EOF },
+
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::BIN_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::BIN_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::BIN_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SINGLE_QUOTED_TEXT, P::SEMICOLON_SYMBOL, Token::EOF },
+
+  { P::SELECT_SYMBOL, P::DECIMAL_NUMBER, P::UNION_SYMBOL, P::SELECT_SYMBOL, P::INT_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::INT_NUMBER, P::FROM_SYMBOL, P::DUAL_SYMBOL, P::WHERE_SYMBOL, P::FLOAT_NUMBER, P::EQUAL_OPERATOR,
+    P::FLOAT_NUMBER, P::UNION_SYMBOL, P::SELECT_SYMBOL, P::INT_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+
+  { P::SELECT_SYMBOL, P::INT_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::DECIMAL_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::FLOAT_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::DECIMAL_NUMBER, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::DECIMAL_NUMBER, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::FLOAT_NUMBER, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::DOT_SYMBOL, P::IDENTIFIER, P::FROM_SYMBOL, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::FLOAT_NUMBER, P::SEMICOLON_SYMBOL, Token::EOF },
+  { P::SELECT_SYMBOL, P::IDENTIFIER, P::MINUS_OPERATOR, P::IDENTIFIER, P::SEMICOLON_SYMBOL, Token::EOF },
+
+};
+
+TEST_FUNCTION(45)
+{
+  for (size_t i = 0; i < numbersTestQueries.size(); i++)
+    if (!parseAndCompare(numbersTestQueries[i].query, 50610, numbersTestQueries[i].sqlMode,
+                         numbersTestResults[i], numbersTestQueries[i].errors))
+    {
+      fail("45." + std::to_string(i) + ": number test - query failed: " + numbersTestQueries[i].query);
+    }
+}
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.

@@ -71,9 +71,7 @@ protected:
   TEST_DATA_DESTRUCTOR(grtdiff_alter_test)
   {
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    std::string sql_string = "DROP DATABASE IF EXISTS grtdiff_alter_test;";
-
-    execute_script(stmt.get(), sql_string);
+    stmt->execute("DROP DATABASE IF EXISTS grtdiff_alter_test;");
   }
 
 END_TEST_DATA_CLASS

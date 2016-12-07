@@ -38,7 +38,6 @@
 
 #include "grts/structs.db.mysql.h"
 
-//#include "code-completion/mysql-code-completion.h"
 #include "sql_editor_be.h"
 
 DEFAULT_LOG_DOMAIN("MySQL editor");
@@ -832,13 +831,13 @@ bool MySQLEditor::do_statement_split_and_check(int id)
   {
     if (d->_stop_processing)
       return false;
-
+/*
     if (d->_services->checkSqlSyntax(d->_parser_context, d->_text_info.first + range_iterator->first,
                                  range_iterator->second, d->_parse_unit) > 0)
     {
       std::vector<ParserErrorInfo> errors = d->_parser_context->errorsWithOffset(range_iterator->first);
       d->_recognition_errors.insert(d->_recognition_errors.end(), errors.begin(), errors.end());
-    }
+    }*/
   }
 
   bec::GRTManager::get()->run_once_when_idle(this, std::bind(&MySQLEditor::update_error_markers, this));
@@ -1194,7 +1193,7 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
 //--------------------------------------------------------------------------------------------------
 
 void MySQLEditor::setup_auto_completion()
-{/* XXX:
+{
   _code_editor->auto_completion_max_size(80, 15);
 
   static std::vector<std::pair<int, std::string>> ccImages = {
@@ -1213,18 +1212,13 @@ void MySQLEditor::setup_auto_completion()
   _code_editor->auto_completion_register_images(ccImages);
   _code_editor->auto_completion_stops("\t,.*;) "); // Will close ac even if we are in an identifier.
   _code_editor->auto_completion_fillups("");
-
-  std::string grammarPath = base::makePath(bec::GRTManager::get()->get_basedir(), "data/MySQL.g");
-  initializeMySQLCodeCompletionIfNeeded(grammarPath);
-  */
 }
 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns the text in the editor starting at the given position backwards until the line start.
- * If there's a back tick or double quote char then text until this quote char is returned. If there's
- * no quoting char but a space or dot char then everything up to (but not including) this is returned.
+ * Returns the text in the editor starting at the given position backwards until the line start
+ * or the first non alphanumeric char is found.
  */
 std::string MySQLEditor::getWrittenPart(size_t position)
 {
@@ -1237,6 +1231,7 @@ std::string MySQLEditor::getWrittenPart(size_t position)
 
   const char *head = text.c_str();
   const char *run = head;
+  std::string lastQuotedText;
 
   while (*run != '\0')
   {
@@ -1261,16 +1256,23 @@ std::string MySQLEditor::getWrittenPart(size_t position)
       }
       if (*run == '\0') // Unfinished quoted text. Return everything.
         return head;
+
+      lastQuotedText = std::string(head - 1, run - head); // Include the quotes or scintilla will mess up
       head = run + 1; // Skip over this quoted text and start over.
     }
     run++;
   }
 
   // If we come here then we are outside any quoted text. Scan back for anything we consider
-  // to be a word stopper (for now anything below '0', char code wise).
+  // to be a word stopper.
+  // There is a special case however: if we are directly after a quoted part, this part is used as typed text
+  // (treating it so as if it wasn't quoted).
+  if (head == run && (*(head - 1) == '\'' || *(head - 1) == '\'' || *(head - 1) == '\''))
+    return lastQuotedText;
+
   while (head < run--)
   {
-    if (*run < '0')
+    if (!std::isalnum(*run) && *run != '_' && *run != '$') // Allowed parts in an unquoted identifier.
       return run + 1;
   }
   return head;
@@ -1330,13 +1332,11 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLPa
     caretOffset = g_utf8_pointer_to_offset(line_text.c_str(), line_text.c_str() + caretOffset);
   }
 
-  std::string writtenPart = getWrittenPart(caretPosition);
-  /* XXX:
-  _auto_completion_entries = getCodeCompletionList(caretLine, caretOffset, writtenPart, _current_schema,
-    make_keywords_uppercase(), parser_context->createScanner(statement), _editor_config->get_keywords()["Functions"],
-    _auto_completion_cache);
-   */
-  update_auto_completion(writtenPart);
+  _auto_completion_entries = d->_services->getCodeCompletionCandidates(d->_autocompletion_context,
+    { caretOffset, caretLine}, statement, _current_schema, make_keywords_uppercase(),
+    _editor_config->get_keywords()["Functions"], _auto_completion_cache);
+
+  update_auto_completion(getWrittenPart(caretPosition));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -40,7 +40,7 @@ namespace parsers {
     // Checks the token at the given position relative to the current position, whether it matches the expected value.
     // For positions > 1 this looks ahead, otherwise it looks back.
     // Note: position == 0 is not defined. position == 1 is the current position.
-    bool look(ssize_t position, ssize_t expected);
+    bool look(ssize_t position, size_t expected);
 
     // Validation function used to check that a string that is not allowed to contain line breaks really doesn't.
     bool containsLinebreak(const std::string &text) const;

@@ -962,11 +962,12 @@ static std::unordered_map<size_t, std::string> supportedOperatorsAndKeywords = {
   { MySQLLexer::AUTO_INCREMENT_SYMBOL, "AUTO_INCREMENT" },
   { MySQLLexer::CALL_SYMBOL, "CALL" },
   { MySQLLexer::CAST_SYMBOL, "CAST" },
-  { MySQLLexer::SPATIAL_SYMBOL, "SPATIAL" },
   { MySQLLexer::DIV_SYMBOL, "DIV" },
-  { MySQLLexer::OR_SYMBOL, "OR" },
-  { MySQLLexer::XOR_SYMBOL, "XOR" },
   { MySQLLexer::MOD_SYMBOL, "MOD" },
+  { MySQLLexer::OR_SYMBOL, "OR" },
+  { MySQLLexer::SPATIAL_SYMBOL, "SPATIAL" },
+  { MySQLLexer::UNION_SYMBOL, "UNION" },
+  { MySQLLexer::XOR_SYMBOL, "XOR" },
 };
 
 // Simple token -> topic matches, only used in certain contexts and only if there is no trivial token -> topic translation.
@@ -1041,7 +1042,7 @@ static std::unordered_map<size_t, std::string> contextToTopic = {
   { MySQLParser::RuleHelpCommand, "HELP COMMAND" },
   { MySQLParser::RuleIfStatement, "IF STATEMENT" },
   { MySQLParser::RuleIterateStatement, "ITERATE" },
-  { MySQLParser::RuleJoinTable, "JOIN" },
+  { MySQLParser::RuleJoinedTable, "JOIN" },
   { MySQLParser::RuleLabel, "LABELS" },
   { MySQLParser::RuleLeaveStatement, "LEAVE" },
   { MySQLParser::RuleLockStatement, "LOCK" },
@@ -1062,7 +1063,6 @@ static std::unordered_map<size_t, std::string> contextToTopic = {
   { MySQLParser::RuleSetPassword, "SET PASSWORD" },
   { MySQLParser::RuleTransactionStatement, "START TRANSACTION" },
   { MySQLParser::RuleTruncateTableStatement, "TRUNCATE TABLE" },
-  { MySQLParser::RuleUnionClause, "UNION" },
   { MySQLParser::RuleUpdateStatement, "UPDATE" },
   { MySQLParser::RuleUseCommand, "USE" },
   { MySQLParser::RuleWhileDoBlock, "WHILE" },
@@ -1075,10 +1075,22 @@ static std::unordered_map<size_t, std::string> contextToTopic = {
   { MySQLParser::RuleSignalStatement, "SIGNAL" },
   { MySQLParser::RuleCursorFetch, "FETCH" },
   { MySQLParser::RuleLeaveStatement, "LEAVE" },
-  { MySQLParser::RuleUseCommand, "USE" },
   { MySQLParser::RuleAlterUser, "ALTER USER" },
   { MySQLParser::RuleCaseStatement, "CASE STATEMENT" },
   { MySQLParser::RuleChangeMaster, "CHANGE MASTER TO" },
+
+  { MySQLParser::RuleDropDatabase, "DROP DATABASE" },
+  { MySQLParser::RuleDropEvent, "DROP EVENT" },
+  { MySQLParser::RuleDropFunction, "DROP FUNCTION" },
+  { MySQLParser::RuleDropProcedure, "DROP PROCEDURE" },
+  { MySQLParser::RuleDropIndex, "DROP INDEX" },
+  { MySQLParser::RuleDropLogfileGroup, "DROP LOGFILEGROUP" },
+  { MySQLParser::RuleDropServer, "DROP SERVER" },
+  { MySQLParser::RuleDropTable, "DROP TABLE" },
+  { MySQLParser::RuleDropTableSpace, "DROP TABLESPACE" },
+  { MySQLParser::RuleDropTrigger, "DROP TRIGGER" },
+  { MySQLParser::RuleDropView, "DROP VIEW" },
+
 };
 
 // Words which are part of a multi word topic or can produce wrong topics if used alone, and hence need further examination.
@@ -1220,25 +1232,6 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
       }
 
-      case MySQLParser::RuleDropStatement:
-      {
-        auto dropContext = (MySQLParser::DropStatementContext *)context;
-        if (dropContext->type != nullptr)
-        {
-          if (dropContext->type->getType() == MySQLLexer::TABLES_SYMBOL)
-            return "DROP TABLE"; // Extra handling to avoid "DROP TABLES".
-          if (dropContext->type->getType() == MySQLLexer::DATABASE_SYMBOL)
-            return "DROP DATABASE";
-          return "DROP " + base::toupper(dropContext->type->getText());
-        }
-
-        // online/offline is version dependent, which can cause "type" not to be filled.
-        if (dropContext->INDEX_SYMBOL() != nullptr)
-          return "DROP INDEX";
-
-        break;
-      }
-
       case MySQLParser::RuleOtherAdministrativeStatement:
       {
         // See if we only have a single flush command.
@@ -1255,7 +1248,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       case MySQLParser::RuleInsertStatement:
       {
         auto insertContext = (MySQLParser::InsertStatementContext *)context;
-        if (insertContext->insertFieldSpec()->insertQueryExpression() != nullptr)
+        if (insertContext->insertQueryExpression() != nullptr)
           return "INSERT SELECT";
         if (insertContext->insertLockOption() != nullptr && insertContext->insertLockOption()->DELAYED_SYMBOL() != nullptr)
           return "INSERT DELAYED";
@@ -1303,9 +1296,9 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
         ParserRuleContext *variableName = nullptr;
         if (setStatementContext->optionValueFollowingOptionType() != nullptr)
-          variableName = setStatementContext->optionValueFollowingOptionType()->variableName();
+          variableName = setStatementContext->optionValueFollowingOptionType()->internalVariableName();
         else if (setStatementContext->optionValueNoOptionType() != nullptr)
-          variableName = setStatementContext->optionValueNoOptionType()->variableName();
+          variableName = setStatementContext->optionValueNoOptionType()->internalVariableName();
         if (variableName != nullptr)
         {
           std::string option = base::toupper(variableName->getText());
@@ -1381,17 +1374,6 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         return "RESET";
       }
 
-      case MySQLParser::RuleVariableName: // Special var names in different contexts.
-      {
-        auto variableContext = (MySQLParser::VariableNameContext *)context;
-        std::string name = base::tolower(MySQLParser::getText(variableContext, true));
-        if (name == "sql_slave_skip_counter")
-          return "SET GLOBAL SQL_SLAVE_SKIP_COUNTER";
-        if (name == "sql_log_bin")
-          return "SET SQL_LOG_BIN";
-        break;
-      }
-
       case MySQLParser::RuleShowStatement:
       {
         auto showContext = (MySQLParser::ShowStatementContext *)context;
@@ -1436,9 +1418,9 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         }
       }
 
-      case MySQLParser::RuleKeyDefinition:
+      case MySQLParser::RuleTableConstraintDef:
       {
-        auto definitionContext = (MySQLParser::KeyDefinitionContext *)context;
+        auto definitionContext = (MySQLParser::TableConstraintDefContext *)context;
         if (definitionContext->type->getType() == MySQLLexer::FOREIGN_SYMBOL)
           return "CONSTRAINT";
         break;
@@ -1475,13 +1457,15 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
       case MySQLParser::RuleSlave:
         if (!context->children.empty())
-        {
           return base::toupper(context->children[0]->getText()) + " SLAVE";
-        }
+        break;
 
       case MySQLParser::RuleDataType:
       {
         auto typeContext = (MySQLParser::DataTypeContext *)context;
+        if (typeContext->nchar() != nullptr)
+          return "CHAR";
+
         std::string topic;
         switch (typeContext->type->getType())
         {
@@ -1507,7 +1491,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
           case MySQLLexer::VARYING_SYMBOL:
             if (typeContext->VARYING_SYMBOL() != nullptr || typeContext->VARCHAR_SYMBOL() != nullptr)
               return "VARCHAR";
-            if (typeContext->stringBinary() != nullptr && typeContext->stringBinary()->BYTE_SYMBOL() != nullptr)
+            if (typeContext->charsetWithOptBinary() != nullptr && typeContext->charsetWithOptBinary()->BYTE_SYMBOL() != nullptr)
               return "CHAR BYTE";
             return "CHAR";
 
@@ -1522,9 +1506,9 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break; // Not all data types have an own topic.
       }
 
-      case MySQLParser::RuleTablekeyList:
+      case MySQLParser::RuleFromClause:
       {
-        auto keylistContext = (MySQLParser::TablekeyListContext *)context;
+        auto keylistContext = (MySQLParser::FromClauseContext *)context;
         if (keylistContext->DUAL_SYMBOL() != nullptr)
           return "DUAL";
         break;

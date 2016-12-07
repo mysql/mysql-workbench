@@ -200,12 +200,12 @@ TEST_FUNCTION(10)
   ensure_equals("Sakila schema missing. Is the DB set up properly?", found, 1);
 }
 
-//--------------------------------------------------------------------------------------------------
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
 TEST_FUNCTION(99)
 {
   _sql_editor.reset();
+  _autocomplete_context.reset();
   _cache->shutdown();
   delete _cache;
   delete _tester;

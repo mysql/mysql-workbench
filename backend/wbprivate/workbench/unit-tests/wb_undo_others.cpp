@@ -450,7 +450,8 @@ TEST_FUNCTION(46) // Page Settings
 //----------------------------------------------------------------------------------------
 TEST_FUNCTION(50) // Plugin Execution
 { 
-  return; // something wrong with blocked UI events at this point... maybe should split the test
+  // XXX: something wrong with blocked UI events at this point... maybe should split the test
+  /*
   model_DiagramRef mview(tester->get_pview());
 
 //  wb::WBContextUI::get()->set_active_form(tester->tester->get_model_context()->get_diagram_form_for_diagram_id(tester->get_pmodel()->diagrams()[0].id()));
@@ -469,6 +470,7 @@ TEST_FUNCTION(50) // Plugin Execution
   ensure_equals("grid", mview->options().get_int("ShowGrid", -42), 0);
   
   check_undo();
+  */
 }
 
 // Due to the tut nature, this must be executed as a last test always,

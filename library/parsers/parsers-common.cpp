@@ -48,16 +48,18 @@ void Scanner::printToken(pANTLR3_BASE_TREE tree)
 /**
  * Advances to the next token.
  *
- * @param count Number of steps. Default is 1.
- * @return True if there was count next nodes, false otherwise (no change performed then).
+ * @param skipHidden If true ignore hidden tokens.
+ * @return False if we hit the last token before we could advance, true otherwise.
  */
-bool Scanner::next(size_t count)
+bool Scanner::next(bool skipHidden)
 {
-  if (_index + count >= _tokens.size())
-    return false;
-
-  _index += count;
-  return true;
+  while (_index < _tokens.size() - 1)
+  {
+    ++_index;
+    if (_tokens[_index]->getChannel() == 0 || !skipHidden)
+      return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,15 +67,18 @@ bool Scanner::next(size_t count)
 /**
  * Returns to the previous token.
  *
- * @return True if there was a previous node, false otherwise (no change performed then).
+ * @param skipHidden If true ignore hidden tokens.
+ * @return False if we hit the last token before we could fully go back, true otherwise.
  */
-bool Scanner::previous()
+bool Scanner::previous(bool skipHidden)
 {
-  if (_index == 0)
-    return false;
-
-  --_index;
-  return true;
+  while (_index > 0)
+  {
+    --_index;
+    if (_tokens[_index]->getChannel() == 0 || !skipHidden)
+      return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,12 +212,17 @@ bool Scanner::skipIf(size_t token, size_t count)
 /**
  * Returns the type of the next token without changing the internal state.
  */
-size_t Scanner::lookAhead()
+size_t Scanner::lookAhead(bool skipHidden)
 {
-  if (_index + 1 >= _tokens.size())
-    return ParserToken::INVALID_TYPE;
+  size_t index = _index;
+  while (index < _tokens.size() - 1)
+  {
+    ++index;
+    if (_tokens[index]->getChannel() == 0 || !skipHidden)
+      return _tokens[index]->getType();
+  }
 
-  return _tokens[_index + 1]->getType();
+  return ParserToken::INVALID_TYPE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,12 +231,17 @@ size_t Scanner::lookAhead()
  * Look back in the stream (physical order) what was before the current token, without
  * modifying the current position.
  */
-size_t Scanner::previousType()
+size_t Scanner::lookBack(bool skipHidden)
 {
-  if (_index == 0)
-    return ParserToken::INVALID_TYPE;
+  size_t index = _index;
+  while (index > 0)
+  {
+    --index;
+    if (_tokens[index]->getChannel() == 0 || !skipHidden)
+      return _tokens[index]->getType();
+  }
 
-  return _tokens[_index - 1]->getType();
+  return ParserToken::INVALID_TYPE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,8 +360,7 @@ size_t Scanner::tokenIndex() const
  */
 size_t Scanner::tokenOffset() const
 {
-  Token *token = _tokens[_index];
-  return token->getStartIndex();
+  return _tokens[_index]->getStartIndex();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -359,6 +373,16 @@ size_t Scanner::tokenLength() const
   Token *token = _tokens[_index];
 
   return token->getStopIndex() - token->getStartIndex() + 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the channel of the current token.
+ */
+size_t Scanner::tokenChannel() const
+{
+  return _tokens[_index]->getChannel();
 }
 
 //--------------------------------------------------------------------------------------------------

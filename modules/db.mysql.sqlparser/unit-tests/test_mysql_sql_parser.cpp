@@ -44,7 +44,7 @@ protected:
 
   DictRef _options;
 
-  void test_import_sql(int test_no, const char *old_schema_name = NULL, const char *new_schema_name= NULL);
+  void test_import_sql(size_t test_no, const char *old_schema_name = NULL, const char *new_schema_name= NULL);
 
   TEST_DATA_CONSTRUCTOR(highlevel_mysql_parser_test)
   {
@@ -72,7 +72,7 @@ TEST_FUNCTION(10)
 
 //--------------------------------------------------------------------------------------------------
 
-void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no, const char *old_schema_name,
+void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(size_t test_no, const char *old_schema_name,
   const char *new_schema_name)
 {
   static const char* TEST_DATA_DIR = "data/modules_grt/wb_mysql_import/sql/";

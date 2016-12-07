@@ -42,7 +42,7 @@ fi
 TARGET_DIRECTORY=../mysql
 GENERATE_FILES=false
 BASE_DIRECTORY=../../../..
-LINUX_RES_JAR_PATH=$BASE_DIRECTORY/linux-res/bin/antlr-4.5.4-complete.jar
+LINUX_RES_JAR_PATH=$BASE_DIRECTORY/linux-res/bin/antlr-4.6-complete.jar
 
 if [ $1 = $MYSQL ]; then
   if [ ! -f "$TARGET_DIRECTORY/MySQLLexer.c" ]  || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLLexer.c" ];  then GENERATE_FILES=true; fi

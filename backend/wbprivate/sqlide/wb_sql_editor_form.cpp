@@ -1518,7 +1518,7 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
       parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503),
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50700),
                                                            _sql_mode, true);
       return grt::StringRef();
     }
@@ -1543,7 +1543,7 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
       parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503),
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50700),
                                                            _sql_mode, true);
 
       return grt::StringRef();

@@ -50,7 +50,7 @@ void MySQLBaseLexer::reset()
  */
 bool MySQLBaseLexer::isIdentifier(size_t type) const
 {
-  if ((type == MySQLLexer::IDENTIFIER) || (type == MySQLLexer::BACK_TICK_QUOTED_ID) || (type == MySQLLexer::DOT_IDENTIFIER))
+  if ((type == MySQLLexer::IDENTIFIER) || (type == MySQLLexer::BACK_TICK_QUOTED_ID))
     return true;
 
   // Double quoted text represents identifiers only if the ANSI QUOTES sql mode is active.
@@ -204,7 +204,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
       }
       break;
 
-    case MySQLLexer::CREATE_SYMBOL:
+    case MySQLLexer::CREATE_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
@@ -300,6 +300,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
           return QtCreateUser;
       }
       break;
+    }
 
     case MySQLLexer::DROP_SYMBOL:
     {
@@ -927,7 +928,6 @@ bool MySQLBaseLexer::isKeyword(size_t type) const
     case MySQLLexer::AT_AT_SIGN_SYMBOL:
     case MySQLLexer::NULL2_SYMBOL:
     case MySQLLexer::PARAM_MARKER:
-    case MySQLLexer::DOT_IDENTIFIER:
     case MySQLLexer::HEX_NUMBER:
     case MySQLLexer::BIN_NUMBER:
     case MySQLLexer::FLOAT_NUMBER:
@@ -1061,6 +1061,31 @@ bool MySQLBaseLexer::isOperator(size_t type)
     default:
       return false;
   }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Allow a grammar rule to emit as many tokens as it needs.
+ */
+std::unique_ptr<antlr4::Token> MySQLBaseLexer::nextToken() {
+  // First respond with pending tokens to the next token request, if there are any.
+  if (!_pendingTokens.empty()) {
+    auto pending = std::move(_pendingTokens.front());
+    _pendingTokens.pop_front();
+    return pending;
+  }
+
+  // Let the main lexer class run the next token recognition.
+  // This might create additional tokens again.
+  auto next = Lexer::nextToken();
+  if (!_pendingTokens.empty()) {
+    auto pending = std::move(_pendingTokens.front());
+    _pendingTokens.pop_front();
+    _pendingTokens.push_back(std::move(next));
+    return pending;
+  }
+  return next;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1202,3 +1227,13 @@ size_t MySQLBaseLexer::checkCharset(const std::string &text)
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Puts a DOT token onto the pending token list.
+ */
+void MySQLBaseLexer::emitDot() {
+  _pendingTokens.emplace_back(_factory->create({ this, _input }, MySQLLexer::DOT_SYMBOL, _text, channel,
+    tokenStartCharIndex, tokenStartCharIndex, tokenStartLine, tokenStartCharPositionInLine));
+  ++tokenStartCharIndex;
+}
+
+//----------------------------------------------------------------------------------------------------------------------

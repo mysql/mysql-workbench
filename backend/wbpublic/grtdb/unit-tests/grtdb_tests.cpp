@@ -117,28 +117,27 @@ TEST_FUNCTION(15)
 void checkTypeCardinalities(size_t testNo, db_SimpleDatatypeRef type, db_ColumnRef column, int precision, int scale)
 {
   std::string numberString = " (" + std::to_string(testNo) + ")";
-  if (type->numericPrecision() != EMPTY_TYPE_PRECISION)
-  {
-    // Precision is optional, so both values must be equal: either both are set to EMTPY_TYPE_PRECISION 
+
+  // Check special cases first (blob, text + date(time) types).
+  if (type->characterMaximumLength() != EMPTY_TYPE_MAXIMUM_LENGTH
+      || type->characterOctetLength() != EMPTY_TYPE_OCTET_LENGTH
+      || type->dateTimePrecision() != EMPTY_TYPE_MAXIMUM_LENGTH) {
+    ensure_equals("Comparing char or octet length" + numberString, *column->length(), precision);
+  } else if (type->numericPrecision() != EMPTY_TYPE_PRECISION) {
+    // Precision is optional, so both values must be equal: either both are set to EMTPY_TYPE_PRECISION
     // or both have the same precision value.
     ensure_equals("Comparing precisions" + numberString, *column->precision(), precision);
 
     // Scale can only be given if we also have a precision.
-    if (type->numericScale() != EMPTY_TYPE_SCALE)
-      // Scale is optional, so both values must be equal: either both are set to EMTPY_TYPE_SCALE 
+    if (type->numericScale() != EMPTY_TYPE_SCALE) {
+      // Scale is optional, so both values must be equal: either both are set to EMTPY_TYPE_SCALE
       // or both have the same scale value.
       ensure_equals("Comparing scales" + numberString, *column->scale(), scale);
-    else
+    } else {
       ensure_equals("Unexpected scale parameter found" + numberString, *column->scale(), EMPTY_COLUMN_SCALE);
-  }
-  else
-  {
-    // If there's no numeric precision then check for character or octet cardinalities.
-    if (type->characterMaximumLength() != EMPTY_TYPE_MAXIMUM_LENGTH
-      || type->characterOctetLength() != EMPTY_TYPE_OCTET_LENGTH)
-      ensure_equals("Comparing char or octet length" + numberString, *column->length(), precision);
-    else
-      ensure_equals("Unexpected length parameter found" + numberString, *column->length(), EMPTY_COLUMN_LENGTH);
+    }
+  } else {
+    ensure_equals("Unexpected length parameter found" + numberString, *column->length(), EMPTY_COLUMN_LENGTH);
   }
 }
 
@@ -166,7 +165,7 @@ TEST_FUNCTION(20)
 
   std::string expected_enum_parameters = "('blah', 'foo', 'bar', 0b11100011011, 0x1234ABCDE)";
   ListRef<db_SimpleDatatype> types = tester->get_rdbms()->simpleDatatypes();
-  for (std::size_t i= 0; i < tester->get_rdbms()->simpleDatatypes().count(); i++)
+  for (size_t i = 0; i < tester->get_rdbms()->simpleDatatypes().count(); i++)
   {
     // Try all parameter combinations.
     string no_params= types[i]->name();

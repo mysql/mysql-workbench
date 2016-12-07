@@ -64,11 +64,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only wb_sql_editor_help_test"
+            argument = "only mysql_parser_module_tests"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--port=3307"
+            argument = "--port=3306"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

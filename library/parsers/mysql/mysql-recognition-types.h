@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <string>
-
 // Determines the sub parts of a query that can be parsed individually.
 enum class MySQLParseUnit {
   PuGeneric,

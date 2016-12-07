@@ -77,8 +77,7 @@ namespace parsers {
 
     IdentifierListener(tree::ParseTree *tree);
 
-    virtual void exitDotIdentifier(MySQLParser::DotIdentifierContext *ctx) override;
-    virtual void exitIdentifier(MySQLParser::IdentifierContext *ctx) override;
+    virtual void enterIdentifier(MySQLParser::IdentifierContext *ctx) override;
   };
   
   // The DetailsListener class adds some support code needed by both the ObjectListener classes as well as the
@@ -111,7 +110,8 @@ namespace parsers {
     long scale = bec::EMPTY_COLUMN_SCALE;
     long precision = bec::EMPTY_COLUMN_PRECISION;
     long length = bec::EMPTY_COLUMN_LENGTH;
-    std::string charsetName, collationName, explicitParams;
+    std::string charsetName;
+    std:: string explicitParams;
 
     DataTypeListener(tree::ParseTree *tree, GrtVersionRef version, const grt::ListRef<db_SimpleDatatype> &typeList,
                      grt::StringListRef flags, const std::string &defaultCharsetName);
@@ -120,7 +120,7 @@ namespace parsers {
     virtual void exitFieldLength(MySQLParser::FieldLengthContext *ctx) override;
     virtual void exitPrecision(MySQLParser::PrecisionContext *ctx) override;
     virtual void exitFieldOptions(MySQLParser::FieldOptionsContext *ctx) override;
-    virtual void exitStringBinary(MySQLParser::StringBinaryContext *ctx) override;
+    virtual void exitCharsetWithOptBinary(MySQLParser::CharsetWithOptBinaryContext *ctx) override;
     virtual void exitCharsetName(MySQLParser::CharsetNameContext *ctx) override;
     virtual void exitTypeDatetimePrecision(MySQLParser::TypeDatetimePrecisionContext *ctx) override;
     virtual void exitStringList(MySQLParser::StringListContext *ctx) override;
@@ -154,13 +154,13 @@ namespace parsers {
     virtual void exitTableName(MySQLParser::TableNameContext *ctx) override;
     virtual void exitCreateTable(MySQLParser::CreateTableContext *ctx) override;
     virtual void exitTableRef(MySQLParser::TableRefContext *ctx) override;
-    virtual void exitPartition(MySQLParser::PartitionContext *ctx) override;
+    virtual void exitPartitionClause(MySQLParser::PartitionClauseContext *ctx) override;
     virtual void exitPartitionDefKey(MySQLParser::PartitionDefKeyContext *ctx) override;
     virtual void exitPartitionDefHash(MySQLParser::PartitionDefHashContext *ctx) override;
     virtual void exitPartitionDefRangeList(MySQLParser::PartitionDefRangeListContext *ctx) override;
     virtual void exitSubPartitions(MySQLParser::SubPartitionsContext *ctx) override;
     virtual void exitPartitionDefinition(MySQLParser::PartitionDefinitionContext *ctx) override;
-    virtual void exitTableCreationSource(MySQLParser::TableCreationSourceContext *ctx) override;
+    virtual void exitDuplicateAsQueryExpression(MySQLParser::DuplicateAsQueryExpressionContext *ctx) override;
     virtual void exitCreateTableOptions(MySQLParser::CreateTableOptionsContext *ctx) override;
   };
 
@@ -212,10 +212,10 @@ namespace parsers {
                   bool caseSensitive, DbObjectsRefsCache &refCache);
 
     virtual void exitCreateIndex(MySQLParser::CreateIndexContext *ctx) override;
-    virtual void exitKeyAlgorithm(MySQLParser::KeyAlgorithmContext *ctx) override;
+    virtual void exitIndexType(MySQLParser::IndexTypeContext *ctx) override;
     virtual void exitCreateIndexTarget(MySQLParser::CreateIndexTargetContext *ctx) override;
-    virtual void exitAllKeyOption(MySQLParser::AllKeyOptionContext *ctx) override;
-    virtual void exitFulltextKeyOption(MySQLParser::FulltextKeyOptionContext *ctx) override;
+    virtual void exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx) override;
+    virtual void exitFulltextIndexOption(MySQLParser::FulltextIndexOptionContext *ctx) override;
     virtual void exitAlterAlgorithmOption(MySQLParser::AlterAlgorithmOptionContext *ctx) override;
     virtual void exitAlterLockOption(MySQLParser::AlterLockOptionContext *ctx) override;
 
@@ -242,6 +242,7 @@ namespace parsers {
     ViewListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
 
     virtual void exitCreateView(MySQLParser::CreateViewContext *ctx) override;
+    virtual void exitViewCheckOption(MySQLParser::ViewCheckOptionContext *ctx) override;
     virtual void exitViewAlgorithm(MySQLParser::ViewAlgorithmContext *ctx) override;
     virtual void exitDefinerClause(MySQLParser::DefinerClauseContext *ctx) override;
   };

@@ -123,8 +123,24 @@ std::string MySQLRecognizerCommon::dumpTree(antlr4::RuleContext *context, const 
 
 std::string MySQLRecognizerCommon::sourceTextForContext(ParserRuleContext *ctx, bool keepQuotes)
 {
-  CharStream *cs = ctx->start->getTokenSource()->getInputStream();
-  std::string result = cs->getText(misc::Interval(ctx->start->getStartIndex(), ctx->stop->getStopIndex()));
+  return sourceTextForRange(ctx->start, ctx->stop, keepQuotes);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string MySQLRecognizerCommon::sourceTextForRange(tree::ParseTree *start, tree::ParseTree *stop, bool keepQuotes) {
+  Token *startToken = antlrcpp::is<tree::TerminalNode *>(start) ? dynamic_cast<tree::TerminalNode *>(start)->getSymbol() :
+    dynamic_cast<ParserRuleContext *>(start)->start;
+  Token *stopToken = antlrcpp::is<tree::TerminalNode *>(stop) ? dynamic_cast<tree::TerminalNode *>(start)->getSymbol() :
+    dynamic_cast<ParserRuleContext *>(stop)->stop;
+  return sourceTextForRange(startToken, stopToken, keepQuotes);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string MySQLRecognizerCommon::sourceTextForRange(Token *start, Token *stop, bool keepQuotes) {
+  CharStream *cs = start->getTokenSource()->getInputStream();
+  std::string result = cs->getText(misc::Interval(start->getStartIndex(), stop->getStopIndex()));
   if (keepQuotes || result.size() < 2)
     return result;
 

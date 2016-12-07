@@ -44,7 +44,9 @@ namespace parsers {
     static bool isRelation(size_t type);
     static bool isNumber(size_t type);
     static bool isOperator(size_t type);
-    
+
+    virtual std::unique_ptr<antlr4::Token> nextToken() override;
+
   protected:
     // Checks if the version number, given by the token, is less than or equal to the current server version.
     // Returns true if so, otherwise false.
@@ -62,7 +64,10 @@ namespace parsers {
     // Returns UNDERSCORE_CHARSET if so, otherwise IDENTIFIER.
     size_t checkCharset(const std::string &text);
 
+    void emitDot();
+
   private:
+    std::list<std::unique_ptr<antlr4::Token>> _pendingTokens;
     std::unique_ptr<antlr4::Token> nextDefaultChannelToken();
     bool skipDefiner(std::unique_ptr<antlr4::Token> &token);
   };

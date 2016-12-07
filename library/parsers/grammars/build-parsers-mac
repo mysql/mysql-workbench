@@ -6,7 +6,7 @@ then
   exit
 fi 
 
-LOCATION=../../../../mysql-mac-res/bin/antlr-4.5.4-complete.jar
+LOCATION=../../../../mysql-mac-res/bin/antlr-4.6-complete.jar
 case "$1" in
   "antlr") echo "Building ANTLR parser"
     java -jar $LOCATION -Dlanguage=Cpp -listener -no-visitor -o ../antlr -package parsers ANTLRv4Parser.g4 ANTLRv4Lexer.g4

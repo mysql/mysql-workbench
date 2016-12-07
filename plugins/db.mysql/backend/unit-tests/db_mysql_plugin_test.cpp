@@ -149,6 +149,7 @@ TEST_MODULE(db_mysql_plugin_test, "db.mysql plugin test");
 db_mysql_CatalogRef tut::Test_object_base<db_mysql_plugin_test>::create_catalog_from_script(
   const std::string& sql)
 {
+  GrtVersionRef version = tester->get_rdbms()->version();
   db_mysql_CatalogRef cat = createEmptyCatalog();
   MySQLParserServices::Ref services = MySQLParserServices::get();
   MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
@@ -713,13 +714,6 @@ TEST_FUNCTION(55)
   ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(grt::GRT::get()->unserialize(tester->wboptions->basedir + "/data/db_datatype_groups.xml"));
   grt::replace_contents(mgmt->datatypeGroups(), grouplist);
 
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(tester->wboptions->basedir + "/modules/data/mysql_rdbms_info.xml"));
-  ensure("db_mgmt_Rdbms initialization", rdbms.is_valid());
-  grt::GRT::get()->set("/rdbms", rdbms);
-
-  mgmt->rdbms().insert(rdbms);
-  rdbms->owner(mgmt);
-
   db_TableRef t1= tester->get_catalog()->schemata().get(0)->tables().get(0);
 
   ensure("before update table is referenced from figure 0", 
@@ -797,7 +791,7 @@ TEST_FUNCTION(60)
 
 TEST_FUNCTION(65)
 {
-  static const char *sql1= "CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;";
+  static const char *sql1= "CREATE schema IF NOT EXISTS `mydb` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;";
   tester->wb->open_document("data/workbench/diff_table_replace_test.mwb");
   apply_sql_to_model(sql1);
   ensure ("drop table in model",tester->get_catalog()->schemata().get(0)->tables().count() == 0);

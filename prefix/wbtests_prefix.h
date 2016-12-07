@@ -35,6 +35,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -71,7 +72,6 @@
 
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 #ifndef EXCLUDE_MYSQL_SUPPORT
 //#include <my_global.h> causes trouble with boost interprocess.
@@ -83,15 +83,12 @@
 
 #include "test.h"
 
-#ifndef TEST_STANDALONE
-#include "wb_helpers.h"
-#endif
-
 // Common headers.
 #include <antlr4-runtime.h>
 
 #include "grts/structs.model.h"
 #include "grts/structs.db.query.h"
+#include "grts/structs.db.mysql.h"
 #include "grts/structs.workbench.physical.h"
 #include "grts/structs.db.migration.h"
 
