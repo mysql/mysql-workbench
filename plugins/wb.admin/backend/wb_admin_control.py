@@ -487,6 +487,11 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             log_error("Error connecting to MySQL: %s\n" % e)
             mforms.Utilities.show_error("Connect Error", "Could not connect to MySQL: %s" % e, "OK", "", "")
 
+        if not self.worker_thread.is_alive() and not self.test_only:
+            # start status variable check thread
+            self.worker_thread = threading.Thread(target=self.server_polling_thread)
+            self.worker_thread.start()
+
     #---------------------------------------------------------------------------
     def server_stopped_event(self):
         self.disconnect_sql()
