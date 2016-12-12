@@ -232,7 +232,7 @@ public:
 
   ColumnDefinitionListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, const std::string &schemaName,
                            db_mysql_TableRef table, DbObjectsRefsCache &refCache)
-    : DetailsListener(catalog, false), _schemaName(schemaName), _table(table), _refCache(refCache), column(grt::Initialized)
+    : DetailsListener(catalog, false), column(grt::Initialized), _table(table), _schemaName(schemaName), _refCache(refCache)
   {
     column->owner(_table);
     column->userType(db_UserDatatypeRef()); // We always have normal data types here.
@@ -469,7 +469,7 @@ class KeyDefinitionListener : public DetailsListener {
 public:
   KeyDefinitionListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, const std::string &schemaName,
                         db_mysql_TableRef table, DbObjectsRefsCache &refCache, bool autoGenerateFkNames)
-  : DetailsListener(catalog, false), _schemaName(schemaName), _table(table), _refCache(refCache),
+  : DetailsListener(catalog, false), _table(table), _schemaName(schemaName), _refCache(refCache),
     _autoGenerateFkNames(autoGenerateFkNames), _currentIndex(grt::Initialized)
   {
     _currentIndex->owner(_table);

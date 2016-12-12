@@ -31,6 +31,8 @@
 
 #ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
+#include <stack>
+#include <vector>
 #endif
 
 // Generally used types by the recognizers/scanners, as well as their consumers.

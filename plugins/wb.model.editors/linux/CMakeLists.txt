@@ -14,20 +14,19 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/parsers
+    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     ${PROJECT_SOURCE_DIR}/frontend/linux
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}
     SYSTEM ${GTK3_INCLUDE_DIRS}
-#     ${CAIRO_INCLUDE_DIRS}
     SYSTEM ${SIGC++_INCLUDE_DIRS}
     SYSTEM ${GRT_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
+    SYSTEM ${ANTLR4_INCLUDE_DIRS}
 )
 
 add_library(wb.model.editors.wbp MODULE

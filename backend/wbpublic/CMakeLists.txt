@@ -7,11 +7,12 @@ include_directories(.
     SYSTEM ${MySQL_INCLUDE_DIRS}
     SYSTEM ${SQLITE3_INCLUDE_DIRS}
     SYSTEM ${OPENGL_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
     SYSTEM ${VSQLITE_INCLUDE_DIR}
     SYSTEM ${MYSQLCPPCONN_INCLUDE_DIR}
-    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${ANTLR4_INCLUDE_DIRS}
     SYSTEM ${GDAL_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
@@ -20,12 +21,13 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/library/parsers
+    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    SYSTEM ${Boost_INCLUDE_DIRS}
+    ./grtsqlparser
 )
 
 add_library(wbpublic

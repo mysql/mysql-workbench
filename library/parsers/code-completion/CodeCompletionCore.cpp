@@ -28,7 +28,8 @@ using namespace antlr4::misc;
 std::unordered_map<std::type_index, CodeCompletionCore::FollowSetsPerState> CodeCompletionCore::_followSetsByATN;
 
 CodeCompletionCore::CodeCompletionCore(Parser *parser)
-: _parser(parser), _atn(parser->getATN()), _vocabulary(parser->getVocabulary()), _ruleNames(parser->getRuleNames()) {
+: _parser(parser), _atn(parser->getATN()), _vocabulary(parser->getVocabulary()), _ruleNames(parser->getRuleNames()),
+  _caretTokenIndex(0), _statesProcessed(0) {
 
   BufferedTokenStream *tokenStream = dynamic_cast<BufferedTokenStream *>(parser->getTokenStream());
   if (tokenStream == nullptr)
@@ -40,7 +41,7 @@ CodeCompletionCore::CodeCompletionCore(Parser *parser)
       _tokens.push_back(token);
 }
 
-CandidatesCollection CodeCompletionCore::collectCandidates(std::pair<size_t, size_t> caret, size_t startRule) {
+CandidatesCollection CodeCompletionCore::collectCandidates(std::pair<std::size_t, std::size_t> caret, std::size_t startRule) {
   _caret = caret;
   _candidates.rules.clear();
   _candidates.tokens.clear();
@@ -187,7 +188,7 @@ void CodeCompletionCore::collectFollowSets(ATNState *s, ATNState *stopState, std
     } else if (transition->isEpsilon()) {
       collectFollowSets(transition->target, stopState, followSets, seen, ruleStack);
     } else if (transition->getSerializationType() == Transition::WILDCARD) {
-      followSets.push_back({ IntervalSet::of(Token::MIN_USER_TOKEN_TYPE, (ssize_t)_atn.maxTokenType), ruleStack });
+      followSets.push_back({ IntervalSet::of(Token::MIN_USER_TOKEN_TYPE, (ssize_t)_atn.maxTokenType), {}, ruleStack });
     } else {
       misc::IntervalSet set = transition->label();
       if (!set.isEmpty()) {

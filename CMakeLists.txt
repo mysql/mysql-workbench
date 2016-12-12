@@ -45,8 +45,18 @@ if(ENABLE_COTIRE AND CMAKE_VERSION VERSION_GREATER "2.8.11")
   set_property(DIRECTORY PROPERTY COTIRE_UNITY_LINK_LIBRARIES_INIT "COPY_UNITY")
 endif()
 find_package(PkgConfig REQUIRED)
-
+find_package(Java QUIET)
 find_package(X11)
+
+
+get_filename_component(SOURCE_PARENT_DIR ${CMAKE_SOURCE_DIR} DIRECTORY)
+set(LINUX_RES_BIN_DIR ${SOURCE_PARENT_DIR}/linux-res/bin)
+find_path(ANTLR_JAR_PATH antlr-4.6-complete.jar ${LINUX_RES_BIN_DIR})
+if(ANTLR_JAR_PATH AND Java_JAVA_EXECUTABLE) 
+  set(ANTLR_JAR_PATH ${ANTLR_JAR_PATH}/antlr-4.6-complete.jar)
+else()
+  message(WARNING "antlr-4.6-complete.jar or java runtime wasn't found which is required if you'd like to rebuild Lexer and Parser files")
+endif()
 
 #find_package(GTK3 REQUIRED gtk+-3.0 gtkmm-3.0)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
@@ -70,19 +80,7 @@ find_package(Threads)
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 
-
-# All known publicly available versions of Antlr3C are buggy
-
-if (SKIP_BUNDLED_ANTLR)
-  find_package(Antlr3C)
-endif ()
-if (ANTLR3C_FOUND)
-  set(ANTLR3C_REQUIRED_VERSION "3.4")
-  if (${ANTLR3C_VERSION} VERSION_LESS ${ANTLR3C_REQUIRED_VERSION})
-    message("Required antlr3c version ${ANTLR3C_REQUIRED_VERSION} but ${ANTLR3C_VERSION} found, using bundled version")
-    unset(ANTLR3C_FOUND)
-  endif ()
-endif ()
+find_package(ANTLR4 REQUIRED)
 
 # In Ubuntu 13.04, the built-in check for python fails.. so we have to resort to the check with pkg-config (which doesn't work in many distros)
 find_package(PythonLibs 2.6)
@@ -145,7 +143,7 @@ if (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
 endif (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
 
-set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
+set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
 
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)
@@ -239,42 +237,6 @@ if (UNIX)
 endif()
 
 include(ExternalProject)
-
-if (NOT ANTLR3C_FOUND)
-  message("Using bundled Antlr C runtime")
-  #  Use for Antlr3 the one we have in /ext:
-  set(ANTLR3C_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext/antlr-runtime ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include)
-  set(ANTLR3C_LIBRARIES "-L${PROJECT_BINARY_DIR}/antlr-wb -lantlr3c_wb")
-
-  ExternalProject_Add(antlr-wb
-    SOURCE_DIR ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
-    CONFIGURE_COMMAND autoreconf -i -s && ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/configure
-        --prefix=${PROJECT_BINARY_DIR}/antlr-wb
-        --libdir=${PROJECT_BINARY_DIR}/antlr-wb
-	--disable-abiflags
-    BUILD_COMMAND make
-    BUILD_IN_SOURCE 2
-    INSTALL_COMMAND make install
-  )
-
-  link_directories(${PROJECT_BINARY_DIR}/antlr-wb)
-endif ()
-
-# Uncomment these lines if at any time you want to force the configure and/or build
-# of antlr-wb:
-#ExternalProject_Add_Step(antlr-wb forceconfigure
-#    COMMAND ${CMAKE_COMMAND} -E echo "Force configure of antlr-wb"
-#    DEPENDEES update
-#    DEPENDERS configure
-#    ALWAYS 1
-#)
-#ExternalProject_Add_Step(antlr-wb forcebuild
-#    COMMAND ${CMAKE_COMMAND} -E echo "Force build of antlr-wb"
-#    DEPENDEES configure
-#    DEPENDERS build
-#    ALWAYS 1
-#)
-
 
 #include(CheckCXXCompilerFlag)
 #check_cxx_compiler_flag(-Wall  HAS_ALL_WARNS)

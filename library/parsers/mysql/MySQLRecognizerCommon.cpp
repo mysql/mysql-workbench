@@ -101,7 +101,7 @@ static std::string dumpTree(RuleContext *context, const dfa::Vocabulary &vocabul
 
       antlr4::Token *token = node->getSymbol();
 
-      ssize_t type = token->getType();
+      std::size_t type = token->getType();
       std::string tokenName = type == Token::EOF ? "<EOF>" : vocabulary.getSymbolicName(token->getType());
       stream << "(line: " << token->getLine() << ", offset: " << token->getCharPositionInLine()
       << ", index: " << token->getTokenIndex()

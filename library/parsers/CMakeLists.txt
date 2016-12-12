@@ -2,17 +2,56 @@ add_definitions(-Wno-sign-compare -Wno-type-limits -Wno-unused
 -Wno-missing-field-initializers)
 
 include_directories(.
+    ./mysql
     SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${ANTLR4_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library/base
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
-add_subdirectory(grammars)
+set(GENERATED_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLLexer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserBaseListener.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserBaseVisitor.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserListener.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserVisitor.cpp
+)
+
+set(GENERATED_OTHERS
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLLexer.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLLexer.tokens
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserBaseListener.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserBaseVisitor.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParser.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserListener.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParser.tokens
+  ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserVisitor.h
+)
+
+set (GENERATED_FILES ${GENERATED_OTHERS} ${GENERATED_SOURCES})
+
+add_custom_command(OUTPUT ${GENERATED_FILES} 
+          DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/grammars/MySQLLexer.g4 ${CMAKE_CURRENT_SOURCE_DIR}/grammars/MySQLParser.g4
+          COMMAND ${Java_JAVA_EXECUTABLE} -Xmx1024m -jar ${ANTLR_JAR_PATH} -Dlanguage=Cpp -listener -visitor -o ../mysql -package parsers ${CMAKE_CURRENT_SOURCE_DIR}/grammars/MySQLLexer.g4 ${CMAKE_CURRENT_SOURCE_DIR}/grammars/MySQLParser.g4
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/grammars
+          COMMENT "[mysql] Generating parser files..."
+          )
+
+
+add_custom_target(generate_parser_mysql
+                  ALL
+                  DEPENDS ${GENERATED_FILES})
+
+set_source_files_properties(${GENERATED_FILES} PROPERTIES GENERATED TRUE)
 
 set(PARSERS_SOURCES
-    mysql/*.cpp
+    ${GENERATED_SOURCES}
+    mysql/MySQLBaseLexer.cpp
+    mysql/MySQLBaseRecognizer.cpp
+    mysql/MySQLRecognizerCommon.cpp
     parsers-common.cpp
+    code-completion/CodeCompletionCore.cpp
     code-completion/mysql-code-completion.cpp
     code-completion/mysql_object_names_cache.cpp
 )
@@ -34,23 +73,10 @@ foreach(ITEM in ${PARSERS_SOURCES})
 endforeach(ITEM in ${PARSERS_SOURCES})
 
 add_dependencies(parsers
-    antlr-wb
     generate_parser_mysql
 )
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-set_source_files_properties(MySQLLexer.c 
-    PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
-set_source_files_properties(grammar-parser/ANTLRv3Lexer.c
-     PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
-endif()
-
-if (SKIP_BUNDLED_ANTLR)
-else ()
-    link_directories(${PROJECT_BINARY_DIR}/antlr-wb)
-endif ()
-
-target_link_libraries(parsers ${GTK3_LIBRARIES} ${ANTLR3C_LIBRARIES})
+target_link_libraries(parsers ${GTK3_LIBRARIES} ${ANTLR4_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(parsers gcov)
@@ -67,11 +93,6 @@ if(COMMAND cotire)
 endif()
 
 install(TARGETS parsers DESTINATION ${WB_INSTALL_LIB_DIR})
-
-install(DIRECTORY ${PROJECT_BINARY_DIR}/antlr-wb/ DESTINATION ${WB_INSTALL_LIB_DIR} FILES_MATCHING
-    PATTERN "*.so"
-    PATTERN "*.so.*"
-)
 
 set(DATA_FILES 
     MySQL.tokens

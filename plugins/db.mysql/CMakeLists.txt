@@ -13,6 +13,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
     ${PROJECT_SOURCE_DIR}/library/sql-parser/source
     ${PROJECT_SOURCE_DIR}/library/parsers
+    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/plugins/db/backend
@@ -28,7 +29,7 @@ include_directories(.
     SYSTEM ${PCRE_INCLUDE_DIRS}
     SYSTEM ${CAIRO_INCLUDE_DIRS}
     SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
-    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${ANTLR4_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
 

@@ -16,16 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#if defined(_WIN32) || defined(__APPLE__)
-  #include <unordered_set>
-#else
-  #include <tr1/unordered_set>
-  namespace std {
-    using tr1::unordered_set;
-  };
-#endif
-
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
 #include "base/log.h"
@@ -34,9 +24,9 @@
 
 #include "mysql-recognition-types.h"
 
-#include "MySQL/MySQLLexer.h"
-#include "MySQL/MySQLParser.h"
-#include "MySQL/MySQLParserBaseListener.h"
+#include "mysql/MySQLLexer.h"
+#include "mysql/MySQLParser.h"
+#include "mysql/MySQLParserBaseListener.h"
 
 #include "objimpl/wrapper/parser_ContextReference_impl.h"
 #include "grtdb/db_object_helpers.h"
@@ -365,97 +355,6 @@ MySQLQueryType MySQLParserServicesImpl::determineQueryType(MySQLParserContext::R
   MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
 
   return impl->determineQueryType(text);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/**
- * If the current token is a definer clause collect the details and return it as string.
- */
-static std::string getDefiner(Scanner &scanner)
-{
-  std::string definer;
-  if (scanner.is(MySQLLexer::DEFINER_SYMBOL))
-  {
-    scanner.next(2); // Skip DEFINER + equal sign.
-    if (scanner.is(MySQLLexer::CURRENT_USER_SYMBOL))
-    {
-      definer = scanner.tokenText(true);
-      scanner.next();
-      scanner.skipIf(MySQLLexer::OPEN_PAR_SYMBOL, 2);
-    }
-    else
-    {
-      // A user@host entry.
-      definer = scanner.tokenText(true);
-      scanner.next();
-      switch (scanner.tokenType())
-      {
-      case MySQLLexer::AT_TEXT_SUFFIX:
-        definer += scanner.tokenText();
-        scanner.next();
-        break;
-      case MySQLLexer::AT_SIGN_SYMBOL:
-        scanner.next(); // Skip @.
-        definer += '@' + scanner.tokenText(true);
-        scanner.next();
-      }
-    }
-  }
-
-  return definer;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/**
- * Returns the identifier text for a dot_identifier sequence (see this rule in the grammar for details).
- * The caller is responsible for checking the validity of that token on enter.
- * Advances the scanner to the first position after the identifier.
- */
-static std::string getDotIdentifier(Scanner &scanner)
-{
-  std::string result;
-  if (scanner.is(MySQLLexer::DOT_SYMBOL))
-  {
-    scanner.next();
-    result = scanner.tokenText();
-  }
-  else
-    result = scanner.tokenText().substr(1);
-  scanner.next();
-
-  return result;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/**
- * Read an object identifier "(id?.)?id" from the current scanner position.
- * This functions tries get as much info as possible even if the syntax is not fully correct.
- *
- * On return the scanner points to the first token after the id.
- */
-static Identifier getIdentifier(Scanner &scanner)
-{
-  Identifier result;
-  if (scanner.is(MySQLLexer::DOT_SYMBOL))
-  {
-    // Starting with a dot (ODBC style).
-    result.second = getDotIdentifier(scanner);
-  }
-  else
-  {
-    result.second = scanner.tokenText();
-    scanner.next();
-    if (scanner.is(MySQLLexer::DOT_SYMBOL))
-    {
-      result.first = result.second;
-      result.second = getDotIdentifier(scanner);
-    }
-  }
-
-  return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

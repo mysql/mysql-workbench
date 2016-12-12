@@ -21,6 +21,19 @@
 
 #include "parsers-common.h"
 
+namespace antlr4 {
+class RuleContext;
+class ParserRuleContext;
+
+namespace tree {
+class ParseTree;
+}
+
+namespace dfa {
+class Vocabulary;
+}
+}
+
 namespace parsers {
 
   // A class containig definitions and members used by both lexer and parser classes.

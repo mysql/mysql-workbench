@@ -262,9 +262,11 @@ private:
       }
 
     private:
-      size_t _level = 0;
+     std::size_t _level = 0;
+
     };
 
+   
     // First advance to the FROM keyword on the same level as the caret is (no subselects etc.).
     // With certain syntax errors this can lead to a wrong FROM clause (e.g. if parentheses don't match).
     // But that is acceptable.

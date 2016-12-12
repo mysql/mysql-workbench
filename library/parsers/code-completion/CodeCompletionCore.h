@@ -20,6 +20,7 @@
 #include <unordered_set>
 #include <string>
 #include <vector>
+#include <typeindex>
 
 namespace antlr4 {
   class Parser;
@@ -59,7 +60,7 @@ namespace antlr4 {
 
     CodeCompletionCore(antlr4::Parser *parser);
 
-    CandidatesCollection collectCandidates(std::pair<size_t, size_t> caret, size_t startRule = 0);
+    CandidatesCollection collectCandidates(std::pair<std::size_t, std::size_t> caret, std::size_t startRule = 0);
 
   private:
     antlr4::Parser *_parser;
