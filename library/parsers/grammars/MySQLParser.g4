@@ -996,11 +996,9 @@ tableReference: // Note: we have also a tableRef rule for identifiers that refer
 ;
 
 joinedTable: // Same joined_table in sql_yacc.yy, but with removed left recursion.
-    (
-        innerJoinType tableReference (ON_SYMBOL expr | USING_SYMBOL identifierListWithParentheses)?
-        | outerJoinType tableReference (ON_SYMBOL expr | USING_SYMBOL identifierListWithParentheses)
-        | naturalJoinType tableFactor
-    )
+    innerJoinType tableReference (ON_SYMBOL expr | USING_SYMBOL identifierListWithParentheses)?
+    | outerJoinType tableReference (ON_SYMBOL expr | USING_SYMBOL identifierListWithParentheses)
+    | naturalJoinType tableFactor
 ;
 
 naturalJoinType:

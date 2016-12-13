@@ -69,9 +69,6 @@ public:
   MySQLParserContext::Ref _autocompletion_context;
   MySQLParserServices::Ref _services;
 
-  double _last_sql_check_progress_msg_timestamp;
-  double _sql_check_progress_msg_throttle;
-
   base::RecMutex _sql_checker_mutex;
   MySQLParseUnit _parse_unit;  // The type of query we want to limit our parsing to.
 
@@ -102,14 +99,12 @@ public:
 
   // autocomplete_context will go after auto completion refactoring.
   Private(MySQLParserContext::Ref syntaxcheck_context, MySQLParserContext::Ref autocomplete_context)
-    : _grtobj(grt::Initialized), _last_sql_check_progress_msg_timestamp(0.0), _stop_processing(false)
+    : _grtobj(grt::Initialized), _stop_processing(false)
   {
 
     _owns_toolbar = false;
     _parse_unit = MySQLParseUnit::PuGeneric;
     _is_refresh_enabled = true;
-    _sql_check_progress_msg_throttle = 500;
-
     _splitting_required = false;
 
     _parser_context = syntaxcheck_context;
@@ -812,8 +807,6 @@ bool MySQLEditor::start_sql_processing()
 
 bool MySQLEditor::do_statement_split_and_check(int id)
 {
-  // TODO: there's no need always split and error-check all text in the editor.
-  //       Only split and scan from the current caret position.
   d->split_statements_if_required();
   
   // Start tasks that depend on the statement ranges (markers + auto completion).
@@ -825,19 +818,18 @@ bool MySQLEditor::do_statement_split_and_check(int id)
   base::RecMutexLock lock(d->_sql_checker_mutex);
 
   // Now do error checking for each of the statements, collecting error positions for later markup.
-  d->_last_sql_check_progress_msg_timestamp = timestamp();
   for (std::vector<std::pair<size_t, size_t> >::const_iterator range_iterator = d->_statement_ranges.begin();
     range_iterator != d->_statement_ranges.end(); ++range_iterator)
   {
     if (d->_stop_processing)
       return false;
-/*
+
     if (d->_services->checkSqlSyntax(d->_parser_context, d->_text_info.first + range_iterator->first,
                                  range_iterator->second, d->_parse_unit) > 0)
     {
       std::vector<ParserErrorInfo> errors = d->_parser_context->errorsWithOffset(range_iterator->first);
       d->_recognition_errors.insert(d->_recognition_errors.end(), errors.begin(), errors.end());
-    }*/
+    }
   }
 
   bec::GRTManager::get()->run_once_when_idle(this, std::bind(&MySQLEditor::update_error_markers, this));
@@ -974,13 +966,6 @@ std::string MySQLEditor::current_statement()
   if (get_current_statement_range(min, max))
     return _code_editor->get_text_in_range(min, max);
   return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void MySQLEditor::sql_check_progress_msg_throttle(double val)
-{
-  d->_sql_check_progress_msg_throttle = val;
 }
 
 //--------------------------------------------------------------------------------------------------

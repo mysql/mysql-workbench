@@ -336,7 +336,7 @@ size_t Scanner::tokenLine() const
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns the (zero-based) offset of the token on its line.
+ * Returns the (zero-based) character offset of the token on its line.
  */
 size_t Scanner::tokenStart() const
 {
@@ -383,6 +383,17 @@ size_t Scanner::tokenLength() const
 size_t Scanner::tokenChannel() const
 {
   return _tokens[_index]->getChannel();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * This is a special purpose function to return all the input text from the current token to the end.
+ */
+std::string Scanner::tokenSubText() const
+{
+  CharStream *cs = _tokens[_index]->getTokenSource()->getInputStream();
+  return cs->getText(misc::Interval((ssize_t)_tokens[_index]->getStartIndex(), std::numeric_limits<ssize_t>::max()));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1253,8 +1253,8 @@ mforms::View *PreferencesForm::create_query_page()
 
     {
       mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:AutocommitMode");
-      check->set_text(_("Leave autocommit mode enabled by default"));
-      check->set_tooltip(_("Toggles the default autocommit mode for connections.\nWhen enabled, each statement will be committed immediately."
+      check->set_text(_("New connections use auto commit mode"));
+      check->set_tooltip(_("Sets the default autocommit mode for connections.\nWhen enabled, each statement will be committed immediately."
                            "\nNOTE: all query tabs in the same connection share the same transaction. "
                            "To have independent transactions, you must open a new connection."));
       vbox->add(check, false);

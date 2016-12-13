@@ -140,7 +140,8 @@ std::string MySQLRecognizerCommon::sourceTextForRange(tree::ParseTree *start, tr
 
 std::string MySQLRecognizerCommon::sourceTextForRange(Token *start, Token *stop, bool keepQuotes) {
   CharStream *cs = start->getTokenSource()->getInputStream();
-  std::string result = cs->getText(misc::Interval(start->getStartIndex(), stop->getStopIndex()));
+  size_t stopIndex = stop != nullptr ? stop->getStopIndex() : std::numeric_limits<size_t>::max();
+  std::string result = cs->getText(misc::Interval(start->getStartIndex(), stopIndex));
   if (keepQuotes || result.size() < 2)
     return result;
 

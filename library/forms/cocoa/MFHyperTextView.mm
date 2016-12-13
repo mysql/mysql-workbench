@@ -86,6 +86,11 @@ static bool ht_create(mforms::HyperText *ht)
 static void ht_set_markup(mforms::HyperText *ht, const std::string &text)
 {
   MFHyperTextView *htv = ht->get_data();
+  if (text.empty()) {
+    htv->mTextView.string = @"";
+    return;
+  }
+  
   WebPreferences *defaults = [WebPreferences standardPreferences];
   
   defaults.standardFontFamily = @"Lucida Grande";

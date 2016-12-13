@@ -62,7 +62,7 @@ TEST_FUNCTION(5)
 // createStatement
 // dropStatement
 // renameTableStatement
-// truncate_tableStatement
+// truncateTableStatement
 // callStatement
 // deleteStatement
 // doStatement
@@ -77,7 +77,7 @@ TEST_FUNCTION(5)
 // replicationStatement
 // preparedStatement
 
-// account_managementStatement
+// accountManagementStatement
 TEST_FUNCTION(95)
 {
   // ----- Grant statements.

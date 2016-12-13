@@ -137,7 +137,6 @@ public:
 
   bool has_sql_errors() const;
 
-  void sql_check_progress_msg_throttle(double val);
   void stop_processing();
 
   void focus();

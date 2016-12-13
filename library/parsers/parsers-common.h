@@ -113,12 +113,12 @@ namespace parsers {
     }
   };
 
+  // A grammar independent class to work directly with ANTLR token streams.
+  // The original token stream is not modified. We maintain a copy of all token references and act on that.
   class PARSERS_PUBLIC_TYPE Scanner
   {
   public:
     Scanner(antlr4::BufferedTokenStream *input);
-
-    //void printToken(pANTLR3_BASE_TREE tree);
 
     // Standard navigation.
     bool next(bool skipHidden = true);
@@ -151,6 +151,7 @@ namespace parsers {
     size_t tokenLength() const;
     size_t tokenChannel() const;
 
+    std::string tokenSubText() const;
   private:
     std::vector<antlr4::Token *> _tokens; // Only valid so long as the input stream passed in to the c-tor is alive.
     std::stack<size_t> _tokenStack;

@@ -85,7 +85,6 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
     owner->rdbms_version(), owner->sql_mode(), owner->lower_case_table_names() != 0);
 
   _editor = MySQLEditor::create(context, owner->work_parser_context(), grtobj);
-  _editor->sql_check_progress_msg_throttle(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
   _editor->set_sql_mode(owner->sql_mode());
   _editor->set_current_schema(owner->active_schema());

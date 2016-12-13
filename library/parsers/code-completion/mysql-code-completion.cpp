@@ -77,17 +77,7 @@ struct AutoCompletionContext
 
   //------------------------------------------------------------------------------------------------
 
-  /**
-  * Uses the given scanner (with set input) to collect a set of possible completion candidates
-  * at the given line + offset.
-  *
-  * @returns true if the input could fully be matched (happens usually only if the given caret
-  *          is after the text and can be used to test if the algorithm parses queries fully).
-  *
-  * Actual candidates are stored in the completionCandidates member set.
-  *
-  */
-  void collectCandidates(Parser *parser, std::pair<size_t, size_t> caret)
+  void collectCandidates(Parser *parser, Scanner &scanner, std::pair<size_t, size_t> caret)
   {
     CodeCompletionCore c3(parser);
 
@@ -170,6 +160,7 @@ struct AutoCompletionContext
       MySQLParser::RuleCharsetName,
       MySQLParser::RuleEventRef,
       MySQLParser::RuleServerRef,
+      MySQLParser::RuleUser,
 
       MySQLParser::RuleUserVariable,
       MySQLParser::RuleSystemVariable,
@@ -218,7 +209,7 @@ struct AutoCompletionContext
     };
     
     c3.showResult = true;
-    referencesStack.push_back(std::vector<TableReference>()); // For the root level of table references.
+    referencesStack.emplace_back(); // For the root level of table references.
     completionCandidates = c3.collectCandidates(caret);
 
     // Post processing some entries.
@@ -234,8 +225,9 @@ struct AutoCompletionContext
     for (auto ruleEntry : completionCandidates.rules) {
       if (ruleEntry.first == MySQLParser::RuleColumnRef)
       {
-        collectRemainingTableReferences();
+        collectRemainingTableReferences(parser, scanner);
         takeReferencesSnapshot(); // Move references from stack to the ref map.
+        break;
       }
     }
 
@@ -247,33 +239,145 @@ struct AutoCompletionContext
 private:
   /**
    * Called if one of the candidates is a column reference.
-   * The function attempts to get table references together with aliases where possible.
-   * Because inner queries can use table references from outer queries we can simply scan for any FROM clause
+   * The function attempts to get table references together with aliases where possible. This is the only place
+   * where we actually look beyond the caret and hence different rules apply: the query doesn't need to be valid
+   * beyond that point. We simply scan forward until we find a FROM keyword and work from there. This makes it much
+   * easier to work on incomplete queries, which nonetheless need e.g. columns from table references.
+   * Because inner queries can use table references from outer queries we can simply scan for the next FROM clause,
    * provided we don't go deeper. This way the query doesn't need to be error free, just the FROM clauses must.
-  */
-  void collectRemainingTableReferences()
+   */
+  void collectRemainingTableReferences(Parser *parser, Scanner &scanner)
   {
-    // A listener to handle references as we traverse the subtree produced by the tablekeyList rule.
+    // A listener to handle references as we traverse a parse tree.
+    // We have two modes here:
+    //   fromClauseMode = true: we are not interested in subqueries and don't need to stop at the caret.
+    //   otherwise: go down all subqueries and stop when the care position is reached.
     class TableRefListener : public parsers::MySQLParserBaseListener {
     public:
+      TableRefListener(AutoCompletionContext &context, bool fromClauseMode)
+      : _context(context), _fromClauseMode(fromClauseMode) {}
 
-      virtual void exitDataType(MySQLParser::DataTypeContext *ctx) override {
+      virtual void exitTableRef(MySQLParser::TableRefContext *ctx) override {
+        if (_done)
+          return;
 
+        if (_level == 0) {
+          TableReference reference;
+          if (ctx->qualifiedIdentifier() != nullptr) {
+            reference.table = base::unquote(ctx->qualifiedIdentifier()->identifier()->getText());
+            if (ctx->qualifiedIdentifier()->dotIdentifier() != nullptr) {
+              // Full schema.table reference.
+              reference.schema = reference.table;
+              reference.table = base::unquote(ctx->qualifiedIdentifier()->dotIdentifier()->identifier()->getText());
+            }
+          } else {
+            // No schema reference.
+            reference.table = base::unquote(ctx->dotIdentifier()->identifier()->getText());
+          }
+          _context.referencesStack.front().push_back(reference);
+        }
+      }
+      
+      virtual void exitTableAlias(MySQLParser::TableAliasContext *ctx) override {
+        if (_done)
+          return;
+
+        if (_level == 0) {
+          // Appears after a single table or subquery.
+          _context.referencesStack.front().back().alias = base::unquote(ctx->identifier()->getText());
+        }
+      }
+      
+      virtual void enterSubquery(MySQLParser::SubqueryContext *ctx) override {
+        if (_done)
+          return;
+
+        if (_fromClauseMode)
+          ++_level;
+        else
+          _context.referencesStack.emplace_back();
+      }
+
+      virtual void exitSubquery(MySQLParser::SubqueryContext *ctx) override {
+        if (_done)
+          return;
+
+        if (_fromClauseMode)
+          --_level;
+        else
+          _context.referencesStack.pop_back();
+      }
+
+      virtual void visitTerminal(tree::TerminalNode *node) override {
+        if (_done)
+          return;
+
+        if (!_fromClauseMode) {
+          //
+        }
       }
 
     private:
-     std::size_t _level = 0;
-
+      bool _done = false;
+      size_t _level = 0; // Only used in FROM clause traversal.
+      AutoCompletionContext &_context;
+      bool _fromClauseMode;
     };
 
    
     // First advance to the FROM keyword on the same level as the caret is (no subselects etc.).
     // With certain syntax errors this can lead to a wrong FROM clause (e.g. if parentheses don't match).
     // But that is acceptable.
+    size_t level = 0;
+    bool found = scanner.tokenType() == MySQLLexer::FROM_SYMBOL;
+    while (!found) {
+      if (!scanner.next())
+        break;
 
-    // Reset the scanner to the caret position and continue from there. We have already collected all
-    // table references before that position during normal matching.
+      switch (scanner.tokenType()) {
+        case MySQLLexer::OPEN_PAR_SYMBOL: // Skip anything within parenthesis. It's not relevant for references and this
+                                          // way we don't include subqueries.
+          ++level;
+          break;
 
+        case MySQLLexer::CLOSE_PAR_SYMBOL:
+          if (level > 0)
+            --level;
+          break;
+
+        case MySQLLexer::FROM_SYMBOL:
+          if (level == 0)
+            found = true;
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    if (!found)
+      return; // No FROM clause found.
+
+    // We use a local parser just for the FROM clause to avoid messing up tokens on the autocompletion
+    // parser (which would affect the processing of the found candidates).
+    std::string subSQL = scanner.tokenSubText();
+    MySQLRecognizerCommon *recognizer = dynamic_cast<MySQLRecognizerCommon *>(parser);
+    ANTLRInputStream input(subSQL);
+    MySQLLexer lexer(&input);
+    CommonTokenStream tokens(&lexer);
+    MySQLParser fromParser(&tokens);
+
+    lexer.serverVersion = recognizer->serverVersion;
+    lexer.sqlMode = recognizer->sqlMode;
+    fromParser.serverVersion = recognizer->serverVersion;
+    fromParser.sqlMode = recognizer->sqlMode;
+    fromParser.setBuildParseTree(true);
+
+    fromParser.removeErrorListeners();
+    tree::ParseTree *tree = fromParser.fromClause();
+
+    TableRefListener listener(*this, true);
+    tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -577,9 +681,15 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
   std::vector<std::pair<int, std::string>> result;
 
-  context.collectCandidates(parser, { caretOffset, caretLine + 1});
-
+  // Also create a separate scanner which allows us to easily navigate the tokens
+  // without affecting the token stream used by the parser.
   Scanner scanner(dynamic_cast<BufferedTokenStream *>(parser->getTokenStream()));
+
+  // Move to caret position and store that on the scanner stack.
+  scanner.advanceToPosition(caretLine + 1, caretOffset);
+  scanner.push();
+
+  context.collectCandidates(parser, scanner, { caretOffset, caretLine + 1});
 
   MySQLQueryType queryType = QtUnknown;
   MySQLLexer *lexer = dynamic_cast<MySQLLexer *>(parser->getTokenStream()->getTokenSource());
@@ -587,10 +697,6 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
     queryType = lexer->determineQueryType();
 
   dfa::Vocabulary const& vocabulary = parser->getVocabulary();
-
-  // Move to caret position and store that on the scanner stack.
-  scanner.advanceToPosition(caretLine + 1, caretOffset);
-  scanner.push();
 
   for (auto &candidate : context.completionCandidates.tokens) {
     std::string entry = vocabulary.getDisplayName(candidate.first);
@@ -626,6 +732,17 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
           entry = base::tolower(entry);
 
         keywordEntries.insert({ AC_KEYWORD_IMAGE, entry });
+
+        // Add also synonyms, if there are any.
+        if (synonyms.count(candidate.first) > 0) {
+          for (auto synonym : synonyms[candidate.first]) {
+            if (!uppercaseKeywords)
+              synonym = base::tolower(synonym);
+
+            keywordEntries.insert({ AC_KEYWORD_IMAGE, synonym });
+
+          }
+        }
     }
   }
 
@@ -905,7 +1022,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
       case MySQLParser::RuleUserVariable: {
         logDebug3("Adding user variables\n");
 
-        userVarEntries.insert({ AC_USER_VAR_IMAGE, "<user variable>" });
+        userVarEntries.insert({ AC_USER_VAR_IMAGE, "<user variables>" });
         break;
       }
 
@@ -963,6 +1080,14 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
         }
         break;
       }
+
+      case MySQLParser::RuleUser: {
+        logDebug3("Adding users\n");
+
+        collationEntries.insert({ AC_USER_IMAGE, "<users>" });
+        break;
+      }
+        
     }
   }
 
