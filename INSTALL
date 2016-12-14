@@ -51,16 +51,15 @@ To build MySQL Workbench on Ubuntu and other Debian based distros:
 For complete and up-to-date instructions, visit http://wb.mysql.com/?page_id=152
 
 Note about swig:
-- You will need swig 1.3 to build WB
+- You will need swig 3.0 to build WB
 
 Note about antlr:
-- Antlr 3.4 is needed, but the current release has many bugs. You will need it patched with https://github.com/antlr/antlr3/pull/43 if you don't want to use the bundled version.
-  Then you'll need to 
-      
-      export ANTLR_JAR_PATH=<path_to_your_antlr_complete_file>
+- ANTLR 4.6 should be needed only if you'd like to play with parser.File antlr-4.6-complete.jar can be downloaded from http://www.antlr.org/download.html.
+  Then you'll need to pass it as cmake argument:
+   -DWITH_ANTLR_JAR=<path_to_your_antlr_complete_file>
 
 Note about iodbc:
- - instead of iodbc you can use unixodbc, to do that you need to install unixodbc and add -DUSE_UNIXODBC=True to cmake
+ - Instead of iodbc you can use unixodbc. To do that you need to install unixodbc and add -DUSE_UNIXODBC=True to cmake.
 
 Note about gdal:
  - Ubuntu Packages require unixodbc, so if you're using it, there won't be any problem. If you want to use iodbc, you'll need to build it from source.
