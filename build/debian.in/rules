@@ -35,7 +35,7 @@ endif
 LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
 
 ifndef ANTLR_JAR_PATH
-ANTLR_JAR_PATH=$(LINUXRES_HOME)/bin/antlr-3.4-complete.jar
+ANTLR_JAR_PATH=$(LINUXRES_HOME)/bin/antlr-4.6-complete.jar
 endif
 
 ifndef BOOST_ROOT
