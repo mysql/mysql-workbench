@@ -163,7 +163,6 @@ fi
 
 
 %build
-export ANTLR_JAR_PATH=%{antlr_jar_path}
 export BOOST_ROOT=%{boost_root}
 %if 0%{?fedora} > 22
 CXXFLAGS="-std=c++11 $CXXFLAGS" \
@@ -189,7 +188,8 @@ CXXFLAGS="-std=c++11 $CXXFLAGS" \
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
        -DANTLR4_INCLUDE_DIR=%{antlr_dir}/include \
-       -DANTLR4_LIBRARY="-L%{antlr_dir}/lib -lantlr-runtime"
+       -DANTLR4_LIBRARY="-L%{antlr_dir}/lib -lantlr-runtime" \
+       -DWITH_ANTLR_JAR=%{antlr_jar_path}
 
 
 make %{?_smp_mflags}

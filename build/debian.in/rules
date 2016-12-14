@@ -77,7 +77,6 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	CXXFLAGS="-std=c++11 $(CXXFLAGS)" \
-	ANTLR_JAR_PATH=$(ANTLR_JAR_PATH) \
 	BOOST_ROOT=$(BOOST_ROOT) \
 	cmake . \
 	  -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
@@ -95,7 +94,8 @@ configure-stamp:
 	  -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
 	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
 	  -DANTLR4_INCLUDE_DIR=$(ANTLR_HOME)/include \
-	  -DANTLR4_LIBRARY="-L$(ANTLR_HOME)/lib -lantlr-runtime"
+	  -DANTLR4_LIBRARY="-L$(ANTLR_HOME)/lib -lantlr-runtime" \
+	  -DWITH_ANTLR_JAR=${ANTLR_JAR_PATH}
 
 	touch configure-stamp
 
