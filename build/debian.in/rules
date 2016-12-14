@@ -44,6 +44,7 @@ endif
 
 ODBC_HOME=$(LINUXRES_BINARIES)/odbc
 PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
+ANTLR_HOME=$(LINUXRES_BINARIES)/antlr
 
 @ifdef community
 SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite-gpl
@@ -92,7 +93,9 @@ configure-stamp:
 	  -DIODBC_INCLUDE_PATH=$(ODBC_HOME)/include \
 	  -DIODBC_LIBRARIES_PATH=$(ODBC_HOME)/lib \
 	  -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
-	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" 
+	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
+	  -DANTLR4_INCLUDE_DIR=$(ANTLR_HOME)/include \
+	  -DANTLR4_LIBRARY="-L$(ANTLR_HOME)/lib -lantlr-runtime"
 
 	touch configure-stamp
 
@@ -133,6 +136,7 @@ install: build
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(PYODBC_HOME)/pyodbc.so              $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.*    $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(ANTLR_HOME)/lib/libantlr4-runtime.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(GDAL_HOME)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(SQLITE_HOME)/lib/libsqlite3.so*     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
