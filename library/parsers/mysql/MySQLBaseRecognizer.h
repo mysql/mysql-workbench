@@ -24,9 +24,13 @@
 #include "Parser.h"
 #include "CommonToken.h"
 
+namespace antlr4 {
+  class PARSERS_PUBLIC_TYPE Parser;
+}
+
 namespace parsers {
 
-  class MySQLBaseRecognizer : public antlr4::Parser, public MySQLRecognizerCommon {
+  class PARSERS_PUBLIC_TYPE MySQLBaseRecognizer : public antlr4::Parser, public MySQLRecognizerCommon {
   public:
     MySQLBaseRecognizer(antlr4::TokenStream *input);
 

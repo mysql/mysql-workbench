@@ -23,10 +23,14 @@
 #include "MySQLRecognizerCommon.h"
 #include "mysql-recognition-types.h"
 
+namespace antlr4 {
+  class PARSERS_PUBLIC_TYPE Lexer;
+}
+
 namespace parsers {
 
   // The base lexer class provides a number of function needed in actions in the lexer (grammar).
-  class MySQLBaseLexer : public antlr4::Lexer, public MySQLRecognizerCommon {
+  class PARSERS_PUBLIC_TYPE MySQLBaseLexer : public antlr4::Lexer, public MySQLRecognizerCommon {
   public:
     std::set<std::string> charsets; // Used to check repertoires.
     bool inVersionComment;

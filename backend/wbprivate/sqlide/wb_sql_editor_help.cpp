@@ -26,9 +26,10 @@
 #include "workbench/wb_backend_public_interface.h"
 #include "wb_sql_editor_help.h"
 
-#include "mysql-recognition-types.h"
-#include "MySQLLexer.h"
-#include "MySQLParser.h"
+#include "mysql/mysql-recognition-types.h"
+#include "mysql/MySQLRecognizerCommon.h"
+#include "mysql/MySQLLexer.h"
+#include "mysql/MySQLParser.h"
 
 DEFAULT_LOG_DOMAIN("Context help")
 

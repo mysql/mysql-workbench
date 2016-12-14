@@ -19,6 +19,7 @@
 
 #include "MySQLRecognizerCommon.h"
 
+#include "MySQLLexer.h"
 #include "MySQLParser.h"
 
 using namespace parsers;
@@ -35,8 +36,9 @@ bool MySQLRecognizerCommon::isSqlModeActive(size_t mode)
 //----------------------------------------------------------------------------------------------------------------------
 
 static void trim(std::string &s) {
-  s.erase(s.begin(), std::find_if_not(s.begin(), s.end(), [] (char c) { return std::isspace(c); }));
-  s.erase(std::find_if_not(s.rbegin(), s.rend(), [] (char c) { return std::isspace(c); }).base(), s.end());
+  std::locale locale;
+  s.erase(s.begin(), std::find_if_not(s.begin(), s.end(), [&locale] (char c) { return std::isspace(c, locale); }));
+  s.erase(std::find_if_not(s.rbegin(), s.rend(), [&locale] (char c) { return std::isspace(c, locale); }).base(), s.end());
 }
 
 //----------------------------------------------------------------------------------------------------------------------

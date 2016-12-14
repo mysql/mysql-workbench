@@ -25,6 +25,14 @@
   typedef int ssize_t;
 #endif
 
+#include <antlr4-runtime.h>
+
+// TODO: the windows header can go once we no longer depend on the base lib. 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
+#include <windows.h>
+
 #include <string>
 #include <vector>
 #include <fstream>
@@ -39,9 +47,11 @@
 #include <sstream>
 #include <iterator>
 #include <memory>
+#include <typeindex>
+#include <locale>
 
-#include "antlr3.h"
 #include <glib.h>
 
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
+

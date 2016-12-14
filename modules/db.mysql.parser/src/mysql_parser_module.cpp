@@ -16,13 +16,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
+
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
 #include "base/log.h"
 
 #include "grtpp_util.h"
 
-#include "mysql-recognition-types.h"
+#include "mysql/mysql-recognition-types.h"
 
 #include "mysql/MySQLLexer.h"
 #include "mysql/MySQLParser.h"
@@ -274,7 +275,7 @@ private:
     {
       tree = parseUnit(unit);
     }
-    catch (ParseCancellationException &pce)
+    catch (ParseCancellationException &)
     {
       if (!fast)
       {
@@ -2489,7 +2490,7 @@ static bool doParseType(const std::string &type, GrtVersionRef targetVersion, Si
   {
     tree = parser.dataTypeDefinition();
   }
-  catch (ParseCancellationException &pce)
+  catch (ParseCancellationException &)
   {
     tokens.reset();
     parser.reset();
@@ -2506,9 +2507,9 @@ static bool doParseType(const std::string &type, GrtVersionRef targetVersion, Si
   DataTypeListener typeListener(dataTypeContext->dataType(), targetVersion, typeList, flags, "");
 
   simpleType = typeListener.dataType;
-  scale = typeListener.scale;
-  precision = typeListener.precision;
-  length = typeListener.length;
+  scale = (int)typeListener.scale;
+  precision = (int)typeListener.precision;
+  length = (int)typeListener.length;
   explicitParams = typeListener.explicitParams;
 
   return true;

@@ -36,14 +36,6 @@ Scanner::Scanner(BufferedTokenStream *input)
 }
 
 //--------------------------------------------------------------------------------------------------
-/*
-void Scanner::printToken(pANTLR3_BASE_TREE tree)
-{
-  pANTLR3_STRING tokenText = tree->getText(tree);
-  printf("Token: %s\n", (tokenText == NULL) ? "nil" : (char*)tokenText->chars);
-}
-*/
-//--------------------------------------------------------------------------------------------------
 
 /**
  * Advances to the next token.
@@ -189,22 +181,6 @@ bool Scanner::skipTokenSequence(size_t startToken, ...)
   va_end(tokens);
 
   return result;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Advances to the nth next token if the current one is that given by @token.
- * Returns true if we skipped actually.
- */
-bool Scanner::skipIf(size_t token, size_t count)
-{
-  if (_tokens[_index]->getType() == token)
-  {
-    next(count);
-    return true;
-  }
-  return false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -390,7 +390,7 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
           if (!translateToRuleIndex(callStack)) {
             for (ssize_t token : misc::IntervalSet::of(Token::MIN_USER_TOKEN_TYPE, (ssize_t)_atn.maxTokenType).toList())
               if (ignoredTokens.count(token) == 0)
-                _candidates.tokens[token] = {};
+                _candidates.tokens[token].clear();
           }
         } else {
           statePipeline.push_back({ transition->target, currentEntry.tokenIndex + 1 });

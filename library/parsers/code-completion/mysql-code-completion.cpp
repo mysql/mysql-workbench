@@ -36,9 +36,9 @@
 #include "base/threading.h"
 
 #include "parsers-common.h"
-#include "MySQLLexer.h"
-#include "MySQLParser.h"
-#include "MySQLParserBaseListener.h"
+#include "mysql/MySQLLexer.h"
+#include "mysql/MySQLParser.h"
+#include "mysql/MySQLParserBaseListener.h"
 #include "CodeCompletionCore.h"
 
 #include "mysql_object_names_cache.h"

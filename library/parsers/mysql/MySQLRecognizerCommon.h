@@ -36,7 +36,9 @@ class Vocabulary;
 
 namespace parsers {
 
-  // A class containig definitions and members used by both lexer and parser classes.
+  class PARSERS_PUBLIC_TYPE MySQLLexer;
+
+  // A class containing definitions and members used by both lexer and parser classes.
   class PARSERS_PUBLIC_TYPE MySQLRecognizerCommon {
   public:
     // SQL modes that control parsing behavior.

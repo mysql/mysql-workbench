@@ -63,8 +63,6 @@
 
 #include <gl/gl.h>
 
-#include <antlr3.h>
-
 #include "grts/structs.h"
 #include "grts/structs.app.h"
 

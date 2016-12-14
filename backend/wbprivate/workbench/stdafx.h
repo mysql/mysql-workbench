@@ -22,6 +22,8 @@
 #define HAVE_ROUND
 #include <Python/Python.h>
 
+#include <antlr4-runtime.h>
+
 #include <stack>
 #include <pcre.h>
 #include <ctime>
@@ -61,8 +63,6 @@
 #include <gl/glu.h>
 
 #include <glib.h>
-
-#include <antlr3.h>
 
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"

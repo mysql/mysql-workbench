@@ -107,9 +107,9 @@ namespace parsers {
   class DataTypeListener : public parsers::MySQLParserBaseListener {
   public:
     db_SimpleDatatypeRef dataType;
-    long scale = bec::EMPTY_COLUMN_SCALE;
-    long precision = bec::EMPTY_COLUMN_PRECISION;
-    long length = bec::EMPTY_COLUMN_LENGTH;
+    ssize_t scale = bec::EMPTY_COLUMN_SCALE;
+    ssize_t precision = bec::EMPTY_COLUMN_PRECISION;
+    ssize_t length = bec::EMPTY_COLUMN_LENGTH;
     std::string charsetName;
     std:: string explicitParams;
 

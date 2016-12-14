@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +39,7 @@ using namespace System;
 #include <typeinfo>
 #include <stdint.h> // Must be included before boost to avoid macro redefinition.
 #include <stdio.h>
+#include <stack>
 
 #define _USE_MATH_DEFINES
 #include <math.h>

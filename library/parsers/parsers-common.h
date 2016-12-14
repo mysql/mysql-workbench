@@ -128,7 +128,6 @@ namespace parsers {
     bool advanceToPosition(size_t line, size_t offset);
     bool advanceToType(size_t type);
     bool skipTokenSequence(size_t startToken, ...);
-    bool skipIf(size_t token, size_t count = 1);
 
     size_t lookAhead(bool skipHidden = true);
     size_t lookBack(bool skipHidden = true);

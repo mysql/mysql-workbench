@@ -72,7 +72,7 @@ void checkTopics(size_t start, const std::vector<HelpTestEntry> entries)
           break;
         }
     }
-    std::pair<int, int> caret(entries[i].offset, entries[i].line); // column, row
+    std::pair<size_t, size_t> caret(entries[i].offset, entries[i].line); // column, row
 
     std::string message = base::strfmt("Test %lu (line: %u), topics differ", i, entries[i].testLineNumber);
     std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, statement, caret);

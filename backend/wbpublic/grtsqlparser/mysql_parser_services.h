@@ -21,7 +21,7 @@
 
 #include "wbpublic_public_interface.h"
 
-#include "mysql-recognition-types.h"
+#include "mysql/mysql-recognition-types.h"
 #include "parsers-common.h"
 
 #include "grtdb/db_helpers.h"

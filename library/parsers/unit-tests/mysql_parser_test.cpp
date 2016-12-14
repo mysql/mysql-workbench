@@ -19,10 +19,10 @@
 
 #include "wb_helpers.h"
 
-#include "MySQLLexer.h"
-#include "MySQLParser.h"
-#include "MySQLParserBaseListener.h"
-#include "MySQLParserBaseVisitor.h"
+#include "mysql/MySQLLexer.h"
+#include "mysql/MySQLParser.h"
+#include "mysql/MySQLParserBaseListener.h"
+#include "mysql/MySQLParserBaseVisitor.h"
 
 #include "grtsqlparser/mysql_parser_services.h"
 
@@ -107,7 +107,7 @@ size_t Test_object_base<mysql_parser_tests>::parse(const std::string sql, long v
 
   try {
     _lastParseTree = _parser.query();
-  } catch (ParseCancellationException &pce) {
+  } catch (ParseCancellationException &) {
     // If parsing was cancelled we either really have a syntax error or we need to do a second step,
     // now with the default strategy and LL parsing.
     _tokens.reset();
@@ -520,7 +520,7 @@ struct EvalValue
 
   static EvalValue fromBool(bool value) { return EvalValue(Int, value ? 1 : 0); };
   static EvalValue fromNumber(double number) { return EvalValue(Float, number); };
-  static EvalValue fromInt(long long number) { return EvalValue(Int, number); };
+  static EvalValue fromNumber(long long number) { return EvalValue(Int, (double)number); };
   static EvalValue fromNull() { return EvalValue(Null, 0); };
   static EvalValue fromNotNull() { return EvalValue(NotNull, 0); };
 };
@@ -682,13 +682,13 @@ public:
     switch (context->op->getType())
     {
       case MySQLLexer::BITWISE_OR_OPERATOR:
-        return EvalValue::fromNumber(llround(left.number) | llround(right.number));
+        return EvalValue::fromNumber((double)(llround(left.number) | llround(right.number)));
       case MySQLLexer::BITWISE_AND_OPERATOR:
         return EvalValue::fromNumber(llround(left.number) & llround(right.number));
       case MySQLLexer::BITWISE_XOR_OPERATOR:
         return EvalValue::fromNumber(llround(left.number) ^ llround(right.number));
       case MySQLLexer::SHIFT_LEFT_OPERATOR:
-        return EvalValue::fromNumber(shiftLeftWithOverflow(left.number, right.number));
+        return EvalValue::fromNumber((long long)shiftLeftWithOverflow(left.number, right.number));
       case MySQLLexer::SHIFT_RIGHT_OPERATOR:
         return EvalValue::fromNumber(llround(left.number) >> llround(right.number));
       case MySQLLexer::PLUS_OPERATOR: // Not handling INTERVAL here for +/-.
@@ -705,7 +705,7 @@ public:
       case MySQLLexer::MOD_SYMBOL:
       {
         if (left.type == EvalValue::Int && right.type == EvalValue::Int)
-          return EvalValue::fromInt((long long)left.number % (long long)right.number);
+          return EvalValue::fromNumber((long long)left.number % (long long)right.number);
         return EvalValue::fromNumber(fmod(left.number, right.number));
       }
     }
@@ -733,16 +733,16 @@ public:
       case MySQLLexer::NULL_SYMBOL:
         return EvalValue::fromNull();
       case MySQLLexer::HEX_NUMBER:
-        return EvalValue::fromInt(std::stoul(context->start->getText(), nullptr, 16));
+        return EvalValue::fromNumber(std::stoll(context->start->getText(), nullptr, 16));
       case MySQLLexer::BIN_NUMBER:
       {
         std::bitset<64> bits(context->start->getText());
-        return EvalValue::fromInt(bits.to_ullong());
+        return EvalValue::fromNumber((long long)bits.to_ullong());
       }
       case MySQLLexer::INT_NUMBER:
       {
         std::string text = context->start->getText();
-        return EvalValue::fromInt(std::stoul(text, nullptr, 10));
+        return EvalValue::fromNumber(std::stoll(text, nullptr, 10));
       }
       default:
         return EvalValue::fromNumber(std::atof(context->start->getText().c_str()));
