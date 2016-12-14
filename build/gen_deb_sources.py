@@ -5,6 +5,7 @@
 
 
 output_distros = [
+    ("yakkety", "ubuntu16.10", "1610", ""),
     ("xenial" ,"ubuntu16.04" ,"1604"  ,""),
     ("trusty" ,"ubuntu14.04" ,"1404"  ,"paramiko"),
     ("jessie" ,"debian8"     ,"8"     ,""),

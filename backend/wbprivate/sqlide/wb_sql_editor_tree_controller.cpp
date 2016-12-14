@@ -520,6 +520,9 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(std::weak_
         }
       }
 
+      if (_owner->rdbms_version().is_valid() && is_supported_mysql_version_at_least(_owner->rdbms_version(), 5, 7))
+        _use_show_procedure = true;
+
       if (!_use_show_procedure)
       {
         // SHOW PROCEDURE uses I_S which can be very slow for big dbs, so we try a hack and go to mysql.proc and .func directly
