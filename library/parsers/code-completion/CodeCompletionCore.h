@@ -40,7 +40,7 @@ namespace antlr4 {
   using RulePathPair = std::pair<size_t, TokenList>;
 
   // All the candidates which have been found. Tokens and rules are separated (both use a numeric value).
-  using CandidatesCollection = struct { std::map<size_t, TokenList> tokens; std::set<RulePathPair> rules; };
+  struct CandidatesCollection { std::map<size_t, TokenList> tokens; std::set<RulePathPair> rules; };
 
   // The main class for doing the collection process.
   class CodeCompletionCore

@@ -33,6 +33,7 @@
 
 using namespace grt;
 using namespace parsers;
+using namespace antlr4;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -172,7 +173,7 @@ static void parseKeyList(MySQLParser::KeyListContext *ctx, db_mysql_TableRef tab
     if (part->fieldLength() != nullptr)
     {
       auto child = dynamic_cast<tree::ParseTree *>(part->fieldLength()->children[1]);
-      indexColumn->columnLength(std::stoull(child->getText()));
+      indexColumn->columnLength((size_t)std::stoull(child->getText()));
     }
 
     if (part->direction() != nullptr)
@@ -580,7 +581,7 @@ public:
   virtual void exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx) override
   {
     if (ctx->KEY_BLOCK_SIZE_SYMBOL() != nullptr)
-      _currentIndex->keyBlockSize(std::stoull(ctx->ulong_number()->getText()));
+      _currentIndex->keyBlockSize((size_t)std::stoull(ctx->ulong_number()->getText()));
     if (ctx->COMMENT_SYMBOL() != nullptr)
       _currentIndex->comment(ctx->textLiteral()->getText());
   }
@@ -954,7 +955,7 @@ void TableListener::exitPartitionClause(MySQLParser::PartitionClauseContext *ctx
 {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   if (ctx->PARTITIONS_SYMBOL() != nullptr)
-    table->partitionCount(std::stoull(ctx->real_ulong_number()->getText()));
+    table->partitionCount((size_t)std::stoull(ctx->real_ulong_number()->getText()));
 
   // If no partition count was given use the number of definitions we found.
   if (table->partitionCount() == 0)
@@ -977,7 +978,7 @@ void TableListener::exitPartitionDefKey(MySQLParser::PartitionDefKeyContext *ctx
     table->partitionType("KEY");
 
   if (ctx->partitionKeyAlgorithm() != nullptr)
-    table->partitionKeyAlgorithm(std::stoull(ctx->partitionKeyAlgorithm()->real_ulong_number()->getText()));
+    table->partitionKeyAlgorithm((size_t)std::stoull(ctx->partitionKeyAlgorithm()->real_ulong_number()->getText()));
 
   auto list = ctx->identifierList();
   if (list != nullptr)
@@ -1035,14 +1036,14 @@ void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx)
     table->partitionType(linearPrefix + "KEY");
 
     if (ctx->partitionKeyAlgorithm() != nullptr)
-      table->partitionKeyAlgorithm(std::stoull(ctx->partitionKeyAlgorithm()->real_ulong_number()->getText()));
+      table->partitionKeyAlgorithm((size_t)std::stoull(ctx->partitionKeyAlgorithm()->real_ulong_number()->getText()));
     
     auto list = ctx->identifierListWithParentheses()->identifierList();
     table->partitionExpression(getIdentifierList(list));
   }
 
   if (ctx->SUBPARTITION_SYMBOL() != nullptr)
-    table->subpartitionCount(std::stoull(ctx->real_ulong_number()->getText()));
+    table->subpartitionCount((size_t)std::stoull(ctx->real_ulong_number()->getText()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1064,7 +1065,7 @@ static void evaluatePartitionOption(db_mysql_PartitionDefinitionRef definition, 
       break;
 
     case MySQLLexer::NODEGROUP_SYMBOL:
-      definition->nodeGroupId(std::stoull(ctx->real_ulong_number()->getText()));
+      definition->nodeGroupId((size_t)std::stoull(ctx->real_ulong_number()->getText()));
       break;
 
     case MySQLLexer::MAX_ROWS_SYMBOL:
@@ -1247,16 +1248,16 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         if (option->ternaryOption()->DEFAULT_SYMBOL() != nullptr)
           table->statsSamplePages(0);
         else
-          table->statsSamplePages(std::stoull(option->ternaryOption()->ulong_number()->getText()));
+          table->statsSamplePages((size_t)std::stoull(option->ternaryOption()->ulong_number()->getText()));
         break;
 
       case MySQLLexer::CHECKSUM_SYMBOL:
       case MySQLLexer::TABLE_CHECKSUM_SYMBOL:
-        table->checksum(std::stoull(option->ulong_number()->getText()));
+        table->checksum((size_t)std::stoull(option->ulong_number()->getText()));
         break;
 
       case MySQLLexer::DELAY_KEY_WRITE_SYMBOL:
-        table->delayKeyWrite(std::stoull(option->ulong_number()->getText()));
+        table->delayKeyWrite((size_t)std::stoull(option->ulong_number()->getText()));
         break;
 
       case MySQLLexer::ROW_FORMAT_SYMBOL:
@@ -1442,16 +1443,16 @@ void LogfileGroupListener::exitLogfileGroupOption(MySQLParser::LogfileGroupOptio
           value[value.size() - 1] = 0;
       }
       if (ctx->option->getType() == MySQLLexer::INITIAL_SIZE_SYMBOL)
-        group->initialSize(factor * std::stoull(value));
+        group->initialSize(factor * (size_t)std::stoull(value));
       else
-        group->undoBufferSize(factor * std::stoull(value));
+        group->undoBufferSize(factor * (size_t)std::stoull(value));
 
       break;
     }
 
     case MySQLLexer::NODEGROUP_SYMBOL:
       // An integer or hex number (no suffix).
-      group->nodeGroupId(std::stoull(ctx->real_ulong_number()->getText()));
+      group->nodeGroupId((size_t)std::stoull(ctx->real_ulong_number()->getText()));
       break;
 
     case MySQLLexer::WAIT_SYMBOL:
@@ -1676,7 +1677,7 @@ void IndexListener::exitCommonIndexOption(MySQLParser::CommonIndexOptionContext 
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
   if (ctx->KEY_BLOCK_SIZE_SYMBOL() != nullptr)
-    index->keyBlockSize(std::stoull(ctx->ulong_number()->getText()));
+    index->keyBlockSize((size_t)std::stoull(ctx->ulong_number()->getText()));
   if (ctx->COMMENT_SYMBOL() != nullptr)
     index->comment(ctx->textLiteral()->getText());
 }
@@ -1995,7 +1996,7 @@ void TablespaceListener::exitTablespaceOption(MySQLParser::TablespaceOptionConte
 
     case MySQLLexer::NODEGROUP_SYMBOL:
       // An integer or hex number (no suffix).
-      tablespace->nodeGroupId(std::stoull(ctx->real_ulong_number()->getText()));
+      tablespace->nodeGroupId((size_t)std::stoull(ctx->real_ulong_number()->getText()));
 
       break;
 

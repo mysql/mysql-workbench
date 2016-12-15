@@ -75,7 +75,7 @@ namespace parsers {
   public:
     std::vector<std::string> parts; // 1 - 3 identifier parts.
 
-    IdentifierListener(tree::ParseTree *tree);
+    IdentifierListener(antlr4::tree::ParseTree *tree);
 
     virtual void enterIdentifier(MySQLParser::IdentifierContext *ctx) override;
   };
@@ -113,7 +113,7 @@ namespace parsers {
     std::string charsetName;
     std:: string explicitParams;
 
-    DataTypeListener(tree::ParseTree *tree, GrtVersionRef version, const grt::ListRef<db_SimpleDatatype> &typeList,
+    DataTypeListener(antlr4::tree::ParseTree *tree, GrtVersionRef version, const grt::ListRef<db_SimpleDatatype> &typeList,
                      grt::StringListRef flags, const std::string &defaultCharsetName);
 
     virtual void exitDataType(MySQLParser::DataTypeContext *ctx) override;
@@ -133,7 +133,7 @@ namespace parsers {
 
   class SchemaListener : public ObjectListener {
   public:
-    SchemaListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
+    SchemaListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
 
     virtual void enterCreateDatabase(MySQLParser::CreateDatabaseContext *ctx) override;
     virtual void exitCreateDatabase(MySQLParser::CreateDatabaseContext *ctx) override;
@@ -148,7 +148,7 @@ namespace parsers {
     DbObjectsRefsCache &_refCache;
 
   public:
-    TableListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema, db_mysql_TableRef &table,
+    TableListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema, db_mysql_TableRef &table,
                   bool caseSensitive, bool autoGenerateFkNames, DbObjectsRefsCache &refCache);
     
     virtual void exitTableName(MySQLParser::TableNameContext *ctx) override;
@@ -170,7 +170,7 @@ namespace parsers {
     DbObjectsRefsCache &_refCache;
 
   public:
-    TableAlterListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef tableOrView,
+    TableAlterListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef tableOrView,
                        bool caseSensitive, bool autoGenerateFkNames, DbObjectsRefsCache &refCache);
 
     virtual void exitAlterListItem(MySQLParser::AlterListItemContext *ctx) override;
@@ -178,7 +178,7 @@ namespace parsers {
   
   class LogfileGroupListener : public ObjectListener {
   public:
-    LogfileGroupListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
+    LogfileGroupListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
 
     virtual void exitCreateLogfileGroup(MySQLParser::CreateLogfileGroupContext *ctx) override;
     virtual void exitLogfileGroupOption(MySQLParser::LogfileGroupOptionContext *ctx) override;
@@ -187,7 +187,7 @@ namespace parsers {
   // Used for SF, SP and UDF.
   class RoutineListener : public ObjectListener {
   public:
-    RoutineListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_RoutineRef routine, bool caseSensitive);
+    RoutineListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_RoutineRef routine, bool caseSensitive);
 
     virtual void exitDefinerClause(MySQLParser::DefinerClauseContext *ctx) override;
 
@@ -203,12 +203,12 @@ namespace parsers {
   private:
     db_mysql_RoutineParamRef _currentParameter;
 
-    void readRoutineName(ParserRuleContext *ctx);
+    void readRoutineName(antlr4::ParserRuleContext *ctx);
   };
 
   class IndexListener : public ObjectListener {
   public:
-    IndexListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema, db_mysql_IndexRef index,
+    IndexListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema, db_mysql_IndexRef index,
                   bool caseSensitive, DbObjectsRefsCache &refCache);
 
     virtual void exitCreateIndex(MySQLParser::CreateIndexContext *ctx) override;
@@ -226,7 +226,7 @@ namespace parsers {
 
   class TriggerListener : public ObjectListener {
   public:
-    TriggerListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema,
+    TriggerListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema,
                     db_mysql_TriggerRef trigger, bool caseSensitive);
 
     virtual void exitDefinerClause(MySQLParser::DefinerClauseContext *ctx) override;
@@ -239,7 +239,7 @@ namespace parsers {
   
   class ViewListener : public ObjectListener {
   public:
-    ViewListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
+    ViewListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
 
     virtual void exitCreateView(MySQLParser::CreateViewContext *ctx) override;
     virtual void exitViewCheckOption(MySQLParser::ViewCheckOptionContext *ctx) override;
@@ -249,7 +249,7 @@ namespace parsers {
 
   class ServerListener : public ObjectListener {
   public:
-    ServerListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
+    ServerListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
 
     virtual void exitCreateServer(MySQLParser::CreateServerContext *ctx) override;
     virtual void exitServerOption(MySQLParser::ServerOptionContext *ctx) override;
@@ -257,7 +257,7 @@ namespace parsers {
   
   class TablespaceListener : public ObjectListener {
   public:
-    TablespaceListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
+    TablespaceListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
 
     virtual void exitCreateTablespace(MySQLParser::CreateTablespaceContext *ctx) override;
     virtual void exitLogfileGroupRef(MySQLParser::LogfileGroupRefContext *ctx) override;
@@ -266,7 +266,7 @@ namespace parsers {
   
   class EventListener : public ObjectListener {
   public:
-    EventListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
+    EventListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
 
     virtual void exitDefinerClause(MySQLParser::DefinerClauseContext *ctx) override;
     virtual void exitCreateEvent(MySQLParser::CreateEventContext *ctx) override;

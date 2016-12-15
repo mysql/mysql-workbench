@@ -134,6 +134,8 @@
 		2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901B1C97004A00B6DAC9 /* jsonparser.h */; };
 		2717901F1C97004A00B6DAC9 /* scope_exit_trigger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */; };
 		27183E891DA54E0100257580 /* libmtemplate.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 4401E1971D994DA50027AD13 /* libmtemplate.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		271876121E02A2AD00239BB4 /* SymbolTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271876101E02A2AD00239BB4 /* SymbolTable.cpp */; };
+		271876131E02A2AD00239BB4 /* SymbolTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 271876111E02A2AD00239BB4 /* SymbolTable.h */; };
 		271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		271C7F9C1DE2FEF9006D6C88 /* CodeCompletionCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271C7F981DE2FEF9006D6C88 /* CodeCompletionCore.cpp */; };
 		271C7F9D1DE2FEF9006D6C88 /* mysql-code-completion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271C7F991DE2FEF9006D6C88 /* mysql-code-completion.cpp */; };
@@ -4205,6 +4207,8 @@
 		271790171C97000B00B6DAC9 /* jsonparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = jsonparser.cpp; path = library/base/jsonparser.cpp; sourceTree = "<group>"; };
 		2717901B1C97004A00B6DAC9 /* jsonparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsonparser.h; path = library/base/base/jsonparser.h; sourceTree = "<group>"; };
 		2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scope_exit_trigger.h; path = library/base/base/scope_exit_trigger.h; sourceTree = "<group>"; };
+		271876101E02A2AD00239BB4 /* SymbolTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SymbolTable.cpp; path = "library/parsers/code-completion/SymbolTable.cpp"; sourceTree = "<group>"; };
+		271876111E02A2AD00239BB4 /* SymbolTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SymbolTable.h; path = "library/parsers/code-completion/SymbolTable.h"; sourceTree = "<group>"; };
 		271A795110A1D8F600058CB4 /* wbtests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = wbtests; sourceTree = BUILT_PRODUCTS_DIR; };
 		271C7F981DE2FEF9006D6C88 /* CodeCompletionCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeCompletionCore.cpp; path = "library/parsers/code-completion/CodeCompletionCore.cpp"; sourceTree = "<group>"; };
 		271C7F991DE2FEF9006D6C88 /* mysql-code-completion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "mysql-code-completion.cpp"; path = "library/parsers/code-completion/mysql-code-completion.cpp"; sourceTree = "<group>"; };
@@ -7749,6 +7753,8 @@
 				27227B5B1C454C180098910A /* mysql_object_names_cache.h */,
 				271C7F991DE2FEF9006D6C88 /* mysql-code-completion.cpp */,
 				271C7F9B1DE2FEF9006D6C88 /* mysql-code-completion.h */,
+				271876101E02A2AD00239BB4 /* SymbolTable.cpp */,
+				271876111E02A2AD00239BB4 /* SymbolTable.h */,
 			);
 			name = "code-completion";
 			sourceTree = "<group>";
@@ -11603,6 +11609,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				27227B5F1C454C180098910A /* mysql_object_names_cache.h in Headers */,
+				271876131E02A2AD00239BB4 /* SymbolTable.h in Headers */,
 				279DDF861D12A55F00857C36 /* MySQLParserVisitor.h in Headers */,
 				279DDF881D12A55F00857C36 /* MySQLRecognizerCommon.h in Headers */,
 				27C15E691A309CA000EB73F7 /* parsers_prefix.h in Headers */,
@@ -12999,7 +13006,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0810;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
@@ -14317,6 +14324,7 @@
 				271C7F9C1DE2FEF9006D6C88 /* CodeCompletionCore.cpp in Sources */,
 				2752564A1D951B060028ACAB /* MySQLRecognizerCommon.cpp in Sources */,
 				279DDF711D12A55F00857C36 /* MySQLBaseLexer.cpp in Sources */,
+				271876121E02A2AD00239BB4 /* SymbolTable.cpp in Sources */,
 				27AB27731D2133CB004AC480 /* parsers-common.cpp in Sources */,
 				279DDF7D1D12A55F00857C36 /* MySQLParser.cpp in Sources */,
 				279DDF7F1D12A55F00857C36 /* MySQLParserBaseListener.cpp in Sources */,
@@ -16146,12 +16154,13 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/ext/scintilla/include",
-					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
+					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -16176,12 +16185,13 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/ext/scintilla/include",
-					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
+					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -16209,14 +16219,15 @@
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/**",
 					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/library/sql-parser/include",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -16249,14 +16260,15 @@
 					ENABLE_PYTHON_MODULES,
 				);
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/**",
 					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/library/sql-parser/include",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -16567,13 +16579,14 @@
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/ext/scintilla/include",
-					"$(SRCROOT)/library/forms",
-					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
+					"$(SRCROOT)/ext/scintilla/include",
+					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/plugins",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
@@ -16599,13 +16612,14 @@
 					SCI_NAMESPACE,
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/ext/scintilla/include",
-					"$(SRCROOT)/library/forms",
-					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
+					"$(SRCROOT)/ext/scintilla/include",
+					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/plugins",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
@@ -16766,13 +16780,14 @@
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
-					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/canvas/src",
+					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -16796,13 +16811,14 @@
 					SCI_NAMESPACE,
 				);
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
-					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/canvas/src",
+					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -16833,14 +16849,15 @@
 				);
 				GCC_WARN_UNUSED_VALUE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/ext/scintilla/**",
-					"$(SRCROOT)/library/sql-parser/include",
-					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
+					"$(SRCROOT)/ext/scintilla/**",
+					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/library/sql-parser/include",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -16876,14 +16893,15 @@
 				);
 				GCC_WARN_UNUSED_VALUE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/ext/scintilla/**",
-					"$(SRCROOT)/library/sql-parser/include",
-					"$(SRCROOT)/generated",
 					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
+					"$(SRCROOT)/ext/scintilla/**",
+					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/library/sql-parser/include",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -17730,18 +17748,19 @@
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/ext/scintilla/lexlib",
 					"$(SRCROOT)/ext/scintilla/lexers",
 					"$(SRCROOT)/ext/scintilla/src",
 					"$(SRCROOT)/ext/scintilla/cocoa",
-					"$(SRCROOT)/modules",
-					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/sql-parser/include",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -17778,18 +17797,19 @@
 					ENABLE_PYTHON_MODULES,
 				);
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/ext/scintilla/lexlib",
 					"$(SRCROOT)/ext/scintilla/lexers",
 					"$(SRCROOT)/ext/scintilla/src",
 					"$(SRCROOT)/ext/scintilla/cocoa",
-					"$(SRCROOT)/modules",
-					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/sql-parser/include",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/parsers",
+					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					"$(inherited)",
 				);
@@ -17881,14 +17901,15 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/library",
+					"$(SRCROOT)/backend/wbpublic",
+					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
+					"$(inherited)",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.grt;
@@ -17906,14 +17927,15 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/library",
+					"$(SRCROOT)/backend/wbpublic",
+					"$(SRCROOT)/generated",
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
+					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
+					"$(inherited)",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.grt;
@@ -18232,6 +18254,7 @@
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/library/dbc/src",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					/usr/include/libxml2,
@@ -18284,6 +18307,7 @@
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/library/dbc/src",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/../mysql-mac-res/include/cppconn",
 					"$(SRCROOT)/../mysql-mac-res/include/antlr4-runtime",
 					/usr/include/libxml2,
