@@ -256,8 +256,7 @@ private:
     }
   }
 
-  ParseTree* startParsing(bool fast, MySQLParseUnit unit)
-  {
+  ParseTree* startParsing(bool fast, MySQLParseUnit unit) {
     errors.clear();
     lexer.reset();
     lexer.setInputStream(&input); // Not just reset(), which only rewinds the current position.
@@ -271,15 +270,14 @@ private:
     parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::SLL);
 
     ParseTree *tree;
-    try
-    {
+    try {
       tree = parseUnit(unit);
     }
-    catch (ParseCancellationException &)
-    {
-      if (!fast)
-      {
-        // If parsing was cancelled we either really have a syntax error or we need to do a second step,
+    catch (ParseCancellationException &) {
+      if (fast)
+        tree = nullptr;
+      else {
+        // If parsing was canceled we either really have a syntax error or we need to do a second step,
         // now with the default strategy and LL parsing.
         tokens.reset();
         parser.reset();
@@ -289,8 +287,7 @@ private:
       }
     }
 
-    if (errors.empty() && !lexer.hitEOF)
-    {
+    if (errors.empty() && !lexer.hitEOF) {
       // There is more input than needed for the given parse unit. Make this a fail as we don't allow
       // extra input after the specific rule.
       Token *token = tokens.LT(1);
