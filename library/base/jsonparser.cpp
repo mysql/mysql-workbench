@@ -1655,6 +1655,8 @@ void JsonReader::parseArray(JsonValue &value)
 {
   JsonArray array_;
   bool go = processToken(JsonToken::JsonTokenArrayStart, true) && _tokenIterator->getType() != JsonToken::JsonTokenArrayStart;
+  if (processToken(JsonToken::JsonTokenArrayEnd))
+    go = false;
   while (go)
   {
     JsonValue innerValue;
