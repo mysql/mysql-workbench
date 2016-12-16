@@ -26,6 +26,8 @@
 #include <functional>
 #include <cctype>
 #include <memory>
+#include <locale>
+#include <codecvt>
 
 using boost::locale::conv::utf_to_utf;
 
@@ -301,7 +303,12 @@ std::string utf8string::to_string() const
 
 std::wstring utf8string::to_wstring() const
 {
-  return utf_to_utf<wchar_t>(_inner_string.c_str(), _inner_string.c_str() + _inner_string.size());
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  return converter.from_bytes(_inner_string);
+  //std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+  //std::u16string result = convert.from_bytes(_inner_string);
+  //return result;
+  //return utf_to_utf<wchar_t>(_inner_string.c_str(), _inner_string.c_str() + _inner_string.size());
 }
 
 utf8string utf8string::substr(const size_t start, size_t count) const
@@ -324,14 +331,29 @@ utf8string utf8string::normalize() const
 
 utf8string utf8string::trim_right()
 {
-  _inner_string.erase(std::find_if(_inner_string.rbegin(), _inner_string.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), _inner_string.end());
-  return _inner_string;
+  //std::string result(_inner_string);
+  //result.erase(std::find_if(result.rbegin(), result.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), result.end());
+  //return result;
+	//return _inner_string.substr(0, _inner_string.find_last_not_of(std::space));
+	for (std::string::reverse_iterator iter = _inner_string.rbegin(); iter != _inner_string.rend(); ++iter)
+	{
+		if (std::isspace((unsigned char)*iter))
+			continue;
+		return std::string(_inner_string.begin(), iter.base());
+	}
+	return "";
+//	auto aaa = std::find_if_not(_inner_string.rbegin(), _inner_string.rend(), std::isspace);
+	//std::string::iterator bbb = aaa.base();
+	//return std::string(_inner_string.begin(), bbb);
+  //return std::string(_inner_string.begin(), _inner_string.find_last_not_of(std::isspace))
 }
 
 utf8string utf8string::trim_left()
 {
-  _inner_string.erase(_inner_string.begin(), std::find_if(_inner_string.begin(), _inner_string.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-  return _inner_string;
+  //std::string result(_inner_string);
+  //result.erase(result.begin(), std::find_if(result.begin(), result.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+  return std::string(std::find_if_not(_inner_string.begin(), _inner_string.end(), std::isspace), _inner_string.end());
+  //return std::string(, _inner_string);
 }
 
 utf8string utf8string::trim()
@@ -587,7 +609,7 @@ utf8string::iterator utf8string::begin() const
 utf8string::iterator utf8string::end() const
 {
   char *s = const_cast<char *>(_inner_string.c_str());
-  return ++iterator(s, s + _inner_string.size());
+  return iterator(s, s + _inner_string.size());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -708,7 +730,8 @@ size_t utf8string::size() const
 size_t utf8string::length() const
 {
   const char *ptr = _inner_string.data();
-  return g_utf8_pointer_to_offset(ptr, ptr + _inner_string.size());
+  //return g_utf8_pointer_to_offset(ptr, ptr + _inner_string.size());
+  return g_utf8_strlen(ptr, _inner_string.size());
 }
 
 void utf8string::resize(size_t n) 

@@ -20,7 +20,9 @@
 #include "base/utf8string.h"
 #include <utility>
 #include "wb_helpers.h"
-
+ #include <algorithm>
+ #include <cctype>
+ #include <functional>
 using namespace base;
 
 
@@ -40,14 +42,14 @@ struct lang_string_details
 
 const std::map<std::string, lang_string_details> LanguageStrings = 
 {
-  { "english"   , {u8"This is a lazy test", L"This is a lazy test", 19, 19} }
-, { "polish"    , {u8"zażółć", L"zażółć", 6, 10 } }
-, { "greek"     , {u8"ὕαλον ϕαγεῖν", L"ὕαλον ϕαγεῖν", 12, 25 } }
-, { "russian"   , {u8"Я могу есть стекло", L"Я могу есть стекло", 18, 33 } }      
-, { "arabic"    , {u8"هذا لا يؤلمني", L"هذا لا يؤلمني", (size_t)13, 24} }
-, { "chinese"   , {u8"我可以吞下茶", L"我可以吞下茶", 6, 18 } }
-, { "japanese"  , {u8"私はお茶を飲み込むことができます", L"私はお茶を飲み込むことができます", 16, 48 } }
-, { "portuguese", {u8"Há açores e cães ávidos no chão", L"Há açores e cães ávidos no chão", 31, 36 } }
+  { "english"   , {"This is a lazy test", L"This is a lazy test", 19, 19} }
+, { "polish"    , {"zażółć", L"zażółć", 6, 10 } }
+, { "greek"     , {"ὕαλον ϕαγεῖν", L"ὕαλον ϕαγεῖν", 12, 25 } }
+, { "russian"   , {"Я могу есть стекло", L"Я могу есть стекло", 18, 33 } }      
+, { "arabic"    , {"هذا لا يؤلمني", L"هذا لا يؤلمني", (size_t)13, 24} }
+, { "chinese"   , {"我可以吞下茶", L"我可以吞下茶", 6, 18 } }
+, { "japanese"  , {"私はお茶を飲み込むことができます", L"私はお茶を飲み込むことができます", 16, 48 } }
+, { "portuguese", {"Há açores e cães ávidos no chão", L"Há açores e cães ávidos no chão", 31, 36 } }
 };
 
 template<unsigned int TestCaseNumber>
@@ -146,6 +148,9 @@ TEST_FUNCTION(5)
     lang_string_details &current = iter.second;
     base::utf8string str1(current._text);   //  from char *
 
+	int aaa = str1.length();
+	std::cout << "Len: " << str1.length() << " - " << str1 << std::endl;
+
     TEST_TRUE("validate string", str1.validate());
     TEST("compare to char * string", str1, current._text);
     TEST("verify length", str1.length(), current._length);
@@ -192,14 +197,14 @@ TEST_FUNCTION(5)
   {
     std::map<std::string, const char *> substrings = 
     {
-      { "english"   , u8"his "}
-    , { "polish"    , u8"ażół"}
-    , { "greek"     , u8"αλον"}
-    , { "russian"   , u8" мог"}
-    , { "arabic"    , u8"ذا ل"}
-    , { "chinese"   , u8"可以吞下"}
-    , { "japanese"  , u8"はお茶を"}
-    , { "portuguese", u8"á aç"}
+      { "english"   , "his "}
+    , { "polish"    , "ażół"}
+    , { "greek"     , "αλον"}
+    , { "russian"   , " мог"}
+    , { "arabic"    , "ذا ل"}
+    , { "chinese"   , "可以吞下"}
+    , { "japanese"  , "はお茶を"}
+    , { "portuguese", "á aç"}
     };
     
     for(auto iter : LanguageStrings)
@@ -324,7 +329,7 @@ TEST_FUNCTION(5)
   
   {
     SECTION("utf8string(size_t size, utf8char c) [unicode]");
-    base::utf8string str(10, base::utf8string::utf8char(u8"ł"));
+    base::utf8string str(10, base::utf8string::utf8char("ł"));
     
     TEST_TRUE("validate string", str.validate());
     TEST("compare data", str, "łłłłłłłłłł");
@@ -398,9 +403,11 @@ TEST_FUNCTION(40)
 {
   //  TODO: test in all languages
   base::utf8string str = std::string("zażółć");
+  std::wstring aaa = str.to_wstring();
+  std::wstring bbb(L"zażółć");
   ensure_equals("TEST 40.1: c_str", strcmp(str.c_str(), "zażółć"), 0);
   ensure_equals("TEST 40.2: toString", str.to_string() == std::string("zażółć"), true);
-  ensure_equals("TEST 40.3: toWString", str.to_wstring() == std::wstring(L"zażółć"), true);
+  ensure_equals("TEST 40.3: toWString", str.to_wstring() == L"zażółć", true);
 }
 
 /*
