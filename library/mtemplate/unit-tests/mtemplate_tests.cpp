@@ -32,25 +32,25 @@ TEST_MODULE(mtemplate_test, "mtemplate");
 
 std::map<std::string, base::utf8string> language_details_map = 
 {
-  {"english", base::utf8string(u8"I can eat glass and it doesn't hurt me. ")}
-, {"Sanskrit", base::utf8string(u8"काचं शक्नोम्यत्तुम् । नोपहिनस्ति माम् ॥")}
-, {"Sanskrit (standard transcription)", base::utf8string(u8"kācaṃ śaknomyattum; nopahinasti mām.")}
-, {"Greek (polytonic)", base::utf8string(u8"Μπορῶ νὰ φάω σπασμένα γυαλιὰ χωρὶς νὰ πάθω τίποτα.")}
-, {"Spanish", base::utf8string(u8"Puedo comer vidrio, no me hace daño.")}
-, {"Portuguese", base::utf8string(u8"Posso comer vidro, não me faz mal.")}
-, {"Cornish", base::utf8string(u8"Mý a yl dybry gwéder hag éf ny wra ow ankenya.")}
-, {"Welsh", base::utf8string(u8"Dw i'n gallu bwyta gwydr, 'dyw e ddim yn gwneud dolur i mi.")}
-, {"Irish", base::utf8string(u8"Is féidir liom gloinne a ithe. Ní dhéanann sí dochar ar bith dom.")}
-, {"Anglo-Saxon (Runes)", base::utf8string(u8"ᛁᚳ᛫ᛗᚨᚷ᛫ᚷᛚᚨᛋ᛫ᛖᚩᛏᚪᚾ᛫ᚩᚾᛞ᛫ᚻᛁᛏ᛫ᚾᛖ᛫ᚻᛖᚪᚱᛗᛁᚪᚧ᛫ᛗᛖ᛬")}
-, {"Swedish", base::utf8string(u8"Jag kan äta glas utan att skada mig.")}
-, {"Czech", base::utf8string(u8"Mohu jíst sklo, neublíží mi.")}
-, {"Slovak", base::utf8string(u8"Môžem jesť sklo. Nezraní ma.")}
-, {"Polish", base::utf8string(u8"Mogę jeść szkło i mi nie szkodzi.")}
-, {"Russian", base::utf8string(u8"Я могу есть стекло, оно мне не вредит.")}
-, {"Hindi", base::utf8string(u8"मैं काँच खा सकता हूँ और मुझे उससे कोई चोट नहीं पहुंचती.")}
-, {"Tamil", base::utf8string(u8"நான் கண்ணாடி சாப்பிடுவேன், அதனால் எனக்கு ஒரு கேடும் வராது.")}
-, {"Chinese", base::utf8string(u8"我能吞下玻璃而不伤身体。")}
-, {"Japanese", base::utf8string(u8"私はガラスを食べられます。それは私を傷つけません。")}
+  {"english", base::utf8string("I can eat glass and it doesn't hurt me. ")}
+, {"Sanskrit", base::utf8string("काचं शक्नोम्यत्तुम् । नोपहिनस्ति माम् ॥")}
+, {"Sanskrit (standard transcription)", base::utf8string("kācaṃ śaknomyattum; nopahinasti mām.")}
+, {"Greek (polytonic)", base::utf8string("Μπορῶ νὰ φάω σπασμένα γυαλιὰ χωρὶς νὰ πάθω τίποτα.")}
+, {"Spanish", base::utf8string("Puedo comer vidrio, no me hace daño.")}
+, {"Portuguese", base::utf8string("Posso comer vidro, não me faz mal.")}
+, {"Cornish", base::utf8string("Mý a yl dybry gwéder hag éf ny wra ow ankenya.")}
+, {"Welsh", base::utf8string("Dw i'n gallu bwyta gwydr, 'dyw e ddim yn gwneud dolur i mi.")}
+, {"Irish", base::utf8string("Is féidir liom gloinne a ithe. Ní dhéanann sí dochar ar bith dom.")}
+, {"Anglo-Saxon (Runes)", base::utf8string("ᛁᚳ᛫ᛗᚨᚷ᛫ᚷᛚᚨᛋ᛫ᛖᚩᛏᚪᚾ᛫ᚩᚾᛞ᛫ᚻᛁᛏ᛫ᚾᛖ᛫ᚻᛖᚪᚱᛗᛁᚪᚧ᛫ᛗᛖ᛬")}
+, {"Swedish", base::utf8string("Jag kan äta glas utan att skada mig.")}
+, {"Czech", base::utf8string("Mohu jíst sklo, neublíží mi.")}
+, {"Slovak", base::utf8string("Môžem jesť sklo. Nezraní ma.")}
+, {"Polish", base::utf8string("Mogę jeść szkło i mi nie szkodzi.")}
+, {"Russian", base::utf8string("Я могу есть стекло, оно мне не вредит.")}
+, {"Hindi", base::utf8string("मैं काँच खा सकता हूँ और मुझे उससे कोई चोट नहीं पहुंचती.")}
+, {"Tamil", base::utf8string("நான் கண்ணாடி சாப்பிடுவேன், அதனால் எனக்கு ஒரு கேடும் வராது.")}
+, {"Chinese", base::utf8string("我能吞下玻璃而不伤身体。")}
+, {"Japanese", base::utf8string("私はガラスを食べられます。それは私を傷つけません。")}
 };
 
 
