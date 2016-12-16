@@ -109,18 +109,15 @@ utf8string::size_type utf8_find_first_of(const std::string& str, utf8string::siz
     return utf8string::npos;
 
   long ucs4_match_size = 0;
-  const std::unique_ptr<gunichar> ucs4_match
-      (g_utf8_to_ucs4_fast(utf8_match, utf8_match_size, &ucs4_match_size));
+  gunichar *ucs4_match = g_utf8_to_ucs4_fast(utf8_match, utf8_match_size, &ucs4_match_size);
 
-  const gunichar *const match_begin = ucs4_match.get();
+  const gunichar *const match_begin = ucs4_match;
   const gunichar *const match_end   = match_begin + ucs4_match_size;
 
   const char *const str_begin = str.data();
   const char *const str_end   = str_begin + str.size();
 
-  for(const char* pstr = str_begin + byte_offset;
-      pstr < str_end;
-      pstr = g_utf8_next_char(pstr))
+  for(const char* pstr = str_begin + byte_offset; pstr < str_end; pstr = g_utf8_next_char(pstr))
   {
     const gunichar *const pfound = std::find(match_begin, match_end, g_utf8_get_char(pstr));
 
@@ -129,6 +126,8 @@ utf8string::size_type utf8_find_first_of(const std::string& str, utf8string::siz
 
     ++offset;
   }
+
+  g_free(ucs4_match);
 
   return utf8string::npos;
 }
