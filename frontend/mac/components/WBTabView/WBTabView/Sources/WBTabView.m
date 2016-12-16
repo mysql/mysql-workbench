@@ -837,14 +837,13 @@
 
 
 
-- (void) mouseDown: (NSEvent*) event;
+- (void)mouseDown: (NSEvent*)event;
 {
   NSAssert( (mMouseDownLayer == nil), @"mMouseDownLayer was not nil.");
   
   if ( (event.modifierFlags & NSControlKeyMask) != 0 ) {
     [self rightMouseDown: event];
-  }
-  else {
+  } else {
     NSPoint loc = [mTabRowView convertPoint: event.locationInWindow
                                    fromView: nil];
     CGPoint cgp = NSPointToCGPoint(loc);
@@ -852,10 +851,9 @@
     
     if (event.clickCount > 1) {
       // This was a double click.
-      if ([(id)self.delegate respondsToSelector: @selector(tabViewItemDidReceiveDoubleClick:)]) {
-        [(id)self.delegate performSelector: @selector(tabViewItemDidReceiveDoubleClick:)
-                                withObject: self.selectedTabViewItem];
-      }
+        SEL selector = NSSelectorFromString(@"tabViewItemDidReceiveDoubleClick:");
+        if ([self.delegate respondsToSelector: selector])
+          [(id)self.delegate tryToPerform: selector with: self.selectedTabViewItem];
     }
     
     if (mMouseDownLayer == nil) {
@@ -902,16 +900,15 @@
 - (NSMenu*) menuForEvent: (NSEvent*) theEvent;
 {
   NSMenu* menu = nil;
-  
-  if ([self.delegate respondsToSelector: @selector(tabView:menuForIdentifier:)]) {
+
+  SEL selector = NSSelectorFromString(@"tabView:menuForIdentifier:");
+  if ([self.delegate respondsToSelector: selector]) {
     NSPoint loc = [mTabRowView convertPoint: theEvent.locationInWindow
                                    fromView: nil];
     CGPoint cgp = NSPointToCGPoint(loc);
     ResponderLayer* item = [mTabRowLayer responderLayerAtPoint: cgp];
     if ([item isKindOfClass: [WBTabItem class]]) {
-      menu = [(id)self.delegate performSelector: @selector(tabView:menuForIdentifier:)
-                                     withObject: self
-                                     withObject: ((WBTabItem*)item).identifier];
+      menu = ((NSMenu* (*)(id, SEL, NSTabView*, id))[(id)self.delegate methodForSelector: selector])(self.delegate, selector, self, ((WBTabItem*)item).identifier);
     }
   }
   
