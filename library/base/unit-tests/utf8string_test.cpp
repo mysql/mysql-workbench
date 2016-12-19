@@ -20,9 +20,10 @@
 #include "base/utf8string.h"
 #include <utility>
 #include "wb_helpers.h"
- #include <algorithm>
- #include <cctype>
- #include <functional>
+#include <algorithm>
+#include <cctype>
+#include <functional>
+#include <map>
 using namespace base;
 
 
@@ -146,9 +147,6 @@ TEST_FUNCTION(5)
     SECTION(std::string("utf8string(const char *s) - ") + iter.first);
     lang_string_details &current = iter.second;
     base::utf8string str1(current._text);   //  from char *
-
-	int aaa = str1.length();
-	std::cout << "Len: " << str1.length() << " - " << str1 << std::endl;
 
     TEST_TRUE("validate string", str1.validate());
     TEST("compare to char * string", str1, current._text);
@@ -403,13 +401,13 @@ TEST_FUNCTION(40)
   INITIALIZE_TEST_FUNCTION(40);
   for (auto iter : LanguageStrings)
   {
-	SECTION(std::string("String conversion - ") + iter.first);
-	lang_string_details &current = iter.second;
+    SECTION(std::string("String conversion - ") + iter.first);
+    lang_string_details &current = iter.second;
 
-	base::utf8string str(current._text);
-	ensure_equals("TEST 40.1: c_str", strcmp(str.c_str(), current._text), 0);
-	ensure_equals("TEST 40.2: toString", str.to_string() == std::string(current._text), true);
-	ensure_equals("TEST 40.3: toWString", str.to_wstring() == base::string_to_wstring(current._text), true);
+    base::utf8string str(current._text);
+    ensure_equals("TEST 40.1: c_str", strcmp(str.c_str(), current._text), 0);
+    ensure_equals("TEST 40.2: toString", str.to_string() == std::string(current._text), true);
+    ensure_equals("TEST 40.3: toWString", str.to_wstring() == base::string_to_wstring(current._text), true);
   }
 }
 
