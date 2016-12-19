@@ -95,7 +95,7 @@ namespace base
       char* str;
       char* pos;
     };
-    
+
     utf8string();
     utf8string(const char *s);
     utf8string(const wchar_t *s);

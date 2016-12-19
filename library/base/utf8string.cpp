@@ -18,6 +18,7 @@
  */
 
 #include "base/utf8string.h"
+#include "base/string_utilities.h"
 #include <cstdlib>
 #include <algorithm>
 #include <boost/locale/encoding_utf.hpp>
@@ -107,18 +108,15 @@ utf8string::size_type utf8_find_first_of(const std::string& str, utf8string::siz
     return utf8string::npos;
 
   long ucs4_match_size = 0;
-  const std::unique_ptr<gunichar> ucs4_match
-      (g_utf8_to_ucs4_fast(utf8_match, utf8_match_size, &ucs4_match_size));
+  gunichar *ucs4_match = g_utf8_to_ucs4_fast(utf8_match, utf8_match_size, &ucs4_match_size);
 
-  const gunichar *const match_begin = ucs4_match.get();
+  const gunichar *const match_begin = ucs4_match;
   const gunichar *const match_end   = match_begin + ucs4_match_size;
 
   const char *const str_begin = str.data();
   const char *const str_end   = str_begin + str.size();
 
-  for(const char* pstr = str_begin + byte_offset;
-      pstr < str_end;
-      pstr = g_utf8_next_char(pstr))
+  for(const char* pstr = str_begin + byte_offset; pstr < str_end; pstr = g_utf8_next_char(pstr))
   {
     const gunichar *const pfound = std::find(match_begin, match_end, g_utf8_get_char(pstr));
 
@@ -127,6 +125,8 @@ utf8string::size_type utf8_find_first_of(const std::string& str, utf8string::siz
 
     ++offset;
   }
+
+  g_free(ucs4_match);
 
   return utf8string::npos;
 }
@@ -233,7 +233,7 @@ utf8string::utf8string(const char* s)
 }
 
 utf8string::utf8string(const wchar_t* s)
-: _inner_string(utf_to_utf<char>(s, s + wcslen(s)))
+: _inner_string(base::wstring_to_string(s))
 {
 }
 
@@ -243,7 +243,7 @@ utf8string::utf8string(const std::string &s)
 }
 
 utf8string::utf8string(const std::wstring &s)
-: _inner_string(utf_to_utf<char>(s.c_str(), s.c_str() + s.size()))
+: _inner_string(base::wstring_to_string(s))
 {
 }
 
@@ -301,7 +301,7 @@ std::string utf8string::to_string() const
 
 std::wstring utf8string::to_wstring() const
 {
-  return utf_to_utf<wchar_t>(_inner_string.c_str(), _inner_string.c_str() + _inner_string.size());
+  return base::string_to_wstring(_inner_string);
 }
 
 utf8string utf8string::substr(const size_t start, size_t count) const
@@ -324,14 +324,24 @@ utf8string utf8string::normalize() const
 
 utf8string utf8string::trim_right()
 {
-  _inner_string.erase(std::find_if(_inner_string.rbegin(), _inner_string.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), _inner_string.end());
-  return _inner_string;
+  for (std::string::reverse_iterator iter = _inner_string.rbegin(); iter != _inner_string.rend(); ++iter)
+  {
+    if (std::isspace((unsigned char)*iter))
+      continue;
+    return std::string(_inner_string.begin(), iter.base());
+  }
+  return "";
 }
 
 utf8string utf8string::trim_left()
 {
-  _inner_string.erase(_inner_string.begin(), std::find_if(_inner_string.begin(), _inner_string.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-  return _inner_string;
+  for (std::string::iterator iter = _inner_string.begin(); iter != _inner_string.end(); ++iter)
+  {
+    if (std::isspace((unsigned char)*iter))
+      continue;
+    return std::string(iter, _inner_string.end());
+  }
+  return "";  
 }
 
 utf8string utf8string::trim()
@@ -587,7 +597,7 @@ utf8string::iterator utf8string::begin() const
 utf8string::iterator utf8string::end() const
 {
   char *s = const_cast<char *>(_inner_string.c_str());
-  return ++iterator(s, s + _inner_string.size());
+  return iterator(s, s + _inner_string.size());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -708,7 +718,8 @@ size_t utf8string::size() const
 size_t utf8string::length() const
 {
   const char *ptr = _inner_string.data();
-  return g_utf8_pointer_to_offset(ptr, ptr + _inner_string.size());
+  //return g_utf8_pointer_to_offset(ptr, ptr + _inner_string.size());
+  return g_utf8_strlen(ptr, _inner_string.size());
 }
 
 void utf8string::resize(size_t n) 
