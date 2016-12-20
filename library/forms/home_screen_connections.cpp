@@ -217,7 +217,7 @@ public:
     if (!connectionInfo["serverInfo"].isNull())
     {
       mforms::anyMap serverInfo = connectionInfo["serverInfo"];
-      pending = serverInfo["setupPending"].as<ssize_t>() == 1;
+      pending = getAnyMapValueAs<ssize_t>(serverInfo, "setupPending") == 1;
       if (!pending && !connectionInfo["isLocalConnection"].as<bool>() && getAnyMapValueAs<ssize_t>(serverInfo, "remoteAdmin") == 0
           && getAnyMapValueAs<ssize_t>(serverInfo, "windowsAdmin") == 0)
         pending = true;
@@ -370,7 +370,7 @@ public:
       if (!connectionInfo["serverInfo"].isNull())
       {
         mforms::anyMap serverInfo = connectionInfo["serverInfo"];
-        pending = serverInfo["setupPending"].as<ssize_t>() == 1;
+        pending = getAnyMapValueAs<ssize_t>(serverInfo, "setupPending") == 1;
         if (!pending && !connectionInfo["isLocalConnection"].as<bool>() && getAnyMapValueAs<ssize_t>(serverInfo, "remoteAdmin") == 0
             && getAnyMapValueAs<ssize_t>(serverInfo, "windowsAdmin") == 0)
           pending = true;
