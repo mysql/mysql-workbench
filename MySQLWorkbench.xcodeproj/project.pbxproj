@@ -2731,13 +2731,13 @@
 		44FFC3DA1AA0BC3A00950A48 /* sqlide_power_import_wizard.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */; };
 		75C847F51067E9C70067947D /* opts.py in Resources */ = {isa = PBXBuildFile; fileRef = 75C847F21067E9C70067947D /* opts.py */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
-		8EAD85C11E0812EB00FA7D0C /* utf8string_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85C01E0812EB00FA7D0C /* utf8string_test.cpp */; };
 		8EAD85C41E08135B00FA7D0C /* mtemplate_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85C31E08135B00FA7D0C /* mtemplate_tests.cpp */; };
 		8EAD85C71E08145000FA7D0C /* test_wbmodulevalidationmysql.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85C61E08145000FA7D0C /* test_wbmodulevalidationmysql.cpp */; };
 		8EAD85CA1E08152E00FA7D0C /* test_wbmodulevalidation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85C91E08152E00FA7D0C /* test_wbmodulevalidation.cpp */; };
 		8EAD85CB1E081EB500FA7D0C /* libmtemplate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4401E1971D994DA50027AD13 /* libmtemplate.dylib */; };
 		8EAD85CD1E081F1B00FA7D0C /* wb.validation.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B52861A0F1C1E08005FBF7C /* wb.validation.grt.dylib */; };
 		8EAD85CE1E081F3700FA7D0C /* wb.mysql.validation.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B5286230F1C1E10005FBF7C /* wb.mysql.validation.grt.dylib */; };
+		8EAD85D31E0932BE00FA7D0C /* utf8string_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85D21E0932BE00FA7D0C /* utf8string_test.cpp */; };
 		ED0955E1177374690051CF28 /* page_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DE177374690051CF28 /* page_restore.png */; };
 		ED0955E2177374690051CF28 /* title_backup.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DF177374690051CF28 /* title_backup.png */; };
 		ED0955E3177374690051CF28 /* title_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955E0177374690051CF28 /* title_restore.png */; };
@@ -6778,10 +6778,10 @@
 		75C847F81067E9DF0067947D /* wb_admin_config_file_ui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_config_file_ui.py; path = plugins/wb.admin/frontend/wb_admin_config_file_ui.py; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* MySQLWorkbench.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MySQLWorkbench.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8EAD85C01E0812EB00FA7D0C /* utf8string_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utf8string_test.cpp; path = ../../../../Downloads/utf8string_test.cpp; sourceTree = "<group>"; };
 		8EAD85C31E08135B00FA7D0C /* mtemplate_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mtemplate_tests.cpp; path = "library/mtemplate/unit-tests/mtemplate_tests.cpp"; sourceTree = "<group>"; };
 		8EAD85C61E08145000FA7D0C /* test_wbmodulevalidationmysql.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_wbmodulevalidationmysql.cpp; path = "internal/wb.mysql.validation/unit-tests/test_wbmodulevalidationmysql.cpp"; sourceTree = "<group>"; };
 		8EAD85C91E08152E00FA7D0C /* test_wbmodulevalidation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_wbmodulevalidation.cpp; path = "internal/wb.validation/unit-tests/test_wbmodulevalidation.cpp"; sourceTree = "<group>"; };
+		8EAD85D21E0932BE00FA7D0C /* utf8string_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utf8string_test.cpp; path = "library/base/unit-tests/utf8string_test.cpp"; sourceTree = "<group>"; };
 		ED0955DE177374690051CF28 /* page_restore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = page_restore.png; path = images/admin/page_restore.png; sourceTree = "<group>"; };
 		ED0955DF177374690051CF28 /* title_backup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = title_backup.png; path = images/admin/title_backup.png; sourceTree = "<group>"; };
 		ED0955E0177374690051CF28 /* title_restore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = title_restore.png; path = images/admin/title_restore.png; sourceTree = "<group>"; };
@@ -7760,7 +7760,7 @@
 		27050A1E1B34396F00D6135D /* library_base */ = {
 			isa = PBXGroup;
 			children = (
-				8EAD85C01E0812EB00FA7D0C /* utf8string_test.cpp */,
+				8EAD85D21E0932BE00FA7D0C /* utf8string_test.cpp */,
 				27050A701B343FB300D6135D /* config_file_test.cpp */,
 				27050A711B343FB300D6135D /* file_utilities_test.cpp */,
 				27050A721B343FB300D6135D /* sqlstring_test.cpp */,
@@ -14658,6 +14658,7 @@
 				27050A611B343EBC00D6135D /* dbc_connection_test.cpp in Sources */,
 				27050A951B34431300D6135D /* grtdiff_alter_test.cpp in Sources */,
 				8EAD85C41E08135B00FA7D0C /* mtemplate_tests.cpp in Sources */,
+				8EAD85D31E0932BE00FA7D0C /* utf8string_test.cpp in Sources */,
 				27050A2E1B343A3300D6135D /* regression_test.cpp in Sources */,
 				27050A581B343ADF00D6135D /* wb_module_test.cpp in Sources */,
 				27050ABF1B3443C100D6135D /* stub_menu.cpp in Sources */,
@@ -14681,7 +14682,6 @@
 				27050A321B343A3300D6135D /* wb_helpers.cpp in Sources */,
 				27050A2D1B343A3300D6135D /* python_tests.cpp in Sources */,
 				27050A621B343EBC00D6135D /* dbc_general_test.cpp in Sources */,
-				8EAD85C11E0812EB00FA7D0C /* utf8string_test.cpp in Sources */,
 				27050A6F1B343F9700D6135D /* mysql_table_editor_test.cpp in Sources */,
 				27050A301B343A3300D6135D /* test_helpers.cpp in Sources */,
 				27050A2B1B343A3300D6135D /* grt_test_utility.cpp in Sources */,
