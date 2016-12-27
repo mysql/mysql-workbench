@@ -94,7 +94,7 @@ configure-stamp:
 	  -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
 	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
 	  -DANTLR4_INCLUDE_DIR=$(ANTLR_HOME)/include \
-	  -DANTLR4_LIBRARY="-L$(ANTLR_HOME)/lib -lantlr-runtime" \
+	  -DANTLR4_LIBRARIES="-L$(ANTLR_HOME)/lib -lantlr-runtime" \
 	  -DWITH_ANTLR_JAR=${ANTLR_JAR_PATH}
 
 	touch configure-stamp
