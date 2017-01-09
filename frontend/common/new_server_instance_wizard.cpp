@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -182,8 +182,9 @@ bool TestDatabaseSettingsPage::get_server_version()
   if (!bec::is_supported_mysql_version(version))
   {
     current_task()->label.set_text("Get Server Version: Unsupported Server Version");
-    add_log_text(strfmt("Unknown/unsupported server version or connection protocol detected (%s).\nMySQL Workbench is developed and test for MySQL Server versions 5.1, 5.5, 5.6 and 5.7.\nA connection can be established but some MySQL Workbench features may not work properly.", version.c_str()));
-    throw std::runtime_error(strfmt("Unknown/unsupported server version or connection protocol detected (%s).\nMySQL Workbench provides connectivity to MySQL Server versions 5.1, 5.5, 5.6 and 5.7.\nA connection can be established but some MySQL Workbench features may not work properly.", version.c_str()));
+    std::string msg = strfmt("Unknown/unsupported server version or connection protocol detected (%s).\nMySQL Workbench is developed and tested for MySQL Server versions 5.1 and newer.\nA connection can be established but some MySQL Workbench features may not work properly.", version.c_str());
+    add_log_text(msg);
+    throw std::runtime_error(msg);
   }
 
   return true;
