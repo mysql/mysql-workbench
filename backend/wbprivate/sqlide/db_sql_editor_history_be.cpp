@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -402,6 +402,9 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
       {
         std::getline(historyXml, line);
 
+        if (line.empty())
+          continue;
+
         xmlDocPtr xmlDoc = base::xml::xmlParseFragment(line);
         if (xmlDoc == nullptr)
         {
@@ -500,6 +503,7 @@ void DbSqlEditorHistory::DetailsModel::save()
       std::string xml_time, xml_sql;
       xml_time = base::xml::encodeEntities(time);
       xml_sql = base::xml::encodeEntities(sql);
+      xml_sql = base::replaceString(xml_sql, "\n", "&#x0A;");
       ofs << "<ENTRY timestamp=\'" << xml_time << "\'>" << xml_sql << "</ENTRY>\n";
     }
     _last_loaded_row = (int)_row_count - 1;
