@@ -1286,8 +1286,12 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
       position = _splitter.get_height() - 100;
     _splitter.set_divider_position(position);
 
-    // scroll the editor to make the cursor visible
+    // scroll the editor to make the cursor visible and keep the selection, if available
+    std::size_t selection_start = 0;
+    std::size_t selection_length = 0;
+    _editor->get_editor_control()->get_selection(selection_start, selection_length);
     _editor->get_editor_control()->set_caret_pos(_editor->get_editor_control()->get_caret_pos());
+    _editor->get_editor_control()->set_selection(selection_start, selection_length);
   }
 }
 
