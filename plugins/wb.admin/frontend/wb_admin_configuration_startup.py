@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@ class WbAdminConfigurationStartup(mforms.Box):
     def print_output(self, text):
         ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S - ")
         if self.startup_msgs_log:
-            self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self.ctrl_be.server_helper.cmd_output_encoding)
+            self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self.ctrl_be.server_helper.cmd_output_encoding, True)
 
     #---------------------------------------------------------------------------
     def __init__(self, ctrl_be, server_profile, main_view):
@@ -272,11 +272,11 @@ class WbAdminConfigurationStartup(mforms.Box):
                 self.error_log_position = self.error_log_reader.file_size
             except OperationCancelledError, e:
                 self.startup_msgs_log.append_text_with_encoding("Cancelled password input to open error log file: %s\n" % e,
-                                                              self.ctrl_be.server_helper.cmd_output_encoding)
+                                                              self.ctrl_be.server_helper.cmd_output_encoding, True)
                 raise
             except Exception, e:
                 self.startup_msgs_log.append_text_with_encoding("Could not open error log file: %s\n" % e,
-                                                                self.ctrl_be.server_helper.cmd_output_encoding)
+                                                                self.ctrl_be.server_helper.cmd_output_encoding, True)
 
     #---------------------------------------------------------------------------
     def print_new_error_log_entries(self):
@@ -289,9 +289,9 @@ class WbAdminConfigurationStartup(mforms.Box):
                 records = self.error_log_reader.current()
                 if records:
                     self.startup_msgs_log.append_text_with_encoding('\nFROM %s:\n' % self.server_profile.error_log_file_path,
-                                                                    self.ctrl_be.server_helper.cmd_output_encoding)
+                                                                    self.ctrl_be.server_helper.cmd_output_encoding, True)
                     self.startup_msgs_log.append_text_with_encoding('    '+'\n    '.join( ["  ".join(line) for line in records]) + '\n',
-                                                                    self.ctrl_be.server_helper.cmd_output_encoding)
+                                                                    self.ctrl_be.server_helper.cmd_output_encoding, True)
 
 
     #---------------------------------------------------------------------------
