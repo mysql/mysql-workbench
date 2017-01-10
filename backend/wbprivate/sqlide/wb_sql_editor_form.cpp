@@ -1916,8 +1916,9 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
 
   RecordsetsRef rsets(new Recordsets());
   
+  SqlEditorPanel *panel = active_sql_editor_panel();
   do_exec_sql(weak_ptr_from(this), std::shared_ptr<std::string>(new std::string(sql_script)),
-    NULL, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
+    panel, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
 
   return rsets;
 }
