@@ -526,26 +526,26 @@ void DbSqlEditorHistory::DetailsModel::add_entries(const std::list<std::string> 
     try
     {
       int index=0;
-      for (std::string statement : statements)
+      for (auto rit = statements.rbegin(); rit != statements.rend(); rit++)
       {
         if (index % 2)
         {
           // decides whether to use or not the existing data
-          if (statement != _last_statement.toString())
-            _last_statement = statement;
-        
-          _data.push_back(_last_statement);
+          if (*rit  != _last_timestamp.toString())
+            _last_timestamp = *rit ;
+
+          _data.insert(_data.begin(), _last_timestamp);
         }
         else
         {
-          if (statement != _last_timestamp.toString())
-            _last_timestamp = statement;
+          if (*rit != _last_statement.toString())
+            _last_statement = *rit ;
 
-          _data.push_back(_last_timestamp);
+          _data.insert(_data.begin(), _last_statement);
         }
+        index++;
       }
 
-      index++;
     }
     catch(...)
     {

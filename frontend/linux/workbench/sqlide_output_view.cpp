@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -253,16 +253,7 @@ void QueryOutputView::refresh()
 
     case 2: // History output
     {
-      const Glib::RefPtr<Gtk::TreeModel> entry_model = _entries_grid.get_model();
-      const Gtk::TreeModel::Children children = entry_model->children();
-      const int size = children.size();
-      if (size > 0)
-      {
-        const Gtk::TreeIter iter = (--children.end());
-        const Gtk::TreePath path = entry_model->get_path(iter);
-        _entries_grid.set_cursor(path);
-      }
-
+      _entries_grid.scroll_to(0); // newest entry is always first
       _details_grid.scroll_to(1);
     }
     case 0: // Action Output - always need refresh even if it's not visible
@@ -289,7 +280,7 @@ int QueryOutputView::on_history_entries_refresh()
   SigcBlocker signal_block(_on_history_entries_selection_changed_conn);
 
   _entries_grid.refresh(false);
-  _entries_grid.scroll_to(1);
+  _entries_grid.scroll_to(0);
 
   return 0;
 }
