@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 #include "linux_utilities/gtk_helpers.h"
 #include "custom_renderers.h"
 #include "base/string_utilities.h"
+#include <gtkmm/spinner.h>
 
 GridViewModel::Ref GridViewModel::create(bec::GridModel::Ref model, GridView *view, const std::string &name)
 {
@@ -199,10 +200,14 @@ Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &na
   ModelColumn *col = new ModelColumn();
   columns.add_model_column(col, index);
   Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *icon = NULL;
+  Gtk::TreeModelColumn<Glib::RefPtr<Gtk::Spinner> > *spinner = NULL;
   if (index != -3)
   {
     icon = new Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> >();
     columns.add_model_column(icon, index);
+
+    spinner = new Gtk::TreeModelColumn<Glib::RefPtr<Gtk::Spinner> >();
+    columns.add_model_column(spinner, index);
   }
   typedef CustomRenderer<typename ValueTypeTraits::Renderer, typename ValueTypeTraits::RendererValueType, typename ValueTypeTraits::ValueType> CustomRenderer;
   CustomRenderer *renderer= Gtk::manage(new CustomRenderer());
@@ -219,7 +224,7 @@ Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &na
 
   renderer->floating_point_visible_scale(_model->floating_point_visible_scale());
   renderer->set_edit_state= sigc::bind(sigc::mem_fun(_model.get(), &::bec::GridModel::set_edited_field), index);
-  Gtk::TreeViewColumn *treeview_column= renderer->bind_columns(_view, name, index, col, icon);
+  Gtk::TreeViewColumn *treeview_column= renderer->bind_columns(_view, name, index, col, icon, spinner);
   if (index >= 0 || index == -2)
   {
     treeview_column->signal_clicked().connect(sigc::bind(sigc::mem_fun(_view, &GridView::on_column_header_clicked), treeview_column, index));

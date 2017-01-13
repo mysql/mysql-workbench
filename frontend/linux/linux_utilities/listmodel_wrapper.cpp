@@ -2,6 +2,7 @@
 #include "gtk_helpers.h"
 #include <gtkmm/cellrenderercombo.h>
 #include <gtkmm/icontheme.h>
+#include <gtkmm/spinner.h>
 #include "base/string_utilities.h"
 
 //#define DEBUG
@@ -911,20 +912,42 @@ void ListModelWrapper::get_icon_value(const iterator& iter, int column, const be
 
   static ImageCache       *pixbufs      =  ImageCache::get_instance();
   static Glib::RefPtr<Gtk::IconTheme> icon_theme= Gtk::IconTheme::get_default();
-  GValue *gval = value.gobj();
-
   bec::IconId               icon_id = (*_tm)->get_field_icon(node, column, get_icon_size());
-
-  g_value_init(gval, GDK_TYPE_PIXBUF);
-  if (icon_id != 0)
+  if (icon_id != 0 && icon_id != -1)
   {
     Glib::RefPtr<Gdk::Pixbuf>  pixbuf = pixbufs->image(icon_id);
-
     if ( pixbuf )
     {
-      g_value_set_object(gval, pixbuf->gobj());
+      Glib::Value<Glib::RefPtr<Gdk::Pixbuf>> pixbufValue;
+      pixbufValue.init(Glib::Value<Glib::RefPtr<Gdk::Pixbuf>>::value_type());
+      value.init(Glib::Value<Glib::RefPtr<Gdk::Pixbuf>>::value_type());
+      pixbufValue.set(pixbuf);
+      value = pixbufValue;
     }
   }
+
+}
+
+//------------------------------------------------------------------------------
+
+void ListModelWrapper::get_spinner_value(const iterator& iter, int column, const bec::NodeId &node, Glib::ValueBase& value) const
+{
+  if (!*_tm)
+    return;
+
+  bec::IconId               icon_id = (*_tm)->get_field_icon(node, column, get_icon_size());
+  if (icon_id == -1)
+  {
+    value.init(Glib::Value<Glib::RefPtr<Gtk::Spinner>>::value_type());
+    auto spinnerObj = Glib::RefPtr<Gtk::Spinner>(new Gtk::Spinner());
+
+    Glib::Value<Glib::RefPtr<Gtk::Spinner>> spinner;
+    spinner.init(Glib::Value<Glib::RefPtr<Gtk::Spinner>>::value_type());
+    spinner.set(spinnerObj);
+    value = spinner;
+  }
+
+
 }
 
 //------------------------------------------------------------------------------
@@ -946,9 +969,13 @@ void ListModelWrapper::get_value_vfunc(const iterator& iter, int column, Glib::V
       if ( !_fake_column_value_getter.empty() )
         _fake_column_value_getter(iter, column, type, value);
     }
-    else if ( type == GDK_TYPE_PIXBUF )
+    else if ( type == GDK_TYPE_PIXBUF)
     {
       get_icon_value(iter, column, node, value);
+    }
+    else if ( type == GTK_TYPE_SPINNER)
+    {
+      get_spinner_value(iter, column, node, value);
     }
     else
     {
