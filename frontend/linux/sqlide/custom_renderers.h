@@ -438,6 +438,19 @@ get_preferred_width_for_height_vfunc(Gtk::Widget& widget, int height, int& minim
   _data_renderer.get_preferred_width_for_height_vfunc(widget, height, minimum_width, natural_width);
 }
 
+inline bool refreshFunc(CellRendererProxy<Gtk::CellRendererSpinner> *proxy, Gtk::Widget *w)
+{
+  if (proxy && w)
+  {
+    static int pulse = 1;
+    proxy->property_pulse().set_value(pulse);
+    w->queue_draw();
+    pulse += 1;
+    return true;
+  }
+  return false;
+}
+
 //------------------------------------------------------------------------------
 template <typename Renderer, typename RendererValueType, typename ModelValueType>
 void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
@@ -476,13 +489,7 @@ render_vfunc(const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, 
     _spinnerRenderer.set_visible(1);
     _spinnerRenderer.render_vfunc(cr, widget, background_area, cell_area, flags);
 
-  pulseConnection = Glib::signal_timeout().connect([&]() {
-          static int pulse = 1;
-          _spinnerRenderer.property_pulse().set_value(pulse);
-          widget.queue_draw();
-          pulse += 1;
-          return true;
-    }, 500);
+    pulseConnection = Glib::signal_timeout().connect(sigc::bind(sigc::ptr_fun(refreshFunc), &_spinnerRenderer, &widget), 500);
 
     break;
   }
