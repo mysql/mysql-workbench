@@ -508,6 +508,16 @@ class ListModelWrapper : public Glib::Object, public Gtk::TreeModel, public Gtk:
     virtual void get_icon_value(const iterator& iter, int column, const bec::NodeId &node, Glib::ValueBase& value) const;
 
     /**
+    Initializes and sets @a spinner value to that at @a column.
+
+    @param iter The iterator.
+    @param column The column to lookup the value at.
+    @param node The grt tree node at the iter.
+    @param value An empty Glib:Value to set.
+    */
+    virtual void get_spinner_value(const iterator& iter, int column, const bec::NodeId &node, Glib::ValueBase& value) const;
+
+    /**
     @note This virtual method is not recommended.  To check
     whether an iterator is valid, call TreeStore::iter_is_valid(),
     ListStore::iter_is_valid() or TreeModelSort::iter_is_valid() directly

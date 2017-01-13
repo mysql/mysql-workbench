@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,8 +21,12 @@
 #define _CUSTOM_RENDERERS_H_
 
 #include <gtkmm/cellrendererspin.h>
+#include <gtkmm/cellrendererspinner.h>
 #include <gtkmm/treeview.h>
+#include <gtkmm/spinner.h>
 #include <glibmm/property.h>
+#include <glibmm/main.h>
+
 
 #include <sstream>
 #include <limits>
@@ -79,40 +83,46 @@ class CustomRenderer : public Gtk::CellRenderer, public CustomRendererOps
 {
 public:
   CustomRenderer();
-  virtual ~CustomRenderer() {}
+  virtual ~CustomRenderer() {
+    pulseConnection.disconnect();
+  }
 
   virtual Glib::PropertyProxy_Base _property_renderable() { return property_data_; }
 
-  enum RendererType { rt_data, rt_pixbuf };
+  enum RendererType { rt_data, rt_pixbuf, rt_spinner };
   typedef  CellRendererProxy<Renderer>          RealRenderer;
   RendererType                                  _active_renderer_type;
   RealRenderer                                  _data_renderer;
   CellRendererProxy<Gtk::CellRendererPixbuf>    _pixbuf_renderer;
+  CellRendererProxy<Gtk::CellRendererSpinner>   _spinnerRenderer;
 
   Glib::PropertyProxy<bool> property_editable() { return property_editable_; }
 
   Glib::SignalProxy2<void, const RendererValueType&, const RendererValueType&> signal_edited()
   { return _data_renderer.signal_edited(); }
 
-  Gtk::TreeViewColumn * bind_columns(GridView *treeview, const std::string& name, int index, Gtk::TreeModelColumn<ModelValueType> *model_data_column, Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *model_pixbuf_column);
+  Gtk::TreeViewColumn * bind_columns(GridView *treeview, const std::string& name, int index, Gtk::TreeModelColumn<ModelValueType> *model_data_column, Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *model_pixbuf_column, Gtk::TreeModelColumn<Glib::RefPtr<Gtk::Spinner> > *modelSpinnerColumn);
   sigc::slot<void, int> set_edit_state;
   void floating_point_visible_scale(int val);
   virtual Gtk::CellRenderer* data_renderer() {return &_data_renderer;}
 
 protected:
   Glib::Property<Glib::RefPtr<Gdk::Pixbuf> >            _property_pixbuf;
+  Glib::Property<Glib::RefPtr<Gtk::Spinner> >           _propertySpinner;
   Glib::Property<RendererValueType>                     _property_data;
   Glib::Property<bool>                                  _property_editable;
   Glib::Property<bool>                                  _property_cell_background_set;
   Glib::Property<Glib::ustring>                         _property_cell_background;
   Glib::Property<Gdk::Color>                            _property_cell_background_gdk;
   Glib::PropertyProxy<Glib::RefPtr<Gdk::Pixbuf> >       property_pixbuf_;
+  Glib::PropertyProxy<Glib::RefPtr<Gtk::Spinner> >      propertySpinner_;
   Glib::PropertyProxy<RendererValueType>                property_data_;
   Glib::PropertyProxy<bool>                             property_editable_;
   Glib::PropertyProxy<RendererValueType>                _data_renderer_data;
   Glib::PropertyProxy<bool>                             property_cell_background_set_;
   Glib::PropertyProxy<Glib::ustring>                    property_cell_background_;
   Glib::PropertyProxy<Gdk::Color>                       property_cell_background_gdk_;
+  sigc::connection                                      pulseConnection;
 
 //  virtual void get_size_vfunc (Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const;
   virtual Gtk::SizeRequestMode get_request_mode_vfunc() const;
@@ -138,6 +148,7 @@ private:
 
   Gtk::TreeModelColumn<ModelValueType>                 *_model_data_column;
   Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> >     *_model_pixbuf_column;
+  Gtk::TreeModelColumn<Glib::RefPtr<Gtk::Spinner> >     *_modelSpinnerColumn;
   bool                                                  _editing;
   GridView                                              *_treeview;
   sigc::slot<void>                                      _on_editing_done;
@@ -167,13 +178,16 @@ CustomRenderer<Renderer, RendererValueType, ModelValueType>::CustomRenderer()
             _active_renderer_type(rt_pixbuf),
             _data_renderer(),
             _pixbuf_renderer(),
+            _spinnerRenderer(),
             _property_pixbuf(*this, _pixbuf_renderer._property_renderable().get_name()),
+            _propertySpinner(*this, "Spinner"),
             _property_data(*this, _data_renderer._property_renderable().get_name()),
             _property_editable(*this, _data_renderer.property_editable().get_name()),
             _property_cell_background_set(*this, _data_renderer.property_cell_background_set().get_name()),
             _property_cell_background(*this, _data_renderer.property_cell_background().get_name()),
             _property_cell_background_gdk(*this, _data_renderer.property_cell_background_gdk().get_name()),
             property_pixbuf_(this, _pixbuf_renderer._property_renderable().get_name()),
+            propertySpinner_(this, "Spinner"),
             property_data_(this, _data_renderer._property_renderable().get_name()),
             property_editable_(this, _data_renderer.property_editable().get_name()),
             _data_renderer_data(&_data_renderer, _data_renderer._property_renderable().get_name()),
@@ -182,12 +196,14 @@ CustomRenderer<Renderer, RendererValueType, ModelValueType>::CustomRenderer()
             property_cell_background_gdk_(this, _data_renderer.property_cell_background_gdk().get_name()),
             _model_data_column(NULL),
             _model_pixbuf_column(NULL),
+            _modelSpinnerColumn(NULL),
             _editing(false),
             _treeview(NULL),
             _floating_point_visible_scale("%.3f"),
             _column_index(-1)
 {
-  _pixbuf_renderer.property_xalign()= _data_renderer.property_xalign().get_value();
+  _pixbuf_renderer.property_xalign() = _data_renderer.property_xalign().get_value();
+  _spinnerRenderer.property_xalign() = _data_renderer.property_xalign().get_value();
 
   property_data_.signal_changed().connect(sigc::mem_fun(*this, &CustomRenderer::on_data_changed));
   property_pixbuf_.signal_changed().connect(sigc::mem_fun(*this, &CustomRenderer::on_pixbuf_changed));
@@ -225,7 +241,13 @@ template <typename Renderer, typename RendererValueType, typename ModelValueType
 void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
 on_pixbuf_changed()
 {
-  _active_renderer_type= (_pixbuf_renderer.property_pixbuf().get_value() ? rt_pixbuf : rt_data);
+  if (_pixbuf_renderer.property_pixbuf().get_value())
+    _active_renderer_type = rt_pixbuf;
+  else if (_propertySpinner.get_proxy().get_value())
+    _active_renderer_type = rt_spinner;
+  else
+    _active_renderer_type = rt_data;
+
   _pixbuf_renderer.property_pixbuf()= _property_pixbuf;
 }
 
@@ -244,7 +266,8 @@ void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
 on_cell_background_set_changed()
 {
   _data_renderer.property_cell_background_set()= _property_cell_background_set;
-  _pixbuf_renderer.property_cell_background_set()= _property_cell_background_set;
+  _pixbuf_renderer.property_cell_background_set() = _property_cell_background_set;
+  _spinnerRenderer.property_cell_background_set() = _property_cell_background_set;
 }
 
 //------------------------------------------------------------------------------
@@ -254,6 +277,7 @@ on_cell_background_changed()
 {
   _data_renderer.property_cell_background()= _property_cell_background;
   _pixbuf_renderer.property_cell_background()= _property_cell_background;
+  _spinnerRenderer.property_cell_background() = _property_cell_background;
 }
 
 //------------------------------------------------------------------------------
@@ -263,6 +287,7 @@ on_cell_background_gdk_changed()
 {
   _data_renderer.property_cell_background_gdk()= _property_cell_background_gdk;
   _pixbuf_renderer.property_cell_background_gdk()= _property_cell_background_gdk;
+  _spinnerRenderer.property_cell_background_gdk() = _property_cell_background_gdk;
 }
 
 //------------------------------------------------------------------------------
@@ -273,7 +298,8 @@ CustomRenderer<Renderer, RendererValueType, ModelValueType>::bind_columns(
                                                                 const std::string& name,
                                                                 int index,
                                                                 Gtk::TreeModelColumn<ModelValueType> *model_data_column,
-                                                                Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *model_pixbuf_column
+                                                                Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *model_pixbuf_column,
+                                                                Gtk::TreeModelColumn<Glib::RefPtr<Gtk::Spinner> > *modelSpinnerColumn
                                                                 )
 {
   _treeview= treeview; 
@@ -288,6 +314,7 @@ CustomRenderer<Renderer, RendererValueType, ModelValueType>::bind_columns(
   treeview_column->set_renderer(*this, *model_data_column);
 
   _model_pixbuf_column= model_pixbuf_column;
+  _modelSpinnerColumn = modelSpinnerColumn;
 
   return treeview_column;
 }
@@ -352,8 +379,21 @@ on_cell_data(Gtk::CellRenderer* cr, const Gtk::TreeModel::iterator &iter, Gtk::T
     editing_iter= tree->get_model()->get_iter(_editing_path);
 
   load_cell_data(_property_data, iter->get_value(*_model_data_column), (_editing && editing_iter == iter), _floating_point_visible_scale);
+
   if (_model_pixbuf_column)
     _property_pixbuf= iter->get_value(*_model_pixbuf_column);
+
+  if (_modelSpinnerColumn)
+    _propertySpinner = iter->get_value(*_modelSpinnerColumn);
+
+  if (_propertySpinner.get_proxy().get_value())
+  {
+    _active_renderer_type = rt_spinner;
+  }
+  else if (!_propertySpinner.get_value() && _property_pixbuf.get_value())
+    _active_renderer_type = rt_pixbuf;
+  else
+    _active_renderer_type = rt_data;
 }
 
 //------------------------------------------------------------------------------
@@ -423,11 +463,29 @@ render_vfunc(const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, 
       }
     }
   }
+
+  pulseConnection.disconnect();
   switch (_active_renderer_type)
   {
   case rt_data:
     _data_renderer.render_vfunc(cr, widget, background_area, cell_area, flags);
     break;
+  case rt_spinner:
+  {
+    _spinnerRenderer.property_active().set_value(true);
+    _spinnerRenderer.set_visible(1);
+    _spinnerRenderer.render_vfunc(cr, widget, background_area, cell_area, flags);
+
+  pulseConnection = Glib::signal_timeout().connect([&]() {
+          static int pulse = 1;
+          _spinnerRenderer.property_pulse().set_value(pulse);
+          widget.queue_draw();
+          pulse += 1;
+          return true;
+    }, 500);
+
+    break;
+  }
   default:
     _pixbuf_renderer.render_vfunc(cr, widget, background_area, cell_area, flags);
     break;

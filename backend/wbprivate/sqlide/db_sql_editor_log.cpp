@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -212,6 +212,7 @@ public:
     _info_icon= icon_man->get_icon_id("mini_notice.png");
     _ok_icon= icon_man->get_icon_id("mini_ok.png");
     _edit_icon= icon_man->get_icon_id("mini_edit.png");
+    _busy_icon = -1;
   }
 private:
   IconId _error_icon;
@@ -219,12 +220,13 @@ private:
   IconId _info_icon;
   IconId _edit_icon;
   IconId _ok_icon;
+  IconId _busy_icon;
 public:
   IconId icon(DbSqlEditorLog::MessageType msg_type)
   {
     switch (msg_type)
     {
-      case DbSqlEditorLog::BusyMsg: return 0;
+      case DbSqlEditorLog::BusyMsg: return _busy_icon;
       case DbSqlEditorLog::EditMsg: return _edit_icon;
       case DbSqlEditorLog::NoteMsg: return _info_icon;
       case DbSqlEditorLog::OKMsg: return _ok_icon;
