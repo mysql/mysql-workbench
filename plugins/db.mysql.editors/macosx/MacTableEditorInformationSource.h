@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,21 +21,13 @@
 
 #import "GRTListDataSource.h"
 
-@interface MacTableEditorInformationSource : GRTListDataSource
-{
+@interface MacTableEditorInformationSource : GRTListDataSource {
 }
 
 - (void)refresh;
 
-- (id)objectValueForValueIndex: (NSInteger) valueIndex
-                           row: (NSInteger) rowIndex;
-- (BOOL)setStringValue: (NSString*) value
-         forValueIndex: (int) valueIndex
-                   row: (NSInteger) rowIndex;
-- (BOOL)setIntValue: (NSInteger) value
-      forValueIndex: (int) valueIndex
-                row: (NSInteger) rowIndex;
+- (id)objectValueForValueIndex:(NSInteger)valueIndex row:(NSInteger)rowIndex;
+- (BOOL)setStringValue:(NSString*)value forValueIndex:(int)valueIndex row:(NSInteger)rowIndex;
+- (BOOL)setIntValue:(NSInteger)value forValueIndex:(int)valueIndex row:(NSInteger)rowIndex;
 
 @end
-
-

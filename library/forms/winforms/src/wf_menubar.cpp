@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,12 +30,9 @@ using namespace MySQL::Forms;
 using namespace MySQL::Utilities;
 using namespace MySQL::Controls;
 
-ref class MformsContextMenuStrip : ContextMenuStrip
-{
+ref class MformsContextMenuStrip : ContextMenuStrip {
 protected:
-
-  virtual void OnOpening(CancelEventArgs ^e) override
-  {
+  virtual void OnOpening(CancelEventArgs ^ e) override {
     mforms::ContextMenu *menu = MenuBarWrapper::GetBackend<mforms::ContextMenu>(this);
     if (menu != NULL)
       menu->will_show();
@@ -44,116 +41,91 @@ protected:
 
 //----------------- MenuItemEventTarget ------------------------------------------------------------
 
-ref class MenuItemEventTarget
-{
+ref class MenuItemEventTarget {
 public:
-  void DropDownOpened(Object ^sender, System::EventArgs ^e)
-  {
-    ToolStripMenuItem ^native_item = dynamic_cast<ToolStripMenuItem^>(sender);
-    if (native_item != nullptr)
-    {
+  void DropDownOpened(Object ^ sender, System::EventArgs ^ e) {
+    ToolStripMenuItem ^ native_item = dynamic_cast<ToolStripMenuItem ^>(sender);
+    if (native_item != nullptr) {
       mforms::MenuItem *item = MenuBarWrapper::GetBackend<mforms::MenuItem>(native_item);
-      if (item != NULL)
-      {
-        mforms::MenuBase* menu = item->get_top_menu();
-        if (dynamic_cast<mforms::MenuBar*>(menu) != NULL)
-          dynamic_cast<mforms::MenuBar*>(menu)->will_show_submenu_from(item);
-        else if (dynamic_cast<mforms::ContextMenu*>(menu) != NULL)
-          dynamic_cast<mforms::ContextMenu*>(menu)->will_show_submenu_from(item);
+      if (item != NULL) {
+        mforms::MenuBase *menu = item->get_top_menu();
+        if (dynamic_cast<mforms::MenuBar *>(menu) != NULL)
+          dynamic_cast<mforms::MenuBar *>(menu)->will_show_submenu_from(item);
+        else if (dynamic_cast<mforms::ContextMenu *>(menu) != NULL)
+          dynamic_cast<mforms::ContextMenu *>(menu)->will_show_submenu_from(item);
       }
     }
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void MenuItemClick(Object ^sender, System::EventArgs ^e)
-  {
-    mforms::MenuItem* item = MenuBarWrapper::GetBackend<mforms::MenuItem>(static_cast<ToolStripItem^>(sender));
-   if (item != NULL)
-     item->callback();
+  void MenuItemClick(Object ^ sender, System::EventArgs ^ e) {
+    mforms::MenuItem *item = MenuBarWrapper::GetBackend<mforms::MenuItem>(static_cast<ToolStripItem ^>(sender));
+    if (item != NULL)
+      item->callback();
   }
 };
 
 //--------------------------------------------------------------------------------------------------
 
-class MenuItemWrapper : public ObjectWrapper
-{
+class MenuItemWrapper : public ObjectWrapper {
 private:
   gcroot<ToolStripItem ^> item;
   gcroot<MenuItemEventTarget ^> eventTarget;
 
 protected:
-  virtual System::Object^ InternalGetNativeObject()
-  {
-    return item;
-  }
+  virtual System::Object ^ InternalGetNativeObject() { return item; }
 
-public:
-  MenuItemWrapper(mforms::MenuItem *backend, const std::string &title, const mforms::MenuItemType type)
-    : ObjectWrapper(backend)
-  {
+    public : MenuItemWrapper(mforms::MenuItem *backend, const std::string &title, const mforms::MenuItemType type)
+    : ObjectWrapper(backend) {
     eventTarget = gcnew MenuItemEventTarget();
-    switch (type)
-    {
-    case mforms::CheckedMenuItem:
-      {
+    switch (type) {
+      case mforms::CheckedMenuItem: {
         item = MenuItemWrapper::Create<ToolStripMenuItem>(backend, this);
-        item ->Text = CppStringToNative(title);
-        item ->Click += gcnew System::EventHandler(eventTarget, &MenuItemEventTarget::MenuItemClick); 
+        item->Text = CppStringToNative(title);
+        item->Click += gcnew System::EventHandler(eventTarget, &MenuItemEventTarget::MenuItemClick);
 
-        //native_item->CheckOnClick = true; Not supported on the other platforms.
-      }
-      break;
+        // native_item->CheckOnClick = true; Not supported on the other platforms.
+      } break;
 
-    case mforms::SeparatorMenuItem:
-      {
-        item  = MenuItemWrapper::Create<ToolStripSeparator>(backend, this);
-        item ->AutoSize = false;
-        item ->Height = 3;
-        item ->Margin = Padding(32, 0, 2, 0);
-      }
-      break;
+      case mforms::SeparatorMenuItem: {
+        item = MenuItemWrapper::Create<ToolStripSeparator>(backend, this);
+        item->AutoSize = false;
+        item->Height = 3;
+        item->Margin = Padding(32, 0, 2, 0);
+      } break;
 
-    default:
-      {
-        item  = MenuItemWrapper::Create<ToolStripMenuItem>(backend, this);
-        item ->Text = CppStringToNative(title);
-        item ->Click += gcnew System::EventHandler(eventTarget, &MenuItemEventTarget::MenuItemClick); 
-      }
-      break;
+      default: {
+        item = MenuItemWrapper::Create<ToolStripMenuItem>(backend, this);
+        item->Text = CppStringToNative(title);
+        item->Click += gcnew System::EventHandler(eventTarget, &MenuItemEventTarget::MenuItemClick);
+      } break;
     }
-
   }
 
-  void RegisterDropDown()
-  {
-    ToolStripItem ^stripItem = item;
-    ToolStripMenuItem ^menu = dynamic_cast<ToolStripMenuItem^>(stripItem);
+  void RegisterDropDown() {
+    ToolStripItem ^ stripItem = item;
+    ToolStripMenuItem ^ menu = dynamic_cast<ToolStripMenuItem ^>(stripItem);
     menu->DropDownOpening += gcnew System::EventHandler(eventTarget, &MenuItemEventTarget::DropDownOpened);
   }
 
-  void UnregisterDropDown()
-  {
-    ToolStripItem ^stripItem = item;
-    ToolStripMenuItem ^menu = dynamic_cast<ToolStripMenuItem^>(stripItem);
+  void UnregisterDropDown() {
+    ToolStripItem ^ stripItem = item;
+    ToolStripMenuItem ^ menu = dynamic_cast<ToolStripMenuItem ^>(stripItem);
     menu->DropDownOpening -= gcnew System::EventHandler(eventTarget, &MenuItemEventTarget::DropDownOpened);
   }
 };
 
 //----------------- MenuBarWrapper --------------------------------------------------------------------
 
-MenuBarWrapper::MenuBarWrapper(mforms::MenuBase *backend)
-  : ObjectWrapper(backend)
-{
-
+MenuBarWrapper::MenuBarWrapper(mforms::MenuBase *backend) : ObjectWrapper(backend) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool MenuBarWrapper::create_menu_bar(mforms::MenuBar *backend)
-{
+bool MenuBarWrapper::create_menu_bar(mforms::MenuBar *backend) {
   MenuBarWrapper *wrapper = new MenuBarWrapper(backend);
-  MenuStrip ^menu = Create<MenuStrip>(backend, wrapper);
+  MenuStrip ^ menu = Create<MenuStrip>(backend, wrapper);
 
   menu->AllowDrop = false;
   menu->AllowItemReorder = false;
@@ -171,20 +143,17 @@ bool MenuBarWrapper::create_menu_bar(mforms::MenuBar *backend)
   menu->TabIndex = 0;
   menu->TabStop = false;
 
-  switch (base::Color::get_active_scheme())
-  {
-  case base::ColorSchemeCustom:
-  case base::ColorSchemeHighContrast:
-  case base::ColorSchemeStandard:
-  case base::ColorSchemeStandardWin7:
-    {
-      TransparentMenuStripRenderer ^renderer = gcnew TransparentMenuStripRenderer();
+  switch (base::Color::get_active_scheme()) {
+    case base::ColorSchemeCustom:
+    case base::ColorSchemeHighContrast:
+    case base::ColorSchemeStandard:
+    case base::ColorSchemeStandardWin7: {
+      TransparentMenuStripRenderer ^ renderer = gcnew TransparentMenuStripRenderer();
       menu->Renderer = renderer;
       break;
     }
-  default:
-    {
-      Win8MenuStripRenderer ^renderer = gcnew Win8MenuStripRenderer();
+    default: {
+      Win8MenuStripRenderer ^ renderer = gcnew Win8MenuStripRenderer();
       menu->Renderer = renderer;
       break;
     }
@@ -196,10 +165,9 @@ bool MenuBarWrapper::create_menu_bar(mforms::MenuBar *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-bool MenuBarWrapper::create_context_menu(mforms::ContextMenu *backend)
-{
+bool MenuBarWrapper::create_context_menu(mforms::ContextMenu *backend) {
   MenuBarWrapper *wrapper = new MenuBarWrapper(backend);
-  MformsContextMenuStrip ^strip = Create<MformsContextMenuStrip>(backend, wrapper);
+  MformsContextMenuStrip ^ strip = Create<MformsContextMenuStrip>(backend, wrapper);
 
   strip->AllowDrop = false;
   strip->AllowItemReorder = false;
@@ -217,20 +185,17 @@ bool MenuBarWrapper::create_context_menu(mforms::ContextMenu *backend)
   strip->TabIndex = 0;
   strip->TabStop = false;
 
-  switch (base::Color::get_active_scheme())
-  {
-  case base::ColorSchemeCustom:
-  case base::ColorSchemeHighContrast:
-  case base::ColorSchemeStandard:
-  case base::ColorSchemeStandardWin7:
-    {
-      TransparentMenuStripRenderer ^renderer = gcnew TransparentMenuStripRenderer();
+  switch (base::Color::get_active_scheme()) {
+    case base::ColorSchemeCustom:
+    case base::ColorSchemeHighContrast:
+    case base::ColorSchemeStandard:
+    case base::ColorSchemeStandardWin7: {
+      TransparentMenuStripRenderer ^ renderer = gcnew TransparentMenuStripRenderer();
       strip->Renderer = renderer;
       break;
     }
-  default:
-    {
-      Win8MenuStripRenderer ^renderer = gcnew Win8MenuStripRenderer();
+    default: {
+      Win8MenuStripRenderer ^ renderer = gcnew Win8MenuStripRenderer();
       strip->Renderer = renderer;
       break;
     }
@@ -243,8 +208,7 @@ bool MenuBarWrapper::create_context_menu(mforms::ContextMenu *backend)
 //--------------------------------------------------------------------------------------------------
 
 bool MenuBarWrapper::create_menu_item(mforms::MenuItem *item, const std::string &title,
-  const mforms::MenuItemType type)
-{
+                                      const mforms::MenuItemType type) {
   // MenuItemWrapper will itself create the connections to the backend and its native object.
   MenuItemWrapper *wrapper = new MenuItemWrapper(item, title, type);
   return true;
@@ -252,79 +216,67 @@ bool MenuBarWrapper::create_menu_item(mforms::MenuItem *item, const std::string 
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuBarWrapper::set_title(mforms::MenuItem *item, const std::string &title)
-{
-  ToolStripItem ^object = GetManagedObject<ToolStripItem>(item);
+void MenuBarWrapper::set_title(mforms::MenuItem *item, const std::string &title) {
+  ToolStripItem ^ object = GetManagedObject<ToolStripItem>(item);
   object->Text = CppStringToNative(title);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string MenuBarWrapper::get_title(mforms::MenuItem *item)
-{
-  ToolStripItem ^object = GetManagedObject<ToolStripItem>(item);
+std::string MenuBarWrapper::get_title(mforms::MenuItem *item) {
+  ToolStripItem ^ object = GetManagedObject<ToolStripItem>(item);
   return NativeToCppString(object->Text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuBarWrapper::set_shortcut(mforms::MenuItem* item, const std::string& value)
-{
-  ToolStripMenuItem ^object = GetManagedObject<ToolStripMenuItem>(item);
+void MenuBarWrapper::set_shortcut(mforms::MenuItem *item, const std::string &value) {
+  ToolStripMenuItem ^ object = GetManagedObject<ToolStripMenuItem>(item);
   object->ShortcutKeys = MenuManager::convertShortcut(CppStringToNative(value));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuBarWrapper::set_enabled(mforms::MenuBase* item, bool state)
-{
-  ToolStripItem ^object = GetManagedObject<ToolStripItem>(item);
+void MenuBarWrapper::set_enabled(mforms::MenuBase *item, bool state) {
+  ToolStripItem ^ object = GetManagedObject<ToolStripItem>(item);
   object->Enabled = state;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool MenuBarWrapper::get_enabled(mforms::MenuBase* item)
-{
-  ToolStripItem ^object = GetManagedObject<ToolStripItem>(item);
+bool MenuBarWrapper::get_enabled(mforms::MenuBase *item) {
+  ToolStripItem ^ object = GetManagedObject<ToolStripItem>(item);
   return object->Enabled;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuBarWrapper::set_checked(mforms::MenuItem* item, bool state)
-{
-  ToolStripMenuItem ^object = GetManagedObject<ToolStripMenuItem>(item);
+void MenuBarWrapper::set_checked(mforms::MenuItem *item, bool state) {
+  ToolStripMenuItem ^ object = GetManagedObject<ToolStripMenuItem>(item);
   object->Checked = state;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool MenuBarWrapper::get_checked(mforms::MenuItem* item)
-{
-  ToolStripMenuItem ^object = GetManagedObject<ToolStripMenuItem>(item);
+bool MenuBarWrapper::get_checked(mforms::MenuItem *item) {
+  ToolStripMenuItem ^ object = GetManagedObject<ToolStripMenuItem>(item);
   return object->Checked;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuBarWrapper::insert_item(mforms::MenuBase *menu, int index, mforms::MenuItem *item)
-{
-  if (dynamic_cast<mforms::MenuBar*>(menu) != NULL || dynamic_cast<mforms::ContextMenu*>(menu) != NULL)
-  {
-    ToolStrip^ native_menu = MenuBarWrapper::GetManagedObject<ToolStrip>(menu);
-    ToolStripItem^ native_item = MenuBarWrapper::GetManagedObject<ToolStripItem>(item);
+void MenuBarWrapper::insert_item(mforms::MenuBase *menu, int index, mforms::MenuItem *item) {
+  if (dynamic_cast<mforms::MenuBar *>(menu) != NULL || dynamic_cast<mforms::ContextMenu *>(menu) != NULL) {
+    ToolStrip ^ native_menu = MenuBarWrapper::GetManagedObject<ToolStrip>(menu);
+    ToolStripItem ^ native_item = MenuBarWrapper::GetManagedObject<ToolStripItem>(item);
 
     if (native_menu->Items->Count == index)
       native_menu->Items->Add(native_item);
     else
       native_menu->Items->Insert(index, native_item);
-  }
-  else
-  {
-
-    ToolStripMenuItem^ native_parent = MenuBarWrapper::GetManagedObject<ToolStripMenuItem>(menu);
-    ToolStripItem^ native_item = MenuBarWrapper::GetManagedObject<ToolStripItem>(item);
+  } else {
+    ToolStripMenuItem ^ native_parent = MenuBarWrapper::GetManagedObject<ToolStripMenuItem>(menu);
+    ToolStripItem ^ native_item = MenuBarWrapper::GetManagedObject<ToolStripItem>(item);
 
     if (native_parent->DropDownItems->Count == index)
       native_parent->DropDownItems->Add(native_item);
@@ -332,8 +284,7 @@ void MenuBarWrapper::insert_item(mforms::MenuBase *menu, int index, mforms::Menu
       native_parent->DropDownItems->Insert(index, native_item);
 
     // Register drop down delegate if this is the first item that was added.
-    if (native_parent->DropDownItems->Count == 1)
-    {
+    if (native_parent->DropDownItems->Count == 1) {
       MenuItemWrapper *wrapper = menu->get_data<MenuItemWrapper>();
       wrapper->RegisterDropDown();
     }
@@ -342,38 +293,29 @@ void MenuBarWrapper::insert_item(mforms::MenuBase *menu, int index, mforms::Menu
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuBarWrapper::remove_item(mforms::MenuBase *menu, mforms::MenuItem *item)
-{
+void MenuBarWrapper::remove_item(mforms::MenuBase *menu, mforms::MenuItem *item) {
   MenuItemWrapper *item_wrapper = (item == NULL) ? NULL : item->get_data<MenuItemWrapper>();
-  if (dynamic_cast<mforms::MenuBar*>(menu) != NULL || dynamic_cast<mforms::ContextMenu*>(menu) != NULL)
-  {
+  if (dynamic_cast<mforms::MenuBar *>(menu) != NULL || dynamic_cast<mforms::ContextMenu *>(menu) != NULL) {
     // This is the top menu bar or context menu.
-    ToolStrip ^native_menu = MenuBarWrapper::GetManagedObject<ToolStrip>(menu);
+    ToolStrip ^ native_menu = MenuBarWrapper::GetManagedObject<ToolStrip>(menu);
 
-    if (item != NULL)
-    {
-      ToolStripMenuItem ^native_item = MenuBarWrapper::GetManagedObject<ToolStripMenuItem>(menu);
+    if (item != NULL) {
+      ToolStripMenuItem ^ native_item = MenuBarWrapper::GetManagedObject<ToolStripMenuItem>(menu);
       native_menu->Items->Remove(native_item);
-    }
-    else
+    } else
       native_menu->Items->Clear();
-  }
-  else
-  {
+  } else {
     // A menu item with drop down items.
-    ToolStripMenuItem^ native_menu = MenuBarWrapper::GetManagedObject<ToolStripMenuItem>(menu);
+    ToolStripMenuItem ^ native_menu = MenuBarWrapper::GetManagedObject<ToolStripMenuItem>(menu);
 
-    if (item != NULL)
-    {
-      ToolStripMenuItem ^native_item = MenuBarWrapper::GetManagedObject<ToolStripMenuItem>(menu);
+    if (item != NULL) {
+      ToolStripMenuItem ^ native_item = MenuBarWrapper::GetManagedObject<ToolStripMenuItem>(menu);
       native_menu->DropDownItems->Remove(native_item);
-    }
-    else
+    } else
       native_menu->DropDownItems->Clear();
 
     // Remove drop down delegate if there are no drop down items anymore.
-    if (native_menu->DropDownItems->Count == 0)
-    {
+    if (native_menu->DropDownItems->Count == 0) {
       MenuItemWrapper *wrapper = menu->get_data<MenuItemWrapper>();
       wrapper->UnregisterDropDown();
     }
@@ -382,18 +324,16 @@ void MenuBarWrapper::remove_item(mforms::MenuBase *menu, mforms::MenuItem *item)
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuBarWrapper::popup_at(mforms::ContextMenu *menu, mforms::View *owner, base::Point location)
-{
-  MformsContextMenuStrip^ native_menu = MenuBarWrapper::GetManagedObject<MformsContextMenuStrip>(menu);
+void MenuBarWrapper::popup_at(mforms::ContextMenu *menu, mforms::View *owner, base::Point location) {
+  MformsContextMenuStrip ^ native_menu = MenuBarWrapper::GetManagedObject<MformsContextMenuStrip>(menu);
   if (native_menu != nullptr)
     native_menu->Show((int)location.x, (int)location.y);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuBarWrapper::init()
-{
-  mforms::ControlFactory* f = mforms::ControlFactory::get_instance();
+void MenuBarWrapper::init() {
+  mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_menu_item_impl.create_menu_bar = &MenuBarWrapper::create_menu_bar;
   f->_menu_item_impl.create_context_menu = &MenuBarWrapper::create_context_menu;

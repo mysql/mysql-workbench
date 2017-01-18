@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,107 +23,91 @@ using namespace mforms;
 
 //--------------------------------------------------------------------------------------------------
 
-ListBox::ListBox(bool multi_select)
-  : _updating(false)
-{
-  _listbox_impl= &ControlFactory::get_instance()->_listbox_impl;
+ListBox::ListBox(bool multi_select) : _updating(false) {
+  _listbox_impl = &ControlFactory::get_instance()->_listbox_impl;
 
   _listbox_impl->create(this, multi_select);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::clear()
-{
-  _updating= true;
+void ListBox::clear() {
+  _updating = true;
   _listbox_impl->clear(this);
-  _updating= false;
+  _updating = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::set_heading(const std::string &text)
-{
+void ListBox::set_heading(const std::string &text) {
   _listbox_impl->set_heading(this, text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-size_t ListBox::add_item(const std::string &item)
-{
+size_t ListBox::add_item(const std::string &item) {
   return _listbox_impl->add_item(this, item);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::add_items(const std::list<std::string> &items)
-{
+void ListBox::add_items(const std::list<std::string> &items) {
   _listbox_impl->add_items(this, items);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::remove_index(size_t index)
-{
+void ListBox::remove_index(size_t index) {
   _listbox_impl->remove_index(this, index);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::remove_indexes(const std::vector<size_t> &indexes)
-{
+void ListBox::remove_indexes(const std::vector<size_t> &indexes) {
   _listbox_impl->remove_indexes(this, indexes);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::set_selected(ssize_t index)
-{
-  _updating= true;
+void ListBox::set_selected(ssize_t index) {
+  _updating = true;
   _listbox_impl->set_index(this, index);
-  _updating= false;
+  _updating = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string ListBox::get_string_value()
-{
+std::string ListBox::get_string_value() {
   return _listbox_impl->get_text(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-ssize_t ListBox::get_selected_index()
-{
+ssize_t ListBox::get_selected_index() {
   return _listbox_impl->get_index(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<size_t> ListBox::get_selected_indices()
-{
+std::vector<size_t> ListBox::get_selected_indices() {
   return _listbox_impl->get_selected_indices(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::selection_changed()
-{
+void ListBox::selection_changed() {
   if (!_updating)
     _signal_changed();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-size_t ListBox::get_count() 
-{
-    return _listbox_impl->get_count(this);
+size_t ListBox::get_count() {
+  return _listbox_impl->get_count(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string ListBox::get_string_value_from_index (size_t index) 
-{
-    return _listbox_impl->get_string_value_from_index(this, index);
+std::string ListBox::get_string_value_from_index(size_t index) {
+  return _listbox_impl->get_string_value_from_index(this, index);
 }
-

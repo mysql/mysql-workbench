@@ -14,4 +14,3 @@
 #endif
 
 #endif // _MYSQL_SUPPORT_BACKEND_PUBLIC_INTERFACE_H_
-

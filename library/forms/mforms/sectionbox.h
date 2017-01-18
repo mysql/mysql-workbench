@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,9 +30,8 @@
 namespace mforms {
 
   class HeaderBox;
-    
-  class MFORMS_EXPORT SectionBox : public Box
-  {
+
+  class MFORMS_EXPORT SectionBox : public Box {
     friend class HeaderBox;
 
   private:
@@ -46,20 +45,21 @@ namespace mforms {
     cairo_surface_t* _expanded_icon;
 
   public:
-    SectionBox(bool expandable, const std::string& title, bool header_mode= false);
+    SectionBox(bool expandable, const std::string& title, bool header_mode = false);
     ~SectionBox();
 
     void set_content(View* page);
     void toggle();
     void set_expanded(bool expanded);
-    bool get_expanded() { return _expanded; }
+    bool get_expanded() {
+      return _expanded;
+    }
   };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
   // Private class, so don't expose it to Python.
-  class HeaderBox : public DrawBox
-  {
+  class HeaderBox : public DrawBox {
   private:
     SectionBox* _owner;
     double _caption_offset;
@@ -70,6 +70,7 @@ namespace mforms {
     bool _header_mode; // Draw in special style (rounded corners and gradient).
 
     void draw_background(cairo_t* cr, int width, int height);
+
   public:
     HeaderBox(SectionBox* owner, bool header_mode);
 
@@ -78,5 +79,4 @@ namespace mforms {
   };
 #endif
 #endif
-
 }

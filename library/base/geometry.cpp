@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,47 +23,41 @@ using namespace base;
 
 //----------------- Point --------------------------------------------------------------------------
 
-Point::Point()
-{
+Point::Point() {
   x = 0;
   y = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Point::Point(double x, double y)
-{
-  this->x=  x;
-  this->y=  y;
+Point::Point(double x, double y) {
+  this->x = x;
+  this->y = y;
 }
 
 //----------------- Size ---------------------------------------------------------------------------
 
-Size::Size()
-{
+Size::Size() {
   width = 0;
   height = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Size::Size(double w, double h)
-{
+Size::Size(double w, double h) {
   width = w;
   height = h;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Size::empty()
-{
+bool Size::empty() {
   return (width == 0) || (height == 0);
 }
 
 //----------------- Rect ---------------------------------------------------------------------------
 
-Rect::Rect()
-{
+Rect::Rect() {
   // When drawing lines or similar, e.g. in Cairo, coordinates must be between pixels, otherwise
   // the lines appear blurry. use_inter_pixel does not affect the stored values in the rect but
   // only what is returned by left(), right() etc.
@@ -74,8 +68,7 @@ Rect::Rect()
 
 //--------------------------------------------------------------------------------------------------
 
-Rect::Rect(double x, double y, double w, double h)
-{
+Rect::Rect(double x, double y, double w, double h) {
   use_inter_pixel = false;
   pos = Point(x, y);
   size = Size(w, h);
@@ -83,8 +76,7 @@ Rect::Rect(double x, double y, double w, double h)
 
 //--------------------------------------------------------------------------------------------------
 
-Rect::Rect(const Point &tl, const Point &br)
-{
+Rect::Rect(const Point &tl, const Point &br) {
   use_inter_pixel = false;
   pos = tl;
   size = Size(br.x - tl.x, br.y - tl.y);
@@ -92,8 +84,7 @@ Rect::Rect(const Point &tl, const Point &br)
 
 //--------------------------------------------------------------------------------------------------
 
-Rect::Rect(const Point &apos, const Size &asize)
-{
+Rect::Rect(const Point &apos, const Size &asize) {
   use_inter_pixel = false;
   pos = apos;
   size = asize;
@@ -101,19 +92,15 @@ Rect::Rect(const Point &apos, const Size &asize)
 
 //--------------------------------------------------------------------------------------------------
 
-bool Rect::contains(double x, double y)
-{
-  return !empty() && (x >= pos.x) && (x <= pos.x + size.width) &&
-    (y >= pos.y) && (y <= pos.y + size.height);
+bool Rect::contains(double x, double y) {
+  return !empty() && (x >= pos.x) && (x <= pos.x + size.width) && (y >= pos.y) && (y <= pos.y + size.height);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Rect::contains_flipped(double x, double y)
-{
+bool Rect::contains_flipped(double x, double y) {
   // For cairo text the top is actually the bottom (when using it for hit tests).
-  return !empty() && (x >= pos.x) && (x <= pos.x + size.width) &&
-    (y >= pos.y - size.height) && (y <= pos.y);
+  return !empty() && (x >= pos.x) && (x <= pos.x + size.width) && (y >= pos.y - size.height) && (y <= pos.y);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,8 +109,7 @@ bool Rect::contains_flipped(double x, double y)
  * Inflates the rectangle by adding the given amounts to the left/top coordinate and subtracting them
  * from the right/bottom coordinate.
  */
-void Rect::inflate(double horizontal, double vertical)
-{
+void Rect::inflate(double horizontal, double vertical) {
   pos.x += horizontal;
   size.width -= 2 * horizontal;
   pos.y += vertical;
@@ -132,8 +118,7 @@ void Rect::inflate(double horizontal, double vertical)
 
 //--------------------------------------------------------------------------------------------------
 
-double Rect::right() const
-{
+double Rect::right() const {
   if (use_inter_pixel)
     return (int)(pos.x + size.width) + 0.5;
   else
@@ -142,8 +127,7 @@ double Rect::right() const
 
 //--------------------------------------------------------------------------------------------------
 
-double Rect::bottom() const
-{
+double Rect::bottom() const {
   if (use_inter_pixel)
     return (int)(pos.y + size.height) + 0.5;
   else
@@ -152,8 +136,7 @@ double Rect::bottom() const
 
 //--------------------------------------------------------------------------------------------------
 
-double Rect::left() const
-{
+double Rect::left() const {
   if (use_inter_pixel)
     return (int)pos.x + 0.5;
   else
@@ -162,8 +145,7 @@ double Rect::left() const
 
 //--------------------------------------------------------------------------------------------------
 
-double Rect::top() const
-{
+double Rect::top() const {
   if (use_inter_pixel)
     return (int)pos.y + 0.5;
   else
@@ -172,8 +154,7 @@ double Rect::top() const
 
 //----------------- ControlBounds ------------------------------------------------------------------
 
-ControlBounds::ControlBounds()
-{
+ControlBounds::ControlBounds() {
   left = 0;
   top = 0;
   width = 0;
@@ -182,8 +163,7 @@ ControlBounds::ControlBounds()
 
 //--------------------------------------------------------------------------------------------------
 
-ControlBounds::ControlBounds(int x, int y, int w, int h)
-{
+ControlBounds::ControlBounds(int x, int y, int w, int h) {
   left = x;
   top = y;
   width = w;
@@ -192,8 +172,7 @@ ControlBounds::ControlBounds(int x, int y, int w, int h)
 
 //----------------- Padding ------------------------------------------------------------------------
 
-Padding::Padding()
-{
+Padding::Padding() {
   left = 0;
   top = 0;
   right = 0;
@@ -202,8 +181,7 @@ Padding::Padding()
 
 //--------------------------------------------------------------------------------------------------
 
-Padding::Padding(int padding)
-{
+Padding::Padding(int padding) {
   left = padding;
   top = padding;
   right = padding;
@@ -212,8 +190,7 @@ Padding::Padding(int padding)
 
 //--------------------------------------------------------------------------------------------------
 
-Padding::Padding(int left, int top, int right, int bottom)
-{
+Padding::Padding(int left, int top, int right, int bottom) {
   this->left = left;
   this->top = top;
   this->right = right;
@@ -222,45 +199,39 @@ Padding::Padding(int left, int top, int right, int bottom)
 
 //--------------------------------------------------------------------------------------------------
 
-int Padding::horizontal()
-{
+int Padding::horizontal() {
   return left + right;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int Padding::vertical()
-{
+int Padding::vertical() {
   return top + bottom;
 }
 
 //----------------- Range --------------------------------------------------------------------------
 
-Range::Range()
-{
+Range::Range() {
   position = 0;
   size = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Range::Range(size_t position, size_t size)
-{
+Range::Range(size_t position, size_t size) {
   this->position = position;
   this->size = size;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-size_t Range::end()
-{
+size_t Range::end() {
   return position + size;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Range::contains_point(size_t point)
-{
+bool Range::contains_point(size_t point) {
   return (point >= position) && (point - position <= size);
 }
 

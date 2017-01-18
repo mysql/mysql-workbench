@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -32,8 +32,7 @@
 
 class SidebarSection;
 
-namespace mforms
-{
+namespace mforms {
   class Menu;
   class ConnectionsSection;
   class XProjectsSection;
@@ -47,8 +46,7 @@ namespace mforms
    * This class implements the main (home) screen in MySQL Workbench, containing
    * sections for connections, plugins and documents.
    */
-  class MFORMS_EXPORT HomeScreen : public mforms::AppView, public base::Observer
-  {
+  class MFORMS_EXPORT HomeScreen : public mforms::AppView, public base::Observer {
   private:
     SidebarSection *_sidebarSection;
 
@@ -58,17 +56,19 @@ namespace mforms
 
     void update_colors();
 
-    std::vector<HomeScreenSection*> _sections;
+    std::vector<HomeScreenSection *> _sections;
+
   public:
     HomeScreen(bool singleSection = false);
     virtual ~HomeScreen();
-    
-    void addSection(HomeScreenSection *section);
-    void addSectionEntry(const std::string& icon_name, HomeScreenSection* section, std::function<void()> callback, bool canSelect);
 
-    std::function<void (base::any, std::string)> handleContextMenu;
-    std::function<void (HomeScreenAction action, const base::any &object)> onHomeScreenAction;
-    
+    void addSection(HomeScreenSection *section);
+    void addSectionEntry(const std::string &icon_name, HomeScreenSection *section, std::function<void()> callback,
+                         bool canSelect);
+
+    std::function<void(base::any, std::string)> handleContextMenu;
+    std::function<void(HomeScreenAction action, const base::any &object)> onHomeScreenAction;
+
     void trigger_callback(HomeScreenAction action, const base::any &object);
 
     void cancelOperation();

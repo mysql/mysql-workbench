@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,8 +25,7 @@
 #include <gtkmm/textview.h>
 #include "workbench/wb_context_ui.h"
 
-class DocumentationBox : public Gtk::Box
-{
+class DocumentationBox : public Gtk::Box {
   Gtk::ComboBoxText _combo;
   Gtk::TextView _text;
   sigc::connection _timer;
@@ -40,11 +39,11 @@ class DocumentationBox : public Gtk::Box
   void combo_changed();
   void text_changed();
   void commit();
-  
+
 public:
   DocumentationBox();
   ~DocumentationBox();
-  
+
   void update_for_form(bec::UIForm *form);
 };
 

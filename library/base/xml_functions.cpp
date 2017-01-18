@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #include "base/xml_functions.h"
 #include "base/log.h"
 #include "base/string_utilities.h"
@@ -30,21 +29,19 @@
 
 DEFAULT_LOG_DOMAIN("XML Functions")
 
-static void xmlErrorHandling(void *ctx, const char *msg, ...)
-{
+static void xmlErrorHandling(void *ctx, const char *msg, ...) {
   va_list args;
   va_start(args, msg);
   va_list args_copy;
   va_copy(args_copy, args);
-  std::vector<char> buff(1+ std::vsnprintf(NULL, 0, msg, args_copy));
+  std::vector<char> buff(1 + std::vsnprintf(NULL, 0, msg, args_copy));
   va_end(args_copy);
   std::vsnprintf(buff.data(), buff.size(), msg, args);
   va_end(args);
   logError("LibXml: %s\n", buff.data());
 }
 
-xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntity)
-{
+xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntity) {
   xmlSetGenericErrorFunc(nullptr, xmlErrorHandling);
   xmlDocPtr doc = nullptr;
 
@@ -62,37 +59,30 @@ xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntity)
   return doc;
 }
 
-xmlDocPtr base::xml::xmlParseFragment(const std::string &buff)
-{
+xmlDocPtr base::xml::xmlParseFragment(const std::string &buff) {
   return xmlParseMemory(buff.data(), (int)buff.size());
 }
 
-xmlNodePtr base::xml::getXmlRoot(xmlDocPtr doc)
-{
+xmlNodePtr base::xml::getXmlRoot(xmlDocPtr doc) {
   auto cur = xmlDocGetRootElement(doc);
   if (cur == NULL)
     throw std::runtime_error("Empty document\n");
   return cur;
 }
 
-bool base::xml::nameIs(xmlNodePtr node, const std::string &name)
-{
-  return xmlStrcmp(node->name, (const xmlChar *) name.c_str()) == 0;
+bool base::xml::nameIs(xmlNodePtr node, const std::string &name) {
+  return xmlStrcmp(node->name, (const xmlChar *)name.c_str()) == 0;
 }
 
-bool base::xml::nameIs(xmlAttrPtr attrib, const std::string &name)
-{
-  return xmlStrcmp(attrib->name, (const xmlChar *) name.c_str()) == 0;
+bool base::xml::nameIs(xmlAttrPtr attrib, const std::string &name) {
+  return xmlStrcmp(attrib->name, (const xmlChar *)name.c_str()) == 0;
 }
 
-void base::xml::getXMLDocMetainfo(xmlDocPtr doc, std::string &doctype, std::string &docversion)
-{
+void base::xml::getXMLDocMetainfo(xmlDocPtr doc, std::string &doctype, std::string &docversion) {
   xmlNodePtr root = xmlDocGetRootElement(doc);
 
-  while (root)
-  {
-    if (root->type == XML_ELEMENT_NODE)
-    {
+  while (root) {
+    if (root->type == XML_ELEMENT_NODE) {
       doctype = getProp(root, "document_type");
       docversion = getProp(root, "version");
       break;
@@ -101,42 +91,37 @@ void base::xml::getXMLDocMetainfo(xmlDocPtr doc, std::string &doctype, std::stri
   }
 }
 
-std::string base::xml::getProp(xmlNodePtr node, const std::string &name)
-{
-  xmlChar *prop = xmlGetProp(node, (xmlChar*)name.c_str());
-  std::string tmp = prop ? (char*)prop : "";
+std::string base::xml::getProp(xmlNodePtr node, const std::string &name) {
+  xmlChar *prop = xmlGetProp(node, (xmlChar *)name.c_str());
+  std::string tmp = prop ? (char *)prop : "";
   xmlFree(prop);
   return tmp;
 }
 
-std::string base::xml::getContent(xmlNodePtr node)
-{
+std::string base::xml::getContent(xmlNodePtr node) {
   xmlChar *prop = xmlNodeGetContent(node);
-  std::string tmp = prop ? (char*)prop : "";
+  std::string tmp = prop ? (char *)prop : "";
   xmlFree(prop);
   return tmp;
 }
 
-std::string base::xml::getContentRecursive(xmlNodePtr node)
-{
+std::string base::xml::getContentRecursive(xmlNodePtr node) {
   std::string result;
   result = base::xml::getContent(node);
   auto current = node->children;
-  while (current != nullptr)
-  {
+  while (current != nullptr) {
     result += base::xml::getContent(current);
     current = current->next;
   }
   return result;
 }
 
-std::string base::xml::encodeEntities(const std::string &input)
-{
+std::string base::xml::encodeEntities(const std::string &input) {
   int buffSize = (int)input.size() * 2 + 1;
   std::vector<unsigned char> buff(buffSize, '\0');
   int outLen = buffSize - 1, inLen = (int)input.size();
 
-  htmlEncodeEntities(buff.data(), &outLen, (const unsigned char*)(input.c_str()), &inLen, '"');
+  htmlEncodeEntities(buff.data(), &outLen, (const unsigned char *)(input.c_str()), &inLen, '"');
   buff.erase(buff.begin() + outLen, buff.end());
   return std::string(buff.begin(), buff.end());
 }

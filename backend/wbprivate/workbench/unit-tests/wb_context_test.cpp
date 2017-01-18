@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -35,10 +35,9 @@ using namespace bec;
 
 BEGIN_TEST_DATA_CLASS(wb_context_test)
 protected:
-  WBTester *tester;
+WBTester *tester;
 
-TEST_DATA_CONSTRUCTOR(wb_context_test)
-{
+TEST_DATA_CONSTRUCTOR(wb_context_test) {
   tester = new WBTester;
   // Init datatypes and RDBMS.
   populate_grt(*tester);
@@ -49,15 +48,13 @@ TEST_DATA_CONSTRUCTOR(wb_context_test)
   if (target_version.empty())
     target_version = "5.5.49";
   tester->get_rdbms()->version(parse_version(target_version));
-
 }
 
 END_TEST_DATA_CLASS;
 
 TEST_MODULE(wb_context_test, "high-level tests for Workbench");
 
-TEST_FUNCTION(5)
-{
+TEST_FUNCTION(5) {
   if (base::file_exists("temp"))
     base::remove_recursive("temp");
   base::create_directory("temp", 0700);
@@ -74,24 +71,23 @@ TEST_FUNCTION(5)
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(10)
-{
+TEST_FUNCTION(10) {
   // Test loading documents (saved as xml). Check if the test file is correct.
   {
     FILE *f = fopen("data/workbench/test_model_xml.mwb", "r");
     ensure("Model file does not exist", f != NULL);
-    
+
     char buffer[100];
     buffer[0] = 0;
 
-    fgets(buffer, sizeof(buffer), f);    
+    fgets(buffer, sizeof(buffer), f);
     fclose(f);
-    
+
     ensure("Model file is not pure XML (uncompressed)", strncmp(buffer, "<?xml", 5) == 0);
   }
 
   ensure("Failed opening document", tester->wb->open_document("data/workbench/test_model_xml.mwb"));
-  
+
   workbench_WorkbenchRef root(tester->wb->get_root());
 
   ensure("document ok", root->doc().is_valid());
@@ -109,24 +105,21 @@ TEST_FUNCTION(10)
 /**
  * Test saving + loading of a document and check the canvas state.
  */
-TEST_FUNCTION(15)
-{ 
+TEST_FUNCTION(15) {
   tester->wb->new_document();
   tester->add_view();
 
   ensure_equals("view count after adding", tester->wb->get_document()->physicalModels()[0]->diagrams().count(), 1U);
-  
+
   tester->add_table_figure("sometable", 100, 100);
   tester->flush_until(2); // TODO: this is not deterministic and hence should be replaced in tests.
 
-  ensure_equals("original phys model count",
-                tester->wb->get_document()->physicalModels().count(),1U);
-  ensure_equals("original view count",
-                tester->wb->get_document()->physicalModels()[0]->diagrams().count(),1U);
+  ensure_equals("original phys model count", tester->wb->get_document()->physicalModels().count(), 1U);
+  ensure_equals("original view count", tester->wb->get_document()->physicalModels()[0]->diagrams().count(), 1U);
   ensure_equals("original element count",
-                tester->wb->get_document()->physicalModels()[0]->diagrams()[0]->figures().count(),1U);
+                tester->wb->get_document()->physicalModels()[0]->diagrams()[0]->figures().count(), 1U);
   ensure_equals("original element count in rootLayer",
-                tester->wb->get_document()->physicalModels()[0]->diagrams()[0]->rootLayer()->figures().count(),1U);
+                tester->wb->get_document()->physicalModels()[0]->diagrams()[0]->rootLayer()->figures().count(), 1U);
   tester->sync_view();
   ensure("Saving document failed", tester->wb->save_as("temp/test1_doc.mwb"));
 
@@ -135,14 +128,12 @@ TEST_FUNCTION(15)
 
   ensure("Failed opening document test1_doc", tester->wb->open_document("temp/test1_doc.mwb"));
 
-  ensure_equals("loaded phys model count",
-                tester->wb->get_document()->physicalModels().count(),1U);
-  ensure_equals("loaded view count",
-                tester->wb->get_document()->physicalModels()[0]->diagrams().count(),1U);
+  ensure_equals("loaded phys model count", tester->wb->get_document()->physicalModels().count(), 1U);
+  ensure_equals("loaded view count", tester->wb->get_document()->physicalModels()[0]->diagrams().count(), 1U);
   ensure_equals("loaded element count",
-                tester->wb->get_document()->physicalModels()[0]->diagrams()[0]->figures().count(),1U);
+                tester->wb->get_document()->physicalModels()[0]->diagrams()[0]->figures().count(), 1U);
   ensure_equals("loaded element count in rootLayer",
-                tester->wb->get_document()->physicalModels()[0]->diagrams()[0]->rootLayer()->figures().count(),1U);
+                tester->wb->get_document()->physicalModels()[0]->diagrams()[0]->rootLayer()->figures().count(), 1U);
 
   tester->open_all_diagrams();
   tester->sync_view();
@@ -155,8 +146,7 @@ TEST_FUNCTION(15)
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(20)
-{
+TEST_FUNCTION(20) {
   // bug: opening a model with selection will cause a crash
   tester->wb->new_document();
 
@@ -175,15 +165,14 @@ TEST_FUNCTION(20)
 
   view = tester->get_pmodel()->diagrams()[0];
 
-  ensure("check loaded doc", view->figures().count()==1);
-  ensure_equals("check loaded doc", view->selection().count(),1U);
+  ensure("check loaded doc", view->figures().count() == 1);
+  ensure_equals("check loaded doc", view->selection().count(), 1U);
 
   ensure("Could not close document", tester->close_document());
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(25)
-{
+TEST_FUNCTION(25) {
   // bug: dragging related tables to the view won't create the connection
 
   // test dragging the table with fk 1st
@@ -290,10 +279,10 @@ TEST_FUNCTION(25)
 
     db_TableRef table(grt::find_named_object_in_list(tester->get_schema()->tables(), "table1"));
 
-    ensure("no fk", table->foreignKeys().count()==0);
+    ensure("no fk", table->foreignKeys().count() == 0);
 
-    bec::TableHelper::create_foreign_key_to_table(table, table, true, true, true, true,
-      tester->get_rdbms(), grt::DictRef(true), grt::DictRef(true));
+    bec::TableHelper::create_foreign_key_to_table(table, table, true, true, true, true, tester->get_rdbms(),
+                                                  grt::DictRef(true), grt::DictRef(true));
 
     std::list<db_DatabaseObjectRef> objects;
     objects.push_back(table);
@@ -307,8 +296,7 @@ TEST_FUNCTION(25)
   }
 }
 
-TEST_FUNCTION(30)
-{
+TEST_FUNCTION(30) {
   // bug: deleting tables with relationship won't delete the connection
 
   ensure("Failed opening document", tester->wb->open_document("data/workbench/2tables_1fk.mwb"));
@@ -331,13 +319,13 @@ TEST_FUNCTION(30)
 
   // Delete 1 of the tables and see if connection is gone.
 
-  model_FigureRef figure= tester->get_pview()->figures()[0];
+  model_FigureRef figure = tester->get_pview()->figures()[0];
 
   ensure("root global", tester->wb->get_root()->is_global());
   ensure("doc is global", tester->get_pview()->is_global());
 
   ensure("figure is global", figure->is_global());
-    
+
   tester->wb->get_model_context()->delete_object(figure);
 
   ensure_equals("delete 1 table", tester->get_pview()->figures().count(), 1U);
@@ -353,8 +341,7 @@ TEST_FUNCTION(30)
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(35)
-{
+TEST_FUNCTION(35) {
   tester->wb->new_document();
   tester->add_view();
 
@@ -362,8 +349,6 @@ TEST_FUNCTION(35)
 
   ensure_equals("table object", tester->get_schema()->tables().count(), 1U);
   ensure_equals("table figure", tester->get_pview()->figures().count(), 1U);
-
-  
 
   // delete table with dbobject (1)
   tester->wb->get_model_context()->delete_object(tester->get_pview()->figures()[0]);
@@ -391,20 +376,19 @@ TEST_FUNCTION(35)
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(40)
-{
+TEST_FUNCTION(40) {
   // make sure connections are deleted and recreated with undo/redo
 
   tester->wb->new_document();
   tester->add_view();
 
-  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
+  grt::UndoManager *um = grt::GRT::get()->get_undo_manager();
 
-  db_mysql_TableRef table1= tester->add_table_figure("table1", 10, 10);
+  db_mysql_TableRef table1 = tester->add_table_figure("table1", 10, 10);
   db_mysql_ColumnRef column1(grt::Initialized);
   column1->owner(table1);
   column1->name("pk");
-  db_mysql_TableRef table2= tester->add_table_figure("table2", 100, 10);
+  db_mysql_TableRef table2 = tester->add_table_figure("table2", 100, 10);
 
   db_mysql_ColumnRef column2(grt::Initialized);
   column2->owner(table2);
@@ -421,10 +405,8 @@ TEST_FUNCTION(40)
   // create 1:n rel and test undo
 
   grt::AutoUndo undo;
-  bec::TableHelper::create_foreign_key_to_table(table2, table1, true, true, true, true,
-                                                tester->get_rdbms(),
-                                                grt::DictRef(true),
-                                                grt::DictRef(true));
+  bec::TableHelper::create_foreign_key_to_table(table2, table1, true, true, true, true, tester->get_rdbms(),
+                                                grt::DictRef(true), grt::DictRef(true));
   undo.end("create fk");
 
   ensure_equals("table fks", table2->foreignKeys().count(), 1U);
@@ -456,13 +438,12 @@ TEST_FUNCTION(40)
 
 //--------------------------------------------------------------------------------
 
-TEST_FUNCTION(45)
-{
+TEST_FUNCTION(45) {
   // bug: copy/paste object across schemas are not updating the owner
 
   tester->wb->new_document();
 
-  WBComponentPhysical *ph= tester->wb->get_component<WBComponentPhysical>();
+  WBComponentPhysical *ph = tester->wb->get_component<WBComponentPhysical>();
   ensure("physical component", ph != 0);
 
   workbench_physical_ModelRef model(tester->get_pmodel());
@@ -503,14 +484,11 @@ TEST_FUNCTION(45)
   tester->wb->close_document_finish();
 }
 
-
-static mforms::DialogResult message_other_callback()
-{
+static mforms::DialogResult message_other_callback() {
   return mforms::ResultOther;
 }
 
-TEST_FUNCTION(50)
-{
+TEST_FUNCTION(50) {
   // bug: deleting an identifying relationship doesn't delete indexes.
 
   ensure("Failed opening document", tester->wb->open_document("data/workbench/identifying_relationship.mwb"));
@@ -521,13 +499,14 @@ TEST_FUNCTION(50)
 
   db_TableRef table1(doc->physicalModels()[0]->catalog()->schemata()[0]->tables()[0]);
   db_TableRef table2(doc->physicalModels()[0]->catalog()->schemata()[0]->tables()[1]);
-  
+
   ensure_equals("check index count", table1->indices().count(), 2U);
   ensure_equals("connections", doc->physicalModels()[0]->diagrams()[0]->connections().count(), 1U);
 
-  workbench_physical_ConnectionRef conn= workbench_physical_ConnectionRef::cast_from(doc->physicalModels()[0]->diagrams()[0]->connections().get(0));
+  workbench_physical_ConnectionRef conn =
+    workbench_physical_ConnectionRef::cast_from(doc->physicalModels()[0]->diagrams()[0]->connections().get(0));
   ensure("connection fk", conn->foreignKey().is_valid());
-  
+
   // delete the connection
 
   mforms::stub::UtilitiesWrapper::set_message_callback(message_other_callback);
@@ -540,8 +519,7 @@ TEST_FUNCTION(50)
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(55)
-{
+TEST_FUNCTION(55) {
   ensure("Failed opening document", tester->wb->open_document("data/workbench/identifying_relationship.mwb"));
   tester->open_all_diagrams();
   tester->sync_view();
@@ -551,10 +529,10 @@ TEST_FUNCTION(55)
   db_TableRef table1(doc->physicalModels()[0]->catalog()->schemata()[0]->tables()[0]);
   ensure_equals("check index count", table1->indices().count(), 2U);
   ensure("pk", table1->primaryKey().is_valid());
-  
+
   // Delete column.
   table1->removeColumn(table1->columns()[0]);
-  //bec::TableHelper::remove_column(table1, table1->columns()[0]);
+  // bec::TableHelper::remove_column(table1, table1->columns()[0]);
 
   ensure("Primary key should no longer exist", !table1->primaryKey().is_valid());
 
@@ -562,19 +540,18 @@ TEST_FUNCTION(55)
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(60)
-{
+TEST_FUNCTION(60) {
   // test whether relationship is created when a FK is added and its details
   // are set in steps (non-atomically)
 
   tester->wb->new_document();
   tester->add_view();
 
-  db_mysql_TableRef table1= tester->add_table_figure("table1", 10, 10);
+  db_mysql_TableRef table1 = tester->add_table_figure("table1", 10, 10);
   db_mysql_ColumnRef column1(grt::Initialized);
   column1->owner(table1);
   column1->name("pk");
-  db_mysql_TableRef table2= tester->add_table_figure("table2", 100, 10);
+  db_mysql_TableRef table2 = tester->add_table_figure("table2", 100, 10);
 
   db_mysql_ColumnRef column2(grt::Initialized);
   column2->owner(table2);
@@ -586,11 +563,11 @@ TEST_FUNCTION(60)
   grt::GRT::get()->start_tracking_changes();
   table1->addPrimaryKeyColumn(column1);
   grt::GRT::get()->stop_tracking_changes();
-  
+
   db_mysql_ForeignKeyRef fk(grt::Initialized);
   fk->owner(table2);
   fk->name("fk");
-  
+
   table2->foreignKeys().insert(fk);
   tester->flush_until(2);
 
@@ -607,37 +584,36 @@ TEST_FUNCTION(60)
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(65)
-{
-  // test if new view has layer size set 
+TEST_FUNCTION(65) {
+  // test if new view has layer size set
 
   tester->wb->new_document();
   tester->add_view();
 
-  ensure_equals("rootLayer width", *tester->get_pview()->rootLayer()->width(), tester->last_view->get_total_view_size().width);
-  ensure_equals("rootLayer height", *tester->get_pview()->rootLayer()->height(), tester->last_view->get_total_view_size().height);
+  ensure_equals("rootLayer width", *tester->get_pview()->rootLayer()->width(),
+                tester->last_view->get_total_view_size().width);
+  ensure_equals("rootLayer height", *tester->get_pview()->rootLayer()->height(),
+                tester->last_view->get_total_view_size().height);
 
   ensure("Could not close document", tester->close_document());
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(70)
-{ // test creation of a simple model with a relationship
-  
+TEST_FUNCTION(70) { // test creation of a simple model with a relationship
+
   tester->wb->new_document();
   tester->add_view();
 
   tester->add_table_figure("table1", 100, 100);
   tester->add_table_figure("table2", 300, 100);
-  
+
   tester->export_png("test20_dump.png");
 
   ensure("Could not close document", tester->close_document());
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(75)
-{
+TEST_FUNCTION(75) {
   // bug: loading a model with layers and then hitting new crashes
 
   ensure("Failed opening document", tester->wb->open_document("data/workbench/2tables_conn_layer.mwb"));
@@ -645,18 +621,16 @@ TEST_FUNCTION(75)
   tester->wb->close_document_finish();
   tester->wb->new_document();
 
-  while (dynamic_cast<ModelDiagramForm*>(WBContextUI::get()->get_active_main_form()) != 0)
+  while (dynamic_cast<ModelDiagramForm *>(WBContextUI::get()->get_active_main_form()) != 0)
     tester->wb->flush_idle_tasks();
 
   ensure("Could not close document", tester->close_document());
   tester->wb->close_document_finish();
 }
 
-
-TEST_FUNCTION(80)
-{
+TEST_FUNCTION(80) {
   // bug: loading model twice causes bad internal state in GUI
-  
+
   ensure("Failed opening document", tester->wb->open_document("data/workbench/sakila.mwb"));
   ensure("Could not close document", tester->close_document());
   tester->wb->close_document_finish();
@@ -666,8 +640,7 @@ TEST_FUNCTION(80)
   tester->wb->close_document_finish();
 }
 
-TEST_FUNCTION(85)
-{
+TEST_FUNCTION(85) {
   // bug: loading a model with selection won't reselect the items in the canvas
   ensure("Failed opening document", tester->wb->open_document("data/workbench/selected_table.mwb"));
   tester->open_all_diagrams();
@@ -681,9 +654,8 @@ TEST_FUNCTION(85)
   tester->wb->close_document_finish();
 }
 
-static void set_note_content(GrtStoredNoteRef note, const std::string &text)
-{
-  grt::Module *module= grt::GRT::get()->get_module("Workbench");
+static void set_note_content(GrtStoredNoteRef note, const std::string &text) {
+  grt::Module *module = grt::GRT::get()->get_module("Workbench");
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
@@ -697,9 +669,8 @@ static void set_note_content(GrtStoredNoteRef note, const std::string &text)
   module->call_function("setAttachedFileContents", args);
 }
 
-static std::string get_note_content(const GrtStoredNoteRef &note)
-{
-  grt::Module *module= grt::GRT::get()->get_module("Workbench");
+static std::string get_note_content(const GrtStoredNoteRef &note) {
+  grt::Module *module = grt::GRT::get()->get_module("Workbench");
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
@@ -710,13 +681,12 @@ static std::string get_note_content(const GrtStoredNoteRef &note)
   return *grt::StringRef::cast_from(module->call_function("getAttachedFileContents", args));
 }
 
-TEST_FUNCTION(90)
-{
+TEST_FUNCTION(90) {
   // check stored note management
   tester->wb->new_document();
 
   // add a note
-  WBComponentPhysical *ph= tester->wb->get_component<WBComponentPhysical>();
+  WBComponentPhysical *ph = tester->wb->get_component<WBComponentPhysical>();
 
   ph->add_new_stored_note(tester->get_pmodel());
 
@@ -728,7 +698,7 @@ TEST_FUNCTION(90)
 
   // edit the note like an editor would
   set_note_content(tester->get_pmodel()->notes().get(0), "hello world");
-  std::string filename= tester->get_pmodel()->notes().get(0)->filename();
+  std::string filename = tester->get_pmodel()->notes().get(0)->filename();
 
   tester->wb->save_as("temp/notetest.mwb");
   ensure("Could not close document", tester->close_document());
@@ -739,26 +709,23 @@ TEST_FUNCTION(90)
 
   ensure_equals("note still in model", tester->get_pmodel()->notes().count(), 1U);
   ensure_equals("note filename", *tester->get_pmodel()->notes().get(0)->filename(), filename);
-  
+
   // get note contents as an editor
-  std::string text= get_note_content(tester->get_pmodel()->notes().get(0));
+  std::string text = get_note_content(tester->get_pmodel()->notes().get(0));
   ensure_equals("note contents", text, "hello world");
 
   ensure("Could not close document", tester->close_document());
   tester->wb->close_document_finish();
 }
 
-
-
-TEST_FUNCTION(95)
-{
+TEST_FUNCTION(95) {
   // check undo for stored notes
 
   // create note
   tester->wb->new_document();
 
   // add a note
-  WBComponentPhysical *ph= tester->wb->get_component<WBComponentPhysical>();
+  WBComponentPhysical *ph = tester->wb->get_component<WBComponentPhysical>();
 
   ph->add_new_stored_note(tester->get_pmodel());
 
@@ -766,12 +733,12 @@ TEST_FUNCTION(95)
 
   // check if created
   ensure_equals("note created", tester->get_pmodel()->notes().count(), 1U);
-  ensure("note created with file", tester->get_pmodel()->notes().get(0)->filename()!="");
+  ensure("note created with file", tester->get_pmodel()->notes().get(0)->filename() != "");
 
-  std::string fname= tester->get_pmodel()->notes().get(0)->filename();
+  std::string fname = tester->get_pmodel()->notes().get(0)->filename();
 
   set_note_content(tester->get_pmodel()->notes().get(0), "some text");
-  
+
   ensure_equals("note content set", get_note_content(tester->get_pmodel()->notes().get(0)), "some text");
 
   // delete note and undo
@@ -783,9 +750,7 @@ TEST_FUNCTION(95)
   ensure_equals("note file", *tester->get_pmodel()->notes().get(0)->filename(), fname);
   ensure_equals("note content", get_note_content(tester->get_pmodel()->notes().get(0)), "some text");
 
-
-  for (int i= 0; i < 10; i++)
-  {
+  for (int i = 0; i < 10; i++) {
     grt::GRT::get()->get_undo_manager()->redo();
     ensure_equals("note re-deleted", tester->get_pmodel()->notes().count(), 0U);
     grt::GRT::get()->get_undo_manager()->undo();
@@ -802,8 +767,7 @@ TEST_FUNCTION(95)
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
-TEST_FUNCTION(99)
-{
+TEST_FUNCTION(99) {
   delete tester;
 }
 

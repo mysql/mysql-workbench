@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,12 +22,9 @@
 #include "mforms/uistyle.h"
 #include "mforms/utilities.h"
 
-SelectOptionDialog::SelectOptionDialog(const std::string &title, const std::string &description, std::vector<std::string>& options, SelectorStyle style)
-: mforms::Form(0)
-, _top_vbox(false)
-, _bottom_hbox(true)
-, _option_box (style)
-{
+SelectOptionDialog::SelectOptionDialog(const std::string &title, const std::string &description,
+                                       std::vector<std::string> &options, SelectorStyle style)
+  : mforms::Form(0), _top_vbox(false), _bottom_hbox(true), _option_box(style) {
   set_title(title);
   set_name("select_option_dialog");
   _top_vbox.set_padding(MF_WINDOW_PADDING);
@@ -45,14 +42,13 @@ SelectOptionDialog::SelectOptionDialog(const std::string &title, const std::stri
 
   _ok_button.set_text("OK");
   _cancel_button.set_text("Cancel");
-  
+
   _ok_button.enable_internal_padding(true);
-  _cancel_button.enable_internal_padding(true);  
+  _cancel_button.enable_internal_padding(true);
 
   std::vector<std::string>::iterator end = options.end(), it = options.begin();
 
-  while( it != end )
-  {
+  while (it != end) {
     _option_box.add_item(*it);
     it++;
   }
@@ -60,29 +56,22 @@ SelectOptionDialog::SelectOptionDialog(const std::string &title, const std::stri
   set_content(&_top_vbox);
 }
 
-
-SelectOptionDialog::~SelectOptionDialog(void)
-{
+SelectOptionDialog::~SelectOptionDialog(void) {
 }
 
-std::string SelectOptionDialog::run()
-{ 
+std::string SelectOptionDialog::run() {
   bool valid_selection = false;
   std::string selection = "";
 
   center();
 
   // Return the newly created connection object.
-  while(!valid_selection)
-  {
-    if(run_modal(&_ok_button, &_cancel_button))
-    {
+  while (!valid_selection) {
+    if (run_modal(&_ok_button, &_cancel_button)) {
       selection = _option_box.get_string_value();
 
       valid_selection = validate ? validate(selection) : true;
-    }
-    else
-    {
+    } else {
       selection = "";
       valid_selection = true;
     }

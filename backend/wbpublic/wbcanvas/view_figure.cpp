@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,16 +23,15 @@ using namespace wbfig;
 using namespace base;
 
 View::View(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self)
-: BaseFigure(layer, hub, self), _title(layer, hub, this, false)
-{
+  : BaseFigure(layer, hub, self), _title(layer, hub, this, false) {
   _title.set_icon(mdc::ImageManager::get_instance()->get_image("workbench.physical.ViewFigure.16x16.png"));
-  
+
   set_allowed_resizing(false, false);
   set_accepts_focus(true);
   set_accepts_selection(true);
-  
+
   set_background_corners(mdc::CAll, 8.0);
-  
+
   _title.set_rounded(mdc::CAll);
   _title.set_draggable(true);
   _title.set_expanded(true);
@@ -44,28 +43,19 @@ View::View(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self)
   add(&_title, false, false, true);
 }
 
-
-View::~View()
-{
+View::~View() {
 }
 
-
-void View::set_title(const std::string &title)
-{
+void View::set_title(const std::string &title) {
   _title.set_title(title);
 }
 
-
-void View::set_color(const Color &color)
-{
+void View::set_color(const Color &color) {
   _title.set_color(color);
   set_needs_render();
 }
 
-
-void View::set_title_font(const mdc::FontSpec &font)
-{
+void View::set_title_font(const mdc::FontSpec &font) {
   _title.set_font(font);
   set_needs_render();
 }
-
