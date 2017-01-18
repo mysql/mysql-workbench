@@ -135,7 +135,9 @@ public:
       cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
 
       for (auto &iterator : _entries) {
-        float alpha = (yoffset + SIDEBAR_ROW_HEIGHT) > height ? 0.25f : 1;
+        float alpha = iterator.first == _activeEntry ? 1 : 0.5f;
+        if ((yoffset + SIDEBAR_ROW_HEIGHT) > height)
+          alpha = 0.25f;
 
         iterator.first->acc_bounds.pos.x = SIDEBAR_LEFT_PADDING;
         iterator.first->acc_bounds.pos.y = yoffset;
