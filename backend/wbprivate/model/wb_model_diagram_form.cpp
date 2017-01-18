@@ -902,8 +902,8 @@ void ModelDiagramForm::set_tool(std::string tool) {
     }
   }
 
-  if (_owner->get_wb()->_frontendCallbacks.tool_changed)
-    _owner->get_wb()->_frontendCallbacks.tool_changed(_view);
+  if (_owner->get_wb()->_frontendCallbacks->tool_changed)
+    _owner->get_wb()->_frontendCallbacks->tool_changed(_view);
 }
 
 void ModelDiagramForm::reset_tool(bool notify) {
@@ -930,8 +930,8 @@ void ModelDiagramForm::reset_tool(bool notify) {
   _handle_motion = (std::bind(f));
   _reset_tool = (std::bind(f));
 
-  if (notify && _owner->get_wb()->_frontendCallbacks.tool_changed)
-    _owner->get_wb()->_frontendCallbacks.tool_changed(_view);
+  if (notify && _owner->get_wb()->_frontendCallbacks->tool_changed)
+    _owner->get_wb()->_frontendCallbacks->tool_changed(_view);
 }
 
 std::string ModelDiagramForm::get_tool_argument(const std::string &option) {
@@ -1046,7 +1046,7 @@ void ModelDiagramForm::cut() {
   um->end_undo_group();
   um->set_action_description(strfmt(_("Cut %s"), edit_target_name.c_str()));
 
-  _owner->get_wb()->_frontendCallbacks.show_status_text(strfmt(_("%i figure(s) cut."), count));
+  _owner->get_wb()->_frontendCallbacks->show_status_text(strfmt(_("%i figure(s) cut."), count));
 }
 
 void ModelDiagramForm::copy() {
@@ -1070,7 +1070,7 @@ void ModelDiagramForm::copy() {
   copy_context.finish();
   clip->changed();
 
-  _owner->get_wb()->_frontendCallbacks.show_status_text(strfmt(_("%i object(s) copied."), count));
+  _owner->get_wb()->_frontendCallbacks->show_status_text(strfmt(_("%i object(s) copied."), count));
 }
 
 void ModelDiagramForm::clipboard_changed() {
@@ -1092,7 +1092,7 @@ void ModelDiagramForm::paste() {
 
   _paste_offset += 20;
 
-  _owner->get_wb()->_frontendCallbacks.show_status_text(_("Pasting figures..."));
+  _owner->get_wb()->_frontendCallbacks->show_status_text(_("Pasting figures..."));
 
   grt::CopyContext context;
 
@@ -1130,9 +1130,9 @@ void ModelDiagramForm::paste() {
   undo.end(strfmt(_("Paste %s"), get_clipboard()->get_content_description().c_str()));
 
   if (duplicated == 0)
-    _owner->get_wb()->_frontendCallbacks.show_status_text(strfmt(_("%i figure(s) pasted."), count));
+    _owner->get_wb()->_frontendCallbacks->show_status_text(strfmt(_("%i figure(s) pasted."), count));
   else
-    _owner->get_wb()->_frontendCallbacks.show_status_text(
+    _owner->get_wb()->_frontendCallbacks->show_status_text(
       strfmt(_("%i figure(s) pasted, %i duplicated."), count, duplicated));
 }
 
@@ -1177,7 +1177,7 @@ void ModelDiagramForm::remove_selection(bool deleteSelection) {
   um->end_undo_group();
   um->set_action_description(actionDescription);
 
-  _owner->get_wb()->_frontendCallbacks.show_status_text(statusText);
+  _owner->get_wb()->_frontendCallbacks->show_status_text(statusText);
 }
 
 void ModelDiagramForm::delete_selection() {

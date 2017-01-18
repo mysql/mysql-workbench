@@ -498,7 +498,7 @@ namespace wb {
     std::string request_connection_password(const db_mgmt_ConnectionRef &conn, bool force_asking);
 
   public: // front end callbacks
-    WBFrontendCallbacks _frontendCallbacks;
+    WBFrontendCallbacks *_frontendCallbacks;
 
     // Internal, used for gui plugins
     std::function<void(std::string, void *)> show_gui_plugin;

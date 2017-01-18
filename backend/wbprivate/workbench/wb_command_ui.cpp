@@ -877,10 +877,10 @@ void CommandUI::add_frontend_commands(const std::list<std::string> &commands) {
   for (std::list<std::string>::const_iterator iter = commands.begin(); iter != commands.end(); ++iter) {
     // hack
     if (iter->compare("diagram_size") == 0 || iter->compare("wb.page_setup") == 0)
-      add_builtin_command(*iter, std::bind(_wb->_frontendCallbacks.perform_command, *iter),
+      add_builtin_command(*iter, std::bind(_wb->_frontendCallbacks->perform_command, *iter),
                           std::bind(has_active_view, _wb));
     else
-      add_builtin_command(*iter, std::bind(_wb->_frontendCallbacks.perform_command, *iter));
+      add_builtin_command(*iter, std::bind(_wb->_frontendCallbacks->perform_command, *iter));
   }
 }
 
@@ -1027,4 +1027,8 @@ void CommandUI::revalidate_edit_menu_items() {
   // NOTE : using perform_from_main_thread causes a _grtm reference on the BaseEditor to to get lost in the process,
   //        this causes the application to crash while attempting to create AutoUndoUpdate objects.
   //        Changed to run_once_when_idle to fix this issue
+}
+
+void CommandUI::clearBuildInCommands(){
+  _builtin_commands.clear();
 }

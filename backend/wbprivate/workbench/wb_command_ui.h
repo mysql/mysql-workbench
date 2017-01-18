@@ -95,6 +95,8 @@ namespace wb {
   public:
     CommandUI(WBContext *wb);
 
+    void clearBuildInCommands();
+
     mforms::ToolBar *create_toolbar(const std::string &toolbar_file);
     mforms::ToolBar *create_toolbar(const std::string &toolbar_file,
                                     const std::function<void(std::string)> &activate_slot);
