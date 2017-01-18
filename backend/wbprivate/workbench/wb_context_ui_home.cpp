@@ -808,7 +808,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       if (object.is_valid()) {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
 
-        _wb->_frontendCallbacks.show_status_text("Opening SQL Editor...");
+        _wb->_frontendCallbacks->show_status_text("Opening SQL Editor...");
         _wb->add_new_query_window(connection);
       }
       _processing_action_open_connection = false;
@@ -826,7 +826,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
 
       if (dInfo.files.size() != 0) {
         db_mgmt_ConnectionRef connection = getConnectionById(dInfo.connectionId);
-        _wb->_frontendCallbacks.show_status_text("Opening files in new SQL Editor ...");
+        _wb->_frontendCallbacks->show_status_text("Opening files in new SQL Editor ...");
         std::shared_ptr<SqlEditorForm> form = _wb->add_new_query_window(connection, false);
         if (form) {
           for (auto &it : dInfo.files)
@@ -853,9 +853,9 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
         object = getConnectionById(anyObject.as<std::string>());
 
       ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
-      _wb->_frontendCallbacks.show_status_text("Connection Manager Opened");
+      _wb->_frontendCallbacks->show_status_text("Connection Manager Opened");
       editor.run(db_mgmt_ConnectionRef::cast_from(object));
-      _wb->_frontendCallbacks.show_status_text("");
+      _wb->_frontendCallbacks->show_status_text("");
       refresh_home_connections();
       break;
     }
@@ -891,9 +891,9 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
     case HomeScreenAction::ActionSetupRemoteManagement: {
       db_mgmt_ConnectionRef object = getConnectionById(anyObject.as<std::string>());
       NewServerInstanceWizard wizard(_wb, object);
-      _wb->_frontendCallbacks.show_status_text("Started Management Setup Wizard");
+      _wb->_frontendCallbacks->show_status_text("Started Management Setup Wizard");
       wizard.run_modal();
-      _wb->_frontendCallbacks.show_status_text("");
+      _wb->_frontendCallbacks->show_status_text("");
       _wb->save_instances();
       refresh_home_connections();
       break;
@@ -905,11 +905,11 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
 
     case HomeScreenAction::ActionOpenEERModel: {
       // Note: wb->open_document has an own GUILock, so we must not set another one here.
-      std::string filename = _wb->_frontendCallbacks.show_file_dialog("open", _("Open Workbench Model"), "mwb");
+      std::string filename = _wb->_frontendCallbacks->show_file_dialog("open", _("Open Workbench Model"), "mwb");
       if (!filename.empty())
         _wb->open_document(filename);
       else
-        _wb->_frontendCallbacks.show_status_text("Cancelled");
+        _wb->_frontendCallbacks->show_status_text("Cancelled");
       break;
     }
 
@@ -917,7 +917,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       // Note: wb->open_document has an own GUILock, so we must not set another one here.
       if (!anyObject.isNull()) {
         std::string path = anyObject;
-        _wb->_frontendCallbacks.show_status_text(strfmt("Opening %s...", path.c_str()));
+        _wb->_frontendCallbacks->show_status_text(strfmt("Opening %s...", path.c_str()));
         _wb->open_document(path);
       }
       break;
@@ -945,7 +945,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
         if (_wb->get_document()->physicalModels()[0]->catalog()->schemata().count() == 0)
           _wb->close_document();
       } else
-        _wb->_frontendCallbacks.show_status_text("Error creating document");
+        _wb->_frontendCallbacks->show_status_text("Error creating document");
       break;
     }
 
@@ -966,7 +966,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
         if (_wb->get_document()->physicalModels()[0]->catalog()->schemata().count() == 0)
           _wb->close_document();
       } else
-        _wb->_frontendCallbacks.show_status_text("Error creating document");
+        _wb->_frontendCallbacks->show_status_text("Error creating document");
       break;
     }
 

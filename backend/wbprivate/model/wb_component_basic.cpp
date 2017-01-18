@@ -83,31 +83,31 @@ void WBComponentBasic::setup_canvas_tool(ModelDiagramForm *view, const std::stri
 
   if (tool == WB_TOOL_SELECT) {
     view->set_cursor("select");
-    _wb->_frontendCallbacks.show_status_text("");
+    _wb->_frontendCallbacks->show_status_text("");
   } else if (tool == WB_TOOL_HAND) {
     data = new HandToolContext;
     view->set_cursor("hand");
-    _wb->_frontendCallbacks.show_status_text(_("Drag the canvas to move it around."));
+    _wb->_frontendCallbacks->show_status_text(_("Drag the canvas to move it around."));
   } else if (tool == WB_TOOL_DELETE) {
     view->set_cursor("rubber");
-    _wb->_frontendCallbacks.show_status_text(_("Click the object to delete."));
+    _wb->_frontendCallbacks->show_status_text(_("Click the object to delete."));
   } else if (tool == WB_TOOL_LAYER) {
     view->set_cursor("layer");
-    _wb->_frontendCallbacks.show_status_text(_("Select an area for the new layer."));
+    _wb->_frontendCallbacks->show_status_text(_("Select an area for the new layer."));
   } else if (tool == WB_TOOL_NOTE) {
     view->set_cursor("note");
-    _wb->_frontendCallbacks.show_status_text(_("Select an area for a text object."));
+    _wb->_frontendCallbacks->show_status_text(_("Select an area for a text object."));
   } else if (tool == WB_TOOL_IMAGE) {
     view->set_cursor("image");
-    _wb->_frontendCallbacks.show_status_text(_("Select a location for the image object."));
+    _wb->_frontendCallbacks->show_status_text(_("Select a location for the image object."));
   } else if (tool == WB_TOOL_ZOOM_IN) {
     view->set_cursor("zoom_in");
-    _wb->_frontendCallbacks.show_status_text(_("Left-click anywhere on the diagram to zoom in."));
+    _wb->_frontendCallbacks->show_status_text(_("Left-click anywhere on the diagram to zoom in."));
   } else if (tool == WB_TOOL_ZOOM_OUT) {
     view->set_cursor("zoom_out");
-    _wb->_frontendCallbacks.show_status_text(_("Left-click anywhere on the diagram to zoom out."));
+    _wb->_frontendCallbacks->show_status_text(_("Left-click anywhere on the diagram to zoom out."));
   } else {
-    _wb->_frontendCallbacks.show_status_text("Invalid tool " + tool);
+    _wb->_frontendCallbacks->show_status_text("Invalid tool " + tool);
     return;
   }
 
@@ -190,7 +190,7 @@ grt::ValueRef WBComponentBasic::place_layer(ModelDiagramForm *form, const Rect &
 
     undo.end(_("Place New Layer"));
 
-    _wb->_frontendCallbacks.show_status_text(_("Created new layer."));
+    _wb->_frontendCallbacks->show_status_text(_("Created new layer."));
     return layer;
   } catch (std::exception &exc) {
     _wb->show_exception(_("Place new layer"), exc);
@@ -251,7 +251,7 @@ void WBComponentBasic::delete_object(ModelDiagramForm *view, const Point &pos) {
 
   if (object.is_valid()) {
     if (_wb->get_model_context()->remove_figure(object))
-      _wb->_frontendCallbacks.show_status_text(
+      _wb->_frontendCallbacks->show_status_text(
         strfmt(_("Removed %s"), object.get_metaclass()->get_attribute("caption").c_str()));
   }
 }
@@ -404,7 +404,7 @@ bool WBComponentBasic::handle_button_event(ModelDiagramForm *view, mdc::MouseBut
       Size max_size = view->get_view()->get_total_view_size();
 
       if (rect.width() < 5 || rect.height() < 5) {
-        _wb->_frontendCallbacks.show_status_text(_("Please select a larger area."));
+        _wb->_frontendCallbacks->show_status_text(_("Please select a larger area."));
       } else {
         rect.pos.x = max(rect.pos.x, 0.0);
         rect.pos.y = max(rect.pos.y, 0.0);
@@ -425,7 +425,7 @@ bool WBComponentBasic::handle_button_event(ModelDiagramForm *view, mdc::MouseBut
 
         if (rect.width() < 5 || rect.height() < 5)
         {
-          _wb->_frontendCallbacks.show_status_text(_("Please select a larger area."));
+          _wb->_frontendCallbacks->show_status_text(_("Please select a larger area."));
         }
         else*/
     if (press) {
@@ -447,7 +447,7 @@ bool WBComponentBasic::handle_button_event(ModelDiagramForm *view, mdc::MouseBut
     if (press) {
       workbench_model_ImageFigureRef image;
       std::string filename =
-        _wb->_frontendCallbacks.show_file_dialog("open", _("Place Image"), "PNG Image Files (*.png)|*.png");
+        _wb->_frontendCallbacks->show_file_dialog("open", _("Place Image"), "PNG Image Files (*.png)|*.png");
 
       if (!filename.empty()) {
         {
