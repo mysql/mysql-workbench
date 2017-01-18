@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1078,7 +1078,7 @@ void setup_mforms_app(MainWindowController *mwin);
 
 - (BOOL)windowShouldClose:(id)window
 {
-  return wb::WBContextUI::get()->get_wb()->_frontendCallbacks.quit_application();
+  return wb::WBContextUI::get()->get_wb()->_frontendCallbacks->quit_application();
 }
 
 //--------------------------------------------------------------------------------------------------
