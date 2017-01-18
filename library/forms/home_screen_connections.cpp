@@ -274,7 +274,10 @@ public:
     line_bounds.size.width = (bounds.width() - POPUP_LR_PADDING) / 2;
 
     mforms::anyMap connectionInfo = _owner->getConnectionInfoCallback(_connectionId);
-    mforms::anyMap serverInfo = mforms::getAnyMapValue(connectionInfo, std::string("serverInfo"));
+
+    mforms::anyMap serverInfo;
+    if (!connectionInfo["serverInfo"].isNull())
+      serverInfo = getAnyMapValueAs<mforms::anyMap>(connectionInfo, "serverInfo");
 
     std::string server_version = getAnyMapValueAs<std::string>(connectionInfo, "serverVersion");
 
@@ -413,12 +416,12 @@ public:
             print_info_line(cr, line_bounds, _("SSH User"), getAnyMapValueAs<std::string>(loginInfo, "ssh.userName"));
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-            std::string security = (getAnyMapValueAs<ssize_t>(loginInfo, "ssh.useKey", 0) != 0)
+            std::string security = (getAnyMapValueAs<ssize_t>(loginInfo, "ssh.useKey", (ssize_t)0) != 0)
                                      ? _("Public Key")
                                      : _("Password ") + password_stored;
             print_info_line(cr, line_bounds, _("SSH Security"), security);
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("SSH Port"), getAnyMapValueAs<std::string>(loginInfo, "ssh.port", "22"));
+            print_info_line(cr, line_bounds, _("SSH Port"), getAnyMapValueAs<std::string>(loginInfo, "ssh.port", std::string("22")));
           }
         }
       }
