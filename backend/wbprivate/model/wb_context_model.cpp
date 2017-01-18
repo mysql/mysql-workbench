@@ -472,10 +472,10 @@ void WBContextModel::free_canvas_view(mdc::CanvasView *view) {
 
     // Notify front end so it can close its editor for this view.
     if (bec::GRTManager::get()->in_main_thread())
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.destroy_view(view);
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->destroy_view(view);
     else
       wb::WBContextUI::get()->get_wb()->execute_in_main_thread<void>(
-        "destroy view", std::bind(wb::WBContextUI::get()->get_wb()->_frontendCallbacks.destroy_view, view));
+        "destroy view", std::bind(wb::WBContextUI::get()->get_wb()->_frontendCallbacks->destroy_view, view));
   }
 }
 
@@ -513,7 +513,7 @@ mdc::CanvasView *WBContextModel::create_diagram_main(const model_DiagramRef &dia
   register_diagram_form(diagram);
 
   // Forward creation to front end.
-  mdc::CanvasView *view = wb->_frontendCallbacks.create_diagram(diagram_reference);
+  mdc::CanvasView *view = wb->_frontendCallbacks->create_diagram(diagram_reference);
   if (view) {
     diagram->attach_canvas_view(view);
 
@@ -1129,14 +1129,14 @@ GrtVersionRef WBContextModel::get_target_version() {
 void WBContextModel::export_png(const std::string &path) {
   ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(wb::WBContextUI::get()->get_active_main_form());
   if (form) {
-    wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(
+    wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
       strfmt(_("Exporting to %s..."), path.c_str()));
     try {
       form->get_view()->export_png(path, true);
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
         strfmt(_("Exported diagram image to %s"), path.c_str()));
     } catch (const std::exception &exc) {
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(_("Could not export to PNG file."));
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(_("Could not export to PNG file."));
       wb::WBContextUI::get()->get_wb()->show_exception(_("Export to PNG"), exc);
     }
   } else
@@ -1153,15 +1153,15 @@ void WBContextModel::export_pdf(const std::string &path) {
     size.width = size.width / scale * 2.834;
     size.height = size.height / scale * 2.834;
 
-    wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(
+    wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
       strfmt(_("Exporting full model diagram to %s..."), path.c_str()));
 
     try {
       form->get_view()->export_pdf(path, size);
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
         strfmt(_("Exported PDF to %s"), path.c_str()));
     } catch (const std::exception &exc) {
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(_("Could not export to PDF"));
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(_("Could not export to PDF"));
       wb::WBContextUI::get()->get_wb()->show_exception(_("Export to PDF"), exc);
     }
   } else
@@ -1178,15 +1178,15 @@ void WBContextModel::export_svg(const std::string &path) {
     size.width = MM_TO_PT(size.width / scale);
     size.height = MM_TO_PT(size.height / scale);
 
-    wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(
+    wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
       strfmt(_("Exporting full model diagram to %s..."), path.c_str()));
 
     try {
       form->get_view()->export_svg(path, size);
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
         strfmt(_("Exported SVG to %s"), path.c_str()));
     } catch (const std::exception &exc) {
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(_("Could not export to SVG"));
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(_("Could not export to SVG"));
       wb::WBContextUI::get()->get_wb()->show_exception(_("Export to SVG"), exc);
     }
   } else
@@ -1203,15 +1203,15 @@ void WBContextModel::export_ps(const std::string &path) {
     size.width = MM_TO_PT(size.width / scale);
     size.height = MM_TO_PT(size.height / scale);
 
-    wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(
+    wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
       strfmt(_("Exporting full model diagram to %s..."), path.c_str()));
 
     try {
       form->get_view()->export_ps(path, size);
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
         strfmt(_("Exported PS to %s"), path.c_str()));
     } catch (std::exception &exc) {
-      wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(_("Could not export to PS file"));
+      wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(_("Could not export to PS file"));
       wb::WBContextUI::get()->get_wb()->show_exception(_("Export to PS File"), exc);
     }
   } else
@@ -1227,20 +1227,20 @@ void WBContextModel::export_ps(const std::string &path) {
 // Canvas Management
 
 void WBContextModel::add_new_diagram(const model_ModelRef &model) {
-  wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(_("Creating Diagram..."));
+  wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(_("Creating Diagram..."));
 
-  wb::WBContextUI::get()->get_wb()->_frontendCallbacks.lock_gui(true);
+  wb::WBContextUI::get()->get_wb()->_frontendCallbacks->lock_gui(true);
   model_DiagramRef view = model->addNewDiagram(true);
   if (view.is_valid()) {
     model->currentDiagram(view);
     view->get_data()->realize();
   }
-  wb::WBContextUI::get()->get_wb()->_frontendCallbacks.lock_gui(false);
-  wb::WBContextUI::get()->get_wb()->_frontendCallbacks.show_status_text(_("Diagram added."));
+  wb::WBContextUI::get()->get_wb()->_frontendCallbacks->lock_gui(false);
+  wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(_("Diagram added."));
 }
 
 void WBContextModel::switch_diagram(const model_DiagramRef &view) {
-  wb::WBContextUI::get()->get_wb()->_frontendCallbacks.switched_view(view->get_data()->get_canvas_view());
+  wb::WBContextUI::get()->get_wb()->_frontendCallbacks->switched_view(view->get_data()->get_canvas_view());
 }
 
 #endif // Diagrams_and_Canvas____
