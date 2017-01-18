@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,15 +22,11 @@
 
 using namespace mforms;
 
-
-void TabViewDockingPoint::dock_view(mforms::AppView *view, const std::string &arg1, int arg2)
-{
+void TabViewDockingPoint::dock_view(mforms::AppView *view, const std::string &arg1, int arg2) {
   _tabview->add_page(view, view->get_title());
 }
 
-
-bool TabViewDockingPoint::select_view(mforms::AppView *view)
-{
+bool TabViewDockingPoint::select_view(mforms::AppView *view) {
   int i;
   if ((i = _tabview->get_page_index(view)) < 0)
     return false;
@@ -38,45 +34,32 @@ bool TabViewDockingPoint::select_view(mforms::AppView *view)
   return true;
 }
 
-
-mforms::AppView *TabViewDockingPoint::selected_view()
-{
+mforms::AppView *TabViewDockingPoint::selected_view() {
   int i = _tabview->get_active_tab();
   if (i >= 0)
-    return dynamic_cast<mforms::AppView*>(_tabview->get_page(i));
+    return dynamic_cast<mforms::AppView *>(_tabview->get_page(i));
   return NULL;
 }
 
-
-void TabViewDockingPoint::undock_view(mforms::AppView *view)
-{
+void TabViewDockingPoint::undock_view(mforms::AppView *view) {
   _tabview->remove_page(view);
 }
 
-
-void TabViewDockingPoint::set_view_title(mforms::AppView *view, const std::string &title)
-{
+void TabViewDockingPoint::set_view_title(mforms::AppView *view, const std::string &title) {
   int i;
   if ((i = _tabview->get_page_index(view)) < 0)
     return;
   _tabview->set_tab_title(i, title);
 }
 
-
-std::pair<int, int> TabViewDockingPoint::get_size()
-{
+std::pair<int, int> TabViewDockingPoint::get_size() {
   return std::make_pair(_tabview->get_width(), _tabview->get_height());
 }
 
-
-int TabViewDockingPoint::view_count()
-{
+int TabViewDockingPoint::view_count() {
   return _tabview->page_count();
 }
 
-
-AppView *TabViewDockingPoint::view_at_index(int index)
-{
-  return dynamic_cast<AppView*>(_tabview->get_page(index));
+AppView *TabViewDockingPoint::view_at_index(int index) {
+  return dynamic_cast<AppView *>(_tabview->get_page(index));
 }
-

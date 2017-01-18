@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,32 +27,24 @@
 //================================================================================
 // grt_PyObject
 
-
-grt::IntegerRef grt_PyObject::isEqualTo(const grt::Ref<grt_PyObject> &other)
-{
+grt::IntegerRef grt_PyObject::isEqualTo(const grt::Ref<grt_PyObject> &other) {
   if (other.is_valid())
     return grt::IntegerRef(0);
   return grt::IntegerRef(0);
 }
 
-
-
-grt::AutoPyObject pyobject_from_grt(grt_PyObjectRef object)
-{
+grt::AutoPyObject pyobject_from_grt(grt_PyObjectRef object) {
   if (!object.is_valid())
-     return 0;
+    return 0;
   return *object->get_data();
 }
 
-static void release_object(grt::AutoPyObject *object)
-{
+static void release_object(grt::AutoPyObject *object) {
   delete object;
 }
 
-grt_PyObjectRef pyobject_to_grt(grt::AutoPyObject object)
-{
-  if (object)
-  {
+grt_PyObjectRef pyobject_to_grt(grt::AutoPyObject object) {
+  if (object) {
     grt_PyObjectRef ref(grt::Initialized);
     ref->set_data(new grt::AutoPyObject(object), release_object);
     return ref;
@@ -60,19 +52,15 @@ grt_PyObjectRef pyobject_to_grt(grt::AutoPyObject object)
   return grt_PyObjectRef(grt::Initialized);
 }
 
-
-grt_PyObjectRef pyobject_to_grt(PyObject *object)
-{
+grt_PyObjectRef pyobject_to_grt(PyObject *object) {
   return pyobject_to_grt(grt::AutoPyObject(object));
 }
 
-
-static PyObject *wrap_pyobject(PyObject *self, PyObject *args)
-{
+static PyObject *wrap_pyobject(PyObject *self, PyObject *args) {
   grt::PythonContext *ctx;
   std::string text;
-  
-  if (!(ctx= grt::PythonContext::get_and_check()))
+
+  if (!(ctx = grt::PythonContext::get_and_check()))
     return NULL;
 
   // wrap an arbitrary Python object into a GRT object
@@ -82,13 +70,11 @@ static PyObject *wrap_pyobject(PyObject *self, PyObject *args)
   return ctx->from_grt(pyobject_to_grt(o));
 }
 
-
-static PyObject *unwrap_pyobject(PyObject *self, PyObject *args)
-{
+static PyObject *unwrap_pyobject(PyObject *self, PyObject *args) {
   grt::PythonContext *ctx;
   std::string text;
-  
-  if (!(ctx= grt::PythonContext::get_and_check()))
+
+  if (!(ctx = grt::PythonContext::get_and_check()))
     return NULL;
 
   // unwrap a grt_PyObject into a python object
@@ -100,30 +86,21 @@ static PyObject *unwrap_pyobject(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 
   grt::ValueRef value(ctx->from_pyobject(o));
-  if (value.is_valid())
-  {
-    if (grt_PyObjectRef::can_wrap(value))
-    {
+  if (value.is_valid()) {
+    if (grt_PyObjectRef::can_wrap(value)) {
       grt_PyObjectRef pobj(grt_PyObjectRef::cast_from(value));
       PyObject *tmp = pyobject_from_grt(pobj);
       Py_INCREF(tmp);
       return tmp;
-    }
-    else
-    {
+    } else {
       PyErr_SetString(PyExc_TypeError, "Argument to fromgrt() must be of class grt_PyObject");
       return NULL;
     }
-  }
-  else
+  } else
     Py_RETURN_NONE;
 }
 
-
-void pyobject_initialize()
-{
+void pyobject_initialize() {
   grt::PythonContext::set_wrap_pyobject_func(wrap_pyobject);
   grt::PythonContext::set_unwrap_pyobject_func(unwrap_pyobject);
 }
-
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,15 +22,17 @@
 #include <mforms/../cocoa/MFView.h> // for nsviewForView
 #include <mforms/dockingpoint.h>
 
-class TabViewDockingPointDelegate : public mforms::DockingPointDelegate
-{
+class TabViewDockingPointDelegate : public mforms::DockingPointDelegate {
   NSTabView *_tabView;
   std::string _type;
-  std::map<NSView*, mforms::AppView*> _views;
+  std::map<NSView *, mforms::AppView *> _views;
+
 public:
   TabViewDockingPointDelegate(NSTabView *tabView, const std::string &type);
 
-  virtual std::string get_type() { return _type; }
+  virtual std::string get_type() {
+    return _type;
+  }
 
   mforms::AppView *appview_for_view(NSView *view);
 
@@ -46,4 +48,3 @@ public:
   virtual int view_count();
   virtual mforms::AppView *view_at_index(int index);
 };
-

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -20,9 +20,9 @@
 #pragma once
 
 #ifdef _WIN64
-  typedef __int64 ssize_t;
+typedef __int64 ssize_t;
 #else
-  typedef int ssize_t;
+typedef int ssize_t;
 #endif
 
 #define WIN32_LEAN_AND_MEAN

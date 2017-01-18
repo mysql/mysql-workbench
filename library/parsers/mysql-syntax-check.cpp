@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 
 #include <antlr3.h>
 
-#include "MySQLLexer.h"  // The generated lexer.
+#include "MySQLLexer.h"        // The generated lexer.
 #include "MySQLSimpleParser.h" // The generated parser.
 
 #include "base/log.h"
@@ -35,8 +35,7 @@ DEFAULT_LOG_DOMAIN("MySQL parsing")
 
 //--------------------------------------------------------------------------------------------------
 
-class MySQLSyntaxChecker::Private
-{
+class MySQLSyntaxChecker::Private {
 public:
   const char *_text;
   size_t _text_length;
@@ -53,8 +52,7 @@ public:
 
 MySQLSyntaxChecker::MySQLSyntaxChecker(long server_version, const std::string &sql_mode,
                                        const std::set<std::string> &charsets)
-  : MySQLRecognitionBase(charsets)
-{
+  : MySQLRecognitionBase(charsets) {
   d = new Private();
   d->_context.version = server_version;
   d->_context.payload = this;
@@ -68,12 +66,11 @@ MySQLSyntaxChecker::MySQLSyntaxChecker(long server_version, const std::string &s
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLSyntaxChecker::~MySQLSyntaxChecker()
-{
+MySQLSyntaxChecker::~MySQLSyntaxChecker() {
   if (d->_parser != NULL)
     d->_parser->free(d->_parser);
   if (d->_tokens != NULL)
-    d->_tokens ->free(d->_tokens);
+    d->_tokens->free(d->_tokens);
   if (d->_lexer != NULL)
     d->_lexer->free(d->_lexer);
   if (d->_input != NULL)
@@ -86,16 +83,15 @@ MySQLSyntaxChecker::~MySQLSyntaxChecker()
 
 /**
  * Starts parsing with new input but keeps everything else in place.
- * 
+ *
  * @param text The text to parse.
  * @param length The length of the text.
  * @param is_utf8 True if text is utf-8 encoded. If false we assume ASCII encoding.
- * @param parse_unit used to restrict parsing to a particular query type. 
- * 
+ * @param parse_unit used to restrict parsing to a particular query type.
+ *
  * Note: only a few types are supported, everything else is just parsed as a query.
  */
-void MySQLSyntaxChecker::parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit)
-{
+void MySQLSyntaxChecker::parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit) {
   // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
   // (everything requiring only one byte per char as Latin1, ASCII and similar).
   // TODO: handle the (bad) case that the input encoding changes between parse runs.
@@ -106,11 +102,12 @@ void MySQLSyntaxChecker::parse(const char *text, size_t length, bool is_utf8, My
 
   reset();
 
-  if (d->_input == NULL)
-  {
+  if (d->_input == NULL) {
     // Input and depending structures are only created once. If there's no input stream yet we need the full setup.
-    d->_input = antlr3StringStreamNew((pANTLR3_UINT8)d->_text, d->_input_encoding, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
-    d->_input->setUcaseLA(d->_input, ANTLR3_TRUE); // Make input case-insensitive. String literals must all be upper case in the grammar!
+    d->_input = antlr3StringStreamNew((pANTLR3_UINT8)d->_text, d->_input_encoding, (ANTLR3_UINT32)d->_text_length,
+                                      (pANTLR3_UINT8) "");
+    d->_input->setUcaseLA(
+      d->_input, ANTLR3_TRUE); // Make input case-insensitive. String literals must all be upper case in the grammar!
     d->_lexer = MySQLLexerNew(d->_input);
     d->_lexer->pLexer->rec->state->userp = &d->_context;
 
@@ -118,68 +115,59 @@ void MySQLSyntaxChecker::parse(const char *text, size_t length, bool is_utf8, My
 
     d->_parser = MySQLSimpleParserNew(d->_tokens);
     d->_parser->pParser->rec->state->userp = &d->_context;
-  }
-  else
-  {
-    d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
+  } else {
+    d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8) "");
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);
     d->_parser->reset(d->_parser);
   }
 
-  switch (parse_unit)
-  {
-  case MySQLParseUnit::PuCreateTrigger:
-    d->_parser->create_trigger(d->_parser);
-    break;
-  case MySQLParseUnit::PuCreateView:
-    d->_parser->create_view(d->_parser);
-    break;
-  case MySQLParseUnit::PuCreateRoutine:
-    d->_parser->create_routine(d->_parser);
-    break;
-  case MySQLParseUnit::PuCreateEvent:
-    d->_parser->create_trigger(d->_parser);
-  default:
-    d->_parser->query(d->_parser);
+  switch (parse_unit) {
+    case MySQLParseUnit::PuCreateTrigger:
+      d->_parser->create_trigger(d->_parser);
+      break;
+    case MySQLParseUnit::PuCreateView:
+      d->_parser->create_view(d->_parser);
+      break;
+    case MySQLParseUnit::PuCreateRoutine:
+      d->_parser->create_routine(d->_parser);
+      break;
+    case MySQLParseUnit::PuCreateEvent:
+      d->_parser->create_trigger(d->_parser);
+    default:
+      d->_parser->query(d->_parser);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLSyntaxChecker::set_sql_mode(const std::string &new_mode)
-{
+void MySQLSyntaxChecker::set_sql_mode(const std::string &new_mode) {
   MySQLRecognitionBase::set_sql_mode(new_mode);
   d->_context.sqlMode = sql_mode();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLSyntaxChecker::set_server_version(long new_version)
-{
+void MySQLSyntaxChecker::set_server_version(long new_version) {
   d->_context.version = new_version;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-long MySQLSyntaxChecker::server_version() const
-{
+long MySQLSyntaxChecker::server_version() const {
   return d->_context.version;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string MySQLSyntaxChecker::text() const
-{
+std::string MySQLSyntaxChecker::text() const {
   return std::string(d->_text, d->_text_length);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-const char* MySQLSyntaxChecker::lineStart() const
-{
+const char *MySQLSyntaxChecker::lineStart() const {
   return d->_text;
 }
 
 //--------------------------------------------------------------------------------------------------
-

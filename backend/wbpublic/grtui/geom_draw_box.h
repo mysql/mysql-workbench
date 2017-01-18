@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #ifndef _GEOM_DRAW_BOX_H_
 #define _GEOM_DRAW_BOX_H_
 
@@ -25,19 +24,18 @@
 #include <gdal/ogr_geometry.h>
 #include "wbpublic_public_interface.h"
 
-class WBPUBLICBACKEND_PUBLIC_FUNC GeomDrawBox : public mforms::DrawBox
-{
+class WBPUBLICBACKEND_PUBLIC_FUNC GeomDrawBox : public mforms::DrawBox {
   OGRGeometry *_geom;
   int _srid;
+
 public:
-  GeomDrawBox()
-  : _geom(NULL), _srid(0)
-  {
+  GeomDrawBox() : _geom(NULL), _srid(0) {
   }
 
   void draw_ring(cairo_t *cr, OGRRawPoint *points, int num_points, double scale, double x, double y, double height);
 
-  void draw_ring_vertices(cairo_t *cr, OGRRawPoint *points, int num_points, double scale, double x, double y, double height);
+  void draw_ring_vertices(cairo_t *cr, OGRRawPoint *points, int num_points, double scale, double x, double y,
+                          double height);
 
   void draw_geometry(cairo_t *cr, OGRGeometry *geom, double scale, double x, double y, double height);
 

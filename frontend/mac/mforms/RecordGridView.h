@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,30 +24,30 @@
 
 @class MResultsetViewer;
 
-namespace mforms
-{
-class RecordGridView : public mforms::GridView
-{
-  MResultsetViewer *viewer;
+namespace mforms {
+  class RecordGridView : public mforms::GridView {
+    MResultsetViewer *viewer;
 
-public:
-  RecordGridView(std::shared_ptr<Recordset> rset);
-  virtual ~RecordGridView();
+  public:
+    RecordGridView(std::shared_ptr<Recordset> rset);
+    virtual ~RecordGridView();
 
-  virtual int get_column_count();
-  virtual int get_column_width(int column);
-  virtual void set_column_width(int column, int width);
-  virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order);
+    virtual int get_column_count();
+    virtual int get_column_width(int column);
+    virtual void set_column_width(int column, int width);
+    virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order);
 
-  virtual bool current_cell(size_t &row, int &column);
-  virtual void set_current_cell(size_t row, int column);
+    virtual bool current_cell(size_t &row, int &column);
+    virtual void set_current_cell(size_t row, int column);
 
-  virtual void set_font(const std::string &font);
-  virtual void set_header_menu(ContextMenu *menu);
+    virtual void set_font(const std::string &font);
+    virtual void set_header_menu(ContextMenu *menu);
 
-  virtual void update_columns();
+    virtual void update_columns();
 
-  MResultsetViewer *control() { return viewer; }
-};
+    MResultsetViewer *control() {
+      return viewer;
+    }
+  };
 };
 #endif

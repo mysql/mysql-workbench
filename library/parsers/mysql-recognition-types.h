@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -38,8 +38,7 @@ enum class MySQLParseUnit {
 };
 
 // Describes the type of a given query.
-enum MySQLQueryType
-{
+enum MySQLQueryType {
   QtUnknown,
   QtAmbiguous,
 
@@ -59,7 +58,7 @@ enum MySQLQueryType
   QtCreateDatabase,
   QtCreateEvent,
   QtCreateView,
-  QtCreateRoutine,    // All of procedure, function, UDF. Used for parse type.
+  QtCreateRoutine, // All of procedure, function, UDF. Used for parse type.
   QtCreateProcedure,
   QtCreateFunction,
   QtCreateUdf,
@@ -113,7 +112,7 @@ enum MySQLQueryType
   QtLock,
   QtUnlock,
 
-  QtXA,    // Do we need xa start, xa end etc.?
+  QtXA, // Do we need xa start, xa end etc.?
 
   QtPurge,
   QtChangeMaster,
@@ -150,7 +149,7 @@ enum MySQLQueryType
   QtInstallPlugin,
   QtUninstallPlugin,
 
-  QtSet,   // Any variable assignment.
+  QtSet, // Any variable assignment.
   QtSetPassword,
 
   QtShow,
@@ -199,7 +198,7 @@ enum MySQLQueryType
 
   QtCacheIndex,
   QtFlush,
-  QtKill,   // Connection, Query
+  QtKill, // Connection, Query
   QtLoadIndex,
 
   QtExplainTable,
@@ -212,5 +211,9 @@ enum MySQLQueryType
 
 namespace parser {
   typedef std::pair<std::string, std::string> Identifier;
-  typedef struct { std::string schema; std::string table; std::string column; } ColumnIdentifier;
+  typedef struct {
+    std::string schema;
+    std::string table;
+    std::string column;
+  } ColumnIdentifier;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,33 +18,26 @@
  */
 
 #if defined(_WIN32)
-# include <Python/Python.h>
+#include <Python/Python.h>
 #else
-# include <Python.h>
+#include <Python.h>
 #endif
 
 #include <frameobject.h>
 #include "base/python_utils.h"
 #include "base/string_utilities.h"
 
-
-
-std::string format_python_traceback(PyObject *tb)
-{
-  PyTracebackObject *trace = (PyTracebackObject*)tb;
+std::string format_python_traceback(PyObject *tb) {
+  PyTracebackObject *trace = (PyTracebackObject *)tb;
   std::string stack;
 
   stack = "Traceback:\n";
-  while (trace && trace->tb_frame)
-  {
-    PyFrameObject *frame = (PyFrameObject*)trace->tb_frame;
-    stack += base::strfmt("  File \"%s\", line %i, in %s\n",
-                          PyString_AsString(frame->f_code->co_filename),
-                          trace->tb_lineno,
-                          PyString_AsString(frame->f_code->co_name));
+  while (trace && trace->tb_frame) {
+    PyFrameObject *frame = (PyFrameObject *)trace->tb_frame;
+    stack += base::strfmt("  File \"%s\", line %i, in %s\n", PyString_AsString(frame->f_code->co_filename),
+                          trace->tb_lineno, PyString_AsString(frame->f_code->co_name));
     PyObject *code = PyErr_ProgramText(PyString_AsString(frame->f_code->co_filename), trace->tb_lineno);
-    if (code)
-    {
+    if (code) {
       stack += base::strfmt("    %s", PyString_AsString(code));
       Py_DECREF(code);
     }
@@ -53,20 +46,16 @@ std::string format_python_traceback(PyObject *tb)
   return stack;
 }
 
-
-std::string base::format_python_exception(std::string &summary)
-{
+std::string base::format_python_exception(std::string &summary) {
   std::string reason, stack;
   PyObject *exc, *val, *tb;
 
   PyErr_Fetch(&exc, &val, &tb);
   PyErr_NormalizeException(&exc, &val, &tb);
 
-  if (val)
-  {
+  if (val) {
     PyObject *tmp = PyObject_Str(val);
-    if (tmp)
-    {
+    if (tmp) {
       reason = PyString_AsString(tmp);
       Py_DECREF(tmp);
     }
@@ -81,5 +70,5 @@ std::string base::format_python_exception(std::string &summary)
 
   summary = reason;
 
-  return stack + reason+"\n";
+  return stack + reason + "\n";
 }
