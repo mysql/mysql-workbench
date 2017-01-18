@@ -180,6 +180,7 @@ void DbSqlEditorLog::refresh() {
 
 class MsgTypeIcons {
 public:
+
   MsgTypeIcons() {
     IconManager *icon_man = IconManager::get_instance();
     _error_icon = icon_man->get_icon_id("mini_error.png");
@@ -187,7 +188,6 @@ public:
     _info_icon = icon_man->get_icon_id("mini_notice.png");
     _ok_icon = icon_man->get_icon_id("mini_ok.png");
     _edit_icon = icon_man->get_icon_id("mini_edit.png");
-    _busy_icon = -1;
   }
 
 private:
@@ -196,13 +196,12 @@ private:
   IconId _info_icon;
   IconId _edit_icon;
   IconId _ok_icon;
-  IconId _busy_icon;
 
 public:
   IconId icon(DbSqlEditorLog::MessageType msg_type) {
     switch (msg_type) {
       case DbSqlEditorLog::BusyMsg:
-        return _busy_icon;
+        return 0;
       case DbSqlEditorLog::EditMsg:
         return _edit_icon;
       case DbSqlEditorLog::NoteMsg:
@@ -213,8 +212,9 @@ public:
         return _error_icon;
       case DbSqlEditorLog::WarningMsg:
         return _warning_icon;
+      default:
+        return _info_icon;
     }
-    return _info_icon;
   }
 };
 

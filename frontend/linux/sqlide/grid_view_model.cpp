@@ -22,7 +22,6 @@
 #include "linux_utilities/gtk_helpers.h"
 #include "custom_renderers.h"
 #include "base/string_utilities.h"
-#include <gtkmm/spinner.h>
 
 GridViewModel::Ref GridViewModel::create(bec::GridModel::Ref model, GridView *view, const std::string &name) {
   return Ref(new GridViewModel(model, view, name));
@@ -179,13 +178,9 @@ Gtk::TreeViewColumn *GridViewModel::add_column(int index, const std::string &nam
   ModelColumn *col = new ModelColumn();
   columns.add_model_column(col, index);
   Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *icon = NULL;
-  Gtk::TreeModelColumn<Glib::RefPtr<Gtk::Spinner> > *spinner = NULL;
   if (index != -3) {
     icon = new Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> >();
     columns.add_model_column(icon, index);
-
-    spinner = new Gtk::TreeModelColumn<Glib::RefPtr<Gtk::Spinner> >();
-    columns.add_model_column(spinner, index);
   }
   typedef CustomRenderer<typename ValueTypeTraits::Renderer, typename ValueTypeTraits::RendererValueType,
                          typename ValueTypeTraits::ValueType>
@@ -203,8 +198,9 @@ Gtk::TreeViewColumn *GridViewModel::add_column(int index, const std::string &nam
   }
 
   renderer->floating_point_visible_scale(_model->floating_point_visible_scale());
+
   renderer->set_edit_state = sigc::bind(sigc::mem_fun(_model.get(), &::bec::GridModel::set_edited_field), index);
-  Gtk::TreeViewColumn *treeview_column = renderer->bind_columns(_view, name, index, col, icon, spinner);
+  Gtk::TreeViewColumn *treeview_column = renderer->bind_columns(_view, name, index, col, icon);
   if (index >= 0 || index == -2) {
     treeview_column->signal_clicked().connect(
       sigc::bind(sigc::mem_fun(_view, &GridView::on_column_header_clicked), treeview_column, index));
