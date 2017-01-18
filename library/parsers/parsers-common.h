@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,13 +20,13 @@
 #pragma once
 
 #ifdef _WIN32
-  #ifdef PARSERS_EXPORTS
-    #define PARSERS_PUBLIC_TYPE __declspec(dllexport)
-  #else
-    #define PARSERS_PUBLIC_TYPE __declspec(dllimport)
-  #endif
+#ifdef PARSERS_EXPORTS
+#define PARSERS_PUBLIC_TYPE __declspec(dllexport)
 #else
-  #define PARSERS_PUBLIC_TYPE
+#define PARSERS_PUBLIC_TYPE __declspec(dllimport)
+#endif
+#else
+#define PARSERS_PUBLIC_TYPE
 #endif
 
 #ifndef HAVE_PRECOMPILED_HEADERS
@@ -39,34 +39,31 @@
 
 // Generally used types by the recognizers/scanners, as well as their consumers.
 
-#define	INVALID_TOKEN	0
+#define INVALID_TOKEN 0
 
-struct ParserErrorInfo
-{
+struct ParserErrorInfo {
   std::string message;
   uint32_t token_type;
-  size_t charOffset;   // Offset (in bytes) from the beginning of the input to the error position.
-  size_t line;         // Error line.
-  uint32_t offset;     // Byte offset in the error line to the error start position.
+  size_t charOffset; // Offset (in bytes) from the beginning of the input to the error position.
+  size_t line;       // Error line.
+  uint32_t offset;   // Byte offset in the error line to the error start position.
   size_t length;
 };
 
-struct ParserToken
-{
-  uint32_t type;       // The type as defined in the grammar.
-  uint32_t line;       // One-based line number of this token.
-  int32_t position;    // Zero-based position in the line.
-  uint64_t index;      // The index of the token in the input.
-  uint32_t channel;    // 0 for normally visible tokens. 99  for the hidden channel (whitespaces, comments).
+struct ParserToken {
+  uint32_t type;    // The type as defined in the grammar.
+  uint32_t line;    // One-based line number of this token.
+  int32_t position; // Zero-based position in the line.
+  uint64_t index;   // The index of the token in the input.
+  uint32_t channel; // 0 for normally visible tokens. 99  for the hidden channel (whitespaces, comments).
 
-  char *line_start;    // Pointer into the input to the beginning of the line where this token is located.
-  char *start;         // Points to the start of the token in the input.
-  char *stop;          // Points to the last character of the token.
+  char *line_start; // Pointer into the input to the beginning of the line where this token is located.
+  char *start;      // Points to the start of the token in the input.
+  char *stop;       // Points to the last character of the token.
 
-  std::string text;    // The text of the token.
+  std::string text; // The text of the token.
 
-  ParserToken()
-  {
+  ParserToken() {
     type = INVALID_TOKEN;
     line = 0;
     position = 0;
@@ -79,11 +76,10 @@ struct ParserToken
 };
 
 // Interface for recognizer specific functionality.
-class PARSERS_PUBLIC_TYPE IRecognizer
-{
+class PARSERS_PUBLIC_TYPE IRecognizer {
 public:
   virtual std::string text() const = 0;
-  virtual const char* lineStart() const = 0;
+  virtual const char *lineStart() const = 0;
 
   virtual std::string tokenText(pANTLR3_BASE_TREE node, bool keepQuotes = false) const = 0;
   virtual std::string textForTree(pANTLR3_BASE_TREE tree) const = 0;
@@ -95,11 +91,10 @@ public:
 };
 
 #ifdef _WIN32
-  #pragma warning(disable: 4251) // DLL interface required for std::string member.
+#pragma warning(disable : 4251) // DLL interface required for std::string member.
 #endif
 
-class PARSERS_PUBLIC_TYPE RecognizerTreeWalker
-{
+class PARSERS_PUBLIC_TYPE RecognizerTreeWalker {
 public:
   RecognizerTreeWalker(IRecognizer *recognizer, pANTLR3_BASE_TREE tree);
 

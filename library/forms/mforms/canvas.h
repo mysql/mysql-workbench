@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,16 +30,14 @@ namespace mforms {
   class Canvas;
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct CanvasImplPtrs
-  {
+  struct CanvasImplPtrs {
     bool (*create)(Canvas *self);
     mdc::CanvasView *(*canvas)(Canvas *self);
   };
 #endif
 #endif
 
-  class MFORMS_EXPORT Canvas : public View
-  {
+  class MFORMS_EXPORT Canvas : public View {
   protected:
     CanvasImplPtrs *_canvas_impl;
 
@@ -47,7 +45,6 @@ namespace mforms {
     Canvas();
     mdc::CanvasView *canvas();
   };
-
 };
 
 #endif

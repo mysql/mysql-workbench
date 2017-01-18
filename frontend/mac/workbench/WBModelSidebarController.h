@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,9 +30,7 @@ namespace mforms {
 @class GRTTreeDataSource;
 @class GRTListDataSource;
 
-
-@interface WBModelSidebarController : NSObject
-{
+@interface WBModelSidebarController : NSObject {
   IBOutlet __weak NSTabViewItem *historyTab;
   IBOutlet __weak NSTabViewItem *userTypesTab;
   IBOutlet __weak NSTabViewItem *catalogTreeTab;
@@ -44,8 +42,8 @@ namespace mforms {
   mforms::View *_catalog_tree;
 }
 
-- (void)setupWithContext:(wb::WBContextModel*)context;
-- (void)setupWithDiagramForm:(wb::ModelDiagramForm*)form;
+- (void)setupWithContext:(wb::WBContextModel *)context;
+- (void)setupWithDiagramForm:(wb::ModelDiagramForm *)form;
 - (void)invalidate;
 
 @end

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,33 +23,36 @@
 #include <set>
 #include "wbpublic_public_interface.h"
 
-namespace wbbridge { namespace physical { class TableFigure; }; };
+namespace wbbridge {
+  namespace physical {
+    class TableFigure;
+  };
+};
 
 namespace wbfig {
 
-  class ItemMagnet : public mdc::Magnet
-  {
+  class ItemMagnet : public mdc::Magnet {
     virtual double constrain_angle(double angle) const;
     virtual void owner_bounds_changed(const base::Rect &obounds);
     virtual void owner_parent_bounds_changed(mdc::CanvasItem *item, const base::Rect &obounds);
+
   public:
     ItemMagnet(mdc::CanvasItem *owner);
   };
 
   enum ColumnFlags {
-    ColumnPK = (1<<0),
-    ColumnFK = (1<<1),
-    ColumnNotNull = (1<<2),
-    ColumnAutoIncrement = (1<<3),
-    ColumnUnsigned = (1<<4),
+    ColumnPK = (1 << 0),
+    ColumnFK = (1 << 1),
+    ColumnNotNull = (1 << 2),
+    ColumnAutoIncrement = (1 << 3),
+    ColumnUnsigned = (1 << 4),
 
-    ColumnListTruncated = (1<<5)
+    ColumnListTruncated = (1 << 5)
   };
-  
+
   class Table;
 
-  class TableColumnItem : public FigureItem
-  {
+  class TableColumnItem : public FigureItem {
     ItemMagnet *_magnet;
     ColumnFlags _flags;
 
@@ -59,52 +62,56 @@ namespace wbfig {
     virtual void draw_contents(mdc::CairoCtx *cr);
 
   public:
-    mdc::Magnet *get_item_magnet() { return _magnet; }
+    mdc::Magnet *get_item_magnet() {
+      return _magnet;
+    }
     TableColumnItem(mdc::Layer *layer, FigureEventHub *hub, Table *owner);
-    
+
     void set_column_flags(ColumnFlags flags);
   };
 
-  class WBPUBLICBACKEND_PUBLIC_FUNC Table : public BaseFigure
-  {
+  class WBPUBLICBACKEND_PUBLIC_FUNC Table : public BaseFigure {
     typedef BaseFigure super;
+
   public:
     Table(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self, bool collapsible);
 
-    Titlebar *get_title() { return &_title; }
-    virtual Titlebar *get_index_title() { return 0; }
-    virtual Titlebar *get_trigger_title() { return 0; }
+    Titlebar *get_title() {
+      return &_title;
+    }
+    virtual Titlebar *get_index_title() {
+      return 0;
+    }
+    virtual Titlebar *get_trigger_title() {
+      return 0;
+    }
 
     void set_show_flags(bool flag);
-    
-    virtual void set_dependant(bool flag)= 0;
 
-    virtual ItemList *get_columns()= 0;
+    virtual void set_dependant(bool flag) = 0;
 
-    virtual ItemList::iterator begin_columns_sync()= 0;
-    virtual ItemList::iterator sync_next_column(ItemList::iterator iter,
-                                        const std::string &id,
-                                        ColumnFlags type,
-                                        const std::string &text)= 0;
-    virtual void end_columns_sync(ItemList::iterator iter)= 0;
+    virtual ItemList *get_columns() = 0;
 
-    virtual ItemList *get_indexes() { return 0; }
+    virtual ItemList::iterator begin_columns_sync() = 0;
+    virtual ItemList::iterator sync_next_column(ItemList::iterator iter, const std::string &id, ColumnFlags type,
+                                                const std::string &text) = 0;
+    virtual void end_columns_sync(ItemList::iterator iter) = 0;
 
-    virtual ItemList::iterator begin_indexes_sync()= 0;
-    virtual ItemList::iterator sync_next_index(ItemList::iterator iter,
-                                        const std::string &id,
-                                        const std::string &text)= 0;
-    virtual void end_indexes_sync(ItemList::iterator iter)= 0;
+    virtual ItemList *get_indexes() {
+      return 0;
+    }
 
+    virtual ItemList::iterator begin_indexes_sync() = 0;
+    virtual ItemList::iterator sync_next_index(ItemList::iterator iter, const std::string &id,
+                                               const std::string &text) = 0;
+    virtual void end_indexes_sync(ItemList::iterator iter) = 0;
 
-    virtual ItemList::iterator begin_triggers_sync()= 0;
-    virtual ItemList::iterator sync_next_trigger(ItemList::iterator iter,
-                                                 const std::string &id,
-                                                 const std::string &text)= 0;
-    virtual void end_triggers_sync(ItemList::iterator iter)= 0;
+    virtual ItemList::iterator begin_triggers_sync() = 0;
+    virtual ItemList::iterator sync_next_trigger(ItemList::iterator iter, const std::string &id,
+                                                 const std::string &text) = 0;
+    virtual void end_triggers_sync(ItemList::iterator iter) = 0;
 
-    virtual void highlight(const base::Color *color= 0)
-    {
+    virtual void highlight(const base::Color *color = 0) {
       _background.set_highlight_color(color);
       _background.set_highlighted(true);
       set_highlight_color(color);
@@ -112,31 +119,43 @@ namespace wbfig {
       set_needs_render();
     }
 
-    virtual void unhighlight()
-    {
+    virtual void unhighlight() {
       _background.set_highlighted(false);
       set_highlighted(false);
       set_needs_render();
     }
-    
+
     virtual void set_title_font(const mdc::FontSpec &font);
     virtual void set_section_font(const mdc::FontSpec &font);
     virtual void set_content_font(const mdc::FontSpec &font);
 
-    bool columns_hidden() { return _hide_columns; }
-    bool indexes_hidden() { return _hide_indexes; }
-    bool triggers_hidden() { return _hide_triggers; }
+    bool columns_hidden() {
+      return _hide_columns;
+    }
+    bool indexes_hidden() {
+      return _hide_indexes;
+    }
+    bool triggers_hidden() {
+      return _hide_triggers;
+    }
 
-    mdc::BoxSideMagnet *get_sides_magnet() { return _sides_magnet; }
+    mdc::BoxSideMagnet *get_sides_magnet() {
+      return _sides_magnet;
+    }
 
-    virtual void toggle(bool flag) {}
-    virtual void toggle_indexes(bool flag) {}
-    virtual void toggle_triggers(bool flag) {}
+    virtual void toggle(bool flag) {
+    }
+    virtual void toggle_indexes(bool flag) {
+    }
+    virtual void toggle_triggers(bool flag) {
+    }
 
-    virtual void set_max_columns_shown(int count) {}
+    virtual void set_max_columns_shown(int count) {
+    }
+
   protected:
     mdc::RectangleFigure _background;
-    boost::signals2::signal<void (int,bool)> _signal_index_crossed;
+    boost::signals2::signal<void(int, bool)> _signal_index_crossed;
 
     mdc::BoxSideMagnet *_sides_magnet;
 
@@ -154,15 +173,19 @@ namespace wbfig {
 
     wbfig::FigureItem *create_index_item(mdc::Layer *layer, wbfig::FigureEventHub *hub);
 
-    bool compare_connection_position(mdc::Connector *a, mdc::Connector *b, 
-      mdc::BoxSideMagnet::Side vertical);
+    bool compare_connection_position(mdc::Connector *a, mdc::Connector *b, mdc::BoxSideMagnet::Side vertical);
 
-    virtual bool get_expanded() { return true; }
+    virtual bool get_expanded() {
+      return true;
+    }
 
-    virtual bool get_indexes_expanded() { return true; }
-    virtual bool get_triggers_expanded() { return true; }
+    virtual bool get_indexes_expanded() {
+      return true;
+    }
+    virtual bool get_triggers_expanded() {
+      return true;
+    }
   };
 };
 
 #endif
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,36 +19,35 @@
 
 #include "grtui/wizard_progress_page.h"
 
-class FetchSchemaNamesSourceTargetProgressPage : public WizardProgressPage
-{
+class FetchSchemaNamesSourceTargetProgressPage : public WizardProgressPage {
 public:
-  FetchSchemaNamesSourceTargetProgressPage(WizardForm *form, MultiSourceSelectPage *source_page, const char *name= "fetchNames")
-  : WizardProgressPage(form, name, true), _source_page(source_page), _source_dbconn(0), _target_dbconn(0), _finished(0)
-  {
+  FetchSchemaNamesSourceTargetProgressPage(WizardForm *form, MultiSourceSelectPage *source_page,
+                                           const char *name = "fetchNames")
+    : WizardProgressPage(form, name, true),
+      _source_page(source_page),
+      _source_dbconn(0),
+      _target_dbconn(0),
+      _finished(0) {
     set_title(_("Retrieve Source and Target Schema Names"));
     set_short_title(_("Get Source and Target"));
 
     set_status_text("");
   }
 
-  void set_load_schemata_slot(DbConnection *sdbc, const std::function<std::vector<std::string> ()> &sslot,
-                              DbConnection *tdbc, const std::function<std::vector<std::string> ()> &tslot)
-  {
+  void set_load_schemata_slot(DbConnection *sdbc, const std::function<std::vector<std::string>()> &sslot,
+                              DbConnection *tdbc, const std::function<std::vector<std::string>()> &tslot) {
     _source_dbconn = sdbc;
     _target_dbconn = tdbc;
     _load_source_schemata = sslot;
     _load_target_schemata = tslot;
   }
 
-  void set_model_catalog(db_CatalogRef catalog)
-  {
+  void set_model_catalog(db_CatalogRef catalog) {
     _model_catalog = catalog;
   }
 
 protected:
-
-  bool perform_connect(bool source)
-  {
+  bool perform_connect(bool source) {
     DbConnection *dbc = source ? _source_dbconn : _target_dbconn;
     db_mgmt_ConnectionRef conn = dbc->get_connection();
 
@@ -57,8 +56,7 @@ protected:
     return true;
   }
 
-  grt::ValueRef do_connect(DbConnection *dbc)
-  {
+  grt::ValueRef do_connect(DbConnection *dbc) {
     if (!dbc)
       throw std::logic_error("must call set_db_connection() 1st");
     dbc->test_connection();
@@ -66,30 +64,24 @@ protected:
     return grt::ValueRef();
   }
 
-
-  bool perform_fetch(bool source)
-  {
-    execute_grt_task(std::bind(&FetchSchemaNamesSourceTargetProgressPage::do_fetch, this, source),
-                     false);
+  bool perform_fetch(bool source) {
+    execute_grt_task(std::bind(&FetchSchemaNamesSourceTargetProgressPage::do_fetch, this, source), false);
     return true;
   }
 
-  static bool collate(const std::string &a, const std::string &b)
-  {
+  static bool collate(const std::string &a, const std::string &b) {
     return g_utf8_collate(a.c_str(), b.c_str()) < 0;
   }
 
-
-  grt::ValueRef do_fetch(bool source)
-  {
-    std::vector<std::string> schema_names= source ? _load_source_schemata() : _load_target_schemata();
+  grt::ValueRef do_fetch(bool source) {
+    std::vector<std::string> schema_names = source ? _load_source_schemata() : _load_target_schemata();
 
     // order the schema names alphabetically
-    std::sort(schema_names.begin(), schema_names.end(), std::ptr_fun(&FetchSchemaNamesSourceTargetProgressPage::collate));
+    std::sort(schema_names.begin(), schema_names.end(),
+              std::ptr_fun(&FetchSchemaNamesSourceTargetProgressPage::collate));
 
     grt::StringListRef list(grt::Initialized);
-    for (std::vector<std::string>::const_iterator iter= schema_names.begin();
-         iter != schema_names.end(); ++iter)
+    for (std::vector<std::string>::const_iterator iter = schema_names.begin(); iter != schema_names.end(); ++iter)
       list.insert(*iter);
 
     if (source)
@@ -102,8 +94,7 @@ protected:
     return grt::ValueRef();
   }
 
-  bool perform_script_fetch(bool source)
-  {
+  bool perform_script_fetch(bool source) {
     std::string path = values().get_string(source ? "left_source_file" : "right_source_file");
     db_CatalogRef catalog = parse_catalog_from_file(path);
 
@@ -111,13 +102,10 @@ protected:
     for (size_t i = 0; i < catalog->schemata().count(); i++)
       schemata.insert(catalog->schemata()[i]->name());
 
-    if (source)
-    {
+    if (source) {
       values().set("left_file_catalog", catalog);
       values().set("schemata", schemata);
-    }
-    else
-    {
+    } else {
       values().set("right_file_catalog", catalog);
       values().set("targetSchemata", schemata);
     }
@@ -127,9 +115,8 @@ protected:
     return true;
   }
 
-  db_CatalogRef parse_catalog_from_file(const std::string &filename)
-  {
-    workbench_physical_ModelRef pm= workbench_physical_ModelRef::cast_from(_model_catalog->owner());
+  db_CatalogRef parse_catalog_from_file(const std::string &filename) {
+    workbench_physical_ModelRef pm = workbench_physical_ModelRef::cast_from(_model_catalog->owner());
 
     db_mysql_CatalogRef cat(grt::Initialized);
     cat->version(pm->rdbms()->version());
@@ -138,26 +125,24 @@ protected:
     cat->name("default");
     cat->oldName("default");
 
-    GError *file_error= NULL;
-    char *sql_input_script= NULL;
-    gsize sql_input_script_length= 0;
+    GError *file_error = NULL;
+    char *sql_input_script = NULL;
+    gsize sql_input_script_length = 0;
 
-    if (!g_file_get_contents(filename.c_str(), &sql_input_script, &sql_input_script_length, &file_error))
-    {
+    if (!g_file_get_contents(filename.c_str(), &sql_input_script, &sql_input_script_length, &file_error)) {
       std::string file_error_msg("Error reading input file: ");
       file_error_msg.append(file_error->message);
       throw std::runtime_error(file_error_msg);
     }
 
-    SqlFacade::Ref sql_parser= SqlFacade::instance_for_rdbms(pm->rdbms());
+    SqlFacade::Ref sql_parser = SqlFacade::instance_for_rdbms(pm->rdbms());
     sql_parser->parseSqlScriptString(cat, sql_input_script);
     g_free(sql_input_script);
-    
+
     return cat;
   }
 
-  bool perform_model_fetch(bool source)
-  {
+  bool perform_model_fetch(bool source) {
     {
       db_CatalogRef catalog(_model_catalog);
       grt::StringListRef names(grt::Initialized);
@@ -169,13 +154,10 @@ protected:
     return true;
   }
 
-  virtual void enter(bool advancing)
-  {
-    if (advancing)
-    {
+  virtual void enter(bool advancing) {
+    if (advancing) {
       clear_tasks();
-      switch (_source_page->get_left_source())
-      {
+      switch (_source_page->get_left_source()) {
         case DataSourceSelector::ServerSource:
           add_async_task(_("Connect to Source DBMS"),
                          std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_connect, this, true),
@@ -191,12 +173,12 @@ protected:
                    _("Retrieving objects from selected source file..."));
           break;
         case DataSourceSelector::ModelSource:
-          add_task(_("Load schemas from source model"), std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_model_fetch, this, true),
+          add_task(_("Load schemas from source model"),
+                   std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_model_fetch, this, true),
                    _("Loading schemas from source model..."));
           break;
       }
-      switch (_source_page->get_right_source())
-      {
+      switch (_source_page->get_right_source()) {
         case DataSourceSelector::ServerSource:
           add_async_task(_("Connect to Target DBMS"),
                          std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_connect, this, false),
@@ -212,21 +194,21 @@ protected:
                    _("Retrieving objects from selected target file..."));
           break;
         case DataSourceSelector::ModelSource:
-          add_task(_("Load schemas from target model"), std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_model_fetch, this, false),
+          add_task(_("Load schemas from target model"),
+                   std::bind(&FetchSchemaNamesSourceTargetProgressPage::perform_model_fetch, this, false),
                    _("Loading schemas from target model..."));
           break;
       }
       end_adding_tasks(_("Execution Completed Successfully"));
 
-      _finished= 0;
+      _finished = 0;
       reset_tasks();
     }
 
     WizardProgressPage::enter(advancing);
   }
 
-  virtual bool allow_next()
-  {
+  virtual bool allow_next() {
     return _finished == 2;
   }
 
@@ -237,8 +219,8 @@ private:
 
   DbConnection *_source_dbconn;
   DbConnection *_target_dbconn;
-  std::function<std::vector<std::string> () > _load_source_schemata;
-  std::function<std::vector<std::string> () > _load_target_schemata;
-  
+  std::function<std::vector<std::string>()> _load_source_schemata;
+  std::function<std::vector<std::string>()> _load_target_schemata;
+
   int _finished;
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,19 +28,16 @@ using namespace base;
 
 static bool inTesting = false;
 
-std::string OSConstants::defaultFontName()
-{
+std::string OSConstants::defaultFontName() {
   auto settings = Gtk::Settings::get_default();
   std::string fontName = settings->property_gtk_font_name().get_value();
   auto pangoFontDescription = pango_font_description_from_string(fontName.c_str());
   return std::string(pango_font_description_get_family(pangoFontDescription));
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-float OSConstants::systemFontSize()
-{
+float OSConstants::systemFontSize() {
   auto settings = Gtk::Settings::get_default();
   std::string fontName = settings->property_gtk_font_name().get_value();
   auto pangoFontDescription = pango_font_description_from_string(fontName.c_str());
@@ -49,47 +46,39 @@ float OSConstants::systemFontSize()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-float OSConstants::smallSystemFontSize()
-{
+float OSConstants::smallSystemFontSize() {
   return OSConstants::systemFontSize() - 2;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-float OSConstants::labelFontSize()
-{
+float OSConstants::labelFontSize() {
   return OSConstants::systemFontSize();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static base::Color rgba_color_to_mforms(const Gdk::RGBA& c)
-{
+static base::Color rgba_color_to_mforms(const Gdk::RGBA& c) {
   return base::Color(c.get_red(), c.get_green(), c.get_blue(), c.get_alpha());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-//TODO: implement all the missing SystemColors
-base::Color Color::getSystemColor(base::SystemColor type)
-{
+// TODO: implement all the missing SystemColors
+base::Color Color::getSystemColor(base::SystemColor type) {
   typedef std::map<base::SystemColor, base::Color> Colors;
-  static Colors     colors;
+  static Colors colors;
 
   base::Color ret;
   if (inTesting)
     return ret;
 
-
-  switch (type)
-  {
-    case base::SystemColor::HighlightColor:
-    {
+  switch (type) {
+    case base::SystemColor::HighlightColor: {
       Colors::const_iterator it = colors.find(type);
       if (it != colors.end())
         ret = it->second;
-      else
-      {
+      else {
         Gtk::Entry e;
         auto styleCtx = e.get_style_context();
         base::Color new_color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_SELECTED)));
@@ -98,28 +87,23 @@ base::Color Color::getSystemColor(base::SystemColor type)
       }
       break;
     }
-    case base::SystemColor::TextBackgroundColor:
-    {
+    case base::SystemColor::TextBackgroundColor: {
       Colors::const_iterator it = colors.find(type);
       if (it != colors.end())
         ret = it->second;
-      else
-      {
+      else {
         Gtk::Entry e;
         auto styleCtx = e.get_style_context();
         ret = base::Color(rgba_color_to_mforms(styleCtx->get_background_color(Gtk::STATE_FLAG_NORMAL)));
         colors[type] = ret;
       }
       break;
-
     }
-    case base::SystemColor::WindowBackgroundColor:
-    {
+    case base::SystemColor::WindowBackgroundColor: {
       Colors::const_iterator it = colors.find(type);
       if (it != colors.end())
         ret = it->second;
-      else
-      {
+      else {
         Gtk::Window wnd;
         auto ctx = wnd.get_style_context();
         ret = base::Color(rgba_color_to_mforms(ctx->get_background_color(Gtk::STATE_FLAG_NORMAL)));
@@ -127,13 +111,11 @@ base::Color Color::getSystemColor(base::SystemColor type)
       }
       break;
     }
-    default:
-    {
+    default: {
       Colors::const_iterator it = colors.find(type);
       if (it != colors.end())
         ret = it->second;
-      else
-      {
+      else {
         Gtk::Entry e;
         auto styleCtx = e.get_style_context();
         ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_NORMAL)));
@@ -148,7 +130,6 @@ base::Color Color::getSystemColor(base::SystemColor type)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Color::prepareForTesting()
-{
+void Color::prepareForTesting() {
   inTesting = true;
 }

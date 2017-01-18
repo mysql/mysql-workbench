@@ -1,6 +1,6 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
- * 
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -17,32 +17,30 @@
 #import "WBSplitPanel.h"
 #import "MCanvasViewer.h"
 
-namespace bec
-{
+namespace bec {
   class UIForm;
 };
-namespace wb
-{
+namespace wb {
   class ModelDiagramForm;
 };
 
-@interface WBModelDiagramPanel : WBSplitPanel <CanvasViewerDelegate>
+@interface WBModelDiagramPanel : WBSplitPanel<CanvasViewerDelegate>
 
-- (instancetype)initWithId: (NSString *)oid formBE: (wb::ModelDiagramForm *)be NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithId:(NSString *)oid formBE:(wb::ModelDiagramForm *)be NS_DESIGNATED_INITIALIZER;
 
-@property (readonly, copy) NSString *identifier;
-@property (readonly) bec::UIForm *formBE;
+@property(readonly, copy) NSString *identifier;
+@property(readonly) bec::UIForm *formBE;
 
-@property (readonly, weak) MCanvasViewer *canvasViewer;
-@property (readonly) mdc::CanvasView *canvas;
+@property(readonly, weak) MCanvasViewer *canvasViewer;
+@property(readonly) mdc::CanvasView *canvas;
 
-@property (getter = isClosed, readonly) BOOL closed;
+@property(getter=isClosed, readonly) BOOL closed;
 
 - (void)updateCursor;
 
-- (void)searchString:(NSString*)text;
+- (void)searchString:(NSString *)text;
 
-- (void)canvasToolChanged:(mdc::CanvasView*)canvas;
+- (void)canvasToolChanged:(mdc::CanvasView *)canvas;
 
 - (void)setRightSidebar:(BOOL)flag;
 

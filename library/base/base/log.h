@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,14 +21,13 @@
 
 // This default log domain is a convenience feature for C/C++ code to allow omitting a domain in
 // log_* calls. You can always use base::Logger::log to specify an arbitrary domain.
-#define DEFAULT_LOG_DOMAIN(domain)\
-	static const char* const default_log_domain = domain;
+#define DEFAULT_LOG_DOMAIN(domain) static const char* const default_log_domain = domain;
 
 #if defined(DEBUG) || defined(_DEBUG)
-  // Same as logError, but throws exception in debug builds.
-  #define logFatal(...) base::Logger::log_throw(base::Logger::LogLevel::Error, default_log_domain, __VA_ARGS__)
+// Same as logError, but throws exception in debug builds.
+#define logFatal(...) base::Logger::log_throw(base::Logger::LogLevel::Error, default_log_domain, __VA_ARGS__)
 #else
-  #define logFatal(...) base::Logger::log(base::Logger::LogLevel::Error, default_log_domain, __VA_ARGS__)
+#define logFatal(...) base::Logger::log(base::Logger::LogLevel::Error, default_log_domain, __VA_ARGS__)
 #endif
 
 #define logError(...) base::Logger::log(base::Logger::LogLevel::Error, default_log_domain, __VA_ARGS__)
@@ -72,35 +71,25 @@
 #include "base/common.h"
 
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
-  #include <glib.h>
+#include <glib.h>
 #endif
 
-namespace base
-{
+namespace base {
 #if defined(DEBUG) || defined(_DEBUG) || defined(ENABLE_DEBUG)
-  #define DEFAULT_LOG_TO_STDERR 1
+#define DEFAULT_LOG_TO_STDERR 1
 #else
-  #define DEFAULT_LOG_TO_STDERR 0
+#define DEFAULT_LOG_TO_STDERR 0
 #endif
 
-  class BASELIBRARY_PUBLIC_FUNC Logger
-  {
+  class BASELIBRARY_PUBLIC_FUNC Logger {
   public:
-    enum class LogLevel {
-      Disabled,
-      Error,
-      Warning,
-      Info,
-      Debug,
-      Debug2,
-      Debug3,
-      Count
-    };
+    enum class LogLevel { Disabled, Error, Warning, Info, Debug, Debug2, Debug3, Count };
 
     static const size_t logLevelCount = static_cast<std::size_t>(LogLevel::Count);
 
     Logger(const bool stderr_log, const std::string& target_file);
-    Logger(const std::string& dir, const bool stderr_log = DEFAULT_LOG_TO_STDERR, const std::string& file_name = "wb", int limit = 10); // Later logdir or set of log files can be passed
+    Logger(const std::string& dir, const bool stderr_log = DEFAULT_LOG_TO_STDERR, const std::string& file_name = "wb",
+           int limit = 10); // Later logdir or set of log files can be passed
 
     static void enable_level(const LogLevel level);
     static void disable_level(const LogLevel level);
@@ -110,7 +99,7 @@ namespace base
     static void log(const LogLevel level, const char* const domain, const char* format, ...);
 #endif
     static void log_throw(const LogLevel level, const char* const domain, const char* format, ...);
-    static void log_exc(const LogLevel level, const char* const domain, const char* msg, const std::exception &exc);
+    static void log_exc(const LogLevel level, const char* const domain, const char* msg, const std::exception& exc);
     static std::string get_state();
     static void set_state(const std::string& state);
     static std::string log_filename();
@@ -121,19 +110,26 @@ namespace base
 
     static void log_to_stderr(bool value);
 
-    static const std::string& logLevelName(std::size_t index) { return _logLevelNames[index]; }
+    static const std::string& logLevelName(std::size_t index) {
+      return _logLevelNames[index];
+    }
 
-    static bool wasLogLevelSpecifiedByUser() { return _logLevelSpecifiedByUser; }
-    static void setLogLevelSpecifiedByUser() { _logLevelSpecifiedByUser = true; }
+    static bool wasLogLevelSpecifiedByUser() {
+      return _logLevelSpecifiedByUser;
+    }
+    static void setLogLevelSpecifiedByUser() {
+      _logLevelSpecifiedByUser = true;
+    }
 
   protected:
     static void logv(const LogLevel level, const char* const domain, const char* format, va_list args);
+
   private:
     struct LoggerImpl;
     static LoggerImpl* _impl;
 
     static const std::string _logLevelNames[logLevelCount];
-    static bool _logLevelSpecifiedByUser;        // false until set to true
+    static bool _logLevelSpecifiedByUser; // false until set to true
   };
 
 } // End of namespace

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,11 +20,10 @@
 #ifndef __MySQLWorkbench__python__
 #define __MySQLWorkbench__python__
 
-
 #if defined(_WIN32)
-# include <Python/Python.h>
+#include <Python/Python.h>
 #else
-# include <Python.h>
+#include <Python.h>
 #endif
 
 // Undefine some python macros which conflict with C++ functions.
@@ -40,53 +39,40 @@
 
 #include <string>
 
-namespace base
-{
+namespace base {
   std::string BASELIBRARY_PUBLIC_FUNC format_python_exception(std::string &summary);
 };
 
-
 // Must be placed when Python code will be called
-struct WillEnterPython
-{
+struct WillEnterPython {
   PyGILState_STATE state;
   bool locked;
 
-  WillEnterPython()
-  : state(PyGILState_Ensure()), locked(true)
-  {
+  WillEnterPython() : state(PyGILState_Ensure()), locked(true) {
   }
 
-  ~WillEnterPython()
-  {
+  ~WillEnterPython() {
     if (locked)
       PyGILState_Release(state);
   }
 
-  void release()
-  {
+  void release() {
     if (locked)
       PyGILState_Release(state);
     locked = false;
   }
 };
 
-
 // Must be placed when non-python code will be called from a Python handler/callback
-struct WillLeavePython
-{
+struct WillLeavePython {
   PyThreadState *save;
 
-  WillLeavePython()
-  : save(PyEval_SaveThread())
-  {
+  WillLeavePython() : save(PyEval_SaveThread()) {
   }
 
-  ~WillLeavePython()
-  {
+  ~WillLeavePython() {
     PyEval_RestoreThread(save);
   }
 };
-
 
 #endif /* defined(__MySQLWorkbench__python__) */

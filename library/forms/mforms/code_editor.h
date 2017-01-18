@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -49,9 +49,9 @@ namespace mforms {
     LanguageMySQL56,
     LanguageMySQL57,
 
-    LanguageHtml,   // includes embedded xml, javascript, php, vb, python
+    LanguageHtml, // includes embedded xml, javascript, php, vb, python
     LanguagePython,
-    LanguageCpp,    // Lexer for C++, C, Java, and JavaScript (which includes JSON).
+    LanguageCpp, // Lexer for C++, C, Java, and JavaScript (which includes JSON).
     LanguageJS,
     LanguageJson,
 
@@ -62,15 +62,15 @@ namespace mforms {
    * A number of flags used to specify additional markup for a line (usually shown in the gutter).
    */
   enum LineMarkup {
-    LineMarkupNone          = 0,      // No markup for the given line.
-    LineMarkupStatement     = 1 << 0, // Marks a line as having a statement starting on it.
-    LineMarkupError         = 1 << 1, // Marks a syntax error in that line.
-    LineMarkupBreakpoint    = 1 << 2, // Line has a marker set for a break point.
+    LineMarkupNone = 0,               // No markup for the given line.
+    LineMarkupStatement = 1 << 0,     // Marks a line as having a statement starting on it.
+    LineMarkupError = 1 << 1,         // Marks a syntax error in that line.
+    LineMarkupBreakpoint = 1 << 2,    // Line has a marker set for a break point.
     LineMarkupBreakpointHit = 1 << 3, // Line has a marker set for a break point which is currently hit.
-    LineMarkupCurrent       = 1 << 4, // Current execution line.
+    LineMarkupCurrent = 1 << 4,       // Current execution line.
     LineMarkupErrorContinue = 1 << 5, // Line's background is drawn in red to mark an execution error on continue.
 
-    LineMarkupAll           = 0xFF,   // All markup, useful for remove_markup.
+    LineMarkupAll = 0xFF, // All markup, useful for remove_markup.
   };
 
   // A collection of markup, attached to the original line and going to be removed
@@ -83,38 +83,36 @@ namespace mforms {
   typedef std::vector<LineMarkupChangeEntry> LineMarkupChangeset;
 
 #ifndef SWIG
-  inline LineMarkup operator| (LineMarkup a, LineMarkup b)
-  {
-    return (LineMarkup) ((int) a | (int) b);
+  inline LineMarkup operator|(LineMarkup a, LineMarkup b) {
+    return (LineMarkup)((int)a | (int)b);
   }
 #endif
 
   // Indicators for a portion of text. Can span more than a single line or only part of a line.
   enum RangeIndicator {
-    RangeIndicatorNone   = 0,
-    RangeIndicatorError  = 1 << 0, // Red squiggles under a range of text. 
+    RangeIndicatorNone = 0,
+    RangeIndicatorError = 1 << 0, // Red squiggles under a range of text.
   };
 
   enum CodeEditorFeature {
-    FeatureNone               = 0,
-    FeatureWrapText           = 1 << 0, // Enables word wrapping.
-    FeatureGutter             = 1 << 1, // Show/Hide gutter.
-    FeatureReadOnly           = 1 << 2,
-    FeatureShowSpecial        = 1 << 3, // Show white spaces and line ends with special chars.
-    FeatureUsePopup           = 1 << 4, // Use built-in context menu.
-    FeatureConvertEolOnPaste  = 1 << 5, // Convert line endings to the current value in the editor
-                                        // when pasting text.
-    FeatureScrollOnResize     = 1 << 6, // Scroll caret into view if it would be hidden by a resize action.
-    FeatureFolding            = 1 << 7, // Enable code folding.
-    FeatureAutoIndent         = 1 << 8, // Auto indent the new line on pressing enter.
+    FeatureNone = 0,
+    FeatureWrapText = 1 << 0, // Enables word wrapping.
+    FeatureGutter = 1 << 1,   // Show/Hide gutter.
+    FeatureReadOnly = 1 << 2,
+    FeatureShowSpecial = 1 << 3,       // Show white spaces and line ends with special chars.
+    FeatureUsePopup = 1 << 4,          // Use built-in context menu.
+    FeatureConvertEolOnPaste = 1 << 5, // Convert line endings to the current value in the editor
+                                       // when pasting text.
+    FeatureScrollOnResize = 1 << 6,    // Scroll caret into view if it would be hidden by a resize action.
+    FeatureFolding = 1 << 7,           // Enable code folding.
+    FeatureAutoIndent = 1 << 8,        // Auto indent the new line on pressing enter.
 
-    FeatureAll               = 0xFFFF,
+    FeatureAll = 0xFFFF,
   };
 
 #ifndef SWIG
-  inline CodeEditorFeature operator| (CodeEditorFeature a, CodeEditorFeature b)
-  {
-    return (CodeEditorFeature) ((int) a | (int) b);
+  inline CodeEditorFeature operator|(CodeEditorFeature a, CodeEditorFeature b) {
+    return (CodeEditorFeature)((int)a | (int)b);
   }
 #endif
 
@@ -126,27 +124,25 @@ namespace mforms {
 
   enum EndOfLineMode {
     EolCRLF = 0,
-    EolCR   = 1,
-    EolLF   = 2,   // Default
+    EolCR = 1,
+    EolLF = 2, // Default
   };
-  
+
   enum FindFlags {
-    FindDefault =    0,
-    FindMatchCase =  (1 << 0),
+    FindDefault = 0,
+    FindMatchCase = (1 << 0),
     FindWrapAround = (1 << 1),
     FindWholeWords = (1 << 2),
-    FindRegex =      (1 << 3)
+    FindRegex = (1 << 3)
   };
 
 #ifndef SWIG
-  inline FindFlags operator | (FindFlags a, FindFlags b)
-  {
-    return (FindFlags) ((int) a | (int) b);
+  inline FindFlags operator|(FindFlags a, FindFlags b) {
+    return (FindFlags)((int)a | (int)b);
   }
 
-  inline FindFlags& operator |= (FindFlags& a, FindFlags b)
-  {
-    a = (FindFlags)((int) a | (int) b);
+  inline FindFlags& operator|=(FindFlags& a, FindFlags b) {
+    a = (FindFlags)((int)a | (int)b);
     return a;
   }
 #endif
@@ -155,50 +151,58 @@ namespace mforms {
   /**
    * Helper class to manage editor configuration files.
    */
-class MFORMS_EXPORT CodeEditorConfig
-{
-private:
-  std::vector<std::string> _languages;
-  SyntaxHighlighterLanguage _used_language;
+  class MFORMS_EXPORT CodeEditorConfig {
+  private:
+    std::vector<std::string> _languages;
+    SyntaxHighlighterLanguage _used_language;
 
-  std::map<std::string, std::string> _keywords;
-  std::map<std::string, std::string> _properties;
-  std::map<std::string, std::string> _settings;
-  std::map<int, std::map<std::string, std::string> > _styles;
+    std::map<std::string, std::string> _keywords;
+    std::map<std::string, std::string> _properties;
+    std::map<std::string, std::string> _settings;
+    std::map<int, std::map<std::string, std::string> > _styles;
 
-  xmlDocPtr _xmlDocument;
-  xmlNodePtr _xmlLanguageElement;
-protected:
-  void parse_properties();
-  void parse_settings();
-  void parse_keywords();
-  void parse_styles();
+    xmlDocPtr _xmlDocument;
+    xmlNodePtr _xmlLanguageElement;
 
-public:
-  CodeEditorConfig(SyntaxHighlighterLanguage language);
-  ~CodeEditorConfig();
+  protected:
+    void parse_properties();
+    void parse_settings();
+    void parse_keywords();
+    void parse_styles();
 
-  std::vector<std::string> get_languages() { return _languages; };
+  public:
+    CodeEditorConfig(SyntaxHighlighterLanguage language);
+    ~CodeEditorConfig();
 
-  // TODO: add setters when customization is required.
-  std::map<std::string, std::string> get_keywords() { return _keywords; };
-  std::map<std::string, std::string> get_properties() { return _properties; };
-  std::map<std::string, std::string> get_settings() { return _settings; };
-  std::map<int, std::map<std::string, std::string> > get_styles() { return _styles; };
-};
+    std::vector<std::string> get_languages() {
+      return _languages;
+    };
+
+    // TODO: add setters when customization is required.
+    std::map<std::string, std::string> get_keywords() {
+      return _keywords;
+    };
+    std::map<std::string, std::string> get_properties() {
+      return _properties;
+    };
+    std::map<std::string, std::string> get_settings() {
+      return _settings;
+    };
+    std::map<int, std::map<std::string, std::string> > get_styles() {
+      return _styles;
+    };
+  };
 #endif // !SWIG
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct CodeEditorImplPtrs
-  {
+  struct CodeEditorImplPtrs {
     bool (*create)(CodeEditor* self, bool showInfo);
     sptr_t (*send_editor)(CodeEditor* self, unsigned int message, uptr_t wParam, sptr_t lParam);
-    void (*set_status_text)(CodeEditor* self, const std::string &text);
+    void (*set_status_text)(CodeEditor* self, const std::string& text);
   };
 
-  struct MarginSizes
-  {
+  struct MarginSizes {
     sptr_t margin1;
     sptr_t margin2;
     sptr_t margin3;
@@ -207,19 +211,18 @@ public:
 #endif
 #endif
 
-  class MFORMS_EXPORT CodeEditor : public View
-  {
+  class MFORMS_EXPORT CodeEditor : public View {
   public:
     enum EditorMargin { LineNumberMargin, MarkersMargin, FolderMargin, TextMargin };
 
-    CodeEditor(void *host = NULL, bool showInfo = true);
+    CodeEditor(void* host = NULL, bool showInfo = true);
     ~CodeEditor();
 
     /** Apply default settings for the editor. */
     void setup();
 
     /** Set custom color and size of editor margins. */
-    void setWidth(EditorMargin margin, int size, const std::string &adjustText = "");
+    void setWidth(EditorMargin margin, int size, const std::string& adjustText = "");
     void setColor(EditorMargin margin, base::Color color, bool foreground = false);
     void showMargin(EditorMargin, bool show = true);
     void setMarginText(const std::string& str);
@@ -241,7 +244,7 @@ public:
      */
     void append_text(const char* text, size_t length);
 
-    /** Replaces the selected text in the editor by the new text. If no text is selected then 
+    /** Replaces the selected text in the editor by the new text. If no text is selected then
      *  the new text is inserted at the caret position. */
     void replace_selected_text(const std::string& text);
 
@@ -250,7 +253,9 @@ public:
      *  string in that case.
      */
     const std::string get_text(bool selection_only);
-    virtual std::string get_string_value() { return get_text(false); }
+    virtual std::string get_string_value() {
+      return get_text(false);
+    }
 
     /** Returns the text in the given range (inclusive endpoints), regardless of the selection state.
      *  The range is automatically adjusted if it lies outside the available total text range.
@@ -274,14 +279,14 @@ public:
     void set_selection(std::size_t start, std::size_t length);
 
     /** Gets the current selection range. */
-    void get_selection(std::size_t &start, std::size_t &length);
+    void get_selection(std::size_t& start, std::size_t& length);
 
     /** Removes the current selection without moving the caret. */
     void clear_selection();
 
     /** Gets the byte range for the given line. Returns false if the line number is invalid */
-    bool get_range_of_line(ssize_t line, ssize_t &start, ssize_t &end);
-    
+    bool get_range_of_line(ssize_t line, ssize_t& start, ssize_t& end);
+
     /** Sets the language for the syntax highlighter. */
     void set_language(SyntaxHighlighterLanguage language);
 
@@ -322,8 +327,8 @@ public:
     /** Returns the line number from the given character position. */
     size_t line_from_position(size_t position);
 
-    void set_font(const std::string &fontDescription); // e.g. "Trebuchet MS bold 9"
-    
+    void set_font(const std::string& fontDescription); // e.g. "Trebuchet MS bold 9"
+
     /** Enables or disables different features in the editor which have a yes/no behavior. */
     void set_features(CodeEditorFeature features, bool flag);
 
@@ -341,9 +346,9 @@ public:
     /** Retrieves or sets the position of the caret in the editor, specified as byte position. */
     size_t get_caret_pos();
     void set_caret_pos(size_t position);
-    
+
     /** Retrieves the line and column (both zero-based) for a given byte position. */
-    void get_line_column_pos(size_t position, size_t &line, size_t &column);
+    void get_line_column_pos(size_t position, size_t& line, size_t& column);
 
     /** Standard edit functions used from menus. */
     bool can_undo();
@@ -362,36 +367,37 @@ public:
 
     /** Sets the given text in the status field of the editor. Not all platforms support this, though. */
     void set_status_text(const std::string& text);
-    
+
     // ----- Find and replace
     void show_find_panel(bool replace);
     void hide_find_panel();
-    FindPanel* get_find_panel() { return _find_panel; };
+    FindPanel* get_find_panel() {
+      return _find_panel;
+    };
 
     /** Used to set a callback which is called to set up the layout for the find panel and
      *  shows/hides it as requested. This allows to decouple platform specific needs for embedding
      *  the find panel in various parts of the application (even non-mforms).
      */
-    void set_show_find_panel_callback(std::function<void (CodeEditor*, bool)> callback);
+    void set_show_find_panel_callback(std::function<void(CodeEditor*, bool)> callback);
 
     /** Searches for the given text according to the parameters and selects the first occurrence.
      *  Returns true if something was found, false otherwise. */
-    bool find_and_highlight_text(const std::string& search_text, FindFlags flags,
-      bool scroll_to, bool backwards);
+    bool find_and_highlight_text(const std::string& search_text, FindFlags flags, bool scroll_to, bool backwards);
 
     /** Searches for the given text according to the parameters and replaces it by the text.
      *  Returns the number of replaced text occurrences. */
-    size_t find_and_replace_text(const std::string& search_text, const std::string& new_text,
-      FindFlags flags, bool do_all);
+    size_t find_and_replace_text(const std::string& search_text, const std::string& new_text, FindFlags flags,
+                                 bool do_all);
 
     /** Searches for the next placeholder char combination and selects it when found. The text is
      * also scrolled into view. */
     void jump_to_next_placeholder();
-    
+
     //----- Auto completion -----
 
     /** Shows the auto completion list at the current cursor position.
-     *  
+     *
      *  @param chars_entered The number chars already entered for the word which is being completed.
      *  @param entries A list of strings to show in the auto completion window. The variant with the
      *                 int part additionally takes an image id for each entry. Images must be registered
@@ -406,7 +412,7 @@ public:
     void auto_completion_cancel();
 
     /** Used to set a few simple options for auto completion.
-     * 
+     *
      * @param ignore_case If true matching of characters to list members is not case sensitive.
      * @param choose_single If true and only one entry is in the auto completion list then this entry
      *                      is automatically used without showing the list.
@@ -416,12 +422,12 @@ public:
      * @param cancel_at_start If true the list is hidden when the caret moves to position it was when
      *                        auto completion started.
      */
-    void auto_completion_options(bool ignore_case, bool choose_single, bool auto_hide,
-      bool drop_rest_of_word, bool cancel_at_start);
+    void auto_completion_options(bool ignore_case, bool choose_single, bool auto_hide, bool drop_rest_of_word,
+                                 bool cancel_at_start);
 
     /** Configures the maximum size of the auto completion list. If not set then the largest entry
      *  in the list is used to determine the total width and the height is set to show 5 entries.
-     *  
+     *
      *  @param width The number of characters to show at most. Longer entries will be shorted using ellipses.
      *  @param  height The number of entries (rows) to show. If there are more entries a vertical scrollbar is shown.
      */
@@ -429,7 +435,7 @@ public:
 
     /** Used to load images (png or xpm type) into the editor and associate them with image ids, which can
      *  be used to display them together with the text in the auto completion list.
-     *  
+     *
      *  @param images A list of image file names that get loaded.
      */
     void auto_completion_register_images(const std::vector<std::pair<int, std::string> >& images);
@@ -454,20 +460,26 @@ public:
     void set_eol_mode(mforms::EndOfLineMode mode, bool convert = false);
 
     /** Sets a context menu to be attached to the editor, to be shown on right click.
-     
+
      Note: Ownership of the context menu remains with the caller and it will not be freed
      when this object is deleted. */
-    void set_context_menu(Menu *menu) { _context_menu = menu; };
-    
+    void set_context_menu(Menu* menu) {
+      _context_menu = menu;
+    };
+
     /** Returns the context menu object attached to the editor. */
-    Menu *get_context_menu() { return _context_menu; }
-    
+    Menu* get_context_menu() {
+      return _context_menu;
+    }
+
     /** Returns the host which is controlling this editor instance (if any). */
-    void *get_host() { return _host; }
+    void* get_host() {
+      return _host;
+    }
 
     /** Direct access to the editor backend, for everything not covered here. */
     sptr_t send_editor(unsigned int message, uptr_t wParam, sptr_t lParam);
-    
+
 #ifndef SWIG
     /** Signal emitted when content is edited
      *  Parameters are:
@@ -476,7 +488,9 @@ public:
      *    The number of lines which have been added (if positive) or removed (if negative).
      *    True if text was inserted.
      */
-    boost::signals2::signal<void (int, int, int, bool)>* signal_changed() { return &_change_event; }
+    boost::signals2::signal<void(int, int, int, bool)>* signal_changed() {
+      return &_change_event;
+    }
 
     /** Signal emitted when the user clicks on the gutter.
      *  Parameters are:
@@ -484,7 +498,9 @@ public:
      *    The line in which this happened.
      *    The modifier keys that were pressed.
      */
-    boost::signals2::signal<void (int, int, mforms::ModifierKey)>* signal_gutter_clicked() { return &_gutter_clicked_event; }
+    boost::signals2::signal<void(int, int, mforms::ModifierKey)>* signal_gutter_clicked() {
+      return &_gutter_clicked_event;
+    }
 
     /** Event sent when auto completion notifications from Scintilla come in.
      *  Parameters are:
@@ -492,7 +508,9 @@ public:
      *    The start position of the word being completed. Only used with AutoCompletionSelection.
      *    The text of the selection.
      */
-    boost::signals2::signal<void (AutoCompletionEventType, int, const std::string&)>* signal_auto_completion() { return &_auto_completion_event; };
+    boost::signals2::signal<void(AutoCompletionEventType, int, const std::string&)>* signal_auto_completion() {
+      return &_auto_completion_event;
+    };
 
     /** Signal emitted when the user keeps the mouse in one position for the dwell period or when
      *  when new events occur (text insertion, mouse move etc.) after dwelling started.
@@ -501,27 +519,39 @@ public:
      *    The position closest to the mouse pointer.
      *    x and y client coordinates where the mouse lingered.
      */
-    boost::signals2::signal<void (bool, size_t, int, int)>* signal_dwell() { return &_dwell_event; }
+    boost::signals2::signal<void(bool, size_t, int, int)>* signal_dwell() {
+      return &_dwell_event;
+    }
 
     /** Signal emitted when the user typed an ordinary text character (as opposed to a command character).
      *  It can be used e.g. to trigger auto completion.
      *  Parameter is:
      *    The character code.
      */
-    boost::signals2::signal<void (int)>* signal_char_added() { return &_char_added_event; }
+    boost::signals2::signal<void(int)>* signal_char_added() {
+      return &_char_added_event;
+    }
 
-    /** Signal emitted when the Scintilla backend removes a set marker (e.g. on editing, pasting, manual marker setting).
+    /** Signal emitted when the Scintilla backend removes a set marker (e.g. on editing, pasting, manual marker
+     * setting).
      *  Parameters are:
      *    A vector of line + markup pairs.
      *    A flag telling if those markers where deleted or only updated (moved).
      */
-    boost::signals2::signal<void(const LineMarkupChangeset &changeset, bool deleted)>* signal_marker_changed() { return &_marker_changed_event; }
+    boost::signals2::signal<void(const LineMarkupChangeset& changeset, bool deleted)>* signal_marker_changed() {
+      return &_marker_changed_event;
+    }
 
-    boost::signals2::signal<bool(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text)>* key_event_signal() { return &_key_event_signal; };
+    boost::signals2::signal<bool(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text)>*
+    key_event_signal() {
+      return &_key_event_signal;
+    };
 
     /** Signal emitted when the control loses input focus.
      */
-    boost::signals2::signal<void ()>* signal_lost_focus() { return &_signal_lost_focus; }
+    boost::signals2::signal<void()>* signal_lost_focus() {
+      return &_signal_lost_focus;
+    }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     /** Called by the platform code forwarding us all scintilla notifications, so we can act on them. */
@@ -533,15 +563,15 @@ public:
     bool key_event(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text);
 
     virtual void resize();
-    
+
 #endif
 #endif
   protected:
     CodeEditorImplPtrs* _code_editor_impl;
-    Menu *_context_menu;
+    Menu* _context_menu;
     FindPanel* _find_panel;
     std::map<int, void*> _images; // Registered RGBA images.
-    void *_host;
+    void* _host;
     bool _scroll_on_resize;
     bool _auto_indent;
 
@@ -553,15 +583,16 @@ public:
 
     void load_configuration(SyntaxHighlighterLanguage language);
 
-    boost::signals2::signal<void (int, int, int, bool)> _change_event;
-    boost::signals2::signal<void (int, int, mforms::ModifierKey)> _gutter_clicked_event;
-    boost::signals2::signal<void (AutoCompletionEventType, int, const std::string&)> _auto_completion_event;
-    boost::signals2::signal<void (bool, size_t, int, int)> _dwell_event;
-    boost::signals2::signal<void (int)> _char_added_event;
-    boost::signals2::signal<void ()> _signal_lost_focus;
-    boost::signals2::signal<void(const LineMarkupChangeset &changeset, bool deleted)> _marker_changed_event;
-    boost::signals2::signal<bool(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text)> _key_event_signal;
+    boost::signals2::signal<void(int, int, int, bool)> _change_event;
+    boost::signals2::signal<void(int, int, mforms::ModifierKey)> _gutter_clicked_event;
+    boost::signals2::signal<void(AutoCompletionEventType, int, const std::string&)> _auto_completion_event;
+    boost::signals2::signal<void(bool, size_t, int, int)> _dwell_event;
+    boost::signals2::signal<void(int)> _char_added_event;
+    boost::signals2::signal<void()> _signal_lost_focus;
+    boost::signals2::signal<void(const LineMarkupChangeset& changeset, bool deleted)> _marker_changed_event;
+    boost::signals2::signal<bool(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text)>
+      _key_event_signal;
 
-    std::function<void (CodeEditor*, bool)> _show_find_panel;
+    std::function<void(CodeEditor*, bool)> _show_find_panel;
   };
 };

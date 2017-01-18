@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,25 +19,17 @@
 
 #import "WBTabItem.h"
 
-@interface WBSchemaTabItem : WBTabItem
-{
-	CATextLayer* mTitleLayerB;
-	CALayer* mSideLeft;
-	CALayer* mSideRight;
-	CALayer* mBackgroundGradient;
-  
-  NSImage* mIconImage; // Must retain this for some reason, to make the NSImageRep work.
-  NSImage* mSideLineImage; // Must retain this for some reason, to make the NSImageRep work.
+@interface WBSchemaTabItem : WBTabItem {
+  CATextLayer* mTitleLayerB;
+  CALayer* mSideLeft;
+  CALayer* mSideRight;
+  CALayer* mBackgroundGradient;
+
+  NSImage* mIconImage;          // Must retain this for some reason, to make the NSImageRep work.
+  NSImage* mSideLineImage;      // Must retain this for some reason, to make the NSImageRep work.
   NSImage* mAlphaGradientImage; // Must retain this for some reason, to make the NSImageRep work.
 }
 
-
-
-+ (WBTabItem*) tabItemWithIdentifier: (id) identifier
-							   label: (NSString*) label;
-
-
++ (WBTabItem*)tabItemWithIdentifier:(id)identifier label:(NSString*)label;
 
 @end
-
-

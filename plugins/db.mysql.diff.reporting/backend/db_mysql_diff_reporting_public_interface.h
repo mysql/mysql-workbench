@@ -14,4 +14,3 @@
 #endif
 
 #endif // _MYSQL_DB_DIFF_REPORTING_PUBLIC_INTERFACE_H_
-

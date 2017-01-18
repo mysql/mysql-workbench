@@ -6,15 +6,16 @@
 namespace wb {
   class ModelDiagramForm;
 
-  class RelationshipFloater : public Floater
-  {
+  class RelationshipFloater : public Floater {
   public:
     RelationshipFloater(ModelDiagramForm *view);
     virtual ~RelationshipFloater();
 
     void add_column(const std::string &name);
 
-    boost::signals2::signal<void ()>* signal_done_clicked() { return _button.signal_activate(); }
+    boost::signals2::signal<void()> *signal_done_clicked() {
+      return _button.signal_activate();
+    }
 
     void setup_pick_target();
 
@@ -24,11 +25,10 @@ namespace wb {
     mdc::Box _columns_box;
     mdc::TextFigure _text;
     Button _button;
-    std::vector<mdc::TextFigure*> _columns;
+    std::vector<mdc::TextFigure *> _columns;
     unsigned int _current_column;
 
     void setup_pick_source();
-
   };
 };
 

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -26,21 +26,18 @@ using namespace tut;
 
 BEGIN_TEST_DATA_CLASS(mysql_routinegroup_editor_test)
 public:
-  WBTester *wbt;
+WBTester* wbt;
 
-TEST_DATA_CONSTRUCTOR(mysql_routinegroup_editor_test)
-{
+TEST_DATA_CONSTRUCTOR(mysql_routinegroup_editor_test) {
   wbt = new WBTester();
 }
 
 END_TEST_DATA_CLASS
 
-
 TEST_MODULE(mysql_routinegroup_editor_test, "mysql_routinegroup_editor_test");
 
-TEST_FUNCTION(10) 
-{
-const char* routine_sql = "";
+TEST_FUNCTION(10) {
+  const char* routine_sql = "";
 
   SynteticMySQLModel model;
   size_t count = model.routineGroup->routines().count();
@@ -57,49 +54,24 @@ const char* routine_sql = "";
   ensure("Routine disappeard", count == 1);
 }
 
-
-TEST_FUNCTION(20) 
-{
+TEST_FUNCTION(20) {
 #ifndef NL
 #define NL "\n"
 #endif
 
-const char* routine_sql =
-  "DELIMITER //" NL
-  "CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT" NL
-  "    DETERMINISTIC" NL
-  "    READS SQL DATA" NL
-  "BEGIN" NL
-  "       #OK, here some comment" NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
-  "  SELECT count(*) INTO res" NL
-  "    FROM t1" NL
-  "    WHERE id > less_than AND id < greather_than;" NL
-  "  RETURN res;" NL
-  "END //" NL
-  "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT" NL
-  "    DETERMINISTIC" NL
-  "    READS SQL DATA" NL
-  "BEGIN" NL
-  "       #OK, here some comment" NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
-  "  SELECT count(*) INTO res" NL
-  "    FROM t1" NL
-  "    WHERE id > less_than AND id < greather_than;" NL
-  "  RETURN res;" NL
-  "END //" NL
-  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL
-  "    DETERMINISTIC" NL
-  "    READS SQL DATA" NL
-  "BEGIN" NL
-  "       #OK, here some comment" NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
-  "  SELECT count(*) INTO res" NL
-  "    FROM t1" NL
-  "    WHERE id > less_than AND id < greather_than;" NL
-  "  RETURN res;" NL
-  "END //" NL
-  "DELIMITER ;";
+  const char* routine_sql =
+    "DELIMITER //" NL "CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT" NL
+    "    DETERMINISTIC" NL "    READS SQL DATA" NL "BEGIN" NL "       #OK, here some comment" NL
+    "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL "  SELECT count(*) INTO res" NL "    FROM t1" NL
+    "    WHERE id > less_than AND id < greather_than;" NL "  RETURN res;" NL "END //" NL
+    "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT" NL "    DETERMINISTIC" NL
+    "    READS SQL DATA" NL "BEGIN" NL "       #OK, here some comment" NL
+    "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL "  SELECT count(*) INTO res" NL "    FROM t1" NL
+    "    WHERE id > less_than AND id < greather_than;" NL "  RETURN res;" NL "END //" NL
+    "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL "    DETERMINISTIC" NL
+    "    READS SQL DATA" NL "BEGIN" NL "       #OK, here some comment" NL
+    "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL "  SELECT count(*) INTO res" NL "    FROM t1" NL
+    "    WHERE id > less_than AND id < greather_than;" NL "  RETURN res;" NL "END //" NL "DELIMITER ;";
 
   SynteticMySQLModel model;
   model.schema->name("test_schema");
@@ -113,8 +85,7 @@ const char* routine_sql =
 
   std::string names[] = {"get_count", "get_count1", "get_count2"};
   assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
-  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
-  {
+  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++) {
     db_RoutineRef r = model.routineGroup->routines().get(i);
     std::string name = r->name();
     assure_equal(names[i], name);
@@ -131,8 +102,7 @@ const char* routine_sql =
   rg.use_sql(processed_sql);
 
   assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
-  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
-  {
+  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++) {
     db_RoutineRef r = model.routineGroup->routines().get(i);
     std::string name = r->name();
     assure_equal(names[i], name);
@@ -143,51 +113,27 @@ const char* routine_sql =
   ensure_equals("Lines unintentionally removed", 5U, twice_processed_routines.size());
 
   // Now compares each routine to discard any difference
-  for(size_t index = 0; index < processed_routines.size(); index++)
+  for (size_t index = 0; index < processed_routines.size(); index++)
     ensure_equals("Routine unintentionally changed", processed_routines[index], twice_processed_routines[index]);
 }
 
 /**
  *	Same test as case 20, but this time with syntax errors.
  */
-TEST_FUNCTION(30) 
-{
-const char* routine_sql =
-  "DELIMITER //" NL
-  "CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS ..." NL
-  "    DETERMINISTIC" NL
-  "    READS SQL DATA" NL
-  "BEGIN" NL
-  "       #OK, here some comment" NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
-  "  SELECT count(*) INTO res" NL
-  "    FROM t1" NL
-  "    WHERE id > less_than AND id < greather_than;" NL
-  "  RETURN res;" NL
-  "END //" NL
-  "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT" NL
-  "    DETERMINISTIC" NL
-  "    READS SQL DATA" NL
-  "BEGIN" NL
-  "       #OK, here some comment" NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
-  "  SELECT count(*) INTO res" NL
-  "    FROM t1" NL
-  "    WHERE id > less_than AND id < greather_than;" NL
-  "  RETURN res;" NL
-  "END //" NL
-  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL
-  "    DETERMINISTIC" NL
-  "    READS SQL DATA" NL
-  "-- BEGIN" NL
-  "       #OK, here some comment" NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
-  "  SELECT count(*) INTO res" NL
-  "    FROM t1" NL
-  "    WHERE id > less_than AND id < greather_than;" NL
-  "  RETURN res;" NL
-  "END //" NL
-  "DELIMITER ;";
+TEST_FUNCTION(30) {
+  const char* routine_sql =
+    "DELIMITER //" NL "CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS ..." NL "    DETERMINISTIC" NL
+    "    READS SQL DATA" NL "BEGIN" NL "       #OK, here some comment" NL
+    "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL "  SELECT count(*) INTO res" NL "    FROM t1" NL
+    "    WHERE id > less_than AND id < greather_than;" NL "  RETURN res;" NL "END //" NL
+    "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT" NL "    DETERMINISTIC" NL
+    "    READS SQL DATA" NL "BEGIN" NL "       #OK, here some comment" NL
+    "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL "  SELECT count(*) INTO res" NL "    FROM t1" NL
+    "    WHERE id > less_than AND id < greather_than;" NL "  RETURN res;" NL "END //" NL
+    "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL "    DETERMINISTIC" NL
+    "    READS SQL DATA" NL "-- BEGIN" NL "       #OK, here some comment" NL
+    "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL "  SELECT count(*) INTO res" NL "    FROM t1" NL
+    "    WHERE id > less_than AND id < greather_than;" NL "  RETURN res;" NL "END //" NL "DELIMITER ;";
 
   SynteticMySQLModel model;
   model.schema->name("test_schema");
@@ -196,12 +142,11 @@ const char* routine_sql =
 
   rg.use_sql(routine_sql);
 
-  std::string names[] = { "rg_SYNTAX_ERROR_1", "get_count1", "get_count2_SYNTAX_ERROR" };
+  std::string names[] = {"rg_SYNTAX_ERROR_1", "get_count1", "get_count2_SYNTAX_ERROR"};
   assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
 
   size_t i = 0;
-  for (db_RoutineRef routine : model.routineGroup->routines())
-  {
+  for (db_RoutineRef routine : model.routineGroup->routines()) {
     std::string name = routine->name();
     assure_equal(name, names[i++]);
   }
@@ -218,8 +163,7 @@ const char* routine_sql =
 
   assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
   i = 0;
-  for (db_RoutineRef routine : model.routineGroup->routines())
-  {
+  for (db_RoutineRef routine : model.routineGroup->routines()) {
     std::string name = routine->name();
     assure_equal(name, names[i++]);
   }
@@ -235,8 +179,7 @@ const char* routine_sql =
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
-TEST_FUNCTION(99)
-{
+TEST_FUNCTION(99) {
   delete wbt;
 }
 
