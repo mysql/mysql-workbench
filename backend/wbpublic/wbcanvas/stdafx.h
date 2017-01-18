@@ -60,5 +60,4 @@ extern "C" {
 
 #endif
 
-
 #endif // _STDAFX_H_

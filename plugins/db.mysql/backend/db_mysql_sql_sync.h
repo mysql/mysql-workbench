@@ -6,8 +6,7 @@
 #include "grts/structs.db.mysql.h"
 #include "../../db.mysql/backend/db_mysql_validation_page.h"
 
-class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLSync : public Db_plugin, public DbMySQLValidationPage
-{
+class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLSync : public Db_plugin, public DbMySQLValidationPage {
 private:
   // options
   std::string _input_filename;
@@ -21,4 +20,3 @@ public:
 };
 
 #endif // _DB_MYSQL_SQL_SYNC_H_
-

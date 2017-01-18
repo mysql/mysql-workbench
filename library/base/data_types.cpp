@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,259 +24,234 @@
 
 namespace dataTypes {
 
-JsonParser::JsonValue toJson(const ConnectionType &type)
-{
-  switch(type)
-  {
-  case ConnectionClassic:
-    return JsonParser::JsonValue("ConnectionClassic");
-  case ConnectionNode:
-    return JsonParser::JsonValue("ConnectionNode");
+  JsonParser::JsonValue toJson(const ConnectionType &type) {
+    switch (type) {
+      case ConnectionClassic:
+        return JsonParser::JsonValue("ConnectionClassic");
+      case ConnectionNode:
+        return JsonParser::JsonValue("ConnectionNode");
+    }
+    return JsonParser::JsonValue();
   }
-  return JsonParser::JsonValue();
-}
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-void fromJson(const JsonParser::JsonValue &value, ConnectionType &type)
-{
-  if ((std::string)value == "ConnectionClassic")
-    type = ConnectionClassic;
-  else if ((std::string)value == "ConnectionNode")
-    type = ConnectionNode;
-  else
-    throw std::bad_cast();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-JsonParser::JsonValue toJson(const EditorLanguage &lang)
-{
-  switch(lang)
-  {
-  case EditorSql:
-    return JsonParser::JsonValue("EditorSql");
-  case EditorJavaScript:
-    return JsonParser::JsonValue("EditorJavaScript");
-  case EditorPython:
-    return JsonParser::JsonValue("EditorPython");
+  void fromJson(const JsonParser::JsonValue &value, ConnectionType &type) {
+    if ((std::string)value == "ConnectionClassic")
+      type = ConnectionClassic;
+    else if ((std::string)value == "ConnectionNode")
+      type = ConnectionNode;
+    else
+      throw std::bad_cast();
   }
-  return JsonParser::JsonValue();
-}
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-void fromJson(const JsonParser::JsonValue &value, EditorLanguage &lang)
-{
-  if ((std::string)value == "EditorSql")
-    lang = EditorSql;
-  else if ((std::string)value == "EditorJavaScript")
-    lang = EditorJavaScript;
-  else if ((std::string)value == "EditorPython")
-    lang = EditorPython;
-  else
-    throw std::bad_cast();
-}
+  JsonParser::JsonValue toJson(const EditorLanguage &lang) {
+    switch (lang) {
+      case EditorSql:
+        return JsonParser::JsonValue("EditorSql");
+      case EditorJavaScript:
+        return JsonParser::JsonValue("EditorJavaScript");
+      case EditorPython:
+        return JsonParser::JsonValue("EditorPython");
+    }
+    return JsonParser::JsonValue();
+  }
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-BaseConnection::BaseConnection(const JsonParser::JsonValue &value) : port(0)
-{
-  fromJson(value);
-}
+  void fromJson(const JsonParser::JsonValue &value, EditorLanguage &lang) {
+    if ((std::string)value == "EditorSql")
+      lang = EditorSql;
+    else if ((std::string)value == "EditorJavaScript")
+      lang = EditorJavaScript;
+    else if ((std::string)value == "EditorPython")
+      lang = EditorPython;
+    else
+      throw std::bad_cast();
+  }
 
-std::string BaseConnection::uri(bool withPassword) const
-{
-  std::vector<std::string> v;
+  //--------------------------------------------------------------------------------------------------
 
-  v.push_back(hostName);
-  v.push_back(std::to_string(port));
-  v.push_back(userName);
-  if (!userPassword.empty() && withPassword)
-     v.push_back(userPassword);
+  BaseConnection::BaseConnection(const JsonParser::JsonValue &value) : port(0) {
+    fromJson(value);
+  }
 
-  std::string uri;
-  if (v.size() == 4) //if there's no pw, we will ask for it later
-    uri = v[2] + ":" + v[3] + "@" + v[0] + ":" + v[1];
-  else
-    uri = v[2] + "@" + v[0] + ":" + v[1];
-  return uri;
-}
+  std::string BaseConnection::uri(bool withPassword) const {
+    std::vector<std::string> v;
 
-//--------------------------------------------------------------------------------------------------
+    v.push_back(hostName);
+    v.push_back(std::to_string(port));
+    v.push_back(userName);
+    if (!userPassword.empty() && withPassword)
+      v.push_back(userPassword);
 
-std::string BaseConnection::hostIdentifier() const
-{
-  return hostName + ":" + std::to_string(port);
-}
+    std::string uri;
+    if (v.size() == 4) // if there's no pw, we will ask for it later
+      uri = v[2] + ":" + v[3] + "@" + v[0] + ":" + v[1];
+    else
+      uri = v[2] + "@" + v[0] + ":" + v[1];
+    return uri;
+  }
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-JsonParser::JsonValue BaseConnection::toJson() const
-{
-  JsonParser::JsonObject o;
-  o.insert("className", JsonParser::JsonValue(className));
-  o.insert("hostName", JsonParser::JsonValue(hostName));
-  o.insert("userName", JsonParser::JsonValue(userName));
-  o.insert("port", JsonParser::JsonValue(port));
-  return JsonParser::JsonValue(o);
-}
+  std::string BaseConnection::hostIdentifier() const {
+    return hostName + ":" + std::to_string(port);
+  }
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-void BaseConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName)
-{
-  const JsonParser::JsonObject o = value; // May throw.
-  if ((std::string)o.get("className") == (cName.empty() ? className : cName))
-    throw std::bad_cast();
-  hostName = (std::string)o.get("hostName");
-  userName = (std::string)o.get("userName");
-  port = (int)o.get("port");
-}
+  JsonParser::JsonValue BaseConnection::toJson() const {
+    JsonParser::JsonObject o;
+    o.insert("className", JsonParser::JsonValue(className));
+    o.insert("hostName", JsonParser::JsonValue(hostName));
+    o.insert("userName", JsonParser::JsonValue(userName));
+    o.insert("port", JsonParser::JsonValue(port));
+    return JsonParser::JsonValue(o);
+  }
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-SSHConnection::SSHConnection(const JsonParser::JsonValue &value) : BaseConnection(22)
-{
-  fromJson(value);
-}
+  void BaseConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName) {
+    const JsonParser::JsonObject o = value; // May throw.
+    if ((std::string)o.get("className") == (cName.empty() ? className : cName))
+      throw std::bad_cast();
+    hostName = (std::string)o.get("hostName");
+    userName = (std::string)o.get("userName");
+    port = (int)o.get("port");
+  }
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-JsonParser::JsonValue SSHConnection::toJson() const
-{
-  JsonParser::JsonObject o = BaseConnection::toJson();
-  o["className"] = JsonParser::JsonValue(className);
-  o.insert("keyFile", JsonParser::JsonValue(keyFile));
-  return JsonParser::JsonValue(o);
-}
+  SSHConnection::SSHConnection(const JsonParser::JsonValue &value) : BaseConnection(22) {
+    fromJson(value);
+  }
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-void SSHConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName)
-{
-  BaseConnection::fromJson(value, className);
-  const JsonParser::JsonObject o = value;
-  keyFile = (std::string)o.get("keyFile");
-}
+  JsonParser::JsonValue SSHConnection::toJson() const {
+    JsonParser::JsonObject o = BaseConnection::toJson();
+    o["className"] = JsonParser::JsonValue(className);
+    o.insert("keyFile", JsonParser::JsonValue(keyFile));
+    return JsonParser::JsonValue(o);
+  }
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
-NodeConnection::NodeConnection() : BaseConnection(33060), type(ConnectionNode), language(EditorJavaScript)
-{
+  void SSHConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName) {
+    BaseConnection::fromJson(value, className);
+    const JsonParser::JsonObject o = value;
+    keyFile = (std::string)o.get("keyFile");
+  }
 
-  // TODO Auto-generated constructor stub
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  NodeConnection::NodeConnection() : BaseConnection(33060), type(ConnectionNode), language(EditorJavaScript) {
+    // TODO Auto-generated constructor stub
+  }
 
-NodeConnection::NodeConnection(const JsonParser::JsonValue &value) : BaseConnection(33060) , type(ConnectionNode), language(EditorJavaScript)
-{
-  fromJson(value);
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  NodeConnection::NodeConnection(const JsonParser::JsonValue &value)
+    : BaseConnection(33060), type(ConnectionNode), language(EditorJavaScript) {
+    fromJson(value);
+  }
 
-NodeConnection::~NodeConnection()
-{
-  // TODO Auto-generated destructor stub
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  NodeConnection::~NodeConnection() {
+    // TODO Auto-generated destructor stub
+  }
 
-JsonParser::JsonValue NodeConnection::toJson() const
-{
-  JsonParser::JsonObject o = BaseConnection::toJson();
-  o["className"] = JsonParser::JsonValue(className);
-  o.insert("defaultSchema", JsonParser::JsonValue(defaultSchema));
-  o.insert("uuid", JsonParser::JsonValue(uuid));
-  o.insert("type", dataTypes::toJson(type));
-  o.insert("language", dataTypes::toJson(language));
-  o.insert("ssh", ssh.toJson());
-  return JsonParser::JsonValue(o);
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  JsonParser::JsonValue NodeConnection::toJson() const {
+    JsonParser::JsonObject o = BaseConnection::toJson();
+    o["className"] = JsonParser::JsonValue(className);
+    o.insert("defaultSchema", JsonParser::JsonValue(defaultSchema));
+    o.insert("uuid", JsonParser::JsonValue(uuid));
+    o.insert("type", dataTypes::toJson(type));
+    o.insert("language", dataTypes::toJson(language));
+    o.insert("ssh", ssh.toJson());
+    return JsonParser::JsonValue(o);
+  }
 
-void NodeConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName)
-{
-  BaseConnection::fromJson(value, className);
-  const JsonParser::JsonObject o = value;
-  uuid = (std::string)o.get("uuid");
-  defaultSchema = (std::string)o.get("defaultSchema");
-  ssh = SSHConnection(o.get("ssh"));
-  dataTypes::fromJson(o.get("type"), type);
-  dataTypes::fromJson(o.get("language"), language);
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  void NodeConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName) {
+    BaseConnection::fromJson(value, className);
+    const JsonParser::JsonObject o = value;
+    uuid = (std::string)o.get("uuid");
+    defaultSchema = (std::string)o.get("defaultSchema");
+    ssh = SSHConnection(o.get("ssh"));
+    dataTypes::fromJson(o.get("type"), type);
+    dataTypes::fromJson(o.get("language"), language);
+  }
 
-XProject::XProject(const JsonParser::JsonValue &value) : placeholder(false)
-{
-  fromJson(value);
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  XProject::XProject(const JsonParser::JsonValue &value) : placeholder(false) {
+    fromJson(value);
+  }
 
-JsonParser::JsonValue XProject::toJson() const
-{
-  JsonParser::JsonObject o;
-  o.insert("className", JsonParser::JsonValue(className));
-  o.insert("name", JsonParser::JsonValue(name));
-  o.insert("connection", connection.toJson());
-  return JsonParser::JsonValue(o);
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  JsonParser::JsonValue XProject::toJson() const {
+    JsonParser::JsonObject o;
+    o.insert("className", JsonParser::JsonValue(className));
+    o.insert("name", JsonParser::JsonValue(name));
+    o.insert("connection", connection.toJson());
+    return JsonParser::JsonValue(o);
+  }
 
-void XProject::fromJson(const JsonParser::JsonValue &value)
-{
-  const JsonParser::JsonObject o = value; // May throw.
-  if ((std::string)o.get("className") == className)
-    throw std::bad_cast();
-  name = (std::string)o.get("name");
-  connection = NodeConnection(o.get("connection"));
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  void XProject::fromJson(const JsonParser::JsonValue &value) {
+    const JsonParser::JsonObject o = value; // May throw.
+    if ((std::string)o.get("className") == className)
+      throw std::bad_cast();
+    name = (std::string)o.get("name");
+    connection = NodeConnection(o.get("connection"));
+  }
 
-ProjectHolder::ProjectHolder(const JsonParser::JsonValue &value)
-{
-  fromJson(value);
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  ProjectHolder::ProjectHolder(const JsonParser::JsonValue &value) {
+    fromJson(value);
+  }
 
-JsonParser::JsonValue ProjectHolder::toJson() const
-{
-  JsonParser::JsonObject o;
-  o.insert("className", JsonParser::JsonValue(className));
-  o.insert("isGroup", JsonParser::JsonValue(isGroup));
-  o.insert("isRoot", JsonParser::JsonValue(isRoot));
-  o.insert("project", JsonParser::JsonValue(project.toJson()));
-  JsonParser::JsonArray arr;
-  for (auto it: children)
-    arr.pushBack(it.toJson());
-  o.insert("children", JsonParser::JsonValue(arr));
-  return JsonParser::JsonValue(o);
-}
+  //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+  JsonParser::JsonValue ProjectHolder::toJson() const {
+    JsonParser::JsonObject o;
+    o.insert("className", JsonParser::JsonValue(className));
+    o.insert("isGroup", JsonParser::JsonValue(isGroup));
+    o.insert("isRoot", JsonParser::JsonValue(isRoot));
+    o.insert("project", JsonParser::JsonValue(project.toJson()));
+    JsonParser::JsonArray arr;
+    for (auto it : children)
+      arr.pushBack(it.toJson());
+    o.insert("children", JsonParser::JsonValue(arr));
+    return JsonParser::JsonValue(o);
+  }
 
-void ProjectHolder::fromJson(const JsonParser::JsonValue &value)
-{
-  const JsonParser::JsonObject o = value; // May throw.
-  if ((std::string)o.get("className") == className)
-    throw std::bad_cast();
+  //--------------------------------------------------------------------------------------------------
 
-  isGroup = (bool)o.get("isGroup");
-  isRoot = (bool)o.get("isRoot");
-  project = XProject(o.get("project"));
-  const JsonParser::JsonArray array = o.get("children");
-  for (auto &it : array)
-    children.push_back(ProjectHolder(it));
-}
+  void ProjectHolder::fromJson(const JsonParser::JsonValue &value) {
+    const JsonParser::JsonObject o = value; // May throw.
+    if ((std::string)o.get("className") == className)
+      throw std::bad_cast();
 
-//--------------------------------------------------------------------------------------------------
+    isGroup = (bool)o.get("isGroup");
+    isRoot = (bool)o.get("isRoot");
+    project = XProject(o.get("project"));
+    const JsonParser::JsonArray array = o.get("children");
+    for (auto &it : array)
+      children.push_back(ProjectHolder(it));
+  }
+
+  //--------------------------------------------------------------------------------------------------
 
 } /* namespace dataTypes */

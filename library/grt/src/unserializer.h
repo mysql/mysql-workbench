@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,25 +22,21 @@
 #include "grt.h"
 #include <set>
 
-namespace grt
-{
-  namespace internal
-  {
-    class Unserializer
-    {
+namespace grt {
+  namespace internal {
+    class Unserializer {
     public:
       Unserializer(bool check_crc);
 
-      ValueRef load_from_xml(const std::string &path, 
-                       std::string *doctype= 0, std::string *docversion= 0);
+      ValueRef load_from_xml(const std::string &path, std::string *doctype = 0, std::string *docversion = 0);
 
-      ValueRef unserialize_xmldoc(xmlDocPtr doc, const std::string &source_path= "");
+      ValueRef unserialize_xmldoc(xmlDocPtr doc, const std::string &source_path = "");
 
       ValueRef unserialize_xmldata(const char *data, size_t size);
 
     protected:
       std::string _source_name;
-      std::map<std::string, ValueRef > _cache;
+      std::map<std::string, ValueRef> _cache;
       std::set<std::string> _invalid_cache;
       bool _check_serialized_crc;
 

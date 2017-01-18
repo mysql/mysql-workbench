@@ -6,8 +6,8 @@
 #include <gtkmm/adjustment.h>
 
 namespace mdc {
-  
-class GtkCanvas;
+
+  class GtkCanvas;
 
   class GtkCanvasScroller : public Gtk::Table {
     Gtk::HScrollbar _hscroll;
@@ -21,10 +21,9 @@ class GtkCanvas;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual" // The GtkCanvas is descendant of Gtk::Layout
-    void add(GtkCanvas &canvas); //
+    void add(GtkCanvas &canvas);                      //
 #pragma GCC diagnostic pop
-};
-
+  };
 };
 
 #endif /* _MDC_GTK_CANVAS_SCROLLER_H_ */

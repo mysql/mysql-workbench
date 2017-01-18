@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,23 +23,19 @@
 #include "mforms/box.h"
 #include "grts/structs.workbench.physical.h"
 
-namespace wb
-{
+namespace wb {
   class WBContextModel;
 };
 
-namespace mforms
-{
+namespace mforms {
   class ToolBar;
   class ToolBarItem;
   class ScrollPanel;
 };
 
-
 class TableTemplatePanel;
 
-class TableTemplateList : public BaseSnippetList, public bec::ListModel
-{
+class TableTemplateList : public BaseSnippetList, public bec::ListModel {
   TableTemplatePanel *_owner;
 
   void prepare_context_menu();
@@ -50,23 +46,23 @@ class TableTemplateList : public BaseSnippetList, public bec::ListModel
   virtual size_t count();
   virtual bool get_field(const bec::NodeId &node, ColumnId column, std::string &value);
   virtual void refresh();
+
 public:
   std::string get_selected_template();
   TableTemplateList(TableTemplatePanel *owner);
   ~TableTemplateList();
 };
 
-
-class TableTemplatePanel : public mforms::Box
-{
+class TableTemplatePanel : public mforms::Box {
   TableTemplateList _templates;
   mforms::ToolBar *_toolbar;
   mforms::ScrollPanel *_scroll_panel;
   wb::WBContextModel *_context;
 
   void toolbar_item_activated(mforms::ToolBarItem *item);
+
 public:
   TableTemplatePanel(wb::WBContextModel *cmodel);
 
-  void on_action(const std::string& action);  
+  void on_action(const std::string &action);
 };

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -36,19 +36,17 @@ DEFAULT_LOG_DOMAIN("MySQL Name Cache");
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLObjectNamesCache::MySQLObjectNamesCache(ObjectQueryCallback getValues, std::function<void(bool)> feedback, bool jsonSupport)
-  : _cacheWworking(1), _jsonSupport(jsonSupport)
-{
+MySQLObjectNamesCache::MySQLObjectNamesCache(ObjectQueryCallback getValues, std::function<void(bool)> feedback,
+                                             bool jsonSupport)
+  : _cacheWworking(1), _jsonSupport(jsonSupport) {
   _refreshThread = nullptr;
   _shutdown = false;
   _feedback = feedback;
   _getValues = getValues;
 
-  base::NotificationCenter::get()->register_notification("GNObjectCache",
-                                                         "names cache",
+  base::NotificationCenter::get()->register_notification("GNObjectCache", "names cache",
                                                          "Sent when particular cache finishes loading",
-                                                         "MySQLObjectNamesCache instance",
-                                                         "");
+                                                         "MySQLObjectNamesCache instance", "");
   // Start loading top level objects.
   addPendingRefresh(RefreshTask::RefreshSchemas);
   addPendingRefresh(RefreshTask::RefreshUDFs);
@@ -62,8 +60,7 @@ MySQLObjectNamesCache::MySQLObjectNamesCache(ObjectQueryCallback getValues, std:
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::shutdown()
-{
+void MySQLObjectNamesCache::shutdown() {
   {
     base::RecMutexLock pending_lock(_pendingMutex);
     _shutdown = true;
@@ -72,8 +69,7 @@ void MySQLObjectNamesCache::shutdown()
     _feedback = nullptr;
   }
 
-  if (_refreshThread != nullptr)
-  {
+  if (_refreshThread != nullptr) {
     logDebug2("Waiting for worker thread to finish...\n");
     g_thread_join(_refreshThread);
     _refreshThread = nullptr;
@@ -83,22 +79,20 @@ void MySQLObjectNamesCache::shutdown()
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLObjectNamesCache::~MySQLObjectNamesCache()
-{
+MySQLObjectNamesCache::~MySQLObjectNamesCache() {
   g_assert(_shutdown);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingSchemaNames(const std::string &prefix)
-{
-  return getMatchingObjects("schemas", "", "",  prefix, RetrieveWithNoQualifier);
+std::vector<std::string> MySQLObjectNamesCache::getMatchingSchemaNames(const std::string &prefix) {
+  return getMatchingObjects("schemas", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingTableNames(const std::string &schema, const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingTableNames(const std::string &schema,
+                                                                      const std::string &prefix) {
   loadSchemaObjectsIfNeeded(schema);
 
   return getMatchingObjects("tables", schema, "", prefix, RetrieveWithSchemaQualifier);
@@ -106,8 +100,8 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingTableNames(const std:
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingViewNames(const std::string &schema, const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingViewNames(const std::string &schema,
+                                                                     const std::string &prefix) {
   loadSchemaObjectsIfNeeded(schema);
 
   return getMatchingObjects("views", schema, "", prefix, RetrieveWithSchemaQualifier);
@@ -116,28 +110,26 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingViewNames(const std::
 //--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingColumnNames(const std::string &schema,
-  const std::string &table, const std::string &prefix)
-{
+                                                                       const std::string &table,
+                                                                       const std::string &prefix) {
   loadSchemaObjectsIfNeeded(schema);
-  
+
   return getMatchingObjects("columns", schema, table, prefix, RetrieveWithFullQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingProcedureNames(const std::string &schema,
-  const std::string &prefix)
-{
+                                                                          const std::string &prefix) {
   loadSchemaObjectsIfNeeded(schema);
-  
+
   return getMatchingObjects("procedures", schema, "", prefix, RetrieveWithSchemaQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingFunctionNames(const std::string &schema,
-  const std::string &prefix)
-{
+                                                                         const std::string &prefix) {
   loadSchemaObjectsIfNeeded(schema);
 
   return getMatchingObjects("functions", schema, "", prefix, RetrieveWithSchemaQualifier);
@@ -146,8 +138,8 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingFunctionNames(const s
 //--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> MySQLObjectNamesCache::getMatchingTriggerNames(const std::string &schema,
-  const std::string &table, const std::string &prefix)
-{
+                                                                        const std::string &table,
+                                                                        const std::string &prefix) {
   loadSchemaObjectsIfNeeded(schema);
 
   return getMatchingObjects("triggers", schema, table, prefix, RetrieveWithFullQualifier);
@@ -155,121 +147,105 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingTriggerNames(const st
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingUdfNames(const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingUdfNames(const std::string &prefix) {
   return getMatchingObjects("udfs", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingVariables(const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingVariables(const std::string &prefix) {
   // System variables names are cached at startup as their existence/names will never change.
   return getMatchingObjects("variables", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingEngines(const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingEngines(const std::string &prefix) {
   // Engines are cached at startup as they will never change (as long as we are connected).
   return getMatchingObjects("engines", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingLogfileGroups(const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingLogfileGroups(const std::string &prefix) {
   // Loaded at startup. Explicitly refesh as you see need.
   return getMatchingObjects("logfile_groups", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingTablespaces(const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingTablespaces(const std::string &prefix) {
   // Loaded at startup. Explicitly refesh as you see need.
   return getMatchingObjects("tablespaces", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingCharsets(const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingCharsets(const std::string &prefix) {
   // Loaded at startup. Explicitly refesh as you see need.
   return getMatchingObjects("charsets", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingCollations(const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingCollations(const std::string &prefix) {
   // Loaded at startup. Explicitly refesh as you see need.
   return getMatchingObjects("collations", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingEvents(const std::string &schema, const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingEvents(const std::string &schema,
+                                                                  const std::string &prefix) {
   loadSchemaObjectsIfNeeded(schema);
 
   return getMatchingObjects("events", schema, "", prefix, RetrieveWithSchemaQualifier);
 }
 
-std::vector<std::string> MySQLObjectNamesCache::getMatchingCollections(const std::string &schema, const std::string &prefix)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingCollections(const std::string &schema,
+                                                                       const std::string &prefix) {
   loadSchemaObjectsIfNeeded(schema);
 
   return getMatchingObjects("collections", schema, "", prefix, RetrieveWithSchemaQualifier);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
 /**
  * Core object retrieval function.
  */
-std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::string &cache,
-  const std::string &schema, const std::string &table, const std::string &prefix, RetrievalType type)
-{
+std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::string &cache, const std::string &schema,
+                                                                   const std::string &table, const std::string &prefix,
+                                                                   RetrievalType type) {
   if (_shutdown)
     return {};
 
   std::vector<std::string> items;
 
   base::RecMutexLock lock(_cacheLock);
-  switch (type)
-  {
-  case RetrieveWithNoQualifier:
-    for (auto &entry : _topLevelCache[cache])
-    {
-      if (base::hasPrefix(entry, prefix))
-        items.push_back(entry);
-    }
-    break;
+  switch (type) {
+    case RetrieveWithNoQualifier:
+      for (auto &entry : _topLevelCache[cache]) {
+        if (base::hasPrefix(entry, prefix))
+          items.push_back(entry);
+      }
+      break;
 
-    case RetrieveWithSchemaQualifier:
-    {
+    case RetrieveWithSchemaQualifier: {
       if (schema.empty()) // Match entries from all schemas.
       {
-        for (auto &entry : _schemaObjectsCache)
-        {
+        for (auto &entry : _schemaObjectsCache) {
           if (entry.first.second == cache) // Consider only the object type given.
           {
-            for (auto objectEntry : entry.second)
-            {
+            for (auto objectEntry : entry.second) {
               if (base::hasPrefix(objectEntry, prefix))
                 items.push_back(objectEntry);
             }
           }
         }
-      }
-      else
-      {
+      } else {
         // Most common case, hence optimized.
-        for (auto &entry : _schemaObjectsCache[{schema, cache}])
-        {
+        for (auto &entry : _schemaObjectsCache[{schema, cache}]) {
           if (base::hasPrefix(entry, prefix))
             items.push_back(entry);
         }
@@ -278,18 +254,15 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::st
       break;
     }
 
-  default: // RetrieveWithFullQualifier, for columns. Cache should be "columns" even though we don't use that here yet.
+    default
+      : // RetrieveWithFullQualifier, for columns. Cache should be "columns" even though we don't use that here yet.
     {
       CacheObjectType type = (cache == "triggers") ? TriggersCacheType : ColumnsCacheType;
-      if (schema.empty() && table.empty())
-      {
+      if (schema.empty() && table.empty()) {
         // Columns/triggers from all tables in all schemas.
-        for (auto &schemaEntry : _tableObjectsCache)
-        {
-          for (auto &tableEntry : schemaEntry.second.element)
-          {
-            for (auto &objectEntry : tableEntry.second.element[type])
-            {
+        for (auto &schemaEntry : _tableObjectsCache) {
+          for (auto &tableEntry : schemaEntry.second.element) {
+            for (auto &objectEntry : tableEntry.second.element[type]) {
               if (base::hasPrefix(objectEntry, prefix))
                 items.push_back(objectEntry);
             }
@@ -298,25 +271,20 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::st
         break;
       }
 
-      if (!schema.empty() && !table.empty())
-      {
+      if (!schema.empty() && !table.empty()) {
         // Objects only from a specific table in a specific schema.
         // This is the most common case, hence optimized.
-        for (auto &objectEntry : _tableObjectsCache[schema].element[table].element[type])
-        {
+        for (auto &objectEntry : _tableObjectsCache[schema].element[table].element[type]) {
           if (base::hasPrefix(objectEntry, prefix))
             items.push_back(objectEntry);
         }
         break;
       }
 
-      if (!schema.empty())
-      {
+      if (!schema.empty()) {
         // Objects from all tables in a specific schema.
-        for (auto &schemaEntry : _tableObjectsCache[schema].element)
-        {
-          for (auto objectEntry : schemaEntry.second.element[type])
-          {
+        for (auto &schemaEntry : _tableObjectsCache[schema].element) {
+          for (auto objectEntry : schemaEntry.second.element[type]) {
             if (base::hasPrefix(objectEntry, prefix))
               items.push_back(objectEntry);
           }
@@ -325,10 +293,8 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::st
       }
 
       // Objects from all schemas, using the same table in all of them.
-      for (auto &schemaEntry : _tableObjectsCache)
-      {
-        for (auto &objectEntry : schemaEntry.second.element[table].element[type])
-        {
+      for (auto &schemaEntry : _tableObjectsCache) {
+        for (auto &objectEntry : schemaEntry.second.element[table].element[type]) {
           if (base::hasPrefix(objectEntry, prefix))
             items.push_back(objectEntry);
         }
@@ -345,49 +311,41 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingObjects(const std::st
 /**
  * Update all schema names. Used by code outside of this class.
  */
-void MySQLObjectNamesCache::refreshSchemaCache()
-{
+void MySQLObjectNamesCache::refreshSchemaCache() {
   addPendingRefresh(RefreshTask::RefreshSchemas);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::refreshColumns(const std::string &schema, const std::string &table)
-{
+void MySQLObjectNamesCache::refreshColumns(const std::string &schema, const std::string &table) {
   addPendingRefresh(RefreshTask::RefreshColumns, schema, table);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::refreshTriggers(const std::string &schema, const std::string &table)
-{
+void MySQLObjectNamesCache::refreshTriggers(const std::string &schema, const std::string &table) {
   addPendingRefresh(RefreshTask::RefreshTriggers, schema, table);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::refreshTablespaces()
-{
+void MySQLObjectNamesCache::refreshTablespaces() {
   addPendingRefresh(RefreshTask::RefreshTableSpaces);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::refreshLogfileGroups()
-{
+void MySQLObjectNamesCache::refreshLogfileGroups() {
   addPendingRefresh(RefreshTask::RefreshLogfileGroups);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::refreshThread()
-{
+void MySQLObjectNamesCache::refreshThread() {
   logDebug2("entering worker thread\n");
 
-  while (!_shutdown)
-  {
-    try
-    {
+  while (!_shutdown) {
+    try {
       RefreshTask task;
       if (!getPendingRefresh(task)) // If there's nothing more to do end the thread.
         break;
@@ -395,8 +353,7 @@ void MySQLObjectNamesCache::refreshThread()
       if (_shutdown)
         break;
 
-      switch (task.type)
-      {
+      switch (task.type) {
         case RefreshTask::RefreshSchemas:
           doRefreshSchemas();
           break;
@@ -452,7 +409,7 @@ void MySQLObjectNamesCache::refreshThread()
         case RefreshTask::RefreshTableSpaces:
           doRefreshTablespaces();
           break;
-          
+
         case RefreshTask::RefreshEvents:
           doRefreshEvents(task.schemaName);
           break;
@@ -461,9 +418,7 @@ void MySQLObjectNamesCache::refreshThread()
           doRefreshCollections(task.schemaName);
           break;
       }
-    }
-    catch (std::exception &exc)
-    {
+    } catch (std::exception &exc) {
       logError("Exception while running refresh task: %s\n", exc.what());
     }
   }
@@ -483,14 +438,12 @@ void MySQLObjectNamesCache::refreshThread()
  * Checks if the objects from the given schema were loaded already.
  * If not, the loading is triggered.
  */
-bool MySQLObjectNamesCache::loadSchemaObjectsIfNeeded(const std::string &schema)
-{
+bool MySQLObjectNamesCache::loadSchemaObjectsIfNeeded(const std::string &schema) {
   if (schema.empty() || _shutdown)
     return false;
 
   // Check for schema sentinel (schema + empty object name tuple).
-  if (_schemaObjectsCache.find({schema, ""}) != _schemaObjectsCache.end())
-  {
+  if (_schemaObjectsCache.find({schema, ""}) != _schemaObjectsCache.end()) {
     logDebug3("Request to load schema objects for %s, but objects are already cached\n", schema.c_str());
     return false;
   }
@@ -512,15 +465,13 @@ bool MySQLObjectNamesCache::loadSchemaObjectsIfNeeded(const std::string &schema)
   addPendingRefresh(RefreshTask::RefreshEvents, schema);
   addPendingRefresh(RefreshTask::RefreshCollections, schema);
 
-
   return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void *MySQLObjectNamesCache::refreshThreadFunction(void *data)
-{
-  MySQLObjectNamesCache *self = reinterpret_cast<MySQLObjectNamesCache*>(data);
+void *MySQLObjectNamesCache::refreshThreadFunction(void *data) {
+  MySQLObjectNamesCache *self = reinterpret_cast<MySQLObjectNamesCache *>(data);
   self->refreshThread();
 
   return nullptr;
@@ -528,8 +479,7 @@ void *MySQLObjectNamesCache::refreshThreadFunction(void *data)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshSchemas()
-{
+void MySQLObjectNamesCache::doRefreshSchemas() {
   std::vector<std::pair<std::string, std::string>> result = _getValues("show databases");
   std::set<std::string> schemas;
 
@@ -537,23 +487,20 @@ void MySQLObjectNamesCache::doRefreshSchemas()
     if (!entry.first.empty())
       schemas.insert(entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateSchemas(schemas);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "schemas";
     info["path"] = "";
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
-
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshTables(const std::string &schema)
-{
+void MySQLObjectNamesCache::doRefreshTables(const std::string &schema) {
   std::string sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
 
@@ -561,10 +508,8 @@ void MySQLObjectNamesCache::doRefreshTables(const std::string &schema)
   // updating from outside).
   base::StringListPtr tables(new std::list<std::string>());
 
-  for (auto &entry : result)
-  {
-    if (!entry.first.empty() && entry.second != "VIEW")
-    {
+  for (auto &entry : result) {
+    if (!entry.first.empty() && entry.second != "VIEW") {
       tables->push_back(entry.first);
 
       // Implicitly load table-local objects for each table/view.
@@ -573,11 +518,10 @@ void MySQLObjectNamesCache::doRefreshTables(const std::string &schema)
     }
   }
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("tables", schema, tables);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "tables";
     info["path"] = schema;
@@ -587,23 +531,19 @@ void MySQLObjectNamesCache::doRefreshTables(const std::string &schema)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshViews(const std::string &schema)
-{
+void MySQLObjectNamesCache::doRefreshViews(const std::string &schema) {
   std::string sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
   base::StringListPtr views(new std::list<std::string>());
 
-  for (auto &entry : result)
-  {
-    if (!entry.first.empty() && entry.second == "VIEW")
-    {
+  for (auto &entry : result) {
+    if (!entry.first.empty() && entry.second == "VIEW") {
       views->push_back(entry.first);
       addPendingRefresh(RefreshTask::RefreshColumns, schema, entry.first);
     }
   }
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("views", schema, views);
 
     // TODO: this should be called in a way that this notification will be delivered on the main thread only.
@@ -616,8 +556,7 @@ void MySQLObjectNamesCache::doRefreshViews(const std::string &schema)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshFunctions(const std::string &schema)
-{
+void MySQLObjectNamesCache::doRefreshFunctions(const std::string &schema) {
   std::string sql = base::sqlstring("SHOW FUNCTION STATUS WHERE Db=?", 0) << schema;
   base::StringListPtr functions(new std::list<std::string>());
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
@@ -626,11 +565,10 @@ void MySQLObjectNamesCache::doRefreshFunctions(const std::string &schema)
     if (!entry.first.empty())
       functions->push_back(entry.second);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("functions", schema, functions);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "functions";
     info["path"] = schema;
@@ -640,8 +578,7 @@ void MySQLObjectNamesCache::doRefreshFunctions(const std::string &schema)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshProcedures(const std::string &schema)
-{
+void MySQLObjectNamesCache::doRefreshProcedures(const std::string &schema) {
   std::string sql = base::sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema;
   base::StringListPtr procedures(new std::list<std::string>());
 
@@ -651,11 +588,10 @@ void MySQLObjectNamesCache::doRefreshProcedures(const std::string &schema)
     if (!entry.first.empty())
       procedures->push_back(entry.second);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("procedures", schema, procedures);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "procedures";
     info["path"] = schema;
@@ -665,8 +601,7 @@ void MySQLObjectNamesCache::doRefreshProcedures(const std::string &schema)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshColumns(const std::string &schema, const std::string &table)
-{
+void MySQLObjectNamesCache::doRefreshColumns(const std::string &schema, const std::string &table) {
   std::string sql = base::sqlstring("SHOW COLUMNS FROM !.!", 0) << schema << table;
   std::set<std::string> columns;
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
@@ -675,11 +610,10 @@ void MySQLObjectNamesCache::doRefreshColumns(const std::string &schema, const st
     if (!entry.first.empty())
       columns.insert(entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames(table, schema, columns, ColumnsCacheType);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "columns";
     info["path"] = schema + "\1" + table;
@@ -689,8 +623,7 @@ void MySQLObjectNamesCache::doRefreshColumns(const std::string &schema, const st
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshTriggers(const std::string &schema, const std::string &table)
-{
+void MySQLObjectNamesCache::doRefreshTriggers(const std::string &schema, const std::string &table) {
   std::string sql;
   if (!table.empty())
     sql = base::sqlstring("SHOW TRIGGERS FROM ! WHERE ! = ?", 0) << schema << "Table" << table;
@@ -703,22 +636,20 @@ void MySQLObjectNamesCache::doRefreshTriggers(const std::string &schema, const s
     if (!entry.first.empty())
       triggers.insert(entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames(table, schema, triggers, TriggersCacheType);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "triggers";
-    info["path"] =  schema + "\1" + table;
+    info["path"] = schema + "\1" + table;
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshUdfs()
-{
+void MySQLObjectNamesCache::doRefreshUdfs() {
   std::set<std::string> udfs;
   std::vector<std::pair<std::string, std::string>> result = _getValues("SELECT NAME FROM mysql.func");
 
@@ -726,11 +657,10 @@ void MySQLObjectNamesCache::doRefreshUdfs()
     if (!entry.first.empty())
       udfs.insert(entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("udfs", udfs);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "udfs";
     info["path"] = "";
@@ -740,8 +670,7 @@ void MySQLObjectNamesCache::doRefreshUdfs()
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshCharsets()
-{
+void MySQLObjectNamesCache::doRefreshCharsets() {
   std::set<std::string> charsets;
   std::vector<std::pair<std::string, std::string>> result = _getValues("show charset");
 
@@ -749,11 +678,10 @@ void MySQLObjectNamesCache::doRefreshCharsets()
     if (!entry.first.empty())
       charsets.insert(entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("charsets", charsets);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "charsets";
     info["path"] = "";
@@ -763,8 +691,7 @@ void MySQLObjectNamesCache::doRefreshCharsets()
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshCollations()
-{
+void MySQLObjectNamesCache::doRefreshCollations() {
   std::set<std::string> collations;
   std::vector<std::pair<std::string, std::string>> result = _getValues("show collation");
 
@@ -772,11 +699,10 @@ void MySQLObjectNamesCache::doRefreshCollations()
     if (!entry.first.empty())
       collations.insert(entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("collations", collations);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "collations";
     info["path"] = "";
@@ -786,8 +712,7 @@ void MySQLObjectNamesCache::doRefreshCollations()
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshVariables()
-{
+void MySQLObjectNamesCache::doRefreshVariables() {
   std::set<std::string> variables;
   std::vector<std::pair<std::string, std::string>> result = _getValues("SHOW GLOBAL VARIABLES");
 
@@ -795,11 +720,10 @@ void MySQLObjectNamesCache::doRefreshVariables()
     if (!entry.first.empty())
       variables.insert("@@" + entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("variables", variables);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "variables";
     info["path"] = "";
@@ -809,8 +733,7 @@ void MySQLObjectNamesCache::doRefreshVariables()
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshEngines()
-{
+void MySQLObjectNamesCache::doRefreshEngines() {
   std::set<std::string> engines;
   std::vector<std::pair<std::string, std::string>> result = _getValues("SHOW ENGINES");
 
@@ -824,14 +747,14 @@ void MySQLObjectNamesCache::doRefreshEngines()
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshLogfileGroups()
-{
+void MySQLObjectNamesCache::doRefreshLogfileGroups() {
   std::set<std::string> logfileGroups;
 
   // Logfile groups and tablespaces are referenced as single unqualified identifiers in MySQL syntax.
   // They are stored however together with a table schema and a table name.
   // For auto completion however we only need to support what the syntax supports.
-  std::vector<std::pair<std::string, std::string>> result = _getValues("SELECT logfile_group_name FROM information_schema.FILES");
+  std::vector<std::pair<std::string, std::string>> result =
+    _getValues("SELECT logfile_group_name FROM information_schema.FILES");
 
   for (auto &entry : result)
     if (!entry.first.empty())
@@ -843,10 +766,10 @@ void MySQLObjectNamesCache::doRefreshLogfileGroups()
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshTablespaces()
-{
+void MySQLObjectNamesCache::doRefreshTablespaces() {
   std::set<std::string> tablespaces;
-  std::vector<std::pair<std::string, std::string>> result = _getValues("SELECT tablespace_name FROM information_schema.FILES");
+  std::vector<std::pair<std::string, std::string>> result =
+    _getValues("SELECT tablespace_name FROM information_schema.FILES");
 
   for (auto &entry : result)
     if (!entry.first.empty())
@@ -858,9 +781,9 @@ void MySQLObjectNamesCache::doRefreshTablespaces()
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::doRefreshEvents(const std::string &schema)
-{
-  std::string sql = base::sqlstring("SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = ?", 0) << schema;
+void MySQLObjectNamesCache::doRefreshEvents(const std::string &schema) {
+  std::string sql = base::sqlstring("SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = ?", 0)
+                    << schema;
   base::StringListPtr events(new std::list<std::string>());
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
 
@@ -868,11 +791,10 @@ void MySQLObjectNamesCache::doRefreshEvents(const std::string &schema)
     if (!entry.first.empty())
       events->push_back(entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("events", schema, events);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "events";
     info["path"] = schema;
@@ -881,14 +803,17 @@ void MySQLObjectNamesCache::doRefreshEvents(const std::string &schema)
 }
 
 //--------------------------------------------------------------------------------------------------
-void MySQLObjectNamesCache::doRefreshCollections(const std::string &schema)
-{
+void MySQLObjectNamesCache::doRefreshCollections(const std::string &schema) {
   if (!_jsonSupport)
     return;
 
-  std::string sql = base::sqlstring("SELECT distinct(table_name) FROM information_schema.columns WHERE "
-      "((column_name = 'doc' and data_type = 'json') OR "
-      "(column_name = '_id' and generation_expression = 'json_unquote(json_extract(`doc`,''$._id''))')) AND table_schema = ?", 0) << schema;
+  std::string sql = base::sqlstring(
+                      "SELECT distinct(table_name) FROM information_schema.columns WHERE "
+                      "((column_name = 'doc' and data_type = 'json') OR "
+                      "(column_name = '_id' and generation_expression = "
+                      "'json_unquote(json_extract(`doc`,''$._id''))')) AND table_schema = ?",
+                      0)
+                    << schema;
 
   base::StringListPtr collections(new std::list<std::string>());
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
@@ -897,11 +822,10 @@ void MySQLObjectNamesCache::doRefreshCollections(const std::string &schema)
     if (!entry.first.empty())
       collections->push_back(entry.first);
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     updateObjectNames("collections", schema, collections);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "collections";
     info["path"] = schema;
@@ -911,8 +835,7 @@ void MySQLObjectNamesCache::doRefreshCollections(const std::string &schema)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::updateSchemas(const std::set<std::string> &schemas)
-{
+void MySQLObjectNamesCache::updateSchemas(const std::set<std::string> &schemas) {
   logDebug3("Updating schema list");
 
   base::RecMutexLock lock(_cacheLock);
@@ -920,16 +843,14 @@ void MySQLObjectNamesCache::updateSchemas(const std::set<std::string> &schemas)
   // Remove all schema entries which are not in the given schema list.
   // Collect removal candidates for all 3 caches.
   std::vector<std::string> removalCandidates;
-  for (auto schema : _topLevelCache["schemas"])
-  {
+  for (auto schema : _topLevelCache["schemas"]) {
     if (schemas.find(schema) == schemas.end())
       removalCandidates.push_back(schema);
   }
 
-  for (auto &schema : removalCandidates)
-  {
+  for (auto &schema : removalCandidates) {
     _topLevelCache["schemas"].erase(schema);
-    
+
     _schemaObjectsCache.erase({schema, "views"});
     _schemaObjectsCache.erase({schema, "tables"});
     _schemaObjectsCache.erase({schema, "functions"});
@@ -948,43 +869,37 @@ void MySQLObjectNamesCache::updateSchemas(const std::set<std::string> &schemas)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::updateTables(const std::string &schema, base::StringListPtr tables)
-{
+void MySQLObjectNamesCache::updateTables(const std::string &schema, base::StringListPtr tables) {
   updateObjectNames("tables", schema, tables);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::updateViews(const std::string &schema, base::StringListPtr views)
-{
+void MySQLObjectNamesCache::updateViews(const std::string &schema, base::StringListPtr views) {
   updateObjectNames("views", schema, views);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::updateProcedures(const std::string &schema, base::StringListPtr procedures)
-{
+void MySQLObjectNamesCache::updateProcedures(const std::string &schema, base::StringListPtr procedures) {
   updateObjectNames("procedures", schema, procedures);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::updateFunctions(const std::string &schema, base::StringListPtr functions)
-{
+void MySQLObjectNamesCache::updateFunctions(const std::string &schema, base::StringListPtr functions) {
   updateObjectNames("functions", schema, functions);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::updateEvents(const std::string &schema, base::StringListPtr events)
-{
+void MySQLObjectNamesCache::updateEvents(const std::string &schema, base::StringListPtr events) {
   updateObjectNames("events", schema, events);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::updateCollections(const std::string &schema, base::StringListPtr collections)
-{
+void MySQLObjectNamesCache::updateCollections(const std::string &schema, base::StringListPtr collections) {
   updateObjectNames("collections", schema, collections);
 }
 
@@ -993,8 +908,7 @@ void MySQLObjectNamesCache::updateCollections(const std::string &schema, base::S
 /**
  * Update routine for the top level cache.
  */
-void MySQLObjectNamesCache::updateObjectNames(const std::string &cache, const std::set<std::string> &objects)
-{
+void MySQLObjectNamesCache::updateObjectNames(const std::string &cache, const std::set<std::string> &objects) {
   base::RecMutexLock lock(_cacheLock);
   _topLevelCache[cache] = objects;
 }
@@ -1007,8 +921,7 @@ void MySQLObjectNamesCache::updateObjectNames(const std::string &cache, const st
  * from code outside of this class.
  */
 void MySQLObjectNamesCache::updateObjectNames(const std::string &cache, const std::string &schema,
-  base::StringListPtr objects)
-{
+                                              base::StringListPtr objects) {
   std::set<std::string> objectSet;
   for (auto entry : *objects)
     objectSet.insert(entry);
@@ -1021,8 +934,7 @@ void MySQLObjectNamesCache::updateObjectNames(const std::string &cache, const st
 // depending on whether we are updating schema objects or columns.
 // In the first case it's the object type name, otherwise the table name.
 void MySQLObjectNamesCache::updateObjectNames(const std::string &context, const std::string &schema,
-  const std::set<std::string> &objects, CacheObjectType type)
-{
+                                              const std::set<std::string> &objects, CacheObjectType type) {
   base::RecMutexLock lock(_cacheLock);
   if (type == OtherCacheType)
     _schemaObjectsCache[{schema, context}] = objects;
@@ -1033,16 +945,14 @@ void MySQLObjectNamesCache::updateObjectNames(const std::string &context, const 
 //--------------------------------------------------------------------------------------------------
 
 void MySQLObjectNamesCache::addPendingRefresh(RefreshTask::RefreshType type, const std::string &schema,
-  const std::string &table)
-{
+                                              const std::string &table) {
   base::RecMutexLock lock(_pendingMutex);
   if (_shutdown)
     return;
 
   // Add the new task only if there isn't already one of the same type and for the same objects.
   bool found = false;
-  for (auto &task : _pendingTasks)
-  {
+  for (auto &task : _pendingTasks) {
     if (task.type != type)
       continue;
 
@@ -1086,16 +996,14 @@ void MySQLObjectNamesCache::addPendingRefresh(RefreshTask::RefreshType type, con
 
 //--------------------------------------------------------------------------------------------------
 
-bool MySQLObjectNamesCache::getPendingRefresh(RefreshTask &task)
-{
+bool MySQLObjectNamesCache::getPendingRefresh(RefreshTask &task) {
   bool result = false;
 
   base::RecMutexLock lock(_pendingMutex);
   if (_shutdown)
     return result;
 
-  if (!_pendingTasks.empty())
-  {
+  if (!_pendingTasks.empty()) {
     result = true;
     task = _pendingTasks.front();
     _pendingTasks.pop_front();
@@ -1106,33 +1014,27 @@ bool MySQLObjectNamesCache::getPendingRefresh(RefreshTask &task)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLObjectNamesCache::createWorkerThread()
-{
+void MySQLObjectNamesCache::createWorkerThread() {
   // Fire up thread to start caching.
   if (!_cacheWworking.try_wait()) // If there is already worker thread, just do nothing and exit.
     return;
 
   // We need to wait for previous thread to finish before we create new thread.
-  if (_refreshThread != NULL)
-  {
+  if (_refreshThread != NULL) {
     g_thread_join(_refreshThread);
     _refreshThread = NULL;
   }
 
-  if (!_shutdown)
-  {
+  if (!_shutdown) {
     logDebug3("Creating worker thread\n");
 
     GError *error = NULL;
     _refreshThread = base::create_thread(&MySQLObjectNamesCache::refreshThreadFunction, this, &error);
-    if (!_refreshThread)
-    {
+    if (!_refreshThread) {
       logError("Error creating autocompletion worker thread: %s\n", error ? error->message : "out of mem?");
       g_error_free(error);
-    }
-    else
-      if (_feedback)
-        _feedback(true);
+    } else if (_feedback)
+      _feedback(true);
   }
 }
 

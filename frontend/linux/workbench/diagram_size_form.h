@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,20 +24,16 @@
 #include <gtkmm/builder.h>
 #include "base/trackable.h"
 
-namespace wb
-{
+namespace wb {
   class WBContextUI;
   class DiagramOptionsBE;
 };
 
-namespace mdc
-{
+namespace mdc {
   class GtkCanvas;
 };
 
-
-class DiagramSizeForm : public Gtk::Dialog, public base::trackable
-{
+class DiagramSizeForm : public Gtk::Dialog, public base::trackable {
   Glib::RefPtr<Gtk::Builder> _xml;
   mdc::GtkCanvas *_canvas;
   wb::DiagramOptionsBE *_be;
@@ -47,12 +43,12 @@ class DiagramSizeForm : public Gtk::Dialog, public base::trackable
   void spin_changed();
   void changed();
   void ok_clicked();
+
 public:
   DiagramSizeForm(GtkDialog *gobj, Glib::RefPtr<Gtk::Builder> xml);
   virtual ~DiagramSizeForm();
 
   static DiagramSizeForm *create();
 };
-
 
 #endif /* _DIAGRAM_SIZE_FORM_H_ */

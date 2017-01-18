@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,22 +22,15 @@
 
 //#include "mdc.h"
 
-
-
-//DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
-
+// DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
 
 using namespace mforms;
 
-
-Canvas::Canvas()
-{
+Canvas::Canvas() {
   _canvas_impl = &mforms::ControlFactory::get_instance()->_canvas_impl;
   _canvas_impl->create(this);
 }
 
-
-mdc::CanvasView *Canvas::canvas()
-{
+mdc::CanvasView *Canvas::canvas() {
   return _canvas_impl->canvas(this);
 }

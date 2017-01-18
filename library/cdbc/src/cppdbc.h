@@ -1,7 +1,6 @@
 #ifndef _CPPDBC_H_
 #define _CPPDBC_H_
 
-
 #include "driver_manager.h"
 #include "sql_batch_exec.h"
 
@@ -14,6 +13,5 @@
 #include <cppconn/resultset.h>
 #include <cppconn/resultset_metadata.h>
 #include <cppconn/statement.h>
-
 
 #endif // _CPPDBC_H_

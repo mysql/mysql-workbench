@@ -1,5 +1,5 @@
 /*
- * Copyright(c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright(c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,36 +20,27 @@
 #include "wb_helpers.h"
 #include "workbench/wb_module.h"
 
-
-
 BEGIN_TEST_DATA_CLASS(wb_module_test)
 
-  protected:
-    WBTester *tester;
+protected:
+WBTester* tester;
 
-  TEST_DATA_CONSTRUCTOR(wb_module_test)
-  {
-    tester = new WBTester;
-  }
+TEST_DATA_CONSTRUCTOR(wb_module_test) {
+  tester = new WBTester;
+}
 
 END_TEST_DATA_CLASS;
 
 TEST_MODULE(wb_module_test, "wb_module tests for Workbench");
-
-
-
 
 TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
 {
   // As we move out of supporting old operating systems, we will need to update both this test and isOsSupported()
   // So if it's failing and it wasn't before, that's probably why - just update them.
 
-
-
   // proxy function for a module call
   grt::Module* module = grt::GRT::get()->get_module("Workbench");
-  auto isOsSupportedProxy = [module](const char* os) -> bool
-  {
+  auto isOsSupportedProxy = [module](const char* os) -> bool {
     grt::StringListRef arguments(grt::Initialized);
     arguments.ginsert(grt::StringRef(std::string(os)));
 
@@ -57,12 +48,12 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
     return *grt::IntegerRef::cast_from(result) != 0;
   };
 
-
-
   // unrecognised OS
   ensure_false("empty string", isOsSupportedProxy(""));
   ensure_false("some unknown OS", isOsSupportedProxy("Some OS"));
-  ensure_true("unknown", isOsSupportedProxy("unknown")); // special flag returned by get_local_os_name() when it was unable to get OS info
+  ensure_true(
+    "unknown",
+    isOsSupportedProxy("unknown")); // special flag returned by get_local_os_name() when it was unable to get OS info
 
   // windows
   ensure_false("Windows, no version", isOsSupportedProxy("Windows"));
@@ -84,21 +75,29 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
   ensure_true("Ubuntu, supported", isOsSupportedProxy("Ubuntu 16.04 x86_64"));
   ensure_true("Ubuntu, supported, extra chars", isOsSupportedProxy("..... Ubuntu 16.04 ..... x86_64 ....."));
   ensure_true("Ubuntu, subversion, supported", isOsSupportedProxy("Ubuntu 16.04.2 x86_64"));
-  ensure_true("Ubuntu, subversion, supported, extra chars", isOsSupportedProxy("..... Ubuntu 16.04.2 ..... x86_64 ....."));
-  ensure_false("Ubuntu, chars between name and version", isOsSupportedProxy("..... Ubuntu ..... 16.04 ..... x86_64 ....."));
+  ensure_true("Ubuntu, subversion, supported, extra chars",
+              isOsSupportedProxy("..... Ubuntu 16.04.2 ..... x86_64 ....."));
+  ensure_false("Ubuntu, chars between name and version",
+               isOsSupportedProxy("..... Ubuntu ..... 16.04 ..... x86_64 ....."));
 
   // red-hat based
   ensure_false("Oracle, no version", isOsSupportedProxy("Red Hat Enterprise Linux Server release"));
   ensure_false("Oracle, old, no 64-bit", isOsSupportedProxy("Red Hat Enterprise Linux Server release 6"));
-  ensure_false("Oracle, old, no 64-bit, extra chars", isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 6 ....."));
+  ensure_false("Oracle, old, no 64-bit, extra chars",
+               isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 6 ....."));
   ensure_false("Oracle, supported, no 64-bit", isOsSupportedProxy("Red Hat Enterprise Linux Server release 7"));
   ensure_false("Oracle, supported, 32-bit", isOsSupportedProxy("Red Hat Enterprise Linux Server release 7 i386"));
-  ensure_false("Oracle, supported, 32-bit, extra chars", isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7 i386 ....."));
+  ensure_false("Oracle, supported, 32-bit, extra chars",
+               isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7 i386 ....."));
   ensure_true("Oracle, supported", isOsSupportedProxy("Red Hat Enterprise Linux Server release 7 x86_64"));
-  ensure_true("Oracle, supported, extra chars", isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7 ..... x86_64 ....."));
-  ensure_true("Oracle, subversion, supported", isOsSupportedProxy("Red Hat Enterprise Linux Server release 7.1 x86_64"));
-  ensure_true("Oracle, subversion, supported, extra chars", isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7.1 ..... x86_64 ....."));
-  ensure_false("Oracle, chars between name and version", isOsSupportedProxy("..... Red Hat Enterprise Linux Server release ..... 7.1 ..... x86_64 ....."));
+  ensure_true("Oracle, supported, extra chars",
+              isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7 ..... x86_64 ....."));
+  ensure_true("Oracle, subversion, supported",
+              isOsSupportedProxy("Red Hat Enterprise Linux Server release 7.1 x86_64"));
+  ensure_true("Oracle, subversion, supported, extra chars",
+              isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7.1 ..... x86_64 ....."));
+  ensure_false("Oracle, chars between name and version",
+               isOsSupportedProxy("..... Red Hat Enterprise Linux Server release ..... 7.1 ..... x86_64 ....."));
 
   // mac
   ensure_false("OSX, no version", isOsSupportedProxy("OS X"));
@@ -122,8 +121,7 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
-TEST_FUNCTION(99)
-{
+TEST_FUNCTION(99) {
   delete tester;
 }
 

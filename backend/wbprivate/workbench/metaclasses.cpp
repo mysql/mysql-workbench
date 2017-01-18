@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -39,15 +39,14 @@
 #include "grts/structs.ui.h"
 #include "grts/structs.wrapper.h"
 
-void register_all_metaclasses()
-{
+void register_all_metaclasses() {
   register_structs_app_xml();
   register_structs_db_xml();
   register_structs_db_mgmt_xml();
   register_structs_db_migration_xml();
   register_structs_db_mssql_xml();
   register_structs_db_mysql_xml();
- // register_structs_db_oracle_xml();
+  // register_structs_db_oracle_xml();
   register_structs_db_query_xml();
   register_structs_db_sybase_xml();
   register_structs_eer_xml();

@@ -1,7 +1,6 @@
 #ifndef __GRTDB_BACKEND_PUBLIC_INTERFACE_H__
 #define __GRTDB_BACKEND_PUBLIC_INTERFACE_H__
 
-
 #if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
 
 #ifdef MYSQLGRTDBBACKEND_EXPORTS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,26 +23,27 @@
 #include "workbench/wb_overview.h"
 
 namespace wb {
-  
+
   class PhysicalOverviewBE;
 
   namespace internal {
-  class PrivilegeContentListNode;
+    class PrivilegeContentListNode;
 
-  class PrivilegeInfoNode : public OverviewBE::ContainerNode
-  {
-    bool add_new_user(WBContext *wb);
-    bool add_new_role(WBContext *wb);
-    
-  public:
-    PrivilegeInfoNode(const db_CatalogRef &catalog, PhysicalOverviewBE *owner);
+    class PrivilegeInfoNode : public OverviewBE::ContainerNode {
+      bool add_new_user(WBContext *wb);
+      bool add_new_role(WBContext *wb);
 
-    virtual void paste_object(WBContext *wb, bec::Clipboard *clip);
-    virtual bool is_pasteable(bec::Clipboard *clip);
+    public:
+      PrivilegeInfoNode(const db_CatalogRef &catalog, PhysicalOverviewBE *owner);
 
-    virtual int get_popup_menu_items(WBContext *wb, bec::MenuItemList &items) { return 0; }
+      virtual void paste_object(WBContext *wb, bec::Clipboard *clip);
+      virtual bool is_pasteable(bec::Clipboard *clip);
+
+      virtual int get_popup_menu_items(WBContext *wb, bec::MenuItemList &items) {
+        return 0;
+      }
+    };
   };
-
-}; };
+};
 
 #endif /* _WB_OVERVIEW_PRIVILEGES_H_ */

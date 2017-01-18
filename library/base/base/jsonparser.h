@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,8 +29,7 @@ namespace JsonParser {
   enum DataType { VBoolean, VString, VDouble, VInt64, VUint64, VObject, VArray, VEmpty };
 
   class JsonValue;
-  class BASELIBRARY_PUBLIC_FUNC JsonObject
-  {
+  class BASELIBRARY_PUBLIC_FUNC JsonObject {
   public:
     typedef std::map<std::string, JsonValue> Container;
     typedef Container::size_type SizeType;
@@ -46,7 +45,7 @@ namespace JsonParser {
     JsonObject &operator=(JsonObject &&val);
     JsonObject &operator=(const JsonObject &val);
 
-    JsonValue &operator [](const std::string &name);
+    JsonValue &operator[](const std::string &name);
 
     // return iterator for begining of sequence
     Iterator begin();
@@ -78,8 +77,7 @@ namespace JsonParser {
     Container _data;
   };
 
-  class BASELIBRARY_PUBLIC_FUNC JsonArray
-  {
+  class BASELIBRARY_PUBLIC_FUNC JsonArray {
   public:
     // based on std::vector implementation
     typedef std::vector<JsonValue> Container;
@@ -103,7 +101,6 @@ namespace JsonParser {
     // subscript sequence
     JsonValue &operator[](SizeType pos);
     const JsonValue &operator[](SizeType pos) const;
-
 
     // return iterator for begining of sequence
     Iterator begin();
@@ -133,15 +130,13 @@ namespace JsonParser {
     Container _data;
   };
 
-  class BASELIBRARY_PUBLIC_FUNC JsonValue
-  {
-
+  class BASELIBRARY_PUBLIC_FUNC JsonValue {
   public:
     JsonValue();
-    ~JsonValue() {};
+    ~JsonValue(){};
     JsonValue(const JsonValue &rhs);
-    JsonValue& operator = (const JsonValue &rhs);
-    JsonValue& operator = (JsonValue &&rhs);
+    JsonValue &operator=(const JsonValue &rhs);
+    JsonValue &operator=(JsonValue &&rhs);
     JsonValue(JsonValue &&rhs);
 
     explicit JsonValue(const std::string &val);
@@ -169,40 +164,40 @@ namespace JsonParser {
     explicit JsonValue(JsonArray &&val);
 
     // Cast and assignment. Throw if cast is not possible.
-    operator const JsonObject & () const;
-    operator JsonObject & (); // non-const version so you can change inner values of the object.
-    const JsonObject& operator = (const JsonObject &other);
-    operator const JsonArray & () const;
-    operator JsonArray & (); // dito non-const version
-    const JsonArray& operator = (const JsonArray &other);
+    operator const JsonObject &() const;
+    operator JsonObject &(); // non-const version so you can change inner values of the object.
+    const JsonObject &operator=(const JsonObject &other);
+    operator const JsonArray &() const;
+    operator JsonArray &(); // dito non-const version
+    const JsonArray &operator=(const JsonArray &other);
 
 #ifdef DEFINE_INT_FUNCTIONS
-    operator int () const;
-    operator unsigned int () const;
-    int operator = (int other);
-    unsigned int operator = (unsigned int other);
+    operator int() const;
+    operator unsigned int() const;
+    int operator=(int other);
+    unsigned int operator=(unsigned int other);
 #endif
 #ifdef DEFINE_UINT64_T_FUNCTIONS
-    operator int64_t () const;
-    operator uint64_t () const;
-    int64_t operator = (int64_t other);
-    uint64_t operator = (uint64_t other);
+    operator int64_t() const;
+    operator uint64_t() const;
+    int64_t operator=(int64_t other);
+    uint64_t operator=(uint64_t other);
 #endif
 #ifdef DEFINE_SSIZE_T_FUNCTIONS
-    operator ssize_t () const;
-    operator size_t () const;
-    ssize_t operator = (ssize_t other);
-    size_t operator = (size_t other);
+    operator ssize_t() const;
+    operator size_t() const;
+    ssize_t operator=(ssize_t other);
+    size_t operator=(size_t other);
 #endif
 
-    operator double () const;
-    double operator = (double other);
+    operator double() const;
+    double operator=(double other);
 
-    operator bool () const;
-    bool operator = (bool other);
+    operator bool() const;
+    bool operator=(bool other);
 
-    operator const std::string & () const;
-    const std::string& operator = (const std::string &other);
+    operator const std::string &() const;
+    const std::string &operator=(const std::string &other);
 
     DataType getType() const;
     void setDeleted(bool flag);
@@ -226,38 +221,41 @@ namespace JsonParser {
   };
 
 #if defined(_WIN32) || defined(__APPLE__)
-  #define NOEXCEPT _NOEXCEPT
+#define NOEXCEPT _NOEXCEPT
 #else
-  #ifndef _GLIBCXX_USE_NOEXCEPT
-    #define NOEXCEPT throw()
-  #else
-    #define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
-  #endif
+#ifndef _GLIBCXX_USE_NOEXCEPT
+#define NOEXCEPT throw()
+#else
+#define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+#endif
 #endif
 
 #if defined(_WIN32)
-  // C4275 can be ignored in Visual C++ if you are deriving from a type in the Standard C++ Library
-  #pragma warning(push)
-  #pragma warning(disable: 4275) 
+// C4275 can be ignored in Visual C++ if you are deriving from a type in the Standard C++ Library
+#pragma warning(push)
+#pragma warning(disable : 4275)
 #endif
-  class BASELIBRARY_PUBLIC_FUNC ParserException : public std::exception
-  {
+  class BASELIBRARY_PUBLIC_FUNC ParserException : public std::exception {
   public:
-    explicit ParserException(const std::string &message) : _msgText(message) {}
-    explicit ParserException(const char *message) : _msgText(message) {}
-    virtual ~ParserException() NOEXCEPT {}
-    virtual const char *what() const NOEXCEPT { return _msgText.c_str(); }
+    explicit ParserException(const std::string &message) : _msgText(message) {
+    }
+    explicit ParserException(const char *message) : _msgText(message) {
+    }
+    virtual ~ParserException() NOEXCEPT {
+    }
+    virtual const char *what() const NOEXCEPT {
+      return _msgText.c_str();
+    }
+
   private:
     std::string _msgText;
   };
 #if defined(_WIN32)
-  #pragma warning(pop)
+#pragma warning(pop)
 #endif
 
-  class BASELIBRARY_PUBLIC_FUNC JsonReader
-  {
-    struct JsonToken
-    {
+  class BASELIBRARY_PUBLIC_FUNC JsonReader {
+    struct JsonToken {
       enum JsonTokenType {
         JsonTokenString,
         JsonTokenNumber,
@@ -271,13 +269,20 @@ namespace JsonParser {
         JsonTokenAssign,
       };
 
-      JsonToken(JsonTokenType type, const std::string &value) : _type(type), _value(value) { }
-      JsonTokenType getType() const { return _type;  }
-      const std::string &getValue() const { return _value; }
+      JsonToken(JsonTokenType type, const std::string &value) : _type(type), _value(value) {
+      }
+      JsonTokenType getType() const {
+        return _type;
+      }
+      const std::string &getValue() const {
+        return _value;
+      }
+
     private:
       JsonTokenType _type;
       std::string _value;
     };
+
   public:
     typedef std::vector<JsonToken> Tokens;
     typedef Tokens::const_iterator TokensConstIterator;
@@ -315,8 +320,7 @@ namespace JsonParser {
     TokensConstIterator _tokenEnd;
   };
 
-  class BASELIBRARY_PUBLIC_FUNC JsonWriter
-  {
+  class BASELIBRARY_PUBLIC_FUNC JsonWriter {
   public:
     explicit JsonWriter(const JsonValue &value);
     static void write(std::string &text, const JsonValue &value);

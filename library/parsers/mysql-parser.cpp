@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,46 +40,43 @@ DEFAULT_LOG_DOMAIN("MySQL parsing")
 
 //--------------------------------------------------------------------------------------------------
 
-std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token)
-{
+std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token) {
   // Transform a selection of tokens to nice strings. All others just take the token name.
-  switch (token)
-  {
-  case ANTLR3_TOKEN_EOF:
-    return "end of statement";
-  case 1:
-  case 2:
-  case 3:
-  case 4:
-    return "<invalid token>";
-  case OPEN_PAR_SYMBOL:
-    return "opening parenthesis";
-  case CLOSE_PAR_SYMBOL:
-    return "closing parenthesis";
-  case OPEN_CURLY_SYMBOL:
-    return "opening curly brace";
-  case CLOSE_CURLY_SYMBOL:
-    return "closing curly brace";
-  case NULL2_SYMBOL:
-    return "null escape sequence";
-  case PARAM_MARKER:
-    return "parameter placeholder";
+  switch (token) {
+    case ANTLR3_TOKEN_EOF:
+      return "end of statement";
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+      return "<invalid token>";
+    case OPEN_PAR_SYMBOL:
+      return "opening parenthesis";
+    case CLOSE_PAR_SYMBOL:
+      return "closing parenthesis";
+    case OPEN_CURLY_SYMBOL:
+      return "opening curly brace";
+    case CLOSE_CURLY_SYMBOL:
+      return "closing curly brace";
+    case NULL2_SYMBOL:
+      return "null escape sequence";
+    case PARAM_MARKER:
+      return "parameter placeholder";
 
-  default:
-    std::string result = base::tolower((char *)tokenNames[token]);
-    std::string::size_type position = result.find("_symbol");
-    if (position != std::string::npos)
-      result = result.substr(0, position);
+    default:
+      std::string result = base::tolower((char *)tokenNames[token]);
+      std::string::size_type position = result.find("_symbol");
+      if (position != std::string::npos)
+        result = result.substr(0, position);
 
-    base::replaceStringInplace(result, "_", " ");
-    return result;
+      base::replaceStringInplace(result, "_", " ");
+      return result;
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string formatVersion(long version)
-{
+std::string formatVersion(long version) {
   long major = version / 10000, minor = (version / 100) % 100, release = version % 100;
   return base::strfmt("%ld.%ld.%ld", major, minor, release);
 }
@@ -90,12 +87,10 @@ std::string formatVersion(long version)
  * Parses a server version predicate to get out the version + a word for the error message
  * that describes the version relationship.
  */
-std::string handleServerVersion(const std::vector<std::string> parts, bool withPrefix)
-{
+std::string handleServerVersion(const std::vector<std::string> parts, bool withPrefix) {
   bool includesEquality = parts[1].size() == 2;
   std::string version = formatVersion(atoi(parts[2].c_str()));
-  switch (parts[1][0])
-  {
+  switch (parts[1][0]) {
     case '<': // A max version.
       if (!includesEquality)
         return withPrefix ? "server versions before " + version : "before " + version;
@@ -117,8 +112,7 @@ std::string handleServerVersion(const std::vector<std::string> parts, bool withP
 /**
  * Parses the given predicate and constructs an error message that tells why there is that error.
  */
-std::string createErrorFromPredicate(std::string predicate, long version)
-{
+std::string createErrorFromPredicate(std::string predicate, long version) {
   // Parsable predicates have one of these forms:
   // - "SERVER_VERSION >= 50100"
   // - "(SERVER_VERSION >= 50105) && (SERVER_VERSION < 50500)"
@@ -129,10 +123,8 @@ std::string createErrorFromPredicate(std::string predicate, long version)
   predicate = base::trim(predicate);
   std::vector<std::string> parts = base::split(predicate, "&&");
   std::string message = "\nThis syntax is only allowed for %s. The current version is " + formatVersion(version);
-  switch (parts.size())
-  {
-    case 2:
-{
+  switch (parts.size()) {
+    case 2: {
       // Min and max values for server versions.
       std::string messagePart = "";
       std::string expression = base::trim(parts[0]);
@@ -155,21 +147,17 @@ std::string createErrorFromPredicate(std::string predicate, long version)
       return base::strfmt(message.c_str(), messagePart.c_str());
     }
 
-    case 1:
-    {
+    case 1: {
       // A single expression.
       std::string messagePart = "";
       std::vector<std::string> expressionParts = base::split(predicate, " ");
-      if (expressionParts.size() == 1)
-  {
+      if (expressionParts.size() == 1) {
         message = "\nThis syntax is only allowed if ";
         if (base::hasPrefix(predicate, "SQL_MODE_ACTIVE("))
           message += predicate.substr(16, predicate.size() - 17) + " is active.";
         else if (base::hasPrefix(predicate, "!SQL_MODE_ACTIVE("))
           message += predicate.substr(17, predicate.size() - 18) + " is not active.";
-  }
-  else
-  {
+      } else {
         if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
           messagePart = handleServerVersion(expressionParts, true);
       }
@@ -186,24 +174,20 @@ std::string createErrorFromPredicate(std::string predicate, long version)
 
 //--------------------------------------------------------------------------------------------------
 
-bool handleLexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
-  ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
-{
+bool handleLexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception, ANTLR3_MARKER &start,
+                      ANTLR3_MARKER &length, std::string &message) {
   std::ostringstream error;
   pANTLR3_LEXER lexer = (pANTLR3_LEXER)(recognizer->super);
   start = recognizer->state->tokenStartCharIndex;
 
   length = exception->index - start;
 
-  std::string tokenText((char*)start, length);
-    switch (exception->type)
-    {
-    case ANTLR3_RECOGNITION_EXCEPTION:
-    {
-      switch (tokenText[0])
-      {
+  std::string tokenText((char *)start, length);
+  switch (exception->type) {
+    case ANTLR3_RECOGNITION_EXCEPTION: {
+      switch (tokenText[0]) {
         case '/':
-        error << "unfinished multiline comment";
+          error << "unfinished multiline comment";
           break;
         case 'x':
         case 'X':
@@ -214,14 +198,13 @@ bool handleLexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exce
           error << "unfinished binary string literal";
           break;
         default:
-        error << "unexpected input";
-      break;
+          error << "unexpected input";
+          break;
       }
       break;
     }
 
-    case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
-    {
+    case ANTLR3_NO_VIABLE_ALT_EXCEPTION: {
       switch (recognizer->state->type) {
         case DOUBLE_QUOTE:
           error << "unfinished double quote string";
@@ -233,7 +216,7 @@ bool handleLexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exce
 
         case BACK_TICK:
           error << "unfinished back tick quote string";
-      break;
+          break;
 
         default:
           error << "unexpected input";
@@ -242,12 +225,11 @@ bool handleLexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exce
       break;
     }
 
-    case ANTLR3_FAILED_PREDICATE_EXCEPTION:
-    {
+    case ANTLR3_FAILED_PREDICATE_EXCEPTION: {
       // One of the semantic predicates failed. Since most of those are our version check predicates
       // we can use that to give the user a hint about this.
-      std::string predicate = (const char*)exception->message;
-      RecognitionContext *context = (RecognitionContext*)recognizer->state->userp;
+      std::string predicate = (const char *)exception->message;
+      RecognitionContext *context = (RecognitionContext *)recognizer->state->userp;
       error << "'" << tokenText << "' is not a valid keyword" << createErrorFromPredicate(predicate, context->version);
       break;
     }
@@ -262,12 +244,11 @@ bool handleLexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exce
 
 //--------------------------------------------------------------------------------------------------
 
-bool handleParserError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
-  pANTLR3_UINT8 *tokenNames, ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
-{
+bool handleParserError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception, pANTLR3_UINT8 *tokenNames,
+                       ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message) {
   std::ostringstream error;
 
-  pANTLR3_PARSER parser = (pANTLR3_PARSER) (recognizer->super);
+  pANTLR3_PARSER parser = (pANTLR3_PARSER)(recognizer->super);
   pANTLR3_COMMON_TOKEN error_token = (pANTLR3_COMMON_TOKEN)(exception->token);
 
   std::string token_text = (char *)error_token->getText(error_token)->chars;
@@ -277,122 +258,112 @@ bool handleParserError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exc
   std::string token_name;
 
   bool eoi = error_token->type == ANTLR3_TOKEN_EOF;
-  if (eoi)
-  {
+  if (eoi) {
     // We are at the end of the input. Seek back one token to have a meaningful error indicator.
     // If we cannot get a previous token then issue a generic eoi error.
     pANTLR3_COMMON_TOKEN previous_token = parser->tstream->_LT(parser->tstream, -1);
     if (previous_token != NULL)
       error_token = previous_token;
-  }
-  else
+  } else
     token_name = get_token_name(tokenNames, error_token->type);
 
   start = error_token->start;
-  switch (exception->type)
-  {
-  case ANTLR3_RECOGNITION_EXCEPTION:
-    // Unpredicted input.
-    if (error_token->type == INVALID_INPUT) // Our catch all rule for any char not allowed in MySQL.
-      error << token_text << " is not allowed at all";
-    else
-    error << token_text << " (" << token_name << ") is not valid input at this position";
-    break;
+  switch (exception->type) {
+    case ANTLR3_RECOGNITION_EXCEPTION:
+      // Unpredicted input.
+      if (error_token->type == INVALID_INPUT) // Our catch all rule for any char not allowed in MySQL.
+        error << token_text << " is not allowed at all";
+      else
+        error << token_text << " (" << token_name << ") is not valid input at this position";
+      break;
 
-  case ANTLR3_MISMATCHED_TOKEN_EXCEPTION:
-    // We were expecting to see one thing and got another. This is the
-    // most common error if we could not detect a missing or unwanted token.
-    if (exception->expecting == ANTLR3_TOKEN_EOF)
-      error << "expected end of statement but found " << token_text << " (" << token_name << ")";
-    else
-      error << "expected '" << tokenNames[exception->expecting] << "' but found " << token_text << " (" << token_name << ")";
-    break;
+    case ANTLR3_MISMATCHED_TOKEN_EXCEPTION:
+      // We were expecting to see one thing and got another. This is the
+      // most common error if we could not detect a missing or unwanted token.
+      if (exception->expecting == ANTLR3_TOKEN_EOF)
+        error << "expected end of statement but found " << token_text << " (" << token_name << ")";
+      else
+        error << "expected '" << tokenNames[exception->expecting] << "' but found " << token_text << " (" << token_name
+              << ")";
+      break;
 
-  case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
-    // No alternative to choose from here.
-    if (eoi)
-      error << "unexpected end of input";
-    else
-      error << "unexpected " << token_text << " (" << token_name << ")";
+    case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
+      // No alternative to choose from here.
+      if (eoi)
+        error << "unexpected end of input";
+      else
+        error << "unexpected " << token_text << " (" << token_name << ")";
 
-    break;
+      break;
 
-  case ANTLR3_MISMATCHED_SET_EXCEPTION:
-    {
+    case ANTLR3_MISMATCHED_SET_EXCEPTION: {
       // One out of a set of tokens was expected but hasn't been found.
       pANTLR3_BITSET errBits = antlr3BitsetLoad(exception->expectingSet);
       ANTLR3_UINT32 numbits = errBits->numBits(errBits);
       ANTLR3_UINT32 size = errBits->size(errBits);
 
-      if (size == 0)
-      {
+      if (size == 0) {
         // No information about expected tokens available.
         error << "unexpected " << token_text << " (" << token_name << ")";
-      }
-      else
-      {
+      } else {
         // I'd expect only a few set members here, but this case is hard to test. So
         // just to be sure not to show a huge list of expected tokens we limit the number here.
         // TODO: find a query that triggers this error branch.
         error << "wrong input, expected one of: ";
-        for (ANTLR3_UINT32 bit = 1; bit < numbits && bit <= 20 && bit < size; ++bit)
-        {
-          if  (errBits->isMember(errBits, bit))
+        for (ANTLR3_UINT32 bit = 1; bit < numbits && bit <= 20 && bit < size; ++bit) {
+          if (errBits->isMember(errBits, bit))
             error << (bit > 1 ? ", " : "") << get_token_name(tokenNames, bit);
         }
       }
-    }
-    break;
+    } break;
 
-  case ANTLR3_EARLY_EXIT_EXCEPTION:
-    // We entered a loop requiring a number of token sequences but found a token that ended that
-    // sequence earlier than we should have done.
-    // Unfortunately, there's no expecting set for this exception which would have made the message
-    // very useful.
-    error << "missing sub clause or other elements before " << token_text << " (" << token_name << ")";
-    break;
+    case ANTLR3_EARLY_EXIT_EXCEPTION:
+      // We entered a loop requiring a number of token sequences but found a token that ended that
+      // sequence earlier than we should have done.
+      // Unfortunately, there's no expecting set for this exception which would have made the message
+      // very useful.
+      error << "missing sub clause or other elements before " << token_text << " (" << token_name << ")";
+      break;
 
-  case ANTLR3_FAILED_PREDICATE_EXCEPTION:
-    {
+    case ANTLR3_FAILED_PREDICATE_EXCEPTION: {
       // One of the semantic predicates failed. Since most of those are our version check predicates
       // we can use that to give the user a hint about this.
-      std::string predicate = (const char*)exception->message;
-      RecognitionContext *context = (RecognitionContext*)recognizer->state->userp;
-      error << token_text << " (" << token_name << ") is not valid input here." << createErrorFromPredicate(predicate, context->version);
-    break;
+      std::string predicate = (const char *)exception->message;
+      RecognitionContext *context = (RecognitionContext *)recognizer->state->userp;
+      error << token_text << " (" << token_name << ") is not valid input here."
+            << createErrorFromPredicate(predicate, context->version);
+      break;
     }
 
-  case ANTLR3_MISMATCHED_TREE_NODE_EXCEPTION:
-    // This is very likely a tree parser error and hence not relevant here (no info in ANTLR docs).
-    error << "unexpected parser error type (" << exception->type << "), please file a bug report!";
-    break;
+    case ANTLR3_MISMATCHED_TREE_NODE_EXCEPTION:
+      // This is very likely a tree parser error and hence not relevant here (no info in ANTLR docs).
+      error << "unexpected parser error type (" << exception->type << "), please file a bug report!";
+      break;
 
-  case ANTLR3_REWRITE_EARLY_EXCEPTION:
-    // ANTLR docs say: No elements within a (...)+ in a rewrite rule
-    // so this seems to be an error only raised if there was a grammar bug -> internal error.
-    error << "internal parser error type (" << exception->type << "), please file a bug report!";
-    break;
+    case ANTLR3_REWRITE_EARLY_EXCEPTION:
+      // ANTLR docs say: No elements within a (...)+ in a rewrite rule
+      // so this seems to be an error only raised if there was a grammar bug -> internal error.
+      error << "internal parser error type (" << exception->type << "), please file a bug report!";
+      break;
 
-  case ANTLR3_UNWANTED_TOKEN_EXCEPTION:
-    // Indicates that the recognizer was fed a token which seems to be spurious input. We can detect
-    // this when the token that follows this unwanted token would normally be part of the
-    // syntactically correct stream.
-    if	(exception->expecting == ANTLR3_TOKEN_EOF)
-      error << "extraneous input found - expected end of input";
-    else
-      error << "extraneous input found - expected '" << get_token_name(tokenNames, exception->expecting) << "'";
-    break;
+    case ANTLR3_UNWANTED_TOKEN_EXCEPTION:
+      // Indicates that the recognizer was fed a token which seems to be spurious input. We can detect
+      // this when the token that follows this unwanted token would normally be part of the
+      // syntactically correct stream.
+      if (exception->expecting == ANTLR3_TOKEN_EOF)
+        error << "extraneous input found - expected end of input";
+      else
+        error << "extraneous input found - expected '" << get_token_name(tokenNames, exception->expecting) << "'";
+      break;
 
-  case ANTLR3_MISSING_TOKEN_EXCEPTION:
-    {
+    case ANTLR3_MISSING_TOKEN_EXCEPTION: {
       // Indicates that the recognizer detected that the token we just
       // hit would be valid syntactically if preceded by a particular
       // token. Perhaps a missing ';' at line end or a missing ',' in an
       // expression list, and such like.
       if (tokenNames == NULL)
         error << "missing token " << exception->expecting; // Will very likely never occur.
-      else
-      {
+      else {
         if (exception->expecting == ANTLR3_TOKEN_EOF)
           // Will probably not occur since ANTLR3_UNWANTED_TOKEN_EXCEPTION will kick in instead.
           error << "expected end of input";
@@ -412,14 +383,12 @@ bool handleParserError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exc
       break;
     }
 
-  default:
-    error << "unexpected parser error type (" << exception->type << "), please file a bug report!";
-    break;
-
+    default:
+      error << "unexpected parser error type (" << exception->type << "), please file a bug report!";
+      break;
   }
 
-  if (length == 0)
-  {
+  if (length == 0) {
     if (error_token != NULL)
       length = (int)error_token->stop - (int)error_token->start + 1;
     else
@@ -430,27 +399,24 @@ bool handleParserError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exc
   return true;
 }
 
-//-------------------------------------------------------------------------------------------------- 
+//--------------------------------------------------------------------------------------------------
 
 extern "C" {
 
-  /**
-   * Error report function which is set in the parser (see MySQL.g where this is done).
-   */
-  void onMySQLParseError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames)
-  {
-    pANTLR3_EXCEPTION exception = recognizer->state->exception;
+/**
+ * Error report function which is set in the parser (see MySQL.g where this is done).
+ */
+void onMySQLParseError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames) {
+  pANTLR3_EXCEPTION exception = recognizer->state->exception;
 
-    // Only the take the current exception into account. There's a linked list of all exceptions we could walk
-    // but that only contains what we've seen anyway.
-    if (exception != NULL)
-    {
-      // Token position and length for error marker.
-      ANTLR3_MARKER length = 0;
-      ANTLR3_MARKER start = 0;
-      std::string message;
-      switch (recognizer->type)
-      {
+  // Only the take the current exception into account. There's a linked list of all exceptions we could walk
+  // but that only contains what we've seen anyway.
+  if (exception != NULL) {
+    // Token position and length for error marker.
+    ANTLR3_MARKER length = 0;
+    ANTLR3_MARKER start = 0;
+    std::string message;
+    switch (recognizer->type) {
       case ANTLR3_TYPE_LEXER:
         if (!handleLexerError(recognizer, exception, start, length, message))
           return;
@@ -460,27 +426,26 @@ extern "C" {
         if (!handleParserError(recognizer, exception, tokenNames, start, length, message))
           return;
         break;
-      }
-
-      MySQLRecognitionBase *our_recognizer = (MySQLRecognitionBase*)((RecognitionContext*)recognizer->state->userp)->payload;
-      our_recognizer->add_error("Syntax error: " + message, recognizer->state->type, start, exception->line,
-        exception->charPositionInLine, length);
     }
+
+    MySQLRecognitionBase *our_recognizer =
+      (MySQLRecognitionBase *)((RecognitionContext *)recognizer->state->userp)->payload;
+    our_recognizer->add_error("Syntax error: " + message, recognizer->state->type, start, exception->line,
+                              exception->charPositionInLine, length);
   }
+}
 
 } // extern "C"
 
 //----------------- MySQLTreeWalker ----------------------------------------------------------------
 
 MySQLRecognizerTreeWalker::MySQLRecognizerTreeWalker(MySQLRecognizer *recognizer, pANTLR3_BASE_TREE tree)
-  : RecognizerTreeWalker(recognizer, tree)
-{
+  : RecognizerTreeWalker(recognizer, tree) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLRecognizer* MySQLRecognizerTreeWalker::recognizer()
-{
+MySQLRecognizer *MySQLRecognizerTreeWalker::recognizer() {
   return dynamic_cast<MySQLRecognizer *>(_recognizer);
 }
 
@@ -490,12 +455,9 @@ MySQLRecognizer* MySQLRecognizerTreeWalker::recognizer()
  * Steps back to the start of the current subquery (or the top level query if we are not in a subquery).
  * On exit the current walker position is on the first query token.
  */
-void MySQLRecognizerTreeWalker::goToSubQueryStart()
-{
-  do
-  {
-    switch (tokenType())
-    {
+void MySQLRecognizerTreeWalker::goToSubQueryStart() {
+  do {
+    switch (tokenType()) {
       case ANALYZE_SYMBOL:
       case ALTER_SYMBOL:
       case BACKUP_SYMBOL:
@@ -552,8 +514,7 @@ void MySQLRecognizerTreeWalker::goToSubQueryStart()
         return;
 
       default:
-        if (!up())
-        {
+        if (!up()) {
           // Advance to first child.
           next();
           return;
@@ -570,19 +531,16 @@ void MySQLRecognizerTreeWalker::goToSubQueryStart()
  * We cannot use the MySQLQueryIdentifier here as it doesn't allow to start at an arbitrary
  * position.
  */
-MySQLQueryType MySQLRecognizerTreeWalker::getCurrentQueryType()
-{
+MySQLQueryType MySQLRecognizerTreeWalker::getCurrentQueryType() {
   // Walk up the parent chain until we find either a major keyword or the top of the tree.
   push();
   bool done = false;
-  do
-  {
-    switch (tokenType())
-    {
+  do {
+    switch (tokenType()) {
       case ANALYZE_SYMBOL:
       case ALTER_SYMBOL:
       case BACKUP_SYMBOL:
-        //case BEGIN_SYMBOL:
+      // case BEGIN_SYMBOL:
       case BINLOG_SYMBOL:
       case CACHE_SYMBOL:
       case CALL_SYMBOL:
@@ -635,9 +593,8 @@ MySQLQueryType MySQLRecognizerTreeWalker::getCurrentQueryType()
       case XA_SYMBOL:
         if (isSubtree())
           done = true;
-        else
-          if (!up())
-            done = true;
+        else if (!up())
+          done = true;
         break;
       default:
         if (!up())
@@ -656,169 +613,160 @@ MySQLQueryType MySQLRecognizerTreeWalker::getCurrentQueryType()
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLQueryType MySQLRecognizerTreeWalker::queryType()
-{
+MySQLQueryType MySQLRecognizerTreeWalker::queryType() {
   // TODO: this duplicates code in MySQLQueryIdentifier.
   //       Find a way to handle all that in a single place.
 
-  switch (tokenType())
-  {
+  switch (tokenType()) {
     case ALTER_SYMBOL:
       if (!next())
         return QtAmbiguous;
 
-      switch (tokenType())
-    {
-      case DATABASE_SYMBOL:
-        return QtAlterDatabase;
+      switch (tokenType()) {
+        case DATABASE_SYMBOL:
+          return QtAlterDatabase;
 
-      case LOGFILE_SYMBOL:
-        return QtAlterLogFileGroup;
+        case LOGFILE_SYMBOL:
+          return QtAlterLogFileGroup;
 
-      case FUNCTION_SYMBOL:
-        return QtAlterFunction;
+        case FUNCTION_SYMBOL:
+          return QtAlterFunction;
 
-      case PROCEDURE_SYMBOL:
-        return QtAlterProcedure;
+        case PROCEDURE_SYMBOL:
+          return QtAlterProcedure;
 
-      case SERVER_SYMBOL:
-        return QtAlterServer;
+        case SERVER_SYMBOL:
+          return QtAlterServer;
 
-      case TABLE_SYMBOL:
-      case ONLINE_SYMBOL:  // Optional part of ALTER TABLE.
-      case OFFLINE_SYMBOL: // ditto
-      case IGNORE_SYMBOL:
-        return QtAlterTable;
+        case TABLE_SYMBOL:
+        case ONLINE_SYMBOL:  // Optional part of ALTER TABLE.
+        case OFFLINE_SYMBOL: // ditto
+        case IGNORE_SYMBOL:
+          return QtAlterTable;
 
-      case TABLESPACE_SYMBOL:
-        return QtAlterTableSpace;
+        case TABLESPACE_SYMBOL:
+          return QtAlterTableSpace;
 
-      case EVENT_SYMBOL:
-        return QtAlterEvent;
-
-      case VIEW_SYMBOL:
-        return QtAlterView;
-
-      case DEFINER_SYMBOL: // Can be both event or view.
-        if (!nextSibling()) // DEFINER has an own subtree so we can just jump over the details.
-          return QtAmbiguous;
-
-        switch (tokenType())
-      {
         case EVENT_SYMBOL:
           return QtAlterEvent;
 
-        case SQL_SYMBOL:
         case VIEW_SYMBOL:
           return QtAlterView;
+
+        case DEFINER_SYMBOL:  // Can be both event or view.
+          if (!nextSibling()) // DEFINER has an own subtree so we can just jump over the details.
+            return QtAmbiguous;
+
+          switch (tokenType()) {
+            case EVENT_SYMBOL:
+              return QtAlterEvent;
+
+            case SQL_SYMBOL:
+            case VIEW_SYMBOL:
+              return QtAlterView;
+          }
+          break;
+
+        case ALGORITHM_SYMBOL: // Optional part of CREATE VIEW.
+          return QtAlterView;
+
+        case USER_SYMBOL:
+          return QtAlterUser;
       }
-        break;
-
-      case ALGORITHM_SYMBOL: // Optional part of CREATE VIEW.
-        return QtAlterView;
-
-      case USER_SYMBOL:
-        return QtAlterUser;
-    }
       break;
 
     case CREATE_SYMBOL:
       if (!next())
         return QtAmbiguous;
 
-      switch (tokenType())
-    {
-      case TEMPORARY_SYMBOL: // Optional part of CREATE TABLE.
-      case TABLE_SYMBOL:
-        return QtCreateTable;
+      switch (tokenType()) {
+        case TEMPORARY_SYMBOL: // Optional part of CREATE TABLE.
+        case TABLE_SYMBOL:
+          return QtCreateTable;
 
-      case ONLINE_SYMBOL:
-      case OFFLINE_SYMBOL:
-      case INDEX_SYMBOL:
-      case UNIQUE_SYMBOL:
-      case FULLTEXT_SYMBOL:
-      case SPATIAL_SYMBOL:
-        return QtCreateIndex;
+        case ONLINE_SYMBOL:
+        case OFFLINE_SYMBOL:
+        case INDEX_SYMBOL:
+        case UNIQUE_SYMBOL:
+        case FULLTEXT_SYMBOL:
+        case SPATIAL_SYMBOL:
+          return QtCreateIndex;
 
-      case DATABASE_SYMBOL:
-        return QtCreateDatabase;
+        case DATABASE_SYMBOL:
+          return QtCreateDatabase;
 
-      case TRIGGER_SYMBOL:
-        return QtCreateTrigger;
+        case TRIGGER_SYMBOL:
+          return QtCreateTrigger;
 
-      case DEFINER_SYMBOL: // Can be event, view, procedure, function, UDF, trigger.
-      {
-        if (!nextSibling())
-          return QtAmbiguous;
-
-        switch (tokenType())
+        case DEFINER_SYMBOL: // Can be event, view, procedure, function, UDF, trigger.
         {
-          case EVENT_SYMBOL:
-            return QtCreateEvent;
+          if (!nextSibling())
+            return QtAmbiguous;
 
-          case VIEW_SYMBOL:
-          case SQL_SYMBOL:
-            return QtCreateView;
+          switch (tokenType()) {
+            case EVENT_SYMBOL:
+              return QtCreateEvent;
 
-          case PROCEDURE_SYMBOL:
-            return QtCreateProcedure;
+            case VIEW_SYMBOL:
+            case SQL_SYMBOL:
+              return QtCreateView;
 
-          case FUNCTION_SYMBOL:
-          {
-            if (!next())
-              return QtAmbiguous;
+            case PROCEDURE_SYMBOL:
+              return QtCreateProcedure;
 
-            if (is(UDF_NAME_TOKEN))
+            case FUNCTION_SYMBOL: {
+              if (!next())
+                return QtAmbiguous;
+
+              if (is(UDF_NAME_TOKEN))
+                return QtCreateUdf;
+              return QtCreateFunction;
+            }
+
+            case AGGREGATE_SYMBOL:
               return QtCreateUdf;
-            return QtCreateFunction;
+
+            case TRIGGER_SYMBOL:
+              return QtCreateTrigger;
           }
-
-          case AGGREGATE_SYMBOL:
-            return QtCreateUdf;
-
-          case TRIGGER_SYMBOL:
-            return QtCreateTrigger;
         }
+
+        case VIEW_SYMBOL:
+        case OR_SYMBOL:        // CREATE OR REPLACE ... VIEW
+        case ALGORITHM_SYMBOL: // CREATE ALGORITHM ... VIEW
+          return QtCreateView;
+
+        case EVENT_SYMBOL:
+          return QtCreateEvent;
+
+        case FUNCTION_SYMBOL:
+          return QtCreateFunction;
+
+        case AGGREGATE_SYMBOL:
+          return QtCreateUdf;
+
+        case PROCEDURE_SYMBOL:
+          return QtCreateProcedure;
+
+        case LOGFILE_SYMBOL:
+          return QtCreateLogFileGroup;
+
+        case SERVER_SYMBOL:
+          return QtCreateServer;
+
+        case TABLESPACE_SYMBOL:
+          return QtCreateTableSpace;
+
+        case USER_SYMBOL:
+          return QtCreateUser;
       }
-
-      case VIEW_SYMBOL:
-      case OR_SYMBOL:        // CREATE OR REPLACE ... VIEW
-      case ALGORITHM_SYMBOL: // CREATE ALGORITHM ... VIEW
-        return QtCreateView;
-
-      case EVENT_SYMBOL:
-        return QtCreateEvent;
-
-      case FUNCTION_SYMBOL:
-        return QtCreateFunction;
-
-      case AGGREGATE_SYMBOL:
-        return QtCreateUdf;
-
-      case PROCEDURE_SYMBOL:
-        return QtCreateProcedure;
-
-      case LOGFILE_SYMBOL:
-        return QtCreateLogFileGroup;
-
-      case SERVER_SYMBOL:
-        return QtCreateServer;
-
-      case TABLESPACE_SYMBOL:
-        return QtCreateTableSpace;
-
-      case USER_SYMBOL:
-        return QtCreateUser;
-    }
       break;
 
-    case DROP_SYMBOL:
-    {
+    case DROP_SYMBOL: {
       if (!next())
         return QtAmbiguous;
 
-      switch (tokenType())
-      {
+      switch (tokenType()) {
         case DATABASE_SYMBOL:
           return QtDropDatabase;
 
@@ -882,15 +830,12 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
     case INSERT_SYMBOL:
       return QtInsert;
 
-    case LOAD_SYMBOL:
-    {
+    case LOAD_SYMBOL: {
       if (!next())
         return QtAmbiguous;
 
-      switch (tokenType())
-      {
-        case DATA_SYMBOL:
-        {
+      switch (tokenType()) {
+        case DATA_SYMBOL: {
           if (!next())
             return QtAmbiguous;
 
@@ -920,8 +865,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
 
     case OPEN_PAR_SYMBOL: // Either (((select ..))) or (partition...)
     {
-      while (tokenType() == OPEN_PAR_SYMBOL)
-      {
+      while (tokenType() == OPEN_PAR_SYMBOL) {
         if (!next())
           return QtAmbiguous;
       }
@@ -934,8 +878,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
     case PARTITIONS_SYMBOL:
       return QtPartition;
 
-    case START_SYMBOL:
-    {
+    case START_SYMBOL: {
       if (!next())
         return QtAmbiguous;
 
@@ -950,13 +893,11 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
     case COMMIT_SYMBOL:
       return QtCommit;
 
-    case ROLLBACK_SYMBOL:
-    {
+    case ROLLBACK_SYMBOL: {
       // We assume a transaction statement here unless we exactly know it's about a savepoint.
       if (!next())
         return QtRollbackWork;
-      if (tokenType() == WORK_SYMBOL)
-      {
+      if (tokenType() == WORK_SYMBOL) {
         if (!next())
           return QtRollbackWork;
       }
@@ -966,13 +907,11 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
       return QtRollbackWork;
     }
 
-    case SET_SYMBOL:
-    {
+    case SET_SYMBOL: {
       if (!next())
         return QtSet;
 
-      switch (tokenType())
-      {
+      switch (tokenType()) {
         case PASSWORD_SYMBOL:
           return QtSetPassword;
 
@@ -1015,13 +954,11 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
     case CHANGE_SYMBOL:
       return QtChangeMaster;
 
-    case RESET_SYMBOL:
-    {
+    case RESET_SYMBOL: {
       if (!next())
         return QtReset;
 
-      switch (tokenType())
-      {
+      switch (tokenType()) {
         case SERVER_SYMBOL:
           return QtResetMaster;
         case SLAVE_SYMBOL:
@@ -1043,8 +980,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
     case DEALLOCATE_SYMBOL:
       return QtDeallocate;
 
-    case GRANT_SYMBOL:
-    {
+    case GRANT_SYMBOL: {
       if (!next())
         return QtAmbiguous;
 
@@ -1053,8 +989,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
       return QtGrant;
     }
 
-    case RENAME_SYMBOL:
-    {
+    case RENAME_SYMBOL: {
       if (!next())
         return QtAmbiguous;
 
@@ -1063,8 +998,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
       return QtRenameTable;
     }
 
-    case REVOKE_SYMBOL:
-    {
+    case REVOKE_SYMBOL: {
       if (!next())
         return QtAmbiguous;
 
@@ -1100,25 +1034,21 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
     case UNINSTALL_SYMBOL:
       return QtUninstallPlugin;
 
-    case SHOW_SYMBOL:
-    {
+    case SHOW_SYMBOL: {
       if (!next())
         return QtShow;
 
-      if (tokenType() == FULL_SYMBOL)
-      {
+      if (tokenType() == FULL_SYMBOL) {
         // Not all SHOW cases allow an optional FULL keyword, but this is not about checking for
         // a valid query but to find the most likely type.
         if (!next())
           return QtShow;
       }
 
-      switch (tokenType())
-      {
+      switch (tokenType()) {
         case GLOBAL_SYMBOL:
         case LOCK_SYMBOL:
-        case SESSION_SYMBOL:
-        {
+        case SESSION_SYMBOL: {
           if (!next())
             return QtShow;
 
@@ -1151,8 +1081,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
         case CONTRIBUTORS_SYMBOL:
           return QtShowContributors;
 
-        case COUNT_SYMBOL:
-        {
+        case COUNT_SYMBOL: {
           if (!next() || tokenType() != OPEN_PAR_SYMBOL)
             return QtShow;
           if (!next() || tokenType() != MULT_OPERATOR)
@@ -1163,8 +1092,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
           if (!next())
             return QtShow;
 
-          switch (tokenType())
-          {
+          switch (tokenType()) {
             case WARNINGS_SYMBOL:
               return QtShowWarnings;
 
@@ -1175,13 +1103,11 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
           return QtShow;
         }
 
-        case CREATE_SYMBOL:
-        {
+        case CREATE_SYMBOL: {
           if (!next())
             return QtShow;
 
-          switch (tokenType())
-          {
+          switch (tokenType()) {
             case DATABASE_SYMBOL:
               return QtShowCreateDatabase;
 
@@ -1223,8 +1149,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
         case EVENTS_SYMBOL:
           return QtShowEvents;
 
-        case FUNCTION_SYMBOL:
-        {
+        case FUNCTION_SYMBOL: {
           if (!next())
             return QtAmbiguous;
 
@@ -1254,8 +1179,7 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
         case PLUGINS_SYMBOL:
           return QtShowPlugins;
 
-        case PROCEDURE_SYMBOL:
-        {
+        case PROCEDURE_SYMBOL: {
           if (!next())
             return QtShow;
 
@@ -1269,72 +1193,67 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
 
         case PROCESSLIST_SYMBOL:
           return QtShowProcessList;
-          
+
         case PROFILE_SYMBOL:
           return QtShowProfile;
-          
+
         case PROFILES_SYMBOL:
           return QtShowProfiles;
-          
-        case SLAVE_SYMBOL:
-        {
+
+        case SLAVE_SYMBOL: {
           if (!next())
             return QtAmbiguous;
-          
+
           if (tokenType() == HOSTS_SYMBOL)
             return QtShowSlaveHosts;
           return QtShowSlaveStatus;
         }
-          
+
         case STATUS_SYMBOL:
           return QtShowStatus;
-          
+
         case VARIABLES_SYMBOL:
           return QtShowVariables;
-          
+
         case TABLE_SYMBOL:
           return QtShowTableStatus;
-          
+
         case TABLES_SYMBOL:
           return QtShowTables;
-          
+
         case TRIGGERS_SYMBOL:
           return QtShowTriggers;
-          
+
         case WARNINGS_SYMBOL:
           return QtShowWarnings;
       }
-      
+
       return QtShow;
     }
-      
+
     case CACHE_SYMBOL:
       return QtCacheIndex;
-      
+
     case FLUSH_SYMBOL:
       return QtFlush;
-      
+
     case KILL_SYMBOL:
       return QtKill;
-      
-      
+
     case DESCRIBE_SYMBOL: // EXPLAIN is converted to DESCRIBE in the lexer.
-    case DESC_SYMBOL:
-    {
+    case DESC_SYMBOL: {
       if (!next())
         return QtAmbiguous;
-      
+
       if (_recognizer->isIdentifier(tokenType()) || tokenType() == DOT_SYMBOL)
         return QtExplainTable;
-      
+
       // EXTENDED is a bit special as it can be both, a table identifier or the keyword.
-      if (tokenType() == EXTENDED_SYMBOL)
-      {
+      if (tokenType() == EXTENDED_SYMBOL) {
         if (!next())
           return QtExplainTable;
-        
-        switch (tokenType())
-        {
+
+        switch (tokenType()) {
           case DELETE_SYMBOL:
           case INSERT_SYMBOL:
           case REPLACE_SYMBOL:
@@ -1346,21 +1265,20 @@ MySQLQueryType MySQLRecognizerTreeWalker::queryType()
       }
       return QtExplainStatement;
     }
-      
+
     case HELP_SYMBOL:
       return QtHelp;
-      
+
     case USE_SYMBOL:
       return QtUse;
   }
-  
+
   return QtUnknown;
 }
 
 //----------------- MySQLRecognizer ----------------------------------------------------------------
 
-class MySQLRecognizer::Private
-{
+class MySQLRecognizer::Private {
 public:
   const char *_text;
   size_t _text_length;
@@ -1373,12 +1291,12 @@ public:
   pMySQLParser _parser;
   pANTLR3_BASE_TREE _ast;
 };
-                                  
+
 //--------------------------------------------------------------------------------------------------
 
-MySQLRecognizer::MySQLRecognizer(long server_version, const std::string &sql_mode, const std::set<std::string> &charsets)
-  : MySQLRecognitionBase(charsets)
-{
+MySQLRecognizer::MySQLRecognizer(long server_version, const std::string &sql_mode,
+                                 const std::set<std::string> &charsets)
+  : MySQLRecognitionBase(charsets) {
   d = new Private();
   d->_context.version = server_version;
   d->_context.payload = this;
@@ -1392,12 +1310,11 @@ MySQLRecognizer::MySQLRecognizer(long server_version, const std::string &sql_mod
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLRecognizer::~MySQLRecognizer()
-{
+MySQLRecognizer::~MySQLRecognizer() {
   if (d->_parser != NULL)
     d->_parser->free(d->_parser);
   if (d->_tokens != NULL)
-    d->_tokens ->free(d->_tokens);
+    d->_tokens->free(d->_tokens);
   if (d->_lexer != NULL)
     d->_lexer->free(d->_lexer);
   if (d->_input != NULL)
@@ -1411,15 +1328,14 @@ MySQLRecognizer::~MySQLRecognizer()
 /**
  * Starts parsing with new input but keeps everything else in place. This is expected to be more
  * efficient than creating a new parser over and over again for many statements (e.g. for error checking).
- * 
+ *
  * @param text The text to parse.
  * @param length The length of the text.
  * @param is_utf8 True if text is utf-8 encoded. If false we assume ASCII encoding.
- * @param parse_unit used to restrict parsing to a particular query type. 
+ * @param parse_unit used to restrict parsing to a particular query type.
  *                   Note: only a few types are supported, everything else is just parsed as a query.
  */
-void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit)
-{
+void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit) {
   // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
   // (everything requiring only one byte per char as Latin1, ASCII and similar).
   d->_input_encoding = is_utf8 ? ANTLR3_ENC_UTF8 : ANTLR3_ENC_8BIT;
@@ -1429,15 +1345,16 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 
   // Logging adds significant time to parsing which especially shows with large scripts
   // (thousands of rather small queries to error check). And it adds not much benefit, so leave it off.
-  //log_debug3("Start parsing\n");
+  // log_debug3("Start parsing\n");
 
   reset();
 
-  if (d->_input == NULL)
-  {
+  if (d->_input == NULL) {
     // Input and depending structures are only created once. If there's no input stream yet we need the full setup.
-    d->_input = antlr3StringStreamNew((pANTLR3_UINT8)d->_text, d->_input_encoding, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
-    d->_input->setUcaseLA(d->_input, ANTLR3_TRUE); // Make input case-insensitive. String literals must all be upper case in the grammar!
+    d->_input = antlr3StringStreamNew((pANTLR3_UINT8)d->_text, d->_input_encoding, (ANTLR3_UINT32)d->_text_length,
+                                      (pANTLR3_UINT8) "");
+    d->_input->setUcaseLA(
+      d->_input, ANTLR3_TRUE); // Make input case-insensitive. String literals must all be upper case in the grammar!
     d->_lexer = MySQLLexerNew(d->_input);
     d->_lexer->pLexer->rec->state->userp = &d->_context;
 
@@ -1445,60 +1362,56 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 
     d->_parser = MySQLParserNew(d->_tokens);
     d->_parser->pParser->rec->state->userp = &d->_context;
-  }
-  else
-  {
-    d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
+  } else {
+    d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8) "");
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);
     d->_parser->reset(d->_parser);
   }
 
-  switch (parse_unit)
-  {
-  case MySQLParseUnit::PuCreateTable:
-    d->_ast = d->_parser->create_table(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuCreateTrigger:
-    d->_ast = d->_parser->create_trigger(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuCreateView:
-    d->_ast = d->_parser->create_view(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuCreateRoutine:
-    d->_ast = d->_parser->create_routine(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuCreateEvent:
-    d->_ast = d->_parser->create_event(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuCreateIndex:
-    d->_ast = d->_parser->create_index(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuGrant:
-    d->_ast = d->_parser->parse_grant(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuDataType:
-    d->_ast = d->_parser->data_type_definition(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuCreateLogfileGroup:
-    d->_ast = d->_parser->create_logfile_group(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuCreateServer:
-    d->_ast = d->_parser->create_server(d->_parser).tree;
-    break;
-  case MySQLParseUnit::PuCreateTablespace:
-    d->_ast = d->_parser->create_tablespace(d->_parser).tree;
-    break;
-  default:
-    d->_ast = d->_parser->query(d->_parser).tree;
-    break;
+  switch (parse_unit) {
+    case MySQLParseUnit::PuCreateTable:
+      d->_ast = d->_parser->create_table(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuCreateTrigger:
+      d->_ast = d->_parser->create_trigger(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuCreateView:
+      d->_ast = d->_parser->create_view(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuCreateRoutine:
+      d->_ast = d->_parser->create_routine(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuCreateEvent:
+      d->_ast = d->_parser->create_event(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuCreateIndex:
+      d->_ast = d->_parser->create_index(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuGrant:
+      d->_ast = d->_parser->parse_grant(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuDataType:
+      d->_ast = d->_parser->data_type_definition(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuCreateLogfileGroup:
+      d->_ast = d->_parser->create_logfile_group(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuCreateServer:
+      d->_ast = d->_parser->create_server(d->_parser).tree;
+      break;
+    case MySQLParseUnit::PuCreateTablespace:
+      d->_ast = d->_parser->create_tablespace(d->_parser).tree;
+      break;
+    default:
+      d->_ast = d->_parser->query(d->_parser).tree;
+      break;
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string MySQLRecognizer::dump_tree()
-{
+std::string MySQLRecognizer::dump_tree() {
   logDebug2("Generating parse tree\n");
 
   return dump_tree(d->_ast, "");
@@ -1506,8 +1419,7 @@ std::string MySQLRecognizer::dump_tree()
 
 //--------------------------------------------------------------------------------------------------
 
-std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string &indentation)
-{
+std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string &indentation) {
   std::string result;
 
   pANTLR3_RECOGNIZER_SHARED_STATE state = d->_parser->pParser->rec->state;
@@ -1516,35 +1428,30 @@ std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string
   pANTLR3_STRING token_text = tree->getText(tree);
 
   pANTLR3_COMMON_TOKEN token = tree->getToken(tree);
-  const char* utf8 = (const char*)token_text->chars;
-  if (token != NULL)
-  {
+  const char *utf8 = (const char *)token_text->chars;
+  if (token != NULL) {
     ANTLR3_UINT32 token_type = token->getType(token);
 
     pANTLR3_UINT8 token_name;
     if (token_type == EOF)
-      token_name = (pANTLR3_UINT8)"EOF";
+      token_name = (pANTLR3_UINT8) "EOF";
     else
       token_name = state->tokenNames[token_type];
 
-#ifdef  ANTLR3_USE_64BIT
+#ifdef ANTLR3_USE_64BIT
     result = base::strfmt("%s(line: %i, offset: %i, length: %" PRId64 ", index: %" PRId64 ", %s[%i])    %s\n",
-                               indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
-                               token_type, utf8);
-#else
-    result = base::strfmt("%s(line: %i, offset: %i, length: %i, index: %i, %s[%i])    %s\n",
                           indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
                           token_type, utf8);
+#else
+    result = base::strfmt("%s(line: %i, offset: %i, length: %i, index: %i, %s[%i])    %s\n", indentation.c_str(), line,
+                          char_pos, token->stop - token->start + 1, token->index, token_name, token_type, utf8);
 #endif
 
-  }
-  else
-  {
+  } else {
     result = base::strfmt("%s(line: %i, offset: %i, nil)    %s\n", indentation.c_str(), line, char_pos, utf8);
   }
 
-  for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++)
-  {
+  for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++) {
     pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)tree->getChild(tree, index);
     std::string child_text = dump_tree(child, indentation + "\t");
     result += child_text;
@@ -1554,15 +1461,13 @@ std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string
 
 //--------------------------------------------------------------------------------------------------
 
-std::string MySQLRecognizer::text() const
-{
+std::string MySQLRecognizer::text() const {
   return std::string(d->_text, d->_text_length);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-const char* MySQLRecognizer::lineStart() const
-{
+const char *MySQLRecognizer::lineStart() const {
   return d->_text;
 }
 
@@ -1571,30 +1476,26 @@ const char* MySQLRecognizer::lineStart() const
 /**
  * Returns a tree walker for the current AST.
  */
-MySQLRecognizerTreeWalker MySQLRecognizer::tree_walker()
-{
+MySQLRecognizerTreeWalker MySQLRecognizer::tree_walker() {
   return MySQLRecognizerTreeWalker(this, d->_ast);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLRecognizer::set_sql_mode(const std::string &new_mode)
-{
+void MySQLRecognizer::set_sql_mode(const std::string &new_mode) {
   MySQLRecognitionBase::set_sql_mode(new_mode);
   d->_context.sqlMode = sql_mode(); // Parsed SQL mode.
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLRecognizer::set_server_version(long new_version)
-{
+void MySQLRecognizer::set_server_version(long new_version) {
   d->_context.version = new_version;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-long MySQLRecognizer::server_version()
-{
+long MySQLRecognizer::server_version() {
   return d->_context.version;
 }
 
@@ -1603,10 +1504,8 @@ long MySQLRecognizer::server_version()
 /**
  *	Returns the token start of this token or it's first real child/grandchild etc.
  */
-static ANTLR3_MARKER getRealTokenStart(pANTLR3_BASE_TREE node)
-{
-  if (node->getChildCount(node) == 0)
-  {
+static ANTLR3_MARKER getRealTokenStart(pANTLR3_BASE_TREE node) {
+  if (node->getChildCount(node) == 0) {
     pANTLR3_COMMON_TOKEN token = node->getToken(node);
     return token->start;
   }
@@ -1623,25 +1522,23 @@ static ANTLR3_MARKER getRealTokenStart(pANTLR3_BASE_TREE node)
  * The result's type member can be used to find out if token information is not yet available or
  * the given index is out of the available range (ANTLR3_TOKEN_INVALID).
  */
-ParserToken MySQLRecognizer::token_at_index(ANTLR3_MARKER index)
-{
+ParserToken MySQLRecognizer::token_at_index(ANTLR3_MARKER index) {
   ParserToken result;
 
   pANTLR3_COMMON_TOKEN token = d->_tokens->tstream->get(d->_tokens->tstream, (ANTLR3_UINT32)index);
-  if (token != NULL)
-  {
+  if (token != NULL) {
     result.type = token->type;
     result.line = token->line;
     result.position = token->charPosition;
     result.index = token->index;
     result.channel = token->channel;
-    result.line_start = (char*)token->lineStart;
-    result.start = reinterpret_cast<char*>(token->start);
-    result.stop = reinterpret_cast<char*>(token->stop);
+    result.line_start = (char *)token->lineStart;
+    result.start = reinterpret_cast<char *>(token->start);
+    result.stop = reinterpret_cast<char *>(token->stop);
 
     // If necessary the following part can be optimized to not always create a copy of the input.
     pANTLR3_STRING text = token->getText(token);
-    result.text = (const char*)text->chars;
+    result.text = (const char *)text->chars;
   }
 
   return result;

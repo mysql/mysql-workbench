@@ -13,25 +13,24 @@
 
 @class GRTListDataSource;
 
-@interface WbTagEditor : WBPluginEditorBase 
-{
+@interface WbTagEditor : WBPluginEditorBase {
   IBOutlet NSTabView *editorTabView;
-  
+
   IBOutlet NSPopUpButton *categoryPop;
   IBOutlet NSTableView *tagTable;
-  
+
   IBOutlet NSTextField *tagNameText;
   IBOutlet NSTextField *tagLabelText;
   IBOutlet NSColorWell *tagColor;
   IBOutlet NSTextView *tagComment;
-  
+
   IBOutlet NSTableView *objectTable;
   IBOutlet NSTextView *objectText;
-  
+
   IBOutlet NSButton *deleteTagButton;
-  
+
   NSMutableArray *mTagArray;
-  
+
   TagEditorBE *mBackEnd;
 }
 
