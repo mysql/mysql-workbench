@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,18 +25,15 @@
 //================================================================================
 // ui_ObjectEditor
 
-void ui_ObjectEditor::init()
-{
-  if (!_data) _data= new ui_ObjectEditor::ImplData(this);
+void ui_ObjectEditor::init() {
+  if (!_data)
+    _data = new ui_ObjectEditor::ImplData(this);
 }
 
-ui_ObjectEditor::~ui_ObjectEditor()
-{
+ui_ObjectEditor::~ui_ObjectEditor() {
   delete _data;
 }
 
-
-void ui_ObjectEditor::set_data(ImplData *data)
-{
+void ui_ObjectEditor::set_data(ImplData *data) {
   _data = data;
 }

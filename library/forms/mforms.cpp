@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,14 +28,12 @@ DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE);
 extern GThread *_mforms_main_thread;
 
 // The first time this method is called must be from the main thread, during startup.
-ControlFactory *ControlFactory::get_instance()
-{
+ControlFactory *ControlFactory::get_instance() {
   static ControlFactory *instance = NULL;
-  
-  if (!instance)
-  {
+
+  if (!instance) {
     logDebug2("Initializing mforms factory\n");
-    
+
     // Do some one time initializations.
     _mforms_main_thread = g_thread_self();
 
@@ -45,9 +43,7 @@ ControlFactory *ControlFactory::get_instance()
   return instance;
 }
 
-
-ControlFactory::ControlFactory()
-{
+ControlFactory::ControlFactory() {
   memset(&_view_impl, 0, sizeof(_view_impl));
   memset(&_form_impl, 0, sizeof(_form_impl));
   memset(&_box_impl, 0, sizeof(_box_impl));
@@ -86,20 +82,18 @@ ControlFactory::ControlFactory()
 }
 
 // perform a check on the function pointer table to see if there's any NULL ptrs
-#define CHECKPTRS(v) \
-{\
-void **ptrs= (void**)&v;\
-for (unsigned int i= 0; i < sizeof(v)/sizeof(void*); i++)\
-{\
-if (ptrs[i] == 0)\
-logError("%s has NULL ptr at %i\n", #v, i);\
-}\
-}
+#define CHECKPTRS(v)                                                \
+  {                                                                 \
+    void **ptrs = (void **)&v;                                      \
+    for (unsigned int i = 0; i < sizeof(v) / sizeof(void *); i++) { \
+      if (ptrs[i] == 0)                                             \
+        logError("%s has NULL ptr at %i\n", #v, i);                 \
+    }                                                               \
+  }
 
 //--------------------------------------------------------------------------------------------------
 
-void ControlFactory::check_impl()
-{
+void ControlFactory::check_impl() {
 #if defined(_DEBUG) || defined(ENABLE_DEBUG)
   CHECKPTRS(_view_impl);
   CHECKPTRS(_form_impl);
@@ -138,10 +132,8 @@ void ControlFactory::check_impl()
 
 //--------------------------------------------------------------------------------------------------
 
-ControlFactory::~ControlFactory()
-{
+ControlFactory::~ControlFactory() {
   logInfo("Shutting down mforms backend\n");
 }
 
 //--------------------------------------------------------------------------------------------------
-

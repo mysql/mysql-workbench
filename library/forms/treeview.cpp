@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,42 +21,35 @@
 
 using namespace mforms;
 
-TreeNodeSkeleton::TreeNodeSkeleton(const std::string& strcaption, const std::string& stricon, const std::string& strtag)
-{
+TreeNodeSkeleton::TreeNodeSkeleton(const std::string &strcaption, const std::string &stricon,
+                                   const std::string &strtag) {
   caption = strcaption;
   icon = stricon;
   tag = strtag;
 }
 
-TreeNodeCollectionSkeleton::TreeNodeCollectionSkeleton(const std::string& stricon)
-{
+TreeNodeCollectionSkeleton::TreeNodeCollectionSkeleton(const std::string &stricon) {
   icon = stricon;
 }
 
-TreeNodeRef::TreeNodeRef(TreeNode *anode)
-: node(anode) 
-{ 
+TreeNodeRef::TreeNodeRef(TreeNode *anode) : node(anode) {
   if (node)
     node->retain();
 }
-  
-TreeNodeRef::TreeNodeRef(const TreeNodeRef &other)
-{
+
+TreeNodeRef::TreeNodeRef(const TreeNodeRef &other) {
   node = other.node;
   if (node)
     node->retain();
 }
-  
-TreeNodeRef::~TreeNodeRef() 
-{
+
+TreeNodeRef::~TreeNodeRef() {
   if (node)
-    node->release(); 
+    node->release();
 }
 
-TreeNodeRef &TreeNodeRef::operator= (const TreeNodeRef &other)
-{
-  if (node != other.node)
-  {
+TreeNodeRef &TreeNodeRef::operator=(const TreeNodeRef &other) {
+  if (node != other.node) {
     if (other.node)
       other.node->retain();
     if (node)
@@ -66,55 +59,47 @@ TreeNodeRef &TreeNodeRef::operator= (const TreeNodeRef &other)
   return *this;
 }
 
-TreeNode *TreeNodeRef::operator->() const
-{ 
-  if (!node) 
+TreeNode *TreeNodeRef::operator->() const {
+  if (!node)
     throw std::logic_error("Attempt to dereference NULL TreeNode");
   return node;
 }
 
-TreeNode *TreeNodeRef::operator->()
-{ 
-  if (!node) 
+TreeNode *TreeNodeRef::operator->() {
+  if (!node)
     throw std::logic_error("Attempt to dereference NULL TreeNode");
   return node;
 }
 
-bool TreeNodeRef::operator == (const TreeNodeRef &other) const
-{
+bool TreeNodeRef::operator==(const TreeNodeRef &other) const {
   if (node == other.node)
     return true;
-  
+
   if (other.node && node)
     return node->equals(*other.node);
 
   return false;
 }
 
-bool TreeNodeRef::operator != (const TreeNodeRef &other) const
-{
+bool TreeNodeRef::operator!=(const TreeNodeRef &other) const {
   if (node == other.node)
     return false;
-  
+
   if (other.node && node)
     return !node->equals(*other.node);
 
   return true;
 }
 
-bool mforms::TreeNodeRef::is_valid()
-{
+bool mforms::TreeNodeRef::is_valid() {
   return node != NULL;
 }
 
 // -------------------------------------------------------------------------------------------------
 
-void TreeNode::remove_children()
-{
-  if (is_valid())
-  {
-    for (int i = count()-1; i >= 0; --i)
-    {
+void TreeNode::remove_children() {
+  if (is_valid()) {
+    for (int i = count() - 1; i >= 0; --i) {
       TreeNodeRef child(get_child(i));
       if (child)
         child->remove_from_parent();
@@ -122,10 +107,8 @@ void TreeNode::remove_children()
   }
 }
 
-TreeNodeRef TreeNode::find_child_with_tag(const std::string &tag)
-{
-  for (int c = count(), i = 0; i < c; i++)
-  {
+TreeNodeRef TreeNode::find_child_with_tag(const std::string &tag) {
+  for (int c = count(), i = 0; i < c; i++) {
     TreeNodeRef child(get_child(i));
     if (child && child->get_tag() == tag)
       return child;
@@ -135,10 +118,8 @@ TreeNodeRef TreeNode::find_child_with_tag(const std::string &tag)
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeNode::toggle()
-{
-  if (can_expand())
-  {
+void TreeNode::toggle() {
+  if (can_expand()) {
     if (!is_expanded())
       expand();
     else
@@ -149,9 +130,12 @@ void TreeNode::toggle()
 //----------------- TreeView -----------------------------------------------------------------------
 
 TreeView::TreeView(TreeOptions options) // yep
-: _context_menu(0), _header_menu(0), _update_count(0), _clicked_header_column(0), _end_column_called(false)
-{
-  _treeview_impl= &ControlFactory::get_instance()->_treeview_impl;
+  : _context_menu(0),
+    _header_menu(0),
+    _update_count(0),
+    _clicked_header_column(0),
+    _end_column_called(false) {
+  _treeview_impl = &ControlFactory::get_instance()->_treeview_impl;
   _index_on_tag = (options & TreeIndexOnTag) ? true : false;
 
   _treeview_impl->create(this, options);
@@ -159,36 +143,32 @@ TreeView::TreeView(TreeOptions options) // yep
 
 //--------------------------------------------------------------------------------------------------
 
-TreeView::~TreeView()
-{
+TreeView::~TreeView() {
   _update_count++; // Avoid any callbacks/events.
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::set_context_menu(ContextMenu *menu)
-{
+void TreeView::set_context_menu(ContextMenu *menu) {
   _context_menu = menu;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::set_header_menu(ContextMenu *menu)
-{
+void TreeView::set_header_menu(ContextMenu *menu) {
   _header_menu = menu;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::header_clicked(int column)
-{
+void TreeView::header_clicked(int column) {
   _clicked_header_column = column;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int TreeView::add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable, bool attributed)
-{
+int TreeView::add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable,
+                         bool attributed) {
   if (_end_column_called)
     throw std::logic_error("Add column called, after end_columns has been called");
   _column_types.push_back(type);
@@ -199,89 +179,66 @@ int TreeView::add_column(TreeColumnType type, const std::string &name, int initi
 #endif
 }
 
-
-void TreeView::set_column_title(int column, const std::string &title)
-{
+void TreeView::set_column_title(int column, const std::string &title) {
   _treeview_impl->set_column_title(this, column, title);
 }
 
-
-TreeColumnType TreeView::get_column_type(int column)
-{
+TreeColumnType TreeView::get_column_type(int column) {
   if (column >= 0 && column < (int)_column_types.size())
     return _column_types[column];
   return StringColumnType;
 }
 
-
-void TreeView::set_allow_sorting(bool flag)
-{
+void TreeView::set_allow_sorting(bool flag) {
   if (!_end_column_called)
     throw std::logic_error("TreeView::set_allow_sorting() must be called after end_columns()");
   _treeview_impl->set_allow_sorting(this, flag);
 }
 
-
-void TreeView::end_columns()
-{
+void TreeView::end_columns() {
   _end_column_called = true;
   _treeview_impl->end_columns(this);
 }
 
-
-void TreeView::clear()
-{
+void TreeView::clear() {
   _treeview_impl->clear(this);
 }
 
-
-TreeNodeRef TreeView::root_node()
-{
+TreeNodeRef TreeView::root_node() {
   return _treeview_impl->root_node(this);
 }
 
-TreeNodeRef TreeView::add_node()
-{
-  return root_node()->add_child(); 
+TreeNodeRef TreeView::add_node() {
+  return root_node()->add_child();
 }
 
-TreeNodeRef TreeView::get_selected_node()
-{
+TreeNodeRef TreeView::get_selected_node() {
   return _treeview_impl->get_selected_node(this);
 }
 
-void TreeView::set_selection_mode(TreeSelectionMode mode)
-{
+void TreeView::set_selection_mode(TreeSelectionMode mode) {
   _treeview_impl->set_selection_mode(this, mode);
 }
 
-TreeSelectionMode TreeView::get_selection_mode()
-{
+TreeSelectionMode TreeView::get_selection_mode() {
   return _treeview_impl->get_selection_mode(this);
 }
 
-int TreeView::get_selected_row()
-{
+int TreeView::get_selected_row() {
   TreeNodeRef node(get_selected_node());
   return row_for_node(node);
 }
 
-
-std::list<TreeNodeRef> TreeView::get_selection()
-{
+std::list<TreeNodeRef> TreeView::get_selection() {
   return _treeview_impl->get_selection(this);
 }
 
-void TreeView::clear_selection()
-{
+void TreeView::clear_selection() {
   _treeview_impl->clear_selection(this);
 }
 
-
-void TreeView::select_node(TreeNodeRef node)
-{
-  if (node.is_valid())
-  {
+void TreeView::select_node(TreeNodeRef node) {
+  if (node.is_valid()) {
     _update_count++;
     clear_selection();
     _treeview_impl->set_selected(this, node, true);
@@ -289,42 +246,33 @@ void TreeView::select_node(TreeNodeRef node)
   }
 }
 
-
-void TreeView::set_node_selected(TreeNodeRef node, bool flag)
-{
-  if (node.is_valid())
-  {
+void TreeView::set_node_selected(TreeNodeRef node, bool flag) {
+  if (node.is_valid()) {
     _update_count++;
     _treeview_impl->set_selected(this, node, flag);
     _update_count--;
   }
 }
 
-void TreeView::scrollToNode(TreeNodeRef node)
-{
+void TreeView::scrollToNode(TreeNodeRef node) {
   _treeview_impl->scrollToNode(this, node);
 }
 
-
-void TreeView::set_row_height(int height)
-{
+void TreeView::set_row_height(int height) {
   if (_treeview_impl->set_row_height)
     _treeview_impl->set_row_height(this, height);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::set_cell_edit_handler(const std::function<void (TreeNodeRef, int, std::string)> &handler)
-{
+void TreeView::set_cell_edit_handler(const std::function<void(TreeNodeRef, int, std::string)> &handler) {
   _cell_edited = handler;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool TreeView::cell_edited(TreeNodeRef row, int column, const std::string &value)
-{
-  if (_cell_edited)
-  {
+bool TreeView::cell_edited(TreeNodeRef row, int column, const std::string &value) {
+  if (_cell_edited) {
     _cell_edited(row, column, value);
     return false;
   }
@@ -333,50 +281,44 @@ bool TreeView::cell_edited(TreeNodeRef row, int column, const std::string &value
 
 //--------------------------------------------------------------------------------------------------
 
-bool TreeView::get_drag_data(DragDetails &details, void **data, std::string &format)
-{
+bool TreeView::get_drag_data(DragDetails &details, void **data, std::string &format) {
   return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::drag_finished(DragOperation operation)
-{
+void TreeView::drag_finished(DragOperation operation) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::column_resized(int column)
-{
+void TreeView::column_resized(int column) {
   _signal_column_resized(column);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::changed()
-{
+void TreeView::changed() {
   if (_update_count == 0)
     _signal_changed();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::node_activated(TreeNodeRef row, int column)
-{
+void TreeView::node_activated(TreeNodeRef row, int column) {
   _signal_activated(row, column);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::set_row_overlay_handler(const std::function<std::vector<std::string> (TreeNodeRef)> &overlay_icons_for_node)
-{
+void TreeView::set_row_overlay_handler(
+  const std::function<std::vector<std::string>(TreeNodeRef)> &overlay_icons_for_node) {
   _overlay_icons_for_node = overlay_icons_for_node;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> TreeView::overlay_icons_for_node(TreeNodeRef row)
-{
+std::vector<std::string> TreeView::overlay_icons_for_node(TreeNodeRef row) {
   if (_overlay_icons_for_node)
     return _overlay_icons_for_node(row);
   return std::vector<std::string>();
@@ -384,9 +326,8 @@ std::vector<std::string> TreeView::overlay_icons_for_node(TreeNodeRef row)
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::overlay_icon_for_node_clicked(TreeNodeRef row, int index)
-{
-  node_activated(row, -(index+1));
+void TreeView::overlay_icon_for_node_clicked(TreeNodeRef row, int index) {
+  node_activated(row, -(index + 1));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -394,97 +335,75 @@ void TreeView::overlay_icon_for_node_clicked(TreeNodeRef row, int index)
 /**
  * Descendants can override this method to indicate expandability depending on other information.
  */
-bool TreeView::can_expand(TreeNodeRef row)
-{
+bool TreeView::can_expand(TreeNodeRef row) {
   return row->count() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::expand_toggle(TreeNodeRef row, bool expanded)
-{
+void TreeView::expand_toggle(TreeNodeRef row, bool expanded) {
   _signal_expand_toggle(row, expanded);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeView::freeze_refresh()
-{
+void TreeView::freeze_refresh() {
   _treeview_impl->freeze_refresh(this, true);
 }
 
-
-void TreeView::thaw_refresh()
-{
+void TreeView::thaw_refresh() {
   _treeview_impl->freeze_refresh(this, false);
 }
 
-
-int TreeView::row_for_node(TreeNodeRef node)
-{
+int TreeView::row_for_node(TreeNodeRef node) {
   return _treeview_impl->row_for_node(this, node);
 }
 
-
-TreeNodeRef TreeView::node_at_row(int row)
-{
+TreeNodeRef TreeView::node_at_row(int row) {
   return _treeview_impl->node_at_row(this, row);
 }
 
-mforms::TreeNodeRef mforms::TreeView::node_at_position(base::Point position)
-{
+mforms::TreeNodeRef mforms::TreeView::node_at_position(base::Point position) {
   return _treeview_impl->node_at_position(this, position);
 }
 
-TreeNodeRef TreeView::node_with_tag(const std::string &tag)
-{
+TreeNodeRef TreeView::node_with_tag(const std::string &tag) {
   if (!_index_on_tag)
     throw std::logic_error("Tree was not created with TreeIndexOnTag");
 
   return _treeview_impl->node_with_tag(this, tag);
 }
 
-
-void TreeView::set_column_visible(int column, bool flag)
-{
+void TreeView::set_column_visible(int column, bool flag) {
   if (_treeview_impl->set_column_visible)
     _treeview_impl->set_column_visible(this, column, flag);
 }
 
-
-bool TreeView::get_column_visible(int column)
-{
+bool TreeView::get_column_visible(int column) {
   if (_treeview_impl->get_column_visible)
     return _treeview_impl->get_column_visible(this, column);
   return true;
 }
 
-
-void TreeView::set_column_width(int column, int width)
-{
+void TreeView::set_column_width(int column, int width) {
   if (_treeview_impl->set_column_width)
     _treeview_impl->set_column_width(this, column, width);
 }
 
-
-int TreeView::get_column_width(int column)
-{
+int TreeView::get_column_width(int column) {
   if (_treeview_impl->get_column_width)
     return _treeview_impl->get_column_width(this, column);
   return 0;
 }
 
-
-double TreeView::parse_string_with_unit(const char *s)
-{
+double TreeView::parse_string_with_unit(const char *s) {
   char *end = NULL;
   double value = strtod(s, &end);
 
   if (*end == ' ')
     ++end;
 
-  switch (*end)
-  {
+  switch (*end) {
     case 'p': // pico
       value /= 1000000000000.0;
       break;
@@ -504,31 +423,31 @@ double TreeView::parse_string_with_unit(const char *s)
 
     case 'K': // kilo
     case 'k':
-      if (*(end+1) == 'i')
+      if (*(end + 1) == 'i')
         value *= 1024.0;
       else
         value *= 1000.0;
       break;
     case 'M': // mega
-      if (*(end+1) == 'i')
+      if (*(end + 1) == 'i')
         value *= 1048576.0;
       else
         value *= 1000000.0;
       break;
     case 'G': // giga
-      if (*(end+1) == 'i')
+      if (*(end + 1) == 'i')
         value *= 1073741824.0;
       else
         value *= 1000000000.0;
       break;
     case 'T': // tera
-      if (*(end+1) == 'i')
+      if (*(end + 1) == 'i')
         value *= 1099511627776.0;
       else
         value *= 1000000000000.0;
       break;
     case 'P': // peta
-      if (*(end+1) == 'i')
+      if (*(end + 1) == 'i')
         value *= 1125899906842624.0;
       else
         value *= 1000000000000000.0;
@@ -537,14 +456,12 @@ double TreeView::parse_string_with_unit(const char *s)
   return value;
 }
 
-void TreeView::BeginUpdate()
-{
+void TreeView::BeginUpdate() {
   if (_treeview_impl->BeginUpdate)
     _treeview_impl->BeginUpdate(this);
 }
 
-void TreeView::EndUpdate()
-{
+void TreeView::EndUpdate() {
   if (_treeview_impl->EndUpdate)
     _treeview_impl->EndUpdate(this);
 }

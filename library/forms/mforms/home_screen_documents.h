@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,13 +25,11 @@
 #include "base/geometry.h"
 #include "home_screen_helpers.h"
 
-namespace mforms
-{
+namespace mforms {
   class HomeScreen;
   //----------------- DocumentEntry ---------------------------------------------------------------
 
-  class DocumentEntry: public mforms::Accessible
-  {
+  class DocumentEntry : public mforms::Accessible {
   public:
     std::string path;
     time_t timestamp; // Last accessed as timestamp for sorting.
@@ -48,7 +46,7 @@ namespace mforms
     base::Rect bounds;
     bool is_model;
 
-    bool operator <(const DocumentEntry &other) const;
+    bool operator<(const DocumentEntry &other) const;
     //------ Accessibility Methods -----
     virtual std::string get_acc_name();
     virtual std::string get_acc_description();
@@ -60,21 +58,20 @@ namespace mforms
 
   //----------------- DocumentsSection ---------------------------------------------------------------
 
-  class MFORMS_EXPORT DocumentsSection: public HomeScreenSection
-  {
+  class MFORMS_EXPORT DocumentsSection : public HomeScreenSection {
   private:
     HomeScreen *_owner;
 
-    cairo_surface_t* _model_icon;
-    cairo_surface_t* _sql_icon;
-    cairo_surface_t* _plus_icon;
-    cairo_surface_t* _schema_icon;
-    cairo_surface_t* _time_icon;
-    cairo_surface_t* _folder_icon;
-    cairo_surface_t* _size_icon;
-    cairo_surface_t* _close_icon;
-    cairo_surface_t* _open_icon;
-    cairo_surface_t* _action_icon;
+    cairo_surface_t *_model_icon;
+    cairo_surface_t *_sql_icon;
+    cairo_surface_t *_plus_icon;
+    cairo_surface_t *_schema_icon;
+    cairo_surface_t *_time_icon;
+    cairo_surface_t *_folder_icon;
+    cairo_surface_t *_size_icon;
+    cairo_surface_t *_close_icon;
+    cairo_surface_t *_open_icon;
+    cairo_surface_t *_action_icon;
     float _backing_scale_when_icons_loaded;
 
     ssize_t _entries_per_row;
@@ -91,10 +88,7 @@ namespace mforms
 
     ssize_t _hot_entry;
     ssize_t _active_entry;
-    enum DisplayMode
-    {
-      Nothing, ModelsOnly, ScriptsOnly, Mixed
-    } _display_mode;
+    enum DisplayMode { Nothing, ModelsOnly, ScriptsOnly, Mixed } _display_mode;
 
     std::function<bool(int, int)> _accessible_click_handler;
 
@@ -121,7 +115,7 @@ namespace mforms
     const int DOCUMENTS_ENTRY_WIDTH = 250; // No spacing horizontally.
     const int DOCUMENTS_ENTRY_HEIGHT = 60;
     const int DOCUMENTS_HEADING_SPACING = 10; // Spacing between a heading part and a separator.
-    const int DOCUMENTS_TOP_BASELINE = 40; // Vertical space from top border to title base line.
+    const int DOCUMENTS_TOP_BASELINE = 40;    // Vertical space from top border to title base line.
 
     const int MESSAGE_WIDTH = 200;
     const int MESSAGE_HEIGHT = 75;
@@ -138,8 +132,7 @@ namespace mforms
      * Draws and icon followed by the given text. The given position is that of the upper left corner
      * of the image.
      */
-    void draw_icon_with_text(cairo_t *cr, int x, int y, cairo_surface_t *icon,
-                             const std::string &text);
+    void draw_icon_with_text(cairo_t *cr, int x, int y, cairo_surface_t *icon, const std::string &text);
 
     void draw_entry(cairo_t *cr, const DocumentEntry &entry, bool hot);
     void update_filtered_documents();
@@ -150,13 +143,11 @@ namespace mforms
     virtual void setFocus();
     virtual bool canHandle(HomeScreenMenuType type);
     virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
-    virtual void setContextMenuAction(mforms::Menu *menu,
-                                      HomeScreenMenuType type);
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
 
     void load_icons();
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
-    void add_document(const std::string &path, const time_t &time,
-                      const std::string schemas, long file_size);
+    void add_document(const std::string &path, const time_t &time, const std::string schemas, long file_size);
     void clear_documents();
     virtual bool mouse_double_click(mforms::MouseButton button, int x, int y);
     virtual bool mouse_click(mforms::MouseButton button, int x, int y);
@@ -166,9 +157,9 @@ namespace mforms
     void show_connection_select_message();
     void hide_connection_select_message();
     virtual int get_acc_child_count();
-    virtual Accessible* get_acc_child(int index);
+    virtual Accessible *get_acc_child(int index);
     virtual Accessible::Role get_acc_role();
-    virtual mforms::Accessible* hit_test(int x, int y);
+    virtual mforms::Accessible *hit_test(int x, int y);
   };
 
 } /* namespace wb */

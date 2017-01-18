@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,29 +21,27 @@
 #include "mforms/mforms.h"
 #include "base/data_types.h"
 
-namespace Workbench
-{
-namespace X
-{
+namespace Workbench {
+  namespace X {
 
-  class MFORMS_EXPORT ProjectForm : public mforms::Form
-{
-  void setupUi();
-  mforms::Box _box;
-  mforms::Box _bbox;
-  mforms::Button _cancel;
-  mforms::Button _save;
-  mforms::TextEntry _projectName;
-  mforms::TextEntry _userName;
-  mforms::TextEntry _host;
-  mforms::TextEntry _port;
-  void onSave();
-public:
-  ProjectForm();
-  virtual ~ProjectForm();
-  void show();
-  dataTypes::XProject _project;
-};
+    class MFORMS_EXPORT ProjectForm : public mforms::Form {
+      void setupUi();
+      mforms::Box _box;
+      mforms::Box _bbox;
+      mforms::Button _cancel;
+      mforms::Button _save;
+      mforms::TextEntry _projectName;
+      mforms::TextEntry _userName;
+      mforms::TextEntry _host;
+      mforms::TextEntry _port;
+      void onSave();
 
-} /* namespace X */
+    public:
+      ProjectForm();
+      virtual ~ProjectForm();
+      void show();
+      dataTypes::XProject _project;
+    };
+
+  } /* namespace X */
 } /* namespace Workbench */

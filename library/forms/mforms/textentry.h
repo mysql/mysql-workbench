@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,33 +23,30 @@
 
 namespace mforms {
   class TextEntry;
-     
-  enum TextEntryType
-  {
-    NormalEntry, //!< a normal plain text entry
+
+  enum TextEntryType {
+    NormalEntry,   //!< a normal plain text entry
     PasswordEntry, //!< password entry, will hide typed characters
-    SearchEntry, //!< normal text entry, with a distinctive appearance for search
+    SearchEntry,   //!< normal text entry, with a distinctive appearance for search
 #ifdef __APPLE__
     SmallSearchEntry
 #else
     SmallSearchEntry = SearchEntry
 #endif
   };
-  
-  enum TextEntryAction
-  {
+
+  enum TextEntryAction {
     EntryActivate, //!< Enter key was pressed
     EntryEscape,   //!< Esc key was pressed
-    EntryKeyUp, //!< Up arrow key was pressed
-    EntryKeyDown, //!< Down arrow key was pressed
-    EntryCKeyUp, //!< Up arrow key was pressed with Control/Command held
-    EntryCKeyDown //!< Down arrow key was pressed with Control/Command held
+    EntryKeyUp,    //!< Up arrow key was pressed
+    EntryKeyDown,  //!< Down arrow key was pressed
+    EntryCKeyUp,   //!< Up arrow key was pressed with Control/Command held
+    EntryCKeyDown  //!< Down arrow key was pressed with Control/Command held
   };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct TextEntryImplPtrs
-  {
+  struct TextEntryImplPtrs {
     bool (*create)(TextEntry *self, TextEntryType type);
     void (*set_text)(TextEntry *self, const std::string &text);
     void (*set_max_length)(TextEntry *self, int len);
@@ -69,10 +66,9 @@ namespace mforms {
 #endif
 
   /** Single line text edit control, with support for some special events. */
-  class MFORMS_EXPORT TextEntry : public View
-  {
+  class MFORMS_EXPORT TextEntry : public View {
   public:
-    /** Constructor. 
+    /** Constructor.
     */
     TextEntry(TextEntryType type = NormalEntry);
 
@@ -81,10 +77,10 @@ namespace mforms {
 
     /** Sets the text in the entry */
     void set_value(const std::string &text);
-    
+
     /** Gets the text in the entry */
     virtual std::string get_string_value();
-    
+
     /** Sets whether contents of entry can be edited by the user */
     void set_read_only(bool flag);
 
@@ -97,7 +93,6 @@ namespace mforms {
     /** Sets whether to draw a border around the text box. Default is bordered. */
     void set_bordered(bool flag);
 
-
     void cut();
     void copy();
     void paste();
@@ -105,15 +100,19 @@ namespace mforms {
     base::Range get_selection();
 
 #ifndef SWIG
-    /** Signal emitted when the entry is edited 
-     
+    /** Signal emitted when the entry is edited
+
      In Python use add_changed_callback() */
-    boost::signals2::signal<void ()>* signal_changed() { return &_signal_changed; }
-    
+    boost::signals2::signal<void()> *signal_changed() {
+      return &_signal_changed;
+    }
+
     /** Signal emitted when certain actions are performed:
-     
+
      */
-    boost::signals2::signal<void (TextEntryAction)>* signal_action() { return &_signal_action; }
+    boost::signals2::signal<void(TextEntryAction)> *signal_action() {
+      return &_signal_action;
+    }
 
   public:
     void callback();
@@ -122,9 +121,9 @@ namespace mforms {
   protected:
     TextEntryImplPtrs *_textentry_impl;
 
-    boost::signals2::signal<void ()> _signal_changed;
-    boost::signals2::signal<void (TextEntryAction)> _signal_action;
-    
+    boost::signals2::signal<void()> _signal_changed;
+    boost::signals2::signal<void(TextEntryAction)> _signal_action;
+
     bool _updating;
   };
 };

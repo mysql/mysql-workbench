@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -20,7 +20,7 @@
 #pragma once
 
 #ifndef HAVE_PRECOMPILED_HEADERS
-  #include <functional>
+#include <functional>
 #endif
 #include <set>
 #include <map>
@@ -32,47 +32,39 @@
 
 // Callback used to have the owner of the cache run an sql query and return the first 2 columns
 // of the resultset in pairs of the return vector (or an empty string for non-existing columns).
-using ObjectQueryCallback = std::function<std::vector<std::pair<std::string, std::string>> (const std::string &query)>;
+using ObjectQueryCallback = std::function<std::vector<std::pair<std::string, std::string>>(const std::string &query)>;
 
-class PARSERS_PUBLIC_TYPE MySQLObjectNamesCache
-{
+class PARSERS_PUBLIC_TYPE MySQLObjectNamesCache {
 public:
-
   // Note: feedback can be called from the worker thread. Make the necessary arrangements.
   //       It comes with parameter true if the cache update is going on, otherwise false.
-  MySQLObjectNamesCache(ObjectQueryCallback getValues, std::function<void (bool)> feedback, bool jsonSupport = false);
+  MySQLObjectNamesCache(ObjectQueryCallback getValues, std::function<void(bool)> feedback, bool jsonSupport = false);
   ~MySQLObjectNamesCache();
 
   // Data retrieval functions.
   std::vector<std::string> getMatchingSchemaNames(const std::string &prefix = "");
-  std::vector<std::string> getMatchingTableNames(const std::string &schema = "",
-                                                 const std::string &prefix = "");
-  std::vector<std::string> getMatchingViewNames(const std::string &schema = "",
-                                                const std::string &prefix = "");
-  std::vector<std::string> getMatchingColumnNames(const std::string &schema,
-                                                  const std::string &table,
+  std::vector<std::string> getMatchingTableNames(const std::string &schema = "", const std::string &prefix = "");
+  std::vector<std::string> getMatchingViewNames(const std::string &schema = "", const std::string &prefix = "");
+  std::vector<std::string> getMatchingColumnNames(const std::string &schema, const std::string &table,
                                                   const std::string &prefix = "");
-  std::vector<std::string> getMatchingProcedureNames(const std::string &schema = "",
-                                                     const std::string &prefix = "");
-  std::vector<std::string> getMatchingFunctionNames(const std::string &schema = "",
-                                                    const std::string &prefix = "");
-  std::vector<std::string> getMatchingTriggerNames(const std::string &schema = "",
-                                                   const std::string &table = "",
+  std::vector<std::string> getMatchingProcedureNames(const std::string &schema = "", const std::string &prefix = "");
+  std::vector<std::string> getMatchingFunctionNames(const std::string &schema = "", const std::string &prefix = "");
+  std::vector<std::string> getMatchingTriggerNames(const std::string &schema = "", const std::string &table = "",
                                                    const std::string &prefix = "");
 
   std::vector<std::string> getMatchingUdfNames(const std::string &prefix = "");
   std::vector<std::string> getMatchingVariables(const std::string &prefix = ""); // System vars only.
   std::vector<std::string> getMatchingEngines(const std::string &prefix = "");
-  
+
   std::vector<std::string> getMatchingLogfileGroups(const std::string &prefix = ""); // Only useful for NDB cluster.
-  std::vector<std::string> getMatchingTablespaces(const std::string &prefix = ""); // Only useful for NDB cluster.
+  std::vector<std::string> getMatchingTablespaces(const std::string &prefix = "");   // Only useful for NDB cluster.
 
   std::vector<std::string> getMatchingCharsets(const std::string &prefix = "");
   std::vector<std::string> getMatchingCollations(const std::string &prefix = "");
 
   std::vector<std::string> getMatchingEvents(const std::string &schema = "", const std::string &prefix = "");
   std::vector<std::string> getMatchingCollections(const std::string &schema = "", const std::string &prefix = "");
-  
+
   // Data refresh functions. Also can be called from outside when data objects are created or destroyed.
   bool loadSchemaObjectsIfNeeded(const std::string &schema);
   void refreshSchemaCache();
@@ -95,7 +87,7 @@ public:
   void updateCollections(const std::string &schema, base::StringListPtr collections);
 
   void shutdown();
-  
+
 private:
   struct RefreshTask {
     enum RefreshType {
@@ -120,24 +112,18 @@ private:
     std::string schemaName;
     std::string tableName;
 
-    RefreshTask()
-    {
+    RefreshTask() {
       type = RefreshSchemas;
     }
-    
-    RefreshTask(RefreshType type_, const std::string &schema, const std::string &table)
-    {
+
+    RefreshTask(RefreshType type_, const std::string &schema, const std::string &table) {
       type = type_;
       schemaName = schema;
       tableName = table;
     }
   };
 
-  enum RetrievalType {
-    RetrieveWithNoQualifier,
-    RetrieveWithSchemaQualifier,
-    RetrieveWithFullQualifier
-  };
+  enum RetrievalType { RetrieveWithNoQualifier, RetrieveWithSchemaQualifier, RetrieveWithFullQualifier };
 
   enum CacheObjectType {
     OtherCacheType,
@@ -167,28 +153,27 @@ private:
 
   void updateObjectNames(const std::string &cache, const std::set<std::string> &objects);
   void updateObjectNames(const std::string &cache, const std::string &schema, base::StringListPtr objects);
-  void updateObjectNames(const std::string &context, const std::string &schema,
-    const std::set<std::string> &objects, CacheObjectType type);
+  void updateObjectNames(const std::string &context, const std::string &schema, const std::set<std::string> &objects,
+                         CacheObjectType type);
 
   std::vector<std::string> getMatchingObjects(const std::string &cache, const std::string &schema,
-    const std::string &table, const std::string &prefix, RetrievalType type);
+                                              const std::string &table, const std::string &prefix, RetrievalType type);
 
   bool is_fetch_done(const std::string &cache, const std::string &schema);
 
   bool getPendingRefresh(RefreshTask &task);
-  void addPendingRefresh(RefreshTask::RefreshType type, const std::string &schema = "",
-                           const std::string &table = "");
+  void addPendingRefresh(RefreshTask::RefreshType type, const std::string &schema = "", const std::string &table = "");
   void createWorkerThread();
-  
+
   GThread *_refreshThread;
   base::Semaphore _cacheWworking; // Indicates if there is currently a worker thread doing updates.
-  bool _jsonSupport; // Whenever we can use getCollections
+  bool _jsonSupport;              // Whenever we can use getCollections
 
   base::RecMutex _pendingMutex; // Protects the pending tasks.
   std::list<RefreshTask> _pendingTasks;
 
   ObjectQueryCallback _getValues;
-  std::function<void (bool)> _feedback;
+  std::function<void(bool)> _feedback;
 
   bool _shutdown;
 
@@ -203,7 +188,7 @@ private:
 
   // Schema specific objects (views, tables, functions, procedures, events).
   // A schema can be in the top level cache, but not in the objects cache (if not loaded yet).
-  // 
+  //
   // (schema, object type): object names set
   // e.g. (sakila, tables): actor, address, ...
   std::map<std::pair<std::string, std::string>, std::set<std::string>> _schemaObjectsCache;
@@ -213,10 +198,15 @@ private:
   // (schema, (table name, type)): column/trigger names set
   // e.g. (sakila, (actor, TriggersCacheType)): actor_id, ...
   // Note: did not use a tuple here as it doesn't easily work with a map.
-  struct CacheObjectMap { std::map<CacheObjectType, std::set<std::string>> element; };
-  struct TableObjectsMap { std::map<std::string, CacheObjectMap> element; };
+  struct CacheObjectMap {
+    std::map<CacheObjectType, std::set<std::string>> element;
+  };
+  struct TableObjectsMap {
+    std::map<std::string, CacheObjectMap> element;
+  };
   std::map<std::string, TableObjectsMap> _tableObjectsCache;
 
-  public:
-    using TableObjectsCacheType = std::pair<std::string, std::map<std::string, std::map<CacheObjectType, std::set<std::string>>>>;
+public:
+  using TableObjectsCacheType =
+    std::pair<std::string, std::map<std::string, std::map<CacheObjectType, std::set<std::string>>>>;
 };

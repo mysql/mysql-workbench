@@ -3,25 +3,23 @@
 
 #include <vector>
 
-namespace Gtk
-{
-class Widget;
+namespace Gtk {
+  class Widget;
 }
 
-class WidgetsAutoCleaner
-{
-  public:
-    virtual ~WidgetsAutoCleaner();
-    template <typename T>
-    T* manage(T* w)
-    {
-      add(w);
-      return w;
-    }
-    void delete_widgets();
-  private:
-    void add(Gtk::Widget* w);
-    std::vector<Gtk::Widget*>	_widgets;
+class WidgetsAutoCleaner {
+public:
+  virtual ~WidgetsAutoCleaner();
+  template <typename T>
+  T* manage(T* w) {
+    add(w);
+    return w;
+  }
+  void delete_widgets();
+
+private:
+  void add(Gtk::Widget* w);
+  std::vector<Gtk::Widget*> _widgets;
 };
 
 #endif

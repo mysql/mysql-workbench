@@ -1,6 +1,6 @@
-/* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
- * 
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -24,18 +24,19 @@
 //==============================================================================
 //
 //==============================================================================
-class DbMySQLRoutineEditor : public PluginEditorBase
-{
-  MySQLRoutineEditorBE              *_be;
-  DbMySQLEditorPrivPage             *_privs_page;
-  
-  virtual bec::BaseEditor *get_be();
-  
-  virtual bool can_close() { return _be->can_close(); }
+class DbMySQLRoutineEditor : public PluginEditorBase {
+  MySQLRoutineEditorBE *_be;
+  DbMySQLEditorPrivPage *_privs_page;
 
- public:
+  virtual bec::BaseEditor *get_be();
+
+  virtual bool can_close() {
+    return _be->can_close();
+  }
+
+public:
   DbMySQLRoutineEditor(grt::Module *m, const grt::BaseListRef &args);
-  
+
   virtual ~DbMySQLRoutineEditor();
   virtual void do_refresh_form_data();
 
@@ -45,10 +46,8 @@ class DbMySQLRoutineEditor : public PluginEditorBase
 };
 
 DbMySQLRoutineEditor::DbMySQLRoutineEditor(grt::Module *m, const grt::BaseListRef &args)
-    : PluginEditorBase(m, args, "modules/data/editor_routine.glade")
-    , _be(new MySQLRoutineEditorBE(db_mysql_RoutineRef::cast_from(args[0])))
-{
-
+  : PluginEditorBase(m, args, "modules/data/editor_routine.glade"),
+    _be(new MySQLRoutineEditorBE(db_mysql_RoutineRef::cast_from(args[0]))) {
   xml()->get_widget("mysql_routine_editor_notebook", _editor_notebook);
 
   Gtk::Image *image;
@@ -58,7 +57,7 @@ DbMySQLRoutineEditor::DbMySQLRoutineEditor(grt::Module *m, const grt::BaseListRe
   image->set(ImageCache::get_instance()->image_from_filename("db.Routine.editor.48x48.png", false));
 
   _be->set_refresh_ui_slot(std::bind(&DbMySQLRoutineEditor::refresh_form_data, this));
-  
+
   _editor_notebook->reparent(*this);
   _editor_notebook->show();
 
@@ -67,51 +66,46 @@ DbMySQLRoutineEditor::DbMySQLRoutineEditor(grt::Module *m, const grt::BaseListRe
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_routine_sql();
 
-  if (!is_editing_live_object())
-  {
-    _privs_page     = new DbMySQLEditorPrivPage(_be);
+  if (!is_editing_live_object()) {
+    _privs_page = new DbMySQLEditorPrivPage(_be);
     _editor_notebook->append_page(_privs_page->page(), "Privileges");
 
     Gtk::TextView *tview(0);
     xml()->get_widget("comment", tview);
     tview->get_buffer()->set_text(_be->get_comment());
 
-    tview->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &DbMySQLRoutineEditor::comment_lost_focus), tview), false);
-  }
-  else
-  {
-    _privs_page= NULL;
+    tview->signal_focus_out_event().connect(
+      sigc::bind(sigc::mem_fun(this, &DbMySQLRoutineEditor::comment_lost_focus), tview), false);
+  } else {
+    _privs_page = NULL;
     _editor_notebook->remove_page(*_editor_notebook->get_nth_page(1));
   }
 
   refresh_form_data();
-  
+
   _be->reset_editor_undo_stack();
 
   show_all();
 }
 
 //------------------------------------------------------------------------------
-DbMySQLRoutineEditor::~DbMySQLRoutineEditor()
-{
+DbMySQLRoutineEditor::~DbMySQLRoutineEditor() {
   delete _privs_page;
   delete _be;
 }
 
 bool DbMySQLRoutineEditor::comment_lost_focus(GdkEventFocus *ev, Gtk::TextView *view) {
-  if(_be)
-  {
+  if (_be) {
     _be->set_comment(view->get_buffer()->get_text());
   }
   return false;
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLRoutineEditor::switch_edited_object(const grt::BaseListRef &args)
-{
+bool DbMySQLRoutineEditor::switch_edited_object(const grt::BaseListRef &args) {
   Gtk::Box *ddl_win;
   xml()->get_widget("routine_ddl", ddl_win);
- 
+
   delete _be;
 
   _be = new MySQLRoutineEditorBE(db_mysql_RoutineRef::cast_from(args[0]));
@@ -119,8 +113,7 @@ bool DbMySQLRoutineEditor::switch_edited_object(const grt::BaseListRef &args)
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_routine_sql();
 
-  if (!_be->is_editing_live_object())
-  {
+  if (!_be->is_editing_live_object()) {
     Gtk::TextView *tview(0);
     xml()->get_widget("comment", tview);
     tview->get_buffer()->set_text(_be->get_comment());
@@ -138,18 +131,15 @@ bool DbMySQLRoutineEditor::switch_edited_object(const grt::BaseListRef &args)
 
 //------------------------------------------------------------------------------
 
-bec::BaseEditor *DbMySQLRoutineEditor::get_be()
-{
+bec::BaseEditor *DbMySQLRoutineEditor::get_be() {
   return _be;
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoutineEditor::do_refresh_form_data()
-{
-  Gtk::Entry* entry(0);
+void DbMySQLRoutineEditor::do_refresh_form_data() {
+  Gtk::Entry *entry(0);
   xml()->get_widget("routine_name", entry);
-  if (entry->get_text() != _be->get_name())
-  {
+  if (entry->get_text() != _be->get_name()) {
     entry->set_text(_be->get_name());
     _signal_title_changed.emit(_be->get_title());
   }
@@ -162,11 +152,8 @@ void DbMySQLRoutineEditor::do_refresh_form_data()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-extern "C" 
-{
-  GUIPluginBase *createDbMysqlRoutineEditor(grt::Module *m, const grt::BaseListRef &args)
-  {
-    return Gtk::manage(new DbMySQLRoutineEditor(m, args));
-  }
+extern "C" {
+GUIPluginBase *createDbMysqlRoutineEditor(grt::Module *m, const grt::BaseListRef &args) {
+  return Gtk::manage(new DbMySQLRoutineEditor(m, args));
+}
 };
-
