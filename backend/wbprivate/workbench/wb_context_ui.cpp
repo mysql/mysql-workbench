@@ -176,6 +176,7 @@ void WBContextUI::init_finish(WBOptions *options) {
 void WBContextUI::finalize() {
   _output_view->release();
   _wb->finalize();
+  _command_ui->clearBuildInCommands();
 }
 
 bool WBContextUI::request_quit() {
@@ -210,7 +211,7 @@ bool WBContextUI::request_quit() {
 void WBContextUI::perform_quit() {
   _quitting = true;
   _wb->do_close_document(true);
-  _wb->_frontendCallbacks.quit_application();
+  _wb->_frontendCallbacks->quit_application();
 }
 
 void WBContextUI::reset() {
@@ -284,7 +285,7 @@ void WBContextUI::load_app_options(bool update) {
 //}
 
 static void add_script_file(WBContextUI *wbui) {
-  std::string file = wbui->get_wb()->_frontendCallbacks.show_file_dialog("open", _("Add SQL Script File"), "sql");
+  std::string file = wbui->get_wb()->_frontendCallbacks->show_file_dialog("open", _("Add SQL Script File"), "sql");
   if (!file.empty()) {
     workbench_physical_ModelRef model;
 
@@ -296,7 +297,7 @@ static void add_script_file(WBContextUI *wbui) {
 
 static void add_note_file(WBContextUI *wbui) {
   std::string file =
-    wbui->get_wb()->_frontendCallbacks.show_file_dialog("open", _("Add Note File"), "Text Files (*.txt)|*.txt");
+    wbui->get_wb()->_frontendCallbacks->show_file_dialog("open", _("Add Note File"), "Text Files (*.txt)|*.txt");
   if (!file.empty()) {
     workbench_physical_ModelRef model;
 

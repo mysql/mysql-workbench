@@ -365,7 +365,7 @@ db_SchemaRef WBComponentPhysical::add_new_db_schema(const workbench_physical_Mod
 
   undo.end(_("Create New Schema"));
 
-  _wb->_frontendCallbacks.show_status_text(strfmt(_("Schema '%s' created."), schema->name().c_str()));
+  _wb->_frontendCallbacks->show_status_text(strfmt(_("Schema '%s' created."), schema->name().c_str()));
 
   return schema;
 }
@@ -430,7 +430,7 @@ grt::DictRef WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema, b
 void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema) {
   grt::DictRef info;
 
-  _wb->_frontendCallbacks.show_status_text(_("Deleting schema..."));
+  _wb->_frontendCallbacks->show_status_text(_("Deleting schema..."));
 
   info = delete_db_schema(schema, true);
 
@@ -456,7 +456,7 @@ void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema) {
                                                                  info.get_string("name").c_str(), objects.c_str()),
                                       _("Delete"), _("Cancel"));
     if (res != mforms::ResultOk) {
-      _wb->_frontendCallbacks.show_status_text(_("Delete schema cancelled."));
+      _wb->_frontendCallbacks->show_status_text(_("Delete schema cancelled."));
       return;
     }
 
@@ -464,9 +464,9 @@ void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema) {
   }
 
   if (!info.is_valid())
-    _wb->_frontendCallbacks.show_status_text(_("Schema deleted."));
+    _wb->_frontendCallbacks->show_status_text(_("Schema deleted."));
   else
-    _wb->_frontendCallbacks.show_status_text(_("Could not delete schema."));
+    _wb->_frontendCallbacks->show_status_text(_("Could not delete schema."));
 }
 
 #include "grts/structs.meta.h"
@@ -499,10 +499,10 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_table(const db_SchemaRef &s
   undo.end(_("Create Table"));
 
   if (table.is_valid()) {
-    _wb->_frontendCallbacks.show_status_text(
+    _wb->_frontendCallbacks->show_status_text(
       strfmt(_("Table '%s' created in schema '%s'"), table->name().c_str(), table->owner()->name().c_str()));
   } else
-    _wb->_frontendCallbacks.show_status_text(_("Could not create new table."));
+    _wb->_frontendCallbacks->show_status_text(_("Could not create new table."));
 
   return table;
 }
@@ -515,10 +515,10 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_view(const db_SchemaRef &sc
 
   undo.end(_("Create View"));
   if (view.is_valid()) {
-    _wb->_frontendCallbacks.show_status_text(
+    _wb->_frontendCallbacks->show_status_text(
       strfmt(_("View '%s' created in schema '%s'"), view->name().c_str(), view->owner()->name().c_str()));
   } else
-    _wb->_frontendCallbacks.show_status_text(_("Could not create new view"));
+    _wb->_frontendCallbacks->show_status_text(_("Could not create new view"));
 
   return view;
 }
@@ -531,10 +531,10 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine_group(const db_Sche
 
   undo.end(_("Create Routine Group"));
   if (rgroup.is_valid()) {
-    _wb->_frontendCallbacks.show_status_text(
+    _wb->_frontendCallbacks->show_status_text(
       strfmt(_("Routine group '%s' created in schema '%s'"), rgroup->name().c_str(), rgroup->owner()->name().c_str()));
   } else
-    _wb->_frontendCallbacks.show_status_text(_("Could not create new routine group"));
+    _wb->_frontendCallbacks->show_status_text(_("Could not create new routine group"));
 
   return rgroup;
 }
@@ -547,10 +547,10 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine(const db_SchemaRef 
 
   undo.end(_("Create Routine"));
   if (routine.is_valid()) {
-    _wb->_frontendCallbacks.show_status_text(
+    _wb->_frontendCallbacks->show_status_text(
       strfmt(_("Routine '%s' created in schema '%s'"), routine->name().c_str(), routine->owner()->name().c_str()));
   } else
-    _wb->_frontendCallbacks.show_status_text(_("Could not create new routine"));
+    _wb->_frontendCallbacks->show_status_text(_("Could not create new routine"));
 
   return routine;
 }
@@ -702,7 +702,7 @@ model_FigureRef WBComponentPhysical::place_db_object(ModelDiagramForm *view, con
     }
     undo.end(strfmt(_("Place '%s'"), object->name().c_str()));
   } catch (std::invalid_argument &) {
-    _wb->_frontendCallbacks.show_status_text(_("Cannot place object."));
+    _wb->_frontendCallbacks->show_status_text(_("Cannot place object."));
     return model_FigureRef();
   } catch (grt::grt_runtime_error &exc) {
     _wb->show_exception(_("Place Object on Canvas"), exc);
@@ -710,9 +710,9 @@ model_FigureRef WBComponentPhysical::place_db_object(ModelDiagramForm *view, con
   }
 
   if (figure.is_valid())
-    _wb->_frontendCallbacks.show_status_text(strfmt(_("Placed %s"), figure->name().c_str()));
+    _wb->_frontendCallbacks->show_status_text(strfmt(_("Placed %s"), figure->name().c_str()));
   else
-    _wb->_frontendCallbacks.show_status_text(_("Failed placing db object."));
+    _wb->_frontendCallbacks->show_status_text(_("Failed placing db object."));
 
   return figure;
 }
@@ -2526,13 +2526,13 @@ void WBComponentPhysical::setup_canvas_tool(ModelDiagramForm *view, const std::s
 
   if (tool == WB_TOOL_PTABLE) {
     view->set_cursor("table");
-    _wb->_frontendCallbacks.show_status_text(_("Select location for new table."));
+    _wb->_frontendCallbacks->show_status_text(_("Select location for new table."));
   } else if (tool == WB_TOOL_PVIEW) {
     view->set_cursor("view");
-    _wb->_frontendCallbacks.show_status_text(_("Select location for new view."));
+    _wb->_frontendCallbacks->show_status_text(_("Select location for new view."));
   } else if (tool == WB_TOOL_PROUTINEGROUP) {
     view->set_cursor("routine");
-    _wb->_frontendCallbacks.show_status_text(_("Select location for new routine group."));
+    _wb->_frontendCallbacks->show_status_text(_("Select location for new routine group."));
   } else if (tool == WB_TOOL_PREL11) {
     view->set_cursor("rel11");
     data = start_relationship(view, Point(), Relationship11Id);
@@ -2558,7 +2558,7 @@ void WBComponentPhysical::setup_canvas_tool(ModelDiagramForm *view, const std::s
     data = start_relationship(view, Point(), RelationshipPick);
     relationship = true;
   } else {
-    _wb->_frontendCallbacks.show_status_text("Invalid tool " + tool);
+    _wb->_frontendCallbacks->show_status_text("Invalid tool " + tool);
     return;
   }
   view->set_button_callback(std::bind(&WBComponentPhysical::handle_button_event, this, std::placeholders::_1,
@@ -2655,7 +2655,7 @@ db_UserRef WBComponentPhysical::add_new_user(const workbench_physical_ModelRef &
 
   undo.end(strfmt(_("Create User '%s'"), user->name().c_str()));
 
-  _wb->_frontendCallbacks.show_status_text(strfmt(_("User '%s' created"), user->name().c_str()));
+  _wb->_frontendCallbacks->show_status_text(strfmt(_("User '%s' created"), user->name().c_str()));
 
   return user;
 }
@@ -2667,7 +2667,7 @@ void WBComponentPhysical::remove_user(const db_UserRef &user) {
   catalog->users().remove_value(user);
   undo.end(strfmt(_("Remove User '%s'"), user->name().c_str()));
 
-  _wb->_frontendCallbacks.show_status_text(strfmt(_("Removed user '%s'"), user->name().c_str()));
+  _wb->_frontendCallbacks->show_status_text(strfmt(_("Removed user '%s'"), user->name().c_str()));
 }
 
 db_RoleRef WBComponentPhysical::add_new_role(const workbench_physical_ModelRef &model) {
@@ -2686,7 +2686,7 @@ db_RoleRef WBComponentPhysical::add_new_role(const workbench_physical_ModelRef &
   catalog->roles().insert(role);
   undo.end(strfmt(_("Create Role '%s'"), role->name().c_str()));
 
-  _wb->_frontendCallbacks.show_status_text(strfmt(_("Role '%s' created"), role->name().c_str()));
+  _wb->_frontendCallbacks->show_status_text(strfmt(_("Role '%s' created"), role->name().c_str()));
 
   return role;
 }
@@ -2698,7 +2698,7 @@ void WBComponentPhysical::remove_role(const db_RoleRef &role) {
   catalog->roles().remove_value(role);
   undo.end(strfmt(_("Remove Role '%s'"), role->name().c_str()));
 
-  _wb->_frontendCallbacks.show_status_text(strfmt(_("Removed role '%s'"), role->name().c_str()));
+  _wb->_frontendCallbacks->show_status_text(strfmt(_("Removed role '%s'"), role->name().c_str()));
 }
 
 void WBComponentPhysical::remove_references_to_object(const db_DatabaseObjectRef &object) {
