@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,17 +22,16 @@
 #include "wbpublic_public_interface.h"
 #include "sqlide/recordset_be.h"
 
-namespace sqlite
-{
+namespace sqlite {
   struct command;
 }
 
-class WBPUBLICBACKEND_PUBLIC_FUNC Recordset_data_storage
-{
+class WBPUBLICBACKEND_PUBLIC_FUNC Recordset_data_storage {
 public:
   typedef std::shared_ptr<Recordset_data_storage> Ref;
   typedef std::weak_ptr<Recordset_data_storage> Ptr;
   virtual ~Recordset_data_storage();
+
 protected:
   Recordset_data_storage();
 
@@ -50,55 +49,109 @@ public:
   void serialize(Recordset::Ptr recordset);
   void unserialize(Recordset::Ptr recordset);
   void fetch_blob_value(Recordset::Ptr recordset, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
+
 protected:
-  virtual void fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
+  virtual void fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column,
+                                sqlite::variant_t &blob_value);
+
 protected:
   virtual void do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commit) = 0;
   virtual void do_serialize(const Recordset *recordset, sqlite::connection *data_swap_db) = 0;
   virtual void do_unserialize(Recordset *recordset, sqlite::connection *data_swap_db) = 0;
-  virtual void do_fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value) = 0;
+  virtual void do_fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column,
+                                   sqlite::variant_t &blob_value) = 0;
 
 public:
-  bool valid() { return _valid; }
-  bool readonly() { return _readonly; }
-  std::string readonly_reason() { return _readonly_reason; }
-  void readonly_reason(const std::string& reason) { _readonly_reason = reason; }
+  bool valid() {
+    return _valid;
+  }
+  bool readonly() {
+    return _readonly;
+  }
+  std::string readonly_reason() {
+    return _readonly_reason;
+  }
+  void readonly_reason(const std::string &reason) {
+    _readonly_reason = reason;
+  }
   virtual ColumnId aux_column_count() = 0;
+
 protected:
   bool _readonly;
   std::string _readonly_reason;
   bool _valid;
 
 public:
-  virtual bool reloadable() const { return true; }
+  virtual bool reloadable() const {
+    return true;
+  }
 
 public:
-  static void create_data_swap_tables(sqlite::connection *data_swap_db, Recordset::Column_names &column_names, Recordset::Column_types &column_types);
+  static void create_data_swap_tables(sqlite::connection *data_swap_db, Recordset::Column_names &column_names,
+                                      Recordset::Column_types &column_types);
+
 protected:
-  std::list<std::shared_ptr<sqlite::command> > prepare_data_swap_record_add_statement(sqlite::connection *data_swap_db, Recordset::Column_names &column_names);
+  std::list<std::shared_ptr<sqlite::command> > prepare_data_swap_record_add_statement(
+    sqlite::connection *data_swap_db, Recordset::Column_names &column_names);
   void add_data_swap_record(std::list<std::shared_ptr<sqlite::command> > &insert_commands, const Var_vector &values);
-  void update_data_swap_record(sqlite::connection *data_swap_db, RowId rowid, ColumnId column, const sqlite::variant_t &value);
+  void update_data_swap_record(sqlite::connection *data_swap_db, RowId rowid, ColumnId column,
+                               const sqlite::variant_t &value);
 
 protected:
-  static Recordset::Column_names & get_column_names(Recordset *recordset) { return recordset->_column_names; }
-  static Recordset::Column_types & get_column_types(Recordset *recordset) { return recordset->_column_types; }
-  static Recordset::Column_types & get_real_column_types(Recordset *recordset) { return recordset->_real_column_types; }
-  static Recordset::Column_flags & get_column_flags(Recordset *recordset) { return recordset->_column_flags; }
-  static const Recordset::Column_names & get_column_names(const Recordset *recordset) { return recordset->_column_names; }
-  static const Recordset::Column_types & get_column_types(const Recordset *recordset) { return recordset->_column_types; }
-  static const Recordset::Column_types & get_real_column_types(const Recordset *recordset) { return recordset->_real_column_types; }
-  static const Recordset::Column_flags & get_column_flags(const Recordset *recordset) { return recordset->_column_flags; }
-  
+  static Recordset::Column_names &get_column_names(Recordset *recordset) {
+    return recordset->_column_names;
+  }
+  static Recordset::Column_types &get_column_types(Recordset *recordset) {
+    return recordset->_column_types;
+  }
+  static Recordset::Column_types &get_real_column_types(Recordset *recordset) {
+    return recordset->_real_column_types;
+  }
+  static Recordset::Column_flags &get_column_flags(Recordset *recordset) {
+    return recordset->_column_flags;
+  }
+  static const Recordset::Column_names &get_column_names(const Recordset *recordset) {
+    return recordset->_column_names;
+  }
+  static const Recordset::Column_types &get_column_types(const Recordset *recordset) {
+    return recordset->_column_types;
+  }
+  static const Recordset::Column_types &get_real_column_types(const Recordset *recordset) {
+    return recordset->_real_column_types;
+  }
+  static const Recordset::Column_flags &get_column_flags(const Recordset *recordset) {
+    return recordset->_column_flags;
+  }
+
 public:
-  bool limit_rows() { return _limit_rows; }
-  void limit_rows(bool value) { _limit_rows= value; }
-  int limit_rows_count() { return _limit_rows_count; }
-  void limit_rows_count(RowId value) { _limit_rows_count = (int)value; }
-  bool limit_rows_applicable() { return _limit_rows_applicable; }
-  void limit_rows_applicable(bool val) { _limit_rows_applicable= val; }
-  int limit_rows_offset() { return _limit_rows_offset; }
-  void scroll_rows_frame_forward() { _limit_rows_offset += _limit_rows_count; }
-  void scroll_rows_frame_backward() { _limit_rows_offset= std::max<int>(0, (_limit_rows_offset - _limit_rows_count)); }
+  bool limit_rows() {
+    return _limit_rows;
+  }
+  void limit_rows(bool value) {
+    _limit_rows = value;
+  }
+  int limit_rows_count() {
+    return _limit_rows_count;
+  }
+  void limit_rows_count(RowId value) {
+    _limit_rows_count = (int)value;
+  }
+  bool limit_rows_applicable() {
+    return _limit_rows_applicable;
+  }
+  void limit_rows_applicable(bool val) {
+    _limit_rows_applicable = val;
+  }
+  int limit_rows_offset() {
+    return _limit_rows_offset;
+  }
+  void scroll_rows_frame_forward() {
+    _limit_rows_offset += _limit_rows_count;
+  }
+  void scroll_rows_frame_backward() {
+    _limit_rows_offset = std::max<int>(0, (_limit_rows_offset - _limit_rows_count));
+  }
+
 protected:
   bool _limit_rows;
   int _limit_rows_count;

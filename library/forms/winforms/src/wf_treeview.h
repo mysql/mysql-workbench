@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,20 +21,20 @@
 
 namespace MySQL {
   namespace Forms {
-    
+
     ref class TreeViewNode;
 
-    public class TreeViewWrapper : public ViewWrapper
-    {
+  public
+    class TreeViewWrapper : public ViewWrapper {
     protected:
       TreeViewWrapper(mforms::TreeView *backend);
       virtual ~TreeViewWrapper();
 
       static bool create(mforms::TreeView *backend, mforms::TreeOptions options);
-      static int add_column(mforms::TreeView *backend, mforms::TreeColumnType type,
-        const std::string &name, int initial_width, bool editable);
+      static int add_column(mforms::TreeView *backend, mforms::TreeColumnType type, const std::string &name,
+                            int initial_width, bool editable);
       static void end_columns(mforms::TreeView *backend);
-      
+
       static void clear(mforms::TreeView *backend);
 
       static mforms::TreeSelectionMode get_selection_mode(mforms::TreeView *backend);
@@ -69,6 +69,7 @@ namespace MySQL {
       static void EndUpdate(mforms::TreeView *backend);
 
       virtual mforms::DropPosition get_drop_position();
+
     public:
       void set_row_height(int h);
 
@@ -85,7 +86,7 @@ namespace MySQL {
       void freeze_refresh(bool flag);
 
       mforms::TreeNodeRef root_node();
-      
+
       mforms::TreeNodeRef node_at_row(int row);
       mforms::TreeNodeRef node_at_position(base::Point position);
       int row_for_node(mforms::TreeNodeRef node);
@@ -102,11 +103,10 @@ namespace MySQL {
       void EndUpdate();
 
       // Internal functions.
-      void process_mapping(Aga::Controls::Tree::TreeNodeAdv ^node, const std::string &tag);
+      void process_mapping(Aga::Controls::Tree::TreeNodeAdv ^ node, const std::string &tag);
       void node_value_set(int column);
 
       static void init();
     };
   }
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +28,7 @@ class Recordset;
 namespace mforms {
   class ContextMenu;
 
-  enum ColumnHeaderIndicator
-  {
+  enum ColumnHeaderIndicator {
     NoIndicator = 0,
     SortDescIndicator = -1,
     SortAscIndicator = 1,
@@ -40,8 +39,7 @@ namespace mforms {
   // The main use for this class is to provide an interface for SWIG
   // and to allow the frontend to register a factory function to allocate the
   // concrete implementation.
-  class MFORMS_EXPORT GridView: public NativeContainer
-  {
+  class MFORMS_EXPORT GridView : public NativeContainer {
   public:
     virtual int get_column_count() = 0;
     virtual int get_column_width(int column) = 0;
@@ -55,28 +53,37 @@ namespace mforms {
     virtual void set_current_cell(size_t row, int column) = 0;
 
     virtual void set_header_menu(ContextMenu *menu);
-    int get_clicked_header_column() { return _clicked_header_column; }
+    int get_clicked_header_column() {
+      return _clicked_header_column;
+    }
 
 #ifndef SWIG
-    static GridView* create(std::shared_ptr<Recordset> rset);
+    static GridView *create(std::shared_ptr<Recordset> rset);
 
-    static void register_factory(GridView* (*create)(std::shared_ptr<Recordset> rset));
+    static void register_factory(GridView *(*create)(std::shared_ptr<Recordset> rset));
 #endif
 
     // TODO must be emited from Windows
-    boost::signals2::signal<void (int)>* signal_column_resized() { return &_signal_column_resized; }
-    boost::signals2::signal<void (const std::vector<int>)>* signal_columns_resized() { return &_signal_columns_resized; }
+    boost::signals2::signal<void(int)> *signal_column_resized() {
+      return &_signal_column_resized;
+    }
+    boost::signals2::signal<void(const std::vector<int>)> *signal_columns_resized() {
+      return &_signal_columns_resized;
+    }
 
-    ContextMenu *header_menu() { return _header_menu; }
+    ContextMenu *header_menu() {
+      return _header_menu;
+    }
 
 #ifndef SWIG
     void clicked_header_column(int column);
 #endif
   protected:
     GridView();
+
   private:
-    boost::signals2::signal<void (int)> _signal_column_resized;
-    boost::signals2::signal<void (const std::vector<int>)> _signal_columns_resized;
+    boost::signals2::signal<void(int)> _signal_column_resized;
+    boost::signals2::signal<void(const std::vector<int>)> _signal_columns_resized;
     ContextMenu *_header_menu;
     int _clicked_header_column;
   };

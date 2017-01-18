@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -35,45 +35,44 @@ using namespace mdc;
 /**
  * Determines a proper pixel format needed for creating an OpenGL rendering context.
  */
-bool FindPixelFormatForDeviceContext(HDC context)
-{
+bool FindPixelFormatForDeviceContext(HDC context) {
   logDebug("Determine a proper pixel format\n");
 
-  PIXELFORMATDESCRIPTOR pfd = { 
-    sizeof(PIXELFORMATDESCRIPTOR),    // size of this pfd 
-    1,                                // version number 
-    PFD_DRAW_TO_WINDOW |              // support window 
-    PFD_SUPPORT_OPENGL |              // support OpenGL 
-    // PFD_SUPPORT_GDI |                 // support GDI
-    PFD_DOUBLEBUFFER,                 // double buffered 
-    PFD_TYPE_RGBA,                    // RGBA type 
-    32,                               // color with alpha
-    0, 0, 0, 0, 0, 0,                 // no explicit color bits assignment
-    0, 0,                             // no explicit alpha bits assignment
-    0,                                // no accumulation buffer 
-    0, 0, 0, 0,                       // accum bits ignored 
-    0,                                // no z-buffer (depth testing disabled for 2D drawing)
-    0,                                // no stencil buffer 
-    0,                                // no auxiliary buffer 
-    PFD_MAIN_PLANE,                   // main layer 
-    0,                                // reserved 
-    0, 0, 0                           // layer masks ignored 
+  PIXELFORMATDESCRIPTOR pfd = {
+    sizeof(PIXELFORMATDESCRIPTOR), // size of this pfd
+    1,                             // version number
+    PFD_DRAW_TO_WINDOW |           // support window
+      PFD_SUPPORT_OPENGL |         // support OpenGL
+      // PFD_SUPPORT_GDI |                 // support GDI
+      PFD_DOUBLEBUFFER, // double buffered
+    PFD_TYPE_RGBA,      // RGBA type
+    32,                 // color with alpha
+    0,
+    0, 0, 0, 0, 0,  // no explicit color bits assignment
+    0, 0,           // no explicit alpha bits assignment
+    0,              // no accumulation buffer
+    0, 0, 0, 0,     // accum bits ignored
+    0,              // no z-buffer (depth testing disabled for 2D drawing)
+    0,              // no stencil buffer
+    0,              // no auxiliary buffer
+    PFD_MAIN_PLANE, // main layer
+    0,              // reserved
+    0, 0, 0         // layer masks ignored
   };
 
   // Get the device context's best available pixel format match.
   int pixelFormat = ChoosePixelFormat(context, &pfd);
   if (pixelFormat == 0)
     return false;
-   
+
   // Make that match the device context's current pixel format .
-  return SetPixelFormat(context, pixelFormat, &pfd) != 0; 
+  return SetPixelFormat(context, pixelFormat, &pfd) != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 WindowsGLCanvasView::WindowsGLCanvasView(HWND window, int width, int height)
-  : OpenGLCanvasView(width, height), _glrc(0), _window(window)
-{
+  : OpenGLCanvasView(width, height), _glrc(0), _window(window) {
   logDebug("Creating OpenGL canvas view (%i x %i pixels)\n", width, height);
 
   // A surface used to get a cairo context outside of a paint cycle.
@@ -82,8 +81,7 @@ WindowsGLCanvasView::WindowsGLCanvasView(HWND window, int width, int height)
 
 //--------------------------------------------------------------------------------------------------
 
-WindowsGLCanvasView::~WindowsGLCanvasView()
-{
+WindowsGLCanvasView::~WindowsGLCanvasView() {
   logDebug("Destroying OpenGL canvas view\n");
 
   if (_glrc != 0)
@@ -94,12 +92,10 @@ WindowsGLCanvasView::~WindowsGLCanvasView()
 
 //--------------------------------------------------------------------------------------------------
 
-bool WindowsGLCanvasView::initialize()
-{
+bool WindowsGLCanvasView::initialize() {
   // Find a proper pixel format.
   _hdc = GetDC(_window);
-  if (!FindPixelFormatForDeviceContext(_hdc))
-  {
+  if (!FindPixelFormatForDeviceContext(_hdc)) {
     ReleaseDC(_window, _hdc);
     _hdc = 0;
 
@@ -108,8 +104,7 @@ bool WindowsGLCanvasView::initialize()
   }
 
   _glrc = wglCreateContext(_hdc);
-  if (_glrc == 0)
-  {
+  if (_glrc == 0) {
     ReleaseDC(_window, _hdc);
     _hdc = 0;
 
@@ -136,8 +131,7 @@ bool WindowsGLCanvasView::initialize()
 
 //--------------------------------------------------------------------------------------------------
 
-void WindowsGLCanvasView::make_current()
-{
+void WindowsGLCanvasView::make_current() {
   if (_hdc != 0)
     ReleaseDC(_window, _hdc); // Shouldn't happen actually.
 
@@ -151,15 +145,13 @@ void WindowsGLCanvasView::make_current()
 
 //--------------------------------------------------------------------------------------------------
 
-void WindowsGLCanvasView::remove_current()
-{
+void WindowsGLCanvasView::remove_current() {
   cairo_surface_destroy(_crsurface);
-  _crsurface= NULL;
+  _crsurface = NULL;
   _cairo->update_cairo_backend(_offline_surface);
 
   wglMakeCurrent(0, 0);
-  if (_hdc != 0)
-  {
+  if (_hdc != 0) {
     ReleaseDC(_window, _hdc);
     _hdc = 0;
   }
@@ -167,21 +159,18 @@ void WindowsGLCanvasView::remove_current()
 
 //--------------------------------------------------------------------------------------------------
 
-void WindowsGLCanvasView::swap_buffers()
-{
+void WindowsGLCanvasView::swap_buffers() {
   SwapBuffers(_hdc);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WindowsGLCanvasView::update_view_size(int width, int height)
-{
+void WindowsGLCanvasView::update_view_size(int width, int height) {
   logDebug2("Updating OpenGL canvas view size (%i x %i pixels)\n", width, height);
 
-  if (_view_width != width || _view_height != height)
-  {
-    _view_width= width;
-    _view_height= height;
+  if (_view_width != width || _view_height != height) {
+    _view_width = width;
+    _view_height = height;
 
     update_offsets();
     queue_repaint();
@@ -191,9 +180,7 @@ void WindowsGLCanvasView::update_view_size(int width, int height)
 
 //----------------- WindowsCanvasView --------------------------------------------------------------
 
-WindowsCanvasView::WindowsCanvasView(int width, int height)
-  : CanvasView(width, height)
-{
+WindowsCanvasView::WindowsCanvasView(int width, int height) : CanvasView(width, height) {
   logDebug("Creating GDI canvas view (%i x %i pixels)\n", width, height);
   _hdc = 0;
   _crsurface = 0;
@@ -205,8 +192,7 @@ WindowsCanvasView::WindowsCanvasView(int width, int height)
 
 //--------------------------------------------------------------------------------------------------
 
-WindowsCanvasView::~WindowsCanvasView()
-{
+WindowsCanvasView::~WindowsCanvasView() {
   logDebug("Destroying GDI canvas view\n");
 
   if (_offline_surface)
@@ -220,21 +206,18 @@ WindowsCanvasView::~WindowsCanvasView()
 
 //--------------------------------------------------------------------------------------------------
 
-bool WindowsCanvasView::initialize()
-{
+bool WindowsCanvasView::initialize() {
   return CanvasView::initialize();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WindowsCanvasView::update_view_size(int width, int height)
-{
+void WindowsCanvasView::update_view_size(int width, int height) {
   logDebug2("Updating GDI canvas view size (%i x %i pixels)\n", width, height);
 
-  if (_view_width != width || _view_height != height)
-  {
-    _view_width= width;
-    _view_height= height;
+  if (_view_width != width || _view_height != height) {
+    _view_width = width;
+    _view_height = height;
 
     update_offsets();
     queue_repaint();
@@ -250,15 +233,13 @@ void WindowsCanvasView::update_view_size(int width, int height)
  * As the base class does not allow to pass it in the repaint() function an additional one is needed
  * to set the context for the next paint cycle.
  */
-void WindowsCanvasView::set_target_context(HDC hdc)
-{
+void WindowsCanvasView::set_target_context(HDC hdc) {
   _hdc = hdc;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WindowsCanvasView::begin_repaint(int x, int y, int w, int h)
-{
+void WindowsCanvasView::begin_repaint(int x, int y, int w, int h) {
   _crsurface = cairo_win32_surface_create(_hdc);
   _cairo->update_cairo_backend(_crsurface);
   cairo_set_tolerance(_cairo->get_cr(), 0.1);
@@ -266,8 +247,7 @@ void WindowsCanvasView::begin_repaint(int x, int y, int w, int h)
 
 //--------------------------------------------------------------------------------------------------
 
-void WindowsCanvasView::end_repaint()
-{
+void WindowsCanvasView::end_repaint() {
   _hdc = 0;
 
   cairo_surface_destroy(_crsurface);

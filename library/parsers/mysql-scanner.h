@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,11 +26,10 @@
  * This scanner class is not needed for the MySQLRecognizer class (it uses the raw lexer)
  * but provides tokenizing functionality beside it.
  */
-class PARSERS_PUBLIC_TYPE MySQLScanner : public MySQLRecognitionBase
-{
+class PARSERS_PUBLIC_TYPE MySQLScanner : public MySQLRecognitionBase {
 public:
-  MySQLScanner(const char *text, size_t length, bool is_utf8, long server_version,
-               const std::string &sql_mode_string, const std::set<std::string> &charsets);
+  MySQLScanner(const char *text, size_t length, bool is_utf8, long server_version, const std::string &sql_mode_string,
+               const std::set<std::string> &charsets);
   virtual ~MySQLScanner();
 
   static MySQLQueryType getQueryType(const char *text, size_t length, bool is_utf8, long server_version);
@@ -66,9 +65,9 @@ public:
   long get_server_version() const;
   void set_sql_mode(const std::string &new_mode);
   unsigned int get_sql_mode_flags() const;
-  
+
   virtual std::string text() const;
-  virtual const char* lineStart() const;
+  virtual const char *lineStart() const;
 
 protected:
   void setup();
@@ -82,8 +81,7 @@ private:
  * Similar to the scanner class but using only the absolute minimum setup to determine the
  * type of a query in a given sql text, to make it as fast as possible.
  */
-class PARSERS_PUBLIC_TYPE MySQLQueryIdentifier : public MySQLRecognitionBase
-{
+class PARSERS_PUBLIC_TYPE MySQLQueryIdentifier : public MySQLRecognitionBase {
 public:
   MySQLQueryIdentifier(long server_version, const std::string &sql_mode_string, const std::set<std::string> &charsets);
   MySQLQueryIdentifier(long server_version, unsigned sql_mode, const std::set<std::string> &charsets);
@@ -92,10 +90,18 @@ public:
   MySQLQueryType getQueryType(const char *text, std::size_t length, bool is_utf8);
 
   // TODO: check if it is better to not derive from MySQLRecognitionBase to avoid these overrides.
-  virtual std::string text() const { return "";  };
-  virtual const char* lineStart() const { return nullptr; };
-  virtual std::string tokenText(pANTLR3_BASE_TREE node, bool keepQuotes = false) const { return ""; };
-  virtual std::string textForTree(pANTLR3_BASE_TREE tree) const { return ""; };
+  virtual std::string text() const {
+    return "";
+  };
+  virtual const char *lineStart() const {
+    return nullptr;
+  };
+  virtual std::string tokenText(pANTLR3_BASE_TREE node, bool keepQuotes = false) const {
+    return "";
+  };
+  virtual std::string textForTree(pANTLR3_BASE_TREE tree) const {
+    return "";
+  };
 
 private:
   class Private;

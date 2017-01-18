@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,25 +23,25 @@
 #include <cstddef>
 
 namespace mforms {
-  class PasswordCache
-  {
+  class PasswordCache {
     char *storage;
     size_t storage_len;
     size_t storage_size;
-    
+
     PasswordCache();
     static PasswordCache instance;
 
     const char *find_password(const std::string &service, const std::string &account);
     size_t find_block(const std::string &service, const std::string &account);
+
   public:
     static PasswordCache *get();
-    
+
     ~PasswordCache();
-    
+
     void add_password(const std::string &service, const std::string &account, const char *password);
     void remove_password(const std::string &service, const std::string &account);
-    
+
     bool get_password(const std::string &service, const std::string &account, std::string &ret_password);
   };
 };

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2010, 2014 Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -21,21 +21,16 @@
 
 namespace MySQL {
   namespace Base {
-    public interface class IRecordsetView
-    {
-      enum class ColumnHeaderIndicator
-      {
-        NoOrder = 0,
-        OrderDesc = -1,
-        OrderAsc = 1
-      };
-      System::Windows::Forms::Control ^control();
+  public
+    interface class IRecordsetView {
+      enum class ColumnHeaderIndicator { NoOrder = 0, OrderDesc = -1, OrderAsc = 1 };
+      System::Windows::Forms::Control ^ control();
 
       delegate void ColumnResizeCallback(int column);
-      delegate System::Windows::Forms::ContextMenuStrip ^ColumnHeaderRightClickCallback(int column);
+      delegate System::Windows::Forms::ContextMenuStrip ^ ColumnHeaderRightClickCallback(int column);
 
-      void set_column_resize_callback(ColumnResizeCallback ^callback);
-      void set_column_header_right_click_callback(ColumnHeaderRightClickCallback ^callback);
+      void set_column_resize_callback(ColumnResizeCallback ^ callback);
+      void set_column_header_right_click_callback(ColumnHeaderRightClickCallback ^ callback);
 
       int get_column_count();
       int get_column_width(int column);
@@ -45,7 +40,7 @@ namespace MySQL {
       void set_current_cell(int row, int column);
       void update_columns();
 
-      void set_font(System::String ^font, float size, System::Drawing::FontStyle style);
+      void set_font(System::String ^ font, float size, System::Drawing::FontStyle style);
       void set_column_header_indicator(int column, ColumnHeaderIndicator order);
     };
   }

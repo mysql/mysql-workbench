@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-
 #include "mdc_grid.h"
 
 #if 0

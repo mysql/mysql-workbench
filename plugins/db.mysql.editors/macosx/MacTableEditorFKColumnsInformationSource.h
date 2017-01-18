@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,28 +21,16 @@
 
 #import "MacTableEditorInformationSource.h"
 
-
-
 class MySQLTableEditorBE;
 
-
-
-@interface MacTableEditorFKColumnsInformationSource : MacTableEditorInformationSource
-{
+@interface MacTableEditorFKColumnsInformationSource : MacTableEditorInformationSource {
   MySQLTableEditorBE* mBackEnd;
 }
 
+- (BOOL)rowEnabled:(NSInteger)rowIndex;
 
+- (void)setRow:(NSInteger)indexRowIndex enabled:(BOOL)yn;
 
-- (BOOL) rowEnabled: (NSInteger) rowIndex;
-
-- (void) setRow: (NSInteger) indexRowIndex
-        enabled: (BOOL) yn;
-
-
-- (instancetype) initWithListModel: (bec::ListModel*) model
-            tableBackEnd: (MySQLTableEditorBE*) tableBackend;
-
-
+- (instancetype)initWithListModel:(bec::ListModel*)model tableBackEnd:(MySQLTableEditorBE*)tableBackend;
 
 @end

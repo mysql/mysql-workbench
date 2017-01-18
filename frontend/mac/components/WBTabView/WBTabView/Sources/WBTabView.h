@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,9 +23,9 @@
 
 // Temporary solution until we are completely on XCode 8 or higher.
 #if MAC_OS_X_VERSION_MAX_ALLOWED > 101104
-@interface WBTabView : NSTabView <WBTabItemDelegateProtocol, CALayerDelegate>
+@interface WBTabView : NSTabView<WBTabItemDelegateProtocol, CALayerDelegate>
 #else
-@interface WBTabView : NSTabView <WBTabItemDelegateProtocol>
+@interface WBTabView : NSTabView<WBTabItemDelegateProtocol>
 #endif
 
 {
@@ -40,7 +40,7 @@
   WBTabSize mTabSize;
   WBTabDirection mTabDirection;
   WBTabPlacement mTabPlacement;
-  
+
   WBTabArrow* mLeftArrow;
   NSImage* mLeftArrowIconImage;
   WBTabArrow* mRightArrow;
@@ -49,12 +49,12 @@
   NSImage* mTabMenuIconImage;
   WBTabDraggerLayer* mDragger;
   NSImage* mDraggerIconImage;
-  
+
   CGColorRef mColorActiveSelected;
   CGColorRef mColorActiveNotSelected;
   CGColorRef mColorNotActiveSelected;
   CGColorRef mColorNotActiveNotSelected;
-  
+
   BOOL mDoneCustomizing;
   BOOL mEnablAnimations;
   //	BOOL mAllowsTabReordering;
@@ -64,34 +64,29 @@
   NSInteger mTabScrollOffset;
 }
 
-@property (readonly) CGFloat tabAreaHeight;
+@property(readonly) CGFloat tabAreaHeight;
 //- (void) setAllowsTabReordering: (BOOL) yn;
-@property (readonly) NSSize contentSize;
-@property (readonly, strong) CALayer *shadowLayer;
-- (void) doCustomize;
-- (void) updateLabelForTabViewItem: (id) identifier;
+@property(readonly) NSSize contentSize;
+@property(readonly, strong) CALayer* shadowLayer;
+- (void)doCustomize;
+- (void)updateLabelForTabViewItem:(id)identifier;
 
 - (void)createDragger;
 
 - (void)setIcon:(NSImage*)icon forTabViewItem:(id)identifier;
-- (void) setColorActiveSelected: (CGColorRef) colorActiveSelected
-         colorActiveNotSelected: (CGColorRef) colorActiveNotSelected
-         colorNotActiveSelected: (CGColorRef) colorNotActiveSelected
-      colorNotActiveNotSelected: (CGColorRef) colorNotActiveNotSelected;
+- (void)setColorActiveSelected:(CGColorRef)colorActiveSelected
+        colorActiveNotSelected:(CGColorRef)colorActiveNotSelected
+        colorNotActiveSelected:(CGColorRef)colorNotActiveSelected
+     colorNotActiveNotSelected:(CGColorRef)colorNotActiveNotSelected;
 
 @end
-
-
 
 @protocol WBTabViewDelegateProtocol
 
-- (BOOL) tabView: (NSTabView*) tabView 
-willCloseTabViewItem: (NSTabViewItem*) tabViewItem;
+- (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)tabViewItem;
 
-- (void) tabView: (NSTabView*) tabView 
-draggedHandleAtOffset: (NSPoint) offset;
+- (void)tabView:(NSTabView*)tabView draggedHandleAtOffset:(NSPoint)offset;
 
-- (void) tabViewDraggerClicked: (NSTabView*) tabView;
+- (void)tabViewDraggerClicked:(NSTabView*)tabView;
 
 @end
-

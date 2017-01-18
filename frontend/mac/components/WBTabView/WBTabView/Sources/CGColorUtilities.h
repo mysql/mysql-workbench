@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,3 @@ CF_IMPLICIT_BRIDGING_ENABLED
 CGColorRef WB_CGColorCreateCalibratedRGB(CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha);
 
 CF_IMPLICIT_BRIDGING_DISABLED
-
-
-

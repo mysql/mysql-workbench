@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -40,12 +40,10 @@
 
 using namespace std;
 
-
 // these functions are defined in grtdiff_alter_test.cpp
 void populate_grt(GRT *grt, const char *);
 // db_mysql_Catalog create_empty_catalog_for_import();
-db_mysql_Catalog db_rev_eng_schema(bec::GRTManager *grtm, 
-                                   const std::list<std::string>& schema_names);
+db_mysql_Catalog db_rev_eng_schema(bec::GRTManager *grtm, const std::list<std::string> &schema_names);
 
 //=============================================================================
 //
@@ -59,12 +57,11 @@ TEST_MODULE(module_db_mysql_schema_diff_reporting, "DB MySQL: schema reporting")
 //=============================================================================
 // Test cases type for TEST_FUNCTION(5)
 //=============================================================================
-struct TestCase
-{
-  const char  *name;
-  const char  *originalSQL;
-  const char  *modifiedSQL;
-  const char  *testExpression;
+struct TestCase {
+  const char *name;
+  const char *originalSQL;
+  const char *modifiedSQL;
+  const char *testExpression;
 };
 
 //-----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 //!
 //! \addtogroup linuxui Linux UI
 //! @{
-//! 
+//!
 
 #ifndef _NAVIGATOR_BOX_H_
 #define _NAVIGATOR_BOX_H_
@@ -11,15 +11,11 @@
 #include <gtkmm/scale.h>
 #include <gtkmm/comboboxtext.h>
 
-
-namespace wb
-{
+namespace wb {
   class ModelDiagramForm;
 };
 
-
-class NavigatorBox : public Gtk::Box
-{
+class NavigatorBox : public Gtk::Box {
   wb::ModelDiagramForm *_model;
   mdc::GtkCanvas _canvas;
   Gtk::HScale _slider;
@@ -36,14 +32,14 @@ class NavigatorBox : public Gtk::Box
 
 public:
   NavigatorBox();
-  
+
   void set_model(wb::ModelDiagramForm *model);
-  
+
   void refresh();
 };
 
 #endif /* _NAVIGATOR_BOX_H_ */
 
-//!                                                                                                                                     
-//! @}                                                                                                                                  
+//!
+//! @}
 //!

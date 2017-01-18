@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -27,46 +27,41 @@
 
 DEFAULT_LOG_DOMAIN("utilities");
 
-class UtilitiesImpl : public grt::ModuleImplBase
-{
+class UtilitiesImpl : public grt::ModuleImplBase {
 public:
-  UtilitiesImpl(grt::CPPModuleLoader *loader) : grt::ModuleImplBase(loader) {}
+  UtilitiesImpl(grt::CPPModuleLoader *loader) : grt::ModuleImplBase(loader) {
+  }
 
   DEFINE_INIT_MODULE(Utilities_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
-                  DECLARE_MODULE_FUNCTION(UtilitiesImpl::loadRdbmsInfo),
-                  DECLARE_MODULE_FUNCTION_DOC(UtilitiesImpl::fetchAuthorityCodeFromWKT,
-                      "Parse WKT SRS string and extract EPSG code from it.",
-                      "wkt is an SRS string that contains WellKnownText data."),
-                  DECLARE_MODULE_FUNCTION_DOC(UtilitiesImpl::fetchAuthorityCodeFromFile,
-                      "Load WKT SRS from file and extract EPSG code from it.",
-                      "path the path to file that contains SRS WKT."),
-                  NULL);
+                     DECLARE_MODULE_FUNCTION(UtilitiesImpl::loadRdbmsInfo),
+                     DECLARE_MODULE_FUNCTION_DOC(UtilitiesImpl::fetchAuthorityCodeFromWKT,
+                                                 "Parse WKT SRS string and extract EPSG code from it.",
+                                                 "wkt is an SRS string that contains WellKnownText data."),
+                     DECLARE_MODULE_FUNCTION_DOC(UtilitiesImpl::fetchAuthorityCodeFromFile,
+                                                 "Load WKT SRS from file and extract EPSG code from it.",
+                                                 "path the path to file that contains SRS WKT."),
+                     NULL);
 
-  db_mgmt_RdbmsRef loadRdbmsInfo(db_mgmt_ManagementRef owner, const std::string &path)
-  {
-    db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(path));
+  db_mgmt_RdbmsRef loadRdbmsInfo(db_mgmt_ManagementRef owner, const std::string &path) {
+    db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(path));
 
     rdbms->owner(owner);
 
     return rdbms;
   }
 
-  std::string fetchAuthorityCodeFromWKT(const std::string &wkt)
-  {
+  std::string fetchAuthorityCodeFromWKT(const std::string &wkt) {
     return spatial::fetchAuthorityCode(wkt);
   }
 
-  std::string fetchAuthorityCodeFromFile(const std::string &path)
-  {
+  std::string fetchAuthorityCodeFromFile(const std::string &path) {
     gchar *data;
     gsize length;
     std::string epsg;
-    if (g_file_get_contents(path.c_str(), &data, &length, NULL))
-    {
+    if (g_file_get_contents(path.c_str(), &data, &length, NULL)) {
       epsg = spatial::fetchAuthorityCode(data);
       g_free(data);
-    }
-    else
+    } else
       logError("Unable to get contents of a file: %s\n", path.c_str());
     return epsg;
   }

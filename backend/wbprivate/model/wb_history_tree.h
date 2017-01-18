@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,29 +23,27 @@
 #include "mforms/treeview.h"
 #include <grtpp_undo_manager.h>
 
-namespace bec
-{
+namespace bec {
   class GRTManager;
 };
 
 namespace wb {
-  class HistoryTree : public mforms::TreeView
-  {
+  class HistoryTree : public mforms::TreeView {
     grt::UndoManager *_undom;
     std::string _icon;
     bool _refresh_pending;
 
-    void handle_redo(grt::UndoAction*);
-    void handle_undo(grt::UndoAction*);
+    void handle_redo(grt::UndoAction *);
+    void handle_undo(grt::UndoAction *);
     void handle_change();
 
     void activate_node(mforms::TreeNodeRef node, int column);
+
   public:
     HistoryTree(grt::UndoManager *undom);
 
     void refresh();
   };
 };
-
 
 #endif
