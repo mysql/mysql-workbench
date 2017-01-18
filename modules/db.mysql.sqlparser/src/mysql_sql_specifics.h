@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,17 +22,19 @@
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_specifics.h"
 
-
 /** Implements DBMS specifics.
- * 
+ *
  * @ingroup sqlparser
  */
-class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_specifics : public Sql_specifics
-{
+class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_specifics : public Sql_specifics {
 public:
   typedef std::shared_ptr<Mysql_sql_specifics> Ref;
-  static Ref create() { return Ref(new Mysql_sql_specifics()); }
-  virtual ~Mysql_sql_specifics() {}
+  static Ref create() {
+    return Ref(new Mysql_sql_specifics());
+  }
+  virtual ~Mysql_sql_specifics() {
+  }
+
 protected:
   Mysql_sql_specifics();
 

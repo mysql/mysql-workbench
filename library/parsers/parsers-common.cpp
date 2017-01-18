@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,25 +26,22 @@
 extern "C" {
 
 //--------------------------------------------------------------------------------------------------
-  
-  /**
-   * Tries to match the given text against the (regex) pattern.
-   * Returns true if it matches, false otherwise.
-   * Note: text can be utf-8 encoded, which only works reliably if pattern doesn't contain utf-8 chars.
-   *       Additionally, the function is not very effective, as it creates a new regex class on each
-   *       invocation, but should be ok for occasional execution as used while parsing.
-   */
-  ANTLR3_BOOLEAN matches(pANTLR3_STRING text, const char *pattern)
-  {
-    return std::regex_match((const char*)text->chars, std::regex(pattern));
-  }
-  
+
+/**
+ * Tries to match the given text against the (regex) pattern.
+ * Returns true if it matches, false otherwise.
+ * Note: text can be utf-8 encoded, which only works reliably if pattern doesn't contain utf-8 chars.
+ *       Additionally, the function is not very effective, as it creates a new regex class on each
+ *       invocation, but should be ok for occasional execution as used while parsing.
+ */
+ANTLR3_BOOLEAN matches(pANTLR3_STRING text, const char *pattern) {
+  return std::regex_match((const char *)text->chars, std::regex(pattern));
+}
 }
 
 //------------------ IRecognizer ------------------------------------------------------------------
 
-std::string IRecognizer::dumpTree(pANTLR3_UINT8 *tokenNames, pANTLR3_BASE_TREE tree, const std::string &indentation)
-{
+std::string IRecognizer::dumpTree(pANTLR3_UINT8 *tokenNames, pANTLR3_BASE_TREE tree, const std::string &indentation) {
   std::string result;
 
   ANTLR3_UINT32 char_pos = tree->getCharPositionInLine(tree);
@@ -52,14 +49,13 @@ std::string IRecognizer::dumpTree(pANTLR3_UINT8 *tokenNames, pANTLR3_BASE_TREE t
   pANTLR3_STRING token_text = tree->getText(tree);
 
   pANTLR3_COMMON_TOKEN token = tree->getToken(tree);
-  const char* utf8 = (const char*)token_text->chars;
-  if (token != NULL)
-  {
+  const char *utf8 = (const char *)token_text->chars;
+  if (token != NULL) {
     ANTLR3_UINT32 token_type = token->getType(token);
 
     pANTLR3_UINT8 token_name;
     if (token_type == EOF)
-      token_name = (pANTLR3_UINT8)"EOF";
+      token_name = (pANTLR3_UINT8) "EOF";
     else
       token_name = tokenNames[token_type];
 
@@ -68,19 +64,15 @@ std::string IRecognizer::dumpTree(pANTLR3_UINT8 *tokenNames, pANTLR3_BASE_TREE t
                           indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
                           token_type, utf8);
 #else
-    result = base::strfmt("%s(line: %i, offset: %i, length: %i, index: %i, %s[%i])    %s\n",
-                          indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
-                          token_type, utf8);
+    result = base::strfmt("%s(line: %i, offset: %i, length: %i, index: %i, %s[%i])    %s\n", indentation.c_str(), line,
+                          char_pos, token->stop - token->start + 1, token->index, token_name, token_type, utf8);
 #endif
 
-  }
-  else
-  {
+  } else {
     result = base::strfmt("%s(line: %i, offset: %i, nil)    %s\n", indentation.c_str(), line, char_pos, utf8);
   }
 
-  for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++)
-  {
+  for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++) {
     pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)tree->getChild(tree, index);
     std::string child_text = dumpTree(tokenNames, child, indentation + "\t");
     result += child_text;
@@ -90,18 +82,15 @@ std::string IRecognizer::dumpTree(pANTLR3_UINT8 *tokenNames, pANTLR3_BASE_TREE t
 
 //----------------- MySQLTreeWalker ----------------------------------------------------------------
 
-struct CompareTokenIndex
-{
-  inline bool operator() (const pANTLR3_BASE_TREE left, const pANTLR3_BASE_TREE right)
-  {
+struct CompareTokenIndex {
+  inline bool operator()(const pANTLR3_BASE_TREE left, const pANTLR3_BASE_TREE right) {
     pANTLR3_COMMON_TOKEN t1 = left->getToken(left);
     pANTLR3_COMMON_TOKEN t2 = right->getToken(right);
     return t1->index < t2->index;
   }
 };
 
-RecognizerTreeWalker::RecognizerTreeWalker(IRecognizer *recognizer, pANTLR3_BASE_TREE tree)
-{
+RecognizerTreeWalker::RecognizerTreeWalker(IRecognizer *recognizer, pANTLR3_BASE_TREE tree) {
   _recognizer = recognizer;
   _tree = tree;
 
@@ -112,8 +101,7 @@ RecognizerTreeWalker::RecognizerTreeWalker(IRecognizer *recognizer, pANTLR3_BASE
 
   // Fill the list of tokens for quick lookup by type or position in the correct order.
   pANTLR3_BASE_TREE run = _tree;
-  while (run != nullptr)
-  {
+  while (run != nullptr) {
     // Add only entries that carry useful information for position search.
     pANTLR3_COMMON_TOKEN token = run->getToken(run);
     if (token != nullptr && token->lineStart != nullptr) // Virtual tokens have no line information.
@@ -128,10 +116,9 @@ RecognizerTreeWalker::RecognizerTreeWalker(IRecognizer *recognizer, pANTLR3_BASE
 
 //--------------------------------------------------------------------------------------------------
 
-void RecognizerTreeWalker::printToken(pANTLR3_BASE_TREE tree)
-{
+void RecognizerTreeWalker::printToken(pANTLR3_BASE_TREE tree) {
   pANTLR3_STRING tokenText = tree->getText(tree);
-  printf("Token: %s\n", (tokenText == NULL) ? "nil" : (char*)tokenText->chars);
+  printf("Token: %s\n", (tokenText == NULL) ? "nil" : (char *)tokenText->chars);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,11 +131,9 @@ void RecognizerTreeWalker::printToken(pANTLR3_BASE_TREE tree)
  * @param count Number of steps. Default is 1.
  * @return True if there was count next nodes, false otherwise. If false then no state change is performed.
  */
-bool RecognizerTreeWalker::next(std::size_t count)
-{
+bool RecognizerTreeWalker::next(std::size_t count) {
   pANTLR3_BASE_TREE node = _tree;
-  while (count > 0)
-  {
+  while (count > 0) {
     node = getNext(node, true);
     if (node == nullptr)
       return false;
@@ -167,11 +152,9 @@ bool RecognizerTreeWalker::next(std::size_t count)
  *
  * @return True if there was a next sibling node, false otherwise (no change performed then).
  */
-bool RecognizerTreeWalker::nextSibling()
-{
+bool RecognizerTreeWalker::nextSibling() {
   pANTLR3_BASE_TREE node = getNext(_tree, false);
-  if (node != nullptr)
-  {
+  if (node != nullptr) {
     _tree = node;
     return true;
   }
@@ -187,8 +170,7 @@ bool RecognizerTreeWalker::nextSibling()
  *
  * @return True if there was a previous node, false otherwise (no change performed then).
  */
-bool RecognizerTreeWalker::previous()
-{
+bool RecognizerTreeWalker::previous() {
   pANTLR3_BASE_TREE node = getPrevious(_tree, true);
   if (node == nullptr)
     return false;
@@ -207,8 +189,7 @@ bool RecognizerTreeWalker::previous()
  *
  * @return True if there is a previous node, false otherwise (no change performed then).
  */
-bool RecognizerTreeWalker::previousByIndex()
-{
+bool RecognizerTreeWalker::previousByIndex() {
   pANTLR3_BASE_TREE previous = getPreviousByIndex(_tree);
   if (previous == nullptr)
     return false;
@@ -226,8 +207,7 @@ bool RecognizerTreeWalker::previousByIndex()
  *
  * @return True if there was a previous node, false otherwise (no change performed then).
  */
-bool RecognizerTreeWalker::previousSibling()
-{
+bool RecognizerTreeWalker::previousSibling() {
   pANTLR3_BASE_TREE node = getPrevious(_tree, false);
   if (node == nullptr)
     return false;
@@ -244,8 +224,7 @@ bool RecognizerTreeWalker::previousSibling()
  *
  * @return True if there was a parent node, false otherwise (no change performed then).
  */
-bool RecognizerTreeWalker::up()
-{
+bool RecognizerTreeWalker::up() {
   pANTLR3_BASE_TREE parent = _tree->getParent(_tree);
   if (parent == nullptr)
     return false;
@@ -265,29 +244,24 @@ bool RecognizerTreeWalker::up()
  *
  * @return True if such a node exists, false otherwise (no change performed then).
  */
-bool RecognizerTreeWalker::advanceToPosition(int line, int offset)
-{
+bool RecognizerTreeWalker::advanceToPosition(int line, int offset) {
   if (_tokenList.size() == 0)
     return false;
 
   size_t i = 0;
-  for (; i < _tokenList.size(); i++)
-  {
+  for (; i < _tokenList.size(); i++) {
     pANTLR3_BASE_TREE run = _tokenList[i];
     ANTLR3_UINT32 tokenLine = run->getLine(run);
-    if ((int)tokenLine >= line)
-    {
+    if ((int)tokenLine >= line) {
       int tokenOffset = run->getCharPositionInLine(run);
       pANTLR3_COMMON_TOKEN token = run->getToken(run);
       int tokenLength = (int)(token->stop - token->start) + 1;
-      if ((int)tokenLine == line && tokenOffset <= offset && offset < tokenOffset + tokenLength)
-      {
+      if ((int)tokenLine == line && tokenOffset <= offset && offset < tokenOffset + tokenLength) {
         _tree = _tokenList[i];
         break;
       }
 
-      if ((int)tokenLine > line || (int)tokenOffset > offset)
-      {
+      if ((int)tokenLine > line || (int)tokenOffset > offset) {
         // We reached a token after the current offset. Take the previous one as result then.
         if (i == 0)
           return false;
@@ -313,17 +287,14 @@ bool RecognizerTreeWalker::advanceToPosition(int line, int offset)
  * @param recurse If false search only siblings, otherwise any node in any tree level.
  * @return True if such a node exists, false otherwise (no change performed then).
  */
-bool RecognizerTreeWalker::advanceToType(uint32_t type, bool recurse)
-{
+bool RecognizerTreeWalker::advanceToType(uint32_t type, bool recurse) {
   pANTLR3_BASE_TREE run = _tree;
-  while (true)
-  {
+  while (true) {
     run = getNext(run, recurse);
     if (run == nullptr)
       return false;
 
-    if (run->getType(run) == type)
-    {
+    if (run->getType(run) == type) {
       _tree = run;
       return true;
     }
@@ -345,15 +316,13 @@ bool RecognizerTreeWalker::advanceToType(uint32_t type, bool recurse)
  *         in the list, false otherwise. If the token sequence could not be found or there is no more
  *         token the internal state is undefined.
  */
-bool RecognizerTreeWalker::skipTokenSequence(uint32_t startToken, ...)
-{
+bool RecognizerTreeWalker::skipTokenSequence(uint32_t startToken, ...) {
   bool result = false;
 
   unsigned int token = startToken;
   va_list tokens;
   va_start(tokens, startToken);
-  while (true)
-  {
+  while (true) {
     if (tokenType() != token)
       break;
 
@@ -361,8 +330,7 @@ bool RecognizerTreeWalker::skipTokenSequence(uint32_t startToken, ...)
       break;
 
     token = va_arg(tokens, unsigned int);
-    if (token == ANTLR3_TOKEN_INVALID)
-    {
+    if (token == ANTLR3_TOKEN_INVALID) {
       result = true;
       break;
     }
@@ -378,10 +346,8 @@ bool RecognizerTreeWalker::skipTokenSequence(uint32_t startToken, ...)
  * Advances to the nth next token if the current one is that given by @token.
  * Returns true if we skipped actually.
  */
-bool RecognizerTreeWalker::skipIf(uint32_t token, size_t count)
-{
-  if (tokenType() == token)
-  {
+bool RecognizerTreeWalker::skipIf(uint32_t token, size_t count) {
+  if (tokenType() == token) {
     next(count);
     return true;
   }
@@ -395,10 +361,8 @@ bool RecognizerTreeWalker::skipIf(uint32_t token, size_t count)
  * we simply skip to the next node after that.
  * Properly handles subtrees at the end of a child list where there is no next sibling.
  */
-void RecognizerTreeWalker::skipSubtree()
-{
-  if (isSubtree())
-  {
+void RecognizerTreeWalker::skipSubtree() {
+  if (isSubtree()) {
     if (nextSibling())
       return;
 
@@ -418,8 +382,7 @@ void RecognizerTreeWalker::skipSubtree()
  * Returns the type of the next sibling (if recursive is false) or the next token (including child
  * nodes) without changing the internal state.
  */
-uint32_t RecognizerTreeWalker::lookAhead(bool recursive)
-{
+uint32_t RecognizerTreeWalker::lookAhead(bool recursive) {
   pANTLR3_BASE_TREE next = getNext(_tree, recursive);
   if (next == nullptr)
     return ANTLR3_TOKEN_INVALID;
@@ -431,8 +394,7 @@ uint32_t RecognizerTreeWalker::lookAhead(bool recursive)
 /**
  * Returns the parent's token type if we are in a subtree.
  */
-uint32_t RecognizerTreeWalker::parentType()
-{
+uint32_t RecognizerTreeWalker::parentType() {
   pANTLR3_BASE_TREE parent = _tree->getParent(_tree);
   if (parent == nullptr)
     return ANTLR3_TOKEN_INVALID;
@@ -446,8 +408,7 @@ uint32_t RecognizerTreeWalker::parentType()
  * Look back in the stream (physical order) what was before the current token, without
  * modifying the current position.
  */
-unsigned int RecognizerTreeWalker::previousType()
-{
+unsigned int RecognizerTreeWalker::previousType() {
   pANTLR3_BASE_TREE previous = getPreviousByIndex(_tree);
   if (previous == nullptr)
     return ANTLR3_TOKEN_INVALID;
@@ -460,8 +421,7 @@ unsigned int RecognizerTreeWalker::previousType()
 /**
  * Resets the walker to be at the original location.
  */
-void RecognizerTreeWalker::reset()
-{
+void RecognizerTreeWalker::reset() {
   _tree = _origin;
   while (!_tokenStack.empty())
     _tokenStack.pop();
@@ -472,8 +432,7 @@ void RecognizerTreeWalker::reset()
 /**
  * Store the current node on the stack, so we can easily come back when needed.
  */
-void RecognizerTreeWalker::push()
-{
+void RecognizerTreeWalker::push() {
   _tokenStack.push(_tree);
 }
 
@@ -482,8 +441,7 @@ void RecognizerTreeWalker::push()
 /**
  * Returns to the location at the top of the token stack (if any).
  */
-bool RecognizerTreeWalker::pop()
-{
+bool RecognizerTreeWalker::pop() {
   if (_tokenStack.empty())
     return false;
 
@@ -498,8 +456,7 @@ bool RecognizerTreeWalker::pop()
  * Removes the current top of stack entry without restoring the internal state.
  * Does nothing if the stack is empty.
  */
-void RecognizerTreeWalker::removeTos()
-{
+void RecognizerTreeWalker::removeTos() {
   if (!_tokenStack.empty())
     _tokenStack.pop();
 }
@@ -509,8 +466,7 @@ void RecognizerTreeWalker::removeTos()
 /**
  * Returns true if the current token is of the given type.
  */
-bool RecognizerTreeWalker::is(unsigned int type) const
-{
+bool RecognizerTreeWalker::is(unsigned int type) const {
   return _tree->getType(_tree) == type;
 }
 
@@ -519,8 +475,7 @@ bool RecognizerTreeWalker::is(unsigned int type) const
 /**
  * Returns true if the current token is empty, false otherwise.
  */
-bool RecognizerTreeWalker::isNil() const
-{
+bool RecognizerTreeWalker::isNil() const {
   return _tree->isNilNode(_tree) == ANTLR3_TRUE;
 }
 
@@ -529,8 +484,7 @@ bool RecognizerTreeWalker::isNil() const
 /**
  * Returns true if the current token is the root of a subtree (i.e. has child nodes).
  */
-bool RecognizerTreeWalker::isSubtree() const
-{
+bool RecognizerTreeWalker::isSubtree() const {
   return isSubtree(_tree);
 }
 
@@ -539,8 +493,7 @@ bool RecognizerTreeWalker::isSubtree() const
 /**
  * Returns true if the current token has no previous sibling.
  */
-bool RecognizerTreeWalker::isFirstChild() const
-{
+bool RecognizerTreeWalker::isFirstChild() const {
   return _tree->getChildIndex(_tree) == 0;
 }
 
@@ -549,8 +502,7 @@ bool RecognizerTreeWalker::isFirstChild() const
 /**
  * Returns true if the current token has no previous sibling.
  */
-bool RecognizerTreeWalker::isIdentifier() const
-{
+bool RecognizerTreeWalker::isIdentifier() const {
   return _recognizer->isIdentifier(tokenType());
 }
 
@@ -559,8 +511,7 @@ bool RecognizerTreeWalker::isIdentifier() const
 /**
  * Returns true if the current token has no previous sibling.
  */
-bool RecognizerTreeWalker::isKeyword() const
-{
+bool RecognizerTreeWalker::isKeyword() const {
   return _recognizer->isKeyword(tokenType());
 }
 
@@ -571,8 +522,7 @@ bool RecognizerTreeWalker::isKeyword() const
  * parsed query (if it is a lexer symbol) or the textual expression of the constant name for abstract
  * tokens.
  */
-std::string RecognizerTreeWalker::tokenText(bool keepQuotes) const
-{
+std::string RecognizerTreeWalker::tokenText(bool keepQuotes) const {
   return _recognizer->tokenText(_tree, keepQuotes);
 }
 
@@ -581,8 +531,7 @@ std::string RecognizerTreeWalker::tokenText(bool keepQuotes) const
 /**
  * Returns the type of the current token. Same as the type you can specify in advance_to().
  */
-uint32_t RecognizerTreeWalker::tokenType() const
-{
+uint32_t RecognizerTreeWalker::tokenType() const {
   return _tree->getType(_tree);
 }
 
@@ -591,8 +540,7 @@ uint32_t RecognizerTreeWalker::tokenType() const
 /**
  * Returns the (one-base) line number of the token.
  */
-uint32_t RecognizerTreeWalker::tokenLine() const
-{
+uint32_t RecognizerTreeWalker::tokenLine() const {
   return _tree->getLine(_tree);
 }
 
@@ -601,8 +549,7 @@ uint32_t RecognizerTreeWalker::tokenLine() const
 /**
  * Returns the (zero-based) offset of the token on its line.
  */
-uint32_t RecognizerTreeWalker::tokenStart() const
-{
+uint32_t RecognizerTreeWalker::tokenStart() const {
   return _tree->getCharPositionInLine(_tree);
 }
 
@@ -611,8 +558,7 @@ uint32_t RecognizerTreeWalker::tokenStart() const
 /**
  * Returns the (zero-based) index of the current token within the input.
  */
-int64_t RecognizerTreeWalker::tokenIndex() const
-{
+int64_t RecognizerTreeWalker::tokenIndex() const {
   pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
   return token->index;
 }
@@ -622,8 +568,7 @@ int64_t RecognizerTreeWalker::tokenIndex() const
 /**
  * Returns the offset of the token in its source string.
  */
-size_t RecognizerTreeWalker::tokenOffset() const
-{
+size_t RecognizerTreeWalker::tokenOffset() const {
   pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
   return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->lineStart());
 }
@@ -633,20 +578,18 @@ size_t RecognizerTreeWalker::tokenOffset() const
 /**
  * Returns the length of the token in bytes.
  */
-int64_t RecognizerTreeWalker::tokenLength() const
-{
+int64_t RecognizerTreeWalker::tokenLength() const {
   pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
   if (token == nullptr)
     return 0;
 
   // Start and stop are actually pointers into the input stream.
-  return (int) token->stop - (int) token->start + 1;
+  return (int)token->stop - (int)token->start + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string RecognizerTreeWalker::textForTree() const
-{
+std::string RecognizerTreeWalker::textForTree() const {
   return _recognizer->textForTree(_tree);
 }
 
@@ -657,18 +600,15 @@ std::string RecognizerTreeWalker::textForTree() const
  * no next node. The recurse flag determines if we can change tree levels or stay in the one we are in
  * currently.
  */
-pANTLR3_BASE_TREE RecognizerTreeWalker::getNext(pANTLR3_BASE_TREE node, bool recurse) const
-{
-  if (recurse)
-  {
+pANTLR3_BASE_TREE RecognizerTreeWalker::getNext(pANTLR3_BASE_TREE node, bool recurse) const {
+  if (recurse) {
     // If there are child take the first one.
     if (node->getChildCount(node) > 0)
       return (pANTLR3_BASE_TREE)_tree->getChild(node, 0);
   }
 
   // No child nodes (or no recursion), so see if there is another sibling of this node or one of its parents.
-  while (true)
-  {
+  while (true) {
     pANTLR3_BASE_TREE parent = node->getParent(node);
     if (parent == nullptr)
       return nullptr;
@@ -692,25 +632,21 @@ pANTLR3_BASE_TREE RecognizerTreeWalker::getNext(pANTLR3_BASE_TREE node, bool rec
  * Returns the previous node before the given one without changing any internal state or NULL if there's
  * no previous node. The meaning of the recurse flag is the same as for get_next().
  */
-pANTLR3_BASE_TREE RecognizerTreeWalker::getPrevious(pANTLR3_BASE_TREE node, bool recurse) const
-{
+pANTLR3_BASE_TREE RecognizerTreeWalker::getPrevious(pANTLR3_BASE_TREE node, bool recurse) const {
   pANTLR3_BASE_TREE parent = _tree->getParent(_tree);
   if (parent == nullptr)
     return NULL;
 
   int index = parent->getChildIndex(_tree) - 1;
-  if (index < 0)
-  {
+  if (index < 0) {
     if (!recurse)
       return nullptr;
     return parent;
   }
 
   pANTLR3_BASE_TREE last_node = (pANTLR3_BASE_TREE)parent->getChild(parent, index);
-  if (recurse)
-  {
-    while (last_node->getChildCount(last_node) > 0)
-    {
+  if (recurse) {
+    while (last_node->getChildCount(last_node) > 0) {
       // Walk down the entire tree hierarchy to the last sub node of the previous sibling.
       index = last_node->getChildCount(last_node) - 1;
       last_node = (pANTLR3_BASE_TREE)last_node->getChild(last_node, index);
@@ -722,8 +658,7 @@ pANTLR3_BASE_TREE RecognizerTreeWalker::getPrevious(pANTLR3_BASE_TREE node, bool
 
 //--------------------------------------------------------------------------------------------------
 
-pANTLR3_BASE_TREE RecognizerTreeWalker::getPreviousByIndex(pANTLR3_BASE_TREE node) const
-{
+pANTLR3_BASE_TREE RecognizerTreeWalker::getPreviousByIndex(pANTLR3_BASE_TREE node) const {
   if (node == nullptr)
     return nullptr;
 
@@ -739,8 +674,7 @@ pANTLR3_BASE_TREE RecognizerTreeWalker::getPreviousByIndex(pANTLR3_BASE_TREE nod
 
 //--------------------------------------------------------------------------------------------------
 
-bool RecognizerTreeWalker::isSubtree(struct ANTLR3_BASE_TREE_struct *tree) const
-{
+bool RecognizerTreeWalker::isSubtree(struct ANTLR3_BASE_TREE_struct *tree) const {
   return tree->getChildCount(tree) > 0;
 }
 

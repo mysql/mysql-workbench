@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,17 +30,14 @@ using namespace MySQL::Workbench;
 
 //----------------- InterfacedObserver -------------------------------------------------------------
 
-InterfacedObserver::InterfacedObserver(IWorkbenchObserver^ native_observer)
-{
+InterfacedObserver::InterfacedObserver(IWorkbenchObserver ^ native_observer) {
   _managed_observer = native_observer;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void InterfacedObserver::handle_notification(const std::string &name, void *sender, NotificationInfo &info)
-{
-  _managed_observer->HandleNotification(CppStringToNativeRaw(name), IntPtr(sender),
-    CppStringMapToDictionary(info));
+void InterfacedObserver::handle_notification(const std::string &name, void *sender, NotificationInfo &info) {
+  _managed_observer->HandleNotification(CppStringToNativeRaw(name), IntPtr(sender), CppStringMapToDictionary(info));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,20 +45,18 @@ void InterfacedObserver::handle_notification(const std::string &name, void *send
 /**
  * Determines if this object is the interface for the given observer.
  */
-bool InterfacedObserver::WrapsObserver(IWorkbenchObserver^ observer)
-{
-  return static_cast<IWorkbenchObserver^>(_managed_observer) == observer;
+bool InterfacedObserver::WrapsObserver(IWorkbenchObserver ^ observer) {
+  return static_cast<IWorkbenchObserver ^>(_managed_observer) == observer;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ManagedNotificationCenter::AddObserver(IWorkbenchObserver^ observer, String^ notification)
-{
+void ManagedNotificationCenter::AddObserver(IWorkbenchObserver ^ observer, String ^ notification) {
   msclr::lock lock(observer);
-  if(!observer_list)
-      observer_list = new std::vector<InterfacedObserver*>;
-  
-  InterfacedObserver* iObserver = new InterfacedObserver(observer);
+  if (!observer_list)
+    observer_list = new std::vector<InterfacedObserver *>;
+
+  InterfacedObserver *iObserver = new InterfacedObserver(observer);
   observer_list->push_back(iObserver);
   base::NotificationCenter::get()->add_observer(iObserver, NativeToCppStringRaw(notification));
 
@@ -70,27 +65,24 @@ void ManagedNotificationCenter::AddObserver(IWorkbenchObserver^ observer, String
 
 //--------------------------------------------------------------------------------------------------
 
-void ManagedNotificationCenter::RemoveObserver(IWorkbenchObserver^ observer, String^ notification)
-{
+void ManagedNotificationCenter::RemoveObserver(IWorkbenchObserver ^ observer, String ^ notification) {
   msclr::lock lock(observer);
   if (!observer_list)
-      return;
+    return;
 
-  std::string message = (notification == nullptr || notification->Length == 0) ? "" : NativeToCppStringRaw(notification);
+  std::string message =
+    (notification == nullptr || notification->Length == 0) ? "" : NativeToCppStringRaw(notification);
 
   // Find the interfaced observer we created for the workbench observer.
-  for (std::vector<InterfacedObserver*>::const_iterator iterator = observer_list->begin();
-    iterator != observer_list->end(); ++iterator)
-  {
-    if ((*iterator)->WrapsObserver(observer))
-    {
+  for (std::vector<InterfacedObserver *>::const_iterator iterator = observer_list->begin();
+       iterator != observer_list->end(); ++iterator) {
+    if ((*iterator)->WrapsObserver(observer)) {
       base::NotificationCenter::get()->remove_observer(*iterator, message);
       delete *iterator;
       observer_list->erase(iterator);
-      if (observer_list->empty())
-      {
-          delete observer_list;
-          observer_list = NULL;
+      if (observer_list->empty()) {
+        delete observer_list;
+        observer_list = NULL;
       }
 
       if (notification->Length == 0)
@@ -104,9 +96,9 @@ void ManagedNotificationCenter::RemoveObserver(IWorkbenchObserver^ observer, Str
 
 //--------------------------------------------------------------------------------------------------
 
-void ManagedNotificationCenter::Send(String^ notification, IntPtr sender)
-{
-  base::NotificationCenter::get()->send(NativeToCppStringRaw(notification), sender != IntPtr::Zero ? sender.ToPointer() : NULL);
+void ManagedNotificationCenter::Send(String ^ notification, IntPtr sender) {
+  base::NotificationCenter::get()->send(NativeToCppStringRaw(notification),
+                                        sender != IntPtr::Zero ? sender.ToPointer() : NULL);
 }
 
 //--------------------------------------------------------------------------------------------------

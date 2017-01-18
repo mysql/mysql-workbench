@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,18 +59,24 @@ using namespace base;
 //--------------------------------------------------------------------------------------------------
 
 SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed)
-: mforms::AppView(false, "db.query.QueryBuffer", false), _form(owner),
-  _editor_box(false), _splitter(false, true),
+  : mforms::AppView(false, "db.query.QueryBuffer", false),
+    _form(owner),
+    _editor_box(false),
+    _splitter(false, true),
 #ifdef __APPLE__
-  _lower_tabview(mforms::TabViewEditorBottomPinnable), // TODO: Windows, Linux
+    _lower_tabview(mforms::TabViewEditorBottomPinnable), // TODO: Windows, Linux
 #else
-  _lower_tabview(mforms::TabViewEditorBottom),
+    _lower_tabview(mforms::TabViewEditorBottom),
 #endif
-  _lower_dock_delegate(&_lower_tabview, db_query_QueryEditor::static_class_name()),
-  _lower_dock(&_lower_dock_delegate, false),
-  _tab_action_box(true), _tab_action_apply(mforms::SmallButton), _tab_action_revert(mforms::SmallButton), _tab_action_info("Read Only"),
-  _rs_sequence(0), _busy(false), _is_scratch(is_scratch)
-{
+    _lower_dock_delegate(&_lower_tabview, db_query_QueryEditor::static_class_name()),
+    _lower_dock(&_lower_dock_delegate, false),
+    _tab_action_box(true),
+    _tab_action_apply(mforms::SmallButton),
+    _tab_action_revert(mforms::SmallButton),
+    _tab_action_info("Read Only"),
+    _rs_sequence(0),
+    _busy(false),
+    _is_scratch(is_scratch) {
   db_query_QueryEditorRef grtobj(grt::Initialized);
 
   grtobj->resultDockingPoint(mforms_to_grt(&_lower_dock));
@@ -81,27 +87,29 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   // (and hence an own parser), to allow concurrent and multi threaded work.
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
 
-  parser::MySQLParserContext::Ref context = services->createParserContext(owner->rdbms()->characterSets(),
-    owner->rdbms_version(), owner->lower_case_table_names() != 0);
+  parser::MySQLParserContext::Ref context = services->createParserContext(
+    owner->rdbms()->characterSets(), owner->rdbms_version(), owner->lower_case_table_names() != 0);
 
   _editor = MySQLEditor::create(context, owner->work_parser_context(), grtobj);
-  _editor->sql_check_progress_msg_throttle(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
+  _editor->sql_check_progress_msg_throttle(
+    bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500) / (double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
   _editor->set_sql_mode(owner->sql_mode());
   _editor->set_current_schema(owner->active_schema());
-  UIForm::scoped_connect(_editor->text_change_signal(),
-                         std::bind(&SqlEditorPanel::update_title, this));
+  UIForm::scoped_connect(_editor->text_change_signal(), std::bind(&SqlEditorPanel::update_title, this));
 
   add(&_splitter, true, true);
 
-  mforms::CodeEditor* code_editor = editor_be()->get_editor_control();
+  mforms::CodeEditor *code_editor = editor_be()->get_editor_control();
   code_editor->set_name("code editor");
   _editor_box.add(setup_editor_toolbar(), false, true);
   _editor_box.add_end(code_editor, true, true);
 
-  code_editor->set_font(grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("workbench.general.Editor:Font")));
+  code_editor->set_font(
+    grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("workbench.general.Editor:Font")));
   code_editor->set_status_text("");
-  code_editor->set_show_find_panel_callback(std::bind(&SqlEditorPanel::show_find_panel, this, std::placeholders::_1, std::placeholders::_2));
+  code_editor->set_show_find_panel_callback(
+    std::bind(&SqlEditorPanel::show_find_panel, this, std::placeholders::_1, std::placeholders::_2));
 
   if (start_collapsed)
     _editor->get_editor_control()->set_size(-1, 25);
@@ -135,11 +143,15 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _lower_tabview.set_aux_view(&_tab_action_box);
   _lower_tabview.set_allows_reordering(true);
-  _lower_tabview.signal_tab_reordered()->connect(std::bind(&SqlEditorPanel::lower_tab_reordered, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+  _lower_tabview.signal_tab_reordered()->connect(std::bind(
+    &SqlEditorPanel::lower_tab_reordered, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   _lower_tabview.signal_tab_changed()->connect(std::bind(&SqlEditorPanel::lower_tab_switched, this));
-  _lower_tabview.signal_tab_closing()->connect(std::bind(&SqlEditorPanel::lower_tab_closing, this, std::placeholders::_1));
-  _lower_tabview.signal_tab_closed()->connect(std::bind(&SqlEditorPanel::lower_tab_closed, this, std::placeholders::_1, std::placeholders::_2));
-  _lower_tabview.signal_tab_pin_changed()->connect(std::bind(&SqlEditorPanel::tab_pinned, this, std::placeholders::_1, std::placeholders::_2));
+  _lower_tabview.signal_tab_closing()->connect(
+    std::bind(&SqlEditorPanel::lower_tab_closing, this, std::placeholders::_1));
+  _lower_tabview.signal_tab_closed()->connect(
+    std::bind(&SqlEditorPanel::lower_tab_closed, this, std::placeholders::_1, std::placeholders::_2));
+  _lower_tabview.signal_tab_pin_changed()->connect(
+    std::bind(&SqlEditorPanel::tab_pinned, this, std::placeholders::_1, std::placeholders::_2));
   _lower_tabview.is_pinned = std::bind(&SqlEditorPanel::is_pinned, this, std::placeholders::_1);
   _lower_tabview.set_tab_menu(&_lower_tab_menu);
 
@@ -151,35 +163,33 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _lower_tab_menu.add_check_item_with_title("Pin Tab", std::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
   _lower_tab_menu.add_separator();
   _lower_tab_menu.add_item_with_title("Close Tab", std::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
-  _lower_tab_menu.add_item_with_title("Close Other Tabs", std::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
+  _lower_tab_menu.add_item_with_title("Close Other Tabs", std::bind(&SqlEditorPanel::close_other_tabs_clicked, this),
+                                      "close_others");
 }
 
 //--------------------------------------------------------------------------------------------------
 
-SqlEditorPanel::~SqlEditorPanel()
-{
+SqlEditorPanel::~SqlEditorPanel() {
   _editor->stop_processing();
   _editor->cancel_auto_completion();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-db_query_QueryEditorRef SqlEditorPanel::grtobj()
-{
+db_query_QueryEditorRef SqlEditorPanel::grtobj() {
   return db_query_QueryEditorRef::cast_from(_editor->grtobj());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorPanel::on_close_by_user()
-{
+bool SqlEditorPanel::on_close_by_user() {
   // this can also get closed when close_all_view() is called when the connection is closed
-  if (_form->is_closing() || can_close())
-  {
+  if (_form->is_closing() || can_close()) {
     // do not call close, since that would undock ourselves and the caller will also undock this
-    // we just need to be sure that the d-tor is called in all closing methods (close the tab itself from the X and through kbd,
+    // we just need to be sure that the d-tor is called in all closing methods (close the tab itself from the X and
+    // through kbd,
     // close the connection, close WB)
-//    close();
+    //    close();
     return true;
   }
   return false;
@@ -187,8 +197,7 @@ bool SqlEditorPanel::on_close_by_user()
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorPanel::can_close()
-{
+bool SqlEditorPanel::can_close() {
   if (_busy)
     return false;
 
@@ -205,77 +214,65 @@ bool SqlEditorPanel::can_close()
   if (!_form->is_closing())
     check_editors = true;
 
-  if (!_is_scratch && check_editors)
-  {
-    if (is_dirty())
-    {
+  if (!_is_scratch && check_editors) {
+    if (is_dirty()) {
       int result = mforms::Utilities::show_warning(_("Close SQL Tab"),
                                                    strfmt(_("SQL script %s has unsaved changes.\n"
                                                             "Would you like to Save these changes before closing?"),
-                                                          get_title().c_str()), _("Save"), _("Cancel"), _("Don't Save"));
+                                                          get_title().c_str()),
+                                                   _("Save"), _("Cancel"), _("Don't Save"));
 
       if (result == mforms::ResultCancel)
         return false;
-      else if (result == mforms::ResultOk)
-      {
+      else if (result == mforms::ResultOk) {
         if (!save())
           return false;
-      }
-      else
+      } else
         _editor->get_editor_control()->reset_dirty();
     }
   }
 
-
   // check if there are unsaved recordset changes
   int edited_recordsets = 0;
-  for (int c = _lower_tabview.page_count(), i = 0; i < c; i++)
-  {
-    SqlEditorResult* result = dynamic_cast<SqlEditorResult*>(_lower_tabview.get_page(i));
+  for (int c = _lower_tabview.page_count(), i = 0; i < c; i++) {
+    SqlEditorResult *result = dynamic_cast<SqlEditorResult *>(_lower_tabview.get_page(i));
     if (result && result->has_pending_changes())
       edited_recordsets++;
   }
 
   int r = -999;
   if (edited_recordsets == 1)
-    r = mforms::Utilities::show_warning(_("Close SQL Tab"),
-                                        strfmt(_("An edited recordset has unsaved changes in %s.\n"
-                                                       "Would you like to save these changes, discard them or cancel closing the page?"),
-                                                     get_title().c_str()),
-                                        _("Save Changes"), _("Cancel"), _("Don't Save"));
+    r = mforms::Utilities::show_warning(
+      _("Close SQL Tab"), strfmt(_("An edited recordset has unsaved changes in %s.\n"
+                                   "Would you like to save these changes, discard them or cancel closing the page?"),
+                                 get_title().c_str()),
+      _("Save Changes"), _("Cancel"), _("Don't Save"));
   else if (edited_recordsets > 0)
-    r = mforms::Utilities::show_warning(_("Close SQL Tab"),
-                                        strfmt(_("There are %i recordsets with unsaved changes in %s.\n"
-                                                       "Would you like to save these changes, discard them or cancel closing to review them manually?"),
-                                                     edited_recordsets, get_title().c_str()),
-                                        _("Save All"), _("Cancel"), _("Don't Save"));
+    r = mforms::Utilities::show_warning(
+      _("Close SQL Tab"),
+      strfmt(_("There are %i recordsets with unsaved changes in %s.\n"
+               "Would you like to save these changes, discard them or cancel closing to review them manually?"),
+             edited_recordsets, get_title().c_str()),
+      _("Save All"), _("Cancel"), _("Don't Save"));
 
   bool success = true;
-  if (r != -999)
-  {
+  if (r != -999) {
     if (r == mforms::ResultCancel)
       success = false;
-    else
-    {
-      for (int c = _lower_tabview.page_count(), i = 0; i < c; i++)
-      {
-        SqlEditorResult* result = dynamic_cast<SqlEditorResult*>(_lower_tabview.get_page(i));
-        if (result && result->has_pending_changes())
-        {
-          try
-          {
+    else {
+      for (int c = _lower_tabview.page_count(), i = 0; i < c; i++) {
+        SqlEditorResult *result = dynamic_cast<SqlEditorResult *>(_lower_tabview.get_page(i));
+        if (result && result->has_pending_changes()) {
+          try {
             if (r == mforms::ResultOk)
               result->apply_changes();
             else
               result->discard_changes();
-          }
-          catch (const std::exception &exc)
-          {
-            if (mforms::Utilities::show_error(_("Save Changes"),
-                                              strfmt(_("An error occurred while saving changes to the recordset %s\n%s"),
-                                                     result->recordset()->caption().c_str(), exc.what()),
-                                              _("Ignore"), _("Cancel"), "") == mforms::ResultCancel)
-            {
+          } catch (const std::exception &exc) {
+            if (mforms::Utilities::show_error(
+                  _("Save Changes"), strfmt(_("An error occurred while saving changes to the recordset %s\n%s"),
+                                            result->recordset()->caption().c_str(), exc.what()),
+                  _("Ignore"), _("Cancel"), "") == mforms::ResultCancel) {
               success = false;
               break;
             }
@@ -294,8 +291,7 @@ bool SqlEditorPanel::can_close()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::apply_clicked()
-{
+void SqlEditorPanel::apply_clicked() {
   SqlEditorResult *result = active_result_panel();
   if (result)
     result->apply_changes();
@@ -303,8 +299,7 @@ void SqlEditorPanel::apply_clicked()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::revert_clicked()
-{
+void SqlEditorPanel::revert_clicked() {
   SqlEditorResult *result = active_result_panel();
   if (result)
     result->discard_changes();
@@ -312,12 +307,10 @@ void SqlEditorPanel::revert_clicked()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::resultset_edited()
-{
+void SqlEditorPanel::resultset_edited() {
   SqlEditorResult *result = active_result_panel();
   Recordset::Ref rset;
-  if (result && (rset = result->recordset()))
-  {
+  if (result && (rset = result->recordset())) {
     bool edited = rset->has_pending_changes();
     _tab_action_apply.set_enabled(edited);
     _tab_action_revert.set_enabled(edited);
@@ -329,49 +322,40 @@ void SqlEditorPanel::resultset_edited()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::splitter_resized()
-{
-  if (_lower_tabview.page_count() > 0)
-  {
+void SqlEditorPanel::splitter_resized() {
+  if (_lower_tabview.page_count() > 0) {
     bec::GRTManager::get()->set_app_option("DbSqlEditor:ResultSplitterPosition",
-                                         grt::IntegerRef(_splitter.get_divider_position()));
+                                           grt::IntegerRef(_splitter.get_divider_position()));
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
 static bool check_if_file_too_big_to_restore(const std::string &path, const std::string &file_caption,
-                                             bool allow_save_as = false)
-{
+                                             bool allow_save_as = false) {
   std::int64_t length;
-  if ((length = get_file_size(path.c_str())) > MAX_FILE_SIZE_FOR_AUTO_RESTORE)
-  {
+  if ((length = get_file_size(path.c_str())) > MAX_FILE_SIZE_FOR_AUTO_RESTORE) {
   again:
     std::string size = sizefmt(length, false);
-    int rc = mforms::Utilities::show_warning("Restore Workspace",
-                                             strfmt("The file %s has a size of %s. Are you sure you want to restore this file?",
-                                                    file_caption.c_str(), size.c_str()),
-                                             "Restore", "Skip", allow_save_as ? "Save As..." : ""
-                                             );
+    int rc = mforms::Utilities::show_warning(
+      "Restore Workspace", strfmt("The file %s has a size of %s. Are you sure you want to restore this file?",
+                                  file_caption.c_str(), size.c_str()),
+      "Restore", "Skip", allow_save_as ? "Save As..." : "");
     if (rc == mforms::ResultCancel)
       return false;
 
-    if (rc == mforms::ResultOther)
-    {
+    if (rc == mforms::ResultOther) {
       mforms::FileChooser fchooser(mforms::SaveFile);
 
       fchooser.set_title(_("Save File As..."));
-      if (fchooser.run_modal())
-      {
-        if (!copy_file(path.c_str(), fchooser.get_path().c_str()))
-        {
+      if (fchooser.run_modal()) {
+        if (!copy_file(path.c_str(), fchooser.get_path().c_str())) {
           if (mforms::Utilities::show_error("Save File",
                                             strfmt("File %s could not be saved.", fchooser.get_path().c_str()),
                                             _("Retry"), _("Cancel"), "") == mforms::ResultOk)
             goto again;
         }
-      }
-      else
+      } else
         goto again;
       return false;
     }
@@ -379,17 +363,13 @@ static bool check_if_file_too_big_to_restore(const std::string &path, const std:
   return true;
 }
 
-
 #define EDITOR_TEXT_LIMIT 100 * 1024 * 1024
 
-SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
-: word_wrap(false), show_special(false)
-{
+SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file) : word_wrap(false), show_special(false) {
   wchar_t buffer[4098] = {0};
   std::wifstream f;
   openStream(info_file, f);
-  while (f.getline(buffer, sizeof(buffer)))
-  {
+  while (f.getline(buffer, sizeof(buffer))) {
     std::string key, value;
     base::partition(base::wstring_to_string(buffer), "=", key, value);
     if (key == "orig_encoding")
@@ -411,9 +391,7 @@ SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
   }
 }
 
-
-SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_scratch(const std::string &scratch_file)
-{
+SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_scratch(const std::string &scratch_file) {
   AutoSaveInfo info;
   info.title = base::strip_extension(base::basename(scratch_file));
   if (base::is_number(info.title))
@@ -422,9 +400,7 @@ SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_scratch(const std
   return info;
 }
 
-
-SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_autosave(const std::string &autosave_file)
-{
+SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_autosave(const std::string &autosave_file) {
   char buffer[4098];
 
   AutoSaveInfo info;
@@ -438,33 +414,24 @@ SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_autosave(const st
   return info;
 }
 
-
-bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info,
-                                   const std::string &text_file)
-{
+bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info, const std::string &text_file) {
   _orig_encoding = info.orig_encoding;
   _file_timestamp = 0;
   _is_scratch = (info.type == "scratch");
 
   // there's no autosave
-  if (text_file.empty() || !base::file_exists(text_file))
-  {
-    if (!info.filename.empty() && !check_if_file_too_big_to_restore(info.filename,
-                                          strfmt("Saved editor '%s'", info.title.c_str())))
-    {
+  if (text_file.empty() || !base::file_exists(text_file)) {
+    if (!info.filename.empty() &&
+        !check_if_file_too_big_to_restore(info.filename, strfmt("Saved editor '%s'", info.title.c_str()))) {
       return false;
     }
 
     // if this was a file, try to load it
     if (!info.filename.empty() && load_from(info.filename, info.orig_encoding, false) != Loaded)
       return false;
-  }
-  else
-  {
+  } else {
     // check if autosave too big
-    if (!check_if_file_too_big_to_restore(text_file,
-                                          strfmt("Saved editor '%s'", info.title.c_str())))
-    {
+    if (!check_if_file_too_big_to_restore(text_file, strfmt("Saved editor '%s'", info.title.c_str()))) {
       return false;
     }
 
@@ -494,23 +461,22 @@ bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info,
 
 //--------------------------------------------------------------------------------------------------
 
-SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, const std::string &encoding, bool keep_dirty)
-{
+SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, const std::string &encoding,
+                                                     bool keep_dirty) {
   GError *error = NULL;
   gchar *data;
   gsize length;
   gsize file_size = base_get_file_size(file.c_str());
 
-  if (file_size > EDITOR_TEXT_LIMIT)
-  {
+  if (file_size > EDITOR_TEXT_LIMIT) {
     // File is larger than 100 MB. Tell the user we are going to switch off code folding and
     // auto completion.
-    int result = mforms::Utilities::show_warning(_("Large File"),
-                                                 strfmt(_("The file \"%s\" has a size "
-                                                          "of %.2f MB. Are you sure you want to open this large file?\n\nNote: code folding "
-                                                          "will be disabled for this file.\n\nClick Run SQL Script... to just execute the file."),
-                                                        file.c_str(), file_size / 1024.0 / 1024.0),
-                                                 _("Open"), _("Cancel"), _("Run SQL Script..."));
+    int result = mforms::Utilities::show_warning(
+      _("Large File"), strfmt(_("The file \"%s\" has a size "
+                                "of %.2f MB. Are you sure you want to open this large file?\n\nNote: code folding "
+                                "will be disabled for this file.\n\nClick Run SQL Script... to just execute the file."),
+                              file.c_str(), file_size / 1024.0 / 1024.0),
+      _("Open"), _("Cancel"), _("Run SQL Script..."));
     if (result == mforms::ResultCancel)
       return Cancelled;
     else if (result == mforms::ResultOther)
@@ -518,9 +484,8 @@ SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, co
   }
 
   _orig_encoding = encoding;
-  
-  if (!g_file_get_contents(file.c_str(), &data, &length, &error))
-  {
+
+  if (!g_file_get_contents(file.c_str(), &data, &length, &error)) {
     logError("Could not read file %s: %s\n", file.c_str(), error->message);
     std::string what = error->message;
     g_error_free(error);
@@ -529,15 +494,12 @@ SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, co
 
   char *utf8_data;
   std::string original_encoding;
-  FileCharsetDialog::Result result = FileCharsetDialog::ensure_filedata_utf8(data, length, encoding, file,
-                                                                             utf8_data, &original_encoding);
-  if (result == FileCharsetDialog::Cancelled)
-  {
+  FileCharsetDialog::Result result =
+    FileCharsetDialog::ensure_filedata_utf8(data, length, encoding, file, utf8_data, &original_encoding);
+  if (result == FileCharsetDialog::Cancelled) {
     g_free(data);
     return Cancelled;
-  }
-  else if (result == FileCharsetDialog::RunInstead)
-  {
+  } else if (result == FileCharsetDialog::RunInstead) {
     g_free(data);
     return RunInstead;
   }
@@ -553,18 +515,16 @@ SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, co
 
   g_free(utf8_data);
 
-  if (!keep_dirty)
-  {
+  if (!keep_dirty) {
     _editor->get_editor_control()->reset_dirty();
 
     _filename = file;
     _orig_encoding = original_encoding;
-    
+
     set_title(strip_extension(basename(file)));
   }
 
-  if (!file_mtime(file, _file_timestamp))
-  {
+  if (!file_mtime(file, _file_timestamp)) {
     logWarning("Can't get timestamp for %s\n", file.c_str());
     _file_timestamp = 0;
   }
@@ -573,17 +533,14 @@ SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, co
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::close()
-{
+void SqlEditorPanel::close() {
   _form->remove_sql_editor(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorPanel::save_as(const std::string &path)
-{
-  if (path.empty())
-  {
+bool SqlEditorPanel::save_as(const std::string &path) {
+  if (path.empty()) {
     mforms::FileChooser dlg(mforms::SaveFile);
 
     dlg.set_title(_("Save SQL Script"));
@@ -595,8 +552,7 @@ bool SqlEditorPanel::save_as(const std::string &path)
     _filename = dlg.get_path();
   }
 
-  if (save())
-  {
+  if (save()) {
     set_title(strip_extension(basename(_filename)));
     {
       NotificationInfo info;
@@ -611,25 +567,22 @@ bool SqlEditorPanel::save_as(const std::string &path)
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorPanel::save()
-{
+bool SqlEditorPanel::save() {
   if (_filename.empty())
     return save_as("");
 
-  GError *error= NULL;
+  GError *error = NULL;
 
   // File extension check is already done in FileChooser.
 
   bec::GRTManager::get()->replace_status_text(strfmt(_("Saving SQL script to '%s'..."), _filename.c_str()));
 
-  std::pair<const char*, size_t> text = text_data();
-  if (!g_file_set_contents(_filename.c_str(), text.first, text.second, &error))
-  {
+  std::pair<const char *, size_t> text = text_data();
+  if (!g_file_set_contents(_filename.c_str(), text.first, text.second, &error)) {
     logError("Could not save script %s: %s\n", _filename.c_str(), error->message);
     bec::GRTManager::get()->replace_status_text(strfmt(_("Error saving SQL script to '%s'."), _filename.c_str()));
 
-    mforms::Utilities::show_error(strfmt(_("Error writing file %s"), _filename.c_str()),
-                                  error->message, _("OK"));
+    mforms::Utilities::show_error(strfmt(_("Error writing file %s"), _filename.c_str()), error->message, _("OK"));
     g_error_free(error);
     return false;
   }
@@ -651,11 +604,9 @@ bool SqlEditorPanel::save()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::revert_to_saved()
-{
+void SqlEditorPanel::revert_to_saved() {
   _editor->sql("");
-  if (load_from(_filename, _orig_encoding) == Loaded)
-  {
+  if (load_from(_filename, _orig_encoding) == Loaded) {
     {
       NotificationInfo info;
       info["opener"] = "SqlEditorForm";
@@ -669,15 +620,13 @@ void SqlEditorPanel::revert_to_saved()
 
 //--------------------------------------------------------------------------------------------------
 
-std::string SqlEditorPanel::autosave_file_suffix()
-{
+std::string SqlEditorPanel::autosave_file_suffix() {
   return _autosave_file_suffix;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::auto_save(const std::string &path)
-{
+void SqlEditorPanel::auto_save(const std::string &path) {
   // save info about the file
   {
     std::wofstream f;
@@ -688,8 +637,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
     else
       content += "type=file\n";
 
-    if (!_is_scratch && !_filename.empty())
-    {
+    if (!_is_scratch && !_filename.empty()) {
       content += "filename=" + _filename + "\n";
     }
     content += "orig_encoding=" + _orig_encoding + "\n";
@@ -716,33 +664,26 @@ void SqlEditorPanel::auto_save(const std::string &path)
     f.close();
   }
 
-  std::string fn = base::makePath(path, _autosave_file_suffix+".scratch");
+  std::string fn = base::makePath(path, _autosave_file_suffix + ".scratch");
 
   // only save editor contents for scratch areas and unsaved editors
-  if (_is_scratch || _filename.empty() || (!_filename.empty() && is_dirty()))
-  {
+  if (_is_scratch || _filename.empty() || (!_filename.empty() && is_dirty())) {
     // We don't need to lock the editor as we are in the main thread here
     // and directly set the file content without detouring to anything that could change the text.
     GError *error = 0;
 
-    std::pair<const char*, size_t> text = text_data();
-    if (!g_file_set_contents(fn.c_str(), text.first, text.second, &error))
-    {
+    std::pair<const char *, size_t> text = text_data();
+    if (!g_file_set_contents(fn.c_str(), text.first, text.second, &error)) {
       logError("Could not save snapshot of editor contents to %s: %s\n", fn.c_str(), error->message);
       std::string msg(strfmt("Could not save snapshot of editor contents to %s: %s", fn.c_str(), error->message));
       g_error_free(error);
       throw std::runtime_error(msg);
     }
-  }
-  else
-  {
+  } else {
     // delete the autosave file if the file was saved
-    try
-    {
+    try {
       base::remove(fn);
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
       logWarning("Error deleting autosave file %s: %s\n", fn.c_str(), e.what());
     }
   }
@@ -750,25 +691,25 @@ void SqlEditorPanel::auto_save(const std::string &path)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::delete_auto_save(const std::string &path)
-{
+void SqlEditorPanel::delete_auto_save(const std::string &path) {
   // delete the autosave related files
-  try
-  {
-    base::remove(base::makePath(path, _autosave_file_suffix+".autosave"));
-  } catch (std::exception &exc) { logWarning("Could not delete auto-save file: %s\n", exc.what()); }
-  try
-  {
-    base::remove(base::makePath(path, _autosave_file_suffix+".info"));
-  } catch (std::exception &exc) { logWarning("Could not delete auto-save file: %s\n", exc.what()); }
+  try {
+    base::remove(base::makePath(path, _autosave_file_suffix + ".autosave"));
+  } catch (std::exception &exc) {
+    logWarning("Could not delete auto-save file: %s\n", exc.what());
+  }
+  try {
+    base::remove(base::makePath(path, _autosave_file_suffix + ".info"));
+  } catch (std::exception &exc) {
+    logWarning("Could not delete auto-save file: %s\n", exc.what());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 
 // Toolbar handling.
 
-void SqlEditorPanel::show_find_panel(mforms::CodeEditor *editor, bool show)
-{
+void SqlEditorPanel::show_find_panel(mforms::CodeEditor *editor, bool show) {
   mforms::FindPanel *panel = editor->get_find_panel();
   if (show && !panel->get_parent())
     _editor_box.add(panel, false, true);
@@ -777,15 +718,13 @@ void SqlEditorPanel::show_find_panel(mforms::CodeEditor *editor, bool show)
 
 //--------------------------------------------------------------------------------------------------
 
-static void toggle_continue_on_error(SqlEditorForm *sql_editor_form)
-{
+static void toggle_continue_on_error(SqlEditorForm *sql_editor_form) {
   sql_editor_form->continue_on_error(!sql_editor_form->continue_on_error());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
-{
+mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar() {
   mforms::ToolBar *tbar(mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar)));
 #ifdef _WIN32
   tbar->set_size(-1, 27);
@@ -796,14 +735,17 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.openFile");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_open.png"));
   item->set_tooltip(_("Open a script file in this editor"));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind((void (SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, _form, "", false, true));
+  bec::UIForm::scoped_connect(
+    item->signal_activated(),
+    std::bind((void (SqlEditorForm::*)(const std::string &, bool, bool)) & SqlEditorForm::open_file, _form, "", false,
+              true));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.saveFile");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_save.png"));
   item->set_tooltip(_("Save the script to a file."));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorPanel::save, this));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorPanel::save, this));
   tbar->add_item(item);
 
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
@@ -812,28 +754,30 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.execute");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_execute.png"));
   item->set_tooltip(_("Execute the selected portion of the script or everything, if there is no selection"));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::run_editor_contents, _form, false));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorForm::run_editor_contents, _form, false));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.execute_current_statement");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_execute-current.png"));
   item->set_tooltip(_("Execute the statement under the keyboard cursor"));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::run_editor_contents, _form, true));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorForm::run_editor_contents, _form, true));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.explain_current_statement");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_explain.png"));
   item->set_tooltip(_("Execute the EXPLAIN command on the statement under the cursor"));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::explain_current_statement, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorForm::explain_current_statement, _form));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.cancel");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop.png"));
-  item->set_tooltip(_("Stop the query being executed (the connection to the DB server will not be restarted and any open transactions will remain open)"));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::cancel_query, _form));
+  item->set_tooltip(
+    _("Stop the query being executed (the connection to the DB server will not be restarted and any open transactions "
+      "will remain open)"));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorForm::cancel_query, _form));
   tbar->add_item(item);
 
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
@@ -843,7 +787,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-off.png"));
   item->set_tooltip(_("Toggle whether execution of SQL script should continue after failed statements"));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(toggle_continue_on_error, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(toggle_continue_on_error, _form));
 
   tbar->add_item(item);
 
@@ -852,30 +796,38 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.commit");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_commit.png"));
-  item->set_tooltip(_("Commit the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::commit, _form));
+  item->set_tooltip(
+    _("Commit the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To "
+      "have independent transactions, you must open a new connection."));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorForm::commit, _form));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("query.rollback");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_rollback.png"));
-  item->set_tooltip(_("Rollback the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::rollback, _form));
+  item->set_tooltip(
+    _("Rollback the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To "
+      "have independent transactions, you must open a new connection."));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorForm::rollback, _form));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
   item->set_name("query.autocommit");
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_autocommit-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_autocommit-off.png"));
-  item->set_tooltip(_("Toggle autocommit mode. When enabled, each statement will be committed immediately.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::toggle_autocommit, _form));
+  item->set_tooltip(_(
+    "Toggle autocommit mode. When enabled, each statement will be committed immediately.\nNOTE: all query tabs in the "
+    "same connection share the same transaction. To have independent transactions, you must open a new connection."));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorForm::toggle_autocommit, _form));
   tbar->add_item(item);
 
   tbar->add_separator_item();
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
   item->set_name("limit_rows");
-  item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbench will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
+  item->set_tooltip(
+    _("Set limit for number of rows returned by queries.\nWorkbench will automatically add the LIMIT clause with the "
+      "configured number of rows to SELECT queries."));
   bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorPanel::limit_rows, this, item));
   tbar->add_item(item);
 
@@ -885,7 +837,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("add_snippet");
   item->set_icon(IconManager::get_instance()->get_icon_path("snippet_add.png"));
   item->set_tooltip(_("Save current statement or selection to the snippet list."));
-  bec::UIForm::scoped_connect(item->signal_activated(),std::bind(&SqlEditorForm::save_snippet, _form));
+  bec::UIForm::scoped_connect(item->signal_activated(), std::bind(&SqlEditorForm::save_snippet, _form));
   tbar->add_item(item);
 
   tbar->add_separator_item();
@@ -900,22 +852,18 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::limit_rows(mforms::ToolBarItem *item)
-{
+void SqlEditorPanel::limit_rows(mforms::ToolBarItem *item) {
   _form->limit_rows(item->get_text());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::update_limit_rows()
-{
+void SqlEditorPanel::update_limit_rows() {
   mforms::MenuItem *mitem = _form->get_menubar()->find_item("limit_rows");
   std::string selected;
   std::vector<std::string> items;
-  for (int i = 0; i < mitem->item_count(); i++)
-  {
-    if (!mitem->get_item(i)->get_title().empty())
-    {
+  for (int i = 0; i < mitem->item_count(); i++) {
+    if (!mitem->get_item(i)->get_title().empty()) {
       items.push_back(mitem->get_item(i)->get_title());
       if (mitem->get_item(i)->get_checked())
         selected = items.back();
@@ -929,40 +877,34 @@ void SqlEditorPanel::update_limit_rows()
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::ToolBar *SqlEditorPanel::get_toolbar()
-{
+mforms::ToolBar *SqlEditorPanel::get_toolbar() {
   return _editor->get_toolbar();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorPanel::is_dirty() const
-{
+bool SqlEditorPanel::is_dirty() const {
   return _editor->get_editor_control()->is_dirty();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::check_external_file_changes()
-{
+void SqlEditorPanel::check_external_file_changes() {
   time_t ts;
-  if (!_filename.empty() && file_mtime(_filename, ts))
-  {
-    if (ts > _file_timestamp)
-    {
+  if (!_filename.empty() && file_mtime(_filename, ts)) {
+    if (ts > _file_timestamp) {
       // File was changed externally. For now we ignore local changes if the user chooses to reload.
-      std::string connection_description = _form->connection_descriptor().is_valid() ?
-          strfmt("(from connection to %s) ", _form->connection_descriptor()->name().c_str()) : "";
+      std::string connection_description =
+        _form->connection_descriptor().is_valid()
+          ? strfmt("(from connection to %s) ", _form->connection_descriptor()->name().c_str())
+          : "";
       if (mforms::Utilities::show_warning("File Changed",
-                                          strfmt(_("File %s %swas changed from outside MySQL Workbench.\nWould you like to discard your changes and reload it?"),
-                                                       _filename.c_str(), connection_description.c_str()),
-                                          "Reload File", "Ignore", "") == mforms::ResultOk
-          )
-      {
+                                          strfmt(_("File %s %swas changed from outside MySQL Workbench.\nWould you "
+                                                   "like to discard your changes and reload it?"),
+                                                 _filename.c_str(), connection_description.c_str()),
+                                          "Reload File", "Ignore", "") == mforms::ResultOk) {
         revert_to_saved();
-      }
-      else
-      {
+      } else {
         _file_timestamp = ts;
       }
     }
@@ -971,15 +913,13 @@ void SqlEditorPanel::check_external_file_changes()
 
 //--------------------------------------------------------------------------------------------------
 
-std::pair<const char*, std::size_t> SqlEditorPanel::text_data() const
-{
+std::pair<const char *, std::size_t> SqlEditorPanel::text_data() const {
   return _editor->text_ptr();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::set_title(const std::string &title)
-{
+void SqlEditorPanel::set_title(const std::string &title) {
   _title = title;
   grtobj()->name(_title);
   mforms::AppView::set_title(title);
@@ -987,8 +927,7 @@ void SqlEditorPanel::set_title(const std::string &title)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::set_filename(const std::string &filename)
-{
+void SqlEditorPanel::set_filename(const std::string &filename) {
   _filename = filename;
   if (!filename.empty())
     set_title(strip_extension(basename(filename)));
@@ -996,10 +935,9 @@ void SqlEditorPanel::set_filename(const std::string &filename)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::update_title()
-{
+void SqlEditorPanel::update_title() {
   if (!_is_scratch)
-    mforms::AppView::set_title(_title+(is_dirty() ? "*" : ""));
+    mforms::AppView::set_title(_title + (is_dirty() ? "*" : ""));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1008,23 +946,20 @@ void SqlEditorPanel::update_title()
  * Starts the auto completion list in the currently active editor. The content of this list is
  * determined from various sources + the current query context.
  */
-void SqlEditorPanel::list_members()
-{
+void SqlEditorPanel::list_members() {
   if (owner()->work_parser_context() != NULL)
     editor_be()->show_auto_completion(false, owner()->work_parser_context());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::jump_to_placeholder()
-{
+void SqlEditorPanel::jump_to_placeholder() {
   _editor->get_editor_control()->jump_to_next_placeholder();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::query_started(bool retain_old_recordsets)
-{
+void SqlEditorPanel::query_started(bool retain_old_recordsets) {
   _busy = true;
 
   _form->set_busy_tab(_form->sql_editor_panel_index(this));
@@ -1035,14 +970,11 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets)
   // if we're already running the query, it's obvious there's no more need to autocomplete what we typed
   _editor->cancel_auto_completion();
 
-  if (!retain_old_recordsets)
-  {
+  if (!retain_old_recordsets) {
     // close recordsets that were opened previously (unless they're pinned or something)
-    for (int i = _lower_tabview.page_count() - 1; i >= 0; --i)
-    {
-      SqlEditorResult *result = dynamic_cast<SqlEditorResult*>(_lower_tabview.get_page(i));
-      if (result)
-      {
+    for (int i = _lower_tabview.page_count() - 1; i >= 0; --i) {
+      SqlEditorResult *result = dynamic_cast<SqlEditorResult *>(_lower_tabview.get_page(i));
+      if (result) {
         if (result->pinned())
           continue;
 
@@ -1051,8 +983,7 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets)
 
         // make sure that the result is docked here
         int i = _lower_tabview.get_page_index(result);
-        if (i >= 0)
-        {
+        if (i >= 0) {
           result->close();
           result_removed();
         }
@@ -1065,8 +996,7 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::query_finished()
-{
+void SqlEditorPanel::query_finished() {
   _busy = false;
 
   _form->set_busy_tab(-1);
@@ -1077,8 +1007,7 @@ void SqlEditorPanel::query_finished()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::query_failed(const std::string &message)
-{
+void SqlEditorPanel::query_failed(const std::string &message) {
   logError("Unhandled error during query: %s\n", message.c_str());
   _busy = false;
 
@@ -1092,27 +1021,22 @@ void SqlEditorPanel::query_failed(const std::string &message)
 
 // Resultset management.
 
-SqlEditorResult *SqlEditorPanel::active_result_panel()
-{
+SqlEditorResult *SqlEditorPanel::active_result_panel() {
   return result_panel(_lower_tabview.get_active_tab());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::lower_tab_switched()
-{
+void SqlEditorPanel::lower_tab_switched() {
   _lower_dock.view_switched();
 
   db_query_QueryEditorRef qeditor(grtobj());
   SqlEditorResult *result = active_result_panel();
   Recordset::Ref rset;
-  if (result && (rset = result->recordset()))
-  {
+  if (result && (rset = result->recordset())) {
     bool found = false;
-    for (size_t c = qeditor->resultPanels().count(), i = 0; i < c; i++)
-    {
-      if (mforms_from_grt(qeditor->resultPanels()[i]->dockingPoint()) == result->dock())
-      {
+    for (size_t c = qeditor->resultPanels().count(), i = 0; i < c; i++) {
+      if (mforms_from_grt(qeditor->resultPanels()[i]->dockingPoint()) == result->dock()) {
         found = true;
         qeditor->activeResultPanel(qeditor->resultPanels()[i]);
         break;
@@ -1129,14 +1053,11 @@ void SqlEditorPanel::lower_tab_switched()
     bool edited = result->has_pending_changes();
     _tab_action_apply.set_enabled(edited);
     _tab_action_revert.set_enabled(edited);
-    if (readonly)
-    {
+    if (readonly) {
       _tab_action_info.set_tooltip(rset->readonly_reason());
       _tab_action_icon.set_tooltip(rset->readonly_reason());
     }
-  }
-  else
-  {
+  } else {
     qeditor->activeResultPanel(db_query_ResultPanelRef());
 
     _tab_action_apply.show(true);
@@ -1153,9 +1074,8 @@ void SqlEditorPanel::lower_tab_switched()
 #endif
 
   mforms::MenuBar *menu;
-  if ((menu = _form->get_menubar()))
-  {
-    Recordset::Ref rset(result ? result->recordset(): Recordset::Ref());
+  if ((menu = _form->get_menubar())) {
+    Recordset::Ref rset(result ? result->recordset() : Recordset::Ref());
 
     menu->set_item_enabled("query.save_edits", rset && rset->has_pending_changes());
     menu->set_item_enabled("query.discard_edits", rset && rset->has_pending_changes());
@@ -1174,11 +1094,9 @@ void SqlEditorPanel::lower_tab_switched()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
-{
+void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr) {
   Recordset::Ref rs(rs_ptr.lock());
-  if (rs)
-  {
+  if (rs) {
     grt::DictRef info(true);
 
     std::vector<int> selection(rs->selected_rows());
@@ -1191,15 +1109,12 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
     info.set("menu", mforms_to_grt(rs->get_context_menu()));
 
     db_query_QueryBufferRef qbuffer(grtobj());
-    if (qbuffer.is_valid() && db_query_QueryEditorRef::can_wrap(qbuffer))
-    {
+    if (qbuffer.is_valid() && db_query_QueryEditorRef::can_wrap(qbuffer)) {
       db_query_QueryEditorRef qeditor(db_query_QueryEditorRef::cast_from(qbuffer));
-      for (size_t c = qeditor->resultPanels().count(), i = 0; i < c; i++)
-      {
+      for (size_t c = qeditor->resultPanels().count(), i = 0; i < c; i++) {
         db_query_ResultsetRef rset(qeditor->resultPanels()[i]->resultset());
 
-        if (rset.is_valid() && dynamic_cast<WBRecordsetResultset*>(rset->get_data())->recordset == rs)
-        {
+        if (rset.is_valid() && dynamic_cast<WBRecordsetResultset *>(rset->get_data())->recordset == rs) {
           grt::GRTNotificationCenter::get()->send_grt("GRNSQLResultsetMenuWillShow", rset, info);
           break;
         }
@@ -1208,14 +1123,12 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
   }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 
 /**
  *	Returns the number of all docked result panels in the editor panel.
  */
-size_t SqlEditorPanel::result_panel_count()
-{
+size_t SqlEditorPanel::result_panel_count() {
   return _lower_tabview.page_count();
 }
 
@@ -1225,39 +1138,33 @@ size_t SqlEditorPanel::result_panel_count()
 *	Returns the number of all docked resultset panels in the editor panel.
 *	That excludes all the explain, spatial etc. panels.
 */
-size_t SqlEditorPanel::resultset_count()
-{
+size_t SqlEditorPanel::resultset_count() {
   return grtobj()->resultPanels().count();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-SqlEditorResult *SqlEditorPanel::result_panel(int i)
-{
+SqlEditorResult *SqlEditorPanel::result_panel(int i) {
   if (i >= 0 && i < _lower_tabview.page_count())
-    return dynamic_cast<SqlEditorResult*>(_lower_tabview.get_page(i));
+    return dynamic_cast<SqlEditorResult *>(_lower_tabview.get_page(i));
   return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
-{
-  if (bec::GRTManager::get()->in_main_thread())
-  {
-    SqlEditorForm::RecordsetData *rdata = dynamic_cast<SqlEditorForm::RecordsetData*>(rset->client_data());
-    
+void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset) {
+  if (bec::GRTManager::get()->in_main_thread()) {
+    SqlEditorForm::RecordsetData *rdata = dynamic_cast<SqlEditorForm::RecordsetData *>(rset->client_data());
+
     rdata->result_panel = add_panel_for_recordset(rset);
-  }
-  else
-    bec::GRTManager::get()->run_once_when_idle(dynamic_cast<bec::UIForm*>(this),
-      std::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
+  } else
+    bec::GRTManager::get()->run_once_when_idle(
+      dynamic_cast<bec::UIForm *>(this), std::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
-{
+SqlEditorResult *SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset) {
   SqlEditorResult *result = mforms::manage(new SqlEditorResult(this));
   if (rset)
     result->set_recordset(rset);
@@ -1268,8 +1175,7 @@ SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
-{
+void SqlEditorPanel::dock_result_panel(SqlEditorResult *result) {
   result->grtobj()->owner(grtobj());
   grtobj()->resultPanels().insert(result->grtobj());
 
@@ -1279,8 +1185,7 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
   _lower_dock.dock_view(result);
   _lower_dock.select_view(result);
   _splitter.set_expanded(false, true);
-  if (_was_empty)
-  {
+  if (_was_empty) {
     int position = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
@@ -1297,9 +1202,8 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
-{
-  if (from == to || dynamic_cast<SqlEditorResult*>(view) == NULL)
+void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to) {
+  if (from == to || dynamic_cast<SqlEditorResult *>(view) == NULL)
     return;
 
   // not all tabs will have a SqlEditorResult
@@ -1308,17 +1212,15 @@ void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
   // relative result object order changes always mean that a tab was reordered, but the other way around is
   // not always true
 
-  size_t from_index = grtobj()->resultPanels().get_index(dynamic_cast<SqlEditorResult*>(view)->grtobj());
-  if (from_index == grt::BaseListRef::npos)
-  {
+  size_t from_index = grtobj()->resultPanels().get_index(dynamic_cast<SqlEditorResult *>(view)->grtobj());
+  if (from_index == grt::BaseListRef::npos) {
     logFatal("Result panel is not in resultPanels() list\n");
     return;
   }
 
   // first build an array of result panel objects, in the same order as the tabview
   std::vector<std::pair<db_query_ResultPanelRef, int> > panels;
-  for (int result_order = 0, i = 0; i < _lower_tabview.page_count(); i++)
-  {
+  for (int result_order = 0, i = 0; i < _lower_tabview.page_count(); i++) {
     SqlEditorResult *p = result_panel(i);
     if (p)
       panels.push_back(std::make_pair(p->grtobj(), result_order++));
@@ -1328,30 +1230,22 @@ void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
 
   int to_index = -1;
   // now find out where we have to move to
-  if (from < to)
-  {
-    for (int i = to; i > from; i--)
-    {
-      if (panels[i].first.is_valid())
-      {
+  if (from < to) {
+    for (int i = to; i > from; i--) {
+      if (panels[i].first.is_valid()) {
+        to_index = panels[i].second;
+        break;
+      }
+    }
+  } else {
+    for (int i = to; i < from; i++) {
+      if (panels[i].first.is_valid()) {
         to_index = panels[i].second;
         break;
       }
     }
   }
-  else
-  {
-    for (int i = to; i < from; i++)
-    {
-      if (panels[i].first.is_valid())
-      {
-        to_index = panels[i].second;
-        break;
-      }
-    }
-  }
-  if (to_index < 0)
-  {
+  if (to_index < 0) {
     logFatal("Unable to find suitable target index for reorder\n");
     return;
   }
@@ -1361,13 +1255,10 @@ void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorPanel::lower_tab_closing(int tab)
-{
+bool SqlEditorPanel::lower_tab_closing(int tab) {
   mforms::AppView *view = _lower_dock.view_at_index(tab);
-  if (view)
-  {
-    if (view->on_close())
-    {
+  if (view) {
+    if (view->on_close()) {
       view->close();
       result_removed();
       return true;
@@ -1379,11 +1270,9 @@ bool SqlEditorPanel::lower_tab_closing(int tab)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::lower_tab_closed(mforms::View *page, int tab)
-{
-  SqlEditorResult* rpage = dynamic_cast<SqlEditorResult*>(page);
-  if (rpage)
-  {
+void SqlEditorPanel::lower_tab_closed(mforms::View *page, int tab) {
+  SqlEditorResult *rpage = dynamic_cast<SqlEditorResult *>(page);
+  if (rpage) {
     db_query_ResultPanelRef closed_panel(rpage->grtobj());
     grtobj()->resultPanels().remove_value(closed_panel);
     if (closed_panel->resultset().is_valid())
@@ -1394,8 +1283,7 @@ void SqlEditorPanel::lower_tab_closed(mforms::View *page, int tab)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::result_removed()
-{
+void SqlEditorPanel::result_removed() {
   if (_lower_tabview.page_count() == 0)
     _splitter.set_expanded(false, false);
   lower_tab_switched();
@@ -1403,12 +1291,10 @@ void SqlEditorPanel::result_removed()
 
 //--------------------------------------------------------------------------------------------------
 
-std::list<SqlEditorResult*> SqlEditorPanel::dirty_result_panels()
-{
-  std::list<SqlEditorResult*> results;
+std::list<SqlEditorResult *> SqlEditorPanel::dirty_result_panels() {
+  std::list<SqlEditorResult *> results;
 
-  for (int c = _lower_tabview.page_count(), i = 0; i < c; i++)
-  {
+  for (int c = _lower_tabview.page_count(), i = 0; i < c; i++) {
     SqlEditorResult *result = result_panel(i);
     if (result && result->has_pending_changes())
       results.push_back(result);
@@ -1418,8 +1304,7 @@ std::list<SqlEditorResult*> SqlEditorPanel::dirty_result_panels()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::tab_menu_will_show()
-{
+void SqlEditorPanel::tab_menu_will_show() {
   SqlEditorResult *result(result_panel(_lower_tabview.get_menu_tab()));
 
   _lower_tab_menu.set_item_enabled("rename", result != NULL);
@@ -1434,22 +1319,20 @@ void SqlEditorPanel::tab_menu_will_show()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::rename_tab_clicked()
-{
+void SqlEditorPanel::rename_tab_clicked() {
   int tab = _lower_tabview.get_menu_tab();
   SqlEditorResult *result = result_panel(tab);
-  if (result)
-  {
+  if (result) {
     std::string title;
-    if (mforms::Utilities::request_input(_("Rename Result Tab"), "Enter a new name for the result tab:", result->caption().c_str(), title))
+    if (mforms::Utilities::request_input(_("Rename Result Tab"), "Enter a new name for the result tab:",
+                                         result->caption().c_str(), title))
       _lower_tabview.set_tab_title(tab, title);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::pin_tab_clicked()
-{
+void SqlEditorPanel::pin_tab_clicked() {
   int tab = _lower_tabview.get_menu_tab();
   SqlEditorResult *result = result_panel(tab);
   if (result)
@@ -1458,8 +1341,7 @@ void SqlEditorPanel::pin_tab_clicked()
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorPanel::is_pinned(int tab)
-{
+bool SqlEditorPanel::is_pinned(int tab) {
   SqlEditorResult *result = result_panel(tab);
   if (result)
     return result->pinned();
@@ -1468,8 +1350,7 @@ bool SqlEditorPanel::is_pinned(int tab)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::tab_pinned(int tab, bool flag)
-{
+void SqlEditorPanel::tab_pinned(int tab, bool flag) {
   SqlEditorResult *result = result_panel(tab);
   if (result)
     result->set_pinned(flag);
@@ -1477,18 +1358,15 @@ void SqlEditorPanel::tab_pinned(int tab, bool flag)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::close_tab_clicked()
-{
+void SqlEditorPanel::close_tab_clicked() {
   lower_tab_closing(_lower_tabview.get_menu_tab());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::close_other_tabs_clicked()
-{
+void SqlEditorPanel::close_other_tabs_clicked() {
   int tab = _lower_tabview.get_menu_tab();
-  for (int i = _lower_tabview.page_count() - 1; i >= 0; --i)
-  {
+  for (int i = _lower_tabview.page_count() - 1; i >= 0; --i) {
     if (i != tab)
       lower_tab_closing(i);
   }

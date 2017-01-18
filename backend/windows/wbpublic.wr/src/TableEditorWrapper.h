@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,196 +25,196 @@
 #include "recordset_wr.h"
 
 namespace MySQL {
-namespace Grt {
-namespace Db {
+  namespace Grt {
+    namespace Db {
 
-ref class TableEditorWrapper;
-ref class IndexListWrapper;
-ref class FKConstraintListWrapper;
+      ref class TableEditorWrapper;
+      ref class IndexListWrapper;
+      ref class FKConstraintListWrapper;
 
-public ref class TableColumnsListWrapper : public MySQL::Grt::ListModelWrapper
-{
-public:
-  enum class ColumnListColumns {
-    Name = bec::TableColumnsListBE::Name,
-    Type = bec::TableColumnsListBE::Type,
-    IsPK = bec::TableColumnsListBE::IsPK,
-    IsNotNull = bec::TableColumnsListBE::IsNotNull,
-    IsUnique = bec::TableColumnsListBE::IsUnique,
-    IsBinary = bec::TableColumnsListBE::IsBinary,
-    IsUnsigned = bec::TableColumnsListBE::IsUnsigned,
-    IsZerofill = bec::TableColumnsListBE::IsZerofill,
-    Flags = bec::TableColumnsListBE::Flags,
-    Default = bec::TableColumnsListBE::Default,
-    Charset = bec::TableColumnsListBE::Charset,
-    Collation = bec::TableColumnsListBE::Collation,
-    HasCharset = bec::TableColumnsListBE::HasCharset,
-    Comment = bec::TableColumnsListBE::Comment,
-    LastColumn = bec::TableColumnsListBE::LastColumn
-  };
+    public
+      ref class TableColumnsListWrapper : public MySQL::Grt::ListModelWrapper {
+      public:
+        enum class ColumnListColumns {
+          Name = bec::TableColumnsListBE::Name,
+          Type = bec::TableColumnsListBE::Type,
+          IsPK = bec::TableColumnsListBE::IsPK,
+          IsNotNull = bec::TableColumnsListBE::IsNotNull,
+          IsUnique = bec::TableColumnsListBE::IsUnique,
+          IsBinary = bec::TableColumnsListBE::IsBinary,
+          IsUnsigned = bec::TableColumnsListBE::IsUnsigned,
+          IsZerofill = bec::TableColumnsListBE::IsZerofill,
+          Flags = bec::TableColumnsListBE::Flags,
+          Default = bec::TableColumnsListBE::Default,
+          Charset = bec::TableColumnsListBE::Charset,
+          Collation = bec::TableColumnsListBE::Collation,
+          HasCharset = bec::TableColumnsListBE::HasCharset,
+          Comment = bec::TableColumnsListBE::Comment,
+          LastColumn = bec::TableColumnsListBE::LastColumn
+        };
 
-  TableColumnsListWrapper(bec::TableColumnsListBE *inn);
+        TableColumnsListWrapper(bec::TableColumnsListBE *inn);
 
-  List<String^>^ get_datatype_names()
-  {
-    return CppStringListToNative(get_unmanaged_object()->get_datatype_names());
-  }
+        List<String ^> ^
+          get_datatype_names() { return CppStringListToNative(get_unmanaged_object()->get_datatype_names()); }
 
+          inline bec::TableColumnsListBE *get_unmanaged_object() {
+          return static_cast<bec::TableColumnsListBE *>(inner);
+        }
 
-  inline bec::TableColumnsListBE *get_unmanaged_object()
-  { return static_cast<bec::TableColumnsListBE *>(inner); }
+        void reorder_many(List<int> ^ rows, int nindex);
+      };
 
-  void reorder_many(List<int> ^rows, int nindex);
-};
+    public
+      ref class IndexColumnsListWrapper : public ListModelWrapper {
+      public:
+        enum class IndexColumnsListColumns {
+          Name = bec::IndexColumnsListBE::Name,
+          Descending = bec::IndexColumnsListBE::Descending,
+          Length = bec::IndexColumnsListBE::Length,
+          OrderIndex = bec::IndexColumnsListBE::OrderIndex
+        };
 
-public ref class IndexColumnsListWrapper : public ListModelWrapper
-{
-public:
-  enum class IndexColumnsListColumns {
-      Name = bec::IndexColumnsListBE::Name,
-      Descending = bec::IndexColumnsListBE::Descending,
-      Length = bec::IndexColumnsListBE::Length,
-      OrderIndex = bec::IndexColumnsListBE::OrderIndex
-  };
-  
-  IndexColumnsListWrapper(IndexListWrapper^ owner);
+        IndexColumnsListWrapper(IndexListWrapper ^ owner);
 
-  IndexColumnsListWrapper(bec::IndexColumnsListBE *inn);
+        IndexColumnsListWrapper(bec::IndexColumnsListBE *inn);
 
-  inline bec::IndexColumnsListBE *get_unmanaged_object()
-  { return static_cast<bec::IndexColumnsListBE *>(inner); }
+        inline bec::IndexColumnsListBE *get_unmanaged_object() {
+          return static_cast<bec::IndexColumnsListBE *>(inner);
+        }
 
-  void set_column_enabled(NodeIdWrapper^ node, bool flag);
-  bool get_column_enabled(NodeIdWrapper^ node);
+        void set_column_enabled(NodeIdWrapper ^ node, bool flag);
+        bool get_column_enabled(NodeIdWrapper ^ node);
 
-  int get_max_order_index();
-};
+        int get_max_order_index();
+      };
 
-public ref class IndexListWrapper : public ListModelWrapper
-{ 
-public:
-  enum class IndexListColumns {
-      Name = bec::IndexListBE::Name,
-      Type = bec::IndexListBE::Type,
-      Comment = bec::IndexListBE::Comment
-  };
-  
-  IndexListWrapper(TableEditorWrapper^ owner);
+    public
+      ref class IndexListWrapper : public ListModelWrapper {
+      public:
+        enum class IndexListColumns {
+          Name = bec::IndexListBE::Name,
+          Type = bec::IndexListBE::Type,
+          Comment = bec::IndexListBE::Comment
+        };
 
-  IndexListWrapper(bec::IndexListBE *inn);
+        IndexListWrapper(TableEditorWrapper ^ owner);
 
-  inline bec::IndexListBE *get_unmanaged_object()
-  { return static_cast<bec::IndexListBE *>(inner); }
-    
-  IndexColumnsListWrapper^ get_columns();
-  
-  //db_Index get_selected_index();
-  void select_index(NodeIdWrapper^ node);
+        IndexListWrapper(bec::IndexListBE *inn);
 
-  // cannot create a wrapper instance here
-  //TableEditorWrapper *get_owner() { return _owner; }
-};
+        inline bec::IndexListBE *get_unmanaged_object() {
+          return static_cast<bec::IndexListBE *>(inner);
+        }
 
-public ref class FKConstraintColumnsListWrapper : public ListModelWrapper
-{
-public:
-  enum class FKConstraintColumnsListColumns {
-    Enabled = bec::FKConstraintColumnsListBE::Enabled,
-    Column = bec::FKConstraintColumnsListBE::Column,
-    RefColumn = bec::FKConstraintColumnsListBE::RefColumn
-  };
-  
-  FKConstraintColumnsListWrapper(FKConstraintListWrapper^ owner);
+        IndexColumnsListWrapper ^ get_columns();
 
-  FKConstraintColumnsListWrapper(bec::FKConstraintColumnsListBE *inn);
+        // db_Index get_selected_index();
+        void select_index(NodeIdWrapper ^ node);
 
-  inline bec::FKConstraintColumnsListBE *get_unmanaged_object()
-  { return static_cast<bec::FKConstraintColumnsListBE *>(inner); }
+        // cannot create a wrapper instance here
+        // TableEditorWrapper *get_owner() { return _owner; }
+      };
 
-  List<String^>^ get_ref_columns_list(NodeIdWrapper ^node, bool filtered);
+    public
+      ref class FKConstraintColumnsListWrapper : public ListModelWrapper {
+      public:
+        enum class FKConstraintColumnsListColumns {
+          Enabled = bec::FKConstraintColumnsListBE::Enabled,
+          Column = bec::FKConstraintColumnsListBE::Column,
+          RefColumn = bec::FKConstraintColumnsListBE::RefColumn
+        };
 
-  bool set_column_is_fk(NodeIdWrapper^ node, bool flag);
-  bool get_column_is_fk(NodeIdWrapper^ node);
-};
+        FKConstraintColumnsListWrapper(FKConstraintListWrapper ^ owner);
 
-public ref class FKConstraintListWrapper : public ListModelWrapper
-{
-public:
-  enum class FKConstraintListColumns {
-      Name = bec::FKConstraintListBE::Name,
-      OnDelete = bec::FKConstraintListBE::OnDelete,
-      OnUpdate = bec::FKConstraintListBE::OnUpdate,
-      RefTable = bec::FKConstraintListBE::RefTable,
-      Comment = bec::FKConstraintListBE::Comment,
-      Index = bec::FKConstraintListBE::Index,
-      ModelOnly = bec::FKConstraintListBE::ModelOnly,
-  };
+        FKConstraintColumnsListWrapper(bec::FKConstraintColumnsListBE *inn);
 
-  FKConstraintListWrapper(TableEditorWrapper^ owner);
+        inline bec::FKConstraintColumnsListBE *get_unmanaged_object() {
+          return static_cast<bec::FKConstraintColumnsListBE *>(inner);
+        }
 
-  FKConstraintListWrapper(bec::FKConstraintListBE *inn);
+        List<String ^> ^ get_ref_columns_list(NodeIdWrapper ^ node, bool filtered);
 
-  inline bec::FKConstraintListBE *get_unmanaged_object()
-  { return static_cast<bec::FKConstraintListBE *>(inner); }
-  
-  void select_fk(NodeIdWrapper^ node);
+        bool set_column_is_fk(NodeIdWrapper ^ node, bool flag);
+        bool get_column_is_fk(NodeIdWrapper ^ node);
+      };
 
-  FKConstraintColumnsListWrapper^ get_columns();
-};
+    public
+      ref class FKConstraintListWrapper : public ListModelWrapper {
+      public:
+        enum class FKConstraintListColumns {
+          Name = bec::FKConstraintListBE::Name,
+          OnDelete = bec::FKConstraintListBE::OnDelete,
+          OnUpdate = bec::FKConstraintListBE::OnUpdate,
+          RefTable = bec::FKConstraintListBE::RefTable,
+          Comment = bec::FKConstraintListBE::Comment,
+          Index = bec::FKConstraintListBE::Index,
+          ModelOnly = bec::FKConstraintListBE::ModelOnly,
+        };
 
-public ref class TableEditorWrapper : public DBObjectEditorWrapper
-{
-protected:
-  TableEditorWrapper(bec::TableEditorBE *inn)
-    : DBObjectEditorWrapper(inn)
-  {}
+        FKConstraintListWrapper(TableEditorWrapper ^ owner);
 
-public:
-  enum class PartialRefreshes
-  {
-    RefreshColumnMoveUp    = bec::TableEditorBE::RefreshColumnMoveUp,
-    RefreshColumnMoveDown  = bec::TableEditorBE::RefreshColumnMoveDown,
-    RefreshColumnList      = bec::TableEditorBE::RefreshColumnList,
-    RefreshColumnCollation = bec::TableEditorBE::RefreshColumnCollation,
-  };
+        FKConstraintListWrapper(bec::FKConstraintListBE *inn);
 
-  bec::TableEditorBE *get_unmanaged_object()
-  { return static_cast<bec::TableEditorBE *>(inner); }
+        inline bec::FKConstraintListBE *get_unmanaged_object() {
+          return static_cast<bec::FKConstraintListBE *>(inner);
+        }
 
-  IndexListWrapper^ get_indexes();
+        void select_fk(NodeIdWrapper ^ node);
 
-  FKConstraintListWrapper^ get_fks();
+        FKConstraintColumnsListWrapper ^ get_columns();
+      };
 
-  Control ^get_inserts_panel();
+    public
+      ref class TableEditorWrapper : public DBObjectEditorWrapper {
+      protected:
+        TableEditorWrapper(bec::TableEditorBE *inn) : DBObjectEditorWrapper(inn) {
+        }
 
+      public:
+        enum class PartialRefreshes {
+          RefreshColumnMoveUp = bec::TableEditorBE::RefreshColumnMoveUp,
+          RefreshColumnMoveDown = bec::TableEditorBE::RefreshColumnMoveDown,
+          RefreshColumnList = bec::TableEditorBE::RefreshColumnList,
+          RefreshColumnCollation = bec::TableEditorBE::RefreshColumnCollation,
+        };
 
-  // table options
-  //...
+        bec::TableEditorBE *get_unmanaged_object() {
+          return static_cast<bec::TableEditorBE *>(inner);
+        }
 
-  // column editing
-  NodeIdWrapper^ add_column(String^ name);
+        IndexListWrapper ^ get_indexes();
 
-  void remove_column(NodeIdWrapper^ column);
+        FKConstraintListWrapper ^ get_fks();
 
-  //db_Column get_column_with_name(const std::string &name);
+        Control ^ get_inserts_panel();
 
-  // fk editing
-  NodeIdWrapper^ add_fk(String^ name);
+        // table options
+        //...
 
-  void remove_fk(NodeIdWrapper^ fk);
+        // column editing
+        NodeIdWrapper ^ add_column(String ^ name);
 
-  NodeIdWrapper^ add_fk_with_columns(List<NodeIdWrapper ^> ^columns);
+        void remove_column(NodeIdWrapper ^ column);
 
-  // index editing
-  NodeIdWrapper^ add_index(String^ name);
+        // db_Column get_column_with_name(const std::string &name);
 
-  void remove_index(NodeIdWrapper^ index);
+        // fk editing
+        NodeIdWrapper ^ add_fk(String ^ name);
 
-  NodeIdWrapper^ add_index_with_columns(List<NodeIdWrapper ^> ^columns);
+        void remove_fk(NodeIdWrapper ^ fk);
 
-  List<String^>^ get_index_types();
-};
+        NodeIdWrapper ^ add_fk_with_columns(List<NodeIdWrapper ^> ^ columns);
 
-} // namespace Db
-} // namespace Grt
+        // index editing
+        NodeIdWrapper ^ add_index(String ^ name);
+
+        void remove_index(NodeIdWrapper ^ index);
+
+        NodeIdWrapper ^ add_index_with_columns(List<NodeIdWrapper ^> ^ columns);
+
+        List<String ^> ^ get_index_types();
+      };
+
+    } // namespace Db
+  }   // namespace Grt
 } // namespace MySQL

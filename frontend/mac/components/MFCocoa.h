@@ -8,10 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-namespace mforms
-{
+namespace mforms {
   class View;
 };
-
 
 NSView *NSViewForMFormsView(mforms::View *view);

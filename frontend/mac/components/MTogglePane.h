@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,17 +19,15 @@
 
 #import <Cocoa/Cocoa.h>
 
-
-@interface MTogglePane : NSView 
-{
+@interface MTogglePane : NSView {
   NSImageView *_header;
   NSTextField *_label;
   NSButton *_toggleButton;
-  
+
   NSView *_content;
-  
+
   NSMutableArray *_buttons;
-  
+
   BOOL _initializing;
   BOOL _relayouting;
 }
@@ -40,13 +38,11 @@
 
 - (void)setExpanded:(BOOL)flag;
 
-- (void)setLabel:(NSString*)label;
-@property (strong) NSView *contentView;
+- (void)setLabel:(NSString *)label;
+@property(strong) NSView *contentView;
 
 - (void)relayout;
 
-- (NSButton*)addButton:(NSImage*)icon
-            withAction:(SEL)selector
-                target:(id)target;
+- (NSButton *)addButton:(NSImage *)icon withAction:(SEL)selector target:(id)target;
 
 @end

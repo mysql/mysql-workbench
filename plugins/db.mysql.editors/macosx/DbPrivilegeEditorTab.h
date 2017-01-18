@@ -1,6 +1,6 @@
-/* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
- * 
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -20,9 +20,9 @@ namespace bec {
 
 @interface DbPrivilegeEditorTab : NSObject
 
-@property (weak) IBOutlet NSView *view;
+@property(weak) IBOutlet NSView *view;
 
-- (instancetype)initWithObjectEditor: (bec::DBObjectEditorBE*)be NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithObjectEditor:(bec::DBObjectEditorBE *)be NS_DESIGNATED_INITIALIZER;
 
 - (IBAction)addRole:(id)sender;
 - (IBAction)deleteRole:(id)sender;

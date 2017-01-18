@@ -1,7 +1,6 @@
 #include <cppconn/resultset_metadata.h>
 
-int main()
-{
+int main() {
   &sql::ResultSetMetaData::getColumnCharset;
   return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #import <Cocoa/Cocoa.h>
 
 // NSOutlineView subclass that handles context menus from bec::TreeModel
@@ -28,7 +27,7 @@ extern NSString* NSMenuActionNotification;
   BOOL mConnectedRefresh;
 }
 
-- (BOOL) canDeleteItem: (id)sender;
-- (void) deleteItem: (id)sender;
+- (BOOL)canDeleteItem:(id)sender;
+- (void)deleteItem:(id)sender;
 
 @end

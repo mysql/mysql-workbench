@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,8 +30,7 @@
 
 #include <deque>
 
-namespace mforms
-{
+namespace mforms {
   class ToolBar;
   class ToolBarItem;
   class Selector;
@@ -48,13 +47,12 @@ class SqlEditorResult;
 class SqlEditorForm;
 class ProgressPanel;
 
-typedef int LayerId; // must be the same as spatial::LayerId, which we can't import b/c gdal creates some weird dependencies
+typedef int
+  LayerId; // must be the same as spatial::LayerId, which we can't import b/c gdal creates some weird dependencies
 
-class SpatialDataView : public mforms::Box
-{
+class SpatialDataView : public mforms::Box {
 public:
-  struct SpatialDataSource
-  {
+  struct SpatialDataSource {
     std::string source;
     Recordset::Ptr resultset;
     std::string column;
@@ -126,14 +124,17 @@ private:
 
   void area_selected();
   void activate_layer(mforms::TreeNodeRef, int column);
+
 public:
   SpatialDataView(SqlEditorResult *owner);
   virtual ~SpatialDataView();
 
-  mforms::ToolBar *get_toolbar() { return _toolbar; }
+  mforms::ToolBar *get_toolbar() {
+    return _toolbar;
+  }
 
   void set_geometry_columns(const std::vector<SpatialDataSource> &columns);
-  int get_option(const char* opt_name, int default_value);
+  int get_option(const char *opt_name, int default_value);
 
   void fillup_polygon(mforms::MenuItem *mitem);
   void projection_item_activated(mforms::ToolBarItem *item);
