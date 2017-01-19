@@ -1324,7 +1324,7 @@ mforms::View *PreferencesForm::create_others_page() {
     frame->add(vbox);
 
     mforms::CheckBox *check= new_checkbox_option("HomeScreen:HeadingMessage");
-    check->set_text(_("Show Welcome message on connections screen"));
+    check->set_text(_("Show Welcome Message on Connections Screen"));
     check->set_tooltip("");
     vbox->add(check, true);
   }

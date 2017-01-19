@@ -33,6 +33,23 @@ namespace mforms {
   class FolderEntry;
   class ConnectionInfoPopup;
 
+  class MFORMS_EXPORT ConnectionsWelcomeScreen : public mforms::DrawBox {
+  public:
+    ConnectionsWelcomeScreen(HomeScreen *owner);
+    virtual ~ConnectionsWelcomeScreen();
+  protected:
+    HomeScreen *_owner;
+    HomeAccessibleButton _closeHomeScreenButton;
+    HomeAccessibleButton _browseDocButton;
+    HomeAccessibleButton _readBlogButton;
+    HomeAccessibleButton _discussButton;
+    cairo_surface_t *_closeIcon;
+    std::function<bool(int, int)> _accessible_click_handler;
+  private:
+    void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
+  };
+
   class MFORMS_EXPORT ConnectionsSection : public HomeScreenSection, public mforms::DropDelegate {
     friend class ConnectionEntry;
     friend class FolderBackEntry;
@@ -86,9 +103,6 @@ namespace mforms {
 
     HomeAccessibleButton _add_button;
     HomeAccessibleButton _manage_button;
-    HomeAccessibleButton _browseDocButton;
-    HomeAccessibleButton _readBlogButton;
-    HomeAccessibleButton _discussButton;
 
 
     base::Rect _info_button_rect;
@@ -104,6 +118,9 @@ namespace mforms {
 
     bool _showWelcomeHeading;
 
+    ConnectionsWelcomeScreen *_welcomeScreen;
+    mforms::Box *_container;
+
     ConnectionVector &displayed_connections();
 
     void update_colors();
@@ -115,7 +132,6 @@ namespace mforms {
     std::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index);
     base::Rect bounds_for_entry(ssize_t index);
     std::string connectionIdFromIndex(ssize_t index);
-    int drawHeading(cairo_t *cr);
 
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
 
@@ -167,7 +183,6 @@ namespace mforms {
     void clear_connections(bool clear_state = true);
     void focus_search_box();
     void showWelcomeHeading(bool state = true);
-    virtual void updateHeight();
     virtual void cancelOperation();
     virtual void setFocus();
     virtual bool canHandle(HomeScreenMenuType type);
@@ -177,5 +192,8 @@ namespace mforms {
 
     void addConnection(const std::string &connectionId, const std::string &title, const std::string &description,
                        const std::string &user, const std::string &schema);
+
+    virtual mforms::View* getContainer();
+    virtual mforms::View* get_parent() const;
   };
 }

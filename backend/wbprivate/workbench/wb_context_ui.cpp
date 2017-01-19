@@ -265,25 +265,6 @@ void WBContextUI::load_app_options(bool update) {
     _command_ui->load_data();
 }
 
-// deprecated
-// std::string WBContextUI::get_diagram_path(const model_DiagramRef &diagram)
-//{
-//  std::string view_id= diagram.id();
-//
-//  // look in the physicalModels list for this diagram
-//  for (size_t c= _wb->get_document()->physicalModels().count(), i= 0; i < c; i++)
-//  {
-//    workbench_physical_ModelRef model= _wb->get_document()->physicalModels()[i];
-//
-//    for (size_t d= model->diagrams().count(), j= 0; j < d; j++)
-//    {
-//      if (model->diagrams().get(j).id() == view_id)
-//        return strfmt("/wb/doc/physicalModels/%i/diagrams/%i", (int) i, (int) j);
-//    }
-//  }
-//  return "";
-//}
-
 static void add_script_file(WBContextUI *wbui) {
   std::string file = wbui->get_wb()->_frontendCallbacks->show_file_dialog("open", _("Add SQL Script File"), "sql");
   if (!file.empty()) {
@@ -319,9 +300,26 @@ void WBContextUI::add_backend_builtin_commands() {
   _command_ui->add_builtin_command("web_mysql_home",
                                    std::bind(&WBContextUI::show_web_page, this, "http://mysql.com/", true));
   _command_ui->add_builtin_command(
-    "web_home", std::bind(&WBContextUI::show_web_page, this, "http://mysql.com/products/tools/workbench/", true));
+      "web_mysql_docs", std::bind(&WBContextUI::show_web_page, this, "https://dev.mysql.com/doc/workbench/en/", true));
+
+  _command_ui->add_builtin_command("web_mysql_blog",
+                                   std::bind(&WBContextUI::show_web_page, this, "http://mysqlworkbench.org/", true));
+
   _command_ui->add_builtin_command(
-    "list_bugs", std::bind(&WBContextUI::show_web_page, this, "http://bugs.mysql.com/saved/WBBugs", true));
+      "web_mysql_forum", std::bind(&WBContextUI::show_web_page, this, "http://forums.mysql.com/list.php?152", true));
+
+  if (_wb->is_commercial()) {
+    _command_ui->add_builtin_command("web_edelivery",
+                                     std::bind(&WBContextUI::show_web_page, this, "http://edelivery.oracle.com", true));
+
+    _command_ui->add_builtin_command("web_support",
+                                     std::bind(&WBContextUI::show_web_page, this, "http://support.oracle.com", true));
+  }
+
+  _command_ui->add_builtin_command(
+      "web_home", std::bind(&WBContextUI::show_web_page, this, "http://mysql.com/products/tools/workbench/", true));
+  _command_ui->add_builtin_command(
+      "list_bugs", std::bind(&WBContextUI::show_web_page, this, "http://bugs.mysql.com/saved/WBBugs", true));
   _command_ui->add_builtin_command("help_index", std::bind(&WBContextUI::show_help_index, this));
   _command_ui->add_builtin_command("locate_log_file", std::bind(&WBContextUI::locate_log_file, this));
   _command_ui->add_builtin_command("show_log_file", std::bind(&WBContextUI::show_log_file, this));
