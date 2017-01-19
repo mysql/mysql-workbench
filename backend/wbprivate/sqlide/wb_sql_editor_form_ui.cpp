@@ -250,7 +250,7 @@ void SqlEditorForm::update_menu_and_toolbar() {
   set_editor_tool_items_enbled("query.autocommit", !running && connected);
   set_editor_tool_items_enbled("query.continueOnError", connected);
   set_editor_tool_items_checked("query.autocommit", auto_commit());
-  set_editor_tool_items_checked("query.continueOnError", _continue_on_error);
+  set_editor_tool_items_checked("query.continueOnError", _continueOnError);
   set_editor_tool_items_checked("query.toggleLimit",
                                 bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows") != 0);
 }

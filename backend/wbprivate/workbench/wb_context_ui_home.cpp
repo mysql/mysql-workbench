@@ -291,20 +291,20 @@ void WBContextUI::show_home_screen(bool startClassic) {
     // now we have to add sections
     _connectionsSection = mforms::manage(new mforms::ConnectionsSection(_home_screen));
     _connectionsSection->set_name("Home Connections Section");
+    _connectionsSection->showWelcomeHeading(bec::GRTManager::get()->get_app_option_int("HomeScreen:HeadingMessage", 1) == 1);
     _connectionsSection->getConnectionInfoCallback = std::bind(
       [=](const std::string &connectionId) -> mforms::anyMap {
         return connectionToMap(getConnectionById(connectionId));
       },
       std::placeholders::_1);
+
     _home_screen->addSection(_connectionsSection);
 
     _documentsSection = mforms::manage(new mforms::DocumentsSection(_home_screen));
     _documentsSection->set_name("Documents Section");
     _home_screen->addSection(_documentsSection);
 
-    _launchersSection = mforms::manage(new mforms::LaunchersSection(_home_screen));
-    _launchersSection->set_name("Launchers Section");
-    _home_screen->addSection(_launchersSection);
+
 
     _home_screen->addSectionEntry("sidebar_migration.png", nullptr,
                                   [this]() {
@@ -970,6 +970,18 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       break;
     }
 
+    case HomeScreenAction::ActionOpenBlog:
+      _command_ui->activate_command("builtin:web_mysql_blog");
+      break;
+
+    case HomeScreenAction::ActionOpenDocs:
+      _command_ui->activate_command("builtin:web_mysql_docs");
+      break;
+
+    case HomeScreenAction::ActionOpenForum:
+      _command_ui->activate_command("builtin:web_mysql_forum");
+      break;
+
     default:
       logError("Unknown Action.\n");
   }
@@ -1147,11 +1159,13 @@ void WBContextUI::refresh_home_documents() {
 
 //--------------------------------------------------------------------------------------------------
 
+
 void WBContextUI::refreshHomeStarters() {
-  _launchersSection->clearLaunchers();
 
   if (_launchersSection == nullptr || _home_screen == nullptr)
     return;
+
+  _launchersSection->clearLaunchers();
 
   grt::ListRef<app_Starter> starters = _wb->get_root()->starters()->displayList();
   for (grt::ListRef<app_Starter>::const_iterator it = starters.begin(); it != starters.end(); it++) {

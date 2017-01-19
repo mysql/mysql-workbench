@@ -154,35 +154,32 @@ public:
   //------------------------------------------------------------------------------------------------
 
   /**
-   * One or more markers on that line where changed. We have to stay in sync with our statement markers list
-   * to make the optimized add/remove algorithm working.
+   * One or more markers moved to other lines or were deleted. We have to stay in sync with our
+   * statement markers list to make the optimized add/remove algorithm working.
    */
   void marker_changed(const mforms::LineMarkupChangeset &changeset, bool deleted) {
-    if (_updating_statement_markers || changeset.size() == 0)
+    if (_updating_statement_markers)
       return;
 
-    if (deleted) {
-      for (mforms::LineMarkupChangeset::const_iterator iterator = changeset.begin(); iterator != changeset.end();
-           ++iterator) {
-        if ((iterator->markup & mforms::LineMarkupStatement) != 0)
-          _statement_marker_lines.erase(iterator->original_line);
-        if ((iterator->markup & mforms::LineMarkupError) != 0)
-          _error_marker_lines.erase(iterator->original_line);
-      }
-    } else {
-      for (mforms::LineMarkupChangeset::const_iterator iterator = changeset.begin(); iterator != changeset.end();
-           ++iterator) {
-        if ((iterator->markup & mforms::LineMarkupStatement) != 0)
-          _statement_marker_lines.erase(iterator->original_line);
-        if ((iterator->markup & mforms::LineMarkupError) != 0)
-          _error_marker_lines.erase(iterator->original_line);
-      }
-      for (mforms::LineMarkupChangeset::const_iterator iterator = changeset.begin(); iterator != changeset.end();
-           ++iterator) {
-        if ((iterator->markup & mforms::LineMarkupStatement) != 0)
-          _statement_marker_lines.insert(iterator->new_line);
-        if ((iterator->markup & mforms::LineMarkupError) != 0)
-          _error_marker_lines.insert(iterator->new_line);
+    if (changeset.empty() && deleted) { // The document is empty now.
+      _statement_marker_lines.clear();
+      _error_marker_lines.clear();
+      return;
+    }
+
+    for (auto &change : changeset) {
+      if ((change.markup & mforms::LineMarkupStatement) != 0)
+        _statement_marker_lines.erase(change.original_line);
+      if ((change.markup & mforms::LineMarkupError) != 0)
+        _error_marker_lines.erase(change.original_line);
+    }
+
+    if (!deleted) {
+      for (auto &change : changeset) {
+        if ((change.markup & mforms::LineMarkupStatement) != 0)
+          _statement_marker_lines.insert(change.new_line);
+        if ((change.markup & mforms::LineMarkupError) != 0)
+          _error_marker_lines.insert(change.new_line);
       }
     }
   }
@@ -239,7 +236,7 @@ MySQLEditor::MySQLEditor(MySQLParserContext::Ref syntax_check_context, MySQLPars
   setup_auto_completion();
 
   _auto_completion_cache = NULL;
-  _continue_on_error = false;
+  _continueOnError = false;
 
   setup_editor_menu();
 }
@@ -806,8 +803,8 @@ void *MySQLEditor::splitting_done() {
 //--------------------------------------------------------------------------------------------------
 
 void *MySQLEditor::update_error_markers() {
-  std::set<size_t> removal_candidates;
-  std::set<size_t> insert_candidates;
+  std::set<size_t> removalCandidates;
+  std::set<size_t> insertCandidates;
 
   std::set<size_t> lines;
 
@@ -823,27 +820,27 @@ void *MySQLEditor::update_error_markers() {
                                    d->_recognition_errors[i].length);
       lines.insert(_code_editor->line_from_position(d->_recognition_errors[i].position));
     }
-  } else
+  } else {
     _code_editor->set_status_text("");
+  }
 
   std::set_difference(lines.begin(), lines.end(), d->_error_marker_lines.begin(), d->_error_marker_lines.end(),
-                      inserter(insert_candidates, insert_candidates.begin()));
+                      inserter(insertCandidates, insertCandidates.begin()));
 
   std::set_difference(d->_error_marker_lines.begin(), d->_error_marker_lines.end(), lines.begin(), lines.end(),
-                      inserter(removal_candidates, removal_candidates.begin()));
+                      inserter(removalCandidates, removalCandidates.begin()));
 
   d->_error_marker_lines.swap(lines);
 
-  mforms::LineMarkup unmark = _continue_on_error ? mforms::LineMarkupError : mforms::LineMarkupErrorContinue;
-  mforms::LineMarkup mark = _continue_on_error ? mforms::LineMarkupErrorContinue : mforms::LineMarkupError;
+  // TODO: continue-on-error shouldn't change error markers.
+  mforms::LineMarkup unmark = /*_continueOnError ? mforms::LineMarkupErrorContinue :*/ mforms::LineMarkupError;
+  mforms::LineMarkup mark = /*_continueOnError ? mforms::LineMarkupErrorContinue :*/ mforms::LineMarkupError;
 
-  for (std::set<size_t>::const_iterator iterator = removal_candidates.begin(); iterator != removal_candidates.end();
-       ++iterator)
-    _code_editor->remove_markup(unmark, *iterator);
+  for (auto candidate : removalCandidates)
+    _code_editor->remove_markup(unmark, candidate);
 
-  for (std::set<size_t>::const_iterator iterator = insert_candidates.begin(); iterator != insert_candidates.end();
-       ++iterator)
-    _code_editor->show_markup(mark, *iterator);
+  for (auto candidate : insertCandidates)
+    _code_editor->show_markup(mark, candidate);
 
   return NULL;
 }
@@ -1401,12 +1398,13 @@ void MySQLEditor::register_file_drop_for(mforms::DropDelegate *target) {
 //--------------------------------------------------------------------------------------------------
 
 void MySQLEditor::set_continue_on_error(bool value) {
-  _continue_on_error = value;
+  _continueOnError = value;
 
   std::vector<size_t> lines;
 
-  mforms::LineMarkup unmark = _continue_on_error ? mforms::LineMarkupError : mforms::LineMarkupErrorContinue;
-  mforms::LineMarkup mark = _continue_on_error ? mforms::LineMarkupErrorContinue : mforms::LineMarkupError;
+  // TODO: continue-on-error shouldn't change error markers.
+  mforms::LineMarkup unmark = /*_continueOnError ? mforms::LineMarkupErrorContinue :*/ mforms::LineMarkupError;
+  mforms::LineMarkup mark = /*_continueOnError ? mforms::LineMarkupErrorContinue :*/ mforms::LineMarkupError;
 
   for (size_t i = 0; i < d->_recognition_errors.size(); ++i) {
     _code_editor->show_indicator(mforms::RangeIndicatorError, d->_recognition_errors[i].position,

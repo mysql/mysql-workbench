@@ -76,9 +76,9 @@ std::shared_ptr<WBContextUI> WBContextUI::get() {
 
 //--------------------------------------------------------------------------------------------------
 
-WBContextUI::WBContextUI() : _wb(new WBContext(false)), _command_ui(new CommandUI(_wb)) {
-  _shell_window = 0;
 
+WBContextUI::WBContextUI() : _wb(new WBContext(false)), _launchersSection(nullptr), _command_ui(new CommandUI(_wb)) {
+  _shell_window = 0;
   _output_view = nullptr;
   _active_form = 0;
   _active_main_form = 0;
