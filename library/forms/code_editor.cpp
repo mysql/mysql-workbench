@@ -37,8 +37,6 @@ using namespace mforms;
 using namespace base;
 
 // Marker ID assignments. Markers with higher number overlay lower ones.
-// Note: the order here matches the LineMarkup enum, so we can directly use the enum as marker flags.
-//       The LineMarkup is a bitmask (so we can create what Scintilla calls a marker set).
 #define CE_STATEMENT_MARKER 0
 #define CE_ERROR_MARKER 1
 #define CE_BREAKPOINT_MARKER 2
@@ -676,52 +674,76 @@ void CodeEditor::setup_marker(int marker, const std::string& name) {
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::check_markers_removed(int position, int length) {
+/**
+ * Called before lines are removed. Need to record disappearing markers.
+ */
+void CodeEditor::handleMarkerDeletion(int position, int length) {
   if (length == 0)
     return;
 
-  sptr_t current_line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
-  sptr_t end_line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position + length - 1, 0);
-
-  // Ignore the first line if it is only partially deleted (the markers would stay as they are then).
-  if (position > _code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, current_line, 0))
-    ++current_line;
-
-  current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line, LineMarkupAll);
-
   LineMarkupChangeset changeset;
-  while (current_line > -1 && current_line <= end_line) {
-    LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, current_line, LineMarkupAll);
-    LineMarkupChangeEntry entry = {(int)current_line, 0, markup};
+  if (length == _code_editor_impl->send_editor(this, SCI_GETLENGTH, 0, 0)) {
+    // Clean editor? Send empty changeset to signal that all markers can go.
+    _marker_changed_event(changeset, true);
+    return;
+  }
+
+  sptr_t currentLine = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
+  sptr_t endLine = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position + length - 1, 0);
+
+  // Don't include the first line as Scintilla merges current and last line markers, so we have to update them.
+  ++currentLine;
+
+  currentLine = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, currentLine, LineMarkupAll);
+
+  while (currentLine > -1 && currentLine <= endLine) {
+    LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, currentLine, LineMarkupAll);
+    LineMarkupChangeEntry entry = {(int)currentLine, 0, markup};
     changeset.push_back(entry);
 
     // MARKERNEXT effectively searches lines for the given markers, the docs say.
-    current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line + 1, LineMarkupAll);
+    currentLine = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, currentLine + 1, LineMarkupAll);
   }
 
-  if (changeset.size() > 0)
+  if (!changeset.empty())
     _marker_changed_event(changeset, true);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::check_markers_moved(int position, int lines_added) {
-  if (lines_added == 0)
+/**
+ * Called after an edit action took place. We have to record markers that got moved by that action.
+ */
+void CodeEditor::handleMarkerMove(int position, int linesAdded) {
+  if (linesAdded == 0)
     return;
 
-  sptr_t current_line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
-
-  current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line, LineMarkupAll);
   LineMarkupChangeset changeset;
-  while (current_line > -1) {
-    LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, current_line, LineMarkupAll);
-    LineMarkupChangeEntry entry = {(int)(current_line - lines_added), (int)current_line, markup};
-    changeset.push_back(entry);
+  sptr_t currentLine = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
 
-    current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line + 1, LineMarkupAll);
+  if (linesAdded < 0) {
+    // Lines have been deleted and markers merged. Since we don't know which have been combined remove them all
+    // and send a separate deletion event for this case.
+    _code_editor_impl->send_editor(this, SCI_MARKERDELETE, currentLine, -1);
+    changeset.push_back({ (int)currentLine, 0, LineMarkupAll });
+    _marker_changed_event(changeset, true);
+    changeset.clear();
   }
 
-  if (changeset.size() > 0)
+  // Ignore the first line if it has been edited after the line start.
+  if (position > _code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, currentLine, 0))
+    ++currentLine;
+
+  currentLine = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, currentLine, LineMarkupAll);
+  while (currentLine > -1) {
+    LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, currentLine, LineMarkupAll);
+    LineMarkupChangeEntry entry = { (int)(currentLine - linesAdded), (int)currentLine, markup };
+    changeset.push_back(entry);
+
+    currentLine = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, currentLine + 1, LineMarkupAll);
+  }
+
+  if (!changeset.empty())
     _marker_changed_event(changeset, false);
 }
 
@@ -1061,11 +1083,11 @@ void CodeEditor::on_notify(SCNotification* notification) {
       // Check for markers that would get removed.
       // Usually doesn't come with any of the other notification types.
       if ((notification->modificationType & SC_MOD_BEFOREDELETE) != 0)
-        check_markers_removed(notification->position, notification->length);
+        handleMarkerDeletion(notification->position, notification->length);
 
       // Text insertion or removal.
       if ((notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) != 0) {
-        check_markers_moved(notification->position, notification->linesAdded);
+        handleMarkerMove(notification->position, notification->linesAdded);
 
         _change_event(notification->position, notification->length, notification->linesAdded,
                       (notification->modificationType & SC_MOD_INSERTTEXT) != 0);

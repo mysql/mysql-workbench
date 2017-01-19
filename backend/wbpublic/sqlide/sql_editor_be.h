@@ -193,5 +193,5 @@ private:
   std::string _current_schema;
 
   std::string _sql_mode;
-  bool _continue_on_error;
+  bool _continueOnError;
 };

@@ -280,7 +280,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
 
   _lower_case_table_names = 0;
 
-  _continue_on_error = (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ContinueOnError", 0) != 0);
+  _continueOnError = (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ContinueOnError", 0) != 0);
 
   // set initial autocommit mode value
   _usr_dbc_conn->autocommit_mode = (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:AutocommitMode", 1) != 0);
@@ -1943,7 +1943,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
             statement_failed = true;
           }
           if (statement_failed) {
-            if (_continue_on_error)
+            if (_continueOnError)
               continue; // goto next statement
             else
               goto stop_processing_sql_script;
@@ -2054,7 +2054,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                       set_log_message(log_message_index, DbSqlEditorLog::ErrorMsg, err_msg, statement,
                                       statement_exec_timer.duration_formatted());
 
-                      if (_continue_on_error)
+                      if (_continueOnError)
                         continue; // goto next statement
                       else
                         goto stop_processing_sql_script;
@@ -2329,11 +2329,11 @@ bool SqlEditorForm::is_running_query() {
 }
 
 void SqlEditorForm::continue_on_error(bool val) {
-  if (_continue_on_error == val)
+  if (_continueOnError == val)
     return;
 
-  _continue_on_error = val;
-  bec::GRTManager::get()->set_app_option("DbSqlEditor:ContinueOnError", grt::IntegerRef((int)_continue_on_error));
+  _continueOnError = val;
+  bec::GRTManager::get()->set_app_option("DbSqlEditor:ContinueOnError", grt::IntegerRef((int)_continueOnError));
 
   if (_menu)
     _menu->set_item_checked("query.continueOnError", continue_on_error());
