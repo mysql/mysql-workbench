@@ -97,7 +97,6 @@ namespace mforms {
 
     void drawEntry(cairo_t *cr, const LauncherEntry &entry, bool hot);
     void layout(cairo_t *cr);
-    virtual void updateHeight();
     virtual void cancelOperation();
     virtual void setFocus();
     virtual bool canHandle(HomeScreenMenuType type);

@@ -38,6 +38,7 @@ set(IMAGE_FILES
     wb_starter_mysql_wb_twitters_52.png
     wb_starter_planet_mysql_52.png
     wb_starter_support_52.png
+    home_screen_close.png
 )
 
 install(FILES ${IMAGE_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/images)

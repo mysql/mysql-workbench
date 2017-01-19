@@ -72,7 +72,9 @@ namespace mforms {
 
     ActionOpenDocs,
     ActionOpenBlog,
-    ActionOpenForum
+    ActionOpenForum,
+
+    CloseWelcomeMessage,
   };
 
   enum HomeScreenMenuType {
@@ -162,7 +164,15 @@ namespace mforms {
     std::string getIcon() {
       return _iconName;
     }
-    virtual void updateHeight() = 0;
+
+    virtual mforms::View* getContainer() {
+      return this;
+    }
+
+    virtual View *get_parent() const {
+      return _parent;
+    }
+
     virtual void cancelOperation() = 0;
     virtual void setFocus() = 0;
     virtual bool canHandle(HomeScreenMenuType type) = 0;
