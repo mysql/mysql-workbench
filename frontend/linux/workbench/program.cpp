@@ -49,7 +49,7 @@ static void flush_main_thread() {
 
 DEFAULT_LOG_DOMAIN("Program")
 //------------------------------------------------------------------------------
-Program::Program() : _main_form(nullptr){};
+Program::Program() : _main_form(nullptr), _wbcallbacks(new wb::WBFrontendCallbacks()) {};
 
 void Program::init(wb::WBOptions& wboptions) {
   _instance = this;
@@ -91,31 +91,28 @@ void Program::init(wb::WBOptions& wboptions) {
   // Main form holds UI code, Glade wrapper, etc ...
   _main_form = new MainForm();
 
-  // Define a set of methods which backend can call to interact with user and frontend
-  wb::WBFrontendCallbacks wbcallbacks;
-
   // Assign those callback methods
-  wbcallbacks.show_file_dialog = std::bind(&Program::show_file_dialog_becb, this, std::placeholders::_1,
+  _wbcallbacks->show_file_dialog = std::bind(&Program::show_file_dialog_becb, this, std::placeholders::_1,
                                            std::placeholders::_2, std::placeholders::_3);
-  wbcallbacks.show_status_text = std::bind(&MainForm::show_status_text_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.open_editor =
+  _wbcallbacks->show_status_text = std::bind(&MainForm::show_status_text_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->open_editor =
     std::bind(&MainForm::open_plugin_becb, _main_form, std::placeholders::_1, std::placeholders::_2,
               std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
-  wbcallbacks.show_editor = std::bind(&MainForm::show_plugin_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.hide_editor = std::bind(&MainForm::hide_plugin_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.perform_command = std::bind(&MainForm::perform_command_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.create_diagram = std::bind(&MainForm::create_view_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.destroy_view = std::bind(&MainForm::destroy_view_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.switched_view = std::bind(&MainForm::switched_view_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.create_main_form_view =
+  _wbcallbacks->show_editor = std::bind(&MainForm::show_plugin_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->hide_editor = std::bind(&MainForm::hide_plugin_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->perform_command = std::bind(&MainForm::perform_command_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->create_diagram = std::bind(&MainForm::create_view_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->destroy_view = std::bind(&MainForm::destroy_view_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->switched_view = std::bind(&MainForm::switched_view_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->create_main_form_view =
     std::bind(&MainForm::create_main_form_view_becb, _main_form, std::placeholders::_1, std::placeholders::_2);
-  wbcallbacks.destroy_main_form_view =
+  _wbcallbacks->destroy_main_form_view =
     std::bind(&MainForm::destroy_main_form_view_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.tool_changed = std::bind(&MainForm::tool_changed_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.refresh_gui = std::bind(&MainForm::refresh_gui_becb, _main_form, std::placeholders::_1,
+  _wbcallbacks->tool_changed = std::bind(&MainForm::tool_changed_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->refresh_gui = std::bind(&MainForm::refresh_gui_becb, _main_form, std::placeholders::_1,
                                       std::placeholders::_2, std::placeholders::_3);
-  wbcallbacks.lock_gui = std::bind(&MainForm::lock_gui_becb, _main_form, std::placeholders::_1);
-  wbcallbacks.quit_application = std::bind(&MainForm::quit_app_becb, _main_form);
+  _wbcallbacks->lock_gui = std::bind(&MainForm::lock_gui_becb, _main_form, std::placeholders::_1);
+  _wbcallbacks->quit_application = std::bind(&MainForm::quit_app_becb, _main_form);
 
   wboptions.basedir = getenv("MWB_DATA_DIR");
   wboptions.plugin_search_path = getenv("MWB_PLUGIN_DIR");
@@ -142,7 +139,7 @@ void Program::init(wb::WBOptions& wboptions) {
   } else
     wboptions.user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
 
-  wb::WBContextUI::get()->init(&wbcallbacks, &wboptions);
+  wb::WBContextUI::get()->init(_wbcallbacks, &wboptions);
   bec::GRTManager::get()->get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
 
   {
@@ -166,6 +163,7 @@ void Program::init(wb::WBOptions& wboptions) {
 
 //------------------------------------------------------------------------------
 Program::~Program() {
+  delete _wbcallbacks;
 }
 
 void Program::finalize_initialization(wb::WBOptions* options) {
