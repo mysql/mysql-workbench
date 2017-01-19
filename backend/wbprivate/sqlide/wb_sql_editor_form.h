@@ -410,11 +410,11 @@ public:
 private:
   int on_exec_sql_finished();
   bool _is_running_query;
-  bool _continue_on_error;
+  bool _continueOnError;
 
 public:
   bool continue_on_error() {
-    return _continue_on_error;
+    return _continueOnError;
   }
   void continue_on_error(bool val);
 
