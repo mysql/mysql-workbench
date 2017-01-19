@@ -810,6 +810,7 @@
                     <File Id="home28" Name="wb_tile_manage.png"/>
                     <File Id="home29" Name="wb_tile_more.png"/>
                     <File Id="home30" Name="wb_tile_open.png"/>
+                    <File Id="home31" Name="home_screen_close.png"/>
                     <File Id="wb_starter_edelivery_52" Name="wb_starter_edelivery_52.png"/>
                     <File Id="wb_starter_generic_52" Name="wb_starter_generic_52.png"/>
                     <File Id="wb_starter_grt_shell_52" Name="wb_starter_grt_shell_52.png"/>
