@@ -64,11 +64,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only wb_module_test"
+            argument = "only db_mysql_plugin_test"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--port=3307"
+            argument = "--port=3306"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -81,11 +81,6 @@
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "PATH"
-            value = "/Users/Mike/sandboxes/5.7.10/bin:$PATH"
-            isEnabled = "YES">
-         </EnvironmentVariable>
          <EnvironmentVariable
             key = "MWB_DATA_DIR"
             value = "$BUILT_PRODUCTS_DIR/MySQLWorkbench.app/Contents/Resources"
