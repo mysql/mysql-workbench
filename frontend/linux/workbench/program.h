@@ -62,6 +62,7 @@ private:
   Program(const Program&) = delete;
   Program& operator=(const Program&) = delete;
   static Program* _instance;
+  wb::WBFrontendCallbacks *_wbcallbacks;
 };
 
 #endif
