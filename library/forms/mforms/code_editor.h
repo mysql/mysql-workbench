@@ -578,8 +578,8 @@ namespace mforms {
     MarginSizes _marginSize;
 
     void setup_marker(int marker, const std::string& name);
-    void check_markers_removed(int position, int length);
-    void check_markers_moved(int position, int lines_added);
+    void handleMarkerDeletion(int position, int length);
+    void handleMarkerMove(int position, int linesAdded);
 
     void load_configuration(SyntaxHighlighterLanguage language);
 
