@@ -994,8 +994,9 @@ bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, in
 //------------------------------------------------------------------------------------------------
 
 ConnectionsSection::ConnectionsSection(HomeScreen *owner)
-    : HomeScreenSection("sidebar_wb.png"), /*_closeIcon(nullptr), */_search_box(true),
-      _search_text(mforms::SmallSearchEntry), _showWelcomeHeading(true), _welcomeScreen(nullptr), _container(nullptr) {
+    : HomeScreenSection("sidebar_wb.png"), _search_box(true),
+      _search_text(mforms::SmallSearchEntry), _showWelcomeHeading(true), _welcomeScreen(nullptr),
+      _container(nullptr) {
 
   _owner = owner;
   _connection_context_menu = NULL;
@@ -1723,6 +1724,7 @@ bool ConnectionsSection::mouse_leave() {
 //------------------------------------------------------------------------------------------------
 
 bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y) {
+
   bool in_details_area;
   std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
 
@@ -1933,6 +1935,9 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y) {
   _hot_entry.reset();
   set_needs_repaint();
 
+  if (_drag_index != -1)
+    return false;
+
   if (index >= 0) {
     mforms::DragDetails details;
     details.allowedOperations = mforms::DragOperationMove;
@@ -1952,6 +1957,7 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y) {
       _drag_index = index;
       mforms::DragOperation operation =
         do_drag_drop(details, entry.get(), mforms::HomeScreenSettings::TILE_DRAG_FORMAT);
+
       _mouse_down_position = base::Rect();
       cairo_surface_destroy(details.image);
       cairo_destroy(cr);

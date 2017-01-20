@@ -32,7 +32,7 @@ namespace mforms {
     };
 
     DrawBoxImpl::DrawBoxImpl(::mforms::DrawBox *self)
-      : ViewImpl(self), _fixed_width(-1), _fixed_height(-1), _fixed(0), _relayout_pending(false) {
+      : ViewImpl(self), _fixed_width(-1), _fixed_height(-1), _fixed(0), _relayout_pending(false), _drag_in_progress(false) {
       _padding._left = 0;
       _padding._right = 0;
       _padding._top = 0;
@@ -210,6 +210,9 @@ namespace mforms {
         _last_btn = mbtn;
         return self->mouse_down(mbtn, (int)event->x, (int)event->y);
       } else if (event->type == GDK_BUTTON_RELEASE) {
+        if (_loop.isRunning())
+          _loop.quit();
+
         _last_btn = MouseButtonNone;
         // We must have click before up, because thet's how it's made on the other platforms.
         self->mouse_click(mbtn, (int)event->x, (int)event->y);
@@ -225,8 +228,21 @@ namespace mforms {
     }
 
     bool DrawBoxImpl::mouse_move_event(GdkEventMotion *event, ::mforms::DrawBox *self) {
+      _mousePos.x = event->x;
+      _mousePos.y = event->y;
       return self->mouse_move(_last_btn, (int)event->x, (int)event->y);
     }
+
+    void DrawBoxImpl::drag_drop_finished(bool succeed) {
+      auto btn = _last_btn;
+      _last_btn = MouseButtonNone;
+      auto drawBox = dynamic_cast<mforms::DrawBox*>(owner);
+      if (drawBox != nullptr)
+      {
+        drawBox->mouse_click(btn, _mousePos.x, _mousePos.y);
+        drawBox->mouse_up(btn, _mousePos.x, _mousePos.y);
+      }
+    };
 
     bool DrawBoxImpl::create(::mforms::DrawBox *self) {
       return new DrawBoxImpl(self) != 0;
