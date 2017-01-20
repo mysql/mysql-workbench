@@ -658,8 +658,8 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
 
     if (answer == mforms::ResultOk) {
       grt::BaseListRef args(true);
-      db_mgmt_ConnectionRef val = object;
-      args->insert_unchecked(val);
+      std::string val = object;
+      args->insert_unchecked(grt::StringRef(val));
 
       grt::ValueRef result = grt::GRT::get()->call_module_function("Workbench", "deleteConnectionGroup", args);
 
