@@ -1980,11 +1980,6 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                             message, statement, statement_exec_timer.duration_formatted());
           }
 
-          if (query_ps_stats) {
-            query_ps_statistics(_usr_dbc_conn->id, ps_stats);
-            ps_stages = query_ps_stages(ps_stats["EVENT_ID"]);
-            ps_waits = query_ps_waits(ps_stats["EVENT_ID"]);
-          }
           int resultset_count = 0;
           bool more_results = is_result_set_first;
           bool reuse_log_msg = false;
@@ -2097,6 +2092,12 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                     rs->generator_query(statement);
 
                     {
+                      if (query_ps_stats) {
+                        query_ps_statistics(_usr_dbc_conn->id, ps_stats);
+                        ps_stages = query_ps_stages(ps_stats["EVENT_ID"]);
+                        ps_waits = query_ps_waits(ps_stats["EVENT_ID"]);
+                        query_ps_stats = false;
+                      }
                       RecordsetData *rdata = new RecordsetData();
                       rdata->duration = statement_exec_timer.duration();
                       rdata->ps_stat_error = query_ps_statement_events_error;
