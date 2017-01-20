@@ -56,8 +56,12 @@ void runtime::loop::run() {
 }
 
 void runtime::loop::quit() {
-  if (_loop && g_main_loop_is_running(_loop))
+  if (_loop != nullptr && g_main_loop_is_running(_loop))
     g_main_loop_quit(_loop);
+}
+
+bool runtime::loop::isRunning() const {
+  return _loop != nullptr && g_main_loop_is_running(_loop);
 }
 
 runtime::app::app() {
