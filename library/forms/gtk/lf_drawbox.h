@@ -24,7 +24,6 @@
 
 namespace mforms {
   namespace gtk {
-
     class DrawBoxImpl : public ViewImpl {
       struct AlignControl {
         mforms::Alignment _align;
@@ -48,6 +47,8 @@ namespace mforms {
       bool _relayout_pending;
       PaddingInfo _padding;
       mforms::MouseButton _last_btn;
+      base::Point _mousePos;
+      bool _drag_in_progress;
 
       sigc::connection _sig_relayout;
 
@@ -65,6 +66,7 @@ namespace mforms {
       void mouse_cross_event(GdkEventCrossing *event, ::mforms::DrawBox *self);
       bool mouse_button_event(GdkEventButton *event, ::mforms::DrawBox *self);
       bool mouse_move_event(GdkEventMotion *event, ::mforms::DrawBox *self);
+      virtual void drag_drop_finished(bool succeed);
 
       static bool create(::mforms::DrawBox *self);
       static void set_needs_repaint(::mforms::DrawBox *self);

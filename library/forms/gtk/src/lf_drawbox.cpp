@@ -24,7 +24,6 @@ DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_GTK);
 
 namespace mforms {
   namespace gtk {
-
     struct DrawBoxImplPrivateData {
       DrawBoxImplPrivateData() : _drawbox(0) {
       }
@@ -32,13 +31,12 @@ namespace mforms {
     };
 
     DrawBoxImpl::DrawBoxImpl(::mforms::DrawBox *self)
-      : ViewImpl(self), _fixed_width(-1), _fixed_height(-1), _fixed(0), _relayout_pending(false) {
+      : ViewImpl(self), _fixed_width(-1), _fixed_height(-1), _fixed(0), _relayout_pending(false), _drag_in_progress(false) {
       _padding._left = 0;
       _padding._right = 0;
       _padding._top = 0;
       _padding._bottom = 0;
       _last_btn = MouseButtonNone;
-      //  _darea.signal_expose_event().connect(sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::repaint), self));
       _darea.signal_draw().connect(sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::repaint), self));
 
       _darea.signal_size_allocate().connect_notify(
@@ -53,6 +51,7 @@ namespace mforms {
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_cross_event), self));
       _darea.signal_motion_notify_event().connect(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_move_event), self));
+
       _darea.set_size_request(10, 10); // set initial size to allow a repaint event to arrive
 
       // request mouse moved events
@@ -154,14 +153,16 @@ namespace mforms {
 
     bool DrawBoxImpl::repaint(const ::Cairo::RefPtr< ::Cairo::Context> &context, ::mforms::DrawBox *self) {
       // This vv needs improvment on linux. Maybe setup an event listener which is bound to resize
-      int w = -1;
-      int h = -1;
-      self->get_layout_size(&w, &h);
+      Gtk::Requisition minimum, natural;
+      _darea.get_preferred_size(minimum, natural);
+      auto layoutSize = self->getLayoutSize(base::Size(minimum.width, minimum.height));
+
       if (_fixed_height >= 0)
-        h = _fixed_height;
+        layoutSize.height = _fixed_height;
       if (_fixed_width >= 0)
-        w = _fixed_width;
-      _darea.set_size_request(w, h);
+        layoutSize.width = _fixed_width;
+      _darea.set_size_request(layoutSize.width, layoutSize.height);
+
 
       mforms::gtk::draw_event_slot(context, &_darea);
       double x1, y1, x2, y2;
@@ -210,6 +211,9 @@ namespace mforms {
         _last_btn = mbtn;
         return self->mouse_down(mbtn, (int)event->x, (int)event->y);
       } else if (event->type == GDK_BUTTON_RELEASE) {
+        if (_loop.isRunning())
+          _loop.quit();
+
         _last_btn = MouseButtonNone;
         // We must have click before up, because thet's how it's made on the other platforms.
         self->mouse_click(mbtn, (int)event->x, (int)event->y);
@@ -225,8 +229,21 @@ namespace mforms {
     }
 
     bool DrawBoxImpl::mouse_move_event(GdkEventMotion *event, ::mforms::DrawBox *self) {
+      _mousePos.x = event->x;
+      _mousePos.y = event->y;
       return self->mouse_move(_last_btn, (int)event->x, (int)event->y);
     }
+
+    void DrawBoxImpl::drag_drop_finished(bool succeed) {
+      auto btn = _last_btn;
+      _last_btn = MouseButtonNone;
+      auto drawBox = dynamic_cast<mforms::DrawBox*>(owner);
+      if (drawBox != nullptr)
+      {
+        drawBox->mouse_click(btn, _mousePos.x, _mousePos.y);
+        drawBox->mouse_up(btn, _mousePos.x, _mousePos.y);
+      }
+    };
 
     bool DrawBoxImpl::create(::mforms::DrawBox *self) {
       return new DrawBoxImpl(self) != 0;

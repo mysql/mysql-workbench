@@ -37,9 +37,8 @@ using namespace mforms;
 
 //----------------- Separator ----------------------------------------------------------------------
 
-void Separator::get_layout_size(int* w, int* h) {
-  *w = 100; // Will be adjusted by the layout process.
-  *h = 4;   // 2 pixels extra vertical space to match the design.
+base::Size Separator::getLayoutSize(base::Size proposedSize) {
+  return base::Size(100, 4); // Will be adjusted by the layout process.
 }
 
 //--------------------------------------------------------------------------------------------------

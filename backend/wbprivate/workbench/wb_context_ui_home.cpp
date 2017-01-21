@@ -686,11 +686,10 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
     std::string file = object;
     mforms::Utilities::reveal_file(file);
   } else if (action == "remove_model") {
-    grt::ValueRef val = object;
-    _wb->get_root()->options()->recentFiles()->remove(val);
+    std::string file = object;
+    _wb->get_root()->options()->recentFiles()->remove(grt::StringRef(file));
 
     bool remove_auto_save = false;
-    std::string file = object;
     if (file.size() > 5 && file.substr(file.size() - 5) == ".mwbd")
       remove_auto_save = true;
     else {
@@ -980,6 +979,11 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
 
     case HomeScreenAction::ActionOpenForum:
       _command_ui->activate_command("builtin:web_mysql_forum");
+      break;
+
+    case HomeScreenAction::CloseWelcomeMessage:
+      _connectionsSection->showWelcomeHeading(false);
+      bec::GRTManager::get()->set_app_option("HomeScreen:HeadingMessage", grt::IntegerRef(0));
       break;
 
     default:
