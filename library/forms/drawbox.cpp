@@ -44,7 +44,6 @@ void DrawBox::remove(View *view) {
 
 void DrawBox::move(View *view, int x, int y) {
   _drawbox_impl->move(this, view, x, y);
-  remove_from_cache(view);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,9 +79,8 @@ void DrawBox::set_needs_repaint_area(int x, int y, int w, int h) {
  * space the box needs. Overwritten by descendants. Subviews do not automatically add to the content
  * size. If that's needed then additional computations are needed by the host.
  */
-void DrawBox::get_layout_size(int *w, int *h) {
-  *w = 0;
-  *h = 0;
+base::Size DrawBox::getLayoutSize(base::Size proposedSize) {
+  return proposedSize;
 }
 
 //--------------------------------------------------------------------------------------------------

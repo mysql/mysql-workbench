@@ -114,7 +114,7 @@ namespace mforms {
     void set_needs_repaint();
     void set_needs_repaint_area(int x, int y, int w, int h);
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    virtual void get_layout_size(int *w, int *h);
+    virtual base::Size getLayoutSize(base::Size proposedSize);
 
 #ifndef SWIG
     virtual void repaint(cairo_t *cr, int x, int y, int w, int h) {

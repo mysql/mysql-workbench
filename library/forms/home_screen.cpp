@@ -432,7 +432,7 @@ void HomeScreen::addSection(HomeScreenSection *section) {
 
   if (_sidebarSection != nullptr) {
     mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
-    scroll->add(section);
+    scroll->add(section->getContainer());
     add(scroll, true, true);
     scroll->show(false);
 
@@ -444,18 +444,17 @@ void HomeScreen::addSection(HomeScreenSection *section) {
                                 else {
                                   for (auto &it : _sections) {
                                     if (it != section)
-                                      it->get_parent()->show(false);
+                                      it->getContainer()->get_parent()->show(false);
                                     else
-                                      it->get_parent()->show(true);
+                                      it->getContainer()->get_parent()->show(true);
                                   }
-                                  section->updateHeight();
                                 }
 
                               },
                               !isCallbackOnly);
   } else {
-    add(section, true, true);
-    section->show(true);
+    add(section->getContainer(), true, true);
+    section->getContainer()->show(true);
   }
 }
 

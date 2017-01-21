@@ -32,6 +32,7 @@ namespace runtime {
     virtual ~loop();
     void run();
     void quit();
+    bool isRunning() const;
   };
 
   class app {
