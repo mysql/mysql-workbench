@@ -509,9 +509,6 @@ WBContext::~WBContext() {
   //  app.unref_tree();
   //}
 
-  delete _model_context;
-  _model_context = 0;
-
   delete _clipboard;
   _clipboard = 0;
   //  delete _plugin_manager; this is deleted by the GRT, since its a module
@@ -599,7 +596,12 @@ void WBContext::finalize() {
   _grtManager->get_dispatcher()->shutdown();
   if (_tunnel_manager) {
     delete _tunnel_manager;
-    _tunnel_manager = 0;
+    _tunnel_manager = nullptr;
+  }
+
+  if (_model_context) {
+    delete _model_context;
+    _model_context = nullptr;
   }
 
   // clear slots to managed 
