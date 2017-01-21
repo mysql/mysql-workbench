@@ -255,7 +255,6 @@
     <ClInclude Include="mforms\webbrowser.h" />
     <ClInclude Include="mforms\widgets.h" />
     <ClInclude Include="mforms\wizard.h" />
-    <ClInclude Include="ProjectForm.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

@@ -888,7 +888,7 @@ base::Size SidebarSection::getLayoutSize(base::Size proposedSize) {
     layout(_layout_context);
   }
 
-  return base::Size(_layout_width, _layout_height);
+  return base::Size((double)_layout_width, (double)_layout_height);
 }
 
 //--------------------------------------------------------------------------------------------------
