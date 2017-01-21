@@ -5,7 +5,6 @@ set(IMAGE_FILES
     wb_doc_model.png
     wb_doc_sql.png
     sidebar_migration.png
-    sidebar_wbx.png
     sidebar_wb.png
     sidebar_modeling.png
     sidebar_launchers.png

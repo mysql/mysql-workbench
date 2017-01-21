@@ -33,7 +33,7 @@ set DIST_DIR=.\distribution
 set UTIL_PATH=..\..\..\mysql-win-res\bin
 set PYTHON_EXE_PATH=..\..\..\..\mysql-win-res\bin\python\python.exe
 set PYTHONPATH=..\..\..\..\mysql-win-res\lib\Python
-set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%-noinstall.zip
+set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%.zip
 set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%FILENAME_ARCH%)"
 set TMP_DIR=.\temp
 
