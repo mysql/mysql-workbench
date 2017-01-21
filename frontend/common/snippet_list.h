@@ -63,15 +63,15 @@ protected:
   void set_selected(Snippet* snippet);
   Snippet* snippet_from_point(double x, double y);
 
-  virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah);
+  virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
   void layout();
-  virtual void get_layout_size(int* w, int* h);
+  virtual base::Size getLayoutSize(base::Size proposedSize) override;
   Snippet* selected();
-  virtual bool mouse_leave();
-  virtual bool mouse_move(mforms::MouseButton button, int x, int y);
-  virtual bool mouse_down(mforms::MouseButton button, int x, int y);
-  virtual bool mouse_double_click(mforms::MouseButton button, int x, int y);
-  virtual bool mouse_click(mforms::MouseButton button, int x, int y);
+  virtual bool mouse_leave() override;
+  virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
+  virtual bool mouse_down(mforms::MouseButton button, int x, int y) override;
+  virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
+  virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
 
 public:
   BaseSnippetList(const std::string& icon_name, bec::ListModel* model);
@@ -89,13 +89,13 @@ public:
   base::Rect snippet_bounds(Snippet* snippet);
 
   // ------ Accesibility Methods -----
-  virtual std::string get_acc_name() {
+  virtual std::string get_acc_name() override {
     return get_name();
   }
-  virtual mforms::Accessible::Role get_acc_role() {
+  virtual mforms::Accessible::Role get_acc_role() override {
     return mforms::Accessible::List;
   }
-  virtual int get_acc_child_count();
-  virtual Accessible* get_acc_child(int index);
-  virtual mforms::Accessible* hit_test(int x, int y);
+  virtual int get_acc_child_count() override;
+  virtual Accessible* get_acc_child(int index) override;
+  virtual mforms::Accessible* hit_test(int x, int y) override;
 };

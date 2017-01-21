@@ -352,9 +352,6 @@
     <ClInclude Include="mforms\home_screen_helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjectForm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="mforms\ProjectForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>

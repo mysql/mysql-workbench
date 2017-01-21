@@ -18,10 +18,10 @@
  */
 
 #include "mforms/home_screen_connections.h"
+
 #include "mforms/menu.h"
 #include "mforms/popup.h"
 #include "mforms/imagebox.h"
-
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/log.h"
@@ -69,7 +69,7 @@ public:
     _owner = owner;
     _connectionId = connectionId;
 
-    _close_icon = mforms::Utilities::load_icon("wb_close.png");
+    _close_icon = mforms::Utilities::load_icon("home_screen_close.png");
 
     // Host bounds is the overall size the popup should cover.
     // The free area is a hole in that overall area which should not be covered to avoid darkening it.
@@ -135,7 +135,7 @@ public:
     cairo_rel_line_to(cr, 0, -_free_area.height());
     cairo_close_path(cr);
 
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
     cairo_fill(cr);
 
     // Determine which side of the free area we can show the popup. We use the lower part as long
@@ -421,7 +421,8 @@ public:
                                      : _("Password ") + password_stored;
             print_info_line(cr, line_bounds, _("SSH Security"), security);
             line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("SSH Port"), getAnyMapValueAs<std::string>(loginInfo, "ssh.port", std::string("22")));
+            print_info_line(cr, line_bounds, _("SSH Port"),
+                            getAnyMapValueAs<std::string>(loginInfo, "ssh.port", std::string("22")));
           }
         }
       }
@@ -713,35 +714,24 @@ public:
    * Displays the info popup for the hot entry and enters a quasi-modal-state.
    */
   virtual mforms::ConnectionInfoPopup *show_info_popup() {
-    mforms::View *parent = owner->get_parent();
+    mforms::View *scrollPanel = owner->get_parent();
+    mforms::View *main = scrollPanel->get_parent();
 
     // We have checked in the hit test already that we are on a valid connection object.
-    std::pair<int, int> pos = parent->client_to_screen(parent->get_x(), parent->get_y());
+    std::pair<int, int> pos = main->client_to_screen(main->get_x(), main->get_y());
 
-    // Stretch the popup window over all 3 sections, but keep the info area in our direct parent's bounds
-    base::Rect host_bounds =
-      base::Rect(pos.first, pos.second, parent->get_parent()->get_width(), parent->get_parent()->get_height());
+    // Place the popup window over the full WB client area, but keep the info area in our direct parent's bounds
+    base::Rect hostBounds = base::Rect(pos.first, pos.second, main->get_width(), main->get_height());
 
     int width = owner->get_width();
-    width -= ConnectionsSection::CONNECTIONS_LEFT_PADDING + ConnectionsSection::CONNECTIONS_RIGHT_PADDING;
-    int tiles_per_row = width / (ConnectionsSection::CONNECTIONS_TILE_WIDTH + ConnectionsSection::CONNECTIONS_SPACING);
-
     ConnectionsSection::ConnectionVector connections(owner->displayed_connections());
 
     size_t top_entry = std::find(connections.begin(), connections.end(), owner->_hot_entry) - connections.begin();
-    size_t row = top_entry / tiles_per_row;
-    size_t column = top_entry % tiles_per_row;
-    pos.first = (int)(ConnectionsSection::CONNECTIONS_LEFT_PADDING +
-                      column * (ConnectionsSection::CONNECTIONS_TILE_WIDTH + ConnectionsSection::CONNECTIONS_SPACING));
-    pos.second = (int)(ConnectionsSection::CONNECTIONS_TOP_PADDING +
-                       row * (ConnectionsSection::CONNECTIONS_TILE_HEIGHT + ConnectionsSection::CONNECTIONS_SPACING));
-    base::Rect item_bounds = base::Rect(pos.first, pos.second, ConnectionsSection::CONNECTIONS_TILE_WIDTH,
-                                        ConnectionsSection::CONNECTIONS_TILE_HEIGHT);
+    base::Rect tileBounds = owner->bounds_for_entry(top_entry, width);
+    tileBounds.pos.x += scrollPanel->get_x() + owner->get_x();
+    tileBounds.pos.y += owner->get_y();
 
-    int info_width = parent->get_width();
-    if (info_width < 735)
-      info_width = (int)host_bounds.width();
-    return mforms::manage(new ConnectionInfoPopup(owner, connectionId, host_bounds, item_bounds, info_width));
+    return mforms::manage(new ConnectionInfoPopup(owner, connectionId, hostBounds, tileBounds, main->get_width()));
   }
 };
 
@@ -863,11 +853,151 @@ public:
   }
 };
 
+//----------------- ConnectionsWelcomeScreen ---------------------------------------------------------------------------
+
+ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(owner) {
+  _closeHomeScreenButton.name = "Close Welcome Message Screen";
+  _closeHomeScreenButton.default_action = "Close Welcome Message Screen";
+  _closeHomeScreenButton.default_handler = _accessible_click_handler;
+
+  _browseDocButton.name = "Browse Documentation >";
+  _browseDocButton.default_action = "Open documentation";
+  _browseDocButton.default_handler = _accessible_click_handler;
+
+  _readBlogButton.name = "Read the Blog >";
+  _readBlogButton.default_action = "Open MySQL Workbench Blog webpage";
+  _readBlogButton.default_handler = _accessible_click_handler;
+
+  _discussButton.name = "Discuss on the Forums >";
+  _discussButton.default_action = "Open MySQL Workbench Forums";
+  _discussButton.default_handler = _accessible_click_handler;
+
+  _closeIcon = mforms::Utilities::load_icon("home_screen_close.png");
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+ConnectionsWelcomeScreen::~ConnectionsWelcomeScreen() {
+  deleteSurface(_closeIcon);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+base::Size ConnectionsWelcomeScreen::getLayoutSize(base::Size proposedSize) {
+  return base::Size(proposedSize.width, _totalHeight); // Height doesn't change. Constant content.
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
+  _closeHomeScreenButton.bounds =
+    base::Rect(get_width() - imageWidth(_closeIcon) - ConnectionsSection::CONNECTIONS_RIGHT_PADDING,
+               ConnectionsSection::CONNECTIONS_RIGHT_PADDING - imageHeight(_closeIcon), imageWidth(_closeIcon),
+               imageHeight(_closeIcon));
+
+  cairo_set_source_surface(cr, _closeIcon, _closeHomeScreenButton.bounds.left(), _closeHomeScreenButton.bounds.top());
+  cairo_paint(cr);
+
+  int yoffset = 100;
+
+  cairo_save(cr);
+  cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
+                         CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3);
+  cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
+
+  std::string heading = "Welcome to MySQL Workbench";
+
+  cairo_text_extents_t extents;
+  cairo_text_extents(cr, heading.c_str(), &extents);
+  double x;
+  x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
+  cairo_move_to(cr, x, yoffset);
+  cairo_show_text(cr, heading.c_str());
+  yoffset += mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3;
+
+  std::vector<std::string> description = {
+    "MySQL Workbench is the official graphical user interface (GUI) tool for MySQL. It allows you to design,",
+    "create and browse your database schemas, work with database objects and insert data as well as",
+    "design and run SQL queries to work with stored data. You can also migrate schemas and data from other",
+    "databse vendors to your MySQL database."};
+
+  for (auto txt : description) {
+    cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
+    cairo_text_extents(cr, txt.c_str(), &extents);
+    x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
+    cairo_move_to(cr, x, yoffset);
+    cairo_show_text(cr, txt.c_str());
+    yoffset += (int)extents.height + 10;
+  }
+
+  yoffset += 40;
+
+  // Draw heading links
+  cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
+                         CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
+
+  cairo_set_source_rgb(cr, 0x1b / 255.0, 0xad / 255.0, 0xe8 / 255.0);
+  double pos = 0.25;
+  for (auto btn : { &_browseDocButton, &_readBlogButton, &_discussButton }) {
+    cairo_text_extents(cr, btn->name.c_str(), &extents);
+    x = get_width() * pos - (extents.width / 2 + extents.x_bearing);
+    cairo_move_to(cr, x, yoffset);
+    cairo_show_text(cr, btn->name.c_str());
+    btn->bounds = base::Rect(x, yoffset - extents.height, extents.width, extents.height);
+    pos += 0.25;
+  }
+
+  _totalHeight = yoffset + 20;
+
+  cairo_restore(cr);
+}
+
+bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, int y) {
+  // everything below this relies on _hot_entry, which will become out of sync
+  // if the user pops up the context menu and then clicks (or right clicks) in some
+  // other tile... so we must first update _hot_entry before doing any actions
+  mouse_move(mforms::MouseButtonNone, x, y);
+
+  switch (button) {
+    case mforms::MouseButtonLeft: {
+      if (_browseDocButton.bounds.contains(x, y)) {
+        _owner->trigger_callback(HomeScreenAction::ActionOpenDocs, base::any());
+        return true;
+      }
+
+      if (_discussButton.bounds.contains(x, y)) {
+        _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
+        return true;
+      }
+
+      if (_readBlogButton.bounds.contains(x, y)) {
+        _owner->trigger_callback(HomeScreenAction::ActionOpenBlog, base::any());
+        return true;
+      }
+
+      if (_closeHomeScreenButton.bounds.contains(x, y)) {
+        _owner->trigger_callback(HomeScreenAction::CloseWelcomeMessage, base::any());
+        return true;
+      }
+    }
+    default:
+      break;
+  }
+
+  return false;
+}
+
 //------------------------------------------------------------------------------------------------
 
 ConnectionsSection::ConnectionsSection(HomeScreen *owner)
-    : HomeScreenSection("sidebar_wb.png"), _search_box(true), _search_text(mforms::SmallSearchEntry),
-      _showWelcomeHeading(true) {
+  : HomeScreenSection("sidebar_wb.png"),
+    _search_box(true),
+    _search_text(mforms::SmallSearchEntry),
+    _showWelcomeHeading(true),
+    _welcomeScreen(nullptr),
+    _container(nullptr) {
 
   _owner = owner;
   _connection_context_menu = NULL;
@@ -927,6 +1057,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   scoped_connect(_search_text.signal_action(),
                  std::bind(&ConnectionsSection::on_search_text_action, this, std::placeholders::_1));
   add(&_search_box, mforms::TopRight);
+
   set_padding(0, 30, CONNECTIONS_RIGHT_PADDING, 0);
 
   _accessible_click_handler = std::bind(&ConnectionsSection::mouse_click, this, mforms::MouseButtonLeft,
@@ -939,18 +1070,6 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _manage_button.name = "Manage Connections";
   _manage_button.default_action = "Open Connection Management Dialog";
   _manage_button.default_handler = _accessible_click_handler;
-
-  _browseDocButton.name = "Browse Documentation >";
-  _browseDocButton.default_action = "Open documentation";
-  _browseDocButton.default_handler = _accessible_click_handler;
-
-  _readBlogButton.name = "Read the Blog >";
-  _readBlogButton.default_action = "Open MySQL Workbench Blog webpage";
-  _readBlogButton.default_handler = _accessible_click_handler;
-
-  _discussButton.name = "Discuss on the Forums >";
-  _discussButton.default_action = "Open MySQL Workbench Forums";
-  _discussButton.default_handler = _accessible_click_handler;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1005,17 +1124,17 @@ void ConnectionsSection::focus_search_box() {
 
 //------------------------------------------------------------------------------------------------
 
-
-void ConnectionsSection::showWelcomeHeading(bool state)
-{
+void ConnectionsSection::showWelcomeHeading(bool state) {
   _showWelcomeHeading = state;
-  set_needs_repaint();
+  if (_welcomeScreen != nullptr)
+    _welcomeScreen->show(state);
+
+  set_layout_dirty(true);
 }
 
 //------------------------------------------------------------------------------------------------
 
 void ConnectionsSection::on_search_text_changed() {
-
   std::string filter = _search_text.get_string_value();
   _filtered_connections.clear();
 
@@ -1033,8 +1152,8 @@ void ConnectionsSection::on_search_text_changed() {
         _filtered_connections.push_back(*iterator);
     }
   }
-  updateHeight();
-  set_needs_repaint();
+
+  set_layout_dirty(true);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1152,22 +1271,26 @@ std::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_index(ssize_t in
   return std::shared_ptr<ConnectionEntry>();
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-base::Rect ConnectionsSection::bounds_for_entry(ssize_t index) {
+base::Rect ConnectionsSection::bounds_for_entry(size_t index, size_t width) {
   base::Rect result(CONNECTIONS_LEFT_PADDING, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
-  int tiles_per_row = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) /
-                      (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+  size_t tiles_per_row = (width - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) /
+                         (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
 
-  int column = index % tiles_per_row;
-  ssize_t row = index / tiles_per_row;
+  if (tiles_per_row == 0)
+    return result;
+
+  size_t column = index % tiles_per_row;
+  size_t row = index / tiles_per_row;
   result.pos.x += column * (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
   result.pos.y += row * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING);
 
   return result;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Returns the connection id stored under the given index. Returns an empty string if the index
  * describes a folder or back tile.
@@ -1180,77 +1303,15 @@ std::string ConnectionsSection::connectionIdFromIndex(ssize_t index) {
   return displayed_connections()[index]->connectionId;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int ConnectionsSection::drawHeading(cairo_t *cr) {
-  int yoffset = 100;
-  cairo_save(cr);
-  cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT,
-                         CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3);
-  cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
-
-  std::string heading = "Welcome to MySQL Workbench";
-
-  cairo_text_extents_t extents;
-  cairo_text_extents(cr, heading.c_str(), &extents);
-  double x;
-  x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-  cairo_move_to(cr, x, yoffset);
-  cairo_show_text(cr, heading.c_str());
-  yoffset += mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3;
-
-  std::vector<std::string> description = {
-          "MySQL Workbench is the official graphical user interface (GUI) tool for MySQL. It allows you to design,",
-          "create and browse your database schemas, work with database objects and insert data as well as",
-          "design and run SQL queries to work with stored data. You can also migrate schemas and data from other",
-          "databse vendors to your MySQL database." };
-
-  for (auto txt : description) {
-    cairo_set_font_size(cr,
-                        mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
-    cairo_text_extents(cr, txt.c_str(), &extents);
-    x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    cairo_move_to(cr, x, yoffset);
-    cairo_show_text(cr, txt.c_str());
-    yoffset += extents.height + 10;
+void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
+  if (is_layout_dirty()) {
+    getContainer()->get_parent()->relayout();
+    set_layout_dirty(false);
   }
-
-  yoffset += 40;
-
-  // Draw heading links
-  cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT,
-                         CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(cr,
-                      mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
-
-  cairo_set_source_rgb(cr, 0x1b / 255.0, 0xad / 255.0, 0xe8 / 255.0);
-  double pos = 0.25;
-  for (auto btn : { &_browseDocButton, &_readBlogButton, &_discussButton }) {
-    cairo_text_extents(cr, btn->name.c_str(), &extents);
-    x = get_width() * pos - (extents.width / 2 + extents.x_bearing);
-    cairo_move_to(cr, x, yoffset);
-    cairo_show_text(cr, btn->name.c_str());
-    btn->bounds = base::Rect(x, yoffset, x + extents.width,
-                             yoffset + extents.height);
-    pos += 0.25;
-  }
-
-  cairo_restore(cr);
-
-  yoffset += 60;
-  return yoffset;
-}
-
-//------------------------------------------------------------------------------------------------
-
-void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah)
-{
-
+  
   int yoffset = 45;
-
-  if (_showWelcomeHeading)
-    yoffset = drawHeading(cr);
 
   int width = get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING;
 
@@ -1265,16 +1326,10 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
   cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, yoffset);
 
-  ConnectionVector *connections;
+  ConnectionVector &connections(displayed_connections());
   std::string title = _("MySQL Connections");
-  if (_active_folder) {
+  if (_active_folder)
     title += " / " + _active_folder->title;
-    connections = &_active_folder->children;
-  } else
-    connections = &_connections;
-
-  if (_filtered)
-    connections = &_filtered_connections;
 
   cairo_show_text(cr, title.c_str());
 
@@ -1298,20 +1353,17 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   // number of tiles that act as a filler
   int filler_tiles = 0;
   std::string current_section;
-  int topDistance = CONNECTIONS_TOP_PADDING;
-  if (_showWelcomeHeading)
-    topDistance = yoffset + 25;
 
-  base::Rect bounds(0, topDistance, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
+  base::Rect bounds(0, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   std::size_t index = 0;
   bool done = false;
   while (!done) {
-    if (index >= connections->size())
+    if (index >= connections.size())
       break; // we're done
 
     bounds.pos.x = CONNECTIONS_LEFT_PADDING;
     for (int column = 0; column < tiles_per_row; column++) {
-      std::string section = (*connections)[index]->section_name();
+      std::string section = connections[index]->section_name();
       if (!section.empty() && current_section != section) {
         current_section = section;
         bounds.pos.y += mforms::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE + CONNECTIONS_SPACING;
@@ -1327,18 +1379,18 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
       }
 
       // if the name of the next section is different, then we add some filler space after this tile
-      if (!current_section.empty() && (size_t)index < (*connections).size() - 1 &&
-          (*connections)[index + 1]->section_name() != current_section) {
+      if (!current_section.empty() && (size_t)index < connections.size() - 1 &&
+          connections[index + 1]->section_name() != current_section) {
         int tiles_occupied = tiles_per_row - column;
         filler_tiles += tiles_occupied;
         column += (tiles_occupied - 1);
       }
 
       // Updates the bounds on the tile
-      (*connections)[index]->bounds = bounds;
+      connections[index]->bounds = bounds;
 
-      bool draw_hot = (*connections)[index] == _hot_entry;
-      (*connections)[index]->draw_tile(cr, draw_hot, 1.0, false);
+      bool draw_hot = connections[index] == _hot_entry;
+      connections[index]->draw_tile(cr, draw_hot, 1.0, false);
 
       // Draw drop indicator.
 
@@ -1366,7 +1418,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
       index++;
       bounds.pos.x += CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING;
-      if (index >= connections->size()) {
+      if (index >= connections.size()) {
         done = true; // we're done
         break;
       }
@@ -1377,39 +1429,35 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void ConnectionsSection::updateHeight() {
-  ConnectionVector *connections;
-  if (_active_folder)
-    connections = &_active_folder->children;
-  else
-    connections = &_connections;
+base::Size ConnectionsSection::getLayoutSize(base::Size proposedSize) {
+  ConnectionVector &connections(displayed_connections());
 
-  if (_filtered)
-    connections = &_filtered_connections;
-  int tiles_per_row = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) /
-                      (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
-
-  if (!connections->empty() && tiles_per_row > 1) {
-    int height = (int)((connections->size() / tiles_per_row) * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING) +
-                       CONNECTIONS_TOP_PADDING);
-    if (height != get_height())
-      set_size(-1, height);
+  size_t height;
+  if (connections.empty())
+    height = CONNECTIONS_TOP_PADDING + CONNECTIONS_BOTTOM_PADDING;
+  else {
+    base::Rect bounds = bounds_for_entry(connections.size() - 1, (size_t)proposedSize.width);
+    height = (size_t)bounds.bottom() + CONNECTIONS_BOTTOM_PADDING;
   }
+
+  return base::Size(proposedSize.width, (double)height);
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ConnectionsSection::cancelOperation() {
   // noop
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ConnectionsSection::setFocus() {
   _search_text.focus();
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ConnectionsSection::canHandle(HomeScreenMenuType type) {
   switch (type) {
@@ -1532,7 +1580,6 @@ void ConnectionsSection::addConnection(const std::string &connectionId, const st
     _connections.push_back(entry);
 
   set_layout_dirty(true);
-  set_needs_repaint();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1563,13 +1610,13 @@ void ConnectionsSection::change_to_folder(std::shared_ptr<FolderEntry> folder) {
     _active_folder.reset();
     _filtered = false;
     _search_text.set_value("");
-    set_needs_repaint();
+    set_layout_dirty(true);
   } else if (folder) {
     _active_folder = folder;
     // Drilling into a folder.
     _filtered = false;
     _search_text.set_value("");
-    set_needs_repaint();
+    set_layout_dirty(true);
   }
 }
 
@@ -1614,21 +1661,20 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
         return true;
       }
 
-
-      if (_browseDocButton.bounds.contains(x, y)) {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenDocs, base::any());
-        return true;
-      }
-
-      if (_discussButton.bounds.contains(x, y)) {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
-        return true;
-      }
-
-      if (_readBlogButton.bounds.contains(x, y)) {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenBlog, base::any());
-        return true;
-      }
+      //      if (_browseDocButton.bounds.contains(x, y)) {
+      //        _owner->trigger_callback(HomeScreenAction::ActionOpenDocs, base::any());
+      //        return true;
+      //      }
+      //
+      //      if (_discussButton.bounds.contains(x, y)) {
+      //        _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
+      //        return true;
+      //      }
+      //
+      //      if (_readBlogButton.bounds.contains(x, y)) {
+      //        _owner->trigger_callback(HomeScreenAction::ActionOpenBlog, base::any());
+      //        return true;
+      //      }
 
       if (_hot_entry) {
 #ifdef __APPLE__
@@ -1689,6 +1735,7 @@ bool ConnectionsSection::mouse_leave() {
 //------------------------------------------------------------------------------------------------
 
 bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y) {
+
   bool in_details_area;
   std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
 
@@ -1899,6 +1946,9 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y) {
   _hot_entry.reset();
   set_needs_repaint();
 
+  if (_drag_index != -1)
+    return false;
+
   if (index >= 0) {
     mforms::DragDetails details;
     details.allowedOperations = mforms::DragOperationMove;
@@ -1906,7 +1956,7 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y) {
 
     details.image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
     cairo_t *cr = cairo_create(details.image);
-    base::Rect bounds = bounds_for_entry(index);
+    base::Rect bounds = bounds_for_entry(index, get_width());
     details.hotspot.x = x - bounds.pos.x;
     details.hotspot.y = y - bounds.pos.y;
 
@@ -1918,13 +1968,14 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y) {
       _drag_index = index;
       mforms::DragOperation operation =
         do_drag_drop(details, entry.get(), mforms::HomeScreenSettings::TILE_DRAG_FORMAT);
+
       _mouse_down_position = base::Rect();
       cairo_surface_destroy(details.image);
       cairo_destroy(cr);
 
       _drag_index = -1;
       _drop_index = -1;
-      set_needs_repaint();
+      set_layout_dirty(true);
 
       if (operation == mforms::DragOperationMove) // The actual move is done in the drop delegate method.
         return true;
@@ -2019,7 +2070,7 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
         // before or after that tile. Back tiles have no "before" position, but only "on" or "after".
         // Folder tiles have "before", "on" and "after" positions. Connection tiles only have "before"
         // and "after".
-        base::Rect bounds = bounds_for_entry(index);
+        base::Rect bounds = bounds_for_entry(index, get_width());
         std::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
         if (entry && dynamic_cast<FolderEntry *>(entry.get())) {
           // In a group take the first third as hit area for "before", the second as "on" and the
@@ -2146,11 +2197,29 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
     result = mforms::DragOperationMove;
 
     _drop_index = -1;
-    set_needs_repaint();
+    set_layout_dirty(true);
 
     return result;
   }
   return mforms::DragOperationNone;
+}
+
+mforms::View *ConnectionsSection::getContainer() {
+  if (_container == nullptr) {
+    _container = mforms::manage(new mforms::Box(false));
+    _welcomeScreen = new ConnectionsWelcomeScreen(_owner);
+    if (!_showWelcomeHeading)
+      _welcomeScreen->show(false);
+    _welcomeScreen->set_name("Home Screen Welcome Message");
+    _welcomeScreen->set_layout_dirty(true);
+    _container->add(_welcomeScreen, false, true);
+    _container->add(this, true, true);
+  }
+  return _container;
+}
+
+mforms::View *ConnectionsSection::get_parent() const {
+  return _container->get_parent();
 }
 
 ConnectionsSection::ConnectionVector &ConnectionsSection::displayed_connections() {

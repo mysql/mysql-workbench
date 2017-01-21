@@ -127,6 +127,7 @@ namespace mforms {
       // can be null
       cairo_surface_t *_drag_image;
       runtime::loop _loop;
+
       //
       //  /**
       //   * holds a void ptr to the data being dragged and std::string mime type
@@ -150,6 +151,7 @@ namespace mforms {
                               guint time);
       void slot_drag_end(const Glib::RefPtr<Gdk::DragContext> &context);
       bool slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &context, Gtk::DragResult result);
+      virtual void drag_drop_finished(bool succeed) {} ;
 
     public:
       static void init();

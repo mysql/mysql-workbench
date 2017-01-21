@@ -294,14 +294,13 @@ System::Windows::Forms::Layout::LayoutEngine ^ CanvasControl::LayoutEngine::get(
 //--------------------------------------------------------------------------------------------------
 
 System::Drawing::Size CanvasControl::GetPreferredSize(System::Drawing::Size proposedSize) {
-  int w, h;
-  backend->get_layout_size(&w, &h);
+  base::Size nativeSize = backend->getLayoutSize(base::Size(proposedSize.Width, proposedSize.Height));
   System::Drawing::Size minSize = MinimumSize;
-  if (minSize.Width > w)
-    w = minSize.Width;
-  if (minSize.Height > h)
-    h = minSize.Height;
-  return System::Drawing::Size(w, h);
+  if (minSize.Width > nativeSize.width)
+    nativeSize.width = minSize.Width;
+  if (minSize.Height > nativeSize.height)
+    nativeSize.height = minSize.Height;
+  return System::Drawing::Size((int)nativeSize.width, (int)nativeSize.height);
 }
 
 //--------------------------------------------------------------------------------------------------
