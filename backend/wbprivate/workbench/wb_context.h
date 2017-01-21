@@ -181,7 +181,6 @@ namespace wb {
     bool init_python;     // True by default. Can be switched off for testing.
     bool full_init;       // True by default. Should be switched off when the options are created for an already running
                           // instance of WB.
-    bool showClassicHome; // Set when we want to show the classic home screen by default (e.g. when started from WB.X).
     bool logLevelSet;
     WBOptions(const std::string &appBinaryName);
     ~WBOptions();

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=MySQL Workbench
 Comment=MySQL Database Design, Administration and Development Tool
-Exec=mysql-workbench %U
+Exec=mysql-workbench --open %f
 Terminal=false
 Type=Application
 Icon=mysql-workbench
