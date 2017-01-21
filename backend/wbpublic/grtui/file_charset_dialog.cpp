@@ -35,16 +35,17 @@
 using namespace mforms;
 using namespace base;
 
-FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string &message) : Form(0) {
+FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string &message)
+: Form(nullptr, mforms::FormNone) {
   set_name("file_charset_dialog");
   set_title("Open SQL File");
+
   _charset = manage(new Selector(SelectorCombobox));
   _ok = manage(new Button());
   _cancel = manage(new Button());
   _run = manage(new Button());
 
   Box *vbox = manage(new Box(false));
-  set_content(vbox);
   vbox->set_padding(12);
   vbox->set_spacing(12);
 
@@ -73,6 +74,7 @@ FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string
   Utilities::add_end_ok_cancel_buttons(bbox, _ok, _cancel);
   bbox->add(_run, false, true);
 
+  set_content(vbox);
   center();
 }
 
