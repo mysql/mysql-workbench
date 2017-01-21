@@ -300,7 +300,7 @@ System::Drawing::Size CanvasControl::GetPreferredSize(System::Drawing::Size prop
     nativeSize.width = minSize.Width;
   if (minSize.Height > nativeSize.height)
     nativeSize.height = minSize.Height;
-  return System::Drawing::Size(nativeSize.width, nativeSize.height);
+  return System::Drawing::Size((int)nativeSize.width, (int)nativeSize.height);
 }
 
 //--------------------------------------------------------------------------------------------------
