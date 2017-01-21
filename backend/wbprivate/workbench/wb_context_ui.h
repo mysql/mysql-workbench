@@ -194,7 +194,7 @@ namespace wb {
     void add_backend_builtin_commands();
 
     void show_about();
-    void show_home_screen(bool startClassic);
+    void show_home_screen();
     void show_web_page(const std::string &url, bool internal_browser);
     void show_help_index();
     void locate_log_file();

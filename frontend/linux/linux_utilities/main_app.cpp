@@ -101,6 +101,9 @@ void runtime::app::init(const std::string &name, int argc, char **argv) {
         case dataTypes::OptionArgumentLogical:
           entries.back().arg_data = &o.second.value.logicalValue;
           break;
+        case dataTypes::OptionArgumentFilename:
+          entries.back().arg_data = &o.second.value.textValue;
+          break;
         default:
           break;
       }
