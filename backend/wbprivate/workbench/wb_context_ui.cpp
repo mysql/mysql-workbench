@@ -167,7 +167,7 @@ GRTShellWindow *WBContextUI::get_shell_window() {
 
 void WBContextUI::init_finish(WBOptions *options) {
   g_assert(_wb->get_root().is_valid());
-  show_home_screen(options->showClassicHome);
+  show_home_screen();
   _wb->init_finish_(options);
 
   NotificationCenter::get()->send("GNAppStarted", nullptr);
@@ -311,7 +311,7 @@ static void add_note_file(WBContextUI *wbui) {
   */
 void WBContextUI::add_backend_builtin_commands() {
   _command_ui->add_builtin_command("show_about", std::bind(&WBContextUI::show_about, this));
-  _command_ui->add_builtin_command("overview.home", std::bind(&WBContextUI::show_home_screen, this, true));
+  _command_ui->add_builtin_command("overview.home", std::bind(&WBContextUI::show_home_screen, this));
   _command_ui->add_builtin_command("show_output_form", std::bind(&WBContextUI::show_output, this));
 
   _command_ui->add_builtin_command("add_script_file", std::bind(add_script_file, this));

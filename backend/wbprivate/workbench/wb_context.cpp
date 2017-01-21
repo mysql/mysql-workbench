@@ -195,7 +195,6 @@ WBOptions::WBOptions(const std::string &appBinaryName)
     testing(false),
     init_python(true),
     full_init(true),
-    showClassicHome(false),
     logLevelSet(false) {
   // Allocate this on heap so we silent gcc
   programOptions = new dataTypes::OptionsList();
@@ -276,10 +275,10 @@ WBOptions::WBOptions(const std::string &appBinaryName)
                                                   }));
 
   programOptions->addEntry(dataTypes::OptionEntry(
-    dataTypes::OptionArgumentType::OptionArgumentFilename, 0, "script",
+    dataTypes::OptionArgumentType::OptionArgumentText, 0, "script",
     "Open the given SQL file in an connection, best in conjunction with a query parameter", func, "<sql file>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, "run-script",
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "run-script",
                                                   "Execute Python code from a file",
                                                   [this](const dataTypes::OptionEntry &entry, int *retval) {
                                                     if (!entry.value.textValue.empty()) {
@@ -300,7 +299,7 @@ WBOptions::WBOptions(const std::string &appBinaryName)
                                                   },
                                                   "<code>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentFilename, "run-python",
+  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "run-python",
                                                   "Execute Python code from a file",
                                                   [this](const dataTypes::OptionEntry &entry, int *retval) {
                                                     if (!entry.value.textValue.empty()) {
@@ -363,7 +362,7 @@ WBOptions::WBOptions(const std::string &appBinaryName)
     }));
 
   programOptions->addEntry(
-    dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "configdir",
+    dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "configdir",
                            "Specify configuration directory location, default is platform specific.",
                            [this](const dataTypes::OptionEntry &entry, int *retval) {
                              if (!entry.value.textValue.empty()) {
@@ -374,15 +373,8 @@ WBOptions::WBOptions(const std::string &appBinaryName)
                            },
                            "<path>"));
 
-  programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "classic",
-                                                  "Initially show classic workbench tab",
-                                                  [this](const dataTypes::OptionEntry &entry, int *retval) {
-                                                    showClassicHome = entry.value.logicalValue;
-                                                    return true;
-                                                  }));
-
   programOptions->addEntry(
-    dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, "open",
+    dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentText, "open",
                            "Open the given file at startup (deprecated, use script, model etc.)",
                            [this](const dataTypes::OptionEntry &entry, int *retval) {
                              if (!entry.value.textValue.empty()) {

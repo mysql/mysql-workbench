@@ -271,9 +271,9 @@ void WBContextUI::show_about() {
  * the main application window.
  */
 
-void WBContextUI::show_home_screen(bool startClassic) {
+void WBContextUI::show_home_screen() {
   if (_home_screen != NULL) {
-    _home_screen->showSection(startClassic ? 1 : 0);
+    _home_screen->showSection(0);
     mforms::App::get()->select_view(_home_screen);
     return;
   }
@@ -490,7 +490,7 @@ void WBContextUI::show_home_screen(bool startClassic) {
     }
   }
 
-  _home_screen->showSection(startClassic ? 1 : 0);
+  _home_screen->showSection(0);
   _initializing_home_screen = false;
 }
 
