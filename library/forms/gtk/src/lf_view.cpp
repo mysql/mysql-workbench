@@ -677,13 +677,16 @@ namespace mforms {
       _drop_data.clear();
       _drag_image = NULL;
       _loop.quit(); // cause in do_drag_drop we called run()
+      drag_drop_finished(true);
     }
 
     // The drag_end signal is emmited on the drag source when the drag was failed due to user cancel, timeout, etc.
     bool ViewImpl::slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &context, Gtk::DragResult result) {
       if (result != Gtk::DRAG_RESULT_NO_TARGET && result != Gtk::DRAG_RESULT_USER_CANCELLED)
         _loop.quit(); // cause in do_drag_drop we called run()
+
       _drag_image = NULL;
+      drag_drop_finished(false);
       return false;
     }
     //------------------------------------------------------------------------------
@@ -894,10 +897,11 @@ namespace mforms {
 
         const Glib::RefPtr<Gtk::TargetList> tlist = Gtk::TargetList::create(targets);
         _drag_image = details.image;
+        Glib::RefPtr<Gdk::DragContext> context;
         if (_last_btn_down)
-          Glib::RefPtr<Gdk::DragContext> context = widget->drag_begin(tlist, actions, 1, _last_btn_down->gobj());
+          context = widget->drag_begin(tlist, actions, 1, _last_btn_down->gobj());
         else
-          Glib::RefPtr<Gdk::DragContext> context = widget->drag_begin(tlist, actions, 1, NULL);
+          context = widget->drag_begin(tlist, actions, 1, NULL);
         _loop.run();
 
         drag_op = details.allowedOperations;

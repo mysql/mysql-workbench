@@ -421,11 +421,10 @@ void BaseSnippetList::layout() {
 
 //------------------------------------------------------------------------------------------------
 
-void BaseSnippetList::get_layout_size(int* w, int* h) {
+base::Size BaseSnippetList::getLayoutSize(base::Size proposedSize) {
   layout();
 
-  *w = _layout_width;
-  *h = _layout_height;
+  return base::Size(_layout_width, _layout_height);
 }
 
 //------------------------------------------------------------------------------------------------

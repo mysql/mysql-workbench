@@ -399,20 +399,6 @@ void DocumentsSection::layout(cairo_t *cr) {
 
 //------------------------------------------------------------------------------------------------
 
-void DocumentsSection::updateHeight() {
-  int tilesPerRow =
-    (get_width() - DOCUMENTS_LEFT_PADDING - DOCUMENTS_RIGHT_PADDING) / (DOCUMENTS_ENTRY_WIDTH + DOCUMENTS_SPACING);
-
-  if (!_documents.empty() && tilesPerRow > 1) {
-    int height = (int)((_documents.size() / tilesPerRow) * (DOCUMENTS_ENTRY_HEIGHT + DOCUMENTS_VERTICAL_SPACING) +
-                       DOCUMENTS_TOP_PADDING);
-    if (height != get_height())
-      set_size(-1, height);
-  }
-}
-
-//------------------------------------------------------------------------------------------------
-
 void DocumentsSection::cancelOperation() {
   _pending_script = "";
   hide_connection_select_message();

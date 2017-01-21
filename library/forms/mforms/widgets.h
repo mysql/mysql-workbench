@@ -56,10 +56,10 @@ namespace mforms {
     void set_thresholds(ThresholdList lower_thresholds, ThresholdList upper_thresholds);
     void set_description(const std::string& description);
 #ifndef SWIG
-    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah);
-    virtual void get_layout_size(int* w, int* h);
+    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
+    virtual base::Size getLayoutSize(base::Size proposedSize) override;
 
-    virtual void step(){};
+    virtual void step() {};
 #endif
 
   protected:
@@ -73,9 +73,9 @@ namespace mforms {
     void lock();
     void unlock();
     double normalize(double input);
-    virtual void prepare_background(){};
+    virtual void prepare_background() {};
     virtual void destroy_background();
-    virtual void range_updated(double scale, double offset){};
+    virtual void range_updated(double scale, double offset) {};
     virtual bool layout(cairo_t* cr);
     void auto_scale(double value);
     bool compute_scale(double min, double max);
@@ -101,7 +101,7 @@ namespace mforms {
 
   class MFORMS_EXPORT WidgetSeparator : public DrawBox {
   protected:
-    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah);
+    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
   };
 
 // Number of values to use for the heartbeat.
@@ -112,15 +112,15 @@ namespace mforms {
     HeartbeatWidget();
     ~HeartbeatWidget();
 #ifndef SWIG
-    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah);
-    virtual void step();
+    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
+    virtual void step() override;
 #endif
     void set_value(double value);
 
   protected:
-    virtual void prepare_background();
-    virtual void range_updated(double scale, double offset);
-    virtual void get_minmax_values(double* min, double* max);
+    virtual void prepare_background() override;
+    virtual void range_updated(double scale, double offset) override;
+    virtual void get_minmax_values(double* min, double* max) override;
 
   private:
     int _pivot;
@@ -137,12 +137,12 @@ namespace mforms {
     ~ServerStatusWidget();
 
 #ifndef SWIG
-    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah);
+    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
 #endif
     void set_server_status(int status);
 
   protected:
-    virtual bool layout(cairo_t* cr);
+    virtual bool layout(cairo_t* cr) override;
 
   private:
     int _status; // -1 for unknown, 0 for not-running, 1 for running, 2 offline
@@ -162,16 +162,16 @@ namespace mforms {
     ~BarGraphWidget();
 
 #ifndef SWIG
-    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah);
+    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
 #endif
     void set_value(double value);
 
   protected:
-    virtual void prepare_background();
-    virtual void destroy_background();
+    virtual void prepare_background() override;
+    virtual void destroy_background() override;
     void create_value_gradient();
-    virtual void range_updated(double scale, double offset);
-    virtual void get_minmax_values(double* min, double* max);
+    virtual void range_updated(double scale, double offset) override;
+    virtual void get_minmax_values(double* min, double* max) override;
 
   private:
     double _value;
@@ -191,16 +191,16 @@ namespace mforms {
     ~LineDiagramWidget();
 
 #ifndef SWIG
-    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah);
-    virtual void step();
+    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
+    virtual void step() override;
 #endif
     void set_value(double value);
 
   protected:
-    virtual void prepare_background();
-    virtual void destroy_background();
-    virtual void range_updated(double scale, double offset);
-    virtual void get_minmax_values(double* min, double* max);
+    virtual void prepare_background() override;
+    virtual void destroy_background() override;
+    virtual void range_updated(double scale, double offset) override;
+    virtual void get_minmax_values(double* min, double* max) override;
 
   private:
     double _next_value;

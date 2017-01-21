@@ -232,19 +232,6 @@ void LaunchersSection::layout(cairo_t *cr) {
 
 //------------------------------------------------------------------------------------------------
 
-void LaunchersSection::updateHeight() {
-  int tilesPerRow =
-    (get_width() - LAUNCHERS_LEFT_PADDING - LAUNCHERS_RIGHT_PADDING) / (LAUNCHERS_ENTRY_WIDTH + LAUNCHERS_SPACING);
-
-  if (!_launchers.empty() && tilesPerRow > 1) {
-    int height = (int)((_launchers.size() / tilesPerRow) * (LAUNCHERS_ENTRY_HEIGHT + LAUNCHERS_VERTICAL_SPACING) +
-                       LAUNCHERS_TOP_PADDING);
-    if (height != get_height())
-      set_size(-1, height);
-  }
-}
-//------------------------------------------------------------------------------------------------
-
 void LaunchersSection::cancelOperation() {
   // pass
 }

@@ -138,7 +138,6 @@ namespace mforms {
     void update_filtered_documents();
     void draw_selection_message(cairo_t *cr);
     void layout(cairo_t *cr);
-    virtual void updateHeight();
     virtual void cancelOperation();
     virtual void setFocus();
     virtual bool canHandle(HomeScreenMenuType type);

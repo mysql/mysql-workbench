@@ -33,6 +33,28 @@ namespace mforms {
   class FolderEntry;
   class ConnectionInfoPopup;
 
+  class MFORMS_EXPORT ConnectionsWelcomeScreen : public mforms::DrawBox {
+  public:
+    ConnectionsWelcomeScreen(HomeScreen *owner);
+    virtual ~ConnectionsWelcomeScreen();
+
+    virtual base::Size getLayoutSize(base::Size proposedSize) override;
+
+  private:
+    int _totalHeight = 100; // Arbitrary initial value, til our computation is done.
+
+    HomeScreen *_owner;
+    HomeAccessibleButton _closeHomeScreenButton;
+    HomeAccessibleButton _browseDocButton;
+    HomeAccessibleButton _readBlogButton;
+    HomeAccessibleButton _discussButton;
+    cairo_surface_t *_closeIcon;
+    std::function<bool(int, int)> _accessible_click_handler;
+
+    virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
+  };
+
   class MFORMS_EXPORT ConnectionsSection : public HomeScreenSection, public mforms::DropDelegate {
     friend class ConnectionEntry;
     friend class FolderBackEntry;
@@ -86,10 +108,6 @@ namespace mforms {
 
     HomeAccessibleButton _add_button;
     HomeAccessibleButton _manage_button;
-    HomeAccessibleButton _browseDocButton;
-    HomeAccessibleButton _readBlogButton;
-    HomeAccessibleButton _discussButton;
-
 
     base::Rect _info_button_rect;
 
@@ -104,6 +122,9 @@ namespace mforms {
 
     bool _showWelcomeHeading;
 
+    ConnectionsWelcomeScreen *_welcomeScreen;
+    mforms::Box *_container;
+
     ConnectionVector &displayed_connections();
 
     void update_colors();
@@ -113,18 +134,17 @@ namespace mforms {
     ssize_t calculate_index_from_point(int x, int y);
     std::shared_ptr<ConnectionEntry> entry_from_point(int x, int y, bool &in_details_area);
     std::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index);
-    base::Rect bounds_for_entry(ssize_t index);
+    base::Rect bounds_for_entry(size_t index, size_t width);
     std::string connectionIdFromIndex(ssize_t index);
-    int drawHeading(cairo_t *cr);
 
-    void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
+    void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
 
-    virtual bool mouse_down(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_up(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
-    bool mouse_leave();
-    virtual bool mouse_move(mforms::MouseButton button, int x, int y);
+    virtual bool mouse_down(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_up(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_leave() override;
+    virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
 
     void handle_command(const std::string &command);
     void handle_folder_command(const std::string &command);
@@ -137,45 +157,52 @@ namespace mforms {
 
     void change_to_folder(std::shared_ptr<FolderEntry> folder);
 
-    virtual int get_acc_child_count();
-    virtual Accessible *get_acc_child(int index);
-    virtual std::string get_acc_name();
-    virtual Accessible::Role get_acc_role();
+    virtual int get_acc_child_count() override;
+    virtual Accessible *get_acc_child(int index) override;
+    virtual std::string get_acc_name() override;
+    virtual Accessible::Role get_acc_role() override;
 
-    virtual mforms::Accessible *hit_test(int x, int y);
+    virtual mforms::Accessible *hit_test(int x, int y) override;
     bool do_tile_drag(ssize_t index, int x, int y);
 
     mforms::DragOperation drag_over(View *sender, base::Point p, mforms::DragOperation allowedOperations,
-                                    const std::vector<std::string> &formats);
+                                    const std::vector<std::string> &formats) override;
     mforms::DragOperation files_dropped(View *sender, base::Point p, mforms::DragOperation allowedOperations,
-                                        const std::vector<std::string> &file_names);
+                                        const std::vector<std::string> &file_names) override;
     mforms::DragOperation data_dropped(mforms::View *sender, base::Point p, mforms::DragOperation allowedOperations,
-                                       void *data, const std::string &format);
+                                       void *data, const std::string &format) override;
 
   public:
-    static const int CONNECTIONS_LEFT_PADDING = 40;
-    static const int CONNECTIONS_RIGHT_PADDING =
-      40; // The tile spacing right to the last tile in the row does not belong to this padding.
-    static const int CONNECTIONS_TOP_PADDING = 75; // The vertical offset of the first visible shortcut entry->
-    static const int CONNECTIONS_SPACING = 9;      // Vertical/horizontal space between entries.
+    static const int CONNECTIONS_LEFT_PADDING = 20;
+    static const int CONNECTIONS_RIGHT_PADDING = 20;  // The tile spacing right to the last tile in the row does not
+                                                      // belong to this padding.
+    static const int CONNECTIONS_TOP_PADDING = 75;    // The vertical offset of the first visible shortcut entry.
+    static const int CONNECTIONS_BOTTOM_PADDING = 20; // The vertical distance after the last tile line.
+    static const int CONNECTIONS_SPACING = 9;         // Vertical/horizontal space between entries.
 
     static const int CONNECTIONS_TILE_WIDTH = 241;
     static const int CONNECTIONS_TILE_HEIGHT = 91;
 
     ConnectionsSection(HomeScreen *owner);
     ~ConnectionsSection();
+
     void clear_connections(bool clear_state = true);
     void focus_search_box();
     void showWelcomeHeading(bool state = true);
-    virtual void updateHeight();
-    virtual void cancelOperation();
-    virtual void setFocus();
-    virtual bool canHandle(HomeScreenMenuType type);
-    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
-    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
+
+    virtual base::Size getLayoutSize(base::Size proposedSize) override;
+    virtual void cancelOperation() override;
+    virtual void setFocus() override;
+    virtual bool canHandle(HomeScreenMenuType type) override;
+    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) override;
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) override;
+
     std::function<anyMap(const std::string &)> getConnectionInfoCallback;
 
     void addConnection(const std::string &connectionId, const std::string &title, const std::string &description,
                        const std::string &user, const std::string &schema);
+
+    virtual mforms::View *getContainer() override;
+    virtual mforms::View *get_parent() const override;
   };
 }

@@ -354,14 +354,13 @@ void BaseWidget::repaint(cairo_t* cr, int areax, int areay, int areaw, int areah
 /**
  * Returns the computed size for this widget (min size).
  */
-void BaseWidget::get_layout_size(int* w, int* h) {
+base::Size BaseWidget::getLayoutSize(base::Size proposedSize) {
   if (is_layout_dirty()) {
     create_context_for_layout();
     layout(_layout_context);
   }
 
-  *w = _layout_width;
-  *h = _layout_height;
+  return base::Size(_layout_width, _layout_height);
 }
 
 //--------------------------------------------------------------------------------------------------
