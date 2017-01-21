@@ -1278,6 +1278,9 @@ base::Rect ConnectionsSection::bounds_for_entry(size_t index, size_t width) {
   size_t tiles_per_row = (width - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) /
                          (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
 
+  if (tiles_per_row == 0)
+    return result;
+
   size_t column = index % tiles_per_row;
   size_t row = index / tiles_per_row;
   result.pos.x += column * (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);

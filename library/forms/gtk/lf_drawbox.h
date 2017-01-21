@@ -24,7 +24,6 @@
 
 namespace mforms {
   namespace gtk {
-
     class DrawBoxImpl : public ViewImpl {
       struct AlignControl {
         mforms::Alignment _align;
