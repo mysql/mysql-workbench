@@ -69,7 +69,7 @@ public:
     _owner = owner;
     _connectionId = connectionId;
 
-    _close_icon = mforms::Utilities::load_icon("wb_close.png");
+    _close_icon = mforms::Utilities::load_icon("home_screen_close.png");
 
     // Host bounds is the overall size the popup should cover.
     // The free area is a hole in that overall area which should not be covered to avoid darkening it.
@@ -135,7 +135,7 @@ public:
     cairo_rel_line_to(cr, 0, -_free_area.height());
     cairo_close_path(cr);
 
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
     cairo_fill(cr);
 
     // Determine which side of the free area we can show the popup. We use the lower part as long
@@ -714,35 +714,24 @@ public:
    * Displays the info popup for the hot entry and enters a quasi-modal-state.
    */
   virtual mforms::ConnectionInfoPopup *show_info_popup() {
-    mforms::View *parent = owner->get_parent();
+    mforms::View *scrollPanel = owner->get_parent();
+    mforms::View *main = scrollPanel->get_parent();
 
     // We have checked in the hit test already that we are on a valid connection object.
-    std::pair<int, int> pos = parent->client_to_screen(parent->get_x(), parent->get_y());
+    std::pair<int, int> pos = main->client_to_screen(main->get_x(), main->get_y());
 
-    // Stretch the popup window over all 3 sections, but keep the info area in our direct parent's bounds
-    base::Rect host_bounds =
-      base::Rect(pos.first, pos.second, parent->get_parent()->get_width(), parent->get_parent()->get_height());
+    // Place the popup window over the full WB client area, but keep the info area in our direct parent's bounds
+    base::Rect hostBounds = base::Rect(pos.first, pos.second, main->get_width(), main->get_height());
 
     int width = owner->get_width();
-    width -= ConnectionsSection::CONNECTIONS_LEFT_PADDING + ConnectionsSection::CONNECTIONS_RIGHT_PADDING;
-    int tiles_per_row = width / (ConnectionsSection::CONNECTIONS_TILE_WIDTH + ConnectionsSection::CONNECTIONS_SPACING);
-
     ConnectionsSection::ConnectionVector connections(owner->displayed_connections());
 
     size_t top_entry = std::find(connections.begin(), connections.end(), owner->_hot_entry) - connections.begin();
-    size_t row = top_entry / tiles_per_row;
-    size_t column = top_entry % tiles_per_row;
-    pos.first = (int)(ConnectionsSection::CONNECTIONS_LEFT_PADDING +
-                      column * (ConnectionsSection::CONNECTIONS_TILE_WIDTH + ConnectionsSection::CONNECTIONS_SPACING));
-    pos.second = (int)(ConnectionsSection::CONNECTIONS_TOP_PADDING +
-                       row * (ConnectionsSection::CONNECTIONS_TILE_HEIGHT + ConnectionsSection::CONNECTIONS_SPACING));
-    base::Rect item_bounds = base::Rect(pos.first, pos.second, ConnectionsSection::CONNECTIONS_TILE_WIDTH,
-                                        ConnectionsSection::CONNECTIONS_TILE_HEIGHT);
+    base::Rect tileBounds = owner->bounds_for_entry(top_entry, width);
+    tileBounds.pos.x += scrollPanel->get_x() + owner->get_x();
+    tileBounds.pos.y += owner->get_y();
 
-    int info_width = parent->get_width();
-    if (info_width < 735)
-      info_width = (int)host_bounds.width();
-    return mforms::manage(new ConnectionInfoPopup(owner, connectionId, host_bounds, item_bounds, info_width));
+    return mforms::manage(new ConnectionInfoPopup(owner, connectionId, hostBounds, tileBounds, main->get_width()));
   }
 };
 
@@ -1334,16 +1323,10 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
   cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, yoffset);
 
-  ConnectionVector *connections;
+  ConnectionVector &connections(displayed_connections());
   std::string title = _("MySQL Connections");
-  if (_active_folder) {
+  if (_active_folder)
     title += " / " + _active_folder->title;
-    connections = &_active_folder->children;
-  } else
-    connections = &_connections;
-
-  if (_filtered)
-    connections = &_filtered_connections;
 
   cairo_show_text(cr, title.c_str());
 
@@ -1367,20 +1350,17 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   // number of tiles that act as a filler
   int filler_tiles = 0;
   std::string current_section;
-  int topDistance = CONNECTIONS_TOP_PADDING;
-  if (_showWelcomeHeading)
-    topDistance = yoffset + 25;
 
-  base::Rect bounds(0, topDistance, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
+  base::Rect bounds(0, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   std::size_t index = 0;
   bool done = false;
   while (!done) {
-    if (index >= connections->size())
+    if (index >= connections.size())
       break; // we're done
 
     bounds.pos.x = CONNECTIONS_LEFT_PADDING;
     for (int column = 0; column < tiles_per_row; column++) {
-      std::string section = (*connections)[index]->section_name();
+      std::string section = connections[index]->section_name();
       if (!section.empty() && current_section != section) {
         current_section = section;
         bounds.pos.y += mforms::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE + CONNECTIONS_SPACING;
@@ -1396,18 +1376,18 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
       }
 
       // if the name of the next section is different, then we add some filler space after this tile
-      if (!current_section.empty() && (size_t)index < (*connections).size() - 1 &&
-          (*connections)[index + 1]->section_name() != current_section) {
+      if (!current_section.empty() && (size_t)index < connections.size() - 1 &&
+          connections[index + 1]->section_name() != current_section) {
         int tiles_occupied = tiles_per_row - column;
         filler_tiles += tiles_occupied;
         column += (tiles_occupied - 1);
       }
 
       // Updates the bounds on the tile
-      (*connections)[index]->bounds = bounds;
+      connections[index]->bounds = bounds;
 
-      bool draw_hot = (*connections)[index] == _hot_entry;
-      (*connections)[index]->draw_tile(cr, draw_hot, 1.0, false);
+      bool draw_hot = connections[index] == _hot_entry;
+      connections[index]->draw_tile(cr, draw_hot, 1.0, false);
 
       // Draw drop indicator.
 
@@ -1435,7 +1415,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
       index++;
       bounds.pos.x += CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING;
-      if (index >= connections->size()) {
+      if (index >= connections.size()) {
         done = true; // we're done
         break;
       }
@@ -1449,20 +1429,13 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 //----------------------------------------------------------------------------------------------------------------------
 
 base::Size ConnectionsSection::getLayoutSize(base::Size proposedSize) {
-  ConnectionVector *connections;
-  if (_active_folder)
-    connections = &_active_folder->children;
-  else
-    connections = &_connections;
-
-  if (_filtered)
-    connections = &_filtered_connections;
+  ConnectionVector &connections(displayed_connections());
 
   size_t height;
-  if (connections->empty())
+  if (connections.empty())
     height = CONNECTIONS_TOP_PADDING + CONNECTIONS_BOTTOM_PADDING;
   else {
-    base::Rect bounds = bounds_for_entry(connections->size() - 1, proposedSize.width);
+    base::Rect bounds = bounds_for_entry(connections.size() - 1, proposedSize.width);
     height = bounds.bottom() + CONNECTIONS_BOTTOM_PADDING;
   }
 
@@ -2235,6 +2208,7 @@ mforms::View *ConnectionsSection::getContainer() {
     if (!_showWelcomeHeading)
       _welcomeScreen->show(false);
     _welcomeScreen->set_name("Home Screen Welcome Message");
+    _welcomeScreen->set_layout_dirty(true);
     _container->add(_welcomeScreen, false, true);
     _container->add(this, true, true);
   }
@@ -2242,10 +2216,7 @@ mforms::View *ConnectionsSection::getContainer() {
 }
 
 mforms::View *ConnectionsSection::get_parent() const {
-  if (_container != nullptr)
-    return _container->get_parent();
-
-  return _parent;
+  return _container->get_parent();
 }
 
 ConnectionsSection::ConnectionVector &ConnectionsSection::displayed_connections() {
