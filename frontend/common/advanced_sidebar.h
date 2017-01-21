@@ -195,23 +195,23 @@ namespace wb {
       return _title;
     };
 
-    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah);
-    virtual bool mouse_leave();
-    virtual bool mouse_move(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_down(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_up(mforms::MouseButton button, int x, int y);
-    virtual void get_layout_size(int* w, int* h);
+    virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
+    virtual bool mouse_leave() override;
+    virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_down(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_up(mforms::MouseButton button, int x, int y) override;
+    virtual base::Size getLayoutSize(base::Size proposedSize) override;
 
-    virtual mforms::Accessible::Role get_acc_role() {
+    virtual mforms::Accessible::Role get_acc_role() override {
       return mforms::Accessible::OutlineItem;
     }
-    virtual std::string get_acc_name() {
+    virtual std::string get_acc_name() override {
       return _title;
     }
-    virtual int get_acc_child_count();
-    virtual Accessible* get_acc_child(int index);
-    virtual mforms::Accessible* hit_test(int x, int y);
+    virtual int get_acc_child_count() override;
+    virtual Accessible* get_acc_child(int index) override;
+    virtual mforms::Accessible* hit_test(int x, int y) override;
 
     void clear_selection();
 
