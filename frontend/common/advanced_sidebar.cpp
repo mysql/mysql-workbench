@@ -882,14 +882,13 @@ bool SidebarSection::mouse_up(mforms::MouseButton button, int x, int y) {
 
 //--------------------------------------------------------------------------------------------------
 
-void SidebarSection::get_layout_size(int* w, int* h) {
+base::Size SidebarSection::getLayoutSize(base::Size proposedSize) {
   if (is_layout_dirty()) {
     create_context_for_layout();
     layout(_layout_context);
   }
 
-  *w = (int)_layout_width;
-  *h = (int)_layout_height;
+  return base::Size(_layout_width, _layout_height);
 }
 
 //--------------------------------------------------------------------------------------------------
