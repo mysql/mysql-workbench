@@ -928,7 +928,7 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, txt.c_str());
-    yoffset += extents.height + 10;
+    yoffset += (int)extents.height + 10;
   }
 
   yoffset += 40;
@@ -1275,11 +1275,11 @@ std::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_index(ssize_t in
 
 base::Rect ConnectionsSection::bounds_for_entry(size_t index, size_t width) {
   base::Rect result(CONNECTIONS_LEFT_PADDING, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
-  int tiles_per_row = (width - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) /
-                      (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+  size_t tiles_per_row = (width - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) /
+                         (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
 
-  int column = index % tiles_per_row;
-  ssize_t row = index / tiles_per_row;
+  size_t column = index % tiles_per_row;
+  size_t row = index / tiles_per_row;
   result.pos.x += column * (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
   result.pos.y += row * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING);
 
@@ -1435,11 +1435,11 @@ base::Size ConnectionsSection::getLayoutSize(base::Size proposedSize) {
   if (connections.empty())
     height = CONNECTIONS_TOP_PADDING + CONNECTIONS_BOTTOM_PADDING;
   else {
-    base::Rect bounds = bounds_for_entry(connections.size() - 1, proposedSize.width);
-    height = bounds.bottom() + CONNECTIONS_BOTTOM_PADDING;
+    base::Rect bounds = bounds_for_entry(connections.size() - 1, (size_t)proposedSize.width);
+    height = (size_t)bounds.bottom() + CONNECTIONS_BOTTOM_PADDING;
   }
 
-  return base::Size(proposedSize.width, height);
+  return base::Size(proposedSize.width, (double)height);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
