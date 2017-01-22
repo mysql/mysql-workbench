@@ -62,9 +62,9 @@ namespace mforms {
       if (wnd != nullptr)
         _wnd.set_transient_for(*wnd);
       _wnd.set_modal(true);
-#if GTK_VERSION_GE(2, 12)
-      _wnd.set_opacity(0.7);
-#endif
+
+      auto w = (Gtk::Widget*)&_wnd;
+      gtk_widget_set_visual(w->gobj(), _wnd.get_screen()->get_rgba_visual()->gobj());
     }
     //------------------------------------------------------------------------------
     PopupImpl::~PopupImpl() {
