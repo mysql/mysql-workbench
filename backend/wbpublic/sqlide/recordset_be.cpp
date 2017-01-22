@@ -542,10 +542,19 @@ grt::StringRef Recordset::do_apply_changes(Ptr self_ptr, Recordset_data_storage:
   return grt::StringRef("");
 }
 
+/*
+ * Actually applies recordset changes. Must run in the main thread for UI updates.
+ */
 void Recordset::apply_changes_(Recordset_data_storage::Ptr data_storage_ptr) {
   // TODO: not sure we need this function anymore. The SQL IDE form always redirects apply_changes now.
   task->finish_cb(std::bind(&Recordset::on_apply_changes_finished, this));
-  task->exec(true, std::bind(&Recordset::do_apply_changes, this, weak_ptr_from(this), data_storage_ptr, false));
+
+  Recordset_data_storage::Ref storage = data_storage_ptr.lock();
+  try {
+    storage->apply_changes(weak_ptr_from(this), false);
+    reset(data_storage_ptr, false);
+  }
+  CATCH_AND_DISPATCH_EXCEPTION(false, "Apply recordset changes")
 }
 
 static int process_task_msg(int msgType, const std::string &message, const std::string &detail, int &error_count,
