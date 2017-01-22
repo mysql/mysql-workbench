@@ -437,20 +437,21 @@ public:
       // values we need after destruction. The self destruction is also the reason why we
       // use mouse_up instead of mouse_click.
       HomeScreen *owner = _owner->_owner;
-      //      db_mgmt_ConnectionRef connection = _connection;
+
+      std::string id = _connectionId; // Have to copy the value as we might get released now.
 
       if (_button1_rect.contains(x, y)) {
         set_modal_result(1); // Just a dummy value to close ourselves.
-        owner->handleContextMenu(_connectionId, "manage_connections");
+        owner->handleContextMenu(id, "manage_connections");
       } else if (_button2_rect.contains(x, y)) {
         set_modal_result(1);
-        owner->trigger_callback(HomeScreenAction::ActionSetupRemoteManagement, _connectionId);
+        owner->trigger_callback(HomeScreenAction::ActionSetupRemoteManagement, id);
       } else if (_button3_rect.contains(x, y)) {
         set_modal_result(1);
-        owner->handleContextMenu(_connectionId, "");
+        owner->handleContextMenu(id, "");
       } else if (_button4_rect.contains(x, y)) {
         set_modal_result(1);
-        owner->handleContextMenu(_connectionId, "open_connection");
+        owner->handleContextMenu(id, "open_connection");
       } else if (_close_button_rect.contains(x, y))
         set_modal_result(1);
     }
