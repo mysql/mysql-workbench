@@ -286,7 +286,6 @@
     <ClInclude Include="..\..\generated\grts\structs.db.migration.h" />
     <ClInclude Include="..\..\generated\grts\structs.db.mssql.h" />
     <ClInclude Include="..\..\generated\grts\structs.db.mysql.h" />
-    <ClInclude Include="..\..\generated\grts\structs.db.ng.h" />
     <ClInclude Include="..\..\generated\grts\structs.db.query.h" />
     <ClInclude Include="..\..\generated\grts\structs.db.sybase.h" />
     <ClInclude Include="..\..\generated\grts\structs.eer.h" />
