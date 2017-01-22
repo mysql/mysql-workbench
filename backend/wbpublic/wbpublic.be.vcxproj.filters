@@ -485,9 +485,6 @@
     <ClInclude Include="grtsqlparser\parser_services_common.h">
       <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\generated\grts\structs.db.ng.h">
-      <Filter>Generated Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
