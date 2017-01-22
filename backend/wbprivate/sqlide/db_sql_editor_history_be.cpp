@@ -414,16 +414,18 @@ void DbSqlEditorHistory::DetailsModel::save() {
   }
 
   {
+
     base::RecMutexLock data_mutex(_data_mutex);
+    std::reverse(_data.begin(), _data.end());
     std::string last_saved_timestamp;
     std::string last_saved_statement;
-    get_field(NodeId(_last_loaded_row), 0, last_saved_timestamp);
-    get_field(NodeId(_last_loaded_row), 1, last_saved_statement);
+    get_field(NodeId(_last_loaded_row), 1, last_saved_timestamp);
+    get_field(NodeId(_last_loaded_row), 0, last_saved_statement);
 
     for (RowId row = _last_loaded_row + 1; row < _row_count; ++row) {
       std::string time, sql;
-      get_field(NodeId((int)row), 0, time);
-      get_field(NodeId((int)row), 1, sql);
+      get_field(NodeId((int)row), 1, time);
+      get_field(NodeId((int)row), 0, sql);
 
       if (time == last_saved_timestamp)
         time = "~";
@@ -442,6 +444,7 @@ void DbSqlEditorHistory::DetailsModel::save() {
       ofs << "<ENTRY timestamp=\'" << xml_time << "\'>" << xml_sql << "</ENTRY>\n";
     }
     _last_loaded_row = (int)_row_count - 1;
+    std::reverse(_data.begin(), _data.end());
   }
   ofs.flush();
 }
