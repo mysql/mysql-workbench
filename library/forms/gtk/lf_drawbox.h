@@ -66,7 +66,6 @@ namespace mforms {
       void mouse_cross_event(GdkEventCrossing *event, ::mforms::DrawBox *self);
       bool mouse_button_event(GdkEventButton *event, ::mforms::DrawBox *self);
       bool mouse_move_event(GdkEventMotion *event, ::mforms::DrawBox *self);
-      virtual void drag_drop_finished(bool succeed);
 
       static bool create(::mforms::DrawBox *self);
       static void set_needs_repaint(::mforms::DrawBox *self);

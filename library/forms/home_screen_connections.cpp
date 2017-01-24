@@ -1947,9 +1947,6 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y) {
   _hot_entry.reset();
   set_needs_repaint();
 
-  if (_drag_index != -1)
-    return false;
-
   if (index >= 0) {
     mforms::DragDetails details;
     details.allowedOperations = mforms::DragOperationMove;
