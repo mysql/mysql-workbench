@@ -591,29 +591,6 @@ namespace mforms {
     }
 
     //------------------------------------------------------------------------------
-    void ViewImpl::set_allow_drag(::mforms::View *self, const bool flag) {
-      ViewImpl *view = self->get_data<ViewImpl>();
-      if (view) {
-        std::vector<Gtk::TargetEntry> targets;
-
-        //      targets.push_back(Gtk::TargetEntry("text/plain", Gtk::TargetFlags(0)));
-        //      targets.push_back(Gtk::TargetEntry("text/uri-list", Gtk::TargetFlags(0)));
-        //      targets.push_back(Gtk::TargetEntry("UTF8_STRING", Gtk::TargetFlags(0)));
-        //      targets.push_back(Gtk::TargetEntry("STRING", Gtk::TargetFlags(0)));
-        //      targets.push_back(Gtk::TargetEntry("TEXT", Gtk::TargetFlags(0)));
-
-        Gtk::Widget *widget = view->get_outer();
-
-        if (widget) {
-          widget->drag_source_set(targets, Gdk::MODIFIER_MASK, Gdk::ACTION_COPY);
-          // widget->signal_drag_begin().connect(sigc::mem_fun(view, &ViewImpl::drag_begin));
-          widget->signal_drag_data_get().connect(sigc::mem_fun(view, &ViewImpl::slot_drag_data_get));
-          widget->signal_drag_data_delete().connect(sigc::mem_fun(view, &ViewImpl::slot_drag_data_delete));
-        }
-      }
-    }
-
-    //------------------------------------------------------------------------------
     void ViewImpl::register_drop_formats(::mforms::View *self, DropDelegate *target,
                                          const std::vector<std::string> &formats) {
       ViewImpl *view = self->get_data<ViewImpl>();
@@ -677,7 +654,6 @@ namespace mforms {
       _drop_data.clear();
       _drag_image = NULL;
       _loop.quit(); // cause in do_drag_drop we called run()
-      drag_drop_finished(true);
     }
 
     // The drag_end signal is emmited on the drag source when the drag was failed due to user cancel, timeout, etc.
@@ -686,7 +662,6 @@ namespace mforms {
         _loop.quit(); // cause in do_drag_drop we called run()
 
       _drag_image = NULL;
-      drag_drop_finished(false);
       return false;
     }
     //------------------------------------------------------------------------------
@@ -726,26 +701,28 @@ namespace mforms {
 
       widget->drag_get_data(context, target, time);
 
-      //  std::vector<Glib::ustring>::iterator iter;
-      //  if ((iter= std::find(targets.begin(), targets.end(), "text/uri-list")) != targets.end())
-      //  {
-      //    Glib::ustring type= *iter;
-      //    g_message("ask for %s", iter->c_str());
-      //
-      //    get_outer()->drag_get_data(context, "DataObject", time);
-      //
-      //    return true;
-      //  }
+// We have to send this event because as of GTK#a0e805684860306b80109814499d0cdaba5fd6ba
+// there's still some unreleased event.
+#if GTK_CHECK_VERSION(3, 18, 0)
+      if (_last_btn_down != nullptr) {
+        GdkEvent *send_event;
+        send_event = gdk_event_new(GDK_BUTTON_RELEASE);
+        send_event->button.window = context->get_source_window()->gobj();
+        send_event->button.send_event = TRUE;
+        send_event->button.time = time;
+        send_event->button.x = x;
+        send_event->button.y = y;
+        send_event->button.axes = NULL;
+        send_event->button.state = 0;
+        send_event->button.button = _last_btn_down->gobj()->button.button;
+        send_event->button.device = context->get_device()->gobj();
+        send_event->button.x_root = 0;
+        send_event->button.y_root = 0;
 
-      //  if ((iter= std::find(targets.begin(), targets.end(), "text/uri-list")) != targets.end())
-      //  {
-      //    Glib::ustring type= *iter;
-      //    g_message("ask for %s", iter->c_str());
-      //
-      //    get_outer()->drag_get_data(context, "DataObject", time);
-      //
-      //    return true;
-      //  }
+        gtk_propagate_event(widget->gobj(), send_event);
+        gdk_event_free(send_event);
+      }
+#endif
 
       return true;
     }
@@ -1011,7 +988,6 @@ namespace mforms {
       f->_view_impl.drag_data = &ViewImpl::drag_data;
       f->_view_impl.drag_text = &ViewImpl::drag_text;
 
-      //  f->_view_impl.set_allow_drag       = &ViewImpl::set_allow_drag;
       f->_view_impl.register_drop_formats = &ViewImpl::register_drop_formats;
       f->_view_impl.focus = &ViewImpl::focus;
       f->_view_impl.has_focus = &ViewImpl::has_focus;

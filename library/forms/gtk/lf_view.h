@@ -100,7 +100,6 @@ namespace mforms {
       static void flush_events(::mforms::View *self);
       static void set_padding(::mforms::View *self, int left, int top, int right, int bottom);
       virtual void set_padding_impl(int left, int top, int right, int bottom);
-      static void set_allow_drag(::mforms::View *self, const bool flag);
       static void register_drop_formats(::mforms::View *self, DropDelegate *target,
                                         const std::vector<std::string> &formats);
       void register_drop_formats(const std::vector<std::string> &formats, DropDelegate *target);
@@ -151,7 +150,6 @@ namespace mforms {
                               guint time);
       void slot_drag_end(const Glib::RefPtr<Gdk::DragContext> &context);
       bool slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &context, Gtk::DragResult result);
-      virtual void drag_drop_finished(bool succeed) {} ;
 
     public:
       static void init();

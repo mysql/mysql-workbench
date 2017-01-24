@@ -234,17 +234,6 @@ namespace mforms {
       return self->mouse_move(_last_btn, (int)event->x, (int)event->y);
     }
 
-    void DrawBoxImpl::drag_drop_finished(bool succeed) {
-      auto btn = _last_btn;
-      _last_btn = MouseButtonNone;
-      auto drawBox = dynamic_cast<mforms::DrawBox*>(owner);
-      if (drawBox != nullptr)
-      {
-        drawBox->mouse_click(btn, _mousePos.x, _mousePos.y);
-        drawBox->mouse_up(btn, _mousePos.x, _mousePos.y);
-      }
-    };
-
     bool DrawBoxImpl::create(::mforms::DrawBox *self) {
       return new DrawBoxImpl(self) != 0;
     }
