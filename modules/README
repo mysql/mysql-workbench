@@ -8,7 +8,6 @@ Modules
 Import from custom sources.
 
 Exported Module (WbMysqlImport):
-  importDBD4  Build catalog & model from DBD4 diagram file.
   parseSqlScriptFile  Build catalog from SQL script file.
   parseSqlScriptFileEx  Build catalog from SQL script file (extended version).
   parseSqlScriptString Build catalog from SQL script.
@@ -21,7 +20,6 @@ Exported Module (WbMysqlImport):
 
 Exported Plugins:
   db.mysql.import.sql Build catalog from SQL script file (GUI).
-  db.mysql.import.dbd4  Build catalog & model from DBD4 diagram file (GUI).
 
 ./wb.mysql
 -------------------
