@@ -152,14 +152,14 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
     bundlePath = [NSString stringWithCPPString: path]
       .stringByDeletingLastPathComponent.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent;
 
-    NSLog(@"opening plugin bundle %@ ([%s initWithModule:arguments:...])", bundlePath, class_name.c_str());
+    logDebug("Opening plugin bundle %s\n", shlib.c_str());
 
     pluginBundle = [NSBundle bundleWithPath: bundlePath];
-    if (!pluginBundle) {
-      NSLog(@"plugin bundle %@ for plugin %s could not be loaded", bundlePath, path.c_str());
+    if (pluginBundle == nil) {
+      logError("Plugin bundle %s could not be found\n", bundlePath.UTF8String);
       NSAlert *alert = [NSAlert new];
-      alert.messageText = @"Error Opening Plugin";
-      alert.informativeText = [NSString stringWithFormat: @"The plugin %s could not be loaded.", shlib.c_str()];
+      alert.messageText = @"Missing Plugin";
+      alert.informativeText = [NSString stringWithFormat: @"The plugin %s could not be found.", shlib.c_str()];
       alert.alertStyle = NSCriticalAlertStyle;
       [alert addButtonWithTitle: @"Close"];
       [alert runModal];
@@ -167,9 +167,27 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
       return 0;
     }
 
+    if (!pluginBundle.isLoaded) {
+      NSError *error = nil;
+      [pluginBundle loadAndReturnError: &error];
+      if (error != nil) {
+        NSString *s = [NSString stringWithFormat: @"%@", error];
+        logError("Error loading bundle: %s\n", s.UTF8String);
+
+        NSAlert *alert = [NSAlert new];
+        alert.messageText = @"Error Loading Plugin";
+        alert.informativeText = [NSString stringWithFormat: @"The plugin %s could not be loaded. See log file for details", shlib.c_str()];
+        alert.alertStyle = NSCriticalAlertStyle;
+        [alert addButtonWithTitle: @"Close"];
+        [alert runModal];
+
+        return 0;
+      }
+    }
+
     Class pclass = [pluginBundle classNamed: @(class_name.c_str())];
     if (!pclass) {
-      NSLog(@"plugin class %s was not found in bundle %@", class_name.c_str(), bundlePath);
+      logError("Plugin class %s was not found in bundle %s\n", class_name.c_str(), bundlePath.UTF8String);
 
       NSAlert *alert = [NSAlert new];
       alert.messageText = @"Error Opening Plugin";
@@ -231,11 +249,11 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
       [plugin showModal];
       return nil;
     } else {
-      NSLog(@"Plugin %@ is of unknown type", plugin);
+      logWarning("Plugin %s is of unknown type\n", [[plugin className] UTF8String]);
       return nil;
     }
   } else {
-    NSLog(@"open_plugin() called for an unknown plugin type");
+    logWarning("open_plugin() called for an unknown plugin type\n");
     return 0;
   }
 }

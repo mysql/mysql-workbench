@@ -476,10 +476,9 @@ gpointer GRTDispatcher::worker_thread(gpointer data) {
 #endif
 
     g_atomic_int_inc(&self->_busy);
-    logDebug3("GRT dispatcher, running task %s", task->name().c_str());
+    logDebug3("GRT dispatcher, running task %s\n", task->name().c_str());
 
-    if (dynamic_cast<GrtNullTask *>(task.get()) != 0) // a NULL task terminates the thread
-    {
+    if (dynamic_cast<GrtNullTask *>(task.get()) != 0) { // a NULL task terminates the thread
       DPRINT("worker: termination task received, closing...");
       task->finished(grt::ValueRef());
       g_atomic_int_dec_and_test(&self->_busy);
