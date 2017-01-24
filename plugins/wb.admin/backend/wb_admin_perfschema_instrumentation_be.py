@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -615,7 +615,6 @@ class PSThread(ChangeTracker):
         self.plist_state = ""
         self.plist_info = ""
         self.parent_id = ""
-        self.role = ""
 
 
 class PSThreads(ChangeNotifierDict):
@@ -629,7 +628,7 @@ class PSThreads(ChangeNotifierDict):
             result = self.ctrl_be.exec_query('SELECT THREAD_ID, NAME, TYPE, PROCESSLIST_ID, PROCESSLIST_USER,'
                                              'PROCESSLIST_HOST, PROCESSLIST_DB, PROCESSLIST_COMMAND, PROCESSLIST_TIME,'
                                              'PROCESSLIST_STATE, SUBSTRING(PROCESSLIST_INFO, 1, 80) AS INFO,'
-                                             'PARENT_THREAD_ID,ROLE, INSTRUMENTED FROM performance_schema.threads')
+                                             'PARENT_THREAD_ID, INSTRUMENTED FROM performance_schema.threads')
 
             if result is not None:
                 while result.nextRow():
@@ -650,7 +649,6 @@ class PSThreads(ChangeNotifierDict):
                     thread.plist_state = result.stringByName('PROCESSLIST_STATE') or ""
                     thread.plist_info = result.stringByName('INFO') or ""
                     thread.parent_id = result.stringByName('PARENT_THREAD_ID') or ""
-                    thread.role = result.stringByName('ROLE') or ""
 
                     # At this point the threads is considered loaded
                     # so resets the change tracking system
