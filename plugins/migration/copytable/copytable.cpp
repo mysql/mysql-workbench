@@ -2611,7 +2611,7 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
 #if MYSQL_CHECK_VERSION(5, 7, 6)
   if (_target->is_mysql_version_at_least(5, 7, 6))
-    ret_length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
+    ret_length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '"');
   else
     ret_length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
 #else
