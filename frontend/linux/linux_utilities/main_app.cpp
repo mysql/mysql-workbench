@@ -114,6 +114,8 @@ void runtime::app::init(const std::string &name, int argc, char **argv) {
     }
   }
 
+  entries.push_back({G_OPTION_REMAINING, '\0', 0, G_OPTION_ARG_FILENAME_ARRAY, nullptr, nullptr,"[PATH]"});
+
   entries.push_back({NULL, 0, 0, G_OPTION_ARG_NONE, nullptr, NULL, nullptr});
   _app = Gtk::Application::create(argc, argv, name, Gio::APPLICATION_HANDLES_COMMAND_LINE);
 
