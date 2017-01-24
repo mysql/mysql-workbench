@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 48;
+	objectVersion = 47;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -17006,7 +17006,7 @@
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
 				);
-				INSTALL_PATH = "@executable_path/../Frameworks";
+				INSTALL_PATH = "@loader_path/../Frameworks";
 				PRODUCT_NAME = db.mysql.editors.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -17036,7 +17036,7 @@
 					"$(SRCROOT)/library/canvas/src",
 					"$(SRCROOT)/library/grt/src",
 				);
-				INSTALL_PATH = "@executable_path/../Frameworks";
+				INSTALL_PATH = "@loader_path/../Frameworks";
 				PRODUCT_NAME = db.mysql.editors.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
