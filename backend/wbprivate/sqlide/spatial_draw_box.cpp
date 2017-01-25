@@ -97,7 +97,13 @@ void *SpatialDrawBox::do_render_layers(void *data) {
   return NULL;
 }
 
-void SpatialDrawBox::render_in_thread(bool reproject) {
+void SpatialDrawBox::render_in_thread(bool reproject) { 
+  if (_renderThread != nullptr) {
+    logDebug3("Render thread didn't finish yet, waiting.\n");
+    g_thread_join(_renderThread);
+    _renderThread = nullptr;
+  }
+
   _needs_reprojection = reproject;
   if (!_rendering && !_layers.empty()) {
     _current_layer = NULL;
@@ -105,7 +111,7 @@ void SpatialDrawBox::render_in_thread(bool reproject) {
     _progress = new ProgressPanel("Rendering spatial data, please wait.");
     _progress->start(std::bind(&SpatialDrawBox::get_progress, this, std::placeholders::_1, std::placeholders::_2),
                      0.2f);
-    base::create_thread(do_render_layers, this);
+    _renderThread = base::create_thread(do_render_layers, this);
     work_started(_progress, reproject);
 
     set_needs_repaint();
@@ -258,10 +264,16 @@ SpatialDrawBox::SpatialDrawBox()
 
   _current_layer = NULL;
   _progress = NULL;
+  _renderThread = nullptr;
 }
 
 SpatialDrawBox::~SpatialDrawBox() {
   _quitting = true;
+  if (_renderThread != nullptr) {
+    logDebug3("Waiting for render thread to finish.\n");
+    g_thread_join(_renderThread);
+    _renderThread = nullptr;
+  }
   clear();
   // lock the mutex, so that if the worker is still busy, we'll wait for it
 
