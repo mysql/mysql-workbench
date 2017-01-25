@@ -95,6 +95,8 @@ class SpatialDrawBox : public mforms::DrawBox {
   spatial::Layer *_current_layer;
   int _current_layer_index;
 
+  GThread *_renderThread;
+
   static void *do_render_layers(void *data);
 
   void render_in_thread(bool reproject);
