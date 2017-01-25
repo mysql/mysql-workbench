@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@ from mforms import newTreeView, newButton, newBox, newSelector, newCheckBox, new
 import mforms
 import grt
 
-from workbench.db_utils import escape_sql_string
+from workbench.db_utils import escape_sql_string, QueryError
 
 from functools import partial
 
@@ -28,6 +28,8 @@ from wb_admin_utils import weakcb, WbAdminBaseTab
 import json
 
 from workbench.log import log_error
+
+from wb_admin_utils import not_running_warning_label
 
 class WBThreadStack(mforms.Form):
     enable_debug_info = False
@@ -266,17 +268,15 @@ class WbAdminConnections(WbAdminBaseTab):
         return "admin_connections"
 
     def __init__(self, ctrl_be, instance_info, main_view):
-        mforms.Box.__init__(self, False)
+        WbAdminBaseTab.__init__(self, ctrl_be, instance_info, main_view)
         self.set_managed()
         self.set_release_on_add()
         self.set_padding(12)
         self.set_spacing(15)
-        self.instance_info = instance_info
-        self.ctrl_be = ctrl_be
         self.page_active = False
-        self.main_view = main_view
         self._new_processlist = self.check_if_ps_available()
         self._refresh_timeout = None
+        self.warning = None
         
         if self.new_processlist():
             self.columns = [("PROCESSLIST_ID", mforms.LongIntegerColumnType, "Id", 50),
@@ -783,8 +783,44 @@ class WbAdminConnections(WbAdminBaseTab):
 
         self.mdl_waiting_label.set_text(waiting_label_text)
 
+        
+    def show_warning_message(self, text):
+        if not self.heading:
+            self.create_basic_ui("title_connections.png", "Client Connections")
+      
+        if self.warning:
+            self.remove(self.warning)
+            self.warning = None
 
+        self.warning = not_running_warning_label()
+        self.warning.set_text("\n\n\n\n%s" % text)
+        self.warning.show(True)
+        self.add(self.warning, False, True)
+
+    def show_no_permission(self):
+        self.show_warning_message("The account you are currently using does not have sufficient privileges to view the client connections.")
+        
+    def show_generic_error(self):
+        self.show_warning_message("There was a problem opening the Client Connections. Please check the error log for more details.")
+        
     def page_activated(self):
+
+        try:
+            self.ctrl_be.exec_query("SELECT COUNT(*) FROM performance_schema.threads")
+        except QueryError, e:
+            import traceback
+            log_error("QueryError in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
+            if e.error == 1142:
+                self.show_no_permission()
+            else:
+                self.show_generic_error()
+            return
+        except Exception, e:
+            import traceback
+            log_error("Exception in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
+            self.show_generic_error()
+            return
+
         WbAdminBaseTab.page_activated(self)
 
         if not self.ui_created:
