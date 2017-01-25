@@ -189,7 +189,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             self.print_new_error_log_entries()
         else:
             self.ctrl_be.query_server_info() 
-            self.update_ui(self.ctrl_be.is_server_running())
+            self.update_ui(self.ctrl_be.is_server_running(force_hard_check = True))
 
     #---------------------------------------------------------------------------
     def server_started_event(self):
