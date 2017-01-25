@@ -169,6 +169,7 @@ public:
 
     mforms::TextEntry *entry = _owner->new_entry_option(option, false);
     entry->set_tooltip(tooltip);
+    entry->set_size(50, -1);
 
 #ifdef _WIN32
     bool right_aligned = false;

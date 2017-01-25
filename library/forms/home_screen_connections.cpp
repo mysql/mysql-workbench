@@ -921,7 +921,7 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
     "MySQL Workbench is the official graphical user interface (GUI) tool for MySQL. It allows you to design,",
     "create and browse your database schemas, work with database objects and insert data as well as",
     "design and run SQL queries to work with stored data. You can also migrate schemas and data from other",
-    "databse vendors to your MySQL database."};
+    "database vendors to your MySQL database."};
 
   for (auto txt : description) {
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
