@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -115,6 +115,9 @@ class WbAdminBaseTab(mforms.Box):
         self.instance_info = instance_info
         self.ctrl_be = ctrl_be
         self.main_view = main_view
+        
+        self.heading = None
+        self.warning_panel = None
     
     
     @property
