@@ -404,6 +404,10 @@ void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item) {
 }
 
 SpatialDataView::~SpatialDataView() {
+  if (_spliter_change_timeout != 0) {
+    mforms::Utilities::cancel_timeout(_spliter_change_timeout);
+    _spliter_change_timeout = 0;
+  }
   delete _layer_menu;
 }
 
