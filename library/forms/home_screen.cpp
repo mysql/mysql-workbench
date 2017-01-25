@@ -416,7 +416,13 @@ HomeScreen::~HomeScreen() {
 void HomeScreen::update_colors() {
   set_back_color("#ffffff");
   if (_sidebarSection != nullptr)
+#ifdef __APPLE__
+    _sidebarSection->set_back_color("#323232");
+#else
     _sidebarSection->set_back_color("#464646");
+#endif
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
