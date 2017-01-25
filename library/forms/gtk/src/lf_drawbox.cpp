@@ -211,9 +211,6 @@ namespace mforms {
         _last_btn = mbtn;
         return self->mouse_down(mbtn, (int)event->x, (int)event->y);
       } else if (event->type == GDK_BUTTON_RELEASE) {
-        if (_loop.isRunning())
-          _loop.quit();
-
         _last_btn = MouseButtonNone;
         // We must have click before up, because thet's how it's made on the other platforms.
         self->mouse_click(mbtn, (int)event->x, (int)event->y);
