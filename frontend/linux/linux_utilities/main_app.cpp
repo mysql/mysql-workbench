@@ -117,7 +117,7 @@ void runtime::app::init(const std::string &name, int argc, char **argv) {
   entries.push_back({G_OPTION_REMAINING, '\0', 0, G_OPTION_ARG_FILENAME_ARRAY, nullptr, nullptr,"[PATH]"});
 
   entries.push_back({NULL, 0, 0, G_OPTION_ARG_NONE, nullptr, NULL, nullptr});
-  _app = Gtk::Application::create(argc, argv, name, Gio::APPLICATION_HANDLES_COMMAND_LINE);
+  _app = Gtk::Application::create(argc, argv, name, Gio::APPLICATION_HANDLES_COMMAND_LINE|Gio::APPLICATION_NON_UNIQUE);
 
   g_application_add_main_option_entries((GApplication *)_app->gobj(), entries.data());
   _app->signal_command_line().connect(sigc::mem_fun(this, &app::onCommand), false);
