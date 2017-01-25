@@ -191,7 +191,6 @@ class WbAdminConfigurationStartup(mforms.Box):
             self.ctrl_be.query_server_info() 
             self.update_ui(self.ctrl_be.is_server_running())
 
-
     #---------------------------------------------------------------------------
     def server_started_event(self):
         dprint_ex(2, "Handling server start event in start/stop page")
