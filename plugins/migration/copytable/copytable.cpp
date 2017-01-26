@@ -500,6 +500,8 @@ CopyDataSource::CopyDataSource()
 
 void CopyDataSource::set_max_blob_chunk_size(size_t size) {
   _max_blob_chunk_size = size;
+  if (_blob_buffer.size() < size)
+    _blob_buffer.resize(size);
 }
 
 void CopyDataSource::set_block_size(int bsize) {
