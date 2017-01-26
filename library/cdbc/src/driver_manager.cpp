@@ -291,7 +291,7 @@ namespace sql {
     {
       ConnectPropertyVal tmp;
       const int conn_timeout = 60;
-      const int read_timeout = 600;
+      const int read_timeout = 30;
       if (properties.find("OPT_CONNECT_TIMEOUT") == properties.end())
         properties["OPT_CONNECT_TIMEOUT"] = conn_timeout;
       if (properties.find("OPT_READ_TIMEOUT") == properties.end())
