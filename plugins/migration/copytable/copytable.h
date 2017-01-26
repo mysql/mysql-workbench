@@ -168,6 +168,7 @@ protected:
   std::string _table_name;
   int _block_size;
   size_t _max_blob_chunk_size;
+  std::vector<char> _blob_buffer;
   long long _max_parameter_size;
   bool _abort_on_oversized_blobs;
   bool _use_bulk_inserts;
@@ -216,8 +217,6 @@ class ODBCCopyDataSource : public CopyDataSource {
   std::shared_ptr<std::vector<ColumnInfo> > _columns;
   std::vector<SQLSMALLINT> _column_types;
   int _column_count;
-
-  std::vector<char> _blob_buffer;
 
   bool _stmt_ok;
   bool _force_utf8_input;
