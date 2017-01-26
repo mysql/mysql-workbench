@@ -302,6 +302,8 @@ public:
   std::string generate_alter() {
     std::string report;
     try {
+      //  TODO: Check if this is best place to set the options. For now it fixes a crash
+      _be.set_db_options(_left_db.load_db_options());
       report = _be.generate_alter();
     } catch (const std::exception &exc) {
       report = base::strfmt("Error generating alter script: %s", exc.what());
