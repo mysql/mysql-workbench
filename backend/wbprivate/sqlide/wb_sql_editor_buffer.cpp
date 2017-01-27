@@ -49,12 +49,16 @@ using namespace base;
 
 void SqlEditorForm::auto_save() {
   if (!_autosave_disabled && _startup_done) {
+    logDebug("Auto saving workspace\n");
+
     try {
       save_workspace(sanitize_file_name(_connection.is_valid() ? _connection->name() : "unconnected"), true);
     } catch (std::exception &exc) {
-      if (mforms::Utilities::show_error(_("Error on Auto-Save"),
-                                        strfmt(_("An error occurred during auto-save:\n%s"), exc.what()), _("Continue"),
-                                        _("Skip Autosaving")) != mforms::ResultOk) {
+      std::string message = strfmt(_("An error occurred during auto-save:\n%s"), exc.what());
+      logError("Auto saving editors failed: %s\n", message.c_str());
+
+      if (mforms::Utilities::show_error(_("Error on Auto Save"), message, _("Continue"), _("Skip Auto Saving")) !=
+          mforms::ResultOk) {
         _autosave_disabled = true;
       }
     }

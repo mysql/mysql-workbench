@@ -962,6 +962,8 @@ void SqlEditorPanel::jump_to_placeholder() {
 void SqlEditorPanel::query_started(bool retain_old_recordsets) {
   _busy = true;
 
+  logDebug("Preparing UI for query run\n");
+
   _form->set_busy_tab(_form->sql_editor_panel_index(this));
 
   // disable tabview reordering because we can get new tabs added at odd times if a query is running
@@ -971,6 +973,8 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets) {
   _editor->cancel_auto_completion();
 
   if (!retain_old_recordsets) {
+    logDebug("Releasing old recordset(s) (if possible)\n");
+
     // close recordsets that were opened previously (unless they're pinned or something)
     for (int i = _lower_tabview.page_count() - 1; i >= 0; --i) {
       SqlEditorResult *result = dynamic_cast<SqlEditorResult *>(_lower_tabview.get_page(i));
@@ -989,6 +993,8 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets) {
         }
       }
     }
+  } else {
+    logDebug("Retaining old recordset(s)\n");
   }
 
   _was_empty = (_lower_tabview.page_count() == 0);
@@ -997,6 +1003,8 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets) {
 //--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::query_finished() {
+  logDebug2("Query successfully finished in editor %s\n", get_title().c_str());
+
   _busy = false;
 
   _form->set_busy_tab(-1);
@@ -1008,7 +1016,7 @@ void SqlEditorPanel::query_finished() {
 //--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::query_failed(const std::string &message) {
-  logError("Unhandled error during query: %s\n", message.c_str());
+  logError("Query execution failed in editor: %s. Error during query: %s\n", get_title().c_str(), message.c_str());
   _busy = false;
 
   _form->set_busy_tab(-1);

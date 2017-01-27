@@ -28,7 +28,7 @@ class SqlEditorForm;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorLog : public VarGridModel {
 public:
-  enum MessageType { ErrorMsg, WarningMsg, NoteMsg, OKMsg, EditMsg, BusyMsg };
+  enum MessageType { ErrorMsg, WarningMsg, NoteMsg, OKMsg, BusyMsg };
 
   typedef std::shared_ptr<DbSqlEditorLog> Ref;
 

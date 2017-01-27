@@ -342,7 +342,7 @@ void MySQLObjectNamesCache::refreshLogfileGroups() {
 //--------------------------------------------------------------------------------------------------
 
 void MySQLObjectNamesCache::refreshThread() {
-  logDebug2("entering worker thread\n");
+  logDebug2("Entering worker thread\n");
 
   while (!_shutdown) {
     try {
@@ -429,7 +429,7 @@ void MySQLObjectNamesCache::refreshThread() {
   if (_feedback && !_shutdown)
     _feedback(false);
 
-  logDebug2("leaving worker thread\n");
+  logDebug2("Leaving worker thread\n");
 }
 
 //--------------------------------------------------------------------------------------------------
