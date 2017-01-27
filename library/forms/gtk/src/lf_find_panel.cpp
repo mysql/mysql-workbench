@@ -138,6 +138,8 @@ public:
     _find_panel->get_widget("word_item", citem);
     citem->signal_activate().connect(
       sigc::bind(sigc::ptr_fun(toggle_bool), sigc::ref(_search_match_whole_word), citem));
+    _find_panel->get_widget("regex_item", citem);
+    citem->signal_activate().connect(sigc::bind(sigc::ptr_fun(toggle_bool), sigc::ref(_use_regex), citem));
   }
 
   void find_clicked() {
@@ -163,15 +165,19 @@ public:
   void find_icon_press(Gtk::EntryIconPosition pos, const GdkEventButton *ev) {
     if (ev->button == 1 && pos == Gtk::ENTRY_ICON_PRIMARY) {
       // update the menu
-      Gtk::CheckMenuItem *mitem;
-      _find_panel->get_widget("wrap_item", mitem);
-      mitem->set_active(_search_wrap_around);
-      _find_panel->get_widget("case_item", mitem);
-      mitem->set_active(_search_ignore_case);
-      _find_panel->get_widget("word_item", mitem);
-      mitem->set_active(_search_match_whole_word);
-
+      {
+        Gtk::CheckMenuItem *mitem;
+        _find_panel->get_widget("wrap_item", mitem);
+        mitem->set_active(_search_wrap_around);
+        _find_panel->get_widget("case_item", mitem);
+        mitem->set_active(_search_ignore_case);
+        _find_panel->get_widget("word_item", mitem);
+        mitem->set_active(_search_match_whole_word);
+        _find_panel->get_widget("regex_item", mitem);
+        mitem->set_active(_use_regex);
+      }
       _search_menu->popup(ev->button, ev->time);
+
     }
   }
 
@@ -183,7 +189,7 @@ public:
   void clear_search_history() {
     if (_search_menu) {
       std::vector<Gtk::Widget *> children = _search_menu->get_children();
-      while (children.size() > 7) {
+      while (children.size() > 8) {
         Gtk::Widget *w = children.back();
         _search_menu->remove(*w);
         children.pop_back();
