@@ -77,7 +77,7 @@ using namespace base;
 
 using boost::signals2::scoped_connection;
 
-DEFAULT_LOG_DOMAIN("SqlEditor")
+DEFAULT_LOG_DOMAIN("SQL Editor Form")
 
 static const char *SQL_EXCEPTION_MSG_FORMAT = _("Error Code: %i\n%s");
 static const char *EXCEPTION_MSG_FORMAT = _("Error: %s");
@@ -866,31 +866,58 @@ SqlEditorPanel *SqlEditorForm::run_sql_in_scratch_tab(const std::string &sql, bo
 }
 
 void SqlEditorForm::reset() {
-  //_log->reset();
   SqlEditorPanel *panel = active_sql_editor_panel();
   if (panel)
     panel->editor_be()->cancel_auto_completion();
 }
 
-int SqlEditorForm::add_log_message(int msg_type, const std::string &msg, const std::string &context,
+void logToWorkbenchLog(int messageType, std::string const &msg) {
+  switch (messageType) {
+    case DbSqlEditorLog::ErrorMsg:
+      logError("%s\n", msg.c_str());
+      break;
+
+    case DbSqlEditorLog::WarningMsg:
+      logWarning("%s\n", msg.c_str());
+      break;
+
+    case DbSqlEditorLog::NoteMsg:
+      logDebug("%s\n", msg.c_str());
+      break;
+
+    case DbSqlEditorLog::OKMsg:
+      logDebug2("%s\n", msg.c_str());
+      break;
+
+    case DbSqlEditorLog::BusyMsg:
+      logDebug3("%s\n", msg.c_str());
+      break;
+  }
+}
+
+int SqlEditorForm::add_log_message(int messageType, const std::string &msg, const std::string &context,
                                    const std::string &duration) {
-  RowId new_log_message_index = _log->add_message(msg_type, context, msg, duration);
+  RowId new_log_message_index = _log->add_message(messageType, context, msg, duration);
   _has_pending_log_messages = true;
   refresh_log_messages(false);
-  if (msg_type == DbSqlEditorLog::ErrorMsg || msg_type == DbSqlEditorLog::WarningMsg)
+  if (messageType == DbSqlEditorLog::ErrorMsg || messageType == DbSqlEditorLog::WarningMsg)
     _exec_sql_error_count++;
+
+  logToWorkbenchLog(messageType, msg);
   return (int)new_log_message_index;
 }
 
-void SqlEditorForm::set_log_message(RowId log_message_index, int msg_type, const std::string &msg,
+void SqlEditorForm::set_log_message(RowId log_message_index, int messageType, const std::string &msg,
                                     const std::string &context, const std::string &duration) {
   if (log_message_index != (RowId)-1) {
-    _log->set_message(log_message_index, msg_type, context, msg, duration);
+    _log->set_message(log_message_index, messageType, context, msg, duration);
     _has_pending_log_messages = true;
-    if (msg_type == DbSqlEditorLog::ErrorMsg || msg_type == DbSqlEditorLog::WarningMsg)
-      _exec_sql_error_count++;
-    refresh_log_messages(msg_type == DbSqlEditorLog::BusyMsg); // Force refresh only for busy messages.
+    if (messageType == DbSqlEditorLog::ErrorMsg || messageType == DbSqlEditorLog::WarningMsg)
+      ++_exec_sql_error_count;
+    refresh_log_messages(messageType == DbSqlEditorLog::BusyMsg); // Force refresh only for busy messages.
   }
+
+  logToWorkbenchLog(messageType, msg);
 }
 
 void SqlEditorForm::refresh_log_messages(bool ignore_last_message_timestamp) {
@@ -1382,6 +1409,8 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
 //--------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::connected() const {
+  logDebug3("Checking if editor is connected\n");
+
   bool is_locked = false;
   {
     base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
@@ -1697,6 +1726,10 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
 bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool current_statement_only,
                                     bool use_non_std_delimiter, bool dont_add_limit_clause,
                                     SqlEditorResult *into_result) {
+
+  logDebug("Executing SQL in editor: %s (current statement only: %s)\n", editor->get_title().c_str(),
+           current_statement_only ? "yes" : "no");
+
   std::shared_ptr<std::string> shared_sql;
   if (current_statement_only)
     shared_sql.reset(new std::string(editor->editor_be()->current_statement()));
@@ -1750,6 +1783,9 @@ void SqlEditorForm::update_live_schema_tree(const std::string &sql) {
 
 grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::string> sql, SqlEditorPanel *editor,
                                           ExecFlags flags, RecordsetsRef result_list) {
+
+  logDebug("Background task for sql execution started\n");
+
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;
   bool dont_add_limit_clause = (flags & DontAddLimitClause) != 0;
   std::map<std::string, std::int64_t> ps_stats;
@@ -1767,9 +1803,9 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
 
   std::shared_ptr<SqlEditorForm> self_ref = (self_ptr).lock();
   SqlEditorForm *self = (self_ref).get();
-  {
-    if (!self)
-      return grt::StringRef("");
+  if (!self) {
+    logError("Couldn't aquire lock for SQL editor form\n");
+    return grt::StringRef("");
   }
 
   // add_log_message() will increment this variable on errors or warnings
@@ -1822,6 +1858,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
 
     bool results_left = false;
     for (auto &statement_range : statement_ranges) {
+      logDebug3("Executing statement range: %lu, %lu\n", statement_range.first, statement_range.second);
+
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
@@ -1834,6 +1872,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
           continue;
 
         Sql_syntax_check::Statement_type statement_type = sql_syntax_check->determine_statement_type(statement);
+
+        logDebug3("Determined statement type: %u\n", statement_type);
         if (Sql_syntax_check::sql_empty == statement_type)
           continue;
 
@@ -1864,10 +1904,13 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
               sql_facade->parseSelectStatementForEdit(statement, schema_name, table_name, column_names)) {
             data_storage->schema_name(schema_name.empty() ? _usr_dbc_conn->active_schema : schema_name);
             data_storage->table_name(table_name);
-          } else
+            logDebug3("Result will be editable\n");
+          } else {
             data_storage->readonly_reason(
               "Statement must be a SELECT for columns of a single table with a primary key for its results to be "
               "editable.");
+            logDebug3("Result will not be editable\n");
+          }
 
           data_storage->sql_query(statement);
 
@@ -1903,6 +1946,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
               statement_exec_timer.run();
               is_result_set_first = dbc_statement->execute(statement);
             }
+            logDebug3("Query executed successfully\n");
+
             updated_rows_count = dbc_statement->getUpdateCount();
 
             // XXX: coalesce all the special queries here and act on them *after* all queries have run.
@@ -1980,6 +2025,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                             message, statement, statement_exec_timer.duration_formatted());
           }
 
+          logDebug3("Processing result sets\n");
           int resultset_count = 0;
           bool more_results = is_result_set_first;
           bool reuse_log_msg = false;
@@ -1997,7 +2043,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                       "Yes", "No");
                     if (result == mforms::ResultOk) {
                       add_log_message(DbSqlEditorLog::ErrorMsg,
-                                      "Not more results could be displayed. Operation cancelled by user", statement,
+                                      "No more results could be displayed. Operation cancelled by user.", statement,
                                       "");
                       dbc_statement->cancel();
                       dbc_statement->close();
@@ -2005,7 +2051,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                     }
                     add_log_message(
                       DbSqlEditorLog::WarningMsg,
-                      "Not more results will be displayed because the maximum number of result sets was reached.",
+                      "No more results will be displayed because the maximum number of result sets was reached.",
                       statement, "");
                   }
 
@@ -2083,6 +2129,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                     data_storage->reloadable(!is_multiple_statement &&
                                              (Sql_syntax_check::sql_select == statement_type));
 
+                    logDebug3("Creation and setup of a new result set...\n");
+
                     Recordset::Ref rs = Recordset::create(exec_sql_task);
                     rs->is_field_value_truncation_enabled(true);
                     rs->setPreserveRowFilter(
@@ -2141,7 +2189,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                             statement_exec_timer.duration_formatted());
         }
       }
-    } // BOOST_FOREACH (statement, statements)
+    } // statement range loop
 
     if (results_left) {
       exec_sql_task->execute_in_main_thread(
@@ -2168,6 +2216,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
 
   if (dbc_driver)
     dbc_driver->threadEnd();
+
+  logDebug3("SQL execution finished\n");
 
   update_menu_and_toolbar();
 
@@ -2480,18 +2530,15 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
       std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
       sql_batch_exec_err_count = sql_batch_exec(stmt.get(), statements);
     } catch (sql::SQLException &e) {
-      logError("Exception applying SQL: %s\n", e.what());
       set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()),
                       strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
       throw; // re-throw exception so that the wizard will see that something went wrong
     } catch (base::mutex_busy_error &) {
-      logError("usr connection busy applying SQL\n");
       set_log_message(log_id, DbSqlEditorLog::ErrorMsg,
                       strfmt(EXCEPTION_MSG_FORMAT, "Your connection to MySQL is currently busy. Please retry later."),
                       strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
       throw std::runtime_error("Connection to MySQL currently busy.");
     } catch (std::exception &e) {
-      logError("Exception applying SQL: %s\n", e.what());
       set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(EXCEPTION_MSG_FORMAT, e.what()),
                       strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
       throw;
