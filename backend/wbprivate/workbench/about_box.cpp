@@ -97,7 +97,7 @@ AboutBox::~AboutBox() {
 
 #define TEXT_BASE_LINE 125
 #define BUILD_TEXT_OFFSET 107
-#define RELEASE_TYPE_OFFSET 365 // Right border.
+#define RELEASE_TYPE_OFFSET 375 // Right border.
 
 void AboutBox::repaint(cairo_t *cr, int x, int y, int w, int h) {
   cairo_scale(cr, 1 / _scale_factor, 1 / _scale_factor);
