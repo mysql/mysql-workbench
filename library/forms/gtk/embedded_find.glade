@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.1 -->
+<!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.8"/>
   <object class="GtkMenu" id="search_menu">
@@ -10,6 +10,7 @@
         <property name="use_action_appearance">False</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Wrap Around</property>
       </object>
     </child>
     <child>
@@ -17,6 +18,7 @@
         <property name="use_action_appearance">False</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Ignore Case</property>
       </object>
     </child>
     <child>
@@ -24,39 +26,40 @@
         <property name="use_action_appearance">False</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Match Whole Words</property>
       </object>
     </child>
     <child>
       <object class="GtkCheckMenuItem" id="regex_item">
         <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Regular Expression</property>
       </object>
     </child>
     <child>
       <object class="GtkSeparatorMenuItem" id="menuitem1">
-        <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
     </child>
     <child>
       <object class="GtkMenuItem" id="recent_item">
         <property name="use_action_appearance">False</property>
-        <property name="visible">True</property>
         <property name="sensitive">False</property>
         <property name="can_focus">False</property>
+        <property name="label" translatable="yes">No Recent Searches</property>
       </object>
     </child>
     <child>
       <object class="GtkSeparatorMenuItem" id="clear_sep">
-        <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
     </child>
     <child>
       <object class="GtkMenuItem" id="clear_item">
         <property name="use_action_appearance">False</property>
-        <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Clear Recent Searches</property>
       </object>
     </child>
   </object>
@@ -78,8 +81,6 @@
           <packing>
             <property name="left_attach">1</property>
             <property name="top_attach">0</property>
-            <property name="width">1</property>
-            <property name="height">1</property>
           </packing>
         </child>
         <child>
@@ -93,15 +94,13 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="pixel_size">16</property>
-                <property name="icon_name">dialog-close</property>
+                <property name="icon_name">window-close</property>
               </object>
             </child>
           </object>
           <packing>
             <property name="left_attach">2</property>
             <property name="top_attach">0</property>
-            <property name="width">1</property>
-            <property name="height">1</property>
           </packing>
         </child>
         <child>
@@ -170,6 +169,8 @@
               <object class="GtkLabel" id="result_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">6</property>
+                <property name="margin_right">6</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -230,8 +231,6 @@
           <packing>
             <property name="left_attach">0</property>
             <property name="top_attach">0</property>
-            <property name="width">1</property>
-            <property name="height">1</property>
           </packing>
         </child>
         <child>
@@ -272,8 +271,6 @@
           <packing>
             <property name="left_attach">0</property>
             <property name="top_attach">1</property>
-            <property name="width">1</property>
-            <property name="height">1</property>
           </packing>
         </child>
         <child>
@@ -286,8 +283,6 @@
           <packing>
             <property name="left_attach">1</property>
             <property name="top_attach">1</property>
-            <property name="width">1</property>
-            <property name="height">1</property>
           </packing>
         </child>
         <child>
@@ -298,8 +293,6 @@
           <packing>
             <property name="left_attach">2</property>
             <property name="top_attach">1</property>
-            <property name="width">1</property>
-            <property name="height">1</property>
           </packing>
         </child>
         <child>
@@ -312,7 +305,6 @@
             <property name="left_attach">0</property>
             <property name="top_attach">2</property>
             <property name="width">3</property>
-            <property name="height">1</property>
           </packing>
         </child>
       </object>
