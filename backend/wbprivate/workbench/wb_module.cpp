@@ -220,11 +220,11 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
   }
 
   static std::vector<std::string> supportedOsList{
-    "Ubuntu 16.04", "Debian 8",
+    "Ubuntu 16.10", "Ubuntu 16.04", "Debian 8",
 
     "Red Hat Enterprise Linux Server release 7", // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release
                                                  // 7.1 (Maipo)"
-    "Fedora release 23", "Fedora release 24", "CentOS release 7",
+    "Fedora release 25", "Fedora release 24", "CentOS release 7",
 
     "Windows 7", "Windows 8", "Windows 10", "Windows 2012 Server",
 
