@@ -362,9 +362,11 @@ void CodeEditor::setup() {
   setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");
 
   // Other settings.
+#if defined(_WIN32) || defined(__APPLE__)
   Color color = Color::getSystemColor(base::SelectedTextBackgroundColor);
   sptr_t rawColor = color.toBGR();
   _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, rawColor);
+#endif
   //_code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, 0xFFFFFF);
 
   _code_editor_impl->send_editor(this, SCI_SETCARETLINEVISIBLE, 1, 0);
