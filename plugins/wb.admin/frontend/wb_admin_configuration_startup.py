@@ -342,8 +342,8 @@ class WbAdminConfigurationStartup(mforms.Box):
                 except Exception, exc:
                     self.start_stop_btn.set_enabled(True)
                     self.refresh_button.set_enabled(True)
-                    Utilities.show_error("Stop Server",
-                              "An error occurred while attempting to stop the server.%s %s\n" % (type(exc).__name__, exc),
+                    Utilities.show_error("Start Server",
+                              "An error occurred while attempting to start the server.%s %s\n" % (type(exc).__name__, exc),
                               "OK", "", "")
                     return
 
