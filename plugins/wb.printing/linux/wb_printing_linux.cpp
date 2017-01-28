@@ -228,7 +228,7 @@ namespace linux_printing {
   //==============================================================================
   class WBPrintingLinux : public GUIPluginBase {
   public:
-    WBPrintingLinux(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
+    WBPrintingLinux(grt::Module *m, const grt::BaseListRef &args);
     virtual void execute();
     virtual void show_plugin();
 
@@ -238,7 +238,7 @@ namespace linux_printing {
   };
 
   //------------------------------------------------------------------------------
-  WBPrintingLinux::WBPrintingLinux(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  WBPrintingLinux::WBPrintingLinux(grt::Module *m, const grt::BaseListRef &args)
     : GUIPluginBase(m), _diagram(model_DiagramRef::cast_from(args.get(0))) {
   }
 
@@ -280,9 +280,9 @@ namespace linux_printing {
 
 //------------------------------------------------------------------------------
 extern "C" {
-GUIPluginBase *createPrintDialog(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args) {
+GUIPluginBase *createPrintDialog(grt::Module *m, const grt::BaseListRef &args) {
   // return new linux_printing::WBPrintingLinux(m, grtm, args);
-  linux_printing::WBPrintingLinux lp(m, grtm, args);
+  linux_printing::WBPrintingLinux lp(m, args);
   lp.show_plugin();
   return 0;
 }
@@ -290,7 +290,7 @@ GUIPluginBase *createPrintDialog(grt::Module *m, bec::GRTManager *grtm, const gr
 
 //------------------------------------------------------------------------------
 extern "C" {
-GUIPluginBase *createPrintPreviewDialog(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args) {
+GUIPluginBase *createPrintPreviewDialog(grt::Module *m, const grt::BaseListRef &args) {
   g_message("print preview");
   //    linux_printing::WBPrintingLinux lp(m, grtm, args);
   //    lp.show_plugin();
@@ -300,7 +300,7 @@ GUIPluginBase *createPrintPreviewDialog(grt::Module *m, bec::GRTManager *grtm, c
 
 //------------------------------------------------------------------------------
 extern "C" {
-GUIPluginBase *createPrintSetupDialog(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args) {
+GUIPluginBase *createPrintSetupDialog(grt::Module *m, const grt::BaseListRef &args) {
   workbench_DocumentRef doc(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc")));
   if (doc.is_valid()) {
     linux_printing::WBPageSetup ps(doc->pageSettings());
