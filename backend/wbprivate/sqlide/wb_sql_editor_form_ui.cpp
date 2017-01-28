@@ -37,8 +37,6 @@
 
 #include "base/log.h"
 
-// DEFAULT_LOG_DOMAIN("SqlEditor");
-
 #include "mforms/menubar.h"
 #include "mforms/toolbar.h"
 #include "mforms/code_editor.h"
@@ -47,6 +45,8 @@ using namespace bec;
 using namespace grt;
 using namespace wb;
 using namespace base;
+
+DEFAULT_LOG_DOMAIN("SQL Editor Form")
 
 using boost::signals2::scoped_connection;
 
@@ -211,6 +211,8 @@ void SqlEditorForm::update_menu_and_toolbar() {
     exec_sql_task->execute_in_main_thread(std::bind(&SqlEditorForm::update_menu_and_toolbar, this), false, false);
     return;
   }
+
+  logDebug2("Updating SQL menu and toolbar\n");
 
   bool running = is_running_query();
   bool connected = this->connected();

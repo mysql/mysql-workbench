@@ -187,14 +187,12 @@ public:
     _warning_icon = icon_man->get_icon_id("mini_warning.png");
     _info_icon = icon_man->get_icon_id("mini_notice.png");
     _ok_icon = icon_man->get_icon_id("mini_ok.png");
-    _edit_icon = icon_man->get_icon_id("mini_edit.png");
   }
 
 private:
   IconId _error_icon;
   IconId _warning_icon;
   IconId _info_icon;
-  IconId _edit_icon;
   IconId _ok_icon;
 
 public:
@@ -202,8 +200,6 @@ public:
     switch (msg_type) {
       case DbSqlEditorLog::BusyMsg:
         return 0;
-      case DbSqlEditorLog::EditMsg:
-        return _edit_icon;
       case DbSqlEditorLog::NoteMsg:
         return _info_icon;
       case DbSqlEditorLog::OKMsg:
