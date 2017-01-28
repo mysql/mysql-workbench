@@ -1,10 +1,12 @@
 #include <gtkmm/scrolledwindow.h>
+#include <gtkmm/liststore.h>
 #include "documentation_box.h"
 #include "base/string_utilities.h"
 #include "grt/common.h"
 #include "grtpp_util.h"
 #include <glibmm/main.h>
 #include "workbench/wb_context_ui.h"
+#include "gtk_helpers.h"
 
 #define TIMER_INTERVAL 700
 
@@ -20,6 +22,10 @@ DocumentationBox::DocumentationBox() : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _
   _text.signal_key_press_event().connect_notify(sigc::mem_fun(this, &DocumentationBox::text_key_press));
   _text.signal_button_press_event().connect_notify(sigc::mem_fun(this, &DocumentationBox::text_button_press));
   _text.get_buffer()->signal_changed().connect(sigc::mem_fun(this, &DocumentationBox::text_changed));
+
+  Gtk::CellRendererText *cell = Gtk::manage(new Gtk::CellRendererText());
+  _combo.pack_end(*cell, true);
+  _combo.add_attribute(*cell, "text", 0);
   _combo.signal_changed().connect(sigc::mem_fun(this, &DocumentationBox::combo_changed));
 
   pack_start(*swin, true, true);
@@ -51,7 +57,6 @@ void DocumentationBox::update_for_form(bec::UIForm *form) {
 
   // update only if selection was changed
   if (!grt::compare_list_contents(_object_list, new_object_list)) {
-    _combo.clear();
 
     // Set description text
     _object_list = new_object_list;
@@ -59,11 +64,10 @@ void DocumentationBox::update_for_form(bec::UIForm *form) {
     // Set properties
     _multiple_items = items.size() > 1;
 
+
     // handle different number of selected items
     if (!items.empty()) {
-      std::vector<std::string>::iterator it;
-      for (it = items.begin(); it != items.end(); ++it)
-        _combo.append(*it);
+      _combo.set_model(model_from_string_list(items, &_comboModel));
 
       _combo.set_active(0);
 
@@ -76,13 +80,13 @@ void DocumentationBox::update_for_form(bec::UIForm *form) {
         _text.set_editable(true);
       }
     } else {
-      _combo.clear();
-      _combo.append(_("No Selection"));
+      _combo.set_model(model_from_string_list({"No selection"}, &_comboModel));
       _combo.set_active(0);
 
       _text.get_buffer()->set_text("");
       _text.set_editable(false);
     }
+    _combo.show_all();
   }
 
   _initializing = false;
@@ -115,8 +119,11 @@ void DocumentationBox::text_button_press(GdkEventButton *ev) {
 }
 
 void DocumentationBox::combo_changed() {
-  if (_combo.get_model()->children().size())
-    _combo.set_active(0);
+  if (!_initializing)
+  {
+    if (_combo.get_model()->children().size())
+      _combo.set_active(0);
+  }
 }
 
 void DocumentationBox::text_key_press(GdkEventKey *key) {

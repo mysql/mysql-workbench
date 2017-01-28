@@ -24,9 +24,11 @@
 #include <gtkmm/comboboxtext.h>
 #include <gtkmm/textview.h>
 #include "workbench/wb_context_ui.h"
+#include "text_list_columns_model.h"
 
 class DocumentationBox : public Gtk::Box {
-  Gtk::ComboBoxText _combo;
+  Gtk::ComboBox _combo;
+  TextListColumnsModel _comboModel;
   Gtk::TextView _text;
   sigc::connection _timer;
   bec::UIForm *_selected_form;
