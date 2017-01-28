@@ -546,8 +546,11 @@ void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_in
         this, std::bind(&mforms::DockingPoint::close_view_at_index, _tabdock, tab_index));
   } else if (action == "close_other_tabs") {
     for (int i = _tabdock->view_count() - 1; i >= 0; --i) {
-      if (i != tab_index)
-        _tabdock->view_at_index(i)->close();
+      if (i != tab_index) {
+        auto view = _tabdock->view_at_index(i);
+        if (view != nullptr)
+          view->close();
+      }
     }
   }
 }
