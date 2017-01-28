@@ -273,7 +273,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   long keep_alive_interval = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
 
   if (keep_alive_interval != 0) {
-    logDebug3("Create KeepAliveInterval timer\n");
+    logDebug3("Creating KeepAliveInterval timer...\n");
     _keep_alive_task_id = ThreadedTimer::add_task(
       TimerTimeSpan, keep_alive_interval, false, std::bind(&SqlEditorForm::send_message_keep_alive_bool_wrapper, this));
   }
@@ -1409,8 +1409,6 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
 //--------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::connected() const {
-  logDebug3("Checking if editor is connected\n");
-
   bool is_locked = false;
   {
     base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
@@ -1727,7 +1725,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
                                     bool use_non_std_delimiter, bool dont_add_limit_clause,
                                     SqlEditorResult *into_result) {
 
-  logDebug("Executing SQL in editor: %s (current statement only: %s)\n", editor->get_title().c_str(),
+  logDebug("Executing SQL in editor: %s (current statement only: %s)...\n", editor->get_title().c_str(),
            current_statement_only ? "yes" : "no");
 
   std::shared_ptr<std::string> shared_sql;
@@ -1761,6 +1759,8 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
   exec_sql_task->fail_cb(std::bind(&SqlEditorPanel::query_failed, editor, std::placeholders::_1), true);
 
   if (into_result) {
+    logDebug2("Running into existing rsets\n");
+
     RecordsetsRef rsets(new Recordsets());
 
     exec_sql_task->exec(sync, std::bind(&SqlEditorForm::do_exec_sql, this, weak_ptr_from(this), shared_sql,
@@ -1770,9 +1770,12 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
       logError("Statement returns too many resultsets\n");
     if (!rsets->empty())
       into_result->set_recordset((*rsets)[0]);
-  } else
+  } else {
+    logDebug2("Running without considering existing rsets\n");
+
     exec_sql_task->exec(sync, std::bind(&SqlEditorForm::do_exec_sql, this, weak_ptr_from(this), shared_sql, editor,
                                         flags, RecordsetsRef()));
+  }
 
   return true;
 }
@@ -1858,7 +1861,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
 
     bool results_left = false;
     for (auto &statement_range : statement_ranges) {
-      logDebug3("Executing statement range: %lu, %lu\n", statement_range.first, statement_range.second);
+      logDebug3("Executing statement range: %lu, %lu...\n", statement_range.first, statement_range.second);
 
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
@@ -2025,7 +2028,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                             message, statement, statement_exec_timer.duration_formatted());
           }
 
-          logDebug3("Processing result sets\n");
+          logDebug2("Processing result sets\n");
           int resultset_count = 0;
           bool more_results = is_result_set_first;
           bool reuse_log_msg = false;
@@ -2217,7 +2220,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
   if (dbc_driver)
     dbc_driver->threadEnd();
 
-  logDebug3("SQL execution finished\n");
+  logDebug("SQL execution finished\n");
 
   update_menu_and_toolbar();
 
