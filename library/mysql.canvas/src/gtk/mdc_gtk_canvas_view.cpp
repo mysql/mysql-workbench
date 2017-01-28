@@ -48,6 +48,7 @@ GtkCanvas::GtkCanvas(CanvasType type)
 
   unset_vadjustment(); // we don't need this as we will set our own
   unset_hadjustment(); // we don't need this as we will set our own
+  set_can_focus(true);
 }
 
 GtkCanvas::~GtkCanvas() {
