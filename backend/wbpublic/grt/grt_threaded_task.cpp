@@ -18,7 +18,11 @@
  */
 
 #include "base/wb_memory.h"
+#include "base/log.h"
+
 #include "grt/grt_threaded_task.h"
+
+DEFAULT_LOG_DOMAIN("GRT task")
 
 //--------------------------------------------------------------------------------------------------
 
@@ -92,6 +96,8 @@ const bec::GRTTask::Ref GrtThreadedTask::task() {
 //--------------------------------------------------------------------------------------------------
 
 void GrtThreadedTask::exec(bool sync, Proc_cb proc_cb) {
+  logDebug3("Sending task \"%s\" to dispatcher (%s)...\n", _desc.c_str(), sync ? "wait" : "don't wait");
+
   if (!proc_cb)
     proc_cb = _proc_cb;
   if (!proc_cb)

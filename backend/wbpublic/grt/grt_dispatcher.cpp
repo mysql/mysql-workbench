@@ -32,19 +32,6 @@ using namespace bec;
 
 DEFAULT_LOG_DOMAIN("GRTDispatcher");
 
-// Extra debug print flag for additional information (not dynamically switchable like log calls).
-static bool debug_dispatcher = false;
-
-#ifdef __GNUC__
-#define DPRINT(fmt, ...) \
-  if (debug_dispatcher)  \
-  logDebug3(fmt, ##__VA_ARGS__)
-#else
-#define DPRINT(...)     \
-  if (debug_dispatcher) \
-  logDebug3(__VA_ARGS__)
-#endif
-
 // Helper structures to store shared pointers into an async queue.
 struct CallbackHelper {
   DispatcherCallbackBase::Ref callback;
@@ -355,9 +342,6 @@ GRTDispatcher::GRTDispatcher(bool threaded, bool is_main_dispatcher)
 
   // default implementation just sleeps for 2ms
   _flush_main_thread_and_wait = sleep_2ms;
-
-  if (getenv("WB_DEBUG_DISPATCHER"))
-    debug_dispatcher = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -476,17 +460,17 @@ gpointer GRTDispatcher::worker_thread(gpointer data) {
 #endif
 
     g_atomic_int_inc(&self->_busy);
-    logDebug3("GRT dispatcher, running task %s\n", task->name().c_str());
+    logDebug3("Running task \"%s\"\n", task->name().c_str());
 
     if (dynamic_cast<GrtNullTask *>(task.get()) != 0) { // a NULL task terminates the thread
-      DPRINT("worker: termination task received, closing...");
+      logDebug3("Null task found. Terminating worker thread...\n");
       task->finished(grt::ValueRef());
       g_atomic_int_dec_and_test(&self->_busy);
       break;
     }
 
     if (task->is_cancelled()) {
-      DPRINT("%s", std::string("worker: task '" + task->name() + "' was cancelled.").c_str());
+      logDebug3("Task \"%s\" cancelled\n", task->name().c_str());
       g_atomic_int_dec_and_test(&self->_busy);
       continue;
     }
@@ -499,6 +483,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data) {
     // execute the task
     self->execute_task(task);
 
+    logDebug3("Task \"%s\" finished\n", task->name().c_str());
     if (task->get_error()) {
       logError("%s\n",
                std::string(("worker: task '" + task->name() + "' has failed with error:.") + task->get_error()->what())
@@ -513,7 +498,6 @@ gpointer GRTDispatcher::worker_thread(gpointer data) {
     }
 
     g_atomic_int_dec_and_test(&self->_busy);
-    DPRINT("worker: task finished.");
   }
 
   self->worker_thread_release();
