@@ -1755,8 +1755,7 @@ void JsonTabView::dataChanged(bool forceUpdate) {
     JsonWriter::write(_jsonText, *_json);
   else {
     if (_textView->validate()) {
-      if (_textView->_stopTextProcessing)
-        _jsonText = _textView->getText();
+      _jsonText = _textView->getText();
       _json.reset(new JsonValue(_textView->getJson()));
     } else
       return;

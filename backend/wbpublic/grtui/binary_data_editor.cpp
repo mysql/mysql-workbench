@@ -318,11 +318,21 @@ private:
 class JsonDataViewer : public BinaryDataViewer {
 public:
   JsonDataViewer(BinaryDataEditor *owner, JsonParser::JsonValue &value, const std::string &encoding)
-    : BinaryDataViewer(owner), _encoding(encoding) {
+    : BinaryDataViewer(owner), _encoding(encoding), _currentDelayTimer(nullptr){
     set_spacing(8);
     _jsonView.setJson(value);
     add(&_jsonView, true, true);
     scoped_connect(_jsonView.editorDataChanged(), std::bind(&JsonDataViewer::edited, this, std::placeholders::_1));
+
+    _jsonView.setTextProcessingStopHandler([this]() {
+      if (_currentDelayTimer != nullptr) {
+        bec::GRTManager::get()->cancel_timer(_currentDelayTimer);
+        _currentDelayTimer = nullptr;
+      }
+    });
+    _jsonView.setTextProcessingStartHandler([this](std::function<bool()> callback) {
+      _currentDelayTimer = bec::GRTManager::get()->run_every([=]() -> bool { return callback(); }, 0.25);
+    });
   }
 
   virtual void data_changed() {
@@ -355,6 +365,13 @@ public:
     }
   }
 
+  virtual ~JsonDataViewer() {
+    if (_currentDelayTimer) {
+      bec::GRTManager::get()->cancel_timer(_currentDelayTimer);
+      _currentDelayTimer = nullptr;
+    }
+  }
+
 private:
   void edited(const std::string &text) {
     _owner->assign_data(text.data(), text.length());
@@ -362,6 +379,7 @@ private:
 
   mforms::JsonTabView _jsonView;
   std::string _encoding;
+  bec::GRTManager::Timer *_currentDelayTimer;
 };
 
 //--------------------------------------------------------------------------------
