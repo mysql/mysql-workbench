@@ -111,7 +111,6 @@ namespace grtui {
     }
 
   protected:
-    bec::GRTManager *_manager;
     mforms::Box *_run_box;
     mforms::Button *_run_button;
 
