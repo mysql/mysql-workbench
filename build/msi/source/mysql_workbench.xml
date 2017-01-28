@@ -51,14 +51,21 @@
         <Binary Id="NewBinary12" SourceFile="resources/binary/binary12" />
 
 		<PropertyRef Id="WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED" />
-    <Property Id="CPP_2015_REDISTRIBUTABLE">
-      <RegistrySearch Id="Cpp2015Redistributable"
+    <Property Id="CPP_2015_REDISTRIBUTABLE_1">
+      <RegistrySearch Id="Cpp2015Redistributable1"
                       Root="HKLM"
-                      Key="SOFTWARE\Classes\Installer\Dependencies\{d992c12e-cab2-426f-bde3-fb8c53950b0d}"
-                      Name="Version"
+                      Key="SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64"
+                      Name="Installed"
                       Type="raw" />
-    </Property>
-		<Property Id="OLDINSTALLDIR">
+    </Property>    
+    <Property Id="CPP_2015_REDISTRIBUTABLE_2">
+      <RegistrySearch Id="Cpp2015Redistributable2"
+                      Root="HKLM"
+                      Key="SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64"
+                      Name="Installed"
+                      Type="raw" />
+    </Property>      
+    <Property Id="OLDINSTALLDIR">
 		  <RegistrySearch Id="OldMySQLWBLocation" Type="raw" Root="HKLM" Key="Software\MySQL AB\$(var.OLD_PRODUCT_NAME)" Name="Location" />
 		</Property>
 
@@ -67,7 +74,7 @@
         <Condition Message="The processor is not adequate for running [ProductName].">Intel &gt;= 5</Condition>
         <Condition Message="The amount of RAM is not adequate for running [ProductName].">PhysicalMemory &gt;= 64</Condition>
         <Condition Message="You need Administrator privileges to be able to install [ProductName].">Privileged</Condition>
-        <Condition Message="MySQL Workbench requires the Visual C++ 2015 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR CPP_2015_REDISTRIBUTABLE]]></Condition>
+        <Condition Message="MySQL Workbench requires the Visual C++ 2015 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR CPP_2015_REDISTRIBUTABLE_1 OR CPP_2015_REDISTRIBUTABLE_2]]></Condition>
         <Condition Message="MySQL Workbench requires the .Net Framework 4.5.2 to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED]]></Condition>
 
         <CustomAction Id="NewerVersionInstalled" Error="A newer version of this product is already installed." />
