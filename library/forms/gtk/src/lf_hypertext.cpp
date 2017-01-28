@@ -59,10 +59,10 @@ namespace mforms {
     //------------------------------------------------------------------------------
     HyperTextImpl::HyperTextImpl(HyperText *self) : ViewImpl(self), _conn(0) {
       _win.add(_text);
-      _win.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+      _win.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
       _text.show();
       _text.set_editable(false);
-      _text.set_wrap_mode(Gtk::WRAP_WORD);
+      _text.set_wrap_mode(Gtk::WRAP_WORD_CHAR);
     }
 
     //------------------------------------------------------------------------------
