@@ -409,13 +409,13 @@ void UserDefinedTypeEditor::ok_clicked() {
 
   // add new types, update existing ones
   for (size_t i = 0; i < _user_types.size(); i++) {
-    db_UserDatatypeRef type;
+    db_UserDatatypeRef type(grt::Initialized);
     mforms::TreeNodeRef node(_type_list.node_at_row((int)i));
     if (!node)
       continue;
 
     if (!_user_types[i].is_valid())
-      type = db_UserDatatypeRef();
+      type = db_UserDatatypeRef(grt::Initialized);
     else
       type = _user_types[i];
 
