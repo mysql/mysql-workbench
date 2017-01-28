@@ -93,7 +93,6 @@ namespace mforms {
     const JsonParser::JsonValue &getJson() const;
     const std::string &getText() const;
     bool validate();
-    void startProc();
     std::function<void()> _stopTextProcessing;
     std::function<void(std::function<bool()>)> _startTextProcessing;
 
