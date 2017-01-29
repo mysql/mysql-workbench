@@ -1622,13 +1622,21 @@ namespace mforms {
         size_t size = path_selection.size();
 
         if (size > 0) {
-          for (size_t index = 0; index < size; index++)
-            selection.push_back(TreeNodeRef(new TreeNodeImpl(tree, tree->_tree_store, path_selection[index])));
+          for (size_t index = 0; index < size; index++) {
+            auto path = path_selection[index];
+            if (tree->_sort_model)
+              path = tree->_sort_model->convert_path_to_child_path(path);
+
+            selection.push_back(TreeNodeRef(new TreeNodeImpl(tree, tree->_tree_store, path)));
+          }
         }
       } else {
-        const Gtk::TreePath path(tree->to_list_iter(tree->_tree.get_selection()->get_selected()));
-        if (!path.empty())
+        Gtk::TreePath path(tree->to_list_iter(tree->_tree.get_selection()->get_selected()));
+        if (!path.empty()) {
+          if (tree->_sort_model)
+            path = tree->_sort_model->convert_path_to_child_path(path);
           selection.push_back(TreeNodeRef(new TreeNodeImpl(tree, tree->_tree_store, path)));
+        }
       }
       return selection;
     }
