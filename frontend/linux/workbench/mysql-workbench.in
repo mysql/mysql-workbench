@@ -11,6 +11,9 @@ export UBUNTU_MENUPROXY=0
 # https://bugs.launchpad.net/ubuntu/+source/overlay-scrollbar/+bug/903302
 export LIBOVERLAY_SCROLLBAR=0
 
+# force x11 backend on systems that use wayland
+export GDK_BACKEND=x11
+
 # Set the destdir=<some_dir> when ever you install using DESTDIR=<some_dir>. 
 destdir="$WB_DEST_DIR"
 
