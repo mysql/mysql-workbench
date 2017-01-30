@@ -1412,6 +1412,12 @@ class FileOpsLocalWindows(object): # Used for remote as well, if not using sftp
           
         return ret_val
 
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        if as_user == Users.CURRENT:
+            ret_val = FileUtils.check_path_exists(path)
+        else:
+            ret_val = self.exec_helper_command('CHECK_PATH_EXISTS %s' % path, FunctionType.Boolean, as_user, user_password)
+        return ret_val;
 
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         if as_user == Users.CURRENT:
