@@ -828,6 +828,9 @@ class FileOpsNope(object):
     def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
         return False
 
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        return False
+
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         return False
 
@@ -866,7 +869,16 @@ class FileOpsLinuxBase(object):
     # Exception Handling will vary on local and remote
     def raise_exception(self, message, custom_messages = {}):
         raise Exception(message)
-        
+
+    @useAbsPath("path")
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        res = self.process_ops.exec_cmd('test -d ' + quote_path(path),
+                            as_user,
+                            user_password,
+                            output_handler = lambda line:None,
+                            options={CmdOptions.CMD_WAIT_OUTPUT:CmdOutput.WAIT_NEVER})
+        return res == 0
+
     @useAbsPath("filename")
     def file_exists(self, filename, as_user=Users.CURRENT, user_password=None):
         res = self.process_ops.exec_cmd('test -e ' + quote_path(filename),
@@ -1716,6 +1728,17 @@ class FileOpsRemoteWindows(object):
         
         return available
 
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        if self.ssh:
+            out, ret = self.ssh.exec_cmd('if exist %s exit /b 0' % quote_path(path), as_user, user_password)
+            if ret != 0:
+                raise RuntimeError(out)
+            return True
+        else:
+            log_error('%s: Attempt to read remote file with no ssh session\n' % self.__class__.__name__)
+            raise Exception("Cannot read remote file without an SSH session")
+        return False
+
     def create_directory(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
         if with_owner is not None:
             raise PermissionDeniedError("Changing owner of directory not supported in Windows" % path)
@@ -1945,6 +1968,10 @@ class ServerManagementHelper(object):
     #-----------------------------------------------------------------------------
     def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
         return self.file.check_file_readable(path, as_user, user_password)
+    
+    #-----------------------------------------------------------------------------
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        return self.file.check_path_exists(path, as_user, user_password)
 
     #-----------------------------------------------------------------------------
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
