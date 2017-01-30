@@ -623,6 +623,9 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
           continue;
         }
 
+        if (base::hasSuffix(mitem.id(), "/SE") && !_include_se)
+          continue;
+
         item = mforms::manage(new mforms::MenuItem(caption, type));
         parent->add_item(item);
         item->set_name(cmd.args.empty() ? cmd.name : cmd.name + ":" + cmd.args);
