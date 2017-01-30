@@ -36,7 +36,7 @@ void bec::RefreshUI::set_partial_refresh_ui_slot(const PartialRefreshSlot &slot)
 //--------------------------------------------------------------------------------------------------
 
 void bec::RefreshUI::do_partial_ui_refresh(const int what) {
-  if (!_partial_refresh_blocked && !_partial_refresh_ui)
+  if (!_partial_refresh_blocked && _partial_refresh_ui)
     _partial_refresh_ui(what);
 }
 
