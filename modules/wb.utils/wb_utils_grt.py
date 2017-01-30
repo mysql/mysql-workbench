@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -561,7 +561,11 @@ def startUtilitiesShell():
                 if 'konsole' in term:
                     subprocess.call([term, "-e", "/bin/sh", setup_script])
                 else:
-                    subprocess.call(["/bin/sh", "-c", "%s -e %s &" % (term, setup_script)])
+                    my_env = os.environ.copy()
+                    if (("XDG_SESSION_TYPE" in my_env and my_env["XDG_SESSION_TYPE"] == "wayland") 
+                      or "WAYLAND_DISPLAY" in my_env) and my_env["GDK_BACKEND"]:
+                        my_env["GDK_BACKEND"] = "wayland"
+                    subprocess.Popen(["/bin/sh", "-c", "%s -e %s &" % (term, setup_script)], shell=False, env=my_env)
             else:
                 raise RuntimeError("Terminal program could not be found")
 
