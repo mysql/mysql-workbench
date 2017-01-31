@@ -324,8 +324,8 @@ namespace sql {
       properties.erase("sslCipher");
     }
 
-    int sslModeWb = parameter_values.get_int("useSSL", 0);
-    sql::ssl_mode sslMode = SSL_MODE_DISABLED;
+    ssize_t sslModeWb = parameter_values.get_int("useSSL", 0);
+    sql::ssl_mode sslMode = sql::SSL_MODE_DISABLED;
     switch(sslModeWb)
     {
       case 0:
