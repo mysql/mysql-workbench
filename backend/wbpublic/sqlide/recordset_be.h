@@ -319,4 +319,13 @@ public:
 protected:
   void set_field_value(RowId row, ColumnId column, BinaryDataEditor *data_editor);
   void set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length, bool isJson = false);
+
+public:
+  const std::string &getFont() const { return _font; }
+  float getFontSize() const { return _size; }
+  void setFont(const std::string &font, float size) { _font = font; _size = size; }
+
+private:
+  std::string _font;
+  float _size;
 };
