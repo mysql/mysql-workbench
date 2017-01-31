@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
+        <development version="7000" identifier="xcode"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MFFindPanel">
@@ -24,7 +24,6 @@
                 <textField verticalHuggingPriority="750" id="2">
                     <rect key="frame" x="138" y="29" width="96" height="14"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <animations/>
                     <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" id="3">
                         <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -34,7 +33,6 @@
                 <searchField wantsLayer="YES" verticalHuggingPriority="750" tag="1" id="6">
                     <rect key="frame" x="292" y="27" width="591" height="19"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <animations/>
                     <searchFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" bezelStyle="round" sendsWholeSearchString="YES" recentsAutosaveName="SearchAutoSave" id="7">
                         <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -49,7 +47,6 @@
                 <button verticalHuggingPriority="750" tag="7" id="10">
                     <rect key="frame" x="891" y="2" width="56" height="19"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                    <animations/>
                     <buttonCell key="cell" type="roundRect" title="Done" bezelStyle="roundedRect" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="11">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="cellTitle"/>
@@ -64,7 +61,6 @@ Gw
                 <button verticalHuggingPriority="750" tag="11" id="14">
                     <rect key="frame" x="124" y="5" width="108" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <animations/>
                     <buttonCell key="cell" type="roundRect" title="Replace" bezelStyle="roundedRect" alignment="center" controlSize="small" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="15">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="smallSystem"/>
@@ -76,7 +72,6 @@ Gw
                 <button verticalHuggingPriority="750" tag="10" id="16">
                     <rect key="frame" x="8" y="5" width="108" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <animations/>
                     <buttonCell key="cell" type="roundRect" title="Replace All" bezelStyle="roundedRect" alignment="center" controlSize="small" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="17">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="smallSystem"/>
@@ -88,7 +83,6 @@ Gw
                 <textField verticalHuggingPriority="750" tag="13" id="8">
                     <rect key="frame" x="292" y="3" width="591" height="19"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                    <animations/>
                     <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="9">
                         <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -101,7 +95,6 @@ Gw
                 <segmentedControl verticalHuggingPriority="750" tag="5" id="54">
                     <rect key="frame" x="7" y="28" width="127" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <animations/>
                     <segmentedCell key="cell" controlSize="small" state="on" borderStyle="border" alignment="left" style="roundRect" trackingMode="selectOne" id="55">
                         <font key="font" metaFont="smallSystem"/>
                         <segments>
@@ -113,18 +106,13 @@ Gw
                         <action selector="findActionClicked:" target="-2" id="56"/>
                     </connections>
                 </segmentedControl>
-                <box verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" id="58">
+                <box verticalHuggingPriority="750" boxType="separator" id="58">
                     <rect key="frame" x="0.0" y="-2" width="1007" height="5"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                    <animations/>
-                    <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                    <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                    <font key="titleFont" metaFont="system"/>
                 </box>
                 <segmentedControl verticalHuggingPriority="750" tag="6" id="4">
                     <rect key="frame" x="239" y="27" width="46" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <animations/>
                     <segmentedCell key="cell" borderStyle="border" alignment="left" style="roundRect" trackingMode="momentary" id="5">
                         <font key="font" metaFont="miniSystem"/>
                         <segments>
@@ -137,7 +125,6 @@ Gw
                     </connections>
                 </segmentedControl>
             </subviews>
-            <animations/>
             <point key="canvasLocation" x="342.5" y="323"/>
         </customView>
         <menu autoenablesItems="NO" id="26">
