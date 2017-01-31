@@ -47,17 +47,17 @@
                     <rect key="frame" x="519" y="28" width="250" height="114"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" heightSizable="YES"/>
                     <clipView key="contentView" id="Exd-gO-Hnh">
-                        <rect key="frame" x="1" y="0.0" width="248" height="113"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <rect key="frame" x="1" y="0.0" width="237" height="99"/>
+                        <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowHeight="16" headerView="75" indentationPerLevel="16" autoresizesOutlineColumn="YES" outlineTableColumn="76" id="74">
-                                <rect key="frame" x="0.0" y="0.0" width="248" height="96"/>
+                                <rect key="frame" x="0.0" y="0.0" width="237" height="82"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="1" width="245" minWidth="16" maxWidth="1000" id="76">
+                                    <tableColumn identifier="1" width="234" minWidth="16" maxWidth="1000" id="76">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Available Roles">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -79,15 +79,15 @@
                         </subviews>
                     </clipView>
                     <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="73">
-                        <rect key="frame" x="1" y="99" width="248" height="14"/>
+                        <rect key="frame" x="1" y="99" width="237" height="14"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="72">
-                        <rect key="frame" x="235" y="17" width="14" height="96"/>
+                        <rect key="frame" x="238" y="17" width="11" height="82"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <tableHeaderView key="headerView" id="75">
-                        <rect key="frame" x="0.0" y="0.0" width="248" height="17"/>
+                        <rect key="frame" x="0.0" y="0.0" width="237" height="17"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </tableHeaderView>
                 </scrollView>
@@ -95,17 +95,17 @@
                     <rect key="frame" x="8" y="8" width="243" height="134"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <clipView key="contentView" id="fel-db-i2o">
-                        <rect key="frame" x="1" y="0.0" width="241" height="133"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <rect key="frame" x="1" y="0.0" width="230" height="119"/>
+                        <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="16" headerView="45" id="46">
-                                <rect key="frame" x="0.0" y="0.0" width="241" height="116"/>
+                                <rect key="frame" x="0.0" y="0.0" width="230" height="102"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="0" width="238" minWidth="40" maxWidth="1000" id="49">
+                                    <tableColumn identifier="0" width="227" minWidth="40" maxWidth="1000" id="49">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Assigned Roles">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -127,15 +127,15 @@
                         </subviews>
                     </clipView>
                     <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="47">
-                        <rect key="frame" x="1" y="119" width="241" height="14"/>
+                        <rect key="frame" x="1" y="119" width="230" height="14"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="48">
-                        <rect key="frame" x="228" y="17" width="14" height="116"/>
+                        <rect key="frame" x="231" y="17" width="11" height="102"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <tableHeaderView key="headerView" id="45">
-                        <rect key="frame" x="0.0" y="0.0" width="241" height="17"/>
+                        <rect key="frame" x="0.0" y="0.0" width="230" height="17"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </tableHeaderView>
                 </scrollView>
@@ -143,17 +143,17 @@
                     <rect key="frame" x="259" y="8" width="243" height="134"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" heightSizable="YES"/>
                     <clipView key="contentView" id="3bn-Ia-ivS">
-                        <rect key="frame" x="1" y="0.0" width="241" height="133"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <rect key="frame" x="1" y="0.0" width="230" height="119"/>
+                        <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="16" headerView="30" id="31">
-                                <rect key="frame" x="0.0" y="0.0" width="241" height="116"/>
+                                <rect key="frame" x="0.0" y="0.0" width="230" height="102"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="1" width="238" minWidth="40" maxWidth="1000" id="34">
+                                    <tableColumn identifier="1" width="227" minWidth="40" maxWidth="1000" id="34">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Privileges for Role">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -174,15 +174,15 @@
                         </subviews>
                     </clipView>
                     <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="32">
-                        <rect key="frame" x="1" y="119" width="241" height="14"/>
+                        <rect key="frame" x="1" y="119" width="230" height="14"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="33">
-                        <rect key="frame" x="228" y="17" width="14" height="116"/>
+                        <rect key="frame" x="231" y="17" width="11" height="102"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <tableHeaderView key="headerView" id="30">
-                        <rect key="frame" x="0.0" y="0.0" width="241" height="17"/>
+                        <rect key="frame" x="0.0" y="0.0" width="230" height="17"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </tableHeaderView>
                 </scrollView>
