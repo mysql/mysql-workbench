@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
+        <development version="7000" identifier="xcode"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="WBOverviewItemContainer">
@@ -26,7 +26,6 @@
                 <textField verticalHuggingPriority="750" tag="1" id="22">
                     <rect key="frame" x="0.0" y="2" width="80" height="14"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                    <animations/>
                     <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="center" title="Label" id="169">
                         <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -40,7 +39,6 @@
                 <imageView tag="2" id="23">
                     <rect key="frame" x="0.0" y="16" width="80" height="64"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
-                    <animations/>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" image="NSInfo" id="170"/>
                     <connections>
                         <binding destination="18" name="value" keyPath="representedObject.image" id="27"/>
@@ -48,7 +46,6 @@
                     </connections>
                 </imageView>
             </subviews>
-            <animations/>
             <connections>
                 <outlet property="delegate" destination="36" id="80"/>
                 <outlet property="menu" destination="134" id="142"/>
@@ -69,7 +66,6 @@
                 <textField verticalHuggingPriority="750" tag="1" id="44">
                     <rect key="frame" x="24" y="3" width="115" height="14"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                    <animations/>
                     <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Label" id="172">
                         <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -83,7 +79,6 @@
                 <imageView tag="2" id="43">
                     <rect key="frame" x="4" y="2" width="16" height="16"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                    <animations/>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" image="NSInfo" id="171"/>
                     <connections>
                         <binding destination="101" name="value" keyPath="representedObject.image" id="106"/>
@@ -91,7 +86,6 @@
                     </connections>
                 </imageView>
             </subviews>
-            <animations/>
             <connections>
                 <outlet property="delegate" destination="36" id="104"/>
                 <outlet property="menu" destination="134" id="141"/>
@@ -101,7 +95,6 @@
         <collectionView selectable="YES" id="72" userLabel="Collection View">
             <rect key="frame" x="0.0" y="0.0" width="233" height="143"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <animations/>
             <color key="primaryBackgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <connections>
                 <binding destination="36" name="content" keyPath="items" id="74"/>
