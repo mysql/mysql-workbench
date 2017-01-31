@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -466,8 +466,8 @@ class csv_module(base_module):
                             elif col_type[col] == 'datetime':
                                 val = datetime.datetime.strptime(row[col_name], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             if hasattr(val, "replace"):
-                                val = val.replace("\\", "\\\\").replace('"', '\\"')
-                            self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                                val = val.replace("\\", "\\\\").replace("'", "\\'")
+                            self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
@@ -689,22 +689,20 @@ class json_module(base_module):
                             self._editor.executeManagementCommand("""SET @a%d = %s """ % (i, val), 0)
                         else:
                             if col_type[col_name] != "json" and hasattr(val, "replace"):
-                                val = val.replace("\\", "\\\\").replace('"', '\\"')
+                                val = val.replace("\\", "\\\\").replace("'", "\\'")
                                 
                             if col_type[col_name] == 'double':
                                 val = val(str).replace(self._decimal_separator, '.')
                             elif col_type[col_name] == 'datetime':
                                 val = datetime.datetime.strptime(val, self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             elif col_type[col_name] == "json":
-                                val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")
+                                val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")                                
     
                             if col_type[col_name] == "int":
                                 self._editor.executeManagementCommand("""SET @a%d = %d """ % (i, int(val)), 0)
-                            elif col_type[col_name] == "json":
-                                self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
                             else:
-                                self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
-                            
+                                self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
+
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
