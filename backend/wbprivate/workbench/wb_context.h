@@ -43,8 +43,8 @@
 
 #define WBContext_VERSION 5
 
-#define WB_DBOBJECT_DRAG_TYPE "mysql-wb.DatabaseObject"
-#define WB_CONTROL_DRAG_TYPE "mysql-wb.control"
+#define WB_DBOBJECT_DRAG_TYPE "com.mysql.workbench.DatabaseObject"
+#define WB_CONTROL_DRAG_TYPE "com.mysql.workbench.control"
 
 namespace mdc {
   class CanvasView;
