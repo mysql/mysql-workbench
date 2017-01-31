@@ -179,8 +179,8 @@ CXXFLAGS="-std=c++11 $CXXFLAGS" \
 %if %{with mysql_static}
        -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE \
 %endif
-       -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
-       -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
+       -DMySQLCppConn_LIBRARIES="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
+       -DMySQLCppConn_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
        -DIODBC_INCLUDE_PATH=%{odbc_home}/include \
        -DIODBC_LIBRARIES_PATH=%{odbc_home}/lib \
