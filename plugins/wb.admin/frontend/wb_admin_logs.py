@@ -1,4 +1,4 @@
-﻿# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -321,7 +321,7 @@ class LogView(mforms.Box):
         self.add_end(self.bbox, False, True)
 
         self._menu = mforms.newContextMenu()
-        self._menu.add_item_with_title("Copy", self.copy_record, "copy_record")
+        self._menu.add_item_with_title("Copy Row", self.copy_record, "copy_record")
         self._menu.add_item_with_title("Copy Details", self.copy_details, "copy_details")
         self.tree.set_context_menu(self._menu)
 
