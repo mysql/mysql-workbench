@@ -1558,7 +1558,6 @@ class SecurityAccount(mforms.Box):
             host = self._selected_user.host
         elif sel:
             user, host = eval(sel.get_tag())
-                
         self._selected_user = None
         self._selected_user_original = None
         self.show_user(None)
@@ -1572,11 +1571,14 @@ class SecurityAccount(mforms.Box):
             if self.owner.secman.is_zombie(user, host):
                 self.show_zombie_user(user, host)
             else:
-                self.owner.secman.async_get_account(self.show_user, user, host)
-                
+                try:
+                    self.owner.secman.async_get_account(self.show_user, user, host)
+                except Exception, e:
+                    if str(e).startswith("Could not load account information for"):
+                        log_debug3("Unable to load the account information for %s@%s. Probably the user was not created in the server yet and revert was pressed." % (user, host))
+                        return
         else:
             self.account_label.set_text("Select an account to edit or click [Add Account] to create a new one")
-
 
     def show_zombie_user(self, user, host):
         self.content_box.set_enabled(True)
@@ -1798,7 +1800,6 @@ class SecurityAccount(mforms.Box):
         self.firewall_rules.refresh_users(self.owner.secman.account_names)
         for user, host in self.owner.secman.account_names:
             row = self.user_list.add_node()
-
             if self.owner.secman.is_zombie(user, host):
                 row.set_string(0, "(!) "+(user or "<anonymous>"))
             else:
@@ -1825,7 +1826,6 @@ class SecurityAccount(mforms.Box):
         self.password_label.set_color('#000000')
         
         self.setup_bottom_message_box(su) 
-
 
     def refresh_priv_list(self):
         self.role_priv_list.clear()
@@ -1923,6 +1923,7 @@ class SecurityAccount(mforms.Box):
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
+        self.owner.refresh()
 
     def commit(self):
         self.current_action = "commit account"
