@@ -216,10 +216,10 @@ static void call_refresh(void *theEditor)
 
     [self setMinimumSize: [tabView frame].size];
 
-    [roleOutline registerForDraggedTypes:@[[NSString stringWithCPPString: WB_CONTROL_DRAG_TYPE]]];
+    [roleOutline registerForDraggedTypes: @[[NSString stringWithCPPString: WB_CONTROL_DRAG_TYPE]]];
     
     // setup the object list for accepting drops
-    [objectTable registerForDraggedTypes:@[[NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]]];
+    [objectTable registerForDraggedTypes: @[[NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]]];
     
     [self reinitWithArguments: args];
   }
