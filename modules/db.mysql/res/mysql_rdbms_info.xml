@@ -787,7 +787,7 @@
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
                         <value type="string" key="paramType">enum</value>
                         <value type="dict" content-type="string" key="paramTypeDetails">
-                            <value type="string" key="options">0|No,1|If available,2|Require</value>
+                            <value type="string" key="options">0|No,1|If available,2|Require,3|Require and Verify CA,4|Require and Verify Identity</value>
                             <value type="string" key="type">int</value>
                         </value>
                         <value type="int" key="required">0</value>
@@ -1033,7 +1033,7 @@
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
                         <value type="string" key="paramType">enum</value>
                         <value type="dict" content-type="string" key="paramTypeDetails">
-                            <value type="string" key="options">0|No,1|If available,2|Require</value>
+                            <value type="string" key="options">0|No,1|If available,2|Require,3|Require and Verify CA,4|Require and Verify Identity</value>
                             <value type="string" key="type">int</value>
                         </value>
                         <value type="int" key="required">0</value>
@@ -1373,7 +1373,7 @@
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
                         <value type="string" key="paramType">enum</value>
                         <value type="dict" content-type="string" key="paramTypeDetails">
-                            <value type="string" key="options">0|No,1|If available,2|Require</value>
+                            <value type="string" key="options">0|No,1|If available,2|Require,3|Require and Verify CA,4|Require and Verify Identity</value>
                             <value type="string" key="type">int</value>
                         </value>
                         <value type="int" key="required">0</value>

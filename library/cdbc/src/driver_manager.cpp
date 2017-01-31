@@ -301,7 +301,7 @@ namespace sql {
     properties["CLIENT_MULTI_STATEMENTS"] = true;
     properties["metadataUseInfoSchema"] =
       false; // I_S is way too slow for many things as of MySQL 5.6.10, so disable it for now
-#if defined(__APPLE__) || defined(_WIN32) || defined(MYSQLCPPCONN_VERSION_1_1_4)
+#if defined(__APPLE__) || defined(_WIN32)
     // set application name
     {
       std::map<sql::SQLString, sql::SQLString> attribs;
@@ -323,6 +323,28 @@ namespace sql {
       properties.erase("sslCAPath");
       properties.erase("sslCipher");
     }
+
+    int sslModeWb = parameter_values.get_int("useSSL", 0);
+    sql::ssl_mode sslMode = SSL_MODE_DISABLED;
+    switch(sslModeWb)
+    {
+      case 0:
+         sslMode = sql::SSL_MODE_DISABLED;
+        break;
+      case 1:
+        sslMode = sql::SSL_MODE_PREFERRED;
+        break;
+      case 2:
+        sslMode = sql::SSL_MODE_REQUIRED;
+        break;
+      case 3:
+        sslMode = sql::SSL_MODE_VERIFY_CA;
+        break;
+      case 4:
+        sslMode = sql::SSL_MODE_VERIFY_IDENTITY;
+        break;
+    }
+    properties["OPT_SSL_MODE"] = sslMode;
 
     // If we are on a pipe connection then set the host name explicitly.
     // However, pipe connections can only be established on the local box (Win only).
@@ -393,15 +415,9 @@ namespace sql {
       for (const std::string &prop_name : prop_names) {
         ConnectOptionsMap::iterator prop_iter = properties.find(prop_name);
         if (properties.end() != prop_iter) {
-#ifdef MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER
           sql::SQLString *val = prop_iter->second.get<sql::SQLString>();
           if (val->compare("") == 0)
             properties.erase(prop_iter);
-#else
-          sql::SQLString &val = boost::get<sql::SQLString>(prop_iter->second);
-          if (val->empty())
-            properties.erase(prop_iter);
-#endif
         }
       }
     }
@@ -409,19 +425,6 @@ namespace sql {
     try {
       std::unique_ptr<Connection> conn(driver->connect(properties));
       std::string ssl_cipher;
-
-      // make sure that SSL got enabled if it was requested to be required
-      // TODO: there's a client lib option to do this, but C/C++ does not support as of 1.1.4
-      if (parameter_values.get_int("useSSL", 0) > 1) {
-        std::unique_ptr<sql::Statement> statement(conn.get()->createStatement());
-        std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
-        if (rs->next()) {
-          ssl_cipher = rs->getString(2);
-          if (ssl_cipher.empty())
-            throw std::runtime_error("Unable to establish SSL connection");
-        }
-      }
-
       // make sure the user we got logged in is the user we wanted
       {
         std::unique_ptr<sql::Statement> statement(conn.get()->createStatement());
