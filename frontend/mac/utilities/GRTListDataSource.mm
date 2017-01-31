@@ -74,12 +74,9 @@ static std::map<std::string, GRTNodeId *> node_cache;
 }
 
 - (instancetype)initWithListModel: (bec::ListModel *)model {
-  if (model == nil)
-    return nil;
-
   self = [super init];
   if (self != nil) {
-    _list = model;
+    _list = model; // The list model can also be set later.
   }
   return self;
 }
