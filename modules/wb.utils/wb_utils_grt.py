@@ -1013,7 +1013,7 @@ class SSLWizard_ResultsPage(WizardPage):
             self.main.conn.parameterValues['sslCA'] = self.main.generate_page.ca_cert.replace('\\', '/')
             self.main.conn.parameterValues['sslCert'] = self.main.generate_page.client_cert.replace('\\', '/')
             self.main.conn.parameterValues['sslKey'] = self.main.generate_page.client_key.replace('\\', '/')
-            self.main.conn.parameterValues['useSSL'] = 2
+            self.main.conn.parameterValues['useSSL'] = 4
             
         self.main.go_next_page()
 
