@@ -78,6 +78,10 @@
       <Name>wbpublic.wr</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\library\base.windows\base.windows.csproj">
+      <Project>{09e3ad36-deb1-4302-8e7f-4a970b2ec84b}</Project>
+      <Name>base.windows</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\library\base.wr\base.wr.vcxproj">
       <Project>{456d822c-724a-412c-b0eb-9ec88378decb}</Project>
       <Name>base.wr</Name>
