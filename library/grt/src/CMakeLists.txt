@@ -5,7 +5,7 @@ include_directories(.
     .. 
     ${PROJECT_SOURCE_DIR}/generated 
     SYSTEM ${GRT_INCLUDE_DIRS} 
-    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS})
 
 #TODO: Set compiler flags 

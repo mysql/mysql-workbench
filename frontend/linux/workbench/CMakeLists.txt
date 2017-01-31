@@ -46,14 +46,14 @@ include_directories(.
     SYSTEM ${GTK3_INCLUDE_DIRS}
     SYSTEM ${CAIRO_INCLUDE_DIRS}
     SYSTEM ${LIBZIP_INCLUDE_DIRS}
-    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
     SYSTEM ${GRT_INCLUDE_DIRS}
     SYSTEM ${GNOME_KEYRING_INCLUDE_DIRS}
     SYSTEM ${VSQLITE_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
-#link_directories(${PROJECT_BINARY_DIR}/mysqlcppconnector/lib ${PROJECT_BINARY_DIR}/antlr-wb)
+
 SET(CMAKE_INSTALL_RPATH "${WB_INSTALL_LIB_DIR}")
 add_executable(mysql-workbench-bin
     main.cpp
@@ -108,7 +108,7 @@ target_link_libraries(mysql-workbench-bin
     mdcanvas
     parsers
     mtemplate
-    ${MYSQLCPPCONN_LIBRARIES}
+    ${MySQLCppConn_LIBRARIES}
     ${X11_LIBRARIES}
     ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
