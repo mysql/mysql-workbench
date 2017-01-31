@@ -24,8 +24,7 @@ using System.Windows.Forms;
 
 using MySQL.Base;
 using MySQL.Controls;
-using MySQL.GUI.Workbench;
-using MySQL.Workbench;
+using MySQL.Utilities;
 
 namespace MySQL.Grt.Db
 {
@@ -51,12 +50,12 @@ namespace MySQL.Grt.Db
 
     public void SetupRecordset(RecordsetWrapper recordset)
     {
-      gridView = new GridView(recordset);
+      Font font = ControlUtilities.GetFont(recordset.getFont(), recordset.getFontSize());
+      gridView = new GridView(recordset, font);
    //   gridView.Dock = DockStyle.Fill;
       gridView.BorderStyle = BorderStyle.None;
       gridView.StandardTab = false; // Let Tab move the cursor to the next cell instead next control in parent tab order.
       gridView.AllowAutoResizeColumns = false; // this will mess up our custom sizing/column width saving
-      gridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
       recordset.register_edit_actions();
 
@@ -436,7 +435,6 @@ namespace MySQL.Grt.Db
     public void set_font(String font, float size, FontStyle style)
     {
       gridView.Font = new Font(font, size, style);
-      
       // Don't auto resize rows here, as this might be very expensive (e.g. many rows, large cell values).
       gridView.AutoResizeColumnHeadersHeight();
     }

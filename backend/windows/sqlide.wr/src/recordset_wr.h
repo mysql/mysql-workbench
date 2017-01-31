@@ -142,6 +142,14 @@ namespace MySQL {
           return _ref->inserts_editor();
         }
 
+        String^ getFont() {
+          return CppStringToNative(_ref->getFont());
+        }
+
+        float getFontSize() {
+          return _ref->getFontSize();
+        }
+
       private:
         DelegateSlot0<void, void> ^ _flush_ui_changes;
 

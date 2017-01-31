@@ -224,12 +224,17 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset) {
   _grid_header_menu->add_item_with_title("Reset Sorting", std::bind(&SqlEditorResult::reset_sorting, this));
   _grid_header_menu->add_item_with_title("Reset Column Widths", std::bind(&SqlEditorResult::reset_column_widths, this));
 
+  
+  std::string fontDescription = bec::GRTManager::get()->get_app_option_string("workbench.general.Resultset:Font");
+  std::string font;
+  float size = 0;
+  bool bold, italic;
+  base::parse_font_description(fontDescription, font, size, bold, italic);
+  rset->setFont(font, size);
   mforms::GridView *grid = mforms::manage(mforms::GridView::create(rset));
   {
-    std::string font = bec::GRTManager::get()->get_app_option_string("workbench.general.Resultset:Font");
     if (!font.empty())
       grid->set_font(font);
-
     grid->set_header_menu(_grid_header_menu);
   }
   dock_result_grid(grid);
