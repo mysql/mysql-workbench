@@ -227,6 +227,15 @@
 
 //--------------------------------------------------------------------------------------------------
 
+
+- (void)draggingSession: (NSDraggingSession *)session
+           endedAtPoint: (NSPoint)screenPoint
+              operation: (NSDragOperation)operation {
+  // Reset dragging pasteboard content or it might happen that we have to render the data on shutdown
+  // when most of the backend is already gone.
+  [session.draggingPasteboard clearContents];
+}
+
 - (void)keyDown: (NSEvent *)theEvent {
   [self cancelPendingInlineEdit];
 
