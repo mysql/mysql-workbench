@@ -50,7 +50,11 @@ namespace MySQL.Grt.Db
 
     public void SetupRecordset(RecordsetWrapper recordset)
     {
-      Font font = ControlUtilities.GetFont(recordset.getFont(), recordset.getFontSize());
+      Font font = null;
+      string fontName = recordset.getFont();
+      float size = recordset.getFontSize();
+      if(!string.IsNullOrEmpty(fontName) && size > 0)
+        font = ControlUtilities.GetFont(fontName, size);
       gridView = new GridView(recordset, font);
    //   gridView.Dock = DockStyle.Fill;
       gridView.BorderStyle = BorderStyle.None;
