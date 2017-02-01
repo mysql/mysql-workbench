@@ -145,10 +145,7 @@ class MySQLScriptImporter(object):
         is_windows = platform.system() == 'Windows'
 
         if parameter == "command":
-          if is_windows:
-              param_list.append('"%s"' % data)
-          else:
-              param_list.append(data)
+            param_list.append(data)
         elif parameter == "defaults-extra-file":
             if is_windows:
                 pwdfile = tempfile.NamedTemporaryFile(delete=False, suffix=".cnf")
@@ -233,7 +230,7 @@ class MySQLScriptImporter(object):
             proc.wait()
             self.report_progress("Finished...", 2, 2)
         except Exception, e:
-            logError("There was an exception running a process: %s\n%s" % (command, str(e)))
+            log_error("There was an exception running a process: %s\n%s" % (command, str(e)))
         finally:
             if pwdfilename:
                 os.remove(pwdfilename)
