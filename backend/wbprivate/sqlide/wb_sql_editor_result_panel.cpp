@@ -234,7 +234,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset) {
   mforms::GridView *grid = mforms::manage(mforms::GridView::create(rset));
   {
     if (!font.empty())
-      grid->set_font(font);
+      grid->set_font(fontDescription);
     grid->set_header_menu(_grid_header_menu);
   }
   dock_result_grid(grid);
