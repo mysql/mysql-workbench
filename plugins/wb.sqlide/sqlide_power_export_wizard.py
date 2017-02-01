@@ -510,7 +510,7 @@ class DataInputPage(WizardPage):
         self.simple_export_box = mforms.newBox(False)
         self.simple_export_box.set_spacing(16)
         
-        label = mforms.newLabel("Select source table for export.")
+        label = mforms.newLabel("Select source table for export:")
         label.set_style(mforms.BoldInfoCaptionStyle)
         headingBox.add(label, False, True)
         

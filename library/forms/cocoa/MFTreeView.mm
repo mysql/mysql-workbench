@@ -574,6 +574,12 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node) {
   return mData[key];
 }
 
+- (void)setObject: (id)anObject forKeyedSubscript: (id)aKey {
+  mData[aKey] = anObject;
+
+  [mTree.outlineView setNeedsDisplay: YES];
+}
+
 - (NSMutableArray *)createChildrenWithCapacity: (int)count {
   NSMutableArray *children = count > 0 ? [NSMutableArray arrayWithCapacity: count] : [NSMutableArray array];
   mData[@"children"] = children;
