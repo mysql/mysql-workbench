@@ -30,7 +30,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form) : WizardPage(form, "options
   set_title(_("Input and Options"));
   set_short_title(_("Input and Options"));
 
-  add(&_table, false, false);
+  add(&_table, true, true);
   _table.set_row_count(4);
   _table.set_column_count(2);
   _table.set_row_spacing(14);
@@ -45,6 +45,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form) : WizardPage(form, "options
   _caption.set_text(_("Select SQL script file:"));
   _table.add(&_caption, 0, 1, 1, 2, mforms::HFillFlag);
   _table.add(&_file_selector, 1, 2, 1, 2, mforms::HExpandFlag | mforms::HFillFlag);
+  _file_selector.set_size(-1, 22);
 
   std::string initial_filename = form->module()->document_string_data("input_filename", "");
   _file_selector.initialize(initial_filename, mforms::OpenFile, "SQL Files (*.sql)|*.sql", false,
