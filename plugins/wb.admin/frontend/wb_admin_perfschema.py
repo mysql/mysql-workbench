@@ -246,7 +246,7 @@ class HelperInstallPanel(mforms.Table):
                 log_info("Installing sys schema supplied by workbench\n")
                 self.install_scripts(files, "Installing Workbench script")
         except Exception, e:
-              log_error("Runtim error when installing the sys schema: %s\n" % str(e))
+              log_error("Runtime error when installing the sys schema: %s\n" % str(e))
               self._worker_queue.put(e)
         
         # This makes the screen refresh
