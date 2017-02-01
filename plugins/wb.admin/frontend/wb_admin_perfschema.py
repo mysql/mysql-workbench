@@ -108,6 +108,8 @@ def get_installed_sys_version(sql_editor):
         log_error("MySQL error getting sys schema version: %s\n" % e)
         if e.args[1] == 1146: # table doesn't exist
             return None
+        if e.args[1] == 1142: # user does not have sufficient privileges
+            return "access_denied";
         raise
 
 
@@ -326,6 +328,8 @@ class WbAdminPSBaseTab(mforms.Box):
             can_install = True
             if len(missing_grants) > 0:
                 can_install = False
+                if installed_version == "access_denied":
+                    install_text = ""
                 install_text = "%s\n\nThe following grants are missing:\n  - %s" % (install_text, str(missing_grants))
     
             if not installed_version:
@@ -333,6 +337,13 @@ class WbAdminPSBaseTab(mforms.Box):
                 return "The Performance Schema helper schema (sys) is not installed", \
     """Click the [Install Helper] button to install it.
     You must have at least the following privileges to use Performance Schema functionality:
+      - SELECT on performance_schema.*
+      - UPDATE on performance_schema.setup* for configuring instrumentation
+      %s""" % install_text, can_install
+
+            elif installed_version == "access_denied":
+                return "The Performance Schema helper schema (sys) is not accesible", \
+    """You must have at least the following privileges to use Performance Schema functionality:
       - SELECT on performance_schema.*
       - UPDATE on performance_schema.setup* for configuring instrumentation
       %s""" % install_text, can_install
