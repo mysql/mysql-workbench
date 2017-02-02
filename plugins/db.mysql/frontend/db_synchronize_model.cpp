@@ -95,8 +95,8 @@ public:
     _generate_attached_scripts.set_text(_("Include SQL Scripts Attached to Model"));
     _options_box.add(&_generate_attached_scripts, false, false);
 
-    add(&_db_options, false, false);
-    add(&_options, false, false);
+    add(&_db_options, false, true);
+    add(&_options, false, true);
 
     scoped_connect(signal_leave(), std::bind(&SyncOptionsPage::gather_options, this, std::placeholders::_1));
 
