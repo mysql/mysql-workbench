@@ -128,6 +128,12 @@ String ^ WbOptions::OpenAtStartupType::get() {
   return CppStringToNative(inner->open_at_startup_type);
 }
 
+//--------------------------------------------------------------------------------------------------
+
+void WbOptions::analyzeCommandLineArguments() {
+  inner->analyzeCommandLineArguments();
+}
+
 //----------------- WbContext ----------------------------------------------------------------------
 
 WbContext::WbContext(bool verbose) {
