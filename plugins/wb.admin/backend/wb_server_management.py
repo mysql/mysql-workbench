@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ default_sudo_prefix = ''
 
 def reset_sudo_prefix():
     global default_sudo_prefix
-    default_sudo_prefix       = '/usr/bin/sudo -S -p EnterPasswordHere'
+    default_sudo_prefix       = '/usr/bin/sudo -k -S -p EnterPasswordHere'
 
 reset_sudo_prefix()
 
@@ -86,7 +86,7 @@ def wrap_for_sudo(command, sudo_prefix, as_user = Users.ADMIN, to_spawn = False)
     if as_user != Users.CURRENT:
         #sudo needs to use -u <user> for non admin
         if as_user != Users.ADMIN:
-            sudo_user = "sudo -u %s" % as_user
+            sudo_user = "sudo -k -u %s" % as_user
             sudo_prefix = sudo_prefix.replace('sudo', sudo_user)
         if '/bin/sh' in sudo_prefix or '/bin/bash' in sudo_prefix:
             command = sudo_prefix + " \"" + command.replace('\\', '\\\\').replace('"', r'\"').replace('$','\\$') + "\""
