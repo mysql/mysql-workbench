@@ -947,8 +947,6 @@ void SqlEditorResult::create_query_stats_panel() {
     for (auto &it : rsdata->ps_stat_info)
       ps_stats[it.first] = (long long int)it.second;
 
-    //    std::map<std::string, std::int64_t> &ps_stats(rsdata->ps_stat_info);
-
     if (ps_stats.size() <= 1) //  "EVENT_ID" is always present
     {
       if (!rsdata->ps_stat_error.empty())
@@ -958,7 +956,7 @@ void SqlEditorResult::create_query_stats_panel() {
                             "\"Query -> Collect Performance Schema Stats\"."),
                  false, true);
 
-      table->add(box, 0, 1, 1, 2, mforms::HFillFlag | mforms::HExpandFlag);
+      table->add(box, 0, 1, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
     } else {
       box->add(bold_label("Timing (as measured by the server):"), false, true);
       info.clear();
@@ -985,7 +983,7 @@ void SqlEditorResult::create_query_stats_panel() {
       info.append(strfmt("Temporary tables created: %lli\n", ps_stats["CREATED_TMP_TABLES"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 
-      table->add(box, 0, 1, 1, 2, mforms::HFillFlag | mforms::HExpandFlag);
+      table->add(box, 0, 1, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 
       box = mforms::manage(new mforms::Box(false));
       box->set_padding(8);
@@ -1025,7 +1023,7 @@ void SqlEditorResult::create_query_stats_panel() {
       info.append(strfmt("Thread Id: %lli\n", ps_stats["THREAD_ID"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 
-      table->add(box, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag);
+      table->add(box, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
     }
 
     std::vector<SqlEditorForm::PSStage> stages(rsdata->ps_stage_info);
@@ -1051,7 +1049,7 @@ void SqlEditorResult::create_query_stats_panel() {
       std::string file = render_waits(waits);
       mforms::ImageBox *image = mforms::manage(new mforms::ImageBox());
       image->set_image(file);
-      table->add(image, 0, 2, 5, 6, mforms::HFillFlag);
+      table->add(image, 0, 2, 5, 6, mforms::HFillFlag | mforms::VFillFlag);
     }
 
     spanel->add(table);
