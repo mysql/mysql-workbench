@@ -335,6 +335,7 @@
 		27751DE017422A0F0025DEAE /* about_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CC86051741348D00AAA267 /* about_box.h */; };
 		2777A7E41A30A36400A5441E /* cdbc_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2777A7E31A30A36400A5441E /* cdbc_prefix.h */; };
 		27781AD41CCF887C0070AC40 /* wb_tile_folder_mini.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDC9196C8B7D004D7596 /* wb_tile_folder_mini.png */; };
+		277A13231E43910900FF69A1 /* command_line_parser_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 277A13211E438DED00FF69A1 /* command_line_parser_test.cpp */; };
 		277A7B961C15E2E6003C009D /* mysql_parser_module_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 277A7B951C15E2E6003C009D /* mysql_parser_module_tests.cpp */; };
 		277D405C1C60F0A900BE8DCB /* MySQL.g in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 27227B571C454BFF0098910A /* MySQL.g */; };
 		277D405F1C60F11E00BE8DCB /* MySQL.tokens in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 277D405D1C60F0FE00BE8DCB /* MySQL.tokens */; };
@@ -4410,6 +4411,7 @@
 		2774A4C21C92CECD00D1E037 /* drawing_osx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = drawing_osx.mm; path = library/base/drawing_osx.mm; sourceTree = "<group>"; };
 		2774A4C41C92D31200D1E037 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		2777A7E31A30A36400A5441E /* cdbc_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cdbc_prefix.h; path = prefix/cdbc_prefix.h; sourceTree = SOURCE_ROOT; };
+		277A13211E438DED00FF69A1 /* command_line_parser_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = command_line_parser_test.cpp; path = "library/base/unit-tests/command_line_parser_test.cpp"; sourceTree = "<group>"; };
 		277A7B951C15E2E6003C009D /* mysql_parser_module_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_parser_module_tests.cpp; path = "modules/db.mysql.parser/unit-tests/mysql_parser_module_tests.cpp"; sourceTree = "<group>"; };
 		277D405D1C60F0FE00BE8DCB /* MySQL.tokens */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQL.tokens; path = library/parsers/MySQL.tokens; sourceTree = "<group>"; };
 		2782342F1CD3491F003A2649 /* libcairo.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcairo.2.dylib; path = "../mysql-mac-res/lib/libcairo.2.dylib"; sourceTree = "<group>"; };
@@ -7759,12 +7761,13 @@
 		27050A1E1B34396F00D6135D /* library_base */ = {
 			isa = PBXGroup;
 			children = (
-				8EAD85D21E0932BE00FA7D0C /* utf8string_test.cpp */,
+				277A13211E438DED00FF69A1 /* command_line_parser_test.cpp */,
 				27050A701B343FB300D6135D /* config_file_test.cpp */,
 				27050A711B343FB300D6135D /* file_utilities_test.cpp */,
 				27050A721B343FB300D6135D /* sqlstring_test.cpp */,
 				27050A731B343FB300D6135D /* string_utilities_test.cpp */,
 				27050A741B343FB300D6135D /* threading_test.cpp */,
+				8EAD85D21E0932BE00FA7D0C /* utf8string_test.cpp */,
 				27050A751B343FB300D6135D /* util_functions_test.cpp */,
 			);
 			name = library_base;
@@ -13232,6 +13235,7 @@
 			projectRoot = "";
 			targets = (
 				8D1107260486CEB800E47090 /* MySQLWorkbench */,
+				2B240383101BC6CC00079580 /* wbtests */,
 				2B2E91C8158915DE0078D08A /* wbcopytables */,
 				2B825D280E0B59A100BE52DF /* base */,
 				2B750DAE0E877D030003120A /* cdbc */,
@@ -13265,7 +13269,6 @@
 				2BB37A8711094B3400DA4577 /* wb.printing.wbp */,
 				2BB37AB911094DE800DA4577 /* wb.printing */,
 				27D8079D1A3F262D00EDCA8F /* commercial.extensions */,
-				2B240383101BC6CC00079580 /* wbtests */,
 				447271EF1C58F170005F840F /* utilities.grt */,
 				4401E1621D994DA50027AD13 /* mtemplate */,
 			);
@@ -14672,6 +14675,7 @@
 				27050AA71B34434B00D6135D /* object_test.cpp in Sources */,
 				27050A451B343AAA00D6135D /* editor_table_tests.cpp in Sources */,
 				27050A861B343FF400D6135D /* exportpng.cpp in Sources */,
+				277A13231E43910900FF69A1 /* command_line_parser_test.cpp in Sources */,
 				27050A881B343FF400D6135D /* hierarchy.cpp in Sources */,
 				27050AA21B34434B00D6135D /* grt_module_test.cpp in Sources */,
 				27050A791B343FB300D6135D /* string_utilities_test.cpp in Sources */,
