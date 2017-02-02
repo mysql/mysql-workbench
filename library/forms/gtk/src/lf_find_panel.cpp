@@ -56,6 +56,8 @@ class FindPanelImpl : public mforms::gtk::ViewImpl {
   Gtk::Menu *_search_menu;
   Gtk::RadioButton *_find_radio_button;
   Gtk::RadioButton *_replace_radio_button;
+  Gtk::Box *_replace_box;
+  Gtk::Label *_replace_filler_label;
   bool _search_match_whole_word;
   bool _search_ignore_case;
   bool _search_wrap_around;
@@ -140,12 +142,17 @@ public:
       sigc::bind(sigc::ptr_fun(toggle_bool), sigc::ref(_search_match_whole_word), citem));
     _find_panel->get_widget("regex_item", citem);
     citem->signal_activate().connect(sigc::bind(sigc::ptr_fun(toggle_bool), sigc::ref(_use_regex), citem));
+    
+    _find_panel->get_widget("replace_bbox", _replace_box);
+    _find_panel->get_widget("filler_1", _replace_filler_label);
+    
   }
 
   void find_clicked() {
     if (_find_radio_button->get_active()) {
-      _container->hide();
-      _container->show();
+        _replace_entry->hide();
+        _replace_box->hide();
+        _replace_filler_label->hide();
     }
   }
 
