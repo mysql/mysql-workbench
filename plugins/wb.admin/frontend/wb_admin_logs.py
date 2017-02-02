@@ -377,7 +377,7 @@ class LogView(mforms.Box):
 
     def refresh(self, records=None):
         if self.log_reader:
-            if self.log_reader.log_file.path == "stderr":
+            if self.log_reader.log_file and self.log_reader.log_file.path == "stderr":
                 grt.getEventLogEntry(self.actual_position, self.query)
                 self.bof_button.set_enabled(False)
                 self.back_button.set_enabled(False)
