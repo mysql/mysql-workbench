@@ -834,6 +834,7 @@ static NSString *applicationSupportFolder() {
       logInfo("Exiting with rc %i after parsing arguments\n", rc);
       exit(rc);
     }
+    _options->analyzeCommandLineArguments();
   } catch (std::exception &exc) {
     logInfo("Exiting with error message: %s\n", exc.what());
     exit(1);
