@@ -110,10 +110,9 @@ class WbAdminConfigurationStartup(mforms.Box):
         start_stop_hbox = newBox(True)
         start_stop_hbox.add(status_message_part, False, True)
         start_stop_hbox.add(self.short_status_msg, False, True)
-        start_stop_hbox.add(newLabel("  "), False, True)
         start_stop_hbox.add(self.start_stop_btn, False, True)
         start_stop_hbox.add(self.offline_mode_btn, False, True)
-        
+
         if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
             self.offline_mode_btn.show(True)
         else:
@@ -229,14 +228,14 @@ class WbAdminConfigurationStartup(mforms.Box):
             elif server_status == "offline":
                 self.offline_mode_btn.set_text("Bring Online")
                 self.offline_mode_btn.set_enabled(True)
-                server_status = "in offline mode"
-                self.short_status_msg.set_color("#0000FF")
+                server_status = "offline"
+                self.short_status_msg.set_color("#0000B0")
                 self.long_status_msg.set_text("The database server is in offline mode. To put it back into online mode, use the \"Online mode\" button")
             else:
                 self.offline_mode_btn.set_enabled(True)
                 self.offline_mode_btn.set_text("Bring Offline")
                 self.start_stop_btn.set_enabled(True)
-                self.short_status_msg.set_color("#00DD00")
+                self.short_status_msg.set_color("#00B000")
                 self.long_status_msg.set_text("The database server is started and ready for client connections. To shut the server down, use the \"Stop Server\" button")
             self.short_status_msg.set_text(server_status)
             self.start_stop_btn.set_text("Stop Server")
@@ -249,7 +248,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             else:
                 self.start_stop_btn.set_enabled(True)
                 self.offline_mode_btn.set_enabled(False)
-                self.short_status_msg.set_color("#DD0000")
+                self.short_status_msg.set_color("#B00000")
                 self.long_status_msg.set_text("The database server is stopped. To start the Server, use the \"Start Server\" button")
             self.short_status_msg.set_text(server_status)
             self.start_stop_btn.set_text("Start Server")
@@ -260,6 +259,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             self.start_stop_btn.set_text("Start Server")
             self.start_stop_btn.set_enabled(False)
 
+        self.relayout()
         dprint_ex(3, "Leave")
 
 
