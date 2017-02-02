@@ -875,11 +875,11 @@
           </value>
         </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.advanced.output_form">
+<!--        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.advanced.output_form">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
           <value type="string" key="caption">Output</value>
-          <value type="string" key="name">advanced_EditorBox_form</value>
-          <value type="string" key="command">builtin:show_EditorBox_form</value>
+          <value type="string" key="name">advanced_output_form</value>
+          <value type="string" key="command">builtin:show_output_form</value>
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+F2</value>
           <value type="string" key="platform">windows,linux</value>
@@ -887,12 +887,12 @@
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.advanced.output_formmac">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
           <value type="string" key="caption">Output</value>
-          <value type="string" key="name">advanced_EditorBox_form</value>
-          <value type="string" key="command">builtin:show_EditorBox_form</value>
+          <value type="string" key="name">advanced_output_form</value>
+          <value type="string" key="command">builtin:show_output_form</value>
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+Option+2</value>
           <value type="string" key="platform">macosx</value>
-        </value>
+        </value>-->
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.reset_layout">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
