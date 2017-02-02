@@ -127,6 +127,8 @@ namespace MySQL {
       };
       bool parse_args(array<String ^> ^ args, String ^ app_path);
 
+      void analyzeCommandLineArguments();
+
       property bool Verbose {
         bool get() {
           return !inner->verbose;
