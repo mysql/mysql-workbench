@@ -106,11 +106,6 @@
   return self.minimumSize;
 }
 
-- (void)setTitle: (NSString *)title {
-  super.title = title;
-  [self sizeToFit];
-}
-
 static bool button_create(::mforms::Button *self, ::mforms::ButtonType type) {
   return [[MFButtonImpl alloc] initWithObject: self buttonType:type] != nil;
 }
@@ -123,7 +118,17 @@ static void button_set_icon(::mforms::Button *self, const std::string &icon) {
       std::string full_path = mforms::App::get()->get_resource_path(icon);
       NSImage *image = [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
       button.image = image;
-      [button sizeToFit];
+
+      NSSize size = [button sizeThatFits: NSZeroSize];
+      NSRect frame = button.frame;
+      if (size.width > frame.size.width) {
+        frame.size.width = size.width;
+        if (button->mAddPadding)
+          frame.size.width += frame.size.height;
+        button.frame = frame;
+
+        self->relayout();
+      }
     }
   }
 }
@@ -135,7 +140,17 @@ static void button_set_text(::mforms::Button *self, const std::string &text) {
     if (button) {
       button.title =
         [wrap_nsstring(text) stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString: @"_"]];
-      [button sizeToFit];
+
+      NSSize size = [button sizeThatFits: NSZeroSize];
+      NSRect frame = button.frame;
+      if (size.width > frame.size.width) {
+        frame.size.width = size.width;
+        if (button->mAddPadding)
+          frame.size.width += frame.size.height;
+        button.frame = frame;
+
+        self->relayout();
+      }
     }
   }
 }
