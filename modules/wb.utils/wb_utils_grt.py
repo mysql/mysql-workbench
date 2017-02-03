@@ -877,19 +877,19 @@ class SSLWizard_OptionsPage(WizardPage):
 
         label = mforms.newLabel(message)
 
-        box.add(label, False, False)
-        box.add(self.use_default_parameters, False, False)
-        box.add(self.generate_files, False, False)
-        box.add(self.update_connection, False, False)
+        box.add(label, False, True)
+        box.add(self.use_default_parameters, False, True)
+        box.add(self.generate_files, False, True)
+        box.add(self.update_connection, False, True)
         
         button_box = mforms.newBox(True)
         button_box.set_spacing(12)
         button_box.set_padding(12)
         
-        button_box.add(self.clear_button, False, False)
+        button_box.add(self.clear_button, False, True)
         
-        self.content.add(box, False, False)
-        self.content.add(button_box, False, False)
+        self.content.add(box, False, True)
+        self.content.add(button_box, False, True)
         box.show(True)
 
 class SSLWizard_GeneratePage(WizardPage):
@@ -931,8 +931,8 @@ class SSLWizard_GeneratePage(WizardPage):
         self.parameters_panel.set_title("Optional Parameters")
         self.parameters_panel.add(self.table)
         
-        self.parameters_box.add(self.parameters_label, False, False)
-        self.parameters_box.add(self.parameters_panel, False, False)
+        self.parameters_box.add(self.parameters_label, False, True)
+        self.parameters_box.add(self.parameters_panel, False, True)
 
         self.default_label = mforms.newLabel("The wizard is ready to generate the files for you. Click 'Next >' to generate \nthe certificates and self-signed key files...")
 
