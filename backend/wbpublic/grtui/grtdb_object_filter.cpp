@@ -43,7 +43,6 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   set_padding(8);
   _box.set_spacing(8);
   _box.set_name("panel content box");
-  add(&_box);
 
   // summary view
   _box.add(&_summary_table, false, true);
@@ -75,7 +74,7 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _summary_table.add(&_show_button, 2, 3, 0, 2, mforms::HFillFlag);
 
   // detailed view
-  _box.add(&_detailed_table, false, true);
+  _box.add(&_detailed_table, true, true);
   _detailed_table.show(false);
 
   _detailed_table.set_row_count(9);
@@ -134,7 +133,9 @@ DBObjectFilterFrame::DBObjectFilterFrame()
 
   _filter_help_label.set_style(mforms::SmallHelpTextStyle);
   _filter_help_label.set_text(_("Use the + button to exclude objects matching wildcards such as * and ?"));
-  _detailed_table.add(&_filter_help_label, 0, 3, 8, 9, mforms::HFillFlag);
+  _detailed_table.add(&_filter_help_label, 0, 3, 8, 9, mforms::HFillFlag | mforms::VFillFlag);
+
+  add(&_box);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +234,7 @@ void DBObjectFilterFrame::toggle_detailed() {
     _show_button.set_text(_("Hide Filter"));
     _detailed_table.show(true);
   }
-  relayout();
+  get_parent()->relayout();
 }
 
 //--------------------------------------------------------------------------------------------------

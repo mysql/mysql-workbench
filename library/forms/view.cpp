@@ -352,6 +352,8 @@ bool View::is_layout_dirty() {
 
 void View::relayout() {
   _view_impl->relayout(this);
+  if (_parent != nullptr) // Propagate relayout up the parent chain.
+    _parent->relayout();
 }
 
 //--------------------------------------------------------------------------------------------------
