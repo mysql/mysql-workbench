@@ -363,15 +363,15 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._log_queue.append(("OUTPUT", msg, ""))
 
     def send_info(self, msg):
-        grt.log_debug("Wizard", msg)
+        grt.log_debug("Wizard", msg + "\n")
         self._handle_task_output("INFO", msg, "")
         
     def send_error(self, msg):
-        grt.log_debug("Wizard", "ERROR: "+msg)
+        grt.log_debug("Wizard", "ERROR: " + msg % "\n")
         self._handle_task_output("ERROR", msg, "")
         
     def send_warning(self, msg):
-        grt.log_debug("Wizard", "WARNING: "+msg)
+        grt.log_debug("Wizard", "WARNING: " + msg % "\n")
         self._handle_task_output("WARNING", msg, "")
 
     def send_progress(self, pct, msg):

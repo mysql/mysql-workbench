@@ -41,12 +41,10 @@ namespace bec {
 
   class WBPUBLICBACKEND_PUBLIC_FUNC DispatcherCallbackBase {
   private:
-    base::Mutex _mutex;
-    base::Cond _cond;
+    base::Semaphore _semaphore;
 
   protected:
-    DispatcherCallbackBase() {
-    }
+    DispatcherCallbackBase();
 
   public:
     typedef std::shared_ptr<DispatcherCallbackBase> Ref;
