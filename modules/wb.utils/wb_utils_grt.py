@@ -460,6 +460,16 @@ def startCommandLineClientForConnection(conn):
                 "sh -c \"while :; do %s && break || read -p \\\"Press Enter to retry or Ctrl+C to quit\\\" DUMMY_VAR; done\" " % command
             + "' &"   # <--- launch GUI terminal and exit (returns to Workbench immediately rather than blocking)
         ])
+        
+        my_env = os.environ.copy()
+        if (("XDG_SESSION_TYPE" in my_env and my_env["XDG_SESSION_TYPE"] == "wayland") 
+          or "WAYLAND_DISPLAY" in my_env) and my_env["GDK_BACKEND"]:
+            my_env["GDK_BACKEND"] = "wayland"
+        subprocess.Popen(["/bin/sh", "-c",
+                          get_linux_terminal_program() + " -e '" +
+                "sh -c \"while :; do %s && break || read -p \\\"Press Enter to retry or Ctrl+C to quit\\\" DUMMY_VAR; done\" " % command
+                + "' &"   # <--- launch GUI terminal and exit (returns to Workbench immediately rather than blocking) 
+        ], shell=False, env=my_env)
 
 if sys.platform == "linux2":
     @ModuleInfo.export(grt.INT)
