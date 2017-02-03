@@ -524,7 +524,7 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem *item, const std::
         Gtk::TreeRow row = *model->append();
         Gdk::Color color(values[i]);
         Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, false, 8, 16, 14);
-        pixbuf->fill(color.get_pixel() << 8);
+        pixbuf->fill((guint32)color.get_red() << 24 | (guint32)color.get_green() << 16 | (guint32)color.get_blue() << 8);
 
         row[color_combo_columns->color] = values[i];
         row[color_combo_columns->image] = pixbuf;
