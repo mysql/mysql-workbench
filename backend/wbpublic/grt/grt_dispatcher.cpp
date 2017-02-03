@@ -53,6 +53,12 @@ struct GrtDispatcherHelper {
 
 //----------------- DispatcherCallback -------------------------------------------------------------
 
+DispatcherCallbackBase::DispatcherCallbackBase() : _semaphore(0) {
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
 DispatcherCallbackBase::~DispatcherCallbackBase() {
   signal();
 }
@@ -60,14 +66,13 @@ DispatcherCallbackBase::~DispatcherCallbackBase() {
 //--------------------------------------------------------------------------------------------------
 
 void DispatcherCallbackBase::wait() {
-  base::MutexLock lock(_mutex);
-  _cond.wait(_mutex);
+  _semaphore.wait();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void DispatcherCallbackBase::signal() {
-  _cond.signal();
+  _semaphore.post();
 }
 
 //----------------- GRTTaskBase --------------------------------------------------------------------
@@ -399,14 +404,14 @@ void GRTDispatcher::shutdown() {
     grt::GRT::get()->pop_message_handler();
 
   _shutdown_callback = true;
-  if (!_threading_disabled &&
-      _thread != 0) // _thread == 0, means that init was not called, but threading_disabled was set to false.
-  {
+
+  // _thread == 0, means that init was not called, but threading_disabled was set to false.
+  if (!_threading_disabled && _thread != 0) {
     std::shared_ptr<GrtNullTask> task(new GrtNullTask(shared_from_this()));
     add_task(task);
-    logDebug2("GRTDispatcher:Main thread waiting for worker to finish\n");
+    logDebug2("Main thread waiting for background thread to finish\n");
     _w_runing.wait();
-    logDebug2("GRTDispatcher:Main thread worker finished\n");
+    logDebug2("Background thread finished\n");
   }
 
   if (_started && !_grtm.expired())
