@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,15 +23,9 @@
 
 namespace parsers {
   class MySQLParser;
+  class SymbolTable;
 }
 
-class MySQLObjectNamesCache;
-
 PARSERS_PUBLIC_TYPE std::vector<std::pair<int, std::string>> getCodeCompletionList(
-  size_t caretLine,
-  size_t caretOffset,
-  const std::string &defaultSchema,
-  bool uppercaseKeywords,
-  parsers::MySQLParser *parser,
-  const std::string &functionNames,
-  MySQLObjectNamesCache *cache);
+  size_t caretLine, size_t caretOffset, const std::string &defaultSchema, bool uppercaseKeywords,
+  parsers::MySQLParser *parser, parsers::SymbolTable &symbolTable, std::mutex &symbolsMutex);

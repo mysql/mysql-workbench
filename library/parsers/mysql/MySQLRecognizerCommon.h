@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,16 +22,16 @@
 #include "parsers-common.h"
 
 namespace antlr4 {
-class RuleContext;
-class ParserRuleContext;
+  class RuleContext;
+  class ParserRuleContext;
 
-namespace tree {
-class ParseTree;
-}
+  namespace tree {
+    class ParseTree;
+  }
 
-namespace dfa {
-class Vocabulary;
-}
+  namespace dfa {
+    class Vocabulary;
+  }
 }
 
 namespace parsers {
@@ -69,4 +69,11 @@ namespace parsers {
     static antlr4::tree::ParseTree* getNext(antlr4::tree::ParseTree *tree);
     static antlr4::tree::ParseTree* contextFromPosition(antlr4::tree::ParseTree *root, std::pair<size_t, size_t> position);
   };
+
+  class SymbolTable;
+
+  // Returns a symbol table for all predefined system functions in MySQL. The parameter version must be given as short
+  // major * 100 + minor value (e.g. 506, 507, 800 etc.).
+  PARSERS_PUBLIC_TYPE SymbolTable* functionSymbolsForVersion(size_t version);
+
 }

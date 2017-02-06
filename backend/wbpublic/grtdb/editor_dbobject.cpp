@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,7 +101,7 @@ void DBObjectEditorBE::handle_grt_notification(const std::string &name, grt::Obj
       // We want to see changes for the server version.
       GrtVersionRef version = get_catalog()->version();
       _parser_context->updateServerVersion(version);
-      get_sql_editor()->set_server_version(version);
+      get_sql_editor()->setServerVersion(version);
     }
   }
 }
@@ -520,7 +520,7 @@ MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 {
   if (!_sql_editor)
   {
-    _sql_editor = MySQLEditor::create(_parser_context, _autocompletion_context);
+    _sql_editor = MySQLEditor::create(_parser_context, _autocompletion_context, {});
     grt::DictRef obj_options = get_dbobject()->customData();
     if (obj_options.has_key("sqlMode"))
       _sql_editor->set_sql_mode(obj_options.get_string("sqlMode"));

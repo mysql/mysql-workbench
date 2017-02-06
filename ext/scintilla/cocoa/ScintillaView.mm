@@ -4,7 +4,7 @@
  *
  * Created by Mike Lischke.
  *
- * Copyright 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
@@ -1231,6 +1231,7 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext) context
   delete mBackend;
   mBackend = NULL;
   mContent.owner = nil;
+  [marginView setClientView:nil];
   [scrollView removeFromSuperview];
   [marginView release];
   [super dealloc];

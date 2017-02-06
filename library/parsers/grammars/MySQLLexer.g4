@@ -1,7 +1,7 @@
 lexer grammar MySQLLexer;
 
 /*
- * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,7 +61,7 @@ tokens {
 //-------------------------------------------------------------------------------------------------
 
 @header {/*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -992,7 +992,7 @@ BACK_TICK_QUOTED_ID: (
 
 DOUBLE_QUOTED_TEXT: (
   DOUBLE_QUOTE (
-    SINGLE_QUOTE SINGLE_QUOTE
+    DOUBLE_QUOTE DOUBLE_QUOTE
     | {!isSqlModeActive(NoBackslashEscapes)}? (ESCAPE_SEQUENCE | ~[\\"])
     | {isSqlModeActive(NoBackslashEscapes)}? ~["]
   )*?

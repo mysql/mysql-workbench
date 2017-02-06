@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
  */
 
 #ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
+  #import <Cocoa/Cocoa.h>
 #endif
 
 #ifdef __cplusplus
@@ -44,6 +44,7 @@
 #include <iomanip>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <condition_variable>
 
 #include <glib.h>
 #include <glib/gstdio.h>

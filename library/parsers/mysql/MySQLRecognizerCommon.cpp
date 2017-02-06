@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,19 +17,23 @@
  * 02110-1301  USA
  */
 
-#include "MySQLRecognizerCommon.h"
-
 #include "MySQLLexer.h"
 #include "MySQLParser.h"
 
+#include "symbol-data.h"
+#include "SymbolTable.h"
+
+#include "MySQLRecognizerCommon.h"
+
 using namespace parsers;
+
 using namespace antlr4;
 using namespace antlr4::tree;
+using namespace antlr4::dfa;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool MySQLRecognizerCommon::isSqlModeActive(size_t mode)
-{
+bool MySQLRecognizerCommon::isSqlModeActive(size_t mode) {
   return (sqlMode & mode) != 0;
 }
 
@@ -37,21 +41,21 @@ bool MySQLRecognizerCommon::isSqlModeActive(size_t mode)
 
 static void trim(std::string &s) {
   std::locale locale;
-  s.erase(s.begin(), std::find_if_not(s.begin(), s.end(), [&locale] (char c) { return std::isspace(c, locale); }));
-  s.erase(std::find_if_not(s.rbegin(), s.rend(), [&locale] (char c) { return std::isspace(c, locale); }).base(), s.end());
+  s.erase(s.begin(), std::find_if_not(s.begin(), s.end(), [&locale](char c) { return std::isspace(c, locale); }));
+  s.erase(std::find_if_not(s.rbegin(), s.rend(), [&locale](char c) { return std::isspace(c, locale); }).base(),
+          s.end());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MySQLRecognizerCommon::sqlModeFromString(std::string modes)
-{
+void MySQLRecognizerCommon::sqlModeFromString(std::string modes) {
   sqlMode = NoMode;
 
-  for (auto & c: modes) c = toupper(c);
+  for (auto &c : modes)
+    c = toupper(c);
   std::istringstream iss(modes);
   std::string mode;
-  while (std::getline(iss, mode, ','))
-  {
+  while (std::getline(iss, mode, ',')) {
     trim(mode);
     if (mode == "ANSI" || mode == "DB2" || mode == "MAXDB" || mode == "MSSQL" || mode == "ORACLE" ||
         mode == "POSTGRESQL")
@@ -71,28 +75,21 @@ void MySQLRecognizerCommon::sqlModeFromString(std::string modes)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static std::string dumpTree(RuleContext *context, const dfa::Vocabulary &vocabulary,const std::string &indentation)
-{
+static std::string dumpTree(RuleContext *context, const Vocabulary &vocabulary, const std::string &indentation) {
   std::stringstream stream;
 
-  for (size_t index = 0; index < context->children.size(); ++index)
-  {
+  for (size_t index = 0; index < context->children.size(); ++index) {
     ParseTree *child = context->children[index];
     if (antlrcpp::is<RuleContext *>(child)) {
       auto ruleContext = dynamic_cast<RuleContext *>(child);
-      if (antlrcpp::is<MySQLParser::TextLiteralContext *>(child))
-      {
+      if (antlrcpp::is<MySQLParser::TextLiteralContext *>(child)) {
         misc::Interval interval = ruleContext->getSourceInterval();
-        stream << indentation << "(index range: "
-        << interval.a << ".." << interval.b << ", string literal) " << MySQLParser::getText(ruleContext, true) << std::endl;
-      }
-      else
-      {
+        stream << indentation << "(index range: " << interval.a << ".." << interval.b << ", string literal) "
+               << MySQLParser::getText(ruleContext, true) << std::endl;
+      } else {
         stream << dumpTree(ruleContext, vocabulary, indentation.size() < 100 ? indentation + " " : indentation);
       }
-    }
-    else
-    {
+    } else {
       // A terminal node.
       stream << indentation;
 
@@ -106,8 +103,8 @@ static std::string dumpTree(RuleContext *context, const dfa::Vocabulary &vocabul
       std::size_t type = token->getType();
       std::string tokenName = type == Token::EOF ? "<EOF>" : vocabulary.getSymbolicName(token->getType());
       stream << "(line: " << token->getLine() << ", offset: " << token->getCharPositionInLine()
-      << ", index: " << token->getTokenIndex()
-      << ", " << tokenName << " [" << token->getType() << "]) " << token->getText() << std::endl;
+             << ", index: " << token->getTokenIndex() << ", " << tokenName << " [" << token->getType() << "]) "
+             << token->getText() << std::endl;
     }
   }
 
@@ -116,25 +113,23 @@ static std::string dumpTree(RuleContext *context, const dfa::Vocabulary &vocabul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string MySQLRecognizerCommon::dumpTree(antlr4::RuleContext *context, const antlr4::dfa::Vocabulary &vocabulary)
-{
+std::string MySQLRecognizerCommon::dumpTree(RuleContext *context, const antlr4::dfa::Vocabulary &vocabulary) {
   return ::dumpTree(context, vocabulary, "");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string MySQLRecognizerCommon::sourceTextForContext(ParserRuleContext *ctx, bool keepQuotes)
-{
+std::string MySQLRecognizerCommon::sourceTextForContext(ParserRuleContext *ctx, bool keepQuotes) {
   return sourceTextForRange(ctx->start, ctx->stop, keepQuotes);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 std::string MySQLRecognizerCommon::sourceTextForRange(tree::ParseTree *start, tree::ParseTree *stop, bool keepQuotes) {
-  Token *startToken = antlrcpp::is<tree::TerminalNode *>(start) ? dynamic_cast<tree::TerminalNode *>(start)->getSymbol() :
-    dynamic_cast<ParserRuleContext *>(start)->start;
-  Token *stopToken = antlrcpp::is<tree::TerminalNode *>(stop) ? dynamic_cast<tree::TerminalNode *>(start)->getSymbol() :
-    dynamic_cast<ParserRuleContext *>(stop)->stop;
+  Token *startToken = antlrcpp::is<tree::TerminalNode *>(start) ? dynamic_cast<tree::TerminalNode *>(start)->getSymbol()
+                                                                : dynamic_cast<ParserRuleContext *>(start)->start;
+  Token *stopToken = antlrcpp::is<tree::TerminalNode *>(stop) ? dynamic_cast<tree::TerminalNode *>(start)->getSymbol()
+                                                              : dynamic_cast<ParserRuleContext *>(stop)->stop;
   return sourceTextForRange(startToken, stopToken, keepQuotes);
 }
 
@@ -156,10 +151,10 @@ std::string MySQLRecognizerCommon::sourceTextForRange(Token *start, Token *stop,
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Returns the previous sibling of the given tree, which could be a non-terminal. Requires that tree has a valid parent.
+ * Returns the previous sibling of the given tree, which could be a
+ * non-terminal. Requires that tree has a valid parent.
  */
-ParseTree* getPreviousSibling(ParseTree *tree)
-{
+ParseTree *getPreviousSibling(ParseTree *tree) {
   ParseTree *parent = tree->parent;
   if (parent == nullptr)
     return nullptr;
@@ -169,23 +164,24 @@ ParseTree* getPreviousSibling(ParseTree *tree)
 
   for (auto iterator = parent->children.begin(); iterator != parent->children.end(); ++iterator)
     if (*iterator == tree)
-      return *(--iterator); // We know we have another node before this, because of the test above.
+      return *(--iterator); // We know we have another node before this,
+                            // because of the test above.
 
-  return nullptr; // We actually never arrive here, but compilers want to be silenced.
+  return nullptr; // We actually never arrive here, but compilers want to be
+                  // silenced.
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Returns the terminal node right before the given position. Parameter tree can be a terminal or non-terminal node.
+ * Returns the terminal node right before the given position. Parameter tree can
+ * be a terminal or non-terminal node.
  * Returns nullptr if there is no such node.
  */
-ParseTree* MySQLRecognizerCommon::getPrevious(ParseTree *tree)
-{
+ParseTree *MySQLRecognizerCommon::getPrevious(ParseTree *tree) {
   do {
     ParseTree *sibling = getPreviousSibling(tree);
-    if (sibling != nullptr)
-    {
+    if (sibling != nullptr) {
       if (antlrcpp::is<tree::TerminalNode *>(sibling))
         return sibling;
 
@@ -194,8 +190,7 @@ ParseTree* MySQLRecognizerCommon::getPrevious(ParseTree *tree)
         tree = tree->children.back();
       if (antlrcpp::is<tree::TerminalNode *>(tree))
         return tree;
-    }
-    else
+    } else
       tree = tree->parent;
   } while (tree != nullptr);
 
@@ -205,10 +200,10 @@ ParseTree* MySQLRecognizerCommon::getPrevious(ParseTree *tree)
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Returns the next sibling of the given tree, which could be a non-terminal. Requires that tree has a valid parent.
+ * Returns the next sibling of the given tree, which could be a non-terminal.
+ * Requires that tree has a valid parent.
  */
-ParseTree* getNextSibling(ParseTree *tree)
-{
+ParseTree *getNextSibling(ParseTree *tree) {
   ParseTree *parent = tree->parent;
   if (parent == nullptr)
     return nullptr;
@@ -218,31 +213,33 @@ ParseTree* getNextSibling(ParseTree *tree)
 
   for (auto iterator = parent->children.begin(); iterator != parent->children.end(); ++iterator)
     if (*iterator == tree)
-      return *(++iterator); // We know we have another node after this, because of the test above.
+      return *(++iterator); // We know we have another node after this, because
+                            // of the test above.
 
-  return nullptr; // We actually never arrive here, but compilers want to be silenced.
+  return nullptr; // We actually never arrive here, but compilers want to be
+                  // silenced.
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Returns the terminal node right after the given position. Parameter tree can be a terminal or non-terminal node.
+ * Returns the terminal node right after the given position. Parameter tree can
+ * be a terminal or non-terminal node.
  * Returns nullptr if there is no such node.
  */
-ParseTree* MySQLRecognizerCommon::getNext(ParseTree *tree)
-{
+ParseTree *MySQLRecognizerCommon::getNext(ParseTree *tree) {
   // If we have children return the first one.
-  if (!tree->children.empty())
-  {
-    do { tree = tree->children.front(); } while (!tree->children.empty());
+  if (!tree->children.empty()) {
+    do {
+      tree = tree->children.front();
+    } while (!tree->children.empty());
     return tree;
   }
 
   // No children, so try our next sibling (or that of our parent(s)).
   do {
     ParseTree *sibling = getNextSibling(tree);
-    if (sibling != nullptr)
-    {
+    if (sibling != nullptr) {
       if (antlrcpp::is<tree::TerminalNode *>(sibling))
         return sibling;
       return getNext(sibling);
@@ -261,17 +258,16 @@ ParseTree* MySQLRecognizerCommon::getNext(ParseTree *tree)
  * instead (which could also be EOF).
  * Note: the line is one-based.
  */
-ParseTree* MySQLRecognizerCommon::contextFromPosition(ParseTree *root, std::pair<size_t, size_t> position)
-{
+ParseTree *MySQLRecognizerCommon::contextFromPosition(ParseTree *root, std::pair<size_t, size_t> position) {
   do {
     root = getNext(root);
-    if (antlrcpp::is<TerminalNode *>(root))
-    {
+    if (antlrcpp::is<TerminalNode *>(root)) {
       Token *token = ((TerminalNode *)root)->getSymbol();
       if (token->getType() == Token::EOF)
         return getPrevious(root);
 
-      // If we reached a position after the given one then we found a situation where that position is
+      // If we reached a position after the given one then we found a situation
+      // where that position is
       // between two terminals. Return the previous one in this case.
       if (position.second < token->getLine())
         return getPrevious(root);
@@ -288,3 +284,30 @@ ParseTree* MySQLRecognizerCommon::contextFromPosition(ParseTree *root, std::pair
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+SymbolTable *parsers::functionSymbolsForVersion(size_t version) {
+  // The expected versions should be only major + minor, but be flexible here.
+  if (version > 999)
+    version /= 100;
+
+  if (version < 505)
+    version = 501;
+  else if (version < 506)
+    version = 505;
+  else if (version < 507)
+    version = 506;
+  else
+    version = 800;
+
+  static std::map<size_t, SymbolTable> symbolsPerVersion;
+  auto iterator = symbolsPerVersion.find(version);
+  if (iterator == symbolsPerVersion.end()) {
+    auto &functions = systemFunctions[version];
+    SymbolTable &symbolTable = symbolsPerVersion[version];
+
+    for (auto function : functions) {
+      RoutineSymbol *symbol = symbolTable.addNewSymbol<RoutineSymbol>(nullptr, function, nullptr);
+    }
+  }
+  return &symbolsPerVersion[version];
+}

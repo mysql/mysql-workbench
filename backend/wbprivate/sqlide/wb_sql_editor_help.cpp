@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -38,20 +38,17 @@ using namespace antlr4;
 
 using namespace help;
 
-class HelpContext::Private
-{
+class HelpContext::Private {
 public:
-  Private() : lexer(&input), tokens(&lexer), parser(&tokens) {}
+  Private() : lexer(&input), tokens(&lexer), parser(&tokens) {
+  }
 
   ANTLRInputStream input;
   MySQLLexer lexer;
   CommonTokenStream tokens;
   MySQLParser parser;
 
-  std::unordered_set<std::string> _functionNames;
-
-  ParserRuleContext* parse(const std::string &query)
-  {
+  ParserRuleContext *parse(const std::string &query) {
     input.load(query);
     lexer.reset();
     lexer.setInputStream(&input);
@@ -64,21 +61,17 @@ public:
 
 //----------------- HelpContext ----------------------------------------------------------------------------------------
 
-HelpContext::HelpContext(GrtCharacterSetsRef charsets, const std::string &sqlMode, long serverVersion)
-{
+HelpContext::HelpContext(GrtCharacterSetsRef charsets, const std::string &sqlMode, long serverVersion) {
   _d = new Private();
   std::set<std::string> filteredCharsets;
   for (size_t i = 0; i < charsets->count(); i++)
     filteredCharsets.insert("_" + base::tolower(*charsets[i]->name()));
 
-  if (_d->lexer.serverVersion < 50503)
-  {
+  if (_d->lexer.serverVersion < 50503) {
     filteredCharsets.erase("_utf8mb4");
     filteredCharsets.erase("_utf16");
     filteredCharsets.erase("_utf32");
-  }
-  else
-  {
+  } else {
     filteredCharsets.insert("_utf8mb4");
     filteredCharsets.insert("_utf16");
     filteredCharsets.insert("_utf32");
@@ -92,45 +85,17 @@ HelpContext::HelpContext(GrtCharacterSetsRef charsets, const std::string &sqlMod
   _d->parser.serverVersion = serverVersion;
   _d->parser.removeParseListeners();
   _d->parser.removeErrorListeners();
-
-  mforms::SyntaxHighlighterLanguage language = mforms::LanguageMySQL;
-  switch (serverVersion / 10000)
-  {
-    case 5:
-      switch ((serverVersion / 100) % 100)
-    {
-      case 0: language = mforms::LanguageMySQL50; break;
-      case 1: language = mforms::LanguageMySQL51; break;
-      case 5: language = mforms::LanguageMySQL55; break;
-      case 6: language = mforms::LanguageMySQL56; break;
-      case 7: language = mforms::LanguageMySQL57; break;
-    }
-      break;
-
-    case 8:
-      switch ((serverVersion / 100) % 100)
-    {
-      case 0: language = mforms::LanguageMySQL80; break;
-    }
-      break;
-  }
-
-  mforms::CodeEditorConfig config(language);
-  std::vector<std::string> names = base::split(config.get_keywords()["Functions"], " ");
-  _d->_functionNames.insert(names.begin(), names.end());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-HelpContext::~HelpContext()
-{
+HelpContext::~HelpContext() {
   delete _d;
 }
 
 //----------------- DbSqlEditorContextHelp -----------------------------------------------------------------------------
 
-DbSqlEditorContextHelp* DbSqlEditorContextHelp::get()
-{
+DbSqlEditorContextHelp *DbSqlEditorContextHelp::get() {
   static DbSqlEditorContextHelp instance;
   return &instance;
 }
@@ -773,38 +738,32 @@ static const std::unordered_set<std::string> availableTopics = {
 /**
  * A quick lookup if the help topic exists actually, without retrieving help text.
  */
-bool DbSqlEditorContextHelp::topicExists(const std::string &topic)
-{
+bool DbSqlEditorContextHelp::topicExists(const std::string &topic) {
   return availableTopics.count(topic) > 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool DbSqlEditorContextHelp::helpTextForTopic(const std::string &topic, std::string &title, std::string &text)
-{
+bool DbSqlEditorContextHelp::helpTextForTopic(const std::string &topic, std::string &title, std::string &text) {
   logDebug2("Looking up help topic: %s\n", topic.c_str());
-  
-  if (!topic.empty())
-  {
-    try
-    {/*
-      sql::Dbc_connection_handler::Ref conn;
-      base::RecMutexLock aux_dbc_conn_mutex(form->ensure_valid_aux_connection(conn));
 
-      // % is interpreted as a wildcard, so we have to escape it. However, we don't use wildcards
-      // in any other topic (nor %), so a simple check is enough.
-      base::sqlstring query = base::sqlstring("help ?", 0) << (topic == "%" ? "\\%" : topic);
-      std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(query)));
-      if (rs->rowsCount() > 0)
-      {
-        rs->next();
-        title = rs->getString(1);
-        text = rs->getString(2);
-        return true;
-      }*/
-    }
-    catch (...)
-    {
+  if (!topic.empty()) {
+    try { /*
+           sql::Dbc_connection_handler::Ref conn;
+           base::RecMutexLock aux_dbc_conn_mutex(form->ensure_valid_aux_connection(conn));
+
+           // % is interpreted as a wildcard, so we have to escape it. However, we don't use wildcards
+           // in any other topic (nor %), so a simple check is enough.
+           base::sqlstring query = base::sqlstring("help ?", 0) << (topic == "%" ? "\\%" : topic);
+           std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(query)));
+           if (rs->rowsCount() > 0)
+           {
+             rs->next();
+             title = rs->getString(1);
+             text = rs->getString(2);
+             return true;
+           }*/
+    } catch (...) {
       logDebug2("Exception caught while looking up help text\n");
     }
   }
@@ -814,8 +773,7 @@ bool DbSqlEditorContextHelp::helpTextForTopic(const std::string &topic, std::str
 //----------------------------------------------------------------------------------------------------------------------
 
 // Determines if the given tree is a terminal node and if so, if it is of the given type.
-bool isToken(tree::ParseTree *tree, size_t type)
-{
+bool isToken(tree::ParseTree *tree, size_t type) {
   auto terminal = dynamic_cast<tree::TerminalNode *>(tree);
   if (terminal != nullptr)
     return terminal->getSymbol()->getType() == type;
@@ -829,16 +787,14 @@ bool isToken(tree::ParseTree *tree, size_t type)
 //----------------------------------------------------------------------------------------------------------------------
 
 // Determines if the given is of the given type.
-bool isToken(Token *token, size_t type)
-{
+bool isToken(Token *token, size_t type) {
   return token->getType() == type;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 // Determines if the parent of the given tree is a specific context.
-bool isParentContext(tree::ParseTree *tree, size_t type)
-{
+bool isParentContext(tree::ParseTree *tree, size_t type) {
   auto parent = (ParserRuleContext *)(tree->parent);
   return parent->getRuleIndex() == type;
 }
@@ -846,25 +802,22 @@ bool isParentContext(tree::ParseTree *tree, size_t type)
 //----------------------------------------------------------------------------------------------------------------------
 
 static std::map<std::string, std::string> functionSynonyms = {
-  { "ST_ASWKB", "ASBINARY" },
-  { "ASWKB", "ASBINARY" },
-  { "ST_ASWKT", "ASTEXT" },
-  { "ASWKT", "ASTEXT" },
-  { "ST_CROSSES", "CROSSES" },
-  { "GEOMETRYFROMTEXT", "GEOMFROMTEXT" },
-  { "GEOMETRYFROMWKB", "GEOMFROMWKB" },
+  {"ST_ASWKB", "ASBINARY"},
+  {"ASWKB", "ASBINARY"},
+  {"ST_ASWKT", "ASTEXT"},
+  {"ASWKT", "ASTEXT"},
+  {"ST_CROSSES", "CROSSES"},
+  {"GEOMETRYFROMTEXT", "GEOMFROMTEXT"},
+  {"GEOMETRYFROMWKB", "GEOMFROMWKB"},
 };
 
-std::string functionTopicForContext(ParserRuleContext *context)
-{
+std::string functionTopicForContext(ParserRuleContext *context) {
   std::string topic;
 
   Token *nameToken = nullptr;
   size_t rule = context->getRuleIndex();
-  switch (rule)
-  {
-    case MySQLParser::RuleFunctionCall:
-    {
+  switch (rule) {
+    case MySQLParser::RuleFunctionCall: {
       auto functionContext = (MySQLParser::FunctionCallContext *)context;
 
       // We only consider global functions here, hence there should not be any qualifier.
@@ -876,14 +829,11 @@ std::string functionTopicForContext(ParserRuleContext *context)
       break;
     }
 
-    case MySQLParser::RuleRuntimeFunctionCall:
-    {
+    case MySQLParser::RuleRuntimeFunctionCall: {
       auto functionContext = (MySQLParser::RuntimeFunctionCallContext *)context;
-      if (functionContext->name != nullptr)
-      {
-        switch (functionContext->name->getType())
-        {
-            // Function names that are also keywords.
+      if (functionContext->name != nullptr) {
+        switch (functionContext->name->getType()) {
+          // Function names that are also keywords.
           case MySQLLexer::IF_SYMBOL:
           case MySQLLexer::REPEAT_SYMBOL:
           case MySQLLexer::REPLACE_SYMBOL:
@@ -904,8 +854,7 @@ std::string functionTopicForContext(ParserRuleContext *context)
       break;
     }
 
-    case MySQLParser::RuleSumExpr:
-    {
+    case MySQLParser::RuleSumExpr: {
       auto exprContext = (MySQLParser::SumExprContext *)context;
       if (exprContext->COUNT_SYMBOL() != nullptr && exprContext->DISTINCT_SYMBOL() != nullptr)
         return "COUNT DISTINCT";
@@ -914,8 +863,7 @@ std::string functionTopicForContext(ParserRuleContext *context)
       break;
     }
 
-    case MySQLParser::RuleGeometryFunction:
-    {
+    case MySQLParser::RuleGeometryFunction: {
       auto functionContext = (MySQLParser::GeometryFunctionContext *)context;
       nameToken = functionContext->name;
       break;
@@ -933,172 +881,174 @@ std::string functionTopicForContext(ParserRuleContext *context)
 //----------------------------------------------------------------------------------------------------------------------
 
 static std::unordered_map<size_t, std::string> supportedOperatorsAndKeywords = {
-  { MySQLLexer::EQUAL_OPERATOR, "ASSIGN-EQUAL" },
-  { MySQLLexer::ASSIGN_OPERATOR, "ASSIGN-VALUE" },
-  { MySQLLexer::LOGICAL_AND_OPERATOR, "AND" },
-  { MySQLLexer::LOGICAL_OR_OPERATOR, "||" },
-  { MySQLLexer::BIT_AND_SYMBOL, "BIT_AND" },
-  { MySQLLexer::BIT_OR_SYMBOL, "BIT_OR" },
-  { MySQLLexer::BIT_XOR_SYMBOL, "BIT_XOR" },
-  { MySQLLexer::LOGICAL_NOT_OPERATOR, "!" },
-  { MySQLLexer::NOT_EQUAL_OPERATOR, "!=" },
-  { MySQLLexer::MOD_OPERATOR, "%" },
-  { MySQLLexer::BITWISE_AND_OPERATOR, "&" },
-  { MySQLLexer::MULT_OPERATOR, "*" },
-  { MySQLLexer::PLUS_OPERATOR, "+" },
-  { MySQLLexer::JSON_SEPARATOR_SYMBOL, "->" },
-  { MySQLLexer::JSON_UNQUOTED_SEPARATOR_SYMBOL, "->>" },
-  { MySQLLexer::DIV_OPERATOR, "/" },
-  { MySQLLexer::LESS_THAN_OPERATOR, "<" },
-  { MySQLLexer::SHIFT_LEFT_OPERATOR, "<<" },
-  { MySQLLexer::NULL_SAFE_EQUAL_OPERATOR, "<=>" },
-  { MySQLLexer::GREATER_THAN_OPERATOR, ">" },
-  { MySQLLexer::GREATER_OR_EQUAL_OPERATOR, ">=" },
-  { MySQLLexer::LESS_OR_EQUAL_OPERATOR, "<=" },
-  { MySQLLexer::SHIFT_RIGHT_OPERATOR, ">>" },
-  { MySQLLexer::BITWISE_XOR_OPERATOR, "^" },
-  { MySQLLexer::BITWISE_OR_OPERATOR, "|" },
-  { MySQLLexer::BITWISE_NOT_OPERATOR, "~" },
+  {MySQLLexer::EQUAL_OPERATOR, "ASSIGN-EQUAL"},
+  {MySQLLexer::ASSIGN_OPERATOR, "ASSIGN-VALUE"},
+  {MySQLLexer::LOGICAL_AND_OPERATOR, "AND"},
+  {MySQLLexer::LOGICAL_OR_OPERATOR, "||"},
+  {MySQLLexer::BIT_AND_SYMBOL, "BIT_AND"},
+  {MySQLLexer::BIT_OR_SYMBOL, "BIT_OR"},
+  {MySQLLexer::BIT_XOR_SYMBOL, "BIT_XOR"},
+  {MySQLLexer::LOGICAL_NOT_OPERATOR, "!"},
+  {MySQLLexer::NOT_EQUAL_OPERATOR, "!="},
+  {MySQLLexer::MOD_OPERATOR, "%"},
+  {MySQLLexer::BITWISE_AND_OPERATOR, "&"},
+  {MySQLLexer::MULT_OPERATOR, "*"},
+  {MySQLLexer::PLUS_OPERATOR, "+"},
+  {MySQLLexer::JSON_SEPARATOR_SYMBOL, "->"},
+  {MySQLLexer::JSON_UNQUOTED_SEPARATOR_SYMBOL, "->>"},
+  {MySQLLexer::DIV_OPERATOR, "/"},
+  {MySQLLexer::LESS_THAN_OPERATOR, "<"},
+  {MySQLLexer::SHIFT_LEFT_OPERATOR, "<<"},
+  {MySQLLexer::NULL_SAFE_EQUAL_OPERATOR, "<=>"},
+  {MySQLLexer::GREATER_THAN_OPERATOR, ">"},
+  {MySQLLexer::GREATER_OR_EQUAL_OPERATOR, ">="},
+  {MySQLLexer::LESS_OR_EQUAL_OPERATOR, "<="},
+  {MySQLLexer::SHIFT_RIGHT_OPERATOR, ">>"},
+  {MySQLLexer::BITWISE_XOR_OPERATOR, "^"},
+  {MySQLLexer::BITWISE_OR_OPERATOR, "|"},
+  {MySQLLexer::BITWISE_NOT_OPERATOR, "~"},
 
-  { MySQLLexer::AUTO_INCREMENT_SYMBOL, "AUTO_INCREMENT" },
-  { MySQLLexer::CALL_SYMBOL, "CALL" },
-  { MySQLLexer::CAST_SYMBOL, "CAST" },
-  { MySQLLexer::DIV_SYMBOL, "DIV" },
-  { MySQLLexer::MOD_SYMBOL, "MOD" },
-  { MySQLLexer::OR_SYMBOL, "OR" },
-  { MySQLLexer::SPATIAL_SYMBOL, "SPATIAL" },
-  { MySQLLexer::UNION_SYMBOL, "UNION" },
-  { MySQLLexer::XOR_SYMBOL, "XOR" },
+  {MySQLLexer::AUTO_INCREMENT_SYMBOL, "AUTO_INCREMENT"},
+  {MySQLLexer::CALL_SYMBOL, "CALL"},
+  {MySQLLexer::CAST_SYMBOL, "CAST"},
+  {MySQLLexer::DIV_SYMBOL, "DIV"},
+  {MySQLLexer::MOD_SYMBOL, "MOD"},
+  {MySQLLexer::OR_SYMBOL, "OR"},
+  {MySQLLexer::SPATIAL_SYMBOL, "SPATIAL"},
+  {MySQLLexer::UNION_SYMBOL, "UNION"},
+  {MySQLLexer::XOR_SYMBOL, "XOR"},
 };
 
-// Simple token -> topic matches, only used in certain contexts and only if there is no trivial token -> topic translation.
+// Simple token -> topic matches, only used in certain contexts and only if there is no trivial token -> topic
+// translation.
 static std::unordered_map<size_t, std::string> tokenToTopic = {
-  { MySQLLexer::AUTHORS_SYMBOL, "SHOW AUTHORS" },
-  { MySQLLexer::BINLOG_SYMBOL, "SHOW BINLOG EVENTS" },
-  { MySQLLexer::COLLATION_SYMBOL, "SHOW COLLATION" },
-  { MySQLLexer::COLUMNS_SYMBOL, "SHOW COLUMNS" },
-  { MySQLLexer::CONTRIBUTORS_SYMBOL, "SHOW CONTRIBUTORS" },
-  { MySQLLexer::DATABASES_SYMBOL, "SHOW databases" },
-  { MySQLLexer::ENGINE_SYMBOL, "SHOW ENGINE" },
-  { MySQLLexer::ENGINES_SYMBOL, "SHOW ENGINES" },
-  { MySQLLexer::ERRORS_SYMBOL, "SHOW ERRORS" },
-  { MySQLLexer::EVENTS_SYMBOL, "SHOW EVENTS" },
-  { MySQLLexer::GRANTS_SYMBOL, "SHOW GRANTS" },
-  { MySQLLexer::INDEX_SYMBOL, "SHOW INDEX" },
-  { MySQLLexer::INDEXES_SYMBOL, "SHOW INDEX" },
-  { MySQLLexer::INNODB_SYMBOL, "SHOW INNODB STATUS" },
-  { MySQLLexer::INSTALL_SYMBOL, "INSTALL PLUGIN" },
-  { MySQLLexer::KEYS_SYMBOL, "SHOW INDEX" },
-  { MySQLLexer::LOGS_SYMBOL, "SHOW BINARY LOGS" },
-  { MySQLLexer::MASTER_SYMBOL, "SHOW MASTER STATUS" },
-  { MySQLLexer::OPEN_SYMBOL, "SHOW OPEN TABLES" },
-  { MySQLLexer::PLUGIN_SYMBOL, "SHOW PLUGIN" },
-  { MySQLLexer::PLUGINS_SYMBOL, "SHOW PLUGINS" },
-  { MySQLLexer::PRIVILEGES_SYMBOL, "SHOW PRIVILEGES" },
-  { MySQLLexer::PROCESSLIST_SYMBOL, "SHOW PROCESSLIST" },
-  { MySQLLexer::PROFILE_SYMBOL, "SHOW PROFILE" },
-  { MySQLLexer::PROFILES_SYMBOL, "SHOW PROFILES" },
-  { MySQLLexer::RELAYLOG_SYMBOL, "SHOW RELAYLOG EVENTS" },
-  { MySQLLexer::STATUS_SYMBOL, "SHOW STATUS" },
-  { MySQLLexer::TABLES_SYMBOL, "SHOW TABLES" },
-  { MySQLLexer::TRIGGERS_SYMBOL, "SHOW TRIGGERS" },
-  { MySQLLexer::VARIABLES_SYMBOL, "SHOW VARIABLES" },
-  { MySQLLexer::WARNINGS_SYMBOL, "SHOW WARNINGS" },
+  {MySQLLexer::AUTHORS_SYMBOL, "SHOW AUTHORS"},
+  {MySQLLexer::BINLOG_SYMBOL, "SHOW BINLOG EVENTS"},
+  {MySQLLexer::COLLATION_SYMBOL, "SHOW COLLATION"},
+  {MySQLLexer::COLUMNS_SYMBOL, "SHOW COLUMNS"},
+  {MySQLLexer::CONTRIBUTORS_SYMBOL, "SHOW CONTRIBUTORS"},
+  {MySQLLexer::DATABASES_SYMBOL, "SHOW databases"},
+  {MySQLLexer::ENGINE_SYMBOL, "SHOW ENGINE"},
+  {MySQLLexer::ENGINES_SYMBOL, "SHOW ENGINES"},
+  {MySQLLexer::ERRORS_SYMBOL, "SHOW ERRORS"},
+  {MySQLLexer::EVENTS_SYMBOL, "SHOW EVENTS"},
+  {MySQLLexer::GRANTS_SYMBOL, "SHOW GRANTS"},
+  {MySQLLexer::INDEX_SYMBOL, "SHOW INDEX"},
+  {MySQLLexer::INDEXES_SYMBOL, "SHOW INDEX"},
+  {MySQLLexer::INNODB_SYMBOL, "SHOW INNODB STATUS"},
+  {MySQLLexer::INSTALL_SYMBOL, "INSTALL PLUGIN"},
+  {MySQLLexer::KEYS_SYMBOL, "SHOW INDEX"},
+  {MySQLLexer::LOGS_SYMBOL, "SHOW BINARY LOGS"},
+  {MySQLLexer::MASTER_SYMBOL, "SHOW MASTER STATUS"},
+  {MySQLLexer::OPEN_SYMBOL, "SHOW OPEN TABLES"},
+  {MySQLLexer::PLUGIN_SYMBOL, "SHOW PLUGIN"},
+  {MySQLLexer::PLUGINS_SYMBOL, "SHOW PLUGINS"},
+  {MySQLLexer::PRIVILEGES_SYMBOL, "SHOW PRIVILEGES"},
+  {MySQLLexer::PROCESSLIST_SYMBOL, "SHOW PROCESSLIST"},
+  {MySQLLexer::PROFILE_SYMBOL, "SHOW PROFILE"},
+  {MySQLLexer::PROFILES_SYMBOL, "SHOW PROFILES"},
+  {MySQLLexer::RELAYLOG_SYMBOL, "SHOW RELAYLOG EVENTS"},
+  {MySQLLexer::STATUS_SYMBOL, "SHOW STATUS"},
+  {MySQLLexer::TABLES_SYMBOL, "SHOW TABLES"},
+  {MySQLLexer::TRIGGERS_SYMBOL, "SHOW TRIGGERS"},
+  {MySQLLexer::VARIABLES_SYMBOL, "SHOW VARIABLES"},
+  {MySQLLexer::WARNINGS_SYMBOL, "SHOW WARNINGS"},
 
-  { MySQLLexer::ANALYZE_SYMBOL, "ANALYZE TABLE" },
-  { MySQLLexer::CHECKSUM_SYMBOL, "CHECKSUM TABLE" },
-  { MySQLLexer::CACHE_SYMBOL, "CACHE INDEX" },
-  { MySQLLexer::CHECK_SYMBOL, "CHECK TABLE" },
-  { MySQLLexer::FLUSH_SYMBOL, "FLUSH" },
-  { MySQLLexer::KILL_SYMBOL, "KILL" },
-  { MySQLLexer::LOAD_SYMBOL, "LOAD INDEX" },
-  { MySQLLexer::OPTIMIZE_SYMBOL, "OPTIMIZE TABLE" },
-  { MySQLLexer::REPAIR_SYMBOL, "REPAIR TABLE" },
-  { MySQLLexer::SHUTDOWN_SYMBOL, "SHUTDOWN" },
-  { MySQLLexer::UNINSTALL_SYMBOL, "UNINSTALL PLUGIN" },
+  {MySQLLexer::ANALYZE_SYMBOL, "ANALYZE TABLE"},
+  {MySQLLexer::CHECKSUM_SYMBOL, "CHECKSUM TABLE"},
+  {MySQLLexer::CACHE_SYMBOL, "CACHE INDEX"},
+  {MySQLLexer::CHECK_SYMBOL, "CHECK TABLE"},
+  {MySQLLexer::FLUSH_SYMBOL, "FLUSH"},
+  {MySQLLexer::KILL_SYMBOL, "KILL"},
+  {MySQLLexer::LOAD_SYMBOL, "LOAD INDEX"},
+  {MySQLLexer::OPTIMIZE_SYMBOL, "OPTIMIZE TABLE"},
+  {MySQLLexer::REPAIR_SYMBOL, "REPAIR TABLE"},
+  {MySQLLexer::SHUTDOWN_SYMBOL, "SHUTDOWN"},
+  {MySQLLexer::UNINSTALL_SYMBOL, "UNINSTALL PLUGIN"},
 
 };
 
 static std::unordered_map<size_t, std::string> contextToTopic = {
-  { MySQLParser::RuleCreateDatabase, "CREATE DATABASE" },
-  { MySQLParser::RuleCreateEvent, "CREATE EVENT" },
-  { MySQLParser::RuleCreateFunction, "CREATE FUNCTION" },
-  { MySQLParser::RuleCreateUdf, "CREATE FUNCTION UDF" },
-  { MySQLParser::RuleCreateIndex, "CREATE INDEX" },
-  { MySQLParser::RuleCreateProcedure, "CREATE PROCEDURE" },
-  { MySQLParser::RuleCreateServer, "CREATE SERVER" },
-  { MySQLParser::RuleCreateTable, "CREATE TABLE" },
-  { MySQLParser::RuleCreateTablespace, "CREATE TABLESPACE" },
-  { MySQLParser::RuleCreateTrigger, "CREATE TRIGGER" },
-  { MySQLParser::RuleCreateUser, "CREATE USER" },
-  { MySQLParser::RuleCreateView, "CREATE VIEW" },
-  { MySQLParser::RuleDeleteStatement, "DELETE" },
-  { MySQLParser::RuleDoStatement, "DO" },
-  { MySQLParser::RuleDropUser, "DROP USER" },
-  { MySQLParser::RuleExecuteStatement, "EXECUTE STATEMENT" },
-  { MySQLParser::RuleDescribeCommand, "EXPLAIN" },
-  { MySQLParser::RuleGrant, "GRANT" },
-  { MySQLParser::RuleHandlerStatement, "HANDLER" },
-  { MySQLParser::RuleHandlerDeclaration, "DECLARE HANDLER" },
-  { MySQLParser::RuleHelpCommand, "HELP COMMAND" },
-  { MySQLParser::RuleIfStatement, "IF STATEMENT" },
-  { MySQLParser::RuleIterateStatement, "ITERATE" },
-  { MySQLParser::RuleJoinedTable, "JOIN" },
-  { MySQLParser::RuleLabel, "LABELS" },
-  { MySQLParser::RuleLeaveStatement, "LEAVE" },
-  { MySQLParser::RuleLockStatement, "LOCK" },
-  { MySQLParser::RuleLoopBlock, "LOOP" },
-  { MySQLParser::RuleCursorOpen, "OPEN" },
-  { MySQLParser::RuleCursorClose, "CLOSE" },
-  { MySQLParser::RuleCursorFetch, "FETCH" },
-  { MySQLParser::RuleProcedureAnalyseClause, "PROCEDURE ANALYSE" },
-  { MySQLParser::RuleRenameTableStatement, "RENAME TABLE" },
-  { MySQLParser::RuleRenameUser, "RENAME USER" },
-  { MySQLParser::RuleRepeatUntilBlock, "REPEAT LOOP" },
-  { MySQLParser::RuleReplaceStatement, "REPLACE" },
-  { MySQLParser::RuleResignalStatement, "RESIGNAL" },
-  { MySQLParser::RuleReturnStatement, "RETURN" },
-  { MySQLParser::RuleRevokeStatement, "REVOKE" },
-  { MySQLParser::RuleSavepointStatement, "SAVEPOINT" },
-  { MySQLParser::RuleSelectStatement, "SELECT" },
-  { MySQLParser::RuleSetPassword, "SET PASSWORD" },
-  { MySQLParser::RuleTransactionStatement, "START TRANSACTION" },
-  { MySQLParser::RuleTruncateTableStatement, "TRUNCATE TABLE" },
-  { MySQLParser::RuleUpdateStatement, "UPDATE" },
-  { MySQLParser::RuleUseCommand, "USE" },
-  { MySQLParser::RuleWhileDoBlock, "WHILE" },
-  { MySQLParser::RuleXaStatement, "XA" },
-  { MySQLParser::RuleVariableDeclaration, "DECLARE VARIABLE" },
-  { MySQLParser::RuleConditionDeclaration, "DECLARE CONDITION" },
-  { MySQLParser::RuleHandlerDeclaration, "DECLARE HANDLER" },
-  { MySQLParser::RuleCursorDeclaration, "DECLARE CURSOR" },
-  { MySQLParser::RuleGetDiagnostics, "GET DIAGNOSTICS" },
-  { MySQLParser::RuleSignalStatement, "SIGNAL" },
-  { MySQLParser::RuleCursorFetch, "FETCH" },
-  { MySQLParser::RuleLeaveStatement, "LEAVE" },
-  { MySQLParser::RuleAlterUser, "ALTER USER" },
-  { MySQLParser::RuleCaseStatement, "CASE STATEMENT" },
-  { MySQLParser::RuleChangeMaster, "CHANGE MASTER TO" },
+  {MySQLParser::RuleCreateDatabase, "CREATE DATABASE"},
+  {MySQLParser::RuleCreateEvent, "CREATE EVENT"},
+  {MySQLParser::RuleCreateFunction, "CREATE FUNCTION"},
+  {MySQLParser::RuleCreateUdf, "CREATE FUNCTION UDF"},
+  {MySQLParser::RuleCreateIndex, "CREATE INDEX"},
+  {MySQLParser::RuleCreateProcedure, "CREATE PROCEDURE"},
+  {MySQLParser::RuleCreateServer, "CREATE SERVER"},
+  {MySQLParser::RuleCreateTable, "CREATE TABLE"},
+  {MySQLParser::RuleCreateTablespace, "CREATE TABLESPACE"},
+  {MySQLParser::RuleCreateTrigger, "CREATE TRIGGER"},
+  {MySQLParser::RuleCreateUser, "CREATE USER"},
+  {MySQLParser::RuleCreateView, "CREATE VIEW"},
+  {MySQLParser::RuleDeleteStatement, "DELETE"},
+  {MySQLParser::RuleDoStatement, "DO"},
+  {MySQLParser::RuleDropUser, "DROP USER"},
+  {MySQLParser::RuleExecuteStatement, "EXECUTE STATEMENT"},
+  {MySQLParser::RuleDescribeCommand, "EXPLAIN"},
+  {MySQLParser::RuleGrant, "GRANT"},
+  {MySQLParser::RuleHandlerStatement, "HANDLER"},
+  {MySQLParser::RuleHandlerDeclaration, "DECLARE HANDLER"},
+  {MySQLParser::RuleHelpCommand, "HELP COMMAND"},
+  {MySQLParser::RuleIfStatement, "IF STATEMENT"},
+  {MySQLParser::RuleIterateStatement, "ITERATE"},
+  {MySQLParser::RuleJoinedTable, "JOIN"},
+  {MySQLParser::RuleLabel, "LABELS"},
+  {MySQLParser::RuleLeaveStatement, "LEAVE"},
+  {MySQLParser::RuleLockStatement, "LOCK"},
+  {MySQLParser::RuleLoopBlock, "LOOP"},
+  {MySQLParser::RuleCursorOpen, "OPEN"},
+  {MySQLParser::RuleCursorClose, "CLOSE"},
+  {MySQLParser::RuleCursorFetch, "FETCH"},
+  {MySQLParser::RuleProcedureAnalyseClause, "PROCEDURE ANALYSE"},
+  {MySQLParser::RuleRenameTableStatement, "RENAME TABLE"},
+  {MySQLParser::RuleRenameUser, "RENAME USER"},
+  {MySQLParser::RuleRepeatUntilBlock, "REPEAT LOOP"},
+  {MySQLParser::RuleReplaceStatement, "REPLACE"},
+  {MySQLParser::RuleResignalStatement, "RESIGNAL"},
+  {MySQLParser::RuleReturnStatement, "RETURN"},
+  {MySQLParser::RuleRevokeStatement, "REVOKE"},
+  {MySQLParser::RuleSavepointStatement, "SAVEPOINT"},
+  {MySQLParser::RuleSelectStatement, "SELECT"},
+  {MySQLParser::RuleSetPassword, "SET PASSWORD"},
+  {MySQLParser::RuleTransactionStatement, "START TRANSACTION"},
+  {MySQLParser::RuleTruncateTableStatement, "TRUNCATE TABLE"},
+  {MySQLParser::RuleUpdateStatement, "UPDATE"},
+  {MySQLParser::RuleUseCommand, "USE"},
+  {MySQLParser::RuleWhileDoBlock, "WHILE"},
+  {MySQLParser::RuleXaStatement, "XA"},
+  {MySQLParser::RuleVariableDeclaration, "DECLARE VARIABLE"},
+  {MySQLParser::RuleConditionDeclaration, "DECLARE CONDITION"},
+  {MySQLParser::RuleHandlerDeclaration, "DECLARE HANDLER"},
+  {MySQLParser::RuleCursorDeclaration, "DECLARE CURSOR"},
+  {MySQLParser::RuleGetDiagnostics, "GET DIAGNOSTICS"},
+  {MySQLParser::RuleSignalStatement, "SIGNAL"},
+  {MySQLParser::RuleCursorFetch, "FETCH"},
+  {MySQLParser::RuleLeaveStatement, "LEAVE"},
+  {MySQLParser::RuleAlterUser, "ALTER USER"},
+  {MySQLParser::RuleCaseStatement, "CASE STATEMENT"},
+  {MySQLParser::RuleChangeMaster, "CHANGE MASTER TO"},
 
-  { MySQLParser::RuleDropDatabase, "DROP DATABASE" },
-  { MySQLParser::RuleDropEvent, "DROP EVENT" },
-  { MySQLParser::RuleDropFunction, "DROP FUNCTION" },
-  { MySQLParser::RuleDropProcedure, "DROP PROCEDURE" },
-  { MySQLParser::RuleDropIndex, "DROP INDEX" },
-  { MySQLParser::RuleDropLogfileGroup, "DROP LOGFILEGROUP" },
-  { MySQLParser::RuleDropServer, "DROP SERVER" },
-  { MySQLParser::RuleDropTable, "DROP TABLE" },
-  { MySQLParser::RuleDropTableSpace, "DROP TABLESPACE" },
-  { MySQLParser::RuleDropTrigger, "DROP TRIGGER" },
-  { MySQLParser::RuleDropView, "DROP VIEW" },
+  {MySQLParser::RuleDropDatabase, "DROP DATABASE"},
+  {MySQLParser::RuleDropEvent, "DROP EVENT"},
+  {MySQLParser::RuleDropFunction, "DROP FUNCTION"},
+  {MySQLParser::RuleDropProcedure, "DROP PROCEDURE"},
+  {MySQLParser::RuleDropIndex, "DROP INDEX"},
+  {MySQLParser::RuleDropLogfileGroup, "DROP LOGFILEGROUP"},
+  {MySQLParser::RuleDropServer, "DROP SERVER"},
+  {MySQLParser::RuleDropTable, "DROP TABLE"},
+  {MySQLParser::RuleDropTableSpace, "DROP TABLESPACE"},
+  {MySQLParser::RuleDropTrigger, "DROP TRIGGER"},
+  {MySQLParser::RuleDropView, "DROP VIEW"},
 
 };
 
-// Words which are part of a multi word topic or can produce wrong topics if used alone, and hence need further examination.
+// Words which are part of a multi word topic or can produce wrong topics if used alone, and hence need further
+// examination.
 static std::unordered_set<std::string> specialWords = {
-  "CHAR", "COUNT", "DATE", "DOUBLE", "REPLACE", "TIME", "TIMESTAMP", "YEAR", "DATABASE", "USER", "INSERT", "PREPARE",
-  "HANDLER", "FLUSH", "IS", "IN", "LIKE", "REGEXP", "SET", "PASSWORD", "SHOW", "COLLATION", "OPEN", "UPDATE", "DELETE"
-};
+  "CHAR", "COUNT",    "DATE",    "DOUBLE",    "REPLACE", "TIME",   "TIMESTAMP", "YEAR", "DATABASE",
+  "USER", "INSERT",   "PREPARE", "HANDLER",   "FLUSH",   "IS",     "IN",        "LIKE", "REGEXP",
+  "SET",  "PASSWORD", "SHOW",    "COLLATION", "OPEN",    "UPDATE", "DELETE"};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1106,10 +1056,9 @@ static std::unordered_set<std::string> specialWords = {
  * Determines a help topic from the given query at the given position (given as column/row pair).
  */
 std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, const std::string &query,
-  std::pair<size_t, size_t> caret)
-{
+                                                          std::pair<size_t, size_t> caret) {
   logDebug2("Finding help topic\n");
-  
+
   // We are not interested in validity here. We simply parse in default mode (LL) and examine the returned parse tree.
   // This usually will give us a good result, except in cases where the query has an error before the caret such that
   // we cannot predict the path through the rules.
@@ -1124,8 +1073,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
   {
     tree::TerminalNode *node = (tree::TerminalNode *)tree;
     size_t token = node->getSymbol()->getType();
-    if (token == MySQLLexer::SEMICOLON_SYMBOL)
-    {
+    if (token == MySQLLexer::SEMICOLON_SYMBOL) {
       tree = MySQLRecognizerCommon::getPrevious(tree);
       node = (tree::TerminalNode *)tree;
       token = node->getSymbol()->getType();
@@ -1137,8 +1085,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
     if (supportedOperatorsAndKeywords.count(token) > 0)
       return supportedOperatorsAndKeywords[token];
 
-    switch (token)
-    {
+    switch (token) {
       case MySQLLexer::MINUS_OPERATOR:
         if (isParentContext(tree, MySQLParser::RuleSimpleExpr))
           return "- UNARY";
@@ -1184,7 +1131,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         std::string s = base::toupper(node->getText());
         if (specialWords.count(s) == 0 && topicExists(s))
           return s;
-        
+
         // No specific help topic for the given terminal. Jump to the token's parent and start the
         // context search then.
         tree = tree->parent;
@@ -1193,8 +1140,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
   }
 
   // See if we have a help topic for the given tree. If not walk up the parent chain until we find something.
-  while (true)
-  {
+  while (true) {
     if (tree == nullptr)
       return "";
 
@@ -1209,20 +1155,16 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
     if (!functionTopic.empty() && topicExists(functionTopic))
       return functionTopic;
 
-    switch (ruleIndex)
-    {
-      case MySQLParser::RulePredicateOperations:
-      {
-        if (!context->children.empty())
-        {
+    switch (ruleIndex) {
+      case MySQLParser::RulePredicateOperations: {
+        if (!context->children.empty()) {
           // Some keyword topics have variants with a leading NOT.
           auto parent = dynamic_cast<MySQLParser::PredicateContext *>(context->parent);
           bool isNot = parent->notRule() != nullptr;
 
           // IN, BETWEEN (with special help topic name), LIKE, REGEXP
           auto predicateContext = (MySQLParser::PredicateOperationsContext *)context;
-          if (isToken(predicateContext->children[0], MySQLLexer::BETWEEN_SYMBOL))
-          {
+          if (isToken(predicateContext->children[0], MySQLLexer::BETWEEN_SYMBOL)) {
             if (isNot)
               return "NOT BETWEEN";
             return "BETWEEN AND";
@@ -1233,12 +1175,11 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
       }
 
-      case MySQLParser::RuleOtherAdministrativeStatement:
-      {
+      case MySQLParser::RuleOtherAdministrativeStatement: {
         // See if we only have a single flush command.
         auto adminContext = (MySQLParser::OtherAdministrativeStatementContext *)context;
-        if (adminContext->type->getType() == MySQLLexer::FLUSH_SYMBOL && adminContext->flushOption().size() == 1
-            && adminContext->flushOption(0)->option->getType() == MySQLLexer::QUERY_SYMBOL)
+        if (adminContext->type->getType() == MySQLLexer::FLUSH_SYMBOL && adminContext->flushOption().size() == 1 &&
+            adminContext->flushOption(0)->option->getType() == MySQLLexer::QUERY_SYMBOL)
           return "FLUSH QUERY CACHE";
 
         if (adminContext->type != nullptr)
@@ -1246,41 +1187,36 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
       }
 
-      case MySQLParser::RuleInsertStatement:
-      {
+      case MySQLParser::RuleInsertStatement: {
         auto insertContext = (MySQLParser::InsertStatementContext *)context;
         if (insertContext->insertQueryExpression() != nullptr)
           return "INSERT SELECT";
-        if (insertContext->insertLockOption() != nullptr && insertContext->insertLockOption()->DELAYED_SYMBOL() != nullptr)
+        if (insertContext->insertLockOption() != nullptr &&
+            insertContext->insertLockOption()->DELAYED_SYMBOL() != nullptr)
           return "INSERT DELAYED";
         return "INSERT";
       }
 
-      case MySQLParser::RuleInstallUninstallStatment:
-      {
+      case MySQLParser::RuleInstallUninstallStatment: {
         auto pluginContext = (MySQLParser::InstallUninstallStatmentContext *)context;
         if (pluginContext->action != nullptr)
           return tokenToTopic[pluginContext->action->getType()];
         break;
       }
 
-      case MySQLParser::RuleExpr:
-      {
+      case MySQLParser::RuleExpr: {
         auto exprContext = (MySQLParser::ExprContext *)context;
-        if (exprContext->children.size() > 2 && isToken(exprContext->children[1], MySQLLexer::IS_SYMBOL))
-        {
-          if (isToken(exprContext->children[2], MySQLLexer::NOT_SYMBOL)
-            || isToken(exprContext->children[2], MySQLLexer::NOT2_SYMBOL))
+        if (exprContext->children.size() > 2 && isToken(exprContext->children[1], MySQLLexer::IS_SYMBOL)) {
+          if (isToken(exprContext->children[2], MySQLLexer::NOT_SYMBOL) ||
+              isToken(exprContext->children[2], MySQLLexer::NOT2_SYMBOL))
             return "IS NOT";
           return "IS";
         }
         break;
       }
 
-      case MySQLParser::RuleBoolPri:
-      {
-        if (antlrcpp::is<MySQLParser::PrimaryExprIsNullContext *>(context))
-        {
+      case MySQLParser::RuleBoolPri: {
+        if (antlrcpp::is<MySQLParser::PrimaryExprIsNullContext *>(context)) {
           auto primaryExprIsNullContext = (MySQLParser::PrimaryExprIsNullContext *)context;
           if (primaryExprIsNullContext->notRule() == nullptr)
             return "IS NULL";
@@ -1289,8 +1225,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
       }
 
-      case MySQLParser::RuleSetStatement:
-      {
+      case MySQLParser::RuleSetStatement: {
         auto setStatementContext = (MySQLParser::SetStatementContext *)context;
         if (setStatementContext->TRANSACTION_SYMBOL() != nullptr)
           return "ISOLATION";
@@ -1300,8 +1235,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
           variableName = setStatementContext->optionValueFollowingOptionType()->internalVariableName();
         else if (setStatementContext->optionValueNoOptionType() != nullptr)
           variableName = setStatementContext->optionValueNoOptionType()->internalVariableName();
-        if (variableName != nullptr)
-        {
+        if (variableName != nullptr) {
           std::string option = base::toupper(variableName->getText());
           if (option == "SQL_SLAVE_SKIP_COUNTER")
             return "SET GLOBAL SQL_SLAVE_SKIP_COUNTER";
@@ -1311,19 +1245,17 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         return "SET";
       }
 
-      case MySQLParser::RuleLoadStatement:
-      {
+      case MySQLParser::RuleLoadStatement: {
         auto loadStatementContext = (MySQLParser::LoadStatementContext *)context;
         if (loadStatementContext->dataOrXml()->DATA_SYMBOL() != nullptr)
           return "LOAD DATA";
         return "LOAD XML";
       }
-        
+
       case MySQLParser::RulePredicate:
-        if (context->children.size() > 2)
-        {
-          if (isToken(context->children[1], MySQLLexer::NOT_SYMBOL) || isToken(context->children[1], MySQLLexer::NOT2_SYMBOL))
-          {
+        if (context->children.size() > 2) {
+          if (isToken(context->children[1], MySQLLexer::NOT_SYMBOL) ||
+              isToken(context->children[1], MySQLLexer::NOT2_SYMBOL)) {
             // For NOT BETWEEN, NOT LIKE, NOT IN, NOT REGEXP.
             auto predicateContext = dynamic_cast<MySQLParser::PredicateOperationsContext *>(context->children[2]);
             return "NOT " + base::toupper(predicateContext->children[0]->getText());
@@ -1333,16 +1265,14 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         }
         break;
 
-      case MySQLParser::RuleTableAdministrationStatement:
-      {
+      case MySQLParser::RuleTableAdministrationStatement: {
         auto adminStatementContext = (MySQLParser::TableAdministrationStatementContext *)context;
         if (adminStatementContext->type != nullptr)
           return tokenToTopic[adminStatementContext->type->getType()];
         break;
       }
 
-      case MySQLParser::RulePreparedStatement:
-      {
+      case MySQLParser::RulePreparedStatement: {
         auto preparedContext = (MySQLParser::PreparedStatementContext *)context;
         size_t type = 0;
         if (preparedContext->type != nullptr)
@@ -1354,19 +1284,17 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
       }
 
-      case MySQLParser::RuleReplicationStatement:
-      {
+      case MySQLParser::RuleReplicationStatement: {
         auto replicationContext = (MySQLParser::ReplicationStatementContext *)context;
         if (replicationContext->PURGE_SYMBOL() != nullptr)
           return "PURGE BINARY LOGS";
-        if (replicationContext->RESET_SYMBOL() != nullptr
-          && (replicationContext->resetOption().empty() || replicationContext->resetOption()[0]->option == nullptr))
+        if (replicationContext->RESET_SYMBOL() != nullptr &&
+            (replicationContext->resetOption().empty() || replicationContext->resetOption()[0]->option == nullptr))
           return "RESET";
         break;
       }
 
-      case MySQLParser::RuleResetOption:
-      {
+      case MySQLParser::RuleResetOption: {
         auto optionContext = (MySQLParser::ResetOptionContext *)context;
         if (isToken(optionContext->option, MySQLLexer::MASTER_SYMBOL))
           return "RESET MASTER";
@@ -1375,18 +1303,15 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         return "RESET";
       }
 
-      case MySQLParser::RuleShowStatement:
-      {
+      case MySQLParser::RuleShowStatement: {
         auto showContext = (MySQLParser::ShowStatementContext *)context;
-        if (showContext->value == nullptr)
-        {
+        if (showContext->value == nullptr) {
           if (showContext->charset() != nullptr)
             return "SHOW CHARACTER SET";
           return "SHOW";
         }
 
-        switch (showContext->value->getType())
-        {
+        switch (showContext->value->getType()) {
           case MySQLLexer::TABLE_SYMBOL:
             return "SHOW TABLE STATUS";
           case MySQLLexer::SLAVE_SYMBOL:
@@ -1395,8 +1320,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
             if (showContext->STATUS_SYMBOL() != nullptr)
               return "SHOW SLAVE STATUS";
             break;
-          case MySQLLexer::CREATE_SYMBOL:
-          {
+          case MySQLLexer::CREATE_SYMBOL: {
             if (showContext->object != nullptr)
               return "SHOW CREATE " + base::toupper(showContext->object->getText());
             break;
@@ -1419,8 +1343,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         }
       }
 
-      case MySQLParser::RuleTableConstraintDef:
-      {
+      case MySQLParser::RuleTableConstraintDef: {
         auto definitionContext = (MySQLParser::TableConstraintDefContext *)context;
         if (definitionContext->type->getType() == MySQLLexer::FOREIGN_SYMBOL)
           return "CONSTRAINT";
@@ -1431,11 +1354,9 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         return "HELP COMMAND";
 
       case MySQLParser::RuleSimpleExpr:
-        if (!context->children.empty() && antlrcpp::is<tree::TerminalNode *>(context->children[0]))
-        {
+        if (!context->children.empty() && antlrcpp::is<tree::TerminalNode *>(context->children[0])) {
           size_t type = dynamic_cast<tree::TerminalNode *>(context->children[0])->getSymbol()->getType();
-          switch (type)
-          {
+          switch (type) {
             case MySQLLexer::MATCH_SYMBOL:
               return "MATCH AGAINST";
             case MySQLLexer::CONVERT_SYMBOL:
@@ -1448,8 +1369,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         }
         break;
 
-      case MySQLParser::RuleEngineRef:
-      {
+      case MySQLParser::RuleEngineRef: {
         std::string engine = base::tolower(context->getText());
         if (engine == "merge" || engine == "mrg_myisam")
           return "MERGE";
@@ -1461,15 +1381,13 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
           return base::toupper(context->children[0]->getText()) + " SLAVE";
         break;
 
-      case MySQLParser::RuleDataType:
-      {
+      case MySQLParser::RuleDataType: {
         auto typeContext = (MySQLParser::DataTypeContext *)context;
         if (typeContext->nchar() != nullptr)
           return "CHAR";
 
         std::string topic;
-        switch (typeContext->type->getType())
-        {
+        switch (typeContext->type->getType()) {
           case MySQLLexer::DOUBLE_SYMBOL:
             if (typeContext->PRECISION_SYMBOL() != nullptr)
               return "DOUBLE PRECISION";
@@ -1492,7 +1410,8 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
           case MySQLLexer::VARYING_SYMBOL:
             if (typeContext->VARYING_SYMBOL() != nullptr || typeContext->VARCHAR_SYMBOL() != nullptr)
               return "VARCHAR";
-            if (typeContext->charsetWithOptBinary() != nullptr && typeContext->charsetWithOptBinary()->BYTE_SYMBOL() != nullptr)
+            if (typeContext->charsetWithOptBinary() != nullptr &&
+                typeContext->charsetWithOptBinary()->BYTE_SYMBOL() != nullptr)
               return "CHAR BYTE";
             return "CHAR";
 
@@ -1507,24 +1426,21 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break; // Not all data types have an own topic.
       }
 
-      case MySQLParser::RuleFromClause:
-      {
+      case MySQLParser::RuleFromClause: {
         auto keylistContext = (MySQLParser::FromClauseContext *)context;
         if (keylistContext->DUAL_SYMBOL() != nullptr)
           return "DUAL";
         break;
       }
 
-      case MySQLParser::RuleSetTransactionCharacteristic:
-      {
+      case MySQLParser::RuleSetTransactionCharacteristic: {
         auto characteristicsContext = (MySQLParser::SetTransactionCharacteristicContext *)context;
         if (characteristicsContext->ISOLATION_SYMBOL() != nullptr)
           return "ISOLATION";
         break;
       }
 
-      case MySQLParser::RuleSubstringFunction:
-      {
+      case MySQLParser::RuleSubstringFunction: {
         // A case where we might have a synonym, so we need to check the text actually.
         auto substringContext = (MySQLParser::SubstringFunctionContext *)context;
         return base::toupper(substringContext->SUBSTRING_SYMBOL()->getText());
@@ -1532,8 +1448,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
       }
 
-      case MySQLParser::RuleAlterStatement:
-      {
+      case MySQLParser::RuleAlterStatement: {
         auto alterContext = (MySQLParser::AlterStatementContext *)context;
         std::string topic = "ALTER ";
         if (alterContext->alterTable() != nullptr)

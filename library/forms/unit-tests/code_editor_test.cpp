@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,8 +68,6 @@ TEST_FUNCTION(1)
   ensure("Other keyword list empty", !keywords["Keywords"].empty());
   ensure("Procedure keyword list missing", keywords.find("Procedure keywords") != keywords.end());
   ensure("Procedure keyword list empty", !keywords["Procedure keywords"].empty());
-  ensure("Functions keyword list missing", keywords.find("Functions") != keywords.end());
-  ensure("Functions keyword list empty", !keywords["Functions"].empty());
   ensure("User keyword list 1 missing", keywords.find("User Keywords 1") != keywords.end());
   ensure("User keyword list 1 empty", !keywords["User Keywords 1"].empty());
 
