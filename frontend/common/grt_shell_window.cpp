@@ -393,7 +393,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   _shell_box.add(&_shell_hbox, false, true);
   _shell_hbox.add(&_shell_prompt, false, true);
   _shell_hbox.add(&_shell_entry, true, true);
-  _main_tab.add_page(&_shell_box, "Shell");
+  _main_tab.add_page(&_shell_box, "Shell", false);
 
   scoped_connect(_shell_entry.signal_action(), std::bind(&GRTShellWindow::shell_action, this, std::placeholders::_1));
 
@@ -429,7 +429,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
 
   _snippet_list->add_column(mforms::StringColumnType, "Snippet", 500, false);
   _snippet_list->end_columns();
-  _main_tab.add_page(&_snippet_splitter, "Snippets");
+  _main_tab.add_page(&_snippet_splitter, "Snippets", false);
 
   scoped_connect(_main_tab.signal_tab_closing(),
                  std::bind(&GRTShellWindow::on_tab_closing, this, std::placeholders::_1));
