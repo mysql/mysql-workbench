@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,18 +29,13 @@
 #define GRNEditorFormWillSave "GRNEditorFormWillSave"
 #define GRNEditorFormDidRevert "GRNEditorFormDidRevert"
 
-
-namespace bec
-{
+namespace bec {
   class BaseEditor;
 }
 
-class ui_ObjectEditor::ImplData
-{
+class ui_ObjectEditor::ImplData {
 public:
-  ImplData(ui_ObjectEditor *self)
-  : _self(self)
-  {
+  ImplData(ui_ObjectEditor *self) : _self(self) {
   }
 
   void notify_will_open();
@@ -60,7 +55,9 @@ private:
   ui_ObjectEditor *_self;
   bec::BaseEditor *_editor;
 
-  ui_ObjectEditorRef self() { return ui_ObjectEditorRef(_self); }
+  ui_ObjectEditorRef self() {
+    return ui_ObjectEditorRef(_self);
+  }
 };
 
 #endif

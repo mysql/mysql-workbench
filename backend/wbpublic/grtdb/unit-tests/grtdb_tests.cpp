@@ -1,16 +1,16 @@
-﻿/* 
- * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -31,10 +31,9 @@ using namespace std;
 
 BEGIN_TEST_DATA_CLASS(grtdb_tests)
 public:
-  WBTester *tester;
+WBTester *tester;
 
-TEST_DATA_CONSTRUCTOR(grtdb_tests)
-{
+TEST_DATA_CONSTRUCTOR(grtdb_tests) {
   tester = new WBTester();
   populate_grt(*tester);
 }
@@ -42,13 +41,11 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(grtdb_tests, "DB stuff tests");
 
-TEST_FUNCTION(2)
-{
+TEST_FUNCTION(2) {
   tester->create_new_document();
 }
 
-TEST_FUNCTION(5)
-{
+TEST_FUNCTION(5) {
   // test primary key
 
   db_mysql_TableRef table(grt::Initialized);
@@ -68,7 +65,6 @@ TEST_FUNCTION(5)
 
   ensure_equals("PK correct", table->primaryKey()->columns().count(), 1U);
   ensure("PK correct", table->primaryKey()->columns().get(0)->referencedColumn() == column);
-  
 
   table->removePrimaryKeyColumn(column);
 
@@ -76,21 +72,17 @@ TEST_FUNCTION(5)
   ensure_equals("PK index removed", table->indices().count(), 0U);
 }
 
-
-TEST_FUNCTION(10)
-{
+TEST_FUNCTION(10) {
   db_mysql_TableRef table(grt::Initialized);
-  
+
   ensure_equals("index content type", table->indices().content_class_name(), "db.mysql.Index");
 }
-
 
 // Helper macros for column base types parser tests.
 #define ensure_parse_ok(str) ensure(str, column->setParseType(str, tester->get_rdbms()->simpleDatatypes()) != 0);
 #define ensure_parse_fail(str) ensure(str, column->setParseType(str, tester->get_rdbms()->simpleDatatypes()) == 0);
 
-TEST_FUNCTION(15)
-{
+TEST_FUNCTION(15) {
   // Test some generally wrong cases. ml: testing invalid cases is just nonsense. Should be removed.
   db_ColumnRef column(grt::Initialized);
 
@@ -145,8 +137,7 @@ void checkTypeCardinalities(size_t testNo, db_SimpleDatatypeRef type, db_ColumnR
  *	 Data type parsing tests based on our rdbms info xml. Does additional checks, e.g. for cardinality,
  *	 but does not consider all possible data type definitions, to do a full parser test.
  */
-TEST_FUNCTION(20)
-{
+TEST_FUNCTION(20) {
   // Go through all our defined datatypes and construct a column definition.
   // Then see if they all parse successfully.
   db_SchemaRef schema(grt::Initialized);
@@ -165,14 +156,13 @@ TEST_FUNCTION(20)
 
   std::string expected_enum_parameters = "('blah', 'foo', 'bar', 0b11100011011, 0x1234ABCDE)";
   ListRef<db_SimpleDatatype> types = tester->get_rdbms()->simpleDatatypes();
-  for (size_t i = 0; i < tester->get_rdbms()->simpleDatatypes().count(); i++)
-  {
+  for (size_t i = 0; i < tester->get_rdbms()->simpleDatatypes().count(); i++) {
     // Try all parameter combinations.
-    string no_params= types[i]->name();
-    string single_num_param= no_params + "(777)";
-    string double_num_params= no_params + "(111, 5)";
+    string no_params = types[i]->name();
+    string single_num_param = no_params + "(777)";
+    string double_num_params = no_params + "(111, 5)";
     string param_list = no_params + "('blah', 'foo'  ,       'bar'\n, \n0b11100011011,\n\n\n 0x1234ABCDE)";
-    string invalid_list= no_params + "(1, a, 'bb')";
+    string invalid_list = no_params + "(1, a, 'bb')";
 
     // Depending on the server version a data type is defined for we need to set the
     // correct version or parsing will fail where it should succeed.
@@ -189,50 +179,43 @@ TEST_FUNCTION(20)
     GrtVersionRef version = bec::parse_version(validity.substr(offset));
 
     // Convert the version so that we get one that matches the validity.
-    switch (validity[0])
-    {
-    case '<':
-      if (version->buildNumber() > 0)
-        version->buildNumber(version->buildNumber() - 1);
-      else
-      {
-        if (version->buildNumber() > -1)
-          version->buildNumber(99);
-        if (version->releaseNumber() > 0)
-          version->releaseNumber(version->releaseNumber() - 1);
-        else
-        {
-          version->releaseNumber(99);
-          if (version->minorNumber() > 0)
-            version->minorNumber(version->minorNumber() - 1);
-          else
-          {
-            version->minorNumber(99);
-            version->majorNumber(version->majorNumber() - 1); // There's always a valid major number.
+    switch (validity[0]) {
+      case '<':
+        if (version->buildNumber() > 0)
+          version->buildNumber(version->buildNumber() - 1);
+        else {
+          if (version->buildNumber() > -1)
+            version->buildNumber(99);
+          if (version->releaseNumber() > 0)
+            version->releaseNumber(version->releaseNumber() - 1);
+          else {
+            version->releaseNumber(99);
+            if (version->minorNumber() > 0)
+              version->minorNumber(version->minorNumber() - 1);
+            else {
+              version->minorNumber(99);
+              version->majorNumber(version->majorNumber() - 1); // There's always a valid major number.
+            }
           }
         }
-      }
-      break;
-    case '>':
-      if (version->buildNumber() > 0)
-        version->buildNumber(version->buildNumber() + 1);
-      else
-      {
-        if (version->releaseNumber() > 0)
-          version->releaseNumber(version->releaseNumber() + 1);
-        else
-          if (version->minorNumber() > -1)
+        break;
+      case '>':
+        if (version->buildNumber() > 0)
+          version->buildNumber(version->buildNumber() + 1);
+        else {
+          if (version->releaseNumber() > 0)
+            version->releaseNumber(version->releaseNumber() + 1);
+          else if (version->minorNumber() > -1)
             version->minorNumber(version->minorNumber() + 1);
           else
             version->majorNumber(version->majorNumber() + 1);
-      }
-      break;
+        }
+        break;
     }
     catalog->version(version);
 
     // The parameter format type tells us which combination is valid.
-    switch (types[i]->parameterFormatType())
-    {
+    switch (types[i]->parameterFormatType()) {
       case 0: // no params
         ensure_parse_ok(no_params);
         checkTypeCardinalities(i, types[i], column, EMPTY_COLUMN_PRECISION, EMPTY_COLUMN_SCALE);
@@ -293,7 +276,7 @@ TEST_FUNCTION(20)
 
         // The following tests just check if the parameter list is properly stored.
         // No type checking takes place for now.
-        grt::StringRef explicitParam= column->datatypeExplicitParams();
+        grt::StringRef explicitParam = column->datatypeExplicitParams();
         ensure_equals("Parameter list not properly stored", *explicitParam, expected_enum_parameters);
         break;
     }
@@ -537,8 +520,7 @@ static std::map<std::string, RuleAlternatives> rules = {
 
 std::vector<std::string> getVariationsForRule(std::string rule_name);
 
-std::vector<std::string> getVariationsForSequence(const GrammarSequence &sequence)
-{
+std::vector<std::string> getVariationsForSequence(const GrammarSequence &sequence) {
   std::vector<std::string> result;
   result.push_back(""); // Start with an empty entry to get the code rolling.
 
@@ -546,8 +528,8 @@ std::vector<std::string> getVariationsForSequence(const GrammarSequence &sequenc
   // If it is an optional entry duplicate existing entries and append the values to the duplicates
   // so we have one set with and one without the value.
   // For entries with multiple appearance add more duplicates with different repeat counts.
-  for (std::vector<tut::GrammarNode>::const_iterator iterator = sequence.nodes.begin(); iterator != sequence.nodes.end(); ++iterator)
-  {
+  for (std::vector<tut::GrammarNode>::const_iterator iterator = sequence.nodes.begin();
+       iterator != sequence.nodes.end(); ++iterator) {
     std::vector<std::string> variations;
     if (iterator->isTerminal)
       variations.push_back(iterator->value); // Only one variation.
@@ -558,25 +540,24 @@ std::vector<std::string> getVariationsForSequence(const GrammarSequence &sequenc
     if (!iterator->isRequired)
       intermediate.insert(intermediate.begin(), result.begin(), result.end());
 
-    for (std::vector<std::string>::iterator result_iterator = result.begin(); result_iterator != result.end(); ++result_iterator)
-    {
+    for (std::vector<std::string>::iterator result_iterator = result.begin(); result_iterator != result.end();
+         ++result_iterator) {
       // Add each variation to each result we have so far already. This is the default occurrence.
-      for (std::vector<std::string>::iterator variation_iterator = variations.begin(); variation_iterator != variations.end(); ++variation_iterator)
-      {
+      for (std::vector<std::string>::iterator variation_iterator = variations.begin();
+           variation_iterator != variations.end(); ++variation_iterator) {
         if (result_iterator->empty())
           intermediate.push_back(*variation_iterator);
         else
           intermediate.push_back(*result_iterator + " " + *variation_iterator);
       }
 
-      if (iterator->multiple)
-      {
+      if (iterator->multiple) {
         // If there can be multiple occurrences create a cross product of all alternatives,
         // so we have at least 2 values in all possible combinations.
-        for (std::vector<std::string>::iterator outer_iterator = variations.begin(); outer_iterator != variations.end(); ++outer_iterator)
-        {
-          for (std::vector<std::string>::iterator inner_iterator = variations.begin(); inner_iterator != variations.end(); ++inner_iterator)
-          {
+        for (std::vector<std::string>::iterator outer_iterator = variations.begin(); outer_iterator != variations.end();
+             ++outer_iterator) {
+          for (std::vector<std::string>::iterator inner_iterator = variations.begin();
+               inner_iterator != variations.end(); ++inner_iterator) {
             if (result_iterator->empty())
               intermediate.push_back(*outer_iterator + " " + *inner_iterator);
             else
@@ -596,19 +577,16 @@ std::vector<std::string> getVariationsForSequence(const GrammarSequence &sequenc
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<std::string> getVariationsForRule(std::string rule_name)
-{
+std::vector<std::string> getVariationsForRule(std::string rule_name) {
   std::vector<std::string> result;
 
   std::map<std::string, tut::RuleAlternatives>::iterator rule = rules.find(rule_name);
-  if (rule == rules.end())
-  {
+  if (rule == rules.end()) {
     fail("Rule: " + rule_name + " not found");
     return result;
   }
 
-  for (tut::RuleAlternatives::const_iterator iterator = rule->second.begin(); iterator != rule->second.end(); ++iterator)
-  {
+  for (tut::RuleAlternatives::const_iterator iterator = rule->second.begin(); iterator != rule->second.end(); ++iterator) {
     std::vector<std::string> values = getVariationsForSequence(*iterator);
     result.insert(result.end(), values.begin(), values.end());
   }
@@ -617,8 +595,7 @@ std::vector<std::string> getVariationsForRule(std::string rule_name)
 
 //--------------------------------------------------------------------------------------------------
 
-TEST_FUNCTION(22)
-{
+TEST_FUNCTION(22) {
   // First generate all possible combinations.
   std::vector<std::string> definitions = getVariationsForRule("data_type");
 
@@ -633,8 +610,7 @@ TEST_FUNCTION(22)
   version->buildNumber(-1);
 
   parsers::MySQLParserServices *services = parsers::MySQLParserServices::get();
-  for (std::vector<std::string>::iterator iterator = definitions.begin(); iterator != definitions.end(); ++iterator)
-  {
+  for (std::vector<std::string>::iterator iterator = definitions.begin(); iterator != definitions.end(); ++iterator) {
     db_SimpleDatatypeRef simple_type;
     db_UserDatatypeRef user_type;
     int precision;
@@ -649,8 +625,7 @@ TEST_FUNCTION(22)
   }
 }
 
-TEST_FUNCTION(25)
-{
+TEST_FUNCTION(25) {
   // bug: make sure that mysql tables with a composite key have the auto_increment column
   // 1st in the index
 
@@ -675,72 +650,50 @@ TEST_FUNCTION(25)
   ensure_equals("1st col in index is col2", *table->primaryKey()->columns().get(0)->referencedColumn()->name(), "col2");
 }
 
-
 // test comment splitter functions
-TEST_FUNCTION(26)
-{
-  ensure_equals("split trunc part", 
-    bec::TableHelper::get_sync_comment("hello world", 5), "hello");
-  ensure_equals("split notrunc part", 
-    bec::TableHelper::get_sync_comment("hello world", 15), "hello world");
+TEST_FUNCTION(26) {
+  ensure_equals("split trunc part", bec::TableHelper::get_sync_comment("hello world", 5), "hello");
+  ensure_equals("split notrunc part", bec::TableHelper::get_sync_comment("hello world", 15), "hello world");
 
-   ensure("split trunc part", 
-    bec::TableHelper::get_sync_comment("hell\xE2\x82\xAC world", 5).size() <= 5);
+  ensure("split trunc part", bec::TableHelper::get_sync_comment("hell\xE2\x82\xAC world", 5).size() <= 5);
 
-   ensure_equals("hell\xE2\x82\xAC world", 
-    bec::TableHelper::get_sync_comment("hell\xE2\x82\xAC world", 5), "hell");
-   
-   ensure_equals("split trunc part", 
-    bec::TableHelper::get_sync_comment("hello\n\nworld", 15), "hello\n\nworld");
+  ensure_equals("hell\xE2\x82\xAC world", bec::TableHelper::get_sync_comment("hell\xE2\x82\xAC world", 5), "hell");
 
-   ensure_equals("split trunc part, paragraph break",
-     bec::TableHelper::get_sync_comment("hello\n\nworld long text", 15), "hello");
+  ensure_equals("split trunc part", bec::TableHelper::get_sync_comment("hello\n\nworld", 15), "hello\n\nworld");
+
+  ensure_equals("split trunc part, paragraph break", bec::TableHelper::get_sync_comment("hello\n\nworld long text", 15),
+                "hello");
 }
-
 
 // test full comment text generation (with quoting etc)
-TEST_FUNCTION(27)
-{
-  ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("hello world", 5), 
-    "'hello' /* comment truncated */ /* world*/");
+TEST_FUNCTION(27) {
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("hello world", 5),
+                "'hello' /* comment truncated */ /* world*/");
 
-  ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("hello world", 15), 
-    "'hello world'");
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("hello world", 15), "'hello world'");
 
-  ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("hello\nworld", 12), 
-    "'hello\\nworld'");
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("hello\nworld", 12), "'hello\\nworld'");
 
-  ensure_equals("comment",
-    bec::TableHelper::generate_comment_text("hello\n\nworld", 10),
-    "'hello' /* comment truncated */ /*\nworld*/");
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("hello\n\nworld", 10),
+                "'hello' /* comment truncated */ /*\nworld*/");
 
-  ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("hello wo'rld", 5), 
-    "'hello' /* comment truncated */ /* wo'rld*/");
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("hello wo'rld", 5),
+                "'hello' /* comment truncated */ /* wo'rld*/");
 
-  ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("hell' world", 5), 
-    "'hell\\'' /* comment truncated */ /* world*/");
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("hell' world", 5),
+                "'hell\\'' /* comment truncated */ /* world*/");
 
-  ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("h'llo world", 5), 
-    "'h\\'llo' /* comment truncated */ /* world*/");
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("h'llo world", 5),
+                "'h\\'llo' /* comment truncated */ /* world*/");
 
-  ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("h'llo /* a */", 5), 
-    "'h\\'llo' /* comment truncated */ /* /* a *\\/*/");
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("h'llo /* a */", 5),
+                "'h\\'llo' /* comment truncated */ /* /* a *\\/*/");
 
-  ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("h'llo/* a */", 5), 
-    "'h\\'llo' /* comment truncated */ /*/* a *\\/*/");
+  ensure_equals("comment", bec::TableHelper::generate_comment_text("h'llo/* a */", 5),
+                "'h\\'llo' /* comment truncated */ /*/* a *\\/*/");
 }
 
-
-TEST_FUNCTION(30)
-{
+TEST_FUNCTION(30) {
   // test version checking utils
   ensure("5.5.0 supported", bec::is_supported_mysql_version("5.5.0"));
   ensure("5.6.5 supported", bec::is_supported_mysql_version("5.6.5"));
@@ -756,11 +709,8 @@ TEST_FUNCTION(30)
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
-TEST_FUNCTION(99)
-{
+TEST_FUNCTION(99) {
   delete tester;
 }
 
 END_TESTS
-
-

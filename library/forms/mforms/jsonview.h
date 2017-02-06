@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,13 +35,12 @@ namespace mforms {
   /**
    * @brief Json view base class definition.
    */
-  class JsonBaseView : public Panel
-  {
+  class JsonBaseView : public Panel {
   public:
     JsonBaseView();
     virtual ~JsonBaseView();
     void highlightMatch(const std::string &text);
-    boost::signals2::signal<void(bool)>* dataChanged();
+    boost::signals2::signal<void(bool)> *dataChanged();
 
   protected:
     virtual void clear() = 0;
@@ -54,8 +53,7 @@ namespace mforms {
   */
   class CodeEditor;
   class TextEntry;
-  class JsonInputDlg : public mforms::Form
-  {
+  class JsonInputDlg : public mforms::Form {
   public:
     JsonInputDlg(mforms::Form *owner, bool showTextEntry);
     virtual ~JsonInputDlg();
@@ -85,8 +83,7 @@ namespace mforms {
    * @brief Json text view control class definition.
    */
   class Label;
-  class JsonTextView : public JsonBaseView
-  {
+  class JsonTextView : public JsonBaseView {
   public:
     JsonTextView();
     virtual ~JsonTextView();
@@ -96,13 +93,11 @@ namespace mforms {
     const JsonParser::JsonValue &getJson() const;
     const std::string &getText() const;
     bool validate();
-    void startProc();
-    std::function<void ()> _stopTextProcessing;
-    std::function<void (std::function<bool ()>)> _startTextProcessing;
+    std::function<void()> _stopTextProcessing;
+    std::function<void(std::function<bool()>)> _startTextProcessing;
 
   private:
-    struct JsonErrorEntry
-    {
+    struct JsonErrorEntry {
       std::string text;
       std::size_t pos;
       std::size_t length;
@@ -119,17 +114,20 @@ namespace mforms {
     std::vector<JsonErrorEntry> _errorEntry;
   };
 
-  class JsonTreeBaseView : public JsonBaseView
-  {
+  class JsonTreeBaseView : public JsonBaseView {
   public:
     typedef std::list<TreeNodeRef> TreeNodeList;
     typedef std::vector<TreeNodeRef> TreeNodeVactor;
-    typedef std::map <std::string, TreeNodeVactor> TreeNodeVectorMap;
-    struct JsonValueNodeData : public mforms::TreeNodeData
-    {
-      JsonValueNodeData(JsonParser::JsonValue &value) : _jsonValue(value) {}
-      JsonParser::JsonValue &getData() { return _jsonValue; }
-      ~JsonValueNodeData() {}
+    typedef std::map<std::string, TreeNodeVactor> TreeNodeVectorMap;
+    struct JsonValueNodeData : public mforms::TreeNodeData {
+      JsonValueNodeData(JsonParser::JsonValue &value) : _jsonValue(value) {
+      }
+      JsonParser::JsonValue &getData() {
+        return _jsonValue;
+      }
+      ~JsonValueNodeData() {
+      }
+
     private:
       JsonParser::JsonValue &_jsonValue;
     };
@@ -155,7 +153,7 @@ namespace mforms {
     static std::string getNodeIconPath(JsonNodeIcons icon);
 
     TreeNodeVectorMap _viewFindResult;
-    std::set<JsonParser::JsonValue*> _filterGuard;
+    std::set<JsonParser::JsonValue *> _filterGuard;
     bool _useFilter;
     std::string _textToFind;
     size_t _searchIdx;
@@ -172,8 +170,7 @@ namespace mforms {
   /**
    * @brief Json grid view control class definition.
    */
-  class JsonTreeView : public JsonTreeBaseView
-  {
+  class JsonTreeView : public JsonTreeBaseView {
   public:
     JsonTreeView();
     virtual ~JsonTreeView();
@@ -194,53 +191,51 @@ namespace mforms {
   /**
      * @brief Json grid view control class definition.
      */
-    class JsonGridView : public JsonTreeBaseView
-    {
-    public:
-      typedef JsonParser::JsonObject::Iterator JsonObjectIter;
-      typedef JsonParser::JsonArray::Iterator JsonArrayIter;
-      JsonGridView();
-      virtual ~JsonGridView();
-      void setJson(JsonParser::JsonValue &val);
-      void appendJson(JsonParser::JsonValue &val);
-      virtual void clear();
-      void reCreateTree(JsonParser::JsonValue &value);
+  class JsonGridView : public JsonTreeBaseView {
+  public:
+    typedef JsonParser::JsonObject::Iterator JsonObjectIter;
+    typedef JsonParser::JsonArray::Iterator JsonArrayIter;
+    JsonGridView();
+    virtual ~JsonGridView();
+    void setJson(JsonParser::JsonValue &val);
+    void appendJson(JsonParser::JsonValue &val);
+    virtual void clear();
+    void reCreateTree(JsonParser::JsonValue &value);
 
-    private:
-      void init();
-      void generateColumnNames(JsonParser::JsonValue &value);
-      void addColumn(int size, JsonParser::DataType type, const std::string &name);
-      void nodeActivated(TreeNodeRef row, int column);
-      void setCellValue(mforms::TreeNodeRef node, int column, const std::string &value);
-      void goUp();
+  private:
+    void init();
+    void generateColumnNames(JsonParser::JsonValue &value);
+    void addColumn(int size, JsonParser::DataType type, const std::string &name);
+    void nodeActivated(TreeNodeRef row, int column);
+    void setCellValue(mforms::TreeNodeRef node, int column, const std::string &value);
+    void goUp();
 
-      virtual void generateArrayInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-      virtual void generateObjectInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node, bool addNew);
-      virtual void generateNumberInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-      virtual void generateBoolInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-      virtual void generateNullInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-      virtual void setStringData(int columnId, TreeNodeRef node, const std::string &text);
+    virtual void generateArrayInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
+    virtual void generateObjectInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node, bool addNew);
+    virtual void generateNumberInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
+    virtual void generateBoolInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
+    virtual void generateNullInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
+    virtual void setStringData(int columnId, TreeNodeRef node, const std::string &text);
 
-      virtual void handleMenuCommand(const std::string &command);
-      void openInputJsonWindow(JsonParser::JsonValue &value);
+    virtual void handleMenuCommand(const std::string &command);
+    void openInputJsonWindow(JsonParser::JsonValue &value);
 
-      int _level;
-      bool _headerAdded;
-      int _noNameColId;
-      int _columnIndex;
-      int _rowNum;
-      std::vector<JsonParser::JsonValue *> _actualParent;
-      std::map<std::string, int> _colNameToColId;
-      Button *_goUpButton;
-      Box *_content;
-    };
+    int _level;
+    bool _headerAdded;
+    int _noNameColId;
+    int _columnIndex;
+    int _rowNum;
+    std::vector<JsonParser::JsonValue *> _actualParent;
+    std::map<std::string, int> _colNameToColId;
+    Button *_goUpButton;
+    Box *_content;
+  };
 
   /**
    * @brief Json tab view control class definition.
    */
   class TabView;
-  class MFORMS_EXPORT JsonTabView : public Panel
-  {
+  class MFORMS_EXPORT JsonTabView : public Panel {
   public:
     typedef std::shared_ptr<JsonParser::JsonValue> JsonValuePtr;
     enum JsonTabViewType { TabText, TabTree, TabGrid };
@@ -265,8 +260,8 @@ namespace mforms {
     const std::string &text() const;
     const JsonParser::JsonValue &json() const;
 
-    void setTextProcessingStartHandler(std::function<void (std::function<bool ()>)>);
-    void setTextProcessingStopHandler(std::function<void ()>);
+    void setTextProcessingStartHandler(std::function<void(std::function<bool()>)>);
+    void setTextProcessingStopHandler(std::function<void()>);
 
   private:
     JsonTextView *_textView;
@@ -276,8 +271,16 @@ namespace mforms {
     std::string _jsonText;
     JsonValuePtr _json;
     int _ident;
-    struct { int textTabId; int treeViewTabId; int gridViewTabId; } _tabId;
-    struct { bool textViewUpdate; bool treeViewUpdate; bool gridViewUpdate; } _updateView;
+    struct {
+      int textTabId;
+      int treeViewTabId;
+      int gridViewTabId;
+    } _tabId;
+    struct {
+      bool textViewUpdate;
+      bool treeViewUpdate;
+      bool gridViewUpdate;
+    } _updateView;
     bool _updating;
     std::string _matchText;
     boost::signals2::signal<void(const std::string &text)> _dataChanged;

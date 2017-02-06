@@ -135,21 +135,12 @@ find_package(LibXml2 REQUIRED)
 
 find_package(OpenGL REQUIRED)
 
-
-find_package(MySQLCppConn REQUIRED)
+find_package(MySQLCppConn 1.1.8 REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(Boost REQUIRED)
 
-if (MYSQLCPPCONN_VERSION_1_1_4)
-  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)
-endif ()
-
-if (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
-  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
-endif (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
-
-set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
+set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
 
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)

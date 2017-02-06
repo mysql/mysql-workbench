@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,34 +24,30 @@
 #include "mforms/menu.h"
 #include "base/any.h"
 
-namespace mforms
-{
-//--------------------------------------------------------------------------------------------------
+namespace mforms {
+  //--------------------------------------------------------------------------------------------------
 
   typedef std::map<std::string, base::any> anyMap;
 
   //    Use this variation to get a base::any. Use type cast directly only if you know the key exists in the map and
   //    the item (base::any) does not contain a nullptr value
-  base::any getAnyMapValue(const anyMap &map, const std::string &key, base::any defaultValue = base::any());
+  base::any getAnyMapValue(const anyMap& map, const std::string& key, base::any defaultValue = base::any());
 
   //    Use this variation to cast a base::any safely without throwing and exception
-  template <typename T> 
-  T getAnyMapValueAs(const anyMap &map, const std::string &key, base::any defaultValue = base::any())
-  {
+  template <typename T>
+  T getAnyMapValueAs(const anyMap& map, const std::string& key, base::any defaultValue = base::any()) {
     anyMap::const_iterator iter = map.find(key);
-    
+
     if (iter == map.end())
       return defaultValue.isNull() ? T() : defaultValue.as<T>();
-    
+
     return iter->second;
   }
 
-  
   /**
    * Value to tell observers which action was triggered on the home screen.
    */
-  enum HomeScreenAction
-  {
+  enum HomeScreenAction {
     ActionNone,
 
     ActionShortcut,
@@ -72,11 +68,16 @@ namespace mforms
     ActionNewEERModel,
     ActionOpenEERModelFromList,
     ActionNewModelFromDB,
-    ActionNewModelFromScript
+    ActionNewModelFromScript,
+
+    ActionOpenDocs,
+    ActionOpenBlog,
+    ActionOpenForum,
+
+    CloseWelcomeMessage,
   };
 
-  enum HomeScreenMenuType
-  {
+  enum HomeScreenMenuType {
     HomeMenuConnection,
     HomeMenuConnectionGroup,
     HomeMenuConnectionGeneric,
@@ -88,41 +89,39 @@ namespace mforms
 
   };
 
-  class MFORMS_EXPORT HomeScreenDropInfo
-  {
+  class MFORMS_EXPORT HomeScreenDropInfo {
   public:
-    HomeScreenDropInfo() : valueIsConnectionId(false), to(0) {}
+    HomeScreenDropInfo() : valueIsConnectionId(false), to(0) {
+    }
     bool valueIsConnectionId;
     std::string value;
     std::size_t to;
     std::string group;
   };
 
-  class MFORMS_EXPORT HomeScreenDropFilesInfo
-  {
+  class MFORMS_EXPORT HomeScreenDropFilesInfo {
   public:
     std::string connectionId;
     std::vector<std::string> files;
   };
 
-  class MFORMS_EXPORT HomeScreenSettings
-  {
+  class MFORMS_EXPORT HomeScreenSettings {
   public:
-    #ifdef __APPLE__
+#ifdef __APPLE__
     static const char* HOME_TITLE_FONT;
     static const char* HOME_NORMAL_FONT;
     static const char* HOME_DETAILS_FONT;
     // Info font is only used on Mac.
     static const char* HOME_INFO_FONT;
-    #elif defined(_WIN32)
+#elif defined(_WIN32)
     static const char* HOME_TITLE_FONT;
     static const char* HOME_NORMAL_FONT;
     static const char* HOME_DETAILS_FONT;
-    #else
+#else
     static const char* HOME_TITLE_FONT;
     static const char* HOME_NORMAL_FONT;
     static const char* HOME_DETAILS_FONT;
-    #endif
+#endif
 
     static const int HOME_TITLE_FONT_SIZE = 20;
     static const int HOME_SUBTITLE_FONT_SIZE = 16;
@@ -134,13 +133,12 @@ namespace mforms
     static const char* TILE_DRAG_FORMAT;
   };
 
-  class MFORMS_EXPORT HomeAccessibleButton : public mforms::Accessible
-  {
+  class MFORMS_EXPORT HomeAccessibleButton : public mforms::Accessible {
   public:
     std::string name;
     std::string default_action;
     base::Rect bounds;
-    std::function <bool (int, int)> default_handler;
+    std::function<bool(int, int)> default_handler;
 
     // ------ Accesibility Customized Methods -----
 
@@ -152,26 +150,40 @@ namespace mforms
     virtual void do_default_action();
   };
 
-  class MFORMS_EXPORT HomeScreenSection : public mforms::DrawBox
-  {
+  class MFORMS_EXPORT HomeScreenSection : public mforms::DrawBox {
   protected:
     std::string _iconName;
+
+    base::Color _indicatorColor;
   public:
-    HomeScreenSection(const std::string &icon) : _iconName(icon){}
-    virtual ~HomeScreenSection() {};
-    std::string getIcon() { return _iconName; }
-    virtual void updateHeight() = 0;
+    HomeScreenSection(const std::string &icon) : _iconName(icon), _indicatorColor("#ffffff") {
+    }
+    virtual ~HomeScreenSection() {
+    }
+    ;
+    std::string getIcon() {
+      return _iconName;
+    }
+
+    virtual mforms::View* getContainer() {
+      return this;
+    }
+
+    virtual View *get_parent() const {
+      return _parent;
+    }
+
     virtual void cancelOperation() = 0;
     virtual void setFocus() = 0;
     virtual bool canHandle(HomeScreenMenuType type) = 0;
-    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) = 0;
-    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) = 0;
+    virtual void setContextMenu(mforms::Menu* menu, HomeScreenMenuType type) = 0;
+    virtual void setContextMenuAction(mforms::Menu* menu, HomeScreenMenuType type) = 0;
     std::function<void()> callback;
+    base::Color getIndicatorColor() { return _indicatorColor; };
   };
 
   // The following helpers are just temporary. They will be replaced by a cairo context class.
-  inline void deleteSurface(cairo_surface_t* surface)
-  {
+  inline void deleteSurface(cairo_surface_t* surface) {
     if (surface != nullptr)
       cairo_surface_destroy(surface);
   }

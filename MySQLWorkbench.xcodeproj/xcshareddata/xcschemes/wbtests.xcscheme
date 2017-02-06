@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0820"
+   LastUpgradeVersion = "0800"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -64,7 +64,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only mysql_parser_tests"
+            argument = "only db_mysql_plugin_test"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -81,11 +81,6 @@
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "PATH"
-            value = "/Users/Mike/sandboxes/5.7.10/bin:$PATH"
-            isEnabled = "YES">
-         </EnvironmentVariable>
          <EnvironmentVariable
             key = "MWB_DATA_DIR"
             value = "$BUILT_PRODUCTS_DIR/MySQLWorkbench.app/Contents/Resources"

@@ -31,6 +31,7 @@ from wb_admin_utils import make_panel_header, MessageButtonPanel
 from workbench.utils import Version
 
 from workbench.log import log_info, log_error, log_warning
+from mforms import FileChooser
 
 
 
@@ -84,7 +85,7 @@ def get_sys_version_from_script(file_path):
         log_info("No sys script found\n")
         return None
     for line in open(file_path):
-        if line.startswith("CREATE OR REPLACE ALGORITHM"):
+        if line.startswith("CREATE OR REPLACE"):
             m = re.findall("SELECT '(.*)' AS sys_version", line)
             if m:
                 return m[0]
@@ -107,6 +108,8 @@ def get_installed_sys_version(sql_editor):
         log_error("MySQL error getting sys schema version: %s\n" % e)
         if e.args[1] == 1146: # table doesn't exist
             return None
+        if e.args[1] == 1142: # user does not have sufficient privileges
+            return "access_denied";
         raise
 
 
@@ -217,29 +220,38 @@ class HelperInstallPanel(mforms.Table):
             
             
     def work(self, files):
-        location = download_server_install_script(self.ctrl_be)
-      
-        if location:
-            workbench_version_string = get_current_sys_version(None)
-            server_version_string = get_sys_version_from_script(location)
-            
-            maj, min, rel = [int(i) for i in workbench_version_string.split(".")]
-            workbench_version = Version(maj, min, rel)
-            maj, min, rel = [int(i) for i in server_version_string.split(".")]
-            server_version = Version(maj, min, rel)
-
-            
-            if server_version >= workbench_version:
-                log_info("Installing sys schema supplied by the server\n")
-                self.install_scripts([(location, None)], "Installing server script")
-                return
+        try:
+            if self.ctrl_be.target_version >= Version(5, 7, 10):
+                self.importer.reset_schemas()
             else:
-                log_info("Server sys schema install script exists but it's outdated compared to the one supplied by Workbench...\n")
-                
-                
-        log_info("Installing sys schema supplied by workbench\n")
-        self.install_scripts(files, "Installing Workbench script")
+                location = download_server_install_script(self.ctrl_be)
+              
+                if location:
+                    workbench_version_string = get_current_sys_version(None)
+                    server_version_string = get_sys_version_from_script(location)
+                    
+                    maj, min, rel = [int(i) for i in workbench_version_string.split(".")]
+                    workbench_version = Version(maj, min, rel)
+                    maj, min, rel = [int(i) for i in server_version_string.split(".")]
+                    server_version = Version(maj, min, rel)
 
+                    if server_version >= workbench_version:
+                        log_info("Installing sys schema supplied by the server: %s\n" % str(location))
+                        self.install_scripts([(location, None)], "Installing server script")
+                        return
+                    else:
+                        log_info("Server sys schema install script exists but it's outdated compared to the one supplied by Workbench...\n")
+                        
+                        
+                log_info("Installing sys schema supplied by workbench\n")
+                self.install_scripts(files, "Installing Workbench script")
+        except Exception, e:
+              log_error("Runtime error when installing the sys schema: %s\n" % str(e))
+              self._worker_queue.put(e)
+        
+        # This makes the screen refresh
+        self._worker_queue.put(None)      
+              
     def start(self):
         server_profile = self.owner.ctrl_be.server_profile
         parameterValues = server_profile.db_connection_params.parameterValues
@@ -316,6 +328,8 @@ class WbAdminPSBaseTab(mforms.Box):
             can_install = True
             if len(missing_grants) > 0:
                 can_install = False
+                if installed_version == "access_denied":
+                    install_text = ""
                 install_text = "%s\n\nThe following grants are missing:\n  - %s" % (install_text, str(missing_grants))
     
             if not installed_version:
@@ -323,6 +337,13 @@ class WbAdminPSBaseTab(mforms.Box):
                 return "The Performance Schema helper schema (sys) is not installed", \
     """Click the [Install Helper] button to install it.
     You must have at least the following privileges to use Performance Schema functionality:
+      - SELECT on performance_schema.*
+      - UPDATE on performance_schema.setup* for configuring instrumentation
+      %s""" % install_text, can_install
+
+            elif installed_version == "access_denied":
+                return "The Performance Schema helper schema (sys) is not accesible", \
+    """You must have at least the following privileges to use Performance Schema functionality:
       - SELECT on performance_schema.*
       - UPDATE on performance_schema.setup* for configuring instrumentation
       %s""" % install_text, can_install
@@ -447,6 +468,14 @@ class WbAdminPSBaseTab(mforms.Box):
         self.add(self.installer_panel, True, True)
         self.relayout() # needed b/c of layout bug in Mac
 
+        if self.ctrl_be.target_version >= Version(5, 7, 10):
+            filechooser = FileChooser(mforms.OpenFile)
+            filechooser.set_title("Specify the location of mysql_upgrade")
+            if filechooser.run_modal():
+                self.installer_panel.importer._upgrade_tool_path = filechooser.get_path()
+
+                          
+        #self.installer_panel.importer._upgrade_tool_path = tool_path
         self.installer_panel.importer.set_password(self.ctrl_be.get_mysql_password())
         self.installer_panel.start()
 

@@ -2534,6 +2534,3 @@ void SqlEditorTreeController::context_menu_will_show(mforms::MenuItem *parent_it
     grt::GRTNotificationCenter::get()->send_grt("GRNLiveDBObjectMenuWillShow", sender, info);
   }
 }
-
-}
-

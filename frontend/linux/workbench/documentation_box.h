@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,10 +24,11 @@
 #include <gtkmm/comboboxtext.h>
 #include <gtkmm/textview.h>
 #include "workbench/wb_context_ui.h"
+#include "text_list_columns_model.h"
 
-class DocumentationBox : public Gtk::Box
-{
-  Gtk::ComboBoxText _combo;
+class DocumentationBox : public Gtk::Box {
+  Gtk::ComboBox _combo;
+  TextListColumnsModel _comboModel;
   Gtk::TextView _text;
   sigc::connection _timer;
   bec::UIForm *_selected_form;
@@ -40,11 +41,11 @@ class DocumentationBox : public Gtk::Box
   void combo_changed();
   void text_changed();
   void commit();
-  
+
 public:
   DocumentationBox();
   ~DocumentationBox();
-  
+
   void update_for_form(bec::UIForm *form);
 };
 

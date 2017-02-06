@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-# Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -84,8 +84,8 @@ configure-stamp:
 	  -DMySQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config \
 	  -DUSE_BUNDLED_MYSQLDUMP=1 \
 	  -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE \
-	  -DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
-	  -DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
+	  -DMySQLCppConn_LIBRARIES="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
+	  -DMySQLCppConn_INCLUDE_DIR=$(CPPCONN_HOME)/include \
 	  -DGDAL_INCLUDE_DIR=$(GDAL_HOME)/include \
 	  -DGDAL_LIBRARY=$(GDAL_HOME)/lib/libgdal.so \
 	  -DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \

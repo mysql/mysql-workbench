@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,14 +25,12 @@
 #include "base/geometry.h"
 #include "home_screen_helpers.h"
 
-namespace mforms
-{
+namespace mforms {
   class HomeScreen;
   //----------------- LauncherEntry ---------------------------------------------------------------
 
   typedef std::function<bool()> LauncherCallback;
-  class LauncherEntry: public mforms::Accessible
-  {
+  class LauncherEntry : public mforms::Accessible {
   public:
     std::string title;
     std::string title_shorted;
@@ -42,9 +40,9 @@ namespace mforms
 
     base::Rect bounds;
 
-    cairo_surface_t* icon;
+    cairo_surface_t *icon;
 
-    bool operator <(const LauncherEntry &other) const;
+    bool operator<(const LauncherEntry &other) const;
     //------ Accessibility Methods -----
     virtual std::string get_acc_name();
     virtual std::string get_acc_description();
@@ -55,14 +53,13 @@ namespace mforms
     LauncherEntry();
     LauncherEntry(const LauncherEntry &other);
 
-    LauncherEntry& operator=(LauncherEntry&& other);
+    LauncherEntry &operator=(LauncherEntry &&other);
     virtual ~LauncherEntry();
   };
 
   //----------------- LaunchersSection ---------------------------------------------------------------
 
-  class MFORMS_EXPORT LaunchersSection: public HomeScreenSection
-  {
+  class MFORMS_EXPORT LaunchersSection : public HomeScreenSection {
   private:
     HomeScreen *_owner;
     ssize_t _entries_per_row;
@@ -90,7 +87,7 @@ namespace mforms
     const int LAUNCHERS_ENTRY_WIDTH = 250; // No spacing horizontally.
     const int LAUNCHERS_ENTRY_HEIGHT = 60;
     const int LAUNCHERS_HEADING_SPACING = 10; // Spacing between a heading part and a separator.
-    const int LAUNCHERS_TOP_BASELINE = 40; // Vertical space from top border to title base line.
+    const int LAUNCHERS_TOP_BASELINE = 40;    // Vertical space from top border to title base line.
 
     LaunchersSection(HomeScreen *owner);
 
@@ -100,17 +97,16 @@ namespace mforms
 
     void drawEntry(cairo_t *cr, const LauncherEntry &entry, bool hot);
     void layout(cairo_t *cr);
-    virtual void updateHeight();
     virtual void cancelOperation();
     virtual void setFocus();
     virtual bool canHandle(HomeScreenMenuType type);
     virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
-    virtual void setContextMenuAction(mforms::Menu *menu,
-                                      HomeScreenMenuType type);
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
 
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
 
-    void addLauncher(const std::string &icon, const std::string &name, const std::string &description, const base::any &obj);
+    void addLauncher(const std::string &icon, const std::string &name, const std::string &description,
+                     const base::any &obj);
     void clearLaunchers();
     virtual bool mouse_double_click(mforms::MouseButton button, int x, int y);
     virtual bool mouse_click(mforms::MouseButton button, int x, int y);
@@ -118,9 +114,9 @@ namespace mforms
     virtual bool mouse_move(mforms::MouseButton button, int x, int y);
     void handle_command(const std::string &command);
     virtual int get_acc_child_count();
-    virtual Accessible* get_acc_child(int index);
+    virtual Accessible *get_acc_child(int index);
     virtual Accessible::Role get_acc_role();
-    virtual mforms::Accessible* hit_test(int x, int y);
+    virtual mforms::Accessible *hit_test(int x, int y);
   };
 
 } /* namespace wb */

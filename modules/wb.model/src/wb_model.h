@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,29 +31,25 @@
 
 #define WbModel_VERSION "1.0.0"
 
-
-class WB_MODEL_WBM_PUBLIC_FUNC WbModelImpl
-  : public grt::ModuleImplBase,
-    public WbModelReportingInterfaceImpl,
-    public PluginInterfaceImpl
-{
+class WB_MODEL_WBM_PUBLIC_FUNC WbModelImpl : public grt::ModuleImplBase,
+                                             public WbModelReportingInterfaceImpl,
+                                             public PluginInterfaceImpl {
 public:
   WbModelImpl(grt::CPPModuleLoader *ldr);
 
   DEFINE_INIT_MODULE(WbModel_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
-                DECLARE_MODULE_FUNCTION(WbModelImpl::getPluginInfo),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::autolayout),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::createDiagramWithCatalog),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::createDiagramWithObjects),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::fitObjectsToContents),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::center),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::getAvailableReportingTemplates),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::getTemplateDirFromName),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::getReportingTemplateInfo),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::generateReport),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::expandAllObjects),
-                DECLARE_MODULE_FUNCTION(WbModelImpl::collapseAllObjects)
-                );
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::getPluginInfo),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::autolayout),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::createDiagramWithCatalog),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::createDiagramWithObjects),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::fitObjectsToContents),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::center),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::getAvailableReportingTemplates),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::getTemplateDirFromName),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::getReportingTemplateInfo),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::generateReport),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::expandAllObjects),
+                     DECLARE_MODULE_FUNCTION(WbModelImpl::collapseAllObjects));
 
   virtual grt::ListRef<app_Plugin> getPluginInfo() override;
 
@@ -62,7 +58,7 @@ public:
 
   int createDiagramWithCatalog(workbench_physical_ModelRef model, db_CatalogRef catalog);
   int createDiagramWithObjects(workbench_physical_ModelRef model, grt::ListRef<GrtObject> objects);
-  
+
   int fitObjectsToContents(const grt::ListRef<model_Object> &figures);
 
   int expandAllObjects(model_DiagramRef view);
@@ -73,10 +69,10 @@ public:
 
   virtual std::string getTemplateDirFromName(const std::string &template_name) override;
 
-  virtual workbench_model_reporting_TemplateInfoRef getReportingTemplateInfo(const std::string& template_name) override;
+  virtual workbench_model_reporting_TemplateInfoRef getReportingTemplateInfo(const std::string &template_name) override;
 
-  virtual ssize_t generateReport(workbench_physical_ModelRef model, const grt::DictRef& options) override;
-  
+  virtual ssize_t generateReport(workbench_physical_ModelRef model, const grt::DictRef &options) override;
+
 private:
   void initializeReporting();
   void begin_undo_group();
@@ -89,9 +85,11 @@ private:
   int do_autolayout(const model_LayerRef &layer, grt::ListRef<model_Object> &selection);
   int do_autoplace_any_list(const model_DiagramRef &view, grt::ListRef<GrtObject> &obj_list);
   int autoplace_relations(const model_DiagramRef &view, const grt::ListRef<db_Table> &tables);
-  void handle_fklist_change(const model_DiagramRef &view, const db_TableRef &table, const db_ForeignKeyRef &fk, bool added);
+  void handle_fklist_change(const model_DiagramRef &view, const db_TableRef &table, const db_ForeignKeyRef &fk,
+                            bool added);
 
-  workbench_model_reporting_TemplateStyleInfoRef get_template_style_from_name(std::string template_name, std::string template_style_name);
-  
+  workbench_model_reporting_TemplateStyleInfoRef get_template_style_from_name(std::string template_name,
+                                                                              std::string template_style_name);
+
   grt::UndoManager *_undo_man;
 };

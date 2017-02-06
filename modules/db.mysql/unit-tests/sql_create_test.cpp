@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,13 +36,12 @@ WBTester *tester;
 SQLGeneratorInterfaceImpl *diffsql_module;
 sql::ConnectionWrapper connection;
 
-TEST_DATA_CONSTRUCTOR(sql_create_test)
-{
+TEST_DATA_CONSTRUCTOR(sql_create_test) {
   tester = new WBTester;
-  diffsql_module= NULL;
+  diffsql_module = NULL;
 
   // load modules
-  diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
+  diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl *>(grt::GRT::get()->get_module("DbMySQL"));
   ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
   // init datatypes
@@ -52,8 +51,7 @@ TEST_DATA_CONSTRUCTOR(sql_create_test)
   connection = tester->create_connection_for_import();
 }
 
-TEST_DATA_DESTRUCTOR(sql_create_test)
-{
+TEST_DATA_DESTRUCTOR(sql_create_test) {
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
   stmt->execute("DROP SCHEMA IF EXISTS `A`;");
   stmt->execute("DROP SCHEMA IF EXISTS `B`;");
@@ -64,8 +62,7 @@ END_TEST_DATA_CLASS
 TEST_MODULE(sql_create_test, "sql create");
 
 // Test if sql generated for synthetic model is valid.
-TEST_FUNCTION(10)
-{
+TEST_FUNCTION(10) {
   grt::ValueRef e;
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
@@ -76,10 +73,11 @@ TEST_FUNCTION(10)
   model.schema->views().insert(view);
   view->owner(model.schema);
   view->name("v2");
-  view->sqlDefinition("create view v2 as SELECT "
-                      "if(t1.id > 2, 'active, very active', 'inactive, very very very inactive'), "
-                      "if(t1.id > 4, 'active, very active', 'inactive, very very very inactive') "
-                      "FROM t1");
+  view->sqlDefinition(
+    "create view v2 as SELECT "
+    "if(t1.id > 2, 'active, very active', 'inactive, very very very inactive'), "
+    "if(t1.id > 4, 'active, very active', 'inactive, very very very inactive') "
+    "FROM t1");
 
   db_mysql_CatalogRef catalog = model.catalog;
 
@@ -102,15 +100,15 @@ TEST_FUNCTION(10)
   diffsql_module->generateSQL(catalog, options, drop_change);
 
   diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-  std::string export_sql_script= options.get_string("OutputScript");
-  ensure("DROP TABLE missing in generated sql", export_sql_script.find("DROP TABLE IF EXISTS `test_schema`.`t1`") != std::string::npos);
+  std::string export_sql_script = options.get_string("OutputScript");
+  ensure("DROP TABLE missing in generated sql",
+         export_sql_script.find("DROP TABLE IF EXISTS `test_schema`.`t1`") != std::string::npos);
 
   execute_script(stmt.get(), export_sql_script);
 }
 
 // Forward engineer synthetic model without qualifying schema, but inserting USE statements instead.
-TEST_FUNCTION(20)
-{
+TEST_FUNCTION(20) {
   grt::ValueRef e;
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
@@ -141,25 +139,25 @@ TEST_FUNCTION(20)
   diffsql_module->generateSQL(catalog, options, drop_change);
 
   diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-  std::string export_sql_script= options.get_string("OutputScript");
+  std::string export_sql_script = options.get_string("OutputScript");
   execute_script(stmt.get(), export_sql_script);
 }
 
-//Test case for Bug #11926862 NO WAY TO SORT SCHEMAS ON EXPORT
-TEST_FUNCTION(30)
-{
+// Test case for Bug #11926862 NO WAY TO SORT SCHEMAS ON EXPORT
+TEST_FUNCTION(30) {
   grt::ValueRef e;
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
   grt::DbObjectMatchAlterOmf omf;
 
   tester->wb->open_document("data/workbench/11926862.mwb");
-  db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
+  db_mysql_CatalogRef catalog =
+    db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
 
   cmp.init_omf(&omf);
 
-  std::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-  std::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+  std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+  std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
   DictRef create_map(true);
   DictRef drop_map(true);
@@ -177,15 +175,14 @@ TEST_FUNCTION(30)
   diffsql_module->generateSQL(catalog, options, drop_change);
 
   diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-  std::string export_sql_script= options.get_string("OutputScript");
+  std::string export_sql_script = options.get_string("OutputScript");
   execute_script(stmt.get(), export_sql_script);
 }
 
 // Test case for Bug #14278043 DB SYNCRONIZE MODEL GENERATES INCORRECT COLLATION
 // If somehow the collation doesn't correspond to the charset it should be skipped during
 // sql generation to avoid creating invalid DDL.
-TEST_FUNCTION(40)
-{
+TEST_FUNCTION(40) {
   grt::ValueRef e;
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
@@ -221,32 +218,26 @@ TEST_FUNCTION(40)
   diffsql_module->generateSQL(catalog, options, drop_change);
 
   diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-  std::string export_sql_script= options.get_string("OutputScript");
+  std::string export_sql_script = options.get_string("OutputScript");
   execute_script(stmt.get(), export_sql_script);
 }
 
-static std::string strrange(const std::string &s, const std::string &start, const std::string &end)
-{
-  try
-  {
+static std::string strrange(const std::string &s, const std::string &start, const std::string &end) {
+  try {
     std::string res = s.substr(s.find(start));
     if (end.empty())
       return res;
     return res.substr(0, res.find(end));
-  }
-  catch (std::exception &e)
-  {
-    throw std::runtime_error(s+" does not contain "+start+" or "+end+":"+e.what());
+  } catch (std::exception &e) {
+    throw std::runtime_error(s + " does not contain " + start + " or " + end + ":" + e.what());
   }
 }
 
-
 // Test generation of comments (with support for truncation)
 // Bug #17455899
-TEST_FUNCTION(50)
-{
+TEST_FUNCTION(50) {
   std::string comment_60 = "012345678901234567890123456789012345678901234567890123456789";
-  std::string comment_255 = comment_60+comment_60+comment_60+comment_60+"012345678912345";
+  std::string comment_255 = comment_60 + comment_60 + comment_60 + comment_60 + "012345678912345";
 
   grt::ValueRef e;
   NormalizedComparer cmp;
@@ -278,13 +269,14 @@ TEST_FUNCTION(50)
 
     std::string s = create_map.get_string("db.mysql.Table::`test_schema`.`t1`::t1");
 
-    ensure_equals("column comment", strrange(s, "`parent_id`", ","), "`parent_id` TINYINT NULL COMMENT '"+comment_255+"'");
-    ensure_equals("table comment", strrange(s, "COMMENT =", ""), "COMMENT = '"+comment_60+"'");
+    ensure_equals("column comment", strrange(s, "`parent_id`", ","),
+                  "`parent_id` TINYINT NULL COMMENT '" + comment_255 + "'");
+    ensure_equals("table comment", strrange(s, "COMMENT =", ""), "COMMENT = '" + comment_60 + "'");
   }
 
   {
-    table->comment(comment_60+"###");
-    table->columns()[1]->comment(comment_255+"###");
+    table->comment(comment_60 + "###");
+    table->columns()[1]->comment(comment_255 + "###");
     std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
 
     DictRef create_map(true);
@@ -299,8 +291,10 @@ TEST_FUNCTION(50)
 
     std::string s = create_map.get_string("db.mysql.Table::`test_schema`.`t1`::t1");
 
-    ensure_equals("column comment", strrange(s, "`parent_id`", ","), "`parent_id` TINYINT NULL COMMENT '"+comment_255+"' /* comment truncated */ /*###*/");
-    ensure_equals("table comment", strrange(s, "COMMENT =", ""), "COMMENT = '"+comment_60+"' /* comment truncated */ /*###*/");
+    ensure_equals("column comment", strrange(s, "`parent_id`", ","),
+                  "`parent_id` TINYINT NULL COMMENT '" + comment_255 + "' /* comment truncated */ /*###*/");
+    ensure_equals("table comment", strrange(s, "COMMENT =", ""),
+                  "COMMENT = '" + comment_60 + "' /* comment truncated */ /*###*/");
   }
 
   // after 5.5.3
@@ -327,13 +321,14 @@ TEST_FUNCTION(50)
     diffsql_module->generateSQL(catalog, options, create_change);
 
     std::string s = create_map.get_string("db.mysql.Table::`test_schema`.`t1`::t1", "ERROR");
-    ensure_equals("column comment", strrange(s, "`parent_id`", ","), "`parent_id` TINYINT NULL COMMENT '"+comment_1024+"'");
-    ensure_equals("table comment", strrange(s, "COMMENT =", ""), "COMMENT = '"+comment_2048+"'");
+    ensure_equals("column comment", strrange(s, "`parent_id`", ","),
+                  "`parent_id` TINYINT NULL COMMENT '" + comment_1024 + "'");
+    ensure_equals("table comment", strrange(s, "COMMENT =", ""), "COMMENT = '" + comment_2048 + "'");
   }
 
   {
-    table->comment(comment_2048+"###");
-    table->columns()[1]->comment(comment_1024+"###");
+    table->comment(comment_2048 + "###");
+    table->columns()[1]->comment(comment_1024 + "###");
     std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
 
     DictRef create_map(true);
@@ -348,16 +343,15 @@ TEST_FUNCTION(50)
     diffsql_module->generateSQL(catalog, options, create_change);
 
     std::string s = create_map.get_string("db.mysql.Table::`test_schema`.`t1`::t1");
-    ensure_equals("column comment", strrange(s, "`parent_id`", ","), "`parent_id` TINYINT NULL COMMENT '"+comment_1024+"' /* comment truncated */ /*###*/");
-    ensure_equals("table comment", strrange(s, "COMMENT =", ""), "COMMENT = '"+comment_2048+"' /* comment truncated */ /*###*/");
+    ensure_equals("column comment", strrange(s, "`parent_id`", ","),
+                  "`parent_id` TINYINT NULL COMMENT '" + comment_1024 + "' /* comment truncated */ /*###*/");
+    ensure_equals("table comment", strrange(s, "COMMENT =", ""),
+                  "COMMENT = '" + comment_2048 + "' /* comment truncated */ /*###*/");
   }
 }
 
-
 ////Test for bug: 11765994, fwd view can be sometimes problematic with case sensitivity
-TEST_FUNCTION(60)
-{
-
+TEST_FUNCTION(60) {
   {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
@@ -366,7 +360,8 @@ TEST_FUNCTION(60)
 
     std::string modelfile = "data/forward_engineer/view_mixed_case.mwb";
     tester->wb->open_document(modelfile);
-    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
+    db_mysql_CatalogRef catalog =
+      db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
 
     cmp.init_omf(&omf);
 
@@ -387,15 +382,15 @@ TEST_FUNCTION(60)
     options.set("GenerateDocumentProperties", grt::IntegerRef(0));
     diffsql_module->generateSQL(catalog, options, create_change);
 
-    //Case sensitive in db set to true
+    // Case sensitive in db set to true
     db_opts.set("CaseSensitive", grt::IntegerRef(1));
-    options.set("DBSettings",db_opts);
+    options.set("DBSettings", db_opts);
 
     options.set("OutputContainer", drop_map);
     diffsql_module->generateSQL(catalog, options, drop_change);
 
     diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-    std::string export_sql_script= options.get_string("OutputScript");
+    std::string export_sql_script = options.get_string("OutputScript");
 
     std::string expected_sql = "data/forward_engineer/view_mixed_case.expected.broken.sql";
 
@@ -406,8 +401,7 @@ TEST_FUNCTION(60)
 
     tut::ensure(expected_sql, ref.is_open());
 
-    while (ref.good() && ss.good())
-    {
+    while (ref.good() && ss.good()) {
       getline(ref, refline);
       getline(ss, line);
       tut::ensure_equals("Different lines", line, refline);
@@ -428,7 +422,8 @@ TEST_FUNCTION(60)
 
     std::string modelfile = "data/forward_engineer/view_mixed_case.mwb";
     tester->wb->open_document(modelfile);
-    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
+    db_mysql_CatalogRef catalog =
+      db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
 
     cmp.init_omf(&omf);
 
@@ -449,15 +444,15 @@ TEST_FUNCTION(60)
     options.set("GenerateDocumentProperties", grt::IntegerRef(0));
     diffsql_module->generateSQL(catalog, options, create_change);
 
-    //Case sensitive in db set to false
+    // Case sensitive in db set to false
     db_opts.set("CaseSensitive", grt::IntegerRef(0));
-    options.set("DBSettings",db_opts);
+    options.set("DBSettings", db_opts);
 
     options.set("OutputContainer", drop_map);
     diffsql_module->generateSQL(catalog, options, drop_change);
 
     diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
-    std::string export_sql_script= options.get_string("OutputScript");
+    std::string export_sql_script = options.get_string("OutputScript");
 
     std::string expected_sql = "data/forward_engineer/view_mixed_case.expected.good.sql";
 
@@ -474,8 +469,7 @@ TEST_FUNCTION(60)
     error_msg += expected_sql;
     error_msg += " failed";
 
-    while (ref.good() && ss.good())
-    {
+    while (ref.good() && ss.good()) {
       getline(ref, refline);
       getline(ss, line);
       tut::ensure_equals(error_msg, line, refline);
@@ -484,8 +478,7 @@ TEST_FUNCTION(60)
 }
 
 // Test forward engineering after renaming a schema, if it generates proper sql.
-TEST_FUNCTION(70)
-{
+TEST_FUNCTION(70) {
   grt::ValueRef e;
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
@@ -499,8 +492,8 @@ TEST_FUNCTION(70)
 
   parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   GrtVersionRef version = bec::parse_version("5.6.0");
-  parsers::MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
-                                                                           version, "", false);
+  parsers::MySQLParserContext::Ref context =
+    services->createParserContext(tester->get_rdbms()->characterSets(), version, "", false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
 
   cmp.init_omf(&omf);
@@ -518,7 +511,7 @@ TEST_FUNCTION(70)
 
   diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
 
-  std::string export_sql_script= options.get_string("OutputScriptHeader") + options.get_string("OutputScript");
+  std::string export_sql_script = options.get_string("OutputScriptHeader") + options.get_string("OutputScript");
 
   std::string expected_sql = "data/forward_engineer/sakila_name_changed.expected.sql";
 
@@ -535,8 +528,7 @@ TEST_FUNCTION(70)
   error_msg += expected_sql;
   error_msg += " failed";
 
-  while (ref.good() && ss.good())
-  {
+  while (ref.good() && ss.good()) {
     getline(ref, refline);
     getline(ss, line);
     tut::ensure_equals(error_msg, line, refline);
@@ -548,9 +540,8 @@ TEST_FUNCTION(70)
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
-TEST_FUNCTION(99)
-{
+TEST_FUNCTION(99) {
   delete tester;
 }
 
-END_TESTS
+END_TESTS 

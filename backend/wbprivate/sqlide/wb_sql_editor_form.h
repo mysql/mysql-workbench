@@ -362,7 +362,7 @@ private:
 
 public:
   bool continue_on_error() {
-    return _continue_on_error;
+    return _continueOnError;
   }
   void continue_on_error(bool val);
 
@@ -513,7 +513,7 @@ private:
   bool _closing = false;
   bool _startup_done = false;
   bool _is_running_query = false;
-  bool _continue_on_error = false;
+  bool _continueOnError = false;
   bool _has_pending_log_messages = false;
 
   double _last_log_message_timestamp;

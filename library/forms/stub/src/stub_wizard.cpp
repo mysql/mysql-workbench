@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,121 +22,98 @@
 
 #include "base/string_utilities.h"
 
-namespace mforms{
-namespace stub{
+namespace mforms {
+  namespace stub {
 
+    //------------------------------------------------------------------------------
+    WizardWrapper::WizardWrapper(::mforms::Wizard *wiz) : ObjectWrapper(wiz) {
+    }
 
-//------------------------------------------------------------------------------
-WizardWrapper::WizardWrapper(::mforms::Wizard *wiz)
-    : ObjectWrapper(wiz)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::cancel(::mforms::Wizard *wiz) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::cancel(::mforms::Wizard* wiz)
-{
-}
+    //------------------------------------------------------------------------------
+    bool WizardWrapper::create(::mforms::Wizard *self, Form *owner) {
+      return true;
+    }
 
-//------------------------------------------------------------------------------
-bool WizardWrapper::create(::mforms::Wizard *self, Form *owner)
-{
-  return true;
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_title(::mforms::Wizard *self, const std::string &title) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_title(::mforms::Wizard *self, const std::string &title)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::run_modal(::mforms::Wizard *self) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::run_modal(::mforms::Wizard *self)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::close(::mforms::Wizard *self) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::close(::mforms::Wizard *self)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_content(::mforms::Wizard *self, View *view) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_content(::mforms::Wizard *self, View *view)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_heading(::mforms::Wizard *self, const std::string &heading) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_heading(::mforms::Wizard *self, const std::string &heading)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_step_list(::mforms::Wizard *self, const std::vector<std::string> &steps) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_step_list(::mforms::Wizard *self, const std::vector<std::string> &steps)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::refresh_step_list(const std::vector<std::string> &steps) {
+    }
 
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_icon_path(const std::string &path) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::refresh_step_list(const std::vector<std::string> &steps)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_allow_cancel(::mforms::Wizard *self, bool flag) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_icon_path(const std::string &path)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_allow_back(::mforms::Wizard *self, bool flag) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_allow_cancel(::mforms::Wizard *self, bool flag)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_allow_next(::mforms::Wizard *self, bool flag) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_allow_back(::mforms::Wizard *self, bool flag)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_show_extra(::mforms::Wizard *self, bool flag) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_allow_next(::mforms::Wizard *self, bool flag)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_extra_caption(::mforms::Wizard *self, const std::string &caption) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_show_extra(::mforms::Wizard *self, bool flag)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::set_next_caption(::mforms::Wizard *self, const std::string &caption) {
+    }
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_extra_caption(::mforms::Wizard *self, const std::string &caption)
-{
-}
+    //------------------------------------------------------------------------------
+    void WizardWrapper::init() {
+      ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-//------------------------------------------------------------------------------
-void WizardWrapper::set_next_caption(::mforms::Wizard *self, const std::string &caption)
-{
-}
+      f->_wizard_impl.create = &WizardWrapper::create;
+      f->_wizard_impl.set_title = &WizardWrapper::set_title;
+      f->_wizard_impl.run_modal = &WizardWrapper::run_modal;
+      f->_wizard_impl.close = &WizardWrapper::close;
 
-//------------------------------------------------------------------------------
-void WizardWrapper::init()
-{
-  ::mforms::ControlFactory *f= ::mforms::ControlFactory::get_instance();
+      f->_wizard_impl.set_content = &WizardWrapper::set_content;
+      f->_wizard_impl.set_heading = &WizardWrapper::set_heading;
+      f->_wizard_impl.set_step_list = &WizardWrapper::set_step_list;
+      f->_wizard_impl.set_allow_cancel = &WizardWrapper::set_allow_cancel;
+      f->_wizard_impl.set_allow_back = &WizardWrapper::set_allow_back;
+      f->_wizard_impl.set_allow_next = &WizardWrapper::set_allow_next;
+      f->_wizard_impl.set_show_extra = &WizardWrapper::set_show_extra;
 
-  f->_wizard_impl.create = &WizardWrapper::create;
-  f->_wizard_impl.set_title = &WizardWrapper::set_title;
-  f->_wizard_impl.run_modal = &WizardWrapper::run_modal;
-  f->_wizard_impl.close = &WizardWrapper::close;
+      f->_wizard_impl.set_extra_caption = &WizardWrapper::set_extra_caption;
+      f->_wizard_impl.set_next_caption = &WizardWrapper::set_next_caption;
+    }
 
-  f->_wizard_impl.set_content = &WizardWrapper::set_content;
-  f->_wizard_impl.set_heading = &WizardWrapper::set_heading;
-  f->_wizard_impl.set_step_list = &WizardWrapper::set_step_list;
-  f->_wizard_impl.set_allow_cancel = &WizardWrapper::set_allow_cancel;
-  f->_wizard_impl.set_allow_back = &WizardWrapper::set_allow_back;
-  f->_wizard_impl.set_allow_next = &WizardWrapper::set_allow_next;
-  f->_wizard_impl.set_show_extra = &WizardWrapper::set_show_extra;
-
-  f->_wizard_impl.set_extra_caption = &WizardWrapper::set_extra_caption;
-  f->_wizard_impl.set_next_caption = &WizardWrapper::set_next_caption;
-}
-
-
-}//end of stub namespace
-}//end of mforms namespace
- 
+  } // end of stub namespace
+} // end of mforms namespace

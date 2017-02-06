@@ -963,6 +963,8 @@ void SqlEditorPanel::jump_to_placeholder() {
 void SqlEditorPanel::query_started(bool retain_old_recordsets) {
   _busy = true;
 
+  logDebug("Preparing UI for query run\n");
+
   _form->set_busy_tab(_form->sql_editor_panel_index(this));
 
   // disable tabview reordering because we can get new tabs added at odd times if a query is running
@@ -972,6 +974,8 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets) {
   _editor->cancel_auto_completion();
 
   if (!retain_old_recordsets) {
+    logDebug("Releasing old recordset(s) (if possible)\n");
+
     // close recordsets that were opened previously (unless they're pinned or something)
     for (int i = _lower_tabview.page_count() - 1; i >= 0; --i) {
       SqlEditorResult *result = dynamic_cast<SqlEditorResult *>(_lower_tabview.get_page(i));
@@ -990,6 +994,8 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets) {
         }
       }
     }
+  } else {
+    logDebug("Retaining old recordset(s)\n");
   }
 
   _was_empty = (_lower_tabview.page_count() == 0);
@@ -998,6 +1004,8 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets) {
 //--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::query_finished() {
+  logDebug2("Query successfully finished in editor %s\n", get_title().c_str());
+
   _busy = false;
 
   _form->set_busy_tab(-1);
@@ -1009,7 +1017,7 @@ void SqlEditorPanel::query_finished() {
 //--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::query_failed(const std::string &message) {
-  logError("Unhandled error during query: %s\n", message.c_str());
+  logError("Query execution failed in editor: %s. Error during query: %s\n", get_title().c_str(), message.c_str());
   _busy = false;
 
   _form->set_busy_tab(-1);
@@ -1115,7 +1123,7 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr) {
       for (size_t c = qeditor->resultPanels().count(), i = 0; i < c; i++) {
         db_query_ResultsetRef rset(qeditor->resultPanels()[i]->resultset());
 
-        if (rset.is_valid() && dynamic_cast<WBRecordsetResultset *>(rset->get_data())->recordset.get() == rs.get()) {
+        if (rset.is_valid() && dynamic_cast<WBRecordsetResultset *>(rset->get_data())->recordset == rs) {
           grt::GRTNotificationCenter::get()->send_grt("GRNSQLResultsetMenuWillShow", rset, info);
           break;
         }
@@ -1192,8 +1200,12 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result) {
       position = _splitter.get_height() - 100;
     _splitter.set_divider_position(position);
 
-    // scroll the editor to make the cursor visible
+    // scroll the editor to make the cursor visible and keep the selection, if available
+    std::size_t selection_start = 0;
+    std::size_t selection_length = 0;
+    _editor->get_editor_control()->get_selection(selection_start, selection_length);
     _editor->get_editor_control()->set_caret_pos(_editor->get_editor_control()->get_caret_pos());
+    _editor->get_editor_control()->set_selection(selection_start, selection_length);
   }
 }
 

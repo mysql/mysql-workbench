@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ default_sudo_prefix = ''
 
 def reset_sudo_prefix():
     global default_sudo_prefix
-    default_sudo_prefix       = '/usr/bin/sudo -S -p EnterPasswordHere'
+    default_sudo_prefix       = '/usr/bin/sudo -k -S -p EnterPasswordHere'
 
 reset_sudo_prefix()
 
@@ -86,7 +86,7 @@ def wrap_for_sudo(command, sudo_prefix, as_user = Users.ADMIN, to_spawn = False)
     if as_user != Users.CURRENT:
         #sudo needs to use -u <user> for non admin
         if as_user != Users.ADMIN:
-            sudo_user = "sudo -u %s" % as_user
+            sudo_user = "sudo -k -u %s" % as_user
             sudo_prefix = sudo_prefix.replace('sudo', sudo_user)
         if '/bin/sh' in sudo_prefix or '/bin/bash' in sudo_prefix:
             command = sudo_prefix + " \"" + command.replace('\\', '\\\\').replace('"', r'\"').replace('$','\\$') + "\""
@@ -828,6 +828,9 @@ class FileOpsNope(object):
     def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
         return False
 
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        return False
+
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         return False
 
@@ -866,7 +869,16 @@ class FileOpsLinuxBase(object):
     # Exception Handling will vary on local and remote
     def raise_exception(self, message, custom_messages = {}):
         raise Exception(message)
-        
+
+    @useAbsPath("path")
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        res = self.process_ops.exec_cmd('test -d ' + quote_path(path),
+                            as_user,
+                            user_password,
+                            output_handler = lambda line:None,
+                            options={CmdOptions.CMD_WAIT_OUTPUT:CmdOutput.WAIT_NEVER})
+        return res == 0
+
     @useAbsPath("filename")
     def file_exists(self, filename, as_user=Users.CURRENT, user_password=None):
         res = self.process_ops.exec_cmd('test -e ' + quote_path(filename),
@@ -1400,6 +1412,12 @@ class FileOpsLocalWindows(object): # Used for remote as well, if not using sftp
           
         return ret_val
 
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        if as_user == Users.CURRENT:
+            ret_val = FileUtils.check_path_exists(path)
+        else:
+            ret_val = self.exec_helper_command('CHECK_PATH_EXISTS %s' % path, FunctionType.Boolean, as_user, user_password)
+        return ret_val;
 
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         if as_user == Users.CURRENT:
@@ -1716,6 +1734,17 @@ class FileOpsRemoteWindows(object):
         
         return available
 
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        if self.ssh:
+            out, ret = self.ssh.exec_cmd('if exist %s exit /b 0' % quote_path(path), as_user, user_password)
+            if ret != 0:
+                raise RuntimeError(out)
+            return True
+        else:
+            log_error('%s: Attempt to read remote file with no ssh session\n' % self.__class__.__name__)
+            raise Exception("Cannot read remote file without an SSH session")
+        return False
+
     def create_directory(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
         if with_owner is not None:
             raise PermissionDeniedError("Changing owner of directory not supported in Windows" % path)
@@ -1945,6 +1974,10 @@ class ServerManagementHelper(object):
     #-----------------------------------------------------------------------------
     def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
         return self.file.check_file_readable(path, as_user, user_password)
+    
+    #-----------------------------------------------------------------------------
+    def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
+        return self.file.check_path_exists(path, as_user, user_password)
 
     #-----------------------------------------------------------------------------
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):

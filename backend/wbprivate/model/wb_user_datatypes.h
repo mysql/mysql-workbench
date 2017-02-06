@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,15 +32,15 @@
 namespace wb {
   class WBContext;
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC UserDatatypeList : public mforms::TreeView
-  {
+  class MYSQLWBBACKEND_PUBLIC_FUNC UserDatatypeList : public mforms::TreeView {
   public:
     UserDatatypeList(WBContext *wb);
     virtual ~UserDatatypeList();
-    
+
     void set_catalog(const db_CatalogRef &catalog);
 
     void refresh();
+
   protected:
     mforms::ContextMenu *_menu;
     db_CatalogRef _catalog;
@@ -50,5 +50,4 @@ namespace wb {
   };
 };
 
-
-#endif 
+#endif

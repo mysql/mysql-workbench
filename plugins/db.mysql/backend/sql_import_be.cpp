@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -24,44 +24,35 @@
 #include "grtsqlparser/sql_facade.h"
 #include "base/string_utilities.h"
 
-void Sql_import::grtm()
-{
+void Sql_import::grtm() {
   {
-    _options= grt::DictRef(true);
-    _doc= workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
+    _options = grt::DictRef(true);
+    _doc = workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
 
     // init some options based on global defaults
     // FE will query them to init controls state
     {
-      grt::DictRef options= grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
-      const char *option_names[]= { "SqlIdentifiersCS" };
-      for (size_t n= 0, count= sizeof(option_names)/sizeof(option_names[0]); n < count; ++n)
+      grt::DictRef options = grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
+      const char *option_names[] = {"SqlIdentifiersCS"};
+      for (size_t n = 0, count = sizeof(option_names) / sizeof(option_names[0]); n < count; ++n)
         _options.set(option_names[n], options.get(option_names[n]));
     }
   }
 }
 
-
-db_CatalogRef Sql_import::target_catalog()
-{
+db_CatalogRef Sql_import::target_catalog() {
   return _doc->physicalModels().get(0)->catalog();
 }
 
-
-std::function<grt::ValueRef ()> Sql_import::get_task_slot()
-{
+std::function<grt::ValueRef()> Sql_import::get_task_slot() {
   return [this]() { return parse_sql_script(target_catalog(), sql_script()); };
 }
 
-
-std::function<grt::ValueRef ()> Sql_import::get_autoplace_task_slot()
-{
+std::function<grt::ValueRef()> Sql_import::get_autoplace_task_slot() {
   return std::bind(&Sql_import::autoplace_grt, this);
 }
 
-
-grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::string &sql_script)
-{
+grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::string &sql_script) {
   grt::ListRef<GrtObject> created_objects;
   _options.set("created_objects", created_objects);
 
@@ -86,30 +77,25 @@ void Sql_import::parse_sql_script(parsers::MySQLParserServices::Ref sql_parser, 
   undo.end(_("Reverse Engineer from SQL Script"));
 }
 
-grt::ListRef<GrtObject> Sql_import::get_created_objects()
-{
+grt::ListRef<GrtObject> Sql_import::get_created_objects() {
   return grt::ListRef<GrtObject>::cast_from(_options.get("created_objects"));
 }
 
-grt::ValueRef Sql_import::autoplace_grt()
-{
-  db_CatalogRef catalog= target_catalog();
+grt::ValueRef Sql_import::autoplace_grt() {
+  db_CatalogRef catalog = target_catalog();
 
   workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(catalog->owner()));
 
   grt::ListRef<db_DatabaseObject> dbobjects(true);
   grt::ListRef<GrtObject> objects(grt::ListRef<GrtObject>::cast_from(_options.get("created_objects")));
 
-  for (grt::ListRef<GrtObject>::const_iterator iter= objects.begin();
-    iter != objects.end(); ++iter)
-  {
+  for (grt::ListRef<GrtObject>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter) {
     if ((*iter).is_instance<db_DatabaseObject>())
       dbobjects.insert(db_DatabaseObjectRef::cast_from(*iter));
   }
 
-  if (dbobjects.count() > 0)
-  {
-    grt::Module *module= grt::GRT::get()->get_module("WbModel");
+  if (dbobjects.count() > 0) {
+    grt::Module *module = grt::GRT::get()->get_module("WbModel");
 
     grt::BaseListRef args(true);
 
@@ -122,8 +108,7 @@ grt::ValueRef Sql_import::autoplace_grt()
   return grt::ValueRef();
 }
 
-GrtVersionRef Sql_import::getVersion()
-{
+GrtVersionRef Sql_import::getVersion() {
   GrtVersionRef version;
   return version;
 }

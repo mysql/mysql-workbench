@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -1421,6 +1421,8 @@ class SecurityAccount(mforms.Box):
 
         mforms.Utilities.add_timeout(0.1, lambda self=self: self.splitter.set_divider_position(240))
 
+        self.current_action = ""
+
         self.user_selected()
 
     def shutdown(self):
@@ -1545,7 +1547,17 @@ class SecurityAccount(mforms.Box):
 
     def user_selected(self):
         sel = self.user_list.get_selected_node()
-
+        user = ""
+        host = ""
+        
+        #if self.current_action == "delete account":
+        if self.current_action == "commit account":
+            if not self._selected_user:
+                return
+            user = self._selected_user.username
+            host = self._selected_user.host
+        elif sel:
+            user, host = eval(sel.get_tag())
         self._selected_user = None
         self._selected_user_original = None
         self.show_user(None)
@@ -1554,17 +1566,19 @@ class SecurityAccount(mforms.Box):
         self.del_button.set_enabled(False)
 
         if sel:
-            user, host = eval(sel.get_tag())
             self.account_label.set_text("Details for account %s@%s" % (user, host))
 
             if self.owner.secman.is_zombie(user, host):
                 self.show_zombie_user(user, host)
             else:
-                self.owner.secman.async_get_account(self.show_user, user, host)
-                
+                try:
+                    self.owner.secman.async_get_account(self.show_user, user, host)
+                except Exception, e:
+                    if str(e).startswith("Could not load account information for"):
+                        log_debug3("Unable to load the account information for %s@%s. Probably the user was not created in the server yet and revert was pressed." % (user, host))
+                        return
         else:
             self.account_label.set_text("Select an account to edit or click [Add Account] to create a new one")
-
 
     def show_zombie_user(self, user, host):
         self.content_box.set_enabled(True)
@@ -1671,6 +1685,7 @@ class SecurityAccount(mforms.Box):
         return users_count - 1  # Control shouldn't get here
 
     def add_account(self):
+        self.current_action = "add account"
         account = self.owner.secman.create_account()
         self.refresh()
         self.inner_tabview.set_active_tab(0)
@@ -1682,6 +1697,7 @@ class SecurityAccount(mforms.Box):
         self.add_button.set_enabled(False)
         self.del_button.set_enabled(False)
         self.refresh_button.set_enabled(False)
+        self.current_action = ""
         
     def upgrade_account(self):
         def generate_password(length = 8):    
@@ -1734,6 +1750,7 @@ class SecurityAccount(mforms.Box):
 
 
     def del_account(self):
+        self.current_action = "delete account"
         if self._selected_user:
             if not self._selected_user.is_commited or Utilities.show_message("Delete Account",
                   "The account '%s' will be permanently removed. Please confirm."%(self._selected_user.formatted_name()),
@@ -1745,9 +1762,11 @@ class SecurityAccount(mforms.Box):
                     log_error("Exception while removing account: %s\n" % str(e))
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error("Delete account", '%s\n%s' % (title, message), 'OK', '', '')
+                    self.current_action = ""
                     return
                 self._selected_user = None
                 self._selected_user_original = None
+                self.user_list.clear_selection()
                 self.owner.do_refresh()
                 self.user_selected()
                 mforms.App.get().set_status_text("Account '%s' was deleted" % the_name)
@@ -1756,18 +1775,20 @@ class SecurityAccount(mforms.Box):
             if user:
                 username, host = eval(user.get_tag())
                 try:
+                    user.remove_from_parent()
                     self.owner.secman.do_delete_account(username, host)
                 except Exception, e:
                     log_error("Exception while removing zombi account: %s\n" % str(e))
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error("Delete account", '%s\n%s' % (title, message), 'OK', '', '')
+                    self.current_action = ""
                     return
-                user.remove_from_parent()
+                
 
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
-
+        self.current_action = ""
 
     def refresh(self):
         selected_row = None
@@ -1779,7 +1800,6 @@ class SecurityAccount(mforms.Box):
         self.firewall_rules.refresh_users(self.owner.secman.account_names)
         for user, host in self.owner.secman.account_names:
             row = self.user_list.add_node()
-
             if self.owner.secman.is_zombie(user, host):
                 row.set_string(0, "(!) "+(user or "<anonymous>"))
             else:
@@ -1806,7 +1826,6 @@ class SecurityAccount(mforms.Box):
         self.password_label.set_color('#000000')
         
         self.setup_bottom_message_box(su) 
-
 
     def refresh_priv_list(self):
         self.role_priv_list.clear()
@@ -1904,8 +1923,10 @@ class SecurityAccount(mforms.Box):
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
+        self.owner.refresh()
 
     def commit(self):
+        self.current_action = "commit account"
         if self._selected_user:
             username = self.username.get_string_value()
             host = self.hostlimithost.get_string_value()
@@ -1925,6 +1946,7 @@ class SecurityAccount(mforms.Box):
                 if Utilities.show_warning("Save Account Changes",
                         "It is a security hazard to create an account with no password.\nPlease confirm creation of '%s'@'%s' with no password."%(username, host),
                         "Create", "Cancel", "") != mforms.ResultOk:
+                    self.current_action = ""
                     return
             
             lcase_host = host.lower()
@@ -1949,6 +1971,7 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error('Wrong Value for Max. Queries',
                         'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_questions.get_string_value(),
                         'OK', '', '')
+                self.current_action = ""
                 return
 
             try:
@@ -1958,6 +1981,7 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error('Wrong Value for Max. Updates',
                         'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_updates.get_string_value(),
                         'OK', '', '')
+                self.current_action = ""
                 return
 
             try:
@@ -1967,6 +1991,7 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error('Wrong Value for Max. Connections',
                         'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_connections.get_string_value(),
                         'OK', '', '')
+                self.current_action = ""
                 return
             try:
                 self._selected_user.max_user_connections = int(self.max_uconnections.get_string_value())
@@ -1975,6 +2000,7 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error('Wrong Value for Concurrent Connections',
                         'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_uconnections.get_string_value(),
                         'OK', '', '')
+                self.current_action = ""
                 return
             
             
@@ -1991,16 +2017,19 @@ class SecurityAccount(mforms.Box):
             except WBSecurityValidationError, exc:
                 Utilities.show_error("Save Account Changes",
                       str(exc), "OK", "", "")
+                self.current_action = ""
                 return
             except PermissionDeniedError, exc:
                 Utilities.show_error("Permission Errors",
                       str(exc), "OK", "", "")
+                self.current_action = ""
                 return
             except Exception, exc:
                 import traceback
                 log_error("Exception while saving account: %s\n" % traceback.format_exc())
                 Utilities.show_error("Error Saving Account",
                       str(exc), "OK", "", "")
+                self.current_action = ""
                 return
             
             try:
@@ -2010,6 +2039,7 @@ class SecurityAccount(mforms.Box):
                 log_error("Exception while saving account: %s\n" % traceback.format_exc())
                 Utilities.show_error("Error Saving Account",
                       str(exc), "OK", "", "")
+                self.current_action = ""
                 return
 
             self.reload_user(is_new_user)
@@ -2017,6 +2047,7 @@ class SecurityAccount(mforms.Box):
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
+        self.current_action = ""
 
 
     def update(self):

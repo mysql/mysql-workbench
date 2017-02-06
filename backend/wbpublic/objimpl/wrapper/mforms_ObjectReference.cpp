@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,46 +32,37 @@
 //================================================================================
 // mforms_ObjectReference
 
-
-grt::IntegerRef mforms_ObjectReference::valid() const
-{
+grt::IntegerRef mforms_ObjectReference::valid() const {
   if (_data)
     return grt::IntegerRef(1);
-   else
+  else
     return grt::IntegerRef(0);
 }
 
-grt::IntegerRef mforms_ObjectReference::isEqualTo(const grt::Ref<mforms_ObjectReference> &other)
-{
+grt::IntegerRef mforms_ObjectReference::isEqualTo(const grt::Ref<mforms_ObjectReference> &other) {
   if (_data == NULL && other->get_data() == NULL)
     return grt::IntegerRef(1);
-  
+
   if (_data && other->get_data())
     return grt::IntegerRef(_data == other->get_data() ? 1 : 0);
   return grt::IntegerRef(1);
 }
 
-
-mforms::Object *mforms_from_grt(mforms_ObjectReferenceRef object)
-{
+mforms::Object *mforms_from_grt(mforms_ObjectReferenceRef object) {
   if (!object.is_valid() || !*object->valid())
-     return 0;
+    return 0;
   return object->get_data();
 }
 
-
-static void release_object(mforms::Object *object)
-{
+static void release_object(mforms::Object *object) {
   if (object)
     object->release();
 }
 
-mforms_ObjectReferenceRef mforms_to_grt(mforms::Object *object, const std::string &type_name)
-{
-  if (object)
-  {
+mforms_ObjectReferenceRef mforms_to_grt(mforms::Object *object, const std::string &type_name) {
+  if (object) {
     // view is not necessarily managed, in some cases the view must be deleted by the caller
-    //assert(object->is_managed());
+    // assert(object->is_managed());
 
     mforms_ObjectReferenceRef ref(grt::Initialized);
     object->retain();
@@ -82,15 +73,10 @@ mforms_ObjectReferenceRef mforms_to_grt(mforms::Object *object, const std::strin
   return mforms_ObjectReferenceRef();
 }
 
-
-
-mforms_ObjectReferenceRef mforms_to_grt(mforms::ContextMenu *menu)
-{
+mforms_ObjectReferenceRef mforms_to_grt(mforms::ContextMenu *menu) {
   return mforms_to_grt(menu, "ContextMenu");
 }
 
-
-mforms_ObjectReferenceRef mforms_to_grt(mforms::DockingPoint *dpoint)
-{
+mforms_ObjectReferenceRef mforms_to_grt(mforms::DockingPoint *dpoint) {
   return mforms_to_grt(dpoint, "DockingPoint");
 }

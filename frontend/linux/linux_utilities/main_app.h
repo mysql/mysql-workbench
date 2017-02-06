@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,44 +23,41 @@
 #include "base/threading.h"
 #include "base/data_types.h"
 
-namespace runtime
-{
-class loop
-{
-  GMainLoop* _loop;
-public:
-  loop();
-  virtual ~loop();
-  void run();
-  void quit();
-};
+namespace runtime {
+  class loop {
+    GMainLoop *_loop;
 
-class app
-{
-protected:
-  GThread *_mainThread;
-  Glib::RefPtr<Gtk::Application> _app;
-  app();
-  app(const app&) = delete;
-  app& operator=(app&) = delete;
-public:
-  static app& get();
-  virtual ~app();
-  void init(const std::string &name, int argc, char **argv);
-  int onCommand(const Glib::RefPtr<Gio::ApplicationCommandLine> &appCmdLine);
-  int run();
-  void quit();
-  bool isMainThread();
+  public:
+    loop();
+    virtual ~loop();
+    void run();
+    void quit();
+    bool isRunning() const;
+  };
 
-  std::function<void()> onActivate;
+  class app {
+  protected:
+    GThread *_mainThread;
+    Glib::RefPtr<Gtk::Application> _app;
+    app();
+    app(const app &) = delete;
+    app &operator=(app &) = delete;
 
-  /**
-   * if this function is not empty, it should return true if application should be started
-   */
-  std::function<bool()> onBeforeActivate;
-  std::function<dataTypes::OptionsList*()> getCmdOptions;
+  public:
+    static app &get();
+    virtual ~app();
+    void init(const std::string &name, int argc, char **argv);
+    int onCommand(const Glib::RefPtr<Gio::ApplicationCommandLine> &appCmdLine);
+    int run();
+    void quit();
+    bool isMainThread();
 
+    std::function<void()> onActivate;
 
-};
-
+    /**
+     * if this function is not empty, it should return true if application should be started
+     */
+    std::function<bool()> onBeforeActivate;
+    std::function<dataTypes::OptionsList *()> getCmdOptions;
+  };
 }

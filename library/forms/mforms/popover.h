@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -41,34 +41,33 @@ namespace mforms {
   };
 
   enum PopoverStyle {
-    PopoverStyleNormal,  // With large rounded corners, tip (arrow) etc.
-    PopoverStyleTooltip  // Simplified version with now tip, smaller corners etc.
+    PopoverStyleNormal, // With large rounded corners, tip (arrow) etc.
+    PopoverStyleTooltip // Simplified version with now tip, smaller corners etc.
   };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct MFORMS_EXPORT PopoverImplPtrs
-  {
-    bool (*create)(Popover* self, PopoverStyle style);
-    void (*destroy)(Popover* self);
+  struct MFORMS_EXPORT PopoverImplPtrs {
+    bool (*create)(Popover *self, PopoverStyle style);
+    void (*destroy)(Popover *self);
     void (*set_content)(Popover *self, View *content);
     void (*set_size)(Popover *self, int, int);
     void (*show)(Popover *self, int, int, StartPosition); // Position of the popover's tip in screen coordinates.
-    void (*show_and_track)(Popover *self, View*, int, int, StartPosition); // Position of the popover's tip in screen coordinates.
-    void (*close)(Popover* self);
+    void (*show_and_track)(Popover *self, View *, int, int,
+                           StartPosition); // Position of the popover's tip in screen coordinates.
+    void (*close)(Popover *self);
   };
 #endif
 #endif
-  
-  class MFORMS_EXPORT Popover : public Object
-  {
+
+  class MFORMS_EXPORT Popover : public Object {
     PopoverImplPtrs *_popover_impl;
-    
+
   public:
     Popover(PopoverStyle style = PopoverStyleNormal);
     virtual ~Popover();
 
-    void set_content(View* content);
+    void set_content(View *content);
 
     // Size of the main body. The arrow is added implicitly and is not part of the size
     // (nor is the shadow or other decoration, if any). Size must be set before showing the
@@ -88,9 +87,11 @@ namespace mforms {
     // of the tracked view (which usually is to close the popover).
     void show_and_track(View *tracked_view, int x, int y, StartPosition position);
 
-    boost::signals2::signal<void ()> *signal_close() { return &_bound_close; }
+    boost::signals2::signal<void()> *signal_close() {
+      return &_bound_close;
+    }
 
   private:
-    boost::signals2::signal<void ()> _bound_close;
+    boost::signals2::signal<void()> _bound_close;
   };
 };

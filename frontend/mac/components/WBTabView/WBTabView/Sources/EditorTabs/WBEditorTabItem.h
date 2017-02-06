@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,14 +23,12 @@
 
 namespace dataTypes {
 
-nodeConnection::nodeConnection() : BaseConnection(33060), type(ConnectionNode), language(EditorJavaScript) {
+  nodeConnection::nodeConnection() : BaseConnection(33060), type(ConnectionNode), language(EditorJavaScript) {
+    // TODO Auto-generated constructor stub
+  }
 
-  // TODO Auto-generated constructor stub
-
-}
-
-nodeConnection::~nodeConnection() {
-  // TODO Auto-generated destructor stub
-}
+  nodeConnection::~nodeConnection() {
+    // TODO Auto-generated destructor stub
+  }
 
 } /* namespace dataTypes */

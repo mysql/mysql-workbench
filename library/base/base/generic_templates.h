@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,14 +25,16 @@
 
 namespace base {
 #ifndef _WIN32
-  struct EnumHash
-  {
-      template <typename T>
-      inline typename std::enable_if<std::is_enum<T>::value, std::size_t>::type
-      operator ()(T const value) const { return static_cast<std::size_t>(value); }
+  struct EnumHash {
+    template <typename T>
+    inline typename std::enable_if<std::is_enum<T>::value, std::size_t>::type operator()(T const value) const {
+      return static_cast<std::size_t>(value);
+    }
   };
-  template<class T> using unordered_enumset = std::unordered_set<T, EnumHash>;
+  template <class T>
+  using unordered_enumset = std::unordered_set<T, EnumHash>;
 #else
-  template<class T> using unordered_enumset = std::unordered_set<T>;
+  template <class T>
+  using unordered_enumset = std::unordered_set<T>;
 #endif
 }

@@ -4,7 +4,7 @@ include_directories(${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/ext
     SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
@@ -20,7 +20,7 @@ add_library(cdbc
 
 target_compile_options(cdbc PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(cdbc ${MYSQLCPPCONN_LIBRARY})
+target_link_libraries(cdbc ${MySQLCppConn_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(cdbc gcov)
