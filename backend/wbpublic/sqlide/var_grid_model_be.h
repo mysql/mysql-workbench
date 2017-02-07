@@ -68,9 +68,8 @@ public:
   virtual std::string get_column_caption(ColumnId index);
   virtual ColumnType get_column_type(ColumnId column);
   virtual ColumnType get_real_column_type(ColumnId column);
-  virtual int get_column_width_hint(int column) {
-    return 0; /* 0 - no hint */
-  }
+  virtual int get_column_width_hint(int column) { return 0; /* 0 - no hint */ }
+  virtual bool isGeometry(ColumnId);
 
 public:
   virtual bool is_readonly() const {
@@ -88,6 +87,7 @@ public:
   enum ColumnFlags { NeedsQuoteFlag = 1, NotNullFlag = 2 };
 
   typedef std::vector<std::string> Column_names;
+  typedef std::vector<std::string> DBColumn_types;
   typedef std::vector<sqlite::variant_t> Column_types;
   typedef Data::const_iterator Cell_const;
   typedef std::vector<int> Column_flags;
@@ -153,6 +153,7 @@ protected:
                                    //! is incorrectly parsed
   Column_flags _column_flags; // various flags, such as whether value should be quoted and whether it's NOT NULL (ie
                               // numbers vs strings. special values like functions need extra handling)
+  DBColumn_types _dbColumnTypes;
 
   base::RecMutex _data_mutex;
 

@@ -36,6 +36,7 @@
 #include "sqlite/command.hpp"
 #include <fstream>
 #include <sstream>
+#include "grt/spatial_handler.h"
 
 #include "recordset_text_storage.h"
 
@@ -996,6 +997,53 @@ void Recordset::paste_rows_from_clipboard(ssize_t dest_row) {
     rows_changed();
 }
 
+void Recordset::showPointInBrowser(const bec::NodeId &node, ColumnId column) {
+  base::RecMutexLock data_mutex(_data_mutex);
+  if (sqlide::is_var_blob(_real_column_types[column])) {
+    std::string geometry;
+    if (get_raw_field(node, column, geometry) && !geometry.empty()) {
+      spatial::Importer importer;
+      if (!importer.import_from_mysql(geometry)) {
+        if (importer.getType() == spatial::ShapePoint) {
+          std::deque<spatial::ShapeContainer> tmpShapes;
+          importer.get_points(tmpShapes);
+          if (tmpShapes.size() == 1 && tmpShapes[0].points.size() == 1) {
+            std::string url = bec::GRTManager::get()->get_app_option_string("SqlEditor:geographicLocationURL");
+            if (url.empty()) {
+              logError("Got empty url when trying to access geographicLocationURL\n");
+              mforms::Utilities::show_error(
+                  "Invalid Browser Location",
+                  "Point URL option have to be specified in the preferences to use this functionality.", "OK");
+              return;
+            }
+
+            url = base::replaceString(url, "%LAT%", base::to_string(tmpShapes[0].points[0].y));
+            url = base::replaceString(url, "%LON%", base::to_string(tmpShapes[0].points[0].x));
+            logDebug3("Opening url: %s\n", url.c_str());
+            mforms::Utilities::open_url(url);
+
+          } else {
+            logDebug3("Invalid column specified to showPointInBrowser.\n");
+            mforms::Utilities::show_error("Invalid Column",
+                                          "A geometry type column is required to use this functionality.", "OK");
+          }
+        } else {
+          logError("Invalid column specified to showPointInBrowser, expected POINT got %s.\n",
+                   importer.getName().c_str());
+          mforms::Utilities::show_error("Invalid Column", "This functionality works only with Points", "OK");
+        }
+      } else {
+        logError("Unable to load geometry data\n");
+        mforms::Utilities::show_error("Invalid Column", "Unable to load geometry data", "OK");
+      }
+    }
+  } else {
+    logDebug3("Invalid column specified to show point in browser\n");
+    mforms::Utilities::show_error("Invalid Column", "A geometry type column is required to use this functionality.",
+                                  "OK");
+  }
+}
+
 mforms::ContextMenu *Recordset::get_context_menu() {
   if (!_context_menu)
     _context_menu = new mforms::ContextMenu();
@@ -1028,6 +1076,13 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
       }
     }
     _context_menu->add_item(item);
+
+    if (isGeometry(clicked_column))
+    {
+      item = _context_menu->add_item_with_title("Show point in browser",
+                                                    std::bind(&Recordset::activate_menu_item, this, "show_in_browser", rows, clicked_column),
+                                                    "show_in_browser");
+    }
 
     _context_menu->add_separator();
 
@@ -1190,6 +1245,15 @@ void Recordset::activate_menu_item(const std::string &action, const std::vector<
   } else if (action == "paste_row") {
     paste_rows_from_clipboard(rows.empty() ? -1 : rows[0]);
     need_ui_refresh = true;
+  }
+  else if (action == "show_in_browser")
+  {
+    if (rows.size() == 1 && clicked_column >= 0)
+    {
+      bec::NodeId node;
+      node.append(rows[0]);
+      showPointInBrowser(node, clicked_column);
+    }
   }
 
   if (need_ui_refresh)

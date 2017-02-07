@@ -1470,6 +1470,7 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "SqlEditor:LimitRows", 1);
   set_default(options, "SqlEditor:LimitRowsCount", 1000);
   set_default(options, "SqlEditor:PreserveRowFilter", 1);
+  set_default(options, "SqlEditor:geographicLocationURL", "http://www.openstreetmap.org/?mlat=%LAT%&mlon=%LON%");
 
   // Name templates
   set_default(options, "PkColumnNameTemplate", "id%table%");
