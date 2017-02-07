@@ -542,6 +542,7 @@ void ServerInstanceEditor::run_filechooser_wrapper(
     grt::Module *module = grt::GRT::get()->get_module("WbAdmin");
     if (module) {
       grt::BaseListRef args(true);
+      args.ginsert(instance->connection());
       args.ginsert(instance);
 
       try {
