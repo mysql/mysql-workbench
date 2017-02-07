@@ -85,7 +85,9 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
 #endif
     _output_text(mforms::VerticalScrollBar),
     _snippet_splitter(false),
-    _snippet_text() {
+    _snippet_text(),
+    _userSnippetsLoaded(false),
+    _snippetClicked(false) {
   set_title(("Workbench Scripting Shell"));
   set_name("shell_window");
   set_content(&_content);
@@ -820,9 +822,14 @@ void GRTShellWindow::handle_global_menu(const std::string &action) {
 }
 
 void GRTShellWindow::save_snippets() {
+  //  If the user snippets were not loaded yet, a save is invalid
+  if (!_userSnippetsLoaded || _snippetClicked)
+    return;
+  
   std::string path = base::makePath(bec::GRTManager::get()->get_user_datadir(), "shell_snippets" + _script_extension);
-  FILE *f = base_fopen(path.c_str(), "w+");
-  if (!f) {
+  std::fstream file(path, std::fstream::out | std::fstream::trunc);
+  
+  if (!file.is_open()) {
     _shell_text.append_text(base::strfmt("Cannot save snippets to %s: %s", path.c_str(), g_strerror(errno)));
     return;
   }
@@ -830,22 +837,12 @@ void GRTShellWindow::save_snippets() {
   int c = _snippet_list->root_node()->count();
   for (int i = _global_snippet_count; i < c; i++) {
     std::string snippet = _snippet_list->root_node()->get_child(i)->get_tag();
-    std::string::size_type p = 0, l = snippet.size();
-
-    while (p < l) {
-      std::string::size_type eol = snippet.find('\n', p);
-      if (eol == std::string::npos)
-        eol = l;
-      else
-        eol++;
-      fwrite(" ", 1, 1, f);
-      fwrite(snippet.data() + p, 1, eol - p, f);
-      p = eol;
-    }
-    fwrite("\n", 1, 1, f);
+    
+    if (i > _global_snippet_count)
+      file << std::endl;     
+    
+    file << " " << base::replaceString(snippet, "\n", "\n ") << std::endl;
   }
-
-  fclose(f);
 }
 
 void GRTShellWindow::load_snippets_from(const std::string &path) {
@@ -881,7 +878,8 @@ void GRTShellWindow::refresh_snippets() {
   load_snippets_from(bec::GRTManager::get()->get_data_file_path("shell_snippets" + _script_extension + ".txt"));
   _global_snippet_count = _snippet_list->root_node()->count();
   load_snippets_from(base::makePath(bec::GRTManager::get()->get_user_datadir(), "shell_snippets" + _script_extension));
-
+  _userSnippetsLoaded = true;
+  
   snippet_selected();
 }
 
@@ -908,7 +906,7 @@ void GRTShellWindow::add_snippet() {
   _snippet_list->select_node(node);
 
   snippet_selected();    // force snippet to be displayed
-  snippet_changed(0, 0); // force setting of the snippet name
+  save_snippets();
 
   save_state();
 }
@@ -977,6 +975,8 @@ void GRTShellWindow::run_snippet() {
 
 void GRTShellWindow::snippet_selected() {
   bool read_only = false;
+  _snippetClicked = true;
+  
   _snippet_text.set_features(mforms::FeatureReadOnly, false); // Necessary to be able to change the text.
   int sel = _snippet_list->get_selected_row();
   if (sel < 0) {
@@ -1011,6 +1011,7 @@ void GRTShellWindow::snippet_selected() {
   }
 
   _snippet_text.set_features(mforms::FeatureReadOnly, read_only);
+  _snippetClicked = false;
 }
 
 void GRTShellWindow::snippet_changed(int line, int linesAdded) {

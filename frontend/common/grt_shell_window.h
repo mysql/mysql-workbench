@@ -162,6 +162,9 @@ protected:
   PythonDebugger *_debugger;
 
   std::vector<GRTCodeEditor *> _editors;
+  
+  bool _userSnippetsLoaded;
+  bool _snippetClicked;
 
   void refresh_all();
   void side_tab_changed();
@@ -258,3 +261,4 @@ private:
 };
 
 #endif
+
