@@ -15,14 +15,6 @@ case "$1" in
  SOURCE_FILE=MySQL.g
  SOURCE_FILE2=MySQLSimpleParser.g
  ;;
- $ECMA) echo "Selected JS Parser"
- SOURCE_FILE="ECMA.g"
- SOURCE_FILE2=""
- ;;
- $PYTHON) echo "Selected Python parser"
- SOURCE_FILE="Python25.g"
- SOURCE_FILE2=""
- ;;
  *) echo "Unknown parser type $1"
  exit 1
  ;;
@@ -47,13 +39,6 @@ if [ $1 = $MYSQL ]; then
   if [ ! -f "$TARGET_DIRECTORY/MySQLSimpleParser.c" ] || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLSimpleParser.c" ]; then GENERATE_FILES=true; fi
   if [ ! -f "$TARGET_DIRECTORY/MySQLSimpleParser.h" ] || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLSimpleParser.h" ]; then GENERATE_FILES=true; fi
 fi
-
-if [ $1 = $ECMA ]; then
- if [ ! -f "$TARGET_DIRECTORY/ECMALexer.c" ]  || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/ECMALexer.c" ];  then GENERATE_FILES=true; fi
- if [ ! -f "$TARGET_DIRECTORY/ECMALexer.h" ]  || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/ECMALexer.h" ];  then GENERATE_FILES=true; fi
- if [ ! -f "$TARGET_DIRECTORY/ECMAParser.c" ]  || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/ECMAParser.c" ];  then GENERATE_FILES=true; fi
- if [ ! -f "$TARGET_DIRECTORY/ECMAParser.h" ]  || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/ECMAParser.h" ];  then GENERATE_FILES=true; fi
-
 
 fi
 
