@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,8 +32,6 @@
 
 #include "mdc_back_layer.h"
 
-#include "grt/common.h"
-
 #include "wbcanvas/model_figure_impl.h"
 
 #include "user_defined_type_editor.h"
@@ -56,27 +54,22 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_MODULE)
 
 //--------------------------------------------------------------------------------------------------
 
-WorkbenchImpl::WorkbenchImpl(CPPModuleLoader *loader)
-: super(loader), _wb(0), _is_other_dbms_initialized(false)
-{
+WorkbenchImpl::WorkbenchImpl(CPPModuleLoader *loader) : super(loader), _wb(0), _is_other_dbms_initialized(false) {
 #ifdef _WIN32
-  _last_wmi_session_id= 1;
-  _last_wmi_monitor_id= 1;
+  _last_wmi_session_id = 1;
+  _last_wmi_monitor_id = 1;
 #endif
 }
 
 //--------------------------------------------------------------------------------------------------
 
-WorkbenchImpl::~WorkbenchImpl()
-{
-
+WorkbenchImpl::~WorkbenchImpl() {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WorkbenchImpl::set_context(WBContext *wb)
-{
-  _wb= wb;
+void WorkbenchImpl::set_context(WBContext *wb) {
+  _wb = wb;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,85 +77,76 @@ void WorkbenchImpl::set_context(WBContext *wb)
 /**
  * Returns a number of system parameters for use in the log and the debug output.
  */
-std::string WorkbenchImpl::getSystemInfo(bool indent)
-{
-  #ifdef _WIN32
-    #define PLATFORM_NAME "Windows"
-      #ifdef _WIN64
-        #define ARCHITECTURE "64 bit"
-      #else
-        #define ARCHITECTURE "32 bit"
-      #endif
-  #elif defined(__APPLE__)
-    #define PLATFORM_NAME "Mac OS X"
-    #define ARCHITECTURE "64 bit"
-  #else
-    #define PLATFORM_NAME "Linux/Unix"
-    #define ARCHITECTURE "64 bit"
-  #endif
+std::string WorkbenchImpl::getSystemInfo(bool indent) {
+#ifdef _WIN32
+#define PLATFORM_NAME "Windows"
+#ifdef _WIN64
+#define ARCHITECTURE "64 bit"
+#else
+#define ARCHITECTURE "32 bit"
+#endif
+#elif defined(__APPLE__)
+#define PLATFORM_NAME "Mac OS X"
+#define ARCHITECTURE "64 bit"
+#else
+#define PLATFORM_NAME "Linux/Unix"
+#define ARCHITECTURE "64 bit"
+#endif
 
+  app_InfoRef info(app_InfoRef::cast_from(grt::GRT::get()->get("/wb/info")));
 
-  app_InfoRef info(app_InfoRef::cast_from(_wb->get_grt()->get("/wb/info")));
+  const char *tab = indent ? "\t" : "";
+  std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s build %i (%s)\n", tab,
+                              info->name().c_str(), APP_EDITION_NAME, APP_LICENSE_TYPE, APP_MAJOR_NUMBER,
+                              APP_MINOR_NUMBER, APP_RELEASE_NUMBER, APP_RELEASE_TYPE, APP_BUILD_NUMBER, ARCHITECTURE);
+  result += strfmt("%sConfiguration Directory: %s\n", tab, bec::GRTManager::get()->get_user_datadir().c_str());
+  result += strfmt("%sData Directory: %s\n", tab, bec::GRTManager::get()->get_basedir().c_str());
 
-  const char* tab = indent ? "\t" : "";
-  std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s build %i (%s)\n",
-    tab, info->name().c_str(), APP_EDITION_NAME, APP_LICENSE_TYPE, APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER,
-                              APP_RELEASE_TYPE, APP_BUILD_NUMBER, ARCHITECTURE);
-  result += strfmt("%sConfiguration Directory: %s\n", tab, _wb->get_grt_manager()->get_user_datadir().c_str());
-  result += strfmt("%sData Directory: %s\n", tab, _wb->get_grt_manager()->get_basedir().c_str());
-
-  int cver= cairo_version();
+  int cver = cairo_version();
   result += strfmt("%sCairo Version: %i.%i.%i\n", tab, (cver / 10000) % 100, (cver / 100) % 100, cver % 100);
 
   result += strfmt("%sOS: %s\n", tab, get_local_os_name().c_str());
   result += strfmt("%sCPU: %s\n", tab, get_local_hardware_info().c_str());
 
-#ifdef _WIN32
   result += getFullVideoAdapterInfo(indent);
 
+#ifdef _WIN32
+
   int locale_buffer_size = GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SLANGUAGE, NULL, 0);
-  if (locale_buffer_size > 0)
-  {
-    TCHAR* buffer = new TCHAR[locale_buffer_size];
+  if (locale_buffer_size > 0) {
+    TCHAR *buffer = new TCHAR[locale_buffer_size];
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SLANGUAGE, buffer, locale_buffer_size);
 
     std::string converted = base::wstring_to_string(buffer);
-    delete [] buffer;
+    delete[] buffer;
 
     result += strfmt("%sCurrent user language: %s\n", tab, converted.c_str());
-  }
-  else
-  {
+  } else {
     // Very unlikely the system cannot return the current user language, but just in case.
     result += strfmt("%sUnable to determine current user language.\n", tab);
   }
 
 #elif defined(__APPLE__)
 #else
-  // not sure about how to fetch video adapter info, but could be useful
-
   // get distro name/version from lsb_release
   {
     int rc;
     char *stdo;
-    if (g_spawn_command_line_sync("lsb_release -d", &stdo, NULL, &rc, NULL) && stdo)
-    {
+    if (g_spawn_command_line_sync("lsb_release -d", &stdo, NULL, &rc, NULL) && stdo) {
       char *d = strchr(stdo, ':');
       if (d)
-        result += strfmt("%sDistribution: %s\n", tab, g_strchug(d+1));
+        result += strfmt("%sDistribution: %s\n", tab, g_strchug(d + 1));
       g_free(stdo);
     }
   }
 
-  //try to find out if we're running in fips mode
+  // try to find out if we're running in fips mode
   {
-
     bool fips_crypto = false;
     {
       std::ifstream fips_check;
       fips_check.open("/proc/sys/crypto/fips_enabled");
-      if (fips_check.good())
-      {
+      if (fips_check.good()) {
         char val;
         fips_check >> val;
         fips_crypto = val == '1' ? true : false;
@@ -172,13 +156,11 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
     {
       std::ifstream fips_check;
       fips_check.open("/proc/cmdline");
-      if (fips_check.good())
-      {
+      if (fips_check.good()) {
         std::string line;
         fips_check >> line;
         std::size_t found = line.find("fips=");
-        if (found != std::string::npos)
-        {
+        if (found != std::string::npos) {
           if (found + 5 <= line.size() && line.substr(found + 5, 1) == "1")
             fips_kernel = 1;
         }
@@ -190,236 +172,259 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
     {
       int rc;
       char *stdo;
-      if (g_spawn_command_line_sync("/usr/bin/env", &stdo, NULL, &rc, NULL) && stdo)
-      {
-        log_debug3("Environment variables:\n %s\n", stdo);
+      if (g_spawn_command_line_sync("/usr/bin/env", &stdo, NULL, &rc, NULL) && stdo) {
+        logDebug3("Environment variables:\n %s\n", stdo);
         g_free(stdo);
       }
     }
-
   }
 #endif
 
   return result;
 }
 
-
-std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
-{
+std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap() {
   std::map<std::string, std::string> result;
-  int cver= cairo_version();
-  
+  int cver = cairo_version();
+
   result["edition"] = APP_EDITION_NAME;
   result["license"] = APP_LICENSE_TYPE;
   result["version"] = strfmt("%u.%u.%u", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER);
-  result["configuration directory"] = _wb->get_grt_manager()->get_user_datadir();
-  result["data directory"] = _wb->get_grt_manager()->get_basedir();
+  result["configuration directory"] = bec::GRTManager::get()->get_user_datadir();
+  result["data directory"] = bec::GRTManager::get()->get_basedir();
   result["cairo version"] = strfmt("%u.%u.%u", (cver / 10000) % 100, (cver / 100) % 100, cver % 100);
   result["os"] = get_local_os_name();
   result["cpu"] = get_local_hardware_info();
-  
+
 #ifdef _WIN32
   result["platform"] = "Windows";
 #elif defined(__APPLE__)
   result["platform"] = "Mac OS X";
 #else
   result["platform"] = "Linux/Unix";
-  {
-    int rc;
-    char *stdo;
-    if (g_spawn_command_line_sync("lsb_release -d", &stdo, NULL, &rc, NULL) && stdo)
-    {
-      char *d = strchr(stdo, ':');
-      if (d)
-        result["distribution"] = base::trim(g_strchug(d+1));
-      g_free(stdo);
-    }
-  }
-#endif  
+  result["distribution"] = result["os"];
+#endif
 
   return result;
 }
 
+int WorkbenchImpl::isOsSupported(const std::string &os) {
+  if (os.find("unknown") != std::string::npos) {
+    logWarning("OS detection failed, skipping OS support check.  OS string: '%s'\n", os.c_str());
+    return true;
+  }
+
+  if (os.find("x86_64") == std::string::npos && os.find("Windows") == std::string::npos) {
+    logWarning("Detected 32-bit non-Windows OS. OS string: '%s'\n", os.c_str());
+    return false;
+  }
+
+  static std::vector<std::string> supportedOsList{
+    "Ubuntu 16.10", "Ubuntu 16.04", "Debian 8",
+
+    "Red Hat Enterprise Linux Server release 7", // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release
+                                                 // 7.1 (Maipo)"
+    "Fedora release 25", "Fedora release 24", "CentOS release 7",
+
+    "Windows 7", "Windows 8", "Windows 10", "Windows 2012 Server",
+
+    "OS X 10.9", "OS X 10.10", "OS X 10.11", "macOS 10.12",
+  };
+
+  for (std::string s : supportedOsList) {
+    if (os.find(s) != std::string::npos) {
+      logDebug2("OS '%s' is supported\n", os.c_str());
+      return true;
+    }
+  }
+
+  logWarning("OS not found on supported OS list. OS string: '%s'\n", os.c_str());
+  return false;
+}
 //--------------------------------------------------------------------------------------------------
 
-#define def_plugin(group, aName, type, aCaption, descr)\
-{\
-  app_PluginRef plugin(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(type);\
-  plugin->groups().insert("Application/Workbench");\
-  list.insert(plugin);\
-}
+#define def_plugin(group, aName, type, aCaption, descr) \
+  {                                                     \
+    app_PluginRef plugin(grt::Initialized);             \
+    plugin->name("wb." group "." aName);                \
+    plugin->caption(aCaption);                          \
+    plugin->description(descr);                         \
+    plugin->moduleName("Workbench");                    \
+    plugin->moduleFunctionName(aName);                  \
+    plugin->pluginType(type);                           \
+    plugin->groups().insert("Application/Workbench");   \
+    list.insert(plugin);                                \
+  }
 
-#define def_object_plugin(group, klass, aName, aCaption, descr)\
-{\
-  app_PluginRef plugin(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(NORMAL_PLUGIN_TYPE);\
-  plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input(get_grt());\
-  input->owner(plugin);\
-  input->objectStructName(klass::static_class_name());\
-  plugin->inputValues().insert(input);\
-  list.insert(plugin);\
-}
+#define def_object_plugin(group, klass, aName, aCaption, descr) \
+  {                                                             \
+    app_PluginRef plugin(grt::Initialized);                     \
+    plugin->name("wb." group "." aName);                        \
+    plugin->caption(aCaption);                                  \
+    plugin->description(descr);                                 \
+    plugin->moduleName("Workbench");                            \
+    plugin->moduleFunctionName(aName);                          \
+    plugin->pluginType(NORMAL_PLUGIN_TYPE);                     \
+    plugin->groups().insert("Application/Workbench");           \
+    app_PluginObjectInputRef input(grt::Initialized);           \
+    input->owner(plugin);                                       \
+    input->objectStructName(klass::static_class_name());        \
+    plugin->inputValues().insert(input);                        \
+    list.insert(plugin);                                        \
+  }
 
+#define def_view_plugin(group, aName, aCaption, descr)           \
+  {                                                              \
+    app_PluginRef plugin(grt::Initialized);                      \
+    plugin->name("wb." group "." aName);                         \
+    plugin->caption(aCaption);                                   \
+    plugin->description(descr);                                  \
+    plugin->moduleName("Workbench");                             \
+    plugin->moduleFunctionName(aName);                           \
+    plugin->pluginType(NORMAL_PLUGIN_TYPE);                      \
+    plugin->groups().insert("Application/Workbench");            \
+    app_PluginObjectInputRef input(grt::Initialized);            \
+    input->owner(plugin);                                        \
+    input->name("activeDiagram");                                \
+    input->objectStructName(model_Diagram::static_class_name()); \
+    plugin->inputValues().insert(input);                         \
+    list.insert(plugin);                                         \
+  }
 
-#define def_view_plugin(group, aName, aCaption, descr)\
-{\
-  app_PluginRef plugin(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(NORMAL_PLUGIN_TYPE);\
-  plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input(get_grt());\
-  input->owner(plugin);\
-  input->name("activeDiagram");\
-  input->objectStructName(model_Diagram::static_class_name());\
-  plugin->inputValues().insert(input);\
-  list.insert(plugin);\
-}
+#define def_model_plugin(group, aName, aCaption, descr)        \
+  {                                                            \
+    app_PluginRef plugin(grt::Initialized);                    \
+    plugin->name("wb." group "." aName);                       \
+    plugin->caption(aCaption);                                 \
+    plugin->description(descr);                                \
+    plugin->moduleName("Workbench");                           \
+    plugin->moduleFunctionName(aName);                         \
+    plugin->pluginType(NORMAL_PLUGIN_TYPE);                    \
+    plugin->groups().insert("Application/Workbench");          \
+    app_PluginObjectInputRef input(grt::Initialized);          \
+    input->owner(plugin);                                      \
+    input->name("activeModel");                                \
+    input->objectStructName(model_Model::static_class_name()); \
+    plugin->inputValues().insert(input);                       \
+    list.insert(plugin);                                       \
+  }
 
-#define def_model_plugin(group, aName, aCaption, descr)\
-{\
-  app_PluginRef plugin(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(NORMAL_PLUGIN_TYPE);\
-  plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input(get_grt());\
-  input->owner(plugin);\
-  input->name("activeModel");\
-  input->objectStructName(model_Model::static_class_name());\
-  plugin->inputValues().insert(input);\
-  list.insert(plugin);\
-}
+#define def_form_model_plugin(group, aName, aCaption, descr)   \
+  {                                                            \
+    app_PluginRef plugin(grt::Initialized);                    \
+    plugin->name("wb." group "." aName);                       \
+    plugin->caption(aCaption);                                 \
+    plugin->description(descr);                                \
+    plugin->moduleName("Workbench");                           \
+    plugin->moduleFunctionName(aName);                         \
+    plugin->pluginType(STANDALONE_GUI_PLUGIN_TYPE);            \
+    plugin->groups().insert("Application/Workbench");          \
+    app_PluginObjectInputRef input(grt::Initialized);          \
+    input->owner(plugin);                                      \
+    input->name("activeModel");                                \
+    input->objectStructName(model_Model::static_class_name()); \
+    plugin->inputValues().insert(input);                       \
+    list.insert(plugin);                                       \
+  }
 
-#define def_form_model_plugin(group, aName, aCaption, descr)\
-{\
-  app_PluginRef plugin(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(STANDALONE_GUI_PLUGIN_TYPE);\
-  plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input(get_grt());\
-  input->owner(plugin);\
-  input->name("activeModel");\
-  input->objectStructName(model_Model::static_class_name());\
-  plugin->inputValues().insert(input);\
-  list.insert(plugin);\
-}
+#define def_form_plugin(group, aName, aCaption, descr) \
+  {                                                    \
+    app_PluginRef plugin(grt::Initialized);            \
+    plugin->name("wb." group "." aName);               \
+    plugin->caption(aCaption);                         \
+    plugin->description(descr);                        \
+    plugin->moduleName("Workbench");                   \
+    plugin->moduleFunctionName(aName);                 \
+    plugin->pluginType(STANDALONE_GUI_PLUGIN_TYPE);    \
+    plugin->groups().insert("Application/Workbench");  \
+    list.insert(plugin);                               \
+  }
 
-#define def_form_plugin(group, aName, aCaption, descr)\
-{\
-  app_PluginRef plugin(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(STANDALONE_GUI_PLUGIN_TYPE);\
-  plugin->groups().insert("Application/Workbench");\
-  list.insert(plugin);\
-}
+#define def_arg_plugin(group, aName, type, aCaption, descr) \
+  {                                                         \
+    app_PluginRef plugin(grt::Initialized);                 \
+    app_PluginInputDefinitionRef pdef(grt::Initialized);    \
+    plugin->name("wb." group "." aName);                    \
+    plugin->caption(aCaption);                              \
+    plugin->description(descr);                             \
+    plugin->moduleName("Workbench");                        \
+    plugin->moduleFunctionName(aName);                      \
+    plugin->pluginType(type);                               \
+    pdef->owner(plugin);                                    \
+    pdef->name("string");                                   \
+    plugin->inputValues().insert(pdef);                     \
+    plugin->groups().insert("Application/Workbench");       \
+    list.insert(plugin);                                    \
+  }
 
+#define def_model_arg_plugin(group, aName, type, aCaption, descr) \
+  {                                                               \
+    app_PluginRef plugin(grt::Initialized);                       \
+    plugin->name("wb." group "." aName);                          \
+    plugin->caption(aCaption);                                    \
+    plugin->description(descr);                                   \
+    plugin->moduleName("Workbench");                              \
+    plugin->moduleFunctionName(aName);                            \
+    plugin->pluginType(type);                                     \
+    app_PluginInputDefinitionRef pdef(grt::Initialized);          \
+    pdef->owner(plugin);                                          \
+    pdef->name("string");                                         \
+    plugin->inputValues().insert(pdef);                           \
+    app_PluginObjectInputRef model(grt::Initialized);             \
+    model->owner(plugin);                                         \
+    model->name("activeModel");                                   \
+    model->objectStructName(model_Model::static_class_name());    \
+    plugin->inputValues().insert(model);                          \
+    plugin->groups().insert("Application/Workbench");             \
+    list.insert(plugin);                                          \
+  }
 
-#define def_arg_plugin(group, aName, type, aCaption, descr)\
-{\
-  app_PluginRef plugin(get_grt());\
-  app_PluginInputDefinitionRef pdef(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(type);\
-  pdef->owner(plugin);\
-  pdef->name("string");\
-  plugin->inputValues().insert(pdef);\
-  plugin->groups().insert("Application/Workbench");\
-  list.insert(plugin);\
-}
+#define def_file_plugin(group, aName, ptype, aCaption, descr, aDialogCaption, aType, aExtensions) \
+  {                                                                                               \
+    app_PluginRef plugin(grt::Initialized);                                                       \
+    app_PluginFileInputRef pdef(grt::Initialized);                                                \
+    plugin->name("wb." group "." aName);                                                          \
+    plugin->caption(aCaption);                                                                    \
+    plugin->description(descr);                                                                   \
+    plugin->moduleName("Workbench");                                                              \
+    plugin->moduleFunctionName(aName);                                                            \
+    plugin->pluginType(ptype);                                                                    \
+    pdef->owner(plugin);                                                                          \
+    pdef->dialogTitle(aDialogCaption);                                                            \
+    pdef->dialogType(aType);                                                                      \
+    pdef->fileExtensions(aExtensions);                                                            \
+    plugin->inputValues().insert(pdef);                                                           \
+    plugin->groups().insert("Application/Workbench");                                             \
+    list.insert(plugin);                                                                          \
+  }
 
-#define def_model_arg_plugin(group, aName, type, aCaption, descr)\
-{\
-  app_PluginRef plugin(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(type);\
-  app_PluginInputDefinitionRef pdef(get_grt());\
-  pdef->owner(plugin);\
-  pdef->name("string");\
-  plugin->inputValues().insert(pdef);\
-  app_PluginObjectInputRef model(get_grt());\
-  model->owner(plugin);\
-  model->name("activeModel");\
-  model->objectStructName(model_Model::static_class_name());\
-  plugin->inputValues().insert(model);\
-  plugin->groups().insert("Application/Workbench");\
-  list.insert(plugin);\
-}
+ListRef<app_Plugin> WorkbenchImpl::getPluginInfo() {
+  ListRef<app_Plugin> list(true);
 
-#define def_file_plugin(group, aName, ptype, aCaption, descr, aDialogCaption, aType, aExtensions)\
-{\
-  app_PluginRef plugin(get_grt());\
-  app_PluginFileInputRef pdef(get_grt());\
-  plugin->name("wb." group "." aName);\
-  plugin->caption(aCaption);\
-  plugin->description(descr);\
-  plugin->moduleName("Workbench");\
-  plugin->moduleFunctionName(aName);\
-  plugin->pluginType(ptype);\
-  pdef->owner(plugin);\
-  pdef->dialogTitle(aDialogCaption);\
-  pdef->dialogType(aType);\
-  pdef->fileExtensions(aExtensions);\
-  plugin->inputValues().insert(pdef);\
-  plugin->groups().insert("Application/Workbench");\
-  list.insert(plugin);\
-}
+  def_plugin("file", "newDocument", INTERNAL_PLUGIN_TYPE, "New Model", "New Document");
+  def_plugin("file", "newDocumentFromDB", INTERNAL_PLUGIN_TYPE, "Reverse Engineer Database", "Reverse Engineer");
+  def_file_plugin("file", "openModel", INTERNAL_PLUGIN_TYPE, "Open Model", "Open Model from File", "Open Model", "open",
+                  "mwb");
+  def_plugin("file", "saveModel", INTERNAL_PLUGIN_TYPE, "Save Model", "Save Model to Current File");
+  def_arg_plugin("file", "openRecentModel", INTERNAL_PLUGIN_TYPE, "Open Model", "Open Model");
+  def_file_plugin("file", "saveModelAs", INTERNAL_PLUGIN_TYPE, "Save As", "Save Model to a New File", "Save Model",
+                  "save", "mwb");
+  def_plugin("file", "exit", INTERNAL_PLUGIN_TYPE, "Exit", "Exit Workbench");
 
-
-ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
-{
-  ListRef<app_Plugin> list(get_grt());
-
-  def_plugin      ("file", "newDocument", INTERNAL_PLUGIN_TYPE, "New Model", "New Document");
-  def_plugin      ("file", "newDocumentFromDB", INTERNAL_PLUGIN_TYPE, "Reverse Engineer Database", "Reverse Engineer");
-  def_file_plugin ("file", "openModel", INTERNAL_PLUGIN_TYPE, "Open Model", "Open Model from File", "Open Model", "open", "mwb");
-  def_plugin      ("file", "saveModel", INTERNAL_PLUGIN_TYPE, "Save Model", "Save Model to Current File");
-  def_arg_plugin  ("file", "openRecentModel", INTERNAL_PLUGIN_TYPE, "Open Model", "Open Model");
-  def_file_plugin ("file", "saveModelAs", INTERNAL_PLUGIN_TYPE, "Save As", "Save Model to a New File", "Save Model", "save", "mwb");
-  def_plugin      ("file", "exit", INTERNAL_PLUGIN_TYPE, "Exit", "Exit Workbench");
-
-  def_file_plugin ("export", "exportPNG", STANDALONE_GUI_PLUGIN_TYPE, "Export as PNG", "Export Current Diagram as PNG", "Export as PNG", "save", "png");
-  def_file_plugin ("export", "exportPDF", STANDALONE_GUI_PLUGIN_TYPE, "Export as PDF", "Export Current Diagram as PDF", "Export as PDF", "save", "pdf");
-  def_file_plugin ("export", "exportSVG", STANDALONE_GUI_PLUGIN_TYPE, "Export as SVG", "Export Current Diagram as SVG", "Export as SVG", "save", "svg");
-  def_file_plugin ("export", "exportPS", STANDALONE_GUI_PLUGIN_TYPE, "Export as PS", "Export Current Diagram as PostScript", "Export as PostScript", "save", "ps");
+  def_file_plugin("export", "exportPNG", STANDALONE_GUI_PLUGIN_TYPE, "Export as PNG", "Export Current Diagram as PNG",
+                  "Export as PNG", "save", "png");
+  def_file_plugin("export", "exportPDF", STANDALONE_GUI_PLUGIN_TYPE, "Export as PDF", "Export Current Diagram as PDF",
+                  "Export as PDF", "save", "pdf");
+  def_file_plugin("export", "exportSVG", STANDALONE_GUI_PLUGIN_TYPE, "Export as SVG", "Export Current Diagram as SVG",
+                  "Export as SVG", "save", "svg");
+  def_file_plugin("export", "exportPS", STANDALONE_GUI_PLUGIN_TYPE, "Export as PS",
+                  "Export Current Diagram as PostScript", "Export as PostScript", "save", "ps");
 
   def_plugin("edit", "selectAll", INTERNAL_PLUGIN_TYPE, "Select All", "Select All Objects in Diagram");
-  def_plugin("edit", "selectSimilar", INTERNAL_PLUGIN_TYPE, "Select Similar Figures", "Select Similar Figures in Diagram");
-  def_plugin("edit", "selectConnected", INTERNAL_PLUGIN_TYPE, "Select Connected Figures", "Select Figures Connected to the Selected One");
+  def_plugin("edit", "selectSimilar", INTERNAL_PLUGIN_TYPE, "Select Similar Figures",
+             "Select Similar Figures in Diagram");
+  def_plugin("edit", "selectConnected", INTERNAL_PLUGIN_TYPE, "Select Connected Figures",
+             "Select Figures Connected to the Selected One");
 
   def_view_plugin("edit", "raiseSelection", "Bring to Front", "Bring Selected Object to Front");
   def_view_plugin("edit", "lowerSelection", "Send to Back", "Send Selected Object to Back");
@@ -430,28 +435,37 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
   def_view_plugin("edit", "toggleFKHighlight", "Toggle Relationship Highlight", "Toggle Relationship Highlight");
 
   def_view_plugin("edit", "editSelectedFigure", "Edit Selected Objects", "Edit Selected Objects");
-  def_view_plugin("edit", "editSelectedFigureInNewWindow", "Edit Selected Objects in New Window", "Edit Selected Objects in New Window");
+  def_view_plugin("edit", "editSelectedFigureInNewWindow", "Edit Selected Objects in New Window",
+                  "Edit Selected Objects in New Window");
 
   def_object_plugin("edit", GrtObject, "editObject", "Edit Selected Object", "Edit Selected Object");
-  def_object_plugin("edit", GrtObject, "editObjectInNewWindow", "Edit Selected Object in New Window", "Edit Selected Object in New Window");
+  def_object_plugin("edit", GrtObject, "editObjectInNewWindow", "Edit Selected Object in New Window",
+                    "Edit Selected Object in New Window");
 
   def_plugin("edit", "goToNextSelected", INTERNAL_PLUGIN_TYPE, "Go to Next Selected", "Go to Next Selected Object");
-  def_plugin("edit", "goToPreviousSelected", INTERNAL_PLUGIN_TYPE, "Go to Previous Selected", "Go to Previous Selected Object");
+  def_plugin("edit", "goToPreviousSelected", INTERNAL_PLUGIN_TYPE, "Go to Previous Selected",
+             "Go to Previous Selected Object");
 
   def_plugin("view", "zoomIn", INTERNAL_PLUGIN_TYPE, "Zoom In", "Zoom In Diagram");
   def_plugin("view", "zoomOut", INTERNAL_PLUGIN_TYPE, "Zoom Out", "Zoom Out Diagram");
   def_plugin("view", "zoomDefault", INTERNAL_PLUGIN_TYPE, "Zoom 100%", "Zoom Back Diagram to Default");
 
   def_arg_plugin("view", "goToMarker", INTERNAL_PLUGIN_TYPE, "Go to Marker", "Go to Previously Set Diagram Marker");
-  def_arg_plugin("view", "setMarker", INTERNAL_PLUGIN_TYPE, "Set a Marker", "Set a Diagram Marker to the Current Location");
+  def_arg_plugin("view", "setMarker", INTERNAL_PLUGIN_TYPE, "Set a Marker",
+                 "Set a Diagram Marker to the Current Location");
 
-  def_model_arg_plugin("view", "setFigureNotation", INTERNAL_PLUGIN_TYPE, "Set Objects Notation", "Set Object Notation");
-  def_model_arg_plugin("view", "setRelationshipNotation", INTERNAL_PLUGIN_TYPE, "Set Relationships Notation", "Set Relationship Notation");
+  def_model_arg_plugin("view", "setFigureNotation", INTERNAL_PLUGIN_TYPE, "Set Objects Notation",
+                       "Set Object Notation");
+  def_model_arg_plugin("view", "setRelationshipNotation", INTERNAL_PLUGIN_TYPE, "Set Relationships Notation",
+                       "Set Relationship Notation");
 
   def_model_plugin("model", "newDiagram", "Add New Diagram", "Add a New Diagram to the Model");
 
-  def_file_plugin("tools", "runScriptFile", STANDALONE_GUI_PLUGIN_TYPE, "Run Script File", "Select a Script File to Execute", "Open Script and Execute", "open", "py,lua");
-  def_file_plugin("tools", "installModuleFile", STANDALONE_GUI_PLUGIN_TYPE, "Install Plugin", "Select a Module or Plugin File to Install", "Select Module to Install", "open", "py,lua,mwbplugin,mwbpluginz");
+  def_file_plugin("tools", "runScriptFile", STANDALONE_GUI_PLUGIN_TYPE, "Run Script File",
+                  "Select a Script File to Execute", "Open Script and Execute", "open", "py");
+  def_file_plugin("tools", "installModuleFile", STANDALONE_GUI_PLUGIN_TYPE, "Install Plugin",
+                  "Select a Module or Plugin File to Install", "Select Module to Install", "open",
+                  "py,mwbplugin,mwbpluginz");
 
   def_form_model_plugin("form", "showUserTypeEditor", "User Types Editor", "Open User Defined Types Editor");
   def_form_model_plugin("form", "showModelOptions", "Show Model Options", "Open Model Options Window");
@@ -461,156 +475,128 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
   def_form_plugin("form", "showInstanceManager", "Manage Server Instance Profiles", "Open Server Profile Manager");
   def_form_plugin("form", "showQueryConnectDialog", "Query Database...", "Connect to and Query a Database Server");
   def_form_plugin("form", "showGRTShell", "Show GRT Shell...", "Show Workbench Script Development Shell");
-  def_plugin("form", "newGRTFile", STANDALONE_GUI_PLUGIN_TYPE, "New Script File...", "Create a new Workbench script/plugin file");
-  def_plugin("form", "openGRTFile", STANDALONE_GUI_PLUGIN_TYPE, "Open Script File...", "Open an existing Workbench script/plugin file");
+  def_plugin("form", "newGRTFile", STANDALONE_GUI_PLUGIN_TYPE, "New Script File...",
+             "Create a new Workbench script/plugin file");
+  def_plugin("form", "openGRTFile", STANDALONE_GUI_PLUGIN_TYPE, "Open Script File...",
+             "Open an existing Workbench script/plugin file");
   def_form_plugin("form", "showPluginManager", "Plugin Manager...", "Show Workbench Plugin Manager Window");
   def_arg_plugin("form", "reportBug", STANDALONE_GUI_PLUGIN_TYPE, "Report Bug...", "Show Report Bug Window");
 
   def_plugin("debug", "debugValidateGRT", NORMAL_PLUGIN_TYPE, "Validate GRT Tree", "Validate Consistency of GRT Tree");
-  def_plugin("debug", "debugShowInfo", INTERNAL_PLUGIN_TYPE, "Show Debugging Info", "Show various system and application information");
-  def_plugin("debug", "debugGrtStats", NORMAL_PLUGIN_TYPE, "Show GRT Debugging Info", "Show various internal GRT stats");
+  def_plugin("debug", "debugShowInfo", INTERNAL_PLUGIN_TYPE, "Show Debugging Info",
+             "Show various system and application information");
+  def_plugin("debug", "debugGrtStats", NORMAL_PLUGIN_TYPE, "Show GRT Debugging Info",
+             "Show various internal GRT stats");
 
   return list;
 }
 
-int WorkbenchImpl::copyToClipboard(const std::string &astr)
-{
-  _wb->get_grt_manager()->get_dispatcher()
-    ->call_from_main_thread<void>(boost::bind(mforms::Utilities::set_clipboard_text, astr), true, false);
+int WorkbenchImpl::copyToClipboard(const std::string &astr) {
+  bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<void>(
+    std::bind(mforms::Utilities::set_clipboard_text, astr), true, false);
 
   return 1;
 }
 
-
-int WorkbenchImpl::hasUnsavedChanges()
-{
+int WorkbenchImpl::hasUnsavedChanges() {
   return _wb->has_unsaved_changes() ? 1 : 0;
 }
 
-
-
-int WorkbenchImpl::newDocument()
-{
+int WorkbenchImpl::newDocument() {
   _wb->new_document();
 
   return 0;
 }
 
-
-int WorkbenchImpl::newDocumentFromDB()
-{
+int WorkbenchImpl::newDocumentFromDB() {
   // if there is a model open, do plain reveng, otherwise create one 1st
 
   if (!_wb->get_document().is_valid())
     _wb->new_document();
 
-  grt::Module *module = _wb->get_grt()->get_module("MySQLDbModule");
+  grt::Module *module = grt::GRT::get()->get_module("MySQLDbModule");
 
   if (module == NULL)
     throw std::logic_error("Internal error: can't find Workbench DB module.");
 
-  grt::BaseListRef args(get_grt());
+  grt::BaseListRef args(true);
   args.ginsert(_wb->get_document()->physicalModels()[0]->catalog());
   grt::IntegerRef resultRef = grt::IntegerRef::cast_from(module->call_function("runDbImportWizard", args));
 
   return (int)*resultRef;
 }
 
-
-int WorkbenchImpl::openModel(const std::string &filename)
-{
+int WorkbenchImpl::openModel(const std::string &filename) {
   _wb->open_document(filename);
 
   return 0;
 }
 
-
-int WorkbenchImpl::openRecentModel(const std::string &index)
-{
+int WorkbenchImpl::openRecentModel(const std::string &index) {
   _wb->open_recent_document(base::atoi<int>(index, 0));
 
   return 0;
 }
 
-
-int WorkbenchImpl::saveModel()
-{
+int WorkbenchImpl::saveModel() {
   _wb->save_as(_wb->get_filename());
 
   return 0;
 }
 
-
-int WorkbenchImpl::saveModelAs(const std::string &filename)
-{
-  _wb->save_as(bec::append_extension_if_needed(filename, ".mwb"));
+int WorkbenchImpl::saveModelAs(const std::string &filename) {
+  _wb->save_as(base::appendExtensionIfNeeded(filename, ".mwb"));
 
   return 0;
 }
 
-
-int WorkbenchImpl::exportPNG(const std::string &filename)
-{
-  _wb->get_model_context()->export_png(bec::append_extension_if_needed(filename, ".png"));
+int WorkbenchImpl::exportPNG(const std::string &filename) {
+  _wb->get_model_context()->export_png(base::appendExtensionIfNeeded(filename, ".png"));
 
   return 0;
 }
 
-int WorkbenchImpl::exportPDF(const std::string &filename)
-{
-  _wb->get_model_context()->export_pdf(bec::append_extension_if_needed(filename, ".pdf"));
+int WorkbenchImpl::exportPDF(const std::string &filename) {
+  _wb->get_model_context()->export_pdf(base::appendExtensionIfNeeded(filename, ".pdf"));
 
   return 0;
 }
 
-
-int WorkbenchImpl::exportSVG(const std::string &filename)
-{
-  _wb->get_model_context()->export_svg(bec::append_extension_if_needed(filename, ".svg"));
+int WorkbenchImpl::exportSVG(const std::string &filename) {
+  _wb->get_model_context()->export_svg(base::appendExtensionIfNeeded(filename, ".svg"));
 
   return 0;
 }
 
-
-int WorkbenchImpl::exportPS(const std::string &filename)
-{
-  _wb->get_model_context()->export_ps(bec::append_extension_if_needed(filename, ".ps"));
+int WorkbenchImpl::exportPS(const std::string &filename) {
+  _wb->get_model_context()->export_ps(base::appendExtensionIfNeeded(filename, ".ps"));
 
   return 0;
 }
 
-
-static void quit(WBContext *wb)
-{
-  if (wb->get_ui()->request_quit())
-    wb->get_ui()->perform_quit();
+static void quit() {
+  if (wb::WBContextUI::get()->request_quit())
+    wb::WBContextUI::get()->perform_quit();
 }
 
-int WorkbenchImpl::exit()
-{
-  _wb->get_grt_manager()->get_dispatcher()->
-  call_from_main_thread<void>(boost::bind(quit, _wb), false, false);
+int WorkbenchImpl::exit() {
+  bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<void>(std::bind(quit), false, false);
 
   return 0;
 }
 
-
-
-int WorkbenchImpl::selectAll()
-{
-  if (dynamic_cast<ModelDiagramForm*>(_wb->get_active_form()))
-  {
+int WorkbenchImpl::selectAll() {
+  if (dynamic_cast<ModelDiagramForm *>(_wb->get_active_form())) {
     _wb->get_active_form()->select_all();
   }
   return 0;
 }
 
+int WorkbenchImpl::selectSimilar() {
+  if (!dynamic_cast<ModelDiagramForm *>(_wb->get_active_form()))
+    return 0;
 
-int WorkbenchImpl::selectSimilar()
-{
-  if (!dynamic_cast<ModelDiagramForm*>(_wb->get_active_form())) return 0;
-
-  model_DiagramRef view(dynamic_cast<ModelDiagramForm*>(_wb->get_active_form())->get_model_diagram());
+  model_DiagramRef view(dynamic_cast<ModelDiagramForm *>(_wb->get_active_form())->get_model_diagram());
   std::string figure_type;
 
   if (view->selection().count() != 1)
@@ -618,34 +604,26 @@ int WorkbenchImpl::selectSimilar()
 
   model_ObjectRef object(view->selection().get(0));
 
-  figure_type= object.class_name();
+  figure_type = object.class_name();
 
   view->unselectAll();
 
-  if (model_FigureRef::can_wrap(object))
-  {
-    for (size_t c= view->figures().count(), i= 0; i < c; i++)
-    {
+  if (model_FigureRef::can_wrap(object)) {
+    for (size_t c = view->figures().count(), i = 0; i < c; i++) {
       model_FigureRef figure(view->figures().get(i));
 
       if (figure.is_instance(figure_type))
         view->selectObject(figure);
     }
-  }
-  else if (model_ConnectionRef::can_wrap(object))
-  {
-    for (size_t c= view->connections().count(), i= 0; i < c; i++)
-    {
+  } else if (model_ConnectionRef::can_wrap(object)) {
+    for (size_t c = view->connections().count(), i = 0; i < c; i++) {
       model_ConnectionRef conn(view->connections().get(i));
 
       if (conn.is_instance(figure_type))
         view->selectObject(conn);
     }
-  }
-  else if (model_LayerRef::can_wrap(object))
-  {
-    for (size_t c= view->layers().count(), i= 0; i < c; i++)
-    {
+  } else if (model_LayerRef::can_wrap(object)) {
+    for (size_t c = view->layers().count(), i = 0; i < c; i++) {
       model_LayerRef layer(view->layers().get(i));
 
       if (layer.is_instance(figure_type))
@@ -656,13 +634,11 @@ int WorkbenchImpl::selectSimilar()
   return 0;
 }
 
+int WorkbenchImpl::selectConnected() {
+  if (!dynamic_cast<ModelDiagramForm *>(_wb->get_active_form()))
+    return 0;
 
-
-int WorkbenchImpl::selectConnected()
-{
-  if (!dynamic_cast<ModelDiagramForm*>(_wb->get_active_form())) return 0;
-
-  model_DiagramRef view(dynamic_cast<ModelDiagramForm*>(_wb->get_active_form())->get_model_diagram());
+  model_DiagramRef view(dynamic_cast<ModelDiagramForm *>(_wb->get_active_form())->get_model_diagram());
   std::string figure_type;
   model_FigureRef figure;
 
@@ -670,30 +646,23 @@ int WorkbenchImpl::selectConnected()
     return 0;
 
   if (model_FigureRef::can_wrap(view->selection().get(0)))
-    figure= model_FigureRef::cast_from(view->selection().get(0));
+    figure = model_FigureRef::cast_from(view->selection().get(0));
 
-  if (figure.is_valid())
-  {
+  if (figure.is_valid()) {
     std::set<std::string> added;
 
     added.insert(figure.id());
 
-    for (size_t c= view->connections().count(), i= 0; i < c; i++)
-    {
+    for (size_t c = view->connections().count(), i = 0; i < c; i++) {
       model_ConnectionRef conn(view->connections().get(i));
 
-      if (conn->startFigure() == figure)
-      {
-        if (added.find(conn->endFigure()->id()) == added.end())
-        {
+      if (conn->startFigure() == figure) {
+        if (added.find(conn->endFigure()->id()) == added.end()) {
           added.insert(conn->endFigure()->id());
           view->selectObject(conn->endFigure());
         }
-      }
-      else if (conn->endFigure() == figure)
-      {
-        if (added.find(conn->startFigure()->id()) == added.end())
-        {
+      } else if (conn->endFigure() == figure) {
+        if (added.find(conn->startFigure()->id()) == added.end()) {
           added.insert(conn->startFigure()->id());
           view->selectObject(conn->startFigure());
         }
@@ -704,80 +673,61 @@ int WorkbenchImpl::selectConnected()
   return 0;
 }
 
-
-static void activate_object(WBComponent *compo, const model_ObjectRef &object, bool newwindow)
-{
+static void activate_object(WBComponent *compo, const model_ObjectRef &object, bool newwindow) {
   if (compo->handles_figure(object))
     compo->activate_canvas_object(object, newwindow);
 }
 
-
-int WorkbenchImpl::editSelectedFigure(const model_DiagramRef &view)
-{
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_active_form());
-  if (form)
-  {
+int WorkbenchImpl::editSelectedFigure(const model_DiagramRef &view) {
+  ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(_wb->get_active_form());
+  if (form) {
     ListRef<model_Object> list(form->get_selection());
 
-    for (size_t c= list.count(), i= 0; i < c; i++)
-    {
-      _wb->foreach_component(boost::bind(activate_object, _1, list.get(i), false));
+    for (size_t c = list.count(), i = 0; i < c; i++) {
+      _wb->foreach_component(std::bind(activate_object, std::placeholders::_1, list.get(i), false));
     }
   }
   return 0;
 }
 
-int WorkbenchImpl::editSelectedFigureInNewWindow(const model_DiagramRef &view)
-{
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_active_form());
-  if (form)
-  {
+int WorkbenchImpl::editSelectedFigureInNewWindow(const model_DiagramRef &view) {
+  ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(_wb->get_active_form());
+  if (form) {
     ListRef<model_Object> list(form->get_selection());
 
-    for (size_t c= list.count(), i= 0; i < c; i++)
-    {
-      _wb->foreach_component(boost::bind(activate_object, _1, list.get(i), true));
+    for (size_t c = list.count(), i = 0; i < c; i++) {
+      _wb->foreach_component(std::bind(activate_object, std::placeholders::_1, list.get(i), true));
     }
   }
   return 0;
 }
 
-
-int WorkbenchImpl::editObject(const GrtObjectRef &object)
-{
-  _wb->get_grt_manager()->open_object_editor(object, bec::NoFlags);
+int WorkbenchImpl::editObject(const GrtObjectRef &object) {
+  bec::GRTManager::get()->open_object_editor(object, bec::NoFlags);
   return 0;
 }
 
-
-int WorkbenchImpl::editObjectInNewWindow(const GrtObjectRef &object)
-{
-  _wb->get_grt_manager()->open_object_editor(object, bec::ForceNewWindowFlag);
+int WorkbenchImpl::editObjectInNewWindow(const GrtObjectRef &object) {
+  bec::GRTManager::get()->open_object_editor(object, bec::ForceNewWindowFlag);
   return 0;
 }
 
-
-
-int WorkbenchImpl::goToNextSelected()
-{
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_active_form());
-  if (!form) return 0;
+int WorkbenchImpl::goToNextSelected() {
+  ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(_wb->get_active_form());
+  if (!form)
+    return 0;
 
   model_DiagramRef view(form->get_model_diagram());
 
   if (view->selection().count() == 0)
     return 0;
 
-  for (size_t c= view->selection().count(), i= 0; i < c; i++)
-  {
-    model_Figure::ImplData *figure= model_FigureRef::cast_from(view->selection().get(i))->get_data();
-    if (figure && figure->get_canvas_item())
-    {
-      if (form->get_view()->get_focused_item() == figure->get_canvas_item())
-      {
-        if (i < view->selection().count()-1)
-        {
-          form->focus_and_make_visible(view->selection().get(i+1), false);
+  for (size_t c = view->selection().count(), i = 0; i < c; i++) {
+    model_Figure::ImplData *figure = model_FigureRef::cast_from(view->selection().get(i))->get_data();
+    if (figure && figure->get_canvas_item()) {
+      if (form->get_view()->get_focused_item() == figure->get_canvas_item()) {
+        if (i < view->selection().count() - 1) {
+          form->focus_and_make_visible(view->selection().get(i + 1), false);
           return 0;
         }
         break;
@@ -791,55 +741,43 @@ int WorkbenchImpl::goToNextSelected()
   return 0;
 }
 
-
-int WorkbenchImpl::goToPreviousSelected()
-{
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_active_form());
-  if (!form) return 0;
+int WorkbenchImpl::goToPreviousSelected() {
+  ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(_wb->get_active_form());
+  if (!form)
+    return 0;
 
   model_DiagramRef view(form->get_model_diagram());
   if (view->selection().count() == 0)
     return 0;
 
-  for (size_t c= view->selection().count(), i= 0; i < c; i++)
-  {
-    model_Figure::ImplData *figure= model_FigureRef::cast_from(view->selection().get(i))->get_data();
-    if (figure && figure->get_canvas_item())
-    {
-      if (form->get_view()->get_focused_item() == figure->get_canvas_item())
-      {
-        if (i > 0)
-        {
-          form->focus_and_make_visible(view->selection().get(i-1), false);
+  for (size_t c = view->selection().count(), i = 0; i < c; i++) {
+    model_Figure::ImplData *figure = model_FigureRef::cast_from(view->selection().get(i))->get_data();
+    if (figure && figure->get_canvas_item()) {
+      if (form->get_view()->get_focused_item() == figure->get_canvas_item()) {
+        if (i > 0) {
+          form->focus_and_make_visible(view->selection().get(i - 1), false);
           return 0;
         }
         break;
       }
     }
   }
-  form->focus_and_make_visible(view->selection().get(view->selection().count()-1), false);
+  form->focus_and_make_visible(view->selection().get(view->selection().count() - 1), false);
 
   return 0;
 }
 
-
-
-int WorkbenchImpl::newDiagram(const model_ModelRef &model)
-{
+int WorkbenchImpl::newDiagram(const model_ModelRef &model) {
   model->addNewDiagram(false);
 
   return 0;
 }
 
-
 // canvas manipulation
 
-int WorkbenchImpl::raiseSelection(const model_DiagramRef &view)
-{
-  for (size_t c= view->selection().count(), i= 0; i < c; i++)
-  {
-    if (view->selection().get(i).is_instance(model_Figure::static_class_name()))
-    {
+int WorkbenchImpl::raiseSelection(const model_DiagramRef &view) {
+  for (size_t c = view->selection().count(), i = 0; i < c; i++) {
+    if (view->selection().get(i).is_instance(model_Figure::static_class_name())) {
       model_FigureRef figure(model_FigureRef::cast_from(view->selection()[i]));
 
       figure->layer()->raiseFigure(figure);
@@ -848,13 +786,9 @@ int WorkbenchImpl::raiseSelection(const model_DiagramRef &view)
   return 0;
 }
 
-
-int WorkbenchImpl::lowerSelection(const model_DiagramRef &view)
-{
-  for (size_t c= view->selection().count(), i= 0; i < c; i++)
-  {
-    if (view->selection().get(i).is_instance(model_Figure::static_class_name()))
-    {
+int WorkbenchImpl::lowerSelection(const model_DiagramRef &view) {
+  for (size_t c = view->selection().count(), i = 0; i < c; i++) {
+    if (view->selection().get(i).is_instance(model_Figure::static_class_name())) {
       model_FigureRef figure(model_FigureRef::cast_from(view->selection()[i]));
 
       figure->layer()->lowerFigure(figure);
@@ -863,104 +797,85 @@ int WorkbenchImpl::lowerSelection(const model_DiagramRef &view)
   return 0;
 }
 
-
-
-int WorkbenchImpl::toggleGridAlign(const model_DiagramRef &view)
-{
-  ModelDiagramForm *form= _wb->get_model_context()->get_diagram_form_for_diagram_id(view->id());
-  if (form)
-  {
+int WorkbenchImpl::toggleGridAlign(const model_DiagramRef &view) {
+  ModelDiagramForm *form = _wb->get_model_context()->get_diagram_form_for_diagram_id(view->id());
+  if (form) {
     form->get_view()->set_grid_snapping(!form->get_view()->get_grid_snapping());
 
-    _wb->get_grt_manager()->set_app_option("AlignToGrid", grt::IntegerRef(form->get_view()->get_grid_snapping()?1:0));
+    bec::GRTManager::get()->set_app_option("AlignToGrid",
+                                           grt::IntegerRef(form->get_view()->get_grid_snapping() ? 1 : 0));
   }
   return 0;
 }
 
+int WorkbenchImpl::toggleGrid(const model_DiagramRef &view) {
+  ModelDiagramForm *form = _wb->get_model_context()->get_diagram_form_for_diagram_id(view->id());
+  if (form) {
+    form->get_view()->get_background_layer()->set_grid_visible(
+      !form->get_view()->get_background_layer()->get_grid_visible());
 
-int WorkbenchImpl::toggleGrid(const model_DiagramRef &view)
-{
-  ModelDiagramForm *form= _wb->get_model_context()->get_diagram_form_for_diagram_id(view->id());
-  if (form)
-  {
-    form->get_view()->get_background_layer()->set_grid_visible(!form->get_view()->get_background_layer()->get_grid_visible());
-
-    view->options().gset("ShowGrid", form->get_view()->get_background_layer()->get_grid_visible()?1:0);
+    view->options().gset("ShowGrid", form->get_view()->get_background_layer()->get_grid_visible() ? 1 : 0);
   }
   return 0;
 }
 
+int WorkbenchImpl::togglePageGrid(const model_DiagramRef &view) {
+  ModelDiagramForm *form = _wb->get_model_context()->get_diagram_form_for_diagram_id(view->id());
+  if (form) {
+    form->get_view()->get_background_layer()->set_paper_visible(
+      !form->get_view()->get_background_layer()->get_paper_visible());
 
-int WorkbenchImpl::togglePageGrid(const model_DiagramRef &view)
-{
-  ModelDiagramForm *form= _wb->get_model_context()->get_diagram_form_for_diagram_id(view->id());
-  if (form)
-  {
-    form->get_view()->get_background_layer()->set_paper_visible(!form->get_view()->get_background_layer()->get_paper_visible());
-
-    view->options().gset("ShowPageGrid", form->get_view()->get_background_layer()->get_paper_visible()?1:0);
+    view->options().gset("ShowPageGrid", form->get_view()->get_background_layer()->get_paper_visible() ? 1 : 0);
   }
   return 0;
 }
 
-
-int WorkbenchImpl::toggleFKHighlight(const model_DiagramRef &view)
-{
-  ModelDiagramForm *form= _wb->get_model_context()->get_diagram_form_for_diagram_id(view->id());
-  if (form)
-  {
+int WorkbenchImpl::toggleFKHighlight(const model_DiagramRef &view) {
+  ModelDiagramForm *form = _wb->get_model_context()->get_diagram_form_for_diagram_id(view->id());
+  if (form) {
     form->set_highlight_fks(!form->get_highlight_fks());
 
-    view->options().gset("ShowFKHighlight", form->get_highlight_fks()?1:0);
+    view->options().gset("ShowFKHighlight", form->get_highlight_fks() ? 1 : 0);
   }
   return 0;
 }
 
-
-int WorkbenchImpl::goToMarker(const std::string &marker)
-{
+int WorkbenchImpl::goToMarker(const std::string &marker) {
   model_ModelRef model(_wb->get_model_context()->get_active_model(true));
 
-  if (model.is_valid())
-  {
+  if (model.is_valid()) {
     model_MarkerRef mk;
 
-    for (size_t c= model->markers().count(), i= 0; i < c; i++)
-      if (*model->markers().get(i)->name() == marker)
-      {
-        mk= model->markers().get(i);
+    for (size_t c = model->markers().count(), i = 0; i < c; i++)
+      if (*model->markers().get(i)->name() == marker) {
+        mk = model->markers().get(i);
         break;
       }
 
-    if (mk.is_valid())
-    {
+    if (mk.is_valid()) {
       model_DiagramRef diagram = model_DiagramRef::cast_from(mk->diagram());
       diagram->zoom(mk->zoom());
       diagram->x(mk->x());
       diagram->y(mk->y());
 
-      _wb->get_grt_manager()->get_dispatcher()->call_from_main_thread<void>(
-        boost::bind(&WBContextModel::switch_diagram, _wb->get_model_context(), diagram), false, false);
+      bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<void>(
+        std::bind(&WBContextModel::switch_diagram, _wb->get_model_context(), diagram), false, false);
     }
   }
 
   return 0;
 }
 
+int WorkbenchImpl::setMarker(const std::string &marker) {
+  ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(wb::WBContextUI::get()->get_active_main_form());
 
-int WorkbenchImpl::setMarker(const std::string &marker)
-{
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_ui()->get_active_main_form());
-
-  if (form)
-  {
-    model_MarkerRef mk(get_grt());
+  if (form) {
+    model_MarkerRef mk(grt::Initialized);
 
     model_ModelRef model(form->get_model_diagram()->owner());
 
-    for (size_t c= model->markers().count(), i= 0; i < c; i++)
-      if (*model->markers().get(i)->name() == marker)
-      {
+    for (size_t c = model->markers().count(), i = 0; i < c; i++)
+      if (*model->markers().get(i)->name() == marker) {
         model->markers().remove(i);
         break;
       }
@@ -977,34 +892,28 @@ int WorkbenchImpl::setMarker(const std::string &marker)
   return 0;
 }
 
-
-template<class C> grt::Ref<C> get_parent_for_object(const GrtObjectRef &object)
-{
-  GrtObjectRef obj= object;
+template <class C>
+grt::Ref<C> get_parent_for_object(const GrtObjectRef &object) {
+  GrtObjectRef obj = object;
   while (obj.is_valid() && !obj.is_instance(C::static_class_name()))
-    obj= obj->owner();
+    obj = obj->owner();
   return grt::Ref<C>::cast_from(obj);
 }
 
-
-int WorkbenchImpl::highlightFigure(const model_ObjectRef &figure)
-{
-  if (figure.is_valid())
-  {
+int WorkbenchImpl::highlightFigure(const model_ObjectRef &figure) {
+  if (figure.is_valid()) {
     model_DiagramRef view;
 
     if (figure.is_instance<model_Diagram>())
-      view= model_DiagramRef::cast_from(figure);
+      view = model_DiagramRef::cast_from(figure);
     else
-      view= get_parent_for_object<model_Diagram>(figure);
+      view = get_parent_for_object<model_Diagram>(figure);
 
-    if (view.is_valid())
-    {
-      ModelDiagramForm *form= _wb->get_model_context()->get_diagram_form_for_diagram_id(view.id());
+    if (view.is_valid()) {
+      ModelDiagramForm *form = _wb->get_model_context()->get_diagram_form_for_diagram_id(view.id());
 
-      if (form)
-      {
-        _wb->switched_view(form->get_view());
+      if (form) {
+        _wb->_frontendCallbacks->switched_view(form->get_view());
         form->focus_and_make_visible(model_FigureRef::cast_from(figure), true);
       }
     }
@@ -1012,10 +921,8 @@ int WorkbenchImpl::highlightFigure(const model_ObjectRef &figure)
   return 0;
 }
 
-
-int WorkbenchImpl::setFigureNotation(const std::string &name, workbench_physical_ModelRef model)
-{
-//  model_ModelRef model(_wb->get_ui()->get_active_model(true));
+int WorkbenchImpl::setFigureNotation(const std::string &name, workbench_physical_ModelRef model) {
+  //  model_ModelRef model(wb::WBContextUI::get()->get_active_model(true));
 
   if (model.is_valid() && model.is_instance<workbench_physical_Model>())
     workbench_physical_ModelRef::cast_from(model)->figureNotation(name);
@@ -1024,10 +931,8 @@ int WorkbenchImpl::setFigureNotation(const std::string &name, workbench_physical
   return 0;
 }
 
-
-int WorkbenchImpl::setRelationshipNotation(const std::string &name, workbench_physical_ModelRef model)
-{
-//  model_ModelRef model(_wb->get_ui()->get_active_model(true));
+int WorkbenchImpl::setRelationshipNotation(const std::string &name, workbench_physical_ModelRef model) {
+  //  model_ModelRef model(wb::WBContextUI::get()->get_active_model(true));
 
   if (model.is_valid() && model.is_instance<workbench_physical_Model>())
     workbench_physical_ModelRef::cast_from(model)->connectionNotation(name);
@@ -1035,32 +940,29 @@ int WorkbenchImpl::setRelationshipNotation(const std::string &name, workbench_ph
   return 0;
 }
 
-
-int WorkbenchImpl::zoomIn()
-{
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_active_main_form());
-  if (!form) return 0;
+int WorkbenchImpl::zoomIn() {
+  ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(_wb->get_active_main_form());
+  if (!form)
+    return 0;
 
   form->zoom_in();
   return 0;
 }
 
-
-int WorkbenchImpl::zoomOut()
-{
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_active_main_form());
-  if (!form) return 0;
+int WorkbenchImpl::zoomOut() {
+  ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(_wb->get_active_main_form());
+  if (!form)
+    return 0;
 
   form->zoom_out();
 
   return 0;
 }
 
-
-int WorkbenchImpl::zoomDefault()
-{
-  ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_active_main_form());
-  if (!form) return 0;
+int WorkbenchImpl::zoomDefault() {
+  ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(_wb->get_active_main_form());
+  if (!form)
+    return 0;
 
   model_DiagramRef view(form->get_model_diagram());
 
@@ -1069,445 +971,367 @@ int WorkbenchImpl::zoomDefault()
   return 0;
 }
 
-
-
-int WorkbenchImpl::startTrackingUndo()
-{
-  get_grt()->begin_undoable_action();
+int WorkbenchImpl::startTrackingUndo() {
+  grt::GRT::get()->begin_undoable_action();
   return 0;
 }
 
-
-int WorkbenchImpl::finishTrackingUndo(const std::string &description)
-{
-  get_grt()->end_undoable_action(description);
+int WorkbenchImpl::finishTrackingUndo(const std::string &description) {
+  grt::GRT::get()->end_undoable_action(description);
   return 0;
 }
 
-
-int WorkbenchImpl::cancelTrackingUndo()
-{
-  get_grt()->cancel_undoable_action();
+int WorkbenchImpl::cancelTrackingUndo() {
+  grt::GRT::get()->cancel_undoable_action();
   return 0;
 }
 
-
-
-int WorkbenchImpl::addUndoListAdd(const BaseListRef &list)
-{
-  get_grt()->get_undo_manager()->add_undo(new grt::UndoListInsertAction(list));
+int WorkbenchImpl::addUndoListAdd(const BaseListRef &list) {
+  grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoListInsertAction(list));
   return 0;
 }
 
-int WorkbenchImpl::addUndoListRemove(const BaseListRef &list, int index)
-{
-  get_grt()->get_undo_manager()->add_undo(new grt::UndoListRemoveAction(list, index));
+int WorkbenchImpl::addUndoListRemove(const BaseListRef &list, int index) {
+  grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoListRemoveAction(list, index));
   return 0;
 }
 
-int WorkbenchImpl::addUndoObjectChange(const ObjectRef &object, const std::string &member)
-{
-  get_grt()->get_undo_manager()->add_undo(new grt::UndoObjectChangeAction(object, member));
+int WorkbenchImpl::addUndoObjectChange(const ObjectRef &object, const std::string &member) {
+  grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoObjectChangeAction(object, member));
   return 0;
 }
 
-int WorkbenchImpl::addUndoDictSet(const DictRef &dict, const std::string &key)
-{
-  _wb->get_grt()->get_undo_manager()->add_undo(new grt::UndoDictSetAction(dict, key));
+int WorkbenchImpl::addUndoDictSet(const DictRef &dict, const std::string &key) {
+  grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoDictSetAction(dict, key));
   return 0;
 }
 
-int WorkbenchImpl::beginUndoGroup()
-{
-  _wb->get_grt()->get_undo_manager()->begin_undo_group();
+int WorkbenchImpl::beginUndoGroup() {
+  grt::GRT::get()->get_undo_manager()->begin_undo_group();
   return 0;
 }
 
-int WorkbenchImpl::endUndoGroup()
-{
-  _wb->get_grt()->get_undo_manager()->end_undo_group();
+int WorkbenchImpl::endUndoGroup() {
+  grt::GRT::get()->get_undo_manager()->end_undo_group();
   return 0;
 }
 
-int WorkbenchImpl::setUndoDescription(const std::string &text)
-{
-  _wb->get_grt()->get_undo_manager()->set_action_description(text);
+int WorkbenchImpl::setUndoDescription(const std::string &text) {
+  grt::GRT::get()->get_undo_manager()->set_action_description(text);
   return 0;
 }
 
-
-std::string WorkbenchImpl::createAttachedFile(const std::string &group,
-                                              const std::string &tmpl)
-{
+std::string WorkbenchImpl::createAttachedFile(const std::string &group, const std::string &tmpl) {
   return _wb->create_attached_file(group, tmpl);
 }
 
-
-int WorkbenchImpl::setAttachedFileContents(const std::string &filename,
-                                           const std::string &text)
-{
+int WorkbenchImpl::setAttachedFileContents(const std::string &filename, const std::string &text) {
   _wb->save_attached_file_contents(filename, text.data(), text.size());
   return 0;
 }
 
-
-std::string WorkbenchImpl::getAttachedFileContents(const std::string &filename)
-{
+std::string WorkbenchImpl::getAttachedFileContents(const std::string &filename) {
   return _wb->get_attached_file_contents(filename);
 }
 
-
-std::string WorkbenchImpl::getAttachedFileTmpPath(const std::string &filename)
-{
+std::string WorkbenchImpl::getAttachedFileTmpPath(const std::string &filename) {
   return _wb->get_attached_file_tmp_path(filename);
 }
 
-
-int WorkbenchImpl::exportAttachedFileContents(const std::string &filename,
-                                              const std::string &export_to)
-{
+int WorkbenchImpl::exportAttachedFileContents(const std::string &filename, const std::string &export_to) {
   return _wb->export_attached_file_contents(filename, export_to);
 }
 
-workbench_DocumentRef WorkbenchImpl::openModelFile(const std::string &path)
-{
+workbench_DocumentRef WorkbenchImpl::openModelFile(const std::string &path) {
   return _wb->openModelFile(path);
 }
 
-int WorkbenchImpl::closeModelFile()
-{
+int WorkbenchImpl::closeModelFile() {
   return _wb->closeModelFile();
 }
 
-std::string WorkbenchImpl::getTempDir()
-{
-    return _wb->getTempDir();
+std::string WorkbenchImpl::getTempDir() {
+  return _wb->getTempDir();
 }
 
-std::string WorkbenchImpl::getDbFilePath()
-{
+std::string WorkbenchImpl::getDbFilePath() {
   return _wb->getDbFilePath();
 }
 
-int WorkbenchImpl::runScriptFile(const std::string &filename)
-{
+int WorkbenchImpl::runScriptFile(const std::string &filename) {
   _wb->run_script_file(filename);
 
   return 0;
 }
 
-
-int WorkbenchImpl::installModuleFile(const std::string &filename)
-{
+int WorkbenchImpl::installModuleFile(const std::string &filename) {
   _wb->install_module_file(filename);
   return 0;
 }
 
+static int traverse_value(const ObjectRef &owner, const std::string &member, const ValueRef &value);
 
-static int traverse_value(GRT *grt, const ObjectRef &owner, const std::string &member, const ValueRef &value);
+static bool traverse_member(const MetaClass::Member *member, const ObjectRef &owner, const ObjectRef &object) {
+  std::string k = member->name;
+  ValueRef v = object->get_member(k);
 
-static bool traverse_member(const MetaClass::Member *member, const ObjectRef &owner, const ObjectRef &object, GRT *grt)
-{
-  std::string k= member->name;
-  ValueRef v= object->get_member(k);
-
-  if (!v.is_valid())
-  {
-    if((member->type.base.type == ListType) || (member->type.base.type == DictType))
-      grt->send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has NULL list or dict member: '%s'\n",
-                                owner.class_name().c_str(), k.c_str(),
-                                object.class_name().c_str(), object.get_string_member("name").c_str(), object.id().c_str(),
-                                k.c_str()));
+  if (!v.is_valid()) {
+    if ((member->type.base.type == ListType) || (member->type.base.type == DictType))
+      grt::GRT::get()->send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has NULL list or dict member: '%s'\n",
+                                          owner.class_name().c_str(), k.c_str(), object.class_name().c_str(),
+                                          object.get_string_member("name").c_str(), object.id().c_str(), k.c_str()));
   }
 
-  if (k == "owner")
-  {
-    if (ObjectRef::cast_from(v) != owner)
-    {
+  if (k == "owner") {
+    if (ObjectRef::cast_from(v) != owner) {
       if (!v.is_valid())
-        grt->send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has no owner set\n",
-                                  owner.class_name().c_str(), member->name.c_str(),
-                                  object.class_name().c_str(), object->get_string_member("name").c_str(), object.id().c_str()));
+        grt::GRT::get()->send_output(strfmt(
+          "%s[%s] (type: %s, name: '%s', id: %s), has no owner set\n", owner.class_name().c_str(), member->name.c_str(),
+          object.class_name().c_str(), object->get_string_member("name").c_str(), object.id().c_str()));
       else
-        grt->send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has bad owner (or missing attr:dontfollow)\n",
-                                  owner.class_name().c_str(), member->name.c_str(),
-                                  object.class_name().c_str(), object->get_string_member("name").c_str(), object.id().c_str()));
+        grt::GRT::get()->send_output(
+          strfmt("%s[%s] (type: %s, name: '%s', id: %s), has bad owner (or missing attr:dontfollow)\n",
+                 owner.class_name().c_str(), member->name.c_str(), object.class_name().c_str(),
+                 object->get_string_member("name").c_str(), object.id().c_str()));
     }
   }
 
   if (member->owned_object)
-    traverse_value(grt, object, k, v);
+    traverse_value(object, k, v);
 
   return true;
 }
 
-
-static int traverse_value(GRT *grt, const ObjectRef &owner, const std::string &member, const ValueRef &value)
-{
-  switch (value.type())
-  {
-  case DictType:
-    {
+static int traverse_value(const ObjectRef &owner, const std::string &member, const ValueRef &value) {
+  switch (value.type()) {
+    case DictType: {
       DictRef dict(DictRef::cast_from(value));
 
-      for (DictRef::const_iterator iter= dict.begin(); iter != dict.end(); ++iter)
-      {
-        std::string k= iter->first;
-        ValueRef v= iter->second;
+      for (DictRef::const_iterator iter = dict.begin(); iter != dict.end(); ++iter) {
+        std::string k = iter->first;
+        ValueRef v = iter->second;
 
-        traverse_value(grt, owner, k, v);
+        traverse_value(owner, k, v);
       }
-    }
-    break;
-  case ListType:
-    {
+    } break;
+    case ListType: {
       BaseListRef list(BaseListRef::cast_from(value));
 
-      for (size_t c= list.count(), i= 0; i < c; i++)
-      {
+      for (size_t c = list.count(), i = 0; i < c; i++) {
         ValueRef v;
 
-        v= list.get(i);
+        v = list.get(i);
 
-        traverse_value(grt, owner, strfmt("%i", (int) i), v);
+        traverse_value(owner, strfmt("%i", (int)i), v);
       }
-    }
-    break;
-  case ObjectType:
-    {
+    } break;
+    case ObjectType: {
       ObjectRef object(ObjectRef::cast_from(value));
-      MetaClass *gstruct= object->get_metaclass();
+      MetaClass *gstruct = object->get_metaclass();
 
-      gstruct->foreach_member(boost::bind(traverse_member, _1, owner, object, grt));
-    }
-    break;
+      gstruct->foreach_member(std::bind(traverse_member, std::placeholders::_1, owner, object));
+    } break;
 
-  default:
-    break;
+    default:
+      break;
   }
   return 0;
 }
 
-
-int WorkbenchImpl::debugValidateGRT()
-{
-  ValueRef root(get_grt()->root());
+int WorkbenchImpl::debugValidateGRT() {
+  ValueRef root(grt::GRT::get()->root());
   ObjectRef owner;
 
-  get_grt()->send_output("Validating GRT Tree...\n");
+  grt::GRT::get()->send_output("Validating GRT Tree...\n");
 
-//QQQ  get_grt()->lock_tree_read();
+  // QQQ grt::GRT::get()->lock_tree_read();
 
   // make sure that all nodes have their owner set to their parent object
   // make sure that all refs that are not owned are marked dontfollow
-  traverse_value(get_grt(), owner, "root", root);
+  traverse_value(owner, "root", root);
 
-//QQQ  get_grt()->unlock_tree_read();
+  // QQQ grt::GRT::get()->unlock_tree_read();
 
-  get_grt()->send_output("GRT Tree Validation Finished.\n");
+  grt::GRT::get()->send_output("GRT Tree Validation Finished.\n");
 
   return 0;
 }
 
-
-int WorkbenchImpl::debugGrtStats()
-{
+int WorkbenchImpl::debugGrtStats() {
   return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int WorkbenchImpl::debugShowInfo()
-{
-  grt::GRT *grt= get_grt();
-  grt->make_output_visible();
-  grt->send_output(getSystemInfo(false));
-  grt->send_output("\n");
+int WorkbenchImpl::debugShowInfo() {
+  grt::GRT::get()->make_output_visible();
+  grt::GRT::get()->send_output(getSystemInfo(false));
+  grt::GRT::get()->send_output("\n");
 
   return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int WorkbenchImpl::refreshHomeConnections()
-{
-  _wb->get_ui()->refresh_home_connections();
+int WorkbenchImpl::refreshHomeConnections() {
+  wb::WBContextUI::get()->refresh_home_connections();
   return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int WorkbenchImpl::confirm(const std::string &title, const std::string &caption)
-{
-  return _wb->get_grt_manager()->get_dispatcher()->call_from_main_thread<int>(
-    boost::bind(mforms::Utilities::show_message, title, caption, _("OK"), _("Cancel"), ""), true, false);
+int WorkbenchImpl::confirm(const std::string &title, const std::string &caption) {
+  return bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<int>(
+    std::bind(mforms::Utilities::show_message, title, caption, _("OK"), _("Cancel"), ""), true, false);
 }
 
-
-std::string WorkbenchImpl::requestFileOpen(const std::string &caption, const std::string &extensions)
-{
-  return _wb->get_grt_manager()->get_dispatcher()->
-    call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "open", caption, extensions), true, false);
+std::string WorkbenchImpl::requestFileOpen(const std::string &caption, const std::string &extensions) {
+  return bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<std::string>(
+    std::bind(_wb->_frontendCallbacks->show_file_dialog, "open", caption, extensions), true, false);
 }
 
-
-std::string WorkbenchImpl::requestFileSave(const std::string &caption, const std::string &extensions)
-{
-  return _wb->get_grt_manager()->get_dispatcher()->
-    call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "save", caption, extensions), true, false);
+std::string WorkbenchImpl::requestFileSave(const std::string &caption, const std::string &extensions) {
+  return bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<std::string>(
+    std::bind(_wb->_frontendCallbacks->show_file_dialog, "save", caption, extensions), true, false);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int WorkbenchImpl::showUserTypeEditor(const workbench_physical_ModelRef &model)
-{
+int WorkbenchImpl::showUserTypeEditor(const workbench_physical_ModelRef &model) {
   if (_wb->get_model_context())
     _wb->get_model_context()->show_user_type_editor(model);
 
   return 0;
 }
 
-
-int WorkbenchImpl::showGRTShell()
-{
-  _wb->get_ui()->get_shell_window()->show();
+int WorkbenchImpl::showGRTShell() {
+  wb::WBContextUI::get()->get_shell_window()->show();
 
   return 0;
 }
 
-int WorkbenchImpl::newGRTFile()
-{
-  _wb->get_ui()->get_shell_window()->show();
-  _wb->get_ui()->get_shell_window()->add_new_script();
+int WorkbenchImpl::newGRTFile() {
+  wb::WBContextUI::get()->get_shell_window()->show();
+  wb::WBContextUI::get()->get_shell_window()->add_new_script();
 
   return 0;
 }
 
-int WorkbenchImpl::openGRTFile()
-{
-  _wb->get_ui()->get_shell_window()->show();
-  _wb->get_ui()->get_shell_window()->open_script_file();
+int WorkbenchImpl::openGRTFile() {
+  wb::WBContextUI::get()->get_shell_window()->show();
+  wb::WBContextUI::get()->get_shell_window()->open_script_file();
 
   return 0;
 }
 
-int WorkbenchImpl::showDocumentProperties()
-{
-  DocumentPropertiesForm props(_wb->get_ui());
+int WorkbenchImpl::showDocumentProperties() {
+  DocumentPropertiesForm props;
 
   props.show();
 
   return 0;
 }
 
-
-int WorkbenchImpl::showModelOptions(const workbench_physical_ModelRef &model)
-{
-  PreferencesForm prefs(_wb->get_ui(), model);
+int WorkbenchImpl::showModelOptions(const workbench_physical_ModelRef &model) {
+  PreferencesForm prefs(model);
   prefs.show();
 
   return 0;
 }
 
-
-int WorkbenchImpl::showOptions()
-{
-  PreferencesForm prefs(_wb->get_ui());
+int WorkbenchImpl::showOptions() {
+  PreferencesForm prefs;
   prefs.show();
 
   return 0;
 }
 
-int WorkbenchImpl::reportBug(const std::string error_info)
-{
+int WorkbenchImpl::reportBug(const std::string error_info) {
   unsigned short os_id = 1;
   std::map<std::string, std::string> sys_info = getSystemInfoMap();
 
   std::string os_details = sys_info["os"];
-  
-  if (sys_info["platform"] == "Linux/Unix")
-  {
+
+  if (sys_info["platform"] == "Linux/Unix") {
     os_id = 5;
     os_details = sys_info["distribution"];
-  }
-  else if (sys_info["platform"] == "Mac OS X") os_id = 6;
-  else if (sys_info["platform"] == "Windows")  os_id = 7;   
+  } else if (sys_info["platform"] == "Mac OS X")
+    os_id = 6;
+  else if (sys_info["platform"] == "Windows")
+    os_id = 7;
 
   std::ostringstream stream;
-  stream << "http://bugs.mysql.com/report.php" 
-         << "?" << "in[status]="         << "Open"
-         << "&" << "in[php_version]="    << sys_info["version"]
-         << "&" << "in[os]="             << os_id
-         << "&" << "in[os_details]="     << os_details
-         << "&" << "in[tags]="           << "WBBugReporter"
-         << "&" << "in[really]="         << "0"
-         << "&" << "in[ldesc]="          << "----"
-         << "[For better reports, please attach the log file after submitting. You can find it in " << base::Logger::log_filename() << "]";
-         
+  stream << "http://bugs.mysql.com/report.php"
+         << "?"
+         << "in[status]="
+         << "Open"
+         << "&"
+         << "in[php_version]=" << sys_info["version"] << "&"
+         << "in[os]=" << os_id << "&"
+         << "in[os_details]=" << os_details << "&"
+         << "in[tags]="
+         << "WBBugReporter"
+         << "&"
+         << "in[really]="
+         << "0"
+         << "&"
+         << "in[ldesc]="
+         << "----"
+         << "[For better reports, please attach the log file after submitting. You can find it in "
+         << base::Logger::log_filename() << "]";
+
   mforms::Utilities::open_url(stream.str());
-  return 0;  
+  return 0;
 }
 
-int WorkbenchImpl::showConnectionManager()
-{
+int WorkbenchImpl::showConnectionManager() {
   grtui::DbConnectionEditor editor(_wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Connection Manager Opened.");
+  _wb->_frontendCallbacks->show_status_text("Connection Manager Opened.");
   editor.run();
-  _wb->show_status_text("");
-  _wb->get_ui()->refresh_home_connections();
+  _wb->_frontendCallbacks->show_status_text("");
+  wb::WBContextUI::get()->refresh_home_connections();
   _wb->save_connections();
 
   return 0;
 }
 
-
-int WorkbenchImpl::showInstanceManager()
-{
-  ServerInstanceEditor editor(_wb->get_grt_manager(), _wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Server Profile Manager Opened.");
+int WorkbenchImpl::showInstanceManager() {
+  ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
+  _wb->_frontendCallbacks->show_status_text("Server Profile Manager Opened.");
   db_mgmt_ServerInstanceRef instance(editor.run());
-  _wb->show_status_text("");
+  _wb->_frontendCallbacks->show_status_text("");
   // save instance list now
   _wb->save_instances();
   return 0;
 }
 
-int WorkbenchImpl::showInstanceManagerFor(const db_mgmt_ConnectionRef &conn)
-{
-  ServerInstanceEditor editor(_wb->get_grt_manager(), _wb->get_root()->rdbmsMgmt());
-  _wb->show_status_text("Server Profile Manager Opened.");
+int WorkbenchImpl::showInstanceManagerFor(const db_mgmt_ConnectionRef &conn) {
+  ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
+  _wb->_frontendCallbacks->show_status_text("Server Profile Manager Opened.");
   db_mgmt_ServerInstanceRef instance(editor.run(conn, true));
-  _wb->show_status_text("");
+  _wb->_frontendCallbacks->show_status_text("");
   // save instance list now
   _wb->save_instances();
   return 0;
 }
 
-int WorkbenchImpl::saveConnections()
-{
+int WorkbenchImpl::saveConnections() {
   _wb->save_connections();
   return 0;
 }
 
-
-int WorkbenchImpl::saveInstances()
-{
+int WorkbenchImpl::saveInstances() {
   _wb->save_instances();
   return 0;
 }
 
-
-
-int WorkbenchImpl::showQueryConnectDialog()
-{
+int WorkbenchImpl::showQueryConnectDialog() {
   _wb->add_new_query_window(db_mgmt_ConnectionRef());
 
   return 0;
 }
 
-
-int WorkbenchImpl::showPluginManager()
-{
+int WorkbenchImpl::showPluginManager() {
   PluginManagerWindow pm(_wb);
 
   pm.run();
@@ -1528,11 +1352,10 @@ int WorkbenchImpl::showPluginManager()
  * @return A unique id for the new session. Use that for any further call and don't forgot to close the session
  *         once you don't need it anymore or you will get a memory leak. Returns 0 on error.
  */
-int WorkbenchImpl::wmiOpenSession(const std::string server, const std::string& user, const std::string& password)
-{
-  log_debug2("Opening wmi session\n");
+int WorkbenchImpl::wmiOpenSession(const std::string server, const std::string &user, const std::string &password) {
+  logDebug2("Opening wmi session\n");
 
-  wmi::WmiServices* services = new wmi::WmiServices(server, user, password);
+  wmi::WmiServices *services = new wmi::WmiServices(server, user, password);
   _wmi_sessions[++_last_wmi_session_id] = services;
 #ifdef DEBUG
   _thread_for_wmi_session[_last_wmi_session_id] = g_thread_self();
@@ -1544,16 +1367,15 @@ int WorkbenchImpl::wmiOpenSession(const std::string server, const std::string& u
 //--------------------------------------------------------------------------------------------------
 
 #ifdef DEBUG
-#define check_wmi_thread(session) {\
-  if (_thread_for_wmi_session.find(session) != _thread_for_wmi_session.end())\
-  {\
-    if (g_thread_self() != _thread_for_wmi_session[session])\
-    {\
-      log_warning("%s called from invalid thread for WMI session %i", __FUNCTION__, session);\
-      throw std::logic_error("WMI access from invalid thread"); \
-    }\
-  }\
-}
+#define check_wmi_thread(session)                                                              \
+  {                                                                                            \
+    if (_thread_for_wmi_session.find(session) != _thread_for_wmi_session.end()) {              \
+      if (g_thread_self() != _thread_for_wmi_session[session]) {                               \
+        logWarning("%s called from invalid thread for WMI session %i", __FUNCTION__, session); \
+        throw std::logic_error("WMI access from invalid thread");                              \
+      }                                                                                        \
+    }                                                                                          \
+  }
 #else
 #define check_wmi_thread(s)
 #endif
@@ -1567,17 +1389,15 @@ int WorkbenchImpl::wmiOpenSession(const std::string server, const std::string& u
  * @param session The session that should be closed.
  * @return 1 if the session was successfully closed, -1 if the session is invalid.
  */
-int WorkbenchImpl::wmiCloseSession(int session)
-{
-  log_debug2("Closing wmi session\n");
+int WorkbenchImpl::wmiCloseSession(int session) {
+  logDebug2("Closing wmi session\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
     return -1;
 
-  log_debug2("Closing all wmi monitors\n");
-  wmi::WmiServices* services = _wmi_sessions[session];
-  std::map<int, wmi::WmiMonitor*>::iterator next, i= _wmi_monitors.begin();
-  while (i != _wmi_monitors.end())
-  {
+  logDebug2("Closing all wmi monitors\n");
+  wmi::WmiServices *services = _wmi_sessions[session];
+  std::map<int, wmi::WmiMonitor *>::iterator next, i = _wmi_monitors.begin();
+  while (i != _wmi_monitors.end()) {
     next = i;
     ++next;
     if (i->second->owner() == services)
@@ -1597,24 +1417,23 @@ int WorkbenchImpl::wmiCloseSession(int session)
  * Executes a query against the given server session. The query must be in WQL format.
  *
  * @param session The session to work against.
- * @param query The query to execute. For further info see http://msdn.microsoft.com/en-us/library/aa394606%28VS.85%29.aspx.
+ * @param query The query to execute. For further info see
+ * http://msdn.microsoft.com/en-us/library/aa394606%28VS.85%29.aspx.
  * @return A list of GRT dicts containing the objects returned by the query, that is, name/value pairs
  *         of object properties.
  */
-grt::DictListRef WorkbenchImpl::wmiQuery(int session, const std::string& query)
-{
-  log_debug2("Running a wmi query\n");
-  if (_wmi_sessions.find(session) == _wmi_sessions.end())
-  {
-    log_warning("Attempt to run a wmi query against non-existing session\n");
+grt::DictListRef WorkbenchImpl::wmiQuery(int session, const std::string &query) {
+  logDebug2("Running a wmi query\n");
+  if (_wmi_sessions.find(session) == _wmi_sessions.end()) {
+    logWarning("Attempt to run a wmi query against non-existing session\n");
     return grt::DictListRef();
   }
 
   check_wmi_thread(session);
 
-  wmi::WmiServices* services = _wmi_sessions[session];
+  wmi::WmiServices *services = _wmi_sessions[session];
 
-  return services->query(_wb->get_grt(), query);
+  return services->query(query);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1635,15 +1454,14 @@ grt::DictListRef WorkbenchImpl::wmiQuery(int session, const std::string& query)
  *   - stopping
  *   - starting
  */
-std::string WorkbenchImpl::wmiServiceControl(int session, const std::string& service, const std::string& action)
-{
-  log_debug2("Running wmi service control command\n");
+std::string WorkbenchImpl::wmiServiceControl(int session, const std::string &service, const std::string &action) {
+  logDebug2("Running wmi service control command\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
     return "error - Invalid wmi session";
 
   check_wmi_thread(session);
 
-  wmi::WmiServices* services = _wmi_sessions[session];
+  wmi::WmiServices *services = _wmi_sessions[session];
 
   return services->serviceControl(service, action);
 }
@@ -1658,15 +1476,14 @@ std::string WorkbenchImpl::wmiServiceControl(int session, const std::string& ser
  * @return The asked for value. If what is invalid then the result is simply 0. The returned value
  *         is formatted as string to cater for different types of return values.
  */
-std::string WorkbenchImpl::wmiSystemStat(int session, const std::string& what)
-{
-  log_debug2("Running wmi system statistics query\n");
+std::string WorkbenchImpl::wmiSystemStat(int session, const std::string &what) {
+  logDebug2("Running wmi system statistics query\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
     return "error - Invalid wmi session";
 
   check_wmi_thread(session);
 
-  wmi::WmiServices* services = _wmi_sessions[session];
+  wmi::WmiServices *services = _wmi_sessions[session];
 
   return services->systemStat(what);
 }
@@ -1682,19 +1499,18 @@ std::string WorkbenchImpl::wmiSystemStat(int session, const std::string& what)
  * @param what The property/value to monitor. Supported values are: LoadPercentage.
  * @return A unique id describing the new monitor.
  */
-int WorkbenchImpl::wmiStartMonitoring(int session, const std::string& what)
-{
-  log_debug2("Starting new wmi monitor\n");
+int WorkbenchImpl::wmiStartMonitoring(int session, const std::string &what) {
+  logDebug2("Starting new wmi monitor\n");
   if (_wmi_sessions.find(session) == _wmi_sessions.end())
     return -1;
 
   check_wmi_thread(session);
 
-  wmi::WmiServices* services = _wmi_sessions[session];
-  wmi::WmiMonitor* monitor = services->startMonitoring(what);
+  wmi::WmiServices *services = _wmi_sessions[session];
+  wmi::WmiMonitor *monitor = services->startMonitoring(what);
   _wmi_monitors[++_last_wmi_monitor_id] = monitor;
 
-  log_debug2("Wmi monitor with id %d created\n", _last_wmi_monitor_id);
+  logDebug2("Wmi monitor with id %d created\n", _last_wmi_monitor_id);
   return _last_wmi_monitor_id;
 }
 
@@ -1706,16 +1522,14 @@ int WorkbenchImpl::wmiStartMonitoring(int session, const std::string& what)
  * @param monitor The monitor set up with wmiStartMonitoring.
  * @return The current value formatted as string.
  */
-std::string WorkbenchImpl::wmiReadValue(int monitor_id)
-{
-  log_debug3("Reading wmi value for monitor: %d\n", monitor_id);
-  if (_wmi_monitors.find(monitor_id) == _wmi_monitors.end())
-  {
-    log_warning("Attempt to read monitor value for non-existing monitor\n");
+std::string WorkbenchImpl::wmiReadValue(int monitor_id) {
+  logDebug3("Reading wmi value for monitor: %d\n", monitor_id);
+  if (_wmi_monitors.find(monitor_id) == _wmi_monitors.end()) {
+    logWarning("Attempt to read monitor value for non-existing monitor\n");
     return "error - Invalid wmi session";
   }
 
-  wmi::WmiMonitor* monitor = _wmi_monitors[monitor_id];
+  wmi::WmiMonitor *monitor = _wmi_monitors[monitor_id];
 
   return monitor->readValue();
 }
@@ -1728,16 +1542,14 @@ std::string WorkbenchImpl::wmiReadValue(int monitor_id)
  * @param monitor The monitor to stop.
  * @return -1 if monitor_id is invalid, else 1
  */
-int WorkbenchImpl::wmiStopMonitoring(int monitor_id)
-{
-  log_debug2("Stopping wmi monitor %d\n", monitor_id);
-  if (_wmi_monitors.find(monitor_id) == _wmi_monitors.end())
-  {
-    log_warning("Attempt to stop non-existing wmi monitor\n");
+int WorkbenchImpl::wmiStopMonitoring(int monitor_id) {
+  logDebug2("Stopping wmi monitor %d\n", monitor_id);
+  if (_wmi_monitors.find(monitor_id) == _wmi_monitors.end()) {
+    logWarning("Attempt to stop non-existing wmi monitor\n");
     return -1;
   }
 
-  wmi::WmiMonitor* monitor = _wmi_monitors[monitor_id];
+  wmi::WmiMonitor *monitor = _wmi_monitors[monitor_id];
 
   delete monitor;
   _wmi_monitors.erase(monitor_id);
@@ -1749,43 +1561,35 @@ int WorkbenchImpl::wmiStopMonitoring(int monitor_id)
 
 //--------------------------------------------------------------------------------------------------
 
-static const char *DEFAULT_RDBMS_ID= "com.mysql.rdbms.mysql";
+static const char *DEFAULT_RDBMS_ID = "com.mysql.rdbms.mysql";
 
 /**
  * Creates a new connection ref and adds it to the stored connections collection.
  * The new connection is also returned.
  */
-db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, const std::string& user,
-                                                       const std::string socket_or_pipe_name,
-                                                       int can_use_networking,
-                                                       int can_use_socket_or_pipe,
-                                                       int port,
-                                                       const std::string& name)
-{
-  log_debug("Creating new connection (%s) to host %s:%d for user %s (socket/pipe: %s)\n",
-    name.c_str(), host.c_str(), port, user.c_str(), socket_or_pipe_name.c_str()
-  );
+db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string &host, const std::string &user,
+                                                       const std::string socket_or_pipe_name, int can_use_networking,
+                                                       int can_use_socket_or_pipe, int port, const std::string &name) {
+  logDebug("Creating new connection (%s) to host %s:%d for user %s (socket/pipe: %s)\n", name.c_str(), host.c_str(),
+           port, user.c_str(), socket_or_pipe_name.c_str());
 
   db_mgmt_RdbmsRef rdbms = find_object_in_list(_wb->get_root()->rdbmsMgmt()->rdbms(), DEFAULT_RDBMS_ID);
   grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
-  db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef(_wb->get_grt());
+  db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef(grt::Initialized);
   db_mgmt_DriverRef driver;
   if (can_use_networking)
     driver = rdbms->defaultDriver();
-  else
-  {
+  else {
     // If networking is enabled but sockets/named pipes aren't enabled then the server
     // is actually not accessible. We play nice though and use the default driver in that case.
-    if (can_use_socket_or_pipe)
-    {
+    if (can_use_socket_or_pipe) {
       driver = find_object_in_list(rdbms->drivers(), "com.mysql.rdbms.mysql.driver.native_socket");
       if (!driver.is_valid())
         driver = rdbms->defaultDriver();
       else
         connection->parameterValues().gset("socket", socket_or_pipe_name);
-    }
-    else
+    } else
       driver = rdbms->defaultDriver();
   }
 
@@ -1799,7 +1603,7 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
   connection->hostIdentifier(bec::get_host_identifier_for_connection(connection));
   connections.insert(connection);
 
-  log_debug("Done creating new connection\n");
+  logDebug("Done creating new connection\n");
 
   return connection;
 }
@@ -1809,78 +1613,68 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
 /**
  * Returns a list of Dicts with data for each locally installed MySQL server.
  */
-grt::DictListRef WorkbenchImpl::getLocalServerList()
-{
-  log_debug("Reading locally installed MySQL servers\n");
+grt::DictListRef WorkbenchImpl::getLocalServerList() {
+  logDebug("Reading locally installed MySQL servers\n");
 
   grt::DictListRef entries;
 #ifdef _WIN32
-  try
-  {
+  try {
     int session = wmiOpenSession("", "", "");
-    entries = wmiQuery(session,
-      "select * from Win32_Service where (Name like \"%mysql%\" or DisplayName like \"%mysql%\")");
+    entries =
+      wmiQuery(session, "select * from Win32_Service where (Name like \"%mysql%\" or DisplayName like \"%mysql%\")");
     wmiCloseSession(session);
-  }
-  catch (std::exception const& e)
-  {
+  } catch (std::exception const &e) {
     // If for some reason (e.g. insufficient rights) the retrieval fails then we return an empty list.
-    log_error("Unable to locate installed MySQL Servers : %s.\n", e.what());
+    logError("Unable to locate installed MySQL Servers : %s.\n", e.what());
+  } catch (...) {
+    logError("Unable to locate installed MySQL Servers.\n");
   }
-  catch (...)
-  {
-    log_error("Unable to locate installed MySQL Servers.\n");
-  }
-  
-  
-#else
-    entries = grt::DictListRef(_wb->get_grt());
-  
-    char *stdo = NULL;
-    char *ster = NULL;
-    int rc=0;
-    GError *err = NULL;
-#ifdef __APPLE__
-    std::string cmd = "/bin/sh -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs ps -ww -o args= -p \"";
-#else
-    std::string cmd = "/bin/sh -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs -r ps -ww -o args= -p \"";
-#endif
-    if (g_spawn_command_line_sync(cmd.c_str(), &stdo, &ster, &rc, &err) && stdo)
-    {
-      std::string processes(stdo);
-      
-      std::vector<std::string> servers = base::split(processes, "\n");
-      std::vector<std::string>::iterator index, end = servers.end();
 
-      for(index = servers.begin(); index !=end; index++)
-      {
-        DictRef server(_wb->get_grt());
-        std::string command = *index;
-        if (command.length())
-        {
-          server.set("PathName", StringRef(command));
-          entries.insert(server);
-        }
+#else
+  entries = grt::DictListRef(grt::Initialized);
+
+  char *stdo = NULL;
+  char *ster = NULL;
+  int rc = 0;
+  GError *err = NULL;
+#ifdef __APPLE__
+  std::string cmd = "/bin/sh -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs ps -ww -o args= -p \"";
+#else
+  std::string cmd =
+    "/bin/sh -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs -r ps -ww -o args= -p \"";
+#endif
+  if (g_spawn_command_line_sync(cmd.c_str(), &stdo, &ster, &rc, &err) && stdo) {
+    std::string processes(stdo);
+
+    std::vector<std::string> servers = base::split(processes, "\n");
+    std::vector<std::string>::iterator index, end = servers.end();
+
+    for (index = servers.begin(); index != end; index++) {
+      DictRef server(true);
+      std::string command = *index;
+      if (command.length()) {
+        server.set("PathName", StringRef(command));
+        entries.insert(server);
       }
     }
-  
-    if (stdo)
-      g_free(stdo);
-  
-    if (err)
-    {
-      log_warning("Error looking for installed servers, error %d : %s\n", err->code, err->message);
-      g_error_free(err);
-    }
-    
-    if (ster != NULL && strlen(ster) > 0)
-      log_error("stderr from process list %s\n", ster);
+  }
 
-    g_free(ster);
-    
+  if (stdo)
+    g_free(stdo);
+
+  if (err) {
+    logWarning("Error looking for installed servers, error %d : %s\n", err->code, err->message);
+    g_error_free(err);
+  }
+
+  if (ster != NULL && strlen(ster) > 0)
+    logError("stderr from process list %s\n", ster);
+
+  g_free(ster);
+
 #endif
 
-  log_debug("Found %li installed MySQL servers\n", entries.is_valid() ? (long)entries.count() : -1);
+  logDebug("Found %li installed MySQL servers\n", entries.is_valid() ? (long)entries.count() : -1);
 
   return entries;
 }
@@ -1890,8 +1684,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
 /**
  * Creates a list of new connections to all local servers found.
  */
-int WorkbenchImpl::createConnectionsFromLocalServers()
-{
+int WorkbenchImpl::createConnectionsFromLocalServers() {
   grt::DictListRef servers = getLocalServerList();
   if (!servers.is_valid())
     return -1;
@@ -1899,16 +1692,14 @@ int WorkbenchImpl::createConnectionsFromLocalServers()
   db_mgmt_RdbmsRef rdbms = find_object_in_list(_wb->get_root()->rdbmsMgmt()->rdbms(), DEFAULT_RDBMS_ID);
   grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
   size_t count = servers->count();
-  for (size_t i = 0; i < count; i++)
-  {
+  for (size_t i = 0; i < count; i++) {
     grt::DictRef server(servers[i]);
 
     std::string service_display_name = server.get_string("DisplayName", "invalid");
     std::string path = server.get_string("PathName", "invalid");
     std::string config_file = base::extract_option_from_command_line("--defaults-file", path);
 
-    if (g_file_test(config_file.c_str(), G_FILE_TEST_EXISTS))
-    {
+    if (g_file_test(config_file.c_str(), G_FILE_TEST_EXISTS)) {
       ConfigurationFile key_file(config_file, base::AutoCreateSections | base::AutoCreateKeys);
 
       // Early out if the default section is not there.
@@ -1927,15 +1718,14 @@ int WorkbenchImpl::createConnectionsFromLocalServers()
       if (key_file.has_key("enable-named-pipe", "mysqld"))
         can_use_socket_or_pipe = 1;
 
-      if (can_use_socket_or_pipe)
-      {
+      if (can_use_socket_or_pipe) {
         socket_or_pipe_name = key_file.get_value("socket", "mysqld");
         if (socket_or_pipe_name.size() == 0)
           socket_or_pipe_name = "MySQL";
       }
 
-      create_connection("localhost", "root", socket_or_pipe_name, can_use_networking,
-        can_use_socket_or_pipe, port, _("Local ") + service_display_name);
+      create_connection("localhost", "root", socket_or_pipe_name, can_use_networking, can_use_socket_or_pipe, port,
+                        _("Local ") + service_display_name);
     }
   }
   return 0;
@@ -1946,11 +1736,9 @@ int WorkbenchImpl::createConnectionsFromLocalServers()
 /**
  * Creates a list of server instance entries for all local servers found.
  */
-int WorkbenchImpl::createInstancesFromLocalServers()
-{
+int WorkbenchImpl::createInstancesFromLocalServers() {
   int found_instances = 0;
-  try
-  {
+  try {
     grt::DictListRef servers = getLocalServerList();
     if (!servers.is_valid())
       return -1;
@@ -1958,40 +1746,36 @@ int WorkbenchImpl::createInstancesFromLocalServers()
     db_mgmt_RdbmsRef rdbms = find_object_in_list(_wb->get_root()->rdbmsMgmt()->rdbms(), DEFAULT_RDBMS_ID);
     grt::ListRef<db_mgmt_ServerInstance> instances(_wb->get_root()->rdbmsMgmt()->storedInstances());
     size_t count = servers->count();
-    for (size_t i = 0; i < count; i++)
-    {
+    for (size_t i = 0; i < count; i++) {
       grt::DictRef entry(servers[i]);
 
       std::string display_name = entry.get_string("DisplayName", "invalid");
       std::string service_name = entry.get_string("Name", "invalid");
       std::string path = entry.get_string("PathName", "invalid");
 
-
       // Takes the parameters from the command line
       std::string config_file = base::extract_option_from_command_line("--defaults-file", path);
       std::string socket_or_pipe_name = base::extract_option_from_command_line("--socket", path);
       std::string str_port = base::extract_option_from_command_line("--port", path);
-    
+
       ssize_t port = INT_MIN;
       if (str_port.length())
         port = base::atoi<int>(str_port, 0);
-      
+
       bool can_use_networking = true;
       if (path.find("--skip-networking") != std::string::npos)
         can_use_networking = false;
-      
+
       bool can_use_socket_or_pipe = false;
       if (path.find("--enable-named-pipe") != std::string::npos)
         can_use_socket_or_pipe = true;
-      
+
       // Creates the server instance
-      db_mgmt_ServerInstanceRef instance(_wb->get_grt());
-      
+      db_mgmt_ServerInstanceRef instance(grt::Initialized);
 
       // If the configuration file is part of the command call
       // Will take the parameters from there if were not available on the command call
-      if (g_file_test(config_file.c_str(), G_FILE_TEST_EXISTS))
-      {
+      if (g_file_test(config_file.c_str(), G_FILE_TEST_EXISTS)) {
         ConfigurationFile key_file(config_file, base::AutoCreateSections | base::AutoCreateKeys);
 
         // Early out if the default section is not there.
@@ -2001,10 +1785,10 @@ int WorkbenchImpl::createInstancesFromLocalServers()
         // Gets the port if not already retrieved from the command line
         if (port == INT_MIN)
           port = key_file.get_int("port", "mysqld");
-        
+
         if (can_use_networking && key_file.has_key("skip-networking", "mysqld"))
           can_use_networking = false;
-        
+
         if (!can_use_socket_or_pipe && key_file.has_key("enable-named-pipe", "mysqld"))
           can_use_socket_or_pipe = true;
 
@@ -2019,29 +1803,29 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       // If the port was not found, uses the default port
       if (port == INT_MIN)
         port = 3306;
-			
+
       // If the socket was not found uses a default value
       if (socket_or_pipe_name.size() == 0)
         socket_or_pipe_name = "MySQL";
-      
+
       instance->owner(_wb->get_root()->rdbmsMgmt());
 
-      #ifdef _WIN32
-        instance->serverInfo().gset("sys.system", "Windows");
-        instance->serverInfo().gset("windowsAdmin", 1);
-        instance->loginInfo().gset("wmi.userName", ""); // Only used for remote connections.
-        instance->loginInfo().gset("wmi.hostName", ""); // Only used for remote connections.
-        instance->serverInfo().gset("sys.mysqld.service_name", service_name);
-      #elif defined(__APPLE__)
-        instance->serverInfo().gset("sys.system", "MacOS X");
-      #else
-        instance->serverInfo().gset("sys.system", "Linux");
-      #endif
+#ifdef _WIN32
+      instance->serverInfo().gset("sys.system", "Windows");
+      instance->serverInfo().gset("windowsAdmin", 1);
+      instance->loginInfo().gset("wmi.userName", ""); // Only used for remote connections.
+      instance->loginInfo().gset("wmi.hostName", ""); // Only used for remote connections.
+      instance->serverInfo().gset("sys.mysqld.service_name", service_name);
+#elif defined(__APPLE__)
+      instance->serverInfo().gset("sys.system", "MacOS X");
+#else
+      instance->serverInfo().gset("sys.system", "Linux");
+#endif
       instance->serverInfo().gset("setupPending", 1);
-      
+
       // If the display name is invalid will create one using the port
-      if (display_name=="invalid")
-        display_name = base::to_string(port);
+      if (display_name == "invalid")
+        display_name = std::to_string(port);
 
       instance->name("Local " + display_name);
 
@@ -2053,9 +1837,8 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       // Finally look up a connection or create one we can use for this instance.
       db_mgmt_ConnectionRef connection;
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-      for (grt::ListRef<db_mgmt_Connection>::const_iterator end = connections.end(),
-        iterator = connections.begin(); iterator != end; ++iterator)
-      {
+      for (grt::ListRef<db_mgmt_Connection>::const_iterator end = connections.end(), iterator = connections.begin();
+           iterator != end; ++iterator) {
         grt::DictRef parameters((*iterator)->parameterValues());
 
         // Must be a localhost connection.
@@ -2069,8 +1852,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
         if (parameter != "root")
           continue;
 
-        if (can_use_networking)
-        {
+        if (can_use_networking) {
           ssize_t other_port = parameters.get_int("port");
           if (other_port != port)
             continue;
@@ -2078,25 +1860,22 @@ int WorkbenchImpl::createInstancesFromLocalServers()
           // Only native tcp/ip network connections for now.
           if ((*iterator)->driver()->id() != "com.mysql.rdbms.mysql.driver.native")
             continue;
+        } else if (can_use_socket_or_pipe) {
+          parameter = parameters.get_string("socket");
+          if (parameter.size() == 0)
+            parameter = "MySQL"; // Default pipe/socket name.
+
+          if (parameter != socket_or_pipe_name)
+            continue;
+
+          // Only native socket/pipe connections for now.
+          if ((*iterator)->driver()->id() != "com.mysql.rdbms.mysql.driver.native_socket")
+            continue;
         }
-        else
-          if (can_use_socket_or_pipe)
-          {
-            parameter = parameters.get_string("socket");
-            if (parameter.size() == 0)
-              parameter = "MySQL"; // Default pipe/socket name.
 
-            if (parameter != socket_or_pipe_name)
-              continue;
-
-            // Only native socket/pipe connections for now.
-            if ((*iterator)->driver()->id() != "com.mysql.rdbms.mysql.driver.native_socket")
-              continue;
-          }
-
-          // All parameters are ok. This is a connection we can use.
-          connection = *iterator;
-          break;
+        // All parameters are ok. This is a connection we can use.
+        connection = *iterator;
+        break;
       }
 
       // If we did not find a connection for this instance then create a new one.
@@ -2108,12 +1887,10 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       instances.insert(instance);
       ++found_instances;
     }
-  }
-  catch (std::exception &exc)
-  {
+  } catch (std::exception &exc) {
     // If for some reason (e.g. insufficient rights) the wmi session throws an exception
     // we don't want to see it. We simply do not create the list in that case.
-    log_warning("Error auto-detecting server instance: %s\n", exc.what());
+    logWarning("Error auto-detecting server instance: %s\n", exc.what());
   }
 
   return found_instances;
@@ -2124,22 +1901,18 @@ int WorkbenchImpl::createInstancesFromLocalServers()
 /**
  * Returns a short string describing the currently active video adapter, especially the used chipset.
  */
-std::string WorkbenchImpl::getVideoAdapter()
-{
-  log_debug("Attempting to determine the current video adaptor and its properties\n");
+std::string WorkbenchImpl::getVideoAdapter() {
+  logDebug("Attempting to determine the current video adaptor and its properties\n");
   std::string result = _("Unknown");
-  try
-  {
+  try {
 #ifdef _WIN32
     int session = wmiOpenSession("", "", "");
-    grt::DictListRef entries = wmiQuery(session,
-      "select Availability, VideoProcessor from Win32_VideoController");
+    grt::DictListRef entries = wmiQuery(session, "select Availability, VideoProcessor from Win32_VideoController");
     wmiCloseSession(session);
 
     size_t count = entries->count();
-    log_debug("Found %d adapters\n", count);
-    for (size_t i = 0; i < count; i++)
-    {
+    logDebug("Found %d adapters\n", count);
+    for (size_t i = 0; i < count; i++) {
       grt::DictRef entry(entries[i]);
 
       if (entry.get_string("Availability", "0") != "3")
@@ -2150,16 +1923,14 @@ std::string WorkbenchImpl::getVideoAdapter()
       break;
     }
 #else
-    // TODO: other OSes go here.
+// TODO: other OSes go here.
 #endif
-  }
-  catch (...)
-  {
+  } catch (...) {
     // If for some reason (e.g. insufficient rights) the retrieval fails then we return an empty list.
-    log_error("Attempt failed to determine the current video adapter\n");
+    logError("Attempt failed to determine the current video adapter\n");
   }
 
-  log_debug("Done scan for the current video adapter\n");
+  logDebug("Done scan for the current video adapter\n");
 
   return result;
 }
@@ -2169,12 +1940,10 @@ std::string WorkbenchImpl::getVideoAdapter()
 /**
  * Returns all available info about the currently active video adapter in human readable format.
  */
-std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent)
-{
+std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent) {
   std::stringstream result;
   std::string tab = indent ? "\t" : "";
-  try
-  {
+  try {
 #ifdef _WIN32
     int session = wmiOpenSession("", "", "");
     grt::DictListRef entries = wmiQuery(session, "select * from Win32_VideoController");
@@ -2186,8 +1955,7 @@ std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent)
     size_t count = entries->count();
     grt::DictRef entry;
 
-    for (size_t i = 0; i < count; i++)
-    {
+    for (size_t i = 0; i < count; i++) {
       entry = entries[i];
       if (entry.get_string("Availability", "0") == "3")
         break;
@@ -2196,16 +1964,13 @@ std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent)
     if (!entry.is_valid() && count > 0)
       entry = entries[0];
 
-    if (entry.is_valid())
-    {
+    if (entry.is_valid()) {
       result << tab << "Active video adapter " << entry.get_string("Caption", "unknown") << '\n';
       std::string value = entry.get_string("AdapterRAM", "");
-      if (!value.empty())
-      {
+      if (!value.empty()) {
         int64_t size = base::atoi<int64_t>(value, (int64_t)0) / 1024 / 1024;
         result << tab << "Installed video RAM: " << size << " MB\n";
-      }
-      else
+      } else
         result << tab << "Installed video RAM: unknown\n";
 
       result << tab << "Current video mode: " << entry.get_string("VideoModeDescription", "unknown") << '\n';
@@ -2218,58 +1983,48 @@ std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent)
 
       result << tab << "Driver version: " << entry.get_string("DriverVersion", "unknown") << '\n';
       result << tab << "Installed display drivers: " << entry.get_string("InstalledDisplayDrivers", "unknown") << '\n';
-    }
-    else
-    {
+    } else {
       result << "No video adapter info available\n";
     }
 #else
     // TODO: other OSes go here.
     result << "No video adapter info available\n";
 #endif
-  }
-  catch (...)
-  {
+  } catch (...) {
     // If for some reason (e.g. insufficient rights) the retrieval fails then we return an empty list.
     result << "No video adapter info available\n";
   }
   return result.str();
 }
 
-int WorkbenchImpl::initializeOtherRDBMS()
-{
+int WorkbenchImpl::initializeOtherRDBMS() {
   if (_is_other_dbms_initialized)
     return 0;
   _is_other_dbms_initialized = true;
-  get_grt()->send_output("Initializing rdbms modules\n");
+  grt::GRT::get()->send_output("Initializing rdbms modules\n");
 
   // Init MySQL first.
-  grt::Module* mysql_module = get_grt()->get_module("DbMySQL");//already loaded on startup
-  grt::BaseListRef args(get_grt());
+  grt::Module *mysql_module = grt::GRT::get()->get_module("DbMySQL"); // already loaded on startup
+  grt::BaseListRef args(true);
 
   // init other RDBMS
   bool failed = false;
-  const std::vector<grt::Module*> &modules(get_grt()->get_modules());
-  for (std::vector<grt::Module*>::const_iterator m = modules.begin(); m != modules.end(); ++m)
-  {
-    if ((*m)->has_function("initializeDBMSInfo") && *m != mysql_module)
-    {
-      get_grt()->send_output(strfmt("Initializing %s rdbms info\n", (*m)->name().c_str()));
-      try
-      {
+  const std::vector<grt::Module *> &modules(grt::GRT::get()->get_modules());
+  for (std::vector<grt::Module *>::const_iterator m = modules.begin(); m != modules.end(); ++m) {
+    if ((*m)->has_function("initializeDBMSInfo") && *m != mysql_module) {
+      grt::GRT::get()->send_output(strfmt("Initializing %s rdbms info\n", (*m)->name().c_str()));
+      try {
         (*m)->call_function("initializeDBMSInfo", args);
-      }
-      catch (std::exception &)
-      {
+      } catch (std::exception &) {
         failed = true;
       }
     }
   }
   if (failed)
-    log_warning("Support for one or more RDBMS sources have failed.");
+    logWarning("Support for one or more RDBMS sources have failed.");
 
   _wb->load_other_connections();
-  
+
   return 1;
 }
 
@@ -2277,14 +2032,12 @@ int WorkbenchImpl::initializeOtherRDBMS()
 * Removes a connection from the stored connections list along with all associated data
 * (including its server instance entry).
 */
-int WorkbenchImpl::deleteConnection(const db_mgmt_ConnectionRef &connection)
-{
+int WorkbenchImpl::deleteConnection(const db_mgmt_ConnectionRef &connection) {
   grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
   grt::ListRef<db_mgmt_ServerInstance> instances = _wb->get_root()->rdbmsMgmt()->storedInstances();
 
   // Remove all associated server instances.
-  for (ssize_t i = instances.count() - 1; i >= 0; --i)
-  {
+  for (ssize_t i = instances.count() - 1; i >= 0; --i) {
     db_mgmt_ServerInstanceRef instance(instances[i]);
     if (instance->connection() == connection)
       instances->remove(i);
@@ -2296,46 +2049,36 @@ int WorkbenchImpl::deleteConnection(const db_mgmt_ConnectionRef &connection)
   grt::DictRef parameter_values = connection->parameterValues();
   std::string host = connection->hostIdentifier();
   std::string user = parameter_values.get_string("userName");
-  for (grt::ListRef<db_mgmt_Connection>::const_iterator i = connections.begin();
-    i != connections.end(); ++i)
-  {
-    if (*i != connection)
-    {
+  for (grt::ListRef<db_mgmt_Connection>::const_iterator i = connections.begin(); i != connections.end(); ++i) {
+    if (*i != connection) {
       grt::DictRef current_parameters = (*i)->parameterValues();
-      if (host == *(*i)->hostIdentifier() && user == current_parameters.get_string("userName"))
-      {
+      if (host == *(*i)->hostIdentifier() && user == current_parameters.get_string("userName")) {
         credentials_still_used = true;
         break;
       }
     }
   }
-  if (!credentials_still_used)
-  {
-    try
-    {
+  if (!credentials_still_used) {
+    try {
       mforms::Utilities::forget_password(host, user);
+    } catch (std::exception &exc) {
+      logWarning("Could not clear password: %s\n", exc.what());
     }
-    catch (std::exception &exc)
-    {
-      log_warning("Could not clear password: %s\n", exc.what());
-    }    
-  }  
+  }
 
   connections->remove(connection);
 
   return 0;
 }
 
-int WorkbenchImpl::deleteConnectionGroup(const std::string& group)
-{
+int WorkbenchImpl::deleteConnectionGroup(const std::string &group) {
   size_t group_length = group.length();
 
   std::vector<db_mgmt_ConnectionRef> candidates;
   grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
   ssize_t index = connections.count() - 1;
-  while (index >= 0)
-  {
+  while (index >= 0) {
     std::string name = connections[index]->name();
 
     if (name.compare(0, group_length, group) == 0)
@@ -2344,8 +2087,8 @@ int WorkbenchImpl::deleteConnectionGroup(const std::string& group)
     index--;
   }
 
-  for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = candidates.begin();
-    iterator != candidates.end(); ++iterator)
+  for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = candidates.begin(); iterator != candidates.end();
+       ++iterator)
     deleteConnection(*iterator);
 
   return 0;

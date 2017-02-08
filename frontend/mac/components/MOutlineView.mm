@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,8 +41,8 @@ static void refresh_tree(const bec::NodeId &node, int ocount, void *tree)
 - (std::vector<bec::NodeId>)selectedNodeIds
 {
   std::vector<bec::NodeId> nodes;
-  NSIndexSet *iset= [self selectedRowIndexes];
-  NSUInteger index = [iset firstIndex];
+  NSIndexSet *iset= self.selectedRowIndexes;
+  NSUInteger index = iset.firstIndex;
   while (index != NSNotFound)
   {
     nodes.push_back([[self itemAtRow: index] nodeId]);
@@ -77,7 +77,7 @@ static void refresh_tree(const bec::NodeId &node, int ocount, void *tree)
   {
     bec::TreeModel *model = [self getTreeModel];
     if (model)
-      model->tree_changed_signal()->connect(boost::bind(refresh_tree, _1, _2, (__bridge void *)self));
+      model->tree_changed_signal()->connect(std::bind(refresh_tree, std::placeholders::_1, std::placeholders::_2, (__bridge void *)self));
     mConnectedRefresh= YES;
   }
 }
@@ -105,10 +105,10 @@ static void refresh_tree(const bec::NodeId &node, int ocount, void *tree)
       NSMenuItem *item= [menu addItemWithTitle: [NSString stringWithCPPString: iter->caption]
                                           action: itemAction
                                    keyEquivalent: @""];
-      [item setTarget: self];
+      item.target = self;
       if (!iter->enabled)
         [item setEnabled: NO];
-      [item setRepresentedObject: [NSString stringWithCPPString: iter->name]];
+      item.representedObject = [NSString stringWithCPPString: iter->name];
       
       if (iter->type == bec::MenuCascade)
       {
@@ -116,7 +116,7 @@ static void refresh_tree(const bec::NodeId &node, int ocount, void *tree)
         {
           NSMenu *submenu= [[NSMenu alloc] initWithTitle: @""];
           [self fillMenu: submenu withItems:iter->subitems selector:@selector(activateMenuItem:)];
-          [item setSubmenu: submenu];
+          item.submenu = submenu;
         }
       }
     }
@@ -158,7 +158,7 @@ static void refresh_tree(const bec::NodeId &node, int ocount, void *tree)
 
 - (void)rightMouseDown:(NSEvent *)theEvent
 {
-  [self selectRowIndexes: [NSIndexSet indexSetWithIndex: [self rowAtPoint: [self convertPoint: [theEvent locationInWindow] fromView: nil]]]
+  [self selectRowIndexes: [NSIndexSet indexSetWithIndex: [self rowAtPoint: [self convertPoint: theEvent.locationInWindow fromView: nil]]]
     byExtendingSelection: NO];
   [super rightMouseDown: theEvent];
 }

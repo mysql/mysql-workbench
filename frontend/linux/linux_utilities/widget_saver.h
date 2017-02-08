@@ -3,31 +3,26 @@
 
 #include <sigc++/sigc++.h>
 
-namespace bec
-{
-class GRTManager;
+namespace bec {
+  class GRTManager;
 }
 
-namespace Gtk
-{
-class Paned;
+namespace Gtk {
+  class Paned;
 }
 
-namespace mforms
-{
-class ToolBar;
+namespace mforms {
+  class ToolBar;
 }
 
-namespace utils
-{
-namespace gtk
-{
+namespace utils {
+  namespace gtk {
 
-void save_settings(bec::GRTManager* m, Gtk::Paned* paned, const bool right_side = false);
-sigc::connection load_settings(bec::GRTManager* m, Gtk::Paned* paned, const sigc::slot<void> defaults_slot = sigc::slot<void>(), const bool right_side = false, const int min_size = 0);
+    void save_settings(Gtk::Paned* paned, const bool right_side = false);
+    sigc::connection load_settings(Gtk::Paned* paned, const sigc::slot<void> defaults_slot = sigc::slot<void>(),
+                                   const bool right_side = false, const int min_size = 0);
 
-} // ns gtk
+  } // ns gtk
 } // ns utils
 
 #endif
-

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +19,7 @@
 
 // Layout contained views vertically. Width of subviews will be adjusted to the same as parent
 // Height will be taken from the subviews themselves. Will resize to fit the height of all subviews.
+// Compare also with the much more sophisticated vertical layout in MFBox.
 
 #import "MVerticalLayoutView.h"
 
@@ -76,7 +77,7 @@
 
 - (void)tile
 {
-  float width = NSWidth([self frame]) - leftPadding - rightPadding;
+  float width = NSWidth(self.frame) - leftPadding - rightPadding;
   float availableHeight;
   float y;
   int expandable = 0;
@@ -86,12 +87,12 @@
     return;
   relayouting= YES;
   
-  if ([[self subviews] count] > 0)
-    minimumHeight = spacing * ([[self subviews] count]-1) + topPadding + bottomPadding;
+  if (self.subviews.count > 0)
+    minimumHeight = spacing * (self.subviews.count-1) + topPadding + bottomPadding;
   else
     minimumHeight = 0;
 
-  for (id view in [self subviews])
+  for (id view in self.subviews)
   {
     float minHeight;
     if (![view isHidden])
@@ -116,16 +117,16 @@
     }
   }
 
-  availableHeight= NSHeight([self frame]);
+  availableHeight= NSHeight(self.frame);
   if (!expandsByDefault)
-    [self setFrameSize:NSMakeSize(NSWidth([self frame]), MAX(minimumHeight, availableHeight))];
+    [self setFrameSize:NSMakeSize(NSWidth(self.frame), MAX(minimumHeight, availableHeight))];
 
   if (availableHeight > minimumHeight && expandable > 0)
     extraSpacePerItem = (availableHeight - minimumHeight) / expandable;
   else
     extraSpacePerItem = 0;
-  y= NSHeight([self frame]) - topPadding;
-  for (id view in [self subviews])
+  y= NSHeight(self.frame) - topPadding;
+  for (id view in self.subviews)
   {
     if (![view isHidden])
     {
@@ -154,8 +155,8 @@
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldBoundsSize
 {
-  NSRect superBounds = [[self superview] bounds];
-  NSRect frame = [self frame];
+  NSRect superBounds = self.superview.bounds;
+  NSRect frame = self.frame;
   float leftMargin = NSMinX(frame);
   float bottomMargin = NSMinY(frame);
   float rightMargin = oldBoundsSize.width - NSMaxX(frame);
@@ -164,18 +165,18 @@
   frame = NSMakeRect(leftMargin, bottomMargin, 
                      NSWidth(superBounds) - (leftMargin + rightMargin), 
                      NSHeight(superBounds) - (topMargin + bottomMargin));
-  [self setFrame: frame];
+  self.frame = frame;
   [self tile];
 }
 
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize
 {
-  NSRect frame= [self frame];
+  NSRect frame= self.frame;
   if (minimumHeight > frame.size.height)
   {
     frame.size.height= minimumHeight;
-    [self setFrame: frame];
+    self.frame = frame;
   }
   [self tile];
 }

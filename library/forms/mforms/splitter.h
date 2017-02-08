@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -19,18 +19,16 @@
 
 #pragma once
 
-#include <mforms/container.h>
-#include <boost/signals2.hpp>
+#include "mforms/container.h"
 #include <map>
 
 namespace mforms {
-  
+
   class Splitter;
-  
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct SplitterImplPtrs
-  {
+  struct SplitterImplPtrs {
 #ifdef __APPLE__
     bool (*create)(Splitter *self, bool horizontal, bool thin);
 #else
@@ -38,40 +36,41 @@ namespace mforms {
 #endif
     void (*add)(Splitter *self, View *child, int minsize, bool fixed);
     void (*remove)(Splitter *self, View *child);
-    void (*set_position)(Splitter *self, int);
-    int (*get_position)(Splitter *self);
+    void (*set_divider_position)(Splitter *self, int);
+    int (*get_divider_position)(Splitter *self);
     void (*set_expanded)(Splitter *self, bool first, bool expand);
   };
 #endif
 #endif
-  
+
   /** A splitter/split view/paned view to accommodate 2 child views with a draggable divider */
-  class MFORMS_EXPORT Splitter : public Container
-  {
+  class MFORMS_EXPORT Splitter : public Container {
   public:
     /** Constructor.
-     
+
      @param horiz - whether child views should be placed side by side or below the other */
     Splitter(bool horiz, bool thin = false);
-    
+
     /** Adds a child view, only 2 child views can be added.
 
-     @param minsize - minimal size this view can have 
+     @param minsize - minimal size this view can have
      @param fixed - whether the panel should stay in the same size when the splitter is resized */
-    void add(View *subview, int minsize=0, bool fixed=false);
-    
+    void add(View *subview, int minsize = 0, bool fixed = false);
+
     /** Remove a child view */
     virtual void remove(View *subview);
-    
+
     /** Sets/gets position of the divider */
-    void set_position(int position);
-    int get_position();
+    void set_divider_position(int position);
+    int get_divider_position();
 
     /** Sets either the first (left/top) or the second (right/bottom) part of the splitter to visible or hidden. */
     void set_expanded(bool first, bool expand);
 
 #ifndef SWIG
-    boost::signals2::signal<void ()> *signal_position_changed() { return &_position_changed_signal; }
+    boost::signals2::signal<void()> *signal_position_changed() {
+      return &_position_changed_signal;
+    }
 #endif
 
   public:
@@ -79,8 +78,7 @@ namespace mforms {
 
   protected:
     SplitterImplPtrs *_splitter_impl;
-    
-    boost::signals2::signal<void ()> _position_changed_signal;
+
+    boost::signals2::signal<void()> _position_changed_signal;
   };
-  
 };

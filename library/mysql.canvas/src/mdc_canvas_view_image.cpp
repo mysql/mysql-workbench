@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,40 +23,31 @@ using namespace mdc;
 using namespace base;
 
 ImageCanvasView::ImageCanvasView(int width, int height, cairo_format_t format)
-  : CanvasView(width, height), _buffer(0), _format(format)
-{
+  : CanvasView(width, height), _buffer(0), _format(format) {
 }
 
-
-ImageCanvasView::~ImageCanvasView()
-{
+ImageCanvasView::~ImageCanvasView() {
   if (_buffer)
     cairo_surface_destroy(_buffer);
 }
 
-
-void ImageCanvasView::begin_repaint(int x, int y, int w, int h)
-{
+void ImageCanvasView::begin_repaint(int x, int y, int w, int h) {
 }
 
-
-void ImageCanvasView::end_repaint()
-{
+void ImageCanvasView::end_repaint() {
 }
 
-
-void ImageCanvasView::update_view_size(int width, int height)
-{
+void ImageCanvasView::update_view_size(int width, int height) {
   if (_buffer && _view_width == width && _view_height == height)
     return;
 
   if (_buffer)
     cairo_surface_destroy(_buffer);
 
-  _buffer= cairo_image_surface_create(_format, width, height);
+  _buffer = cairo_image_surface_create(_format, width, height);
 
   delete _cairo;
-  _cairo= new CairoCtx(_buffer);
+  _cairo = new CairoCtx(_buffer);
   cairo_set_tolerance(_cairo->get_cr(), 0.1);
 
   update_offsets();
@@ -65,24 +56,19 @@ void ImageCanvasView::update_view_size(int width, int height)
   _viewport_changed_signal();
 }
 
-
-void ImageCanvasView::save_to(const std::string &path)
-{
+void ImageCanvasView::save_to(const std::string &path) {
   // clear in white
-  memset(cairo_image_surface_get_data(_buffer), 0xff, 
-         cairo_image_surface_get_stride(_buffer)*_view_height);
+  memset(cairo_image_surface_get_data(_buffer), 0xff, cairo_image_surface_get_stride(_buffer) * _view_height);
 
-  render_for_export(Rect(Point(0,0), get_total_view_size()), 0);
-  
+  render_for_export(Rect(Point(0, 0), get_total_view_size()), 0);
+
   cairo_surface_write_to_png(_buffer, path.c_str());
 }
 
-
-const unsigned char* ImageCanvasView::get_image_data(size_t &size)
-{
+const unsigned char *ImageCanvasView::get_image_data(size_t &size) {
   repaint();
 
-  size= cairo_image_surface_get_stride(_buffer)*_view_height;
+  size = cairo_image_surface_get_stride(_buffer) * _view_height;
 
   return cairo_image_surface_get_data(_buffer);
 }

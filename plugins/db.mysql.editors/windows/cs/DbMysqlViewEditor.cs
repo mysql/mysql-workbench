@@ -55,7 +55,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLViewEditorWrapper(GrtManager, value);
+        Backend = new MySQLViewEditorWrapper(value);
         SetupEditorOnHost(panel1, true);
         viewEditorBE.load_view_sql();
 

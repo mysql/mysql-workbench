@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9059" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment version="1070" identifier="macosx"/>
+        <deployment version="1050" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
@@ -509,6 +509,12 @@
                                     <action selector="runToolbarCustomizationPalette:" target="-1" id="365"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="K3d-cY-vZn"/>
+                            <menuItem title="Add or Remove Extra Scintilla" keyEquivalent="d" id="zQU-z1-l5t">
+                                <connections>
+                                    <action selector="addRemoveExtra:" target="450" id="9HG-Le-GbA"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
@@ -561,7 +567,7 @@
                     <box autoresizesSubviews="NO" title="Scintilla Editor" borderType="line" id="451">
                         <rect key="frame" x="17" y="16" width="844" height="606"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <view key="contentView" id="tHh-ci-gOU">
+                        <view key="contentView" id="e8h-ir-tqU">
                             <rect key="frame" x="1" y="1" width="842" height="590"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <animations/>
@@ -582,7 +588,7 @@
                             <action selector="terminate:" target="-3" id="455"/>
                         </connections>
                     </button>
-                    <searchField wantsLayer="YES" verticalHuggingPriority="750" id="466">
+                    <searchField verticalHuggingPriority="750" id="466">
                         <rect key="frame" x="20" y="630" width="287" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <animations/>

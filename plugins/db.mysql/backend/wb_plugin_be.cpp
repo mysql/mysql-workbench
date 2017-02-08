@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -18,117 +18,84 @@
 */
 
 #include "wb_plugin_be.h"
-
 //--------------------------------------------------------------------------------------------------
 
-void Wb_plugin::grtm(bec::GRTManager *grtm)
-{
-  _grtm= grtm;
-  if (_grtm)
-  {
-    grt::GRT *grt= _grtm->get_grt();
-    _options= grt::DictRef(grt);
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void Wb_plugin::exec_task(bool sync)
-{
+void Wb_plugin::exec_task(bool sync) {
   set_task_proc();
 
-  bec::GRTTask::Ref task = bec::GRTTask::create_task(task_desc(), _grtm->get_dispatcher(), _task_proc_cb);
+  bec::GRTTask::Ref task =
+    bec::GRTTask::create_task(task_desc(), bec::GRTManager::get()->get_dispatcher(), _task_proc_cb);
 
-  scoped_connect(task->signal_message(),boost::bind(&Wb_plugin::process_task_msg, this, _1));
-  scoped_connect(task->signal_failed(),boost::bind(&Wb_plugin::process_task_fail, this, _1));
-  scoped_connect(task->signal_finished(),boost::bind(&Wb_plugin::process_task_finish, this, _1));
+  scoped_connect(task->signal_message(), std::bind(&Wb_plugin::process_task_msg, this, std::placeholders::_1));
+  scoped_connect(task->signal_failed(), std::bind(&Wb_plugin::process_task_fail, this, std::placeholders::_1));
+  scoped_connect(task->signal_finished(), std::bind(&Wb_plugin::process_task_finish, this, std::placeholders::_1));
 
   if (sync)
-    _grtm->get_dispatcher()->add_task_and_wait(task);
+    bec::GRTManager::get()->get_dispatcher()->add_task_and_wait(task);
   else
-    _grtm->get_dispatcher()->add_task(task);
+    bec::GRTManager::get()->get_dispatcher()->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Wb_plugin::process_task_msg(const grt::Message &msg)
-{
-  switch (msg.type)
-  {
-  case grt::WarningMsg:
-  case grt::ErrorMsg:
-  case grt::InfoMsg:
-    if (_task_msg_cb)
-      _task_msg_cb(msg.type, msg.text);
-    break;
-  case grt::ProgressMsg:
-    if (_task_progress_cb)
-      _task_progress_cb(msg.progress, msg.text);
-    break;
-  default:
-    break;
+void Wb_plugin::process_task_msg(const grt::Message &msg) {
+  switch (msg.type) {
+    case grt::WarningMsg:
+    case grt::ErrorMsg:
+    case grt::InfoMsg:
+      if (_task_msg_cb)
+        _task_msg_cb(msg.type, msg.text);
+      break;
+    case grt::ProgressMsg:
+      if (_task_progress_cb)
+        _task_progress_cb(msg.progress, msg.text);
+      break;
+    default:
+      break;
   }
 }
 
-
-void Wb_plugin::process_task_fail(const std::exception &error)
-{
+void Wb_plugin::process_task_fail(const std::exception &error) {
   if (_task_fail_cb)
     _task_fail_cb(error.what());
 }
 
-
-void Wb_plugin::process_task_finish(grt::ValueRef res)
-{
-  _grtm->get_grt()->send_info(grt::StringRef::cast_from(res));
-  //_grtm->get_grt()->make_output_visible();
-  _grtm->perform_idle_tasks();
+void Wb_plugin::process_task_finish(grt::ValueRef res) {
+  grt::GRT::get()->send_info(grt::StringRef::cast_from(res));
+  // grt::GRT::get()->make_output_visible();
+  bec::GRTManager::get()->perform_idle_tasks();
   if (_task_fail_cb)
     _task_finish_cb();
 }
 
-
-template<typename T1, typename T2>
-T2 get_option(const grt::DictRef &options, const std::string &name)
-{
+template <typename T1, typename T2>
+T2 get_option(const grt::DictRef &options, const std::string &name) {
   T2 value = 0;
   if (options.is_valid() && options.has_key(name))
-    value= (T2)T1::cast_from(options.get(name));
+    value = (T2)T1::cast_from(options.get(name));
   return value;
 }
 
-
-int Wb_plugin::get_int_option(const std::string &name)
-{
+int Wb_plugin::get_int_option(const std::string &name) {
   return get_option<grt::IntegerRef, int>(_options, name);
 }
 
-
-double Wb_plugin::get_double_option(const std::string &name)
-{
+double Wb_plugin::get_double_option(const std::string &name) {
   return get_option<grt::DoubleRef, double>(_options, name);
 }
 
-
-std::string Wb_plugin::get_string_option(const std::string &name)
-{
+std::string Wb_plugin::get_string_option(const std::string &name) {
   return get_option<grt::StringRef, std::string>(_options, name);
 }
 
-
-void Wb_plugin::set_option(const std::string &name, int val)
-{
+void Wb_plugin::set_option(const std::string &name, int val) {
   _options.set(name, grt::IntegerRef(val));
 }
 
-
-void Wb_plugin::set_option(const std::string &name, const double &val)
-{
+void Wb_plugin::set_option(const std::string &name, const double &val) {
   _options.set(name, grt::DoubleRef(val));
 }
 
-
-void Wb_plugin::set_option(const std::string &name, const std::string &val)
-{
+void Wb_plugin::set_option(const std::string &name, const std::string &val) {
   _options.set(name, grt::StringRef(val));
 }

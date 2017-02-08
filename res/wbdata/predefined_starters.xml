@@ -14,17 +14,6 @@
       <value type="string" key="introduction">5.2.31</value>
     </value>
 
-     <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.migration-tool">
-      <value type="string" key="type">WB Plugin</value>
-      <value type="string" key="title">Database Migration</value>
-      <value type="string" key="description">Migrate schemas from other RDBMS to MySQL.</value>
-      <value type="string" key="publisher">Oracle Corp.</value>
-      <value type="string" key="authorHome">http://www.mysql.com</value>
-      <value type="string" key="smallIcon">wb_starter_mysql_migration_52.png</value>
-      <value type="string" key="largeIcon">wb_starter_mysql_migration_68.png</value>
-      <value type="string" key="command">plugin:wb.migration.open</value>
-    </value>
-
     <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.bug-reporter-ce">
       <value type="string" key="type">Website</value>
       <value type="string" key="title">MySQL Bug Reporter</value>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,36 +21,24 @@
 
 #include <grtpp_util.h>
 
-
 //================================================================================
 // GrtStoredNote
 
-void GrtStoredNote::init()
-{
+void GrtStoredNote::init() {
 }
 
-GrtStoredNote::~GrtStoredNote()
-{
+GrtStoredNote::~GrtStoredNote() {
 }
 
-
-grt::StringRef GrtStoredNote::getText()
-{
-  grt::BaseListRef args(get_grt());
+grt::StringRef GrtStoredNote::getText() {
+  grt::BaseListRef args(true);
   args.ginsert(filename());
-  return grt::StringRef::cast_from(get_grt()->call_module_function("Workbench", "getAttachedFileContents", args));
+  return grt::StringRef::cast_from(grt::GRT::get()->call_module_function("Workbench", "getAttachedFileContents", args));
 }
 
-
-void GrtStoredNote::setText(const std::string &text)
-{
-  grt::BaseListRef args(get_grt());
+void GrtStoredNote::setText(const std::string &text) {
+  grt::BaseListRef args(true);
   args.ginsert(filename());
   args.ginsert(grt::StringRef(text));
-  grt::StringRef::cast_from(get_grt()->call_module_function("Workbench", "setAttachedFileContents", args));
+  grt::StringRef::cast_from(grt::GRT::get()->call_module_function("Workbench", "setAttachedFileContents", args));
 }
-
-
-
-
-

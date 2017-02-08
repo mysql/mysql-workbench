@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -27,67 +27,45 @@
 using namespace mdc;
 using namespace base;
 
-Selection::Selection(CanvasView *view)
-: _view(view)
-{
-  _block_signals= 0;
-
-//  _view->get_interaction_layer()->signal_custom_repaint().connect(boost::bind(&Selection::render_drag_images, this));
-
+Selection::Selection(CanvasView *view) : _view(view) {
+  _block_signals = 0;
 }
 
-
-Selection::~Selection()
-{
-//  clear();
+Selection::~Selection() {
 }
 
-
-void Selection::lock()
-{
+void Selection::lock() {
   _mutex.lock();
 }
 
-
-void Selection::unlock()
-{
+void Selection::unlock() {
   _mutex.unlock();
 }
 
-
-void Selection::toggle(CanvasItem *item)
-{
+void Selection::toggle(CanvasItem *item) {
   if (item->get_selected())
     remove(item);
   else
     add(item);
 }
 
-
-void Selection::set(CanvasItem *item)
-{
-
+void Selection::set(CanvasItem *item) {
   lock();
   if (empty())
     add(item);
   else if (_items.size() == 1 && *_items.begin() == item)
     ;
-  else
-  {
-    bool found= false;
+  else {
+    bool found = false;
 
-    for (ContentType::iterator next, it= _items.begin();
-       it != _items.end(); it= next)
-    {
-      next= it;
+    for (ContentType::iterator next, it = _items.begin(); it != _items.end(); it = next) {
+      next = it;
       ++next;
 
-      if (*it == item)
-      {
-        found= true;
+      if (*it == item) {
+        found = true;
         continue;
-      }
-      else
+      } else
         remove(*it);
     }
     if (!found)
@@ -96,44 +74,38 @@ void Selection::set(CanvasItem *item)
 
   // set focus to the item
   _view->focus_item(item);
-  
+
   unlock();
 }
 
-
-void Selection::add(CanvasItem *item)
-{
-  if (_drag_data.empty())
-  {
-    bool notify= false;
+void Selection::add(CanvasItem *item) {
+  if (_drag_data.empty()) {
+    bool notify = false;
 
     lock();
-    if (!item->get_selected() && item->accepts_selection())
-    {
-      Group *group= dynamic_cast<Group*>(item->get_parent());
+    if (!item->get_selected() && item->accepts_selection()) {
+      Group *group = dynamic_cast<Group *>(item->get_parent());
 
       // if the item is in a group, include only the group
       if (group && typeid(*group) == typeid(Group))
         add(group);
-      else
-      {
+      else {
         item->set_selected(true);
-      
+
         _items.insert(item);
 
-        if (!_drag_data.empty())
-        {
+        if (!_drag_data.empty()) {
           DragData data;
-          //Surface *surf= _view->create_temp_surface(item->get_size());
+          // Surface *surf= _view->create_temp_surface(item->get_size());
 
-          //item->render_to_surface(surf->get_surface());
+          // item->render_to_surface(surf->get_surface());
 
-          data.offset= _drag_data[0].offset - item->get_root_position();
-          //data.image= surf;
+          data.offset = _drag_data[0].offset - item->get_root_position();
+          // data.image= surf;
 
-          _drag_data[item]= data;
+          _drag_data[item] = data;
         }
-        notify= true;
+        notify = true;
       }
     }
     unlock();
@@ -142,20 +114,16 @@ void Selection::add(CanvasItem *item)
   }
 }
 
-
-void Selection::remove(CanvasItem *item)
-{
-  if (_drag_data.empty())
-  {
-    bool notify= false;
+void Selection::remove(CanvasItem *item) {
+  if (_drag_data.empty()) {
+    bool notify = false;
 
     lock();
 
     item->set_selected(false);
-    if (_items.find(item) != _items.end())
-    {
+    if (_items.find(item) != _items.end()) {
       _items.erase(item);
-      notify= true;
+      notify = true;
     }
     _drag_data.erase(item);
 
@@ -166,16 +134,12 @@ void Selection::remove(CanvasItem *item)
   }
 }
 
-
-void Selection::begin_multi_selection()
-{
-  _old_state= _items;
+void Selection::begin_multi_selection() {
+  _old_state = _items;
   _current_selection.clear();
 }
 
-
-void Selection::end_multi_selection()
-{
+void Selection::end_multi_selection() {
   _old_state.clear();
   _current_selection.clear();
 
@@ -184,27 +148,22 @@ void Selection::end_multi_selection()
     _view->focus_item(*_items.begin());
 }
 
-
-void Selection::add(const std::list<CanvasItem*> &items)
-{
+void Selection::add(const std::list<CanvasItem *> &items) {
   _block_signals++;
   lock();
-  for (std::list<CanvasItem*>::const_iterator i= items.begin(); i!=items.end(); ++i)
+  for (std::list<CanvasItem *>::const_iterator i = items.begin(); i != items.end(); ++i)
     add(*i);
   unlock();
   _block_signals--;
 }
 
-
-void Selection::toggle(const std::list<CanvasItem*> &items)
-{
+void Selection::toggle(const std::list<CanvasItem *> &items) {
   ContentType new_selection;
 
   _block_signals++;
   lock();
 
-  for (std::list<CanvasItem*>::const_iterator i= items.begin(); i!=items.end(); ++i)
-  {
+  for (std::list<CanvasItem *>::const_iterator i = items.begin(); i != items.end(); ++i) {
     if (_old_state.find(*i) != _old_state.end())
       remove(*i);
     else
@@ -213,72 +172,58 @@ void Selection::toggle(const std::list<CanvasItem*> &items)
     _current_selection.erase(*i);
   }
 
-  for (ContentType::iterator iter= _current_selection.begin();
-    iter != _current_selection.end(); ++iter)
-    toggle(*iter); 
-  _current_selection= new_selection;
+  for (ContentType::iterator iter = _current_selection.begin(); iter != _current_selection.end(); ++iter)
+    toggle(*iter);
+  _current_selection = new_selection;
 
   unlock();
   _block_signals--;
 }
 
-
-void Selection::remove_items_outside(const Rect &rect)
-{
+void Selection::remove_items_outside(const Rect &rect) {
   _block_signals++;
   lock();
-  for (ContentType::iterator next, it= _items.begin();
-       it != _items.end(); it= next)
-  {
-    next= it;
+  for (ContentType::iterator next, it = _items.begin(); it != _items.end(); it = next) {
+    next = it;
     ++next;
     if (!bounds_intersect(rect, (*it)->get_root_bounds()))
-      remove(*it); 
+      remove(*it);
   }
   unlock();
   _block_signals--;
 }
 
-
-void Selection::begin_moving(const Point &mouse_pos)
-{
+void Selection::begin_moving(const Point &mouse_pos) {
   _signal_begin_drag();
 
   lock();
-  for (ContentType::iterator it= _items.begin();
-       it != _items.end(); ++it)
-  {
+  for (ContentType::iterator it = _items.begin(); it != _items.end(); ++it) {
     DragData data;
 
-    data.position= (*it)->get_root_position();
-    data.offset= mouse_pos - data.position;
+    data.position = (*it)->get_root_position();
+    data.offset = mouse_pos - data.position;
 
-    _drag_data[*it]= data;
+    _drag_data[*it] = data;
   }
-  _drag_data[0].offset= mouse_pos;
+  _drag_data[0].offset = mouse_pos;
   unlock();
 }
 
-
-void Selection::update_move(const Point &mouse_pos)
-{
+void Selection::update_move(const Point &mouse_pos) {
   Point snap_offset;
 
   lock();
-  if (_view->get_grid_snapping() && !_items.empty())
-  {
+  if (_view->get_grid_snapping() && !_items.empty()) {
     Point pos, npos;
-    npos= pos= mouse_pos - _drag_data[*_items.begin()].offset;
-    npos= _view->snap_to_grid(npos);
+    npos = pos = mouse_pos - _drag_data[*_items.begin()].offset;
+    npos = _view->snap_to_grid(npos);
 
-    snap_offset= npos - pos;
+    snap_offset = npos - pos;
   }
 
-  for (ContentType::const_iterator i= _items.begin(); i!= _items.end(); ++i)
-  {
-    Group *group= dynamic_cast<Group*>((*i)->get_parent());
-    if (!group)
-    {
+  for (ContentType::const_iterator i = _items.begin(); i != _items.end(); ++i) {
+    Group *group = dynamic_cast<Group *>((*i)->get_parent());
+    if (!group) {
       printf("INTERNAL INCONSISTENCY: an item being moved does not have a Group parent.\n");
       // any item being moved must have an areagroup as parent, in other words they must
       // be "top level" items. Grouped items can't be moved alone, and thus selecting a
@@ -289,44 +234,37 @@ void Selection::update_move(const Point &mouse_pos)
 
     DragData &data(_drag_data[*i]);
 
-    Point npos= mouse_pos - data.offset + snap_offset;
-    
-    if (!group->get_selected() && (*i)->is_draggable())
-    {
-      data.position= npos;
+    Point npos = mouse_pos - data.offset + snap_offset;
+
+    if (!group->get_selected() && (*i)->is_draggable()) {
+      data.position = npos;
       group->move_item(*i, data.position - group->get_root_position());
     }
   }
   unlock();
 }
 
-
-bool Selection::is_moving()
-{
+bool Selection::is_moving() {
   return !_drag_data.empty();
 }
 
-
-void Selection::end_moving()
-{
+void Selection::end_moving() {
   _signal_end_drag();
   lock();
-  //for (std::list<CanvasItem*>::const_iterator i= _items.begin(); i!= _items.end(); ++i)
+  // for (std::list<CanvasItem*>::const_iterator i= _items.begin(); i!= _items.end(); ++i)
   const ContentType::const_iterator last = _items.end();
-  for (ContentType::const_iterator i= _items.begin(); i!= last; ++i)
-  {
-    Group *group= dynamic_cast<Group*>((*i)->get_parent());
+  for (ContentType::const_iterator i = _items.begin(); i != last; ++i) {
+    Group *group = dynamic_cast<Group *>((*i)->get_parent());
     DragData &data(_drag_data[*i]);
 
-    if (!group->get_selected() && (*i)->is_draggable())
-    {
-      Point position= data.position - group->get_root_position();
+    if (!group->get_selected() && (*i)->is_draggable()) {
+      Point position = data.position - group->get_root_position();
       group->move_item(*i, _view->snap_to_grid(position));
     }
   }
   _drag_data.clear();
   unlock();
-  
+
   _view->queue_repaint();
 }
 
@@ -351,28 +289,23 @@ void Selection::render_drag_images(CairoCtx *cr)
   }
 }*/
 
-
-void Selection::clear(bool keep_move_info)
-{
-  bool was_empty= empty();
+void Selection::clear(bool keep_move_info) {
+  bool was_empty = empty();
 
   lock();
-  for (ContentType::const_iterator i= _items.begin(); i!= _items.end(); ++i)
+  for (ContentType::const_iterator i = _items.begin(); i != _items.end(); ++i)
     (*i)->set_selected(false);
   _items.clear();
 
-  if (!_drag_data.empty() && keep_move_info)
-  {
+  if (!_drag_data.empty() && keep_move_info) {
     DragData data(_drag_data[0]);
     _drag_data.clear();
-    _drag_data[0]= data;
-  }
-  else
+    _drag_data[0] = data;
+  } else
     _drag_data.clear();
-  
+
   unlock();
 
   if (!was_empty)
     _signal_changed(false, 0);
 }
-

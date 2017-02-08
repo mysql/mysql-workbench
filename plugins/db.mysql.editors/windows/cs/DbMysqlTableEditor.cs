@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -108,7 +108,7 @@ namespace MySQL.GUI.Workbench.Plugins
         if (insertsTabPage.Controls.Count > 0)
           insertsTabPage.Controls.Clear();
 
-        Backend = new MySQLTableEditorWrapper(GrtManager, value);
+        Backend = new MySQLTableEditorWrapper(value);
 
         Control panel = tableEditorBE.get_trigger_panel();
         triggersTabPage.Controls.Add(panel);
@@ -1434,7 +1434,12 @@ namespace MySQL.GUI.Workbench.Plugins
 
     private void DbMysqlTableEditor_Shown(object sender, EventArgs e)
     {
-      nameTextBox.Focus();
+      DbMysqlTableEditor editor = (DbMysqlTableEditor)sender;
+      if(sender != null) 
+      {
+        editor.Focus();
+        editor.nameTextBox.Focus();
+      }
     }
 
     #endregion

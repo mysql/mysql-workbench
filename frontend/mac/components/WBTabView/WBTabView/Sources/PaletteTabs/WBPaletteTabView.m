@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,9 +44,9 @@
 	
 	[super doCustomize];
   
-  NSRect r = [mTabView frame];
+  NSRect r = mTabView.frame;
   r = NSInsetRect(r, 3, 3);
-  [mTabView setFrame: r];
+  mTabView.frame = r;
 }
 
 @end

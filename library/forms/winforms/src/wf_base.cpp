@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,26 +28,22 @@ using namespace System::Windows::Forms;
 using namespace MySQL;
 using namespace MySQL::Forms;
 
-void free_wrapper(void *payload)
-{
+void free_wrapper(void *payload) {
   ObjectWrapper *wrapper = reinterpret_cast<ObjectWrapper *>(payload);
   delete wrapper;
 }
 
 //----------------- ObjectWrapper ------------------------------------------------------------------
 
-ObjectWrapper::ObjectWrapper(mforms::Object *object)
-{
+ObjectWrapper::ObjectWrapper(mforms::Object *object) {
   object->set_data(this, free_wrapper);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-ObjectWrapper::~ObjectWrapper()
-{
-  IntPtr ^reference = GetBackendReference();
-  if (reference != nullptr)
-  {
+ObjectWrapper::~ObjectWrapper() {
+  IntPtr ^ reference = GetBackendReference();
+  if (reference != nullptr) {
     mforms::Object *backend = reinterpret_cast<mforms::Object *>(reference->ToPointer());
     if (backend != NULL)
       backend->set_data(NULL);
@@ -58,7 +54,7 @@ ObjectWrapper::~ObjectWrapper()
   // Not really needed with managed objects, but this way we can free any used resource
   // quicker than waiting for the garbage collection to kick in (especially important for used
   // unmanaged resources).
-  Component ^value = component; // Assign from gcroot to real var.
+  Component ^ value = component; // Assign from gcroot to real var.
   delete value;
 }
 
@@ -67,41 +63,35 @@ ObjectWrapper::~ObjectWrapper()
 /**
  * Internal helper for getting the tag of the native platform control.
  */
-IntPtr ^ObjectWrapper::GetBackendReference()
-{
-  Object ^tag = nullptr;
-  System::Object ^object = component;
+IntPtr ^ ObjectWrapper::GetBackendReference() {
+  Object ^ tag = nullptr;
+  System::Object ^ object = component;
   if (is<Control>(object))
     tag = ((Control ^)object)->Tag;
-  else
-    if (is<ToolStripItem>(object))
-      tag = ((ToolStripItem ^)object)->Tag;
-    else
-      if (is<CommonDialog>(object))
-        tag = ((CommonDialog ^)object)->Tag;
+  else if (is<ToolStripItem>(object))
+    tag = ((ToolStripItem ^)object)->Tag;
+  else if (is<CommonDialog>(object))
+    tag = ((CommonDialog ^)object)->Tag;
 
   return dynamic_cast<IntPtr ^>(tag);
 }
 
 //----------------- ObjectMapper -------------------------------------------------------------------
 
-Component^ ObjectMapper::GetManagedComponent(mforms::Object *backend)
-{
+Component ^ ObjectMapper::GetManagedComponent(mforms::Object *backend) {
   return ObjectWrapper::GetManagedObject<Component>(backend);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::Object* ObjectMapper::GetUnmanagedControl(Windows::Forms::Control^ control)
-{
+mforms::Object *ObjectMapper::GetUnmanagedControl(System::Windows::Forms::Control ^ control) {
   return ObjectWrapper::GetBackend<mforms::Object>(control);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void* ObjectMapper::ManagedToNativeDragData(Windows::Forms::IDataObject ^dataObject, String ^format)
-{
-  DataWrapper ^wrapper = dynamic_cast<DataWrapper ^>(dataObject->GetData(format, false));
+void *ObjectMapper::ManagedToNativeDragData(System::Windows::Forms::IDataObject ^ dataObject, String ^ format) {
+  DataWrapper ^ wrapper = dynamic_cast<DataWrapper ^>(dataObject->GetData(format, false));
   if (wrapper == nullptr)
     return NULL;
 

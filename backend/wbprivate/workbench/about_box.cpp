@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -27,29 +27,27 @@
 using namespace wb;
 
 #ifdef __APPLE__
-  #define ABOUT_NORMAL_FONT "Helvetica Neue"
-  #define ABOUT_FONT_SIZE 11
+#define ABOUT_NORMAL_FONT "Helvetica Neue"
+#define ABOUT_FONT_SIZE 11
 #elif defined(_WIN32)
-  #define ABOUT_NORMAL_FONT "Tahoma"
-  #define ABOUT_FONT_SIZE 10
+#define ABOUT_NORMAL_FONT "Tahoma"
+#define ABOUT_FONT_SIZE 10
 #else
-  #define ABOUT_NORMAL_FONT "Tahoma"
-  #define ABOUT_FONT_SIZE 10
+#define ABOUT_NORMAL_FONT "Tahoma"
+#define ABOUT_FONT_SIZE 10
 #endif
 
 //--------------------------------------------------------------------------------------------------
 
 // The following helpers are just temporary. They will be replaced by a cairo context class.
-static void delete_surface(cairo_surface_t* surface)
-{
+static void delete_surface(cairo_surface_t *surface) {
   if (surface != NULL)
     cairo_surface_destroy(surface);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static int image_width(cairo_surface_t* image)
-{
+static int image_width(cairo_surface_t *image) {
   if (image != NULL)
     return cairo_image_surface_get_width(image);
   return 0;
@@ -57,8 +55,7 @@ static int image_width(cairo_surface_t* image)
 
 //--------------------------------------------------------------------------------------------------
 
-static int image_height(cairo_surface_t* image)
-{
+static int image_height(cairo_surface_t *image) {
   if (image != NULL)
     return cairo_image_surface_get_height(image);
   return 0;
@@ -66,18 +63,13 @@ static int image_height(cairo_surface_t* image)
 
 //--------------------------------------------------------------------------------------------------
 
-AboutBox::AboutBox(const std::string &edition)
-    : Popup(mforms::PopupPlain), _edition(edition)
-{
+AboutBox::AboutBox(const std::string &edition) : Popup(mforms::PopupPlain), _edition(edition) {
   base::Size size;
   _scale_factor = mforms::App::get()->backing_scale_factor();
-  if (_scale_factor > 1)
-  {
+  if (_scale_factor > 1) {
     _back_image = mforms::Utilities::load_icon("MySQL-WB-about-screen@2x.png");
     size = base::Size(image_width(_back_image) / _scale_factor, image_height(_back_image) / _scale_factor);
-  }
-  else
-  {
+  } else {
     _back_image = mforms::Utilities::load_icon("MySQL-WB-about-screen.png");
     size = base::Size(image_width(_back_image), image_height(_back_image));
   }
@@ -97,8 +89,7 @@ AboutBox::AboutBox(const std::string &edition)
 
 //--------------------------------------------------------------------------------------------------
 
-AboutBox::~AboutBox()
-{
+AboutBox::~AboutBox() {
   delete_surface(_back_image);
 }
 
@@ -106,18 +97,16 @@ AboutBox::~AboutBox()
 
 #define TEXT_BASE_LINE 125
 #define BUILD_TEXT_OFFSET 107
-#define RELEASE_TYPE_OFFSET 365 // Right border.
+#define RELEASE_TYPE_OFFSET 375 // Right border.
 
-void AboutBox::repaint(cairo_t *cr, int x, int y, int w, int h)
-{
+void AboutBox::repaint(cairo_t *cr, int x, int y, int w, int h) {
   cairo_scale(cr, 1 / _scale_factor, 1 / _scale_factor);
   cairo_set_source_surface(cr, _back_image, 0, 0);
   cairo_paint(cr);
   cairo_identity_matrix(cr);
 
   std::string version = base::strfmt(_("Version %i.%i.%i build %i %s (%i bits)"), APP_MAJOR_NUMBER, APP_MINOR_NUMBER,
-                                     APP_RELEASE_NUMBER, APP_BUILD_NUMBER, APP_RELEASE_TYPE,
-                                     (int)sizeof(void*)*8);
+                                     APP_RELEASE_NUMBER, APP_BUILD_NUMBER, APP_RELEASE_TYPE, (int)sizeof(void *) * 8);
 
   cairo_select_font_face(cr, ABOUT_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, ABOUT_FONT_SIZE);
@@ -137,29 +126,26 @@ void AboutBox::repaint(cairo_t *cr, int x, int y, int w, int h)
 
 static AboutBox *singleton = NULL;
 
-bool AboutBox::mouse_up(mforms::MouseButton button, int x, int y)
-{
+bool AboutBox::mouse_up(mforms::MouseButton button, int x, int y) {
   singleton->set_modal_result(1);
   return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AboutBox::closed()
-{
+void AboutBox::closed() {
   delete singleton;
   singleton = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AboutBox::show_about(const std::string &edition)
-{
+void AboutBox::show_about(const std::string &edition) {
   if (singleton != NULL)
     return;
 
   singleton = new AboutBox(edition);
-  singleton->on_close()->connect(boost::bind(&AboutBox::closed));
+  singleton->on_close()->connect(std::bind(&AboutBox::closed));
 }
 
 //--------------------------------------------------------------------------------------------------

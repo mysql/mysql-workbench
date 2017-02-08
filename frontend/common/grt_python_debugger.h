@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2012, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,7 +25,7 @@
 #include "base/trackable.h"
 
 #include "mforms/tabview.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/utilities.h"
 #include "mforms/panel.h"
 #include "mforms/splitter.h"
@@ -35,30 +35,29 @@
 class GRTCodeEditor;
 class GRTShellWindow;
 
-class PythonDebugger : public base::trackable
-{
+class PythonDebugger : public base::trackable {
   GRTShellWindow *_shell;
   mforms::TabView *_lower_tabs;
-  
-  mforms::TreeNodeView *_stack_list;
-  mforms::TreeNodeView *_breakpoint_list;
-  mforms::TreeNodeView *_variable_list;
+
+  mforms::TreeView *_stack_list;
+  mforms::TreeView *_breakpoint_list;
+  mforms::TreeView *_variable_list;
 
   GRTCodeEditor *_stack_position_editor;
   int _stack_position_line;
-  
+
   std::string _tmpfile_name;
-  
+
   grt::AutoPyObject _pdb;
   std::string _pdb_varname;
-  
+
   bec::GRTManager::Timer *_heartbeat_timeout_timer;
-  
+
   bool _pause_clicked;
   bool _program_stopped;
-    
+
   void show_stack();
-  
+
   bool ensure_code_saved();
 
   void edit_breakpoint(mforms::TreeNodeRef node, int column, std::string value);
@@ -67,13 +66,14 @@ class PythonDebugger : public base::trackable
   void stack_selected();
 
   bool heartbeat_timeout();
+
 private:
   bool toggle_breakpoint(const char *file, int line);
-  
+
 public:
   static PythonDebugger *from_cobject(PyObject *cobj);
   PyObject *as_cobject();
-  
+
   void debug_print(const std::string &s);
   void ui_clear_breakpoints();
   void ui_add_breakpoint(const char *file, int line, const char *condition);
@@ -87,12 +87,14 @@ public:
 public:
   PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview);
   void init_pdb();
-  
-  bool program_stopped() { return _program_stopped; }
-  
+
+  bool program_stopped() {
+    return _program_stopped;
+  }
+
   void editor_added(GRTCodeEditor *editor);
   void editor_closed(GRTCodeEditor *editor);
-  
+
   void refresh_file(const std::string &file);
 
   void run(GRTCodeEditor *editor, bool stepping = false);

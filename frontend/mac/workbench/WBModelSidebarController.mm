@@ -28,22 +28,22 @@
 - (void)setupWithDiagramForm: (wb::ModelDiagramForm*)form
 {
   _catalog_tree = form->get_catalog_tree();
-  [catalogTreeTab setView: nsviewForView(_catalog_tree)];
+  catalogTreeTab.view = nsviewForView(_catalog_tree);
 
   _udtlist = form->get_wb()->get_model_context()->create_user_type_list();
-  [userTypesTab setView: nsviewForView(_udtlist)];
+  userTypesTab.view = nsviewForView(_udtlist);
 
   _history = form->get_wb()->get_model_context()->create_history_tree();
-  [historyTab setView: nsviewForView(_history)];
+  historyTab.view = nsviewForView(_history);
 }
 
 - (void)setupWithContext:(wb::WBContextModel*)context
 {
   _udtlist = context->create_user_type_list();
-  [userTypesTab setView: nsviewForView(_udtlist)];
+  userTypesTab.view = nsviewForView(_udtlist);
 
   _history = context->create_history_tree();
-  [historyTab setView: nsviewForView(_history)];
+  historyTab.view = nsviewForView(_history);
 }
 
 - (void)dealloc

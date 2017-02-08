@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -50,10 +50,8 @@ DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 /**
  * Converts Windows specific mouse button identifiers mforms identifiers.
  */
-static mforms::MouseButton convert_mouse_button(MouseButtons button)
-{
-  switch (button)
-  {
+static mforms::MouseButton convert_mouse_button(MouseButtons button) {
+  switch (button) {
     case MouseButtons::Left:
       return mforms::MouseButtonLeft;
     case MouseButtons::Right:
@@ -68,18 +66,16 @@ static mforms::MouseButton convert_mouse_button(MouseButtons button)
 //----------------- ViewEventTarget ----------------------------------------------------------------
 
 // A helper class to have a target for managed events.
-ref class MySQL::Forms::ViewEventTarget
-{
+ref class MySQL::Forms::ViewEventTarget {
 private:
   mforms::View *view;
   mforms::DropDelegate *target;
 
-  Control ^control;
-  MySQL::Utilities::IDropTargetHelper ^helper;
+  Control ^ control;
+  MySQL::Utilities::IDropTargetHelper ^ helper;
 
 public:
-  ViewEventTarget(mforms::View *theView, Control ^theControl)
-  {
+  ViewEventTarget(mforms::View *theView, Control ^ theControl) {
     view = theView;
     target = NULL;
     control = theControl;
@@ -88,22 +84,19 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void SetDropTarget(mforms::DropDelegate *theTarget)
-  {
+  void SetDropTarget(mforms::DropDelegate *theTarget) {
     target = theTarget;
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void Resize(System::Object ^sender, EventArgs ^e)
-  {
+  void Resize(System::Object ^ sender, EventArgs ^ e) {
     view->resize();
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void Enter(System::Object ^sender, EventArgs ^e)
-  {
+  void Enter(System::Object ^ sender, EventArgs ^ e) {
     view->focus_changed();
   }
 
@@ -113,8 +106,7 @@ public:
    * Converts drag event key states flags to mforms constants.
    * This is not the same as converting KeyData (like in wf_textbox.cpp).
    */
-  mforms::ModifierKey GetModifiers(int keyState)
-  {
+  mforms::ModifierKey GetModifiers(int keyState) {
     mforms::ModifierKey modifiers = mforms::ModifierNoModifier;
     if ((keyState & 8) == 8)
       modifiers = modifiers | mforms::ModifierControl;
@@ -128,9 +120,8 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleMouseDown(System::Object ^sender, MouseEventArgs ^e)
-  {
-    Control ^control = dynamic_cast<Control^>(sender);
+  void HandleMouseDown(System::Object ^ sender, MouseEventArgs ^ e) {
+    Control ^ control = dynamic_cast<Control ^>(sender);
     if (control == nullptr)
       return;
 
@@ -140,63 +131,55 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleMouseUp(System::Object ^sender, MouseEventArgs ^e)
-  {
+  void HandleMouseUp(System::Object ^ sender, MouseEventArgs ^ e) {
     view->mouse_up(convert_mouse_button(e->Button), e->X, e->Y);
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleMouseClick(System::Object ^sender, MouseEventArgs ^e)
-  {
+  void HandleMouseClick(System::Object ^ sender, MouseEventArgs ^ e) {
     view->mouse_click(convert_mouse_button(e->Button), e->X, e->Y);
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleMouseDoubleClick(System::Object ^sender, MouseEventArgs ^e)
-  {
+  void HandleMouseDoubleClick(System::Object ^ sender, MouseEventArgs ^ e) {
     view->mouse_double_click(convert_mouse_button(e->Button), e->X, e->Y);
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleMouseMove(System::Object ^sender, MouseEventArgs ^e)
-  {
+  void HandleMouseMove(System::Object ^ sender, MouseEventArgs ^ e) {
     view->mouse_move(convert_mouse_button(e->Button), e->X, e->Y);
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleMouseLeave(System::Object ^sender, EventArgs ^e)
-  {
+  void HandleMouseLeave(System::Object ^ sender, EventArgs ^ e) {
     view->mouse_leave();
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleMouseEnter(System::Object ^sender, EventArgs ^e)
-  {
+  void HandleMouseEnter(System::Object ^ sender, EventArgs ^ e) {
     view->mouse_enter();
   }
 
   //------------------------------------------------------------------------------------------------
 
-  std::vector<std::string> get_available_formats(Windows::Forms::IDataObject ^data)
-  {
+  std::vector<std::string> get_available_formats(System::Windows::Forms::IDataObject ^ data) {
     std::vector<std::string> result;
-    array<String ^> ^formats = data->GetFormats();
+    array<String ^> ^ formats = data->GetFormats();
 
     // Translate known formats to the backend type, copy others as is and let the receiver decide.
-    for (int i = 0; i < formats->Length; ++i)
-    {
+    for (int i = 0; i < formats->Length; ++i) {
       if (formats[i] == DataFormats::FileDrop)
         result.push_back(mforms::DragFormatFileName);
+      else if (formats[i] ==
+               DataFormats::UnicodeText) // This includes other text that can be converted to Unicode text.
+        result.push_back(mforms::DragFormatText);
       else
-        if (formats[i] == DataFormats::UnicodeText) // This includes other text that can be converted to Unicode text.
-          result.push_back(mforms::DragFormatText);
-        else
-          result.push_back(NativeToCppString(formats[i]));
+        result.push_back(NativeToCppString(formats[i]));
     }
 
     return result;
@@ -204,31 +187,25 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleDragEnter(System::Object ^sender, DragEventArgs ^e)
-  {
-    Control^ control= dynamic_cast<Control^>(sender);
-    if (control != nullptr)
-    {
-      if (e->Data->GetDataPresent("DragImageBits"))
-      {
+  void HandleDragEnter(System::Object ^ sender, DragEventArgs ^ e) {
+    Control ^ control = dynamic_cast<Control ^>(sender);
+    if (control != nullptr) {
+      if (e->Data->GetDataPresent("DragImageBits")) {
         // If a drag image was registered we can use the drag drop helper.
         helper = (MySQL::Utilities::IDropTargetHelper ^)gcnew MySQL::Utilities::DragDropHelper();
         Win32::POINT point(e->X, e->Y);
-        helper->DragEnter(IntPtr::Zero, (SystemIDataObject^)e->Data, point, (int)e->Effect);
+        helper->DragEnter(IntPtr::Zero, (SystemIDataObject ^)e->Data, point, (int)e->Effect);
       }
     }
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleDragOver(System::Object ^sender, DragEventArgs ^e)
-  {
+  void HandleDragOver(System::Object ^ sender, DragEventArgs ^ e) {
     e->Effect = DragDropEffects::None;
-    Control^ control = dynamic_cast<Control^>(sender);
-    if (control != nullptr)
-    {
-      if (target != NULL)
-      {
+    Control ^ control = dynamic_cast<Control ^>(sender);
+    if (control != nullptr) {
+      if (target != NULL) {
         Drawing::Point point = control->PointToClient(Point(e->X, e->Y));
 
         mforms::View *origin = ViewWrapper::source_view_from_data(e->Data);
@@ -239,19 +216,16 @@ public:
         if ((e->AllowedEffect & DragDropEffects::Move) == DragDropEffects::Move)
           operation = operation | mforms::DragOperationMove;
 
-        operation = target->drag_over(origin, base::Point(point.X, point.Y), operation,
-          get_available_formats(e->Data));
+        operation = target->drag_over(origin, base::Point(point.X, point.Y), operation, get_available_formats(e->Data));
 
         if ((operation & mforms::DragOperationCopy) != 0)
           e->Effect = DragDropEffects::Copy;
         if ((operation & mforms::DragOperationMove) != 0)
           e->Effect = e->Effect | DragDropEffects::Move;
-      }
-      else
+      } else
         e->Effect = DragDropEffects::None;
 
-      if (helper != nullptr)
-      {
+      if (helper != nullptr) {
         Win32::POINT point;
         point.x = e->X;
         point.y = e->Y;
@@ -262,18 +236,14 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleDragDrop(System::Object ^sender, DragEventArgs ^e)
-  {
+  void HandleDragDrop(System::Object ^ sender, DragEventArgs ^ e) {
     e->Effect = DragDropEffects::None;
-    Control^ control = dynamic_cast<Control^>(sender);
-    if (control != nullptr)
-    {
-      if (target != NULL)
-      {
+    Control ^ control = dynamic_cast<Control ^>(sender);
+    if (control != nullptr) {
+      if (target != NULL) {
         mforms::View *origin = NULL;
-        if (e->Data->GetDataPresent(DRAG_SOURCE_FORMAT_NAME))
-        {
-          IntPtr ^ref = (IntPtr ^)e->Data->GetData(DRAG_SOURCE_FORMAT_NAME);
+        if (e->Data->GetDataPresent(DRAG_SOURCE_FORMAT_NAME)) {
+          IntPtr ^ ref = (IntPtr ^)e->Data->GetData(DRAG_SOURCE_FORMAT_NAME);
           if (ref != nullptr)
             origin = (mforms::View *)ref->ToPointer();
         }
@@ -288,40 +258,30 @@ public:
         if ((e->AllowedEffect & DragDropEffects::Move) == DragDropEffects::Move)
           allowedOperations = allowedOperations | mforms::DragOperationMove;
 
-        for (size_t i = 0; i < formats.size(); ++i)
-        {
-          if (formats[i] == mforms::DragFormatFileName)
-          {
-            array<String^> ^names = dynamic_cast<array<String^> ^>(e->Data->GetData(DataFormats::FileDrop));
-            if (names != nullptr)
-            {
+        for (size_t i = 0; i < formats.size(); ++i) {
+          if (formats[i] == mforms::DragFormatFileName) {
+            array<String ^> ^ names = dynamic_cast<array<String ^> ^>(e->Data->GetData(DataFormats::FileDrop));
+            if (names != nullptr) {
               std::vector<std::string> file_names;
-              for each (String ^name in names)
-                file_names.push_back(NativeToCppStringRaw(name));
-              operation = target->files_dropped(origin, base::Point(point.X, point.Y), allowedOperations,
-                file_names);
-              break; // TODO: the breaks in the loop allow only for a single drop format, even though the view.h description says differently.
+              for each(String ^ name in names) file_names.push_back(NativeToCppStringRaw(name));
+              operation = target->files_dropped(origin, base::Point(point.X, point.Y), allowedOperations, file_names);
+              break; // TODO: the breaks in the loop allow only for a single drop format, even though the view.h
+                     // description says differently.
             }
-          }
-          else
-            if (formats[i] == mforms::DragFormatText)
-            {
-              String ^text = (String^)e->Data->GetData(DataFormats::UnicodeText);
-              operation = target->text_dropped(origin, base::Point(point.X, point.Y), allowedOperations,
-                NativeToCppStringRaw(text));
+          } else if (formats[i] == mforms::DragFormatText) {
+            String ^ text = (String ^)e->Data->GetData(DataFormats::UnicodeText);
+            operation = target->text_dropped(origin, base::Point(point.X, point.Y), allowedOperations,
+                                             NativeToCppStringRaw(text));
+            break;
+          } else {
+            // Forward unknown data only if we at least know it is from us.
+            DataWrapper ^ wrapper = dynamic_cast<DataWrapper ^>(e->Data->GetData(e->Data->GetFormats()[(int)i], false));
+            if (wrapper != nullptr) {
+              operation = target->data_dropped(origin, base::Point(point.X, point.Y), allowedOperations,
+                                               wrapper->GetData(), formats[i]);
               break;
             }
-            else
-            {
-              // Forward unknown data only if we at least know it is from us.
-              DataWrapper ^wrapper = dynamic_cast<DataWrapper^>(e->Data->GetData(e->Data->GetFormats()[(int)i], false));
-              if (wrapper != nullptr)
-              {
-                operation = target->data_dropped(origin, base::Point(point.X, point.Y), allowedOperations,
-                  wrapper->GetData(), formats[i]);
-                break;
-              }
-            }
+          }
         }
 
         if ((operation & mforms::DragOperationCopy) != 0)
@@ -330,23 +290,21 @@ public:
           e->Effect = e->Effect | DragDropEffects::Move;
       }
 
-      if (helper != nullptr)
-      {
+      if (helper != nullptr) {
         Win32::POINT point;
         point.x = e->X;
         point.y = e->Y;
-        helper->Drop((SystemIDataObject^)e->Data, point, (int)e->Effect);
+        helper->Drop((SystemIDataObject ^)e->Data, point, (int)e->Effect);
       }
     }
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleDragLeave(System::Object ^sender, EventArgs ^e)
-  {
-    if (helper != nullptr)
-    {
-      MySQL::Utilities::IDropTargetHelper ^helper = (MySQL::Utilities::IDropTargetHelper ^)gcnew MySQL::Utilities::DragDropHelper();
+  void HandleDragLeave(System::Object ^ sender, EventArgs ^ e) {
+    if (helper != nullptr) {
+      MySQL::Utilities::IDropTargetHelper ^ helper =
+        (MySQL::Utilities::IDropTargetHelper ^)gcnew MySQL::Utilities::DragDropHelper();
       helper->DragLeave();
 
       delete helper;
@@ -356,8 +314,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void Relayout()
-  {
+  void Relayout() {
     // Not really an event handler but a target for a threaded invocation.
     control->PerformLayout(control, "Bounds");
   }
@@ -365,9 +322,7 @@ public:
 
 //----------------- ViewWrapper --------------------------------------------------------------------
 
-ViewWrapper::ViewWrapper(mforms::View *view)
-  : ObjectWrapper(view)
-{
+ViewWrapper::ViewWrapper(mforms::View *view) : ObjectWrapper(view) {
   tooltip = nullptr;
   backgroundImage = nullptr;
   eventTarget = nullptr;
@@ -378,8 +333,7 @@ ViewWrapper::ViewWrapper(mforms::View *view)
 
 //--------------------------------------------------------------------------------------------------
 
-void ViewWrapper::destroy(mforms::View *backend)
-{
+void ViewWrapper::destroy(mforms::View *backend) {
   // Not needed anymore.
 }
 
@@ -387,33 +341,23 @@ void ViewWrapper::destroy(mforms::View *backend)
 
 /**
  * Determines, depending on the type of the given control, if the layout process should use the control's
- * minimum or its preferred size. 
+ * minimum or its preferred size.
  * This is necessary because there is a discrepancy between what is considered the minimum size for layouting
  * and the same size for Windows controls. The latter is usually just 0. Instead the preferred size comes close
  * to what we need in the layouting process. Unfortunately, some controls just return their current size
  * (even if they are empty) or the size they need to fit their full text (text box).
  */
-bool ViewWrapper::use_min_width_for_layout(Control ^control)
-{
-  TextBox ^text = dynamic_cast<TextBox ^>(control);
+bool ViewWrapper::use_min_width_for_layout(Control ^ control) {
+  TextBox ^ text = dynamic_cast<TextBox ^>(control);
   bool needsMinWidth = (text != nullptr) && (text->Multiline);
-  if (!needsMinWidth)
-  {
+  if (!needsMinWidth) {
     needsMinWidth =
-         is<TabControl>(control)
-      || (Panel::typeid == control->GetType()) // Only the standard panel, not our derivation or we will cause an endless loop.
-      || is<ComboBox>(control)
-      || is<TreeViewAdv>(control)
-      || is<ListBox>(control)
-      || is<SplitContainer>(control)
-      || is<Windows::Forms::WebBrowser>(control)
-      || is<HtmlLabel>(control)
-      || is<HtmlPanel>(control)
-      || is<ProgressBar>(control)
-      || is<ScintillaControl>(control)
-      || is<DataGridView>(control)
-      || is<TextBox>(control)
-    ;
+      is<TabControl>(control) ||
+      (Panel::typeid ==
+       control->GetType()) // Only the standard panel, not our derivation or we will cause an endless loop.
+      || is<ComboBox>(control) || is<TreeViewAdv>(control) || is<ListBox>(control) || is<SplitContainer>(control) ||
+      is<System::Windows::Forms::WebBrowser>(control) || is<HtmlLabel>(control) || is<HtmlPanel>(control) ||
+      is<ProgressBar>(control) || is<ScintillaControl>(control) || is<DataGridView>(control) || is<TextBox>(control);
   }
 
   return needsMinWidth;
@@ -421,22 +365,14 @@ bool ViewWrapper::use_min_width_for_layout(Control ^control)
 
 //--------------------------------------------------------------------------------------------------
 
-bool ViewWrapper::use_min_height_for_layout(Control ^control)
-{
-  TextBox ^text = dynamic_cast<TextBox^>(control);
+bool ViewWrapper::use_min_height_for_layout(Control ^ control) {
+  TextBox ^ text = dynamic_cast<TextBox ^>(control);
   bool needsMinHeight = (text != nullptr) && (text->Multiline);
-  if (!needsMinHeight)
-  {
-    needsMinHeight =
-         is<TabControl>(control)
-      || (Panel::typeid == control->GetType())
-      || is<ListBox>(control)
-      || is<TreeViewAdv>(control)
-      || is<SplitContainer>(control)
-      || is<Windows::Forms::WebBrowser>(control)
-      || is<ScintillaControl>(control)
-      || is<DataGridView>(control)
-    ;
+  if (!needsMinHeight) {
+    needsMinHeight = is<TabControl>(control) || (Panel::typeid == control->GetType()) || is<ListBox>(control) ||
+                     is<TreeViewAdv>(control) || is<SplitContainer>(control) ||
+                     is<System::Windows::Forms::WebBrowser>(control) || is<ScintillaControl>(control) ||
+                     is<DataGridView>(control);
   }
 
   return needsMinHeight;
@@ -447,14 +383,12 @@ bool ViewWrapper::use_min_height_for_layout(Control ^control)
 /**
  * Removes the given mode from the auto resize settings of the given control.
  */
-void ViewWrapper::remove_auto_resize(Control ^control, AutoResizeMode mode)
-{
+void ViewWrapper::remove_auto_resize(Control ^ control, AutoResizeMode mode) {
   ViewWrapper *wrapper = GetWrapper<ViewWrapper>(control);
   if (wrapper == NULL)
     return;
 
-  switch (mode)
-  {
+  switch (mode) {
     case AutoResizeMode::ResizeBoth:
       wrapper->_resize_mode = AutoResizeMode::ResizeNone;
       break;
@@ -475,8 +409,7 @@ void ViewWrapper::remove_auto_resize(Control ^control, AutoResizeMode mode)
 
 //-------------------------------------------------------------------------------------------------
 
-AutoResizeMode ViewWrapper::get_auto_resize(Control ^control)
-{
+AutoResizeMode ViewWrapper::get_auto_resize(Control ^ control) {
   ViewWrapper *wrapper = GetWrapper<ViewWrapper>(control);
   if (wrapper == NULL) // Can only happen for a control that wasn't created by mforms.
     return AutoResizeMode::ResizeNone;
@@ -488,8 +421,7 @@ AutoResizeMode ViewWrapper::get_auto_resize(Control ^control)
 /**
  * Determines if the given control can be resized in horizontal direction.
  */
-bool ViewWrapper::can_auto_resize_horizontally(Control ^control)
-{
+bool ViewWrapper::can_auto_resize_horizontally(Control ^ control) {
   ViewWrapper *wrapper = GetWrapper<ViewWrapper>(control);
   if (wrapper == NULL)
     return false;
@@ -503,8 +435,7 @@ bool ViewWrapper::can_auto_resize_horizontally(Control ^control)
 /**
  * Determines if the given control can be resized in vertical direction.
  */
-bool ViewWrapper::can_auto_resize_vertically(Control^ control)
-{
+bool ViewWrapper::can_auto_resize_vertically(Control ^ control) {
   ViewWrapper *wrapper = GetWrapper<ViewWrapper>(control);
   if (wrapper == NULL)
     return false;
@@ -518,8 +449,7 @@ bool ViewWrapper::can_auto_resize_vertically(Control^ control)
 /**
  * Enables resizing of the control in both directions.
  */
-void ViewWrapper::set_full_auto_resize(Control ^control)
-{
+void ViewWrapper::set_full_auto_resize(Control ^ control) {
   ViewWrapper *wrapper = GetWrapper<ViewWrapper>(control);
   if (wrapper == NULL)
     return;
@@ -531,8 +461,7 @@ void ViewWrapper::set_full_auto_resize(Control ^control)
 /**
  * Sets resize mode whatever the caller specified.
  */
-void ViewWrapper::set_auto_resize(Control ^control, AutoResizeMode mode)
-{
+void ViewWrapper::set_auto_resize(Control ^ control, AutoResizeMode mode) {
   ViewWrapper *wrapper = GetWrapper<ViewWrapper>(control);
   if (wrapper == NULL)
     return;
@@ -541,8 +470,7 @@ void ViewWrapper::set_auto_resize(Control ^control, AutoResizeMode mode)
 
 //-------------------------------------------------------------------------------------------------
 
-bool ViewWrapper::is_layout_dirty(Control ^control)
-{
+bool ViewWrapper::is_layout_dirty(Control ^ control) {
   mforms::View *view = ViewWrapper::GetBackend<mforms::View>(control);
   if (view == NULL)
     return false;
@@ -551,8 +479,7 @@ bool ViewWrapper::is_layout_dirty(Control ^control)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_layout_dirty(Control ^control, bool value)
-{
+void ViewWrapper::set_layout_dirty(Control ^ control, bool value) {
   mforms::View *view = ViewWrapper::GetBackend<mforms::View>(control);
   if (view != NULL)
     view->set_layout_dirty(value);
@@ -560,10 +487,9 @@ void ViewWrapper::set_layout_dirty(Control ^control, bool value)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::show(mforms::View *backend, bool show)
-{
+void ViewWrapper::show(mforms::View *backend, bool show) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
-  Control ^control = wrapper->GetControl();
+  Control ^ control = wrapper->GetControl();
 
   // Create the control's window handle if not yet done. This is necessary because otherwise
   // when setting a control to hidden and its window handle is not created, it will be moved to the end
@@ -573,11 +499,11 @@ void ViewWrapper::show(mforms::View *backend, bool show)
 
   // Use reflection to get the true visible keyState. The Visible property returns the value for the
   // control itself as well as all its parents.
-  bool visible = (bool)Control::typeid
-    ->GetMethod("GetState", System::Reflection::BindingFlags::Instance | System::Reflection::BindingFlags::NonPublic)
-    ->Invoke(control, gcnew array<Object^> { 2 });
-  if (show != visible && backend->get_parent() != NULL)
-  {
+  bool visible =
+    (bool)Control::typeid
+      ->GetMethod("GetState", System::Reflection::BindingFlags::Instance | System::Reflection::BindingFlags::NonPublic)
+      ->Invoke(control, gcnew array<Object ^>{2});
+  if (show != visible && backend->get_parent() != NULL) {
     if (wrapper->layoutSuspended)
       backend->get_parent()->set_layout_dirty(true);
     else
@@ -589,66 +515,57 @@ void ViewWrapper::show(mforms::View *backend, bool show)
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_width(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+int ViewWrapper::get_width(const mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->Width;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_height(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+int ViewWrapper::get_height(const mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->Height;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_preferred_width(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+int ViewWrapper::get_preferred_width(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->PreferredSize.Width;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_preferred_height(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+int ViewWrapper::get_preferred_height(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->PreferredSize.Height;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_x(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+int ViewWrapper::get_x(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->Location.X;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_y(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+int ViewWrapper::get_y(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->Location.Y;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_size(mforms::View *backend, int w, int h)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+void ViewWrapper::set_size(mforms::View *backend, int w, int h) {
+  Control ^ control = GetManagedObject<Control>(backend);
   Size newSize = control->Size;
   Size newMinSize = control->MinimumSize;
-  if (w >= 0)
-  {
+  if (w >= 0) {
     newSize.Width = w;
     newMinSize.Width = w;
   }
-  if (h >= 0)
-  {
+  if (h >= 0) {
     newSize.Height = h;
     newMinSize.Height = h;
   }
@@ -661,17 +578,28 @@ void ViewWrapper::set_size(mforms::View *backend, int w, int h)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_padding(mforms::View *backend, int left, int top, int right, int bottom)
-{
+void ViewWrapper::set_min_size(mforms::View *backend, int w, int h) {
+  Control ^ control = GetManagedObject<Control>(backend);
+  Size newMinSize = control->MinimumSize;
+  if (w >= 0)
+    newMinSize.Width = w;
+  if (h >= 0)
+    newMinSize.Height = h;
+
+  control->MinimumSize = newMinSize;
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void ViewWrapper::set_padding(mforms::View *backend, int left, int top, int right, int bottom) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
   wrapper->set_padding(left, top, right, bottom);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_position(mforms::View *backend, int x, int y)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+void ViewWrapper::set_position(mforms::View *backend, int x, int y) {
+  Control ^ control = GetManagedObject<Control>(backend);
   control->Location = Point(x, y);
   if (backend->get_parent() != NULL)
     backend->get_parent()->set_layout_dirty(true);
@@ -679,9 +607,8 @@ void ViewWrapper::set_position(mforms::View *backend, int x, int y)
 
 //-------------------------------------------------------------------------------------------------
 
-std::pair<int, int> ViewWrapper::client_to_screen(mforms::View *backend, int x, int y)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+std::pair<int, int> ViewWrapper::client_to_screen(mforms::View *backend, int x, int y) {
+  Control ^ control = GetManagedObject<Control>(backend);
   System::Drawing::Point location = System::Drawing::Point(x, y);
   location = control->PointToScreen(location);
   return std::make_pair(location.X, location.Y);
@@ -689,9 +616,8 @@ std::pair<int, int> ViewWrapper::client_to_screen(mforms::View *backend, int x, 
 
 //-------------------------------------------------------------------------------------------------
 
-std::pair<int, int> ViewWrapper::screen_to_client(mforms::View *backend, int x, int y)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+std::pair<int, int> ViewWrapper::screen_to_client(mforms::View *backend, int x, int y) {
+  Control ^ control = GetManagedObject<Control>(backend);
   System::Drawing::Point location = System::Drawing::Point(x, y);
   location = control->PointToClient(location);
   return std::make_pair(location.X, location.Y);
@@ -699,10 +625,9 @@ std::pair<int, int> ViewWrapper::screen_to_client(mforms::View *backend, int x, 
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::relayout(mforms::View *backend)
-{
+void ViewWrapper::relayout(mforms::View *backend) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
-  Control ^control = wrapper->GetControl();
+  Control ^ control = wrapper->GetControl();
   if (control->InvokeRequired)
     control->BeginInvoke(gcnew MethodInvoker(wrapper->eventTarget, &ViewEventTarget::Relayout));
   else
@@ -711,56 +636,49 @@ void ViewWrapper::relayout(mforms::View *backend)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_enabled(mforms::View *backend, bool flag)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+void ViewWrapper::set_enabled(mforms::View *backend, bool flag) {
+  Control ^ control = GetManagedObject<Control>(backend);
   control->Enabled = flag;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-bool ViewWrapper::is_enabled(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+bool ViewWrapper::is_enabled(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->Enabled;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-mforms::View* ViewWrapper::find_subview(mforms::View *backend, std::string &name)
-{
+mforms::View *ViewWrapper::find_subview(mforms::View *backend, std::string &name) {
   return NULL;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_name(mforms::View *backend, const std::string& text)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+void ViewWrapper::set_name(mforms::View *backend, const std::string &text) {
+  Control ^ control = GetManagedObject<Control>(backend);
   control->Name = CppStringToNative(text);
   control->AccessibleName = control->Name;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_needs_repaint(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+void ViewWrapper::set_needs_repaint(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   control->Invalidate();
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::suspend_layout(mforms::View *backend, bool flag)
-{
+void ViewWrapper::suspend_layout(mforms::View *backend, bool flag) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
   wrapper->layoutSuspended = flag;
-  
-  Control ^control = wrapper->GetControl();
+
+  Control ^ control = wrapper->GetControl();
   if (flag)
     control->SuspendLayout();
-  else
-  {
+  else {
     control->ResumeLayout();
     if (backend->is_layout_dirty())
       control->PerformLayout(control, "Bounds");
@@ -769,18 +687,16 @@ void ViewWrapper::suspend_layout(mforms::View *backend, bool flag)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_front_color(mforms::View *backend, const std::string &color)
-{
+void ViewWrapper::set_front_color(mforms::View *backend, const std::string &color) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
   wrapper->set_front_color(CppStringToNativeRaw(color));
 }
 
 //-------------------------------------------------------------------------------------------------
 
-std::string ViewWrapper::get_front_color(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
-  Color ^color = control->ForeColor;
+std::string ViewWrapper::get_front_color(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
+  Color ^ color = control->ForeColor;
   if (color == nullptr)
     return "#000000";
   return base::strfmt("#%02x%02x%02x", color->R, color->G, color->B);
@@ -788,11 +704,9 @@ std::string ViewWrapper::get_front_color(mforms::View *backend)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_back_color(mforms::View *backend, const std::string &color)
-{
-  FlatTabControl ^tabcontrol = GetManagedObject<FlatTabControl>(backend);
-  if (tabcontrol != nullptr)
-  {
+void ViewWrapper::set_back_color(mforms::View *backend, const std::string &color) {
+  FlatTabControl ^ tabcontrol = GetManagedObject<FlatTabControl>(backend);
+  if (tabcontrol != nullptr) {
     if (color.empty())
       tabcontrol->BackgroundColor = Color::Transparent;
     else
@@ -800,30 +714,25 @@ void ViewWrapper::set_back_color(mforms::View *backend, const std::string &color
     return;
   }
 
-  Control ^control = GetManagedObject<Control>(backend);
-  if (color.empty())
-  {
+  Control ^ control = GetManagedObject<Control>(backend);
+  if (color.empty()) {
     // Use an empty string as indicator to reset the background color.
     control->ResetBackColor();
     if (is<TreeViewAdv>(control))
       control->BackColor = SystemColors::Window;
-    else
-      if (is<ButtonBase>(control))
-        ((ButtonBase ^)control)->UseVisualStyleBackColor = true;
-      else
-        if (is<TabPage>(control))
-          ((TabPage ^)control)->UseVisualStyleBackColor = true;
-  }
-  else
+    else if (is<ButtonBase>(control))
+      ((ButtonBase ^)control)->UseVisualStyleBackColor = true;
+    else if (is<TabPage>(control))
+      ((TabPage ^)control)->UseVisualStyleBackColor = true;
+  } else
     control->BackColor = ColorTranslator::FromHtml(CppStringToNativeRaw(color));
 }
 
 //-------------------------------------------------------------------------------------------------
 
-std::string ViewWrapper::get_back_color(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
-  Color ^color = control->BackColor;
+std::string ViewWrapper::get_back_color(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
+  Color ^ color = control->BackColor;
   if (color == nullptr)
     return "#000000";
   return base::strfmt("#%02x%02x%02x", color->R, color->G, color->B);
@@ -831,47 +740,39 @@ std::string ViewWrapper::get_back_color(mforms::View *backend)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_back_image(mforms::View *backend, const std::string &path, mforms::Alignment align)
-{
+void ViewWrapper::set_back_image(mforms::View *backend, const std::string &path, mforms::Alignment align) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
-  String ^native_path = AppWrapper::get_image_path(CppStringToNative(path));
-  if (File::Exists(native_path))
-  {
+  String ^ native_path = AppWrapper::get_image_path(CppStringToNative(path));
+  if (File::Exists(native_path)) {
     wrapper->backgroundImage = Image::FromFile(native_path, true);
     wrapper->backgroundImageAlignment = align;
   }
 }
 
-
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::focus(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
-  Windows::Forms::Form ^form = control->FindForm();
+void ViewWrapper::focus(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
+  System::Windows::Forms::Form ^ form = control->FindForm();
   if (form != nullptr)
     form->ActiveControl = control;
-  else
-    if (control->CanSelect)
-      control->Select();
+  else if (control->CanSelect)
+    control->Select();
 }
 
 //-------------------------------------------------------------------------------------------------
 
-bool ViewWrapper::has_focus(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+bool ViewWrapper::has_focus(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->Focused;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_tooltip(mforms::View *backend, const std::string& text)
-{
+void ViewWrapper::set_tooltip(mforms::View *backend, const std::string &text) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
-  Control ^control = wrapper->GetControl();
-  if (static_cast<ToolTip^>(wrapper->tooltip) == nullptr)
-  {
+  Control ^ control = wrapper->GetControl();
+  if (static_cast<ToolTip ^>(wrapper->tooltip) == nullptr) {
     wrapper->tooltip = gcnew ToolTip();
     wrapper->tooltip->AutoPopDelay = 10000; // 10 sec. show time
     wrapper->tooltip->InitialDelay = 500;   // 500 ms before showing the tooltip if none was visible before.
@@ -883,9 +784,8 @@ void ViewWrapper::set_tooltip(mforms::View *backend, const std::string& text)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_font(const std::string &fontDescription)
-{
-  Control ^control = GetManagedObject<Control>();
+void ViewWrapper::set_font(const std::string &fontDescription) {
+  Control ^ control = GetManagedObject<Control>();
 
   std::string font;
   float size;
@@ -895,66 +795,57 @@ void ViewWrapper::set_font(const std::string &fontDescription)
 
   FontStyle style = FontStyle::Regular;
   if (bold)
-    style = (FontStyle) (style | FontStyle::Bold);
+    style = (FontStyle)(style | FontStyle::Bold);
   if (italic)
-    style = (FontStyle) (style | FontStyle::Italic);
+    style = (FontStyle)(style | FontStyle::Italic);
 
-  try
-  {
+  try {
     // Font size in points.
     control->Font = ControlUtilities::GetFont(CppStringToNativeRaw(font), size, style);
-  }
-  catch (System::ArgumentException^ e)
-  {
+  } catch (System::ArgumentException ^ e) {
     // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-    log_error("ViewWrapper::set_font failed. %s\n", e->Message);
+    logError("ViewWrapper::set_font failed. %s\n", e->Message);
   }
-
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_font(mforms::View *backend, const std::string &text)
-{
+void ViewWrapper::set_font(mforms::View *backend, const std::string &text) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
   wrapper->set_font(text);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-bool ViewWrapper::is_shown(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
+bool ViewWrapper::is_shown(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
   return control->Visible;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-bool ViewWrapper::is_fully_visible(mforms::View *backend)
-{
-  Control ^control = GetManagedObject<Control>(backend);
-  while (control->Visible) 
-  {
+bool ViewWrapper::is_fully_visible(mforms::View *backend) {
+  Control ^ control = GetManagedObject<Control>(backend);
+  while (control->Visible) {
     if (control->Parent == nullptr)
       return true;
     control = control->Parent;
   };
-  
+
   return false;
 }
 
 //-------------------------------------------------------------------------------------------------
 
 void ViewWrapper::register_drop_formats(mforms::View *backend, mforms::DropDelegate *target,
-  const std::vector<std::string> &formats)
-{
-  Control ^control = GetManagedObject<Control>(backend);
-  control->AllowDrop = !formats.empty(); // On Windows we don't need to preregister formats like we do on the other platforms.
+                                        const std::vector<std::string> &formats) {
+  Control ^ control = GetManagedObject<Control>(backend);
+  control->AllowDrop =
+    !formats.empty(); // On Windows we don't need to preregister formats like we do on the other platforms.
 
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
-  ViewEventTarget ^nativeTarget = wrapper->eventTarget;
-  if (nativeTarget == nullptr)
-  {
+  ViewEventTarget ^ nativeTarget = wrapper->eventTarget;
+  if (nativeTarget == nullptr) {
     // Not set up for general drag/drop. But for file drops we can register via a separate path
     // which is necessary anyway for controls that do low level drag/drop (like Scintilla),
     // disabling so managed drag/drop.
@@ -963,18 +854,17 @@ void ViewWrapper::register_drop_formats(mforms::View *backend, mforms::DropDeleg
       wrapper->register_file_drop(target);
     else
       throw gcnew System::Exception("Attempt to set a drop target on a view that is not enabled for drag and drop");
-  }
-  else
+  } else
     nativeTarget->SetDropTarget(target);
 }
 
 //-------------------------------------------------------------------------------------------------
 
 mforms::DragOperation ViewWrapper::drag_text(mforms::View *backend, mforms::DragDetails details,
-  const std::string &text)
-{
-  Control ^control = GetManagedObject<Control>(backend);
-  Windows::Forms::DataObject ^dataObject = gcnew Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
+                                             const std::string &text) {
+  Control ^ control = GetManagedObject<Control>(backend);
+  System::Windows::Forms::DataObject ^ dataObject =
+    gcnew System::Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
   WBIDataObjectExtensions::SetDataEx(dataObject, DataFormats::UnicodeText, CppStringToNative(text));
 
   // Store the backend pointer in the data object, so we can distinguish between internal and
@@ -1001,11 +891,11 @@ mforms::DragOperation ViewWrapper::drag_text(mforms::View *backend, mforms::Drag
 //-------------------------------------------------------------------------------------------------
 
 mforms::DragOperation ViewWrapper::drag_data(mforms::View *backend, mforms::DragDetails details, void *data,
-  const std::string &format)
-{
-  Control ^control = GetManagedObject<Control>(backend);
-  DataWrapper ^wrapper = gcnew DataWrapper(data);
-  System::Windows::Forms::DataObject ^dataObject = gcnew System::Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
+                                             const std::string &format) {
+  Control ^ control = GetManagedObject<Control>(backend);
+  DataWrapper ^ wrapper = gcnew DataWrapper(data);
+  System::Windows::Forms::DataObject ^ dataObject =
+    gcnew System::Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
   WBIDataObjectExtensions::SetDataEx(dataObject, CppStringToNativeRaw(format), wrapper);
 
   WBIDataObjectExtensions::SetDataEx(dataObject, DRAG_SOURCE_FORMAT_NAME, gcnew IntPtr(backend));
@@ -1032,8 +922,7 @@ mforms::DragOperation ViewWrapper::drag_data(mforms::View *backend, mforms::Drag
 
 //-------------------------------------------------------------------------------------------------
 
-mforms::DropPosition ViewWrapper::get_drop_position(mforms::View *backend)
-{
+mforms::DropPosition ViewWrapper::get_drop_position(mforms::View *backend) {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
   return wrapper->get_drop_position();
 }
@@ -1043,11 +932,9 @@ mforms::DropPosition ViewWrapper::get_drop_position(mforms::View *backend)
 /**
 *	Tries to get a reference to the source backend view in a drag operation, if there's one.
 */
-mforms::View* ViewWrapper::source_view_from_data(Windows::Forms::IDataObject ^data)
-{
-  if (data->GetDataPresent(DRAG_SOURCE_FORMAT_NAME))
-  {
-    IntPtr ^ref = (IntPtr ^)data->GetData(DRAG_SOURCE_FORMAT_NAME);
+mforms::View *ViewWrapper::source_view_from_data(System::Windows::Forms::IDataObject ^ data) {
+  if (data->GetDataPresent(DRAG_SOURCE_FORMAT_NAME)) {
+    IntPtr ^ ref = (IntPtr ^)data->GetData(DRAG_SOURCE_FORMAT_NAME);
     if (ref != nullptr)
       return (mforms::View *)ref->ToPointer();
   }
@@ -1059,8 +946,7 @@ mforms::View* ViewWrapper::source_view_from_data(Windows::Forms::IDataObject ^da
 /**
  * Creates and sets a drag image from the given details for the data object.
  */
-void ViewWrapper::SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDetails details)
-{
+void ViewWrapper::SetDragImage(System::Windows::Forms::DataObject ^ data, mforms::DragDetails details) {
   BITMAPINFO bmpInfo = {0};
   bmpInfo.bmiHeader.biSize = sizeof(bmpInfo);
   bmpInfo.bmiHeader.biWidth = cairo_image_surface_get_width(details.image);
@@ -1076,14 +962,11 @@ void ViewWrapper::SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDet
   LPVOID bits;
   HBITMAP hbmp = CreateDIBSection(workingDC, &bmpInfo, DIB_RGB_COLORS, &bits, 0, 0);
 
-  cairo_surface_t *bitmapSurface = cairo_image_surface_create_for_data((unsigned char*)bits,
-    CAIRO_FORMAT_ARGB32,
-    bmpInfo.bmiHeader.biWidth,
-    bmpInfo.bmiHeader.biHeight,
-    bmpInfo.bmiHeader.biWidth * 4);
+  cairo_surface_t *bitmapSurface =
+    cairo_image_surface_create_for_data((unsigned char *)bits, CAIRO_FORMAT_ARGB32, bmpInfo.bmiHeader.biWidth,
+                                        bmpInfo.bmiHeader.biHeight, bmpInfo.bmiHeader.biWidth * 4);
 
-  if (bitmapSurface)
-  {
+  if (bitmapSurface) {
     cairo_t *cr = cairo_create(bitmapSurface);
     cairo_surface_destroy(bitmapSurface);
 
@@ -1097,7 +980,7 @@ void ViewWrapper::SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDet
     cairo_set_source_surface(cr, details.image, 0, 0);
     cairo_paint(cr);
     cairo_destroy(cr);
-    
+
     Win32::ShDragImage shdi;
     shdi.sizeDragImage.cx = cairo_image_surface_get_width(details.image);
     shdi.sizeDragImage.cy = cairo_image_surface_get_height(details.image);
@@ -1105,8 +988,8 @@ void ViewWrapper::SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDet
     shdi.ptOffset.y = (long)details.hotspot.y;
     shdi.hbmpDragImage = IntPtr(hbmp);
     shdi.crColorKey = 0xFFFFFFFF;
-  
-    MySQL::Utilities::IDragSourceHelper ^helper = (MySQL::Utilities::IDragSourceHelper ^)gcnew DragDropHelper();
+
+    MySQL::Utilities::IDragSourceHelper ^ helper = (MySQL::Utilities::IDragSourceHelper ^)gcnew DragDropHelper();
     helper->InitializeFromBitmap(shdi, data);
   }
 }
@@ -1117,8 +1000,7 @@ void ViewWrapper::SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDet
  * Resizes the given control according to its dock keyState. Sizes of the control which were not changed
  * are also reset in the given Size structure to allow for proper child layouting.
  */
-void ViewWrapper::resize_with_docking(Control ^control, System::Drawing::Size &size)
-{
+void ViewWrapper::resize_with_docking(Control ^ control, System::Drawing::Size &size) {
   // If the control is docked somewhere resizing must be restricted not to destroy the docked
   // appearance.
   // Do not resize if the control has the fill dock style. In that case it must stay as it is.
@@ -1127,9 +1009,8 @@ void ViewWrapper::resize_with_docking(Control ^control, System::Drawing::Size &s
 
   if (control->Dock == DockStyle::Left || control->Dock == DockStyle::Right)
     size.Height = control->Size.Height;
-  else
-    if (control->Dock == DockStyle::Top || control->Dock == DockStyle::Bottom)
-      size.Width = control->Size.Width;
+  else if (control->Dock == DockStyle::Top || control->Dock == DockStyle::Bottom)
+    size.Width = control->Size.Width;
 
   control->Size = size;
   set_layout_dirty(control, true);
@@ -1140,16 +1021,13 @@ void ViewWrapper::resize_with_docking(Control ^control, System::Drawing::Size &s
 /**
  * Removes auto resizing flags if a control is limited in resizing by docking.
  */
-void ViewWrapper::adjust_auto_resize_from_docking(Control ^control)
-{
+void ViewWrapper::adjust_auto_resize_from_docking(Control ^ control) {
   if (control->Dock == DockStyle::Fill)
     set_auto_resize(control, AutoResizeMode::ResizeNone);
-  else
-    if (control->Dock == DockStyle::Left || control->Dock == DockStyle::Right)
-      remove_auto_resize(control, AutoResizeMode::ResizeHorizontal);
-    else
-      if (control->Dock == DockStyle::Top || control->Dock == DockStyle::Bottom)
-        remove_auto_resize(control, AutoResizeMode::ResizeVertical);
+  else if (control->Dock == DockStyle::Left || control->Dock == DockStyle::Right)
+    remove_auto_resize(control, AutoResizeMode::ResizeHorizontal);
+  else if (control->Dock == DockStyle::Top || control->Dock == DockStyle::Bottom)
+    remove_auto_resize(control, AutoResizeMode::ResizeVertical);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1157,16 +1035,10 @@ void ViewWrapper::adjust_auto_resize_from_docking(Control ^control)
 /**
  * Quick check if it makes sense to start layouting the given control.
  */
-bool ViewWrapper::can_layout(Control ^control, String ^reason)
-{
+bool ViewWrapper::can_layout(Control ^ control, String ^ reason) {
   // Limit layouting to certain property changes.
-  if (reason != nullptr)
-  {
-    if (reason != "Padding" &&
-      reason != "Bounds" &&
-      reason != "Visible" &&
-      reason != "Parent"
-      )
+  if (reason != nullptr) {
+    if (reason != "Padding" && reason != "Bounds" && reason != "Visible" && reason != "Parent")
       return false;
   }
 
@@ -1176,8 +1048,7 @@ bool ViewWrapper::can_layout(Control ^control, String ^reason)
     return false;
   */
 
-  if (control->Tag != nullptr)
-  {
+  if (control->Tag != nullptr) {
     mforms::View *backend = GetBackend<mforms::View>(control);
     if (backend->is_destroying())
       return false;
@@ -1188,8 +1059,7 @@ bool ViewWrapper::can_layout(Control ^control, String ^reason)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::flush_events(mforms::View *)
-{
+void ViewWrapper::flush_events(mforms::View *) {
   Application::DoEvents();
 }
 
@@ -1198,44 +1068,40 @@ void ViewWrapper::flush_events(mforms::View *)
 /**
  * Draws the background image with the earlier set layout, if there's one.
  */
-void ViewWrapper::DrawBackground(PaintEventArgs ^args)
-{
-  if (static_cast<Drawing::Image ^>(backgroundImage) != nullptr)
-  {
+void ViewWrapper::DrawBackground(PaintEventArgs ^ args) {
+  if (static_cast<Drawing::Image ^>(backgroundImage) != nullptr) {
     int left = 0;
     int top = 0;
-    Control ^control = GetControl();
+    Control ^ control = GetControl();
 
     // Horizontal alignment.
-    switch (backgroundImageAlignment)
-    {
-    case mforms::BottomCenter:
-    case mforms::MiddleCenter:
-    case mforms::TopCenter:
-      left = (control->Width - backgroundImage->Width) / 2;
-      break;
+    switch (backgroundImageAlignment) {
+      case mforms::BottomCenter:
+      case mforms::MiddleCenter:
+      case mforms::TopCenter:
+        left = (control->Width - backgroundImage->Width) / 2;
+        break;
 
-    case mforms::BottomRight:
-    case mforms::MiddleRight:
-    case mforms::TopRight:
-      left = control->Width - backgroundImage->Width;
-      break;
+      case mforms::BottomRight:
+      case mforms::MiddleRight:
+      case mforms::TopRight:
+        left = control->Width - backgroundImage->Width;
+        break;
     }
 
     // Vertical alignment.
-    switch (backgroundImageAlignment)
-    {
-    case mforms::MiddleLeft:
-    case mforms::MiddleCenter:
-    case mforms::MiddleRight:
-      top = (control->Height - backgroundImage->Height) / 2;
-      break;
+    switch (backgroundImageAlignment) {
+      case mforms::MiddleLeft:
+      case mforms::MiddleCenter:
+      case mforms::MiddleRight:
+        top = (control->Height - backgroundImage->Height) / 2;
+        break;
 
-    case mforms::BottomLeft:
-    case mforms::BottomCenter:
-    case mforms::BottomRight:
-      top = control->Height - backgroundImage->Height;
-      break;
+      case mforms::BottomLeft:
+      case mforms::BottomCenter:
+      case mforms::BottomRight:
+        top = control->Height - backgroundImage->Height;
+        break;
     }
 
     args->Graphics->DrawImage(backgroundImage, Point(left, top));
@@ -1244,33 +1110,26 @@ void ViewWrapper::DrawBackground(PaintEventArgs ^args)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_resize_mode(AutoResizeMode mode)
-{
+void ViewWrapper::set_resize_mode(AutoResizeMode mode) {
   _resize_mode = mode;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::Initialize()
-{
-  Control ^control = GetControl();
+void ViewWrapper::Initialize() {
+  Control ^ control = GetControl();
 
   // Can be null, e.g. for non-control objects like dialogs.
-  if (control != nullptr)
-  {
+  if (control != nullptr) {
     control->AutoSize = false;
     control->Font = gcnew Font(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, FontStyle::Regular, GraphicsUnit::Pixel);
 
-    bool hookEvents =
-         is<TabControl>(control)
-      || (Panel::typeid == control->GetType())
-      || is<TreeViewAdv>(control)
-      || is<CanvasControl>(control)
+    bool hookEvents = is<TabControl>(control) || (Panel::typeid == control->GetType()) || is<TreeViewAdv>(control) ||
+                      is<CanvasControl>(control)
       // Don't add ScintillaControl here. It has its own drag/drop handling.
-    ;
+      ;
 
-    if (hookEvents)
-    {
+    if (hookEvents) {
       mforms::View *view = GetBackend<mforms::View>(control);
       eventTarget = gcnew ViewEventTarget(view, control);
       control->Resize += gcnew EventHandler(eventTarget, &ViewEventTarget::Resize);
@@ -1294,24 +1153,36 @@ void ViewWrapper::Initialize()
 
 //--------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_front_color(String ^color)
-{
-  Control ^control = GetManagedObject<Control>();
+void ViewWrapper::set_front_color(String ^ color) {
+  Control ^ control = GetManagedObject<Control>();
   control->ForeColor = System::Drawing::ColorTranslator::FromHtml(color);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_padding(int left, int top, int right, int bottom)
-{
-  Control ^control = GetManagedObject<Control>();
-  control->Padding = Windows::Forms::Padding(left, top, right, bottom);
+void ViewWrapper::set_padding(int left, int top, int right, int bottom) {
+  Control ^ control = GetManagedObject<Control>();
+  control->Padding = System::Windows::Forms::Padding(left, top, right, bottom);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ViewWrapper::init()
-{
+mforms::ModifierKey ViewWrapper::GetModifiers(Keys keyData) {
+  mforms::ModifierKey modifiers = mforms::ModifierNoModifier;
+  if ((keyData & Keys::Control) == Keys::Control)
+    modifiers = modifiers | mforms::ModifierControl;
+  if ((keyData & Keys::Alt) == Keys::Alt)
+    modifiers = modifiers | mforms::ModifierAlt;
+  if ((keyData & Keys::Shift) == Keys::Shift)
+    modifiers = modifiers | mforms::ModifierShift;
+  if ((keyData & Keys::LWin) == Keys::LWin)
+    modifiers = modifiers | mforms::ModifierCommand;
+  return modifiers;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ViewWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_view_impl.destroy = &destroy;
@@ -1323,6 +1194,7 @@ void ViewWrapper::init()
   f->_view_impl.get_preferred_height = &get_preferred_height;
   f->_view_impl.set_position = &set_position;
   f->_view_impl.set_size = &set_size;
+  f->_view_impl.set_min_size = &set_min_size;
   f->_view_impl.set_padding = &set_padding;
   f->_view_impl.screen_to_client = &screen_to_client;
   f->_view_impl.client_to_screen = &client_to_screen;

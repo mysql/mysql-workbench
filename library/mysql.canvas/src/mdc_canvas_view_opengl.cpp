@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,44 +25,52 @@ DEFAULT_LOG_DOMAIN(DOMAIN_CANVAS_BE)
 
 using namespace mdc;
 
-OpenGLCanvasView::OpenGLCanvasView(int width, int height)
-  : CanvasView(width, height)
-{
+OpenGLCanvasView::OpenGLCanvasView(int width, int height) : CanvasView(width, height) {
 }
 
-OpenGLCanvasView::~OpenGLCanvasView()
-{
+OpenGLCanvasView::~OpenGLCanvasView() {
 }
 
-void OpenGLCanvasView::check_error()
-{
-  GLenum err= glGetError();
-  if (err != GL_NO_ERROR)
-  {
-    const char *msg= "unknown error";
-    switch (err)
-    {
-    case GL_NO_ERROR: msg= "no error"; break;
-    case GL_INVALID_ENUM: msg= "invalid enum"; break;
-    case GL_INVALID_VALUE: msg= "invalid value"; break;
-    case GL_INVALID_OPERATION: msg= "invalid operation"; break;
-    case GL_STACK_OVERFLOW: msg= "stack overflow"; break;
-    case GL_STACK_UNDERFLOW: msg= "stack underflow"; break;
-    case GL_OUT_OF_MEMORY: msg= "out of memory"; break;
+void OpenGLCanvasView::check_error() {
+  GLenum err = glGetError();
+  if (err != GL_NO_ERROR) {
+    const char *msg = "unknown error";
+    switch (err) {
+      case GL_NO_ERROR:
+        msg = "no error";
+        break;
+      case GL_INVALID_ENUM:
+        msg = "invalid enum";
+        break;
+      case GL_INVALID_VALUE:
+        msg = "invalid value";
+        break;
+      case GL_INVALID_OPERATION:
+        msg = "invalid operation";
+        break;
+      case GL_STACK_OVERFLOW:
+        msg = "stack overflow";
+        break;
+      case GL_STACK_UNDERFLOW:
+        msg = "stack underflow";
+        break;
+      case GL_OUT_OF_MEMORY:
+        msg = "out of memory";
+        break;
 #ifdef GL_TABLE_TOO_LARGE
-    case GL_TABLE_TOO_LARGE: msg= "table too large"; break;
+      case GL_TABLE_TOO_LARGE:
+        msg = "table too large";
+        break;
 #endif
     }
-    log_error("OpenGL error: %s\n", msg);
+    logError("OpenGL error: %s\n", msg);
   }
 }
 
-
-bool OpenGLCanvasView::initialize()
-{
+bool OpenGLCanvasView::initialize() {
   if (!CanvasView::initialize())
     return false;
-  
+
   // Use a weird color (cyan) here. This should never be visible anywhere as we
   // completely draw the entire canvas. So this serves as indicator if something
   // in the paint code is wrong.
@@ -77,7 +85,7 @@ bool OpenGLCanvasView::initialize()
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
   glDisable(GL_POLYGON_SMOOTH);
   glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-  
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -97,20 +105,15 @@ bool OpenGLCanvasView::initialize()
   return true;
 }
 
-
-void OpenGLCanvasView::begin_repaint(int, int, int, int)
-{
+void OpenGLCanvasView::begin_repaint(int, int, int, int) {
   make_current();
 
   // Start clean.
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-
-void OpenGLCanvasView::end_repaint()
-{
+void OpenGLCanvasView::end_repaint() {
   swap_buffers();
   check_error();
   remove_current();
 }
-

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,28 +31,6 @@
 
 using namespace mforms;
 
-
-// hack in find panel support to the code editor
-@interface SCIContentView (mforms_extras)
-- (void)performFindPanelAction:(id)sender;
-@end
-
-@implementation SCIContentView (mforms_extras)
-- (void)performFindPanelAction:(id)sender
-{
-  if ([sender tag] == NSFindPanelActionShowFindPanel)
-  {
-    id parent = [[[self superview] superview] superview];
-    if ([parent isKindOfClass: [MFCodeEditor class]])
-    {
-      [parent showFindPanel: NO];
-    }
-  }
-}
-@end
-
-
-//--------------------------------------------------------------------------------------------------
 
 @implementation MFCodeEditor
 
@@ -98,7 +76,7 @@ using namespace mforms;
 - (BOOL)becomeFirstResponder
 {
   mOwner->focus_changed();
-  return [[self window] makeFirstResponder: [self content]];
+  return [self.window makeFirstResponder: [self content]];
 }
 
 // for MVerticalLayoutView
@@ -116,6 +94,32 @@ using namespace mforms;
     return menu->get_data();
   }
   return nil;
+}
+
+- (void)keyDown: (NSEvent *)event {
+  // Since we cannot self get the first responder (our content view does) this event
+  // is most likely a forwarding from our content view, so we can notify our backend.
+  mforms::ModifierKey modifiers = [self modifiersFromEvent: event];
+
+  NSString* input = event.characters;
+  mforms::KeyCode code = mforms::KeyChar;
+  switch ([input characterAtIndex: 0])
+  {
+    case NSDownArrowFunctionKey:
+      code = mforms::KeyDown;
+      break;
+
+    case NSUpArrowFunctionKey:
+      code = mforms::KeyUp;
+      break;
+
+    case '\n':
+    case '\r':
+      code = mforms::KeyReturn;
+      break;
+  }
+
+  mOwner->key_event(code, modifiers, input.UTF8String);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,14 +149,15 @@ using namespace mforms;
 
 //--------------------------------------------------------------------------------------------------
 
-static bool ce_create(CodeEditor* self)
+static bool ce_create(CodeEditor* self, bool showInfo)
 {
   MFCodeEditor *editor = [[MFCodeEditor alloc] initWithFrame: NSMakeRect(0, 0, 100, 100)
                                                   codeEditor: self];
-  
-  InfoBar* infoBar = [[InfoBar alloc] initWithFrame: NSMakeRect(0, 0, 400, 0)];
-  [infoBar setDisplay: IBShowAll];
-  [editor setInfoBar: infoBar top: NO];
+  if (showInfo) {
+    InfoBar* infoBar = [[InfoBar alloc] initWithFrame: NSMakeRect(0, 0, 400, 0)];
+    [infoBar setDisplay: IBShowAll];
+    [editor setInfoBar: infoBar top: NO];
+  }
 
   return true;
 }

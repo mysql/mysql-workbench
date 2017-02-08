@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,8 +22,8 @@
 namespace MySQL {
   namespace Forms {
 
-    public class ListBoxWrapper : public ViewWrapper
-    {
+  public
+    class ListBoxWrapper : public ViewWrapper {
     protected:
       ListBoxWrapper(mforms::ListBox *backend);
 
@@ -40,6 +40,7 @@ namespace MySQL {
       static std::vector<size_t> get_selected_indices(mforms::ListBox *backend);
       static size_t get_count(mforms::ListBox *self);
       static std::string get_string_value_from_index(mforms::ListBox *self, size_t index);
+
     public:
       static void init();
     };

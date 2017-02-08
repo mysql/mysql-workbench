@@ -1,7 +1,6 @@
 #ifndef __WB_BACKEND_PUBLIC_INTERFACE_H__
 #define __WB_BACKEND_PUBLIC_INTERFACE_H__
 
-
 #if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
 
 #ifdef MYSQLWBBACKEND_EXPORTS
@@ -15,4 +14,3 @@
 #endif
 
 #endif // __WB_BACKEND_PUBLIC_INTERFACE_H__
-

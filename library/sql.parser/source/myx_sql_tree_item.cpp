@@ -96,8 +96,8 @@ std::list<SqlAstNode *> SqlAstStatics::_ast_nodes;
 const SqlAstNode * SqlAstStatics::_tree= NULL;
 const char * SqlAstStatics::_sql_statement= NULL;
 bool SqlAstStatics::is_ast_generation_enabled= true;
-static  boost::shared_ptr<SqlAstTerminalNode> _last_terminal_node;
-static  boost::shared_ptr<SqlAstTerminalNode> _first_terminal_node;
+static  std::shared_ptr<SqlAstTerminalNode> _last_terminal_node;
+static  std::shared_ptr<SqlAstTerminalNode> _first_terminal_node;
 
 
 void SqlAstStatics::tree(const SqlAstNode *tree)
@@ -116,28 +116,28 @@ void SqlAstStatics::cleanup_ast_nodes()
   //_sql_statement= NULL;
 }
 
-boost::shared_ptr<SqlAstTerminalNode> SqlAstStatics::first_terminal_node()
+std::shared_ptr<SqlAstTerminalNode> SqlAstStatics::first_terminal_node()
 {
   if (_first_terminal_node == NULL)
-    first_terminal_node(boost::shared_ptr<SqlAstTerminalNode>(new SqlAstTerminalNode));
+    first_terminal_node(std::shared_ptr<SqlAstTerminalNode>(new SqlAstTerminalNode));
   
   return _first_terminal_node;
 }
 
-boost::shared_ptr<SqlAstTerminalNode> SqlAstStatics::last_terminal_node()
+std::shared_ptr<SqlAstTerminalNode> SqlAstStatics::last_terminal_node()
 {
   if (_last_terminal_node == NULL)
-    last_terminal_node(boost::shared_ptr<SqlAstTerminalNode>(new SqlAstTerminalNode));
+    last_terminal_node(std::shared_ptr<SqlAstTerminalNode>(new SqlAstTerminalNode));
   
   return _last_terminal_node;
 }
 
-void SqlAstStatics::first_terminal_node(boost::shared_ptr<SqlAstTerminalNode> value)
+void SqlAstStatics::first_terminal_node(std::shared_ptr<SqlAstTerminalNode> value)
 {
   _first_terminal_node = value;
 }
 
-void SqlAstStatics::last_terminal_node(boost::shared_ptr<SqlAstTerminalNode> value)
+void SqlAstStatics::last_terminal_node(std::shared_ptr<SqlAstTerminalNode> value)
 {
   _last_terminal_node = value;
 }

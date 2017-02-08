@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,29 +24,35 @@
 
 @interface MFMenuItem : NSMenuItem <NSMenuDelegate>
 {
-  boost::function<void ()> slot;
+  std::function<void ()> slot;
 @public
   mforms::MenuItem *item;
 }
-
-- (instancetype)initWithTitle:(NSString*)title
-               slot:(boost::function<void ()>)aslot NS_DESIGNATED_INITIALIZER;
 
 @end
 
 static NSMenuItem *applicationMenuTemplate = nil;
 static NSMenuItem *defaultEditMenu = nil;
 
-@implementation  MFMenuItem
+@implementation MFMenuItem
 
-- (instancetype)initWithTitle:(NSString*)title
-               slot:(boost::function<void ()>)aslot
+- (instancetype)initWithCoder:(NSCoder *)decoder
+{
+  return [super initWithCoder: decoder];
+}
+
+- (instancetype)initWithTitle: (NSString *)string action: (nullable SEL)selector keyEquivalent: (NSString *)charCode
+{
+  return [self initWithTitle: string slot: std::function<void ()>()];
+}
+
+- (instancetype)initWithTitle:(NSString*)title slot:(std::function<void ()>)aslot
 {
   self = [super initWithTitle: title action: @selector(callSlot:) keyEquivalent:@""];
   if (self)
   {
     slot = aslot;
-    [self setTarget: self];
+    self.target = self;
   }
   return self;
 }
@@ -83,7 +89,7 @@ static NSMenuItem *defaultEditMenu = nil;
   self = [super initWithTitle: title];
   if (self)
   {
-    [self setDelegate: self];
+    self.delegate = self;
   }
   return self;
 }
@@ -126,7 +132,7 @@ static bool create_menu_item(MenuItem *aitem, const std::string &title, MenuItem
   }
   else
   {
-    MFMenuItem *item = [[MFMenuItem alloc] initWithTitle: wrap_nsstring(title) slot: boost::bind(&MenuItem::callback, aitem)];
+    MFMenuItem *item = [[MFMenuItem alloc] initWithTitle: wrap_nsstring(title) slot: std::bind(&MenuItem::callback, aitem)];
     item->item = aitem;
     aitem->set_data(item);
   }
@@ -136,13 +142,13 @@ static bool create_menu_item(MenuItem *aitem, const std::string &title, MenuItem
 static void set_title(MenuItem *aitem, const std::string &title)
 {
   NSMenuItem *item = aitem->get_data();
-  [item setTitle: wrap_nsstring(title)];
+  item.title = wrap_nsstring(title);
 }
 
 static std::string get_title(MenuItem *aitem)
 {
   NSMenuItem *item = aitem->get_data();
-  return [[item title] UTF8String] ?: "";
+  return item.title.UTF8String ?: "";
 }
 
 static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
@@ -232,7 +238,7 @@ static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
           NSLog(@"Unknown character '%s' for menu shortcut", askey.c_str());
       }
       
-      [item setKeyEquivalent:[NSString stringWithCharacters:&key length:1]];
+      item.keyEquivalent = [NSString stringWithCharacters:&key length:1];
     }
     
     if (parts.size() > 0)
@@ -250,10 +256,10 @@ static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
           mask|= NSShiftKeyMask;
       }
       if (mask != 0)
-        [item setKeyEquivalentModifierMask:mask];
+        item.keyEquivalentModifierMask = mask;
     }
     else {
-      [item setKeyEquivalentModifierMask: 0];
+      item.keyEquivalentModifierMask = 0;
     }
 
   }
@@ -262,25 +268,25 @@ static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
 static void set_enabled(MenuBase *aitem, bool enabled)
 {
   NSMenuItem *item = aitem->get_data();
-  [item setEnabled: enabled];
+  item.enabled = enabled;
 }
 
 static bool get_enabled(MenuBase *aitem)
 {
   NSMenuItem *item = aitem->get_data();
-  return [item isEnabled];
+  return item.enabled;
 }
 
 static void set_checked(MenuItem *aitem, bool flag)
 {
   NSMenuItem *item = aitem->get_data();
-  [item setState: flag ? NSOnState : NSOffState];
+  item.state = flag ? NSOnState : NSOffState;
 }
 
 static bool get_checked(MenuItem *aitem)
 {
   NSMenuItem *item = aitem->get_data();
-  return [item state] == NSOnState;
+  return item.state == NSOnState;
 }
 
 static void insert_item(MenuBase *aitem, int index, MenuItem *asubitem)
@@ -294,17 +300,17 @@ static void insert_item(MenuBase *aitem, int index, MenuItem *asubitem)
   else
   {
     MFMenuItem *parItem = aitem->get_data();
-    submenu = [parItem submenu];
+    submenu = parItem.submenu;
     if (!submenu)
     {
-      submenu = [[NSMenu alloc] initWithTitle: [parItem title]];
+      submenu = [[NSMenu alloc] initWithTitle: parItem.title];
       [submenu setAutoenablesItems: NO];
-      [parItem setSubmenu: submenu];
-      [submenu setDelegate: parItem];
+      parItem.submenu = submenu;
+      submenu.delegate = parItem;
     }
   }
 
-  if (index >= [submenu numberOfItems])
+  if (index >= submenu.numberOfItems)
     [submenu addItem: subitem];
   else
     [submenu insertItem: subitem atIndex: is_context ? index : index+1];
@@ -324,7 +330,7 @@ static void remove_item(MenuBase *aitem, MenuItem *asubitem)
     [submenu removeItem: subitem];
   else
   {
-    while ([submenu numberOfItems] > 0)
+    while (submenu.numberOfItems > 0)
       [submenu removeItemAtIndex: 0];
   }
 }
@@ -332,7 +338,7 @@ static void remove_item(MenuBase *aitem, MenuItem *asubitem)
 static void popup_at(ContextMenu *menu, View *owner, base::Point location)
 {
   [NSMenu popUpContextMenu: menu->get_data()
-                 withEvent: [NSApp currentEvent]
+                 withEvent: NSApp.currentEvent
                    forView: owner->get_data()];
 }
 
@@ -341,12 +347,12 @@ static NSMenuItem *swappedEditMenu = nil;
 
 void cf_swap_edit_menu()
 {
-  NSMenuItem *editMenu = [[NSApp mainMenu] itemAtIndex: 2];  
-  if ([editMenu tag] != 424242)
+  NSMenuItem *editMenu = [NSApp.mainMenu itemAtIndex: 2];  
+  if (editMenu.tag != 424242)
   {
     swappedEditMenu = editMenu;
-    [[NSApp mainMenu] removeItem: swappedEditMenu];
-    [[NSApp mainMenu] insertItem: [defaultEditMenu copy] atIndex: 2];
+    [NSApp.mainMenu removeItem: swappedEditMenu];
+    [NSApp.mainMenu insertItem: [defaultEditMenu copy] atIndex: 2];
   }
 }
 
@@ -354,11 +360,11 @@ void cf_unswap_edit_menu()
 {
   if (swappedEditMenu)
   {
-    NSMenuItem *editMenu = [[NSApp mainMenu] itemAtIndex: 2];  
-    if ([editMenu tag] == 424242)
+    NSMenuItem *editMenu = [NSApp.mainMenu itemAtIndex: 2];  
+    if (editMenu.tag == 424242)
     {
-      [[NSApp mainMenu] removeItem: editMenu];
-      [[NSApp mainMenu] insertItem: swappedEditMenu atIndex: 2];
+      [NSApp.mainMenu removeItem: editMenu];
+      [NSApp.mainMenu insertItem: swappedEditMenu atIndex: 2];
       swappedEditMenu = nil;
     }
   }  
@@ -369,17 +375,17 @@ void cf_menubar_init()
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
   // get default app menu and make a template from it
-  applicationMenuTemplate = [[NSApp mainMenu] itemAtIndex: 0];
+  applicationMenuTemplate = [NSApp.mainMenu itemAtIndex: 0];
   
   // hack
   // the way to create a Edit menu that works just like the one you get in IB is a mistery
   // so we create it in IB, keep a reference to it and only display it when we need,
   // which is in modal windows. Once the modal window is gone, the normal WB 
   // created menu can be used
-  defaultEditMenu = [[NSApp mainMenu] itemAtIndex: 1];
-  [[NSApp mainMenu] removeItem: defaultEditMenu];
+  defaultEditMenu = [NSApp.mainMenu itemAtIndex: 1];
+  [NSApp.mainMenu removeItem: defaultEditMenu];
   
-  [defaultEditMenu setTag: 424242];
+  defaultEditMenu.tag = 424242;
 
   f->_menu_item_impl.create_context_menu = create_context_menu;
   f->_menu_item_impl.create_menu_bar = create_menu_bar;

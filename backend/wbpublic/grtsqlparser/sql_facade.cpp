@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -45,20 +45,18 @@ SqlFacade::Ref SqlFacade::instance_for_db_obj(db_DatabaseObjectRef db_obj)
 */
 //--------------------------------------------------------------------------------------------------
 
-SqlFacade::Ref SqlFacade::instance_for_rdbms(db_mgmt_RdbmsRef rdbms)
-{
-  return instance_for_rdbms_name(rdbms->get_grt(), rdbms->name());
+SqlFacade::Ref SqlFacade::instance_for_rdbms(db_mgmt_RdbmsRef rdbms) {
+  return instance_for_rdbms_name(rdbms->name());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-SqlFacade::Ref SqlFacade::instance_for_rdbms_name(GRT *grt, const std::string &name)
-{
-  const char *def_module_name= "SqlFacade";
-  std::string module_name= name + def_module_name;
-  SqlFacade::Ref module= dynamic_cast<SqlFacade::Ref>(grt->get_module(module_name));
+SqlFacade::Ref SqlFacade::instance_for_rdbms_name(const std::string &name) {
+  const char *def_module_name = "SqlFacade";
+  std::string module_name = name + def_module_name;
+  SqlFacade::Ref module = dynamic_cast<SqlFacade::Ref>(grt::GRT::get()->get_module(module_name));
   if (!module)
-		throw std::runtime_error(base::strfmt("Can't get '%s' module.", module_name.c_str()));
+    throw std::runtime_error(base::strfmt("Can't get '%s' module.", module_name.c_str()));
   return module;
 }
 

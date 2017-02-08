@@ -1,2 +1,0 @@
-java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQL.g -o .. -Xmaxswitchcaselabels=30
-java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQLSimpleParser.g -o .. -Xmaxswitchcaselabels=30

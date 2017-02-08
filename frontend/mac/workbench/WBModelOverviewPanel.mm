@@ -40,7 +40,6 @@
   __weak IBOutlet MTabSwitcher *mSwitcherT;
   __weak IBOutlet MTabSwitcher *mSwitcherB;
 
-  wb::WBContextUI *_wbui;
   NSMutableArray *nibObjects;
 }
 
@@ -48,13 +47,12 @@
 
 @implementation WBModelOverviewPanel
 
-- (instancetype)initWithWBContextUI: (wb::WBContextUI*)wbui
+- (instancetype)init
 {
   self = [super init];
   if (self)
   {
-    _wbui = wbui;
-    if (_wbui != NULL)
+
     {
       NSMutableArray *temp;
       if ([NSBundle.mainBundle loadNibNamed: @"WBModelOverview" owner: self topLevelObjects: &temp])
@@ -63,31 +61,25 @@
 
         [editorTabView createDragger];
 
-        [overview setupWithOverviewBE: wbui->get_physical_overview()];
-        [sidebarController setupWithContext: wbui->get_wb()->get_model_context()];
-        [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
-        [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
-        [descriptionController setWBContext: wbui];
 
-        [self.splitView setDividerThickness: 1];
-        [self.splitView setBackgroundColor: [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0]];
+        [overview setupWithOverviewBE: wb::WBContextUI::get()->get_physical_overview()];
+        [sidebarController setupWithContext: wb::WBContextUI::get()->get_wb()->get_model_context()];
+        mSwitcherT.tabStyle = MPaletteTabSwitcherSmallText;
+        mSwitcherB.tabStyle = MPaletteTabSwitcherSmallText;
+        [descriptionController setup];
+
+        self.splitView.dividerThickness = 1;
+        self.splitView.backgroundColor = [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0];
 
         [overview performSelector: @selector(rebuildAll) withObject: nil afterDelay: 0.1];
 
-        grtm = _wbui->get_wb()->get_grt_manager();
+        self.splitView.autosaveName = @"modelSplitPosition";
 
-        [self.splitView setAutosaveName: @"modelSplitPosition"];
-
-        [self restoreSidebarsFor: "ModelOverview" toolbar: wbui->get_physical_overview()->get_toolbar()];
+        [self restoreSidebarsFor: "ModelOverview" toolbar: wb::WBContextUI::get()->get_physical_overview()->get_toolbar()];
       }
     }
   }
   return self;
-}
-
-- (instancetype)init
-{
-  return [self initWithWBContextUI: NULL];
 }
 
 - (void)dealloc
@@ -101,7 +93,7 @@
 
 - (NSString*)identifier
 {
-  return [overview identifier];
+  return overview.identifier;
 }
 
 - (WBOverviewPanel*)overview
@@ -111,33 +103,33 @@
 
 - (NSString*)title
 {  
-  return [overview title];
+  return overview.title;
 }
 
 - (bec::UIForm*)formBE
 {
-  return [overview formBE];
+  return overview.formBE;
 }
 
 - (void)didActivate
 {
-  NSView *view = nsviewForView(_wbui->get_wb()->get_model_context()->shared_secondary_sidebar());
-  if ([view superview])
+  NSView *view = nsviewForView(wb::WBContextUI::get()->get_wb()->get_model_context()->shared_secondary_sidebar());
+  if (view.superview)
     [view removeFromSuperview];
 
   [secondarySidebar addSubview: view];
-  [view setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable|NSViewMinXMargin|NSViewMinYMargin|NSViewMaxXMargin|NSViewMaxYMargin];
-  [view setFrame: [secondarySidebar bounds]];
+  view.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable|NSViewMinXMargin|NSViewMinYMargin|NSViewMaxXMargin|NSViewMaxYMargin;
+  view.frame = secondarySidebar.bounds;
 }
 
 - (BOOL)willClose
 {
-  return [overview willClose];
+  return overview.willClose;
 }
 
 - (void)selectionChanged
 {
-  [descriptionController updateForForm: [self formBE]];
+  [descriptionController updateForForm: self.formBE];
 }
 
 - (WBModelSidebarController*)sidebarController

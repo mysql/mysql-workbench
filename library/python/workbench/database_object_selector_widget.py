@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -108,19 +108,19 @@ class DatabaseObjectSelector(mforms.Box):
 
             icon = mforms.newImageBox()
             icon.set_image(self.ui_settings[group]['icon'])
-            header_box.add(icon, False)
+            header_box.add(icon, False, True)
             
             text_box = mforms.Box(False)
             group_selector = mforms.newCheckBox()
             group_selector.set_text(self.ui_settings[group]['group_label'])
             group_selector.set_active(bool(self.ui_settings[group]['group_selected']))
             group_selector.add_clicked_callback(functools.partial(self.group_checkbox_clicked, group=group))
-            text_box.add(group_selector, False)
+            text_box.add(group_selector, False, True)
             info_label = mforms.newLabel(self.ui_settings[group]['status_text'] % {'total': len(group_objects), 
                                        'selected': len(group_objects) if self.ui_settings[group]['group_selected'] else 0 })
             info_label.set_style(mforms.SmallHelpTextStyle)
-            text_box.add(info_label, False)
-            header_box.add(text_box, False)
+            text_box.add(info_label, False, True)
+            header_box.add(text_box, False, True)
             
             show_details = self.ui_settings[group]['show_details']
             self.ui_settings[group]['_showing_details'] = show_details
@@ -130,7 +130,7 @@ class DatabaseObjectSelector(mforms.Box):
             filter_button.add_clicked_callback(functools.partial(self.filter_button_clicked, group=group))
             header_box.add_end(filter_button, False, True)
             
-            group_box.add(header_box, False)
+            group_box.add(header_box, False, True)
             
             # The invisible stuff:
             if len(group_objects) > 0:
@@ -145,7 +145,7 @@ class DatabaseObjectSelector(mforms.Box):
                 filter_container = mforms.newBox(True)
                 filter_container.set_spacing(8)
 
-                available_list = mforms.newTreeNodeView(mforms.TreeFlatList)
+                available_list = mforms.newTreeView(mforms.TreeFlatList)
                 available_list.add_column(mforms.IconColumnType, 'Available Objects', 300, False)
                 available_list.end_columns()
                 available_list.set_selection_mode(mforms.TreeSelectMultiple)
@@ -164,12 +164,12 @@ class DatabaseObjectSelector(mforms.Box):
                 remove_button.set_text('<')
                 remove_button.enable_internal_padding(False)
                 remove_button.add_clicked_callback(functools.partial(self.move_button_clicked, group=group, operation='remove'))
-                control_box.add(remove_button, False)
+                control_box.add(remove_button, False, True)
                 add_all_button = mforms.newButton()
                 add_all_button.set_text('>>')
                 add_all_button.enable_internal_padding(False)
                 add_all_button.add_clicked_callback(functools.partial(self.move_button_clicked, group=group, operation='add_all'))
-                control_box.add(add_all_button, False)
+                control_box.add(add_all_button, False, True)
                 remove_all_button = mforms.newButton()
                 remove_all_button.set_text('<<')
                 remove_all_button.enable_internal_padding(False)
@@ -178,7 +178,7 @@ class DatabaseObjectSelector(mforms.Box):
                 filter_container.add(control_box, False, False)
 
 
-                selected_list = mforms.newTreeNodeView(mforms.TreeFlatList)
+                selected_list = mforms.newTreeView(mforms.TreeFlatList)
                 selected_list.add_column(mforms.IconColumnType, 'Objects to Migrate', 300, False)
                 selected_list.end_columns()
                 selected_list.set_selection_mode(mforms.TreeSelectMultiple)
@@ -224,7 +224,8 @@ class DatabaseObjectSelector(mforms.Box):
             self.ui[group]['filter_container'].show(bool(show_details))
         self.ui[group]['filter_button'].set_text('Hide Selection' if show_details else 'Show Selection')
         self.ui_settings[group]['_showing_details'] = show_details
-        self.relayout()
+        if self.get_parent():
+            self.get_parent().relayout()
 
     def filter_button_clicked(self, group):
         self._show_selection(group, not self.ui_settings[group]['_showing_details'])

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -72,14 +72,14 @@
 
 - (void)windowDidUpdate:(NSNotification *)notification
 {
-  if (_defaultMenuBar && [NSApp mainMenu] == _defaultMenuBar->get_data() && [[[self topView] window] isKeyWindow])
+  if (_defaultMenuBar && NSApp.mainMenu == _defaultMenuBar->get_data() && self.topView.window.keyWindow)
     _defaultMenuBar->validate();
 }
 
 
 - (NSMenu*)menuBar
 {
-  NSMenu *menu = [super menuBar];
+  NSMenu *menu = super.menuBar;
   if (!menu && _defaultMenuBar)
     return _defaultMenuBar->get_data();
   return menu;
@@ -129,12 +129,6 @@
 {
   return _owner;
 }
-
-- (NSSize)minimumSize
-{
-  return NSMakeSize(1, 1);
-}
-
 
 - (BOOL)willClose
 {

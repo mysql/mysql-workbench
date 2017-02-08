@@ -39,7 +39,7 @@ class DBCopy(mforms.AppView):
         self.content = mforms.newBox(False)
 
         if platform.system() == 'Windows':
-            self.set_back_color(mforms.App.get().get_system_color(mforms.SystemColorContainer).to_html())
+            self.set_back_color("#FFFFFF")
             content_panel = mforms.newPanel(mforms.FilledPanel)
             #self.content.set_back_image("migration_background.png", mforms.TopRight)
             content_panel.set_back_color("#FFFFFF")

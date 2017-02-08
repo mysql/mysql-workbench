@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,30 +17,25 @@
  * 02110-1301  USA
  */
 
-#include <cairo/cairo.h>
-
 #include "mforms/drawbox.h"
 #import "MFView.h"
 
-@interface MFDrawBoxImpl : NSView
-{
+@interface MFDrawBoxImpl : NSView {
 @private
   mforms::DrawBox *mOwner;
-  NSTrackingArea* mTrackingArea;
+  NSTrackingArea *mTrackingArea;
   float mPaddingLeft;
   float mPaddingRight;
   float mPaddingTop;
   float mPaddingBottom;
 
-  std::map<mforms::View*, mforms::Alignment> mSubviews;
+  std::map<mforms::View *, mforms::Alignment> mSubviews;
 
   BOOL mDrawsBackground;
   NSColor *mBackgroundColor;
 }
 
-@property (nonatomic, assign) BOOL drawsBackground;
-@property (nonatomic, strong) NSColor *backgroundColor;
-
-@property (readonly) NSSize preferredSize;
+@property(nonatomic, assign) BOOL drawsBackground;
+@property(nonatomic, strong) NSColor *backgroundColor;
 
 @end

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2014 Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,59 +28,50 @@ using namespace MySQL;
 using namespace MySQL::Controls;
 using namespace MySQL::Forms;
 
-ref class MformsMenuStrip : public ContextMenuStrip
-{
+ref class MformsMenuStrip : public ContextMenuStrip {
 public:
   mforms::Menu *backend;
 
-  virtual void OnOpening(CancelEventArgs ^args) override
-  {
+  virtual void OnOpening(CancelEventArgs ^ args) override {
     (*(backend->signal_will_show()))();
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void ItemClick(Object ^sender, System::EventArgs ^args)
-  {
-    ToolStripItem ^item = dynamic_cast<ToolStripItem ^>(sender);
-    if (item != nullptr)
-    {
-      String ^action = dynamic_cast<String ^>(item->Tag);
+  void ItemClick(Object ^ sender, System::EventArgs ^ args) {
+    ToolStripItem ^ item = dynamic_cast<ToolStripItem ^>(sender);
+    if (item != nullptr) {
+      String ^ action = dynamic_cast<String ^>(item->Tag);
       if (action != nullptr)
         backend->handle_action(NativeToCppString(action));
     }
   }
 
   //------------------------------------------------------------------------------------------------
-
 };
 
 //----------------- MenuWrapper ---------------------------------------------------------------------
 
-MenuWrapper::MenuWrapper(mforms::Menu *backend)
-  : ObjectWrapper(backend)
-{
+MenuWrapper::MenuWrapper(mforms::Menu *backend) : ObjectWrapper(backend) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool MenuWrapper::create(mforms::Menu *backend)
-{
+bool MenuWrapper::create(mforms::Menu *backend) {
   MenuWrapper *wrapper = new MenuWrapper(backend);
-  MformsMenuStrip ^menuStrip = MenuWrapper::Create<MformsMenuStrip>(backend, wrapper);
+  MformsMenuStrip ^ menuStrip = MenuWrapper::Create<MformsMenuStrip>(backend, wrapper);
   menuStrip->backend = backend;
   menuStrip->AutoSize = true;
 
-  switch (base::Color::get_active_scheme())
-  {
-  case base::ColorSchemeCustom:
-  case base::ColorSchemeHighContrast:
-  case base::ColorSchemeStandard:
-  case base::ColorSchemeStandardWin7:
+  switch (base::Color::get_active_scheme()) {
+    case base::ColorSchemeCustom:
+    case base::ColorSchemeHighContrast:
+    case base::ColorSchemeStandard:
+    case base::ColorSchemeStandardWin7:
       menuStrip->Renderer = gcnew TransparentMenuStripRenderer();
       break;
 
-  default:
+    default:
       menuStrip->Renderer = gcnew Win8MenuStripRenderer();
       break;
   }
@@ -90,18 +81,16 @@ bool MenuWrapper::create(mforms::Menu *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuWrapper::remove_item(mforms::Menu *backend, int i)
-{
-  ContextMenuStrip ^menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
+void MenuWrapper::remove_item(mforms::Menu *backend, int i) {
+  ContextMenuStrip ^ menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
   menu->Items->RemoveAt(i);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MenuWrapper::add_item(mforms::Menu *backend, const std::string &caption, const std::string &action)
-{
-  MformsMenuStrip ^menu = MenuWrapper::GetManagedObject<MformsMenuStrip>(backend);
-  ToolStripItem^ item = menu->Items->Add(CppStringToNative(caption));
+int MenuWrapper::add_item(mforms::Menu *backend, const std::string &caption, const std::string &action) {
+  MformsMenuStrip ^ menu = MenuWrapper::GetManagedObject<MformsMenuStrip>(backend);
+  ToolStripItem ^ item = menu->Items->Add(CppStringToNative(caption));
   item->Click += gcnew System::EventHandler(menu, &MformsMenuStrip::ItemClick);
   item->Tag = CppStringToNative(action);
 
@@ -110,21 +99,19 @@ int MenuWrapper::add_item(mforms::Menu *backend, const std::string &caption, con
 
 //--------------------------------------------------------------------------------------------------
 
-int MenuWrapper::add_separator(mforms::Menu *backend)
-{
-  ContextMenuStrip ^menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
+int MenuWrapper::add_separator(mforms::Menu *backend) {
+  ContextMenuStrip ^ menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
   menu->Items->Add(gcnew ToolStripSeparator());
   return menu->Items->Count - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MenuWrapper::add_submenu(mforms::Menu *backend, const std::string &caption, mforms::Menu *submenu)
-{
-  ContextMenuStrip ^menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
-  ContextMenuStrip ^child_menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(submenu);
+int MenuWrapper::add_submenu(mforms::Menu *backend, const std::string &caption, mforms::Menu *submenu) {
+  ContextMenuStrip ^ menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
+  ContextMenuStrip ^ child_menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(submenu);
 
-  ToolStripMenuItem^ item = gcnew ToolStripMenuItem(CppStringToNative(caption));
+  ToolStripMenuItem ^ item = gcnew ToolStripMenuItem(CppStringToNative(caption));
   menu->Items->Add(item);
   item->DropDown = child_menu;
 
@@ -133,52 +120,46 @@ int MenuWrapper::add_submenu(mforms::Menu *backend, const std::string &caption, 
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuWrapper::set_item_enabled(mforms::Menu *backend, int i, bool flag)
-{
-  ContextMenuStrip ^menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
+void MenuWrapper::set_item_enabled(mforms::Menu *backend, int i, bool flag) {
+  ContextMenuStrip ^ menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
   menu->Items[i]->Enabled = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuWrapper::popup_at(mforms::Menu *backend, mforms::Object *control, int x, int y)
-{
+void MenuWrapper::popup_at(mforms::Menu *backend, mforms::Object *control, int x, int y) {
   // We need the the .NET control for which to show the context menu.
-  Control ^controller = nullptr;
+  Control ^ controller = nullptr;
   if (control != NULL)
     controller = MenuWrapper::GetControl(control);
-  else
-  {
-    // If we did not get a control passed in then we take the one under the mouse 
+  else {
+    // If we did not get a control passed in then we take the one under the mouse
     // determined by the last message position. This should usually work as the context menu
     // is triggered by a right mouse button click.
     DWORD position = GetMessagePos();
     POINT point;
-    point.x =  (int)(short) LOWORD(position);
-    point.y = (int)(short) HIWORD(position);
+    point.x = (int)(short)LOWORD(position);
+    point.y = (int)(short)HIWORD(position);
     HWND window = WindowFromPoint(point);
     controller = Control::FromHandle(IntPtr(window));
   }
 
-  if (controller != nullptr)
-  {
-    ContextMenuStrip ^menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
+  if (controller != nullptr) {
+    ContextMenuStrip ^ menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
     menu->Show(controller, System::Drawing::Point(x, y));
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQL::Forms::MenuWrapper::clear( mforms::Menu* backend )
-{
-  ContextMenuStrip ^menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
+void MySQL::Forms::MenuWrapper::clear(mforms::Menu *backend) {
+  ContextMenuStrip ^ menu = MenuWrapper::GetManagedObject<ContextMenuStrip>(backend);
   menu->Items->Clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MenuWrapper::init()
-{
+void MenuWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_menu_impl.create = &MenuWrapper::create;

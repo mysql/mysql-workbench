@@ -3,14 +3,14 @@
 
 #include "grt/tree_model.h"
 #include <gtkmm/builder.h>
+#include <gtkmm/radiobutton.h>
 
 class MySQLTableEditorBE;
 class ListModelWrapper;
 class DbMySQLTableEditor;
 class AutoCompletable;
 
-namespace Gtk
-{
+namespace Gtk {
   class ScrolledWindow;
   class ComboBox;
 }
@@ -18,68 +18,68 @@ namespace Gtk
 //==============================================================================
 //
 //==============================================================================
-class DbMySQLTableEditorColumnPage : public sigc::trackable
-{
-  public:
-    DbMySQLTableEditorColumnPage(DbMySQLTableEditor *owner, MySQLTableEditorBE* be, Glib::RefPtr<Gtk::Builder> xml);
-    ~DbMySQLTableEditorColumnPage();
-	
-    void refresh();
-    void partial_refresh(const int what);
+class DbMySQLTableEditorColumnPage : public sigc::trackable {
+public:
+  DbMySQLTableEditorColumnPage(DbMySQLTableEditor* owner, MySQLTableEditorBE* be, Glib::RefPtr<Gtk::Builder> xml);
+  ~DbMySQLTableEditorColumnPage();
 
-    void switch_be(MySQLTableEditorBE* be);
+  void refresh();
+  void partial_refresh(const int what);
 
-  private:
-    grt::StringListRef get_types_for_table(const db_TableRef table); //!< T
+  void switch_be(MySQLTableEditorBE* be);
 
-    bool process_event(GdkEvent* event);
-    void type_column_event(GdkEvent* e);
-    void cursor_changed();
+private:
+  grt::StringListRef get_types_for_table(const db_TableRef table); //!< T
 
-    void update_column_details(const ::bec::NodeId &node);
-    
-    void set_comment(const std::string& comment);
-    void set_collation();
-    void update_collation();
-    void update_gc_storage_type();
-    void set_gc_storage_type();
+  bool process_event(GdkEvent* event);
+  void type_column_event(GdkEvent* e);
+  void cursor_changed();
 
-    void check_resize(Gtk::Allocation& r);
-    bool do_on_visible(GdkEventVisibility*);
+  void update_column_details(const ::bec::NodeId& node);
 
-    bec::NodeId get_selected();
+  void set_comment(const std::string& comment);
+  void set_collation();
+  void update_collation();
+  void update_gc_storage_type();
+  void set_gc_storage_type();
 
-   void start_auto_edit();
-  private:
-    void refill_completions();
-    void refill_columns_tv();
+  void check_resize(Gtk::Allocation& r);
+  bool do_on_visible(GdkEventVisibility*);
 
-    DbMySQLTableEditor                       *_owner;
-    MySQLTableEditorBE                       *_be;
-    Glib::RefPtr<Gtk::Builder>                _xml;
+  bec::NodeId get_selected();
 
-    Glib::RefPtr<ListModelWrapper>            _model;
-    Gtk::TreeView                            *_tv;
-    Gtk::ScrolledWindow                      *_tv_holder;
+  void start_auto_edit();
 
-    Gtk::ComboBox                            *_collation_combo;
+private:
+  void refill_completions();
+  void refill_columns_tv();
 
-    Gtk::RadioButton                         *_radioStored;
-    Gtk::RadioButton                         *_radioVirtual;
+  DbMySQLTableEditor* _owner;
+  MySQLTableEditorBE* _be;
+  Glib::RefPtr<Gtk::Builder> _xml;
 
-    gulong                                    _edit_conn;
-    GtkCellEditable                          *_ce;
-    int                                       _old_column_count;
-    bool                                      _auto_edit_pending;
+  Glib::RefPtr<ListModelWrapper> _model;
+  Gtk::TreeView* _tv;
+  Gtk::ScrolledWindow* _tv_holder;
 
-    // Auto completion of types and related functions
-    static boost::shared_ptr<AutoCompletable> _types_completion;
-    static boost::shared_ptr<AutoCompletable> _names_completion;
-    static boost::shared_ptr<AutoCompletable> types_completion();
-    static boost::shared_ptr<AutoCompletable> names_completion();
-    static void type_cell_editing_started(GtkCellRenderer* cr, GtkCellEditable* ce, gchar* path, gpointer udata);
-    static void cell_editing_done(GtkCellEditable* ce, gpointer udata);
-    bool                                      _editing;
+  Gtk::ComboBox* _collation_combo;
+
+  Gtk::RadioButton* _radioStored;
+  Gtk::RadioButton* _radioVirtual;
+
+  gulong _edit_conn;
+  GtkCellEditable* _ce;
+  int _old_column_count;
+  bool _auto_edit_pending;
+
+  // Auto completion of types and related functions
+  static std::shared_ptr<AutoCompletable> _types_completion;
+  static std::shared_ptr<AutoCompletable> _names_completion;
+  static std::shared_ptr<AutoCompletable> types_completion();
+  static std::shared_ptr<AutoCompletable> names_completion();
+  static void type_cell_editing_started(GtkCellRenderer* cr, GtkCellEditable* ce, gchar* path, gpointer udata);
+  static void cell_editing_done(GtkCellEditable* ce, gpointer udata);
+  bool _editing;
 };
 
 #endif

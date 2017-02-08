@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -24,8 +24,7 @@ TEST_MODULE(config_file_test, "Base library config file handling");
 
 using namespace base;
 
-TEST_FUNCTION(10)
-{
+TEST_FUNCTION(10) {
   // No config file. Creates a default section.
   ConfigurationFile file("", AutoCreateNothing);
   ensure_equals("Only 1 (default) section exists", file.section_count(), 1);
@@ -33,8 +32,7 @@ TEST_FUNCTION(10)
   ensure_equals("No key exists", file.key_count(), 0);
 }
 
-TEST_FUNCTION(20)
-{
+TEST_FUNCTION(20) {
   // Empty config file. No keys, no fun.
   ConfigurationFile file("data/base/my-1.ini", AutoCreateNothing);
   ensure_equals("Only 1 (default) section exists", file.section_count(), 1);
@@ -42,8 +40,7 @@ TEST_FUNCTION(20)
   ensure_equals("No key exists", file.key_count(), 0);
 }
 
-TEST_FUNCTION(30)
-{
+TEST_FUNCTION(30) {
   // Pretty standard ini file (Windows). No includes or other specialties.
   ConfigurationFile file("data/base/my-2.ini", AutoCreateNothing);
   ensure_equals("30.1 Check section count", file.section_count(), 4);
@@ -82,8 +79,7 @@ TEST_FUNCTION(30)
   ensure_equals("30.21 Check key count", file_copy.key_count(), 32);
 }
 
-TEST_FUNCTION(40)
-{
+TEST_FUNCTION(40) {
   // Detailed check of loaded content.
   ConfigurationFile file("data/base/my-2.ini", AutoCreateNothing);
 
@@ -91,11 +87,14 @@ TEST_FUNCTION(40)
 
   ensure_equals("40.2 value check", file.get_value("default-character-set", "mysql"), "utf8");
 
-  ensure_equals("40.3 value check", file.get_value("basedir", "mysqld"), "\"C:/Program Files/MySQL/MySQL Server 5.5/\"");
-  ensure_equals("40.4 value check", file.get_value("datadir", "mysqld"), "\"C:/ProgramData/MySQL/MySQL Server 5.5/Data/\"");
+  ensure_equals("40.3 value check", file.get_value("basedir", "mysqld"),
+                "\"C:/Program Files/MySQL/MySQL Server 5.5/\"");
+  ensure_equals("40.4 value check", file.get_value("datadir", "mysqld"),
+                "\"C:/ProgramData/MySQL/MySQL Server 5.5/Data/\"");
   ensure_equals("40.5 value check", file.get_value("character-set-server", "mysqld"), "utf8");
   ensure_equals("40.6 value check", file.get_value("default-storage-engine", "mysqld"), "INNODB");
-  ensure_equals("40.7 value check", file.get_value("sql-mode", "mysqld"), "\"STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\"");
+  ensure_equals("40.7 value check", file.get_value("sql-mode", "mysqld"),
+                "\"STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\"");
   ensure_equals("40.8 value check", file.get_int("max_connections", "mysqld"), 100);
 
   ensure_equals("40.9 value check", file.get_int("query_cache_size", "mysqld"), 0);
@@ -131,7 +130,7 @@ TEST_FUNCTION(40)
   ensure_equals("40.29 value check", file.get_int("innodb_additional_mem_pool_size", "mysqld"), 3 * 1024 * 1024);
 
   ensure_equals("40.30 value check", file.get_int("innodb_flush_log_at_trx_commit", "mysqld"), 1);
-  
+
   ensure_equals("40.31 value check", file.get_value("innodb_log_buffer_size", "mysqld"), "2M");
   ensure_equals("40.32 value check", file.get_int("innodb_log_buffer_size", "mysqld"), 2 * 1024 * 1024);
 
@@ -145,8 +144,8 @@ TEST_FUNCTION(40)
 
   ensure("40.38 value check", file.has_key("slow-query-log", "mysqld"));
   ensure_equals("40.39 value check", file.get_value("slow-query-log", "mysqld"), ""); // No value for this key.
-  
-  ensure_equals("40.40 value check", file.get_value("log-output", "mysqld"),  "TABLE");
+
+  ensure_equals("40.40 value check", file.get_value("log-output", "mysqld"), "TABLE");
   ensure("40.41 value check", file.has_key("log-slow-admin-statements", "mysqld"));
   ensure_equals("40.42 value check", file.get_int("long_query_time", "mysqld"), 10);
   ensure("40.43 value check", file.has_key("log-slow-slave-statements", "mysqld"));
@@ -155,8 +154,7 @@ TEST_FUNCTION(40)
   ensure("40.45 value check", file.has_key("general-log", "mysqld"));
 }
 
-TEST_FUNCTION(50)
-{
+TEST_FUNCTION(50) {
   // Specific tests for !include and !includedir entries.
   ConfigurationFile file("data/base/my-3.ini", AutoCreateNothing);
   std::vector<std::string> includes = file.get_includes("");
@@ -187,4 +185,3 @@ TEST_FUNCTION(50)
 END_TESTS;
 
 //----------------------------------------------------------------------------------------------------------------------
-

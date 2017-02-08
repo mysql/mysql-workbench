@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include "workbench/wb_backend_public_interface.h"
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "grtpp_value.h"
 
 namespace mforms {
@@ -48,51 +48,42 @@ namespace wb {
     IconSchema
   };
 
-
-
-  class MYSQLWBBACKEND_PUBLIC_FUNC CatalogTreeView : public mforms::TreeNodeView
-  {
+  class MYSQLWBBACKEND_PUBLIC_FUNC CatalogTreeView : public mforms::TreeView {
   private:
-    class ObjectNodeData : public mforms::TreeNodeData
-    {
+    class ObjectNodeData : public mforms::TreeNodeData {
     private:
       grt::ObjectRef _ref;
+
     public:
       ObjectNodeData(grt::ObjectRef obj_ref);
       inline grt::ObjectRef get_object_ref();
     };
 
-    enum ObjectType
-    {
-      ObjSchema,
-      ObjTable,
-      ObjView,
-      ObjRoutineGrp,
-      ObjNone
-    };
+    enum ObjectType { ObjSchema, ObjTable, ObjView, ObjRoutineGrp, ObjNone };
     ModelDiagramForm *_owner;
     mforms::ContextMenu *_menu;
     std::list<GrtObjectRef> _dragged_objects;
     bool _initialized;
 
     void context_menu_will_show(mforms::MenuItem *parent_item);
-    boost::function<void (grt::ValueRef)> _activate_callback;
+    std::function<void(grt::ValueRef)> _activate_callback;
+
   protected:
     virtual bool get_drag_data(mforms::DragDetails &details, void **data, std::string &format);
     void menu_action(const std::string &name, grt::ValueRef val);
-    mforms::TreeNodeRef create_new_node(const ObjectType &otype, mforms::TreeNodeRef parent, const std::string &name, grt::ObjectRef val);
+    mforms::TreeNodeRef create_new_node(const ObjectType &otype, mforms::TreeNodeRef parent, const std::string &name,
+                                        grt::ObjectRef val);
+
   public:
     CatalogTreeView(ModelDiagramForm *owner);
     virtual ~CatalogTreeView();
     virtual void node_activated(mforms::TreeNodeRef row, int column);
     void refill(bool force = false);
-    void set_activate_callback(const boost::function<void (grt::ValueRef)> &active_callback);
+    void set_activate_callback(const std::function<void(grt::ValueRef)> &active_callback);
     void mark_node(grt::ValueRef val, bool mark = true);
     void add_update_node_caption(grt::ValueRef val);
     void remove_node(grt::ValueRef val);
-
   };
 };
-
 
 #endif // _WB_CATALOG_TREE_VIEW_H_

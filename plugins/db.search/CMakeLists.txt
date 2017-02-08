@@ -10,12 +10,13 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${GRT_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.search.wbp MODULE
@@ -23,6 +24,8 @@ add_library(db.search.wbp MODULE
     DbSearchPanel.cpp
     register_plugin.cpp
 )
+
+target_compile_options(db.search.wbp PUBLIC ${WB_CXXFLAGS})
 
 set_target_properties(db.search.wbp PROPERTIES
 #	LINK_FLAGS "-module"
@@ -32,6 +35,11 @@ set_target_properties(db.search.wbp PROPERTIES
 )
 
 #target_link_libraries(db.mysql.wbp linux_utilities wbscintilla)
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.search.wbp gcov)
+endif()
+
 if(COMMAND cotire)
     set_target_properties(db.search.wbp PROPERTIES
         COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")

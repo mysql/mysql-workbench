@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -33,54 +33,47 @@ using namespace MySQL::Controls;
 
 //----------------- AppViewDockContent -------------------------------------------------------------
 
-AppViewDockContent::AppViewDockContent()
-{
+AppViewDockContent::AppViewDockContent() {
   appview = NULL;
 };
 
 //--------------------------------------------------------------------------------------------------
 
-AppViewDockContent::~AppViewDockContent()
-{
- // if (appview != NULL)
- //   appview->release();
+AppViewDockContent::~AppViewDockContent() {
+  // if (appview != NULL)
+  //   appview->release();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AppViewDockContent::SetBackend(mforms::AppView *backend)
-{
+void AppViewDockContent::SetBackend(mforms::AppView *backend) {
   appview = backend;
-  // Don't hold a reference, the wrapper should be deleted when the backend object is deleted, 
+  // Don't hold a reference, the wrapper should be deleted when the backend object is deleted,
   // not the other way around.. this would cause a circular reference and leak
- // appview->retain();
+  // appview->retain();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::AppView* AppViewDockContent::GetBackend()
-{
+mforms::AppView *AppViewDockContent::GetBackend() {
   return appview;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ AppViewDockContent::GetAppViewIdentifier()
-{
+String ^ AppViewDockContent::GetAppViewIdentifier() {
   return CppStringToNative(appview->identifier());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ MySQL::Forms::AppViewDockContent::GetContextName()
-{
+String ^ MySQL::Forms::AppViewDockContent::GetContextName() {
   return CppStringToNative(appview->get_form_context_name());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-MenuStrip^ AppViewDockContent::GetMenuBar()
-{
+MenuStrip ^ AppViewDockContent::GetMenuBar() {
   mforms::MenuBar *menu = appview->get_menubar();
   if (menu == NULL)
     return nullptr;
@@ -90,8 +83,7 @@ MenuStrip^ AppViewDockContent::GetMenuBar()
 
 //--------------------------------------------------------------------------------------------------
 
-ToolStrip^ AppViewDockContent::GetToolBar()
-{
+ToolStrip ^ AppViewDockContent::GetToolBar() {
   mforms::ToolBar *toolbar = appview->get_toolbar();
   if (toolbar == NULL)
     return nullptr;
@@ -101,36 +93,31 @@ ToolStrip^ AppViewDockContent::GetToolBar()
 
 //--------------------------------------------------------------------------------------------------
 
-bool AppViewDockContent::CanCloseDocument()
-{
+bool AppViewDockContent::CanCloseDocument() {
   return appview->on_close();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AppViewDockContent::CloseDocument()
-{
+void AppViewDockContent::CloseDocument() {
   appview->close();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ AppViewDockContent::GetTitle()
-{
+String ^ AppViewDockContent::GetTitle() {
   return CppStringToNativeRaw(appview->get_title());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AppViewDockContent::SetTitle(String^ title)
-{
+void AppViewDockContent::SetTitle(String ^ title) {
   appview->set_title(NativeToCppStringRaw(title));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AppViewDockContent::UpdateColors()
-{
+void AppViewDockContent::UpdateColors() {
   // Change our own background or that of only child, if our content was embedded into a DrawablePanel
   // to implement a design with embedded menu/toolbar)
   if (Controls->Count > 0 && is<DrawablePanel>(Controls[0]))
@@ -138,9 +125,8 @@ void AppViewDockContent::UpdateColors()
   else
     BackColor = Conversions::GetApplicationColor(ApplicationColor::AppColorMainBackground, false);
 
-  MenuStrip ^menuStrip = GetMenuBar();
-  if (menuStrip != nullptr)
-  {
+  MenuStrip ^ menuStrip = GetMenuBar();
+  if (menuStrip != nullptr) {
     menuStrip->BackColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, false);
     menuStrip->ForeColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, true);
     if (Conversions::UseWin8Drawing())
@@ -149,9 +135,8 @@ void AppViewDockContent::UpdateColors()
       menuStrip->Renderer = gcnew TransparentMenuStripRenderer();
   }
 
-  ToolStrip ^toolStrip = GetToolBar();
-  if (toolStrip != nullptr)
-  {
+  ToolStrip ^ toolStrip = GetToolBar();
+  if (toolStrip != nullptr) {
     toolStrip->BackColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, false);
     toolStrip->ForeColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, true);
   }
@@ -159,21 +144,18 @@ void AppViewDockContent::UpdateColors()
 
 //----------------- AppViewWrapper -----------------------------------------------------------------
 
-AppViewWrapper::AppViewWrapper(mforms::AppView* app)
-  : BoxWrapper(app), appview(app)
-{
+AppViewWrapper::AppViewWrapper(mforms::AppView *app) : BoxWrapper(app), appview(app) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool AppViewWrapper::create(mforms::AppView *backend, bool horizontal)
-{
+bool AppViewWrapper::create(mforms::AppView *backend, bool horizontal) {
   AppViewWrapper *wrapper = new AppViewWrapper(backend);
   wrapper->set_resize_mode(AutoResizeMode::ResizeNone);
 
   // In order to ease maintenance we create a special document host for our content.
   // This adds another nesting level, however.
-  LayoutBox ^box = Create<LayoutBox>(backend, wrapper);
+  LayoutBox ^ box = Create<LayoutBox>(backend, wrapper);
   box->Horizontal = horizontal;
 
   wrapper->host = gcnew AppViewDockContent();
@@ -192,23 +174,20 @@ bool AppViewWrapper::create(mforms::AppView *backend, bool horizontal)
  * Called when this app view is about to be docked in a host container. Create the frontend
  * tab document if not yet done and return it to the caller.
  */
-AppViewDockContent^ AppViewWrapper::GetHost()
-{
+AppViewDockContent ^ AppViewWrapper::GetHost() {
   return host;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AppViewWrapper::init()
-{
+void AppViewWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
   f->_app_view_impl.create = &AppViewWrapper::create;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-AppViewWrapper::~AppViewWrapper()
-{
+AppViewWrapper::~AppViewWrapper() {
   delete host;
   host = nullptr;
 }

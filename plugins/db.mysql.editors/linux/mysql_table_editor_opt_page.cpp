@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,51 +23,56 @@
 #include "mysql_table_editor_opt_page.h"
 #include <gtkmm/entry.h>
 #include <gtkmm/comboboxtext.h>
-
+#include <gtkmm/togglebutton.h>
 //------------------------------------------------------------------------------
-DbMySQLTableEditorOptPage::DbMySQLTableEditorOptPage(DbMySQLTableEditor *owner
-                                                      ,MySQLTableEditorBE *be
-                                                      ,Glib::RefPtr<Gtk::Builder>         xml)
-                             : _owner(owner)
-                             , _be(be)
-                             , _xml(xml)
-                             , _refreshing(0)
-{
-  Gtk::Entry *entry(0);
+DbMySQLTableEditorOptPage::DbMySQLTableEditorOptPage(DbMySQLTableEditor* owner, MySQLTableEditorBE* be,
+                                                     Glib::RefPtr<Gtk::Builder> xml)
+  : _owner(owner), _be(be), _xml(xml), _refreshing(0) {
+  Gtk::Entry* entry(0);
   _xml->get_widget("table_password_entry", entry);
-  _owner->add_entry_change_timer(entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "PASSWORD"));
+  _owner->add_entry_change_timer(
+    entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "PASSWORD"));
 
   _xml->get_widget("auto_increment_entry", entry);
-  _owner->add_entry_change_timer(entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "AUTO_INCREMENT"));
+  _owner->add_entry_change_timer(
+    entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "AUTO_INCREMENT"));
 
   _xml->get_widget("avg_row_length_entry", entry);
-  _owner->add_entry_change_timer(entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "AVG_ROW_LENGTH"));
+  _owner->add_entry_change_timer(
+    entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "AVG_ROW_LENGTH"));
 
   _xml->get_widget("min_rows_entry", entry);
-  _owner->add_entry_change_timer(entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "MIN_ROWS"));
+  _owner->add_entry_change_timer(
+    entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "MIN_ROWS"));
 
   _xml->get_widget("max_rows_entry", entry);
-  _owner->add_entry_change_timer(entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "MAX_ROWS"));
+  _owner->add_entry_change_timer(
+    entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "MAX_ROWS"));
 
   _xml->get_widget("data_directory_entry", entry);
-  _owner->add_entry_change_timer(entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "DATA DIRECTORY"));
+  _owner->add_entry_change_timer(
+    entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "DATA DIRECTORY"));
 
   _xml->get_widget("index_directory_entry", entry);
-  _owner->add_entry_change_timer(entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "INDEX DIRECTORY"));
+  _owner->add_entry_change_timer(
+    entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "INDEX DIRECTORY"));
 
   _xml->get_widget("union_tables_entry", entry);
-  _owner->add_entry_change_timer(entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "UNION"));
-  
+  _owner->add_entry_change_timer(
+    entry, sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_table_option), "UNION"));
+
   Gtk::ToggleButton* toggle(0);
   _xml->get_widget("delay_key_updates_toggle", toggle);
-  toggle->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_toggled_table_option), "DELAY_KEY_WRITE"));
+  toggle->signal_toggled().connect(
+    sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_toggled_table_option), "DELAY_KEY_WRITE"));
 
   _xml->get_widget("use_checksum_toggle", toggle);
-  toggle->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_toggled_table_option), "CHECKSUM"));
+  toggle->signal_toggled().connect(
+    sigc::bind(sigc::mem_fun(this, &DbMySQLTableEditorOptPage::set_toggled_table_option), "CHECKSUM"));
 
   std::vector<std::string> list;
 
-  Gtk::ComboBox *combo(0);
+  Gtk::ComboBox* combo(0);
   _xml->get_widget("pack_keys_combo", combo);
   list.push_back("Default");
   list.push_back("Pack None");
@@ -110,18 +115,16 @@ DbMySQLTableEditorOptPage::DbMySQLTableEditorOptPage(DbMySQLTableEditor *owner
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorOptPage::switch_be(MySQLTableEditorBE* be)
-{
+void DbMySQLTableEditorOptPage::switch_be(MySQLTableEditorBE* be) {
   _be = be;
   refresh();
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorOptPage::refresh()
-{
+void DbMySQLTableEditorOptPage::refresh() {
   _refreshing = 1;
-  
-  Gtk::Entry *entry(0);
+
+  Gtk::Entry* entry(0);
   _xml->get_widget("table_password_entry", entry);
   entry->set_text(_be->get_table_option_by_name("PASSWORD"));
 
@@ -149,43 +152,42 @@ void DbMySQLTableEditorOptPage::refresh()
   Gtk::ToggleButton* toggle(0);
   _xml->get_widget("use_checksum_toggle", toggle);
   toggle->set_active(_be->get_table_option_by_name("CHECKSUM") != "0");
-  
+
   _xml->get_widget("delay_key_updates_toggle", toggle);
   toggle->set_active(_be->get_table_option_by_name("DELAY_KEY_WRITE") != "0");
-  
 
   std::string selected = _be->get_table_option_by_name("PACK_KEYS");
   std::string value;
-    
-  if ( "DEFAULT" == selected )
+
+  if ("DEFAULT" == selected)
     value = "Default";
-  else if ( "0" == selected )
+  else if ("0" == selected)
     value = "Pack None";
-  else if ( "1" == selected )
+  else if ("1" == selected)
     value = "Pack All";
 
   Gtk::ComboBox* combo(0);
   _xml->get_widget("pack_keys_combo", combo);
-  set_selected_combo_item(combo, value);    
+  set_selected_combo_item(combo, value);
 
   value.clear();
   selected = _be->get_table_option_by_name("ROW_FORMAT");
-  
-  if ( selected == "DEFAULT" )
+
+  if (selected == "DEFAULT")
     value = "Default";
-  else if ( selected == "DYNAMIC" )
+  else if (selected == "DYNAMIC")
     value = "Dynamic";
-  else if ( selected == "FIXED" )
+  else if (selected == "FIXED")
     value = "Fixed";
-  else if ( selected == "COMPRESSED" )
+  else if (selected == "COMPRESSED")
     value = "Compressed";
-  else if ( selected == "REDUNDANT" )
+  else if (selected == "REDUNDANT")
     value = "Redundant";
-  else if ( selected == "COMPACT" )
+  else if (selected == "COMPACT")
     value = "Compact";
 
   _xml->get_widget("row_format_combo", combo);
-  set_selected_combo_item(combo, value);    
+  set_selected_combo_item(combo, value);
 
   value.clear();
   value = _be->get_table_option_by_name("KEY_BLOCK_SIZE");
@@ -196,43 +198,40 @@ void DbMySQLTableEditorOptPage::refresh()
 
   value.clear();
   selected = _be->get_table_option_by_name("INSERT_METHOD");
-  
-  if ( "NO" == selected )
+
+  if ("NO" == selected)
     value = "Prevent Inserts";
-  else if ( "FIRST" == selected )
+  else if ("FIRST" == selected)
     value = "First Table";
-  else if ( "LAST" == selected )
+  else if ("LAST" == selected)
     value = "Last Table";
 
   _xml->get_widget("merge_method_combo", combo);
-  set_selected_combo_item(combo, value);    
+  set_selected_combo_item(combo, value);
 
   _refreshing = 0;
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorOptPage::set_table_option(const std::string& value, const char* option)
-{
+void DbMySQLTableEditorOptPage::set_table_option(const std::string& value, const char* option) {
   _be->set_table_option_by_name(option, value);
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorOptPage::set_toggled_table_option(const char* option)
-{
+void DbMySQLTableEditorOptPage::set_toggled_table_option(const char* option) {
   Gtk::ToggleButton* toggle(0);
 
-  if ( *option == 'C' )      // option -> "CHECKSUM"
+  if (*option == 'C') // option -> "CHECKSUM"
     _xml->get_widget("use_checksum_toggle", toggle);
-  else if ( *option == 'D' ) // option -> "DELAY_KEY_WRITE"
+  else if (*option == 'D') // option -> "DELAY_KEY_WRITE"
     _xml->get_widget("delay_key_updates_toggle", toggle);
 
   _be->set_table_option_by_name(option, toggle->get_active() == 0 ? "0" : "1");
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorOptPage::set_pack_keys()
-{
-  if ( _refreshing )
+void DbMySQLTableEditorOptPage::set_pack_keys() {
+  if (_refreshing)
     return;
 
   Gtk::ComboBox* combo(0);
@@ -240,18 +239,17 @@ void DbMySQLTableEditorOptPage::set_pack_keys()
   const std::string selected = get_selected_combo_item(combo);
   std::string value = "DEFAULT";
 
-  if ( "Pack None" == selected )
+  if ("Pack None" == selected)
     value = "0";
-  else if ( "Pack All" == selected )
+  else if ("Pack All" == selected)
     value = "1";
-    
+
   _be->set_table_option_by_name("PACK_KEYS", value);
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorOptPage::set_row_format()
-{
-  if ( _refreshing )
+void DbMySQLTableEditorOptPage::set_row_format() {
+  if (_refreshing)
     return;
 
   Gtk::ComboBox* combo(0);
@@ -259,25 +257,23 @@ void DbMySQLTableEditorOptPage::set_row_format()
   const std::string selected = get_selected_combo_item(combo);
   std::string value = "DEFAULT";
 
-  if ( "Dynamic" == selected )
+  if ("Dynamic" == selected)
     value = "DYNAMIC";
-  else if ( "Fixed" == selected )
+  else if ("Fixed" == selected)
     value = "FIXED";
-  else if ( "Compressed" == selected )
+  else if ("Compressed" == selected)
     value = "COMPRESSED";
-  else if ( "Redundant" == selected )
+  else if ("Redundant" == selected)
     value = "REDUNDANT";
-  else if ( "Compact" == selected )
+  else if ("Compact" == selected)
     value = "COMPACT";
-  
+
   _be->set_table_option_by_name("ROW_FORMAT", value);
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorOptPage::set_key_block_size()
-{
-  if (_refreshing)
-  {
+void DbMySQLTableEditorOptPage::set_key_block_size() {
+  if (_refreshing) {
     return;
   }
   Gtk::ComboBox* combo(0);
@@ -290,9 +286,8 @@ void DbMySQLTableEditorOptPage::set_key_block_size()
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorOptPage::set_merge_method()
-{
-  if ( _refreshing )
+void DbMySQLTableEditorOptPage::set_merge_method() {
+  if (_refreshing)
     return;
 
   Gtk::ComboBox* combo(0);
@@ -300,9 +295,9 @@ void DbMySQLTableEditorOptPage::set_merge_method()
   const std::string selected = get_selected_combo_item(combo);
   std::string value = "NO";
 
-  if ( "First Table" == selected )
+  if ("First Table" == selected)
     value = "FIRST";
-  else if ( "Last Table" == selected )
+  else if ("Last Table" == selected)
     value = "LAST";
 
   _be->set_table_option_by_name("INSERT_METHOD", value);

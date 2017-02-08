@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.16.1 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy toplevel-contextual -->
+  <requires lib="gtk+" version="3.8"/>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name text -->
@@ -86,16 +86,12 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkMenu" id="menu1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-  </object>
   <object class="GtkNotebook" id="mysql_editor_notebook">
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <property name="show_border">False</property>
     <child>
-      <object class="GtkHBox" id="table_page_box">
+      <object class="GtkBox" id="table_page_box">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="border_width">8</property>
@@ -121,55 +117,11 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTable" id="table1">
+          <object class="GtkGrid" id="table1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="n_rows">4</property>
-            <property name="n_columns">3</property>
-            <property name="column_spacing">8</property>
             <property name="row_spacing">8</property>
-            <child>
-              <object class="GtkComboBox" id="collation_combo">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="model">liststore3</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="y_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="engine_combo">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="model">liststore4</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="y_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label18">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">Engine:</property>
-              </object>
-              <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="x_options"/>
-                <property name="y_options"/>
-              </packing>
-            </child>
+            <property name="column_spacing">8</property>
             <child>
               <object class="GtkLabel" id="label17">
                 <property name="visible">True</property>
@@ -178,73 +130,61 @@
                 <property name="label" translatable="yes">Collation:</property>
               </object>
               <packing>
+                <property name="left_attach">0</property>
                 <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options"/>
-                <property name="y_options"/>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label8">
+              <object class="GtkComboBox" id="engine_combo">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">Name:</property>
-              </object>
-              <packing>
-                <property name="x_options"/>
-                <property name="y_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label20">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">&lt;small&gt;The name of the table. It is recommended to use alpha-numeric
-characters. Spaces should be avoided and be replaced by _&lt;/small&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="wrap">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="y_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label22">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">&lt;small&gt;The database engine that is used for the table. This option affects
-performance, data consistency and more&lt;/small&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="wrap">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="y_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="table_name">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">•</property>
-                <property name="invisible_char_set">True</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
+                <property name="valign">center</property>
+                <property name="model">liststore4</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="y_options"/>
+                <property name="top_attach">2</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="scrolledwindow4">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <object class="GtkTextView" id="table_comments">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">3</property>
+                <property name="width">2</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label10">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">1</property>
+                <property name="yalign">0</property>
+                <property name="ypad">2</property>
+                <property name="label" translatable="yes">Comment:</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">3</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
@@ -260,53 +200,109 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
                 <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="y_options"/>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label10">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="xalign">1</property>
-                <property name="yalign">0</property>
-                <property name="ypad">2</property>
-                <property name="label" translatable="yes">Comment:</property>
-              </object>
-              <packing>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-                <property name="x_options"/>
-                <property name="y_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow4">
+              <object class="GtkEntry" id="table_name">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="shadow_type">in</property>
-                <child>
-                  <object class="GtkTextView" id="table_comments">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                  </object>
-                </child>
+                <property name="valign">center</property>
+                <property name="invisible_char">•</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-                <property name="y_options">GTK_EXPAND | GTK_SHRINK | GTK_FILL</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label22">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">&lt;small&gt;The database engine that is used for the table. This option affects
+performance, data consistency and more&lt;/small&gt;</property>
+                <property name="use_markup">True</property>
+                <property name="wrap">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">2</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label20">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">&lt;small&gt;The name of the table. It is recommended to use alpha-numeric
+characters. Spaces should be avoided and be replaced by _&lt;/small&gt;</property>
+                <property name="use_markup">True</property>
+                <property name="wrap">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label8">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">Name:</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label18">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">Engine:</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">2</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="collation_combo">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">center</property>
+                <property name="hexpand">True</property>
+                <property name="model">liststore3</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">1</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
       </object>
@@ -322,11 +318,12 @@ are Latin1 or UTF8&lt;/small&gt;</property>
       </packing>
     </child>
     <child>
-      <object class="GtkHPaned" id="paned1">
+      <object class="GtkPaned" id="paned1">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
           <object class="GtkScrolledWindow" id="table_columns_holder">
+            <property name="width_request">600</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
@@ -339,33 +336,20 @@ are Latin1 or UTF8&lt;/small&gt;</property>
           </packing>
         </child>
         <child>
-          <object class="GtkTable" id="table3">
-            <property name="width_request">220</property>
+          <object class="GtkGrid" id="table3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="border_width">8</property>
-            <property name="n_rows">4</property>
-            <property name="n_columns">2</property>
-            <property name="column_spacing">8</property>
-            <property name="row_spacing">4</property>
+            <property name="margin_left">5</property>
+            <property name="margin_right">5</property>
+            <property name="margin_top">5</property>
+            <property name="margin_bottom">5</property>
+            <property name="row_spacing">8</property>
+            <property name="column_spacing">4</property>
             <child>
-              <object class="GtkComboBox" id="column_collation_combo">
+              <object class="GtkBox" id="hbox3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="model">liststore1</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="y_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkHBox" id="hbox3">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="valign">end</property>
                 <property name="spacing">4</property>
                 <child>
                   <object class="GtkLabel" id="label9">
@@ -384,22 +368,40 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 </child>
               </object>
               <packing>
-                <property name="right_attach">2</property>
-                <property name="y_options"/>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+                <property name="width">2</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="column_collation_combo">
+                <property name="width_request">110</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">center</property>
+                <property name="model">liststore1</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">2</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkLabel" id="label24">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="valign">start</property>
                 <property name="xalign">1</property>
                 <property name="label" translatable="yes">Collation:</property>
               </object>
               <packing>
+                <property name="left_attach">0</property>
                 <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="x_options"/>
-                <property name="y_options"/>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
@@ -411,15 +413,18 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="label" translatable="yes">Comment:</property>
               </object>
               <packing>
+                <property name="left_attach">0</property>
                 <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-                <property name="x_options"/>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow2">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
                 <property name="shadow_type">in</property>
                 <child>
                   <object class="GtkTextView" id="column_comment">
@@ -430,33 +435,35 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
                 <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-                <property name="y_options">GTK_FILL</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="column_options_box">
+              <object class="GtkBox" id="column_options_box">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkVBox" id="gc_storage_type_box">
+                  <object class="GtkBox" id="gc_storage_type_box">
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="gc_storage_lbl">
+                        <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Generated Column Storage Type</property>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHBox" id="hbox1">
+                      <object class="GtkBox" id="box1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
@@ -465,7 +472,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
-                            <property name="use_action_appearance">False</property>
+                            <property name="xalign">0</property>
+                            <property name="active">True</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">gc_stored_radio</property>
                           </object>
@@ -481,12 +489,14 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
-                            <property name="use_action_appearance">False</property>
+                            <property name="xalign">0</property>
+                            <property name="yalign">0.54000002145767212</property>
+                            <property name="active">True</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">gc_virtual_radio</property>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
+                            <property name="expand">False</property>
                             <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
@@ -494,7 +504,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -510,14 +520,15 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 </child>
               </object>
               <packing>
-                <property name="right_attach">2</property>
+                <property name="left_attach">0</property>
                 <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
+                <property name="width">2</property>
+                <property name="height">1</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="resize">False</property>
+            <property name="resize">True</property>
             <property name="shrink">False</property>
           </packing>
         </child>
@@ -538,7 +549,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
       </packing>
     </child>
     <child>
-      <object class="GtkHBox" id="hbox5">
+      <object class="GtkBox" id="hbox5">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">4</property>
@@ -550,6 +561,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               <object class="GtkTreeView" id="indexes">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection" id="treeview-selection1"/>
+                </child>
               </object>
             </child>
           </object>
@@ -560,11 +574,12 @@ are Latin1 or UTF8&lt;/small&gt;</property>
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="vbox3">
+          <object class="GtkBox" id="vbox3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkHBox" id="hbox6">
+              <object class="GtkBox" id="hbox6">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -580,7 +595,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator3">
+                  <object class="GtkSeparator" id="hseparator3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                   </object>
@@ -606,6 +621,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <object class="GtkTreeView" id="index_columns">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection" id="treeview-selection2"/>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -623,11 +641,12 @@ are Latin1 or UTF8&lt;/small&gt;</property>
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="vbox4">
+          <object class="GtkBox" id="vbox4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkHBox" id="hbox7">
+              <object class="GtkBox" id="hbox7">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -643,7 +662,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator4">
+                  <object class="GtkSeparator" id="hseparator4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                   </object>
@@ -662,87 +681,24 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </packing>
             </child>
             <child>
-              <object class="GtkTable" id="index_options_table">
+              <object class="GtkGrid" id="grid2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="n_rows">3</property>
-                <property name="n_columns">2</property>
-                <property name="column_spacing">2</property>
                 <property name="row_spacing">6</property>
+                <property name="column_spacing">2</property>
                 <child>
                   <object class="GtkEntry" id="index_parser">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="index_key_block_size">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label31">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Parser:</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options"/>
-                    <property name="y_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label30">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Key Block Size:</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options"/>
-                    <property name="y_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label29">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Storage Type:</property>
-                  </object>
-                  <packing>
-                    <property name="x_options"/>
-                    <property name="y_options"/>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
@@ -753,21 +709,77 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"/>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label29">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Storage Type:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label30">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Key Block Size:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label31">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Parser:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">2</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="index_key_block_size">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="padding">4</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hbox8">
+              <object class="GtkBox" id="hbox8">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -784,7 +796,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator5">
+                  <object class="GtkSeparator" id="hseparator5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                   </object>
@@ -844,11 +856,12 @@ are Latin1 or UTF8&lt;/small&gt;</property>
       </packing>
     </child>
     <child>
-      <object class="GtkVBox" id="fk_page_top_box">
+      <object class="GtkBox" id="fk_page_top_box">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkHBox" id="fk_page_content_box">
+          <object class="GtkBox" id="fk_page_content_box">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">4</property>
@@ -860,6 +873,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <object class="GtkTreeView" id="fks">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection" id="treeview-selection3"/>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -870,11 +886,12 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox2">
+              <object class="GtkBox" id="vbox2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkHBox" id="hbox10">
+                  <object class="GtkBox" id="hbox10">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -890,7 +907,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHSeparator" id="hseparator6">
+                      <object class="GtkSeparator" id="hseparator6">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </object>
@@ -916,6 +933,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                       <object class="GtkTreeView" id="fk_columns">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection" id="treeview-selection4"/>
+                        </child>
                       </object>
                     </child>
                   </object>
@@ -933,11 +953,12 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox8">
+              <object class="GtkBox" id="vbox8">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkHBox" id="hbox11">
+                  <object class="GtkBox" id="hbox11">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -953,7 +974,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHSeparator" id="hseparator7">
+                      <object class="GtkSeparator" id="hseparator7">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </object>
@@ -972,63 +993,22 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkTable" id="index_options_table1">
+                  <object class="GtkGrid" id="index_options_table1_1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="n_rows">3</property>
-                    <property name="n_columns">2</property>
                     <property name="row_spacing">6</property>
+                    <property name="column_spacing">2</property>
                     <child>
-                      <object class="GtkComboBox" id="fk_delete">
-                        <property name="visible">True</property>
+                      <object class="GtkLabel" id="fk_index_name">
                         <property name="can_focus">False</property>
-                        <property name="model">liststore13</property>
+                        <property name="no_show_all">True</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="y_options"/>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label6">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">1</property>
-                        <property name="xpad">5</property>
-                        <property name="label" translatable="yes">On Delete:</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options"/>
-                        <property name="y_options"/>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label7">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">1</property>
-                        <property name="label" translatable="yes">On Update:</property>
-                      </object>
-                      <packing>
-                        <property name="x_options"/>
-                        <property name="y_options"/>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="fk_update">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="model">liststore12</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="y_options"/>
+                        <property name="top_attach">2</property>
+                        <property name="width">1</property>
+                        <property name="height">1</property>
                       </packing>
                     </child>
                     <child>
@@ -1040,37 +1020,77 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                         <property name="label" translatable="yes">Index:</property>
                       </object>
                       <packing>
+                        <property name="left_attach">0</property>
                         <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="width">1</property>
+                        <property name="height">1</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="fk_index_name">
+                      <object class="GtkComboBox" id="fk_update">
+                        <property name="width_request">125</property>
+                        <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="no_show_all">True</property>
-                        <property name="xalign">0</property>
+                        <property name="model">liststore12</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="top_attach">0</property>
+                        <property name="width">1</property>
+                        <property name="height">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label7">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xalign">1</property>
+                        <property name="label" translatable="yes">On Update:</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                        <property name="width">1</property>
+                        <property name="height">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="fk_delete">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="model">liststore13</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">1</property>
+                        <property name="width">1</property>
+                        <property name="height">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label6">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xalign">1</property>
+                        <property name="xpad">5</property>
+                        <property name="label" translatable="yes">On Delete:</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">1</property>
+                        <property name="width">1</property>
+                        <property name="height">1</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="padding">4</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox12">
+                  <object class="GtkBox" id="hbox12">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -1087,7 +1107,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHSeparator" id="hseparator8">
+                      <object class="GtkSeparator" id="hseparator8">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </object>
@@ -1126,14 +1146,15 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <child>
                   <object class="GtkCheckButton" id="fk_model_only">
                     <property name="label" translatable="yes">Skip in SQL generation</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
+                    <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">4</property>
                   </packing>
@@ -1182,9 +1203,10 @@ are Latin1 or UTF8&lt;/small&gt;</property>
       </packing>
     </child>
     <child>
-      <object class="GtkVBox" id="trigger_code_holder">
+      <object class="GtkBox" id="trigger_code_holder">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
       </object>
       <packing>
         <property name="position">4</property>
@@ -1202,21 +1224,23 @@ are Latin1 or UTF8&lt;/small&gt;</property>
       </packing>
     </child>
     <child>
-      <object class="GtkVBox" id="vbox5">
+      <object class="GtkBox" id="vbox5">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkHBox" id="hbox13">
+          <object class="GtkBox" id="hbox13">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GtkCheckButton" id="enable_part_checkbutton">
                 <property name="label" translatable="yes">Enable Partitioning</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_underline">True</property>
+                <property name="xalign">0.5</property>
                 <property name="draw_indicator">True</property>
               </object>
               <packing>
@@ -1226,7 +1250,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHSeparator" id="hseparator9">
+              <object class="GtkSeparator" id="hseparator9">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
               </object>
@@ -1244,47 +1268,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
           </packing>
         </child>
         <child>
-          <object class="GtkTable" id="table2">
+          <object class="GtkGrid" id="grid3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="n_rows">2</property>
-            <property name="n_columns">7</property>
-            <child>
-              <object class="GtkEntry" id="subpart_count_entry">
-                <property name="width_request">96</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">5</property>
-                <property name="right_attach">6</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="part_count_entry">
-                <property name="width_request">96</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">5</property>
-                <property name="right_attach">6</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"/>
-              </packing>
-            </child>
             <child>
               <object class="GtkLabel" id="label13">
                 <property name="visible">True</property>
@@ -1293,7 +1279,10 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="label" translatable="yes">Partition by: </property>
               </object>
               <packing>
-                <property name="x_options">GTK_FILL</property>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
@@ -1304,9 +1293,10 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="label" translatable="yes">  Subpartition by: </property>
               </object>
               <packing>
+                <property name="left_attach">0</property>
                 <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options"/>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
@@ -1317,8 +1307,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="x_options"/>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
@@ -1329,122 +1320,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
                 <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="part_params_entry">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">•</property>
-                <property name="invisible_char_set">True</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">3</property>
-                <property name="right_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="subpart_params_entry">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">•</property>
-                <property name="invisible_char_set">True</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">3</property>
-                <property name="right_attach">4</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label19">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">  Partition Count: </property>
-              </object>
-              <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">5</property>
-                <property name="x_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label32">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">  Subpartition Count: </property>
-              </object>
-              <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">5</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options"/>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="part_manual_checkbtn">
-                <property name="label" translatable="yes">Manual</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_underline">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">7</property>
-                <property name="x_options"/>
-                <property name="x_padding">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="subpart_manual_checkbtn">
-                <property name="label" translatable="yes">Manual</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_underline">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">7</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options"/>
-                <property name="x_padding">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="part_by_combo">
-                <property name="width_request">96</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="model">liststore7</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"/>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
             <child>
@@ -1456,11 +1334,143 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"/>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="part_by_combo">
+                <property name="width_request">96</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">liststore7</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="subpart_manual_checkbtn">
+                <property name="label" translatable="yes">Manual</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0.5</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">6</property>
+                <property name="top_attach">1</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="part_manual_checkbtn">
+                <property name="label" translatable="yes">Manual</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0.5</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">6</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label32">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">  Subpartition Count: </property>
+              </object>
+              <packing>
+                <property name="left_attach">4</property>
+                <property name="top_attach">1</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label19">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">  Partition Count: </property>
+              </object>
+              <packing>
+                <property name="left_attach">4</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="subpart_params_entry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">•</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">1</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="part_params_entry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">•</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="part_count_entry">
+                <property name="width_request">96</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">5</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="subpart_count_entry">
+                <property name="width_request">96</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">5</property>
+                <property name="top_attach">1</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
               </packing>
             </child>
           </object>
@@ -1478,6 +1488,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               <object class="GtkTreeView" id="part_tv">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection" id="treeview-selection5"/>
+                </child>
               </object>
             </child>
           </object>
@@ -1505,47 +1518,21 @@ are Latin1 or UTF8&lt;/small&gt;</property>
       </packing>
     </child>
     <child>
-      <object class="GtkScrolledWindow" id="scrolledwindow14">
+      <object class="GtkScrolledWindow" id="scrolledwindow3">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
+        <property name="shadow_type">in</property>
         <child>
           <object class="GtkViewport" id="viewport1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkTable" id="table7">
+              <object class="GtkGrid" id="grid4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="n_rows">18</property>
-                <property name="n_columns">3</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
                 <property name="row_spacing">4</property>
-                <child>
-                  <object class="GtkLabel" id="label53">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="yalign">0.15999999642372131</property>
-                    <property name="label" translatable="yes">Row Format:  </property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                    <property name="x_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="merge_method_combo">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">liststore9</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">17</property>
-                    <property name="bottom_attach">18</property>
-                  </packing>
-                </child>
                 <child>
                   <object class="GtkLabel" id="label64">
                     <property name="visible">True</property>
@@ -1557,9 +1544,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
                     <property name="top_attach">17</property>
-                    <property name="bottom_attach">18</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
@@ -1573,164 +1560,211 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
                     <property name="top_attach">16</property>
-                    <property name="bottom_attach">17</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="union_tables_entry">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">16</property>
-                    <property name="bottom_attach">17</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label62">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Merge Method:  </property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">17</property>
-                    <property name="bottom_attach">18</property>
-                    <property name="x_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label34">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Union Tables:  </property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">16</property>
-                    <property name="bottom_attach">17</property>
-                    <property name="x_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label58">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="ypad">4</property>
-                    <property name="label" translatable="yes">General Options</property>
-                  </object>
-                  <packing>
-                    <property name="x_options"/>
-                    <property name="y_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator14">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="y_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator15">
+                  <object class="GtkSeparator" id="hseparator11">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="y_options"/>
+                    <property name="top_attach">15</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label38">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Pack Keys:  </property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pack_keys_combo">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">liststore10</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label41">
+                  <object class="GtkLabel" id="label61">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Use this option to generate smaller indices. This usually makes updates slower and reads faster.
-Setting it to DEFAULT tells the storage engine to only pack long CHAR/VARCHAR columns.&lt;/small&gt;</property>
+                    <property name="label" translatable="yes">&lt;small&gt;Directory where to put the tables index file. This works only for MyISAM tables only and not
+on some operating systems (Windows).&lt;/small&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
+                    <property name="top_attach">14</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label39">
+                  <object class="GtkLabel" id="label59">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Table Password:  </property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;Directory where to put the tables data file. This works only for MyISAM tables only and not
+on some operating systems (Windows).&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
                   </object>
                   <packing>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options"/>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">13</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="table_password_entry">
-                    <property name="width_request">128</property>
+                  <object class="GtkSeparator" id="hseparator19">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="can_focus">False</property>
                   </object>
                   <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label47">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;Activate this option if you want MySQL to maintain a live checksum for all rows. This makes
+the table a little slower to update, but also makes it easier to find corrupted tables.&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label56">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;The maximum number of rows you plan to store in the table&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">10</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label48">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;The minimum number of rows you plan to store in the table&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">9</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label49">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;An approximation of the average row length for your table. You need to set this only for large
+tables with variable-size records.&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">8</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label65">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;Defines InnoDB page size compression&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">7</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label50">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;Defines how the rows in MyISAM tables should be stored. The option value can FIXED or
+DYNAMIC for static or variable-length row format. The utility myisampack can be used
+to set the type to COMPRESSED.&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">6</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="hseparator17">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">5</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label44">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;Use this option to delay the key updates until the table is closed. This works for MyISAM only.&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">4</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label43">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;The initial AUTO_INCREMENT value for the table.&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">3</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
@@ -1745,161 +1779,122 @@ MySQL version.&lt;/small&gt;</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label40">
+                  <object class="GtkLabel" id="label41">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">4</property>
+                    <property name="label" translatable="yes">&lt;small&gt;Use this option to generate smaller indices. This usually makes updates slower and reads faster.
+Setting it to DEFAULT tells the storage engine to only pack long CHAR/VARCHAR columns.&lt;/small&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label62">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Auto Increment:  </property>
+                    <property name="label" translatable="yes">Merge Method:  </property>
                   </object>
                   <packing>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
-                    <property name="x_options"/>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">17</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="auto_increment_entry">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label43">
+                  <object class="GtkLabel" id="label34">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;The initial AUTO_INCREMENT value for the table.&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Union Tables:  </property>
                   </object>
                   <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">16</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label45">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label44">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Use this option to delay the key updates until the table is closed. This works for MyISAM only.&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="delay_key_updates_toggle">
-                    <property name="label" translatable="yes">Delay Key Updates</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label35">
+                  <object class="GtkLabel" id="label37">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="ypad">4</property>
-                    <property name="label" translatable="yes">Row Options</property>
+                    <property name="label" translatable="yes">Merge Table Options</property>
                   </object>
                   <packing>
-                    <property name="top_attach">5</property>
-                    <property name="bottom_attach">6</property>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">15</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator16">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">5</property>
-                    <property name="bottom_attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator17">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">5</property>
-                    <property name="bottom_attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label52">
+                  <object class="GtkLabel" id="label66">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Avg. Row Length:  </property>
+                    <property name="label" translatable="yes">Index Directoty:  </property>
                   </object>
                   <packing>
-                    <property name="top_attach">8</property>
-                    <property name="bottom_attach">9</property>
-                    <property name="x_options"/>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">14</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label51">
+                  <object class="GtkLabel" id="label60">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Min. Rows:  </property>
+                    <property name="label" translatable="yes">Data Directory:  </property>
                   </object>
                   <packing>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                    <property name="x_options"/>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">13</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label36">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="ypad">4</property>
+                    <property name="label" translatable="yes">Storage Options</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label46">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
@@ -1910,15 +1905,300 @@ MySQL version.&lt;/small&gt;</property>
                     <property name="label" translatable="yes">Max. Rows:  </property>
                   </object>
                   <packing>
+                    <property name="left_attach">0</property>
                     <property name="top_attach">10</property>
-                    <property name="bottom_attach">11</property>
-                    <property name="x_options"/>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox7">
+                  <object class="GtkLabel" id="label51">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Min. Rows:  </property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">9</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label52">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Avg. Row Length:  </property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">8</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label25">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Key Block Size:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">7</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label53">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="yalign">0.15999999642372131</property>
+                    <property name="label" translatable="yes">Row Format:  </property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">6</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label35">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="ypad">4</property>
+                    <property name="label" translatable="yes">Row Options</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">5</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label45">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">4</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label40">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Auto Increment:  </property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">3</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label39">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Table Password:  </property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">2</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label38">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">1</property>
+                    <property name="label" translatable="yes">Pack Keys:  </property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="merge_method_combo">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="model">liststore9</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">17</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="union_tables_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">16</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="hseparator10">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">15</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="index_directory_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">14</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="data_directory_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">13</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="hseparator18">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="use_checksum_toggle">
+                    <property name="label" translatable="yes">Use checksum</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0.5</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="max_rows_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">10</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="min_rows_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">9</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="avg_row_length_entry">
+                    <property name="width_request">128</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">8</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="key_block_size_combo">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="model">liststore14</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">7</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="vbox7">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkComboBox" id="row_format_combo">
                         <property name="visible">True</property>
@@ -1945,383 +2225,121 @@ MySQL version.&lt;/small&gt;</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
                     <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label50">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Defines how the rows in MyISAM tables should be stored. The option value can FIXED or
-DYNAMIC for static or variable-length row format. The utility myisampack can be used
-to set the type to COMPRESSED.&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="avg_row_length_entry">
-                    <property name="width_request">128</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">8</property>
-                    <property name="bottom_attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="min_rows_entry">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="max_rows_entry">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">10</property>
-                    <property name="bottom_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label49">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;An approximation of the average row length for your table. You need to set this only for large
-tables with variable-size records.&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">8</property>
-                    <property name="bottom_attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label48">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;The minimum number of rows you plan to store in the table&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label56">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;The maximum number of rows you plan to store in the table&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">10</property>
-                    <property name="bottom_attach">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label46">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">11</property>
-                    <property name="bottom_attach">12</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="use_checksum_toggle">
-                    <property name="label" translatable="yes">Use checksum</property>
+                  <object class="GtkCheckButton" id="delay_key_updates_toggle">
+                    <property name="label" translatable="yes">Delay Key Updates</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">11</property>
-                    <property name="bottom_attach">12</property>
+                    <property name="top_attach">4</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label47">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Activate this option if you want MySQL to maintain a live checksum for all rows. This makes
-the table a little slower to update, but also makes it easier to find corrupted tables.&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">11</property>
-                    <property name="bottom_attach">12</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label36">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="ypad">4</property>
-                    <property name="label" translatable="yes">Storage Options</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">12</property>
-                    <property name="bottom_attach">13</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator18">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">12</property>
-                    <property name="bottom_attach">13</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator19">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">12</property>
-                    <property name="bottom_attach">13</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label60">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Data Directory:  </property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">13</property>
-                    <property name="bottom_attach">14</property>
-                    <property name="x_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label66">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Index Directoty:  </property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">14</property>
-                    <property name="bottom_attach">15</property>
-                    <property name="x_options"/>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="data_directory_entry">
+                  <object class="GtkEntry" id="auto_increment_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">13</property>
-                    <property name="bottom_attach">14</property>
+                    <property name="top_attach">3</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="index_directory_entry">
+                  <object class="GtkEntry" id="table_password_entry">
+                    <property name="width_request">128</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">14</property>
-                    <property name="bottom_attach">15</property>
+                    <property name="top_attach">2</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label59">
+                  <object class="GtkComboBox" id="pack_keys_combo">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Directory where to put the tables data file. This works only for MyISAM tables only and not
-on some operating systems (Windows).&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
+                    <property name="model">liststore10</property>
                   </object>
                   <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">13</property>
-                    <property name="bottom_attach">14</property>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label61">
+                  <object class="GtkSeparator" id="hseparator16">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Directory where to put the tables index file. This works only for MyISAM tables only and not
-on some operating systems (Windows).&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
                   </object>
                   <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">14</property>
-                    <property name="bottom_attach">15</property>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">5</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label37">
+                  <object class="GtkLabel" id="label58">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="ypad">4</property>
-                    <property name="label" translatable="yes">Merge Table Options</property>
+                    <property name="label" translatable="yes">General Options</property>
                   </object>
                   <packing>
-                    <property name="top_attach">15</property>
-                    <property name="bottom_attach">16</property>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator10">
+                  <object class="GtkSeparator" id="hseparator14">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">15</property>
-                    <property name="bottom_attach">16</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator11">
+                  <object class="GtkSeparator" id="hseparator15">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">15</property>
-                    <property name="bottom_attach">16</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label25">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Key Block Size:</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">7</property>
-                    <property name="bottom_attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label65">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="xpad">4</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Defines InnoDB page size compression&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">7</property>
-                    <property name="bottom_attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="key_block_size_combo">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">liststore14</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">7</property>
-                    <property name="bottom_attach">8</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
                   </packing>
                 </child>
               </object>
@@ -2344,5 +2362,9 @@ on some operating systems (Windows).&lt;/small&gt;</property>
         <property name="tab_fill">False</property>
       </packing>
     </child>
+  </object>
+  <object class="GtkMenu" id="menu1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
   </object>
 </interface>

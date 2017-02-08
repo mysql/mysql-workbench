@@ -58,7 +58,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLSchemaEditorWrapper(GrtManager, value);
+        Backend = new MySQLSchemaEditorWrapper(value);
 
         RefreshFormData();
       }

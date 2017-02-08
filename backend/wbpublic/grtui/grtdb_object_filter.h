@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -34,17 +34,15 @@
 #include "mforms/listbox.h"
 #include "mforms/form.h"
 
-namespace grtui
-{
-  
-  class WBPUBLICBACKEND_PUBLIC_FUNC DBObjectFilterFrame : public mforms::Panel
-  {
+namespace grtui {
+
+  class WBPUBLICBACKEND_PUBLIC_FUNC DBObjectFilterFrame : public mforms::Panel {
   public:
-    DBObjectFilterFrame(bec::GRTManager *grtm);
+    DBObjectFilterFrame();
 
     void set_object_class(const std::string &oclass, const std::string &caption_format);
     void set_models(bec::GrtStringListModel *model, bec::GrtStringListModel *excl_model, bool *enabled_flag);
-    
+
     void set_active(bool flag);
     bool get_active();
 
@@ -62,11 +60,10 @@ namespace grtui
     mforms::ImageBox _icon;
 
     mforms::CheckBox _check;
-    
+
     mforms::Label _summary_label;
 
     mforms::Button _show_button;
-    
 
     mforms::Table _detailed_table;
 
@@ -80,18 +77,18 @@ namespace grtui
 
     mforms::ListBox _object_list;
     mforms::ListBox _mask_list;
-    
+
     mforms::Button _add1_button;
     mforms::Button _add2_button;
     mforms::Button _del1_button;
     mforms::Button _del2_button;
     mforms::Button _mask_button;
-    
+
     void toggle_enabled();
     void toggle_detailed();
 
     void update_button_enabled();
-    
+
     void refresh(ssize_t object_list_selection, ssize_t mask_list_selection);
 
     void add_mask();

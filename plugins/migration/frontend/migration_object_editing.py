@@ -118,7 +118,7 @@ class MainView(WizardPage):
         self._no_errors.set_text_align(mforms.MiddleLeft)
         self.content.add(self._no_errors, True, True)
         
-        self._tree = mforms.newTreeNodeView(mforms.TreeDefault)
+        self._tree = mforms.newTreeView(mforms.TreeDefault)
         self._tree.add_column(mforms.IconStringColumnType, "Source Object", 200, False)
         self._tree.add_column(mforms.IconStringColumnType, "Target Object", 200, True)
         self._tree.add_column(mforms.IconStringColumnType, "Migration Message", 300, False)
@@ -134,7 +134,7 @@ class MainView(WizardPage):
         self._tree.set_context_menu(self._all_menu)
 
         
-        self._columns = mforms.newTreeNodeView(mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeFlatList)
+        self._columns = mforms.newTreeView(mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeFlatList)
         self.COL_SOURCE_SCHEMA = self._columns.add_column(mforms.StringColumnType, "Source Schema", 100, False)
         self.COL_SOURCE_TABLE = self._columns.add_column(mforms.IconStringColumnType, "Source Table", 100, False)
         self.COL_SOURCE_COLUMN = self._columns.add_column(mforms.IconStringColumnType, "Source Column", 100, False)

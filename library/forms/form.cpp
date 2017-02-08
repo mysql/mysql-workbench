@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,11 +25,10 @@ static Form *current_active_form = NULL;
 
 //--------------------------------------------------------------------------------------------------
 
-Form::Form(Form *owner, FormFlag flag)
-{
-  _form_impl= &ControlFactory::get_instance()->_form_impl;
- 
-  _menu = NULL; 
+Form::Form(Form *owner, FormFlag flag) {
+  _form_impl = &ControlFactory::get_instance()->_form_impl;
+
+  _menu = NULL;
   _content = NULL;
   _fixed_size = false;
   _release_on_close = false;
@@ -39,10 +38,9 @@ Form::Form(Form *owner, FormFlag flag)
 
 //--------------------------------------------------------------------------------------------------
 
-Form::Form()
-{
+Form::Form() {
   _form_impl = &ControlFactory::get_instance()->_form_impl;
-  _menu = NULL; 
+  _menu = NULL;
   _content = NULL;
   _fixed_size = false;
   _release_on_close = false;
@@ -51,18 +49,16 @@ Form::Form()
 
 //--------------------------------------------------------------------------------------------------
 
-Form *Form::main_form()
-{
+Form *Form::main_form() {
   static Form *main_form = new Form();
-  // the platform specific code should initialize the main_form stub with whatever it wants (namely, 
+  // the platform specific code should initialize the main_form stub with whatever it wants (namely,
   // call set_data() with a pointer to the real main window
   return main_form;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Form::~Form()
-{
+Form::~Form() {
   if (_menu)
     _menu->release();
   if (current_active_form == this)
@@ -73,13 +69,11 @@ Form::~Form()
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::set_menubar(MenuBar *menu)
-{
-  if (!_content || !dynamic_cast<Box*>(_content))
+void Form::set_menubar(MenuBar *menu) {
+  if (!_content || !dynamic_cast<Box *>(_content))
     throw std::logic_error("set_menubar() must be called on a window with a Box as it's toplevel content");
 
-  if (menu != _menu)
-  {
+  if (menu != _menu) {
     if (_menu)
       _menu->release();
     _menu = menu;
@@ -91,24 +85,21 @@ void Form::set_menubar(MenuBar *menu)
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::set_title(const std::string &title)
-{
+void Form::set_title(const std::string &title) {
   if (_form_impl)
     _form_impl->set_title(this, title);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::set_release_on_close(bool flag)
-{
+void Form::set_release_on_close(bool flag) {
   if (_form_impl)
     _release_on_close = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Form::run_modal(Button *accept, Button *cancel)
-{
+bool Form::run_modal(Button *accept, Button *cancel) {
   if (_form_impl)
     return _form_impl->run_modal(this, accept, cancel);
   return false;
@@ -116,42 +107,36 @@ bool Form::run_modal(Button *accept, Button *cancel)
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::show_modal(Button *accept, Button *cancel)
-{
+void Form::show_modal(Button *accept, Button *cancel) {
   if (_form_impl)
     _form_impl->show_modal(this, accept, cancel);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::end_modal(bool result)
-{
+void Form::end_modal(bool result) {
   if (_form_impl)
     _form_impl->end_modal(this, result);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::close()
-{
+void Form::close() {
   if (_form_impl)
     _form_impl->close(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::center()
-{
+void Form::center() {
   if (_form_impl)
     _form_impl->center(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::set_content(View *view)
-{
-  if (_content != view && _form_impl)
-  {
+void Form::set_content(View *view) {
+  if (_content != view && _form_impl) {
     if (_content)
       _content->release();
     _content = view;
@@ -167,16 +152,14 @@ void Form::set_content(View *view)
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::flush_events()
-{
+void Form::flush_events() {
   if (_form_impl)
     _form_impl->flush_events(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::activated()
-{
+void Form::activated() {
   current_active_form = this;
   _active = true;
   _activated_signal();
@@ -184,23 +167,20 @@ void Form::activated()
 
 //--------------------------------------------------------------------------------------------------
 
-void Form::deactivated()
-{
+void Form::deactivated() {
   _active = false;
   _deactivated_signal();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Form::is_active()
-{
+bool Form::is_active() {
   return _active;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Form::can_close()
-{
+bool Form::can_close() {
   if (_can_close_slot)
     return _can_close_slot();
   return true;
@@ -208,7 +188,6 @@ bool Form::can_close()
 
 //--------------------------------------------------------------------------------------------------
 
-Form* Form::active_form()
-{
+Form *Form::active_form() {
   return current_active_form;
 }

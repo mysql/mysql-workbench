@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -41,133 +41,115 @@ GThread *_mforms_main_thread = NULL;
 static std::map<std::string, int> remembered_message_answers;
 static std::string remembered_message_answer_file;
 
-boost::function<void ()> mforms::Utilities::_driver_shutdown_cb;
+std::function<void()> mforms::Utilities::_driver_shutdown_cb;
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::beep()
-{
+void Utilities::beep() {
   ControlFactory::get_instance()->_utilities_impl.beep();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static void* _show_dialog(const DialogType type, const std::string &title, const std::string &text,
-    const std::string &ok, const std::string &cancel,
-    const std::string &other)
-{
+static void *_show_dialog(const DialogType type, const std::string &title, const std::string &text,
+                          const std::string &ok, const std::string &cancel, const std::string &other) {
   int *ret = new int;
-  switch(type)
-  {
-  case DialogMessage:
-    *ret = ControlFactory::get_instance()->_utilities_impl.show_message(title, text, ok, cancel, other);
-    break;
-  case DialogWarning:
-    *ret = ControlFactory::get_instance()->_utilities_impl.show_warning(title, text, ok, cancel, other);
-    break;
-  case DialogError:
-    *ret = ControlFactory::get_instance()->_utilities_impl.show_error(title, text, ok, cancel, other);
-    break;
-  default:
-    *ret = mforms::ResultUnknown;
+  switch (type) {
+    case DialogMessage:
+      *ret = ControlFactory::get_instance()->_utilities_impl.show_message(title, text, ok, cancel, other);
+      break;
+    case DialogWarning:
+      *ret = ControlFactory::get_instance()->_utilities_impl.show_warning(title, text, ok, cancel, other);
+      break;
+    case DialogError:
+      *ret = ControlFactory::get_instance()->_utilities_impl.show_error(title, text, ok, cancel, other);
+      break;
+    default:
+      *ret = mforms::ResultUnknown;
   }
 
-  return (void*)ret;
+  return (void *)ret;
 }
 
-static int void_to_int(void* val)
-{
-  int *ret = (int*)val;
+static int void_to_int(void *val) {
+  int *ret = (int *)val;
   int ret_val = *ret;
   delete ret;
   return ret_val;
 }
 
-int Utilities::show_message(const std::string &title, const std::string &text,
-                            const std::string &ok, const std::string &cancel,
-                            const std::string &other)
-{
+int Utilities::show_message(const std::string &title, const std::string &text, const std::string &ok,
+                            const std::string &cancel, const std::string &other) {
   if (Utilities::in_main_thread())
     return void_to_int(_show_dialog(DialogMessage, title, text, ok, cancel, other));
   else
-    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogMessage, title, text, ok, cancel, other)));
+    return void_to_int(
+      Utilities::perform_from_main_thread(std::bind(&_show_dialog, DialogMessage, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int Utilities::show_error(const std::string &title, const std::string &text,
-                          const std::string &ok, const std::string &cancel,
-                          const std::string &other)
-{
+int Utilities::show_error(const std::string &title, const std::string &text, const std::string &ok,
+                          const std::string &cancel, const std::string &other) {
   if (Utilities::in_main_thread())
     return void_to_int(_show_dialog(DialogError, title, text, ok, cancel, other));
   else
-    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogError, title, text, ok, cancel, other)));
+    return void_to_int(
+      Utilities::perform_from_main_thread(std::bind(&_show_dialog, DialogError, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int Utilities::show_warning(const std::string &title, const std::string &text,
-                            const std::string &ok, const std::string &cancel,
-                            const std::string &other)
-{
+int Utilities::show_warning(const std::string &title, const std::string &text, const std::string &ok,
+                            const std::string &cancel, const std::string &other) {
   if (Utilities::in_main_thread())
     return void_to_int(_show_dialog(DialogWarning, title, text, ok, cancel, other));
   else
-    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogWarning, title, text, ok, cancel, other)));
+    return void_to_int(
+      Utilities::perform_from_main_thread(std::bind(&_show_dialog, DialogWarning, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int Utilities::show_message_and_remember(const std::string &title, const std::string &text,
-                                         const std::string &ok, const std::string &cancel,
-                                         const std::string &other,
-                                         const std::string &answer_id, const std::string &checkbox_text)
-{
+int Utilities::show_message_and_remember(const std::string &title, const std::string &text, const std::string &ok,
+                                         const std::string &cancel, const std::string &other,
+                                         const std::string &answer_id, const std::string &checkbox_text) {
   if (remembered_message_answers.find(answer_id) != remembered_message_answers.end())
     return remembered_message_answers[answer_id];
-  
+
   if (!ControlFactory::get_instance()->_utilities_impl.show_message_with_checkbox)
     return show_message(title, text, ok, cancel, other);
 
   bool remember = false;
-  int rc = ControlFactory::get_instance()->_utilities_impl.show_message_with_checkbox(title, text, ok, cancel, other, checkbox_text, remember);
-  if (remember)
-  {
+  int rc = ControlFactory::get_instance()->_utilities_impl.show_message_with_checkbox(title, text, ok, cancel, other,
+                                                                                      checkbox_text, remember);
+  if (remember) {
     remembered_message_answers[answer_id] = rc;
     save_message_answers();
   }
   return rc;
 }
 
-
-void Utilities::set_message_answers_storage_path(const std::string &path)
-{
+void Utilities::set_message_answers_storage_path(const std::string &path) {
   remembered_message_answer_file = path;
-  
+
   FILE *f = base_fopen(remembered_message_answer_file.c_str(), "r");
-  if (f)
-  {
+  if (f) {
     char line[1024];
-    
-    while (fgets(line, sizeof(line), f))
-    {
+
+    while (fgets(line, sizeof(line), f)) {
       char *ptr = strrchr(line, '=');
-      if (ptr)
-      {
-        *ptr= 0;
-        remembered_message_answers[line] = base::atoi<int>(ptr+1, 0);
+      if (ptr) {
+        *ptr = 0;
+        remembered_message_answers[line] = base::atoi<int>(ptr + 1, 0);
       }
     }
     fclose(f);
   }
 }
 
-
-void Utilities::save_message_answers()
-{
-  if (!remembered_message_answer_file.empty())
-  {
+void Utilities::save_message_answers() {
+  if (!remembered_message_answer_file.empty()) {
     FILE *f = base_fopen(remembered_message_answer_file.c_str(), "w+");
 
     for (std::map<std::string, int>::const_iterator iter = remembered_message_answers.begin();
@@ -177,41 +159,37 @@ void Utilities::save_message_answers()
   }
 }
 
-
-void Utilities::forget_message_answers()
-{
+void Utilities::forget_message_answers() {
   remembered_message_answers.clear();
   save_message_answers();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::show_wait_message(const std::string &title, const std::string &text)
-{
+void Utilities::show_wait_message(const std::string &title, const std::string &text) {
   // The wait message is a special window, so there's no need to hide the splash screen.
   ControlFactory::get_instance()->_utilities_impl.show_wait_message(title, text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::hide_wait_message()
-{
+bool Utilities::hide_wait_message() {
   return ControlFactory::get_instance()->_utilities_impl.hide_wait_message();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-class CancellableTaskData
-{
+class CancellableTaskData {
 public:
-  boost::function<void* ()> task;
+  std::function<void *()> task;
   bool finished;
-  boost::shared_ptr<void*> result_ptr;
+  std::shared_ptr<void *> result_ptr;
 
   int ref_count;
 
   base::Semaphore semaphore;
-  CancellableTaskData() : finished(false), ref_count(1), semaphore(0) {}
+  CancellableTaskData() : finished(false), ref_count(1), semaphore(0) {
+  }
 };
 
 // To ensure the shared thread data is not freed too early regardless what finishes first
@@ -219,8 +197,7 @@ public:
 static base::Mutex thread_data_mutex;
 static std::map<void *, CancellableTaskData *> thread_data;
 
-static void* cancellable_task_thread(void *)
-{
+static void *cancellable_task_thread(void *) {
   CancellableTaskData *data = NULL;
 
   {
@@ -233,13 +210,10 @@ static void* cancellable_task_thread(void *)
   if (data != NULL) // Should never be NULL but...
   {
     void *ptr = NULL;
-    try
-    {
+    try {
       ptr = data->task();
-    }
-    catch (std::exception &exc)
-    {
-      log_error("Cancellable task threw uncaught exception: %s", exc.what());
+    } catch (std::exception &exc) {
+      logError("Cancellable task threw uncaught exception: %s", exc.what());
     }
 
     data->semaphore.wait(); // Wait for the main thread to signal it is ready.
@@ -250,8 +224,7 @@ static void* cancellable_task_thread(void *)
     {
       base::MutexLock lock(thread_data_mutex);
       data->ref_count--;
-      if (data->ref_count == 0)
-      {
+      if (data->ref_count == 0) {
         thread_data.erase(g_thread_self());
         delete data;
       }
@@ -262,11 +235,9 @@ static void* cancellable_task_thread(void *)
 }
 
 bool Utilities::run_cancelable_task(const std::string &title, const std::string &text,
-                                    const boost::function<void* ()> &task,
-                                    const boost::function<bool ()> &cancel_task,
-                                    void *&task_result)
-{
-  boost::shared_ptr<void*> result(new void*((void*)-1));
+                                    const std::function<void *()> &task, const std::function<bool()> &cancel_task,
+                                    void *&task_result) {
+  std::shared_ptr<void *> result(new void *((void *)-1));
 
   CancellableTaskData *data = NULL;
   GThread *thread = NULL;
@@ -278,9 +249,8 @@ bool Utilities::run_cancelable_task(const std::string &title, const std::string 
     data = new CancellableTaskData(); // Ref count is 1.
 
     GError *error = NULL;
-    thread = base::create_thread((void*(*)(void*))cancellable_task_thread, NULL, &error);
-    if (thread == NULL)
-    {
+    thread = base::create_thread((void *(*)(void *))cancellable_task_thread, NULL, &error);
+    if (thread == NULL) {
       std::string msg("Error creating thread: ");
       msg.append(error->message);
       g_error_free(error);
@@ -301,14 +271,13 @@ bool Utilities::run_cancelable_task(const std::string &title, const std::string 
   }
 
   // Callback for the frontend to signal the worker thread that it's ready.
-  boost::function<void ()> signal_ready = boost::bind(&base::Semaphore::post, &data->semaphore);
+  std::function<void()> signal_ready = std::bind(&base::Semaphore::post, &data->semaphore);
 
   bool function_result = false;
 
 retry:
-  if (ControlFactory::get_instance()->_utilities_impl.run_cancelable_wait_message(title, text, signal_ready, cancel_task))
-  {
-
+  if (ControlFactory::get_instance()->_utilities_impl.run_cancelable_wait_message(title, text, signal_ready,
+                                                                                  cancel_task)) {
     // Sometimes, in the mac, there's a race and/or bug that causes the event loop
     // from the wait panel dialog to be exited when a nested modal dialog is closed.
     // Clicking OK for the nested dialog, exits the wait panel, which would cause it
@@ -321,18 +290,15 @@ retry:
     // the increased ref count here.
     task_result = *result;
     function_result = true;
-  }
-  else
-  {
+  } else {
     // Task canceled by user.
-    log_debug2("run_cancelable_wait_message returned false\n");
+    logDebug2("run_cancelable_wait_message returned false\n");
   }
 
   {
     base::MutexLock lock(thread_data_mutex);
     data->ref_count--;
-    if (data->ref_count == 0)
-    {
+    if (data->ref_count == 0) {
       thread_data.erase(thread);
       delete data;
     }
@@ -343,47 +309,38 @@ retry:
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::set_clipboard_text(const std::string &text)
-{
+void Utilities::set_clipboard_text(const std::string &text) {
   ControlFactory::get_instance()->_utilities_impl.set_clipboard_text(text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Utilities::get_clipboard_text()
-{
+std::string Utilities::get_clipboard_text() {
   return ControlFactory::get_instance()->_utilities_impl.get_clipboard_text();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Utilities::get_special_folder(FolderType type)
-{
+std::string Utilities::get_special_folder(FolderType type) {
   return ControlFactory::get_instance()->_utilities_impl.get_special_folder(type);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::open_url(const std::string &url)
-{
+void Utilities::open_url(const std::string &url) {
   return ControlFactory::get_instance()->_utilities_impl.open_url(url);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::move_to_trash(const std::string &path)
-{
+bool Utilities::move_to_trash(const std::string &path) {
   if (ControlFactory::get_instance()->_utilities_impl.move_to_trash)
     return ControlFactory::get_instance()->_utilities_impl.move_to_trash(path);
-  else
-  {
-    if (g_file_test(path.c_str(), G_FILE_TEST_IS_DIR))
-    {
+  else {
+    if (g_file_test(path.c_str(), G_FILE_TEST_IS_DIR)) {
       if (base_rmdir_recursively(path.c_str()) < 0)
         return false;
-    }
-    else
-    {
+    } else {
       if (!base::remove(path))
         return false;
     }
@@ -392,30 +349,25 @@ bool Utilities::move_to_trash(const std::string &path)
 }
 
 //--------------------------------------------------------------------------------------------------
-void Utilities::reveal_file(const std::string &path)
-{
+void Utilities::reveal_file(const std::string &path) {
   ControlFactory::get_instance()->_utilities_impl.reveal_file(path);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-TimeoutHandle Utilities::add_timeout(float interval, const boost::function<bool ()> &callback)
-{
+TimeoutHandle Utilities::add_timeout(float interval, const std::function<bool()> &callback) {
   return ControlFactory::get_instance()->_utilities_impl.add_timeout(interval, callback);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::cancel_timeout(TimeoutHandle handle)
-{
+void Utilities::cancel_timeout(TimeoutHandle handle) {
   ControlFactory::get_instance()->_utilities_impl.cancel_timeout(handle);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::add_end_ok_cancel_buttons(mforms::Box *box, mforms::Button *ok, mforms::Button *cancel)
-{
+void Utilities::add_end_ok_cancel_buttons(mforms::Box *box, mforms::Button *ok, mforms::Button *cancel) {
 #ifdef __APPLE__
   box->add_end(ok, false, true);
   box->add_end(cancel, false, true);
@@ -427,23 +379,20 @@ void Utilities::add_end_ok_cancel_buttons(mforms::Box *box, mforms::Button *ok, 
 
 //--------------------------------------------------------------------------------------------------
 
-static void on_request_action(mforms::TextEntryAction action, mforms::Button *btn)
-{
+static void on_request_action(mforms::TextEntryAction action, mforms::Button *btn) {
   if (action == mforms::EntryActivate)
-    btn->signal_clicked()->operator ()();
-
+    btn->signal_clicked()->operator()();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool Utilities::request_input(const std::string &title, const std::string &description,
-                              const std::string &default_value, std::string &ret_value)
-{
+                              const std::string &default_value, std::string &ret_value) {
   // In order to avoid trouble with window z-ordering we explicitly ask to hide any wait window
   // that could get in the way. Same for the splash screen.
   hide_wait_message();
 
-  mforms::Form input_form(NULL, (FormFlag) (FormDialogFrame | FormStayOnTop));
+  mforms::Form input_form(NULL, (FormFlag)(FormDialogFrame | FormStayOnTop));
   mforms::Table content;
   mforms::ImageBox icon;
   mforms::Label description_label("");
@@ -468,48 +417,47 @@ bool Utilities::request_input(const std::string &title, const std::string &descr
 
   edit.set_size(150, -1);
   edit.set_value(default_value);
-  edit.signal_action()->connect(boost::bind(&on_request_action, _1, &ok_button));
+  edit.signal_action()->connect(std::bind(&on_request_action, std::placeholders::_1, &ok_button));
 
   content.add(&description_label, 1, 2, 0, 1, HFillFlag | VFillFlag);
   content.add(&edit, 2, 3, 0, 1, HFillFlag | VFillFlag);
 
   button_box.set_spacing(8);
   ok_button.set_text(_("OK"));
-//  ok_button.set_size(75, -1);
+  //  ok_button.set_size(75, -1);
   cancel_button.set_text(_("Cancel"));
-//  cancel_button.set_size(75, -1);
+  //  cancel_button.set_size(75, -1);
   Utilities::add_end_ok_cancel_buttons(&button_box, &ok_button, &cancel_button);
   content.add(&button_box, 1, 3, 1, 2, HFillFlag);
 
   input_form.set_content(&content);
   input_form.center();
   edit.focus();
-  bool result= input_form.run_modal(&ok_button, &cancel_button);
+  bool result = input_form.run_modal(&ok_button, &cancel_button);
   if (result)
     ret_value = edit.get_string_value();
 
-  return result;  
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::store_password(const std::string &service, const std::string &account, const std::string &password)
-{
+void Utilities::store_password(const std::string &service, const std::string &account, const std::string &password) {
   // in-memory cache
   PasswordCache::get()->add_password(service, account, password.c_str());
-  
+
   // OS storage
-  log_debug("Storing password for '%s'@'%s'\n", account.c_str(), service.c_str());
+  logDebug("Storing password for '%s'@'%s'\n", account.c_str(), service.c_str());
   ControlFactory::get_instance()->_utilities_impl.store_password(service, account, password);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::find_password(const std::string &service, const std::string &account, std::string &password)
-{
+bool Utilities::find_password(const std::string &service, const std::string &account, std::string &password) {
   const bool ret = ControlFactory::get_instance()->_utilities_impl.find_password(service, account, password);
-  log_debug("Looking up password for '%s'@'%s' has %s\n", account.c_str(), service.c_str(), ret ? "succeeded" : "failed");
-    
+  logDebug("Looking up password for '%s'@'%s' has %s\n", account.c_str(), service.c_str(),
+           ret ? "succeeded" : "failed");
+
   if (ret)
     PasswordCache::get()->add_password(service, account, password.c_str());
 
@@ -518,46 +466,42 @@ bool Utilities::find_password(const std::string &service, const std::string &acc
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::find_cached_password(const std::string &service, const std::string &account, std::string &password)
-{
+bool Utilities::find_cached_password(const std::string &service, const std::string &account, std::string &password) {
   return PasswordCache::get()->get_password(service, account, password);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::forget_cached_password(const std::string &service, const std::string &account)
-{
-  log_debug2("Forgetting cached password for '%s'@'%s'\n", account.c_str(), service.c_str());
+void Utilities::forget_cached_password(const std::string &service, const std::string &account) {
+  logDebug2("Forgetting cached password for '%s'@'%s'\n", account.c_str(), service.c_str());
   PasswordCache::get()->remove_password(service, account);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::forget_password(const std::string &service, const std::string &account)
-{
+void Utilities::forget_password(const std::string &service, const std::string &account) {
   Utilities::forget_cached_password(service, account);
-  
-  log_debug("Forgetting password for '%s'@'%s'\n", account.c_str(), service.c_str());
+
+  logDebug("Forgetting password for '%s'@'%s'\n", account.c_str(), service.c_str());
   ControlFactory::get_instance()->_utilities_impl.forget_password(service, account);
 }
 
 //-------------------------------------------------------------------------------
 
-void *Utilities::perform_from_main_thread(const boost::function<void* ()> &slot, bool wait_done)
-{
+void *Utilities::perform_from_main_thread(const std::function<void *()> &slot, bool wait_done) {
   return ControlFactory::get_instance()->_utilities_impl.perform_from_main_thread(slot, wait_done);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static void *_ask_for_password_main(const std::string &title, const std::string &service, std::string *username /*in/out*/,
-                             bool prompt_storage, std::string *ret_password /*out*/, bool *ret_store /*out*/)
-{
-  log_debug("Creating and showing password dialog\n");
+static void *_ask_for_password_main(const std::string &title, const std::string &service,
+                                    std::string *username /*in/out*/, bool prompt_storage,
+                                    std::string *ret_password /*out*/, bool *ret_store /*out*/) {
+  logDebug("Creating and showing password dialog\n");
 
-  Utilities::hide_wait_message(); 
+  Utilities::hide_wait_message();
 
-  mforms::Form password_form(NULL, (FormFlag) (FormDialogFrame | FormStayOnTop));
+  mforms::Form password_form(NULL, (FormFlag)(FormDialogFrame | FormStayOnTop));
   mforms::Table content;
   mforms::ImageBox icon;
   mforms::Label description("");
@@ -570,7 +514,7 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   mforms::Box button_box(true);
   mforms::Button ok_button;
   mforms::Button cancel_button;
-  
+
   // Since we cannot simply change the function's signature (I only say: python) we have to use
   // a different way to pass an additional value in. The description used for the login details
   // request is passed in the title parameter as well, separated by the pipe symbol.
@@ -579,16 +523,16 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
     password_form.set_title(_("MySQL Workbench Authentication"));
   else
     password_form.set_title(title_parts[0]);
-  
+
   content.set_padding(12);
   content.set_row_count(6);
   content.set_row_spacing(prompt_storage ? 8 : 7);
   content.set_column_count(3);
   content.set_column_spacing(4);
-  
+
   icon.set_image("message_wb_lock.png");
   content.add(&icon, 0, 1, 0, 6, HFillFlag | VFillFlag);
-  
+
   if (title_parts.size() < 2 || title_parts[1].empty())
     description.set_text(_("Please enter password for the following service:"));
   else
@@ -597,42 +541,38 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   description.set_style(BigBoldStyle);
   description.set_size(300, -1);
   content.add(&description, 1, 3, 0, 1, HFillFlag | HExpandFlag | VFillFlag);
-  
+
   service_description_label.set_text(_("Service:"));
   service_description_label.set_text_align(MiddleRight);
   service_description_label.set_style(BoldStyle);
   service_label.set_text(service);
   content.add(&service_description_label, 1, 2, 1, 2, HFillFlag | VFillFlag);
   content.add(&service_label, 2, 3, 1, 2, HFillFlag | VFillFlag);
-  
+
   user_description_label.set_text(_("User:"));
   user_description_label.set_text_align(MiddleRight);
   user_description_label.set_style(BoldStyle);
 
   // Create an edit box for the user name if the given one is not set, otherwise just display the name.
-  mforms::TextEntry* user_edit = NULL;
-  if (username->empty())
-  {
+  mforms::TextEntry *user_edit = NULL;
+  if (username->empty()) {
     user_edit = mforms::manage(new mforms::TextEntry());
     user_edit->set_value(_("<user name>"));
     content.add(&user_description_label, 1, 2, 2, 3, HFillFlag | VFillFlag);
     content.add(user_edit, 2, 3, 2, 3, HFillFlag | VFillFlag);
-  }
-  else
-  {
-    mforms::Label* user_label = mforms::manage(new mforms::Label(*username));
+  } else {
+    mforms::Label *user_label = mforms::manage(new mforms::Label(*username));
     content.add(&user_description_label, 1, 2, 2, 3, HFillFlag | VFillFlag);
     content.add(user_label, 2, 3, 2, 3, HFillFlag | VFillFlag);
   }
-  
+
   pw_description_label.set_text(_("Password:"));
   pw_description_label.set_text_align(MiddleRight);
   pw_description_label.set_style(BoldStyle);
   content.add(&pw_description_label, 1, 2, 3, 4, HFillFlag | VFillFlag);
   content.add(&password_edit, 2, 3, 3, 4, HFillFlag | HExpandFlag);
-  
-  if (prompt_storage)
-  {
+
+  if (prompt_storage) {
 #ifdef _WIN32
     save_password_box.set_text(_("Save password in vault"));
 #else
@@ -643,54 +583,51 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
 
   button_box.set_spacing(8);
   ok_button.set_text(_("OK"));
-//  ok_button.set_size(75, -1);
+  //  ok_button.set_size(75, -1);
   cancel_button.set_text(_("Cancel"));
-//  cancel_button.set_size(75, -1);
+  //  cancel_button.set_size(75, -1);
   Utilities::add_end_ok_cancel_buttons(&button_box, &ok_button, &cancel_button);
   if (prompt_storage)
-    content.add(&button_box, 1, 3, 5, 6, HFillFlag);
+    content.add(&button_box, 1, 3, 5, 6, HFillFlag | VFillFlag);
   else
-    content.add(&button_box, 1, 3, 4, 5, HFillFlag);
-  
+    content.add(&button_box, 1, 3, 4, 5, HFillFlag | VFillFlag);
+
   password_form.set_content(&content);
   password_form.center();
-  
+
   password_edit.focus();
-  password_edit.signal_action()->connect(boost::bind(&on_request_action, _1, &ok_button));
-  
-  bool result= password_form.run_modal(&ok_button, &cancel_button);
-  if (result)
-  {
-    *ret_password= password_edit.get_string_value();
-    *ret_store= save_password_box.get_active();
+  password_edit.signal_action()->connect(std::bind(&on_request_action, std::placeholders::_1, &ok_button));
+
+  bool result = password_form.run_modal(&ok_button, &cancel_button);
+  if (result) {
+    *ret_password = password_edit.get_string_value();
+    *ret_store = save_password_box.get_active();
 
     if (user_edit != NULL)
       *username = user_edit->get_string_value();
-    
+
     // always store in cache
     PasswordCache::get()->add_password(service, *username, ret_password->c_str());
   }
-  
-  return (void*)result;  
+
+  return (void *)result;
 }
 
 static bool _ask_for_password(const std::string &title, const std::string &service, std::string &username /*in/out*/,
-                             bool prompt_storage, std::string &ret_password /*out*/, bool &ret_store /*out*/)
-{
+                              bool prompt_storage, std::string &ret_password /*out*/, bool &ret_store /*out*/) {
   if (Utilities::in_main_thread())
     return _ask_for_password_main(title, service, &username, prompt_storage, &ret_password, &ret_store) != NULL;
   else
-    return Utilities::perform_from_main_thread(boost::bind(&_ask_for_password_main,
-                                               title, service, &username, prompt_storage, &ret_password, &ret_store)) != NULL;
+    return Utilities::perform_from_main_thread(std::bind(&_ask_for_password_main, title, service, &username,
+                                                         prompt_storage, &ret_password, &ret_store)) != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::ask_for_password(const std::string &title, const std::string &service,
-                                 const std::string &username, std::string &ret_password /*out*/)
-{
+bool Utilities::ask_for_password(const std::string &title, const std::string &service, const std::string &username,
+                                 std::string &ret_password /*out*/) {
   std::string ret_username = username;
-  bool dummy= false;
+  bool dummy = false;
   return _ask_for_password(title, service, ret_username, false, ret_password, dummy);
 }
 
@@ -706,12 +643,10 @@ bool Utilities::ask_for_password(const std::string &title, const std::string &se
  *
  * @return True if the user pressed OK, otherwise false.
  */
-bool Utilities::ask_for_password_check_store(const std::string &title, const std::string &service, 
-                                             std::string &username, std::string &password, bool &store)
-{
+bool Utilities::ask_for_password_check_store(const std::string &title, const std::string &service,
+                                             std::string &username, std::string &password, bool &store) {
   return _ask_for_password(title, service, username, true, password, store);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
@@ -729,29 +664,24 @@ bool Utilities::ask_for_password_check_store(const std::string &title, const std
  *
  * @return True if the user pressed OK, otherwise false.
  */
-bool Utilities::credentials_for_service(const std::string &title, const std::string &service, std::string &username /*in/out*/,
-                                         bool reset_password, std::string &password /*out*/)
-{
+bool Utilities::credentials_for_service(const std::string &title, const std::string &service,
+                                        std::string &username /*in/out*/, bool reset_password,
+                                        std::string &password /*out*/) {
   if (!reset_password && find_password(service, username, password))
     return true;
 
   if (reset_password)
-    forget_password(service, username);  
+    forget_password(service, username);
 
   bool should_store_password_out = false;
-  if (ask_for_password_check_store(title, service, username, password, should_store_password_out))
-  {
-    if (should_store_password_out)
-    {
-      try
-      {
+  if (ask_for_password_check_store(title, service, username, password, should_store_password_out)) {
+    if (should_store_password_out) {
+      try {
         store_password(service, username, password);
-      }
-      catch (std::exception &exc)
-      {
-        log_warning("Could not store password vault: %s\n", exc.what());
-        show_warning(title.empty() ? _("Error Storing Password") : title, 
-                     std::string("There was an error storing the password:\n")+exc.what(), "OK");
+      } catch (std::exception &exc) {
+        logWarning("Could not store password vault: %s\n", exc.what());
+        show_warning(title.empty() ? _("Error Storing Password") : title,
+                     std::string("There was an error storing the password:\n") + exc.what(), "OK");
       }
     }
     return true;
@@ -759,27 +689,21 @@ bool Utilities::credentials_for_service(const std::string &title, const std::str
   return false;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 
 #ifdef _WIN32
 
 static int modal_loops = 0;
 
-void Utilities::enter_modal_loop()
-{
+void Utilities::enter_modal_loop() {
   modal_loops++;
 }
 
-
-void Utilities::leave_modal_loop()
-{
+void Utilities::leave_modal_loop() {
   modal_loops--;
 }
 
-
-bool Utilities::in_modal_loop()
-{
+bool Utilities::in_modal_loop() {
   return modal_loops > 0;
 }
 
@@ -793,8 +717,7 @@ static cairo_user_data_key_t hidpi_icon_key;
  * Helper function to simplify icon loading. Returns NULL if the icon could not be found or
  * something wrong happened while loading.
  */
-cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
-{
+cairo_surface_t *Utilities::load_icon(const std::string &name, bool allow_hidpi) {
   if (name.empty())
     return NULL;
 
@@ -802,15 +725,13 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
   allow_hidpi = true; // For OSX we always want hires images.
 #endif
 
-  if (allow_hidpi && mforms::App::get()->backing_scale_factor() > 1.0)
-  {
+  if (allow_hidpi && mforms::App::get()->backing_scale_factor() > 1.0) {
     std::string hidpi_name = base::strip_extension(name) + "@2x" + base::extension(name);
     std::string icon_path = App::get()->get_resource_path(hidpi_name);
     cairo_surface_t *tmp = mdc::surface_from_png_image(icon_path);
-    if (tmp)
-    {
+    if (tmp) {
       // Mark the surface as being a hi-res variant of a standard icon.
-      cairo_surface_set_user_data(tmp, &hidpi_icon_key, (void*)1, NULL);
+      cairo_surface_set_user_data(tmp, &hidpi_icon_key, (void *)1, NULL);
       return tmp;
     }
   }
@@ -821,27 +742,26 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::is_hidpi_icon(cairo_surface_t *s)
-{
-  return cairo_surface_get_user_data(s, &hidpi_icon_key) == (void*)1;
+bool Utilities::is_hidpi_icon(cairo_surface_t *s) {
+  return cairo_surface_get_user_data(s, &hidpi_icon_key) == (void *)1;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::icon_needs_reload(cairo_surface_t *s)
-{
+bool Utilities::icon_needs_reload(cairo_surface_t *s) {
   float scale = s && mforms::Utilities::is_hidpi_icon(s) ? 2.0f : 1.0f;
   return mforms::App::get()->backing_scale_factor() != scale;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double y, float alpha)
-{
+void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double y, float alpha) {
+  if (cr == nullptr || image == nullptr)
+    return;
+
   float backing_scale_factor = mforms::App::get()->backing_scale_factor();
 
-  if (backing_scale_factor > 1 && mforms::Utilities::is_hidpi_icon(image))
-  {
+  if (backing_scale_factor > 1 && mforms::Utilities::is_hidpi_icon(image)) {
     cairo_save(cr);
     cairo_scale(cr, 1 / backing_scale_factor, 1 / backing_scale_factor);
     cairo_set_source_surface(cr, image, x * backing_scale_factor, y * backing_scale_factor);
@@ -850,25 +770,21 @@ void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double
     else
       cairo_paint_with_alpha(cr, alpha);
     cairo_restore(cr);
-  }
-  else if (backing_scale_factor == 1 && mforms::Utilities::is_hidpi_icon(image))
-  {
+  } else if (backing_scale_factor == 1 && mforms::Utilities::is_hidpi_icon(image)) {
     // special case where the icon is for hidpi but the screen is not
     // this happens when the icon was cached while the window was
     // in a hidpi screen but is then dragged to a stddpi screen
     // ideally these cases would trigger a reload of the icon
     cairo_save(cr);
     cairo_scale(cr, 0.5, 0.5);
-    cairo_set_source_surface(cr, image, x*2, y*2);
+    cairo_set_source_surface(cr, image, x * 2, y * 2);
     if (alpha == 1.0)
       cairo_paint(cr);
     else
       cairo_paint_with_alpha(cr, alpha);
     cairo_restore(cr);
-    log_debug2("Icon is for hidpi screen but the screen is not.\n");
-  }
-  else
-  {
+    logDebug2("Icon is for hidpi screen but the screen is not.\n");
+  } else {
     cairo_set_source_surface(cr, image, x, y);
     if (alpha == 1.0)
       cairo_paint(cr);
@@ -879,15 +795,13 @@ void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::get_icon_size(cairo_surface_t *icon, int &w, int &h)
-{
-  w = cairo_image_surface_get_width(icon);
-  h = cairo_image_surface_get_height(icon);
-  if (mforms::Utilities::is_hidpi_icon(icon))
-  {
-    w = (int)(w / 2);
-    h = (int)(h / 2);
+base::Size Utilities::getImageSize(cairo_surface_t *icon) {
+  base::Size result(cairo_image_surface_get_width(icon), cairo_image_surface_get_height(icon));
+  if (mforms::Utilities::is_hidpi_icon(icon)) {
+    result.width /= 2;
+    result.height /= 2;
   }
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -897,90 +811,80 @@ void Utilities::get_icon_size(cairo_surface_t *icon, int &w, int &h)
  * the input is simply returned. Otherwise letters are removed (via binary search) and ellipses
  * are added so that the entire result fits into that width.
  */
-std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, double width)
-{
-  int ellipsis_width= 0;
+std::string Utilities::shorten_string(cairo_t *cr, const std::string &text, double width) {
+  int ellipsis_width = 0;
   size_t length;
   size_t l, h, n, w;
   cairo_text_extents_t extents;
-  
+
   // If the text fits already, return the input.
   cairo_text_extents(cr, text.c_str(), &extents);
   if (extents.width <= width)
     return text;
-  
+
   length = g_utf8_strlen(text.data(), (gssize)text.size());
   if (length == 0 || width <= 0)
     return "";
-  else
-  {
+  else {
     cairo_text_extents(cr, "...", &extents);
-    ellipsis_width= (int) ceil(extents.width);
+    ellipsis_width = (int)ceil(extents.width);
   }
-  
-  const gchar* head= text.c_str();
+
+  const gchar *head = text.c_str();
   if (width <= ellipsis_width)
     return "";
-  else
-  {
+  else {
     // Do a binary search for the optimal string length which fits into the given width.
-    l= 0;
-    h= length - 1;
-    while (l < h)
-    {
-      n= (l + h) / 2;
+    l = 0;
+    h = length - 1;
+    while (l < h) {
+      n = (l + h) / 2;
 
       // Skip to the nth position, which needs the following loop as we don't have direct
       // access to a char in an utf-8 buffer (one of the limitations of that transformation format).
-      const gchar* tail= head;
-      for (size_t i= 0; i < n; i++)
-        tail= g_utf8_next_char(tail);
-      gchar* part= g_strndup(head, (gsize)(tail - head));
+      const gchar *tail = head;
+      for (size_t i = 0; i < n; i++)
+        tail = g_utf8_next_char(tail);
+      gchar *part = g_strndup(head, (gsize)(tail - head));
       cairo_text_extents(cr, part, &extents);
       g_free(part);
-      w= (int) ceil(extents.width) + ellipsis_width;
+      w = (int)ceil(extents.width) + ellipsis_width;
       if (w <= width)
-        l= n + 1;
+        l = n + 1;
       else
-        h= n;
+        h = n;
     }
     const gchar *begin = g_utf8_offset_to_pointer(text.data(), 0);
     const gchar *end = g_utf8_offset_to_pointer(begin, (glong)(l - 1));
     std::string temp = std::string(text.data(), end - begin) + "...";
     return temp;
   }
-  
+
   return "";
 }
 
 //--------------------------------------------------------------------------------------------------
 
-double Utilities::get_text_width(const std::string &text, const std::string &font)
-{
+double Utilities::get_text_width(const std::string &text, const std::string &font) {
   return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::in_main_thread()
-{
+bool Utilities::in_main_thread() {
   return g_thread_self() == _mforms_main_thread;
 }
 
-
-void Utilities::set_thread_name(const std::string &name)
-{
+void Utilities::set_thread_name(const std::string &name) {
   if (ControlFactory::get_instance()->_utilities_impl.set_thread_name)
     ControlFactory::get_instance()->_utilities_impl.set_thread_name(name);
 }
 
-void Utilities::driver_shutdown()
-{
+void Utilities::driver_shutdown() {
   if (Utilities::_driver_shutdown_cb)
     Utilities::_driver_shutdown_cb();
 }
 
-void Utilities::add_driver_shutdown_callback(const boost::function<void ()> &slot)
-{
+void Utilities::add_driver_shutdown_callback(const std::function<void()> &slot) {
   Utilities::_driver_shutdown_cb = slot;
 }

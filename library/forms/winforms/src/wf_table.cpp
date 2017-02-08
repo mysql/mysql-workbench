@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -33,7 +33,7 @@ using namespace MySQL::Utilities;
 
 ref class CellEntry {
 public:
-  Control ^control;
+  Control ^ control;
   bool isVisible;
   System::Drawing::Rectangle bounds;
   int leftAttachment;
@@ -46,12 +46,11 @@ public:
   bool verticalFill;
 };
 
-typedef List<CellEntry^> CellList;
+typedef List<CellEntry ^> CellList;
 
-ref class GtkTableLayout : public LayoutEngine
-{
+ref class GtkTableLayout : public LayoutEngine {
 public:
-  virtual bool Layout(Object^ container, LayoutEventArgs^ arguments) override;
+  virtual bool Layout(Object ^ container, LayoutEventArgs ^ arguments) override;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -62,45 +61,41 @@ public:
  *
  * @param list The list of cell entries with their bounds to be applied.
  */
-void apply_bounds(CellList% list)
-{
+void apply_bounds(CellList % list) {
   HDWP hdwp = BeginDeferWindowPos(list.Count);
-  for each (CellEntry^ entry in list)
-  {
-    if (!entry->isVisible)
-      continue;
+  for each(CellEntry ^ entry in list) {
+      if (!entry->isVisible)
+        continue;
 
-    ViewWrapper::remove_auto_resize(entry->control, AutoResizeMode::ResizeBoth);
-    Drawing::Rectangle newBounds = entry->control->Bounds;
+      ViewWrapper::remove_auto_resize(entry->control, AutoResizeMode::ResizeBoth);
+      Drawing::Rectangle newBounds = entry->control->Bounds;
 
-    // Resize the control to fill the available space if it is larger than that or
-    // the fill flag is set.
-    if (entry->horizontalFill || entry->bounds.Width < newBounds.Width)
-      newBounds.Width = entry->bounds.Width;
-    if (entry->verticalFill || entry->bounds.Height < newBounds.Height)
-      newBounds.Height = entry->bounds.Height;
+      // Resize the control to fill the available space if it is larger than that or
+      // the fill flag is set.
+      if (entry->horizontalFill || entry->bounds.Width < newBounds.Width)
+        newBounds.Width = entry->bounds.Width;
+      if (entry->verticalFill || entry->bounds.Height < newBounds.Height)
+        newBounds.Height = entry->bounds.Height;
 
-    newBounds.X = entry->bounds.Left + (entry->bounds.Width - newBounds.Width) / 2;
-    newBounds.Y = entry->bounds.Top + (entry->bounds.Height - newBounds.Height) / 2;
+      newBounds.X = entry->bounds.Left + (entry->bounds.Width - newBounds.Width) / 2;
+      newBounds.Y = entry->bounds.Top + (entry->bounds.Height - newBounds.Height) / 2;
 
-    // The WebBrowser class doesn't like being resized via DeferWindowPos, so we do it the straight way.
-    // Also, if DeferWindowPos (or BeginDeferWindowPos for that matter) returned an empty handle
-    // then we need to do the resizing that way for all controls.
-    if (hdwp == 0  || is<Windows::Forms::WebBrowser>(entry->control))
-      entry->control->Bounds = newBounds;
-    else
-    {
-      HDWP new_hdwp = DeferWindowPos(hdwp, (HWND)entry->control->Handle.ToInt32(), 0, newBounds.X, newBounds.Y,
-        newBounds.Width, newBounds.Height, SWP_NOZORDER);
-      if (new_hdwp == 0)
-      {
-        // Something went wrong, so finish what we started so far and continue with straight resize.
-        EndDeferWindowPos(hdwp);
+      // The WebBrowser class doesn't like being resized via DeferWindowPos, so we do it the straight way.
+      // Also, if DeferWindowPos (or BeginDeferWindowPos for that matter) returned an empty handle
+      // then we need to do the resizing that way for all controls.
+      if (hdwp == 0 || is<System::Windows::Forms::WebBrowser>(entry->control))
+        entry->control->Bounds = newBounds;
+      else {
+        HDWP new_hdwp = DeferWindowPos(hdwp, (HWND)entry->control->Handle.ToPointer(), 0, newBounds.X, newBounds.Y,
+                                       newBounds.Width, newBounds.Height, SWP_NOZORDER);
+        if (new_hdwp == 0) {
+          // Something went wrong, so finish what we started so far and continue with straight resize.
+          EndDeferWindowPos(hdwp);
+        }
+
+        hdwp = new_hdwp;
       }
-
-      hdwp = new_hdwp;
     }
-  }
 
   if (hdwp != 0)
     EndDeferWindowPos(hdwp);
@@ -111,23 +106,19 @@ void apply_bounds(CellList% list)
 /**
  * Helper method to compare two cell entries by their column span size.
  */
-int CompareColumnSpan(CellEntry^ entry1, CellEntry^ entry2)
-{
-  if (entry1 == nullptr)
-  {
+int CompareColumnSpan(CellEntry ^ entry1, CellEntry ^ entry2) {
+  if (entry1 == nullptr) {
     if (entry2 == nullptr)
       return 0; // Both entries are null, so they are equal.
     else
       return -1; // entry2 is greater since it is not null, but entry1 is.
-  }
-  else
-  {
+  } else {
     if (entry2 == nullptr)
       return 1; // entry1 is not null, but entry2 is, so entry1 is greater.
-    else
-    {
+    else {
       // Now to the real work. Both entries are valid.
-      int difference= (entry1->rightAttachment - entry1->leftAttachment) - (entry2->rightAttachment - entry2->leftAttachment);
+      int difference =
+        (entry1->rightAttachment - entry1->leftAttachment) - (entry2->rightAttachment - entry2->leftAttachment);
       return (difference > 0) ? 1 : ((difference < 0) ? -1 : 0);
     }
   }
@@ -138,23 +129,19 @@ int CompareColumnSpan(CellEntry^ entry1, CellEntry^ entry2)
 /**
 * Helper method to compare two cell entries by their row span size.
 */
-int CompareRowSpan(CellEntry^ entry1, CellEntry^ entry2)
-{
-  if (entry1 == nullptr)
-  {
+int CompareRowSpan(CellEntry ^ entry1, CellEntry ^ entry2) {
+  if (entry1 == nullptr) {
     if (entry2 == nullptr)
       return 0; // Both entries are null, so they are equal.
     else
       return -1; // entry2 is greater since it is not null, but entry1 is.
-  }
-  else
-  {
+  } else {
     if (entry2 == nullptr)
       return 1; // entry1 is not null, but entry2 is, so entry1 is greater.
-    else
-    {
+    else {
       // Now to the real work. Both entries are valid.
-      int difference= (entry1->bottomAttachment - entry1->topAttachment) - (entry2->bottomAttachment - entry2->topAttachment);
+      int difference =
+        (entry1->bottomAttachment - entry1->topAttachment) - (entry2->bottomAttachment - entry2->topAttachment);
       return (difference > 0) ? 1 : ((difference < 0) ? -1 : 0);
     }
   }
@@ -169,10 +156,10 @@ ref class GtkTableLayout;
   * a new class which manages (and returns by request) an instance of the table layout engine.
   * It also manages some additional information which is used by the layout process.
   */
-public ref class MySQL::Forms::Table : public Panel
-{
+public
+ref class MySQL::Forms::Table : public Panel {
 private:
-  GtkTableLayout^ layoutEngine;
+  GtkTableLayout ^ layoutEngine;
 
   CellList content;
   bool homogeneous;
@@ -182,8 +169,7 @@ private:
   int rowCount;
 
 public:
-  Table()
-  {
+  Table() {
     homogeneous = false;
     columnSpacing = 0;
     rowSpacing = 0;
@@ -195,7 +181,7 @@ public:
 
   /**
    * Computes the entire layout of the table. This includes size and position of client controls.
-   * 
+   *
    * @param proposedSize The size to start from layouting. Since super ordinated controls may impose
    *                     a layout size we need to honor that (especially important for auto wrapping
    *                     labels).
@@ -203,8 +189,7 @@ public:
    *                       (when doing a relayout) or not (when computing the preferred size).
    * @return The resulting size of the table.
    */
-  System::Drawing::Size ComputeLayout(System::Drawing::Size proposedSize, bool resizeChildren)
-  {
+  System::Drawing::Size ComputeLayout(System::Drawing::Size proposedSize, bool resizeChildren) {
     // Layouting the grid goes like this:
     // * Compute all row heights + column widths.
     // * Apply the resulting cell sizes to all attached children.
@@ -213,9 +198,10 @@ public:
     // To compute all row heights and widths do:
     // 1) For each cell entry
     // 2)   Keep the expand state for all cells it covers.
-    // 3)   Compute the base cell sizes for all cells it covers (e.g. for the width: take the control width and distribute
+    // 3)   Compute the base cell sizes for all cells it covers (e.g. for the width: take the control width and
+    // distribute
     //      it evenly over all cells covered from left to right attachment).
-    // 4)   Compare the cell size with what has been computed overall so far. Replace any cell size for 
+    // 4)   Compare the cell size with what has been computed overall so far. Replace any cell size for
     //      the control which is larger than what is stored so far by that larger value.
 
     // If in homogeneous mode do:
@@ -231,17 +217,17 @@ public:
     //     space over all columns for which the expand flag is set.
     // 2) Same for all rows.
 
-    array<int>^ heights = gcnew array<int>(RowCount);
-    for (int i= 0; i < RowCount; i++)
-      heights[i]= 0;
-    array<int>^ widths = gcnew array<int>(ColumnCount);
-    for (int i= 0; i < ColumnCount; i++)
-      widths[i]= 0;
+    array<int> ^ heights = gcnew array<int>(RowCount);
+    for (int i = 0; i < RowCount; i++)
+      heights[i] = 0;
+    array<int> ^ widths = gcnew array<int>(ColumnCount);
+    for (int i = 0; i < ColumnCount; i++)
+      widths[i] = 0;
 
-    array<bool>^ verticalExpandState= gcnew array<bool>(RowCount);
-    for (int i= 0; i < RowCount; i++)
+    array<bool> ^ verticalExpandState = gcnew array<bool>(RowCount);
+    for (int i = 0; i < RowCount; i++)
       verticalExpandState[i] = false;
-    array<bool>^ horizontalExpandState = gcnew array<bool>(ColumnCount);
+    array<bool> ^ horizontalExpandState = gcnew array<bool>(ColumnCount);
     for (int i = 0; i < ColumnCount; i++)
       horizontalExpandState[i] = false;
 
@@ -252,130 +238,119 @@ public:
     bool useHorizontalCentering = resizeChildren && HorizontalCenter;
     bool useVerticalCentering = resizeChildren && VerticalCenter;
 
-    System::Drawing::Size newSize= System::Drawing::Size::Empty;
+    System::Drawing::Size newSize = System::Drawing::Size::Empty;
 
     // First round: sort list for increasing column span count, so we can process smallest entries first.
-    content.Sort(gcnew Comparison<CellEntry^>(CompareColumnSpan));
+    content.Sort(gcnew Comparison<CellEntry ^>(CompareColumnSpan));
 
     // Go for each cell entry and apply its preferred size to the proper cells,
     // after visibility state and bounds are set.
     // Keep expand states so we can apply them later.
-    for each (CellEntry^ entry in content)
-    {
-      entry->isVisible = entry->control->Visible && (entry->rightAttachment > entry->leftAttachment)
-        && (entry->bottomAttachment > entry->topAttachment) && !entry->control->IsDisposed && !entry->control->Disposing;
-      if (!entry->isVisible)
-        continue;
+    for each(CellEntry ^ entry in content) {
+        entry->isVisible = entry->control->Visible && (entry->rightAttachment > entry->leftAttachment) &&
+                           (entry->bottomAttachment > entry->topAttachment) && !entry->control->IsDisposed &&
+                           !entry->control->Disposing;
+        if (!entry->isVisible)
+          continue;
 
-      // Check if the width of the entry is larger than what we have already.
-      // While we are at it, keep the expand state in the associated cells.
-      // However, if the current entry is expanding and covers a column which is already set to expand
-      // then don't apply expansion, as we only want to expand those columns.
-      int currentWidth = 0;
-      bool doExpand = entry->horizontalExpand;
-      if (doExpand)
-      {
-        useHorizontalCentering = false; // Expansion disables auto centering.
-        for (int i = entry->leftAttachment; i < entry->rightAttachment; i++)
-        {
-          if (horizontalExpandState[i])
-          {
-            doExpand = false;
-            break;
+        // Check if the width of the entry is larger than what we have already.
+        // While we are at it, keep the expand state in the associated cells.
+        // However, if the current entry is expanding and covers a column which is already set to expand
+        // then don't apply expansion, as we only want to expand those columns.
+        int currentWidth = 0;
+        bool doExpand = entry->horizontalExpand;
+        if (doExpand) {
+          useHorizontalCentering = false; // Expansion disables auto centering.
+          for (int i = entry->leftAttachment; i < entry->rightAttachment; i++) {
+            if (horizontalExpandState[i]) {
+              doExpand = false;
+              break;
+            }
+          }
+        }
+        for (int i = entry->leftAttachment; i < entry->rightAttachment; i++) {
+          currentWidth += widths[i];
+          if (doExpand)
+            horizontalExpandState[i] = true;
+        }
+
+        ViewWrapper::set_full_auto_resize(entry->control);
+
+        bool use_min_width = ViewWrapper::use_min_width_for_layout(entry->control);
+        bool use_min_height = ViewWrapper::use_min_height_for_layout(entry->control);
+        if (use_min_width && use_min_height)
+          entry->bounds.Size = entry->control->MinimumSize;
+        else {
+          entry->bounds = System::Drawing::Rectangle(
+            Point(0, 0), entry->control->GetPreferredSize(System::Drawing::Size(currentWidth, 0)));
+          if (use_min_width)
+            entry->bounds.Width = entry->control->MinimumSize.Width;
+          if (use_min_height)
+            entry->bounds.Height = entry->control->MinimumSize.Height;
+        }
+
+        // Weird behavior of combo boxes. They report a one pixel too small height (you cannot set them
+        // to this smaller height, though). So this wrong value is messing up our computed overall height.
+        if (is<ComboBox>(entry->control))
+          entry->bounds.Height++;
+
+        // Set all cells to the computed partial size if it is larger than what was found so far.
+        // On the way apply the expand flag to all cells that are covered by that entry.
+
+        // If the width of the entry is larger then distribute the difference to all cells it covers.
+        if (entry->bounds.Width > currentWidth) {
+          // The fraction is a per-cell value and computed by an integer div (we cannot add partial pixels).
+          // Hence we might have a rest, which is less than the span size. Distribute this rest over all spanned cell
+          // too.
+          int fraction = (entry->bounds.Width - currentWidth) / (entry->rightAttachment - entry->leftAttachment);
+          int rest = (entry->bounds.Width - currentWidth) % (entry->rightAttachment - entry->leftAttachment);
+
+          for (int i = entry->leftAttachment; i < entry->rightAttachment; i++) {
+            widths[i] += fraction;
+            if (rest > 0) {
+              widths[i]++;
+              rest--;
+            }
           }
         }
       }
-      for (int i = entry->leftAttachment; i < entry->rightAttachment; i++)
-      {
-        currentWidth += widths[i];
-        if (doExpand)
-          horizontalExpandState[i] = true;
-      }
-
-      ViewWrapper::set_full_auto_resize(entry->control);
-
-      bool use_min_width = ViewWrapper::use_min_width_for_layout(entry->control);
-      bool use_min_height = ViewWrapper::use_min_height_for_layout(entry->control);
-      if (use_min_width && use_min_height)
-        entry->bounds.Size = entry->control->MinimumSize;
-      else
-      {
-        entry->bounds= System::Drawing::Rectangle(Point(0, 0),
-          entry->control->GetPreferredSize(System::Drawing::Size(currentWidth, 0)));
-        if (use_min_width)
-          entry->bounds.Width= entry->control->MinimumSize.Width;
-        if (use_min_height)
-          entry->bounds.Height= entry->control->MinimumSize.Height;
-      }
-
-      // Weird behavior of combo boxes. They report a one pixel too small height (you cannot set them
-      // to this smaller height, though). So this wrong value is messing up our computed overall height.
-      if (is<ComboBox>(entry->control))
-        entry->bounds.Height++;
-
-      // Set all cells to the computed partial size if it is larger than what was found so far.
-      // On the way apply the expand flag to all cells that are covered by that entry.
-
-      // If the width of the entry is larger then distribute the difference to all cells it covers.
-      if (entry->bounds.Width > currentWidth)
-      {
-        // The fraction is a per-cell value and computed by an integer div (we cannot add partial pixels).
-        // Hence we might have a rest, which is less than the span size. Distribute this rest over all spanned cell too.
-        int fraction= (entry->bounds.Width - currentWidth) / (entry->rightAttachment - entry->leftAttachment);
-        int rest= (entry->bounds.Width - currentWidth) % (entry->rightAttachment - entry->leftAttachment);
-
-        for (int i= entry->leftAttachment; i < entry->rightAttachment; i++)
-        {
-          widths[i] += fraction;
-          if (rest > 0)
-          {
-            widths[i]++;
-            rest--;
-          }
-        }
-      }
-    }
 
     // Once we got the minimal width we need to compute the real width as the height computation depends
     // on the final column widths (e.g. for wrapping labels that change their height depending on their width).
     // Handle homogeneous mode.
-    if (Homogeneous)
-    {
-      int max= 0;
-      for (int i= 0; i < ColumnCount; i++)
+    if (Homogeneous) {
+      int max = 0;
+      for (int i = 0; i < ColumnCount; i++)
         if (widths[i] > max)
           max = widths[i];
 
-      for (int i= 0; i < ColumnCount; i++)
+      for (int i = 0; i < ColumnCount; i++)
         widths[i] = max;
     }
 
     // Compute overall width and handle expanded entries.
-    for (int i= 0; i < ColumnCount; i++)
+    for (int i = 0; i < ColumnCount; i++)
       newSize.Width += widths[i];
     newSize.Width += (ColumnCount - 1) * ColumnSpacing;
 
     // Do auto sizing the table if enabled. Apply minimal bounds in any case.
-    if (newSize.Width > proposedSize.Width || (ViewWrapper::can_auto_resize_horizontally(this) && !useHorizontalCentering))
-    {
+    if (newSize.Width > proposedSize.Width ||
+        (ViewWrapper::can_auto_resize_horizontally(this) && !useHorizontalCentering)) {
       proposedSize.Width = newSize.Width;
       if (proposedSize.Width < MinimumSize.Width - Padding.Horizontal)
         proposedSize.Width = MinimumSize.Width - Padding.Horizontal;
     }
 
     // Handle expansion of cells.
-    if (resizeChildren)
-    {
-      if (!useHorizontalCentering && (newSize.Width < proposedSize.Width))
-      {
-        int expandCount= 0;
-        for (int i= 0; i < ColumnCount; i++)
+    if (resizeChildren) {
+      if (!useHorizontalCentering && (newSize.Width < proposedSize.Width)) {
+        int expandCount = 0;
+        for (int i = 0; i < ColumnCount; i++)
           if (horizontalExpandState[i])
             expandCount++;
-        if (expandCount > 0)
-        {
-          int fraction= (proposedSize.Width - newSize.Width) / expandCount;
-          for (int i= 0; i < ColumnCount; i++)
+        if (expandCount > 0) {
+          int fraction = (proposedSize.Width - newSize.Width) / expandCount;
+          for (int i = 0; i < ColumnCount; i++)
             if (horizontalExpandState[i])
               widths[i] += fraction;
         }
@@ -384,74 +359,64 @@ public:
 
     // Second round: Now that we have all final widths compute the heights. Start with sorting the entries
     // list for increasing row span count, so we can process smallest entries first.
-    content.Sort(gcnew Comparison<CellEntry^>(CompareRowSpan));
+    content.Sort(gcnew Comparison<CellEntry ^>(CompareRowSpan));
 
     // Go for each cell entry and apply its preferred size to the proper cells.
     // Keep expand states so we can apply them later.
-    for each (CellEntry^ entry in content)
-    {
-      // Visibility state and bounds where already determined in the first round.
-      if (!entry->isVisible)
-        continue;
+    for each(CellEntry ^ entry in content) {
+        // Visibility state and bounds where already determined in the first round.
+        if (!entry->isVisible)
+          continue;
 
-      // Set all cells to the computed partial size if it is larger than what was found so far.
-      // On the way apply the expand flag to all cells that are covered by that entry.
+        // Set all cells to the computed partial size if it is larger than what was found so far.
+        // On the way apply the expand flag to all cells that are covered by that entry.
 
-      // Check if the height of the entry is larger than what we have already.
-      // Same expansion handling here as for horizontal expansion.
-      int currentHeight= 0;
-      bool doExpand = entry->verticalExpand;
-      if (doExpand)
-      {
-        useVerticalCentering = false; // Expansion disables auto centering.
-        for (int i = entry->topAttachment; i < entry->bottomAttachment; i++)
-        {
-          if (verticalExpandState[i])
-          {
-            doExpand = false;
-            break;
+        // Check if the height of the entry is larger than what we have already.
+        // Same expansion handling here as for horizontal expansion.
+        int currentHeight = 0;
+        bool doExpand = entry->verticalExpand;
+        if (doExpand) {
+          useVerticalCentering = false; // Expansion disables auto centering.
+          for (int i = entry->topAttachment; i < entry->bottomAttachment; i++) {
+            if (verticalExpandState[i]) {
+              doExpand = false;
+              break;
+            }
+          }
+        }
+        for (int i = entry->topAttachment; i < entry->bottomAttachment; i++) {
+          currentHeight += heights[i];
+          if (doExpand)
+            verticalExpandState[i] = true;
+        }
+
+        // For controls that change height depending on their width we need another preferred size computation.
+        // Currently this applies only for wrapping labels.
+        if (is<WrapControlLabel>(entry->control)) {
+          int currentWidth = 0;
+          for (int i = entry->leftAttachment; i < entry->rightAttachment; i++)
+            currentWidth += widths[i];
+          entry->bounds = System::Drawing::Rectangle(
+            Point(0, 0), entry->control->GetPreferredSize(System::Drawing::Size(currentWidth, 0)));
+        }
+
+        // If the height of the entry is larger then distribute the difference to all cells it covers.
+        if (entry->bounds.Height > currentHeight) {
+          int fraction = (entry->bounds.Height - currentHeight) / (entry->bottomAttachment - entry->topAttachment);
+          int rest = (entry->bounds.Height - currentHeight) % (entry->bottomAttachment - entry->topAttachment);
+
+          for (int i = entry->topAttachment; i < entry->bottomAttachment; i++) {
+            heights[i] += fraction;
+            if (rest > 0) {
+              heights[i]++;
+              rest--;
+            }
           }
         }
       }
-      for (int i= entry->topAttachment; i < entry->bottomAttachment; i++)
-      {
-        currentHeight += heights[i];
-        if (doExpand)
-          verticalExpandState[i]= true;
-      }
-
-      // For controls that change height depending on their width we need another preferred size computation.
-      // Currently this applies only for wrapping labels.
-      if (is<WrapControlLabel>(entry->control))
-      {
-        int currentWidth = 0;
-        for (int i= entry->leftAttachment; i < entry->rightAttachment; i++)
-          currentWidth += widths[i];
-        entry->bounds= System::Drawing::Rectangle(Point(0, 0),
-          entry->control->GetPreferredSize(System::Drawing::Size(currentWidth, 0)));
-      }
-
-      // If the height of the entry is larger then distribute the difference to all cells it covers.
-      if (entry->bounds.Height > currentHeight)
-      {
-        int fraction= (entry->bounds.Height - currentHeight) / (entry->bottomAttachment - entry->topAttachment);
-        int rest= (entry->bounds.Height - currentHeight) % (entry->bottomAttachment - entry->topAttachment);
-
-        for (int i= entry->topAttachment; i < entry->bottomAttachment; i++)
-        {
-          heights[i] += fraction;
-          if (rest > 0)
-          {
-            heights[i]++;
-            rest--;
-          }
-        }
-      }
-    }
 
     // Handle homogeneous mode.
-    if (Homogeneous)
-    {
+    if (Homogeneous) {
       int max = 0;
       for (int i = 0; i < RowCount; i++)
         if (heights[i] > max)
@@ -467,8 +432,8 @@ public:
     newSize.Height += (RowCount - 1) * RowSpacing;
 
     // Do auto sizing the table if enabled. Apply minimal bounds in any case.
-    if (newSize.Height > proposedSize.Height || (ViewWrapper::can_auto_resize_vertically(this) && !useVerticalCentering))
-    {
+    if (newSize.Height > proposedSize.Height ||
+        (ViewWrapper::can_auto_resize_vertically(this) && !useVerticalCentering)) {
       proposedSize.Height = newSize.Height;
       if (proposedSize.Height < MinimumSize.Height - Padding.Vertical)
         proposedSize.Height = MinimumSize.Height - Padding.Vertical;
@@ -477,50 +442,47 @@ public:
     // Handle expansion of cells (vertical case). Since this can happen only if the new size is
     // less than the proposed size it does not matter for pure size computation (in that case we
     // have already our target size). Hence do it only if we are actually layouting the table.
-    if (resizeChildren)
-    {
-      if (!useVerticalCentering && (newSize.Height < proposedSize.Height))
-      {
-        int expandCount= 0;
-        for (int i= 0; i < RowCount; i++)
+    if (resizeChildren) {
+      if (!useVerticalCentering && (newSize.Height < proposedSize.Height)) {
+        int expandCount = 0;
+        for (int i = 0; i < RowCount; i++)
           if (verticalExpandState[i])
             expandCount++;
-        if (expandCount > 0)
-        {
-          int fraction= (proposedSize.Height - newSize.Height) / expandCount;
-          for (int i= 0; i < RowCount; i++)
+        if (expandCount > 0) {
+          int fraction = (proposedSize.Height - newSize.Height) / expandCount;
+          for (int i = 0; i < RowCount; i++)
             if (verticalExpandState[i])
               heights[i] += fraction;
         }
       }
 
       // Compute target bounds from cell sizes. Compute one more column/row used as right/bottom border.
-      array<int>^ rowStarts = gcnew array<int>(RowCount + 1);
+      array<int> ^ rowStarts = gcnew array<int>(RowCount + 1);
       rowStarts[0] = Padding.Top;
       if (useVerticalCentering && (newSize.Height < proposedSize.Height))
         rowStarts[0] = (proposedSize.Height - newSize.Height) / 2;
 
-      for (int i= 1; i <= RowCount; i++)
+      for (int i = 1; i <= RowCount; i++)
         rowStarts[i] = rowStarts[i - 1] + heights[i - 1] + RowSpacing;
 
-      array<int>^ columnStarts= gcnew array<int>(ColumnCount + 1);
+      array<int> ^ columnStarts = gcnew array<int>(ColumnCount + 1);
       columnStarts[0] = Padding.Left;
       if (useHorizontalCentering && (newSize.Width < proposedSize.Width))
         columnStarts[0] = (proposedSize.Width - newSize.Width) / 2;
 
-      for (int i= 1; i <= ColumnCount; i++)
+      for (int i = 1; i <= ColumnCount; i++)
         columnStarts[i] = columnStarts[i - 1] + widths[i - 1] + ColumnSpacing;
 
-      for each (CellEntry^ entry in content)
-      {
-        if (!entry->isVisible)
-          continue;
+      for each(CellEntry ^ entry in content) {
+          if (!entry->isVisible)
+            continue;
 
-        entry->bounds.X = columnStarts[entry->leftAttachment];
-        entry->bounds.Y = rowStarts[entry->topAttachment];
-        entry->bounds.Width = columnStarts[entry->rightAttachment] - columnStarts[entry->leftAttachment] - ColumnSpacing;
-        entry->bounds.Height = rowStarts[entry->bottomAttachment] - rowStarts[entry->topAttachment] - RowSpacing;
-      }
+          entry->bounds.X = columnStarts[entry->leftAttachment];
+          entry->bounds.Y = rowStarts[entry->topAttachment];
+          entry->bounds.Width =
+            columnStarts[entry->rightAttachment] - columnStarts[entry->leftAttachment] - ColumnSpacing;
+          entry->bounds.Height = rowStarts[entry->bottomAttachment] - rowStarts[entry->topAttachment] - RowSpacing;
+        }
 
       // Apply target bounds to cell content.
       apply_bounds(content);
@@ -537,22 +499,20 @@ public:
   //--------------------------------------------------------------------------------------------------
 
   /**
-   * Returns the preferred size of the table (that is, the minimal size that can cover all content). 
+   * Returns the preferred size of the table (that is, the minimal size that can cover all content).
    *
    * @param proposedSize The base size to be used for layout. The resulting size won't usually go
    *                     below this size.
    *
    * @return The preferred size of this table.
    */
-  virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override
-  {
+  virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override {
     return ComputeLayout(proposedSize, false);
   }
 
   //-------------------------------------------------------------------------------------------------
 
-  void Add(Control^ control, int left, int right, int top, int bottom, int flags)
-  {
+  void Add(Control ^ control, int left, int right, int top, int bottom, int flags) {
     if (left >= ColumnCount || right > ColumnCount)
       throw gcnew IndexOutOfRangeException("Adding control to table at an invalid column position");
     if (top >= RowCount || bottom > RowCount)
@@ -560,26 +520,24 @@ public:
 
     ViewWrapper::set_layout_dirty(this, true);
 
-    CellEntry^ entry= gcnew CellEntry();
-    entry->control= control;
+    CellEntry ^ entry = gcnew CellEntry();
+    entry->control = control;
 
     // Do some sanity checks here to avoid later trouble.
     // Upper limits are not checked as this can change with the number of columns,
     // even after the table was filled.
     if (left < 0)
-      left= 0;
-    if (left > right)
-    {
-      int temp= left;
-      left= right;
-      right= temp;
+      left = 0;
+    if (left > right) {
+      int temp = left;
+      left = right;
+      right = temp;
     }
     if (left == right)
       right++;
     if (top < 0)
-      top= 0;
-    if (top > bottom)
-    {
+      top = 0;
+    if (top > bottom) {
       int temp = top;
       top = bottom;
       bottom = temp;
@@ -594,53 +552,45 @@ public:
     entry->verticalExpand = (flags & mforms::VExpandFlag) != 0;
     entry->horizontalFill = (flags & mforms::HFillFlag) != 0;
     entry->verticalFill = (flags & mforms::VFillFlag) != 0;
-    content.Add(entry); // for us
+    content.Add(entry);     // for us
     Controls->Add(control); // for Windows
   }
 
   //-------------------------------------------------------------------------------------------------
 
-  void Remove(Control^ control)
-  {
+  void Remove(Control ^ control) {
     ViewWrapper::set_layout_dirty(this, true);
     Controls->Remove(control);
 
-    for each (CellEntry^ entry in content)
-    {
-      if (entry->control == control)
-      {
-        content.Remove(entry);
-        break;
+    for each(CellEntry ^ entry in content) {
+        if (entry->control == control) {
+          content.Remove(entry);
+          break;
+        }
+      }
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
+  virtual property System::Windows::Forms::Layout::LayoutEngine ^
+    LayoutEngine {
+      System::Windows::Forms::Layout::LayoutEngine ^ get() override {
+        if (layoutEngine == nullptr)
+          layoutEngine = gcnew GtkTableLayout();
+
+        return layoutEngine;
       }
     }
-  }
 
-  //--------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
-  {
-    Windows::Forms::Layout::LayoutEngine^ get() override
-    {
-      if (layoutEngine == nullptr)
-        layoutEngine = gcnew GtkTableLayout();
-
-      return layoutEngine;
-    }
-  }
-
-  //--------------------------------------------------------------------------------------------------
-
-  property bool Homogeneous
-  {
-    bool get()
-    {
+    property bool Homogeneous {
+    bool get() {
       return homogeneous;
     }
 
-    void set(bool value)
-    {
-      if (homogeneous != value)
-      {
+    void set(bool value) {
+      if (homogeneous != value) {
         ViewWrapper::set_layout_dirty(this, true);
         homogeneous = value;
         Refresh();
@@ -650,17 +600,13 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  property int RowSpacing
-  {
-    int get()
-    {
+  property int RowSpacing {
+    int get() {
       return rowSpacing;
     }
 
-    void set(int value)
-    {
-      if (rowSpacing != value)
-      {
+    void set(int value) {
+      if (rowSpacing != value) {
         ViewWrapper::set_layout_dirty(this, true);
         rowSpacing = value;
         Refresh();
@@ -670,19 +616,15 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  property int ColumnSpacing
-  {
-    int get()
-    {
+  property int ColumnSpacing {
+    int get() {
       return columnSpacing;
     }
 
-    void set(int value)
-    {
-      if (columnSpacing != value)
-      {
+    void set(int value) {
+      if (columnSpacing != value) {
         ViewWrapper::set_layout_dirty(this, true);
-        columnSpacing= value;
+        columnSpacing = value;
         Refresh();
       }
     }
@@ -690,17 +632,13 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  property int RowCount
-  {
-    int get() 
-    { 
+  property int RowCount {
+    int get() {
       return rowCount;
     }
 
-    void set(int value)
-    {
-      if (rowCount != value)
-      {
+    void set(int value) {
+      if (rowCount != value) {
         ViewWrapper::set_layout_dirty(this, true);
         rowCount = value;
         Refresh();
@@ -710,17 +648,13 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  property int ColumnCount
-  {
-    int get() 
-    { 
+  property int ColumnCount {
+    int get() {
       return columnCount;
     }
 
-    void set(int value)
-    {
-      if (columnCount != value)
-      {
+    void set(int value) {
+      if (columnCount != value) {
         ViewWrapper::set_layout_dirty(this, true);
         columnCount = value;
         Refresh();
@@ -732,7 +666,6 @@ public:
 
   property bool HorizontalCenter;
   property bool VerticalCenter;
-
 };
 
 //----------------- GtkTableLayout ----------------------------------------------------------------
@@ -747,18 +680,16 @@ public:
   *
   * @return True if the parent should re-layout itself (e.g. due to a size change of this table) or false, if not.
   */
-bool GtkTableLayout::Layout(Object ^container, LayoutEventArgs ^arguments)
-{
-  Table ^table = (Table ^)container;
+bool GtkTableLayout::Layout(Object ^ container, LayoutEventArgs ^ arguments) {
+  Table ^ table = (Table ^)container;
   if (!ViewWrapper::can_layout(table, arguments->AffectedProperty))
     return false;
 
-  if (table->RowCount > 0 && table->ColumnCount > 0)
-  {
+  if (table->RowCount > 0 && table->ColumnCount > 0) {
     ViewWrapper::adjust_auto_resize_from_docking(table);
     System::Drawing::Size tableSize = table->ComputeLayout(table->Size, true);
 
-    bool parentLayoutNeeded= !table->Size.Equals(tableSize);
+    bool parentLayoutNeeded = !table->Size.Equals(tableSize);
     if (parentLayoutNeeded)
       ViewWrapper::resize_with_docking(table, tableSize);
 
@@ -769,27 +700,23 @@ bool GtkTableLayout::Layout(Object ^container, LayoutEventArgs ^arguments)
 
 //----------------- TableWrapper -----------------------------------------------------------------------
 
-TableWrapper::TableWrapper(mforms::View *view)
-  : ViewWrapper(view)
-{
+TableWrapper::TableWrapper(mforms::View *view) : ViewWrapper(view) {
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::set_padding(int left, int top, int right, int bottom)
-{
+void TableWrapper::set_padding(int left, int top, int right, int bottom) {
   // Depending on what is specified as padding we apply a dynamic padding (centering so the content).
-  Table ^table = GetManagedObject<Table>();
+  Table ^ table = GetManagedObject<Table>();
   table->HorizontalCenter = (left < 0 || right < 0);
   table->VerticalCenter = (top < 0 || bottom < 0);
-  
+
   ViewWrapper::set_padding(left, top, right, bottom);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-bool TableWrapper::create(mforms::Table *backend)
-{
+bool TableWrapper::create(mforms::Table *backend) {
   TableWrapper *wrapper = new TableWrapper(backend);
   TableWrapper::Create<Table>(backend, wrapper);
   return true;
@@ -797,66 +724,59 @@ bool TableWrapper::create(mforms::Table *backend)
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::add(mforms::Table *backend, mforms::View *child, int left, int right, int top, int bottom, int flags)
-{
-  Table ^table = TableWrapper::GetManagedObject<Table>(backend);
+void TableWrapper::add(mforms::Table *backend, mforms::View *child, int left, int right, int top, int bottom,
+                       int flags) {
+  Table ^ table = TableWrapper::GetManagedObject<Table>(backend);
   table->Add(TableWrapper::GetControl(child), left, right, top, bottom, flags);
   backend->set_layout_dirty(true);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::remove(mforms::Table *backend, mforms::View* child)
-{
-  Table ^table = TableWrapper::GetManagedObject<Table>(backend);
+void TableWrapper::remove(mforms::Table *backend, mforms::View *child) {
+  Table ^ table = TableWrapper::GetManagedObject<Table>(backend);
   table->Remove(TableWrapper::GetControl(child));
   backend->set_layout_dirty(true);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::set_row_count(mforms::Table *backend, int count)
-{
-  TableWrapper::GetManagedObject<Table>(backend)->RowCount= count;
+void TableWrapper::set_row_count(mforms::Table *backend, int count) {
+  TableWrapper::GetManagedObject<Table>(backend)->RowCount = count;
   backend->set_layout_dirty(true);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::set_column_count(mforms::Table *backend, int count)
-{
+void TableWrapper::set_column_count(mforms::Table *backend, int count) {
   TableWrapper::GetManagedObject<Table>(backend)->ColumnCount = count;
   backend->set_layout_dirty(true);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::set_row_spacing(mforms::Table *backend, int space)
-{
+void TableWrapper::set_row_spacing(mforms::Table *backend, int space) {
   TableWrapper::GetManagedObject<Table>(backend)->RowSpacing = space;
   backend->set_layout_dirty(true);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::set_column_spacing(mforms::Table *backend, int space)
-{
+void TableWrapper::set_column_spacing(mforms::Table *backend, int space) {
   TableWrapper::GetManagedObject<Table>(backend)->ColumnSpacing = space;
   backend->set_layout_dirty(true);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::set_homogeneous(mforms::Table *backend, bool value)
-{
+void TableWrapper::set_homogeneous(mforms::Table *backend, bool value) {
   TableWrapper::GetManagedObject<Table>(backend)->Homogeneous = value;
   backend->set_layout_dirty(true);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void TableWrapper::init()
-{
+void TableWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_table_impl.create = &TableWrapper::create;

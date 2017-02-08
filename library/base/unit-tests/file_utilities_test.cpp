@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,23 +25,23 @@
 using namespace base;
 
 #ifdef _WIN32
-#define FILE_SEPARATOR    "\\"
-#define INVALID_NAME      "__test_file01*?"
-#define RESERVED_NAME     "com1"
-#define MKDIR             "mkdir "
-#define READONLY          "attrib +R "
-#define READWRITE         "attrib -R "
+#define FILE_SEPARATOR "\\"
+#define INVALID_NAME "__test_file01*?"
+#define RESERVED_NAME "com1"
+#define MKDIR "mkdir "
+#define READONLY "attrib +R "
+#define READWRITE "attrib -R "
 #else
-#define FILE_SEPARATOR    "/"
-#define INVALID_NAME      "__test_file01/?"
-#define RESERVED_NAME     "."
-#define MKDIR             "mkdir -p "
-#define READONLY          "chmod 0444 "
-#define READWRITE         "chmod 0777 "
+#define FILE_SEPARATOR "/"
+#define INVALID_NAME "__test_file01/?"
+#define RESERVED_NAME "."
+#define MKDIR "mkdir -p "
+#define READONLY "chmod 0444 "
+#define READWRITE "chmod 0777 "
 #endif
 
-#define TEST_DIR_NAME01  "__test_dir01"
-#define TEST_DIR_NAME02  "__test_dir02"
+#define TEST_DIR_NAME01 "__test_dir01"
+#define TEST_DIR_NAME02 "__test_dir02"
 #define TEST_FILE_NAME01 "__test_file01.txt"
 #define TEST_FILE_NAME02 "__test_file02.txt"
 #define TEST_FILE_NAME03 "__test_file03.txt"
@@ -57,14 +57,13 @@ using namespace base;
 BEGIN_TEST_DATA_CLASS(file_utilities_test)
 
 protected:
-  std::string too_long_name;
-  std::string too_long_basename;
-  std::string dir_unicode_name;
-  std::string file_unicode_name;
-  std::string file_unicode_basename;
+std::string too_long_name;
+std::string too_long_basename;
+std::string dir_unicode_name;
+std::string file_unicode_name;
+std::string file_unicode_basename;
 
-TEST_DATA_CONSTRUCTOR(file_utilities_test)
-{
+TEST_DATA_CONSTRUCTOR(file_utilities_test) {
   unsigned int i;
 
   dir_unicode_name.clear();
@@ -80,7 +79,7 @@ TEST_DATA_CONSTRUCTOR(file_utilities_test)
   file_unicode_name += ".txt";
 
   too_long_basename.clear();
-  for (i=0; i < 1000 ;i++)
+  for (i = 0; i < 1000; i++)
     too_long_basename.append("x");
 
   too_long_name.clear();
@@ -96,15 +95,9 @@ TEST_DATA_CONSTRUCTOR(file_utilities_test)
   remove(TEST_FILE_NAME04);
   remove(dir_unicode_name);
   remove(file_unicode_name);
-
-  // Initialize the thread system
-  if (!g_thread_supported())
-    base::threading_init();
 }
 
-TEST_DATA_DESTRUCTOR(file_utilities_test)
-{
-
+TEST_DATA_DESTRUCTOR(file_utilities_test) {
   // Clean up any remaining test directories/files
   remove_recursive(TEST_DIR_NAME01);
   remove_recursive(TEST_DIR_NAME02);
@@ -114,7 +107,6 @@ TEST_DATA_DESTRUCTOR(file_utilities_test)
   remove(TEST_FILE_NAME04);
   remove(dir_unicode_name);
   remove(file_unicode_name);
-
 }
 
 END_TEST_DATA_CLASS;
@@ -126,92 +118,67 @@ TEST_MODULE(file_utilities_test, "file_utilities");
  * - create_directory(const std::string &path, int mode)
  * - remove(const std::string &path)
  */
-TEST_FUNCTION(5)
-{
+TEST_FUNCTION(5) {
   // Remove a non existing directory
-  try
-  {
-    if (base::remove(TEST_DIR_NAME01))
-    {
+  try {
+    if (base::remove(TEST_DIR_NAME01)) {
       // return true means dir already exists
       fail(strfmt("TEST 5.1: Directory \"%s\" already exists", TEST_DIR_NAME01));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot remove directory for document: %s", exc.what()));
   }
 
   // Create a non existing directory
-  try
-  {
-    if (!(base::create_directory(TEST_DIR_NAME01, 0700)))
-    {
+  try {
+    if (!(base::create_directory(TEST_DIR_NAME01, 0700))) {
       // return false means dir already exists
       fail(strfmt("TEST 5.2: Directory \"%s\" already exists", TEST_DIR_NAME01));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot create directory for document: %s", exc.what()));
   }
 
   // Create an already existing directory
-  try
-  {
-    if (base::create_directory(TEST_DIR_NAME01, 0700))
-    {
+  try {
+    if (base::create_directory(TEST_DIR_NAME01, 0700)) {
       // return true means dir does not exist
       fail(strfmt("TEST 5.3: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot create directory for document: %s", exc.what()));
   }
 
   // Remove an existing directory
-  try
-  {
-    if (!base::remove(TEST_DIR_NAME01))
-    {
+  try {
+    if (!base::remove(TEST_DIR_NAME01)) {
       // return false means dir does not exist
       fail(strfmt("TEST 5.4: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot remove directory for document: %s", exc.what()));
   }
 
   // Remove a non existing file
-  try
-  {
-    if (base::remove(TEST_FILE_NAME01))
-    {
+  try {
+    if (base::remove(TEST_FILE_NAME01)) {
       // return true means file already exists
       fail(strfmt("TEST 5.5: File \"%s\" already exists", TEST_FILE_NAME01));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot remove file for document: %s", exc.what()));
   }
 
   // Remove an existing file
-  try
-  {
+  try {
     base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w+"); // Create file
-    test_file_scoped.dispose(); // Close file
+    test_file_scoped.dispose();                                // Close file
 
-    if (!base::remove(TEST_FILE_NAME01))
-    {
+    if (!base::remove(TEST_FILE_NAME01)) {
       // return false means file does not exist
       fail(strfmt("TEST 5.6: File \"%s\" does not exist", TEST_FILE_NAME01));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot remove file for document: %s", exc.what()));
   }
 }
@@ -222,215 +189,142 @@ TEST_FUNCTION(5)
  * - remove(const std::string &path)
  * -- Corner/Limit Values --
  */
-TEST_FUNCTION(10)
-{
+TEST_FUNCTION(10) {
   // Create a directory -- Invalid name
-  try
-  {
+  try {
     base::create_directory(INVALID_NAME, 0700);
     fail(strfmt("TEST 10.1: Directory name \"%s\" did not throw an error", INVALID_NAME));
-  }
-  catch (base::file_error &exc)
-  {
-    if (0 != std::string(exc.what()).find("Could not create directory "))
-    {
-      fail(strfmt("TEST 10.1: Directory name \"%s\" threw an unexpected error: %s",
-                  INVALID_NAME, exc.what()));
+  } catch (base::file_error &exc) {
+    if (0 != std::string(exc.what()).find("Could not create directory ")) {
+      fail(strfmt("TEST 10.1: Directory name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
     }
-  }
-  catch (std::runtime_error &exc)
-  {
-    if (0 != std::string(exc.what()).find("Could not create directory "))
-    {
-      fail(strfmt("TEST 10.1: Directory name \"%s\" threw an unexpected error: %s",
-                  INVALID_NAME, exc.what()));
+  } catch (std::runtime_error &exc) {
+    if (0 != std::string(exc.what()).find("Could not create directory ")) {
+      fail(strfmt("TEST 10.1: Directory name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
     }
-  }
-  catch(std::exception &exc)
-  {
-    fail(strfmt("TEST 10.1: Directory name \"%s\" threw an unexpected error: %s",
-                INVALID_NAME, exc.what()));
+  } catch (std::exception &exc) {
+    fail(strfmt("TEST 10.1: Directory name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
   }
 
   // Create a directory -- Empty name
-  try
-  {
+  try {
     base::create_directory(EMPTY_NAME, 0700);
     fail(strfmt("TEST 10.2: Directory name \"%s\" did not throw an error", EMPTY_NAME));
-  }
-  catch (const base::file_error &exc)
-  {
-    if (0 != std::string(exc.what()).find("Could not create directory "))
-    {
-      fail(strfmt("TEST 10.2: Directory name \"%s\" threw an unexpected error: %s",
-                  EMPTY_NAME, exc.what()));
+  } catch (const base::file_error &exc) {
+    if (0 != std::string(exc.what()).find("Could not create directory ")) {
+      fail(strfmt("TEST 10.2: Directory name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
     }
-  }
-  catch(std::exception &exc)
-  {
-    fail(strfmt("TEST 10.2: Directory name \"%s\" threw an unexpected error: %s",
-                EMPTY_NAME, exc.what()));
+  } catch (std::exception &exc) {
+    fail(strfmt("TEST 10.2: Directory name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
   }
 
   // Create a directory -- Too long name
-  try
-  {
+  try {
     base::create_directory(too_long_name, 0700);
     fail("TEST 10.3: Directory with too long name did not throw an error");
-  }
-  catch (const base::file_error &exc)
-  {
-    if (0 != std::string(exc.what()).find("Could not create directory "))
-    {
-      fail(strfmt("TEST 10.3: Directory with too long name threw an unexpected error: %s",exc.what()));
+  } catch (const base::file_error &exc) {
+    if (0 != std::string(exc.what()).find("Could not create directory ")) {
+      fail(strfmt("TEST 10.3: Directory with too long name threw an unexpected error: %s", exc.what()));
     }
-  }
-  catch(std::exception &exc)
-  {
-    fail(strfmt("TEST 10.3: Directory with too long name threw an unexpected error: %s",exc.what()));
+  } catch (std::exception &exc) {
+    fail(strfmt("TEST 10.3: Directory with too long name threw an unexpected error: %s", exc.what()));
   }
 
   // Create a directory -- Unicode name
-  try
-  {
-    if (!(base::create_directory(dir_unicode_name, 0700)))
-    {
+  try {
+    if (!(base::create_directory(dir_unicode_name, 0700))) {
       // return false means dir already exists
-      fail(strfmt("TEST 10.4: Directory \"%s\" already exists",dir_unicode_name.c_str()));
+      fail(strfmt("TEST 10.4: Directory \"%s\" already exists", dir_unicode_name.c_str()));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot create directory for document: %s", exc.what()));
   }
 
 #ifdef _WIN32
   // Create a directory -- Reserved name. This will not fail in linux, returning false (already exists)
-  try
-  {
+  try {
     base::create_directory(RESERVED_NAME, 0700);
-    fail(strfmt("TEST 10.5: Directory name \"%s\" did not throw an error",RESERVED_NAME));
-  }
-  catch (const base::file_error &exc)
-  {
-    if (0 != std::string(exc.what()).find("Could not create directory "))
-    {
-      fail(strfmt("TEST 10.5: Directory name \"%s\" threw an unexpected error: %s",
-                  RESERVED_NAME, exc.what()));
+    fail(strfmt("TEST 10.5: Directory name \"%s\" did not throw an error", RESERVED_NAME));
+  } catch (const base::file_error &exc) {
+    if (0 != std::string(exc.what()).find("Could not create directory ")) {
+      fail(strfmt("TEST 10.5: Directory name \"%s\" threw an unexpected error: %s", RESERVED_NAME, exc.what()));
     }
-  }
-  catch(std::exception &exc)
-  {
-    fail(strfmt("TEST 10.5: Directory name \"%s\" threw an unexpected error: %s",
-                RESERVED_NAME, exc.what()));
+  } catch (std::exception &exc) {
+    fail(strfmt("TEST 10.5: Directory name \"%s\" threw an unexpected error: %s", RESERVED_NAME, exc.what()));
   }
 #endif
 
   // Create a file -- Unicode name
-  try
-  {
+  try {
     base::FileHandle test_file_scoped(file_unicode_name.c_str(), "w+"); // Create file
-    if (!file_exists(file_unicode_name))
-    {
+    if (!file_exists(file_unicode_name)) {
       // return false means file does not exist
-      fail(strfmt("TEST 10.6: File creation of \"%s\" failed",file_unicode_name.c_str()));
+      fail(strfmt("TEST 10.6: File creation of \"%s\" failed", file_unicode_name.c_str()));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot create file for document: %s", exc.what()));
   }
 #ifdef _WIN32
   // Remove a file/directory -- Invalid name
-  try
-  {
+  try {
     base::remove(INVALID_NAME);
-    fail(strfmt("TEST 10.7: Directory name \"%s\" did not throw an error",INVALID_NAME));
+    fail(strfmt("TEST 10.7: Directory name \"%s\" did not throw an error", INVALID_NAME));
 
-  }
-  catch (const base::file_error &exc)
-  {
-    if (0 != std::string(exc.what()).find("Could not delete file "))
-    {
-      fail(strfmt("TEST 10.7: Directory name \"%s\" threw an unexpected error: %s",
-                  INVALID_NAME, exc.what()));
+  } catch (const base::file_error &exc) {
+    if (0 != std::string(exc.what()).find("Could not delete file ")) {
+      fail(strfmt("TEST 10.7: Directory name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
     }
-  }
-  catch(std::exception &exc)
-  {
-    fail(strfmt("TEST 10.7: Directory name \"%s\" threw an unexpected error: %s",
-                INVALID_NAME, exc.what()));
+  } catch (std::exception &exc) {
+    fail(strfmt("TEST 10.7: Directory name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
   }
 
   // Remove a file/directory -- Empty name
-  try
-  {
+  try {
     base::remove(EMPTY_NAME);
-    fail(strfmt("TEST 10.8: File/Directory name \"%s\" did not throw an error",EMPTY_NAME));
-  }
-  catch (const base::file_error &exc)
-  {
-    if (0 != std::string(exc.what()).find("Could not delete file "))
-    {
-      fail(strfmt("TEST 10.8: Directory name \"%s\" threw an unexpected error: %s",
-                  EMPTY_NAME, exc.what()));
+    fail(strfmt("TEST 10.8: File/Directory name \"%s\" did not throw an error", EMPTY_NAME));
+  } catch (const base::file_error &exc) {
+    if (0 != std::string(exc.what()).find("Could not delete file ")) {
+      fail(strfmt("TEST 10.8: Directory name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
     }
-  }
-  catch(std::exception &exc)
-  {
-    fail(strfmt("TEST 10.8: Directory name \"%s\" threw an unexpected error: %s",
-                EMPTY_NAME, exc.what()));
+  } catch (std::exception &exc) {
+    fail(strfmt("TEST 10.8: Directory name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
   }
 #endif
 
   // Remove a file/directory -- Too long name
-  try
-  {
+  try {
     base::remove(too_long_name);
     fail("TEST 10.9: File/Directory with too long name did not throw an error");
-  }
-  catch (const base::file_error & exc)
-  {
-    if (0 != std::string(exc.what()).find("Could not delete file "))
-    {
-      fail(strfmt("TEST 10.9: File/Directory with too long name threw an unexpected error: %s",exc.what()));
+  } catch (const base::file_error &exc) {
+    if (0 != std::string(exc.what()).find("Could not delete file ")) {
+      fail(strfmt("TEST 10.9: File/Directory with too long name threw an unexpected error: %s", exc.what()));
     }
-  }
-  catch(std::exception &exc)
-  {
-    fail(strfmt("TEST 10.9: File/Directory with too long name threw an unexpected error: %s",exc.what()));
+  } catch (std::exception &exc) {
+    fail(strfmt("TEST 10.9: File/Directory with too long name threw an unexpected error: %s", exc.what()));
   }
 
   // Remove an existing directory -- Unicode name
-  try
-  {
-    if (!base::remove(dir_unicode_name))
-    {
+  try {
+    if (!base::remove(dir_unicode_name)) {
       // return false means dir does not exist
-      fail(strfmt("TEST 10.10: Directory \"%s\" does not exist",dir_unicode_name.c_str()));
+      fail(strfmt("TEST 10.10: Directory \"%s\" does not exist", dir_unicode_name.c_str()));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot remove directory for document: %s", exc.what()));
   }
 
   // Remove an existing file -- Unicode name
-  try
-  {
-    if (!base::remove(file_unicode_name))
-    {
+  try {
+    if (!base::remove(file_unicode_name)) {
       // return false means file does not exist
-      fail(strfmt("TEST 10.11: File \"%s\" does not exist",file_unicode_name.c_str()));
+      fail(strfmt("TEST 10.11: File \"%s\" does not exist", file_unicode_name.c_str()));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot remove file for document: %s", exc.what()));
   }
 
   // Remove a file/directory -- Reserved name
-  //try
+  // try
   //{
   //  if (base::remove(RESERVED_NAME))
   //  {
@@ -438,7 +332,7 @@ TEST_FUNCTION(10)
   //      fail(strfmt("TEST 10.12: Directory \"%s\" exists",dir_unicode_name));
   //  }
   //}
-  //catch (base::file_error &exc)
+  // catch (base::file_error &exc)
   //{
   //  throw grt::os_error(strfmt("Cannot remove directory for document: %s", exc.what()));
   //}
@@ -454,16 +348,14 @@ TEST_FUNCTION(10)
  * - code()
  * - sys_code()
  */
-TEST_FUNCTION(15)
-{
+TEST_FUNCTION(15) {
   // Miscellaneous variables
   error_code test_result;
   error_code expected_result;
-  //int int_test_result;
-  //int int_expected_result;
+  // int int_test_result;
+  // int int_expected_result;
 
-  try
-  {
+  try {
     // Testing c-tor
     base::file_error c_tor_file_error("Error Test", 0);
 
@@ -471,8 +363,7 @@ TEST_FUNCTION(15)
     test_result = c_tor_file_error.code();
     expected_result = success;
 
-    if(test_result != expected_result)
-    {
+    if (test_result != expected_result) {
       fail("TEST 15.1: Unexpected result calling function code()");
     }
 
@@ -481,16 +372,14 @@ TEST_FUNCTION(15)
     // NOTE: THIS FUNCTION IS NOT IMPLEMENTED YET!!!!
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    //int_test_result = c_tor_file_error.sys_code();
-    //int_expected_result = 0;
+    // int_test_result = c_tor_file_error.sys_code();
+    // int_expected_result = 0;
 
-    //if(int_test_result != int_expected_result)
+    // if(int_test_result != int_expected_result)
     //{
     //  fail("TEST 15.2: Unexpected result calling function sys_code()");
     //}
-  }
-  catch (...)
-  {
+  } catch (...) {
     throw grt::os_error(strfmt("Exception error"));
   }
 }
@@ -500,18 +389,14 @@ TEST_FUNCTION(15)
  * - c-tor
  * -- Corner/Limit Values --
  */
-TEST_FUNCTION(20)
-{
-  try
-  {
+TEST_FUNCTION(20) {
+  try {
     // Testing c-tor -- Empty string
     base::file_error c_tor_file_error_empty(EMPTY_NAME, 0);
 
     // Testing c-tor -- Unicode string
     base::file_error c_tor_file_error_unicode(file_unicode_name, 0);
-  }
-  catch (...)
-  {
+  } catch (...) {
     throw grt::os_error(strfmt("Exception error"));
   }
 }
@@ -523,28 +408,24 @@ TEST_FUNCTION(20)
  * - operator =(FileHandle &fh)
  * - operator ->()
  */
-TEST_FUNCTION(25)
-{
-  try
-  {
+TEST_FUNCTION(25) {
+  try {
     // Miscellaneous variables
     base::FileHandle test_file01(TEST_FILE_NAME01, "w+");
     base::FileHandle test_file03(TEST_FILE_NAME03, "w+");
     base::FileHandle test_file04;
 
-    FILE* test_result = NULL;
-    FILE* expected_result = NULL;
+    FILE *test_result = NULL;
+    FILE *expected_result = NULL;
 
     // Testing overridden operator bool()
-    if (test_file01.operator bool())
-    {
+    if (test_file01.operator bool()) {
       fail("TEST 25.2: Unexpected result calling operator bool()");
     }
 
     test_file01.dispose();
 
-    if (!test_file01.operator bool())
-    {
+    if (!test_file01.operator bool()) {
       fail("TEST 25.3: Unexpected result calling operator bool()");
     }
 
@@ -553,10 +434,8 @@ TEST_FUNCTION(25)
     test_file04 = test_file03;
     test_result = test_file04.file();
 
-    ensure_equals("TEST 25.4: Unexpected result calling operator =(FileHandle &fh)", test_result,expected_result);
-  }
-  catch (base::file_error &exc)
-  {
+    ensure_equals("TEST 25.4: Unexpected result calling operator =(FileHandle &fh)", test_result, expected_result);
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -571,24 +450,22 @@ TEST_FUNCTION(25)
  * - file()
  * - dispose()
  */
-TEST_FUNCTION(30)
-{
-  try
-  {
+TEST_FUNCTION(30) {
+  try {
     // Miscellaneous variables
     base::FileHandle test_file01(TEST_FILE_NAME01, "w+");
     base::FileHandle test_file02(TEST_FILE_NAME02, "w+");
     base::FileHandle test_file03;
 
-    FILE* test_result = NULL;
-    FILE* expected_result = NULL;
+    FILE *test_result = NULL;
+    FILE *expected_result = NULL;
 
     // Testing swap(FileHandle &fh)
     expected_result = test_file02.file();
     test_file01.swap(test_file02);
     test_result = test_file01.file();
 
-    ensure_equals("TEST 30.1: Unexpected result calling function swap(FileHandle &fh)", test_result,expected_result);
+    ensure_equals("TEST 30.1: Unexpected result calling function swap(FileHandle &fh)", test_result, expected_result);
 
     // Testing file()
     ensure("TEST 30.2: Unexpected result calling function file()", test_file01.file() != NULL);
@@ -598,55 +475,43 @@ TEST_FUNCTION(30)
     test_result = test_file01.file();
     expected_result = NULL;
 
-    ensure_equals("TEST 30.3: Unexpected result calling function dispose()", test_result,expected_result);
+    ensure_equals("TEST 30.3: Unexpected result calling function dispose()", test_result, expected_result);
 
     // Testing open_file(const char *filename, const char *mode, bool throw_on_fail= true)
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
-    try
-    {
+    try {
       // throw error (file does not exist)
       base::FileHandle test_file_scoped(TEST_FILE_NAME03, "r");
       fail("TEST 30.4: Unexpected result calling FileHandle c-tor");
-    }
-    catch(...)
-    {
-      //Nothing to do, just catch the error and continue
+    } catch (...) {
+      // Nothing to do, just catch the error and continue
     }
 
     // Testing FileHandle c-tor
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle test_file03(TEST_FILE_NAME03, "r", false);
       test_result = test_file03.file();
       expected_result = NULL;
 
-      ensure_equals("TEST 30.5: Unexpected result calling open_file()", test_result,expected_result);
-    }
-    catch(...)
-    {
+      ensure_equals("TEST 30.5: Unexpected result calling open_file()", test_result, expected_result);
+    } catch (...) {
       fail("TEST 30.5: Unexpected error calling open_file()");
     }
 
-    try
-    {
+    try {
       base::FileHandle test_file04(TEST_FILE_NAME04, "w+");
       test_result = test_file04.file();
 
-      if(!test_result)
-      {
+      if (!test_result) {
         fail("TEST 30.6: Unexpected result calling FileHandle c-tor");
       }
-    }
-    catch(...)
-    {
+    } catch (...) {
       fail("TEST 30.6: Unexpected error calling FileHandle c-tor");
     }
 
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -664,19 +529,17 @@ TEST_FUNCTION(30)
  * - open_file(const char *filename, const char *mode, bool throw_on_fail= true)
  * -- Read-only permissions --
  */
-TEST_FUNCTION(33)
-{
+TEST_FUNCTION(33) {
   // Miscellaneous variables
-  FILE* test_result = NULL;
-  FILE* expected_result = NULL;
+  FILE *test_result = NULL;
+  FILE *expected_result = NULL;
   base::FileHandle test_file01(TEST_FILE_NAME01, "w+");
   base::FileHandle test_file02(TEST_FILE_NAME02, "w+");
   base::FileHandle test_file;
 
   std::string command_line;
 
-  try
-  {
+  try {
     // Change file permissions to read-only
     command_line.clear();
     command_line.assign(READONLY);
@@ -689,20 +552,17 @@ TEST_FUNCTION(33)
     command_line.append(TEST_FILE_NAME02);
 
     system(command_line.c_str());
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
-  try
-  {
+  try {
     // Testing swap(FileHandle &fh)
     expected_result = test_file02.file();
     test_file01.swap(test_file02);
     test_result = test_file01.file();
 
-    ensure_equals("TEST 33.1: Unexpected result calling function swap(FileHandle &fh)", test_result,expected_result);
+    ensure_equals("TEST 33.1: Unexpected result calling function swap(FileHandle &fh)", test_result, expected_result);
 
     // Testing file()
     ensure("TEST 33.2: Unexpected result calling function file()", test_file01.file() != NULL);
@@ -712,58 +572,42 @@ TEST_FUNCTION(33)
     test_result = test_file01.file();
     expected_result = NULL;
 
-    ensure_equals("TEST 33.3: Unexpected result calling function dispose()", test_result,expected_result);
+    ensure_equals("TEST 33.3: Unexpected result calling function dispose()", test_result, expected_result);
 
     // Testing open_file(const char *filename, const char *mode, bool throw_on_fail= true)
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
-    try
-    {
+    try {
       // throw error (file is read-only)
       base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w");
       fail(strfmt("TEST 33.4: Read-only file \"%s\" did not throw an error", TEST_FILE_NAME01));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 33.4: Read-only file \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME01, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 33.4: Read-only file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 33.4: Read-only file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME01, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 33.4: Read-only file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
     }
 
     // test case for 'throw_on_fail' FALSE value
-    try
-    {
+    try {
       // doesn't throw error (even if file is read-only)
       base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w", false);
       test_result = test_file.file();
       expected_result = NULL;
 
-      if(test_result != expected_result)
-      {
+      if (test_result != expected_result) {
         fail("TEST 33.5: Unexpected result calling FileHandle c-tor");
       }
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 33.5: Read-only file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
     }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 33.5: Read-only file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME01, exc.what()));
-    }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
   // Change back permissions to read-write
-  try
-  {
+  try {
     // Change file permissions to read-write
     command_line.clear();
     command_line.assign(READWRITE);
@@ -776,9 +620,7 @@ TEST_FUNCTION(33)
     command_line.append(TEST_FILE_NAME02);
 
     system(command_line.c_str());
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -794,10 +636,8 @@ TEST_FUNCTION(33)
  * - open_file(const char *filename, const char *mode, bool throw_on_fail= true)
  * -- Corner/Limit Values --
  */
-TEST_FUNCTION(35)
-{
-  try
-  {
+TEST_FUNCTION(35) {
+  try {
     // Miscellaneous variables
     base::FileHandle test_file;
 
@@ -805,94 +645,66 @@ TEST_FUNCTION(35)
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Invalid name
-    try
-    {
+    try {
       base::FileHandle test_file_scoped(INVALID_NAME, "r");
-      fail(strfmt("TEST 35.1: File name \"%s\" did not throw an error",INVALID_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 35.1: File name \"%s\" threw an unexpected error: %s",
-                    INVALID_NAME, exc.what()));
+      fail(strfmt("TEST 35.1: File name \"%s\" did not throw an error", INVALID_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 35.1: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 35.1: File name \"%s\" threw an unexpected error: %s",
-                  INVALID_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 35.1: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
     }
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Empty name
-    try
-    {
+    try {
       base::FileHandle test_file_scoped(EMPTY_NAME, "r");
-      fail(strfmt("TEST 35.2: File name \"%s\" did not throw an error",EMPTY_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 35.2: File name \"%s\" threw an unexpected error: %s",
-                    EMPTY_NAME, exc.what()));
+      fail(strfmt("TEST 35.2: File name \"%s\" did not throw an error", EMPTY_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 35.2: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 35.2: File name \"%s\" threw an unexpected error: %s",
-                  EMPTY_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 35.2: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
     }
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Too long name
-    try
-    {
+    try {
       base::FileHandle test_file_scoped(too_long_name.c_str(), "r");
       fail("TEST 35.3: File with too long name did not throw an error");
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 35.3: File with too long name threw an unexpected error: %s",exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 35.3: File with too long name threw an unexpected error: %s", exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 35.3: File with too long name threw an unexpected error: %s",exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 35.3: File with too long name threw an unexpected error: %s", exc.what()));
     }
 
 #ifdef _WIN32
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Unicode name (file doesn't exist)
-    try
-    {
+    try {
       base::FileHandle test_file_scoped(file_unicode_name.c_str(), "r");
       fail("TEST 35.4: File with unicode name did not throw an error");
 
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 35.4: File with unicode name threw an unexpected error: %s",exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 35.4: File with unicode name threw an unexpected error: %s", exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 35.4: File with unicode name threw an unexpected error: %s",exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 35.4: File with unicode name threw an unexpected error: %s", exc.what()));
     }
 #endif
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Reserved name
-    //try
+    // try
     //{
     //    test_file.open_file(RESERVED_NAME, "r");
     //    fail(strfmt("TEST 35.5: File name \"%s\" did not throw an error",RESERVED_NAME));
     //}
-    //catch (const base::file_error &exc)
+    // catch (const base::file_error &exc)
     //{
     //    if (0 != std::string(exc.what()).find("Failed to open file \""))
     //    {
@@ -900,7 +712,7 @@ TEST_FUNCTION(35)
     //            RESERVED_NAME, exc.what()));
     //    }
     //}
-    //catch(std::exception &exc)
+    // catch(std::exception &exc)
     //{
     //    fail(strfmt("TEST 35.5: File name \"%s\" threw an unexpected error: %s",
     //        RESERVED_NAME, exc.what()));
@@ -908,119 +720,93 @@ TEST_FUNCTION(35)
 
     // test case for 'throw_on_fail' FALSE value
     // -- Invalid name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle test_file_scoped(INVALID_NAME, "r", false);
-    }
-    catch(...)
-    {
-      fail(strfmt("TEST 35.6: File name \"%s\" threw an error",INVALID_NAME));
+    } catch (...) {
+      fail(strfmt("TEST 35.6: File name \"%s\" threw an error", INVALID_NAME));
     }
 
     // test case for 'throw_on_fail' FALSE value
     // -- Empty name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle test_file_scoped(EMPTY_NAME, "r", false);
-    }
-    catch(...)
-    {
-      fail(strfmt("TEST 35.7: File name \"%s\" threw an error",EMPTY_NAME));
+    } catch (...) {
+      fail(strfmt("TEST 35.7: File name \"%s\" threw an error", EMPTY_NAME));
     }
 
     // test case for 'throw_on_fail' FALSE value
     // -- Too long name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle test_file_scoped(too_long_name.c_str(), "r", false);
-    }
-    catch(...)
-    {
+    } catch (...) {
       fail("TEST 35.8: File with too long name threw an error");
     }
 
     // test case for 'throw_on_fail' FALSE value
     // -- Unicode name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle test_file_scoped(file_unicode_name.c_str(), "r", false);
-    }
-    catch(...)
-    {
+    } catch (...) {
       fail("TEST 35.9: File with unicode name threw an error");
     }
 
     // test case for 'throw_on_fail' FALSE value
     // -- Reserved name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle test_file_scoped(RESERVED_NAME, "r", false);
-    }
-    catch(...)
-    {
-      fail(strfmt("TEST 35.10: File name \"%s\" threw an error",INVALID_NAME));
+    } catch (...) {
+      fail(strfmt("TEST 35.10: File name \"%s\" threw an error", INVALID_NAME));
     }
 
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
   // Clean leftover test files
   base::remove(file_unicode_name);
-
 }
 
 /*
  * Testing FileHandle c-tors & d-tors
  */
-TEST_FUNCTION(40)
-{
-  try
-  {
+TEST_FUNCTION(40) {
+  try {
     // constructors & miscellaneous variables
     base::FileHandle c_tor_no_name;
     base::FileHandle c_tor_test_filename(TEST_FILE_NAME01, "w+");
     base::FileHandle c_tor_temp(TEST_FILE_NAME02, "w+");
-    FILE* original_c_tor_temp_ptr = c_tor_temp.file();
+    FILE *original_c_tor_temp_ptr = c_tor_temp.file();
     base::FileHandle c_tor_FileHandle_ref(c_tor_temp);
 
     // test case for empty name string
-    FILE* test_result = c_tor_no_name.file();
-    FILE* expected_result = NULL;
+    FILE *test_result = c_tor_no_name.file();
+    FILE *expected_result = NULL;
 
-    ensure_equals("TEST 40.1: Unexpected result calling FileHandle constructor", test_result,expected_result);
+    ensure_equals("TEST 40.1: Unexpected result calling FileHandle constructor", test_result, expected_result);
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
-    try
-    {
+    try {
       // throw error (file does not exist)
       base::FileHandle c_tor_throw_on_fail(TEST_FILE_NAME03, "r");
       fail("TEST 40.2: Unexpected result calling FileHandle constructor");
-    }
-    catch(...)
-    {
-      //Nothing to do, just catch the error and continue
+    } catch (...) {
+      // Nothing to do, just catch the error and continue
     }
 
     // test case for 'throw_on_fail' FALSE value
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle c_tor_throw_on_fail(TEST_FILE_NAME03, "r", false);
       test_result = c_tor_throw_on_fail.file();
       expected_result = NULL;
 
-      ensure_equals("TEST 40.3: Unexpected result calling FileHandle constructor", test_result,expected_result);
-    }
-    catch(...)
-    {
+      ensure_equals("TEST 40.3: Unexpected result calling FileHandle constructor", test_result, expected_result);
+    } catch (...) {
       fail("TEST 40.3: Unexpected result calling FileHandle constructor");
     }
 
@@ -1028,17 +814,15 @@ TEST_FUNCTION(40)
     test_result = c_tor_FileHandle_ref.file();
     expected_result = original_c_tor_temp_ptr;
 
-    ensure_equals("TEST 40.5: Unexpected result calling FileHandle constructor", test_result,expected_result);
+    ensure_equals("TEST 40.5: Unexpected result calling FileHandle constructor", test_result, expected_result);
 
     // test case for d-tor
     c_tor_FileHandle_ref.~FileHandle();
     test_result = c_tor_FileHandle_ref.file();
     expected_result = NULL;
 
-    ensure_equals("TEST 40.6: Unexpected result calling FileHandle destructor", test_result,expected_result);
-  }
-  catch (base::file_error &exc)
-  {
+    ensure_equals("TEST 40.6: Unexpected result calling FileHandle destructor", test_result, expected_result);
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -1051,91 +835,61 @@ TEST_FUNCTION(40)
  * Testing FileHandle c-tors
  * -- Corner/Limit Values --
  */
-TEST_FUNCTION(45)
-{
-  try
-  {
+TEST_FUNCTION(45) {
+  try {
     // Testing FileHandle(const char *filename, const char *mode, bool throw_on_fail= true)
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Invalid name
-    try
-    {
+    try {
       base::FileHandle c_tor(INVALID_NAME, "r");
-      fail(strfmt("TEST 45.1: File name \"%s\" did not throw an error",INVALID_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 45.1: File name \"%s\" threw an unexpected error: %s",
-                    INVALID_NAME, exc.what()));
+      fail(strfmt("TEST 45.1: File name \"%s\" did not throw an error", INVALID_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 45.1: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 45.1: File name \"%s\" threw an unexpected error: %s",
-                  INVALID_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 45.1: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
     }
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Empty name
-    try
-    {
+    try {
       base::FileHandle c_tor(EMPTY_NAME, "r");
-      fail(strfmt("TEST 45.2: File name \"%s\" did not throw an error",EMPTY_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 45.2: File name \"%s\" threw an unexpected error: %s",
-                    EMPTY_NAME, exc.what()));
+      fail(strfmt("TEST 45.2: File name \"%s\" did not throw an error", EMPTY_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 45.2: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 45.2: File name \"%s\" threw an unexpected error: %s",
-                  EMPTY_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 45.2: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
     }
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Too long name
-    try
-    {
+    try {
       base::FileHandle c_tor(too_long_name.c_str(), "r");
       fail("TEST 45.3: File with too long name did not throw an error");
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 45.3: File with too long name threw an unexpected error: %s",exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 45.3: File with too long name threw an unexpected error: %s", exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 45.3: File with too long name threw an unexpected error: %s",exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 45.3: File with too long name threw an unexpected error: %s", exc.what()));
     }
 #ifdef _WIN32
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Unicode name (file doesn't exist)
-    try
-    {
+    try {
       base::FileHandle c_tor(file_unicode_name.c_str(), "r");
       fail("TEST 45.4: File with unicode name did not throw an error");
 
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 45.4: File with unicode name threw an unexpected error: %s",exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 45.4: File with unicode name threw an unexpected error: %s", exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 45.4: File with unicode name threw an unexpected error: %s",exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 45.4: File with unicode name threw an unexpected error: %s", exc.what()));
     }
 
 #if 0 // this test is not reliable, in some systems/setups this works fine and in some others it'll throw an exception
@@ -1165,67 +919,50 @@ TEST_FUNCTION(45)
 #endif
     // test case for 'throw_on_fail' FALSE value
     // -- Invalid name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle c_tor(INVALID_NAME, "r", false);
-    }
-    catch(...)
-    {
-      fail(strfmt("TEST 45.6: File name \"%s\" threw an error",INVALID_NAME));
+    } catch (...) {
+      fail(strfmt("TEST 45.6: File name \"%s\" threw an error", INVALID_NAME));
     }
 
     // test case for 'throw_on_fail' FALSE value
     // -- Empty name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle c_tor(EMPTY_NAME, "r", false);
-    }
-    catch(...)
-    {
-      fail(strfmt("TEST 45.7: File name \"%s\" threw an error",EMPTY_NAME));
+    } catch (...) {
+      fail(strfmt("TEST 45.7: File name \"%s\" threw an error", EMPTY_NAME));
     }
 
     // test case for 'throw_on_fail' FALSE value
     // -- Too long name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle c_tor(too_long_name.c_str(), "r", false);
-    }
-    catch(...)
-    {
+    } catch (...) {
       fail("TEST 45.8: File with too long name threw an error");
     }
 
     // test case for 'throw_on_fail' FALSE value
     // -- Unicode name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle c_tor(file_unicode_name.c_str(), "r", false);
-    }
-    catch(...)
-    {
+    } catch (...) {
       fail("TEST 45.9: File with unicode name threw an error");
     }
 
     // test case for 'throw_on_fail' FALSE value
     // -- Reserved name
-    try
-    {
+    try {
       // doesn't throw error (even if file does not exist)
       base::FileHandle c_tor(RESERVED_NAME, "r", false);
-    }
-    catch(...)
-    {
-      fail(strfmt("TEST 45.10: File name \"%s\" threw an error",RESERVED_NAME));
+    } catch (...) {
+      fail(strfmt("TEST 45.10: File name \"%s\" threw an error", RESERVED_NAME));
     }
 
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -1244,13 +981,11 @@ TEST_FUNCTION(45)
  * - strip_extension(const std::string &path)
  * - remove_recursive(const std::string &path)
  */
-TEST_FUNCTION(50)
-{
+TEST_FUNCTION(50) {
   std::string command_line;
   std::string test_result;
 
-  try
-  {
+  try {
     // Create subdirectory structure
     command_line.clear();
     command_line.assign(MKDIR);
@@ -1266,41 +1001,32 @@ TEST_FUNCTION(50)
     command_line.append(TEST_DIR_NAME02);
 
     system(command_line.c_str());
-  }
-  catch (std::runtime_error &exc)
-  {
+  } catch (std::runtime_error &exc) {
     throw grt::os_error(strfmt("Runtime error: %s", exc.what()));
   }
 
-  try
-  {
+  try {
     // Create file
     base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w+");
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
-  try
-  {
+  try {
     // Testing file_exists(const std::string &path) with a directory
-    if (!base::file_exists(TEST_DIR_NAME01))
-    {
+    if (!base::file_exists(TEST_DIR_NAME01)) {
       // return false means dir does not exist
       fail(strfmt("TEST 50.1: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
 
     // Testing file_exists(const std::string &path) with a file
-    if (!base::file_exists(TEST_FILE_NAME01))
-    {
+    if (!base::file_exists(TEST_FILE_NAME01)) {
       // return false means file does not exist
       fail(strfmt("TEST 50.2: File \"%s\" does not exist", TEST_FILE_NAME01));
     }
 
     // Testing is_directory(const std::string &path)
-    if (!base::is_directory(TEST_DIR_NAME01))
-    {
+    if (!base::is_directory(TEST_DIR_NAME01)) {
       // return false means TEST_DIR_NAME01 is not a directory
       fail(strfmt("TEST 50.3: \"%s\" is not a directory", TEST_DIR_NAME01));
     }
@@ -1317,14 +1043,12 @@ TEST_FUNCTION(50)
     // Testing rename(const std::string &from, const std::string &to)
     base::rename(TEST_FILE_NAME01, TEST_FILE_NAME02);
 
-    if (base::file_exists(TEST_FILE_NAME01))
-    {
+    if (base::file_exists(TEST_FILE_NAME01)) {
       // return true means old file still exists
       fail(strfmt("TEST 50.6: File \"%s\" still exists", TEST_FILE_NAME01));
     }
 
-    if (!base::file_exists(TEST_FILE_NAME02))
-    {
+    if (!base::file_exists(TEST_FILE_NAME02)) {
       // return false means new file does not exist
       fail(strfmt("TEST 50.7: File \"%s\" does not exist", TEST_FILE_NAME02));
     }
@@ -1345,14 +1069,11 @@ TEST_FUNCTION(50)
     ensure_equals("TEST 50.10: Unexpected result calling strip_extension()", test_result, TEST_FILE_STRIPPED_NAME02);
 
     // Testing remove_recursive(const std::string &path)
-    if (!base::remove_recursive(TEST_DIR_NAME01))
-    {
+    if (!base::remove_recursive(TEST_DIR_NAME01)) {
       // return false means dir does not exist
       fail(strfmt("TEST 50.11: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -1375,13 +1096,11 @@ TEST_FUNCTION(50)
  * - remove_recursive(const std::string &path)
  * -- Corner/Limit Values --
  */
-TEST_FUNCTION(53)
-{
+TEST_FUNCTION(53) {
   std::string command_line;
   std::string test_result;
 
-  try
-  {
+  try {
     // Create subdirectory structure
     command_line.clear();
     command_line.assign(MKDIR);
@@ -1391,52 +1110,40 @@ TEST_FUNCTION(53)
 
     system(command_line.c_str());
 
-  }
-  catch (std::runtime_error &exc)
-  {
+  } catch (std::runtime_error &exc) {
     throw grt::os_error(strfmt("Runtime error: %s", exc.what()));
   }
 
-  try
-  {
+  try {
     // Create file
     base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w+");
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
-  try
-  {
+  try {
     // Testing file_exists(const std::string &path)
 
     // -- Invalid name
-    if (base::file_exists(INVALID_NAME))
-    {
+    if (base::file_exists(INVALID_NAME)) {
       // return true means file/dir exists
-      fail(strfmt("TEST 53.1: 'file_exists()' returned TRUE for invalid name \"%s\""
-                  ,INVALID_NAME));
+      fail(strfmt("TEST 53.1: 'file_exists()' returned TRUE for invalid name \"%s\"", INVALID_NAME));
     }
 
     // -- Empty name
-    if (base::file_exists(EMPTY_NAME))
-    {
+    if (base::file_exists(EMPTY_NAME)) {
       // return true means file/dir exists
-      fail(strfmt("TEST 53.2: 'file_exists()' returned TRUE for empty name \"%s\""
-                  ,EMPTY_NAME));
+      fail(strfmt("TEST 53.2: 'file_exists()' returned TRUE for empty name \"%s\"", EMPTY_NAME));
     }
 
     // -- Too long name
-    if (base::file_exists(too_long_name.c_str()))
-    {
+    if (base::file_exists(too_long_name.c_str())) {
       // return true means file/dir exists
       fail(strfmt("TEST 53.3: 'file_exists()' returned TRUE for a too long name"));
     }
 
     // -- Unicode name
-    if (base::file_exists(file_unicode_name.c_str()))
-    {
+    if (base::file_exists(file_unicode_name.c_str())) {
       // return true means file/dir exists
       fail(strfmt("TEST 53.4: 'file_exists()' returned TRUE for a unicode name"));
     }
@@ -1444,42 +1151,34 @@ TEST_FUNCTION(53)
     // Testing is_directory(const std::string &path)
 
     // -- Invalid name
-    if (base::is_directory(INVALID_NAME))
-    {
+    if (base::is_directory(INVALID_NAME)) {
       // return true means directory exists
-      fail(strfmt("TEST 53.5: 'is_directory()' returned TRUE for invalid name \"%s\""
-                  ,INVALID_NAME));
+      fail(strfmt("TEST 53.5: 'is_directory()' returned TRUE for invalid name \"%s\"", INVALID_NAME));
     }
 
     // -- Empty name
-    if (base::is_directory(EMPTY_NAME))
-    {
+    if (base::is_directory(EMPTY_NAME)) {
       // return true means file/dir exists
-      fail(strfmt("TEST 53.6: 'is_directory()' returned TRUE for empty name \"%s\""
-                  ,EMPTY_NAME));
+      fail(strfmt("TEST 53.6: 'is_directory()' returned TRUE for empty name \"%s\"", EMPTY_NAME));
     }
 
     // -- Too long name
-    if (base::is_directory(too_long_name.c_str()))
-    {
+    if (base::is_directory(too_long_name.c_str())) {
       // return true means file/dir exists
       fail(strfmt("TEST 53.7: 'is_directory()' returned TRUE for a too long name"));
     }
 
     // -- Unicode name
-    if (base::is_directory(file_unicode_name.c_str()))
-    {
+    if (base::is_directory(file_unicode_name.c_str())) {
       // return true means file/dir exists
       fail(strfmt("TEST 53.8: 'is_directory()' returned TRUE for a unicode name"));
     }
 
 #ifdef _WIN32
     // -- Reserved name
-    if (base::is_directory(RESERVED_NAME))
-    {
+    if (base::is_directory(RESERVED_NAME)) {
       // return true means directory exists
-      fail(strfmt("TEST 53.9: 'is_directory()' returned TRUE for reserved name \"%s\""
-                  ,RESERVED_NAME));
+      fail(strfmt("TEST 53.9: 'is_directory()' returned TRUE for reserved name \"%s\"", RESERVED_NAME));
     }
 
     // Testing dirname(const std::string &path)
@@ -1512,337 +1211,222 @@ TEST_FUNCTION(53)
     // Testing rename(const std::string &from, const std::string &to)
 
     // -- Invalid name (1st parameter)
-    try
-    {
+    try {
       base::rename(INVALID_NAME, TEST_FILE_NAME02);
-      fail(strfmt("TEST 53.15: File name \"%s\" did not throw an error",INVALID_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.15: File name \"%s\" threw an unexpected error: %s",
-                    INVALID_NAME, exc.what()));
+      fail(strfmt("TEST 53.15: File name \"%s\" did not throw an error", INVALID_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.15: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.15: File name \"%s\" threw an unexpected error: %s",
-                  INVALID_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.15: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
     }
 
     // -- Invalid name (2nd parameter)
-    try
-    {
+    try {
       base::rename(TEST_FILE_NAME01, INVALID_NAME);
-      fail(strfmt("TEST 53.16: File name \"%s\" did not throw an error",INVALID_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.16: File name \"%s\" threw an unexpected error: %s",
-                    INVALID_NAME, exc.what()));
+      fail(strfmt("TEST 53.16: File name \"%s\" did not throw an error", INVALID_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.16: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.16: File name \"%s\" threw an unexpected error: %s",
-                  INVALID_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.16: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
     }
 
     // -- Invalid name (both parameters)
-    try
-    {
+    try {
       base::rename(INVALID_NAME, INVALID_NAME);
-      fail(strfmt("TEST 53.17: File name \"%s\" did not throw an error",INVALID_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.17: File name \"%s\" threw an unexpected error: %s",
-                    INVALID_NAME, exc.what()));
+      fail(strfmt("TEST 53.17: File name \"%s\" did not throw an error", INVALID_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.17: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.17: File name \"%s\" threw an unexpected error: %s",
-                  INVALID_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.17: File name \"%s\" threw an unexpected error: %s", INVALID_NAME, exc.what()));
     }
 
     // -- Empty name (1st parameter)
-    try
-    {
+    try {
       base::rename(EMPTY_NAME, TEST_FILE_NAME02);
-      fail(strfmt("TEST 53.18: File name \"%s\" did not throw an error",EMPTY_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.18: File name \"%s\" threw an unexpected error: %s",
-                    EMPTY_NAME, exc.what()));
+      fail(strfmt("TEST 53.18: File name \"%s\" did not throw an error", EMPTY_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.18: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.18: File name \"%s\" threw an unexpected error: %s",
-                  EMPTY_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.18: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
     }
 
     // -- Empty name (2nd parameter)
-    try
-    {
+    try {
       base::rename(TEST_FILE_NAME01, EMPTY_NAME);
-      fail(strfmt("TEST 53.19: File name \"%s\" did not throw an error",EMPTY_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.19: File name \"%s\" threw an unexpected error: %s",
-                    EMPTY_NAME, exc.what()));
+      fail(strfmt("TEST 53.19: File name \"%s\" did not throw an error", EMPTY_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.19: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.19: File name \"%s\" threw an unexpected error: %s",
-                  EMPTY_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.19: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
     }
 
     // -- Empty name (both parameters)
-    try
-    {
+    try {
       base::rename(EMPTY_NAME, EMPTY_NAME);
-      fail(strfmt("TEST 53.20: File name \"%s\" did not throw an error",EMPTY_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.20: File name \"%s\" threw an unexpected error: %s",
-                    EMPTY_NAME, exc.what()));
+      fail(strfmt("TEST 53.20: File name \"%s\" did not throw an error", EMPTY_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.20: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.20: File name \"%s\" threw an unexpected error: %s",
-                  EMPTY_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.20: File name \"%s\" threw an unexpected error: %s", EMPTY_NAME, exc.what()));
     }
 
     // -- Too long name (1st parameter)
-    try
-    {
+    try {
       base::rename(too_long_name.c_str(), TEST_FILE_NAME02);
       fail("TEST 53.21: Too long file name did not throw an error");
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.21: Too long file name threw an unexpected error: %s",exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.21: Too long file name threw an unexpected error: %s", exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.21: Too long file name threw an unexpected error: %s",exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.21: Too long file name threw an unexpected error: %s", exc.what()));
     }
 
     // -- Too long name (2nd parameter)
-    try
-    {
+    try {
       base::rename(TEST_FILE_NAME01, too_long_name.c_str());
       fail("TEST 53.22: Too long file name did not throw an error");
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.22: Too long file name threw an unexpected error: %s",exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.22: Too long file name threw an unexpected error: %s", exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.22: Too long file name threw an unexpected error: %s",exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.22: Too long file name threw an unexpected error: %s", exc.what()));
     }
 
     // -- Too long name (both parameters)
-    try
-    {
+    try {
       base::rename(too_long_name.c_str(), too_long_name.c_str());
       fail("TEST 53.23: Too long file name did not throw an error");
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.23: Too long file name threw an unexpected error: %s",exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.23: Too long file name threw an unexpected error: %s", exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.23: Too long file name threw an unexpected error: %s",exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.23: Too long file name threw an unexpected error: %s", exc.what()));
     }
 
     // -- Reserved name (1st parameter)
-    try
-    {
+    try {
       base::rename(RESERVED_NAME, TEST_FILE_NAME02);
-      fail(strfmt("TEST 53.24: File name \"%s\" did not throw an error",RESERVED_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.24: File name \"%s\" threw an unexpected error: %s",
-                    RESERVED_NAME, exc.what()));
+      fail(strfmt("TEST 53.24: File name \"%s\" did not throw an error", RESERVED_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.24: File name \"%s\" threw an unexpected error: %s", RESERVED_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.24: File name \"%s\" threw an unexpected error: %s",
-                  RESERVED_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.24: File name \"%s\" threw an unexpected error: %s", RESERVED_NAME, exc.what()));
     }
 
     // -- Reserved name (2nd parameter)
-    try
-    {
+    try {
       base::rename(TEST_FILE_NAME01, RESERVED_NAME);
-      fail(strfmt("TEST 53.25: File name \"%s\" did not throw an error",RESERVED_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.25: File name \"%s\" threw an unexpected error: %s",
-                    RESERVED_NAME, exc.what()));
+      fail(strfmt("TEST 53.25: File name \"%s\" did not throw an error", RESERVED_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.25: File name \"%s\" threw an unexpected error: %s", RESERVED_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.25: File name \"%s\" threw an unexpected error: %s",
-                  RESERVED_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.25: File name \"%s\" threw an unexpected error: %s", RESERVED_NAME, exc.what()));
     }
 
     // -- Reserved name (both parameters)
-    try
-    {
+    try {
       base::rename(RESERVED_NAME, RESERVED_NAME);
-      fail(strfmt("TEST 53.26: File name \"%s\" did not throw an error",RESERVED_NAME));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.26: File name \"%s\" threw an unexpected error: %s",
-                    RESERVED_NAME, exc.what()));
+      fail(strfmt("TEST 53.26: File name \"%s\" did not throw an error", RESERVED_NAME));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.26: File name \"%s\" threw an unexpected error: %s", RESERVED_NAME, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.26: File name \"%s\" threw an unexpected error: %s",
-                  RESERVED_NAME, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.26: File name \"%s\" threw an unexpected error: %s", RESERVED_NAME, exc.what()));
     }
 
     // -- Unicode name (change from ASCII to Unicode)
     base::rename(TEST_FILE_NAME01, file_unicode_name.c_str());
 
-    if (base::file_exists(TEST_FILE_NAME01))
-    {
+    if (base::file_exists(TEST_FILE_NAME01)) {
       // return true means old file still exists
       fail(strfmt("TEST 53.27: File \"%s\" still exists", TEST_FILE_NAME01));
     }
 
-    if (!base::file_exists(file_unicode_name.c_str()))
-    {
+    if (!base::file_exists(file_unicode_name.c_str())) {
       // return false means new file does not exist
-      fail(strfmt("TEST 53.28: File \"%s\" does not exist",file_unicode_name.c_str()));
+      fail(strfmt("TEST 53.28: File \"%s\" does not exist", file_unicode_name.c_str()));
     }
 
     // -- Unicode name (change back from Unicode to ASCII)
     base::rename(file_unicode_name.c_str(), TEST_FILE_NAME01);
 
-    if (base::file_exists(file_unicode_name.c_str()))
-    {
+    if (base::file_exists(file_unicode_name.c_str())) {
       // return true means old file still exists
-      fail(strfmt("TEST 53.29: File \"%s\" still exists",file_unicode_name.c_str()));
+      fail(strfmt("TEST 53.29: File \"%s\" still exists", file_unicode_name.c_str()));
     }
 
-    if (!base::file_exists(TEST_FILE_NAME01))
-    {
+    if (!base::file_exists(TEST_FILE_NAME01)) {
       // return false means new file does not exist
       fail(strfmt("TEST 53.30: File \"%s\" does not exist", TEST_FILE_NAME01));
     }
 
     // -- Source File does not exist
-    try
-    {
+    try {
       base::rename(TEST_FILE_NAME03, TEST_FILE_NAME02);
       fail(strfmt("TEST 53.31: Non-existing file \"%s\" did not throw an error", TEST_FILE_NAME03));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.31: Non-existing file \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME03, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(
+          strfmt("TEST 53.31: Non-existing file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME03, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.31: Non-existing file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME03, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.31: Non-existing file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME03, exc.what()));
     }
 #ifdef _WIN32
     // -- Target File already exists
-    try
-    {
+    try {
       // Create file
       base::FileHandle test_file_scoped(TEST_FILE_NAME03, "w+");
 
       base::rename(TEST_FILE_NAME01, TEST_FILE_NAME03);
       fail(strfmt("TEST 53.32: Already-existing file \"%s\" did not throw an error", TEST_FILE_NAME03));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.32: Already-existing file \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME03, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 53.32: Already-existing file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME03,
+                    exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.32: Already-existing file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME03, exc.what()));
+    } catch (std::exception &exc) {
+      fail(
+        strfmt("TEST 53.32: Already-existing file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME03, exc.what()));
     }
 #endif
     // -- Source & Target files are the same, and non-existing
-    try
-    {
+    try {
       base::rename(TEST_FILE_NAME02, TEST_FILE_NAME02);
       fail(strfmt("TEST 53.33: Non-existing files \"%s\" did not throw an error", TEST_FILE_NAME02));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 53.33: Non-existing files \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME02, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(
+          strfmt("TEST 53.33: Non-existing files \"%s\" threw an unexpected error: %s", TEST_FILE_NAME02, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 53.33: Non-existing files \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME02, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 53.33: Non-existing files \"%s\" threw an unexpected error: %s", TEST_FILE_NAME02, exc.what()));
     }
 
     // -- Source & Target files are the same, and both exist
     base::rename(TEST_FILE_NAME01, TEST_FILE_NAME01);
 
-    if (!base::file_exists(TEST_FILE_NAME01))
-    {
+    if (!base::file_exists(TEST_FILE_NAME01)) {
       // return false means new file does not exist
       fail(strfmt("TEST 53.34: File \"%s\" does not exist", TEST_FILE_NAME01));
     }
@@ -1912,8 +1496,7 @@ TEST_FUNCTION(53)
     // -- Too long name
     test_result.clear();
     test_result = base::strip_extension(too_long_name.c_str());
-    ensure_equals("TEST 53.46: Unexpected result calling strip_extension()", test_result,
-                  too_long_basename.c_str());
+    ensure_equals("TEST 53.46: Unexpected result calling strip_extension()", test_result, too_long_basename.c_str());
 
     // -- Unicode name
     test_result.clear();
@@ -1931,14 +1514,12 @@ TEST_FUNCTION(53)
     // -- No extension
     test_result.clear();
     test_result = base::strip_extension("filename_with_no_extension");
-    ensure_equals("TEST 53.49: Unexpected result calling strip_extension()", test_result,
-                  "filename_with_no_extension");
+    ensure_equals("TEST 53.49: Unexpected result calling strip_extension()", test_result, "filename_with_no_extension");
 
     // -- No extension with dot
     test_result.clear();
     test_result = base::strip_extension("filename_with_no_extension.");
-    ensure_equals("TEST 53.50: Unexpected result calling strip_extension()", test_result,
-                  "filename_with_no_extension");
+    ensure_equals("TEST 53.50: Unexpected result calling strip_extension()", test_result, "filename_with_no_extension");
 
     // -- Only extension
     test_result.clear();
@@ -1953,22 +1534,19 @@ TEST_FUNCTION(53)
     // Testing remove_recursive(const std::string &path)
 
     // -- Invalid name
-    if (base::remove_recursive(INVALID_NAME))
-    {
+    if (base::remove_recursive(INVALID_NAME)) {
       // return true means dir exists
       fail(strfmt("TEST 53.53: Directory \"%s\" exists", INVALID_NAME));
     }
 
     // -- Empty name
-    if (base::remove_recursive(EMPTY_NAME))
-    {
+    if (base::remove_recursive(EMPTY_NAME)) {
       // return true means dir exists
-      fail(strfmt("TEST 53.54: Directory \"%s\" exists",EMPTY_NAME));
+      fail(strfmt("TEST 53.54: Directory \"%s\" exists", EMPTY_NAME));
     }
 
     // -- Too long name
-    if (base::remove_recursive(too_long_name.c_str()))
-    {
+    if (base::remove_recursive(too_long_name.c_str())) {
       // return true means dir exists
       fail(strfmt("TEST 53.55: Directory \"%s\" exists", too_long_name.c_str()));
     }
@@ -1976,22 +1554,18 @@ TEST_FUNCTION(53)
     // -- Unicode name
     base::rename(TEST_DIR_NAME01, dir_unicode_name.c_str());
 
-    if (!base::remove_recursive(dir_unicode_name.c_str()))
-    {
+    if (!base::remove_recursive(dir_unicode_name.c_str())) {
       // return false means dir does not exist
       fail("TEST 53.56: Directory with Unicode name does not exist");
     }
 #ifdef _WIN32
     // -- Reserved name
-    if (base::remove_recursive(RESERVED_NAME))
-    {
+    if (base::remove_recursive(RESERVED_NAME)) {
       // return true means dir exists
       fail(strfmt("TEST 53.57: Directory \"%s\" exists", RESERVED_NAME));
     }
 #endif
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -2011,12 +1585,10 @@ TEST_FUNCTION(53)
  * -- Read-only permissions --
  */
 #ifdef _WIN32
-TEST_FUNCTION(54)
-{
+TEST_FUNCTION(54) {
   std::string command_line;
 
-  try
-  {
+  try {
     // Create subdirectory structure
     command_line.clear();
     command_line.assign(MKDIR);
@@ -2032,14 +1604,11 @@ TEST_FUNCTION(54)
     command_line.append(TEST_DIR_NAME02);
 
     system(command_line.c_str());
-  }
-  catch (std::runtime_error &exc)
-  {
+  } catch (std::runtime_error &exc) {
     throw grt::os_error(strfmt("Runtime error: %s", exc.what()));
   }
 
-  try
-  {
+  try {
     // Create file
     base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w+");
 
@@ -2062,84 +1631,60 @@ TEST_FUNCTION(54)
     command_line.append(TEST_DIR_NAME02);
 
     system(command_line.c_str());
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
-  try
-  {
+  try {
     // Rename a read-only file
     base::rename(TEST_FILE_NAME01, TEST_FILE_NAME02);
 
-    if (base::file_exists(TEST_FILE_NAME01))
-    {
+    if (base::file_exists(TEST_FILE_NAME01)) {
       // return true means old file still exists
       fail(strfmt("TEST 54.1: File \"%s\" still exists", TEST_FILE_NAME01));
     }
 
-    if (!base::file_exists(TEST_FILE_NAME02))
-    {
+    if (!base::file_exists(TEST_FILE_NAME02)) {
       // return false means new file does not exist
       fail(strfmt("TEST 54.1: File \"%s\" does not exist", TEST_FILE_NAME02));
     }
 
     // Remove a read-only directory
-    try
-    {
+    try {
       bool result = base::remove(TEST_DIR_NAME02);
       fail(strfmt("TEST 54.2: Read-only directory \"%s\" did not throw an error", TEST_DIR_NAME02));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not delete file "))
-      {
-        fail(strfmt("TEST 54.2: Read-only directory \"%s\" threw an unexpected error: %s",
-                    TEST_DIR_NAME02, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not delete file ")) {
+        fail(
+          strfmt("TEST 54.2: Read-only directory \"%s\" threw an unexpected error: %s", TEST_DIR_NAME02, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 54.2: Read-only directory \"%s\" threw an unexpected error: %s",
-                  TEST_DIR_NAME02, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 54.2: Read-only directory \"%s\" threw an unexpected error: %s", TEST_DIR_NAME02, exc.what()));
     }
 
     // Remove a read-only file
-    try
-    {
+    try {
       base::remove(TEST_FILE_NAME02);
       fail(strfmt("TEST 54.3: Read-only file \"%s\" did not throw an error", TEST_FILE_NAME02));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not delete file "))
-      {
-        fail(strfmt("TEST 54.3: Read-only file \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME02, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not delete file ")) {
+        fail(strfmt("TEST 54.3: Read-only file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME02, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 54.3: Read-only file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME02, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 54.3: Read-only file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME02, exc.what()));
     }
 
     // Recursively remove a read-only directory structure
-    if (!base::remove_recursive(TEST_DIR_NAME01))
-    {
+    if (!base::remove_recursive(TEST_DIR_NAME01)) {
       // return false means dir does not exist
       fail(strfmt("TEST 54.4: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
   // Change back permissions to read-write
-  try
-  {
+  try {
     // Change file permission to read-write
     command_line.clear();
     command_line.assign(READWRITE);
@@ -2159,9 +1704,7 @@ TEST_FUNCTION(54)
     command_line.append(TEST_DIR_NAME02);
 
     system(command_line.c_str());
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -2178,12 +1721,10 @@ TEST_FUNCTION(54)
  * - scan_for_files_matching(const std::string &pattern,
  bool recursive = false);
  */
-TEST_FUNCTION(55)
-{
+TEST_FUNCTION(55) {
   std::string command_line;
 
-  try
-  {
+  try {
     // Create subdirectory structure
     command_line.clear();
     command_line.assign(MKDIR);
@@ -2199,62 +1740,49 @@ TEST_FUNCTION(55)
     command_line.append(TEST_DIR_NAME02);
 
     system(command_line.c_str());
-  }
-  catch (std::runtime_error &exc)
-  {
+  } catch (std::runtime_error &exc) {
     throw grt::os_error(strfmt("Runtime error: %s", exc.what()));
   }
 
-  try
-  {
+  try {
     // Create files
     base::FileHandle test_file01(TEST_FILE_NAME01, "w+");
     base::FileHandle test_file02(TEST_FILE_NAME02, "w+");
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
   // test case for 'recursive' default value (i.e. FALSE)
-  try
-  {
+  try {
     std::string search_pattern = "." FILE_SEPARATOR FILE_PATTERN "*";
     std::list<std::string> test_result = base::scan_for_files_matching(search_pattern);
 
-    ensure("TEST 55.1: File matching returned an empty list",!test_result.empty());
+    ensure("TEST 55.1: File matching returned an empty list", !test_result.empty());
     ensure_equals("TEST 55.2: Invalid list size", test_result.size(), 4U);
 
-    while (!test_result.empty())
-    {
+    while (!test_result.empty()) {
       ensure("TEST 55.3: Invalid file matching", std::string::npos != test_result.front().find(FILE_PATTERN));
       test_result.pop_front();
     }
 
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
   // test case for 'recursive' TRUE value
-  try
-  {
+  try {
     std::string search_pattern = "." FILE_SEPARATOR FILE_PATTERN "*";
     std::list<std::string> test_result = base::scan_for_files_matching(search_pattern, true);
 
-    ensure("TEST 55.1: File matching returned an empty list",!test_result.empty());
+    ensure("TEST 55.1: File matching returned an empty list", !test_result.empty());
     ensure_equals("TEST 55.2: Invalid list size", test_result.size(), 5U);
 
-    while (!test_result.empty())
-    {
+    while (!test_result.empty()) {
       ensure("TEST 55.3: Invalid file matching", std::string::npos != test_result.front().find(FILE_PATTERN));
       test_result.pop_front();
     }
 
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -2269,37 +1797,26 @@ TEST_FUNCTION(55)
  * Testing file_locked_error public API's
  * - c-tors
  */
-TEST_FUNCTION(60)
-{
-  try
-  {
+TEST_FUNCTION(60) {
+  try {
+    // ml: very questionable what is tested here.
     // test cases for constructors
-    try
-    {
+    try {
       base::file_locked_error error("File Locked Error Message");
       throw(error);
-      fail("TEST 60.1: Invalid file_locked_error");
-    }
-    catch (const base::file_locked_error)
-    {
-      //Nothing to do, just catch the error and continue
+    } catch (const base::file_locked_error) {
+      // Nothing to do, just catch the error and continue.
     }
 
-    try
-    {
+    try {
       base::file_locked_error first_error("File Locked Error Message");
       base::file_locked_error second_error(first_error);
       throw(second_error);
-      fail("TEST 60.2: Invalid file_locked_error (copy-constructor)");
-    }
-    catch (const base::file_locked_error)
-    {
-      //Nothing to do, just catch the error and continue
+    } catch (const base::file_locked_error) {
+      // Nothing to do, just catch the error and continue.
     }
 
-  }
-  catch (std::exception &exc)
-  {
+  } catch (std::exception &exc) {
     throw grt::os_error(strfmt("Runtime error: %s", exc.what()));
   }
 }
@@ -2310,18 +1827,15 @@ TEST_FUNCTION(60)
  * - d-tor
  * - check(const std::string &path)
  */
-TEST_FUNCTION(65)
-{
+TEST_FUNCTION(65) {
   remove(TEST_FILE_NAME01);
   remove(TEST_FILE_NAME02);
 
-  try
-  {
+  try {
     // test cases for constructor, check(const std::string &path)
     // with Status == LockedSelf and Status == NotLocked
     // and destructor
-    try
-    {
+    try {
       {
         base::LockFile lock_file01(TEST_FILE_NAME01);
         base::FileHandle test_file02(TEST_FILE_NAME02, "w+");
@@ -2337,22 +1851,14 @@ TEST_FUNCTION(65)
 #endif
       }
       ensure("TEST 65.3: Failed d-tor call", !base::file_exists(TEST_FILE_NAME01));
-    }
-    catch (base::file_error &exc)
-    {
+    } catch (base::file_error &exc) {
       throw grt::os_error(strfmt("File error: %s", exc.what()));
-    }
-    catch (std::invalid_argument &exc)
-    {
+    } catch (std::invalid_argument &exc) {
       throw grt::os_error(strfmt("Invalid argument error: %s", exc.what()));
-    }
-    catch (std::runtime_error &exc)
-    {
+    } catch (std::runtime_error &exc) {
       throw grt::os_error(strfmt("Runtime/file-locked error: %s", exc.what()));
     }
-  }
-  catch (std::exception &exc)
-  {
+  } catch (std::exception &exc) {
     throw grt::os_error(strfmt("Runtime error: %s", exc.what()));
   }
 
@@ -2365,153 +1871,100 @@ TEST_FUNCTION(65)
 /*
  * Child thread function
  */
-gpointer _child_thread_func(gpointer data)
-{
+gpointer _child_thread_func(gpointer data) {
   // Miscellaneous variables
-  FILE* test_result = NULL;
-  FILE* expected_result = NULL;
+  FILE *test_result = NULL;
+  FILE *expected_result = NULL;
   base::FileHandle test_file;
 
   //  If the tread thows an exception it will SIGABRT the process. So we'll catch the exception
   //  and return gracefully.
-  try
-  {
+  try {
     // Testing rename(const std::string &from, const std::string &to)
-    try
-    {
+    try {
       base::rename(TEST_FILE_NAME01, TEST_FILE_NAME02);
       fail(strfmt("TEST 70.1: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not rename file "))
-      {
-        fail(strfmt("TEST 70.1: Locked file \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME01, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not rename file ")) {
+        fail(strfmt("TEST 70.1: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 70.1: Locked file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME01, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 70.1: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
     }
 
     // Testing remove(const std::string &path)
-    try
-    {
+    try {
       base::remove(TEST_FILE_NAME01);
       fail(strfmt("TEST 70.2: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Could not delete file "))
-      {
-        fail(strfmt("TEST 70.2: Locked file \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME01, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Could not delete file ")) {
+        fail(strfmt("TEST 70.2: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 70.2: Locked file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME01, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 70.2: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
     }
 
     // Testing open_file(const char *filename, const char *mode, bool throw_on_fail= true)
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
-    try
-    {
+    try {
       // throw error (file is locked)
       base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w");
       fail(strfmt("TEST 70.3: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 70.3: Locked file \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME01, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 70.3: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 70.3: Locked file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME01, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 70.3: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
     }
 
     // test case for 'throw_on_fail' FALSE value
-    try
-    {
+    try {
       // doesn't throw error (even if file is locked)
       base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w", false);
       test_result = test_file.file();
       expected_result = NULL;
 
-      ensure_equals("TEST 70.4: Unexpected result calling FileHandle c-tor", test_result,expected_result);
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 70.4: Read-only file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME01, exc.what()));
+      ensure_equals("TEST 70.4: Unexpected result calling FileHandle c-tor", test_result, expected_result);
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 70.4: Read-only file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
     }
 
     // Testing FileHandle c-tor
-    try
-    {
+    try {
       base::FileHandle c_tor_test_filename(TEST_FILE_NAME01, "w+");
       fail(strfmt("TEST 70.5: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
-    }
-    catch (const base::file_error &exc)
-    {
-      if (0 != std::string(exc.what()).find("Failed to open file \""))
-      {
-        fail(strfmt("TEST 70.5: Locked file \"%s\" threw an unexpected error: %s",
-                    TEST_FILE_NAME01, exc.what()));
+    } catch (const base::file_error &exc) {
+      if (0 != std::string(exc.what()).find("Failed to open file \"")) {
+        fail(strfmt("TEST 70.5: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
       }
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 70.5: Locked file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME01, exc.what()));
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 70.5: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
     }
 
     // Testing LockFile c-tor
-    try
-    {
+    try {
       base::LockFile lock_file(TEST_FILE_NAME01);
       fail(strfmt("TEST 70.6: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
-    }
-    catch (const base::file_locked_error)
-    {
-      //Nothing to do, just catch the error and continue
-    }
-    catch(std::exception &exc)
-    {
-      fail(strfmt("TEST 70.6: Locked file \"%s\" threw an unexpected error: %s",
-                  TEST_FILE_NAME01, exc.what()));
+    } catch (const base::file_locked_error) {
+      // Nothing to do, just catch the error and continue
+    } catch (std::exception &exc) {
+      fail(strfmt("TEST 70.6: Locked file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME01, exc.what()));
     }
 
     // Testing LockFile::check in child thread
-    try
-    {
+    try {
       if (LockFile::check(TEST_FILE_NAME01) != LockFile::LockedSelf)
         fail(strfmt("TEST 70.7: File \"%s\" not locked", TEST_FILE_NAME01));
-    }
-    catch (base::file_error &exc)
-    {
+    } catch (base::file_error &exc) {
       throw grt::os_error(strfmt("File error: %s", exc.what()));
-    }
-    catch (std::invalid_argument &exc)
-    {
+    } catch (std::invalid_argument &exc) {
       throw grt::os_error(strfmt("Invalid argument error: %s", exc.what()));
-    }
-    catch (std::runtime_error &exc)
-    {
+    } catch (std::runtime_error &exc) {
       throw grt::os_error(strfmt("Runtime/file-locked error: %s", exc.what()));
     }
-  }
-  catch(std::exception &exc)
-  {
+  } catch (std::exception &exc) {
     fail(exc.what());
   }
   return NULL;
@@ -2526,18 +1979,14 @@ gpointer _child_thread_func(gpointer data)
  * Testing FileHandle c-tor
  * -- Multi-threading locking --
  */
-TEST_FUNCTION(70)
-{
+TEST_FUNCTION(70) {
   // Miscellaneous variables
-  GThread * _child_thread;
+  GThread *_child_thread;
 
-  try
-  {
+  try {
     // Create file
     base::FileHandle test_file01(TEST_FILE_NAME01, "w+");
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
   }
 
@@ -2545,21 +1994,14 @@ TEST_FUNCTION(70)
   base::LockFile lock_file(TEST_FILE_NAME01);
 
   // Testing LockFile::check in main thread
-  try
-  {
+  try {
     if (LockFile::check(TEST_FILE_NAME01) != LockFile::LockedSelf)
       fail(strfmt("TEST 70.8: File \"%s\" not locked", TEST_FILE_NAME01));
-  }
-  catch (base::file_error &exc)
-  {
+  } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("File error: %s", exc.what()));
-  }
-  catch (std::invalid_argument &exc)
-  {
+  } catch (std::invalid_argument &exc) {
     throw grt::os_error(strfmt("Invalid argument error: %s", exc.what()));
-  }
-  catch (std::runtime_error &exc)
-  {
+  } catch (std::runtime_error &exc) {
     throw grt::os_error(strfmt("Runtime/file-locked error: %s", exc.what()));
   }
 
@@ -2570,14 +2012,14 @@ TEST_FUNCTION(70)
 }
 #endif
 
-TEST_FUNCTION(75)
-{
+TEST_FUNCTION(75) {
   // Tests for relativePath.
   ensure_equals("TEST 75.1", base::relativePath("", ""), "");
   ensure_equals("TEST 75.2", base::relativePath("/", ""), "");
   ensure_equals("TEST 75.3", base::relativePath("", "/"), "/");
   ensure_equals("TEST 75.4", base::relativePath("", "\\"), "\\");
-  ensure_equals("TEST 75.5", base::relativePath("/////////////////////////", "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"), "../../../../../../../../../../");
+  ensure_equals("TEST 75.5", base::relativePath("/////////////////////////", "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"),
+                "../../../../../../../../../../");
   ensure_equals("TEST 75.6", base::relativePath("/abc/def", "\\abc\\def"), "");
   ensure_equals("TEST 75.7", base::relativePath("/abc/def", "/abc/def/ghi"), "ghi");
   ensure_equals("TEST 75.7", base::relativePath("/abc/def/ghi", "/abc/def/"), "../");
@@ -2605,7 +2047,7 @@ TEST_FUNCTION(75)
   ensure_equals("TEST 75.15", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\last"), "../../../../last");
   ensure_equals("TEST 75.16", base::relativePath("🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ/last", "🍏🍎🍐"), "../../../");
 
-  // Case sensitivity.
+// Case sensitivity.
 #ifdef _WIN32
   ensure_equals("TEST 75.17", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\Last"), "../../../../Last");
   ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../Last");

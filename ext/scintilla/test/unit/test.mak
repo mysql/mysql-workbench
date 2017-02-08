@@ -12,6 +12,7 @@ CXXFLAGS = /EHsc /wd 4805 $(INCLUDEDIRS)
 TESTSRC=test*.cxx
 # Files being tested from scintilla/src directory
 TESTEDSRC=\
+ ../../lexlib/WordList.cxx \
  ../../src/CellBuffer.cxx \
  ../../src/CharClassify.cxx \
  ../../src/ContractionState.cxx \

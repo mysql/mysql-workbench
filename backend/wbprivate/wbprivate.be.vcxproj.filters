@@ -36,9 +36,6 @@
     <ClInclude Include="workbench\about_box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="workbench\home_screen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="workbench\upgrade_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -300,9 +297,6 @@
     <ClCompile Include="workbench\about_box.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="workbench\home_screen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="workbench\metaclasses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -463,8 +457,5 @@
       <Filter>Source Files UI</Filter>
     </ClCompile>
     <ClCompile Include="workbench\stdafx.cpp" />
-    <ClCompile Include="workbench\home_screen_connections.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

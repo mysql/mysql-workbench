@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_shell.h"
 
 #include "grt_dispatcher.h"
@@ -28,86 +28,81 @@
 #define ShellBE_VERSION 4
 
 namespace bec {
-class GRTManager;
+  class GRTManager;
 
-class WBPUBLICBACKEND_PUBLIC_FUNC ShellBE
-{
-public:
-  ShellBE(GRTManager *grtm, const GRTDispatcher::Ref dispatcher);
-  ~ShellBE();
+  class WBPUBLICBACKEND_PUBLIC_FUNC ShellBE {
+  public:
+    ShellBE(const GRTDispatcher::Ref dispatcher);
+    ~ShellBE();
 
-  bool setup(const std::string &lang);
+    bool setup(const std::string &lang);
 
-  void set_save_directory(const std::string &path);
-  void start();
+    void set_save_directory(const std::string &path);
+    void start();
 
-  void process_line_async(const std::string &line);
-  
-  void run_script_file(const std::string &path);
-  bool run_script(const std::string &script, const std::string &language);
+    void process_line_async(const std::string &line);
 
-  bool previous_history_line(const std::string &current_line, std::string &line);
-  bool next_history_line(std::string &line);
-  void reset_history_position();
+    void run_script_file(const std::string &path);
+    bool run_script(const std::string &script, const std::string &language);
 
-  std::vector<std::string> get_grt_tree_bookmarks();
-  void add_grt_tree_bookmark(const std::string &path);
-  void delete_grt_tree_bookmark(const std::string &path);
-  
-  void write_line(const std::string &line);
-  void write(const std::string &text);
-  void writef(const char *fmt, ...);
+    bool previous_history_line(const std::string &current_line, std::string &line);
+    bool next_history_line(std::string &line);
+    void reset_history_position();
 
-  void set_output_handler(const boost::function<void (const std::string&)> &slot);
-  void set_ready_handler(const boost::function<void (const std::string&)> &slot);
+    std::vector<std::string> get_grt_tree_bookmarks();
+    void add_grt_tree_bookmark(const std::string &path);
+    void delete_grt_tree_bookmark(const std::string &path);
 
-  void flush_shell_output();
+    void write_line(const std::string &line);
+    void write(const std::string &text);
+    void writef(const char *fmt, ...);
 
-  void set_saves_history(int line_count);
+    void set_output_handler(const std::function<void(const std::string &)> &slot);
+    void set_ready_handler(const std::function<void(const std::string &)> &slot);
 
-  std::vector<std::string> complete_line(const std::string &line, std::string &nprefix);
+    void flush_shell_output();
 
-  grt::ValueRef get_shell_variable(const std::string &varname);
+    void set_saves_history(int line_count);
 
-  void clear_history();
-  void save_history_line(const std::string &line);
+    std::vector<std::string> complete_line(const std::string &line, std::string &nprefix);
 
-  std::string get_snippet_data();
-  void set_snippet_data(const std::string &data);
+    grt::ValueRef get_shell_variable(const std::string &varname);
 
-  void store_state();
-  void restore_state();
-  
-  void handle_msg(const grt::Message &msgs);
-  
-protected:
-  GRTManager *_grtm;
-  grt::GRT *_grt;
-  grt::Shell *_shell;
-  GRTDispatcher::Ref _dispatcher;
-  std::vector<std::string> _grt_tree_bookmarks;
+    void clear_history();
+    void save_history_line(const std::string &line);
 
-  std::string _savedata_dir;
+    std::string get_snippet_data();
+    void set_snippet_data(const std::string &data);
 
-  std::string _current_statement;
+    void store_state();
+    void restore_state();
 
-  std::list<std::string> _history; // most recent first
-  std::list<std::string>::iterator _history_ptr;
+    void handle_msg(const grt::Message &msgs);
 
-  boost::function<void (const std::string&)> _ready_slot;
+  protected:
+    grt::Shell *_shell;
+    GRTDispatcher::Ref _dispatcher;
+    std::vector<std::string> _grt_tree_bookmarks;
 
-  boost::function<void (const std::string&)> _output_slot;
+    std::string _savedata_dir;
 
-  base::Mutex _text_queue_mutex;
+    std::string _current_statement;
 
-  std::list<std::string> _text_queue;
+    std::list<std::string> _history; // most recent first
+    std::list<std::string>::iterator _history_ptr;
 
-  int _save_history_size;
-  int _skip_history;
+    std::function<void(const std::string &)> _ready_slot;
 
-private:
-  void shell_finished_cb(grt::ShellCommand result, const std::string &prompt, const std::string &line);
-};
+    std::function<void(const std::string &)> _output_slot;
 
+    base::Mutex _text_queue_mutex;
 
+    std::list<std::string> _text_queue;
+
+    int _save_history_size;
+    int _skip_history;
+
+  private:
+    void shell_finished_cb(grt::ShellCommand result, const std::string &prompt, const std::string &line);
+  };
 };

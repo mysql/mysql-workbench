@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -35,12 +35,10 @@
 using namespace grtui;
 using namespace mforms;
 
-class ExportInputPage : public WizardPage
-{
+class ExportInputPage : public WizardPage {
 public:
   ExportInputPage(WizardPlugin *form)
-    : WizardPage(form, "options"), _options(mforms::TitledBoxPanel), _options_box(false)
-  {
+    : WizardPage(form, "options"), _options(mforms::TitledBoxPanel), _options_box(false) {
     set_title(_("SQL Export Options"));
     set_short_title(_("SQL Export Options"));
 
@@ -48,32 +46,31 @@ public:
     _contents.set_column_count(3);
     _contents.set_column_spacing(8);
     _contents.set_row_spacing(8);
-    
+
     _contents.add(&_caption, 0, 1, 0, 1, mforms::HFillFlag);
     _contents.add(&_filename, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag);
     _contents.add(&_browse_button, 2, 3, 0, 1, mforms::HFillFlag);
     _contents.add(&_skip_out_label, 1, 2, 1, 2, 0);
-    
+
     _skip_out_label.set_text(_("Leave blank to view generated script but not save to a file."));
     _skip_out_label.set_style(SmallHelpTextStyle);
-    
-    _file_selector= mforms::manage(new FsObjectSelector(&_browse_button, &_filename));
-    std::string initial_value= form->module()->document_string_data("create_sql_output_filename", "");
-    _file_selector->initialize(initial_value, mforms::SaveFile, "SQL Files (*.sql)|*.sql", 
-      false, boost::bind(&WizardPage::validate, this));
-    scoped_connect(_file_selector->signal_changed(),boost::bind(&ExportInputPage::file_changed, this));
-    
+
+    _file_selector = mforms::manage(new FsObjectSelector(&_browse_button, &_filename));
+    std::string initial_value = form->module()->document_string_data("create_sql_output_filename", "");
+    _file_selector->initialize(initial_value, mforms::SaveFile, "SQL Files (*.sql)|*.sql", false,
+                               std::bind(&WizardPage::validate, this));
+    scoped_connect(_file_selector->signal_changed(), std::bind(&ExportInputPage::file_changed, this));
+
     _caption.set_text(_("Output SQL Script File:"));
 
     add(&_contents, false, true);
-    
-    
+
     _options.set_title(_("SQL Options"));
-    
+
     _options.add(&_options_box);
     _options_box.set_padding(12);
     _options_box.set_spacing(8);
-    
+
     _generate_drop_check.set_text(_("Generate DROP Statements Before Each CREATE Statement"));
     _options_box.add(&_generate_drop_check, false, false);
     _generate_drop_schema_check.set_text(_("Generate DROP SCHEMA"));
@@ -81,13 +78,13 @@ public:
 
     _skip_foreign_keys_check.set_text(_("Skip Creation of FOREIGN KEYS"));
     _options_box.add(&_skip_foreign_keys_check, false, false);
-    scoped_connect(_skip_foreign_keys_check.signal_clicked(),boost::bind(&ExportInputPage::SkipFKToggled, this));
+    scoped_connect(_skip_foreign_keys_check.signal_clicked(), std::bind(&ExportInputPage::SkipFKToggled, this));
     _skip_FK_indexes_check.set_text(_("Skip creation of FK Indexes as well"));
     _options_box.add(&_skip_FK_indexes_check, false, false);
 
     _omit_schema_qualifier_check.set_text(_("Omit Schema Qualifier in Object Names"));
     _options_box.add(&_omit_schema_qualifier_check, false, false);
-    scoped_connect(_omit_schema_qualifier_check.signal_clicked(),boost::bind(&ExportInputPage::OmitSchemaToggled, this));
+    scoped_connect(_omit_schema_qualifier_check.signal_clicked(), std::bind(&ExportInputPage::OmitSchemaToggled, this));
     _generate_use_check.set_text(_("Generate USE statements"));
     _options_box.add(&_generate_use_check, false, false);
 
@@ -99,7 +96,7 @@ public:
     _options_box.add(&_skip_users_check, false, false);
     _no_view_placeholders.set_text(_("Don't create view placeholder tables."));
     _options_box.add(&_no_view_placeholders, false, false);
-    
+
     _generate_insert_check.set_text(_("Generate INSERT Statements for Tables"));
     _options_box.add(&_generate_insert_check, false, false);
     _no_FK_for_inserts.set_text(_("Disable FK checks for inserts"));
@@ -107,9 +104,8 @@ public:
     _triggers_after_inserts.set_text(_("Create triggers after inserts"));
     _options_box.add(&_triggers_after_inserts, false, false);
 
-
     add(&_options, false, false);
-    
+
     _generate_drop_check.set_active(form->module()->document_int_data("generate_drop", false) != 0);
     _generate_drop_schema_check.set_active(form->module()->document_int_data("generate_schema_drop", 0) != 0);
     _skip_foreign_keys_check.set_active(form->module()->document_int_data("skip_foreign_keys", false) != 0);
@@ -125,44 +121,37 @@ public:
     _skip_FK_indexes_check.set_enabled(_skip_foreign_keys_check.get_active());
   }
 
-  void SkipFKToggled()
-  {
-    _skip_FK_indexes_check.set_enabled(_skip_foreign_keys_check.get_active());  
+  void SkipFKToggled() {
+    _skip_FK_indexes_check.set_enabled(_skip_foreign_keys_check.get_active());
   }
 
-  void OmitSchemaToggled()
-  {
+  void OmitSchemaToggled() {
     _generate_use_check.set_enabled(_omit_schema_qualifier_check.get_active());
   }
 
-  void file_changed()
-  {
+  void file_changed() {
     validate();
   }
 
-  virtual bool allow_next()
-  {
+  virtual bool allow_next() {
     return true;
-    //return !_filename.get_string_value().empty();
+    // return !_filename.get_string_value().empty();
   }
-  
-  virtual bool advance()
-  {
+
+  virtual bool advance() {
     std::string filename = _file_selector->get_filename();
 
     if (_confirmed_overwrite_for != filename && !_file_selector->check_and_confirm_file_overwrite())
       return false;
-    _confirmed_overwrite_for= filename;
-    
+    _confirmed_overwrite_for = filename;
+
     return WizardPage::advance();
   }
 
-  virtual void leave(bool advancing)
-  {
-    if (advancing)
-    {
+  virtual void leave(bool advancing) {
+    if (advancing) {
       values().gset("OutputFileName", _file_selector->get_filename());
-    
+
       values().gset("GenerateDrops", _generate_drop_check.get_active());
       values().gset("GenerateSchemaDrops", _generate_drop_schema_check.get_active());
       values().gset("SkipForeignKeys", _skip_foreign_keys_check.get_active());
@@ -177,9 +166,8 @@ public:
       values().gset("OmitSchemata", _omit_schema_qualifier_check.get_active());
       values().gset("GenerateUse", _generate_use_check.get_active());
 
+      grt::Module *module = ((WizardPlugin *)_form)->module();
 
-      grt::Module *module= ((WizardPlugin*)_form)->module();
-      
       module->set_document_data("create_sql_output_filename", _file_selector->get_filename());
       module->set_document_data("generate_drop", _generate_drop_check.get_active());
       module->set_document_data("generate_schema_drop", _generate_drop_schema_check.get_active());
@@ -197,12 +185,12 @@ public:
 
 protected:
   std::string _confirmed_overwrite_for;
-  
+
   Table _contents;
   Label _caption;
   TextEntry _filename;
   Button _browse_button;
-  FsObjectSelector* _file_selector;
+  FsObjectSelector *_file_selector;
   Label _skip_out_label;
 
   Panel _options;
@@ -221,44 +209,38 @@ protected:
   CheckBox _no_FK_for_inserts;
   CheckBox _triggers_after_inserts;
   CheckBox _omit_schema_qualifier_check;
-
 };
 
 //--------------------------------------------------------------------------------
 
-
-class ExportFilterPage : public WizardObjectFilterPage
-{
+class ExportFilterPage : public WizardObjectFilterPage {
 public:
   ExportFilterPage(WizardPlugin *form, DbMySQLSQLExport *export_be)
-    : WizardObjectFilterPage(form, "filter"), _export_be(export_be)
-  {    
-    _table_filter= 0;
-    _view_filter= 0;
-    _routine_filter= 0;
-    _trigger_filter= 0;
-    _user_filter= 0;
-    
+    : WizardObjectFilterPage(form, "filter"), _export_be(export_be) {
+    _table_filter = 0;
+    _view_filter = 0;
+    _routine_filter = 0;
+    _trigger_filter = 0;
+    _user_filter = 0;
+
     set_title(_("SQL Object Export Filter"));
     set_short_title(_("Filter Objects"));
 
     _top_label.set_wrap_text(true);
-    _top_label.set_text(_("To exclude objects of a specific type from the SQL Export, disable the corresponding checkbox. "
-                        "Press Show Filter and add objects or patterns to the ignore list to exclude them from the export."));
+    _top_label.set_text(
+      _("To exclude objects of a specific type from the SQL Export, disable the corresponding checkbox. "
+        "Press Show Filter and add objects or patterns to the ignore list to exclude them from the export."));
   }
 
 protected:
-  virtual void enter(bool advancing)
-  {
+  virtual void enter(bool advancing) {
     if (advancing && !_table_filter)
       setup_filters();
-    
+
     WizardObjectFilterPage::enter(advancing);
   }
-  
-  
-  void setup_filters()
-  {
+
+  void setup_filters() {
     bec::GrtStringListModel *users_model;
     bec::GrtStringListModel *users_imodel;
     bec::GrtStringListModel *tables_model;
@@ -270,49 +252,37 @@ protected:
     bec::GrtStringListModel *triggers_model;
     bec::GrtStringListModel *triggers_imodel;
 
-    _export_be->setup_grt_string_list_models_from_catalog(&users_model, &users_imodel, 
-                                                       &tables_model, &tables_imodel,
-                                                       &views_model, &views_imodel, 
-                                                       &routines_model, &routines_imodel, 
-                                                       &triggers_model, &triggers_imodel);
-    
+    _export_be->setup_grt_string_list_models_from_catalog(&users_model, &users_imodel, &tables_model, &tables_imodel,
+                                                          &views_model, &views_imodel, &routines_model,
+                                                          &routines_imodel, &triggers_model, &triggers_imodel);
 
-    _table_filter= add_filter(db_mysql_Table::static_class_name(),
-                              _("Export %s Objects"),
-                              tables_model, tables_imodel, NULL);
-    _view_filter= add_filter(db_mysql_View::static_class_name(),
-                             _("Export %s Objects"),
-                             views_model, views_imodel, NULL);
+    _table_filter =
+      add_filter(db_mysql_Table::static_class_name(), _("Export %s Objects"), tables_model, tables_imodel, NULL);
+    _view_filter =
+      add_filter(db_mysql_View::static_class_name(), _("Export %s Objects"), views_model, views_imodel, NULL);
 
-    _routine_filter= add_filter(db_mysql_Routine::static_class_name(),
-                                _("Export %s Objects"),
-                                routines_model, routines_imodel, NULL);
+    _routine_filter =
+      add_filter(db_mysql_Routine::static_class_name(), _("Export %s Objects"), routines_model, routines_imodel, NULL);
 
-    _trigger_filter= add_filter(db_mysql_Trigger::static_class_name(),
-                                _("Export %s Objects"),
-                                triggers_model, triggers_imodel, NULL);
+    _trigger_filter =
+      add_filter(db_mysql_Trigger::static_class_name(), _("Export %s Objects"), triggers_model, triggers_imodel, NULL);
 
-    _user_filter= add_filter(db_User::static_class_name(),
-                             _("Export %s Objects"),
-                             users_model, users_imodel, NULL);
+    _user_filter = add_filter(db_User::static_class_name(), _("Export %s Objects"), users_model, users_imodel, NULL);
   }
 
-
-  virtual bool advance()
-  {
+  virtual bool advance() {
     std::string header;
 
     db_CatalogRef catalog(_export_be->get_catalog());
-    if (catalog.is_valid() && catalog->owner().is_valid() && catalog->owner()->owner().is_valid())
-    {
+    if (catalog.is_valid() && catalog->owner().is_valid() && catalog->owner()->owner().is_valid()) {
       workbench_DocumentRef doc(workbench_DocumentRef::cast_from(catalog->owner()->owner()));
       std::string description = doc->info()->description();
 
-      base::replace(description, "\n", "\n-- ");
+      base::replaceStringInplace(description, "\n", "\n-- ");
 
       header = "-- MySQL Script generated by MySQL Workbench\n";
       header += "-- " + base::fmttime(0, "%c") + "\n";
-      header += "-- Model: "+*doc->info()->caption()+"    Version: "+*doc->info()->version()+"\n";
+      header += "-- Model: " + *doc->info()->caption() + "    Version: " + *doc->info()->version() + "\n";
       if (!description.empty())
         header += "\n-- " + description + "\n\n";
     }
@@ -339,13 +309,12 @@ protected:
     _export_be->set_option("UsersAreSelected", _user_filter->get_active());
 
     _export_be->set_option("OutputScriptHeader", header);
-    
+
     // take target version from the version in the model
     _export_be->set_db_options_for_version(_export_be->get_catalog()->version());
 
     return true;
   }
-
 
 protected:
   DbMySQLSQLExport *_export_be;
@@ -356,107 +325,88 @@ protected:
   DBObjectFilterFrame *_user_filter;
 };
 
-
-
-class PreviewScriptPage : public ViewTextPage
-{
+class PreviewScriptPage : public ViewTextPage {
   DbMySQLSQLExport *_export_be;
   mforms::Label _label;
-  
+
 public:
   PreviewScriptPage(WizardPlugin *form, DbMySQLSQLExport *export_be)
-  : ViewTextPage(form, "preview", (ViewTextPage::Buttons)(ViewTextPage::CopyButton|ViewTextPage::SaveButton), "SQL Scripts (*.sql)|*.sql"), _export_be(export_be)
-  {
+    : ViewTextPage(form, "preview", (ViewTextPage::Buttons)(ViewTextPage::CopyButton | ViewTextPage::SaveButton),
+                   "SQL Scripts (*.sql)|*.sql"),
+      _export_be(export_be) {
     set_title(_("Review Generated Script"));
     set_short_title(_("Review SQL Script"));
-    
+
     _save_button.set_text(_("Save to Other File..."));
     _save_button.set_tooltip(_("Save the script to a file."));
-    
+
     add(&_label, false, true);
     _label.set_style(mforms::WizardHeadingStyle);
-        
+
     set_editable(true);
   }
-  
-  
-  virtual void enter(bool advancing)
-  {
-    if (advancing)
-    {
+
+  virtual void enter(bool advancing) {
+    if (advancing) {
       if (_export_be->get_output_filename().empty())
         _label.set_text(_("Review the generated script."));
       else
         _label.set_text(_("Review and edit the generated script and press Finish to save."));
-      
-      
-      try
-      {
+
+      try {
         _export_be->start_export(true);
-        
+
         set_text(_export_be->export_sql_script());
-        
+
         _form->clear_problem();
-      }
-      catch (std::exception &exc)
-      {
+      } catch (std::exception &exc) {
         set_text(std::string(_("Could not generate CREATE script.")).append("\n").append(exc.what()));
         _form->set_problem(_("Error generating script."));
       }
     }
   }
-  
-  
-  virtual bool advance()
-  {
-    std::string path= values().get_string("OutputFileName");
-    if (!path.empty())
-    {
+
+  virtual bool advance() {
+    std::string path = values().get_string("OutputFileName");
+    if (!path.empty()) {
       save_text_to(path);
-      
-      _form->grtm()->push_status_text(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
-      _form->grtm()->get_grt()->send_info(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
+
+      bec::GRTManager::get()->push_status_text(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
+      grt::GRT::get()->send_info(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
     }
     return true;
   }
-  
-  virtual std::string next_button_caption()
-  {
+
+  virtual std::string next_button_caption() {
     return finish_caption();
   }
-  
-  virtual bool next_closes_wizard() { return true; }
+
+  virtual bool next_closes_wizard() {
+    return true;
+  }
 };
 
-
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 
-class WbPluginSQLExport : public WizardPlugin
-{
+class WbPluginSQLExport : public WizardPlugin {
   DbMySQLSQLExport _export_be;
-  
-public:
-  WbPluginSQLExport(grt::Module *module)
-    : WizardPlugin(module), _export_be(grtm())
-  {
 
+public:
+  WbPluginSQLExport(grt::Module *module) : WizardPlugin(module) {
     set_name("sql_export_wizard");
     add_page(mforms::manage(new ExportInputPage(this)));
     add_page(mforms::manage(new ExportFilterPage(this, &_export_be)));
     add_page(mforms::manage(new PreviewScriptPage(this, &_export_be)));
-    
+
     set_title(_("Forward Engineer SQL Script"));
   }
 };
 
-
-grtui::WizardPlugin *createExportCREATEScriptWizard(grt::Module *module, db_CatalogRef catalog)
-{
+grtui::WizardPlugin *createExportCREATEScriptWizard(grt::Module *module, db_CatalogRef catalog) {
   return new WbPluginSQLExport(module);
 }
 
-void deleteExportCREATEScriptWizard(grtui::WizardPlugin *plugin)
-{
-    delete plugin;
+void deleteExportCREATEScriptWizard(grtui::WizardPlugin *plugin) {
+  delete plugin;
 }

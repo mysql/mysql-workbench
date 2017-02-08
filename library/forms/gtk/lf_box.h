@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,43 +22,39 @@
 #include "lf_view.h"
 
 namespace mforms {
-namespace gtk {
+  namespace gtk {
 
-class BoxImpl : public ViewImpl
-{
+    class BoxImpl : public ViewImpl {
+    protected:
+      Gtk::Box *_innerBox;
 
-protected:
-  Gtk::Box *_box;
-  Gtk::Alignment *_alignment;
+      Gtk::Box *_outerBox;
 
-  virtual Gtk::Widget *get_outer() const
-  {
-    return _alignment;
+      virtual Gtk::Widget *get_outer() const {
+        return _outerBox;
+      }
+
+      virtual Gtk::Widget *get_inner() const {
+        return _innerBox;
+      }
+
+      BoxImpl(::mforms::Box *self, bool horiz);
+      static bool create(::mforms::Box *self, bool horiz);
+      static void add(Box *self, View *child, bool expand, bool fill);
+      static void add_end(Box *self, View *child, bool expand, bool fill);
+      static void remove(Box *self, View *child);
+      static void set_homogeneous(Box *self, bool flag);
+      static void set_spacing(Box *self, int spc);
+      // static void set_padding(Box *self, int pad);
+      virtual void set_padding_impl(int left, int top, int right, int bottom);
+      virtual void set_size(int width, int height);
+
+    public:
+      static void init();
+
+      virtual ~BoxImpl();
+    };
   }
-
-  virtual Gtk::Widget *get_inner() const
-  {
-    return _box;
-  }
-
-  BoxImpl(::mforms::Box *self, bool horiz);
-  static bool create(::mforms::Box *self, bool horiz);
-  static void add(Box *self, View *child, bool expand, bool fill);
-  static void add_end(Box *self, View *child, bool expand, bool fill);
-  static void remove(Box *self, View *child);
-  static void set_homogeneous(Box *self, bool flag);
-  static void set_spacing(Box *self, int spc);
-  //static void set_padding(Box *self, int pad);
-  virtual void set_padding_impl(int left, int top, int right, int bottom);
-
-public:
-  static void init();
-
-  virtual ~BoxImpl();
-};
-
 }
-}
-
 
 #endif /* _LF_BOX_H_ */

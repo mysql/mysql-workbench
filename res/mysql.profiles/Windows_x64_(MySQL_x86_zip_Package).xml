@@ -2,7 +2,7 @@
 
 <data>
     <value type="dict">
-    <value type="string" key="sys.config.path">%ProgramFiles(x86)%\MySQL\MySQL Server 5.1\my.ini</value>
+    <value type="string" key="sys.config.path">%ProgramFiles(x86)%\MySQL\MySQL Server 5.7\my.ini</value>
     <value type="string" key="sys.config.section">mysqld</value>
       
     <value type="string" key="sys.mysqld.start">sc start mysql</value>
@@ -12,7 +12,7 @@
     <value type="int" key="sys.usesudo">1</value>
 
     <value type="string" key="sys.system">Windows</value>
-    <value type="string" key="serverVersion">5.1</value>
+    <value type="string" key="serverVersion">5.7</value>
   </value>
 </data>
   

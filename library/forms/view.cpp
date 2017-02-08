@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,8 +30,7 @@ using namespace mforms;
 
 //--------------------------------------------------------------------------------------------------
 
-View::View()
-{
+View::View() {
   _parent = NULL;
   _view_impl = &ControlFactory::get_instance()->_view_impl;
   _layout_dirty = true;
@@ -39,12 +38,11 @@ View::View()
 
 //--------------------------------------------------------------------------------------------------
 
-View::~View()
-{
+View::~View() {
   set_destroying();
   if (_parent && !_parent->is_destroying())
     _parent->remove_from_cache(this);
-  
+
   clear_subviews();
 
 #ifdef __APPLE__
@@ -58,34 +56,30 @@ View::~View()
 
 //--------------------------------------------------------------------------------------------------
 
-void View::clear_subviews()
-{
+void View::clear_subviews() {
   while (_subviews.size() > 0)
-    remove_from_cache(_subviews[0].first); // Let descendants adjust their child lists. This will also release the object if necessary.
+    remove_from_cache(
+      _subviews[0].first); // Let descendants adjust their child lists. This will also release the object if necessary.
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_managed()
-{
+void View::set_managed() {
   Object::set_managed();
-  if (_parent)
-  {
-    for (std::vector<std::pair<View*,bool> > ::iterator iter = _parent->_subviews.begin(); iter != _parent->_subviews.end(); ++iter)
-    {
-      if (iter->first == this)
-      {
+  if (_parent) {
+    for (std::vector<std::pair<View *, bool> >::iterator iter = _parent->_subviews.begin();
+         iter != _parent->_subviews.end(); ++iter) {
+      if (iter->first == this) {
         iter->second = true;
         break;
       }
-    }    
+    }
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::cache_view(View *sv)
-{
+void View::cache_view(View *sv) {
   if (!sv)
     throw std::logic_error("mforms: attempt to add NULL subview");
 
@@ -106,26 +100,22 @@ void View::cache_view(View *sv)
 
 //--------------------------------------------------------------------------------------------------
 
-void View::reorder_cache(View *sv, int position)
-{
+void View::reorder_cache(View *sv, int position) {
   int old = get_subview_index(sv);
   if (old < 0)
     throw std::invalid_argument("mforms: invalid subview");
 
-  std::pair<View*, bool> value = _subviews[old];
+  std::pair<View *, bool> value = _subviews[old];
   _subviews.erase(_subviews.begin() + old);
   _subviews.insert(_subviews.begin() + position, value);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::remove_from_cache(View *sv)
-{
+void View::remove_from_cache(View *sv) {
   sv->_parent = NULL;
-  for (std::vector<std::pair<View*,bool> > ::iterator iter = _subviews.begin(); iter != _subviews.end(); ++iter)
-  {
-    if (iter->first == sv)
-    {
+  for (std::vector<std::pair<View *, bool> >::iterator iter = _subviews.begin(); iter != _subviews.end(); ++iter) {
+    if (iter->first == sv) {
       _subviews.erase(iter);
       sv->release();
       break;
@@ -138,37 +128,34 @@ void View::remove_from_cache(View *sv)
 /**
  * Searches for a subview with the given name in this view or any of its subviews using a depth-first search.
  */
-View *View::find_subview(const std::string &name)
-{
-  for (std::vector<std::pair<View*,bool> > ::const_iterator iter= _subviews.begin(); iter != _subviews.end(); ++iter)
-  {
+View *View::find_subview(const std::string &name) {
+  for (std::vector<std::pair<View *, bool> >::const_iterator iter = _subviews.begin(); iter != _subviews.end();
+       ++iter) {
     if (iter->first->get_name() == name)
       return iter->first;
-    
+
     View *sv = iter->first->find_subview(name);
     if (sv)
       return sv;
   }
-  return 0;  
+  return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_subview_index(View *sv)
-{
-  int i= 0;
-  for (std::vector<std::pair<View*,bool> > ::const_iterator iter = _subviews.begin(); iter != _subviews.end(); ++iter, ++i)
-  {
+int View::get_subview_index(View *sv) {
+  int i = 0;
+  for (std::vector<std::pair<View *, bool> >::const_iterator iter = _subviews.begin(); iter != _subviews.end();
+       ++iter, ++i) {
     if (iter->first == sv)
       return i;
   }
-  return -1;  
+  return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-View *View::get_subview_at_index(int index)
-{
+View *View::get_subview_at_index(int index) {
   if (index < 0 || index >= (int)_subviews.size())
     return NULL;
 
@@ -177,8 +164,7 @@ View *View::get_subview_at_index(int index)
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_subview_count()
-{
+int View::get_subview_count() {
   return (int)_subviews.size();
 }
 
@@ -187,15 +173,13 @@ int View::get_subview_count()
 /**
  * Returns true if the given subview is a direct child of this view.
  */
-bool View::contains_subview(View* subview)
-{
+bool View::contains_subview(View *subview) {
   return subview->get_parent() == this;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_name(const std::string &name)
-{
+void View::set_name(const std::string &name) {
   _name = name;
 
   // Optional implementation.
@@ -205,312 +189,276 @@ void View::set_name(const std::string &name)
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_tooltip(const std::string &text)
-{
+void View::set_tooltip(const std::string &text) {
   _view_impl->set_tooltip(this, text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_font(const std::string &fontDescription)
-{
+void View::set_font(const std::string &fontDescription) {
   _view_impl->set_font(this, fontDescription);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string View::get_name()
-{ 
-  return _name; 
+std::string View::get_name() {
+  return _name;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_parent(View *parent)
-{
-  _parent= parent;
+void View::set_parent(View *parent) {
+  _parent = parent;
   if (_managed)
     set_managed();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-View* View::get_parent() const
-{
-  return _parent; 
+View *View::get_parent() const {
+  return _parent;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Form *View::get_parent_form() const
-{
-  View *parent= get_parent();
-  Form *form= 0;
-  while (parent && (form = dynamic_cast<Form*>(parent)) == 0)
-    parent= parent->get_parent();
+Form *View::get_parent_form() const {
+  View *parent = get_parent();
+  Form *form = 0;
+  while (parent && (form = dynamic_cast<Form *>(parent)) == 0)
+    parent = parent->get_parent();
 
   return form;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_width()
-{
+int View::get_width() const {
   return (*_view_impl->get_width)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_height()
-{
+int View::get_height() const {
   return (*_view_impl->get_height)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_preferred_width()
-{
+int View::get_preferred_width() {
   return (*_view_impl->get_preferred_width)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_preferred_height()
-{
+int View::get_preferred_height() {
   return (*_view_impl->get_preferred_height)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_x()
-{
+int View::get_x() {
   return (*_view_impl->get_x)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int View::get_y()
-{
+int View::get_y() {
   return (*_view_impl->get_y)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_position(int x, int y)
-{
+void View::set_position(int x, int y) {
   (*_view_impl->set_position)(this, x, y);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_size(int width, int height)
-{
+void View::set_size(int width, int height) {
   set_layout_dirty(true);
   (*_view_impl->set_size)(this, width, height);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::pair<int, int> View::client_to_screen(int x, int y)
-{
+void View::set_min_size(int width, int height) {
+  set_layout_dirty(true);
+  (*_view_impl->set_min_size)(this, width, height);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::pair<int, int> View::client_to_screen(int x, int y) {
   return (*_view_impl->client_to_screen)(this, x, y);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::pair<int, int> View::screen_to_client(int x, int y)
-{
+std::pair<int, int> View::screen_to_client(int x, int y) {
   return (*_view_impl->screen_to_client)(this, x, y);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::show(bool flag)
-{
+void View::show(bool flag) {
   (*_view_impl->show)(this, flag);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool View::is_shown()
-{
+bool View::is_shown() {
   return (*_view_impl->is_shown)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool View::is_fully_visible()
-{
+bool View::is_fully_visible() {
   return (*_view_impl->is_fully_visible)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_enabled(bool flag)
-{
+void View::set_enabled(bool flag) {
   (*_view_impl->set_enabled)(this, flag);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool View::is_enabled()
-{
+bool View::is_enabled() {
   return (*_view_impl->is_enabled)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-
-void View::set_needs_repaint()
-{
+void View::set_needs_repaint() {
   _view_impl->set_needs_repaint(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_layout_dirty(bool value)
-{
-  _layout_dirty= value;
+void View::set_layout_dirty(bool value) {
+  _layout_dirty = value;
   if (_parent != NULL && value)
     _parent->set_layout_dirty(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool View::is_layout_dirty()
-{
+bool View::is_layout_dirty() {
   return _layout_dirty;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::relayout()
-{
-  if (_parent != NULL)
+void View::relayout() {
+  _view_impl->relayout(this);
+  if (_parent != nullptr) // Propagate relayout up the parent chain.
     _parent->relayout();
-  (*_view_impl->relayout)(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::suspend_layout()
-{
+void View::suspend_layout() {
   if (_view_impl->suspend_layout)
     _view_impl->suspend_layout(this, true);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::resume_layout()
-{
+void View::resume_layout() {
   if (_view_impl->suspend_layout)
     _view_impl->suspend_layout(this, false);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_front_color(const std::string &color)
-{
+void View::set_front_color(const std::string &color) {
   _view_impl->set_front_color(this, color);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string View::get_front_color()
-{
+std::string View::get_front_color() {
   return _view_impl->get_front_color(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_back_color(const std::string &color)
-{
+void View::set_back_color(const std::string &color) {
   _view_impl->set_back_color(this, color);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string View::get_back_color()
-{
+std::string View::get_back_color() {
   return _view_impl->get_back_color(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::set_back_image(const std::string &path, Alignment align)
-{
+void View::set_back_image(const std::string &path, Alignment align) {
   _view_impl->set_back_image(this, path, align);
 }
 
 //--------------------------------------------------------------------------------------------------
-//Below code is used only for debug purpose.
-//It's using the object::retain_count.
+// Below code is used only for debug purpose.
+// It's using the object::retain_count.
 #ifdef _0
-void View::show_retain_counts(int depth)
-{
+void View::show_retain_counts(int depth) {
   printf("%*s '%s' (%i)\n", depth, "--", get_name().c_str(), retain_count());
 
-  for (std::vector<std::pair<View*,bool> >::const_iterator iter= _subviews.begin();
-       iter != _subviews.end(); ++iter)
-  {
-    iter->first->show_retain_counts(depth+1);
+  for (std::vector<std::pair<View *, bool> >::const_iterator iter = _subviews.begin(); iter != _subviews.end();
+       ++iter) {
+    iter->first->show_retain_counts(depth + 1);
   }
 }
 #endif
 //--------------------------------------------------------------------------------------------------
 
-void View::flush_events()
-{
+void View::flush_events() {
   if (_view_impl->flush_events)
     _view_impl->flush_events(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::focus()
-{
+void View::focus() {
   _view_impl->focus(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool View::has_focus()
-{
+bool View::has_focus() {
   return _view_impl->has_focus(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::register_drop_formats(DropDelegate *target, const std::vector<std::string> &drop_formats)
-{
+void View::register_drop_formats(DropDelegate *target, const std::vector<std::string> &drop_formats) {
   _view_impl->register_drop_formats(this, target, drop_formats);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-DragOperation View::do_drag_drop(DragDetails details, const std::string &text)
-{
+DragOperation View::do_drag_drop(DragDetails details, const std::string &text) {
   return _view_impl->drag_text(this, details, text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-DragOperation View::do_drag_drop(DragDetails details, void *data, const std::string &format)
-{
+DragOperation View::do_drag_drop(DragDetails details, void *data, const std::string &format) {
   return _view_impl->drag_data(this, details, data, format);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-DropPosition View::get_drop_position()
-{
+DropPosition View::get_drop_position() {
   return _view_impl->get_drop_position(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool View::mouse_leave()
-{
+bool View::mouse_leave() {
   if (_signal_mouse_leave.num_slots() > 0)
     return *_signal_mouse_leave();
   return false;
@@ -521,16 +469,14 @@ bool View::mouse_leave()
 /**
  * To be called by platform code when the active control changes (either by code or user interaction).
  */
-void View::focus_changed()
-{
+void View::focus_changed() {
   _signal_got_focus();
   base::NotificationCenter::get()->send("GNFocusChanged", this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void View::resize()
-{
+void View::resize() {
   _signal_resized();
 }
 

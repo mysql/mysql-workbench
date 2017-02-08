@@ -1,10 +1,10 @@
 [Desktop Entry]
 Name=MySQL Workbench
 Comment=MySQL Database Design, Administration and Development Tool
-Exec=mysql-workbench
+Exec=mysql-workbench %f
 Terminal=false
 Type=Application
 Icon=mysql-workbench
-MimeType=application/vnd.mysql-workbench-model;
+MimeType=application/vnd.mysql-workbench-model;application/sql;
 Categories=GTK;Database;Development;
 StartupWMClass=mysql-workbench-bin

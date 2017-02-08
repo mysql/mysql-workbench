@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 #pragma once
 
 #define NOMINMAX
-#define WIN32_LEAN_AND_MEAN 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include <glib.h>
@@ -32,10 +32,9 @@
 #include <vector>
 #include <list>
 #include <sstream>
-
+#include <memory>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <pcre.h>
 

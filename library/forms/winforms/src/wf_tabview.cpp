@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -32,12 +32,10 @@ using namespace MySQL::Utilities;
 
 //----------------- MformsStandardTabControl -------------------------------------------------------
 
-ref class MformsStandardTabControl : TabControl
-{
+ref class MformsStandardTabControl : TabControl {
 public:
-  virtual void OnSelected(TabControlEventArgs ^args) override
-  {
-    __super::OnSelected(args);
+  virtual void OnSelected(TabControlEventArgs ^ args) override {
+    __super ::OnSelected(args);
 
     mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
     if (tabview != NULL)
@@ -47,26 +45,22 @@ public:
 
 //----------------- MformsFlatTabControl -----------------------------------------------------------
 
-ref class MformsFlatTabControl : FlatTabControl
-{
+ref class MformsFlatTabControl : FlatTabControl {
 public:
-  virtual void OnTabShowMenu(TabMenuEventArgs ^args) override
-  {
-    __super::OnTabShowMenu(args);
+  virtual void OnTabShowMenu(TabMenuEventArgs ^ args) override {
+    __super ::OnTabShowMenu(args);
 
     mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
     tabview->set_menu_tab(args->pageIndex);
-    if (tabview->get_tab_menu())
-    {
+    if (tabview->get_tab_menu()) {
       tabview->get_tab_menu()->popup_at(tabview, base::Point(args->location.X, args->location.Y));
     }
   }
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnSelected(TabControlEventArgs ^args) override
-  {
-    __super::OnSelected(args);
+  virtual void OnSelected(TabControlEventArgs ^ args) override {
+    __super ::OnSelected(args);
 
     mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
     if (tabview != NULL)
@@ -75,9 +69,8 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnTabClosing(TabClosingEventArgs ^args) override
-  {
-    __super::OnTabClosing(args);
+  virtual void OnTabClosing(TabClosingEventArgs ^ args) override {
+    __super ::OnTabClosing(args);
 
     mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
     if (tabview != NULL)
@@ -86,19 +79,16 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnTabMoved(TabMovedEventArgs ^args) override
-  {
-    __super::OnTabMoved(args);
+  virtual void OnTabMoved(TabMovedEventArgs ^ args) override {
+    __super ::OnTabMoved(args);
     mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
-    if (tabview != NULL && args->MovedPage->Controls->Count > 0)
-    {
+    if (tabview != NULL && args->MovedPage->Controls->Count > 0) {
       mforms::View *view = ViewWrapper::GetBackend<mforms::View>(args->MovedPage->Controls[0]);
       tabview->reordered(view, args->ToIndex);
     }
   }
 
   //------------------------------------------------------------------------------------------------
-
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -106,49 +96,44 @@ public:
 /**
  * Helper method for basic setup of a flat tabview glued to the backend tabview by the given wrapper.
  */
-FlatTabControl^ CreateFlatTabControl(mforms::TabView *backend, TabViewWrapper *wrapper) 
-{
-  MformsFlatTabControl ^result = TabViewWrapper::Create<MformsFlatTabControl>(backend, wrapper);
-  result->UpdateColors();
+FlatTabControl ^
+  CreateFlatTabControl(mforms::TabView *backend, TabViewWrapper *wrapper) {
+    MformsFlatTabControl ^ result = TabViewWrapper::Create<MformsFlatTabControl>(backend, wrapper);
+    result->UpdateColors();
 
-  result->CanCloseLastTab = false;
-  result->HideWhenEmpty = false;
-  result->ItemPadding = Padding(6, 0, 6, 0);
-  result->ItemSize = Size(0, 21);
-  result->Margin = Padding(6, 0, 6, 0);
+    result->CanCloseLastTab = false;
+    result->HideWhenEmpty = false;
+    result->ItemPadding = Padding(6, 0, 6, 0);
+    result->ItemSize = Size(0, 21);
+    result->Margin = Padding(6, 0, 6, 0);
 
-  return result;
-}
+    return result;
+  }
 
-//----------------- TabViewWrapper -----------------------------------------------------------------
+  //----------------- TabViewWrapper -----------------------------------------------------------------
 
-TabViewWrapper::TabViewWrapper(mforms::TabView *backend, mforms::TabViewType type)
-: ViewWrapper(backend)
-{
+  TabViewWrapper::TabViewWrapper(mforms::TabView *backend, mforms::TabViewType type)
+  : ViewWrapper(backend) {
   tabType = type;
   activeIndex = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool TabViewWrapper::create(mforms::TabView *backend, mforms::TabViewType type)
-{
+bool TabViewWrapper::create(mforms::TabView *backend, mforms::TabViewType type) {
   TabViewWrapper *wrapper = new TabViewWrapper(backend, type);
 
-  switch (type)
-  {
-  case mforms::TabViewTabless:
-    {
-      FlatTabControl ^tabControl = CreateFlatTabControl(backend, wrapper);
+  switch (type) {
+    case mforms::TabViewTabless: {
+      FlatTabControl ^ tabControl = CreateFlatTabControl(backend, wrapper);
       tabControl->Margin = Padding(0);
       tabControl->ShowFocusState = false;
       tabControl->TabStyle = FlatTabControl::TabStyleType::NoTabs;
       break;
     }
 
-  case mforms::TabViewMainClosable:
-    {
-      FlatTabControl ^tabControl = CreateFlatTabControl(backend, wrapper);
+    case mforms::TabViewMainClosable: {
+      FlatTabControl ^ tabControl = CreateFlatTabControl(backend, wrapper);
       tabControl->ContentPadding = Padding(0, 6, 0, 6);
       tabControl->ShowCloseButton = true;
       tabControl->ShowFocusState = false;
@@ -156,10 +141,9 @@ bool TabViewWrapper::create(mforms::TabView *backend, mforms::TabViewType type)
       break;
     }
 
-  case mforms::TabViewDocument:
-  case mforms::TabViewDocumentClosable:
-    {
-      FlatTabControl ^tabControl = CreateFlatTabControl(backend, wrapper);
+    case mforms::TabViewDocument:
+    case mforms::TabViewDocumentClosable: {
+      FlatTabControl ^ tabControl = CreateFlatTabControl(backend, wrapper);
       tabControl->Margin = Padding(0);
       tabControl->ShowCloseButton = type == mforms::TabViewDocumentClosable;
       tabControl->ShowFocusState = true;
@@ -168,11 +152,10 @@ bool TabViewWrapper::create(mforms::TabView *backend, mforms::TabViewType type)
 
       break;
     }
-      
-  case mforms::TabViewPalette:
-  case mforms::TabViewSelectorSecondary:
-    {
-      FlatTabControl ^tabControl = CreateFlatTabControl(backend, wrapper);
+
+    case mforms::TabViewPalette:
+    case mforms::TabViewSelectorSecondary: {
+      FlatTabControl ^ tabControl = CreateFlatTabControl(backend, wrapper);
       tabControl->Margin = Padding(0);
       tabControl->ItemSize = Size(0, 19);
       tabControl->ShowCloseButton = false;
@@ -182,9 +165,8 @@ bool TabViewWrapper::create(mforms::TabView *backend, mforms::TabViewType type)
       break;
     }
 
-  case mforms::TabViewEditorBottom:
-    {
-      FlatTabControl ^tabControl = CreateFlatTabControl(backend, wrapper);
+    case mforms::TabViewEditorBottom: {
+      FlatTabControl ^ tabControl = CreateFlatTabControl(backend, wrapper);
       tabControl->Margin = Padding(0);
       tabControl->ItemSize = Size(0, 19);
       tabControl->ShowCloseButton = true;
@@ -193,17 +175,16 @@ bool TabViewWrapper::create(mforms::TabView *backend, mforms::TabViewType type)
       tabControl->TabStyle = FlatTabControl::TabStyleType::BottomNormal;
       break;
     }
- 
-  default: // mforms::TabViewSystemStandard
-    TabViewWrapper::Create<MformsStandardTabControl>(backend, wrapper);
+
+    default: // mforms::TabViewSystemStandard
+      TabViewWrapper::Create<MformsStandardTabControl>(backend, wrapper);
   }
   return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TabViewWrapper::set_active_tab(mforms::TabView *backend, int index)
-{
+void TabViewWrapper::set_active_tab(mforms::TabView *backend, int index) {
   TabViewWrapper *wrapper = backend->get_data<TabViewWrapper>();
   wrapper->GetManagedObject<TabControl>()->SelectedIndex = index;
   (*backend->signal_tab_changed())();
@@ -213,31 +194,30 @@ void TabViewWrapper::set_active_tab(mforms::TabView *backend, int index)
 
 //--------------------------------------------------------------------------------------------------
 
-int TabViewWrapper::get_active_tab(mforms::TabView *backend)
-{
+int TabViewWrapper::get_active_tab(mforms::TabView *backend) {
   TabViewWrapper *wrapper = backend->get_data<TabViewWrapper>();
   return wrapper->GetManagedObject<TabControl>()->SelectedIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int TabViewWrapper::add_page(mforms::TabView *backend, mforms::View *page, const std::string &caption)
-{
+int TabViewWrapper::add_page(mforms::TabView *backend, mforms::View *page, const std::string &caption,
+                             bool hasCloseButton) {
   TabViewWrapper *wrapper = backend->get_data<TabViewWrapper>();
   int new_index = -1;
 
   ViewWrapper *view = page->get_data<ViewWrapper>();
   view->set_resize_mode(AutoResizeMode::ResizeNone);
 
-  TabPage ^tabPage = gcnew TabPage();
+  TabPage ^ tabPage = gcnew TabPage();
 
-  Control ^control= view->GetControl();
+  Control ^ control = view->GetControl();
   control->Dock = DockStyle::Fill;
   tabPage->Controls->Add(control);
-  tabPage->Text= CppStringToNative(caption);
+  tabPage->Text = CppStringToNative(caption);
   tabPage->BackColor = control->BackColor;
 
-  TabControl ^tabControl = wrapper->GetManagedObject<TabControl>();
+  TabControl ^ tabControl = wrapper->GetManagedObject<TabControl>();
   tabControl->TabPages->Add(tabPage);
 
   new_index = tabControl->TabPages->Count - 1;
@@ -253,45 +233,38 @@ int TabViewWrapper::add_page(mforms::TabView *backend, mforms::View *page, const
 
 //--------------------------------------------------------------------------------------------------
 
-void TabViewWrapper::remove_page(mforms::TabView *backend, mforms::View *page)
-{
+void TabViewWrapper::remove_page(mforms::TabView *backend, mforms::View *page) {
   TabViewWrapper *wrapper = backend->get_data<TabViewWrapper>();
   ViewWrapper *view = page->get_data<ViewWrapper>();
 
-  Control ^control = view->GetControl();
+  Control ^ control = view->GetControl();
 
-  TabControl ^tabControl = wrapper->GetManagedObject<TabControl>();
-  for each (TabPage ^native_page in tabControl->TabPages)
-  {
-    if (native_page->Controls->Count > 0 && native_page->Controls[0] == control)
-    {
-      tabControl->TabPages->Remove(native_page);
-      break;
+  TabControl ^ tabControl = wrapper->GetManagedObject<TabControl>();
+  for each(TabPage ^ native_page in tabControl->TabPages) {
+      if (native_page->Controls->Count > 0 && native_page->Controls[0] == control) {
+        tabControl->TabPages->Remove(native_page);
+        break;
+      }
     }
-  }
   backend->set_layout_dirty(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TabViewWrapper::set_tab_title(mforms::TabView *backend, int tab, const std::string& caption)
-{
-  TabControl ^tabControl = TabViewWrapper::GetManagedObject<TabControl>(backend);
+void TabViewWrapper::set_tab_title(mforms::TabView *backend, int tab, const std::string &caption) {
+  TabControl ^ tabControl = TabViewWrapper::GetManagedObject<TabControl>(backend);
   if (tab >= 0 && tab < tabControl->TabPages->Count)
-    tabControl->TabPages[tab]->Text= CppStringToNative(caption);
+    tabControl->TabPages[tab]->Text = CppStringToNative(caption);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TabViewWrapper::set_aux_view(mforms::TabView *backend, mforms::View *aux)
-{
-  FlatTabControl ^tabControl = TabViewWrapper::GetManagedObject<FlatTabControl>(backend);
+void TabViewWrapper::set_aux_view(mforms::TabView *backend, mforms::View *aux) {
+  FlatTabControl ^ tabControl = TabViewWrapper::GetManagedObject<FlatTabControl>(backend);
 
-  if (tabControl != nullptr)
-  {
-    Control ^control = TabViewWrapper::GetManagedObject<Control>(aux);
-    if (control != nullptr)
-    {
+  if (tabControl != nullptr) {
+    Control ^ control = TabViewWrapper::GetManagedObject<Control>(aux);
+    if (control != nullptr) {
       tabControl->AuxControl = control;
       return;
     }
@@ -303,17 +276,15 @@ void TabViewWrapper::set_aux_view(mforms::TabView *backend, mforms::View *aux)
 
 //--------------------------------------------------------------------------------------------------
 
-void TabViewWrapper::set_allows_reordering(mforms::TabView *backend, bool flag)
-{
-  FlatTabControl ^tabControl = TabViewWrapper::GetManagedObject<FlatTabControl>(backend);
+void TabViewWrapper::set_allows_reordering(mforms::TabView *backend, bool flag) {
+  FlatTabControl ^ tabControl = TabViewWrapper::GetManagedObject<FlatTabControl>(backend);
   if (tabControl != nullptr)
     tabControl->CanReorderTabs = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TabViewWrapper::init()
-{
+void TabViewWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_tabview_impl.create = &TabViewWrapper::create;

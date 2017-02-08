@@ -26,6 +26,13 @@ from wb_admin_utils import make_panel_header
 from workbench.utils import human_size, Version
 
 def show_schema_manager(editor, selection, table_maintenance=False):
+    try:
+        editor.executeManagementQuery("select 1", 0)
+    except grt.DBError, e:
+        mforms.Utilities.show_error("Schema Inspector", "Can not launch the Schema Inspector because the server is unreacheble.", "OK", "", "")
+        log_error("Can not launch the Schema Inspector because the server is unreacheble.\n")
+        return False
+    
     for schema_name in selection:
         sman = SchemaManager(editor, schema_name)
         dpoint = mforms.fromgrt(editor.dockingPoint)
@@ -65,7 +72,7 @@ class MaintenanceResultForm(mforms.Form):
         self.box.set_spacing(8)
         self.set_content(self.box)
 
-        self.tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self.tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self.tree.set_selection_mode(mforms.TreeSelectMultiple)
         self.box.add(self.tree, True, True)
         self.tree.add_column(mforms.StringColumnType, "Table", 200, False)
@@ -172,7 +179,7 @@ class ObjectManager(mforms.Box):
         self.main.set_padding(8)
         self.main.set_spacing(8)
 
-        self.tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self.tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self.tree.set_selection_mode(mforms.TreeSelectMultiple)
         
         #Check if there is method to load the columns, if not, skip.
@@ -254,9 +261,13 @@ class ObjectManager(mforms.Box):
                     obj.schemaName = self.schema
                     obj.type = self.klass
                     if hasattr(self, 'parent_name_column'):
-                        parent_name = node.get_string(self.parent_name_column)
+                        if hasattr(self, 'table'):
+                            parent_name = self.table
+                        else:
+                            parent_name = node.get_string(self.parent_name_column)
+                        
                         if parent_nodes.has_key(parent_name):
-                            obj.owner = pobj
+                            obj.owner = parent_nodes[parent_name]
                         else:
                             pobj = grt.classes.db_query_LiveDBObject()
                             obj.owner = pobj
@@ -642,7 +653,6 @@ class TableManagerParent(mforms.Splitter):
 
         self.right_view = None
 
-
     @property
     def table_names(self):
         return self.summary_view.table_names
@@ -665,8 +675,9 @@ class TableManagerParent(mforms.Splitter):
     def switch_maintenance(self):
         self.right_view = TableMaintenancePanel(self.editor)
         self.add(self.right_view)
-        self.set_position(250)
+        self.relayout()
         self.right_view.relayout()
+        self.set_divider_position(250)
 
         self.right_view.show_tables(self.schema, self.selected_tables())
 
@@ -957,9 +968,9 @@ class SchemaInfoPanel(mforms.Box):
 
         self.panel_header_box = mforms.newBox(True)
         self.panel_header_box.set_padding(10)
-        self.panel_header_box.add(make_panel_header("db.Schema.32x32.png", self.editor.connection.name, "%s" % (schema)), False, False)
+        self.panel_header_box.add(make_panel_header("db.Schema.32x32.png", self.editor.connection.name, "%s" % (schema)), False, True)
         
-        self.add(self.panel_header_box,False, False)
+        self.add(self.panel_header_box, False, True)
 
         self.table.add(make_title("Schema Details"), 0, 2, 0, 1, mforms.HFillFlag)
 
@@ -988,7 +999,7 @@ class SchemaInfoPanel(mforms.Box):
         tbox.set_padding(15)
         tbox.add(self.table, True, True)
         
-        self.add(tbox, False, False)
+        self.add(tbox, False, True)
     
     def refresh(self):
         try:
@@ -1016,8 +1027,6 @@ class SchemaInfoPanel(mforms.Box):
             if ok:
                 self.database_size.set_text(human_size(rset.floatFieldValueByName("database_size")))
                 self.table_count.set_text(rset.stringFieldValueByName("table_count"))
-
-
 
 class SchemaManager(mforms.AppView):
     def __init__(self, editor, schema_name):

@@ -61,7 +61,25 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="base\event_log.cpp">
+    <ClCompile Include="data_types.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jsonparser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="drawing_win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="event_log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mem_stat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utf8string.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xml_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -130,7 +148,31 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="base\generic_templates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\scope_exit_trigger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="base\event_log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\c++helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\data_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\jsonparser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\mem_stat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\utf8string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\xml_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

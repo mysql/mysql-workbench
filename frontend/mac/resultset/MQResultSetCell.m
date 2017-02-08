@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@
 {
   if (!_blob)
   {
-    [self setTextColor: [NSColor blackColor]];
+    self.textColor = [NSColor blackColor];
     aRect.size.height-= 3.0;
     aRect.size.width-= 3.0;
     [super editWithFrame:aRect inView:controlView editor:textObj delegate:anObject event:theEvent];
@@ -81,7 +81,7 @@
   {
     if (_blob && !_null)
     {
-      if ([self objectValue])
+      if (self.objectValue)
       {
         imageFrame.size = _blobIcon.size;
         imageFrame.origin.y += floor((NSHeight(cellFrame) - _blobIcon.size.height) / 2);

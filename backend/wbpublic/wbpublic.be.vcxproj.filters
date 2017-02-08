@@ -44,9 +44,6 @@
     <Filter Include="grtdb Source Files">
       <UniqueIdentifier>{a8aae8af-d1d2-4571-91c8-3b27a2947f4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="grammar parser">
-      <UniqueIdentifier>{13e5081a-ffb1-4d4d-ac60-3f8ae3ca0387}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -341,9 +338,6 @@
     <ClInclude Include="grtui\wizard_view_text_page.h">
       <Filter>grtui Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlide\autocomplete_object_name_cache.h">
-      <Filter>sqlide Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sqlide\recordset_be.h">
       <Filter>sqlide Header Files</Filter>
     </ClInclude>
@@ -488,11 +482,8 @@
     <ClInclude Include="grtui\geom_draw_box.h">
       <Filter>grtui Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlide\grammar-parser\ANTLRv3Lexer.h">
-      <Filter>grammar parser</Filter>
-    </ClInclude>
-    <ClInclude Include="sqlide\grammar-parser\ANTLRv3Parser.h">
-      <Filter>grammar parser</Filter>
+    <ClInclude Include="grtsqlparser\parser_services_common.h">
+      <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -782,9 +773,6 @@
     <ClCompile Include="grtui\text_input_dialog.cpp">
       <Filter>grtui Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlide\autocomplete_object_name_cache.cpp">
-      <Filter>sqlide Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sqlide\recordset_be.cpp">
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
@@ -807,9 +795,6 @@
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlide\sql_editor_be.cpp">
-      <Filter>sqlide Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sqlide\sql_editor_be_autocomplete.cpp">
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlide\sql_script_run_wizard.cpp">
@@ -928,12 +913,6 @@
     </ClCompile>
     <ClCompile Include="grtui\geom_draw_box.cpp">
       <Filter>grtui Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sqlide\grammar-parser\ANTLRv3Lexer.c">
-      <Filter>grammar parser</Filter>
-    </ClCompile>
-    <ClCompile Include="sqlide\grammar-parser\ANTLRv3Parser.c">
-      <Filter>grammar parser</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

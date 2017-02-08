@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,19 +26,19 @@
 {
 	[super updateAppearance];
 		
-	[self setShadowOpacity: 0.0];
+	self.shadowOpacity = 0.0;
 	
 	if (mState == NSOnState) {
-		[self setZPosition: -1];
-		[mSideLeft setOpacity: 1];
-		[mSideRight setOpacity: 1];
-    [mBackgroundGradient setOpacity: 1];
+		self.zPosition = -1;
+		mSideLeft.opacity = 1;
+		mSideRight.opacity = 1;
+    mBackgroundGradient.opacity = 1;
 	}
 	else {
-		[self setZPosition: -3];
-		[mSideLeft setOpacity: 0];
-		[mSideRight setOpacity: 0];
-    [mBackgroundGradient setOpacity: 0];
+		self.zPosition = -3;
+		mSideLeft.opacity = 0;
+		mSideRight.opacity = 0;
+    mBackgroundGradient.opacity = 0;
 	}
 }
 
@@ -50,9 +50,9 @@
 	
 	NSFont* font = [NSFont boldSystemFontOfSize: 11.5];
 	NSDictionary* attributes = @{NSFontAttributeName: font};
-	CGRect r = [mTitleLayer frame];
+	CGRect r = mTitleLayer.frame;
 	r.size.width = ceil([mLabel sizeWithAttributes:attributes].width);
-	[mTitleLayer setFrame: r];
+	mTitleLayer.frame = r;
 }
 
 
@@ -63,7 +63,7 @@
 	
 	NSFont* font = [NSFont boldSystemFontOfSize: 11.5];
 	NSDictionary* attributes = @{NSFontAttributeName: font};
-	CGFloat iconWidth = [mIcon frame].size.width + 9;
+	CGFloat iconWidth = mIcon.frame.size.width + 9;
 	
 	CGFloat labelWidth = ceil([mLabel sizeWithAttributes:attributes].width);
 	CGFloat preferredWidth1 = iconWidth + 5 + labelWidth + 9;
@@ -101,7 +101,7 @@
     
 		CGRect frame = CGRectZero;
 		frame.size = CGSizeMake(120, 84);
-		[self setFrame: frame];
+		self.frame = frame;
 		
 		CGFloat horizon = frame.size.height / 2;
 		
@@ -118,10 +118,10 @@
         //CGImageRef img = imageRepresentation.CGImage;
         mIcon = [CALayer layer];
         CGRect r = CGRectZero;
-        r.size = NSSizeToCGSize([mIconImage size]);
+        r.size = NSSizeToCGSize(mIconImage.size);
         r.origin.x = 9;
         r.origin.y = floor(horizon + (horizon / 2) - (r.size.height / 2));
-        [mIcon setFrame: r];
+        mIcon.frame = r;
         //[mIcon setContents: img];
         mIcon.contents = mIconImage; // Directly supported on 10.6+.
         [self addSublayer: mIcon];
@@ -131,22 +131,22 @@
 		{
 			// Title layer.
 			CGRect titleFrame = CGRectZero;
-			CGRect r = [mIcon frame];
+			CGRect r = mIcon.frame;
 			titleFrame.origin.x = CGRectGetMaxX(r) + 6;
 			titleFrame.origin.y = r.origin.y + (r.size.height / 2);
 			titleFrame.size.height = 15;
 			titleFrame.size.width = 100;
 			
 			mTitleLayer = [CATextLayer layer];
-			[mTitleLayer setFrame: titleFrame];
-			[mTitleLayer setAutoresizingMask: (kCALayerMaxXMargin | kCALayerMinYMargin)];
+			mTitleLayer.frame = titleFrame;
+			mTitleLayer.autoresizingMask = (kCALayerMaxXMargin | kCALayerMinYMargin);
 			
 			CGColorRef c = WB_CGColorCreateCalibratedRGB(0.1, 0.1, 0.1, 1.0);
-			[mTitleLayer setForegroundColor: c];
+			mTitleLayer.foregroundColor = c;
 			CGColorRelease(c);
 			NSFont* font = [NSFont boldSystemFontOfSize: 0];
-			[mTitleLayer setFont: (__bridge CFTypeRef _Nullable)(font)];
-			[mTitleLayer setFontSize: 11.5];
+			mTitleLayer.font = (__bridge CFTypeRef _Nullable)(font);
+			mTitleLayer.fontSize = 11.5;
 			
 			[self addSublayer: mTitleLayer];
 			[self setLabel: label];
@@ -154,15 +154,15 @@
 			// Sub title "MySQL Schema".
 			mTitleLayerB = [CATextLayer layer];
 			titleFrame.origin.y = r.origin.y + (r.size.height / 2) - 15;
-			[mTitleLayerB setFrame: titleFrame];
-			[mTitleLayerB setAutoresizingMask: (kCALayerMaxXMargin | kCALayerMinYMargin)];
+			mTitleLayerB.frame = titleFrame;
+			mTitleLayerB.autoresizingMask = (kCALayerMaxXMargin | kCALayerMinYMargin);
 			c = WB_CGColorCreateCalibratedRGB(0.3, 0.3, 0.3, 1.0);
-			[mTitleLayerB setForegroundColor: c];
+			mTitleLayerB.foregroundColor = c;
 			CGColorRelease(c);
-			[mTitleLayerB setFont: (__bridge CFTypeRef _Nullable)(font)];
-			[mTitleLayerB setFontSize: 9];
+			mTitleLayerB.font = (__bridge CFTypeRef _Nullable)(font);
+			mTitleLayerB.fontSize = 9;
 			[self addSublayer: mTitleLayerB];
-			[mTitleLayerB setString: @"MySQL Schema"];
+			mTitleLayerB.string = @"MySQL Schema";
 		}
 		
 		{
@@ -175,16 +175,16 @@
       // CGImageRef img = [(id)[mSideLineImage representations][0] CGImage];
 			CGRect r = CGRectMake(0, horizon, 1, frame.size.height / 2);
 			mSideLeft = [CALayer layer];
-			[mSideLeft setFrame: r];
+			mSideLeft.frame = r;
 			mSideLeft.contents = mSideLineImage;
-			[mSideLeft setAutoresizingMask: (kCALayerMaxXMargin | kCALayerMinYMargin)];
+			mSideLeft.autoresizingMask = (kCALayerMaxXMargin | kCALayerMinYMargin);
 			[self addSublayer: mSideLeft];
 
 			r = CGRectMake(frame.size.width - 1, horizon, 1, frame.size.height / 2);
 			mSideRight = [CALayer layer];
-			[mSideRight setFrame: r];
+			mSideRight.frame = r;
 			mSideRight.contents = mSideLineImage;
-			[mSideRight setAutoresizingMask: (kCALayerMinXMargin | kCALayerMinYMargin)];
+			mSideRight.autoresizingMask = (kCALayerMinXMargin | kCALayerMinYMargin);
 			[self addSublayer: mSideRight];
 		}
     
@@ -198,14 +198,14 @@
       mBackgroundGradient = [CALayer layer];
       mBackgroundGradient.contents = mAlphaGradientImage;
 			CGRect r = CGRectMake(0, horizon, frame.size.width, frame.size.height / 2);
-      [mBackgroundGradient setFrame: r];
-			[mBackgroundGradient setAutoresizingMask: (kCALayerWidthSizable | kCALayerHeightSizable)];
-      [mBackgroundGradient setZPosition: -1];
+      mBackgroundGradient.frame = r;
+			mBackgroundGradient.autoresizingMask = (kCALayerWidthSizable | kCALayerHeightSizable);
+      mBackgroundGradient.zPosition = -1;
       [self addSublayer: mBackgroundGradient];
     }
 		
-		frame.size.width = [self preferredWidth];
-		[self setFrame: frame];
+		frame.size.width = self.preferredWidth;
+		self.frame = frame;
 		
 		[self setState: NSOffState];
 		[self setEnabled: YES];

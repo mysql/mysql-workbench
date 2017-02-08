@@ -2,58 +2,49 @@
 #include <gtk/gtk.h>
 
 //------------------------------------------------------------------------------
-EditableIconView::EditableIconView(const Glib::RefPtr<Gtk::TreeModel> & model)
-         : Gtk::IconView(model)
-{
+EditableIconView::EditableIconView(const Glib::RefPtr<Gtk::TreeModel>& model) : Gtk::IconView(model) {
 #if GTK_MINOR_VERSION >= 18
   gtk_icon_view_set_item_padding(gobj(), 4);
 #endif
 }
 
 //------------------------------------------------------------------------------
-EditableIconView::EditableIconView()
-         : Gtk::IconView()
-{}
+EditableIconView::EditableIconView() : Gtk::IconView() {
+}
 
 //------------------------------------------------------------------------------
-bool EditableIconView::on_button_press_event(GdkEventButton *event)
-{
+bool EditableIconView::on_button_press_event(GdkEventButton* event) {
   // Handle Gtk::IconView event first so it can do its logic before we are in
   const bool ret = Gtk::IconView::on_button_press_event(event);
-  
+
   // Recheck here if we have correct model set for the IconView. It is possible
   // that we are dealing with Gtk::ListStore
-  if (_model)
-  {
+  if (_model) {
     // Get the item at the mouse position, it is the one we need to decide on editing
     Gtk::TreeModel::Path path;
 
-    if (get_item_at_pos((int)event->x, (int)event->y, path))
-    {
+    if (get_item_at_pos((int)event->x, (int)event->y, path)) {
       const bec::NodeId node(_model->get_node_for_path(path));
 
-      Gtk::CellRenderer *cell(0);
+      Gtk::CellRenderer* cell(0);
       get_item_at_pos((int)event->x, (int)event->y, path, cell);
-            
-      if (node.is_valid() && _model->get_be_model()->is_editable(node))
-      {
+
+      if (node.is_valid() && _model->get_be_model()->is_editable(node)) {
         // Check if it was the item selected before. We do not want to start edit
         // on newly clicked item
-        if (_selected_path.gobj() && _selected_path.to_string() == path.to_string())
-        {
-          if ( cell && GTK_IS_CELL_RENDERER_TEXT(cell->gobj()) )
-          {
+        if (_selected_path.gobj() && _selected_path.to_string() == path.to_string()) {
+          if (cell && GTK_IS_CELL_RENDERER_TEXT(cell->gobj())) {
             Gtk::CellRendererText* rend = static_cast<Gtk::CellRendererText*>(cell);
-            // Enable editing, without that we are not able to start editing as gtk's code checks 
+            // Enable editing, without that we are not able to start editing as gtk's code checks
             // for cellrenderer to be editable
             rend->property_editable() = true;
             // connect signal so we can handle editing_done. Handling editing_done allows
             // us to update model, otherwise gtk won't pass new value to the model
             _start_conn = rend->signal_editing_started().connect(sigc::mem_fun(this, &EditableIconView::edit_started));
-#if GTK_VERSION_GT(2,14)
+#if GTK_VERSION_GT(2, 14)
             set_cursor(path, *cell, true);
 #else
-	    // gtkmm shipped with RHEL5.4 doesn't have set_cursor(), even tho gtk does
+            // gtkmm shipped with RHEL5.4 doesn't have set_cursor(), even tho gtk does
             gtk_icon_view_set_cursor(gobj(), path.gobj(), cell->gobj(), TRUE);
 #endif
             // Disable editing, otherwise we will start edit on the next clicking on a different item
@@ -65,28 +56,25 @@ bool EditableIconView::on_button_press_event(GdkEventButton *event)
     // Update selected path so we can detect second single click on the item
     _selected_path = path;
   }
-  
+
   return ret;
 }
 
 //------------------------------------------------------------------------------
-void EditableIconView::edit_started(Gtk::CellEditable* editable, const Glib::ustring& path)
-{
+void EditableIconView::edit_started(Gtk::CellEditable* editable, const Glib::ustring& path) {
   _start_conn.disconnect();
   if (editable)
-    _done_conn = editable->signal_editing_done().connect(sigc::bind(sigc::mem_fun(this, &EditableIconView::edit_done), editable));
+    _done_conn =
+      editable->signal_editing_done().connect(sigc::bind(sigc::mem_fun(this, &EditableIconView::edit_done), editable));
 }
 
 //------------------------------------------------------------------------------
-void EditableIconView::edit_done(Gtk::CellEditable* editable)
-{
+void EditableIconView::edit_done(Gtk::CellEditable* editable) {
   Gtk::Entry* entry = static_cast<Gtk::Entry*>(editable);
-  if (entry)
-  {
+  if (entry) {
     Gtk::TreeModel::iterator iter = _model->get_iter(_selected_path);
     Gtk::TreeModel::Row row = *iter;
-    if (row)
-    {
+    if (row) {
       std::string data("");
       row.get_value(get_text_column(), data);
       if (data != entry->get_text())

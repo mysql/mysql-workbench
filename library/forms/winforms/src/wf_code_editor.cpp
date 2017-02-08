@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -40,9 +40,7 @@ using namespace MySQL::Controls;
 
 //----------------- ScintillaControl ---------------------------------------------------------------
 
-ScintillaControl::ScintillaControl()
-  : Control()
-{
+ScintillaControl::ScintillaControl() : Control() {
   direct_pointer = 0;
   message_function = NULL;
   backend = NULL;
@@ -59,18 +57,17 @@ ScintillaControl::ScintillaControl()
  *                 (considering the other platforms).
  *   The underlying scintilla window has a separate check for cross thread calls.
  */
-sptr_t ScintillaControl::direct_call(unsigned int message, uptr_t wParam, sptr_t lParam)
-{
+sptr_t ScintillaControl::direct_call(unsigned int message, uptr_t wParam, sptr_t lParam) {
   if (destroying || Disposing || IsDisposed)
     return -1;
 
-  HWND handle = (HWND)Handle.ToInt32();
+  HWND handle = (HWND)Handle.ToPointer();
   if (handle == 0)
     return -1;
 
   if (message_function == NULL)
     message_function = (SciFnDirect)SendMessage(handle, SCI_GETDIRECTFUNCTION, 0, 0);
-  
+
   if (direct_pointer == 0)
     direct_pointer = (sptr_t)SendMessage(handle, SCI_GETDIRECTPOINTER, 0, 0);
 
@@ -81,125 +78,106 @@ sptr_t ScintillaControl::direct_call(unsigned int message, uptr_t wParam, sptr_t
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::SetBackend(mforms::CodeEditor *editor)
-{
+void ScintillaControl::SetBackend(mforms::CodeEditor *editor) {
   backend = editor;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::SetDropTarget(mforms::DropDelegate *target)
-{
+void ScintillaControl::SetDropTarget(mforms::DropDelegate *target) {
   file_drop_target = target;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ScintillaControl::CanUndo::get()
-{
+bool ScintillaControl::CanUndo::get() {
   return direct_call(SCI_CANUNDO, 0, 0) != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ScintillaControl::CanRedo::get()
-{
+bool ScintillaControl::CanRedo::get() {
   return direct_call(SCI_CANREDO, 0, 0) != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ScintillaControl::CanCopy::get()
-{
+bool ScintillaControl::CanCopy::get() {
   sptr_t length = direct_call(SCI_GETSELECTIONEND, 0, 0) - direct_call(SCI_GETSELECTIONSTART, 0, 0);
   return length > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ScintillaControl::CanCut::get()
-{
+bool ScintillaControl::CanCut::get() {
   return CanCopy && CanDelete;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ScintillaControl::CanPaste::get()
-{
-  try
-  {
+bool ScintillaControl::CanPaste::get() {
+  try {
     // Doesn't usually crash but if the clipboard chain is forcibly broken we might get this
     // error. No sense to show it to the user.
     return Clipboard::ContainsText() && direct_call(SCI_GETREADONLY, 0, 0) == 0;
-  }
-  catch (...)
-  {
-    log_error("Clipboard::ContainsText returned with exception\n");
+  } catch (...) {
+    logError("Clipboard::ContainsText returned with exception\n");
     return false;
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ScintillaControl::CanDelete::get()
-{
+bool ScintillaControl::CanDelete::get() {
   return CanCopy && direct_call(SCI_GETREADONLY, 0, 0) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::Undo()
-{
+void ScintillaControl::Undo() {
   direct_call(SCI_UNDO, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::Redo()
-{
+void ScintillaControl::Redo() {
   direct_call(SCI_REDO, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::Copy()
-{
+void ScintillaControl::Copy() {
   direct_call(SCI_COPY, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::Cut()
-{
+void ScintillaControl::Cut() {
   direct_call(SCI_CUT, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::Paste()
-{
+void ScintillaControl::Paste() {
   direct_call(SCI_PASTE, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::Delete()
-{
-  direct_call(SCI_REPLACESEL, 0, (sptr_t)"");
+void ScintillaControl::Delete() {
+  direct_call(SCI_REPLACESEL, 0, (sptr_t) "");
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::SelectAll()
-{
+void ScintillaControl::SelectAll() {
   direct_call(SCI_SELECTALL, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Windows::Forms::CreateParams^ ScintillaControl::CreateParams::get()
-{
-  Windows::Forms::CreateParams^ params = Control::CreateParams::get();
+System::Windows::Forms::CreateParams ^ ScintillaControl::CreateParams::get() {
+  System::Windows::Forms::CreateParams ^ params = Control::CreateParams::get();
   params->ClassName = "Scintilla";
 
   return params;
@@ -207,114 +185,147 @@ Windows::Forms::CreateParams^ ScintillaControl::CreateParams::get()
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::WndProc(Windows::Forms::Message %m)
-{
-  switch (m.Msg)
-  {
-  case WM_PAINT:
-    // Weird, this message must be forwarded to the default window proc not the inherited WndProc,
-    // otherwise nothing is drawn because no WM_PAINT message reaches Scintilla.
-    Control::DefWndProc(m);
-    break;
-
-  case WM_SETCURSOR:
-  case WM_GETTEXT:
-  case WM_GETTEXTLENGTH:
-    // Only used for getting the window text, which we don't have. The default implementation
-    // returns the full text of the editor which produces problems with large content.
-    m.Result = IntPtr(0);
-    break;
-
-  case WM_NOTIFY + 0x2000: // WM_NOTIFY reflected by .NET from the parent window.
-  {
-    // Parent notification. Details are passed as SCNotification structure.
-    Scintilla::SCNotification *scn = reinterpret_cast<Scintilla::SCNotification*>(m.LParam.ToPointer());
-    backend->on_notify(scn);
-    break;
+mforms::KeyCode ScintillaControl::GetKeyCode(int code) {
+  auto key = mforms::KeyUnkown;
+  switch (code) {
+    case Keys::Return:
+      key = mforms::KeyReturn;
+      break;
+    case Keys::Up:
+      key = mforms::KeyUp;
+      break;
+    case Keys::Down:
+      key = mforms::KeyDown;
+      break;
+    default:
+      break;
   }
+  return key;
+}
 
-  case WM_COMMAND + 0x2000: // Ditto for WM_COMMAND.
+//--------------------------------------------------------------------------------------------------
+
+mforms::ModifierKey ScintillaControl::GetModifiers(System::Windows::Forms::Keys keyData) {
+  return ViewWrapper::GetModifiers(keyData);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool ScintillaControl::ProcessCmdKey(System::Windows::Forms::Message % msg, System::Windows::Forms::Keys keyData) {
+  if (msg.Msg == WM_KEYDOWN) {
+    if (backend->key_event(GetKeyCode(msg.WParam.ToInt32()), GetModifiers(keyData), ""))
+      return __super ::ProcessCmdKey(msg, keyData);
+    return false;
+  }
+  return __super ::ProcessCmdKey(msg, keyData);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ScintillaControl::WndProc(System::Windows::Forms::Message % m) {
+  switch (m.Msg) {
+    case WM_PAINT:
+      // Weird, this message must be forwarded to the default window proc not the inherited WndProc,
+      // otherwise nothing is drawn because no WM_PAINT message reaches Scintilla.
+      Control::DefWndProc(m);
+      break;
+
+    case WM_SETCURSOR:
+    case WM_GETTEXT:
+    case WM_GETTEXTLENGTH:
+      // Only used for getting the window text, which we don't have. The default implementation
+      // returns the full text of the editor which produces problems with large content.
+      m.Result = IntPtr(0);
+      break;
+
+    case WM_NOTIFY + 0x2000: // WM_NOTIFY reflected by .NET from the parent window.
+    {
+      // Parent notification. Details are passed as SCNotification structure.
+      Scintilla::SCNotification *scn = reinterpret_cast<Scintilla::SCNotification *>(m.LParam.ToPointer());
+      backend->on_notify(scn);
+      break;
+    }
+
+    case WM_COMMAND + 0x2000: // Ditto for WM_COMMAND.
     {
       backend->on_command(m.WParam.ToInt32() >> 16);
       break;
     }
 
-  case WM_DROPFILES:
-    if (file_drop_target != NULL)
-    {
-      HDROP hdrop = (HDROP)m.WParam.ToPointer();
-      unsigned count = DragQueryFile(hdrop, 0xFFFFFFFF, NULL, 0);
-      std::vector<std::string> file_names;
-      for (UINT i = 0; i < count; ++i)
-      {
-        unsigned size = DragQueryFile(hdrop, i, NULL, 0); // Size not including terminator.
-        if (size == 0)
-          continue;
+    case WM_DROPFILES:
+      if (file_drop_target != NULL) {
+        HDROP hdrop = (HDROP)m.WParam.ToPointer();
+        unsigned count = DragQueryFile(hdrop, 0xFFFFFFFF, NULL, 0);
+        std::vector<std::string> file_names;
+        for (UINT i = 0; i < count; ++i) {
+          unsigned size = DragQueryFile(hdrop, i, NULL, 0); // Size not including terminator.
+          if (size == 0)
+            continue;
 
-        TCHAR *buffer = new TCHAR[size + 1];
-        if (DragQueryFile(hdrop, i, buffer, size + 1) != 0)
-          file_names.push_back(base::wstring_to_string(buffer));
-        delete buffer;
+          TCHAR *buffer = new TCHAR[size + 1];
+          if (DragQueryFile(hdrop, i, buffer, size + 1) != 0)
+            file_names.push_back(base::wstring_to_string(buffer));
+          delete buffer;
+        }
+
+        POINT point;
+        DragQueryPoint(hdrop, &point);
+        ScreenToClient((HWND)Handle.ToPointer(), &point);
+        file_drop_target->files_dropped(backend, base::Point(point.x, point.y), mforms::DragOperationCopy, file_names);
       }
+      break;
 
-      POINT point;
-      DragQueryPoint(hdrop, &point);
-      ScreenToClient((HWND)Handle.ToPointer(), &point);
-      file_drop_target->files_dropped(backend, base::Point(point.x, point.y), mforms::DragOperationCopy, file_names);
-    }
-    break;
+    case WM_NCDESTROY:
+      destroying = true;
+      break;
+    /*case WM_KEYDOWN:
+      {
+        std::string val;
+        val.append((char*)m.WParam.ToInt32());
+        if (backend->key_event(GetKeyCode(m.WParam.ToInt32()), GetModifiers(m.LParam.ToInt32()), val))
+          Control::WndProc(m);
+      }
+      break;*/
 
-  case WM_NCDESTROY:
-    destroying = true;
-    break;
-
-  default:
-    Control::WndProc(m);
+    default:
+      Control::WndProc(m);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::ShowFindPanel(bool doReplace)
-{
+void ScintillaControl::ShowFindPanel(bool doReplace) {
   backend->show_find_panel(doReplace);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScintillaControl::OnMouseDown(MouseEventArgs^ e)
-{
-  if (e->Button == Windows::Forms::MouseButtons::Right)
-  {
+void ScintillaControl::OnMouseDown(MouseEventArgs ^ e) {
+  if (e->Button == System::Windows::Forms::MouseButtons::Right) {
     // Update the associated context menu.
-    if (backend->get_context_menu() != NULL)
-    {
-      Windows::Forms::ContextMenuStrip ^menu = CodeEditorWrapper::GetManagedObject<Windows::Forms::ContextMenuStrip>(backend->get_context_menu());
-      if (menu != ContextMenuStrip)
-      {
+    if (backend->get_context_menu() != NULL) {
+      System::Windows::Forms::ContextMenuStrip ^ menu =
+        CodeEditorWrapper::GetManagedObject<System::Windows::Forms::ContextMenuStrip>(backend->get_context_menu());
+      if (menu != ContextMenuStrip) {
         ContextMenuStrip = menu;
         (*backend->get_context_menu()->signal_will_show())();
       }
-    }
-    else
+    } else
       ContextMenuStrip = nullptr;
   }
 }
 
 //----------------- CodeEditorWrapper -----------------------------------------------------------------
 
-CodeEditorWrapper::CodeEditorWrapper(mforms::CodeEditor *backend)
-  : ViewWrapper(backend)
-{
-  backend->set_show_find_panel_callback(boost::bind(show_find_panel, _1, _2));
+CodeEditorWrapper::CodeEditorWrapper(mforms::CodeEditor *backend) : ViewWrapper(backend) {
+  backend->set_show_find_panel_callback(std::bind(show_find_panel, std::placeholders::_1, std::placeholders::_2));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool CodeEditorWrapper::create(mforms::CodeEditor *backend)
-{
+bool CodeEditorWrapper::create(mforms::CodeEditor *backend, bool showInfo) {
   CodeEditorWrapper *wrapper = new CodeEditorWrapper(backend);
-  ScintillaControl ^editor = CodeEditorWrapper::Create<ScintillaControl>(backend, wrapper);
+  ScintillaControl ^ editor = CodeEditorWrapper::Create<ScintillaControl>(backend, wrapper);
   editor->SetBackend(backend);
 
   return true;
@@ -322,26 +333,21 @@ bool CodeEditorWrapper::create(mforms::CodeEditor *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-sptr_t CodeEditorWrapper::send_editor(mforms::CodeEditor *backend, unsigned int message, uptr_t wParam, sptr_t lParam)
-{
-  ScintillaControl ^editor = CodeEditorWrapper::GetManagedObject<ScintillaControl>(backend);
+sptr_t CodeEditorWrapper::send_editor(mforms::CodeEditor *backend, unsigned int message, uptr_t wParam, sptr_t lParam) {
+  ScintillaControl ^ editor = CodeEditorWrapper::GetManagedObject<ScintillaControl>(backend);
   return editor->direct_call(message, wParam, lParam);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditorWrapper::show_find_panel(mforms::CodeEditor *backend, bool show)
-{
+void CodeEditorWrapper::show_find_panel(mforms::CodeEditor *backend, bool show) {
   mforms::FindPanel *find_panel = backend->get_find_panel();
-  if (find_panel != NULL)
-  {
-    Control ^find_control = FindPanelWrapper::GetControl(find_panel);
-    if (show)
-    {
-      if (find_control->Parent == nullptr)
-      {
-        Control ^editor_control = CodeEditorWrapper::GetControl(backend);
-        
+  if (find_panel != NULL) {
+    Control ^ find_control = FindPanelWrapper::GetControl(find_panel);
+    if (show) {
+      if (find_control->Parent == nullptr) {
+        Control ^ editor_control = CodeEditorWrapper::GetControl(backend);
+
         // Insert the find panel directly before the editor control (same index).
         int index = editor_control->Parent->Controls->GetChildIndex(editor_control);
         editor_control->Parent->Controls->Add(find_control);
@@ -351,26 +357,23 @@ void CodeEditorWrapper::show_find_panel(mforms::CodeEditor *backend, bool show)
           editor_control->Parent->Controls->SetChildIndex(find_control, index);
         find_control->Dock = DockStyle::Top;
         find_control->Show();
-      }        
-    }
-    else
+      }
+    } else
       find_control->Parent->Controls->Remove(find_control);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditorWrapper::register_file_drop(mforms::DropDelegate *target)
-{
-  ScintillaControl ^editor = CodeEditorWrapper::GetManagedObject<ScintillaControl>();
+void CodeEditorWrapper::register_file_drop(mforms::DropDelegate *target) {
+  ScintillaControl ^ editor = CodeEditorWrapper::GetManagedObject<ScintillaControl>();
   editor->SetDropTarget(target);
   DragAcceptFiles((HWND)editor->Handle.ToPointer(), true);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditorWrapper::init()
-{
+void CodeEditorWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_code_editor_impl.create = &CodeEditorWrapper::create;

@@ -6,6 +6,7 @@
 
 #include "Platform.h"
 
+#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -24,7 +25,7 @@ TEST_CASE("CellBuffer") {
 	
 	SECTION("InsertOneLine") {
 		bool startSequence = false;
-		const char *cpChange = cb.InsertString(0, sText, sLength, startSequence);
+		const char *cpChange = cb.InsertString(0, sText, static_cast<int>(sLength), startSequence);
 		REQUIRE(startSequence);
 		REQUIRE(sLength == cb.Length());
 		REQUIRE(memcmp(cpChange, sText, sLength) == 0);
@@ -32,7 +33,7 @@ TEST_CASE("CellBuffer") {
 		REQUIRE(0 == cb.LineStart(0));
 		REQUIRE(0 == cb.LineFromPosition(0));
 		REQUIRE(sLength == cb.LineStart(1));
-		REQUIRE(0 == cb.LineFromPosition(sLength));
+		REQUIRE(0 == cb.LineFromPosition(static_cast<int>(sLength)));
 		REQUIRE(cb.CanUndo());
 		REQUIRE(!cb.CanRedo());
 	}
@@ -41,7 +42,7 @@ TEST_CASE("CellBuffer") {
 		const char sText2[] = "Two\nLines";
 		const size_t sLength2 = strlen(sText2);
 		bool startSequence = false;
-		const char *cpChange = cb.InsertString(0, sText2, sLength2, startSequence);
+		const char *cpChange = cb.InsertString(0, sText2, static_cast<int>(sLength), startSequence);
 		REQUIRE(startSequence);
 		REQUIRE(sLength2 == cb.Length());
 		REQUIRE(memcmp(cpChange, sText2, sLength2) == 0);
@@ -51,7 +52,7 @@ TEST_CASE("CellBuffer") {
 		REQUIRE(4 == cb.LineStart(1));
 		REQUIRE(1 == cb.LineFromPosition(5));
 		REQUIRE(sLength2 == cb.LineStart(2));
-		REQUIRE(1 == cb.LineFromPosition(sLength2));
+		REQUIRE(1 == cb.LineFromPosition(static_cast<int>(sLength)));
 		REQUIRE(cb.CanUndo());
 		REQUIRE(!cb.CanRedo());
 	}
@@ -61,7 +62,7 @@ TEST_CASE("CellBuffer") {
 		cb.SetUndoCollection(false);
 		REQUIRE(!cb.IsCollectingUndo());
 		bool startSequence = false;
-		const char *cpChange = cb.InsertString(0, sText, sLength, startSequence);
+		const char *cpChange = cb.InsertString(0, sText, static_cast<int>(sLength), startSequence);
 		REQUIRE(!startSequence);
 		REQUIRE(sLength == cb.Length());
 		REQUIRE(memcmp(cpChange, sText, sLength) == 0);
@@ -73,7 +74,7 @@ TEST_CASE("CellBuffer") {
 		const char sTextDeleted[] = "ci";
 		const char sTextAfterDeletion[] = "Sntilla";
 		bool startSequence = false;
-		const char *cpChange = cb.InsertString(0, sText, sLength, startSequence);
+		const char *cpChange = cb.InsertString(0, sText, static_cast<int>(sLength), startSequence);
 		REQUIRE(startSequence);
 		REQUIRE(sLength == cb.Length());
 		REQUIRE(memcmp(cpChange, sText, sLength) == 0);
@@ -133,7 +134,7 @@ TEST_CASE("CellBuffer") {
 		cb.SetReadOnly(true);
 		REQUIRE(cb.IsReadOnly());
 		bool startSequence = false;
-		cb.InsertString(0, sText, sLength, startSequence);
+		cb.InsertString(0, sText, static_cast<int>(sLength), startSequence);
 		REQUIRE(cb.Length() == 0);
 	}
 

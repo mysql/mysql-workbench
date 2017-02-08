@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,32 +32,30 @@
 
 BEGIN_TEST_DATA_CLASS(db_mysql_sql_export)
 public:
-  WBTester wbt;
-  SqlFacade::Ref sql_facade;
-  db_mgmt_RdbmsRef rdbms;
-  DictRef options;
-  void test_import_sql(int test_no, const char *old_schema_name= NULL, const char *new_schema_name= NULL);
+WBTester wbt;
+SqlFacade::Ref sql_facade;
+db_mgmt_RdbmsRef rdbms;
+DictRef options;
+void test_import_sql(int test_no, const char *old_schema_name = NULL, const char *new_schema_name = NULL);
 
 END_TEST_DATA_CLASS
 
-
 TEST_MODULE(db_mysql_sql_export, "Forward Engineer");
-
 
 //--------------------------------------------------------------------------------------------------
 
-void check_fwd_engineer(WBTester &wbt, std::string &modelfile, std::string &expected_sql, std::map<std::string, bool> &fwd_opts)
-{
+void check_fwd_engineer(WBTester &wbt, std::string &modelfile, std::string &expected_sql,
+                        std::map<std::string, bool> &fwd_opts) {
   wbt.wb->open_document(modelfile);
   wbt.open_all_diagrams();
   wbt.activate_overview();
 
-  if (!g_file_test(modelfile.c_str(),G_FILE_TEST_EXISTS))
-  ensure("Model file not found!", false);
+  if (!g_file_test(modelfile.c_str(), G_FILE_TEST_EXISTS))
+    ensure("Model file not found!", false);
 
-  DbMySQLSQLExport exp(wbt.wb->get_grt_manager(), db_mysql_CatalogRef::cast_from(wbt.get_catalog()));
+  DbMySQLSQLExport exp(db_mysql_CatalogRef::cast_from(wbt.get_catalog()));
 
-  ValueRef valRef = wbt.wb->get_grt()->get("/wb/doc/physicalModels/0/catalog/schemata/0");
+  ValueRef valRef = grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog/schemata/0");
 
   db_mysql_SchemaRef schemaRef = db_mysql_SchemaRef::cast_from(valRef);
   ensure("Model not loaded :(", schemaRef.is_valid());
@@ -73,10 +71,8 @@ void check_fwd_engineer(WBTester &wbt, std::string &modelfile, std::string &expe
   bec::GrtStringListModel *triggers_model;
   bec::GrtStringListModel *triggers_imodel;
 
-  exp.setup_grt_string_list_models_from_catalog(&users_model, &users_imodel,
-                                                &tables_model, &tables_imodel,
-                                                &views_model, &views_imodel,
-                                                &routines_model, &routines_imodel,
+  exp.setup_grt_string_list_models_from_catalog(&users_model, &users_imodel, &tables_model, &tables_imodel,
+                                                &views_model, &views_imodel, &routines_model, &routines_imodel,
                                                 &triggers_model, &triggers_imodel);
 
   std::map<std::string, bool>::iterator it;
@@ -101,8 +97,7 @@ void check_fwd_engineer(WBTester &wbt, std::string &modelfile, std::string &expe
   error_msg += " failed";
 
   int l = 0;
-  while (ref.good() && ss.good())
-  {
+  while (ref.good() && ss.good()) {
     ++l;
     getline(ref, refline);
     getline(ss, line);
@@ -113,13 +108,11 @@ void check_fwd_engineer(WBTester &wbt, std::string &modelfile, std::string &expe
   wbt.wb->close_document_finish();
 }
 
-TEST_FUNCTION(1)
-{
+TEST_FUNCTION(1) {
   // General test for forward engineer of sakila database.
   std::map<std::string, bool> opts;
   std::string modelfile = "data/forward_engineer/sakila.mwb";
   std::string expected_sql = "data/forward_engineer/sakila.expected.sql";
-
 
   opts["GenerateDrops"] = true;
   opts["GenerateSchemaDrops"] = true;
@@ -145,8 +138,7 @@ TEST_FUNCTION(1)
   check_fwd_engineer(wbt, modelfile, expected_sql, opts);
 }
 
-TEST_FUNCTION(2)
-{
+TEST_FUNCTION(2) {
   // Forward engineer test of routine with ommitSchemata enabled.
   std::map<std::string, bool> opts;
   std::string modelfile = "data/forward_engineer/ommit_schema_routine.mwb";
@@ -176,8 +168,7 @@ TEST_FUNCTION(2)
   check_fwd_engineer(wbt, modelfile, expected_sql, opts);
 }
 
-TEST_FUNCTION(3)
-{
+TEST_FUNCTION(3) {
   // Forward engineer test of routine with ommitSchemata enabled
   std::map<std::string, bool> opts;
   std::string modelfile = "data/forward_engineer/schema_rename.mwb";
@@ -208,4 +199,3 @@ TEST_FUNCTION(3)
 }
 
 END_TESTS
-

@@ -3975,7 +3975,7 @@ my_wc_mb_filename(CHARSET_INFO *cs __attribute__((unused)),
   char hex[]= "0123456789abcdef";
   if (wc < 128 && filename_safe_char[wc])
   {
-    *s= wc;
+    *s = (unsigned char)wc;
     return 1;
   }
   

@@ -1010,7 +1010,8 @@ class AdminAccount(object):
         if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 5, 7):
             queries.append("UPDATE mysql.user SET plugin = 'mysql_native_password' WHERE user = '%(user)s' AND host = '%(host)s'" % fields)
         queries.append("FLUSH PRIVILEGES")
-        queries.append("SET PASSWORD FOR '%(user)s'@'%(host)s' = PASSWORD('%(password)s')" % fields)
+        change_pw = CHANGE_PASSWORD_QUERY if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else CHANGE_PASSWORD_QUERY_576
+        queries.append(change_pw % fields)
         queries.append("FLUSH PRIVILEGES")
         
         action = "changing"

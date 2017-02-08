@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@
 
 - (void)setFrame:(NSRect)frame
 {
-  [super setFrame: frame];
+  super.frame = frame;
   if (_view)
   {
     _view->update_view_size((int)NSWidth(frame), (int)NSHeight(frame));
@@ -88,7 +88,7 @@
   {
     [super drawRect:rect];
     [[NSColor grayColor] set];
-    NSRectFill([self bounds]);
+    NSRectFill(self.bounds);
   }
 }
 
@@ -103,7 +103,7 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, void *viewer)
 {
   _cursor= cursor;
   
-  [[self window] resetCursorRects];
+  [self.window resetCursorRects];
 }
 
 
@@ -112,7 +112,7 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, void *viewer)
   [super resetCursorRects];
   if (_cursor)
   {
-    [self addCursorRect:[self bounds] cursor:_cursor];
+    [self addCursorRect:self.bounds cursor:_cursor];
     [_cursor setOnMouseEntered:YES];
   }
 }
@@ -121,7 +121,7 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, void *viewer)
 - (void)setupQuartz
 {
   _view = new mdc::QuartzCanvasView(NSWidth(self.frame), NSHeight(self.frame));
-  _view->signal_repaint()->connect(boost::bind(canvas_view_needs_repaint, _1, _2, _3, _4, (__bridge void *)self));
+  _view->signal_repaint()->connect(std::bind(canvas_view_needs_repaint, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, (__bridge void *)self));
 }
 
 
@@ -180,13 +180,13 @@ static mdc::EventState makeEventState(NSEvent *event)
 {
   int state= 0;
 
-  if ([event modifierFlags] & NSShiftKeyMask)
+  if (event.modifierFlags & NSShiftKeyMask)
     state|= mdc::SShiftMask;
-  if ([event modifierFlags] & NSControlKeyMask)
+  if (event.modifierFlags & NSControlKeyMask)
     state|= mdc::SControlMask;
-  if ([event modifierFlags] & NSAlternateKeyMask)
+  if (event.modifierFlags & NSAlternateKeyMask)
     state|= mdc::SOptionMask;
-  if ([event modifierFlags] & NSCommandKeyMask)
+  if (event.modifierFlags & NSCommandKeyMask)
     state|= mdc::SCommandMask;
 
   return (mdc::EventState)state;
@@ -287,16 +287,16 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
   k.string= "";
   for (unsigned int i= 0; i < sizeof(keycodes)/sizeof(*keycodes); i++)
   {
-    if (keycodes[i].key == [[theEvent characters] characterAtIndex:0])
+    if (keycodes[i].key == [theEvent.characters characterAtIndex:0])
     {
       k.keycode= keycodes[i].kcode;
       break;
     }
   }
   
-  if (k.keycode == 0 && [[theEvent characters] length] > 0)
+  if (k.keycode == 0 && theEvent.characters.length > 0)
   {
-    k.string= [[theEvent charactersIgnoringModifiers] UTF8String];
+    k.string= theEvent.charactersIgnoringModifiers.UTF8String;
   }
   
   return k;
@@ -307,23 +307,23 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 {
   if (!_view) return;
   
-  [[self window] makeFirstResponder: self];
+  [self.window makeFirstResponder: self];
   
-  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+  NSPoint point= [self convertPoint:theEvent.locationInWindow
                            fromView:nil];
   mdc::EventState state= makeEventState(theEvent);
   mdc::MouseButton button= mdc::ButtonRight;
   
   _buttonState|= mdc::SRightButtonMask;
   
-  switch ([theEvent clickCount])
+  switch (theEvent.clickCount)
   {
     case 1:
-      if (![[self delegate] canvasMouseDown:button location:point state:(mdc::EventState)(state|_buttonState)])
+      if (![self.delegate canvasMouseDown:button location:point state:(mdc::EventState)(state|_buttonState)])
         _view->handle_mouse_button(button, true, point.x, point.y, (mdc::EventState)(state|_buttonState));
       break;
     case 2:
-      if (![[self delegate] canvasMouseDoubleClick:button location:point state:(mdc::EventState)(state|_buttonState)])
+      if (![self.delegate canvasMouseDoubleClick:button location:point state:(mdc::EventState)(state|_buttonState)])
         _view->handle_mouse_double_click(button, point.x, point.y, (mdc::EventState)(state|_buttonState));
       break;
   }
@@ -333,22 +333,22 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)otherMouseDown:(NSEvent*)theEvent
 {
   if (!_view) return;
-  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+  NSPoint point= [self convertPoint:theEvent.locationInWindow
                            fromView:nil];
   mdc::EventState state= makeEventState(theEvent);
   mdc::MouseButton button= mdc::ButtonMiddle;
   
   _buttonState|= mdc::SMiddleButtonMask;
   
-  switch ([theEvent clickCount])
+  switch (theEvent.clickCount)
   {
     case 1:
-      if (![[self delegate] canvasMouseDown:button location:point state:(mdc::EventState)(state|_buttonState)])
+      if (![self.delegate canvasMouseDown:button location:point state:(mdc::EventState)(state|_buttonState)])
         _view->handle_mouse_button(button, true, point.x, point.y, (mdc::EventState)(state|_buttonState));
       break;
       
     case 2:
-      if (![[self delegate] canvasMouseDoubleClick:button location:point state:(mdc::EventState)(state|_buttonState)])
+      if (![self.delegate canvasMouseDoubleClick:button location:point state:(mdc::EventState)(state|_buttonState)])
         _view->handle_mouse_double_click(button, point.x, point.y, (mdc::EventState)(state|_buttonState));
       break;      
   }
@@ -358,7 +358,7 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)mouseDown:(NSEvent *)theEvent
 {
   if (!_view) return;
-  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+  NSPoint point= [self convertPoint:theEvent.locationInWindow
                            fromView:nil];
   mdc::EventState state= makeEventState(theEvent);
   mdc::MouseButton button= mdc::ButtonLeft;
@@ -369,15 +369,15 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
   
   _buttonState|= mdc::SLeftButtonMask;
 
-  switch ([theEvent clickCount])
+  switch (theEvent.clickCount)
   {
     case 1:
-      if (![[self delegate] canvasMouseDown:button location:point state:(mdc::EventState)(state|_buttonState)])
+      if (![self.delegate canvasMouseDown:button location:point state:(mdc::EventState)(state|_buttonState)])
         _view->handle_mouse_button(button, true, point.x, point.y, (mdc::EventState)(state|_buttonState));
       break;
       
     case 2:
-      if (![[self delegate] canvasMouseDoubleClick:button location:point state:(mdc::EventState)(state|_buttonState)])
+      if (![self.delegate canvasMouseDoubleClick:button location:point state:(mdc::EventState)(state|_buttonState)])
         _view->handle_mouse_double_click(button, point.x, point.y, (mdc::EventState)(state|_buttonState));
       break;
   }
@@ -387,14 +387,14 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)rightMouseUp:(NSEvent*)theEvent
 {
   if (!_view) return;
-  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+  NSPoint point= [self convertPoint:theEvent.locationInWindow
                            fromView:nil];
   mdc::EventState state= makeEventState(theEvent);
   mdc::MouseButton button= mdc::ButtonRight;
   
   _buttonState&= ~mdc::SRightButtonMask;
   
-  if (![[self delegate] canvasMouseUp:button location:point state:(mdc::EventState)(state|_buttonState)])
+  if (![self.delegate canvasMouseUp:button location:point state:(mdc::EventState)(state|_buttonState)])
   {  
     _view->handle_mouse_button(button, false, point.x, point.y, (mdc::EventState)(state|_buttonState));
   }
@@ -404,14 +404,14 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)otherMouseUp:(NSEvent*)theEvent
 {
   if (!_view) return;
-  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+  NSPoint point= [self convertPoint:theEvent.locationInWindow
                            fromView:nil];
   mdc::EventState state= makeEventState(theEvent);
   mdc::MouseButton button= mdc::ButtonMiddle;
   
   _buttonState&= ~mdc::SMiddleButtonMask;
   
-  if (![[self delegate] canvasMouseUp:button location:point state:(mdc::EventState)(state|_buttonState)])
+  if (![self.delegate canvasMouseUp:button location:point state:(mdc::EventState)(state|_buttonState)])
   {  
     _view->handle_mouse_button(button, false, point.x, point.y, (mdc::EventState)(state|_buttonState));
   }
@@ -421,10 +421,10 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)mouseUp:(NSEvent *)theEvent
 {
   if (!_view) return;
-  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+  NSPoint point= [self convertPoint:theEvent.locationInWindow
                            fromView:nil];
   mdc::EventState state= makeEventState(theEvent);
-  mdc::MouseButton button= (mdc::MouseButton)[theEvent buttonNumber];
+  mdc::MouseButton button= (mdc::MouseButton)theEvent.buttonNumber;
 
   // turn control-click to a right mouse event
   if ((state & mdc::SControlMask) && button == mdc::ButtonLeft)
@@ -432,7 +432,7 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
   
   _buttonState&= ~mdc::SLeftButtonMask;
   
-  if (![[self delegate] canvasMouseUp:button location:point state:(mdc::EventState)(state|_buttonState)])
+  if (![self.delegate canvasMouseUp:button location:point state:(mdc::EventState)(state|_buttonState)])
   {
     _view->handle_mouse_button(button, false, point.x, point.y, (mdc::EventState)(state|_buttonState));
   }
@@ -442,11 +442,11 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)mouseDragged:(NSEvent *)theEvent
 {
   if (!_view) return;
-  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+  NSPoint point= [self convertPoint:theEvent.locationInWindow
                            fromView:nil];
   mdc::EventState state= makeEventState(theEvent);
   
-  if (![[self delegate] canvasMouseMoved:point state:(mdc::EventState)(state|_buttonState)])
+  if (![self.delegate canvasMouseMoved:point state:(mdc::EventState)(state|_buttonState)])
   {  
     _view->handle_mouse_move(point.x, point.y, (mdc::EventState)(state|_buttonState));
   }
@@ -474,7 +474,7 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)mouseExited:(NSEvent *)theEvent
 {
   if (!_view) return;
-  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+  NSPoint point= [self convertPoint:theEvent.locationInWindow
                            fromView:nil];
   mdc::EventState state= makeEventState(theEvent);
 
@@ -488,7 +488,7 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)keyDown:(NSEvent *)theEvent
 {
   mdc::KeyInfo key= makeKeyInfo(theEvent);
-  if (![[self delegate] canvasKeyDown:key state:makeEventState(theEvent)])
+  if (![self.delegate canvasKeyDown:key state:makeEventState(theEvent)])
       _view->handle_key(key, true, makeEventState(theEvent));
 }
 
@@ -496,26 +496,26 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)keyUp:(NSEvent *)theEvent
 {
   mdc::KeyInfo key= makeKeyInfo(theEvent);
-  if (![[self delegate] canvasKeyUp:key state:makeEventState(theEvent)])
+  if (![self.delegate canvasKeyUp:key state:makeEventState(theEvent)])
     _view->handle_key(key, false, makeEventState(theEvent));
 }
 
 
 - (NSDragOperation)draggingEntered: (id<NSDraggingInfo>)sender
 {
-  return [[self delegate] canvasDraggingEntered: sender];
+  return [self.delegate canvasDraggingEntered: sender];
 }
 
 
 - (NSDragOperation)draggingUpdated: (id<NSDraggingInfo>)sender
 {
-  return [[self delegate] canvasDraggingEntered: sender];
+  return [self.delegate canvasDraggingEntered: sender];
 }
 
 
 - (BOOL)performDragOperation: (id<NSDraggingInfo>)sender
 {
-  return [[self delegate] canvasPerformDragOperation: sender];
+  return [self.delegate canvasPerformDragOperation: sender];
 }
 
 @end

@@ -92,6 +92,7 @@ class MySQLScriptImporter(object):
         self._password = ""
     
         self._tool_path = get_path_to_mysql()
+        self._upgrade_tool_path = ""
     
         self._tunnel = ConnectionTunnel(connection_params)
 
@@ -140,7 +141,105 @@ class MySQLScriptImporter(object):
     def report_output(self, text):
         print text
 
+    def add_command_parameter(self, param_list, parameter, data = None):
+        is_windows = platform.system() == 'Windows'
 
+        if parameter == "command":
+            param_list.append(data)
+        elif parameter == "defaults-extra-file":
+            if is_windows:
+                pwdfile = tempfile.NamedTemporaryFile(delete=False, suffix=".cnf")
+                pwdfilename = pwdfile.name
+                tmpdir = None
+            else:
+                # use a pipe to feed the password to the client
+                tmpdir = tempfile.mkdtemp()
+                pwdfilename = os.path.join(tmpdir, 'extraparams.cnf')
+                os.mkfifo(pwdfilename)
+            param_list.append("--defaults-extra-file=%s" % pwdfilename)
+            return tmpdir, pwdfilename
+        elif parameter == "default-character-set" and data:
+            param_list.append("--default-character-set=%s" % data)
+        elif parameter == "connection-params":
+            param_list += self._connection_params
+        elif parameter == "extra-params":
+            param_list += self._extra_params
+        elif parameter == "default-schema" and data:
+            param_list.append(data)
+
+    def launch_process(self, command, working_directory):
+        is_windows = platform.system() == 'Windows'
+        real_command = ""
+        info = None
+        if is_windows:
+            info = subprocess.STARTUPINFO()
+            info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
+            info.wShowWindow = _subprocess.SW_HIDE
+            # Command line can contain object names in case of export and filename in case of import
+            # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
+            # which probably isn't utf-8 in windows.
+            fse = sys.getfilesystemencoding()
+            real_command = command.encode(fse) if isinstance(command, unicode) else command
+        else:
+            real_command = command
+        
+        try:
+            log_debug("Executing command: %s\n" % real_command)
+            proc = subprocess.Popen(real_command, cwd=working_directory, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info)
+        except OSError, exc:
+            log_error("Error executing command %s\n%s\n" % (real_command, exc))
+            import traceback
+            traceback.print_exc()
+            raise RuntimeError("Error executing %s:\n%s" % (real_command, str(exc)))
+        return proc
+
+
+    def reset_schemas(self, default_schema=None, default_charset="utf8"):
+        if not self._upgrade_tool_path:
+            raise RuntimeError("You need to specify a valid location to mysql_upgrade tool.")
+
+        command = []
+        
+        self.add_command_parameter(command, "command", self._upgrade_tool_path)
+        tmpdir, pwdfilename = self.add_command_parameter(command, "defaults-extra-file")
+        self.add_command_parameter(command, "default-character-set", default_charset)
+        self.add_command_parameter(command, "connection-params")
+        self.add_command_parameter(command, "extra-params")
+        self.add_command_parameter(command, "default-schema", default_schema)
+        command.append("--force")
+
+        command_string = " ".join(command)
+        
+        proc = None
+        try:
+            self.report_progress("Preparing...", 0, 2)
+            proc = self.launch_process(command, None)
+
+            if self._password is None:
+                self._password = ''
+            pwdfile = open(pwdfilename, 'w')
+            pwdfile.write('[client]\npassword=%s\n' % self._password.replace("\\", "\\\\"))
+            pwdfile.close()
+
+            line_count = 0
+            for line in iter(proc.stdout.readline,''):
+                if line.startswith('Checking'):
+                    line_count += 1
+                    self.report_progress(line, line_count, 2)
+
+            proc.wait()
+            self.report_progress("Finished...", 2, 2)
+        except Exception, e:
+            log_error("There was an exception running a process: %s\n%s" % (command, str(e)))
+        finally:
+            if pwdfilename:
+                os.remove(pwdfilename)
+            if tmpdir:
+                os.rmdir(tmpdir)
+
+
+                
+                
     def import_script(self, path, default_schema=None, default_charset="utf8"):
         if not self._tool_path:
             raise RuntimeError("mysql command line client not found. Please fix its path in Preferences -> Administration")

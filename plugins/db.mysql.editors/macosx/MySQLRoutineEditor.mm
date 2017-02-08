@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,13 +49,11 @@ static void call_refresh(void *theEditor)
 
 
 - (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args
 {
   self= [super initWithNibName: @"MySQLRoutineEditor"  bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
   {
-    _grtm = grtm;
     // load GUI. Top level view in the nib is the NSTabView that will be docked to the main window
     [self loadView];
 
@@ -76,19 +74,19 @@ static void call_refresh(void *theEditor)
   delete mBackEnd;
   
     // setup the editor backend with the schema object (args[0])
-  mBackEnd = new MySQLRoutineEditorBE(_grtm, db_mysql_RoutineRef::cast_from(args[0]));
+  mBackEnd = new MySQLRoutineEditorBE(db_mysql_RoutineRef::cast_from(args[0]));
   
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
   
   [self setupEditorOnHost: editorHost];
   mBackEnd->load_routine_sql();
 
   if (mBackEnd->is_editing_live_object())
   {
-    int i = [tabView indexOfTabViewItemWithIdentifier: @"comments"];
+    NSInteger i = [tabView indexOfTabViewItemWithIdentifier: @"comments"];
     if (i > 0)
       [tabView removeTabViewItem: [tabView tabViewItemAtIndex: i]];
     commentText = nil;

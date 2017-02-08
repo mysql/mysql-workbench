@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -44,33 +44,44 @@
 #include "../stub_menu.h"
 #include "../stub_menuitem.h"
 #include "../stub_splitter.h"
-#include "../stub_treenodeview.h"
+#include "../stub_treeview.h"
 #include "../stub_codeeditor.h"
 #include "../stub_toolbar.h"
 #include "mforms/dockingpoint.h"
 
-class DockingPointDelegate : public mforms::DockingPointDelegate
-{
-  virtual std::string get_type() { return "MainWindow"; }
-  virtual void dock_view(mforms::AppView *view, const std::string &arg1, int arg2)
-  {
+class DockingPointDelegate : public mforms::DockingPointDelegate {
+  virtual std::string get_type() {
+    return "MainWindow";
   }
-  virtual bool select_view(mforms::AppView *view) { return false; }
-  virtual void undock_view(mforms::AppView *view) {}
-  virtual void set_view_title(mforms::AppView *view, const std::string &title) {}
-  virtual std::pair<int, int> get_size() { return std::make_pair(0, 0); }
+  virtual void dock_view(mforms::AppView *view, const std::string &arg1, int arg2) {
+  }
+  virtual bool select_view(mforms::AppView *view) {
+    return false;
+  }
+  virtual void undock_view(mforms::AppView *view) {
+  }
+  virtual void set_view_title(mforms::AppView *view, const std::string &title) {
+  }
+  virtual std::pair<int, int> get_size() {
+    return std::make_pair(0, 0);
+  }
 
-  virtual mforms::AppView *selected_view() { return NULL; }
-  virtual int view_count() { return 0; }
-  virtual mforms::AppView *view_at_index(int index) { return NULL; }
+  virtual mforms::AppView *selected_view() {
+    return NULL;
+  }
+  virtual int view_count() {
+    return 0;
+  }
+  virtual mforms::AppView *view_at_index(int index) {
+    return NULL;
+  }
 };
 
 DockingPointDelegate deleg;
 
-boost::function<void (std::string)> mforms::stub::UtilitiesWrapper::open_url_slot;
+std::function<void(std::string)> mforms::stub::UtilitiesWrapper::open_url_slot;
 
-void ::mforms::stub::init(wb::WBOptions *options)
-{
+void ::mforms::stub::init(wb::WBOptions *options) {
   App::instantiate(&deleg, false);
   AppWrapper::init(options);
   ViewWrapper::init();
@@ -99,17 +110,13 @@ void ::mforms::stub::init(wb::WBOptions *options)
   MenuItemWrapper::init();
   CodeEditorWrapper::init();
   ToolBarWrapper::init();
-  TreeNodeViewWrapper::init();
+  TreeViewWrapper::init();
 
   if (getenv("VERBOSE"))
     puts("done setting up mforms stubs...");
 }
 
-
-void ::mforms::stub::check()
-{
-  mforms::ControlFactory *f= mforms::ControlFactory::get_instance();
+void ::mforms::stub::check() {
+  mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
   f->check_impl();
 }
-
-

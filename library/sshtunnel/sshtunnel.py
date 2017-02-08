@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -40,6 +40,7 @@ REMOTE_PORT = 3306
 
 # timeout for closing an unused tunnel
 TUNNEL_TIMEOUT = 3
+SSH_CONNECTION_TIMEOUT = 10
 
 # paramiko 1.6 didn't have this class
 if hasattr(paramiko, "WarningPolicy"):
@@ -299,7 +300,7 @@ class Tunnel(threading.Thread):
             has_key = bool(self._keyfile)
             self._client.connect(self._server[0], self._server[1], username=self._username,
                                  key_filename=self._keyfile, password=self._password,
-                                 look_for_keys=has_key, allow_agent=has_key)
+                                 look_for_keys=has_key, allow_agent=has_key, timeout=SSH_CONNECTION_TIMEOUT)
         except paramiko.BadHostKeyException, exc:
             self.notify_exception_error('ERROR',format_bad_host_exception(exc, '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder() if platform.system().lower() == "windows" else "~/.ssh/known_hosts file"))
             return False
@@ -361,7 +362,7 @@ class Tunnel(threading.Thread):
             local_sock.close()
             return
 
-        self.notify('INFO', 'Tunnel now open %r -> %r -> %r' % (local_sock.getpeername(), sshchan.getpeername(), self._target))
+        self.notify('INFO', 'Tunnel now open %r -> %r -> %r' % (local_sock.getsockname(), sshchan.getpeername(), self._target))
 
         self._connections.append((local_sock, sshchan))
 

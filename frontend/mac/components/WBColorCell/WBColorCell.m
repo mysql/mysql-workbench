@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,14 +25,16 @@
 {
   NSColor* color;
   
-  if ([hex length] > 1) {
+  if (hex.length > 1) {
     // Strip initial # sign.
     NSString* hashSign = [hex substringToIndex: 1];
     if ([hashSign isEqualToString: @"#"]) {
       hex = [hex substringFromIndex: 1];
     }
   }
-  
+
+#ifdef ENABLE_DEBUG
+
   // Test for malformatted hex string.
   NSAssert1( ([hex length] == 6), @"Hex string should be 6 chars long, excl any # sign. String: '%@'.", hex);
   
@@ -40,7 +42,8 @@
   NSString* empty = [hex stringByTrimmingCharactersInSet: cs];
   
   NSAssert1( ([empty length] == 0), @"Hex string should only contain characters [0123456789ABCDEFabcdef]. String: '%@'.", hex);
-  
+#endif
+
   NSScanner *scanner = [NSScanner scannerWithString: hex];
   unsigned int colorCode = 0;
   [scanner scanHexInt: &colorCode];
@@ -110,15 +113,15 @@
 	[NSBezierPath strokeRect: colorRect];
   
 	// Draw color.
-  NSString* hexColorString = [self objectValue];
-  if ([hexColorString length] > 1) {
+  NSString* hexColorString = self.objectValue;
+  if (hexColorString.length > 1) {
     NSString* hexColorStringNoHash = [hexColorString substringFromIndex: 1];
 
     NSColor* color;
     // Test if this is a valid hex color string.
     NSMutableCharacterSet* cs = [NSMutableCharacterSet characterSetWithCharactersInString: @"0123456789ABCDEFabcdef"];
     NSString* empty = [hexColorStringNoHash stringByTrimmingCharactersInSet: cs];
-    if ([empty length] == 0) {
+    if (empty.length == 0) {
       color = [[self class] colorWithHexString: hexColorStringNoHash];
     }
     else {
@@ -131,7 +134,7 @@
     // Draw hex string.
     cellFrame.size.width -= mColorSize.width + 5;
     cellFrame.origin.x += mColorSize.width + 5;
-    [self setFont: [NSFont systemFontOfSize: 11]];    
+    self.font = [NSFont systemFontOfSize: 11];    
   }
   
   [super drawWithFrame: cellFrame
@@ -142,7 +145,7 @@
 
 - (NSSize) cellSize;
 {
-  NSSize cellSize = [super cellSize];
+  NSSize cellSize = super.cellSize;
   cellSize.width += 2 + mColorSize.width + 5;
   
   return cellSize;

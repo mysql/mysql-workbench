@@ -16,10 +16,8 @@
 
 /* A lexical scanner on a temporary buffer with a yacc interface */
 
-#ifdef _WIN32
-#include <hash_map>
-using stdext::hash_multimap;
-#elif defined(__APPLE__)
+
+#if defined(__APPLE__) || defined (_WIN32)
 #include <unordered_map>
 #else
 #include <tr1/unordered_map>
@@ -108,16 +106,12 @@ inline int lex_casecmp(const char *s, const char *t, uint len)
 
 
 #include "lex.h"
-#include <algorithm>
-
 namespace mysql_parser
 {
 
 static inline SYMBOL *get_hash_symbol(const char *s, unsigned int len, bool function)
 {
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
-  typedef hash_multimap<size_t, SYMBOL *> Hash_ind;
-#elif defined(__APPLE__)
+#if defined(__APPLE__) || defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
   typedef std::unordered_multimap<size_t, SYMBOL *> Hash_ind;
 #else
   typedef std::tr1::unordered_multimap<size_t, SYMBOL *> Hash_ind;
@@ -347,8 +341,8 @@ inline SqlAstNode * new_ast_terminal_node(LEX *lex, const char* value, int value
       value,
       value_length,
       token_start_lineno,
-      /*stmt_boffset*/(lex->tok_start - lex->buf),
-      /*stmt_eoffset*/(lex->ptr - lex->buf)));
+      /*stmt_boffset*/(int)(lex->tok_start - lex->buf),
+      /*stmt_eoffset*/(int)(lex->ptr - lex->buf)));
     if (!lex->first_item)
       lex->first_item= lex->last_item;
     free(lex_string_to_free);
@@ -356,12 +350,12 @@ inline SqlAstNode * new_ast_terminal_node(LEX *lex, const char* value, int value
   }
   else
   {
-    boost::shared_ptr<SqlAstTerminalNode> node(new SqlAstTerminalNode(
+    std::shared_ptr<SqlAstTerminalNode> node(new SqlAstTerminalNode(
         value,
         value_length,
         token_start_lineno,
-        /*stmt_boffset*/(lex->tok_start - lex->buf),
-        /*stmt_eoffset*/(lex->ptr - lex->buf)));
+        /*stmt_boffset*/(int)(lex->tok_start - lex->buf),
+        /*stmt_eoffset*/(int)(lex->ptr - lex->buf)));
     
     lex->last_item = node.get();
     SqlAstStatics::last_terminal_node(node);
@@ -713,7 +707,7 @@ bool parser_is_stopped;
 //int MYSQLlex(void *arg, void *yythd)
 int MYSQLlex(void **arg, void *yyl)
 {
-  reg1	uchar c;
+  reg1	uchar c = 0;
   int	tokval, result_state;
   uint length;
   enum my_lex_states state;
@@ -740,7 +734,6 @@ int MYSQLlex(void **arg, void *yyl)
   lex->tok_start=lex->tok_end=lex->ptr;
   state=lex->next_state;
   lex->next_state=MY_LEX_OPERATOR_OR_IDENT;
-  LINT_INIT(c);
   for (;;)
   {
     if (parser_is_stopped)
@@ -803,7 +796,7 @@ int MYSQLlex(void **arg, void *yyl)
       }
       (void) yyGet();				// Skip '
       while ((c = yyGet()) && (c !='\'')) ;
-      length=(lex->ptr - lex->tok_start);	// Length of hexnum+3
+      length=(uint)(lex->ptr - lex->tok_start);	// Length of hexnum+3
       if (c != '\'')
       {
 	return(ABORT_SYM);		// Illegal hex constant
@@ -955,7 +948,8 @@ int MYSQLlex(void **arg, void *yyl)
 	  if (my_isdigit(cs,yyPeek()))	// Number must have digit after sign
 	  {
 	    yySkip();
-	    while (my_isdigit(cs,yyGet())) ;
+	    while (my_isdigit(cs,yyGet()))
+	      ;
       tmp_lex_string=get_token(lex,yyLength());
       new_ast_terminal_node(lex, /*tmp_lex_string.str, */tmp_lex_string.length, 0);
 #if 0
@@ -1115,7 +1109,8 @@ int MYSQLlex(void **arg, void *yyl)
 	  state= MY_LEX_CHAR;
 	  break;
 	}
-	while (my_isdigit(cs,yyGet())) ;
+	while (my_isdigit(cs,yyGet()))
+	  ;
   tmp_lex_string= get_token(lex,yyLength());
   new_ast_terminal_node(lex, /*tmp_lex_string.str, */tmp_lex_string.length, tmp_lex_string.str);
 #if 0
@@ -1133,7 +1128,7 @@ int MYSQLlex(void **arg, void *yyl)
     case MY_LEX_HEX_NUMBER:		// Found x'hexstring'
       (void) yyGet();				// Skip '
       while (my_isxdigit(cs,(c = yyGet()))) ;
-      length=(lex->ptr - lex->tok_start);	// Length of hexnum+3
+      length=(uint)(lex->ptr - lex->tok_start);	// Length of hexnum+3
       if (!(length & 1) || c != '\'')
       {
 	return(ABORT_SYM);		// Illegal hex constant
@@ -1152,7 +1147,7 @@ int MYSQLlex(void **arg, void *yyl)
     case MY_LEX_BIN_NUMBER:           // Found b'bin-string'
       (void) yyGet();                                // Skip '
       while ((c= yyGet()) == '0' || c == '1') ;
-      length= (lex->ptr - lex->tok_start);    // Length of bin-num + 3
+      length= (uint)(lex->ptr - lex->tok_start);    // Length of bin-num + 3
       if (c != '\'')
       return(ABORT_SYM);              // Illegal hex constant
       (void) yyGet();                        // get_token makes an unget

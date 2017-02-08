@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -26,20 +26,13 @@
 //================================================================================
 // model_Connection
 
-
-void model_Connection::init()
-{
+void model_Connection::init() {
 }
 
-void model_Connection::set_data(ImplData *data)
-{
-  _data= data;
+void model_Connection::set_data(ImplData *data) {
+  _data = data;
   model_Object::set_data(data);
 }
 
-
-model_Connection::~model_Connection()
-{
+model_Connection::~model_Connection() {
 }
-
-

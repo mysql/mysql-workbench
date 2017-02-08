@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,31 +20,28 @@
 #pragma once
 
 #include "mdc_canvas_view.h"
-#include <cairo-quartz.h>
+#include <cairo/cairo-quartz.h>
 #include <OpenGL/gl.h>
 
 namespace mdc {
-  
-class QuartzCanvasView : public CanvasView 
-{
-public:
-  QuartzCanvasView(int width, int height);
-  virtual ~QuartzCanvasView();
-  
-  void set_target_context(CGContextRef cgContext);
-  
-  virtual bool has_gl() const { return false; }
-  virtual void begin_repaint(int, int, int, int);
-  virtual void end_repaint();
-  
-  virtual void update_view_size(int width, int height);
-  
-private:
-  CGContextRef _context;
-  cairo_surface_t *_offlineSurface;
+
+  class QuartzCanvasView : public CanvasView {
+  public:
+    QuartzCanvasView(int width, int height);
+    virtual ~QuartzCanvasView();
+
+    void set_target_context(CGContextRef cgContext);
+
+    virtual bool has_gl() const {
+      return false;
+    }
+    virtual void begin_repaint(int, int, int, int);
+    virtual void end_repaint();
+
+    virtual void update_view_size(int width, int height);
+
+  private:
+    CGContextRef _context;
+    cairo_surface_t *_offlineSurface;
+  };
 };
-
-
-
-};
-

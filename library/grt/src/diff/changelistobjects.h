@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,152 +28,157 @@
 
 #include "grtpp_util.h"
 
-namespace grt 
-{
+namespace grt {
 
-struct pless_struct
-  : public std::binary_function<ValueRef, ValueRef, bool>
-{ // functor for operator<
-  bool operator()(const ValueRef&_Left, const ValueRef&_Right) const;
-};
+  struct pless_struct : public std::binary_function<ValueRef, ValueRef, bool> { // functor for operator<
+    bool operator()(const ValueRef &_Left, const ValueRef &_Right) const;
+  };
 
-//////////////////////////////////////////////////////////////
-// @class 
-//////////////////////////////////////////////////////////////
-//
-// @brief 
-//
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////
+  // @class
+  //////////////////////////////////////////////////////////////
+  //
+  // @brief
+  //
+  //////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////
 
-class MYSQLGRT_PUBLIC ListItemChange : public DiffChange
-{
-  size_t _index;
-public:
-  size_t get_index()const{return _index;};
-  ListItemChange(ChangeType atype,size_t index):
-      DiffChange(atype),_index(index){};
-};
+  class MYSQLGRT_PUBLIC ListItemChange : public DiffChange {
+    size_t _index;
 
-//////////////////////////////////////////////////////////////
-class MYSQLGRT_PUBLIC ListItemModifiedChange : public ListItemChange
-{
-  boost::shared_ptr<DiffChange> subchange;
-  ValueRef _old_value;
-  ValueRef _new_value;
+  public:
+    size_t get_index() const {
+      return _index;
+    };
+    ListItemChange(ChangeType atype, size_t index) : DiffChange(atype), _index(index){};
+  };
 
-public:
-  ListItemModifiedChange(const ValueRef old_value, const ValueRef new_value, boost::shared_ptr<DiffChange> change, size_t index)
-    :ListItemChange(ListItemModified, index), subchange(change), _old_value(old_value), _new_value(new_value)
-  {
-    subchange->set_parent(this);
-  }
+  //////////////////////////////////////////////////////////////
+  class MYSQLGRT_PUBLIC ListItemModifiedChange : public ListItemChange {
+    std::shared_ptr<DiffChange> subchange;
+    ValueRef _old_value;
+    ValueRef _new_value;
 
-  virtual ValueRef get_old_value() const {return _old_value;};
-  virtual ValueRef get_new_value() const {return _new_value;};
+  public:
+    ListItemModifiedChange(const ValueRef old_value, const ValueRef new_value, std::shared_ptr<DiffChange> change,
+                           size_t index)
+      : ListItemChange(ListItemModified, index), subchange(change), _old_value(old_value), _new_value(new_value) {
+      subchange->set_parent(this);
+    }
 
-  const boost::shared_ptr<DiffChange> get_subchange() const { return subchange; }
+    virtual ValueRef get_old_value() const {
+      return _old_value;
+    };
+    virtual ValueRef get_new_value() const {
+      return _new_value;
+    };
 
-  void dump_log(int level) const
-  {
-    std::cout << std::string(level, ' ');
-    std::cout << get_type_name() << std::endl;
-    //_subchange->dump_log(level+1);
-    subchange->dump_log(level+1);
-  }
-};
+    const std::shared_ptr<DiffChange> get_subchange() const {
+      return subchange;
+    }
 
-boost::shared_ptr<ListItemModifiedChange> create_item_modified_change(
-                                     const ValueRef &source, 
-                                     const ValueRef &target,
-                                     const Omf* omf,
-                   const size_t index);
+    void dump_log(int level) const {
+      std::cout << std::string(level, ' ');
+      std::cout << get_type_name() << std::endl;
+      //_subchange->dump_log(level+1);
+      subchange->dump_log(level + 1);
+    }
+  };
 
-//////////////////////////////////////////////////////////////
-class MYSQLGRT_PUBLIC ListItemAddedChange : public ListItemChange
-{
-  ValueRef _value;
-  ValueRef _prev_value;
-public:
-  ListItemAddedChange(const ValueRef value, const ValueRef prev_value,size_t index)
-    : ListItemChange(ListItemAdded, index), _value(value), _prev_value(prev_value)
-  {
-  }
+  std::shared_ptr<ListItemModifiedChange> create_item_modified_change(const ValueRef &source, const ValueRef &target,
+                                                                      const Omf *omf, const size_t index);
 
-  virtual ValueRef get_value() const {return _value;};
+  //////////////////////////////////////////////////////////////
+  class MYSQLGRT_PUBLIC ListItemAddedChange : public ListItemChange {
+    ValueRef _value;
+    ValueRef _prev_value;
 
-  //Used in column's AFTER statemen
-  grt::ValueRef get_prev_item()const {return _prev_value;};
+  public:
+    ListItemAddedChange(const ValueRef value, const ValueRef prev_value, size_t index)
+      : ListItemChange(ListItemAdded, index), _value(value), _prev_value(prev_value) {
+    }
 
-  void dump_log(int level) const
-  {
-    std::cout << std::string(level, ' ');
-    if (ObjectRef::can_wrap(_value) && ObjectRef::cast_from(_value).has_member("name"))
-      std::cout << " name:" << ObjectRef::cast_from(_value).get_string_member("name").c_str();
-    std::cout << std::endl;
-  }
-};
+    virtual ValueRef get_value() const {
+      return _value;
+    };
 
+    // Used in column's AFTER statemen
+    grt::ValueRef get_prev_item() const {
+      return _prev_value;
+    };
 
-//////////////////////////////////////////////////////////////
+    void dump_log(int level) const {
+      std::cout << std::string(level, ' ');
+      if (ObjectRef::can_wrap(_value) && ObjectRef::cast_from(_value).has_member("name"))
+        std::cout << " name:" << ObjectRef::cast_from(_value).get_string_member("name").c_str();
+      std::cout << std::endl;
+    }
+  };
 
-class MYSQLGRT_PUBLIC ListItemRemovedChange : public ListItemChange
-{
-  ValueRef _value;
-public:
-  ListItemRemovedChange(const ValueRef value,size_t index) 
-    : ListItemChange(ListItemRemoved, index),_value(value)
-  {
-  }
+  //////////////////////////////////////////////////////////////
 
-  virtual ValueRef get_value() const {return _value;};
+  class MYSQLGRT_PUBLIC ListItemRemovedChange : public ListItemChange {
+    ValueRef _value;
 
-  void dump_log(int level) const
-  {
-    std::cout << std::string(level, ' ');
-    if (ObjectRef::can_wrap(_value) && ObjectRef::cast_from(_value).has_member("name"))
+  public:
+    ListItemRemovedChange(const ValueRef value, size_t index) : ListItemChange(ListItemRemoved, index), _value(value) {
+    }
+
+    virtual ValueRef get_value() const {
+      return _value;
+    };
+
+    void dump_log(int level) const {
+      std::cout << std::string(level, ' ');
+      if (ObjectRef::can_wrap(_value) && ObjectRef::cast_from(_value).has_member("name"))
         std::cout << " name:" << ObjectRef::cast_from(_value).get_string_member("name").c_str() << std::endl;
-  }
+    }
+  };
 
-};
+  //////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////
+  class MYSQLGRT_PUBLIC ListItemOrderChange : public ListItemChange {
+    std::shared_ptr<ListItemModifiedChange> _subchange;
+    grt::ChangeSet cs;
+    ValueRef _old_value;
+    ValueRef _new_value;
+    ValueRef _prev_value;
 
-class MYSQLGRT_PUBLIC ListItemOrderChange : public ListItemChange
-{
-  boost::shared_ptr<ListItemModifiedChange> _subchange;
-  grt::ChangeSet cs;
-  ValueRef _old_value;
-  ValueRef _new_value;
-  ValueRef _prev_value;
-public:
-  ListItemOrderChange(const ValueRef &source, 
-    const ValueRef &target, const Omf* omf, const ValueRef prev_value,size_t index)
-    : ListItemChange(ListItemOrderChanged, index),_old_value(source),_new_value(target), _prev_value(prev_value)
-  {
-    _subchange= create_item_modified_change(source, target, omf,index);
-    if(_subchange)
+  public:
+    ListItemOrderChange(const ValueRef &source, const ValueRef &target, const Omf *omf, const ValueRef prev_value,
+                        size_t index)
+      : ListItemChange(ListItemOrderChanged, index), _old_value(source), _new_value(target), _prev_value(prev_value) {
+      _subchange = create_item_modified_change(source, target, omf, index);
+      if (_subchange)
         _subchange->set_parent(this);
-    cs.append(_subchange);
-  }
+      cs.append(_subchange);
+    }
 
-  virtual ValueRef get_old_value() const {return _old_value;};
-  virtual ValueRef get_new_value() const {return _new_value;};
-  boost::shared_ptr<ListItemModifiedChange> get_subchange() const {return _subchange;};
+    virtual ValueRef get_old_value() const {
+      return _old_value;
+    };
+    virtual ValueRef get_new_value() const {
+      return _new_value;
+    };
+    std::shared_ptr<ListItemModifiedChange> get_subchange() const {
+      return _subchange;
+    };
 
-    //Used in column's AFTER statemen
-  grt::ValueRef get_prev_item()const {return _prev_value;};
+    // Used in column's AFTER statemen
+    grt::ValueRef get_prev_item() const {
+      return _prev_value;
+    };
 
-  virtual const grt::ChangeSet* subchanges() const { return &cs; }
-  
-  void dump_log(int level) const
-  {
-    std::cout << std::string(level, ' ');
-    std::cout << get_type_name() << std::endl;
-    if (_subchange)
-      _subchange->dump_log(level+1);
-  }
-};
+    virtual const grt::ChangeSet *subchanges() const {
+      return &cs;
+    }
 
+    void dump_log(int level) const {
+      std::cout << std::string(level, ' ');
+      std::cout << get_type_name() << std::endl;
+      if (_subchange)
+        _subchange->dump_log(level + 1);
+    }
+  };
 }
 #endif

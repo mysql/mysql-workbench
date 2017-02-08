@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,14 +28,15 @@
 
 namespace bec {
 
-  class WBPUBLICBACKEND_PUBLIC_FUNC DBObjectEditorBE : public BaseEditor, public grt::GRTObserver
-  {
+  class WBPUBLICBACKEND_PUBLIC_FUNC DBObjectEditorBE : public BaseEditor, public grt::GRTObserver {
   public:
     virtual ~DBObjectEditorBE();
 
     virtual bool should_close_on_delete_of(const std::string &oid);
 
-    virtual db_DatabaseObjectRef get_dbobject() { return db_DatabaseObjectRef::cast_from(get_object()); };
+    virtual db_DatabaseObjectRef get_dbobject() {
+      return db_DatabaseObjectRef::cast_from(get_object());
+    };
 
     virtual std::string get_name();
     virtual void set_name(const std::string &name);
@@ -79,28 +80,29 @@ namespace bec {
     virtual void refresh_live_object();
     virtual bool can_close();
 
-    boost::function<bool (DBObjectEditorBE*, bool)> on_apply_changes_to_live_object;
-    boost::function<void (DBObjectEditorBE*)> on_refresh_live_object;
-    boost::function<void (DBObjectEditorBE*)> on_create_live_table_stubs;
-    boost::function<bool (DBObjectEditorBE*, std::string&, std::string&)> on_expand_live_table_stub;
+    std::function<bool(DBObjectEditorBE *, bool)> on_apply_changes_to_live_object;
+    std::function<void(DBObjectEditorBE *)> on_refresh_live_object;
+    std::function<void(DBObjectEditorBE *)> on_create_live_table_stubs;
+    std::function<bool(DBObjectEditorBE *, std::string &, std::string &)> on_expand_live_table_stub;
 
   protected:
-    parser::ParserContext::Ref _parser_context;
-    parser::ParserContext::Ref _autocompletion_context; // Temporary.
+    parser::MySQLParserContext::Ref _parser_context;
+    parser::MySQLParserContext::Ref _autocompletion_context; // Temporary.
     parser::MySQLParserServices::Ref _parser_services;
 
-    DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef &object);
+    DBObjectEditorBE(const db_DatabaseObjectRef &object);
 
   private:
     MySQLEditor::Ref _sql_editor;
     db_CatalogRef _catalog;
 
     boost::signals2::scoped_connection _val_notify_conn;
-    void notify_from_validation(const grt::Validator::Tag& tag, const grt::ObjectRef&, const std::string&, const int level);//level is grt::MessageType
+    void notify_from_validation(const grt::Validator::Tag &tag, const grt::ObjectRef &, const std::string &,
+                                const int level); // level is grt::MessageType
     // Real-time validation part
-    grt::MessageType    _last_validation_check_status;
-    std::string         _last_validation_message;
-    
+    grt::MessageType _last_validation_check_status;
+    std::string _last_validation_message;
+
     virtual void handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info);
   };
 };

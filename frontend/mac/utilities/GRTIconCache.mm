@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ static GRTIconCache *instance = NULL;
   if ((self= [super init]) != nil)
   {
     _folderIcon16 = [[[NSWorkspace sharedWorkspace] iconForFile: @"/usr"] copy];
-    [_folderIcon16 setSize:NSMakeSize(15, 15)];
+    _folderIcon16.size = NSMakeSize(15, 15);
   }
   return self;
 }
@@ -49,7 +49,7 @@ static GRTIconCache *instance = NULL;
 
 - (NSImage*)imageForFileName: (NSString *)fname
 {
-  std::string path = bec::IconManager::get_instance()->get_icon_path([fname UTF8String]);
+  std::string path = bec::IconManager::get_instance()->get_icon_path(fname.UTF8String);
 
   return [[NSImage alloc] initWithContentsOfFile:@(path.c_str())];
 }

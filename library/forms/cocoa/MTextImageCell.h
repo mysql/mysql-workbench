@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,13 +19,13 @@
 #import <Cocoa/Cocoa.h>
 
 @interface MTextImageCell : NSTextFieldCell {
-  @private
+@private
   NSImage *_image; // TODO: NSCell has an image property. No need to implement an own one.
 }
 
-@property (strong) NSImage *image;
+@property(strong) NSImage *image;
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)view;
-@property (readonly) NSSize cellSize;
+@property(readonly) NSSize cellSize;
 
 @end

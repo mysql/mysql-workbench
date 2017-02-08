@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -41,9 +41,7 @@ DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 /**
   * Specialized separator item that makes all following items appear right aligned.
   */
-ref class ToolStripExpander : public ToolStripSeparator
-{
-};
+ref class ToolStripExpander : public ToolStripSeparator {};
 
 //----------------- ToolStripSegementedButton-------------------------------------------------------
 
@@ -51,15 +49,13 @@ ref class ToolStripExpander : public ToolStripSeparator
   * Specialized button that visually forms a group with neighbor segmented buttons
   * without any spacing between them, appearing so as one big button with several areas.
   */
-ref class ToolStripSegmentedButton : public ToolStripButton
-{
-};
+ref class ToolStripSegmentedButton : public ToolStripButton {};
 
 //----------------- MformsToolStripLayout ----------------------------------------------------------
 
 /**
   * Computes the entire layout of the toolstrip (position of items).
-  * 
+  *
   * @param toolstrip What we are computing the layout for.
   * @param proposedSize The size to start from layouting. Since super ordinated controls may impose
   *                     a layout size we need to honor that (especially important for auto wrapping
@@ -67,9 +63,8 @@ ref class ToolStripSegmentedButton : public ToolStripButton
   * @param preferredSizeOnly If true arrange compute only the minimal size needed, otherwise do a full layout.
   * @return The resulting size of the box.
   */
-System::Drawing::Size MformsToolStripLayout::ComputeLayout(MformsToolStrip ^toolstrip,
-  Drawing::Size proposedSize, bool preferredSizeOnly)
-{
+System::Drawing::Size MformsToolStripLayout::ComputeLayout(MformsToolStrip ^ toolstrip, Drawing::Size proposedSize,
+                                                           bool preferredSizeOnly) {
   int itemsTotalWidth = 0;
   int maxHeight = 0;
   int expandCount = 0;
@@ -84,22 +79,21 @@ System::Drawing::Size MformsToolStripLayout::ComputeLayout(MformsToolStrip ^tool
 
   // Determine total width of all items so we can distribute any remaining space over
   // all expander items.
-  for each (ToolStripItem^ item in toolstrip->Items)
-  {
-    if (!item->Visible)
-      continue;
+  for each(ToolStripItem ^ item in toolstrip->Items) {
+      if (!item->Visible)
+        continue;
 
-    if (item->GetType() != ToolStripSegmentedButton::typeid)
-      item->Size = item->GetPreferredSize(proposedSize); // The size includes the item's margin.
-    
-    if (item->Height > maxHeight)
-      maxHeight = item->Height;
-    if (item->GetType() == ToolStripExpander::typeid)
-      expandCount++; // Expanders have no width per se, but get all that's unused.
-    else
-      itemsTotalWidth += item->Width + item->Margin.Horizontal;
-  }
-  
+      if (item->GetType() != ToolStripSegmentedButton::typeid)
+        item->Size = item->GetPreferredSize(proposedSize); // The size includes the item's margin.
+
+      if (item->Height > maxHeight)
+        maxHeight = item->Height;
+      if (item->GetType() == ToolStripExpander::typeid)
+        expandCount++; // Expanders have no width per se, but get all that's unused.
+      else
+        itemsTotalWidth += item->Width + item->Margin.Horizontal;
+    }
+
   // Adjust width of the container if it is too small, but don't make the toolbar smaller than
   // the available space. It always stretches over the available space.
   if (proposedSize.Width < itemsTotalWidth)
@@ -109,47 +103,40 @@ System::Drawing::Size MformsToolStripLayout::ComputeLayout(MformsToolStrip ^tool
   if (proposedSize.Height < maxHeight)
     proposedSize.Height = maxHeight;
 
-  if (!preferredSizeOnly)
-  {
+  if (!preferredSizeOnly) {
     // Fraction of remaining space per expander. Due to integral pixel bounds + locations
     // we might end up with a number of unused pixel. These will be individually distributed over
     // all expanders as well.
     int expanderFraction = 0;
     int remainingSpace = 0;
-    if (expandCount > 0)
-    {
+    if (expandCount > 0) {
       expanderFraction = (proposedSize.Width - itemsTotalWidth) / expandCount;
       remainingSpace = proposedSize.Width - itemsTotalWidth - (expanderFraction * expandCount);
     }
 
     int offset = toolstrip->Padding.Left + toolstrip->GripMargin.Horizontal;
 
-    for each (ToolStripItem^ item in toolstrip->Items)
-    {
-      if (!item->Visible)
-        continue;
+    for each(ToolStripItem ^ item in toolstrip->Items) {
+        if (!item->Visible)
+          continue;
 
-      if (item->GetType() == ToolStripExpander::typeid)
-      {
-        offset += expanderFraction;
-        if (remainingSpace > 0)
-        {
-          offset++;
-          remainingSpace--;
+        if (item->GetType() == ToolStripExpander::typeid) {
+          offset += expanderFraction;
+          if (remainingSpace > 0) {
+            offset++;
+            remainingSpace--;
+          }
+        } else {
+          System::Drawing::Point itemLocation;
+          offset += item->Margin.Left;
+
+          // Vertically center the item within the bounds of the toolstrip (less its padding).
+          itemLocation.Y = toolstrip->Padding.Top + (int)Math::Ceiling((proposedSize.Height - item->Height) / 2.0);
+          itemLocation.X = offset;
+          toolstrip->ApplyLocation(item, itemLocation);
+          offset += item->Width + item->Margin.Right;
         }
       }
-      else
-      {
-        System::Drawing::Point itemLocation;
-        offset += item->Margin.Left;
-
-        // Vertically center the item within the bounds of the toolstrip (less its padding).
-        itemLocation.Y = toolstrip->Padding.Top + (int) Math::Ceiling((proposedSize.Height - item->Height) / 2.0);
-        itemLocation.X = offset;
-        toolstrip->ApplyLocation(item, itemLocation);
-        offset += item->Width + item->Margin.Right;
-      }
-    }
   }
 
   proposedSize.Width += toolstrip->Padding.Horizontal + toolstrip->GripMargin.Horizontal;
@@ -160,16 +147,15 @@ System::Drawing::Size MformsToolStripLayout::ComputeLayout(MformsToolStrip ^tool
 
 //------------------------------------------------------------------------------------------------
 
-bool MformsToolStripLayout::Layout(Object^ container, LayoutEventArgs^ arguments)
-{
-  MformsToolStrip ^toolstrip = dynamic_cast<MformsToolStrip ^>(container);
+bool MformsToolStripLayout::Layout(Object ^ container, LayoutEventArgs ^ arguments) {
+  MformsToolStrip ^ toolstrip = dynamic_cast<MformsToolStrip ^>(container);
   if (!ViewWrapper::can_layout(toolstrip, arguments->AffectedProperty))
     return false;
 
   Drawing::Size toolStripSize = ComputeLayout(toolstrip, toolstrip->Size, false);
 
   // Finally resize container if necessary.
-  bool parentLayoutNeeded= !toolstrip->Size.Equals(toolStripSize);
+  bool parentLayoutNeeded = !toolstrip->Size.Equals(toolStripSize);
   if (parentLayoutNeeded && toolstrip->AutoSize)
     toolstrip->Size = toolStripSize;
 
@@ -178,15 +164,13 @@ bool MformsToolStripLayout::Layout(Object^ container, LayoutEventArgs^ arguments
 
 //----------------- MformsToolStrip-----------------------------------------------------------------
 
-Drawing::Size MformsToolStrip::GetPreferredSize(Drawing::Size proposedSize)
-{
+Drawing::Size MformsToolStrip::GetPreferredSize(Drawing::Size proposedSize) {
   return layoutEngine->ComputeLayout(this, proposedSize, true);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MformsToolStrip::ApplyLocation(ToolStripItem ^item, Drawing::Point location)
-{
+void MformsToolStrip::ApplyLocation(ToolStripItem ^ item, Drawing::Point location) {
   // SetItemLocation is protected and its visibility cannot be increased nor is it possible
   // to allow access to it via friend class or using clauses.
   SetItemLocation(item, location);
@@ -198,12 +182,12 @@ ref class ToolbarItemEventTarget;
 
 // Have to separate definition and declaration here as the wrapper and its event target
 // depend on each other.
-public class ToolBarItemWrapper : public ObjectWrapper
-{
+public
+class ToolBarItemWrapper : public ObjectWrapper {
 private:
   gcroot<ToolbarItemEventTarget ^> eventTarget;
-  gcroot<Drawing::Image^> normalImage;
-  gcroot<Drawing::Image^> activeImage;
+  gcroot<Drawing::Image ^> normalImage;
+  gcroot<Drawing::Image ^> activeImage;
 
 public:
   ToolBarItemWrapper(mforms::ToolBarItem *item, mforms::ToolBarItemType type);
@@ -212,40 +196,36 @@ public:
   void UpdateItemImage();
   void SetItemChecked(bool state);
   void Focus();
-  void SetNormalImage(Drawing::Image ^image);
-  void SetActiveImage(Drawing::Image ^image);
-  void RegisterDropDown(ToolStripButton ^button);
+  void SetNormalImage(Drawing::Image ^ image);
+  void SetActiveImage(Drawing::Image ^ image);
+  void RegisterDropDown(ToolStripButton ^ button);
 };
 
 //----------------- ToolbarItemEventTarget ---------------------------------------------------------
 
-public ref class ToolbarItemEventTarget
-{
+public
+ref class ToolbarItemEventTarget {
 private:
   ToolBarItemWrapper *wrapper;
   bool destroyed;
 
 public:
-  ToolbarItemEventTarget(ToolBarItemWrapper *aWrapper)
-  {
+  ToolbarItemEventTarget(ToolBarItemWrapper *aWrapper) {
     wrapper = aWrapper;
     destroyed = false;
   }
 
   //------------------------------------------------------------------------------------------------
 
-  ~ToolbarItemEventTarget()
-  {
+  ~ToolbarItemEventTarget() {
     destroyed = true;
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void OnItemActivation(Object ^sender, System::EventArgs ^e)
-  {
+  void OnItemActivation(Object ^ sender, System::EventArgs ^ e) {
     mforms::ToolBarItem *item = ObjectWrapper::GetBackend<mforms::ToolBarItem>(sender);
-    if (item != NULL)
-    {
+    if (item != NULL) {
       item->callback();
       if (!destroyed) // We might get deleted in the callback.
         wrapper->UpdateItemImage();
@@ -254,10 +234,9 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void OnColorItemActivation(Object ^sender, System::EventArgs ^e)
-  {
-    ToolStripButton ^button = dynamic_cast<ToolStripButton ^>(sender);
-    ToolStripDropDownButton ^dropdown = dynamic_cast<ToolStripDropDownButton ^>(button->Tag);
+  void OnColorItemActivation(Object ^ sender, System::EventArgs ^ e) {
+    ToolStripButton ^ button = dynamic_cast<ToolStripButton ^>(sender);
+    ToolStripDropDownButton ^ dropdown = dynamic_cast<ToolStripDropDownButton ^>(button->Tag);
     dropdown->Image = button->Image; // Show what was selected in the button too.
     dropdown->Text = button->Text;
 
@@ -268,10 +247,8 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void OnKeyPress(Object^ sender, KeyPressEventArgs^ e)
-  {
-    if (e->KeyChar == '\r')
-    {
+  void OnKeyPress(Object ^ sender, KeyPressEventArgs ^ e) {
+    if (e->KeyChar == '\r') {
       e->Handled = true;
       mforms::ToolBarItem *item = ObjectWrapper::GetBackend<mforms::ToolBarItem>(sender);
       if (item != NULL)
@@ -280,62 +257,65 @@ public:
   }
 
   //------------------------------------------------------------------------------------------------
-
 };
 
 //----------------- ToolBarItemWrapper ----------------------------------------------------------------
 
 ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::ToolBarItemType type)
-  : ObjectWrapper(backend)
-{
+  : ObjectWrapper(backend) {
   eventTarget = gcnew ToolbarItemEventTarget(this);
 
-  ToolStripItem ^item = nullptr;
-  switch (type)
-  {
-  case mforms::ActionItem:
-    {
-      ToolStripButton ^button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
+  ToolStripItem ^ item = nullptr;
+  switch (type) {
+    case mforms::ActionItem: {
+      ToolStripButton ^ button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
       button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation);
       button->Margin = Padding(2, 2, 2, 2);
       item = button;
       break;
     }
 
-  case mforms::TextActionItem:
-    {
-      ToolStripButton ^button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
+    case mforms::TextActionItem: {
+      ToolStripButton ^ button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
       button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation);
       button->ForeColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, true);
       item = button;
       break;
     }
 
-  case mforms::LabelItem:
-    {
-      ToolStripLabel ^label = ToolBarItemWrapper::Create<ToolStripLabel>(backend, this);
+    case mforms::TextEntryItem: {
+      ToolStripTextBox ^ box = ViewWrapper::Create<ToolStripTextBox>(backend, this);
+      box->Enabled = true;
+      box->AutoSize = false;
+      box->Size = Size(60, 20);
+      box->TextBox->MaximumSize = Size(60, 20);
+      box->KeyPress += gcnew KeyPressEventHandler(eventTarget, &ToolbarItemEventTarget::OnKeyPress);
+      item = box;
+      break;
+    }
+
+    case mforms::LabelItem: {
+      ToolStripLabel ^ label = ToolBarItemWrapper::Create<ToolStripLabel>(backend, this);
       label->Font = gcnew Font(DEFAULT_FONT_FAMILY, 10, FontStyle::Regular, GraphicsUnit::Pixel);
       label->ForeColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, true);
       item = label;
       break;
     }
 
-  case mforms::ToggleItem:
-    {
-      ToolStripButton ^button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
+    case mforms::ToggleItem: {
+      ToolStripButton ^ button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
       button->DisplayStyle = ToolStripItemDisplayStyle::Image;
-      button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation); 
+      button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation);
       button->Margin = Padding(2, 2, 2, 2);
       button->CheckOnClick = true;
       item = button;
       break;
     }
 
-  case mforms::SegmentedToggleItem:
-    {
-      ToolStripSegmentedButton ^button = ToolBarItemWrapper::Create<ToolStripSegmentedButton>(backend, this);
+    case mforms::SegmentedToggleItem: {
+      ToolStripSegmentedButton ^ button = ToolBarItemWrapper::Create<ToolStripSegmentedButton>(backend, this);
       button->DisplayStyle = ToolStripItemDisplayStyle::Image;
-      button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation); 
+      button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation);
       button->Margin = Padding(0, 0, 0, 0);
       button->AutoSize = false;
       button->CheckOnClick = true;
@@ -343,9 +323,8 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
       break;
     }
 
-  case mforms::SearchFieldItem:
-    {
-      ToolStripTextBox ^box = ViewWrapper::Create<ToolStripTextBox>(backend, this);
+    case mforms::SearchFieldItem: {
+      ToolStripTextBox ^ box = ViewWrapper::Create<ToolStripTextBox>(backend, this);
       box->Enabled = true;
       box->AutoSize = false;
       box->Size = Size(100, 20);
@@ -355,9 +334,20 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
       break;
     }
 
-  case mforms::SelectorItem:
-    {
-      ToolStripComboBox^ selector = ViewWrapper::Create<ToolStripComboBox>(backend, this);
+    case mforms::FlatSelectorItem: {
+      ToolStripDropDownButton ^ selector = ViewWrapper::Create<ToolStripDropDownButton>(backend, this);
+      ToolStripDropDown ^ dropdown = gcnew ToolStripDropDown();
+      dropdown->BackColor = Color::DarkGray;
+      selector->DropDown = dropdown;
+      selector->DisplayStyle = ToolStripItemDisplayStyle::Text;
+      selector->BackColor = Color::DarkGray;
+      selector->Font = ControlUtilities::GetFont("Microsoft Sans Serif", 8.25f);
+      selector->Margin = Padding(2, 3, 2, 3);
+      item = selector;
+      break;
+    }
+    case mforms::SelectorItem: {
+      ToolStripComboBox ^ selector = ViewWrapper::Create<ToolStripComboBox>(backend, this);
       selector->DropDownStyle = ComboBoxStyle::DropDownList;
       selector->FlatStyle = FlatStyle::Popup;
       selector->Font = ControlUtilities::GetFont("Microsoft Sans Serif", 8.25f);
@@ -367,10 +357,9 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
       break;
     }
 
-  case mforms::ColorSelectorItem:
-    {
-      ToolStripDropDownButton^ selector = ViewWrapper::Create<ToolStripDropDownButton>(backend, this);
-      ToolStripDropDown^ dropdown = gcnew ToolStripDropDown();
+    case mforms::ColorSelectorItem: {
+      ToolStripDropDownButton ^ selector = ViewWrapper::Create<ToolStripDropDownButton>(backend, this);
+      ToolStripDropDown ^ dropdown = gcnew ToolStripDropDown();
       selector->DropDown = dropdown;
       selector->DisplayStyle = ToolStripItemDisplayStyle::Image;
       selector->ShowDropDownArrow = true;
@@ -381,25 +370,33 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
       break;
     }
 
-  case mforms::SeparatorItem:
-    item = ViewWrapper::Create<ToolStripSeparator>(backend, this);
-    break;
+    case mforms::SeparatorItem:
+      item = ViewWrapper::Create<ToolStripSeparator>(backend, this);
+      break;
 
-  case mforms::ExpanderItem:
-    item = ViewWrapper::Create<ToolStripExpander>(backend, this);
-    break;
+    case mforms::ExpanderItem:
+      item = ViewWrapper::Create<ToolStripExpander>(backend, this);
+      break;
 
-  case mforms::TitleItem:
-    {
-      ToolStripLabel ^label = ToolBarItemWrapper::Create<ToolStripLabel>(backend, this);
+    case mforms::TitleItem: {
+      ToolStripLabel ^ label = ToolBarItemWrapper::Create<ToolStripLabel>(backend, this);
       label->Font = gcnew Font(DEFAULT_FONT_FAMILY, 10, FontStyle::Bold, GraphicsUnit::Pixel);
       label->ForeColor = ColorTranslator::FromHtml("#333333");
       item = label;
       break;
     }
 
-  default:
-    throw std::runtime_error(base::strfmt("Internal error: unimplemented toolbar item type requested (%i).", (int) type));
+    case mforms::SwitcherItem: {
+      ToolStripButton ^ button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
+      button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation);
+      button->ForeColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, true);
+      item = button;
+      break;
+    }
+
+    default:
+      throw std::runtime_error(
+        base::strfmt("Internal error: unimplemented toolbar item type requested (%i).", (int)type));
   }
 
   item->ImageScaling = ToolStripItemImageScaling::None;
@@ -408,8 +405,7 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
 
 //--------------------------------------------------------------------------------------------------
 
-ToolBarItemWrapper::~ToolBarItemWrapper()
-{
+ToolBarItemWrapper::~ToolBarItemWrapper() {
   delete eventTarget;
   delete normalImage;
   delete activeImage;
@@ -417,53 +413,40 @@ ToolBarItemWrapper::~ToolBarItemWrapper()
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarItemWrapper::UpdateItemImage()
-{
-  ToolStripItem ^item = GetManagedObject<ToolStripItem>();
-  ToolStripButton ^button = dynamic_cast<ToolStripButton ^>(item);
+void ToolBarItemWrapper::UpdateItemImage() {
+  ToolStripItem ^ item = GetManagedObject<ToolStripItem>();
+  ToolStripButton ^ button = dynamic_cast<ToolStripButton ^>(item);
   bool isChecked = false;
   if (button != nullptr)
     isChecked = button->Checked;
 
   static Size borderSize(2, 2);
-  if (item->GetType() == ToolStripSegmentedButton::typeid)
-  {
+  if (item->GetType() == ToolStripSegmentedButton::typeid) {
     // For segmented buttons we use a trick to avoid the implicit border given by the default
     // implementation. Using a background image avoids it. We have to size the item
     // explicitly, though. Auto size must be off to make this work.
-    if (isChecked)
-    {
+    if (isChecked) {
       item->BackgroundImage = activeImage;
-      if (static_cast<Drawing::Image ^>(activeImage) != nullptr)
-      {
+      if (static_cast<Drawing::Image ^>(activeImage) != nullptr) {
         item->AutoSize = false;
         item->Size = activeImage->Size + button->Margin.Size + borderSize;
       }
-    }
-    else
-    {
+    } else {
       item->BackgroundImage = normalImage;
-      if (static_cast<Drawing::Image ^>(normalImage) != nullptr)
-      {
+      if (static_cast<Drawing::Image ^>(normalImage) != nullptr) {
         item->AutoSize = false;
         item->Size = normalImage->Size + button->Margin.Size + borderSize;
       }
     }
-  }
-  else
-  {
+  } else {
     // Use the normal image also for checked items if no active image exists.
-    if (isChecked && static_cast<Drawing::Image ^>(activeImage) != nullptr)
-    {
+    if (isChecked && static_cast<Drawing::Image ^>(activeImage) != nullptr) {
       item->Image = activeImage;
       item->AutoSize = false;
       item->Size = activeImage->Size + button->Margin.Size + borderSize;
-    }
-    else
-    {
+    } else {
       item->Image = normalImage;
-      if (static_cast<Drawing::Image ^>(normalImage) != nullptr)
-      {
+      if (static_cast<Drawing::Image ^>(normalImage) != nullptr) {
         item->AutoSize = false;
         item->Size = normalImage->Size + button->Margin.Size + borderSize;
       }
@@ -473,11 +456,9 @@ void ToolBarItemWrapper::UpdateItemImage()
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarItemWrapper::SetItemChecked(bool state)
-{
-  ToolStripButton ^button = GetManagedObject<ToolStripButton>();
-  if (button != nullptr && button->Checked != state)
-  {
+void ToolBarItemWrapper::SetItemChecked(bool state) {
+  ToolStripButton ^ button = GetManagedObject<ToolStripButton>();
+  if (button != nullptr && button->Checked != state) {
     button->Checked = state;
     UpdateItemImage();
   }
@@ -485,51 +466,43 @@ void ToolBarItemWrapper::SetItemChecked(bool state)
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarItemWrapper::Focus()
-{
-  ToolStripItem ^item = GetManagedObject<ToolStripItem>();
-  ToolStripTextBox^ textbox = dynamic_cast<ToolStripTextBox ^>(item);
+void ToolBarItemWrapper::Focus() {
+  ToolStripItem ^ item = GetManagedObject<ToolStripItem>();
+  ToolStripTextBox ^ textbox = dynamic_cast<ToolStripTextBox ^>(item);
   if (textbox != nullptr && textbox->CanSelect)
     textbox->Select();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarItemWrapper::SetNormalImage(Drawing::Image ^image)
-{
+void ToolBarItemWrapper::SetNormalImage(Drawing::Image ^ image) {
   normalImage = image;
   UpdateItemImage();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarItemWrapper::SetActiveImage(Drawing::Image ^image)
-{
+void ToolBarItemWrapper::SetActiveImage(Drawing::Image ^ image) {
   activeImage = image;
   UpdateItemImage();
 }
 
-void ToolBarItemWrapper::RegisterDropDown(ToolStripButton ^button)
-{
+void ToolBarItemWrapper::RegisterDropDown(ToolStripButton ^ button) {
   button->Click += gcnew EventHandler(eventTarget, &ToolbarItemEventTarget::OnColorItemActivation);
 }
 
 //----------------- ToolBarWrapper -----------------------------------------------------------------
 
-ToolBarWrapper::ToolBarWrapper(mforms::ToolBar* toolbar)
-  : ViewWrapper(toolbar)
-{
+ToolBarWrapper::ToolBarWrapper(mforms::ToolBar *toolbar) : ViewWrapper(toolbar) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ToolBarWrapper::create_tool_bar(mforms::ToolBar *backend, mforms::ToolBarType type)
-{
+bool ToolBarWrapper::create_tool_bar(mforms::ToolBar *backend, mforms::ToolBarType type) {
   ToolBarWrapper *wrapper = new ToolBarWrapper(backend);
 
-  ToolStrip ^toolstrip = nullptr;
-  switch (type)
-  {
+  ToolStrip ^ toolstrip = nullptr;
+  switch (type) {
     case mforms::MainToolBar:
       toolstrip = ToolBarWrapper::Create<MformsToolStrip>(backend, wrapper);
       toolstrip->Name = "MainToolBar";
@@ -550,14 +523,11 @@ bool ToolBarWrapper::create_tool_bar(mforms::ToolBar *backend, mforms::ToolBarTy
       toolstrip->Padding = Padding(5, 0, 0, 0);
       toolstrip->AutoSize = false;
       toolstrip->Size = Size(100, 23);
-      try
-      {
+      try {
         toolstrip->Font = ControlUtilities::GetFont("Microsoft Sans Serif", 8.25f);
-      }
-      catch (System::ArgumentException^ e)
-      {
+      } catch (System::ArgumentException ^ e) {
         // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-        log_error("ToolBarWrapper::create_tool_bar failed. %s\n", e->Message);
+        logError("ToolBarWrapper::create_tool_bar failed. %s\n", e->Message);
       }
 
       toolstrip->BackColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, false);
@@ -584,7 +554,7 @@ bool ToolBarWrapper::create_tool_bar(mforms::ToolBar *backend, mforms::ToolBarTy
       break;
 
     default:
-      throw std::runtime_error(base::strfmt("Internal error: unimplemented toolbar type requested (%i).", (int) type));
+      throw std::runtime_error(base::strfmt("Internal error: unimplemented toolbar type requested (%i).", (int)type));
   }
 
   return toolstrip != nullptr;
@@ -592,38 +562,33 @@ bool ToolBarWrapper::create_tool_bar(mforms::ToolBar *backend, mforms::ToolBarTy
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::insert_item(mforms::ToolBar *backend, int index, mforms::ToolBarItem *item)
-{
-  ToolStrip ^toolstrip = ToolBarWrapper::GetManagedObject<ToolStrip>(backend);
-  ToolStripItem ^native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
+void ToolBarWrapper::insert_item(mforms::ToolBar *backend, int index, mforms::ToolBarItem *item) {
+  ToolStrip ^ toolstrip = ToolBarWrapper::GetManagedObject<ToolStrip>(backend);
+  ToolStripItem ^ native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
 
   // Update the name of the control, so the accessibility layer has something to work with.
   native_item->Name = CppStringToNative(item->get_name());
   native_item->AccessibleName = native_item->Name;
 
-  if (index < 0 || index >= toolstrip->Items->Count)
-  {
+  if (index < 0 || index >= toolstrip->Items->Count) {
     index = toolstrip->Items->Count;
     toolstrip->Items->Add(native_item);
-  }
-  else
+  } else
     toolstrip->Items->Insert(index, native_item);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::remove_item(mforms::ToolBar *backend, mforms::ToolBarItem *item)
-{
-  ToolStrip ^toolstrip = ToolBarWrapper::GetManagedObject<ToolStrip>(backend);
-  ToolStripItem ^native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
+void ToolBarWrapper::remove_item(mforms::ToolBar *backend, mforms::ToolBarItem *item) {
+  ToolStrip ^ toolstrip = ToolBarWrapper::GetManagedObject<ToolStrip>(backend);
+  ToolStripItem ^ native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
 
   toolstrip->Items->Remove(native_item);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ToolBarWrapper::create_tool_item(mforms::ToolBarItem *item, mforms::ToolBarItemType type)
-{
+bool ToolBarWrapper::create_tool_item(mforms::ToolBarItem *item, mforms::ToolBarItemType type) {
   // ToolBarItemWrapper will itself create the connections to the backend and its native object.
   ToolBarItemWrapper *toolbar_item = new ToolBarItemWrapper(item, type);
   return true;
@@ -631,11 +596,9 @@ bool ToolBarWrapper::create_tool_item(mforms::ToolBarItem *item, mforms::ToolBar
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::set_item_icon(mforms::ToolBarItem *item, const std::string &path)
-{
-  String ^iconPath = CppStringToNative(path);
-  if (File::Exists(iconPath))
-  {
+void ToolBarWrapper::set_item_icon(mforms::ToolBarItem *item, const std::string &path) {
+  String ^ iconPath = CppStringToNative(path);
+  if (File::Exists(iconPath)) {
     ToolBarItemWrapper *wrapper = item->get_data<ToolBarItemWrapper>();
     wrapper->SetNormalImage(Image::FromFile(iconPath));
   }
@@ -643,11 +606,9 @@ void ToolBarWrapper::set_item_icon(mforms::ToolBarItem *item, const std::string 
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::set_item_alt_icon(mforms::ToolBarItem *item, const std::string& path)
-{
-  String ^iconPath = CppStringToNative(path);
-  if (File::Exists(iconPath))
-  {
+void ToolBarWrapper::set_item_alt_icon(mforms::ToolBarItem *item, const std::string &path) {
+  String ^ iconPath = CppStringToNative(path);
+  if (File::Exists(iconPath)) {
     ToolBarItemWrapper *wrapper = item->get_data<ToolBarItemWrapper>();
     wrapper->SetActiveImage(Image::FromFile(iconPath));
   }
@@ -655,15 +616,12 @@ void ToolBarWrapper::set_item_alt_icon(mforms::ToolBarItem *item, const std::str
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::set_item_text(mforms::ToolBarItem *item, const std::string &text)
-{
-  String ^native_text = CppStringToNative(text);
+void ToolBarWrapper::set_item_text(mforms::ToolBarItem *item, const std::string &text) {
+  String ^ native_text = CppStringToNative(text);
 
-  switch (item->get_type())
-  {
-  case mforms::SelectorItem:
-    {
-      ToolStripComboBox ^selector = ToolBarWrapper::GetManagedObject<ToolStripComboBox>(item);
+  switch (item->get_type()) {
+    case mforms::SelectorItem: {
+      ToolStripComboBox ^ selector = ToolBarWrapper::GetManagedObject<ToolStripComboBox>(item);
       int index = selector->FindStringExact(native_text);
 
       // If not found, selects the first item
@@ -671,25 +629,22 @@ void ToolBarWrapper::set_item_text(mforms::ToolBarItem *item, const std::string 
       if (index < 0 && selector->Items->Count)
         index = 0;
       selector->SelectedIndex = index;
-        
+
       break;
     }
-      
-  case mforms::ColorSelectorItem:
-    {
+
+    case mforms::ColorSelectorItem: {
       // If this item is a color selector then find the entry with the corresponding color
       // and use its image for the selector.
-      ToolStripDropDownButton ^button = ToolBarWrapper::GetManagedObject<ToolStripDropDownButton>(item);
+      ToolStripDropDownButton ^ button = ToolBarWrapper::GetManagedObject<ToolStripDropDownButton>(item);
       bool found = false;
-      for each (ToolStripButton^ button in button->DropDownItems)
-      {
-        if (button->Text == native_text)
-        {
-          button->Image = button->Image;
-          found = true;
-          break;
+      for each(ToolStripButton ^ button in button->DropDownItems) {
+          if (button->Text == native_text) {
+            button->Image = button->Image;
+            found = true;
+            break;
+          }
         }
-      }
 
       if (!found)
         button->Image = create_color_image(button->Text);
@@ -697,9 +652,8 @@ void ToolBarWrapper::set_item_text(mforms::ToolBarItem *item, const std::string 
       break;
     }
 
-  default:
-    {
-      ToolStripItem ^stripItem = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
+    default: {
+      ToolStripItem ^ stripItem = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
       stripItem->Text = native_text;
     }
   }
@@ -707,41 +661,42 @@ void ToolBarWrapper::set_item_text(mforms::ToolBarItem *item, const std::string 
 
 //--------------------------------------------------------------------------------------------------
 
-std::string ToolBarWrapper::get_item_text(mforms::ToolBarItem *item)
-{
-  ToolStripItem ^native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
+std::string ToolBarWrapper::get_item_text(mforms::ToolBarItem *item) {
+  ToolStripItem ^ native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
   return NativeToCppString(native_item->Text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::set_item_enabled(mforms::ToolBarItem *item, bool state)
-{
-  ToolStripItem ^native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
+void ToolBarWrapper::set_item_name(mforms::ToolBarItem *item, const std::string &name) {
+  // This is dummy function to silent warnings
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ToolBarWrapper::set_item_enabled(mforms::ToolBarItem *item, bool state) {
+  ToolStripItem ^ native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
   native_item->Enabled = state;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ToolBarWrapper::get_item_enabled(mforms::ToolBarItem *item)
-{
-  ToolStripItem ^native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
+bool ToolBarWrapper::get_item_enabled(mforms::ToolBarItem *item) {
+  ToolStripItem ^ native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
   return native_item->Enabled;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::set_item_checked(mforms::ToolBarItem *item, bool state)
-{
+void ToolBarWrapper::set_item_checked(mforms::ToolBarItem *item, bool state) {
   ToolBarItemWrapper *wrapper = item->get_data<ToolBarItemWrapper>();
   wrapper->SetItemChecked(state);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ToolBarWrapper::get_item_checked(mforms::ToolBarItem* item)
-{
-  ToolStripButton^ button = ToolBarWrapper::GetManagedObject<ToolStripButton>(item);
+bool ToolBarWrapper::get_item_checked(mforms::ToolBarItem *item) {
+  ToolStripButton ^ button = ToolBarWrapper::GetManagedObject<ToolStripButton>(item);
   if (button != nullptr)
     return button->Checked;
 
@@ -750,25 +705,20 @@ bool ToolBarWrapper::get_item_checked(mforms::ToolBarItem* item)
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::set_item_tooltip(mforms::ToolBarItem* item, const std::string& text)
-{
-  ToolStripItem ^native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
+void ToolBarWrapper::set_item_tooltip(mforms::ToolBarItem *item, const std::string &text) {
+  ToolStripItem ^ native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
   native_item->ToolTipText = CppStringToNative(text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::set_selector_items(mforms::ToolBarItem *item, const std::vector<std::string> &values)
-{
-  switch (item->get_type())
-  {
-  case mforms::SelectorItem:
-    {
-      ToolStripComboBox^ combobox = ToolBarWrapper::GetManagedObject<ToolStripComboBox>(item);
-      if (combobox != nullptr)
-      {
+void ToolBarWrapper::set_selector_items(mforms::ToolBarItem *item, const std::vector<std::string> &values) {
+  switch (item->get_type()) {
+    case mforms::SelectorItem: {
+      ToolStripComboBox ^ combobox = ToolBarWrapper::GetManagedObject<ToolStripComboBox>(item);
+      if (combobox != nullptr) {
         // Normal combobox.
-        List<String^> list = CppStringListToNative(values);
+        List<String ^> list = CppStringListToNative(values);
         combobox->Items->Clear();
         combobox->Items->AddRange(list.ToArray());
         if (combobox->Items->Count > 0)
@@ -776,19 +726,35 @@ void ToolBarWrapper::set_selector_items(mforms::ToolBarItem *item, const std::ve
       }
       break;
     }
-  case mforms::ColorSelectorItem:
-    {
-      ToolStripDropDownButton ^selector = ToolBarWrapper::GetManagedObject<ToolStripDropDownButton>(item);
-      if (selector != nullptr)
-      {
+    case mforms::FlatSelectorItem: {
+      ToolStripDropDownButton ^ selector = ToolBarWrapper::GetManagedObject<ToolStripDropDownButton>(item);
+      if (selector != nullptr) {
+        List<ToolStripButton ^> buttons = gcnew List<ToolStripButton ^>();
+        for (std::vector<std::string>::const_iterator iterator = values.begin(); iterator != values.end(); iterator++) {
+          String ^ text = CppStringToNative(*iterator);
+          ToolStripButton ^ button = gcnew ToolStripButton();
+          button->DisplayStyle = ToolStripItemDisplayStyle::Text;
+          ToolBarItemWrapper *wrapper = item->get_data<ToolBarItemWrapper>();
+          button->Text = text;
+          button->Tag = selector;
+          wrapper->RegisterDropDown(button);
+          buttons.Add(button);
+        }
+        selector->DropDown->Items->Clear();
+        selector->DropDown->Items->AddRange(buttons.ToArray());
+      }
+      break;
+    }
+    case mforms::ColorSelectorItem: {
+      ToolStripDropDownButton ^ selector = ToolBarWrapper::GetManagedObject<ToolStripDropDownButton>(item);
+      if (selector != nullptr) {
         // Color selector.
-        Bitmap ^selected = nullptr;
-        List<ToolStripButton^> buttons = gcnew List<ToolStripButton^>();
+        Bitmap ^ selected = nullptr;
+        List<ToolStripButton ^> buttons = gcnew List<ToolStripButton ^>();
 
-        for (std::vector<std::string>::const_iterator iterator = values.begin(); iterator != values.end(); iterator++)
-        {
-          String ^text = CppStringToNative(*iterator);
-          ToolStripButton ^button = gcnew ToolStripButton();
+        for (std::vector<std::string>::const_iterator iterator = values.begin(); iterator != values.end(); iterator++) {
+          String ^ text = CppStringToNative(*iterator);
+          ToolStripButton ^ button = gcnew ToolStripButton();
           button->DisplayStyle = ToolStripItemDisplayStyle::Image;
 
           button->Text = text;
@@ -811,13 +777,12 @@ void ToolBarWrapper::set_selector_items(mforms::ToolBarItem *item, const std::ve
 
 //--------------------------------------------------------------------------------------------------
 
-Bitmap^ ToolBarWrapper::create_color_image(String^ color)
-{
-  SolidBrush^ brush= gcnew SolidBrush(Color::White);
-  Pen^ pen = gcnew Pen(Color::LightGray);
+Bitmap ^ ToolBarWrapper::create_color_image(String ^ color) {
+  SolidBrush ^ brush = gcnew SolidBrush(Color::White);
+  Pen ^ pen = gcnew Pen(Color::LightGray);
 
-  Bitmap^ image = gcnew Bitmap(60, 15);
-  Graphics^ g = Graphics::FromImage(image);
+  Bitmap ^ image = gcnew Bitmap(60, 15);
+  Graphics ^ g = Graphics::FromImage(image);
   brush->Color = ColorTranslator::FromHtml(color);
   g->FillRectangle(brush, System::Drawing::Rectangle(1, 0, 58, 14));
   g->DrawRectangle(pen, System::Drawing::Rectangle(1, 0, 58, 14));
@@ -827,9 +792,8 @@ Bitmap^ ToolBarWrapper::create_color_image(String^ color)
 
 //--------------------------------------------------------------------------------------------------
 
-void ToolBarWrapper::init()
-{
-  mforms::ControlFactory* f = mforms::ControlFactory::get_instance();
+void ToolBarWrapper::init() {
+  mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_tool_bar_impl.create_tool_bar = &ToolBarWrapper::create_tool_bar;
   f->_tool_bar_impl.insert_item = &ToolBarWrapper::insert_item;
@@ -839,6 +803,7 @@ void ToolBarWrapper::init()
   f->_tool_bar_impl.set_item_alt_icon = &ToolBarWrapper::set_item_alt_icon;
   f->_tool_bar_impl.set_item_text = &ToolBarWrapper::set_item_text;
   f->_tool_bar_impl.get_item_text = &ToolBarWrapper::get_item_text;
+  f->_tool_bar_impl.set_item_name = &ToolBarWrapper::set_item_name;
   f->_tool_bar_impl.set_item_enabled = &ToolBarWrapper::set_item_enabled;
   f->_tool_bar_impl.get_item_enabled = &ToolBarWrapper::get_item_enabled;
   f->_tool_bar_impl.set_item_checked = &ToolBarWrapper::set_item_checked;

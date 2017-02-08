@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,10 +46,10 @@
           NSMenuItem *item = [[NSMenuItem alloc] initWithTitle: [NSString stringWithCPPString: iter->caption]
                                                         action: selector
                                                  keyEquivalent: @""];
-          [item setTarget: target];
+          item.target = target;
 
           NSMenu *sub = [NSMenu menuFromMenuItems:iter->subitems action:selector target:target];
-          [item setSubmenu: sub];
+          item.submenu = sub;
           
           [menu addItem: item];
           
@@ -58,17 +58,18 @@
       
         default:
         {
+          SEL selector = NSSelectorFromString(@"activateMenuItem:");
           NSMenuItem *item= [menu addItemWithTitle: [NSString stringWithCPPString: iter->caption]
-                                            action: @selector(activateMenuItem:)
+                                            action: selector
                                      keyEquivalent: @""];
-          [item setTarget: target];
+          item.target = target;
           if (!iter->enabled)
             [item setEnabled: NO];
           if (iter->checked)
-            [item setState: NSOnState];
+            item.state = NSOnState;
           else
-            [item setState: NSOffState];
-          [item setRepresentedObject: [NSString stringWithCPPString: iter->name]];
+            item.state = NSOffState;
+          item.representedObject = [NSString stringWithCPPString: iter->name];
         }
       }
     }

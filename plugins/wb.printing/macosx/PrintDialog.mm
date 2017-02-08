@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -125,9 +125,9 @@
 
   mdc::CairoCtx cairoctx(surface);
       
-  int page= [[NSPrintOperation currentOperation] currentPage] - 1;
+  NSInteger page = [[NSPrintOperation currentOperation] currentPage] - 1;
     
-  _printer->render_page(&cairoctx, page % _xpages, page / _xpages);
+  _printer->render_page(&cairoctx, page % _xpages, (int)page / _xpages);
   
   cairoctx.show_page();
   
@@ -138,7 +138,6 @@
 
 @interface PrintDialog()
 {
-  bec::GRTManager * _grtm;
 }
 
 @end
@@ -146,13 +145,11 @@
 @implementation PrintDialog
 
 - (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args
 {
-  self = [super initWithModule: module grtManager: grtm arguments: args];
+  self = [super initWithModule: module arguments: args];
   if (self != nil)
   {
-    _grtm = grtm;
     model_DiagramRef diagram(model_DiagramRef::cast_from(args[0]));
     
     NSRect rect = NSMakeRect(0, 0, diagram->width(), diagram->height());
@@ -161,7 +158,7 @@
     
     wbprint::getPageLayout(diagram, xpages, ypages);
     
-    app_PageSettingsRef pageSettings(app_PageSettingsRef::cast_from(args.get_grt()->get("/wb/doc/pageSettings")));
+    app_PageSettingsRef pageSettings(app_PageSettingsRef::cast_from(grt::GRT::get()->get("/wb/doc/pageSettings")));
     app_PaperTypeRef paperType(pageSettings->paperType());
         
     printInfo= [[NSPrintInfo alloc] initWithDictionary:
@@ -182,7 +179,7 @@
 
 - (void) dealloc
 {
-  _grtm->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
+  bec::GRTManager::get()->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
 
 }
 

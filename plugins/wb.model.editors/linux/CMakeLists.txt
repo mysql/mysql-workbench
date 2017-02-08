@@ -13,7 +13,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
@@ -23,10 +23,11 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}
-    ${GTK2_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
 #     ${CAIRO_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.model.editors.wbp MODULE
@@ -41,9 +42,16 @@ add_library(wb.model.editors.wbp MODULE
     editor_stored_note_fe.cpp
 )
 
-add_dependencies(wb.model.editors.wbp mysqlparser)
+
+target_compile_options(wb.model.editors.wbp PUBLIC ${WB_CXXFLAGS})
+
+add_dependencies(wb.model.editors.wbp parsers)
 
 target_link_libraries(wb.model.editors.wbp linux_utilities ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wb.model.editors.wbp gcov)
+endif()
 
 set_target_properties(wb.model.editors.wbp
                       PROPERTIES PREFIX    ""

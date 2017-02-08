@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,43 +21,37 @@
  */
 
 #ifdef _WIN32
-  #define WIN32_LEAN_AND_MEAN 
-  #include <windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #endif // _WIN32
 
 #include <glib.h>
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_helper.h"
-
-using namespace grt;
 
 //--------------------------------------------------------------------------------------------------
 
-int main(int argc, char **argv)
-{
-  if (argc < 5)
-  {
+int main(int argc, char **argv) {
+  if (argc < 5) {
     g_print("\nNot enough parameters given. Syntax:\n");
     g_print("  genobj <structs-file> <structs-dir> <output-dir> <impl-output-dir>\n");
     return -1;
   }
 
-  GRT grt;
   std::string structs_file = argv[1];
   std::string structs_dir = argv[2];
   std::string output_dir = argv[3];
   std::string impl_output_dir = argv[4];
-  
-  std::multimap<std::string,std::string> requires;
 
-  g_print("Reading structs from '%s', outputing classes to '%s'\n",
-            structs_dir.c_str(), output_dir.c_str());
-  
-  grt.scan_metaclasses_in(structs_dir, &requires);
-  grt.end_loading_metaclasses(false);
+  std::multimap<std::string, std::string> requires;
 
-  helper::generate_struct_code(&grt, structs_file, output_dir, impl_output_dir, requires);
+  g_print("Reading structs from '%s', outputing classes to '%s'\n", structs_dir.c_str(), output_dir.c_str());
+
+  grt::GRT::get()->scan_metaclasses_in(structs_dir, &requires);
+  grt::GRT::get()->end_loading_metaclasses(false);
+
+  grt::helper::generate_struct_code(structs_file, output_dir, impl_output_dir, requires);
 
   return 0;
 }

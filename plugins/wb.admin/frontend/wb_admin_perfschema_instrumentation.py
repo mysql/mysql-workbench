@@ -138,15 +138,15 @@ class EasySetupPage(mforms.Box):
         try:
             r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_consumers WHERE enabled='NO'")
             if r == 0:
-                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
-                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE NAME NOT LIKE 'memory/performance_schema/%' AND (enabled='NO' OR timed='NO')")
+                # Exclude results from 'memory/%' because they can't be disabled
+                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE NAME NOT LIKE 'memory/%' AND (enabled='NO' OR timed='NO')")
                 if r == 0:
                     return "fully"
 
             r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_consumers WHERE enabled='YES'")
             if r == 0:
-                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
-                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE NAME NOT LIKE 'memory/performance_schema/%' AND (enabled='YES' OR timed='YES')")
+                # Exclude results from 'memory/%' because they can't be disabled
+                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE NAME NOT LIKE 'memory/%' AND (enabled='YES' OR timed='YES')")
                 if r == 0:
                     return "disabled"
 
@@ -166,8 +166,8 @@ class EasySetupPage(mforms.Box):
                 nlikes = []
                 likes = []
                 ins = []
-                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
-                nlikes.append("'memory/performance_schema/%'")
+                # Exclude results from 'memory/%' because they can't be disabled
+                nlikes.append("'memory/%'")
                 for i in instruments:
                    if '%' in i:
                        likes.append("NAME LIKE '%s'" % i)
@@ -312,9 +312,9 @@ The enabled column indicates whether the events for the instrument are generated
 The timed column indicates whether information about the event duration is recorded.
 """
         label = mforms.newLabel(description)
-        self.add(label, False, False)
+        self.add(label, False, True)
         
-        self._instruments = mforms.newTreeNodeView(mforms.TreeAltRowColors)
+        self._instruments = mforms.newTreeView(mforms.TreeAltRowColors)
         self._instruments.add_column(mforms.IconStringColumnType, "Instrument", 400, False)
         self._instruments.add_column(mforms.TriCheckColumnType, "Enabled", 50, True)
         self._instruments.add_column(mforms.TriCheckColumnType, "Timed", 50, True)
@@ -480,7 +480,7 @@ class SetupDataCollection(mforms.Box):
             self._child_controls[parent].append(checkbox)
 
         # Finally adds the control on the container
-        container.add(checkbox, False, False)
+        container.add(checkbox, False, True)
 
         return checkbox
 
@@ -500,7 +500,7 @@ class SetupDataCollection(mforms.Box):
         checkbox.add_clicked_callback(lambda: self.update_data_collection(name, checkbox))
         self.ui_fields[name] = checkbox
 
-        container.add(checkbox, False, False)
+        container.add(checkbox, False, True)
 
         return checkbox
 
@@ -578,7 +578,7 @@ class SetupDataCollection(mforms.Box):
 
         desc_label = mforms.newLabel(description)
 
-        self.add(desc_label, False, False)
+        self.add(desc_label, False, True)
 
         # Container will be the main box itself if global instrumentation
         # is unavailable, but will be changed to an inner box otherwise
@@ -592,7 +592,7 @@ class SetupDataCollection(mforms.Box):
 
             # Creates an inner box for the rest of the controls
             self.__container = mforms.newBox(False)
-            self.add(self.__container, False, False)
+            self.add(self.__container, False, True)
             self._child_controls[self.global_check] = [self.__container]
 
         # Adds the thread instrumentation checkbox 
@@ -614,7 +614,7 @@ class SetupDataCollection(mforms.Box):
         if self.owner.target_version.is_supported_mysql_version_at_least(5, 7, 3):
             self.create_section(hbox, 'transactions')
 
-        self.__container.add(hbox, False, False)
+        self.__container.add(hbox, False, True)
 
         if not self.owner.target_version.is_supported_mysql_version_at_least(5, 6, 3):
             self.create_section(hbox, 'events_waits_summary', ['by_thread_by_event_name', 'by_event_name', 'by_instance'])
@@ -626,7 +626,7 @@ class SetupDataCollection(mforms.Box):
             digest_description = "Digesting normalizes statements in a way that permits grouping similar statements and collecting information about how often they occur.\n"
             digest_label = mforms.newLabel(digest_description)
 
-            self.__container.add(digest_label, False, False)
+            self.__container.add(digest_label, False, True)
 
             self.create_dc_checkbox(self.__container, self.get_var_name_and_label('statements_digest', -1))
 
@@ -790,7 +790,7 @@ class ObjectInfoDialog(mforms.Form):
         self.timed.set_text('Timed')
         chbox.add(self.timed, True, True)
 
-        table.add(chbox, 1, 3, 3, 4, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(chbox, 1, 3, 3, 4, mforms.VFillFlag|mforms.HFillFlag|mforms.HExpandFlag)
 
         bbox = mforms.newBox(True)
         bbox.set_spacing(8)
@@ -854,11 +854,11 @@ class SetupFiltering(mforms.Box):
     def make_description_box(self, text, tooltip):
         box = mforms.newBox(True)
         box.set_spacing(12)
-        box.add(mforms.newLabel(text), False, False)
+        box.add(mforms.newLabel(text), False, True)
         l = mforms.newImageBox()
         l.set_image(mforms.App.get().get_resource_path("mini_notice.png"))
         l.set_tooltip(tooltip)
-        box.add(l, False, False)
+        box.add(l, False, True)
         return box
 
     def create_ui(self):
@@ -873,7 +873,7 @@ class SetupFiltering(mforms.Box):
         users_box.set_spacing(12)
         users_box.set_padding(12)
 
-        self.users = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+        self.users = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.users.add_column(mforms.StringColumnType, "User", 150, False)
         self.users.add_column(mforms.StringColumnType, "Host", 150, False)
         self.users.end_columns()
@@ -886,20 +886,20 @@ class SetupFiltering(mforms.Box):
         description = ('Performance Schema allows defining filters to determine the connections for which data will be collected.\n'
                        'New connections having a user@host matching an entry below will be enabled for monitoring.')
         tooltip = 'Use % to indicate either any user or any host.'
-        user_buttons.add(self.make_description_box(description, tooltip), False, False)
+        user_buttons.add(self.make_description_box(description, tooltip), False, True)
 
         self.user_del_button = mforms.newButton()
         self.user_del_button.set_text('Remove')
         self.user_del_button.add_clicked_callback(self.remove_user)
         self.user_del_button.set_enabled(False)
-        user_buttons.add_end(self.user_del_button, False, False)
+        user_buttons.add_end(self.user_del_button, False, True)
 
         user_add_button = mforms.newButton()
         user_add_button.set_text('Add')
         user_add_button.add_clicked_callback(self.add_user)
-        user_buttons.add_end(user_add_button, False, False)
+        user_buttons.add_end(user_add_button, False, True)
 
-        users_box.add(user_buttons, False, False)
+        users_box.add(user_buttons, False, True)
         
         user_panel.add(users_box)
 
@@ -913,7 +913,7 @@ class SetupFiltering(mforms.Box):
         db_box.set_spacing(12)
         db_box.set_padding(12)
         
-        self.objects = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+        self.objects = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.objects.add_column(mforms.StringColumnType, "Type", 100, False)
         self.objects.add_column(mforms.StringColumnType, "Schema", 200, False)
         self.objects.add_column(mforms.StringColumnType, "Object", 200, False)
@@ -935,20 +935,20 @@ class SetupFiltering(mforms.Box):
                    'The timed column indicates whether information about the events duration is recorded.')
         
         
-        db_buttons.add(self.make_description_box(description, tooltip), False, False)
+        db_buttons.add(self.make_description_box(description, tooltip), False, True)
 
         self.db_del_button = mforms.newButton()
         self.db_del_button.set_text('Remove')
         self.db_del_button.add_clicked_callback(self.remove_object)
         self.db_del_button.set_enabled(False)
-        db_buttons.add_end(self.db_del_button, False, False)
+        db_buttons.add_end(self.db_del_button, False, True)
 
         db_add_button = mforms.newButton()
         db_add_button.set_text('Add')
         db_add_button.add_clicked_callback(self.add_object)
-        db_buttons.add_end(db_add_button, False, False)
+        db_buttons.add_end(db_add_button, False, True)
 
-        db_box.add(db_buttons, False, False)
+        db_box.add(db_buttons, False, True)
 
         db_panel.add(db_box)
 
@@ -1125,7 +1125,7 @@ class SetupOptions(mforms.Box):
 
         self._controls[timer_name] = selector
 
-        table.add(selector, 1, 2, offset, offset + 1, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(selector, 1, 2, offset, offset + 1, mforms.VFillFlag|mforms.HFillFlag|mforms.HExpandFlag)
 
         
     def create_ui(self):
@@ -1156,11 +1156,11 @@ class SetupOptions(mforms.Box):
         for i in range(len(self._timer_names)):
             self.create_timer_row(table, i)
 
-        vbox.add(table, False, False)
+        vbox.add(table, False, True)
         
         panel.add(vbox)
 
-        self.add(panel, False, False)
+        self.add(panel, False, True)
 
     def refresh(self):
         for name in self._controls:
@@ -1256,7 +1256,7 @@ class SetupThreads(mforms.Box):
 
         self.add(description, False, False)
 
-        self.threads = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+        self.threads = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.threads.add_column(mforms.LongIntegerColumnType, "Id", 50, False)
         self.threads.add_column(mforms.StringColumnType, "Name", 250, False)
         self.threads.add_column(mforms.CheckColumnType, "Instrumented", 80, True)
@@ -1291,8 +1291,8 @@ class SetupThreads(mforms.Box):
         self._refresh_button.set_text('Refresh')
         self._refresh_button.add_clicked_callback(self.refresh_data)
 
-        bbox.add_end(self._refresh_button, False, False)
-        self.add(bbox, False, False)
+        bbox.add_end(self._refresh_button, False, True)
+        self.add(bbox, False, True)
 
     def refresh_data(self):
         # Refreshes the model class from the database
@@ -1501,8 +1501,8 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
             self.cancel_button.add_clicked_callback(self.on_revert_button_clicked)
             #self.cancel_button.set_enabled(False)
 
-            self.buttons.add_end(self.apply_button, False, False)
-            self.buttons.add_end(self.cancel_button, False, False)
+            self.buttons.add_end(self.apply_button, False, True)
+            self.buttons.add_end(self.cancel_button, False, True)
 
             if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6):
                 self.reset_to_factory_button = mforms.newButton()
@@ -1511,7 +1511,7 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
                 self.reset_to_factory_button.add_clicked_callback(self.on_reset_to_factory_button_clicked)
                 self.buttons.add_end(self.reset_to_factory_button, False, True)
 
-            self.content.add(self.buttons, False, False)
+            self.content.add(self.buttons, False, True)
 
         if not from_scratch and self._showing_advanced:
             self.switch_config_tabs(True)

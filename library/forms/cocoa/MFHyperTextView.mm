@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,30 +34,29 @@
     mOwner = ht;
     mOwner->set_data(self);
 
-    NSRect rect = [self frame];
-    //rect.size.width -= [NSScroller scrollerWidthForControlSize: NSSmallControlSize];
+    NSRect rect = self.frame;
     mTextView = [[NSTextView alloc] initWithFrame: rect];
     
-    [[self verticalScroller] setControlSize: NSSmallControlSize];
+    self.verticalScroller.controlSize = NSSmallControlSize;
     [self setHasVerticalScroller: YES];
     [self setAutohidesScrollers: YES];
-    [self setDocumentView: mTextView];
+    self.documentView = mTextView;
 
-    [mTextView setMinSize: NSMakeSize(0.0, NSHeight([self frame]))];
-    [mTextView setMaxSize: NSMakeSize(FLT_MAX, FLT_MAX)];
+    mTextView.minSize = NSMakeSize(0.0, NSHeight(self.frame));
+    mTextView.maxSize = NSMakeSize(FLT_MAX, FLT_MAX);
     [mTextView setVerticallyResizable: YES];
     [mTextView setHorizontallyResizable: NO];
-    [mTextView setAutoresizingMask: NSViewWidthSizable];
+    mTextView.autoresizingMask = NSViewWidthSizable;
     
-    [[mTextView textContainer] setContainerSize: NSMakeSize(NSWidth([self frame]), FLT_MAX)];
-    [[mTextView textContainer] setWidthTracksTextView: YES];
+    mTextView.textContainer.containerSize = NSMakeSize(NSWidth(self.frame), FLT_MAX);
+    [mTextView.textContainer setWidthTracksTextView: YES];
     
-    [mTextView setFont: [NSFont systemFontOfSize: [NSFont systemFontSize]]]; 
+    mTextView.font = [NSFont systemFontOfSize: [NSFont systemFontSize]]; 
     [mTextView setRichText: YES];
 
     [mTextView setEditable: NO];
     
-    [mTextView setDelegate: self];
+    mTextView.delegate = self;
   }
   return self;
 }
@@ -67,13 +66,13 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (void)setBackgroundColor:(NSColor *)color
 {
-  [super setBackgroundColor: color];
-  [mTextView setBackgroundColor: color];
+  super.backgroundColor = color;
+  mTextView.backgroundColor = color;
 }
 
 - (BOOL)textView:(NSTextView *)aTextView clickedOnLink:(id)link atIndex:(NSUInteger)charIndex
 {
-  mOwner->handle_url_click([[link absoluteString] UTF8String]);
+  mOwner->handle_url_click([link absoluteString].UTF8String);
   return YES;
 }
 
@@ -89,14 +88,14 @@ static void ht_set_markup(mforms::HyperText *ht, const std::string &text)
   MFHyperTextView *htv = ht->get_data();
   WebPreferences *defaults = [WebPreferences standardPreferences];
   
-  [defaults setStandardFontFamily: @"Lucida Grande"];
-  [defaults setDefaultFontSize: [NSFont smallSystemFontSize]];
-  [defaults setDefaultFixedFontSize: [NSFont smallSystemFontSize]];
+  defaults.standardFontFamily = @"Lucida Grande";
+  defaults.defaultFontSize = [NSFont smallSystemFontSize];
+  defaults.defaultFixedFontSize = [NSFont smallSystemFontSize];
   [defaults setUserStyleSheetEnabled: YES];
-  [defaults setUserStyleSheetLocation: [NSURL fileURLWithPath: [[NSBundle mainBundle] pathForResource: @"hypertextview"
-                                                                                               ofType: @"css"]]];
+  defaults.userStyleSheetLocation = [NSURL fileURLWithPath: [[NSBundle mainBundle] pathForResource: @"hypertextview"
+                                                                                               ofType: @"css"]];
 
-  [[htv->mTextView textStorage] replaceCharactersInRange: NSMakeRange(0, [[htv->mTextView textStorage] length])
+  [htv->mTextView.textStorage replaceCharactersInRange: NSMakeRange(0, htv->mTextView.textStorage.length)
                                     withAttributedString: [[NSAttributedString alloc] initWithHTML: [NSData dataWithBytes: text.data()
                                                                                                                    length: text.size()]
                                                                                            options: @{NSWebPreferencesDocumentOption: defaults,

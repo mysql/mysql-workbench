@@ -259,7 +259,7 @@ class MEBBackup(MEBCommand):
         self.file_name=''
         self.time_format = '%Y-%m-%d_%H-%M-%S'
         self.time_format_re = re.compile("\\b[1-9]\\d\\d\\d\\b-[0-1]\\d-[0-3]\\d_[0-2]\\d-[0-5]\\d-[0-5]\\d")
-        self.backup_ok_re   = re.compile("^mysqlbackup completed OK!$")  # according to http://dev.mysql.com/doc/mysql-enterprise-backup/3.10/en/mysqlbackup.html, we can rely on this appearing at the end of the backup log when the backup succeeds
+        self.backup_ok_re   = re.compile("^mysqlbackup completed OK!")  # according to http://dev.mysql.com/doc/mysql-enterprise-backup/3.10/en/mysqlbackup.html, we can rely on this appearing at the end of the backup log when the backup succeeds
 
     def print_usage(self):
         self.write_output("BACKUP <profile> <compress> <incremental> <to_single_file> <report_progress> <command>")

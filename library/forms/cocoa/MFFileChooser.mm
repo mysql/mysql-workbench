@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@
         mPanel= [NSSavePanel savePanel];
         [mPanel setCanCreateDirectories: YES];
         [mPanel setExtensionHidden: NO];
-        [mPanel setDelegate: self];
+        mPanel.delegate = self;
         break;
 
       case mforms::OpenDirectory:
@@ -81,27 +81,27 @@
     mOptionsView = [[NSView alloc] initWithFrame: NSMakeRect(0, 0, 420, 30)];
   
   NSPopUpButton *pop = [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 250, 20)];
-  for (int c = [values count], i = 0; i < c; i+= 2)
+  for (NSUInteger c = values.count, i = 0; i < c; i+= 2)
   {
     [pop addItemWithTitle: values[i]];
-    [[pop lastItem] setRepresentedObject: values[i+1]];
+    pop.lastItem.representedObject = values[i+1];
   }
   [pop sizeToFit];
   
   NSTextField *text = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 150, 20)];
-  [text setStringValue: label];
+  text.stringValue = label;
   [text setEditable: NO];
   [text setDrawsBackground: NO];
   [text setBordered: NO];
-  [text setAlignment: NSRightTextAlignment];
+  text.alignment = NSRightTextAlignment;
   [mOptionsView addSubview: text];
-  [text setAutoresizingMask: NSMinXEdge|NSMaxYEdge];
+  text.autoresizingMask = NSMinXEdge|NSMaxYEdge;
   [mOptionsView addSubview: pop];
-  [pop setAutoresizingMask: NSMinXEdge|NSMaxYEdge|NSViewWidthSizable|NSMaxXEdge];
+  pop.autoresizingMask = NSMinXEdge|NSMaxYEdge|NSViewWidthSizable|NSMaxXEdge;
   
-  [mOptionsView setFrameSize: NSMakeSize(NSWidth([mOptionsView frame]), ([mOptionControls count]+1) * 25 + 20)];
-  float y = NSHeight([mOptionsView frame]) - 10;
-  for (id view in [mOptionsView subviews])
+  [mOptionsView setFrameSize: NSMakeSize(NSWidth(mOptionsView.frame), (mOptionControls.count+1) * 25 + 20)];
+  float y = NSHeight(mOptionsView.frame) - 10;
+  for (id view in mOptionsView.subviews)
   {
     if ([view isKindOfClass: [NSTextField class]])
     {
@@ -122,7 +122,7 @@
   NSPopUpButton *fileTypeMenu = mOptionControls[@"format"];
   if (fileTypeMenu)
   {
-    NSString *extension = [[fileTypeMenu selectedItem] representedObject];
+    NSString *extension = fileTypeMenu.selectedItem.representedObject;
     if (![filename hasSuffix: extension])
       filename = [filename stringByAppendingPathExtension: extension];
   }
@@ -143,7 +143,7 @@ static void filechooser_set_title(mforms::FileChooser *self, const std::string &
   MFFileChooserImpl *chooser= self->get_data();
   if (chooser)
   {
-    [chooser->mPanel setTitle: wrap_nsstring(title)];
+    chooser->mPanel.title = wrap_nsstring(title);
   }
 }
 
@@ -156,29 +156,13 @@ static bool filechooser_run_modal(mforms::FileChooser *self)
     NSString *filename = chooser->mDefaultFileName;
     
     if (chooser->mOptionsView)
-      [chooser->mPanel setAccessoryView: chooser->mOptionsView];
+      chooser->mPanel.accessoryView = chooser->mOptionsView;
     
-    if (chooser->mParent && 0)
-    {// XXX this is not working as expected, need a modal loop to block the call until the sheet is done
-      [chooser->mPanel setMessage: [chooser->mPanel title]];
-      [chooser->mPanel setDelegate: chooser];
-      if (filename != nil)
-        [chooser->mPanel setNameFieldStringValue: filename];
-      __block bool retval = false;
-      [chooser->mPanel beginSheetModalForWindow: chooser->mParent->get_data()
-                              completionHandler: ^(NSInteger result) {
-                                retval = result == NSFileHandlingPanelOKButton;
-                              }];
-      return retval;
-    }
-    else
-    {
-      [chooser->mPanel setMessage: @""];
-      if (filename != nil)
-        [chooser->mPanel setNameFieldStringValue: filename];
-      if ([chooser->mPanel runModal] == NSFileHandlingPanelOKButton)
-        return true;
-    }
+    chooser->mPanel.message = @"";
+    if (filename != nil)
+      chooser->mPanel.nameFieldStringValue = filename;
+    if ([chooser->mPanel runModal] == NSFileHandlingPanelOKButton)
+      return true;
   }
   return false;
 }
@@ -188,7 +172,7 @@ static void filechooser_set_directory(mforms::FileChooser *self, const std::stri
   MFFileChooserImpl *chooser= self->get_data();
   if (chooser)
   {
-    [chooser->mPanel setDirectoryURL: [NSURL fileURLWithPath: wrap_nsstring(path) isDirectory: YES]];
+    chooser->mPanel.directoryURL = [NSURL fileURLWithPath: wrap_nsstring(path) isDirectory: YES];
   }
 }
 
@@ -198,7 +182,7 @@ static std::string filechooser_get_directory(mforms::FileChooser *self)
   MFFileChooserImpl *chooser= self->get_data();
   if (chooser)
   {
-    return [[chooser->mPanel.URL URLByDeletingLastPathComponent].path UTF8String];
+    return ((chooser->mPanel.URL).URLByDeletingLastPathComponent.path).UTF8String;
   }
   return "";
 }
@@ -208,7 +192,7 @@ static std::string filechooser_get_path(mforms::FileChooser *self)
 {
   MFFileChooserImpl *chooser= self->get_data();
   if (chooser)
-    return [chooser->mPanel.URL.path UTF8String];
+    return (chooser->mPanel.URL.path).UTF8String;
   return "";
 }
 
@@ -220,11 +204,11 @@ static void filechooser_set_path(mforms::FileChooser *self, const std::string &p
   {
     NSString *fpath = wrap_nsstring(path);
 
-    NSString *extension = [fpath pathExtension];
-    NSString *directory = [fpath stringByDeletingLastPathComponent];
+    NSString *extension = fpath.pathExtension;
+    NSString *directory = fpath.stringByDeletingLastPathComponent;
     if (directory)
-      [chooser->mPanel setDirectoryURL: [NSURL fileURLWithPath: directory isDirectory: YES]];
-    chooser->mDefaultFileName = [fpath lastPathComponent];
+      chooser->mPanel.directoryURL = [NSURL fileURLWithPath: directory isDirectory: YES];
+    chooser->mDefaultFileName = fpath.lastPathComponent;
     
     NSPopUpButton *popup = chooser->mOptionControls[@"format"];
     if (popup)
@@ -257,11 +241,11 @@ static void filechooser_set_extensions(mforms::FileChooser *self, const std::str
         [array addObject: @(iter->second.substr(2).c_str())];
       else if (iter->second[0] == '*')
         [array addObject: @(iter->second.substr(1).c_str())];
-      [fileTypes addObject: [array lastObject]];
+      [fileTypes addObject: array.lastObject];
     }
 
-    if ([array count] > 0)
-      [chooser->mPanel setAllowedFileTypes: array];
+    if (array.count > 0)
+      chooser->mPanel.allowedFileTypes = array;
   }
 }
 
@@ -291,8 +275,8 @@ static std::string filechooser_get_selector_option_value(mforms::FileChooser *se
   if (chooser)
   {
     if (name == "format")
-      return [[chooser->mOptionControls[wrap_nsstring(name)] titleOfSelectedItem] UTF8String] ?: "";
-    return [[[chooser->mOptionControls[wrap_nsstring(name)] selectedItem] representedObject] UTF8String] ?: "";
+      return [chooser->mOptionControls[wrap_nsstring(name)] titleOfSelectedItem].UTF8String ?: "";
+    return [[chooser->mOptionControls[wrap_nsstring(name)] selectedItem].representedObject UTF8String] ?: "";
   }
   return "";
 }

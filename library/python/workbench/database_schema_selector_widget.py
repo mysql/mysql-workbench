@@ -112,7 +112,7 @@ class DatabaseSchemaSelector(mforms.Box):
         # Create UI:
         self.set_spacing(8)
         
-        self.schema_list_tree = mforms.newTreeNodeView(mforms.TreeDefault)
+        self.schema_list_tree = mforms.newTreeView(mforms.TreeDefault)
         self.schema_list_tree.add_column(mforms.CheckColumnType, 'Include', 60, True)
         self.schema_list_tree.add_column(mforms.IconColumnType, 'Catalog/Schema' if self.use_catalogs else 'Schema', 300, False)
         self.schema_list_tree.end_columns()

@@ -7,6 +7,7 @@ set(SOURCES_TO_GENERATE
     grts/structs.db.sybase.h
     grts/structs.db.migration.h
     grts/structs.db.query.h
+    grts/structs.db.ng.h
     grts/structs.db.h
     grts/structs.eer.h
     grts/structs.workbench.h

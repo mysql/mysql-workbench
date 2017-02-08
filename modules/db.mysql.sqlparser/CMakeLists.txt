@@ -13,14 +13,15 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser   
-    ${VSQLITE_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIR}
+    ${PROJECT_SOURCE_DIR}/library/parsers
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}
-    ${MySQL_INCLUDE_DIRS}
+    SYSTEM ${MySQL_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 if (MYSQL_DEFINITIONS)
@@ -28,9 +29,8 @@ if (MYSQL_DEFINITIONS)
 endif()
 
 if (UNIX)
-    add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
+  add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
 endif()
-    
 
 add_library(db.mysql.sqlparser.grt
     src/db.mysql.sqlparser.cpp
@@ -89,11 +89,21 @@ add_library(db.mysql.sqlparser.grt
     ${PROJECT_SOURCE_DIR}/library/sql.parser/source/xml.cpp
 )
 
-#We need to wait for mysqlparser, because we're including some antlr headers which parser depends on
-add_dependencies(db.mysql.sqlparser.grt mysqlparser)
+target_compile_options(db.mysql.sqlparser.grt PUBLIC ${WB_CXXFLAGS})
+
+#We need to wait for parsers, because we're including some antlr headers which parser depends on
+add_dependencies(db.mysql.sqlparser.grt parsers)
 
 
-target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
+target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(db.mysql.sqlparser.grt gcov)
+endif()
+
+set_source_files_properties(src/mysql_sql_parser_utils.cpp PROPERTIES COMPILE_FLAGS -Wno-varargs)
+set_source_files_properties(${PROJECT_SOURCE_DIR}/library/sql.parser/source/myx_sql_tree_item.cpp PROPERTIES COMPILE_FLAGS -Wno-varargs)
+
 
 set_target_properties(db.mysql.sqlparser.grt
                       PROPERTIES PREFIX    ""

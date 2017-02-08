@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -20,11 +20,12 @@
 #pragma once
 
 #define NOMINMAX
-#define WIN32_LEAN_AND_MEAN 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include <math.h>
 #include <algorithm>
 #include <stdlib.h>
+#include <memory>
 
 #include <glib.h>

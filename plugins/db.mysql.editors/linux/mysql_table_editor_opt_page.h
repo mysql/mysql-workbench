@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,30 +29,28 @@ class DbMySQLTableEditor;
 //==============================================================================
 //
 //==============================================================================
-class DbMySQLTableEditorOptPage
-{
-  public:
-    DbMySQLTableEditorOptPage(DbMySQLTableEditor *owner, MySQLTableEditorBE* be, Glib::RefPtr<Gtk::Builder> xml);
+class DbMySQLTableEditorOptPage {
+public:
+  DbMySQLTableEditorOptPage(DbMySQLTableEditor* owner, MySQLTableEditorBE* be, Glib::RefPtr<Gtk::Builder> xml);
 
-    void refresh();
+  void refresh();
 
-    void switch_be(MySQLTableEditorBE* be);
-      
-  private:
-    void set_table_option(const std::string& value, const char* option);
-    void set_toggled_table_option(const char* option);
-    
-    void set_pack_keys();
-    void set_row_format();
-    void set_key_block_size();
-    void set_merge_method();
+  void switch_be(MySQLTableEditorBE* be);
 
-  
-    DbMySQLTableEditor                       *_owner;
-    MySQLTableEditorBE                       *_be;
-    Glib::RefPtr<Gtk::Builder>                               _xml;
+private:
+  void set_table_option(const std::string& value, const char* option);
+  void set_toggled_table_option(const char* option);
 
-    bool                                      _refreshing;
+  void set_pack_keys();
+  void set_row_format();
+  void set_key_block_size();
+  void set_merge_method();
+
+  DbMySQLTableEditor* _owner;
+  MySQLTableEditorBE* _be;
+  Glib::RefPtr<Gtk::Builder> _xml;
+
+  bool _refreshing;
 };
 
 #endif

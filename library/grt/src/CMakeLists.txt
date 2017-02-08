@@ -1,13 +1,18 @@
 if (GRT_DEFINITIONS)
 	add_definitions(${GRT_DEFINITIONS})
 endif()
-include_directories(. .. ${PROJECT_SOURCE_DIR}/generated ${GRT_INCLUDE_DIRS} ${MYSQLCPPCONN_INCLUDE_DIRS})
+include_directories(. 
+    .. 
+    ${PROJECT_SOURCE_DIR}/generated 
+    SYSTEM ${GRT_INCLUDE_DIRS} 
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS})
 
 #TODO: Set compiler flags 
 #set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} "-Wall -Wsign-compare ${CAIRO_CFLAGS}")
 
 add_library(grt
-    grtpp_grt.cpp
+    grt.cpp
     grtpp_helper.cpp
     grtpp_metaclass.cpp
     grtpp_util.cpp
@@ -34,7 +39,13 @@ add_library(grt
     python_module.cpp
 )
 
+target_compile_options(grt PUBLIC ${WB_CXXFLAGS})
+
 target_link_libraries(grt wbbase ${GLIB_LIBRARIES} ${GMODULE_LIBRARIES} ${GRT_LIBRARIES} ${UUID_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(grt gcov)
+endif()
 
 set_target_properties(grt
                       PROPERTIES VERSION   ${WB_VERSION}

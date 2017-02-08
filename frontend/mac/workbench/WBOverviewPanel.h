@@ -1,6 +1,6 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
- * 
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -22,46 +22,43 @@
 @class WBOverviewBackgroundView;
 @class WBMenuManager;
 
-@interface WBOverviewPanel : NSScrollView
-{  
+@interface WBOverviewPanel : NSScrollView {
   WBOverviewBackgroundView *_backgroundView;
   NSMutableDictionary *_itemContainers;
-  
+
   NSString *_identifier;
-  
+
   bec::NodeId *_lastFoundNode;
   NSString *_searchText;
-  
+
   wb::OverviewBE *_overview;
-  
+
   BOOL _noHeaders;
 }
 
-- (void)setupWithOverviewBE: (wb::OverviewBE*)overview;
+- (void)setupWithOverviewBE:(wb::OverviewBE *)overview;
 - (void)setNoBackground;
 - (void)setNoHeader;
 - (void)rebuildAll;
-- (void)refreshNode:(const bec::NodeId&)node;
-- (void)refreshNodeChildren:(const bec::NodeId&)node;
+- (void)refreshNode:(const bec::NodeId &)node;
+- (void)refreshNodeChildren:(const bec::NodeId &)node;
 
-@property (readonly) BOOL willClose;
+@property(readonly) BOOL willClose;
 
-@property (readonly, strong) NSView *topView;
-@property (readonly, copy) NSString *title;
-@property (readonly, copy) NSString *identifier;
-@property (readonly) bec::UIForm *formBE;
-@property (readonly) wb::OverviewBE *backend;
+@property(readonly, strong) NSView *topView;
+@property(readonly, copy) NSString *title;
+@property(readonly, copy) NSString *identifier;
+@property(readonly) bec::UIForm *formBE;
+@property(readonly) wb::OverviewBE *backend;
 
-- (id)itemContainerForNode:(const bec::NodeId&)node;
+- (id)itemContainerForNode:(const bec::NodeId &)node;
 
-- (void)searchString:(NSString*)text;
+- (void)searchString:(NSString *)text;
 
-- (void)registerContainer:(id)container
-                  forItem:(NSString*)item;
+- (void)registerContainer:(id)container forItem:(NSString *)item;
 
-- (void)unregisterContainerForItem:(NSString*)item;
+- (void)unregisterContainerForItem:(NSString *)item;
 
 - (void)buildMainSections;
-- (void)setNoHeader;
 
 @end

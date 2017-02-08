@@ -1,27 +1,25 @@
-/* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#ifndef _UNDO_MANAGER_H_
-#define _UNDO_MANAGER_H_
+#pragma once
 
-
-#include "grtpp.h"
+#include "grt.h"
 
 #include <deque>
 #include <boost/signals2.hpp>
@@ -29,391 +27,287 @@
 
 namespace grt {
 
-class UndoManager;
+  class UndoManager;
 
-class MYSQLGRT_PUBLIC UndoAction
-{
-  std::string _description;
+  class MYSQLGRT_PUBLIC UndoAction {
+    std::string _description;
 
-public:
-  virtual ~UndoAction() {};
+  public:
+    virtual ~UndoAction(){};
 
-  virtual void set_description(const std::string &description);
+    virtual void set_description(const std::string &description);
 
-  virtual void undo(UndoManager *owner)= 0;
-  virtual std::string description() const { return _description; }
-
-  virtual void dump(std::ostream &out, int indent=0) const= 0;
-};
-
-
-class MYSQLGRT_PUBLIC SimpleUndoAction : public UndoAction
-{
-  std::string _description;
-
-  boost::function<void ()> _undo_slot;
-
-public:  
-  SimpleUndoAction(const boost::function<void ()> &undoslot)
-    : _undo_slot(undoslot) {};
-
-  virtual void dump(std::ostream &out, int indent=0) const;
-
-  virtual void undo(UndoManager *owner) { _undo_slot(); }
-};
-
-
-
-
-class MYSQLGRT_PUBLIC UndoObjectChangeAction : public UndoAction
-{
-protected:
-  ObjectRef _object;
-  std::string _member;
-  ValueRef _value;
-
-public:
-  UndoObjectChangeAction(const ObjectRef &object, const std::string &member);
-  UndoObjectChangeAction(const ObjectRef &object, const std::string &member, const ValueRef &value);
-
-  virtual void undo(UndoManager *owner);
-
-  const ObjectRef &get_object() const { return _object; }
-  const std::string &get_member() const { return _member; }
-
-  virtual void dump(std::ostream &out, int indent=0) const;
-};
-
-
-
-class MYSQLGRT_PUBLIC UndoListInsertAction : public UndoAction
-{
-  BaseListRef _list;
-  size_t _index;
-
-public:
-  UndoListInsertAction(const BaseListRef &list, size_t index= BaseListRef::npos);
-
-  virtual void undo(UndoManager *owner);
-
-  virtual void dump(std::ostream &out, int indent=0) const;
-};
-
-
-class MYSQLGRT_PUBLIC UndoListSetAction : public UndoAction
-{
-  BaseListRef _list;
-  size_t _index;
-  ValueRef _value;
-
-public:
-  UndoListSetAction(const BaseListRef &list, size_t index);
-
-  virtual void undo(UndoManager *owner);
-  
-  virtual void dump(std::ostream &out, int indent=0) const;
-};
-
-
-class MYSQLGRT_PUBLIC UndoListReorderAction : public UndoAction
-{
-  BaseListRef _list;
-  size_t _oindex;
-  size_t _nindex;
-
-public:
-  UndoListReorderAction(const BaseListRef &list, size_t oindex, size_t nindex);
-
-  virtual void undo(UndoManager *owner);
-  virtual void dump(std::ostream &out, int indent=0) const;
-};
-
-
-class MYSQLGRT_PUBLIC UndoListRemoveAction : public UndoAction
-{
-  BaseListRef _list;
-  ValueRef _value;
-  size_t _index;
-
-public:
-  UndoListRemoveAction(const BaseListRef &list, const ValueRef &value);
-  UndoListRemoveAction(const BaseListRef &list, size_t index);
-
-  virtual void undo(UndoManager *owner);
-  virtual void dump(std::ostream &out, int indent=0) const;
-};
-
-
-
-class MYSQLGRT_PUBLIC UndoDictSetAction : public UndoAction
-{
-  DictRef _dict;
-  std::string _key;
-  ValueRef _value;
-  bool _had_value;
-
-public:
-  UndoDictSetAction(const DictRef &dict, const std::string &key);
-
-  virtual void undo(UndoManager *owner);
-  virtual void dump(std::ostream &out, int indent=0) const;
-};
-
-
-class MYSQLGRT_PUBLIC UndoDictRemoveAction : public UndoAction
-{
-  DictRef _dict;
-  std::string _key;
-  ValueRef _value;
-  bool _had_value;
-
-public:
-  UndoDictRemoveAction(const DictRef &dict, const std::string &key);
-
-  virtual void undo(UndoManager *owner);
-  virtual void dump(std::ostream &out, int indent=0) const;
-};
-  
-
-
-class MYSQLGRT_PUBLIC UndoGroup : public UndoAction
-{
-  std::list<UndoAction*> _actions;
-  bool _is_open;
-
-public:
-  UndoGroup();
-  virtual ~UndoGroup();
-
-  void trim();
-  void close();
-  inline bool is_open() { return _is_open; }
-
-  virtual void set_description(const std::string &description);
-  virtual std::string description() const;
-
-  virtual void undo(UndoManager *owner);
-
-  virtual void dump(std::ostream &out, int indent=0) const;
-
-  void add(UndoAction *op);
-  bool empty() const;
-
-  virtual bool matches_group(UndoGroup *group) const { return false; }
-  
-  UndoGroup *get_deepest_open_subgroup(UndoGroup **parent= 0);
-
-  std::list<UndoAction*> &get_actions() { return _actions; }
-};
-
-  
-//----------------------------------------------------------------------
-
-class MYSQLGRT_PUBLIC UndoManager
-{
-public:
-  typedef boost::signals2::signal<void (UndoAction*)> UndoSignal;
-  typedef boost::signals2::signal<void (UndoAction*)> RedoSignal;
-  
-  UndoManager(GRT *grt);
-  virtual ~UndoManager();
-  
-  void enable_logging_to(std::ostream *stream);
-  
-  GRT *get_grt() const { return _owner; }
-
-  bool can_undo() const;
-  bool can_redo() const;
-  std::string undo_description() const;
-  std::string redo_description() const;
-
-  void set_undo_limit(size_t limit);
-  size_t get_undo_limit() const { return _undo_limit; }
-
-  void disable();
-  void enable();
-  bool is_enabled() const { return _blocks == 0; }
-
-  void reset();
-  bool empty() const;
-
-  bool is_undoing() const { return _is_undoing; }
-  bool is_redoing() const { return _is_redoing; }
-
-  virtual void undo();
-  virtual void redo();
-
-
-  // the optional group to be used will become owned by the undo manager
-  UndoGroup* begin_undo_group(UndoGroup *group= 0);
-  bool end_undo_group(const std::string &description="", bool trim= false);
-  void cancel_undo_group();
-
-  virtual void add_undo(UndoAction *cmd);
-  virtual void add_simple_undo(const boost::function<void ()> &slot);
-  void set_action_description(const std::string &descr);
-  std::string get_action_description() const;
-
-
-  UndoAction *get_latest_undo_action() const;
-  UndoAction *get_latest_closed_undo_action() const;
-  
-  std::string get_running_action_description() const;
-
-  UndoSignal* signal_undo() { return &_undo_signal; };
-  RedoSignal* signal_redo() { return &_redo_signal; };
-
-  boost::signals2::signal<void ()>* signal_changed() { return &_changed_signal; }
-
-  void dump_undo_stack();
-  void dump_redo_stack();
-
-public:
-  std::deque<UndoAction*> &get_undo_stack() { return _undo_stack; }
-  std::deque<UndoAction*> &get_redo_stack() { return _redo_stack; }
-  void lock() const;
-  void unlock() const;
-protected:
-  GRT *_owner;
-  mutable base::RecMutex _mutex;
-  std::ostream *_undo_log;
-
-  std::deque<UndoAction*> _undo_stack;
-  std::deque<UndoAction*> _redo_stack;
-
-  size_t _undo_limit;
-
-  int _blocks;
-  bool _is_undoing;
-  bool _is_redoing;
-
-  UndoSignal _undo_signal;
-  RedoSignal _redo_signal;
-  boost::signals2::signal<void ()> _changed_signal;
-
-  void trim_undo_stack();
-
-
-
-};
-
-
-struct AutoUndo
-{
-  GRT *_grt;
-  UndoGroup *group;
-
-  AutoUndo(GRT *grt, bool noop= false)
-    : _grt(grt)
-  {
-    if (!noop)
-      group= _grt->begin_undoable_action();
-    else
-      group= 0;
-  }
-
-  AutoUndo(GRT *grt, UndoGroup *use_group, bool noop=false)
-    : _grt(grt), group(0)
-  {
-    if (noop)
-    {
-      delete use_group;
-      use_group= 0;
+    virtual void undo(UndoManager *owner) = 0;
+    virtual std::string description() const {
+      return _description;
     }
-    else
-    {
-      // check if the group can be merged into the previous one and if so, just drop it
-      if (!_grt->get_undo_manager()->get_undo_stack().empty())
-      {
-        UndoGroup *last_group= dynamic_cast<UndoGroup*>(_grt->get_undo_manager()->get_undo_stack().back());
-        
-        if (last_group && use_group->matches_group(last_group))
-        {
-          delete use_group;
-          use_group= 0;
-        }
-      }
-      
-      if (use_group)
-        group= _grt->begin_undoable_action(use_group);
+
+    virtual void dump(std::ostream &out, int indent = 0) const = 0;
+  };
+
+  class MYSQLGRT_PUBLIC SimpleUndoAction : public UndoAction {
+    std::string _description;
+
+    std::function<void()> _undo_slot;
+
+  public:
+    SimpleUndoAction(const std::function<void()> &undoslot) : _undo_slot(undoslot){};
+
+    virtual void dump(std::ostream &out, int indent = 0) const;
+
+    virtual void undo(UndoManager *owner) {
+      _undo_slot();
     }
-  }
+  };
 
+  class MYSQLGRT_PUBLIC UndoObjectChangeAction : public UndoAction {
+  protected:
+    ObjectRef _object;
+    std::string _member;
+    ValueRef _value;
 
-  ~AutoUndo()
-  {
-    if (_grt && group)
-    {
-      const char *tmp;
-      // check if the currently open undo group is not empty, in that case we warn about it
-      // cancel() should be explicitly called if the cancellation is intentional
-      if ((tmp= getenv("DEBUG_UNDO")))
-      {
-        UndoGroup *group= dynamic_cast<UndoGroup*>(_grt->get_undo_manager()->get_latest_undo_action());
+  public:
+    UndoObjectChangeAction(const ObjectRef &object, const std::string &member);
+    UndoObjectChangeAction(const ObjectRef &object, const std::string &member, const ValueRef &value);
 
-        if (group && group->is_open())
-        {
-          g_warning("automatically cancelling unclosed undo group");
-          if (strcmp(tmp, "throw") == 0)
-            throw std::logic_error("unclosed undo group");
-        }
-      }
+    virtual void undo(UndoManager *owner);
 
-      cancel();
+    const ObjectRef &get_object() const {
+      return _object;
     }
-  }
-
-  void set_description_for_last_action(const std::string &s)
-  {
-    if (_grt && group)
-    {
-      UndoAction *action= _grt->get_undo_manager()->get_latest_undo_action();
-
-      action->set_description(s);
+    const std::string &get_member() const {
+      return _member;
     }
-  }
 
-  void cancel()
-  {
-    if (_grt)
-    {
-      if (group)
-        _grt->cancel_undoable_action();
-      _grt= 0;
-    }
-    else
-      throw std::logic_error("invalid");
-  }
+    virtual void dump(std::ostream &out, int indent = 0) const;
+  };
 
-  void end_or_cancel_if_empty(const std::string &descr)
-  {
-    if (_grt)
-    {
-      if (group)
-      {
-        if (!group->empty())
-          _grt->end_undoable_action(descr);
-        else
-          _grt->cancel_undoable_action();
-      }
-      _grt= 0;
+  class MYSQLGRT_PUBLIC UndoListInsertAction : public UndoAction {
+    BaseListRef _list;
+    size_t _index;
+
+  public:
+    UndoListInsertAction(const BaseListRef &list, size_t index = BaseListRef::npos);
+
+    virtual void undo(UndoManager *owner);
+
+    virtual void dump(std::ostream &out, int indent = 0) const;
+  };
+
+  class MYSQLGRT_PUBLIC UndoListSetAction : public UndoAction {
+    BaseListRef _list;
+    size_t _index;
+    ValueRef _value;
+
+  public:
+    UndoListSetAction(const BaseListRef &list, size_t index);
+
+    virtual void undo(UndoManager *owner);
+
+    virtual void dump(std::ostream &out, int indent = 0) const;
+  };
+
+  class MYSQLGRT_PUBLIC UndoListReorderAction : public UndoAction {
+    BaseListRef _list;
+    size_t _oindex;
+    size_t _nindex;
+
+  public:
+    UndoListReorderAction(const BaseListRef &list, size_t oindex, size_t nindex);
+
+    virtual void undo(UndoManager *owner);
+    virtual void dump(std::ostream &out, int indent = 0) const;
+  };
+
+  class MYSQLGRT_PUBLIC UndoListRemoveAction : public UndoAction {
+    BaseListRef _list;
+    ValueRef _value;
+    size_t _index;
+
+  public:
+    UndoListRemoveAction(const BaseListRef &list, const ValueRef &value);
+    UndoListRemoveAction(const BaseListRef &list, size_t index);
+
+    virtual void undo(UndoManager *owner);
+    virtual void dump(std::ostream &out, int indent = 0) const;
+  };
+
+  class MYSQLGRT_PUBLIC UndoDictSetAction : public UndoAction {
+    DictRef _dict;
+    std::string _key;
+    ValueRef _value;
+    bool _had_value;
+
+  public:
+    UndoDictSetAction(const DictRef &dict, const std::string &key);
+
+    virtual void undo(UndoManager *owner);
+    virtual void dump(std::ostream &out, int indent = 0) const;
+  };
+
+  class MYSQLGRT_PUBLIC UndoDictRemoveAction : public UndoAction {
+    DictRef _dict;
+    std::string _key;
+    ValueRef _value;
+    bool _had_value;
+
+  public:
+    UndoDictRemoveAction(const DictRef &dict, const std::string &key);
+
+    virtual void undo(UndoManager *owner);
+    virtual void dump(std::ostream &out, int indent = 0) const;
+  };
+
+  class MYSQLGRT_PUBLIC UndoGroup : public UndoAction {
+    std::list<UndoAction *> _actions;
+    bool _is_open;
+
+  public:
+    UndoGroup();
+    virtual ~UndoGroup();
+
+    void trim();
+    void close();
+    inline bool is_open() {
+      return _is_open;
     }
-    else
-      throw std::logic_error("invalid");
-  }
-  
-  void end(const std::string &descr)
-  {
-    if (_grt)
-    {
-      if (group)
-        _grt->end_undoable_action(descr);
-      _grt= 0;
+
+    virtual void set_description(const std::string &description);
+    virtual std::string description() const;
+
+    virtual void undo(UndoManager *owner);
+
+    virtual void dump(std::ostream &out, int indent = 0) const;
+
+    void add(UndoAction *op);
+    bool empty() const;
+
+    virtual bool matches_group(UndoGroup *group) const {
+      return false;
     }
-    else
-      throw std::logic_error("invalid");
-  }
+
+    UndoGroup *get_deepest_open_subgroup(UndoGroup **parent = 0);
+
+    std::list<UndoAction *> &get_actions() {
+      return _actions;
+    }
+  };
+
+  //----------------------------------------------------------------------
+
+  class MYSQLGRT_PUBLIC UndoManager {
+  public:
+    typedef boost::signals2::signal<void(UndoAction *)> UndoSignal;
+    typedef boost::signals2::signal<void(UndoAction *)> RedoSignal;
+
+    UndoManager();
+    virtual ~UndoManager();
+
+    void enable_logging_to(std::ostream *stream);
+
+    bool can_undo() const;
+    bool can_redo() const;
+    std::string undo_description() const;
+    std::string redo_description() const;
+
+    void set_undo_limit(size_t limit);
+    size_t get_undo_limit() const {
+      return _undo_limit;
+    }
+
+    void disable();
+    void enable();
+    bool is_enabled() const {
+      return _blocks == 0;
+    }
+
+    void reset();
+    bool empty() const;
+
+    bool is_undoing() const {
+      return _is_undoing;
+    }
+    bool is_redoing() const {
+      return _is_redoing;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+    // the optional group to be used will become owned by the undo manager
+    UndoGroup *begin_undo_group(UndoGroup *group = 0);
+    bool end_undo_group(const std::string &description = "", bool trim = false);
+    void cancel_undo_group();
+
+    virtual void add_undo(UndoAction *cmd);
+    virtual void add_simple_undo(const std::function<void()> &slot);
+    void set_action_description(const std::string &descr);
+    std::string get_action_description() const;
+
+    UndoAction *get_latest_undo_action() const;
+    UndoAction *get_latest_closed_undo_action() const;
+
+    std::string get_running_action_description() const;
+
+    UndoSignal *signal_undo() {
+      return &_undo_signal;
+    };
+    RedoSignal *signal_redo() {
+      return &_redo_signal;
+    };
+
+    boost::signals2::signal<void()> *signal_changed() {
+      return &_changed_signal;
+    }
+
+    void dump_undo_stack();
+    void dump_redo_stack();
+
+  public:
+    std::deque<UndoAction *> &get_undo_stack() {
+      return _undo_stack;
+    }
+    std::deque<UndoAction *> &get_redo_stack() {
+      return _redo_stack;
+    }
+    void lock() const;
+    void unlock() const;
+
+  protected:
+    mutable base::RecMutex _mutex;
+    std::ostream *_undo_log;
+
+    std::deque<UndoAction *> _undo_stack;
+    std::deque<UndoAction *> _redo_stack;
+
+    size_t _undo_limit;
+
+    int _blocks;
+    bool _is_undoing;
+    bool _is_redoing;
+
+    UndoSignal _undo_signal;
+    RedoSignal _redo_signal;
+    boost::signals2::signal<void()> _changed_signal;
+
+    void trim_undo_stack();
+  };
+
+  struct MYSQLGRT_PUBLIC AutoUndo {
+  public:
+    UndoGroup *group;
+
+    AutoUndo(bool noop = false);
+    AutoUndo(UndoGroup *use_group, bool noop = false);
+
+    ~AutoUndo();
+
+    void set_description_for_last_action(const std::string &s);
+    void cancel();
+    void end_or_cancel_if_empty(const std::string &descr);
+    void end(const std::string &descr);
+
+  private:
+    bool _valid;
+  };
 };
-
-};
-#endif /* _UNDO_MANAGER_H_ */

@@ -32,13 +32,13 @@
 - (void)handleModelCreated
 {
   // Set up the model overview tab
-  _physicalOverview = [[WBModelOverviewPanel alloc] initWithWBContextUI: _wbui];
+  _physicalOverview = [[WBModelOverviewPanel alloc] init];
   [self addTopPanelAndSwitch: _physicalOverview];
 }
 
 - (void)handleModelClosed
 {
-  [self closeTopPanelWithIdentifier: [_physicalOverview identifier] hideOnly: NO];
+  [self closeTopPanelWithIdentifier: _physicalOverview.identifier hideOnly: NO];
   _physicalOverview= nil;
 }
 

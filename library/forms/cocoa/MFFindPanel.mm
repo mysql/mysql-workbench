@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -81,8 +81,8 @@ using namespace mforms;
 
       // Now transfer the views.
       // Wouldn't be necessary if that class were just an NSViewController.
-      [self setFrame: [holder frame]];
-      for (id subview in [[holder subviews] reverseObjectEnumerator])
+      self.frame = holder.frame;
+      for (id subview in [holder.subviews reverseObjectEnumerator])
       {
         NSRect r = [subview frame];
         [subview removeFromSuperview];
@@ -93,12 +93,12 @@ using namespace mforms;
       mMatchCase = NO;
       mWrapAround = YES;
 
-      [[mSearchMenu itemWithTag: 20] setState: mUseRegex ? NSOffState : NSOnState];
-      [[mSearchMenu itemWithTag: 21] setState: !mUseRegex ? NSOffState : NSOnState];
+      [mSearchMenu itemWithTag: 20].state = mUseRegex ? NSOffState : NSOnState;
+      [mSearchMenu itemWithTag: 21].state = !mUseRegex ? NSOffState : NSOnState;
 
-      [[mSearchMenu itemWithTag: 30] setState: !mMatchCase ? NSOnState : NSOffState];
-      [[mSearchMenu itemWithTag: 31] setState: mMatchWhole ? NSOnState : NSOffState];
-      [[mSearchMenu itemWithTag: 32] setState: mWrapAround ? NSOnState : NSOffState];
+      [mSearchMenu itemWithTag: 30].state = !mMatchCase ? NSOnState : NSOffState;
+      [mSearchMenu itemWithTag: 31].state = mMatchWhole ? NSOnState : NSOffState;
+      [mSearchMenu itemWithTag: 32].state = mWrapAround ? NSOnState : NSOffState;
       
       [self enableReplaceInFindPanel: NO];
     }
@@ -127,29 +127,29 @@ using namespace mforms;
 {
   if (!flag)
   {
-    [mFindTypeSegmented setSelectedSegment: 0];
-    for (id view in [self subviews])
+    mFindTypeSegmented.selectedSegment = 0;
+    for (id view in self.subviews)
       if ([view tag] >= 10 && [view tag] <= 13)
         [view setHidden: YES];
-    [self setFrameSize: NSMakeSize(NSWidth([self frame]), 23)];
+    [self setFrameSize: NSMakeSize(NSWidth(self.frame), 23)];
   }
   else
   {
-    [mFindTypeSegmented setSelectedSegment: 1];
-    for (id view in [self subviews])
+    mFindTypeSegmented.selectedSegment = 1;
+    for (id view in self.subviews)
       if ([view tag] >= 10 && [view tag] <= 13)
         [view setHidden: NO];    
-    [self setFrameSize: NSMakeSize(NSWidth([self frame]), 46)];
+    [self setFrameSize: NSMakeSize(NSWidth(self.frame), 46)];
   }
-  [mFindLabel setStringValue: @""];
-  if ([[self superview] respondsToSelector: @selector(subviewMinimumSizeChanged)])
-    [(id)[self superview] subviewMinimumSizeChanged];
+  mFindLabel.stringValue = @"";
+  if ([self.superview respondsToSelector: @selector(relayout)])
+    [(id)self.superview relayout];
 }
 
 
 - (NSSize)minimumSize
 {
-  if ([mFindTypeSegmented selectedSegment] == 0)
+  if (mFindTypeSegmented.selectedSegment == 0)
     return NSMakeSize(100, 23);
   else
     return NSMakeSize(100, 46);
@@ -157,8 +157,8 @@ using namespace mforms;
 
 - (void)focusFindPanel
 {
-  [mFindLabel setStringValue: @""];
-  [[self window] makeFirstResponder: findText];
+  mFindLabel.stringValue = @"";
+  [self.window makeFirstResponder: findText];
   [findText selectText: nil];
 }
 
@@ -175,7 +175,7 @@ using namespace mforms;
   if (mUseRegex)
     flags = flags | mforms::FindRegex;
 
-  return mOwner->get_editor()->find_and_highlight_text([findText.stringValue CPPString], flags,
+  return mOwner->get_editor()->find_and_highlight_text((findText.stringValue).CPPString, flags,
                                                        true, backwards);
 }
 
@@ -193,14 +193,14 @@ using namespace mforms;
     flags = flags | mforms::FindRegex;
 
   if (findFirst)
-    return mOwner->get_editor()->find_and_replace_text([findText.stringValue CPPString],
-                                                       [[mReplaceText stringValue] CPPString], 
+    return mOwner->get_editor()->find_and_replace_text((findText.stringValue).CPPString,
+                                                       mReplaceText.stringValue.CPPString, 
                                                        flags, false) > 0;
   else
   {
-    mOwner->get_editor()->replace_selected_text([[mReplaceText stringValue] CPPString]);
+    mOwner->get_editor()->replace_selected_text(mReplaceText.stringValue.CPPString);
 
-    return mOwner->get_editor()->find_and_highlight_text([findText.stringValue CPPString], flags,
+    return mOwner->get_editor()->find_and_highlight_text((findText.stringValue).CPPString, flags,
                                                   true, false);
   }
 }
@@ -218,9 +218,9 @@ using namespace mforms;
   if (mUseRegex)
     flags = flags | mforms::FindRegex;
   
-  return mOwner->get_editor()->find_and_replace_text([findText.stringValue CPPString],
-                                                     [[mReplaceText stringValue] CPPString], 
-                                                     flags, true);  
+  return (int)mOwner->get_editor()->find_and_replace_text((findText.stringValue).CPPString,
+                                                          mReplaceText.stringValue.CPPString,
+                                                          flags, true);
 }
 
 
@@ -229,7 +229,7 @@ using namespace mforms;
   switch ([sender tag])
   {
     case 5: // find&replace button
-      [self enableReplaceInFindPanel: [mFindTypeSegmented selectedSegment] == 1];
+      [self enableReplaceInFindPanel: mFindTypeSegmented.selectedSegment == 1];
       break;
       
     case 1: // find text
@@ -237,7 +237,7 @@ using namespace mforms;
       break;
 
     case 6: // find back/next segmented
-      mOwner->perform_action([mFindSegmented selectedSegment] == 1 ? FindNext : FindPrevious);
+      mOwner->perform_action(mFindSegmented.selectedSegment == 1 ? FindNext : FindPrevious);
       break;
       
     case 7: // done
@@ -255,13 +255,13 @@ using namespace mforms;
     // Menu
     case 20: // plain text
       mUseRegex = NO;
-      [[[sender menu] itemWithTag: 20] setState: NSOnState];
-      [[[sender menu] itemWithTag: 21] setState: NSOffState];      
+      [[sender menu] itemWithTag: 20].state = NSOnState;
+      [[sender menu] itemWithTag: 21].state = NSOffState;      
       break;
     case 21:
       mUseRegex = YES;
-      [[[sender menu] itemWithTag: 20] setState: NSOffState];
-      [[[sender menu] itemWithTag: 21] setState: NSOnState];
+      [[sender menu] itemWithTag: 20].state = NSOffState;
+      [[sender menu] itemWithTag: 21].state = NSOnState;
       break;
 
     case 30: // ignore case
@@ -284,53 +284,53 @@ using namespace mforms;
   switch (action)
   {
     case FindNext:
-      if ([findText.stringValue length] == 0)
-        [mFindLabel setStringValue: @""];
+      if ((findText.stringValue).length == 0)
+        mFindLabel.stringValue = @"";
       else
       {
         if ([self findNext:NO])
         {
-          [mFindLabel setStringValue: @"Found match"];
+          mFindLabel.stringValue = @"Found match";
           return 1;
         }
         else
-          [mFindLabel setStringValue: @"Not found"];
+          mFindLabel.stringValue = @"Not found";
       }
       break;
     case FindPrevious:
-      if ([findText.stringValue length] == 0)
-        [mFindLabel setStringValue: @""];
+      if ((findText.stringValue).length == 0)
+        mFindLabel.stringValue = @"";
       else
       {
         if ([self findNext:YES])
         {
-          [mFindLabel setStringValue: @"Found match"];
+          mFindLabel.stringValue = @"Found match";
           return 1;
         }
         else
-          [mFindLabel setStringValue: @"Not found"];
+          mFindLabel.stringValue = @"Not found";
       }
       break;
     case FindAndReplace:
-      if ([findText.stringValue length] > 0)
+      if ((findText.stringValue).length > 0)
       {
         if ([self replaceAndFind:YES])
         {
-          [mFindLabel setStringValue: @"Replaced 1"];
+          mFindLabel.stringValue = @"Replaced 1";
           return 1;
         }
         else
-          [mFindLabel setStringValue: @"Not found"];
+          mFindLabel.stringValue = @"Not found";
       }      
       break;
     case ReplaceAll:
-      if ([findText.stringValue length] > 0)
+      if ((findText.stringValue).length > 0)
       {
         int count;
-        if ((count = [self replaceAll]) > 0)
-          [mFindLabel setStringValue: [NSString stringWithFormat: @"Replaced %i", count]];
+        if ((count = self.replaceAll) > 0)
+          mFindLabel.stringValue = [NSString stringWithFormat: @"Replaced %i", count];
         else
-          [mFindLabel setStringValue: @"No matches"];
+          mFindLabel.stringValue = @"No matches";
         [self setNeedsDisplay: YES];
         return count;
       }

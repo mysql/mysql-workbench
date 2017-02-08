@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,96 +23,87 @@
 #include "mdc_canvas_public.h"
 #include "mdc_common.h"
 
-
-namespace base
-{
+namespace base {
   class FileHandle;
 };
 
+namespace mdc {
 
-BEGIN_MDC_DECLS
+  class CanvasView;
 
-class CanvasView;
+  enum PageOrientation { Landscape, Portrait };
 
-enum PageOrientation {
-  Landscape,
-  Portrait
-};
+  class MYSQLCANVAS_PUBLIC_FUNC CanvasViewExtras {
+  public:
+    CanvasViewExtras(CanvasView *view);
 
+    void set_progress_callback(const std::function<void(int, int)> &progress);
 
-class MYSQLCANVAS_PUBLIC_FUNC CanvasViewExtras {
-public:
-  CanvasViewExtras(CanvasView *view);
+    void enable_custom_layout();
+    void set_show_print_guides(bool flag);
 
-  void set_progress_callback(const boost::function<void (int, int)> &progress);
+    void set_paper_size(double width, double height);
+    void get_paper_size(double &width, double &height);
 
-  void enable_custom_layout();
-  void set_show_print_guides(bool flag);
+    void set_page_margins(double top, double left, double bottom, double right);
+    void set_page_counts(Count xpages, Count ypages);
 
-  void set_paper_size(double width, double height);
-  void get_paper_size(double &width, double &height);
+    void set_orientation(PageOrientation orientation);
 
-  void set_page_margins(double top, double left, double bottom, double right);
-  void set_page_counts(Count xpages, Count ypages);
+    void set_print_border(bool flag);
+    void set_print_page_numbers(bool flag);
 
-  void set_orientation(PageOrientation orientation);
+    void set_scale(double scale);
+    void set_scale(double xscale, double yscale);
+    void set_scale_to_fit();
 
-  void set_print_border(bool flag);
-  void set_print_page_numbers(bool flag);
+    void set_print_area(const base::Rect &area);
 
-  void set_scale(double scale);
-  void set_scale(double xscale, double yscale);
-  void set_scale_to_fit();
-
-  void set_print_area(const base::Rect &area);
-
-  PDFSurface *create_pdf_surface(base::FileHandle &fh);
-  PSSurface *create_ps_surface(base::FileHandle &fh);
-  int print_to_surface(Surface *surf, const std::string &header_text, const std::string &footer_text, int gpage_start, int gtotal_pages);
-  int print_to_pdf(const std::string &path);
-  int print_to_ps(const std::string &path);
+    PDFSurface *create_pdf_surface(base::FileHandle &fh);
+    PSSurface *create_ps_surface(base::FileHandle &fh);
+    int print_to_surface(Surface *surf, const std::string &header_text, const std::string &footer_text, int gpage_start,
+                         int gtotal_pages);
+    int print_to_pdf(const std::string &path);
+    int print_to_ps(const std::string &path);
 
 #ifdef _WIN32
-  int print_native(HDC hdc, int width, int height, int page);
+    int print_native(HDC hdc, int width, int height, int page);
 #endif
 
-  int render_pages(CairoCtx *cr, double render_scale, int page= -1, bool rotate_for_landscape=false, const std::string &header_text="",
-                   const std::string &footer_text="", int gpage_start=0, int gtotal_pages=0);
-  
-  // final version
-  void render_page(CairoCtx *cr, int x, int y);
+    int render_pages(CairoCtx *cr, double render_scale, int page = -1, bool rotate_for_landscape = false,
+                     const std::string &header_text = "", const std::string &footer_text = "", int gpage_start = 0,
+                     int gtotal_pages = 0);
 
-  void get_page_counts(Count &xpages, Count &ypages);
-  
-protected:
-  base::Size get_adjusted_paper_size();
-  base::Rect get_adjusted_printable_area();
+    // final version
+    void render_page(CairoCtx *cr, int x, int y);
 
+    void get_page_counts(Count &xpages, Count &ypages);
 
-  CanvasView *_view;
+  protected:
+    base::Size get_adjusted_paper_size();
+    base::Rect get_adjusted_printable_area();
 
-  boost::function<void (int, int)> _progress_cb;
+    CanvasView *_view;
 
-  double _page_width; // in mm
-  double _page_height; // in mm
+    std::function<void(int, int)> _progress_cb;
 
-  double _xscale;
-  double _yscale;
+    double _page_width;  // in mm
+    double _page_height; // in mm
 
-  double _margin_left;
-  double _margin_right;
-  double _margin_top;
-  double _margin_bottom;
+    double _xscale;
+    double _yscale;
 
-  PageOrientation _orientation;
-  bool _custom_layout;
-  bool _print_border;
-  bool _print_page_numbers;
-};
+    double _margin_left;
+    double _margin_right;
+    double _margin_top;
+    double _margin_bottom;
 
+    PageOrientation _orientation;
+    bool _custom_layout;
+    bool _print_border;
+    bool _print_page_numbers;
+  };
 
-
-END_MDC_DECLS
-
+} // end of mdc namespace
 
 #endif

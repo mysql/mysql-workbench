@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,21 +27,19 @@
 #include "mdc.h"
 #include "grt/spatial_handler.h"
 
-namespace mforms
-{
+namespace mforms {
   class ContextMenu;
 };
 
 class ProgressPanel;
 
-class SpatialDrawBox : public mforms::DrawBox
-{
+class SpatialDrawBox : public mforms::DrawBox {
   base::Mutex _layer_mutex;
   spatial::Layer *_background_layer;
-  std::deque<spatial::Layer*> _layers;
+  std::deque<spatial::Layer *> _layers;
   spatial::LayerId _last_autozoom_layer;
   spatial::ProjectionType _proj;
-  boost::shared_ptr<mdc::Surface> _cache;
+  std::shared_ptr<mdc::Surface> _cache;
   mdc::CairoCtx *_ctx_cache;
   base::Mutex _thread_mutex;
   spatial::Converter *_spatial_reprojector;
@@ -53,30 +51,25 @@ class SpatialDrawBox : public mforms::DrawBox
   std::stack<spatial::Envelope> _hw_zoom_history;
   float _zoom_level;
   int _offset_x, _offset_y;
-  
+
   int _initial_offset_x, _initial_offset_y;
   int _drag_x, _drag_y;
   int _select_x, _select_y;
 
-  std::pair<double,double> _clicked_coordinates;
+  std::pair<double, double> _clicked_coordinates;
   base::Point _right_clicked_point;
 
-
-
-  struct Pin
-  {
+  struct Pin {
     double lat, lon;
     cairo_surface_t *icon;
 
-    Pin(const Pin &other)
-    : lat(other.lat), lon(other.lon), icon(other.icon)
-    {
+    Pin(const Pin &other) : lat(other.lat), lon(other.lon), icon(other.icon) {
       cairo_surface_reference(icon);
     }
-    Pin(double lat_, double lon_, cairo_surface_t *i) : lat(lat_), lon(lon_), icon(i) {}
+    Pin(double lat_, double lon_, cairo_surface_t *i) : lat(lat_), lon(lon_), icon(i) {
+    }
 
-    ~Pin()
-    {
+    ~Pin() {
       if (icon)
         cairo_surface_destroy(icon);
     }
@@ -99,8 +92,10 @@ class SpatialDrawBox : public mforms::DrawBox
   base::Mutex _progress_mutex;
   std::string _current_work;
 
-  spatial::Layer* _current_layer;
+  spatial::Layer *_current_layer;
   int _current_layer_index;
+
+  GThread *_renderThread;
 
   static void *do_render_layers(void *data);
 
@@ -114,24 +109,28 @@ class SpatialDrawBox : public mforms::DrawBox
   void restrict_displayed_area(int x1, int y1, int x2, int y2, bool no_invalidate = false);
 
 public:
-  boost::function<void (mforms::View*, bool reprojecting)> work_started;
-  boost::function<void (mforms::View*)> work_finished;
-  boost::function<int (const char*, int)> get_option;
-  boost::function<void ()> area_selected;
+  std::function<void(mforms::View *, bool reprojecting)> work_started;
+  std::function<void(mforms::View *)> work_finished;
+  std::function<int(const char *, int)> get_option;
+  std::function<void()> area_selected;
 
 public:
   SpatialDrawBox();
   ~SpatialDrawBox();
 
-  boost::function<void (base::Point)> position_changed_cb;
-  boost::function<void (base::Point)> position_clicked_cb;
+  std::function<void(base::Point)> position_changed_cb;
+  std::function<void(base::Point)> position_clicked_cb;
 
   void set_context_menu(mforms::ContextMenu *menu);
-  std::pair<double,double> clicked_coordinates() { return _clicked_coordinates; }
+  std::pair<double, double> clicked_coordinates() {
+    return _clicked_coordinates;
+  }
   int clicked_row_id();
 
-  std::deque<spatial::Layer*> get_layers() { return _layers; }
-  
+  std::deque<spatial::Layer *> get_layers() {
+    return _layers;
+  }
+
   void set_projection(spatial::ProjectionType proj);
 
   void reset_view();
@@ -144,8 +143,10 @@ public:
 
   void clear();
   void set_background(spatial::Layer *layer);
-  spatial::Layer *get_background() { return _background_layer; }
-  
+  spatial::Layer *get_background() {
+    return _background_layer;
+  }
+
   void add_layer(spatial::Layer *layer);
   void remove_layer(spatial::Layer *layer);
   void change_layer_order(const std::vector<spatial::LayerId> &order);
@@ -164,7 +165,9 @@ public:
   virtual bool mouse_move(mforms::MouseButton button, int x, int y);
   virtual void repaint(cairo_t *crt, int x, int y, int w, int h);
 
-  base::Point offset() { return base::Point(_offset_x, _offset_y); }
+  base::Point offset() {
+    return base::Point(_offset_x, _offset_y);
+  }
 
   bool screen_to_world(const int &x, const int &y, double &lat, double &lon);
   void world_to_screen(const double &lat, const double &lon, int &x, int &y);

@@ -579,6 +579,8 @@ class DependencyAnalyzer:
         distance[from_table] = 0
 
         def relax(u, v):
+            if u not in distance or v not in distance:
+                return
             if distance[v] > distance[u] + 1:
                 distance[v] = distance[u] + 1
                 predecessor[v] = u

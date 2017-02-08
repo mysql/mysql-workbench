@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,9 +72,9 @@
   // Unspeakably neat, no!?
   [self alternateSetLabel: newLabel];
   
-  if ([[[self tabView] superview] respondsToSelector:@selector(updateLabelForTabViewItem:)])
+  if ([self.tabView.superview respondsToSelector:@selector(updateLabelForTabViewItem:)])
     // Then call the tabview's delegate to notify.
-    [(WBTabView*)[[self tabView] superview] updateLabelForTabViewItem: [self identifier]];
+    [(WBTabView*)self.tabView.superview updateLabelForTabViewItem: self.identifier];
 }
 @end
 
@@ -90,7 +90,7 @@
 
 - (void) rightMouseDown: (NSEvent*) event;
 {
-  [[self superview] rightMouseDown: event];
+  [self.superview rightMouseDown: event];
 }
 
 @end
@@ -124,7 +124,7 @@
   NSSize size = NSZeroSize;
   
   if (mTabView != nil) {
-    size = [mTabView contentRect].size;
+    size = mTabView.contentRect.size;
   }
   
   return size;
@@ -174,13 +174,13 @@
 {
   if (mDragger)
   {
-    CGFloat rowWidth = [self frame].size.width;
+    CGFloat rowWidth = self.frame.size.width;
     
     CGRect r;
     
-    r = [mDragger frame];
-    r.origin.x = rowWidth - [mDragger frame].size.width;
-    [mDragger setFrame: r];
+    r = mDragger.frame;
+    r.origin.x = rowWidth - mDragger.frame.size.width;
+    mDragger.frame = r;
     
 //    [self addCursorRect: NSRectFromCGRect(r) cursor: [NSCursor resizeUpDownCursor]];
   }
@@ -189,56 +189,56 @@
 
 - (void) updateTabArrowPositions: (BOOL) show;
 {
-  CGFloat rowWidth = [self frame].size.width;
+  CGFloat rowWidth = self.frame.size.width;
   
   if (show) {
-    CGRect r = [mLeftArrow frame];
+    CGRect r = mLeftArrow.frame;
     if ( mEnablAnimations && (r.origin.x < 0) ) {
-      [[NSAnimationContext currentContext] setDuration: .15];
+      [NSAnimationContext currentContext].duration = .15;
     }
     r.origin.x = 0;
-    [mLeftArrow setFrame: r];
+    mLeftArrow.frame = r;
     
-    r = [mTabMenu frame];
+    r = mTabMenu.frame;
     if (mDragger)
-      r.origin.x = rowWidth - [mTabMenu frame].size.width - [mDragger frame].size.width;
+      r.origin.x = rowWidth - mTabMenu.frame.size.width - mDragger.frame.size.width;
     else
-      r.origin.x = rowWidth - [mTabMenu frame].size.width;
-    [mTabMenu setFrame: r];
+      r.origin.x = rowWidth - mTabMenu.frame.size.width;
+    mTabMenu.frame = r;
     
-    r = [mRightArrow frame];
+    r = mRightArrow.frame;
     if (mDragger)
-      r.origin.x = rowWidth - [mRightArrow frame].size.width - [mTabMenu frame].size.width - [mDragger frame].size.width;
+      r.origin.x = rowWidth - mRightArrow.frame.size.width - mTabMenu.frame.size.width - mDragger.frame.size.width;
     else
-      r.origin.x = rowWidth - [mRightArrow frame].size.width - [mTabMenu frame].size.width;
-    [mRightArrow setFrame: r];
+      r.origin.x = rowWidth - mRightArrow.frame.size.width - mTabMenu.frame.size.width;
+    mRightArrow.frame = r;
     
     //    [mLeftArrow setShadowOpacity: 0.3];
     //    [mRightArrow setShadowOpacity: 0.3];
   }
   else {
     // Hide the arrows.
-    CGRect r = [mLeftArrow frame];
+    CGRect r = mLeftArrow.frame;
     if ( mEnablAnimations && (r.origin.x == 0) ) {
-      [[NSAnimationContext currentContext] setDuration: .15];
+      [NSAnimationContext currentContext].duration = .15;
     }
     r.origin.x = - r.size.width;
-    [mLeftArrow setFrame: r];
+    mLeftArrow.frame = r;
     
-    r = [mTabMenu frame];
+    r = mTabMenu.frame;
     r.origin.x = rowWidth;
-    [mTabMenu setFrame: r];
+    mTabMenu.frame = r;
     
-    r = [mRightArrow frame];
+    r = mRightArrow.frame;
     r.origin.x = rowWidth;
-    [mRightArrow setFrame: r];
+    mRightArrow.frame = r;
     
     //    [mLeftArrow setShadowOpacity: 0];
     //    [mRightArrow setShadowOpacity: 0];
   }
   
   [mLeftArrow setEnabled: show && (mLastSelectedTabIndex > 0)];
-  [mRightArrow setEnabled: show && (mLastSelectedTabIndex < (NSInteger)[mTabItems count] - 1)];
+  [mRightArrow setEnabled: show && (mLastSelectedTabIndex < (NSInteger)mTabItems.count - 1)];
 }
 
 
@@ -259,7 +259,7 @@
   NSInteger oldOffset = mTabScrollOffset;
   
   // Compute the vertical position of the tabs.
-  CGFloat tabHeightHalf = ([[mTabItems lastObject] frame].size.height / 2);
+  CGFloat tabHeightHalf = ([mTabItems.lastObject frame].size.height / 2);
   CGFloat horizon; // The horizon is a line in the vertical middle of the tab, that cuts the tab in half.
   if (mTabPlacement == WBTabPlacementTop) {
     // Tabs along the upper edge of tab view.
@@ -270,7 +270,7 @@
     else {
       // Tabs hanging down from the ceiling pointing towards the tabview,
       // like those hanging from the window's toolbar.
-      horizon = [mTabRowLayer frame].size.height;
+      horizon = mTabRowLayer.frame.size.height;
     }
   }
   else {
@@ -280,19 +280,19 @@
       NSAssert(NO, @"Strange tab configuration.");
     }
     else {
-      horizon = [mTabRowLayer frame].size.height;
+      horizon = mTabRowLayer.frame.size.height;
     }
   }
   CGFloat tabBottom = horizon - tabHeightHalf;
   
   // Iterate over all tabs, compute the horizontal postition for each tab.
-  CGFloat rowWidth = [self frame].size.width;
+  CGFloat rowWidth = self.frame.size.width;
   NSMutableArray* leftEdges = [NSMutableArray array];
   CGFloat totalWidth = TAB_ITEM_SPACING;
   for (WBTabItem* item in mTabItems) {
     //    [item updateAppearance];
     [leftEdges addObject: @((float)totalWidth)];
-    totalWidth += [item frame].size.width + (mTabSize == WBTabSizeLarge ? TAB_ITEM_SPACING : TAB_ITEM_SMALL_SPACING);
+    totalWidth += item.frame.size.width + (mTabSize == WBTabSizeLarge ? TAB_ITEM_SPACING : TAB_ITEM_SMALL_SPACING);
   }
   
   CGFloat leftEdge;
@@ -300,8 +300,8 @@
   BOOL overflow = (totalWidth > rowWidth);
   if (overflow) {
     // There are too many tabs to fit on the tab row.
-    leftEdge = CGRectGetMaxX([mLeftArrow frame]);
-    rightEdge = [mRightArrow frame].origin.x;
+    leftEdge = CGRectGetMaxX(mLeftArrow.frame);
+    rightEdge = mRightArrow.frame.origin.x;
   }
   else {
     // All tabs to fit on the tab row.
@@ -316,7 +316,7 @@
   // Apply the scroll offset to tab left edges.
   NSMutableArray* offsetLeftEdges = [NSMutableArray array];
   {
-    int i, c = [leftEdges count];
+    NSUInteger i, c = leftEdges.count;
     for (i = 0; i < c; i++) {
       float tabLeftX = [leftEdges[i] floatValue];
       tabLeftX += mTabScrollOffset;
@@ -326,12 +326,12 @@
   
   // Adjust the scroll offset if there is still unused space to the right of the tabs.
   {
-    CGFloat lastTabRightEdge = [[offsetLeftEdges lastObject] floatValue] + [[mTabItems lastObject] frame].size.width;
+    CGFloat lastTabRightEdge = [offsetLeftEdges.lastObject floatValue] + [mTabItems.lastObject frame].size.width;
     if (lastTabRightEdge < rightEdge) {
       mTabScrollOffset += (rightEdge - lastTabRightEdge);
       mTabScrollOffset = MIN(mTabScrollOffset, 0);
       offsetLeftEdges = [NSMutableArray array];
-      int i, c = [leftEdges count];
+      NSUInteger i, c = leftEdges.count;
       for (i = 0; i < c; i++) {
         float tabLeftX = [leftEdges[i] floatValue];
         tabLeftX += mTabScrollOffset;
@@ -341,10 +341,10 @@
   }
   
   // Adjust the scroll offset if the selected tab is not fully visible.
-  if ( (mLastSelectedTabIndex != NSNotFound) && (mLastSelectedTabIndex < (NSInteger)[mTabItems count]) ) {
+  if ( (mLastSelectedTabIndex != NSNotFound) && (mLastSelectedTabIndex < (NSInteger)mTabItems.count) ) {
     WBTabItem* item = mTabItems[mLastSelectedTabIndex];
     float tabLeftX = [offsetLeftEdges[mLastSelectedTabIndex] floatValue];
-    float tabRightX = tabLeftX + [item frame].size.width;
+    float tabRightX = tabLeftX + item.frame.size.width;
     if (tabLeftX < leftEdge) {
       mTabScrollOffset -= (tabLeftX - leftEdge);
     }
@@ -356,7 +356,7 @@
   // Apply the new scroll offset to tab left edges.
   offsetLeftEdges = [NSMutableArray array];
   {
-    int i, c = [leftEdges count];
+    NSUInteger i, c = leftEdges.count;
     for (i = 0; i < c; i++) {
       float tabLeftX = [leftEdges[i] floatValue];
       tabLeftX += mTabScrollOffset;
@@ -365,10 +365,10 @@
   }
   
   if ( mEnablAnimations && (oldOffset != mTabScrollOffset) ) {
-    [[NSAnimationContext currentContext] setDuration: .15];
+    [NSAnimationContext currentContext].duration = .15;
   }
   else {
-    [[NSAnimationContext currentContext] setDuration: 0];
+    [NSAnimationContext currentContext].duration = 0;
   }
   
   [self updateDraggerPosition];
@@ -377,13 +377,13 @@
   [self updateTabArrowPositions: overflow];
     
   // Position the actual tab layers.
-  int i, c = [mTabItems count];
+  NSUInteger i, c = mTabItems.count;
   for (i = 0; i < c; i++) {
     WBTabItem* item = mTabItems[i];
-    CGRect itemFrame = [item frame];
+    CGRect itemFrame = item.frame;
     if (item != tabItemToDisregard) {
       CGRect r = CGRectMake([offsetLeftEdges[i] floatValue], tabBottom, itemFrame.size.width, itemFrame.size.height);
-      [item setFrame: r];
+      item.frame = r;
     }
   }
 }
@@ -393,7 +393,7 @@
 // Delayed call after TabView is resized.
 - (void) layoutTabItemsQuickly;
 {
-  [[NSAnimationContext currentContext] setDuration: 0.0];
+  [NSAnimationContext currentContext].duration = 0.0;
   [self layoutTabItemsDisregardingTabItem: nil];
 }
 
@@ -406,13 +406,13 @@
   WBTabItem* item = [self tabItemWithIdentifier: identifier
                                           label: label];
   if (mTabPlacement == WBTabPlacementTop) {
-    [item setAutoresizingMask: (kCALayerMaxXMargin | kCALayerMinYMargin)];
+    item.autoresizingMask = (kCALayerMaxXMargin | kCALayerMinYMargin);
   }
   else {
-    [item setAutoresizingMask: (kCALayerMaxXMargin | kCALayerMaxYMargin)];
+    item.autoresizingMask = (kCALayerMaxXMargin | kCALayerMaxYMargin);
   }
   
-  [item setDelegate: self];
+  item.delegate = self;
   
   if (mTabItems == nil) {
     mTabItems = [NSMutableArray new];
@@ -434,8 +434,8 @@
 - (void) removeTabViewWithIdentifier: (id) identifier;
 {
   for (WBTabItem* item in mTabItems) {
-    if ([[item identifier] isEqual: identifier]) {
-      [[NSAnimationContext currentContext] setDuration: 0.0];
+    if ([item.identifier isEqual: identifier]) {
+      [NSAnimationContext currentContext].duration = 0.0;
       
       NSInteger index = [mTabItems indexOfObject: item];
       [item removeFromSuperlayer];
@@ -444,18 +444,18 @@
       if (mSelectedTab == item) {
         mSelectedTab = nil;
         WBTabItem* newTab = nil;
-        if (index == (NSInteger)[mTabItems count]) {
-          newTab = [mTabItems lastObject];
+        if (index == (NSInteger)mTabItems.count) {
+          newTab = mTabItems.lastObject;
         }
         else {
           newTab = mTabItems[index];
         }
         
-        [self selectTabViewItemWithIdentifier: [newTab identifier]];
+        [self selectTabViewItemWithIdentifier: newTab.identifier];
       }
       
-      for (NSTabViewItem* tabViewItem in [mTabView tabViewItems]) {
-        if ([tabViewItem identifier] == identifier) {
+      for (NSTabViewItem* tabViewItem in mTabView.tabViewItems) {
+        if (tabViewItem.identifier == identifier) {
           [mTabView removeTabViewItem: tabViewItem];
         }
       }
@@ -476,8 +476,8 @@
   if (mTabView != nil) {
     [mTabView addTabViewItem: tabViewItem];
     
-    id identifier = [tabViewItem identifier];
-    NSString* label = [tabViewItem label];
+    id identifier = tabViewItem.identifier;
+    NSString* label = tabViewItem.label;
     [self insertTabItemWithIdentifier: identifier
                                 label: label
                               atIndex: NSUIntegerMax];
@@ -485,13 +485,13 @@
     
     if (mDoneCustomizing)
     {
-      if ([[self delegate] respondsToSelector: @selector(tabViewDidChangeNumberOfTabViewItems :)])
+      if ([self.delegate respondsToSelector: @selector(tabViewDidChangeNumberOfTabViewItems :)])
       {
-        [[self delegate] tabViewDidChangeNumberOfTabViewItems: self];
+        [self.delegate tabViewDidChangeNumberOfTabViewItems: self];
       }
     }
     
-    if ([mTabItems count] == 1) {
+    if (mTabItems.count == 1) {
       [self selectLastTabViewItem: self];
     }
   }
@@ -505,15 +505,15 @@
 - (void) removeTabViewItem: (NSTabViewItem*) tabViewItem;
 {
   if (mTabView != nil) {
-    id identifier = [tabViewItem identifier];
+    id identifier = tabViewItem.identifier;
     [self removeTabViewWithIdentifier: identifier];
     
-    [[NSAnimationContext currentContext] setDuration: (mEnablAnimations ? 0.15 : 0.0) ];
+    [NSAnimationContext currentContext].duration = (mEnablAnimations ? 0.15 : 0.0) ;
     [self layoutTabItemsDisregardingTabItem: nil];
     
     if (mDoneCustomizing) {
-      if ([[self delegate] respondsToSelector: @selector(tabViewDidChangeNumberOfTabViewItems:)]) {
-        [[self delegate] tabViewDidChangeNumberOfTabViewItems: self];
+      if ([self.delegate respondsToSelector: @selector(tabViewDidChangeNumberOfTabViewItems:)]) {
+        [self.delegate tabViewDidChangeNumberOfTabViewItems: self];
       }
     }
   }
@@ -527,9 +527,9 @@
 - (NSArray*) tabViewItems;
 {
   if (mTabView != nil)
-    return [mTabView tabViewItems];
+    return mTabView.tabViewItems;
   else
-    return [super tabViewItems];
+    return super.tabViewItems;
 }
 
 
@@ -556,7 +556,7 @@
 
 - (NSInteger) indexOfTabViewItem: (NSTabViewItem*) tabViewItem;
 {
-  return [self indexOfTabViewItemWithIdentifier: [tabViewItem identifier]];
+  return [self indexOfTabViewItemWithIdentifier: tabViewItem.identifier];
 }
 
 
@@ -565,8 +565,8 @@
 {
   if (mTabView != nil) {
     NSTabViewItem* tabViewItem = nil;
-    for (NSTabViewItem* item in [mTabView tabViewItems]) {
-      if ([[item identifier] isEqual: identifier]) {
+    for (NSTabViewItem* item in mTabView.tabViewItems) {
+      if ([item.identifier isEqual: identifier]) {
         tabViewItem = item;
         break;
       }
@@ -574,18 +574,18 @@
     
     if (tabViewItem != nil) {
       for (WBTabItem* item in mTabItems) {
-        if ([[item identifier] isEqual: identifier]) {
+        if ([item.identifier isEqual: identifier]) {
           BOOL shouldSelect = YES;
           if (mDoneCustomizing) {
-            if ([[self delegate] respondsToSelector: @selector(tabView:shouldSelectTabViewItem:)]) {
-              shouldSelect = [[self delegate] tabView: self
+            if ([self.delegate respondsToSelector: @selector(tabView:shouldSelectTabViewItem:)]) {
+              shouldSelect = [self.delegate tabView: self
                               shouldSelectTabViewItem: tabViewItem];
             }
           }
           if (shouldSelect) {
             if (mDoneCustomizing) {
-              if ([[self delegate] respondsToSelector: @selector(tabView:willSelectTabViewItem:)]) {
-                [[self delegate] tabView: self
+              if ([self.delegate respondsToSelector: @selector(tabView:willSelectTabViewItem:)]) {
+                [self.delegate tabView: self
                    willSelectTabViewItem: tabViewItem];
               }
             }
@@ -601,8 +601,8 @@
             [mTabView selectTabViewItemWithIdentifier: identifier];
             
             if (mDoneCustomizing) {
-              if ([[self delegate] respondsToSelector: @selector(tabView:didSelectTabViewItem:)]) {
-                [[self delegate] tabView: self
+              if ([self.delegate respondsToSelector: @selector(tabView:didSelectTabViewItem:)]) {
+                [self.delegate tabView: self
                     didSelectTabViewItem: tabViewItem];
               }
             }
@@ -621,7 +621,7 @@
 
 - (void) selectFirstTabViewItem: (id) sender;
 {
-  if ( (mTabView != nil) && ([mTabItems count] > 0) ) {
+  if ( (mTabView != nil) && (mTabItems.count > 0) ) {
     id identifier = [mTabItems[0] identifier];
     [self selectTabViewItemWithIdentifier: identifier];
   }
@@ -635,7 +635,7 @@
 - (void) selectLastTabViewItem: (id) sender;
 {
   if (mTabView != nil) {
-    id identifier = [[mTabItems lastObject] identifier];
+    id identifier = [mTabItems.lastObject identifier];
     [self selectTabViewItemWithIdentifier: identifier];
   }
   else {
@@ -648,9 +648,9 @@
 - (NSTabViewItem*) selectedTabViewItem;
 {
   if (mTabView != nil)
-    return [mTabView selectedTabViewItem];
+    return mTabView.selectedTabViewItem;
   else
-    return [super selectedTabViewItem];
+    return super.selectedTabViewItem;
 }
 
 
@@ -658,9 +658,9 @@
 - (NSInteger) numberOfTabViewItems;
 {
   if (mTabView != nil)
-    return [mTabView numberOfTabViewItems];
+    return mTabView.numberOfTabViewItems;
   else
-    return [super numberOfTabViewItems];
+    return super.numberOfTabViewItems;
 }
 
 
@@ -668,19 +668,19 @@
 - (NSRect) contentRect
 {
   if (mTabView != nil)
-    return [mTabView contentRect];
+    return mTabView.contentRect;
   else
-    return [super contentRect];
+    return super.contentRect;
 }
 
 
 
 - (void) selectNextTabViewItem: (id) sender;
 {
-  NSTabViewItem* item = [self selectedTabViewItem];
+  NSTabViewItem* item = self.selectedTabViewItem;
   NSInteger index = [self indexOfTabViewItem: item];
   index ++;
-  if (index < (NSInteger)[mTabItems count]) {
+  if (index < (NSInteger)mTabItems.count) {
     id identifier = [mTabItems[index] identifier];
     [self selectTabViewItemWithIdentifier: identifier];
   }
@@ -689,7 +689,7 @@
 
 - (void) selectPreviousTabViewItem: (id) sender;
 {
-  NSTabViewItem* item = [self selectedTabViewItem];
+  NSTabViewItem* item = self.selectedTabViewItem;
   NSInteger index = [self indexOfTabViewItem: item];
   index --;
   if (index >= 0) {
@@ -705,20 +705,20 @@
   if (mTabView != nil) {
     [mTabView insertTabViewItem: tabViewItem atIndex: index];
     
-    id identifier = [tabViewItem identifier];
-    NSString* label = [tabViewItem label];
+    id identifier = tabViewItem.identifier;
+    NSString* label = tabViewItem.label;
     [self insertTabItemWithIdentifier: identifier
                                 label: label
                               atIndex: index];
     [self layoutTabItemsDisregardingTabItem: nil];
     
     if (mDoneCustomizing) {
-      if ([[self delegate] respondsToSelector: @selector(tabViewDidChangeNumberOfTabViewItems:)]) {
-        [[self delegate] tabViewDidChangeNumberOfTabViewItems: self];
+      if ([self.delegate respondsToSelector: @selector(tabViewDidChangeNumberOfTabViewItems:)]) {
+        [self.delegate tabViewDidChangeNumberOfTabViewItems: self];
       }
     }
     
-    if ([mTabItems count] == 1) {
+    if (mTabItems.count == 1) {
       [self selectLastTabViewItem: self];
     }
   }
@@ -735,7 +735,7 @@
 
 - (void) setFrame: (NSRect) frame;
 {
-  [super setFrame: frame];
+  super.frame = frame;
   
   [self performSelector: @selector(layoutTabItemsQuickly)
              withObject: nil
@@ -750,8 +750,8 @@
 
 - (void) selectTab: (WBTabItem*) sender;
 {
-  [[NSAnimationContext currentContext] setDuration: 0.0];
-  [self selectTabViewItemWithIdentifier: [sender identifier]];
+  [NSAnimationContext currentContext].duration = 0.0;
+  [self selectTabViewItemWithIdentifier: sender.identifier];
 }
 
 
@@ -759,10 +759,10 @@
 - (void) closeTab: (WBTabItem*) sender;
 {
   if (mDoneCustomizing) {
-    if ([[self delegate] respondsToSelector: @selector(tabView:willCloseTabViewItem:)]) {
-      for (NSTabViewItem* item in [mTabView tabViewItems]) {
-        if ([[item identifier] isEqual: [sender identifier]]) {
-          if (![(id<WBTabViewDelegateProtocol>)[self delegate] tabView: self
+    if ([self.delegate respondsToSelector: @selector(tabView:willCloseTabViewItem:)]) {
+      for (NSTabViewItem* item in mTabView.tabViewItems) {
+        if ([item.identifier isEqual: sender.identifier]) {
+          if (![(id<WBTabViewDelegateProtocol>)self.delegate tabView: self
                willCloseTabViewItem: item])
           {
             return;
@@ -772,8 +772,8 @@
     }
   }
   
-  for (NSTabViewItem* item in [mTabView tabViewItems]) {
-    if ([item identifier] == [sender identifier]) {
+  for (NSTabViewItem* item in mTabView.tabViewItems) {
+    if (item.identifier == sender.identifier) {
       [self removeTabViewItem: item];
       break;
     }
@@ -795,11 +795,11 @@
   do {
     didMoveOne = NO;
     NSInteger ix = [mTabItems indexOfObject: sender];
-    int i, c = [mTabItems count];
+    int i, c = mTabItems.count;
     for (i = 0; i < c; i++) {
       WBTabItem* peer = mTabItems[i];
       if (! [tabsToDisregard containsObject: peer]) {
-        CGRect peerFrame = [peer frame];
+        CGRect peerFrame = peer.frame;
         CGFloat peerMid = CGRectGetMinX(peerFrame) + (peerFrame.size.width / 2);
         if (i > ix) {
           if (CGRectGetMaxX(r) > peerMid) {
@@ -825,7 +825,7 @@
     }
   } while (didMoveOne);
   
-  [[NSAnimationContext currentContext] setDuration: (mEnablAnimations ? 0.1 : 0.0)];
+  [NSAnimationContext currentContext].duration = (mEnablAnimations ? 0.1 : 0.0);
   [self layoutTabItemsDisregardingTabItem: sender];
   
   return r;
@@ -841,25 +841,25 @@
 {
   NSAssert( (mMouseDownLayer == nil), @"mMouseDownLayer was not nil.");
   
-  if ( ([event modifierFlags] & NSControlKeyMask) != 0 ) {
+  if ( (event.modifierFlags & NSControlKeyMask) != 0 ) {
     [self rightMouseDown: event];
   }
   else {
-    NSPoint loc = [mTabRowView convertPoint: [event locationInWindow]
+    NSPoint loc = [mTabRowView convertPoint: event.locationInWindow
                                    fromView: nil];
     CGPoint cgp = NSPointToCGPoint(loc);
     mMouseDownLayer = [mTabRowLayer mouseDownAtPoint: cgp];
     
-    if ([event clickCount] > 1) {
+    if (event.clickCount > 1) {
       // This was a double click.
-      if ([[self delegate] respondsToSelector: @selector(tabViewItemDidReceiveDoubleClick:)]) {
-        [[self delegate] performSelector: @selector(tabViewItemDidReceiveDoubleClick:)
-                              withObject: [self selectedTabViewItem]];
+      if ([self.delegate respondsToSelector: @selector(tabViewItemDidReceiveDoubleClick:)]) {
+        [self.delegate performSelector: @selector(tabViewItemDidReceiveDoubleClick:)
+                              withObject: self.selectedTabViewItem];
       }
     }
     
     if (mMouseDownLayer == nil) {
-      [[self nextResponder] mouseDown: event];
+      [self.nextResponder mouseDown: event];
     }
   }
 }
@@ -870,7 +870,7 @@
 {
   //	if ( mAllowsTabReordering && (mMouseDownLayer != nil) ) {
   if (mMouseDownLayer != nil) {
-    NSPoint loc = [mTabRowView convertPoint: [event locationInWindow]
+    NSPoint loc = [mTabRowView convertPoint: event.locationInWindow
                                    fromView: nil];
     CGPoint cgp = NSPointToCGPoint(loc);
     cgp = [mTabRowLayer convertPoint: cgp
@@ -878,7 +878,7 @@
     [mMouseDownLayer mouseDraggedToPoint: cgp];
   }
   else {
-    [[self nextResponder] mouseDragged: event];
+    [self.nextResponder mouseDragged: event];
   }
 }
 
@@ -893,7 +893,7 @@
     [self layoutTabItemsDisregardingTabItem: nil];
   }
   else {
-    [[self nextResponder] mouseUp: event];
+    [self.nextResponder mouseUp: event];
   }
 }
 
@@ -903,15 +903,15 @@
 {
   NSMenu* menu = nil;
   
-  if ([[self delegate] respondsToSelector: @selector(tabView:menuForIdentifier:)]) {
-    NSPoint loc = [mTabRowView convertPoint: [theEvent locationInWindow]
+  if ([self.delegate respondsToSelector: @selector(tabView:menuForIdentifier:)]) {
+    NSPoint loc = [mTabRowView convertPoint: theEvent.locationInWindow
                                    fromView: nil];
     CGPoint cgp = NSPointToCGPoint(loc);
     ResponderLayer* item = [mTabRowLayer responderLayerAtPoint: cgp];
     if ([item isKindOfClass: [WBTabItem class]]) {
-      menu = [[self delegate] performSelector: @selector(tabView:menuForIdentifier:)
+      menu = [self.delegate performSelector: @selector(tabView:menuForIdentifier:)
                                    withObject: self
-                                   withObject: [(WBTabItem*)item identifier]];
+                                   withObject: ((WBTabItem*)item).identifier];
     }
   }
   
@@ -934,7 +934,7 @@
   selectedIndex = MAX(selectedIndex, 0);
   selectedIndex = MIN(selectedIndex, (int)[mTabItems count] - 1);
   id selectedTabIdentifier = [mTabItems[selectedIndex] identifier];
-  [[NSAnimationContext currentContext] setDuration: 0.0];
+  [NSAnimationContext currentContext].duration = 0.0;
   [self selectTabViewItemWithIdentifier: selectedTabIdentifier];
 }
 
@@ -952,28 +952,28 @@
 - (void) tabViewMenuAction: (id) sender;
 {
   NSMenu* menu = [[NSMenu alloc] initWithTitle: @"Tabs"];
-  for (NSTabViewItem *item in [self tabViewItems]) {
-    NSMenuItem* menuItem = [menu addItemWithTitle: [item label]
+  for (NSTabViewItem *item in self.tabViewItems) {
+    NSMenuItem* menuItem = [menu addItemWithTitle: item.label
                                            action: @selector(selectTabViewMenu:)
                                     keyEquivalent: @""];
-    [menuItem setTarget: self];
-    [menuItem setRepresentedObject: [item identifier]];
-    [menuItem setState: ([[mSelectedTab identifier] isEqual: [item identifier]] ? NSOnState : NSOffState)];
+    menuItem.target = self;
+    menuItem.representedObject = item.identifier;
+    menuItem.state = ([mSelectedTab.identifier isEqual: item.identifier] ? NSOnState : NSOffState);
   }
   
-  NSEvent* theEvent = [NSApp currentEvent];
-  NSPoint location = NSPointFromCGPoint([mTabMenu frame].origin);
+  NSEvent* theEvent = NSApp.currentEvent;
+  NSPoint location = NSPointFromCGPoint(mTabMenu.frame.origin);
   location = [mTabRowView convertPoint: location
                                 toView: nil];
-  NSEvent* newEvent = [NSEvent mouseEventWithType: [theEvent type]
+  NSEvent* newEvent = [NSEvent mouseEventWithType: theEvent.type
                                          location: location
-                                    modifierFlags: [theEvent modifierFlags]
-                                        timestamp: [theEvent timestamp]
-                                     windowNumber: [theEvent windowNumber]
-                                          context: [theEvent context]
-                                      eventNumber: [theEvent eventNumber]
-                                       clickCount: [theEvent clickCount]
-                                         pressure: [theEvent pressure]];
+                                    modifierFlags: theEvent.modifierFlags
+                                        timestamp: theEvent.timestamp
+                                     windowNumber: theEvent.windowNumber
+                                          context: theEvent.context
+                                      eventNumber: theEvent.eventNumber
+                                       clickCount: theEvent.clickCount
+                                         pressure: theEvent.pressure];
   [NSMenu popUpContextMenu: menu
                  withEvent: newEvent
                    forView: self];
@@ -989,15 +989,15 @@
 
 - (void) tabViewDraggerAction: (id) sender
 {
-  if ([[self delegate] conformsToProtocol: @protocol(WBTabViewDelegateProtocol)])
-    [(id<WBTabViewDelegateProtocol>)[self delegate] tabViewDraggerClicked: self];
+  if ([self.delegate conformsToProtocol: @protocol(WBTabViewDelegateProtocol)])
+    [(id<WBTabViewDelegateProtocol>)self.delegate tabViewDraggerClicked: self];
 }
 
 
 - (void) tabViewDragged: (id) sender atPoint:(CGPoint)point
 {
-  if ([[self delegate] conformsToProtocol: @protocol(WBTabViewDelegateProtocol)])
-    [(id<WBTabViewDelegateProtocol>)[self delegate] tabView: self draggedHandleAtOffset: NSPointFromCGPoint(point)];
+  if ([self.delegate conformsToProtocol: @protocol(WBTabViewDelegateProtocol)])
+    [(id<WBTabViewDelegateProtocol>)self.delegate tabView: self draggedHandleAtOffset: NSPointFromCGPoint(point)];
 }
 
 #pragma mark -
@@ -1007,7 +1007,7 @@
 - (void) handleWindowDidBecomeMain: (id) aNotification;
 {
   mEnabled = YES;
-  [[NSAnimationContext currentContext] setDuration: 0];
+  [NSAnimationContext currentContext].duration = 0;
   
   for (WBTabItem* item in mTabItems) {
     [item setEnabled: YES];
@@ -1015,11 +1015,11 @@
   
   CGColorRef tabRowBackgroundColor = [self tabRowActiveBackgroundColorCreate];
   if (tabRowBackgroundColor != nil) {
-    [mTabRowLayer setBackgroundColor: tabRowBackgroundColor];
-    [mLeftArrow setBackgroundColor: tabRowBackgroundColor];
-    [mRightArrow setBackgroundColor: tabRowBackgroundColor];
-    [mTabMenu setBackgroundColor: tabRowBackgroundColor];
-    [mDragger setBackgroundColor: tabRowBackgroundColor];
+    mTabRowLayer.backgroundColor = tabRowBackgroundColor;
+    mLeftArrow.backgroundColor = tabRowBackgroundColor;
+    mRightArrow.backgroundColor = tabRowBackgroundColor;
+    mTabMenu.backgroundColor = tabRowBackgroundColor;
+    mDragger.backgroundColor = tabRowBackgroundColor;
   }
   CGColorRelease(tabRowBackgroundColor);
 }
@@ -1029,7 +1029,7 @@
 - (void) handleWindowDidResignMain: (id) aNotification;
 {
   mEnabled = NO;
-  [[NSAnimationContext currentContext] setDuration: 0];
+  [NSAnimationContext currentContext].duration = 0;
   
   for (WBTabItem* item in mTabItems) {
     [item setEnabled: NO];
@@ -1037,11 +1037,11 @@
   
   CGColorRef tabRowBackgroundColor = [self tabRowInactiveBackgroundColorCreate];
   if (tabRowBackgroundColor != nil) {
-    [mTabRowLayer setBackgroundColor: tabRowBackgroundColor];
-    [mLeftArrow setBackgroundColor: tabRowBackgroundColor];
-    [mRightArrow setBackgroundColor: tabRowBackgroundColor];
-    [mTabMenu setBackgroundColor: tabRowBackgroundColor];
-    [mDragger setBackgroundColor: tabRowBackgroundColor];
+    mTabRowLayer.backgroundColor = tabRowBackgroundColor;
+    mLeftArrow.backgroundColor = tabRowBackgroundColor;
+    mRightArrow.backgroundColor = tabRowBackgroundColor;
+    mTabMenu.backgroundColor = tabRowBackgroundColor;
+    mDragger.backgroundColor = tabRowBackgroundColor;
   }
   CGColorRelease(tabRowBackgroundColor);
 }
@@ -1054,11 +1054,11 @@
 
 - (void) updateLabelForTabViewItem: (id) identifier;
 {
-  for (NSTabViewItem *item in [self tabViewItems]) {
-    if ([item identifier] == identifier) {
-      NSString* label = [item label];
+  for (NSTabViewItem *item in self.tabViewItems) {
+    if (item.identifier == identifier) {
+      NSString* label = item.label;
       for (WBTabItem* customTab in mTabItems) {
-        if ([[customTab identifier] isEqual: identifier]) {
+        if ([customTab.identifier isEqual: identifier]) {
           [customTab setLabel: label];
         }
       }
@@ -1071,11 +1071,11 @@
 
 - (void)setIcon:(NSImage*)icon forTabViewItem:(id)identifier
 {
-  for (NSTabViewItem *item in [self tabViewItems]) {
-    if ([[item identifier] isEqual: identifier]) {
+  for (NSTabViewItem *item in self.tabViewItems) {
+    if ([item.identifier isEqual: identifier]) {
       
       for (WBTabItem* customTab in mTabItems) {
-        if ([[customTab identifier] isEqual: identifier]) {
+        if ([customTab.identifier isEqual: identifier]) {
           [customTab setIconImage: icon];
         }
       }
@@ -1095,11 +1095,11 @@
 
 - (void) makeInitialSwap;
 {
-  [self setTabViewType: NSNoTabsNoBorder];
+  self.tabViewType = NSNoTabsNoBorder;
   
   // Create the NSTabView to hold the actual views.
   {
-    NSRect newFrame = [self frame];
+    NSRect newFrame = self.frame;
     newFrame.origin.x += 7;
     newFrame.size.width -= 14;
     newFrame.size.height -= 16;
@@ -1109,14 +1109,14 @@
     else {
       newFrame.origin.y += 6;
     }
-    [self setFrame: newFrame];
+    self.frame = newFrame;
   }
   
   // Set up the NSTabView that will contain and display the actual content.
-  NSRect contentFrame = [self bounds];
-  contentFrame.size.height -= [self tabAreaHeight];
+  NSRect contentFrame = self.bounds;
+  contentFrame.size.height -= self.tabAreaHeight;
   if (mTabPlacement == WBTabPlacementBottom) {
-    contentFrame.origin.y = [self tabAreaHeight];
+    contentFrame.origin.y = self.tabAreaHeight;
   }
   
   float contentPadding = [self contentPadding];
@@ -1125,27 +1125,27 @@
   contentFrame.size.height -= contentPadding;
   
   NSTabView* theContainerTabView = [[NSTabView alloc] initWithFrame: contentFrame];
-  [theContainerTabView setTabViewType: NSNoTabsNoBorder];
-  [theContainerTabView setAutoresizingMask: (NSViewWidthSizable | NSViewHeightSizable)];
+  theContainerTabView.tabViewType = NSNoTabsNoBorder;
+  theContainerTabView.autoresizingMask = (NSViewWidthSizable | NSViewHeightSizable);
 
   // Set up the view that will contain the custom tabs.
-  NSRect tabRowFrame = [self bounds];
-  tabRowFrame.size.height = [self tabAreaHeight];
+  NSRect tabRowFrame = self.bounds;
+  tabRowFrame.size.height = self.tabAreaHeight;
   if (mTabPlacement == WBTabPlacementTop) {
     tabRowFrame.origin.y = contentFrame.size.height;
   }
   
   mTabRowView = [[WBRightClickThroughView alloc] initWithFrame: tabRowFrame];
   if (mTabPlacement == WBTabPlacementTop) {
-    [mTabRowView setAutoresizingMask: (NSViewWidthSizable | NSViewMinYMargin)];
+    mTabRowView.autoresizingMask = (NSViewWidthSizable | NSViewMinYMargin);
   }
   else {
-    [mTabRowView setAutoresizingMask: (NSViewWidthSizable | NSViewMaxYMargin)];
+    mTabRowView.autoresizingMask = (NSViewWidthSizable | NSViewMaxYMargin);
   }
   
   [self setAutoresizesSubviews: YES];
   
-  NSArray* tabViewItems = [self tabViewItems];
+  NSArray* tabViewItems = self.tabViewItems;
   for (NSTabViewItem* item in tabViewItems) {
     [theContainerTabView addTabViewItem: item];
   }
@@ -1156,13 +1156,13 @@
   mTabRowLayer = [ResponderLayer layer];
   CGColorRef tabRowBackgroundColor = [self tabRowActiveBackgroundColorCreate];
   if (tabRowBackgroundColor != nil) {
-    [mTabRowLayer setBackgroundColor: tabRowBackgroundColor];
+    mTabRowLayer.backgroundColor = tabRowBackgroundColor;
   }
   CGColorRelease(tabRowBackgroundColor);
-  [mTabRowLayer setZPosition: -5];
+  mTabRowLayer.zPosition = -5;
   
   [mTabRowView setWantsLayer: YES];
-  [mTabRowView setLayer: mTabRowLayer];
+  mTabRowView.layer = mTabRowLayer;
   
   [self addSubview: mTabView];
 }
@@ -1175,31 +1175,31 @@
   CALayer* shadowLayer = [CALayer layer];
   
   CGColorRef bc = WB_CGColorCreateCalibratedRGB(0.5, 0.5, 0.5, 1);
-  [shadowLayer setBackgroundColor: bc];
+  shadowLayer.backgroundColor = bc;
   CGColorRelease(bc);
   
-  [shadowLayer setBorderWidth: 1];
+  shadowLayer.borderWidth = 1;
   CGColorRef c = WB_CGColorCreateCalibratedRGB(0.3, 0.3, 0.3, 0.7);
-  [shadowLayer setBorderColor: c];
+  shadowLayer.borderColor = c;
   CGColorRelease(c);
   
-  [shadowLayer setShadowOpacity: 0.3];
-  [shadowLayer setShadowOffset: CGSizeMake(0, -1)];
-  CGRect r = [mTabRowLayer frame];
+  shadowLayer.shadowOpacity = 0.3;
+  shadowLayer.shadowOffset = CGSizeMake(0, -1);
+  CGRect r = mTabRowLayer.frame;
   if (mTabPlacement == WBTabPlacementTop) {
     r.origin.y = r.size.height - 1;
-    [shadowLayer setAutoresizingMask: (kCALayerWidthSizable | kCALayerMinYMargin)];
+    shadowLayer.autoresizingMask = (kCALayerWidthSizable | kCALayerMinYMargin);
   }
   else {
-    r.origin.y = [self tabAreaHeight];
+    r.origin.y = self.tabAreaHeight;
     
-    [shadowLayer setAutoresizingMask: (kCALayerWidthSizable | kCALayerMaxYMargin)];
+    shadowLayer.autoresizingMask = (kCALayerWidthSizable | kCALayerMaxYMargin);
   }
   r.size.height = 10;
   r.origin.x = -10;
   r.size.width += 20;
-  [shadowLayer setFrame: r];
-  [shadowLayer setZPosition: -1.01]; // Just below an active tab (which is at -1.0).
+  shadowLayer.frame = r;
+  shadowLayer.zPosition = -1.01; // Just below an active tab (which is at -1.0).
   
   return shadowLayer;
 }
@@ -1213,21 +1213,21 @@
   NSBundle* bundle = [NSBundle bundleForClass: WBTabView.class];
   mTabMenuIconImage = [bundle imageForResource: @"TabMenuIcon"];
   CGRect r = CGRectZero;
-  r.size = NSSizeToCGSize([mTabMenuIconImage size]);
-  r.size.height = [mTabRowView frame].size.height;
-  [iconLayer setFrame: r];
+  r.size = NSSizeToCGSize(mTabMenuIconImage.size);
+  r.size.height = mTabRowView.frame.size.height;
+  iconLayer.frame = r;
   iconLayer.contents = mTabMenuIconImage;
   
   // Set up the base layer and add the icon layer to it.
   r.origin.x = -r.size.width;
   r.size.height -= 1;
-  [baseLayer setFrame: r];
+  baseLayer.frame = r;
   [baseLayer addSublayer: iconLayer];
   
-  [baseLayer setAutoresizingMask: kCALayerMinXMargin];
+  baseLayer.autoresizingMask = kCALayerMinXMargin;
   
   // Just below the shadow (which is at -1.01)
-  [baseLayer setZPosition: -1.02];
+  baseLayer.zPosition = -1.02;
   
   return baseLayer;
 }
@@ -1243,20 +1243,20 @@
   NSBundle* bundle = [NSBundle bundleForClass: WBTabView.class];
   mDraggerIconImage = [bundle imageForResource: @"TabDragIcon"];
   CGRect r = CGRectZero;
-  r.size = NSSizeToCGSize([mDraggerIconImage size]);
-  r.size.height = [mTabRowView frame].size.height;
-  [iconLayer setFrame: r];
+  r.size = NSSizeToCGSize(mDraggerIconImage.size);
+  r.size.height = mTabRowView.frame.size.height;
+  iconLayer.frame = r;
   iconLayer.contents = mDraggerIconImage;
   iconLayer.contentsGravity= kCAGravityCenter;
   
   // Set up the base layer and add the icon layer to it
   r.origin.x = -r.size.width-2;
-  [baseLayer setFrame: r];
+  baseLayer.frame = r;
   [baseLayer addSublayer: iconLayer];  
-  [baseLayer setAutoresizingMask: kCALayerMinXMargin];
+  baseLayer.autoresizingMask = kCALayerMinXMargin;
   
   // Just above the shadow (which is at -1.01)
-  [baseLayer setZPosition: 1.00];
+  baseLayer.zPosition = 1.00;
   
   return baseLayer;
 }
@@ -1270,22 +1270,22 @@
   NSBundle* bundle = [NSBundle bundleForClass: WBTabView.class];
   mLeftArrowIconImage = [bundle imageForResource: @"LeftArrowIcon"];
   CGRect r = CGRectZero;
-  r.size = NSSizeToCGSize([mLeftArrowIconImage size]);
-  r.size.height = [mTabRowView frame].size.height;
-  [iconLayer setFrame: r];
+  r.size = NSSizeToCGSize(mLeftArrowIconImage.size);
+  r.size.height = mTabRowView.frame.size.height;
+  iconLayer.frame = r;
   iconLayer.contents = mLeftArrowIconImage;
   
   // Set up the base layer and add the icon layer to it.
   r.origin.x = -r.size.width;
   r.size.height -= 1;
-  [baseLayer setFrame: r];
+  baseLayer.frame = r;
   [baseLayer addSublayer: iconLayer];
   
   // Drop shadow. Opacity set in -setEnabled:
-  [baseLayer setShadowOffset: CGSizeMake(0, 0)];
+  baseLayer.shadowOffset = CGSizeMake(0, 0);
   
   // Just below the shadow (which is at -1.01)
-  [baseLayer setZPosition: -1.02];
+  baseLayer.zPosition = -1.02;
   
   return baseLayer;
 }
@@ -1299,24 +1299,24 @@
   NSBundle* bundle = [NSBundle bundleForClass: WBTabView.class];
   mRightArrowIconImage = [bundle imageForResource: @"RightArrowIcon"];
   CGRect r = CGRectZero;
-  r.size = NSSizeToCGSize([mRightArrowIconImage size]);
-  r.size.height = [mTabRowView frame].size.height;
-  [iconLayer setFrame: r];
+  r.size = NSSizeToCGSize(mRightArrowIconImage.size);
+  r.size.height = mTabRowView.frame.size.height;
+  iconLayer.frame = r;
   iconLayer.contents = mRightArrowIconImage;
   
   // Set up the base layer and add the icon layer to it.
   r.origin.x = 10000;
   r.size.height -= 1;
-  [baseLayer setFrame: r];
+  baseLayer.frame = r;
   [baseLayer addSublayer: iconLayer];
   
   // Drop shadow. Opacity set in -setEnabled:
-  [baseLayer setShadowOffset: CGSizeMake(0, 0)];
+  baseLayer.shadowOffset = CGSizeMake(0, 0);
   
-  [baseLayer setAutoresizingMask: kCALayerMinXMargin];
+  baseLayer.autoresizingMask = kCALayerMinXMargin;
   
   // Just below the shadow (which is at -1.01)
-  [baseLayer setZPosition: -1.02];
+  baseLayer.zPosition = -1.02;
   
   return baseLayer;
 }
@@ -1328,27 +1328,27 @@
   // Create a line between non-selected tabs and the tabviewcontants.
   CALayer* lineLayer = [CALayer layer];;
   
-  [lineLayer setBorderWidth: 1];
+  lineLayer.borderWidth = 1;
   CGColorRef c = WB_CGColorCreateCalibratedRGB(0.3, 0.3, 0.3, 0.7);
-  [lineLayer setBorderColor: c];
+  lineLayer.borderColor = c;
   CGColorRelease(c);
   
   CGRect r = CGRectZero;
   r.origin.x = 0;
   if (mTabDirection == WBTabDirectionUp) {
     r.origin.y = 0;
-    [lineLayer setAutoresizingMask: (kCALayerWidthSizable | kCALayerMaxYMargin)];
+    lineLayer.autoresizingMask = (kCALayerWidthSizable | kCALayerMaxYMargin);
   }
   else {
-    r.origin.y = [mTabRowLayer frame].size.height - 1;
-    [lineLayer setAutoresizingMask: (kCALayerWidthSizable | kCALayerMinYMargin)];
+    r.origin.y = mTabRowLayer.frame.size.height - 1;
+    lineLayer.autoresizingMask = (kCALayerWidthSizable | kCALayerMinYMargin);
   }
   
-  r.size.width = [mTabRowLayer frame].size.width;
+  r.size.width = mTabRowLayer.frame.size.width;
   r.size.height = 1;
-  [lineLayer setFrame: r];
+  lineLayer.frame = r;
   
-  [lineLayer setZPosition: -2];
+  lineLayer.zPosition = -2;
   [mTabRowLayer addSublayer: lineLayer];
   
   return lineLayer;
@@ -1362,28 +1362,28 @@
   CGColorRef tabRowBackgroundColor = [self tabRowActiveBackgroundColorCreate];
   
   mLeftArrow = [self leftArrowLayer];
-  [mLeftArrow setBackgroundColor: tabRowBackgroundColor];
+  mLeftArrow.backgroundColor = tabRowBackgroundColor;
   [mTabRowLayer addSublayer: mLeftArrow];
-  [mLeftArrow setDelegate: self];
+  mLeftArrow.delegate = self;
   
   mRightArrow = [self rightArrowLayer];
-  [mRightArrow setBackgroundColor: tabRowBackgroundColor];
+  mRightArrow.backgroundColor = tabRowBackgroundColor;
   [mTabRowLayer addSublayer: mRightArrow];
-  [mRightArrow setDelegate: self];
+  mRightArrow.delegate = self;
   
   mTabMenu = [self tabMenuLayer];
-  [mTabMenu setBackgroundColor: tabRowBackgroundColor];
+  mTabMenu.backgroundColor = tabRowBackgroundColor;
   [mTabRowLayer addSublayer: mTabMenu];
-  [mTabMenu setDelegate: self];
+  mTabMenu.delegate = self;
   
   CGColorRelease(tabRowBackgroundColor);
   
   // Populate with tabs.
   {
-    NSArray* tabViewItems = [mTabView tabViewItems];
+    NSArray* tabViewItems = mTabView.tabViewItems;
     for (NSTabViewItem* item in tabViewItems) {
-      id identifier = [item identifier];
-      NSString* label = [item label];
+      id identifier = item.identifier;
+      NSString* label = item.label;
       [self insertTabItemWithIdentifier: identifier
                                   label: label
                                 atIndex: NSUIntegerMax];
@@ -1397,9 +1397,9 @@
 - (void)createDragger
 {
   mDragger = [self draggerLayer];
-  [mDragger setBackgroundColor: [mTabMenu backgroundColor]];
+  mDragger.backgroundColor = mTabMenu.backgroundColor;
   [mTabRowLayer addSublayer: mDragger];
-  [mDragger setDelegate: self];
+  mDragger.delegate = self;
   
   [self layoutTabItemsDisregardingTabItem: nil];
 }
@@ -1426,8 +1426,8 @@
     mLastSelectedTabIndex = NSNotFound;
     
     // Remember which tab was selected in IB.
-    NSTabViewItem* selectedTabViewItem = [self selectedTabViewItem];
-    id selectedTabIdentifier = [selectedTabViewItem identifier];
+    NSTabViewItem* selectedTabViewItem = self.selectedTabViewItem;
+    id selectedTabIdentifier = selectedTabViewItem.identifier;
     
     // Create the new tab view layer hierarchy.
     [self makeInitialSwap];
@@ -1436,7 +1436,7 @@
     [self createTabRow];
     
     // Select the tab that was selected in IB.
-    if ( (selectedTabIdentifier == nil) && ([mTabItems count] > 0) ) {
+    if ( (selectedTabIdentifier == nil) && (mTabItems.count > 0) ) {
       selectedTabIdentifier = [mTabItems[0] identifier];
     }
     [self selectTabViewItemWithIdentifier: selectedTabIdentifier];
@@ -1446,11 +1446,11 @@
     [dc addObserver: self
            selector: @selector(handleWindowDidBecomeMain:)
                name: NSWindowDidBecomeMainNotification
-             object: [self window]];
+             object: self.window];
     [dc addObserver: self
            selector: @selector(handleWindowDidResignMain:)
                name: NSWindowDidResignMainNotification
-             object: [self window]];
+             object: self.window];
     
     [self layoutTabItemsDisregardingTabItem: nil];
     [self performSelector: @selector(layoutTabItemsDisregardingTabItem:)

@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -613,33 +613,26 @@ class PasswordExpiredDialog(mforms.Form):
             if self.password.get_string_value() != self.confirm.get_string_value():
                 mforms.Utilities.show_error("Reset Password", "The password and its confirmation do not match. Please try again.", "OK", "", "")
                 return self.run()
-
-            con = self._conn
+            
+            con = self._conn.shallow_copy()
             old_multi_statements = con.parameterValues.get("CLIENT_MULTI_STATEMENTS")
             old_script = con.parameterValues.get("preInit")
             con.parameterValues["CLIENT_MULTI_STATEMENTS"] = 1
             con.parameterValues["preInit"] = "SET PASSWORD = PASSWORD('%s')" % escape_sql_string(self.password.get_string_value())
-
+            #con.parameterValues["preInit"] = "ALTER USER '%s'@'%s' IDENTIFIED BY '%s'" % (con.parameterValues["userName"], con.hostIdentifier.replace("Mysql@", ""), escape_sql_string(self.password.get_string_value()))
+            #change_pw = "ALTER USER '%s'@'%s' IDENTIFIED BY '%s'" % (con.parameterValues["userName"], con.hostIdentifier.replace("Mysql@", ""), escape_sql_string(self.password.get_string_value())) 
             retry = False
             result = 1
 
             c = MySQLConnection(con, password = self.old_password.get_string_value())
             # connect to server so that preInitScript will do the password reset work
             try:
+                log_info("About to connecto to MySQL Server to change expired password")
                 c.connect()
             except MySQLError, e:
                 if mforms.Utilities.show_error("Reset Password", str(e), "Retry", "Cancel", "") == mforms.ResultOk:
                     retry = True
                 result = 0
-            finally:
-                if old_script is not None:
-                    con.parameterValues["preInit"] = old_script
-                else:
-                    del con.parameterValues["preInit"]
-                if old_multi_statements is not None:
-                    con.parameterValues["CLIENT_MULTI_STATEMENTS"] = old_multi_statements
-                else:
-                    del con.parameterValues["CLIENT_MULTI_STATEMENTS"]
 
             if retry:
                 return self.run()

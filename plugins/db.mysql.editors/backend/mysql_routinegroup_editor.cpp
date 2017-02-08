@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,12 +25,12 @@
 
 using namespace bec;
 
-MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineGroupRef &group)
-  : bec::RoutineGroupEditorBE(grtm, group)
-{
+MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(const db_mysql_RoutineGroupRef& group)
+  : bec::RoutineGroupEditorBE(group) {
   _routine_group = group;
   if (!is_editing_live_object())
-    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), boost::bind(&MySQLRoutineGroupEditorBE::commit_changes, this));
+    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(),
+                   std::bind(&MySQLRoutineGroupEditorBE::commit_changes, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,8 +38,7 @@ MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(bec::GRTManager *grtm, cons
 /**
  * Loads the current routines sql text into the editor control and marks that as not dirty.
  */
-void MySQLRoutineGroupEditorBE::load_routines_sql()
-{
+void MySQLRoutineGroupEditorBE::load_routines_sql() {
   mforms::CodeEditor* editor = get_sql_editor()->get_editor_control();
   std::string sql = get_sql();
   editor->set_text_keeping_state(sql.c_str());
@@ -48,21 +47,19 @@ void MySQLRoutineGroupEditorBE::load_routines_sql()
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLRoutineGroupEditorBE::commit_changes()
-{
+void MySQLRoutineGroupEditorBE::commit_changes() {
   mforms::CodeEditor* editor = get_sql_editor()->get_editor_control();
-  if (editor->is_dirty())
-  {
+  if (editor->is_dirty()) {
     const std::string sql = editor->get_text(false);
-    if (sql != get_sql())
-    {
+    if (sql != get_sql()) {
       AutoUndoEdit undo(this, _routine_group, "sql");
 
       freeze_refresh_on_object_change();
       _parser_services->parseRoutines(_parser_context, _routine_group, sql);
       thaw_refresh_on_object_change();
 
-      undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+      undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(),
+                            get_schema_name().c_str(), get_name().c_str()));
     }
   }
 }
@@ -74,15 +71,15 @@ void MySQLRoutineGroupEditorBE::commit_changes()
  * processing. It pretends there was new sql set in the associated editor and parses this text
  * now into the routine group being edited by this editor.
  */
-void MySQLRoutineGroupEditorBE::use_sql(const std::string &sql)
-{
+void MySQLRoutineGroupEditorBE::use_sql(const std::string& sql) {
   AutoUndoEdit undo(this, _routine_group, "sql");
 
   freeze_refresh_on_object_change();
   _parser_services->parseRoutines(_parser_context, _routine_group, sql);
   thaw_refresh_on_object_change();
 
-  undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+  undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(),
+                        get_schema_name().c_str(), get_name().c_str()));
 }
 
 //--------------------------------------------------------------------------------------------------

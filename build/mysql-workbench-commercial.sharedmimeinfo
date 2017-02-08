@@ -4,4 +4,10 @@
     <comment>MySQL Workbench Model</comment>
     <glob pattern="*.mwb"/>
   </mime-type>
+  <mime-type type="application/sql">
+    <sub-class-of type="text/plain"/>
+    <alias type="text/x-sql" />
+    <comment>MySQL Workbench Query File</comment>
+    <glob pattern="*.sql" weight="100"/>
+  </mime-type>
 </mime-info>

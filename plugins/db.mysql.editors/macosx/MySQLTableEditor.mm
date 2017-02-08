@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -174,12 +174,10 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
 @implementation DbMysqlTableEditor
 
 - (instancetype)initWithModule: (grt::Module *) module
-                    grtManager: (bec::GRTManager *) grtm
                      arguments: (const grt::BaseListRef &) args
 {
   self = [super initWithNibName: @"MySQLTableEditor" bundle: [NSBundle bundleForClass: self.class]];
   if (self != nil) {
-    _grtm = grtm;
 
     [self loadView];
     [self enablePluginDocking: mEditorsTabView];
@@ -200,7 +198,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
   delete mBackEnd;
 
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(args[0]);
-  mBackEnd = new MySQLTableEditorBE(_grtm, table);
+  mBackEnd = new MySQLTableEditorBE(table);
 
   if (!isReinit)
   {
@@ -301,8 +299,8 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
   // Register a callback that will call [self refresh] when the edited object is
   // changed from somewhere else in the application.
   // Note: with ARC we need to bridge via void*. Otherwise we'd get a ref cycle.
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
-  mBackEnd->set_partial_refresh_ui_slot(boost::bind(call_partial_refresh, _1, (__bridge void *)self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_partial_refresh_ui_slot(std::bind(call_partial_refresh, std::placeholders::_1, (__bridge void *)self));
 
   [self updateFKPlaceholder];
   {
@@ -436,7 +434,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
 {
   [mColumnsTable reloadData];
   
-  int rowIndex = [mColumnsTable selectedRow];
+  NSInteger rowIndex = [mColumnsTable selectedRow];
   if (rowIndex >= 0) {
     NSString* collation = [mColumnsDataSource objectValueForValueIndex: bec::TableColumnsListBE::CharsetCollation
                                                                    row: rowIndex];
@@ -513,7 +511,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
 
   [mIndicesTable reloadData];
 
-  int rowIndex = [mIndicesTable selectedRow];
+  NSInteger rowIndex = [mIndicesTable selectedRow];
   if (rowIndex >= 0) {
     NSString* indexName = [mIndicesDataSource objectValueForValueIndex: MySQLTableIndexListBE::Name
                                                                    row: rowIndex];
@@ -561,7 +559,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
       MFillPopupButtonWithStrings((NSPopUpButton*)cell, mBackEnd->get_fks()->get_columns()->get_ref_columns_list(rowIndex, false));
   }
   
-  int rowIndex = [mFKTable selectedRow];
+  NSInteger rowIndex = [mFKTable selectedRow];
   
   if (rowIndex >= 0) {
     NSString* fkName = [mFKDataSource objectValueForValueIndex: bec::FKConstraintListBE::Name
@@ -570,7 +568,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
     
     mBackEnd->get_fks()->select_fk(rowIndex);
     
-    int rowIndex = [mFKTable selectedRow];
+    NSInteger rowIndex = [mFKTable selectedRow];
     NSString* updateAction = [mFKDataSource objectValueForValueIndex: bec::FKConstraintListBE::OnUpdate
                                                                  row: rowIndex];
     [mFKOnUpdate selectItemWithTitle: updateAction];
@@ -1138,13 +1136,13 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
       if (lastRowIndex == rowIndex)
         [self activateColumnPlaceholder: rowIndex];
       [mColumnsDataSource setIntValue: [value intValue]
-                        forValueIndex: valueIndex
+                        forValueIndex: (int)valueIndex
                                   row: rowIndex];
     }
     else {
       if (keepEditingTypeString == nil) {        
         [mColumnsDataSource setStringValue: value
-                             forValueIndex: valueIndex
+                             forValueIndex: (int)valueIndex
                                        row: rowIndex];
       }
       else {
@@ -1467,7 +1465,7 @@ objectValueForItemAtIndex: (NSInteger) index
     [self updateFKPlaceholder];
   }
   else if( sender == mColumnsCollation) {
-    int rowIndex = [mColumnsTable selectedRow];
+    NSInteger rowIndex = [mColumnsTable selectedRow];
     if ([popItemTitle isEqualToString: @"Table Default"])
       popItemTitle = @" - ";
     [mColumnsDataSource setStringValue: popItemTitle
@@ -1475,7 +1473,7 @@ objectValueForItemAtIndex: (NSInteger) index
                                    row: rowIndex];
   }
   else if (sender == mIndicesStorageTypes) {
-    int rowIndex = [mIndicesTable selectedRow];
+    NSInteger rowIndex = [mIndicesTable selectedRow];
     NSString* storageType = popItemTitle;
     [mIndicesDataSource setStringValue: storageType
                          forValueIndex: MySQLTableIndexListBE::StorageType
@@ -1494,7 +1492,7 @@ objectValueForItemAtIndex: (NSInteger) index
   }
   
   else if (sender == mFKOnUpdate) {
-    int rowIndex = [mFKTable selectedRow];
+    NSInteger rowIndex = [mFKTable selectedRow];
     if (![mFKDataSource setStringValue: popItemTitle
                     forValueIndex: bec::FKConstraintListBE::OnUpdate
                               row: rowIndex])
@@ -1506,7 +1504,7 @@ objectValueForItemAtIndex: (NSInteger) index
     }
   }
   else if (sender == mFKOnDelete) {
-    int rowIndex = [mFKTable selectedRow];
+    NSInteger rowIndex = [mFKTable selectedRow];
     if (![mFKDataSource setStringValue: popItemTitle
                     forValueIndex: bec::FKConstraintListBE::OnDelete
                               row: rowIndex])
@@ -1689,14 +1687,14 @@ objectValueForItemAtIndex: (NSInteger) index
     [self updateTitle: [self title]];
   }
   else if (sender == mIndicesBlockSize) {
-    int rowIndex = [mIndicesTable selectedRow];
+    NSInteger rowIndex = [mIndicesTable selectedRow];
     NSString* blockSize = [mIndicesBlockSize stringValue];
     [mIndicesDataSource setStringValue: blockSize
                          forValueIndex: MySQLTableIndexListBE::RowBlockSize
                               row: rowIndex];
   }
   else if (sender == mIndicesParser) {
-    int rowIndex = [mIndicesTable selectedRow];
+    NSInteger rowIndex = [mIndicesTable selectedRow];
     NSString* blockSize = [mIndicesParser stringValue];
     [mIndicesDataSource setStringValue: blockSize
                          forValueIndex: MySQLTableIndexListBE::Parser
@@ -1789,21 +1787,21 @@ objectValueForItemAtIndex: (NSInteger) index
   }
   else if (sender == mColumnsComment || sender == mColumnsComment2) {
     [[aNotification object] breakUndoCoalescing];
-    int rowIndex = [mColumnsTable selectedRow];
+    NSInteger rowIndex = [mColumnsTable selectedRow];
     [mColumnsDataSource setStringValue: [sender string]
                          forValueIndex: bec::TableColumnsListBE::Comment
                               row: rowIndex];
   }
   else if (sender == mIndicesComment) {
     [[aNotification object] breakUndoCoalescing];
-    int rowIndex = [mIndicesTable selectedRow];
+    NSInteger rowIndex = [mIndicesTable selectedRow];
     [mIndicesDataSource setStringValue: [mIndicesComment string]
                          forValueIndex: bec::IndexListBE::Comment
                                    row: rowIndex];
   }
   else if (sender == mFKComment) {
     [[aNotification object] breakUndoCoalescing];
-    int rowIndex = [mFKTable selectedRow];
+    NSInteger rowIndex = [mFKTable selectedRow];
     [mFKDataSource setStringValue: [mFKComment string]
                     forValueIndex: bec::FKConstraintListBE::Comment
                          row: rowIndex];

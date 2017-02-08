@@ -1,8 +1,9 @@
 include_directories(
-    ${ODBC_INCLUDE_DIRS} 
-    ${PYTHON_INCLUDE_DIRS} 
-    ${MySQL_INCLUDE_DIRS} 
+    SYSTEM ${ODBC_INCLUDE_DIRS} 
+    SYSTEM ${PYTHON_INCLUDE_DIRS} 
+    SYSTEM ${MySQL_INCLUDE_DIRS} 
     ${PROJECT_SOURCE_DIR}/backend/wbprivate
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_definitions(${ODBC_DEFINITIONS})
@@ -18,13 +19,18 @@ if (UNIX)
       copytable/converter.cpp
   )
 
+  target_compile_options(wbcopytables-bin PUBLIC ${WB_CXXFLAGS})
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set_target_properties(wbcopytables-bin PROPERTIES COMPILE_FLAGS "-fPIE")
+    target_compile_options(wbcopytables-bin PUBLIC -fPIE)
   else()
-    set_target_properties(wbcopytables-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+    target_compile_options(wbcopytables-bin PUBLIC -fPIE -pie)
   endif()
+
   target_link_libraries(wbcopytables-bin wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+  if(BUILD_FOR_TESTS)
+    target_link_libraries(wbcopytables-bin gcov)
+  endif()
    if(COMMAND cotire)
        set_target_properties(wbcopytables-bin PROPERTIES
            COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS};/usr/include/unixodbc_conf.h;/usr/include/sql.h;/usr/include/sqltypes.h;/usr/include/sqlext.h;/usr/include/sqlucode.h")
@@ -39,14 +45,19 @@ else()
       copytable/main.cpp
       copytable/converter.cpp
   )
-  
+
+  target_compile_options(wbcopytables PUBLIC ${WB_CXXFLAGS})
+
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set_target_properties(wbcopytables PROPERTIES COMPILE_FLAGS "-fPIE")
+    target_compile_options(wbcopytables PUBLIC -fPIE)
   else()
-    set_target_properties(wbcopytables PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+    target_compile_options(wbcopytables PUBLIC -fPIE -pie)
   endif()
 
    target_link_libraries(wbcopytables wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+   if(BUILD_FOR_TESTS)
+    target_link_libraries(wbcopytables gcov)
+   endif()
    if(COMMAND cotire)
        set_target_properties(wbcopytables PROPERTIES
            COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS};/usr/include/unixodbc_conf.h;/usr/include/sql.h;/usr/include/sqltypes.h;/usr/include/sqlext.h;/usr/include/sqlucode.h")

@@ -45,7 +45,7 @@ from workbench.utils import Version
 from workbench.log import log_warning, log_error, log_debug
 
 
-from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newLabel, newTreeNodeView, newProgressBar, newTextEntry, newCheckBox, newScrollPanel, newTabView, newSelector
+from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newLabel, newTreeView, newProgressBar, newTextEntry, newCheckBox, newScrollPanel, newTabView, newSelector
 from mforms import Utilities, FileChooser
 import mforms
 
@@ -460,7 +460,7 @@ class WbAdminSchemaListTab(mforms.Box):
         if self.savefile_path is None:
             self.savefile_path = os.path.join(self.savefolder_path, "export.sql")
 
-        self.schema_list = newTreeNodeView(mforms.TreeFlatList)
+        self.schema_list = newTreeView(mforms.TreeFlatList)
         self.schema_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.schema_list.add_column(mforms.IconColumnType, "Schema", 300, False)
 
@@ -468,7 +468,7 @@ class WbAdminSchemaListTab(mforms.Box):
         self.schema_list.end_columns()
         self.schema_list.set_allow_sorting(True)
 
-        self.table_list = newTreeNodeView(mforms.TreeFlatList)
+        self.table_list = newTreeView(mforms.TreeFlatList)
         self.table_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.table_list.add_column(mforms.IconColumnType, "Schema Objects", 300, False)
         self.table_list.end_columns()
@@ -577,7 +577,7 @@ class WbAdminSchemaListTab(mforms.Box):
             self.folder_load_btn.add_clicked_callback(self.refresh_table_list)
             tbox = newBox(True)
             tbox.add(self.folder_load_btn, False, True)
-            optionsbox.add(tbox, False, False)
+            optionsbox.add(tbox, False, True)
 
         optionsbox.add(file_path, False, True)
         optionsbox.add(self.filelabel, False, True)
@@ -2112,18 +2112,18 @@ class WbAdminProgressTab(mforms.Box):
             self.hintlabel = newLabel("Press [Start Export] to start...")
         else:
             self.hintlabel = newLabel("Press [Start Import] to start...")
-        statusbox.add(self.hintlabel, False, False)
-        statusbox.add(self.dump_progressbar, False, False)
-        statusbox.add(newLabel("Status:"), False, False)
-        statusbox.add(self.statlabel, False, False)
+        statusbox.add(self.hintlabel, False, True)
+        statusbox.add(self.dump_progressbar, False, True)
+        statusbox.add(newLabel("Status:"), False, True)
+        statusbox.add(self.statlabel, False, True)
 
         self.progress_log = newTextBox(mforms.VerticalScrollBar)
         self.progress_log.set_read_only(True)
 
-        self.add(statusbox, False, False)
+        self.add(statusbox, False, True)
 
         label = newLabel("Log:")
-        self.add(label, False, False)
+        self.add(label, False, True)
         self.add(self.progress_log, True, True)
 
         box = newBox(True)
