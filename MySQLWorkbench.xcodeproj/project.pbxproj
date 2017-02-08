@@ -2709,8 +2709,6 @@
 		447272031C58F97D005F840F /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		447272041C58F991005F840F /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		447272051C59014A005F840F /* utilities.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 447271FA1C58F170005F840F /* utilities.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		448F6B2B1CEDEB3100D1BF6B /* ProjectForm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 448F6B291CEDEB2800D1BF6B /* ProjectForm.cpp */; };
-		448F6B2D1CEDEB7000D1BF6B /* ProjectForm.h in Headers */ = {isa = PBXBuildFile; fileRef = 448F6B2C1CEDEB6400D1BF6B /* ProjectForm.h */; };
 		44A338921DC1FED800FFAC83 /* xml_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 44A3388F1DC1FED200FFAC83 /* xml_functions.h */; };
 		44A338931DC1FED800FFAC83 /* xml_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44A338901DC1FED200FFAC83 /* xml_functions.cpp */; };
 		44A338961DC2006500FFAC83 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
@@ -6756,8 +6754,6 @@
 		447271FA1C58F170005F840F /* utilities.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = utilities.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		447271FB1C58F1CC005F840F /* utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utilities.cpp; path = modules/utilities/src/utilities.cpp; sourceTree = "<group>"; };
 		447271FE1C58F2BA005F840F /* utilities.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utilities.grt_prefix.h; path = prefix/utilities.grt_prefix.h; sourceTree = "<group>"; };
-		448F6B291CEDEB2800D1BF6B /* ProjectForm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProjectForm.cpp; path = library/forms/ProjectForm.cpp; sourceTree = "<group>"; };
-		448F6B2C1CEDEB6400D1BF6B /* ProjectForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProjectForm.h; path = library/forms/mforms/ProjectForm.h; sourceTree = "<group>"; };
 		44A3388F1DC1FED200FFAC83 /* xml_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xml_functions.h; path = library/base/base/xml_functions.h; sourceTree = "<group>"; };
 		44A338901DC1FED200FFAC83 /* xml_functions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xml_functions.cpp; path = library/base/xml_functions.cpp; sourceTree = "<group>"; };
 		44AAC0021E3A4C3700570341 /* libmysqlcppconn.7.1.1.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.8.dylib; path = "../mysql-mac-res/lib-com/libmysqlcppconn.7.1.1.8.dylib"; sourceTree = "<group>"; };
@@ -8194,7 +8190,6 @@
 		27A5769210FE089500A948A6 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
-				448F6B2C1CEDEB6400D1BF6B /* ProjectForm.h */,
 				27A5768910FE065000A948A6 /* fs_object_selector.h */,
 				27C08A4C1CB79792001A0ECC /* home_screen_connections.h */,
 				27C08A4D1CB79792001A0ECC /* home_screen_documents.h */,
@@ -8210,7 +8205,6 @@
 		27A5769310FE08A800A948A6 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				448F6B291CEDEB2800D1BF6B /* ProjectForm.cpp */,
 				27A5768610FE061C00A948A6 /* fs_object_selector.cpp */,
 				27C08A421CB79775001A0ECC /* home_screen_connections.cpp */,
 				27C08A431CB79775001A0ECC /* home_screen_documents.cpp */,
@@ -12163,7 +12157,6 @@
 				2B3D48F00F3E3F91009238A7 /* wizard.h in Headers */,
 				2B3D49180F3E3FCA009238A7 /* MFBase.h in Headers */,
 				2B83E5BC1992B3D900781432 /* MCanvasScrollView.h in Headers */,
-				448F6B2D1CEDEB7000D1BF6B /* ProjectForm.h in Headers */,
 				2B3D491A0F3E3FCA009238A7 /* MFBox.h in Headers */,
 				2B3D491C0F3E3FCA009238A7 /* MFButton.h in Headers */,
 				2B3D491E0F3E3FCA009238A7 /* MFCheckBox.h in Headers */,
@@ -15180,7 +15173,6 @@
 				2773B88711006B58000CA2F9 /* MFSplitter.mm in Sources */,
 				2B83E5B71992B34500781432 /* MFCanvas.mm in Sources */,
 				2B83E5BF1992B3D900781432 /* MCanvasViewer.mm in Sources */,
-				448F6B2B1CEDEB3100D1BF6B /* ProjectForm.cpp in Sources */,
 				27ABB5EA1BED01BA00BD039F /* jsonview.cpp in Sources */,
 				4449375C1DBA383C007263D8 /* home_screen_launchers.cpp in Sources */,
 				278874881189DA9300E477EF /* webbrowser.cpp in Sources */,
