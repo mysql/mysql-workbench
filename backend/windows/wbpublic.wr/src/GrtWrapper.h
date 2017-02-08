@@ -138,9 +138,6 @@ namespace MySQL {
 
       static System::String ^ version() { return CppStringToNative(GRT_VERSION); }
 
-        void make_output_visible() {
-        grt::GRT::get()->make_output_visible();
-      }
     };
 
 #ifdef notused

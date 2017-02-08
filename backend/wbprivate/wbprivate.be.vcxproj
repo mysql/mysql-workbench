@@ -143,7 +143,6 @@
     <ClInclude Include="..\..\frontend\common\grt_shell_window.h" />
     <ClInclude Include="..\..\frontend\common\new_connection_wizard.h" />
     <ClInclude Include="..\..\frontend\common\new_server_instance_wizard.h" />
-    <ClInclude Include="..\..\frontend\common\output_view.h" />
     <ClInclude Include="..\..\frontend\common\plugin_install_window.h" />
     <ClInclude Include="..\..\frontend\common\plugin_manager_window.h" />
     <ClInclude Include="..\..\frontend\common\preferences_form.h" />
@@ -216,7 +215,6 @@
     <ClCompile Include="..\..\frontend\common\grt_shell_window.cpp" />
     <ClCompile Include="..\..\frontend\common\new_connection_wizard.cpp" />
     <ClCompile Include="..\..\frontend\common\new_server_instance_wizard.cpp" />
-    <ClCompile Include="..\..\frontend\common\output_view.cpp" />
     <ClCompile Include="..\..\frontend\common\plugin_install_window.cpp" />
     <ClCompile Include="..\..\frontend\common\plugin_manager_window.cpp" />
     <ClCompile Include="..\..\frontend\common\preferences_form.cpp" />

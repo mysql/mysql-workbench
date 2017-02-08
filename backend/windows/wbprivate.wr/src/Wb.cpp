@@ -307,12 +307,6 @@ String ^ WbContext::get_active_context() {
 
 //--------------------------------------------------------------------------------------------------
 
-void WbContext::show_output() {
-  WBContextUI::get()->show_output();
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void WbContext::close_gui_plugin(IntPtr handle) {
   WBContextUI::get()->get_wb()->close_gui_plugin((NativeHandle)handle.ToPointer());
 }

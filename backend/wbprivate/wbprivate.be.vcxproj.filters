@@ -166,9 +166,6 @@
     <ClInclude Include="..\..\frontend\common\new_server_instance_wizard.h">
       <Filter>Header Files UI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\frontend\common\output_view.h">
-      <Filter>Header Files UI</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\frontend\common\plugin_install_window.h">
       <Filter>Header Files UI</Filter>
     </ClInclude>
@@ -265,9 +262,6 @@
       <Filter>Source Files UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\frontend\common\new_server_instance_wizard.cpp">
-      <Filter>Source Files UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\frontend\common\output_view.cpp">
       <Filter>Source Files UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\frontend\common\plugin_install_window.cpp">
