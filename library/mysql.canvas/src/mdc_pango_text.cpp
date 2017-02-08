@@ -8,4 +8,3 @@
  */
 
 #include "mdc_pango_text.h"
-

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,7 +65,7 @@
 - (BOOL) isPartialStringValid: (NSString *) partialString newEditingString: (NSString **) newString
              errorDescription: (NSString **) error
 {
-  if ((int) [partialString length] > maxLength)
+  if ((int) partialString.length > maxLength)
   {
     *newString = nil;
     return NO;
@@ -90,9 +90,26 @@
 #define STANDARD_TEXT_ENTRY_HANDLING \
 - (mforms::Object*)mformsObject { return mOwner; } \
 \
-- (NSSize)minimumSize { return NSMakeSize(mMinHeight, mMinHeight); } \
+- (NSSize)minimumSize \
+{ \
+  NSTextField *field = mOwner->get_data(); \
+  NSSize contentSize = field.cell.cellSize; \
+  NSSize minSize = super.minimumSize; \
+  return { MAX(contentSize.width, minSize.width), MAX(contentSize.height, minSize.height) }; \
+} \
 \
-- (BOOL)heightIsFixed { return YES; } \
+- (NSSize)preferredSize: (NSSize)proposal \
+{ \
+  NSSize size = self.minimumSize; \
+  if (self.cell.wraps) \
+  { \
+    NSRect frame; \
+    frame.size = proposal; \
+    size = [self.cell cellSizeForBounds: frame]; \
+  } \
+ \
+  return { ceil(size.width), ceil(size.height) }; \
+} \
 \
 - (void)controlTextDidChange:(NSNotification *)aNotification { mOwner->callback(); } \
 \
@@ -123,7 +140,6 @@
 
 @interface SecureTextField : NSSecureTextField  <NSTextFieldDelegate> {
   mforms::TextEntry *mOwner;
-  float mMinHeight;
 }
 
 @end
@@ -139,7 +155,6 @@
     mOwner->set_data(self);
 
     [self sizeToFit];
-    mMinHeight = NSHeight([self frame]);
   }
   return self;
 }
@@ -169,12 +184,12 @@ STANDARD_TEXT_ENTRY_HANDLING
     mOwner->set_data(self);
 
     [self sizeToFit];
-    mMinHeight = NSHeight([self frame]);
+    mMinHeight = NSHeight(self.frame);
 
     if (type == mforms::SmallSearchEntry)
     {
-      [[self cell] setControlSize: NSSmallControlSize];
-      [self setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]]];
+      self.cell.controlSize = NSSmallControlSize;
+      self.font = [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]];
     }
   }
   return self;
@@ -205,7 +220,7 @@ STANDARD_TEXT_ENTRY_HANDLING
     mOwner->set_data(self);
 
     [self sizeToFit];
-    mMinHeight = NSHeight([self frame]);
+    mMinHeight = NSHeight(self.frame);
   }
   return self;
 }
@@ -247,12 +262,12 @@ static bool entry_create(mforms::TextEntry *self, mforms::TextEntryType type)
 
   field.delegate = field;
 
-  [field.cell setLineBreakMode: NSLineBreakByClipping];
+  (field.cell).lineBreakMode = NSLineBreakByClipping;
   [field.cell setScrollable: YES];
   field.selectable = YES;
 
   LimitedTextFieldFormatter* formatter = [LimitedTextFieldFormatter new];
-  [field.cell setFormatter: formatter];
+  (field.cell).formatter = formatter;
 
   return true;
 }
@@ -260,19 +275,19 @@ static bool entry_create(mforms::TextEntry *self, mforms::TextEntryType type)
 static void entry_set_text(mforms::TextEntry *self, const std::string &text)
 {
   NSTextField* entry = self->get_data();
-  [entry setStringValue:wrap_nsstring(text)];
+  entry.stringValue = wrap_nsstring(text);
 }
 
 static void entry_set_placeholder_text(mforms::TextEntry *self, const std::string &text)
 {
   NSTextField* entry = self->get_data();
-  [[entry cell] setPlaceholderString: wrap_nsstring(text)];
+  [entry.cell setPlaceholderString: wrap_nsstring(text)];
 }
 
 static void entry_set_max_length(mforms::TextEntry *self, int maxlen)
 {
   NSTextField* entry = self->get_data();
-  [[[entry cell] formatter] setMaximumLength: maxlen];
+  [[entry.cell formatter] setMaximumLength: maxlen];
 }
 
 
@@ -281,7 +296,7 @@ static std::string entry_get_text(mforms::TextEntry *self)
   NSTextField* entry = self->get_data();
 
   if (entry)
-    return [[entry stringValue] UTF8String];
+    return entry.stringValue.UTF8String;
 
   return "";
 }
@@ -289,7 +304,7 @@ static std::string entry_get_text(mforms::TextEntry *self)
 static void entry_set_read_only(mforms::TextEntry *self, bool flag)
 {
   NSTextField* entry = self->get_data();
-  [entry setEditable: flag ? NO : YES];
+  entry.editable = flag ? NO : YES;
 }
 
 static void entry_set_placeholder_color(mforms::TextEntry *self, const std::string &color)
@@ -328,14 +343,14 @@ static void entry_select(mforms::TextEntry *self, const base::Range &range)
 {
   NSTextField* entry = self->get_data();
   NSText *editor = [entry.window fieldEditor: YES forObject: entry];
-  [editor setSelectedRange: NSMakeRange(range.position, range.size)];
+  editor.selectedRange = NSMakeRange(range.position, range.size);
 }
 
 static base::Range entry_get_selection(mforms::TextEntry *self)
 {
   NSTextField* entry = self->get_data();
   NSText *editor = [entry.window fieldEditor: NO forObject: entry];
-  NSRange r = [editor selectedRange];
+  NSRange r = editor.selectedRange;
   return base::Range(r.location, r.length);
 }
 

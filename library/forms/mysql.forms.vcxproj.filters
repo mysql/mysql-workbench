@@ -138,7 +138,7 @@
     <ClCompile Include="toolbar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="treenodeview.cpp">
+    <ClCompile Include="treeview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utilities.cpp">
@@ -160,10 +160,28 @@
     <ClCompile Include="canvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="record_grid.cpp">
+    <ClCompile Include="gridview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jsonview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen_connections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen_documents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen_helpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectForm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="home_screen_launchers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -292,7 +310,7 @@
     <ClInclude Include="mforms\toolbar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mforms\treenodeview.h">
+    <ClInclude Include="mforms\treeview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\uistyle.h">
@@ -316,10 +334,28 @@
     <ClInclude Include="mforms\canvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mforms\record_grid.h">
+    <ClInclude Include="mforms\gridview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\jsonview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_connections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_documents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\ProjectForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\home_screen_launchers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

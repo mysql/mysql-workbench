@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,12 +23,13 @@ using namespace wbfig;
 using namespace base;
 
 RoutineGroup::RoutineGroup(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self)
-: BaseFigure(layer, hub, self), _title(layer, hub, this, true), _footer(layer, hub, this, false),
-  _content_box(layer, mdc::Box::Vertical)
-{
+  : BaseFigure(layer, hub, self),
+    _title(layer, hub, this, true),
+    _footer(layer, hub, this, false),
+    _content_box(layer, mdc::Box::Vertical) {
   _title.set_icon(mdc::ImageManager::get_instance()->get_image("workbench.physical.RoutineGroupFigure.16x16.png"));
 
-  scoped_connect(_title.signal_expand_toggle(),boost::bind(&RoutineGroup::toggle, this, _1));
+  scoped_connect(_title.signal_expand_toggle(), std::bind(&RoutineGroup::toggle, this, std::placeholders::_1));
 
   set_allowed_resizing(false, false);
   set_accepts_focus(true);
@@ -62,67 +63,47 @@ RoutineGroup::RoutineGroup(mdc::Layer *layer, FigureEventHub *hub, const model_O
   add(&_footer, false, false, true);
 }
 
-
-RoutineGroup::~RoutineGroup()
-{
-  for (ItemList::iterator i= _routines.begin(); i != _routines.end(); ++i)
+RoutineGroup::~RoutineGroup() {
+  for (ItemList::iterator i = _routines.begin(); i != _routines.end(); ++i)
     delete *i;
 }
 
-
-void RoutineGroup::set_title(const std::string &title, const std::string &subtitle)
-{
+void RoutineGroup::set_title(const std::string &title, const std::string &subtitle) {
   _title.set_title(title);
   _footer.set_title(subtitle);
 }
 
-
-void RoutineGroup::set_title_font(const mdc::FontSpec &font)
-{
+void RoutineGroup::set_title_font(const mdc::FontSpec &font) {
   _title.set_font(font);
 }
 
-
-void RoutineGroup::set_content_font(const mdc::FontSpec &font)
-{
+void RoutineGroup::set_content_font(const mdc::FontSpec &font) {
   super::set_content_font(font);
 
-  for (ItemList::iterator i= _routines.begin(); i != _routines.end(); ++i)
+  for (ItemList::iterator i = _routines.begin(); i != _routines.end(); ++i)
     (*i)->set_font(font);
 }
 
-
-void RoutineGroup::set_color(const Color &color)
-{
+void RoutineGroup::set_color(const Color &color) {
   _title.set_color(color);
   _footer.set_color(color);
   set_needs_render();
 }
 
-
-void RoutineGroup::toggle(bool flag)
-{
+void RoutineGroup::toggle(bool flag) {
   _title.set_expanded(flag);
   _content_box.set_visible(flag);
 }
 
-
-
-RoutineGroup::ItemList::iterator RoutineGroup::begin_routines_sync()
-{
+RoutineGroup::ItemList::iterator RoutineGroup::begin_routines_sync() {
   return begin_sync(_content_box, _routines);
 }
 
-
-RoutineGroup::ItemList::iterator RoutineGroup::sync_next_routine(ItemList::iterator iter,
-                                                  const std::string &id,
-                                                  const std::string &text)
-{
+RoutineGroup::ItemList::iterator RoutineGroup::sync_next_routine(ItemList::iterator iter, const std::string &id,
+                                                                 const std::string &text) {
   return sync_next(_content_box, _routines, iter, id, 0, text);
 }
 
-
-void RoutineGroup::end_routines_sync(ItemList::iterator iter)
-{
+void RoutineGroup::end_routines_sync(ItemList::iterator iter) {
   end_sync(_content_box, _routines, iter);
 }

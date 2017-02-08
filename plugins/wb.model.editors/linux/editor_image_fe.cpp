@@ -4,28 +4,24 @@
 #include <gtkmm/image.h>
 #include <gtkmm/button.h>
 #include <gtkmm/entry.h>
+#include <gtkmm/checkbutton.h>
 
-class ImageEditorFE : public PluginEditorBase
-{
-  ImageEditorBE  _be;
+class ImageEditorFE : public PluginEditorBase {
+  ImageEditorBE _be;
   Glib::RefPtr<Gtk::Builder> _xml;
-  Gtk::Image    *_image;
+  Gtk::Image *_image;
 
-  virtual bec::BaseEditor *get_be()
-  {
+  virtual bec::BaseEditor *get_be() {
     return &_be;
   }
-  
+
 public:
-  ImageEditorFE(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args)
-    , _be(grtm, workbench_model_ImageFigureRef::cast_from(args[0]))
-    , _xml(0)
-    , _image(0)
-  {
+  ImageEditorFE(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args), _be(workbench_model_ImageFigureRef::cast_from(args[0])), _xml(0), _image(0) {
     set_border_width(8);
-    
-    _xml= Gtk::Builder::create_from_file(grtm->get_data_file_path("modules/data/editor_image.glade"));
+
+    _xml =
+      Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("modules/data/editor_image.glade"));
 
     Gtk::Widget *widget;
     _xml->get_widget("editor_image_hbox", widget);
@@ -40,7 +36,7 @@ public:
     Gtk::CheckButton *check;
     _xml->get_widget("aspect_check", check);
     check->signal_toggled().connect(sigc::mem_fun(this, &ImageEditorFE::aspect_toggled));
-    
+
     Gtk::Entry *entry;
     _xml->get_widget("width_entry", entry);
     entry->signal_activate().connect(sigc::mem_fun(this, &ImageEditorFE::width_changed));
@@ -48,44 +44,37 @@ public:
     entry->signal_activate().connect(sigc::mem_fun(this, &ImageEditorFE::height_changed));
 
     _xml->get_widget("image", _image);
-    
+
     widget->reparent(*this);
 
     show_all();
-    
+
     refresh_form_data();
   }
-  
-  void browse_file()
-  {
+
+  void browse_file() {
     std::string filename = open_file_chooser();
-    if (!filename.empty())
-    {
+    if (!filename.empty()) {
       _be.set_filename(filename);
       do_refresh_form_data();
     }
   }
-  
 
-  void aspect_toggled()
-  {
+  void aspect_toggled() {
     Gtk::CheckButton *check;
     _xml->get_widget("aspect_check", check);
-    
+
     _be.set_keep_aspect_ratio(check->get_active());
   }
 
-
-  void reset_aspect()
-  {
-    int w= _image->get_pixbuf()->get_width();
-    int h= _image->get_pixbuf()->get_height();
+  void reset_aspect() {
+    int w = _image->get_pixbuf()->get_width();
+    int h = _image->get_pixbuf()->get_height();
 
     _be.set_size(w, h);
   }
-  
-  virtual void do_refresh_form_data()
-  {    
+
+  virtual void do_refresh_form_data() {
     Gtk::Entry *entry;
     int w, h;
     _be.get_size(w, h);
@@ -93,44 +82,40 @@ public:
     entry->set_text(strfmt("%i", w));
     _xml->get_widget("height_entry", entry);
     entry->set_text(strfmt("%i", h));
-    
+
     Gtk::CheckButton *check;
     _xml->get_widget("aspect_check", check);
     check->set_active(_be.get_keep_aspect_ratio());
-  
+
     Glib::RefPtr<Gdk::Pixbuf> pixbuf(Gdk::Pixbuf::create_from_file(_be.get_attached_image_path()));
     if (pixbuf)
-      _image->set(pixbuf);  
+      _image->set(pixbuf);
     else
-      g_message("ImageEditorFE: can not set image from %s[%s]", _be.get_filename().c_str(), _be.get_attached_image_path().c_str());    
+      g_message("ImageEditorFE: can not set image from %s[%s]", _be.get_filename().c_str(),
+                _be.get_attached_image_path().c_str());
   }
 
-  void width_changed()
-  {
+  void width_changed() {
     Gtk::Entry *entry;
     _xml->get_widget("width_entry", entry);
-    int i= base::atoi<int>(entry->get_text().c_str(), 0);
+    int i = base::atoi<int>(entry->get_text().c_str(), 0);
     if (i > 0)
       _be.set_width(i);
     do_refresh_form_data();
   }
-  
-  void height_changed()
-  {
+
+  void height_changed() {
     Gtk::Entry *entry;
     _xml->get_widget("height_entry", entry);
-    int i= base::atoi<int>(entry->get_text().c_str(), 0);
+    int i = base::atoi<int>(entry->get_text().c_str(), 0);
     if (i > 0)
       _be.set_height(i);
     do_refresh_form_data();
   }
-  
 };
 
-extern "C" 
-{
-  GUIPluginBase *createImageEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-  {
-    return Gtk::manage(new ImageEditorFE(m, grtm, args));
-  }
+extern "C" {
+GUIPluginBase *createImageEditor(grt::Module *m, const grt::BaseListRef &args) {
+  return Gtk::manage(new ImageEditorFE(m, args));
+}
 };

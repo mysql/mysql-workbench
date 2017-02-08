@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -27,81 +27,74 @@
 #include "lf_mforms.h"
 
 namespace mforms {
-namespace gtk {
+  namespace gtk {
 
-class UtilitiesImpl
-{
-  static int show_message(const std::string &title, const std::string &text,
-                          const std::string &ok, const std::string &cancel,
-                          const std::string &other);
-  static int show_error(const std::string &title, const std::string &text,
-                        const std::string &ok, const std::string &cancel,
-                        const std::string &other);
-  static int show_warning(const std::string &title, const std::string &text,
-                        const std::string &ok, const std::string &cancel,
-                        const std::string &other);
-  static int show_message_with_checkbox(const std::string &title, const std::string &text,
-                                        const std::string &ok, const std::string &cancel,
-                                        const std::string &other,
-                                        const std::string &checkbox_text, // empty text = default "Don't show this message again" text
-                                        bool &remember_checked);
+    class UtilitiesImpl {
+      static int show_message(const std::string &title, const std::string &text, const std::string &ok,
+                              const std::string &cancel, const std::string &other);
+      static int show_error(const std::string &title, const std::string &text, const std::string &ok,
+                            const std::string &cancel, const std::string &other);
+      static int show_warning(const std::string &title, const std::string &text, const std::string &ok,
+                              const std::string &cancel, const std::string &other);
+      static int show_message_with_checkbox(
+        const std::string &title, const std::string &text, const std::string &ok, const std::string &cancel,
+        const std::string &other,
+        const std::string &checkbox_text, // empty text = default "Don't show this message again" text
+        bool &remember_checked);
 
-  static void show_wait_message(const std::string &title, const std::string &text);
-  static bool hide_wait_message();
-  static bool run_cancelable_wait_message(const std::string &title, const std::string &text,
-                                          const boost::function<void ()> &start_task, const boost::function<bool ()> &cancel_task);
-  static void stop_cancelable_wait_message();
+      static void show_wait_message(const std::string &title, const std::string &text);
+      static bool hide_wait_message();
+      static bool run_cancelable_wait_message(const std::string &title, const std::string &text,
+                                              const std::function<void()> &start_task,
+                                              const std::function<bool()> &cancel_task);
+      static void stop_cancelable_wait_message();
 
-  static void set_clipboard_text(const std::string &text);
-  static std::string get_clipboard_text();
-  static void open_url(const std::string &url);
-  static std::string get_special_folder(mforms::FolderType type);
-  static TimeoutHandle  add_timeout(float interval, const boost::function<bool ()> &slot);
-  static void cancel_timeout(TimeoutHandle h);
+      static void set_clipboard_text(const std::string &text);
+      static std::string get_clipboard_text();
+      static void open_url(const std::string &url);
+      static std::string get_special_folder(mforms::FolderType type);
+      static TimeoutHandle add_timeout(float interval, const std::function<bool()> &slot);
+      static void cancel_timeout(TimeoutHandle h);
 
-  static void store_password(const std::string &service, const std::string &account, const std::string &password);
-  static bool find_password(const std::string &service, const std::string &account, std::string &password);
-  static void forget_password(const std::string &service, const std::string &account);
+      static void store_password(const std::string &service, const std::string &account, const std::string &password);
+      static bool find_password(const std::string &service, const std::string &account, std::string &password);
+      static void forget_password(const std::string &service, const std::string &account);
 
-  static bool move_to_trash(const std::string &path);
-  static void reveal_file(const std::string &path);
+      static bool move_to_trash(const std::string &path);
+      static void reveal_file(const std::string &path);
 
-  static void set_thread_name(const std::string &name);
-  static void beep();
+      static void set_thread_name(const std::string &name);
+      static void beep();
 
-  static double get_text_width(const std::string &text, const std::string &font_desc);
-  
-public:
-  static void init();
-   
-  static Glib::RefPtr<Gdk::Pixbuf> get_cached_icon(const std::string &icon);
-};
+      static double get_text_width(const std::string &text, const std::string &font_desc);
 
+    public:
+      static void init();
 
+      static Glib::RefPtr<Gdk::Pixbuf> get_cached_icon(const std::string &icon);
+    };
 
-class MainThreadRequestQueue
-{
-  struct Request
-  {
-    boost::function<void* ()> slot;
-    void *result;
-    Glib::Mutex mutex;
-    Glib::Cond cond;
-    bool done;
+    class MainThreadRequestQueue {
+      struct Request {
+        std::function<void *()> slot;
+        void *result;
+        Glib::Mutex mutex;
+        Glib::Cond cond;
+        bool done;
+      };
+
+      Glib::Dispatcher _disp;
+      Glib::Mutex _mutex;
+      std::list<std::shared_ptr<Request> > _queue;
+
+      void from_main_thread();
+
+    public:
+      MainThreadRequestQueue();
+      static MainThreadRequestQueue *get();
+      static void *perform(const std::function<void *()> &slot, bool wait);
+    };
   };
-
-  Glib::Dispatcher _disp;
-  Glib::Mutex _mutex;
-  std::list<boost::shared_ptr<Request> > _queue;
-  
-  void from_main_thread();
-public:
-  MainThreadRequestQueue();
-  static MainThreadRequestQueue *get();
-  static void *perform(const boost::function<void* ()> &slot, bool wait);
-};
-
-};
 };
 
 #endif

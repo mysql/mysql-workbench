@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -20,7 +20,7 @@
 #pragma once
 
 #include "mdc.h"
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grts/structs.model.h"
 #include "grts/structs.meta.h"
@@ -30,8 +30,7 @@
 #include "base_bridge.h"
 #include "figure_common.h"
 
-class WBPUBLICBACKEND_PUBLIC_FUNC model_Diagram::ImplData : public BridgeBase, public wbfig::FigureEventHub
-{
+class WBPUBLICBACKEND_PUBLIC_FUNC model_Diagram::ImplData : public BridgeBase, public wbfig::FigureEventHub {
   typedef BridgeBase super;
 
 protected:
@@ -40,24 +39,25 @@ protected:
   mdc::CanvasView *_canvas_view;
   boost::signals2::scoped_connection _selection_signal_conn;
 
-  boost::signals2::signal<void (model_DiagramRef)> _selection_changed_signal;
+  boost::signals2::signal<void(model_DiagramRef)> _selection_changed_signal;
 
-  boost::signals2::signal<void (model_ObjectRef)> _realize_object_signal;
-  boost::signals2::signal<void (model_ObjectRef)> _will_unrealize_object_signal;
-  
-  boost::signals2::signal<void (model_ObjectRef, mdc::CanvasItem*, bool, base::Point)> _item_crossed_signal;
-  boost::signals2::signal<void (model_ObjectRef, mdc::CanvasItem*, base::Point, mdc::MouseButton,
-    mdc::EventState)> _item_click_signal;
-  boost::signals2::signal<void (model_ObjectRef, mdc::CanvasItem*, base::Point, mdc::MouseButton,
-    mdc::EventState)> _item_double_click_signal;
-  boost::signals2::signal<void (model_ObjectRef, mdc::CanvasItem*, bool, base::Point, mdc::MouseButton,
-    mdc::EventState)> _item_mouse_button_signal;
-  
+  boost::signals2::signal<void(model_ObjectRef)> _realize_object_signal;
+  boost::signals2::signal<void(model_ObjectRef)> _will_unrealize_object_signal;
+
+  boost::signals2::signal<void(model_ObjectRef, mdc::CanvasItem *, bool, base::Point)> _item_crossed_signal;
+  boost::signals2::signal<void(model_ObjectRef, mdc::CanvasItem *, base::Point, mdc::MouseButton, mdc::EventState)>
+    _item_click_signal;
+  boost::signals2::signal<void(model_ObjectRef, mdc::CanvasItem *, base::Point, mdc::MouseButton, mdc::EventState)>
+    _item_double_click_signal;
+  boost::signals2::signal<void(model_ObjectRef, mdc::CanvasItem *, bool, base::Point, mdc::MouseButton,
+                               mdc::EventState)>
+    _item_mouse_button_signal;
+
   int _updating_selection;
   bool _connected_update;
-  
+
   virtual ~ImplData();
-  
+
   void member_changed(const std::string &name, const grt::ValueRef &ovalue);
   virtual void member_list_changed(grt::internal::OwnedList *list, bool added, const grt::ValueRef &value);
 
@@ -68,44 +68,45 @@ protected:
 
   void realize_contents();
   void realize_selection();
-  
+
   void update_options(const std::string &key);
 
   virtual bool is_realizable();
 
-  virtual GrtObject* get_object() { return _self; }
+  virtual GrtObject *get_object() {
+    return _self;
+  }
 
   model_LayerRef get_layer_under_figure(const model_FigureRef &figure);
-  
-  virtual bool figure_click(const model_ObjectRef &owner, mdc::CanvasItem *target,
-    const base::Point &point, mdc::MouseButton button, mdc::EventState state);
-  virtual bool figure_double_click(const model_ObjectRef &owner, mdc::CanvasItem *target,
-    const base::Point &point, mdc::MouseButton button, mdc::EventState state);
-  virtual bool figure_button_press(const model_ObjectRef &owner, mdc::CanvasItem *target,
-    const base::Point &point, mdc::MouseButton button, mdc::EventState state);
-  virtual bool figure_button_release(const model_ObjectRef &owner, mdc::CanvasItem *target,
-    const base::Point &point, mdc::MouseButton button, mdc::EventState state);
-  virtual bool figure_enter(const model_ObjectRef &owner, mdc::CanvasItem *target,
-    const base::Point &point);
-  virtual bool figure_leave(const model_ObjectRef &owner, mdc::CanvasItem *target,
-    const base::Point &point);
+
+  virtual bool figure_click(const model_ObjectRef &owner, mdc::CanvasItem *target, const base::Point &point,
+                            mdc::MouseButton button, mdc::EventState state);
+  virtual bool figure_double_click(const model_ObjectRef &owner, mdc::CanvasItem *target, const base::Point &point,
+                                   mdc::MouseButton button, mdc::EventState state);
+  virtual bool figure_button_press(const model_ObjectRef &owner, mdc::CanvasItem *target, const base::Point &point,
+                                   mdc::MouseButton button, mdc::EventState state);
+  virtual bool figure_button_release(const model_ObjectRef &owner, mdc::CanvasItem *target, const base::Point &point,
+                                     mdc::MouseButton button, mdc::EventState state);
+  virtual bool figure_enter(const model_ObjectRef &owner, mdc::CanvasItem *target, const base::Point &point);
+  virtual bool figure_leave(const model_ObjectRef &owner, mdc::CanvasItem *target, const base::Point &point);
+
 public:
   ImplData(model_Diagram *self);
 
   void set_page_counts(int x, int y);
 
   void block_updates(bool flag);
-  
+
   void add_figure(const model_FigureRef &figure);
   virtual void add_connection(const model_ConnectionRef &conn);
-  
+
   void remove_figure(const model_FigureRef &figure);
   virtual void remove_connection(const model_ConnectionRef &conn);
-  
+
   void delete_layer(const model_LayerRef &layer);
 
   bool update_layer_of_figure(const model_FigureRef &figure);
-  
+
   void select_object(const model_ObjectRef &object);
   void unselect_object(const model_ObjectRef &object);
   void unselect_all();
@@ -113,9 +114,11 @@ public:
   virtual bool realize();
   virtual void unrealize();
 
-public:  
+public:
   mdc::CanvasView *get_canvas_view();
-  bool is_canvas_view_valid() { return _canvas_view != NULL; };
+  bool is_canvas_view_valid() {
+    return _canvas_view != NULL;
+  };
 
   static base::Size get_size_for_page(const app_PageSettingsRef &page);
 
@@ -123,17 +126,35 @@ public:
   void stack_connection(const model_ConnectionRef &conn, mdc::CanvasItem *item);
   void stack_figure(const model_FigureRef &figure, mdc::CanvasItem *item);
 
-  boost::signals2::signal<void (model_DiagramRef)>* signal_selection_changed() { return &_selection_changed_signal; }
-  
-  boost::signals2::signal<void (model_ObjectRef, mdc::CanvasItem*, bool, base::Point)>* signal_item_crossed() { return &_item_crossed_signal; }
-  boost::signals2::signal<void (model_ObjectRef, mdc::CanvasItem*, base::Point, mdc::MouseButton, mdc::EventState)>* signal_item_click() { return &_item_click_signal; }
-  boost::signals2::signal<void (model_ObjectRef, mdc::CanvasItem*, base::Point, mdc::MouseButton, mdc::EventState)>* signal_item_double_click() { return &_item_double_click_signal; }
-  boost::signals2::signal<void (model_ObjectRef, mdc::CanvasItem*, bool, base::Point, mdc::MouseButton, mdc::EventState)>* signal_item_mouse_button() { return &_item_mouse_button_signal; }
-  
-  boost::signals2::signal<void (model_ObjectRef)>* signal_object_realized() { return &_realize_object_signal; }
+  boost::signals2::signal<void(model_DiagramRef)> *signal_selection_changed() {
+    return &_selection_changed_signal;
+  }
+
+  boost::signals2::signal<void(model_ObjectRef, mdc::CanvasItem *, bool, base::Point)> *signal_item_crossed() {
+    return &_item_crossed_signal;
+  }
+  boost::signals2::signal<void(model_ObjectRef, mdc::CanvasItem *, base::Point, mdc::MouseButton, mdc::EventState)>
+    *signal_item_click() {
+    return &_item_click_signal;
+  }
+  boost::signals2::signal<void(model_ObjectRef, mdc::CanvasItem *, base::Point, mdc::MouseButton, mdc::EventState)>
+    *signal_item_double_click() {
+    return &_item_double_click_signal;
+  }
+  boost::signals2::signal<void(model_ObjectRef, mdc::CanvasItem *, bool, base::Point, mdc::MouseButton,
+                               mdc::EventState)>
+    *signal_item_mouse_button() {
+    return &_item_mouse_button_signal;
+  }
+
+  boost::signals2::signal<void(model_ObjectRef)> *signal_object_realized() {
+    return &_realize_object_signal;
+  }
   void notify_object_realize(const model_ObjectRef &object);
 
-  boost::signals2::signal<void (model_ObjectRef)>* signal_object_will_unrealize() { return &_will_unrealize_object_signal; }
+  boost::signals2::signal<void(model_ObjectRef)> *signal_object_will_unrealize() {
+    return &_will_unrealize_object_signal;
+  }
   void notify_object_will_unrealize(const model_ObjectRef &object);
 
   void update_size();
@@ -143,5 +164,7 @@ public:
   void remove_tag_badge_from_figure(const model_FigureRef &figure, const meta_TagRef &tag);
 
 private:
-  model_Diagram *self() const { return _self; }
+  model_Diagram *self() const {
+    return _self;
+  }
 };

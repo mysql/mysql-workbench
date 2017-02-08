@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -240,11 +240,11 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         
         self._log_box = mforms.newPanel(mforms.TitledBoxPanel)
         self._log_box.set_title("Message Log")
-        self._log_box.set_padding(12)
         
         self._log_text = mforms.newTextBox(mforms.VerticalScrollBar)
         self._log_text.set_name('WizardProgressLogText')
         self._log_text.set_read_only(True)
+        self._log_text.set_padding(16)
         self._log_box.add(self._log_text)
         self._log_box.show(False)
         self.content.add_end(self._log_box, True, True)
@@ -317,6 +317,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         else:
             self.advanced_button.set_text("Show Logs")
         self._log_box.show(self._showing_logs)
+        self.relayout()
     
     def go_cancel(self):
         self._cancel_requested = True
@@ -362,15 +363,15 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._log_queue.append(("OUTPUT", msg, ""))
 
     def send_info(self, msg):
-        grt.log_debug("Wizard", msg)
+        grt.log_debug("Wizard", msg + "\n")
         self._handle_task_output("INFO", msg, "")
         
     def send_error(self, msg):
-        grt.log_debug("Wizard", "ERROR: "+msg)
+        grt.log_debug("Wizard", "ERROR: %s\n" % msg )
         self._handle_task_output("ERROR", msg, "")
         
     def send_warning(self, msg):
-        grt.log_debug("Wizard", "WARNING: "+msg)
+        grt.log_debug("Wizard", "WARNING: %s\n" % msg )
         self._handle_task_output("WARNING", msg, "")
 
     def send_progress(self, pct, msg):
@@ -394,6 +395,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
             grt.push_message_handler(self._handle_task_output)
         self.send_info("Starting...")
         self._timer = mforms.Utilities.add_timeout(0.1, self.update_status)
+        self.relayout()
         
     def resume(self):
         self._progress.show()
@@ -408,6 +410,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
 
         self._tasks_held = False
         self._timer = mforms.Utilities.add_timeout(0.1, self.update_status)
+        self.relayout()
 
         
     def tasks_finished(self):
@@ -430,6 +433,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self.cancel_button.set_enabled(True)
 
         self._tasks_held = True
+        self.relayout()
 
 
 
@@ -462,6 +466,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
             self.tasks_failed(False)
         else:
             self.tasks_finished()
+        self.relayout()
 
 
     def _failed(self):
@@ -485,6 +490,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
             self.go_advanced()
 
         self.tasks_failed(False)
+        self.relayout()
         
 
     def _cancelled(self):
@@ -505,6 +511,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._detail_label.set_text("Cancelled by user.")
 
         self.tasks_failed(True)
+        self.relayout()
 
 
     def _flush_messages(self):
@@ -559,7 +566,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         elif self._warnings > 0:
             ret_val = "There were warnings during execution; please review log messages.\nClick [Next >] to continue if you think they are not important."
         else:
-            ret_val = self.final_message() + "\nClick [Next >] to continue."
+            ret_val = self.final_message() + " Click [Next >] to continue."
 
         return ret_val
 

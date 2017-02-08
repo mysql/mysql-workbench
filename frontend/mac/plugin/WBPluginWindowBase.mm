@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,10 +21,17 @@
 
 @implementation WBPluginWindowBase
 
+- (instancetype)init
+{
+  return [self initWithModule: nil arguments: grt::BaseListRef()];
+}
+
 - (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args
 {
+  if (module == nil)
+    return nil;
+  
   self = [super init];
   if (self != nil)
   {

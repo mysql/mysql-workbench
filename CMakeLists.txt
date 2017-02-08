@@ -1,6 +1,16 @@
 cmake_minimum_required (VERSION 2.8)
 # 2.8 needed because of ExternalProject
 
+# Detect build type, fallback to release and throw a warning if use didn't specify any
+if(NOT CMAKE_BUILD_TYPE)
+  message(WARNING "Build type not set, falling back to Release mode.
+ To specify build type use:
+ -DCMAKE_BUILD_TYPE=<mode> where <mode> is Debug or Release.")
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+       "Choose the type of build, options are: Debug Release RelWithDebInfo"
+       FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
 project(WORKBENCH)
 
 # Retrieve current Workbench version variables
@@ -38,23 +48,28 @@ find_package(PkgConfig REQUIRED)
 
 find_package(X11)
 
-find_package(GTK2 2.20 REQUIRED gtk gtkmm)
+#find_package(GTK3 REQUIRED gtk+-3.0 gtkmm-3.0)
+pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
 pkg_check_modules(GTHREAD REQUIRED gthread-2.0)
 pkg_check_modules(GMODULE REQUIRED gmodule-2.0)
-set(GTK2_INCLUDE_DIRS ${GTK2_INCLUDE_DIRS} ${GTHREAD_INCLUDE_DIRS} ${GMODULE_INCLUDE_DIRS})
-list(REMOVE_DUPLICATES GTK2_INCLUDE_DIRS)
-set(GTK2_LIBRARIES ${GTK2_LIBRARIES} ${GTHREAD_LIBRARIES} ${GMODULE_LIBRARIES})
-list(REMOVE_DUPLICATES GTK2_LIBRARIES)
+#set(GTK3_INCLUDE_DIRS ${GTK3_INCLUDE_DIRS} ${GTHREAD_INCLUDE_DIRS} ${GMODULE_INCLUDE_DIRS})
+set(GTK3_INCLUDE_DIRS ${GTK3_INCLUDE_DIRS} ${GTKMM_INCLUDE_DIRS} ${GTHREAD_INCLUDE_DIRS} ${GMODULE_INCLUDE_DIRS})
+list(REMOVE_DUPLICATES GTK3_INCLUDE_DIRS)
+#set(GTK3_LIBRARIES ${GTK3_LIBRARIES} ${GTHREAD_LIBRARIES} ${GMODULE_LIBRARIES})
+set(GTK3_LIBRARIES ${GTK3_LIBRARIES} ${GTKMM_LIBRARIES} ${GTHREAD_LIBRARIES} ${GMODULE_LIBRARIES})
+list(REMOVE_DUPLICATES GTK3_LIBRARIES)
 
-pkg_check_modules(GLIB REQUIRED glib-2.0)
+pkg_check_modules(GLIB REQUIRED glib-2.0>=2.30)
 
 if (USE_BUNDLED_MYSQLDUMP)
   set(USE_BUNDLED_MYSQLDUMP -DHAVE_BUNDLED_MYSQLDUMP=1)
 endif ()
 
-
+find_package(Threads)
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
+
 
 # All known publicly available versions of Antlr3C are buggy
 
@@ -109,7 +124,6 @@ find_package(MySQL 5.6.0 REQUIRED)
 if (UNIX)
 	set(MYSQL_DEFINITIONS "-DBIG_JOINS=1"  "-fno-strict-aliasing")
 endif()
-set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS}")
 
 
 
@@ -117,20 +131,12 @@ find_package(LibXml2 REQUIRED)
 
 find_package(OpenGL REQUIRED)
 
-
-find_package(CTemplate 2.2 REQUIRED)
-find_package(MySQLCppConn REQUIRED)
+find_package(MySQLCppConn 1.1.8 REQUIRED)
 find_package(VSqlite REQUIRED)
-find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
+find_package(Boost REQUIRED)
 
-if (MYSQLCPPCONN_VERSION_1_1_4)
-  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)
-endif ()
-
-if (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
-  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
-endif (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
+set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
 
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)
@@ -271,24 +277,30 @@ endif ()
 #	add_definitions(-Wsign-compare)
 #endif()
 add_definitions(-D__STDC_FORMAT_MACROS)
+add_definitions(-DGTK_DISABLE_SINGLE_INCLUDES)
+add_definitions(-DGDK_DISABLE_DEPRECATED)
+add_definitions(-DGTK_DISABLE_DEPRECATED)
+add_definitions(-DGSEAL_ENABLE)
+add_definitions(-DTIXML_USE_STL=1)
 
 set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
-SET(GCOV OFF CACHE BOOL "Add gcov flags")
+# SET(GCOV OFF CACHE BOOL "Add gcov flags")
 
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1")
-
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -ggdb3 ${MY_CXXFLAGS}")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
+set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -std=c++11)
+set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
+    message(FATAL_ERROR "Insufficient gcc version. You need gcc v4.7 or newer to build this project")
+  endif()
 endif()
 
-if(GCOV)
-    set(MY_CXXFLAGS "${MY_CXXFLAGS} -fprofile-arcs -ftest-coverage") 
+if(BUILD_FOR_GCOV)
+    message ("Enable GCOV due to BUILD_FOR_GCOV")
+    set(WB_CXXFLAGS ${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage)
+    set(WB_CFLAGS ${WB_CFLAGS} -fprofile-arcs -ftest-coverage)
 endif()
-
-
 
 #-----------------------------------------------------------------------
 # Define some useful variables and options
@@ -309,7 +321,7 @@ configure_file(${PROJECT_SOURCE_DIR}/mysql-workbench.desktop.in mysql-workbench.
 
 # FIXME: Should this go here? ---v
 include_directories(${PROJECT_SOURCE_DIR}/plugins/migration/copytable ${PROJECT_SOURCE_DIR}/library/base)
-include_directories(${GTK2_INCLUDE_DIRS})
+include_directories(${GTK3_INCLUDE_DIRS})
 
 add_subdirectory(tools)
 add_subdirectory(backend)

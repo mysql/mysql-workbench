@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,14 +35,13 @@
 
 #include <boost/signals2.hpp>
 
-namespace mforms
-{
+namespace mforms {
   class TabView;
   class TabSwitcher;
   class ToolBar;
   class ToolBarItem;
   class ContextMenu;
-  class TreeNodeView;
+  class TreeView;
   class RecordGrid;
 };
 
@@ -51,12 +50,11 @@ class MySQLEditor;
 
 class SqlEditorResult;
 
-class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
-{
+class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView {
   friend class SqlEditorResult;
 
   SqlEditorForm *_form;
-  boost::shared_ptr<MySQLEditor> _editor;
+  std::shared_ptr<MySQLEditor> _editor;
 
   mforms::Box _editor_box;
 
@@ -100,7 +98,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   void lower_tab_switched();
   bool lower_tab_closing(int tab);
   void lower_tab_closed(mforms::View *page, int tab);
-  void lower_tab_reordered(mforms::View*, int, int);
+  void lower_tab_reordered(mforms::View *, int, int);
 
   void result_removed();
 
@@ -122,11 +120,13 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   void limit_rows(mforms::ToolBarItem *);
 
 public:
-  typedef boost::shared_ptr<SqlEditorPanel> Ref;
+  typedef std::shared_ptr<SqlEditorPanel> Ref;
   SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed);
   ~SqlEditorPanel();
 
-  boost::shared_ptr<MySQLEditor> editor_be() { return _editor; }
+  std::shared_ptr<MySQLEditor> editor_be() {
+    return _editor;
+  }
   db_query_QueryEditorRef grtobj();
 
   mforms::ToolBar *get_toolbar();
@@ -134,13 +134,16 @@ public:
 
   void update_limit_rows();
 
-  SqlEditorForm *owner() { return _form; }
+  SqlEditorForm *owner() {
+    return _form;
+  }
 
-  bool is_scratch() { return _is_scratch; }
+  bool is_scratch() {
+    return _is_scratch;
+  }
+
 public:
-
-  struct AutoSaveInfo
-  {
+  struct AutoSaveInfo {
     std::string orig_encoding;
     std::string type;
     std::string title;
@@ -150,21 +153,17 @@ public:
     bool word_wrap;
     bool show_special;
 
-    AutoSaveInfo() : first_visible_line(0), caret_pos(0), word_wrap(false), show_special(false) {}
+    AutoSaveInfo() : first_visible_line(0), caret_pos(0), word_wrap(false), show_special(false) {
+    }
     AutoSaveInfo(const std::string &info_file);
 
     static AutoSaveInfo old_scratch(const std::string &scratch_file);
     static AutoSaveInfo old_autosave(const std::string &autosave_file);
   };
 
-  enum LoadResult
-  {
-    Cancelled,
-    Loaded,
-    RunInstead
-  };
+  enum LoadResult { Cancelled, Loaded, RunInstead };
 
-  LoadResult load_from(const std::string &file, const std::string &encoding = "", bool keep_dirty=false);
+  LoadResult load_from(const std::string &file, const std::string &encoding = "", bool keep_dirty = false);
   bool load_autosave(const AutoSaveInfo &info, const std::string &text_file);
 
   virtual bool can_close();
@@ -179,12 +178,14 @@ public:
   std::string autosave_file_suffix();
 
   void set_filename(const std::string &f);
-  std::string filename() const { return _filename; }
+  std::string filename() const {
+    return _filename;
+  }
 
   bool is_dirty() const;
   void check_external_file_changes();
 
-  std::pair<const char*, size_t> text_data() const;
+  std::pair<const char *, std::size_t> text_data() const;
 
   void list_members();
   void jump_to_placeholder();
@@ -202,10 +203,10 @@ public:
   size_t result_panel_count();
   size_t resultset_count();
 
-  SqlEditorResult* add_panel_for_recordset(Recordset::Ref rset);
+  SqlEditorResult *add_panel_for_recordset(Recordset::Ref rset);
   void add_panel_for_recordset_from_main(Recordset::Ref rset);
 
-  std::list<SqlEditorResult*> dirty_result_panels();
+  std::list<SqlEditorResult *> dirty_result_panels();
 };
 
 #endif /* defined(__MySQLWorkbench__wb_sql_editor_panel__) */

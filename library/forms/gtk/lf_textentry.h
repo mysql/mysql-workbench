@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -23,55 +23,52 @@
 
 #include "lf_view.h"
 
-
 namespace mforms {
-namespace gtk {
+  namespace gtk {
 
-class TextEntryImpl : public ViewImpl
-{
-  Gtk::Entry    *_entry;
-  std::string _placeholder;
-  Gdk::Color _text_color;
-  Gdk::Color _placeholder_color;
-  TextEntryType _type;
-  bool _has_real_text;
-  bool _changing_text;
-  virtual Gtk::Widget *get_outer() const { return _entry; }
-  
-  TextEntryImpl(::mforms::TextEntry *self, TextEntryType type);
-  static bool create(::mforms::TextEntry *self, TextEntryType type);
-  static void set_text(::mforms::TextEntry *self, const std::string &text);
-  static void set_placeholder_text(::mforms::TextEntry *self, const std::string &text);
-  static void set_placeholder_color(::mforms::TextEntry *self, const std::string &color);
-  static void set_max_length(::mforms::TextEntry *self, int len);
-  static std::string get_text(::mforms::TextEntry *self);
-  static void set_read_only(::mforms::TextEntry *self, bool flag);
-  static void set_bordered(::mforms::TextEntry *self, bool flag);
-  static void cut(::mforms::TextEntry *self);
-  static void copy(::mforms::TextEntry *self);
-  static void paste(::mforms::TextEntry *self);
-  static void select(::mforms::TextEntry *self, const base::Range &range);
-  static base::Range get_selection(::mforms::TextEntry *self);
-  
-  void activated(mforms::TextEntry *self);
-  bool key_press(GdkEventKey *event, mforms::TextEntry *self);
- 
-#if GTK_VERSION_GT(2, 16)
-  void icon_pressed(Gtk::EntryIconPosition pos, const GdkEventButton *ev);
-#endif
+    class TextEntryImpl : public ViewImpl {
+      Gtk::Entry *_entry;
+      Gdk::RGBA _text_color;
+      Gdk::RGBA _placeholder_color;
+      TextEntryType _type;
+      bool _has_real_text;
+      bool _changing_text;
+      virtual Gtk::Widget *get_outer() const {
+        return _entry;
+      }
 
-  void set_placeholder_text(const std::string &text);
-  void set_text(const std::string &text);
-  void focus_in(GdkEventFocus*);
-  void focus_out(GdkEventFocus*);
-  void changed(mforms::TextEntry *);
-protected:
-  void set_front_color(const std::string &color);
+      TextEntryImpl(::mforms::TextEntry *self, TextEntryType type);
+      static bool create(::mforms::TextEntry *self, TextEntryType type);
+      static void set_text(::mforms::TextEntry *self, const std::string &text);
+      static void set_placeholder_text(::mforms::TextEntry *self, const std::string &text);
+      static void set_placeholder_color(::mforms::TextEntry *self, const std::string &color);
+      static void set_max_length(::mforms::TextEntry *self, int len);
+      static std::string get_text(::mforms::TextEntry *self);
+      static void set_read_only(::mforms::TextEntry *self, bool flag);
+      static void set_bordered(::mforms::TextEntry *self, bool flag);
+      static void cut(::mforms::TextEntry *self);
+      static void copy(::mforms::TextEntry *self);
+      static void paste(::mforms::TextEntry *self);
+      static void select(::mforms::TextEntry *self, const base::Range &range);
+      static base::Range get_selection(::mforms::TextEntry *self);
 
-public:
-  static void init();
-};
+      void activated(mforms::TextEntry *self);
+      bool key_press(GdkEventKey *event, mforms::TextEntry *self);
 
+      void icon_pressed(Gtk::EntryIconPosition pos, const GdkEventButton *ev);
+      void set_placeholder_text(const std::string &text);
+      void set_text(const std::string &text);
+      void focus_in(GdkEventFocus *);
+      void focus_out(GdkEventFocus *);
+      void changed(mforms::TextEntry *);
+
+    protected:
+      void set_front_color(const std::string &color);
+      virtual void set_back_color(const std::string &color);
+
+    public:
+      static void init();
+    };
   };
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,8 +27,7 @@
 
 DEFAULT_LOG_DOMAIN("copytable");
 
-void BaseConverter::init_mysql_time(MYSQL_TIME* target)
-{
+void BaseConverter::init_mysql_time(MYSQL_TIME* target) {
   target->year = 0;
   target->month = 0;
   target->day = 0;
@@ -40,8 +39,7 @@ void BaseConverter::init_mysql_time(MYSQL_TIME* target)
   target->neg = 0;
 }
 
-void BaseConverter::convert_date(DATE_STRUCT* source, MYSQL_TIME* target)
-{
+void BaseConverter::convert_date(DATE_STRUCT* source, MYSQL_TIME* target) {
   init_mysql_time(target);
 
   target->year = source->year;
@@ -51,8 +49,7 @@ void BaseConverter::convert_date(DATE_STRUCT* source, MYSQL_TIME* target)
   target->time_type = MYSQL_TIMESTAMP_DATE;
 }
 
-void BaseConverter::convert_date(const char* source, MYSQL_TIME* target)
-{
+void BaseConverter::convert_date(const char* source, MYSQL_TIME* target) {
   init_mysql_time(target);
 
   // Date could come in the format of YYYY-MM-DD
@@ -62,21 +59,20 @@ void BaseConverter::convert_date(const char* source, MYSQL_TIME* target)
 
   // A call to std::string.substr with a start position past the end
   // of the string will yield an out_of_range exception, hence:
-  if (time.length() < 10)  // 9 is also valid but probably shouldn't be accepted
+  if (time.length() < 10) // 9 is also valid but probably shouldn't be accepted
   {
-    log_warning("Invalid date literal detected: '%s'\n", source);
+    logWarning("Invalid date literal detected: '%s'\n", source);
     return;
   }
 
-  target->year  = base::atoi<int>(time.substr(0, 4).c_str(), 0);
+  target->year = base::atoi<int>(time.substr(0, 4).c_str(), 0);
   target->month = base::atoi<int>(time.substr(5, 2).c_str(), 0);
-  target->day   = base::atoi<int>(time.substr(8, 2).c_str(), 0);
+  target->day = base::atoi<int>(time.substr(8, 2).c_str(), 0);
 
   target->time_type = MYSQL_TIMESTAMP_DATE;
 }
 
-void BaseConverter::convert_time(const char* source, MYSQL_TIME* target)
-{
+void BaseConverter::convert_time(const char* source, MYSQL_TIME* target) {
   init_mysql_time(target);
 
   // time comes in the format of
@@ -84,17 +80,15 @@ void BaseConverter::convert_time(const char* source, MYSQL_TIME* target)
   // 01234567890123
   std::string time(source);
 
-  if (time.length() < 8)
-  {
-    log_warning("Invalid time literal detected: '%s'\n", source);
+  if (time.length() < 8) {
+    logWarning("Invalid time literal detected: '%s'\n", source);
     return;
   }
 
   std::string msec = "0";
 
   // Get the milliseconds if present
-  if (time.length() > 9)
-  {
+  if (time.length() > 9) {
     msec = time.substr(9, time.length() - 9);
     msec.resize(6, '0');
   }
@@ -107,8 +101,7 @@ void BaseConverter::convert_time(const char* source, MYSQL_TIME* target)
   target->time_type = MYSQL_TIMESTAMP_TIME;
 }
 
-void BaseConverter::convert_timestamp(TIMESTAMP_STRUCT* source, MYSQL_TIME* target)
-{
+void BaseConverter::convert_timestamp(TIMESTAMP_STRUCT* source, MYSQL_TIME* target) {
   target->year = source->year;
   target->month = source->month;
   target->day = source->day;
@@ -122,8 +115,7 @@ void BaseConverter::convert_timestamp(TIMESTAMP_STRUCT* source, MYSQL_TIME* targ
   target->neg = 0;
 }
 
-void BaseConverter::convert_timestamp(const char* source, MYSQL_TIME* target)
-{
+void BaseConverter::convert_timestamp(const char* source, MYSQL_TIME* target) {
   init_mysql_time(target);
 
   // Timestamp comes in the format of YYYY-MM-DD HH:MM:SS:mmm...
@@ -131,46 +123,42 @@ void BaseConverter::convert_timestamp(const char* source, MYSQL_TIME* target)
   // Additional formats might be added as needed
   std::string time(source);
 
-  if (time.length() < 19)
-  {
-    log_warning("Invalid timestamp literal detected: '%s'\n", source);
+  if (time.length() < 19) {
+    logWarning("Invalid timestamp literal detected: '%s'\n", source);
     return;
   }
 
   std::string msecond = "0";
 
   // Get the milliseconds if present
-  if (time.length() > 20)
-  {
+  if (time.length() > 20) {
     msecond = time.substr(20, time.length() - 20);
     msecond.resize(6, '0');
   }
 
-  target->year  = base::atoi<int>(time.substr(0, 4).c_str(), 0);
+  target->year = base::atoi<int>(time.substr(0, 4).c_str(), 0);
   target->month = base::atoi<int>(time.substr(5, 2).c_str(), 0);
-  target->day   = base::atoi<int>(time.substr(8, 2).c_str(), 0);
+  target->day = base::atoi<int>(time.substr(8, 2).c_str(), 0);
 
-  target->hour        = base::atoi<int>(time.substr(11, 2).c_str(), 0);
-  target->minute      = base::atoi<int>(time.substr(14, 2).c_str(), 0);
-  target->second      = base::atoi<int>(time.substr(17, 2).c_str(), 0);
+  target->hour = base::atoi<int>(time.substr(11, 2).c_str(), 0);
+  target->minute = base::atoi<int>(time.substr(14, 2).c_str(), 0);
+  target->second = base::atoi<int>(time.substr(17, 2).c_str(), 0);
   target->second_part = base::atoi<int>(msecond.c_str(), 0);
 
   target->time_type = MYSQL_TIMESTAMP_DATETIME;
 }
 
-void BaseConverter::convert_date_time(const char* source, MYSQL_TIME* target, int type)
-{
-  switch(type)
-  {
-  case MYSQL_TYPE_DATE:
-    convert_date(source, target);
-    break;
-  case MYSQL_TYPE_TIME:
-    convert_time(source, target);
-    break;
-  case MYSQL_TYPE_DATETIME:
-  case MYSQL_TYPE_TIMESTAMP:
-    convert_timestamp(source, target);
-    break;
+void BaseConverter::convert_date_time(const char* source, MYSQL_TIME* target, int type) {
+  switch (type) {
+    case MYSQL_TYPE_DATE:
+      convert_date(source, target);
+      break;
+    case MYSQL_TYPE_TIME:
+      convert_time(source, target);
+      break;
+    case MYSQL_TYPE_DATETIME:
+    case MYSQL_TYPE_TIMESTAMP:
+      convert_timestamp(source, target);
+      break;
   }
 }

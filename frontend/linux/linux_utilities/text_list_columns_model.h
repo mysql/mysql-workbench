@@ -8,11 +8,12 @@
 
 #include <gtkmm/treemodelcolumn.h>
 
-struct TextListColumnsModel : public Gtk::TreeModelColumnRecord
-{
-  public:
-    TextListColumnsModel() {add(item); }
-    Gtk::TreeModelColumn<std::string>  item;
+class TextListColumnsModel : public Gtk::TreeModelColumnRecord {
+public:
+  TextListColumnsModel() {
+    add(item);
+  }
+  Gtk::TreeModelColumn<std::string> item;
 };
 
 //!

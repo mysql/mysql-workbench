@@ -91,10 +91,13 @@ namespace MySQL.Controls
       base.Dispose(disposing);
     }
 
-    public GridView(GridModelWrapper model)
+    public GridView(GridModelWrapper model, Font font = null)
     {
       fieldNullBitmap = Resources.field_overlay_null;
       fieldBlobBitmap = Resources.field_overlay_blob;
+
+      if(font != null)
+        setRowHeight(font);
 
       Model = model;
 
@@ -106,7 +109,7 @@ namespace MySQL.Controls
       VirtualMode = true;
       AllowUserToOrderColumns = true;
       AllowUserToResizeRows = false;
-      ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+      ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       ShowCellToolTips = true;
       SelectionMode = DataGridViewSelectionMode.CellSelect;
 
@@ -114,6 +117,15 @@ namespace MySQL.Controls
 
 			// Set grid color
 			GridColor = gridColor;
+    }
+
+    private void setRowHeight(Font font) 
+    {
+      using(Graphics g = CreateGraphics()) 
+      {
+        SizeF textSize = g.MeasureString("setRowHeight", font);
+        RowTemplate.Height = (int)textSize.Height + 1;
+      }
     }
 
     public GridModelWrapper Model { get; set; }

@@ -392,7 +392,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                     self.query_server_info() #query_server_info do update server status
                     status, stime = self.last_known_server_running_status
                     ret = status
-            if ret != "running":
+            if ret not in ("running", "offline"):
                 self.log_cb("Trying to connect to MySQL...")
 
                 conn = grt.modules.DbMySQLQuery.openConnection(self.server_profile.db_connection_params)
@@ -486,6 +486,11 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         except Exception, e:
             log_error("Error connecting to MySQL: %s\n" % e)
             mforms.Utilities.show_error("Connect Error", "Could not connect to MySQL: %s" % e, "OK", "", "")
+
+        if not self.worker_thread.is_alive() and not self.test_only:
+            # start status variable check thread
+            self.worker_thread = threading.Thread(target=self.server_polling_thread)
+            self.worker_thread.start()
 
     #---------------------------------------------------------------------------
     def server_stopped_event(self):
@@ -694,6 +699,12 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
     def query_server_info(self):
         self.server_variables = {}
         result = self.exec_query("SHOW VARIABLES")
+        
+        if not result:
+            # Didn't get the server variables. Assuming the server is stopped
+            self.last_known_server_running_status = ("stopped", time.time())
+            return
+        
         while result and result.nextRow():
             self.server_variables[result.stringByName("Variable_name")] = result.stringByName("Value")
 

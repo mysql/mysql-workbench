@@ -7,15 +7,14 @@ set(DATA_FILES
 install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR})
 
 include_directories(.
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${GNOME_KEYRING_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${TINYXML_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GNOME_KEYRING_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${PROJECT_SOURCE_DIR}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/base
@@ -27,6 +26,7 @@ include_directories(.
 if (UNIX)
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
 endif()
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(mforms
@@ -71,7 +71,7 @@ add_library(mforms
     gtk/src/lf_textentry.cpp
     gtk/src/lf_table.cpp
     gtk/src/lf_toolbar.cpp
-    gtk/src/lf_treenodeview.cpp
+    gtk/src/lf_treeview.cpp
     gtk/src/lf_utilities.cpp
     gtk/src/lf_view.cpp
     gtk/src/lf_wizard.cpp
@@ -89,7 +89,7 @@ add_library(mforms
     popup.cpp
     progressbar.cpp
     radiobutton.cpp
-    record_grid.cpp
+    gridview.cpp
     scrollpanel.cpp
     sectionbox.cpp
     selector.cpp
@@ -103,13 +103,20 @@ add_library(mforms
     textbox.cpp
     textentry.cpp
     toolbar.cpp
-    treenodeview.cpp
+    treeview.cpp
     utilities.cpp
     view.cpp
     webbrowser.cpp
     jsonview.cpp
     widgets.cpp
     wizard.cpp
+    jsonview.cpp
+    home_screen.cpp
+    home_screen_connections.cpp
+    home_screen_documents.cpp
+    home_screen_launchers.cpp
+    home_screen_helpers.cpp
+    ProjectForm.cpp
 )
 
 if (KEYRING_DEFINITION)
@@ -123,7 +130,13 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	)
 endif()
 
-target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK2_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
+target_compile_options(mforms PUBLIC ${WB_CXXFLAGS})
+
+target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(mforms gcov)
+endif()
 
 set_target_properties(mforms
                       PROPERTIES VERSION   ${WB_VERSION}

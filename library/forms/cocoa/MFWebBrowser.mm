@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,12 +35,12 @@
     mOwner = aBrowser;
     mOwner->set_data(self);
     
-    mBrowser = [[WebView alloc] initWithFrame: [self frame]];
+    mBrowser = [[WebView alloc] initWithFrame: self.frame];
     [self addSubview: mBrowser];
-    [mBrowser setFrameLoadDelegate: (id)self];
-    [mBrowser setUIDelegate: (id)self];
-    [mBrowser setPolicyDelegate: (id)self];
-    [mBrowser setResourceLoadDelegate: (id)self];
+    mBrowser.frameLoadDelegate = (id)self;
+    mBrowser.UIDelegate = (id)self;
+    mBrowser.policyDelegate = (id)self;
+    mBrowser.resourceLoadDelegate = (id)self;
     [mBrowser setShouldCloseWithWindow: YES];
   }
   return self;
@@ -62,7 +62,7 @@
 
 - (void) webView: (WebView*) webView didFinishLoadForFrame: (WebFrame*) frame
 {
-  mOwner->document_loaded([[webView mainFrameURL] UTF8String]);
+  mOwner->document_loaded(webView.mainFrameURL.UTF8String);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@
 - (void) webView: (WebView*) sender runOpenPanelForFileButtonWithResultListener: (id<WebOpenPanelResultListener>) resultListener
 {
   NSOpenPanel *panel= [NSOpenPanel openPanel];
-  [panel setTitle: @"Select file to upload"];
+  panel.title = @"Select file to upload";
   
   if ([panel runModal] == NSFileHandlingPanelOKButton)
     [resultListener chooseFilename: panel.URL.path];
@@ -86,7 +86,7 @@
 {  
   // disable caching
   NSMutableURLRequest *req = [request mutableCopy];
-  [req setCachePolicy: NSURLRequestReloadIgnoringLocalCacheData];
+  req.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
   return req;
 }
 
@@ -100,7 +100,7 @@ decisionListener:(id < WebPolicyDecisionListener >)listener
   if ([actionInformation[WebActionNavigationTypeKey] integerValue] == WebNavigationTypeLinkClicked)
   {
     NSURL *url = actionInformation[WebActionElementKey][WebElementLinkURLKey];
-    if (url && mOwner->on_link_clicked([[url description] UTF8String]))
+    if (url && mOwner->on_link_clicked(url.description.UTF8String))
     {
       [listener ignore];
       return;
@@ -113,7 +113,7 @@ decisionListener:(id < WebPolicyDecisionListener >)listener
 
 - (NSString*) description
 {
-  return [NSString stringWithFormat: @"<%@ '%@'>", [self className], [self documentTitle]];
+  return [NSString stringWithFormat: @"<%@ '%@'>", self.className, self.documentTitle];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,8 +127,8 @@ decisionListener:(id < WebPolicyDecisionListener >)listener
 
 - (void)setFrame:(NSRect)frame
 {
-  [super setFrame: frame];
-  [mBrowser setFrame: frame];
+  super.frame = frame;
+  mBrowser.frame = frame;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ decisionListener:(id < WebPolicyDecisionListener >)listener
 
 - (void) setHTML: (NSString*) code
 {
-  [[mBrowser mainFrame] loadHTMLString: code baseURL: [NSURL URLWithString: @"/"]];
+  [mBrowser.mainFrame loadHTMLString: code baseURL: [NSURL URLWithString: @"/"]];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ decisionListener:(id < WebPolicyDecisionListener >)listener
 {
   NSURL* url = [NSURL URLWithString: target];
   
-  [[mBrowser mainFrame] loadRequest: [NSURLRequest requestWithURL: url 
+  [mBrowser.mainFrame loadRequest: [NSURLRequest requestWithURL: url 
                                                       cachePolicy: NSURLRequestReloadIgnoringCacheData
                                                   timeoutInterval: 60.0]];
 }
@@ -198,7 +198,7 @@ static std::string WebBrowser_get_document_title(::mforms::WebBrowser *self)
   {
     MFWebBrowserImpl* browser = self->get_data();
     if (browser)
-      return [[browser documentTitle] UTF8String];
+      return browser.documentTitle.UTF8String;
   }
   return "";
 }

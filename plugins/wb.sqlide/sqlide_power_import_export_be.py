@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ import datetime
 import json
 from workbench.utils import Version
 
-from workbench.log import log_debug3, log_debug2, log_error
+from workbench.log import log_debug3, log_debug2, log_error, log_warning
 
 last_location = ""
 
@@ -296,7 +296,7 @@ class UniReader:
     def next(self):
         row = self.csvreader.next()
         return [unicode(s, "utf-8") for s in row]
-    
+        
     @property
     def line_num(self):
         return self.csvreader.line_num
@@ -443,7 +443,7 @@ class csv_module(base_module):
                         continue
 
                     
-                    self.update_progress(round(self._current_row / self._max_rows, 2), "Data import")
+                    
 
                     for i, col in enumerate(col_order):
                         if col_order[col] >= len(row):
@@ -466,14 +466,18 @@ class csv_module(base_module):
                             elif col_type[col] == 'datetime':
                                 val = datetime.datetime.strptime(row[col_name], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             if hasattr(val, "replace"):
-                                val = val.replace("\\", "\\\\").replace('"', '\\"')
-                            self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                                val = val.replace("\\", "\\\\").replace("'", "\\'")
+                            self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
                             self.item_count = self.item_count + 1
+                            self.update_progress(round(self._current_row / self._max_rows, 2), "Data import")
                         except Exception, e:
                             log_error("Row import failed with error: %s" % e)
+                            self.update_progress(round(self._current_row / self._max_rows, 2), "Row import failed with error: %s" % e)
+                            result = False
+
                 self.update_progress(1.0, "Import finished")
             except Exception, e:
                 import traceback
@@ -488,11 +492,17 @@ class csv_module(base_module):
             if self.dialect is None:
                 csvsample = []
                 for i in range(0,2): #read two lines as a sample
-                    csvsample.append(csvfile.readline())
+                    line = csvfile.readline()
+                    if len(line) > 0:
+                        csvsample.append(line)
                 
+                csvsample_len = len(csvsample)
                 csvsample = "".join(csvsample)
                 self.dialect = csv.Sniffer().sniff(csvsample)
                 self.has_header = csv.Sniffer().has_header(csvsample)
+                if self.has_header and csvsample_len == 1:
+                    self.has_header = False
+                    
                 csvfile.seek(0)
                 self.options['filedseparator']['value'] = self.dialect.delimiter 
                 self.options['lineseparator']['value'] = self.dialect.lineterminator 
@@ -506,16 +516,17 @@ class csv_module(base_module):
             try:
                 reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
                 self._columns = []
-                row = None
+                row_line = None
                 try:
-                    row = reader.next()
+                    row_line = reader.next()
                 except StopIteration, e:
                     pass
                 
-                if row:
-                    for col_value in row:
+                
+                if row_line:
+                    for col_value in row_line:
                         self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
-
+                        
                     for i, row in enumerate(reader): #we will read only first few rows
                         if i < 5:
                             for j, col_value in enumerate(row):
@@ -528,6 +539,18 @@ class csv_module(base_module):
                                     self._columns[j]['value'].append(col_value)
                         else:
                             break
+                        
+                    if not self.has_header and i == 1: # This means there were one line which was consumed as a header we need to copy it to use as values
+                        log_warning("File: %s, probably has got only one line, using it as a header and data\n" % self._filepath)
+                        for j, col_value in enumerate(row_line):
+                            try:
+                                json_value = json.loads(col_value)
+                                self._columns[j]['is_string'] = False
+                                self._columns[j]['is_json'] = True
+                                self._columns[j]['value'].append(json_value)
+                            except Exception as e:
+                                self._columns[j]['value'].append(col_value)
+
                     for col in self._columns:
                         # Means the file is missing some data or is mallformed
                         if len(col['value']) == 0:
@@ -666,22 +689,20 @@ class json_module(base_module):
                             self._editor.executeManagementCommand("""SET @a%d = %s """ % (i, val), 0)
                         else:
                             if col_type[col_name] != "json" and hasattr(val, "replace"):
-                                val = val.replace("\\", "\\\\").replace('"', '\\"')
+                                val = val.replace("\\", "\\\\").replace("'", "\\'")
                                 
                             if col_type[col_name] == 'double':
                                 val = val(str).replace(self._decimal_separator, '.')
                             elif col_type[col_name] == 'datetime':
                                 val = datetime.datetime.strptime(val, self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             elif col_type[col_name] == "json":
-                                val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")
+                                val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")                                
     
                             if col_type[col_name] == "int":
                                 self._editor.executeManagementCommand("""SET @a%d = %d """ % (i, int(val)), 0)
-                            elif col_type[col_name] == "json":
-                                self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
                             else:
-                                self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
-                            
+                                self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
+
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)

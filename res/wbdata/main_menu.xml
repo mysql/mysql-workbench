@@ -10,8 +10,8 @@
       <value type="string" key="caption">_File</value>
       <value type="string" key="itemType">cascade</value>
       <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
-		
-        
+
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.new1">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
           <value type="string" key="name">new_document</value>
@@ -19,7 +19,7 @@
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+N</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.file_new">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
           <value type="string" key="caption">_New Query Tab...</value>
@@ -163,7 +163,7 @@
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+S</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.savesql">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
           <value type="string" key="context">*query</value>
@@ -173,7 +173,7 @@
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+S</value>
         </value>
- 
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.save_as">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
           <value type="string" key="context">*model</value>
@@ -202,17 +202,6 @@
           <value type="string" key="command">builtin:query.revert</value>
           <value type="string" key="itemType">action</value>
         </value>
-
-
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.saveall">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
-          <value type="string" key="caption">Save All</value>
-          <value type="string" key="name">save_all</value>
-          <value type="string" key="command">plugin:wb.file.saveAll</value>
-          <value type="string" key="itemType">action</value>
-          <value type="string" key="shortcut">Modifier+Control+S</value>
-        </value!-->
-
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.file.save_as">
           <value type="string" key="itemType">separator</value>
@@ -243,14 +232,6 @@
 
             <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.import.sep">
               <value type="string" key="itemType">separator</value>
-            </value>
-
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.import.mysql.dbd4">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file.import</link>
-              <value type="string" key="caption">Import DBDesigner4 Model...</value>
-              <value type="string" key="name">mysql_import_dbd4</value>
-              <value type="string" key="command">plugin:db.mysql.import.dbd4</value>
-              <value type="string" key="itemType">action</value>
             </value>
 
           </value>
@@ -336,7 +317,7 @@
           <value type="string" key="context">*model</value>
         </value>
 
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.printPreview">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
           <value type="string" key="caption">Print Preview...</value>
@@ -515,37 +496,6 @@
           <value type="string" key="context">*model</value>
         </value>
 
-<!-- not useful and has trouble in most platforms
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.rename">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
-          <value type="string" key="context">*global</value>
-          <value type="string" key="caption">Rename...</value>
-          <value type="string" key="name">rename</value>
-          <value type="string" key="command">plugin:wb.edit.renameSelection</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.rename2">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
-          <value type="string" key="context">overview.physical</value>
-          <value type="string" key="caption">Renname...</value>
-          <value type="string" key="name">rename</value>
-          <value type="string" key="command">builtin:overview.rename</value>
-          <value type="string" key="itemType">action</value>
-          <value type="string" key="shortcut">F2</value>
-          <value type="string" key="platform">windows</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.rename3">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
-          <value type="string" key="context">overview.physical</value>
-          <value type="string" key="caption">Rename...</value>
-          <value type="string" key="name">rename</value>
-          <value type="string" key="command">builtin:overview.rename</value>
-          <value type="string" key="itemType">action</value>
-          <value type="string" key="platform">macosx,linux</value>
-        </value>
- -->       
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.editobject">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
           <value type="string" key="context">model</value>
@@ -584,7 +534,7 @@
           <value type="string" key="command">plugin:wb.edit.editObjectInNewWindow</value>
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+Shift+E</value>
-        </value>        
+        </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.edit.edit">
           <value type="string" key="itemType">separator</value>
@@ -596,7 +546,7 @@
           <value type="string" key="name">select</value>
           <value type="string" key="itemType">cascade</value>
           <value type="string" key="context">*model</value>
-          
+
           <value type="list" content-type="object" content-struct-name="app.MenuItem" key="subItems">
 
             <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.select_all">
@@ -684,26 +634,6 @@
               <value type="string" key="shortcut">Modifier+F</value>
             </value>
 
-            <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.findnext">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit.findmenu</link>
-              <value type="string" key="caption">Find Next</value>
-              <value type="string" key="name">findnext</value>
-              <value type="string" key="command">builtin:find_next</value>
-              <value type="string" key="itemType">action</value>
-              <value type="string" key="shortcut">F3</value>
-              <value type="string" key="context">*model</value>
-            </value>
-
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.findprev">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit.findmenu</link>
-              <value type="string" key="caption">Find Previous</value>
-              <value type="string" key="name">findprev</value>
-              <value type="string" key="command">builtin:find_previous</value>
-              <value type="string" key="itemType">action</value>
-              <value type="string" key="shortcut">Shift+F3</value>
-              <value type="string" key="context">*model</value>
-            </value-->
-
             <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.search_replace">
               <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit.findmenu</link>
               <value type="string" key="caption">Find and Replace</value>
@@ -758,25 +688,7 @@
               <value type="string" key="command">plugin:wb.sqlide.lowercaseKeywords</value>
               <value type="string" key="itemType">action</value>
             </value>
-            <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.edit.fmt2">
-              <value type="string" key="itemType">separator</value>
-            </value>
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.indent">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit.format_menu</link>
-              <value type="string" key="caption">Indent Lines</value>
-              <value type="string" key="name">indent</value>
-              <value type="string" key="command">plugin:wb.sqlide.indent</value>
-              <value type="string" key="itemType">action</value>
-              <value type="string" key="shortcut">Tab</value>
-            </value>
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.unindent">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit.format_menu</link>
-              <value type="string" key="caption">Unindent Lines</value>
-              <value type="string" key="name">unindent</value>
-              <value type="string" key="command">plugin:wb.sqlide.unindent</value>
-              <value type="string" key="itemType">action</value>
-              <value type="string" key="shortcut">Shift+Tab</value>
-            </value-->
+
             <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.comment">
               <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit.format_menu</link>
               <value type="string" key="caption">Un/Comment Selection</value>
@@ -792,18 +704,10 @@
           <value type="string" key="itemType">separator</value>
           <value type="string" key="context">*query</value>
         </value>
- 
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.code-completion-menu">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
-          <value type="string" key="caption">Code Completion</value>
-          <value type="string" key="name">cc-menu</value>
-          <value type="string" key="itemType">cascade</value>
-          <value type="string" key="context">*query</value>
 
-          <value type="list" content-type="object" content-struct-name="app.MenuItem" key="subItems"-->
             <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.list-members">
               <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
-              <value type="string" key="caption">Auto-complete</value>
+              <value type="string" key="caption">Auto complete</value>
               <value type="string" key="name">list-members</value>
               <value type="string" key="command">builtin:list-members</value>
               <value type="string" key="itemType">action</value>
@@ -811,15 +715,35 @@
               <value type="string" key="platform">windows,linux</value>
               <value type="string" key="context">*query</value>
             </value>
+            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.list-members.ng">
+              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
+              <value type="string" key="caption">Auto complete</value>
+              <value type="string" key="name">list-members-ng</value>
+              <value type="string" key="command">builtin:list-members-ng</value>
+              <value type="string" key="itemType">action</value>
+              <value type="string" key="shortcut">Modifier+Space</value>
+              <value type="string" key="platform">windows,linux</value>
+              <value type="string" key="context">ng</value>
+            </value>
             <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.list-members-mac">
               <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
-              <value type="string" key="caption">Auto-complete</value>
+              <value type="string" key="caption">Auto complete</value>
               <value type="string" key="name">list-members</value>
               <value type="string" key="command">builtin:list-members</value>
               <value type="string" key="itemType">action</value>
               <value type="string" key="shortcut">Command+Escape</value>
               <value type="string" key="platform">macosx</value>
               <value type="string" key="context">*query</value>
+            </value>
+            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.list-members-mac.ng">
+              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
+              <value type="string" key="caption">Auto complete</value>
+              <value type="string" key="name">list-members-ng</value>
+              <value type="string" key="command">builtin:list-members-ng</value>
+              <value type="string" key="itemType">action</value>
+              <value type="string" key="shortcut">Command+Escape</value>
+              <value type="string" key="platform">macosx</value>
+              <value type="string" key="context">ng</value>
             </value>
           <!--/value>
         </value-->
@@ -828,7 +752,7 @@
           <value type="string" key="itemType">separator</value>
           <value type="string" key="platform">windows,linux</value>
         </value>
-     
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.edit.options">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit</link>
           <value type="string" key="caption">Preferences...</value>
@@ -884,38 +808,6 @@
             </value>
           </value>
         </value>
-
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.sidebars_model">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
-          <value type="string" key="name">sidebars</value>
-          <value type="string" key="context">*model</value>
-          <value type="string" key="caption">Panels</value>
-          <value type="string" key="itemType">cascade</value>
-          <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.sidebars_model.left">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view.sidebars_model</link>
-              <value type="string" key="caption">Show Sidebar</value>
-              <value type="string" key="name">alias.wb.toggleSidebar</value>
-              <value type="string" key="command">builtin:alias.wb.toggleSidebar</value>
-            </value>
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.sidebars_model.right">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view.sidebars_model</link>
-              <value type="string" key="caption">Show Secondary Sidebar</value>
-              <value type="string" key="name">alias.wb.toggleSecondarySidebar</value>
-              <value type="string" key="command">builtin:alias.wb.toggleSecondarySidebar</value>
-            </value>
-          </value>
-        </value-->
-
-<!--
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.pluginbrowser">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
-          <value type="string" key="caption">Plugin Browser</value>
-          <value type="string" key="name">plugin_browser</value>
-          <value type="string" key="command">plugin:plugin_browser</value>
-          <value type="string" key="itemType">action</value>
-        </value>
--->
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.panels">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
@@ -982,8 +874,8 @@
             </value>
           </value>
         </value>
-        
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.advanced.output_form">
+
+<!--        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.advanced.output_form">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
           <value type="string" key="caption">Output</value>
           <value type="string" key="name">advanced_output_form</value>
@@ -1000,7 +892,7 @@
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+Option+2</value>
           <value type="string" key="platform">macosx</value>
-        </value>
+        </value>-->
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.reset_layout">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
@@ -1031,17 +923,6 @@
           <value type="string" key="platform">macosx</value>
         </value>
 
-        <!-- value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.overview.printview">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
-          <value type="string" key="caption">Print Guides</value>
-          <value type="string" key="name">print_guides</value>
-          <value type="string" key="command">builtin:view.showprint</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.view.printview">
-          <value type="string" key="itemType">separator</value>
-        </value-->
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.nexttabm">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
           <value type="string" key="caption">Select Next Query Tab</value>
@@ -1101,7 +982,7 @@
           <value type="string" key="shortcut">Control+Page_Up</value>
           <value type="string" key="platform">linux</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.nextquerytabl">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
           <value type="string" key="context">*query</value>
@@ -1123,7 +1004,7 @@
           <value type="string" key="shortcut">Control+Shift+Page_Up</value>
           <value type="string" key="platform">linux</value>
         </value>
-        
+
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.nexttabw">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
@@ -1144,7 +1025,7 @@
           <value type="string" key="shortcut">Alt+Shift+Left</value>
           <value type="string" key="platform">windows</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.view.backtab">
           <value type="string" key="itemType">separator</value>
           <value type="string" key="platform">macosx,linux</value>
@@ -1541,7 +1422,7 @@
           <value type="string" key="itemType">separator</value>
           <value type="string" key="context">*model</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.grid">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
           <value type="string" key="name">grid_toggle</value>
@@ -1558,17 +1439,8 @@
           <value type="string" key="itemType">check</value>
         </value>
 
-        <!--Disable because the connection lines don't show up highlighted for printing 
-value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhilite">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.view</link>
-          <value type="string" key="name">fk_hilite_toggle</value>
-          <value type="string" key="context">*model</value>
-          <value type="string" key="command">plugin:wb.edit.toggleFKHighlight</value>
-          <value type="string" key="itemType">check</value>
-        </value-->
- 
       </value>
-      
+
     </value>
 
 
@@ -1713,7 +1585,7 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.model.udt/SE">
           <value type="string" key="itemType">separator</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.reporting/SE">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model</link>
           <value type="string" key="caption">DBDoc - Model Reporting...</value>
@@ -1721,14 +1593,6 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="command">plugin:wb.model.plugin.reporting</value>
           <value type="string" key="itemType">action</value>
         </value>
-
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.dd">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model</link>
-          <value type="string" key="caption">Data Dictionary...</value>
-          <value type="string" key="name">dd</value>
-          <value type="string" key="command">plugin:dd</value>
-          <value type="string" key="itemType">action</value>
-        </value-->
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.model.valid/SE">
           <value type="string" key="itemType">separator</value>
@@ -1889,14 +1753,6 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
               <value type="string" key="itemType">radio</value>
             </value>
 
-            <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.fnotation.barker">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.fnotation</link>
-              <value type="string" key="name">figure_notation_barker</value>
-              <value type="string" key="caption">Barker</value>
-              <value type="string" key="command">plugin:wb.view.setFigureNotation:barker</value>
-              <value type="string" key="itemType">radio</value>
-            </value-->
-
             <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.fnotation.idef1x">
               <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.fnotation</link>
               <value type="string" key="name">figure_notation_idef1x</value>
@@ -1998,7 +1854,7 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
       </value>
     </value>
 
-    <!-- SQL Editor Menu --> 
+    <!-- SQL Editor Menu -->
     <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query">
       <value type="string" key="context">dbquery</value>
       <value type="string" key="name">query</value>
@@ -2006,85 +1862,85 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
       <value type="string" key="itemType">cascade</value>
       <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.exec"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Execute (All or Selection)</value> 
-          <value type="string" key="name">query.execute</value> 
-          <value type="string" key="command">builtin:query.execute</value> 
-          <value type="string" key="itemType">action</value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.exec">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Execute (All or Selection)</value>
+          <value type="string" key="name">query.execute</value>
+          <value type="string" key="command">builtin:query.execute</value>
+          <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+Shift+Return</value>
-        </value> 
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.exec_to_text"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Execute (All or Selection) to Text</value> 
-          <value type="string" key="name">wb.sqlide.executeToTextOutput</value> 
-          <value type="string" key="command">plugin:wb.sqlide.executeToTextOutput</value> 
-          <value type="string" key="itemType">action</value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.exec_to_text">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Execute (All or Selection) to Text</value>
+          <value type="string" key="name">wb.sqlide.executeToTextOutput</value>
+          <value type="string" key="command">plugin:wb.sqlide.executeToTextOutput</value>
+          <value type="string" key="itemType">action</value>
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.execute_current_statementwin"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Execute Current Statement</value> 
-          <value type="string" key="name">query.execute_current_statement</value> 
-          <value type="string" key="command">builtin:query.execute_current_statement</value> 
-          <value type="string" key="itemType">action</value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.execute_current_statementwin">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Execute Current Statement</value>
+          <value type="string" key="name">query.execute_current_statement</value>
+          <value type="string" key="command">builtin:query.execute_current_statement</value>
+          <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+Return</value>
           <value type="string" key="platform">windows</value>
-        </value> 
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.execute_current_statement"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Execute Current Statement</value> 
-          <value type="string" key="name">query.execute_current_statement</value> 
-          <value type="string" key="command">builtin:query.execute_current_statement</value> 
-          <value type="string" key="itemType">action</value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.execute_current_statement">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Execute Current Statement</value>
+          <value type="string" key="name">query.execute_current_statement</value>
+          <value type="string" key="command">builtin:query.execute_current_statement</value>
+          <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+Return</value>
           <value type="string" key="platform">macosx,linux</value>
-        </value> 
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.vertical_output"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Execute Current Statement (Vertical Text Output)</value> 
-          <value type="string" key="name">query.vertical_output</value> 
-          <value type="string" key="command">plugin:wb.sqlide.verticalOutput</value> 
-          <value type="string" key="itemType">action</value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.vertical_EditorBox">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Execute Current Statement (Vertical Text Output)</value>
+          <value type="string" key="name">query.vertical_EditorBox</value>
+          <value type="string" key="command">plugin:wb.sqlide.verticalOutput</value>
+          <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+Alt+Return</value>
-        </value> 
+        </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.query.explsep">
           <value type="string" key="itemType">separator</value>
         </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.explain_current_statement"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Explain Current Statement</value> 
-          <value type="string" key="name">query.explain_current_statement</value> 
-          <value type="string" key="command">builtin:query.explain_current_statement</value> 
-          <value type="string" key="itemType">action</value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.explain_current_statement">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Explain Current Statement</value>
+          <value type="string" key="name">query.explain_current_statement</value>
+          <value type="string" key="command">builtin:query.explain_current_statement</value>
+          <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+Alt+X</value>
-        </value> 
+        </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.query.stopsep">
           <value type="string" key="itemType">separator</value>
         </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.stop"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">_Stop</value> 
-          <value type="string" key="name">query.cancel</value> 
-          <value type="string" key="command">builtin:query.cancel</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut"></value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.stop">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">_Stop</value>
+          <value type="string" key="name">query.cancel</value>
+          <value type="string" key="command">builtin:query.cancel</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut"></value>
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.stop_on_error"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Stop Script Execution on Errors</value> 
-          <value type="string" key="name">query.continueOnError</value> 
-          <value type="string" key="command">builtin:query.continueOnError</value> 
-          <value type="string" key="itemType">check</value> 
-          <value type="string" key="shortcut"></value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.stop_on_error">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Stop Script Execution on Errors</value>
+          <value type="string" key="name">query.continueOnError</value>
+          <value type="string" key="command">builtin:query.continueOnError</value>
+          <value type="string" key="itemType">check</value>
+          <value type="string" key="shortcut"></value>
         </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.query.run">
@@ -2110,94 +1966,94 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="itemType">separator</value>
         </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.reconnect"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">_Reconnect to Server</value> 
-          <value type="string" key="name">query.reconnect</value> 
-          <value type="string" key="command">builtin:query.reconnect</value> 
-          <value type="string" key="itemType">action</value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.reconnect">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">_Reconnect to Server</value>
+          <value type="string" key="name">query.reconnect</value>
+          <value type="string" key="command">builtin:query.reconnect</value>
+          <value type="string" key="itemType">action</value>
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.new_tab"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">_New Tab to Current Server</value> 
-          <value type="string" key="name">query.newtab</value> 
-          <value type="string" key="command">builtin:query.new_connection</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut">Modifier+Shift+T</value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.new_tab">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">_New Tab to Current Server</value>
+          <value type="string" key="name">query.newtab</value>
+          <value type="string" key="command">builtin:query.new_connection</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut">Modifier+Shift+T</value>
+        </value>
 
    	    <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.query.rec">
           <value type="string" key="itemType">separator</value>
         </value>
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.autocommit"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Auto-Commit Transactions</value> 
-          <value type="string" key="name">query.autocommit</value> 
-          <value type="string" key="command">builtin:query.autocommit</value> 
-          <value type="string" key="itemType">check</value> 
-          <value type="string" key="shortcut"></value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.autocommit">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Auto-Commit Transactions</value>
+          <value type="string" key="name">query.autocommit</value>
+          <value type="string" key="command">builtin:query.autocommit</value>
+          <value type="string" key="itemType">check</value>
+          <value type="string" key="shortcut"></value>
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.commit"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">C_ommit Transaction</value> 
-          <value type="string" key="name">query.commit</value> 
-          <value type="string" key="command">builtin:query.commit</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut"></value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.commit">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">C_ommit Transaction</value>
+          <value type="string" key="name">query.commit</value>
+          <value type="string" key="command">builtin:query.commit</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut"></value>
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.rollback"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">_Rollback Transaction</value> 
-          <value type="string" key="name">query.rollback</value> 
-          <value type="string" key="command">builtin:query.rollback</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut"></value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.rollback">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">_Rollback Transaction</value>
+          <value type="string" key="name">query.rollback</value>
+          <value type="string" key="command">builtin:query.rollback</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut"></value>
+        </value>
 
 	    <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.query.edit">
           <value type="string" key="itemType">separator</value>
         </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.save"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Commit Result Edits</value> 
-          <value type="string" key="name">query.save_edits</value> 
-          <value type="string" key="command">builtin:query.save_edits</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut"></value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.save">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Commit Result Edits</value>
+          <value type="string" key="name">query.save_edits</value>
+          <value type="string" key="command">builtin:query.save_edits</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut"></value>
+        </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.revert"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Discard Result Edits</value> 
-          <value type="string" key="name">query.discard_edits</value> 
-          <value type="string" key="command">builtin:query.discard_edits</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut"></value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.revert">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">Discard Result Edits</value>
+          <value type="string" key="name">query.discard_edits</value>
+          <value type="string" key="command">builtin:query.discard_edits</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut"></value>
+        </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.query.export">
           <value type="string" key="itemType">separator</value>
         </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.export"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">_Export Results...</value> 
-          <value type="string" key="name">query.export</value> 
-          <value type="string" key="command">builtin:query.export</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut"></value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.export">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link>
+          <value type="string" key="caption">_Export Results...</value>
+          <value type="string" key="name">query.export</value>
+          <value type="string" key="command">builtin:query.export</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut"></value>
+        </value>
 
       </value>
     </value>
 
 
     <!-- Database Menu -->
-    
+
     <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.database">
       <value type="string" key="name">database</value>
       <value type="string" key="caption">_Database</value>
@@ -2205,15 +2061,15 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
       <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
 
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.database.query"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.database</link> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.database.query">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.database</link>
           <value type="string" key="caption">Connect to Database...</value>
-          <value type="string" key="name">db_sql_editor</value> 
-          <value type="string" key="command">plugin:wb.form.showQueryConnectDialog</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut">Modifier+U</value> 
-        </value> 
- 
+          <value type="string" key="name">db_sql_editor</value>
+          <value type="string" key="command">plugin:wb.form.showQueryConnectDialog</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut">Modifier+U</value>
+        </value>
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.view.query">
           <value type="string" key="itemType">separator</value>
         </value>
@@ -2238,16 +2094,6 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+R</value>
         </value>
-
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.database.reverse_engineering">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.database</link>
-          <value type="string" key="caption">Reverse Engineer...</value>
-          <value type="string" key="name">reverse_engineering</value>
-          <value type="string" key="command">plugin:db.plugin.database.rev_eng</value>
-          <value type="string" key="itemType">action</value>
-          <value type="string" key="shortcut">Modifier+R</value>
-          <value type="string" key="context">*model</value>
-        </value-->
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.database.forward_engineering">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.database</link>
@@ -2279,13 +2125,13 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="itemType">action</value>
         </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.database.migtypemap"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.database</link> 
-          <value type="string" key="caption">Edit Type Mappings for Generic Migration...</value> 
-          <value type="string" key="name">typemap</value> 
-          <value type="string" key="command">plugin:wb.migration.showTypeMapEditor</value> 
-          <value type="string" key="itemType">action</value> 
-        </value> 
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.database.migtypemap">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.database</link>
+          <value type="string" key="caption">Edit Type Mappings for Generic Migration...</value>
+          <value type="string" key="name">typemap</value>
+          <value type="string" key="command">plugin:wb.migration.showTypeMapEditor</value>
+          <value type="string" key="itemType">action</value>
+        </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.mig">
           <value type="string" key="itemType">separator</value>
@@ -2327,7 +2173,7 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="itemType">separator</value>
           <value type="string" key="context">*model</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.database.diff_report">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.database</link>
           <value type="string" key="caption">Compare Schemas...</value>
@@ -2350,6 +2196,7 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="command">plugin:com.mysql.wb.menu.database.search</value>
           <value type="string" key="itemType">action</value>
         </value>
+
       </value>
     </value>
 
@@ -2437,7 +2284,7 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="command">plugin:wb.admin.open_into:admin_dashboard</value>
           <value type="string" key="itemType">action</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.server.pf.reports">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.server</link>
           <value type="string" key="caption">Performance Reports</value>
@@ -2445,7 +2292,7 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="command">plugin:wb.admin.open_into:admin_performance_reports</value>
           <value type="string" key="itemType">action</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.server.pf.reports.setup">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.server</link>
           <value type="string" key="caption">Performance Schema Setup</value>
@@ -2503,7 +2350,7 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
         </value>
       </value>
     </value>
-    
+
     <!-- Plugins Menu -->
 
     <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.plugins">
@@ -2548,23 +2395,13 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           </value>
         </value>
 
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.plugins.code_generation">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.plugins</link>
-          <value type="string" key="name">code_generation</value>
-          <value type="string" key="caption">Code Generation</value>
-          <value type="string" key="itemType">cascade</value>
-          <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
-
-          </value>
-        </value-->
-
       </value>
 
     </value>
 
 
     <!-- Scripting (old Tools) Menu -->
-    
+
     <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools">
       <value type="string" key="name">tools</value>
       <value type="string" key="caption">_Scripting</value>
@@ -2639,205 +2476,10 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="itemType">action</value>
         </value>
 
-
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.tools.runscript">
-          <value type="string" key="itemType">separator</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.new">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-          <value type="string" key="caption">New</value>
-          <value type="string" key="name">new</value>
-          <value type="string" key="itemType">cascade</value>
-          <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.newscript_py">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-              <value type="string" key="caption">New Python Script</value>
-              <value type="string" key="name"></value>
-              <value type="string" key="command">plugin:wb.tools.newScript</value>
-              <value type="string" key="itemType">action</value>
-            </value>
-
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.newscript_lua">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-              <value type="string" key="caption">New Lua Script</value>
-              <value type="string" key="name"></value>
-              <value type="string" key="command">plugin:wb.tools.newScript</value>
-              <value type="string" key="itemType">action</value>
-            </value>
-
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.newmodule_py">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-              <value type="string" key="caption">New Python Plugin Module</value>
-              <value type="string" key="name"></value>
-              <value type="string" key="command">plugin:wb.tools.newScript</value>
-              <value type="string" key="itemType">action</value>
-            </value>
-
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.newmodule_lua">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-              <value type="string" key="caption">New Lua Plugin Module</value>
-              <value type="string" key="name"></value>
-              <value type="string" key="command">plugin:wb.tools.newScript</value>
-              <value type="string" key="itemType">action</value>
-            </value>
-	  </value>
-        </value>
- 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.open_script">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-          <value type="string" key="caption">Open Script...</value>
-          <value type="string" key="name">open_script</value>
-          <value type="string" key="command">plugin:wb.tools.openScriptFile</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-    
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.save_script">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-          <value type="string" key="caption">Save Script</value>
-          <value type="string" key="name">save_script</value>
-          <value type="string" key="command">plugin:wb.tools.saveScriptFile</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.save_script_as">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-          <value type="string" key="caption">Save Script As...</value>
-          <value type="string" key="name">save_script_as</value>
-          <value type="string" key="command">plugin:wb.tools.saveScriptFile</value>
-          <value type="string" key="itemType">action</value>
-        </value>
- 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.tools.save_">
-          <value type="string" key="itemType">separator</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.run_script">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-          <value type="string" key="caption">Run Script...</value>
-          <value type="string" key="name">run_script</value>
-          <value type="string" key="command">plugin:wb.tools.runScript</value>
-          <value type="string" key="itemType">action</value>
-        </value-->
-
-
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.debug">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-          <value type="string" key="name">debug</value>
-          <value type="string" key="caption">Debug</value>
-          <value type="string" key="itemType">cascade</value>
-
-          <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
-
-            
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.debug.clear_undo_stack">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools.debug</link>
-              <value type="string" key="caption">Clear Undo Stack</value>
-              <value type="string" key="name">clear_undo_stack</value>
-              <value type="string" key="command">plugin:wb.debug.clearUndoStack</value>
-              <value type="string" key="itemType">action</value>
-            </value>
-
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.debug.grt_stats">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools.debug</link>
-              <value type="string" key="caption">GRT Stats</value>
-              <value type="string" key="name">grt_stats</value>
-              <value type="string" key="command">plugin:wb.debug.debugGrtStats</value>
-              <value type="string" key="itemType">action</value>
-            </value>
-
-
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.debug.validate_tree">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools.debug</link>
-              <value type="string" key="caption">Validate GRT Tree</value>
-              <value type="string" key="name">validate_grt_tree</value>
-              <value type="string" key="command">plugin:wb.debug.debugValidateGRT</value>
-              <value type="string" key="itemType">action</value>
-            </value>
-
-            <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.debug.findrefs">
-              <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools.debug</link>
-              <value type="string" key="caption">Find References to Object</value>
-              <value type="string" key="name">show_refs</value>
-              <value type="string" key="command">plugin:wb.debug.findRefs</value>
-              <value type="string" key="itemType">action</value>
-            </value>
-          </value>
-        </value-->
       </value>
-            
+
     </value>
 
-
-    <!-- Community Menu - ->
-
-    <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.community">
-      <value type="string" key="name">community</value>
-      <value type="string" key="caption">_Community</value>
-      <value type="string" key="itemType">cascade</value>
-      <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
-
-        <!- -value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.tools.pluginsite">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.tools</link>
-          <value type="string" key="name">plugin_site</value>
-          <value type="string" key="command">builtin:plugin_site</value>
-          <value type="string" key="caption">Get Workbench Add-Ons...</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.community.addons">
-          <value type="string" key="itemType">separator</value>
-        </value- ->
- 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.community.blog">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.community</link>
-          <value type="string" key="name">community_blog</value>
-          <value type="string" key="caption">Workbench Blog</value>
-          <value type="string" key="command">builtin:community_blog</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.community.blog">
-          <value type="string" key="itemType">separator</value>
-        </value>
-        
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.community.faq">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.community</link>
-          <value type="string" key="caption">FAQs about Workbench</value>
-          <value type="string" key="name">community_faq</value>
-          <value type="string" key="command">builtin:community_faq</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-        
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.community.learn">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.community</link>
-          <value type="string" key="caption">Learn How to Code for Workbench</value>
-          <value type="string" key="name">community_learn</value>
-          <value type="string" key="command">builtin:community_learn</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-        
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.community.discuss">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.community</link>
-          <value type="string" key="caption">Discuss Workbench Topics</value>
-          <value type="string" key="name">community_discuss</value>
-          <value type="string" key="command">builtin:community_discuss</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.community.contribute">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.community</link>
-          <value type="string" key="caption">Contribute to Workbench</value>
-          <value type="string" key="name">community_contribute</value>
-          <value type="string" key="command">builtin:community_contribute</value>
-          <value type="string" key="itemType">action</value>
-        </value>
-
-      </value>
-
-    </value> -->
-    
-    
     <!-- Help Menu -->
 
     <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help">
@@ -2865,25 +2507,34 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="platform">macosx</value>
         </value>
 
-	<!--
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.help.version_check">
           <value type="string" key="itemType">separator</value>
-          <value type="string" key="platform">windows</value>- temporary
         </value>
-        
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.addon_manager">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
-          <value type="string" key="caption">Addons...</value>
-          <value type="string" key="name">addon_manager</value>
-          <value type="string" key="command">plugin:wb.plugin.addon.manager</value>
-          <value type="string" key="itemType">action</value>
-          <value type="string" key="platform">windows</value>- temporary
-        </value -->
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.help.version_check">
-          <value type="string" key="itemType">separator</value>
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_docs">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">MySQL Workbench Documentation</value>
+          <value type="string" key="name">web_mysql_docs</value>
+          <value type="string" key="command">builtin:web_mysql_docs</value>
+          <value type="string" key="itemType">action</value>
         </value>
-        
+
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_blog">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">MySQL Workbench Blog</value>
+          <value type="string" key="name">web_mysql_blog</value>
+          <value type="string" key="command">builtin:web_mysql_blog</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_forum">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">MySQL Workbench Forums</value>
+          <value type="string" key="name">web_mysql_forum</value>
+          <value type="string" key="command">builtin:web_mysql_forum</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_home">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
           <value type="string" key="caption">MySQL.com Website</value>
@@ -2891,7 +2542,7 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="command">builtin:web_mysql_home</value>
           <value type="string" key="itemType">action</value>
         </value>
-        
+
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_home">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
           <value type="string" key="caption">Workbench Product Page</value>
@@ -2899,6 +2550,30 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="command">builtin:web_home</value>
           <value type="string" key="itemType">action</value>
         </value>
+
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.help.web_standard_edition/SE">
+          <value type="string" key="itemType">separator</value>
+        </value>
+
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_edelivery/SE">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">Oracle eDelivery</value>
+          <value type="string" key="name">web_edelivery</value>
+          <value type="string" key="command">builtin:web_edelivery</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_support/SE">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
+          <value type="string" key="caption">Oracle Support</value>
+          <value type="string" key="name">web_support</value>
+          <value type="string" key="command">builtin:web_support</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+
+
+
+
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.help.web_community">
           <value type="string" key="itemType">separator</value>

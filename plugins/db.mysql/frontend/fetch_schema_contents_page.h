@@ -1,54 +1,42 @@
-#ifndef _FETCH_SCHEMA_CONTENTS_PAGE_H_
-#define _FETCH_SCHEMA_CONTENTS_PAGE_H_
+#pragma once
 
 #include "grtui/wizard_progress_page.h"
 
-class FetchSchemaContentsProgressPage : public WizardProgressPage
-{
+class FetchSchemaContentsProgressPage : public WizardProgressPage {
 public:
-  FetchSchemaContentsProgressPage(WizardForm *form, const char *name= "fetchSchema")
-    : WizardProgressPage(form, name, true)
-  {
+  FetchSchemaContentsProgressPage(WizardForm *form, const char *name = "fetchSchema")
+    : WizardProgressPage(form, name, true) {
     set_title(_("Retrieve and Reverse Engineer Schema Objects"));
     set_short_title(_("Retrieve Objects"));
 
     add_async_task(_("Retrieve Objects from Selected Schemata"),
-                   boost::bind(&FetchSchemaContentsProgressPage::perform_fetch, this),
+                   std::bind(&FetchSchemaContentsProgressPage::perform_fetch, this),
                    _("Retrieving object lists from selected schemata..."));
 
-    add_task(_("Check Results"), 
-             boost::bind(&FetchSchemaContentsProgressPage::perform_check, this),
+    add_task(_("Check Results"), std::bind(&FetchSchemaContentsProgressPage::perform_check, this),
              _("Checking Retrieved data..."));
 
     end_adding_tasks(_("Retrieval Completed Successfully"));
-    
+
     set_status_text("");
   }
-  
-  
-  bool perform_fetch()
-  {
-    execute_grt_task(boost::bind(&FetchSchemaContentsProgressPage::do_fetch, this, _1),
-                     false);
+
+  bool perform_fetch() {
+    execute_grt_task(std::bind(&FetchSchemaContentsProgressPage::do_fetch, this), false);
     return true;
   }
-  
-  
-  bool perform_check()
-  {
-    _finished= true;
+
+  bool perform_check() {
+    _finished = true;
 
     return true;
   }
 
-
-  grt::ValueRef do_fetch(grt::GRT *grt)
-  {
+  grt::ValueRef do_fetch() {
     grt::StringListRef selection(grt::StringListRef::cast_from(values().get("selectedSchemata")));
     std::vector<std::string> names;
 
-    for (grt::StringListRef::const_iterator iter= selection.begin();
-         iter != selection.end(); ++iter)
+    for (grt::StringListRef::const_iterator iter = selection.begin(); iter != selection.end(); ++iter)
       names.push_back(*iter);
 
     // tell the backend about the selection
@@ -64,32 +52,23 @@ public:
     return grt::ValueRef();
   }
 
-  
-  virtual void enter(bool advancing)
-  {
-    if (advancing)
-    {
-      _finished= false;
+  virtual void enter(bool advancing) {
+    if (advancing) {
+      _finished = false;
       reset_tasks();
     }
     WizardProgressPage::enter(advancing);
   }
-  
 
-  virtual bool allow_next()
-  {
+  virtual bool allow_next() {
     return _finished;
   }
 
-
-  void set_db_plugin(Db_plugin *dbplugin)
-  {
-    _dbplugin= dbplugin;
+  void set_db_plugin(Db_plugin *dbplugin) {
+    _dbplugin = dbplugin;
   }
-  
+
 private:
   Db_plugin *_dbplugin;
   bool _finished;
 };
-
-#endif /* _FETCH_SCHEMA_CONTENTS_PAGE_H_ */

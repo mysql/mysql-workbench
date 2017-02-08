@@ -34,9 +34,8 @@ win32/*.plist
 *.pbproj
 *.log
 *.xcbkptlist
-*.xcscheme
-*.xcworkspacedata
 *.xcuserstate
+xcuserdata/
 *.xcsettings
 xcschememanagement.plist
 .DS_Store

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@
   NSModalSession modalSession;
   BOOL stopped;
 
-  boost::function<bool ()> cancelAction;
+  std::function<bool ()> cancelAction;
 
   NSMutableArray *nibObjects;
 }
@@ -72,13 +72,13 @@ static MHudController* instance = nil;
   if (instance == nil)
     instance = [[MHudController alloc] init];
   
-  NSWindow* mainWindow = [[NSApplication sharedApplication] mainWindow];
+  NSWindow* mainWindow = NSApplication.sharedApplication.mainWindow;
   if (mainWindow != nil)
   {
     // The applications main window can be nil if the app has not finished loading or is hidden.
     // In those cases we don't need to show the hud either.
-    NSRect parentFrame = [mainWindow frame];
-    NSSize popupSize = [[instance hud] frame].size;
+    NSRect parentFrame = mainWindow.frame;
+    NSSize popupSize = instance.hud.frame.size;
     NSRect newFrame = NSMakeRect(parentFrame.origin.x + (parentFrame.size.width - popupSize.width) / 2,
                                  parentFrame.origin.y + (parentFrame.size.height - popupSize.height) / 2,
                                  popupSize.width, popupSize.height);
@@ -99,16 +99,16 @@ static BOOL modalHUDRunning = NO;
 }
 
 + (BOOL)runModalHudWithTitle: (NSString*) title andDescription: (NSString*) description
-                 notifyReady: (boost::function<void ()>)signalReady
-                cancelAction: (boost::function<bool ()>)cancelAction
+                 notifyReady: (std::function<void ()>)signalReady
+                cancelAction: (std::function<bool ()>)cancelAction
 {
   if (instance == nil)
     instance = [[MHudController alloc] init];
   
-  NSWindow* mainWindow = [[NSApplication sharedApplication] mainWindow];
+  NSWindow* mainWindow = [NSApplication sharedApplication].mainWindow;
   // The applications main window can be nil if the app has not finished loading or is hidden.
-  NSRect parentFrame = mainWindow ? [mainWindow frame] : [[NSScreen mainScreen] frame];
-  NSSize popupSize = [[instance hud] frame].size;
+  NSRect parentFrame = mainWindow ? mainWindow.frame : [NSScreen mainScreen].frame;
+  NSSize popupSize = instance.hud.frame.size;
   NSRect newFrame = NSMakeRect(parentFrame.origin.x + (parentFrame.size.width - popupSize.width) / 2,
                                parentFrame.origin.y + (parentFrame.size.height - popupSize.height) / 2,
                                popupSize.width, popupSize.height);
@@ -123,7 +123,7 @@ static BOOL modalHUDRunning = NO;
   [modalLoopRunningCond lock];
   
   
-  instance->modalSession = [NSApp beginModalSessionForWindow: [instance hud]];
+  instance->modalSession = [NSApp beginModalSessionForWindow: instance.hud];
   
   modalHUDRunning = YES;
   [modalLoopRunningCond signal];
@@ -138,7 +138,7 @@ static BOOL modalHUDRunning = NO;
   for (;;)
   {
     if (instance->stopped ||
-        (ret = [NSApp runModalSession: instance->modalSession]) != NSRunContinuesResponse)
+        (ret = [NSApp runModalSession: instance->modalSession]) != NSModalResponseContinue)
       break;
     usleep(1000);
   }
@@ -148,9 +148,9 @@ static BOOL modalHUDRunning = NO;
   instance->modalSession = nil;
 
   // make sure shared_refs bound to it are not kept dangling
-  instance->cancelAction.clear();
+  instance->cancelAction = std::function<bool()>();
   
-  if (ret == NSRunAbortedResponse)
+  if (ret == NSModalResponseAbort)
   {
     [instance hideAnimated];
     return NO; // cancelled
@@ -178,7 +178,7 @@ static BOOL modalHUDRunning = NO;
 {
   if (instance != nil)
   {
-    BOOL result = [[instance hud] isVisible];
+    BOOL result = instance.hud.visible;
     if (result)
       [instance hideAnimated];
     return result;
@@ -197,15 +197,15 @@ static BOOL modalHUDRunning = NO;
 
 - (void) showAnimatedWithFrame: (NSRect) frame title: (NSString*) title andDescription: (NSString*) description
 {
-  [shortHudDescription setStringValue: title];
-  [longHudDescription setStringValue: description];
+  shortHudDescription.stringValue = title;
+  longHudDescription.stringValue = description;
 
-  [hudPanel setAlphaValue: 1];
+  hudPanel.alphaValue = 1;
   [hudPanel setFrame: frame display: NO];
   [hudPanel makeKeyAndOrderFront: nil];
   
-  [[NSAnimationContext currentContext] setDuration: 0.5];
-  [[hudPanel animator] setAlphaValue: 1];
+  [NSAnimationContext currentContext].duration = 0.5;
+  [hudPanel animator].alphaValue = 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,8 +219,8 @@ static BOOL modalHUDRunning = NO;
 
 - (void) hideAnimated
 {
-  [[NSAnimationContext currentContext] setDuration: 0.5];
-  [[hudPanel animator] setAlphaValue: 0];
+  [NSAnimationContext currentContext].duration = 0.5;
+  [hudPanel animator].alphaValue = 0;
   [self performSelector: @selector(orderOutPanel) withObject: nil afterDelay: 0.5];
 }
 

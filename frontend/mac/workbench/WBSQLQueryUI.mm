@@ -38,9 +38,9 @@
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WQE_NATIVE)
 
-static WBBasePanel *createQueryPanel(MainWindowController *controller, boost::shared_ptr<bec::UIForm> form)
+static WBBasePanel *createQueryPanel(MainWindowController *controller, std::shared_ptr<bec::UIForm> form)
 {
-  SqlEditorForm::Ref editor = boost::dynamic_pointer_cast<SqlEditorForm>(form);
+  SqlEditorForm::Ref editor = std::dynamic_pointer_cast<SqlEditorForm>(form);
   
   if (!editor)
     throw std::logic_error("invalid backend object");
@@ -49,9 +49,9 @@ static WBBasePanel *createQueryPanel(MainWindowController *controller, boost::sh
 }
 
 
-void setupSQLQueryUI(WBMainController *main, MainWindowController *controller, wb::WBContextUI *wbui)
+void setupSQLQueryUI(WBMainController *main, MainWindowController *controller)
 {  
-  log_debug("Setting up UI\n");
+  logDebug("Setting up UI\n");
   // other commands in wb_context_sqlide.cpp
 
   [main registerFormPanelFactory: createQueryPanel forFormType: WB_MAIN_VIEW_DB_QUERY];

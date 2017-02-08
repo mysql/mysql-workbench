@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -20,89 +20,92 @@
 #ifndef _MDC_LAYER_H_
 #define _MDC_LAYER_H_
 
-
 #include "mdc_common.h"
 #include "mdc_group.h"
 #include "mdc_events.h"
 #include "base/trackable.h"
 
-BEGIN_MDC_DECLS
+namespace mdc {
 
-class CanvasView;
-class CanvasItem;
-class AreaGroup;
+  class CanvasView;
+  class CanvasItem;
+  class AreaGroup;
 
-class MYSQLCANVAS_PUBLIC_FUNC Layer : public base::trackable
-{
-public:
-  Layer(CanvasView *view);
-  virtual ~Layer();
+  class MYSQLCANVAS_PUBLIC_FUNC Layer : public base::trackable {
+  public:
+    Layer(CanvasView *view);
+    virtual ~Layer();
 
-  void set_root_area(AreaGroup *group);
-  
-  void set_name(const std::string &name);
-  std::string get_name() const { return _name; }
+    void set_root_area(AreaGroup *group);
 
-  virtual void add_item(CanvasItem *item, AreaGroup *location= 0);
-  virtual void remove_item(CanvasItem *item);
-  
-  virtual void set_visible(bool flag);
-  bool visible() const { return _visible; };
+    void set_name(const std::string &name);
+    std::string get_name() const {
+      return _name;
+    }
 
-  virtual void repaint_pending();
-  virtual void repaint(const base::Rect &aBounds);
-  void repaint_for_export(const base::Rect &aBounds);
+    virtual void add_item(CanvasItem *item, AreaGroup *location = 0);
+    virtual void remove_item(CanvasItem *item);
 
-  inline CanvasView *get_view() const { return _owner; };
+    virtual void set_visible(bool flag);
+    bool visible() const {
+      return _visible;
+    };
 
-  void queue_relayout(CanvasItem *item);
-  void invalidate_caches();
+    virtual void repaint_pending();
+    virtual void repaint(const base::Rect &aBounds);
+    void repaint_for_export(const base::Rect &aBounds);
 
-  void set_needs_repaint_all_items();
+    inline CanvasView *get_view() const {
+      return _owner;
+    };
 
-  void queue_repaint();
-  void queue_repaint(const base::Rect &bounds);
-  
-  CanvasItem *get_other_item_at(const base::Point &point, CanvasItem *item);
-  
-  CanvasItem *get_item_at(const base::Point &point);
-  CanvasItem *get_top_item_at(const base::Point &point);
+    void queue_relayout(CanvasItem *item);
+    void invalidate_caches();
 
-  AreaGroup *get_root_area_group() const { return _root_area; }
+    void set_needs_repaint_all_items();
 
-  typedef boost::function<bool (CanvasItem*)> ItemCheckFunc;
+    void queue_repaint();
+    void queue_repaint(const base::Rect &bounds);
 
-  std::list<CanvasItem*> get_items_bounded_by(const base::Rect &rect, 
-                                              const ItemCheckFunc &pred= ItemCheckFunc(),
-                                              mdc::Group *inside_group= 0);
+    CanvasItem *get_other_item_at(const base::Point &point, CanvasItem *item);
 
-  
-  Group *create_group_with(const std::list<CanvasItem*> &contents);
-  void dissolve_group(Group *group);
+    CanvasItem *get_item_at(const base::Point &point);
+    CanvasItem *get_top_item_at(const base::Point &point);
 
-  AreaGroup *create_area_group_with(const std::list<CanvasItem*> &contents);
+    AreaGroup *get_root_area_group() const {
+      return _root_area;
+    }
 
-  base::Rect get_bounds_of_item_list(const std::list<CanvasItem*> &items);
+    typedef std::function<bool(CanvasItem *)> ItemCheckFunc;
 
-protected:
-  CanvasView *_owner;
-  AreaGroup *_root_area;
-  
-  std::string _name;
+    std::list<CanvasItem *> get_items_bounded_by(const base::Rect &rect, const ItemCheckFunc &pred = ItemCheckFunc(),
+                                                 mdc::Group *inside_group = 0);
 
-  std::list<CanvasItem*> _relayout_queue;
+    Group *create_group_with(const std::list<CanvasItem *> &contents);
+    void dissolve_group(Group *group);
 
-  bool _visible;
+    AreaGroup *create_area_group_with(const std::list<CanvasItem *> &contents);
 
-  bool _needs_repaint;
-  
-  Layer *get_layer_under_this();
-private:
-  void view_resized();
-};
+    base::Rect get_bounds_of_item_list(const std::list<CanvasItem *> &items);
 
-  
-END_MDC_DECLS
+  protected:
+    CanvasView *_owner;
+    AreaGroup *_root_area;
 
+    std::string _name;
+
+    std::list<CanvasItem *> _relayout_queue;
+
+    bool _visible;
+
+    bool _needs_repaint;
+
+    Layer *get_layer_under_this();
+
+  private:
+    void view_resized();
+  };
+
+} // end of mdc namespace
 
 #endif /* _MDC_LAYER_H_ */

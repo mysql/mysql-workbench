@@ -2,7 +2,7 @@ Source: mysql-workbench
 Section: utils
 Priority: extra
 Maintainer: MySQL Workbench team <workbench@sun.com>
-Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-2.4-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, liblua5.1-0-dev, python-dev (>= 2.5), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, libctemplate-dev, cmake, libtinyxml-dev, swig (>= 1.3)
+Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-3.0-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, liblua5.1-0-dev, python-dev (>= 2.6), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, libctemplate-dev, cmake, swig (>= 1.3)
 Standards-Version: 3.7.2
 Homepage: http://dev.mysql.com/workbench/
 

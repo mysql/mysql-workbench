@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,74 +30,56 @@
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 
 //------------------------------------------------------------------------------
-/*
-grtui::DbConnectionEditor::DbConnectionEditor(const db_mgmt_ManagementRef &mgmt, const grt::ListRef<db_mgmt_Rdbms> &allowed_rdbms)
-  : mforms::Form(0)
-  , _mgmt(mgmt)
-  , _connection_list(mgmt->otherStoredConns())
-  , _panel(false)
-  , _top_vbox(false)
-  , _top_hbox(true)
-  , _conn_list_buttons_hbox(true)
-  , _stored_connection_list(mforms::TreeDefault|mforms::TreeFlatList)
-  , _bottom_hbox(true)
-{
-  _panel.init(_mgmt, allowed_rdbms);
-
-  init();
-}*/
 
 // for MySQL only connection editors
 grtui::DbConnectionEditor::DbConnectionEditor(const db_mgmt_ManagementRef &mgmt)
-: mforms::Form(0)
-, _mgmt(mgmt)
-, _connection_list(mgmt->storedConns())
-, _panel(false)
-, _top_vbox(false)
-, _top_hbox(true)
-, _conn_list_buttons_hbox(true)
-, _stored_connection_list(mforms::TreeDefault|mforms::TreeFlatList)
-, _bottom_hbox(true)
-{  
+  : mforms::Form(0),
+    _mgmt(mgmt),
+    _connection_list(mgmt->storedConns()),
+    _panel(false),
+    _top_vbox(false),
+    _top_hbox(true),
+    _conn_list_buttons_hbox(true),
+    _stored_connection_list(mforms::TreeDefault | mforms::TreeFlatList),
+    _bottom_hbox(true) {
   set_name("connection_editor");
-  grt::ListRef<db_mgmt_Rdbms> default_allowed_rdbms(mgmt.get_grt());
+  grt::ListRef<db_mgmt_Rdbms> default_allowed_rdbms(true);
   default_allowed_rdbms.ginsert(find_object_in_list(mgmt->rdbms(), "com.mysql.rdbms.mysql"));
   _panel.init(_mgmt, default_allowed_rdbms);
-  
+
   init();
 }
 
-
-void grtui::DbConnectionEditor::init()
-{
+void grtui::DbConnectionEditor::init() {
   set_title(_("Manage DB Connections"));
-  
+
   _top_vbox.set_padding(MF_WINDOW_PADDING);
   _top_vbox.set_spacing(12);
   _top_hbox.set_spacing(8);
   _top_vbox.add(&_top_hbox, true, true);
   _top_vbox.add(&_bottom_hbox, false, true);
-  
+
   _bottom_hbox.set_spacing(12);
-    
-  scoped_connect(_stored_connection_list.signal_changed(),boost::bind(&grtui::DbConnectionEditor::change_active_stored_conn, this));
 
-  _conn_name= _panel.get_name_entry();
-  scoped_connect(_conn_name->signal_changed(),boost::bind(&grtui::DbConnectionEditor::name_changed, this));
+  scoped_connect(_stored_connection_list.signal_changed(),
+                 std::bind(&grtui::DbConnectionEditor::change_active_stored_conn, this));
 
+  _conn_name = _panel.get_name_entry();
+  scoped_connect(_conn_name->signal_changed(), std::bind(&grtui::DbConnectionEditor::name_changed, this));
 
   _dup_conn_button.set_text(_("Duplicate"));
-  scoped_connect(_dup_conn_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::add_stored_conn, this, true));
+  scoped_connect(_dup_conn_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::add_stored_conn, this, true));
   _del_conn_button.set_text(_("Delete"));
-  scoped_connect(_del_conn_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::del_stored_conn, this));
+  scoped_connect(_del_conn_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::del_stored_conn, this));
   _add_conn_button.set_text(_("New"));
-  scoped_connect(_add_conn_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::add_stored_conn, this, false));
+  scoped_connect(_add_conn_button.signal_clicked(),
+                 std::bind(&grtui::DbConnectionEditor::add_stored_conn, this, false));
   _move_up_button.set_text(_("Move Up"));
-  scoped_connect(_move_up_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::reorder_conn, this, true));
+  scoped_connect(_move_up_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::reorder_conn, this, true));
   _move_down_button.set_text(_("Move Down"));
-  scoped_connect(_move_down_button.signal_clicked(),boost::bind(&grtui::DbConnectionEditor::reorder_conn, this, false));
-  
-  _top_hbox.add(&_stored_connection_list, false, true);  
+  scoped_connect(_move_down_button.signal_clicked(), std::bind(&grtui::DbConnectionEditor::reorder_conn, this, false));
+
+  _top_hbox.add(&_stored_connection_list, false, true);
   _top_hbox.add(&_panel, true, true);
 
   _bottom_hbox.add(&_add_conn_button, false, true);
@@ -105,28 +87,25 @@ void grtui::DbConnectionEditor::init()
   _bottom_hbox.add(&_dup_conn_button, false, true);
   _bottom_hbox.add(&_move_up_button, false, true);
   _bottom_hbox.add(&_move_down_button, false, true);
-  
+
   _bottom_hbox.add_end(&_ok_button, false, true);
-//  _bottom_hbox.add_end(&_cancel_button, false, true);
+  //  _bottom_hbox.add_end(&_cancel_button, false, true);
   _bottom_hbox.add_end(&_test_button, false, true);
-  
+
   _ok_button.set_text(_("Close"));
-  scoped_connect(_ok_button.signal_clicked(),boost::bind(&DbConnectionEditor::ok_clicked, this));
-//  _cancel_button.set_text(_("Cancel"));
-//  _cancel_button.signal_clicked().connect(boost::bind(&DbConnectionEditor::cancel_clicked, this));
+  scoped_connect(_ok_button.signal_clicked(), std::bind(&DbConnectionEditor::ok_clicked, this));
   _test_button.set_text(_("Test Connection"));
-  scoped_connect(_test_button.signal_clicked(),boost::bind(&DbConnectPanel::test_connection, boost::ref(_panel)));
+  scoped_connect(_test_button.signal_clicked(), std::bind(&DbConnectPanel::test_connection, std::ref(_panel)));
 
   _add_conn_button.enable_internal_padding(true);
   _del_conn_button.enable_internal_padding(true);
   _ok_button.enable_internal_padding(true);
-  _cancel_button.enable_internal_padding(true);  
+  _cancel_button.enable_internal_padding(true);
   _test_button.enable_internal_padding(true);
-  
+
   _stored_connection_list.set_size(180, -1);
-  
+
   set_content(&_top_vbox);
-  
 
   _stored_connection_list.add_column(::mforms::StringColumnType, _("Stored Connections"), 150, false);
   _stored_connection_list.end_columns();
@@ -135,23 +114,18 @@ void grtui::DbConnectionEditor::init()
 }
 
 //------------------------------------------------------------------------------
-grtui::DbConnectionEditor::~DbConnectionEditor()
-{
+grtui::DbConnectionEditor::~DbConnectionEditor() {
 }
 
 //------------------------------------------------------------------------------
-db_mgmt_ConnectionRef grtui::DbConnectionEditor::run(const db_mgmt_ConnectionRef &connection)
-{ 
+db_mgmt_ConnectionRef grtui::DbConnectionEditor::run(const db_mgmt_ConnectionRef &connection) {
   size_t index;
   // check if the connection is a pre-saved one and if so, just select it in the list
-  if ((index = _connection_list.get_index(connection)) != grt::BaseListRef::npos)
-  {
+  if ((index = _connection_list.get_index(connection)) != grt::BaseListRef::npos) {
     reset_stored_conn_list();
     _stored_connection_list.select_node(_stored_connection_list.node_at_row((int)index));
     change_active_stored_conn();
-  }
-  else
-  {
+  } else {
     reset_stored_conn_list();
 
     // set the displayed params to the one given to us
@@ -168,43 +142,37 @@ db_mgmt_ConnectionRef grtui::DbConnectionEditor::run(const db_mgmt_ConnectionRef
   return db_mgmt_ConnectionRef();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-void grtui::DbConnectionEditor::run()
-{
+void grtui::DbConnectionEditor::run() {
   reset_stored_conn_list();
-    
+
   if (run_modal(&_ok_button, &_cancel_button))
-    _mgmt.get_grt()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
+    grt::GRT::get()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void grtui::DbConnectionEditor::reset_stored_conn_list()
-{
+void grtui::DbConnectionEditor::reset_stored_conn_list() {
   grt::ListRef<db_mgmt_Connection> list(_connection_list);
   std::string selected_name;
-  
+
   if (_panel.get_be()->get_connection().is_valid())
-    selected_name= _panel.get_be()->get_connection()->name();
-  
+    selected_name = _panel.get_be()->get_connection()->name();
+
   _stored_connection_list.clear();
 
   mforms::TreeNodeRef selected_node;
   mforms::TreeNodeRef added_row;
   grt::ListRef<db_mgmt_Connection>::const_iterator iter = list.begin();
   grt::ListRef<db_mgmt_Connection>::const_iterator last = list.end();
-  for (; iter != last; ++iter)
-  {
-    if (_panel.is_connectable_driver_type((*iter)->driver()))
-    {
+  for (; iter != last; ++iter) {
+    if (_panel.is_connectable_driver_type((*iter)->driver())) {
       added_row = _stored_connection_list.root_node()->add_child();
-      if (added_row)
-      {
+      if (added_row) {
         added_row->set_string(0, (*iter)->name());
         added_row->set_tag((*iter)->id());
         if ((*iter)->name() == selected_name)
-          selected_node= added_row;
+          selected_node = added_row;
       }
     }
   }
@@ -215,16 +183,13 @@ void grtui::DbConnectionEditor::reset_stored_conn_list()
 }
 
 //------------------------------------------------------------------------------
-void grtui::DbConnectionEditor::add_stored_conn(bool copy)
-{
+void grtui::DbConnectionEditor::add_stored_conn(bool copy) {
   grt::ListRef<db_mgmt_Connection> list(_connection_list);
   size_t length = std::string("New connection 1").length() - 1;
   int max_conn_nr = 0;
-  for (size_t i = 0; i < list.count(); ++i)
-  {
+  for (size_t i = 0; i < list.count(); ++i) {
     std::string itname = list[i]->name();
-    if (itname.find("New connection") == 0)
-    {
+    if (itname.find("New connection") == 0) {
       int conn_nr = base::atoi<int>(itname.substr(length), 0);
       if (conn_nr > max_conn_nr)
         max_conn_nr = conn_nr;
@@ -234,18 +199,17 @@ void grtui::DbConnectionEditor::add_stored_conn(bool copy)
   sprintf(buf, "New connection %i", max_conn_nr + 1);
 
   // use the current values to create a new connection
-  db_mgmt_ConnectionRef new_connection(_panel.get_be()->get_grt());
-  
+  db_mgmt_ConnectionRef new_connection(grt::Initialized);
+
   new_connection->owner(_panel.get_be()->get_db_mgmt());
   new_connection->name(buf);
   new_connection->driver(_panel.selected_driver());
-  if (find_named_object_in_list(new_connection->driver()->parameters(), "useSSL").is_valid())
-  {
+  if (find_named_object_in_list(new_connection->driver()->parameters(), "useSSL").is_valid()) {
     // prefer SSL if possible by default
     new_connection->parameterValues().set("useSSL", grt::IntegerRef(1));
   }
   list.insert(new_connection);
-  
+
   if (copy)
     _panel.get_be()->set_connection_keeping_parameters(new_connection);
   else
@@ -256,26 +220,20 @@ void grtui::DbConnectionEditor::add_stored_conn(bool copy)
 }
 
 //------------------------------------------------------------------------------
-void grtui::DbConnectionEditor::del_stored_conn()
-{
+void grtui::DbConnectionEditor::del_stored_conn() {
   int idx = _stored_connection_list.get_selected_row();
-  if (idx >= 0 && idx < (int)_connection_list.count())
-  {
+  if (idx >= 0 && idx < (int)_connection_list.count()) {
     grt::ListRef<db_mgmt_Connection> conns(_connection_list);
     db_mgmt_ConnectionRef conn(conns[idx]);
     bool found = false;
     grt::ListRef<db_mgmt_ServerInstance> instances(_mgmt->storedInstances());
-    for (grt::ListRef<db_mgmt_ServerInstance>::const_iterator i = instances.begin();
-         i != instances.end(); ++i)
-    {
-      if ((*i)->connection() == conn)
-      {
+    for (grt::ListRef<db_mgmt_ServerInstance>::const_iterator i = instances.begin(); i != instances.end(); ++i) {
+      if ((*i)->connection() == conn) {
         found = true;
         break;
       }
     }
-    if (found)
-    {
+    if (found) {
       mforms::Utilities::show_message(_("Cannot Delete Connection"),
                                       _("One or more Database Server Instances use this connection.\n"
                                         "You must remove them before deleting this connection."),
@@ -289,36 +247,25 @@ void grtui::DbConnectionEditor::del_stored_conn()
     grt::DictRef parameter_values = conn->parameterValues();
     std::string host = conn->hostIdentifier();
     std::string user = parameter_values.get_string("userName");
-    for (grt::ListRef<db_mgmt_Connection>::const_iterator i = conns.begin();
-      i != conns.end(); ++i)
-    {
-      if (*i != conn)
-      {
+    for (grt::ListRef<db_mgmt_Connection>::const_iterator i = conns.begin(); i != conns.end(); ++i) {
+      if (*i != conn) {
         grt::DictRef current_parameters = (*i)->parameterValues();
-        if (host == *(*i)->hostIdentifier() && user == current_parameters.get_string("userName"))
-        {
+        if (host == *(*i)->hostIdentifier() && user == current_parameters.get_string("userName")) {
           credentials_still_used = true;
           break;
         }
       }
     }
-    if (!credentials_still_used)
-    {
-      try
-      {
+    if (!credentials_still_used) {
+      try {
         mforms::Utilities::forget_password(host, user);
+      } catch (std::exception &exc) {
+        logWarning("Exception caught when clearning the password: %s", exc.what());
+        mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()), "OK");
       }
-      catch (std::exception &exc)
-      {
-        log_warning("Exception caught when clearning the password: %s", exc.what());
-        mforms::Utilities::show_error("Clear Password", 
-                                      base::strfmt("Could not clear password: %s", exc.what()),
-                                      "OK");
-      }    
     }
-    
-    if (idx < (int)conns.count())
-    {
+
+    if (idx < (int)conns.count()) {
       conns.remove(idx);
 
       // Set the current connection to the one before the found index.
@@ -327,30 +274,26 @@ void grtui::DbConnectionEditor::del_stored_conn()
       if (idx < (int)conns->count())
         _panel.get_be()->set_connection_and_update(conns[idx]);
     }
-    
+
     reset_stored_conn_list();
   }
 }
 
 //------------------------------------------------------------------------------
-void grtui::DbConnectionEditor::change_active_stored_conn()
-{
+void grtui::DbConnectionEditor::change_active_stored_conn() {
   mforms::TreeNodeRef selected = _stored_connection_list.get_selected_node();
-  if (selected)
-  {
+  if (selected) {
     _panel.set_enabled(true);
     _panel.suspend_layout();
     _panel.set_active_stored_conn(selected->get_string(0));
     _panel.resume_layout();
-    
+
     _test_button.set_enabled(true);
     _del_conn_button.set_enabled(true);
     _dup_conn_button.set_enabled(true);
     _move_up_button.set_enabled(true);
     _move_down_button.set_enabled(true);
-  }
-  else
-  {
+  } else {
     _panel.set_enabled(false);
     _test_button.set_enabled(false);
     _del_conn_button.set_enabled(false);
@@ -361,45 +304,40 @@ void grtui::DbConnectionEditor::change_active_stored_conn()
 }
 
 //------------------------------------------------------------------------------
-void grtui::DbConnectionEditor::name_changed()
-{
-  std::string name= _conn_name->get_string_value();
+void grtui::DbConnectionEditor::name_changed() {
+  std::string name = _conn_name->get_string_value();
   mforms::TreeNodeRef selnode(_stored_connection_list.get_selected_node());
-  
-  if (selnode)
-  {
-    std::string oname= selnode->get_string(0);
- 
+
+  if (selnode) {
+    std::string oname = selnode->get_string(0);
+
     if (rename_stored_conn(oname, name))
       selnode->set_string(0, name);
   }
 }
 
 //------------------------------------------------------------------------------
-void grtui::DbConnectionEditor::ok_clicked()
-{
+void grtui::DbConnectionEditor::ok_clicked() {
   // dont need to do anything, the modal handler will interpret the close butto
 }
 
 //------------------------------------------------------------------------------
-void grtui::DbConnectionEditor::cancel_clicked()
-{
+void grtui::DbConnectionEditor::cancel_clicked() {
 }
 
 //------------------------------------------------------------------------------
-bool grtui::DbConnectionEditor::rename_stored_conn(const std::string &oname, const std::string &name)
-{
-  if (name == oname) return true;
-  
-  grt::ListRef<db_mgmt_Connection> conns= _connection_list;
-  db_mgmt_ConnectionRef conn= find_named_object_in_list(conns, oname);
-  
-  if (conn.is_valid())
-  {
+bool grtui::DbConnectionEditor::rename_stored_conn(const std::string &oname, const std::string &name) {
+  if (name == oname)
+    return true;
+
+  grt::ListRef<db_mgmt_Connection> conns = _connection_list;
+  db_mgmt_ConnectionRef conn = find_named_object_in_list(conns, oname);
+
+  if (conn.is_valid()) {
     // check for duplicate
     if (find_named_object_in_list(conns, name).is_valid())
       return false;
-    
+
     conn->name(name);
     return true;
   }
@@ -408,34 +346,27 @@ bool grtui::DbConnectionEditor::rename_stored_conn(const std::string &oname, con
 
 //------------------------------------------------------------------------------
 
-void grtui::DbConnectionEditor::reorder_conn(bool up)
-{
-  grt::ListRef<db_mgmt_Connection> conns= _connection_list;
+void grtui::DbConnectionEditor::reorder_conn(bool up) {
+  grt::ListRef<db_mgmt_Connection> conns = _connection_list;
   int row = _stored_connection_list.get_selected_row();
-  
+
   if (row < 0)
     return;
-  
-  if (up)
-  {
-    if (row > 0)
-    {
-      conns.reorder(row, row-1);
-      _stored_connection_list.select_node(_stored_connection_list.node_at_row(row-1));
+
+  if (up) {
+    if (row > 0) {
+      conns.reorder(row, row - 1);
+      _stored_connection_list.select_node(_stored_connection_list.node_at_row(row - 1));
+    }
+  } else {
+    if (row < _stored_connection_list.root_node()->count() - 1) {
+      conns.reorder(row, row + 1);
+      _stored_connection_list.select_node(_stored_connection_list.node_at_row(row + 1));
     }
   }
-  else
-  {
-    if (row < _stored_connection_list.root_node()->count()-1)
-    {
-      conns.reorder(row, row+1);
-      _stored_connection_list.select_node(_stored_connection_list.node_at_row(row+1));
-    }
-  }
-  
-  row= 0;
-  GRTLIST_FOREACH(db_mgmt_Connection, conns, inst)
-  {
+
+  row = 0;
+  GRTLIST_FOREACH(db_mgmt_Connection, conns, inst) {
     _stored_connection_list.root_node()->get_child(row++)->set_string(0, (*inst)->name().c_str());
-  }    
+  }
 }

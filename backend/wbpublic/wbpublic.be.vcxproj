@@ -1,25 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release_OSS|Win32">
-      <Configuration>Release_OSS</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release_OSS|x64">
       <Configuration>Release_OSS</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -31,159 +19,76 @@
     <RootNamespace>wbpublicbe</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetExt>.dll</TargetExt>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
-    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetExt>.dll</TargetExt>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <MinimalRebuild>false</MinimalRebuild>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\mysql.parser;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;OpenGL32.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_DB_NG_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;BOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\mysql.parser;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;4345;4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;OpenGL32.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;OpenGL32.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\mysql.parser;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -192,37 +97,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_DB_NG_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;BOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\mysql.parser;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;4345;4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\mysql.parser;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -232,17 +117,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_EXPORT;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_DB_NG_EXPORT;SCI_NAMESPACE;GRT_STRUCTS_WRAPPER_EXPORT;CPL_DISABLE_DLL;BOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\mysql.parser;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;4345;4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -348,24 +233,7 @@
     <ClCompile Include="objimpl\workbench.physical\workbench_physical_TableFigure.cpp" />
     <ClCompile Include="objimpl\workbench.physical\workbench_physical_ViewFigure.cpp" />
     <ClCompile Include="objimpl\wrapper\parser_ContextReference.cpp" />
-    <ClCompile Include="sqlide\autocomplete_object_name_cache.cpp" />
     <ClCompile Include="sqlide\column_width_cache.cpp" />
-    <ClCompile Include="sqlide\grammar-parser\ANTLRv3Lexer.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">CompileAsCpp</CompileAs>
-    </ClCompile>
-    <ClCompile Include="sqlide\grammar-parser\ANTLRv3Parser.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">CompileAsCpp</CompileAs>
-    </ClCompile>
     <ClCompile Include="sqlide\recordset_be.cpp" />
     <ClCompile Include="sqlide\recordset_cdbc_storage.cpp" />
     <ClCompile Include="sqlide\recordset_data_storage.cpp" />
@@ -375,16 +243,12 @@
     <ClCompile Include="sqlide\recordset_text_storage.cpp" />
     <ClCompile Include="sqlide\sqlide_generics.cpp" />
     <ClCompile Include="sqlide\sql_editor_be.cpp" />
-    <ClCompile Include="sqlide\sql_editor_be_autocomplete.cpp" />
     <ClCompile Include="sqlide\sql_script_run_wizard.cpp" />
     <ClCompile Include="sqlide\table_inserts_loader_be.cpp" />
     <ClCompile Include="sqlide\var_grid_model_be.cpp" />
     <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="wbcanvas\badge_figure.cpp" />
@@ -458,6 +322,7 @@
     <ClInclude Include="grtsqlparser\invalid_sql_parser.h" />
     <ClInclude Include="grtsqlparser\module_utils.h" />
     <ClInclude Include="grtsqlparser\mysql_parser_services.h" />
+    <ClInclude Include="grtsqlparser\parser_services_common.h" />
     <ClInclude Include="grtsqlparser\sql_facade.h" />
     <ClInclude Include="grtsqlparser\sql_inserts_loader.h" />
     <ClInclude Include="grtsqlparser\sql_normalizer.h" />
@@ -520,10 +385,7 @@
     <ClInclude Include="objimpl\wrapper\mforms_ObjectReference_impl.h" />
     <ClInclude Include="objimpl\ui\ui_ObjectEditor_impl.h" />
     <ClInclude Include="objimpl\wrapper\parser_ContextReference_impl.h" />
-    <ClInclude Include="sqlide\autocomplete_object_name_cache.h" />
     <ClInclude Include="sqlide\column_width_cache.h" />
-    <ClInclude Include="sqlide\grammar-parser\ANTLRv3Lexer.h" />
-    <ClInclude Include="sqlide\grammar-parser\ANTLRv3Parser.h" />
     <ClInclude Include="sqlide\recordset_be.h" />
     <ClInclude Include="sqlide\recordset_cdbc_storage.h" />
     <ClInclude Include="sqlide\recordset_data_storage.h" />
@@ -579,10 +441,13 @@
     <ProjectReference Include="..\..\library\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\library\mtemplate\mtemplate.vcxproj">
+      <Project>{85fcf582-b354-4a7d-b31c-534d71bea53a}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\library\mysql.canvas\mysql.canvas.vcxproj">
       <Project>{1b17d534-365d-4c93-b3b6-55610df8629a}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\library\mysql.parser\mysql.parser.vcxproj">
+    <ProjectReference Include="..\..\library\parsers\parsers.vcxproj">
       <Project>{f563e3de-39ba-4a9d-a6c2-9e9222e8f518}</Project>
     </ProjectReference>
   </ItemGroup>

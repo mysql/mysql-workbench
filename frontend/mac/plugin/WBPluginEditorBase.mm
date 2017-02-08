@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,13 +50,6 @@
   [[NSNotificationCenter defaultCenter] removeObserver: self];
 }
 
-
-- (bec::GRTManager*)grtManager
-{
-  return _grtm;
-}
-
-
 - (id)identifier
 {
   return nil;
@@ -65,7 +58,7 @@
 
 - (NSString*)title
 {
-  bec::BaseEditor *ed = [self editorBE];
+  bec::BaseEditor *ed = self.editorBE;
   if (ed)
     return [NSString stringWithCPPString: ed->get_title()];
   return nil;
@@ -88,12 +81,12 @@
   if (mApplyButton && mRevertButton)
   {
     [mApplyButton setHidden: NO];
-    [mApplyButton setTarget: self];
-    [mApplyButton setAction: @selector(applyLiveChanges:)];
+    mApplyButton.target = self;
+    mApplyButton.action = @selector(applyLiveChanges:);
 
     [mRevertButton setHidden: NO];
-    [mRevertButton setTarget: self];
-    [mRevertButton setAction: @selector(revertLiveChanges:)];
+    mRevertButton.target = self;
+    mRevertButton.action = @selector(revertLiveChanges:);
   }
   return NO;
 }
@@ -106,20 +99,20 @@
 - (void)notifyObjectSwitched
 {
   if (mEditorGRTObject.is_valid())
-    mEditorGRTObject->get_data()->notify_did_switch_object([self editorBE]);
+    mEditorGRTObject->get_data()->notify_did_switch_object(self.editorBE);
 }
 
 
 - (void)updateTitle:(NSString*)title
 {
-  id superview = [[self view] superview];
+  id superview = self.view.superview;
   if ([superview isKindOfClass: [NSTabView class]])
   {
     NSTabView *tabView= (NSTabView*)superview;
     // workaround for stupid tabview hack
-    if ([[tabView superview] isKindOfClass: [WBTabView class]])
-      tabView = (NSTabView*)[tabView superview];
-    NSInteger index = [tabView indexOfTabViewItemWithIdentifier: [self identifier]];
+    if ([tabView.superview isKindOfClass: [WBTabView class]])
+      tabView = (NSTabView*)tabView.superview;
+    NSInteger index = [tabView indexOfTabViewItemWithIdentifier: self.identifier];
     if (index != NSNotFound)
     {
       id item= [tabView tabViewItemAtIndex: index];
@@ -159,9 +152,9 @@
 - (void)applyLiveChanges:(id)sender
 {
   // set focus to nothing to force ongoing text changes to be commited
-  [[[self view] window] makeFirstResponder: nil];
+  [self.view.window makeFirstResponder: nil];
 
-  bec::BaseEditor *editor = [self editorBE];
+  bec::BaseEditor *editor = self.editorBE;
   if (editor && editor->is_editing_live_object())
   {
     if (mEditorGRTObject.is_valid())
@@ -173,9 +166,9 @@
 - (void)revertLiveChanges:(id)sender
 {
   // set focus to nothing to force ongoing text changes to be commited
-  [[[self view] window] makeFirstResponder: nil];
+  [self.view.window makeFirstResponder: nil];
 
-  bec::BaseEditor *editor = [self editorBE];
+  bec::BaseEditor *editor = self.editorBE;
   if (editor && editor->is_editing_live_object())
   {
     editor->revert_changes_to_live_object();
@@ -194,21 +187,21 @@
 - (BOOL)pluginWillClose: (id)sender
 {
   // set focus to nothing to force ongoing text changes to be commited
-  [[[self view] window] makeFirstResponder: nil];
+  [self.view.window makeFirstResponder: nil];
 
   if (mEditorGRTObject.is_valid())
     if (!mEditorGRTObject->get_data()->notify_will_close())
       return NO;
 
-  bec::BaseEditor *editor = [self editorBE];
+  bec::BaseEditor *editor = self.editorBE;
   if (editor && !editor->can_close())
     return NO;
   
   // by default, we check if the firstResponder belongs to this plugin and make it
   // resign so that edits are commited
-  id first= [[[self view] window] firstResponder];
-  id dockableView= [self view];
-  NSWindow *window= [[self view] window];
+  id first= self.view.window.firstResponder;
+  id dockableView= self.view;
+  NSWindow *window= self.view.window;
   
   while (first && first != dockableView && first != window)
     first= [first superview];
@@ -224,18 +217,18 @@
 static void text_changed(int line, int linesAdded, void *editor_)
 {
   WBPluginEditorBase *editor = (__bridge WBPluginEditorBase*)editor_;
-  bool dirty = [editor editorBE]->get_sql_editor()->get_editor_control()->is_dirty();
-  if ([editor->mApplyButton isEnabled] != dirty)
-    [editor updateTitle: [editor title]];
-  [editor->mApplyButton setEnabled: dirty];
-  [editor->mRevertButton setEnabled: dirty];
+  bool dirty = editor.editorBE->get_sql_editor()->get_editor_control()->is_dirty();
+  if (editor->mApplyButton.enabled != dirty)
+    [editor updateTitle: editor.title];
+  editor->mApplyButton.enabled = dirty;
+  editor->mRevertButton.enabled = dirty;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 - (void)setupEditorOnHost: (NSView*)host
 {
-  MySQLEditor::Ref backend_editor = [self editorBE]->get_sql_editor();
+  MySQLEditor::Ref backend_editor = self.editorBE->get_sql_editor();
   mforms::CodeEditor* mforms_editor = backend_editor->get_editor_control();
   mforms_editor->set_status_text("");
 
@@ -247,31 +240,32 @@ static void text_changed(int line, int linesAdded, void *editor_)
                                                name: NSTextDidEndEditingNotification
                                              object: nsviewForView(mforms_editor)];
 
-  std::string font = grt::StringRef::cast_from([self editorBE]->get_grt_manager()->get_app_option("workbench.general.Editor:Font"));
+
+  std::string font = grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("workbench.general.Editor:Font"));
   mforms_editor->set_font(font); 
 
-  mforms_editor->signal_changed()->connect(boost::bind(text_changed, _1, _2, (__bridge void *)self));
+  mforms_editor->signal_changed()->connect(std::bind(text_changed, std::placeholders::_1, std::placeholders::_2, (__bridge void *)self));
 
-  for (id subview in [[host subviews] reverseObjectEnumerator])
+  for (id subview in [host.subviews reverseObjectEnumerator])
   {
     [subview removeFromSuperview];
   }
   [host addSubview: container];
-  [container setFrame: [host bounds]];
+  container.frame = host.bounds;
   [host setAutoresizesSubviews: YES];
-  [container setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+  container.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 - (void)enablePluginDocking:(NSTabView*)tabView
 {
-  mEditorGRTObject = ui_ObjectEditorRef(_grtm->get_grt());
+  mEditorGRTObject = ui_ObjectEditorRef(grt::Initialized);
 
   // setup docking point for mUpperTabView
   mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(tabView, "editor"), true));
 
-  mEditorGRTObject->dockingPoint(mforms_to_grt(_grtm->get_grt(), mDockingPoint));
+  mEditorGRTObject->dockingPoint(mforms_to_grt(mDockingPoint));
 }
 
 @end

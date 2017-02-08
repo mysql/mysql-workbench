@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -32,71 +32,66 @@ using namespace MySQL::Utilities::SysUtils;
 //--------------------------------------------------------------------------------------------------
 
 // Clipboard operations for editable combo boxes.
-void Win32Api::Undo(ComboBox^ box)
-{
+void Win32Api::Undo(ComboBox ^ box) {
   // Clipboard commands are only supported by editable combo boxes.
   if (box->DropDownStyle == ComboBoxStyle::DropDownList)
     return;
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND) box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_UNDO, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Win32Api::Cut(ComboBox^ box)
-{
+void Win32Api::Cut(ComboBox ^ box) {
   if (box->DropDownStyle == ComboBoxStyle::DropDownList)
     return;
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_CUT, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Win32Api::Copy(ComboBox^ box)
-{
+void Win32Api::Copy(ComboBox ^ box) {
   if (box->DropDownStyle == ComboBoxStyle::DropDownList)
     return;
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_COPY, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Win32Api::Paste(ComboBox^ box)
-{
+void Win32Api::Paste(ComboBox ^ box) {
   if (box->DropDownStyle == ComboBoxStyle::DropDownList)
     return;
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_PASTE, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Win32Api::CanUndo(ComboBox^ box)
-{
+bool Win32Api::CanUndo(ComboBox ^ box) {
   if (box->DropDownStyle == ComboBoxStyle::DropDownList)
     return false;
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToPointer(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     return SendMessage(info.hwndItem, EM_CANUNDO, 0, 0) != 0;
 
@@ -109,9 +104,8 @@ bool Win32Api::CanUndo(ComboBox^ box)
  * Unblocks the given file, by removing the alternate data stream "Zone.Identifier" from it,
  * which is added by the system when the file was downloaded from a remote computer.
  */
-bool Win32Api::UnblockFile(String^ file)
-{
-  String^ streamName = file + ":Zone.Identifier";
+bool Win32Api::UnblockFile(String ^ file) {
+  String ^ streamName = file + ":Zone.Identifier";
   std::string nativeName = NativeToCppString(streamName);
   return base_remove(nativeName) == 0;
 }
@@ -124,14 +118,11 @@ bool Win32Api::UnblockFile(String^ file)
 /// if no lock exists anymore. Testing for an existing lock takes probably more time than just
 /// trying to remove it (even if it doesn't exist).
 /// </summary>
-bool Win32Api::UnblockWorkbenchFiles(String^ folder)
-{
+bool Win32Api::UnblockWorkbenchFiles(String ^ folder) {
   bool result = true;
-  for each (String^ subFolder in Directory::GetDirectories(folder))
-    result &= UnblockWorkbenchFiles(subFolder);
+  for each(String ^ subFolder in Directory::GetDirectories(folder)) result &= UnblockWorkbenchFiles(subFolder);
 
-  for each (String^ file in Directory::GetFiles(folder))
-    result &= UnblockFile(file);
+  for each(String ^ file in Directory::GetFiles(folder)) result &= UnblockFile(file);
 
   return result;
 }
@@ -149,11 +140,10 @@ static FILE *stdOutFile = NULL, originalStdOutFile;
  * Note: since this works with static vars it is essentially a one-timer. Don't call this
  *       function more than once!
  */
-bool Win32Api::RedirectConsole()
-{
+bool Win32Api::RedirectConsole() {
   AttachConsole(ATTACH_PARENT_PROCESS);
 
-  stdOutIndex= _open_osfhandle((long) GetStdHandle(STD_OUTPUT_HANDLE),  _O_TEXT);
+  stdOutIndex = _open_osfhandle((INT_PTR)GetStdHandle(STD_OUTPUT_HANDLE), _O_TEXT);
   if (stdOutIndex < 0)
     return false;
 
@@ -171,8 +161,7 @@ bool Win32Api::RedirectConsole()
 
 //--------------------------------------------------------------------------------------------------
 
-void Win32Api::ReleaseConsole()
-{
+void Win32Api::ReleaseConsole() {
   FreeConsole();
   if (stdOutFile != NULL)
     fclose(stdOutFile);

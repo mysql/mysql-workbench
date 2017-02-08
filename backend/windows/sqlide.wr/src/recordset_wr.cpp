@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -24,7 +24,7 @@ using namespace System::Collections::Generic;
 #include "GrtTemplates.h"
 #include "DelegateWrapper.h"
 #include "IconManager.h"
-#include "Grt.h"
+#include "GrtWrapper.h"
 #include "ModelWrappers.h"
 #include "var_grid_model_wr.h"
 #include "ActionList.h"
@@ -42,24 +42,25 @@ using namespace MySQL::Grt::Db;
 //--------------------------------------------------------------------------------------------------
 
 RecordsetWrapper::RecordsetWrapper(Ref ref)
-  : VarGridModelWrapper(Ref_N2M<::VarGridModel>(&ref)), _ref(ref), 
-  task(gcnew GrtThreadedTaskWrapper(_ref->task.get())), action_list(gcnew ActionList(&_ref->action_list()))
-{
+  : VarGridModelWrapper(Ref_N2M<::VarGridModel>(&ref)),
+    _ref(ref),
+    task(gcnew GrtThreadedTaskWrapper(_ref->task.get())),
+    action_list(gcnew ActionList(&_ref->action_list())) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
 RecordsetWrapper::RecordsetWrapper(IntPtr nref_ptr)
-  : _ref(gcnew ManagedRef<::Recordset>(nref_ptr)), VarGridModelWrapper(Ref_N2M<::VarGridModel>(&_ref)),
-  task(gcnew GrtThreadedTaskWrapper(_ref->task.get())), action_list(gcnew ActionList(&_ref->action_list()))
-{
+  : _ref(gcnew ManagedRef<::Recordset>(nref_ptr)),
+    VarGridModelWrapper(Ref_N2M<::VarGridModel>(&_ref)),
+    task(gcnew GrtThreadedTaskWrapper(_ref->task.get())),
+    action_list(gcnew ActionList(&_ref->action_list())) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-RecordsetWrapper::~RecordsetWrapper()
-{
-  if (!(void*)~_ref)
+RecordsetWrapper::~RecordsetWrapper() {
+  if (!(void *)~_ref)
     return;
   delete action_list;
   delete task;
@@ -70,50 +71,53 @@ RecordsetWrapper::~RecordsetWrapper()
 
 //--------------------------------------------------------------------------------------------------
 
-void RecordsetWrapper::register_edit_actions()
-{
+void RecordsetWrapper::register_edit_actions() {
   mforms::ToolBarItem *item;
   item = _ref->get_toolbar()->find_item("record_del");
-  if (item)
-  {
+  if (item) {
     item->signal_activated()->connect(boost::bind(&::ActionList::trigger_action, &_ref->action_list(), "record_del"));
-    _ref->get_toolbar()->find_item("record_add")->signal_activated()->connect(boost::bind(&::ActionList::trigger_action, &_ref->action_list(), "record_add"));
-    _ref->get_toolbar()->find_item("record_edit")->signal_activated()->connect(boost::bind(&::ActionList::trigger_action, &_ref->action_list(), "record_edit"));
+    _ref->get_toolbar()
+      ->find_item("record_add")
+      ->signal_activated()
+      ->connect(boost::bind(&::ActionList::trigger_action, &_ref->action_list(), "record_add"));
+    _ref->get_toolbar()
+      ->find_item("record_edit")
+      ->signal_activated()
+      ->connect(boost::bind(&::ActionList::trigger_action, &_ref->action_list(), "record_edit"));
   }
   item = _ref->get_toolbar()->find_item("record_wrap_vertical");
   if (item)
-    item->signal_activated()->connect(boost::bind(&::ActionList::trigger_action, &_ref->action_list(), "record_wrap_vertical"));
+    item->signal_activated()->connect(
+      boost::bind(&::ActionList::trigger_action, &_ref->action_list(), "record_wrap_vertical"));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void RecordsetWrapper::pending_changes(int %upd_count, int %ins_count, int %del_count)
-{
+void RecordsetWrapper::pending_changes(int % upd_count, int % ins_count, int % del_count) {
   int upd_count_, ins_count_, del_count_;
   _ref->pending_changes(upd_count_, ins_count_, del_count_);
-  upd_count=upd_count_; ins_count=ins_count_; del_count=del_count_;
+  upd_count = upd_count_;
+  ins_count = ins_count_;
+  del_count = del_count_;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void RecordsetWrapper::set_flush_ui_changes_cb(DelegateSlot0<void, void>::ManagedDelegate ^apply)
-{
+void RecordsetWrapper::set_flush_ui_changes_cb(DelegateSlot0<void, void>::ManagedDelegate ^ apply) {
   _flush_ui_changes = gcnew DelegateSlot0<void, void>(apply);
   _ref->flush_ui_changes_cb = _flush_ui_changes->get_slot();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void RecordsetWrapper::copy_rows_to_clipboard(List<int> ^indexes)
-{
+void RecordsetWrapper::copy_rows_to_clipboard(List<int> ^ indexes) {
   std::vector<int> row_indexes = IntListToCppVector(indexes);
   _ref->copy_rows_to_clipboard(row_indexes);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-ContextMenuStrip ^RecordsetWrapper::get_context_menu(List<int> ^indexes, int clicked_column)
-{
+ContextMenuStrip ^ RecordsetWrapper::get_context_menu(List<int> ^ indexes, int clicked_column) {
   std::vector<int> row_indexes = IntListToCppVector(indexes);
   _ref->update_selection_for_menu(row_indexes, clicked_column);
   return dynamic_cast<ContextMenuStrip ^>(ObjectMapper::GetManagedComponent(_ref->get_context_menu()));
@@ -121,21 +125,20 @@ ContextMenuStrip ^RecordsetWrapper::get_context_menu(List<int> ^indexes, int cli
 
 //--------------------------------------------------------------------------------------------------
 
-bool RecordsetWrapper::delete_nodes(List<NodeIdWrapper^> ^nodes)
-{
-  std::vector<bec::NodeId> nodes_= convert_node_list(nodes);
+bool RecordsetWrapper::delete_nodes(List<NodeIdWrapper ^> ^ nodes) {
+  std::vector<bec::NodeId> nodes_ = convert_node_list(nodes);
   return _ref->delete_nodes(nodes_);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-MySQL::Base::IRecordsetView ^RecordsetWrapper::wrap_and_create_recordset_view(IntPtr rset)
-{
-  return create_recordset_for_wrapper(Ref2Ptr_<::Recordset, RecordsetWrapper>(*(boost::shared_ptr<Recordset>*)rset.ToPointer()));
+MySQL::Base::IRecordsetView ^ RecordsetWrapper::wrap_and_create_recordset_view(IntPtr rset) {
+  return create_recordset_for_wrapper(
+    Ref2Ptr_<::Recordset, RecordsetWrapper>(*(std::shared_ptr<Recordset> *)rset.ToPointer()));
 }
 
-void RecordsetWrapper::init_mforms(CreateRecordsetViewForWrapper ^deleg)
-{
+void RecordsetWrapper::init_mforms(CreateRecordsetViewForWrapper ^ deleg) {
   create_recordset_for_wrapper = deleg;
-  MySQL::Forms::RecordGridViewHelper::init(gcnew MySQL::Forms::CreateRecordGridDelegate(RecordsetWrapper::wrap_and_create_recordset_view));
+  MySQL::Forms::GridViewHelper::init(
+    gcnew MySQL::Forms::CreateGridViewDelegate(RecordsetWrapper::wrap_and_create_recordset_view));
 }

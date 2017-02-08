@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,22 +26,19 @@
 
 #define WBModule_VERSION "1.0.0"
 
-
-class WbPrintingImpl : public grt::ModuleImplBase, PluginInterfaceImpl
-{
+class WbPrintingImpl : public grt::ModuleImplBase, PluginInterfaceImpl {
   typedef grt::ModuleImplBase super;
 
 public:
   WbPrintingImpl(grt::CPPModuleLoader *ldr);
 
-  DEFINE_INIT_MODULE(WBModule_VERSION, "MySQL AB", grt::ModuleImplBase,
-    DECLARE_MODULE_FUNCTION(WbPrintingImpl::getPluginInfo),
+  DEFINE_INIT_MODULE(WBModule_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
+                     DECLARE_MODULE_FUNCTION(WbPrintingImpl::getPluginInfo),
 
-    DECLARE_MODULE_FUNCTION(WbPrintingImpl::printDiagramsToFile),
-    DECLARE_MODULE_FUNCTION(WbPrintingImpl::printToPDFFile),
-    DECLARE_MODULE_FUNCTION(WbPrintingImpl::printToPSFile),
-    DECLARE_MODULE_FUNCTION(WbPrintingImpl::printToPrinter)
-    );
+                     DECLARE_MODULE_FUNCTION(WbPrintingImpl::printDiagramsToFile),
+                     DECLARE_MODULE_FUNCTION(WbPrintingImpl::printToPDFFile),
+                     DECLARE_MODULE_FUNCTION(WbPrintingImpl::printToPSFile),
+                     DECLARE_MODULE_FUNCTION(WbPrintingImpl::printToPrinter));
 
 private:
   virtual grt::ListRef<app_Plugin> getPluginInfo();

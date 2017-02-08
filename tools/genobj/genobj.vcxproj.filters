@@ -2,5 +2,294 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="genobj.cpp" />
+    <ClCompile Include="..\..\library\base\stdafx.cpp">
+      <Filter>base library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\config_file.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\debugging.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\drawing.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\file_functions.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\file_utilities.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\geometry.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\log.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\notifications.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\profiling.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\sqlstring.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\string_utilities.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\threaded_timer.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\threading.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\ui_form.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\util_functions.cpp">
+      <Filter>base library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_grt.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_helper.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_metaclass.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_module.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_module_cpp.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_module_python.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_notifications.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_shell.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_shell_python.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_shell_python_help.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_undo_manager.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_util.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\grtpp_value.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\python_context.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\python_grtdict.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\python_grtlist.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\python_grtobject.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\python_module.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\serializer.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\unserializer.cpp">
+      <Filter>grt library\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\diff\changefactory.cpp">
+      <Filter>grt library\Source Files\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\diff\changelistobjects.cpp">
+      <Filter>grt library\Source Files\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\diff\diffchange.cpp">
+      <Filter>grt library\Source Files\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\diff\grtdiff.cpp">
+      <Filter>grt library\Source Files\diff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\grt\src\diff\grtlistdiff.cpp">
+      <Filter>grt library\Source Files\diff</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="base library">
+      <UniqueIdentifier>{db0ebafa-6ed2-45e7-a332-77f88679d540}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base library\Header Files">
+      <UniqueIdentifier>{d66d3ccf-aae2-4f66-ab94-02f14d1fc9d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base library\Source Files">
+      <UniqueIdentifier>{c7b5c4ad-6b31-43b8-aa44-15054f2e8b40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grt library">
+      <UniqueIdentifier>{2eebd5e8-42a8-432a-a99e-edeec6aff2ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grt library\Header Files">
+      <UniqueIdentifier>{7353edea-59b2-45d1-8d92-4b367f3d3599}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grt library\Header Files\diff">
+      <UniqueIdentifier>{252bfda7-3ebc-489d-830b-115c6b65729d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grt library\Source Files">
+      <UniqueIdentifier>{5d6430f9-d5eb-4ad1-a43e-221644ea4757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grt library\Source Files\diff">
+      <UniqueIdentifier>{eeaaa0ff-ef7a-4f94-9c10-c8910ae4163e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\library\base\stdafx.h">
+      <Filter>base library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\boost_smart_ptr_helpers.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\common.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\config_file.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\debugging.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\drawing.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\entities.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\file_functions.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\file_utilities.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\geometry.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\log.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\notifications.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\profiling.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\sqlstring.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\string_utilities.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\threaded_timer.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\threading.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\trackable.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\ui_form.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\util_functions.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\wb_iterators.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\base\base\wb_memory.h">
+      <Filter>base library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_helper.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_module_cpp.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_module_python.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_notifications.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_shell.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_shell_python.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_shell_python_help.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_undo_manager.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_util.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\grtpp_value.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\python_context.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\python_grtdict.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\python_grtlist.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\python_grtobject.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\python_module.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\serializer.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\unserializer.h">
+      <Filter>grt library\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\diff\changefactory.h">
+      <Filter>grt library\Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\diff\changelistobjects.h">
+      <Filter>grt library\Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\diff\changeobjects.h">
+      <Filter>grt library\Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\diff\diffchange.h">
+      <Filter>grt library\Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\diff\grtdiff.h">
+      <Filter>grt library\Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\grt\src\diff\grtlistdiff.h">
+      <Filter>grt library\Header Files\diff</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

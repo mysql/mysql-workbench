@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,22 +22,19 @@
 namespace MySQL {
   namespace Forms {
 
-    private ref class TextBoxEx : public Windows::Forms::TextBox
-    {
+  private
+    ref class TextBoxEx : public System::Windows::Forms::TextBox {
     private:
       mforms::ModifierKey modifiers; // Converted modifier keys for key down and key press events.
     protected:
-      virtual bool ProcessCmdKey(Windows::Forms::Message% msg, Windows::Forms::Keys keyData) override;
-      virtual void OnTextChanged(EventArgs ^args) override;
-      virtual void OnKeyDown(Windows::Forms::KeyEventArgs ^args) override;
-      virtual void OnKeyPress(Windows::Forms::KeyPressEventArgs ^args) override;
-
-      mforms::ModifierKey GetModifiers(Windows::Forms::Keys keyData);
-    public:
+      virtual bool ProcessCmdKey(System::Windows::Forms::Message % msg, System::Windows::Forms::Keys keyData) override;
+      virtual void OnTextChanged(EventArgs ^ args) override;
+      virtual void OnKeyDown(System::Windows::Forms::KeyEventArgs ^ args) override;
+      virtual void OnKeyPress(System::Windows::Forms::KeyPressEventArgs ^ args) override;
     };
 
-    public class TextBoxWrapper : public ViewWrapper
-    {
+  public
+    class TextBoxWrapper : public ViewWrapper {
     protected:
       TextBoxWrapper(mforms::TextBox *text);
 
@@ -51,9 +48,9 @@ namespace MySQL {
       static void set_monospaced(mforms::TextBox *backend, bool flag);
       static void get_selected_range(mforms::TextBox *backend, int &start, int &end);
       static void clear(mforms::TextBox *backend);
+
     public:
       static void init();
     };
-
   };
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,28 +32,21 @@
 using namespace mforms;
 using namespace base;
 
-
-size_t TableTemplateList::count()
-{
-  return (int)grt::BaseListRef::cast_from(_grt->get("/wb/options/options/TableTemplates")).count();
+size_t TableTemplateList::count() {
+  return (int)grt::BaseListRef::cast_from(grt::GRT::get()->get("/wb/options/options/TableTemplates")).count();
 }
 
-bool TableTemplateList::get_field(const bec::NodeId &node, ColumnId column, std::string &value)
-{
-  grt::BaseListRef templates(grt::BaseListRef::cast_from(_grt->get("/wb/options/options/TableTemplates")));
-  if (node[0] < templates.count())
-  {
+bool TableTemplateList::get_field(const bec::NodeId &node, ColumnId column, std::string &value) {
+  grt::BaseListRef templates(grt::BaseListRef::cast_from(grt::GRT::get()->get("/wb/options/options/TableTemplates")));
+  if (node[0] < templates.count()) {
     db_TableRef table = db_TableRef::cast_from(templates[node[0]]);
 
-    switch (column)
-    {
+    switch (column) {
       case 0:
         value = table->name();
         return true;
-      case 1:
-      {
-        for (size_t c = table->columns().count(), i = 0; i < c; i++)
-        {
+      case 1: {
+        for (size_t c = table->columns().count(), i = 0; i < c; i++) {
           if (!value.empty())
             value.append(", ");
           value.append(table->columns()[i]->name());
@@ -65,14 +58,10 @@ bool TableTemplateList::get_field(const bec::NodeId &node, ColumnId column, std:
   return false;
 }
 
-
-void TableTemplateList::refresh()
-{
+void TableTemplateList::refresh() {
 }
 
-
-std::string TableTemplateList::get_selected_template()
-{
+std::string TableTemplateList::get_selected_template() {
   std::string name;
   get_field(selected_index(), 0, name);
   return name;
@@ -80,52 +69,43 @@ std::string TableTemplateList::get_selected_template()
 
 //------------------------------------------------------------------------------------------------
 
-void TableTemplateList::prepare_context_menu()
-{
+void TableTemplateList::prepare_context_menu() {
   _context_menu = manage(new Menu());
-  _context_menu->set_handler(boost::bind(&TableTemplatePanel::on_action, _owner, _1));
-  _context_menu->signal_will_show()->connect(boost::bind(&TableTemplateList::menu_will_show, this));
+  _context_menu->set_handler(std::bind(&TableTemplatePanel::on_action, _owner, std::placeholders::_1));
+  _context_menu->signal_will_show()->connect(std::bind(&TableTemplateList::menu_will_show, this));
 
   _context_menu->add_item("New Table from Template", "use_template");
   _context_menu->add_separator();
   _context_menu->add_item("Edit Template...", "edit_templates");
-
 }
 
 //------------------------------------------------------------------------------------------------
 
-void TableTemplateList::menu_will_show()
-{
+void TableTemplateList::menu_will_show() {
 }
 
 //------------------------------------------------------------------------------------------------
 
-
-TableTemplateList::TableTemplateList(grt::GRT *grt, TableTemplatePanel *owner)
-: BaseSnippetList("snippet_mwb.png", this), _grt(grt), _owner(owner)
-{
+TableTemplateList::TableTemplateList(TableTemplatePanel *owner)
+  : BaseSnippetList("snippet_mwb.png", this), _owner(owner) {
   prepare_context_menu();
   refresh_snippets();
 }
 
 //------------------------------------------------------------------------------------------------
 
-TableTemplateList::~TableTemplateList()
-{
+TableTemplateList::~TableTemplateList() {
   _context_menu->release();
 }
 
 //------------------------------------------------------------------------------------------------
 
-bool TableTemplateList::mouse_double_click(mforms::MouseButton button, int x, int y)
-{
+bool TableTemplateList::mouse_double_click(mforms::MouseButton button, int x, int y) {
   BaseSnippetList::mouse_double_click(button, x, y);
 
-  if (button == MouseButtonLeft)
-  {
-    Snippet* snippet = snippet_from_point(x, y);
-    if (snippet != NULL && snippet == _selected_snippet)
-    {
+  if (button == MouseButtonLeft) {
+    Snippet *snippet = snippet_from_point(x, y);
+    if (snippet != NULL && snippet == _selected_snippet) {
       _owner->on_action("use_template");
       return true;
     }
@@ -136,9 +116,8 @@ bool TableTemplateList::mouse_double_click(mforms::MouseButton button, int x, in
 
 //------------------------------------------------------------------------------------------------
 
-TableTemplatePanel::TableTemplatePanel(grt::GRT *grt, wb::WBContextModel *cmodel)
-: mforms::Box(false), _grt(grt), _templates(grt, this), _context(cmodel)
-{
+TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
+  : mforms::Box(false), _templates(this), _context(cmodel) {
 #ifdef _WIN32
   set_padding(3, 3, 3, 3);
   _templates.set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
@@ -154,7 +133,8 @@ TableTemplatePanel::TableTemplatePanel(grt::GRT *grt, wb::WBContextModel *cmodel
   item->set_name("edit_templates");
   item->set_icon(mforms::App::get()->get_resource_path("edit_table_templates.png"));
   item->set_tooltip("Open the table template editor.");
-  scoped_connect(item->signal_activated(), boost::bind(&TableTemplatePanel::toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(),
+                 std::bind(&TableTemplatePanel::toolbar_item_activated, this, std::placeholders::_1));
   _toolbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem));
@@ -165,61 +145,51 @@ TableTemplatePanel::TableTemplatePanel(grt::GRT *grt, wb::WBContextModel *cmodel
   item->set_icon(mforms::App::get()->get_resource_path("snippet_add.png"));
   item->set_name("add_template");
   item->set_tooltip("Create a table template from the selected table object.");
-  scoped_connect(item->signal_activated(), boost::bind(&TableTemplatePanel::toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(), std::bind(&TableTemplatePanel::toolbar_item_activated, this,
+  std::placeholders::_1));
   _toolbar->add_item(item);
 */
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
   item->set_name("use_template");
   item->set_icon(mforms::App::get()->get_resource_path("tiny_new_table.png"));
   item->set_tooltip("Create a new table based on the selected table template.");
-  scoped_connect(item->signal_activated(), boost::bind(&TableTemplatePanel::toolbar_item_activated, this, _1));
+  scoped_connect(item->signal_activated(),
+                 std::bind(&TableTemplatePanel::toolbar_item_activated, this, std::placeholders::_1));
   _toolbar->add_item(item);
 
   add(_toolbar, false, true);
   add(_scroll_panel, true, true);
 }
 
-
-void TableTemplatePanel::on_action(const std::string &action)
-{
-  if (action == "edit_templates")
-  {
-    grt::BaseListRef args(_grt);
+void TableTemplatePanel::on_action(const std::string &action) {
+  if (action == "edit_templates") {
+    grt::BaseListRef args(true);
     args.ginsert(grt::StringRef(_templates.get_selected_template()));
-    _grt->call_module_function("WbTableUtils", "openTableTemplateEditorFor", args);
+    grt::GRT::get()->call_module_function("WbTableUtils", "openTableTemplateEditorFor", args);
     _templates.refresh_snippets();
-  }
-  else if (action == "use_template")
-  {
-    if (!_templates.get_selected_template().empty())
-    {
-      grt::BaseListRef args(_grt);
+  } else if (action == "use_template") {
+    if (!_templates.get_selected_template().empty()) {
+      grt::BaseListRef args(true);
       args.ginsert(workbench_physical_ModelRef::cast_from(_context->get_active_model(true))->catalog()->schemata()[0]);
       args.ginsert(grt::StringRef(_templates.get_selected_template()));
-      db_TableRef table(db_TableRef::cast_from(_grt->call_module_function("WbTableUtils", "createTableFromTemplate", args)));
-      if (table.is_valid())
-      {
+      db_TableRef table(
+        db_TableRef::cast_from(grt::GRT::get()->call_module_function("WbTableUtils", "createTableFromTemplate", args)));
+      if (table.is_valid()) {
         model_DiagramRef d = _context->get_active_model_diagram(true);
-        if (d.is_valid())
-        {
+        if (d.is_valid()) {
           wb::ModelDiagramForm *diagram = _context->get_diagram_form_for_diagram_id(d.id());
-          if (diagram)
-          {
+          if (diagram) {
             std::list<GrtObjectRef> objects;
             objects.push_back(table);
             diagram->perform_drop(10, 10, WB_DBOBJECT_DRAG_TYPE, objects);
           }
         }
       }
-    }
-    else
+    } else
       mforms::Utilities::show_message("Empty Selection", "Please select template to be used.", "Ok");
-
   }
 }
 
-void TableTemplatePanel::toolbar_item_activated(mforms::ToolBarItem *item)
-{
+void TableTemplatePanel::toolbar_item_activated(mforms::ToolBarItem *item) {
   on_action(item->get_name());
 }
-

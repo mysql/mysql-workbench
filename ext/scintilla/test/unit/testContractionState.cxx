@@ -2,10 +2,12 @@
 
 #include <string.h>
 
+#include <stdexcept>
 #include <algorithm>
 
 #include "Platform.h"
 
+#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -65,10 +67,10 @@ TEST_CASE("ContractionState") {
 
 		cs.SetVisible(1, 1, false);
 		REQUIRE(true == cs.GetVisible(0));
-		REQUIRE(0 == cs.GetVisible(1));
+		REQUIRE(false == cs.GetVisible(1));
 		REQUIRE(true == cs.GetVisible(2));
 		REQUIRE(4 == cs.LinesDisplayed());
-		REQUIRE(1 == cs.HiddenLines());
+		REQUIRE(true == cs.HiddenLines());
 
 		cs.SetVisible(1, 2, true);
 		for (int l=0;l<4;l++) {
@@ -76,12 +78,12 @@ TEST_CASE("ContractionState") {
 		}
 
 		cs.SetVisible(1, 1, false);
-		REQUIRE(0 == cs.GetVisible(1));
+		REQUIRE(false == cs.GetVisible(1));
 		cs.ShowAll();
 		for (int l=0;l<4;l++) {
 			REQUIRE(true == cs.GetVisible(0));
 		}
-		REQUIRE(0 == cs.HiddenLines());
+		REQUIRE(false == cs.HiddenLines());
 	}
 
 	SECTION("Hidden") {
@@ -89,18 +91,18 @@ TEST_CASE("ContractionState") {
 		for (int l=0;l<2;l++) {
 			REQUIRE(true == cs.GetVisible(0));
 		}
-		REQUIRE(0 == cs.HiddenLines());
+		REQUIRE(false == cs.HiddenLines());
 
 		cs.SetVisible(1, 1, false);
 		REQUIRE(true == cs.GetVisible(0));
-		REQUIRE(0 == cs.GetVisible(1));
-		REQUIRE(1 == cs.HiddenLines());
+		REQUIRE(false == cs.GetVisible(1));
+		REQUIRE(true == cs.HiddenLines());
 
 		cs.SetVisible(1, 1, true);
 		for (int l=0;l<2;l++) {
 			REQUIRE(true == cs.GetVisible(0));
 		}
-		REQUIRE(0 == cs.HiddenLines());
+		REQUIRE(false == cs.HiddenLines());
 	}
 
 	SECTION("Contracting") {
@@ -111,7 +113,7 @@ TEST_CASE("ContractionState") {
 
 		cs.SetExpanded(2, false);
 		REQUIRE(true == cs.GetExpanded(1));
-		REQUIRE(0 == cs.GetExpanded(2));
+		REQUIRE(false == cs.GetExpanded(2));
 		REQUIRE(true == cs.GetExpanded(3));
 
 		REQUIRE(2 == cs.ContractedNext(0));

@@ -10,9 +10,8 @@
 
 using namespace grtui;
 using namespace mforms;
- 
-class Page1 : public WizardPage
-{  
+
+class Page1 : public WizardPage {
   Panel _left_panel;
   Box _left_vbox;
   RadioButton _left_model;
@@ -35,13 +34,16 @@ class Page1 : public WizardPage
 
   Box _top_level;
 
-public:  
+public:
   Page1(WizardForm *form)
-    : WizardPage(form, "pg1"), 
-      _left_panel(true), _left_vbox(false), _left_filebox(true),
-      _right_panel(true), _right_vbox(false), _right_filebox(true),
-      _top_level(true)
-  {
+    : WizardPage(form, "pg1"),
+      _left_panel(true),
+      _left_vbox(false),
+      _left_filebox(true),
+      _right_panel(true),
+      _right_vbox(false),
+      _right_filebox(true),
+      _top_level(true) {
     set_title("Catalog synchronization");
     set_subtitle("Select your catalog objects for synchronization");
 
@@ -65,7 +67,7 @@ public:
     _left_filebox_b.set_text("Browse...");
     _left_filebox_b.set_size(100, -1);
     _left_filename.set_size(30, -1);
-    
+
     _left_filebox.add(&_left_filebox_l, false, true);
     _left_filebox.add(&_left_filename, true, true);
     _left_filebox.add(&_left_filebox_b, false, false);
@@ -76,7 +78,6 @@ public:
     _left_vbox.add(&_left_db, false, true);
     _left_vbox.add(&_left_file, false, true);
     _left_vbox.add(&_left_filebox, false, true);
-
 
     _right_panel.set_title("Source for the Right Catalog");
     _right_panel.add(&_right_vbox);
@@ -106,38 +107,31 @@ public:
     _right_vbox.add(&_right_db, false, true);
     _right_vbox.add(&_right_file, false, true);
     _right_vbox.add(&_right_filebox, false, true);
-    
+
     _right_file.set_active(true);
 
     _top_level.set_homogeneous(true);
     _top_level.add(&_left_panel, false, true);
     _top_level.add(&_right_panel, false, true);
-    
+
     _top_level.set_padding(12);
     _top_level.set_spacing(12);
   }
-  
-  virtual void enter(grt::DictRef values)
-  {
+
+  virtual void enter(grt::DictRef values) {
     validate();
   }
-  
-  void left_changed()
-  {
-    if (_left_model.get_active())
-    {
+
+  void left_changed() {
+    if (_left_model.get_active()) {
       _right_model.set_enabled(false);
       _left_filebox_b.set_enabled(false);
       _left_filename.set_enabled(false);
-    }
-    else if (_left_db.get_active())
-    {
+    } else if (_left_db.get_active()) {
       _right_model.set_enabled(true);
       _left_filebox_b.set_enabled(false);
       _left_filename.set_enabled(false);
-    }
-    else
-    {
+    } else {
       _right_model.set_enabled(true);
       _left_filebox_b.set_enabled(true);
       _left_filename.set_enabled(true);
@@ -145,22 +139,16 @@ public:
     validate();
   }
 
-  void right_changed()
-  {
-    if (_right_model.get_active())
-    {
+  void right_changed() {
+    if (_right_model.get_active()) {
       _left_model.set_enabled(false);
       _right_filebox_b.set_enabled(false);
       _right_filename.set_enabled(false);
-    }
-    else if (_right_db.get_active())
-    {
+    } else if (_right_db.get_active()) {
       _left_model.set_enabled(true);
       _right_filebox_b.set_enabled(false);
       _right_filename.set_enabled(false);
-    }
-    else
-    {
+    } else {
       _left_model.set_enabled(true);
       _right_filebox_b.set_enabled(true);
       _right_filename.set_enabled(true);
@@ -168,29 +156,24 @@ public:
     validate();
   }
 
-  virtual void do_validate()
-  {
-    bool ok= true;
+  virtual void do_validate() {
+    bool ok = true;
 
-    if (_left_file.get_active())
-    {
+    if (_left_file.get_active()) {
       if (!g_file_test(_left_filename.get_string_value().c_str(), G_FILE_TEST_IS_REGULAR))
-        ok= false;
+        ok = false;
     }
-    if (!ok)
-    {
+    if (!ok) {
       if (_form)
         _form->set_problem("Select Left File");
       return;
     }
-    
-    if (_right_file.get_active())
-    {
+
+    if (_right_file.get_active()) {
       if (!g_file_test(_right_filename.get_string_value().c_str(), G_FILE_TEST_IS_REGULAR))
-        ok= false;
+        ok = false;
     }
-    if (!ok)
-    {
+    if (!ok) {
       if (_form)
         _form->set_problem("Select Right File");
       return;
@@ -198,35 +181,29 @@ public:
     if (_form)
       _form->set_problem("");
   }
-  
-  
-  virtual std::string get_title()
-  {
+
+  virtual std::string get_title() {
     return "Wizard Test";
   }
-  
-  virtual std::string get_subtitle()
-  {
+
+  virtual std::string get_subtitle() {
     return "Wizard page description.";
   }
 };
 
-
 #include "../grtdb_connect_panel.h"
 
-class Page2 : public WizardPage
-{
+class Page2 : public WizardPage {
 protected:
   DbConnectPanel _dbconnect;
-  
+
 public:
-  Page2(WizardForm *form, grt::GRT *grt)
-    : WizardPage(form, "dbconnect")
-  {
+  Page2(WizardForm *form, grt::GRT *grt) : WizardPage(form, "dbconnect") {
     set_title("Pick a connection");
     set_subtitle("Select an existing connection or create a new one");
 
-    db_mgmt_RdbmsRef rdbms(db_mgmt_RdbmsRef::cast_from(grt->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml")));
+    db_mgmt_RdbmsRef rdbms(
+      db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml")));
     db_mgmt_ManagementRef mgr(grt);
 
     mgr->rdbms().insert(rdbms);
@@ -236,23 +213,19 @@ public:
     add(&_dbconnect, true, true);
   }
 
-  virtual std::string get_title()
-  {
+  virtual std::string get_title() {
     return "Wizard Test";
   }
-  
-  virtual std::string get_subtitle()
-  {
+
+  virtual std::string get_subtitle() {
     return "Connection parameters.";
   }
 };
 
-class ImportInputPage : public WizardPage
-{
+class ImportInputPage : public WizardPage {
 public:
   ImportInputPage(WizardForm *form)
-    : WizardPage(form, "options"), _frame(true), _contents(true), _options(true), _options_box(false)
-  {
+    : WizardPage(form, "options"), _frame(true), _contents(true), _options(true), _options_box(false) {
 #ifdef _DEBUG
     set_name("ImportPage");
     _frame.set_name("Import:frame");
@@ -278,9 +251,9 @@ public:
     _contents.add(&_filename, true, true);
     _filename.set_size(50, -1);
     _contents.add(&_browse_button, false, false);
-    
+
     enable_file_browsing(&_filename, &_browse_button, mforms::OpenFile);
-    
+
     _caption.set_text(_("Input SQL Script File:"));
     _browse_button.set_text(_("Browse..."));
     _browse_button.set_size(100, -1);
@@ -296,6 +269,7 @@ public:
 
     add(&_options, false, true);
   }
+
 protected:
   Panel _frame;
   Box _contents;
@@ -308,13 +282,10 @@ protected:
   CheckBox _autoplace_check;
 };
 
-
-
 #ifdef _WIN32
 GRTUI_EXPORT void wiztest();
 
-void wiztest()
-{  
+void wiztest() {
 #if 0
   Form window;
   Box vbox(false);
@@ -344,27 +315,26 @@ void wiztest()
   
   window.show();
 
-
 #else
   bec::GRTManager grtm;
-  
+
   grtm.set_datadir("../../");
   grtm.get_grt()->scan_metaclasses_in("../../res/grt");
   grtm.get_grt()->end_loading_metaclasses();
 
-  WizardForm* wizard= new WizardForm(&grtm);
-  
-  Page2* page2= new Page2(wizard, grtm.get_grt());
+  WizardForm* wizard = new WizardForm(&grtm);
+
+  Page2* page2 = new Page2(wizard, grtm.get_grt());
   wizard->add_page(page2);
 
-  Page1* page1= new Page1(wizard);
+  Page1* page1 = new Page1(wizard);
   wizard->add_page(page1);
 
-  ImportInputPage* import1= new ImportInputPage(wizard);
+  ImportInputPage* import1 = new ImportInputPage(wizard);
   wizard->add_page(import1);
 
-  grt::DictRef values(grtm.get_grt());
-  
+  grt::DictRef values(true);
+
   wizard->run_modal(values);
 #endif
 }
@@ -374,31 +344,30 @@ void wiztest()
 #include "grt/grt_manager.h"
 
 void wiztest()
-//int main(int argc, char **argv)
+// int main(int argc, char **argv)
 {
   bec::GRTManager grtm;
   WizardForm wizard(&grtm);
-  
+
   ImportInputPage import1(&wizard);
 
   wizard.add_page(&import1);
 
 #if 0
   Page1 page1(&wizard);
-  Page2 page2(&wizard, grtm.get_grt());
+  Page2 page2(&wizard);
 
   wizard.add_page(&page2);
   wizard.add_page(&page1);
 #endif
-  grt::DictRef values(grtm.get_grt());
-  
+  grt::DictRef values(true);
+
   wizard.run_modal(values);
-  
+
   g_message("wizard exited");
-  //main.run();
-  //return 0;
+  // main.run();
+  // return 0;
 }
 #endif
-
 
 #endif

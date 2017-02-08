@@ -1,6 +1,6 @@
-/* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
- * 
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -24,31 +24,31 @@
 //==============================================================================
 //
 //==============================================================================
-class DbMySQLViewEditor : public PluginEditorBase
-{
-  MySQLViewEditorBE                 *_be;
-  DbMySQLEditorPrivPage             *_privs_page;
-  
+class DbMySQLViewEditor : public PluginEditorBase {
+  MySQLViewEditorBE *_be;
+  DbMySQLEditorPrivPage *_privs_page;
+
   virtual bec::BaseEditor *get_be();
-  
- public:
-  DbMySQLViewEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
-  
+
+public:
+  DbMySQLViewEditor(grt::Module *m, const grt::BaseListRef &args);
+
   virtual ~DbMySQLViewEditor();
   virtual void do_refresh_form_data();
 
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
-  
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
+
   bool comment_lost_focus(GdkEventFocus *ev, Gtk::TextView *view);
 
- private:
-  virtual bool can_close() { return _be->can_close(); }
+private:
+  virtual bool can_close() {
+    return _be->can_close();
+  }
 };
 
-DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m ,grtm, args, "modules/data/editor_view.glade")
-    , _be(new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0])))
-{
+DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, const grt::BaseListRef &args)
+  : PluginEditorBase(m, args, "modules/data/editor_view.glade"),
+    _be(new MySQLViewEditorBE(db_mysql_ViewRef::cast_from(args[0]))) {
   xml()->get_widget("mysql_view_editor_notebook", _editor_notebook);
 
   Gtk::Image *image;
@@ -57,35 +57,31 @@ DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, bec::GRTManager *grtm, cons
   xml()->get_widget("view_editor_image2", image);
   image->set(ImageCache::get_instance()->image_from_filename("db.View.editor.48x48.png", false));
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLViewEditor::refresh_form_data));
-  
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLViewEditor::refresh_form_data, this));
+
   _editor_notebook->reparent(*this);
   _editor_notebook->show();
 
-
-
-  Gtk::VBox *ddl_win;
+  Gtk::Box *ddl_win;
   xml()->get_widget("editor_placeholder", ddl_win);
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_view_sql();
 
-  if (!is_editing_live_object())
-  {
-    _privs_page     = new DbMySQLEditorPrivPage(_be);
+  if (!is_editing_live_object()) {
+    _privs_page = new DbMySQLEditorPrivPage(_be);
     _editor_notebook->append_page(_privs_page->page(), "Privileges");
 
     Gtk::TextView *tview(0);
     xml()->get_widget("viewcomment", tview);
     tview->get_buffer()->set_text(_be->get_comment());
 
-    tview->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &DbMySQLViewEditor::comment_lost_focus), tview), false);
-  }
-  else
-  {
+    tview->signal_focus_out_event().connect(
+      sigc::bind(sigc::mem_fun(this, &DbMySQLViewEditor::comment_lost_focus), tview), false);
+  } else {
     _editor_notebook->remove_page(1);
-    _privs_page= NULL;
+    _privs_page = NULL;
   }
-    
+
   refresh_form_data();
 
   _be->reset_editor_undo_stack();
@@ -94,31 +90,29 @@ DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, bec::GRTManager *grtm, cons
 }
 
 //------------------------------------------------------------------------------
-DbMySQLViewEditor::~DbMySQLViewEditor()
-{
+DbMySQLViewEditor::~DbMySQLViewEditor() {
   delete _privs_page;
-  
+
   delete _be;
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLViewEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
-{
+bool DbMySQLViewEditor::switch_edited_object(const grt::BaseListRef &args) {
   MySQLViewEditorBE *old_be = _be;
-  Gtk::VBox *ddl_win;
+  Gtk::Box *ddl_win;
   xml()->get_widget("editor_placeholder", ddl_win);
- 
-  _be = new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0]));
+
+  _be = new MySQLViewEditorBE(db_mysql_ViewRef::cast_from(args[0]));
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_view_sql();
 
   if (!is_editing_live_object())
     _privs_page->switch_be(_be);
-  
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLViewEditor::refresh_form_data));
+
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLViewEditor::refresh_form_data, this));
 
   do_refresh_form_data();
-  
+
   delete old_be;
   old_be = 0;
 
@@ -128,32 +122,27 @@ bool DbMySQLViewEditor::switch_edited_object(bec::GRTManager *grtm, const grt::B
 //------------------------------------------------------------------------------
 
 bool DbMySQLViewEditor::comment_lost_focus(GdkEventFocus *ev, Gtk::TextView *view) {
-  if(_be)
-  {
+  if (_be) {
     _be->set_comment(view->get_buffer()->get_text());
   }
   return false;
 }
 
 //------------------------------------------------------------------------------
-bec::BaseEditor *DbMySQLViewEditor::get_be()
-{
+bec::BaseEditor *DbMySQLViewEditor::get_be() {
   return _be;
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLViewEditor::do_refresh_form_data()
-{
-  Gtk::Entry* entry(0);
+void DbMySQLViewEditor::do_refresh_form_data() {
+  Gtk::Entry *entry(0);
   xml()->get_widget("view_name", entry);
-  if (entry->get_text() != _be->get_name())
-  {
+  if (entry->get_text() != _be->get_name()) {
     entry->set_text(_be->get_name());
     _signal_title_changed.emit(_be->get_title());
   }
 
-  if (!_be->is_editing_live_object())
-  {
+  if (!_be->is_editing_live_object()) {
     Gtk::TextView *tview(0);
     xml()->get_widget("viewcomment", tview);
     tview->get_buffer()->set_text(_be->get_comment());
@@ -166,12 +155,9 @@ void DbMySQLViewEditor::do_refresh_form_data()
     _privs_page->refresh();
 }
 
-
 //------------------------------------------------------------------------------
-extern "C" 
-{
-  GUIPluginBase *createDbMysqlViewEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-  {
-    return Gtk::manage(new DbMySQLViewEditor(m, grtm, args));
-  }
+extern "C" {
+GUIPluginBase *createDbMysqlViewEditor(grt::Module *m, const grt::BaseListRef &args) {
+  return Gtk::manage(new DbMySQLViewEditor(m, args));
+}
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@
 
 - (void)setView: (NSView*)view
 {
-  [super setView: view];
+  super.view = view;
   MCollectionViewItemView *itemView = (MCollectionViewItemView *)view;
   itemView.owner = self;
 }
@@ -43,12 +43,12 @@
 
 - (void)setSelected:(BOOL)flag 
 {
-  [super setSelected:flag];
+  super.selected = flag;
   
-  MCollectionViewItemView* itemView= (MCollectionViewItemView*)[self view];
+  MCollectionViewItemView* itemView= (MCollectionViewItemView*)self.view;
   if ([itemView isKindOfClass:[MCollectionViewItemView class]]) 
   {
-    [itemView setSelected:flag];
+    itemView.selected = flag;
     [itemView setNeedsDisplay:YES];
   }
 }

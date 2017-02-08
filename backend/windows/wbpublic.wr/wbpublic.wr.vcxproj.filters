@@ -46,9 +46,6 @@
     <ClCompile Include="src\BaseEditorWrapper.cpp">
       <Filter>Source Files\grt</Filter>
     </ClCompile>
-    <ClCompile Include="src\Grt.cpp">
-      <Filter>Source Files\grt</Filter>
-    </ClCompile>
     <ClCompile Include="src\GrtStringListModel.cpp">
       <Filter>Source Files\grt</Filter>
     </ClCompile>
@@ -100,6 +97,9 @@
     <ClCompile Include="src\ObjectRolesWrapper.cpp">
       <Filter>Source Files\user and roles</Filter>
     </ClCompile>
+    <ClCompile Include="src\GrtWrapper.cpp">
+      <Filter>Source Files\grt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h" />
@@ -113,9 +113,6 @@
       <Filter>Header Files\grt</Filter>
     </ClInclude>
     <ClInclude Include="src\Exceptions.h">
-      <Filter>Header Files\grt</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Grt.h">
       <Filter>Header Files\grt</Filter>
     </ClInclude>
     <ClInclude Include="src\GrtManager.h">
@@ -186,6 +183,9 @@
     </ClInclude>
     <ClInclude Include="src\ObjectRolesWrapper.h">
       <Filter>Header Files\user and roles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GrtWrapper.h">
+      <Filter>Header Files\grt</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

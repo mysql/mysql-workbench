@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,8 +40,8 @@
   {    
     mOwner= aSelector;
     mOwner->set_data(self);
-    [self setTarget: self];
-    [self setAction: @selector(selectionChanged:)];
+    self.target = self;
+    self.action = @selector(selectionChanged:);
     [self sizeToFit];
   }
   return self;
@@ -53,7 +53,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (NSSize) minimumSize
 {
-  return [[self cell] cellSize];
+  return self.cell.cellSize;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,8 +97,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   {    
     mOwner= aSelector;
     mOwner->set_data(self);
-    [self setTarget: self];
-    [self setAction: @selector(selectionChanged:)];
+    self.target = self;
+    self.action = @selector(selectionChanged:);
     [self setDelegate: self];
     [self sizeToFit];
   }
@@ -111,7 +111,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (NSSize) minimumSize
 {
-  return [[self cell] cellSize];
+  return self.cell.cellSize;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ static int selector_add_item(::mforms::Selector *self, const std::string &item)
           break;
       }
     }
-    return [selector numberOfItems] - 1;
+    return (int)[selector numberOfItems] - 1;
   }
   return -1;
 }
@@ -220,7 +220,7 @@ static std::string selector_get_item(::mforms::Selector *self, int index)
       {
         id value = [(PopupStyleSelector*)selector itemAtIndex: index];
         if (value != nil)
-          return [[value title] UTF8String];
+          return [value title].UTF8String;
         break;
       }
       default:
@@ -278,7 +278,7 @@ static int selector_get_index(::mforms::Selector *self)
   if (self != NULL)
   {
     id selector = self->get_data();
-    return [selector indexOfSelectedItem];
+    return (int)[selector indexOfSelectedItem];
   }
   return -1;
 }
@@ -290,7 +290,7 @@ static int selector_get_item_count(::mforms::Selector *self)
   if (self != NULL)
   {
     id selector = self->get_data();
-    return [selector numberOfItems];
+    return (int)[selector numberOfItems];
   }
   return 0;
 }

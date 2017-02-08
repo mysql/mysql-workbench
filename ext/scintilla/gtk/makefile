@@ -6,7 +6,9 @@
 # Builds for GTK+ 2 and no longer supports GTK+ 1.
 # Also works with ming32-make on Windows.
 
-.SUFFIXES: .cxx .c .o .h .a
+srcdir ?= .
+
+.SUFFIXES: .cxx .c .o .h .a .list
 ifdef CLANG
 CXX = clang++ -Wno-deprecated-register
 CC = clang
@@ -15,6 +17,7 @@ CC = clang
 SANITIZE = address
 #SANITIZE = undefined
 endif
+ARFLAGS = rc
 RANLIB = touch
 
 ifdef GTK3
@@ -31,22 +34,29 @@ RANLIB = ranlib
 endif
 endif
 
-ifdef windir
-DEL = del /q
-COMPLIB=..\bin\scintilla.a
-else
-DEL = rm -f
-COMPLIB=../bin/scintilla.a
+# Enable Position Independent Code except on Windows where it is the default so the flag produces a warning
+ifndef windir
+PICFLAGS = -fPIC
 endif
 
-vpath %.h ../src ../include ../lexlib
-vpath %.cxx ../src ../lexlib ../lexers
+ifdef windir
+CC = gcc
+DEL = del /q
+COMPLIB=$(srcdir)\..\bin\scintilla.a
+else
+DEL = rm -f
+COMPLIB=$(srcdir)/../bin/scintilla.a
+endif
 
-INCLUDEDIRS=-I ../include -I ../src -I ../lexlib
+vpath %.h $(srcdir) $(srcdir)/../src $(srcdir)/../include $(srcdir)/../lexlib
+vpath %.c $(srcdir)
+vpath %.cxx $(srcdir) $(srcdir)/../src $(srcdir)/../lexlib $(srcdir)/../lexers
+
+INCLUDEDIRS=-I $(srcdir)/../include -I $(srcdir)/../src -I $(srcdir)/../lexlib
 ifdef CHECK_DEPRECATED
 DEPRECATED=-DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DDISABLE_GDK_FONT
 endif
-CXXBASEFLAGS=-Wall -pedantic -DGTK -DSCI_LEXER $(INCLUDEDIRS) $(DEPRECATED)
+CXXBASEFLAGS=-Wall -pedantic $(PICFLAGS) -DGTK -DSCI_LEXER $(INCLUDEDIRS) $(DEPRECATED)
 
 ifdef NOTHREADS
 THREADFLAGS=-DG_THREADS_IMPL_NONE
@@ -54,8 +64,8 @@ else
 THREADFLAGS=
 endif
 
-ifdef CXX11_REGEX
-REFLAGS=-DCXX11_REGEX
+ifdef NO_CXX11_REGEX
+REFLAGS=-DNO_CXX11_REGEX
 endif
 
 ifdef DEBUG
@@ -68,8 +78,8 @@ else
 CTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
 endif
 
-CFLAGS:=$(CTFLAGS)
-CXXTFLAGS:=--std=c++0x $(CTFLAGS) $(REFLAGS)
+#CXXTFLAGS:=--std=gnu++0x $(CTFLAGS) $(REFLAGS)
+CXXTFLAGS:=--std=c++11 $(CTFLAGS) $(REFLAGS)
 
 CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
 MARSHALLER=scintilla-marshal.o
@@ -77,9 +87,17 @@ MARSHALLER=scintilla-marshal.o
 .cxx.o:
 	$(CXX) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $<
 .c.o:
-	$(CC) $(CONFIGFLAGS) $(CFLAGS) -w -c $<
+	$(CC) $(CONFIGFLAGS) $(CTFLAGS) $(CFLAGS) -w -c $<
 
-LEXOBJS:=$(addsuffix .o,$(basename $(notdir $(wildcard ../lexers/Lex*.cxx))))
+GLIB_GENMARSHAL = glib-genmarshal
+GLIB_GENMARSHAL_FLAGS = --prefix=scintilla_marshal
+
+.list.h:
+	$(GLIB_GENMARSHAL) --header $(GLIB_GENMARSHAL_FLAGS) $< > $@
+.list.c:
+	$(GLIB_GENMARSHAL) --body $(GLIB_GENMARSHAL_FLAGS) $< > $@
+
+LEXOBJS:=$(addsuffix .o,$(basename $(notdir $(wildcard $(srcdir)/../lexers/Lex*.cxx))))
 
 all: $(COMPLIB)
 
@@ -87,10 +105,11 @@ clean:
 	$(DEL) *.o $(COMPLIB) *.plist
 
 analyze:
-	clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lexlib/*.cxx ../lexers/*.cxx
+	clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx $(srcdir)/../lexlib/*.cxx $(srcdir)/../lexers/*.cxx
 
-deps:
-	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) *.cxx ../src/*.cxx ../lexlib/*.cxx ../lexers/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
+deps: deps.mak
+deps.mak:
+	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx $(srcdir)/../lexlib/*.cxx $(srcdir)/../lexers/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] > $@
 
 $(COMPLIB): Accessor.o CharacterSet.o LexerBase.o LexerModule.o LexerSimple.o StyleContext.o WordList.o \
 	CharClassify.o Decoration.o Document.o PerLine.o Catalogue.o CallTip.o CaseConvert.o CaseFolder.o \
@@ -99,7 +118,7 @@ $(COMPLIB): Accessor.o CharacterSet.o LexerBase.o LexerModule.o LexerSimple.o St
 	KeyMap.o LineMarker.o PositionCache.o ScintillaGTK.o CellBuffer.o CharacterCategory.o ViewStyle.o \
 	RESearch.o RunStyles.o Selection.o Style.o Indicator.o AutoComplete.o UniConversion.o XPM.o \
 	$(MARSHALLER) $(LEXOBJS)
-	$(AR) rc $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@
 
 # Automatically generate header dependencies with "make deps"

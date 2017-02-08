@@ -1,5 +1,5 @@
 %module mforms
-
+%include "stdint.i"
 #pragma SWIG nowarn=401,402,509
 
 %{
@@ -46,7 +46,7 @@
 #include <mforms/popover.h>
 #include <mforms/fs_object_selector.h>
 #include <mforms/simpleform.h>
-#include <mforms/treenodeview.h>
+#include <mforms/treeview.h>
 #include <mforms/dockingpoint.h>
 
 #include "mforms_grt.h"
@@ -131,7 +131,7 @@ static void show_python_exception()
   
   PyErr_Restore(exc, val, tb);
 
-  log_error("Unhandled exception in Python code: %s\n%s\n", reason.c_str(), stack.c_str());
+  logError("Unhandled exception in Python code: %s\n%s\n", reason.c_str(), stack.c_str());
   mforms::Utilities::show_error("Error", std::string("Unhandled exception: ").append(reason), "OK", "", "");
 }
 
@@ -533,7 +533,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 
 #define SWIG_ADD_SIGNAL_BOOL_INT_CALLBACK(method, signal)\
         void add_##method(PyObject *callback) { signal->connect(pycall_bool_int_fun(callback)); }\
-        bool call_##method(int i) { return *((*signal)(i)); }
+        bool call_##method(int i) { return *( (*signal)(i) ); }
 
 #define SWIG_ADD_SIGNAL_VOID_ENTRYACTION_CALLBACK(method, signal)\
 	void add_##method(PyObject *callback) { signal->connect(pycall_void_entryaction_fun(callback)); }
@@ -555,7 +555,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
   }
   catch (std::exception &exc)
   {
-    log_error("exception calling mforms method $name: %s\n", exc.what());
+    logError("exception calling mforms method $name: %s\n", exc.what());
     PyErr_Format(PyExc_SystemError, "Exception calling mforms method '$name': %s", exc.what());
     SWIG_fail;
   }
@@ -762,10 +762,10 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
     void *argp;
     int r = SWIG_ConvertPtr($input, &argp, SWIGTYPE_p_mforms__TreeNodeRef,  0  | 0);
     if (!SWIG_IsOK(r)) {
-      SWIG_exception_fail(SWIG_ArgError(r), "in method '" "TreeNodeView_select_node" "', argument of type '" "mforms::TreeNodeRef""'");
+      SWIG_exception_fail(SWIG_ArgError(r), "in method '" "TreeView_select_node" "', argument of type '" "mforms::TreeNodeRef""'");
     }
     if (!argp) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TreeNodeView_select_node" "', argument " "2"" of type '" "mforms::TreeNodeRef""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TreeView_select_node" "', argument " "2"" of type '" "mforms::TreeNodeRef""'");
     } else {
       mforms::TreeNodeRef * temp = reinterpret_cast< mforms::TreeNodeRef * >(argp);
       $1 = *temp;
@@ -919,8 +919,8 @@ def newScrollPanel(*args):
     c.set_release_on_add()
     return c
 
-def newTreeNodeView(*args):
-    c = TreeNodeView(*args)
+def newTreeView(*args):
+    c = TreeView(*args)
     c.set_managed()
     c.set_release_on_add()
     return c
@@ -1076,7 +1076,7 @@ def newToolBarItem(*args):
 %include "../mforms/code_editor.h"
 %include "../mforms/task_sidebar.h"
 %include "../mforms/hypertext.h"
-%include "../mforms/treenodeview.h"
+%include "../mforms/treeview.h"
 
 %include "../../base/base/common.h"
 %include "../../base/base/drawing.h"
@@ -1100,7 +1100,7 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 SWIG_ADD_SIGNAL_VOID_INT_INT_INT_BOOL_CALLBACK(changed_callback, self->signal_changed());
 }
 
-%extend mforms::TreeNodeView {
+%extend mforms::TreeView {
 SWIG_ADD_SIGNAL_VOID_NODE_INT_CALLBACK(activated_callback, self->signal_node_activated());
 SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 SWIG_ADD_SIGNAL_VOID_INT_CALLBACK(column_resized_callback, self->signal_column_resized());
@@ -1133,7 +1133,7 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
  {
    self->append_text(text, scroll_to_end);
  }
- void append_text_with_encoding_and_scroll(const std::string &text, const std::string &encoding, bool scroll_to_end= false)
+ void append_text_with_encoding_and_scroll(const std::string &text, const std::string &encoding, bool scroll_to_end)
  {
    self->append_text_with_encoding(text, encoding, scroll_to_end);
  }
@@ -1214,4 +1214,3 @@ SWIG_ADD_SIGNAL_VOID_TOOLBARITEM_CALLBACK(activated_callback, self->signal_activ
 SWIG_ADD_SIGNAL_VOID_CALLBACK(close_callback, self->signal_close());
 }
 
-%include mforms_extras.i

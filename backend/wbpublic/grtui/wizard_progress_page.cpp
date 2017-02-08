@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -27,97 +27,91 @@ DEFAULT_LOG_DOMAIN("wizard")
 
 using namespace grtui;
 
-void WizardProgressPage::TaskRow::set_state(WizardProgressPage::TaskState state)
-{
+void WizardProgressPage::TaskRow::set_state(WizardProgressPage::TaskState state) {
   std::string file;
-  switch (state)
-  {
-  case WizardProgressPage::StateNormal:
+  switch (state) {
+    case WizardProgressPage::StateNormal:
 #ifdef __APPLE__
-    file= "task_unchecked_mac.png";
+      file = "task_unchecked_mac.png";
 #else
-    file= "task_unchecked.png";
+      file = "task_unchecked.png";
 #endif
-    break;
-  case WizardProgressPage::StateBusy:
+      break;
+    case WizardProgressPage::StateBusy:
 #ifdef __APPLE__
-    file= "task_executing_mac.png";
+      file = "task_executing_mac.png";
 #else
-    file= "task_executing.png";
+      file = "task_executing.png";
 #endif
-    break;
-  case WizardProgressPage::StateDone:
+      break;
+    case WizardProgressPage::StateDone:
 #ifdef __APPLE__
-    file= "task_checked_mac.png";
+      file = "task_checked_mac.png";
 #else
-    file= "task_checked.png";
+      file = "task_checked.png";
 #endif
-    break;
-  case WizardProgressPage::StateError:
+      break;
+    case WizardProgressPage::StateError:
 #ifdef __APPLE__
-    file= "task_error_mac.png";
+      file = "task_error_mac.png";
 #else
-    file= "task_error.png";
+      file = "task_error.png";
 #endif
-    break;
-  case WizardProgressPage::StateWarning:
+      break;
+    case WizardProgressPage::StateWarning:
 #ifdef __APPLE__
-    file= "task_warning_mac.png";
+      file = "task_warning_mac.png";
 #else
-    file= "task_warning.png";
+      file = "task_warning.png";
 #endif
-    break;
-  case WizardProgressPage::StateDisabled:
+      break;
+    case WizardProgressPage::StateDisabled:
 #ifdef __APPLE__
-    file= "task_disabled_mac.png";
+      file = "task_disabled_mac.png";
 #else
-    file= "task_disabled.png";
+      file = "task_disabled.png";
 #endif
-    break;
+      break;
   }
 
-  std::string path= bec::IconManager::get_instance()->get_icon_path(file);
+  std::string path = bec::IconManager::get_instance()->get_icon_path(file);
   if (path.empty())
-    log_warning("Could not find icon %s", file.c_str());
+    logWarning("Could not find icon %s", file.c_str());
   icon.set_image(path);
 }
 
-
-void WizardProgressPage::TaskRow::set_enabled(bool flag)
-{
+void WizardProgressPage::TaskRow::set_enabled(bool flag) {
   set_state(flag ? StateNormal : StateDisabled);
   label.set_enabled(flag);
 
-  enabled= flag;
+  enabled = flag;
 }
 
-
-
 WizardProgressPage::WizardProgressPage(WizardForm *form, const std::string &id, bool has_progressbar)
-: WizardPage(form, id), _log_panel(mforms::TitledBoxPanel), _log_text(mforms::VerticalScrollBar)
-{  
-  _progress_bar= 0;
+  : WizardPage(form, id), _log_panel(mforms::TitledBoxPanel), _log_text(mforms::VerticalScrollBar), _done(false) {
+  _progress_bar = 0;
   _progress_bar_box = NULL;
-  _progress_label= 0;
+  _progress_label = 0;
 
-  _busy= false;
-  _current_task= 0;
+  _busy = false;
+  _current_task = 0;
 
-  _heading.set_text(_("The following tasks will now be executed. Please monitor the execution.\n"
-                     "Press Show Logs to see the execution logs."));
+  _heading.set_text(
+    _("The following tasks will now be executed. Please monitor the execution.\n"
+      "Press Show Logs to see the execution logs."));
   _heading.set_wrap_text(true);
-  
+
   set_spacing(8);
 
   add(&_heading, false, true);
 
-//  _log_text.set_padding(12);
+  //  _log_text.set_padding(12);
   _log_text.set_read_only(true);
 
   _log_panel.set_title(_("Message Log"));
   _log_panel.add(&_log_text);
   _log_panel.set_padding(10);
-  
+
   add(&_task_table, false, true);
   _task_table.set_padding(10);
   _task_table.set_column_spacing(2);
@@ -127,13 +121,12 @@ WizardProgressPage::WizardProgressPage(WizardForm *form, const std::string &id, 
   _status_text.set_wrap_text(true);
   add(&_status_text, false, true);
 
-  if (has_progressbar)
-  {
+  if (has_progressbar) {
     _progress_bar_box = mforms::manage(new mforms::Box(true));
     _progress_bar_box->set_spacing(8);
 
-    _progress_bar= manage(new mforms::ProgressBar());
-    _progress_label= manage(new mforms::Label());
+    _progress_bar = manage(new mforms::ProgressBar());
+    _progress_label = manage(new mforms::Label());
 
     _progress_label->set_text("");
     add(_progress_label, false, true);
@@ -148,25 +141,17 @@ WizardProgressPage::WizardProgressPage(WizardForm *form, const std::string &id, 
   _log_panel.show(false);
 }
 
-
-void WizardProgressPage::set_heading(const std::string &text)
-{
+void WizardProgressPage::set_heading(const std::string &text) {
   _heading.set_text(text);
 }
 
-
-WizardProgressPage::~WizardProgressPage()
-{
+WizardProgressPage::~WizardProgressPage() {
   clear_tasks();
   _task_list.clear();
 }
 
-
-void WizardProgressPage::clear_tasks()
-{
-  for (std::vector<TaskRow*>::iterator iter= _tasks.begin();
-       iter != _tasks.end(); ++iter)
-  {
+void WizardProgressPage::clear_tasks() {
+  for (std::vector<TaskRow *>::iterator iter = _tasks.begin(); iter != _tasks.end(); ++iter) {
     _task_table.remove(&(*iter)->icon);
     _task_table.remove(&(*iter)->label);
     delete *iter;
@@ -175,28 +160,21 @@ void WizardProgressPage::clear_tasks()
 }
 
 WizardProgressPage::TaskRow *WizardProgressPage::add_async_task(const std::string &caption,
-                                                                const boost::function<bool ()> &execute,
-                                                                const std::string &status_text)
-{
+                                                                const std::function<bool()> &execute,
+                                                                const std::string &status_text) {
   return add_task(true, caption, execute, status_text);
 }
 
-
-
 WizardProgressPage::TaskRow *WizardProgressPage::add_task(const std::string &caption,
-                                                          const boost::function<bool ()> &execute,
-                                                          const std::string &status_text)
-{
+                                                          const std::function<bool()> &execute,
+                                                          const std::string &status_text) {
   return add_task(false, caption, execute, status_text);
 }
 
-
-WizardProgressPage::TaskRow *WizardProgressPage::add_task(bool async,
-                                                          const std::string &caption, 
-                                                          const boost::function<bool ()> &execute,
-                                                          const std::string &status_text)
-{
-  TaskRow *row= new TaskRow;
+WizardProgressPage::TaskRow *WizardProgressPage::add_task(bool async, const std::string &caption,
+                                                          const std::function<bool()> &execute,
+                                                          const std::string &status_text) {
+  TaskRow *row = new TaskRow;
 
   row->label.set_text(caption);
 
@@ -204,94 +182,77 @@ WizardProgressPage::TaskRow *WizardProgressPage::add_task(bool async,
   _task_table.add(&row->icon, 0, 1, (int)_tasks.size(), (int)_tasks.size() + 1, 0);
   _task_table.add(&row->label, 1, 2, (int)_tasks.size(), (int)_tasks.size() + 1, mforms::HFillFlag);
 
-  row->execute= execute;
-  row->status_text= status_text;
+  row->execute = execute;
+  row->status_text = status_text;
 
-  row->async= async;
-  row->async_running= false;
-  row->async_failed= false;
+  row->async = async;
+  row->async_running = false;
+  row->async_failed = false;
 
   row->set_state(WizardProgressPage::StateNormal);
   _tasks.push_back(row);
-  
+
   return row;
 }
 
+void WizardProgressPage::end_adding_tasks(const std::string &finish_message) {
+  _finish_message = finish_message;
 
-void WizardProgressPage::end_adding_tasks(const std::string &finish_message)
-{
-  _finish_message= finish_message;
-  
   _status_text.set_text("");
   _log_panel.show(false);
 }
 
-
-void WizardProgressPage::reset_tasks()
-{
-  for (std::vector<TaskRow*>::iterator task= _tasks.begin();
-       task != _tasks.end(); ++task)
-  {
-    (*task)->async_running= false;
-    (*task)->async_failed= false;
+void WizardProgressPage::reset_tasks() {
+  for (std::vector<TaskRow *>::iterator task = _tasks.begin(); task != _tasks.end(); ++task) {
+    (*task)->async_running = false;
+    (*task)->async_failed = false;
     (*task)->set_state(WizardProgressPage::StateNormal);
   }
 }
 
-
-void WizardProgressPage::start_tasks()
-{  
-  _got_warning_messages= false;
-  _got_error_messages= false;
-  _current_task= 0;
-  _busy= true;
+void WizardProgressPage::start_tasks() {
+  _got_warning_messages = false;
+  _got_error_messages = false;
+  _current_task = 0;
+  _busy = true;
 
   _form->update_buttons();
-  
-  if (_progress_bar_box)
-  {
+
+  if (_progress_bar_box) {
     _progress_bar_box->show(true);
     _progress_bar->start();
   }
   perform_tasks();
 }
 
-
-WizardProgressPage::TaskRow *WizardProgressPage::current_task()
-{
+WizardProgressPage::TaskRow *WizardProgressPage::current_task() {
   if (_current_task < (int)_tasks.size())
     return _tasks[_current_task];
   return 0;
 }
 
-void WizardProgressPage::perform_tasks()
-{
-  bool failed= false;
+void WizardProgressPage::perform_tasks() {
+  bool failed = false;
 
-  if (!_form->grtm()->in_main_thread())
+  if (!bec::GRTManager::get()->in_main_thread())
     throw std::logic_error("Method must be called from main thread");
-  
-  while (_current_task < (int)_tasks.size())
-  {
-    TaskRow *task= _tasks[_current_task];
+
+  while (_current_task < (int)_tasks.size()) {
+    TaskRow *task = _tasks[_current_task];
 
     _form->flush_events();
-    _form->grtm()->perform_idle_tasks();
+    bec::GRTManager::get()->perform_idle_tasks();
 
     // check if we're being called because an async task finished
-    if (task->async_running)
-    {
-      task->async_running= false;
-      if (task->async_failed)
-      {
-        failed= true;
+    if (task->async_running) {
+      task->async_running = false;
+      if (task->async_failed) {
+        failed = true;
 
         break;
-      }
-      else
-      {
+      } else {
         task->set_state(StateDone);
-        //task.ProcessTaskMsg((int)Msg_type.MT_info, ""); // delimit task log messages with empty line
+        // task.ProcessTaskMsg((int)Msg_type.MT_info, ""); // delimit task log messages with empty line
         _current_task++;
         continue;
       }
@@ -299,19 +260,16 @@ void WizardProgressPage::perform_tasks()
 
     set_status_text(task->status_text);
 
-    if (task->enabled)
-    {
-      try
-      {
+    if (task->enabled) {
+      try {
         task->set_state(StateBusy);
 
         _form->flush_events();
 
-        bool flag= task->execute();
+        bool flag = task->execute();
 
-        if (task->async && flag)
-        {
-          task->async_running= true;
+        if (task->async && flag) {
+          task->async_running = true;
           // if the task is asynchronous, return here to allow other stuff to be
           // executed. When the task is finished, process_task_finish() (or _task_fail())
           // will get called which will in turn, call this method again
@@ -321,57 +279,47 @@ void WizardProgressPage::perform_tasks()
         task->set_state(StateDone);
 
         _current_task++;
-      }
-      catch (std::exception &exc)
-      {
-        failed= true;
+      } catch (std::exception &exc) {
+        failed = true;
 
         set_status_text(std::string("Error: ").append(exc.what()), true);
         break;
       }
-    }
-    else
+    } else
       _current_task++;
   }
 
-  if (!failed)
-  {
+  if (!failed) {
     if (_got_error_messages)
       set_status_text(_("Operation has completed with errors. Please see logs for details."), true);
     else if (_got_warning_messages)
       set_status_text(_("Operation has completed with warnings. Please see logs for details."), true);
     else
       set_status_text(_finish_message);
-  }
-  else
-  {
-    while (_current_task < (int)_tasks.size())
-    {
-      TaskRow *task= _tasks[_current_task++];
+  } else {
+    while (_current_task < (int)_tasks.size()) {
+      TaskRow *task = _tasks[_current_task++];
       task->set_state(StateError);
     }
     if (!_log_panel.is_shown())
       extra_clicked();
   }
 
-  if (_progress_bar_box)
-  {
+  if (_progress_bar_box) {
     _progress_bar->stop();
     _progress_bar_box->show(false);
   }
-  _done= true;
-  _busy= false;
+  _done = true;
+  _busy = false;
   tasks_finished(!failed);
 
   validate();
 }
 
-
-void WizardProgressPage::set_status_text(const std::string &text, bool is_error)
-{
-  if (!_form->grtm()->in_main_thread())
-  {
-    _form->grtm()->run_once_when_idle(this, boost::bind(&WizardProgressPage::set_status_text, this, text, is_error));
+void WizardProgressPage::set_status_text(const std::string &text, bool is_error) {
+  if (!bec::GRTManager::get()->in_main_thread()) {
+    bec::GRTManager::get()->run_once_when_idle(this,
+                                               std::bind(&WizardProgressPage::set_status_text, this, text, is_error));
     return;
   }
 
@@ -382,12 +330,10 @@ void WizardProgressPage::set_status_text(const std::string &text, bool is_error)
   _status_text.set_text(text);
 }
 
-
-void WizardProgressPage::update_progress(float pct, const std::string &caption)
-{
-  if (!_form->grtm()->in_main_thread())
-  {
-    _form->grtm()->run_once_when_idle(this, boost::bind(&WizardProgressPage::update_progress, this, pct, caption));
+void WizardProgressPage::update_progress(float pct, const std::string &caption) {
+  if (!bec::GRTManager::get()->in_main_thread()) {
+    bec::GRTManager::get()->run_once_when_idle(this,
+                                               std::bind(&WizardProgressPage::update_progress, this, pct, caption));
     return;
   }
 
@@ -398,47 +344,33 @@ void WizardProgressPage::update_progress(float pct, const std::string &caption)
     _progress_bar->set_value(pct);
 }
 
-
-bool WizardProgressPage::allow_cancel()
-{
+bool WizardProgressPage::allow_cancel() {
   return !_busy;
 }
 
-
-bool WizardProgressPage::allow_back()
-{
+bool WizardProgressPage::allow_back() {
   return !_busy;
 }
 
-
-bool WizardProgressPage::allow_next()
-{
+bool WizardProgressPage::allow_next() {
   return !_busy && _done;
 }
 
-
-void WizardProgressPage::enter(bool advancing)
-{
+void WizardProgressPage::enter(bool advancing) {
   WizardPage::enter(advancing);
-    
-  if (advancing)
-  {
-    _done= false;
+
+  if (advancing) {
+    _done = false;
 
     start_tasks();
   }
 }
 
-
-void WizardProgressPage::add_log_text(const std::string &text)
-{
-  _log_text.append_text(text+"\n", true);
+void WizardProgressPage::add_log_text(const std::string &text) {
+  _log_text.append_text(text + "\n", true);
 }
 
-
-
-std::string WizardProgressPage::extra_button_caption()
-{
+std::string WizardProgressPage::extra_button_caption() {
 #ifdef _WIN32
   return _log_panel.is_shown() ? _("&Hide Logs") : _("&Show Logs");
 #else
@@ -446,100 +378,89 @@ std::string WizardProgressPage::extra_button_caption()
 #endif
 }
 
-
-void WizardProgressPage::extra_clicked()
-{
+void WizardProgressPage::extra_clicked() {
   _log_panel.show(!_log_panel.is_shown());
-  
+
   _form->update_buttons();
   relayout();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef (grt::GRT*)> &slot, bool sync)
-{
+void WizardProgressPage::execute_grt_task(const std::function<grt::ValueRef()> &slot, bool sync) {
+  bec::GRTTask::Ref task = bec::GRTTask::create_task("wizard task", bec::GRTManager::get()->get_dispatcher(), slot);
 
-  bec::GRTTask::Ref task= bec::GRTTask::create_task("wizard task", _form->grtm()->get_dispatcher(), slot);
-
-  //We hold an extra ptr for the task so it's not released too early
+  // We hold an extra ptr for the task so it's not released too early
   _task_list.insert(std::make_pair(task.get(), task));
 
-  // We need to pass task to the signals, so we can remove it from the _task_list and allow shared_ptr to release the task
-  scoped_connect(task->signal_message(),boost::bind(&WizardProgressPage::process_grt_task_message, this, _1));
-  scoped_connect(task->signal_failed(),boost::bind(&WizardProgressPage::process_grt_task_fail, this, _1, task.get()));
-  scoped_connect(task->signal_finished(),boost::bind(&WizardProgressPage::process_grt_task_finish, this, _1, task.get()));
+  // We need to pass task to the signals, so we can remove it from the _task_list and allow shared_ptr to release the
+  // task
+  scoped_connect(task->signal_message(),
+                 std::bind(&WizardProgressPage::process_grt_task_message, this, std::placeholders::_1));
+  scoped_connect(task->signal_failed(),
+                 std::bind(&WizardProgressPage::process_grt_task_fail, this, std::placeholders::_1, task.get()));
+  scoped_connect(task->signal_finished(),
+                 std::bind(&WizardProgressPage::process_grt_task_finish, this, std::placeholders::_1, task.get()));
 
   if (sync)
-    _form->grtm()->get_dispatcher()->add_task_and_wait(task);
+    bec::GRTManager::get()->get_dispatcher()->add_task_and_wait(task);
   else
-    _form->grtm()->get_dispatcher()->add_task(task);
+    bec::GRTManager::get()->get_dispatcher()->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardProgressPage::process_grt_task_message(const grt::Message &msg)
-{
+void WizardProgressPage::process_grt_task_message(const grt::Message &msg) {
   std::string msgTypeStr;
-  switch (msg.type)
-  {
-  case grt::ErrorMsg:
-    {
-      _got_error_messages= true;
+  switch (msg.type) {
+    case grt::ErrorMsg: {
+      _got_error_messages = true;
       _tasks[_current_task]->async_errors++;
 
       msgTypeStr = "ERROR: ";
-    }
-    break;
-  case grt::WarningMsg:
-    {
-      _got_warning_messages= true;
+    } break;
+    case grt::WarningMsg: {
+      _got_warning_messages = true;
 
       msgTypeStr = "WARNING: ";
-    }
-    break;
-  case grt::InfoMsg:
-    msgTypeStr = "";
-    break;
+    } break;
+    case grt::InfoMsg:
+      msgTypeStr = "";
+      break;
 
-  case grt::ProgressMsg:
-    update_progress(msg.progress, msg.text);
-    return;
-    
-  case grt::OutputMsg:
-    _log_text.append_text(msg.text, true);      
-    return;
-      
-  case grt::ControlMsg:
-    return;
-  case grt::NoErrorMsg:
-  case grt::VerboseMsg:
-    return;
+    case grt::ProgressMsg:
+      update_progress(msg.progress, msg.text);
+      return;
+
+    case grt::OutputMsg:
+      _log_text.append_text(msg.text, true);
+      return;
+
+    case grt::ControlMsg:
+      return;
+    case grt::NoErrorMsg:
+    case grt::VerboseMsg:
+      return;
   }
 
   add_log_text(msgTypeStr + msg.text);
 }
 
-
-void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec::GRTTask* task)
-{  
-  _tasks[_current_task]->async_failed= true;
-  if (_tasks[_current_task]->process_fail)
-  {
+void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec::GRTTask *task) {
+  _tasks[_current_task]->async_failed = true;
+  if (_tasks[_current_task]->process_fail) {
     // if process_fail returns true, the error was recovered
     if (_tasks[_current_task]->process_fail())
-      _tasks[_current_task]->async_failed= false;
+      _tasks[_current_task]->async_failed = false;
     else
       set_status_text(std::string("Error: ").append(error.what()), true);
-  }
-  else
-  {
+  } else {
     add_log_text(std::string("Operation failed: ").append(error.what()));
-    set_status_text(std::string("Error: ").append(error.what()), true);    
+    set_status_text(std::string("Error: ").append(error.what()), true);
   }
 
   // continue with task execution
-  std::map<bec::GRTTask*, bec::GRTTask::Ref>::iterator it = _task_list.find(task);
+  std::map<bec::GRTTask *, bec::GRTTask::Ref>::iterator it = _task_list.find(task);
   if (it != _task_list.end())
     _task_list.erase(it);
 
@@ -548,20 +469,18 @@ void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec:
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result, bec::GRTTask* task)
-{
-  _form->grtm()->perform_idle_tasks();
+void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result, bec::GRTTask *task) {
+  bec::GRTManager::get()->perform_idle_tasks();
 
-  if (_got_error_messages || _got_warning_messages)
-  {
+  if (_got_error_messages || _got_warning_messages) {
     if (!_log_panel.is_shown())
       extra_clicked();
   }
-  
+
   if (_tasks[_current_task]->process_finish)
     _tasks[_current_task]->process_finish(result);
 
-  std::map<bec::GRTTask*, bec::GRTTask::Ref>::iterator it = _task_list.find(task);
+  std::map<bec::GRTTask *, bec::GRTTask::Ref>::iterator it = _task_list.find(task);
   if (it != _task_list.end())
     _task_list.erase(it);
   // continue with task execution

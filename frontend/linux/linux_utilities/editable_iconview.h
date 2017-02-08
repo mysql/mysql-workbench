@@ -7,7 +7,7 @@
 //!
 //! \addtogroup linuxui Linux UI
 //! @{
-//! 
+//!
 
 //! Turns on editing capabilities of the GtkIconView.
 //! Default Gtkmm IconView does not support editing of the items. Actually
@@ -18,30 +18,28 @@
 //! to Gtk::CellEditable's signal: editing_done. We can obtain pointer to the
 //! CellEditable from the CellRendererText's signal editing_started.
 //! For details see comments in the implementation of on_button_press_event
-class EditableIconView : public Gtk::IconView
-{
-  public:
-    EditableIconView();
+class EditableIconView : public Gtk::IconView {
+public:
+  EditableIconView();
 
-    void set_model(const Glib::RefPtr<ListModelWrapper>& model)
-    {
-      Gtk::IconView::set_model(model);
-      _model = model;
-    }
-    
-  protected:
-    virtual bool on_button_press_event(GdkEventButton *event);
+  void set_model(const Glib::RefPtr<ListModelWrapper>& model) {
+    Gtk::IconView::set_model(model);
+    _model = model;
+  }
 
-  private:
-    EditableIconView(const Glib::RefPtr<Gtk::TreeModel> & model);
+protected:
+  virtual bool on_button_press_event(GdkEventButton* event);
 
-    void edit_started(Gtk::CellEditable* editable, const Glib::ustring& path);
-    void edit_done(Gtk::CellEditable* editable);
+private:
+  EditableIconView(const Glib::RefPtr<Gtk::TreeModel>& model);
 
-    Gtk::TreeModel::Path            _selected_path; //!< To detect that the click was on already selected item
-    sigc::connection                _start_conn;    //!< To free signal/slot
-    sigc::connection                _done_conn;     //!< To free signal/slot
-    Glib::RefPtr<ListModelWrapper>  _model;         //!< To store model in order to detect if an item can be edited
+  void edit_started(Gtk::CellEditable* editable, const Glib::ustring& path);
+  void edit_done(Gtk::CellEditable* editable);
+
+  Gtk::TreeModel::Path _selected_path;   //!< To detect that the click was on already selected item
+  sigc::connection _start_conn;          //!< To free signal/slot
+  sigc::connection _done_conn;           //!< To free signal/slot
+  Glib::RefPtr<ListModelWrapper> _model; //!< To store model in order to detect if an item can be edited
 };
 
 //!

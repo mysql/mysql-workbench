@@ -48,7 +48,7 @@ static bool is_empty_statement(const std::string& str)
 int MyxStatementParser::fill_buffer(std::istream& is)
 {
   char *input_start= std::copy(char_buffer_b, char_buffer_e, char_buffer);
-  int len= (input_start - char_buffer);
+  int len= (int)(input_start - char_buffer);
   is.read(input_start, CHAR_BUFFER_SIZE - len);
   int gc= (int) is.gcount();
   char_buffer_b= char_buffer;
@@ -145,7 +145,7 @@ void MyxStatementParser::process(std::istream& is, process_sql_statement_callbac
   ParserState state= start, prevState;
   std::string stmt_buffer;
   std::string delim_buffer;
-  char strchar;
+  char strchar = 0;
   _stmt_boffset= 0;
   _stmt_first_line_first_symbol_pos= 0;
   _symbols_since_newline= 0;
@@ -232,7 +232,7 @@ void MyxStatementParser::process(std::istream& is, process_sql_statement_callbac
         continue;
       }
       delim_buffer.clear();
-      _stmt_boffset+= stmt_buffer.size();
+      _stmt_boffset+= (int)stmt_buffer.size();
       while((c != '\r') && (c != '\n') /*&& !my_isspace(cs, c)*/ && !buffer_eof(is)) 
       {
         c= get_next_char(is, &len);
@@ -377,10 +377,10 @@ void MyxStatementParser::process(std::istream& is, process_sql_statement_callbac
       // new statement is read
       stmt_buffer.erase(stmt_buffer.length() - delim.length());
       {
-        int stmt_boffset_inc= stmt_buffer.size() + delim.size();
+        std::string::size_type stmt_boffset_inc = stmt_buffer.size() + delim.size();
         if(!is_empty_statement(stmt_buffer))
           cb(this, stmt_buffer.c_str(), arg);
-        _stmt_boffset+= stmt_boffset_inc;
+        _stmt_boffset+= (int)stmt_boffset_inc;
       }
       stmt_buffer.clear();
       _stmt_first_line_first_symbol_pos= _symbols_since_newline;
@@ -444,7 +444,7 @@ stmtlabel:
     && (stmt_buffer.length() > 0)
     && !is_empty_statement(stmt_buffer))
   {
-    int stmt_boffset_inc= stmt_buffer.size();
+    int stmt_boffset_inc= (int)stmt_buffer.size();
     cb(this, stmt_buffer.c_str(), arg);
     _stmt_boffset+= stmt_boffset_inc;
   }

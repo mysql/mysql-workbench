@@ -11,7 +11,7 @@
     <value type="int" key="sys.usesu">1</value>
 
     <value type="string" key="sys.system">Linux</value>
-    <value type="string" key="serverVersion">5.6</value>
+    <value type="string" key="serverVersion">5.7</value>
   </value>
 </data>
   

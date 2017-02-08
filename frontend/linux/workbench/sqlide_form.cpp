@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -36,41 +36,41 @@
 #include "widget_saver.h"
 #include "plugin_editor_base.h"
 
-DEFAULT_LOG_DOMAIN("UI")
 using base::strfmt;
 
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-DbSqlEditorView *DbSqlEditorView::create(SqlEditorForm::Ref editor_be)
-{
+DbSqlEditorView *DbSqlEditorView::create(SqlEditorForm::Ref editor_be) {
   return Gtk::manage(new DbSqlEditorView(editor_be));
 }
 
 //------------------------------------------------------------------------------
 DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
-                : FormViewBase("DbSqlEditor"), _be(editor_be)
-                , _output(_be, this)
-                , _side_palette(mforms::gtk::ViewImpl::get_widget_for_view(_be->get_side_palette()))
-                , _dock_delegate(NULL, MAIN_DOCKING_POINT)
-                , _busy_tab(NULL)
-                , _right_aligned(editor_be->wbsql()->get_wbui()->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0))
-                , _editor_maximized(false)
-{
+  : Gtk::Box(Gtk::ORIENTATION_VERTICAL),
+    FormViewBase("DbSqlEditor"),
+    _be(editor_be),
+    _top_pane(Gtk::ORIENTATION_HORIZONTAL),
+    _top_right_pane(Gtk::ORIENTATION_HORIZONTAL),
+    _main_pane(Gtk::ORIENTATION_VERTICAL),
+    _output(_be, this),
+    _side_palette(mforms::gtk::ViewImpl::get_widget_for_view(_be->get_side_palette())),
+    _dock_delegate(NULL, MAIN_DOCKING_POINT),
+    _busy_tab(NULL),
+    _right_aligned(wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0)),
+    _editor_maximized(false) {
   _dpoint = mforms::manage(new mforms::DockingPoint(&_dock_delegate, false));
   _top_pane.set_name("sqled.top_pane" + std::string(_right_aligned ? ".right_aligned" : ".left_aligned"));
   _main_pane.set_name("sqled.main_pane" + std::string(_right_aligned ? ".right_aligned" : ".left_aligned"));
   _top_right_pane.set_name("sqled.top_right_pane" + std::string(_right_aligned ? ".right_aligned" : ".left_aligned"));
 
   _be = editor_be;
-  _be->set_frontend_data(dynamic_cast<FormViewBase*>(this));
-  _grtm = _be->grt_manager();
+  _be->set_frontend_data(dynamic_cast<FormViewBase *>(this));
   _toolbar = _be->get_toolbar();
 
-  _be->set_busy_tab = boost::bind(&DbSqlEditorView::set_busy_tab, this, _1);
+  _be->set_busy_tab = std::bind(&DbSqlEditorView::set_busy_tab, this, std::placeholders::_1);
 
-  mforms::View *sbview  = _be->get_sidebar();
-  Gtk::Widget  *sidebar = mforms::gtk::ViewImpl::get_widget_for_view(sbview);
+  mforms::View *sbview = _be->get_sidebar();
+  Gtk::Widget *sidebar = mforms::gtk::ViewImpl::get_widget_for_view(sbview);
 
   _editor_note = Gtk::manage(new Gtk::Notebook()); // init FormViewBase::_editor_note
   _editor_note->show();
@@ -81,17 +81,14 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   _main_pane.pack2(_output.get_outer(), false, true);
 
   sidebar->set_no_show_all(true);
-  if (_right_aligned)
-  {
+  if (_right_aligned) {
     _top_pane.add1(_main_pane);
     _top_pane.add2(*sidebar);
 
     _top_right_pane.pack2(*_editor_note, true, false);
     if (_side_palette)
       _top_right_pane.pack1(*_side_palette, false, true);
-  }
-  else
-  {
+  } else {
     _top_pane.add1(*sidebar);
     _top_pane.add2(_main_pane);
 
@@ -116,8 +113,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
 
   // Add main toolbar
   w = mforms::widget_for_toolbar(_be->get_toolbar());
-  if (w)
-  {
+  if (w) {
     w->show();
     pack_start(*w, false, true);
   }
@@ -126,8 +122,8 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   show_all();
 
   // Connect signals
-  _be->post_query_slot = sigc::mem_fun(this, &DbSqlEditorView::on_exec_sql_done);
-  _be->output_text_slot= sigc::mem_fun(this, &DbSqlEditorView::output_text);
+  _be->post_query_slot = std::bind(&DbSqlEditorView::on_exec_sql_done, this);
+  _be->output_text_slot = std::bind(&DbSqlEditorView::output_text, this, std::placeholders::_1, std::placeholders::_2);
 
   _editor_note->signal_switch_page().connect(sigc::mem_fun(this, &DbSqlEditorView::editor_page_switched));
   _editor_note->signal_page_reordered().connect(sigc::mem_fun(this, &DbSqlEditorView::editor_page_reordered));
@@ -138,75 +134,72 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
 
   // restore state of toolbar
   {
-
     mforms::ToolBar *toolbar = _be->get_toolbar();
     bool flag;
 
-    toolbar->set_item_checked("wb.toggleOutputArea", flag = !_grtm->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0));
-    if (flag) _main_pane.get_child2()->show(); else _main_pane.get_child2()->hide();
+    toolbar->set_item_checked("wb.toggleOutputArea",
+                              flag = !bec::GRTManager::get()->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0));
+    if (flag)
+      _main_pane.get_child2()->show();
+    else
+      _main_pane.get_child2()->hide();
   }
 
-  utils::gtk::load_settings(_grtm, &_main_pane, sigc::bind(sigc::ptr_fun(gtk_paned_set_pos_ratio), &_main_pane, _right_aligned ? 0.2 : 0.8), false);
+  utils::gtk::load_settings(
+    &_main_pane, sigc::bind(sigc::ptr_fun(gtk_paned_set_pos_ratio), &_main_pane, _right_aligned ? 0.2 : 0.8), false);
 
-  _main_pane.property_position().signal_changed().connect(sigc::bind(sigc::ptr_fun(utils::gtk::save_settings), _grtm, &_main_pane, false));
+  _main_pane.property_position().signal_changed().connect(
+    sigc::bind(sigc::ptr_fun(utils::gtk::save_settings), &_main_pane, false));
 
-  _sig_restore_sidebar = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
+  _sig_restore_sidebar =
+    Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
 
   // setup dockingPoint
   {
     db_query_EditorRef editor(_be->wbsql()->get_grt_editor_object(_be.get()));
-    editor->dockingPoint(mforms_to_grt(_grtm->get_grt(), _dpoint));
+    editor->dockingPoint(mforms_to_grt(_dpoint));
   }
   _dock_delegate.set_notebook(_editor_note);
   _be->set_tab_dock(_dpoint);
 }
 //------------------------------------------------------------------------------
 
-bool DbSqlEditorView::perform_command(const std::string &cmd)
-{
-  if (cmd == "wb.toggleOutputArea")
-  {
-    Gtk::Widget* w = _main_pane.get_child2();
+bool DbSqlEditorView::perform_command(const std::string &cmd) {
+  if (cmd == "wb.toggleOutputArea") {
+    Gtk::Widget *w = _main_pane.get_child2();
     bool hidden = !be()->get_toolbar()->get_item_checked("wb.toggleOutputArea");
     if (!hidden)
       w->show();
     else
       w->hide();
-    _grtm->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
-  } 
-  else if (cmd == "wb.next_query_tab")
-  {
+    bec::GRTManager::get()->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
+  } else if (cmd == "wb.next_query_tab") {
     int i = _editor_note->get_current_page();
     _editor_note->next_page();
     if (i == _editor_note->get_current_page())
       _editor_note->set_current_page(0);
-  }
-  else if (cmd == "wb.back_query_tab")
-  {
+  } else if (cmd == "wb.back_query_tab") {
     int i = _editor_note->get_current_page();
     _editor_note->prev_page();
     if (i == _editor_note->get_current_page())
-      _editor_note->set_current_page(_editor_note->get_current_page()-1);
-  }
-  else 
+      _editor_note->set_current_page(_editor_note->get_current_page() - 1);
+  } else
     return FormViewBase::perform_command(cmd);
   return true;
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::polish()
-{
+void DbSqlEditorView::polish() {
   gtk_paned_set_pos_ratio(&_main_pane, 0.7);
   _polish_conn.disconnect();
 }
 
 //------------------------------------------------------------------------------
-DbSqlEditorView::~DbSqlEditorView()
-{
-// state is saved when it changes. saving again on quit, will give unexpected results
-//  utils::gtk::save_settings(_grtm, &_top_pane, false);
-//  utils::gtk::save_settings(_grtm, &_main_pane, false);
-//  utils::gtk::save_settings(_grtm, &_top_right_pane, true);
+DbSqlEditorView::~DbSqlEditorView() {
+  // state is saved when it changes. saving again on quit, will give unexpected results
+  //  utils::gtk::save_settings(_grtm, &_top_pane, false);
+  //  utils::gtk::save_settings(_grtm, &_main_pane, false);
+  //  utils::gtk::save_settings(_grtm, &_top_right_pane, true);
 
   _sig_restore_sidebar.disconnect();
 
@@ -223,23 +216,19 @@ DbSqlEditorView::~DbSqlEditorView()
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::dispose()
-{
-  if (_be)
-  {
+void DbSqlEditorView::dispose() {
+  if (_be) {
     _be->close();
     _be.reset();
   }
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::init()
-{
+void DbSqlEditorView::init() {
 }
 
 //------------------------------------------------------------------------------
-mforms::Menu *DbSqlEditorView::init_tab_menu(Gtk::Widget *w)
-{
+mforms::Menu *DbSqlEditorView::init_tab_menu(Gtk::Widget *w) {
   {
     mforms::Menu *m = new mforms::Menu();
     m->add_item("New Tab", "new_tab");
@@ -253,38 +242,30 @@ mforms::Menu *DbSqlEditorView::init_tab_menu(Gtk::Widget *w)
   }
 }
 
-void DbSqlEditorView::tab_menu_handler(const std::string& action, ActiveLabel *sender, Gtk::Widget *widget)
-{
+void DbSqlEditorView::tab_menu_handler(const std::string &action, ActiveLabel *sender, Gtk::Widget *widget) {
   if (!_be)
     return;
-  
+
   PluginEditorBase *_pluginView = dynamic_cast<PluginEditorBase *>(widget);
-  
+
   if (_pluginView)
-    _grtm->run_once_when_idle(boost::bind(&FormViewBase::close_plugin_tab, this, _pluginView));
-  else if (widget)
-  {
+    bec::GRTManager::get()->run_once_when_idle(std::bind(&FormViewBase::close_plugin_tab, this, _pluginView));
+  else if (widget) {
     int page = _editor_note->page_num(*widget);
 
     _be->handle_tab_menu_action(action, page);
   }
 }
 //------------------------------------------------------------------------------
-void DbSqlEditorView::reenable_items_in_tab_menus()
-{
-  const Gtk::Notebook::PageList pages = _editor_note->pages();
-  const int size = pages.size();
+void DbSqlEditorView::reenable_items_in_tab_menus() {
+  const int size = _editor_note->get_n_pages();
 
-  for (int i = 0; i < size; ++i)
-  {
-
-    Gtk::Notebook_Helpers::Page page = pages[i];
-    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(page.get_tab_label());
-    if (al)
-    {
-      mforms::Menu* const menu = al->get_menu();
-      if (menu)
-      {
+  for (int i = 0; i < size; ++i) {
+    Gtk::Widget *page = _editor_note->get_nth_page(i);
+    ActiveLabel *const al = dynamic_cast<ActiveLabel *>(_editor_note->get_tab_label(*page));
+    if (al) {
+      mforms::Menu *const menu = al->get_menu();
+      if (menu) {
         const int index = menu->get_item_index("close_other_tabs");
         if (index >= 0)
           menu->set_item_enabled(index, size > 1);
@@ -293,34 +274,27 @@ void DbSqlEditorView::reenable_items_in_tab_menus()
   }
 }
 
-
-void DbSqlEditorView::set_busy_tab(int tab)
-{
-  if (_busy_tab)
-  {
+void DbSqlEditorView::set_busy_tab(int tab) {
+  if (_busy_tab) {
     _busy_tab->stop_busy();
     _busy_tab->unreference();
     _busy_tab = NULL;
   }
-  if (tab >= 0)
-  {
-    Gtk::Notebook_Helpers::Page page = _editor_note->pages()[tab];
-    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(page.get_tab_label());
-    if (al)
-    {
+  if (tab >= 0) {
+    Gtk::Widget *page = _editor_note->get_nth_page(tab);
+    ActiveLabel *const al = dynamic_cast<ActiveLabel *>(_editor_note->get_tab_label(*page));
+    if (al) {
       al->start_busy();
       _busy_tab = al;
       _busy_tab->reference();
     }
-  } 
+  }
 }
 
-void DbSqlEditorView::editor_page_added(Gtk::Widget *page, guint index)
-{
-  //first check if new tab has menu, if not.. connect it ;)
-  ActiveLabel* const al = dynamic_cast<ActiveLabel*>(_editor_note->get_tab_label(*page));
-  if (al && !al->has_menu())
-  {
+void DbSqlEditorView::editor_page_added(Gtk::Widget *page, guint index) {
+  // first check if new tab has menu, if not.. connect it ;)
+  ActiveLabel *const al = dynamic_cast<ActiveLabel *>(_editor_note->get_tab_label(*page));
+  if (al && !al->has_menu()) {
     mforms::Menu *menu = init_tab_menu(page);
     menu->set_handler(sigc::bind(sigc::mem_fun(this, &DbSqlEditorView::tab_menu_handler), al, page));
     al->set_menu(menu, true);
@@ -331,84 +305,82 @@ void DbSqlEditorView::editor_page_added(Gtk::Widget *page, guint index)
   reenable_items_in_tab_menus();
 }
 
-void DbSqlEditorView::editor_page_reordered(Gtk::Widget *page, guint index)
-{
+void DbSqlEditorView::editor_page_reordered(Gtk::Widget *page, guint index) {
   SqlEditorPanel *panel = be()->sql_editor_panel(index);
   if (panel)
     be()->sql_editor_reordered(panel, index);
 }
 
-void DbSqlEditorView::editor_page_removed(Gtk::Widget *page, guint index)
-{
+void DbSqlEditorView::editor_page_removed(Gtk::Widget *page, guint index) {
   reenable_items_in_tab_menus();
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::plugin_tab_added(PluginEditorBase *plugin)
-{
-  const int page_num = _editor_note->page_num(*(static_cast<Gtk::Widget*>(plugin)));
+void DbSqlEditorView::plugin_tab_added(PluginEditorBase *plugin) {
+  const int page_num = _editor_note->page_num(*(static_cast<Gtk::Widget *>(plugin)));
   if (page_num >= 0)
     _editor_note->set_current_page(page_num);
 }
 
-void DbSqlEditorView::close_appview_tab(mforms::AppView *aview)
-{
+void DbSqlEditorView::close_appview_tab(mforms::AppView *aview) {
   if (aview)
     _dock_delegate.close_appview_page(aview);
 }
 
 //------------------------------------------------------------------------------
 
-bool DbSqlEditorView::close_focused_tab()
-{
+bool DbSqlEditorView::close_focused_tab() {
   {
-    Gtk::Widget* content = _editor_note->get_nth_page(_editor_note->get_current_page());
-    Gtk::Widget* label   = _editor_note->get_tab_label(*content);
+    Gtk::Widget *content = _editor_note->get_nth_page(_editor_note->get_current_page());
+    Gtk::Widget *label = _editor_note->get_tab_label(*content);
 
-    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(label);
-    if (al)
-    {
+    ActiveLabel *const al = dynamic_cast<ActiveLabel *>(label);
+    if (al) {
       al->call_close();
-//      _editor_note->remove_page(*content);
+      //      _editor_note->remove_page(*content);
     }
   }
   return false;
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::editor_page_switched(GtkNotebookPage *page, guint index)
-{
-  if (_be)
-  {
+void DbSqlEditorView::editor_page_switched(Gtk::Widget *page, guint index) {
+  if (_be) {
     _dpoint->view_switched();
 
     mforms::AppView *aview = _dpoint->view_at_index(index);
     if (aview && aview->get_form_context_name() == "administrator")
       set_maximized_editor_mode(true);
-    else
-      set_maximized_editor_mode(false);
+    else {
+      if (!_be->connectionIsValid())
+        set_maximized_editor_mode(true, true);
+      else
+        set_maximized_editor_mode(false);
+    }
   }
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::set_maximized_editor_mode(bool flag)
-{
-  if (_editor_maximized != flag)
-  {
+void DbSqlEditorView::set_maximized_editor_mode(bool flag, bool hide_schemas) {
+  if (_editor_maximized != flag) {
     _editor_maximized = flag;
-    if (flag)
-    {
+    if (flag) {
       be()->get_toolbar()->set_item_checked("wb.toggleOutputArea", false);
       be()->get_toolbar()->set_item_checked("wb.toggleSecondarySidebar", false);
       _main_pane.get_child2()->hide();
       _top_right_pane.get_child2()->hide();
-    }
-    else
-    {
-      be()->get_toolbar()->set_item_checked("wb.toggleOutputArea", 
-                !_grtm->get_app_option_int("DbSqlEditor:OutputAreaHidden"));
-      be()->get_toolbar()->set_item_checked("wb.toggleSecondarySidebar", 
-                !_grtm->get_app_option_int("DbSqlEditor:SecondarySidebarHidden"));
+
+      if (hide_schemas) {
+        be()->get_toolbar()->set_item_checked("wb.toggleSidebar", false);
+        _sidebar1_pane->get_child1()->hide();
+      }
+    } else {
+      be()->get_toolbar()->set_item_checked("wb.toggleSidebar", true);
+      be()->get_toolbar()->set_item_checked(
+        "wb.toggleOutputArea", !bec::GRTManager::get()->get_app_option_int("DbSqlEditor:OutputAreaHidden"));
+      be()->get_toolbar()->set_item_checked(
+        "wb.toggleSecondarySidebar", !bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SecondarySidebarHidden"));
+      _sidebar1_pane->get_child1()->show();
       perform_command("wb.toggleOutputArea");
       perform_command("wb.toggleSecondarySidebar");
     }
@@ -416,14 +388,12 @@ void DbSqlEditorView::set_maximized_editor_mode(bool flag)
 }
 
 //------------------------------------------------------------------------------
-bool DbSqlEditorView::on_close()
-{
+bool DbSqlEditorView::on_close() {
   return be()->can_close();
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::on_exec_sql_done()
-{
+void DbSqlEditorView::on_exec_sql_done() {
   _output.refresh();
 
   if (_be->exec_sql_error_count() > 0)
@@ -431,8 +401,6 @@ void DbSqlEditorView::on_exec_sql_done()
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::output_text(const std::string &text, bool bring_to_front)
-{
+void DbSqlEditorView::output_text(const std::string &text, bool bring_to_front) {
   _output.output_text(text, bring_to_front);
 }
-

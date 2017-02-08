@@ -2,7 +2,7 @@ Source: mysql-workbench-@edition@
 Section: utils
 Priority: extra
 Maintainer: MySQL Workbench team <workbench@sun.com>
-Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-2.4-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python-dev (>= 2.5), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, libctemplate-dev, cmake, libtinyxml-dev, swig (>= 1.3), libproj-dev, cmake, build-essential, autoconf, autogen
+Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-3.0-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python-dev (>= 2.6), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, cmake, swig (>= 1.3), libproj-dev, cmake, build-essential, autoconf, autogen
 Standards-Version: 3.7.2
 Homepage: http://dev.mysql.com/workbench/
 
@@ -15,10 +15,10 @@ Replaces: mysql-workbench-com-se, mysql-workbench, mysql-workbench-community, my
 @ifdef paramiko
 Depends: ${shlibs:Depends}, libglib2.0-0 (>= 2.28)
 @else
-Depends: ${shlibs:Depends}, python-paramiko (>= 1.15.1), libglib2.0-0 (>= 2.28)
+Depends: ${shlibs:Depends}, python-paramiko (>= 1.15.1), python-crypto, libglib2.0-0 (>= 2.28)
 @endif
 Architecture: i386 amd64
-Suggests: gnome-keyring
+Suggests: gnome-keyring, libproj-dev
 Description: MySQL Workbench
  MySQL Workbench is development, administration and data modeling tool
  for MySQL. Besides editing and running SQL queries and scripts, it supports

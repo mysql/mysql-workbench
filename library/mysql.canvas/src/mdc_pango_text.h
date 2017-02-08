@@ -7,17 +7,15 @@
  *
  */
 
-
 #ifndef _MDC_PANGO_TEXT_H_
 #define _MDC_PANGO_TEXT_H_
 
 #include <string>
 
-class TextParagraph
-{
+class TextParagraph {
 public:
   TextParagraph(const std::string &text);
-  
+
   void stroke();
 };
 

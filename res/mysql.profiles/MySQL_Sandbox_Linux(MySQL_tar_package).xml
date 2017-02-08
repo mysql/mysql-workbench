@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<data>
+    <value type="dict">
+    <value type="string" key="sys.config.path">~/sandboxes/msb_|Enter version here|/my.sandbox.cnf</value>
+    <value type="string" key="sys.config.section">mysqld</value>
+      
+    <value type="string" key="sys.mysqld.start">~/sandboxes/msb_|Enter version here|/start</value>
+    <value type="string" key="sys.mysqld.stop">~/sandboxes/msb_|Enter version here|/stop</value>
+    <value type="int" key="sys.usesudo">0</value>
+
+    <value type="string" key="sys.system">Linux</value>
+    <value type="string" key="serverVersion">5.7</value>
+  </value>
+</data>

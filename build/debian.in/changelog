@@ -1,8 +1,20 @@
+mysql-workbench-@edition@ (6.3.9-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Milosz Bodzek <milosz.bodzek@oracle.com>  Wed, 02 Nov 2016 14:41:21 +0100
+
+mysql-workbench-@edition@ (6.4.0-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Milosz Bodzek <milosz.bodzek@oracle.com>  Thu, 06 Oct 2016 13:53:36 +0200
+
 mysql-workbench-@edition@ (6.3.8-1@distrov@) @distro@; urgency=low
 
   * New release
 
- -- Mike Lischke (mike.lischke@oracle.com)  Di, 14 Jun 2016 11:14:47 +0200
+ -- Mike Lischke <mike.lischke@oracle.com>  Tue, 14 Jun 2016 11:14:47 +0200
 
 mysql-workbench-@edition@ (6.3.7-1@distrov@) @distro@; urgency=low
 
@@ -14,19 +26,8 @@ mysql-workbench-@edition@ (6.3.6-1@distrov@) @distro@; urgency=low
 
   * New release
 
- -- Marcin Szałowicz <marcin.szalowicz@oracle.com>  Thu, 19 November 2015 12:00:00 +0100
+ -- Marcin Szalowicz <marcin.szalowicz@oracle.com>  Fri, 20 Mar 2015 12:00:00 +0100
 
-mysql-workbench-@edition@ (6.3.5-1@distrov@) @distro@; urgency=low
-
-  * New release
-
- -- Mike Lischke <mike.lischke@oracle.com>  Wed, 17 June 2015 12:00:00 +0100
-
-mysql-workbench-@edition@ (6.3.4-1@distrov@) @distro@; urgency=low
-
-  * New release
-
- -- Mike Lischke <mike.lischke@oracle.com>  Wed, 13 May 2015 12:00:00 +0100
 
 mysql-workbench-@edition@ (6.3.3-1@distrov@) @distro@; urgency=low
 
@@ -38,7 +39,7 @@ mysql-workbench-@edition@ (6.2.5-1@distrov@) @distro@; urgency=low
 
   * New release
 
- -- Mike Lischke <mike.lischke@oracle.com>  Thurs, 5 Feb 2015 12:00:00 +0100
+ -- Mike Lischke <mike.lischke@oracle.com>  Thu, 5 Feb 2015 12:00:00 +0100
 
 mysql-workbench-@edition@ (6.2.4-1@distrov@) @distro@; urgency=low
 
@@ -449,4 +450,3 @@ mysql-workbench (5.1.1-1) unstable; urgency=low
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
 
  -- Alfredo Kojima <kojima@sun.com>  Mon, 06 Oct 2008 13:58:14 +0300
-

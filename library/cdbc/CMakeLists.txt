@@ -3,8 +3,9 @@ include_directories(${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/ext
-    ${GRT_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 #TODO: Set other compiler flags
@@ -17,7 +18,13 @@ add_library(cdbc
     src/sql_batch_exec.cpp
 )
 
-target_link_libraries(cdbc ${MYSQLCPPCONN_LIBRARY})
+target_compile_options(cdbc PUBLIC ${WB_CXXFLAGS})
+
+target_link_libraries(cdbc ${MySQLCppConn_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(cdbc gcov)
+endif()
 
 set_target_properties(cdbc
                       PROPERTIES VERSION   ${WB_VERSION}

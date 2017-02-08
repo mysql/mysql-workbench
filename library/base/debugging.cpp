@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -26,15 +26,13 @@
 
 //--------------------------------------------------------------------------------------------------
 
-DataBreakpoint::DataBreakpoint()
-{
+DataBreakpoint::DataBreakpoint() {
   _register_index = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-DataBreakpoint::~DataBreakpoint()
-{
+DataBreakpoint::~DataBreakpoint() {
   Clear();
 }
 
@@ -48,8 +46,7 @@ DataBreakpoint::~DataBreakpoint()
  * @param bits Number of bits to set with value.
  * @value The new value to set.
  */
-void DataBreakpoint::SetBits(REGISTER_TYPE& target, REGISTER_TYPE offset, REGISTER_TYPE bits, REGISTER_TYPE value)
-{
+void DataBreakpoint::SetBits(REGISTER_TYPE& target, REGISTER_TYPE offset, REGISTER_TYPE bits, REGISTER_TYPE value) {
   REGISTER_TYPE mask = (1 << bits) - 1;
   target = (target & ~(mask << offset)) | (value << offset);
 }
@@ -63,13 +60,11 @@ void DataBreakpoint::SetBits(REGISTER_TYPE& target, REGISTER_TYPE offset, REGIST
  * @size The size of the memory block address points to. Can be 1, 2 or 4 bytes.
  * @when Determines when to trigger the break point (write or read/write).
  */
-void DataBreakpoint::Set(void* address, int size, Condition when)
-{
+void DataBreakpoint::Set(void* address, int size, Condition when) {
   if (_register_index != -1)
     throw std::runtime_error("Watch point already set. Use clear() before setting a new one.");
 
-  switch (size)
-  {
+  switch (size) {
     case 1:
       size = 0;
       break;
@@ -94,16 +89,14 @@ void DataBreakpoint::Set(void* address, int size, Condition when)
     throw std::runtime_error("Failed getting the current thread context.");
 
   // Find an available hardware register.
-  for (_register_index = 0; _register_index < 4; ++_register_index)
-  {
-    if ((context.Dr7 & (REGISTER_TYPE)(1 << (2 * _register_index))) == 0)
-		  break;
+  for (_register_index = 0; _register_index < 4; ++_register_index) {
+    if ((context.Dr7 & (REGISTER_TYPE)(1ULL << (2 * _register_index))) == 0)
+      break;
   }
   if (_register_index >= 4)
     throw std::runtime_error("Could not find a free hardware register.");
 
-  switch (_register_index)
-  {
+  switch (_register_index) {
     case 0:
       context.Dr0 = (REGISTER_TYPE)address;
       break;
@@ -131,10 +124,8 @@ void DataBreakpoint::Set(void* address, int size, Condition when)
 /**
  * Removes a currently set watch point if one is set.
  */
-void DataBreakpoint::Clear()
-{
-  if (_register_index != -1)
-  {
+void DataBreakpoint::Clear() {
+  if (_register_index != -1) {
     CONTEXT context;
     HANDLE currentThread = GetCurrentThread();
 

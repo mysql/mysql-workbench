@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]
+then
+  echo "Usage: $0 [mysql|python|js]"
+  exit
+fi
+
+
+case "$1" in
+ "mysql") echo "Building MySQL parser"
+   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQL.g -o .. -Xmaxswitchcaselabels=30
+   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQLSimpleParser.g -o .. -Xmaxswitchcaselabels=30
+ ;;
+ *) echo "Unknown parser type $1"
+ exit 1
+ ;;
+esac
+

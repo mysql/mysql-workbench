@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,12 +29,6 @@
 @end
 
 @implementation MFWizardBox
-
-- (void)subviewMinimumSizeChanged
-{
-  NSView *content = [self.subviews lastObject];
-  [content resizeSubviewsWithOldSize: content.frame.size];
-}
 
 @end
 
@@ -72,7 +66,7 @@
       self.window.minSize = self.window.frame.size;
       [self.window center];
 
-      mOriginalButtonWidth = NSWidth([nextButton frame]);
+      mOriginalButtonWidth = NSWidth(nextButton.frame);
 
       mAllowCancel = YES;
       mOwner = aWizard;
@@ -121,7 +115,7 @@
 - (void)setCurrentStep:(NSInteger)step
 {
   BOOL unexecuted= NO;
-  for (int i= 0; i < (int)[[stepList subviews] count]/2; i++)
+  for (int i= 0; i < (int)stepList.subviews.count/2; i++)
   {
     if (i == step)
     {
@@ -150,12 +144,12 @@
   NSImage *executed= [NSImage imageNamed: @"DotGrey"];
   
   {
-    int delcount= [titles count] - [[stepList subviews] count];
+    int delcount= int(titles.count - stepList.subviews.count);
     
     if (delcount > 0)
     {
       // if there are more steps than needed, remove them
-      for (id step in [[stepList subviews] reverseObjectEnumerator])
+      for (id step in [stepList.subviews reverseObjectEnumerator])
       {
         delcount--;
         [step removeFromSuperview];
@@ -165,8 +159,8 @@
     }
   }
   
-  y= NSHeight([stepList frame]) - 18;
-  width= NSWidth([stepList frame]);
+  y= NSHeight(stepList.frame) - 18;
+  width= NSWidth(stepList.frame);
 
   for (NSString *title in titles)
   {
@@ -178,36 +172,36 @@
     if (!image)
     {
       image = [[NSImageView alloc] initWithFrame: NSMakeRect(0, y - 1, 16, 16)];
-      [image setTag: row*2];
+      image.tag = row*2;
       [stepList addSubview: image];
-      [image setAutoresizingMask: NSViewMinXMargin|NSViewMaxYMargin];
+      image.autoresizingMask = NSViewMinXMargin|NSViewMaxYMargin;
     }
     switch ([title characterAtIndex:0])
     {
       case '*': // current
-        [image setImage: current];
+        image.image = current;
         break;
         
       case '.': // executed
-        [image setImage: executed];
+        image.image = executed;
         break;
         
       case '-': // disabled
       default:
-        [image setImage: disabled];
+        image.image = disabled;
         break;
     }
     if (!text)
     {
       text = [[NSTextField alloc] initWithFrame: NSMakeRect(16, y, width, 16)];
-      [text setTag: row*2+1];
+      text.tag = row*2+1;
       [text setEditable: NO];
       [text setBordered: NO];
       [text setDrawsBackground: NO];
       [stepList addSubview: text];
-      [text setAutoresizingMask: NSViewMinXMargin|NSViewMaxYMargin];
+      text.autoresizingMask = NSViewMinXMargin|NSViewMaxYMargin;
     }
-    [text setStringValue: [title substringFromIndex: 1]];
+    text.stringValue = [title substringFromIndex: 1];
     
     row++;
     y-= 25;
@@ -217,30 +211,30 @@
 
 - (void)rearrangeButtons
 {
-  float windowWidth = NSWidth([[[self window] contentView] frame]);
+  float windowWidth = NSWidth(self.window.contentView.frame);
   NSRect frame;
   float nextX;
 
   // resize and rearrange next/back buttons to fit
   [nextButton sizeToFit];
-  if (NSWidth([nextButton frame]) < mOriginalButtonWidth)
+  if (NSWidth(nextButton.frame) < mOriginalButtonWidth)
   {
     // enforce a min width
-    frame = [nextButton frame];
+    frame = nextButton.frame;
     frame.size.width = mOriginalButtonWidth;
-    [nextButton setFrame: frame];
+    nextButton.frame = frame;
   }
   else
   {
-    frame = [nextButton frame];
+    frame = nextButton.frame;
     frame.size.width += 10;
   }
   nextX = frame.origin.x = windowWidth - NSWidth(frame) - 16;
-  [nextButton setFrame: frame];
+  nextButton.frame = frame;
   
-  frame = [backButton frame];
+  frame = backButton.frame;
   frame.origin.x = nextX - 3 - NSWidth(frame);
-  [backButton setFrame: frame];
+  backButton.frame = frame;
 }
 
 
@@ -260,7 +254,7 @@ static void wizard_set_title(mforms::Wizard *self, const std::string &title)
     
     if ( wizard )
     {
-      [[wizard window] setTitle:wrap_nsstring(title)];
+      wizard.window.title = wrap_nsstring(title);
     }
   }
 }
@@ -274,22 +268,23 @@ static void wizard_run_modal(mforms::Wizard *self)
     
     if ( wizard )
     {
-      [[wizard window] makeKeyAndOrderFront:nil];
+      [wizard.window makeKeyAndOrderFront:nil];
       try
       {
-        [NSApp runModalForWindow:[wizard window]];
+        [NSApp runModalForWindow:wizard.window];
       }
       catch (const std::exception &exc)
       {
         [NSApp stopModal];
-        [[NSAlert alertWithMessageText: @"Unhandled Exception"
-                         defaultButton: nil
-                       alternateButton: nil
-                           otherButton: nil
-             informativeTextWithFormat: @"An unhandled exception has occurred while executing the wizard. "
-          "Please restart Workbench at the first opportunity.\nException: %s", exc.what()] runModal];
+        NSAlert *alert = [NSAlert new];
+        alert.messageText = @"Unhandled Exception";
+        alert.informativeText = [NSString stringWithFormat: @"An unhandled exception has occurred while executing the wizard. "
+                                 "Please restart Workbench at the first opportunity.\nException: %s", exc.what()];
+        alert.alertStyle = NSCriticalAlertStyle;
+        [alert addButtonWithTitle: @"Close"];
+        [alert runModal];
       }
-      [[wizard window] orderOut:nil];
+      [wizard.window orderOut: nil];
     }
   }
 }
@@ -317,11 +312,11 @@ static void wizard_set_content(mforms::Wizard *self, mforms::View *view)
     
     if ( wizard )
     {
-      [[wizard->contentBox contentView] removeFromSuperview];
+      [wizard->contentBox.contentView removeFromSuperview];
       if (view)
       {
-        [wizard->contentBox setContentView: view->get_data()];
-        [view->get_data() resizeSubviewsWithOldSize:[wizard->contentBox frame].size];
+        wizard->contentBox.contentView = view->get_data();
+        [view->get_data() resizeSubviewsWithOldSize:wizard->contentBox.frame.size];
       }
     }
   }
@@ -336,7 +331,7 @@ static void wizard_set_heading(mforms::Wizard *self, const std::string &text)
     
     if ( wizard )
     {
-      [wizard->headingText setStringValue:wrap_nsstring(text)];
+      wizard->headingText.stringValue = wrap_nsstring(text);
     }
   }
 }
@@ -383,7 +378,7 @@ static void wizard_set_allow_back(mforms::Wizard *self, bool flag)
     
     if ( wizard )
     {
-      [wizard->backButton setEnabled:flag];
+      wizard->backButton.enabled = flag;
     }
   }
 }
@@ -397,7 +392,7 @@ static void wizard_set_allow_next(mforms::Wizard *self, bool flag)
     
     if ( wizard )
     {
-      [wizard->nextButton setEnabled:flag];
+      wizard->nextButton.enabled = flag;
     }
   }
 }
@@ -411,7 +406,7 @@ static void wizard_set_show_extra(mforms::Wizard *self, bool flag)
     
     if ( wizard )
     {
-      [wizard->extraButton setHidden:flag?NO:YES];
+      wizard->extraButton.hidden = flag?NO:YES;
     }
   }
 }
@@ -425,7 +420,7 @@ static void wizard_set_extra_caption(mforms::Wizard *self, const std::string &ca
     
     if ( wizard )
     {
-      [wizard->extraButton setTitle:wrap_nsstring(caption)];
+      wizard->extraButton.title = wrap_nsstring(caption);
       [wizard->extraButton sizeToFit];
     }
   }
@@ -441,9 +436,9 @@ static void wizard_set_next_caption(mforms::Wizard *self, const std::string &cap
     if ( wizard )
     {
       if (caption.empty())
-        [wizard->nextButton setTitle:@"Continue"];
+        wizard->nextButton.title = @"Continue";
       else
-        [wizard->nextButton setTitle:wrap_nsstring(caption)];
+        wizard->nextButton.title = wrap_nsstring(caption);
       
       [wizard rearrangeButtons];
     }

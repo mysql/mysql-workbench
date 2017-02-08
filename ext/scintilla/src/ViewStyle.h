@@ -17,6 +17,7 @@ namespace Scintilla {
 class MarginStyle {
 public:
 	int style;
+	ColourDesired back;
 	int width;
 	int mask;
 	bool sensitive;
@@ -52,7 +53,7 @@ public:
 
 enum IndentView {ivNone, ivReal, ivLookForward, ivLookBoth};
 
-enum WhiteSpaceVisibility {wsInvisible=0, wsVisibleAlways=1, wsVisibleAfterIndent=2};
+enum WhiteSpaceVisibility {wsInvisible=0, wsVisibleAlways=1, wsVisibleAfterIndent=2, wsVisibleOnlyInIndent=3};
 
 typedef std::map<FontSpecification, FontRealised *> FontMap;
 
@@ -70,6 +71,17 @@ public:
 struct ForeBackColours {
 	ColourOptional fore;
 	ColourOptional back;
+};
+
+struct EdgeProperties {
+	int column;
+	ColourDesired colour;
+	EdgeProperties(int column_ = 0, ColourDesired colour_ = ColourDesired(0)) :
+		column(column_), colour(colour_) {
+	}
+	EdgeProperties(uptr_t wParam, sptr_t lParam) :
+		column(static_cast<int>(wParam)), colour(static_cast<long>(lParam)) {
+	}
 };
 
 /**
@@ -114,7 +126,8 @@ public:
 	int leftMarginWidth;	///< Spacing margin on left of text
 	int rightMarginWidth;	///< Spacing margin on right of text
 	int maskInLine;	///< Mask for markers to be put into text because there is nowhere for them to go in margin
-	MarginStyle ms[SC_MAX_MARGIN+1];
+	int maskDrawInText;	///< Mask for markers that always draw in text
+	std::vector<MarginStyle> ms;
 	int fixedColumnWidth;	///< Total width of margins
 	bool marginInside;	///< true: margin included in text view, false: separate views
 	int textStart;	///< Starting x position of text within the view
@@ -129,8 +142,6 @@ public:
 	bool alwaysShowCaretLineBackground;
 	ColourDesired caretLineBackground;
 	int caretLineAlpha;
-	ColourDesired edgecolour;
-	int edgeState;
 	int caretStyle;
 	int caretWidth;
 	bool someStylesProtected;
@@ -145,7 +156,9 @@ public:
 	int braceHighlightIndicator;
 	bool braceBadLightIndicatorSet;
 	int braceBadLightIndicator;
-	int theEdge;
+	int edgeState;
+	EdgeProperties theEdge;
+	std::vector<EdgeProperties> theMultiEdge;
 	int marginNumberPadding; // the right-side padding of the number margin
 	int ctrlCharPadding; // the padding around control character text blobs
 	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
@@ -160,6 +173,7 @@ public:
 	ViewStyle();
 	ViewStyle(const ViewStyle &source);
 	~ViewStyle();
+	void CalculateMarginWidthAndMask();
 	void Init(size_t stylesSize_=256);
 	void Refresh(Surface &surface, int tabInChars);
 	void ReleaseAllExtendedStyles();
@@ -182,6 +196,8 @@ public:
 	bool SetWrapVisualFlagsLocation(int wrapVisualFlagsLocation_);
 	bool SetWrapVisualStartIndent(int wrapVisualStartIndent_);
 	bool SetWrapIndentMode(int wrapIndentMode_);
+
+	bool WhiteSpaceVisible(bool inIndent) const;
 
 private:
 	void AllocStyles(size_t sizeNew);

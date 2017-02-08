@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@
   NSFont* font = [NSFont boldSystemFontOfSize: 11.5];
   NSDictionary* attributes = @{NSFontAttributeName: font};
   CGFloat labelWidth = ceil([mLabel sizeWithAttributes:attributes].width);
-  preferredWidth = 25 + [mDocumentIconImage size].width + labelWidth + [mCloseButtonImage size].width;
+  preferredWidth = 25 + mDocumentIconImage.size.width + labelWidth + mCloseButtonImage.size.width;
   
   return preferredWidth;
 }
@@ -67,10 +67,10 @@
 		CGColorRelease(colorNotActiveNotSelected);
 		
 		// Border.
-		[self setCornerRadius: 6];
-		[self setBorderWidth: 1];
+		self.cornerRadius = 6;
+		self.borderWidth = 1;
 		CGColorRef c = WB_CGColorCreateCalibratedRGB(0.3, 0.3, 0.3, 0.7);
-		[self setBorderColor: c];
+		self.borderColor = c;
 		CGColorRelease(c);
 	}
 	

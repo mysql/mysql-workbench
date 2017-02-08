@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include <mforms/box.h>
-#include <mforms/app.h>
-
 #include "base/ui_form.h"
+
+#include "mforms/box.h"
+#include "mforms/app.h"
 
 namespace bec {
   class UIForm;
@@ -36,8 +36,7 @@ namespace mforms {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct AppViewImplPtrs
-  {
+  struct AppViewImplPtrs {
     // I *need* an own create function, even if AppView is derived from Box.
     // Otherwise I cannot tell appart which managed wrapper to create.
     bool (*create)(AppView *self, bool horizontal);
@@ -46,18 +45,17 @@ namespace mforms {
 #endif
 
   /** A view that is dockable into the host application window.
-   
+
    Provides some functionality specific to views that are embedded in a
    window not owned by mforms. This class is a subclass of Box, so it can
    be used as a container for multiple subviews as well.
    */
-  class MFORMS_EXPORT AppView : public Box, public bec::UIForm
-  {
+  class MFORMS_EXPORT AppView : public Box, public bec::UIForm {
   private:
 #ifdef _WIN32
-    AppViewImplPtrs* _app_view_impl;
+    AppViewImplPtrs *_app_view_impl;
 #endif
-    boost::function<bool ()> _on_close_slot;
+    std::function<bool()> _on_close_slot;
     std::string _context_name;
     std::string _identifier;
     std::string _title;
@@ -67,11 +65,11 @@ namespace mforms {
 
     // for docked views
     mforms::DockingPoint *_dpoint;
-    
+
   public:
 #ifdef _WIN32
     /** Constructor.
-     
+
      @param horiz - whether subviews are to be laid out horizontally instead of vertically
      @param context_name - name for Workbench internal context. Use a unique name.
      @param is_main - pass true
@@ -83,48 +81,65 @@ namespace mforms {
 #endif
 #endif
     virtual ~AppView();
-    
+
     /** Sets the title of this view, when docked. Alias for App::set_view_title()
      */
     void set_title(const std::string &title);
 
     virtual std::string get_title();
-    
-    /** Sets the unique identifier for this view. 
-     
+
+    /** Sets the unique identifier for this view.
+
      The identifier cannot be changed once it is docked. */
-    void set_identifier(const std::string &identifier) { _identifier= identifier; }
-    
+    void set_identifier(const std::string &identifier) {
+      _identifier = identifier;
+    }
+
     /** Gets the previously unique identifier for this view. */
-    std::string identifier() const { return _identifier; }
+    std::string identifier() const {
+      return _identifier;
+    }
 
     virtual void close();
-  public:
 
+  public:
 #ifndef SWIG
     /** Sets the callback to be called when the view is closed in the host window.
-     
-     This is called when eg. the user closes the tab view. Return true from the 
+
+     This is called when eg. the user closes the tab view. Return true from the
      callback if the view should be undocked and false to prevent that.
      */
-    void set_on_close(const boost::function<bool ()> &slot) { _on_close_slot= slot; }
+    void set_on_close(const std::function<bool()> &slot) {
+      _on_close_slot = slot;
+    }
 #endif
 
-    mforms::MenuBar *get_menubar() { return _menubar; }
+    mforms::MenuBar *get_menubar() {
+      return _menubar;
+    }
     void set_menubar(mforms::MenuBar *menu);
 
-    mforms::ToolBar *get_toolbar() { return _toolbar; }
+    mforms::ToolBar *get_toolbar() {
+      return _toolbar;
+    }
     void set_toolbar(mforms::ToolBar *toolbar);
 
     /** Internal use */
     virtual bool on_close();
+
   public:
-    virtual bool is_main_form() { return _is_main; }
-    virtual std::string get_form_context_name() const { return _context_name; }
+    virtual bool is_main_form() {
+      return _is_main;
+    }
+    virtual std::string get_form_context_name() const {
+      return _context_name;
+    }
 
 #ifndef SWIG
     void set_containing_docking_point(mforms::DockingPoint *dpoint);
-    mforms::DockingPoint *containing_docking_point() { return _dpoint; }
+    mforms::DockingPoint *containing_docking_point() {
+      return _dpoint;
+    }
 #endif
   };
 };

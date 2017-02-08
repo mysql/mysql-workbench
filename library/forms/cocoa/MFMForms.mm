@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ extern void cf_table_init();
 extern void cf_textentry_init();
 extern void cf_label_init();
 extern void cf_textbox_init();
-//moved to WBExtras because it uses WBTabView extern void cf_tabview_init();
+extern void cf_tabview_init();
 extern void cf_checkbox_init();
 extern void cf_panel_init();
 extern void cf_selector_init();
@@ -39,7 +39,7 @@ extern void cf_progressbar_init();
 extern void cf_filechooser_init();
 extern void cf_scrollpanel_init();
 extern void cf_listbox_init();
-extern void cf_treenodeview_init();
+extern void cf_treeview_init();
 extern void cf_wizard_init();
 extern void cf_util_init();
 extern void cf_drawbox_init();
@@ -66,7 +66,7 @@ void mforms_cocoa_init()
   cf_textentry_init();
   cf_label_init();
   cf_textbox_init();
-//  cf_tabview_init();
+  cf_tabview_init();
   cf_checkbox_init();
   cf_panel_init();
   cf_selector_init();
@@ -91,7 +91,7 @@ void mforms_cocoa_init()
   cf_hypertext_init();
   cf_popover_init();
   
-  cf_treenodeview_init();
+  cf_treeview_init();
   cf_findpanel_init();
 
   cf_canvas_init();

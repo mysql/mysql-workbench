@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -33,29 +33,38 @@
 class GRTShellWindow;
 class PythonDebugger;
 
-class GRTCodeEditor : public mforms::Box
-{
+class GRTCodeEditor : public mforms::Box {
 public:
   GRTCodeEditor(GRTShellWindow *owner, bool module, const std::string &language);
   virtual ~GRTCodeEditor();
 
   void set_path(const std::string &path);
-  const std::string& get_path() { return _filename; };
-  const std::string& get_language() { return _language; };
+  const std::string &get_path() {
+    return _filename;
+  };
+  const std::string &get_language() {
+    return _language;
+  };
   void set_text(const std::string &text);
   std::string get_title();
   std::string get_text();
-  
-  bool is_dirty() const { return _dirty; }
+
+  bool is_dirty() const {
+    return _dirty;
+  }
   bool can_close();
 
   bool load(const std::string &path);
   bool save(bool choose_file);
   void execute();
 
-  GRTShellWindow *get_shell_window() { return _owner; }
-  
-  mforms::CodeEditor *get_editor() { return &_text; }
+  GRTShellWindow *get_shell_window() {
+    return _owner;
+  }
+
+  mforms::CodeEditor *get_editor() {
+    return &_text;
+  }
 
 #ifdef _DEBUG
   void test_markup();
@@ -70,10 +79,8 @@ protected:
   bool _debugging_supported;
   bool _editing_module;
   bool _dirty;
-  
+
   void text_changed(int line, int linesAdded);
 };
-
-
 
 #endif /* __grt_code_editor.h__ */

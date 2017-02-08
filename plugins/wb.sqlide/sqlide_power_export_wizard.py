@@ -24,7 +24,7 @@ import threading
 
 import os
 
-from mforms import newTreeNodeView
+from mforms import newTreeView
 from mforms import FileChooser
 from sqlide_power_import_export_be import create_module
 from workbench.ui import WizardForm, WizardPage, WizardProgressPage
@@ -90,7 +90,7 @@ class SimpleTabExport(mforms.Box):
         colbox.set_spacing(8)
         colbox.add(mforms.newLabel("Select columns you'd like to export"), False, True)
         
-        self.column_list = newTreeNodeView(mforms.TreeFlatList)
+        self.column_list = newTreeView(mforms.TreeFlatList)
         self.column_list.add_column(mforms.CheckColumnType, "Export", 50, True)
         self.column_list.add_column(mforms.StringColumnType, "Column name", self.owner.main.get_width(), False)
         self.column_list.end_columns()
@@ -336,9 +336,9 @@ class SelectFilePage(WizardPage):
             fradio.set_text(format.title)
             fradio.set_active(bool(self.active_module and self.active_module.name == format.name))
             fradio.add_clicked_callback(lambda f = format: self.output_type_changed(f))
-            radio_box.add(fradio, False, False)
+            radio_box.add(fradio, False, True)
             self.radio_opts.append({'radio':fradio, 'name': format.name})
-        self.content.add(radio_box, False, False)
+        self.content.add(radio_box, False, True)
 
         self.optpanel = mforms.newPanel(mforms.TitledBoxPanel)
         self.optpanel.set_title("Options:")
@@ -446,21 +446,21 @@ class SelectFilePage(WizardPage):
             for name, opts in self.active_module.options.iteritems():
                 label_box = mforms.newBox(True)
                 label_box.set_spacing(8)
-                label_box.add(mforms.newLabel(opts['description']), False, False)
+                label_box.add(mforms.newLabel(opts['description']), False, True)
                 if opts['type'] == 'text':
                     opt_val = mforms.newTextEntry()
                     opt_val.set_size(35, -1)
                     opt_val.set_value(opts['value'])
                     opt_val.add_changed_callback(lambda field = opt_val, output = opts: set_text_entry(field, output))
-                    label_box.add_end(opt_val, False, False)
+                    label_box.add_end(opt_val, False, True)
                 if opts['type'] == 'select':
                     opt_val = mforms.newSelector()
                     opt_val.set_size(75, -1)
                     opt_val.add_items([v for v in opts['opts']])
                     opt_val.set_selected(opts['opts'].values().index(opts['value']))
                     opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
-                    label_box.add_end(opt_val, False, False)
-                self.optbox.add(label_box, False, False)
+                    label_box.add_end(opt_val, False, True)
+                self.optbox.add(label_box, False, True)
             self.optpanel.add(self.optbox)
             self.optpanel.show(True)        
         self.resume_layout()
@@ -504,12 +504,15 @@ class DataInputPage(WizardPage):
         self.suspend_layout()
         self.set_spacing(16)
         
+        headingBox = mforms.newBox(True)
+        headingBox.set_spacing(16)
+        
         self.simple_export_box = mforms.newBox(False)
         self.simple_export_box.set_spacing(16)
         
-        label = mforms.newLabel("Select source table for export.")
+        label = mforms.newLabel("Select source table for export:")
         label.set_style(mforms.BoldInfoCaptionStyle)
-        self.simple_export_box.add(label, False, True)
+        headingBox.add(label, False, True)
         
         self.source_table_sel = mforms.newSelector()
         self.source_table_sel.set_size(self.get_width(), -1)
@@ -521,7 +524,9 @@ class DataInputPage(WizardPage):
         if table_name in self.table_list.keys():
             self.source_table_sel.set_selected(sorted_keys.index(table_name))
         self.source_table_sel.add_changed_callback(lambda selector = self.source_table_sel: self.source_table_changed(selector.get_string_value()))
-        self.simple_export_box.add(self.source_table_sel, False, True)
+        headingBox.add(self.source_table_sel, False, True)
+        
+        self.simple_export_box.add(headingBox, False, True)
         
         self.simple_export = SimpleTabExport(self.main.editor, self)
         self.simple_export_box.add(self.simple_export, True, True)

@@ -1,20 +1,21 @@
 add_definitions(${USE_BUNDLED_MYSQLDUMP})
 
 include_directories(.
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${LIBZIP_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${ANTLR3C_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${LIBZIP_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/frontend/common
@@ -24,9 +25,9 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbpublic/grt 
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${VSQLITE_INCLUDE_DIRS}
-    ${TINYXML_INCLUDE_DIRS}
-    ${GDAL_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${GDAL_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wbprivate
@@ -79,8 +80,6 @@ add_library(wbprivate
     workbench/wb_module.cpp
     workbench/wb_tunnel.cpp
     workbench/wb_overview.cpp
-    workbench/home_screen.cpp
-    workbench/home_screen_connections.cpp
     workbench/wb_tunnel.cpp
     workbench/webbrowser_view.cpp
     workbench/wb_db_schema.cpp
@@ -99,21 +98,29 @@ add_library(wbprivate
     ${PROJECT_SOURCE_DIR}/frontend/common/snippet_list.cpp
 )
 
+target_compile_options(wbprivate PUBLIC ${WB_CXXFLAGS})
+
 target_link_libraries(wbprivate
     grt
     mdcanvas
+    wbbase
     ${CAIRO_LIBRARIES}
-    ${GTK2_LIBRARIES}
+    ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
     ${LIBZIP_LIBRARIES}
-    ${TINYXML_LIBRARY}
     ${PCRE_LIBRARIES}
     ${GDAL_LIBRARIES}
 )
 
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wbprivate gcov)
+endif()
+
 set_target_properties(wbprivate
                       PROPERTIES VERSION   ${WB_VERSION}
-                                 SOVERSION ${WB_VERSION})
+                      SOVERSION ${WB_VERSION})
+
+add_dependencies(wbprivate antlr-wb)
 
 if(COMMAND cotire)
   set_target_properties(wbprivate PROPERTIES

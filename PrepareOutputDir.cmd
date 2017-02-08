@@ -83,8 +83,10 @@ xcopy /i /s /y /d %RES_DIR%\wbdata\*.xml %TARGET_DIR%\data\. 1> nul 2> nul
 xcopy /i /s /y /d %RES_DIR%\wbdata\data.db %TARGET_DIR%\data\. 1> nul 2> nul
 
 echo Copy parser grammar + support files
-xcopy /i /s /y /d %LIBRARY_DIR%\mysql.parser\MySQL.tokens %TARGET_DIR%\data 1> nul 2> nul
-xcopy /i /s /y /d %LIBRARY_DIR%\mysql.parser\grammar\MySQL.g %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\MySQL.tokens %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\MySQLSimpleParser.tokens %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\MySQL.g %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\MySQLSimpleParser.g %TARGET_DIR%\data 1> nul 2> nul
 
 if not exist %TARGET_DIR%\mysql.profiles mkdir %TARGET_DIR%\mysql.profiles
 copy %RES_DIR%\mysql.profiles\*.xml %TARGET_DIR%\mysql.profiles\. 1> nul 2> nul
@@ -127,18 +129,18 @@ xcopy /i /s /y /d %EXT_BIN_DIR%\python*.exe %TARGET_DIR%\.
 
 
 echo * MySQL client library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql.dll %TARGET_DIR%\.
-rem xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql.pdb %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql*.dll %TARGET_DIR%\.
+rem xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql*.pdb %TARGET_DIR%\. 1> nul 2> nul
 
 echo * MySQL cdbc driver ...
 rem copy %EXT_LIB_DIR%\cppconn\mysql\%2\mysqlcppconn.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * glib libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libglib-2.0-0.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libgmodule-2.0-0.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libgobject-2.0-0.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libgthread-2.0-0.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libintl-8.dll %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\glib.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gmodule.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gobject.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gthread.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libintl-8.dll %TARGET_DIR%\.
 
 echo * libxml2 libraries ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\libxml\libxml2.dll %TARGET_DIR%\.
@@ -205,9 +207,12 @@ copy %EXT_LIB_DIR%\pcre\%2\pcre.dll %TARGET_DIR%\.
 echo * sqlite library ...
 copy %EXT_LIB_DIR%\sqlite\%2\sqlite3.dll %TARGET_DIR%\.
 
+echo * vsqlite++ library ...
+copy "%EXT_LIB_DIR%\vsqlite++\%2\vsqlite++.dll" %TARGET_DIR%\.
+
 echo * gdal library + tools ...
-copy %EXT_LIB_DIR%\gdal\gdal.dll %TARGET_DIR%\.
-copy %EXT_LIB_DIR%\gdal\*.exe %TARGET_DIR%\.
+copy %EXT_LIB_DIR%\gdal\%2\gdal.dll %TARGET_DIR%\.
+copy %EXT_LIB_DIR%\gdal\%2\*.exe %TARGET_DIR%\.
 
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide
@@ -219,7 +224,6 @@ xcopy /i /y /d %1samples\models\* %TARGET_DIR%\extras 1> nul 2> nul
 
 echo * README files
 xcopy /i /y /d %1README %TARGET_DIR%
-xcopy /i /y /d %1_README_FOR_ZIP_PACKAGE.txt %TARGET_DIR%
 
 rem -------------------------------------------------------------------------------
 rem Call sub-scripts
@@ -238,11 +242,11 @@ goto EndOfScript
 :Usage
 
 echo This script sets up the output directory so that applications can be started from there and find
-echo all directories and files as in the final distribution. The script takes 3 parameters, the 
+echo all directories and files as in the final distribution. The script takes 3 parameters, the
 echo SolutionDirectory and ConfigurationName.
 echo Use an ABSOLUTE PATH to the solution directory and end it with a backslash!
 echo .
-echo Usage: 
+echo Usage:
 echo   %0 SolutionDirectory ConfigurationName Architecture
 echo .
 echo Example:

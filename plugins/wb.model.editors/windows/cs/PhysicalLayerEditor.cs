@@ -53,7 +53,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQL.Grt.LayerEditorWrapper(GrtManager, value);
+        Backend = new LayerEditorWrapper(value);
         RefreshFormData();
       }
       finally

@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Runtime">
+      <UniqueIdentifier>{829ceff2-8e42-4851-8ae2-e4109c77fa0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code Completion">
+      <UniqueIdentifier>{d098f596-01c2-4609-b55b-751a3cb276fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Grammar Parser">
+      <UniqueIdentifier>{b7d7b8b1-c0a5-4949-98fb-c75f9d0cc651}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Grammars">
+      <UniqueIdentifier>{7ab96768-096f-49a7-8f95-459af7633692}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MySQL">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="MySQL\generated">
+      <UniqueIdentifier>{954b35b8-de19-4857-abd2-75b3600ef4ad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3baserecognizer.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3basetree.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3basetreeadaptor.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3bitset.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3collections.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontoken.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontree.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontreeadaptor.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontreenodestream.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3convertutf.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3cyclicdfa.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3debughandlers.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3encodings.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3exception.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3filestream.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3inputstream.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3intstream.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3lexer.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3parser.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3rewritestreams.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3string.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3tokenstream.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3treeparser.c">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="grammar-parser\ANTLRv3Lexer.c">
+      <Filter>Grammar Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="grammar-parser\ANTLRv3Parser.c">
+      <Filter>Grammar Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="code-completion\mysql_object_names_cache.cpp">
+      <Filter>Code Completion</Filter>
+    </ClCompile>
+    <ClCompile Include="code-completion\mysql-code-completion.cpp">
+      <Filter>Code Completion</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLSimpleParser.c">
+      <Filter>MySQL\generated</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLLexer.c">
+      <Filter>MySQL\generated</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLParser.c">
+      <Filter>MySQL\generated</Filter>
+    </ClCompile>
+    <ClCompile Include="mysql-parser.cpp">
+      <Filter>MySQL</Filter>
+    </ClCompile>
+    <ClCompile Include="mysql-parser-common.cpp">
+      <Filter>MySQL</Filter>
+    </ClCompile>
+    <ClCompile Include="mysql-scanner.cpp">
+      <Filter>MySQL</Filter>
+    </ClCompile>
+    <ClCompile Include="mysql-syntax-check.cpp">
+      <Filter>MySQL</Filter>
+    </ClCompile>
+    <ClCompile Include="parsers-common.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3baserecognizer.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3basetree.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3basetreeadaptor.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3bitset.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3collections.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3commontoken.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3commontree.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3commontreeadaptor.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3commontreenodestream.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3convertutf.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3cyclicdfa.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3debugeventlistener.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3defs.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3encodings.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3errors.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3exception.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3filestream.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3input.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3interfaces.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3intstream.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3lexer.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3memory.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3parser.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3parsetree.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3recognizersharedstate.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3rewritestreams.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3string.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3tokenstream.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3treeparser.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="mysql-parser.h">
+      <Filter>MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="mysql-parser-common.h">
+      <Filter>MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="mysql-scanner.h">
+      <Filter>MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="mysql-syntax-check.h">
+      <Filter>MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="mysql-recognition-types.h">
+      <Filter>MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="grammar-parser\ANTLRv3Lexer.h">
+      <Filter>Grammar Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="grammar-parser\ANTLRv3Parser.h">
+      <Filter>Grammar Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLLexer.h">
+      <Filter>MySQL\generated</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLParser.h">
+      <Filter>MySQL\generated</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLSimpleParser.h">
+      <Filter>MySQL\generated</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="code-completion\mysql_object_names_cache.h">
+      <Filter>Code Completion</Filter>
+    </ClInclude>
+    <ClInclude Include="code-completion\mysql-code-completion.h">
+      <Filter>Code Completion</Filter>
+    </ClInclude>
+    <ClInclude Include="parsers-common.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="grammars\predefined.tokens">
+      <Filter>Grammars</Filter>
+    </None>
+    <None Include="grammars\MySQL.g">
+      <Filter>Grammars</Filter>
+    </None>
+    <None Include="grammars\MySQLSimpleParser.g">
+      <Filter>Grammars</Filter>
+    </None>
+  </ItemGroup>
+</Project>

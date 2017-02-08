@@ -1,26 +1,17 @@
 
-#ifndef _PLUGIN_IF_H_
-#define _PLUGIN_IF_H_
+#pragma once
 
-#include <grtpp_module_cpp.h>
+#include "grtpp_module_cpp.h"
 #include "grts/structs.app.h"
 
 // plugin interface definition header
-// 
+//
 // Plugins must implement this interface to be recognized by the
 // plugin manager.
 
-
-class PluginInterfaceImpl : public grt::InterfaceImplBase
-{
+class PluginInterfaceImpl : public grt::InterfaceImplBase {
 public:
-  DECLARE_REGISTER_INTERFACE(PluginInterfaceImpl,
-                             DECLARE_INTERFACE_FUNCTION(PluginInterfaceImpl::getPluginInfo));
+  DECLARE_REGISTER_INTERFACE(PluginInterfaceImpl, DECLARE_INTERFACE_FUNCTION(PluginInterfaceImpl::getPluginInfo));
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo()= 0;
+  virtual grt::ListRef<app_Plugin> getPluginInfo() = 0;
 };
-
-
-
-
-#endif /* _PLUGIN_IF_H_ */

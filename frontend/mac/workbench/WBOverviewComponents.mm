@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   if (self != nil)
   {
     _owner = owner;
-    _be = [owner backend];
+    _be = owner.backend;
     _nodeId = new bec::NodeId(node);
     _tabItem = tabItem;
 
@@ -79,7 +79,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   [_owner registerContainer:self forItem:stringFromNodeId(*_nodeId)];
 
   int i= 0;
-  for (id subview in [self subviews])
+  for (id subview in self.subviews)
   {
     if ([subview respondsToSelector:@selector(updateNodeId:)])
       [subview updateNodeId:_be->get_child(*_nodeId, i++)];
@@ -100,14 +100,14 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
   NSAssert(child_type == wb::OverviewBE::OSection, @"unexpected child type for group");
 
-  for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+  for (size_t c = _be->count_children(*_nodeId), i = 0; i < c; i++)
   {
     bec::NodeId child(_be->get_child(*_nodeId, i));
 
     WBOverviewSection *section= [[WBOverviewSection alloc] initWithOverview:_owner
                                                                       nodeId:child];
     [section setFrameSize:NSMakeSize(100, 20)];
-    [section setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    section.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable;
     [self addSubview:section];
 
     std::string title;
@@ -123,7 +123,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
  */
 - (void) setListMode: (ListMode) mode
 {
-  for (id subview in [self subviews])
+  for (id subview in self.subviews)
   {
     WBOverviewSection* section = (WBOverviewSection*) subview;
     switch (mode)
@@ -144,7 +144,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {
   _be->refresh_node(*_nodeId, true);
 
-  for (id subview in [self subviews])
+  for (id subview in self.subviews)
   {
     if ([subview respondsToSelector:@selector(refreshChildren)])
       [subview refreshChildren];
@@ -161,7 +161,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
     _be->get_field(*_nodeId, wb::OverviewBE::Label, value);
     if (_tabItem)
-      [_tabItem setLabel:[NSString stringWithCPPString:value]];
+      _tabItem.label = [NSString stringWithCPPString:value];
   }
   catch (std::exception exc)
   {
@@ -173,11 +173,11 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (NSSize)minimumSize
 {
   NSSize size = NSMakeSize(leftPadding + rightPadding, topPadding + bottomPadding);
-  NSArray *items = [self subviews];
+  NSArray *items = self.subviews;
   for (NSView *subview in items)
-    size.height += NSHeight([subview frame]);
-  if ([items count] > 0)
-    size.height += ([items count] - 1) * spacing;
+    size.height += NSHeight(subview.frame);
+  if (items.count > 0)
+    size.height += (items.count - 1) * spacing;
   return size;
 }
 
@@ -196,16 +196,16 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   self = [super initWithFrame:NSMakeRect(0, 0, 100, 100)];
   if (self != nil)
   {
-    [self setTabViewType:NSTopTabsBezelBorder];
+    self.tabViewType = NSTopTabsBezelBorder;
     
     [self doCustomize];
-    [self setDelegate:self];
+    self.delegate = self;
    
     _owner = owner;
-    _be= [owner backend];
+    _be= owner.backend;
     _nodeId= new bec::NodeId(node);
     
-    _extraHeight= NSHeight([self frame]) - [self contentSize].height;
+    _extraHeight= NSHeight(self.frame) - self.contentSize.height;
   }
   return self;
 }
@@ -240,9 +240,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
                                                               nodeId:child
                                                              tabItem:item];
 
-  [item setLabel:@(label.c_str())];
-  [item setView:group];
-  [group setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
+  item.label = @(label.c_str());
+  item.view = group;
+  group.autoresizingMask = NSViewWidthSizable|NSViewMaxYMargin;
   
   [_owner registerContainer:group forItem:stringFromNodeId(child)];
   
@@ -267,13 +267,13 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
   _resizing = YES;
   
-  for (NSTabViewItem *tabItem in [self tabViewItems])
+  for (NSTabViewItem *tabItem in self.tabViewItems)
   {
     WBOverviewGroup *group = (WBOverviewGroup *)tabItem.view;
     [group tile];
     maxHeight = MAX(maxHeight, [group minimumSize].height);
   }
-  [self setFrameSize:NSMakeSize([self contentSize].width, maxHeight + _extraHeight)];
+  [self setFrameSize:NSMakeSize(self.contentSize.width, maxHeight + _extraHeight)];
   
   _resizing = NO;
 }
@@ -283,7 +283,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {  
   std::set<std::string> existing_groups;
   float maxHeight= 0;
-  NSTabViewItem *oldItem= [self selectedTabViewItem];
+  NSTabViewItem *oldItem= self.selectedTabViewItem;
 
   // prevent the TabChanged handler from calling focus_node
   _updating = YES;
@@ -291,13 +291,13 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   _be->refresh_node(*_nodeId, true);
   
   // remove items that don't exist anymore
-  for (NSInteger t= [self numberOfTabViewItems]-1; t >= 0; --t)
+  for (NSInteger t= self.numberOfTabViewItems-1; t >= 0; --t)
   {
     NSTabViewItem *item= [self tabViewItemAtIndex:t];
-    std::string item_uid= [[item identifier] UTF8String]; // item identifier is node_unique_id
+    std::string item_uid= [item.identifier UTF8String]; // item identifier is node_unique_id
     BOOL found= NO;
 
-    for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+    for (size_t c = _be->count_children(*_nodeId), i = 0; i < c; i++)
     {
       if (item_uid == _be->get_node_unique_id(_be->get_child(*_nodeId, i)))
       {
@@ -309,7 +309,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     if (!found)
     {
       WBOverviewGroup *group = (WBOverviewGroup *)item.view;
-      [_owner unregisterContainerForItem:stringFromNodeId([group nodeId])];
+      [_owner unregisterContainerForItem:stringFromNodeId(group.nodeId)];
       [self removeTabViewItem:item];
       if (oldItem == item)
         oldItem= nil;
@@ -318,7 +318,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   }
     
   // insert new items
-  for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+  for (size_t c = _be->count_children(*_nodeId), i = 0; i < c; i++)
   {
     bec::NodeId child(_be->get_child(*_nodeId, i));
     if (existing_groups.find(_be->get_node_unique_id(child)) == existing_groups.end())
@@ -332,18 +332,18 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
   // refresh everythng
   NSTabViewItem *tabItem;
-  if ([self numberOfTabViewItems] > 0)
+  if (self.numberOfTabViewItems > 0)
   {
     [self selectFirstTabViewItem:nil];
-    tabItem= [self selectedTabViewItem];
+    tabItem= self.selectedTabViewItem;
     for (int i= 0;; i++)
     {
       bec::NodeId child(_be->get_child(*_nodeId, i));
 
       // update the represented NodeId
       WBOverviewGroup *group = (WBOverviewGroup *)tabItem.view;
-      [_owner unregisterContainerForItem:stringFromNodeId([group nodeId])];
-      [_owner registerContainer:[tabItem view] forItem:stringFromNodeId([group nodeId])];
+      [_owner unregisterContainerForItem:stringFromNodeId(group.nodeId)];
+      [_owner registerContainer:tabItem.view forItem:stringFromNodeId(group.nodeId)];
       [group updateNodeId: child];
       
       [group refreshChildren]; // refresh
@@ -352,24 +352,24 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
       maxHeight= MAX(maxHeight, [group minimumSize].height);
             
       [self selectNextTabViewItem:nil];
-      NSTabViewItem *nextItem= [self selectedTabViewItem]; 
+      NSTabViewItem *nextItem= self.selectedTabViewItem; 
       if (nextItem == tabItem)
         break;
       tabItem= nextItem;
     }
   }
   
-  [self setFrameSize:NSMakeSize([self contentSize].width, maxHeight + _extraHeight)];
+  [self setFrameSize:NSMakeSize(self.contentSize.width, maxHeight + _extraHeight)];
   
   _updating = NO;
 
   int tab = _be->get_default_tab_page_index();
 
-  [self tabView:self willSelectTabViewItem:[self selectedTabViewItem]];
+  [self tabView:self willSelectTabViewItem:self.selectedTabViewItem];
 
   if (tab >= 0)
     [self performSelector: @selector(selectTabViewItemWithIdentifier:)
-               withObject: [[self tabViewItemAtIndex: tab] identifier]
+               withObject: [self tabViewItemAtIndex: tab].identifier
                afterDelay: 0.1];
 
   /// TODO: this raises an exception, check why
@@ -385,7 +385,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   _updating = YES;
 
   // create a tabview page for each group
-  for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+  for (size_t c = _be->count_children(*_nodeId), i = 0; i < c; i++)
   {
     bec::NodeId child(_be->get_child(*_nodeId, i));
 
@@ -394,28 +394,28 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     maxHeight= MAX(maxHeight, NSHeight([group frame]));
   }
 
-  [self setFrameSize:NSMakeSize([self contentSize].width, maxHeight + _extraHeight)];
+  [self setFrameSize:NSMakeSize(self.contentSize.width, maxHeight + _extraHeight)];
 
   _updating = NO;
 }
 
 - (void) setLargeIconMode
 {
-  NSTabViewItem *activeTab = [self selectedTabViewItem];
+  NSTabViewItem *activeTab = self.selectedTabViewItem;
   WBOverviewGroup *group = (WBOverviewGroup *)activeTab.view;
   [group setListMode: ListModeLargeIcon];
 }
 
 - (void) setSmallIconMode
 {
-  NSTabViewItem *activeTab = [self selectedTabViewItem];
+  NSTabViewItem *activeTab = self.selectedTabViewItem;
   WBOverviewGroup *group = (WBOverviewGroup *)activeTab.view;
   [group setListMode: ListModeSmallIcon];
 }
 
 - (void) setDetailsMode
 {
-  NSTabViewItem *activeTab = [self selectedTabViewItem];
+  NSTabViewItem *activeTab = self.selectedTabViewItem;
   WBOverviewGroup *group = (WBOverviewGroup *)activeTab.view;
   [group setListMode: ListModeDetails];
 }
@@ -428,9 +428,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)performGroupDelete:(id)sender
 {
-  if ([self numberOfTabViewItems] > 0)
+  if (self.numberOfTabViewItems > 0)
   {
-    int selected= [self indexOfTabViewItem: [self selectedTabViewItem]];
+    NSInteger selected = [self indexOfTabViewItem: self.selectedTabViewItem];
     _be->request_delete_object(_be->get_child(*_nodeId, selected));
   }
 }
@@ -471,7 +471,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)activateContextMenu:(id)sender
 {
-  bec::NodeId node([[[sender menu] title] UTF8String]);
+  bec::NodeId node([sender menu].title.UTF8String);
   std::vector<bec::NodeId> nodes;
 
   // we need to pass the icon under the cursor
@@ -540,18 +540,18 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
       nibObjects = temp;
 
       _owner = owner;
-      _be = [owner backend];
+      _be = owner.backend;
       _nodeId = new bec::NodeId(node);
 
       std::string label= _be->get_field_description(node, 0);
       if (!label.empty())
       {
         _descriptionLabel= [[NSTextField alloc] initWithFrame:NSZeroRect];
-        [_descriptionLabel setStringValue: [NSString stringWithCPPString: label]];
+        _descriptionLabel.stringValue = [NSString stringWithCPPString: label];
         [_descriptionLabel setEditable: NO];
         [_descriptionLabel setBordered: NO];
-        [_descriptionLabel setTextColor: [NSColor lightGrayColor]];
-        [_descriptionLabel setFont: [NSFont systemFontOfSize: [NSFont labelFontSize]]];
+        _descriptionLabel.textColor = [NSColor lightGrayColor];
+        _descriptionLabel.font = [NSFont systemFontOfSize: [NSFont labelFontSize]];
         [_descriptionLabel sizeToFit];
         [self addSubview: _descriptionLabel];
       }
@@ -578,8 +578,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
       [self addSubview: collectionView];
 
-      [self setMenu: contextMenu];
-      [contextMenu setDelegate: self];
+      self.menu = contextMenu;
+      contextMenu.delegate = self;
       
       [iconController setOverviewBE: _be];
     }
@@ -604,17 +604,15 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 }
 
 
-- (void)selectNode:(const bec::NodeId&)node
+- (void)selectNode: (const bec::NodeId&)node
 {
-  int index= node.back();
-  
-  [iconController setSelectedIndexes: [NSIndexSet indexSetWithIndex: index]];
+  iconController.selectedIndexes = [NSIndexSet indexSetWithIndex: node.back()];
 }
 
 
 - (void)clearSelection
 {
-  [iconController setSelectedIndexes: [NSIndexSet indexSet]];
+  iconController.selectedIndexes = [NSIndexSet indexSet];
 }
 
 
@@ -650,10 +648,10 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)subviewResized:(NSNotification*)notif
 {
-  id sender= [notif object];
+  id sender= notif.object;
   NSSize size= [sender frame].size;
   
-  size.height+= 16 + (_descriptionLabel ? NSHeight([_descriptionLabel frame]) + 4 : 0);
+  size.height+= 16 + (_descriptionLabel ? NSHeight(_descriptionLabel.frame) + 4 : 0);
   size.width+= 16;
   
   [self setFrameSize:size];
@@ -662,16 +660,16 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
 {
-  NSRect frame= [self frame];
+  NSRect frame= self.frame;
   
   if (_descriptionLabel)
   {
-    NSRect dframe= [_descriptionLabel frame];
+    NSRect dframe= _descriptionLabel.frame;
     dframe.origin.x= 8;
     dframe.origin.y= NSHeight(frame) - NSHeight(dframe) - 5;
-    [_descriptionLabel setFrame: dframe];
+    _descriptionLabel.frame = dframe;
     
-    frame.size.height-= NSHeight([_descriptionLabel frame]) + 4;
+    frame.size.height-= NSHeight(_descriptionLabel.frame) + 4;
   }
   frame.size.height-= 16;
   frame.size.width-= 16;
@@ -681,7 +679,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   frame.origin.x+= 8;
   frame.origin.y= 8;
   
-  [collectionView setFrame:frame];
+  collectionView.frame = frame;
 }
 
 
@@ -708,10 +706,10 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     NSImage *bar= [NSImage imageNamed:@"header_bar_gray.png"];
    
-    NSRect frame= [self frame];
+    NSRect frame= self.frame;
     
-    [bar drawAtPoint: NSMakePoint(8, NSHeight(frame) - NSHeight([_descriptionLabel frame]) - 10)
-            fromRect: NSMakeRect(0, 0, [bar size].width, [bar size].height)
+    [bar drawAtPoint: NSMakePoint(8, NSHeight(frame) - NSHeight(_descriptionLabel.frame) - 10)
+            fromRect: NSMakeRect(0, 0, bar.size.width, bar.size.height)
            operation: NSCompositeSourceOver
             fraction: 0.4];
   }
@@ -726,8 +724,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   // we need to pass the icon under the cursor
   // since all attempts to get that has failed so far,
   // we'll just use the 1st selected item for that purpose
-  if ([[iconController selectedIndexes] count] > 0)
-    nodes.push_back(node.append([[iconController selectedIndexes] firstIndex]));
+  if (iconController.selectedIndexes.count > 0)
+    nodes.push_back(node.append(iconController.selectedIndexes.firstIndex));
   else
     nodes.push_back(node);
   
@@ -749,8 +747,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   // we need to pass the icon under the cursor
   // since all attempts to get that has failed so far,
   // we'll just use the 1st selected item for that purpose
-  if ([[iconController selectedIndexes] count] > 0)
-    nodes.push_back(node.append([[iconController selectedIndexes] firstIndex]));
+  if (iconController.selectedIndexes.count > 0)
+    nodes.push_back(node.append(iconController.selectedIndexes.firstIndex));
   else
     nodes.push_back(node);
   _be->activate_popup_item_for_nodes([[sender representedObject] UTF8String], nodes);
@@ -775,7 +773,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)subviewResized:(NSNotification*)notif
 {
-  id sender= [notif object];
+  id sender= notif.object;
   NSSize size= [sender frame].size;
   
   size.height+= 16;
@@ -786,7 +784,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
 {
-  NSRect frame= [self frame];
+  NSRect frame= self.frame;
   
   frame.size.height -= 16;
   frame.size.width -= 16;
@@ -825,7 +823,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   [[NSColor darkGrayColor] set];
   
-  NSRect frame= [self frame];
+  NSRect frame= self.frame;
   
   NSDictionary *attribs= @{NSFontAttributeName: [NSFont boldSystemFontOfSize:11]};
   [_title drawAtPoint:NSMakePoint(10, NSHeight(frame) - 12)
@@ -837,7 +835,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
                        NSForegroundColorAttributeName: [NSColor grayColor]}];
   
   [bar drawAtPoint:NSMakePoint(8, NSHeight(frame) - 17)
-          fromRect:NSMakeRect(0, 0, [bar size].width, [bar size].height)
+          fromRect:NSMakeRect(0, 0, bar.size.width, bar.size.height)
          operation:NSCompositeSourceOver
           fraction:0.4];
 }
@@ -846,7 +844,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {  
   [super refreshChildren];
   
-  int count= _be->count_children(*_nodeId) - 1;
+  size_t count = _be->count_children(*_nodeId) - 1;
   if (count != 1)
     [self setSubTitle: [NSString stringWithFormat: NSLocalizedString(@"(%i items)", @"!=1 items"), count]];
   else

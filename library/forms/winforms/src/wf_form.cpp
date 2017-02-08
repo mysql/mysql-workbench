@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -26,27 +26,26 @@
 using namespace System;
 using namespace System::IO;
 using namespace Drawing;
-using namespace Windows::Forms;
+using namespace System::Windows::Forms;
 
 using namespace MySQL;
 using namespace MySQL::Forms;
 
 //----------------- FillForm -----------------------------------------------------------------------
 
-ref class FillForm : public Windows::Forms::Form
-{
+ref class FillForm : public System::Windows::Forms::Form {
 private:
-  FormFillLayout^ layoutEngine;
+  FormFillLayout ^ layoutEngine;
 
 public:
   FormWrapper *wrapper;
-  delegate Windows::Forms::DialogResult ShowModalDelegate(Windows::Forms::IWin32Window ^parent);
+  delegate System::Windows::Forms::DialogResult ShowModalDelegate(System::Windows::Forms::IWin32Window ^ parent);
 
   //------------------------------------------------------------------------------------------------
 
   /**
    * Computes the entire layout of the form.
-   * 
+   *
    * @param proposedSize The size to start from layouting. Since super ordinated controls may impose
    *                     a layout size we need to honor that (especially important for auto wrapping
    *                     labels).
@@ -54,8 +53,7 @@ public:
    *                      (when doing a relayout) or not (when computing the preferred size).
    * @return The resulting size of the table.
    */
-  System::Drawing::Size FillForm::ComputeLayout(System::Drawing::Size proposedSize, bool resizeChildren)
-  {
+  System::Drawing::Size FillForm::ComputeLayout(System::Drawing::Size proposedSize, bool resizeChildren) {
     // This layout is actually very simple. Resize the first (and only) child control so that
     // it fills the entire client area of the container. If enabled resize the container to fit the
     // (preferred) size of the content.
@@ -66,9 +64,8 @@ public:
     int horizontal_padding = current_size.Width - inner.Width;
     int vertical_padding = current_size.Height - inner.Height;
 
-    if (Controls->Count > 0)
-    {
-      Control^ content = Controls[0];
+    if (Controls->Count > 0) {
+      Control ^ content = Controls[0];
 
       // Compute the proposed size for the content out of the size for the form.
       proposedSize.Width -= horizontal_padding;
@@ -85,8 +82,7 @@ public:
       // Adjust width of the container if it is too small or auto resizing is enabled.
       // Consider minimum sizes.
       bool auto_resize = ViewWrapper::can_auto_resize_horizontally(this);
-      if (proposedSize.Width < contentSize.Width || auto_resize)
-      {
+      if (proposedSize.Width < contentSize.Width || auto_resize) {
         proposedSize.Width = contentSize.Width;
         if (proposedSize.Width < MinimumSize.Width - horizontal_padding)
           proposedSize.Width = MinimumSize.Width - horizontal_padding;
@@ -94,18 +90,16 @@ public:
 
       // Adjust height of the container if it is too small or auto resizing is enabled.
       auto_resize = ViewWrapper::can_auto_resize_vertically(this);
-      if (proposedSize.Height < contentSize.Height || auto_resize)
-      {
+      if (proposedSize.Height < contentSize.Height || auto_resize) {
         proposedSize.Height = contentSize.Height;
         if (proposedSize.Height < MinimumSize.Height - vertical_padding)
           proposedSize.Height = MinimumSize.Height - vertical_padding;
       }
 
-      if (resizeChildren)
-      {
+      if (resizeChildren) {
         // Now stretch the client control to fill the entire display area.
         ViewWrapper::remove_auto_resize(content, AutoResizeMode::ResizeBoth);
-        content->Bounds= System::Drawing::Rectangle(inner.Location, proposedSize);
+        content->Bounds = System::Drawing::Rectangle(inner.Location, proposedSize);
       }
 
       // Convert resulting content size back to overall form size.
@@ -118,8 +112,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual System::Drawing::Size FillForm::GetPreferredSize(System::Drawing::Size proposedSize) override
-  {
+  virtual System::Drawing::Size FillForm::GetPreferredSize(System::Drawing::Size proposedSize) override {
     return layoutEngine->GetPreferredSize(this, proposedSize);
   }
 
@@ -128,17 +121,14 @@ public:
   /**
    * Called by the OS if the form is closed by the user (e.g. via red cross close button).
    */
-  virtual void OnFormClosing(FormClosingEventArgs ^args) override
-  {
-    __super::OnFormClosing(args);
+  virtual void OnFormClosing(FormClosingEventArgs ^ args) override {
+    __super ::OnFormClosing(args);
 
     mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
     if (!backend->can_close())
       args->Cancel = true;
-    else
-    {
-      if (wrapper->hide_on_close())
-      {
+    else {
+      if (wrapper->hide_on_close()) {
         args->Cancel = true;
         Hide();
       }
@@ -151,9 +141,8 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnActivated(EventArgs ^args) override
-  {
-    __super::OnActivated(args);
+  virtual void OnActivated(EventArgs ^ args) override {
+    __super ::OnActivated(args);
 
     mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
     backend->activated();
@@ -161,9 +150,8 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnDeactivate(EventArgs ^args) override
-  {
-    __super::OnDeactivate(args);
+  virtual void OnDeactivate(EventArgs ^ args) override {
+    __super ::OnDeactivate(args);
 
     mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
     backend->deactivated();
@@ -171,10 +159,8 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
-  {
-    Windows::Forms::Layout::LayoutEngine^ get() override
-    {
+  virtual property System::Windows::Forms::Layout::LayoutEngine ^ LayoutEngine {
+    System::Windows::Forms::Layout::LayoutEngine ^ get() override {
       if (layoutEngine == nullptr)
         layoutEngine = gcnew FormFillLayout();
 
@@ -183,19 +169,17 @@ public:
   }
 
   //------------------------------------------------------------------------------------------------
-
 };
 
 //----------------- FormFillLayout -----------------------------------------------------------------
 
-bool FormFillLayout::Layout(Object^ container, LayoutEventArgs^ arguments)
-{
+bool FormFillLayout::Layout(Object ^ container, LayoutEventArgs ^ arguments) {
   // Not using the can_layout check here, as a form is a bit special.
-  String ^reason = arguments->AffectedProperty;
+  String ^ reason = arguments->AffectedProperty;
   if (reason != "Bounds" && reason != "Padding" && reason != "Visible")
     return false;
 
-  FillForm ^form = (FillForm ^)container;
+  FillForm ^ form = (FillForm ^)container;
   if (!form->IsHandleCreated)
     return false;
 
@@ -214,7 +198,7 @@ bool FormFillLayout::Layout(Object^ container, LayoutEventArgs^ arguments)
     newSize.Height = form->MinimumSize.Height;
 
   // Finally adjust the container.
-  bool parentLayoutNeeded= !form->Size.Equals(newSize);
+  bool parentLayoutNeeded = !form->Size.Equals(newSize);
   if (parentLayoutNeeded)
     ViewWrapper::resize_with_docking(form, newSize);
 
@@ -225,63 +209,52 @@ bool FormFillLayout::Layout(Object^ container, LayoutEventArgs^ arguments)
 
 //--------------------------------------------------------------------------------------------------
 
-System::Drawing::Size FormFillLayout::GetPreferredSize(Control^ container, System::Drawing::Size proposedSize)
-{
-  FillForm^ form = (FillForm^) container;
+System::Drawing::Size FormFillLayout::GetPreferredSize(Control ^ container, System::Drawing::Size proposedSize) {
+  FillForm ^ form = (FillForm ^)container;
   return form->ComputeLayout(proposedSize, false);
 }
 
 //----------------- FormWrapper --------------------------------------------------------------------
 
-FormWrapper::FormWrapper(mforms::Form *form, mforms::Form *aOwner, mforms::FormFlag flag)
-  : ViewWrapper(form)
-{
-  if (aOwner != NULL)
-  {
+FormWrapper::FormWrapper(mforms::Form *form, mforms::Form *aOwner, mforms::FormFlag flag) : ViewWrapper(form) {
+  if (aOwner != NULL) {
     // Meant is the window parent here, not the real owner.
     if (aOwner == mforms::Form::main_form())
-      owner = Application::OpenForms[0];
+      _owner = Application::OpenForms[0];
     else
-      owner = FormWrapper::GetManagedObject<Form>(aOwner);
-  }
-  else
-    owner = nullptr;
+      _owner = FormWrapper::GetManagedObject<Form>(aOwner);
+  } else
+    _owner = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool FormWrapper::create(mforms::Form *backend, mforms::Form *owner, mforms::FormFlag flag)
-{
-  FormWrapper *wrapper = new FormWrapper(backend, owner, flag);
-  FillForm ^form = FormWrapper::Create<FillForm>(backend, wrapper);
+bool FormWrapper::create(mforms::Form *backend, mforms::Form *aOwner, mforms::FormFlag flag) {
+  FormWrapper *wrapper = new FormWrapper(backend, aOwner, flag);
+  FillForm ^ form = FormWrapper::Create<FillForm>(backend, wrapper);
   form->wrapper = wrapper;
 
-  if (owner != NULL)
+  if (aOwner != NULL)
     form->StartPosition = FormStartPosition::CenterParent;
   else
-    form->StartPosition= FormStartPosition::Manual;
+    form->StartPosition = FormStartPosition::Manual;
 
   if (File::Exists("images/icons/MySQLWorkbench.ico"))
-    form->Icon= gcnew Icon("images/icons/MySQLWorkbench.ico", Size(16, 16));
+    form->Icon = gcnew Icon("images/icons/MySQLWorkbench.ico", Size(16, 16));
 
-  if ((flag & mforms::FormToolWindow) != 0)
-  {
+  if ((flag & mforms::FormToolWindow) != 0) {
     if ((flag & mforms::FormResizable) != 0)
-      form->FormBorderStyle= FormBorderStyle::SizableToolWindow;
+      form->FormBorderStyle = FormBorderStyle::SizableToolWindow;
     else
-      form->FormBorderStyle= FormBorderStyle::FixedToolWindow;
-  }
+      form->FormBorderStyle = FormBorderStyle::FixedToolWindow;
+  } else if ((flag & mforms::FormSingleFrame) != 0)
+    form->FormBorderStyle = FormBorderStyle::FixedSingle;
+  else if ((flag & mforms::FormDialogFrame) != 0)
+    form->FormBorderStyle = FormBorderStyle::FixedDialog;
+  else if ((flag & mforms::FormResizable) != 0)
+    form->FormBorderStyle = FormBorderStyle::Sizable;
   else
-    if ((flag & mforms::FormSingleFrame) != 0)
-      form->FormBorderStyle= FormBorderStyle::FixedSingle;
-    else
-      if ((flag & mforms::FormDialogFrame) != 0)
-        form->FormBorderStyle= FormBorderStyle::FixedDialog;
-      else
-        if ((flag & mforms::FormResizable) != 0)
-          form->FormBorderStyle= FormBorderStyle::Sizable;
-        else
-          form->FormBorderStyle= FormBorderStyle::None;
+    form->FormBorderStyle = FormBorderStyle::None;
 
   form->MinimizeBox = (flag & mforms::FormMinimizable) != 0;
   form->MaximizeBox = (flag & mforms::FormMinimizable) != 0;
@@ -297,27 +270,23 @@ bool FormWrapper::create(mforms::Form *backend, mforms::Form *owner, mforms::For
 
 //--------------------------------------------------------------------------------------------------
 
-void FormWrapper::set_title(mforms::Form *backend, const std::string &title)
-{
+void FormWrapper::set_title(mforms::Form *backend, const std::string &title) {
   FormWrapper::GetControl(backend)->Text = CppStringToNativeRaw(title.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void FormWrapper::show_modal(mforms::Form *backend, mforms::Button *accept,mforms::Button *cancel)
-{
-  FillForm ^form = FormWrapper::GetManagedObject<FillForm>(backend);
+void FormWrapper::show_modal(mforms::Form *backend, mforms::Button *accept, mforms::Button *cancel) {
+  FillForm ^ form = FormWrapper::GetManagedObject<FillForm>(backend);
 
-  if (accept != NULL)
-  {
-    form->AcceptButton = FormWrapper::GetManagedObject<Windows::Forms::Button>(accept);
-    form->AcceptButton->DialogResult = Windows::Forms::DialogResult::OK;
+  if (accept != NULL) {
+    form->AcceptButton = FormWrapper::GetManagedObject<System::Windows::Forms::Button>(accept);
+    form->AcceptButton->DialogResult = System::Windows::Forms::DialogResult::OK;
   }
 
-  if (cancel != NULL)
-  {
-    form->CancelButton = FormWrapper::GetManagedObject<Windows::Forms::Button>(cancel);
-    form->CancelButton->DialogResult = Windows::Forms::DialogResult::Cancel;
+  if (cancel != NULL) {
+    form->CancelButton = FormWrapper::GetManagedObject<System::Windows::Forms::Button>(cancel);
+    form->CancelButton->DialogResult = System::Windows::Forms::DialogResult::Cancel;
   }
 
   // Make the window top most (so it stays above all others), but non-blocking.
@@ -334,54 +303,47 @@ void FormWrapper::show_modal(mforms::Form *backend, mforms::Button *accept,mform
 
 //--------------------------------------------------------------------------------------------------
 
-bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms::Button *cancel)
-{
+bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept, mforms::Button *cancel) {
   FormWrapper *wrapper = backend->get_data<FormWrapper>();
-  FillForm ^form = wrapper->GetManagedObject<FillForm>();
+  FillForm ^ form = wrapper->GetManagedObject<FillForm>();
 
-  if (accept)
-  {
-    form->AcceptButton = FormWrapper::GetManagedObject<Windows::Forms::Button>(accept);
-    form->AcceptButton->DialogResult = Windows::Forms::DialogResult::OK;
+  if (accept) {
+    form->AcceptButton = FormWrapper::GetManagedObject<System::Windows::Forms::Button>(accept);
+    form->AcceptButton->DialogResult = System::Windows::Forms::DialogResult::OK;
   }
 
-  if (cancel)
-  {
-    form->CancelButton = FormWrapper::GetManagedObject<Windows::Forms::Button>(cancel);
-    form->CancelButton->DialogResult = Windows::Forms::DialogResult::Cancel;
+  if (cancel) {
+    form->CancelButton = FormWrapper::GetManagedObject<System::Windows::Forms::Button>(cancel);
+    form->CancelButton->DialogResult = System::Windows::Forms::DialogResult::Cancel;
   }
 
   ViewWrapper::set_full_auto_resize(form);
 
-  Windows::Forms::DialogResult dialog_result;
-  if (form->InvokeRequired)
-  {
-    Object^ invocation_result = form->Invoke(gcnew FillForm::ShowModalDelegate(form, &Windows::Forms::Form::ShowDialog),
-      gcnew array<Object^> {wrapper->owner});
-    dialog_result = *(Windows::Forms::DialogResult ^)(invocation_result);
-  }
-  else
-  {
+  System::Windows::Forms::DialogResult dialog_result;
+  if (form->InvokeRequired) {
+    Object ^ invocation_result =
+      form->Invoke(gcnew FillForm::ShowModalDelegate(form, &System::Windows::Forms::Form::ShowDialog),
+                   gcnew array<Object ^>{wrapper->_owner});
+    dialog_result = *(System::Windows::Forms::DialogResult ^)(invocation_result);
+  } else {
     // If there is currently no active form then we are being called while the application
     // is not active. Focus the accept button if possible in that case to avoid having any
     // text field with keyboard focus, which might appear as if they were active (but are not in fact).
-    Windows::Forms::Form ^active_form = Windows::Forms::Form::ActiveForm;
-    if (active_form == nullptr)
-    {
+    System::Windows::Forms::Form ^ active_form = System::Windows::Forms::Form::ActiveForm;
+    if (active_form == nullptr) {
       if (form->AcceptButton != nullptr)
         form->ActiveControl = (Button ^)form->AcceptButton;
-      else
-        if (form->CancelButton != nullptr)
-          form->ActiveControl = (Button ^)form->CancelButton;
+      else if (form->CancelButton != nullptr)
+        form->ActiveControl = (Button ^)form->CancelButton;
     }
 
     mforms::Utilities::enter_modal_loop();
-    Windows::Forms::Form ^owner = (Windows::Forms::Form ^)wrapper->owner;
+    System::Windows::Forms::Form ^ owner = (System::Windows::Forms::Form ^)wrapper->_owner;
     dialog_result = form->ShowDialog(owner);
     mforms::Utilities::leave_modal_loop();
   }
 
-  bool result = (dialog_result == Windows::Forms::DialogResult::OK);
+  bool result = (dialog_result == System::Windows::Forms::DialogResult::OK);
 
   form->Hide();
 
@@ -390,9 +352,9 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
 
 //--------------------------------------------------------------------------------------------------
 
-void FormWrapper::end_modal(mforms::Form *backend, bool result)
-{
-  FormWrapper::GetManagedObject<Form>(backend)->DialogResult = result ? Windows::Forms::DialogResult::OK : Windows::Forms::DialogResult::Cancel;
+void FormWrapper::end_modal(mforms::Form *backend, bool result) {
+  FormWrapper::GetManagedObject<Form>(backend)->DialogResult =
+    result ? System::Windows::Forms::DialogResult::OK : System::Windows::Forms::DialogResult::Cancel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -400,16 +362,14 @@ void FormWrapper::end_modal(mforms::Form *backend, bool result)
 /**
  * Called by the backend when a form is closed from the application side.
  */
-void FormWrapper::close(mforms::Form *backend)
-{
+void FormWrapper::close(mforms::Form *backend) {
   FormWrapper::GetManagedObject<Form>(backend)->Close();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void FormWrapper::set_content(mforms::Form *backend, mforms::View *view)
-{
-  Control ^child = FormWrapper::GetControl(view);
+void FormWrapper::set_content(mforms::Form *backend, mforms::View *view) {
+  Control ^ child = FormWrapper::GetControl(view);
   FormWrapper::GetControl(backend)->Controls->Add(child);
 }
 
@@ -419,37 +379,34 @@ void FormWrapper::set_content(mforms::Form *backend, mforms::View *view)
  * Sets the startup position of the form so that it is centered over its parent when displayed.
  * If the form has no parent the desktop is used. This is also the default setting.
  */
-void FormWrapper::center(mforms::Form *backend)
-{
+void FormWrapper::center(mforms::Form *backend) {
   FormWrapper::GetManagedObject<Form>(backend)->StartPosition = FormStartPosition::CenterParent;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void FormWrapper::flush_events(mforms::Form *backend)
-{
+void FormWrapper::flush_events(mforms::Form *backend) {
   Application::DoEvents();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool FormWrapper::hide_on_close()
-{
+bool FormWrapper::hide_on_close() {
   return hideOnClose;
 }
 
 //--------------------------------------------------------------------------------------------------\
 
-void FormWrapper::set_menubar(mforms::Form *backend, mforms::MenuBar *menubar)
-{
-  mforms::Box *content = dynamic_cast<mforms::Box*>(backend->get_content());
+void FormWrapper::set_menubar(mforms::Form *backend, mforms::MenuBar *menubar) {
+  mforms::Box *content = dynamic_cast<mforms::Box *>(backend->get_content());
   if (!content)
-    throw std::invalid_argument("set_menubar() must be called after a toplevel content box has been added to the window");
+    throw std::invalid_argument(
+      "set_menubar() must be called after a toplevel content box has been added to the window");
 
-  MySQL::Controls::DrawablePanel ^menuPanel;
+  MySQL::Controls::DrawablePanel ^ menuPanel;
   {
     // wrap menubar inside a container that will give it a background color
-    Control ^control = BoxWrapper::GetControl(menubar);
+    Control ^ control = BoxWrapper::GetControl(menubar);
 
     menuPanel = gcnew MySQL::Controls::DrawablePanel();
     menuPanel->BackColor = Color::Transparent;
@@ -464,16 +421,15 @@ void FormWrapper::set_menubar(mforms::Form *backend, mforms::MenuBar *menubar)
     control->AutoSize = true;
   }
 
-  LayoutBox ^box = BoxWrapper::GetManagedObject<LayoutBox>(content);
+  LayoutBox ^ box = BoxWrapper::GetManagedObject<LayoutBox>(content);
   box->Add(menuPanel, false, true);
-  //TODO reorder the menuPanel to the top
+  // TODO reorder the menuPanel to the top
   content->set_layout_dirty(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void FormWrapper::init()
-{
+void FormWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_form_impl.create = &FormWrapper::create;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,13 +38,13 @@
   if (self != nil && editor != nil)
   {
     NSRect rect = NSZeroRect;
-    rect.size = [editor minimumSize];
+    rect.size = editor.minimumSize;
 
     _panel = [[NSPanel alloc] initWithContentRect:rect styleMask:0 backing:NSBackingStoreNonretained defer:NO];
     _editor = editor;
     
-    [_panel setTitle: [_editor title]];
-    [_panel setContentView: [_editor topView]];
+    _panel.title = _editor.title;
+    _panel.contentView = _editor.topView;
 
     [_editor didOpen];
   }

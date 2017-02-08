@@ -2,16 +2,15 @@
 #define _DB_MYSQL_CATALOG_REPORT_H_
 
 #ifdef _WIN32
-#pragma warning(disable:4251) // class ... needs to have dll-interface to be used by clients
-                              // Warning caused by Google templates not using dllexport.
+#pragma warning(disable : 4251) // class ... needs to have dll-interface to be used by clients
+                                // Warning caused by Google templates not using dllexport.
 #endif
 
-#ifdef  HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <cstddef>
-#include "ctemplate/template.h"
 
 #include "grt/common.h"
 
@@ -26,16 +25,18 @@
 #include "../res/reporting_includes/basic_text_report.txt.tpl.varnames.h"
 
 using namespace grt;
-using ctemplate::TemplateDictionary;
-using ctemplate::Template;
 
-class ActionGenerateReport : public DiffSQLGeneratorBEActionInterface
-{
+namespace mtemplate {
+  class DictionaryInterface;
+};
+
+class ActionGenerateReport : public DiffSQLGeneratorBEActionInterface {
   std::string fname;
-  TemplateDictionary dict;
-  TemplateDictionary *curr_table;
-  TemplateDictionary *curr_schema;
-  bool has_attributes, has_partitioning;//, schema_altered;
+  mtemplate::DictionaryInterface* dictionary;
+  mtemplate::DictionaryInterface* current_table_dictionary;
+  mtemplate::DictionaryInterface* current_schema_dictionary;
+
+  bool has_attributes, has_partitioning; //, schema_altered;
 
 public:
   ActionGenerateReport(grt::StringRef template_filename);
@@ -49,7 +50,7 @@ public:
   // create table
   void create_table_props_begin(db_mysql_TableRef);
   void create_table_props_end(db_mysql_TableRef);
-  
+
   void create_table_columns_begin(db_mysql_TableRef);
   void create_table_column(db_mysql_ColumnRef);
   void create_table_columns_end(db_mysql_TableRef);
@@ -105,32 +106,26 @@ public:
   void alter_table_max_rows(db_mysql_TableRef, grt::StringRef);
   void alter_table_connection_string(db_mysql_TableRef, grt::StringRef);
 
-  void alter_table_generate_partitioning(db_mysql_TableRef table, 
-                                                 const std::string& part_type,
-                                                 const std::string& part_expr, 
-                                                 int part_count,
-                                                 const std::string& subpart_type, 
-                                                 const std::string& subpart_expr,
-                                                 grt::ListRef<db_mysql_PartitionDefinition> part_defs);
+  void alter_table_generate_partitioning(db_mysql_TableRef table, const std::string& part_type,
+                                         const std::string& part_expr, int part_count, const std::string& subpart_type,
+                                         const std::string& subpart_expr,
+                                         grt::ListRef<db_mysql_PartitionDefinition> part_defs);
   void alter_table_drop_partitioning(db_mysql_TableRef table);
   void alter_table_add_partition(db_mysql_PartitionDefinitionRef part, bool is_range);
   void alter_table_drop_partition(const std::string& part_name);
-  void alter_table_reorganize_partition(
-                                            db_mysql_PartitionDefinitionRef old_part,
-                                            db_mysql_PartitionDefinitionRef new_part,
-                                            bool is_range);
+  void alter_table_reorganize_partition(db_mysql_PartitionDefinitionRef old_part,
+                                        db_mysql_PartitionDefinitionRef new_part, bool is_range);
   void alter_table_partition_count(db_mysql_TableRef, grt::IntegerRef);
   void alter_table_partition_definitions(db_mysql_TableRef, grt::StringRef);
   void alter_table_props_end(db_mysql_TableRef);
 
   void alter_table_columns_begin(db_mysql_TableRef);
-  void alter_table_add_column(db_mysql_TableRef, std::map<std::string, std::string>, 
-                                      db_mysql_ColumnRef column, db_mysql_ColumnRef after);
+  void alter_table_add_column(db_mysql_TableRef, std::map<std::string, std::string>, db_mysql_ColumnRef column,
+                              db_mysql_ColumnRef after);
   void alter_table_drop_column(db_mysql_TableRef, db_mysql_ColumnRef);
-  void alter_table_change_column(db_mysql_TableRef table, db_mysql_ColumnRef org_col, 
-                                         db_mysql_ColumnRef mod_col, db_mysql_ColumnRef after,
-                                         bool modified, 
-                                         std::map<std::string, std::string> column_rename_map);
+  void alter_table_change_column(db_mysql_TableRef table, db_mysql_ColumnRef org_col, db_mysql_ColumnRef mod_col,
+                                 db_mysql_ColumnRef after, bool modified,
+                                 std::map<std::string, std::string> column_rename_map);
   void alter_table_columns_end(db_mysql_TableRef);
 
   void alter_table_indexes_begin(db_mysql_TableRef);
@@ -173,5 +168,3 @@ public:
 };
 
 #endif // _DB_MYSQL_CATALOG_REPORT_H
-
-

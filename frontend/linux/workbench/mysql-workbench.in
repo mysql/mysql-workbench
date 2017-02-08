@@ -11,6 +11,9 @@ export UBUNTU_MENUPROXY=0
 # https://bugs.launchpad.net/ubuntu/+source/overlay-scrollbar/+bug/903302
 export LIBOVERLAY_SCROLLBAR=0
 
+# force x11 backend on systems that use wayland
+export GDK_BACKEND=x11
+
 # Set the destdir=<some_dir> when ever you install using DESTDIR=<some_dir>. 
 destdir="$WB_DEST_DIR"
 
@@ -35,7 +38,6 @@ if [ -z "$PROJLOC" ]; then
 else
   export PROJSO=$PROJLOC
 fi
-
 
 if test -f $wblibdir/libsqlite3.so; then
   if test "$LD_PRELOAD" != ""; then
@@ -82,6 +84,19 @@ export MWB_PLUGIN_DIR="$destdir@WB_PACKAGE_PLUGINS_DIR@"
 export DBC_DRIVER_PATH="$destdir@LIB_INSTALL_DIR@/mysql-workbench"
 export MWB_BASE_DIR="$destdir@WB_INSTALL_DIR@"
 export MWB_BINARIES_DIR="$destdir@WB_INSTALL_DIR_EXECUTABLE@"
+export MWBX_JSMODULES_DIR="@WBX_JS_MODULES_DIR@"
+
+CAIRO=`ldd $MWB_BINARIES_DIR/mysql-workbench-bin | grep libcairo\.so | cut -d " " -f 3`
+PNG=`ldd $CAIRO | grep libpng | cut -d " " -f 3`
+LIBZ=`ldd $PNG | grep libz\.so | cut -d " " -f 3`
+
+
+if test "$LD_PRELOAD" != ""; then
+  export LD_PRELOAD="$LD_PRELOAD:$LIBZ"
+else
+  export LD_PRELOAD="$LIBZ"
+fi
+
 
 if test "$WB_DEBUG" != ""; then
   $WB_DEBUG $MWB_BINARIES_DIR/mysql-workbench-bin "$@"

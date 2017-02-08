@@ -1,6 +1,6 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
- * 
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -27,19 +27,17 @@
 //==============================================================================
 //
 //==============================================================================
-class DbMySQLRoleEditor : public PluginEditorBase
-{
-  bec::RoleEditorBE                 *_be;
-  Glib::RefPtr<ListModelWrapper>     _role_tree_model;
-  Glib::RefPtr<ListModelWrapper>     _role_objects_model;
-  Glib::RefPtr<ListModelWrapper>     _role_privs_model;
-  Gtk::Entry                        *_entry;
-  Gtk::TreeView                     *_role_tree_tv;
-  Gtk::TreeView                     *_role_objects_tv;
-  Gtk::TreeView                     *_role_privs_tv;
-  Gtk::ComboBox                     *_parent_combo;
-  TextListColumnsModel               _parent_combo_model;
-  bool                               _refreshing;
+class DbMySQLRoleEditor : public PluginEditorBase {
+  bec::RoleEditorBE *_be;
+  Glib::RefPtr<ListModelWrapper> _role_tree_model;
+  Glib::RefPtr<ListModelWrapper> _role_objects_model;
+  Glib::RefPtr<ListModelWrapper> _role_privs_model;
+  Gtk::TreeView *_role_tree_tv;
+  Gtk::TreeView *_role_objects_tv;
+  Gtk::TreeView *_role_privs_tv;
+  Gtk::ComboBox *_parent_combo;
+  TextListColumnsModel _parent_combo_model;
+  bool _refreshing;
 
   virtual bec::BaseEditor *get_be();
 
@@ -51,47 +49,41 @@ class DbMySQLRoleEditor : public PluginEditorBase
   void check_all_privileges();
   void clear_privileges();
   void change_parent();
-  
-  void set_name(const std::string& nm)
-  {
+
+  void set_name(const std::string &nm) {
     _be->set_name(nm);
     _signal_title_changed.emit(_be->get_title());
   }
-  
- public:
-  DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
-  ~DbMySQLRoleEditor()
-  {
+
+public:
+  DbMySQLRoleEditor(grt::Module *m, const grt::BaseListRef &args);
+  ~DbMySQLRoleEditor() {
     delete _be;
   }
 
   virtual void do_refresh_form_data();
 
-  void on_object_drop(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y,
-                       const Gtk::SelectionData& selection_data, guint info, guint time);
+  void on_object_drop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y,
+                      const Gtk::SelectionData &selection_data, guint info, guint time);
 
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
 };
 
-
-
-
-DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args, "modules/data/editor_role.glade")
-    , _be(new bec::RoleEditorBE(grtm, db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0])))
-    , _refreshing(false)
-{
+DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, const grt::BaseListRef &args)
+  : PluginEditorBase(m, args, "modules/data/editor_role.glade"),
+    _be(new bec::RoleEditorBE(db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]))),
+    _refreshing(false) {
   xml()->get_widget("mysql_role_editor_notebook", _editor_notebook);
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoleEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLRoleEditor::refresh_form_data, this));
 
   _editor_notebook->reparent(*this);
   _editor_notebook->show();
-  
+
   {
     Gtk::Image *image;
     xml()->get_widget("image1", image);
-    
+
     image->set(ImageCache::get_instance()->image_from_filename("db.Role.editor.48x48.png", false));
   }
 
@@ -103,7 +95,7 @@ DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, cons
   xml()->get_widget("roles_tv", _role_tree_tv);
   xml()->get_widget("objects_tv", _role_objects_tv);
   xml()->get_widget("privs_tv", _role_privs_tv);
-  
+
   Gtk::Button *button;
   xml()->get_widget("clear_privs_button", button);
   button->signal_clicked().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::clear_privileges));
@@ -111,9 +103,9 @@ DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, cons
   xml()->get_widget("checkall_privs_button", button);
   button->signal_clicked().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::check_all_privileges));
 
-  _role_tree_model    = TreeModelWrapper::create(_be->get_role_tree(), _role_tree_tv, "RoleTree");
+  _role_tree_model = TreeModelWrapper::create(_be->get_role_tree(), _role_tree_tv, "RoleTree");
   _role_objects_model = ListModelWrapper::create(_be->get_object_list(), _role_objects_tv, "RoleObjectsTree");
-  _role_privs_model   = ListModelWrapper::create(_be->get_privilege_list(), _role_privs_tv, "RolePrivsTree");
+  _role_privs_model = ListModelWrapper::create(_be->get_privilege_list(), _role_privs_tv, "RolePrivsTree");
 
   _role_tree_tv->set_model(_role_tree_model);
   _role_objects_tv->set_model(_role_objects_model);
@@ -122,37 +114,37 @@ DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, cons
   _role_tree_model->model().append_string_column(bec::RoleTreeBE::Name, _("Role Hierarchy"), RO, NO_ICON);
 
   _role_privs_model->model().append_check_column(bec::RolePrivilegeListBE::Enabled, "", EDITABLE, TOGGLE_BY_GTKMM);
-  _role_privs_model->model().append_string_column(bec::RolePrivilegeListBE::Name, _("Privileges for Selected Object"), RO, NO_ICON);
+  _role_privs_model->model().append_string_column(bec::RolePrivilegeListBE::Name, _("Privileges for Selected Object"),
+                                                  RO, NO_ICON);
 
   _role_objects_model->model().append_string_column(bec::RoleObjectListBE::Name, _("Objects"), RO, WITH_ICON);
 
   show_all();
-  
+
   refresh_form_data();
 
   _parent_combo->signal_changed().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::change_parent));
-  
+
   _role_objects_tv->signal_cursor_changed().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::objects_tv_cursor_changed));
 
   // Setup DnD
   std::vector<Gtk::TargetEntry> targets;
   targets.push_back(Gtk::TargetEntry("x-mysql-wb/db.DatabaseObject", Gtk::TARGET_SAME_APP));
-  _role_objects_tv->drag_dest_set(targets, Gtk::DEST_DEFAULT_ALL,Gdk::ACTION_COPY);
+  _role_objects_tv->drag_dest_set(targets, Gtk::DEST_DEFAULT_ALL, Gdk::ACTION_COPY);
   _role_objects_tv->signal_drag_data_received().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::on_object_drop));
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLRoleEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
-{
+bool DbMySQLRoleEditor::switch_edited_object(const grt::BaseListRef &args) {
   bec::RoleEditorBE *old_be = _be;
 
-  _be = new bec::RoleEditorBE(grtm, db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  _be = new bec::RoleEditorBE(db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
 
-  _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoleEditor::refresh_form_data));
+  _be->set_refresh_ui_slot(std::bind(&DbMySQLRoleEditor::refresh_form_data, this));
 
-  _role_tree_model    = TreeModelWrapper::create(_be->get_role_tree(), _role_tree_tv, "RoleTree");
+  _role_tree_model = TreeModelWrapper::create(_be->get_role_tree(), _role_tree_tv, "RoleTree");
   _role_objects_model = ListModelWrapper::create(_be->get_object_list(), _role_objects_tv, "RoleObjectsTree");
-  _role_privs_model   = ListModelWrapper::create(_be->get_privilege_list(), _role_privs_tv, "RolePrivsTree");
+  _role_privs_model = ListModelWrapper::create(_be->get_privilege_list(), _role_privs_tv, "RolePrivsTree");
 
   _role_tree_tv->set_model(_role_tree_model);
   _role_objects_tv->set_model(_role_objects_model);
@@ -165,7 +157,8 @@ bool DbMySQLRoleEditor::switch_edited_object(bec::GRTManager *grtm, const grt::B
   _role_tree_model->model().append_string_column(bec::RoleTreeBE::Name, _("Role Hierarchy"), RO, NO_ICON);
 
   _role_privs_model->model().append_check_column(bec::RolePrivilegeListBE::Enabled, "", EDITABLE, TOGGLE_BY_GTKMM);
-  _role_privs_model->model().append_string_column(bec::RolePrivilegeListBE::Name, _("Privileges for Selected Object"), RO, NO_ICON);
+  _role_privs_model->model().append_string_column(bec::RolePrivilegeListBE::Name, _("Privileges for Selected Object"),
+                                                  RO, NO_ICON);
 
   _role_objects_model->model().append_string_column(bec::RoleObjectListBE::Name, _("Objects"), RO, WITH_ICON);
 
@@ -177,62 +170,53 @@ bool DbMySQLRoleEditor::switch_edited_object(bec::GRTManager *grtm, const grt::B
 }
 
 //------------------------------------------------------------------------------
-bec::BaseEditor *DbMySQLRoleEditor::get_be()
-{
+bec::BaseEditor *DbMySQLRoleEditor::get_be() {
   return _be;
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoleEditor::refresh_objects()
-{
+void DbMySQLRoleEditor::refresh_objects() {
   _role_objects_tv->unset_model();
   _role_objects_model->refresh();
   _role_objects_tv->set_model(_role_objects_model);
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoleEditor::refresh_privileges()
-{
+void DbMySQLRoleEditor::refresh_privileges() {
   _role_privs_tv->unset_model();
   _role_privs_model->refresh();
   _role_privs_tv->set_model(_role_privs_model);
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoleEditor::check_all_privileges()
-{
+void DbMySQLRoleEditor::check_all_privileges() {
   _be->get_privilege_list()->add_all();
   refresh_privileges();
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoleEditor::clear_privileges()
-{
+void DbMySQLRoleEditor::clear_privileges() {
   _be->get_privilege_list()->remove_all();
   refresh_privileges();
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoleEditor::change_parent()
-{
+void DbMySQLRoleEditor::change_parent() {
   if (_refreshing)
     return;
-  std::string old_parent= _be->get_parent_role();
+  std::string old_parent = _be->get_parent_role();
 
-  if (_parent_combo->get_active())
-  {
-    Gtk::TreeRow row= *_parent_combo->get_active();
+  if (_parent_combo->get_active()) {
+    Gtk::TreeRow row = *_parent_combo->get_active();
     _be->set_parent_role(row[_parent_combo_model.item]);
-  }
-  else
+  } else
     _be->set_parent_role("");
   if (old_parent != _be->get_parent_role())
     do_refresh_form_data();
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoleEditor::do_refresh_form_data()
-{
+void DbMySQLRoleEditor::do_refresh_form_data() {
   Gtk::Entry *entry;
 
   xml()->get_widget("name_entry", entry);
@@ -240,12 +224,12 @@ void DbMySQLRoleEditor::do_refresh_form_data()
 
   _signal_title_changed.emit(_be->get_title());
 
-  std::vector<std::string> c= _be->get_role_list();  
+  std::vector<std::string> c = _be->get_role_list();
   _refreshing = true;
   _parent_combo->set_model(model_from_string_list(c, &_parent_combo_model));
   _parent_combo->set_row_span_column(0);
-  
-  std::vector<std::string>::const_iterator i= std::find(c.begin(), c.end(), _be->get_parent_role());
+
+  std::vector<std::string>::const_iterator i = std::find(c.begin(), c.end(), _be->get_parent_role());
   if (i != c.end())
     _parent_combo->set_active(i - c.begin());
   else
@@ -263,23 +247,17 @@ void DbMySQLRoleEditor::do_refresh_form_data()
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoleEditor::on_object_drop(const Glib::RefPtr<Gdk::DragContext>& context
-                                       ,int x, int y
-                                       ,const Gtk::SelectionData& selection_data
-                                       ,guint info, guint time)
-{
+void DbMySQLRoleEditor::on_object_drop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y,
+                                       const Gtk::SelectionData &selection_data, guint info, guint time) {
   bool dnd_status = false;
-  if ( selection_data.get_target() == "x-mysql-wb/db.DatabaseObject" )
-  {
-    if (selection_data.get_length() > 0)
-    {
+  if (selection_data.get_target() == "x-mysql-wb/db.DatabaseObject") {
+    if (selection_data.get_length() > 0) {
       std::list<db_DatabaseObjectRef> objects;
       db_CatalogRef catalog(db_CatalogRef::cast_from(_be->get_role()->owner()));
 
-      objects= bec::CatalogHelper::dragdata_to_dbobject_list(catalog, selection_data.get_data_as_string());
-        
-      for (std::list<db_DatabaseObjectRef>::const_iterator iter= objects.begin();
-           iter != objects.end(); ++iter)
+      objects = bec::CatalogHelper::dragdata_to_dbobject_list(catalog, selection_data.get_data_as_string());
+
+      for (std::list<db_DatabaseObjectRef>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
         _be->add_object(*iter);
     }
 
@@ -292,23 +270,19 @@ void DbMySQLRoleEditor::on_object_drop(const Glib::RefPtr<Gdk::DragContext>& con
 
 //------------------------------------------------------------------------------
 
-void DbMySQLRoleEditor::objects_tv_cursor_changed()
-{
-  Gtk::TreeModel::iterator  iter       = _role_objects_tv->get_selection()->get_selected();
-  bec::NodeId               obj_nodeid = _role_objects_model->node_for_iter(iter);
+void DbMySQLRoleEditor::objects_tv_cursor_changed() {
+  Gtk::TreeModel::iterator iter = _role_objects_tv->get_selection()->get_selected();
+  bec::NodeId obj_nodeid = _role_objects_model->node_for_iter(iter);
 
-  if ( obj_nodeid.is_valid() )
-  {
+  if (obj_nodeid.is_valid()) {
     _be->get_object_list()->set_selected_node(obj_nodeid);
     refresh_privileges();
   }
 }
 
 //------------------------------------------------------------------------------
-extern "C"
-{
-  GUIPluginBase *createDbMysqlRoleEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-  {
-    return Gtk::manage(new DbMySQLRoleEditor(m, grtm, args));
-  }
+extern "C" {
+GUIPluginBase *createDbMysqlRoleEditor(grt::Module *m, const grt::BaseListRef &args) {
+  return Gtk::manage(new DbMySQLRoleEditor(m, args));
+}
 };

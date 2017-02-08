@@ -35,7 +35,7 @@
 
   NSPopUpButtonCell* popUpButtonCell = [[NSPopUpButtonCell alloc] initTextCell: @""
                                                                      pullsDown: pullsDown];
-  [popUpButtonCell setMenu: popup];
+  popUpButtonCell.menu = popup;
   if (!pullsDown)
     [popUpButtonCell selectItem: nil];
   [popUpButtonCell performClickWithFrame: frame inView: view];
@@ -62,8 +62,8 @@
 
 - (void) handleCommand: (NSMenuItem*) sender
 {
-  NSString* command = [sender representedObject];
-  mOwner->handle_action([command UTF8String]);
+  NSString* command = sender.representedObject;
+  mOwner->handle_action(command.UTF8String);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,14 +91,14 @@ static int menu_add_item(mforms::Menu *self, const std::string &caption, const s
   NSMenuItem* item;
   
   item = [[NSMenuItem alloc] init];
-  [item setRepresentedObject: @(action.c_str())];
-  [item setTarget: menu];
-  [item setAction: @selector(handleCommand:)];
-  [item setTitle: @(caption.c_str())];
-  [item setEnabled: true];
+  item.representedObject = @(action.c_str());
+  item.target = menu;
+  item.action = @selector(handleCommand:);
+  item.title = @(caption.c_str());
+  item.enabled = true;
   
   [menu addItem: item];
-  return [menu numberOfItems] - 1;
+  return (int)menu.numberOfItems - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ static int menu_add_separator(mforms::Menu *self)
   NSMenuItem* item;
   item = [NSMenuItem separatorItem];
   [menu addItem: item];
-  return [menu numberOfItems] - 1;
+  return (int)menu.numberOfItems - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,13 +121,13 @@ static int menu_add_submenu(mforms::Menu *self, const std::string &caption, mfor
   
   NSMenuItem* item;
   item = [[NSMenuItem alloc] init];
-  [item setTitle: @(caption.c_str())];
-  [item setEnabled: true];
+  item.title = @(caption.c_str());
+  item.enabled = true;
 
   [menu addItem: item];
   MFMenuImpl* theSubMenu = submenu->get_data();
   [menu setSubmenu: theSubMenu forItem: item];
-  return [menu numberOfItems] - 1;
+  return (int)menu.numberOfItems - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ static void menu_set_item_enabled(mforms::Menu *self, int i, bool flag)
 {
   MFMenuImpl* menu = self->get_data();
   
-  [[menu itemAtIndex: i] setEnabled: flag];
+  [menu itemAtIndex: i].enabled = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ static void menu_clear(mforms::Menu *self)
   MFMenuImpl* menu = self->get_data();
   
   // [menu removeAllItems]; available on 10.6+
-  while ([menu numberOfItems] > 0)
+  while (menu.numberOfItems > 0)
     [menu removeItemAtIndex: 0];
 }
 

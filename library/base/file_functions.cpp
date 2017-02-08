@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2005, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -40,21 +40,21 @@ using namespace base;
  * @return If successful, base_fopen returns opened FILE*.
  *           Otherwise, it returns NULL.
  */
-FILE* base_fopen(const char *filename, const char *mode)
-{
+FILE *base_fopen(const char *filename, const char *mode) {
 #ifdef _WIN32
   std::wstring wmode;
   while (*mode != '\0')
     wmode += *mode++;
-  wmode += L"b"; // Always open in binary mode.
+  if (wmode.find_first_of(L"b") == std::wstring::npos)
+    wmode += L"b"; // Always open in binary mode.
   return _wfsopen(string_to_wstring(filename).c_str(), wmode.c_str(), _SH_DENYWR);
 
 #else
-  
-  FILE *file;
-  char * local_filename;
 
-  if (! (local_filename = g_filename_from_utf8(filename, -1, NULL, NULL, NULL)))
+  FILE *file;
+  char *local_filename;
+
+  if (!(local_filename = g_filename_from_utf8(filename, -1, NULL, NULL, NULL)))
     return NULL;
 
   file = fopen(local_filename, mode);
@@ -72,8 +72,7 @@ FILE* base_fopen(const char *filename, const char *mode)
  *	mode (only matters on Windows).
  *	Also here, the filename must be UTF-8 encoded.
  */
-int base_open(const std::string &filename, int open_flag, int permissions)
-{
+int base_open(const std::string &filename, int open_flag, int permissions) {
   int fd;
 
 #ifdef _WIN32
@@ -81,7 +80,7 @@ int base_open(const std::string &filename, int open_flag, int permissions)
   if (result != 0)
     return -1;
 #else
-  char * local_filename = g_filename_from_utf8(filename.c_str(), -1, NULL, NULL, NULL);
+  char *local_filename = g_filename_from_utf8(filename.c_str(), -1, NULL, NULL, NULL);
   if (local_filename == NULL)
     return -1;
 
@@ -95,15 +94,14 @@ int base_open(const std::string &filename, int open_flag, int permissions)
 
 //--------------------------------------------------------------------------------------------------
 
-int base_remove(const std::string &filename)
-{
+int base_remove(const std::string &filename) {
 #ifdef _WIN32
   return _wremove(string_to_wstring(filename).c_str());
 #else
-  char * local_filename;
-  if (! (local_filename = g_filename_from_utf8(filename.c_str(), -1, NULL, NULL, NULL)))
+  char *local_filename;
+  if (!(local_filename = g_filename_from_utf8(filename.c_str(), -1, NULL, NULL, NULL)))
     return -1;
-  int res= remove(local_filename);
+  int res = remove(local_filename);
   g_free(local_filename);
 
   return res;
@@ -112,33 +110,31 @@ int base_remove(const std::string &filename)
 
 //--------------------------------------------------------------------------------------------------
 
-int base_rename(const char *oldname, const char *newname)
-{
+int base_rename(const char *oldname, const char *newname) {
 #ifdef _WIN32
 
   int result;
   int required;
-  WCHAR* converted_old;
-  WCHAR* converted_new;
+  WCHAR *converted_old;
+  WCHAR *converted_new;
 
-  required= MultiByteToWideChar(CP_UTF8, 0, oldname, -1, NULL, 0);
+  required = MultiByteToWideChar(CP_UTF8, 0, oldname, -1, NULL, 0);
   if (required == 0)
     return -1;
 
-  converted_old= g_new0(WCHAR, required);
+  converted_old = g_new0(WCHAR, required);
   MultiByteToWideChar(CP_UTF8, 0, oldname, -1, converted_old, required);
 
-  required= MultiByteToWideChar(CP_UTF8, 0, newname, -1, NULL, 0);
-  if (required == 0)
-  {
+  required = MultiByteToWideChar(CP_UTF8, 0, newname, -1, NULL, 0);
+  if (required == 0) {
     g_free(converted_old);
     return -1;
   }
 
-  converted_new= g_new0(WCHAR, required);
+  converted_new = g_new0(WCHAR, required);
   MultiByteToWideChar(CP_UTF8, 0, newname, -1, converted_new, required);
 
-  result= _wrename(converted_old, converted_new);
+  result = _wrename(converted_old, converted_new);
 
   g_free(converted_old);
   g_free(converted_new);
@@ -146,16 +142,15 @@ int base_rename(const char *oldname, const char *newname)
   return result;
 
 #else
-  
-  char * local_oldname;
-  char * local_newname;
 
-  if (  ! (local_oldname= g_filename_from_utf8(oldname,-1,NULL,NULL,NULL)) 
-     || ! (local_newname= g_filename_from_utf8(newname,-1,NULL,NULL,NULL))
-     )
+  char *local_oldname;
+  char *local_newname;
+
+  if (!(local_oldname = g_filename_from_utf8(oldname, -1, NULL, NULL, NULL)) ||
+      !(local_newname = g_filename_from_utf8(newname, -1, NULL, NULL, NULL)))
     return EINVAL;
 
-  const int file= rename(local_oldname, local_newname);
+  const int file = rename(local_oldname, local_newname);
 
   g_free(local_oldname);
   g_free(local_newname);
@@ -167,59 +162,55 @@ int base_rename(const char *oldname, const char *newname)
 //--------------------------------------------------------------------------------------------------
 
 #ifdef _WIN32
-int base_stat(const char *filename, struct _stat *stbuf)
-{
+int base_stat(const char *filename, struct _stat *stbuf) {
   // Convert filename from UTF-8 to UTF-16.
   int required;
-  WCHAR* converted;
+  WCHAR *converted;
   int result;
 
-  required= MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+  required = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
   if (required == 0)
     return -1;
 
   // Required contains the length for the result string including the terminating 0.
-  converted= g_new0(WCHAR, required);
+  converted = g_new0(WCHAR, required);
   MultiByteToWideChar(CP_UTF8, 0, filename, -1, converted, required);
 
-  result= _wstat(converted, stbuf);
+  result = _wstat(converted, stbuf);
   g_free(converted);
 
   return result;
 }
 #else
-int base_stat(const char *filename, struct stat *stbuf)
-{
+int base_stat(const char *filename, struct stat *stbuf) {
   return g_stat(filename, stbuf);
 }
 #endif
 
 //--------------------------------------------------------------------------------------------------
 
-int base_rmdir_recursively(const char *path)
-{
-  int res= 0;
-  GError *error= NULL;
-  GDir* dir;
+int base_rmdir_recursively(const char *path) {
+  int res = 0;
+  GError *error = NULL;
+  GDir *dir;
   const char *dir_entry;
   gchar *entry_path;
-  
-  dir= g_dir_open(path, 0, &error);
+
+  dir = g_dir_open(path, 0, &error);
   if (!dir && error)
     return error->code;
-  
-  while ((dir_entry= g_dir_read_name(dir)))
-  {
-    entry_path= g_build_filename(path, dir_entry, NULL);
+
+  while ((dir_entry = g_dir_read_name(dir))) {
+    entry_path = g_build_filename(path, dir_entry, NULL);
     if (g_file_test(entry_path, G_FILE_TEST_IS_DIR))
-      (void) base_rmdir_recursively(entry_path);
+      (void)base_rmdir_recursively(entry_path);
     else
-      (void) ::g_remove(entry_path);
+      (void)::g_remove(entry_path);
     g_free(entry_path);
   }
-  
-  (void) g_rmdir(path);
-  
+
+  (void)g_rmdir(path);
+
   g_dir_close(dir);
   return res;
 }
@@ -229,8 +220,7 @@ int base_rmdir_recursively(const char *path)
 /**
  * Returns the size of the specified file (if it exists and can be accessed, otherwise 0).
  */
-long base_get_file_size(const char *filename)
-{
+long base_get_file_size(const char *filename) {
   long result = 0;
 
 #ifdef _WIN32
@@ -252,8 +242,7 @@ long base_get_file_size(const char *filename)
  * On Windows, wchar_t is UTF - 16, but there's no direct support for UTF-8 filenames
  * in the standard library (the char datatype is not Unicode on Windows)
  */
-void openStream(const std::string& fileName, std::wifstream& stream)
-{
+void openStream(const std::string &fileName, std::wifstream &stream) {
 #ifdef WIN32
   stream.open(base::string_to_wstring(fileName));
 #else
@@ -263,8 +252,7 @@ void openStream(const std::string& fileName, std::wifstream& stream)
 
 //--------------------------------------------------------------------------------------------------
 
-void openStream(const std::string& fileName, std::wofstream& stream)
-{
+void openStream(const std::string &fileName, std::wofstream &stream) {
 #ifdef WIN32
   stream.open(base::string_to_wstring(fileName));
 #else

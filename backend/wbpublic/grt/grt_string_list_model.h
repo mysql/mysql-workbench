@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -24,14 +24,11 @@
 
 namespace bec {
 
-  class WBPUBLICBACKEND_PUBLIC_FUNC GrtStringListModel : public ListModel
-  {
+  class WBPUBLICBACKEND_PUBLIC_FUNC GrtStringListModel : public ListModel {
   public:
-    enum Columns {
-      Name
-    };
+    enum Columns { Name };
     typedef std::vector<size_t> Items_ids;
-    
+
     GrtStringListModel();
     void icon_id(IconId icon_id);
     void reset();
@@ -55,19 +52,23 @@ namespace bec {
     Items_ids items_ids() const;
 
     void items_val_mask(const std::string items_val_mask);
-    const std::string & items_val_mask() const;
+    const std::string &items_val_mask() const;
     void items_val_masks(GrtStringListModel *items_val_masks);
-    GrtStringListModel * items_val_masks() const;
+    GrtStringListModel *items_val_masks() const;
 
     virtual bool get_field(const NodeId &node, ColumnId column, std::string &value);
+
   protected:
-    struct Item_handler
-    {
-      Item_handler() {}
-      Item_handler(const std::string &val_, size_t id_) : val(val_), iid(id_) {}
+    struct Item_handler {
+      Item_handler() {
+      }
+      Item_handler(const std::string &val_, size_t id_) : val(val_), iid(id_) {
+      }
       std::string val;
       size_t iid; // initial sequence number of the item
-      bool operator<(const Item_handler &item2) const { return (val < item2.val); }
+      bool operator<(const Item_handler &item2) const {
+        return (val < item2.val);
+      }
     };
 
     GrtStringListModel *_items_val_masks;

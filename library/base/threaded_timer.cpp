@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -34,19 +34,17 @@ DEFAULT_LOG_DOMAIN(DOMAIN_BASE)
 
 //--------------------------------------------------------------------------------------------------
 
-static ThreadedTimer* _timer= NULL;
+static ThreadedTimer *_timer = NULL;
 G_LOCK_DEFINE(_timer);
 
 /**
  * Returns the singleton instance of the timer.
  */
-ThreadedTimer* ThreadedTimer::get()
-{
+ThreadedTimer *ThreadedTimer::get() {
   G_LOCK(_timer);
-  if (_timer == NULL)
-  {
+  if (_timer == NULL) {
     base::threading_init();
-    _timer= new ThreadedTimer(BASE_FREQUENCY);
+    _timer = new ThreadedTimer(BASE_FREQUENCY);
   }
   G_UNLOCK(_timer);
   return _timer;
@@ -58,10 +56,9 @@ ThreadedTimer* ThreadedTimer::get()
  * Called from the main framework when the application goes down. So we can stop all threads
  * gracefully.
  */
-void ThreadedTimer::stop()
-{
+void ThreadedTimer::stop() {
   delete _timer;
-  _timer= NULL;
+  _timer = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,40 +74,41 @@ void ThreadedTimer::stop()
  * @param callback_ What to call when a timer event fires.
  * @result The id of the new task (can be used in the callback) or -1 if the task could not be added.
  */
-int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, TimerFunction callback)
-{
+int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, TimerFunction callback) {
   TimerTask task = {0, 0.0, 0.0, callback, false, single_shot, false};
-  
+
   if (value <= 0)
     throw std::logic_error("The given timer value is invalid.");
-  
-  switch (unit)
-  {
+
+  switch (unit) {
     case TimerFrequency:
       // The given value is a frequency. It must not be higher than our base frequency.
       // Note: giving a one-shot timer with a frequency doesn't make much sense, but we
       //       support this nonetheless.
       if (value > BASE_FREQUENCY)
         throw std::logic_error("The given task frequency is higher than the base frequency.");
-      task.wait_time= 1 / value;
+      task.wait_time = 1 / value;
       break;
     case TimerTimeSpan:
       // The given value is a time span given in seconds.
       // It must not be lower than the minimal time span we support.
       if (value < 1.0 / BASE_FREQUENCY)
         throw std::logic_error("The given task time span is smaller than the smallest supported value.");
-      task.wait_time= value;
+      task.wait_time = value;
       break;
   }
-  if (task.wait_time > 0)
-  {
-    ThreadedTimer* timer= ThreadedTimer::get();
+  if (task.wait_time > 0) {
+    ThreadedTimer *timer = ThreadedTimer::get();
     base::MutexLock lock(timer->_timer_lock);
-    
+
+    // in theory, it is possible to wrap around to 0 again.  Not a very likely scenario, but better safe than sorry
+    if (timer->_next_id == 0) // 0 is special, skip it over
+      timer->_next_id++;
+
     // We have the lock acquired so it is save to increment the id counter.
-    task.task_id= timer->_next_id++;
+    task.task_id = timer->_next_id++;
     timer->_tasks.push_back(task);
-    
+
     return task.task_id;
   }
   return -1;
@@ -121,23 +119,21 @@ int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, Time
 /**
  * Removes the given task from the task list by setting its stop flag. If the task is running
  * currently it can finish as usual. It is then removed on the next run of the scheduler.
- * 
+ *
  * @param task_id The id of the task to remove. If it does not exist nothing happens.
  */
-void ThreadedTimer::remove_task(int task_id)
-{
+void ThreadedTimer::remove_task(int task_id) {
   ThreadedTimer *timer = ThreadedTimer::get();
   timer->remove(task_id);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-ThreadedTimer::ThreadedTimer(int base_frequency): _terminate(false), _next_id(1)
-{
+ThreadedTimer::ThreadedTimer(int base_frequency) : _terminate(false), _next_id(1) {
   // Wait time in microseconds.
-  _wait_time= 1000 * 1000 / base_frequency;
-  _thread= base::create_thread(start, this);
-  _pool= g_thread_pool_new((GFunc) pool_function, this, WORKER_THREAD_COUNT, FALSE, NULL);
+  _wait_time = 1000 * 1000 / base_frequency;
+  _thread = base::create_thread(start, this);
+  _pool = g_thread_pool_new((GFunc)pool_function, this, WORKER_THREAD_COUNT, FALSE, NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,21 +141,20 @@ ThreadedTimer::ThreadedTimer(int base_frequency): _terminate(false), _next_id(1)
 /**
  * Shuts down the timer and does not return until currently running threads have terminated.
  */
-ThreadedTimer::~ThreadedTimer()
-{
+ThreadedTimer::~ThreadedTimer() {
   // Free the thread pool but wait until tasks, which are currently executing have finished.
   // Pending tasks are discarded.
-  log_debug2("Threaded timer shutdown...\n");
+  logDebug2("Threaded timer shutdown...\n");
 
   // Don't lock the mutex or we might deadlock here if the mutex is currently held by the work loop.
   _terminate = true;
 
   // Wait for the timer thread to terminate.
   g_thread_join(_thread);
-  
+
   g_thread_pool_free(_pool, TRUE, TRUE);
 
-  log_debug2("Threaded timer shutdown done\n");
+  logDebug2("Threaded timer shutdown done\n");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,8 +162,7 @@ ThreadedTimer::~ThreadedTimer()
 /**
  * Main entry point for the timer thread.
  */
-gpointer ThreadedTimer::start(gpointer data)
-{
+gpointer ThreadedTimer::start(gpointer data) {
   ThreadedTimer *thread = static_cast<ThreadedTimer *>(data);
   thread->main_loop();
   return NULL;
@@ -179,35 +173,29 @@ gpointer ThreadedTimer::start(gpointer data)
 /**
  * Entry point for all pool (worker) threads.
  */
-gpointer ThreadedTimer::pool_function(gpointer data, gpointer user_data)
-{
+gpointer ThreadedTimer::pool_function(gpointer data, gpointer user_data) {
   ThreadedTimer *timer = static_cast<ThreadedTimer *>(user_data);
   TimerTask *task = static_cast<TimerTask *>(data);
-  
-  try
-  {
+
+  try {
     bool do_stop = task->callback(task->task_id);
-   
+
     base::MutexLock lock(timer->_timer_lock);
-    task->stop= do_stop || task->single_shot;
-    task->scheduled= false;
-  }
-  catch (std::exception& e)
-  {
+    task->stop = do_stop || task->single_shot;
+    task->scheduled = false;
+  } catch (std::exception &e) {
     // In the case of an exception we remove the task silently.
     base::MutexLock lock(timer->_timer_lock);
-    task->stop= true;
-    task->scheduled= false;
-    log_warning("Threaded timer: exception in pool function: %s\n", e.what());
-  }
-  catch (...)
-  {
+    task->stop = true;
+    task->scheduled = false;
+    logWarning("Threaded timer: exception in pool function: %s\n", e.what());
+  } catch (...) {
     // Most exceptions should be caught by the part above. Just to be on the safe side
     // do this extra branch.
     base::MutexLock(timer->_timer_lock);
-    task->stop= true;
-    task->scheduled= false;
-    log_warning("Threaded timer: unknown exception in pool function\n");
+    task->stop = true;
+    task->scheduled = false;
+    logWarning("Threaded timer: unknown exception in pool function\n");
   }
 
   return NULL;
@@ -216,61 +204,53 @@ gpointer ThreadedTimer::pool_function(gpointer data, gpointer user_data)
 //--------------------------------------------------------------------------------------------------
 
 // Helper predicate for removing finished tasks.
-class IsStopped : public std::unary_function<TimerTask, bool> 
-{
+class IsStopped : public std::unary_function<TimerTask, bool> {
 public:
-  bool operator() (TimerTask& task)
-  {
+  bool operator()(TimerTask &task) {
     return task.stop;
   }
 };
 
 //--------------------------------------------------------------------------------------------------
 
-void ThreadedTimer::main_loop()
-{
+void ThreadedTimer::main_loop() {
   // Provides a high-quality clock which is used to compute execution times of tasks.
   GTimer *clock = g_timer_new();
   g_timer_start(clock);
-  while (!_terminate)
-  {
+  while (!_terminate) {
     // This sleep call forms our base frequency.
     g_usleep(_wait_time);
-    
+
     if (_terminate)
       break;
-    
+
     // 1. Compute next execution time for new tasks.
     base::MutexLock lock(_timer_lock);
-    for (std::list<TimerTask>::iterator iterator= _tasks.begin(); iterator != _tasks.end(); iterator++)
-    {
+    for (std::list<TimerTask>::iterator iterator = _tasks.begin(); iterator != _tasks.end(); iterator++) {
       if (iterator->next_time == 0)
         iterator->next_time = g_timer_elapsed(clock, NULL) + iterator->wait_time;
     }
-    
+
     // 2. Execute all tasks which are due now.
     // Processing of the task entries should be very fast here. No need to make a copy of them.
     gdouble current_time = g_timer_elapsed(clock, NULL);
-    for (std::list<TimerTask>::iterator iterator = _tasks.begin(); iterator != _tasks.end(); ++iterator)
-    {
+    for (std::list<TimerTask>::iterator iterator = _tasks.begin(); iterator != _tasks.end(); ++iterator) {
       if (_terminate)
         break;
 
-      if (!iterator->scheduled && iterator->next_time <= current_time && !iterator->stop)
-      {
+      if (!iterator->scheduled && iterator->next_time <= current_time && !iterator->stop) {
         // When the task is due push it to our thread pool. It will then get one of the
         // free threads assigned to run in and pool_function is called in this thread's context.
         // Do it only if it isn't already scheduled.
-        TimerTask& task = *iterator;
+        TimerTask &task = *iterator;
         task.scheduled = true;
         task.next_time += task.wait_time;
         g_thread_pool_push(_pool, &task, NULL);
       }
     }
-    
+
     // 3. Remove stopped task.
     _tasks.remove_if(IsStopped());
-
   }
   g_timer_destroy(clock);
 }
@@ -280,13 +260,10 @@ void ThreadedTimer::main_loop()
 /**
  * This function is actually doing the work for the static remove_task function.
  */
-void ThreadedTimer::remove(int task_id)
-{
+void ThreadedTimer::remove(int task_id) {
   base::MutexLock lock(_timer_lock);
-  for (std::list<TimerTask>::iterator iterator= _tasks.begin(); iterator != _tasks.end(); iterator++)
-  {
-    if (iterator->task_id == task_id)
-    {
+  for (std::list<TimerTask>::iterator iterator = _tasks.begin(); iterator != _tasks.end(); iterator++) {
+    if (iterator->task_id == task_id) {
       iterator->stop = true;
       break;
     }
@@ -294,4 +271,3 @@ void ThreadedTimer::remove(int task_id)
 }
 
 //--------------------------------------------------------------------------------------------------
-

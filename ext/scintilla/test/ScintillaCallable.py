@@ -151,7 +151,7 @@ class ScintillaCallable:
 
 	def Contents(self):
 		return self.ByteRange(0, self.Length)
-		
+
 	def SetContents(self, s):
 		self.TargetStart = 0
 		self.TargetEnd = self.Length

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -29,43 +29,35 @@
 #include "my_sys.h"
 #include "myx_statement_parser.h"
 
-Mysql_sql_script_splitter::Mysql_sql_script_splitter() 
-{
-  _cs= get_charset_by_name("utf8_bin", MYF(0));
+Mysql_sql_script_splitter::Mysql_sql_script_splitter() {
+  _cs = get_charset_by_name("utf8_bin", MYF(0));
 }
 
-
-Mysql_sql_script_splitter::~Mysql_sql_script_splitter()
-{
+Mysql_sql_script_splitter::~Mysql_sql_script_splitter() {
 }
 
-
-int Mysql_sql_script_splitter::process(const std::string &sql, std::list<std::string> &statements)
-{
-  myx_process_sql_statements(sql.c_str(), _cs, &Mysql_sql_script_splitter::process_statement, &statements, MYX_SPM_NORMAL_MODE); 
+int Mysql_sql_script_splitter::process(const std::string &sql, std::list<std::string> &statements) {
+  myx_process_sql_statements(sql.c_str(), _cs, &Mysql_sql_script_splitter::process_statement, &statements,
+                             MYX_SPM_NORMAL_MODE);
   return 0;
 }
 
-
-int Mysql_sql_script_splitter::process(const char *sql, std::list<std::pair<size_t,size_t> > &ranges)
-{
-  myx_process_sql_statements(sql, _cs, &Mysql_sql_script_splitter::process_statement_ranges, &ranges, MYX_SPM_NORMAL_MODE); 
+int Mysql_sql_script_splitter::process(const char *sql, std::list<std::pair<size_t, size_t> > &ranges) {
+  myx_process_sql_statements(sql, _cs, &Mysql_sql_script_splitter::process_statement_ranges, &ranges,
+                             MYX_SPM_NORMAL_MODE);
   return 0;
 }
 
-
-int Mysql_sql_script_splitter::process_statement(const MyxStatementParser *splitter, const char *sql, void *userdata)
-{
-  std::list<std::string> *statements= static_cast<std::list<std::string>*>(userdata);
+int Mysql_sql_script_splitter::process_statement(const MyxStatementParser *splitter, const char *sql, void *userdata) {
+  std::list<std::string> *statements = static_cast<std::list<std::string> *>(userdata);
   statements->push_back(sql);
   return 0;
 }
 
-int Mysql_sql_script_splitter::process_statement_ranges(const MyxStatementParser *splitter, const char *sql, void *userdata)
-{
-  std::list<std::pair<size_t, size_t> > *statements= static_cast<std::list<std::pair<size_t,size_t> >*>(userdata);
+int Mysql_sql_script_splitter::process_statement_ranges(const MyxStatementParser *splitter, const char *sql,
+                                                        void *userdata) {
+  std::list<std::pair<size_t, size_t> > *statements = static_cast<std::list<std::pair<size_t, size_t> > *>(userdata);
   size_t start = splitter->statement_boffset();
   statements->push_back(std::make_pair(start, strlen(sql)));
   return 0;
 }
-

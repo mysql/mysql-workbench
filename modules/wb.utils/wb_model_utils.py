@@ -95,7 +95,7 @@ class PrintToFileDialog(mforms.Form):
         box.set_spacing(8)
         box.set_padding(20)
 
-        self.tree = mforms.newTreeNodeView(mforms.TreeFlatList)
+        self.tree = mforms.newTreeView(mforms.TreeFlatList)
         self.tree.add_column(mforms.CheckColumnType, "Print", 50, True)
         self.tree.add_column(mforms.StringColumnType, "Diagram", 300, False)
         self.tree.end_columns()

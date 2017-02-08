@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,36 +32,32 @@ using namespace MySQL::Utilities;
 
 //----------------- CanvasWrapper -----------------------------------------------------------------------
 
-CanvasWrapper::CanvasWrapper(mforms::Canvas *canvas)
-: ViewWrapper(canvas)
-{
+CanvasWrapper::CanvasWrapper(mforms::Canvas *canvas) : ViewWrapper(canvas) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool CanvasWrapper::create(mforms::Canvas *backend)
-{
+bool CanvasWrapper::create(mforms::Canvas *backend) {
   CanvasWrapper *wrapper = new CanvasWrapper(backend);
-  
-  MySQL::GUI::Mdc::WindowsCanvasViewer ^canvas = CanvasWrapper::Create<MySQL::GUI::Mdc::WindowsCanvasViewer>(backend, wrapper);
+
+  MySQL::GUI::Mdc::WindowsCanvasViewer ^ canvas =
+    CanvasWrapper::Create<MySQL::GUI::Mdc::WindowsCanvasViewer>(backend, wrapper);
   canvas->CreateCanvasView(nullptr, true, false, false);
   return true;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-mdc::CanvasView *CanvasWrapper::canvas(mforms::Canvas *backend)
-{
+mdc::CanvasView *CanvasWrapper::canvas(mforms::Canvas *backend) {
   CanvasWrapper *wrapper = backend->get_data<CanvasWrapper>();
-  MySQL::GUI::Mdc::WindowsCanvasViewer ^canvas = wrapper->GetManagedObject<MySQL::GUI::Mdc::WindowsCanvasViewer>();
+  MySQL::GUI::Mdc::WindowsCanvasViewer ^ canvas = wrapper->GetManagedObject<MySQL::GUI::Mdc::WindowsCanvasViewer>();
 
   return canvas->Canvas->get_unmanaged_object();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void CanvasWrapper::init()
-{
+void CanvasWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_canvas_impl.create = &CanvasWrapper::create;

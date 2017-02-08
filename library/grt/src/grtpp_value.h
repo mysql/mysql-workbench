@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -20,11 +20,11 @@
 #pragma once
 
 #ifdef _WIN32
-  #ifdef _WIN64
-    typedef __int64 ssize_t;
-  #else
-    typedef int ssize_t;
-  #endif
+#ifdef _WIN64
+typedef __int64 ssize_t;
+#else
+typedef int ssize_t;
+#endif
 #endif
 
 #include <boost/signals2.hpp>
@@ -38,75 +38,58 @@
 namespace grt {
   class GRT;
   class MetaClass;
-  
-  namespace internal
-  {
+
+  namespace internal {
     class Serializer;
     class Unserializer;
   };
 
   //------------------------------------------------------------------------------------------------
-  
-  enum Type 
-  {
-    UnknownType,
-    AnyType = UnknownType,
-    IntegerType,
-    DoubleType,
-    StringType,
-    ListType,
-    DictType,
-    ObjectType
-  };
-  
-  struct MYSQLGRT_PUBLIC SimpleTypeSpec
-  {
+
+  enum Type { UnknownType, AnyType = UnknownType, IntegerType, DoubleType, StringType, ListType, DictType, ObjectType };
+
+  struct MYSQLGRT_PUBLIC SimpleTypeSpec {
     Type type;
     std::string object_class;
-    
-    SimpleTypeSpec() : type(UnknownType) {}
-    SimpleTypeSpec(const SimpleTypeSpec &o) : type(o.type), object_class(o.object_class) {}
-    inline SimpleTypeSpec &operator= (const SimpleTypeSpec &o)
-    {
-      type= o.type;
-      object_class= o.object_class;
+
+    SimpleTypeSpec() : type(UnknownType) {
+    }
+    SimpleTypeSpec(const SimpleTypeSpec &o) : type(o.type), object_class(o.object_class) {
+    }
+    inline SimpleTypeSpec &operator=(const SimpleTypeSpec &o) {
+      type = o.type;
+      object_class = o.object_class;
       return *this;
     }
-    
-    inline bool operator==(const SimpleTypeSpec &o) const
-    {
+
+    inline bool operator==(const SimpleTypeSpec &o) const {
       return o.type == type && o.object_class == object_class;
     }
-    
-    inline bool operator!=(const SimpleTypeSpec &o) const
-    {
+
+    inline bool operator!=(const SimpleTypeSpec &o) const {
       return o.type != type || o.object_class != object_class;
     }
   };
-  
+
   /*!
     \brief Type definition for GRT objects
     Describes type if a member defined by TypeSpec is of type: Integer, Double, String, etc
     Describes class if a member defined by TypeSpec is of Object type
   */
-  struct MYSQLGRT_PUBLIC TypeSpec
-  {
-    SimpleTypeSpec base;        //!< Type of the object itself
-    SimpleTypeSpec content;     //!< Type of the stored items in case when object is of type of ListRef<T> or Dict
-    bool operator==(const TypeSpec& t) const
-    {
-      return ( base == t.base && content == t.content );
+  struct MYSQLGRT_PUBLIC TypeSpec {
+    SimpleTypeSpec base;    //!< Type of the object itself
+    SimpleTypeSpec content; //!< Type of the stored items in case when object is of type of ListRef<T> or Dict
+    bool operator==(const TypeSpec &t) const {
+      return (base == t.base && content == t.content);
     }
   };
-  
+
   class ValueRef;
   class BaseListRef;
 
   //------------------------------------------------------------------------------------------------
 
-
-  class MYSQLGRT_PUBLIC type_error : public std::logic_error
-  {
+  class MYSQLGRT_PUBLIC type_error : public std::logic_error {
   public:
     type_error(Type expected, Type actual);
     type_error(TypeSpec expected, TypeSpec actual);
@@ -114,42 +97,39 @@ namespace grt {
     type_error(const std::string &expected, const std::string &actual);
     type_error(const std::string &expected, const std::string &actual, Type container);
     type_error(const std::string &expected, Type actual);
-    type_error(const std::string &msg) : std::logic_error(msg) {}
+    type_error(const std::string &msg) : std::logic_error(msg) {
+    }
   };
 
-  //------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 #ifdef GRT_LEAK_DETECTOR_ENABLED
-    namespace LeakDetector
-    {
-        MYSQLGRT_PUBLIC void print_leaks();
-        MYSQLGRT_PUBLIC void update_objects_data();
-        MYSQLGRT_PUBLIC void enable();
-        MYSQLGRT_PUBLIC void disable();
-        MYSQLGRT_PUBLIC void reset();
-    };
+  namespace LeakDetector {
+    MYSQLGRT_PUBLIC void print_leaks();
+    MYSQLGRT_PUBLIC void update_objects_data();
+    MYSQLGRT_PUBLIC void enable();
+    MYSQLGRT_PUBLIC void disable();
+    MYSQLGRT_PUBLIC void reset();
+  };
 #else
-    namespace LeakDetector
-    {
-        inline void print_leaks(){};
-        inline void update_objects_data(){};
-        inline void enable(){};
-        inline void disable(){};
-        inline void reset(){};
-    };
+  namespace LeakDetector {
+    inline void print_leaks(){};
+    inline void update_objects_data(){};
+    inline void enable(){};
+    inline void disable(){};
+    inline void reset(){};
+  };
 
 #endif
 
   namespace internal {
-    
+
     class Object;
-  
-    class MYSQLGRT_PUBLIC Value
-    {
+
+    class MYSQLGRT_PUBLIC Value {
     public:
       virtual Type get_type() const = 0;
-    
-      Value *retain()
-      {
+
+      Value *retain() {
         g_atomic_int_inc(&_refcount);
         return this;
       }
@@ -166,176 +146,227 @@ namespace grt {
       virtual std::string debugDescription(const std::string &indentation = "") const = 0;
       virtual std::string toString() const = 0;
 
-      inline base::refcount_t refcount() const
-      {
+      inline base::refcount_t refcount() const {
         return g_atomic_int_get(&_refcount);
       }
 
-      virtual void mark_global() const {}
-      virtual void unmark_global() const {}
-      
-      virtual bool equals(const Value*) const= 0;
-      virtual bool less_than(const Value *) const= 0;
-      
+      virtual void mark_global() const {
+      }
+      virtual void unmark_global() const {
+      }
+
+      virtual bool equals(const Value *) const = 0;
+      virtual bool less_than(const Value *) const = 0;
+
       // reset_references helps to free memory allocated
       // by Value. The method is overridden in Object, List and Dict.
-      virtual void reset_references() {}
+      virtual void reset_references() {
+      }
 
     protected:
-      Value() : _refcount(0) {}
-      virtual ~Value() {}
+      Value() : _refcount(0) {
+      }
+      virtual ~Value() {
+      }
 
     private:
-      Value(const Value&) {}
+      Value(const Value &) {
+      }
 
       volatile mutable base::refcount_t _refcount;
     };
-    
+
     // 32 bit or 64 bit integer type.
-    class MYSQLGRT_PUBLIC Integer : public Value
-    {
+    class MYSQLGRT_PUBLIC Integer : public Value {
     public:
       typedef ssize_t storage_type;
-      
-    public:    
-      Integer(storage_type value);
-      static Integer* get(storage_type value);
 
-      static Type static_type() { return IntegerType; }
-      virtual Type get_type() const { return IntegerType; }
+    public:
+      Integer(storage_type value);
+      static Integer *get(storage_type value);
+
+      static Type static_type() {
+        return IntegerType;
+      }
+      virtual Type get_type() const {
+        return IntegerType;
+      }
       virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
-      
-      inline operator storage_type () const { return _value; }
-      inline storage_type operator*() const { return _value; }
 
-      virtual bool equals(const Value*) const;
+      inline operator storage_type() const {
+        return _value;
+      }
+      inline storage_type operator*() const {
+        return _value;
+      }
+
+      virtual bool equals(const Value *) const;
       virtual bool less_than(const Value *) const;
-      
-    protected:    
+
+    protected:
       storage_type _value;
     };
-    
+
     //------------------------------------------------------------------------------------------------
-    
-    class MYSQLGRT_PUBLIC Double : public Value
-    {
+
+    class MYSQLGRT_PUBLIC Double : public Value {
     public:
       typedef double storage_type;
-      
+
     public:
       Double(storage_type value);
-      static Double* get(storage_type value);
+      static Double *get(storage_type value);
 
-      static Type static_type() { return DoubleType; }
-      virtual Type get_type() const { return DoubleType; }
+      static Type static_type() {
+        return DoubleType;
+      }
+      virtual Type get_type() const {
+        return DoubleType;
+      }
       virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
-      
-      inline operator storage_type () const { return _value; }
-      inline storage_type operator*() const { return _value; }
 
-      virtual bool equals(const Value*) const;
+      inline operator storage_type() const {
+        return _value;
+      }
+      inline storage_type operator*() const {
+        return _value;
+      }
+
+      virtual bool equals(const Value *) const;
       virtual bool less_than(const Value *) const;
 
-    protected:    
+    protected:
       storage_type _value;
     };
-    
+
     //------------------------------------------------------------------------------------------------
-    
-    class MYSQLGRT_PUBLIC String : public Value
-    {
+
+    class MYSQLGRT_PUBLIC String : public Value {
     public:
       typedef std::string storage_type;
-      
-    public:
-      String(const storage_type& value);
-      static String* get(const storage_type& value);
 
-      static Type static_type() { return StringType; }
-      virtual Type get_type() const { return StringType; }
+    public:
+      String(const storage_type &value);
+      static String *get(const storage_type &value);
+
+      static Type static_type() {
+        return StringType;
+      }
+      virtual Type get_type() const {
+        return StringType;
+      }
       virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
-      
-      inline operator storage_type () const { return _value; }
-      inline const storage_type& operator*() const { return _value; }
-      inline const char *c_str() const { return _value.c_str(); }
-      inline bool empty() const {return _value.empty(); }
 
-      virtual bool equals(const Value*) const;
+      inline operator storage_type() const {
+        return _value;
+      }
+      inline const storage_type &operator*() const {
+        return _value;
+      }
+      inline const char *c_str() const {
+        return _value.c_str();
+      }
+      inline bool empty() const {
+        return _value.empty();
+      }
+
+      virtual bool equals(const Value *) const;
       virtual bool less_than(const Value *) const;
 
-    protected:    
+    protected:
       storage_type _value;
     };
-    
+
     //------------------------------------------------------------------------------------------------
-    
-    class MYSQLGRT_PUBLIC List : public Value
-    {
+
+    class MYSQLGRT_PUBLIC List : public Value {
     public:
       typedef std::vector<ValueRef> storage_type;
       enum { npos = 0xffffffff };
-      
+
       typedef std::vector<ValueRef>::const_iterator raw_const_iterator;
       typedef std::vector<ValueRef>::const_reverse_iterator raw_const_reverse_iterator;
       typedef std::vector<ValueRef>::iterator raw_iterator;
 
     public:
-      List(GRT *grt, bool allow_null);
-      List(GRT *grt, Type type, const std::string &content_class, bool allow_null);
-      
-      static Type static_type() { return ListType; }
-      virtual Type get_type() const { return ListType; }
-      inline const SimpleTypeSpec &content_type_spec() const { return _content_type; }
-      inline Type content_type() const { return _content_type.type; }
-      inline const std::string &content_class_name() const { return _content_type.object_class; }
+      List(bool allow_null);
+      List(Type type, const std::string &content_class, bool allow_null);
+
+      static Type static_type() {
+        return ListType;
+      }
+      virtual Type get_type() const {
+        return ListType;
+      }
+      inline const SimpleTypeSpec &content_type_spec() const {
+        return _content_type;
+      }
+      inline Type content_type() const {
+        return _content_type.type;
+      }
+      inline const std::string &content_class_name() const {
+        return _content_type.object_class;
+      }
       virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
 
-      inline const ValueRef &get(size_t index) const
-      {
-        if (index >= count()) throw bad_item(index, count());
-        return _content[index]; 
+      inline const ValueRef &get(size_t index) const {
+        if (index >= count())
+          throw bad_item(index, count());
+        return _content[index];
       }
 
       virtual void set_unchecked(size_t index, const ValueRef &value);
-      virtual void insert_unchecked(const ValueRef &value, size_t index= npos);
+      virtual void insert_unchecked(const ValueRef &value, size_t index = npos);
 
       void set_checked(size_t index, const ValueRef &value);
-      void insert_checked(const ValueRef &value, size_t index= npos);
+      void insert_checked(const ValueRef &value, size_t index = npos);
 
       bool check_assignable(const ValueRef &value) const;
-      bool null_allowed() const { return _allow_null; }
-      
-      inline size_t count() const 
-      {
-        return _content.size(); 
+      bool null_allowed() const {
+        return _allow_null;
       }
-      
-      virtual void remove(const ValueRef & value);
+
+      inline size_t count() const {
+        return _content.size();
+      }
+
+      virtual void remove(const ValueRef &value);
       virtual void remove(size_t index);
       void reorder(size_t oi, size_t ni);
-      
-      size_t get_index(const ValueRef &value);
-      
-      inline const ValueRef &operator[](size_t i) const { return get(i); }
 
-      virtual bool equals(const Value*) const;
+      size_t get_index(const ValueRef &value);
+
+      inline const ValueRef &operator[](size_t i) const {
+        return get(i);
+      }
+
+      virtual bool equals(const Value *) const;
       virtual bool less_than(const Value *) const;
 
-      raw_const_iterator raw_begin() const { return _content.begin(); }
-      raw_const_iterator raw_end() const { return _content.end(); }
+      raw_const_iterator raw_begin() const {
+        return _content.begin();
+      }
+      raw_const_iterator raw_end() const {
+        return _content.end();
+      }
 
-      raw_const_reverse_iterator raw_rbegin() const { return _content.rbegin(); }
-      raw_const_reverse_iterator raw_rend() const { return _content.rend(); }
+      raw_const_reverse_iterator raw_rbegin() const {
+        return _content.rbegin();
+      }
+      raw_const_reverse_iterator raw_rend() const {
+        return _content.rend();
+      }
 
-      raw_iterator raw_begin() { return _content.begin(); }
-      raw_iterator raw_end() { return _content.end(); }
-      
-      inline GRT *get_grt() const { return _grt; }
-
+      raw_iterator raw_begin() {
+        return _content.begin();
+      }
+      raw_iterator raw_end() {
+        return _content.end();
+      }
 
     public:
       void __retype(Type type, const std::string &content_class);
@@ -344,14 +375,13 @@ namespace grt {
       virtual void unmark_global() const;
 
       virtual void reset_references();
+
     protected:
       friend class ::grt::GRT;
       friend class internal::Serializer;
       friend class internal::Unserializer;
-      
-      virtual ~List();
 
-      GRT *_grt;
+      virtual ~List();
 
       storage_type _content;
       SimpleTypeSpec _content_type;
@@ -360,75 +390,79 @@ namespace grt {
       mutable short _is_global;
     };
 
-    
-    
-    class MYSQLGRT_PUBLIC OwnedList : public List
-    {
+    class MYSQLGRT_PUBLIC OwnedList : public List {
     public:
-      OwnedList(GRT *grt, Type type, const std::string &content_class, Object *owner, bool allow_null);
+      OwnedList(Type type, const std::string &content_class, Object *owner, bool allow_null);
 
       virtual void set_unchecked(size_t index, const ValueRef &value);
-      virtual void insert_unchecked(const ValueRef &value, size_t index= npos);
+      virtual void insert_unchecked(const ValueRef &value, size_t index = npos);
 
-      virtual void remove(const ValueRef & value);
+      virtual void remove(const ValueRef &value);
       virtual void remove(size_t index);
 
-      Object *owner_of_owned_list() const { return _owner; }
+      Object *owner_of_owned_list() const {
+        return _owner;
+      }
+
     protected:
       Object *_owner; // internal: set if it belongs to an object
     };
 
-    
-
-
     //------------------------------------------------------------------------------------------------
-    
-    class MYSQLGRT_PUBLIC Dict : public Value
-    {
+
+    class MYSQLGRT_PUBLIC Dict : public Value {
     public:
       typedef std::map<std::string, ValueRef> storage_type;
       typedef storage_type::const_iterator const_iterator;
       typedef storage_type::const_iterator iterator;
 
     public:
-      Dict(GRT *grt, bool allow_null);
-      Dict(GRT *grt, Type type, const std::string &content_class, bool allow_null);
+      Dict(bool allow_null);
+      Dict(Type type, const std::string &content_class, bool allow_null);
 
-      static Type static_type() { return DictType; }
-      virtual Type get_type() const { return DictType; }
+      static Type static_type() {
+        return DictType;
+      }
+      virtual Type get_type() const {
+        return DictType;
+      }
       virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
 
-      Type content_type() const { return _content_type.type; }
-      const std::string &content_class_name() const { return _content_type.object_class; }
-      
-      ValueRef operator [](const std::string &key) const;
-      
+      Type content_type() const {
+        return _content_type.type;
+      }
+      const std::string &content_class_name() const {
+        return _content_type.object_class;
+      }
+
+      ValueRef operator[](const std::string &key) const;
+
       const_iterator begin() const;
       const_iterator end() const;
-      
+
       bool has_key(const std::string &key) const;
       ValueRef get(const std::string &key) const;
       virtual void set(const std::string &key, const ValueRef &value);
       virtual void remove(const std::string &key);
       virtual void reset_entries();
-      size_t count() const { return _content.size(); }
+      size_t count() const {
+        return _content.size();
+      }
 
       std::vector<std::string> keys() const;
 
-      virtual bool equals(const Value*) const;
+      virtual bool equals(const Value *) const;
       virtual bool less_than(const Value *) const;
-
-      GRT *get_grt() const { return _grt; }
 
       virtual void mark_global() const;
       virtual void unmark_global() const;
-      
+
       virtual void reset_references();
+
     protected:
       friend class ::grt::GRT;
 
-      GRT *_grt;
       storage_type _content;
       SimpleTypeSpec _content_type;
       bool _allow_null;
@@ -436,18 +470,18 @@ namespace grt {
       mutable short _is_global; // whether value is attached to the global GRT tree
     };
 
-    
-    
-    class MYSQLGRT_PUBLIC OwnedDict : public Dict
-    {
+    class MYSQLGRT_PUBLIC OwnedDict : public Dict {
     public:
-      OwnedDict(GRT *grt, Type type, const std::string &content_class, Object *owner, bool allow_null);
+      OwnedDict(Type type, const std::string &content_class, Object *owner, bool allow_null);
 
       virtual void set(const std::string &key, const ValueRef &value);
       virtual void remove(const std::string &key);
       virtual void reset_entries();
 
-      Object *owner_of_owned_dict() const { return _owner; }
+      Object *owner_of_owned_dict() const {
+        return _owner;
+      }
+
     protected:
       Object *_owner; // internal: set if it belongs to an object
     };
@@ -455,22 +489,27 @@ namespace grt {
     //------------------------------------------------------------------------------------------------
 
     /** Base GRT Object class.
-     * 
+     *
      * This is subclassed by automatically generated GRT object classes.
-     * 
+     *
      * @ingroup GRT
-     */ 
-    class MYSQLGRT_PUBLIC Object : public Value
-    {
+     */
+    class MYSQLGRT_PUBLIC Object : public Value {
     public:
-      static std::string static_class_name() { return "Object"; }
+      static std::string static_class_name() {
+        return "Object";
+      }
 
       const std::string &id() const;
-      MetaClass* get_metaclass() const;
+      MetaClass *get_metaclass() const;
       const std::string &class_name() const;
 
-      static Type static_type() { return ObjectType; }
-      virtual Type get_type() const { return ObjectType; }
+      static Type static_type() {
+        return ObjectType;
+      }
+      virtual Type get_type() const {
+        return ObjectType;
+      }
       virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
 
@@ -486,27 +525,35 @@ namespace grt {
 
       bool has_method(const std::string &method) const;
 
-      virtual bool equals(const Value*) const;
+      virtual bool equals(const Value *) const;
       virtual bool less_than(const Value *) const;
 
       virtual ValueRef call(const std::string &method, const BaseListRef &args);
 
-      GRT *get_grt() const;
+      bool is_global() const {
+        return _is_global != 0;
+      }
 
-      bool is_global() const { return _is_global != 0; }
+      boost::signals2::signal<void(const std::string &, const ValueRef &)> *signal_changed() {
+        return &_changed_signal;
+      }
+      boost::signals2::signal<void(OwnedList *, bool, const grt::ValueRef &)> *signal_list_changed() {
+        return &_list_changed_signal;
+      }
+      boost::signals2::signal<void(OwnedDict *, bool, const std::string &)> *signal_dict_changed() {
+        return &_dict_changed_signal;
+      }
 
-      boost::signals2::signal<void (const std::string&, const ValueRef&)>* signal_changed() { return &_changed_signal; }
-      boost::signals2::signal<void (OwnedList*, bool, const grt::ValueRef&)>* signal_list_changed() { return &_list_changed_signal; }
-      boost::signals2::signal<void (OwnedDict*, bool, const std::string&)>* signal_dict_changed() { return &_dict_changed_signal; }
-      
       virtual void reset_references();
+
     public:
       virtual void init();
-      
+
       void __set_id(const std::string &id);
 
       virtual void mark_global() const;
       virtual void unmark_global() const;
+
     protected:
       friend class OwnedList;
       friend class OwnedDict;
@@ -514,7 +561,6 @@ namespace grt {
       friend class internal::Unserializer;
 
       explicit Object(MetaClass *gclass);
-      Object(GRT *grt, MetaClass *gclass); /* deprecated */
 #ifdef GRT_LEAK_DETECTOR_ENABLED
       virtual ~Object();
 #endif
@@ -528,63 +574,57 @@ namespace grt {
       virtual void owned_dict_item_set(OwnedDict *dict, const std::string &key);
       virtual void owned_dict_item_removed(OwnedDict *dict, const std::string &key);
 
-      //use _metaclass->get_grt() GRT *_grt;
-      MetaClass* _metaclass;
+      MetaClass *_metaclass;
       std::string _id;
-      boost::signals2::signal<void (const std::string&, const grt::ValueRef&)> _changed_signal;
-      boost::signals2::signal<void (OwnedList*, bool, const grt::ValueRef&)> _list_changed_signal;
-      boost::signals2::signal<void (OwnedDict*, bool, const std::string&)> _dict_changed_signal;
+      boost::signals2::signal<void(const std::string &, const grt::ValueRef &)> _changed_signal;
+      boost::signals2::signal<void(OwnedList *, bool, const grt::ValueRef &)> _list_changed_signal;
+      boost::signals2::signal<void(OwnedDict *, bool, const std::string &)> _dict_changed_signal;
 
-      //ObjectValidFlag _valid_flag;
-      
+      // ObjectValidFlag _valid_flag;
+
       mutable short _is_global; // whether object is attached to the global GRT tree
-      
-//    public:
-//      const ObjectValidFlag &weakref_valid_flag() const { return _valid_flag; }
-    };
 
+      //    public:
+      //      const ObjectValidFlag &weakref_valid_flag() const { return _valid_flag; }
+    };
 
     //----------------------------------------------------------------------------------------------------
 
+    /** Registry for GRT object classes.
+     *
+     * This object is a singleton used to globally store the list of all
+     * GRT object implementing C++ classes available. Each class, such
+     * as db_Table, must call the registration function once. Whenever a
+     * GRT instance is created, it will look at the list of classes and
+     * register them with itself (so that allocation functions, member and
+     * method pointers can be properly initialized).
+     *
+     * @ingroup GRTInternal
+     */
+    typedef void (*ClassRegistrationFunction)();
 
-   
-     /** Registry for GRT object classes.
-      * 
-      * This object is a singleton used to globally store the list of all
-      * GRT object implementing C++ classes available. Each class, such
-      * as db_Table, must call the registration function once. Whenever a
-      * GRT instance is created, it will look at the list of classes and
-      * register them with itself (so that allocation functions, member and
-      * method pointers can be properly initialized).
-      * 
-      * @ingroup GRTInternal
-      */
-     typedef void (*ClassRegistrationFunction)(GRT *grt);
+    struct MYSQLGRT_PUBLIC ClassRegistry {
+    private:
+      friend class ::grt::GRT;
 
-     struct MYSQLGRT_PUBLIC ClassRegistry
-     {
-     private:
-       friend class ::grt::GRT;
-          
-       std::map<std::string, ClassRegistrationFunction> classes;
+      std::map<std::string, ClassRegistrationFunction> classes;
 
-       ClassRegistry();
-       
-       /** Register all known classes in the given GRT context.
-        */
-       void register_all(GRT *grt);
-       
-       static ClassRegistry* get_instance();
+      ClassRegistry();
 
-     public:
-       /** Template function to globally register a GRT class.
-        */
-       template<class C>
-         static void register_class()
-         {
-            get_instance()->classes[C::static_class_name()]= &C::grt_register;
-         }
-     };
+      /** Register all known classes in the given GRT context.
+       */
+      void register_all();
+
+      static ClassRegistry *get_instance();
+
+    public:
+      /** Template function to globally register a GRT class.
+       */
+      template <class C>
+      static void register_class() {
+        get_instance()->classes[C::static_class_name()] = &C::grt_register;
+      }
+    };
 
   }; // internal
-}; //grt
+};   // grt

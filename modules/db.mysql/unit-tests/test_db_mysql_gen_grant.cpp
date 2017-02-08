@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,34 +25,22 @@
 
 using namespace tut;
 
-
-
 BEGIN_TEST_DATA_CLASS(test_db_mysql_gen_grant)
 public:
-  GRTManagerTest grtm;
-  GRT* grt;
-
-TEST_DATA_CONSTRUCTOR(test_db_mysql_gen_grant)
-  :grtm(false)
-  , grt(NULL)
-{
+TEST_DATA_CONSTRUCTOR(test_db_mysql_gen_grant) {
 }
 
 END_TEST_DATA_CLASS
 
 TEST_MODULE(test_db_mysql_gen_grant, "test_db_mysql_gen_grant");
 
-TEST_FUNCTION(1)
-{
-  grt= grtm.get_grt();
-  grt->scan_metaclasses_in("../../res/grt/");
-  grt->end_loading_metaclasses();
+TEST_FUNCTION(1) {
+  grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
+  grt::GRT::get()->end_loading_metaclasses();
 }
 
-
-TEST_FUNCTION(10)
-{
-  SynteticMySQLModel model(grt);
+TEST_FUNCTION(10) {
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -65,15 +53,13 @@ TEST_FUNCTION(10)
 
   std::list<std::string> actual;
   gen_grant_sql((db_CatalogRef)model.catalog, actual);
-  std::string expect[]= {"GRANT SELECT ON TABLE `test_schema`.`t1` TO 'monty'"};
+  std::string expect[] = {"GRANT SELECT ON TABLE `test_schema`.`t1` TO 'monty'"};
 
   assure_containers_equal(actual.begin(), actual.end(), expect, expect + UPPER_BOUND(expect));
 }
 
-
-TEST_FUNCTION(11)
-{
-  SynteticMySQLModel model(grt);
+TEST_FUNCTION(11) {
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -88,24 +74,21 @@ TEST_FUNCTION(11)
 
   assign_role(user1, adminRole);
   assign_role(user1, userRole);
-  
+
   assign_role(user2, userRole);
 
   std::list<std::string> actual;
   gen_grant_sql((db_CatalogRef)model.catalog, actual);
-  std::string expect[]= 
-  {
-    "GRANT INSERT ON TABLE `test_schema`.`t1` TO 'monty'",
-    "GRANT SELECT ON TABLE `test_schema`.`t1` TO 'monty'",
+  std::string expect[] = {
+    "GRANT INSERT ON TABLE `test_schema`.`t1` TO 'monty'", "GRANT SELECT ON TABLE `test_schema`.`t1` TO 'monty'",
     "GRANT SELECT ON TABLE `test_schema`.`t1` TO 'scott'",
   };
 
   assure_containers_equal(actual.begin(), actual.end(), expect, expect + UPPER_BOUND(expect));
 }
 
-TEST_FUNCTION(12)
-{ // test when no databaseObject assigned: use databaseObjectName instead
-  SynteticMySQLModel model(grt);
+TEST_FUNCTION(12) { // test when no databaseObject assigned: use databaseObjectName instead
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -118,14 +101,13 @@ TEST_FUNCTION(12)
 
   std::list<std::string> actual;
   gen_grant_sql((db_CatalogRef)model.catalog, actual);
-  std::string expect[]= {"GRANT SELECT ON TABLE dummy_obj TO 'monty'"};
+  std::string expect[] = {"GRANT SELECT ON TABLE dummy_obj TO 'monty'"};
 
   assure_containers_equal(actual.begin(), actual.end(), expect, expect + UPPER_BOUND(expect));
 }
 
-TEST_FUNCTION(13)
-{ // test parent role
-  SynteticMySQLModel model(grt);
+TEST_FUNCTION(13) { // test parent role
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -141,19 +123,15 @@ TEST_FUNCTION(13)
   add_privilege(model, roleBase, model.table, "DELETE");
 
   // note: only one role (and one privilege) assigned here but should derive one more (see expect[])
-  assign_role(user, role); 
+  assign_role(user, role);
 
   std::list<std::string> actual;
   gen_grant_sql((db_CatalogRef)model.catalog, actual);
-  std::string expect[]= 
-  {
-    "GRANT DELETE ON TABLE `test_schema`.`t1` TO 'monty'",
-    "GRANT SELECT ON TABLE `test_schema`.`t1` TO 'monty'",
+  std::string expect[] = {
+    "GRANT DELETE ON TABLE `test_schema`.`t1` TO 'monty'", "GRANT SELECT ON TABLE `test_schema`.`t1` TO 'monty'",
   };
 
   assure_containers_equal(actual.begin(), actual.end(), expect, expect + UPPER_BOUND(expect));
 }
-
-
 
 END_TESTS

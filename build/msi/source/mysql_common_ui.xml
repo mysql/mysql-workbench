@@ -405,7 +405,7 @@
                 </Control>
                 <Control Id="TextLine2" Type="Text" X="135" Y="55" Width="228" Height="25" Text="The wizard was interrupted before [ProductName] could be completely installed." TabSkip="yes" Transparent="yes" />
                 <Control Id="dlprereq" Type="PushButton" X="10" Y="243" Width="120" Height="17" Text="Download Prerequisites" TabSkip="no" Disabled="no">
-                    <Condition Action="show"><![CDATA[CPP_100_RUNTIMES OR NETFRAMEWORK40CLIENT]]></Condition>
+                    <Condition Action="show"><![CDATA[CPP_100_RUNTIMES OR NETFRAMEWORK45]]></Condition>
                     <Publish Property="Suspend">1</Publish>
                     <Publish Event="DoAction" Value="LaunchDL">1</Publish>
                 </Control>

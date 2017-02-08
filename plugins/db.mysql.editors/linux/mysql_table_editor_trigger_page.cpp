@@ -5,31 +5,24 @@
 #include "mforms/../gtk/lf_view.h"
 
 //------------------------------------------------------------------------------
-DbMySQLTableEditorTriggerPage::DbMySQLTableEditorTriggerPage(DbMySQLTableEditor *owner
-                                                          ,MySQLTableEditorBE *be
-                                                          ,Glib::RefPtr<Gtk::Builder>         xml)
-                             : _owner(owner)
-                             , _be(be)
-                             , _xml(xml)
-{
-
+DbMySQLTableEditorTriggerPage::DbMySQLTableEditorTriggerPage(DbMySQLTableEditor* owner, MySQLTableEditorBE* be,
+                                                             Glib::RefPtr<Gtk::Builder> xml)
+  : _be(be), _xml(xml) {
   switch_be(be);
-  //Gtk::Paned *paned(0);
+  // Gtk::Paned *paned(0);
   //_xml->get("trigger_paned", &paned);
 }
 
 //------------------------------------------------------------------------------
-DbMySQLTableEditorTriggerPage::~DbMySQLTableEditorTriggerPage()
-{
+DbMySQLTableEditorTriggerPage::~DbMySQLTableEditorTriggerPage() {
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorTriggerPage::switch_be(MySQLTableEditorBE* be)
-{
-  Gtk::VBox* trigger_code_win;
+void DbMySQLTableEditorTriggerPage::switch_be(MySQLTableEditorBE* be) {
+  Gtk::Box* trigger_code_win;
   _xml->get_widget("trigger_code_holder", trigger_code_win);
 
-//  trigger_code_win->remove_all();
+  //  trigger_code_win->remove_all();
 
   _be = be;
   trigger_code_win->pack_start(*mforms::widget_for_view(be->get_trigger_panel()), true, true);
@@ -37,9 +30,7 @@ void DbMySQLTableEditorTriggerPage::switch_be(MySQLTableEditorBE* be)
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLTableEditorTriggerPage::refresh()
-{
+void DbMySQLTableEditorTriggerPage::refresh() {
   if (_be)
     _be->load_trigger_sql();
 }
-

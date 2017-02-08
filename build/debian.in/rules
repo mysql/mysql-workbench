@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-# Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,26 +28,41 @@
 
 INSTALL_PREFIX=/usr
 
+ifndef LINUXRES_HOME
 LINUXRES_HOME=$(HOME)/linux-res
+endif
+
 LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
 
-ODBC_HOME=$(LINUXRES_BINARIES)/odbc/usr/local
+ifndef ANTLR_JAR_PATH
+ANTLR_JAR_PATH=$(LINUXRES_HOME)/bin/antlr-3.4-complete.jar
+endif
 
-SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite
-PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2
+ifndef BOOST_ROOT
+BOOST_ROOT=$(LINUXRES_HOME)
+endif
+
+ODBC_HOME=$(LINUXRES_BINARIES)/odbc
 PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
-CTEMPLATE_HOME=$(LINUXRES_BINARIES)/ctemplate/usr/local
 
 @ifdef community
-CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl/usr/local
-GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl/usr/local
-VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-gpl/usr/local
+SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite-gpl
+PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2-gpl
+CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl
+GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl
+VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-gpl
+ifndef MYSQL_HOME
 MYSQL_HOME=$(HOME)/mysql-server/
+endif
 @else
-CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com/usr/local
-GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com/usr/local
-VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-com/usr/local
+SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite-com
+PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2-com
+CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com
+GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com
+VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-com
+ifndef MYSQL_HOME
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
+endif
 @endif
 
 WBDIRNAME=mysql-workbench-@edition@
@@ -60,23 +75,24 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-@ifversion >= 1604
 	CXXFLAGS="-std=c++11 $(CXXFLAGS)" \
-@endif
-	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) -DCMAKE_BUILD_TYPE=Release \
-	-DMySQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
-	-DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
-	-DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
-	-DGDAL_INCLUDE_DIR=$(GDAL_HOME)/include -DGDAL_LIBRARY=$(GDAL_HOME)/lib/libgdal.so \
-	-DCTemplate_INCLUDE_DIR=${CTEMPLATE_HOME}/include \
-	-DCTemplate_LIBRARIES="-L${CTEMPLATE_HOME}/lib -lctemplate"\
-@ifdef community
-	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config 
-@else
-	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \
-	-DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
-	-DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp"
-@endif
+	ANTLR_JAR_PATH=$(ANTLR_JAR_PATH) \
+	BOOST_ROOT=$(BOOST_ROOT) \
+	cmake . \
+	  -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
+	  -DCMAKE_BUILD_TYPE=Release \
+	  -DMySQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config \
+	  -DUSE_BUNDLED_MYSQLDUMP=1 \
+	  -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE \
+	  -DMySQLCppConn_LIBRARIES="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
+	  -DMySQLCppConn_INCLUDE_DIR=$(CPPCONN_HOME)/include \
+	  -DGDAL_INCLUDE_DIR=$(GDAL_HOME)/include \
+	  -DGDAL_LIBRARY=$(GDAL_HOME)/lib/libgdal.so \
+	  -DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \
+	  -DIODBC_INCLUDE_PATH=$(ODBC_HOME)/include \
+	  -DIODBC_LIBRARIES_PATH=$(ODBC_HOME)/lib \
+	  -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
+	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" 
 
 	touch configure-stamp
 
@@ -112,36 +128,31 @@ install: build
 	# Add here commands to install the package into debian/mysql-workbench.
 	DESTDIR=debian/$(WBDIRNAME) $(MAKE) install
 
-	# Bundle pyodbc and iodbc
-	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(PYODBC_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	# Bundle other unpackaged libs
-	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(GDAL_HOME)/lib/libgdal* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(CTEMPLATE_HOME)/lib/libctemplate* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-@ifdef commercial
-	# Bundle libs only needed for SE edition
-	cp -a $(SQLITE_HOME)/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(PYSQLITE2_HOME) $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
-@endif
+	# Bundle libaries 
+	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(ODBC_HOME)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(PYODBC_HOME)/pyodbc.so              $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.*    $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(GDAL_HOME)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(SQLITE_HOME)/lib/libsqlite3.so*     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(PYSQLITE2_HOME)                     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/
 
 @ifdef paramiko
 	#bundle paramiko based on the param
-	cp -a $(LINUXRES_HOME)/python/paramiko  $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
-	cp -a $(LINUXRES_HOME)/python/ecdsa $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+	cp -a $(LINUXRES_HOME)/python/paramiko      $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/
+	cp -a $(LINUXRES_HOME)/python/ecdsa         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/
 @endif
 
 	# Bundle client programs and lib
-	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(MYSQL_HOME)/bin/mysql $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(MYSQL_HOME)/bin/mysqldump $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+#	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(MYSQL_HOME)/bin/mysql               $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(MYSQL_HOME)/bin/mysqldump           $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 
 	# Remove these files:
 	# - The file /etc/ld.so.conf.d/mysql-workbench.conf is a non.conformance in debian based distros
 	# - The .la metadata files are not necessary
-	rm $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/*.la
+	rm -f  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/*.la
 	rm -rf $(CURDIR)/debian/$(WBDIRNAME)/etc
 
 # Build architecture-independent files here.
@@ -175,7 +186,9 @@ binary-arch: build install
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
-	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l$(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	dh_shlibdeps \
+          --dpkg-shlibdeps-params=--ignore-missing-info \
+          -l$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

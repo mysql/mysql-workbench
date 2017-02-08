@@ -12,6 +12,7 @@ genwrap = $(top_srcdir)/wb-build/tools/genwrap/genwrap
 #  grts/structs.db.sybase.h\
 #  grts/structs.db.migration.h\
 #  grts/structs.db.query.h\
+#  grts/structs.db.ng.h\
 #  grts/structs.db.h\
 #  grts/structs.eer.h\
 #  grts/structs.workbench.h\
@@ -57,6 +58,8 @@ grts/structs.db.oracle.h: $(top_srcdir)/res/grt/structs.db.oracle.xml
 grts/structs.db.sybase.h: $(top_srcdir)/res/grt/structs.db.sybase.xml
 
 grts/structs.db.query.h: $(top_srcdir)/res/grt/structs.db.query.xml
+
+grts/structs.db.ng.h: $(top_srcdir)/res/grt/structs.db.ng.xml
 
 grts/structs.eer.h: $(top_srcdir)/res/grt/structs.eer.xml
 

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,39 +28,33 @@
 #include "grts/structs.app.h"
 #include "mdc_events.h"
 
-namespace mforms
-{
+namespace mforms {
   class MenuBar;
   class MenuItem;
   class ToolBar;
   class ToolBarItem;
 };
 
-namespace wb
-{
+namespace wb {
   struct ParsedCommand;
   class WBContext;
 
-  struct WBShortcut
-  {
+  struct WBShortcut {
     std::string shortcut;
     mdc::KeyInfo key;
     mdc::EventState modifiers;
-    
+
     std::string name;
     std::string command;
   };
-  
-  
+
   // Manager menus and toolbars.
-  class MYSQLWBBACKEND_PUBLIC_FUNC CommandUI: public base::trackable
-  {
-//    friend class WBContextUI;
-    
-    struct BuiltinCommand
-    {
-      boost::function<void ()> execute;
-      boost::function<bool ()> validate;
+  class MYSQLWBBACKEND_PUBLIC_FUNC CommandUI : public base::trackable {
+    //    friend class WBContextUI;
+
+    struct BuiltinCommand {
+      std::function<void()> execute;
+      std::function<bool()> validate;
     };
 
     WBContext *_wb;
@@ -68,7 +62,7 @@ namespace wb
     grt::ListRef<app_ShortcutItem> _shortcuts;
 
     std::map<std::string, BuiltinCommand> _builtin_commands;
-    boost::signals2::signal<void ()> _validate_edit_menu_items;
+    boost::signals2::signal<void()> _validate_edit_menu_items;
     bec::ArgumentPool _argpool;
     bool _include_se;
 
@@ -77,46 +71,49 @@ namespace wb
     void update_item_state(const app_CommandItemRef &item, const ParsedCommand &cmd, mforms::MenuItem *menu_item);
 
     void append_shortcut_items(const grt::ListRef<app_ShortcutItem> &plist, const std::string &context,
-      std::vector<WBShortcut> *items);
+                               std::vector<WBShortcut> *items);
 
     bool execute_builtin_command(const std::string &name);
     bool validate_builtin_command(const std::string &name);
     bool validate_plugin_command(app_PluginRef plugin);
-    
+
   private:
     void add_recent_menu(mforms::MenuItem *parent);
     void add_plugins_menu_items(mforms::MenuItem *parent, const std::string &group);
     void add_plugins_menu(mforms::MenuItem *parent, const std::string &context);
     void add_menu_items_for_context(const std::string &context, mforms::MenuItem *parent, const app_MenuItemRef &menu);
     void add_scripts_menu(mforms::MenuItem *parent);
-    
+
     void menu_will_show(mforms::MenuItem *parent);
+
   public:
     mforms::MenuBar *create_menubar_for_context(const std::string &context);
- 
-    void revalidate_menu_bar(mforms::MenuBar *menu);   
+
+    void revalidate_menu_bar(mforms::MenuBar *menu);
     void revalidate_edit_menu_items();
+
   public:
     CommandUI(WBContext *wb);
 
+    void clearBuildInCommands();
+
     mforms::ToolBar *create_toolbar(const std::string &toolbar_file);
-    mforms::ToolBar *create_toolbar(const std::string &toolbar_file, const boost::function<void (std::string)> &activate_slot);
-    
+    mforms::ToolBar *create_toolbar(const std::string &toolbar_file,
+                                    const std::function<void(std::string)> &activate_slot);
+
     void load_data();
 
     void activate_command(const std::string &command);
     bool activate_command(const std::string &command, bec::ArgumentPool argpool);
-    
+
     std::vector<WBShortcut> get_shortcuts_for_context(const std::string &context);
 
     void add_frontend_commands(const std::list<std::string> &commands);
     void remove_frontend_commands(const std::list<std::string> &commands);
-    void add_builtin_command(const std::string &name, 
-                             const boost::function<void ()> &slot,
-                             const boost::function<bool ()> &validate= boost::function<bool ()>());
-    void remove_builtin_command(const std::string &name);    
+    void add_builtin_command(const std::string &name, const std::function<void()> &slot,
+                             const std::function<bool()> &validate = std::function<bool()>());
+    void remove_builtin_command(const std::string &name);
   };
 };
-
 
 #endif /* _WB_COMMAND_UI_H_ */

@@ -1,6 +1,7 @@
 #!/bin/sh
 
 app="MySQLWorkbench.app"
+appx="MySQLWorkbench.X.app"
 srcdir="DerivedData/MySQLWorkbench/Build/Products/Release"
 edition=$1
 ver=$2
@@ -25,12 +26,20 @@ echo "Packaging $finaldmg"
 echo "Attaching template $templatedmg"
 hdiutil attach "$templatedmg" -noautoopen -mountpoint template 
 
-echo "Copying app"
+echo "Copying apps"
 rm -fr "template/$app"
 ditto "$srcdir/$app" "template/$app"
 if [ $? -ne 0 ]; then
         hdiutil detach template -force -quiet
         echo "Could not copy .app to template dmg"
+        exit 1
+fi
+
+rm -fr "template/$appx"
+ditto "$srcdir/$appx" "template/$appx"
+if [ $? -ne 0 ]; then
+        hdiutil detach template -force -quiet
+        echo "Could not copy X.app to template dmg"
         exit 1
 fi
 

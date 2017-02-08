@@ -9,7 +9,7 @@ set(WORKBENCH_DATA_FILES
     res/find.glade
     res/diagram_size_form.glade
     res/input_dialog.glade
-    workbench.rc
+    workbench.css
 )
 install(FILES ${WORKBENCH_DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR})
 
@@ -42,17 +42,18 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser
-    ${GTK2_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${LIBZIP_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${GNOME_KEYRING_INCLUDE_DIRS}
-    ${VSQLITE_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/library/parsers
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${LIBZIP_INCLUDE_DIRS}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GNOME_KEYRING_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
-#link_directories(${PROJECT_BINARY_DIR}/mysqlcppconnector/lib ${PROJECT_BINARY_DIR}/antlr-wb)
+
 SET(CMAKE_INSTALL_RPATH "${WB_INSTALL_LIB_DIR}")
 add_executable(mysql-workbench-bin
     main.cpp
@@ -63,7 +64,6 @@ add_executable(mysql-workbench-bin
     model_diagram_panel.cpp
     properties_tree.cpp
     navigator_box.cpp
-    info_box.cpp
     documentation_box.cpp
     diagram_size_form.cpp
     validation_panel.cpp
@@ -80,11 +80,12 @@ add_executable(mysql-workbench-bin
 )
 
 
+target_compile_options(mysql-workbench-bin PUBLIC ${WB_CXXFLAGS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE")
+  target_compile_options(mysql-workbench-bin PUBLIC -fPIE)
 else()
-  set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+  target_compile_options(mysql-workbench-bin PUBLIC -fPIE -pie)
 endif()
 
 if (KEYRING_DEFINITION)
@@ -105,11 +106,11 @@ target_link_libraries(mysql-workbench-bin
     wbscintilla
     mdcanvasgtk
     mdcanvas
-    mysqlparser
-    ${MYSQLCPPCONN_LIBRARIES}
-    ${CTemplate_LIBRARIES}
+    parsers
+    mtemplate
+    ${MySQLCppConn_LIBRARIES}
     ${X11_LIBRARIES}
-    ${GTK2_LIBRARIES}
+    ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
     ${GRT_LIBRARIES}
     ${PCRE_LIBRARIES}
@@ -119,6 +120,10 @@ target_link_libraries(mysql-workbench-bin
     ${SQLITE3_LIBRARIES}
     ${GNOME_KEYRING_LIBRARIES}
 )
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(mysql-workbench-bin gcov)
+endif()
 
 if(COMMAND cotire)
   set_target_properties(mysql-workbench-bin PROPERTIES

@@ -1,6 +1,6 @@
-/* 
- * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
- * 
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -51,29 +51,23 @@
 
 DEFAULT_LOG_DOMAIN("Workbench")
 
-class MacNotificationObserver : base::Observer
-{
+class MacNotificationObserver : base::Observer {
   MainWindowController *controller;
+
 public:
-  MacNotificationObserver(MainWindowController *aController)
-  : controller(aController)
-  {
+  MacNotificationObserver(MainWindowController *aController) : controller(aController) {
     base::NotificationCenter::get()->add_observer(this, "GNFormTitleDidChange");
   }
-  
-  virtual ~MacNotificationObserver()
-  {
+
+  virtual ~MacNotificationObserver() {
     base::NotificationCenter::get()->remove_observer(this);
   }
-  
-  virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) 
-  {
-    if (name == "GNFormTitleDidChange")
-    {
+
+  virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
+    if (name == "GNFormTitleDidChange") {
       WBBasePanel *panel = [controller findMainPanelForUIForm: bec::UIForm::form_with_id(info["form"])];
       if (panel)
-        [controller setTitle: [NSString stringWithCPPString: info["title"]]
-                    forPanel: panel];
+        [controller setTitle: [NSString stringWithCPPString: info["title"]] forPanel:panel];
     }
   }
 };
@@ -84,11 +78,12 @@ public:
 
 @implementation WBWindow
 
-- (instancetype)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)aStyle backing:(NSBackingStoreType)bufferingType defer:(BOOL)flag
-{
+- (instancetype)initWithContentRect: (NSRect)contentRect
+                          styleMask: (NSUInteger)aStyle
+                            backing: (NSBackingStoreType)bufferingType
+                              defer: (BOOL)flag {
   self = [super initWithContentRect: contentRect styleMask: aStyle backing: bufferingType defer: flag];
-  if (self != nil)
-  {
+  if (self != nil) {
     mforms::Form::main_form()->set_data(self);
   }
   return self;
@@ -96,40 +91,34 @@ public:
 
 /** Override to catch changes to firstResponders
  *
- * This method is overriden so that we can notify the backend when the 
- * first responder is changed, to know when the active 'form' changes, which 
+ * This method is overriden so that we can notify the backend when the
+ * first responder is changed, to know when the active 'form' changes, which
  * would trigger updates to the menus, toolbars etc.
  */
-- (BOOL)makeFirstResponder:(NSResponder *)responder
-{
-  BOOL changed= [super makeFirstResponder: responder];
+- (BOOL)makeFirstResponder: (NSResponder *)responder {
+  BOOL changed = [super makeFirstResponder:responder];
   if (changed)
-    [[self windowController] firstResponderChanged: responder];
+    [self.windowController firstResponderChanged:responder];
 
   return changed;
 }
 
-
-- (void)becomeKeyWindow
-{
+- (void)becomeKeyWindow {
   mforms::Form::main_form()->activated();
   [super becomeKeyWindow];
 }
 
-- (void)resignKeyWindow
-{
+- (void)resignKeyWindow {
   [super resignKeyWindow];
   mforms::Form::main_form()->deactivated();
 }
 
 @end
 
-
 // mforms integration
 void setup_mforms_app(MainWindowController *mwin);
 
-@interface MainWindowController()
-{
+@interface MainWindowController () {
   IBOutlet NSTextField *statusBarText;
   IBOutlet NSTabView *topTabView;
   IBOutlet MTabSwitcher *tabSwitcher;
@@ -158,20 +147,17 @@ void setup_mforms_app(MainWindowController *mwin);
 
 @synthesize owner;
 
-- (instancetype)init
-{
+- (instancetype)init {
   self = [super init];
-  if (self != nil)
-  {
+  if (self != nil) {
     NSMutableArray *temp;
-    if ([NSBundle.mainBundle loadNibNamed: @"MainWindow" owner: self topLevelObjects: &temp])
-    {
+    if ([NSBundle.mainBundle loadNibNamed: @"MainWindow" owner: self topLevelObjects: &temp]) {
       nibObjects = temp;
       _panels = [[NSMutableDictionary alloc] init];
       _closedTopTabs = [[NSMutableArray alloc] init];
       _closedBottomTabs = [[NSMutableArray alloc] init];
 
-      _defaultMainMenu = [NSApp mainMenu];
+      _defaultMainMenu = NSApp.mainMenu;
     }
   }
   return self;
@@ -179,150 +165,119 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)dealloc
-{
+- (void)dealloc {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   delete _backendObserver;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)awakeFromNib
-{
-  [tabSwitcher setTabStyle: MMainTabSwitcher];
+- (void)awakeFromNib {
+  tabSwitcher.tabStyle = MMainTabSwitcher;
   if (NSAppKitVersionNumber > NSAppKitVersionNumber10_6)
-    [self.window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary];
+    self.window.collectionBehavior = NSWindowCollectionBehaviorFullScreenPrimary;
 
-  [statusBarText setStringValue: @""];
+  statusBarText.stringValue = @"";
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)setWBContext:(wb::WBContextUI*)wbui
-{
+- (void)setup {
   _backendObserver = new MacNotificationObserver(self);
-  
-  _wbui= wbui;
-  
+
   setup_mforms_app(self);
 }
-
-
-- (wb::WBContextUI*)context
-{
-  return _wbui;
-}
-
 
 /** Called after the window is shown on screen
  * The amount of work done here should be minimal, so that there isn't any visible window
  * relayouting.
  */
-- (void)setupReady
-{
-  log_debug("Setup done\n");
+- (void)setupReady {
+  logDebug("Setup done\n");
 
-  [[self window] setTitle: @(_wbui->get_title().c_str())];
+  self.window.title = @(wb::WBContextUI::get()->get_title().c_str());
 
   [self setupModel];
 }
 
+- (NSTabViewItem *)addTopPanel: (WBBasePanel *)panel {
+  logDebug2("Adding new top panel\n");
 
-- (NSTabViewItem*)addTopPanel:(WBBasePanel*)panel
-{
-  log_debug2("Adding new top panel\n");
+  id tabItem = [[NSTabViewItem alloc] initWithIdentifier:panel.identifier];
 
-  id tabItem = [[NSTabViewItem alloc] initWithIdentifier: [panel identifier]];
-
-  if ([panel title])
-    [tabItem setView:[panel decoratedTopView]];
+  if (panel.title)
+    [tabItem setView:panel.decoratedTopView];
   else
-    [tabItem setView:[panel topView]]; // no toolbar for Home tab
-  [tabItem setLabel:[panel title]];
+    [tabItem setView:panel.topView]; // no toolbar for Home tab
+  [tabItem setLabel: panel.title];
   if ([panel respondsToSelector: @selector(initialFirstResponder)])
     [tabItem setInitialFirstResponder: [(id)panel initialFirstResponder]];
-  
-  _panels[[panel identifier]] = panel;
-  
-  [topTabView addTabViewItem:tabItem];
+
+  _panels[panel.identifier] = panel;
+
+  [topTabView addTabViewItem: tabItem];
 
   return tabItem;
 }
 
-- (NSTabViewItem*)addTopPanelAndSwitch:(WBBasePanel*)panel
-{
-  NSTabViewItem* item= [self addTopPanel: panel];
-  [topTabView selectTabViewItemWithIdentifier: [item identifier]]; 
+- (NSTabViewItem *)addTopPanelAndSwitch: (WBBasePanel *)panel {
+  NSTabViewItem *item = [self addTopPanel: panel];
+  [topTabView selectTabViewItemWithIdentifier: item.identifier];
   //[topTabView selectLastTabViewItem:nil];
   return item;
 }
 
-
-- (void)addBottomPanel:(WBBasePanel*)panel
-{
-  WBBasePanel *mainPanel = [self selectedTopPanel];
+- (void)addBottomPanel: (WBBasePanel *)panel {
+  WBBasePanel *mainPanel = self.selectedTopPanel;
   if ([mainPanel respondsToSelector: @selector(addEditor:)])
     [(id)mainPanel addEditor: panel];
   else
     NSLog(@"No valid main-tab is selected to receive the bottom panel");
 }
 
+- (void)switchToDiagramWithIdentifier: (const char *)identifier {
+  NSString *ident = [NSString stringWithCPPString: identifier];
+  id form = _panels[ident];
 
-- (void)switchToDiagramWithIdentifier:(const char*)identifier
-{
-  NSString *ident= [NSString stringWithCPPString: identifier];
-  id form= _panels[ident]; 
-  
   // check if the diagram was closed
-  for (NSTabViewItem *item in _closedTopTabs)
-  {
-    if ([[item identifier] isEqual: ident])
-    {
-      [topTabView addTabViewItem:item];
-      [topTabView selectLastTabViewItem:nil];
-      [_closedTopTabs removeObject:item];
-        
-      if ([form respondsToSelector:@selector(didOpen)])
+  for (NSTabViewItem *item in _closedTopTabs) {
+    if ([item.identifier isEqual: ident]) {
+      [topTabView addTabViewItem: item];
+      [topTabView selectLastTabViewItem: nil];
+      [_closedTopTabs removeObject: item];
+
+      if ([form respondsToSelector: @selector(didOpen)])
         [form didOpen];
-      
+
       return;
     }
   }
-  
-  [topTabView selectTabViewItemWithIdentifier:ident];
+
+  [topTabView selectTabViewItemWithIdentifier: ident];
 }
 
-
-- (void)updateBackendTimer
-{
+- (void)updateBackendTimer {
   [_backendTimer invalidate];
-  _backendTimer= 0;
+  _backendTimer = 0;
 
-  double interval= _wbui->get_wb()->get_grt_manager()->delay_for_next_timeout();
-  
+  double interval = bec::GRTManager::get()->delay_for_next_timeout();
+
   if (interval >= 0.0)
-    _backendTimer= [NSTimer scheduledTimerWithTimeInterval:interval
-                                                    target:self
-                                                  selector:@selector(fireBackendTimer:)
-                                                  userInfo:nil
-                                                   repeats:NO];
+    _backendTimer = [NSTimer scheduledTimerWithTimeInterval :interval
+                                                     target: self
+                                                   selector: @selector(fireBackendTimer:)
+                                                   userInfo: nil
+                                                    repeats: NO];
 }
 
-
-- (void)fireBackendTimer:(NSTimer*)timer
-{
-  _wbui->get_wb()->get_grt_manager()->flush_timers();
+- (void)fireBackendTimer: (NSTimer *)timer {
+  bec::GRTManager::get()->flush_timers();
 
   [self updateBackendTimer];
 }
 
-
-
-- (void)refreshGUI:(wb::RefreshType)type
-         argument1:(const std::string&)arg1
-         argument2:(NativeHandle)arg2
-{
-  const char* RefreshTypeStr[] = {
+- (void)refreshGUI: (wb::RefreshType)type argument1: (const std::string &)arg1 argument2: (NativeHandle)arg2 {
+  const char *RefreshTypeStr[] = {
     "RefreshNeeded",
     "RefreshNothing",
     "RefreshSchemaNoReload",
@@ -332,126 +287,111 @@ void setup_mforms_app(MainWindowController *mwin);
     "RefreshCloseEditor", // argument: object-id (close all if "")
     "RefreshFindOutput",
     "RefreshNewModel",
-    "RefreshOverviewNodeInfo",    // argument: node-id
-    "RefreshOverviewNodeChildren",// argument: node-id
+    "RefreshOverviewNodeInfo",     // argument: node-id
+    "RefreshOverviewNodeChildren", // argument: node-id
     "RefreshViewName",
     "RefreshDocument",
     "RefreshCloseDocument",
     "RefreshZoom",
     "RefreshTimer",
-    "RefreshFinishEdits"
-  };
-  
-  switch (type)
-  {
+    "RefreshFinishEdits"};
+
+  switch (type) {
     case wb::RefreshNeeded:
       [owner requestRefresh];
       break;
-      
+
     case wb::RefreshDocument:
       // refresh the title of the document
-      [[self window] setTitle:@(_wbui->get_title().c_str())];
-      [[self window] setRepresentedFilename:@(_wbui->get_wb()->get_filename().c_str())];
-      [[self window] setDocumentEdited:_wbui->get_wb()->has_unsaved_changes()];
+      self.window.title = @(wb::WBContextUI::get()->get_title().c_str());
+      self.window.representedFilename = @(wb::WBContextUI::get()->get_wb()->get_filename().c_str());
+      self.window.documentEdited = wb::WBContextUI::get()->get_wb()->has_unsaved_changes();
       break;
 
     case wb::RefreshNewModel:
       [self handleModelCreated];
-      _wbui->get_wb()->new_model_finish();
+      wb::WBContextUI::get()->get_wb()->new_model_finish();
       break;
-      
+
     case wb::RefreshCloseDocument:
       [self closeEditorsMatching:nil]; // close all editors
 
-      // flush anything waiting to be executed 
-      _wbui->get_wb()->flush_idle_tasks();
-  
-      _wbui->get_wb()->close_document_finish();
-      
+      // flush anything waiting to be executed
+      wb::WBContextUI::get()->get_wb()->flush_idle_tasks();
+
+      wb::WBContextUI::get()->get_wb()->close_document_finish();
+
       [self handleModelClosed];
 
-      [[self window] setTitle:@(_wbui->get_title().c_str())];
+      self.window.title = @(wb::WBContextUI::get()->get_title().c_str());
       break;
-      
+
     case wb::RefreshOverviewNodeInfo:
-      try
-      {
-        if (!arg2 || arg2 == [_physicalOverview formBE])
-          [[_physicalOverview overview] refreshNode: bec::NodeId(arg1)];
-      }
-      catch (std::exception &exc)
-      {
+      try {
+        if (!arg2 || arg2 == _physicalOverview.formBE)
+          [_physicalOverview.overview refreshNode: bec::NodeId(arg1)];
+      } catch (std::exception &exc) {
         NSLog(@"exception caught refreshing overview '%p' node: %s", arg2, exc.what());
       }
       break;
 
     case wb::RefreshOverviewNodeChildren:
-      try
-      {
-        if (!arg2 || arg2 == [_physicalOverview formBE])
-        {
-          if (arg1.empty())
-          {
-            NSInteger i= [topTabView indexOfTabViewItemWithIdentifier: [_physicalOverview identifier]];
+      try {
+        if (!arg2 || arg2 == _physicalOverview.formBE) {
+          if (arg1.empty()) {
+            NSInteger i = [topTabView indexOfTabViewItemWithIdentifier: _physicalOverview.identifier];
             if (i != NSNotFound)
-              [[topTabView tabViewItemAtIndex: i] setLabel: [_physicalOverview title]];
+              [topTabView tabViewItemAtIndex: i].label = _physicalOverview.title;
           }
-          [[_physicalOverview overview] refreshNodeChildren: bec::NodeId(arg1)];
+          [_physicalOverview.overview refreshNodeChildren: bec::NodeId(arg1)];
         }
-        //else
+        // else
         //  NSLog(@"invalid %p", arg2);
-      }
-      catch (std::exception &exc)
-      {
+      } catch (std::exception &exc) {
         NSLog(@"exception caught refreshing overview '%p' node children: %s", arg2, exc.what());
       }
       break;
-      
-    case wb::RefreshNewDiagram:
-    {
-      id form= _panels[@(arg1.c_str())];
+
+    case wb::RefreshNewDiagram: {
+      id form = _panels[@(arg1.c_str())];
       if (![form isClosed])
         [self switchToDiagramWithIdentifier: arg1.c_str()];
       break;
     }
-      
+
     case wb::RefreshSchemaNoReload:
       break;
 
-    case wb::RefreshZoom:
-    {
-      id panel = [self selectedTopPanel];
-      if ([panel respondsToSelector:@selector(refreshZoom)])
+    case wb::RefreshZoom: {
+      id panel = self.selectedTopPanel;
+      if ([panel respondsToSelector: @selector(refreshZoom)])
         [panel refreshZoom];
       break;
     }
-    case wb::RefreshSelection:
-    {
-      id panel = [self selectedTopPanel];
-      if ([panel respondsToSelector:@selector(selectionChanged)])
+    case wb::RefreshSelection: {
+      id panel = self.selectedTopPanel;
+      if ([panel respondsToSelector: @selector(selectionChanged)])
         [panel selectionChanged];
       break;
-    } 
+    }
     case wb::RefreshCloseEditor:
       [self closeEditorsMatching: arg1.empty() ? nil : [NSString stringWithCPPString: arg1]];
       break;
-      
+
     case wb::RefreshTimer:
       [self updateBackendTimer];
       break;
-      
-    case wb::RefreshFinishEdits:
-    {
-      NSWindow *window = [NSApp keyWindow];
+
+    case wb::RefreshFinishEdits: {
+      NSWindow *window = NSApp.keyWindow;
       // remove focus from active textfield to force any changes to get commited then restore it
-      id oldResponder = [window firstResponder];
-      
+      id oldResponder = window.firstResponder;
+
       // if the 1st responder is a field editor, the actual 1st responder is its delegate (ie, the NSTextField)
-      if (oldResponder != nil && [oldResponder isKindOfClass:[NSTextView class]] && [oldResponder isFieldEditor])
-        oldResponder= [[oldResponder delegate] isKindOfClass:[NSResponder class]] ? [oldResponder delegate] : nil;
-      
-      if ([oldResponder isKindOfClass: [NSTableView class]] || [oldResponder isKindOfClass: [NSTextView class]])
-      {
+      if (oldResponder != nil && [oldResponder isKindOfClass: [NSTextView class]] && [oldResponder isFieldEditor])
+        oldResponder = [[oldResponder delegate] isKindOfClass: [NSResponder class]] ? [oldResponder delegate] : nil;
+
+      if ([oldResponder isKindOfClass: [NSTableView class]] || [oldResponder isKindOfClass: [NSTextView class]]) {
         [window makeFirstResponder: nil];
         [window makeFirstResponder: oldResponder];
       }
@@ -463,159 +403,131 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-- (void)setStatusText:(NSString*)text
-{  
-  [statusBarText setStringValue:text];
+- (void)setStatusText: (NSString *)text {
+  statusBarText.stringValue = text;
   [statusBarText display];
 }
 
-- (void)blockGUI:(BOOL)lock
-{
+- (void)blockGUI: (BOOL)lock {
 }
 
-- (mdc::CanvasView*)createView:(const char*)oid
-                          name:(const char*)name
-{
-  wb::ModelDiagramForm *dform= _wbui->get_wb()->get_model_context()->get_diagram_form_for_diagram_id(oid);
-  WBModelDiagramPanel *panel= [[WBModelDiagramPanel alloc] initWithId: @(oid)
-                                                               formBE: dform];
+- (mdc::CanvasView *)createView: (const char *)oid name: (const char *)name {
+  wb::ModelDiagramForm *dform =
+    wb::WBContextUI::get()->get_wb()->get_model_context()->get_diagram_form_for_diagram_id(oid);
+  WBModelDiagramPanel *panel = [[WBModelDiagramPanel alloc] initWithId:@(oid) formBE:dform];
 
-  NSTabViewItem* item= [self addTopPanel:panel];
-  
-  if (dform->is_closed())
-  {
+  NSTabViewItem *item = [self addTopPanel: panel];
+
+  if (dform->is_closed()) {
     [topTabView removeTabViewItem: item];
     [_closedTopTabs addObject: item];
   }
-  return [panel canvas];
+  return panel.canvas;
 }
 
+- (void)destroyView: (mdc::CanvasView *)view {
+  NSString *identifier = @(view->get_tag().c_str());
+  WBModelDiagramPanel *panel = _panels[identifier];
 
-- (void)destroyView:(mdc::CanvasView*)view
-{
-  NSString *identifier= @(view->get_tag().c_str());
-  WBModelDiagramPanel *panel= _panels[identifier];
-
-  if (panel)
-  {
-    NSUInteger i= [topTabView indexOfTabViewItemWithIdentifier:identifier];
-    if (i != NSNotFound)
-    {
-      NSTabViewItem *item= [topTabView tabViewItemAtIndex:i];    
-      [topTabView removeTabViewItem:item];
+  if (panel) {
+    NSUInteger i = [topTabView indexOfTabViewItemWithIdentifier: identifier];
+    if (i != NSNotFound) {
+      NSTabViewItem *item = [topTabView tabViewItemAtIndex: i];
+      [topTabView removeTabViewItem: item];
     }
-    [_panels removeObjectForKey:identifier];
+    [_panels removeObjectForKey: identifier];
   }
 
-  for (NSTabViewItem *item in [_closedTopTabs reverseObjectEnumerator])
-  {
-    if ([[item identifier] isEqual: identifier])
-    {
+  for (NSTabViewItem *item in [_closedTopTabs reverseObjectEnumerator]) {
+    if ([item.identifier isEqual: identifier]) {
       [_closedTopTabs removeObject: item];
       break;
     }
   }
 }
 
-
-- (void) tabViewDidChangeNumberOfTabViewItems:(NSTabView *)TabView
-{
+- (void)tabViewDidChangeNumberOfTabViewItems: (NSTabView *)TabView {
   if (TabView == topTabView)
-    [tabSwitcher setNeedsDisplay:YES];
+    [tabSwitcher setNeedsDisplay: YES];
 }
 
-
-- (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
-{
-  id panel = _panels[[tabViewItem identifier]];
+- (void)tabView: (NSTabView *)tabView didSelectTabViewItem: (NSTabViewItem *)tabViewItem {
+  id panel = _panels[tabViewItem.identifier];
 
   [self activatePanel: panel];
-  if (tabView == topTabView)
-  {
+  if (tabView == topTabView) {
     NSMenu *menu = [panel menuBar];
     if (menu)
-      [NSApp setMainMenu: menu];
+      NSApp.mainMenu = menu;
     else
-      [NSApp setMainMenu: _defaultMainMenu];
+      NSApp.mainMenu = _defaultMainMenu;
 
     mforms::App::get()->view_switched();
 
-    [tabSwitcher setNeedsDisplay:YES];
+    [tabSwitcher setNeedsDisplay: YES];
   }
-  
+
   if ([panel respondsToSelector: @selector(didActivate)])
     [panel didActivate];
-  else
-  {
+  else {
     // look in the subviews of the tabView for the topone one that can become firstResponder
-    // and then make it 
-    NSView *view= [tabViewItem view];
-    NSMutableArray *viewStack= [NSMutableArray array];
-    NSView *topMostView= nil; // the editable view that's at the topmost position
-    CGFloat topMostViewY= MAXFLOAT;
-    NSView *firstView= nil; // 1st focusable view used as plan B
-    
-    [viewStack addObject: view];
-    
-    while ([viewStack count] > 0)
-    {
+    // and then make it
+    NSView *view = tabViewItem.view;
+    NSMutableArray *viewStack = [NSMutableArray array];
+    NSView *topMostView = nil; // the editable view that's at the topmost position
+    CGFloat topMostViewY = MAXFLOAT;
+    NSView *firstView = nil; // 1st focusable view used as plan B
+
+    [viewStack addObject:view];
+
+    while (viewStack.count > 0) {
       view = viewStack[0];
-      [viewStack removeObjectAtIndex: 0];
-      
-      if ([view acceptsFirstResponder] && [view class] != [NSView class] &&
-          [view respondsToSelector: @selector(isEditable)] && [(id)view isEditable])
-      {
-        NSPoint pos= [view convertPointToBacking: view.frame.origin];
-        if (!topMostView || pos.y < topMostViewY)
-        {
-          topMostView= view;
-          topMostViewY= pos.y;
+      [viewStack removeObjectAtIndex:0];
+
+      if (view.acceptsFirstResponder && [view class] != [NSView class] &&
+          [view respondsToSelector: @selector(isEditable)] && [(id)view isEditable]) {
+        NSPoint pos = [view convertPointToBacking: view.frame.origin];
+        if (!topMostView || pos.y < topMostViewY) {
+          topMostView = view;
+          topMostViewY = pos.y;
         }
-      }
-      else if ([view canBecomeKeyView] && !firstView)
-        firstView= view;
-      
-      for (NSView *subview in [view subviews])
-      {
-        if ([subview acceptsFirstResponder] && 
-            [subview class] != [NSView class] && 
-            [subview respondsToSelector: @selector(isEditable)] && [(id)subview isEditable])
-        {
-          NSPoint pos= [subview convertPointToBacking: subview.frame.origin];
-          if (!topMostView || pos.y < topMostViewY)
-          {
-            topMostView= subview;
-            topMostViewY= pos.y;
-          }        
-        }
-        else if ([subview canBecomeKeyView] && !firstView)
-          firstView= subview;
-        
+      } else if (view.canBecomeKeyView && !firstView)
+        firstView = view;
+
+      for (NSView *subview in view.subviews) {
+        if (subview.acceptsFirstResponder && [subview class] != [NSView class] &&
+            [subview respondsToSelector: @selector(isEditable)] && [(id)subview isEditable]) {
+          NSPoint pos = [subview convertPointToBacking: subview.frame.origin];
+          if (!topMostView || pos.y < topMostViewY) {
+            topMostView = subview;
+            topMostViewY = pos.y;
+          }
+        } else if (subview.canBecomeKeyView && !firstView)
+          firstView = subview;
+
         [viewStack addObject: subview];
       }
     }
-    
+
     if (!topMostView)
-      [[self window] makeFirstResponder: firstView];
+      [self.window makeFirstResponder: firstView];
     else
-      [[self window] makeFirstResponder: topMostView];
+      [self.window makeFirstResponder: topMostView];
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL)tabView:(NSTabView *)tabView willCloseTabViewItem:(NSTabViewItem*)tabViewItem
-{
-  id form= _panels[[tabViewItem identifier]]; 
-  
+- (BOOL)tabView: (NSTabView *)tabView willCloseTabViewItem: (NSTabViewItem *)tabViewItem {
+  id form = _panels[tabViewItem.identifier];
+
   return [self closePanel: form];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)tabViewItem
-{
-  id form= _panels[[tabViewItem identifier]]; 
+- (BOOL)tabView: (NSTabView *)tabView itemHasCloseButton: (NSTabViewItem *)tabViewItem {
+  id form = _panels[tabViewItem.identifier];
   bec::UIForm *uif = [form formBE];
   if (uif && uif->get_form_context_name() == WB_CONTEXT_HOME_GLOBAL)
     return NO;
@@ -624,51 +536,42 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (IBAction)handleMenuAction:(id)sender
-{
+- (IBAction)handleMenuAction: (id)sender {
   // Close Other Tabs Like This from the main tab
-  if ([sender tag] == 1002)
-  {
-    id form= _panels[[[tabSwitcher clickedItem] identifier]];
-    if (form && [form formBE])
-    {
+  if ([sender tag] == 1002) {
+    id form = _panels[tabSwitcher.clickedItem.identifier];
+    if (form && [form formBE]) {
       std::string context_name;
       if ([form isKindOfClass: [WBMFormsPluginPanel class]])
         context_name = [form formBE]->get_form_context_name();
-      for (NSTabViewItem *item in [[topTabView tabViewItems] reverseObjectEnumerator])
-      {
-        if (item != [tabSwitcher clickedItem] && [self tabView: topTabView itemHasCloseButton: item])
-        {
-          id itemForm = _panels[[item identifier]];
-          if (context_name.empty())
-          {
+      for (NSTabViewItem *item in [topTabView.tabViewItems reverseObjectEnumerator]) {
+        if (item != tabSwitcher.clickedItem && [self tabView:topTabView itemHasCloseButton: item]) {
+          id itemForm = _panels[item.identifier];
+          if (context_name.empty()) {
             if ([itemForm isKindOfClass: [form class]])
               [tabSwitcher closeTabViewItem: item];
-          }
-          else
-          {
+          } else {
             bec::UIForm *itemFormBE = [itemForm formBE];
-            if (itemFormBE && [itemForm isKindOfClass: [WBMFormsPluginPanel class]]
-                && itemFormBE->get_form_context_name() == context_name)
+            if (itemFormBE && [itemForm isKindOfClass: [WBMFormsPluginPanel class]] &&
+                itemFormBE->get_form_context_name() == context_name)
               [tabSwitcher closeTabViewItem: item];
           }
         }
       }
     }
-    [tabSwitcher setNeedsDisplay: YES];
+    [tabSwitcher setNeedsDisplay:YES];
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL)closePanel: (WBBasePanel*)panel
-{
-  id identifier = [panel identifier];
+- (BOOL)closePanel: (WBBasePanel *)panel {
+  id identifier = panel.identifier;
 
   // Remove first responder status from current first responder to trigger any pending processing
   // done on end-editing. Necessary for instance to make code editors store their content in their backend.
-  [self.window makeFirstResponder:  nil];
-  if ([panel respondsToSelector:@selector(willClose)] && ![panel willClose])
+  [self.window makeFirstResponder: nil];
+  if ([panel respondsToSelector: @selector(willClose)] && !panel.willClose)
     return NO;
   if ([topTabView indexOfTabViewItemWithIdentifier: identifier] != NSNotFound)
     [self closeTopPanelWithIdentifier: identifier];
@@ -679,85 +582,68 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)closeTopPanelWithIdentifier:(id)identifier
-{
+- (void)closeTopPanelWithIdentifier: (id)identifier {
   BOOL hideOnly = NO;
-  id form= _panels[identifier];
-  if ([form isKindOfClass: [WBModelDiagramPanel class]] ||
-      [form isKindOfClass: [WBModelOverviewPanel class]])
+  id form = _panels[identifier];
+  if ([form isKindOfClass: [WBModelDiagramPanel class]] || [form isKindOfClass: [WBModelOverviewPanel class]])
     hideOnly = YES;
   [self closeTopPanelWithIdentifier: identifier hideOnly: hideOnly];
 }
 
-
-- (void)closeTopPanelWithIdentifier:(id)identifier hideOnly:(BOOL)hideOnly
-{
-  NSUInteger index= [topTabView indexOfTabViewItemWithIdentifier: identifier];
-  if (index != NSNotFound)
-  {
-    NSTabViewItem *item= [topTabView tabViewItemAtIndex: index];
+- (void)closeTopPanelWithIdentifier: (id)identifier hideOnly: (BOOL)hideOnly {
+  NSUInteger index = [topTabView indexOfTabViewItemWithIdentifier: identifier];
+  if (index != NSNotFound) {
+    NSTabViewItem *item = [topTabView tabViewItemAtIndex: index];
     if (hideOnly)
       [_closedTopTabs addObject: item];
     else
-      [_panels removeObjectForKey: [item identifier]];
-    
+      [_panels removeObjectForKey: item.identifier];
+
     [topTabView removeTabViewItem: item];
   }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 
-- (void)closeBottomPanelWithIdentifier:(id)identifier
-{
-  for (NSTabViewItem *item in [topTabView tabViewItems])
-  {
-    id p = _panels[[item identifier]];
-    if ([p respondsToSelector:@selector(hasEditorWithIdentifier:)] && [p hasEditorWithIdentifier: identifier])
-    {
+- (void)closeBottomPanelWithIdentifier: (id)identifier {
+  for (NSTabViewItem *item in topTabView.tabViewItems) {
+    id p = _panels[item.identifier];
+    if ([p respondsToSelector: @selector(hasEditorWithIdentifier:)] && [p hasEditorWithIdentifier: identifier]) {
       [p closeEditorWithIdentifier: identifier];
       break;
     }
-  }  
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (void)tabView:(NSTabView *)tabView willSelectTabViewItem:(NSTabViewItem *)tabViewItem
-{
-  if (tabView == topTabView)
-  {
-    WBBasePanel *panel= _panels[[tabViewItem identifier]];
-    
-    NSAssert(![panel isKindOfClass:[WBModelDiagramPanel class]] || [(WBModelDiagramPanel*)panel canvas], @"diagram panel has no canvas at moment of tab switch");
-
-    _wbui->set_active_form([panel formBE]);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) forwardCommandToPanels: (const std::string) command
-{
-  if (command == "wb.next_tab")
-  {
-    if ([topTabView selectedTabViewItem] == [[topTabView tabViewItems] lastObject])
-      [topTabView selectFirstTabViewItem: nil];
+- (void)tabView: (NSTabView *)tabView willSelectTabViewItem: (NSTabViewItem *)tabViewItem {
+  if (tabView == topTabView) {
+    WBBasePanel *panel = _panels[tabViewItem.identifier];
+
+    NSAssert(![panel isKindOfClass: [WBModelDiagramPanel class]] || [(WBModelDiagramPanel *)panel canvas],
+             @"diagram panel has no canvas at moment of tab switch");
+
+    wb::WBContextUI::get()->set_active_form(panel.formBE);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (void)forwardCommandToPanels: (const std::string)command {
+  if (command == "wb.next_tab") {
+    if (topTabView.selectedTabViewItem == topTabView.tabViewItems.lastObject)
+      [topTabView selectFirstTabViewItem:nil];
     else
       [topTabView selectNextTabViewItem:nil];
-  }
-  else if (command == "wb.back_tab")
-  {
-    if ([topTabView selectedTabViewItem] == [topTabView tabViewItems][0])
+  } else if (command == "wb.back_tab") {
+    if (topTabView.selectedTabViewItem == topTabView.tabViewItems[0])
       [topTabView selectLastTabViewItem: nil];
     else
-      [topTabView selectPreviousTabViewItem:nil];
-  }
-  else
-  {
-    for (NSTabViewItem *item in [topTabView tabViewItems])
-    {
-      id p = _panels[[item identifier]];
+      [topTabView selectPreviousTabViewItem: nil];
+  } else {
+    for (NSTabViewItem *item in topTabView.tabViewItems) {
+      id p = _panels[item.identifier];
       if ([p respondsToSelector: @selector(performCommand:)])
         [p performCommand: command];
     }
@@ -766,102 +652,83 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)changedIdentifierOfPanel: (WBBasePanel*)panel
-                  fromIdentifier: (id)identifier
-{
+- (void)changedIdentifierOfPanel: (WBBasePanel *)panel fromIdentifier: (id)identifier {
   [_panels removeObjectForKey: identifier];
-  _panels[[panel identifier]] = panel;
+  _panels[panel.identifier] = panel;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)reopenTopTabViewItem:(id)identifier
-{
-  for (NSTabViewItem *item in _closedTopTabs)
-  {
-    if ([[item identifier] isEqual:identifier])
-    {
-      id form= _panels[identifier];
-      
-      [topTabView addTabViewItem:item];
-      [_closedTopTabs removeObject:item];
-      
-      if ([form respondsToSelector:@selector(didOpen)])
+- (void)reopenTopTabViewItem: (id)identifier {
+  for (NSTabViewItem *item in _closedTopTabs) {
+    if ([item.identifier isEqual: identifier]) {
+      id form = _panels[identifier];
+
+      [topTabView addTabViewItem: item];
+      [_closedTopTabs removeObject: item];
+
+      if ([form respondsToSelector: @selector(didOpen)])
         [form didOpen];
       break;
     }
   }
-  [topTabView selectTabViewItemWithIdentifier:identifier];
+  [topTabView selectTabViewItemWithIdentifier: identifier];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)reopenEditor:(id)editor
-{  
-  id panel = [self activePanel];
-  if ([panel isKindOfClass: [WBSplitPanel class]])
-  {
-    WBSplitPanel *spanel = (WBSplitPanel*)panel;
-    if (![spanel hasEditor: editor])
-    {
+- (void)reopenEditor: (id)editor {
+  id panel = self.activePanel;
+  if ([panel isKindOfClass: [WBSplitPanel class]]) {
+    WBSplitPanel *spanel = (WBSplitPanel *)panel;
+    if (![spanel hasEditor: editor]) {
       // remove the editor from the current tab
-      for (NSTabViewItem *item in [topTabView tabViewItems])
-      {
-        id p = _panels[[item identifier]];
-        if ([p respondsToSelector:@selector(hasEditor:)] && [p hasEditor: editor])
-        {
+      for (NSTabViewItem *item in topTabView.tabViewItems) {
+        id p = _panels[item.identifier];
+        if ([p respondsToSelector: @selector(hasEditor:)] && [p hasEditor: editor]) {
           [p closeEditor: editor];
           break;
         }
       }
-      
-      [spanel addEditor: editor];
+
+      [spanel addEditor:editor];
     }
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (IBAction)showMySQLOverview:(id)sender
-{
-  if (_physicalOverview)
-  {
-    id identifier= [_physicalOverview identifier];
-    
-    for (NSTabViewItem *item in _closedTopTabs)
-    {
-      if ([[item identifier] isEqual:identifier])
-      {
-        [topTabView addTabViewItem:item];
-        [_closedTopTabs removeObject:item];
+- (IBAction)showMySQLOverview: (id)sender {
+  if (_physicalOverview) {
+    id identifier = _physicalOverview.identifier;
+
+    for (NSTabViewItem *item in _closedTopTabs) {
+      if ([item.identifier isEqual: identifier]) {
+        [topTabView addTabViewItem: item];
+        [_closedTopTabs removeObject: item];
         break;
       }
     }
-    [topTabView selectTabViewItemWithIdentifier:identifier];
+    [topTabView selectTabViewItemWithIdentifier: identifier];
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (IBAction)showOutput:(id)sender
-{
+- (IBAction)showOutput: (id)sender {
   [self reopenTopTabViewItem: @"output"];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)focusSearchField:(id)sender
-{
-  bec::UIForm *main_form = _wbui->get_active_main_form();
-  if (main_form && main_form->get_toolbar())
-  {
+- (void)focusSearchField: (id)sender {
+  bec::UIForm *main_form = wb::WBContextUI::get()->get_active_main_form();
+  if (main_form && main_form->get_toolbar()) {
     mforms::ToolBarItem *item = main_form->get_toolbar()->find_item("find");
-    if (item)
-    {
+    if (item) {
       id view = item->get_data();
-      if (view && [view isKindOfClass: [NSTextField class]])
-      {
-        [[self window] makeFirstResponder: view];
+      if (view && [view isKindOfClass: [NSTextField class]]) {
+        [self.window makeFirstResponder: view];
         return;
       }
     }
@@ -871,17 +738,14 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)performSearchObject:(id)sender
-{
-  bec::UIForm *main_form= _wbui->get_active_main_form();
-  if (main_form && main_form->get_frontend_data() && main_form->get_toolbar())
-  {
+- (void)performSearchObject: (id)sender {
+  bec::UIForm *main_form = wb::WBContextUI::get()->get_active_main_form();
+  if (main_form && main_form->get_frontend_data() && main_form->get_toolbar()) {
     mforms::ToolBarItem *item = main_form->get_toolbar()->find_item("find");
-    if (item)
-    {
+    if (item) {
       id form = (__bridge id)(main_form->get_frontend_data());
       [self focusSearchField: nil];
-      if ([form respondsToSelector:@selector(searchString:)])
+      if ([form respondsToSelector: @selector(searchString:)])
         [form searchString: [NSString stringWithCPPString: item->get_text()]];
     }
   }
@@ -889,22 +753,18 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)resetWindowLayout
-{
-  [self showMySQLOverview:nil];
+- (void)resetWindowLayout {
+  [self showMySQLOverview: nil];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (WBBasePanel*)findPanelForView:(NSView*)view inTabView:(NSTabView*)tabView
-{
-  for (NSTabViewItem *item in [tabView tabViewItems])
-  {
-    if ([item view] == view)
-    {
-      id form= _panels[[item identifier]];
+- (WBBasePanel *)findPanelForView: (NSView *)view inTabView: (NSTabView *)tabView {
+  for (NSTabViewItem *item in tabView.tabViewItems) {
+    if (item.view == view) {
+      id form = _panels[item.identifier];
       if (!form)
-        NSLog(@"Item in toplevel tabview is not a known form %@", [item label]);
+        NSLog(@"Item in toplevel tabview is not a known form %@", item.label);
 
       return form;
     }
@@ -918,14 +778,11 @@ void setup_mforms_app(MainWindowController *mwin);
  * Iterates over all currently open editors in all tabs and returns the first one it encounters
  * that matches the given plugin type.
  */
-- (WBBasePanel*) findPanelForPluginType: (Class) type
-{
-  for (NSTabViewItem *item in [topTabView tabViewItems])
-  {
-    id panel = _panels[[item identifier]];
-    if ([panel respondsToSelector: @selector(findPanelForPluginType:)])
-    {
-      id editor = [panel findPanelForPluginType: type];
+- (WBBasePanel *)findPanelForPluginType: (Class)type {
+  for (NSTabViewItem *item in topTabView.tabViewItems) {
+    id panel = _panels[item.identifier];
+    if ([panel respondsToSelector: @selector(findPanelForPluginType:)]) {
+      id editor = [panel findPanelForPluginType:type];
       if (editor)
         return editor;
     }
@@ -935,25 +792,21 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (WBBasePanel*)findMainPanelForUIForm: (bec::UIForm*)form
-{
-  for (NSTabViewItem *item in [topTabView tabViewItems])
-  {
-    id panel = _panels[[item identifier]];
+- (WBBasePanel *)findMainPanelForUIForm: (bec::UIForm *)form {
+  for (NSTabViewItem *item in topTabView.tabViewItems) {
+    id panel = _panels[item.identifier];
     if ([panel formBE] == form)
       return panel;
   }
-  return nil;  
+  return nil;
 }
-                        
+
 //--------------------------------------------------------------------------------------------------
 
-- (void)closeEditorsMatching: (NSString*)identifier
-{  
-  for (NSString *key in [_panels keyEnumerator])
-  {
-    id form= _panels[key];
-  
+- (void)closeEditorsMatching: (NSString *)identifier {
+  for (NSString *key in [_panels keyEnumerator]) {
+    id form = _panels[key];
+
     if ([form respondsToSelector: @selector(closeEditorWithIdentifier:)])
       [form closeEditorWithIdentifier: identifier];
   }
@@ -961,76 +814,65 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (WBBasePanel*)panelForResponder: (NSResponder*)aResponder
-{
+- (WBBasePanel *)panelForResponder: (NSResponder *)aResponder {
   NSResponder *responder = aResponder;
   // look up the responder chain until we reach one of the known toplevel containers
-  NSResponder *previous= nil;
-  NSResponder *previousPrevious= nil;
-  
-  while (responder && (responder != topTabView))
-  {
-    previous= responder;
-    responder= [responder nextResponder];    
-  }
-  previousPrevious= previous;
+  NSResponder *previous = nil;
+  NSResponder *previousPrevious = nil;
 
-  if (responder && [responder isKindOfClass: [NSTabView class]])
-  {
-    WBBasePanel *panel = [self findPanelForView: (NSView*)previousPrevious inTabView: (NSTabView*)responder];
-    if (panel && previousPrevious && [panel isKindOfClass: [WBSplitPanel class]])
-    {
+  while (responder && (responder != topTabView)) {
+    previous = responder;
+    responder = responder.nextResponder;
+  }
+  previousPrevious = previous;
+
+  if (responder && [responder isKindOfClass: [NSTabView class]]) {
+    WBBasePanel *panel = [self findPanelForView: (NSView *)previousPrevious inTabView: (NSTabView *)responder];
+    if (panel && previousPrevious && [panel isKindOfClass: [WBSplitPanel class]]) {
       // check if the responder is in a panel inside the found panel (like an editor in the model diagram panel)
       responder = aResponder;
-      while (responder && responder != previousPrevious)
-      {
+      while (responder && responder != previousPrevious) {
         WBBasePanel *subpanel;
-        
-        subpanel = [(WBSplitPanel*)panel findPanelForView: (NSView*)responder];
+
+        subpanel = [(WBSplitPanel *)panel findPanelForView: (NSView *)responder];
         if (subpanel)
           return subpanel;
-        
-        responder = [responder nextResponder];
+
+        responder = responder.nextResponder;
       }
     }
     return panel;
   }
-  
+
   return nil;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
 /** Find the active panel based on firstResponder
  */
-- (WBBasePanel*)activePanel
-{
-  return [self panelForResponder: [[self window] firstResponder]];
+- (WBBasePanel *)activePanel {
+  return [self panelForResponder: self.window.firstResponder];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (WBBasePanel*)selectedMainPanel
-{
-  return _panels[[[topTabView selectedTabViewItem] identifier]];
+- (WBBasePanel *)selectedMainPanel {
+  return _panels[topTabView.selectedTabViewItem.identifier];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)firstResponderChanged: (NSResponder*)responder
-{
-  WBBasePanel *panel= [self panelForResponder:responder];
+- (void)firstResponderChanged: (NSResponder *)responder {
+  WBBasePanel *panel = [self panelForResponder:responder];
 
-  BOOL changedActivePanel = panel.formBE != _wbui->get_active_form();
+  BOOL changedActivePanel = panel.formBE != wb::WBContextUI::get()->get_active_form();
 
   // replace Edit menu with the standard one so that copy/paste works without intervention
-  if ([responder isKindOfClass: [NSTextView class]])
-  {
+  if ([responder isKindOfClass: [NSTextView class]]) {
     NSLog(@"TODO: restore edit menu");
-  }
-  else if (!changedActivePanel)
-    _wbui->get_command_ui()->revalidate_edit_menu_items();
+  } else if (!changedActivePanel)
+    wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1038,42 +880,36 @@ void setup_mforms_app(MainWindowController *mwin);
 /**
  * Selects (activates) the given panel in the UI.
  */
-- (void) activatePanel: (WBBasePanel*) panel
-{
+- (void)activatePanel: (WBBasePanel *)panel {
   if (panel)
-    _wbui->set_active_form([panel formBE]);
+    wb::WBContextUI::get()->set_active_form(panel.formBE);
   else
-    _wbui->set_active_form(0);
+    wb::WBContextUI::get()->set_active_form(0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)setTitle:(NSString*)title
-        forPanel:(WBBasePanel*)panel
-{
+- (void)setTitle: (NSString *)title forPanel: (WBBasePanel *)panel {
   NSInteger i;
-  
-  i = [topTabView indexOfTabViewItemWithIdentifier: [panel identifier]];
-  if (i >= 0 && i != NSNotFound)
-  {
-    [[topTabView tabViewItemAtIndex: i] setLabel: title];
-    [[self window] display];
+
+  i = [topTabView indexOfTabViewItemWithIdentifier:panel.identifier];
+  if (i >= 0 && i != NSNotFound) {
+    [topTabView tabViewItemAtIndex:i].label = title;
+    [self.window display];
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL)closeAllPanels
-{
+- (BOOL)closeAllPanels {
   id panelsCopy = [_panels copy];
-  id homeTabId = [[topTabView tabViewItemAtIndex: 0] identifier];
-  for (id panel in [panelsCopy objectEnumerator])
-  {
+  id homeTabId = [topTabView tabViewItemAtIndex:0].identifier;
+  for (id panel in [panelsCopy objectEnumerator]) {
     if ([homeTabId isEqualTo: [panel identifier]])
       continue;
     if ([topTabView indexOfTabViewItemWithIdentifier: [panel identifier]] != NSNotFound)
       [topTabView selectTabViewItemWithIdentifier: [panel identifier]];
-    if (![self closePanel: panel])
+    if (![self closePanel:panel])
       return NO;
   }
   [_panels removeAllObjects];
@@ -1083,16 +919,14 @@ void setup_mforms_app(MainWindowController *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL)windowShouldClose:(id)window
-{
-  return _wbui->get_wb()->quit_application();
+- (BOOL)windowShouldClose: (id)window {
+  return wb::WBContextUI::get()->get_wb()->_frontendCallbacks->quit_application();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (WBBasePanel*)selectedTopPanel
-{
-  return _panels[[[topTabView selectedTabViewItem] identifier]];
+- (WBBasePanel *)selectedTopPanel {
+  return _panels[topTabView.selectedTabViewItem.identifier];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1101,56 +935,49 @@ void setup_mforms_app(MainWindowController *mwin);
 
 #import "mforms/../cocoa/MFMForms.h"
 
-class MainWindowDockingPoint : public mforms::DockingPointDelegate
-{
+class MainWindowDockingPoint : public mforms::DockingPointDelegate {
   MainWindowController *controller;
-  
+
 public:
-  MainWindowDockingPoint(MainWindowController *aController) : controller(aController) {}
-  
-  virtual std::string get_type()
-  {
+  MainWindowDockingPoint(MainWindowController *aController) : controller(aController) {
+  }
+
+  virtual std::string get_type() {
     return "MainWindowController";
   }
-  
-  virtual void dock_view(mforms::AppView *view, const std::string &arg1, int arg2)
-  {
+
+  virtual void dock_view(mforms::AppView *view, const std::string &arg1, int arg2) {
     WBMFormsPluginPanel *panel = [WBMFormsPluginPanel panelOfAppView: view];
     view->set_managed();
-    
-    if (arg1 == "maintab" || arg1.empty())
-    {
+
+    if (arg1 == "maintab" || arg1.empty()) {
       if (panel)
-        [controller->topTabView selectTabViewItemWithIdentifier: [panel identifier]];
-      else
-      {
-        panel = [[WBMFormsPluginPanel alloc] initWithAppView: view];
+        [controller->topTabView selectTabViewItemWithIdentifier: panel.identifier];
+      else {
+        panel = [[WBMFormsPluginPanel alloc] initWithAppView:view];
         if (!view->get_menubar())
-          [panel setDefaultMenuBar: controller.context->get_command_ui()->create_menubar_for_context(
-            view->is_main_form() ? view->get_form_context_name() : "")];
-        [controller addTopPanelAndSwitch: panel];
+          [panel setDefaultMenuBar:wb::WBContextUI::get()->get_command_ui()->create_menubar_for_context(
+                                     view->is_main_form() ? view->get_form_context_name() : "")];
+        [controller addTopPanelAndSwitch:panel];
       }
-    }    
+    }
   }
-  
-  virtual bool select_view(mforms::AppView *view)
-  {
+
+  virtual bool select_view(mforms::AppView *view) {
     NSString *ident = @(view->identifier().c_str());
-    
+
     if ([controller->topTabView indexOfTabViewItemWithIdentifier: ident] < 0)
       return false;
     [controller->topTabView selectTabViewItemWithIdentifier: ident];
     return false;
   }
-  
-  virtual void undock_view(mforms::AppView *view)
-  {
+
+  virtual void undock_view(mforms::AppView *view) {
     WBMFormsPluginPanel *panel = [WBMFormsPluginPanel panelOfAppView: view];
-    
-    if (panel)
-    {
+
+    if (panel) {
       // close the panel bypassing the willClose handler (that should've already been called much earlier)
-      id identifier = [panel identifier];
+      id identifier = panel.identifier;
 
       if ([controller->topTabView indexOfTabViewItemWithIdentifier: identifier] != NSNotFound)
         [controller closeTopPanelWithIdentifier: identifier];
@@ -1158,50 +985,41 @@ public:
         [controller closeBottomPanelWithIdentifier: identifier];
     }
   }
-  
-  virtual void set_view_title(mforms::AppView *view, const std::string &title)
-  {
-    WBMFormsPluginPanel *panel = [WBMFormsPluginPanel panelOfAppView: view];
-    if (panel)
-    {
-      [panel setTitle: [NSString stringWithCPPString: title]];
-      [controller setTitle: [panel title] forPanel: panel];
-    }
-    else
-      log_warning("set_view_title called for undocked view\n");
+
+  virtual void set_view_title(mforms::AppView *view, const std::string &title) {
+    WBMFormsPluginPanel *panel = [WBMFormsPluginPanel panelOfAppView:view];
+    if (panel) {
+      panel.title = [NSString stringWithCPPString: title];
+      [controller setTitle:panel.title forPanel: panel];
+    } else
+      logWarning("set_view_title called for undocked view\n");
   }
-  
-  virtual std::pair<int, int> get_size()
-  {
+
+  virtual std::pair<int, int> get_size() {
     NSRect rect = controller.window.frame;
     return std::make_pair(NSWidth(rect), NSHeight(rect));
   }
 
-  virtual int view_count()
-  {
-    return [controller->topTabView numberOfTabViewItems];
+  virtual int view_count() {
+    return (int)controller->topTabView.numberOfTabViewItems;
   }
 
-  virtual mforms::AppView *selected_view()
-  {
-    id view = [[controller->topTabView selectedTabViewItem] view];
-    id panel = [controller findPanelForView:view inTabView: controller->topTabView];
+  virtual mforms::AppView *selected_view() {
+    id view = controller->topTabView.selectedTabViewItem.view;
+    id panel = [controller findPanelForView:view inTabView:controller->topTabView];
 
-    if ([panel isKindOfClass: WBMFormsPluginPanel.class])
-    {
-      return [(WBMFormsPluginPanel*)panel appView];
+    if ([panel isKindOfClass:WBMFormsPluginPanel.class]) {
+      return ((WBMFormsPluginPanel *)panel).appView;
     }
     return NULL;
   }
 
-  virtual mforms::AppView *view_at_index(int index)
-  {
-    id view = [[controller->topTabView tabViewItemAtIndex: index] view];
-    id panel = [controller findPanelForView:view inTabView: controller->topTabView];
+  virtual mforms::AppView *view_at_index(int index) {
+    id view = [controller->topTabView tabViewItemAtIndex: index].view;
+    id panel = [controller findPanelForView: view inTabView: controller->topTabView];
 
-    if ([panel isKindOfClass: [WBMFormsPluginPanel class]])
-    {
-      return [(WBMFormsPluginPanel*)panel appView];
+    if ([panel isKindOfClass: [WBMFormsPluginPanel class]]) {
+      return ((WBMFormsPluginPanel *)panel).appView;
     }
     return NULL;
   }
@@ -1209,33 +1027,28 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-static void set_status_text(mforms::App *app, const std::string &text)
-{
+static void set_status_text(mforms::App *app, const std::string &text) {
   MainWindowController *controller = app->get_data();
 
-  NSString *string = [[NSString alloc] initWithUTF8String: text.c_str()];
-  
+  NSString *string = @(text.c_str());
+
   if (NSThread.isMainThread)
     [controller setStatusText: string];
-  else    
-    [controller performSelectorOnMainThread: @selector(setStatusText:)
-                                 withObject: string
-                              waitUntilDone: NO];
+  else
+    [controller performSelectorOnMainThread: @selector(setStatusText:) withObject: string waitUntilDone: NO];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static std::string get_resource_path(mforms::App *app, const std::string &file)
-{
+static std::string get_resource_path(mforms::App *app, const std::string &file) {
   if (file.empty())
-    return [[[NSBundle mainBundle] resourcePath] UTF8String];
-  
+    return [NSBundle mainBundle].resourcePath.UTF8String;
+
   if (!file.empty() && file[0] == '/')
     return file;
 
   std::string path;
-  if (g_str_has_suffix(file.c_str(), ".png"))
-  {
+  if (g_str_has_suffix(file.c_str(), ".png")) {
     path = bec::IconManager::get_instance()->get_icon_path(file);
     if (!path.empty())
       return path;
@@ -1244,16 +1057,15 @@ static std::string get_resource_path(mforms::App *app, const std::string &file)
   {
     std::string fn = base::basename(file);
     NSString *filename = @(fn.c_str());
-    
-    id str = [[NSBundle mainBundle] pathForResource: [filename stringByDeletingPathExtension]
-                                             ofType: [filename pathExtension]];
+
+    id str =
+      [[NSBundle mainBundle] pathForResource: filename.stringByDeletingPathExtension ofType: filename.pathExtension];
     if (str)
       return [str UTF8String];
 
     // Look for the same image but with tiff extension, in case the actual image is
     // a combined art file.
-    str = [[NSBundle mainBundle] pathForResource: [filename stringByDeletingPathExtension]
-                                          ofType: @"tiff"];
+    str = [[NSBundle mainBundle] pathForResource: filename.stringByDeletingPathExtension ofType: @"tiff"];
     if (str)
       return [str UTF8String];
   }
@@ -1262,29 +1074,26 @@ static std::string get_resource_path(mforms::App *app, const std::string &file)
 
 //--------------------------------------------------------------------------------------------------
 
-static std::string get_executable_path(mforms::App *app, const std::string &file)
-{
+static std::string get_executable_path(mforms::App *app, const std::string &file) {
   if (file.empty())
-    return [[[[NSBundle mainBundle] executablePath] stringByDeletingLastPathComponent] UTF8String];
-  
+    return [NSBundle mainBundle].executablePath.stringByDeletingLastPathComponent.UTF8String;
+
   if (!file.empty() && file[0] == '/')
     return file;
-  
+
   {
     std::string fn = base::basename(file);
     NSString *filename = @(fn.c_str());
 
-    NSString *path = [[[NSBundle mainBundle] executablePath] stringByDeletingLastPathComponent];
-    return [[path stringByAppendingPathComponent: filename] UTF8String];
+    NSString *path = [NSBundle mainBundle].executablePath.stringByDeletingLastPathComponent;
+    return [path stringByAppendingPathComponent: filename].UTF8String;
   }
   return "";
 }
 
-
 //--------------------------------------------------------------------------------------------------
 
-static base::Rect get_main_window_bounds(mforms::App *app)
-{
+static base::Rect get_main_window_bounds(mforms::App *app) {
   MainWindowController *controller = app->get_data();
 
   NSRect r = controller.window.frame;
@@ -1293,96 +1102,57 @@ static base::Rect get_main_window_bounds(mforms::App *app)
 
 //--------------------------------------------------------------------------------------------------
 
-static int enter_event_loop(mforms::App *app, float timeout)
-{
+static int enter_event_loop(mforms::App *app, float timeout) {
   MainWindowController *controller = app->get_data();
-  if (controller != nil)
-  {
-    NSDate *later = timeout > 0.0 ? [NSDate dateWithTimeIntervalSinceNow: timeout] : [NSDate distantFuture];
+  if (controller != nil) {
+    NSDate *later = timeout > 0.0 ? [NSDate dateWithTimeIntervalSinceNow:timeout] : [NSDate distantFuture];
     controller->_eventLoopRetCode = -0xdead1009;
 
-    while (controller->_eventLoopRetCode == -0xdead1009)
-    {
+    while (controller->_eventLoopRetCode == -0xdead1009) {
       NSEvent *e = [NSApp nextEventMatchingMask: NSAnyEventMask
                                       untilDate: later
                                          inMode: NSDefaultRunLoopMode
                                         dequeue: YES];
-      
+
       if (e != nil)
         [NSApp sendEvent: e];
-      else
-        if ([[NSDate date] earlierDate: later] == later)
-        {
-          controller->_eventLoopRetCode = -1;
-          break;
-        }
+      else if ([[NSDate date] earlierDate: later] == later) {
+        controller->_eventLoopRetCode = -1;
+        break;
+      }
     }
-    
+
     return controller->_eventLoopRetCode;
   }
   return -1;
 }
 
-
-static void exit_event_loop(mforms::App *app, int retcode)
-{
+static void exit_event_loop(mforms::App *app, int retcode) {
   MainWindowController *controller = app->get_data();
   if (controller != nil)
     controller->_eventLoopRetCode = retcode;
 }
 
-static base::Color get_system_color(mforms::SystemColor color)
-{
-  switch (color)
-  {
-    case mforms::SystemColorHighlight:
-    {
-      NSColor *c = [[NSColor alternateSelectedControlColor] colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-      return base::Color([c redComponent], [c greenComponent], [c blueComponent]);
-    }
-    case mforms::SystemColorEditor:
-    {
-      NSColor *c = [[NSColor controlBackgroundColor] colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-      return base::Color([c redComponent], [c greenComponent], [c blueComponent]);
-    }
-    case mforms::SystemColorDisabled:
-    {
-      NSColor *c = [[NSColor controlHighlightColor] colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-      return base::Color([c redComponent], [c greenComponent], [c blueComponent]);
-    }
-    case mforms::SystemColorContainer:
-    {
-      NSColor *c = [[NSColor colorWithDeviceWhite: 240/255.0 alpha: 1.0] colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-      return base::Color([c redComponent], [c greenComponent], [c blueComponent]);
-    }
-  }
-  return base::Color::Color(1, 0, 0);
-}
-
-static float backing_scale_factor(mforms::App *app)
-{
+static float backing_scale_factor(mforms::App *app) {
   MainWindowController *controller = app->get_data();
   if ([controller.window respondsToSelector: @selector(backingScaleFactor)])
-    return [controller.window backingScaleFactor]; // Available since 10.7.
+    return (controller.window).backingScaleFactor; // Available since 10.7.
   return 1.0;
 }
 
-
-void setup_mforms_app(MainWindowController *controller)
-{
+void setup_mforms_app(MainWindowController *controller) {
   mforms::ControlFactory *cf = mforms::ControlFactory::get_instance();
   g_assert(cf);
-  
+
   mforms::App::instantiate(new MainWindowDockingPoint(controller), true);
   mforms::App::get()->set_data(controller);
-  
+
   cf->_app_impl.get_resource_path = get_resource_path;
   cf->_app_impl.get_executable_path = get_executable_path;
   cf->_app_impl.set_status_text = set_status_text;
   cf->_app_impl.get_application_bounds = get_main_window_bounds;
   cf->_app_impl.enter_event_loop = enter_event_loop;
   cf->_app_impl.exit_event_loop = exit_event_loop;
-  cf->_app_impl.get_system_color = get_system_color;
   cf->_app_impl.backing_scale_factor = backing_scale_factor;
 }
 

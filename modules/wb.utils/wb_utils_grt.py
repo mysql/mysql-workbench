@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -460,6 +460,16 @@ def startCommandLineClientForConnection(conn):
                 "sh -c \"while :; do %s && break || read -p \\\"Press Enter to retry or Ctrl+C to quit\\\" DUMMY_VAR; done\" " % command
             + "' &"   # <--- launch GUI terminal and exit (returns to Workbench immediately rather than blocking)
         ])
+        
+        my_env = os.environ.copy()
+        if (("XDG_SESSION_TYPE" in my_env and my_env["XDG_SESSION_TYPE"] == "wayland") 
+          or "WAYLAND_DISPLAY" in my_env) and my_env["GDK_BACKEND"]:
+            my_env["GDK_BACKEND"] = "wayland"
+        subprocess.Popen(["/bin/sh", "-c",
+                          get_linux_terminal_program() + " -e '" +
+                "sh -c \"while :; do %s && break || read -p \\\"Press Enter to retry or Ctrl+C to quit\\\" DUMMY_VAR; done\" " % command
+                + "' &"   # <--- launch GUI terminal and exit (returns to Workbench immediately rather than blocking) 
+        ], shell=False, env=my_env)
 
 if sys.platform == "linux2":
     @ModuleInfo.export(grt.INT)
@@ -561,7 +571,11 @@ def startUtilitiesShell():
                 if 'konsole' in term:
                     subprocess.call([term, "-e", "/bin/sh", setup_script])
                 else:
-                    subprocess.call(["/bin/sh", "-c", "%s -e %s &" % (term, setup_script)])
+                    my_env = os.environ.copy()
+                    if (("XDG_SESSION_TYPE" in my_env and my_env["XDG_SESSION_TYPE"] == "wayland") 
+                      or "WAYLAND_DISPLAY" in my_env) and my_env["GDK_BACKEND"]:
+                        my_env["GDK_BACKEND"] = "wayland"
+                    subprocess.Popen(["/bin/sh", "-c", "%s -e %s &" % (term, setup_script)], shell=False, env=my_env)
             else:
                 raise RuntimeError("Terminal program could not be found")
 
@@ -819,7 +833,7 @@ class SSLWizard_OptionsPage(WizardPage):
         self.use_default_parameters.set_active(False)
         
         self.clear_button = newButton()
-        self.clear_button.set_text("Clear")
+        self.clear_button.set_text("Clear Files")
         self.clear_button.add_clicked_callback(self.clear_button_clicked)
         self.clear_button.set_enabled(os.path.isdir(self.main.results_path))
 
@@ -863,13 +877,19 @@ class SSLWizard_OptionsPage(WizardPage):
 
         label = mforms.newLabel(message)
 
-        box.add(label, False, False)
-        box.add(self.use_default_parameters, False, False)
-        box.add(self.generate_files, False, False)
-        box.add(self.update_connection, False, False)
+        box.add(label, False, True)
+        box.add(self.use_default_parameters, False, True)
+        box.add(self.generate_files, False, True)
+        box.add(self.update_connection, False, True)
         
-        self.content.add(box, False, False)
-        self.content.add(self.clear_button, False, False)
+        button_box = mforms.newBox(True)
+        button_box.set_spacing(12)
+        button_box.set_padding(12)
+        
+        button_box.add(self.clear_button, False, True)
+        
+        self.content.add(box, False, True)
+        self.content.add(button_box, False, True)
         box.show(True)
 
 class SSLWizard_GeneratePage(WizardPage):
@@ -911,8 +931,8 @@ class SSLWizard_GeneratePage(WizardPage):
         self.parameters_panel.set_title("Optional Parameters")
         self.parameters_panel.add(self.table)
         
-        self.parameters_box.add(self.parameters_label, False, False)
-        self.parameters_box.add(self.parameters_panel, False, False)
+        self.parameters_box.add(self.parameters_label, False, True)
+        self.parameters_box.add(self.parameters_panel, False, True)
 
         self.default_label = mforms.newLabel("The wizard is ready to generate the files for you. Click 'Next >' to generate \nthe certificates and self-signed key files...")
 
@@ -1003,7 +1023,7 @@ class SSLWizard_ResultsPage(WizardPage):
             self.main.conn.parameterValues['sslCA'] = self.main.generate_page.ca_cert.replace('\\', '/')
             self.main.conn.parameterValues['sslCert'] = self.main.generate_page.client_cert.replace('\\', '/')
             self.main.conn.parameterValues['sslKey'] = self.main.generate_page.client_key.replace('\\', '/')
-            self.main.conn.parameterValues['useSSL'] = 2
+            self.main.conn.parameterValues['useSSL'] = 4
             
         self.main.go_next_page()
 

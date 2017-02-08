@@ -121,7 +121,7 @@
     <ClInclude Include="src\wf_treenode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\wf_treenodeview.h">
+    <ClInclude Include="src\wf_treeview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\wf_utilities.h">
@@ -139,14 +139,14 @@
     <ClInclude Include="src\wf_canvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\wf_record_grid_view.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Canvas.h">
       <Filter>Canvas</Filter>
     </ClInclude>
     <ClInclude Include="CanvasViewer.h">
       <Filter>Canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wf_gridview.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -260,7 +260,7 @@
     <ClCompile Include="src\wf_treenode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\wf_treenodeview.cpp">
+    <ClCompile Include="src\wf_treeview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\wf_utilities.cpp">
@@ -279,14 +279,14 @@
     <ClCompile Include="src\wf_canvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\wf_record_grid_view.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Canvas.cpp">
       <Filter>Canvas</Filter>
     </ClCompile>
     <ClCompile Include="CanvasViewer.cpp">
       <Filter>Canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wf_gridview.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

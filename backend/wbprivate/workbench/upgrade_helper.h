@@ -10,45 +10,35 @@
 using namespace wb;
 using namespace grt;
 
-struct xmlString
-{
+struct xmlString {
   xmlChar *str;
-  
-  xmlString(xmlChar *s)
-  : str(s)
-  {
+
+  xmlString(xmlChar *s) : str(s) {
   }
-  
-  ~xmlString()
-  {
+
+  ~xmlString() {
     if (str)
       xmlFree(str);
   }
-  
-  operator xmlChar*()
-  {
+
+  operator xmlChar *() {
     return str;
   }
-  
-  operator const char*()
-  {
-    return (const char*)str;
+
+  operator const char *() {
+    return (const char *)str;
   }
 
-  operator std::string()
-  {
-    return std::string((const char*)str);
+  operator std::string() {
+    return std::string((const char *)str);
   }
-  
-  operator bool()
-  {
+
+  operator bool() {
     return str != 0;
   }
 };
 
-
-class XMLTraverser 
-{
+class XMLTraverser {
 private:
   xmlDocPtr doc;
   xmlNodePtr root;
@@ -69,12 +59,12 @@ public:
   void set_object_link(xmlNodePtr object, const char *key, xmlNodePtr target_object);
   void set_object_link_literal(xmlNodePtr object, const char *key, const char *value, const char *struct_name);
   std::vector<xmlNodePtr> scan_objects_of_type(const char *struct_name);
-  std::list<xmlNodePtr> scan_nodes_with_key(const char *name, xmlNodePtr parent= NULL);
+  std::list<xmlNodePtr> scan_nodes_with_key(const char *name, xmlNodePtr parent = NULL);
 
   double get_object_double_value(xmlNodePtr object, const char *key);
 
   // return value of callback determines if that node should be traversed too
-  void traverse_subtree(const char *path, const boost::function<bool (xmlNodePtr, xmlNodePtr)> &callback);
+  void traverse_subtree(const char *path, const std::function<bool(xmlNodePtr, xmlNodePtr)> &callback);
 };
 
 xmlNodePtr create_grt_object_node(const char *id, const char *struct_type);
@@ -90,8 +80,7 @@ void find_replace_xml_attributes(xmlNodePtr root, const char **attr, const char 
 void rename_xml_grt_members(xmlNodePtr root, const char **klass, const char **name_from, const char **name_to);
 void delete_xml_grt_members(xmlNodePtr root, const char **klass, const char **name);
 
-inline xmlNodePtr first_xml_element(xmlNodePtr node)
-{
+inline xmlNodePtr first_xml_element(xmlNodePtr node) {
   while (node && node->type != XML_ELEMENT_NODE)
     node = node->next;
   return node;

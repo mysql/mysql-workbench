@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,12 +20,10 @@
 #include "base/log.h"
 #include "mdc_canvas_view_macosx.h"
 
-namespace mdc
-{
-  std::string detect_opengl_version()
-  {
-    return "2.0";//XXX
-  }  
+namespace mdc {
+  std::string detect_opengl_version() {
+    return "2.0"; // XXX
+  }
 };
 
 DEFAULT_LOG_DOMAIN(DOMAIN_CANVAS_BE)
@@ -34,10 +32,8 @@ using namespace mdc;
 
 //--------------------------------------------------------------------------------------------------
 
-QuartzCanvasView::QuartzCanvasView(int width, int height)
-  : CanvasView(width, height)
-{
-  log_debug("Creating quartz canvas view\n");
+QuartzCanvasView::QuartzCanvasView(int width, int height) : CanvasView(width, height) {
+  logDebug("Creating quartz canvas view\n");
 
   // A surface used to get a cairo context outside of a paint cycle (usually for font measurement).
   _offlineSurface = cairo_quartz_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
@@ -48,9 +44,8 @@ QuartzCanvasView::QuartzCanvasView(int width, int height)
 
 //--------------------------------------------------------------------------------------------------
 
-QuartzCanvasView::~QuartzCanvasView()
-{
-  log_debug("Destroying quartz canvas view\n");
+QuartzCanvasView::~QuartzCanvasView() {
+  logDebug("Destroying quartz canvas view\n");
 
   if (_offlineSurface != NULL)
     cairo_surface_destroy(_offlineSurface);
@@ -68,39 +63,34 @@ QuartzCanvasView::~QuartzCanvasView()
  * As the base class does not allow to pass it in the repaint() function an additional call is needed
  * to set the context for the next paint cycle.
  */
-void QuartzCanvasView::set_target_context(CGContextRef cgContext)
-{
+void QuartzCanvasView::set_target_context(CGContextRef cgContext) {
   _context = cgContext;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void QuartzCanvasView::update_view_size(int width, int height)
-{
-  if (_view_width != width || _view_height != height)
-  {
+void QuartzCanvasView::update_view_size(int width, int height) {
+  if (_view_width != width || _view_height != height) {
     _view_width = width;
     _view_height = height;
 
     update_offsets();
     queue_repaint();
-    
+
     _viewport_changed_signal();
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void QuartzCanvasView::begin_repaint(int, int, int, int)
-{
+void QuartzCanvasView::begin_repaint(int, int, int, int) {
   _crsurface = cairo_quartz_surface_create_for_cg_context(_context, _view_width, _view_height);
   _cairo->update_cairo_backend(_crsurface);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void QuartzCanvasView::end_repaint()
-{
+void QuartzCanvasView::end_repaint() {
   _context = NULL;
 
   cairo_surface_destroy(_crsurface);

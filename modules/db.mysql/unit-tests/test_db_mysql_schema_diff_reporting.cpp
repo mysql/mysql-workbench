@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -18,7 +18,6 @@
 */
 
 #include <pcre.h>
-#include "ctemplate/template.h"
 
 #include "testgrt.h"
 #include "grt_test_utility.h"
@@ -41,22 +40,16 @@
 
 using namespace std;
 
-using ctemplate::Template;
-using ctemplate::TemplateDictionary;
-using ctemplate::STRIP_WHITESPACE;
-
 // these functions are defined in grtdiff_alter_test.cpp
 void populate_grt(GRT *grt, const char *);
-// db_mysql_Catalog create_empty_catalog_for_import(grt::GRT *grt);
-db_mysql_Catalog db_rev_eng_schema(bec::GRTManager *grtm, 
-                                   const std::list<std::string>& schema_names);
+// db_mysql_Catalog create_empty_catalog_for_import();
+db_mysql_Catalog db_rev_eng_schema(bec::GRTManager *grtm, const std::list<std::string> &schema_names);
 
 //=============================================================================
 //
 //=============================================================================
 BEGIN_TEST_DATA_CLASS(module_db_mysql_schema_diff_reporting)
 public:
-  GRTManagerTest grtm;
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_db_mysql_schema_diff_reporting, "DB MySQL: schema reporting");
@@ -64,12 +57,11 @@ TEST_MODULE(module_db_mysql_schema_diff_reporting, "DB MySQL: schema reporting")
 //=============================================================================
 // Test cases type for TEST_FUNCTION(5)
 //=============================================================================
-struct TestCase
-{
-  const char  *name;
-  const char  *originalSQL;
-  const char  *modifiedSQL;
-  const char  *testExpression;
+struct TestCase {
+  const char *name;
+  const char *originalSQL;
+  const char *modifiedSQL;
+  const char *testExpression;
 };
 
 //-----------------------------------------------------------------------------

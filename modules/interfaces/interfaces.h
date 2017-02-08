@@ -1,16 +1,15 @@
 
-#include <grtpp.h>
+#include "grt.h"
 
 #include "plugin.h"
 #include "sqlgenerator.h"
 #include "wbvalidation.h"
 #include "wb_model_reporting.h"
 
-inline void register_interfaces(grt::GRT *grt)
-{
-  if (!grt->get_interface("PluginInterface"))
-    PluginInterfaceImpl::register_interface(grt); // this is already registered in PluginManager
-  SQLGeneratorInterfaceImpl::register_interface(grt);
-  WbValidationInterfaceImpl::register_interface(grt);
-  WbModelReportingInterfaceImpl::register_interface(grt);
+inline void register_interfaces() {
+  if (!grt::GRT::get()->get_interface("PluginInterface"))
+    PluginInterfaceImpl::register_interface(); // this is already registered in PluginManager
+  SQLGeneratorInterfaceImpl::register_interface();
+  WbValidationInterfaceImpl::register_interface();
+  WbModelReportingInterfaceImpl::register_interface();
 }

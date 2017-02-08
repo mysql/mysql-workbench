@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+        <development version="7000" identifier="xcode"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <objects>
@@ -105,7 +105,7 @@
                                             <rect key="frame" x="1" y="1" width="428" height="119"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
-                                                <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" smartInsertDelete="YES" id="22">
+                                                <textView importsGraphics="NO" richText="NO" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" usesRuler="YES" smartInsertDelete="YES" id="22">
                                                     <rect key="frame" x="0.0" y="0.0" width="428" height="119"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -850,8 +850,6 @@
                                                         </fragment>
                                                     </attributedString>
                                                     <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <size key="minSize" width="428" height="119"/>
-                                                    <size key="maxSize" width="815" height="10000000"/>
                                                     <connections>
                                                         <outlet property="delegate" destination="-2" id="124"/>
                                                     </connections>
@@ -886,7 +884,7 @@
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <box autoresizesSubviews="NO" title="Visibility" borderType="line" id="197">
+                                    <box autoresizesSubviews="NO" borderType="line" title="Visibility" id="197">
                                         <rect key="frame" x="573" y="11" width="175" height="123"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" heightSizable="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" id="JGc-ui-89h">
@@ -925,8 +923,6 @@
                                                 </matrix>
                                             </subviews>
                                         </view>
-                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                     </box>
                                 </subviews>
                             </view>
@@ -947,7 +943,7 @@
                                             <action selector="invertRelationship:" target="-2" id="125"/>
                                         </connections>
                                     </button>
-                                    <box autoresizesSubviews="NO" title="Referencing Table" borderType="line" id="141">
+                                    <box autoresizesSubviews="NO" borderType="line" title="Referencing Table" id="141">
                                         <rect key="frame" x="14" y="12" width="274" height="159"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
                                         <view key="contentView" id="7fy-sU-aM7">
@@ -1005,10 +1001,8 @@
                                                 </textField>
                                             </subviews>
                                         </view>
-                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                     </box>
-                                    <box autoresizesSubviews="NO" title="Referenced Table" borderType="line" id="157">
+                                    <box autoresizesSubviews="NO" borderType="line" title="Referenced Table" id="157">
                                         <rect key="frame" x="451" y="12" width="281" height="159"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" heightSizable="YES"/>
                                         <view key="contentView" id="FV6-aP-Cux">
@@ -1057,15 +1051,13 @@
                                                 </textField>
                                             </subviews>
                                         </view>
-                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                     </box>
                                     <imageView id="181">
                                         <rect key="frame" x="300" y="123" width="150" height="37"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="182"/>
                                     </imageView>
-                                    <box autoresizesSubviews="NO" title="Cardinality" borderType="line" id="190">
+                                    <box autoresizesSubviews="NO" borderType="line" title="Cardinality" id="190">
                                         <rect key="frame" x="290" y="93" width="159" height="78"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <view key="contentView" id="Z6I-3X-J9T">
@@ -1100,8 +1092,6 @@
                                                 </matrix>
                                             </subviews>
                                         </view>
-                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                     </box>
                                     <button toolTip="Toggles whether the relationship/foreign key is part of the Primary Key of the table." id="212">
                                         <rect key="frame" x="295" y="14" width="149" height="18"/>

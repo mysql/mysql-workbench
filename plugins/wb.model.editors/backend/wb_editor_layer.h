@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,20 +24,19 @@
 
 #include "wb_editor_backend_public_interface.h"
 
-class WBEDITOR_BACKEND_PUBLIC_FUNC LayerEditorBE : public bec::BaseEditor
-{
+class WBEDITOR_BACKEND_PUBLIC_FUNC LayerEditorBE : public bec::BaseEditor {
   workbench_physical_LayerRef _layer;
-  
+
 public:
-  LayerEditorBE(bec::GRTManager *grtm, const workbench_physical_LayerRef &layer);
-  
+  LayerEditorBE(const workbench_physical_LayerRef &layer);
+
   virtual bool should_close_on_delete_of(const std::string &oid);
-  
+
   void set_color(const std::string &color);
   std::string get_color();
-  
+
   void set_name(const std::string &name);
   std::string get_name();
-  
+
   virtual std::string get_title();
-  };
+};

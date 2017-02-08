@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -21,24 +21,16 @@
 
 #include "grts/structs.workbench.logical.h"
 
-
 using namespace wb;
-using namespace bec;
 using namespace grt;
 
-
-WBComponentLogical::WBComponentLogical(WBContext *wb)
-: WBComponent(wb)
-{
+WBComponentLogical::WBComponentLogical(WBContext *wb) : WBComponent(wb) {
 }
 
-
-void WBComponentLogical::setup_logical_model(grt::GRT *grt, workbench_DocumentRef &doc)
-{
+void WBComponentLogical::setup_logical_model(workbench_DocumentRef &doc) {
   // init logical model
-  workbench_logical_ModelRef lmodel(grt);
+  workbench_logical_ModelRef lmodel(grt::Initialized);
   lmodel->owner(doc);
 
   doc->logicalModel(lmodel);
 }
-

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ import os
 
 import mforms
 
-from mforms import newBox, newLabel, newButton, newTextEntry, newTreeNodeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
+from mforms import newBox, newLabel, newButton, newTextEntry, newTreeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, newScrollPanel, App
 from wb_admin_utils import not_running_warning_label, make_panel_header
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
 from wb_common import PermissionDeniedError
@@ -242,13 +242,13 @@ class AddSchemaPrivilegeForm(mforms.Form):
         self.schema1.add_clicked_callback(self.schema_radio_changed)
         self.schema1.set_text("All Schema (%)")
         table.add(self.schema1, 0, 1, 0, 1, mforms.HFillFlag)
-        table.add(dLabel("This rule will apply to any schema name."), 2, 3, 0, 1, mforms.HFillFlag)
+        table.add(dLabel("This rule will apply to any schema name."), 2, 3, 0, 1, mforms.VFillFlag|mforms.HFillFlag)
 
         self.schema2 = newRadioButton(self.schema1.group_id())
         self.schema2.add_clicked_callback(self.schema_radio_changed)
         self.schema2.set_text("Schemas matching pattern:")
         table.add(self.schema2, 0, 1, 1, 2, mforms.HFillFlag)
-        table.add(dLabel("This rule will apply to schemas that match the given name or pattern.\nYou may use _ and % as wildcards in a pattern.\nEscape these characters with \\ in case you want their literal value."), 2, 3, 1, 2, mforms.HFillFlag)
+        table.add(dLabel("This rule will apply to schemas that match the given name or pattern.\nYou may use _ and % as wildcards in a pattern.\nEscape these characters with \\ in case you want their literal value."), 2, 3, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
 
         self.schema2entry = newTextEntry()
         table.add(self.schema2entry, 1, 2, 1, 2, mforms.HFillFlag|mforms.HExpandFlag)
@@ -257,11 +257,11 @@ class AddSchemaPrivilegeForm(mforms.Form):
         self.schema3.add_clicked_callback(self.schema_radio_changed)
         self.schema3.set_text("Selected schema:")
         alignbox = mforms.newBox(False)
-        alignbox.add(self.schema3, False, False)
-        table.add(alignbox, 0, 1, 2, 3, mforms.HFillFlag)
+        alignbox.add(self.schema3, False, True)
+        table.add(alignbox, 0, 1, 2, 3, mforms.VFillFlag|mforms.HFillFlag)
         label = dLabel("Select a specific schema name for the rule to apply to.")
         label.set_text_align(mforms.TopLeft)
-        table.add(label, 2, 3, 2, 3, mforms.HFillFlag)
+        table.add(label, 2, 3, 2, 3, mforms.VFillFlag|mforms.HFillFlag)
 
         self.schema3sel = newSelector()
         table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag)
@@ -290,7 +290,19 @@ class AddSchemaPrivilegeForm(mforms.Form):
     def schema_radio_changed(self):
         self.schema2entry.set_enabled(self.schema2.get_active())
         self.schema3sel.set_enabled(self.schema3.get_active())
+        self.secman.async_refresh(self.update_schemas)
 
+
+    def update_schemas(self):
+        selected_schema = self.schema3.get_string_value()
+        self.schema3sel.clear()
+
+        for item in self.secman.schema_names:
+            self.schema3sel.add_item(item)
+            
+        for index in range(0, self.schema3sel.get_item_count()):
+            if self.schema3sel.get_item_title(index) == selected_schema:
+                self.schema3sel.set_index(index)
 
     def run(self):
         if self.run_modal(self.ok, self.cancel):
@@ -321,13 +333,19 @@ class SecuritySchemaPrivileges(mforms.Box):
 
         self.schema_rights_checks = {}
 
-        self.privs_list = newTreeNodeView(mforms.TreeFlatList)
+        self.privs_list = newTreeView(mforms.TreeFlatList)
         self.privs_list.add_column(mforms.StringColumnType, "Schema", 150, True)
         self.privs_list.add_column(mforms.StringColumnType, "Privileges", 800, False)
         self.privs_list.end_columns()
         self.privs_list.add_changed_callback(self.schema_priv_selected)
 
-        self.add(self.privs_list, True, True)
+
+        topbox = newBox(False)
+        topbox.set_spacing(8)
+        
+        topbox.add(self.privs_list, True, True)
+        
+        splitter = mforms.newSplitter(False)
 
         bbox = newBox(True)
         bbox.set_spacing(8)
@@ -350,10 +368,13 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.revoke_all_button.add_clicked_callback(self._owner.revoke_all)
         self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
 
-        self.add(bbox, False, True)
+        topbox.add(bbox, False, True)
 
         self.schema_priv_label = newLabel("")
-        self.add(self.schema_priv_label, False, True)
+        topbox.add(self.schema_priv_label, False, True)
+        
+        splitter.add(topbox, 200)
+
 
         hbox = newBox(True)
         hbox.set_spacing(8)
@@ -382,7 +403,12 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.other_rights_box = box
         panel.add(box)
         hbox.add(panel, False, True)
-        self.add(hbox, False, True)
+        
+        scrollbox = newScrollPanel(0)
+        scrollbox.add(hbox)
+
+        splitter.add(scrollbox, 200)
+        self.add(splitter, True, True)
 
         bottom_box = newBox(True)
         bottom_box.set_spacing(8)
@@ -413,7 +439,7 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.add(bottom_box, False, True)
 
         self.resume_layout()
-
+        splitter.set_divider_position(200)
 
     ####
 
@@ -1162,7 +1188,7 @@ class SecurityAccount(mforms.Box):
         #searchbox = TextEntry(SearchEntry)
         #account_list_box.add(searchbox, False, True)
 
-        self.user_list = newTreeNodeView(mforms.TreeFlatList)
+        self.user_list = newTreeView(mforms.TreeFlatList)
         self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
         self.user_list.add_column(mforms.StringColumnType, "From Host", 100, False)
         
@@ -1363,7 +1389,7 @@ class SecurityAccount(mforms.Box):
         self.revoke_all_button.add_clicked_callback(self.revoke_all)
         self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
 
-        self.role_list = newTreeNodeView(mforms.TreeFlatList)
+        self.role_list = newTreeView(mforms.TreeFlatList)
         self.role_list.add_column(mforms.CheckColumnType, "", 30, True)
         self.role_list.add_column(mforms.StringColumnType, "Role", 150, False)
         self.role_list.add_column(mforms.StringColumnType, "Description", 300, False)
@@ -1371,7 +1397,7 @@ class SecurityAccount(mforms.Box):
         lbox.add(self.role_list, True, True)
         self.role_list.set_cell_edited_callback(self.role_list_toggled)
 
-        self.role_priv_list = newTreeNodeView(mforms.TreeFlatList)
+        self.role_priv_list = newTreeView(mforms.TreeFlatList)
         self.role_priv_list.add_column(mforms.CheckColumnType, '', 30, True)
         self.role_priv_list.add_column(mforms.StringColumnType, "Global Privileges", 180, False)
         self.role_priv_list.end_columns()
@@ -1393,7 +1419,9 @@ class SecurityAccount(mforms.Box):
 
         self.resume_layout()
 
-        mforms.Utilities.add_timeout(0.1, lambda self=self: self.splitter.set_position(240))
+        mforms.Utilities.add_timeout(0.1, lambda self=self: self.splitter.set_divider_position(240))
+
+        self.current_action = ""
 
         self.user_selected()
 
@@ -1519,7 +1547,17 @@ class SecurityAccount(mforms.Box):
 
     def user_selected(self):
         sel = self.user_list.get_selected_node()
-
+        user = ""
+        host = ""
+        
+        #if self.current_action == "delete account":
+        if self.current_action == "commit account":
+            if not self._selected_user:
+                return
+            user = self._selected_user.username
+            host = self._selected_user.host
+        elif sel:
+            user, host = eval(sel.get_tag())
         self._selected_user = None
         self._selected_user_original = None
         self.show_user(None)
@@ -1528,17 +1566,19 @@ class SecurityAccount(mforms.Box):
         self.del_button.set_enabled(False)
 
         if sel:
-            user, host = eval(sel.get_tag())
             self.account_label.set_text("Details for account %s@%s" % (user, host))
 
             if self.owner.secman.is_zombie(user, host):
                 self.show_zombie_user(user, host)
             else:
-                self.owner.secman.async_get_account(self.show_user, user, host)
-                
+                try:
+                    self.owner.secman.async_get_account(self.show_user, user, host)
+                except Exception, e:
+                    if str(e).startswith("Could not load account information for"):
+                        log_debug3("Unable to load the account information for %s@%s. Probably the user was not created in the server yet and revert was pressed." % (user, host))
+                        return
         else:
             self.account_label.set_text("Select an account to edit or click [Add Account] to create a new one")
-
 
     def show_zombie_user(self, user, host):
         self.content_box.set_enabled(True)
@@ -1645,6 +1685,7 @@ class SecurityAccount(mforms.Box):
         return users_count - 1  # Control shouldn't get here
 
     def add_account(self):
+        self.current_action = "add account"
         account = self.owner.secman.create_account()
         self.refresh()
         self.inner_tabview.set_active_tab(0)
@@ -1656,6 +1697,7 @@ class SecurityAccount(mforms.Box):
         self.add_button.set_enabled(False)
         self.del_button.set_enabled(False)
         self.refresh_button.set_enabled(False)
+        self.current_action = ""
         
     def upgrade_account(self):
         def generate_password(length = 8):    
@@ -1708,6 +1750,7 @@ class SecurityAccount(mforms.Box):
 
 
     def del_account(self):
+        self.current_action = "delete account"
         if self._selected_user:
             if not self._selected_user.is_commited or Utilities.show_message("Delete Account",
                   "The account '%s' will be permanently removed. Please confirm."%(self._selected_user.formatted_name()),
@@ -1719,9 +1762,11 @@ class SecurityAccount(mforms.Box):
                     log_error("Exception while removing account: %s\n" % str(e))
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error("Delete account", '%s\n%s' % (title, message), 'OK', '', '')
+                    self.current_action = ""
                     return
                 self._selected_user = None
                 self._selected_user_original = None
+                self.user_list.clear_selection()
                 self.owner.do_refresh()
                 self.user_selected()
                 mforms.App.get().set_status_text("Account '%s' was deleted" % the_name)
@@ -1730,18 +1775,20 @@ class SecurityAccount(mforms.Box):
             if user:
                 username, host = eval(user.get_tag())
                 try:
+                    user.remove_from_parent()
                     self.owner.secman.do_delete_account(username, host)
                 except Exception, e:
                     log_error("Exception while removing zombi account: %s\n" % str(e))
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error("Delete account", '%s\n%s' % (title, message), 'OK', '', '')
+                    self.current_action = ""
                     return
-                user.remove_from_parent()
+                
 
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
-
+        self.current_action = ""
 
     def refresh(self):
         selected_row = None
@@ -1753,7 +1800,6 @@ class SecurityAccount(mforms.Box):
         self.firewall_rules.refresh_users(self.owner.secman.account_names)
         for user, host in self.owner.secman.account_names:
             row = self.user_list.add_node()
-
             if self.owner.secman.is_zombie(user, host):
                 row.set_string(0, "(!) "+(user or "<anonymous>"))
             else:
@@ -1780,7 +1826,6 @@ class SecurityAccount(mforms.Box):
         self.password_label.set_color('#000000')
         
         self.setup_bottom_message_box(su) 
-
 
     def refresh_priv_list(self):
         self.role_priv_list.clear()
@@ -1878,8 +1923,10 @@ class SecurityAccount(mforms.Box):
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
+        self.owner.refresh()
 
     def commit(self):
+        self.current_action = "commit account"
         if self._selected_user:
             username = self.username.get_string_value()
             host = self.hostlimithost.get_string_value()
@@ -1899,6 +1946,7 @@ class SecurityAccount(mforms.Box):
                 if Utilities.show_warning("Save Account Changes",
                         "It is a security hazard to create an account with no password.\nPlease confirm creation of '%s'@'%s' with no password."%(username, host),
                         "Create", "Cancel", "") != mforms.ResultOk:
+                    self.current_action = ""
                     return
             
             lcase_host = host.lower()
@@ -1923,6 +1971,7 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error('Wrong Value for Max. Queries',
                         'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_questions.get_string_value(),
                         'OK', '', '')
+                self.current_action = ""
                 return
 
             try:
@@ -1932,6 +1981,7 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error('Wrong Value for Max. Updates',
                         'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_updates.get_string_value(),
                         'OK', '', '')
+                self.current_action = ""
                 return
 
             try:
@@ -1941,6 +1991,7 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error('Wrong Value for Max. Connections',
                         'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_connections.get_string_value(),
                         'OK', '', '')
+                self.current_action = ""
                 return
             try:
                 self._selected_user.max_user_connections = int(self.max_uconnections.get_string_value())
@@ -1949,6 +2000,7 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error('Wrong Value for Concurrent Connections',
                         'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_uconnections.get_string_value(),
                         'OK', '', '')
+                self.current_action = ""
                 return
             
             
@@ -1965,16 +2017,19 @@ class SecurityAccount(mforms.Box):
             except WBSecurityValidationError, exc:
                 Utilities.show_error("Save Account Changes",
                       str(exc), "OK", "", "")
+                self.current_action = ""
                 return
             except PermissionDeniedError, exc:
                 Utilities.show_error("Permission Errors",
                       str(exc), "OK", "", "")
+                self.current_action = ""
                 return
             except Exception, exc:
                 import traceback
                 log_error("Exception while saving account: %s\n" % traceback.format_exc())
                 Utilities.show_error("Error Saving Account",
                       str(exc), "OK", "", "")
+                self.current_action = ""
                 return
             
             try:
@@ -1984,6 +2039,7 @@ class SecurityAccount(mforms.Box):
                 log_error("Exception while saving account: %s\n" % traceback.format_exc())
                 Utilities.show_error("Error Saving Account",
                       str(exc), "OK", "", "")
+                self.current_action = ""
                 return
 
             self.reload_user(is_new_user)
@@ -1991,6 +2047,7 @@ class SecurityAccount(mforms.Box):
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
+        self.current_action = ""
 
 
     def update(self):

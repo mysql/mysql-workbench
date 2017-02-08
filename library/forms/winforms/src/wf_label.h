@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,35 +25,35 @@ namespace MySQL {
     /**
      * Defines a label with an auto wrapping feature.
      */
-    private ref class WrapControlLabel : Windows::Forms::Label
-    {
+  private
+    ref class WrapControlLabel : System::Windows::Forms::Label {
     private:
       bool autoWrapping;
       Drawing::Size lastSize;
+
     public:
       WrapControlLabel();
 
-      property bool AutoWrapping
-      {
-        bool get() { return autoWrapping; };
-        void set(bool value) { autoWrapping= value; };
+      property bool AutoWrapping {
+        bool get() {
+          return autoWrapping;
+        };
+        void set(bool value) {
+          autoWrapping = value;
+        };
       }
 
-      property String ^Text
-      {
-        virtual void set(String ^value) override;
-      }
+      property String ^ Text { virtual void set(String ^ value) override; }
 
-      property Drawing::Font ^Font
-      {
-        virtual void set(Drawing::Font ^value) override;
-      }
+        property Drawing::Font ^
+        Font { virtual void set(Drawing::Font ^ value) override; }
 
-      virtual Drawing::Size GetPreferredSize(Drawing::Size proposedSize) override;
+        virtual Drawing::Size
+        GetPreferredSize(Drawing::Size proposedSize) override;
     };
 
-    public class LabelWrapper : ViewWrapper
-    {
+  public
+    class LabelWrapper : ViewWrapper {
     protected:
       LabelWrapper(mforms::Label *backend);
 
@@ -67,6 +67,5 @@ namespace MySQL {
     public:
       static void init();
     };
-  
   };
 };

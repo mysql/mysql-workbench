@@ -19,9 +19,9 @@ set(DATA_FILES
     tools_toolbar.xml
     tools_toolbar_basic.xml
     tools_toolbar_physical.xml
-    predefined_starters.xml
     code_editor.xml
     table_templates.xml
+    predefined_starters.xml
 )
 
 install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/data)
