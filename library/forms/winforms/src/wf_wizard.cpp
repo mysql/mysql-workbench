@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -36,45 +36,38 @@ DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 
 //----------------- BufferedPanel ------------------------------------------------------------------
 
-ref class BufferedPanel : public FlowLayoutPanel
-{
+ref class BufferedPanel : public FlowLayoutPanel {
 public:
-  BufferedPanel()
-    : FlowLayoutPanel()
-  {
+  BufferedPanel() : FlowLayoutPanel() {
     DoubleBuffered = true;
   }
 };
 
 //----------------- WizardForm ---------------------------------------------------------------------
 
-ref class MySQL::Forms::WizardForm : public Form
-{
+ref class MySQL::Forms::WizardForm : public Form {
 public:
-  FlowLayoutPanel ^sidebar;
-  Label ^title;
-  Button ^extraButton;
-  TableLayoutPanel ^footer;
-  FlowLayoutPanel ^buttonBar;
-  Button ^backButton;
-  Button ^nextButton;
-  Button ^cancelButton;
-  Panel ^content; // This is where the actual wizard content is docked to.
-  Image ^sidebarOverlay;
+  FlowLayoutPanel ^ sidebar;
+  Label ^ title;
+  Button ^ extraButton;
+  TableLayoutPanel ^ footer;
+  FlowLayoutPanel ^ buttonBar;
+  Button ^ backButton;
+  Button ^ nextButton;
+  Button ^ cancelButton;
+  Panel ^ content; // This is where the actual wizard content is docked to.
+  Image ^ sidebarOverlay;
 
   mforms::Wizard *backend;
 
   //------------------------------------------------------------------------------------------------
 
-  WizardForm()
-    : Form()
-  {
+  WizardForm() : Form() {
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void SetupLayout()
-  {
+  void SetupLayout() {
     sidebar = gcnew BufferedPanel;
     title = gcnew Label;
     extraButton = gcnew Button;
@@ -86,15 +79,15 @@ public:
     content = gcnew Panel;
 
     std::string icon_path = mforms::App::get()->get_resource_path("wb-wizard-vista-bg.png");
-    String ^native_path = gcnew String(icon_path.c_str());
+    String ^ native_path = gcnew String(icon_path.c_str());
     if (File::Exists(native_path))
       sidebarOverlay = Image::FromFile(native_path);
     else
       sidebarOverlay = nullptr;
 
     BackColor = Color::White;
-    FormBorderStyle = Windows::Forms::FormBorderStyle::SizableToolWindow;
-    MaximizeBox = false;      
+    FormBorderStyle = System::Windows::Forms::FormBorderStyle::SizableToolWindow;
+    MaximizeBox = false;
     MinimizeBox = false;
     StartPosition = FormStartPosition::CenterScreen;
     CancelButton = cancelButton;
@@ -106,7 +99,7 @@ public:
     footer->ColumnCount = 2;
     footer->AutoSize = true;
     footer->Dock = DockStyle::Bottom;
-    footer->Padding = Windows::Forms::Padding(10);
+    footer->Padding = System::Windows::Forms::Padding(10);
     footer->Controls->Add(extraButton, 0, 0);
 
     buttonBar->FlowDirection = FlowDirection::RightToLeft;
@@ -115,7 +108,7 @@ public:
     buttonBar->Controls->Add(backButton);
     buttonBar->Dock = DockStyle::Right;
     buttonBar->AutoSize = true;
-    buttonBar->Margin = Windows::Forms::Padding(0);
+    buttonBar->Margin = System::Windows::Forms::Padding(0);
     footer->Controls->Add(buttonBar, 1, 0);
 
     // We need to keep a reference to the wizard in the buttons to be able
@@ -148,25 +141,22 @@ public:
     // Title
     Controls->Add(title);
     title->AutoSize = false;
-    try
-    {
+    try {
       title->Font = gcnew Drawing::Font("Tahoma", 12.0, FontStyle::Bold, GraphicsUnit::Pixel);
-    }
-    catch (System::ArgumentException^ e)
-    {
+    } catch (System::ArgumentException ^ e) {
       // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-      log_error("WizardWrapper::c_tor setting title font failed. %s\n", e->Message);
+      logError("WizardWrapper::c_tor setting title font failed. %s\n", e->Message);
     }
 
     title->ForeColor = ColorTranslator::FromHtml("#003392");
     title->Location = Point(sidebar->Width, 0);
-    title->Padding = Windows::Forms::Padding(15);
+    title->Padding = System::Windows::Forms::Padding(15);
 
     // Other initialization.
     Controls->Add(content);
 
     // Resize as last action. Triggers layout of the elements.
-    Size = Drawing::Size(800, 600); 
+    Size = Drawing::Size(800, 600);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -177,39 +167,32 @@ public:
    * @param sender The control for which the paint event is triggered (the side bar).
    * @param arguments Additional data needed to paint the background.
    */
-  void SidebarPaint(System::Object ^sender, PaintEventArgs ^args)
-  {
-    Graphics ^g = args->Graphics;
+  void SidebarPaint(System::Object ^ sender, PaintEventArgs ^ args) {
+    Graphics ^ g = args->Graphics;
 
-    LinearGradientBrush gradientBrush(
-      Point(10, 0),
-      Point(10, sidebar->Height),
-      Color::FromArgb(255, 66, 111, 166),
-      Color::FromArgb(255, 103, 186, 104));
+    LinearGradientBrush gradientBrush(Point(10, 0), Point(10, sidebar->Height), Color::FromArgb(255, 66, 111, 166),
+                                      Color::FromArgb(255, 103, 186, 104));
 
-    g->FillRectangle(%gradientBrush, 0, 0, sidebar->Width, sidebar->Height);
+    g->FillRectangle(% gradientBrush, 0, 0, sidebar->Width, sidebar->Height);
     if (sidebarOverlay != nullptr)
       g->DrawImage(sidebarOverlay, 0, sidebar->Height - sidebarOverlay->Height);
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void NextClick(System::Object ^sender, EventArgs ^args)
-  {
+  void NextClick(System::Object ^ sender, EventArgs ^ args) {
     backend->next_clicked();
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void BackClick(System::Object ^sender, System::EventArgs ^args)
-  {
+  void BackClick(System::Object ^ sender, System::EventArgs ^ args) {
     backend->back_clicked();
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void CancelClick(System::Object ^sender, EventArgs ^args)
-  {
+  void CancelClick(System::Object ^ sender, EventArgs ^ args) {
     if (backend->_cancel_slot())
       //((Form ^) btn->TopLevelControl)->Close();
       Close();
@@ -217,16 +200,14 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void ExtraClick(System::Object ^sender, EventArgs ^args)
-  {
+  void ExtraClick(System::Object ^ sender, EventArgs ^ args) {
     backend->extra_clicked();
   }
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnResize(EventArgs^ args) override
-  {
-    __super::OnResize(args);
+  virtual void OnResize(EventArgs ^ args) override {
+    __super ::OnResize(args);
 
     if (sidebar == nullptr)
       return;
@@ -241,17 +222,14 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void SetContent(Control ^control)
-  {
+  void SetContent(Control ^ control) {
     // Remove old stuff if there is some.
-    if (content->Controls->Count > 0)
-    {
+    if (content->Controls->Count > 0) {
       content->Controls[0]->Dock = DockStyle::None;
       content->Controls->Clear();
     }
 
-    if (control != nullptr)
-    {
+    if (control != nullptr) {
       content->Controls->Add(control);
       control->Dock = DockStyle::Fill;
 
@@ -262,73 +240,61 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void SetStepList(const std::vector<std::string> &steps)
-  {
+  void SetStepList(const std::vector<std::string> &steps) {
     SuspendLayout();
-    try
-    {
+    try {
       sidebar->Controls->Clear();
 
-      for each (std::string entry in steps)
-      {
-        Label ^label = gcnew Label();
-        label->Text = CppStringToNative(entry.substr(1));
-        FontStyle style = FontStyle::Regular;
-        switch (entry[0])
-        {
-        case '*': // current task
-          label->ForeColor = Color::White;
-          style = FontStyle::Bold;
-          break;
+      for each(std::string entry in steps) {
+          Label ^ label = gcnew Label();
+          label->Text = CppStringToNative(entry.substr(1));
+          FontStyle style = FontStyle::Regular;
+          switch (entry[0]) {
+            case '*': // current task
+              label->ForeColor = Color::White;
+              style = FontStyle::Bold;
+              break;
 
-        case '.': // executed task
-          label->ForeColor= Color::White;
-          break;
+            case '.': // executed task
+              label->ForeColor = Color::White;
+              break;
 
-        case '-': // open task
-          label->ForeColor= Color::FromArgb(255, 192, 192, 192);
-          break;
+            case '-': // open task
+              label->ForeColor = Color::FromArgb(255, 192, 192, 192);
+              break;
+          }
+
+          try {
+            label->Font = gcnew Drawing::Font("Tahoma", 11.0, style, GraphicsUnit::Pixel);
+          } catch (System::ArgumentException ^ e) {
+            // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
+            logError("WizardWrapper::set_step_list setting label font failed. %s\n", e->Message);
+          }
+
+          label->BackColor = Drawing::Color::Transparent;
+          label->Padding = System::Windows::Forms::Padding(7);
+          label->Size = Drawing::Size(sidebar->Width, label->PreferredHeight);
+          sidebar->Controls->Add(label);
         }
-
-        try
-        {
-          label->Font =  gcnew Drawing::Font("Tahoma", 11.0, style, GraphicsUnit::Pixel);
-        }
-        catch (System::ArgumentException ^e)
-        {
-          // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-          log_error("WizardWrapper::set_step_list setting label font failed. %s\n", e->Message);
-        }
-
-        label->BackColor = Drawing::Color::Transparent;
-        label->Padding = Windows::Forms::Padding(7);
-        label->Size = Drawing::Size(sidebar->Width, label->PreferredHeight);
-        sidebar->Controls->Add(label);
-      }
-    }
-    finally
-    {
+    } finally {
       ResumeLayout();
     }
   }
 
   //------------------------------------------------------------------------------------------------
-
 };
 
 //----------------- WizardWrapper ------------------------------------------------------------------
 
 WizardWrapper::WizardWrapper(mforms::Wizard *backend, mforms::Form *owner)
-  : FormWrapper(backend, owner, mforms::FormDialogFrame)
-{
+  : FormWrapper(backend, owner, mforms::FormDialogFrame) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool WizardWrapper::create(mforms::Wizard *backend, mforms::Form *owner)
-{
+bool WizardWrapper::create(mforms::Wizard *backend, mforms::Form *owner) {
   WizardWrapper *wrapper = new WizardWrapper(backend, owner);
-  WizardForm ^form = WizardWrapper::Create<WizardForm>(backend, wrapper);
+  WizardForm ^ form = WizardWrapper::Create<WizardForm>(backend, wrapper);
   form->backend = backend;
   form->SetupLayout();
 
@@ -337,37 +303,32 @@ bool WizardWrapper::create(mforms::Wizard *backend, mforms::Form *owner)
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_title(mforms::Wizard *backend, const std::string &title)
-{
-  Form ^form = WizardWrapper::GetManagedObject<Form>(backend);
+void WizardWrapper::set_title(mforms::Wizard *backend, const std::string &title) {
+  Form ^ form = WizardWrapper::GetManagedObject<Form>(backend);
   form->Text = CppStringToNative(title);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::run_modal(mforms::Wizard *backend)
-{
+void WizardWrapper::run_modal(mforms::Wizard *backend) {
   WizardWrapper *wrapper = backend->get_data<WizardWrapper>();
-  wrapper->GetManagedObject<Form>()->ShowDialog(wrapper->owner);
+  wrapper->GetManagedObject<Form>()->ShowDialog(wrapper->_owner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::close(mforms::Wizard *backend)
-{
-  Form ^form = WizardWrapper::GetManagedObject<Form>(backend);
+void WizardWrapper::close(mforms::Wizard *backend) {
+  Form ^ form = WizardWrapper::GetManagedObject<Form>(backend);
   form->Close();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_content(mforms::Wizard *backend, mforms::View *view)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_content(mforms::Wizard *backend, mforms::View *view) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   if (view == NULL)
     form->SetContent(nullptr);
-  else
-  {
+  else {
     ViewWrapper *wrapper = view->get_data<ViewWrapper>();
     wrapper->set_resize_mode(AutoResizeMode::ResizeNone);
     form->SetContent(wrapper->GetControl());
@@ -376,69 +337,57 @@ void WizardWrapper::set_content(mforms::Wizard *backend, mforms::View *view)
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_heading(mforms::Wizard *backend, const std::string &heading)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_heading(mforms::Wizard *backend, const std::string &heading) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   form->title->Text = CppStringToNative(heading);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_step_list(mforms::Wizard *backend, const std::vector<std::string> &steps)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_step_list(mforms::Wizard *backend, const std::vector<std::string> &steps) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   form->SetStepList(steps);
-
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_allow_cancel(mforms::Wizard *backend, bool flag)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_allow_cancel(mforms::Wizard *backend, bool flag) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   form->cancelButton->Enabled = flag;
-
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_allow_back(mforms::Wizard *backend, bool flag)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_allow_back(mforms::Wizard *backend, bool flag) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   form->backButton->Enabled = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_allow_next(mforms::Wizard *backend, bool flag)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_allow_next(mforms::Wizard *backend, bool flag) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   form->nextButton->Enabled = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_show_extra(mforms::Wizard *backend, bool flag)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_show_extra(mforms::Wizard *backend, bool flag) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   form->extraButton->Visible = flag;
-
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_extra_caption(mforms::Wizard *backend, const std::string &caption)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_extra_caption(mforms::Wizard *backend, const std::string &caption) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   form->extraButton->Text = CppStringToNative(caption);
-
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::set_next_caption(mforms::Wizard *backend, const std::string &caption)
-{
-  WizardForm ^form = WizardWrapper::GetManagedObject<WizardForm>(backend);
+void WizardWrapper::set_next_caption(mforms::Wizard *backend, const std::string &caption) {
+  WizardForm ^ form = WizardWrapper::GetManagedObject<WizardForm>(backend);
   if (caption.empty())
     form->nextButton->Text = "&Next";
   else
@@ -447,8 +396,7 @@ void WizardWrapper::set_next_caption(mforms::Wizard *backend, const std::string 
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardWrapper::init()
-{
+void WizardWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_wizard_impl.create = &WizardWrapper::create;

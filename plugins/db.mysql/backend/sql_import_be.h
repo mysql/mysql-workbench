@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,36 +29,40 @@
 #include "grtsqlparser/mysql_parser_services.h"
 #include "grtdb/db_helpers.h"
 
-
-class WBPLUGINDBMYSQLBE_PUBLIC_FUNC Sql_import
-{
+class WBPLUGINDBMYSQLBE_PUBLIC_FUNC Sql_import {
 public:
-  virtual ~Sql_import() {};
-  void grtm(bec::GRTManager *grtm);
+  virtual ~Sql_import(){};
+  void grtm();
 
-  boost::function<grt::ValueRef (grt::GRT*)> get_task_slot();
+  std::function<grt::ValueRef()> get_task_slot();
 
-  boost::function<grt::ValueRef (grt::GRT*)> get_autoplace_task_slot();
-  
+  std::function<grt::ValueRef()> get_autoplace_task_slot();
+
 private:
-  grt::StringRef parse_sql_script(grt::GRT *grt, db_CatalogRef catalog, const std::string &sql_script);
-  virtual void parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context,
+  grt::StringRef parse_sql_script(db_CatalogRef catalog, const std::string &sql_script);
+  virtual void parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::MySQLParserContext::Ref context,
                                 db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options);
   virtual db_CatalogRef target_catalog();
-  virtual GrtVersionRef getVersion(grt::GRT *grt);
+  virtual GrtVersionRef getVersion();
 
 public:
-  virtual std::string sql_script() { return _sql_script; }
-  virtual void sql_script(const std::string &sql_script) { _sql_script= sql_script; }
-  virtual void sql_script_codeset(const std::string &value) { _sql_script_codeset= value; }
+  virtual std::string sql_script() {
+    return _sql_script;
+  }
+  virtual void sql_script(const std::string &sql_script) {
+    _sql_script = sql_script;
+  }
+  virtual void sql_script_codeset(const std::string &value) {
+    _sql_script_codeset = value;
+  }
 
   grt::ListRef<GrtObject> get_created_objects();
+
 protected:
-  
-  grt::ValueRef autoplace_grt(grt::GRT *grt);
-  
+  grt::ValueRef autoplace_grt();
+
   grt::DictRef _options;
-  
+
   workbench_DocumentRef _doc;
   std::string _sql_script;
   std::string _sql_script_codeset;

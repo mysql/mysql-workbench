@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,9 +26,9 @@
 
 #endif
 
-class BaseConverter
-{
+class BaseConverter {
   static void init_mysql_time(MYSQL_TIME* target);
+
 public:
   static void convert_date(DATE_STRUCT* source, MYSQL_TIME* target);
   static void convert_date(const char* source, MYSQL_TIME* target);

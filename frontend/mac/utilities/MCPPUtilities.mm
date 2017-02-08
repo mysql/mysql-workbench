@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,13 +21,16 @@
 
 void MShowCPPException(const std::exception &exc)
 {
-  if (NSRunAlertPanel(@"Unhandled Backend Exception",
-                      @"It is advisable to save your work in a backup file and restart Workbench.\n"
-                      "Exception Details:\n%s", 
-                      @"Ignore", @"Abort", nil, exc.what()) == NSAlertAlternateReturn)
-  {
-    [NSApp terminate:nil];
-  }
+  NSAlert *alert = [NSAlert new];
+  alert.messageText = @"Unhandled Backend Exception";
+  alert.informativeText = [NSString stringWithFormat: @"It is advisable to save your work in a backup file and restart Workbench.\n"
+                           "Exception Details:\n%s", exc.what()];
+  alert.alertStyle = NSCriticalAlertStyle;
+  [alert addButtonWithTitle: @"Ignore"];
+  [alert addButtonWithTitle: @"Close Workbench"];
+
+  if ([alert runModal] == NSAlertSecondButtonReturn)
+    [NSApp terminate: nil];
 }
 
 

@@ -7,6 +7,7 @@
 
 #include "Platform.h"
 
+#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -115,7 +116,7 @@ TEST_CASE("RunStyles") {
 		int startFill2 = 2;
 		int lengthFill2 = 1;
 		// Compiler warnings if 'false' used instead of '0' as expected value:
-		REQUIRE(0 == rs.FillRange(startFill2, 99, lengthFill2));
+		REQUIRE(false == rs.FillRange(startFill2, 99, lengthFill2));
 		REQUIRE(2 == startFill2);
 		REQUIRE(1 == lengthFill2);
 		REQUIRE(0 == rs.ValueAt(0));
@@ -201,17 +202,17 @@ TEST_CASE("RunStyles") {
 		REQUIRE(true == rs.AllSame());
 		rs.InsertSpace(0, 5);
 		REQUIRE(true == rs.AllSame());
-		REQUIRE(0 == rs.AllSameAs(88));
+		REQUIRE(false == rs.AllSameAs(88));
 		REQUIRE(true == rs.AllSameAs(0));
 		int startFill = 1;
 		int lengthFill = 3;
 		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
-		REQUIRE(0 == rs.AllSame());
-		REQUIRE(0 == rs.AllSameAs(88));
-		REQUIRE(0 == rs.AllSameAs(0));
+		REQUIRE(false == rs.AllSame());
+		REQUIRE(false == rs.AllSameAs(88));
+		REQUIRE(false == rs.AllSameAs(0));
 		REQUIRE(true == rs.FillRange(startFill, 0, lengthFill));
 		REQUIRE(true == rs.AllSame());
-		REQUIRE(0 == rs.AllSameAs(88));
+		REQUIRE(false == rs.AllSameAs(88));
 		REQUIRE(true == rs.AllSameAs(0));
 	}
 

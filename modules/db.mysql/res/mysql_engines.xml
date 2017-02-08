@@ -154,6 +154,17 @@
      <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
      <value type="int" key="supportsForeignKeys">0</value>
    </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.mroonga">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">Mroonga</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">1</value>
+   </value>
+
+
    <value type="object" struct-name="db.mysql.StorageEngine" id="{CA82074E-9EAE-41E0-8368-EE62C07F17B5}" struct-checksum="0xf48dbcd2">
      <value type="string" key="caption"></value>
      <value type="string" key="comment"></value>

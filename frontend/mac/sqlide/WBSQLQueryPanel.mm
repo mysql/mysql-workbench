@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,9 +59,9 @@
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
 {
-  [[self backgroundColor] set];
+  [self.backgroundColor set];
   
-  NSAttributedString *text = [self attributedStringValue];
+  NSAttributedString *text = self.attributedStringValue;
   NSSize textSize = [text size];
   
   cellFrame.origin.y += (cellFrame.size.height - cellFrame.size.width) / 2;
@@ -138,7 +138,7 @@
   }
   else if (tableView == mHistoryDetailsTable)
   {
-    if (mBackEnd && [mHistoryTable selectedRow] >= 0)
+    if (mBackEnd && mHistoryTable.selectedRow >= 0)
       return mBackEnd->history()->details_model()->count();
   }
 
@@ -152,7 +152,7 @@
 {
   if (tableView == mMessagesTable)
   {
-    if ([[tableColumn identifier] isEqual:@"0"])
+    if ([tableColumn.identifier isEqual:@"0"])
     {
       ssize_t msgtype;
       mBackEnd->log()->get_field(row, 0, msgtype);
@@ -178,7 +178,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   {
     std::string text;
     
-    if ([[aTableColumn identifier] isEqual:@"0"])
+    if ([aTableColumn.identifier isEqual:@"0"])
     {
       ssize_t msgtype;
       mBackEnd->log()->get_field(rowIndex, 0, msgtype);
@@ -193,7 +193,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     }
     else
     {
-      mBackEnd->log()->get_field(rowIndex, [[aTableColumn identifier] intValue], text);
+      mBackEnd->log()->get_field(rowIndex, aTableColumn.identifier.intValue, text);
       
       return [NSString stringWithCPPString: text];
     }
@@ -202,7 +202,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   {
     std::string text;
     
-    mBackEnd->history()->entries_model()->get_field(rowIndex, [[aTableColumn identifier] intValue], text);
+    mBackEnd->history()->entries_model()->get_field(rowIndex, aTableColumn.identifier.intValue, text);
     
     return [NSString stringWithCPPString: text];
   }
@@ -210,7 +210,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   {
     std::string text;
     
-    mBackEnd->history()->details_model()->get_field(rowIndex, [[aTableColumn identifier] intValue], text);
+    mBackEnd->history()->details_model()->get_field(rowIndex, aTableColumn.identifier.intValue, text);
     
     return [NSString stringWithCPPString: text];
   }
@@ -226,10 +226,9 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
           mouseLocation:(NSPoint)mouseLocation
 {
   int column;
-  if (aTableView == mMessagesTable && ((column = [[aTableColumn identifier] intValue]) == 3 || column == 4))
+  if (aTableView == mMessagesTable && ((column = aTableColumn.identifier.intValue) == 3 || column == 4))
   {
-    std::string text;
-    mBackEnd->log()->get_field_description(row, column, text);
+    std::string text = mBackEnd->log()->get_field_description(row, column);
     return [NSString stringWithCPPString: text];
   }     
   return nil;
@@ -237,12 +236,12 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
 
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-  NSTableView *sender= [aNotification object];
+  NSTableView *sender= aNotification.object;
   
   if (sender == mHistoryTable)
   {
-    if ([mHistoryTable selectedRow] >= 0)
-      mBackEnd->history()->current_entry([mHistoryTable selectedRow]);
+    if (mHistoryTable.selectedRow >= 0)
+      mBackEnd->history()->current_entry((int)mHistoryTable.selectedRow);
     [mHistoryDetailsTable reloadData];
   }
   else if (sender == mHistoryDetailsTable)
@@ -251,11 +250,11 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   else if (sender == mMessagesTable)
   {
     std::vector<int> selection;
-    NSIndexSet *sel = [mMessagesTable selectedRowIndexes];
-    if ([sel count] > 0)
+    NSIndexSet *sel = mMessagesTable.selectedRowIndexes;
+    if (sel.count > 0)
     {
-      for (NSUInteger i = [sel firstIndex]; i <= [sel lastIndex] and i != NSNotFound; i = [sel indexGreaterThanIndex: i])
-        selection.push_back(i);
+      for (NSUInteger i = sel.firstIndex; i <= sel.lastIndex and i != NSNotFound; i = [sel indexGreaterThanIndex: i])
+        selection.push_back((int)i);
     }
     mBackEnd->log()->set_selection(selection);
   }
@@ -277,20 +276,20 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
       lines++;
     } while (ptr++);
 
-    return [tableView rowHeight] * lines;
+    return tableView.rowHeight * lines;
   }
   else
-    return [tableView rowHeight];
+    return tableView.rowHeight;
 }
 
 - (std::string)selectedHistoryItemsAsString
 {
   std::list<int> sel_indexes;
-  NSIndexSet *iset = [mHistoryDetailsTable selectedRowIndexes];
+  NSIndexSet *iset = mHistoryDetailsTable.selectedRowIndexes;
   
-  if ([iset count] > 0)
-    for (NSUInteger row = [iset firstIndex]; row <= [iset lastIndex] and row != NSNotFound; row = [iset indexGreaterThanIndex: row])
-      sel_indexes.push_back(row);
+  if (iset.count > 0)
+    for (NSUInteger row = iset.firstIndex; row <= iset.lastIndex and row != NSNotFound; row = [iset indexGreaterThanIndex: row])
+      sel_indexes.push_back((int)row);
 
   if (sel_indexes.empty() || mBackEnd->history()->current_entry() < 0)
     return "";
@@ -312,9 +311,9 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
 - (void)activateHistoryDetailEntry:(id)sender
 {
   std::string text, query;
-  NSIndexSet *selection= [mHistoryDetailsTable selectedRowIndexes];
+  NSIndexSet *selection= mHistoryDetailsTable.selectedRowIndexes;
   
-  for (NSUInteger row= [selection firstIndex]; row != NSNotFound; row= [selection indexGreaterThanIndex:row])
+  for (NSUInteger row= selection.firstIndex; row != NSNotFound; row= [selection indexGreaterThanIndex:row])
   {
     mBackEnd->history()->details_model()->get_field(row, 1, text);
     query.append("\n").append(text);
@@ -356,8 +355,8 @@ static void processTaskFinish(void *thePanel)
   [table reloadData];
   [[table delegate] tableViewSelectionDidChange:[NSNotification notificationWithName: NSTableViewSelectionDidChangeNotification
                                                                               object: table]];
-  if ([table selectedRow] >= 0)
-    [table scrollRowToVisible: [table selectedRow]];
+  if (table.selectedRow >= 0)
+    [table scrollRowToVisible: table.selectedRow];
 }
 
 static int reloadTable(void *table, void *thePanel)
@@ -412,29 +411,29 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 
 - (void)addEditor: (WBBasePanel*)editor
 {
-  id identifier = [editor identifier];
+  id identifier = editor.identifier;
   if ([editor isKindOfClass: [WBPluginPanel class]])
   {
-    WBPluginEditorBase *peditor = [(WBPluginPanel*)editor pluginEditor];
+    WBPluginEditorBase *peditor = ((WBPluginPanel*)editor).pluginEditor;
     [peditor enableLiveChangeButtons];
     [peditor setCompactMode: NO];
   }
 
   mEditors[identifier] = editor;
   NSTabViewItem *item = [[NSTabViewItem alloc] initWithIdentifier: identifier];
-  [item setView: [editor topView]];
-  [item setLabel: [editor title]];
+  item.view = editor.topView;
+  item.label = editor.title;
   [mUpperTabView addTabViewItem: item];
   [mUpperTabView selectLastTabViewItem: nil];
-  
-  if ([editor respondsToSelector: @selector(didShow)])
-    [editor performSelector: @selector(didShow)];
-}
 
+  SEL selector = NSSelectorFromString(@"didShow");
+  if ([editor respondsToSelector: selector])
+    ((void (*)(id, SEL))[editor methodForSelector: selector])(editor, selector);
+}
 
 - (void)closeActiveEditorTab
 {
-  NSTabViewItem *item = [mUpperTabView selectedTabViewItem];
+  NSTabViewItem *item = mUpperTabView.selectedTabViewItem;
   if (item)
     [mUpperTabSwitcher closeTabViewItem: item];
 }
@@ -452,7 +451,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   std::string sql;
   
-  if ([[[mOutputTabView selectedTabViewItem] identifier] isEqualTo: @"history"])
+  if ([mOutputTabView.selectedTabViewItem.identifier isEqualTo: @"history"])
     sql = [self selectedHistoryItemsAsString];
   
   if (!sql.empty())
@@ -483,21 +482,21 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 
 - (IBAction)clearOutput:(id)sender
 {
-  if ([[[mOutputTabView selectedTabViewItem] identifier] isEqualTo: @"text"])
+  if ([mOutputTabView.selectedTabViewItem.identifier isEqualTo: @"text"])
   {
-    [mTextOutput setString: @""];
+    mTextOutput.string = @"";
   }
   else
   {
     std::vector<size_t> sel;
-    if ([mHistoryTable selectedRow] >= 0)
+    if (mHistoryTable.selectedRow >= 0)
     {
-      sel.push_back([mHistoryTable selectedRow]);
+      sel.push_back(mHistoryTable.selectedRow);
       mBackEnd->history()->entries_model()->delete_entries(sel);
       [mHistoryTable reloadData];
-      if ([mHistoryTable numberOfRows] > 0)
+      if (mHistoryTable.numberOfRows > 0)
       {
-        [mHistoryTable selectRowIndexes: [NSIndexSet indexSetWithIndex: [mHistoryTable numberOfRows]-1]
+        [mHistoryTable selectRowIndexes: [NSIndexSet indexSetWithIndex: mHistoryTable.numberOfRows-1]
                    byExtendingSelection: NO];
       }
     }
@@ -512,10 +511,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
   if (!mTextOutputBuffer.empty())
   {
     NSRange range;
-    range = NSMakeRange([[mTextOutput string] length], 0);
+    range = NSMakeRange(mTextOutput.string.length, 0);
     [mTextOutput replaceCharactersInRange: range withString: @(mTextOutputBuffer.c_str())];
   
-    range = NSMakeRange([[mTextOutput string] length], 0);
+    range = NSMakeRange(mTextOutput.string.length, 0);
     [mTextOutput scrollRangeToVisible: range];
     
     [mTextOutput display];
@@ -553,7 +552,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
    ofDividerAtIndex:(NSInteger)dividerIndex
 {
   // if the divider is too thin, increase effective rect by 2px to make it less impossible to drag
-  if ([splitView isVertical])
+  if (splitView.vertical)
   {
     if (proposedEffectiveRect.size.width < 2)
     {
@@ -578,22 +577,22 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
   if (mHidingSidebar)
     return;
 
-  if ([notification object] == mWorkView)
+  if (notification.object == mWorkView)
   {
-    BOOL newCollapseState = [mWorkView isSubviewCollapsed: [[mWorkView subviews] lastObject]];
+    BOOL newCollapseState = [mWorkView isSubviewCollapsed: mWorkView.subviews.lastObject];
     BOOL hidden = !mBackEnd->get_toolbar()->get_item_checked("wb.toggleOutputArea");
     
     if (newCollapseState != hidden)
     {
-      mBackEnd->grt_manager()->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(newCollapseState));
+      bec::GRTManager::get()->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(newCollapseState));
       mBackEnd->get_toolbar()->set_item_checked("wb.toggleOutputArea", !newCollapseState);
     }
     if (!newCollapseState)
     {
-      int height = (int)NSHeight([[mOutputTabView superview] frame]);
+      int height = (int)NSHeight(mOutputTabView.superview.frame);
       if (height <= 0)
         height = MIN_OUTPUT_AREA_HEIGHT;
-      mBackEnd->grt_manager()->set_app_option("DbSqlEditor:OutputAreaHeight",
+      bec::GRTManager::get()->set_app_option("DbSqlEditor:OutputAreaHeight",
                                             grt::IntegerRef(height));
     }
   }
@@ -606,7 +605,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   if (splitView == mWorkView)
   {
-    if (subview == [mOutputTabView superview])
+    if (subview == mOutputTabView.superview)
       return NO;
   }
   return [super splitView: splitView shouldAdjustSizeOfSubview: subview];
@@ -627,14 +626,14 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   if (splitView == mWorkView)
   {
-    return proposedMax > NSHeight([splitView frame]) - MIN_OUTPUT_AREA_HEIGHT ? NSHeight([splitView frame]) - MIN_OUTPUT_AREA_HEIGHT : proposedMax;
+    return proposedMax > NSHeight(splitView.frame) - MIN_OUTPUT_AREA_HEIGHT ? NSHeight(splitView.frame) - MIN_OUTPUT_AREA_HEIGHT : proposedMax;
   }
   return [super splitView: splitView constrainMaxCoordinate: proposedMax ofSubviewAt: dividerIndex];
 }
 
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview
 {
-  if (splitView == mWorkView && [[splitView subviews] lastObject] == subview)
+  if (splitView == mWorkView && splitView.subviews.lastObject == subview)
     return YES;
   return [super splitView: splitView canCollapseSubview: subview];
 }
@@ -644,11 +643,11 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   mHidingSidebar = YES;
   if (!hidden)
-    [mWorkView setPosition: NSHeight([mWorkView frame])-lastOutputAreaHeight ofDividerAtIndex: 0];
+    [mWorkView setPosition: NSHeight(mWorkView.frame)-lastOutputAreaHeight ofDividerAtIndex: 0];
   else
   {
-    lastOutputAreaHeight = NSHeight([[mOutputTabView superview] frame]);
-    [mWorkView setPosition: NSHeight([mWorkView frame]) ofDividerAtIndex: 0];
+    lastOutputAreaHeight = NSHeight(mOutputTabView.superview.frame);
+    [mWorkView setPosition: NSHeight(mWorkView.frame) ofDividerAtIndex: 0];
   }
   mHidingSidebar = NO;
 }
@@ -661,7 +660,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
     if (mQueryAreaOpen && mResultsAreaOpen)
     {
       mResultsAreaOpen= NO;
-      [mWorkView setPosition: NSHeight([mWorkView frame]) - MIN_OUTPUT_AREA_HEIGHT
+      [mWorkView setPosition: NSHeight(mWorkView.frame) - MIN_OUTPUT_AREA_HEIGHT
             ofDividerAtIndex: 0];
     }
     else if (mQueryAreaOpen && !mResultsAreaOpen)
@@ -698,7 +697,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
     TabViewDockingPointDelegate* deleg = dynamic_cast<TabViewDockingPointDelegate*>(mDockingPoint->get_delegate());
     if (deleg)
     {
-      mforms::AppView* av = deleg->appview_for_view([tabViewItem view]);
+      mforms::AppView* av = deleg->appview_for_view(tabViewItem.view);
       if (av && av->get_form_context_name() == "administrator")
         expanded_mode = YES;
     }
@@ -723,16 +722,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
     }
   }
 }
-/*
-- (void)tabViewDidChangeNumberOfTabViewItems:(NSTabView*)tabView
-{
-  if (tabView == mUpperTabView)
-  {
-    if ([tabView numberOfTabViewItems] == 0)
-      mBackEnd->new_sql_script_file();
-  }
-}*/
-
 
 - (BOOL)tabView:(NSTabView *)tabView itemHasCloseButton:(NSTabViewItem *)item
 {
@@ -742,13 +731,13 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 }
 
 
-- (void)tabView:(NSTabView *)tabView didReorderTabViewItem:(NSTabViewItem *)item toIndex:(NSInteger)index
+- (void)tabView:(NSTabView *)tabView didReorderTabViewItem: (NSTabViewItem *)item toIndex: (NSInteger)index
 {
   if (tabView == mUpperTabView)
   {
-    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel((int)[tabView indexOfTabViewItem: item]);
     if (editor)
-      mBackEnd->sql_editor_reordered(editor, index);
+      mBackEnd->sql_editor_reordered(editor, (int)index);
   }
 }
 
@@ -758,7 +747,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
   if (tabView == mUpperTabView)
   {
     TabViewDockingPointDelegate* deleg = dynamic_cast<TabViewDockingPointDelegate*>(mDockingPoint->get_delegate());
-    mforms::AppView *appView = deleg->appview_for_view([tabViewItem view]);
+    mforms::AppView *appView = deleg->appview_for_view(tabViewItem.view);
 
     if (appView)
     {
@@ -769,17 +758,17 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
     }
     else
     {
-      id editor = mEditors[[tabViewItem identifier]];
+      id editor = mEditors[tabViewItem.identifier];
       if ([editor respondsToSelector: @selector(willClose)])
         if (![editor willClose])
           return NO;
-      [mEditors removeObjectForKey: [tabViewItem identifier]];
+      [mEditors removeObjectForKey: tabViewItem.identifier];
     }
     return YES;
   }
   else
   {
-    id ident = [tabViewItem identifier];
+    id ident = tabViewItem.identifier;
     if ([ident isEqual: @"history"] ||
         [ident isEqual: @"messages"])
       return NO;    
@@ -792,7 +781,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   if (tabView == mUpperTabView)
   {
-    id tab = mEditors[[tabViewItem identifier]];
+    id tab = mEditors[tabViewItem.identifier];
     if ([tab respondsToSelector: @selector(tabIcon)])
       return [tab tabIcon];
     else
@@ -800,7 +789,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       TabViewDockingPointDelegate* deleg = dynamic_cast<TabViewDockingPointDelegate*>(mDockingPoint->get_delegate());
       if (deleg)
       {
-        mforms::AppView* av = deleg->appview_for_view([tabViewItem view]);
+        mforms::AppView* av = deleg->appview_for_view(tabViewItem.view);
         if (av)
         {
           NSImage *icon = [NSImage imageNamed: [NSString stringWithFormat: @"tab_icon_%s", av->get_form_context_name().c_str()]];
@@ -818,7 +807,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   if (tabView == mUpperTabView)
   {
-    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel((int)[tabView indexOfTabViewItem: item]);
     if (editor)
       return [NSString stringWithCPPString: editor->filename()];
   }
@@ -830,7 +819,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   if (tabView == mUpperTabView)
   {
-    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel((int)[tabView indexOfTabViewItem: item]);
     if (editor)
     {
       if (!editor->filename().empty())
@@ -846,21 +835,21 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 
 - (IBAction)handleMenuAction:(id)sender
 {
-  int clicked_tab = [mUpperTabView indexOfTabViewItem: [mUpperTabSwitcher clickedItem]];
+  NSInteger clicked_tab = [mUpperTabView indexOfTabViewItem: mUpperTabSwitcher.clickedItem];
 
   switch ([sender tag])
   {
     case 50: // new tab
-      mBackEnd->handle_tab_menu_action("new_tab", clicked_tab);
+      mBackEnd->handle_tab_menu_action("new_tab", (int)clicked_tab);
       break;
     case 51: // save tab
     {
-      mBackEnd->handle_tab_menu_action("save_tab", clicked_tab);
+      mBackEnd->handle_tab_menu_action("save_tab", (int)clicked_tab);
       break;
     }
     case 60: // copy path to clipboard
     {
-      mBackEnd->handle_tab_menu_action("copy_path", clicked_tab);
+      mBackEnd->handle_tab_menu_action("copy_path", (int)clicked_tab);
       break;
     }
   }
@@ -883,30 +872,28 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       // restore state of toolbar
       {
         mforms::ToolBar *toolbar = be->get_toolbar();
-        toolbar->set_item_checked("wb.toggleOutputArea", !(outputAreaHidden = be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0)));
+        toolbar->set_item_checked("wb.toggleOutputArea", !(outputAreaHidden = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0)));
       }
-      lastOutputAreaHeight = MAX(be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHeight", 135), MIN_OUTPUT_AREA_HEIGHT);
+      lastOutputAreaHeight = MAX(bec::GRTManager::get()->get_app_option_int("DbSqlEditor:OutputAreaHeight", 135), MIN_OUTPUT_AREA_HEIGHT);
 
       // Setup docking point for mUpperTabView.
       {
         mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(mUpperTabView, MAIN_DOCKING_POINT), true));
         be->set_tab_dock(mDockingPoint);
       }
-
-      grtm = be->grt_manager();
       mBackEnd= be;
-      mBackEnd->log()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mMessagesTable, (__bridge void *)self));
-      mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mHistoryTable, (__bridge void *)self));
-      mBackEnd->history()->details_model()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mHistoryDetailsTable, (__bridge void *)self));
+      mBackEnd->log()->refresh_ui_signal.connect(std::bind(reloadTable, (__bridge void *)mMessagesTable, (__bridge void *)self));
+      mBackEnd->history()->entries_model()->refresh_ui_signal.connect(std::bind(reloadTable, (__bridge void *)mHistoryTable, (__bridge void *)self));
+      mBackEnd->history()->details_model()->refresh_ui_signal.connect(std::bind(reloadTable, (__bridge void *)mHistoryDetailsTable, (__bridge void *)self));
 
-      mBackEnd->output_text_slot = boost::bind(addTextToOutput, _1, _2, (__bridge void *)self);
+      mBackEnd->output_text_slot = std::bind(addTextToOutput, std::placeholders::_1, std::placeholders::_2, (__bridge void *)self);
 
-      mBackEnd->post_query_slot = boost::bind(processTaskFinish, (__bridge void *)self);
+      mBackEnd->post_query_slot = std::bind(processTaskFinish, (__bridge void *)self);
 
-      mBackEnd->set_busy_tab = boost::bind(set_busy_tab, _1, (__bridge void *)self);
+      mBackEnd->set_busy_tab = std::bind(set_busy_tab, std::placeholders::_1, (__bridge void *)self);
 
       mBackEnd->set_frontend_data((__bridge void *)self);
-      [mUpperTabSwitcher setTabStyle: MEditorTabSwitcher];
+      mUpperTabSwitcher.tabStyle = MEditorTabSwitcher;
       [mUpperTabSwitcher setAllowTabReordering: YES];
 
       [mOutputToolbar setGradient: [[NSGradient alloc] initWithColorsAndLocations:
@@ -923,18 +910,18 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       if (!font)
         font = [NSFont fontWithName: @"Monaco" size: [NSFont smallSystemFontSize]];
       if (font)
-        [mTextOutput setFont: font];
+        mTextOutput.font = font;
 
-      [self.splitView setBackgroundColor: [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0]];
+      (self.splitView).backgroundColor = [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0];
 
-      [mWorkView setDividerThickness: 0];
-      [self.splitView setDividerThickness: 1];
+      mWorkView.dividerThickness = 0;
+      (self.splitView).dividerThickness = 1;
 
-      [mMessagesTable setMenu: nsmenuForMenu(mBackEnd->log()->get_context_menu())];
+      mMessagesTable.menu = nsmenuForMenu(mBackEnd->log()->get_context_menu());
 
-      [mHistoryDetailsTable setTarget: self];
-      [mHistoryDetailsTable setDoubleAction: @selector(activateHistoryDetailEntry:)];
-      if ([mHistoryTable numberOfRows] > 0)
+      mHistoryDetailsTable.target = self;
+      mHistoryDetailsTable.doubleAction = @selector(activateHistoryDetailEntry:);
+      if (mHistoryTable.numberOfRows > 0)
       {
         [mHistoryTable selectRowIndexes: [NSIndexSet indexSetWithIndex: 0]
                    byExtendingSelection: NO];
@@ -947,7 +934,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
         if (mSidebarAtRight)
           [self.topView addSubview: sidebar];
         else
-          [self.topView addSubview: sidebar positioned: NSWindowBelow relativeTo: [[self.topView subviews] lastObject]];
+          [self.topView addSubview: sidebar positioned: NSWindowBelow relativeTo: (self.topView).subviews.lastObject];
         [self.splitView adjustSubviews];
       }
 
@@ -958,7 +945,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
         if (view)
         {
           if (mSidebarAtRight)
-            [self.topView addSubview: secondarySidebar positioned: NSWindowBelow relativeTo: [[self.topView subviews] lastObject]];
+            [self.topView addSubview: secondarySidebar positioned: NSWindowBelow relativeTo: (self.topView).subviews.lastObject];
           else
             [self.topView addSubview: secondarySidebar];
         }
@@ -969,9 +956,9 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 
       // restore height of the output area
       if (outputAreaHidden)
-        [mWorkView setPosition: NSHeight([mWorkView frame]) ofDividerAtIndex: 0];
+        [mWorkView setPosition: NSHeight(mWorkView.frame) ofDividerAtIndex: 0];
       else
-        [mWorkView setPosition: NSHeight([mWorkView frame]) - lastOutputAreaHeight ofDividerAtIndex: 0];
+        [mWorkView setPosition: NSHeight(mWorkView.frame) - lastOutputAreaHeight ofDividerAtIndex: 0];
 
       mEditors = [[NSMutableDictionary alloc] init];
 
@@ -979,10 +966,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       mResultsAreaOpen = YES;
 
       NSProgressIndicator *indicator = [[NSProgressIndicator alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
-      [indicator setControlSize: NSSmallControlSize];
-      [indicator setStyle: NSProgressIndicatorSpinningStyle];
+      indicator.controlSize = NSSmallControlSize;
+      indicator.style = NSProgressIndicatorSpinningStyle;
       [indicator setIndeterminate: YES];
-      [((MSpinProgressCell*)[[mMessagesTable tableColumnWithIdentifier: @"0"] dataCell]) setProgressIndicator: indicator];
+      ((MSpinProgressCell*)[mMessagesTable tableColumnWithIdentifier: @"0"].dataCell).progressIndicator = indicator;
     }
   }
   return self;
@@ -1002,8 +989,8 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 {
   mSidebarAtRight = flag;
 
-  id view1 = [self.topView subviews][0];
-  id view2 = [self.topView subviews][1];
+  id view1 = (self.topView).subviews[0];
+  id view2 = (self.topView).subviews[1];
   
   if (mSidebarAtRight)
   {
@@ -1049,19 +1036,19 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
   if (command == "wb.toggleOutputArea")
   {
     BOOL hidden = !mBackEnd->get_toolbar()->get_item_checked(command);
-    mBackEnd->grt_manager()->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
+    bec::GRTManager::get()->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
     [self hideOutputArea: hidden];
   }
   else if (command == "wb.next_query_tab")
   {
-    if ([mUpperTabView selectedTabViewItem] == [[mUpperTabView tabViewItems] lastObject])
+    if (mUpperTabView.selectedTabViewItem == mUpperTabView.tabViewItems.lastObject)
       [mUpperTabView selectFirstTabViewItem: nil];
     else
       [mUpperTabView selectNextTabViewItem:nil];
   }
   else if (command == "wb.back_query_tab")
   {
-    if ([mUpperTabView selectedTabViewItem] == [mUpperTabView tabViewItems][0])
+    if (mUpperTabView.selectedTabViewItem == mUpperTabView.tabViewItems[0])
       [mUpperTabView selectLastTabViewItem: nil];
     else
       [mUpperTabView selectPreviousTabViewItem:nil];

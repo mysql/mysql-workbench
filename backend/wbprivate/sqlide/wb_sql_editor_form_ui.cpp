@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -37,8 +37,6 @@
 
 #include "base/log.h"
 
-//DEFAULT_LOG_DOMAIN("SqlEditor");
-
 #include "mforms/menubar.h"
 #include "mforms/toolbar.h"
 #include "mforms/code_editor.h"
@@ -48,21 +46,20 @@ using namespace grt;
 using namespace wb;
 using namespace base;
 
+DEFAULT_LOG_DOMAIN("SQL Editor Form")
+
 using boost::signals2::scoped_connection;
 
-
-void SqlEditorForm::activate_command(const std::string &command)
-{
+void SqlEditorForm::activate_command(const std::string &command) {
   _wbsql->get_cmdui()->activate_command(command);
 }
 
+mforms::ToolBar *SqlEditorForm::get_toolbar() {
+  if (!_toolbar) {
+    _toolbar = _wbsql->get_cmdui()->create_toolbar(
+      "data/dbquery_toolbar.xml", std::bind(&SqlEditorForm::activate_command, this, std::placeholders::_1));
+    _toolbar->set_name("dbquery");
 
-mforms::ToolBar *SqlEditorForm::get_toolbar()
-{
-  if (!_toolbar)
-  {
-    _toolbar = _wbsql->get_cmdui()->create_toolbar("data/dbquery_toolbar.xml", boost::bind(&SqlEditorForm::activate_command, this, _1));
-    
     update_menu_and_toolbar();
     update_toolbar_icons();
   }
@@ -71,8 +68,7 @@ mforms::ToolBar *SqlEditorForm::get_toolbar()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorForm::limit_rows(const std::string &limit_text)
-{
+void SqlEditorForm::limit_rows(const std::string &limit_text) {
   int limit;
   if (sscanf(limit_text.c_str(), _("Limit to %i rows"), &limit) < 1)
     limit = 0; // Don't Limit
@@ -80,78 +76,67 @@ void SqlEditorForm::limit_rows(const std::string &limit_text)
   mforms::MenuItem *menu = _menu->find_item("limit_rows");
   int c = menu->item_count();
   bool found = false;
-  for (int i = 0; i < c; i++)
-  {
+  for (int i = 0; i < c; i++) {
     mforms::MenuItem *item = menu->get_item(i);
-    if (item->get_type() != mforms::SeparatorMenuItem)
-    {
-      if (item->get_name().compare(limit_text) == 0)
-      {
+    if (item->get_type() != mforms::SeparatorMenuItem) {
+      if (item->get_name().compare(limit_text) == 0) {
         item->set_checked(true);
         found = true;
-      }
-      else
+      } else
         item->set_checked(false);
     }
   }
 
-  _grtm->set_app_option("SqlEditor:LimitRows", grt::IntegerRef(limit > 0));
+  bec::GRTManager::get()->set_app_option("SqlEditor:LimitRows", grt::IntegerRef(limit > 0));
   if (limit > 0)
-    _grtm->set_app_option("SqlEditor:LimitRowsCount", grt::IntegerRef(limit));
+    bec::GRTManager::get()->set_app_option("SqlEditor:LimitRowsCount", grt::IntegerRef(limit));
 
   // special handling for custom values not in the predefined list
   mforms::MenuItem *citem = menu->find_item("custom");
-  if (!found)
-  {
+  if (!found) {
     std::string s = base::strfmt("Limit to %i rows", limit);
     if (!citem)
-      citem = menu->add_item_with_title(s, boost::bind(&SqlEditorForm::limit_rows, this, s), "custom");
+      citem = menu->add_item_with_title(s, std::bind(&SqlEditorForm::limit_rows, this, s), "custom");
     else
       citem->set_title(s);
     citem->set_checked(true);
-  }
-  else
-  {
+  } else {
     if (citem)
       menu->remove_item(citem);
   }
 
   // update the editors
-  for (int i = 0; i < sql_editor_count(); i++)
-  {
+  for (int i = 0; i < sql_editor_count(); i++) {
     SqlEditorPanel *panel = sql_editor_panel(i);
     if (panel)
       panel->update_limit_rows();
   }
 }
 
-static int limit_counts[] = {
-  10, 50, 100, 200, 300, 400, 500, 1000, 2000, 5000, 10000, 50000, 0
-};
+static int limit_counts[] = {10, 50, 100, 200, 300, 400, 500, 1000, 2000, 5000, 10000, 50000, 0};
 
-mforms::MenuBar *SqlEditorForm::get_menubar()
-{
-  if (!_menu)
-  {
+mforms::MenuBar *SqlEditorForm::get_menubar() {
+  if (!_menu) {
     _menu = _wbsql->get_cmdui()->create_menubar_for_context(WB_CONTEXT_QUERY);
 
     // special handling for Query -> Row Limit submenu
-    int limit_count = _grtm->get_app_option_int("SqlEditor:LimitRows") ? _grtm->get_app_option_int("SqlEditor:LimitRowsCount") : 0;
+    int limit_count = int(bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows")
+                            ? bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRowsCount")
+                            : 0);
 
     mforms::MenuItem *limit_item = _menu->find_item("limit_rows");
-    if (limit_item)
-    {
+    if (limit_item) {
       std::string dont_limit = _("Don't Limit");
       std::string active_limit = base::strfmt(_("Limit to %i rows"), limit_count);
 
-      limit_item->add_check_item_with_title(dont_limit, boost::bind(&SqlEditorForm::limit_rows, this, dont_limit), dont_limit);
+      limit_item->add_check_item_with_title(dont_limit, std::bind(&SqlEditorForm::limit_rows, this, dont_limit),
+                                            dont_limit);
       limit_item->add_separator();
-      for (int i = 0; limit_counts[i] != 0; i++)
-      {
+      for (int i = 0; limit_counts[i] != 0; i++) {
         std::string tmp = base::strfmt(_("Limit to %i rows"), limit_counts[i]);
         if (limit_counts[i] == limit_count)
           active_limit = tmp;
-        limit_item->add_check_item_with_title(tmp, boost::bind(&SqlEditorForm::limit_rows, this, tmp), tmp);
+        limit_item->add_check_item_with_title(tmp, std::bind(&SqlEditorForm::limit_rows, this, tmp), tmp);
       }
       if (limit_count <= 0)
         limit_rows(dont_limit);
@@ -159,57 +144,92 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
         limit_rows(active_limit);
     }
 
+    auto item = _menu->find_item("query.cancel");
+    if (item != nullptr)
+      item->add_validator([this]() { return is_running_query() && connected(); });
+    item = _menu->find_item("query.execute");
+    if (item != nullptr)
+      item->add_validator([this]() {
+        return !is_running_query() && connected() &&
+               (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false);
+      });
+    item = _menu->find_item("query.reconnect");
+    if (item != nullptr)
+      item->add_validator([this]() { return !is_running_query(); });
+    item = _menu->find_item("wb.sqlide.executeToTextOutput");
+    if (item != nullptr)
+      item->add_validator([this]() { return !is_running_query() && connected(); });
+    item = _menu->find_item("wb.sqlide.verticalOutput");
+    if (item != nullptr)
+      item->add_validator([this]() { return !is_running_query() && connected(); });
+    item = _menu->find_item("query.execute_current_statement");
+    if (item != nullptr)
+      item->add_validator([this]() {
+        return !is_running_query() && connected() &&
+               (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false);
+      });
+    item = _menu->find_item("query.explain_current_statement");
+    if (item != nullptr)
+      item->add_validator([this]() {
+        return !is_running_query() && connected() &&
+               (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false);
+      });
+    item = _menu->find_item("query.commit");
+    if (item != nullptr)
+      item->add_validator([this]() { return !is_running_query() && connected() && !auto_commit(); });
+    item = _menu->find_item("query.rollback");
+    if (item != nullptr)
+      item->add_validator([this]() { return !is_running_query() && connected() && !auto_commit(); });
+    item = _menu->find_item("query.stopOnError");
+    if (item != nullptr)
+      item->add_validator([this]() { return !is_running_query(); });
+    item = _menu->find_item("query.autocommit");
+    if (item != nullptr)
+      item->add_validator([this]() { return !is_running_query() && connected(); });
+    item = _menu->find_item("query.gatherPSInfo");
+    if (item != nullptr)
+      item->add_validator([this]() {
+        return !is_running_query() && connected() && bec::is_supported_mysql_version_at_least(_version, 5, 5);
+      });
+    item = _menu->find_item("wb.sqlide.runScript");
+    if (item != nullptr)
+      item->add_validator([this]() { return connected(); });
+
     update_menu_and_toolbar();
-    
+
     _menu->set_item_enabled("query.save_edits", false);
     _menu->set_item_enabled("query.discard_edits", false);
     _menu->set_item_enabled("query.export", false);
-    
+
     _menu->set_item_checked("query.continueOnError", continue_on_error());
   }
   return _menu;
 }
 
-void SqlEditorForm::update_menu_and_toolbar()
-{
-  if (!_grtm->in_main_thread())
-  {
-    exec_sql_task->execute_in_main_thread(boost::bind(&SqlEditorForm::update_menu_and_toolbar, this),
-                                          false,
-                                          false);
+void SqlEditorForm::update_menu_and_toolbar() {
+  if (!bec::GRTManager::get()->in_main_thread()) {
+    exec_sql_task->execute_in_main_thread(std::bind(&SqlEditorForm::update_menu_and_toolbar, this), false, false);
     return;
   }
-  
+
+  logDebug2("Updating SQL menu and toolbar\n");
+
   bool running = is_running_query();
   bool connected = this->connected();
 
-  if (_menu)
-  {
-    _menu->set_item_enabled("query.cancel", running && connected);
-    _menu->set_item_enabled("query.execute", !running && connected);
-    _menu->set_item_enabled("query.reconnect", !running);
-    _menu->set_item_enabled("wb.sqlide.executeToTextOutput", !running && connected);
-    _menu->set_item_enabled("query.execute_current_statement", !running && connected);
-    _menu->set_item_enabled("query.explain_current_statement", !running && connected);
-    _menu->set_item_enabled("query.commit", !running && !auto_commit() && connected);
-    _menu->set_item_enabled("query.rollback", !running && !auto_commit() && connected);
-    _menu->set_item_enabled("query.continueOnError", connected);
+  if (_menu) {
+    _menu->validate();
+
     mforms::MenuItem *item = _menu->find_item("query.autocommit");
     if (item)
-    {
-      item->set_enabled(!running && connected);
-      item->set_checked(auto_commit());    
-    }
+      item->set_checked(auto_commit());
+
     item = _menu->find_item("query.gatherPSInfo");
     if (item)
-    {
-      item->set_enabled(!running && connected && bec::is_supported_mysql_version_at_least(_version, 5, 5));
       item->set_checked(collect_ps_statement_events());
-    }
   }
 
-  if (_toolbar)
-  {
+  if (_toolbar) {
     _toolbar->set_item_enabled("query.new_schema", connected);
     _toolbar->set_item_enabled("query.show_inspector", connected);
     _toolbar->set_item_enabled("query.new_table", connected);
@@ -218,9 +238,9 @@ void SqlEditorForm::update_menu_and_toolbar()
     _toolbar->set_item_enabled("query.new_function", connected);
     _toolbar->set_item_enabled("wb.dbsearch", connected);
   }
-  
+
   set_editor_tool_items_enbled("query.cancel", running && connected);
-  
+
   set_editor_tool_items_enbled("query.execute", !running && connected);
   set_editor_tool_items_enbled("query.reconnect", !running);
   set_editor_tool_items_enbled("wb.sqlide.executeToTextOutput", !running && connected);
@@ -232,22 +252,20 @@ void SqlEditorForm::update_menu_and_toolbar()
   set_editor_tool_items_enbled("query.autocommit", !running && connected);
   set_editor_tool_items_enbled("query.continueOnError", connected);
   set_editor_tool_items_checked("query.autocommit", auto_commit());
-  set_editor_tool_items_checked("query.continueOnError", _continue_on_error);
-  set_editor_tool_items_checked("query.toggleLimit",  _grtm->get_app_option_int("SqlEditor:LimitRows") != 0);
+  set_editor_tool_items_checked("query.continueOnError", _continueOnError);
+  set_editor_tool_items_checked("query.toggleLimit",
+                                bec::GRTManager::get()->get_app_option_int("SqlEditor:LimitRows") != 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string find_icon_name(std::string icon_name, bool use_win8)
-{
+std::string find_icon_name(std::string icon_name, bool use_win8) {
   std::string::size_type dot_position = icon_name.rfind(".");
-  if (dot_position != std::string::npos)
-  {
+  if (dot_position != std::string::npos) {
     std::string extension = icon_name.substr(dot_position);
     std::string name = icon_name.substr(0, dot_position);
     bool using_win8 = name.rfind("_win8") == name.size() - 5;
-    if (use_win8 != using_win8)
-    {
+    if (use_win8 != using_win8) {
       if (use_win8)
         icon_name = name + "_win8" + extension;
       else
@@ -260,38 +278,33 @@ std::string find_icon_name(std::string icon_name, bool use_win8)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorForm::update_toolbar_icons()
-{
+void SqlEditorForm::update_toolbar_icons() {
   bool use_win8;
-  
-  switch (base::Color::get_active_scheme())
-  {
-  case base::ColorSchemeStandardWin8:
-  case base::ColorSchemeStandardWin8Alternate:
-    use_win8 = true;
-    break;
 
-  default:
-    use_win8 = false;
+  switch (base::Color::get_active_scheme()) {
+    case base::ColorSchemeStandardWin8:
+    case base::ColorSchemeStandardWin8Alternate:
+      use_win8 = true;
+      break;
+
+    default:
+      use_win8 = false;
   }
 
   mforms::ToolBarItem *item = _toolbar->find_item("wb.toggleSidebar");
-  if (item != NULL)
-  {
+  if (item != NULL) {
     item->set_icon(find_icon_name(item->get_icon(), use_win8));
     item->set_alt_icon(find_icon_name(item->get_alt_icon(), use_win8));
   }
-    
+
   item = _toolbar->find_item("wb.toggleOutputArea");
-  if (item != NULL)
-  {
+  if (item != NULL) {
     item->set_icon(find_icon_name(item->get_icon(), use_win8));
     item->set_alt_icon(find_icon_name(item->get_alt_icon(), use_win8));
   }
-    
+
   item = _toolbar->find_item("wb.toggleSecondarySidebar");
-  if (item != NULL)
-  {
+  if (item != NULL) {
     item->set_icon(find_icon_name(item->get_icon(), use_win8));
     item->set_alt_icon(find_icon_name(item->get_alt_icon(), use_win8));
   }
@@ -299,10 +312,9 @@ void SqlEditorForm::update_toolbar_icons()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorForm::validate_menubar()
-{
+void SqlEditorForm::validate_menubar() {
   if (get_menubar())
-    _wbsql->get_wbui()->get_command_ui()->revalidate_menu_bar(get_menubar());
+    wb::WBContextUI::get()->get_command_ui()->revalidate_menu_bar(get_menubar());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,13 +322,12 @@ void SqlEditorForm::validate_menubar()
 /**
  * Setup of schema browser/object info/quick help side palette.
  */
-void SqlEditorForm::setup_side_palette()
-{  
+void SqlEditorForm::setup_side_palette() {
   // Right hand side (quick help, snippets).
   _side_palette = mforms::manage(new QuerySidePalette(shared_from_this()));
-  
+
 #ifdef _WIN32
-  mforms::Panel* panel;
+  mforms::Panel *panel;
   panel = mforms::manage(new mforms::Panel(mforms::StyledHeaderPanel));
   panel->set_title(_("SQL Additions"));
   panel->add(_side_palette);
@@ -325,13 +336,12 @@ void SqlEditorForm::setup_side_palette()
   _side_palette_host = _side_palette;
 #endif
 
-  _side_palette->set_active_tab(_grtm->get_app_option_int("DbSqlEditor:ActiveSidePaletteTab", 0));
+  _side_palette->set_active_tab((int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ActiveSidePaletteTab", 0));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorForm::toolbar_command(const std::string& command)
-{
+void SqlEditorForm::toolbar_command(const std::string &command) {
   if (command == "query.new_schema")
     _live_tree->tree_create_object(LiveSchemaTree::Schema, "", "");
   else if (command == "query.new_table")
@@ -342,78 +352,69 @@ void SqlEditorForm::toolbar_command(const std::string& command)
     _live_tree->tree_create_object(LiveSchemaTree::Procedure, "", "");
   else if (command == "query.new_function")
     _live_tree->tree_create_object(LiveSchemaTree::Function, "", "");
-  else if (command == "query.show_inspector")
-  {
+  else if (command == "query.show_inspector") {
     db_query_EditorRef editor(_wbsql->get_grt_editor_object(this));
-    if (editor.is_valid())
-    {
-      grt::BaseListRef args(_grtm->get_grt());
+    if (editor.is_valid()) {
+      grt::BaseListRef args(true);
       args.ginsert(editor);
 
-      grt::ListRef<db_query_LiveDBObject> selection = grt::ListRef<db_query_LiveDBObject>::cast_from(get_live_tree()->get_schema_tree()->get_selected_objects());
-      grt::BaseListRef selected_items(_grtm->get_grt());
-      GRTLIST_FOREACH (db_query_LiveDBObject, selection, iterator)
-      {
+      grt::ListRef<db_query_LiveDBObject> selection =
+        grt::ListRef<db_query_LiveDBObject>::cast_from(get_live_tree()->get_schema_tree()->get_selected_objects());
+      grt::BaseListRef selected_items(true);
+      GRTLIST_FOREACH(db_query_LiveDBObject, selection, iterator) {
         std::string type = (*iterator)->type();
         if (type == "db.Schema" || type == "db.Table" || type == "db.Index")
           selected_items.ginsert((*iterator));
       }
 
-      if (selected_items->count() > 0)
-      {
+      if (selected_items->count() > 0) {
         args.ginsert(selected_items);
-        grt::Module *module = _grtm->get_grt()->get_module("SQLIDEUtils");
+        grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
         if (module)
           module->call_function("showInspector", args);
-      }
-      else if (!active_schema().empty())
-      {
-        db_query_LiveDBObjectRef obj(_grtm->get_grt());
+      } else if (!active_schema().empty()) {
+        db_query_LiveDBObjectRef obj(grt::Initialized);
         obj->schemaName(active_schema());
         obj->type("db.Schema");
         obj->name(active_schema());
         selected_items.ginsert(obj);
         args.ginsert(selected_items);
-        grt::Module *module = _grtm->get_grt()->get_module("SQLIDEUtils");
+        grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
         if (module)
           module->call_function("showInspector", args);
-      }
-      else
-        mforms::Utilities::show_warning(_("Selection empty"),
-        _("Select a schema, table or index object in the schema tree to show the inspector."), "Close");
+      } else
+        mforms::Utilities::show_warning(
+          _("Selection empty"), _("Select a schema, table or index object in the schema tree to show the inspector."),
+          "Close");
     }
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorForm::inspect_object(const std::string &schema, const std::string &object, const std::string &type)
-{
+void SqlEditorForm::inspect_object(const std::string &schema, const std::string &object, const std::string &type) {
   db_query_EditorRef editor(_wbsql->get_grt_editor_object(this));
-  if (editor.is_valid())
-  {
-    grt::BaseListRef selected_items(_grtm->get_grt());
-    grt::BaseListRef args(_grtm->get_grt());
+  if (editor.is_valid()) {
+    grt::BaseListRef selected_items(true);
+    grt::BaseListRef args(true);
     args.ginsert(editor);
 
-    db_query_LiveDBObjectRef obj(_grtm->get_grt());
+    db_query_LiveDBObjectRef obj(grt::Initialized);
     obj->type(type);
     obj->schemaName(schema);
     obj->name(object);
     selected_items.ginsert(obj);
 
     args.ginsert(selected_items);
-    _grtm->get_grt()->call_module_function("SQLIDEUtils", "showInspector", args);
+    grt::GRT::get()->call_module_function("SQLIDEUtils", "showInspector", args);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorForm::show_output_area()
-{
+void SqlEditorForm::show_output_area() {
   mforms::ToolBarItem *item = _toolbar->find_item("wb.toggleOutputArea");
-  if (item && !item->get_checked())
-  {
+  if (item && !item->get_checked()) {
     item->set_checked(true);
     item->callback();
   }
@@ -421,104 +422,97 @@ void SqlEditorForm::show_output_area()
 
 //--------------------------------------------------------------------------------------------------
 
-
-mforms::View* SqlEditorForm::get_sidebar()
-{
+mforms::View *SqlEditorForm::get_sidebar() {
   return _live_tree->get_sidebar();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::View *SqlEditorForm::get_side_palette()
-{
+mforms::View *SqlEditorForm::get_side_palette() {
   return _side_palette_host;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-
-void SqlEditorForm::set_editor_tool_items_enbled(const std::string &name, bool flag)
-{
-  if (_tabdock)
-  {
-    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
-    {
-      SqlEditorPanel* panel = dynamic_cast<SqlEditorPanel*>(_tabdock->view_at_index(i));
+void SqlEditorForm::set_editor_tool_items_enbled(const std::string &name, bool flag) {
+  if (_tabdock) {
+    for (int c = _tabdock->view_count(), i = 0; i < c; i++) {
+      SqlEditorPanel *panel = dynamic_cast<SqlEditorPanel *>(_tabdock->view_at_index(i));
       if (panel)
         panel->get_toolbar()->set_item_enabled(name, flag);
     }
   }
 }
 
-
-void SqlEditorForm::set_editor_tool_items_checked(const std::string &name, bool flag)
-{
-  if (_tabdock)
-  {
-    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
-    {
-      SqlEditorPanel* panel = dynamic_cast<SqlEditorPanel*>(_tabdock->view_at_index(i));
+void SqlEditorForm::set_editor_tool_items_checked(const std::string &name, bool flag) {
+  if (_tabdock) {
+    for (int c = _tabdock->view_count(), i = 0; i < c; i++) {
+      SqlEditorPanel *panel = dynamic_cast<SqlEditorPanel *>(_tabdock->view_at_index(i));
       if (panel)
         panel->get_toolbar()->set_item_checked(name, flag);
     }
   }
 }
 
-void SqlEditorForm::set_tool_item_checked(const std::string& name, bool flag)
-{
+void SqlEditorForm::set_tool_item_checked(const std::string &name, bool flag) {
   _toolbar->set_item_checked(name, flag);
 }
 
-bool SqlEditorForm::run_live_object_alteration_wizard(const std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id,
-                                                      const std::string &log_context)
-{
+bool SqlEditorForm::run_live_object_alteration_wizard(const std::string &alter_script,
+                                                      bec::DBObjectEditorBE *obj_editor, RowId log_id,
+                                                      const std::string &log_context) {
   on_sql_script_run_error.disconnect_all_slots();
   on_sql_script_run_progress.disconnect_all_slots();
   on_sql_script_run_statistics.disconnect_all_slots();
-  
+
   // Determine the current online DDL settings, so the wizard can initialize its local settings.
   std::string algorithm;
-  wbsql()->get_wbui()->get_wb_options_value("", "DbSqlEditor:OnlineDDLAlgorithm", algorithm);
+  wb::WBContextUI::get()->get_wb_options_value("", "DbSqlEditor:OnlineDDLAlgorithm", algorithm);
   std::string lock;
-  wbsql()->get_wbui()->get_wb_options_value("", "DbSqlEditor:OnlineDDLLock", lock);
-  
-  SqlScriptRunWizard wizard(_grtm, rdbms_version(), algorithm, lock);
+  wb::WBContextUI::get()->get_wb_options_value("", "DbSqlEditor:OnlineDDLLock", lock);
+
+  SqlScriptRunWizard wizard(rdbms_version(), algorithm, lock);
   if (obj_editor)
-    wizard.regenerate_script = boost::bind(&SqlEditorTreeController::generate_alter_script, get_live_tree(), rdbms(),
-                                           obj_editor->get_dbobject(), _1, _2);
-  scoped_connection c1(on_sql_script_run_error.connect(boost::bind(&SqlScriptApplyPage::on_error, wizard.apply_page, _1, _2, _3)));
-  scoped_connection c2(on_sql_script_run_progress.connect(boost::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, _1)));
-  scoped_connection c3(on_sql_script_run_statistics.connect(boost::bind(&SqlScriptApplyPage::on_exec_stat, wizard.apply_page, _1, _2)));
-  
+    wizard.regenerate_script = std::bind(&SqlEditorTreeController::generate_alter_script, get_live_tree(), rdbms(),
+                                         obj_editor->get_dbobject(), std::placeholders::_1, std::placeholders::_2);
+  scoped_connection c1(
+    on_sql_script_run_error.connect(std::bind(&SqlScriptApplyPage::on_error, wizard.apply_page, std::placeholders::_1,
+                                              std::placeholders::_2, std::placeholders::_3)));
+  scoped_connection c2(on_sql_script_run_progress.connect(
+    std::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, std::placeholders::_1)));
+  scoped_connection c3(on_sql_script_run_statistics.connect(
+    std::bind(&SqlScriptApplyPage::on_exec_stat, wizard.apply_page, std::placeholders::_1, std::placeholders::_2)));
+
   std::string errors;
-  
-  scoped_connection c4(on_sql_script_run_error.connect(boost::bind(&SqlEditorForm::sql_script_apply_error, this, _1, _2, _3, boost::ref(errors))));
-  scoped_connection c5(on_sql_script_run_progress.connect(boost::bind(&SqlEditorForm::sql_script_apply_progress, this, _1)));
-  scoped_connection c6(on_sql_script_run_statistics.connect(boost::bind(&SqlEditorForm::sql_script_stats, this, _1, _2)));
-  
+
+  scoped_connection c4(
+    on_sql_script_run_error.connect(std::bind(&SqlEditorForm::sql_script_apply_error, this, std::placeholders::_1,
+                                              std::placeholders::_2, std::placeholders::_3, std::ref(errors))));
+  scoped_connection c5(on_sql_script_run_progress.connect(
+    std::bind(&SqlEditorForm::sql_script_apply_progress, this, std::placeholders::_1)));
+  scoped_connection c6(on_sql_script_run_statistics.connect(
+    std::bind(&SqlEditorForm::sql_script_stats, this, std::placeholders::_1, std::placeholders::_2)));
+
   wizard.values().gset("sql_script", alter_script);
-  wizard.apply_page->apply_sql_script= boost::bind(&SqlEditorForm::apply_object_alter_script, this, _1, obj_editor, log_id);
-  wizard.abort_apply = boost::bind(&SqlEditorForm::abort_apply_object_alter_script, this);
+  wizard.apply_page->apply_sql_script =
+    std::bind(&SqlEditorForm::apply_object_alter_script, this, std::placeholders::_1, obj_editor, log_id);
+  wizard.abort_apply = std::bind(&SqlEditorForm::abort_apply_object_alter_script, this);
   wizard.run_modal();
-  
+
   if (wizard.applied() && !wizard.has_errors())
     set_log_message(log_id, DbSqlEditorLog::OKMsg, _("Changes applied"), log_context, "");
   else
     set_log_message(log_id, DbSqlEditorLog::ErrorMsg, errors, log_context, "");
-  
+
   return wizard.applied() && !wizard.has_errors();
 }
 
-
-void SqlEditorForm::abort_apply_object_alter_script()
-{
+void SqlEditorForm::abort_apply_object_alter_script() {
   cancel_query();
 }
 
-
-
-int SqlEditorForm::sql_script_apply_error(long long code, const std::string& msg, const std::string& stmt, std::string &errors)
-{
+int SqlEditorForm::sql_script_apply_error(long long code, const std::string &msg, const std::string &stmt,
+                                          std::string &errors) {
   if (code >= 0)
     errors.append(strfmt("Error %li: ", (long)code));
   errors.append(msg).append("\n");
@@ -527,66 +521,51 @@ int SqlEditorForm::sql_script_apply_error(long long code, const std::string& msg
   return 0;
 }
 
-
-int SqlEditorForm::sql_script_apply_progress(float)
-{
+int SqlEditorForm::sql_script_apply_progress(float) {
   return 0;
 }
 
-
-int SqlEditorForm::sql_script_stats(long, long)
-{
+int SqlEditorForm::sql_script_stats(long, long) {
   return 0;
 }
 
-void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_index)
-{
+void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_index) {
   if (action == "new_tab")
     new_sql_script_file();
-  else if (action == "save_tab")
-  {
+  else if (action == "save_tab") {
     SqlEditorPanel *editor = sql_editor_panel(tab_index);
     if (editor)
       editor->save();
-  }
-  else if (action == "copy_path")
-  {
+  } else if (action == "copy_path") {
     SqlEditorPanel *editor = sql_editor_panel(tab_index);
     if (editor)
       mforms::Utilities::set_clipboard_text(editor->filename());
-  }
-  else if (action == "close_tab")
-  {
+  } else if (action == "close_tab") {
     if (_tabdock->view_at_index(tab_index)->on_close())
-      _grtm->run_once_when_idle(this, boost::bind(&mforms::DockingPoint::close_view_at_index, _tabdock, tab_index));
-  }
-  else if (action == "close_other_tabs")
-  {
-    for (int i = _tabdock->view_count() - 1; i >= 0; --i)
-    {
-      if (i != tab_index)
-        _tabdock->view_at_index(i)->close();
+      bec::GRTManager::get()->run_once_when_idle(
+        this, std::bind(&mforms::DockingPoint::close_view_at_index, _tabdock, tab_index));
+  } else if (action == "close_other_tabs") {
+    for (int i = _tabdock->view_count() - 1; i >= 0; --i) {
+      if (i != tab_index) {
+        auto view = _tabdock->view_at_index(i);
+        if (view != nullptr)
+          view->close();
+      }
     }
   }
 }
 
-
-void SqlEditorForm::handle_history_action(const std::string &action, const std::string &sql)
-{
+void SqlEditorForm::handle_history_action(const std::string &action, const std::string &sql) {
   if (action == "copy")
     mforms::Utilities::set_clipboard_text(sql);
-  else if (action == "append")
-  {
+  else if (action == "append") {
     SqlEditorPanel *panel = active_sql_editor_panel();
     if (panel)
       panel->editor_be()->append_text(sql);
-  }
-  else if (action == "replace")
-  {
+  } else if (action == "replace") {
     SqlEditorPanel *panel = active_sql_editor_panel();
     if (panel)
       panel->editor_be()->sql(sql.c_str());
-  }
-  else
-   throw std::invalid_argument("invalid history action " + action);
+  } else
+    throw std::invalid_argument("invalid history action " + action);
 }

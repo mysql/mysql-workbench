@@ -1,23 +1,23 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include "workbench/wb_context.h"
 #include "model/wb_model_diagram_form.h"
@@ -40,132 +40,117 @@ using namespace MySQL::Workbench;
 
 //--------------------------------------------------------------------------------------------------
 
-ModelDiagramFormWrapper::ModelDiagramFormWrapper(ModelDiagramForm *inn)
-  : UIForm(inn)
-{
+ModelDiagramFormWrapper::ModelDiagramFormWrapper(ModelDiagramForm *inn) : UIForm(inn) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-ModelDiagramFormWrapper::~ModelDiagramFormWrapper()
-{
+ModelDiagramFormWrapper::~ModelDiagramFormWrapper() {
   init(NULL); // Reset the reference to the backend object. We are not responsible for it.
 }
 
 //--------------------------------------------------------------------------------------------------
 
-ModelDiagramForm* ModelDiagramFormWrapper::get_unmanaged_object()
-{
-  return (ModelDiagramForm*)inner;
+ModelDiagramForm *ModelDiagramFormWrapper::get_unmanaged_object() {
+  return (ModelDiagramForm *)inner;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::OnMouseMove(MouseEventArgs^ e, int X, int Y, Keys keystate, MouseButtons buttons)
-{
+void ModelDiagramFormWrapper::OnMouseMove(MouseEventArgs ^ e, int X, int Y, Keys keystate, MouseButtons buttons) {
   get_unmanaged_object()->handle_mouse_move(X, Y, BaseWindowsCanvasView::getEventState(keystate, buttons));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::OnMouseDown(MouseEventArgs^ e, int X, int Y, Keys keystate, MouseButtons buttons)
-{
-  mdc::MouseButton butt= mdc::ButtonLeft;
-  switch(e->Button)
-  {
-  case MouseButtons::Left:
-    butt= mdc::ButtonLeft;
-    break;
+void ModelDiagramFormWrapper::OnMouseDown(MouseEventArgs ^ e, int X, int Y, Keys keystate, MouseButtons buttons) {
+  mdc::MouseButton butt = mdc::ButtonLeft;
+  switch (e->Button) {
+    case MouseButtons::Left:
+      butt = mdc::ButtonLeft;
+      break;
 
-  case MouseButtons::Middle:
-    butt= mdc::ButtonMiddle;
-    break;
+    case MouseButtons::Middle:
+      butt = mdc::ButtonMiddle;
+      break;
 
-  case MouseButtons::Right:
-    butt= mdc::ButtonRight;
-    break;
+    case MouseButtons::Right:
+      butt = mdc::ButtonRight;
+      break;
   }
-  get_unmanaged_object()->handle_mouse_button(butt, true, X, Y, 
-    BaseWindowsCanvasView::getEventState(keystate, buttons));
+  get_unmanaged_object()->handle_mouse_button(butt, true, X, Y,
+                                              BaseWindowsCanvasView::getEventState(keystate, buttons));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::OnMouseUp(MouseEventArgs^ e, int X, int Y, Keys keystate, MouseButtons buttons)
-{
-  mdc::MouseButton butt= mdc::ButtonLeft;
-  switch(e->Button)
-  {
-  case MouseButtons::Left:
-    butt= mdc::ButtonLeft;
-    break;
+void ModelDiagramFormWrapper::OnMouseUp(MouseEventArgs ^ e, int X, int Y, Keys keystate, MouseButtons buttons) {
+  mdc::MouseButton butt = mdc::ButtonLeft;
+  switch (e->Button) {
+    case MouseButtons::Left:
+      butt = mdc::ButtonLeft;
+      break;
 
-  case MouseButtons::Middle:
-    butt= mdc::ButtonMiddle;
-    break;
+    case MouseButtons::Middle:
+      butt = mdc::ButtonMiddle;
+      break;
 
-  case MouseButtons::Right:
-    butt= mdc::ButtonRight;
-    break;
+    case MouseButtons::Right:
+      butt = mdc::ButtonRight;
+      break;
   }
   get_unmanaged_object()->handle_mouse_button(butt, false, X, Y,
-    BaseWindowsCanvasView::getEventState(keystate, buttons));
+                                              BaseWindowsCanvasView::getEventState(keystate, buttons));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::OnMouseDoubleClick(MouseEventArgs^ e, int X, int Y, Keys keystate, MouseButtons buttons)
-{
-  mdc::MouseButton butt= mdc::ButtonLeft;
-  switch(e->Button)
-  {
-  case MouseButtons::Left:
-    butt= mdc::ButtonLeft;
-    break;
+void ModelDiagramFormWrapper::OnMouseDoubleClick(MouseEventArgs ^ e, int X, int Y, Keys keystate,
+                                                 MouseButtons buttons) {
+  mdc::MouseButton butt = mdc::ButtonLeft;
+  switch (e->Button) {
+    case MouseButtons::Left:
+      butt = mdc::ButtonLeft;
+      break;
 
-  case MouseButtons::Middle:
-    butt= mdc::ButtonMiddle;
-    break;
+    case MouseButtons::Middle:
+      butt = mdc::ButtonMiddle;
+      break;
 
-  case MouseButtons::Right:
-    butt= mdc::ButtonRight;
-    break;
+    case MouseButtons::Right:
+      butt = mdc::ButtonRight;
+      break;
   }
   get_unmanaged_object()->handle_mouse_double_click(butt, X, Y,
-    BaseWindowsCanvasView::getEventState(keystate, buttons));
+                                                    BaseWindowsCanvasView::getEventState(keystate, buttons));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::OnKeyDown(KeyEventArgs^ e, Keys keystate)
-{
-  if (get_unmanaged_object()->handle_key(BaseWindowsCanvasView::getKeyInfo(e), true, 
-    BaseWindowsCanvasView::getEventState(keystate, MouseButtons::None)))
-  {
+void ModelDiagramFormWrapper::OnKeyDown(KeyEventArgs ^ e, Keys keystate) {
+  if (get_unmanaged_object()->handle_key(BaseWindowsCanvasView::getKeyInfo(e), true,
+                                         BaseWindowsCanvasView::getEventState(keystate, MouseButtons::None))) {
     // If the keyboard input has been handled then tell the caller not to process this any further.
-    e->SuppressKeyPress= true;
+    e->SuppressKeyPress = true;
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::OnKeyUp(KeyEventArgs^ e, Keys keystate)
-{
-  get_unmanaged_object()->handle_key(BaseWindowsCanvasView::getKeyInfo(e), false, 
-    BaseWindowsCanvasView::getEventState(keystate, MouseButtons::None));
+void ModelDiagramFormWrapper::OnKeyUp(KeyEventArgs ^ e, Keys keystate) {
+  get_unmanaged_object()->handle_key(BaseWindowsCanvasView::getKeyInfo(e), false,
+                                     BaseWindowsCanvasView::getEventState(keystate, MouseButtons::None));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ ModelDiagramFormWrapper::get_tool_cursor()
-{
+String ^ ModelDiagramFormWrapper::get_tool_cursor() {
   return CppStringToNative(get_unmanaged_object()->get_cursor());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ModelDiagramFormWrapper::accepts_drop(int x, int y, IDataObject ^data)
-{
+bool ModelDiagramFormWrapper::accepts_drop(int x, int y, IDataObject ^ data) {
   void *native_data = ObjectMapper::ManagedToNativeDragData(data, WB_DBOBJECT_DRAG_TYPE);
   if (native_data == NULL)
     return false;
@@ -176,15 +161,13 @@ bool ModelDiagramFormWrapper::accepts_drop(int x, int y, IDataObject ^data)
 
 //--------------------------------------------------------------------------------------------------
 
-bool ModelDiagramFormWrapper::accepts_drop(int x, int y, String^ type, String^ text)
-{
+bool ModelDiagramFormWrapper::accepts_drop(int x, int y, String ^ type, String ^ text) {
   return get_unmanaged_object()->accepts_drop(x, y, NativeToCppString(type), NativeToCppString(text));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ModelDiagramFormWrapper::perform_drop(int x, int y, IDataObject ^data)
-{
+bool ModelDiagramFormWrapper::perform_drop(int x, int y, IDataObject ^ data) {
   void *native_data = ObjectMapper::ManagedToNativeDragData(data, WB_DBOBJECT_DRAG_TYPE);
   if (native_data == NULL)
     return false;
@@ -195,31 +178,27 @@ bool ModelDiagramFormWrapper::perform_drop(int x, int y, IDataObject ^data)
 
 //--------------------------------------------------------------------------------------------------
 
-bool ModelDiagramFormWrapper::perform_drop(int x, int y, String^ type, String^ text)
-{
+bool ModelDiagramFormWrapper::perform_drop(int x, int y, String ^ type, String ^ text) {
   return get_unmanaged_object()->perform_drop(x, y, NativeToCppString(type), NativeToCppString(text));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::set_closed(bool flag)
-{
+void ModelDiagramFormWrapper::set_closed(bool flag) {
   if (get_unmanaged_object())
     get_unmanaged_object()->set_closed(flag);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::close()
-{
+void ModelDiagramFormWrapper::close() {
   if (get_unmanaged_object())
     get_unmanaged_object()->close();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ModelDiagramFormWrapper::is_closed()
-{
+bool ModelDiagramFormWrapper::is_closed() {
   if (get_unmanaged_object())
     return get_unmanaged_object()->is_closed();
   return false;
@@ -227,32 +206,28 @@ bool ModelDiagramFormWrapper::is_closed()
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::setup_mini_view(BaseWindowsCanvasView^ view)
-{
+void ModelDiagramFormWrapper::setup_mini_view(BaseWindowsCanvasView ^ view) {
   // Ownership of the given view remains with the caller, which is responsible for freeing it.
-  mini_view= view;
+  mini_view = view;
   get_unmanaged_object()->setup_mini_view(mini_view->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::update_mini_view_size(int w, int h)
-{
+void ModelDiagramFormWrapper::update_mini_view_size(int w, int h) {
   if (get_unmanaged_object() != NULL)
     get_unmanaged_object()->update_mini_view_size(w, h);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::update_options_toolbar()
-{
+void ModelDiagramFormWrapper::update_options_toolbar() {
   get_unmanaged_object()->update_options_toolbar();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-double ModelDiagramFormWrapper::get_zoom()
-{
+double ModelDiagramFormWrapper::get_zoom() {
   if (get_unmanaged_object() != NULL)
     return get_unmanaged_object()->get_zoom();
 
@@ -261,23 +236,20 @@ double ModelDiagramFormWrapper::get_zoom()
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramFormWrapper::set_zoom(double zoom)
-{
+void ModelDiagramFormWrapper::set_zoom(double zoom) {
   if (get_unmanaged_object() != NULL)
     get_unmanaged_object()->set_zoom(zoom);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ ModelDiagramFormWrapper::get_title()
-{
+String ^ ModelDiagramFormWrapper::get_title() {
   return CppStringToNative(get_unmanaged_object()->get_title());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-ToolStrip^ ModelDiagramFormWrapper::get_tools_toolbar()
-{
+ToolStrip ^ ModelDiagramFormWrapper::get_tools_toolbar() {
   mforms::ToolBar *toolbar = get_unmanaged_object()->get_tools_toolbar();
   if (toolbar == NULL)
     return nullptr;
@@ -287,8 +259,7 @@ ToolStrip^ ModelDiagramFormWrapper::get_tools_toolbar()
 
 //--------------------------------------------------------------------------------------------------
 
-ToolStrip^ ModelDiagramFormWrapper::get_options_toolbar()
-{
+ToolStrip ^ ModelDiagramFormWrapper::get_options_toolbar() {
   mforms::ToolBar *toolbar = get_unmanaged_object()->get_options_toolbar();
   if (toolbar == NULL)
     return nullptr;
@@ -298,19 +269,16 @@ ToolStrip^ ModelDiagramFormWrapper::get_options_toolbar()
 
 //--------------------------------------------------------------------------------------------------
 
-TreeViewAdv^ ModelDiagramFormWrapper::get_layer_tree()
-{
-  mforms::TreeNodeView *tree = get_unmanaged_object()->get_layer_tree();
+TreeViewAdv ^ ModelDiagramFormWrapper::get_layer_tree() {
+  mforms::TreeView *tree = get_unmanaged_object()->get_layer_tree();
 
   return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(tree));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-TreeViewAdv^ ModelDiagramFormWrapper::get_catalog_tree()
-{
+TreeViewAdv ^ ModelDiagramFormWrapper::get_catalog_tree() {
   return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(get_unmanaged_object()->get_catalog_tree()));
 }
 
 //--------------------------------------------------------------------------------------------------
-

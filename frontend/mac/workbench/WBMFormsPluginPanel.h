@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,28 +22,25 @@ namespace mforms {
   class MenuBar;
 };
 
-@interface WBMFormsPluginPanel : WBBasePanel
-{
+@interface WBMFormsPluginPanel : WBBasePanel {
   mforms::AppView *_owner;
   mforms::MenuBar *_defaultMenuBar;
   NSString *_title;
 }
 
-+ (WBMFormsPluginPanel*)panelOfAppView:(mforms::AppView*)view;
++ (WBMFormsPluginPanel *)panelOfAppView:(mforms::AppView *)view;
 
-- (instancetype)initWithAppView:(mforms::AppView*)view NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithAppView:(mforms::AppView *)view NS_DESIGNATED_INITIALIZER;
 
-- (void)setDefaultMenuBar:(mforms::MenuBar*)menu;
+- (void)setDefaultMenuBar:(mforms::MenuBar *)menu;
 
-@property (copy) NSString *title;
-@property (readonly, copy) NSString *identifier;
-@property (readonly, copy) NSImage *tabIcon;
-@property (readonly) mforms::AppView *appView;
-@property (readonly) bec::UIForm *formBE;
-@property (readonly) NSSize minimumSize;
+@property(copy) NSString *title;
+@property(readonly, copy) NSString *identifier;
+@property(readonly, copy) NSImage *tabIcon;
+@property(readonly) mforms::AppView *appView;
+@property(readonly) bec::UIForm *formBE;
+@property(readonly) BOOL willClose;
 
-
-@property (readonly) BOOL willClose;
 - (void)didOpen;
 
 @end

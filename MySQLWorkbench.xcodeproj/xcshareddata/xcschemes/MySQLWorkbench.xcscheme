@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0730"
+   LastUpgradeVersion = "0800"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -46,16 +46,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO">
       <Testables>
-         <TestableReference
-            skipped = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "16E4CDC20F28A56E00C1E118"
-               BuildableName = "UnitTests.octest"
-               BlueprintName = "Application Unit Tests"
-               ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
@@ -93,6 +83,10 @@
          <CommandLineArgument
             argument = "-help"
             isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--configdir=~/Library/Application\ Support/MySQL/WorkbenchNg"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--log-level=debug2"

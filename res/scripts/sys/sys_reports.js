@@ -1,6 +1,69 @@
 {
-  "categories" : {"problems" : "High Cost SQL Statements", "schema" : "Database Schema Statistics",  "top": "Most Active Tables", "innodb" : "InnoDB Statistics", "io" : "Hot Spots for I/O", "wait": "Wait Event Times (Expert)"}, 
+  "categories" : {"problems" : "High Cost SQL Statements", "schema" : "Database Schema Statistics",  "top": "Most Active Tables", "innodb" : "InnoDB Statistics", "io" : "Hot Spots for I/O", "wait": "Wait Event Times (Expert)", "user_resource_use" : "User Resource Use", "memory" : "Memory Usage"},
   "reports" : [
+
+  {"category" : "memory",
+   "view" : "x$memory_global_total",
+   "description" : "Shows total memory allocated",
+   "caption" : "Total Memory",
+   "columns" : [["Total Memory Allocated", "total_allocated", "Bytes", 80]
+                ]
+  },
+
+  {"category" : "memory",
+   "view" : "x$memory_global_by_current_bytes",
+   "description" : "Shows events consuming the most memory",
+   "caption" : "Top Memory by Event",
+   "columns" : [["Event Type", "event_name", "StringLT", 80],
+                ["Count (#)", "current_count", "LongInteger", 80],
+                ["Mem", "current_alloc", "Bytes", 80],
+                ["Avg Mem", "current_avg_alloc", "Bytes", 80],
+                ["Max Count (#)", "high_count", "LongInteger", 80],
+                ["Max Mem", "high_alloc", "Bytes", 80],
+                ["Max Avg Mem", "high_avg_alloc", "Bytes", 80]
+                ]
+  },
+
+  {"category" : "memory",
+   "view" : "x$memory_by_user_by_current_bytes",
+   "description" : "Shows users consuming the most memory",
+   "caption" : "Top Memory by User",
+   "columns" : [["User", "user", "StringLT", 80],
+                ["Count (#)", "current_count_used", "LongInteger", 80],
+                ["Mem", "current_allocated", "Bytes", 80],
+                ["Avg Mem", "current_avg_alloc", "Bytes", 80],
+                ["Max Mem", "current_max_alloc", "Bytes", 80],
+                ["Total Mem", "total_allocated", "Bytes", 80]
+                ]
+  },
+
+  {"category" : "memory",
+   "view" : "x$memory_by_host_by_current_bytes",
+   "description" : "Shows hosts consuming the most memory",
+   "caption" : "Top Memory by Host",
+   "columns" : [["Host", "host", "StringLT", 80],
+                ["Count (#)", "current_count_used", "LongInteger", 80],
+                ["Mem", "current_allocated", "Bytes", 80],
+                ["Avg Mem", "current_avg_alloc", "Bytes", 80],
+                ["Max Mem", "current_max_alloc", "Bytes", 80],
+                ["Total Mem", "total_allocated", "Bytes", 80]
+                ]
+  },
+
+  {"category" : "memory",
+   "view" : "x$memory_by_thread_by_current_bytes",
+   "description" : "Shows threads consuming the most memory",
+   "caption" : "Top Memory by Thread",
+   "columns" : [["Thread ID", "thread_id", "StringLT", 80],
+                ["User", "user", "StringLT", 80],
+                ["Count (#)", "current_count_used", "LongInteger", 80],
+                ["Mem", "current_allocated", "Bytes", 80],
+                ["Avg Mem", "current_avg_alloc", "Bytes", 80],
+                ["Max Mem", "current_max_alloc", "Bytes", 80],
+                ["Total Mem", "total_allocated", "Bytes", 80]
+                ]
+  },
+
   {"category" : "io",
    "view" : "x$io_global_by_file_by_bytes",
    "description" : "Show the Files doing the most IOs in bytes",
@@ -359,7 +422,56 @@
               ["Pages Old", "pages_old", "LongInteger", 80],
               ["Rows Cached", "rows_cached", "LongInteger", 80]
               ]
+  },
+
+  { "category" : "user_resource_use",
+    "view" : "x$user_summary",
+    "description" : "Shows resource use summary for each user",
+    "caption" : "Overview",
+    "columns" : [["User", "user", "StringLT", 80],
+                 ["Statements (#)", "statements", "LongInteger", 80],
+                 ["Statement Total Time", "statement_latency", "Time", 80],
+                 ["Statement Avg Time", "statement_avg_latency", "Time", 80],
+                 ["Table Scans (#)", "table_scans", "LongInteger", 80],
+                 ["File IOs (#)", "file_ios", "LongInteger", 80],
+                 ["Total File IO Time", "file_io_latency", "Time", 80],
+                 ["Open Connections (#)", "current_connections", "LongInteger", 80],
+                 ["Total Connections (#)", "total_connections", "LongInteger", 80],
+                 ["Unique Hosts (#)", "unique_hosts", "LongInteger", 80],
+                 ["Memory", "current_memory", "Bytes", 80],
+                 ["Total Memory", "total_memory_allocated", "Bytes", 80]
+                 ]
+  },
+
+  { "category" : "user_resource_use",
+    "view" : "x$user_summary_by_file_io_type",
+    "description" : "Shows I/O usage for each user",
+    "caption" : "I/O Statistics",
+    "columns" : [["User", "user", "StringLT", 80],
+                 ["IO Event Type", "event_name", "StringLT", 80],
+                 ["Total IOs (#)", "total", "LongInteger", 80],
+                 ["Total Time", "latency", "Time", 80],
+                 ["Max Time", "max_latency", "Time", 80]
+                 ]
+  },
+
+  { "category" : "user_resource_use",
+    "view" : "x$user_summary_by_statement_type",
+    "description" : "Shows statement execution statistics for each user",
+    "caption" : "Statement Statistics",
+    "columns" : [["User", "user", "StringLT", 80],
+                 ["Statement", "statement", "StringLT", 80],
+                 ["Total Events (#)", "total", "LongInteger", 80],
+                 ["Total Time", "total_latency", "Time", 80],
+                 ["Max Time", "max_latency", "Time", 80],
+                 ["Lock Time", "lock_latency", "Time", 80],
+                 ["Rows Sent (#)", "rows_sent", "LongInteger", 80],
+                 ["Rows Examined (#)", "rows_examined", "LongInteger", 80],
+                 ["Rows Affected (#)", "rows_affected", "LongInteger", 80],
+                 ["Full Scans (#)", "full_scans", "LongInteger", 80]
+                 ]
   }
+
 ]
 }
 

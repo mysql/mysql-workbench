@@ -24,8 +24,7 @@ using System.Windows.Forms;
 
 using MySQL.Base;
 using MySQL.Controls;
-using MySQL.GUI.Workbench;
-using MySQL.Workbench;
+using MySQL.Utilities;
 
 namespace MySQL.Grt.Db
 {
@@ -51,7 +50,12 @@ namespace MySQL.Grt.Db
 
     public void SetupRecordset(RecordsetWrapper recordset)
     {
-      gridView = new GridView(recordset);
+      Font font = null;
+      string fontName = recordset.getFont();
+      float size = recordset.getFontSize();
+      if(!string.IsNullOrEmpty(fontName) && size > 0)
+        font = ControlUtilities.GetFont(fontName, size);
+      gridView = new GridView(recordset, font);
    //   gridView.Dock = DockStyle.Fill;
       gridView.BorderStyle = BorderStyle.None;
       gridView.StandardTab = false; // Let Tab move the cursor to the next cell instead next control in parent tab order.
@@ -435,7 +439,6 @@ namespace MySQL.Grt.Db
     public void set_font(String font, float size, FontStyle style)
     {
       gridView.Font = new Font(font, size, style);
-      
       // Don't auto resize rows here, as this might be very expensive (e.g. many rows, large cell values).
       gridView.AutoResizeColumnHeadersHeight();
     }

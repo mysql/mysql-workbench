@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,12 +51,12 @@
   if (mOwner == nil)
     return;
   
-  NSRect frame = [self frame];
+  NSRect frame = self.frame;
   
   [[NSColor clearColor] set];
-  NSRectFill([self frame]);
+  NSRectFill(self.frame);
 
-  CGContextRef cgref = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+  CGContextRef cgref = (CGContextRef)[NSGraphicsContext currentContext].graphicsPort;
   cairo_surface_t *surface = cairo_quartz_surface_create_for_cg_context(cgref, NSWidth(frame), NSHeight(frame));
   
   cairo_t *cr = cairo_create(surface);
@@ -113,7 +113,7 @@
     [self setOpaque: NO];
 
     NSView* content = [[PopupContentView alloc] initWithOwner: popup];
-    [self setContentView: content];
+    self.contentView = content;
 
     switch (aStyle)
     {
@@ -121,12 +121,12 @@
       {
         [self setHidesOnDeactivate: YES];
         [self setHasShadow : YES];
-        NSRect windowFrame = [self frame];
+        NSRect windowFrame = self.frame;
         windowFrame.origin.x = 26;
         windowFrame.origin.y = 14;
         windowFrame.size.width -= 52;
         windowFrame.size.height -= 28;
-        [content setFrame: windowFrame];
+        content.frame = windowFrame;
         break;
       }
         
@@ -164,8 +164,8 @@
   switch (self.popupStyle)
   {
     case mforms::PopupBezel:
-      [[NSAnimationContext currentContext] setDuration: 0.25];
-      [[self animator] setAlphaValue: 0];
+      [NSAnimationContext currentContext].duration = 0.25;
+      [self animator].alphaValue = 0;
       [self performSelector: @selector(orderPopupOut) withObject: nil afterDelay: 0.5
                     inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
       break;
@@ -195,9 +195,9 @@
   if (mOwner == nil)
     return;
   
-  NSPoint p = [[self contentView] convertPoint: [event locationInWindow] fromView: nil];
+  NSPoint p = [self.contentView convertPoint: event.locationInWindow fromView: nil];
   mforms::MouseButton mouseButton;
-  switch ([event buttonNumber])
+  switch (event.buttonNumber)
   {
     case NSRightMouseDown:
       mouseButton = mforms::MouseButtonRight;
@@ -211,7 +211,7 @@
       mouseButton = mforms::MouseButtonLeft;
   }
   
-  switch ([event clickCount])
+  switch (event.clickCount)
   {
     case 1:
       mOwner->mouse_up(mouseButton, p.x, p.y);
@@ -234,9 +234,9 @@
   if (mOwner == nil)
     return;
   
-  NSPoint p = [[self contentView] convertPoint: [event locationInWindow] fromView: nil];
+  NSPoint p = [self.contentView convertPoint: event.locationInWindow fromView: nil];
   mforms::MouseButton mouseButton;
-  switch ([event buttonNumber])
+  switch (event.buttonNumber)
   {
     case NSRightMouseDown:
       mouseButton = mforms::MouseButtonRight;
@@ -302,7 +302,7 @@
   if (mOwner == nil)
     return;
   
-  NSPoint p = [[self contentView] convertPoint: [event locationInWindow] fromView: nil];
+  NSPoint p = [self.contentView convertPoint: event.locationInWindow fromView: nil];
   mOwner->mouse_move(mforms::MouseButtonNone, p.x, p.y);
 }
 	
@@ -326,7 +326,7 @@
 
 - (void)keyDown: (NSEvent *)event
 {
-  unsigned short code = [event keyCode];
+  unsigned short code = event.keyCode;
   if (code == 53) // Esc
   {
     mResult = 0;
@@ -354,14 +354,14 @@
 - (NSInteger)runModalAtPosition: (NSPoint)position
 {
   // By design the window's upper right corner is to set at the given position.
-  NSRect frame = [self frame];
+  NSRect frame = self.frame;
   position.x -= frame.size.width;
   [self setFrameTopLeftPoint: position];
   
   [self makeKeyAndOrderFront: nil];
   
-  [[NSAnimationContext currentContext] setDuration: 0.25];
-  [[self animator] setAlphaValue: 1];
+  [NSAnimationContext currentContext].duration = 0.25;
+  [self animator].alphaValue = 1;
 
   mDone = NO;
 
@@ -371,8 +371,8 @@
     NSEvent *theEvent = [self nextEventMatchingMask:NSMouseMovedMask|NSMouseEnteredMask|NSMouseExitedMask|
                          NSLeftMouseDownMask|NSLeftMouseUpMask|NSRightMouseDownMask|NSRightMouseUpMask|
                          NSOtherMouseDownMask|NSOtherMouseUpMask|NSKeyDownMask|NSKeyUpMask];
-    if ([theEvent type] == NSLeftMouseUp &&
-        ![[self contentView] mouse: [theEvent locationInWindow] inRect:[[self contentView] bounds]])
+    if (theEvent.type == NSLeftMouseUp &&
+        ![self.contentView mouse: theEvent.locationInWindow inRect:self.contentView.bounds])
     {
       [self hidePopup];
       mDone = YES;
@@ -444,7 +444,7 @@ static int popup_show(mforms::Popup *self, int x, int y)
   switch (popup.popupStyle)
   {
     case mforms::PopupBezel:
-      return [popup runModalAtPosition: NSMakePoint(x, y)];
+      return (int)[popup runModalAtPosition: NSMakePoint(x, y)];
       break;
 
     default:
@@ -458,7 +458,7 @@ static int popup_show(mforms::Popup *self, int x, int y)
 
 static base::Rect popup_get_content_rect(mforms::Popup *self)
 {
-  NSRect frame = [[self->get_data() contentView] frame];
+  NSRect frame = [self->get_data() contentView].frame;
   return base::Rect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
 }
 

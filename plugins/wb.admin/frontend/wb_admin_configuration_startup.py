@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@ class WbAdminConfigurationStartup(mforms.Box):
     def print_output(self, text):
         ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S - ")
         if self.startup_msgs_log:
-            self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self.ctrl_be.server_helper.cmd_output_encoding)
+            self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self.ctrl_be.server_helper.cmd_output_encoding, True)
 
     #---------------------------------------------------------------------------
     def __init__(self, ctrl_be, server_profile, main_view):
@@ -90,7 +90,7 @@ class WbAdminConfigurationStartup(mforms.Box):
         self.heading = make_panel_header("title_startup.png", self.server_profile.name, "Startup / Shutdown MySQL Server")
         self.add(self.heading, False, True)
 
-        self.add(newLabel(" "), False, False)
+        self.add(newLabel(" "), False, True)
 
         self.long_status_msg = newLabel("The database server is stopped")
         self.long_status_msg.set_style(mforms.SmallStyle)
@@ -110,21 +110,20 @@ class WbAdminConfigurationStartup(mforms.Box):
         start_stop_hbox = newBox(True)
         start_stop_hbox.add(status_message_part, False, True)
         start_stop_hbox.add(self.short_status_msg, False, True)
-        start_stop_hbox.add(newLabel("  "), False, False)
-        start_stop_hbox.add(self.start_stop_btn, False, False)
-        start_stop_hbox.add(self.offline_mode_btn, False, False)
-        
+        start_stop_hbox.add(self.start_stop_btn, False, True)
+        start_stop_hbox.add(self.offline_mode_btn, False, True)
+
         if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
             self.offline_mode_btn.show(True)
         else:
             self.offline_mode_btn.show(False)
 
         self.add(self.long_status_msg, False, True)
-        self.add(start_stop_hbox, False, False)
+        self.add(start_stop_hbox, False, True)
 
         description = newLabel("If you stop the server, you and your applications will not be able to use the database and all current connections will be closed\n")
         description.set_style(mforms.SmallStyle)
-        self.add(description, False, False)
+        self.add(description, False, True)
 
         auto_start_checkbox = newCheckBox()
         auto_start_checkbox.set_text("Automatically Start Database Server on Startup")
@@ -149,19 +148,19 @@ class WbAdminConfigurationStartup(mforms.Box):
         self.refresh_button.set_size(150, -1)
         self.refresh_button.set_text("Refresh Status")
         self.refresh_button.add_clicked_callback(lambda:self.refresh(True))
-        button_box.add(self.refresh_button, False, False)
+        button_box.add(self.refresh_button, False, True)
 
         self.copy_to_clipboard_button = newButton()
         self.copy_to_clipboard_button.set_size(150, -1)
         self.copy_to_clipboard_button.set_text("Copy to Clipboard")
         self.copy_to_clipboard_button.add_clicked_callback(self.copy_to_clipboard)
-        button_box.add_end(self.copy_to_clipboard_button, False, False)
+        button_box.add_end(self.copy_to_clipboard_button, False, True)
 
         self.clear_messages_button = newButton()
         self.clear_messages_button.set_size(150, -1)
         self.clear_messages_button.set_text("Clear Messages")
         self.clear_messages_button.add_clicked_callback(self.clear_messages)
-        button_box.add_end(self.clear_messages_button, False, False)
+        button_box.add_end(self.clear_messages_button, False, True)
         self.add(button_box, False, True)
 
         self.resume_layout()
@@ -190,7 +189,6 @@ class WbAdminConfigurationStartup(mforms.Box):
         else:
             self.ctrl_be.query_server_info() 
             self.update_ui(self.ctrl_be.is_server_running())
-
 
     #---------------------------------------------------------------------------
     def server_started_event(self):
@@ -230,14 +228,14 @@ class WbAdminConfigurationStartup(mforms.Box):
             elif server_status == "offline":
                 self.offline_mode_btn.set_text("Bring Online")
                 self.offline_mode_btn.set_enabled(True)
-                server_status = "in offline mode"
-                self.short_status_msg.set_color("#0000FF")
+                server_status = "offline"
+                self.short_status_msg.set_color("#0000B0")
                 self.long_status_msg.set_text("The database server is in offline mode. To put it back into online mode, use the \"Online mode\" button")
             else:
                 self.offline_mode_btn.set_enabled(True)
                 self.offline_mode_btn.set_text("Bring Offline")
                 self.start_stop_btn.set_enabled(True)
-                self.short_status_msg.set_color("#00DD00")
+                self.short_status_msg.set_color("#00B000")
                 self.long_status_msg.set_text("The database server is started and ready for client connections. To shut the server down, use the \"Stop Server\" button")
             self.short_status_msg.set_text(server_status)
             self.start_stop_btn.set_text("Stop Server")
@@ -250,7 +248,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             else:
                 self.start_stop_btn.set_enabled(True)
                 self.offline_mode_btn.set_enabled(False)
-                self.short_status_msg.set_color("#DD0000")
+                self.short_status_msg.set_color("#B00000")
                 self.long_status_msg.set_text("The database server is stopped. To start the Server, use the \"Start Server\" button")
             self.short_status_msg.set_text(server_status)
             self.start_stop_btn.set_text("Start Server")
@@ -261,6 +259,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             self.start_stop_btn.set_text("Start Server")
             self.start_stop_btn.set_enabled(False)
 
+        self.relayout()
         dprint_ex(3, "Leave")
 
 
@@ -272,11 +271,11 @@ class WbAdminConfigurationStartup(mforms.Box):
                 self.error_log_position = self.error_log_reader.file_size
             except OperationCancelledError, e:
                 self.startup_msgs_log.append_text_with_encoding("Cancelled password input to open error log file: %s\n" % e,
-                                                              self.ctrl_be.server_helper.cmd_output_encoding)
+                                                              self.ctrl_be.server_helper.cmd_output_encoding, True)
                 raise
             except Exception, e:
                 self.startup_msgs_log.append_text_with_encoding("Could not open error log file: %s\n" % e,
-                                                                self.ctrl_be.server_helper.cmd_output_encoding)
+                                                                self.ctrl_be.server_helper.cmd_output_encoding, True)
 
     #---------------------------------------------------------------------------
     def print_new_error_log_entries(self):
@@ -289,9 +288,9 @@ class WbAdminConfigurationStartup(mforms.Box):
                 records = self.error_log_reader.current()
                 if records:
                     self.startup_msgs_log.append_text_with_encoding('\nFROM %s:\n' % self.server_profile.error_log_file_path,
-                                                                    self.ctrl_be.server_helper.cmd_output_encoding)
+                                                                    self.ctrl_be.server_helper.cmd_output_encoding, True)
                     self.startup_msgs_log.append_text_with_encoding('    '+'\n    '.join( ["  ".join(line) for line in records]) + '\n',
-                                                                    self.ctrl_be.server_helper.cmd_output_encoding)
+                                                                    self.ctrl_be.server_helper.cmd_output_encoding, True)
 
 
     #---------------------------------------------------------------------------
@@ -343,8 +342,8 @@ class WbAdminConfigurationStartup(mforms.Box):
                 except Exception, exc:
                     self.start_stop_btn.set_enabled(True)
                     self.refresh_button.set_enabled(True)
-                    Utilities.show_error("Stop Server",
-                              "An error occurred while attempting to stop the server.%s %s\n" % (type(exc).__name__, exc),
+                    Utilities.show_error("Start Server",
+                              "An error occurred while attempting to start the server.%s %s\n" % (type(exc).__name__, exc),
                               "OK", "", "")
                     return
 

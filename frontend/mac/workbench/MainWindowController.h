@@ -1,6 +1,6 @@
-/* 
- * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
- * 
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -34,29 +34,25 @@
 
 class MacNotificationObserver;
 
-@interface MainWindowController : NSWindowController
-{
+@interface MainWindowController : NSWindowController {
   WBModelOverviewPanel *_physicalOverview;
-  wb::WBContextUI *_wbui;
 }
 
-@property (readonly) wb::WBContextUI *context;
-@property (readonly) BOOL closeAllPanels;
-@property (weak) WBMainController *owner;
-@property (readonly, strong) WBBasePanel *selectedTopPanel;
-@property (readonly, strong) WBBasePanel *activePanel;
-@property (readonly, strong) WBBasePanel *selectedMainPanel;
+@property(readonly) BOOL closeAllPanels;
+@property(weak) WBMainController *owner;
+@property(readonly, strong) WBBasePanel *selectedTopPanel;
+@property(readonly, strong) WBBasePanel *activePanel;
+@property(readonly, strong) WBBasePanel *selectedMainPanel;
 
-- (void)setWBContext:(wb::WBContextUI*)wbui;
+- (void)setup;
 - (void)setupReady;
-- (NSTabViewItem*)addTopPanel:(WBBasePanel*)panel;
-- (NSTabViewItem*)addTopPanelAndSwitch:(WBBasePanel*)panel;
-- (void)addBottomPanel:(WBBasePanel*)panel;
-- (WBBasePanel*)findPanelForPluginType: (Class) type;
-- (WBBasePanel*)findMainPanelForUIForm: (bec::UIForm*)form;
-- (void)activatePanel: (WBBasePanel*) panel;
-- (void)setTitle:(NSString*)title
-        forPanel:(WBBasePanel*)panel;
+- (NSTabViewItem *)addTopPanel:(WBBasePanel *)panel;
+- (NSTabViewItem *)addTopPanelAndSwitch:(WBBasePanel *)panel;
+- (void)addBottomPanel:(WBBasePanel *)panel;
+- (WBBasePanel *)findPanelForPluginType:(Class)type;
+- (WBBasePanel *)findMainPanelForUIForm:(bec::UIForm *)form;
+- (void)activatePanel:(WBBasePanel *)panel;
+- (void)setTitle:(NSString *)title forPanel:(WBBasePanel *)panel;
 
 - (IBAction)handleMenuAction:(id)sender;
 - (IBAction)showMySQLOverview:(id)sender;
@@ -66,32 +62,28 @@ class MacNotificationObserver;
 
 - (void)blockGUI:(BOOL)lock;
 
-- (void)switchToDiagramWithIdentifier:(const char*)identifier;
+- (void)switchToDiagramWithIdentifier:(const char *)identifier;
 - (void)reopenEditor:(id)editor;
 
-- (void)changedIdentifierOfPanel: (WBBasePanel*)panel
-                  fromIdentifier: (id)identifier;
+- (void)changedIdentifierOfPanel:(WBBasePanel *)panel fromIdentifier:(id)identifier;
 
 - (void)resetWindowLayout;
 
-- (void)refreshGUI:(wb::RefreshType)type
-         argument1:(const std::string&)arg1
-         argument2:(NativeHandle)arg2;
+- (void)refreshGUI:(wb::RefreshType)type argument1:(const std::string &)arg1 argument2:(NativeHandle)arg2;
 
-- (void)setStatusText:(NSString*)text;
+- (void)setStatusText:(NSString *)text;
 
-- (mdc::CanvasView*)createView:(const char*)oid
-                          name:(const char*)name NS_RETURNS_INNER_POINTER;
-- (void)destroyView:(mdc::CanvasView*)view;
+- (mdc::CanvasView *)createView:(const char *)oid name:(const char *)name NS_RETURNS_INNER_POINTER;
+- (void)destroyView:(mdc::CanvasView *)view;
 
-- (BOOL)closePanel:(WBBasePanel*)panel;
+- (BOOL)closePanel:(WBBasePanel *)panel;
 - (void)closeTopPanelWithIdentifier:(id)identifier;
 - (void)closeTopPanelWithIdentifier:(id)identifier hideOnly:(BOOL)hideOnly;
 - (void)closeBottomPanelWithIdentifier:(id)identifier;
-- (void)closeEditorsMatching: (NSString*)identifier;
+- (void)closeEditorsMatching:(NSString *)identifier;
 
-- (void)forwardCommandToPanels: (const std::string) command;
+- (void)forwardCommandToPanels:(const std::string)command;
 
-- (void)firstResponderChanged: (NSResponder*)responder;
+- (void)firstResponderChanged:(NSResponder *)responder;
 
 @end

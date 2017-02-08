@@ -1,24 +1,24 @@
-/* 
-* Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License as
-* published by the Free Software Foundation; version 2 of the
-* License.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301  USA
-*/
+/*
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
 #include "mforms/menubar.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_notifications.h"
 
 #include "grts/structs.db.mgmt.h"
@@ -34,13 +34,11 @@
 
 #define MODULE_VERSION "2.0.0"
 
-
 #include <sstream>
 #include <boost/assign/list_of.hpp>
 #include <boost/lambda/bind.hpp>
 
-class DBSearchView : public mforms::AppView, public grt::GRTObserver
-{
+class DBSearchView : public mforms::AppView, public grt::GRTObserver {
 private:
   db_query_EditorRef _editor;
   mforms::Label _label;
@@ -53,11 +51,8 @@ private:
   grt::ListRef<db_query_LiveDBObject> _tree_selection;
   time_t _last_selection_change;
 
-
-  bool check_selection()
-  {
-    if (time(NULL) - _last_selection_change > 0)
-    {
+  bool check_selection() {
+    if (time(NULL) - _last_selection_change > 0) {
       _check_selection_timeout = 0;
 
       _tree_selection = _editor->schemaTreeSelection();
@@ -68,52 +63,41 @@ private:
     return true;
   }
 
-  virtual void handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info)
-  {
-    if (name == "GRNLiveDBObjectSelectionDidChange")
-    {
+  virtual void handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info) {
+    if (name == "GRNLiveDBObjectSelectionDidChange") {
       _tree_selection = grt::ListRef<db_query_LiveDBObject>();
-      if (info.get_int("selection-size") == 0)
-      {
+      if (info.get_int("selection-size") == 0) {
         _filter_panel.search_button()->set_enabled(false);
-      }
-      else
-      {
+      } else {
         if (_last_selection_change == 0 && _check_selection_timeout == 0)
-          _check_selection_timeout = mforms::Utilities::add_timeout(1, boost::bind(&DBSearchView::check_selection, this));
+          _check_selection_timeout = mforms::Utilities::add_timeout(1, std::bind(&DBSearchView::check_selection, this));
         _last_selection_change = time(NULL);
       }
     }
   }
 
-  grt::StringListRef get_filters_from_schema_tree_selection()
-  {
-    grt::StringListRef filters(_editor.get_grt());
+  grt::StringListRef get_filters_from_schema_tree_selection() {
+    grt::StringListRef filters(grt::Initialized);
     std::set<std::string> selected_parents;
 
     if (!_tree_selection.is_valid())
       return filters;
 
     // first make a list of all top level schemas and tables that have sub-nodes selected
-    for (size_t c = _tree_selection.count(), i = 0; i < c; i++)
-    {
+    for (size_t c = _tree_selection.count(), i = 0; i < c; i++) {
       db_query_LiveDBObjectRef obj = _tree_selection[i];
 
-      if (obj->type() == "db.Column")
-      {
+      if (obj->type() == "db.Column") {
         selected_parents.insert(obj->schemaName());
         selected_parents.insert(*obj->schemaName() + "." + *obj->owner()->name());
-      }
-      else if (obj->type() == "db.Table" || obj->type() == "db.View")
-      {
+      } else if (obj->type() == "db.Table" || obj->type() == "db.View") {
         selected_parents.insert(obj->schemaName());
       }
     }
 
     // then add all objects that don't have a more specific selection added
     // (eg. if sakila.actor and sakila are selected, only add sakila.actor)
-    for (size_t c = _tree_selection.count(), i = 0; i < c; i++)
-    {
+    for (size_t c = _tree_selection.count(), i = 0; i < c; i++) {
       db_query_LiveDBObjectRef obj = _tree_selection[i];
 
       if (obj->type() == "db.Schema" && selected_parents.find(obj->name()) == selected_parents.end())
@@ -127,44 +111,41 @@ private:
     return filters;
   }
 
-  bool search_activate_from_timeout()
-  {
+  bool search_activate_from_timeout() {
     _search_timeout = 0;
     start_search();
     return false;
   }
 
-  void search_activate(mforms::TextEntryAction action)
-  {
-    //we need to call this from timeout or idle, cause in gtk, we're blocking the application
+  void search_activate(mforms::TextEntryAction action) {
+    // we need to call this from timeout or idle, cause in gtk, we're blocking the application
     if (action == mforms::EntryActivate && _search_timeout == 0)
-      _search_timeout = mforms::Utilities::add_timeout(0.1f, boost::bind(&DBSearchView::search_activate_from_timeout, this));
+      _search_timeout =
+        mforms::Utilities::add_timeout(0.1f, std::bind(&DBSearchView::search_activate_from_timeout, this));
   }
 
-  void finished_search()
-  {
+  void finished_search() {
     _filter_panel.set_searching(false);
     _search_panel._search_finished = true;
     mforms::App::get()->set_status_text("Searching finished");
   }
 
-  void failed_search()
-  {
-    //we need to allow user to start search again
+  void failed_search() {
+    // we need to allow user to start search again
     _filter_panel.set_searching(false);
     _search_panel._search_finished = true;
     mforms::App::get()->set_status_text("Searching failed");
   }
 
-  void start_search()
-  {
+  void start_search() {
     if (_search_panel.stop_search_if_working())
       return;
     // build filter list in format schema.table.column from the selection
     grt::StringListRef filters = get_filters_from_schema_tree_selection();
-    if (filters.count() == 0)
-    {
-      mforms::Utilities::show_message("Search Data", "Please select the tables or schemas to be searched from the schema tree in the sidebar.", "OK", "", "");
+    if (filters.count() == 0) {
+      mforms::Utilities::show_message(
+        "Search Data", "Please select the tables or schemas to be searched from the schema tree in the sidebar.", "OK",
+        "", "");
       return;
     }
     std::string search_keyword = _filter_panel.get_search_text();
@@ -172,70 +153,74 @@ private:
     int limit_total = _filter_panel.get_limit_total();
     int search_type = _filter_panel.get_search_type();
     bool invert = _filter_panel.exclude();
-    sql::DriverManager *dm= sql::DriverManager::getDriverManager();
+    sql::DriverManager *dm = sql::DriverManager::getDriverManager();
     mforms::App::get()->set_status_text("Opening new connection...");
     sql::ConnectionWrapper wrapper;
     try {
       wrapper = dm->getConnection(_editor->connection());
-    } catch (grt::user_cancelled &ucancel)
-    {
+    } catch (grt::user_cancelled &ucancel) {
       mforms::App::get()->set_status_text(ucancel.what());
       return;
     }
     mforms::App::get()->set_status_text("Searching...");
 
-    bec::GRTManager *grtm(bec::GRTManager::get_instance_for(_editor.get_grt()));
-    grtm->set_app_option("db.search:SearchType", grt::IntegerRef(search_type));
-    grtm->set_app_option("db.search:SearchLimit", grt::IntegerRef(limit_total));
-    grtm->set_app_option("db.search:SearchLimitPerTable", grt::IntegerRef(limit_table));
-    grtm->set_app_option("db.search:SearchInvert", grt::IntegerRef(invert));
+    bec::GRTManager::get()->set_app_option("db.search:SearchType", grt::IntegerRef(search_type));
+    bec::GRTManager::get()->set_app_option("db.search:SearchLimit", grt::IntegerRef(limit_total));
+    bec::GRTManager::get()->set_app_option("db.search:SearchLimitPerTable", grt::IntegerRef(limit_table));
+    bec::GRTManager::get()->set_app_option("db.search:SearchInvert", grt::IntegerRef(invert));
 
     _filter_panel.set_searching(true);
     _search_panel.show(true);
 
-    _search_panel.search(wrapper, search_keyword, filters,
-                         SearchMode(search_type), limit_total, limit_table, invert,
-                         _filter_panel.search_all_types() ? search_all_types : text_type, _filter_panel.search_all_types() ? "CHAR" : "",
-                         boost::bind(&DBSearchView::finished_search, this), boost::bind(&DBSearchView::failed_search, this));
+    _search_panel.search(
+      wrapper, search_keyword, filters, SearchMode(search_type), limit_total, limit_table, invert,
+      _filter_panel.search_all_types() ? search_all_types : text_type, _filter_panel.search_all_types() ? "CHAR" : "",
+      std::bind(&DBSearchView::finished_search, this), std::bind(&DBSearchView::failed_search, this));
   }
 
 public:
   DBSearchView(db_query_EditorRef editor)
-  : mforms::AppView(false, "dbsearch", false), _editor(editor), _search_panel(bec::GRTManager::get_instance_for(editor.get_grt())),
-  _check_selection_timeout(0), _search_timeout(0), _last_selection_change(0)
-  {
+    : mforms::AppView(false, "dbsearch", false),
+      _editor(editor),
+      _search_panel(),
+      _check_selection_timeout(0),
+      _search_timeout(0),
+      _last_selection_change(0) {
     set_padding(12);
     set_spacing(12);
     _label.set_text("Enter text to search in tables selected in the schema tree");
     _label.set_style(mforms::BoldStyle);
     add(&_label, false, true);
 
-    _description.set_text("A text search will be done on the selected tables using SELECT. Note that this can be very slow since it will search all columns from all tables.");
+    _description.set_text(
+      "A text search will be done on the selected tables using SELECT. Note that this can be very slow since it will "
+      "search all columns from all tables.");
     _description.set_style(mforms::SmallHelpTextStyle);
     add(&_description, false, true);
-    
+
     add(&_filter_panel, false, true);
     add(&_search_panel, true, true);
 
-    _filter_panel.search_field()->signal_action()->connect(boost::bind(&DBSearchView::search_activate, this, _1));
-    _filter_panel.search_button()->signal_clicked()->connect(boost::bind(&DBSearchView::start_search, this));
+    _filter_panel.search_field()->signal_action()->connect(
+      std::bind(&DBSearchView::search_activate, this, std::placeholders::_1));
+    _filter_panel.search_button()->signal_clicked()->connect(std::bind(&DBSearchView::start_search, this));
 
     _search_panel.show(false);
 
     grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNLiveDBObjectSelectionDidChange", editor);
 
-    bec::GRTManager *grtm(bec::GRTManager::get_instance_for(_editor.get_grt()));
-    _filter_panel.set_search_type(grtm->get_app_option_int("db.search:SearchType", 0));
-    _filter_panel.set_limit_total(base::strfmt("%li", grtm->get_app_option_int("db.search:SearchLimit", 10000)));
-    _filter_panel.set_limit_table(base::strfmt("%li", grtm->get_app_option_int("db.search:SearchLimitPerTable", 100)));
-    _filter_panel.set_exclude(grtm->get_app_option_int("db.search:SearchInvert", 0) != 0);
+    _filter_panel.set_search_type((int)bec::GRTManager::get()->get_app_option_int("db.search:SearchType", 0));
+    _filter_panel.set_limit_total(
+      base::strfmt("%li", bec::GRTManager::get()->get_app_option_int("db.search:SearchLimit", 10000)));
+    _filter_panel.set_limit_table(
+      base::strfmt("%li", bec::GRTManager::get()->get_app_option_int("db.search:SearchLimitPerTable", 100)));
+    _filter_panel.set_exclude(bec::GRTManager::get()->get_app_option_int("db.search:SearchInvert", 0) != 0);
 
     _tree_selection = _editor->schemaTreeSelection();
     _filter_panel.search_button()->set_enabled(_tree_selection.count() > 0);
   }
 
-  virtual ~DBSearchView()
-  {
+  virtual ~DBSearchView() {
     grt::GRTNotificationCenter::get()->remove_grt_observer(this, "GRNLiveDBObjectSelectionDidChange", _editor);
     if (_check_selection_timeout)
       mforms::Utilities::cancel_timeout(_check_selection_timeout);
@@ -244,36 +229,28 @@ public:
   }
 };
 
-
-
-class MySQLDBSearchModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
-{
+class MySQLDBSearchModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl {
 public:
-  MySQLDBSearchModuleImpl(grt::CPPModuleLoader *ldr)
-  : grt::ModuleImplBase(ldr)
-  {
+  MySQLDBSearchModuleImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {
   }
 
-  DEFINE_INIT_MODULE(MODULE_VERSION, "Oracle Corporation", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(MODULE_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
                      DECLARE_MODULE_FUNCTION(MySQLDBSearchModuleImpl::getPluginInfo),
-                     DECLARE_MODULE_FUNCTION(MySQLDBSearchModuleImpl::showSearchPanel),
-                     NULL);
+                     DECLARE_MODULE_FUNCTION(MySQLDBSearchModuleImpl::showSearchPanel), NULL);
 
-
-  virtual grt::ListRef<app_Plugin> getPluginInfo()
-  {
-    grt::ListRef<app_Plugin> plugins(get_grt());
+  virtual grt::ListRef<app_Plugin> getPluginInfo() {
+    grt::ListRef<app_Plugin> plugins(true);
     {
-      app_PluginRef plugin(get_grt());
+      app_PluginRef plugin(grt::Initialized);
 
       plugin->moduleName("MySQLDBSearchModule");
       plugin->pluginType("standalone");
       plugin->moduleFunctionName("showSearchPanel");
       plugin->name("com.mysql.wb.menu.database.search");
       plugin->caption("DataSearch");
-      plugin->groups().insert("database/Database");
+      plugin->groups().insert("database/Databaclearse");
 
-      app_PluginObjectInputRef pdef(get_grt());
+      app_PluginObjectInputRef pdef(grt::Initialized);
       pdef->name("activeSQLEditor");
       pdef->objectStructName(db_query_Editor::static_class_name());
       plugin->inputValues().insert(pdef);
@@ -283,10 +260,8 @@ public:
     return plugins;
   }
 
-
-  int showSearchPanel(db_query_EditorRef editor)
-  {
-    mforms::DockingPoint *dpoint = dynamic_cast<mforms::DockingPoint*>(mforms_from_grt(editor->dockingPoint()));
+  int showSearchPanel(db_query_EditorRef editor) {
+    mforms::DockingPoint *dpoint = dynamic_cast<mforms::DockingPoint *>(mforms_from_grt(editor->dockingPoint()));
 
     DBSearchView *v;
 
@@ -298,6 +273,4 @@ public:
   }
 };
 
-
 GRT_MODULE_ENTRY_POINT(MySQLDBSearchModuleImpl);
-

@@ -1,4 +1,4 @@
-﻿# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -217,10 +217,10 @@ class LogView(mforms.Box):
         self.error_box = newBox(True)
         self.error_box.set_spacing(8)
         error_label = newLabel(str(error))
-        self.error_box.add(error_label, False, False)
+        self.error_box.add(error_label, False, True)
         try_again_button = newButton()
         try_again_button.set_text('Try again')
-        self.error_box.add(try_again_button, False, False)
+        self.error_box.add(try_again_button, False, True)
         try_again_button.add_clicked_callback(self.try_again)
         self.add(self.error_box, False, True)
 
@@ -253,7 +253,9 @@ class LogView(mforms.Box):
         
         filter_box = self.create_filter_box()
         if filter_box:
-            self.add(filter_box, False, False)
+            if filter_box.get_parent():
+                self.remove(filter_box)
+            self.add(filter_box, False, True)
         
         try:
             self.log_reader = self.BackendLogReaderClass(*self.args)
@@ -267,7 +269,7 @@ class LogView(mforms.Box):
             self.warning_box = newBox(True)
             self.warning_box.set_spacing(8)
             warning_label = newLabel(self.log_reader.partial_support)
-            self.warning_box.add(warning_label, False, False)
+            self.warning_box.add(warning_label, False, True)
             self.add(self.warning_box, False, True)
 
         self.tree = newTreeView(mforms.TreeFlatList)
@@ -301,17 +303,17 @@ class LogView(mforms.Box):
         else:
             label = newLabel("TABLE")
         label.set_style(mforms.BoldStyle)
-        table.add(label, 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(label, 1, 2, 0, 1, mforms.VFillFlag|mforms.HFillFlag|mforms.HExpandFlag)
 
-        table.add(newLabel("Log File Size:"), 2, 3, 0, 1, mforms.HFillFlag)
+        table.add(newLabel("Log File Size:"), 2, 3, 0, 1, mforms.VFillFlag|mforms.HFillFlag)
         self.size_label = newLabel("retrieving..." if self.log_reader.log_file else "-")
         self.size_label.set_style(mforms.BoldStyle)
-        table.add(self.size_label, 3, 4, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(self.size_label, 3, 4, 0, 1, mforms.VFillFlag|mforms.HFillFlag|mforms.HExpandFlag)
 
-        table.add(newLabel("Showing:"), 0, 1, 1, 2, mforms.HFillFlag)
+        table.add(newLabel("Showing:"), 0, 1, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
         self.range_label = newLabel("retrieving data...")
         self.range_label.set_style(mforms.BoldStyle)
-        table.add(self.range_label, 1, 2, 1, 2, mforms.HFillFlag)
+        table.add(self.range_label, 1, 2, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
         self.add(table, False, True)
 
         self.bbox = newBox(True)
@@ -319,7 +321,7 @@ class LogView(mforms.Box):
         self.add_end(self.bbox, False, True)
 
         self._menu = mforms.newContextMenu()
-        self._menu.add_item_with_title("Copy", self.copy_record, "copy_record")
+        self._menu.add_item_with_title("Copy Row", self.copy_record, "copy_record")
         self._menu.add_item_with_title("Copy Details", self.copy_details, "copy_details")
         self.tree.set_context_menu(self._menu)
 
@@ -374,15 +376,15 @@ class LogView(mforms.Box):
         self.worker = None
 
     def refresh(self, records=None):
-        if self.log_reader.log_file.path == "stderr":
-            grt.getEventLogEntry(self.actual_position, self.query)
-            self.bof_button.set_enabled(False)
-            self.back_button.set_enabled(False)
-            self.eof_button.set_enabled(False)
-            self.next_button.set_enabled(False)
-            self.range_label.set_text('Records read: %d' % self.actual_position)
-            return
         if self.log_reader:
+            if self.log_reader.log_file and self.log_reader.log_file.path == "stderr":
+                grt.getEventLogEntry(self.actual_position, self.query)
+                self.bof_button.set_enabled(False)
+                self.back_button.set_enabled(False)
+                self.eof_button.set_enabled(False)
+                self.next_button.set_enabled(False)
+                self.range_label.set_text('Records read: %d' % self.actual_position)
+                return
             try:
                 self.log_reader.refresh()
 
@@ -474,7 +476,7 @@ class LogViewGeneric(LogView):
         filter.add_clicked_callback(self.filter_handler)
         
         self.filter_list[text] = filter
-        self.filter_box.add(filter, False, False)
+        self.filter_box.add(filter, False, True)
         
     def create_filter_box(self):
         self.add_filter_option("All")

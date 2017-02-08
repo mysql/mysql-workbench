@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -24,28 +24,21 @@
 using namespace wb;
 using namespace base;
 
-Button::Button(mdc::Layer *layer)
-: mdc::Button(layer, mdc::ActionButton)
-{
+Button::Button(mdc::Layer *layer) : mdc::Button(layer, mdc::ActionButton) {
   set_padding(6, 6);
   set_pen_color(Color(0.9, 0.9, 0.9));
   set_fill_background(false);
   set_text_alignment(mdc::AlignCenter);
 }
 
-
-void Button::draw_contents(mdc::CairoCtx *cr)
-{
+void Button::draw_contents(mdc::CairoCtx *cr) {
   cairo_pattern_t *pat;
 
-  pat = cairo_pattern_create_linear(0.0, get_position().y,  0.0, get_position().y+20.0);
-  if (_pressed)
-  {
+  pat = cairo_pattern_create_linear(0.0, get_position().y, 0.0, get_position().y + 20.0);
+  if (_pressed) {
     cairo_pattern_add_color_stop_rgb(pat, 1, 0.2, 0.2, 0.2);
     cairo_pattern_add_color_stop_rgb(pat, 0, 0.1, 0.1, 0.1);
-  }
-  else
-  {
+  } else {
     cairo_pattern_add_color_stop_rgb(pat, 1, 0.1, 0.1, 0.1);
     cairo_pattern_add_color_stop_rgb(pat, 0, 0.2, 0.2, 0.2);
   }
@@ -60,19 +53,16 @@ void Button::draw_contents(mdc::CairoCtx *cr)
   mdc::Button::draw_contents(cr);
 }
 
-
 Floater::Floater(mdc::Layer *layer, const std::string &title)
-: mdc::Box(layer, mdc::Box::Vertical), _title(0), _content_box(layer, mdc::Box::Vertical)
-{
+  : mdc::Box(layer, mdc::Box::Vertical), _title(0), _content_box(layer, mdc::Box::Vertical) {
   set_draggable(true);
 
   set_background_corners(mdc::CAll, 8.0);
   set_background_color(Color(0, 0, 0, 0.6));
   set_draw_background(true);
 
-  if (!title.empty())
-  {
-    _title= new wbfig::Titlebar(layer, 0, 0, false);
+  if (!title.empty()) {
+    _title = new wbfig::Titlebar(layer, 0, 0, false);
     _title->set_title(title);
     _title->set_padding(6, 6);
     _title->set_font(mdc::FontSpec("helvetica", mdc::SNormal, mdc::WBold));
@@ -86,62 +76,46 @@ Floater::Floater(mdc::Layer *layer, const std::string &title)
   _content_box.set_padding(8, 8);
   add(&_content_box, true, true);
 
-  scoped_connect(get_view()->signal_viewport_changed(),boost::bind(&Floater::update_position, this));
+  scoped_connect(get_view()->signal_viewport_changed(), std::bind(&Floater::update_position, this));
 }
 
-
-Floater::~Floater()
-{
+Floater::~Floater() {
   delete _title;
 }
 
-
-void Floater::set_title(const std::string &title)
-{
+void Floater::set_title(const std::string &title) {
   if (_title)
     _title->set_title(title);
 }
 
-
-
-void Floater::update_position()
-{
-
+void Floater::update_position() {
 }
 
-
-bool Floater::on_button_press(mdc::CanvasItem *target, const Point &point, mdc::MouseButton button, mdc::EventState state)
-{
-  if (button == mdc::ButtonLeft)
-  {
-    _dragging= true;
-    _drag_offset= convert_point_to(point, 0) - get_root_position();
+bool Floater::on_button_press(mdc::CanvasItem *target, const Point &point, mdc::MouseButton button,
+                              mdc::EventState state) {
+  if (button == mdc::ButtonLeft) {
+    _dragging = true;
+    _drag_offset = convert_point_to(point, 0) - get_root_position();
 
     return true;
   }
   return super::on_button_press(target, point, button, state);
 }
 
-
-bool Floater::on_button_release(mdc::CanvasItem *target, const Point &point, mdc::MouseButton button, mdc::EventState state)
-{
-  if (button == mdc::ButtonLeft)
-  {
-    _dragging= false;
+bool Floater::on_button_release(mdc::CanvasItem *target, const Point &point, mdc::MouseButton button,
+                                mdc::EventState state) {
+  if (button == mdc::ButtonLeft) {
+    _dragging = false;
     return true;
   }
   return super::on_button_release(target, point, button, state);
 }
 
+bool Floater::on_drag(mdc::CanvasItem *target, const Point &point, mdc::EventState state) {
+  if (_dragging) {
+    mdc::Group *group = dynamic_cast<mdc::Group *>(get_parent());
 
-bool Floater::on_drag(mdc::CanvasItem *target, const Point &point, mdc::EventState state)
-{
-  if (_dragging)
-  {
-    mdc::Group *group= dynamic_cast<mdc::Group*>(get_parent());
-
-    if (group)
-    {
+    if (group) {
       group->move_item(this, group->convert_point_from(point, this) - _drag_offset);
     }
     return true;
@@ -149,5 +123,3 @@ bool Floater::on_drag(mdc::CanvasItem *target, const Point &point, mdc::EventSta
 
   return super::on_drag(target, point, state);
 }
-
-

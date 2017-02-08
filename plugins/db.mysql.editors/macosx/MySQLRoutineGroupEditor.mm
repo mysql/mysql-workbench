@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,13 +55,11 @@ static void call_refresh(void *theEditor)
 }
 
 - (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args
 {
   self = [super initWithNibName: @"MySQLRoutineGroupEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
   {
-    _grtm = grtm;
     // load GUI. Top level view in the nib is the NSTabView that will be docked to the main window
     [self loadView];
 
@@ -84,12 +82,12 @@ static void call_refresh(void *theEditor)
 - (void)reinitWithArguments:(const grt::BaseListRef&)args
 {
   delete mBackEnd;
-  mBackEnd = new MySQLRoutineGroupEditorBE(_grtm, db_mysql_RoutineGroupRef::cast_from(args[0]));
+  mBackEnd = new MySQLRoutineGroupEditorBE(db_mysql_RoutineGroupRef::cast_from(args[0]));
   
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
     
   mRoutineArray = [NSMutableArray array];
     
@@ -137,7 +135,7 @@ static void call_refresh(void *theEditor)
 
 - (IBAction)doubleClickRoutine:(id)sender
 {
-  int row = [routineTable selectedRow];
+  NSInteger row = [routineTable selectedRow];
   if (row >= 0)
     mBackEnd->open_editor_for_routine_at_index(row);
 }

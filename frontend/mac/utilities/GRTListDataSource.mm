@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,57 +23,41 @@
 
 @implementation GRTNodeId
 
-static std::map<std::string, GRTNodeId*> node_cache;
+static std::map<std::string, GRTNodeId *> node_cache;
 
-
-+ (GRTNodeId*)nodeIdWithNodeId:(const bec::NodeId&)nodeId
-{
-  return [[GRTNodeId alloc] initWithNodeId:nodeId];
++ (GRTNodeId *)nodeIdWithNodeId: (const bec::NodeId &)nodeId {
+  return [[GRTNodeId alloc] initWithNodeId: nodeId];
 }
 
-
-- (instancetype)init
-{
-  if ((self= [super init]) != nil)
-  {
-    _nodeId= new bec::NodeId();
+- (instancetype)init {
+  if ((self = [super init]) != nil) {
+    _nodeId = new bec::NodeId();
   }
   return self;
 }
 
-
-- (instancetype)initWithNodeId:(const bec::NodeId&)nodeId
-{
-  if ((self= [super init]) != nil)
-  {
-    _nodeId= new bec::NodeId(nodeId);
+- (instancetype)initWithNodeId: (const bec::NodeId &)nodeId {
+  if ((self = [super init]) != nil) {
+    _nodeId = new bec::NodeId(nodeId);
   }
   return self;
 }
 
-
-- (void)dealloc
-{
+- (void)dealloc {
   delete _nodeId;
-  
 }
 
-
-- (const bec::NodeId&)nodeId
-{
+- (const bec::NodeId &)nodeId {
   return *_nodeId;
 }
 
-
-- (NSString*)description
-{
+- (NSString *)description {
   return [NSString stringWithFormat: @"<GRTNodeId %s>", _nodeId->description().c_str()];
 }
 
-
-- (BOOL)isEqual:(id)other
-{
-  if (self == other) return YES;
+- (BOOL)isEqual: (id)other {
+  if (self == other)
+    return YES;
 
   if ([other isKindOfClass: [GRTNodeId class]])
     return *_nodeId == [other nodeId];
@@ -83,91 +67,80 @@ static std::map<std::string, GRTNodeId*> node_cache;
 
 @end
 
-
 @implementation GRTListDataSource
 
-- (instancetype)initWithListModel:(bec::ListModel*)model
-{
-  if ((self = [super init]) != nil)
-  {
-    _list= model;
+- (instancetype)init {
+  return [self initWithListModel: nil];
+}
+
+- (instancetype)initWithListModel: (bec::ListModel *)model {
+  self = [super init];
+  if (self != nil) {
+    _list = model; // The list model can also be set later.
   }
   return self;
 }
 
-
-- (void)setListModel:(bec::ListModel*)model
-{
-  _list= model;
+- (void)setListModel:(bec::ListModel *)model {
+  _list = model;
 }
 
-
-- (bec::ListModel*)listModel
-{
+- (bec::ListModel *)listModel {
   return _list;
 }
 
-
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
-  if (_list)
-  {
+- (id)tableView:(NSTableView *)aTableView
+  objectValueForTableColumn: (NSTableColumn *)aTableColumn
+                        row: (NSInteger)rowIndex {
+  if (_list) {
     std::string value;
-    _list->get_field(rowIndex, [[aTableColumn identifier] integerValue], value);
-  
+    _list->get_field(rowIndex, aTableColumn.identifier.integerValue, value);
+
     return @(value.c_str());
   }
   return nil;
 }
 
-
-- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
-  if (_list->is_editable(rowIndex))
-  {
-    size_t count= _list->count();
-    _list->set_field(rowIndex, [[aTableColumn identifier] integerValue], [anObject UTF8String]);
+- (void)tableView: (NSTableView *)aTableView
+   setObjectValue: (id)anObject
+   forTableColumn: (NSTableColumn *)aTableColumn
+              row: (NSInteger)rowIndex {
+  if (_list->is_editable(rowIndex)) {
+    size_t count = _list->count();
+    _list->set_field(rowIndex, aTableColumn.identifier.integerValue, [anObject UTF8String]);
     if (_list->count() > count)
       [aTableView reloadData];
-  }
-  else if ([anObject isKindOfClass: [NSNumber class]])
-  {
-    _list->set_field(rowIndex, [[aTableColumn identifier] integerValue], (ssize_t)[anObject integerValue]);
+  } else if ([anObject isKindOfClass: [NSNumber class]]) {
+    _list->set_field(rowIndex, aTableColumn.identifier.integerValue, (ssize_t)[anObject integerValue]);
   }
 }
 
-
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
-{
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
   if (_list)
     return _list->count();
   return 0;
 }
 
-
-- (BOOL)tableView:(NSTableView *)aTableView shouldEditTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
+- (BOOL)tableView: (NSTableView *)aTableView
+  shouldEditTableColumn: (NSTableColumn *)aTableColumn
+                    row: (NSInteger)rowIndex {
   return _list->is_editable(rowIndex);
 }
 
+- (void)tableView: (NSTableView *)aTableView
+  willDisplayCell: (id)aCell
+   forTableColumn: (NSTableColumn *)aTableColumn
+              row: (NSInteger)rowIndex {
+  if ([aCell isKindOfClass:[MTextImageCell class]]) {
+    bec::IconId icon_id = _list->get_field_icon(rowIndex, aTableColumn.identifier.integerValue, bec::Icon16);
 
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
-  if ([aCell isKindOfClass:[MTextImageCell class]])
-  {
-    bec::IconId icon_id= _list->get_field_icon(rowIndex, [[aTableColumn identifier] integerValue], bec::Icon16);
-
-    if (icon_id != 0)
-    {
-      NSImage *image= [[GRTIconCache sharedIconCache] imageForIconId:icon_id];
-      [aCell setImage:image];
-    }
-    else
-      [aCell setImage:nil];
+    if (icon_id != 0) {
+      NSImage *image = [[GRTIconCache sharedIconCache] imageForIconId: icon_id];
+      [aCell setImage: image];
+    } else
+      [aCell setImage: nil];
   }
 }
 
-
 @end
-
 

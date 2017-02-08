@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -17,53 +17,38 @@
 * 02110-1301  USA
 */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "interfaces/plugin.h"
 
 #include "grts/structs.workbench.model.h"
 
-
 #define MODULE_VERSION "1.0.0"
 
-
 #ifdef _WIN32
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(windows_dll)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(windows_dll)
 #elif defined(__APPLE__)
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(osx_dylib)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(osx_dylib)
 #else
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(linux_so)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(linux_so)
 #endif
 
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
-
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
-
-
-class WbEditorsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
-{
+class WbEditorsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl {
 public:
-  WbEditorsModuleImpl(grt::CPPModuleLoader *ldr)
-  : grt::ModuleImplBase(ldr)
-  {
+  WbEditorsModuleImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {
   }
 
-  DEFINE_INIT_MODULE(MODULE_VERSION, "MySQL AB", grt::ModuleImplBase,
-    DECLARE_MODULE_FUNCTION(WbEditorsModuleImpl::getPluginInfo), NULL);
+  DEFINE_INIT_MODULE(MODULE_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
+                     DECLARE_MODULE_FUNCTION(WbEditorsModuleImpl::getPluginInfo), NULL);
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo()
-  {
-    return get_mysql_plugins_info(get_grt());
+  virtual grt::ListRef<app_Plugin> getPluginInfo() {
+    return get_mysql_plugins_info();
   }
 };
 
-
-
-static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name)
-{
-  app_PluginObjectInputRef pdef(plugin.get_grt());
+static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name) {
+  app_PluginObjectInputRef pdef(grt::Initialized);
 
   pdef->objectStructName(struct_name);
   pdef->owner(plugin);
@@ -71,21 +56,16 @@ static void set_object_argument(app_PluginRef &plugin, const std::string &struct
   plugin->inputValues().insert(pdef);
 }
 
+static grt::ListRef<app_Plugin> get_mysql_plugins_info() {
+  grt::ListRef<app_Plugin> editors(true);
 
+  app_PluginRef note_editor(grt::Initialized);
+  app_PluginRef image_editor(grt::Initialized);
+  app_PluginRef stored_note_editor(grt::Initialized);
+  app_PluginRef stored_sql_editor(grt::Initialized);
+  app_PluginRef layer_editor(grt::Initialized);
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
-{
-  grt::ListRef<app_Plugin> editors(grt);
-
-  app_PluginRef note_editor(grt);
-  app_PluginRef image_editor(grt);
-  app_PluginRef stored_note_editor(grt);
-  app_PluginRef stored_sql_editor(grt);
-  app_PluginRef layer_editor(grt);
-  
-  FRONTEND_LIBNAME(note_editor,
-                   ".\\wb.model.editors.wbp.fe.dll",
-                   "wb.model.editors.wbp.so",
+  FRONTEND_LIBNAME(note_editor, ".\\wb.model.editors.wbp.fe.dll", "wb.model.editors.wbp.so",
                    "wb.model.editors.mwbplugin");
   note_editor->pluginType("gui");
   note_editor->moduleFunctionName("NoteEditor");
@@ -96,9 +76,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   note_editor->groups().insert("model/Editors");
   editors.insert(note_editor);
 
-  FRONTEND_LIBNAME(image_editor,
-                   ".\\wb.model.editors.wbp.fe.dll",
-                   "wb.model.editors.wbp.so",
+  FRONTEND_LIBNAME(image_editor, ".\\wb.model.editors.wbp.fe.dll", "wb.model.editors.wbp.so",
                    "wb.model.editors.mwbplugin");
   image_editor->pluginType("gui");
   image_editor->moduleFunctionName("ImageEditor");
@@ -109,9 +87,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   image_editor->groups().insert("model/Editors");
   editors.insert(image_editor);
 
-  FRONTEND_LIBNAME(layer_editor,
-                   ".\\wb.model.editors.wbp.fe.dll",
-                   "wb.model.editors.wbp.so",
+  FRONTEND_LIBNAME(layer_editor, ".\\wb.model.editors.wbp.fe.dll", "wb.model.editors.wbp.so",
                    "wb.model.editors.mwbplugin");
   layer_editor->pluginType("gui");
   layer_editor->moduleFunctionName("PhysicalLayerEditor");
@@ -121,11 +97,8 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   layer_editor->name("wb.plugin.edit.physical.layer");
   layer_editor->groups().insert("model/Editors");
   editors.insert(layer_editor);
-  
-  
-  FRONTEND_LIBNAME(stored_note_editor,
-                   ".\\wb.model.editors.wbp.fe.dll",
-                   "wb.model.editors.wbp.so",
+
+  FRONTEND_LIBNAME(stored_note_editor, ".\\wb.model.editors.wbp.fe.dll", "wb.model.editors.wbp.so",
                    "wb.model.editors.mwbplugin");
   stored_note_editor->pluginType("gui");
   stored_note_editor->moduleFunctionName("StoredNoteEditor");
@@ -136,9 +109,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   stored_note_editor->groups().insert("model/Editors");
   editors.insert(stored_note_editor);
 
-  FRONTEND_LIBNAME(stored_sql_editor,
-                   ".\\wb.model.editors.wbp.fe.dll",
-                   "wb.model.editors.wbp.so",
+  FRONTEND_LIBNAME(stored_sql_editor, ".\\wb.model.editors.wbp.fe.dll", "wb.model.editors.wbp.so",
                    "wb.model.editors.mwbplugin");
   stored_sql_editor->pluginType("gui");
   stored_sql_editor->moduleFunctionName("StoredNoteEditor");
@@ -151,6 +122,5 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
 
   return editors;
 }
-
 
 GRT_MODULE_ENTRY_POINT(WbEditorsModuleImpl);

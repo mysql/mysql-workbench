@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 + (void)fillMenu:(NSMenu*)menu withItems:(const bec::MenuItemList&)items 
         selector:(SEL)selector target:(id)target
 {
-  int oldCount= [menu numberOfItems];
+  NSInteger oldCount = menu.numberOfItems;
   [menu setAutoenablesItems: NO];
   
   for (bec::MenuItemList::const_iterator iter= items.begin();
@@ -45,18 +45,18 @@
       NSMenuItem *item= [[NSMenuItem alloc] initWithTitle:[NSString stringWithCPPString: iter->caption]
                                                    action:itemAction
                                             keyEquivalent:@""];
-      [item setEnabled: iter->enabled?YES:NO];
-      [item setTarget: target];
+      item.enabled = iter->enabled?YES:NO;
+      item.target = target;
       [menu addItem: item];
-      [item setRepresentedObject: [NSString stringWithCPPString: iter->name]];
+      item.representedObject = [NSString stringWithCPPString: iter->name];
 
       if (iter->type == bec::MenuCascade)
       {
         if (!iter->subitems.empty())
         {
-          NSMenu *submenu= [[NSMenu alloc] initWithTitle: [menu title]];
+          NSMenu *submenu= [[NSMenu alloc] initWithTitle: menu.title];
           [self fillMenu: submenu withItems:iter->subitems selector:selector target:target];
-          [item setSubmenu: submenu];
+          item.submenu = submenu;
         }
       }
       
@@ -67,7 +67,7 @@
       NSLog(@"unknown context menu item type in %s", iter->name.c_str());
   }
   
-  for (int i= oldCount-1; i >= 0; i--)
+  for (NSInteger i= oldCount - 1; i >= 0; i--)
     [menu removeItemAtIndex:0];
 }
 @end

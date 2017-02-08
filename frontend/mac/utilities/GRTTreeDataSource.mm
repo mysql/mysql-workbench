@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,26 +23,21 @@
  
 @implementation GRTTreeDataSource
 
-- (instancetype)initWithTreeModel:(bec::TreeModel*)model
+- (instancetype)initWithTreeModel: (bec::TreeModel*)model
 {
-  if ((self = [super init]) != nil)
+  self = [super init];
+  if (self != nil)
   {
-    _tree= model;
-    _hideRootNode= NO;
-    _nodeCache= [[NSMutableDictionary alloc] init];
+    _tree = model;
+    _hideRootNode = NO;
+    _nodeCache = [NSMutableDictionary new];
   }
   return self;
 }
 
-
 - (instancetype)init
 {
-  if ((self = [super init]) != nil)
-  {
-    _hideRootNode= NO;
-    _nodeCache= [[NSMutableDictionary alloc] init];
-  }
-  return self;
+  return [self initWithTreeModel: nil];
 }
 
 
@@ -130,7 +125,7 @@
 
 - (void)outlineViewItemWillExpand:(NSNotification *)notification
 {
-  id item= [notification userInfo][@"NSObject"];
+  id item= notification.userInfo[@"NSObject"];
   if (_tree)
     _tree->expand_node([self nodeIdForItem:item]);
 }
@@ -138,7 +133,7 @@
 
 - (void)outlineViewItemDidCollapse:(NSNotification *)notification
 {
-  id item= [notification userInfo][@"NSObject"];
+  id item= notification.userInfo[@"NSObject"];
   
   if (_tree)
     _tree->collapse_node([self nodeIdForItem:item]);
@@ -156,7 +151,7 @@
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
   std::string strvalue;
-  int column= [[tableColumn identifier] integerValue];
+  int column= tableColumn.identifier.intValue;
 
   if (!_tree || !_tree->get_field([self nodeIdForItem:item], column, strvalue))
     return nil;
@@ -167,7 +162,7 @@
 
 - (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
-  int column= [[tableColumn identifier] integerValue];
+  int column= tableColumn.identifier.intValue;
   
   if ([object respondsToSelector:@selector(UTF8String)])
     _tree->set_field([self nodeIdForItem:item], column, [object UTF8String]);
@@ -183,7 +178,7 @@
     bec::NodeId node_id= [self nodeIdForItem:item];
     bec::IconId icon_id= 0;
     if (_tree != nil)
-      icon_id= _tree->get_field_icon(node_id, [[tableColumn identifier] integerValue], bec::Icon16);
+      icon_id= _tree->get_field_icon(node_id, tableColumn.identifier.integerValue, bec::Icon16);
     
     NSImage *image= [[GRTIconCache sharedIconCache] imageForIconId:icon_id];
     
@@ -200,8 +195,8 @@
     {
       if (!_normalFont)
       {
-        _normalFont = [NSFont systemFontOfSize: [[cell font] pointSize]];
-        _boldFont = [NSFont boldSystemFontOfSize: [_normalFont pointSize]];
+        _normalFont = [NSFont systemFontOfSize: [cell font].pointSize];
+        _boldFont = [NSFont boldSystemFontOfSize: _normalFont.pointSize];
       }
       
       if (_tree && _tree->is_highlighted(node_id))
@@ -240,11 +235,11 @@ static void restore_expanded_child_nodes(NSMutableSet *mset,
   if ([mset containsObject: prefix])
   {
     [outlineView collapseItem: node];
-    [ds treeModel]->expand_node([ds nodeIdForItem: node]);
+    ds.treeModel->expand_node([ds nodeIdForItem: node]);
     [outlineView expandItem: node];
   }
   
-  for (int c = [ds outlineView:outlineView numberOfChildrenOfItem:node], i = 0; i < c; i++)
+  for (NSInteger c = [ds outlineView:outlineView numberOfChildrenOfItem: node], i = 0; i < c; i++)
   {
     id child = [ds outlineView:outlineView child:i ofItem:node];
     NSString *suffix = [ds outlineView:outlineView objectValueForTableColumn:column byItem:child];
@@ -278,7 +273,7 @@ static void save_expanded_child_nodes(NSMutableSet *mset,
   if ([outlineView isItemExpanded: node])
     [mset addObject: prefix];
   
-  for (int c = [ds outlineView:outlineView numberOfChildrenOfItem:node], i = 0; i < c; i++)
+  for (NSInteger c = [ds outlineView: outlineView numberOfChildrenOfItem: node], i = 0; i < c; i++)
   {
     id child = [ds outlineView:outlineView child:i ofItem:node];
     NSString *suffix = [ds outlineView:outlineView objectValueForTableColumn:column byItem:child];

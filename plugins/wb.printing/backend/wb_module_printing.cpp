@@ -1,24 +1,23 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
-#include "grt/common.h"
+#include "grt.h"
 
 #include "grts/structs.app.h"
 #include "grts/structs.workbench.h"
@@ -32,73 +31,58 @@
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 
-
 #ifdef _WIN32
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(windows_dll)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(windows_dll)
 #elif defined(__APPLE__)
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(osx_dylib)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(osx_dylib)
 #else
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(linux_so)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(linux_so)
 #endif
 
-
-
-
-#define def_export_plugin(aName, aCaption, aDialogCaption, aExtensions)\
-  {\
-    app_PluginRef plugin(get_grt());\
-    app_PluginObjectInputRef pdef(get_grt());\
-    plugin->name("wb.print." aName);\
-    plugin->caption(aCaption);\
-    plugin->moduleName("WbPrinting");\
-    plugin->moduleFunctionName(aName);\
-    plugin->pluginType("normal");\
-    plugin->showProgress(1);\
-    pdef->name("activeDiagram");\
-    pdef->objectStructName(model_Diagram::static_class_name());\
-    pdef->owner(plugin);\
-    plugin->inputValues().insert(pdef);\
-    app_PluginFileInputRef pdef2(get_grt());\
-    pdef2->owner(plugin);\
-    pdef2->dialogTitle(aDialogCaption);\
-    pdef2->dialogType("save");\
-    pdef2->fileExtensions(aExtensions);\
-    plugin->inputValues().insert(pdef2);\
-    plugin->groups().insert("Application/Workbench");\
-    list.insert(plugin);\
+#define def_export_plugin(aName, aCaption, aDialogCaption, aExtensions) \
+  {                                                                     \
+    app_PluginRef plugin(grt::Initialized);                             \
+    app_PluginObjectInputRef pdef(grt::Initialized);                    \
+    plugin->name("wb.print." aName);                                    \
+    plugin->caption(aCaption);                                          \
+    plugin->moduleName("WbPrinting");                                   \
+    plugin->moduleFunctionName(aName);                                  \
+    plugin->pluginType("normal");                                       \
+    plugin->showProgress(1);                                            \
+    pdef->name("activeDiagram");                                        \
+    pdef->objectStructName(model_Diagram::static_class_name());         \
+    pdef->owner(plugin);                                                \
+    plugin->inputValues().insert(pdef);                                 \
+    app_PluginFileInputRef pdef2(grt::Initialized);                     \
+    ;                                                                   \
+    pdef2->owner(plugin);                                               \
+    pdef2->dialogTitle(aDialogCaption);                                 \
+    pdef2->dialogType("save");                                          \
+    pdef2->fileExtensions(aExtensions);                                 \
+    plugin->inputValues().insert(pdef2);                                \
+    plugin->groups().insert("Application/Workbench");                   \
+    list.insert(plugin);                                                \
   }
 
-
-WbPrintingImpl::WbPrintingImpl(grt::CPPModuleLoader *ldr)
-: super(ldr)
-{
+WbPrintingImpl::WbPrintingImpl(grt::CPPModuleLoader *ldr) : super(ldr) {
 }
 
-
-
-grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
-{
-  grt::ListRef<app_Plugin> list(get_grt());
+grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo() {
+  grt::ListRef<app_Plugin> list(true);
 
   def_export_plugin("printToPDFFile", "Print Diagram to a PDF File", "Print to PDF", "PDF Files (*.pdf)|*.pdf");
   def_export_plugin("printToPSFile", "Print Diagram to a PS File", "Print to PS", "PostScript Files (*.ps)|*.ps");
 
   {
-    app_PluginRef plugin(get_grt());
+    app_PluginRef plugin(grt::Initialized);
 
-    FRONTEND_LIBNAME(plugin,
-                     ".\\wb.printing.wbp.fe.dll",
-                     "wb.printing.wbp.so",
-                     "wb.printing.mwbplugin");
+    FRONTEND_LIBNAME(plugin, ".\\wb.printing.wbp.fe.dll", "wb.printing.wbp.so", "wb.printing.mwbplugin");
     plugin->pluginType("gui");
     plugin->moduleFunctionName("PrintDialog");
     plugin->rating(100);
     plugin->name("wb.print.print");
     plugin->caption(_("Print Diagram"));
-    app_PluginObjectInputRef pdef(get_grt());
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeDiagram");
     pdef->objectStructName(model_Diagram::static_class_name());
     pdef->owner(plugin);
@@ -110,18 +94,15 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
   }
 
   {
-    app_PluginRef plugin(get_grt());
+    app_PluginRef plugin(grt::Initialized);
 
-    FRONTEND_LIBNAME(plugin,
-                     ".\\wb.printing.wbp.fe.dll",
-                     "wb.printing.wbp.so",
-                     "");
+    FRONTEND_LIBNAME(plugin, ".\\wb.printing.wbp.fe.dll", "wb.printing.wbp.so", "");
     plugin->pluginType("gui");
     plugin->moduleFunctionName("PrintPreviewDialog");
     plugin->rating(100);
     plugin->name("wb.print.printPreview");
     plugin->caption(_("Print Preview"));
-    app_PluginObjectInputRef pdef(get_grt());
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeDiagram");
     pdef->objectStructName(model_Diagram::static_class_name());
     pdef->owner(plugin);
@@ -133,12 +114,9 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
   }
 
   {
-    app_PluginRef plugin(get_grt());
+    app_PluginRef plugin(grt::Initialized);
 
-    FRONTEND_LIBNAME(plugin,
-                     "",
-                     "wb.printing.wbp.so",
-                     "");
+    FRONTEND_LIBNAME(plugin, "", "wb.printing.wbp.so", "");
     plugin->pluginType("gui");
     plugin->moduleFunctionName("PrintSetupDialog");
     plugin->rating(100);
@@ -153,39 +131,34 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
   return list;
 }
 
-
-
-int WbPrintingImpl::printToPDFFile(model_DiagramRef view, const std::string &path)
-{
+int WbPrintingImpl::printToPDFFile(model_DiagramRef view, const std::string &path) {
   mdc::CanvasViewExtras extras(view->get_data()->get_canvas_view());
 
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(get_grt()->get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
 
   extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());
   extras.set_paper_size(page->paperType()->width(), page->paperType()->height());
-  extras.set_orientation(page->orientation()=="landscape"?mdc::Landscape:mdc::Portrait);
+  extras.set_orientation(page->orientation() == "landscape" ? mdc::Landscape : mdc::Portrait);
   extras.set_scale(page->scale());
 
-  int pages= extras.print_to_pdf(path);
+  int pages = extras.print_to_pdf(path);
 
   return pages;
 }
 
-
-int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const std::string &path, const std::string &format, grt::DictRef options)
-{
+int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const std::string &path,
+                                        const std::string &format, grt::DictRef options) {
   int pages = 0;
   base::FileHandle fh(path.c_str(), "wb");
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(get_grt()->get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
   int total_pages = 0;
 
-  GRTLIST_FOREACH(model_Diagram, views, view)
-  {
+  GRTLIST_FOREACH(model_Diagram, views, view) {
     mdc::CanvasViewExtras extras((*view)->get_data()->get_canvas_view());
 
     extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());
     extras.set_paper_size(page->paperType()->width(), page->paperType()->height());
-    extras.set_orientation(page->orientation()=="landscape"?mdc::Landscape:mdc::Portrait);
+    extras.set_orientation(page->orientation() == "landscape" ? mdc::Landscape : mdc::Portrait);
     extras.set_scale(page->scale());
 
     mdc::Count xc, yc;
@@ -196,30 +169,28 @@ int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const
   {
     std::auto_ptr<mdc::Surface> surf;
 
-    GRTLIST_FOREACH(model_Diagram, views, view)
-    {
+    GRTLIST_FOREACH(model_Diagram, views, view) {
       mdc::CanvasViewExtras extras((*view)->get_data()->get_canvas_view());
 
       extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());
       extras.set_paper_size(page->paperType()->width(), page->paperType()->height());
-      extras.set_orientation(page->orientation()=="landscape"?mdc::Landscape:mdc::Portrait);
+      extras.set_orientation(page->orientation() == "landscape" ? mdc::Landscape : mdc::Portrait);
       extras.set_scale(page->scale());
 
-      if (!surf.get())
-      {
+      if (!surf.get()) {
         if (format == "pdf")
           surf = std::auto_ptr<mdc::Surface>(extras.create_pdf_surface(fh));
         else if (format == "ps")
           surf = std::auto_ptr<mdc::Surface>(extras.create_ps_surface(fh));
         else
-          throw std::invalid_argument("Invalid file format "+format);
+          throw std::invalid_argument("Invalid file format " + format);
       }
 
       std::string htext = options.get_string("header_text");
-      base::replace(htext, "$diagram", (*view)->name());
+      base::replaceStringInplace(htext, "$diagram", (*view)->name());
 
       std::string ftext = options.get_string("footer_text");
-      base::replace(ftext, "$diagram", (*view)->name());
+      base::replaceStringInplace(ftext, "$diagram", (*view)->name());
 
       pages += extras.print_to_surface(surf.get(), htext, ftext, pages, total_pages);
     }
@@ -227,35 +198,23 @@ int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const
   return pages;
 }
 
-
-int WbPrintingImpl::printToPSFile(model_DiagramRef view, const std::string &path)
-{
+int WbPrintingImpl::printToPSFile(model_DiagramRef view, const std::string &path) {
   mdc::CanvasViewExtras extras(view->get_data()->get_canvas_view());
 
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(get_grt()->get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
 
   extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());
   extras.set_paper_size(page->paperType()->width(), page->paperType()->height());
-  extras.set_orientation(page->orientation()=="landscape"?mdc::Landscape:mdc::Portrait);
+  extras.set_orientation(page->orientation() == "landscape" ? mdc::Landscape : mdc::Portrait);
   extras.set_scale(page->scale());
 
-  int pages= extras.print_to_ps(path);
+  int pages = extras.print_to_ps(path);
 
   return pages;
 }
 
-
-
-int WbPrintingImpl::printToPrinter(model_DiagramRef view, const std::string &printer)
-{
+int WbPrintingImpl::printToPrinter(model_DiagramRef view, const std::string &printer) {
   return 0;
 }
 
-
-
-
 GRT_MODULE_ENTRY_POINT(WbPrintingImpl);
-
-
-
-

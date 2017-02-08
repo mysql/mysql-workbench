@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,8 +36,6 @@
 
 
 BEGIN_TEST_DATA_CLASS(sql_parser_test)
-protected:
-  GRTManagerTest grtm;
 END_TEST_DATA_CLASS
 
 TEST_MODULE(sql_parser_test, "SQL parser test suite");
@@ -129,10 +127,10 @@ TEST_FUNCTION(1)
   test_function_1_output_index= 0;
   test_function_1_success_flag= true;
 
-  Mysql_sql_parser_fe sql_parser_fe(grtm.get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(GRTManagerTest::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml = false;
 
-  for(int i= 0; test_function_1_input[i] != NULL; i++)
+  for(ssize_t i= 0; test_function_1_input[i] != NULL; i++)
   {
     sql_parser_fe.parse_sql_script(test_function_1_input[i], test_function_1_cb, reinterpret_cast<void *>(i));
     ensure("test 20", test_function_1_success_flag);
@@ -151,7 +149,7 @@ int test_function_2_cb(void* user_data, const MyxStatementParser *splitter, cons
 
 TEST_FUNCTION(2)
 {
-  Mysql_sql_parser_fe sql_parser_fe(grtm.get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(GRTManagerTest::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml = false;
 
   test_function_2_counter= 0;
@@ -195,7 +193,7 @@ TEST_FUNCTION(3)
   test_time_point t1;
 #endif
 
-  Mysql_sql_parser_fe sql_parser_fe(grtm.get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(GRTManagerTest::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml = false;
   sql_parser_fe.is_ast_generation_enabled = false; // Leave AST creation off. This adds a *huge* burden.
   sql_parser_fe.parse_sql_script_file(filename, test_function_30_cb, NULL);
@@ -231,7 +229,7 @@ TEST_FUNCTION(5) // tests bug #65749
 
   ensure("File does not exist.", g_file_test(filename, G_FILE_TEST_EXISTS) == TRUE);
 
-  Mysql_sql_parser_fe sql_parser_fe(grtm.get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(GRTManagerTest::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml = false;
   sql_parser_fe.is_ast_generation_enabled = false; // Leave AST creation off. This adds a *huge* burden.
   sql_parser_fe.parse_sql_script_file(filename, test_function_5_cb, &count);

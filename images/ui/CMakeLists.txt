@@ -152,6 +152,9 @@ set(IMAGE_FILES
     JS_Datatype_Object.png
     JS_Datatype_ObjectId.png
     JS_Datatype_String.png
+    session.png
+    folder.png
+    session-switch.png
 )
 
 if (UNIX)

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,69 +30,61 @@ using namespace wb;
 using namespace sql;
 using namespace bec;
 
-struct help_test_entry
-{
-  int version_first;  //  First supported version for this entry
-  int version_last;   //  Last supported version for this entry
+struct help_test_entry {
+  int version_first; //  First supported version for this entry
+  int version_last;  //  Last supported version for this entry
   std::string query;
   int line;
   int offset;
   std::string topic;
-  unsigned test_line_number;  // The line number of the test entry for reporting.
+  unsigned test_line_number; // The line number of the test entry for reporting.
 };
 
 BEGIN_TEST_DATA_CLASS(wb_sql_editor_help_test)
 public:
-  WBTester _tester;
-  WBContextSQLIDE _sqlide;
-  sql::ConnectionWrapper _connection;
-  SqlEditorForm::Ref _editor_form;
-  int _version;
-
+WBTester *_tester;
+WBContextSQLIDE *_sqlide;
+sql::ConnectionWrapper _connection;
+SqlEditorForm::Ref _editor_form;
+int _version;
 //--------------------------------------------------------------------------------------------------
 
-void set_connection_properties(grt::GRT *grt, db_mgmt_ConnectionRef& connection)
-{
-  grt::DictRef conn_params(grt);
+void set_connection_properties(db_mgmt_ConnectionRef &connection) {
+  grt::DictRef conn_params(true);
   conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
   conn_params.set("password", grt::StringRef(test_params->get_password()));
   grt::replace_contents(connection->parameterValues(), conn_params);
 
-  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt->get("/rdbms/drivers/0/"));
+  db_mgmt_DriverRef driverProperties = db_mgmt_DriverRef::cast_from(grt::GRT::get()->get("/rdbms/drivers/0/"));
   connection->driver(driverProperties);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-sql::ConnectionWrapper create_connection(grt::GRT *grt)
-{
-  db_mgmt_ConnectionRef connectionProperties(grt);
-  set_connection_properties(grt, connectionProperties);
+sql::ConnectionWrapper create_connection() {
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+  set_connection_properties(connectionProperties);
 
-  sql::DriverManager *dm= sql::DriverManager::getDriverManager();
+  sql::DriverManager *dm = sql::DriverManager::getDriverManager();
   return dm->getConnection(connectionProperties);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void check_topics(size_t start, size_t end, const help_test_entry entries[])
-{
-  for (size_t i = start; i < end; i++)
-  {
+void check_topics(size_t start, size_t end, const help_test_entry entries[]) {
+  for (size_t i = start; i < end; i++) {
     // Ignore disabled test cases or those defined only for a higher server version.
     if (entries[i].version_first < _version || entries[i].version_last >= _version)
       continue;
 
     // If there's no query given then scan backwards and use the first query we can.
     std::string statement = entries[i].query;
-    if (statement.empty() && i > 0)
-    {
+    if (statement.empty() && i > 0) {
       ssize_t j = i;
       while (--j >= 0)
-        if (!entries[j].query.empty())
-        {
+        if (!entries[j].query.empty()) {
           statement = entries[j].query;
           break;
         }
@@ -106,8 +98,7 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
               << "Current topic : " << topic << std::endl
               << "Expected topic: " << entries[i].topic << std::endl
               << "Query         : " << entries[i].query << std::endl
-              << std::endl
-    ;
+              << std::endl;
 #endif
     ensure_equals(message, base::tolower(topic), base::tolower(entries[i].topic));
   }
@@ -115,43 +106,37 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
 
 //--------------------------------------------------------------------------------------------------
 
-TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test)
-  : _sqlide(_tester.wbui)
-{
-  populate_grt(_tester.grt, _tester);
+TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test) : _version(0) {
+  bec::GRTManager::get(); // need to bcreated first
+  _tester = new WBTester();
+  _sqlide = new WBContextSQLIDE();
 
-  _connection = create_connection(_tester.grt);
+  populate_grt(*_tester);
 
-  db_mgmt_ConnectionRef my_connection(_tester.grt);
-  set_connection_properties(_tester.grt, my_connection);
-  _editor_form = SqlEditorForm::create(&_sqlide, my_connection);
-  _editor_form->connect(boost::shared_ptr<sql::TunnelConnection>());
-  _tester.wbui->set_active_form(_editor_form.get());
+  _connection = create_connection();
+
+  db_mgmt_ConnectionRef my_connection(grt::Initialized);
+  set_connection_properties(my_connection);
+  _editor_form = SqlEditorForm::create(_sqlide, my_connection);
+  _editor_form->connect(std::shared_ptr<sql::TunnelConnection>());
+  WBContextUI::get()->set_active_form(_editor_form.get());
 
   std::auto_ptr<sql::Statement> stmt(_connection->createStatement());
 
   sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
   GrtVersionRef grt_version;
-  if (res && res->next())
-  {
+  if (res && res->next()) {
     std::string version_string = res->getString("VERSION");
-    grt_version = parse_version(_tester.grt, version_string);
+    grt_version = parse_version(version_string);
   }
   delete res;
 
   ensure("Server version is invalid", grt_version.is_valid());
 
-  _tester.get_rdbms()->version(grt_version);
-  _version = (int)(grt_version->majorNumber() * 10000 + grt_version->minorNumber() * 100 + grt_version->releaseNumber());
+  _tester->get_rdbms()->version(grt_version);
+  _version =
+    (int)(grt_version->majorNumber() * 10000 + grt_version->minorNumber() * 100 + grt_version->releaseNumber());
 }
-
-//--------------------------------------------------------------------------------------------------
-
-TEST_DATA_DESTRUCTOR(wb_sql_editor_help_test)
-{
-  _editor_form->close();
-}
-
 //--------------------------------------------------------------------------------------------------
 
 END_TEST_DATA_CLASS;
@@ -160,8 +145,7 @@ TEST_MODULE(wb_sql_editor_help_test, "sql editor help test");
 
 //--------------------------------------------------------------------------------------------------
 
-static help_test_entry single_token_tests[] =
-{
+static help_test_entry single_token_tests[] = {
   // Note: queries don't need to be valid.
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "", 0, 0, "", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "blah foo bar nonsense", 0, 10, "", __LINE__},
@@ -194,12 +178,14 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "do this asbinary joe", 0, 8, "ASBINARY", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select ascii(a)", 0, 7, "ASCII", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "The pope said: this is asin, oh lord.", 0, 23, "ASIN", __LINE__},
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "make this a =b", 0, 12, "ASSIGN-EQUAL", __LINE__}, // "assign-equal" is the same as "assign-value" even tho one would expect differently.
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "make this a =b", 0, 12, "ASSIGN-EQUAL",
+   __LINE__}, // "assign-equal" is the same as "assign-value" even tho one would expect differently.
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "set world:=home", 0, 10, "ASSIGN-VALUE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select astext(me)", 0, 10, "ASTEXT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = atan(b)", 0, 5, "ATAN", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = atan2(b)", 0, 5, "ATAN2", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id int auto_increment)", 0, 36, "AUTO_INCREMENT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id int auto_increment)", 0, 36, "AUTO_INCREMENT",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = avg(b)", 0, 5, "AVG", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "begin this work and do not stop", 0, 0, "BEGIN END", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "do end transaction", 0, 5, "BEGIN END", __LINE__},
@@ -225,17 +211,20 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = ceiling(b)", 0, 5, "CEILING", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id national char(5))", 0, 20, "CHAR", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id national char)", 0, 30, "CHAR BYTE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT CHARSET(CHAR(0x65)), CHARSET(CHAR(0x65 USING utf8));", 0, 16, "CHAR FUNCTION", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT CHARSET(CHAR(0x65)), CHARSET(CHAR(0x65 USING utf8));", 0, 16,
+   "CHAR FUNCTION", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = character_length(b)", 0, 6, "CHARACTER_LENGTH", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT CHARSET(CONVERT('abc' USING utf8));", 0, 8, "CHARSET", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = char_length(b)", 0, 6, "CHAR_LENGTH", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "close handler;", 0, 3, "CLOSE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT COALESCE(NULL,1);", 0, 10, "COALESCE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT COERCIBILITY('abc' COLLATE latin1_swedish_ci);", 0, 15, "COERCIBILITY", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT COERCIBILITY('abc' COLLATE latin1_swedish_ci);", 0, 15,
+   "COERCIBILITY", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT COLLATION(_utf8'abc');", 0, 10, "COLLATION", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT LENGTH(COMPRESS(REPEAT('a',16)));", 0, 20, "COMPRESS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT CONCAT('My', 'S', 'QL');", 0, 10, "CONCAT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT CONCAT_WS(',','First name',NULL,'Last Name');", 0, 10, "CONCAT_WS", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT CONCAT_WS(',','First name',NULL,'Last Name');", 0, 10,
+   "CONCAT_WS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT CONNECTION_ID();", 0, 8, "CONNECTION_ID", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select contains(a, b)", 0, 8, "CONTAINS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = conv(b)", 0, 5, "CONV", __LINE__},
@@ -244,8 +233,10 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = cos(b)", 0, 5, "COS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = cot(b)", 0, 5, "COT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select count(1) from dual", 0, 7, "COUNT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT COUNT(DISTINCT results) FROM student;", 0, 7, "COUNT DISTINCT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT COUNT(DISTINCT results) FROM student;", 0, 15, "COUNT DISTINCT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT COUNT(DISTINCT results) FROM student;", 0, 7, "COUNT DISTINCT",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT COUNT(DISTINCT results) FROM student;", 0, 15, "COUNT DISTINCT",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = crc32()", 0, 5, "CRC32", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "main road crosses penny lane", 0, 10, "CROSSES", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = curdate()", 0, 5, "CURDATE", __LINE__},
@@ -270,35 +261,42 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id dec(5,3))", 0, 20, "DEC", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id decimal(5,3))", 0, 20, "DECIMAL", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "decode(str1, str2)", 0, 3, "DECODE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "UPDATE t SET i = DEFAULT(i)+1 WHERE id < 100;", 0, 23, "DEFAULT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "UPDATE t SET i = DEFAULT(i)+1 WHERE id < 100;", 0, 23, "DEFAULT",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT DEGREES(PI());", 0, 8, "DEGREES", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "delete from a where b = c;", 0, 3, "DELETE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_5_5_36, "describe select 1", 0, 4, "DESCRIBE", __LINE__},
   {MYSQL_VERSION_5_5_36, MYSQL_VERSION_HIGHER, "describe select 1", 0, 4, "EXPLAIN", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = des_decrypt(b)", 0, 5, "DES_DECRYPT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = des_encrypt(b)", 0, 5, "DES_ENCRYPT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT Dimension(GeomFromText('LineString(1 1,2 2)'));", 0, 10, "DIMENSION", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT Dimension(GeomFromText('LineString(1 1,2 2)'));", 0, 10,
+   "DIMENSION", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select @a := disjoint(g1, g2);", 0, 20, "DISJOINT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select a div b", 0, 9, "DIV", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "do release_lock()", 0, 1, "DO", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id double)", 0, 20, "DOUBLE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id double precision)", 0, 20, "DOUBLE PRECISION", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id double precision)", 0, 20, "DOUBLE PRECISION",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select 1 from dual", 0, 15, "DUAL", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT ELT(1, 'ej', 'Heja', 'hej', 'foo');", 0, 9, "ELT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = encode(b)", 0, 5, "ENCODE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = encrypt(b)", 0, 5, "ENCRYPT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(EndPoint(GeomFromText(@ls)));", 0, 15, "ENDPOINT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(EndPoint(GeomFromText(@ls)));", 0, 15, "ENDPOINT",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id enum('a', 'b'))", 0, 20, "ENUM", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(Envelope(GeomFromText('LineString(1 1,2 2)')));", 0, 15, "ENVELOPE", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(Envelope(GeomFromText('LineString(1 1,2 2)')));", 0, 15,
+   "ENVELOPE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select equals(g1, g2)", 0, 8, "EQUALS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = exp(b)", 0, 5, "EXP", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "explain myself", 0, 2, "EXPLAIN", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT EXPORT_SET(5,'Y','N',',',4);", 0, 8, "EXPORT_SET", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(ExteriorRing(GeomFromText(@poly)));", 0, 16, "EXTERIORRING", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(ExteriorRing(GeomFromText(@poly)));", 0, 16,
+   "EXTERIORRING", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT EXTRACT(YEAR FROM '2009-07-02');", 0, 10, "EXTRACT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = extractvalue(b)", 0, 5, "EXTRACTVALUE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "fetch it", 0, 3, "FETCH", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT FIELD('ej', 'Hej', 'ej', 'Heja', 'hej', 'foo');", 0, 10, "FIELD", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT FIELD('ej', 'Hej', 'ej', 'Heja', 'hej', 'foo');", 0, 10, "FIELD",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select find_in_set(1, 2, 3)", 0, 10, "FIND_IN_SET", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id float)", 0, 20, "FLOAT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = floor(b)", 0, 5, "FLOOR", __LINE__},
@@ -310,27 +308,37 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = from_unixtime(b)", 0, 5, "FROM_UNIXTIME", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = geomcollfromtext(b)", 0, 5, "GEOMCOLLFROMTEXT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = geomcollfromwkb(b)", 0, 5, "GEOMCOLLFROMWKB", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE TABLE geom (g GEOMETRY);", 0, 25, "GEOMETRY HIERARCHY", __LINE__}, // Topic "geometry" doesn't contain much. "Hierarchy" is better suited.
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = geometrycollection(b, c, d, e)", 0, 5, "GEOMETRYCOLLECTION", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(GeometryN(GeomFromText(@gc),1));", 0, 15, "GEOMETRYN", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GeometryType(GeomFromText('POINT(1 1)'));", 0, 15, "GEOMETRYTYPE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GeometryType(GeomFromText('POINT(1 1)'));", 0, 25, "GEOMFROMTEXT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GeometryType(GeometryFromText('POINT(1 1)'));", 0, 25, "GEOMFROMTEXT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE TABLE geom (g GEOMETRY);", 0, 25, "GEOMETRY HIERARCHY",
+   __LINE__}, // Topic "geometry" doesn't contain much. "Hierarchy" is better suited.
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = geometrycollection(b, c, d, e)", 0, 5, "GEOMETRYCOLLECTION",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(GeometryN(GeomFromText(@gc),1));", 0, 15, "GEOMETRYN",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GeometryType(GeomFromText('POINT(1 1)'));", 0, 15, "GEOMETRYTYPE",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GeometryType(GeomFromText('POINT(1 1)'));", 0, 25, "GEOMFROMTEXT",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GeometryType(GeometryFromText('POINT(1 1)'));", 0, 25,
+   "GEOMFROMTEXT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = geomfromwkb(b, 'text')", 0, 5, "GEOMFROMWKB", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = geometryfromwkb(b, 'text')", 0, 5, "GEOMFROMWKB", __LINE__},
   {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "begin get current diagnostics; end", 0, 20, "GET DIAGNOSTICS", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT DATE_FORMAT('2003-10-03',GET_FORMAT(DATE,'EUR'));", 0, 34, "GET_FORMAT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT DATE_FORMAT('2003-10-03',GET_FORMAT(DATE,'EUR'));", 0, 34,
+   "GET_FORMAT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GET_LOCK('lock1',10);", 0, 10, "GET_LOCK", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GLength(GeomFromText(@ls));", 0, 10, "GLENGTH", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "grant all to me", 0, 2, "GRANT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT GREATEST(34.0,3.0,5.0,767.0);", 0, 10, "GREATEST", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT student_name,\n  GROUP_CONCAT(test_score)\n  FROM student\n  GROUP BY student_name;",
-    1, 5, "GROUP_CONCAT", __LINE__}, 
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "SELECT student_name,\n  GROUP_CONCAT(test_score)\n  FROM student\n  GROUP BY student_name;", 1, 5, "GROUP_CONCAT",
+   __LINE__},
   {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "a = gtid_subset(b, c)", 0, 5, "GTID_SUBSET", __LINE__},
   {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "a = gtid_subtract(b, c)", 0, 5, "GTID_SUBTRACT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "handler a open as b", 0, 0, "HANDLER", __LINE__},
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "HELP_DATE", __LINE__}, // This isn't a help topic, but meta info about the help.
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "HELP_VERSION", __LINE__}, // This isn't a help topic, but meta info about the help.
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "HELP_DATE",
+   __LINE__}, // This isn't a help topic, but meta info about the help.
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "HELP_VERSION",
+   __LINE__}, // This isn't a help topic, but meta info about the help.
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT HEX(255), CONV(HEX(255),16,10);", 0, 9, "HEX", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT HOUR('10:05:03');", 0, 9, "HOUR", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 2 IN (0,3,5,7);", 0, 10, "IN", __LINE__},
@@ -345,7 +353,8 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id integer)", 0, 20, "INTEGER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = interiorringn(b)", 0, 5, "INTERIORRINGN", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = intersects(b, c)", 0, 5, "INTERSECTS", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT INTERVAL(23, 1, 15, 17, 30, 44, 200);", 0, 10, "INTERVAL", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT INTERVAL(23, 1, 15, 17, 30, 44, 200);", 0, 10, "INTERVAL",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 1 IS TRUE, 0 IS FALSE, NULL IS UNKNOWN;", 0, 9, "IS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = isempty(b)", 0, 5, "ISEMPTY", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select isnull(a) ", 0, 9, "ISNULL", __LINE__},
@@ -358,21 +367,25 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "select is_ipv6()", 0, 9, "IS_IPV6", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select is_used_lock(a)", 0, 9, "IS_USED_LOCK", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "iterate a", 0, 0, "ITERATE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT left_tbl.*\n"
-    "  FROM left_tbl LEFT JOIN right_tbl ON left_tbl.id = right_tbl.id\n"
-    "  WHERE right_tbl.id IS NULL;", 1, 23, "JOIN", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "SELECT left_tbl.*\n"
+   "  FROM left_tbl LEFT JOIN right_tbl ON left_tbl.id = right_tbl.id\n"
+   "  WHERE right_tbl.id IS NULL;",
+   1, 23, "JOIN", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "kill _connection 1", 0, 0, "KILL", __LINE__},
-  {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "CREATE PROCEDURE doiterate(p1 INT)\n"
-    "BEGIN\n"
-    "  label1: LOOP\n"
-    "    SET p1 = p1 + 1;\n"
-    "    IF p1 < 10 THEN\n"
-    "      ITERATE label1;\n"
-    "    END IF;\n"
-    "    LEAVE label1;\n"
-    "  END LOOP label1;\n"
-    "  SET @x = p1;\n"
-    "END;", 2, 6, "LABELS", __LINE__},
+  {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER,
+   "CREATE PROCEDURE doiterate(p1 INT)\n"
+   "BEGIN\n"
+   "  label1: LOOP\n"
+   "    SET p1 = p1 + 1;\n"
+   "    IF p1 < 10 THEN\n"
+   "      ITERATE label1;\n"
+   "    END IF;\n"
+   "    LEAVE label1;\n"
+   "  END LOOP label1;\n"
+   "  SET @x = p1;\n"
+   "END;",
+   2, 6, "LABELS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT LAST_DAY('2003-02-05');", 0, 9, "LAST_DAY", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select last_insert_id()", 0, 9, "LAST_INSERT_ID", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = lcase(b)", 0, 5, "LCASE", __LINE__},
@@ -394,17 +407,19 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = log2(b)", 0, 5, "LOG2", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id longblob)", 0, 20, "LONGBLOB", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id longtext)", 0, 20, "LONGTEXT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE PROCEDURE doiterate(p1 INT)\n"
-    "BEGIN\n"
-    "  label1: LOOP\n"
-    "    SET p1 = p1 + 1;\n"
-    "    IF p1 < 10 THEN\n"
-    "      ITERATE label1;\n"
-    "    END IF;\n"
-    "    LEAVE label1;\n"
-    "  END LOOP label1;\n"
-    "  SET @x = p1;\n"
-    "END;", 8, 7, "LOOP", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "CREATE PROCEDURE doiterate(p1 INT)\n"
+   "BEGIN\n"
+   "  label1: LOOP\n"
+   "    SET p1 = p1 + 1;\n"
+   "    IF p1 < 10 THEN\n"
+   "      ITERATE label1;\n"
+   "    END IF;\n"
+   "    LEAVE label1;\n"
+   "  END LOOP label1;\n"
+   "  SET @x = p1;\n"
+   "END;",
+   8, 7, "LOOP", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = lower(b)", 0, 5, "LOWER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = lpad(b)", 0, 5, "LPAD", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = ltrim(b)", 0, 5, "LTRIM", __LINE__},
@@ -412,15 +427,19 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = maketime(b)", 0, 5, "MAKETIME", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = make_set(b)", 0, 5, "MAKE_SET", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "master_pos_wait(1, 2)", 0, 0, "MASTER_POS_WAIT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT id, body, MATCH (title,body) AGAINST\n"
-    "  ('Security implications of running MySQL as root'\n"
-    "  IN NATURAL LANGUAGE MODE) AS score\n"
-    "  FROM articles WHERE MATCH (title,body) AGAINST\n"
-    "  ('Security implications of running MySQL as root'\n"
-    "  IN NATURAL LANGUAGE MODE);", 3, 25, "MATCH AGAINST", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "SELECT id, body, MATCH (title,body) AGAINST\n"
+   "  ('Security implications of running MySQL as root'\n"
+   "  IN NATURAL LANGUAGE MODE) AS score\n"
+   "  FROM articles WHERE MATCH (title,body) AGAINST\n"
+   "  ('Security implications of running MySQL as root'\n"
+   "  IN NATURAL LANGUAGE MODE);",
+   3, 25, "MATCH AGAINST", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = max(b)", 0, 5, "MAX", __LINE__},
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "mbr", 0, 0, "MBR DEFINITION", __LINE__}, // Hard to find a context for that topic.
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT MBRContains(@g1,@g2), MBRContains(@g2,@g1);", 0, 35, "MBRCONTAINS", __LINE__},
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "mbr", 0, 0, "MBR DEFINITION",
+   __LINE__}, // Hard to find a context for that topic.
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT MBRContains(@g1,@g2), MBRContains(@g2,@g1);", 0, 35,
+   "MBRCONTAINS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = mbrdisjoint(a, b)", 0, 5, "MBRDISJOINT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = mbrequal(a, b)", 0, 5, "MBREQUAL", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = mbrintersects(b, c)", 0, 5, "MBRINTERSECTS", __LINE__},
@@ -431,10 +450,12 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id mediumblob)", 0, 20, "MEDIUMBLOB", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id mediumint)", 0, 20, "MEDIUMINT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id mediumtext)", 0, 20, "MEDIUMTEXT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE TABLE total (\n"
-    "    a INT NOT NULL AUTO_INCREMENT,\n"
-    "    message CHAR(20), INDEX(a))\n"
-    "    ENGINE=MERGE UNION=(t1,t2) INSERT_METHOD=LAST;", 3, 13, "MERGE", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "CREATE TABLE total (\n"
+   "    a INT NOT NULL AUTO_INCREMENT,\n"
+   "    message CHAR(20), INDEX(a))\n"
+   "    ENGINE=MERGE UNION=(t1,t2) INSERT_METHOD=LAST;",
+   3, 13, "MERGE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT MICROSECOND('12:00:00.123456');", 0, 9, "MICROSECOND", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = mid(b)", 0, 5, "MID", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = min(b)", 0, 5, "MIN", __LINE__},
@@ -482,9 +503,11 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT QUOTE('Don\\'t!');", 0, 10, "QUOTE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = radians(b)", 0, 5, "RADIANS", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = rand(b)", 0, 5, "RAND", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 'a' REGEXP 'A', 'a' REGEXP BINARY 'A';", 0, 30, "REGEXP", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 'a' REGEXP 'A', 'a' REGEXP BINARY 'A';", 0, 30, "REGEXP",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "replace into a values(default)", 0, 3, "REPLACE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT REPLACE('www.mysql.com', 'w', 'Ww');", 0, 10, "REPLACE FUNCTION", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT REPLACE('www.mysql.com', 'w', 'Ww');", 0, 10, "REPLACE FUNCTION",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "just reset that thing", 0, 5, "RESET", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "reset master", 0, 5, "RESET MASTER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "reset slave", 0, 5, "RESET SLAVE", __LINE__},
@@ -498,7 +521,8 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = rpad(b)", 0, 5, "RPAD", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = rtrim(b)", 0, 5, "RTRIM", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "savepoint first", 0, 5, "SAVEPOINT", __LINE__},
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "select schema()", 0, 10, "SCHEMA", __LINE__}, // Can never appear, because the lexer automatically maps it to database.
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "select schema()", 0, 10, "SCHEMA",
+   __LINE__}, // Can never appear, because the lexer automatically maps it to database.
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT SECOND('12:00:00.123456');", 0, 10, "SECOND", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = sec_to_time(a)", 0, 5, "SEC_TO_TIME", __LINE__},
   {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "SELECT", __LINE__}, // Handled in complex tests.
@@ -517,7 +541,8 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "ALTER TABLE geom ADD SPATIAL INDEX(g);", 0, 25, "SPATIAL", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = sqrt(b)", 0, 5, "SQRT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = srid(b)", 0, 5, "SRID", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(StartPoint(GeomFromText(@ls)));", 0, 20, "STARTPOINT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT AsText(StartPoint(GeomFromText(@ls)));", 0, 20, "STARTPOINT",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = std(b)", 0, 5, "STD", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = stddev(b)", 0, 5, "STDDEV", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = stddev_pop(b)", 0, 5, "STDDEV_POP", __LINE__},
@@ -568,10 +593,14 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = uncompressed_length(b)", 0, 5, "UNCOMPRESSED_LENGTH", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = unhex(5)", 0, 5, "UNHEX", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "uninstall /* do it */ plugin", 0, 25, "UNINSTALL PLUGIN", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select 1 from a union select 2 from b union select 3 from c", 0, 40, "UNION", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select 1 from a union select 2 from b union select 3 from c", 0, 40,
+   "UNION", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select unix_timestamp()", 0, 9, "UNIX_TIMESTAMP", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "update a set b = c", 0, 0, "UPDATE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT\n""  UpdateXML('<a><b>ccc</b><d></d></a>', '/a', '<e>fff</e>') AS val1", 1, 3, "UPDATEXML", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "SELECT\n"
+   "  UpdateXML('<a><b>ccc</b><d></d></a>', '/a', '<e>fff</e>') AS val1",
+   1, 3, "UPDATEXML", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = upper(b)", 0, 5, "UPPER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "use sakila;", 0, 10, "USE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select user()", 0, 9, "USER", __LINE__},
@@ -580,7 +609,8 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select utc_timestamp()", 0, 9, "UTC_TIMESTAMP", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select uuid()", 0, 9, "UUID", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select uuid_short()", 0, 9, "UUID_SHORT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "INSERT INTO table (a,b,c) VALUES (1,2,3),(4,5,6)", 0, 30, "VALUES", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "INSERT INTO table (a,b,c) VALUES (1,2,3),(4,5,6)", 0, 30, "VALUES",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id varbinary)", 0, 20, "VARBINARY", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id varchar)", 0, 20, "VARCHAR", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = variance(b)", 0, 5, "VARIANCE", __LINE__},
@@ -591,41 +621,40 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT WEEKDAY('12:00:00.123456');", 0, 9, "WEEKDAY", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT WEEKOFYEAR('12:00:00.123456');", 0, 9, "WEEKOFYEAR", __LINE__},
   {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "a = weight_string(b)", 0, 5, "WEIGHT_STRING", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE PROCEDURE dowhile()\n"
-    "  BEGIN\n"
-    "    DECLARE v1 INT DEFAULT 5;\n\n"
-    "    WHILE v1 > 0 DO\n"
-    "      SET v1 = v1 - 1;\n"
-    "    END WHILE;\n"
-    "  END;", 4, 7, "WHILE", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "CREATE PROCEDURE dowhile()\n"
+   "  BEGIN\n"
+   "    DECLARE v1 INT DEFAULT 5;\n\n"
+   "    WHILE v1 > 0 DO\n"
+   "      SET v1 = v1 - 1;\n"
+   "    END WHILE;\n"
+   "  END;",
+   4, 7, "WHILE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = within(b, c)", 0, 5, "WITHIN", __LINE__},
   {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "wkt", 0, 0, "WKT DEFINITION", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "x = 1", 0, 0, "", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT X(POINT(56.7, 53.34));", 0, 7, "X", __LINE__ },
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT X(POINT(56.7, 53.34));", 0, 7, "X", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select a xor b", 0, 10, "XOR", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "y = 1", 0, 0, "", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT Y(POINT(56.7, 53.34));", 0, 7, "Y", __LINE__ },
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT Y(POINT(56.7, 53.34));", 0, 7, "Y", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT YEAR('12:00:00.123456');", 0, 9, "YEAR", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id year(4))", 0, 20, "YEAR DATA TYPE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT YEARWEEK('12:00:00.123456');", 0, 9, "YEARWEEK", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b ^ c", 0, 6, "^", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b | c", 0, 6, "|", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b || c", 0, 6, "||", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = ~b", 0, 4, "~", __LINE__}
-};
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = ~b", 0, 4, "~", __LINE__}};
 
 /**
  *  Single token topics or those derived from a single token.
  */
-TEST_FUNCTION(5)
-{
+TEST_FUNCTION(5) {
   check_topics(0, sizeof(single_token_tests) / sizeof(single_token_tests[0]), single_token_tests);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static help_test_entry multi_token_tests[] =
-{
+static help_test_entry multi_token_tests[] = {
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "alter database sakila", 0, 0, "ALTER DATABASE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "alter database sakila", 0, 10, "ALTER DATABASE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "alter event a", 0, 0, "ALTER EVENT", __LINE__},
@@ -647,39 +676,56 @@ static help_test_entry multi_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "analyze table", 0, 10, "ANALYZE TABLE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "analyze no_write_to_bin_log table a", 0, 0, "ANALYZE TABLE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "analyze no_write_to_bin_log table a", 0, 35, "ANALYZE TABLE", __LINE__},
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "BLOB DATA TYPE", __LINE__}, // Just a cover topic for all blob types.
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "cache index actor partition (all) index (idx_actor_last_name, primary, primary) in sakila",
-    0, 8, "CACHE INDEX", __LINE__},
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "CASE OPERATOR", __LINE__}, // This is the same as "case statement", just much inferior.
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT CASE 1 WHEN 1 THEN 'one'\n""   WHEN 2 THEN 'two' ELSE 'more' END;", 0, 8, "CASE STATEMENT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "change master to master_bind = 'blah', relay_log_pos = 1, ignore_server_ids = (1, 2, 3, 4)",
-    0, 20, "CHANGE MASTER TO", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "check table sakila.actor, sakila.country for upgrade", 0, 20, "CHECK TABLE", __LINE__},
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "BLOB DATA TYPE",
+   __LINE__}, // Just a cover topic for all blob types.
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "cache index actor partition (all) index (idx_actor_last_name, primary, primary) in sakila", 0, 8, "CACHE INDEX",
+   __LINE__},
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "CASE OPERATOR",
+   __LINE__}, // This is the same as "case statement", just much inferior.
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "SELECT CASE 1 WHEN 1 THEN 'one'\n"
+   "   WHEN 2 THEN 'two' ELSE 'more' END;",
+   0, 8, "CASE STATEMENT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "change master to master_bind = 'blah', relay_log_pos = 1, ignore_server_ids = (1, 2, 3, 4)", 0, 20,
+   "CHANGE MASTER TO", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "check table sakila.actor, sakila.country for upgrade", 0, 20,
+   "CHECK TABLE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "checksum table customer extended", 0, 20, "CHECKSUM TABLE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create schema a", 0, 0, "CREATE DATABASE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create database a", 0, 0, "CREATE DATABASE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create database a", 0, 8, "CREATE DATABASE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create event a", 0, 0, "CREATE EVENT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create definer = current_user event if not exists a on schedule every 1 second select 1",
-    0, 45, "CREATE EVENT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "create definer = current_user event if not exists a on schedule every 1 second select 1", 0, 45, "CREATE EVENT",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create function sakila.f1 (a int)", 0, 0, "CREATE FUNCTION", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create function sakila.f1 (a int)", 0, 20, "CREATE FUNCTION", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create function f1 returns string", 0, 0, "CREATE FUNCTION UDF", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create aggregate function f1 returns string soname 'blah'", 0, 10, "CREATE FUNCTION UDF", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create function f1 returns string", 0, 0, "CREATE FUNCTION UDF",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create aggregate function f1 returns string soname 'blah'", 0, 10,
+   "CREATE FUNCTION UDF", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create online index", 0, 0, "CREATE INDEX", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create offline index", 0, 18, "CREATE INDEX", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create procedure sakila.p1 (in a int)", 0, 0, "CREATE PROCEDURE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create procedure sakila.p1 (in a int)", 0, 20, "CREATE PROCEDURE", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create procedure sakila.p1 (in a int)", 0, 0, "CREATE PROCEDURE",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create procedure sakila.p1 (in a int)", 0, 20, "CREATE PROCEDURE",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create server a", 0, 0, "CREATE SERVER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create server 'a'", 0, 15, "CREATE SERVER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id tinytext)", 0, 0, "CREATE TABLE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id tinytext)", 0, 28, "CREATE TABLE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create trigger a before insert on sakila.t1 for each row", 0, 0, "CREATE TRIGGER", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create trigger a before insert on sakila.t1 for each row", 0, 25, "CREATE TRIGGER", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create trigger a before insert on sakila.t1 for each row", 0, 0,
+   "CREATE TRIGGER", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create trigger a before insert on sakila.t1 for each row", 0, 25,
+   "CREATE TRIGGER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create user current_user", 0, 0, "CREATE USER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create user current_user", 0, 8, "CREATE USER", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create sql security invoker view sakila.v1 (a, b, c) as select 1", 0, 0, "CREATE VIEW", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create sql security invoker view sakila.v1 (a, b, c) as select 1", 0, 44, "CREATE VIEW", __LINE__}, 
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create sql security invoker view sakila.v1 (a, b, c) as select 1", 0, 0,
+   "CREATE VIEW", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create sql security invoker view sakila.v1 (a, b, c) as select 1", 0, 44,
+   "CREATE VIEW", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "deallocate prepare a", 0, 0, "DEALLOCATE PREPARE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop prepare b", 0, 10, "DEALLOCATE PREPARE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "declare b condition for 1;", 0, 0, "DECLARE CONDITION", __LINE__},
@@ -696,7 +742,8 @@ static help_test_entry multi_token_tests[] =
   {MYSQL_VERSION_5_1, MYSQL_VERSION_HIGHER, "drop event if exists b", 0, 19, "DROP EVENT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop function a.b", 0, 0, "DROP FUNCTION", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop function if exits a.b", 0, 26, "DROP FUNCTION", __LINE__},
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "DROP FUNCTION UDF", __LINE__}, // Syntax is the same as for a normal drop function.
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "DROP FUNCTION UDF",
+   __LINE__}, // Syntax is the same as for a normal drop function.
   {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "DROP FUNCTION UDF", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop offline index a on b", 0, 0, "DROP INDEX", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop online index a on b", 0, 16, "DROP INDEX", __LINE__},
@@ -705,52 +752,73 @@ static help_test_entry multi_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop server 'a'", 0, 0, "DROP SERVER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop server if exists 'a'", 0, 7, "DROP SERVER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop table if exists a, b, c, d cascade", 0, 0, "DROP TABLE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop temporary tables if exists a, b, c, d cascade", 0, 17, "DROP TABLE", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop temporary tables if exists a, b, c, d cascade", 0, 17, "DROP TABLE",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop trigger a.b", 0, 0, "DROP TRIGGER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop trigger if exists a.b", 0, 7, "DROP TRIGGER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop user current_user(), mike@localhost", 0, 0, "DROP USER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop user current_user(), mike@localhost", 0, 7, "DROP USER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop view a.b, c.d, e.f restrict", 0, 0, "DROP VIEW", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop view if exists a.b, c.d, e.f restrict", 0, 7, "DROP VIEW", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop view if exists a.b, c.d, e.f restrict", 0, 7, "DROP VIEW",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "execute a using @a", 0, 0, "EXECUTE STATEMENT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "flush no_write_to_binlog query cache", 0, 0, "FLUSH QUERY CACHE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "flush no_write_to_binlog query cache", 0, 28, "FLUSH QUERY CACHE", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "flush no_write_to_binlog query cache", 0, 0, "FLUSH QUERY CACHE",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "flush no_write_to_binlog query cache", 0, 28, "FLUSH QUERY CACHE",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "flush local query cache", 0, 0, "FLUSH QUERY CACHE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "help 'on help'", 0, 2, "HELP COMMAND", __LINE__},
-  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "HELP STATEMENT", __LINE__}, // Just like help command, just inferior. Same syntax.
+  {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "HELP STATEMENT",
+   __LINE__}, // Just like help command, just inferior. Same syntax.
   {MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, 0, "HELP_DATE", __LINE__}, // Meta information about the help.
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT IF(1 > 2,2,3);", 0, 9, "IF FUNCTION", __LINE__}, 
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE PROCEDURE doiterate(p1 INT)\n"
-    "BEGIN\n"
-    "  label1: LOOP\n"
-    "    SET p1 = p1 + 1;\n"
-    "    IF p1 < 10 THEN\n"
-    "      ITERATE label1;\n"
-    "    END IF;\n"
-    "    LEAVE label1;\n"
-    "  END LOOP label1;\n"
-    "  SET @x = p1;\n"
-    "END;", 4, 17, "IF STATEMENT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT IF(1 > 2,2,3);", 0, 9, "IF FUNCTION", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "CREATE PROCEDURE doiterate(p1 INT)\n"
+   "BEGIN\n"
+   "  label1: LOOP\n"
+   "    SET p1 = p1 + 1;\n"
+   "    IF p1 < 10 THEN\n"
+   "      ITERATE label1;\n"
+   "    END IF;\n"
+   "    LEAVE label1;\n"
+   "  END LOOP label1;\n"
+   "  SET @x = p1;\n"
+   "END;",
+   4, 17, "IF STATEMENT", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT IFNULL(1,0);", 0, 10, "IFNULL", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "insert delayed ignore into a.b set a = b", 0, 0, "INSERT DELAYED", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "insert delayed ignore into a.b set a = b", 0, 8, "INSERT DELAYED", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT INSERT('Quadratic', 3, 4, 'What');", 0, 9, "INSERT FUNCTION", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "INSERT INTO tbl_temp2 (fld_id)\n" // INSERT SELECT is complicated, so we can only handle valid statements and use a parser.
-    "  SELECT tbl_temp1.fld_order_id\n"
-    "  FROM tbl_temp1 WHERE tbl_temp1.fld_order_id > 100;", 0, 0, "INSERT SELECT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "INSERT INTO tbl_temp2 (fld_id)\n"
-    "  SELECT tbl_temp1.fld_order_id\n"
-    "  FROM tbl_temp1 WHERE tbl_temp1.fld_order_id > 100;", 0, 24, "INSERT SELECT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 1 IS NOT UNKNOWN, 0 IS NOT UNKNOWN, NULL IS NOT UNKNOWN;", 0, 9, "IS NOT", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 1 IS NOT NULL, 0 IS NOT UNKNOWN, NULL IS NOT UNKNOWN;", 0, 9, "IS NOT NULL", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 1 IS NULL, 0 IS NOT UNKNOWN, NULL IS NOT UNKNOWN;", 0, 9, "IS NULL", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "load data low_priority local infile 'file'", 0, 0, "LOAD DATA", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "load data low_priority local infile 'file'", 0, 7, "LOAD DATA", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "insert delayed ignore into a.b set a = b", 0, 0, "INSERT DELAYED",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "insert delayed ignore into a.b set a = b", 0, 8, "INSERT DELAYED",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT INSERT('Quadratic', 3, 4, 'What');", 0, 9, "INSERT FUNCTION",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "INSERT INTO tbl_temp2 (fld_id)\n" // INSERT SELECT is complicated, so we can only handle valid statements and use a
+                                      // parser.
+   "  SELECT tbl_temp1.fld_order_id\n"
+   "  FROM tbl_temp1 WHERE tbl_temp1.fld_order_id > 100;",
+   0, 0, "INSERT SELECT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "INSERT INTO tbl_temp2 (fld_id)\n"
+   "  SELECT tbl_temp1.fld_order_id\n"
+   "  FROM tbl_temp1 WHERE tbl_temp1.fld_order_id > 100;",
+   0, 24, "INSERT SELECT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 1 IS NOT UNKNOWN, 0 IS NOT UNKNOWN, NULL IS NOT UNKNOWN;", 0, 9,
+   "IS NOT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 1 IS NOT NULL, 0 IS NOT UNKNOWN, NULL IS NOT UNKNOWN;", 0, 9,
+   "IS NOT NULL", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT 1 IS NULL, 0 IS NOT UNKNOWN, NULL IS NOT UNKNOWN;", 0, 9,
+   "IS NULL", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "load data low_priority local infile 'file'", 0, 0, "LOAD DATA",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "load data low_priority local infile 'file'", 0, 7, "LOAD DATA",
+   __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "load index into cache a.b", 0, 0, "LOAD INDEX", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "load index into cache a.b", 0, 7, "LOAD INDEX", __LINE__},
   {MYSQL_VERSION_5_5, MYSQL_VERSION_HIGHER, "load xml low_priority local infile 'file'", 0, 0, "LOAD XML", __LINE__},
   {MYSQL_VERSION_5_5, MYSQL_VERSION_HIGHER, "load xml low_priority local infile 'file'", 0, 7, "LOAD XML", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "UPDATE t\n  SET blob_col=LOAD_FILE('/tmp/picture')\n  WHERE id=1;", 1, 20, "LOAD_FILE", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "UPDATE t\n  SET blob_col=LOAD_FILE('/tmp/picture')\n  WHERE id=1;", 1,
+   20, "LOAD_FILE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b not between c and d", 0, 7, "NOT BETWEEN", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b not between c and d", 0, 10, "NOT BETWEEN", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b not in c", 0, 7, "NOT IN", __LINE__},
@@ -770,29 +838,36 @@ static help_test_entry multi_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "repair table a", 0, 0, "REPAIR TABLE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "repair table a", 0, 7, "REPAIR TABLE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT REPEAT('MySQL', 3);", 0, 8, "REPEAT FUNCTION", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE PROCEDURE dorepeat(p1 INT)\n"
-    "  BEGIN\n"
-    "    SET @x = 0;\n"
-    "    REPEAT\n"
-    "      SET @x = @x + 1;\n"
-    "    UNTIL @x > p1 END REPEAT;\n"
-    "  END", 3, 5, "REPEAT LOOP", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE PROCEDURE dorepeat(p1 INT)\n"
-    "  BEGIN\n"
-    "    SET @x = 0;\n"
-    "    REPEAT\n"
-    "      SET @x = @x + 1;\n"
-    "    UNTIL @x > p1 END REPEAT;\n"
-    "  END", 5, 20, "REPEAT LOOP", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE PROCEDURE dorepeat(p1 INT)\n"
-    "  BEGIN\n"
-    "    SET @x = 0;\n"
-    "    REPEAT\n"
-    "      SET @x = @x + 1;\n"
-    "    UNTIL @x > p1 END REPEAT;\n"
-    "  END", 5, 28, "REPEAT LOOP", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "CREATE PROCEDURE dorepeat(p1 INT)\n"
+   "  BEGIN\n"
+   "    SET @x = 0;\n"
+   "    REPEAT\n"
+   "      SET @x = @x + 1;\n"
+   "    UNTIL @x > p1 END REPEAT;\n"
+   "  END",
+   3, 5, "REPEAT LOOP", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "CREATE PROCEDURE dorepeat(p1 INT)\n"
+   "  BEGIN\n"
+   "    SET @x = 0;\n"
+   "    REPEAT\n"
+   "      SET @x = @x + 1;\n"
+   "    UNTIL @x > p1 END REPEAT;\n"
+   "  END",
+   5, 20, "REPEAT LOOP", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "CREATE PROCEDURE dorepeat(p1 INT)\n"
+   "  BEGIN\n"
+   "    SET @x = 0;\n"
+   "    REPEAT\n"
+   "      SET @x = @x + 1;\n"
+   "    UNTIL @x > p1 END REPEAT;\n"
+   "  END",
+   5, 28, "REPEAT LOOP", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id set('a', 'b'))", 0, 20, "SET DATA TYPE", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SET GLOBAL sql_slave_skip_counter = 10", 0, 0, "SET GLOBAL SQL_SLAVE_SKIP_COUNTER", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SET GLOBAL sql_slave_skip_counter = 10", 0, 0,
+   "SET GLOBAL SQL_SLAVE_SKIP_COUNTER", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "set password for user", 0, 0, "SET PASSWORD", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "set password for user", 0, 4, "SET PASSWORD", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SET sql_log_bin = 0", 0, 0, "SET SQL_LOG_BIN", __LINE__},
@@ -895,43 +970,57 @@ static help_test_entry multi_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "start transaction", 0, 6, "START TRANSACTION", __LINE__},
 };
 
-TEST_FUNCTION(10)
-{
+TEST_FUNCTION(10) {
   check_topics(0, sizeof(multi_token_tests) / sizeof(multi_token_tests[0]), multi_token_tests);
 }
 
-static help_test_entry complex_tests[] =
-{
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create view view1 /* as (select 1 from b) */", 0, 14, "create view", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create view view1 /* as (select 1 from b) */", 0, 26, "create view", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create view view1 /*! as (select 1 from b) */", 0, 26, "select", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create view view1 /*! as (select 1 from b) */", 0, 24, "create view", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE TABLE product_order (no INT NOT NULL AUTO_INCREMENT,\n"
-    "  product_category INT NOT NULL,\n"
-    "  product_id INT NOT NULL,\n"
-    "  customer_id INT NOT NULL,\n"
-    "  PRIMARY KEY(no),\n"
-    "  INDEX (product_category, product_id),\n"
-    "  FOREIGN KEY (product_category, product_id)\n"
-    "    REFERENCES product(category, id)\n"
-    "    ON UPDATE CASCADE ON DELETE RESTRICT,\n"
-    "  INDEX (customer_id),\n"
-    "  CONSTRAINT mykey FOREIGN KEY (customer_id)\n"
-    "    REFERENCES customer(id)) ENGINE=INNODB;", 6, 2, "constraint", __LINE__},
+static help_test_entry complex_tests[] = {
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create view view1 /* as (select 1 from b) */", 0, 14, "create view",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create view view1 /* as (select 1 from b) */", 0, 26, "create view",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create view view1 /*! as (select 1 from b) */", 0, 26, "select",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create view view1 /*! as (select 1 from b) */", 0, 24, "create view",
+   __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER,
+   "CREATE TABLE product_order (no INT NOT NULL AUTO_INCREMENT,\n"
+   "  product_category INT NOT NULL,\n"
+   "  product_id INT NOT NULL,\n"
+   "  customer_id INT NOT NULL,\n"
+   "  PRIMARY KEY(no),\n"
+   "  INDEX (product_category, product_id),\n"
+   "  FOREIGN KEY (product_category, product_id)\n"
+   "    REFERENCES product(category, id)\n"
+   "    ON UPDATE CASCADE ON DELETE RESTRICT,\n"
+   "  INDEX (customer_id),\n"
+   "  CONSTRAINT mykey FOREIGN KEY (customer_id)\n"
+   "    REFERENCES customer(id)) ENGINE=INNODB;",
+   6, 2, "constraint", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "", 6, 13, "constraint", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "", 7, 7, "constraint", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "", 8, 5, "constraint", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "", 8, 8, "constraint", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "", 8, 25, "constraint", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "", 10, 10, "constraint", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create definer = current_user event if not exists a", 0, 20, "current_user", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create definer = mike@'localhost' event if not exists a", 0, 30, "CREATE EVENT", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create definer = current_user event if not exists a", 0, 20,
+   "current_user", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create definer = mike@'localhost' event if not exists a", 0, 30,
+   "CREATE EVENT", __LINE__},
 };
 
-TEST_FUNCTION(15)
-{
+TEST_FUNCTION(15) {
   check_topics(0, sizeof(complex_tests) / sizeof(complex_tests[0]), complex_tests);
 }
 
-END_TESTS
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(99) {
+  _editor_form->close();
+  _editor_form.reset();
 
+  delete _sqlide;
+  delete _tester;
+}
+
+END_TESTS

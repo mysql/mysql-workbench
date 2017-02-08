@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,27 +25,20 @@
 using namespace mdc;
 using namespace base;
 
-Figure::Figure(Layer *layer) 
-: CanvasItem(layer), _pen_color(Color::Black()), _fill_color(Color::White()), _line_width(1.0)
-{
+Figure::Figure(Layer *layer)
+  : CanvasItem(layer), _pen_color(Color::Black()), _fill_color(Color::White()), _line_width(1.0) {
 }
 
-
-void Figure::render(CairoCtx *cr)
-{
+void Figure::render(CairoCtx *cr) {
   draw_state(cr);
   draw_contents(cr);
 }
 
-
-void Figure::draw_contents_gl()
-{
+void Figure::draw_contents_gl() {
   throw std::logic_error("draw_contents_gl() not implemented for this figure");
 }
 
-
-void Figure::render_gl(mdc::CairoCtx *cr)
-{
+void Figure::render_gl(mdc::CairoCtx *cr) {
   draw_state_gl();
   draw_contents_gl();
 }
@@ -56,11 +49,11 @@ void Figure::render_gl(mdc::CairoCtx *cr)
  * Draws a hollow rectangle given by the bounds of this figure and a certain offset.
  * This version uses Cairo to draw it.
  */
-void Figure::stroke_outline(CairoCtx *cr, float offset)
-{
-  Rect bounds= get_bounds();
-  
-  cr->rectangle(bounds.left()-offset, bounds.top()-offset, bounds.width()+offset*2, bounds.height()+offset*2);
+void Figure::stroke_outline(CairoCtx *cr, float offset) const {
+  Rect bounds = get_bounds();
+
+  cr->rectangle(bounds.left() - offset, bounds.top() - offset, bounds.width() + offset * 2,
+                bounds.height() + offset * 2);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,31 +62,28 @@ void Figure::stroke_outline(CairoCtx *cr, float offset)
  * Draws a hollow rectangle given by the bounds of this figure and a certain offset.
  * This version uses OpenGL to draw it.
  */
-void Figure::stroke_outline_gl(float offset)
-{
-  Rect bounds= get_bounds();
-  
-  gl_rectangle(bounds.left() - offset, bounds.top() - offset, bounds.width() + 2 * offset, 
-               bounds.height() + 2 * offset, false);
+void Figure::stroke_outline_gl(float offset) const {
+  Rect bounds = get_bounds();
+
+  gl_rectangle(bounds.left() - offset, bounds.top() - offset, bounds.width() + 2 * offset, bounds.height() + 2 * offset,
+               false);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Point Figure::get_intersection_with_line_to(const Point &p)
-{
-  // this will return the intersection point of the line from the 
+Point Figure::get_intersection_with_line_to(const Point &p) {
+  // this will return the intersection point of the line from the
   // center of the object to the given point.
-  Point center= get_root_position();
+  Point center = get_root_position();
   Point p1;
   Point p2;
 
-  center.x+= get_size().width/2;
-  center.y+= get_size().height/2;
+  center.x += get_size().width / 2;
+  center.y += get_size().height / 2;
 
   // brute-force, subclasses should reimplement with their own version
 
-  if (intersect_rect_to_line(get_bounds(), center, p, p1, p2))
-  {
+  if (intersect_rect_to_line(get_bounds(), center, p, p1, p2)) {
     /*
     cairo_surface_t *crs= cairo_image_surface_create(CAIRO_FORMAT_RGB24,
                                                      (int)get_size().width,
@@ -103,7 +93,7 @@ Point Figure::get_intersection_with_line_to(const Point &p)
       cr.rectangle(0, 0, get_size().width, get_size().height);
       cr.set_color(Color::Black());
       cr.fill();
-  
+
       cr.translate(-get_position().x, -get_position().y);
       stroke_outline(&cr, 0);
       cr.set_color(Color::White());
@@ -112,7 +102,7 @@ Point Figure::get_intersection_with_line_to(const Point &p)
       unsigned char *data= cairo_image_surface_get_data(crs);
       int stride= cairo_image_surface_get_stride(crs);
 #define GET_PIXEL(x, y) data[((x+(y)*stride)*3)]
-    
+
       //XXX
     }
     cairo_surface_destroy(crs);
@@ -121,24 +111,17 @@ Point Figure::get_intersection_with_line_to(const Point &p)
   return center;
 }
 
-
-void Figure::set_pen_color(const Color &color)
-{
-  _pen_color= color;
+void Figure::set_pen_color(const Color &color) {
+  _pen_color = color;
   set_needs_render();
 }
 
-
-void Figure::set_fill_color(const Color &color)
-{
-  _fill_color= color;
+void Figure::set_fill_color(const Color &color) {
+  _fill_color = color;
   set_needs_render();
 }
 
-
-void Figure::set_line_width(float width)
-{
-  _line_width= width;
+void Figure::set_line_width(float width) {
+  _line_width = width;
   set_needs_render();
 }
-

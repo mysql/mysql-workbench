@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ DEFAULT_LOG_DOMAIN("RecordGridView");
 using namespace mforms;
 
 
-static RecordGrid* create_record_grid(boost::shared_ptr<Recordset> rset)
+static GridView* create_record_grid(std::shared_ptr<Recordset> rset)
 {
   return new RecordGridView(rset);
 }
@@ -41,7 +41,7 @@ static RecordGrid* create_record_grid(boost::shared_ptr<Recordset> rset)
 
 void cf_record_grid_init()
 {
-  mforms::RecordGrid::register_factory(create_record_grid);
+  mforms::GridView::register_factory(create_record_grid);
 }
 
 
@@ -56,32 +56,32 @@ void cf_record_grid_init()
 
 - (void)columnDidResize:(NSNotification*)notif
 {
-  std::map<NSTableView*, RecordGridView*>::iterator iter = gridView.find([notif object]);
+  std::map<NSTableView*, RecordGridView*>::iterator iter = gridView.find(notif.object);
   if (iter != gridView.end())
   {
-    id theColumn = [notif userInfo][@"NSTableColumn"];
-    NSInteger i = [[iter->first tableColumns] indexOfObject: theColumn];
+    id theColumn = notif.userInfo[@"NSTableColumn"];
+    NSInteger i = [iter->first.tableColumns indexOfObject: theColumn];
     if (i != NSNotFound)
-      (*iter->second->signal_column_resized())(i-1);
+      (*iter->second->signal_column_resized())((int)i - 1);
   }
 }
 
 
 - (void)observeViewer:(RecordGridView*)viewer
 {
-  gridView[[viewer->control() gridView]] = viewer;
+  gridView[viewer->control().gridView] = viewer;
 
   [[NSNotificationCenter defaultCenter] addObserver: self
                                            selector: @selector(columnDidResize:)
                                                name: NSTableViewColumnDidResizeNotification
-                                             object: [viewer->control() gridView]];
+                                             object: viewer->control().gridView];
 }
 
 - (void)forgetViewer:(RecordGridView*)viewer
 {
   [[NSNotificationCenter defaultCenter] removeObserver: self
                                                   name: NSTableViewColumnDidResizeNotification
-                                                object: [viewer->control() gridView]];
+                                                object: viewer->control().gridView];
 }
 
 @end
@@ -107,19 +107,19 @@ RecordGridView::~RecordGridView()
 
 int RecordGridView::get_column_count()
 {
-  return [[viewer gridView] numberOfColumns];
+  return (int)viewer.gridView.numberOfColumns;
 }
 
 
 int RecordGridView::get_column_width(int column)
 {
-  return (int)[[[viewer gridView] tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] width];
+  return (int)[viewer.gridView tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]].width;
 }
 
 
 void RecordGridView::set_column_width(int column, int width)
 {
-  [[[viewer gridView] tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] setWidth: width];
+  [viewer.gridView tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]].width = width;
 }
 
 
@@ -131,12 +131,12 @@ void RecordGridView::set_column_header_indicator(int column, ColumnHeaderIndicat
 
 bool RecordGridView::current_cell(size_t &row, int &column)
 {
-  MGridView *grid = [viewer gridView];
+  MGridView *grid = viewer.gridView;
 
-  if ([grid selectedRowIndex] >= 0 && [grid selectedColumnIndex] >= 0)
+  if (grid.selectedRowIndex >= 0 && grid.selectedColumnIndex >= 0)
   {
-    row = [grid selectedRowIndex];
-    column = [grid selectedColumnIndex];
+    row = grid.selectedRowIndex;
+    column = grid.selectedColumnIndex;
     return true;
   }
   return false;
@@ -145,23 +145,23 @@ bool RecordGridView::current_cell(size_t &row, int &column)
 
 void RecordGridView::set_current_cell(size_t row, int column)
 {
-  [[viewer gridView] selectCellAtRow: row column: column];
+  [viewer.gridView selectCellAtRow: (int)row column: column];
 }
 
 
 static void set_clicked_column(RecordGridView *grid, void *table)
 {
   NSTableView *gridView = (__bridge NSTableView*)table;
-  NSPoint point = [gridView convertPoint: [[gridView window] mouseLocationOutsideOfEventStream] fromView: nil];
-  int column = [gridView columnAtPoint: NSMakePoint(point.x, 20)];
-  grid->clicked_header_column(column - 1);
+  NSPoint point = [gridView convertPoint: gridView.window.mouseLocationOutsideOfEventStream fromView: nil];
+  NSInteger column = [gridView columnAtPoint: NSMakePoint(point.x, 20)];
+  grid->clicked_header_column((int)column - 1);
 }
 
 
 void RecordGridView::set_header_menu(ContextMenu *menu)
 {
-  menu->signal_will_show()->connect(boost::bind(set_clicked_column, this, (__bridge void *)viewer.gridView));
-  [[[viewer gridView] headerView] setMenu: menu->get_data()];
+  menu->signal_will_show()->connect(std::bind(set_clicked_column, this, (__bridge void *)viewer.gridView));
+  viewer.gridView.headerView.menu = menu->get_data();
 }
 
 
@@ -178,7 +178,7 @@ void RecordGridView::set_font(const std::string &font_desc)
                                            size: size]];
   }
   else
-    log_error("Invalid font specification: %s\n", font_desc.c_str());
+    logError("Invalid font specification: %s\n", font_desc.c_str());
 }
 
 

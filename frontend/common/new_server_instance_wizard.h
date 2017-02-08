@@ -1,24 +1,23 @@
-/* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#ifndef _NEW_SERVER_INSTANCE_WIZARD_H_
-#define _NEW_SERVER_INSTANCE_WIZARD_H_
+#pragma once
 
 #include "grt/common.h"
 #include "grtui/grt_wizard_form.h"
@@ -44,25 +43,24 @@ using namespace mforms;
 
 class NewServerInstanceWizard;
 
-class NewServerInstancePage : public WizardPage
-{
+class NewServerInstancePage : public WizardPage {
 public:
-  NewServerInstancePage(WizardForm *form, const std::string &pageid);
+  NewServerInstancePage(WizardForm* form, const std::string& pageid);
+
 protected:
   NewServerInstanceWizard* wizard();
 };
 
-class IntroductionPage : public WizardPage
-{
+class IntroductionPage : public WizardPage {
 public:
-  IntroductionPage(WizardForm *form);
+  IntroductionPage(WizardForm* form);
 };
 
-class TestDatabaseSettingsPage : public WizardProgressPage
-{
+class TestDatabaseSettingsPage : public WizardProgressPage {
 public:
   TestDatabaseSettingsPage(WizardForm* host);
   virtual void enter(bool advancing);
+
 protected:
   sql::ConnectionWrapper _dbc_conn;
   std::string _message;
@@ -74,10 +72,10 @@ protected:
   NewServerInstanceWizard* wizard();
 };
 
-class HostAndRemoteTypePage : public NewServerInstancePage
-{
+class HostAndRemoteTypePage : public NewServerInstancePage {
 public:
   HostAndRemoteTypePage(WizardForm* host);
+
 protected:
   virtual void enter(bool advancing);
   virtual bool advance();
@@ -85,34 +83,35 @@ protected:
 
   void refresh_profile_list();
   void toggle_remote_admin();
+
 private:
   Panel _management_type_panel; // Border.
   Box _management_type_box;     // Content.
-  Panel _os_panel; // Border.
-  Box _os_box;     // Content.
-  
+  Panel _os_panel;              // Border.
+  Box _os_box;                  // Content.
+
   Label _os_description;
-  
+
   Table _params;
   Label _os_label;
   Selector _os_selector;
-  
+
   Label _type_label;
   Selector _type_selector;
-  
+
   mforms::RadioButton _win_remote_admin;
   mforms::RadioButton _ssh_remote_admin;
 
-  std::map<std::string, std::vector<std::pair<std::string,std::string> > > _presets;
+  std::map<std::string, std::vector<std::pair<std::string, std::string> > > _presets;
 };
 
-class SSHConfigurationPage : public NewServerInstancePage
-{
+class SSHConfigurationPage : public NewServerInstancePage {
 public:
   SSHConfigurationPage(WizardForm* host);
+
 protected:
   void use_ssh_key_changed();
-  
+
   virtual void enter(bool advancing);
   virtual bool advance();
   virtual void leave(bool advancing);
@@ -123,7 +122,7 @@ private:
   Label _main_description2;
 
   Table _ssh_settings_table;
-  
+
   Box _indent;
   Label _host_name_label;
   TextEntry _host_name;
@@ -140,10 +139,10 @@ private:
   FsObjectSelector* _file_selector;
 };
 
-class WindowsManagementPage : public NewServerInstancePage
-{
+class WindowsManagementPage : public NewServerInstancePage {
 public:
   WindowsManagementPage(WizardForm* host, wb::WBContext* context);
+
 protected:
   void refresh_config_path();
 
@@ -152,6 +151,7 @@ protected:
 
   virtual bool advance();
   virtual bool skip_page();
+
 private:
   wb::WBContext* _context;
   std::vector<std::string> _config_paths;
@@ -174,14 +174,14 @@ private:
   FsObjectSelector* _file_selector;
 };
 
-class TestHostMachineSettingsPage : public WizardProgressPage
-{
+class TestHostMachineSettingsPage : public WizardProgressPage {
 public:
   TestHostMachineSettingsPage(WizardForm* host);
 
   virtual void enter(bool advance);
   virtual void leave(bool advancing);
-protected:  
+
+protected:
   bool connect_to_host();
   bool find_config_file();
   bool find_error_files();
@@ -190,23 +190,27 @@ protected:
   virtual bool skip_page();
 
   NewServerInstanceWizard* wizard();
+
 private:
   TaskRow* _connect_task;
   TaskRow* _commands_task;
 };
 
-class ReviewPage : public NewServerInstancePage
-{
+class ReviewPage : public NewServerInstancePage {
 public:
   ReviewPage(WizardForm* host);
+
 protected:
   virtual void enter(bool advancing);
   virtual void leave(bool advancing);
   virtual bool skip_page();
   virtual bool next_closes_wizard();
-  virtual std::string close_caption() const { return finish_caption(); }
+  virtual std::string close_caption() const {
+    return finish_caption();
+  }
 
   void customize_changed();
+
 private:
   Label _description;
   Table _content;
@@ -217,10 +221,10 @@ private:
   CheckBox _customize_check;
 };
 
-class PathsPage : public NewServerInstancePage
-{
+class PathsPage : public NewServerInstancePage {
 public:
   PathsPage(WizardForm* host, wb::WBContext* context);
+
 protected:
   virtual void enter(bool advancing);
   virtual bool advance();
@@ -228,69 +232,75 @@ protected:
   void browse_remote_config_file();
   void test_path();
   void test_section();
+
 private:
   wb::WBContext* _context;
-  
+
   Label _description;
   Table _content;
 
   Label _version_label;
   TextEntry _version;
-  
+
   Label _config_path_label;
   TextEntry _config_path;
   Button _browse_button;
   FsObjectSelector* _file_selector;
   Button _test_config_path_button;
   Label _test_config_path_description;
-  
+
   Label _section_name_label;
   TextEntry _section_name;
   Button _test_section_button;
   Label _test_section_description;
 };
 
-class CommandsPage : public NewServerInstancePage
-{
+class CommandsPage : public NewServerInstancePage {
 public:
   CommandsPage(WizardForm* host);
+
 protected:
   virtual void enter(bool advancing);
   virtual void leave(bool advancing);
   virtual bool advance();
   virtual bool skip_page();
-  virtual bool next_closes_wizard() { return true; }
-  virtual std::string close_caption() const { return finish_caption(); }
+  virtual bool next_closes_wizard() {
+    return true;
+  }
+  virtual std::string close_caption() const {
+    return finish_caption();
+  }
 
 private:
   Label _description;
   Table _content;
-  
+
   Label _start_label;
   TextEntry _start_command;
   Label _stop_label;
   TextEntry _stop_command;
-  
+
   CheckBox _use_sudo;
 };
 
-class NewServerInstanceWizard : public WizardForm
-{
+class NewServerInstanceWizard : public WizardForm {
 public:
   NewServerInstanceWizard(wb::WBContext* context, db_mgmt_ConnectionRef connection);
   ~NewServerInstanceWizard();
 
   db_mgmt_ServerInstanceRef assemble_server_instance();
-  grt::ValueRef test_setting_grt(grt::GRT *grt, const std::string &name);
-  
+  grt::ValueRef test_setting_grt(const std::string& name);
+
   void load_defaults();
   std::string get_server_info(const std::string& key);
-  
-  wb::WBContext* wb() { return _context; }
+
+  wb::WBContext* wb() {
+    return _context;
+  }
 
   bool is_admin_enabled();
   bool is_local();
-  bool test_setting(const std::string &name, std::string &detail);
+  bool test_setting(const std::string& name, std::string& detail);
 
   void create_instance();
 
@@ -301,16 +311,13 @@ protected:
   db_mgmt_ServerInstanceRef _instance; // The server instance we are working on.
 
 private:
-  IntroductionPage *_introduction_page;
-  TestDatabaseSettingsPage *_test_database_settings_page;
+  IntroductionPage* _introduction_page;
+  TestDatabaseSettingsPage* _test_database_settings_page;
   HostAndRemoteTypePage* _os_page;
   SSHConfigurationPage* _ssh_configuration_page;
-  WindowsManagementPage*  _windows_connection_page;
+  WindowsManagementPage* _windows_connection_page;
   TestHostMachineSettingsPage* _test_host_machine_settings_page;
   ReviewPage* _review_page;
   PathsPage* _paths_page;
   CommandsPage* _commands_page;
-
 };
-
-#endif // _NEW_SERVER_INSTANCE_WIZARD_H_

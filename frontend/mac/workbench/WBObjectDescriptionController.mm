@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 
 #import "WBObjectDescriptionController.h"
@@ -26,9 +26,8 @@
 
 @implementation WBObjectDescriptionController
 
-- (void)setWBContext:(wb::WBContextUI*)be
+- (void)setup
 {
-  _wbui= be;
   [self updateForForm: 0];
 }
 
@@ -49,9 +48,9 @@
   std::string description;
 
   if (form)
-    description = _wbui->get_description_for_selection(form, new_object_list, items);
+    description = wb::WBContextUI::get()->get_description_for_selection(form, new_object_list, items);
   else
-    description = _wbui->get_description_for_selection(new_object_list, items);
+    description = wb::WBContextUI::get()->get_description_for_selection(new_object_list, items);
   
   // update only if selection was changed
   if (!_objectList || !grt::compare_list_contents(*_objectList, new_object_list))
@@ -83,7 +82,7 @@
         [text setEditable: YES];
         [forceEditButton setHidden:YES];
       }
-      [text setString: @(description.c_str())];
+      text.string = @(description.c_str());
     }
     else
     {
@@ -91,7 +90,7 @@
       [popup addItemWithTitle: @"No Selection"];
       [popup selectItemAtIndex: 0];
       
-      [text setString:@""];
+      text.string = @"";
       [text setEditable:NO];
       [forceEditButton setHidden:YES];
     }
@@ -120,13 +119,13 @@
   _timer= nil;
 
   if (_objectList)
-    _wbui->set_description_for_selection(*_objectList, [[text string] UTF8String]);
+    wb::WBContextUI::get()->set_description_for_selection(*_objectList, text.string.UTF8String);
 }
 
 
 - (void)textDidEndEditing:(NSNotification *)aNotification
 {
-  if ([text isEditable])
+  if (text.editable)
     [self commit];
 }
 

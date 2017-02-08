@@ -1,12 +1,13 @@
-include_directories(. ../include ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlparser/src ${MySQL_INCLUDE_DIRS})
+include_directories(. 
+    ../include 
+    ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlparser/src 
+    SYSTEM ${MySQL_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS})
 
 if (UNIX)
 	include_directories(./linux)
-endif ()
-
-if (UNIX)
   add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
-endif()
+endif ()
 
 #TODO: Set other compiler flags - doesn't work in gcc 4.6
 #if(CMAKE_COMPILER_IS_GNUCXX)
@@ -55,6 +56,15 @@ add_library(sqlparser
     linux/myx_sql_parser.cpp
     xml.cpp
 )
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(sqlparser gcov)
+endif()
+
+target_compile_options(sqlparser PUBLIC ${WB_CXXFLAGS})
+
+set_source_files_properties(myx_sql_tree_item.cpp PROPERTIES COMPILE_FLAGS -Wno-varargs)
+set_source_files_properties(myx_unicode_scanner.cpp PROPERTIES COMPILE_FLAGS -Wno-empty-body)
 
 set_target_properties(sqlparser
                       PROPERTIES VERSION   ${WB_VERSION}

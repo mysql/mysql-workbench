@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -66,17 +66,17 @@ def make_panel_header(icon, title, subtitle, button=None):
     image = mforms.newImageBox()
     image.set_image(mforms.App.get().get_resource_path(icon))
     image.set_image_align(mforms.TopCenter)
-    table.add(image, 0, 1, 0, 2, mforms.HFillFlag)
+    table.add(image, 0, 1, 0, 2, mforms.VFillFlag | mforms.HFillFlag)
     label = mforms.newLabel(title)
     label.set_text_align(mforms.BottomLeft)
     label.set_style(mforms.SmallStyle)
-    table.add(label, 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+    table.add(label, 1, 2, 0, 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
     label = mforms.newLabel(subtitle)
     label.set_text_align(mforms.TopLeft)
     label.set_style(mforms.VeryBigStyle)
-    table.add(label, 1, 2, 1, 2, mforms.HFillFlag|mforms.HExpandFlag)
+    table.add(label, 1, 2, 1, 2, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
     if button:
-        table.add(button, 2, 3, 0, 2, mforms.HFillFlag)
+        table.add(button, 2, 3, 0, 2, mforms.VFillFlag | mforms.HFillFlag)
     return table
 
 def show_error_page(parent, text):
@@ -115,6 +115,9 @@ class WbAdminBaseTab(mforms.Box):
         self.instance_info = instance_info
         self.ctrl_be = ctrl_be
         self.main_view = main_view
+        
+        self.heading = None
+        self.warning_panel = None
     
     
     @property
@@ -125,7 +128,7 @@ class WbAdminBaseTab(mforms.Box):
     def create_basic_ui(self, icon, title, button=None):
         self.heading = make_panel_header(icon, self.instance_info.name, title, button)
         self.heading.set_padding(12)
-        self.add(self.heading, False, False)
+        self.add(self.heading, False, True)
         
         self.content = None
     
@@ -173,7 +176,7 @@ class MessageButtonPanel(mforms.Table):
         self.set_row_spacing(12)
         self.set_row_count(3)
         self.set_column_count(2)
-        
+        self._buttonBox = None
         if icon:
             image = mforms.newImageBox()
             image.set_image(mforms.App.get().get_resource_path(icon))
@@ -183,20 +186,20 @@ class MessageButtonPanel(mforms.Table):
         self._label = mforms.newLabel(title)
         self._label.set_style(mforms.BigBoldStyle)
         self._label.set_text_align(mforms.MiddleCenter)
-        self.add(self._label, 1, 2, 0, 1, mforms.HFillFlag)
+        self.add(self._label, 1, 2, 0, 1, mforms.VFillFlag|mforms.HFillFlag)
         
-        self.add(mforms.newLabel(text), 1, 2, 1, 2, mforms.HFillFlag)
+        self.add(mforms.newLabel(text), 1, 2, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
 
         if button1 or button2:
-            bbox = mforms.newBox(True)
-            bbox.set_spacing(12)
+            self._buttonBox = mforms.newBox(True)
+            self._buttonBox.set_spacing(12)
 
         if button1:
             button_caption, button_action = button1
             self._button = mforms.newButton()
             self._button.set_text(button_caption)
             self._button.add_clicked_callback(button_action)
-            bbox.add_end(self._button, False, True)
+            self._buttonBox.add_end(self._button, False, True)
         else:
             self._button = None
 
@@ -205,9 +208,9 @@ class MessageButtonPanel(mforms.Table):
             self._alt_button = mforms.newButton()
             self._alt_button.set_text(button_caption)
             self._alt_button.add_clicked_callback(button_action)
-            bbox.add_end(self._alt_button, False, True)
+            self._buttonBox.add_end(self._alt_button, False, True)
         else:
             self._alt_button = None
 
         if button1 or button2:
-            self.add(bbox, 1, 2, 2, 3, 0)
+            self.add(self._buttonBox, 1, 2, 2, 3, mforms.VFillFlag|mforms.HFillFlag)

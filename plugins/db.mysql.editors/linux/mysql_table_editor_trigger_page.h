@@ -11,19 +11,18 @@ class DbMySQLTableEditor;
 //==============================================================================
 //
 //==============================================================================
-class DbMySQLTableEditorTriggerPage
-{
-  public:
-    DbMySQLTableEditorTriggerPage(DbMySQLTableEditor *owner, MySQLTableEditorBE* be, Glib::RefPtr<Gtk::Builder> xml);
-    ~DbMySQLTableEditorTriggerPage();
+class DbMySQLTableEditorTriggerPage {
+public:
+  DbMySQLTableEditorTriggerPage(DbMySQLTableEditor* owner, MySQLTableEditorBE* be, Glib::RefPtr<Gtk::Builder> xml);
+  ~DbMySQLTableEditorTriggerPage();
 
-    void refresh();
+  void refresh();
 
-    void switch_be(MySQLTableEditorBE* be);  
-  private:
-    DbMySQLTableEditor                       *_owner;
-    MySQLTableEditorBE                       *_be;
-    Glib::RefPtr<Gtk::Builder>                _xml;
+  void switch_be(MySQLTableEditorBE* be);
+
+private:
+  MySQLTableEditorBE* _be;
+  Glib::RefPtr<Gtk::Builder> _xml;
 };
 
 #endif

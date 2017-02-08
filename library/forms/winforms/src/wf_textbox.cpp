@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -34,45 +34,39 @@ DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 
 //----------------- TextBoxEx ----------------------------------------------------------------------
 
-bool TextBoxEx::ProcessCmdKey(Message %msg, Keys keyData)
-{
+bool TextBoxEx::ProcessCmdKey(Message % msg, Keys keyData) {
   // In order to be able to determine certain special keys we have to hook into the chain before any
   // other key handling is performed.
   // XXX: is this really necessary? We can check for the return key in the methods below.
-  if (msg.Msg == WM_KEYDOWN)
-  {
-    switch (msg.WParam.ToInt32())
-    {
-    case Keys::Return:
-      {
+  if (msg.Msg == WM_KEYDOWN) {
+    switch (msg.WParam.ToInt32()) {
+      case Keys::Return: {
         bool result;
         mforms::TextBox *backend = TextBoxWrapper::GetBackend<mforms::TextBox>(this);
         if (((msg.LParam.ToInt32() >> 16) & KF_EXTENDED) == KF_EXTENDED)
-          result = backend->key_event(mforms::KeyReturn, GetModifiers(keyData), "");
+          result = backend->key_event(mforms::KeyReturn, ViewWrapper::GetModifiers(keyData), "");
         else
-          result = backend->key_event(mforms::KeyEnter, GetModifiers(keyData), "");
+          result = backend->key_event(mforms::KeyEnter, ViewWrapper::GetModifiers(keyData), "");
 
         if (result)
-          return __super::ProcessCmdKey(msg, keyData);
+          return __super ::ProcessCmdKey(msg, keyData);
         else
           return false;
 
         break;
       }
 
-    default:
-      return __super::ProcessCmdKey(msg, keyData);
+      default:
+        return __super ::ProcessCmdKey(msg, keyData);
     }
-  }
-  else
-    return __super::ProcessCmdKey(msg, keyData);
+  } else
+    return __super ::ProcessCmdKey(msg, keyData);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxEx::OnTextChanged(EventArgs ^args)
-{
-  __super::OnTextChanged(args);
+void TextBoxEx::OnTextChanged(EventArgs ^ args) {
+  __super ::OnTextChanged(args);
   mforms::TextBox *textbox = TextBoxWrapper::GetBackend<mforms::TextBox>(this);
   if (textbox != NULL)
     textbox->callback();
@@ -80,61 +74,56 @@ void TextBoxEx::OnTextChanged(EventArgs ^args)
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxEx::OnKeyDown(KeyEventArgs ^args)
-{
-  __super::OnKeyDown(args);
+void TextBoxEx::OnKeyDown(KeyEventArgs ^ args) {
+  __super ::OnKeyDown(args);
 
-  modifiers = GetModifiers(args->KeyData);
+  modifiers = ViewWrapper::GetModifiers(args->KeyData);
 
   // Don't call the backend for the return key. We have already done that.
-  if (args->KeyCode != Keys::Return)
-  {
+  if (args->KeyCode != Keys::Return) {
     mforms::KeyCode code = mforms::KeyNone;
-    switch (args->KeyCode & Keys::KeyCode)
-    {
-    case Keys::Home:
-      code = mforms::KeyHome;
-      break;
+    switch (args->KeyCode & Keys::KeyCode) {
+      case Keys::Home:
+        code = mforms::KeyHome;
+        break;
 
-    case Keys::End:
-      code = mforms::KeyEnd;
-      break;
+      case Keys::End:
+        code = mforms::KeyEnd;
+        break;
 
-    case Keys::Prior:
-      code = mforms::KeyPrevious;
-      break;
+      case Keys::Prior:
+        code = mforms::KeyPrevious;
+        break;
 
-    case Keys::Next:
-      code = mforms::KeyNext;
-      break;
+      case Keys::Next:
+        code = mforms::KeyNext;
+        break;
 
-    case Keys::ShiftKey:
-    case Keys::ControlKey:
-    case Keys::Menu: // Alt key
-    case Keys::LWin: // Command on Mac.
-      code = mforms::KeyModifierOnly;
-      break;
+      case Keys::ShiftKey:
+      case Keys::ControlKey:
+      case Keys::Menu: // Alt key
+      case Keys::LWin: // Command on Mac.
+        code = mforms::KeyModifierOnly;
+        break;
     }
 
-    if (code != mforms::KeyNone)
-    {
+    if (code != mforms::KeyNone) {
       mforms::TextBox *backend = ViewWrapper::GetBackend<mforms::TextBox>(this);
       if (!backend->key_event(code, modifiers, ""))
-        args->Handled = true; // If the backend consumed the key (by returning false) we mark that to stop further processing.
+        args->Handled =
+          true; // If the backend consumed the key (by returning false) we mark that to stop further processing.
     }
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxEx::OnKeyPress(KeyPressEventArgs^ args)
-{
-  __super::OnKeyPress(args);
+void TextBoxEx::OnKeyPress(KeyPressEventArgs ^ args) {
+  __super ::OnKeyPress(args);
 
   // Don't call the back end for the return key. We have already done that.
-  if (args->KeyChar != '\r')
-  {
-    String ^string = gcnew String(args->KeyChar, 1);
+  if (args->KeyChar != '\r') {
+    String ^ string = gcnew String(args->KeyChar, 1);
 
     mforms::TextBox *backend = ViewWrapper::GetBackend<mforms::TextBox>(this);
     if (!backend->key_event(mforms::KeyChar, modifiers, NativeToCppString(string)))
@@ -142,84 +131,56 @@ void TextBoxEx::OnKeyPress(KeyPressEventArgs^ args)
   }
 }
 
-//--------------------------------------------------------------------------------------------------
-
-mforms::ModifierKey TextBoxEx::GetModifiers(Keys keyData)
-{
-  mforms::ModifierKey modifiers = mforms::ModifierNoModifier;
-  if ((keyData & Keys::Control) == Keys::Control)
-    modifiers = modifiers | mforms::ModifierControl;
-  if ((keyData & Keys::Alt) == Keys::Alt)
-    modifiers = modifiers | mforms::ModifierAlt;
-  if ((keyData & Keys::Shift) == Keys::Shift)
-    modifiers = modifiers | mforms::ModifierShift;
-  if ((keyData & Keys::LWin) == Keys::LWin)
-    modifiers = modifiers | mforms::ModifierCommand;
-
-  return modifiers;
-}
-
 //----------------- TextBoxWrapper --------------------------------------------------------------------
 
-TextBoxWrapper::TextBoxWrapper(mforms::TextBox *text)
-  : ViewWrapper(text)
-{
+TextBoxWrapper::TextBoxWrapper(mforms::TextBox *text) : ViewWrapper(text) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool TextBoxWrapper::create(mforms::TextBox *backend, mforms::ScrollBars scroll_bars)
-{
+bool TextBoxWrapper::create(mforms::TextBox *backend, mforms::ScrollBars scroll_bars) {
   TextBoxWrapper *wrapper = new TextBoxWrapper(backend);
 
-  TextBoxEx ^textbox = TextBoxWrapper::Create<TextBoxEx>(backend, wrapper);
+  TextBoxEx ^ textbox = TextBoxWrapper::Create<TextBoxEx>(backend, wrapper);
   textbox->Multiline = true;
   textbox->AcceptsReturn = true;
   ScrollBars native_scrollbars = ScrollBars::None;
-  if ((scroll_bars & mforms::HorizontalScrollBar) != 0)
-  {
+  if ((scroll_bars & mforms::HorizontalScrollBar) != 0) {
     if ((scroll_bars & mforms::VerticalScrollBar) != 0)
       native_scrollbars = ScrollBars::Both;
     else
       native_scrollbars = ScrollBars::Horizontal;
-  }
-  else
-    if ((scroll_bars & mforms::VerticalScrollBar) != 0)
-      native_scrollbars = ScrollBars::Vertical;
-  textbox->ScrollBars= native_scrollbars;
-  textbox->Size = Size(100, textbox->PreferredSize.Height); // DefaultSize is not accessible here. 
-  
+  } else if ((scroll_bars & mforms::VerticalScrollBar) != 0)
+    native_scrollbars = ScrollBars::Vertical;
+  textbox->ScrollBars = native_scrollbars;
+  textbox->Size = Size(100, textbox->PreferredSize.Height); // DefaultSize is not accessible here.
+
   return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::set_bordered(mforms::TextBox *backend, bool bordered)
-{
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+void TextBoxWrapper::set_bordered(mforms::TextBox *backend, bool bordered) {
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
   textbox->BorderStyle = bordered ? BorderStyle::FixedSingle : BorderStyle::None;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::set_text(mforms::TextBox *backend, const std::string &text)
-{
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+void TextBoxWrapper::set_text(mforms::TextBox *backend, const std::string &text) {
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
   textbox->Text = CppStringToNative(text);
   textbox->Select(0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::append_text(mforms::TextBox *backend, const std::string &text, bool scroll_to_end)
-{
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+void TextBoxWrapper::append_text(mforms::TextBox *backend, const std::string &text, bool scroll_to_end) {
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
 
-  if (!textbox->IsDisposed)
-  {
+  if (!textbox->IsDisposed) {
     textbox->AppendText(CppStringToNative(text));
-    if (scroll_to_end && textbox->Text->Length > 0)
-    {
+    if (scroll_to_end && textbox->Text->Length > 0) {
       textbox->Select(textbox->Text->Length - 1, 0);
       textbox->ScrollToCaret();
     }
@@ -228,51 +189,43 @@ void TextBoxWrapper::append_text(mforms::TextBox *backend, const std::string &te
 
 //--------------------------------------------------------------------------------------------------
 
-std::string TextBoxWrapper::get_text(mforms::TextBox *backend)
-{
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+std::string TextBoxWrapper::get_text(mforms::TextBox *backend) {
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
   return NativeToCppString(textbox->Text);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::set_read_only(mforms::TextBox *backend, bool flag)
-{
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+void TextBoxWrapper::set_read_only(mforms::TextBox *backend, bool flag) {
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
   textbox->ReadOnly = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::set_padding(mforms::TextBox *backend, int pad)
-{
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+void TextBoxWrapper::set_padding(mforms::TextBox *backend, int pad) {
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
   textbox->Padding = Padding(pad); // Doesn't have any effect.
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::clear(mforms::TextBox *backend)
-{
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+void TextBoxWrapper::clear(mforms::TextBox *backend) {
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
   textbox->Clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::set_monospaced(mforms::TextBox *backend, bool flag)
-{
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+void TextBoxWrapper::set_monospaced(mforms::TextBox *backend, bool flag) {
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
 
   if (flag)
-    try
-    {
+    try {
       textbox->Font = gcnew System::Drawing::Font(DEFAULT_MONOSPACE_FONT_FAMILY, textbox->Font->Size);
-    }
-    catch (System::ArgumentException^ e)
-    {
+    } catch (System::ArgumentException ^ e) {
       // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
-      log_error("TextBoxWrapper::set_monospaced failed. %s\n", e->Message);
+      logError("TextBoxWrapper::set_monospaced failed. %s\n", e->Message);
     }
   else
     textbox->ResetFont();
@@ -280,18 +233,16 @@ void TextBoxWrapper::set_monospaced(mforms::TextBox *backend, bool flag)
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::get_selected_range(mforms::TextBox *backend, int &start, int &end)
-{
+void TextBoxWrapper::get_selected_range(mforms::TextBox *backend, int &start, int &end) {
   // TODO: convert signature to return a std::pair<int, int> instead.
-  TextBoxEx ^textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
+  TextBoxEx ^ textbox = TextBoxWrapper::GetManagedObject<TextBoxEx>(backend);
   start = textbox->SelectionStart;
   end = start + textbox->SelectionLength;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TextBoxWrapper::init()
-{
+void TextBoxWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_textbox_impl.create = &TextBoxWrapper::create;

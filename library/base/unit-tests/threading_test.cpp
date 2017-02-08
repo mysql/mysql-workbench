@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,8 +30,7 @@ TEST_MODULE(threading_test, "Base library threading support tests");
 
 static base::refcount_t counter;
 
-gpointer thread_function1(gpointer data)
-{
+gpointer thread_function1(gpointer data) {
   base::Semaphore *semaphore = static_cast<base::Semaphore *>(data);
   semaphore->wait();
 
@@ -64,16 +63,14 @@ gpointer thread_function1(gpointer data)
  *	Semaphore test with cooperative semaphore (init count = 0).
  *	Intentional synchronization of two threads.
  */
-TEST_FUNCTION(10)
-{
+TEST_FUNCTION(10) {
   base::Semaphore semaphore(0);
   counter = 0;
 
   GError *error = NULL;
   GThread *thread = create_thread(thread_function1, &semaphore, &error);
-  if (thread == NULL)
-  {
-    const gchar * tmp = (error != NULL) ? error->message : "out of mem?";
+  if (thread == NULL) {
+    const gchar *tmp = (error != NULL) ? error->message : "out of mem?";
     fail(std::string("Thread creation failed: ") + tmp);
   }
 
@@ -84,10 +81,10 @@ TEST_FUNCTION(10)
   // Awake the thread and go to sleep.
   semaphore.post();
   g_usleep(50 * BASE_TIME); // Wait here. The thread starts working but needs longer than this time.
-  semaphore.wait(); // The thread awakes us here.
+  semaphore.wait();         // The thread awakes us here.
 
   ensure_equals("Test counter value", counter, 10);
-  semaphore.post(); // Give the semaphore back so the thread can continue.
+  semaphore.post();          // Give the semaphore back so the thread can continue.
   g_usleep(100 * BASE_TIME); // Wait a moment so that the thread actually gets CPU time.
 
   // Try to allocated the semaphore (which must fail as the thread has it again).
@@ -104,8 +101,7 @@ TEST_FUNCTION(10)
   semaphore.post();
 }
 
-gpointer thread_function2(gpointer data)
-{
+gpointer thread_function2(gpointer data) {
   base::Semaphore *semaphore = static_cast<base::Semaphore *>(data);
   semaphore->wait();
   g_atomic_int_inc(&counter);
@@ -118,25 +114,21 @@ gpointer thread_function2(gpointer data)
  *	Concurrent semaphore test.
  *	7 independent threads try to access 5 "counters".
  */
-TEST_FUNCTION(20)
-{
+TEST_FUNCTION(20) {
   base::Semaphore semaphore(5);
   counter = 0;
 
   GThread *threads[7];
-  for (int i = 0; i < 7; ++i)
-  {
+  for (int i = 0; i < 7; ++i) {
     GError *error = NULL;
     threads[i] = create_thread(thread_function2, &semaphore, &error);
-    if (threads[i] == NULL)
-    {
-      const gchar* tmp = (error != NULL) ? error->message : "out of mem?";
+    if (threads[i] == NULL) {
+      const gchar *tmp = (error != NULL) ? error->message : "out of mem?";
       fail(std::string("Thread creation failed: ") + tmp);
     }
   }
 
-  try
-  {
+  try {
     g_usleep(10 * BASE_TIME);
 
     // At this point only 5 threads can have done their job. 2 are still waiting.
@@ -157,9 +149,7 @@ TEST_FUNCTION(20)
 
     for (int i = 0; i < 7; ++i)
       g_thread_join(threads[i]);
-  }
-  catch (...)
-  {
+  } catch (...) {
     // Always wait for the threads to finish or they access invalid memory which results
     // in a serious error that would require user interaction on Win.
     for (int i = 0; i < 7; ++i)
@@ -169,8 +159,6 @@ TEST_FUNCTION(20)
   }
 }
 
-
 END_TESTS;
 
 //----------------------------------------------------------------------------------------------------------------------
-

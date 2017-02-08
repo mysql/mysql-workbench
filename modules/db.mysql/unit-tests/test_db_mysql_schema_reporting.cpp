@@ -1,23 +1,24 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#include "ctemplate/template.h"
+/*
+
 #include <fstream>
 #include <string>
 
@@ -41,15 +42,15 @@ RegisterTemplateFilename(TEST_01_FN, "data/modules_grt/schema_reporting/schema_r
 
 using namespace std;
 
-using ctemplate::Template;
-using ctemplate::TemplateDictionary;
-using ctemplate::STRIP_WHITESPACE;
 
 BEGIN_TEST_DATA_CLASS(module_db_mysql_schema_reporting)
 public:
-  GRTManagerTest grtm;
   WbModelImpl* module;
-  WBTester wbt;
+  WBTester *wbt;
+  TEST_DATA_CONSTRUCTOR(module_db_mysql_schema_reporting)
+  {
+    wbt = new WBTester();
+  }
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_db_mysql_schema_reporting, "DB MySQL: schema reporting");
@@ -91,12 +92,13 @@ TEST_FUNCTION(2)
 {
 //  WBTester wbt;
 
-  wbt.wb->open_document(TEST_02_FI);
+  wbt->wb->open_document(TEST_02_FI);
 
   ensure_equals("loaded phys model count",
-                wbt.wb->get_document()->physicalModels().count(), 1U);
+                wbt->wb->get_document()->physicalModels().count(), 1U);
 
-  db_mysql_CatalogRef catalog= db_mysql_CatalogRef::cast_from(wbt.wb->get_document()->physicalModels().get(0)->catalog());
+  db_mysql_CatalogRef catalog=
+db_mysql_CatalogRef::cast_from(wbt->wb->get_document()->physicalModels().get(0)->catalog());
 
 
   Template* tpl= Template::GetTemplate(TEST_01_FN, STRIP_WHITESPACE);
@@ -135,19 +137,19 @@ TEST_FUNCTION(10)
 
 //  WBTester wbt;
 
-  wbt.wb->open_document(TEST_02_FI);
+  wbt->wb->open_document(TEST_02_FI);
 
   ensure_equals("loaded phys model count",
-                wbt.wb->get_document()->physicalModels().count(), 1U);
+                wbt->wb->get_document()->physicalModels().count(), 1U);
 
-  workbench_physical_ModelRef physicalModel= wbt.wb->get_document()->physicalModels().get(0);
+  workbench_physical_ModelRef physicalModel= wbt->wb->get_document()->physicalModels().get(0);
 
 
-  module= wbt.grt->get_native_module<WbModelImpl>();
+  module= grt::GRT::get()->get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
-  grt::DictRef options(wbt.grt);
-  options.gset("basedir", wbt.wboptions.basedir);//wbt.wb->get_wb_options().get_string("basedir"));
+  grt::DictRef options(true);
+  options.gset("basedir", wbt->wboptions->basedir);//wbt->wb->get_wb_options().get_string("basedir"));
   options.gset("title", "Test Report");
   options.gset("filename", "TestReport");
   options.gset("fk_show_parent_and_child_table", 1);
@@ -165,16 +167,24 @@ TEST_FUNCTION(11)
 
 //  WBTester wbt;
 
-  wbt.wb->open_document(TEST_02_FI);
+  wbt->wb->open_document(TEST_02_FI);
 
-  module= wbt.grt->get_native_module<WbModelImpl>();
+  module= grt::GRT::get()->get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
-  grt::StringListRef templates(wbt.grt);
+  grt::StringListRef templates(grt::Initialized);
   ssize_t res= module->getAvailableReportingTemplates(templates);
   ensure("getAvailableSchemaReportTemplates call failed.", res == 1);
 
   ensure("no templates returned.", templates.count() > 0);
 }
 
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(99)
+{
+  delete wbt;
+}
+
 END_TESTS
+*/

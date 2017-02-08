@@ -857,7 +857,28 @@
        yield
     </keywords>
 
-    <keywords name="Secondary keywords and identifiers">
+    <keywords name="Secondary keywords and identifiers"> <!-- SCE_C_WORD2 -->
+        add affectedRows all arrayAppend arrayDelete arrayInsert AS ASC
+        bind buffer
+        change close commit collections columnMetadata create createCollection createIndex createSchema
+        defaultSchema delete DESC drop dropIndex dropSchema
+        execute executeSql executionTime existInDatabase
+        field fields find flush
+        getAffectedRows getCollection getCollections getCollectionAsTable getCollectionNames getColumnMetadata getDefaultSchema
+        getError getErrorCode getExecutionTime getHasData getInfo getLastInsertId getName getNodeSession getSchema getSchemas
+        getSession getTable getTableNames getTables getUri getView getViewNames getViews getWarnings groupBy
+        having hasData
+        IndexUnique info insert
+        lastInsertId limit
+        merge modify
+        name next nextDataSet nextResultSet
+        orderBy offset
+        remove rewind rollback
+        schema schemas select session set setDefaultSchema setFetchWarnings skip sort sql startTransaction
+        tables
+        unset update uri
+        values views
+        warnings where
     </keywords>
 
     <keywords name="Documentation comment keywords">

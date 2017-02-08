@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -35,11 +35,9 @@ using namespace base;
 /**
  * Determines if the given connection is an SSH connection and returns true if so.
  */
-static bool is_ssh_connection(const db_mgmt_ConnectionRef &connection)
-{
-  if (connection.is_valid())
-  {
-    std::string driver= connection->driver().is_valid() ? connection->driver()->name() : "";
+static bool is_ssh_connection(const db_mgmt_ConnectionRef &connection) {
+  if (connection.is_valid()) {
+    std::string driver = connection->driver().is_valid() ? connection->driver()->name() : "";
     return (driver == "MysqlNativeSSH");
   }
   return false;
@@ -50,11 +48,9 @@ static bool is_ssh_connection(const db_mgmt_ConnectionRef &connection)
 /**
  * Determines if the given connection is a local connection (i.e. to the current box).
  */
-static bool is_local_connection(const db_mgmt_ConnectionRef &connection)
-{
-  if (connection.is_valid())
-  {
-    std::string hostname= connection->parameterValues().get_string("hostName");
+static bool is_local_connection(const db_mgmt_ConnectionRef &connection) {
+  if (connection.is_valid()) {
+    std::string hostname = connection->parameterValues().get_string("hostName");
 
     if (!is_ssh_connection(connection) && (hostname == "localhost" || hostname.empty() || hostname == "127.0.0.1"))
       return true;
@@ -65,24 +61,22 @@ static bool is_local_connection(const db_mgmt_ConnectionRef &connection)
 //----------------- NewConnectionWizard ------------------------------------------------------------
 
 NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_ManagementRef &mgmt)
-  : mforms::Form(0), _context(context), _mgmt(mgmt), _panel(false), _top_vbox(false), _bottom_hbox(true)
-{
+  : mforms::Form(0), _context(context), _mgmt(mgmt), _panel(false), _top_vbox(false), _bottom_hbox(true) {
   set_title(_("Manage DB Connections"));
   set_name("new_connection_wizard");
-  
+
   _top_vbox.set_padding(MF_WINDOW_PADDING);
   _top_vbox.set_spacing(12);
   _top_vbox.add(&_panel, true, true);
   _top_vbox.add(&_bottom_hbox, false, true);
-  
-  _bottom_hbox.set_spacing(12);
-  
-  _panel.init(_mgmt);
-  _panel.set_driver_changed_cb(boost::bind(&NewConnectionWizard::driver_changed_cb, this, _1));
-    
-  _conn_name= _panel.get_name_entry();
 
-  scoped_connect(_config_button.signal_clicked(), boost::bind(&NewConnectionWizard::open_remote_mgm_config, this));
+  _bottom_hbox.set_spacing(12);
+
+  _panel.init(_mgmt);
+
+  _conn_name = _panel.get_name_entry();
+
+  scoped_connect(_config_button.signal_clicked(), std::bind(&NewConnectionWizard::open_remote_mgm_config, this));
   _config_button.set_text(_("Configure Server Management..."));
   _config_button.enable_internal_padding(true);
 
@@ -90,52 +84,40 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
   _bottom_hbox.add_end(&_ok_button, false, true);
   _bottom_hbox.add_end(&_cancel_button, false, true);
   _bottom_hbox.add_end(&_test_button, false, true);
-  
+
   _ok_button.set_text(_("OK"));
   _cancel_button.set_text(_("Cancel"));
   _test_button.set_text(_("Test Connection"));
-  scoped_connect(_test_button.signal_clicked(), boost::bind(&grtui::DbConnectPanel::test_connection, &_panel));
-  
+  scoped_connect(_test_button.signal_clicked(), std::bind(&grtui::DbConnectPanel::test_connection, &_panel));
+
   _ok_button.enable_internal_padding(true);
-  _cancel_button.enable_internal_padding(true);  
+  _cancel_button.enable_internal_padding(true);
   _test_button.enable_internal_padding(true);
-  
+
   set_content(&_top_vbox);
-  
+
   set_size(800, 500);
   center();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NewConnectionWizard::~NewConnectionWizard()
-{
+NewConnectionWizard::~NewConnectionWizard() {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void NewConnectionWizard::driver_changed_cb(const db_mgmt_DriverRef &driver)
-{
-  _config_button.show(driver->name() != "MySQLFabric");
-}
-
-
-//--------------------------------------------------------------------------------------------------
-
-void NewConnectionWizard::open_remote_mgm_config()
-{
+void NewConnectionWizard::open_remote_mgm_config() {
   NewServerInstanceWizard wizard(_context, _panel.get_connection());
   wizard.run_modal();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-db_mgmt_ConnectionRef NewConnectionWizard::run()
-{ 
-  _connection = db_mgmt_ConnectionRef(_mgmt.get_grt());
+db_mgmt_ConnectionRef NewConnectionWizard::run() {
+  _connection = db_mgmt_ConnectionRef(grt::Initialized);
   _connection->driver(_mgmt->rdbms()[0]->defaultDriver());
-  if (find_named_object_in_list(_connection->driver()->parameters(), "useSSL").is_valid())
-  {
+  if (find_named_object_in_list(_connection->driver()->parameters(), "useSSL").is_valid()) {
     // prefer SSL if possible by default
     _connection->parameterValues().set("useSSL", grt::IntegerRef(1));
   }
@@ -143,47 +125,43 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
   _panel.get_be()->set_connection_and_update(_connection);
   _panel.get_be()->save_changes();
   // Return the newly created connection object.
-  while (run_modal(&_ok_button, &_cancel_button))
-  {
+  while (run_modal(&_ok_button, &_cancel_button)) {
     // Check for duplicate names.
-    bool name_ok= true;
-    std::string name= _conn_name->get_string_value();
-    if (base::trim(name).empty())
-    {
-      std::string text= _("Please enter a proper name for your new connection.");
+    bool name_ok = true;
+    std::string name = _conn_name->get_string_value();
+    if (base::trim(name).empty()) {
+      std::string text = _("Please enter a proper name for your new connection.");
       Utilities::show_error(_("Improper name"), text, _("OK"));
-      name_ok= false;
+      name_ok = false;
     }
-    
-    if (name_ok)
-    {
-      GRTLIST_FOREACH(db_mgmt_Connection, _mgmt->storedConns(), conn)
-      {
-        if ((*conn)->name() == name)
-        {
-          std::string text= strfmt(_("A connection with the name %s exists already. Please choose another one."), name.c_str());
+
+    if (name_ok) {
+      GRTLIST_FOREACH(db_mgmt_Connection, _mgmt->storedConns(), conn) {
+        if ((*conn)->name() == name) {
+          std::string text =
+            strfmt(_("A connection with the name %s exists already. Please choose another one."), name.c_str());
           Utilities::show_error(_("Duplicate name"), text, _("OK"));
-          name_ok= false;
+          name_ok = false;
           break;
         }
       }
     }
 
-    if (name_ok)
-    {
+    if (name_ok) {
       _connection->name(_conn_name->get_string_value().c_str());
       _mgmt->storedConns().insert(_connection);
 
       // Auto create an unconfigured server instance for this connection.
       // The module creates the instance, adds it to the stored instances and stores them on disk.
-      if (_connection->driver()->name() != "MySQLFabric")
       {
-        grt::BaseListRef args(_mgmt.get_grt());
+        grt::BaseListRef args(true);
         args.ginsert(_connection);
         if (is_local_connection(_connection))
-          db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
+          db_mgmt_ServerInstanceRef::cast_from(
+            grt::GRT::get()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
         else
-          db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+          db_mgmt_ServerInstanceRef::cast_from(
+            grt::GRT::get()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
       }
 
       return _connection;
@@ -193,4 +171,3 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
 }
 
 //--------------------------------------------------------------------------------------------------
-

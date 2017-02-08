@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
   self= [super initWithFrame:NSMakeRect(10,10,10,10)];
   if (self)
   {
-    [self setImageFrameStyle: NSImageFrameNone];
+    self.imageFrameStyle = NSImageFrameNone;
     mOwner= aImage;
     mOwner->set_data(self);
     mScale= NO;
@@ -47,10 +47,14 @@
 
 - (NSSize)minimumSize
 {
+  NSSize minSize = super.minimumSize;
   if (!mScale)
-    return [[self image] size];
-  else
-    return [super minimumSize];
+    return { MAX(minSize.width, self.image.size.width), MAX(minSize.height, self.image.size.height) };
+  return minSize;
+}
+
+- (NSSize)preferredSize: (NSSize)proposal {
+  return [self minimumSize];
 }
 
 static bool imagebox_create(mforms::ImageBox *image)
@@ -64,14 +68,11 @@ static void imagebox_set_image(mforms::ImageBox *self, const std::string &file)
   if (self)
   {
     MFImageBoxImpl *impl= self->get_data();
-    NSSize oldSize= [impl frame].size;
-    
-    std::string full_path= mforms::App::get()->get_resource_path(file);
-    NSImage *image= [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
-    [impl setImage: image];
 
-    if (!NSEqualSizes([image size], oldSize))
-      [[impl superview] subviewMinimumSizeChanged];
+    std::string full_path = mforms::App::get()->get_resource_path(file);
+    NSImage *image = [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
+    impl.image = image;
+    impl.frameSize = image.size;
   }
 }
 
@@ -81,16 +82,16 @@ static void imagebox_set_image_data(mforms::ImageBox *self, const char *data, si
   if (self)
   {
     MFImageBoxImpl *impl= self->get_data();
-    NSSize oldSize= [impl frame].size;
+    NSSize oldSize= impl.frame.size;
     
     NSImage *image= [[NSImage alloc] initWithData: [NSData dataWithBytes: (void*)data length: length]];
-    if (![image isValid])
+    if (!image.valid)
       throw std::invalid_argument("Invalid image data");
 
-    [impl setImage: image];
+    impl.image = image;
     
-    if (!NSEqualSizes([image size], oldSize))
-      [[impl superview] subviewMinimumSizeChanged];
+    if (!NSEqualSizes(image.size, oldSize))
+      [impl.superview relayout];
   }
 }
 
@@ -102,31 +103,31 @@ static void imagebox_set_alignment(mforms::ImageBox *self, mforms::Alignment ali
     switch (alignment)
     {
       case mforms::BottomLeft:
-        [impl setImageAlignment: NSImageAlignBottomLeft];
+        impl.imageAlignment = NSImageAlignBottomLeft;
         break;
       case mforms::MiddleLeft:
-        [impl setImageAlignment: NSImageAlignLeft];
+        impl.imageAlignment = NSImageAlignLeft;
         break;
       case mforms::TopLeft:
-        [impl setImageAlignment: NSImageAlignTopLeft];
+        impl.imageAlignment = NSImageAlignTopLeft;
         break;
       case mforms::BottomCenter:
-        [impl setImageAlignment: NSImageAlignBottom];
+        impl.imageAlignment = NSImageAlignBottom;
         break;
       case mforms::TopCenter:
-        [impl setImageAlignment: NSImageAlignTop];
+        impl.imageAlignment = NSImageAlignTop;
         break;
       case mforms::MiddleCenter:
-        [impl setImageAlignment: NSImageAlignCenter];
+        impl.imageAlignment = NSImageAlignCenter;
         break;
       case mforms::BottomRight:
-        [impl setImageAlignment: NSImageAlignBottomRight];
+        impl.imageAlignment = NSImageAlignBottomRight;
         break;
       case mforms::MiddleRight:
-        [impl setImageAlignment: NSImageAlignRight];
+        impl.imageAlignment = NSImageAlignRight;
         break;
       case mforms::TopRight:
-        [impl setImageAlignment: NSImageAlignTopRight];
+        impl.imageAlignment = NSImageAlignTopRight;
         break;
 
       case mforms::NoAlign:

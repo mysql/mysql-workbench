@@ -18,7 +18,7 @@
 from wb_admin_utils import not_running_warning_label, make_panel_header, weakcb
 
 
-from mforms import newBox, newTreeNodeView, newButton, newTabView, newTextEntry
+from mforms import newBox, newTreeView, newButton, newTabView, newTextEntry
 import mforms
 
 import wb_admin_variable_list
@@ -42,7 +42,7 @@ class VariablesViewer(mforms.Box):
         box = newBox(True)
         box.set_spacing(12)
         self.add(box, True, True)
-        self.tree = newTreeNodeView(mforms.TreeFlatList)
+        self.tree = newTreeView(mforms.TreeFlatList)
         self.tree.set_selection_mode(mforms.TreeSelectMultiple)
 
         sidebox = newBox(False)
@@ -65,7 +65,7 @@ class VariablesViewer(mforms.Box):
         self.cat_menu.add_item_with_title("Delete Category", self.delete_category, "delete")
         self.tree.set_context_menu(self.cat_menu)
 
-        self.values = newTreeNodeView(mforms.TreeFlatList)
+        self.values = newTreeView(mforms.TreeFlatList)
         self.values.set_selection_mode(mforms.TreeSelectMultiple)
         box.add(self.values, True, True)
 
@@ -467,7 +467,7 @@ class VariablesGroupSelector(mforms.Form):
         l = mforms.newLabel("Select or create new category for custom variable categories.")
         content.add(l, False, False)
         
-        self.groups = newTreeNodeView(mforms.TreeFlatList)
+        self.groups = newTreeView(mforms.TreeFlatList)
         self.groups.set_selection_mode(mforms.TreeSelectMultiple)
         self.groups.add_column(mforms.StringColumnType, "Category name", 100, False)
         self.groups.end_columns()
@@ -516,7 +516,7 @@ class VariablesGroupSelector(mforms.Form):
         mforms.Utilities.add_end_ok_cancel_buttons(okcancel_box, self.ok, self.cancel)
         content.add_end(bbox, False, True)
 
-        self.set_size(550, -1)
+        self.set_size(550, 350)
         self.center()
         self.load_groups()
 

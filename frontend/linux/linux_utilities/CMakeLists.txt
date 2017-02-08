@@ -18,12 +18,13 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms/gtk/src
     ${PROJECT_SOURCE_DIR}/generated/grti
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser
-    ${GTK2_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/library/parsers
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(linux_utilities
@@ -39,9 +40,16 @@ add_library(linux_utilities
     notebook_dockingpoint.cpp
     widgets_auto_cleaner.cpp
     widget_saver.cpp
+    main_app.cpp
 )
 
-target_link_libraries(linux_utilities ${GTK2_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
+target_compile_options(linux_utilities PUBLIC ${WB_CXXFLAGS})
+
+target_link_libraries(linux_utilities ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(linux_utilities gcov)
+endif()
 
 set_target_properties(linux_utilities
                       PROPERTIES VERSION   ${WB_VERSION}

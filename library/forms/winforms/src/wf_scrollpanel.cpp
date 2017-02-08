@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -33,30 +33,28 @@ using namespace System::Windows::Forms::Layout;
 using namespace MySQL;
 using namespace MySQL::Forms;
 
-ref class ScrollFillLayout : public LayoutEngine
-{
+ref class ScrollFillLayout : public LayoutEngine {
 public:
-  virtual bool Layout(Object ^sender, LayoutEventArgs ^args) override;
+  virtual bool Layout(Object ^ sender, LayoutEventArgs ^ args) override;
 };
 
-ref class WheelMessageFilter : Windows::Forms::IMessageFilter
-{
+ref class WheelMessageFilter : System::Windows::Forms::IMessageFilter {
 private:
-  ScrollFillPanel ^panel;
+  ScrollFillPanel ^ panel;
 
 public:
-  WheelMessageFilter(ScrollFillPanel ^panel);
+  WheelMessageFilter(ScrollFillPanel ^ panel);
 
-  virtual bool PreFilterMessage(Message %m);
+  virtual bool PreFilterMessage(Message % m);
 };
 
 //----------------- ScrollFillPanel ----------------------------------------------------------------
 
-public ref class MySQL::Forms::ScrollFillPanel : public Control
-{
+public
+ref class MySQL::Forms::ScrollFillPanel : public Control {
 private:
-  Windows::Forms::IMessageFilter ^wheelMessageFilter;
-  ScrollFillLayout ^layoutEngine;
+  System::Windows::Forms::IMessageFilter ^ wheelMessageFilter;
+  ScrollFillLayout ^ layoutEngine;
   bool autoHideScrollbars;
   bool hideHorizontalScrollbar;
   bool hideVerticalScrollbar;
@@ -65,8 +63,7 @@ private:
   int updateCount;
 
 public:
-  ScrollFillPanel()
-  {
+  ScrollFillPanel() {
     autoHideScrollbars = true;
     hideHorizontalScrollbar = false;
     hideVerticalScrollbar = false;
@@ -82,62 +79,57 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  ScrollFillPanel::~ScrollFillPanel()
-  {
+  ScrollFillPanel::~ScrollFillPanel() {
     Application::RemoveMessageFilter(wheelMessageFilter);
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleHorizontalScrolling(Message %m)
-  {
+  void HandleHorizontalScrolling(Message % m) {
     switch (m.WParam.ToInt32() & 0xFFFF) // Low word only.
     {
-    case SB_RIGHT:
-      {
+      case SB_RIGHT: {
         System::Drawing::Size maxSize(0, 0);
-        if (Controls->Count > 0)
-        {
-          Control^ content = Controls[0];
+        if (Controls->Count > 0) {
+          Control ^ content = Controls[0];
           maxSize = content->Size;
         }
         SetOffset(-maxSize.Width, verticalOffset);
         break;
       }
 
-    case SB_ENDSCROLL:
-      break;
+      case SB_ENDSCROLL:
+        break;
 
-    case SB_LINELEFT:
-      SetOffset(horizontalOffset + 8, verticalOffset);
-      break;
+      case SB_LINELEFT:
+        SetOffset(horizontalOffset + 8, verticalOffset);
+        break;
 
-    case SB_LINERIGHT:
-      SetOffset(horizontalOffset - 8, verticalOffset);
-      break;
+      case SB_LINERIGHT:
+        SetOffset(horizontalOffset - 8, verticalOffset);
+        break;
 
-    case SB_PAGELEFT:
-      SetOffset(horizontalOffset + ClientSize.Width, verticalOffset);
-      break;
+      case SB_PAGELEFT:
+        SetOffset(horizontalOffset + ClientSize.Width, verticalOffset);
+        break;
 
-    case SB_PAGERIGHT:
-      SetOffset(horizontalOffset - ClientSize.Height, verticalOffset);
-      break;
+      case SB_PAGERIGHT:
+        SetOffset(horizontalOffset - ClientSize.Height, verticalOffset);
+        break;
 
-    case SB_THUMBPOSITION:
-    case SB_THUMBTRACK:
-      {
+      case SB_THUMBPOSITION:
+      case SB_THUMBTRACK: {
         SCROLLINFO si = {0};
         si.cbSize = sizeof(si);
         si.fMask = SIF_TRACKPOS;
-        GetScrollInfo((HWND) Handle.ToPointer(), SB_HORZ, &si);
+        GetScrollInfo((HWND)Handle.ToPointer(), SB_HORZ, &si);
         SetOffset(-si.nTrackPos, verticalOffset);
         break;
       }
 
-    case SB_TOP:
-      SetOffset(0, verticalOffset);
-      break;
+      case SB_TOP:
+        SetOffset(0, verticalOffset);
+        break;
     }
 
     m.Result = IntPtr::Zero;
@@ -145,55 +137,51 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleVerticalScrolling(Message %m)
-  {
+  void HandleVerticalScrolling(Message % m) {
     switch (m.WParam.ToInt32() & 0xFFFF) // Low word only.
     {
-    case SB_BOTTOM:
-      {
+      case SB_BOTTOM: {
         System::Drawing::Size maxSize(0, 0);
-        if (Controls->Count > 0)
-        {
-          Control ^content = Controls[0];
+        if (Controls->Count > 0) {
+          Control ^ content = Controls[0];
           maxSize = content->Size;
         }
         SetOffset(horizontalOffset, -maxSize.Height);
         break;
       }
 
-    case SB_ENDSCROLL:
-      break;
+      case SB_ENDSCROLL:
+        break;
 
-    case SB_LINEUP:
-      SetOffset(horizontalOffset, verticalOffset + 8);
-      break;
+      case SB_LINEUP:
+        SetOffset(horizontalOffset, verticalOffset + 8);
+        break;
 
-    case SB_LINEDOWN:
-      SetOffset(horizontalOffset, verticalOffset - 8);
-      break;
+      case SB_LINEDOWN:
+        SetOffset(horizontalOffset, verticalOffset - 8);
+        break;
 
-    case SB_PAGEUP:
-      SetOffset(horizontalOffset, verticalOffset + ClientSize.Height);
-      break;
+      case SB_PAGEUP:
+        SetOffset(horizontalOffset, verticalOffset + ClientSize.Height);
+        break;
 
-    case SB_PAGEDOWN:
-      SetOffset(horizontalOffset, verticalOffset - ClientSize.Height);
-      break;
+      case SB_PAGEDOWN:
+        SetOffset(horizontalOffset, verticalOffset - ClientSize.Height);
+        break;
 
-    case SB_THUMBPOSITION:
-    case SB_THUMBTRACK:
-      {
+      case SB_THUMBPOSITION:
+      case SB_THUMBTRACK: {
         SCROLLINFO si = {0};
         si.cbSize = sizeof(si);
         si.fMask = SIF_TRACKPOS;
-        GetScrollInfo((HWND) Handle.ToPointer(), SB_VERT, &si);
+        GetScrollInfo((HWND)Handle.ToPointer(), SB_VERT, &si);
         SetOffset(horizontalOffset, -si.nTrackPos);
         break;
       }
 
-    case SB_TOP:
-      SetOffset(horizontalOffset, 0);
-      break;
+      case SB_TOP:
+        SetOffset(horizontalOffset, 0);
+        break;
     }
 
     m.Result = IntPtr::Zero;
@@ -201,12 +189,10 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void HandleWheelScrolling(Message %m)
-  {
+  void HandleWheelScrolling(Message % m) {
     System::Drawing::Size maxSize(0, 0);
-    if (Controls->Count > 0)
-    {
-      Control^ content = Controls[0];
+    if (Controls->Count > 0) {
+      Control ^ content = Controls[0];
       maxSize = content->Size;
     }
 
@@ -215,20 +201,16 @@ public:
 
     DWORD scrollLines;
     SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0);
-    if (maxSize.Height > ClientSize.Height)
-    {
+    if (maxSize.Height > ClientSize.Height) {
       if (scrollLines == WHEEL_PAGESCROLL)
         scrollAmount = (int)(wheelFactor * ClientSize.Height);
       else
         scrollAmount = (int)(wheelFactor * scrollLines * 16); // TODO: find a better way to define a line.
       SetOffset(horizontalOffset, verticalOffset + scrollAmount);
+    } else if (maxSize.Width > ClientSize.Width) {
+      scrollAmount = (int)(wheelFactor * scrollLines);
+      SetOffset(horizontalOffset + scrollAmount, verticalOffset);
     }
-    else
-      if (maxSize.Width > ClientSize.Width)
-      {
-        scrollAmount = (int) (wheelFactor * scrollLines);
-        SetOffset(horizontalOffset + scrollAmount, verticalOffset);
-      }
 
     m.Result = IntPtr::Zero;
   }
@@ -238,12 +220,10 @@ public:
   /**
    * Scrolls the control's content to the given position.
    */
-  void ScrollFillPanel::SetOffset(int x, int y)
-  {
+  void ScrollFillPanel::SetOffset(int x, int y) {
     System::Drawing::Size maxSize(0, 0);
-    if (Controls->Count > 0)
-    {
-      Control ^content = Controls[0];
+    if (Controls->Count > 0) {
+      Control ^ content = Controls[0];
       maxSize = content->Size;
     }
 
@@ -257,7 +237,7 @@ public:
       y = ClientSize.Height - maxSize.Height;
     if (y > 0)
       y = 0;
-    int deltaY= y - verticalOffset;
+    int deltaY = y - verticalOffset;
 
     horizontalOffset = x;
     verticalOffset = y;
@@ -265,8 +245,7 @@ public:
     if (deltaX != 0 || deltaY != 0)
       ScrollWindow((HWND)Handle.ToPointer(), deltaX, deltaY, NULL, NULL);
 
-    if (updateCount == 0)
-    {
+    if (updateCount == 0) {
       UpdateHorizontalScrollbar(-1);
       UpdateVerticalScrollbar(-1);
     }
@@ -274,43 +253,38 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override
-  {
+  virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override {
     return proposedSize;
   }
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void WndProc(Message %m) override
-  {
-    switch (m.Msg)
-    {
-    case WM_HSCROLL:
-      HandleHorizontalScrolling(m);
-      return;
-    case WM_VSCROLL:
-      HandleVerticalScrolling(m);
-      return;
-    case WM_MOUSEWHEEL:
-      HandleWheelScrolling(m);
-      return;
-    case WM_SIZE:
-      if (updateCount == 0)
-      {
-        updateCount++;
-        UpdateVerticalScrollbar(-1);
-        UpdateHorizontalScrollbar(-1);
-        updateCount--;
-      }
-      break;
+  virtual void WndProc(Message % m) override {
+    switch (m.Msg) {
+      case WM_HSCROLL:
+        HandleHorizontalScrolling(m);
+        return;
+      case WM_VSCROLL:
+        HandleVerticalScrolling(m);
+        return;
+      case WM_MOUSEWHEEL:
+        HandleWheelScrolling(m);
+        return;
+      case WM_SIZE:
+        if (updateCount == 0) {
+          updateCount++;
+          UpdateVerticalScrollbar(-1);
+          UpdateHorizontalScrollbar(-1);
+          updateCount--;
+        }
+        break;
     }
     Control::WndProc(m);
   }
 
   //------------------------------------------------------------------------------------------------
 
-  void UpdateHorizontalScrollbar(int newWidth)
-  {
+  void UpdateHorizontalScrollbar(int newWidth) {
     SCROLLINFO si = {0};
     si.cbSize = sizeof(si);
     si.fMask = SIF_ALL;
@@ -324,18 +298,15 @@ public:
     bool needScrollbar = contentSize.Width > ClientSize.Width;
     if (!needScrollbar)
       contentSize.Width = ClientSize.Width;
-    if (!hideHorizontalScrollbar)
-    {
-      if (needScrollbar)
-      {
+    if (!hideHorizontalScrollbar) {
+      if (needScrollbar) {
         si.nMax = contentSize.Width;
         si.nPage = ClientSize.Width + 1;
         si.nPos = -horizontalOffset;
-      }
-      else
+      } else
         // No scrollbar needed. Hide it if auto hiding is enabled, otherwise disable it.
         if (!autoHideScrollbars)
-          si.fMask |= SIF_DISABLENOSCROLL;
+        si.fMask |= SIF_DISABLENOSCROLL;
     }
     SetScrollInfo((HWND)Handle.ToPointer(), SB_HORZ, &si, true);
 
@@ -346,8 +317,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void UpdateVerticalScrollbar(int newHeight)
-  {
+  void UpdateVerticalScrollbar(int newHeight) {
     SCROLLINFO si = {0};
     si.cbSize = sizeof(si);
     si.fMask = SIF_ALL;
@@ -359,25 +329,21 @@ public:
     if (newHeight < 0 && Controls->Count > 0)
       contentSize = Controls[0]->Size;
 
-    bool needScrollbar = contentSize.Height > ClientSize.Height; 
-    if (!needScrollbar)
-    {
+    bool needScrollbar = contentSize.Height > ClientSize.Height;
+    if (!needScrollbar) {
       contentSize.Height = ClientSize.Height;
       newVerticalOffset = 0;
     }
 
-    if (!hideVerticalScrollbar)
-    {
-      if (needScrollbar)
-      {
+    if (!hideVerticalScrollbar) {
+      if (needScrollbar) {
         si.nMax = contentSize.Height;
         si.nPage = ClientSize.Height + 1;
         si.nPos = -verticalOffset;
-      }
-      else
+      } else
         // No scrollbar needed. Hide it if auto hiding is enabled, otherwise disable it.
         if (!autoHideScrollbars)
-          si.fMask |= SIF_DISABLENOSCROLL;
+        si.fMask |= SIF_DISABLENOSCROLL;
     }
     SetScrollInfo((HWND)Handle.ToPointer(), SB_VERT, &si, true);
 
@@ -393,14 +359,12 @@ public:
    * Note: For this to work we don't consider the (only) child of this box (as it is always in full size)
    *       but its children, which is the real content of the box (nested, due to the way mforms works).
    */
-  void ScrollControlIntoView(Control^ control)
-  {
-    Control ^parent = (Controls->Count > 0) ? Controls[0] : nullptr;
-    if (parent != nullptr && parent->Contains(control))
-    {
+  void ScrollControlIntoView(Control ^ control) {
+    Control ^ parent = (Controls->Count > 0) ? Controls[0] : nullptr;
+    if (parent != nullptr && parent->Contains(control)) {
       Drawing::Point position = parent->PointToClient(control->PointToScreen(control->Location));
       int left = position.X + horizontalOffset; // Relative position to the view port.
-      int top = position.Y + verticalOffset; // Ditto.
+      int top = position.Y + verticalOffset;    // Ditto.
 
       int newHorizontalOffset = horizontalOffset;
       int newVerticalOffset = verticalOffset;
@@ -423,29 +387,27 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
-  {
-    Windows::Forms::Layout::LayoutEngine^ get() override
-    {
-      if (layoutEngine == nullptr)
-        layoutEngine = gcnew ScrollFillLayout();
+  virtual property System::Windows::Forms::Layout::LayoutEngine ^
+    LayoutEngine {
+      System::Windows::Forms::Layout::LayoutEngine ^ get() override {
+        if (layoutEngine == nullptr)
+          layoutEngine = gcnew ScrollFillLayout();
 
-      return layoutEngine;
+        return layoutEngine;
+      }
     }
-  }
 
-  //------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------
 
-  /**
-   * Used to either hide scrollbars completely if they are not needed or show them as disabled.
-   */
-  property bool AutoHideScrollbars
-  {
-    bool get() { return autoHideScrollbars; }
-    void set(bool value)
-    {
-      if (autoHideScrollbars != value)
-      {
+    /**
+     * Used to either hide scrollbars completely if they are not needed or show them as disabled.
+     */
+    property bool AutoHideScrollbars {
+    bool get() {
+      return autoHideScrollbars;
+    }
+    void set(bool value) {
+      if (autoHideScrollbars != value) {
         autoHideScrollbars = value;
         PerformLayout(this, "Padding");
       }
@@ -454,13 +416,12 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  property bool HideHorizontalScrollbar
-  {
-    bool get() { return hideHorizontalScrollbar; }
-    void set(bool value)
-    {
-      if (hideHorizontalScrollbar != value)
-      {
+  property bool HideHorizontalScrollbar {
+    bool get() {
+      return hideHorizontalScrollbar;
+    }
+    void set(bool value) {
+      if (hideHorizontalScrollbar != value) {
         hideHorizontalScrollbar = value;
         PerformLayout(this, "Padding");
       }
@@ -469,13 +430,12 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  property bool HideVerticalScrollbar
-  {
-    bool get() { return hideVerticalScrollbar; }
-    void set(bool value)
-    {
-      if (hideVerticalScrollbar != value)
-      {
+  property bool HideVerticalScrollbar {
+    bool get() {
+      return hideVerticalScrollbar;
+    }
+    void set(bool value) {
+      if (hideVerticalScrollbar != value) {
         hideVerticalScrollbar = value;
         PerformLayout(this, "Padding");
       }
@@ -484,41 +444,38 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  property int HorizontalOffset
-  {
-    int get() { return horizontalOffset; };
+  property int HorizontalOffset {
+    int get() {
+      return horizontalOffset;
+    };
   }
 
   //------------------------------------------------------------------------------------------------
 
-  property int VerticalOffset
-  {
-    int get() { return verticalOffset; };
+  property int VerticalOffset {
+    int get() {
+      return verticalOffset;
+    };
   }
 
   //------------------------------------------------------------------------------------------------
-
 };
 
 //----------------- WheelMessageFilter -------------------------------------------------------------
 
-WheelMessageFilter::WheelMessageFilter(ScrollFillPanel ^panel)
-{
+WheelMessageFilter::WheelMessageFilter(ScrollFillPanel ^ panel) {
   this->panel = panel;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool WheelMessageFilter::PreFilterMessage(Message% m)
-{
-  if (panel != nullptr && panel->Visible && m.Msg == WM_MOUSEWHEEL)
-  {
+bool WheelMessageFilter::PreFilterMessage(Message % m) {
+  if (panel != nullptr && panel->Visible && m.Msg == WM_MOUSEWHEEL) {
     // Only handle messages if the mouse without our bounds.
     POINT cursorPoint;
     GetCursorPos(&cursorPoint);
     Drawing::Point point = panel->PointToClient(Drawing::Point(cursorPoint.x, cursorPoint.y));
-    if (panel->ClientRectangle.Contains(point))
-    {
+    if (panel->ClientRectangle.Contains(point)) {
       panel->WndProc(m);
       return true;
     }
@@ -529,23 +486,21 @@ bool WheelMessageFilter::PreFilterMessage(Message% m)
 
 //----------------- ScrollFillLayout ---------------------------------------------------------------
 
-bool ScrollFillLayout::Layout(Object ^sender, LayoutEventArgs ^args)
-{
+bool ScrollFillLayout::Layout(Object ^ sender, LayoutEventArgs ^ args) {
   // This layout is actually very simple. Simply resize the first (and only) child control so that
   // it fills the entire client area of the container.
   // However, and that is different to just dock it with DockStyle::Fill, don't make it smaller
   // than it wants to be, i.e. as determined through its minimum size and layout size.
 
-  ScrollFillPanel ^container = (ScrollFillPanel ^)sender;
-  if (container->Controls->Count > 0)
-  {
+  ScrollFillPanel ^ container = (ScrollFillPanel ^)sender;
+  if (container->Controls->Count > 0) {
     ViewWrapper::adjust_auto_resize_from_docking(container);
     Drawing::Size boxSize = container->Size;
 
-    Control ^content = container->Controls[0];
+    Control ^ content = container->Controls[0];
     Drawing::Size childSize;
 
-    childSize= content->GetPreferredSize(container->ClientSize);
+    childSize = content->GetPreferredSize(container->ClientSize);
     if (ViewWrapper::use_min_width_for_layout(content))
       childSize.Width = content->MinimumSize.Width;
     if (ViewWrapper::use_min_height_for_layout(content))
@@ -570,27 +525,22 @@ bool ScrollFillLayout::Layout(Object ^sender, LayoutEventArgs ^args)
 
 //----------------- ScrollPanelWrapper ----------------------------------------------------------------
 
-ScrollPanelWrapper::ScrollPanelWrapper(mforms::ScrollPanel *backend)
-  : ViewWrapper(backend)
-{
+ScrollPanelWrapper::ScrollPanelWrapper(mforms::ScrollPanel *backend) : ViewWrapper(backend) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ScrollPanelWrapper::create(mforms::ScrollPanel *backend, mforms::ScrollPanelFlags flags)
-{
+bool ScrollPanelWrapper::create(mforms::ScrollPanel *backend, mforms::ScrollPanelFlags flags) {
   ScrollPanelWrapper *wrapper = new ScrollPanelWrapper(backend);
-  if ((flags & mforms::ScrollPanelBordered) != 0)
-  {
+  if ((flags & mforms::ScrollPanelBordered) != 0) {
     // Have to fake a bordered scrollbox by embedding a panel in a groupbox.
-    GroupBox ^box = ScrollPanelWrapper::Create<GroupBox>(backend, wrapper);
+    GroupBox ^ box = ScrollPanelWrapper::Create<GroupBox>(backend, wrapper);
     box->AutoSize = false;
     box->Padding = Padding(5);
     wrapper->container = gcnew ScrollFillPanel();
     box->Controls->Add(wrapper->container);
     wrapper->container->Dock = DockStyle::Fill;
-  }
-  else
+  } else
     wrapper->container = ScrollPanelWrapper::Create<ScrollFillPanel>(backend, wrapper);
   wrapper->container->AutoSize = false;
   wrapper->container->Margin = Padding(0);
@@ -601,10 +551,9 @@ bool ScrollPanelWrapper::create(mforms::ScrollPanel *backend, mforms::ScrollPane
 
 //--------------------------------------------------------------------------------------------------
 
-void ScrollPanelWrapper::add(mforms::ScrollPanel *backend, mforms::View *view)
-{
+void ScrollPanelWrapper::add(mforms::ScrollPanel *backend, mforms::View *view) {
   ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
-  Control ^child = ScrollPanelWrapper::GetControl(view);
+  Control ^ child = ScrollPanelWrapper::GetControl(view);
   wrapper->container->Controls->Add(child);
   child->Location = Drawing::Point(0, 0);
   backend->set_layout_dirty(true);
@@ -612,17 +561,15 @@ void ScrollPanelWrapper::add(mforms::ScrollPanel *backend, mforms::View *view)
 
 //--------------------------------------------------------------------------------------------------
 
-void ScrollPanelWrapper::scroll_to_view(mforms::ScrollPanel *backend, mforms::View *view)
-{
+void ScrollPanelWrapper::scroll_to_view(mforms::ScrollPanel *backend, mforms::View *view) {
   ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
-  Control ^child = ScrollPanelWrapper::GetControl(view);
+  Control ^ child = ScrollPanelWrapper::GetControl(view);
   wrapper->container->ScrollControlIntoView(child);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScrollPanelWrapper::remove(mforms::ScrollPanel *backend)
-{
+void ScrollPanelWrapper::remove(mforms::ScrollPanel *backend) {
   ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
   wrapper->container->Controls->Clear();
   backend->set_layout_dirty(true);
@@ -630,16 +577,14 @@ void ScrollPanelWrapper::remove(mforms::ScrollPanel *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-void ScrollPanelWrapper::set_autohide_scrollers(mforms::ScrollPanel *backend, bool flag)
-{
+void ScrollPanelWrapper::set_autohide_scrollers(mforms::ScrollPanel *backend, bool flag) {
   ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
-  wrapper->container->AutoHideScrollbars= flag;
+  wrapper->container->AutoHideScrollbars = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ScrollPanelWrapper::set_visible_scrollers(mforms::ScrollPanel *backend, bool vertical, bool horizontal)
-{
+void ScrollPanelWrapper::set_visible_scrollers(mforms::ScrollPanel *backend, bool vertical, bool horizontal) {
   ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
   wrapper->container->HideHorizontalScrollbar = !horizontal;
   wrapper->container->HideVerticalScrollbar = !vertical;
@@ -648,8 +593,7 @@ void ScrollPanelWrapper::set_visible_scrollers(mforms::ScrollPanel *backend, boo
 
 //--------------------------------------------------------------------------------------------------
 
-base::Rect ScrollPanelWrapper::get_content_rect(mforms::ScrollPanel *backend)
-{
+base::Rect ScrollPanelWrapper::get_content_rect(mforms::ScrollPanel *backend) {
   ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
   Drawing::Rectangle rect = wrapper->container->ClientRectangle;
 
@@ -658,8 +602,7 @@ base::Rect ScrollPanelWrapper::get_content_rect(mforms::ScrollPanel *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-void ScrollPanelWrapper::scroll_to(mforms::ScrollPanel *backend, int x, int y)
-{
+void ScrollPanelWrapper::scroll_to(mforms::ScrollPanel *backend, int x, int y) {
   ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
 
   // The backend works with positive offsets while we need negative ones (which is correct
@@ -669,8 +612,7 @@ void ScrollPanelWrapper::scroll_to(mforms::ScrollPanel *backend, int x, int y)
 
 //--------------------------------------------------------------------------------------------------
 
-void ScrollPanelWrapper::init()
-{
+void ScrollPanelWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_spanel_impl.create = &ScrollPanelWrapper::create;

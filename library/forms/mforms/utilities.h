@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,73 +22,74 @@
 /**
  * Implementation some miscellaneous stuff needed in mforms.
  */
-
-#include <mforms/base.h>
-#include <boost/function.hpp>
-
-#include "cairo/cairo.h"
-
-#ifdef __GNUC__
-#define WARN_UNUSED_RETURN_VALUE __attribute__((warn_unused_result))
-#else
-#define WARN_UNUSED_RETURN_VALUE
-#endif
+#include <cairo/cairo.h>
+#include <functional>
+#include "base/geometry.h"
+#include "mforms/base.h"
 
 namespace mforms {
   // Constants for special folders on a system.
   enum MFORMS_EXPORT FolderType {
-    Documents,          //!<< The path to the user's documents folder.
-    Desktop,            //!<< The physical path to the user's desktop.
-    ApplicationData,    //!<< Path to folder to store application specifc data for a user.
+    Documents,       //!<< The path to the user's documents folder.
+    Desktop,         //!<< The physical path to the user's desktop.
+    ApplicationData, //!<< Path to folder to store application specifc data for a user.
 
     // Platform specific folders.
     WinProgramFiles,    //!<< Windows only, 64 bit applications.
     WinProgramFilesX86, //!<< Windows only, 32 bit applications.
 
-    ApplicationSettings //!<< Full path to App specific folder inside ApplicationData where config files and others are kept
+    ApplicationSettings //!<< Full path to App specific folder inside ApplicationData where config files and others are
+                        //!kept
   };
 
-  enum MFORMS_EXPORT PasswordStoreScheme
-  {
-    SessionStorePasswordScheme = 1,
-    PersistentStorePasswordScheme = 2
+  enum MFORMS_EXPORT PasswordStoreScheme { SessionStorePasswordScheme = 1, PersistentStorePasswordScheme = 2 };
+
+  /**
+  * Code which abstracts special keys for each platform, to be used in the key event.
+  */
+  enum MFORMS_EXPORT KeyCode {
+    KeyNone,
+    KeyChar,         //!< No special char. The key event has the entered character(s) in the text field.
+    KeyModifierOnly, //!< A combination of Shift/Control/Command/Alt only, without another key.
+    KeyEnter,        //!< The numpad <enter> key.
+    KeyReturn,       //!< The main keyboard <return> key.
+    KeyHome,
+    KeyEnd,
+    KeyPrevious,
+    KeyNext,
+    KeyUp,
+    KeyDown,
+    KeyUnkown, //!< Any other key, not yet mapped.
   };
 
   /**
    * Flags which describe which modifier key was pressed during a event.
    */
-  enum ModifierKey {
-    ModifierNoModifier =      0,
-    ModifierControl    = 1 << 0,
-    ModifierShift      = 1 << 1,
-    ModifierCommand    = 1 << 2, // Command on Mac, Windows key on Windows.
-    ModifierAlt        = 1 << 3,
+  enum MFORMS_EXPORT ModifierKey {
+    ModifierNoModifier = 0,
+    ModifierControl = 1 << 0,
+    ModifierShift = 1 << 1,
+    ModifierCommand = 1 << 2, // Command on Mac, Windows key on Windows.
+    ModifierAlt = 1 << 3,
   };
 
 #ifndef SWIG
-  inline ModifierKey operator| (ModifierKey a, ModifierKey b)
-  {
-    return (ModifierKey) ((int) a | (int) b);
+  inline ModifierKey operator|(ModifierKey a, ModifierKey b) {
+    return (ModifierKey)((int)a | (int)b);
   }
 #endif
 
-  enum DialogResult {
-    ResultOk     =  1,
-    ResultCancel =  0,
-    ResultOther  = -1,
-    ResultUnknown = -2
-  };
+  enum DialogResult { ResultOk = 1, ResultCancel = 0, ResultOther = -1, ResultUnknown = -2 };
 
   // Describes the type of message, confirmation etc. we want to show to the user.
-  enum DialogType
-  {
+  enum DialogType {
     DialogMessage,
     DialogError,
     DialogWarning,
     DialogQuery,
     DialogSuccess, // Like DialogMessage but with a special icon to signal a successful operation.
   };
-  
+
   class Box;
   class Button;
 
@@ -96,46 +97,43 @@ namespace mforms {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct MFORMS_EXPORT UtilitiesImplPtrs
-  {
-    void (*beep) ();
-    int (*show_message)(const std::string &title, const std::string &text,
-                        const std::string &ok, const std::string &cancel,
-                        const std::string &other);
-    int (*show_error)(const std::string &title, const std::string &text,
-                      const std::string &ok, const std::string &cancel,
-                      const std::string &other);
-    int (*show_warning)(const std::string &title, const std::string &text,
-                        const std::string &ok, const std::string &cancel,
-                        const std::string &other);
-    int (*show_message_with_checkbox)(const std::string &title, const std::string &text,
-                                      const std::string &ok, const std::string &cancel,
-                                      const std::string &other,
-                                      const std::string &checkbox_text, // empty text = default "Don't show this message again" text
-                                      bool &remember_checked);
+  struct MFORMS_EXPORT UtilitiesImplPtrs {
+    void (*beep)();
+    int (*show_message)(const std::string &title, const std::string &text, const std::string &ok,
+                        const std::string &cancel, const std::string &other);
+    int (*show_error)(const std::string &title, const std::string &text, const std::string &ok,
+                      const std::string &cancel, const std::string &other);
+    int (*show_warning)(const std::string &title, const std::string &text, const std::string &ok,
+                        const std::string &cancel, const std::string &other);
+    int (*show_message_with_checkbox)(
+      const std::string &title, const std::string &text, const std::string &ok, const std::string &cancel,
+      const std::string &other,
+      const std::string &checkbox_text, // empty text = default "Don't show this message again" text
+      bool &remember_checked);
 
     void (*show_wait_message)(const std::string &title, const std::string &text);
     bool (*hide_wait_message)();
     bool (*run_cancelable_wait_message)(const std::string &title, const std::string &text,
-                                                  const boost::function<void ()> &start_task, const boost::function<bool ()> &cancel_task);
+                                        const std::function<void()> &start_task,
+                                        const std::function<bool()> &cancel_task);
     void (*stop_cancelable_wait_message)();
-    
+
     void (*set_clipboard_text)(const std::string &text);
     std::string (*get_clipboard_text)();
     std::string (*get_special_folder)(mforms::FolderType type);
-    
+
     void (*open_url)(const std::string &url);
     void (*reveal_file)(const std::string &url);
     bool (*move_to_trash)(const std::string &path);
-    
-    TimeoutHandle (*add_timeout)(float delay, const boost::function<bool ()> &callback);
+
+    TimeoutHandle (*add_timeout)(float delay, const std::function<bool()> &callback);
     void (*cancel_timeout)(TimeoutHandle handle);
 
     void (*store_password)(const std::string &service, const std::string &account, const std::string &password);
     bool (*find_password)(const std::string &service, const std::string &account, std::string &password);
     void (*forget_password)(const std::string &service, const std::string &account);
 
-    void* (*perform_from_main_thread)(const boost::function<void* ()> &slot, bool wait_completion);
+    void *(*perform_from_main_thread)(const std::function<void *()> &slot, bool wait_completion);
     void (*set_thread_name)(const std::string &name);
 
     double (*get_text_width)(const std::string &text, const std::string &font);
@@ -143,16 +141,18 @@ namespace mforms {
 #endif
 #endif
 
-    /** Various Utility functions */
-  class MFORMS_EXPORT Utilities
-  {
+  /** Various Utility functions */
+  class MFORMS_EXPORT Utilities {
 #ifdef SWIG
-%ignore show_message(const std::string &title, const std::string &text, const std::string &ok, const std::string &cancel);
-%ignore show_message(const std::string &title, const std::string &text, const std::string &ok);
-%ignore show_warning(const std::string &title, const std::string &text, const std::string &ok, const std::string &cancel);
-%ignore show_warning(const std::string &title, const std::string &text, const std::string &ok);
-%ignore show_error(const std::string &title, const std::string &text, const std::string &ok, const std::string &cancel);
-%ignore show_error(const std::string &title, const std::string &text, const std::string &ok);
+    %ignore show_message(const std::string &title, const std::string &text, const std::string &ok,
+                          const std::string &cancel);
+    %ignore show_message(const std::string &title, const std::string &text, const std::string &ok);
+    %ignore show_warning(const std::string &title, const std::string &text, const std::string &ok,
+                          const std::string &cancel);
+    %ignore show_warning(const std::string &title, const std::string &text, const std::string &ok);
+    %ignore show_error(const std::string &title, const std::string &text, const std::string &ok,
+                        const std::string &cancel);
+    %ignore show_error(const std::string &title, const std::string &text, const std::string &ok);
 #endif
   public:
     /** Plays the system's default error sound. */
@@ -160,37 +160,32 @@ namespace mforms {
 
     /** Show a message dialog. Return value is from the DialogResult enum.
      * In Python, all arguments are mandatory. */
-    static int show_message(const std::string &title, const std::string &text,
-                            const std::string &ok, const std::string &cancel = "",
-                            const std::string &other = "");
+    static int show_message(const std::string &title, const std::string &text, const std::string &ok,
+                            const std::string &cancel = "", const std::string &other = "");
 
     /** Show an error dialog. Return value is from the DialogResult enum.
      * In Python, all arguments are mandatory. */
-    static int show_error(const std::string &title, const std::string &text,
-                            const std::string &ok, const std::string &cancel="",
-                            const std::string &other="");
+    static int show_error(const std::string &title, const std::string &text, const std::string &ok,
+                          const std::string &cancel = "", const std::string &other = "");
 
     /** Show a warning dialog. Return value is from the DialogResult enum.
      * In Python, all arguments are mandatory. */
-    static int show_warning(const std::string &title, const std::string &text,
-                            const std::string &ok, const std::string &cancel="",
-                            const std::string &other="");
+    static int show_warning(const std::string &title, const std::string &text, const std::string &ok,
+                            const std::string &cancel = "", const std::string &other = "");
 
     /** Show a message dialog and save the answer, if the checkbox is enabled.
      * In Python, all arguments are mandatory. */
-    static int show_message_and_remember(const std::string &title, const std::string &text,
-                                         const std::string &ok, const std::string &cancel,
-                                         const std::string &other,
+    static int show_message_and_remember(const std::string &title, const std::string &text, const std::string &ok,
+                                         const std::string &cancel, const std::string &other,
                                          const std::string &answer_id, const std::string &checkbox_text);
     static void forget_message_answers();
     static void set_message_answers_storage_path(const std::string &path);
 
     static void show_wait_message(const std::string &title, const std::string &text);
     static bool hide_wait_message();
-    
+
     static bool run_cancelable_task(const std::string &title, const std::string &text,
-                                    const boost::function<void* ()> &task,
-                                    const boost::function<bool ()> &cancel_task,
+                                    const std::function<void *()> &task, const std::function<bool()> &cancel_task,
                                     void *&task_result);
 
     /** Asks the user to enter a string, which is returned to the caller.
@@ -202,7 +197,7 @@ namespace mforms {
      * @return true if user presses ok or false if its canceled.
      */
     static bool request_input(const std::string &title, const std::string &description,
-      const std::string &default_value, std::string &ret_value);
+                              const std::string &default_value, std::string &ret_value);
 
     /** Prompts the user for a password and whether it should be stored.
      * @param title - the title of the password dialog
@@ -210,19 +205,20 @@ namespace mforms {
      * @param username - the username the password corresponds to, if empty the user will be able to enter it
      * @param ret_password - the password the user typed
      * @param ret_store - true if the user clicks in "Store Password" checkbox
-     * 
+     *
      * @return true if user presses ok or false if its canceled.
      * In Python, ret_password and ret_store are returned as a tuple.
      */
     static bool ask_for_password_check_store(const std::string &title, const std::string &service,
-      std::string &username /*in/out*/, std::string &ret_password /*out*/, bool &ret_store /*out*/);
+                                             std::string &username /*in/out*/, std::string &ret_password /*out*/,
+                                             bool &ret_store /*out*/);
 
     /** Prompts the user for a password.
      * @param title - the title of the password dialog
      * @param service - the service the password refers to (ie sudo@hostname, Mysql@hostname etc)
      * @param username - the username the password corresponds to
      * @param ret_password - the password the user typed
-     * 
+     *
      * @return true if user presses ok or false if its canceled.
      * If you need the username to be editable by the user, use credentials_for_service()
      * In Python, ret_password is returned by the function.
@@ -240,9 +236,9 @@ namespace mforms {
      * @return true if user presses ok or false if its canceled.
      * In Python, ret_password and ret_store are returned as a tuple.
      */
-    static bool find_or_ask_for_password(const std::string &title, const std::string &service, const std::string &username,
-                                         bool reset_password, std::string &ret_password /*out*/)
-    {
+    static bool find_or_ask_for_password(const std::string &title, const std::string &service,
+                                         const std::string &username, bool reset_password,
+                                         std::string &ret_password /*out*/) {
       std::string tmp(username);
       return credentials_for_service(title, service, tmp, reset_password, ret_password);
     }
@@ -251,8 +247,9 @@ namespace mforms {
     /**
      * Function similar to ask_for_password, but it also allows to enter a user name if none is given on call.
      */
-    static bool credentials_for_service(const std::string &title, const std::string &service, std::string &username /*in/out*/,
-                                         bool reset_password, std::string &ret_password /*out*/);
+    static bool credentials_for_service(const std::string &title, const std::string &service,
+                                        std::string &username /*in/out*/, bool reset_password,
+                                        std::string &ret_password /*out*/);
 #endif
 
     /** Store the password for the given service and account.
@@ -263,11 +260,11 @@ namespace mforms {
      */
     static void store_password(const std::string &service, const std::string &account, const std::string &password);
 
-    /** Locates the password for the given service and account. 
+    /** Locates the password for the given service and account.
      * @return true if password was found else false.
      */
     static bool find_password(const std::string &service, const std::string &account, std::string &ret_password);
-    
+
     /** Locates the password for the given service and account in the in-memory cache only.
      * @return true if password was found else false.
      */
@@ -279,7 +276,7 @@ namespace mforms {
 
     /** Clears the stored password for the given service and account */
     static void forget_password(const std::string &service, const std::string &account);
-    
+
     /** Sets the given text to the system clipboard */
     static void set_clipboard_text(const std::string &text);
     /** Gets the text stored in the system clipboard */
@@ -290,7 +287,7 @@ namespace mforms {
 
     /** Opens the given URL in the default system browser. */
     static void open_url(const std::string &url);
-    
+
     /** Moves the given file or folder to the trash. The file might be permanently
      deleted instead of being moved to trash, under some circumstances. */
     static bool move_to_trash(const std::string &path);
@@ -299,17 +296,17 @@ namespace mforms {
     static void reveal_file(const std::string &path);
 
 #ifndef SWIG
-    /** Sets up a callback to be called after a given interval. 
-     
+    /** Sets up a callback to be called after a given interval.
+
      Interval is in seconds, with fractional values allowed.
      The callback must return true if it wants to be triggered again
      */
-    static TimeoutHandle add_timeout(float interval, const boost::function<bool ()> &callback) WARN_UNUSED_RETURN_VALUE;
+    static TimeoutHandle add_timeout(float interval, const std::function<bool()> &callback) WB_UNUSED_RETURN_VALUE;
 #endif
     static void cancel_timeout(TimeoutHandle handle);
 
-    /** Convenience function to add an OK and Cancel buttons in a box. 
-     
+    /** Convenience function to add an OK and Cancel buttons in a box.
+
      This function will reorder buttons according to the standard order in the platform
      (ie OK Cancel in Windows and Cancel OK elsewhere).
      */
@@ -318,14 +315,14 @@ namespace mforms {
 #ifndef SWIG
     // Don't wrap this from mforms, because the typeinfo isnt getting shared across
     // modules... uncomment this if that's solved
-    static cairo_surface_t* load_icon(const std::string& name, bool allow_hidpi=false);
+    static cairo_surface_t *load_icon(const std::string &name, bool allow_hidpi = false);
     static bool is_hidpi_icon(cairo_surface_t *s);
     static bool icon_needs_reload(cairo_surface_t *s);
 
     static void paint_icon(cairo_t *cr, cairo_surface_t *icon, double x, double y, float alpha = 1.0);
-    static void get_icon_size(cairo_surface_t *icon, int &w, int &h);
+    static base::Size getImageSize(cairo_surface_t *icon);
 
-    static std::string shorten_string(cairo_t* cr, const std::string& text, double width);
+    static std::string shorten_string(cairo_t *cr, const std::string &text, double width);
 
     static double get_text_width(const std::string &text, const std::string &font);
 #endif
@@ -339,27 +336,25 @@ namespace mforms {
     static bool in_modal_loop();
 #endif
 #endif
-    
-    static void *perform_from_main_thread(const boost::function<void* ()> &slot, bool wait_completion = true);
+
+    static void *perform_from_main_thread(const std::function<void *()> &slot, bool wait_completion = true);
 #endif // !SWIG
 
     static bool in_main_thread();
     static void set_thread_name(const std::string &name);
-
 
     // Should be called at the end of python thread, when there was some query involved.
     static void driver_shutdown();
 
 #ifndef SWIG
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    static void add_driver_shutdown_callback(const boost::function<void ()> &slot);
+    static void add_driver_shutdown_callback(const std::function<void()> &slot);
 #endif
 #endif
 
   private:
-    static boost::function<void()> _driver_shutdown_cb;
+    static std::function<void()> _driver_shutdown_cb;
 
     static void save_message_answers();
   };
-
 };

@@ -20,6 +20,9 @@ from __future__ import with_statement
 # import the mforms module for GUI stuff
 import mforms
 import grt
+from workbench.utils import get_exe_path
+from workbench.utils import Version
+
 
 import sys, os, platform, subprocess
 os_icon_suffix = ""
@@ -27,7 +30,7 @@ if sys.platform=="darwin":
     os_icon_suffix = "_mac"
 
 
-from mforms import newButton, newCheckBox, newTreeNodeView
+from mforms import newButton, newCheckBox, newTreeView
 from mforms import FileChooser
 from datetime import datetime
 
@@ -44,7 +47,6 @@ def showImporter(editor, schema):
     importer.run()
 
 def handleContextMenu(name, sender, args):
-    return #we hide it for now
     menu = mforms.fromgrt(args['menu'])
 
     selection = args['selection']
@@ -71,11 +73,11 @@ def cmd_executor(cmd):
     p1 = None
     if platform.system() != "Windows":
         try:
-            p1 = subprocess.Popen("exec " + cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
+            p1 = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
         except OSError, exc:
             log_error("Error executing command %s\n%s\n" % (cmd, exc));
             import traceback
-            traceback.print_ext()
+            traceback.print_exc()
     else:
         try:
             info = subprocess.STARTUPINFO()
@@ -85,9 +87,14 @@ def cmd_executor(cmd):
             # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
             # which probably isn't utf-8 in windows.
             
-            cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
-            log_debug("Executing command: %s\n" % cmd)
-            p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE,startupinfo=info,shell=True)
+            if isinstance(cmd, list):
+                for idx,item in enumerate(cmd):
+                    cmd[idx] = item.encode("utf8") if isinstance(item,unicode) else item 
+                log_debug("Executing command: %s\n" % "".join(cmd))
+            else:
+                cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
+                log_debug("Executing command: %s\n" % cmd)
+            p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=info, shell = True)
         except OSError, exc:
             log_error("Error executing command %s\n%s\n" % (cmd, exc))
             import traceback
@@ -110,12 +117,14 @@ class SpatialImporter:
         self.filepath = None
         self.skipfailures = False
         self.features_per_transcation = 200
+        self.destination_EPSG = None
         
         self.my_geo_column = "shape"
         self.abort_requested = False
         
         self.is_running = False
         self.returncode = None
+        self.user_cancel = False
 
 
     def execute_cmd(self, cmd, progress_notify):
@@ -150,9 +159,15 @@ class SpatialImporter:
         sout, serr = p1.communicate()
         self.returncode = p1.returncode
         if self.returncode !=0:
-            if serr != "":
+            if self.user_cancel:
+                log_info("Execute command failed with error: %s, the exit code was: %d.\n" % (serr, self.returncode))
+                raise grt.UserInterrupt()
+            else:
+                log_error("Execute command failed with error: %s, the exit code was: %d.\n" % (serr, self.returncode))
                 raise Exception(serr)
-            raise grt.UserInterrupt()
+            
+        log_info("Execute command succeeed.\n")
+            
 
 
     def print_log_message(self, msg):
@@ -165,53 +180,77 @@ class SpatialImporter:
                 cmd = "taskkill /F /T /PID %i" % self.process_handle.pid
                 log_debug("Killing task: %s\n" % cmd)
                 subprocess.Popen(cmd , shell=True)
+                self.user_cancel = True
             else:
                 import signal
                 try:
                     log_debug("Sending SIGTERM to task %s\n" % self.process_handle.pid)
                     os.kill(self.process_handle.pid, signal.SIGTERM)
+                    self.user_cancel = True
                 except OSError, exc:
                     log_error("Exception sending SIGTERM to task: %s\n" % exc)
                     self.print_log_message("kill task: %s" % str(exc))
                      
     def run(self, progress_notify):
         cmd_args = {}
+        cmd_args['ogr2ogr'] = get_exe_path("ogr2ogr")
         cmd_args['host'] = self.my_host
         cmd_args['schema'] = self.my_schema
         cmd_args['user'] = self.my_user
         cmd_args['pwd'] = self.my_pwd
         cmd_args['port'] = self.my_port
-        cmd_args['features_per_transcation'] = self.features_per_transcation
-        if self.import_table:
-            cmd_args['table_name'] = " -nln %s" % self.import_table
-        else:
-            cmd_args['table_name'] = ""
+        
+        cmd = []
+        cmd.append("exec")
+        cmd.append(get_exe_path("ogr2ogr"))
+        cmd.append("-f")
+        cmd.append('"MySQL"')
+        cmd.append('MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d"' % cmd_args)
+        cmd.append(self.filepath)
 
-        cmd_args['opts'] = "-lco GEOMETRY_NAME=%s" % self.my_geo_column
-        if self.skipfailures:
-            cmd_args['opts'] = cmd_args['opts'] + " -skipfailures"
+        if self.import_table:
+            cmd.append('-nln')
+            cmd.append('"%s"' % self.import_table)
             
+        if self.destination_EPSG:
+            cmd.append('-t_srs')
+            cmd.append('EPSG:' % self.destination_EPSG)
+
+        if self.skipfailures:
+            cmd.append('-skipfailures')
+
         if self.import_append:
-            cmd_args['opts'] = cmd_args['opts'] + " -append"
+            cmd.append('-append')
 
         if self.import_overwrite:
-            cmd_args['opts'] = cmd_args['opts'] + " -overwrite"
-        
-        if self.selected_fields:
-            cmd_args['opts'] = cmd_args['opts'] + " -select " + self.selected_fields
-        
-        cmd_args['filepath'] = self.filepath
+            cmd.append('-overwrite')
 
-        cmd = """ogr2ogr -f "MySQL" MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d" %(filepath)s %(table_name)s %(opts)s -progress -gt %(features_per_transcation)d -lco ENGINE=InnoDb -lco SPATIAL_INDEX=NO""" % cmd_args
+        if self.selected_fields:
+            cmd.append('-select')
+            cmd.append(self.selected_fields)
+        
+        cmd.append('-progress')
+        cmd.append('-gt')
+        cmd.append(str(self.features_per_transcation))
+        cmd.append('-lco')
+        cmd.append('GEOMETRY_NAME="%s"' % self.my_geo_column)
+        cmd.append('-lco')
+        cmd.append('ENGINE=InnoDb')
+        cmd.append('-lco')
+        if self.spatial_index:
+            cmd.append('SPATIAL_INDEX=YES')
+        else:
+            cmd.append('SPATIAL_INDEX=NO')
+
         self.is_running = True
         try:
-            self.execute_cmd(cmd, progress_notify)
+            self.execute_cmd(" ".join(cmd), progress_notify)
         except grt.UserInterrupt:
             log_info("User cancelled")
             raise
         except Exception, exc:
             import traceback
-            log_error("An error occurred during execution of ogr2ogr file import: %s, stack: %s\n" % (exc, traceback.format_exc()))
+            log_error("An error occured during execution of ogr2ogr file import: %s, stack: %s\n The command was: %s\n" % (exc, traceback.format_exc(), cmd))
             raise
         self.is_running = False
 
@@ -225,6 +264,8 @@ class SelectFileWizardPage(WizardPage):
         self.schema_label = mforms.newLabel("Target schema: ")
 
         self.back_button.set_enabled(False)
+        self.ogrinfo_missing = True
+        self.ogr2ogr_missing = True
 
 
     def create_ui(self):
@@ -252,12 +293,39 @@ A new table with the imported fields will be created in the selected schema,
 unless the append or update options are specified.""")
         self.content.add(label, False, False)
 
+        self.ogrinfo_box = mforms.newBox(True)
+        self.ogrinfo_box.set_spacing(8)
+        self.ogrinfo_icon = mforms.newImageBox()
+        self.ogrinfo_icon.set_image("task_unchecked%s.png" % os_icon_suffix)
+        self.ogrinfo_box.add(self.ogrinfo_icon, False, True)
+        ogrinfo_label = mforms.newLabel("Check if ogrinfo tool is present.")
+        self.ogrinfo_box.add(ogrinfo_label, True, True)
+        self.content.add(self.ogrinfo_box, False, True)
+        self.ogrinfo_missing_lbl = mforms.newLabel("ogrinfo executable wasn't found. Please check if it's available in the PATH.")
+        self.ogrinfo_missing_lbl.show(False)
+        self.content.add(self.ogrinfo_missing_lbl, False, True)
+    
+        self.ogr2ogr_box = mforms.newBox(True)
+        self.ogr2ogr_box.set_spacing(8)
+        self.ogr2ogr_icon = mforms.newImageBox()
+        self.ogr2ogr_icon.set_image("task_unchecked%s.png" % os_icon_suffix)
+        self.ogr2ogr_box.add(self.ogr2ogr_icon, False, True)
+        ogr2ogr_label = mforms.newLabel("Check if ogr2ogr tool is present.")
+        self.ogr2ogr_box.add(ogr2ogr_label, True, True)
+        self.content.add(self.ogr2ogr_box, False, True)
+        self.ogr2ogr_missing_lbl = mforms.newLabel("ogr2ogr executable wasn't find. Please check if it's available in the PATH.")
+        self.ogr2ogr_missing_lbl.show(False)
+        self.content.add(self.ogr2ogr_missing_lbl, False, True)
+        
+        
+       
+        
         self.dbf_box = mforms.newBox(True)
         self.dbf_box.set_spacing(8)
         self.dbf_icon = mforms.newImageBox()
         self.dbf_icon.set_image("task_unchecked%s.png" % os_icon_suffix)
         self.dbf_box.add(self.dbf_icon, False, True)
-        dbf_label = mforms.newLabel("Check if dbf file is present")
+        dbf_label = mforms.newLabel("Check if dbf file is present.")
         self.dbf_box.add(dbf_label, True, True)
         self.dbf_box.show(True)
          
@@ -268,7 +336,7 @@ unless the append or update options are specified.""")
         self.proj_icon = mforms.newImageBox()
         self.proj_icon.set_image("task_unchecked%s.png" % os_icon_suffix)
         self.proj_box.add(self.proj_icon, False, True)
-        proj_label = mforms.newLabel("Check if prj file is present")
+        proj_label = mforms.newLabel("Check if prj file is present.")
         self.proj_box.add(proj_label, True, True)
         self.proj_box.show(True)
          
@@ -280,8 +348,26 @@ unless the append or update options are specified.""")
     def go_cancel(self):
         self.main.cancel()
 
+    def check_ogr_executables(self):
+        if get_exe_path("ogrinfo"):
+            self.ogrinfo_missing = False
+            self.ogrinfo_icon.set_image("task_checked%s.png" % os_icon_suffix)
+        else:
+            self.ogrinfo_icon.set_image("task_warning%s.png" % os_icon_suffix)
+            self.ogrinfo_missing_lbl.show(True)
+
+        if get_exe_path("ogr2ogr"):
+            self.ogr2ogr_missing = False
+            self.ogr2ogr_icon.set_image("task_checked%s.png" % os_icon_suffix)
+        else:
+            self.ogr2ogr_icon.set_image("task_warning%s.png" % os_icon_suffix)
+            self.ogr2ogr_missing_lbl.show(True)
 
     def validate(self):
+        self.check_ogr_executables()
+        if self.ogrinfo_missing or self.ogr2ogr_missing:
+            mforms.Utilities.show_error("Missing Executable", "One of the required executables is missing. Please correct this before continue.", "OK", "", "")
+            return False
         filepath = self.shapefile_path.get_string_value()
         if not os.path.isfile(filepath):
             mforms.Utilities.show_error("Invalid Path", "Please specify a valid file path.", "OK", "", "")
@@ -319,14 +405,17 @@ class ContentPreviewPage(WizardPage):
         WizardPage.__init__(self, owner, "Import Options", wide=True)
         self.layer_name = None
         self.column_list = []
+        self.support_spatial_index = Version.fromgrt(owner.editor.serverVersion).is_supported_mysql_version_at_least(5, 7, 5)
 
     def get_path(self):
         return self.main.select_file_page.shapefile_path.get_string_value()
     
     def get_info(self):
-        cmd = "ogrinfo -al -so %s" % self.get_path()
+        cmd = "%s -al -so %s" % (get_exe_path("ogrinfo"), self.get_path())
         p1 = cmd_executor(cmd)
         sout, serr = p1.communicate(input)
+        if serr:
+            log_error("There was an error getting file information: %s" % serr)
         import re
         p = re.compile("^(\w+):\s(\w+)\s\(([0-9\.]+)\)", re.IGNORECASE)
         for line in sout.splitlines():
@@ -341,13 +430,30 @@ class ContentPreviewPage(WizardPage):
                     row.set_bool(0, True)
                     row.set_string(1, m.group(1))
 
+        from grt.modules import Utilities
+        res = Utilities.fetchAuthorityCodeFromFile("%s.prj" % os.path.splitext(self.get_path())[0])
+        if res:
+            self.epsg_lbl.set_text(res)
+        else:
+            self.epsg_lbl.set_text(0)
+            log_info("Can't find EPSG fallback to 0")
+
     def go_cancel(self):
         self.main.cancel()
         
     def validate(self):
+        result = 0
+        try:
+            result = int(self.convert_to_epsg.get_string_value())
+        except:
+            pass
+        if len(self.convert_to_epsg.get_string_value()) and result == 0:
+            mforms.Utilities.show_error("Destination ESPG", "Incorrect destination EPSG. Value should be a number.", "OK", "", "")
+            return False
+        
         sfields = self.get_fields()
         if len(sfields) == 0:
-            mforms.Utilities.show_error("Missing columns", "Please specify at least one column to import.", "OK")
+            mforms.Utilities.show_error("Missing columns", "Please specify at least one column to import.", "OK", "", "")
             return False
         
         table_name = self.table_name.get_string_value()
@@ -367,17 +473,23 @@ class ContentPreviewPage(WizardPage):
         return fields
 
     def create_ui(self):
-        self.set_spacing(16)
-        self.content.set_padding(16)
-        
+        self.set_spacing(16)        
         layer_box = mforms.newBox(True)
-        layer_box.set_spacing(16)
+        layer_box.set_spacing(8)
         layer_heading = mforms.newLabel("Layer name:")
         layer_box.add(layer_heading, False, False)
         self.layer_name_lbl = mforms.newLabel("")
         layer_box.add(self.layer_name_lbl, False, False)
         self.content.add(layer_box, False, False)
 
+        epsg_box = mforms.newBox(True)
+        epsg_box.set_spacing(8)
+        epsg_box_heading = mforms.newLabel("EPSG:")
+        epsg_box.add(epsg_box_heading, False, False)
+        self.epsg_lbl = mforms.newLabel("")
+        epsg_box.add(self.epsg_lbl, False, False)
+        self.content.add(epsg_box, False, False)
+        
         entry_box = mforms.newBox(True)
         entry_box.set_spacing(12)
 
@@ -391,14 +503,14 @@ class ContentPreviewPage(WizardPage):
 
         cbox = mforms.newBox(False)
 
-        self.column_list = newTreeNodeView(mforms.TreeFlatList)
+        self.column_list = newTreeView(mforms.TreeFlatList)
         self.column_list.add_column(mforms.CheckColumnType, "", 40, True)
         self.column_list.add_column(mforms.StringColumnType, "Column name", 300, False)
         self.column_list.end_columns()
-        self.column_list.set_size(-1, 100)
+        self.column_list.set_size(-1, 150)
 
+        cbox.add(small_label("Please select the columns you want to import:"), False, True)
         cbox.add(self.column_list, False, True)
-        cbox.add(small_label("Please select columns you'd like to import"), False, True)
 
         self.content.add(cbox, False, True)
         cbox.show(True)
@@ -417,7 +529,7 @@ class ContentPreviewPage(WizardPage):
         self.skipfailures_chb.set_active(False)
         
         boxfailures.add(self.skipfailures_chb, False, False)
-        boxfailures.add(small_label("if error occurs, skip it and continue processing the data"), False, False)
+        boxfailures.add(small_label("If an error occurs ignore it and continue processing data."), False, False)
         options_box.add(boxfailures, False, False)
         
         boxappend = mforms.newBox(False)
@@ -426,7 +538,7 @@ class ContentPreviewPage(WizardPage):
         self.append_chb.set_text("Append to existing data");
         self.append_chb.set_active(False)
         boxappend.add(self.append_chb, False, False)
-        boxappend.add(small_label("append to existing table instead of creating new one"), False, False)
+        boxappend.add(small_label("Append to existing table instead of creating a new one."), False, False)
         options_box.add(boxappend, False, False)
         
         boxoverwrite = mforms.newBox(False)
@@ -434,9 +546,21 @@ class ContentPreviewPage(WizardPage):
         self.overwrite_chb = newCheckBox()
         self.overwrite_chb.set_text("Overwrite existing data");
         self.overwrite_chb.set_active(False)
+        
+        self.append_chb.add_clicked_callback(lambda checkbox1 = self.append_chb, checkbox2 = self.overwrite_chb: self.one_check_only(checkbox1, checkbox2))
+        self.overwrite_chb.add_clicked_callback(lambda checkbox2 = self.append_chb, checkbox1 = self.overwrite_chb: self.one_check_only(checkbox1, checkbox2))
         boxoverwrite.add(self.overwrite_chb, False, False)
-        boxoverwrite.add(small_label("delete current table and recreate it empty"), False, False)
+        boxoverwrite.add(small_label("Drop the selected table and recreate it."), False, False)
         options_box.add(boxoverwrite, False, False)
+        
+        if self.support_spatial_index:
+            boxspatial = mforms.newBox(False)
+            self.spatial_index_chb = newCheckBox()
+            self.spatial_index_chb.set_text("Create spatial index")
+            self.spatial_index_chb.set_active(False)
+            boxspatial.add(self.spatial_index_chb, False, False)
+            boxspatial.add(small_label("import will make spatial index around geometry column"), False, False)
+            options_box.add(boxspatial, False, False)
         
         options_layer.add(options_box)
         options_layer.show(True)
@@ -444,16 +568,20 @@ class ContentPreviewPage(WizardPage):
         self.content.add(options_layer, False, False)
 
         boxconvert = mforms.newBox(False)
-        self.cartesian_convert_chb = newCheckBox()
-        self.cartesian_convert_chb.set_text("Convert data to cartesian coordinate system");
-        self.cartesian_convert_chb.set_active(True)
-
-        boxconvert.add(self.cartesian_convert_chb, False, True)
-        boxconvert.add(small_label("MySQL supports only Cartesian format. Leaving this checkbox in its initial state will convert the data which may lead to data loss"), False, False)
+        entry_box = mforms.newBox(True)
+        entry_box.set_spacing(8)
+        entry_box.add(mforms.newLabel("Convert data to the following EPSG:"), False, True)
+        self.convert_to_epsg = mforms.newTextEntry()
+        entry_box.add(self.convert_to_epsg, False, False)
+        boxconvert.add(entry_box, True, True)
+        boxconvert.add(small_label("leave empty to import the data with no conversion"), False, False)
         
         self.content.add(boxconvert, False, True)
         self.get_info()
-
+        
+    def one_check_only(self, chk1, chk2):
+        if chk1.get_active():
+            chk2.set_active(False)
 
 
 class ImportProgressPage(WizardProgressPage):
@@ -477,7 +605,11 @@ class ImportProgressPage(WizardProgressPage):
             if not accepted:
                 return None
         return pwd
-
+    
+    def page_activated(self, advancing):
+        self.reset(True)
+        self.importer = None
+        super(ImportProgressPage, self).page_activated(advancing)
 
     def get_path(self):
         return self.main.select_file_page.shapefile_path.get_string_value()
@@ -505,11 +637,18 @@ class ImportProgressPage(WizardProgressPage):
         self.importer.my_schema = self.main.selected_schema
         
         self.importer.skipfailures = self.main.content_preview_page.skipfailures_chb.get_active()
-        self.importer.import_overwrite = self.main.content_preview_page.skipfailures_chb.get_active()
+        self.importer.import_overwrite = self.main.content_preview_page.overwrite_chb.get_active()
         self.importer.import_append = self.main.content_preview_page.append_chb.get_active()
+        if hasattr(self.main.content_preview_page, "spatial_index_chb"):
+            self.importer.spatial_index = self.main.content_preview_page.spatial_index_chb.get_active()
+        else:
+            self.importer.spatial_index = False
         
         if self.main.content_preview_page.table_name.get_string_value() != "":
             self.importer.import_table = self.main.content_preview_page.table_name.get_string_value()
+            
+        if self.main.content_preview_page.convert_to_epsg.get_string_value() != "":
+            self.importer.destination_EPSG = int(self.main.content_preview_page.convert_to_epsg.get_string_value())
 
         self.importer.selected_fields = ",".join(self.main.content_preview_page.get_fields())
         return True
@@ -531,6 +670,8 @@ class ImportProgressPage(WizardProgressPage):
             if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop import process?", "Yes", "No", "Cancel"):
                 if self.importer:
                     self.importer.kill()
+            else:
+                self.main.cancel()
 
 
 class ResultsPage(WizardPage):
@@ -573,7 +714,11 @@ class SpatialImporterWizard(WizardForm):
 
         self.results_page = ResultsPage(self)
         self.add_page(self.results_page)
-
+        self.set_size(800, 650)
+        
+    def cancel(self):
+        if self.on_close():
+            self.finish()
 
     def set_schema(self, schema_name):
         self.select_file_page.schema_label.set_text("Tables will be imported to schema: %s" % schema_name)

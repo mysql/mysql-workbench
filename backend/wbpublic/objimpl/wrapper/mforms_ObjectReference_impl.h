@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +19,7 @@
 
 #include <grts/structs.wrapper.h>
 
-namespace mforms
-{
+namespace mforms {
   class Object;
 
   class ContextMenu;
@@ -32,7 +31,8 @@ namespace mforms
 
 GRT_STRUCTS_WRAPPER_PUBLIC mforms::Object *mforms_from_grt(mforms_ObjectReferenceRef object);
 
-GRT_STRUCTS_WRAPPER_PUBLIC mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::Object *object, const std::string &mforms_type_name);
+GRT_STRUCTS_WRAPPER_PUBLIC mforms_ObjectReferenceRef mforms_to_grt(mforms::Object *object,
+                                                                   const std::string &mforms_type_name);
 
-GRT_STRUCTS_WRAPPER_PUBLIC mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::ContextMenu *menu);
-GRT_STRUCTS_WRAPPER_PUBLIC mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::DockingPoint *dpoint);
+GRT_STRUCTS_WRAPPER_PUBLIC mforms_ObjectReferenceRef mforms_to_grt(mforms::ContextMenu *menu);
+GRT_STRUCTS_WRAPPER_PUBLIC mforms_ObjectReferenceRef mforms_to_grt(mforms::DockingPoint *dpoint);

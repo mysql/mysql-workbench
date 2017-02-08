@@ -1,25 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release_OSS|Win32">
-      <Configuration>Release_OSS</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release_OSS|x64">
       <Configuration>Release_OSS</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -28,89 +16,48 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9A806A71-E3A2-4A17-AF1C-507EF72243E2}</ProjectGuid>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Scintilla</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
@@ -120,35 +67,13 @@
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
-      <UndefinePreprocessorDefinitions>
-      </UndefinePreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ModuleDefinitionFile>
-      </ModuleDefinitionFile>
-      <AdditionalDependencies>imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
@@ -168,30 +93,6 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
-      <UndefinePreprocessorDefinitions>
-      </UndefinePreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <ModuleDefinitionFile>
-      </ModuleDefinitionFile>
-      <AdditionalDependencies>imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -200,31 +101,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
-      <UndefinePreprocessorDefinitions>
-      </UndefinePreprocessorDefinitions>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <ModuleDefinitionFile>
-      </ModuleDefinitionFile>
-      <AdditionalDependencies>imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
@@ -248,7 +125,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
@@ -321,12 +198,109 @@
     <ClInclude Include="..\win32\ScintillaWR.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\lexers\LexA68k.cxx" />
+    <ClCompile Include="..\lexers\LexAbaqus.cxx" />
+    <ClCompile Include="..\lexers\LexAda.cxx" />
+    <ClCompile Include="..\lexers\LexAPDL.cxx" />
+    <ClCompile Include="..\lexers\LexAsm.cxx" />
+    <ClCompile Include="..\lexers\LexAsn1.cxx" />
+    <ClCompile Include="..\lexers\LexASY.cxx" />
+    <ClCompile Include="..\lexers\LexAU3.cxx" />
+    <ClCompile Include="..\lexers\LexAVE.cxx" />
+    <ClCompile Include="..\lexers\LexAVS.cxx" />
+    <ClCompile Include="..\lexers\LexBaan.cxx" />
+    <ClCompile Include="..\lexers\LexBash.cxx" />
+    <ClCompile Include="..\lexers\LexBasic.cxx" />
+    <ClCompile Include="..\lexers\LexBatch.cxx" />
+    <ClCompile Include="..\lexers\LexBibTeX.cxx" />
+    <ClCompile Include="..\lexers\LexBullant.cxx" />
+    <ClCompile Include="..\lexers\LexCaml.cxx" />
+    <ClCompile Include="..\lexers\LexCLW.cxx" />
+    <ClCompile Include="..\lexers\LexCmake.cxx" />
+    <ClCompile Include="..\lexers\LexCOBOL.cxx" />
+    <ClCompile Include="..\lexers\LexCoffeeScript.cxx" />
+    <ClCompile Include="..\lexers\LexConf.cxx" />
     <ClCompile Include="..\lexers\LexCPP.cxx" />
+    <ClCompile Include="..\lexers\LexCrontab.cxx" />
+    <ClCompile Include="..\lexers\LexCsound.cxx" />
+    <ClCompile Include="..\lexers\LexCSS.cxx" />
+    <ClCompile Include="..\lexers\LexD.cxx" />
+    <ClCompile Include="..\lexers\LexDiff.cxx" />
+    <ClCompile Include="..\lexers\LexDMAP.cxx" />
+    <ClCompile Include="..\lexers\LexDMIS.cxx" />
+    <ClCompile Include="..\lexers\LexECL.cxx" />
+    <ClCompile Include="..\lexers\LexEiffel.cxx" />
+    <ClCompile Include="..\lexers\LexErlang.cxx" />
+    <ClCompile Include="..\lexers\LexErrorList.cxx" />
+    <ClCompile Include="..\lexers\LexEScript.cxx" />
+    <ClCompile Include="..\lexers\LexFlagship.cxx" />
+    <ClCompile Include="..\lexers\LexForth.cxx" />
+    <ClCompile Include="..\lexers\LexFortran.cxx" />
+    <ClCompile Include="..\lexers\LexGAP.cxx" />
+    <ClCompile Include="..\lexers\LexGui4Cli.cxx" />
+    <ClCompile Include="..\lexers\LexHaskell.cxx" />
+    <ClCompile Include="..\lexers\LexHex.cxx" />
     <ClCompile Include="..\lexers\LexHTML.cxx" />
+    <ClCompile Include="..\lexers\LexInno.cxx" />
+    <ClCompile Include="..\lexers\LexJSON.cxx" />
+    <ClCompile Include="..\lexers\LexKix.cxx" />
+    <ClCompile Include="..\lexers\LexKVIrc.cxx" />
+    <ClCompile Include="..\lexers\LexLaTeX.cxx" />
+    <ClCompile Include="..\lexers\LexLisp.cxx" />
+    <ClCompile Include="..\lexers\LexLout.cxx" />
+    <ClCompile Include="..\lexers\LexLua.cxx" />
+    <ClCompile Include="..\lexers\LexMagik.cxx" />
+    <ClCompile Include="..\lexers\LexMake.cxx" />
+    <ClCompile Include="..\lexers\LexMarkdown.cxx" />
+    <ClCompile Include="..\lexers\LexMatlab.cxx" />
+    <ClCompile Include="..\lexers\LexMetapost.cxx" />
+    <ClCompile Include="..\lexers\LexMMIXAL.cxx" />
+    <ClCompile Include="..\lexers\LexModula.cxx" />
+    <ClCompile Include="..\lexers\LexMPT.cxx" />
     <ClCompile Include="..\lexers\LexMSSQL.cxx" />
     <ClCompile Include="..\lexers\LexMySQL.cxx" />
+    <ClCompile Include="..\lexers\LexNimrod.cxx" />
+    <ClCompile Include="..\lexers\LexNsis.cxx" />
+    <ClCompile Include="..\lexers\LexNull.cxx" />
+    <ClCompile Include="..\lexers\LexOpal.cxx" />
+    <ClCompile Include="..\lexers\LexOScript.cxx" />
+    <ClCompile Include="..\lexers\LexPascal.cxx" />
+    <ClCompile Include="..\lexers\LexPB.cxx" />
+    <ClCompile Include="..\lexers\LexPerl.cxx" />
+    <ClCompile Include="..\lexers\LexPLM.cxx" />
+    <ClCompile Include="..\lexers\LexPO.cxx" />
+    <ClCompile Include="..\lexers\LexPOV.cxx" />
+    <ClCompile Include="..\lexers\LexPowerPro.cxx" />
+    <ClCompile Include="..\lexers\LexPowerShell.cxx" />
+    <ClCompile Include="..\lexers\LexProgress.cxx" />
+    <ClCompile Include="..\lexers\LexProps.cxx" />
+    <ClCompile Include="..\lexers\LexPS.cxx" />
     <ClCompile Include="..\lexers\LexPython.cxx" />
+    <ClCompile Include="..\lexers\LexR.cxx" />
+    <ClCompile Include="..\lexers\LexRebol.cxx" />
+    <ClCompile Include="..\lexers\LexRegistry.cxx" />
+    <ClCompile Include="..\lexers\LexRuby.cxx" />
+    <ClCompile Include="..\lexers\LexRust.cxx" />
+    <ClCompile Include="..\lexers\LexScriptol.cxx" />
+    <ClCompile Include="..\lexers\LexSmalltalk.cxx" />
+    <ClCompile Include="..\lexers\LexSML.cxx" />
+    <ClCompile Include="..\lexers\LexSorcus.cxx" />
+    <ClCompile Include="..\lexers\LexSpecman.cxx" />
+    <ClCompile Include="..\lexers\LexSpice.cxx" />
     <ClCompile Include="..\lexers\LexSQL.cxx" />
+    <ClCompile Include="..\lexers\LexSTTXT.cxx" />
+    <ClCompile Include="..\lexers\LexTACL.cxx" />
+    <ClCompile Include="..\lexers\LexTADS3.cxx" />
+    <ClCompile Include="..\lexers\LexTAL.cxx" />
+    <ClCompile Include="..\lexers\LexTCL.cxx" />
+    <ClCompile Include="..\lexers\LexTCMD.cxx" />
+    <ClCompile Include="..\lexers\LexTeX.cxx" />
+    <ClCompile Include="..\lexers\LexTxt2tags.cxx" />
+    <ClCompile Include="..\lexers\LexVB.cxx" />
+    <ClCompile Include="..\lexers\LexVerilog.cxx" />
+    <ClCompile Include="..\lexers\LexVHDL.cxx" />
+    <ClCompile Include="..\lexers\LexVisualProlog.cxx" />
+    <ClCompile Include="..\lexers\LexYAML.cxx" />
     <ClCompile Include="..\lexlib\Accessor.cxx" />
     <ClCompile Include="..\lexlib\CharacterCategory.cxx" />
     <ClCompile Include="..\lexlib\CharacterSet.cxx" />

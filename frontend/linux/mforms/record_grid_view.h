@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,20 +20,23 @@
 #ifndef _MFORMS_RECORD_GRID_VIEW_H_
 #define _MFORMS_RECORD_GRID_VIEW_H_
 
-#include "mforms/record_grid.h"
+#include "mforms/gridview.h"
 
 class RecordsetView;
+using mforms::ColumnHeaderIndicator;
 
-namespace mforms
-{
-class RecordGridView : public mforms::RecordGrid
-{
+// namespace mforms
+//{
+class RecordGridView : public mforms::GridView {
   RecordsetView *viewer;
 
-  void columns_resized(const std::vector<int> cols) { (*signal_columns_resized())(cols); }
+  void columns_resized(const std::vector<int> cols) {
+    (*signal_columns_resized())(cols);
+  }
   void column_right_clicked(int c, int x, int y);
+
 public:
-  RecordGridView(boost::shared_ptr<Recordset> rset);
+  RecordGridView(std::shared_ptr<Recordset> rset);
   virtual ~RecordGridView();
 
   virtual int get_column_count();
@@ -47,6 +50,6 @@ public:
   virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order);
 
   virtual void set_font(const std::string &font);
-};
+  //};
 };
 #endif

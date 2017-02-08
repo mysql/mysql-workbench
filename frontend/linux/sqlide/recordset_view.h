@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,26 +19,31 @@
 #ifndef __RECORDSET_VIEW_H__
 #define __RECORDSET_VIEW_H__
 
-
 #include "sqlide/grid_view.h"
 #include "sqlide/recordset_be.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <gtkmm.h>
+#pragma GCC diagnostic pop
 #include "mforms/tabview.h"
 
-
-class RecordsetView : public Gtk::ScrolledWindow
-{
+class RecordsetView : public Gtk::ScrolledWindow {
 public:
-  static RecordsetView * create(Recordset::Ref model);
+  static RecordsetView *create(Recordset::Ref model);
   ~RecordsetView();
+
 protected:
   RecordsetView(Recordset::Ref model);
+
 private:
   virtual void init();
 
 public:
   void model(Recordset::Ref value);
-  Recordset::Ref model() { return _model; }
+  Recordset::Ref model() {
+    return _model;
+  }
+
 protected:
   Recordset::Ref _model;
   GridView *_grid;
@@ -50,13 +55,16 @@ protected:
   boost::signals2::connection _refresh_ui_stat_sig;
 
 public:
-  GridView *grid_view() { return _grid; }
+  GridView *grid_view() {
+    return _grid;
+  }
 
   virtual void refresh();
   virtual void reset();
 
   bool has_changes();
   void copy(const std::vector<int> &rows);
+
 protected:
   virtual bool on_event(GdkEvent *event);
 
@@ -64,7 +72,7 @@ protected:
 
   void on_commit_btn_clicked();
   void on_rollback_btn_clicked();
-  
+
   void on_goto_first_row_btn_clicked();
   void on_goto_last_row_btn_clicked();
   void on_record_prev();
@@ -80,6 +88,5 @@ protected:
 
   bool activate_toolbar_item(const std::string &action);
 };
-
 
 #endif // __RECORDSET_VIEW_H__

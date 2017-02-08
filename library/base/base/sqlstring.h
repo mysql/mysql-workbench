@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2011, 2013 Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -27,20 +27,15 @@
 
 namespace base {
 
-  enum SqlStringFlags
-  {
-    QuoteOnlyIfNeeded = 1 << 0,
-    UseAnsiQuotes     = 1 << 1
-  };
+  enum SqlStringFlags { QuoteOnlyIfNeeded = 1 << 0, UseAnsiQuotes = 1 << 1 };
 
-  class BASELIBRARY_PUBLIC_FUNC sqlstring 
-  {
+  class BASELIBRARY_PUBLIC_FUNC sqlstring {
   public:
-      struct sqlstringformat
-      {
-          int _flags;
-          sqlstringformat (const int flags) : _flags(flags){}
-      };
+    struct sqlstringformat {
+      int _flags;
+      sqlstringformat(const int flags) : _flags(flags) {
+      }
+    };
 
   private:
     std::string _formatted;
@@ -50,45 +45,46 @@ namespace base {
     std::string consume_until_next_escape();
     int next_escape();
 
-    sqlstring& append(const std::string &s);
+    sqlstring &append(const std::string &s);
+
   public:
     static const sqlstring null;
 
     sqlstring();
-    sqlstring(const char* format_string, const sqlstringformat format);
+    sqlstring(const char *format_string, const sqlstringformat format);
     sqlstring(const sqlstring &copy);
     bool done() const;
 
-    operator  std::string ()const;
+    operator std::string() const;
 
     //! modifies formatting options
-    sqlstring &operator <<(const sqlstringformat);
+    sqlstring &operator<<(const sqlstringformat);
 
     //! replaces a ? in the format string with any integer numeric value
-    template<typename T>
-    typename boost::enable_if_c<boost::is_integral<T>::value, sqlstring &>::type 
-    operator <<(const T value)
-    {
+    template <typename T>
+    typename boost::enable_if_c<boost::is_integral<T>::value, sqlstring &>::type operator<<(const T value) {
       int esc = next_escape();
       if (esc != '?')
-          throw std::invalid_argument("Error formatting SQL query: invalid escape for numeric argument");
+        throw std::invalid_argument("Error formatting SQL query: invalid escape for numeric argument");
 
-      const char *format = (sizeof(T) <= sizeof(int32_t) ? "%i" : "%" PRId64);
+      const char *format = (sizeof(T) <= sizeof(int32_t) ? "%i" : "%lli");
       append(strfmt(format, value));
       append(consume_until_next_escape());
-      return *this;  
-    } 
+      return *this;
+    }
     //! replaces a ? in the format string with a float numeric value
-    sqlstring &operator <<(const float val) { return operator<<((double)val); }
+    sqlstring &operator<<(const float val) {
+      return operator<<((double)val);
+    }
     //! replaces a ? in the format string with a double numeric value
-    sqlstring &operator <<(const double);
+    sqlstring &operator<<(const double);
     //! replaces a ? in the format string with a quoted string value or ! with a back-quoted identifier value
-    sqlstring &operator <<(const std::string&);
+    sqlstring &operator<<(const std::string &);
     //! replaces a ? in the format string with a quoted string value or ! with a back-quoted identifier value
     //! is the value is NULL, ? will be replaced with a NULL. ! will raise an exception
-    sqlstring &operator <<(const char*);
+    sqlstring &operator<<(const char *);
     //! replaces a ? or ! with the content of the other string verbatim
-    sqlstring &operator <<(const sqlstring&);
+    sqlstring &operator<<(const sqlstring &);
   };
 };
 

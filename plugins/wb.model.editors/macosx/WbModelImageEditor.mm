@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,13 +50,11 @@ static void call_refresh(void *theEditor)
 
 
 - (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args
 {
   self = [super initWithNibName: @"WbModelImageEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
   {
-    _grtm = grtm;
     // load GUI. Top level view in the nib is the NSTabView that will be docked to the main window
     [self loadView];
 
@@ -77,12 +75,12 @@ static void call_refresh(void *theEditor)
   delete mBackEnd;
   
     // setup the editor backend with the image object (args[0])
-  mBackEnd = new ImageEditorBE(_grtm, workbench_model_ImageFigureRef::cast_from(args[0]));
+  mBackEnd = new ImageEditorBE(workbench_model_ImageFigureRef::cast_from(args[0]));
     
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
   
   // update the UI
   [self refresh];
@@ -123,7 +121,7 @@ static void call_refresh(void *theEditor)
     mBackEnd->get_size(w, h);
     if (w != [widthField integerValue])
     {
-      mBackEnd->set_width([widthField integerValue]);
+      mBackEnd->set_width([widthField intValue]);
       [self refresh];
     }
   }
@@ -133,7 +131,7 @@ static void call_refresh(void *theEditor)
     mBackEnd->get_size(w, h);
     if (h != [heightField integerValue])
     {
-      mBackEnd->set_height([heightField integerValue]);
+      mBackEnd->set_height([heightField intValue]);
       [self refresh];
     }
   }
@@ -154,7 +152,7 @@ static void call_refresh(void *theEditor)
 }
 
 
-- (IBAction)browse:(id)sender
+- (IBAction)browse: (id)sender
 {
   NSOpenPanel *panel= [NSOpenPanel openPanel];
   
@@ -164,15 +162,19 @@ static void call_refresh(void *theEditor)
   
   [panel setTitle: @"Open Image"];
   [panel setAllowedFileTypes: @[@"png"]];
-  if ([panel runModal] == NSOKButton)
+  if ([panel runModal] == NSModalResponseOK)
   {
     NSString *path= panel.URL.path;
     NSImage *image= [[NSImage alloc] initWithContentsOfFile: path];
     if (!image)
     {
-      NSRunAlertPanel(NSLocalizedString(@"Invalid Image", nil),
-                      NSLocalizedString(@"Could not load the image.", nil),
-                      NSLocalizedString(@"OK", nil), nil, nil, nil);
+      NSAlert *alert = [NSAlert new];
+      alert.messageText = @"Invalid Image";
+      alert.informativeText = @"Could not load the image.";
+      alert.alertStyle = NSWarningAlertStyle;
+      [alert addButtonWithTitle: @"Close"];
+      [alert runModal];
+
       return;
     }
     

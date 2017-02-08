@@ -1,18 +1,17 @@
 include_directories(.
-    ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${GRT_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${MySQL_INCLUDE_DIRS}
-    ${SQLITE3_INCLUDE_DIRS}
-    ${CTemplate_INCLUDE_DIRS}
-    ${OPENGL_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${MySQL_INCLUDE_DIRS}
+    SYSTEM ${SQLITE3_INCLUDE_DIRS}
+    SYSTEM ${OPENGL_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${VSQLITE_INCLUDE_DIR}
-    ${MYSQLCPPCONN_INCLUDE_DIR}
-    ${ANTLR3C_INCLUDE_DIRS}
-    ${GDAL_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIR}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
+    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${GDAL_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
@@ -20,12 +19,13 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wbpublic
@@ -85,7 +85,6 @@ add_library(wbpublic
     grtsqlparser/mysql_parser_services.cpp
     sqlide/sqlide_generics.cpp
     sqlide/sql_editor_be.cpp
-    sqlide/sql_editor_be_autocomplete.cpp
     sqlide/var_grid_model_be.cpp
     sqlide/recordset_be.cpp
     sqlide/recordset_data_storage.cpp
@@ -95,11 +94,8 @@ add_library(wbpublic
     sqlide/recordset_table_inserts_storage.cpp
     sqlide/recordset_text_storage.cpp
     sqlide/table_inserts_loader_be.cpp
-    sqlide/autocomplete_object_name_cache.cpp
     sqlide/sql_script_run_wizard.cpp
     sqlide/column_width_cache.cpp
-    sqlide/grammar-parser/ANTLRv3Lexer.c
-    sqlide/grammar-parser/ANTLRv3Parser.c
     wbcanvas/figure_common.cpp
     wbcanvas/badge_figure.cpp
     wbcanvas/connection_figure.cpp
@@ -183,13 +179,20 @@ add_library(wbpublic
 #	)
 #endif()
 
+target_compile_options(wbpublic PUBLIC ${WB_CXXFLAGS})
+
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt mtemplate ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
+
+if(BUILD_FOR_TESTS)
+  target_link_libraries(wbpublic gcov)
+endif()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set_source_files_properties(sqlide/grammar-parser/ANTLRv3Lexer.c
-              PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
+  set_source_files_properties(sqlide/grammar-parser/ANTLRv3Lexer.c
+          PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
 endif()
 
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTemplate_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
 
 set_target_properties(wbpublic
                       PROPERTIES VERSION   ${WB_VERSION}

@@ -12,6 +12,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
     ${PROJECT_SOURCE_DIR}/library/sql-parser/source
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/plugins/db/backend
@@ -19,18 +20,19 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/library/mysql.parser/
     backend
-    ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${GRT_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
-    ${SIGC++_INCLUDE_DIRS}
-    ${PCRE_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
-    ${MYSQLCPPCONN_INCLUDE_DIRS}
-    ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${GRT_INCLUDE_DIRS}
+    SYSTEM ${GTK3_INCLUDE_DIRS}
+    SYSTEM ${SIGC++_INCLUDE_DIRS}
+    SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${CAIRO_INCLUDE_DIRS}
+    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
+    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
-add_library(db.mysql.wbp MODULE
+set(LIBRARY_SOURCES
     backend/db_frw_eng_be.cpp
     backend/db_mysql_sql_export.cpp
     backend/db_mysql_sql_script_sync.cpp
@@ -53,14 +55,33 @@ add_library(db.mysql.wbp MODULE
     frontend/synchronize_differences_page.cpp
 )
 
-set_target_properties(db.mysql.wbp PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-  VERSION   ${WB_VERSION}
-  SOVERSION ${WB_VERSION}
-)
+add_library(db.mysql.wbp MODULE ${LIBRARY_SOURCES})
 
-#target_link_libraries(db.mysql.wbp linux_utilities wbscintilla)
+target_compile_options(db.mysql.wbp PUBLIC ${WB_CXXFLAGS})
+
+target_link_libraries(db.mysql.wbp gcov)
+
+set_target_properties(db.mysql.wbp  PROPERTIES  PREFIX ""
+                                                VERSION   ${WB_VERSION}
+                                                SOVERSION ${WB_VERSION}
+)
+install(TARGETS db.mysql.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})
+
+if (BUILD_FOR_TESTS)
+  # Generate a regular shared library (as opposed to a module) with the sames contents
+  # as the module library. The module library is not supposed to be linked (since it's a plugin)
+  # but we need to link it on TUT. Until we find a better way to do this, we just generate
+  # both libraries, but on different directories, so it doesn't interfeer with the packaging
+  # process.
+  add_library(db.mysql.wbp.debug ${LIBRARY_SOURCES})
+  target_compile_options(db.mysql.wbp.debug PUBLIC ${WB_CXXFLAGS})
+  target_link_libraries(db.mysql.wbp.debug gcov)
+  set_target_properties(db.mysql.wbp.debug 
+                        PROPERTIES  VERSION   ${WB_VERSION}
+                                    SOVERSION ${WB_VERSION}
+  )
+  install(TARGETS db.mysql.wbp.debug DESTINATION "${WB_PACKAGE_PLUGINS_DIR}_tests")
+endif()
 
 if(COMMAND cotire)
     set_target_properties(db.mysql.wbp PROPERTIES
@@ -68,4 +89,3 @@ if(COMMAND cotire)
 
   cotire(db.mysql.wbp)
 endif()
-install(TARGETS db.mysql.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

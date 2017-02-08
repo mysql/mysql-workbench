@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,21 +22,22 @@
 
 #include "cppdbc.h"
 
-namespace wb
-{
+namespace wb {
 
-  class InternalSchema
-  {
+  class InternalSchema {
   private:
-    sql::Dbc_connection_handler::Ref& _connection;
+    sql::Dbc_connection_handler::Ref &_connection;
     std::string _schema_name;
     bool check_table_or_view_exists(const std::string object_name, bool check_view);
     bool check_function_or_sp_exists(const std::string object_name, bool check_function);
+
   public:
     InternalSchema(const std::string &schema_name, sql::Dbc_connection_handler::Ref &conn);
     ~InternalSchema(void);
 
-    std::string schema_name() const { return _schema_name; }
+    std::string schema_name() const {
+      return _schema_name;
+    }
 
     bool check_schema_exist();
     bool check_function_exists(const std::string &function_name);

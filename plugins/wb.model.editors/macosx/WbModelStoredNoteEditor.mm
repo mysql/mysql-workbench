@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,16 +40,12 @@
 //--------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args
 {
-  if (grtm == nil)
-    return nil;
-  
+ 
   self = [super initWithNibName: @"WbModelStoredNoteEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
   {
-    _grtm = grtm;
     // load GUI. Top level view in the nib is the NSTabView that will be docked to the main window
     [self loadView];
 
@@ -65,12 +61,12 @@
 
 - (instancetype)initWithNibName: (NSString *)nibNameOrNil bundle: (NSBundle *)nibBundleOrNil
 {
-  return [self initWithModule: nil grtManager: nil arguments: grt::BaseListRef()];
+  return [self initWithModule: nil arguments: grt::BaseListRef()];
 }
 
 -(instancetype)initWithCoder: (NSCoder *)coder
 {
-  return [self initWithModule: nil grtManager: nil arguments: grt::BaseListRef()];
+  return [self initWithModule: nil arguments: grt::BaseListRef()];
 }
 
 - (void)reinitWithArguments: (const grt::BaseListRef&)args
@@ -80,7 +76,7 @@
   
   // Setup the editor backend with the note object (args[0]).
   GrtStoredNoteRef note = GrtStoredNoteRef::cast_from(args[0]);
-  mBackEnd = new StoredNoteEditorBE(_grtm, note);
+  mBackEnd = new StoredNoteEditorBE(note);
   [self setupEditorOnHost: editorHost];
 
   mBackEnd->load_text();
@@ -144,19 +140,22 @@
 {
   if (![super pluginWillClose: sender])
   {
-    int ret = NSRunAlertPanel(@"Close Editor", @"There are unsaved changes in the editor %s. "
-                              "If you do not save, these changes will be discarded.",
-                              @"Apply Changes", @"Discard", @"Cancel", mBackEnd->get_name().c_str());
-    if (ret == NSAlertDefaultReturn)
+    NSAlert *alert = [NSAlert new];
+    alert.messageText =@"Close Editor";
+    alert.informativeText = [NSString stringWithFormat: @"There are unsaved changes in the editor %s. "
+                             "If you do not save, these changes will be discarded.", mBackEnd->get_name().c_str()];
+    alert.alertStyle = NSWarningAlertStyle;
+    [alert addButtonWithTitle: @"Apply Changes"];
+    [alert addButtonWithTitle: @"Discard Changes"];
+    [alert addButtonWithTitle: @"Cancel"];
+    switch ([alert runModal])
     {
-      mBackEnd->commit_changes();
+      case NSAlertFirstButtonReturn:
+        mBackEnd->commit_changes();
+        break;
+      case NSAlertThirdButtonReturn:
+        return NO;
     }
-    else if (ret == NSAlertAlternateReturn)
-    {
-      // Nothing to do here.
-    }
-    else
-      return NO;
   }
   
   return YES;

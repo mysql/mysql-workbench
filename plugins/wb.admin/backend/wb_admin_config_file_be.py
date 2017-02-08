@@ -654,6 +654,8 @@ class WbAdminConfigFileBE(object):
 
         first_try = True
         while True:
+            if not helper.check_path_exists(directory):
+                helper.create_directory(directory)
             if helper.check_dir_writable(directory):
                 password = None
                 as_user = Users.CURRENT

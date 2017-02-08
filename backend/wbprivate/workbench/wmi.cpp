@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -39,14 +39,13 @@ DEFAULT_LOG_DOMAIN("wmi")
  * Converts the given variant to an UTF-8 encoded standard string. The variant content is converted to
  * a string if it is not already one.
  */
-std::string variant2string(VARIANT& value) 
-{
+std::string variant2string(VARIANT& value) {
   if (value.vt == VT_NULL)
     return "NULL";
 
   VariantChangeType(&value, &value, VARIANT_ALPHABOOL, VT_BSTR);
   CW2A valueString(V_BSTR(&value), CP_UTF8);
-  return (LPSTR) valueString;
+  return (LPSTR)valueString;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,8 +54,7 @@ std::string variant2string(VARIANT& value)
  * Converts the given string (which must be UTF-8 encoded) to a BSTR, encapsulated by CComBSTR
  * which frees us from taking care to deallocate the result.
  */
-CComBSTR string2Bstr(const std::string& value)
-{
+CComBSTR string2Bstr(const std::string& value) {
   CComBSTR result = CA2W(value.c_str(), CP_UTF8);
   return result;
 }
@@ -65,16 +63,13 @@ CComBSTR string2Bstr(const std::string& value)
 
 #ifdef _DEBUG
 
-void dumpObject(IWbemClassObject* object)
-{
-  if (object != NULL)
-  {
+void dumpObject(IWbemClassObject* object) {
+  if (object != NULL) {
     BSTR objectText;
     object->GetObjectText(0, &objectText);
     std::wcout << objectText << std::endl;
     SysFreeString(objectText);
-  }
-  else
+  } else
     std::wcout << L"Object is NULL" << std::endl;
 }
 
@@ -82,32 +77,27 @@ void dumpObject(IWbemClassObject* object)
 
 #endif
 
-std::string wmiResultToString(HRESULT wmiResult)
-{
+std::string wmiResultToString(HRESULT wmiResult) {
   std::string result;
   IWbemStatusCodeText* status = NULL;
 
-  HRESULT hres = CoCreateInstance(CLSID_WbemStatusCodeText, 0, CLSCTX_INPROC_SERVER,
-    IID_IWbemStatusCodeText, (LPVOID*)&status);
+  HRESULT hres =
+    CoCreateInstance(CLSID_WbemStatusCodeText, 0, CLSCTX_INPROC_SERVER, IID_IWbemStatusCodeText, (LPVOID*)&status);
 
-  if (SUCCEEDED(hres))
-  {
+  if (SUCCEEDED(hres)) {
     CComBSTR errorString;
     hres = status->GetErrorCodeText(wmiResult, 0, 0, &errorString);
 
-    if (FAILED(hres))
-    {
-      log_error("Converting result code to string failed with error: %d\n", hres);
+    if (FAILED(hres)) {
+      logError("Converting result code to string failed with error: %d\n", hres);
       result = "Internal error: WMI error description retrieval failed.";
     }
 
     CW2A converted_text(errorString, CP_UTF8);
     result = converted_text;
     status->Release();
-  }
-  else
-  {
-    log_error("Could not instatiate a status code text converter. Error code: %d\n", hres);
+  } else {
+    logError("Could not instatiate a status code text converter. Error code: %d\n", hres);
     result = "Internal error: WMI status code text creation failed.";
   }
 
@@ -116,37 +106,33 @@ std::string wmiResultToString(HRESULT wmiResult)
 
 //--------------------------------------------------------------------------------------------------
 
-std::string serviceResultToString(unsigned int result)
-{
+std::string serviceResultToString(unsigned int result) {
   // Error codes according to http://msdn.microsoft.com/en-us/library/aa393660%28VS.85%29.aspx.
-  static std::string code2String[] = {
-    "Success",
-    "Not Supported",
-    "Access Denied",
-    "Dependent Services Running",
-    "Invalid Service Control",
-    "Service Cannot Accept Control",
-    "Service Not Active",
-    "Service Request Timeout",
-    "Unknown Failure",
-    "Path Not Found",
-    "Service Already Running",
-    "Service Database Locked",
-    "Service Dependency Deleted",
-    "Service Dependency Failure",
-    "Service Disabled",
-    "Service Logon Failure",
-    "Service Marked For Deletion",
-    "Service No Thread",
-    "Status Circular Dependency",
-    "Status Duplicate Name",
-    "Status Invalid Name",
-    "Status Invalid Parameter",
-    "Status Invalid Service Account",
-    "Status Service Exists",
-    "Service Already Paused"
-  };
-
+  static std::string code2String[] = {"Success",
+                                      "Not Supported",
+                                      "Access Denied",
+                                      "Dependent Services Running",
+                                      "Invalid Service Control",
+                                      "Service Cannot Accept Control",
+                                      "Service Not Active",
+                                      "Service Request Timeout",
+                                      "Unknown Failure",
+                                      "Path Not Found",
+                                      "Service Already Running",
+                                      "Service Database Locked",
+                                      "Service Dependency Deleted",
+                                      "Service Dependency Failure",
+                                      "Service Disabled",
+                                      "Service Logon Failure",
+                                      "Service Marked For Deletion",
+                                      "Service No Thread",
+                                      "Status Circular Dependency",
+                                      "Status Duplicate Name",
+                                      "Status Invalid Name",
+                                      "Status Invalid Parameter",
+                                      "Status Invalid Service Account",
+                                      "Status Service Exists",
+                                      "Service Already Paused"};
 
   if (result < 25)
     return code2String[result];
@@ -157,33 +143,29 @@ std::string serviceResultToString(unsigned int result)
 //----------------- WmiMonitor ---------------------------------------------------------------------
 
 WmiMonitor::WmiMonitor(IWbemServices* services, const std::string& parameter)
-  : _services(services), _propertyHandle(0), _namePropertyHandle(0), _findTotal(false)
-{
-  log_debug("Creating new wmi monitor for parameter: %s\n", parameter.c_str());
-  
+  : _services(services), _propertyHandle(0), _namePropertyHandle(0), _findTotal(false) {
+  logDebug("Creating new wmi monitor for parameter: %s\n", parameter.c_str());
+
   const std::vector<std::string> args = base::split(parameter, ".");
 
-  if (args.size() < 2)
-  {
-    log_error("Invalid parameter format - cannot continue\n");
+  if (args.size() < 2) {
+    logError("Invalid parameter format - cannot continue\n");
     throw std::runtime_error(_("Wrong monitor format. Got '") + parameter + _("', expected '<WMIClass.Name>'"));
   }
 
   CComBSTR instancePath;
 
-  HRESULT hr = CoCreateInstance(CLSID_WbemRefresher, NULL, CLSCTX_INPROC_SERVER, IID_IWbemRefresher, 
-    (void**) &_refresher);
-  if (FAILED(hr))
-  {
-    log_error("Could not create a wbem refresher instance. Error: %d\n", hr);
+  HRESULT hr =
+    CoCreateInstance(CLSID_WbemRefresher, NULL, CLSCTX_INPROC_SERVER, IID_IWbemRefresher, (void**)&_refresher);
+  if (FAILED(hr)) {
+    logError("Could not create a wbem refresher instance. Error: %d\n", hr);
     throw std::runtime_error(_("WMI - Could not create monitor object.\n\n") + wmiResultToString(hr));
   }
 
   CComPtr<IWbemConfigureRefresher> config;
-  hr = _refresher->QueryInterface(IID_IWbemConfigureRefresher, (void**) &config);
-  if (FAILED(hr))
-  {
-    log_error("QueryInterface for wbem configure refresher failed with error: %d\n", hr);
+  hr = _refresher->QueryInterface(IID_IWbemConfigureRefresher, (void**)&config);
+  if (FAILED(hr)) {
+    logError("QueryInterface for wbem configure refresher failed with error: %d\n", hr);
 
     // _refersher is a smart pointer and is automatically freed.
     throw std::runtime_error(_("WMI - Could not create monitor object.\n\n") + wmiResultToString(hr));
@@ -197,36 +179,32 @@ WmiMonitor::WmiMonitor(IWbemServices* services, const std::string& parameter)
 
   // Add an enumerator to the refresher. This is what actually gets the value to monitor.
   hr = config->AddEnum(_services, path, 0, NULL, &_enumerator, &_enumeratorId);
-  if (FAILED(hr))
-  {
+  if (FAILED(hr)) {
     std::string result = wmiResultToString(hr);
-    log_error("Could not register monitoring enumerator. Error: %s\n", result.c_str());
+    logError("Could not register monitoring enumerator. Error: %s\n", result.c_str());
     throw std::runtime_error(_("WMI - Could not register monitoring enumerator.\n"));
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-WmiMonitor::~WmiMonitor()
-{
-  log_debug("Destroying monitor\n");
-  
+WmiMonitor::~WmiMonitor() {
+  logDebug("Destroying monitor\n");
+
   CComPtr<IWbemConfigureRefresher> config;
-  HRESULT hr = _refresher->QueryInterface(IID_IWbemConfigureRefresher, (void**) &config);
+  HRESULT hr = _refresher->QueryInterface(IID_IWbemConfigureRefresher, (void**)&config);
   if (SUCCEEDED(hr))
     config->Remove(_enumeratorId, WBEM_FLAG_REFRESH_NO_AUTO_RECONNECT);
-  else
-  {
+  else {
     std::string result = wmiResultToString(hr);
-    log_error("Could not remove enumerator from wbem config refresher. Error: %s\n", result.c_str());
+    logError("Could not remove enumerator from wbem config refresher. Error: %s\n", result.c_str());
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string WmiMonitor::readValue()
-{
-  log_debug("Reading next monitoring value\n");
+std::string WmiMonitor::readValue() {
+  logDebug("Reading next monitoring value\n");
 
   // Refresh the enumerator so we actually get values.
   _refresher->Refresh(0L);
@@ -236,19 +214,17 @@ std::string WmiMonitor::readValue()
   IWbemObjectAccess** accessors = NULL; // List of accessors.
 
   // Determine required space. We have to provide it to the getter.
-  HRESULT hr = _enumerator->GetObjects(0L, 0, accessors, &returnCount); 
-  if (hr == WBEM_E_BUFFER_TOO_SMALL && returnCount > 0)
-  {
+  HRESULT hr = _enumerator->GetObjects(0L, 0, accessors, &returnCount);
+  if (hr == WBEM_E_BUFFER_TOO_SMALL && returnCount > 0) {
     accessors = new IWbemObjectAccess*[returnCount];
     SecureZeroMemory(accessors, returnCount * sizeof(IWbemObjectAccess*));
 
-    hr = _enumerator->GetObjects(0L, returnCount, accessors,  &returnCount);
-    if (FAILED(hr))
-    {
+    hr = _enumerator->GetObjects(0L, returnCount, accessors, &returnCount);
+    if (FAILED(hr)) {
       std::string result = wmiResultToString(hr);
-      log_error("Cannot get value object from enumerator. Error: %s\n", result.c_str());
+      logError("Cannot get value object from enumerator. Error: %s\n", result.c_str());
 
-      delete [] accessors;
+      delete[] accessors;
       return "0";
     }
   }
@@ -261,58 +237,48 @@ std::string WmiMonitor::readValue()
   if (_propertyHandle == 0)
     hr = accessors[0]->GetPropertyHandle(_propertyName, &propertyType, &_propertyHandle);
 
-  if (FAILED(hr))
-  {
+  if (FAILED(hr)) {
     std::string result = wmiResultToString(hr);
-    log_error("Cannot get property handle from wbem accessor. Error: %s\n", result.c_str());
+    logError("Cannot get property handle from wbem accessor. Error: %s\n", result.c_str());
   }
 
   CIMTYPE namePropType;
   if (_findTotal && _namePropertyHandle == 0)
     hr = accessors[0]->GetPropertyHandle(L"Name", &namePropType, &_namePropertyHandle);
 
-  if (FAILED(hr))
-  {
+  if (FAILED(hr)) {
     std::string result = wmiResultToString(hr);
-    log_error("Cannot get name property handle from wbem accessor. Error: %s\n", result.c_str());
+    logError("Cannot get name property handle from wbem accessor. Error: %s\n", result.c_str());
   }
 
-  if (_propertyHandle != 0)
-  {
+  if (_propertyHandle != 0) {
     DWORD value = 0;
-    if (_namePropertyHandle != 0)
-    {
+    if (_namePropertyHandle != 0) {
       // For processor time queries a value is returned for every processor and a total entry
       // that comprises all processors.
-      for (ULONG i = 0; i < returnCount; i++)
-      {
+      for (ULONG i = 0; i < returnCount; i++) {
         long byteCount = 0;
         byte buffer[20];
         hr = accessors[i]->ReadPropertyValue(_namePropertyHandle, 20, &byteCount, buffer);
 
-        if (StrCmpW((LPCWSTR) buffer, L"_Total") == 0)
-        {
+        if (StrCmpW((LPCWSTR)buffer, L"_Total") == 0) {
           hr = accessors[i]->ReadDWORD(_propertyHandle, &value);
-          if (FAILED(hr))
-          {
+          if (FAILED(hr)) {
             std::string result = wmiResultToString(hr);
-            log_error("Cannot read DWORD value from wbem accessor. Error: %s\n", result.c_str());
+            logError("Cannot read DWORD value from wbem accessor. Error: %s\n", result.c_str());
           }
 
           break;
         }
       }
-    }
-    else
-    {
+    } else {
       // No need to search for a specific value. Simply return the first (and mostly only) property value
       // we got.
       hr = accessors[0]->ReadDWORD(_propertyHandle, &value);
 
-      if (FAILED(hr))
-      {
+      if (FAILED(hr)) {
         std::string result = wmiResultToString(hr);
-        log_error("Cannot read DWORD value from wbem accessor. Error: %s\n", result.c_str());
+        logError("Cannot read DWORD value from wbem accessor. Error: %s\n", result.c_str());
       }
     }
 
@@ -323,7 +289,7 @@ std::string WmiMonitor::readValue()
 
   for (ULONG i = 0; i < returnCount; i++)
     accessors[i]->Release();
-  delete [] accessors;
+  delete[] accessors;
 
   return result;
 }
@@ -334,12 +300,11 @@ static base::Mutex _locator_mutex;
 static IWbemLocator* _locator = NULL;
 static int _locator_refcount = 0;
 
-WmiServices::WmiServices(const std::string& server, const std::string& user, const std::string& password)
-{
+WmiServices::WmiServices(const std::string& server, const std::string& user, const std::string& password) {
   if (server.empty())
-    log_debug("Creating WmiServices for local server (user: %s)\n", user.c_str());
+    logDebug("Creating WmiServices for local server (user: %s)\n", user.c_str());
   else
-    log_debug("Creating WmiServices for remote server: %s (user: %s)\n", server.c_str(), user.c_str());
+    logDebug("Creating WmiServices for remote server: %s (user: %s)\n", server.c_str(), user.c_str());
 
   allocate_locator();
 
@@ -347,22 +312,19 @@ WmiServices::WmiServices(const std::string& server, const std::string& user, con
   HRESULT hr;
 
   // If node is empty then we are connecting to the local box. In this case don't use the given credentials.
-  if (server.size() > 0)
-  {
+  if (server.size() > 0) {
     std::string unc = "\\\\" + server + "\\root\\cimv2";
 
     CComBSTR nodeString = string2Bstr(unc);
     CComBSTR userString = string2Bstr(user);
     CComBSTR passwordString = string2Bstr(password);
-    hr = _locator->ConnectServer(nodeString, userString, passwordString, NULL,
-      WBEM_FLAG_CONNECT_USE_MAX_WAIT, NULL, NULL, &_services);
-  }
-  else
-    hr = _locator->ConnectServer(L"root\\cimv2", NULL, NULL, NULL, WBEM_FLAG_CONNECT_USE_MAX_WAIT,
-      NULL, NULL, &_services);
+    hr = _locator->ConnectServer(nodeString, userString, passwordString, NULL, WBEM_FLAG_CONNECT_USE_MAX_WAIT, NULL,
+                                 NULL, &_services);
+  } else
+    hr =
+      _locator->ConnectServer(L"root\\cimv2", NULL, NULL, NULL, WBEM_FLAG_CONNECT_USE_MAX_WAIT, NULL, NULL, &_services);
 
-  if (SUCCEEDED(hr))
-  {
+  if (SUCCEEDED(hr)) {
     /*
     // Set security levels on a WMI connection
     COAUTHIDENTITY cID;
@@ -377,56 +339,48 @@ WmiServices::WmiServices(const std::string& server, const std::string& user, con
 */
     // Set a blanket to our service proxy to establish a security context.
     // Values as recommended (http://msdn.microsoft.com/en-us/library/windows/desktop/aa393620%28v=vs.85%29.aspx).
-    hr = CoSetProxyBlanket(
-      _services,                   // Indicates the proxy to set
-      RPC_C_AUTHN_DEFAULT,         // Authentication service
-      RPC_C_AUTHZ_DEFAULT,         // Authorization service
-      COLE_DEFAULT_PRINCIPAL,      // Server principal name
-      RPC_C_AUTHN_LEVEL_DEFAULT,   // Authentication level
-      RPC_C_IMP_LEVEL_IMPERSONATE, // Impersonation level
-      COLE_DEFAULT_AUTHINFO,       // client identity
-      EOAC_DEFAULT                 // proxy capabilities
-    );
+    hr = CoSetProxyBlanket(_services,                   // Indicates the proxy to set
+                           RPC_C_AUTHN_DEFAULT,         // Authentication service
+                           RPC_C_AUTHZ_DEFAULT,         // Authorization service
+                           COLE_DEFAULT_PRINCIPAL,      // Server principal name
+                           RPC_C_AUTHN_LEVEL_DEFAULT,   // Authentication level
+                           RPC_C_IMP_LEVEL_IMPERSONATE, // Impersonation level
+                           COLE_DEFAULT_AUTHINFO,       // client identity
+                           EOAC_DEFAULT                 // proxy capabilities
+                           );
 
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
       std::string result = wmiResultToString(hr);
-      log_error("Could not set proxy blanket for our wmi services. Error: %s\n", result.c_str());
+      logError("Could not set proxy blanket for our wmi services. Error: %s\n", result.c_str());
       throw std::runtime_error(_("WMI setting security blanket failed.\n"));
     }
-  }
-  else
-  {
+  } else {
     std::string result = wmiResultToString(hr);
-    log_error("Could not connect to target machine. Error: %s\n", result.c_str());
+    logError("Could not connect to target machine. Error: %s\n", result.c_str());
     throw std::runtime_error(_("Could not connect to target machine.\n"));
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-WmiServices::~WmiServices()
-{
-  log_debug("Destroying services\n");
+WmiServices::~WmiServices() {
+  logDebug("Destroying services\n");
   deallocate_locator();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WmiServices::allocate_locator()
-{
-  log_debug("Allocating wbem locator\n");
+void WmiServices::allocate_locator() {
+  logDebug("Allocating wbem locator\n");
 
   base::MutexLock lock(_locator_mutex);
-  if (_locator_refcount == 0)
-  {
+  if (_locator_refcount == 0) {
     HRESULT hr = CoCreateInstance(CLSID_WbemLocator, NULL, CLSCTX_INPROC_SERVER, IID_IWbemLocator,
-      reinterpret_cast<void**>(&_locator));
+                                  reinterpret_cast<void**>(&_locator));
 
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
       std::string result = wmiResultToString(hr);
-      log_error("Could not create wbem locator. Error: %s\n", result.c_str());
+      logError("Could not create wbem locator. Error: %s\n", result.c_str());
       throw std::runtime_error("Internal error: Instantiation of IWbemLocator failed.\n");
     }
   }
@@ -436,16 +390,13 @@ void WmiServices::allocate_locator()
 
 //--------------------------------------------------------------------------------------------------
 
-void WmiServices::deallocate_locator()
-{
-  log_debug("Deallocating wbem locator\n");
+void WmiServices::deallocate_locator() {
+  logDebug("Deallocating wbem locator\n");
 
   base::MutexLock lock(_locator_mutex);
-  if (_locator_refcount > 0)
-  {
+  if (_locator_refcount > 0) {
     _locator_refcount--;
-    if (_locator_refcount == 0)
-    {
+    if (_locator_refcount == 0) {
       _locator->Release();
       _locator = NULL;
     }
@@ -459,39 +410,36 @@ void WmiServices::deallocate_locator()
  *
  * @param query The query to send. It must be of type WQL.
  * @param node The target machine where to execute the query on. Leave blank for localhost.
- * @param user The user name for authentication on a remote box. Ignored for localhost (the current 
+ * @param user The user name for authentication on a remote box. Ignored for localhost (the current
  *             user is used in this case).
  * @param password The password for the given user. Also ignore for localhost.
  * @return A list of dictionaries containing an entry for each object returned by the query, with
  *         name/value pairs of object properties.
  */
-grt::DictListRef WmiServices::query(grt::GRT* grt, const std::string& query)
-{
-  log_debug3("Running wmi query: %s\n", query.c_str());
+grt::DictListRef WmiServices::query(const std::string& query) {
+  logDebug3("Running wmi query: %s\n", query.c_str());
 
   // Making this function explicitly thread-safe might be unnecessary as we don't have
   // any data which is allocated/deallocated concurrently. But since we know we will be called
   // from different threads we play safe here, as it does not harm either.
   base::MutexLock lock(_locator_mutex);
 
-  grt::DictListRef queryResult(grt);
+  grt::DictListRef queryResult(grt::Initialized);
 
   // Execute the given query.
   CComPtr<IEnumWbemClassObject> enumerator;
   CComBSTR converted_query = string2Bstr(query);
   HRESULT hr = _services->ExecQuery(L"WQL", converted_query, WBEM_FLAG_FORWARD_ONLY, NULL, &enumerator);
 
-  if (SUCCEEDED(hr))
-  {
+  if (SUCCEEDED(hr)) {
     // We also need to set a security context for the enumerator or the next code will fail
     // with "access denied" on remote boxes.
     hr = CoSetProxyBlanket(enumerator, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL,
-      RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+                           RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
 
     // Read the returned results and create our own response.
     ULONG count = 0;
-    while (true)
-    {
+    while (true) {
       CComPtr<IWbemClassObject> wbemObject = NULL;
       hr = enumerator->Next(WBEM_INFINITE, 1L, &wbemObject, &count);
       if (FAILED(hr))
@@ -507,9 +455,8 @@ grt::DictListRef WmiServices::query(grt::GRT* grt, const std::string& query)
       SafeArrayGetLBound(names, 1, &lowBound);
       SafeArrayGetUBound(names, 1, &highBound);
 
-      DictRef resultNames(grt);
-      for (long i = lowBound; i <= highBound; i++)
-      {
+      DictRef resultNames(true);
+      for (long i = lowBound; i <= highBound; i++) {
         CComBSTR name;
         SafeArrayGetElement(names, &i, &name);
         CW2A nameString(name, CP_UTF8);
@@ -518,31 +465,26 @@ grt::DictListRef WmiServices::query(grt::GRT* grt, const std::string& query)
         VARIANT value;
         hr = wbemObject->Get(name, 0, &value, NULL, NULL);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
           // In order to ease the value transport everything is converted to a string.
           resultNames.gset((LPSTR)nameString, variant2string(value));
 
           VariantClear(&value);
-        }
-        else
-        {
-          char *name_ = _com_util::ConvertBSTRToString(name);
+        } else {
+          char* name_ = _com_util::ConvertBSTRToString(name);
 
           std::string result = wmiResultToString(hr);
-          log_error("Couldn't get the value for %s. Error: %s\n", name_, result.c_str());
-          delete [] name_;
+          logError("Couldn't get the value for %s. Error: %s\n", name_, result.c_str());
+          delete[] name_;
         }
       }
       SafeArrayDestroy(names);
 
       queryResult.insert(resultNames);
     }
-  }
-  else
-  {
+  } else {
     std::string result = wmiResultToString(hr);
-    log_error("Query execution failed. Error: %s\n", result.c_str());
+    logError("Query execution failed. Error: %s\n", result.c_str());
     throw std::runtime_error("WMI query execution failed");
   }
 
@@ -564,9 +506,8 @@ grt::DictListRef WmiServices::query(grt::GRT* grt, const std::string& query)
  *   - for start: either completed, already-running, already-starting, stopping, error
  *   - for stop: either completed, already-stopped, already-stopping, starting, error
  */
-std::string WmiServices::serviceControl(const std::string& service, const std::string& action)
-{
-  log_debug3("Running wmi service control query for service: %s (action: %s)\n", service.c_str(), action.c_str());
+std::string WmiServices::serviceControl(const std::string& service, const std::string& action) {
+  logDebug3("Running wmi service control query for service: %s (action: %s)\n", service.c_str(), action.c_str());
 
   base::MutexLock lock(_locator_mutex);
 
@@ -574,19 +515,17 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
 
   CComPtr<IWbemClassObject> serviceInstance;
   HRESULT hr = _services->GetObject(instancePath, 0, NULL, &serviceInstance, NULL);
-  if (FAILED(hr))
-  {
+  if (FAILED(hr)) {
     std::string result = wmiResultToString(hr);
-    log_error("Query execution failed. Error: %s\n", result.c_str());
+    logError("Query execution failed. Error: %s\n", result.c_str());
     return "error, see log";
   }
 
   VARIANT value;
   hr = serviceInstance->Get(L"State", 0, &value, NULL, NULL);
-  if (FAILED(hr))
-  {
+  if (FAILED(hr)) {
     std::string result = wmiResultToString(hr);
-    log_error("Could not get state value for the service. Error: %s\n", result.c_str());
+    logError("Could not get state value for the service. Error: %s\n", result.c_str());
     return "unknown";
   }
 
@@ -595,13 +534,11 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
 
   if (action == "status")
     return state;
-  else
-  {
+  else {
     CComBSTR methodName;
     std::string waitState;
     std::string expectedState;
-    if (action == "start")
-    {
+    if (action == "start") {
       if (state == "running")
         return "already-running";
       if (state == "stop pending")
@@ -614,26 +551,22 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
       methodName = "StartService";
       waitState = "start pending";
       expectedState = "running";
+    } else if (action == "stop") {
+      if (state == "stopped")
+        return "already-stopped";
+      if (state == "stop pending")
+        return "stopping";
+      if (state == "start pending")
+        return "starting";
+      if (state != "running")
+        return "error";
+
+      methodName = "StopService";
+      waitState = "stop pending";
+      expectedState = "stopped";
     }
-    else
-      if (action == "stop")
-      {
-        if (state == "stopped")
-          return "already-stopped";
-        if (state == "stop pending")
-          return "stopping";
-        if (state == "start pending")
-          return "starting";
-        if (state != "running")
-          return "error";
 
-        methodName = "StopService";
-        waitState = "stop pending";
-        expectedState = "stopped";
-      }
-
-    if (methodName.Length() > 0)
-    {
+    if (methodName.Length() > 0) {
       CComBSTR serviceClassPath = "Win32_Service";
       CComPtr<IWbemClassObject> serviceClass;
       CComPtr<IWbemClassObject> outInstance;
@@ -644,41 +577,36 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
       hr = _services->GetObject(serviceClassPath, 0, NULL, &serviceClass, NULL);
       if (SUCCEEDED(hr))
         hr = serviceClass->GetMethod(methodName, 0, &inClass, &outClass);
-      else
-      {
-        char *serviceClassPath_ = _com_util::ConvertBSTRToString(serviceClassPath);
+      else {
+        char* serviceClassPath_ = _com_util::ConvertBSTRToString(serviceClassPath);
         std::string result = wmiResultToString(hr);
-        log_error("Could not get object for service class path: %s. Error: %s\n", serviceClassPath_, result.c_str());
-        delete [] serviceClassPath_;
+        logError("Could not get object for service class path: %s. Error: %s\n", serviceClassPath_, result.c_str());
+        delete[] serviceClassPath_;
       }
 
       if (SUCCEEDED(hr) && inClass)
         hr = inClass->SpawnInstance(0, &inInstance);
-      else
-      {
-        char *methodName_ = _com_util::ConvertBSTRToString(methodName);
+      else {
+        char* methodName_ = _com_util::ConvertBSTRToString(methodName);
         std::string result = wmiResultToString(hr);
-        log_error("Could not get in/out class for method: %s. Error: %s\n", methodName_, result.c_str());
-        delete [] methodName_;
+        logError("Could not get in/out class for method: %s. Error: %s\n", methodName_, result.c_str());
+        delete[] methodName_;
       }
 
       if (SUCCEEDED(hr))
         hr = _services->ExecMethod(instancePath, methodName, 0, NULL, inInstance, &outInstance, NULL);
-      else
-      {
+      else {
         std::string result = wmiResultToString(hr);
-        log_error("Could not spawn in-class instance. Error: %s\n", result.c_str());
+        logError("Could not spawn in-class instance. Error: %s\n", result.c_str());
       }
 
-      if (FAILED(hr))
-      {
-        char *serviceClassPath_ = _com_util::ConvertBSTRToString(serviceClassPath);
-        char *methodName_ = _com_util::ConvertBSTRToString(methodName);
+      if (FAILED(hr)) {
+        char* serviceClassPath_ = _com_util::ConvertBSTRToString(serviceClassPath);
+        char* methodName_ = _com_util::ConvertBSTRToString(methodName);
         std::string result = wmiResultToString(hr);
-        log_error("Could not execute method %d at path %s. Error: %s\n", methodName_,
-          serviceClassPath_, result.c_str());
-        delete [] methodName_;
-        delete [] serviceClassPath_;
+        logError("Could not execute method %d at path %s. Error: %s\n", methodName_, serviceClassPath_, result.c_str());
+        delete[] methodName_;
+        delete[] serviceClassPath_;
 
         return "error, see log";
       }
@@ -688,23 +616,20 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
       VARIANT returnValue;
       hr = outInstance->Get(L"ReturnValue", 0, &returnValue, NULL, NULL);
 
-      if (FAILED(hr))
-      {
+      if (FAILED(hr)) {
         std::string result = wmiResultToString(hr);
-        log_error("Could not get the return value of the query. Error: %s\n", result.c_str());
+        logError("Could not get the return value of the query. Error: %s\n", result.c_str());
 
         return "error, see log";
       }
 
-      if (returnValue.vt != VT_EMPTY)
-      {
+      if (returnValue.vt != VT_EMPTY) {
         unsigned int result = V_UI4(&returnValue);
         VariantClear(&returnValue);
-        if (result != 0)
-        {
-          std::string text =  serviceResultToString(result);
-          log_error("Variant conversion for return value failed. Error: %s\n", text.c_str());
-          
+        if (result != 0) {
+          std::string text = serviceResultToString(result);
+          logError("Variant conversion for return value failed. Error: %s\n", text.c_str());
+
           return "error, see log";
         }
       }
@@ -714,16 +639,14 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
       // change after at most 34 secs then assume an error and return.
       int i = 10;
       int sleepTime = 250; // Start with 1/4 sec steps, to return as quick as possible if things are fine.
-      do
-      {
+      do {
         Sleep(sleepTime);
 
         VARIANT value;
         hr = serviceInstance->Get(L"State", 0, &value, NULL, NULL);
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
           std::string result = wmiResultToString(hr);
-          log_error("Could not get state value for the service. Error: %s\n", result.c_str());
+          logError("Could not get state value for the service. Error: %s\n", result.c_str());
 
           return "unknown";
         }
@@ -734,8 +657,7 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
         if (state != waitState)
           break;
 
-        if (--i == 0)
-        {
+        if (--i == 0) {
           i = 10;
           sleepTime *= 2; // Double the time we wait for the next check of the service.
           if (sleepTime >= 4000)
@@ -743,9 +665,8 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
         }
       } while (true);
 
-      if (state != expectedState)
-      {
-        log_error("Timeout waiting for the service to change status. Returning error to caller.\n");
+      if (state != expectedState) {
+        logError("Timeout waiting for the service to change status. Returning error to caller.\n");
         return "error";
       }
 
@@ -764,22 +685,21 @@ std::string WmiServices::serviceControl(const std::string& service, const std::s
  * @param what Specifies which value to query and return. Supported are all properties which belong
  * to the Win32_OperatingSystem class (see http://msdn.microsoft.com/en-us/library/aa394239%28VS.85%29.aspx).
  */
-std::string WmiServices::systemStat(const std::string& what)
-{
-  log_debug3("Running wmi system stat call (what: %s)\n", what.c_str());
+std::string WmiServices::systemStat(const std::string& what) {
+  logDebug3("Running wmi system stat call (what: %s)\n", what.c_str());
 
   base::MutexLock lock(_locator_mutex);
 
   CComBSTR instancePath = string2Bstr("Win32_OperatingSystem");
 
   CComPtr<IEnumWbemClassObject> enumerator;
-  HRESULT hr = _services->ExecQuery(L"WQL", L"select * from Win32_OperatingSystem", WBEM_FLAG_FORWARD_ONLY, NULL, &enumerator);
+  HRESULT hr =
+    _services->ExecQuery(L"WQL", L"select * from Win32_OperatingSystem", WBEM_FLAG_FORWARD_ONLY, NULL, &enumerator);
 
   std::string result = "-1";
-  if (SUCCEEDED(hr))
-  {
+  if (SUCCEEDED(hr)) {
     hr = CoSetProxyBlanket(enumerator, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL,
-      RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+                           RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
 
     CComPtr<IWbemClassObject> wbemObject = NULL;
     ULONG count = 0;
@@ -791,41 +711,33 @@ std::string WmiServices::systemStat(const std::string& what)
     VARIANT value;
     hr = wbemObject->Get(propertyName, 0, &value, NULL, NULL);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
       result = base::tolower(variant2string(value));
       VariantClear(&value);
-    }
-    else
-    {
-      char *propertyName_ = _com_util::ConvertBSTRToString(propertyName);
+    } else {
+      char* propertyName_ = _com_util::ConvertBSTRToString(propertyName);
 
       std::string result = wmiResultToString(hr);
-      log_error("Could not get the value for property %s. Error: %s\n", propertyName_, result.c_str());
-      delete [] propertyName_;
+      logError("Could not get the value for property %s. Error: %s\n", propertyName_, result.c_str());
+      delete[] propertyName_;
     }
-  }
-  else
-  {
+  } else {
     std::string result = wmiResultToString(hr);
-    log_error("Could not run the system stat query. Error: %s\n", result.c_str());
+    logError("Could not run the system stat query. Error: %s\n", result.c_str());
   }
-
 
   return result;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-WmiMonitor* WmiServices::startMonitoring(const std::string& parameter)
-{
+WmiMonitor* WmiServices::startMonitoring(const std::string& parameter) {
   return new WmiMonitor(_services, parameter);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void wmi::WmiServices::stopMonitoring(WmiMonitor* monitor)
-{
+void wmi::WmiServices::stopMonitoring(WmiMonitor* monitor) {
   delete monitor;
 }
 

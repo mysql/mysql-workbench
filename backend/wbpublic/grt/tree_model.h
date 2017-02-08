@@ -1,32 +1,31 @@
-/* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#ifndef _TREE_MODEL_H_
-#define _TREE_MODEL_H_
+#pragma once
 
 /*
  * TreeModel is the base class for all list or tree based
- * backend classes. 
+ * backend classes.
  */
 #include <algorithm>
 
-#include <grtpp.h>
+#include "grt.h"
 #include "grt/icon_manager.h"
 #include "grt/common.h"
 #include "base/ui_form.h" // for menu stuff
@@ -34,7 +33,6 @@
 #include "base/threading.h"
 
 #include "wbpublic_public_interface.h"
-#include <boost/shared_ptr.hpp>
 #include <ctype.h>
 
 #include <set>
@@ -44,88 +42,18 @@ namespace mforms {
   class MenuBase;
 }
 
-namespace bec
-{
+namespace bec {
   /** A tree node index.
    * Used to index nodes in a tree or list backend that inherits from ListModel or TreeModel.
    * A nodeId is like an index, in the simplest case of a flat list, it will contain
    * a single integer index. For trees, it will contain one index for each parent node
    * until the leaf node it refers to.
-   * 
+   *
    * Since nodeIds are just indices, a nodeId may not point to the same item after
    * the list/tree contents change.
-   * 
+   *
    * @ingroup begrt
-   */ 
-
-  /**
-  */  
-  // TODO: Add threshold so we do not accumulate megabytes of allocated index vectors
-  template <typename T>
-  class WBPUBLICBACKEND_PUBLIC_FUNC Pool
-  {
-    private:
-      Pool(const Pool&)
-      {
-        throw std::runtime_error("Copy of Pool forbidden");
-      }
-      Pool& operator=(const Pool&)
-      {
-        throw std::runtime_error("Assignment of Pool forbidden");
-      }
-    public:
-      static void delete_object(T* obj)
-      {
-        delete obj;
-      }
-  
-      Pool()
-          : _pool(4)
-      {}
-    
-      ~Pool()
-      {
-        {
-          base::MutexLock lock(_sync);
-          std::for_each(_pool.begin(), _pool.end(), Pool::delete_object);
-        }
-      }
-    
-      T* get()
-      {
-        T* item = 0;
-        try
-        {
-          base::MutexLock lock(_sync);
-          if ( _pool.size() > 0 )
-          { 
-            item = _pool.back();
-            _pool.pop_back();
-          }
-        }
-        catch (...)
-        {
-          //TODO: check when pop may throw
-        }
-      
-        if ( !item )
-        {
-          item = new T;
-        }
-      
-        return item;
-      }
-    
-      void put(T* item)
-      {
-        base::MutexLock lock(_sync);
-        _pool.push_back(item);
-      }
-  
-    private:
-      std::vector<T*>  _pool;
-      base::Mutex          _sync; //! Protect against concurrent access within threads
-  };
+   */
 
   /**
     \class NodeId
@@ -135,19 +63,11 @@ namespace bec
     first root node we need to have a path like that: "0.0". To address the second child of the first root node:
     "0.1"
   */
-  struct WBPUBLICBACKEND_PUBLIC_FUNC NodeId 
-  {
-    typedef std::string*                uid;   //!< To map short-living NodeId path to a persistent value
-                                               //!< This is needed for Gtk::TreeModel iterators
-    typedef std::vector<size_t>        Index; 
-    static Pool<Index>                 *_pool; //!< Pool of allocated std::vectors (Index)
-    Index                              *index; //!< Path itself
-
-    static Pool<Index>* pool()
-    {
-      return _pool ? _pool : (_pool = new Pool<Index>);
-    }
-
+  struct WBPUBLICBACKEND_PUBLIC_FUNC NodeId {
+    typedef std::string *uid; //!< To map short-living NodeId path to a persistent value
+                              //!< This is needed for Gtk::TreeModel iterators
+    typedef std::vector<size_t> Index;
+    Index index; //!< Path itself
 
     NodeId();
     NodeId(const NodeId &copy);
@@ -155,43 +75,39 @@ namespace bec
     NodeId(const std::string &str);
     ~NodeId();
 
-    inline NodeId &operator = (const NodeId &node)
-    {
-      *index = *node.index;
-      
+    inline NodeId &operator=(const NodeId &node) {
+      index = node.index;
+
       return *this;
     }
 
-    bool operator < (const NodeId &r) const;
+    bool operator<(const NodeId &r) const;
 
-    inline bool operator == (const NodeId &node) const
-    {
+    inline bool operator==(const NodeId &node) const {
       return equals(node);
     }
 
     bool equals(const NodeId &node) const;
 
-    inline size_t depth() const
-    {
-      return index->size();
+    inline size_t depth() const {
+      return index.size();
     }
 
-    size_t& operator[] (size_t i) const;
+    size_t &operator[](size_t i);
+    const size_t &operator[](size_t i) const;
 
-    size_t end() const;    
-    inline size_t back() const
-    {
+    size_t end() const;
+    inline size_t back() const {
       return end();
     }
-    
-    bool previous() const;
-    bool next() const;
 
-    inline bool is_valid() const
-    {
-      return index->size() != 0;
+    bool previous();
+    bool next();
+
+    inline bool is_valid() const {
+      return !index.empty();
     }
-    
+
     NodeId parent() const;
     std::string description() const;
     std::string toString(const char separator = '.') const;
@@ -220,99 +136,91 @@ namespace bec
     It is not advisable to dereference 'uid' to obtain std::string from std::string*, as future implementation
     may change that.
   */
-  class NodeIds
-  {
-    public:
-      NodeIds() {}
+  class NodeIds {
+  public:
+    NodeIds() {
+    }
 
-      //! Resets map of NodeId paths to uid
-      void flush();
+    //! Resets map of NodeId paths to uid
+    void flush();
 
-      //! Maps path with type of std::string from NodeId. This function is used for
-      //! convenience. See map_node_id(const NodeId&)
-      NodeId::uid map_node_id(const std::string& path_from_nodeid);
-      NodeId::uid map_node_id(const NodeId& nid)
-      {
-        return map_node_id(nid.toString());
-      }
+    //! Maps path with type of std::string from NodeId. This function is used for
+    //! convenience. See map_node_id(const NodeId&)
+    NodeId::uid map_node_id(const std::string &path_from_nodeid);
+    NodeId::uid map_node_id(const NodeId &nid) {
+      return map_node_id(nid.toString());
+    }
 
-      //! Reverse mapping from 'uid' to a path
-      const std::string& map_node_id(const NodeId::uid nodeid);
+    //! Reverse mapping from 'uid' to a path
+    const std::string &map_node_id(const NodeId::uid nodeid);
 
-    private:
-      typedef std::set<std::string> Map;
+  private:
+    typedef std::set<std::string> Map;
 
-      Map          _map;
+    Map _map;
   };
 
   //------------------------------------------------------------------------------
-  inline void NodeIds::flush()
-  {
+  inline void NodeIds::flush() {
     _map.clear();
   }
 
   //------------------------------------------------------------------------------
-  inline NodeId::uid NodeIds::map_node_id(const std::string& path_from_nodeid)
-  {
+  inline NodeId::uid NodeIds::map_node_id(const std::string &path_from_nodeid) {
     const Map::const_iterator it = _map.find(path_from_nodeid);
-    if ( _map.end() != it )
-      return (const NodeId::uid)&(*it);
-    else
-    {
-      //TODO: make a faster way. Probably we can use item from insert
+    if (_map.end() != it)
+      return (const NodeId::uid) & (*it);
+    else {
+      // TODO: make a faster way. Probably we can use item from insert
       _map.insert(path_from_nodeid);
       return map_node_id(path_from_nodeid);
     }
   }
 
   //------------------------------------------------------------------------------
-  inline const std::string& NodeIds::map_node_id(const NodeId::uid nodeid)
-  {
+  inline const std::string &NodeIds::map_node_id(const NodeId::uid nodeid) {
     // Note that dereference of nodeid is dangerous after flush was called
     // That should be protected by stamp approach in TreeModel wrapper.
     static std::string empty;
     return nodeid ? *nodeid : empty;
   }
-  
+
   /** Base list model class.
    */
-  class WBPUBLICBACKEND_PUBLIC_FUNC ListModel : public base::trackable
-  {
-   private:
+  class WBPUBLICBACKEND_PUBLIC_FUNC ListModel : public base::trackable {
+  private:
     NodeIds _nodeid_map;
-    boost::signals2::signal<void (bec::NodeId, int)> _tree_changed_signal;
-    
-   public:
-     typedef size_t ColumnId;
-     typedef size_t RowId;
-     
-     virtual ~ListModel() {};
+    boost::signals2::signal<void(bec::NodeId, int)> _tree_changed_signal;
+
+  public:
+    typedef size_t ColumnId;
+    typedef size_t RowId;
+
+    virtual ~ListModel(){};
 
     virtual size_t count() = 0;
     virtual NodeId get_node(size_t index);
     virtual bool has_next(const NodeId &node);
     virtual NodeId get_next(const NodeId &node);
 
-    boost::signals2::signal<void (bec::NodeId, int)>* tree_changed_signal(){return &_tree_changed_signal;}
+    boost::signals2::signal<void(bec::NodeId, int)> *tree_changed_signal() {
+      return &_tree_changed_signal;
+    }
 
-    void tree_changed(int old_child_count = -1, const bec::NodeId &parent = bec::NodeId())
-    {
+    void tree_changed(int old_child_count = -1, const bec::NodeId &parent = bec::NodeId()) {
       _tree_changed_signal(parent, old_child_count);
       _nodeid_map.flush();
     }
 
-    NodeId::uid nodeid_to_uid(const NodeId& nodeid)
-    {
+    NodeId::uid nodeid_to_uid(const NodeId &nodeid) {
       return _nodeid_map.map_node_id(nodeid);
     }
 
-    NodeId::uid nodeid_path_to_uid(const std::string& path)
-    {
+    NodeId::uid nodeid_path_to_uid(const std::string &path) {
       return _nodeid_map.map_node_id(path);
     }
 
-    const std::string& nodeuid_to_path(const NodeId::uid nodeuid)
-    {
+    const std::string &nodeuid_to_path(const NodeId::uid nodeuid) {
       return _nodeid_map.map_node_id(nodeuid);
     }
     virtual bool get_field(const NodeId &node, ColumnId column, std::string &value);
@@ -320,7 +228,9 @@ namespace bec
     virtual bool get_field(const NodeId &node, ColumnId column, bool &value);
     virtual bool get_field(const NodeId &node, ColumnId column, double &value);
 
-    virtual bool get_field_repr(const NodeId &node, ColumnId column, std::string &value) { return get_field(node, column, value); }
+    virtual bool get_field_repr(const NodeId &node, ColumnId column, std::string &value) {
+      return get_field(node, column, value);
+    }
 
     // representation of the field as a GRT value
     virtual grt::ValueRef get_grt_value(const NodeId &node, ColumnId column);
@@ -329,30 +239,44 @@ namespace bec
     virtual IconId get_field_icon(const NodeId &node, ColumnId column, IconSize size);
 
     virtual void refresh() = 0;
-    virtual void refresh_node(const NodeId &node) {}
+    virtual void refresh_node(const NodeId &node) {
+    }
 
-    virtual void reset() {} //!
+    virtual void reset() {
+    } //!
 
-    virtual void reorder(const NodeId &node, size_t index) { throw std::logic_error("not implemented"); }
+    virtual void reorder(const NodeId &node, size_t index) {
+      throw std::logic_error("not implemented");
+    }
     void reorder_up(const NodeId &node);
     void reorder_down(const NodeId &node);
 
-    virtual bool activate_node(const NodeId &node) { throw std::logic_error("not implemented"); return false; }
+    virtual bool activate_node(const NodeId &node) {
+      throw std::logic_error("not implemented");
+      return false;
+    }
 
     // Parent can be NULL if the root node is meant.
-    virtual void update_menu_items_for_nodes(mforms::MenuBase *parent, const std::vector<NodeId> &nodes) { };
+    virtual void update_menu_items_for_nodes(mforms::MenuBase *parent, const std::vector<NodeId> &nodes){};
 
     // Deprecated. Use update_menu_items_for_nodes for new code. MenuItemList and related code will go.
-    virtual MenuItemList get_popup_items_for_nodes(const std::vector<NodeId> &nodes) { return MenuItemList(); }
+    virtual MenuItemList get_popup_items_for_nodes(const std::vector<NodeId> &nodes) {
+      return MenuItemList();
+    }
     //! Returns true if item was processed by BE, false - BE is unable to process command and FE should do it
-    virtual bool activate_popup_item_for_nodes(const std::string &name, const std::vector<NodeId> &nodes) { throw std::logic_error("not implemented"); }
+    virtual bool activate_popup_item_for_nodes(const std::string &name, const std::vector<NodeId> &nodes) {
+      throw std::logic_error("not implemented");
+    }
 
-    virtual bool can_delete_node(const NodeId &node) { return false; }
-    virtual bool delete_node(const NodeId &node) { throw std::logic_error("not implemented"); }
+    virtual bool can_delete_node(const NodeId &node) {
+      return false;
+    }
+    virtual bool delete_node(const NodeId &node) {
+      throw std::logic_error("not implemented");
+    }
 
     // for editable lists only
     virtual grt::Type get_field_type(const NodeId &node, ColumnId column);
-
 
     virtual bool set_field(const NodeId &node, ColumnId column, const std::string &value);
     virtual bool set_field(const NodeId &node, ColumnId column, ssize_t value);
@@ -362,14 +286,23 @@ namespace bec
 
     //! By default we do not allow to edit items.
     //! This is a recently added method. It will replace occasionally used is_renameable
-    virtual bool is_editable(const NodeId& node) const { return false; }
-    virtual bool is_deletable(const NodeId& node) const { return false; }
-    virtual bool is_copyable(const NodeId& node) const { return false; }
+    virtual bool is_editable(const NodeId &node) const {
+      return false;
+    }
+    virtual bool is_deletable(const NodeId &node) const {
+      return false;
+    }
+    virtual bool is_copyable(const NodeId &node) const {
+      return false;
+    }
 
     // Indicates if a given node is to be visually exposed (e.g. an active schema in a schema tree).
-    virtual bool is_highlighted(const NodeId& node) { return false; }
+    virtual bool is_highlighted(const NodeId &node) {
+      return false;
+    }
 
     virtual void dump(int show_field);
+
   protected:
     // for internal use only
     virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
@@ -379,18 +312,21 @@ namespace bec
 
   /** Base tree model class.
    */
-  class WBPUBLICBACKEND_PUBLIC_FUNC TreeModel : public ListModel
-  {
+  class WBPUBLICBACKEND_PUBLIC_FUNC TreeModel : public ListModel {
   public:
     virtual size_t count();
     virtual NodeId get_node(size_t index);
 
     virtual NodeId get_root() const;
     virtual size_t get_node_depth(const NodeId &node);
-    inline NodeId get_parent(const NodeId &node) const { return node.parent(); }
+    inline NodeId get_parent(const NodeId &node) const {
+      return node.parent();
+    }
 
     virtual size_t count_children(const NodeId &parent) = 0;
-    virtual NodeId get_child(const NodeId &parent, size_t index) { return NodeId(parent).append(index); }
+    virtual NodeId get_child(const NodeId &parent, size_t index) {
+      return NodeId(parent).append(index);
+    }
     virtual bool has_next(const NodeId &node);
     virtual NodeId get_next(const NodeId &node);
 
@@ -404,39 +340,41 @@ namespace bec
     virtual void dump(int show_field);
   };
 
-  class WBPUBLICBACKEND_PUBLIC_FUNC GridModel : public ListModel
-  {
+  class WBPUBLICBACKEND_PUBLIC_FUNC GridModel : public ListModel {
   public:
-    typedef boost::shared_ptr<GridModel> Ref;
+    typedef std::shared_ptr<GridModel> Ref;
 
-    enum ColumnType
-    {
-      UnknownType,
-      StringType,
-      NumericType,
-      FloatType,
-      DatetimeType,
-      BlobType
-    };
+    enum ColumnType { UnknownType, StringType, NumericType, FloatType, DatetimeType, BlobType };
 
     virtual size_t get_column_count() const = 0;
-    virtual std::string get_column_caption(ColumnId column)= 0;
-    virtual ColumnType get_column_type(ColumnId column)= 0;
-    virtual bool is_readonly() const { return false; } //!
-    virtual std::string readonly_reason() const { return std::string(); } //!
-    virtual bool is_field_null(const bec::NodeId &node, ColumnId column) { return false; } //!
-    virtual bool set_field_null(const bec::NodeId &node, ColumnId column) { return set_convert_field(node, column, ""); } //!
-    virtual void set_edited_field(RowId row_index, ColumnId col_index) { }
+    virtual std::string get_column_caption(ColumnId column) = 0;
+    virtual ColumnType get_column_type(ColumnId column) = 0;
+    virtual bool is_readonly() const {
+      return false;
+    } //!
+    virtual std::string readonly_reason() const {
+      return std::string();
+    } //!
+    virtual bool is_field_null(const bec::NodeId &node, ColumnId column) {
+      return false;
+    } //!
+    virtual bool set_field_null(const bec::NodeId &node, ColumnId column) {
+      return set_convert_field(node, column, "");
+    } //!
+    virtual void set_edited_field(RowId row_index, ColumnId col_index) {
+    }
 
   public:
     typedef std::list<std::pair<ColumnId, int> > SortColumns;
-    virtual void sort_by(ColumnId column, int direction, bool retaining) {}
-    virtual SortColumns sort_columns() const { return SortColumns(); }
+    virtual void sort_by(ColumnId column, int direction, bool retaining) {
+    }
+    virtual SortColumns sort_columns() const {
+      return SortColumns();
+    }
 
   public:
-    virtual int floating_point_visible_scale() { return 3; }
+    virtual int floating_point_visible_scale() {
+      return 3;
+    }
   };
-
 };
-
-#endif // _TREE_MODEL_H_

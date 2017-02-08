@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grt/grt_value_inspector.h"
 
 #import "WBObjectPropertiesController.h"
@@ -32,7 +32,7 @@
   for (NSUInteger i = 1; i < result.length; ++i) {
     NSRange r = NSMakeRange(i, 1);
     NSString *one = [result substringWithRange: r];
-    if ([one isEqualToString: [one uppercaseString]]) {
+    if ([one isEqualToString: one.uppercaseString]) {
       NSString* pre = [result substringToIndex: i];
       NSString* post = [result substringFromIndex: i];
       result = [NSString stringWithFormat: @"%@ %@", pre, post];
@@ -53,7 +53,6 @@
   NSCell* mColorCell;
   NSButtonCell * mCheckBoxCell;
 
-  wb::WBContextUI *_wbui;
   bec::ValueInspectorBE* mValueInspector;
 }
 
@@ -112,12 +111,12 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     node.append(rowIndex);
     
     std::string s;
-    if ([[aTableColumn identifier] isEqualToString: @"name"]) {
+    if ([aTableColumn.identifier isEqualToString: @"name"]) {
       mValueInspector->get_field(node, ::bec::ValueInspectorBE::Name, s);
       NSString* name = @(s.c_str());
-      name = [name stringBySplittingCamelCase];
+      name = name.stringBySplittingCamelCase;
       name = [name stringByAppendingString: @":"];
-      retVal = [name capitalizedString];
+      retVal = name.capitalizedString;
     }
     else {
       mValueInspector->get_field(node, ::bec::ValueInspectorBE::Value, s);
@@ -162,7 +161,7 @@ dataCellForTableColumn: (NSTableColumn*) tableColumn
 {
   NSCell* cell = nil;
   
-  if ([[tableColumn identifier] isEqualToString: @"value"]) {
+  if ([tableColumn.identifier isEqualToString: @"value"]) {
     PropertyType pt = [self propertyTypeForRowIndex: rowIndex];
     if (pt == PROPERTY_TYPE_COLOR) {
       cell = mColorCell;
@@ -173,7 +172,7 @@ dataCellForTableColumn: (NSTableColumn*) tableColumn
   }
   
   if (cell == nil) {
-    cell = [tableColumn dataCell];
+    cell = tableColumn.dataCell;
   }
   
   return cell;
@@ -212,14 +211,14 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   std::string s;
   mValueInspector->get_field(node, ::bec::ValueInspectorBE::Value, s);
   NSString* hex = @(s.c_str());
-  if ([hex length] > 1) {
+  if (hex.length > 1) {
     hex = [hex substringFromIndex: 1];
   }
 
-  if ([hex length] == 6) {
+  if (hex.length == 6) {
     NSColorPanel* scp = [NSColorPanel sharedColorPanel];
     NSColor* color = [WBColorCell colorWithHexString: hex];
-    [scp setColor: color];
+    scp.color = color;
     
     hasColor = YES;
   }
@@ -231,10 +230,10 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
 
 - (void) userDoubleClick: (id) sender;
 {
-  NSInteger rowIndex = [mTableView selectedRow];
+  NSInteger rowIndex = mTableView.selectedRow;
   PropertyType pt = [self propertyTypeForRowIndex: rowIndex];
   if (pt == PROPERTY_TYPE_COLOR) {
-    [self updateColorPickerPanelWithColorAtRowIndex: rowIndex];
+    [self updateColorPickerPanelWithColorAtRowIndex: (int)rowIndex];
     {
       NSColorPanel* scp = [NSColorPanel sharedColorPanel];
       [scp setTarget: self];
@@ -251,8 +250,8 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
 {
   NSColor* c = [sender color];
   NSString* hex = [WBColorCell hexStringWithColor: c];
-  const char* cStr = [hex UTF8String];
-  NSInteger rowIndex = [mTableView selectedRow];
+  const char* cStr = hex.UTF8String;
+  NSInteger rowIndex = mTableView.selectedRow;
   if (rowIndex >= 0)
   {
     bec::NodeId node;
@@ -276,26 +275,18 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   
   if (form != nil) {
     std::vector<std::string> items;
-    mValueInspector = _wbui->create_inspector_for_selection(form, items);
+    mValueInspector = wb::WBContextUI::get()->create_inspector_for_selection(form, items);
     
     // Update color of color picker to match new selection.
-    NSInteger rowIndex = [mTableView selectedRow];
+    NSInteger rowIndex = mTableView.selectedRow;
     PropertyType pt = [self propertyTypeForRowIndex: rowIndex];
     if (pt == PROPERTY_TYPE_COLOR) {
-      [self updateColorPickerPanelWithColorAtRowIndex: rowIndex];
+      [self updateColorPickerPanelWithColorAtRowIndex: (int)rowIndex];
     }
   }
   
   [mTableView reloadData];
 }
-
-
-
-- (void) setWBContext: (wb::WBContextUI*) be;
-{
-  _wbui = be;
-}
-
 
 
 #pragma mark Create + Destroy
@@ -307,11 +298,11 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   
   mCheckBoxCell = [NSButtonCell new];
   [mCheckBoxCell setButtonType: NSSwitchButton];
-  [mCheckBoxCell setControlSize: NSSmallControlSize];
-  [mCheckBoxCell setTitle: @""];
+  mCheckBoxCell.controlSize = NSSmallControlSize;
+  mCheckBoxCell.title = @"";
   
-  [mTableView setTarget: self];
-  [mTableView setDoubleAction: @selector(userDoubleClick:)];
+  mTableView.target = self;
+  mTableView.doubleAction = @selector(userDoubleClick:);
 }
 
 - (void) dealloc

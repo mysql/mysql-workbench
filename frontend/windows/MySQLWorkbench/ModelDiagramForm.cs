@@ -128,13 +128,13 @@ namespace MySQL.GUI.Workbench
 
     public void RefreshGUI(RefreshType refresh, String str, IntPtr ptr)
     {
-      if (Closing)
+      if (ShuttingDown)
         return;
 
       switch (refresh)
       {
         case RefreshType.RefreshCloseDocument:
-          Closing = true;
+          ShuttingDown = true;
           break;
 
         case RefreshType.RefreshSelection:
@@ -292,7 +292,7 @@ namespace MySQL.GUI.Workbench
       set { formBE.set_zoom(value); }
     }
 
-    new public bool Closing { get; set; }
+    public bool ShuttingDown { get; set; }
 
     #endregion
 

@@ -6,121 +6,101 @@
 
 namespace mdc {
 
+  enum EventState {
+    SNone = 0,
+    SLeftButtonMask = (1 << 0),
+    SMiddleButtonMask = (1 << 1),
+    SRightButtonMask = (1 << 2),
 
-enum EventState {
-  SNone=             0,
-  SLeftButtonMask=   (1<<0),
-  SMiddleButtonMask= (1<<1),
-  SRightButtonMask=  (1<<2),
-  
-  SButtonMask=  0x0f,
+    SButtonMask = 0x0f,
 
-  SShiftMask=        (1<<8),
-  SControlMask=      (1<<9),
-  SAltMask=          (1<<10),
-  SOptionMask=       SAltMask,
-  SCommandMask=      (1<<11),
-  
-  SModifierMask=   (SShiftMask|SControlMask|SAltMask|SOptionMask|SCommandMask),
-  
-  SLeaveMask=        (1<<16),
-  SEnterMask=        (1<<17)
-};
+    SShiftMask = (1 << 8),
+    SControlMask = (1 << 9),
+    SAltMask = (1 << 10),
+    SOptionMask = SAltMask,
+    SCommandMask = (1 << 11),
 
+    SModifierMask = (SShiftMask | SControlMask | SAltMask | SOptionMask | SCommandMask),
 
-enum KeyCode {
-  KNone= 0,
+    SLeaveMask = (1 << 16),
+    SEnterMask = (1 << 17)
+  };
 
-  KEscape,
-  KTab = '\t',
-  KEnter = '\n',
-  KSpace = ' ',
-  KPeriod = '.',
-  KComma = ',',
-  KSemicolon = ';',
-  KPlus = '+',
-  KMinus = '-',
+  enum KeyCode {
+    KNone = 0,
 
-  KShift = 0xff00,
-  KAlt,
-  KControl,
-  KOption,
-  KCommand,
+    KEscape,
+    KTab = '\t',
+    KEnter = '\n',
+    KSpace = ' ',
+    KPeriod = '.',
+    KComma = ',',
+    KSemicolon = ';',
+    KPlus = '+',
+    KMinus = '-',
 
-  KF1,
-  KF2,
-  KF3,
-  KF4,
-  KF5,
-  KF6,
-  KF7,
-  KF8,
-  KF9,
-  KF10,
-  KF11,
-  KF12,
+    KShift = 0xff00,
+    KAlt,
+    KControl,
+    KOption,
+    KCommand,
 
-  KLeft,
-  KRight,
-  KUp,
-  KDown,
-  KHome,
-  KEnd,
-  KPageUp,
-  KPageDown,
+    KF1,
+    KF2,
+    KF3,
+    KF4,
+    KF5,
+    KF6,
+    KF7,
+    KF8,
+    KF9,
+    KF10,
+    KF11,
+    KF12,
 
-  KInsert,
-  KDelete,
-  KBackspace
+    KLeft,
+    KRight,
+    KUp,
+    KDown,
+    KHome,
+    KEnd,
+    KPageUp,
+    KPageDown,
 
-};
+    KInsert,
+    KDelete,
+    KBackspace
 
+  };
 
-struct KeyInfo {
-  KeyCode keycode;
-  std::string string;
+  struct KeyInfo {
+    KeyCode keycode;
+    std::string string;
 
-  bool operator==(const KeyInfo &other) const
-  {
-    if (keycode != 0 && keycode == other.keycode)
-      return true;
-    return string == other.string;
+    bool operator==(const KeyInfo& other) const {
+      if (keycode != 0 && keycode == other.keycode)
+        return true;
+      return string == other.string;
+    }
+  };
+
+  inline EventState operator&(EventState s1, EventState s2) {
+    return (EventState)((int)s1 & (int)s2);
+  }
+
+  inline EventState operator|(EventState s1, EventState s2) {
+    return (EventState)((int)s1 | (int)s2);
+  }
+
+  enum MouseButton { ButtonLeft = 0, ButtonMiddle = 1, ButtonRight = 2 };
+
+  inline EventState operator-(EventState s, MouseButton b) {
+    return (EventState)((int)s & ~(1 << (int)b));
+  }
+
+  inline EventState operator+(EventState s, MouseButton b) {
+    return (EventState)((int)s | (1 << (int)b));
   }
 };
 
-
-inline EventState operator& (EventState s1, EventState s2)
-{
-  return (EventState)((int)s1&(int)s2);
-}
-
-inline EventState operator| (EventState s1, EventState s2)
-{
-  return (EventState)((int)s1|(int)s2);
-}
-
-
-
-enum MouseButton {
-  ButtonLeft= 0,
-  ButtonMiddle= 1,
-  ButtonRight= 2
-};
-
-
-inline EventState operator - (EventState s, MouseButton b)
-{
-  return (EventState)((int)s & ~(1<<(int)b));
-}
-
-inline EventState operator + (EventState s, MouseButton b)
-{
-  return (EventState)((int)s | (1<<(int)b));
-}
-
-
-
-};
-
 #endif
-

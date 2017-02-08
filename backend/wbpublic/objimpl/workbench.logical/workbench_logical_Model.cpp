@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -21,39 +21,23 @@
 
 #include <grtpp_util.h>
 
-
 //================================================================================
 // workbench_logical_Model
 
+class workbench_logical_Model::ImplData {};
 
-class workbench_logical_Model::ImplData
-{
-};
-
-
-void workbench_logical_Model::init()
-{
-  //if (!_data) _data= new workbench_logical_Model::ImplData();
+void workbench_logical_Model::init() {
+  // if (!_data) _data= new workbench_logical_Model::ImplData();
 }
 
-
-void workbench_logical_Model::set_data(ImplData *data)
-{
+void workbench_logical_Model::set_data(ImplData *data) {
 }
 
-workbench_logical_Model::~workbench_logical_Model()
-{
+workbench_logical_Model::~workbench_logical_Model() {
   delete _data;
 }
 
-
-model_DiagramRef workbench_logical_Model::addNewDiagram(ssize_t)
-{
+model_DiagramRef workbench_logical_Model::addNewDiagram(ssize_t) {
   // add code here
   return model_DiagramRef();
 }
-
-
-
-
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,16 +17,11 @@
  * 02110-1301  USA
  */
 
-@interface WBColorCell : NSActionCell
-{
+@interface WBColorCell : NSActionCell {
   NSSize mColorSize;
 }
 
-
-+ (NSColor*) colorWithHexString: (NSString*) hex;
-+ (NSString*) hexStringWithColor: (NSColor*) color;
-
++ (NSColor*)colorWithHexString:(NSString*)hex;
++ (NSString*)hexStringWithColor:(NSColor*)color;
 
 @end
-
-

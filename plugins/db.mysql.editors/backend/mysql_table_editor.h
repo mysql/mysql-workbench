@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -27,16 +27,13 @@
 
 class MySQLTableEditorBE;
 
-namespace mforms
-{
+namespace mforms {
   class View;
 };
 
-class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableColumnsListBE : public ::bec::TableColumnsListBE
-{
+class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableColumnsListBE : public ::bec::TableColumnsListBE {
 public:
-  enum MySQLColumnListColumns
-  {
+  enum MySQLColumnListColumns {
     IsAutoIncrement = bec::TableColumnsListBE::LastColumn,
     IsAutoIncrementable,
     IsGenerated,
@@ -48,25 +45,18 @@ public:
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, ssize_t value);
 
   MySQLTableColumnsListBE(MySQLTableEditorBE *owner);
-  
+
   virtual bool activate_popup_item_for_nodes(const std::string &name, const std::vector<bec::NodeId> &orig_nodes);
   virtual bec::MenuItemList get_popup_items_for_nodes(const std::vector<bec::NodeId> &nodes);
+
 protected:
   // for internal use only
   virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, ::grt::ValueRef &value);
-
 };
 
-
-
-class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableIndexListBE : public bec::IndexListBE
-{
+class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableIndexListBE : public bec::IndexListBE {
 public:
-  enum Columns {
-    StorageType = bec::IndexListBE::LastColumn,
-    RowBlockSize,
-    Parser
-  };
+  enum Columns { StorageType = bec::IndexListBE::LastColumn, RowBlockSize, Parser };
 
   MySQLTableIndexListBE(MySQLTableEditorBE *owner);
 
@@ -76,27 +66,16 @@ protected:
   virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, grt::ValueRef &value);
 };
 
-
-
-class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTablePartitionTreeBE : public bec::TreeModel
-{
+class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTablePartitionTreeBE : public bec::TreeModel {
   MySQLTableEditorBE *_owner;
 
 public:
   // all columns are string, including min/maxRows
-  enum Columns {
-    Name,
-    Value,
-    MinRows,
-    MaxRows,
-    DataDirectory,
-    IndexDirectory,
-    Comment
-  };
+  enum Columns { Name, Value, MinRows, MaxRows, DataDirectory, IndexDirectory, Comment };
 
   MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner);
 
-  virtual void refresh() {};
+  virtual void refresh(){};
 
   virtual size_t count_children(const ::bec::NodeId &parent);
   virtual ::bec::NodeId get_child(const ::bec::NodeId &parent, size_t index);
@@ -108,35 +87,37 @@ protected:
   virtual grt::Type get_field_type(const ::bec::NodeId &node, ColumnId column);
 
   db_mysql_PartitionDefinitionRef get_definition(const ::bec::NodeId &node);
-
 };
-
 
 class MySQLTriggerPanel;
 
-class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableEditorBE : public ::bec::TableEditorBE
-{
+class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableEditorBE : public ::bec::TableEditorBE {
   friend class MySQLTriggerPanel;
+
 public:
-  MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table);
+  MySQLTableEditorBE(db_mysql_TableRef table);
   virtual ~MySQLTableEditorBE();
 
   virtual void refresh_live_object();
   virtual void commit_changes();
 
-  virtual MySQLTableColumnsListBE *get_columns() { return &_columns; }
-  virtual MySQLTableIndexListBE *get_indexes() { return &_indexes; }
+  virtual MySQLTableColumnsListBE *get_columns() {
+    return &_columns;
+  }
+  virtual MySQLTableIndexListBE *get_indexes() {
+    return &_indexes;
+  }
 
   virtual std::vector<std::string> get_index_types();
   virtual std::vector<std::string> get_index_storage_types();
   virtual std::vector<std::string> get_fk_action_options();
 
   // table options
-  virtual void set_table_option_by_name(const std::string& name, const std::string& value);
-  virtual std::string get_table_option_by_name(const std::string& name);
+  virtual void set_table_option_by_name(const std::string &name, const std::string &value);
+  virtual std::string get_table_option_by_name(const std::string &name);
   std::vector<std::string> get_engines_list();
   bool engine_supports_foreign_keys();
-  
+
   virtual bool check_column_referenceable_by_fk(const db_ColumnRef &column1, const db_ColumnRef &column2);
 
   void load_trigger_sql();
@@ -150,13 +131,12 @@ public:
   // partitioning
   bool set_partition_type(const std::string &type);
   std::string get_partition_type();
- 
+
   void set_partition_expression(const std::string &expr);
   std::string get_partition_expression();
 
   void set_partition_count(int count);
   int get_partition_count();
-
 
   bool set_subpartition_type(const std::string &type);
   std::string get_subpartition_type();
@@ -168,9 +148,11 @@ public:
   void set_subpartition_count(int count);
   int get_subpartition_count();
 
-  MySQLTablePartitionTreeBE *get_partitions() { return &_partitions; }
+  MySQLTablePartitionTreeBE *get_partitions() {
+    return &_partitions;
+  }
 
-  // whether partitions and sub partitions will be defined by the user or not 
+  // whether partitions and sub partitions will be defined by the user or not
   // if false, only count is needed otherwise the partitions list must be defined
   void set_explicit_partitions(bool flag);
   bool get_explicit_partitions();
@@ -178,13 +160,13 @@ public:
   bool get_explicit_subpartitions();
 
   virtual db_TableRef create_stub_table(const std::string &schema, const std::string &table);
-  
+
 protected:
   MySQLTableColumnsListBE _columns;
   MySQLTablePartitionTreeBE _partitions;
   MySQLTableIndexListBE _indexes;
   MySQLTriggerPanel *_trigger_panel;
   bool _updating_triggers;
-  
+
   void reset_partition_definitions(int parts, int subparts);
 };

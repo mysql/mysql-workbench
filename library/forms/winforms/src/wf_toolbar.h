@@ -1,16 +1,16 @@
 /**
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,47 +21,44 @@
 
 namespace MySQL {
   namespace Forms {
-    
+
     ref class MformsToolStrip;
 
     /**
      * Custom layout engine to allow to use expander and segmented tool strip items.
      * This engine only supports horizontal toolstrips.
      */
-    private ref class MformsToolStripLayout : public Windows::Forms::Layout::LayoutEngine
-    {
+  private
+    ref class MformsToolStripLayout : public System::Windows::Forms::Layout::LayoutEngine {
     public:
-      System::Drawing::Size ComputeLayout(MformsToolStrip^ toolstrip, System::Drawing::Size proposedSize,
-        bool preferredSizeOnly);
-      virtual bool Layout(Object^ container, Windows::Forms::LayoutEventArgs^ arguments) override;
+      System::Drawing::Size ComputeLayout(MformsToolStrip ^ toolstrip, System::Drawing::Size proposedSize,
+                                          bool preferredSizeOnly);
+      virtual bool Layout(Object ^ container, System::Windows::Forms::LayoutEventArgs ^ arguments) override;
     };
 
-    private ref class MformsToolStrip : public Windows::Forms::ToolStrip
-    {
+  private
+    ref class MformsToolStrip : public System::Windows::Forms::ToolStrip {
     private:
-      MformsToolStripLayout^ layoutEngine;
+      MformsToolStripLayout ^ layoutEngine;
 
     public:
       virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override;
-      void ApplyLocation(Windows::Forms::ToolStripItem^ item, Drawing::Point location);
+      void ApplyLocation(System::Windows::Forms::ToolStripItem ^ item, Drawing::Point location);
 
-      virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
-      {
-        Windows::Forms::Layout::LayoutEngine^ get() override
-        {
+      virtual property System::Windows::Forms::Layout::LayoutEngine ^ LayoutEngine {
+        System::Windows::Forms::Layout::LayoutEngine ^ get() override {
           if (layoutEngine == nullptr)
             layoutEngine = gcnew MformsToolStripLayout();
           return layoutEngine;
         }
       }
-
     };
 
     /**
      * Managed wrapper for an mforms ToolBar.
      */
-    public class ToolBarWrapper : public ViewWrapper
-    {
+  public
+    class ToolBarWrapper : public ViewWrapper {
     protected:
       ToolBarWrapper(mforms::ToolBar *toolbar);
 
@@ -74,6 +71,7 @@ namespace MySQL {
       static void set_item_alt_icon(mforms::ToolBarItem *item, const std::string &path);
       static void set_item_text(mforms::ToolBarItem *item, const std::string &text);
       static std::string get_item_text(mforms::ToolBarItem *item);
+      static void set_item_name(mforms::ToolBarItem *item, const std::string &);
       static void set_item_enabled(mforms::ToolBarItem *item, bool state);
       static bool get_item_enabled(mforms::ToolBarItem *item);
       static void set_item_checked(mforms::ToolBarItem *item, bool state);
@@ -81,12 +79,12 @@ namespace MySQL {
       static void set_item_tooltip(mforms::ToolBarItem *item, const std::string &text);
 
       // For selector items only.
-      static void set_selector_items(mforms::ToolBarItem *item, const std::vector<std::string>& values);
+      static void set_selector_items(mforms::ToolBarItem *item, const std::vector<std::string> &values);
 
-      static Drawing::Bitmap^ create_color_image(String ^color);
+      static Drawing::Bitmap ^ create_color_image(String ^ color);
+
     public:
       static void init();
     };
-
   };
 };

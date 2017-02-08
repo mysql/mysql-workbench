@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -31,7 +31,7 @@
 
 /**
  * @file  wb_overview_privileges.cpp
- * @brief 
+ * @brief
  */
 
 using namespace bec;
@@ -41,164 +41,163 @@ using namespace base;
 
 #define USERLIST_DEFAULT_HEIGHT 150
 
-
-class PrivilegeObjectNode : public OverviewBE::ObjectNode
-{  
+class PrivilegeObjectNode : public OverviewBE::ObjectNode {
   boost::signals2::connection _changed_conn;
+
 public:
-  PrivilegeObjectNode(GrtObjectRef o, const boost::function<void (const std::string&,const grt::ValueRef&)> &refresh_slot) 
-  {
-    object= o; 
-    
+  PrivilegeObjectNode(GrtObjectRef o,
+                      const std::function<void(const std::string &, const grt::ValueRef &)> &refresh_slot) {
+    object = o;
+
     if (refresh_slot)
       _changed_conn = o->signal_changed()->connect(refresh_slot);
   }
-  
-  virtual ~PrivilegeObjectNode()
-  {
+
+  virtual ~PrivilegeObjectNode() {
     _changed_conn.disconnect();
   }
 
-  boost::function<void (WBComponentPhysical*)> remove;
+  std::function<void(WBComponentPhysical *)> remove;
 
-  virtual void delete_object(WBContext *wb) 
-  {
+  virtual void delete_object(WBContext *wb) {
     remove(wb->get_component<WBComponentPhysical>());
   }
 
-  virtual bool is_deletable() { return true; }
+  virtual bool is_deletable() {
+    return true;
+  }
 
-  
-  virtual void copy_object(WBContext *wb, bec::Clipboard *clip)
-  {
+  virtual void copy_object(WBContext *wb, bec::Clipboard *clip) {
     clip->clear();
     clip->append_data(grt::copy_object(object));
     clip->set_content_description(label);
   }
 
-  virtual bool is_copyable()
-  {
+  virtual bool is_copyable() {
     return true;
   }
 
-  virtual bool is_renameable() 
-  { 
+  virtual bool is_renameable() {
     return true;
   }
 };
 
-
 /*
  * MySQL
- * 
+ *
  * [+] Privileges
  * ------------------------------------------------------------
  * Users
  * ...
  * Roles
  * ...
- * 
+ *
  * [+] Synchronized Databases
  * -------------------------------------------------------------
- * 
- * 
+ *
+ *
  */
 
-class UserListNode : public OverviewBE::ContainerNode
-{
+class UserListNode : public OverviewBE::ContainerNode {
 private:
   std::string id;
   grt::ListRef<GrtNamedObject> _list;
-  boost::function<void (WBComponentPhysical*, db_UserRef)> _remove;
+  std::function<void(WBComponentPhysical *, db_UserRef)> _remove;
   PhysicalOverviewBE *_owner;
+
 public:
   UserListNode(const std::string &name, const db_CatalogRef &catalog, grt::ListRef<GrtNamedObject> list,
-    const boost::function<void (WBComponentPhysical*, db_UserRef)> &remove, PhysicalOverviewBE *owner)
-    : ContainerNode(OverviewBE::OItem), _list(list), _remove(remove), _owner(owner)
-  {
-    id= catalog->id() + "/" + name;
-    label= name;
-    type= OverviewBE::OSection;
-    small_icon= 0;
-    large_icon= 0;
-    expanded= false;
+               const std::function<void(WBComponentPhysical *, db_UserRef)> &remove, PhysicalOverviewBE *owner)
+    : ContainerNode(OverviewBE::OItem), _list(list), _remove(remove), _owner(owner) {
+    id = catalog->id() + "/" + name;
+    label = name;
+    type = OverviewBE::OSection;
+    small_icon = 0;
+    large_icon = 0;
+    expanded = false;
 
     refresh_children();
   }
-  
-  void refresh(const std::string &member, const grt::ValueRef &)
-  {
+
+#ifndef _WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+  void refresh(const std::string &member, const grt::ValueRef &) {
     if (member == "name")
       _owner->send_refresh_users();
   }
+#ifndef _WIN32
+#pragma GCC diagnostic pop
+#endif
 
-  virtual void refresh_children()
-  {
-    Node *add_item= 0;
-    if (!children.empty())
-    {
-      add_item= children.front();
+  virtual void refresh_children() {
+    Node *add_item = 0;
+    if (!children.empty()) {
+      add_item = children.front();
       children.erase(children.begin());
     }
     clear_children();
 
     if (add_item)
       children.push_back(add_item);
-    
-    for (size_t c= _list.count(), i= 0; i < c; i++)
-    {
-      PrivilegeObjectNode *node= new PrivilegeObjectNode(_list[i], boost::bind(&UserListNode::refresh, this, _1, _2));
-      
-      node->type= OverviewBE::OItem;
-      node->label= _list[i]->name();
-      node->small_icon= IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon16);
-      node->large_icon= IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon48);
-      node->remove= boost::bind(_remove, _1, db_UserRef::cast_from(_list[i]));
+
+    for (size_t c = _list.count(), i = 0; i < c; i++) {
+      PrivilegeObjectNode *node = new PrivilegeObjectNode(
+        _list[i], std::bind(&UserListNode::refresh, this, std::placeholders::_1, std::placeholders::_2));
+
+      node->type = OverviewBE::OItem;
+      node->label = _list[i]->name();
+      node->small_icon = IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon16);
+      node->large_icon = IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon48);
+      node->remove = std::bind(_remove, std::placeholders::_1, db_UserRef::cast_from(_list[i]));
 
       children.push_back(node);
     }
   }
 
-  virtual std::string get_unique_id()
-  { 
+  virtual std::string get_unique_id() {
     return id;
   }
 };
 
-class RoleListNode : public OverviewBE::ContainerNode
-{
+class RoleListNode : public OverviewBE::ContainerNode {
 private:
   std::string id;
   grt::ListRef<GrtNamedObject> _list;
-  boost::function<void (WBComponentPhysical*, db_RoleRef)> _remove;
+  std::function<void(WBComponentPhysical *, db_RoleRef)> _remove;
   PhysicalOverviewBE *_owner;
+
 public:
   RoleListNode(const std::string &name, const db_CatalogRef &catalog, grt::ListRef<GrtNamedObject> list,
-    const boost::function<void (WBComponentPhysical*, db_RoleRef)> &remove, PhysicalOverviewBE *owner)
-    : ContainerNode(OverviewBE::OItem), _list(list), _remove(remove), _owner(owner)
-  {
-    id= catalog->id() + "/" + name;
-    label= name;
-    type= OverviewBE::OSection;
-    small_icon= 0;
-    large_icon= 0;
-    expanded= false;
+               const std::function<void(WBComponentPhysical *, db_RoleRef)> &remove, PhysicalOverviewBE *owner)
+    : ContainerNode(OverviewBE::OItem), _list(list), _remove(remove), _owner(owner) {
+    id = catalog->id() + "/" + name;
+    label = name;
+    type = OverviewBE::OSection;
+    small_icon = 0;
+    large_icon = 0;
+    expanded = false;
 
     refresh_children();
   }
 
-  void refresh(const std::string &member, const grt::ValueRef &)
-  {
+#ifndef _WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+  void refresh(const std::string &member, const grt::ValueRef &) {
     if (member == "name")
       _owner->send_refresh_roles();
   }
-  
-  virtual void refresh_children()
-  {
-    Node *add_item= 0;
-    
-    if (!children.empty())
-    {
+#ifndef _WIN32
+#pragma GCC diagnostic push
+#endif
+
+  virtual void refresh_children() {
+    Node *add_item = 0;
+
+    if (!children.empty()) {
       add_item = children.front();
       children.erase(children.begin());
     }
@@ -206,61 +205,49 @@ public:
     if (add_item)
       children.push_back(add_item);
 
-    for (size_t c= _list.count(), i= 0; i < c; i++)
-    {
-      PrivilegeObjectNode *node= new PrivilegeObjectNode(_list[i], 
-                                                         boost::bind(&RoleListNode::refresh, this, _1, _2));
-      
-      node->type= OverviewBE::OItem;
-      node->label= _list[i]->name();
-      node->small_icon= IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon16);
-      node->large_icon= IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon48);
-      node->remove= boost::bind(_remove, _1, db_RoleRef::cast_from(_list[i]));
+    for (size_t c = _list.count(), i = 0; i < c; i++) {
+      PrivilegeObjectNode *node = new PrivilegeObjectNode(
+        _list[i], std::bind(&RoleListNode::refresh, this, std::placeholders::_1, std::placeholders::_2));
+
+      node->type = OverviewBE::OItem;
+      node->label = _list[i]->name();
+      node->small_icon = IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon16);
+      node->large_icon = IconManager::get_instance()->get_icon_id(_list[i]->get_metaclass(), Icon48);
+      node->remove = std::bind(_remove, std::placeholders::_1, db_RoleRef::cast_from(_list[i]));
 
       children.push_back(node);
     }
   }
 
-  virtual std::string get_unique_id()
-  { 
+  virtual std::string get_unique_id() {
     return id;
   }
 };
 
-
 //----------------------------------------------------------------------
 
-
-void wb::internal::PrivilegeInfoNode::paste_object(WBContext *wb, bec::Clipboard *clip)
-{
+void wb::internal::PrivilegeInfoNode::paste_object(WBContext *wb, bec::Clipboard *clip) {
   std::list<grt::ObjectRef> objects(clip->get_data());
   db_CatalogRef catalog(db_CatalogRef::cast_from(object));
 
-  for (std::list<grt::ObjectRef>::const_iterator iter= objects.begin(); 
-    iter != objects.end(); ++iter)
-  {
-    if ((*iter).is_instance(db_User::static_class_name()))
-    {
+  for (std::list<grt::ObjectRef>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter) {
+    if ((*iter).is_instance(db_User::static_class_name())) {
       db_UserRef dbuser(db_UserRef::cast_from(grt::copy_object(*iter)));
 
-      grt::AutoUndo undo(wb->get_grt());
-      
+      grt::AutoUndo undo;
+
       if (grt::find_named_object_in_list(catalog->users(), dbuser->name()).is_valid())
-        dbuser->name(grt::get_name_suggestion_for_list_object(catalog->users(),
-          *dbuser->name()+"_copy"));
+        dbuser->name(grt::get_name_suggestion_for_list_object(catalog->users(), *dbuser->name() + "_copy"));
 
       catalog->users().insert(dbuser);
       undo.end(strfmt(_("Paste '%s'"), dbuser->name().c_str()));
-    }
-    else if ((*iter).is_instance(db_Role::static_class_name()))
-    {
+    } else if ((*iter).is_instance(db_Role::static_class_name())) {
       db_RoleRef dbrole(db_RoleRef::cast_from(grt::copy_object(*iter)));
 
-      grt::AutoUndo undo(wb->get_grt());
+      grt::AutoUndo undo;
 
       if (grt::find_named_object_in_list(catalog->roles(), dbrole->name()).is_valid())
-        dbrole->name(grt::get_name_suggestion_for_list_object(catalog->roles(),
-          *dbrole->name()+"_copy"));
+        dbrole->name(grt::get_name_suggestion_for_list_object(catalog->roles(), *dbrole->name() + "_copy"));
 
       catalog->roles().insert(dbrole);
       undo.end(strfmt(_("Paste '%s'"), dbrole->name().c_str()));
@@ -268,72 +255,63 @@ void wb::internal::PrivilegeInfoNode::paste_object(WBContext *wb, bec::Clipboard
   }
 }
 
-
-bool wb::internal::PrivilegeInfoNode::is_pasteable(bec::Clipboard *clip)
-{
+bool wb::internal::PrivilegeInfoNode::is_pasteable(bec::Clipboard *clip) {
   std::list<grt::ObjectRef> objects(clip->get_data());
-  for (std::list<grt::ObjectRef>::const_iterator iter= objects.begin(); 
-    iter != objects.end(); ++iter)
-  {
-    if (!(*iter).is_instance(db_User::static_class_name())
-      && !(*iter).is_instance(db_Role::static_class_name()))
+  for (std::list<grt::ObjectRef>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter) {
+    if (!(*iter).is_instance(db_User::static_class_name()) && !(*iter).is_instance(db_Role::static_class_name()))
       return false;
   }
   return !objects.empty();
 }
 
-
-
-bool wb::internal::PrivilegeInfoNode::add_new_user(WBContext *wb)
-{
-  wb->get_grt_manager()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_user(workbench_physical_ModelRef::cast_from(object->owner())));
+bool wb::internal::PrivilegeInfoNode::add_new_user(WBContext *wb) {
+  bec::GRTManager::get()->open_object_editor(
+    wb->get_component<WBComponentPhysical>()->add_new_user(workbench_physical_ModelRef::cast_from(object->owner())));
   return true;
 }
 
-
-bool wb::internal::PrivilegeInfoNode::add_new_role(WBContext *wb)
-{
-  wb->get_grt_manager()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_role(workbench_physical_ModelRef::cast_from(object->owner())));
+bool wb::internal::PrivilegeInfoNode::add_new_role(WBContext *wb) {
+  bec::GRTManager::get()->open_object_editor(
+    wb->get_component<WBComponentPhysical>()->add_new_role(workbench_physical_ModelRef::cast_from(object->owner())));
   return true;
 }
-
 
 wb::internal::PrivilegeInfoNode::PrivilegeInfoNode(const db_CatalogRef &catalog, PhysicalOverviewBE *owner)
-: ContainerNode(OverviewBE::OSection)
-{
-  object= catalog;
-  type= OverviewBE::ODivision;
-  label= _("Schema Privileges");
-  description= "Privileges";
-  display_mode= OverviewBE::MSmallIcon;
+  : ContainerNode(OverviewBE::OSection) {
+  object = catalog;
+  type = OverviewBE::ODivision;
+  label = _("Schema Privileges");
+  description = "Privileges";
+  display_mode = OverviewBE::MSmallIcon;
 
-  OverviewBE::AddObjectNode *add_node= new OverviewBE::AddObjectNode(boost::bind(&PrivilegeInfoNode::add_new_user, this, _1));
-  add_node->label= _("Add User");
-  add_node->type= OverviewBE::OItem;
-  add_node->small_icon= IconManager::get_instance()->get_icon_id("db.User.$.png", Icon16, "add");
-  add_node->large_icon= IconManager::get_instance()->get_icon_id("db.User.$.png", Icon48, "add");
+  OverviewBE::AddObjectNode *add_node =
+    new OverviewBE::AddObjectNode(std::bind(&PrivilegeInfoNode::add_new_user, this, std::placeholders::_1));
+  add_node->label = _("Add User");
+  add_node->type = OverviewBE::OItem;
+  add_node->small_icon = IconManager::get_instance()->get_icon_id("db.User.$.png", Icon16, "add");
+  add_node->large_icon = IconManager::get_instance()->get_icon_id("db.User.$.png", Icon48, "add");
 
   {
     UserListNode *node;
-    node= new UserListNode("Users", catalog, grt::ListRef<GrtNamedObject>::cast_from(catalog->users()),
-      boost::bind(&WBComponentPhysical::remove_user, _1, _2), owner);
+    node = new UserListNode("Users", catalog, grt::ListRef<GrtNamedObject>::cast_from(catalog->users()),
+                            std::bind(&WBComponentPhysical::remove_user, std::placeholders::_1, std::placeholders::_2),
+                            owner);
     children.push_back(node);
     node->children.insert(node->children.begin(), add_node);
   }
 
-
-  add_node= new OverviewBE::AddObjectNode(boost::bind(&PrivilegeInfoNode::add_new_role, this, _1));
-  add_node->label= _("Add Role");
-  add_node->type= OverviewBE::OItem;
-  add_node->small_icon= IconManager::get_instance()->get_icon_id("db.Role.$.png", Icon16, "add");
-  add_node->large_icon= IconManager::get_instance()->get_icon_id("db.Role.$.png", Icon48, "add");
+  add_node = new OverviewBE::AddObjectNode(std::bind(&PrivilegeInfoNode::add_new_role, this, std::placeholders::_1));
+  add_node->label = _("Add Role");
+  add_node->type = OverviewBE::OItem;
+  add_node->small_icon = IconManager::get_instance()->get_icon_id("db.Role.$.png", Icon16, "add");
+  add_node->large_icon = IconManager::get_instance()->get_icon_id("db.Role.$.png", Icon48, "add");
 
   {
-    RoleListNode *node= new RoleListNode("Roles", catalog, grt::ListRef<GrtNamedObject>::cast_from(catalog->roles()),
-      boost::bind(&WBComponentPhysical::remove_role, _1, _2), owner);
+    RoleListNode *node = new RoleListNode(
+      "Roles", catalog, grt::ListRef<GrtNamedObject>::cast_from(catalog->roles()),
+      std::bind(&WBComponentPhysical::remove_role, std::placeholders::_1, std::placeholders::_2), owner);
     children.push_back(node);
 
     node->children.insert(node->children.begin(), add_node);
   }
 }
-

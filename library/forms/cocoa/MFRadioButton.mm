@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,14 +34,14 @@
   if (self)
   {
     [self setButtonType: NSRadioButton];
-    [self setBezelStyle: NSRegularSquareBezelStyle];
+    self.bezelStyle = NSRegularSquareBezelStyle;
     
     mTopLeftOffset= NSMakePoint(0, 0);
     mBottomRightOffset= NSMakePoint(0, 0);
     mAddPadding= NO;
     
-    [self setTarget:self];
-    [self setAction:@selector(performCallback:)];
+    self.target = self;
+    self.action = @selector(performCallback:);
   }
   return self;
 }
@@ -59,13 +59,11 @@
   dynamic_cast<mforms::RadioButton*>(mOwner)->callback();
 }
 
-
 - (NSSize)minimumSize
 {
-  return [[self cell] cellSize];
+  NSSize size = super.minimumSize;
+  return { MAX(self.cell.cellSize.width, size.width), MAX(self.cell.cellSize.height, size.height) };
 }
-
-
 
 static bool radiobutton_create(::mforms::RadioButton *self, int)
 {
@@ -81,7 +79,7 @@ static void radiobutton_set_active(::mforms::RadioButton *self, bool flag)
     
     if ( radiobutton )
     {
-      [radiobutton setState: flag ? NSOnState : NSOffState];
+      radiobutton.state = flag ? NSOnState : NSOffState;
     }
   }
 }
@@ -94,7 +92,7 @@ static bool radiobutton_get_active(::mforms::RadioButton *self)
     
     if ( radiobutton )
     {
-      return [radiobutton state] == NSOnState;
+      return radiobutton.state == NSOnState;
     }
   }
   return false;

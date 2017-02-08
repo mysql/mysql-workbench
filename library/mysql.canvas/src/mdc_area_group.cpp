@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -32,115 +32,87 @@
 using namespace mdc;
 using namespace base;
 
-AreaGroup::AreaGroup(Layer *layer)
-: Group(layer)
-{
-  resize_to(Size(100,100));
+AreaGroup::AreaGroup(Layer *layer) : Group(layer), _dragged(false) {
+  resize_to(Size(100, 100));
 
-  _drag_selects_contents= false;
+  _drag_selects_contents = false;
 }
 
-
-AreaGroup::~AreaGroup()
-{
+AreaGroup::~AreaGroup() {
 }
 
+void AreaGroup::repaint_contents(const Rect &localClipArea, bool direct) {
+  if (_contents.size() > 0) {
+    CairoCtx *cr = _layer->get_view()->cairoctx();
 
-void AreaGroup::repaint_contents(const Rect &localClipArea, bool direct)
-{
-  if (_contents.size() > 0)
-  {
-    CairoCtx *cr= _layer->get_view()->cairoctx();
-
-    if (_layer->get_view()->has_gl() && !direct)
-    {
+    if (_layer->get_view()->has_gl() && !direct) {
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
       glTranslated(get_position().x, get_position().y, 0.0);
-    }
-    else
-    {
+    } else {
       cr->save();
       cr->translate(get_position());
     }
 
-    for (std::list<CanvasItem*>::reverse_iterator iter= _contents.rbegin(); 
-         iter != _contents.rend(); ++iter)
-    {
+    for (std::list<CanvasItem *>::reverse_iterator iter = _contents.rbegin(); iter != _contents.rend(); ++iter) {
       if ((*iter)->get_visible() && (*iter)->intersects(localClipArea))
         (*iter)->repaint(localClipArea, direct);
     }
-    if (_layer->get_view()->has_gl() && !direct)
-    {
+    if (_layer->get_view()->has_gl() && !direct) {
       glMatrixMode(GL_MODELVIEW);
       glPopMatrix();
-    }
-    else
+    } else
       cr->restore();
   }
 }
 
-
-void AreaGroup::repaint(const Rect &clipArea, bool direct)
-{
+void AreaGroup::repaint(const Rect &clipArea, bool direct) {
   Rect localClipArea(clipArea);
 
-  if (this != _layer->get_root_area_group())
-  {
-    localClipArea.pos= localClipArea.pos - get_position();
+  if (this != _layer->get_root_area_group()) {
+    localClipArea.pos = localClipArea.pos - get_position();
 
     Layouter::repaint(localClipArea, direct);
   }
   repaint_contents(localClipArea, direct);
 }
 
+void AreaGroup::move_item(CanvasItem *item, const Point &pos) {
+  Point npos = constrain_rect_to_bounds(Rect(pos, item->get_size())).pos;
 
-void AreaGroup::move_item(CanvasItem *item, const Point &pos)
-{
-  Point npos= constrain_rect_to_bounds(Rect(pos, item->get_size())).pos;
-    
   item->move_to(npos);
 }
 
-
-Rect AreaGroup::constrain_rect_to_bounds(const Rect &rect)
-{
-  Rect r= rect;
+Rect AreaGroup::constrain_rect_to_bounds(const Rect &rect) {
+  Rect r = rect;
 
   if (r.right() > get_size().width)
-    r.pos.x= get_size().width - r.size.width;
+    r.pos.x = get_size().width - r.size.width;
 
   if (r.bottom() > get_size().height)
-    r.pos.y= get_size().height - r.size.height;
+    r.pos.y = get_size().height - r.size.height;
 
   if (r.pos.x < 0)
-    r.pos.x= 0;
+    r.pos.x = 0;
 
   if (r.pos.y < 0)
-    r.pos.y= 0;
+    r.pos.y = 0;
 
   return r;
 }
 
-
-void AreaGroup::set_selected(bool flag)
-{
+void AreaGroup::set_selected(bool flag) {
   Layouter::set_selected(flag);
 }
 
-
-void AreaGroup::update_bounds()
-{
+void AreaGroup::update_bounds() {
   // no op
 }
 
+bool AreaGroup::on_button_press(CanvasItem *target, const Point &point, MouseButton button, EventState state) {
+  Point p = convert_point_to(point, 0);
 
-
-bool AreaGroup::on_button_press(CanvasItem *target, const Point &point, MouseButton button, EventState state)
-{
-  Point p= convert_point_to(point, 0);
-  
-  _dragged= false;
+  _dragged = false;
 
   if (_drag_selects_contents)
     get_layer()->get_view()->get_interaction_layer()->start_selection_rectangle(p, state);
@@ -149,17 +121,14 @@ bool AreaGroup::on_button_press(CanvasItem *target, const Point &point, MouseBut
   return false;
 }
 
-
-bool AreaGroup::on_button_release(CanvasItem *target, const Point &point, MouseButton button, EventState state)
-{
-  Point p= convert_point_to(point, 0);
+bool AreaGroup::on_button_release(CanvasItem *target, const Point &point, MouseButton button, EventState state) {
+  Point p = convert_point_to(point, 0);
 
   if (_drag_selects_contents)
     get_layer()->get_view()->get_interaction_layer()->end_selection_rectangle(p, state);
 
 #ifdef no_group_activate
-  if (!_dragged)
-  {
+  if (!_dragged) {
     if (get_selected())
       activate_group(true);
   }
@@ -167,12 +136,10 @@ bool AreaGroup::on_button_release(CanvasItem *target, const Point &point, MouseB
   return Group::on_button_release(target, point, button, state);
 }
 
+bool AreaGroup::on_drag(CanvasItem *target, const Point &point, EventState state) {
+  Point p = convert_point_to(point, 0);
 
-bool AreaGroup::on_drag(CanvasItem *target, const Point &point, EventState state)
-{
-  Point p= convert_point_to(point, 0);
-  
-  _dragged= true;
+  _dragged = true;
 
   if (_drag_selects_contents)
     get_layer()->get_view()->get_interaction_layer()->update_selection_rectangle(p, state);
@@ -182,27 +149,19 @@ bool AreaGroup::on_drag(CanvasItem *target, const Point &point, EventState state
   return true;
 }
 
-
-bool AreaGroup::on_click(CanvasItem *target, const Point &point, MouseButton button, EventState state)
-{
-  if (!_dragged && accepts_selection())
-  {
-    if (state & SControlMask)
-    {
+bool AreaGroup::on_click(CanvasItem *target, const Point &point, MouseButton button, EventState state) {
+  if (!_dragged && accepts_selection()) {
+    if (state & SControlMask) {
       if (!get_selected())
         get_layer()->get_view()->focus_item(this);
       else
         get_layer()->get_view()->focus_item(0);
 
       get_layer()->get_view()->get_selection()->toggle(this);
-    }
-    else if ((state & SModifierMask) == 0)
-    {
+    } else if ((state & SModifierMask) == 0) {
       get_layer()->get_view()->focus_item(this);
       get_layer()->get_view()->get_selection()->set(this);
     }
   }
   return true;
 }
-
-

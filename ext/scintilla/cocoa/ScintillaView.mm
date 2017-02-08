@@ -4,7 +4,7 @@
  *
  * Created by Mike Lischke.
  *
- * Copyright 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
@@ -241,6 +241,11 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (void) viewWillDraw
 {
+  if (!mOwner) {
+    [super viewWillDraw];
+    return;
+  }
+
   const NSRect *rects;
   NSInteger nRects = 0;
   [self getRectsBeingDrawn:&rects count:&nRects];
@@ -261,7 +266,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (void) prepareContentInRect: (NSRect) rect
 {
-  mOwner.backend->WillDraw(rect);
+  if (mOwner)
+    mOwner.backend->WillDraw(rect);
 #if MAC_OS_X_VERSION_MAX_ALLOWED > 1080
   [super prepareContentInRect: rect];
 #endif
@@ -404,6 +410,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 - (NSRect) firstRectForCharacterRange: (NSRange) aRange actualRange: (NSRangePointer) actualRange
 {
+#pragma unused(actualRange)
   const NSRange posRange = mOwner.backend->PositionsFromCharacters(aRange);
 
   NSRect rect;
@@ -620,10 +627,15 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (void) keyDown: (NSEvent *) theEvent
 {
+  bool handled = false;
   if (mMarkedTextRange.length == 0)
-	mOwner.backend->KeyboardInput(theEvent);
-  NSArray* events = [NSArray arrayWithObject: theEvent];
-  [self interpretKeyEvents: events];
+    handled = mOwner.backend->KeyboardInput(theEvent);
+  if (!handled) {
+    [mOwner keyDown: theEvent]; // Forward to the owning view (where the application can override keyDown).
+
+    NSArray* events = [NSArray arrayWithObject: theEvent];
+    [self interpretKeyEvents: events];
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -694,6 +706,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (NSRect)adjustScroll:(NSRect)proposedVisibleRect
 {
+  if (!mOwner)
+    return proposedVisibleRect;
   NSRect rc = proposedVisibleRect;
   // Snap to lines
   NSRect contentRect = [self bounds];
@@ -727,6 +741,48 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   mOwner.backend->WndProc(SCI_SETFOCUS, 0, 0);
   return YES;
 }
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Implement NSDraggingSource.
+ */
+
+- (NSDragOperation)draggingSession: (NSDraggingSession *) session
+sourceOperationMaskForDraggingContext: (NSDraggingContext) context
+{
+#pragma unused(session)
+  switch(context)
+  {
+    case NSDraggingContextOutsideApplication:
+      return NSDragOperationCopy | NSDragOperationMove | NSDragOperationDelete;
+
+    case NSDraggingContextWithinApplication:
+    default:
+      return NSDragOperationCopy | NSDragOperationMove | NSDragOperationDelete;
+  }
+}
+
+- (void)draggingSession:(NSDraggingSession *)session
+           movedToPoint:(NSPoint)screenPoint
+{
+#pragma unused(session, screenPoint)
+}
+
+- (void)draggingSession:(NSDraggingSession *)session
+           endedAtPoint:(NSPoint)screenPoint
+              operation:(NSDragOperation)operation
+{
+#pragma unused(session, screenPoint)
+  if (operation == NSDragOperationDelete)
+  {
+    mOwner.backend->WndProc(SCI_CLEAR, 0, 0);
+  }
+}
+
+/**
+ * Implement NSDraggingDestination.
+ */
 
 //--------------------------------------------------------------------------------------------------
 
@@ -771,30 +827,6 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (BOOL) performDragOperation: (id <NSDraggingInfo>) sender
 {
   return mOwner.backend->PerformDragOperation(sender);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Returns operations we allow as drag source.
- */
-- (NSDragOperation) draggingSourceOperationMaskForLocal: (BOOL) isLocal
-{
-// Scintilla does not choose different operations for other applications
-#pragma unused(isLocal)
-  return NSDragOperationCopy | NSDragOperationMove | NSDragOperationDelete;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Finished a drag: may need to delete selection.
- */
-
-- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)screenPoint operation:(NSDragOperation)operation {
-    if (operation == NSDragOperationDelete) {
-        mOwner.backend->WndProc(SCI_CLEAR, 0, 0);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1177,6 +1209,11 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
                    name:NSApplicationDidBecomeActiveNotification
                  object:nil];
 
+    [center addObserver:self
+               selector:@selector(windowWillMove:)
+                   name:NSWindowWillMoveNotification
+                 object:[self window]];
+
     [[scrollView contentView] setPostsBoundsChangedNotifications:YES];
     [center addObserver:self
 	       selector:@selector(scrollerAction:)
@@ -1192,6 +1229,10 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   delete mBackend;
+  mBackend = NULL;
+  mContent.owner = nil;
+  [marginView setClientView:nil];
+  [scrollView removeFromSuperview];
   [marginView release];
   [super dealloc];
 }
@@ -1208,6 +1249,13 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (void) applicationDidBecomeActive: (NSNotification *)note {
 #pragma unused(note)
     mBackend->ActiveStateChanged(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (void) windowWillMove: (NSNotification *)note {
+#pragma unused(note)
+  mBackend->WindowWillMove();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1283,6 +1331,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (void) scrollerAction: (id) sender
 {
+#pragma unused(sender)
   mBackend->UpdateForScroll();
 }
 

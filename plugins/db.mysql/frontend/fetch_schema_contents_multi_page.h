@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,33 +19,27 @@
 
 #include "grtui/wizard_progress_page.h"
 
-class FetchSchemaContentsSourceTargetProgressPage : public WizardProgressPage
-{
+class FetchSchemaContentsSourceTargetProgressPage : public WizardProgressPage {
 public:
-  FetchSchemaContentsSourceTargetProgressPage(WizardForm *form, MultiSourceSelectPage *source_page, const char *name= "fetchSchema")
-  : WizardProgressPage(form, name, true), _source_page(source_page)
-  {
+  FetchSchemaContentsSourceTargetProgressPage(WizardForm *form, MultiSourceSelectPage *source_page,
+                                              const char *name = "fetchSchema")
+    : WizardProgressPage(form, name, true), _source_page(source_page) {
     set_title(_("Retrieve and Reverse Engineer Schema Objects"));
     set_short_title(_("Fetch Objects"));
 
     set_status_text("");
   }
 
-
-  bool perform_fetch(bool source)
-  {
-    execute_grt_task(boost::bind(&FetchSchemaContentsSourceTargetProgressPage::do_fetch, this, _1, source),
-                     false);
+  bool perform_fetch(bool source) {
+    execute_grt_task(std::bind(&FetchSchemaContentsSourceTargetProgressPage::do_fetch, this, source), false);
     return true;
   }
 
-
-  grt::ValueRef do_fetch(grt::GRT *grt, bool source)
-  {
-    grt::StringListRef selection(grt::StringListRef::cast_from(values().get(source ? "selectedOriginalSchemata" : "selectedSchemata")));
+  grt::ValueRef do_fetch(bool source) {
+    grt::StringListRef selection(
+      grt::StringListRef::cast_from(values().get(source ? "selectedOriginalSchemata" : "selectedSchemata")));
     std::vector<std::string> names;
-    for (grt::StringListRef::const_iterator iter= selection.begin();
-         iter != selection.end(); ++iter)
+    for (grt::StringListRef::const_iterator iter = selection.begin(); iter != selection.end(); ++iter)
       names.push_back(*iter);
 
     Db_plugin *dbplugin = source ? _source_dbplugin : _target_dbplugin;
@@ -63,35 +57,29 @@ public:
     return grt::ValueRef();
   }
 
-
-  virtual void enter(bool advancing)
-  {
-    if (advancing)
-    {
+  virtual void enter(bool advancing) {
+    if (advancing) {
       _finished = 0;
       clear_tasks();
 
       if (_source_page->get_left_source() == DataSourceSelector::ServerSource)
         add_async_task(_("Retrieve Source Objects from Selected Schemata"),
-                       boost::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, true),
+                       std::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, true),
                        _("Retrieving object lists from selected schemata..."));
 
       if (_source_page->get_right_source() == DataSourceSelector::ServerSource)
         add_async_task(_("Retrieve Target Objects from Selected Schemata"),
-                       boost::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, false),
+                       std::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, false),
                        _("Retrieving object lists from selected schemata..."));
 
       end_adding_tasks(_("Retrieval Completed Successfully"));
-
 
       reset_tasks();
     }
     WizardProgressPage::enter(advancing);
   }
 
-
-  virtual bool allow_next()
-  {
+  virtual bool allow_next() {
     int count = 0;
     if (_source_page->get_left_source() == DataSourceSelector::ServerSource)
       count++;
@@ -100,11 +88,9 @@ public:
     return _finished == count;
   }
 
-
-  void set_db_plugin(Db_plugin *source_dbplugin, Db_plugin *target_dbplugin)
-  {
-    _source_dbplugin= source_dbplugin;
-    _target_dbplugin= target_dbplugin;
+  void set_db_plugin(Db_plugin *source_dbplugin, Db_plugin *target_dbplugin) {
+    _source_dbplugin = source_dbplugin;
+    _target_dbplugin = target_dbplugin;
   }
 
 private:

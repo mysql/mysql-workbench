@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -24,65 +24,53 @@
 
 #include "db_plugin_be.h"
 
-class SchemaMatchingPage::OverridePanel : public mforms::Box
-{
+class SchemaMatchingPage::OverridePanel : public mforms::Box {
 public:
-  OverridePanel()
-  : mforms::Box(true)
-  {
+  OverridePanel() : mforms::Box(true) {
     set_spacing(8);
     _button.set_text("Override Target");
-    _button.signal_clicked()->connect(boost::bind(&OverridePanel::override, this));
+    _button.signal_clicked()->connect(std::bind(&OverridePanel::override, this));
     add(mforms::manage(new mforms::Label("Override target schema to be synchronized with:")), false, true);
     add(&_selector, true, true);
     add(&_button, false, true);
   }
 
-  void override()
-  {
+  void override() {
     std::string s = _selector.get_string_value();
     _node->set_string(2, s);
     _node->set_string(3, "overriden");
   }
 
-  void set_schemas(const std::list<std::string> &schema_names)
-  {
+  void set_schemas(const std::list<std::string> &schema_names) {
     _selector.add_items(schema_names);
   }
 
-  void set_active(mforms::TreeNodeRef node)
-  {
+  void set_active(mforms::TreeNodeRef node) {
     _node = node;
     _selector.set_value(node->get_string(2));
   }
+
 private:
   mforms::TreeNodeRef _node;
   mforms::Selector _selector;
   mforms::Button _button;
 };
 
-static void select_all(mforms::TreeNodeView *tree, SchemaMatchingPage *page)
-{
-  for (int i= 0; i < tree->count(); i++)
+static void select_all(mforms::TreeView *tree, SchemaMatchingPage *page) {
+  for (int i = 0; i < tree->count(); i++)
     tree->node_at_row(i)->set_bool(0, true);
   page->validate();
 }
 
-
-static void unselect_all(mforms::TreeNodeView *tree, SchemaMatchingPage *page)
-{
-  for (int i= 0; i < tree->count(); i++)
+static void unselect_all(mforms::TreeView *tree, SchemaMatchingPage *page) {
+  for (int i = 0; i < tree->count(); i++)
     tree->node_at_row(i)->set_bool(0, false);
   page->validate();
 }
 
-
-SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name,
-                                       const std::string &left_name,
-                                       const std::string &right_name,
-                                       bool unselect_by_default)
-: WizardPage(form, name), _header(true), _tree(mforms::TreeFlatList), _unselect_by_default(unselect_by_default)
-{
+SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name, const std::string &left_name,
+                                       const std::string &right_name, bool unselect_by_default)
+  : WizardPage(form, name), _header(true), _tree(mforms::TreeFlatList), _unselect_by_default(unselect_by_default) {
   _header.set_spacing(4);
 
   _image.set_image(bec::IconManager::get_instance()->get_icon_path("db.Schema.32x32.png"));
@@ -98,8 +86,8 @@ SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name
   set_short_title(_("Select Schemata"));
   set_title(_("Select the Schemata to be Synchronized"));
 
-  _menu.add_item_with_title("Select All", boost::bind(select_all, &_tree, this));
-  _menu.add_item_with_title("Unselect All", boost::bind(unselect_all, &_tree, this));
+  _menu.add_item_with_title("Select All", std::bind(select_all, &_tree, this));
+  _menu.add_item_with_title("Unselect All", std::bind(unselect_all, &_tree, this));
 
   _tree.add_column(mforms::CheckColumnType, "", 20, true);
   _tree.add_column(mforms::IconStringColumnType, left_name, 150, false);
@@ -107,8 +95,9 @@ SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name
   _tree.add_column(mforms::IconStringColumnType, "", 300, false);
   _tree.end_columns();
   _tree.set_context_menu(&_menu);
-  _tree.set_cell_edit_handler(boost::bind(&SchemaMatchingPage::cell_edited, this, _1, _2, _3));
-  scoped_connect(_tree.signal_changed(), boost::bind(&SchemaMatchingPage::selection_changed, this));
+  _tree.set_cell_edit_handler(std::bind(&SchemaMatchingPage::cell_edited, this, std::placeholders::_1,
+                                        std::placeholders::_2, std::placeholders::_3));
+  scoped_connect(_tree.signal_changed(), std::bind(&SchemaMatchingPage::selection_changed, this));
 
   add(&_tree, true, true);
 
@@ -121,20 +110,16 @@ SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name
   _missing_label.set_style(mforms::SmallHelpTextStyle);
 }
 
-void SchemaMatchingPage::cell_edited(mforms::TreeNodeRef node, int column, const std::string &value)
-{
-  if (column == 0)
-  {
+void SchemaMatchingPage::cell_edited(mforms::TreeNodeRef node, int column, const std::string &value) {
+  if (column == 0) {
     node->set_bool(column, value != "0");
     validate();
   }
 }
 
-bool SchemaMatchingPage::allow_next()
-{
+bool SchemaMatchingPage::allow_next() {
   int c = _tree.count();
-  for (int i = 0; i < c; i++)
-  {
+  for (int i = 0; i < c; i++) {
     mforms::TreeNodeRef node(_tree.root_node()->get_child(i));
     if (node->get_bool(0))
       return true;
@@ -142,24 +127,19 @@ bool SchemaMatchingPage::allow_next()
   return false;
 }
 
-void SchemaMatchingPage::leave(bool advancing)
-{
-  if (advancing)
-  {
-    grt::StringListRef unlist(_form->grtm()->get_grt());
-    grt::StringListRef list(_form->grtm()->get_grt());
-    grt::StringListRef orig_list(_form->grtm()->get_grt());
+void SchemaMatchingPage::leave(bool advancing) {
+  if (advancing) {
+    grt::StringListRef unlist(grt::Initialized);
+    grt::StringListRef list(grt::Initialized);
+    grt::StringListRef orig_list(grt::Initialized);
 
     int c = _tree.count();
-    for (int i = 0; i < c; i++)
-    {
+    for (int i = 0; i < c; i++) {
       mforms::TreeNodeRef node(_tree.node_at_row(i));
-      if (node->get_bool(0))
-      {
+      if (node->get_bool(0)) {
         list.insert(node->get_string(2));
         orig_list.insert(node->get_string(1));
-      }
-      else
+      } else
         unlist.insert(node->get_string(2));
     }
     values().set("unSelectedSchemata", unlist);
@@ -169,16 +149,12 @@ void SchemaMatchingPage::leave(bool advancing)
   WizardPage::leave(advancing);
 }
 
-
-std::map<std::string, std::string> SchemaMatchingPage::get_mapping()
-{
+std::map<std::string, std::string> SchemaMatchingPage::get_mapping() {
   std::map<std::string, std::string> mapping;
   int c = _tree.count();
-  for (int i = 0; i < c; i++)
-  {
+  for (int i = 0; i < c; i++) {
     mforms::TreeNodeRef node(_tree.node_at_row(i));
-    if (node->get_bool(0))
-    {
+    if (node->get_bool(0)) {
       if (node->get_string(1) != node->get_string(2) && !node->get_string(2).empty())
         mapping[node->get_string(1)] = node->get_string(2);
     }
@@ -186,10 +162,8 @@ std::map<std::string, std::string> SchemaMatchingPage::get_mapping()
   return mapping;
 }
 
-void SchemaMatchingPage::enter(bool advancing)
-{
-  if (advancing)
-  {
+void SchemaMatchingPage::enter(bool advancing) {
+  if (advancing) {
     int missing = 0;
     _tree.clear();
 
@@ -200,23 +174,22 @@ void SchemaMatchingPage::enter(bool advancing)
       // list of schemas from target (usually DB or script).. must be filled by caller before this is reached
       grt::StringListRef target_db_list(grt::StringListRef::cast_from(values().get("targetSchemata")));
 
-
-
       std::list<std::string> db_schema_names;
-      for (grt::StringListRef::const_iterator j= target_db_list.begin(); j != target_db_list.end(); ++j)
+      for (grt::StringListRef::const_iterator j = target_db_list.begin(); j != target_db_list.end(); ++j)
         db_schema_names.push_back(*j);
-      db_schema_names.sort(boost::bind(base::same_string, _1, _2, true));
+      db_schema_names.sort(std::bind(base::same_string, std::placeholders::_1, std::placeholders::_2, true));
 
       _override->set_schemas(db_schema_names);
 
       std::vector<std::string> sorted_names;
-      for (grt::StringListRef::const_iterator sname= db_list.begin(); sname != db_list.end(); ++sname)
+      for (grt::StringListRef::const_iterator sname = db_list.begin(); sname != db_list.end(); ++sname)
         sorted_names.push_back(*sname);
-      std::sort(sorted_names.begin(), sorted_names.end(), boost::bind(base::same_string, _1, _2, true));
+      std::sort(sorted_names.begin(), sorted_names.end(),
+                std::bind(base::same_string, std::placeholders::_1, std::placeholders::_2, true));
 
       // check for schemas that exist only in the model and not in DB
-      for (std::vector<std::string>::const_iterator sname = sorted_names.begin(); sname != sorted_names.end(); ++sname)
-      {
+      for (std::vector<std::string>::const_iterator sname = sorted_names.begin(); sname != sorted_names.end();
+           ++sname) {
         mforms::TreeNodeRef node = _tree.add_node();
 
         std::string target_name;
@@ -226,25 +199,19 @@ void SchemaMatchingPage::enter(bool advancing)
         node->set_string(1, *sname);
 
         // check if the target has the list of schemas we want
-        for (grt::StringListRef::const_iterator j= target_db_list.begin(); j != target_db_list.end(); ++j)
-        {
-
-          if (base::same_string(*j, *sname, server_case_sensitive == 1))
-          {
+        for (grt::StringListRef::const_iterator j = target_db_list.begin(); j != target_db_list.end(); ++j) {
+          if (base::same_string(*j, *sname, server_case_sensitive == 1)) {
             found_name = true;
             target_name = *j;
           }
         }
 
-        if (!found_name)
-        {
+        if (!found_name) {
           node->set_bool(0, false);
           node->set_string(2, *sname);
           node->set_string(3, _("schema not found in target"));
           missing++;
-        }
-        else
-        {
+        } else {
           if (!_unselect_by_default)
             node->set_bool(0, true);
           node->set_string(2, target_name);
@@ -252,9 +219,10 @@ void SchemaMatchingPage::enter(bool advancing)
       }
     }
 
-    if (missing > 0)
-    {
-      _missing_label.set_text(_("The schemata from your model are missing from the target.\nIf you are creating them for the first time use the Forward Engineer function."));
+    if (missing > 0) {
+      _missing_label.set_text(
+        _("The schemata from your model are missing from the target.\nIf you are creating them for the first time use "
+          "the Forward Engineer function."));
       _missing_label.show(true);
     }
 
@@ -262,16 +230,11 @@ void SchemaMatchingPage::enter(bool advancing)
   }
 }
 
-
-void SchemaMatchingPage::selection_changed()
-{
+void SchemaMatchingPage::selection_changed() {
   mforms::TreeNodeRef sel(_tree.get_selected_node());
-  if (sel)
-  {
+  if (sel) {
     _override->set_enabled(true);
     _override->set_active(sel);
-  }
-  else
+  } else
     _override->set_enabled(false);
 }
-

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,13 +36,13 @@
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
-  if (!indicator || [indicator isHidden])
+  if (!indicator || indicator.hidden)
     [super drawInteriorWithFrame: cellFrame inView: controlView];
   else 
   {
-    if ([indicator superview] == nil)
+    if (indicator.superview == nil)
       [controlView addSubview: indicator];
-    [indicator setFrame: cellFrame];
+    indicator.frame = cellFrame;
   }
 }
 

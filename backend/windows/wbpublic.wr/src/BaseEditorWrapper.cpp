@@ -1,23 +1,23 @@
-/* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#include "Grt.h"
+#include "GrtWrapper.h"
 #include "GrtTemplates.h"
 #include "DelegateWrapper.h"
 #include "GrtManager.h"
@@ -28,15 +28,12 @@ using namespace MySQL::Grt;
 
 //--------------------------------------------------------------------------------------------------
 
-BaseEditorWrapper::BaseEditorWrapper(bec::BaseEditor *inn)
-  : UIForm(inn)
-{
+BaseEditorWrapper::BaseEditorWrapper(bec::BaseEditor *inn) : UIForm(inn) {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-BaseEditorWrapper::~BaseEditorWrapper()
-{
+BaseEditorWrapper::~BaseEditorWrapper() {
   // The inner class must be considered gone already at this point.
   // So no refresh handler to reset there.
   refresh_ui_handler = nullptr;
@@ -45,124 +42,101 @@ BaseEditorWrapper::~BaseEditorWrapper()
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::disable_auto_refresh()
-{
-  ((bec::BaseEditor*)inner)->block_auto_refresh();
+void BaseEditorWrapper::disable_auto_refresh() {
+  ((bec::BaseEditor *)inner)->block_auto_refresh();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::enable_auto_refresh()
-{
-  ((bec::BaseEditor*)inner)->unblock_auto_refresh();
+void BaseEditorWrapper::enable_auto_refresh() {
+  ((bec::BaseEditor *)inner)->unblock_auto_refresh();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bec::BaseEditor *BaseEditorWrapper::get_unmanaged_object()
-{
+bec::BaseEditor *BaseEditorWrapper::get_unmanaged_object() {
   return static_cast<::bec::BaseEditor *>(inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-GrtValue^ BaseEditorWrapper::get_object() 
-{
+GrtValue ^ BaseEditorWrapper::get_object() {
   return gcnew GrtValue(get_unmanaged_object()->get_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String ^BaseEditorWrapper::get_title()
-{
+String ^ BaseEditorWrapper::get_title() {
   return CppStringToNativeRaw(get_unmanaged_object()->get_title());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool BaseEditorWrapper::is_editing_live_object()
-{
+bool BaseEditorWrapper::is_editing_live_object() {
   return get_unmanaged_object()->is_editing_live_object();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::apply_changes_to_live_object()
-{
+void BaseEditorWrapper::apply_changes_to_live_object() {
   get_unmanaged_object()->apply_changes_to_live_object();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::revert_changes_to_live_object()
-{
+void BaseEditorWrapper::revert_changes_to_live_object() {
   get_unmanaged_object()->revert_changes_to_live_object();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::set_refresh_ui_handler(DelegateSlot0<void,void>::ManagedDelegate ^slot)
-{
-  refresh_ui_handler= gcnew DelegateSlot0<void,void>(slot);
+void BaseEditorWrapper::set_refresh_ui_handler(DelegateSlot0<void, void>::ManagedDelegate ^ slot) {
+  refresh_ui_handler = gcnew DelegateSlot0<void, void>(slot);
   get_unmanaged_object()->set_refresh_ui_slot(refresh_ui_handler->get_slot());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::set_refresh_partial_ui_handler(DelegateSlot1<void,void,int,int>::ManagedDelegate ^slot)
-{
-  refresh_partial_ui_handler= gcnew DelegateSlot1<void,void,int,int>(slot);
+void BaseEditorWrapper::set_refresh_partial_ui_handler(DelegateSlot1<void, void, int, int>::ManagedDelegate ^ slot) {
+  refresh_partial_ui_handler = gcnew DelegateSlot1<void, void, int, int>(slot);
   get_unmanaged_object()->set_partial_refresh_ui_slot(refresh_partial_ui_handler->get_slot());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-MySQL::Grt::GRT ^BaseEditorWrapper::get_grt()
-{
-  return gcnew MySQL::Grt::GRT(get_unmanaged_object()->get_grt());
+MySQL::Grt::GRT ^ BaseEditorWrapper::get_grt() {
+  return gcnew MySQL::Grt::GRT;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-GrtManager ^BaseEditorWrapper::get_grt_manager()
-{
-  return gcnew GrtManager(get_unmanaged_object()->get_grt_manager());
+void BaseEditorWrapper::show_exception(String ^ title, String ^ detail) {
+  MessageBox::Show(String::Format("An error has occurred while performing the requested action:\n{0}", detail), title,
+                   MessageBoxButtons::OK, MessageBoxIcon::Error);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::show_exception(String ^title, String ^detail)
-{
-  MessageBox::Show(String::Format("An error has occurred while performing the requested action:\n{0}", detail),
-    title, MessageBoxButtons::OK, MessageBoxIcon::Error);
+void BaseEditorWrapper::show_validation_error(String ^ title, String ^ reason) {
+  MessageBox::Show(String::Format("Cannot change property:\n{0}", reason), title, MessageBoxButtons::OK,
+                   MessageBoxIcon::Error);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::show_validation_error(String ^title, String ^reason)
-{
-  MessageBox::Show(String::Format("Cannot change property:\n{0}", reason), 
-    title, MessageBoxButtons::OK, MessageBoxIcon::Error);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-bool BaseEditorWrapper::should_close_on_delete_of(String ^oid)
-{
+bool BaseEditorWrapper::should_close_on_delete_of(String ^ oid) {
   return get_unmanaged_object()->should_close_on_delete_of(NativeToCppString(oid));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool BaseEditorWrapper::is_editor_dirty()
-{
+bool BaseEditorWrapper::is_editor_dirty() {
   return get_unmanaged_object()->is_editor_dirty();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BaseEditorWrapper::reset_editor_undo_stack()
-{
+void BaseEditorWrapper::reset_editor_undo_stack() {
   get_unmanaged_object()->reset_editor_undo_stack();
 }
 

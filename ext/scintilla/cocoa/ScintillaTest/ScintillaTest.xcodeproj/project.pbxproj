@@ -11,7 +11,7 @@
 		271FA52C0F850BE20033D021 /* AppController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 271FA52B0F850BE20033D021 /* AppController.mm */; };
 		2791F4490FC1A8E9009DBCF9 /* TestData.sql in Resources */ = {isa = PBXBuildFile; fileRef = 2791F4480FC1A8E9009DBCF9 /* TestData.sql */; };
 		27AF7EC30FC2C351007160EF /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E5EA0FC16BE200E85C33 /* Scintilla.framework */; };
-		27AF7ECA0FC2C388007160EF /* Scintilla.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2744E5EA0FC16BE200E85C33 /* Scintilla.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		27AF7ECA0FC2C388007160EF /* Scintilla.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2744E5EA0FC16BE200E85C33 /* Scintilla.framework */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -191,7 +191,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0710;
+				LastUpgradeCheck = 0700;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "ScintillaTest" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -297,7 +297,7 @@
 					SCI_LEXER,
 					SCI_NAMESPACE,
 				);
-				HEADER_SEARCH_PATHS = "../..//**";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
@@ -323,7 +323,7 @@
 					SCI_LEXER,
 					SCI_NAMESPACE,
 				);
-				HEADER_SEARCH_PATHS = "../..//**";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";

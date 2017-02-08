@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
 * 02110-1301  USA
 */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "interfaces/plugin.h"
 
 #include "grts/structs.db.mgmt.h"
@@ -25,40 +25,30 @@
 #define MODULE_VERSION "1.0.0"
 
 #ifdef _WIN32
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(windows_dll)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(windows_dll)
 #elif defined(__APPLE__)
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(osx_dylib)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(osx_dylib)
 #else
-# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
-  obj->moduleName(linux_so)
+#define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(linux_so)
 #endif
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
-class MySQLEditorsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
-{
+class MySQLEditorsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl {
 public:
-  MySQLEditorsModuleImpl(grt::CPPModuleLoader *ldr)
-  : grt::ModuleImplBase(ldr)
-  {
+  MySQLEditorsModuleImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {
   }
 
-  DEFINE_INIT_MODULE(MODULE_VERSION, "MySQL AB", grt::ModuleImplBase,
-    DECLARE_MODULE_FUNCTION(MySQLEditorsModuleImpl::getPluginInfo), NULL);
+  DEFINE_INIT_MODULE(MODULE_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
+                     DECLARE_MODULE_FUNCTION(MySQLEditorsModuleImpl::getPluginInfo), NULL);
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo()
-  {
-    return get_mysql_plugins_info(get_grt());
+  virtual grt::ListRef<app_Plugin> getPluginInfo() {
+    return get_mysql_plugins_info();
   }
 };
 
-
-
-static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name)
-{
-  app_PluginObjectInputRef pdef(plugin.get_grt());
+static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name) {
+  app_PluginObjectInputRef pdef(grt::Initialized);
 
   pdef->objectStructName(struct_name);
   pdef->owner(plugin);
@@ -66,24 +56,19 @@ static void set_object_argument(app_PluginRef &plugin, const std::string &struct
   plugin->inputValues().insert(pdef);
 }
 
+static grt::ListRef<app_Plugin> get_mysql_plugins_info() {
+  grt::ListRef<app_Plugin> editors(grt::Initialized);
 
+  app_PluginRef schema_editor(grt::Initialized);
+  app_PluginRef table_editor(grt::Initialized);
+  app_PluginRef view_editor(grt::Initialized);
+  app_PluginRef routine_group_editor(grt::Initialized);
+  app_PluginRef routine_editor(grt::Initialized);
+  app_PluginRef user_editor(grt::Initialized);
+  app_PluginRef role_editor(grt::Initialized);
+  app_PluginRef relationship_editor(grt::Initialized);
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
-{
-  grt::ListRef<app_Plugin> editors(grt);
-
-  app_PluginRef schema_editor(grt);
-  app_PluginRef table_editor(grt);
-  app_PluginRef view_editor(grt);
-  app_PluginRef routine_group_editor(grt);
-  app_PluginRef routine_editor(grt);
-  app_PluginRef user_editor(grt);
-  app_PluginRef role_editor(grt);
-  app_PluginRef relationship_editor(grt);
-  
-  FRONTEND_LIBNAME(schema_editor,
-                   ".\\db.mysql.editors.wbp.fe.dll",
-                   "db.mysql.editors.wbp.so",
+  FRONTEND_LIBNAME(schema_editor, ".\\db.mysql.editors.wbp.fe.dll", "db.mysql.editors.wbp.so",
                    "db.mysql.editors.mwbplugin");
   schema_editor->pluginType("gui");
   schema_editor->moduleFunctionName("DbMysqlSchemaEditor");
@@ -94,9 +79,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   schema_editor->groups().insert("catalog/Editors");
   editors.insert(schema_editor);
 
-  FRONTEND_LIBNAME(table_editor,
-                   ".\\db.mysql.editors.wbp.fe.dll",
-                   "db.mysql.editors.wbp.so",
+  FRONTEND_LIBNAME(table_editor, ".\\db.mysql.editors.wbp.fe.dll", "db.mysql.editors.wbp.so",
                    "db.mysql.editors.mwbplugin");
   table_editor->pluginType("gui");
   table_editor->moduleFunctionName("DbMysqlTableEditor");
@@ -107,10 +90,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   table_editor->groups().insert("catalog/Editors");
   editors.insert(table_editor);
 
-
-  FRONTEND_LIBNAME(view_editor, 
-                   ".\\db.mysql.editors.wbp.fe.dll",
-                   "db.mysql.editors.wbp.so",
+  FRONTEND_LIBNAME(view_editor, ".\\db.mysql.editors.wbp.fe.dll", "db.mysql.editors.wbp.so",
                    "db.mysql.editors.mwbplugin");
   view_editor->pluginType("gui");
   view_editor->moduleFunctionName("DbMysqlViewEditor");
@@ -121,9 +101,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   view_editor->groups().insert("catalog/Editors");
   editors.insert(view_editor);
 
-  FRONTEND_LIBNAME(routine_group_editor, 
-                   ".\\db.mysql.editors.wbp.fe.dll",
-                   "db.mysql.editors.wbp.so",
+  FRONTEND_LIBNAME(routine_group_editor, ".\\db.mysql.editors.wbp.fe.dll", "db.mysql.editors.wbp.so",
                    "db.mysql.editors.mwbplugin");
   routine_group_editor->pluginType("gui");
   routine_group_editor->moduleFunctionName("DbMysqlRoutineGroupEditor");
@@ -134,9 +112,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   routine_group_editor->groups().insert("catalog/Editors");
   editors.insert(routine_group_editor);
 
-  FRONTEND_LIBNAME(routine_editor, 
-                   ".\\db.mysql.editors.wbp.fe.dll",
-                   "db.mysql.editors.wbp.so",
+  FRONTEND_LIBNAME(routine_editor, ".\\db.mysql.editors.wbp.fe.dll", "db.mysql.editors.wbp.so",
                    "db.mysql.editors.mwbplugin");
   routine_editor->pluginType("gui");
   routine_editor->moduleFunctionName("DbMysqlRoutineEditor");
@@ -147,11 +123,8 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   routine_editor->groups().insert("catalog/Editors");
   editors.insert(routine_editor);
 
-
   // generic
-  FRONTEND_LIBNAME(user_editor, 
-                   ".\\db.mysql.editors.wbp.fe.dll",
-                   "db.mysql.editors.wbp.so",
+  FRONTEND_LIBNAME(user_editor, ".\\db.mysql.editors.wbp.fe.dll", "db.mysql.editors.wbp.so",
                    "db.mysql.editors.mwbplugin");
   user_editor->pluginType("gui");
   user_editor->moduleFunctionName("DbMysqlUserEditor");
@@ -162,9 +135,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   user_editor->groups().insert("catalog/Editors");
   editors.insert(user_editor);
 
-  FRONTEND_LIBNAME(role_editor, 
-                   ".\\db.mysql.editors.wbp.fe.dll",
-                   "db.mysql.editors.wbp.so",
+  FRONTEND_LIBNAME(role_editor, ".\\db.mysql.editors.wbp.fe.dll", "db.mysql.editors.wbp.so",
                    "db.mysql.editors.mwbplugin");
   role_editor->pluginType("gui");
   role_editor->moduleFunctionName("DbMysqlRoleEditor");
@@ -175,9 +146,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
   role_editor->groups().insert("catalog/Editors");
   editors.insert(role_editor);
 
-  FRONTEND_LIBNAME(relationship_editor, 
-                   ".\\db.mysql.editors.wbp.fe.dll",
-                   "db.mysql.editors.wbp.so",
+  FRONTEND_LIBNAME(relationship_editor, ".\\db.mysql.editors.wbp.fe.dll", "db.mysql.editors.wbp.so",
                    "db.mysql.editors.mwbplugin");
   relationship_editor->pluginType("gui");
   relationship_editor->moduleFunctionName("DbMysqlRelationshipEditor");
@@ -190,6 +159,5 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
 
   return editors;
 }
-
 
 GRT_MODULE_ENTRY_POINT(MySQLEditorsModuleImpl);

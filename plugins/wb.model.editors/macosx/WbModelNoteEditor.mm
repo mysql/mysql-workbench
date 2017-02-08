@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,16 +45,12 @@ static void call_refresh(void *theEditor)
 }
 
 - (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args
 {
-  if (grtm == nil)
-    return nil;
-  
+ 
   self = [super initWithNibName: @"WbModelNoteEditor" bundle: [NSBundle bundleForClass: [self class]]];
   if (self != nil)
   {
-    _grtm = grtm;
     // load GUI. Top level view in the nib is the NSTabView that will be docked to the main window
     [self loadView];
 
@@ -70,12 +66,12 @@ static void call_refresh(void *theEditor)
 
 - (instancetype)initWithNibName: (NSString *)nibNameOrNil bundle: (NSBundle *)nibBundleOrNil
 {
-  return [self initWithModule: nil grtManager: nil arguments: grt::BaseListRef()];
+  return [self initWithModule: nil arguments: grt::BaseListRef()];
 }
 
 -(instancetype)initWithCoder: (NSCoder *)coder
 {
-  return [self initWithModule: nil grtManager: nil arguments: grt::BaseListRef()];
+  return [self initWithModule: nil arguments: grt::BaseListRef()];
 }
 
 - (void)reinitWithArguments:(const grt::BaseListRef&)args
@@ -84,12 +80,12 @@ static void call_refresh(void *theEditor)
   delete mBackEnd;
   
     // setup the editor backend with the note object (args[0])
-  mBackEnd= new NoteEditorBE(_grtm, workbench_model_NoteFigureRef::cast_from(args[0]));
+  mBackEnd= new NoteEditorBE(workbench_model_NoteFigureRef::cast_from(args[0]));
     
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
   
   // update the UI
   [self refresh];

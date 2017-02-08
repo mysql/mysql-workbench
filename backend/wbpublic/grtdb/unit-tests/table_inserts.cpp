@@ -1,23 +1,23 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "sqlide/recordset_table_inserts_storage.h"
 #include "grtdb/editor_table.h"
@@ -30,54 +30,50 @@ using namespace grt;
 using namespace bec;
 using namespace base;
 
-
-class TestTableColumnsListBE : public TableColumnsListBE
-{
+class TestTableColumnsListBE : public TableColumnsListBE {
 public:
-TestTableColumnsListBE(TableEditorBE *ed)
- : TableColumnsListBE(ed) {}
+  TestTableColumnsListBE(TableEditorBE *ed) : TableColumnsListBE(ed) {
+  }
 
-virtual std::vector<std::string> get_datatype_names() { return  std::vector<std::string>(); } 
+  virtual std::vector<std::string> get_datatype_names() {
+    return std::vector<std::string>();
+  }
 };
 
 // XXX: duplicate implementation (the other is in editor_table_tests.cpp). Merge them!
-class TestTableEditor : public TableEditorBE 
-{
+class TestTableEditor : public TableEditorBE {
   db_TableRef _table;
   TestTableColumnsListBE _columns;
   IndexListBE _indexes;
 
 public:
 #ifdef _WIN32
-# pragma warning(push)
-# pragma warning(disable:4355)
+#pragma warning(push)
+#pragma warning(disable : 4355)
 #endif
-  TestTableEditor(GRTManager *grtm, db_TableRef table, db_mgmt_RdbmsRef rdbms)
-    : TableEditorBE(grtm, table), _table(table), _columns(this), _indexes(this)
-    {
-    }
+  TestTableEditor(db_TableRef table, db_mgmt_RdbmsRef rdbms)
+    : TableEditorBE(table), _table(table), _columns(this), _indexes(this) {
+  }
 #ifdef _WIN32
-# pragma warning(pop)
+#pragma warning(pop)
 #endif
 
-  db_TableRef get_table() { return _table; }
-  
-  virtual TableColumnsListBE *get_columns()
-  {
+  db_TableRef get_table() {
+    return _table;
+  }
+
+  virtual TableColumnsListBE *get_columns() {
     return &_columns;
   }
 
-  virtual IndexListBE *get_indexes()
-  {
+  virtual IndexListBE *get_indexes() {
     return &_indexes;
   }
 
-  virtual void edit_object(const ObjectRef &v)
-  {
+  virtual void edit_object(const ObjectRef &v) {
   }
 
-  virtual std::vector<std::string> get_index_types()
-  {
+  virtual std::vector<std::string> get_index_types() {
     std::vector<std::string> index_types;
     index_types.push_back("type1");
     index_types.push_back("type2");
@@ -86,72 +82,59 @@ public:
     return index_types;
   }
 
-  void set_table_option_by_name(const std::string& name, const std::string& value)
-  {
+  void set_table_option_by_name(const std::string &name, const std::string &value) {
     // TODO: implement
   }
 
-  std::string get_table_option_by_name(const std::string& name)
-  {
+  std::string get_table_option_by_name(const std::string &name) {
     // TODO: implement
     return std::string();
   }
 
-  std::vector<std::string> get_charsets_list()
-  {
+  std::vector<std::string> get_charsets_list() {
     return std::vector<std::string>();
   }
 
-  virtual bool check_column_referenceable_by_fk(const db_ColumnRef &column1, const db_ColumnRef &column2)
-  {
-	  // TODO: implement
+  virtual bool check_column_referenceable_by_fk(const db_ColumnRef &column1, const db_ColumnRef &column2) {
+    // TODO: implement
     return false;
   }
 
-  virtual db_TableRef create_stub_table(const std::string &schema, const std::string &table)
-  {
+  virtual db_TableRef create_stub_table(const std::string &schema, const std::string &table) {
     return db_TableRef(); // TODO: implement and add tests.
   }
-
 };
-
 
 BEGIN_TEST_DATA_CLASS(table_inserts)
 public:
-  WBTester wbt;
-  GRTManager *grtm;
-  db_TableRef table;
-  Auto_release autorel;
+WBTester *wbt;
+db_TableRef table;
+Auto_release autorel;
 
-  TestTableEditor *editor;
-TEST_DATA_CONSTRUCTOR(table_inserts)
-  : editor(0)
-{
-  grtm = wbt.wb->get_grt_manager();
-  populate_grt(wbt.grt, wbt);
+TestTableEditor *editor;
+TEST_DATA_CONSTRUCTOR(table_inserts) : editor(0) {
+  wbt = new WBTester;
+  populate_grt(*wbt);
 }
 
-TEST_DATA_DESTRUCTOR(table_inserts)
-{
+TEST_DATA_DESTRUCTOR(table_inserts) {
   delete editor;
 }
 END_TEST_DATA_CLASS
 
-
 TEST_MODULE(table_inserts, "Table Editor Inserts backend");
 
-static db_TableRef make_inserts_test_table(grt::GRT *grt, const db_mgmt_RdbmsRef &rdbms, const db_CatalogRef &catalog)
-{
+static db_TableRef make_inserts_test_table(const db_mgmt_RdbmsRef &rdbms, const db_CatalogRef &catalog) {
   grt::ListRef<db_UserDatatype> usertypes;
 
-  db_SchemaRef schema(grt);
+  db_SchemaRef schema(grt::Initialized);
   schema->owner(catalog);
 
-  db_mysql_TableRef table(grt);
+  db_mysql_TableRef table(grt::Initialized);
   table->owner(schema);
   table->name("table");
 
-  db_mysql_ColumnRef col(grt);
+  db_mysql_ColumnRef col(grt::Initialized);
   col->owner(table);
   col->name("id");
   col->autoIncrement(1);
@@ -159,19 +142,19 @@ static db_TableRef make_inserts_test_table(grt::GRT *grt, const db_mgmt_RdbmsRef
   table->columns().insert(col);
   table->addPrimaryKeyColumn(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col = db_mysql_ColumnRef(grt::Initialized);
   col->owner(table);
   col->name("name");
   col->setParseType("VARCHAR(30)", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col = db_mysql_ColumnRef(grt::Initialized);
   col->owner(table);
   col->name("ts");
   col->setParseType("TIMESTAMP", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col = db_mysql_ColumnRef(grt::Initialized);
   col->owner(table);
   col->name("pic");
   col->setParseType("BLOB", rdbms->simpleDatatypes());
@@ -180,25 +163,23 @@ static db_TableRef make_inserts_test_table(grt::GRT *grt, const db_mgmt_RdbmsRef
   return table;
 }
 
-TEST_FUNCTION(1)
-{
-  wbt.create_new_document();
+TEST_FUNCTION(1) {
+  wbt->create_new_document();
 }
 
-
-static std::string generate_sql_just_like_fwd_eng(GRTManager *grtm, db_TableRef table)
-{
+static std::string generate_sql_just_like_fwd_eng(db_TableRef table) {
   // this code copied verbatim from module_db_mysql.cpp
-  Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
+  Recordset_table_inserts_storage::Ref input_storage = Recordset_table_inserts_storage::create();
   input_storage->table(table);
 
-  Recordset::Ref rs= Recordset::create(grtm);
+  Recordset::Ref rs = Recordset::create();
   rs->data_storage(input_storage);
   rs->reset();
 
-  Recordset_sql_storage::Ref output_storage= Recordset_sql_storage::create(grtm);
+  Recordset_sql_storage::Ref output_storage = Recordset_sql_storage::create();
   output_storage->table_name(table->name());
-  output_storage->rdbms(db_mgmt_RdbmsRef::cast_from(table->owner()/*schema*/->owner()/*catalog*/->owner()/*phys.model*/->get_member("rdbms")));
+  output_storage->rdbms(db_mgmt_RdbmsRef::cast_from(
+    table->owner() /*schema*/->owner() /*catalog*/->owner() /*phys.model*/->get_member("rdbms")));
   output_storage->schema_name(table->owner()->name());
   output_storage->omit_schema_qualifier(true);
   output_storage->binding_blobs(false);
@@ -206,16 +187,14 @@ static std::string generate_sql_just_like_fwd_eng(GRTManager *grtm, db_TableRef 
   return output_storage->sql_script();
 }
 
-
-TEST_FUNCTION(5)
-{
+TEST_FUNCTION(5) {
   // test proper storage of values with trivial values
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
   {
-    TestTableEditor editor(grtm, table, wbt.get_rdbms());
+    TestTableEditor editor(table, wbt->get_rdbms());
 
-    RecordsetRef rs= editor.get_inserts_model();
+    RecordsetRef rs = editor.get_inserts_model();
 
     // starts with 1 row, which is the placeholder
     ensure_equals("rows", rs->count(), 1U);
@@ -232,9 +211,9 @@ TEST_FUNCTION(5)
     ensure("apply changes", ok);
   }
   {
-    TestTableEditor editor(grtm, table, wbt.get_rdbms());
+    TestTableEditor editor(table, wbt->get_rdbms());
 
-    RecordsetRef rs= editor.get_inserts_model();
+    RecordsetRef rs = editor.get_inserts_model();
 
     ensure_equals("rows", rs->count(), 2U);
     ensure_equals("columns", rs->get_column_count(), 4U);
@@ -258,18 +237,17 @@ TEST_FUNCTION(5)
 
     // check generation of SQL
     std::string output = table->inserts();
-    ensure_equals("generated sql", output, 
-      "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (1, 'test', '2012-01-01', NULL);\n");
+    ensure_equals("generated sql", output,
+                  "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (1, 'test', '2012-01-01', NULL);\n");
 
-    output = generate_sql_just_like_fwd_eng(grtm, table);
+    output = generate_sql_just_like_fwd_eng(table);
     ensure_equals("fwd eng sql", output,
-      "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (1, 'test', '2012-01-01', NULL);\n");
+                  "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (1, 'test', '2012-01-01', NULL);\n");
   }
 }
 
 static void test_rs_storage(RecordsetRef rs, int row, int column, const std::string &value,
-  const std::string &other_value)
-{
+                            const std::string &other_value) {
   ensure_equals("rows before", rs->count(), 1U);
 
   rs->set_field(row, column, value);
@@ -308,16 +286,13 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
   ensure_equals("get value back 3", s, value);
 }
 
-
-
-TEST_FUNCTION(6)
-{
+TEST_FUNCTION(6) {
   // check storage of NULL value
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
-  RecordsetRef rs= editor.get_inserts_model();
+  RecordsetRef rs = editor.get_inserts_model();
 
   rs->set_field(0, 0, std::string("NULL"));
   rs->set_field(0, 1, std::string("NULL"));
@@ -327,7 +302,7 @@ TEST_FUNCTION(6)
   std::string s;
   rs->get_field(0, 0, s);
   ensure_equals("check null str store", s, "NULL");
-  ensure("check null str store", !rs->is_field_null(0, 0)); 
+  ensure("check null str store", !rs->is_field_null(0, 0));
   rs->get_field(0, 1, s);
   ensure_equals("check null str store", s, "NULL");
   ensure("check null str store", !rs->is_field_null(0, 1));
@@ -339,7 +314,8 @@ TEST_FUNCTION(6)
 
   // XXX not sure if setting an int field to the NULL string should result in a real NULL, maybe yes
   std::string output = table->inserts();
-  ensure_equals("output1", output,  "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (NULL, 'NULL', 'NULL', NULL);\n");
+  ensure_equals("output1", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (NULL, 'NULL', 'NULL', NULL);\n");
 
   // now actually set the fields to NULL
   rs->set_field_null(0, 0);
@@ -348,7 +324,7 @@ TEST_FUNCTION(6)
 
   rs->get_field(0, 0, s);
   ensure_equals("check null  store", s, "");
-  ensure("check null  store", rs->is_field_null(0, 0)); 
+  ensure("check null  store", rs->is_field_null(0, 0));
   rs->get_field(0, 1, s);
   ensure_equals("check null  store", s, "");
   ensure("check null  store", rs->is_field_null(0, 1));
@@ -358,91 +334,80 @@ TEST_FUNCTION(6)
 
   rs->apply_changes_and_gather_messages(msg);
 
-
   output = table->inserts();
-  ensure_equals("output2", output, "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
+  ensure_equals("output2", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
 }
 
-
-
-TEST_FUNCTION(11)
-{
+TEST_FUNCTION(11) {
   // test storage of \\func with int column
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
-  RecordsetRef rs= editor.get_inserts_model();
+  RecordsetRef rs = editor.get_inserts_model();
 
   test_rs_storage(rs, 0, 0, "\\func DEFAULT", "1");
 
   // check generation of SQL
   std::string output = table->inserts();
-  ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
+  ensure_equals("generated sql", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
 
-  output = generate_sql_just_like_fwd_eng(grtm, table);
-  ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
+  output = generate_sql_just_like_fwd_eng(table);
+  ensure_equals("generated sql", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
 }
 
-
-
-
-TEST_FUNCTION(12)
-{
+TEST_FUNCTION(12) {
   // test storage of \\func with string column
 
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
-  RecordsetRef rs= editor.get_inserts_model();
+  RecordsetRef rs = editor.get_inserts_model();
 
   test_rs_storage(rs, 0, 1, "\\func DEFAULT", "hello");
 
   // check generation of SQL
   std::string output = table->inserts();
-  ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
+  ensure_equals("generated sql", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
 
-  output = generate_sql_just_like_fwd_eng(grtm, table);
-  ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
+  output = generate_sql_just_like_fwd_eng(table);
+  ensure_equals("generated sql", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
 }
 
-
-TEST_FUNCTION(13)
-{
+TEST_FUNCTION(13) {
   // test storage of \\func with timestamp column
-  
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  RecordsetRef rs= editor.get_inserts_model();
+  TestTableEditor editor(table, wbt->get_rdbms());
+
+  RecordsetRef rs = editor.get_inserts_model();
 
   test_rs_storage(rs, 0, 2, "\\func DEFAULT", "2012-01-01");
 
   // check generation of SQL
   std::string output = table->inserts();
-  ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
+  ensure_equals("generated sql", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
 
-  output = generate_sql_just_like_fwd_eng(grtm, table);
-  ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
+  output = generate_sql_just_like_fwd_eng(table);
+  ensure_equals("generated sql", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
 }
 
-
-TEST_FUNCTION(15)
-{
+TEST_FUNCTION(15) {
   // all at once
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
-  RecordsetRef rs= editor.get_inserts_model();
+  RecordsetRef rs = editor.get_inserts_model();
 
   rs->set_field(0, 0, std::string("\\func DEFAULT"));
   rs->set_field(0, 1, std::string("\\func DEFAULT"));
@@ -453,14 +418,18 @@ TEST_FUNCTION(15)
 
   // check generation of SQL
   std::string output = table->inserts();
-  ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NOW(), NULL);\n");
+  ensure_equals("generated sql", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NOW(), NULL);\n");
 
-  output = generate_sql_just_like_fwd_eng(grtm, table);
-  ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NOW(), NULL);\n");
+  output = generate_sql_just_like_fwd_eng(table);
+  ensure_equals("generated sql", output,
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NOW(), NULL);\n");
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(99) {
+  delete wbt;
 }
 
 END_TESTS
-
-

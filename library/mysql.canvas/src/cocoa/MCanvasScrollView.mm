@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,10 +38,10 @@
     [self addSubview:_hScroller];
     [self addSubview:_vScroller];
     
-    [_hScroller setAction:@selector(scrolled:)];
-    [_hScroller setTarget:self];
-    [_vScroller setAction:@selector(scrolled:)];
-    [_vScroller setTarget:self];
+    _hScroller.action = @selector(scrolled:);
+    _hScroller.target = self;
+    _vScroller.action = @selector(scrolled:);
+    _vScroller.target = self;
     
     [_hScroller setEnabled:YES];
     [_vScroller setEnabled:YES];
@@ -60,24 +60,24 @@
 
 - (void)tile
 {
-  NSRect frame= [self bounds];
+  NSRect frame= self.bounds;
   NSRect contentFrame;
 
   CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
                                                     scrollerStyle: NSScrollerStyleOverlay];
   contentFrame= NSMakeRect(0, scrollerWidth, NSWidth(frame) - scrollerWidth, NSHeight(frame) - scrollerWidth);
-  [_contentView setFrame:contentFrame];
+  _contentView.frame = contentFrame;
   if (_hAccessoryView)
   {
-    NSRect accRect= [_hAccessoryView frame];
-    [_hAccessoryView setFrame:NSMakeRect(0, 0, NSWidth(accRect), scrollerWidth)];
-    [_hScroller setFrame:NSMakeRect(NSWidth(accRect), 0, NSWidth(frame) - NSWidth(accRect) - scrollerWidth, scrollerWidth)];
+    NSRect accRect= _hAccessoryView.frame;
+    _hAccessoryView.frame = NSMakeRect(0, 0, NSWidth(accRect), scrollerWidth);
+    _hScroller.frame = NSMakeRect(NSWidth(accRect), 0, NSWidth(frame) - NSWidth(accRect) - scrollerWidth, scrollerWidth);
   }
   else
-    [_hScroller setFrame:NSMakeRect(0, 1, NSWidth(frame) - scrollerWidth, scrollerWidth)];
+    _hScroller.frame = NSMakeRect(0, 1, NSWidth(frame) - scrollerWidth, scrollerWidth);
 
-  [_vScroller setFrame:NSMakeRect(NSWidth(frame) - scrollerWidth, scrollerWidth,
-                                  scrollerWidth, NSHeight(frame) - scrollerWidth)];
+  _vScroller.frame = NSMakeRect(NSWidth(frame) - scrollerWidth, scrollerWidth,
+                                  scrollerWidth, NSHeight(frame) - scrollerWidth);
   
   [self reflectContentRect];
 }
@@ -87,8 +87,8 @@
 {
   float line;
   float page;
-  NSRect visible= [_contentView documentVisibleRect];
-  NSRect total= [_contentView documentRect];
+  NSRect visible= _contentView.documentVisibleRect;
+  NSRect total= _contentView.documentRect;
  
   if (sender == _hScroller)
   {
@@ -119,36 +119,36 @@
       break;
   }
 
-  [_contentView scrollToPoint:NSMakePoint([_hScroller floatValue] * (NSWidth(total) - NSWidth(visible)), 
-                                          [_vScroller floatValue] * (NSHeight(total) - NSHeight(visible)))];
+  [_contentView scrollToPoint:NSMakePoint(_hScroller.floatValue * (NSWidth(total) - NSWidth(visible)), 
+                                          _vScroller.floatValue * (NSHeight(total) - NSHeight(visible)))];
 }
 
 
 - (void)reflectContentRect
 {
-  NSRect total= [_contentView documentRect];
-  NSRect visible= [_contentView documentVisibleRect];
+  NSRect total= _contentView.documentRect;
+  NSRect visible= _contentView.documentVisibleRect;
    
   if (NSWidth(visible) >= NSWidth(total))
   {
-    [_hScroller setFloatValue:0.0];
-    [_hScroller setKnobProportion:1.0];
+    _hScroller.floatValue = 0.0;
+    _hScroller.knobProportion = 1.0;
   }
   else
   {
-    [_hScroller setFloatValue:visible.origin.x/(NSWidth(total)-NSWidth(visible))];
-    [_hScroller setKnobProportion:NSWidth(visible)/NSWidth(total)];
+    _hScroller.floatValue = visible.origin.x/(NSWidth(total)-NSWidth(visible));
+    _hScroller.knobProportion = NSWidth(visible)/NSWidth(total);
   }
   
   if (NSHeight(visible) >= NSHeight(total))
   {
-    [_vScroller setFloatValue:0.0];
-    [_vScroller setKnobProportion:1.0];
+    _vScroller.floatValue = 0.0;
+    _vScroller.knobProportion = 1.0;
   }
   else
   {
-    [_vScroller setFloatValue:visible.origin.y/(NSHeight(total)-NSHeight(visible))];
-    [_vScroller setKnobProportion:NSHeight(visible)/NSHeight(total)];
+    _vScroller.floatValue = visible.origin.y/(NSHeight(total)-NSHeight(visible));
+    _vScroller.knobProportion = NSHeight(visible)/NSHeight(total);
   }
 }
 
@@ -163,7 +163,7 @@ static void canvas_view_viewport_changed(void *self)
 {
   _contentView= canvas;
 
-  [canvas canvas]->signal_viewport_changed()->connect(boost::bind(canvas_view_viewport_changed, (__bridge void *)self));
+  canvas.canvas->signal_viewport_changed()->connect(std::bind(canvas_view_viewport_changed, (__bridge void *)self));
   
   [self addSubview:canvas];
   [self tile];
@@ -172,7 +172,7 @@ static void canvas_view_viewport_changed(void *self)
 
 - (NSSize)contentSize
 {
-  NSSize size= [self frame].size;
+  NSSize size= self.frame.size;
   
   CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
                                                     scrollerStyle: NSScrollerStyleOverlay];
@@ -212,9 +212,9 @@ static void canvas_view_viewport_changed(void *self)
   // setting to /20 makes horizontal scroller (which is like a button) in my mouse 
   // scroll nicely, but it doesn't work well with trackpads
   //[_hScroller setFloatValue:[_hScroller floatValue] - [theEvent deltaX]/20];
-  [_hScroller setFloatValue:[_hScroller floatValue] - [theEvent deltaX]/200];
+  _hScroller.floatValue = _hScroller.floatValue - theEvent.deltaX/200;
   [self scrolled:_hScroller];
-  [_vScroller setFloatValue:[_vScroller floatValue] - [theEvent deltaY]/200];
+  _vScroller.floatValue = _vScroller.floatValue - theEvent.deltaY/200;
   [self scrolled:_vScroller];
 }
 

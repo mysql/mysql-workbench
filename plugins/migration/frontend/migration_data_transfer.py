@@ -157,7 +157,7 @@ All tables are copied by default.""")
         l.set_style(mforms.SmallHelpTextStyle)
         box.add(l, False, True)
 
-        self._tree = mforms.newTreeNodeView(mforms.TreeDefault)
+        self._tree = mforms.newTreeView(mforms.TreeDefault)
         self._tree.add_column(mforms.IconStringColumnType, "Table", 200, False)
         self._tree.add_column(mforms.StringColumnType, "Limit Copy", 100, True)
         self._tree.add_column(mforms.StringColumnType, "Referencing Tables", 500, False)
@@ -232,7 +232,7 @@ All tables are copied by default.""")
 
         self.main.plan.state.dataBulkTransferParams["tableList"] = tables_to_copy
 
-        if self._copy_db.get_active() or self.copy_script_radiobutton.get_active() or self.bulk_copy_script_radiobutton.get_active():
+        if self.main.plan.state.dataBulkTransferParams["tableList"]:
             return WizardPage.go_next(self)
         else:
             self.main.go_next_page(2)
@@ -370,9 +370,9 @@ class TransferMainView(WizardProgressPage):
 
         self.retry_box = mforms.newBox(True)
         self.content.remove(self._detail_label)
-        self.retry_box.add(self._detail_label, True, True)
+        self.retry_box.add(self._detail_label, False, True)
         self.retry_box.add(self.retry_button, False, True)
-        self.content.add(self.retry_box, False, False)
+        self.content.add(self.retry_box, False, True)
         self.retry_button.show(False)
 
         self.main.add_wizard_page(self, "DataMigration", "Bulk Data Transfer")
@@ -380,7 +380,7 @@ class TransferMainView(WizardProgressPage):
         self._tables_to_exclude = list()
 
     def page_activated(self, advancing):
-        if advancing:
+        if advancing and self.main.plan.state.dataBulkTransferParams["tableList"]:
             options = self.main.plan.state.dataBulkTransferParams
             copy_script = options.get("GenerateCopyScript", None)
             bulk_copy_script = options.get("GenerateBulkCopyScript", None)
@@ -441,6 +441,10 @@ class TransferMainView(WizardProgressPage):
 
         source_db_module = self.main.plan.migrationSource.module_db()
         target_db_module = self.main.plan.migrationTarget.module_db()
+        ttimeout = str(self.main.plan.migrationTarget.connection.parameterValues['timeout'])
+        stimeout = ''
+        if self.main.plan.migrationSource.connection.parameterValues.has_key('timeout'):
+            stimeout = str(self.main.plan.migrationSource.connection.parameterValues['timeout'])
 
         self._working_set = {}
         for table in tables:
@@ -480,7 +484,7 @@ class TransferMainView(WizardProgressPage):
             self._working_set[schema_name+"."+table_name] = {"table" : table,
                         "source_schema":schema_name, "source_table":table_name,
                         "target_schema":targ_schema_name, "target_table":targ_table_name,
-                        "target_table_object":table}
+                        "target_table_object":table, "ttimeout":ttimeout, "stimeout":stimeout}
             select_expression = []
             source_pk_list = []
             target_pk_list = []
@@ -575,10 +579,11 @@ IF [%arg_source_password%] == [] (
 
             f.write("\n\n")
             f.write(self.main.plan.wbcopytables_path)
+            f.write(" ^\n")
             for arg in self._transferer.helper_basic_arglist(True):
-                f.write(' %s' % arg)
-            f.write(' --source-password="%arg_source_password%" --target-password="%arg_target_password%" --table-file="%table_file%"')
-            f.write(' --thread-count=%arg_worker_count% %arg_truncate_target% %arg_debug_output%')
+                f.write(' %s ^\n' % arg)
+            f.write(' --source-password="%arg_source_password%" ^\n --target-password="%arg_target_password%" ^\n --table-file="%table_file%"')
+            f.write(' --thread-count=%arg_worker_count% ^\n %arg_truncate_target% ^\n %arg_debug_output%')
             f.write("\n\n")
             f.write("REM Removes the file with the table definitions\n")
             f.write("DEL %s\n" % filename)
@@ -602,10 +607,11 @@ fi
             f.write( ("" if debug_table_copy else "# ") + "arg_debug_output=--log-level=debug3\n")
             f.write("\n")
             f.write(self.main.plan.wbcopytables_path)
+            f.write(" \\\n")
             for arg in self._transferer.helper_basic_arglist(True):
-                f.write(' %s' % arg)
-            f.write(' --source-password="$arg_source_password" --target-password="$arg_target_password"')
-            f.write(' --thread-count=$arg_worker_count $arg_truncate_target $arg_debug_output')
+                f.write(' %s \\\n' % arg)
+            f.write(' --source-password="$arg_source_password" \\\n --target-password="$arg_target_password" \\\n')
+            f.write(' --thread-count=$arg_worker_count \\\n $arg_truncate_target \\\n $arg_debug_output \\\n')
 
             for table in self._working_set.values():
                 opt = "--table '%s' '%s' '%s' '%s' '%s' '%s' '%s'" % (table["source_schema"], 

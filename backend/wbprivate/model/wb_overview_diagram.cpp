@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,113 +28,95 @@ using namespace bec;
 using namespace wb;
 using namespace base;
 
-class AddDiagramNode : public OverviewBE::Node
-{
+class AddDiagramNode : public OverviewBE::Node {
 public:
   model_ModelRef model;
 
-  virtual bool activate(WBContext *wb)
-  {
+  virtual bool activate(WBContext *wb) {
     wb->get_model_context()->add_new_diagram(model);
     return true;
   }
 };
 
-
-class DiagramNode : public OverviewBE::ObjectNode
-{
+class DiagramNode : public OverviewBE::ObjectNode {
 public:
-  DiagramNode(const model_DiagramRef &view) { object= view; }
+  DiagramNode(const model_DiagramRef &view) {
+    object = view;
+  }
 
-  virtual bool activate(WBContext *wb)
-  {
+  virtual bool activate(WBContext *wb) {
     wb->get_model_context()->switch_diagram(model_DiagramRef::cast_from(object));
     return true;
   }
 
-  virtual bool is_deletable() 
-  {
+  virtual bool is_deletable() {
     return true;
   }
 
-  virtual void delete_object(WBContext *wb)
-  {
+  virtual void delete_object(WBContext *wb) {
     wb->get_model_context()->delete_diagram(model_DiagramRef::cast_from(object));
   }
 
+  virtual bool rename(WBContext *wb, const std::string &name) {
+    grt::AutoUndo undo;
 
-  virtual bool rename(WBContext *wb, const std::string &name)
-  {
-    grt::AutoUndo undo(wb->get_grt());
-    
     object->name(name);
-    
+
     undo.end(strfmt(_("Rename Diagram to '%s'"), name.c_str()));
-    
+
     return true;
   }
 
-
-  virtual bool is_renameable() 
-  { 
+  virtual bool is_renameable() {
     return true;
   }
 
-  virtual int get_popup_menu_items(WBContext *wb, bec::MenuItemList &items)
-  {
+  virtual int get_popup_menu_items(WBContext *wb, bec::MenuItemList &items) {
     return OverviewBE::ObjectNode::get_popup_menu_items(wb, items);
   }
 };
 
-
 //----------------------------------------------------------------------
 
+DiagramListNode::DiagramListNode(model_ModelRef model) : ContainerNode(OverviewBE::OItem), _model(model) {
+  id = model.id() + "/modellist";
 
-DiagramListNode::DiagramListNode(model_ModelRef model)
-: ContainerNode(OverviewBE::OItem), _model(model)
-{
-  id= model.id()+"/modellist";
-
-  type= OverviewBE::ODivision;
-  label= _("EER Diagrams");
-  small_icon= 0;
-  large_icon= 0;
-  expanded= true;
-  display_mode= OverviewBE::MLargeIcon;
+  type = OverviewBE::ODivision;
+  label = _("EER Diagrams");
+  small_icon = 0;
+  large_icon = 0;
+  expanded = true;
+  display_mode = OverviewBE::MLargeIcon;
 
   refresh_children();
 }
 
-
-void DiagramListNode::refresh_children()
-{
+void DiagramListNode::refresh_children() {
   clear_children();
 
-  if (_model->diagrams().is_valid())
-  {
-    for (size_t c= _model->diagrams().count(), i= 0; i < c; i++)
-    {
-      DiagramNode *node= new DiagramNode(_model->diagrams()[i]);
+  if (_model->diagrams().is_valid()) {
+    for (size_t c = _model->diagrams().count(), i = 0; i < c; i++) {
+      DiagramNode *node = new DiagramNode(_model->diagrams()[i]);
 
-      node->type= OverviewBE::OItem;
-      node->label= *_model->diagrams()[i]->name();
+      node->type = OverviewBE::OItem;
+      node->label = *_model->diagrams()[i]->name();
 
-      std::string icon_name= _model->diagrams().content_class_name() + ".$.png";
-      node->small_icon= IconManager::get_instance()->get_icon_id(icon_name, Icon16);
-      node->large_icon= IconManager::get_instance()->get_icon_id(icon_name, Icon48);
+      std::string icon_name = _model->diagrams().content_class_name() + ".$.png";
+      node->small_icon = IconManager::get_instance()->get_icon_id(icon_name, Icon16);
+      node->large_icon = IconManager::get_instance()->get_icon_id(icon_name, Icon48);
 
       children.push_back(node);
     }
 
-    AddDiagramNode *node= new AddDiagramNode();
+    AddDiagramNode *node = new AddDiagramNode();
 
-    node->type= OverviewBE::OItem;
-    node->label= _("Add Diagram");
+    node->type = OverviewBE::OItem;
+    node->label = _("Add Diagram");
 
-    std::string icon_name= _model->diagrams().content_class_name() + ".$.png";
-    node->small_icon= IconManager::get_instance()->get_icon_id(icon_name, Icon16, "add");
-    node->large_icon= IconManager::get_instance()->get_icon_id(icon_name, Icon48, "add");
-    node->model= _model;
+    std::string icon_name = _model->diagrams().content_class_name() + ".$.png";
+    node->small_icon = IconManager::get_instance()->get_icon_id(icon_name, Icon16, "add");
+    node->large_icon = IconManager::get_instance()->get_icon_id(icon_name, Icon48, "add");
+    node->model = _model;
 
     children.insert(children.begin(), node);
   }

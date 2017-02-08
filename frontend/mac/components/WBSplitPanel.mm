@@ -66,29 +66,31 @@
 
 - (void)addEditor:(WBBasePanel*)editor
 {
-  id tabItem= [[NSTabViewItem alloc] initWithIdentifier:[editor identifier]];
+  id tabItem= [[NSTabViewItem alloc] initWithIdentifier:editor.identifier];
   
-  _editorById[[editor identifier]] = editor;
+  _editorById[editor.identifier] = editor;
   
-  [tabItem setView:[editor topView]];
-  [tabItem setLabel:[editor title]];
+  [tabItem setView:editor.topView];
+  [tabItem setLabel:editor.title];
   
   [self adjustEditorTabViewForNewPanel: editor];
   
   [editorTabView addTabViewItem:tabItem];
   [editorTabView selectLastTabViewItem:nil];
     
-  NSImage *icon= [editor tabIcon];
+  NSImage *icon= editor.tabIcon;
   if (icon && [editorTabView respondsToSelector: @selector(setIcon:forTabViewItem:)])
-    [(id)editorTabView setIcon:icon forTabViewItem:[editor identifier]];
-  
-  if ([editor respondsToSelector: @selector(didShow)])
-    [editor performSelector: @selector(didShow)];
+    [(id)editorTabView setIcon:icon forTabViewItem:editor.identifier];
+
+  SEL selector = NSSelectorFromString(@"didShow");
+  if ([editor respondsToSelector: selector])
+    ((void (*)(id, SEL))[editor methodForSelector: selector])(editor, selector);
+
 }
 
 - (BOOL)closeEditorWithIdentifier:(id)ident
 {
-  for (id item in [editorTabView tabViewItems])
+  for (id item in editorTabView.tabViewItems)
   {
     if (!ident || [[item identifier] isEqualTo: ident])
     {
@@ -101,7 +103,7 @@
 
 - (BOOL)hasEditorWithIdentifier:(id)ident
 {
-  for (id item in [editorTabView tabViewItems])
+  for (id item in editorTabView.tabViewItems)
   {
     if ([[item identifier] isEqualTo: ident])
       return YES;
@@ -111,15 +113,15 @@
 
 - (BOOL)hasEditor:(WBBasePanel*)editor
 {
-  return [editorTabView indexOfTabViewItemWithIdentifier: [editor identifier]] != NSNotFound;
+  return [editorTabView indexOfTabViewItemWithIdentifier: editor.identifier] != NSNotFound;
 }
 
 - (BOOL)closeEditor:(WBBasePanel*)editor
 {
-  if (![editor willClose])
+  if (!editor.willClose)
     return NO;
     
-  NSUInteger index= [editorTabView indexOfTabViewItemWithIdentifier: [editor identifier]];
+  NSUInteger index= [editorTabView indexOfTabViewItemWithIdentifier: editor.identifier];
   if (index == NSNotFound)
     return NO;
   else
@@ -127,11 +129,11 @@
     NSTabViewItem *item= [editorTabView tabViewItemAtIndex: index];
 
     
-    _lastEditorTabHeight = NSHeight([[editorTabView superview] frame]);
+    _lastEditorTabHeight = NSHeight(editorTabView.superview.frame);
     [editorTabView removeTabViewItem: item];
 
   }
-  [_editorById removeObjectForKey: [editor identifier]];
+  [_editorById removeObjectForKey: editor.identifier];
 
   return YES;
 }
@@ -139,35 +141,37 @@
 
 - (WBBasePanel*)findPanelForView:(NSView*)view
 {
-  for (NSTabViewItem *item in [editorTabView tabViewItems])
+  for (NSTabViewItem *item in editorTabView.tabViewItems)
   {
-    if ([item view] == view)
+    if (item.view == view)
     {
-      return _editorById[[item identifier]];
+      return _editorById[item.identifier];
     }
   }  
   return nil;
 }
 
-
-- (WBBasePanel*)findPanelForPluginType:(Class)klass
+- (WBBasePanel*)findPanelForPluginType: (Class)klass
 {
-  for (NSTabViewItem *item in [editorTabView tabViewItems])
+  for (NSTabViewItem *item in editorTabView.tabViewItems)
   {
-    id editor = _editorById[[item identifier]];
-    if ([editor respondsToSelector:@selector(pluginEditor)] &&
-        [[editor performSelector:@selector(pluginEditor)] isKindOfClass: klass])
-      return editor;
+    id editor = _editorById[item.identifier];
+    SEL selector = NSSelectorFromString(@"pluginEditor");
+    if ([editor respondsToSelector: selector])
+    {
+      id panel = ((id (*)(id, SEL))[editor methodForSelector: selector])(editor, selector);
+      if ([panel isKindOfClass: klass])
+        return editor;
+    }
   }
   return nil;
 }
 
-
 - (BOOL)closeActiveEditorTab
 {
   // check if the keyview is in the selected tab view
-  id activeTab = [[editorTabView selectedTabViewItem] view];
-  id firstResponder = [[editorTabView window] firstResponder];
+  id activeTab = editorTabView.selectedTabViewItem.view;
+  id firstResponder = editorTabView.window.firstResponder;
   while (firstResponder)
   {
     if (firstResponder == activeTab)
@@ -177,7 +181,7 @@
   
   if (firstResponder)
   {
-    WBBasePanel *panel= _editorById[[[editorTabView selectedTabViewItem] identifier]];
+    WBBasePanel *panel= _editorById[editorTabView.selectedTabViewItem.identifier];
     
     [self closeEditor: panel];
     return YES;
@@ -190,9 +194,9 @@
 {
   NSInteger i;
 
-  i = [editorTabView indexOfTabViewItemWithIdentifier: [panel identifier]];
+  i = [editorTabView indexOfTabViewItemWithIdentifier: panel.identifier];
   if (i >= 0 && i != NSNotFound)
-    [[editorTabView tabViewItemAtIndex: i] setLabel: title];
+    [editorTabView tabViewItemAtIndex: i].label = title;
   else
     NSLog(@"Unknown panel %@", panel);
 }
@@ -201,19 +205,19 @@
 {
   if (_lastClick > 0 && [NSDate timeIntervalSinceReferenceDate] - _lastClick < 0.3)
   {  
-    if (NSHeight([topContainer frame]) > MODEL_SPLIT_MIN_HEIGHT && NSHeight([bottomContainer frame]) > MODEL_SPLIT_MIN_HEIGHT)
+    if (NSHeight(topContainer.frame) > MODEL_SPLIT_MIN_HEIGHT && NSHeight(bottomContainer.frame) > MODEL_SPLIT_MIN_HEIGHT)
     {
       [mainSplitViewDelegate collapseBottomOfSplitView: mainSplitView];
     }
-    else if (NSHeight([topContainer frame]) > MODEL_SPLIT_MIN_HEIGHT && NSHeight([bottomContainer frame]) <= MODEL_SPLIT_MIN_HEIGHT)
+    else if (NSHeight(topContainer.frame) > MODEL_SPLIT_MIN_HEIGHT && NSHeight(bottomContainer.frame) <= MODEL_SPLIT_MIN_HEIGHT)
     {
       [mainSplitViewDelegate collapseTopOfSplitView: mainSplitView];
     }
     else
     {
-      float height= [self minimumSizeForEditorTabView].height;
-      if (height < NSHeight([mainSplitView frame]) / 2)
-        height= NSHeight([mainSplitView frame]) / 2;
+      float height= self.minimumSizeForEditorTabView.height;
+      if (height < NSHeight(mainSplitView.frame) / 2)
+        height= NSHeight(mainSplitView.frame) / 2;
       
       [mainSplitViewDelegate expandBottomOfSplitView: mainSplitView height: height];
     }
@@ -227,20 +231,20 @@
 {
   NSSize minSize= NSMakeSize(0, 100);
   
-  for (NSTabViewItem *tab in [editorTabView tabViewItems])
+  for (NSTabViewItem *tab in editorTabView.tabViewItems)
   {
-    WBBasePanel *panel= _editorById[[tab identifier]];
+    WBBasePanel *panel= _editorById[tab.identifier];
     
     if ([panel respondsToSelector:@selector(minimumSize)])
     {
-      NSSize msize= [panel minimumSize];
+      NSSize msize= panel.minimumSize;
       
       minSize.width= MAX(minSize.width, msize.width);
       minSize.height= MAX(minSize.height, msize.height);
     }
   }
   
-  minSize.height+= NSHeight([editorTabView frame]) - NSHeight([editorTabView contentRect]);
+  minSize.height+= NSHeight(editorTabView.frame) - NSHeight(editorTabView.contentRect);
   
   return minSize;
 }
@@ -248,17 +252,17 @@
 
 - (void)adjustEditorTabViewForNewPanel:(WBBasePanel*)panel
 {
-  NSSize minimumSize= [self minimumSizeForEditorTabView];
+  NSSize minimumSize= self.minimumSizeForEditorTabView;
   // check if bottom tabview has to be enlarged
   float minHeight= minimumSize.height;
-  float heightDifference = NSHeight([[editorTabView superview] frame]) - NSHeight([[panel topView] frame]);
-  float defaultHeightForPanel= NSHeight([[panel topView] frame]) + heightDifference;
-  float minHeightForNewPanel= [panel minimumSize].height + NSHeight([[editorTabView superview] frame]) - NSHeight([editorTabView contentRect]);
+  float heightDifference = NSHeight(editorTabView.superview.frame) - NSHeight(panel.topView.frame);
+  float defaultHeightForPanel= NSHeight(panel.topView.frame) + heightDifference;
+  float minHeightForNewPanel= panel.minimumSize.height + NSHeight(editorTabView.superview.frame) - NSHeight(editorTabView.contentRect);
   
   if (minHeight < minHeightForNewPanel)
     minHeight= minHeightForNewPanel;
   
-  if ([editorTabView numberOfTabViewItems] == 0)
+  if (editorTabView.numberOfTabViewItems == 0)
   {
     if (minHeight < _lastEditorTabHeight)
       minHeight = _lastEditorTabHeight;
@@ -267,10 +271,10 @@
   if (defaultHeightForPanel < minHeight)
     defaultHeightForPanel= minHeight;
     
-  if (defaultHeightForPanel > NSHeight([[editorTabView superview] frame])
-      || [mainSplitView isSubviewCollapsed: [[mainSplitView subviews] lastObject]])
+  if (defaultHeightForPanel > NSHeight(editorTabView.superview.frame)
+      || [mainSplitView isSubviewCollapsed: mainSplitView.subviews.lastObject])
   {
-    [mainSplitView setPosition: NSHeight([[mainSplitView superview] frame]) - defaultHeightForPanel - [mainSplitView dividerThickness]
+    [mainSplitView setPosition: NSHeight(mainSplitView.superview.frame) - defaultHeightForPanel - mainSplitView.dividerThickness
               ofDividerAtIndex: 0];
   }
   
@@ -282,7 +286,7 @@
 {
   if (tabView == editorTabView)
   {        
-    if ([tabView numberOfTabViewItems] == 0)
+    if (tabView.numberOfTabViewItems == 0)
     {
       // tabview got emptied, collapse the splitview
       //[mainSplitViewDelegate setBottomCollapsedMinHeight: 0];
@@ -295,7 +299,7 @@
 
 - (BOOL)tabView:(NSTabView *)tabView willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 {
-  WBBasePanel *panel = _editorById[[tabViewItem identifier]];
+  WBBasePanel *panel = _editorById[tabViewItem.identifier];
 
   return [self closeEditor: panel];
 }
@@ -306,9 +310,9 @@ draggedHandleAtOffset: (NSPoint) offset
 {
   if (tabView == editorTabView)
   {
-    NSPoint pos= [mainSplitView convertPoint: [[NSApp currentEvent] locationInWindow] fromView: nil];
+    NSPoint pos= [mainSplitView convertPoint: NSApp.currentEvent.locationInWindow fromView: nil];
     
-    float position= pos.y - offset.y - [mainSplitView dividerThickness];
+    float position= pos.y - offset.y - mainSplitView.dividerThickness;
     [mainSplitView setPosition: position ofDividerAtIndex: 0];
   }
 }

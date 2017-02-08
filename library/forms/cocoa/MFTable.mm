@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,36 +19,46 @@
 
 #import "MFTable.h"
 #import "MFMForms.h"
+#import "MFLabel.h"
 
-@interface MFTableCell : NSObject
-{
-@public
-  NSView *mView;
-  int mLeftAttachment;
-  int mRightAttachment;
-  int mTopAttachment;
-  int mBottomAttachment;
-  BOOL mHorizontalExpand;
-  BOOL mVerticalExpand;
-  BOOL mHorizontalFill;
-  BOOL mVerticalFill;
+struct CellEntry {
+  NSView *view;
+  bool isVisible;
+  NSRect frame;
+  int leftAttachment;
+  int rightAttachment;
+  int topAttachment;
+  int bottomAttachment;
+  bool horizontalExpand;
+  bool verticalExpand;
+  bool horizontalFill;
+  bool verticalFill;
+};
+
+@interface MFTableImpl ()  {
+  float mRowSpacing;
+  float mColumnSpacing;
+  int mRowCount;
+  int mColumnCount;
+  BOOL mHomogeneous;
+
+  BOOL mHorizontalCenter;
+  BOOL mVerticalCenter;
+
+  std::vector<CellEntry> content;
 }
-@end
 
-@implementation MFTableCell
 @end
 
 @implementation MFTableImpl
 
 - (instancetype)initWithObject:(::mforms::Table*)aTable
 {
-  self= [super initWithFrame:NSMakeRect(0,0,1,1)];
+  self = [super initWithFrame: NSMakeRect(0, 0, 1, 1)];
   if (self)
   {
     mOwner = aTable;
     mOwner->set_data(self);
-    
-    mTableCells= [NSMutableArray array];
   }
   return self;
 }
@@ -56,12 +66,6 @@
 - (mforms::Object*)mformsObject
 {
   return mOwner;
-}
-
-
-- (void)dealloc
-{
-  mTableCells= nil;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,14 +99,8 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 #if 0
 - (void)drawRect:(NSRect)rect
 {
-  //[[NSColor redColor] set];
-  //NSFrameRect([self frame]);
-  
   [[NSColor blueColor] set];
   NSFrameRect(NSInsetRect([self bounds], 1, 1));
-  
-//  [[NSColor purpleColor] set];
-//  NSFrameRect(NSInsetRect([self frame], 5, 5));
   
   [[NSColor orangeColor] set];
   for (id view in [self subviews])
@@ -111,368 +109,439 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
   }
 }
 #endif
- 
 
-- (NSSize)minimumSize
+//----------------------------------------------------------------------------------------------------------------------
+
+#pragma mark - Layout
+
+/**
+ * Applies the computed bounds to each view. Adjusts position if the control does not fill the given
+ * space depending on the fill flag.
+ *
+ * @param list The list of cell entries with their bounds to be applied.
+ */
+static void applyBounds(std::vector<CellEntry> &list)
 {
-  if (mOwner == NULL || mOwner->is_destroying())
-    return NSZeroSize;
-  
-  if (mRowCount > 0 && mColumnCount > 0)
+  for (auto &entry : list)
   {
-    int widths[mColumnCount];
-    int heights[mRowCount];
-    
-    for (int i= 0; i < mRowCount; i++)
-      heights[i]= 0;
-    for (int i= 0; i < mColumnCount; i++)
-      widths[i]= 0;
-    
-    // Go for each cell entry and apply its preferred size to the proper cells,
-    // after visibility state and bounds are set.
-    // Keep expand states so we can apply them later.
-    for (MFTableCell *cell in mTableCells)
-    {
-      NSSize cellSize;
+    if (!entry.isVisible)
+      continue;
 
-      if ([cell->mView isHidden]) continue;
+    entry.view.autoresizingMask = 0;
+    NSRect newFrame = entry.view.frame;
 
-      cellSize= [cell->mView preferredSize];
+    // Resize the view to fill the available space if it is larger than that or
+    // the fill flag is set.
+    if (entry.horizontalFill || entry.frame.size.width < newFrame.size.width)
+      newFrame.size.width = entry.frame.size.width;
+    if (entry.verticalFill || entry.frame.size.height < newFrame.size.height)
+      newFrame.size.height = entry.frame.size.height;
 
-      int widthPerCell= cellSize.width / (cell->mRightAttachment - cell->mLeftAttachment);
-      int heightPerCell= cellSize.height / (cell->mBottomAttachment - cell->mTopAttachment);
-      
-      for (int i= cell->mLeftAttachment; i < cell->mRightAttachment; i++)
-      {
-        if (widthPerCell > widths[i])
-          widths[i]= widthPerCell;
-      }
-      for (int i= cell->mTopAttachment; i < cell->mBottomAttachment; i++)
-      {
-        if (heightPerCell > heights[i])
-          heights[i]= heightPerCell;
-      }
-    }
-    
-    // Handle homogeneous mode.
-    if (mHomogeneous)
-    {
-      int max= 0;
-      for (int i= 0; i < mRowCount; i++)
-        if (heights[i] > max)
-          max= heights[i];
-      for (int i= 0; i < mRowCount; i++)
-        heights[i]= max;
-      
-      max= 0;
-      for (int i= 0; i < mColumnCount; i++)
-        if (widths[i] > max)
-          max= widths[i];      
-      for (int i= 0; i < mColumnCount; i++)
-        widths[i]= max;
-    }
-    
-    // Compute overall size
-    NSSize minSize= NSMakeSize(mLeftPadding + mRightPadding, mTopPadding + mBottomPadding);
-    for (int i= 0; i < mRowCount; i++)
-    {
-      minSize.height += heights[i];
-    }
-    minSize.height += (mRowCount - 1) * mRowSpacing;
-    for (int i= 0; i < mColumnCount; i++)
-      minSize.width += widths[i];
-    minSize.width += (mColumnCount - 1) * mColumnSpacing;
-    
-    return minSize;
+    newFrame.origin.x = entry.frame.origin.x + (entry.frame.size.width - newFrame.size.width) / 2;
+    newFrame.origin.y = entry.frame.origin.y + (entry.frame.size.height - newFrame.size.height) / 2;
+
+    entry.view.frame = newFrame;
   }
-  return NSMakeSize(mLeftPadding + mRightPadding, mTopPadding + mBottomPadding);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-- (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
+/**
+ * Computes the entire layout of the table. This includes size and position of client views.
+ *
+ * @param proposedSize The size to start from layouting. Since super ordinated controls may impose
+ *                     a layout size we need to honor that (especially important for auto wrapping
+ *                     labels).
+ * @param resizeChildren Tells the function whether the computed child view bounds should be applied
+ *                       (when doing a relayout) or not (when computing the preferred size).
+ * @return The resulting size of the table.
+ */
+- (NSSize)computeLayout: (NSSize)proposedSize resizeChildren: (BOOL)doResize
 {
-  if (mRowCount > 0 && mColumnCount > 0)
+  // Layouting the grid goes like this:
+  // * Compute all row heights + column widths.
+  // * Apply the resulting cell sizes to all attached children.
+  // * Adjust the size of the container if necessary.
+
+  // To compute all row heights and widths do:
+  // 1) For each cell entry
+  // 2)   Keep the expand state for all cells it covers.
+  // 3)   Compute the base cell sizes for all cells it covers (e.g. for the width: take the control width and distribute
+  //      it evenly over all cells covered from left to right attachment).
+  // 4)   Compare the cell size with what has been computed overall so far. Replace any cell size for
+  //      the control which is larger than what is stored so far by that larger value.
+
+  // If in homogeneous mode do:
+  // Find the tallest row and apply its height to all other rows so they are all at the same height.
+  // Similar for columns.
+
+  // If the sum of all rows is smaller then the current container height distribute the difference evenly
+  // over all children with expand flag set.
+  // Similar for columns.
+
+  // If not in homogeneous mode do:
+  // 1) If the sum of all widths is smaller than the control width then distribute the remaining
+  //     space over all columns for which the expand flag is set.
+  // 2) Same for all rows.
+
+  std::vector<int> heights;
+  heights.resize(mRowCount); // Default initializer sets to 0 (same for the other vectors).
+  std::vector<int> widths;
+  widths.resize(mColumnCount);
+
+  std::vector<bool> verticalExpandState;
+  verticalExpandState.resize(mRowCount);
+  std::vector<bool> horizontalExpandState;
+  horizontalExpandState.resize(mColumnCount);
+
+  float horizontalPadding = mLeftPadding + mRightPadding;
+  float verticalPadding = mTopPadding + mBottomPadding;
+
+  if (!mHorizontalCenter)
+    proposedSize.width -= horizontalPadding;
+  if (!mVerticalCenter)
+    proposedSize.height -= verticalPadding;
+  bool useHorizontalCentering = doResize && mHorizontalCenter;
+  bool useVerticalCentering = doResize && mVerticalCenter;
+
+  NSSize newSize = { 0, 0 };
+
+  // First round: sort list for increasing column span count, so we can process smallest entries first.
+  std::sort(content.begin(), content.end(), [](const CellEntry &lhs, const CellEntry &rhs) {
+    return (lhs.rightAttachment - lhs.leftAttachment) < (rhs.rightAttachment - rhs.leftAttachment);
+  });
+
+  // Go for each cell entry and apply its preferred size to the proper cells,
+  // after visibility state and bounds are set.
+  // Keep expand states so we can apply them later.
+  for (auto &entry : content)
   {
-    // adapted from wf_table.cpp
-    
-    // Layouting the grid goes like this:
-    // * Compute all row heights + column widths.
-    // * Apply the resulting cell sizes to all attached children.
-    // * Adjust the size of the container if necessary.
-    
-    // To compute all row heights and widths do:
-    // 1) For each cell entry
-    // 2)   Keep the expand state for all cells it covers.
-    // 3)   Compute the base cell sizes for all cells it covers (e.g. for the width: take the control width and distribute
-    //      it evenly over all cells covered from left to right attachment).
-    // 4)   Compare the cell size with what has been computed overall so far. Replace any cell size for 
-    //      the control which is larger than what is stored so far by that larger value.
-    
-    // If in homogeneous mode do:
-    // Find the tallest row and apply its height to all other rows so they are all at the same height.
-    // Similar for columns.
-    
-    // If the sum of all rows is smaller then the current container height distribute the difference evenly
-    // over all childs with expand flag set.
-    // Similar for columns.
-    
-    // If not in homogeneous mode do:
-    // 1) If the sum of all widths is smaller than the control width then distribute the remaining
-    //     space over all columns for which the expand flag is set.
-    // 2) Same for all rows.
-    
-    int heights[mRowCount];
-    for (int i= 0; i < mRowCount; i++)
-      heights[i]= 0;
-    int widths[mColumnCount];
-    for (int i= 0; i < mColumnCount; i++)
-      widths[i]= 0;
-    
-    BOOL verticalExpandState[mRowCount];
-    for (int i= 0; i < mRowCount; i++)
-      verticalExpandState[i]= false;
-    BOOL horizontalExpandState[mColumnCount];
-    for (int i= 0; i < mColumnCount; i++)
-      horizontalExpandState[i]= false;
-    
-    // Go for each cell entry and apply its preferred size to the proper cells,
-    // after visibility state and bounds are set.
-    // Keep expand states so we can apply them later.
-    for (MFTableCell *entry in mTableCells)
+    entry.isVisible = !entry.view.isHidden && (entry.rightAttachment > entry.leftAttachment)
+      && (entry.bottomAttachment > entry.topAttachment);
+    if (!entry.isVisible)
+      continue;
+
+    // Check if the width of the entry is larger than what we have already.
+    // While we are at it, keep the expand state in the associated cells.
+    // However, if the current entry is expanding and covers a column which is already set to expand
+    // then don't apply expansion, as we only want to expand those columns.
+    int currentWidth = 0;
+    bool doExpand = entry.horizontalExpand;
+    if (doExpand)
     {
-      NSSize entryMinSize;
-      
-      if ([entry->mView isHidden])
-          continue;
-      
-      entryMinSize= [entry->mView preferredSize];
-      
-      int widthPerCell= entryMinSize.width / (entry->mRightAttachment - entry->mLeftAttachment);
-      int heightPerCell= entryMinSize.height / (entry->mBottomAttachment - entry->mTopAttachment);
-      
-      // Set all cells to the computed partial size if it is larger than what was found so far.
-      // On the way apply the expand flag to all cells that are covered by that entry.
-      
-      // Expanding cells is only enabled if there is no other entry with only one cell size
-      // which is expanded. In this case this single cell will get expanded only.
-      BOOL canExpandHorizontally= entry->mHorizontalExpand;
-      if (canExpandHorizontally && (entry->mRightAttachment - entry->mLeftAttachment > 1))
+      useHorizontalCentering = false; // Expansion disables auto centering.
+      for (int i = entry.leftAttachment; i < entry.rightAttachment; i++)
       {
-        // Check if there is at least one single-cell entry that is expanded and which is
-        // within the attachment range of this entry.
-        for (MFTableCell* otherEntry in mTableCells)
-          if ((otherEntry->mRightAttachment - otherEntry->mLeftAttachment == 1) &&
-              (otherEntry->mLeftAttachment >= entry->mLeftAttachment) &&
-              (otherEntry->mRightAttachment <= entry->mRightAttachment))
-          {
-            canExpandHorizontally= NO;
-            break;
-          }
-      }
-      for (int i= entry->mLeftAttachment; i < entry->mRightAttachment; i++)
-      {
-        if (canExpandHorizontally)
-          horizontalExpandState[i]= YES;
-        if (widthPerCell > widths[i])
-          widths[i]= widthPerCell;
-      }
-      
-      BOOL canExpandVertically= entry->mVerticalExpand;
-      if (canExpandVertically && (entry->mBottomAttachment - entry->mTopAttachment > 1))
-      {
-        // Check if there is at least one single-cell entry that is expanded and which is
-        // within the attachment range of this entry.
-        for (MFTableCell* otherEntry in mTableCells)
-          if ((otherEntry->mBottomAttachment - otherEntry->mTopAttachment == 1) &&
-              (otherEntry->mTopAttachment >= entry->mTopAttachment) &&
-              (otherEntry->mBottomAttachment <= entry->mBottomAttachment))
-          {
-            canExpandVertically= NO;
-            break;
-          }
-      }
-      for (int i= entry->mTopAttachment; i < entry->mBottomAttachment; i++)
-      {
-        if (canExpandVertically)
-          verticalExpandState[i]= YES;
-        if (heightPerCell > heights[i])
-          heights[i]= heightPerCell;
+        if (horizontalExpandState[i])
+        {
+          doExpand = false;
+          break;
+        }
       }
     }
-    
-    NSSize tableSize= [self frame].size;
-    tableSize.width -= (mLeftPadding + mRightPadding);
-    tableSize.height -= (mTopPadding + mBottomPadding);
-    
-    // Handle homogeneous mode.
-    if (mHomogeneous)
+    for (int i = entry.leftAttachment; i < entry.rightAttachment; i++)
     {
-      int max= 0;
-      for (int i= 0; i < mRowCount; i++)
-        if (heights[i] > max)
-          max= heights[i];
-      
-      // If the sum of all resized rows still does not fill the full height
-      // then distribute the remaining space too to make them fill.
-      if (tableSize.height > max * mRowCount)
-        max = tableSize.height / mRowCount;
-      for (int i= 0; i < mRowCount; i++)
-        heights[i]= max;
-      max= 0;
-      for (int i= 0; i < mColumnCount; i++)
-        if (widths[i] > max)
-          max= widths[i];
-      
-      if (tableSize.width > max * mColumnCount)
-        max = tableSize.width / mColumnCount;
-      for (int i= 0; i < mColumnCount; i++)
-        widths[i]= max;
+      currentWidth += widths[i];
+      if (doExpand)
+        horizontalExpandState[i] = true;
     }
-    
-    // Compute overall size and handle expanded entries.
-    NSSize newSize= NSMakeSize(0, 0);
-    for (int i= 0; i < mRowCount; i++)
-      newSize.height += heights[i];
-    newSize.height += (mRowCount - 1) * mRowSpacing;
-    for (int i= 0; i < mColumnCount; i++)
-      newSize.width += widths[i];
-    newSize.width += (mColumnCount - 1) * mColumnSpacing;
-    
-    
-    // Handle expansion of cells, which only applies to the table if it is not set to homogeneous mode.
-    // The following test will also fail if homogeneous mode is set because the cell sizes 
-    // have been adjusted already to fill the entire table.
-    if (newSize.width < tableSize.width)
+
+    entry.view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+
+    entry.frame.origin = NSMakePoint(0, 0);
+    entry.frame.size = [entry.view preferredSize: NSMakeSize(currentWidth, 0)];
+
+    // Ensure integral sizes.
+    entry.frame.size.width = ceil(entry.frame.size.width);
+    entry.frame.size.height = ceil(entry.frame.size.height);
+
+    // Set all cells to the computed partial size if it is larger than what was found so far.
+    // On the way apply the expand flag to all cells that are covered by that entry.
+
+    // If the width of the entry is larger then distribute the difference to all cells it covers.
+    if (entry.frame.size.width > currentWidth)
     {
-      int expandCount= 0;
-      for (int i= 0; i < mColumnCount; i++)
+      // The fraction is a per-cell value and computed by an integer div (we cannot add partial pixels).
+      // Hence we might have a rest, which is less than the span size. Distribute this rest over all spanned cell too.
+      int fraction = (entry.frame.size.width - currentWidth) / (entry.rightAttachment - entry.leftAttachment);
+      int rest = int(entry.frame.size.width - currentWidth) % int(entry.rightAttachment - entry.leftAttachment);
+
+      for (int i = entry.leftAttachment; i < entry.rightAttachment; i++)
+      {
+        widths[i] += fraction;
+        if (rest > 0)
+        {
+          widths[i]++;
+          rest--;
+        }
+      }
+    }
+  }
+
+  // Once we got the minimal width we need to compute the real width as the height computation depends
+  // on the final column widths (e.g. for wrapping labels that change their height depending on their width).
+  // Handle homogeneous mode.
+  if (mHomogeneous)
+  {
+    int max= 0;
+    for (int i= 0; i < mColumnCount; i++)
+      if (widths[i] > max)
+        max = widths[i];
+
+    for (int i= 0; i < mColumnCount; i++)
+      widths[i] = max;
+  }
+
+  // Compute overall width and handle expanded entries.
+  for (int i= 0; i < mColumnCount; i++)
+    newSize.width += widths[i];
+  newSize.width += (mColumnCount - 1) * mColumnSpacing;
+
+  // Do auto sizing the table if enabled. Apply minimal bounds in any case.
+  if (newSize.width > proposedSize.width || ((self.autoresizingMask & NSViewWidthSizable) != 0 && !useHorizontalCentering))
+  {
+    proposedSize.width = newSize.width;
+    if (proposedSize.width < self.minimumSize.width - horizontalPadding)
+      proposedSize.width = self.minimumSize.width - horizontalPadding;
+  }
+
+  // Handle expansion of cells.
+  //if (doResize)
+  {
+    if (!useHorizontalCentering && (newSize.width < proposedSize.width))
+    {
+      int expandCount = 0;
+      for (int i = 0; i < mColumnCount; i++)
         if (horizontalExpandState[i])
           expandCount++;
       if (expandCount > 0)
       {
-        int fraction= (tableSize.width - newSize.width) / expandCount;
+        int fraction= (proposedSize.width - newSize.width) / expandCount;
         for (int i= 0; i < mColumnCount; i++)
           if (horizontalExpandState[i])
             widths[i] += fraction;
       }
+
+      // Re-compute again the overall width.
+      newSize.width = 0;
+      for (int i= 0; i < mColumnCount; i++)
+        newSize.width += widths[i];
+      newSize.width += (mColumnCount - 1) * mColumnSpacing;
     }
-    
-    if (newSize.height < tableSize.height)
+  }
+
+  // Second round: Now that we have all final widths compute the heights. Start with sorting the entries
+  // list for increasing row span count, so we can process smallest entries first.
+  std::sort(content.begin(), content.end(), [](const CellEntry &lhs, const CellEntry &rhs) {
+    return (lhs.bottomAttachment - lhs.topAttachment) < (rhs.bottomAttachment - rhs.topAttachment);
+  });
+
+  // Go for each cell entry and apply its preferred size to the proper cells.
+  // Keep expand states so we can apply them later.
+  for (auto &entry : content)
+  {
+    // Visibility state and bounds where already determined in the first round.
+    if (!entry.isVisible)
+      continue;
+
+    // Set all cells to the computed partial size if it is larger than what was found so far.
+    // On the way apply the expand flag to all cells that are covered by that entry.
+
+    // Check if the height of the entry is larger than what we have already.
+    // Same expansion handling here as for horizontal expansion.
+    int currentHeight = 0;
+    bool doExpand = entry.verticalExpand;
+    if (doExpand)
     {
-      int expandCount= 0;
-      for (int i= 0; i < mRowCount; i++)
+      useVerticalCentering = false; // Expansion disables auto centering.
+      for (int i = entry.topAttachment; i < entry.bottomAttachment; i++)
+      {
+        if (verticalExpandState[i])
+        {
+          doExpand = false;
+          break;
+        }
+      }
+    }
+    for (int i = entry.topAttachment; i < entry.bottomAttachment; i++)
+    {
+      currentHeight += heights[i];
+      if (doExpand)
+        verticalExpandState[i]= true;
+    }
+
+    // For controls that change height depending on their width we need another preferred size computation.
+    // Currently this applies only for wrapping labels.
+    if ([entry.view isKindOfClass: MFLabelImpl.class] && [[(MFLabelImpl*)entry.view cell] wraps])
+    {
+      int currentWidth = 0;
+      for (int i= entry.leftAttachment; i < entry.rightAttachment; i++)
+        currentWidth += widths[i];
+      entry.frame.size = [entry.view preferredSize: NSMakeSize(currentWidth, 0)];
+
+      // Ensure integral sizes.
+      entry.frame.size.width = ceil(entry.frame.size.width);
+      entry.frame.size.height = ceil(entry.frame.size.height);
+    }
+
+    // If the height of the entry is larger then distribute the difference to all cells it covers.
+    if (entry.frame.size.height > currentHeight)
+    {
+      int fraction = (entry.frame.size.height - currentHeight) / (entry.bottomAttachment - entry.topAttachment);
+      int rest = int(entry.frame.size.height - currentHeight) % int(entry.bottomAttachment - entry.topAttachment);
+
+      for (int i = entry.topAttachment; i < entry.bottomAttachment; i++)
+      {
+        heights[i] += fraction;
+        if (rest > 0)
+        {
+          heights[i]++;
+          rest--;
+        }
+      }
+    }
+  }
+
+  // Handle homogeneous mode.
+  if (mHomogeneous)
+  {
+    int max = 0;
+    for (int i = 0; i < mRowCount; i++)
+      if (heights[i] > max)
+        max = heights[i];
+
+    for (int i = 0; i < mRowCount; i++)
+      heights[i] = max;
+  }
+
+  // Compute overall size and handle expanded entries.
+  for (int i = 0; i < mRowCount; i++)
+    newSize.height += heights[i];
+  newSize.height += (mRowCount - 1) * mRowSpacing;
+
+  // Do auto sizing the table if enabled. Apply minimal bounds in any case.
+  if (newSize.height > proposedSize.height || ((self.autoresizingMask & NSViewHeightSizable) != 0 && !useVerticalCentering))
+  {
+    proposedSize.height = newSize.height;
+    if (proposedSize.height < self.minimumSize.height - verticalPadding)
+      proposedSize.height = self.minimumSize.height - verticalPadding;
+  }
+
+  // Handle expansion of cells (vertical case). Since this can happen only if the new size is
+  // less than the proposed size it does not matter for pure size computation (in that case we
+  // have already our target size). Hence do it only if we are actually layouting the table.
+  if (doResize)
+  {
+    if (!useVerticalCentering && (newSize.height < proposedSize.height))
+    {
+      int expandCount = 0;
+      for (int i = 0; i < mRowCount; i++)
         if (verticalExpandState[i])
           expandCount++;
       if (expandCount > 0)
       {
-        int fraction= (tableSize.height - newSize.height) / expandCount;
-        for (int i= 0; i < mRowCount; i++)
+        int fraction = (proposedSize.height - newSize.height) / expandCount;
+        for (int i = 0; i < mRowCount; i++)
           if (verticalExpandState[i])
             heights[i] += fraction;
       }
     }
-    
+
     // Compute target bounds from cell sizes. Compute one more column/row used as right/bottom border.
-    int rowStarts[mRowCount + 1];
-    if (mCenterContents && tableSize.height > newSize.height)
-      rowStarts[0]= (tableSize.height - newSize.height) / 2;
-    else
-      rowStarts[0]= mTopPadding;
-    for (int i= 1; i <= mRowCount; i++)
-      rowStarts[i]= rowStarts[i - 1] + heights[i - 1] + mRowSpacing;
+    std::vector<int> rowStarts;
+    rowStarts.resize(mRowCount + 1);
     
-    int columnStarts[mColumnCount + 1];
-    if (mCenterContents && tableSize.width > newSize.width)
-      columnStarts[0]= (tableSize.width - newSize.width) / 2;
-    else
-      columnStarts[0]= mLeftPadding;
-    for (int i= 1; i <= mColumnCount; i++)
-      columnStarts[i]= columnStarts[i - 1] + widths[i - 1] + mColumnSpacing;
-    
-    // Apply target bounds to cell content.
-    for (MFTableCell *entry in mTableCells)
+    rowStarts[0] = mTopPadding;
+    if (useVerticalCentering && (newSize.height < proposedSize.height))
+      rowStarts[0] = ceil((proposedSize.height - newSize.height) / 2);
+
+    for (int i = 1; i <= mRowCount; i++)
+      rowStarts[i] = rowStarts[i - 1] + heights[i - 1] + mRowSpacing;
+
+    std::vector<int> columnStarts;
+    columnStarts.resize(mColumnCount + 1);
+
+    columnStarts[0] = mLeftPadding;
+    if (useHorizontalCentering && (newSize.width < proposedSize.width))
+      columnStarts[0] = ceil((proposedSize.width - newSize.width) / 2);
+
+    for (int i = 1; i <= mColumnCount; i++)
+      columnStarts[i] = columnStarts[i - 1] + widths[i - 1] + mColumnSpacing;
+
+    for (auto &entry : content)
     {
-      if ([entry->mView isHidden])
+      if (!entry.isVisible)
         continue;
-      
-      NSRect entryBounds;
-      NSSize availSize;
-      entryBounds.origin.x= columnStarts[entry->mLeftAttachment];
-      entryBounds.origin.y= rowStarts[entry->mTopAttachment];
-      entryBounds.size.width= columnStarts[entry->mRightAttachment] - columnStarts[entry->mLeftAttachment] - mColumnSpacing;
-      entryBounds.size.height= rowStarts[entry->mBottomAttachment] - rowStarts[entry->mTopAttachment]- mRowSpacing;
-      availSize = entryBounds.size;
 
-      if ([entry->mView widthIsFixed])
-        entryBounds.size.width= NSWidth([entry->mView frame]);
-      if ([entry->mView heightIsFixed])
-        entryBounds.size.height= NSHeight([entry->mView frame]);
-      
-      if (!entry->mVerticalFill && [entry->mView heightIsFixed])
-        entryBounds.origin.y += (availSize.height - NSHeight(entryBounds))/2;
-      if (!entry->mHorizontalFill && [entry->mView widthIsFixed])
-        entryBounds.origin.x += (availSize.width - NSWidth(entryBounds))/2;
-      
-      if (NSEqualRects([entry->mView frame], entryBounds))
-        [entry->mView resizeSubviewsWithOldSize: entryBounds.size];
-      else
-        [entry->mView setFrame:entryBounds];
+      entry.frame.origin.x = columnStarts[entry.leftAttachment];
+      entry.frame.origin.y = rowStarts[entry.topAttachment];
+      entry.frame.size.width = columnStarts[entry.rightAttachment] - columnStarts[entry.leftAttachment] - mColumnSpacing;
+      entry.frame.size.height = rowStarts[entry.bottomAttachment] - rowStarts[entry.topAttachment] - mRowSpacing;
     }
+
+    // Apply target bounds to cell content.
+    applyBounds(content);
   }
+
+  if (!mHorizontalCenter)
+    proposedSize.width += horizontalPadding;
+  if (!mVerticalCenter)
+    proposedSize.height += verticalPadding;
+
+  return proposedSize;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-- (void)willRemoveSubview:(NSView *)subview
+- (NSSize)preferredSize: (NSSize)proposedSize
 {
-  for (MFTableCell *cell in mTableCells)
+  self.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+  return [self computeLayout: proposedSize resizeChildren: NO];
+}
+
+- (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
+{
+  if (mOwner != nullptr && !mOwner->is_destroying())
   {
-    if (cell->mView == subview)
-    {
-      [mTableCells removeObject:cell];
-      break;
-    }
+    self.autoresizingMask = 0;
+    [self computeLayout: self.frame.size resizeChildren: YES];
   }
-  [self subviewMinimumSizeChanged];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)subviewMinimumSizeChanged
-{
-  if (mOwner != NULL && !mOwner->is_destroying())
-    [super subviewMinimumSizeChanged];
-}
+#pragma mark - Management
 
-
-- (void)addSubview:(NSView*)view left:(int)left right:(int)right top:(int)top bottom:(int)bottom flags:(mforms::TableItemFlags)flags
+- (void)addSubview: (NSView*)view left: (int)left right: (int)right top: (int)top bottom: (int)bottom flags: (mforms::TableItemFlags)flags
 {
   if (left < 0 || left >= mColumnCount || right < left || right > mColumnCount)
     throw std::invalid_argument("Invalid column coordinate passed to table.add()");
   if (top < 0 || top >= mRowCount || bottom < top || bottom > mRowCount)
     throw std::invalid_argument("Invalid row coordinate passed to table.add()");
   
-  [self addSubview:view];
+  [self addSubview: view];
     
-  MFTableCell *cell = [[MFTableCell alloc] init];
+  CellEntry cell;
+  cell.view = view;
+  cell.leftAttachment = left;
+  cell.rightAttachment = right;
+  cell.topAttachment = top;
+  cell.bottomAttachment = bottom;
+  cell.verticalExpand = flags & mforms::VExpandFlag ? true : false;
+  cell.horizontalExpand = flags & mforms::HExpandFlag ? true : false;
+  cell.verticalFill = flags & mforms::VFillFlag ? true : false;
+  cell.horizontalFill = flags & mforms::HFillFlag ? true : false;
   
-  cell->mView= view;
-  cell->mLeftAttachment= MAX(left, 0);
-  cell->mRightAttachment= right;
-  cell->mTopAttachment= MAX(top, 0);
-  cell->mBottomAttachment= bottom;
-  cell->mVerticalExpand= flags & mforms::VExpandFlag ? YES : NO;
-  cell->mHorizontalExpand= flags & mforms::HExpandFlag ? YES : NO;
-  cell->mVerticalFill= flags & mforms::VFillFlag ? YES : NO;
-  cell->mHorizontalFill= flags & mforms::HFillFlag ? YES : NO;
-  
-  [mTableCells addObject:cell];
+  content.push_back(cell);
   
   // auto-adjust row/column count if necessary
-  if (mColumnCount < right-1)
-    mColumnCount= right;
-  if (mRowCount < bottom-1)
-    mRowCount= bottom;
+  if (mColumnCount < right - 1)
+    mColumnCount = right;
+  if (mRowCount < bottom - 1)
+    mRowCount = bottom;
   
-  [self subviewMinimumSizeChanged];
+  if ([self setFreezeRelayout: NO])
+    [self relayout];
 }
 
 
@@ -486,24 +555,15 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
   mColumnCount= count;
 }
 
-- (void)setPaddingLeft:(float)lpad right:(float)rpad top:(float)tpad bottom:(float)bpad
+- (void)setPaddingLeft: (float)lpad right: (float)rpad top: (float)tpad bottom: (float)bpad
 {
-  if (lpad < 0 && rpad < 0 && tpad < 0 && bpad < 0)
-  {
-    mLeftPadding= 0;
-    mRightPadding= 0;
-    mTopPadding= 0;
-    mBottomPadding= 0;
-    mCenterContents = YES;
-  }
-  else
-  {
-    mLeftPadding= lpad;
-    mRightPadding= rpad;
-    mTopPadding= tpad;
-    mBottomPadding= bpad;
-    mCenterContents = NO;
-  }
+  mLeftPadding = lpad;
+  mRightPadding = rpad;
+  mTopPadding = tpad;
+  mBottomPadding = bpad;
+
+  mHorizontalCenter = (lpad < 0 || rpad < 0);
+  mVerticalCenter = (tpad < 0 && bpad < 0);
 }
 
 static bool table_create(::mforms::Table *self)
@@ -585,7 +645,7 @@ static void table_set_column_count(::mforms::Table *self, int count)
 static void table_add(::mforms::Table *self, ::mforms::View *child, int left, int right, int top, int bottom, int flags)
 {
   NSView *view = child->get_data();
-  view.viewFlags |= flags;
+  view.viewFlags = ViewFlags(view.viewFlags | flags);
   
   [self->get_data() addSubview: view
                           left: left

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,34 +21,27 @@
 
 #include "grt/tree_model.h"
 
-
 class MySQLTableEditorBE;
-
 
 @interface GRTNodeId : NSObject {
   bec::NodeId *_nodeId;
 }
 
-+ (GRTNodeId*)nodeIdWithNodeId:(const bec::NodeId&)nodeId;
-- (instancetype)init;
-- (instancetype)initWithNodeId:(const bec::NodeId&)nodeId;
-@property (readonly) const bec::NodeId & nodeId;
++ (GRTNodeId *)nodeIdWithNodeId:(const bec::NodeId &)nodeId;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithNodeId:(const bec::NodeId &)nodeId NS_DESIGNATED_INITIALIZER;
+@property(readonly) const bec::NodeId &nodeId;
 
 @end
 
-
-@interface GRTListDataSource : NSObject <NSTableViewDataSource, NSTableViewDelegate> {
-  bec::ListModel *_list; 
+@interface GRTListDataSource : NSObject<NSTableViewDataSource, NSTableViewDelegate> {
+  bec::ListModel *_list;
 }
 
+- (instancetype)initWithListModel:(bec::ListModel *)model NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithListModel:(bec::ListModel*)model;
+@property bec::ListModel *listModel;
 
-
-@property  bec::ListModel *listModel;
-
-- (NSInteger)numberOfRowsInTableView: (NSTableView *)aTableView;
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
 
 @end
-
-

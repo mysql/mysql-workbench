@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -17,60 +17,47 @@
 * 02110-1301  USA
 */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "interfaces/plugin.h"
 
 #include "grtui/grt_wizard_plugin.h"
 
 #include "grts/structs.db.mgmt.h"
 
-
 #define MODULE_VERSION "1.0.0"
 
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
-
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
-
-
-class MySQLDbDiffReportingModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
-{
+class MySQLDbDiffReportingModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl {
 public:
-  MySQLDbDiffReportingModuleImpl(grt::CPPModuleLoader *ldr)
-  : grt::ModuleImplBase(ldr)
-  {
+  MySQLDbDiffReportingModuleImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {
   }
 
-  DEFINE_INIT_MODULE(MODULE_VERSION, "MySQL AB", grt::ModuleImplBase,
-                     DECLARE_MODULE_FUNCTION(MySQLDbDiffReportingModuleImpl::getPluginInfo), 
-                     DECLARE_MODULE_FUNCTION(MySQLDbDiffReportingModuleImpl::runWizard),
-                     NULL);
+  DEFINE_INIT_MODULE(MODULE_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
+                     DECLARE_MODULE_FUNCTION(MySQLDbDiffReportingModuleImpl::getPluginInfo),
+                     DECLARE_MODULE_FUNCTION(MySQLDbDiffReportingModuleImpl::runWizard), NULL);
 
-  int runWizard()
-  {
-    extern grtui::WizardPlugin *createWbPluginDiffReport(grt::Module *module);
-    
-    grtui::WizardPlugin *wizard= createWbPluginDiffReport(this);
-    int rc= wizard->run_wizard();
+  int runWizard() {
+    extern grtui::WizardPlugin *createWbPluginDiffReport(grt::Module * module);
+
+    grtui::WizardPlugin *wizard = createWbPluginDiffReport(this);
+    int rc = wizard->run_wizard();
     delete wizard;
-    
+
     return rc;
   }
-  
-  virtual grt::ListRef<app_Plugin> getPluginInfo()
-  {
-    return get_mysql_plugins_info(get_grt());
+
+  virtual grt::ListRef<app_Plugin> getPluginInfo() {
+    return get_mysql_plugins_info();
   }
 };
 
-
-
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
-{
-  grt::ListRef<app_Plugin> plugins(grt);
-  app_PluginRef diff_sql_generator(grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info() {
+  grt::ListRef<app_Plugin> plugins(true);
+  app_PluginRef diff_sql_generator(grt::Initialized);
 
   {
-    app_PluginRef plugin(grt);
+    app_PluginRef plugin(grt::Initialized);
 
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbDiffReportingModule");
@@ -79,11 +66,11 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
     plugin->caption("Generate Catalog Diff Report");
     plugin->groups().insert("database/Database");
 
-    grt::StringListRef document_types(grt);
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
-    //plugin->documentStructNames(document_types);
+    // plugin->documentStructNames(document_types);
 
-    app_PluginObjectInputRef pdef(grt);
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
 
@@ -92,6 +79,5 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
 
   return plugins;
 }
-
 
 GRT_MODULE_ENTRY_POINT(MySQLDbDiffReportingModuleImpl);

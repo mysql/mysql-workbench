@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -25,15 +25,15 @@
 #include <cppconn/resultset.h>
 
 db_query_ResultsetRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_recordset(GrtObjectRef owner, Recordset::Ref rset);
-db_query_ResultsetRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_recordset(GrtObjectRef owner, boost::shared_ptr<sql::ResultSet> result);
+db_query_ResultsetRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_recordset(GrtObjectRef owner,
+                                                                    std::shared_ptr<sql::ResultSet> result);
 
-
-class WBPUBLICBACKEND_PUBLIC_FUNC db_query_Resultset::ImplData
-{
+class WBPUBLICBACKEND_PUBLIC_FUNC db_query_Resultset::ImplData {
 protected:
   ImplData(db_query_ResultsetRef aself);
 
   db_query_Resultset *self;
+
 public:
   std::map<std::string, ssize_t> column_by_name;
 
@@ -61,14 +61,12 @@ public:
   virtual grt::StringRef geoJsonFieldValueByName(const std::string &column) = 0;
 };
 
-
-class WBPUBLICBACKEND_PUBLIC_FUNC WBRecordsetResultset : public db_query_Resultset::ImplData
-{
+class WBPUBLICBACKEND_PUBLIC_FUNC WBRecordsetResultset : public db_query_Resultset::ImplData {
 public:
   size_t cursor;
-  boost::shared_ptr<Recordset> recordset;
+  std::shared_ptr<Recordset> recordset;
 
-  WBRecordsetResultset(db_query_ResultsetRef aself, boost::shared_ptr<Recordset> rset);
+  WBRecordsetResultset(db_query_ResultsetRef aself, std::shared_ptr<Recordset> rset);
   virtual grt::StringRef sql() const;
   virtual grt::IntegerRef currentRow() const;
   virtual grt::IntegerRef rowCount() const;

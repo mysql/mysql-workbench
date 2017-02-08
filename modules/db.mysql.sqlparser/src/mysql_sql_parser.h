@@ -1,54 +1,52 @@
-/* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-
-#ifndef _MYSQL_SQL_PARSER_H_
-#define _MYSQL_SQL_PARSER_H_
-
+#pragma once
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_parser.h"
 #include "grtsqlparser/fk_ref.h"
 
-
 using namespace grt;
 
-
 /** Implements DBMS specifics.
- * 
+ *
  * @ingroup sqlparser
  */
-class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_parser
-  : protected Mysql_sql_parser_base, public Sql_parser
-{
+class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_parser : protected Mysql_sql_parser_base, public Sql_parser {
 public:
-  typedef boost::shared_ptr<Mysql_sql_parser> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_parser(grt)); }
-  virtual ~Mysql_sql_parser() {}
+  typedef std::shared_ptr<Mysql_sql_parser> Ref;
+  static Ref create() {
+    return Ref(new Mysql_sql_parser());
+  }
+  virtual ~Mysql_sql_parser() {
+  }
+
 protected:
-  Mysql_sql_parser(grt::GRT *grt);
+  Mysql_sql_parser();
 
 public:
   virtual int parse_sql_script(db_CatalogRef catalog, const std::string &sql, grt::DictRef options);
   virtual int parse_sql_script_file(db_CatalogRef catalog, const std::string &filename, grt::DictRef options);
+
 protected:
-  typedef boost::function<Parse_result (const SqlAstNode *)> Process_specific_create_statement;
+  typedef boost::function<Parse_result(const SqlAstNode *)> Process_specific_create_statement;
 
   grt::DictRef _datatype_cache;
   grt::StringRef _sql_script_codeset;
@@ -59,11 +57,11 @@ protected:
   Process_specific_create_statement _process_specific_create_statement;
   Fk_ref_collection _fk_refs;
   bool _set_old_names;
-  bool _reuse_existing_objects; // allow to reuse objects created before parsing
-  bool _reusing_existing_obj; // if the object, currently being processed, existed before
-  bool _stick_to_active_schema; // some additional processing needed when things go out of defined scope
+  bool _reuse_existing_objects;            // allow to reuse objects created before parsing
+  bool _reusing_existing_obj;              // if the object, currently being processed, existed before
+  bool _stick_to_active_schema;            // some additional processing needed when things go out of defined scope
   db_mysql_TableRef _triggers_owner_table; // if specified, don't lookup owning table by name, but use specified one
-  bool _gen_fk_names_when_empty; // generate unique fk name when name is not given
+  bool _gen_fk_names_when_empty;           // generate unique fk name when name is not given
   bool _strip_sql; // it's not wanted to strip input in editors, while it's so in most other cases
   Parse_result _last_parse_result;
 
@@ -76,15 +74,24 @@ protected:
   void set_fk_references();
 
   // shapers
-  typedef boost::function<void (db_mysql_SchemaRef &)> Shape_schema; Shape_schema _shape_schema;
-  typedef boost::function<void (db_mysql_TableRef &)> Shape_table; Shape_table _shape_table;
-  typedef boost::function<void (db_mysql_ViewRef &)> Shape_view; Shape_view _shape_view;
-  typedef boost::function<void (db_mysql_RoutineRef &)> Shape_routine; Shape_routine _shape_routine;
-  typedef boost::function<void (db_mysql_TriggerRef &)> Shape_trigger; Shape_trigger _shape_trigger;
-  typedef boost::function<void (db_mysql_IndexRef &)> Shape_index; Shape_index _shape_index;
-  typedef boost::function<void (db_mysql_LogFileGroupRef &)> Shape_logfile_group; Shape_logfile_group _shape_logfile_group;
-  typedef boost::function<void (db_mysql_TablespaceRef &)> Shape_tablespace; Shape_tablespace _shape_tablespace;
-  typedef boost::function<void (db_mysql_ServerLinkRef &)> Shape_serverlink; Shape_serverlink _shape_serverlink;
+  typedef boost::function<void(db_mysql_SchemaRef &)> Shape_schema;
+  Shape_schema _shape_schema;
+  typedef boost::function<void(db_mysql_TableRef &)> Shape_table;
+  Shape_table _shape_table;
+  typedef boost::function<void(db_mysql_ViewRef &)> Shape_view;
+  Shape_view _shape_view;
+  typedef boost::function<void(db_mysql_RoutineRef &)> Shape_routine;
+  Shape_routine _shape_routine;
+  typedef boost::function<void(db_mysql_TriggerRef &)> Shape_trigger;
+  Shape_trigger _shape_trigger;
+  typedef boost::function<void(db_mysql_IndexRef &)> Shape_index;
+  Shape_index _shape_index;
+  typedef boost::function<void(db_mysql_LogFileGroupRef &)> Shape_logfile_group;
+  Shape_logfile_group _shape_logfile_group;
+  typedef boost::function<void(db_mysql_TablespaceRef &)> Shape_tablespace;
+  Shape_tablespace _shape_tablespace;
+  typedef boost::function<void(db_mysql_ServerLinkRef &)> Shape_serverlink;
+  Shape_serverlink _shape_serverlink;
   void set_obj_name(GrtNamedObjectRef obj, const std::string &val);
   void set_obj_sql_def(db_DatabaseDdlObjectRef obj);
 
@@ -92,35 +99,31 @@ protected:
   db_mysql_SchemaRef set_active_schema(const std::string &schema_name);
   db_mysql_SchemaRef ensure_schema_created(const std::string &schema_name, bool check_obj_name_uniqueness);
   void create_stub_table(db_mysql_SchemaRef &schema, db_mysql_TableRef &obj, const std::string &obj_name);
-  void create_stub_column(db_mysql_TableRef &table, db_mysql_ColumnRef &obj, const std::string &obj_name, db_mysql_ColumnRef tpl_obj);
-  void blame_existing_obj(bool critical, const GrtNamedObjectRef &obj, const GrtNamedObjectRef &container1= GrtNamedObjectRef(), const GrtNamedObjectRef &container2= GrtNamedObjectRef());
+  void create_stub_column(db_mysql_TableRef &table, db_mysql_ColumnRef &obj, const std::string &obj_name,
+                          db_mysql_ColumnRef tpl_obj);
+  void blame_existing_obj(bool critical, const GrtNamedObjectRef &obj,
+                          const GrtNamedObjectRef &container1 = GrtNamedObjectRef(),
+                          const GrtNamedObjectRef &container2 = GrtNamedObjectRef());
 
   template <typename T>
-  bool drop_obj(
-    grt::ListRef<T> obj_list,
-    const std::string &obj_name,
-    bool if_exists,
-    GrtNamedObjectRef owner= GrtNamedObjectRef(),
-    GrtNamedObjectRef grand_owner= GrtNamedObjectRef());
+  bool drop_obj(grt::ListRef<T> obj_list, const std::string &obj_name, bool if_exists,
+                GrtNamedObjectRef owner = GrtNamedObjectRef(), GrtNamedObjectRef grand_owner = GrtNamedObjectRef());
 
-  virtual GrtNamedObjectRef get_active_object() { return GrtNamedObjectRef(); };
+  virtual GrtNamedObjectRef get_active_object() {
+    return GrtNamedObjectRef();
+  };
 
   template <typename T>
-  grt::Ref<T> create_or_find_named_obj(
-              const grt::ListRef<T>& obj_list,
-              const std::string &obj_name,
-              bool case_sensitive,
-              const GrtNamedObjectRef &container1= GrtNamedObjectRef(),
-              const GrtNamedObjectRef &container2= GrtNamedObjectRef());
+  grt::Ref<T> create_or_find_named_obj(const grt::ListRef<T> &obj_list, const std::string &obj_name,
+                                       bool case_sensitive, const GrtNamedObjectRef &container1 = GrtNamedObjectRef(),
+                                       const GrtNamedObjectRef &container2 = GrtNamedObjectRef());
 
   template <typename T>
-  grt::Ref<T> create_or_find_named_routine(const grt::ListRef<T>& obj_list,
-             const std::string &obj_name,
-             bool case_sensitive,
-             const std::string &routine_type,
-             const GrtNamedObjectRef &container1= GrtNamedObjectRef(),
-             const GrtNamedObjectRef &container2= GrtNamedObjectRef());
-         
+  grt::Ref<T> create_or_find_named_routine(const grt::ListRef<T> &obj_list, const std::string &obj_name,
+                                           bool case_sensitive, const std::string &routine_type,
+                                           const GrtNamedObjectRef &container1 = GrtNamedObjectRef(),
+                                           const GrtNamedObjectRef &container2 = GrtNamedObjectRef());
+
   // parse tree core
   Parse_result process_use_schema_statement(const SqlAstNode *tree);
   Parse_result process_create_schema_statement(const SqlAstNode *tree);
@@ -145,8 +148,10 @@ protected:
   std::string process_obj_full_name_item(const SqlAstNode *item, db_mysql_SchemaRef *schema);
   void process_field_type_item(const SqlAstNode *item, db_mysql_ColumnRef &column);
   void process_field_attributes_item(const SqlAstNode *item, db_mysql_ColumnRef &column, db_mysql_TableRef &table);
-  std::string process_float_options_item(const SqlAstNode *item, std::string *precision= NULL, std::string *scale= NULL);
-  std::string process_field_name_item(const SqlAstNode *item, GrtNamedObjectRef obj= GrtNamedObjectRef(), std::string *name3= NULL, std::string *name2= NULL, std::string *name1= NULL);
+  std::string process_float_options_item(const SqlAstNode *item, std::string *precision = NULL,
+                                         std::string *scale = NULL);
+  std::string process_field_name_item(const SqlAstNode *item, GrtNamedObjectRef obj = GrtNamedObjectRef(),
+                                      std::string *name3 = NULL, std::string *name2 = NULL, std::string *name1 = NULL);
   void process_index_item(const SqlAstNode *tree, db_mysql_TableRef &table);
   void process_fk_item(const SqlAstNode *tree, db_mysql_TableRef &table);
   void process_fk_references_item(const SqlAstNode *tree, db_mysql_ForeignKeyRef &fk, Fk_ref &fk_ref);
@@ -154,41 +159,46 @@ protected:
   void process_index_kind_item(db_mysql_IndexRef &obj, const SqlAstNode *item);
 
   // prepare/clear routines
-  void set_options(grt::DictRef options);
+  void set_options(const grt::DictRef &options);
   void build_datatype_cache();
   void clear_datatype_cache();
 
   // logging
-  void log_db_obj_created(const GrtNamedObjectRef &obj1, const GrtNamedObjectRef &obj2= GrtNamedObjectRef(), const GrtNamedObjectRef &obj3= GrtNamedObjectRef());
-  void log_db_obj_dropped(const GrtNamedObjectRef &obj1, const GrtNamedObjectRef &obj2= GrtNamedObjectRef(), const GrtNamedObjectRef &obj3= GrtNamedObjectRef());
-  void log_db_obj_operation(const std::string &op_name, const GrtNamedObjectRef &obj1, const GrtNamedObjectRef &obj2= GrtNamedObjectRef(), const GrtNamedObjectRef &obj3= GrtNamedObjectRef());
+  void log_db_obj_created(const GrtNamedObjectRef &obj1, const GrtNamedObjectRef &obj2 = GrtNamedObjectRef(),
+                          const GrtNamedObjectRef &obj3 = GrtNamedObjectRef());
+  void log_db_obj_dropped(const GrtNamedObjectRef &obj1, const GrtNamedObjectRef &obj2 = GrtNamedObjectRef(),
+                          const GrtNamedObjectRef &obj3 = GrtNamedObjectRef());
+  void log_db_obj_operation(const std::string &op_name, const GrtNamedObjectRef &obj1,
+                            const GrtNamedObjectRef &obj2 = GrtNamedObjectRef(),
+                            const GrtNamedObjectRef &obj3 = GrtNamedObjectRef());
 
   // module utils
   void do_transactable_list_insert(grt::ListRef<GrtObject> list, GrtObjectRef object);
 
-  class Active_schema_keeper
-  {
+  class Active_schema_keeper {
   public:
     Active_schema_keeper(Mysql_sql_parser *sql_parser)
-      : _sql_parser(sql_parser), _prev_schema(sql_parser->_active_schema) {}
-    ~Active_schema_keeper() { _sql_parser->_active_schema= _prev_schema; }
+      : _sql_parser(sql_parser), _prev_schema(sql_parser->_active_schema) {
+    }
+    ~Active_schema_keeper() {
+      _sql_parser->_active_schema = _prev_schema;
+    }
+
   private:
     Mysql_sql_parser *_sql_parser;
     db_mysql_SchemaRef _prev_schema;
   };
   friend class Active_schema_keeper;
 
-  class Null_state_keeper : public Mysql_sql_parser_base::Null_state_keeper
-  {
+  class Null_state_keeper : public Mysql_sql_parser_base::Null_state_keeper {
   public:
     Null_state_keeper(Mysql_sql_parser *sql_parser)
-      : Mysql_sql_parser_base::Null_state_keeper(sql_parser), _sql_parser(sql_parser) {}
+      : Mysql_sql_parser_base::Null_state_keeper(sql_parser), _sql_parser(sql_parser) {
+    }
     virtual ~Null_state_keeper();
+
   private:
     Mysql_sql_parser *_sql_parser;
   };
   friend class Null_state_keeper;
 };
-
-
-#endif // _MYSQL_SQL_PARSER_H_

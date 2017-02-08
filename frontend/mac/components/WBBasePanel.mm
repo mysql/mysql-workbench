@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,19 +30,19 @@
 
 - (void)resizeSubviewsWithOldSize:(NSSize)size
 {
-  NSView *toolBar = [self subviews][0];
-  NSView *content = [self subviews][1];
+  NSView *toolBar = self.subviews[0];
+  NSView *content = self.subviews[1];
   if (toolBar && content)
   {
-    NSRect r = [self frame];
-    NSRect frame = [toolBar frame];
+    NSRect r = self.frame;
+    NSRect frame = toolBar.frame;
     frame.origin = NSZeroPoint;
     frame.size.width = r.size.width;
-    [toolBar setFrame: frame];
+    toolBar.frame = frame;
     
     frame.origin.y += NSHeight(frame);
     frame.size.height = r.size.height - NSHeight(frame);
-    [content setFrame: frame];
+    content.frame = frame;
   }
 }
 
@@ -59,7 +59,7 @@
 
 - (NSView*)decoratedTopView
 {
-  bec::UIForm *form = [self formBE];
+  bec::UIForm *form = self.formBE;
   mforms::ToolBar *tbar = form->get_toolbar();
   if (form != NULL && tbar != NULL)
   {
@@ -68,8 +68,8 @@
     {
       if (!decoratorView)
       {
-        NSRect r = [topView frame];
-        WBToolBarContainer *container = [[WBToolBarContainer alloc] initWithFrame: NSMakeRect(0, 0, NSWidth(r), NSHeight(r) + NSHeight([tbview frame]))];
+        NSRect r = topView.frame;
+        WBToolBarContainer *container = [[WBToolBarContainer alloc] initWithFrame: NSMakeRect(0, 0, NSWidth(r), NSHeight(r) + NSHeight(tbview.frame))];
         decoratorView = container;
         [container addSubview: tbview];
         [topView removeFromSuperview];
@@ -84,7 +84,7 @@
 
 - (NSMenu*)menuBar
 {
-  bec::UIForm *form = [self formBE];
+  bec::UIForm *form = self.formBE;
   if (form)
   {
     mforms::MenuBar *menubar = form->get_menubar();
@@ -96,7 +96,7 @@
 
 - (NSString*)title
 {
-  bec::UIForm *form = [self formBE];
+  bec::UIForm *form = self.formBE;
   if (form)
     return @(form->get_title().c_str());
   return @"";
@@ -115,11 +115,6 @@
 - (NSImage*)tabIcon
 {
   return nil;
-}
-
-- (NSSize)minimumSize
-{
-  return NSMakeSize(0, 0);
 }
 
 - (BOOL)willClose

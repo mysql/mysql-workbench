@@ -77,7 +77,7 @@ mysql-workbench-@edition@ ($major.$minor.$release$dot_release_type-1@distrov@) @
 
   * New release
 
- -- `git config user.name` (`git config user.email`)  `date +"%a, %d %b %Y %T %z"`
+ -- `git config user.name` <`git config user.email`>  `LANG=en_EN date +"%a, %d %b %Y %T %z"`
 
 EOF
     cat build/debian.in/changelog >> build/debian.in/changelog.new

@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,11 +24,11 @@ from workbench.graphics.cairo_utils import Context
 from wb_admin_utils import WbAdminBaseTab
 import re
 from workbench.log import log_error
+from workbench.utils import Version
 
 
 class MyDict:
     def __init__(self, d):
-        #        dict.__init__(self)
     
         self.d = d
 
@@ -194,44 +194,69 @@ class RenderBox(mforms.PyDrawBox):
             
                 self.tooltip.set_content(box)
                 self.tooltip.add_close_callback(self.close_tooltip)
-                self.tooltip.show_and_track(self, xx, yy, mforms.Right)
-
+                self.tooltip.show_and_track(self, xx, yy, mforms.StartRight)
 
 
 class CDifferencePerSecond(object):
     def __init__(self, expr):
         self.expr = expr
 
+        self.reset()
+
+
+    def reset(self):
         self.old_value = None
         self.old_value_timestamp = None
-
-
+      
+      
+    def calculate(self, value, timestamp):
+        pass
+      
+      
     def handle(self, values, timestamp):
-        if not self.expr:
-            return None
-        value = eval(self.expr % values)
 
-        if self.old_value and timestamp > self.old_value_timestamp:
-            if type(value) is tuple:
-                dif = []
-                for i in range(len(value)):
-                    dif.append(float(value[i] - self.old_value[i]) / (timestamp - self.old_value_timestamp))
-                dif = tuple(dif)
-            else:
-                dif = float(value - self.old_value) / (timestamp - self.old_value_timestamp)
-        else:
-            dif = None
+        result = None
+
+        if not self.expr:
+            return result
+      
+        value = eval(self.expr % values)
+      
+        if self.old_value and self.old_value_timestamp:
+            if timestamp > self.old_value_timestamp:
+                result = self.calculate(value, timestamp)
 
         self.old_value = value
         self.old_value_timestamp = timestamp
 
-        return dif
+        return result
 
 
+class CSingleDifferencePerSecond(CDifferencePerSecond):
+    def __init__(self, expr):
+       super(CSingleDifferencePerSecond, self).__init__(expr)
+
+
+    def calculate(self, value, timestamp):
+        return float(value - self.old_value) / (timestamp - self.old_value_timestamp)
+
+
+class CTupleDifferencePerSecond(CDifferencePerSecond):
+    def __init__(self, expr):
+       super(CTupleDifferencePerSecond, self).__init__(expr)
+
+        
+
+    def calculate(self, value, timestamp):
+        result = []
+        for i in range(len(value)):
+                result.append(float(value[i] - self.old_value[i]) / (timestamp - self.old_value_timestamp))
+        return tuple(result)
+
+        
 class CRawValue(object):
     def __init__(self, expr):
-        self.expr = expr
-        
+        self.expr = expr        
     
     def handle(self, values, timestamp):
         if not self.expr:
@@ -256,7 +281,7 @@ class CMakeTuple(object):
 READ_COLOR = (60/255.0, 178/255.0, 191/255.0)
 WRITE_COLOR = (253/255.0, 138/255.0, 39/255.0)
 
-GLOBAL_DASHBOARD_WIDGETS = \
+GLOBAL_DASHBOARD_WIDGETS_NETWORK = \
 [
  (None, DBImage, (mforms.App.get().get_resource_path("dashboard_header_network.png"),), None, (None, None),
   (0, 0, 0), (85, 5),
@@ -269,14 +294,14 @@ GLOBAL_DASHBOARD_WIDGETS = \
   (0, 0, 0), (228, 196),
   ""),
 
- (None, DBSimpleCounter, ("receiving\n%.2f %sB/s", True), None, (CDifferencePerSecond, "%(Bytes_received)s"),
+ (None, DBSimpleCounter, ("receiving\n%.2f %sB/s", True), None, (CSingleDifferencePerSecond, "%(Bytes_received)s"),
   READ_COLOR, (200, 240),
   """Bytes Received
 Number of bytes received by the MySQL server at the network level.
 
 Total bytes received: %(Bytes_received)s"""),
 
- ("Incoming Network Traffic (Bytes/Second)", DBTimeLineGraph, ("%.1f %sB", True), None, (CDifferencePerSecond, "%(Bytes_received)s"),
+ ("Incoming Network Traffic (Bytes/Second)", DBTimeLineGraph, ("%.1f %sB", True), None, (CSingleDifferencePerSecond, "%(Bytes_received)s"),
   READ_COLOR, (30, 160),
   None),
 
@@ -284,14 +309,14 @@ Total bytes received: %(Bytes_received)s"""),
   (0, 0, 0), (228, 368),
   ""),
 
- (None, DBSimpleCounter, ("sending\n%.2f %sB/s", True), None, (CDifferencePerSecond, "%(Bytes_sent)s"),
+ (None, DBSimpleCounter, ("sending\n%.2f %sB/s", True), None, (CSingleDifferencePerSecond, "%(Bytes_sent)s"),
   WRITE_COLOR, (200, 410),
   """Bytes Sent
 Number of bytes sent by the MySQL server at the network level.
       
 Total bytes sent: %(Bytes_sent)s"""),
  
- ("Outgoing Network Traffic (Bytes/Second)", DBTimeLineGraph, ("%.1f %sB", True), None, (CDifferencePerSecond, "%(Bytes_sent)s"),
+ ("Outgoing Network Traffic (Bytes/Second)", DBTimeLineGraph, ("%.1f %sB", True), None, (CSingleDifferencePerSecond, "%(Bytes_sent)s"),
   WRITE_COLOR, (30, 330),
   None),
 
@@ -319,7 +344,10 @@ Connection errors (tcpwrap): %(Connection_errors_tcpwrap)s"""),
  (None, DBImage, (mforms.App.get().get_resource_path("dashboard_separator.png"),), None, (None, None),
   (0, 0, 0), (310, 120),
   ""),
- 
+]
+
+GLOBAL_DASHBOARD_WIDGETS_MYSQL_PRE_80 = \
+[
  (None, DBImage, (mforms.App.get().get_resource_path("dashboard_header_mysql.png"),), None, (None, None),
   (0, 0, 0), (380, 5),
   ""),
@@ -336,33 +364,33 @@ will open database tables when accessed.
 Table open cache hits: %(Table_open_cache_hits)s
 Table open cache misses: %(Table_open_cache_misses)s"""),
  
- ("SQL Statements Executed (#)", DBTimeLineGraph, ("%.1f %s", 3, True), None, (CDifferencePerSecond, "(%(Com_select)s,%(Com_insert)s+%(Com_update)s+%(Com_delete)s,%(Com_create_db)s+%(Com_create_event)s+%(Com_create_function)s+%(Com_create_index)s+%(Com_create_procedure)s+%(Com_create_server)s+%(Com_create_table)s+%(Com_create_trigger)s+%(Com_create_udf)s+%(Com_create_user)s+%(Com_create_view)s+%(Com_alter_db)s+%(Com_alter_db_upgrade)s+%(Com_alter_event)s+%(Com_alter_function)s+%(Com_alter_procedure)s+%(Com_alter_server)s+%(Com_alter_table)s+%(Com_alter_tablespace)s+%(Com_alter_user)s+%(Com_drop_db)s+%(Com_drop_event)s+%(Com_drop_function)s+%(Com_drop_index)s+%(Com_drop_procedure)s+%(Com_drop_server)s+%(Com_drop_table)s+%(Com_drop_trigger)s+%(Com_drop_user)s+%(Com_drop_view)s)"),
+ ("SQL Statements Executed (#)", DBTimeLineGraph, ("%.1f %s", 3, True), None, (CTupleDifferencePerSecond, "(%(Com_select)s,%(Com_insert)s+%(Com_update)s+%(Com_delete)s,%(Com_create_db)s+%(Com_create_event)s+%(Com_create_function)s+%(Com_create_index)s+%(Com_create_procedure)s+%(Com_create_server)s+%(Com_create_table)s+%(Com_create_trigger)s+%(Com_create_udf)s+%(Com_create_user)s+%(Com_create_view)s+%(Com_alter_db)s+%(Com_alter_db_upgrade)s+%(Com_alter_event)s+%(Com_alter_function)s+%(Com_alter_procedure)s+%(Com_alter_server)s+%(Com_alter_table)s+%(Com_alter_tablespace)s+%(Com_alter_user)s+%(Com_drop_db)s+%(Com_drop_event)s+%(Com_drop_function)s+%(Com_drop_index)s+%(Com_drop_procedure)s+%(Com_drop_server)s+%(Com_drop_table)s+%(Com_drop_trigger)s+%(Com_drop_user)s+%(Com_drop_view)s)"),
   [(255/255.0, 201/255.0, 2/255.0), (126/255.0, 142/255.0, 207/255.0), (194/255.0, 123/255.0, 206/255.0)], (350, 330),
     None),
 
- (None, DBSimpleCounter, ("SELECT\n%.0f %s/s", True), None, (CDifferencePerSecond, "%(Com_select)s"),
+ (None, DBSimpleCounter, ("SELECT\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_select)s"),
   (255/255.0, 201/255.0, 2/255.0), (350, 470),
   """SELECT Statements Executed
     
 Total since start: %(Com_select)s"""),
 
- (None, DBSimpleCounter, ("INSERT\n%.0f %s/s", True), None, (CDifferencePerSecond, "%(Com_insert)s"),
+ (None, DBSimpleCounter, ("INSERT\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_insert)s"),
   (126/255.0, 142/255.0, 207/255.0), (350, 520),
   """INSERT Statements Executed
       
 Total since start: %(Com_insert)s"""),
- (None, DBSimpleCounter, ("UPDATE\n%.0f %s/s", True), None, (CDifferencePerSecond, "%(Com_update)s"),
+ (None, DBSimpleCounter, ("UPDATE\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_update)s"),
   (126/255.0, 142/255.0, 207/255.0), (350, 560),
   """UPDATE Statements Executed
       
 Total since start: %(Com_update)s"""),
- (None, DBSimpleCounter, ("DELETE\n%.0f %s/s", True), None, (CDifferencePerSecond, "%(Com_delete)s"),
+ (None, DBSimpleCounter, ("DELETE\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_delete)s"),
   (126/255.0, 142/255.0, 207/255.0), (350, 600),
   """DELETE Statements Executed
       
 Total since start: %(Com_delete)s"""),
 
- (None, DBSimpleCounter, ("CREATE\n%.0f %s/s", True), None, (CDifferencePerSecond, "%(Com_create_db)s+%(Com_create_event)s+%(Com_create_function)s+%(Com_create_index)s+%(Com_create_procedure)s+%(Com_create_server)s+%(Com_create_table)s+%(Com_create_trigger)s+%(Com_create_udf)s+%(Com_create_user)s+%(Com_create_view)s"),
+ (None, DBSimpleCounter, ("CREATE\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_create_db)s+%(Com_create_event)s+%(Com_create_function)s+%(Com_create_index)s+%(Com_create_procedure)s+%(Com_create_server)s+%(Com_create_table)s+%(Com_create_trigger)s+%(Com_create_udf)s+%(Com_create_user)s+%(Com_create_view)s"),
   (194/255.0, 123/255.0, 206/255.0), (445, 520),
 """CREATE Statements Executed
 Number of CREATE statements executed by the server (since server was started).
@@ -378,7 +406,7 @@ Create Trigger: %(Com_create_trigger)s
 Create UDF: %(Com_create_udf)s
 Create User: %(Com_create_user)s
 Create View: %(Com_create_view)s"""),
- (None, DBSimpleCounter, ("ALTER\n%.0f %s/s", True), None, (CDifferencePerSecond, "%(Com_alter_db)s+%(Com_alter_db_upgrade)s+%(Com_alter_event)s+%(Com_alter_function)s+%(Com_alter_procedure)s+%(Com_alter_server)s+%(Com_alter_table)s+%(Com_alter_tablespace)s+%(Com_alter_user)s"),
+ (None, DBSimpleCounter, ("ALTER\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_alter_db)s+%(Com_alter_db_upgrade)s+%(Com_alter_event)s+%(Com_alter_function)s+%(Com_alter_procedure)s+%(Com_alter_server)s+%(Com_alter_table)s+%(Com_alter_tablespace)s+%(Com_alter_user)s"),
   (194/255.0, 123/255.0, 206/255.0), (445, 560),
 """ALTER Statements Executed
 Number of ALTER statements executed by the server (since server was started).
@@ -393,7 +421,7 @@ Alter Table: %(Com_alter_table)s
 Alter Tablespace: %(Com_alter_tablespace)s
 Alter User: %(Com_alter_user)s"""),
  
- (None, DBSimpleCounter, ("DROP\n%.0f %s/s", True), None, (CDifferencePerSecond, "%(Com_drop_db)s+%(Com_drop_event)s+%(Com_drop_function)s+%(Com_drop_index)s+%(Com_drop_procedure)s+%(Com_drop_server)s+%(Com_drop_table)s+%(Com_drop_trigger)s+%(Com_drop_user)s+%(Com_drop_view)s"),
+ (None, DBSimpleCounter, ("DROP\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_drop_db)s+%(Com_drop_event)s+%(Com_drop_function)s+%(Com_drop_index)s+%(Com_drop_procedure)s+%(Com_drop_server)s+%(Com_drop_table)s+%(Com_drop_trigger)s+%(Com_drop_user)s+%(Com_drop_view)s"),
   (194/255.0, 123/255.0, 206/255.0), (445, 600),
   """DROP Statements Executed
 Number of DROP statements executed by the server (since server was started).
@@ -412,7 +440,108 @@ Drop View: %(Com_drop_view)s"""),
  (None, DBImage, (mforms.App.get().get_resource_path("dashboard_separator.png"),), None, (None, None),
   (0, 0, 0), (570, 120),
   ""),
+]
 
+GLOBAL_DASHBOARD_WIDGETS_MYSQL_POST_80 = \
+[
+ (None, DBImage, (mforms.App.get().get_resource_path("dashboard_header_mysql.png"),), None, (None, None),
+  (0, 0, 0), (380, 5),
+  ""),
+ (None, DBText, ("Primary MySQL Server activity\nand performance statistics.",), None, (None, None),
+  (0.4, 0.4, 0.4), (376, 72),
+  ""),
+ 
+ ("Table Open Cache", DBRoundMeter, ("Efficiency",), None, (CRawValue, "%(Table_open_cache_hits)s/(%(Table_open_cache_hits)s+%(Table_open_cache_misses)s+0.0)"),
+  (124/255.0, 193/255.0, 80/255.0), (380, 150),
+  """Table Open Cache
+      Cache for minimizing number of times MySQL
+      will open database tables when accessed.
+      
+      Table open cache hits: %(Table_open_cache_hits)s
+      Table open cache misses: %(Table_open_cache_misses)s"""),
+ 
+ ("SQL Statements Executed (#)", DBTimeLineGraph, ("%.1f %s", 3, True), None, (CTupleDifferencePerSecond, "(%(Com_select)s,%(Com_insert)s+%(Com_update)s+%(Com_delete)s,%(Com_create_db)s+%(Com_create_event)s+%(Com_create_function)s+%(Com_create_index)s+%(Com_create_procedure)s+%(Com_create_server)s+%(Com_create_table)s+%(Com_create_trigger)s+%(Com_create_udf)s+%(Com_create_user)s+%(Com_create_view)s+%(Com_create_role)s+%(Com_alter_db)s+%(Com_alter_event)s+%(Com_alter_function)s+%(Com_alter_procedure)s+%(Com_alter_server)s+%(Com_alter_table)s+%(Com_alter_tablespace)s+%(Com_alter_user)s+%(Com_alter_user_default_role)s+%(Com_drop_db)s+%(Com_drop_event)s+%(Com_drop_function)s+%(Com_drop_index)s+%(Com_drop_procedure)s+%(Com_drop_server)s+%(Com_drop_table)s+%(Com_drop_trigger)s+%(Com_drop_user)s+%(Com_drop_view)s+%(Com_drop_role)s)"),
+  [(255/255.0, 201/255.0, 2/255.0), (126/255.0, 142/255.0, 207/255.0), (194/255.0, 123/255.0, 206/255.0)], (350, 330),
+  None),
+ 
+ (None, DBSimpleCounter, ("SELECT\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_select)s"),
+  (255/255.0, 201/255.0, 2/255.0), (350, 470),
+  """SELECT Statements Executed
+      
+      Total since start: %(Com_select)s"""),
+ 
+ (None, DBSimpleCounter, ("INSERT\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_insert)s"),
+  (126/255.0, 142/255.0, 207/255.0), (350, 520),
+  """INSERT Statements Executed
+      
+      Total since start: %(Com_insert)s"""),
+ (None, DBSimpleCounter, ("UPDATE\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_update)s"),
+  (126/255.0, 142/255.0, 207/255.0), (350, 560),
+  """UPDATE Statements Executed
+      
+      Total since start: %(Com_update)s"""),
+ (None, DBSimpleCounter, ("DELETE\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_delete)s"),
+  (126/255.0, 142/255.0, 207/255.0), (350, 600),
+  """DELETE Statements Executed
+      
+      Total since start: %(Com_delete)s"""),
+ 
+ (None, DBSimpleCounter, ("CREATE\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_create_db)s+%(Com_create_event)s+%(Com_create_function)s+%(Com_create_index)s+%(Com_create_procedure)s+%(Com_create_server)s+%(Com_create_table)s+%(Com_create_trigger)s+%(Com_create_udf)s+%(Com_create_user)s+%(Com_create_view)s+%(Com_create_role)s"),
+  (194/255.0, 123/255.0, 206/255.0), (445, 520),
+"""CREATE Statements Executed
+    Number of CREATE statements executed by the server (since server was started).
+    
+    Create DB: %(Com_create_db)s
+    Create Event: %(Com_create_event)s
+    Create Function: %(Com_create_function)s
+    Create Index: %(Com_create_index)s
+    Create Procedure: %(Com_create_procedure)s
+    Create Role: %(Com_create_role)s
+    Create Server: %(Com_create_server)s
+    Create Table: %(Com_create_table)s
+    Create Trigger: %(Com_create_trigger)s
+    Create UDF: %(Com_create_udf)s
+    Create User: %(Com_create_user)s
+    Create View: %(Com_create_view)s"""),
+ (None, DBSimpleCounter, ("ALTER\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_alter_db)s+%(Com_alter_event)s+%(Com_alter_function)s+%(Com_alter_procedure)s+%(Com_alter_server)s+%(Com_alter_table)s+%(Com_alter_tablespace)s+%(Com_alter_user)s+%(Com_alter_user_default_role)s"),
+  (194/255.0, 123/255.0, 206/255.0), (445, 560),
+"""ALTER Statements Executed
+    Number of ALTER statements executed by the server (since server was started).
+    
+    Alter DB: %(Com_alter_db)s
+    Alter Event: %(Com_alter_event)s
+    Alter Function: %(Com_alter_function)s
+    Alter Procedure: %(Com_alter_procedure)s
+    Alter Server: %(Com_alter_server)s
+    Alter Table: %(Com_alter_table)s
+    Alter Tablespace: %(Com_alter_tablespace)s
+    Alter User: %(Com_alter_user)s
+    Alter User Default Role: %(Com_alter_user_default_role)s"""),
+ 
+ (None, DBSimpleCounter, ("DROP\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Com_drop_db)s+%(Com_drop_event)s+%(Com_drop_function)s+%(Com_drop_index)s+%(Com_drop_procedure)s+%(Com_drop_server)s+%(Com_drop_table)s+%(Com_drop_trigger)s+%(Com_drop_user)s+%(Com_drop_view)s+%(Com_drop_role)s"),
+  (194/255.0, 123/255.0, 206/255.0), (445, 600),
+  """DROP Statements Executed
+      Number of DROP statements executed by the server (since server was started).
+      
+      Drop DB: %(Com_drop_db)s
+      Drop Event: %(Com_drop_event)s
+      Drop Function: %(Com_drop_function)s
+      Drop Index: %(Com_drop_index)s
+      Drop Procedure: %(Com_drop_procedure)s
+      Drop Role: %(Com_drop_role)s
+      Drop Server: %(Com_drop_server)s
+      Drop Table: %(Com_drop_table)s
+      Drop Trigger: %(Com_drop_trigger)s
+      Drop User: %(Com_drop_user)s
+      Drop View: %(Com_drop_view)s"""),
+ 
+ (None, DBImage, (mforms.App.get().get_resource_path("dashboard_separator.png"),), None, (None, None),
+  (0, 0, 0), (570, 120),
+  ""),
+]
+
+GLOBAL_DASHBOARD_WIDGETS_INNODB = \
+[
  # InnoDB
  (None, DBImage, (mforms.App.get().get_resource_path("dashboard_header_innodb.png"),), None, (None, None),
   (0, 0, 0), (710, 5),
@@ -422,13 +551,13 @@ Drop View: %(Com_drop_view)s"""),
   ""),
 
  # Buffer Pool
- (None, DBSimpleCounter, ("read reqs.\n%.0f %s\npages/s", True), None, (CDifferencePerSecond, "%(Innodb_buffer_pool_read_requests)s"),
+ (None, DBSimpleCounter, ("read reqs.\n%.0f %s\npages/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_buffer_pool_read_requests)s"),
   READ_COLOR, (610, 160),
   """InnoDB Buffer Pool Read Requests
 The number of logical read requests InnoDB has done to the buffer pool.
 
 Total: %(Innodb_buffer_pool_read_requests)s"""),
- (None, DBSimpleCounter, ("write reqs.\n%.0f %s\npages/s", True), None, (CDifferencePerSecond, "%(Innodb_buffer_pool_write_requests)s"),
+ (None, DBSimpleCounter, ("write reqs.\n%.0f %s\npages/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_buffer_pool_write_requests)s"),
   WRITE_COLOR, (610, 220),
   """InnoDB Buffer Pool Write Requests
 The number of logical write requests InnoDB has done to the buffer pool.
@@ -447,28 +576,28 @@ Pages Used for Data: %(Innodb_buffer_pool_pages_data)s
 Pages Used Internally by InnoDB: %(Innodb_buffer_pool_pages_misc)s
 Pages Free: %(Innodb_buffer_pool_pages_free)s"""),
 
- (None, DBSimpleCounter, ("disk reads\n%.0f %s\n#/s", True), None, (CDifferencePerSecond, "%(Innodb_buffer_pool_reads)s"),
+ (None, DBSimpleCounter, ("disk reads\n%.0f %s\n#/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_buffer_pool_reads)s"),
   READ_COLOR, (890, 180),
 """InnoDB Buffer Pool Reads
 The number of logical reads that InnoDB could not satisfy from the buffer pool, and had to read directly from the disk.
     
 Total: %(Innodb_buffer_pool_reads)s"""),
 
- ("Redo Log", DBSimpleCounter, ("data written\n%.0f %sB/s", True), None, (CDifferencePerSecond, "%(Innodb_os_log_written)s"),
+ ("Redo Log", DBSimpleCounter, ("data written\n%.0f %sB/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_os_log_written)s"),
   WRITE_COLOR, (606, 330),
 """Bytes Written to InnoDB Redo Log
 The number of bytes written to the InnoDB redo log files.
     
 Total: %(Innodb_os_log_written)s"""),
 
- (None, DBSimpleCounter, ("writes\n%.0f %s#/s", True), None, (CDifferencePerSecond, "%(Innodb_log_writes)s"),
+ (None, DBSimpleCounter, ("writes\n%.0f %s#/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_log_writes)s"),
   WRITE_COLOR, (606, 380),
 """Writes to InnoDB Redo Log
 The number of physical writes to the InnoDB redo log file.
 
 Total: %(Innodb_log_writes)s"""),
 
- ("Doublewrite Buffer", DBSimpleCounter, ("writes\n%.0f %s/s", True), None, (CDifferencePerSecond, "%(Innodb_dblwr_writes)s"),
+ ("Doublewrite Buffer", DBSimpleCounter, ("writes\n%.0f %s/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_dblwr_writes)s"),
   WRITE_COLOR, (606, 480),
 """Write Operations to InnoDB Doublewrite Buffer
 The number of doublewrite operations that have been performed.
@@ -480,10 +609,10 @@ Total: %(Innodb_dblwr_writes)s"""),
   (0, 0, 0), (934, 360),
   ""),
 
- ("InnoDB Disk Writes", DBTimeLineGraph, ("%.2f %sB", True), None, (CDifferencePerSecond, "%(Innodb_data_written)s"),
+ ("InnoDB Disk Writes", DBTimeLineGraph, ("%.2f %sB", True), None, (CSingleDifferencePerSecond, "%(Innodb_data_written)s"),
   WRITE_COLOR, (738, 330),
   None),
- (None, DBSimpleCounter, ("writing\n%.2f %sB/s", True), None, (CDifferencePerSecond, "%(Innodb_data_written)s"),
+ (None, DBSimpleCounter, ("writing\n%.2f %sB/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_data_written)s"),
   WRITE_COLOR, (916, 410),
   """InnoDB Data Written
 Total amount of data in bytes written in file operations by the InnoDB storage engine.
@@ -494,10 +623,10 @@ Total: %(Innodb_data_written)s"""),
   (0, 0, 0), (934, 535),
   ""),
 
- ("InnoDB Disk Reads", DBTimeLineGraph, ("%.2f %sB", True), None, (CDifferencePerSecond, "%(Innodb_data_read)s"),
+ ("InnoDB Disk Reads", DBTimeLineGraph, ("%.2f %sB", True), None, (CSingleDifferencePerSecond, "%(Innodb_data_read)s"),
   READ_COLOR, (738, 500),
   None),
- (None, DBSimpleCounter, ("reading\n%.2f %sB/s", True), None, (CDifferencePerSecond, "%(Innodb_data_read)s"),
+ (None, DBSimpleCounter, ("reading\n%.2f %sB/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_data_read)s"),
   READ_COLOR, (916, 580),
   """InnoDB Data Read
 Total amount of data in bytes read in file operations by the InnoDB storage engine.
@@ -547,7 +676,10 @@ class WbAdminDashboard(WbAdminBaseTab):
         
         #
         self.drawbox.variable_values = self.ctrl_be.server_variables
-
+        server_version = Version.fromgrt(self.ctrl_be.target_version)
+        GLOBAL_DASHBOARD_WIDGETS = GLOBAL_DASHBOARD_WIDGETS_NETWORK + GLOBAL_DASHBOARD_WIDGETS_MYSQL_PRE_80 + GLOBAL_DASHBOARD_WIDGETS_INNODB
+        if server_version and server_version.is_supported_mysql_version_at_least(8, 0, 0):
+            GLOBAL_DASHBOARD_WIDGETS = GLOBAL_DASHBOARD_WIDGETS_NETWORK + GLOBAL_DASHBOARD_WIDGETS_MYSQL_POST_80 + GLOBAL_DASHBOARD_WIDGETS_INNODB
         # create all widgets
         for caption, wclass, args, init, (calc, calc_expr), color, pos, hover_text in GLOBAL_DASHBOARD_WIDGETS:
             if caption:
@@ -575,7 +707,21 @@ class WbAdminDashboard(WbAdminBaseTab):
         self.refresh()
         self._refresh_tm = mforms.Utilities.add_timeout(self.ctrl_be.status_variable_poll_interval, self.refresh)
             
+        self.ctrl_be.add_me_for_event("server_started", self)
+        self.ctrl_be.add_me_for_event("server_stopped", self)
 
+
+    def server_started_event(self):
+        for widget in self.widgets:
+            if not hasattr(widget, "calc"):
+                continue
+              
+            if issubclass(type(widget.calc), CDifferencePerSecond):
+                widget.calc.reset()
+
+    #---------------------------------------------------------------------------
+    def server_stopped_event(self):
+        pass
 
     def repaint(self):
         self.drawbox.set_needs_repaint()

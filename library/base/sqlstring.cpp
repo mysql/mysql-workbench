@@ -1,60 +1,49 @@
-/* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-
 #include "base/sqlstring.h"
-
 
 using namespace base;
 
-
 const sqlstring sqlstring::null(sqlstring("NULL", 0));
 
-sqlstring::sqlstring(const char* format_string, const sqlstringformat format)
-: _format_string_left(format_string), _format(format)
-{
+sqlstring::sqlstring(const char *format_string, const sqlstringformat format)
+  : _format_string_left(format_string), _format(format) {
   append(consume_until_next_escape());
 }
 
-
 sqlstring::sqlstring(const sqlstring &copy)
-: _formatted(copy._formatted), _format_string_left(copy._format_string_left), _format(copy._format)
-{
+  : _formatted(copy._formatted), _format_string_left(copy._format_string_left), _format(copy._format) {
 }
 
-sqlstring::sqlstring()
-: _format(0)
-{
+sqlstring::sqlstring() : _format(0) {
 }
 
-std::string sqlstring::consume_until_next_escape()
-{
+std::string sqlstring::consume_until_next_escape() {
   std::string::size_type e = _format_string_left.length(), p = 0;
-  while (p < e)
-  {
+  while (p < e) {
     char ch = _format_string_left[p];
     if (ch == '?' || ch == '!')
       break;
     ++p;
   }
-  if (p > 0)
-  {
+  if (p > 0) {
     std::string s = _format_string_left.substr(0, p);
     if (p < e)
       _format_string_left = _format_string_left.substr(p);
@@ -65,39 +54,30 @@ std::string sqlstring::consume_until_next_escape()
   return "";
 }
 
-
-int sqlstring::next_escape()
-{
+int sqlstring::next_escape() {
   if (_format_string_left.empty())
-    throw std::invalid_argument("Error formatting SQL query: more arguments than escapes"); 
+    throw std::invalid_argument("Error formatting SQL query: more arguments than escapes");
   int c = _format_string_left[0];
   _format_string_left = _format_string_left.substr(1);
   return c;
 }
 
-
-sqlstring &sqlstring::append(const std::string &s)
-{
+sqlstring &sqlstring::append(const std::string &s) {
   _formatted.append(s);
   return *this;
 }
 
-
-sqlstring::operator std::string () const
-{
+sqlstring::operator std::string() const {
   return _formatted + _format_string_left;
 }
 
-
-bool sqlstring::done() const
-{
+bool sqlstring::done() const {
   if (_format_string_left.empty())
     return true;
   return _format_string_left[0] != '!' && _format_string_left[0] != '?';
 }
 
-sqlstring &sqlstring::operator <<(const double v)
-{
+sqlstring &sqlstring::operator<<(const double v) {
   int esc = next_escape();
   if (esc != '?')
     throw std::invalid_argument("Error formatting SQL query: invalid escape for numeric argument");
@@ -108,40 +88,33 @@ sqlstring &sqlstring::operator <<(const double v)
   return *this;
 }
 
-sqlstring &sqlstring::operator <<(const sqlstringformat format)
-{
-    _format = format;
-    return *this;
+sqlstring &sqlstring::operator<<(const sqlstringformat format) {
+  _format = format;
+  return *this;
 }
 
-sqlstring &sqlstring::operator <<(const std::string& v)
-{
+sqlstring &sqlstring::operator<<(const std::string &v) {
   int esc = next_escape();
-  if (esc == '!')
-  {
+  if (esc == '!') {
     std::string escaped = escape_backticks(v);
     if ((_format._flags & QuoteOnlyIfNeeded) != 0)
       append(base::quote_identifier_if_needed(escaped, '`'));
     else
       append(base::quote_identifier(escaped, '`'));
-  } 
-  else if (esc == '?')
-  {
+  } else if (esc == '?') {
     if (_format._flags & UseAnsiQuotes)
       append("\"").append(escape_sql_string(v)).append("\"");
     else
       append("'").append(escape_sql_string(v)).append("'");
-  }
-  else // shouldn't happen
-    throw std::invalid_argument("Error formatting SQL query: internal error, expected ? or ! escape got something else");
+  } else // shouldn't happen
+    throw std::invalid_argument(
+      "Error formatting SQL query: internal error, expected ? or ! escape got something else");
   append(consume_until_next_escape());
 
   return *this;
 }
 
-
-sqlstring &sqlstring::operator <<(const sqlstring& v)
-{
+sqlstring &sqlstring::operator<<(const sqlstring &v) {
   next_escape();
 
   append(v);
@@ -150,14 +123,10 @@ sqlstring &sqlstring::operator <<(const sqlstring& v)
   return *this;
 }
 
-
-
-sqlstring &sqlstring::operator <<(const char* v)
-{
+sqlstring &sqlstring::operator<<(const char *v) {
   int esc = next_escape();
 
-  if (esc == '!')
-  {
+  if (esc == '!') {
     if (!v)
       throw std::invalid_argument("Error formatting SQL query: NULL value found for identifier");
     std::string quoted = escape_backticks(v);
@@ -165,23 +134,18 @@ sqlstring &sqlstring::operator <<(const char* v)
       append(quoted);
     else
       append("`").append(quoted).append("`");
-  } 
-  else if (esc == '?')
-  {
-    if (v)
-    {
+  } else if (esc == '?') {
+    if (v) {
       if (_format._flags & UseAnsiQuotes)
         append("\"").append(escape_sql_string(v)).append("\"");
       else
         append("'").append(escape_sql_string(v)).append("'");
-    }
-    else
+    } else
       append("NULL");
-  }
-  else // shouldn't happen
-    throw std::invalid_argument("Error formatting SQL query: internal error, expected ? or ! escape got something else");
+  } else // shouldn't happen
+    throw std::invalid_argument(
+      "Error formatting SQL query: internal error, expected ? or ! escape got something else");
   append(consume_until_next_escape());
 
   return *this;
 }
-

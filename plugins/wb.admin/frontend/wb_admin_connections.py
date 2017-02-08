@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -15,11 +15,11 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from mforms import newTreeNodeView, newButton, newBox, newSelector, newCheckBox, newLabel, Utilities
+from mforms import newTreeView, newButton, newBox, newSelector, newCheckBox, newLabel, Utilities
 import mforms
 import grt
 
-from workbench.db_utils import escape_sql_string
+from workbench.db_utils import escape_sql_string, QueryError
 
 from functools import partial
 
@@ -28,6 +28,8 @@ from wb_admin_utils import weakcb, WbAdminBaseTab
 import json
 
 from workbench.log import log_error
+
+from wb_admin_utils import not_running_warning_label
 
 class WBThreadStack(mforms.Form):
     enable_debug_info = False
@@ -45,7 +47,7 @@ class WBThreadStack(mforms.Form):
 
         splitter = mforms.newSplitter(True, False)
 
-        self.tree = mforms.newTreeNodeView(mforms.TreeDefault)
+        self.tree = mforms.newTreeView(mforms.TreeDefault)
         self.tree.add_column(mforms.IntegerColumnType, "Event Id", 50, False)
         self.tree.add_column(mforms.StringColumnType, "Event info", 200, False)
         self.tree.add_column(mforms.StringColumnType, "Type", 100, False)
@@ -266,17 +268,15 @@ class WbAdminConnections(WbAdminBaseTab):
         return "admin_connections"
 
     def __init__(self, ctrl_be, instance_info, main_view):
-        mforms.Box.__init__(self, False)
+        WbAdminBaseTab.__init__(self, ctrl_be, instance_info, main_view)
         self.set_managed()
         self.set_release_on_add()
         self.set_padding(12)
         self.set_spacing(15)
-        self.instance_info = instance_info
-        self.ctrl_be = ctrl_be
         self.page_active = False
-        self.main_view = main_view
         self._new_processlist = self.check_if_ps_available()
         self._refresh_timeout = None
+        self.warning = None
         
         if self.new_processlist():
             self.columns = [("PROCESSLIST_ID", mforms.LongIntegerColumnType, "Id", 50),
@@ -339,7 +339,7 @@ class WbAdminConnections(WbAdminBaseTab):
 
         self.connection_box = mforms.newBox(True)
         self.connection_box.set_spacing(8)
-        self.connection_list = newTreeNodeView(mforms.TreeDefault|mforms.TreeFlatList|mforms.TreeAltRowColors)
+        self.connection_list = newTreeView(mforms.TreeDefault|mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.connection_list.set_selection_mode(mforms.TreeSelectMultiple)
         self.connection_list.add_column_resized_callback(self.column_resized)
         for i, (field, type, caption, width) in enumerate(self.columns):
@@ -360,17 +360,17 @@ class WbAdminConnections(WbAdminBaseTab):
         info_table.set_row_spacing(4)
         info_table.set_column_spacing(20)
 
-        info_table.add(self.create_labeled_info("Threads Connected:", "lbl_Threads_connected"),                     0, 1, 0, 1, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Threads Running:", "lbl_Threads_running"),                          1, 2, 0, 1, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Threads Created:", "lbl_Threads_created"),                         2, 3, 0, 1, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Threads Cached:", "lbl_Threads_cached"),                           3, 4, 0, 1, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Rejected (over limit):", "lbl_Connection_errors_max_connections"), 4, 5, 0, 1, mforms.HFillFlag)
+        info_table.add(self.create_labeled_info("Threads Connected:", "lbl_Threads_connected"),                     0, 1, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Running:", "lbl_Threads_running"),                          1, 2, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Created:", "lbl_Threads_created"),                         2, 3, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Cached:", "lbl_Threads_cached"),                           3, 4, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Rejected (over limit):", "lbl_Connection_errors_max_connections"), 4, 5, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
 
-        info_table.add(self.create_labeled_info("Total Connections:", "lbl_Connections"),                           0, 1, 1, 2, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Connection Limit:", "lbl_max_connections"),                        1, 2, 1, 2, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Aborted Clients:", "lbl_Aborted_clients"),                         2, 3, 1, 2, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Aborted Connections:", "lbl_Aborted_connects"),                    3, 4, 1, 2, mforms.HFillFlag)
-        info_table.add(self.create_labeled_info("Errors:", "lbl_errors", "tooltip_errors"),                         4, 5, 1, 2, mforms.HFillFlag)
+        info_table.add(self.create_labeled_info("Total Connections:", "lbl_Connections"),                           0, 1, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Connection Limit:", "lbl_max_connections"),                        1, 2, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Aborted Clients:", "lbl_Aborted_clients"),                         2, 3, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Aborted Connections:", "lbl_Aborted_connects"),                    3, 4, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Errors:", "lbl_errors", "tooltip_errors"),                         4, 5, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
 
         self.info_table = info_table
         self.add(info_table, False, True)
@@ -477,7 +477,7 @@ class WbAdminConnections(WbAdminBaseTab):
                 label.set_style(mforms.SmallHelpTextStyle)
                 self.mdl_list_box.add(label, False, True)
 
-                self.mdl_list_held = mforms.newTreeNodeView(mforms.TreeAltRowColors)
+                self.mdl_list_held = mforms.newTreeView(mforms.TreeAltRowColors)
                 self.mdl_list_held.add_column(mforms.IconStringColumnType, "Object", 130, False)
                 self.mdl_list_held.add_column(mforms.StringColumnType, "Type", 100, False)
                 self.mdl_list_held.add_column(mforms.StringColumnType, "Duration", 100, False)
@@ -499,7 +499,7 @@ class WbAdminConnections(WbAdminBaseTab):
                 self.mdl_locks_page = self.extra_info_tab.add_page(self.mdl_list_box_scrollarea, "Locks")
 
             if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 0):
-                self.attributes_list = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+                self.attributes_list = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
                 self.attributes_list.add_column(mforms.StringColumnType, "Attribute", 150, False)
                 self.attributes_list.add_column(mforms.StringColumnType, "Value", 200, False)
                 self.attributes_list.end_columns()
@@ -783,8 +783,44 @@ class WbAdminConnections(WbAdminBaseTab):
 
         self.mdl_waiting_label.set_text(waiting_label_text)
 
+        
+    def show_warning_message(self, text):
+        if not self.heading:
+            self.create_basic_ui("title_connections.png", "Client Connections")
+      
+        if self.warning:
+            self.remove(self.warning)
+            self.warning = None
 
+        self.warning = not_running_warning_label()
+        self.warning.set_text("\n\n\n\n%s" % text)
+        self.warning.show(True)
+        self.add(self.warning, False, True)
+
+    def show_no_permission(self):
+        self.show_warning_message("The account you are currently using does not have sufficient privileges to view the client connections.")
+        
+    def show_generic_error(self):
+        self.show_warning_message("There was a problem opening the Client Connections. Please check the error log for more details.")
+        
     def page_activated(self):
+
+        try:
+            self.ctrl_be.exec_query("SELECT COUNT(*) FROM performance_schema.threads")
+        except QueryError, e:
+            import traceback
+            log_error("QueryError in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
+            if e.error == 1142:
+                self.show_no_permission()
+            else:
+                self.show_generic_error()
+            return
+        except Exception, e:
+            import traceback
+            log_error("Exception in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
+            self.show_generic_error()
+            return
+
         WbAdminBaseTab.page_activated(self)
 
         if not self.ui_created:

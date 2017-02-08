@@ -1,95 +1,74 @@
-/* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-#include "Grt.h"
+#include "GrtWrapper.h"
 #include "GrtManager.h"
 #include "GrtStringListModel.h"
 #include "DBObjectFilterBE.h"
 #include "GrtTemplates.h"
 
 namespace MySQL {
-namespace Grt {
-namespace Db {
+  namespace Grt {
+    namespace Db {
 
+      DBObjectFilterBE::DBObjectFilterBE() {
+        inner = new bec::DBObjectFilterBE();
+      }
 
-DBObjectFilterBE::DBObjectFilterBE(MySQL::Grt::GrtManager^ grtm)
-{
-  inner = new bec::DBObjectFilterBE(grtm->get_unmanaged_object());
-}
+      void DBObjectFilterBE::set_object_type_name(String ^ type_name) {
+        get_unmanaged_object()->set_object_type_name(NativeToCppString(type_name));
+      }
 
+      String ^ DBObjectFilterBE::get_full_type_name() {
+        return CppStringToNative(get_unmanaged_object()->get_full_type_name());
+      }
 
-void DBObjectFilterBE::set_object_type_name(String^ type_name)
-{
-  get_unmanaged_object()->set_object_type_name(NativeToCppString(type_name));
-}
+      int DBObjectFilterBE::icon_id(MySQL::Grt::IconSize icon_size) {
+        return (int)get_unmanaged_object()->icon_id((bec::IconSize)icon_size);
+      }
 
+      void DBObjectFilterBE::filter_model(GrtStringListModel ^ filter_model) {
+        get_unmanaged_object()->filter_model(filter_model->get_unmanaged_object());
+      }
 
-String^ DBObjectFilterBE::get_full_type_name()
-{
-  return CppStringToNative(get_unmanaged_object()->get_full_type_name());
-}
+      GrtStringListModel ^ DBObjectFilterBE::filter_model() {
+        return gcnew GrtStringListModel(get_unmanaged_object()->filter_model());
+      }
 
+      void DBObjectFilterBE::add_stored_filter_set(String ^ name) {
+        get_unmanaged_object()->add_stored_filter_set(NativeToCppString(name));
+      }
 
-int DBObjectFilterBE::icon_id(MySQL::Grt::IconSize icon_size)
-{
-  return (int)get_unmanaged_object()->icon_id((bec::IconSize)icon_size);
-}
+      void DBObjectFilterBE::remove_stored_filter_set(int index) {
+        get_unmanaged_object()->remove_stored_filter_set(index);
+      }
 
+      void DBObjectFilterBE::load_stored_filter_set(int index) {
+        get_unmanaged_object()->load_stored_filter_set(index);
+      }
 
-void DBObjectFilterBE::filter_model(GrtStringListModel^ filter_model)
-{
-  get_unmanaged_object()->filter_model(filter_model->get_unmanaged_object());
-}
+      void DBObjectFilterBE::load_stored_filter_set_list(List<String ^> ^ % names) {
+        std::list<std::string> names_ = NativeToCppStringList2(names);
+        get_unmanaged_object()->load_stored_filter_set_list(names_);
+        names = CppStringListToNative2(names_);
+      }
 
-
-GrtStringListModel^ DBObjectFilterBE::filter_model()
-{
-  return gcnew GrtStringListModel(get_unmanaged_object()->filter_model());
-}
-
-
-void DBObjectFilterBE::add_stored_filter_set(String^ name)
-{
-  get_unmanaged_object()->add_stored_filter_set(NativeToCppString(name));
-}
-
-
-void DBObjectFilterBE::remove_stored_filter_set(int index)
-{
-  get_unmanaged_object()->remove_stored_filter_set(index);
-}
-
-
-void DBObjectFilterBE::load_stored_filter_set(int index)
-{
-  get_unmanaged_object()->load_stored_filter_set(index);
-}
-
-
-void DBObjectFilterBE::load_stored_filter_set_list(List<String ^> ^%names)
-{
-  std::list<std::string> names_= NativeToCppStringList2(names);
-  get_unmanaged_object()->load_stored_filter_set_list(names_);
-  names= CppStringListToNative2(names_);
-}
-
-
-}; // namespace Db
-}; // namespace Grt
-}; // namespace MySQL
+    }; // namespace Db
+  };   // namespace Grt
+};     // namespace MySQL

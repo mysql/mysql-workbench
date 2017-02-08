@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,40 +21,34 @@
 
 using namespace mforms;
 
-DrawBox::DrawBox()
-{
-  _drawbox_impl= &ControlFactory::get_instance()->_drawbox_impl;
+DrawBox::DrawBox() {
+  _drawbox_impl = &ControlFactory::get_instance()->_drawbox_impl;
   _drawbox_impl->create(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void DrawBox::add(View *view, Alignment alignment)
-{
+void DrawBox::add(View *view, Alignment alignment) {
   cache_view(view);
   _drawbox_impl->add(this, view, alignment);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void DrawBox::remove(View *view)
-{
+void DrawBox::remove(View *view) {
   _drawbox_impl->remove(this, view);
   remove_from_cache(view);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void DrawBox::move(View *view, int x, int y)
-{
+void DrawBox::move(View *view, int x, int y) {
   _drawbox_impl->move(this, view, x, y);
-  remove_from_cache(view);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void DrawBox::set_layout_dirty(bool value)
-{
+void DrawBox::set_layout_dirty(bool value) {
   View::set_layout_dirty(value);
   if (value)
     _drawbox_impl->set_needs_repaint(this);
@@ -62,23 +56,20 @@ void DrawBox::set_layout_dirty(bool value)
 
 //--------------------------------------------------------------------------------------------------
 
-void DrawBox::set_padding(int left, int top, int right, int bottom)
-{
+void DrawBox::set_padding(int left, int top, int right, int bottom) {
   _view_impl->set_padding(this, left, top, right, bottom);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void DrawBox::set_needs_repaint()
-{
+void DrawBox::set_needs_repaint() {
   _drawbox_impl->set_needs_repaint(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void DrawBox::set_needs_repaint_area(int x, int y, int w, int h)
-{
-    _drawbox_impl->set_needs_repaint_area(this, x, y, w, h);
+void DrawBox::set_needs_repaint_area(int x, int y, int w, int h) {
+  _drawbox_impl->set_needs_repaint_area(this, x, y, w, h);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,10 +79,8 @@ void DrawBox::set_needs_repaint_area(int x, int y, int w, int h)
  * space the box needs. Overwritten by descendants. Subviews do not automatically add to the content
  * size. If that's needed then additional computations are needed by the host.
  */
-void DrawBox::get_layout_size(int* w, int* h)
-{
-  *w = 0;
-  *h = 0;
+base::Size DrawBox::getLayoutSize(base::Size proposedSize) {
+  return proposedSize;
 }
 
 //--------------------------------------------------------------------------------------------------

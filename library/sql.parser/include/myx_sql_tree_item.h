@@ -1,6 +1,11 @@
 #ifndef MYX_SQL_TREE_ITEM
 #define MYX_SQL_TREE_ITEM
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 )
+#endif
+
 #include "mysql_sql_parser_public_interface.h"
 #include "myx_sql_parser_public_interface.h"
 #include "sql_parser_symbols.h"
@@ -10,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 
 namespace mysql_parser
@@ -66,11 +71,11 @@ public:
 public:
   static bool is_ast_generation_enabled;
   
-  static boost::shared_ptr<SqlAstTerminalNode> first_terminal_node();
-  static boost::shared_ptr<SqlAstTerminalNode> last_terminal_node();
+  static std::shared_ptr<SqlAstTerminalNode> first_terminal_node();
+  static std::shared_ptr<SqlAstTerminalNode> last_terminal_node();
   
-  static void first_terminal_node(boost::shared_ptr<SqlAstTerminalNode> value);
-  static void last_terminal_node(boost::shared_ptr<SqlAstTerminalNode> value);
+  static void first_terminal_node(std::shared_ptr<SqlAstTerminalNode> value);
+  static void last_terminal_node(std::shared_ptr<SqlAstTerminalNode> value);
 private:
   static const char *_sql_statement;
 public:
@@ -86,7 +91,7 @@ public:
 
 private:
   sql::symbol _name;      // _name is sql::symbol
-  boost::shared_ptr<std::string> _value;
+  std::shared_ptr<std::string> _value;
   int _value_length;      // _value_length is in bytes
   int _stmt_lineno;
   int _stmt_boffset;
@@ -173,6 +178,10 @@ MYX_PUBLIC_FUNC std::ostream& operator << (std::ostream&, const SqlAstNode&);
 #endif // __cplusplus
 
 } // namespace mysql_parser
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif
 
 #endif // MYX_SQL_TREE_ITEM
 

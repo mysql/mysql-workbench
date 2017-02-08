@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,19 +21,17 @@
 
 //--------------------------------------------------------------------------------------------------
 
-static void setup_python(int argc, char **argv)
-{
+static void setup_python(int argc, char **argv) {
   char *pathlist = NULL;
   TCHAR szPath[MAX_PATH];
   std::string module_path;
-  if (GetModuleFileName(NULL, szPath, MAX_PATH))
-  {
-    CHAR char_path[MAX_PATH]= {0};
+  if (GetModuleFileName(NULL, szPath, MAX_PATH)) {
+    CHAR char_path[MAX_PATH] = {0};
     WideCharToMultiByte(CP_UTF8, 0, szPath, -1, char_path, MAX_PATH, NULL, NULL);
     std::string full_path(char_path);
     size_t path_end = full_path.find_last_of('\\');
     if (path_end != std::string::npos)
-      module_path = full_path.substr(0,path_end+1);
+      module_path = full_path.substr(0, path_end + 1);
   }
 
 #if 0
@@ -48,7 +46,7 @@ static void setup_python(int argc, char **argv)
   else
 #endif
 
-    SetDllDirectoryA((module_path + "..").c_str());
+  SetDllDirectoryA((module_path + "..").c_str());
 
   // This should initialize PYTHONPATH, but for some reason it doesn't work when built in VS2010.
   std::string pythonpath;
@@ -57,18 +55,19 @@ static void setup_python(int argc, char **argv)
   pythonpath.append(module_path).append("python\\Lib;");
   pythonpath.append(module_path).append("python\\libs;");
   pythonpath.append(module_path).append("python\\DLLs;");
-  _putenv_s("PYTHONHOME","python");
-  _putenv_s("PYTHONPATH",pythonpath.c_str());
-  if (pathlist) free(pathlist);
+  _putenv_s("PYTHONHOME", "python");
+  _putenv_s("PYTHONPATH", pythonpath.c_str());
+  if (pathlist)
+    free(pathlist);
 
   Py_SetProgramName(argv[0]);
-  
+
   // Here comes some ugly hack to fix PYTHONPATH init problem.
   // Create dummy site package to avoid error import site message from Py_Initialize();
-  FILE * pFile;
-  pFile = fopen ("site.py","w");
-  if (pFile!=NULL)
-    fclose (pFile);
+  FILE *pFile;
+  pFile = fopen("site.py", "w");
+  if (pFile != NULL)
+    fclose(pFile);
 
   Py_Initialize();
 
@@ -93,15 +92,13 @@ static void setup_python(int argc, char **argv)
 
 //--------------------------------------------------------------------------------------------------
 
-static void finalize_python()
-{
+static void finalize_python() {
   Py_Finalize();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
   // Set the python interpreter.
   setup_python(argc, argv);
 
@@ -111,18 +108,18 @@ int main(int argc, char* argv[])
   std::string helper_path;
   size_t path_end = filepath.find_last_of('\\');
   if (path_end != std::string::npos)
-    helper_path = filepath.substr(0,path_end+1);
+    helper_path = filepath.substr(0, path_end + 1);
 
   helper_path += "wbadminhelper.py";
 
-  // Configures the execution of the script to take the same 
+  // Configures the execution of the script to take the same
   // parameters as this helper tool.
   Py_SetProgramName(argv[0]);
 
   PySys_SetArgv(argc, argv);
 
   // Executes the helper script.
-  PyObject *pFileObject = PyFile_FromString(const_cast<char*>(helper_path.c_str()),"r");
+  PyObject *pFileObject = PyFile_FromString(const_cast<char *>(helper_path.c_str()), "r");
 
   PyRun_SimpleFileEx(PyFile_AsFile(pFileObject), "wbadminhelper.py", 1);
 

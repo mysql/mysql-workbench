@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,16 +37,20 @@ static int util_show_message(const std::string &title, const std::string &text,
                              const std::string &ok, const std::string &cancel,
                              const std::string &other)
 {
-  int res = [[NSAlert alertWithMessageText: wrap_nsstring(title)
-                             defaultButton: ok.empty() ? nil : wrap_nsstring(ok)
-                           alternateButton: cancel.empty() ? nil : wrap_nsstring(cancel)
-                               otherButton: other.empty() ? nil : wrap_nsstring(other)
-                 informativeTextWithFormat: @"%@",
-              [wrap_nsstring(text) stringByReplacingOccurrencesOfString: @"%"
-                                                             withString: @"%%"]] runModal];
-  if (res == NSAlertDefaultReturn)
+  NSAlert *alert = [NSAlert new];
+  alert.messageText = wrap_nsstring(title);
+  alert.informativeText = [wrap_nsstring(text) stringByReplacingOccurrencesOfString: @"%" withString: @"%%"];
+  if (!ok.empty())
+    [alert addButtonWithTitle: wrap_nsstring(ok)];
+  if (!cancel.empty())
+    [alert addButtonWithTitle: wrap_nsstring(cancel)];
+  if (!other.empty())
+    [alert addButtonWithTitle: wrap_nsstring(other)];
+
+  NSModalResponse response = [alert runModal];
+  if (response == NSAlertFirstButtonReturn)
     return mforms::ResultOk;
-  else if (res == NSAlertOtherReturn)
+  else if (response == NSAlertThirdButtonReturn)
     return mforms::ResultOther;
   else
     return mforms::ResultCancel;
@@ -58,33 +62,33 @@ static int util_show_message_with_checkbox(const std::string &title, const std::
                                            const std::string &other,
                                            const std::string &cb_message, bool &cb_answer)
 {
-  NSAlert *alert = [[NSAlert alloc] init];
+  NSAlert *alert = [NSAlert new];
   
-  [alert setMessageText: wrap_nsstring(title)];
-  [alert setInformativeText: [wrap_nsstring(text) stringByReplacingOccurrencesOfString:@"%" withString:@"%%"]];
+  alert.messageText = wrap_nsstring(title);
+  alert.informativeText = [wrap_nsstring(text) stringByReplacingOccurrencesOfString:@"%" withString:@"%%"];
   [alert setShowsSuppressionButton: YES];
   if (!cb_message.empty())
-    [[alert suppressionButton] setTitle: wrap_nsstring(cb_message)];
+    alert.suppressionButton.title = wrap_nsstring(cb_message);
   
   if (!ok.empty())
-    [[alert addButtonWithTitle: wrap_nsstring(ok)] setTag: NSAlertDefaultReturn];
+    [alert addButtonWithTitle: wrap_nsstring(ok)];
   
   if (!cancel.empty())
-    [[alert addButtonWithTitle: wrap_nsstring(cancel)] setTag: NSAlertOtherReturn];
+    [alert addButtonWithTitle: wrap_nsstring(cancel)];
   
   if (!other.empty())
-    [[alert addButtonWithTitle: wrap_nsstring(other)] setTag: NSAlertAlternateReturn];
+    [alert addButtonWithTitle: wrap_nsstring(other)];
   
-  int res = [alert runModal];
+  NSModalResponse res = [alert runModal];
 
-  cb_answer = [[alert suppressionButton] state] == NSOnState;
+  cb_answer = alert.suppressionButton.state == NSOnState;
   
-  if (res == NSAlertDefaultReturn)
+  if (res == NSAlertFirstButtonReturn)
     return mforms::ResultOk;
-  else if (res == NSAlertOtherReturn)
-    return mforms::ResultCancel;
-  else
+  else if (res == NSAlertThirdButtonReturn)
     return mforms::ResultOther;
+  else
+    return mforms::ResultCancel;
 }
 
 
@@ -99,7 +103,7 @@ static void util_set_clipboard_text(const std::string &text)
 static std::string util_get_clipboard_text()
 {
   NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
-  return [[pasteBoard stringForType: NSStringPboardType] UTF8String] ?:"";
+  return [pasteBoard stringForType: NSStringPboardType].UTF8String ?:"";
 }
 
 static void util_open_url(const std::string &url)
@@ -109,7 +113,7 @@ static void util_open_url(const std::string &url)
   else
     if (![[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString: [@(url.c_str())
                                                                        stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]]])
-      log_error("Could not open URL %s\n", url.c_str());
+      logError("Could not open URL %s\n", url.c_str());
 }
 
 
@@ -118,13 +122,13 @@ static std::string get_special_folder(mforms::FolderType type)
   switch (type)
   {
     case mforms::Documents:
-      return [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] UTF8String];
+      return NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject.UTF8String;
     case mforms::Desktop:
-      return [[NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES) lastObject] UTF8String];
+      return NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES).lastObject.UTF8String;
     case mforms::ApplicationData:
-      return [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] UTF8String];
+      return NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).lastObject.UTF8String;
     case mforms::ApplicationSettings:
-      return [[[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent: @"MySQL/Workbench"] UTF8String];
+      return [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).lastObject stringByAppendingPathComponent: @"MySQL/Workbench"].UTF8String;
     case mforms::WinProgramFiles:
     case mforms::WinProgramFilesX86:
       break;
@@ -135,10 +139,10 @@ static std::string get_special_folder(mforms::FolderType type)
 
 @interface MFTimerHandler : NSObject
 {
-  boost::function<bool ()> *callback;
+  std::function<bool ()> *callback;
 }
 
-- (instancetype)initWithSlot:(boost::function<bool ()>)slot NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSlot:(std::function<bool ()>)slot NS_DESIGNATED_INITIALIZER;
 - (void)fire:(NSTimer*)timer;
 
 @end
@@ -150,19 +154,19 @@ static base::Mutex timeout_lock;
 
 @implementation MFTimerHandler
 
-- (instancetype)initWithSlot:(boost::function<bool ()>)slot
+- (instancetype)initWithSlot:(std::function<bool ()>)slot
 {
   self = [super init];
   if (self)
   {
-    callback = new boost::function<bool ()>(slot);
+    callback = new std::function<bool ()>(slot);
   }
   return self;
 }
 
 -(instancetype)init
 {
-  return [self initWithSlot: boost::function<bool ()>()];
+  return [self initWithSlot: std::function<bool ()>()];
 }
 
 - (void)dealloc
@@ -195,13 +199,13 @@ static base::Mutex timeout_lock;
   }
   catch (std::exception &exc)
   {
-    log_error("Unhandled exception calling timer callback: %s\n", exc.what());
+    logError("Unhandled exception calling timer callback: %s\n", exc.what());
   }
 }
 
 @end
 
-static mforms::TimeoutHandle util_add_timeout(float interval, const boost::function<bool ()> &callback)
+static mforms::TimeoutHandle util_add_timeout(float interval, const std::function<bool ()> &callback)
 {
   base::MutexLock lock(timeout_lock);
   
@@ -225,7 +229,7 @@ static void util_cancel_timeout(mforms::TimeoutHandle handle)
     active_timeouts.erase(it);
   }
   else
-    log_warning("cancel_timeout called on invalid handle %i\n", handle);
+    logWarning("cancel_timeout called on invalid handle %i\n", handle);
 }
 
 
@@ -233,7 +237,7 @@ static std::string os_error_to_string(OSErr error)
 {
   CFStringRef ref = SecCopyErrorMessageString(error, nil);
 
-  std::string result = [(__bridge NSString*)ref UTF8String]; // Toll-free-bridged.
+  std::string result = ((__bridge NSString*)ref).UTF8String; // Toll-free-bridged.
   CFRelease(ref);
   return result;
 }
@@ -242,19 +246,19 @@ static void util_store_password(const std::string &service, const std::string &a
 {
   // See if we already have a password for this service + account. If so, modify this, otherwise add a new password.
   SecKeychainItemRef item;
-  OSErr code = SecKeychainFindGenericPassword(NULL, service.length(), service.c_str(), account.length(),
+  OSErr code = SecKeychainFindGenericPassword(NULL, (uint32_t)service.length(), service.c_str(), (uint32_t)account.length(),
                                               account.c_str(), NULL, NULL, &item);
   if (code == 0)
   {
-    code = SecKeychainItemModifyAttributesAndData(item, NULL, password.length(), password.c_str());
+    code = SecKeychainItemModifyAttributesAndData(item, NULL, (uint32_t)password.length(), password.c_str());
     CFRelease(item);
     if (code == 0)
       return;
   }
   else
   {
-    code = SecKeychainAddGenericPassword(NULL, service.length(), service.c_str(), account.length(),
-                                         account.c_str(), password.length(), password.c_str(), NULL);
+    code = SecKeychainAddGenericPassword(NULL, (uint32_t)service.length(), service.c_str(), (uint32_t)account.length(),
+                                         account.c_str(), (uint32_t)password.length(), password.c_str(), NULL);
     if (code == 0)
       return;
   }
@@ -269,9 +273,9 @@ static bool util_find_password(const std::string &service, const std::string &ac
   void *password_data= NULL;
   
   if (SecKeychainFindGenericPassword(NULL,
-                                     service.length(),
+                                     (uint32_t)service.length(),
                                      service.c_str(),
-                                     account.length(),
+                                     (uint32_t)account.length(),
                                      account.c_str(),
                                      &password_length,
                                      &password_data,
@@ -293,9 +297,9 @@ static void util_forget_password(const std::string &service, const std::string &
   OSErr code;
   
   if ((code = SecKeychainFindGenericPassword(NULL,
-                                             service.length(),
+                                             (uint32_t)service.length(),
                                              service.c_str(),
-                                             account.length(),
+                                             (uint32_t)account.length(),
                                              account.c_str(),
                                              NULL,
                                              NULL,
@@ -320,8 +324,8 @@ static void util_show_wait_message(const std::string &title, const std::string &
 
 
 static bool util_run_cancelable_wait_message(const std::string &title, const std::string &text,
-                                             const boost::function<void ()> &start_task, 
-                                             const boost::function<bool ()> &cancel_task)
+                                             const std::function<void ()> &start_task, 
+                                             const std::function<bool ()> &cancel_task)
 {
   return [MHudController runModalHudWithTitle: @(title.c_str())
                                andDescription: @(text.c_str())
@@ -347,7 +351,7 @@ static bool util_hide_wait_message()
 static bool util_move_to_trash(const std::string &path)
 {
   NSFileManager *manager = NSFileManager.defaultManager;
-  NSString *nativePath = [NSString stringWithUTF8String: path.c_str()];
+  NSString *nativePath = @(path.c_str());
   NSURL *url = [NSURL fileURLWithPath: nativePath];
 
   NSError *error = nil;
@@ -367,7 +371,7 @@ static void reveal_file(const std::string &path)
 @interface MainThreadRunner : NSObject
 {
 @public
-  boost::function<void* ()> slot;
+  std::function<void* ()> slot;
   void *result;
 }
 
@@ -391,7 +395,7 @@ static void reveal_file(const std::string &path)
 @end
 
 
-static void *util_perform_from_main_thread(const boost::function<void* ()> &slot, bool wait_response)
+static void *util_perform_from_main_thread(const std::function<void* ()> &slot, bool wait_response)
 {
   if ([NSThread isMainThread])
     return slot ? slot() : NULL;
@@ -411,7 +415,7 @@ static void *util_perform_from_main_thread(const boost::function<void* ()> &slot
 static void util_set_thread_name(const std::string &name)
 {
   @autoreleasepool {
-    [[NSThread currentThread] setName: @(name.c_str())];
+    [NSThread currentThread].name = @(name.c_str());
   }
 }
 

@@ -2979,6 +2979,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.nameTextBox.TabIndex = 0;
       this.nameTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.nameTextBox_KeyPress);
       this.nameTextBox.Leave += new System.EventHandler(this.nameTextBox_Leave);
+      this.nameTextBox.MinimumSize = new System.Drawing.Size(209, 24);
       // 
       // label1
       // 

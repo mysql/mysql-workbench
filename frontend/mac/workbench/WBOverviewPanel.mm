@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
 {
   if (shadowImage)
   {
-    NSRect bounds= [self bounds];
+    NSRect bounds = self.bounds;
     NSRect rect = bounds;
     if (minimumHeight < NSHeight(bounds))
     {
@@ -92,7 +92,7 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
       [[NSColor whiteColor] set];
       NSRectFill(rect);
       
-      rect.size.height= [shadowImage size].height;
+      rect.size.height = shadowImage.size.height;
       rect.origin.y= NSHeight(bounds) - minimumHeight - rect.size.height;
       DrawTiledImage(shadowImage, rect, YES);
     }
@@ -119,12 +119,12 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   [self setHasVerticalScroller:YES];
   [self setHasHorizontalScroller:NO];
-  [self setBorderType:NSNoBorder];
+  self.borderType = NSNoBorder;
   
   _backgroundView = [[WBOverviewBackgroundView alloc] initWithFrame:
-                     NSMakeRect(0, 0, [self contentSize].width, [self contentSize].height)];
-  [_backgroundView setAutoresizingMask:NSViewWidthSizable||NSViewMaxYMargin|NSViewMinXMargin|NSViewMaxXMargin];
-  [self setDocumentView:_backgroundView];
+                     NSMakeRect(0, 0, self.contentSize.width, self.contentSize.height)];
+  _backgroundView.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin| NSViewMinXMargin | NSViewMaxXMargin;
+  self.documentView = _backgroundView;
   
   _itemContainers= [[NSMutableDictionary alloc] init];
 }
@@ -178,7 +178,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   bec::NodeId node= _overview->search_child_item_node_matching(bec::NodeId(), 
                                                              _lastFoundNode ? *_lastFoundNode : bec::NodeId(),
-                                                             [_searchText UTF8String]);
+                                                             _searchText.UTF8String);
   if (node.is_valid())
   {
     _lastFoundNode= new bec::NodeId(node);
@@ -201,13 +201,14 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     
     std::string label;
     _overview->get_field(*_lastFoundNode, wb::OverviewBE::Label, label);
-    _overview->get_wb()->get_grt_manager()->replace_status_text(base::strfmt(_("Found '%s'"), label.c_str()));
+    
+    bec::GRTManager::get()->replace_status_text(base::strfmt(_("Found '%s'"), label.c_str()));
   }
   else
   {
     delete _lastFoundNode;
     _lastFoundNode= 0;
-    _overview->get_wb()->get_grt_manager()->replace_status_text(_("No matches found."));
+    bec::GRTManager::get()->replace_status_text(_("No matches found."));
   }
 }
 
@@ -250,9 +251,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)refreshAll
 {
-  for (MTogglePane *item in [_backgroundView subviews])
+  for (MTogglePane *item in _backgroundView.subviews)
   {
-    id view= [item contentView];
+    id view= item.contentView;
     
     if ([view respondsToSelector:@selector(refreshChildren)])
       [view refreshChildren];
@@ -274,7 +275,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     if ([item isKindOfClass: [WBOverviewGroupContainer class]])
     {
       WBOverviewGroupContainer *group = item;
-      NSInteger index = [group indexOfTabViewItem: [group selectedTabViewItem]];
+      NSInteger index = [group indexOfTabViewItem: group.selectedTabViewItem];
       if (index != NSNotFound)
         selectedTabs[key] = @((int)index);
     }
@@ -285,7 +286,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   [self refreshAll];
 
   // reselect the tabs that were selected before
-  if ([selectedTabs count] > 0)
+  if (selectedTabs.count > 0)
     for (id key in [selectedTabs keyEnumerator])
     {
       id item = _itemContainers[key];
@@ -296,14 +297,14 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
         if (index)
         {
           // selectTabViewItemWithIdentifier is the only method that works in this hacked tabview thing
-          if ([index intValue] < [group numberOfTabViewItems])
-            [group selectTabViewItemWithIdentifier: [[group tabViewItemAtIndex: [index intValue]] identifier]];
+          if ([index intValue] < group.numberOfTabViewItems)
+            [group selectTabViewItemWithIdentifier: [group tabViewItemAtIndex: [index intValue]].identifier];
         }
       }
     }
 
-  if (NSHeight([_backgroundView frame]) > NSHeight([self visibleRect]))
-    [[self contentView] scrollToPoint: NSMakePoint(0, NSHeight([_backgroundView frame]) - NSHeight([self visibleRect]))];
+  if (NSHeight(_backgroundView.frame) > NSHeight(self.visibleRect))
+    [self.contentView scrollToPoint: NSMakePoint(0, NSHeight(_backgroundView.frame) - NSHeight(self.visibleRect))];
 }
 
 
@@ -408,7 +409,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     WBOverviewGroupContainer *groups = [[WBOverviewGroupContainer alloc] initWithOverview:self
                                                                                    nodeId:node];
-    [pane setContentView: groups];
+    pane.contentView = groups;
     
     [pane addButton:[NSImage imageNamed:@"collapsing_panel_header_tab_add.png"]
          withAction:@selector(performGroupAdd:)
@@ -430,7 +431,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     
     _itemContainers[@(node.toString().c_str())] = itemList;
     
-    [pane setContentView: itemList];
+    pane.contentView = itemList;
     
     return itemList;
   }
@@ -442,7 +443,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     
     [group buildChildren];
     
-    [pane setContentView:group];
+    pane.contentView = group;
     
     return group;
   }
@@ -453,9 +454,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (void)buildMainSections
 {
   bec::NodeId root, node;
-  CGFloat width= NSWidth([_backgroundView frame]);
+  CGFloat width= NSWidth(_backgroundView.frame);
 
-  for (NSView *subview in [[_backgroundView subviews] reverseObjectEnumerator])
+  for (NSView *subview in [_backgroundView.subviews reverseObjectEnumerator])
     [subview removeFromSuperview];
 
   _overview->refresh();
@@ -480,7 +481,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
         MTogglePane *pane = [[MTogglePane alloc] initWithFrame:NSMakeRect(0, 0, width, 100)
                                                  includeHeader:!_noHeaders];
         [pane setLabel:@(label.c_str())];
-        [pane setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
+        pane.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin;
         [_backgroundView addSubview:pane];
         
         id view= [self buildDivision:node
