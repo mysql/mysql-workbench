@@ -85,10 +85,8 @@ xcopy /i /s /y /d %RES_DIR%\wbdata\data.db %TARGET_DIR%\data\. 1> nul 2> nul
 echo Copy parser grammar + support files
 xcopy /i /s /y /d %LIBRARY_DIR%\parsers\MySQL.tokens %TARGET_DIR%\data 1> nul 2> nul
 xcopy /i /s /y /d %LIBRARY_DIR%\parsers\MySQLSimpleParser.tokens %TARGET_DIR%\data 1> nul 2> nul
-xcopy /i /s /y /d %LIBRARY_DIR%\parsers\ECMA.tokens %TARGET_DIR%\data 1> nul 2> nul
 xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\MySQL.g %TARGET_DIR%\data 1> nul 2> nul
 xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\MySQLSimpleParser.g %TARGET_DIR%\data 1> nul 2> nul
-xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\ECMA.g %TARGET_DIR%\data 1> nul 2> null
 
 if not exist %TARGET_DIR%\mysql.profiles mkdir %TARGET_DIR%\mysql.profiles
 copy %RES_DIR%\mysql.profiles\*.xml %TARGET_DIR%\mysql.profiles\. 1> nul 2> nul
