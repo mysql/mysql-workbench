@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -216,14 +216,11 @@ you may correct them in the next step. Table data will be migrated at a later st
         
 
     def _create_task(self):
-        grt.send_output("="*80+"\n\n")
-
         if self.main.plan.state.objectCreationParams.get("KeepSchemata", False):
             # Regenerate the creation code to take into account this option
             self.main.plan.generateSQL()
         self.main.plan.createTarget()
         self.main.plan.migrationTarget.disconnect()
-        grt.send_output("="*80+"\n\n")
 
 
 

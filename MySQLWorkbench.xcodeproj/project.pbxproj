@@ -1816,8 +1816,6 @@
 		2B7FC505112D9C2B008C07BF /* wb_rel_11_nonid.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC49F112D9C2B008C07BF /* wb_rel_11_nonid.png */; };
 		2B7FC506112D9C2B008C07BF /* wb_rel_nm.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC4A0112D9C2B008C07BF /* wb_rel_nm.png */; };
 		2B7FC507112D9C2B008C07BF /* wb_rubber.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC4A1112D9C2B008C07BF /* wb_rubber.png */; };
-		2B7FC725113096E9008C07BF /* output_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7FC723113096E9008C07BF /* output_view.cpp */; };
-		2B7FC726113096E9008C07BF /* output_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7FC724113096E9008C07BF /* output_view.h */; };
 		2B7FEA9112EA067C007945E2 /* WB_Home_mac.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FEA9012EA067C007945E2 /* WB_Home_mac.png */; };
 		2B825D210E0B578600BE52DF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B825D1D0E0B578600BE52DF /* InfoPlist.strings */; };
 		2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
@@ -5874,8 +5872,6 @@
 		2B7FC49F112D9C2B008C07BF /* wb_rel_11_nonid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_rel_11_nonid.png; path = images/toolbar/wb_rel_11_nonid.png; sourceTree = "<group>"; };
 		2B7FC4A0112D9C2B008C07BF /* wb_rel_nm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_rel_nm.png; path = images/toolbar/wb_rel_nm.png; sourceTree = "<group>"; };
 		2B7FC4A1112D9C2B008C07BF /* wb_rubber.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_rubber.png; path = images/toolbar/wb_rubber.png; sourceTree = "<group>"; };
-		2B7FC723113096E9008C07BF /* output_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = output_view.cpp; path = frontend/common/output_view.cpp; sourceTree = "<group>"; };
-		2B7FC724113096E9008C07BF /* output_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = output_view.h; path = frontend/common/output_view.h; sourceTree = "<group>"; };
 		2B7FEA9012EA067C007945E2 /* WB_Home_mac.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = WB_Home_mac.png; path = images/home/WB_Home_mac.png; sourceTree = "<group>"; };
 		2B7FEC0812EB9C0A007945E2 /* wb_admin_main.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_main.py; path = plugins/wb.admin/frontend/wb_admin_main.py; sourceTree = "<group>"; };
 		2B825D1E0E0B578600BE52DF /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
@@ -9263,8 +9259,6 @@
 				2B39A3AA10AD98D200AD3447 /* new_connection_wizard.h */,
 				27C6887D10B58C9A00B8D810 /* new_server_instance_wizard.cpp */,
 				27C6887E10B58C9A00B8D810 /* new_server_instance_wizard.h */,
-				2B7FC723113096E9008C07BF /* output_view.cpp */,
-				2B7FC724113096E9008C07BF /* output_view.h */,
 				2B3D494B0F3E41C8009238A7 /* preferences_form.cpp */,
 				2B3D494C0F3E41C8009238A7 /* preferences_form.h */,
 				2B4949541398092E006F0C3F /* select_option_dialog.cpp */,
@@ -12288,7 +12282,6 @@
 				2B39A3AC10AD98D200AD3447 /* new_connection_wizard.h in Headers */,
 				27C6888010B58C9B00B8D810 /* new_server_instance_wizard.h in Headers */,
 				2BB376C21104898800DA4577 /* grt_shell_window.h in Headers */,
-				2B7FC726113096E9008C07BF /* output_view.h in Headers */,
 				278874981189DEAC00E477EF /* webbrowser_view.h in Headers */,
 				2B3DBD0A1212ECAB001837A5 /* plugin_manager_window.h in Headers */,
 				2B6483DE122725ED00207149 /* grt_code_editor.h in Headers */,
@@ -15295,7 +15288,6 @@
 				2B39A3AD10AD98D200AD3447 /* new_connection_wizard.cpp in Sources */,
 				27C6887F10B58C9B00B8D810 /* new_server_instance_wizard.cpp in Sources */,
 				2BB376C11104898700DA4577 /* grt_shell_window.cpp in Sources */,
-				2B7FC725113096E9008C07BF /* output_view.cpp in Sources */,
 				278874961189DEA500E477EF /* webbrowser_view.cpp in Sources */,
 				2B3DBD0B1212ECAB001837A5 /* plugin_manager_window.cpp in Sources */,
 				2B6483DD122725ED00207149 /* grt_code_editor.cpp in Sources */,

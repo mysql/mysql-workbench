@@ -942,17 +942,6 @@ bool GRT::query_status() {
   return _status_query_slot_stack.back()();
 }
 
-void GRT::make_output_visible(void *sender) {
-  base::RecMutexLock lock(_message_mutex);
-  Message msg;
-  msg.type = ControlMsg;
-  msg.text = "show";
-  msg.detail = "";
-  msg.timestamp = time(NULL);
-  msg.progress = 0.0;
-  handle_message(msg, sender);
-}
-
 // XXX: these handlers should go and be replaced by pure log_* calls.
 void GRT::send_error(const std::string &message, const std::string &details, void *sender) {
   base::RecMutexLock lock(_message_mutex);

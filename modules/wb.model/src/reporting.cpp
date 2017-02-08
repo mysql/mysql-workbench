@@ -54,6 +54,8 @@
 using namespace std;
 using namespace base;
 
+DEFAULT_LOG_DOMAIN("Model.Reporting")
+
 //----------------- LexerDocument ------------------------------------------------------------------
 
 LexerDocument::LexerDocument(const std::string &text) : _text(text), _styling_mask('\0') {
@@ -863,9 +865,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
     if (!g_file_test(output_path.c_str(), G_FILE_TEST_EXISTS)) {
       r = g_mkdir_with_parents(output_path.c_str(), 0700);
       if (r < 0) {
-        grt::GRT::get()->send_error(
-          strfmt("Could not create report directory %s: %s", output_path.c_str(), g_strerror(errno)));
-        grt::GRT::get()->make_output_visible();
+        logError("Could not create report directory %s: %s", output_path.c_str(), g_strerror(errno));
         return 0;
       }
     }
@@ -1172,7 +1172,6 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
             grt::GRT::get()->send_error(
               "Error while loading template files. Please check the log for more information.");
             grt::GRT::get()->send_error(path);
-            grt::GRT::get()->make_output_visible();
             g_free(path);
             return 0;
           }

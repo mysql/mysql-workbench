@@ -30,7 +30,6 @@
 
 namespace mforms {
   namespace gtk {
-
     typedef std::map<std::string, int> StyleNameMap;
 
     class CodeEditorImpl : public ViewImpl {

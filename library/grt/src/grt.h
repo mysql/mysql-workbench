@@ -2657,8 +2657,6 @@ namespace grt {
     void pop_status_query_handler();
     bool query_status();
 
-    void make_output_visible(void *sender = NULL);
-
     void send_error(const std::string &message, const std::string &details = "", void *sender = NULL);
     void send_warning(const std::string &message, const std::string &details = "", void *sender = NULL);
     void send_info(const std::string &message, const std::string &details = "", void *sender = NULL);

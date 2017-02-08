@@ -258,7 +258,7 @@ void DbMySQLSQLExport::start_export(bool wait_finish) {
 void DbMySQLSQLExport::export_finished(grt::ValueRef res) {
   CatalogMap cmap;
   update_all_old_names(get_model_catalog(), false, cmap);
-  grt::GRT::get()->send_output(*grt::StringRef::cast_from(res) + '\n');
+  logInfo("%s\n", grt::StringRef::cast_from(res).c_str());
   if (_task_finish_cb)
     _task_finish_cb();
 }
