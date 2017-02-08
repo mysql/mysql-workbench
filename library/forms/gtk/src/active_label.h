@@ -25,10 +25,8 @@
 #include <gtkmm/eventbox.h>
 #include <gtkmm/image.h>
 #include <gtkmm/button.h>
-#include "mforms/menu.h"
-#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
 #include <gtkmm/spinner.h>
-#endif
+#include "mforms/menu.h"
 
 #include <sigc++/sigc++.h>
 
@@ -67,9 +65,7 @@ private:
   Gtk::EventBox _text_label_eventbox;
   Gtk::Label _text_label;
   mforms::Menu* _menu;
-#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
   Gtk::Spinner _spinner;
-#endif
   bool _delete_menu;
 };
 

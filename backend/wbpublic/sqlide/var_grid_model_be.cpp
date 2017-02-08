@@ -218,6 +218,12 @@ VarGridModel::ColumnType VarGridModel::get_real_column_type(ColumnId column) {
   return boost::apply_visitor(vt, _real_column_types[column]);
 }
 
+bool VarGridModel::isGeometry(ColumnId column)
+{
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
+  return _dbColumnTypes[column] == "GEOMETRY";
+}
+
 //--------------------------------------------------------------------------------------------------
 
 std::string VarGridModel::get_column_caption(ColumnId column) {

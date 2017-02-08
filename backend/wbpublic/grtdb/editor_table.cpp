@@ -1672,8 +1672,7 @@ void FKConstraintColumnsListBE::refresh() {
         if (i - 1 < fk->referencedColumns().count())
           fk->referencedColumns().remove(i - 1);
 
-        grt::GRT::get()->make_output_visible();
-        grt::GRT::get()->send_warning("Removed corrupt column definition for Foreign Key " + *fk->name());
+        logWarning("Removed corrupt column definition for Foreign Key %s\n", fk->name().c_str());
       }
     }
   }

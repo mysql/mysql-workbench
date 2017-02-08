@@ -107,7 +107,6 @@ namespace wb {
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::openModelFile), DECLARE_MODULE_FUNCTION(WorkbenchImpl::closeModelFile),
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::getDbFilePath), DECLARE_MODULE_FUNCTION(WorkbenchImpl::getTempDir),
 
-      DECLARE_MODULE_FUNCTION(WorkbenchImpl::debugShowInfo), DECLARE_MODULE_FUNCTION(WorkbenchImpl::debugGrtStats),
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::debugValidateGRT), DECLARE_MODULE_FUNCTION(WorkbenchImpl::getVideoAdapter),
 
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::runScriptFile), DECLARE_MODULE_FUNCTION(WorkbenchImpl::installModuleFile),
@@ -250,9 +249,7 @@ namespace wb {
     int installModuleFile(const std::string &filename);
 
     // debugging
-    int debugShowInfo();
     int debugValidateGRT();
-    int debugGrtStats();
 
     int showUserTypeEditor(const workbench_physical_ModelRef &model);
     int showDocumentProperties();

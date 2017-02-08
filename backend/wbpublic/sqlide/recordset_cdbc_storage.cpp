@@ -246,7 +246,8 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   Recordset::Column_types &column_types = get_column_types(recordset);
   Recordset::Column_types &real_column_types = get_real_column_types(recordset);
   Recordset::Column_flags &column_flags = get_column_flags(recordset);
-
+  auto &dbColumnTypes = getDbColumnTypes(recordset);
+  
   std::shared_ptr<sql::Statement> stmt;
   std::shared_ptr<sql::ResultSet> rs;
   if (_dbc_resultset) {
@@ -381,12 +382,14 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   }
 
   column_types.reserve(editable_col_count);
+  dbColumnTypes.reserve(editable_col_count);
   // some column types might be defined in derived class. don't redefine types for those columns.
   for (unsigned int n = (unsigned int)column_types.size(); (unsigned int)editable_col_count > n; ++n) {
     std::string type_name = rs_meta->getColumnTypeName(n + 1);
     type_name = base::toupper(type_name);
-    std::string::size_type tne = type_name.find(' ');
-    type_name = type_name.substr(0, tne);
+    dbColumnTypes.push_back(type_name);
+    std::string::size_type tne= type_name.find(' ');
+    type_name= type_name.substr(0, tne);
     column_types.push_back(known_types[type_name]);
     real_column_types.push_back(known_real_types[type_name]);
     int flags = 0;

@@ -158,6 +158,7 @@ library/parsers/ECMA.tokens
 library/parsers/mysql/MySQLParser*
 library/parsers/mysql/MySQLLexer*
 
+testing/tut/data/code_editor.xml
 testing/tut/data/connections.xml
 testing/tut/data/**/*_res.xml
 testing/tut/data/wb_state.xml

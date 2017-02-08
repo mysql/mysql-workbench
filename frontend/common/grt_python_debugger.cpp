@@ -527,8 +527,10 @@ const char *PythonDebugger::ui_program_stopped(const char *file, int line, int r
 
   // check if editor is still there
   editor = _shell->get_editor_for(file, true);
-  if (!editor)
+  if (!editor) {
     logWarning("editor gone\n");
+    return "abort";
+  }
 
   switch (reason) {
     case 0: // step

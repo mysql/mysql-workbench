@@ -86,7 +86,6 @@ add_library(wbprivate
     workbench/wb_db_schema.cpp
     workbench/about_box.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/preferences_form.cpp
-    ${PROJECT_SOURCE_DIR}/frontend/common/output_view.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/new_connection_wizard.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/document_properties_form.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/user_defined_type_editor.cpp

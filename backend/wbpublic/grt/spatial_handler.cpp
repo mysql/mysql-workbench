@@ -233,7 +233,41 @@ std::string spatial::shape_description(ShapeType shp) {
   return "";
 }
 
-spatial::Projection::Projection() {
+spatial::ShapeType spatial::ogrTypeToWb(const OGRwkbGeometryType type)
+{
+  switch(type)
+  {
+    case wkbLineString:
+      return ShapeLineString;
+
+    case wkbLinearRing:
+      return ShapeLinearRing;
+
+    case wkbPolygon:
+      return ShapePolygon;
+
+    case wkbMultiPoint:
+      return ShapeMultiPoint;
+
+    case wkbMultiLineString:
+      return ShapeMultiLineString;
+
+    case wkbMultiPolygon:
+      return ShapeMultiPolygon;
+
+    case wkbGeometryCollection:
+      return ShapeGeometryCollection;
+
+    case wkbPoint:
+      return ShapePoint;
+
+    default:
+      return ShapeUnknown;
+  }
+}
+
+spatial::Projection::Projection()
+{
   CPLSetErrorHandler(&ogr_error_handler);
   OGRRegisterAll();
 
@@ -546,6 +580,22 @@ std::string spatial::Importer::as_gml() {
 
 void spatial::Importer::interrupt() {
   _interrupt = true;
+}
+
+std::string spatial::Importer::getName() const
+{
+  if (_geometry)
+    return std::string(_geometry->getGeometryName());
+
+  return std::string();
+}
+
+spatial::ShapeType spatial::Importer::getType() const
+{
+  if (_geometry)
+    return ogrTypeToWb(wkbFlatten(_geometry->getGeometryType()));
+
+  return ShapeUnknown;
 }
 
 spatial::Converter::Converter(ProjectionView view, OGRSpatialReference *src_srs, OGRSpatialReference *dst_srs)

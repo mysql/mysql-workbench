@@ -52,11 +52,10 @@ ActiveLabel::ActiveLabel(const Glib::ustring& text, const sigc::slot<void>& clos
 
   show_all();
 
-#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
   pack_start(_spinner);
   _spinner.set_size_request(16, 16); //  Set the same size as the _closeImage, so the tab won't resize when swaping
   _spinner.hide();
-#endif
+
 
   signal_button_press_event().connect(sigc::mem_fun(this, &ActiveLabel::button_press_slot));
 }
@@ -113,20 +112,16 @@ bool ActiveLabel::button_press_slot(GdkEventButton* evb) {
 
 //--------------------------------------------------------------------------------
 void ActiveLabel::start_busy() {
-#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
   _btn_close.hide();
 
   _spinner.show();
   _spinner.start();
-#endif
 }
 
 //--------------------------------------------------------------------------------
 void ActiveLabel::stop_busy() {
-#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
   _spinner.stop();
   _spinner.hide();
 
   _btn_close.show();
-#endif
 }

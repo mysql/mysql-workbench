@@ -68,3 +68,5 @@ typedef int ssize_t;
 #include <glib/gstdio.h>
 #include <iosfwd>
 #include <fstream>
+#include <iomanip>
+
