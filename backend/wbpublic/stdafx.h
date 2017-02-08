@@ -49,6 +49,8 @@ typedef int ssize_t;
 #include <set>
 #include <iosfwd>
 #include <fstream>
+#include <iomanip>
+
 
 #define HAVE_ROUND
 #include <Python/Python.h>
