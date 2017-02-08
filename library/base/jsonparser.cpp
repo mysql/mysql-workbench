@@ -343,7 +343,7 @@ namespace JsonParser {
    */
   JsonValue &JsonArray::at(SizeType pos) {
     if (pos > _data.size())
-      throw std::out_of_range(base::strfmt("Index '%lu' is out of range.", pos));
+      throw std::out_of_range(base::strfmt("Index '%zu' is out of range.", pos));
     return _data.at(pos);
   }
 
@@ -358,7 +358,7 @@ namespace JsonParser {
    */
   const JsonValue &JsonArray::at(SizeType pos) const {
     if (pos > _data.size())
-      throw std::out_of_range(base::strfmt("Index '%lu' is out of range.", pos));
+      throw std::out_of_range(base::strfmt("Index '%zu' is out of range.", pos));
     return _data.at(pos);
   }
 
@@ -1668,12 +1668,14 @@ namespace JsonParser {
       case VDouble:
         _output += std::to_string((double)value);
         break;
+#ifdef DEFINE_UINT64_T_FUNCTIONS
       case VInt64:
         _output += std::to_string((int64_t)value);
         break;
       case VUint64:
         _output += std::to_string((uint64_t)value);
         break;
+#endif
       case VObject:
         write((JsonObject)value);
         break;

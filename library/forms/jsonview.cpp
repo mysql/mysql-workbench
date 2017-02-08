@@ -651,8 +651,10 @@ void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const 
   if (data != nullptr) {
     std::stringstream buffer;
     double number = 0;
+#ifdef DEFINE_UINT64_T_FUNCTIONS
     int64_t number2 = 0;
     uint64_t number3 = 0;
+#endif
     bool retBool = false;
     auto &storedValue = data->getData();
     switch (storedValue.getType()) {
@@ -664,6 +666,7 @@ void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const 
         storedValue = number;
         setData = true;
         break;
+#ifdef DEFINE_UINT64_T_FUNCTIONS
       case VInt64:
         if (!base::is_number(value))
           break;
@@ -680,6 +683,7 @@ void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const 
         storedValue = number3;
         setData = true;
         break;
+#endif
       case VBoolean:
         if (!base::isBool(value))
           break;
@@ -1073,6 +1077,7 @@ void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*colu
       node->set_string(1, std::to_string((double)value));
       node->set_string(2, "Double");
       break;
+#ifdef DEFINE_UINT64_T_FUNCTIONS
     case VInt64:
       node->set_string(1, std::to_string((int64_t)value));
       node->set_string(2, "Long Integer");
@@ -1081,6 +1086,7 @@ void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*colu
       node->set_string(1, std::to_string((uint64_t)value));
       node->set_string(2, "Unsigned Long Integer");
       break;
+#endif
     default:
       break;
   }
@@ -1322,8 +1328,10 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
   if (data != NULL) {
     std::stringstream buffer;
     double number = 0;
+#ifdef DEFINE_UINT64_T_FUNCTIONS
     int64_t number2 = 0;
     uint64_t number3 = 0;
+#endif
     bool retBool = false;
     switch (storedValue.getType()) {
       case VDouble:
@@ -1334,6 +1342,7 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
         storedValue = number;
         node->set_float(column, number);
         _dataChanged(false);
+#ifdef DEFINE_UINT64_T_FUNCTIONS
       case VInt64:
         if (!base::is_number(value))
           break;
@@ -1352,6 +1361,7 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
         node->set_float(column, (double)number3);
         _dataChanged(false);
         break;
+#endif
       case VBoolean:
         if (!base::isBool(value))
           break;
@@ -1611,12 +1621,14 @@ void JsonGridView::generateNumberInTree(JsonParser::JsonValue &value, int column
     case VDouble:
       node->set_float(columnId, (double)value);
       break;
+#ifdef DEFINE_UINT64_T_FUNCTIONS
     case VInt64:
       node->set_long(columnId, (int64_t)value);
       break;
     case VUint64:
       node->set_long(columnId, (uint64_t)value);
       break;
+#endif
     default:
       break;
   }
