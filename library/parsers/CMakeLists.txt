@@ -51,6 +51,7 @@ set(PARSERS_SOURCES
     mysql/MySQLBaseRecognizer.cpp
     mysql/MySQLRecognizerCommon.cpp
     parsers-common.cpp
+    SymbolTable.cpp
     code-completion/CodeCompletionCore.cpp
     code-completion/mysql-code-completion.cpp
 )

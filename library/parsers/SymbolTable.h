@@ -20,7 +20,8 @@
 #pragma once
 
 #include "parsers-common.h"
-
+#include <set>
+#include <memory>
 // A simple symbol table implementation, tailored towards code completion.
 
 namespace antlr4 {
