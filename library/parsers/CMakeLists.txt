@@ -53,7 +53,6 @@ set(PARSERS_SOURCES
     parsers-common.cpp
     code-completion/CodeCompletionCore.cpp
     code-completion/mysql-code-completion.cpp
-    code-completion/mysql_object_names_cache.cpp
 )
 
 add_library(parsers

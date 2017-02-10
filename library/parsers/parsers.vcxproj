@@ -161,7 +161,6 @@ cd ..</Command>
   <ItemGroup>
     <ClInclude Include="code-completion\CodeCompletionCore.h" />
     <ClInclude Include="code-completion\mysql-code-completion.h" />
-    <ClInclude Include="code-completion\mysql_object_names_cache.h" />
     <ClInclude Include="mysql\mysql-recognition-types.h" />
     <ClInclude Include="mysql\MySQLBaseLexer.h" />
     <ClInclude Include="mysql\MySQLBaseRecognizer.h" />
@@ -178,7 +177,6 @@ cd ..</Command>
   <ItemGroup>
     <ClCompile Include="code-completion\CodeCompletionCore.cpp" />
     <ClCompile Include="code-completion\mysql-code-completion.cpp" />
-    <ClCompile Include="code-completion\mysql_object_names_cache.cpp" />
     <ClCompile Include="mysql\MySQLBaseLexer.cpp" />
     <ClCompile Include="mysql\MySQLBaseRecognizer.cpp" />
     <ClCompile Include="mysql\MySQLLexer.cpp" />

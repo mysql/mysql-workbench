@@ -68,7 +68,7 @@ std::string Symbol::qualifiedName(std::string const &separator, bool full) const
 
 //----------------- TypedSymbol ----------------------------------------------------------------------------------------
 
-TypedSymbol::TypedSymbol(std::string const &name, Type *aType) : Symbol(name), type(aType) {
+TypedSymbol::TypedSymbol(std::string const &name, Type const *aType) : Symbol(name), type(aType) {
 };
 
 //----------------- ScopedSymbol ---------------------------------------------------------------------------------------
@@ -187,15 +187,16 @@ std::set<std::string> ScopedSymbol::getAllSymbolNames() const {
 
 //----------------- VariableSymbol -------------------------------------------------------------------------------------
 
-VariableSymbol::VariableSymbol(std::string const &name, Type *type) : TypedSymbol(name, type) {
+VariableSymbol::VariableSymbol(std::string const &name, Type const *type) : TypedSymbol(name, type) {
 }
 
 //----------------- ParameterSymbol ------------------------------------------------------------------------------------
 
 //----------------- RoutineSymbol --------------------------------------------------------------------------------------
 
-RoutineSymbol::RoutineSymbol(std::string const &name, Type *aReturnType)
-  : ScopedSymbol(name), returnType(aReturnType){};
+RoutineSymbol::RoutineSymbol(std::string const &name, Type const *aReturnType)
+  : ScopedSymbol(name), returnType(aReturnType) {
+};
 
 std::vector<VariableSymbol *> RoutineSymbol::getVariables(bool localOnly) const {
   return getSymbolsOfType<VariableSymbol>();
@@ -207,22 +208,28 @@ std::vector<ParameterSymbol *> RoutineSymbol::getParameters(bool localOnly) cons
 
 //----------------- MethodSymbol ---------------------------------------------------------------------------------------
 
-MethodSymbol::MethodSymbol(std::string const &name, Type *returnType) : RoutineSymbol(name, returnType) {
+MethodSymbol::MethodSymbol(std::string const &name, Type const *returnType) : RoutineSymbol(name, returnType) {
 }
 
 //----------------- FieldSymbol ----------------------------------------------------------------------------------------
 
-FieldSymbol::FieldSymbol(std::string const &name, Type *type) : VariableSymbol(name, type) {
+FieldSymbol::FieldSymbol(std::string const &name, Type const *type) : VariableSymbol(name, type) {
 }
 
 //----------------- Type -----------------------------------------------------------------------------------------------
 
-Type::Type(std::string const &name, Type *base) : Symbol(name), baseType(base) {
+Type::Type(std::string const &name, Type const *base) : name(name), baseType(base) {
 }
 
-//----------------- FullType -------------------------------------------------------------------------------------------
+//----------------- FundamentalType ------------------------------------------------------------------------------------
 
-FullType::FullType(std::string const &name) : Type(name) {
+const Type *FundamentalType::INTEGER_TYPE = new FundamentalType("int", TypeKind::Integer);
+const Type *FundamentalType::FLOAT_TYPE = new FundamentalType("float", TypeKind::Float);
+const Type *FundamentalType::STRING_TYPE = new FundamentalType("string", TypeKind::String);
+const Type *FundamentalType::BOOL_TYPE = new FundamentalType("bool", TypeKind::Bool);
+const Type *FundamentalType::DATE_TYPE = new FundamentalType("date", TypeKind::Date);
+
+FundamentalType::FundamentalType(std::string const &name, TypeKind kind) : Type(name), kind(kind) {
 }
 
 //----------------- ClassSymbol ----------------------------------------------------------------------------------------
@@ -241,13 +248,13 @@ std::vector<FieldSymbol *> ClassSymbol::getFields(bool includeInherited) const {
 
 //----------------- ArrayType ------------------------------------------------------------------------------------------
 
-ArrayType::ArrayType(std::string const &name, Type *elemType, size_t aSize)
+ArrayType::ArrayType(std::string const &name, Type const *elemType, size_t aSize)
   : Type(name), elementType(elemType), size(aSize) {
 }
 
 //----------------- TypeAlias ------------------------------------------------------------------------------------------
 
-TypeAlias::TypeAlias(std::string const &name, Type *target) : Type(name, target) {
+TypeAlias::TypeAlias(std::string const &name, Type const *target) : Type(name, target) {
 }
 
 //----------------- SymbolTable ----------------------------------------------------------------------------------------

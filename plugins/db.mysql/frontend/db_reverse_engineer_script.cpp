@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include <iconv.h>
-
 #include "db_reverse_engineer_script.h"
 #include "base/string_utilities.h"
 

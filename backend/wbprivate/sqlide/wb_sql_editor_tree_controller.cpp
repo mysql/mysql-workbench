@@ -429,7 +429,7 @@ std::vector<std::string> SqlEditorTreeController::fetch_schema_list() {
       std::string name = rs->getString(1);
       if (name[0] == '.')
         continue;
-      if (showSystemSchemas || systemSchemaNames.count(name) > 0)
+      if (showSystemSchemas || systemSchemaNames.count(name) == 0)
         schemata_names.push_back(name);
     }
   }

@@ -73,7 +73,7 @@ struct AutoCompletionContext {
 
   //------------------------------------------------------------------------------------------------
 
-  void collectCandidates(Parser *parser, Scanner &scanner, size_t caretOffset, size_t caretLine) {
+  void collectCandidates(MySQLParser *parser, Scanner &scanner, size_t caretOffset, size_t caretLine) {
     CodeCompletionCore c3(parser);
 
     c3.ignoredTokens = {
@@ -151,7 +151,7 @@ struct AutoCompletionContext {
       MySQLParser::RuleLabelIdentifier,
     };
 
-    c3.noSeparatorRequiredFor = {
+    static std::set<size_t> noSeparatorRequiredFor = {
       MySQLLexer::EQUAL_OPERATOR,
       MySQLLexer::ASSIGN_OPERATOR,
       MySQLLexer::NULL_SAFE_EQUAL_OPERATOR,
@@ -186,9 +186,36 @@ struct AutoCompletionContext {
       MySQLLexer::PARAM_MARKER,
     };
 
-    c3.showResult = false;
+    // Certain tokens (like identifiers) must be treated as if the char directly following them still belongs to that token
+    // (e.g. a whitespace after a name), because visually the caret is placed between that token and the whitespace creating
+    // the impression we are still at the identifier (and we should show candidates for this identifier position).
+    // Other tokens (like operators) however don't include that position, hence the caret index is one less for them.
+    size_t caretIndex = scanner.tokenIndex();
+    if (noSeparatorRequiredFor.count(scanner.tokenType()) > 0)
+      ++caretIndex;
+
+    c3.showResult = true;
+    c3.showDebugOutput = false;
     referencesStack.emplace_back(); // For the root level of table references.
-    completionCandidates = c3.collectCandidates({ caretOffset, caretLine });
+
+    size_t startTokenIndex = 0;
+    size_t ruleIndex = 0;
+
+    parser->reset();
+    ParserRuleContext *context = parser->query();
+    tree::ParseTree *tree = parser->contextFromPosition(context, { caretOffset, caretLine });
+    if (tree->parent) {
+      tree = tree->parent;
+    }
+    if (tree != nullptr) {
+      context = dynamic_cast<ParserRuleContext *>(tree->parent);
+      if (context != nullptr) {
+        startTokenIndex = context->start->getTokenIndex();
+        ruleIndex = context->getRuleIndex();
+      }
+    }
+
+    completionCandidates = c3.collectCandidates(caretIndex, startTokenIndex, ruleIndex);
 
     // Post processing some entries.
     if (completionCandidates.tokens.count(MySQLLexer::NOT2_SYMBOL) > 0) {
@@ -279,7 +306,7 @@ private:
         return;
 
       if (!_fromClauseMode) {
-        //
+        // TODO: finish from clause scanning in nested selects.
       }
     }
 
@@ -684,6 +711,8 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
   // Move to caret position and store that on the scanner stack.
   scanner.advanceToPosition(caretLine + 1, caretOffset);
+  if (scanner.tokenChannel() != Token::DEFAULT_CHANNEL)
+    scanner.previous(true); // Go back to the first non-hidden token if we ended at a hidden one.
   scanner.push();
 
   context.collectCandidates(parser, scanner, caretOffset, caretLine + 1);
@@ -952,7 +981,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
       }
 
       case MySQLParser::RuleTriggerRef: {
-        // While triggers are bound to a table the are schema objects and are referenced as "[schema.]trigger"
+        // While triggers are bound to a table they are schema objects and are referenced as "[schema.]trigger"
         // e.g. in DROP TRIGGER.
         logDebug3("Adding trigger names from cache\n");
 

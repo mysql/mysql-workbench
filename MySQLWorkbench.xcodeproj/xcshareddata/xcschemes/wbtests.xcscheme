@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0800"
+   LastUpgradeVersion = "0820"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -64,11 +64,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only db_mysql_plugin_test"
+            argument = "only sql_editor_be_autocomplete_tests"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--port=3306"
+            argument = "--host=127.0.0.1"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--port=5717"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

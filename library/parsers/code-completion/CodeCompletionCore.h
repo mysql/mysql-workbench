@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,11 +56,9 @@ namespace antlr4 {
     std::unordered_set<size_t> ignoredTokens;  // Tokens which should not appear in the candidates set.
     std::unordered_set<size_t> preferredRules; // Rules which replace any candidate token they contain.
                                                // This allows to return descriptive rules (e.g. className, instead of ID/identifier).
-    std::unordered_set<size_t> noSeparatorRequiredFor; // A list of tokens which don't need a separator (e.g. a whitespace) to other tokens.
-
     CodeCompletionCore(antlr4::Parser *parser);
 
-    CandidatesCollection collectCandidates(std::pair<std::size_t, std::size_t> caret, std::size_t startRule = 0);
+    CandidatesCollection collectCandidates(size_t caretTokenIndex, size_t ruleStartTokenIndex = 0, size_t startRule = 0);
 
   private:
     antlr4::Parser *_parser;
@@ -69,10 +67,10 @@ namespace antlr4 {
     antlr4::dfa::Vocabulary const& _vocabulary;
     std::vector<std::string> const& _ruleNames;
 
-    std::vector<antlr4::Token *> _tokens;
+    // Just the token types in input order - and only those from the rule start index to the caret token index.
+    std::vector<size_t> _tokens;
 
-    std::pair<size_t, size_t> _caret; // { column, row }
-    size_t _caretTokenIndex; // Derived from the caret position.
+    size_t _tokenStartIndex; // The index of the token which is the start token in a given parser rule context.
 
     size_t _statesProcessed;
     CandidatesCollection _candidates; // The collected candidates (rules and tokens).

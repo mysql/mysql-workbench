@@ -57,11 +57,11 @@ public:
   DEFINE_INIT_MODULE("1.0", "", ModuleImplBase, DECLARE_MODULE_FUNCTION(SampleModule1Impl::getNumber),
                      DECLARE_MODULE_FUNCTION(SampleModule1Impl::calculate));
 
-  int getNumber() {
+  virtual int getNumber() override {
     return 42;
   }
 
-  int calculate();
+  virtual int calculate() override;
 };
 
 class SampleModule2Impl : public ModuleImplBase, public SampleInterface2Impl {
@@ -71,7 +71,7 @@ public:
 
   DEFINE_INIT_MODULE("1.0", "", ModuleImplBase, DECLARE_MODULE_FUNCTION(SampleModule2Impl::calcSum), NULL);
 
-  int calcSum(int num1) {
+  virtual int calcSum(int num1) override {
     SampleModule1Impl *s1 = grt::GRT::get()->get_native_module<SampleModule1Impl>();
     int num2 = s1->getNumber();
     return num1 + num2;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,23 +28,34 @@ using namespace antlr4::misc;
 std::unordered_map<std::type_index, CodeCompletionCore::FollowSetsPerState> CodeCompletionCore::_followSetsByATN;
 
 CodeCompletionCore::CodeCompletionCore(Parser *parser)
-: _parser(parser), _atn(parser->getATN()), _vocabulary(parser->getVocabulary()), _ruleNames(parser->getRuleNames()),
-  _caretTokenIndex(0), _statesProcessed(0) {
-
-  BufferedTokenStream *tokenStream = dynamic_cast<BufferedTokenStream *>(parser->getTokenStream());
-  if (tokenStream == nullptr)
-    throw RuntimeException("Code completion currently only works with a buffered token stream");
-
-  tokenStream->fill();
-  for (auto token : tokenStream->getTokens())
-    if (token->getChannel() == Token::DEFAULT_CHANNEL)
-      _tokens.push_back(token);
+: _parser(parser), _atn(parser->getATN()), _vocabulary(parser->getVocabulary()), _ruleNames(parser->getRuleNames()) {
 }
 
-CandidatesCollection CodeCompletionCore::collectCandidates(std::pair<std::size_t, std::size_t> caret, std::size_t startRule) {
-  _caret = caret;
+CandidatesCollection CodeCompletionCore::collectCandidates(size_t caretTokenIndex, size_t ruleStartTokenIndex,
+                                                           size_t startRule) {
   _candidates.rules.clear();
   _candidates.tokens.clear();
+  if (caretTokenIndex < ruleStartTokenIndex)
+    return _candidates;
+
+  _tokenStartIndex = ruleStartTokenIndex;
+
+  // Get all token types, starting with the rule start token, up to the caret token. These should all have been
+  // read already and hence do not place any time penalty on us here.
+  _tokens.clear();
+  TokenStream *tokenStream = _parser->getTokenStream();
+
+  size_t currentOffset = tokenStream->index();
+  tokenStream->seek(_tokenStartIndex);
+  size_t offset = 1;
+  while (true) {
+    Token *token = tokenStream->LT(offset++);
+    _tokens.push_back(token->getType());
+
+    if (token->getTokenIndex() >= caretTokenIndex || _tokens.back() == Token::EOF)
+      break;
+  }
+  tokenStream->seek(currentOffset);
 
   process(startRule);
 
@@ -246,9 +257,8 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
 
   FollowSetsHolder &followSets = setsPerState[startState->stateNumber];
   callStack.push_back(startState->ruleIndex);
-  size_t currentSymbol = _tokens[tokenIndex]->getType();
 
-  if (tokenIndex >= _caretTokenIndex) { // At caret?
+  if (tokenIndex >= _tokens.size() - 1) { // At caret?
     if (preferredRules.count(startState->ruleIndex) > 0) {
       // No need to go deeper when collecting entries and we reach a rule that we want to collect anyway.
       translateToRuleIndex(callStack);
@@ -281,6 +291,7 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
   } else {
     // Process the rule if we either could pass it without consuming anything (epsilon transition)
     // or if the current input symbol will be matched somewhere after this entry point.
+    size_t currentSymbol = _tokens[tokenIndex];
     if (!followSets.combined.contains(Token::EPSILON) && !followSets.combined.contains(currentSymbol)) {
       callStack.pop_back();
       return {};
@@ -305,9 +316,7 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
 
     ++_statesProcessed;
 
-    currentSymbol = _tokens[currentEntry.tokenIndex]->getType();
-
-    bool atCaret = currentEntry.tokenIndex >= _caretTokenIndex;
+    bool atCaret = currentEntry.tokenIndex >= _tokens.size() - 1;
     if (showDebugOutput)
     {
       printDescription(indentation, currentEntry.state, generateBaseDescription(currentEntry.state), currentEntry.tokenIndex);
@@ -416,6 +425,7 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
                 }
             }
           } else {
+            size_t currentSymbol = _tokens[currentEntry.tokenIndex];
             if (set.contains(currentSymbol)) {
               if (showDebugOutput)
                 std::cout << "=====> consumed: " << _vocabulary.getDisplayName(currentSymbol) << std::endl;
@@ -433,26 +443,6 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
 
 void CodeCompletionCore::process(size_t startRule) {
   _statesProcessed = 0;
-
-  // Determine the first token in the input which ends after the given caret position. This is were we stop walking
-  // and start collecting candidates.
-  _caretTokenIndex = 0;
-  while (_caretTokenIndex < _tokens.size()) {
-    size_t start = _tokens[_caretTokenIndex]->getCharPositionInLine();
-    size_t stop = start + _tokens[_caretTokenIndex]->getStopIndex() - _tokens[_caretTokenIndex]->getStartIndex();
-
-    // Certain tokens (like identifiers) must be treated as if the char directly following them still belongs to that token
-    // (e.g. a whitespace after a name), because visually the caret is placed between that token and the whitespace creating
-    // the impression we are still at the identifier (and we should show candidates for this identifier position).
-    // Other tokens (like operators) however don't include that position, hence the token range is one less for them.
-    if (noSeparatorRequiredFor.count(_tokens[_caretTokenIndex]->getType()) == 0)
-      ++stop;
-    if ((_tokens[_caretTokenIndex]->getType() == Token::EOF) || (_tokens[_caretTokenIndex]->getLine() > _caret.second)
-        || (_tokens[_caretTokenIndex]->getLine() == _caret.second && stop >= _caret.first))
-      break;
-
-    ++_caretTokenIndex;
-  }
 
   std::vector<size_t> callStack;
   processRule(_atn.ruleToStartState[startRule], 0, callStack, "");
@@ -499,9 +489,9 @@ void CodeCompletionCore::printDescription(std::string const& currentIndent, ATNS
     }
   }
 
-  if (tokenIndex >= _caretTokenIndex)
-    std::cout << "<<" << tokenIndex << ">> ";
+  if (tokenIndex >= _tokens.size() - 1)
+    std::cout << "<<" << _tokenStartIndex + tokenIndex << ">> "; // Show the absolute token index.
   else
-    std::cout << "<" << tokenIndex << "> ";
+    std::cout << "<" << _tokenStartIndex + tokenIndex << "> ";
   std::cout << "Current state: " << baseDescription << transitionDescription << std::endl;
 }

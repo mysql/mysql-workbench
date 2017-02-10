@@ -14,9 +14,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="code-completion\mysql_object_names_cache.cpp">
-      <Filter>Code Completion</Filter>
-    </ClCompile>
     <ClCompile Include="code-completion\mysql-code-completion.cpp">
       <Filter>Code Completion</Filter>
     </ClCompile>
@@ -54,9 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="code-completion\mysql_object_names_cache.h">
-      <Filter>Code Completion</Filter>
-    </ClInclude>
     <ClInclude Include="code-completion\mysql-code-completion.h">
       <Filter>Code Completion</Filter>
     </ClInclude>

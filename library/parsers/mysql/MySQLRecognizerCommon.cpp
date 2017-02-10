@@ -167,8 +167,7 @@ ParseTree *getPreviousSibling(ParseTree *tree) {
       return *(--iterator); // We know we have another node before this,
                             // because of the test above.
 
-  return nullptr; // We actually never arrive here, but compilers want to be
-                  // silenced.
+  return nullptr; // We actually never arrive here, but compilers want to be silenced.
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -216,8 +215,7 @@ ParseTree *getNextSibling(ParseTree *tree) {
       return *(++iterator); // We know we have another node after this, because
                             // of the test above.
 
-  return nullptr; // We actually never arrive here, but compilers want to be
-                  // silenced.
+  return nullptr; // We actually never arrive here, but compilers want to be silenced.
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -267,8 +265,7 @@ ParseTree *MySQLRecognizerCommon::contextFromPosition(ParseTree *root, std::pair
         return getPrevious(root);
 
       // If we reached a position after the given one then we found a situation
-      // where that position is
-      // between two terminals. Return the previous one in this case.
+      // where that position is between two terminals. Return the previous one in this case.
       if (position.second < token->getLine())
         return getPrevious(root);
       if (position.second == token->getLine() && position.first < token->getCharPositionInLine())
@@ -296,6 +293,8 @@ SymbolTable *parsers::functionSymbolsForVersion(size_t version) {
     version = 505;
   else if (version < 507)
     version = 506;
+  else if (version < 800)
+    version = 507;
   else
     version = 800;
 

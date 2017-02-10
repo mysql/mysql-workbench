@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "parsers-common.h"
+
 // A simple symbol table implementation, tailored towards code completion.
 
 namespace antlr4 {
@@ -28,6 +30,14 @@ namespace antlr4 {
 namespace parsers {
 
   class Type;
+
+  enum TypeKind {
+    Integer,
+    Float,
+    String,
+    Bool,
+    Date,
+  };
 
   enum MemberVisibility {
     Invalid,
@@ -39,7 +49,7 @@ namespace parsers {
 
   // The root of the symbol table class hierarchy: a symbol can be any managable entity (like a block), not only
   // things like variables or classes.
-  class Symbol {
+  class PARSERS_PUBLIC_TYPE Symbol {
   public:
     std::string name; // The name of the scope or empty if anonymous.
 
@@ -76,15 +86,15 @@ namespace parsers {
   };
 
   // A symbol with an attached type (variables, fields etc.).
-  class TypedSymbol : public Symbol {
+  class PARSERS_PUBLIC_TYPE TypedSymbol : public Symbol {
   public:
-    Type *type = nullptr;
+    const Type *type = nullptr;
 
-    TypedSymbol(std::string const &name, Type *aType);
+    TypedSymbol(std::string const &name, Type const *aType);
   };
 
   // A symbol with a scope (so it can have child symbols).
-  class ScopedSymbol : public Symbol {
+  class PARSERS_PUBLIC_TYPE ScopedSymbol : public Symbol {
   public:
     virtual void clear() override;
 
@@ -128,26 +138,26 @@ namespace parsers {
     ScopedSymbol(std::string const &name = "");
   };
 
-  class VariableSymbol : public TypedSymbol {
+  class PARSERS_PUBLIC_TYPE VariableSymbol : public TypedSymbol {
   public:
-    VariableSymbol(std::string const &name, Type *type);
+    VariableSymbol(std::string const &name, Type const *type);
   };
 
-  class ParameterSymbol : public VariableSymbol {};
+  class PARSERS_PUBLIC_TYPE ParameterSymbol : public VariableSymbol {};
 
   // A standalone function/procedure/rule.
-  class RoutineSymbol : public ScopedSymbol {
+  class PARSERS_PUBLIC_TYPE RoutineSymbol : public ScopedSymbol {
   public:
-    Type *returnType; // Can be null if result is void.
+    const Type *returnType; // Can be null if result is void.
 
-    RoutineSymbol(std::string const &name, Type *aReturnType);
+    RoutineSymbol(std::string const &name, Type const *aReturnType);
 
     std::vector<VariableSymbol *> getVariables(bool localOnly = true) const;
     std::vector<ParameterSymbol *> getParameters(bool localOnly = true) const;
   };
 
   // A routine which belongs to a class or other outer container structure.
-  class MethodSymbol : public RoutineSymbol {
+  class PARSERS_PUBLIC_TYPE MethodSymbol : public RoutineSymbol {
   public:
     enum Flags {
       None = 0,
@@ -160,53 +170,46 @@ namespace parsers {
 
     MemberVisibility visibility = MemberVisibility::Invalid;
 
-    MethodSymbol(std::string const &name, Type *returnType);
+    MethodSymbol(std::string const &name, Type const *returnType);
   };
 
-  class FieldSymbol : public VariableSymbol {
+  class PARSERS_PUBLIC_TYPE FieldSymbol : public VariableSymbol {
   public:
     MemberVisibility visibility = MemberVisibility::Invalid;
 
     MethodSymbol *setter = nullptr;
     MethodSymbol *getter = nullptr;
 
-    FieldSymbol(std::string const &name, Type *type);
+    FieldSymbol(std::string const &name, Type const *type);
   };
 
-  // A small root type class. Used for full types and type aliases.
-  class Type : public Symbol {
+  // The base interface class for types.
+  // Implemented in fundamental types, type definitions and type aliases.
+  class PARSERS_PUBLIC_TYPE Type {
   public:
-    Type *baseType; // The 'parent' type of this type or null if this is a fundamental type.
-    // Also used as the target type for type aliases.
+    const std::string name;
+    const Type *baseType = nullptr; // The super type of this type or empty if this is a fundamental type.
+                                    // Also used as the target type for type aliases and typedefs.
 
-    Type(std::string const &name, Type *base = nullptr);
+    Type(std::string const &name, Type const *base = nullptr);
   };
 
-  // A type with concrete properties.
-  class FullType : public Type {
+  // One class for all "built-in" types.
+  class PARSERS_PUBLIC_TYPE FundamentalType : Type {
   public:
-    enum FundamentalType {
-      Invalid,   // Not known/initialized.
-      Inherited, // baseType must be valid.
-      Integer,
-      Float,
-      String,
-    } fundamentalType = Invalid;
+    const TypeKind kind;
 
-    enum ReferenceType {
-      Pointer,   // Default for most languages ("Type*" in C++).
-      Reference, // "Type&" in C++
-      Instance,  // "Type" as such
-    } referenceType = Pointer;
+    static const Type *INTEGER_TYPE;
+    static const Type *FLOAT_TYPE;
+    static const Type *STRING_TYPE;
+    static const Type *BOOL_TYPE;
+    static const Type *DATE_TYPE;
 
-    size_t storageSize = 0; // For numeric types only (bits).
-    bool isSigned = false;
-
-    FullType(std::string const &name);
+    FundamentalType(std::string const &name, TypeKind kind);
   };
 
   // Classes and structs.
-  class ClassSymbol : virtual public ScopedSymbol, virtual public Type {
+  class PARSERS_PUBLIC_TYPE ClassSymbol : virtual public ScopedSymbol, virtual public Type {
   public:
     bool isStruct = false;
 
@@ -219,142 +222,143 @@ namespace parsers {
     std::vector<FieldSymbol *> getFields(bool includeInherited = false) const;   // Returns all fields.
   };
 
-  class ArrayType : public Type {
+  class PARSERS_PUBLIC_TYPE ArrayType : public Type {
   public:
-    Type *elementType;
+    const Type *elementType;
     size_t size = 0; // > 0 if fixed length.
 
-    ArrayType(std::string const &name, Type *elemType, size_t aSize = 0);
+    ArrayType(std::string const &name, Type const *elemType, size_t aSize = 0);
   };
 
   // An alias for another type.
-  class TypeAlias : public Type {
+  class PARSERS_PUBLIC_TYPE TypeAlias : public Type {
   public:
-    TypeAlias(std::string const &name, Type *target);
+    TypeAlias(std::string const &name, Type const *target);
   };
 
   // A few more types for databases.
-  class CatalogSymbol : public ScopedSymbol {
+  class PARSERS_PUBLIC_TYPE CatalogSymbol : public ScopedSymbol {
   public:
     CatalogSymbol(std::string const &name) : ScopedSymbol(name) {
     }
   };
 
-  class SchemaSymbol : public ScopedSymbol {
+  class PARSERS_PUBLIC_TYPE SchemaSymbol : public ScopedSymbol {
   public:
     SchemaSymbol(std::string const &name) : ScopedSymbol(name) {
     }
   };
 
-  class TableSymbol : public ScopedSymbol {
+  class PARSERS_PUBLIC_TYPE TableSymbol : public ScopedSymbol {
   public:
     TableSymbol(std::string const &name) : ScopedSymbol(name) {
     }
   };
 
-  class ViewSymbol : public ScopedSymbol {
+  class PARSERS_PUBLIC_TYPE ViewSymbol : public ScopedSymbol {
   public:
     ViewSymbol(std::string const &name) : ScopedSymbol(name) {
     }
   };
 
-  class EventSymbol : public ScopedSymbol {
+  class PARSERS_PUBLIC_TYPE EventSymbol : public ScopedSymbol {
   public:
     EventSymbol(std::string const &name) : ScopedSymbol(name) {
     }
   };
 
-  class ColumnSymbol : public TypedSymbol {
+  class PARSERS_PUBLIC_TYPE ColumnSymbol : public TypedSymbol {
   public:
-    ColumnSymbol(std::string const &name, Type *type) : TypedSymbol(name, type) {
+    ColumnSymbol(std::string const &name, Type const *type) : TypedSymbol(name, type) {
     }
   };
 
-  class IndexSymbol : public Symbol { // Made of columns, but doesn't contain them. Hence not a scope.
+  class PARSERS_PUBLIC_TYPE IndexSymbol : public Symbol { // Made of columns, but doesn't contain them. Hence not a scope.
   public:
     IndexSymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class PrimaryKeySymbol : public Symbol { // ditto
+  class PARSERS_PUBLIC_TYPE PrimaryKeySymbol : public Symbol { // ditto
   public:
     PrimaryKeySymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class ForeignKeySymbol : public Symbol { // ditto
+  class PARSERS_PUBLIC_TYPE ForeignKeySymbol : public Symbol { // ditto
   public:
     ForeignKeySymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class StoredRoutineSymbol : public RoutineSymbol {
+  class PARSERS_PUBLIC_TYPE StoredRoutineSymbol : public RoutineSymbol {
   public:
-    StoredRoutineSymbol(std::string const &name, Type *returnType) : RoutineSymbol(name, returnType) {
+    StoredRoutineSymbol(std::string const &name, Type const *returnType) : RoutineSymbol(name, returnType) {
     }
   };
 
-  class TriggerSymbol : public ScopedSymbol {
+  class PARSERS_PUBLIC_TYPE TriggerSymbol : public ScopedSymbol {
   public:
     TriggerSymbol(std::string const &name) : ScopedSymbol(name) {
     }
   };
 
-  class UdfSymbol : public Symbol { // No body nor parameter info.
+  class PARSERS_PUBLIC_TYPE UdfSymbol : public Symbol { // No body nor parameter info.
   public:
     UdfSymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class EngineSymbol : public Symbol {
+  class PARSERS_PUBLIC_TYPE EngineSymbol : public Symbol {
   public:
     EngineSymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class TableSpaceSymbol : public Symbol {
+  class PARSERS_PUBLIC_TYPE TableSpaceSymbol : public Symbol {
   public:
     TableSpaceSymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class LogfileGroupSymbol : public Symbol {
+  class PARSERS_PUBLIC_TYPE LogfileGroupSymbol : public Symbol {
   public:
     LogfileGroupSymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class CharsetSymbol : public Symbol {
+  class PARSERS_PUBLIC_TYPE CharsetSymbol : public Symbol {
   public:
     CharsetSymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class CollationSymbol : public Symbol {
+  class PARSERS_PUBLIC_TYPE CollationSymbol : public Symbol {
   public:
     CollationSymbol(std::string const &name) : Symbol(name) {
     }
   };
 
-  class UserVariableSymbol : public VariableSymbol {
+  class PARSERS_PUBLIC_TYPE UserVariableSymbol : public VariableSymbol {
   public:
-    UserVariableSymbol(std::string const &name, Type *type) : VariableSymbol(name, type) {
+    UserVariableSymbol(std::string const &name, Type const *type) : VariableSymbol(name, type) {
     }
   };
 
-  class SystemVariableSymbol : public Symbol {
+  class PARSERS_PUBLIC_TYPE SystemVariableSymbol : public Symbol {
   public:
     SystemVariableSymbol(std::string const &name) : Symbol(name) {
     }
   };
 
   // The main class managing all the symbols for a top level entity like a file, library or similar.
-  class SymbolTable : public ScopedSymbol {
+  class PARSERS_PUBLIC_TYPE SymbolTable : public ScopedSymbol {
   public:
     SymbolTable();
 
     void addDependencies(std::vector<SymbolTable *> const &newDependencies);
 
+    // The returned symbol instance is managed by this table.
     template <typename T, typename... Args>
     T *addNewSymbol(ScopedSymbol *parent, Args &&... args)  {
       T *result = new T(args...);
@@ -391,6 +395,7 @@ namespace parsers {
   private:
     // Other symbol information available to this instance.
     std::vector<SymbolTable *> _dependencies;
+
   };
 
 } // namespace parsers

@@ -1048,13 +1048,17 @@ void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn) {
 
   // initialize the password with a cached value
   {
-    std::string password;
+    std::string password = conn->parameterValues().get_string("password");
     bool ok = true;
-    if (!mforms::Utilities::find_password(conn->hostIdentifier(), conn->parameterValues().get_string("userName"),
-                                          password))
-      if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
-                                                   conn->parameterValues().get_string("userName"), password))
-        ok = false;
+    if (password.empty()) {
+      if (!mforms::Utilities::find_password(conn->hostIdentifier(), conn->parameterValues().get_string("userName"),
+                                            password)) {
+        if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
+                                                     conn->parameterValues().get_string("userName"), password)) {
+          ok = false;
+        }
+      }
+    }
     if (ok)
       _dbc_auth->set_password(password.c_str());
   }
