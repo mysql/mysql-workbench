@@ -57,6 +57,7 @@ typedef int ssize_t;
 #include <iterator>
 #include <cctype>
 #include <memory>
+#include <condition_variable>
 
 #include <VersionHelpers.h>
 

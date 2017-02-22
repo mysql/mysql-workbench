@@ -27,5 +27,6 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <memory>
+#include <stack>
 
 #include <glib.h>

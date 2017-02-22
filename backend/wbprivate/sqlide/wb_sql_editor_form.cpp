@@ -68,6 +68,7 @@
 #include "grtsqlparser/mysql_parser_services.h"
 
 #include <math.h>
+#include <mutex>
 
 using namespace bec;
 using namespace grt;
@@ -153,6 +154,11 @@ private:
   double _duration;
 };
 
+
+struct SqlEditorForm::PrivateMutex {
+  std::mutex _symbolsMutex;
+};
+
 SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn) {
   SqlEditorForm::Ref instance(new SqlEditorForm(wbsql));
 
@@ -236,7 +242,8 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
     _wbsql(wbsql),
     _live_tree(SqlEditorTreeController::create(this)),
     _aux_dbc_conn(new sql::Dbc_connection_handler()),
-    _usr_dbc_conn(new sql::Dbc_connection_handler()) {
+    _usr_dbc_conn(new sql::Dbc_connection_handler()),
+    _pimplMutex (new PrivateMutex) {
   _log = DbSqlEditorLog::create(this, 500);
 
   NotificationCenter::get()->add_observer(this, "GNApplicationActivated");
@@ -2588,7 +2595,7 @@ std::string SqlEditorForm::active_schema() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::schemaListRefreshed(std::vector<std::string> const &schemas) {
-  std::unique_lock<std::mutex> lock(_symbolsMutex);
+  std::unique_lock<std::mutex> lock(_pimplMutex->_symbolsMutex);
   _databaseSymbols.clear(); // Doesn't clear the dependencies.
 
   for (auto schema : schemas) {
@@ -2602,7 +2609,7 @@ void SqlEditorForm::schemaListRefreshed(std::vector<std::string> const &schemas)
  * Reads all relevant built-in symbols like engines and collations in our static server symbols list.
  */
 void SqlEditorForm::readStaticServerSymbols() {
-  std::unique_lock<std::mutex> lock(_symbolsMutex); // Probably not needed, as this runs during startup.
+  std::unique_lock<std::mutex> lock(_pimplMutex->_symbolsMutex); // Probably not needed, as this runs during startup.
 
   if (_usr_dbc_conn->ref.get() != nullptr) {
     const std::unique_ptr<sql::Statement> statement(_usr_dbc_conn->ref.get()->createStatement());
@@ -2651,7 +2658,7 @@ void SqlEditorForm::readStaticServerSymbols() {
 void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, base::StringListPtr tables,
                                                base::StringListPtr views, base::StringListPtr procedures,
                                                base::StringListPtr functions) {
-  std::unique_lock<std::mutex> lock(_symbolsMutex);
+  std::unique_lock<std::mutex> lock(_pimplMutex->_symbolsMutex);
   std::unique_ptr<sql::Statement> statement;
   if (_usr_dbc_conn->ref.get() != nullptr)
     statement.reset(_usr_dbc_conn->ref.get()->createStatement());

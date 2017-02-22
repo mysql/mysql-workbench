@@ -549,8 +549,11 @@ private:
 
   parsers::SymbolTable _staticServerSymbols; // Charsets, collations, engines.
   parsers::SymbolTable _databaseSymbols; // All available db objects reachable via the current connection.
-  std::mutex _symbolsMutex; // Synchronize access to the database symbols.
 
   void activate_command(const std::string &command);
   void readStaticServerSymbols();
+
+  // workaround for managed code windows
+  struct PrivateMutex;
+  std::unique_ptr<PrivateMutex> _pimplMutex;
 };

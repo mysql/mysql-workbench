@@ -39,6 +39,7 @@ using namespace System;
 #include <typeinfo>
 #include <stdint.h> // Must be included before boost to avoid macro redefinition.
 #include <stdio.h>
+#include <stack>
 
 #define _USE_MATH_DEFINES
 #include <math.h>

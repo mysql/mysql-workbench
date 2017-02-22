@@ -50,6 +50,7 @@ typedef int ssize_t;
 #include <iosfwd>
 #include <fstream>
 #include <iomanip>
+#include <mutex>
 
 
 #define HAVE_ROUND

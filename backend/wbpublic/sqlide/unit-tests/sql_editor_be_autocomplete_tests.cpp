@@ -105,9 +105,7 @@ END_TEST_DATA_CLASS;
 TEST_MODULE(sql_editor_be_autocomplete_tests, "SQL code completion tests");
 
 // Create a mockup symbol table with all database objects we support.
-SymbolTable createDBObjectsSymbolTable() {
-  SymbolTable symbolTable;
-
+void createDBObjects(SymbolTable &symbolTable) {
   auto sakila = symbolTable.addNewSymbol<SchemaSymbol>(nullptr, "sakila");
   symbolTable.addNewSymbol<SchemaSymbol>(nullptr, "sakila_test");
   symbolTable.addNewSymbol<SchemaSymbol>(nullptr, "mysql");
@@ -183,8 +181,6 @@ SymbolTable createDBObjectsSymbolTable() {
   symbolTable.addNewSymbol<CollationSymbol>(nullptr, "utf8_bin");
   symbolTable.addNewSymbol<CollationSymbol>(nullptr, "latin1_general_cs");
   symbolTable.addNewSymbol<CollationSymbol>(nullptr, "big5_chinese_ci");
-
-  return symbolTable;
 }
 
 /**
@@ -231,7 +227,7 @@ TEST_FUNCTION(5) {
   _sql_editor = MySQLEditor::create(context, _autocomplete_context, { &_mainSymbols });
   _sql_editor->set_current_schema("sakila");
 
-  _dbObjects = createDBObjectsSymbolTable();
+  createDBObjects(_dbObjects);
   _mainSymbols.addDependencies({ &_dbObjects, functionSymbolsForVersion(507) });
 }
 

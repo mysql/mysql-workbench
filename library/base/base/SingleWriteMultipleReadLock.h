@@ -1,5 +1,6 @@
+
 /*
- * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,17 +20,27 @@
 
 #pragma once
 
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "common.h"
 
-using namespace System::Runtime::InteropServices;
+#ifndef HAVE_PRECOMPILED_HEADERS
 
-#include <glib.h>
-#include <stack>
+#include <condition_variable>
 
-#include "grts/structs.db.mgmt.h"
-#include "grts/structs.db.mysql.h"
-#include "grts/structs.db.query.h"
-#include "grts/structs.model.h"
-#include "grts/structs.workbench.physical.h"
+#endif
+
+class BASELIBRARY_PUBLIC_FUNC SingleWriteMultipleReadLock {
+public:
+  void readLock();
+  void readUnlock();
+  void writeLock();
+  void writeUnlock();
+
+private:
+  std::condition_variable _readerGate;
+  std::condition_variable _writerGate;
+
+  std::mutex _mutex;
+  size_t _activeReaders = 0;
+  size_t _waitingWriters = 0;
+  size_t _activeWriters = 0;
+};

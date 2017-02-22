@@ -28,6 +28,8 @@
 
 #include "grts/structs.db.mysql.h"
 
+namespace std { class mutex; }
+
 namespace parsers {
 
   class MySQLParser;

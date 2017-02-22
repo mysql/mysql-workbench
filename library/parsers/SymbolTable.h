@@ -134,6 +134,9 @@ namespace parsers {
     std::set<std::string> getAllSymbolNames() const;
 
   protected:
+    ScopedSymbol(const ScopedSymbol&) = delete;
+    ScopedSymbol& operator=(const ScopedSymbol&) = delete;
+
     std::vector<std::unique_ptr<Symbol>> children; // All child symbols in definition order.
 
     ScopedSymbol(std::string const &name = "");

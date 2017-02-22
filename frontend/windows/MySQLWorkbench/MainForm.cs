@@ -120,7 +120,6 @@ namespace MySQL.GUI.Workbench
       statusStripImg.SizeMode = PictureBoxSizeMode.CenterImage;
       statusStripImg.Image = Resources.statusbar_output;
       statusStripImg.BackColor = Color.Transparent;
-      statusStripImg.Click += new System.EventHandler(grtOutputImg_Click);
       mainFormToolTip.SetToolTip(statusStripImg, "Display Output Window");
       host = new ToolStripControlHost(statusStripImg);
       host.Alignment = ToolStripItemAlignment.Right;
@@ -1138,11 +1137,6 @@ namespace MySQL.GUI.Workbench
           break;
         }
       return result;
-    }
-
-    private void grtOutputImg_Click(object sender, EventArgs e)
-    {
-      wbContext.show_output();
     }
 
     public void ShowPhysicalOverviewForm(bool isNew = false)

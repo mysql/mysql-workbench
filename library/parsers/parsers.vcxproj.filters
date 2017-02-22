@@ -48,6 +48,7 @@
     <ClCompile Include="mysql\MySQLRecognizerCommon.cpp">
       <Filter>MySQL</Filter>
     </ClCompile>
+    <ClCompile Include="SymbolTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -88,6 +89,7 @@
     <ClInclude Include="mysql\MySQLRecognizerCommon.h">
       <Filter>MySQL</Filter>
     </ClInclude>
+    <ClInclude Include="SymbolTable.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="grammars\MySQLParser.g4">

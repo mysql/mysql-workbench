@@ -152,6 +152,7 @@
     <ClCompile Include="mem_stat.cpp" />
     <ClCompile Include="notifications.cpp" />
     <ClCompile Include="profiling.cpp" />
+    <ClCompile Include="SingleWriteMultipleReadLock.cpp" />
     <ClCompile Include="sqlstring.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -186,6 +187,7 @@
     <ClInclude Include="base\notifications.h" />
     <ClInclude Include="base\profiling.h" />
     <ClInclude Include="base\scope_exit_trigger.h" />
+    <ClInclude Include="base\SingleWriteMultipleReadLock.h" />
     <ClInclude Include="base\sqlstring.h" />
     <ClInclude Include="base\string_utilities.h" />
     <ClInclude Include="base\threaded_timer.h" />

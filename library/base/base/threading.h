@@ -27,7 +27,6 @@
 #include <glib.h>
 #include <vector>
 #include <string.h>
-#include <condition_variable>
 
 #endif
 
@@ -312,21 +311,4 @@ namespace base {
     bool try_wait();
   };
 
-  class BASELIBRARY_PUBLIC_FUNC SingleWriteMultipleReadLock {
-  public:
-    void readLock();
-    void readUnlock();
-    void writeLock();
-    void writeUnlock();
-
-  private:
-    std::condition_variable _readerGate;
-    std::condition_variable _writerGate;
-
-    std::mutex _mutex;
-    size_t _activeReaders = 0;
-    size_t _waitingWriters = 0;
-    size_t _activeWriters = 0;
-  };
-  
 } // namespace base
