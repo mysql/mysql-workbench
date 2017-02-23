@@ -42,6 +42,7 @@
 #include "SymbolTable.h"
 
 #include "sql_editor_be.h"
+#include <mutex>
 
 DEFAULT_LOG_DOMAIN("MySQL editor");
 
