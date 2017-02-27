@@ -1285,71 +1285,77 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
   } catch (sql::SQLException &exc) {
     logException("SqlEditorForm: exception in do_connect method", exc);
 
-    if (exc.getErrorCode() == 1820) // ER_MUST_CHANGE_PASSWORD_LOGIN
-      err_ptr->password_expired = true;
-    else if (exc.getErrorCode() == 2013 || exc.getErrorCode() == 2003 ||
-             exc.getErrorCode() == 2002) // ERROR 2003 (HY000): Can't connect to MySQL server on X.Y.Z.W (or via socket)
-    {
-      _connection_info.append(create_html_line("", "<b><span style='color: red'>NO CONNECTION</span></b>"));
-      _connection_info.append("</body></html>");
-      add_log_message(WarningMsg, exc.what(), "Could not connect, server may not be running.", "");
+    _version = bec::int_to_version(50717); // Set a meaningful default version if we cannot open a connection.
 
-      err_ptr->server_probably_down = true;
+    switch (exc.getErrorCode()) {
+      case 1820: // ER_MUST_CHANGE_PASSWORD_LOGIN
+        err_ptr->password_expired = true;
+        break;
 
-      if (_connection.is_valid()) {
-        // if there's no connection, then we continue anyway if this is a local connection or
-        // a remote connection with remote admin enabled..
-        grt::Module *m = grt::GRT::get()->get_module("WbAdmin");
-        grt::BaseListRef args(true);
-        args.ginsert(_connection);
-        if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0) {
-          logError("Connection failed but remote admin does not seem to be available, rethrowing exception...\n");
-          throw;
+      case 2013:
+      case 2003:
+      case 2002: { // ERROR 2003 (HY000): Can't connect to MySQL server on X.Y.Z.W (or via socket)
+        _connection_info.append(create_html_line("", "<b><span style='color: red'>NO CONNECTION</span></b>"));
+        _connection_info.append("</body></html>");
+        add_log_message(WarningMsg, exc.what(), "Could not connect, server may not be running.", "");
+
+        err_ptr->server_probably_down = true;
+
+        if (_connection.is_valid()) {
+          // if there's no connection, then we continue anyway if this is a local connection or
+          // a remote connection with remote admin enabled..
+          grt::Module *m = grt::GRT::get()->get_module("WbAdmin");
+          grt::BaseListRef args(true);
+          args.ginsert(_connection);
+          if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0) {
+            logError("Connection failed but remote admin does not seem to be available, rethrowing exception...\n");
+            throw;
+          }
+          logInfo("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
+                  exc.getErrorCode());
         }
+
         logInfo("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
                 exc.getErrorCode());
+
+        // Create a parser with some sensible defaults if we cannot connect.
+        // We specify no charsets here, disabling parsing of repertoires.
+        parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+        _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), _version, _sql_mode, true);
+        return grt::StringRef();
       }
 
-      logInfo("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
-              exc.getErrorCode());
+      case 3032: {
+        err_ptr->serverIsOffline = true;
+        _serverIsOffline = true;
+        add_log_message(WarningMsg, exc.what(), "Could not connect, server is in offline mode.", "");
 
-      // Create a parser with some sensible defaults if we cannot connect.
-      // We specify no charsets here, disabling parsing of repertoires.
-      parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
-      _work_parser_context =
-        services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50700), _sql_mode, true);
-      return grt::StringRef();
-    } else if (exc.getErrorCode() == 3032) {
-      err_ptr->serverIsOffline = true;
-      _serverIsOffline = true;
-      add_log_message(WarningMsg, exc.what(), "Could not connect, server is in offline mode.", "");
+        if (_connection.is_valid()) {
+          // if there's no connection, then we continue anyway if this is a local connection or
+          // a remote connection with remote admin enabled..
+          grt::GRT::get()->get_module("WbAdmin");
+          grt::BaseListRef args(true);
+          args.ginsert(_connection);
+        }
 
-      if (_connection.is_valid()) {
-        // if there's no connection, then we continue anyway if this is a local connection or
-        // a remote connection with remote admin enabled..
-        grt::GRT::get()->get_module("WbAdmin");
-        grt::BaseListRef args(true);
-        args.ginsert(_connection);
+        logInfo("Error %i connecting to server, server is in offline mode. Only superuser connection are allowed. "
+                "Opening editor with no connection\n", exc.getErrorCode());
+
+        // Create a parser with some sensible defaults if we cannot connect.
+        // We specify no charsets here, disabling parsing of repertoires.
+        parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+        _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), _version, _sql_mode, true);
+
+        return grt::StringRef();
       }
 
-      logInfo(
-        "Error %i connecting to server, server is in offline mode. Only superuser connection are allowed. Opening "
-        "editor with no connection\n",
-        exc.getErrorCode());
-
-      // Create a parser with some sensible defaults if we cannot connect.
-      // We specify no charsets here, disabling parsing of repertoires.
-      parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
-      _work_parser_context =
-        services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50700), _sql_mode, true);
-
-      return grt::StringRef();
-    } else if (exc.getErrorCode() == 3159) // require SSL, offline mode
-    {
-      err_ptr->serverException = new grt::server_denied(
-        exc.what(), exc.getErrorCode()); // we need to change exception type so we can properly handle it in
+      case 3159: {
+        // require SSL, offline mode
+        // we need to change exception type so we can properly handle it in
+        err_ptr->serverException = new grt::server_denied(exc.what(), exc.getErrorCode());
+        break;
+      }
     }
-    // wb_context_sqlide::connect_editor
 
     _connection_info.append("</body></html>");
     throw;

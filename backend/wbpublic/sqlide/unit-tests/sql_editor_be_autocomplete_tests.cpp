@@ -307,11 +307,11 @@ TEST_FUNCTION(20) {
   ErrorListener errorListener;
   parser.removeErrorListeners();
   parser.addErrorListener(&errorListener);
-  tree::ParseTree *tree = parser.query();
+  parser.query();
   ensure_equals("Test 20.1", errorListener.errorCount, 0U);
 
   std::mutex symbolsMutex;
-  auto candidates = getCodeCompletionList(8, 34, "sakila", false, &parser, _mainSymbols, symbolsMutex);
+  auto candidates = getCodeCompletionList(7, 34, "sakila", false, &parser, _mainSymbols, symbolsMutex);
   ensure_equals("Test 20.2", candidates.size(), 9U);
   ensure_equals("Test 20.3", candidates[0].second, "comment");
   ensure_equals("Test 20.4", candidates[1].second, "data directory");
@@ -323,8 +323,11 @@ TEST_FUNCTION(20) {
   ensure_equals("Test 20.10", candidates[7].second, "storage");
   ensure_equals("Test 20.11", candidates[8].second, "tablespace");
 
-  candidates = getCodeCompletionList(8, 45, "sakila", false, &parser, _mainSymbols, symbolsMutex);
+  candidates = getCodeCompletionList(7, 44, "sakila", false, &parser, _mainSymbols, symbolsMutex);
   ensure_equals("Test 20.12", candidates.size(), 3U);
+  ensure_equals("Test 20.13", candidates[0].second, "blackhole");
+  ensure_equals("Test 20.14", candidates[1].second, "innodb");
+  ensure_equals("Test 20.15", candidates[2].second, "myisam");
 }
 
 // Due to the tut nature, this must be executed as a last test always,

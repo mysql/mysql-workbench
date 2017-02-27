@@ -305,7 +305,7 @@ SymbolTable *parsers::functionSymbolsForVersion(size_t version) {
     SymbolTable &symbolTable = symbolsPerVersion[version];
 
     for (auto function : functions) {
-      RoutineSymbol *symbol = symbolTable.addNewSymbol<RoutineSymbol>(nullptr, function, nullptr);
+      symbolTable.addNewSymbol<RoutineSymbol>(nullptr, function, nullptr);
     }
   }
   return &symbolsPerVersion[version];

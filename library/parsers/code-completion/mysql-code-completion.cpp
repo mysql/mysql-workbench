@@ -194,7 +194,7 @@ struct AutoCompletionContext {
     if (noSeparatorRequiredFor.count(scanner.tokenType()) > 0)
       ++caretIndex;
 
-    c3.showResult = true;
+    c3.showResult = false;
     c3.showDebugOutput = false;
     referencesStack.emplace_back(); // For the root level of table references.
 
@@ -204,6 +204,7 @@ struct AutoCompletionContext {
     parser->reset();
     ParserRuleContext *context = parser->query();
     tree::ParseTree *tree = parser->contextFromPosition(context, { caretOffset, caretLine });
+/*
     if (tree->parent) {
       tree = tree->parent;
     }
@@ -214,7 +215,7 @@ struct AutoCompletionContext {
         ruleIndex = context->getRuleIndex();
       }
     }
-
+*/
     completionCandidates = c3.collectCandidates(caretIndex, startTokenIndex, ruleIndex);
 
     // Post processing some entries.
