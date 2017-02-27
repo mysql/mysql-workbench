@@ -46,7 +46,7 @@ SynchronizeDifferencesPage::SynchronizeDifferencesPage(grtui::WizardForm *form,
   _diff_sql_text.set_language(mforms::LanguageMySQL);
   _splitter.add(&_diff_sql_text);
 
-  add(&_bottom_box, false, false);
+  add(&_bottom_box, false, true);
 
   _bottom_box.set_spacing(12);
 

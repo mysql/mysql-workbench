@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -139,7 +139,7 @@ class DatabaseObjectSelector(mforms.Box):
                 search_entry.set_placeholder_text("Filter objects (wildcards chars * and ? are allowed)")
                 search_entry.add_changed_callback(functools.partial(self.search_entry_changed, group=group))
                 box.add(search_entry, False, True)
-                group_box.add(box, False, True)
+                group_box.add(box, True, True)
                 search_entry.set_size(350, -1)
 
                 filter_container = mforms.newBox(True)
@@ -159,23 +159,27 @@ class DatabaseObjectSelector(mforms.Box):
                 add_button.set_text('>')
                 add_button.enable_internal_padding(False)
                 add_button.add_clicked_callback(functools.partial(self.move_button_clicked, group=group, operation='add'))
+                add_button.set_size(90, 30)
                 control_box.add(add_button, False)
                 remove_button = mforms.newButton()
                 remove_button.set_text('<')
                 remove_button.enable_internal_padding(False)
                 remove_button.add_clicked_callback(functools.partial(self.move_button_clicked, group=group, operation='remove'))
+                remove_button.set_size(90, 30)
                 control_box.add(remove_button, False, True)
                 add_all_button = mforms.newButton()
                 add_all_button.set_text('>>')
                 add_all_button.enable_internal_padding(False)
                 add_all_button.add_clicked_callback(functools.partial(self.move_button_clicked, group=group, operation='add_all'))
+                add_all_button.set_size(90, 30)
                 control_box.add(add_all_button, False, True)
                 remove_all_button = mforms.newButton()
                 remove_all_button.set_text('<<')
                 remove_all_button.enable_internal_padding(False)
                 remove_all_button.add_clicked_callback(functools.partial(self.move_button_clicked, group=group, operation='remove_all'))
+                remove_all_button.set_size(90, 30)
                 control_box.add(remove_all_button, False)
-                filter_container.add(control_box, False, False)
+                filter_container.add(control_box, False, True)
 
 
                 selected_list = mforms.newTreeView(mforms.TreeFlatList)
@@ -224,8 +228,7 @@ class DatabaseObjectSelector(mforms.Box):
             self.ui[group]['filter_container'].show(bool(show_details))
         self.ui[group]['filter_button'].set_text('Hide Selection' if show_details else 'Show Selection')
         self.ui_settings[group]['_showing_details'] = show_details
-        if self.get_parent():
-            self.get_parent().relayout()
+        self.relayout()
 
     def filter_button_clicked(self, group):
         self._show_selection(group, not self.ui_settings[group]['_showing_details'])
