@@ -110,6 +110,9 @@ protected:
   static Recordset::Column_flags &get_column_flags(Recordset *recordset) {
     return recordset->_column_flags;
   }
+  static Recordset::DBColumn_types & getDbColumnTypes(Recordset *recordset) { 
+    return recordset->_dbColumnTypes; 
+  }
   static const Recordset::Column_names &get_column_names(const Recordset *recordset) {
     return recordset->_column_names;
   }

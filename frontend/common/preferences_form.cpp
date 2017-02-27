@@ -1383,30 +1383,34 @@ mforms::View *PreferencesForm::create_others_page() {
   }
 #endif
 
-
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    mforms::Table *optable = mforms::manage(new mforms::Table());
 
-    mforms::Table *ssh_table = mforms::manage(new mforms::Table());
+    optable->set_padding(8);
+    optable->set_row_spacing(12);
+    optable->set_column_spacing(8);
 
-    ssh_table->set_padding(8);
-    ssh_table->set_row_spacing(12);
-    ssh_table->set_column_spacing(8);
-
-    ssh_table->set_row_count(1);
-    ssh_table->set_column_count(3);
-    frame->add(ssh_table);
+    optable->set_row_count(2);
+    optable->set_column_count(3);
+    frame->add(optable);
     {
       mforms::FsObjectSelector *pathsel;
-      ssh_table->add(new_label(_("Path to SSH config file:"), true), 0, 1, 0, 1, mforms::HFillFlag);
-      pathsel = new_path_option("pathtosshconfig", true);
+      optable->add(new_label(_("Path to SSH config file:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+      pathsel= new_path_option("pathtosshconfig", true);
       pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the SSH config file."));
-      ssh_table->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
+      optable->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
+    }
+
+    {
+      optable->add(new_label(_("URL location to display geometry point:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+      auto opt = new_entry_option("SqlEditor:geographicLocationURL", false);
+      opt->set_tooltip("The URL to a geographic services to be used for showing a point on an earth map.\nUse %LAT% and %LON% as a placeholder for Latitude and Longitude.");
+      optable->add(opt, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
     }
 
     content->add(frame, false);
   }
-
   createLogLevelSelectionPulldown(content);
 
   return content;

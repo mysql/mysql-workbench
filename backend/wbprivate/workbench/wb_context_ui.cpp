@@ -48,7 +48,6 @@
 #include "grtui/gui_plugin_base.h"
 
 #include "grt_shell_window.h"
-#include "output_view.h"
 #include "webbrowser_view.h"
 
 #include "mforms/appview.h"
@@ -79,7 +78,6 @@ std::shared_ptr<WBContextUI> WBContextUI::get() {
 
 WBContextUI::WBContextUI() : _wb(new WBContext(false)), _launchersSection(nullptr), _command_ui(new CommandUI(_wb)) {
   _shell_window = 0;
-  _output_view = nullptr;
   _active_form = 0;
   _active_main_form = 0;
 
@@ -97,9 +95,6 @@ WBContextUI::WBContextUI() : _wb(new WBContext(false)), _launchersSection(nullpt
 
   // stuff to do when the active form is switched in the UI (through set_active_form)
   _form_change_signal.connect(std::bind(&WBContextUI::form_changed, this));
-
-  _output_view = mforms::manage(new OutputView(_wb));
-  scoped_connect(_output_view->get_be()->signal_show(), std::bind(&WBContextUI::show_output, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +169,6 @@ void WBContextUI::init_finish(WBOptions *options) {
 }
 
 void WBContextUI::finalize() {
-  _output_view->release();
   _wb->finalize();
   _command_ui->clearBuildInCommands();
 }
@@ -293,7 +287,6 @@ static void add_note_file(WBContextUI *wbui) {
 void WBContextUI::add_backend_builtin_commands() {
   _command_ui->add_builtin_command("show_about", std::bind(&WBContextUI::show_about, this));
   _command_ui->add_builtin_command("overview.home", std::bind(&WBContextUI::show_home_screen, this));
-  _command_ui->add_builtin_command("show_output_form", std::bind(&WBContextUI::show_output, this));
 
   _command_ui->add_builtin_command("add_script_file", std::bind(add_script_file, this));
   _command_ui->add_builtin_command("add_note_file", std::bind(add_note_file, this));
@@ -331,14 +324,6 @@ void WBContextUI::add_backend_builtin_commands() {
 
 PhysicalOverviewBE *WBContextUI::get_physical_overview() {
   return get_wb()->get_model_context() ? get_wb()->get_model_context()->get_overview() : 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void WBContextUI::show_output() {
-  mforms::App::get()->dock_view(_output_view, "maintab");
-  _output_view->set_title("Output");
-  _output_view->setup_ui();
 }
 
 //--------------------------------------------------------------------------------------------------

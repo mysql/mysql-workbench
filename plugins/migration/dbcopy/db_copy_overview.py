@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -45,6 +45,6 @@ class MainView(WizardPage):
         button_start.set_size(150, -1)
         button_start.set_text('Start the Wizard')
         button_start.add_clicked_callback(self.main.go_next_page)
-        box.add(button_start, False, False)
+        box.add(button_start, False, True)
         box.add(mforms.newLabel(''), True, True)
         self.content.add_end(box, False, True)

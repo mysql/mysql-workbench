@@ -43,7 +43,6 @@ namespace mdc {
 }
 
 class GRTShellWindow;
-class OutputView;
 class PluginInstallWindow;
 class AddOnDownloadWindow;
 
@@ -160,10 +159,6 @@ namespace wb {
     std::string get_title();
     std::string get_document_name();
 
-    // deprecated std::string get_diagram_path(const model_DiagramRef &diagram);
-
-    void show_output();
-
     void refresh_home_connections(bool clear_state = true);
     void refresh_home_documents();
     void refreshHomeStarters();
@@ -223,7 +218,6 @@ namespace wb {
     mforms::LaunchersSection *_launchersSection;
     std::vector<db_mgmt_ConnectionRef> _oldAuthList;
 
-    OutputView *_output_view;
     AddOnDownloadWindow *_addon_download_window;
     PluginInstallWindow *_plugin_install_window;
 

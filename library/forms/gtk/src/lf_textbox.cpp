@@ -199,7 +199,7 @@ namespace mforms {
         case ::mforms::VerticalScrollBar: {
           h_scrollbar_policy = Gtk::POLICY_NEVER;
           v_scrollbar_policy = Gtk::POLICY_AUTOMATIC;
-          _text->set_wrap_mode(Gtk::WRAP_WORD);
+          _text->set_wrap_mode(Gtk::WRAP_WORD_CHAR);
           break;
         }
         case ::mforms::SmallScrollBars:

@@ -169,7 +169,6 @@
     <ClCompile Include="popover.cpp" />
     <ClCompile Include="popup.cpp" />
     <ClCompile Include="progressbar.cpp" />
-    <ClCompile Include="ProjectForm.cpp" />
     <ClCompile Include="radiobutton.cpp" />
     <ClCompile Include="gridview.cpp" />
     <ClCompile Include="scrollpanel.cpp" />
@@ -232,7 +231,6 @@
     <ClInclude Include="mforms\popover.h" />
     <ClInclude Include="mforms\popup.h" />
     <ClInclude Include="mforms\progressbar.h" />
-    <ClInclude Include="mforms\ProjectForm.h" />
     <ClInclude Include="mforms\radiobutton.h" />
     <ClInclude Include="mforms\gridview.h" />
     <ClInclude Include="mforms\scrollpanel.h" />

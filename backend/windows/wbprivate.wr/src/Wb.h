@@ -419,7 +419,6 @@ namespace MySQL {
       void set_active_form(MySQL::Base::UIForm ^ uiform);
       void set_active_form_from_appview(MySQL::Forms::AppViewDockContent ^ form);
       String ^ get_active_context();
-      void show_output();
       void close_gui_plugin(IntPtr handle);
       void execute_plugin(String ^ name);
       void report_bug(String ^ errorInfo);

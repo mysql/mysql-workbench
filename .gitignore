@@ -166,6 +166,7 @@ library/parsers/ECMAParser.*
 library/parsers/ECMALexer.*
 library/parsers/ECMA.tokens
 
+testing/tut/data/code_editor.xml
 testing/tut/data/connections.xml
 testing/tut/data/**/*_res.xml
 testing/tut/data/wb_state.xml

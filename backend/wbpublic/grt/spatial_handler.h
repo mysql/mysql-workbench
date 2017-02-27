@@ -79,9 +79,13 @@ namespace spatial {
 
   enum ProjectionType { ProjMercator = 1, ProjEquirectangular = 2, ProjRobinson = 3, ProjBonne = 4, ProjGeodetic = 5 };
 
-  enum ShapeType { ShapeUnknown, ShapePoint, ShapeLineString, ShapeLinearRing, ShapePolygon };
+  enum ShapeType {
+    ShapeUnknown, ShapePoint, ShapeLineString, ShapeLinearRing, ShapePolygon, ShapeMultiPoint,
+    ShapeMultiLineString, ShapeMultiPolygon, ShapeGeometryCollection
+  };
 
   std::string shape_description(ShapeType shp);
+  ShapeType ogrTypeToWb(const OGRwkbGeometryType type);
 
   enum AxisType { AxisLat = 1, AxisLon = 2 };
 
@@ -133,6 +137,8 @@ namespace spatial {
     void get_points(std::deque<ShapeContainer> &shapes_container);
     void get_envelope(Envelope &env);
     void interrupt();
+    std::string getName() const;
+    ShapeType getType() const;
 
     int getSrid() const;
     std::string as_wkt();

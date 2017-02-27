@@ -301,7 +301,7 @@ void DbMySQLScriptSync::start_sync() {
 }
 
 void DbMySQLScriptSync::sync_finished(grt::ValueRef res) {
-  grt::GRT::get()->send_output(*grt::StringRef::cast_from(res) + '\n');
+  logInfo("%s\n", grt::StringRef::cast_from(res).c_str());
 }
 
 #if 0

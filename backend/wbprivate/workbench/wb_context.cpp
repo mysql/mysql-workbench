@@ -883,10 +883,6 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
 
   _grt->send_output(strfmt("Looking for user plugins in %s\n", user_modules_path.c_str()));
 
-  // Listen to output-show messages.
-  _grtManager->get_messages_list()->signal_new_message()->connect(
-    std::bind(&WBContext::handle_grt_message, this, std::placeholders::_1));
-
   _frontendCallbacks->show_status_text(_("Initializing Workbench components..."));
   res = setup_context_grt(options);
 
@@ -1134,16 +1130,6 @@ bool WBContext::handle_message(const grt::Message &msg) {
     }
   }
   return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void WBContext::handle_grt_message(MessageListStorage::MessageEntryRef message) {
-  if (message->icon == -1) {
-    if (message->message == "show")
-      _grtManager->run_once_when_idle(std::bind(&WBContextUI::show_output, wb::WBContextUI::get()));
-    return;
-  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1470,6 +1456,7 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "SqlEditor:LimitRows", 1);
   set_default(options, "SqlEditor:LimitRowsCount", 1000);
   set_default(options, "SqlEditor:PreserveRowFilter", 1);
+  set_default(options, "SqlEditor:geographicLocationURL", "http://www.openstreetmap.org/?mlat=%LAT%&mlon=%LON%");
 
   // Name templates
   set_default(options, "PkColumnNameTemplate", "id%table%");
@@ -3312,8 +3299,7 @@ bool WBContext::uninstall_module(grt::Module *module) {
 }
 
 void WBContext::run_script_file(const std::string &filename) {
-  _grt->make_output_visible();
-  _grt->send_output("Executing script " + filename + "...\n");
+  logDebug("Executing script %s...\n", filename.c_str());
 
   _grtManager->push_status_text(base::strfmt("Executing script %s...", filename.c_str()));
 
@@ -3323,15 +3309,14 @@ void WBContext::run_script_file(const std::string &filename) {
     _grtManager->get_shell()->run_script_file(filename);
   } catch (std::exception &exc) {
     undo.cancel();
-    _grt->send_output(exc.what());
-    _grt->send_output("\nScript failed.\n");
+    logError("Script failed: %s\n", exc.what());
     _grtManager->replace_status_text("Script execution failed");
     return;
   }
 
   undo.end_or_cancel_if_empty(strfmt("Execute Script %s", base::basename(filename).c_str()));
 
-  _grt->send_output("\nScript finished.\n");
+  logDebug("Script finished.\n");
   _grtManager->pop_status_text();
 }
 

@@ -165,6 +165,8 @@ def restoreConnections():
             previous_instances_conns = set()
             duplicated_instance_count = 0
             for candidate_instance in instances:
+                if candidate_instance.connection is None:
+                    continue 
                 if candidate_instance.connection.__id__ in previous_instances_conns:
                     duplicated_instance_count = duplicated_instance_count + 1
                     continue  # Skip instances whose connections are associated to previously processed instances

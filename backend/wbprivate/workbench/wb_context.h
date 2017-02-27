@@ -457,7 +457,6 @@ namespace wb {
     void plugin_finished(const grt::ValueRef &result, const app_PluginRef &plugin);
 
     bool handle_message(const grt::Message &msg);
-    void handle_grt_message(bec::MessageListStorage::MessageEntryRef message);
 
     void reset_document();
     void reset_listeners();

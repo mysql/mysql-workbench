@@ -476,6 +476,9 @@ void CommandUI::add_plugins_menu(mforms::MenuItem *parent, const std::string &co
 
 void CommandUI::add_scripts_menu(mforms::MenuItem *parent) {
   try {
+    parent->add_validator([parent]() {
+      return !parent->get_subitems().empty();
+    });
     std::list<std::string> pyfiles =
       base::scan_for_files_matching(base::makePath(bec::GRTManager::get()->get_user_script_path(), "*.py"));
     std::vector<std::string> files;

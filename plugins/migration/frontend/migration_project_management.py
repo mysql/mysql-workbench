@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ class MainView(mforms.Box):
 
         label = newHeaderLabel("  Project Management")
         self.main.ui_profile.apply_style(label, 'content-label')
-        self.add(label, False, False)
+        self.add(label, False, True)
 
         self.main.add_content_page(self, "Projects", "Project Management", "admin_export")
 

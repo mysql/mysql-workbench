@@ -206,8 +206,7 @@ public:
   void copy_field_to_clipboard(int row, ColumnId column, bool quoted = true);
 
   void paste_rows_from_clipboard(ssize_t dest_row);
-
-public:
+  void showPointInBrowser(const bec::NodeId &node, ColumnId column);
   std::vector<Recordset_storage_info> data_storages_for_export();
   Recordset_data_storage_Ref data_storage_for_export(const std::string &format_name);
 

@@ -1142,7 +1142,7 @@ int WorkbenchImpl::debugValidateGRT() {
   ValueRef root(grt::GRT::get()->root());
   ObjectRef owner;
 
-  grt::GRT::get()->send_output("Validating GRT Tree...\n");
+  logDebug3("Validating GRT Tree...\n");
 
   // QQQ grt::GRT::get()->lock_tree_read();
 
@@ -1152,21 +1152,7 @@ int WorkbenchImpl::debugValidateGRT() {
 
   // QQQ grt::GRT::get()->unlock_tree_read();
 
-  grt::GRT::get()->send_output("GRT Tree Validation Finished.\n");
-
-  return 0;
-}
-
-int WorkbenchImpl::debugGrtStats() {
-  return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-int WorkbenchImpl::debugShowInfo() {
-  grt::GRT::get()->make_output_visible();
-  grt::GRT::get()->send_output(getSystemInfo(false));
-  grt::GRT::get()->send_output("\n");
+  logDebug3("GRT Tree Validation Finished.\n");
 
   return 0;
 }
