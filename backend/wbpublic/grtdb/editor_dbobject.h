@@ -67,6 +67,8 @@ namespace bec {
     virtual std::vector<std::string> get_table_column_names(const db_TableRef &table);
 
     // charsets and collations
+    virtual std::vector<std::string> get_charset_list();
+    virtual std::vector<std::string> get_charset_collation_list(const std::string &charset);
     virtual std::vector<std::string> get_charset_collation_list();
     bool parse_charset_collation(const std::string &str, std::string &charset, std::string &collation);
     std::string format_charset_collation(const std::string &charset, const std::string &collation);

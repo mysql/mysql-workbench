@@ -11,6 +11,9 @@
 #include <gtkmm/box.h>
 //#include <gtk/gtkversion.h>
 
+extern const char *DEFAULT_CHARSET_CAPTION;
+extern const char *DEFAULT_COLLATION_CAPTION;
+
 class SchemaEditor : public PluginEditorBase {
   MySQLSchemaEditorBE *_be;
   std::string _old_name;
@@ -46,15 +49,26 @@ public:
     btn->set_sensitive(_be->refactor_possible());
     btn->signal_clicked().connect(sigc::mem_fun(this, &SchemaEditor::refactor_schema));
 
-    Gtk::ComboBox *combo;
-    xml()->get_widget("collation_combo", combo);
+    Gtk::ComboBox *charset_combo = nullptr;
+    xml()->get_widget("charset_combo", charset_combo);
     Glib::RefPtr<Gtk::ListStore> store(
       Glib::RefPtr<Gtk::ListStore>::cast_dynamic(xml()->get_object("collation_store")));
-    setup_combo_for_string_list(combo);
-    fill_combo_from_string_list(combo, _be->get_charset_collation_list());
-    add_option_combo_change_handler(combo, "CHARACTER SET - COLLATE",
+    setup_combo_for_string_list(charset_combo);
+    fill_combo_from_string_list(charset_combo, _be->get_charset_list());
+    add_option_combo_change_handler(charset_combo, "CHARACTER SET",
                                     sigc::mem_fun(this, &SchemaEditor::set_schema_option_by_name));
+    add_option_combo_change_handler(charset_combo, "CHARACTER SET",
+                                    sigc::mem_fun(this, &SchemaEditor::charset_combo_changed));
 
+    Gtk::ComboBox *collation_combo = nullptr;
+    xml()->get_widget("collation_combo", collation_combo);
+    add_option_combo_change_handler(collation_combo, "COLLATE",
+                                    sigc::mem_fun(this, &SchemaEditor::set_schema_option_by_name));
+    setup_combo_for_string_list(collation_combo);
+
+    set_selected_combo_item(charset_combo, DEFAULT_CHARSET_CAPTION);
+    
+    
     Gtk::TextView *tview;
     xml()->get_widget("text_view", tview);
     add_text_change_timer(tview, sigc::mem_fun(this, &SchemaEditor::set_comment));
@@ -66,6 +80,19 @@ public:
     show_all();
 
     refresh_form_data();
+  }
+  
+  void charset_combo_changed(const std::string &name, const std::string &value) {
+    if (name != "CHARACTER SET")
+      return;
+    
+    Gtk::ComboBox *collation_combo;
+    xml()->get_widget("collation_combo", collation_combo);
+    
+    std::vector<std::string> vec = _be->get_charset_collation_list(value);
+    fill_combo_from_string_list(collation_combo, vec);
+    
+    set_selected_combo_item(collation_combo, DEFAULT_COLLATION_CAPTION);
   }
 
   void set_name(const std::string &name) {
@@ -92,8 +119,15 @@ public:
   }
 
   void set_schema_option_by_name(const std::string &name, const std::string &value) {
-    if (_be)
-      _be->set_schema_option_by_name(name, value);
+    if (!_be)
+      return;
+    
+    if (name == "CHARACTER SET" and value == DEFAULT_CHARSET_CAPTION)
+      _be->set_schema_option_by_name(name, "");
+    else if (name == "COLLATE" and value == DEFAULT_COLLATION_CAPTION)
+      _be->set_schema_option_by_name(name, "");
+    else
+      _be->set_schema_option_by_name(name, value);    
   }
 
   virtual void do_refresh_form_data() {
@@ -104,14 +138,12 @@ public:
     xml()->get_widget("text_view", tview);
 
     Gtk::ComboBox *combo;
-    xml()->get_widget("collation_combo", combo);
+    xml()->get_widget("charset_combo", combo);
 
     Gtk::Button *btn;
     xml()->get_widget("refactor_btn", btn);
 
     if (_be) {
-      set_selected_combo_item(combo, _be->get_schema_option_by_name("CHARACTER SET - COLLATE"));
-
       _old_name = _be->get_name();
       entry->set_text(_old_name);
 

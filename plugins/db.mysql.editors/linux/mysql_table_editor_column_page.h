@@ -38,6 +38,7 @@ private:
   void update_column_details(const ::bec::NodeId& node);
 
   void set_comment(const std::string& comment);
+  void set_charset();
   void set_collation();
   void update_collation();
   void update_gc_storage_type();
@@ -62,6 +63,7 @@ private:
   Gtk::TreeView* _tv;
   Gtk::ScrolledWindow* _tv_holder;
 
+  Gtk::ComboBox* _charset_combo;
   Gtk::ComboBox* _collation_combo;
 
   Gtk::RadioButton* _radioStored;
