@@ -108,6 +108,7 @@ namespace mforms {
 
     HomeAccessibleButton _add_button;
     HomeAccessibleButton _manage_button;
+    HomeAccessibleButton _rescanButton;
 
     base::Rect _info_button_rect;
 
