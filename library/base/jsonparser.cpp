@@ -271,7 +271,7 @@ namespace JsonParser {
    */
   JsonValue &JsonObject::get(const KeyType &key) {
     if (_data.count(key) == 0)
-      throw std::out_of_range(base::strfmt("no element '%s' found in caontainer", key.c_str()));
+      throw std::out_of_range(base::strfmt("no element '%s' found in container", key.c_str()));
     return _data[key];
   }
 
@@ -287,7 +287,7 @@ namespace JsonParser {
    */
   const JsonValue &JsonObject::get(const KeyType &key) const {
     if (_data.count(key) == 0)
-      throw std::out_of_range(base::strfmt("no element '%s' found in caontainer", key.c_str()));
+      throw std::out_of_range(base::strfmt("no element '%s' found in container", key.c_str()));
     return _data.at(key);
   }
 
