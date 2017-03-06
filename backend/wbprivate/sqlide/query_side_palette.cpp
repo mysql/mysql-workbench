@@ -247,7 +247,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
     _owner(owner) {
 
   _help_timer = NULL;
-  _automatic_help = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 1) == 0;
+  _automatic_help = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 0) == 0;
   _switching_help = false;
   _helpContext = new HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
 

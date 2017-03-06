@@ -125,7 +125,9 @@ static std::string helpStyleSheet = "<style>\n"
   "replaceable { font-style: italic; font-weight: 600; color: black; }\n"
   "indexterm { display: none; }\n"
   "userinput { color: #004480; font-weight: 600; }\n"
-  "pre { background-color: rgba(255, 255, 255, 0.4); }\n"
+  "li { style-position: outside; list-style-image: none; list-style-type: square; line-height: 120%; }\n"
+  "pre { background-color: #ddd; border: 1px solid #c9c9c9; margin-top: 10px; margin-botton: 10px; margin-left: 6px;"
+    " padding: 3px 8px; line-height: 1.5; }\n"
   "</style>";
 
 std::string convertXRef(long version, std::string const &source) {
@@ -134,8 +136,11 @@ std::string convertXRef(long version, std::string const &source) {
   if (source.find("xref") == std::string::npos)
     return source;
 
-  std::string result = std::regex_replace(source, pattern, "<a href='http://dev.mysql.com/doc/refman/%ld.%ld/en/$1.html'>$1</a>");
-  return base::strfmt(result.c_str(), version / 100, version % 10);
+  // We can have more than one occurence of a link, so a normal string format won't help.
+  std::string result = std::regex_replace(source, pattern, "<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/$1.html'>$1</a>");
+  result = base::replaceString(result, "{0}", std::to_string(version / 100));
+  result = base::replaceString(result, "{1}", std::to_string(version % 10));
+  return result;
 }
 
 std::string convertInternalLinks(std::string const &source) {
@@ -147,52 +152,82 @@ std::string convertInternalLinks(std::string const &source) {
   return std::regex_replace(source, pattern, "<a href='local:$1'>$1</a>");
 }
 
+std::string convertList(long version, JsonParser::JsonArray const &list) {
+  std::string result;
+  for (JsonParser::JsonObject const &entry: list) {
+    auto iterator = entry.find("para");
+    if (iterator != entry.end()) {
+      std::string text = "<p>" + convertInternalLinks(iterator->second) +  "</p>";
+      result += convertXRef(version, text);
+    } else {
+      auto iterator = entry.find("programlisting");
+      if (iterator != entry.end()) {
+        std::string text = convertInternalLinks(iterator->second);
+        result += "<pre>" + text + "</pre>";
+      } else {
+        auto iterator = entry.find("itemizedlist"); // Convert to bullet list.
+        if (iterator != entry.end()) {
+          result = "<ul>";
+          JsonParser::JsonArray const &itemizedList = iterator->second;
+          for (JsonParser::JsonArray const &listentry: itemizedList) {
+            result += "<li>" + convertList(version, listentry) + "</li>";
+          }
+          result += "</ul>";
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
 /**
- * Creates the HTML formatted help text from the description array that's passed in.
+ * Creates the HTML formatted help text from the object that's passed in.
  */
-std::string createHelpTextFromJson(long version, JsonParser::JsonObject json) {
+std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &json) {
   std::string result = "<html><head>" + helpStyleSheet + "</head><body>";
 
   std::string id = json.get("id");
   result += "<h3>" + id + " Syntax:</h3>";
 
   // Syntax (the summary), often in a code block.
-  JsonParser::JsonArray list = json.get("syntax");
-  for (JsonParser::JsonObject &entry: list) {
+  JsonParser::JsonArray const &syntax = json.get("syntax");
+  for (JsonParser::JsonObject const &entry: syntax) {
     // There are different variants for syntax descriptions. Usually it's encapsulated in a program listing,
     // but e.g. for functions in a list the syntax is a paragraph.
     auto iterator = entry.find("programlisting");
     if (iterator != entry.end()) {
-      std::string text = convertInternalLinks(iterator->second);
-      result += "<pre>" + text + "</pre><br /><br />";
+      result += "<pre>" + convertInternalLinks(iterator->second) + "</pre>";
     } else {
       auto iterator = entry.find("para");
       if (iterator != entry.end()) {
-        std::string text = convertInternalLinks(iterator->second);
-        result += text + "<br /><br />";
+        result += "<p>" + convertInternalLinks(iterator->second) + "</p>";
       }
     }
   }
 
   // The full description, plain text with code examples, lists and more.
-  list = json.get("description");
-  for (JsonParser::JsonObject &entry: list) {
+  JsonParser::JsonArray const &description = json.get("description");
+  for (JsonParser::JsonObject const &entry: description) {
     auto iterator = entry.find("para");
     if (iterator != entry.end()) {
-      std::string text = convertInternalLinks(iterator->second);
-      result += convertXRef(version, text) + "<br /><br />";
+      std::string text = "<p>" + convertInternalLinks(iterator->second) + "</p>";
+      result += convertXRef(version, text);
     } else {
       auto iterator = entry.find("programlisting");
       if (iterator != entry.end()) {
         std::string text = convertInternalLinks(iterator->second);
-        result += "<pre>" + text + "</pre><br /><br />";
+        result += "<pre>" + text + "</pre>";
       } else {
-        auto iterator = entry.find("itemizedlist");
+        auto iterator = entry.find("itemizedlist"); // Convert to bullet list.
         if (iterator != entry.end()) {
-          std::string text = convertInternalLinks(iterator->second);
-          result += text;
+          result += "<ul>";
+          JsonParser::JsonArray const &itemizedList = iterator->second;
+          for (JsonParser::JsonArray const &listentry: itemizedList) {
+            result += "<li>" + convertList(version, listentry) + "</li>";
+          }
+          result += "</ul>";
         }
-        result += "<br /><br />";
       }
     }
   }
@@ -217,7 +252,7 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
       JsonParser::JsonReader::readFromFile(path, document);
 
       std::set<std::string> topics;
-      JsonParser::JsonObject &topicRoot = (JsonParser::JsonObject &)document;
+      JsonParser::JsonObject &topicRoot = document;
       JsonParser::JsonArray &topicList = topicRoot.get("topics");
       for (JsonParser::JsonObject &topic: topicList) {
         std::string id = base::toupper(topic.get("id"));
@@ -227,6 +262,8 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
       helpTopics[version] = topics;
     } catch (JsonParser::ParserException &e) {
       logError("Could not read help text file (%s)\nError message: %s\n", fileName.c_str(), e.what());
+    } catch (std::bad_cast &e) {
+      logError("Unexpected file format (%s)\nError message: %s\n", fileName.c_str(), e.what());
     }
 
   }
