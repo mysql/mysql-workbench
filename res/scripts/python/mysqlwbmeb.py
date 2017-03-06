@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -882,7 +882,6 @@ class MEBGetProfiles(MEBCommand):
         return "%s%s of %s%s available" % ('{0:.2f}'.format(available), suffixes[index], '{0:.2f}'.format(total), suffixes[index])
             
         return 0
-
 
 class MEBHelperVersion(MEBCommand):
     def __init__(self, params = None, output_handler = None):
