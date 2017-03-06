@@ -1248,7 +1248,7 @@ void JsonGridView::addColumn(int size, JsonParser::DataType type, const std::str
     case VString:
     case VEmpty:
     default:
-      _treeView->add_column(StringColumnType, name, size, true, true);
+      _treeView->add_column(IconStringColumnType, name, size, true, true);
       break;
   }
 }
