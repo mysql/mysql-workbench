@@ -43,7 +43,6 @@ G_LOCK_DEFINE(_timer);
 ThreadedTimer *ThreadedTimer::get() {
   G_LOCK(_timer);
   if (_timer == NULL) {
-    base::threading_init();
     _timer = new ThreadedTimer(BASE_FREQUENCY);
   }
   G_UNLOCK(_timer);

@@ -200,6 +200,5 @@ public:
   // Others.
   virtual std::vector<std::pair<int, std::string>> getCodeCompletionCandidates(
     parsers::MySQLParserContext::Ref context, std::pair<size_t, size_t> caret, std::string const &sql,
-    std::string const &defaultSchema, bool uppercaseKeywords, parsers::SymbolTable &symbolTable,
-    std::mutex &symbolsMutex) override;
+    std::string const &defaultSchema, bool uppercaseKeywords, parsers::SymbolTable &symbolTable) override;
 };

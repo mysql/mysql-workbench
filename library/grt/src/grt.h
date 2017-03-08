@@ -2702,11 +2702,6 @@ namespace grt {
 
     Shell *_shell;
 
-    // std::list<ModuleLoader*> _loaders;
-
-    // GStaticRecMutex _global_mutex;
-    // GStaticRWLock _global_tree_lock;
-
     void add_metaclass(MetaClass *stru);
     std::string module_path_in_bundle(const std::string &path);
 
@@ -2731,7 +2726,6 @@ namespace grt {
     GRT &operator=(GRT &) = delete;
   };
 
-  //------------------------------------------------------------------------------------------------
   //------------------------------------------------------------------------------------------------
 
   template <class O>

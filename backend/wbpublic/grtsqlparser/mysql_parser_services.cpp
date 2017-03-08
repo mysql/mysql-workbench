@@ -22,9 +22,6 @@
 
 #include "mysql_parser_services.h"
 
-#include <mutex>
-
-
 using namespace parsers;
 
 //------------------ MySQLParserServices -----------------------------------------------------------

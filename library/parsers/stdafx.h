@@ -49,6 +49,7 @@ typedef int ssize_t;
 #include <memory>
 #include <typeindex>
 #include <locale>
+#include <mutex>
 
 #include <glib.h>
 

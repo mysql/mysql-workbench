@@ -112,8 +112,9 @@ size_t Recordset_cdbc_storage::determine_pkey_columns(Recordset::Column_names &c
   // a connection other than the user connection must be used for fetching metadata, otherwise we change the state of
   // the connection
   sql::Dbc_connection_handler::Ref conn;
-  base::RecMutexLock lock(
-    _getAuxConnection(conn, true)); // we can't perform full connection check, hence we use the simple one
+
+  // We can't perform full connection check, hence we use the simple one.
+  base::RecMutexLock lock(_getAuxConnection(conn, true));
   {
     sql::DatabaseMetaData *conn_meta(conn->ref->getMetaData());
     try {

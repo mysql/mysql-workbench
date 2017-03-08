@@ -20,8 +20,10 @@
 #pragma once
 
 #include "parsers-common.h"
+
 #include <set>
 #include <memory>
+
 // A simple symbol table implementation, tailored towards code completion.
 
 namespace antlr4 {
@@ -114,7 +116,7 @@ namespace parsers {
     }
 
     // Retrieval functions for this scope or any of the parent scopes (conditionally).
-    virtual Symbol *resolve(std::string const &name, bool localOnly = false) const;
+    virtual Symbol *resolve(std::string const &name, bool localOnly = false);
 
     // Returns all accessible symbols that have a type assigned.
     std::vector<TypedSymbol *> getTypedSymbols(bool localOnly = true) const;
@@ -356,9 +358,15 @@ namespace parsers {
   };
 
   // The main class managing all the symbols for a top level entity like a file, library or similar.
+  // This class is thread safe for all symbol manipulations.
   class PARSERS_PUBLIC_TYPE SymbolTable : public ScopedSymbol {
   public:
     SymbolTable();
+    ~SymbolTable();
+
+    // Lock/unlock can be used recursively, but must be balanced of course.
+    void lock();
+    void unlock();
 
     void addDependencies(std::vector<SymbolTable *> const &newDependencies);
 
@@ -366,17 +374,22 @@ namespace parsers {
     template <typename T, typename... Args>
     T *addNewSymbol(ScopedSymbol *parent, Args &&... args)  {
       T *result = new T(args...);
-       if (parent == nullptr) {
-         this->addAndManageSymbol(result);
-       } else {
-         parent->addAndManageSymbol(result);
-       }
+
+      lock();
+      if (parent == nullptr) {
+        this->addAndManageSymbol(result);
+      } else {
+        parent->addAndManageSymbol(result);
+      }
+      unlock();
       return result;
     }
 
     template <typename T>
-    std::vector<T *> getSymbolsOfType(ScopedSymbol *parent = nullptr) const {
+    std::vector<T *> getSymbolsOfType(ScopedSymbol *parent = nullptr) {
       std::vector<T *> result;
+
+      lock();
       if (parent == nullptr || parent == this) {
         for (auto &child : children) {
           T *castChild = dynamic_cast<T *>(child.get());
@@ -388,18 +401,22 @@ namespace parsers {
           auto subList = table->getSymbolsOfType<T>();
           result.insert(result.end(), subList.begin(), subList.end());
         }
-        return result;
       } else {
-        return parent->getSymbolsOfType<T>();
+        result = parent->getSymbolsOfType<T>();
       }
+
+      unlock();
+      return result;
     }
 
-    virtual Symbol *resolve(std::string const &name, bool localOnly = false) const override;
+    virtual Symbol *resolve(std::string const &name, bool localOnly = false) override;
 
   private:
     // Other symbol information available to this instance.
     std::vector<SymbolTable *> _dependencies;
 
+    class Private;
+    Private *_d;
   };
 
 } // namespace parsers

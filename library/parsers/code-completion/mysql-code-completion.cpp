@@ -629,8 +629,7 @@ static void insertColumns(SymbolTable &symbolTable, CompletionSet &set, const st
 std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine, size_t caretOffset,
                                                                const std::string &defaultSchema, bool uppercaseKeywords,
                                                                MySQLParser *parser,
-                                                               parsers::SymbolTable &symbolTable,
-                                                               std::mutex &symbolsMutex) {
+                                                               parsers::SymbolTable &symbolTable) {
   logDebug("Invoking code completion\n");
 
   AutoCompletionContext context;
@@ -774,7 +773,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
     }
   }
 
-  std::unique_lock<std::mutex> lock(symbolsMutex);
+  symbolTable.lock();
   for (auto &candidate : context.completionCandidates.rules) {
     // Restore the scanner position to the caret position and store that value again for the next round.
     scanner.pop();
@@ -1109,6 +1108,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
     }
   }
 
+  symbolTable.unlock();
   scanner.pop(); // Clear the scanner stack.
 
   // Insert the groups "inside out", that is, most likely ones first + most inner first (columns before tables etc).

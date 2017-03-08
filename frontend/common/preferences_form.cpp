@@ -1445,7 +1445,7 @@ void PreferencesForm::createLogLevelSelectionPulldown(mforms::Box *content) {
     bool ok = base::Logger::active_level(selector->get_string_value());
 
     if (ok)
-      logError("Logger set to level '%s' in Preferences menu\n", base::Logger::active_level().c_str());
+      logInfo("Logger set to level '%s' in preferences menu\n", base::Logger::active_level().c_str());
 
     assert(ok);
   });

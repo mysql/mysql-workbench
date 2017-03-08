@@ -21,14 +21,10 @@
 
 #include "common.h"
 
-#ifndef HAVE_PRECOMPILED_HEADERS
-
 #include <stdexcept>
 #include <glib.h>
 #include <vector>
 #include <string.h>
-
-#endif
 
 namespace base {
 
@@ -57,258 +53,87 @@ namespace base {
 #endif
   }
 
-  BASELIBRARY_PUBLIC_FUNC void threading_init();
-
+  // An encapsulation of the std::mutex, std::recursive_mutex and std::lock_guard classes,
+  // as we cannot include them in C++/CLI code.
   struct BASELIBRARY_PUBLIC_FUNC Mutex {
-  private:
-#if GLIB_CHECK_VERSION(2, 32, 0)
-    GMutex mutex;
-#else
-    GMutex *mutex;
-#endif
-
-    // these 2 would not work well because of d-tor semantics
-    inline Mutex &operator=(const Mutex &o) {
-      return *this;
-    }
-    Mutex(const Mutex &o) {
-    }
+    friend struct MutexLock;
 
   public:
     Mutex();
+    Mutex(Mutex const &o) = delete;
+    Mutex(Mutex &&o) = delete;
     ~Mutex();
 
-    void swap(Mutex &o);
+    Mutex &operator = (Mutex &o) = delete;
 
-    inline GMutex *gobj() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-      return &mutex;
-#else
-      return mutex;
-#endif
-    }
+    void lock();
+    void unlock();
+    bool tryLock();
 
-    void unlock() {
-      g_mutex_unlock(gobj());
-    }
-
-    void lock() {
-      g_mutex_lock(gobj());
-    }
-
-    bool try_lock() {
-      return g_mutex_trylock(gobj()) != 0;
-    }
+  private:
+    class Private;
+    Private *_d;
   };
 
   struct BASELIBRARY_PUBLIC_FUNC MutexLock {
-  protected:
-    Mutex *ptr;
-
-    MutexLock() : ptr(NULL) {
-    }
-
   public:
-    MutexLock(Mutex &mutex);
-    // take ownership of an existing lock (the other lock will be reset)
-    MutexLock(const MutexLock &mlock);
-    MutexLock &operator=(MutexLock &mlock);
+    MutexLock(Mutex const &mutex);
+    MutexLock(MutexLock const &o) = delete;
+    MutexLock &operator=(MutexLock &o) = delete;
 
     ~MutexLock();
-  };
 
-  class BASELIBRARY_PUBLIC_FUNC MutexTryLock : public MutexLock {
-  public:
-    MutexTryLock(Mutex &mtx) : MutexLock() {
-      if (!mtx.try_lock())
-        ptr = NULL;
-      else
-        ptr = &mtx;
-    }
-
-    void retry_lock(Mutex &mtx) {
-      if (ptr != NULL)
-        throw std::logic_error("Already holding another lock");
-
-      if (!mtx.try_lock())
-        ptr = NULL;
-      else
-        ptr = &mtx;
-    }
-
-    bool locked() const {
-      return ptr != NULL;
-    }
-  };
-
-  struct BASELIBRARY_PUBLIC_FUNC Cond {
   private:
-#if GLIB_CHECK_VERSION(2, 32, 0)
-    GCond cond;
-#else
-    GCond *cond;
-#endif
-  public:
-    Cond();
-    ~Cond();
-
-    inline GCond *gobj() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-      return &cond;
-#else
-      return cond;
-#endif
-    }
-
-    void wait(Mutex &mutex) {
-      g_cond_wait(gobj(), mutex.gobj());
-    }
-
-    void signal() {
-      g_cond_signal(gobj());
-    }
-
-    void broadcast() {
-      g_cond_broadcast(gobj());
-    }
+    class Private;
+    Private *_d;
   };
 
   struct BASELIBRARY_PUBLIC_FUNC RecMutex {
-  private:
-#if GLIB_CHECK_VERSION(2, 32, 0)
-    GRecMutex mutex;
-#else
-    GStaticRecMutex mutex;
-#endif
-
-    // These 2 would not work well because of d-tor semantics.
-    inline RecMutex &operator=(const RecMutex &o) {
-      return *this;
-    }
-    RecMutex(const RecMutex &o) {
-    }
+    friend struct RecMutexLock;
 
   public:
-    RecMutex() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-      g_rec_mutex_init(&mutex);
-#else
-      g_static_rec_mutex_init(&mutex);
-#endif
-    }
+    RecMutex();
+    RecMutex(RecMutex const &o) = delete;
+    RecMutex(RecMutex &&o) = delete;
+    ~RecMutex();
 
-    ~RecMutex() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-      g_rec_mutex_clear(&mutex);
-#else
-      g_static_rec_mutex_free(&mutex);
-#endif
-    }
+    RecMutex &operator = (RecMutex &o) = delete;
 
-#if GLIB_CHECK_VERSION(2, 32, 0)
-    inline GRecMutex *gobj() {
-      return &mutex;
-    }
-#else
-    inline GStaticRecMutex *gobj() {
-      return &mutex;
-    }
-#endif
+    void lock();
+    void unlock();
+    bool tryLock();
 
-    void unlock() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-      g_rec_mutex_unlock(gobj());
-#else
-      g_static_rec_mutex_unlock(gobj());
-#endif
-    }
-
-    void lock() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-      g_rec_mutex_lock(gobj());
-#else
-      g_static_rec_mutex_lock(gobj());
-#endif
-    }
-
-    bool try_lock() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-      return g_rec_mutex_trylock(gobj()) != 0;
-#else
-      return g_static_rec_mutex_trylock(gobj()) != 0;
-#endif
-    }
+  private:
+    class Private;
+    Private *_d;
   };
 
   struct BASELIBRARY_PUBLIC_FUNC RecMutexLock {
-  protected:
-    RecMutex *ptr;
-
-    RecMutexLock() : ptr(NULL) {
-    }
-
   public:
-    RecMutexLock(RecMutex &mutex, bool throw_on_block = false) : ptr(&mutex) {
-      if (throw_on_block) {
-        if (!ptr->try_lock())
-          throw mutex_busy_error();
-      } else
-        ptr->lock();
-    }
+    RecMutexLock(RecMutex &mutex, bool throwOnBlock = false);
+    RecMutexLock(RecMutexLock &o);
+    RecMutexLock &operator=(RecMutexLock &o) = delete;
 
-    RecMutexLock(const RecMutexLock &mlock) : ptr(mlock.ptr) {
-      const_cast<RecMutexLock *>(&mlock)->ptr = NULL;
-    }
+    ~RecMutexLock();
 
-    RecMutexLock &operator=(RecMutexLock &mlock) {
-      ptr = mlock.ptr;
-      mlock.ptr = NULL;
-      return *this;
-    }
-
-    ~RecMutexLock() {
-      if (ptr)
-        ptr->unlock();
-    }
-  };
-
-  class BASELIBRARY_PUBLIC_FUNC RecMutexTryLock : public RecMutexLock {
-  public:
-    RecMutexTryLock(RecMutex &mtx) : RecMutexLock() {
-      if (!mtx.try_lock())
-        ptr = NULL;
-      else
-        ptr = &mtx;
-    }
-
-    void retry_lock(RecMutex &mtx) {
-      if (ptr != NULL)
-        throw std::logic_error("Already holding another lock");
-
-      if (!mtx.try_lock())
-        ptr = NULL;
-      else
-        ptr = &mtx;
-    }
-
-    bool locked() const {
-      return ptr != NULL;
-    }
+  private:
+    class Private;
+    Private *_d;
   };
 
   // A semaphore limits access to a bunch of resources to different threads. A count value determines
   // how many resources are available (and hence how many threads can use them at the same time).
   struct BASELIBRARY_PUBLIC_FUNC Semaphore {
-  private:
-    GAsyncQueue *_queue;
-
   public:
-    Semaphore(int initial_count);
+    Semaphore(int initialCount);
     ~Semaphore();
 
     void post();
     void wait();
-    bool try_wait();
+
+  private:
+    class Private;
+    Private *_d;
   };
 
 } // namespace base

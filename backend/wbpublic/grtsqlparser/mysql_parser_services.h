@@ -111,8 +111,7 @@ namespace parsers {
     // Others.
     virtual std::vector<std::pair<int, std::string>> getCodeCompletionCandidates(
       MySQLParserContext::Ref context, std::pair<size_t, size_t> caret, std::string const &sql,
-      std::string const &defaultSchema, bool uppercaseKeywords, parsers::SymbolTable &symbolTable,
-      std::mutex &symbolsMutex) = 0;
+      std::string const &defaultSchema, bool uppercaseKeywords, parsers::SymbolTable &symbolTable) = 0;
   };
 
 } // namespace parsers

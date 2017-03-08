@@ -47,7 +47,6 @@ static GThread *main_thread = nullptr;
 
 static void init_all() {
   if (main_thread == nullptr) {
-    base::threading_init();
     main_thread = g_thread_self();
   }
 }

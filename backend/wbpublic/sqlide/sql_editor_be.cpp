@@ -72,7 +72,6 @@ public:
   MySQLParserContext::Ref autocompletionContext;
   MySQLParserServices::Ref services;
   SymbolTable symbolTable;
-  std::mutex symbolsMutex;
 
   // Entries determined the last time we started auto completion. The actually shown list
   // is derived from these entries filtered by the current input.
@@ -1248,7 +1247,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLPa
 
   d->codeCompletionCandidates = d->services->getCodeCompletionCandidates(
     d->autocompletionContext, {caretOffset, caretLine}, statement, d->currentSchema, make_keywords_uppercase(),
-    d->symbolTable, d->symbolsMutex);
+    d->symbolTable);
 
   update_auto_completion(getWrittenPart(caretPosition));
 }

@@ -194,7 +194,7 @@ struct MySQLParserContextImpl : public MySQLParserContext {
 
   std::vector<std::pair<int, std::string>> getCodeCompletionCandidates(
     std::pair<size_t, size_t> caret, std::string const &sql, std::string const &defaultSchema, bool uppercaseKeywords,
-    parsers::SymbolTable &symbolTable, std::mutex &symbolsMutex) {
+    parsers::SymbolTable &symbolTable) {
 
     parser.reset();
     errors.clear();
@@ -202,8 +202,7 @@ struct MySQLParserContextImpl : public MySQLParserContext {
     input.load(sql);
     lexer.setInputStream(&input);
     tokens.setTokenSource(&lexer);
-    return getCodeCompletionList(caret.second, caret.first, defaultSchema, uppercaseKeywords, &parser, symbolTable,
-                                 symbolsMutex);
+    return getCodeCompletionList(caret.second, caret.first, defaultSchema, uppercaseKeywords, &parser, symbolTable);
   }
 
 private:
@@ -2372,12 +2371,11 @@ bool MySQLParserServicesImpl::parseTypeDefinition(const std::string &typeDefinit
 
 std::vector<std::pair<int, std::string>> MySQLParserServicesImpl::getCodeCompletionCandidates(
   MySQLParserContext::Ref context, std::pair<size_t, size_t> caret, std::string const &sql,
-  std::string const &defaultSchema, bool uppercaseKeywords, parsers::SymbolTable &symbolTable,
-  std::mutex &symbolsMutex) {
+  std::string const &defaultSchema, bool uppercaseKeywords, parsers::SymbolTable &symbolTable) {
   
   MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
   std::vector<std::pair<int, std::string>> candidates =
-    impl->getCodeCompletionCandidates(caret, sql, defaultSchema, uppercaseKeywords, symbolTable, symbolsMutex);
+    impl->getCodeCompletionCandidates(caret, sql, defaultSchema, uppercaseKeywords, symbolTable);
 
   return candidates;
 }
