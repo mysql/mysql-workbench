@@ -27,7 +27,6 @@
 #include "grtdb/db_helpers.h"
 
 #include "grts/structs.db.mysql.h"
-#include <mutex>
 
 namespace parsers {
 
