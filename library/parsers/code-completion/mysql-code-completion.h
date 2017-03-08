@@ -28,4 +28,4 @@ namespace parsers {
 
 PARSERS_PUBLIC_TYPE std::vector<std::pair<int, std::string>> getCodeCompletionList(
   size_t caretLine, size_t caretOffset, const std::string &defaultSchema, bool uppercaseKeywords,
-  parsers::MySQLParser *parser, parsers::SymbolTable &symbolTable, std::mutex &symbolsMutex);
+  parsers::MySQLParser *parser, parsers::SymbolTable &symbolTable);

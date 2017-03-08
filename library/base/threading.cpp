@@ -17,153 +17,172 @@
  * 02110-1301  USA
  */
 
-#include "base/threading.h"
-
-#if !defined(__APPLE__) && !defined(_WIN32)
-#include <unistd.h>
-#include <wait.h>
-#endif
-
 #include <algorithm>
-#include "base/string_utilities.h"
+#include <mutex>
+
+#include "base/threading.h"
 
 using namespace base;
 
-#if GLIB_CHECK_VERSION(2, 32, 0)
-void base::threading_init() {
-  // noop
-}
-#else
-static bool g_thread_is_ready = false;
-void base::threading_init() {
-  if (!g_thread_is_ready && !g_thread_supported())
-    g_thread_init(NULL);
-  g_thread_is_ready = true;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------------
+class Mutex::Private {
+public:
+  std::mutex mutex;
+};
 
 Mutex::Mutex() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-  g_mutex_init(&mutex);
-#else
-  threading_init();
-
-  mutex = g_mutex_new();
-#endif
+  _d = new Private();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 Mutex::~Mutex() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-  g_mutex_clear(&mutex);
-#else
-  g_mutex_free(mutex);
-#endif
+  delete _d;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void Mutex::swap(Mutex &o) {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-  GMutex tmp = o.mutex;
-  o.mutex = mutex;
-  mutex = tmp;
-#else
-  GMutex *tmp = o.mutex;
-  o.mutex = mutex;
-  mutex = tmp;
-#endif
+void Mutex::lock() {
+  _d->mutex.lock();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-MutexLock::MutexLock(Mutex &mutex) : ptr(&mutex) {
-  if (!ptr)
-    throw std::logic_error("NULL ptr given");
-  ptr->lock();
+void Mutex::unlock() {
+  _d->mutex.unlock();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-// take ownership of an existing lock (the other lock will be reset)
-MutexLock::MutexLock(const MutexLock &mlock) : ptr(mlock.ptr) {
-  const_cast<MutexLock *>(&mlock)->ptr = NULL;
+bool Mutex::tryLock() {
+  return _d->mutex.try_lock();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-MutexLock &MutexLock::operator=(MutexLock &mlock) {
-  ptr = mlock.ptr;
-  mlock.ptr = NULL;
-  return *this;
+class MutexLock::Private {
+public:
+  std::lock_guard<std::mutex> guard;
+
+  Private(Mutex const &mutex): guard(mutex._d->mutex) {
+  }
+};
+
+MutexLock::MutexLock(Mutex const &mutex) {
+  _d = new Private(mutex);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 MutexLock::~MutexLock() {
-  if (ptr)
-    ptr->unlock();
+  delete _d;
 }
 
-//----------------- Cond ---------------------------------------------------------------------------
+//----------------- RecMutex -------------------------------------------------------------------------------------------
 
-Cond::Cond() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-  g_cond_init(&cond);
-#else
-  threading_init();
+class RecMutex::Private {
+public:
+  std::recursive_mutex mutex;
+};
 
-  cond = g_cond_new();
-#endif
+RecMutex::RecMutex() {
+  _d = new Private();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-Cond::~Cond() {
-#if GLIB_CHECK_VERSION(2, 32, 0)
-  g_cond_clear(&cond);
-#else
-  g_cond_free(cond);
-#endif
+RecMutex::~RecMutex() {
+  delete _d;
 }
 
-//----------------- Semaphore ----------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static int semaphore_data = 1; // Dummy data to identify non-NULL return values.
-
-Semaphore::Semaphore(int initial_count) {
-  _queue = g_async_queue_new();
-
-  // Push as many "messages" to the queue as is specified by the initial count.
-  // This amount is what is available before we lock in wait() or try_wait().
-  while (initial_count-- > 0)
-    g_async_queue_push(_queue, &semaphore_data);
+void RecMutex::lock() {
+  _d->mutex.lock();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+void RecMutex::unlock() {
+  _d->mutex.unlock();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool RecMutex::tryLock() {
+  return _d->mutex.try_lock();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class RecMutexLock::Private {
+public:
+  std::lock_guard<std::recursive_mutex> guard;
+
+  Private(RecMutex const &mutex) : guard(mutex._d->mutex) {
+  }
+};
+
+RecMutexLock::RecMutexLock(RecMutex &mutex, bool throwOnBlock) {
+  if (throwOnBlock) {
+    if (!mutex.tryLock())
+      throw mutex_busy_error();
+  }
+  _d = new Private(mutex);
+
+  if (throwOnBlock)
+    mutex.unlock(); // Undo the tryLock() call.
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+RecMutexLock::RecMutexLock(RecMutexLock &o) {
+  // Move ownership of the underlying guard.
+  _d = o._d;
+  o._d = nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+RecMutexLock::~RecMutexLock() {
+  delete _d;
+}
+
+//----------------- Semaphore ------------------------------------------------------------------------------------------
+
+class Semaphore::Private {
+public:
+  std::mutex mutex;
+  std::condition_variable condition;
+  int count;
+};
+
+Semaphore::Semaphore(int initialCount) {
+  _d = new Private();
+  _d->count = initialCount;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 Semaphore::~Semaphore() {
-  g_async_queue_unref(_queue);
+  delete _d;
+  _d = nullptr;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void Semaphore::post() {
-  g_async_queue_push(_queue, &semaphore_data);
+  std::unique_lock<std::mutex> lock(_d->mutex);
+  _d->count++;
+  _d->condition.notify_one();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void Semaphore::wait() {
-  g_async_queue_pop(_queue); // Waits if there is no data in the queue.
+  std::unique_lock<std::mutex> lock(_d->mutex);
+
+  _d->condition.wait(lock, [this]() { return _d->count > 0; });
+  _d->count--;
 }
 
-//--------------------------------------------------------------------------------------------------
-
-bool Semaphore::try_wait() {
-  return g_async_queue_try_pop(_queue) != NULL;
-}
-
+//----------------------------------------------------------------------------------------------------------------------

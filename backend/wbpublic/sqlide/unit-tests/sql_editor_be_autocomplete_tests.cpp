@@ -60,44 +60,18 @@ BEGIN_TEST_DATA_CLASS(sql_editor_be_autocomplete_tests)
 protected:
   WBTester *_tester;
   MySQLEditor::Ref _sql_editor;
-  GrtVersionRef _version;
 
-  base::RecMutex _connection_mutex;
-  sql::Dbc_connection_handler::Ref _conn;
   parsers::MySQLParserContext::Ref _autocomplete_context;
   SymbolTable _mainSymbols;
   SymbolTable _dbObjects;
   SymbolTable _runtimeFunctions;
 
-  int version;
+  long version;
 
 public:
-TEST_DATA_CONSTRUCTOR(sql_editor_be_autocomplete_tests) : _conn(new sql::Dbc_connection_handler()) {
+TEST_DATA_CONSTRUCTOR(sql_editor_be_autocomplete_tests) {
   _tester = new WBTester();
   populate_grt(*_tester);
-}
-
-std::vector<std::pair<std::string, std::string>> runSQL(const std::string &query) {
-  std::vector<std::pair<std::string, std::string>> result;
-
-  // RecMutexLock lock(ensure_valid_aux_connection());
-  {
-    std::auto_ptr<sql::Statement> statement(_conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(query));
-    if (rs.get()) {
-      unsigned columnCount = rs->getMetaData()->getColumnCount();
-      if (columnCount > 0) {
-        while (rs->next()) {
-          if (columnCount > 1)
-            result.push_back({rs->getString(1), rs->getString(2)});
-          else
-            result.push_back({rs->getString(1), ""});
-        }
-      }
-    }
-  }
-
-  return result;
 }
 
 END_TEST_DATA_CLASS;
@@ -187,25 +161,7 @@ void createDBObjects(SymbolTable &symbolTable) {
  * Setup required objects.
  */
 TEST_FUNCTION(5) {
-  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
-  setup_env(connectionProperties);
-
-  sql::DriverManager *dm = sql::DriverManager::getDriverManager();
-  _conn->ref = dm->getConnection(connectionProperties);
-
-  std::auto_ptr<sql::Statement> stmt(_conn->ref->createStatement());
-
-  sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
-  if (res && res->next()) {
-    std::string version_string = res->getString("VERSION");
-    _version = parse_version(version_string);
-  }
-  delete res;
-
-  ensure("Server version is invalid", _version.is_valid());
-
-  _tester->get_rdbms()->version(_version);
-  version = (int)(_version->majorNumber() * 10000 + _version->minorNumber() * 100 + _version->releaseNumber());
+  GrtVersionRef version = _tester->get_rdbms()->version();
 
   // Copy a current version of the code editor configuration file to the test data folder.
   gchar *contents;
@@ -220,9 +176,9 @@ TEST_FUNCTION(5) {
 
   parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   parsers::MySQLParserContext::Ref context =
-    services->createParserContext(_tester->get_rdbms()->characterSets(), _version, "", false);
+    services->createParserContext(_tester->get_rdbms()->characterSets(), version, "", false);
 
-  _autocomplete_context = services->createParserContext(_tester->get_rdbms()->characterSets(), _version, "", false);
+  _autocomplete_context = services->createParserContext(_tester->get_rdbms()->characterSets(), version, "", false);
 
   _sql_editor = MySQLEditor::create(context, _autocomplete_context, { &_mainSymbols });
   _sql_editor->set_current_schema("sakila");
@@ -231,7 +187,7 @@ TEST_FUNCTION(5) {
   _mainSymbols.addDependencies({ &_dbObjects, functionSymbolsForVersion(507) });
 }
 
-// Testing proper symbol retrival in symbol tables.
+// Testing proper symbol retrieval in symbol tables.
 TEST_FUNCTION(10) {
   auto tables = _mainSymbols.getSymbolsOfType<TableSymbol>();
   ensure_equals("Test 10.1", tables.size(), 0U);
@@ -310,8 +266,7 @@ TEST_FUNCTION(20) {
   parser.query();
   ensure_equals("Test 20.1", errorListener.errorCount, 0U);
 
-  std::mutex symbolsMutex;
-  auto candidates = getCodeCompletionList(7, 34, "sakila", false, &parser, _mainSymbols, symbolsMutex);
+  auto candidates = getCodeCompletionList(7, 34, "sakila", false, &parser, _mainSymbols);
   ensure_equals("Test 20.2", candidates.size(), 9U);
   ensure_equals("Test 20.3", candidates[0].second, "comment");
   ensure_equals("Test 20.4", candidates[1].second, "data directory");
@@ -323,7 +278,7 @@ TEST_FUNCTION(20) {
   ensure_equals("Test 20.10", candidates[7].second, "storage");
   ensure_equals("Test 20.11", candidates[8].second, "tablespace");
 
-  candidates = getCodeCompletionList(7, 44, "sakila", false, &parser, _mainSymbols, symbolsMutex);
+  candidates = getCodeCompletionList(7, 44, "sakila", false, &parser, _mainSymbols);
   ensure_equals("Test 20.12", candidates.size(), 3U);
   ensure_equals("Test 20.13", candidates[0].second, "blackhole");
   ensure_equals("Test 20.14", candidates[1].second, "innodb");

@@ -32,6 +32,7 @@
 #include <stack>
 #include <string>
 #include <cctype>
+#include <mutex>
 
 #include <glib.h>
 

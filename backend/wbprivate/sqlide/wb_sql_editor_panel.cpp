@@ -92,7 +92,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   parsers::MySQLParserContext::Ref context = services->createParserContext(
     owner->rdbms()->characterSets(), owner->rdbms_version(), owner->sql_mode(), owner->lower_case_table_names() != 0);
 
-  long version = owner->rdbms_version()->majorNumber() * 100 + owner->rdbms_version()->minorNumber();
+  long version = long(owner->rdbms_version()->majorNumber() * 100 + owner->rdbms_version()->minorNumber());
   parsers::SymbolTable *functionSymbols = parsers::functionSymbolsForVersion(version);
   _editor = MySQLEditor::create(context, owner->work_parser_context(), { functionSymbols, owner->databaseSymbols() }, grtobj);
   _editor->set_sql_mode(owner->sql_mode());

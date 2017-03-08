@@ -17,6 +17,8 @@
  * 02110-1301  USA
  */
 
+#include <mutex>
+
 #include "SymbolTable.h"
 
 using namespace parsers;
@@ -85,7 +87,7 @@ void ScopedSymbol::addAndManageSymbol(Symbol *symbol) {
   symbol->setParent(this);
 }
 
-Symbol *ScopedSymbol::resolve(std::string const &name, bool localOnly) const {
+Symbol *ScopedSymbol::resolve(std::string const &name, bool localOnly) {
   for (auto &child : children) {
     if (child->name == name)
       return child.get();
@@ -259,15 +261,46 @@ TypeAlias::TypeAlias(std::string const &name, Type const *target) : Type(name, t
 
 //----------------- SymbolTable ----------------------------------------------------------------------------------------
 
+class SymbolTable::Private {
+public:
+  std::recursive_mutex mutex; // Must be in private class for use in C++/CLI code.
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 SymbolTable::SymbolTable() : ScopedSymbol() {
+  _d = new Private();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+SymbolTable::~SymbolTable() {
+  delete _d;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void SymbolTable::lock() {
+  _d->mutex.lock();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void SymbolTable::unlock() {
+  _d->mutex.unlock();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SymbolTable::addDependencies(std::vector<SymbolTable *> const &newDependencies) {
   // No duplicate check takes place.
   _dependencies.insert(_dependencies.end(), newDependencies.begin(), newDependencies.end());
 }
 
-Symbol *SymbolTable::resolve(std::string const &name, bool localOnly) const {
+//----------------------------------------------------------------------------------------------------------------------
+
+Symbol *SymbolTable::resolve(std::string const &name, bool localOnly) {
+  lock();
   Symbol *result = ScopedSymbol::resolve(name, localOnly);
 
   if (result == nullptr && !localOnly) {
@@ -278,5 +311,9 @@ Symbol *SymbolTable::resolve(std::string const &name, bool localOnly) const {
     }
   }
 
+  unlock();
+
   return result;
 }
+
+//----------------------------------------------------------------------------------------------------------------------

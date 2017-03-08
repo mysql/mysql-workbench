@@ -48,6 +48,7 @@
 #include "base/boost_smart_ptr_helpers.h"
 #include "base/util_functions.h"
 #include "base/scope_exit_trigger.h"
+#include "base/threading.h"
 
 #include "workbench/wb_command_ui.h"
 #include "workbench/wb_context_names.h"
@@ -1368,40 +1369,39 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
 //--------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::connected() const {
-  bool is_locked = false;
-  {
-    base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
-    is_locked = !tmp.locked(); // is conn mutex is locked by someone else, then we assume the conn is in use and thus,
-                               // there'a a connection.
-  }
-  if (_usr_dbc_conn && (is_locked || _usr_dbc_conn->ref.get_ptr()))
+  // If the conn mutex is locked by someone else, then we assume the conn is in use and thus,
+  // there's a connection.
+  bool busy = !_usr_dbc_conn_mutex.tryLock();
+  if (!busy)
+    _usr_dbc_conn_mutex.unlock();
+  if (_usr_dbc_conn && (busy || _usr_dbc_conn->ref.get_ptr()))
     return true; // we don't need to PING the server every time we want to check if the editor is connected
   return false;
 }
 
 void SqlEditorForm::checkIfOffline() {
-  base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
-  int counter = 1;
-  while (!tmp.locked()) {
+  bool locked = _usr_dbc_conn_mutex.tryLock();
+  size_t counter = 1;
+  while (!locked) {
     if (counter >= 30) {
-      logError("Can't lock conn mutex for 30 seconds, assuming server is not offline.");
-      return;
+      logError("Can't lock conn mutex for 30 seconds, assuming server is not offline.\n");
+      break;
     }
 
-    logDebug3("Can't lock conn mutex, trying again in one sec.");
-#if _WIN32
-    Sleep(1);
-#else
-    sleep(1);
-#endif
+    logDebug3("Can't lock connection mutex, trying again in one sec.\n");
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     counter++;
-    tmp.retry_lock(_usr_dbc_conn_mutex);
+    locked = _usr_dbc_conn_mutex.tryLock();
   }
 
-  std::string result;
-  if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "offline_mode", result)) {
-    if (base::string_compare(result, "ON") == 0)
-      _serverIsOffline = true;
+  if (locked) {
+    std::string result;
+    if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "offline_mode", result)) {
+      if (base::string_compare(result, "ON") == 0)
+        _serverIsOffline = true;
+    }
+
+    _usr_dbc_conn_mutex.unlock();
   }
 }
 
@@ -1416,21 +1416,25 @@ bool SqlEditorForm::offline() {
 }
 
 bool SqlEditorForm::ping() const {
-  {
-    base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
-    if (!tmp.locked()) // is conn mutex is locked by someone else, then we assume the conn is in use and thus, there'a a
-                       // connection.
+  // If the conn mutex is locked by someone else, then we assume the conn is in use and thus,
+  // there's a connection.
+  bool locked = _usr_dbc_conn_mutex.tryLock();
+  if (!locked)
+    return true;
+
+  if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr()) {
+    std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
+    try {
+      stmt->execute("do 1");
+      _usr_dbc_conn_mutex.unlock();
       return true;
-    if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr()) {
-      std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
-      try {
-        std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("select 1"));
-        return true;
-      } catch (const std::exception &ex) {
-        logError("Failed to ping the server: %s\n", ex.what());
-      }
+    } catch (const std::exception &ex) {
+      logError("Failed to ping the server: %s\n", ex.what());
     }
   }
+
+  _usr_dbc_conn_mutex.unlock();
+
   return false;
 }
 

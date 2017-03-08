@@ -60,8 +60,8 @@ gpointer thread_function1(gpointer data) {
 }
 
 /**
- *	Semaphore test with cooperative semaphore (init count = 0).
- *	Intentional synchronization of two threads.
+ * Semaphore test with cooperative semaphore (init count = 0).
+ * Intentional synchronization of two threads.
  */
 TEST_FUNCTION(10) {
   base::Semaphore semaphore(0);
@@ -87,17 +87,11 @@ TEST_FUNCTION(10) {
   semaphore.post();          // Give the semaphore back so the thread can continue.
   g_usleep(100 * BASE_TIME); // Wait a moment so that the thread actually gets CPU time.
 
-  // Try to allocated the semaphore (which must fail as the thread has it again).
-  ensure("Unexpectedly got semaphore access", !semaphore.try_wait());
-  ensure_equals("Test counter value", counter, 10);
-
   // Wait for the thread to finish (will also release the semaphore).
   g_thread_join(thread);
 
   ensure_equals("Test counter value", counter, 15);
 
-  // Try a last time to allocate the semaphore. Should now succeed.
-  ensure("Couldn't get semaphore access", semaphore.try_wait());
   semaphore.post();
 }
 
@@ -111,8 +105,8 @@ gpointer thread_function2(gpointer data) {
 }
 
 /**
- *	Concurrent semaphore test.
- *	7 independent threads try to access 5 "counters".
+ *	 Concurrent semaphore test.
+ * 7 independent threads try to access 5 "counters".
  */
 TEST_FUNCTION(20) {
   base::Semaphore semaphore(5);

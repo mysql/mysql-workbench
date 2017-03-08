@@ -52,7 +52,6 @@ typedef int ssize_t;
 #include <iomanip>
 #include <mutex>
 
-
 #define HAVE_ROUND
 #include <Python/Python.h>
 
