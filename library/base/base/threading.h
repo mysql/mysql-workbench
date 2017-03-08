@@ -111,7 +111,8 @@ namespace base {
   struct BASELIBRARY_PUBLIC_FUNC RecMutexLock {
   public:
     RecMutexLock(RecMutex &mutex, bool throwOnBlock = false);
-    RecMutexLock(RecMutexLock &o);
+    RecMutexLock(RecMutexLock &&o);
+    RecMutexLock(RecMutexLock const &o) = delete;
     RecMutexLock &operator=(RecMutexLock &o) = delete;
 
     ~RecMutexLock();
