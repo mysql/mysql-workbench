@@ -79,7 +79,7 @@
 
         <CustomAction Id="NewerVersionInstalled" Error="A newer version of this product is already installed." />
 
-		  <Property Id="WixShellExecTarget" Value="http://dev.mysql.com/resources/wb62_prerequisites.html" />
+		  <Property Id="WixShellExecTarget" Value="http://dev.mysql.com/resources/workbench_prerequisites.html" />
 
 		  <CustomAction Id="LaunchDL" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
 
