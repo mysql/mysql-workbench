@@ -1,7 +1,7 @@
 Source: mysql-workbench-@edition@
 Section: utils
 Priority: extra
-Maintainer: MySQL Workbench team <workbench@sun.com>
+Maintainer: MySQL Release Engineering <mysql-build@oss.oracle.com>
 Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-3.0-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python-dev (>= 2.6), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, cmake, swig (>= 1.3), libproj-dev, cmake, build-essential, autoconf, autogen
 Standards-Version: 3.7.2
 Homepage: http://dev.mysql.com/workbench/
