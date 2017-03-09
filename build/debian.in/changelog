@@ -1,3 +1,7 @@
+mysql-workbench-@edition@ (6.3.10-1@distrov@) @distro@; urgency=low
+
+  * New release
+
 mysql-workbench-@edition@ (6.3.9-1@distrov@) @distro@; urgency=low
 
   * New release
