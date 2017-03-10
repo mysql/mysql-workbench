@@ -40,6 +40,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label4 = new System.Windows.Forms.Label();
       this.label2 = new System.Windows.Forms.Label();
       this.optCollation = new System.Windows.Forms.ComboBox();
+      this.optCharset = new System.Windows.Forms.ComboBox();
       this.nameTextBox = new System.Windows.Forms.TextBox();
       this.label1 = new System.Windows.Forms.Label();
       this.mainTabControl.SuspendLayout();
@@ -84,6 +85,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.tabPage1.Controls.Add(this.label4);
       this.tabPage1.Controls.Add(this.label2);
       this.tabPage1.Controls.Add(this.optCollation);
+      this.tabPage1.Controls.Add(this.optCharset);
       this.tabPage1.Controls.Add(this.nameTextBox);
       this.tabPage1.Controls.Add(this.label1);
       this.tabPage1.Location = new System.Drawing.Point(0, 0);
@@ -104,7 +106,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label3.Name = "label3";
       this.label3.Size = new System.Drawing.Size(847, 27);
-      this.label3.TabIndex = 23;
+      this.label3.TabIndex = 24;
       this.label3.Text = "Refactor model, changing all references found in view, triggers, stored procedure" +
     "s and functions from the old schema name to the new one.";
       this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -115,7 +117,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.refactorButton.Margin = new System.Windows.Forms.Padding(4);
       this.refactorButton.Name = "refactorButton";
       this.refactorButton.Size = new System.Drawing.Size(173, 28);
-      this.refactorButton.TabIndex = 22;
+      this.refactorButton.TabIndex = 23;
       this.refactorButton.Text = "Rename References";
       this.refactorButton.UseVisualStyleBackColor = true;
       this.refactorButton.Click += new System.EventHandler(this.refactorButton_Click);
@@ -133,7 +135,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.optComments.Name = "optComments";
       this.optComments.ScrollBars = System.Windows.Forms.ScrollBars.Both;
       this.optComments.Size = new System.Drawing.Size(919, 176);
-      this.optComments.TabIndex = 21;
+      this.optComments.TabIndex = 22;
       this.optComments.TextChanged += new System.EventHandler(this.optComments_TextChanged);
       // 
       // label7
@@ -142,7 +144,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label7.Name = "label7";
       this.label7.Size = new System.Drawing.Size(88, 26);
-      this.label7.TabIndex = 20;
+      this.label7.TabIndex = 21;
       this.label7.Text = "Comments:";
       this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
@@ -153,7 +155,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
       this.pictureBox1.Name = "pictureBox1";
       this.pictureBox1.Size = new System.Drawing.Size(64, 59);
-      this.pictureBox1.TabIndex = 19;
+      this.pictureBox1.TabIndex = 20;
       this.pictureBox1.TabStop = false;
       // 
       // label5
@@ -166,7 +168,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label5.Name = "label5";
       this.label5.Size = new System.Drawing.Size(847, 27);
-      this.label5.TabIndex = 18;
+      this.label5.TabIndex = 19;
       this.label5.Text = "Specifies which charset/collations the schema\'s tables will use if they do not ha" +
     "ve an explicit setting. Common choices are Latin1 or UTF8.";
       this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -181,29 +183,40 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label4.Name = "label4";
       this.label4.Size = new System.Drawing.Size(847, 27);
-      this.label4.TabIndex = 17;
+      this.label4.TabIndex = 18;
       this.label4.Text = "The name of the schema. It is recommended to use only alpha-numeric characters. S" +
     "paces should be avoided and be replaced by _";
       this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // 
       // label2
       // 
-      this.label2.Location = new System.Drawing.Point(81, 82);
+      this.label2.Location = new System.Drawing.Point(31, 82);
       this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(88, 26);
-      this.label2.TabIndex = 16;
-      this.label2.Text = "Collation:";
+      this.label2.Size = new System.Drawing.Size(138, 26);
+      this.label2.TabIndex = 17;
+      this.label2.Text = "Charset/Collation:";
       this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+      // 
+      // optCharset
+      // 
+      this.optCharset.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.optCharset.FormattingEnabled = true;
+      this.optCharset.Location = new System.Drawing.Point(177, 82);
+      this.optCharset.Margin = new System.Windows.Forms.Padding(4);
+      this.optCharset.Name = "optCharset";
+      this.optCharset.Size = new System.Drawing.Size(130, 24);
+      this.optCharset.TabIndex = 16;
+      this.optCharset.SelectedIndexChanged += new System.EventHandler(this.optCharset_SelectedIndexChanged);
       // 
       // optCollation
       // 
       this.optCollation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.optCollation.FormattingEnabled = true;
-      this.optCollation.Location = new System.Drawing.Point(177, 82);
+      this.optCollation.Location = new System.Drawing.Point(318, 82);
       this.optCollation.Margin = new System.Windows.Forms.Padding(4);
       this.optCollation.Name = "optCollation";
-      this.optCollation.Size = new System.Drawing.Size(271, 24);
+      this.optCollation.Size = new System.Drawing.Size(130, 24);
       this.optCollation.TabIndex = 15;
       this.optCollation.SelectedIndexChanged += new System.EventHandler(this.optCollation_SelectedIndexChanged);
       // 
@@ -260,6 +273,7 @@ namespace MySQL.GUI.Workbench.Plugins
     private System.Windows.Forms.Label label4;
     private System.Windows.Forms.Label label2;
     private System.Windows.Forms.ComboBox optCollation;
+    private System.Windows.Forms.ComboBox optCharset;
     private System.Windows.Forms.TextBox nameTextBox;
     private System.Windows.Forms.Label label1;
     private System.Windows.Forms.Label label3;

@@ -230,18 +230,21 @@ namespace MySQL.GUI.Workbench.Plugins
 
       System.Collections.Generic.List<String> collations_list = tableEditorBE.get_charset_collation_list();
 
+      var charsetLlist = tableEditorBE.get_charset_list();
+      optCharset.Items.Clear();
+      optCharset.Items.AddRange(charsetLlist.ToArray());
+
       optCollation.Items.Clear();
-      optCollation.Items.Add("Schema Default");
+      optCollation.Items.Add("Default Collation");
 
       columnCollationComboBox.Enabled = false;
       columnCollationComboBox.Items.Clear();
-      columnCollationComboBox.Items.Add("Table Default");
+      columnCollationComboBox.Items.Add("Default Collation");
 
-      foreach (String coll in collations_list)
-      {
-        optCollation.Items.Add(coll);
-        columnCollationComboBox.Items.Add(coll);
-      }
+      columnCharsetComboBox.Enabled = false;
+      columnCharsetComboBox.Items.Clear();
+      columnCharsetComboBox.Items.AddRange(charsetLlist.ToArray());
+
 
       // This validation was added to avoid removing the page if not needed
       // as it causes flickering
@@ -477,19 +480,25 @@ namespace MySQL.GUI.Workbench.Plugins
         else
           optEngine.Text = eng;
 
-        int idx = 0;
-        optCollation.SelectedIndex = 0;
-        String cscoll = tableEditorBE.get_table_option_by_name("CHARACTER SET - COLLATE");
 
-        foreach (String next_cscoll in optCollation.Items)
-        {
-          if (next_cscoll == cscoll)
-          {
-            optCollation.SelectedIndex = idx;
-            break;
-          }
-          idx++;
-        }
+        var charset = tableEditorBE.get_table_option_by_name("CHARACTER SET");
+        var idx = optCharset.FindString(charset);
+        if (idx < 0)
+          idx = 0;
+        optCharset.SelectedIndex = idx;
+
+        var selectedValue = "Default Charset";
+        if (optCharset.SelectedItem != null)
+          selectedValue = optCharset.SelectedItem.ToString();
+        var collation = tableEditorBE.get_charset_collation_list(selectedValue);
+        optCollation.Items.Clear();
+        optCollation.Items.AddRange(collation.ToArray());
+
+        var collate = tableEditorBE.get_table_option_by_name("COLLATE");
+        idx = optCollation.FindString(charset);
+        if (idx < 0)
+          idx = 0;
+        optCollation.SelectedIndex = idx;
 
         TabText = tableEditorBE.get_title();
 
@@ -676,29 +685,25 @@ namespace MySQL.GUI.Workbench.Plugins
           (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.HasCharset, out hasCharset) &&
           (hasCharset == "1"))
         {
-          String column_cscoll;
+
+          var charset = "";
           columnsListModel.GrtList.get_field(nodeId,
-            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.CharsetCollation, out column_cscoll);
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Charset, out charset);
 
+          columnCharsetComboBox.Enabled = true;
           columnCollationComboBox.Enabled = true;
-
-          int idx = 0;
-          columnCollationComboBox.SelectedIndex = 0;
-
-          foreach (String next_cscoll in columnCollationComboBox.Items)
-          {
-            if (next_cscoll == column_cscoll)
-            {
-              columnCollationComboBox.SelectedIndex = idx;
-              break;
-            }
-            idx++;
-          }
+          var idx = columnCharsetComboBox.FindString(charset);
+          if (idx < 0)
+            idx = 0;
+          columnCharsetComboBox.SelectedIndex = idx;
         }
         else
         {
+          columnCharsetComboBox.SelectedIndex = 0;
+          columnCharsetComboBox.Enabled = false;
           columnCollationComboBox.SelectedIndex = 0;
           columnCollationComboBox.Enabled = false;
+
         }
 
         if (columnsListModel.GrtList.get_field(nodeId,
@@ -881,6 +886,7 @@ namespace MySQL.GUI.Workbench.Plugins
         columnCommentTextBox.Enabled = false;
         columnCommentTextBox.Text = "";
         columnCollationComboBox.Enabled = false;
+        columnCharsetComboBox.Enabled = false;
         columnNameTextBox.Text = "";
         columnNameTextBox.Enabled = false;
         columnDataTypeTextBox.Text = "";
@@ -920,13 +926,48 @@ namespace MySQL.GUI.Workbench.Plugins
         if (columnCollationComboBox.SelectedIndex == 0)
         {
           columnsListModel.GrtList.set_field(nodeId,
-            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.CharsetCollation, "");
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Collation, "");
         }
         else
         {
           columnsListModel.GrtList.set_field(nodeId,
-            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.CharsetCollation,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Collation,
               columnCollationComboBox.Text);
+        }
+      }
+    }
+
+    private void columnCharsetComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      // set charset
+      if (columnsTreeView.SelectedNode != null)
+      {
+        NodeIdWrapper nodeId = new NodeIdWrapper(columnsTreeView.SelectedNode.Index);
+        if (columnCharsetComboBox.SelectedIndex == 0)
+        {
+          columnsListModel.GrtList.set_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Charset, "");
+          columnCollationComboBox.Enabled = false;
+          columnCollationComboBox.SelectedIndex = 0;
+        }
+        else
+        {
+          columnsListModel.GrtList.set_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Charset,
+              columnCharsetComboBox.Text);
+          var collation = tableEditorBE.get_charset_collation_list(columnCharsetComboBox.Text);
+          columnCollationComboBox.Items.Clear();
+          columnCollationComboBox.Items.AddRange(collation.ToArray());
+          var collationItem = "";
+          columnsListModel.GrtList.get_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Collation, out collationItem);
+          int idx = columnCollationComboBox.FindString(collationItem);
+          if (idx < 0) {
+            columnsListModel.GrtList.set_field(nodeId,
+              (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Collation, "");
+            idx = 0;
+          }
+          columnCollationComboBox.SelectedIndex = idx;
         }
       }
     }
@@ -1272,7 +1313,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
     #region Options
 
-    private void setTableOpt()
+    private void setTableOpt(string controlName)
     {
       switch (optPackKeys.SelectedIndex)
       {
@@ -1377,17 +1418,25 @@ namespace MySQL.GUI.Workbench.Plugins
 
       tableEditorBE.set_table_option_by_name("ENGINE", eng);
 
-      // set charset/collation
-      if (optCollation.SelectedIndex == 0)
-      {
-        tableEditorBE.set_table_option_by_name("CHARACTER SET - COLLATE", "");
+      if(controlName == "optCharset") { 
+        // set charset
+        if (optCharset.SelectedIndex == 0) {
+          tableEditorBE.set_table_option_by_name("CHARACTER SET", "");
+        } else {
+          tableEditorBE.set_table_option_by_name("CHARACTER SET", optCharset.Text);
+          var collation = tableEditorBE.get_charset_collation_list(optCharset.Text);
+          optCollation.Items.Clear();
+          optCollation.Items.AddRange(collation.ToArray());
+          optCollation.SelectedIndex = 0;
+        }
       }
-      else
-      {
-        int cs_sep = optCollation.Text.IndexOf('-');
-        if (cs_sep != -1)
-        {
-          tableEditorBE.set_table_option_by_name("CHARACTER SET - COLLATE", optCollation.Text);
+
+      if (controlName == "optCollation") {
+        // set collation
+        if (optCollation.SelectedIndex == 0) {
+          tableEditorBE.set_table_option_by_name("COLLATE", "");
+        } else {
+          tableEditorBE.set_table_option_by_name("COLLATE", optCollation.Text);
         }
       }
     }
@@ -1400,7 +1449,9 @@ namespace MySQL.GUI.Workbench.Plugins
         updatingTable = true;
         try
         {
-          setTableOpt();
+          var control = (Control)sender;
+          var name = control != null ? control.Name : "";
+          setTableOpt(name);
         }
         finally
         {
