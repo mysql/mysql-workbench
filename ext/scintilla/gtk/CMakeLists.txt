@@ -9,6 +9,7 @@ set(SCINTILLA_SOURCES
     scintilla-marshal.c
     PlatGTK.cxx
     ScintillaGTK.cxx
+    ScintillaGTKAccessible.cxx
     ../src/AutoComplete.cxx
     ../src/CallTip.cxx
     ../src/CaseConvert.cxx
@@ -78,6 +79,7 @@ set(SCINTILLA_SOURCES
     ../lexers/LexDMAP.cxx
     ../lexers/LexDMIS.cxx
     ../lexers/LexECL.cxx
+    ../lexers/LexEDIFACT.cxx
     ../lexers/LexEiffel.cxx
     ../lexers/LexErlang.cxx
     ../lexers/LexErrorList.cxx
