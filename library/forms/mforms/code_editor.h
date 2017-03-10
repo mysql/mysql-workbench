@@ -19,9 +19,6 @@
 
 #pragma once
 
-#ifndef SCI_NAMESPACE
-#define SCI_NAMESPACE
-#endif
 #include "Scintilla.h"
 
 #include <mforms/view.h>
@@ -556,7 +553,7 @@ namespace mforms {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     /** Called by the platform code forwarding us all scintilla notifications, so we can act on them. */
-    void on_notify(Scintilla::SCNotification* notification);
+    void on_notify(SCNotification* notification);
 
     /** Called by the platform code forwarding us all scintilla commands, so we can act on them. */
     void on_command(int command);

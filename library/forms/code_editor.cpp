@@ -34,8 +34,6 @@
 
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
 
-using namespace Scintilla;
-
 using namespace mforms;
 using namespace base;
 
@@ -610,7 +608,7 @@ const std::string CodeEditor::get_text(bool selection_only) {
 //--------------------------------------------------------------------------------------------------
 
 const std::string CodeEditor::get_text_in_range(size_t start, size_t end) {
-  Scintilla::Sci_TextRange range;
+  Sci_TextRange range;
 
   range.chrg.cpMin = (long)start;
 
@@ -1627,7 +1625,7 @@ void CodeEditor::jump_to_next_placeholder() {
     result = _code_editor_impl->send_editor(this, SCI_FINDTEXT, 0, (sptr_t)&what);
     if (result >= 0) {
       char buffer[max_placeholder_length];
-      TextRange tr;
+      Sci_TextRange tr;
       tr.chrg.cpMin = what.chrg.cpMin;
       tr.chrg.cpMax = (long)result + 2;
       tr.lpstrText = buffer;

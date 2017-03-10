@@ -39,7 +39,7 @@ struct _ScintillaClass {
 	GtkContainerClass parent_class;
 
 	void (* command) (ScintillaObject *sci, int cmd, GtkWidget *window);
-	void (* notify) (ScintillaObject *sci, int id, Scintilla::SCNotification *scn);
+	void (* notify) (ScintillaObject *sci, int id, SCNotification *scn);
 };
 
 GType		scintilla_object_get_type		(void);
