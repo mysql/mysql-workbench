@@ -214,10 +214,10 @@ mforms::ModifierKey ScintillaControl::GetModifiers(System::Windows::Forms::Keys 
 bool ScintillaControl::ProcessCmdKey(System::Windows::Forms::Message % msg, System::Windows::Forms::Keys keyData) {
   if (msg.Msg == WM_KEYDOWN) {
     if (backend->key_event(GetKeyCode(msg.WParam.ToInt32()), GetModifiers(keyData), ""))
-      return __super ::ProcessCmdKey(msg, keyData);
+      return __super::ProcessCmdKey(msg, keyData);
     return false;
   }
-  return __super ::ProcessCmdKey(msg, keyData);
+  return __super::ProcessCmdKey(msg, keyData);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,7 +241,7 @@ void ScintillaControl::WndProc(System::Windows::Forms::Message % m) {
     case WM_NOTIFY + 0x2000: // WM_NOTIFY reflected by .NET from the parent window.
     {
       // Parent notification. Details are passed as SCNotification structure.
-      Scintilla::SCNotification *scn = reinterpret_cast<Scintilla::SCNotification *>(m.LParam.ToPointer());
+      SCNotification *scn = reinterpret_cast<SCNotification *>(m.LParam.ToPointer());
       backend->on_notify(scn);
       break;
     }
