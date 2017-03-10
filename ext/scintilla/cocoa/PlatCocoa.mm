@@ -114,7 +114,7 @@ Font::~Font()
 //--------------------------------------------------------------------------------------------------
 
 static int FontCharacterSet(Font &f) {
-	return reinterpret_cast<QuartzTextStyle *>(f.GetID())->getCharacterSet();
+	return static_cast<QuartzTextStyle *>(f.GetID())->getCharacterSet();
 }
 
 /**
@@ -138,7 +138,7 @@ void Font::Create(const FontParameters &fp)
 void Font::Release()
 {
   if (fid)
-    delete reinterpret_cast<QuartzTextStyle*>( fid );
+    delete static_cast<QuartzTextStyle*>( fid );
   fid = 0;
 }
 
@@ -217,7 +217,7 @@ void SurfaceImpl::Init(WindowID)
 void SurfaceImpl::Init(SurfaceID sid, WindowID)
 {
   Release();
-  gc = reinterpret_cast<CGContextRef>(sid);
+  gc = static_cast<CGContextRef>(sid);
   CGContextSetLineWidth(gc, 1.0);
   textLayout->setContext(gc);
 }
@@ -481,16 +481,17 @@ void SurfaceImpl::FillRectangle(PRectangle rc, ColourDesired back)
 
 //--------------------------------------------------------------------------------------------------
 
-static void drawImageRefCallback(CGImageRef pattern, CGContextRef gc)
+static void drawImageRefCallback(void *info, CGContextRef gc)
 {
+  CGImageRef pattern = static_cast<CGImageRef>(info);
   CGContextDrawImage(gc, CGRectMake(0, 0, CGImageGetWidth(pattern), CGImageGetHeight(pattern)), pattern);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static void releaseImageRefCallback(CGImageRef pattern)
+static void releaseImageRefCallback(void *info)
 {
-  CGImageRelease(pattern);
+  CGImageRelease(static_cast<CGImageRef>(info));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -507,9 +508,7 @@ void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern)
     return;
   }
 
-  const CGPatternCallbacks drawImageCallbacks = { 0,
-    reinterpret_cast<CGPatternDrawPatternCallback>(drawImageRefCallback),
-    reinterpret_cast<CGPatternReleaseInfoCallback>(releaseImageRefCallback) };
+  const CGPatternCallbacks drawImageCallbacks = { 0, drawImageRefCallback, releaseImageRefCallback };
 
   CGPatternRef pattern = CGPatternCreate(image,
                                          CGRectMake(0, 0, patternSurface.bitmapWidth, patternSurface.bitmapHeight),
@@ -709,7 +708,7 @@ void Scintilla::SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, Colou
 }
 
 static void ProviderReleaseData(void *, const void *data, size_t) {
-	const unsigned char *pixels = reinterpret_cast<const unsigned char *>(data);
+	const unsigned char *pixels = static_cast<const unsigned char *>(data);
 	delete []pixels;
 }
 
@@ -929,12 +928,12 @@ void SurfaceImpl::DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION yba
 	ColourDesired colour(fore.AsLong());
 	CGColorRef color = CGColorCreateGenericRGB(colour.GetRed()/255.0,colour.GetGreen()/255.0,colour.GetBlue()/255.0,1.0);
 
-	QuartzTextStyle* style = reinterpret_cast<QuartzTextStyle*>(font_.GetID());
+	QuartzTextStyle* style = static_cast<QuartzTextStyle*>(font_.GetID());
 	style->setCTStyleColor(color);
 
 	CGColorRelease(color);
 
-	textLayout->setText (reinterpret_cast<const UInt8*>(s), len, encoding, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
+	textLayout->setText (reinterpret_cast<const UInt8*>(s), len, encoding, *static_cast<QuartzTextStyle*>(font_.GetID()));
 	textLayout->draw(rc.left, ybase);
 }
 
@@ -955,7 +954,7 @@ static size_t utf8LengthFromLead(unsigned char uch) {
 void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, XYPOSITION *positions)
 {
 	CFStringEncoding encoding = EncodingFromCharacterSet(unicodeMode, FontCharacterSet(font_));
-	textLayout->setText (reinterpret_cast<const UInt8*>(s), len, encoding, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
+	textLayout->setText (reinterpret_cast<const UInt8*>(s), len, encoding, *static_cast<QuartzTextStyle*>(font_.GetID()));
 
 	CTLineRef mLine = textLayout->getCTLine();
 	assert(mLine != NULL);
@@ -1004,7 +1003,7 @@ XYPOSITION SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
   if (font_.GetID())
   {
     CFStringEncoding encoding = EncodingFromCharacterSet(unicodeMode, FontCharacterSet(font_));
-    textLayout->setText (reinterpret_cast<const UInt8*>(s), len, encoding, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
+    textLayout->setText (reinterpret_cast<const UInt8*>(s), len, encoding, *static_cast<QuartzTextStyle*>(font_.GetID()));
 
 	return static_cast<XYPOSITION>(textLayout->MeasureStringWidth());
   }
@@ -1016,7 +1015,7 @@ XYPOSITION SurfaceImpl::WidthChar(Font &font_, char ch) {
   if (font_.GetID())
   {
     CFStringEncoding encoding = EncodingFromCharacterSet(unicodeMode, FontCharacterSet(font_));
-    textLayout->setText (reinterpret_cast<const UInt8*>(str), 1, encoding, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
+    textLayout->setText (reinterpret_cast<const UInt8*>(str), 1, encoding, *static_cast<QuartzTextStyle*>(font_.GetID()));
 
     return textLayout->MeasureStringWidth();
   }
@@ -1032,7 +1031,7 @@ XYPOSITION SurfaceImpl::Ascent(Font &font_) {
   if (!font_.GetID())
     return 1;
 
-	float ascent = reinterpret_cast<QuartzTextStyle*>( font_.GetID() )->getAscent();
+	float ascent = static_cast<QuartzTextStyle*>( font_.GetID() )->getAscent();
 	return ascent + 0.5f;
 
 }
@@ -1041,7 +1040,7 @@ XYPOSITION SurfaceImpl::Descent(Font &font_) {
   if (!font_.GetID())
     return 1;
 
-	float descent = reinterpret_cast<QuartzTextStyle*>( font_.GetID() )->getDescent();
+	float descent = static_cast<QuartzTextStyle*>( font_.GetID() )->getDescent();
 	return descent + 0.5f;
 
 }
@@ -1054,7 +1053,7 @@ XYPOSITION SurfaceImpl::ExternalLeading(Font &font_) {
   if (!font_.GetID())
     return 1;
 
-	float leading = reinterpret_cast<QuartzTextStyle*>( font_.GetID() )->getLeading();
+	float leading = static_cast<QuartzTextStyle*>( font_.GetID() )->getLeading();
 	return leading + 0.5f;
 
 }
@@ -1113,7 +1112,7 @@ Window::~Window()
 
 bool Window::HasFocus()
 {
-  NSView* container = reinterpret_cast<NSView*>(wid);
+  NSView* container = static_cast<NSView*>(wid);
   return [[container window] firstResponder] == container;
 }
 
@@ -1131,12 +1130,12 @@ PRectangle Window::GetPosition()
   if (wid)
   {
     NSRect rect;
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     NSWindow* win;
     if ([idWin isKindOfClass: [NSView class]])
     {
       // NSView
-      NSView* view = reinterpret_cast<NSView*>(idWin);
+      NSView* view = idWin;
       win = [view window];
       rect = [view convertRect: [view bounds] toView: nil];
       rect = [win convertRectToScreen:rect];
@@ -1144,7 +1143,7 @@ PRectangle Window::GetPosition()
     else
     {
       // NSWindow
-      win = reinterpret_cast<NSWindow*>(idWin);
+      win = idWin;
       rect = [win frame];
     }
     CGFloat screenHeight = ScreenMax();
@@ -1165,13 +1164,13 @@ void Window::SetPosition(PRectangle rc)
 {
   if (wid)
   {
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     if ([idWin isKindOfClass: [NSView class]])
     {
       // NSView
       // Moves this view inside the parent view
       NSRect nsrc = NSMakeRect(rc.left, rc.bottom, rc.Width(), rc.Height());
-      NSView* view = reinterpret_cast<NSView*>(idWin);
+      NSView* view = idWin;
       nsrc = [[view window] convertRectFromScreen:nsrc];
       [view setFrame: nsrc];
     }
@@ -1179,7 +1178,7 @@ void Window::SetPosition(PRectangle rc)
     {
       // NSWindow
       PLATFORM_ASSERT([idWin isKindOfClass: [NSWindow class]]);
-      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
+      NSWindow* win = idWin;
       CGFloat screenHeight = ScreenMax();
       NSRect nsrc = NSMakeRect(rc.left, screenHeight - rc.bottom,
           rc.Width(), rc.Height());
@@ -1214,10 +1213,10 @@ void Window::Show(bool show)
 {
   if (wid)
   {
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     if ([idWin isKindOfClass: [NSWindow class]])
     {
-      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
+      NSWindow* win = idWin;
       if (show)
       {
         [win orderFront:nil];
@@ -1239,17 +1238,17 @@ void Window::InvalidateAll()
 {
   if (wid)
   {
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     NSView* container;
     if ([idWin isKindOfClass: [NSView class]])
     {
-      container = reinterpret_cast<NSView*>(idWin);
+      container = idWin;
     }
     else
     {
       // NSWindow
-      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
-      container = reinterpret_cast<NSView*>([win contentView]);
+      NSWindow* win = idWin;
+      container = [win contentView];
       container.needsDisplay = YES;
     }
     container.needsDisplay = YES;
@@ -1265,17 +1264,17 @@ void Window::InvalidateRectangle(PRectangle rc)
 {
   if (wid)
   {
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     NSView* container;
     if ([idWin isKindOfClass: [NSView class]])
     {
-      container = reinterpret_cast<NSView*>(idWin);
+      container = idWin;
     }
     else
     {
       // NSWindow
-      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
-      container = reinterpret_cast<NSView*>([win contentView]);
+      NSWindow* win = idWin;
+      container = [win contentView];
     }
     [container setNeedsDisplayInRect: PRectangleToNSRect(rc)];
   }
@@ -1298,10 +1297,10 @@ void Window::SetCursor(Cursor curs)
 {
   if (wid)
   {
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     if ([idWin isKindOfClass: [SCIContentView class]])
     {
-      SCIContentView* container = reinterpret_cast<SCIContentView*>(idWin);
+      SCIContentView* container = idWin;
       [container setCursor: curs];
     }
   }
@@ -1313,10 +1312,10 @@ void Window::SetTitle(const char* s)
 {
   if (wid)
   {
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     if ([idWin isKindOfClass: [NSWindow class]])
     {
-      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
+      NSWindow* win = idWin;
       NSString* sTitle = [NSString stringWithUTF8String:s];
       [win setTitle:sTitle];
     }
@@ -1329,17 +1328,17 @@ PRectangle Window::GetMonitorRect(Point)
 {
   if (wid)
   {
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     if ([idWin isKindOfClass: [NSView class]])
     {
-      NSView* view = reinterpret_cast<NSView*>(idWin);
+      NSView* view = idWin;
       idWin = [view window];
     }
     if ([idWin isKindOfClass: [NSWindow class]])
     {
       PRectangle rcPosition = GetPosition();
 
-      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
+      NSWindow* win = idWin;
       NSScreen* screen = [win screen];
       NSRect rect = [screen visibleFrame];
       CGFloat screenHeight = rect.origin.y + rect.size.height;
@@ -1655,7 +1654,7 @@ void ListBoxImpl::SetFont(Font& font_)
 {
   // NSCell setFont takes an NSFont* rather than a CTFontRef but they
   // are the same thing toll-free bridged.
-  QuartzTextStyle* style = reinterpret_cast<QuartzTextStyle*>(font_.GetID());
+  QuartzTextStyle* style = static_cast<QuartzTextStyle*>(font_.GetID());
   font.Release();
   font.SetID(new QuartzTextStyle(*style));
   NSFont *pfont = (NSFont *)style->getFontRef();
@@ -1959,10 +1958,10 @@ void Window::Destroy()
   }
   if (wid)
   {
-    id idWin = reinterpret_cast<id>(wid);
+    id idWin = static_cast<id>(wid);
     if ([idWin isKindOfClass: [NSWindow class]])
     {
-      NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
+      NSWindow* win = static_cast<NSWindow*>(idWin);
       [win release];
     }
   }
@@ -2010,7 +2009,7 @@ void Menu::CreatePopUp()
 
 void Menu::Destroy()
 {
-  ScintillaContextMenu* menu = reinterpret_cast<ScintillaContextMenu*>(mid);
+  ScintillaContextMenu* menu = static_cast<ScintillaContextMenu*>(mid);
   [menu release];
   mid = NULL;
 }
