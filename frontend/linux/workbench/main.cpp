@@ -73,7 +73,6 @@ int main(int argc, char **argv) {
 #endif
 
   init_gdk_thread_callbacks(); // This call MUST be before g_threads_init is called
-  base::threading_init();
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

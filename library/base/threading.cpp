@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <mutex>
+#include <condition_variable>
 
 #include "base/threading.h"
 
