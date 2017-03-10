@@ -483,10 +483,6 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo() {
   def_arg_plugin("form", "reportBug", STANDALONE_GUI_PLUGIN_TYPE, "Report Bug...", "Show Report Bug Window");
 
   def_plugin("debug", "debugValidateGRT", NORMAL_PLUGIN_TYPE, "Validate GRT Tree", "Validate Consistency of GRT Tree");
-  def_plugin("debug", "debugShowInfo", INTERNAL_PLUGIN_TYPE, "Show Debugging Info",
-             "Show various system and application information");
-  def_plugin("debug", "debugGrtStats", NORMAL_PLUGIN_TYPE, "Show GRT Debugging Info",
-             "Show various internal GRT stats");
 
   return list;
 }
@@ -1144,13 +1140,9 @@ int WorkbenchImpl::debugValidateGRT() {
 
   logDebug3("Validating GRT Tree...\n");
 
-  // QQQ grt::GRT::get()->lock_tree_read();
-
   // make sure that all nodes have their owner set to their parent object
   // make sure that all refs that are not owned are marked dontfollow
   traverse_value(owner, "root", root);
-
-  // QQQ grt::GRT::get()->unlock_tree_read();
 
   logDebug3("GRT Tree Validation Finished.\n");
 
