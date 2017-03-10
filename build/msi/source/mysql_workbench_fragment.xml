@@ -1809,8 +1809,6 @@
                   <File Id="file66710" Name="wb_admin_perfschema_instrumentation.py"/>
                   <File Id="file66711" Name="wb_admin_perfschema_instrumentation_be.py"/>
                   <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
-
-                  <File Id="file66714" Name="wb_docs_grt.py"/>
                 </Component>
 
                 <?if $(var.LICENSE_TYPE) = "commercial"?>
