@@ -40,7 +40,7 @@ namespace mforms {
 
       virtual Gtk::Widget *get_outer() const;
 
-      void notify(Scintilla::SCNotification *event);
+      void notify(SCNotification *event);
       void command(unsigned long wParam, long);
 
     protected:

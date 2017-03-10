@@ -38,8 +38,6 @@
   g_signal_handlers_disconnect_matched((instance), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, (data))
 #endif
 
-using namespace Scintilla;
-
 static void notify_signal(GtkWidget *w, gint wParam, gpointer lParam, mforms::gtk::CodeEditorImpl *editor) {
   SCNotification *event = reinterpret_cast<SCNotification *>(lParam);
   editor->notify(event);
