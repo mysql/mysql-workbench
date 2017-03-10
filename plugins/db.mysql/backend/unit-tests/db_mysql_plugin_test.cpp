@@ -61,7 +61,7 @@ using namespace parser;
 class DbMySQLScriptSyncTest : public DbMySQLScriptSync {
 protected:
   db_mysql_CatalogRef model_catalog;
-  virtual db_mysql_CatalogRef get_model_catalog() {
+  virtual db_mysql_CatalogRef get_model_catalog() override {
     return model_catalog;
   }
 
@@ -78,10 +78,10 @@ protected:
   db_mysql_CatalogRef model_catalog;
   grt::DictRef options;
 
-  virtual db_mysql_CatalogRef get_model_catalog() {
+  virtual db_mysql_CatalogRef get_model_catalog() override {
     return model_catalog;
   }
-  virtual grt::DictRef get_options_as_dict() {
+  virtual grt::DictRef get_options_as_dict() override {
     return options;
   }
 
