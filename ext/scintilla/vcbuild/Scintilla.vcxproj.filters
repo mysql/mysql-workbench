@@ -623,6 +623,9 @@
     <ClCompile Include="..\lexers\LexYAML.cxx">
       <Filter>Lexers</Filter>
     </ClCompile>
+    <ClCompile Include="..\lexers\LexEDIFACT.cxx">
+      <Filter>Lexers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\win32\Margin.cur">
