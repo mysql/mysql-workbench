@@ -212,8 +212,8 @@ void SynchronizeDifferencesPage::select_row() {
   if ((node = _tree.get_selected_node())) {
     bec::NodeId n(node->get_tag());
 
-    ValueRef obj = _be->get_db_object(n);
-    ValueRef obj2 = _be->get_model_object(n);
+    grt::ValueRef obj = _be->get_db_object(n);
+    grt::ValueRef obj2 = _be->get_model_object(n);
 
     switch (_be->get_apply_direction(n)) {
       case DiffNode::ApplyToDb:

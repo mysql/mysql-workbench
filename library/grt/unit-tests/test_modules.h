@@ -23,9 +23,7 @@
 #include "grtpp_module_cpp.h"
 #include "structs.test.h"
 
-using namespace grt;
-
-struct SampleInterface1Impl : protected InterfaceImplBase {
+struct SampleInterface1Impl : protected grt::InterfaceImplBase {
 public:
   DECLARE_REGISTER_INTERFACE(SampleInterface1Impl, DECLARE_INTERFACE_FUNCTION(SampleInterface1Impl::getNumber),
                              DECLARE_INTERFACE_FUNCTION(SampleInterface1Impl::calculate));
@@ -37,7 +35,7 @@ public:
   virtual int calculate() = 0;
 };
 
-struct SampleInterface2Impl : protected InterfaceImplBase {
+struct SampleInterface2Impl : protected grt::InterfaceImplBase {
 public:
   DECLARE_REGISTER_INTERFACE(SampleInterface2Impl, DECLARE_INTERFACE_FUNCTION(SampleInterface2Impl::calcSum));
 
@@ -47,14 +45,14 @@ public:
   virtual int calcSum(int num1) = 0;
 };
 
-class SampleModule1Impl : public ModuleImplBase, public SampleInterface1Impl {
+class SampleModule1Impl : public grt::ModuleImplBase, public SampleInterface1Impl {
 public:
-  SampleModule1Impl(CPPModuleLoader *ldr) : ModuleImplBase(ldr) {
+  SampleModule1Impl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {
   }
   virtual ~SampleModule1Impl() {
   }
 
-  DEFINE_INIT_MODULE("1.0", "", ModuleImplBase, DECLARE_MODULE_FUNCTION(SampleModule1Impl::getNumber),
+  DEFINE_INIT_MODULE("1.0", "", grt::ModuleImplBase, DECLARE_MODULE_FUNCTION(SampleModule1Impl::getNumber),
                      DECLARE_MODULE_FUNCTION(SampleModule1Impl::calculate));
 
   virtual int getNumber() override {
@@ -64,12 +62,12 @@ public:
   virtual int calculate() override;
 };
 
-class SampleModule2Impl : public ModuleImplBase, public SampleInterface2Impl {
+class SampleModule2Impl : public grt::ModuleImplBase, public SampleInterface2Impl {
 public:
-  SampleModule2Impl(CPPModuleLoader *ldr) : ModuleImplBase(ldr) {
+  SampleModule2Impl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {
   }
 
-  DEFINE_INIT_MODULE("1.0", "", ModuleImplBase, DECLARE_MODULE_FUNCTION(SampleModule2Impl::calcSum), NULL);
+  DEFINE_INIT_MODULE("1.0", "", grt::ModuleImplBase, DECLARE_MODULE_FUNCTION(SampleModule2Impl::calcSum), NULL);
 
   virtual int calcSum(int num1) override {
     SampleModule1Impl *s1 = grt::GRT::get()->get_native_module<SampleModule1Impl>();
@@ -87,7 +85,7 @@ int SampleModule1Impl::calculate() {
 
 class SampleModule3Impl : public SampleModule2Impl {
 public:
-  SampleModule3Impl(CPPModuleLoader *ldr) : SampleModule2Impl(ldr) {
+  SampleModule3Impl(grt::CPPModuleLoader *ldr) : SampleModule2Impl(ldr) {
   }
 
   DEFINE_INIT_MODULE("1.0", "Oracle and/or its affiliates", SampleModule2Impl,
@@ -98,29 +96,29 @@ public:
                      DECLARE_MODULE_FUNCTION(SampleModule3Impl::doSomethingWithDict),
                      DECLARE_MODULE_FUNCTION(SampleModule3Impl::doSomethingWithAuthorList));
 
-  int doSomethingWithObject(ObjectRef object) {
+  int doSomethingWithObject(grt::ObjectRef object) {
     return 0;
   }
-  StringRef doSomethingWithNumbers(IntegerRef a, DoubleRef b, int c, double d) {
-    return StringRef("");
+  grt::StringRef doSomethingWithNumbers(grt::IntegerRef a, grt::DoubleRef b, int c, double d) {
+    return grt::StringRef("");
   }
-  int doSomethingWithNumberList(IntegerListRef ilist) {
+  int doSomethingWithNumberList(grt::IntegerListRef ilist) {
     return 0;
   }
-  StringListRef doSomethingWithTypedObject(std::string s, test_AuthorRef object) {
-    return StringListRef();
+  grt::StringListRef doSomethingWithTypedObject(std::string s, test_AuthorRef object) {
+    return grt::StringListRef();
   }
-  int doSomethingWithDict(DictRef d) {
+  int doSomethingWithDict(grt::DictRef d) {
     return 0;
   }
-  ListRef<test_Author> doSomethingWithAuthorList(ListRef<test_Author> authors) {
-    return ListRef<test_Author>();
+  grt::ListRef<test_Author> doSomethingWithAuthorList(grt::ListRef<test_Author> authors) {
+    return grt::ListRef<test_Author>();
   }
 };
 
 class BadModuleImpl : public SampleModule2Impl { // this module does not implement everything from the interface
 public:
-  BadModuleImpl(CPPModuleLoader *ldr) : SampleModule2Impl(ldr) {
+  BadModuleImpl(grt::CPPModuleLoader *ldr) : SampleModule2Impl(ldr) {
   }
 
   DEFINE_INIT_MODULE("1.0", "", SampleModule2Impl, DECLARE_MODULE_FUNCTION(BadModuleImpl::calcSum), NULL);

@@ -24,6 +24,8 @@
 #include "grt_values_test_data.h"
 #include "grt_test_utility.h"
 
+using namespace grt;
+
 BEGIN_TEST_DATA_CLASS(grt_value)
 public:
 END_TEST_DATA_CLASS
