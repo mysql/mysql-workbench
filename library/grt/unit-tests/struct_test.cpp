@@ -20,6 +20,8 @@
 #include "testgrt.h"
 #include "structs.test.h"
 
+using namespace grt;
+
 BEGIN_TEST_DATA_CLASS(grt_struct)
 public:
 END_TEST_DATA_CLASS

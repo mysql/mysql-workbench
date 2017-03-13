@@ -17,6 +17,16 @@
  * 02110-1301  USA
  */
 
+
+
+
+#include "code-completion/mysql-code-completion.h"
+#include "mysql/MySQLRecognizerCommon.h"
+#include "mysql/MySQLLexer.h"
+#include "mysql/MySQLParser.h"
+#include "mysql/MySQLParserBaseListener.h"
+
+
 #include "connection_helpers.h"
 #include "base/file_utilities.h"
 
@@ -26,12 +36,6 @@
 #include "sqlide/sql_editor_be.h"
 
 #include "grtsqlparser/mysql_parser_services.h"
-
-#include "code-completion/mysql-code-completion.h"
-#include "mysql/MySQLRecognizerCommon.h"
-#include "mysql/MySQLLexer.h"
-#include "mysql/MySQLParser.h"
-#include "mysql/MySQLParserBaseListener.h"
 
 #include "tut_mysql_versions.h"
 

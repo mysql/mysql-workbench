@@ -27,6 +27,7 @@ public:
 };
 
 using namespace std;
+using namespace grt;
 
 BEGIN_TEST_DATA_CLASS(grt_wrapper_base_tests)
 public:

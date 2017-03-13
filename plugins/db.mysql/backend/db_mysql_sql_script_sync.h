@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
 #pragma once
 
@@ -11,21 +29,21 @@
 class SynchronizeDifferencesPageBEInterface {
 protected:
   std::shared_ptr<DiffTreeBE> _diff_tree;
-  StringRef _sync_profile_name;
+  grt::StringRef _sync_profile_name;
 
 public:
   SynchronizeDifferencesPageBEInterface(){};
   virtual ~SynchronizeDifferencesPageBEInterface(){};
-  StringRef get_sync_profile_name() {
+  grt::StringRef get_sync_profile_name() {
     return _sync_profile_name;
   };
-  void set_sync_profile_name(StringRef sync_profile_name) {
+  void set_sync_profile_name(grt::StringRef sync_profile_name) {
     _sync_profile_name = sync_profile_name;
   };
-  ValueRef get_model_object(const bec::NodeId &node) const {
+  grt::ValueRef get_model_object(const bec::NodeId &node) const {
     return _diff_tree->get_node_with_id(node)->get_model_part().get_object();
   };
-  ValueRef get_db_object(const bec::NodeId &node) const {
+  grt::ValueRef get_db_object(const bec::NodeId &node) const {
     return _diff_tree->get_node_with_id(node)->get_db_part().get_object();
   };
   void set_next_apply_direction(bec::NodeId nodeid) {
@@ -66,7 +84,7 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLScriptSync : public DbMySQLValidation
   std::string _output_filename;
   std::vector<std::string> schemata_list; // all schemata present on server (unfiltered)
 
-  std::shared_ptr<DiffChange> _alter_change;
+  std::shared_ptr<grt::DiffChange> _alter_change;
 
   void sync_finished(grt::ValueRef res);
   grt::ValueRef sync_task(grt::StringRef);
@@ -84,8 +102,8 @@ public:
 
   void set_option(const std::string &name, const std::string &value);
 
-  std::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string> &schemata, const ValueRef &left,
-                                             const ValueRef &right, StringListRef SchemaSkipList = StringListRef(),
+  std::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string> &schemata, const grt::ValueRef &left,
+                                             const grt::ValueRef &right, grt::StringListRef SchemaSkipList = grt::StringListRef(),
                                              grt::DictRef options = grt::DictRef());
 
   std::string get_sql_for_object(GrtNamedObjectRef obj);

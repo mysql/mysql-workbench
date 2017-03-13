@@ -1060,8 +1060,8 @@ static struct {
   {NULL, NULL, NULL, NULL, NULL}};
 
 TEST_FUNCTION(10) {
-  std::shared_ptr<DiffChange> alter_change;
-  std::shared_ptr<DiffChange> empty_change;
+  std::shared_ptr<grt::DiffChange> alter_change;
+  std::shared_ptr<grt::DiffChange> empty_change;
 
   // column insertion
 
@@ -1217,8 +1217,8 @@ TEST_FUNCTION(10) {
 }
 
 TEST_FUNCTION(20) {
-  std::shared_ptr<DiffChange> alter_change;
-  std::shared_ptr<DiffChange> empty_change;
+  std::shared_ptr<grt::DiffChange> alter_change;
+  std::shared_ptr<grt::DiffChange> empty_change;
 
   // column insertion
   ensure("connection is NULL", connection.get() != NULL);
@@ -1370,7 +1370,7 @@ static struct {
   {NULL, NULL, NULL, NULL, NULL}};
 
 TEST_FUNCTION(30) {
-  std::shared_ptr<DiffChange> empty_change;
+  std::shared_ptr<grt::DiffChange> empty_change;
 
   // column insertion
 

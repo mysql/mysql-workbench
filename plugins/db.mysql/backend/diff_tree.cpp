@@ -250,7 +250,7 @@ void DiffNode::get_object_list_to_apply_to_model(std::vector<grt::ValueRef> &vec
   std::for_each(b, e, GetObjectListToApplyToModel(vec, removal_vec));
 }
 
-void DiffNode::set_modified_and_update_dir(bool m, std::shared_ptr<DiffChange> c) {
+void DiffNode::set_modified_and_update_dir(bool m, std::shared_ptr<grt::DiffChange> c) {
   change = c;
   modified = m;
   applyDirection = m ? ApplyToDb : CantApply;
@@ -401,12 +401,12 @@ bool is_node_object(const grt::ValueRef v) {
           db_RoutineRef::can_wrap(v) || db_TriggerRef::can_wrap(v));
 }
 
-bool DiffTreeBE::update_tree_with_changes(const std::shared_ptr<DiffChange> diffchange) {
+bool DiffTreeBE::update_tree_with_changes(const std::shared_ptr<grt::DiffChange> diffchange) {
   if (!diffchange)
     return false;
 
   switch (diffchange->get_change_type()) {
-    case SimpleValue:
+    case grt::SimpleValue:
       return true;
       break;
 
@@ -473,7 +473,7 @@ bool DiffTreeBE::update_tree_with_changes(const std::shared_ptr<DiffChange> diff
 }
 
 // TODO check how new DiffNode being deleted
-void DiffTreeBE::apply_change(GrtObjectRef obj, std::shared_ptr<DiffChange> change) {
+void DiffTreeBE::apply_change(GrtObjectRef obj, std::shared_ptr<grt::DiffChange> change) {
   DiffNode *obj_node = _root->find_node_for_object(obj);
 
 #if 0
@@ -495,7 +495,7 @@ void DiffTreeBE::apply_change(GrtObjectRef obj, std::shared_ptr<DiffChange> chan
 }
 
 DiffTreeBE::DiffTreeBE(const std::vector<std::string> &schemata, db_mysql_CatalogRef model_catalogRef,
-                       db_mysql_CatalogRef external_catalog, std::shared_ptr<DiffChange> diffchange,
+                       db_mysql_CatalogRef external_catalog, std::shared_ptr<grt::DiffChange> diffchange,
                        DiffNodeController controller)
   : _node_controller(controller) {
   _root = new DiffNode(model_catalogRef, external_catalog, false);

@@ -24,6 +24,8 @@
 #define DEFINE_TEST_MODULES_CODE
 #include "test_modules.h"
 
+using namespace grt;
+
 BEGIN_TEST_DATA_CLASS(grt_module_native)
 protected:
 END_TEST_DATA_CLASS

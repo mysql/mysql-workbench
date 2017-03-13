@@ -88,6 +88,7 @@ namespace Scintilla {
 class ScintillaCocoa : public ScintillaBase
 {
 private:
+  ScintillaView* sciView;
   TimerTarget* timerTarget;
   NSEvent* lastMouseEvent;
 
@@ -131,7 +132,7 @@ protected:
   virtual void CancelModes();
 
 public:
-  ScintillaCocoa(SCIContentView* view, SCIMarginView* viewMargin);
+  ScintillaCocoa(ScintillaView* sciView_, SCIContentView* viewContent, SCIMarginView* viewMargin);
   virtual ~ScintillaCocoa();
 
   void SetDelegate(id<ScintillaNotificationProtocol> delegate_);
@@ -196,8 +197,12 @@ public:
   virtual void IdleWork();
   virtual void QueueIdleWork(WorkNeeded::workItems items, int upTo);
   int InsertText(NSString* input);
-  NSRange PositionsFromCharacters(NSRange range) const;
-  NSRange CharactersFromPositions(NSRange range) const;
+  NSRange PositionsFromCharacters(NSRange rangeCharacters) const;
+  NSRange CharactersFromPositions(NSRange rangePositions) const;
+  NSString *RangeTextAsString(NSRange rangePositions) const;
+  NSInteger VisibleLineForIndex(NSInteger index);
+  NSRange RangeForVisibleLine(NSInteger lineVisible);
+  NSRect FrameForRange(NSRange rangeCharacters);
   void SelectOnlyMainSelection();
   void ConvertSelectionVirtualSpace();
   bool ClearAllSelections();
@@ -208,6 +213,7 @@ public:
 
   bool KeyboardInput(NSEvent* event);
   void MouseDown(NSEvent* event);
+  void RightMouseDown(NSEvent* event);
   void MouseMove(NSEvent* event);
   void MouseUp(NSEvent* event);
   void MouseEntered(NSEvent* event);
@@ -230,6 +236,8 @@ public:
   virtual void Undo();
   virtual void Redo();
 
+  virtual bool ShouldDisplayPopupOnMargin();
+  virtual bool ShouldDisplayPopupOnText();
   virtual NSMenu* CreateContextMenu(NSEvent* event);
   void HandleCommand(NSInteger command);
 

@@ -323,7 +323,6 @@
 		278A085619BC84B20084C2F4 /* wb_catalog_utils.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BD04DFC0F63404A00FD47B3 /* wb_catalog_utils.py */; };
 		278A085719BC84B20084C2F4 /* wb_model_utils.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B1D6D2E178C52950073C062 /* wb_model_utils.py */; };
 		278A085819BC84B20084C2F4 /* wb_utils_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BD04DFF0F63412800FD47B3 /* wb_utils_grt.py */; };
-		278A085919BC85410084C2F4 /* wb_docs_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */; };
 		278A085A19BC85410084C2F4 /* db_copy_report.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BA8528B16A8A4CE0048015B /* db_copy_report.py */; };
 		278A085B19BC85410084C2F4 /* db_copy_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC016A4E8C400747448 /* db_copy_grt.py */; };
 		278A085C19BC85410084C2F4 /* db_copy_main.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC116A4E8C400747448 /* db_copy_main.py */; };
@@ -3634,7 +3633,6 @@
 				44FFC3DA1AA0BC3A00950A48 /* sqlide_power_import_wizard.py in Copy Files (python plugins) */,
 				27CD25191A6AAB83009DB982 /* migration_schema_mappings.py in Copy Files (python plugins) */,
 				27CD25181A6AAB5B009DB982 /* migration_bulk_copy_data.py in Copy Files (python plugins) */,
-				278A085919BC85410084C2F4 /* wb_docs_grt.py in Copy Files (python plugins) */,
 				278A085A19BC85410084C2F4 /* db_copy_report.py in Copy Files (python plugins) */,
 				278A085B19BC85410084C2F4 /* db_copy_grt.py in Copy Files (python plugins) */,
 				278A085C19BC85410084C2F4 /* db_copy_main.py in Copy Files (python plugins) */,
@@ -4824,7 +4822,6 @@
 		2B18EDD5196C9646004D7596 /* admin_dashboard@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_dashboard@2x.png"; path = "images/admin/admin_dashboard@2x.png"; sourceTree = "<group>"; };
 		2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_instrumentation_setup@2x.png"; path = "images/admin/admin_instrumentation_setup@2x.png"; sourceTree = "<group>"; };
 		2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_performance_reports@2x.png"; path = "images/admin/admin_performance_reports@2x.png"; sourceTree = "<group>"; };
-		2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = wb_docs_grt.py; path = plugins/wb.docs/wb_docs_grt.py; sourceTree = "<group>"; };
 		2B1AC76C127F99C800AEC070 /* debug_continue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_continue.png; path = images/toolbar/debug_continue.png; sourceTree = "<group>"; };
 		2B1AC76D127F99C800AEC070 /* debug_step.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_step.png; path = images/toolbar/debug_step.png; sourceTree = "<group>"; };
 		2B1AC76E127F99C800AEC070 /* debug_step_into.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_step_into.png; path = images/toolbar/debug_step_into.png; sourceTree = "<group>"; };
@@ -8381,14 +8378,6 @@
 			name = "MySQL Relationship Editor";
 			sourceTree = "<group>";
 		};
-		2B18EDE1196DA6DD004D7596 /* wb.docs */ = {
-			isa = PBXGroup;
-			children = (
-				2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */,
-			);
-			name = wb.docs;
-			sourceTree = "<group>";
-		};
 		2B1E2FCC172F03670037D3DD /* Commercial Plugins */ = {
 			isa = PBXGroup;
 			children = (
@@ -10185,7 +10174,6 @@
 				2B5284190F1A5812005FBF7C /* db.mysql.editors */,
 				2B6BBEBD16BAB13900F8A39E /* db.mysql.search */,
 				2B92ACD8104D95B30063A35B /* wb.admin */,
-				2B18EDE1196DA6DD004D7596 /* wb.docs */,
 				2BAD7C20156D88B10025F13F /* wb.migration */,
 				2B17B00F0F4D979B0087ED42 /* wb.model.editors */,
 				2BF7E09F133101CA002EBA46 /* wb.model.snippets */,

@@ -20,6 +20,7 @@
 		27D89B411CE4C0F000BEEA3B /* MySQLParserBaseVisitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27D89B351CE4C0F000BEEA3B /* MySQLParserBaseVisitor.cpp */; };
 		27D89B421CE4C0F000BEEA3B /* MySQLParserListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27D89B361CE4C0F000BEEA3B /* MySQLParserListener.cpp */; };
 		27D89B431CE4C0F000BEEA3B /* MySQLParserVisitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27D89B371CE4C0F000BEEA3B /* MySQLParserVisitor.cpp */; };
+		27FF125E1E715C5A003E4FF0 /* SymbolTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27FF125C1E715C5A003E4FF0 /* SymbolTable.cpp */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -66,6 +67,8 @@
 		27D89B3B1CE4C0F000BEEA3B /* MySQLParserBaseVisitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLParserBaseVisitor.h; path = ../../mysql/MySQLParserBaseVisitor.h; sourceTree = "<group>"; };
 		27D89B3C1CE4C0F000BEEA3B /* MySQLParserListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLParserListener.h; path = ../../mysql/MySQLParserListener.h; sourceTree = "<group>"; };
 		27D89B3D1CE4C0F000BEEA3B /* MySQLParserVisitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLParserVisitor.h; path = ../../mysql/MySQLParserVisitor.h; sourceTree = "<group>"; };
+		27FF125C1E715C5A003E4FF0 /* SymbolTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SymbolTable.cpp; path = ../../SymbolTable.cpp; sourceTree = "<group>"; };
+		27FF125D1E715C5A003E4FF0 /* SymbolTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SymbolTable.h; path = ../../SymbolTable.h; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -143,6 +146,8 @@
 				27D89B3D1CE4C0F000BEEA3B /* MySQLParserVisitor.h */,
 				27AC52C41CE76B850093AAAB /* MySQLRecognizerCommon.cpp */,
 				27AC52C51CE76B850093AAAB /* MySQLRecognizerCommon.h */,
+				27FF125C1E715C5A003E4FF0 /* SymbolTable.cpp */,
+				27FF125D1E715C5A003E4FF0 /* SymbolTable.h */,
 			);
 			name = Parser;
 			sourceTree = "<group>";
@@ -275,6 +280,7 @@
 			files = (
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				27D89B411CE4C0F000BEEA3B /* MySQLParserBaseVisitor.cpp in Sources */,
+				27FF125E1E715C5A003E4FF0 /* SymbolTable.cpp in Sources */,
 				274912441D574E600030C9F5 /* mysql_parserAppDelegate.mm in Sources */,
 				27D89B431CE4C0F000BEEA3B /* MySQLParserVisitor.cpp in Sources */,
 				27D89B401CE4C0F000BEEA3B /* MySQLParserBaseListener.cpp in Sources */,

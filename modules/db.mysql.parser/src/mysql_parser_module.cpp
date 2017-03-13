@@ -167,6 +167,16 @@ struct MySQLParserContextImpl : public MySQLParserContext {
     return result;
   }
 
+  virtual Scanner createScanner() override {
+    tokens.reset();
+    Scanner scanner(&tokens);
+    return scanner;
+  }
+
+  virtual bool isIdentifier(size_t type) const override {
+    return lexer.isIdentifier(type);
+  }
+
   ParseTree *parse(const std::string &text, MySQLParseUnit unit) {
     input.load(text);
     return startParsing(false, unit);
@@ -592,7 +602,7 @@ size_t MySQLParserServicesImpl::parseTrigger(MySQLParserContext::Ref context, db
   trigger->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
-  auto tree = impl->parse(sql, MySQLParseUnit::PuCreateTable);
+  auto tree = impl->parse(sql, MySQLParseUnit::PuCreateTrigger);
 
   db_mysql_TableRef table;
   if (impl->errors.empty()) {

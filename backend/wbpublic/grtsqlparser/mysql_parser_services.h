@@ -36,7 +36,7 @@ namespace parsers {
   struct WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserContext {
     typedef std::shared_ptr<MySQLParserContext> Ref;
 
-    virtual ~MySQLParserContext(){};
+    virtual ~MySQLParserContext() {};
 
     virtual bool isCaseSensitive() = 0;
     virtual void updateServerVersion(GrtVersionRef newVersion) = 0;
@@ -45,6 +45,11 @@ namespace parsers {
     virtual GrtVersionRef serverVersion() const = 0;
     virtual std::string sqlMode() const = 0;
     virtual std::vector<ParserErrorInfo> errorsWithOffset(size_t offset) const = 0;
+
+    virtual Scanner createScanner() = 0;
+
+    // Identifier determination depends on e.g the sql mode, hence we need extra handling.
+    virtual bool isIdentifier(size_t type) const = 0;
   };
 
   /**

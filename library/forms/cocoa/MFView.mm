@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -22,77 +22,66 @@
 #include "base/string_utilities.h"
 
 #import "MFContainerBase.h" // to get forward declaration of setFreezeRelayout:
-#import "ScintillaView.h"    // For drop delegate retrieval.
+#import "ScintillaView.h"   // For drop delegate retrieval.
 #import "NSColor_extras.h"
 
-@implementation NSView(MForms)
+@implementation NSView (MForms)
 
-- (id)innerView
-{
+- (id)innerView {
   return self;
 }
 
 static const char *minimumSizeKey = "minimumSizeKey";
 
-- (NSSize)minimumSize
-{
+- (NSSize)minimumSize {
   NSValue *value = objc_getAssociatedObject(self, minimumSizeKey);
   return value.sizeValue;
 }
 
-- (void)setMinimumSize: (NSSize)size
-{
+- (void)setMinimumSize:(NSSize)size {
   objc_setAssociatedObject(self, minimumSizeKey, [NSValue valueWithSize: size], OBJC_ASSOCIATION_RETAIN);
 }
 
 static const char *viewFlagsKey = "viewFlagsKey";
 
-- (ViewFlags)viewFlags
-{
+- (ViewFlags)viewFlags {
   NSNumber *value = objc_getAssociatedObject(self, viewFlagsKey);
   return (ViewFlags)value.intValue;
 }
 
-- (void)setViewFlags: (ViewFlags)value
-{
+- (void)setViewFlags:(ViewFlags)value {
   objc_setAssociatedObject(self, viewFlagsKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
 
 static const char *lastDragOperationKey = "lastDragOperationKey";
 
-- (mforms::DragOperation)lastDragOperation
-{
+- (mforms::DragOperation)lastDragOperation {
   NSNumber *value = objc_getAssociatedObject(self, lastDragOperationKey);
   return (mforms::DragOperation)value.intValue;
 }
 
-- (void)setLastDragOperation: (mforms::DragOperation)value
-{
+- (void)setLastDragOperation: (mforms::DragOperation)value {
   objc_setAssociatedObject(self, lastDragOperationKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
 
 static const char *allowedDragOperationsKey = "allowedDragOperationsKey";
 
-- (mforms::DragOperation)allowedDragOperations
-{
+- (mforms::DragOperation)allowedDragOperations {
   NSNumber *value = objc_getAssociatedObject(self, allowedDragOperationsKey);
   return (mforms::DragOperation)value.intValue;
 }
 
-- (void)setAllowedDragOperations: (mforms::DragOperation)value
-{
+- (void)setAllowedDragOperations: (mforms::DragOperation)value {
   objc_setAssociatedObject(self, allowedDragOperationsKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
 
 static const char *acceptableDropFormatsKey = "acceptableDropFormats";
 
-- (NSArray *)acceptableDropFormats
-{
+- (NSArray *)acceptableDropFormats {
   return objc_getAssociatedObject(self, acceptableDropFormatsKey);
 }
 
-- (void)setAcceptableDropFormats: (NSArray *)formats
-{
+- (void)setAcceptableDropFormats: (NSArray *)formats {
   objc_setAssociatedObject(self, acceptableDropFormatsKey, formats, OBJC_ASSOCIATION_RETAIN);
   if (formats.count > 0)
     [self registerForDraggedTypes: formats];
@@ -102,34 +91,29 @@ static const char *acceptableDropFormatsKey = "acceptableDropFormats";
 
 static const char *dropDelegateKey = "dropDelegate";
 
-- (mforms::DropDelegate *)dropDelegate
-{
+- (mforms::DropDelegate *)dropDelegate {
   NSNumber *value = objc_getAssociatedObject(self, dropDelegateKey);
   return (mforms::DropDelegate *)value.unsignedIntegerValue;
 }
 
-- (void)setDropDelegate: (mforms::DropDelegate *)delegate
-{
+- (void)setDropDelegate: (mforms::DropDelegate *)delegate {
   objc_setAssociatedObject(self, dropDelegateKey, @((NSUInteger)delegate), OBJC_ASSOCIATION_RETAIN);
 }
 
 static const char *lastDropPositionKey = "lastDropPositionKey";
 
-- (mforms::DropPosition)lastDropPosition
-{
+- (mforms::DropPosition)lastDropPosition {
   NSNumber *value = objc_getAssociatedObject(self, lastDropPositionKey);
   return (mforms::DropPosition)value.intValue;
 }
 
-- (void)setLastDropPosition: (mforms::DropPosition)value
-{
+- (void)setLastDropPosition:(mforms::DropPosition)value {
   objc_setAssociatedObject(self, lastDropPositionKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (bool)handleMouseUp: (NSEvent*)event owner: (mforms::View *)mOwner
-{
+- (bool)handleMouseUp: (NSEvent *)event owner: (mforms::View *)mOwner {
   NSPoint p = [self convertPoint: event.locationInWindow fromView: nil];
 
   mforms::MouseButton mouseButton;
@@ -149,8 +133,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   }
 
   bool handled = false;
-  switch (event.clickCount)
-  {
+  switch (event.clickCount) {
     case 1:
       handled = mOwner->mouse_click(mouseButton, p.x, p.y);
       break;
@@ -166,8 +149,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 //--------------------------------------------------------------------------------------------------
 
-- (bool)handleMouseDown: (NSEvent*)event owner: (mforms::View *)mOwner
-{
+- (bool)handleMouseDown: (NSEvent *)event owner: (mforms::View *)mOwner {
   NSPoint p = [self convertPoint: event.locationInWindow fromView: nil];
   mforms::MouseButton mouseButton;
   switch (event.buttonNumber) // NSLeftMouseDown etc are NOT buttonNumber constants
@@ -184,41 +166,38 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
       mouseButton = mforms::MouseButtonOther;
       break;
   }
-  
+
   return mOwner->mouse_down(mouseButton, p.x, p.y);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (bool)handleMouseMove: (NSEvent *)event owner: (mforms::View *)mOwner
-{
+- (bool)handleMouseMove: (NSEvent *)event owner: (mforms::View *)mOwner {
   // We have to map mouseDragged to mouseMoved as other platforms don't do this separation.
   // However the mouse button recorded in the event for mouseMoved is that of the last pressed
   // (and released) button. A currently pressed button produces mouseDragged instead.
-  NSPoint p = [self convertPoint: event.locationInWindow fromView: nil];
+  NSPoint p = [self convertPoint:event.locationInWindow fromView:nil];
 
   mforms::MouseButton mouseButton;
   if (event.type == NSLeftMouseDragged)
     mouseButton = mforms::MouseButtonLeft;
   else
     mouseButton = mforms::MouseButtonNone;
-  
+
   return mOwner->mouse_move(mouseButton, p.x, p.y);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (bool)handleMouseEntered: (NSEvent*)event owner: (mforms::View *)mOwner
-{
-  //NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
+- (bool)handleMouseEntered: (NSEvent *)event owner: (mforms::View *)mOwner {
+  // NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
   return mOwner->mouse_enter();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (bool)handleMouseExited: (NSEvent*)event owner: (mforms::View *)mOwner
-{
-  //NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
+- (bool)handleMouseExited: (NSEvent *)event owner: (mforms::View *)mOwner {
+  // NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
   return mOwner->mouse_leave();
 }
 
@@ -227,17 +206,15 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 /**
  * To be called by all controls that want mouse events for dragging (from updateTrackingAreas).
  */
-- (NSTrackingArea *)updateTrackingArea: (NSTrackingArea *)currentArea
-{
+- (NSTrackingArea *)updateTrackingArea: (NSTrackingArea *)currentArea {
   // Create one tracking area which covers the whole control and make it get mouse events.
-  if (currentArea != nil)
-  {
+  if (currentArea != nil) {
     [self removeTrackingArea: currentArea];
   }
 
-  NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
-    NSTrackingActiveInActiveApp | NSTrackingInVisibleRect;
-  currentArea = [[NSTrackingArea alloc] initWithRect: self.bounds options: options owner: self userInfo: nil];
+  NSTrackingAreaOptions options =
+    NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInActiveApp | NSTrackingInVisibleRect;
+  currentArea = [[NSTrackingArea alloc] initWithRect: self.bounds options:options owner: self userInfo: nil];
   [self addTrackingArea: currentArea];
 
   return currentArea;
@@ -250,23 +227,20 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
  * the prefered size is its minimum size or the proposal (whichever is larger). Descendants (like container classes)
  * override this and compute their real preferred size.
  */
-- (NSSize)preferredSize: (NSSize)proposal
-{
-  return { MAX(self.minimumSize.width, proposal.width), MAX(self.minimumSize.height, proposal.height) };
+- (NSSize)preferredSize: (NSSize)proposal {
+  return {MAX(self.minimumSize.width, proposal.width), MAX(self.minimumSize.height, proposal.height)};
 }
 
-- (void)relayout
-{
-  [self resizeSubviewsWithOldSize: self.frame.size];
+- (void)relayout {
+  [self resizeSubviewsWithOldSize:self.frame.size];
 }
 
-- (void)drawBounds: (NSRect)rect
-{
+- (void)drawBounds: (NSRect)rect {
   NSFrameRect(rect);
-  [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMinY(rect))
-                            toPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect))];
-  [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))
-                            toPoint:NSMakePoint(NSMaxX(rect), NSMinY(rect))];
+  [NSBezierPath strokeLineFromPoint: NSMakePoint(NSMinX(rect), NSMinY(rect))
+                            toPoint :NSMakePoint(NSMaxX(rect), NSMaxY(rect))];
+  [NSBezierPath strokeLineFromPoint: NSMakePoint(NSMinX(rect), NSMaxY(rect))
+                            toPoint: NSMakePoint(NSMaxX(rect), NSMinY(rect))];
 }
 
 #pragma mark - Drag/drop support
@@ -275,15 +249,12 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 struct PasteboardDataWrapper {
   const char identifier[16]; // always "mysql-workbench"
   void *data;
-  PasteboardDataWrapper()
-  : identifier("mysql-workbench")
-  {
+  PasteboardDataWrapper() : identifier("mysql-workbench") {
     data = NULL;
   }
 };
 
-- (NSDragOperation) draggingSourceOperationMaskForLocal: (BOOL) flag
-{
+- (NSDragOperation)draggingSourceOperationMaskForLocal: (BOOL)flag {
   mforms::DragOperation operations = self.allowedDragOperations;
   NSDragOperation nativeOperations = NSDragOperationNone;
   if ((operations & mforms::DragOperationMove) == mforms::DragOperationMove)
@@ -294,21 +265,16 @@ struct PasteboardDataWrapper {
   return nativeOperations;
 }
 
-- (mforms::DropDelegate *)determineDropDelegate
-{
+- (mforms::DropDelegate *)determineDropDelegate {
   mforms::DropDelegate *delegate = self.dropDelegate;
-  if (delegate == NULL)
-  {
-    if ([self isKindOfClass: [SCIContentView class]])
-      delegate = ((SCIContentView *)self).owner.dropDelegate;
-    if (delegate == NULL && [self respondsToSelector: @selector(mformsObject)])
-      delegate = dynamic_cast<mforms::DropDelegate*>(self.mformsObject);
+  if (delegate == NULL) {
+    if ([self respondsToSelector: @selector(mformsObject)])
+      delegate = dynamic_cast<mforms::DropDelegate *>(self.mformsObject);
   }
   return delegate;
 }
 
-- (NSDragOperation)draggingUpdated: (id <NSDraggingInfo>)sender
-{
+- (NSDragOperation)draggingUpdated: (id<NSDraggingInfo>)sender {
   mforms::DropDelegate *delegate = [self determineDropDelegate];
   if (delegate == NULL)
     return NSDragOperationNone;
@@ -326,25 +292,22 @@ struct PasteboardDataWrapper {
 
   mforms::View *view = NULL;
   if ([source respondsToSelector: @selector(mformsObject)])
-    view = dynamic_cast<mforms::View*>([source mformsObject]);
+    view = dynamic_cast<mforms::View *>([source mformsObject]);
 
   NSPoint location = [self convertPoint: sender.draggingLocation fromView: nil];
   std::vector<std::string> formats;
   NSPasteboard *pasteboard = sender.draggingPasteboard;
-  for (NSString *entry in pasteboard.types)
-  {
-    if ([entry isEqualToString: NSStringPboardType])
+  for (NSString *entry in pasteboard.types) {
+    if ([entry isEqualToString:NSStringPboardType])
       formats.push_back(mforms::DragFormatText);
+    else if ([entry isEqualToString:NSFilenamesPboardType])
+      formats.push_back(mforms::DragFormatFileName);
     else
-      if ([entry isEqualToString: NSFilenamesPboardType])
-        formats.push_back(mforms::DragFormatFileName);
-      else
-        formats.push_back(entry.UTF8String);
+      formats.push_back(entry.UTF8String);
   }
 
   NSDragOperation result = NSDragOperationNone;
-  mforms::DragOperation operation = delegate->drag_over(view, base::Point(location.x, location.y),
-                                                        operations, formats);
+  mforms::DragOperation operation = delegate->drag_over(view, base::Point(location.x, location.y), operations, formats);
   self.lastDragOperation = operation;
   if ((operation & mforms::DragOperationCopy) != 0)
     result |= NSDragOperationCopy;
@@ -354,8 +317,7 @@ struct PasteboardDataWrapper {
   return result;
 }
 
-- (BOOL)performDragOperation: (id <NSDraggingInfo>)sender
-{
+- (BOOL)performDragOperation: (id<NSDraggingInfo>)sender {
   mforms::DropDelegate *delegate = [self determineDropDelegate];
   if (delegate == NULL)
     return NO;
@@ -372,49 +334,41 @@ struct PasteboardDataWrapper {
     operations |= mforms::DragOperationCopy;
 
   mforms::View *view = NULL;
-  if ([source respondsToSelector: @selector(mformsObject)])
-    view = dynamic_cast<mforms::View*>([source mformsObject]);
+  if ([source respondsToSelector:@selector(mformsObject)])
+    view = dynamic_cast<mforms::View *>([source mformsObject]);
 
   NSPoint location = [self convertPoint: sender.draggingLocation fromView: nil];
   NSPasteboard *pasteboard = sender.draggingPasteboard;
-  for (NSString *entry in pasteboard.types)
-  {
-    if ([entry isEqualToString: NSStringPboardType])
-    {
+  for (NSString *entry in pasteboard.types) {
+    if ([entry isEqualToString: NSStringPboardType]) {
       NSString *text = [pasteboard stringForType: NSStringPboardType];
-      if (delegate->text_dropped(view, base::Point(location.x, location.y), operations,
-                                 text.UTF8String) != mforms::DragOperationNone)
+      if (delegate->text_dropped(view, base::Point(location.x, location.y), operations, text.UTF8String) !=
+          mforms::DragOperationNone)
         return YES;
-    }
-    else
-      if ([entry isEqualToString: NSFilenamesPboardType])
-      {
-        NSArray *fileNames = [pasteboard propertyListForType: NSFilenamesPboardType];
-        std::vector<std::string> names;
-        for (NSString *name in fileNames)
-          names.push_back(name.UTF8String);
-        if (names.size() > 0 && delegate->files_dropped(view, base::Point(location.x, location.y),
-                                                        operations, names) != mforms::DragOperationNone)
+    } else if ([entry isEqualToString: NSFilenamesPboardType]) {
+      NSArray *fileNames = [pasteboard propertyListForType: NSFilenamesPboardType];
+      std::vector<std::string> names;
+      for (NSString *name in fileNames)
+        names.push_back(name.UTF8String);
+      if (names.size() > 0 &&
+          delegate->files_dropped(view, base::Point(location.x, location.y), operations, names) !=
+            mforms::DragOperationNone)
+        return YES;
+    } else {
+      // Any custom data.
+      void *data = [pasteboard nativeDataForTypeAsString:entry];
+      if (data != NULL) {
+        if (delegate->data_dropped(view, base::Point(location.x, location.y), operations, data, entry.UTF8String) !=
+            mforms::DragOperationNone)
           return YES;
       }
-      else
-      {
-        // Any custom data.
-        void *data = [pasteboard nativeDataForTypeAsString: entry];
-        if (data != NULL)
-        {
-          if (delegate->data_dropped(view, base::Point(location.x, location.y), operations, data,
-                                     entry.UTF8String) != mforms::DragOperationNone)
-            return YES;
-        }
-      }
+    }
   }
-  
+
   return NO;
 }
 
-- (void)draggingEnded: (id <NSDraggingInfo>)sender
-{
+- (void)draggingEnded:(id<NSDraggingInfo>)sender {
   self.lastDropPosition = mforms::DropPositionUnknown;
 }
 
@@ -423,9 +377,7 @@ struct PasteboardDataWrapper {
 // No concurrency here as dd is per se safe (only one drag operation at a time possible).
 static NSString *dragText = nil;
 
-- (mforms::DragOperation)startDragWithText: (NSString *)text
-                                   details: (mforms::DragDetails)details
-{
+- (mforms::DragOperation)startDragWithText: (NSString *)text details: (mforms::DragDetails)details {
   self.allowedDragOperations = details.allowedOperations;
   self.lastDropPosition = mforms::DropPositionUnknown;
   dragText = text;
@@ -435,41 +387,37 @@ static NSString *dragText = nil;
   [pasteboard setString: text forType: NSStringPboardType];
 
   NSImage *dragImage = [[NSImage alloc] init];
-  if (details.image == NULL)
-  {
-    NSDictionary *attributes = @{NSFontAttributeName: [NSFont labelFontOfSize: 12]};
+  if (details.image == NULL) {
+    NSDictionary *attributes = @{NSFontAttributeName : [NSFont labelFontOfSize: 12]};
     dragImage.size = [text sizeWithAttributes: attributes];
     [dragImage lockFocus];
     [text drawAtPoint: NSMakePoint(0, 0) withAttributes: attributes];
     [dragImage unlockFocus];
-  }
-  else
-  {
+  } else {
     unsigned char *data = cairo_image_surface_get_data(details.image);
 
     // Convert pixel fromat from ARGB to ABGR.
     int i = 0;
     int width = cairo_image_surface_get_width(details.image);
     int height = cairo_image_surface_get_height(details.image);
-    while (i < 4 * width * height)
-    {
+    while (i < 4 * width * height) {
       unsigned char temp = data[i];
       data[i] = data[i + 2];
       data[i + 2] = temp;
       i += 4;
     }
-    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: (unsigned char **) &data
-                                                                       pixelsWide: width
-                                                                       pixelsHigh: height
-                                                                    bitsPerSample: 8
-                                                                  samplesPerPixel: 4
-                                                                         hasAlpha: YES
-                                                                         isPlanar: NO
-                                                                   colorSpaceName: NSCalibratedRGBColorSpace
-                                                                      bytesPerRow: cairo_image_surface_get_stride(details.image)
-                                                                     bitsPerPixel: 0
-                                ];
-    [dragImage addRepresentation: bitmap];
+    NSBitmapImageRep *bitmap =
+      [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: (unsigned char **)&data
+                                              pixelsWide: width
+                                              pixelsHigh: height
+                                           bitsPerSample: 8
+                                         samplesPerPixel: 4
+                                                hasAlpha: YES
+                                                isPlanar: NO
+                                          colorSpaceName: NSCalibratedRGBColorSpace
+                                             bytesPerRow: cairo_image_surface_get_stride(details.image)
+                                            bitsPerPixel: 0];
+    [dragImage addRepresentation:bitmap];
   }
 
   NSPoint position = NSMakePoint(details.location.x, details.location.y);
@@ -477,8 +425,8 @@ static NSString *dragText = nil;
   // We need a mouse event so the dragImage: call can get the original mouse position.
   // Usually we are called by a mouse down/mouse move event, but we lost the original event while
   // the handling went through the backend. So we create one manually here again.
-  NSEvent *event = [NSEvent mouseEventWithType: NSLeftMouseDown
-                                      location: [self convertPoint: position toView: nil]
+  NSEvent *event = [NSEvent mouseEventWithType:NSLeftMouseDown
+                                      location: [self convertPoint:position toView:nil]
                                  modifierFlags: 0
                                      timestamp: 0
                                   windowNumber: self.window.windowNumber
@@ -490,65 +438,58 @@ static NSString *dragText = nil;
   position.y -= details.hotspot.y;
 
   NSPasteboardItem *pbItem = [NSPasteboardItem new];
-  [pbItem setDataProvider: self forTypes: @[NSStringPboardType]];
+  [pbItem setDataProvider:self forTypes:@[ NSStringPboardType ]];
 
   NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter: pbItem];
 
-  [dragItem setDraggingFrame: NSMakeRect(position.x, position.y, dragImage.size.width, dragImage.size.height)
-                    contents: dragImage];
-  NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem]
-                                                                     event: event
-                                                                    source: self];
+  [dragItem setDraggingFrame:NSMakeRect(position.x, position.y, dragImage.size.width, dragImage.size.height)
+                    contents:dragImage];
+  NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem] event: event source: self];
   draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
   draggingSession.draggingFormation = NSDraggingFormationNone;
-  
+
   return self.lastDragOperation;
 }
 
 static void *dragData = NULL;
 static bool dragInProgress = NO;
 
-- (mforms::DragOperation)startDragWithData: (void *)data
-                                   details: (mforms::DragDetails)details
-                                    format: (NSString *)format
-{
+- (mforms::DragOperation)startDragWithData: (void *)data details: (mforms::DragDetails)details format: (NSString *)format {
   self.allowedDragOperations = details.allowedOperations;
   self.lastDropPosition = mforms::DropPositionUnknown;
   dragData = data;
 
   NSImage *dragImage = [[NSImage alloc] init];
-  if (details.image != NULL)
-  {
+  if (details.image != NULL) {
     unsigned char *data = cairo_image_surface_get_data(details.image);
 
     // Convert pixel fromat from ARGB to ABGR.
     int i = 0;
     int width = cairo_image_surface_get_width(details.image);
     int height = cairo_image_surface_get_height(details.image);
-    while (i < 4 * width * height)
-    {
+    while (i < 4 * width * height) {
       unsigned char temp = data[i];
       data[i] = data[i + 2];
       data[i + 2] = temp;
       i += 4;
     }
-    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: (unsigned char **) &data
-                                                                       pixelsWide: width
-                                                                       pixelsHigh: height
-                                                                    bitsPerSample: 8
-                                                                  samplesPerPixel: 4
-                                                                         hasAlpha: YES
-                                                                         isPlanar: NO
-                                                                   colorSpaceName: NSCalibratedRGBColorSpace
-                                                                      bytesPerRow: cairo_image_surface_get_stride(details.image)
-                                                                     bitsPerPixel: 0
-                                ];
-    [dragImage addRepresentation: bitmap];
+    NSBitmapImageRep *bitmap =
+      [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: (unsigned char **)&data
+                                              pixelsWide: width
+                                              pixelsHigh: height
+                                           bitsPerSample: 8
+                                         samplesPerPixel: 4
+                                                hasAlpha: YES
+                                                isPlanar: NO
+                                          colorSpaceName: NSCalibratedRGBColorSpace
+                                             bytesPerRow: cairo_image_surface_get_stride(details.image)
+                                            bitsPerPixel: 0];
+    [dragImage addRepresentation:bitmap];
   }
 
   NSPoint position = NSMakePoint(details.location.x, details.location.y);
   NSEvent *event = [NSEvent mouseEventWithType: NSLeftMouseDown
-                                      location: [self convertPoint: position toView: nil]
+                                      location: [self convertPoint:position toView:nil]
                                  modifierFlags: 0
                                      timestamp: 0
                                   windowNumber: self.window.windowNumber
@@ -562,46 +503,43 @@ static bool dragInProgress = NO;
   position.y -= details.hotspot.y;
 
   NSPasteboardItem *pbItem = [NSPasteboardItem new];
-  [pbItem setDataProvider: self forTypes: @[format]];
+  [pbItem setDataProvider:self forTypes:@[ format ]];
 
-  NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter: pbItem];
+  NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pbItem];
 
-  [dragItem setDraggingFrame: NSMakeRect(position.x, position.y, dragImage.size.width, dragImage.size.height)
-                    contents: dragImage];
-  NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem]
-                                                                     event: event
-                                                                    source: self];
+  [dragItem setDraggingFrame:NSMakeRect(position.x, position.y, dragImage.size.width, dragImage.size.height)
+                    contents:dragImage];
+  NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem] event: event source: self];
   draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
   draggingSession.draggingFormation = NSDraggingFormationNone;
 
   dragInProgress = YES;
   NSRunLoop *theRL = [NSRunLoop currentRunLoop];
-  while (dragInProgress && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
-  
+  while (dragInProgress && [theRL runMode: NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]])
+    ;
+
   return self.lastDragOperation;
 }
 
-- (void)draggingSession:(NSDraggingSession *)session
-           endedAtPoint:(NSPoint)screenPoint
-              operation:(NSDragOperation)operation
-{
+- (void)draggingSession: (NSDraggingSession *)session
+           endedAtPoint: (NSPoint)screenPoint
+              operation: (NSDragOperation)operation {
   dragInProgress = NO;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)pasteboard: (NSPasteboard *)sender item: (NSPasteboardItem *)item provideDataForType: (NSString *)type
-{
-  if ([type isEqualTo: NSStringPboardType])
-    [sender setString: dragText forType: NSStringPboardType];
+- (void)pasteboard: (NSPasteboard *)sender item: (NSPasteboardItem *)item provideDataForType: (NSString *)type {
+  if ([type isEqualTo:NSStringPboardType])
+    [sender setString:dragText forType: NSStringPboardType];
   else
     [sender writeNativeData: dragData typeAsString: type];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (NSDragOperation)   draggingSession: (NSDraggingSession *)session
-sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
+- (NSDragOperation)draggingSession: (NSDraggingSession *)session
+  sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
 {
   switch (context) {
     case NSDraggingContextOutsideApplication:
@@ -620,8 +558,7 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
   }
 }
 
-- (mforms::ModifierKey) modifiersFromEvent: (NSEvent*) event
-{
+- (mforms::ModifierKey)modifiersFromEvent:(NSEvent *)event {
   NSUInteger modifiers = event.modifierFlags;
   mforms::ModifierKey mforms_modifiers = mforms::ModifierNoModifier;
 
@@ -643,8 +580,7 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
 
 //--------------------------------------------------------------------------------------------------
 
-NSView *nsviewForView(mforms::View *view)
-{
+NSView *nsviewForView(mforms::View *view) {
   id obj = view->get_data();
 
   return obj;
@@ -654,8 +590,7 @@ NSView *nsviewForView(mforms::View *view)
 
 @implementation NSPasteboard (MySQLWorkbench)
 
-- (void)writeNativeData: (void *)data typeAsString: (NSString *)type
-{
+- (void)writeNativeData: (void *)data typeAsString: (NSString *)type {
   PasteboardDataWrapper wrapper;
   wrapper.data = data;
   NSData *pasteboardData = [NSData dataWithBytes: &wrapper length: sizeof(wrapper)];
@@ -663,25 +598,22 @@ NSView *nsviewForView(mforms::View *view)
   [self setData: pasteboardData forType: type];
 }
 
-- (void)writeNativeData: (void *)data typeAsChar: (const char *)type
-{
+- (void)writeNativeData: (void *)data typeAsChar: (const char *)type {
   NSString *format = @(type);
   [self writeNativeData: data typeAsString: format];
 }
 
-- (void *)nativeDataForTypeAsString: (NSString *)type
-{
+- (void *)nativeDataForTypeAsString: (NSString *)type {
   NSData *data = [self dataForType: type];
   PasteboardDataWrapper wrapper;
-  [data getBytes: &wrapper length: sizeof(wrapper)];
+  [data getBytes:&wrapper length: sizeof(wrapper)];
   if (strncmp(wrapper.identifier, "mysql-workbench", 15) == 0)
     return wrapper.data;
 
   return NULL;
 }
 
-- (void *)nativeDataForTypeAsChar: (const char *)type
-{
+- (void *)nativeDataForTypeAsChar: (const char *)type {
   NSString *format = @(type);
   return [self nativeDataForTypeAsString: format];
 }
@@ -690,46 +622,39 @@ NSView *nsviewForView(mforms::View *view)
 
 #pragma mark - Static functions
 
-static void view_destroy(::mforms::View *self)
-{
+static void view_destroy(::mforms::View *self) {
   id view = self->get_data();
   SEL selector = NSSelectorFromString(@"destroy");
   if (view && [view respondsToSelector: selector])
-    ((void (*)(id, SEL))[view methodForSelector: selector])(view, selector);
+    ((void (*)(id, SEL))[view methodForSelector:selector])(view, selector);
 
-  if ([view respondsToSelector: @selector(superview)] && [view superview])
+  if ([view respondsToSelector:@selector(superview)] && [view superview])
     [view removeFromSuperview];
 }
 
-
-static int view_get_x(::mforms::View *self)
-{
+static int view_get_x(::mforms::View *self) {
   id view = self->get_data();
-  if (view)
-  {
-    NSView* widget = view;
+  if (view) {
+    NSView *widget = view;
     return NSMinX(widget.frame);
   }
   return 0;
 }
 
-static int view_get_y(::mforms::View *self)
-{
+static int view_get_y(::mforms::View *self) {
   id view = self->get_data();
-  if (view)
-  {
-    NSView* widget = view;
+  if (view) {
+    NSView *widget = view;
     return NSMinY(widget.frame);
   }
   return 0;
 }
 
-static void view_set_size(::mforms::View *self, int w, int h)
-{
+static void view_set_size(::mforms::View *self, int w, int h) {
   id frontend = self->get_data();
   if ([frontend isKindOfClass: NSView.class]) {
     NSView *view = frontend;
-    NSSize size = { (CGFloat)w, (CGFloat)h };
+    NSSize size = {(CGFloat)w, (CGFloat)h};
     if (w < 0)
       size.width = view.frame.size.width;
     if (h < 0)
@@ -753,12 +678,11 @@ static void view_set_size(::mforms::View *self, int w, int h)
   }
 }
 
-static void view_set_min_size(::mforms::View *self, int w, int h)
-{
+static void view_set_min_size(::mforms::View *self, int w, int h) {
   id frontend = self->get_data();
   if ([frontend isKindOfClass: NSView.class]) {
     NSView *view = frontend;
-    NSSize size = { (CGFloat)w, (CGFloat)h };
+    NSSize size = {(CGFloat)w, (CGFloat)h};
     if (w < 0)
       size.width = 0;
     if (h < 0)
@@ -776,17 +700,14 @@ static void view_set_min_size(::mforms::View *self, int w, int h)
   }
 }
 
-static void view_set_position(::mforms::View *self, int x, int y)
-{
+static void view_set_position(::mforms::View *self, int x, int y) {
   NSView *view = self->get_data();
-  view.frameOrigin = { (CGFloat)x, (CGFloat)y };
+  view.frameOrigin = {(CGFloat)x, (CGFloat)y};
 }
 
-static std::pair<int, int> view_client_to_screen(::mforms::View *self, int x, int y)
-{
+static std::pair<int, int> view_client_to_screen(::mforms::View *self, int x, int y) {
   id view = self->get_data();
-  if (view)
-  {
+  if (view) {
     NSRect rect = NSMakeRect(x, y, 0, 0);
     rect.origin = [view convertPoint: rect.origin toView: nil];
     rect = [[view window] convertRectToScreen: rect];
@@ -795,11 +716,9 @@ static std::pair<int, int> view_client_to_screen(::mforms::View *self, int x, in
   return std::make_pair(0, 0);
 }
 
-static std::pair<int, int> view_screen_to_client(mforms::View *self, int x, int y)
-{
+static std::pair<int, int> view_screen_to_client(mforms::View *self, int x, int y) {
   id view = self->get_data();
-  if (view)
-  {
+  if (view) {
     NSRect rect = NSMakeRect(x, y, 0, 0);
     rect = [[view window] convertRectFromScreen: rect];
     NSPoint localPoint = [view convertPoint: rect.origin fromView: nil];
@@ -808,44 +727,36 @@ static std::pair<int, int> view_screen_to_client(mforms::View *self, int x, int 
   return std::make_pair(0, 0);
 }
 
-static void view_set_enabled(::mforms::View *self, bool flag)
-{
+static void view_set_enabled(::mforms::View *self, bool flag) {
   id view = self->get_data();
-  if (view)
-  {
+  if (view) {
     if ([view respondsToSelector: @selector(setEnabled:)])
-      [view setEnabled: flag ? YES : NO];
+      [view setEnabled:flag ? YES : NO];
   }
 }
 
-static bool view_is_enabled(::mforms::View *self)
-{
+static bool view_is_enabled(::mforms::View *self) {
   id view = self->get_data();
-  if (view)
-  {
+  if (view) {
     if ([view respondsToSelector: @selector(isEnabled)])
       return [view isEnabled];
   }
   return false;
 }
 
-static int view_get_width(const mforms::View *self)
-{
+static int view_get_width(const mforms::View *self) {
   id view = self->get_data();
-  if ( view )
-  {
+  if (view) {
     if ([view isKindOfClass: [NSWindow class]])
-      return NSWidth([view contentRectForFrameRect:[view frame]]);
+      return NSWidth([view contentRectForFrameRect: [view frame]]);
     return NSWidth([view frame]);
   }
   return 0;
 }
 
-static int view_get_height(const mforms::View *self)
-{
+static int view_get_height(const mforms::View *self) {
   id frontend = self->get_data();
-  if (frontend != nil)
-  {
+  if (frontend != nil) {
     if ([frontend isKindOfClass: NSWindow.class])
       return NSHeight([frontend contentRectForFrameRect: [frontend frame]]);
     return NSHeight([frontend frame]);
@@ -853,13 +764,10 @@ static int view_get_height(const mforms::View *self)
   return 0;
 }
 
-static int view_get_preferred_width(::mforms::View *self)
-{
+static int view_get_preferred_width(::mforms::View *self) {
   id frontend = self->get_data();
-  if (frontend != nil)
-  {
-    if ([frontend isKindOfClass: NSWindow.class])
-    {
+  if (frontend != nil) {
+    if ([frontend isKindOfClass: NSWindow.class]) {
       NSSize size = [frontend preferredSize: [frontend frame].size];
       return size.width;
     }
@@ -868,13 +776,10 @@ static int view_get_preferred_width(::mforms::View *self)
   return 0;
 }
 
-static int view_get_preferred_height(::mforms::View *self)
-{
+static int view_get_preferred_height(::mforms::View *self) {
   id frontend = self->get_data();
-  if (frontend != nil)
-  {
-    if ([frontend isKindOfClass: NSWindow.class])
-    {
+  if (frontend != nil) {
+    if ([frontend isKindOfClass: NSWindow.class]) {
       NSSize size = [frontend preferredSize: [frontend frame].size];
       return size.height;
     }
@@ -883,14 +788,12 @@ static int view_get_preferred_height(::mforms::View *self)
   return 0;
 }
 
-static void view_show(mforms::View *self, bool show)
-{
+static void view_show(mforms::View *self, bool show) {
   id frontend = self->get_data();
   if ([frontend isKindOfClass: NSView.class]) {
     NSView *view = frontend;
 
-    if (view.isHidden != !show)
-    {
+    if (view.isHidden != !show) {
       view.hidden = !show;
       [view.superview relayout];
       [view.window recalculateKeyViewLoop];
@@ -902,19 +805,16 @@ static void view_show(mforms::View *self, bool show)
   }
 }
 
-static bool view_is_shown(::mforms::View *self)
-{
+static bool view_is_shown(::mforms::View *self) {
   id view = self->get_data();
   if (view)
     return ![view isHidden];
   return false;
 }
 
-static bool view_is_fully_visible(::mforms::View *self)
-{
+static bool view_is_fully_visible(::mforms::View *self) {
   NSView *view = self->get_data();
-  if (view)
-  {
+  if (view) {
     if (view.window == nil)
       return false;
 
@@ -923,132 +823,103 @@ static bool view_is_fully_visible(::mforms::View *self)
   return false;
 }
 
-static void view_set_tooltip(::mforms::View *self, const std::string &text)
-{
+static void view_set_tooltip(::mforms::View *self, const std::string &text) {
   id view = self->get_data();
-  if (view)
-  {
-    [view setToolTip: wrap_nsstring(text)];
+  if (view) {
+    [view setToolTip:wrap_nsstring(text)];
   }
 }
 
-static void view_set_font(::mforms::View *self, const std::string &fontDescription)
-{
+static void view_set_font(::mforms::View *self, const std::string &fontDescription) {
   id view = self->get_data();
-  if (view && [view respondsToSelector: @selector(setFont:)])
-  {
+  if (view && [view respondsToSelector:@selector(setFont:)]) {
     std::string name;
     float size;
     bool bold;
     bool italic;
-    if (base::parse_font_description(fontDescription, name, size, bold, italic))
-    {
+    if (base::parse_font_description(fontDescription, name, size, bold, italic)) {
       int traitMask = 0;
       if (bold)
         traitMask |= NSBoldFontMask;
       if (italic)
         traitMask |= NSItalicFontMask;
-      NSFontManager* fontManager = [NSFontManager sharedFontManager];
-      NSFont* font = [fontManager fontWithFamily: @(name.c_str())
-                                          traits: traitMask
-                                          weight: 0
-                                            size: size];
-      [view setFont: font];
+      NSFontManager *fontManager = [NSFontManager sharedFontManager];
+      NSFont *font = [fontManager fontWithFamily: @(name.c_str()) traits: traitMask weight: 0 size: size];
+      [view setFont:font];
     }
   }
 }
 
-static void view_set_name(mforms::View *self, const std::string&)
-{
+static void view_set_name(mforms::View *self, const std::string &) {
 }
 
-
-static void view_relayout(mforms::View *self)
-{
+static void view_relayout(mforms::View *self) {
   id view = self->get_data();
   [view performSelectorOnMainThread: @selector(relayout) withObject: nil waitUntilDone: true];
 }
 
-static void view_set_needs_repaint(mforms::View *self)
-{
+static void view_set_needs_repaint(mforms::View *self) {
   [self->get_data() setNeedsDisplay: YES];
 }
 
-static void view_suspend_layout(::mforms::View *self, bool flag)
-{
-  if ([self->get_data() respondsToSelector: @selector(setFreezeRelayout:)])
+static void view_suspend_layout(::mforms::View *self, bool flag) {
+  if ([self->get_data() respondsToSelector:@selector(setFreezeRelayout:)])
     [self->get_data() setFreezeRelayout: flag];
 }
 
-
-static void view_set_front_color(::mforms::View *self, const std::string &color)
-{
+static void view_set_front_color(::mforms::View *self, const std::string &color) {
   // Foreground color means text color, so that is supported only by text storage and text layer controls.
-  if ([self->get_data() respondsToSelector: @selector(setTextColor:)])
-    [self->get_data() setTextColor: [NSColor colorFromHexString: @(color.c_str())]];
+  if ([self->get_data() respondsToSelector:@selector(setTextColor:)])
+    [self->get_data() setTextColor:[NSColor colorFromHexString:@(color.c_str())]];
 }
 
-static std::string view_get_front_color(::mforms::View *self)
-{
-  if ([self->get_data() respondsToSelector: @selector(textColor)])
-  {
+static std::string view_get_front_color(::mforms::View *self) {
+  if ([self->get_data() respondsToSelector:@selector(textColor)]) {
     return [self->get_data() textColor].hexString.UTF8String;
   }
   return "";
 }
 
-
-static void view_set_back_color(::mforms::View *self, const std::string &color)
-{
-  if ([self->get_data() respondsToSelector: @selector(setBackgroundColor:)])
-  {
+static void view_set_back_color(::mforms::View *self, const std::string &color) {
+  if ([self->get_data() respondsToSelector:@selector(setBackgroundColor:)]) {
     [self->get_data() setBackgroundColor: [NSColor colorFromHexString: @(color.c_str())]];
     if ([self->get_data() respondsToSelector: @selector(setDrawsBackground:)])
-      [self->get_data() setDrawsBackground: !color.empty()];
+      [self->get_data() setDrawsBackground:!color.empty()];
   }
 }
 
-static std::string view_get_back_color(::mforms::View *self)
-{
-  if ([self->get_data() respondsToSelector: @selector(backgroundColor)])
-  {
-    if ([self->get_data() respondsToSelector: @selector(drawsBackground)]
-       && ![self->get_data() drawsBackground])
+static std::string view_get_back_color(::mforms::View *self) {
+  if ([self->get_data() respondsToSelector: @selector(backgroundColor)]) {
+    if ([self->get_data() respondsToSelector: @selector(drawsBackground)] && ![self->get_data() drawsBackground])
       return "";
     return [self->get_data() backgroundColor].hexString.UTF8String;
   }
   return "";
 }
 
-static void view_set_back_image(::mforms::View *self, const std::string &path, mforms::Alignment align)
-{
+static void view_set_back_image(::mforms::View *self, const std::string &path, mforms::Alignment align) {
   if ([self->get_data() respondsToSelector: @selector(setBackgroundImage:withAlignment:)])
     [self->get_data() setBackgroundImage: wrap_nsstring(path) withAlignment: align];
 }
 
-
-static void view_flush_events(::mforms::View *)
-{}
-
-static void view_set_padding(::mforms::View *self, int left, int top, int right, int bottom)
-{
-  if ([self->get_data() respondsToSelector: @selector(setPaddingLeft:right:top:bottom:)])
-    [self->get_data() setPaddingLeft:left right:right top:top bottom:bottom];
+static void view_flush_events(::mforms::View *) {
 }
 
-static void view_focus(::mforms::View *self)
-{
+static void view_set_padding(::mforms::View *self, int left, int top, int right, int bottom) {
+  if ([self->get_data() respondsToSelector:@selector(setPaddingLeft:right:top:bottom:)])
+    [self->get_data() setPaddingLeft: left right: right top: top bottom: bottom];
+}
+
+static void view_focus(::mforms::View *self) {
   id frontend = self->get_data();
   if ([frontend isKindOfClass: NSView.class]) {
     [[frontend window] makeKeyAndOrderFront: frontend];
     [[frontend window] makeFirstResponder: frontend];
-  }
-  else
+  } else
     [frontend makeKeyAndOrderFront: frontend];
 }
 
-static bool view_has_focus(::mforms::View *self)
-{
+static bool view_has_focus(::mforms::View *self) {
   id view = self->get_data();
   id firstResponder = [view window].firstResponder;
   if (firstResponder == view)
@@ -1058,18 +929,16 @@ static bool view_has_focus(::mforms::View *self)
   return false;
 }
 
-static void register_drop_formats(mforms::View *self, mforms::DropDelegate *target, const std::vector<std::string> &formats)
-{
+static void register_drop_formats(mforms::View *self, mforms::DropDelegate *target,
+                                  const std::vector<std::string> &formats) {
   NSMutableArray *list = [[NSMutableArray alloc] init];
-  for (size_t i = 0; i < formats.size(); ++i)
-  {
+  for (size_t i = 0; i < formats.size(); ++i) {
     if (formats[i] == mforms::DragFormatText)
-      [list addObject: NSStringPboardType];
+      [list addObject:NSStringPboardType];
+    else if (formats[i] == mforms::DragFormatFileName)
+      [list addObject:NSFilenamesPboardType];
     else
-      if (formats[i] == mforms::DragFormatFileName)
-        [list addObject: NSFilenamesPboardType];
-      else
-        [list addObject: @(formats[i].c_str())];
+      [list addObject: @(formats[i].c_str())];
   }
   NSView *view = self->get_data();
 
@@ -1077,74 +946,67 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
   view.dropDelegate = target;
 }
 
-static mforms::DragOperation view_drag_text(mforms::View *self, mforms::DragDetails details, const std::string &text)
-{
+static mforms::DragOperation view_drag_text(mforms::View *self, mforms::DragDetails details, const std::string &text) {
   NSView *view = self->get_data();
-  return [view startDragWithText: @(text.c_str())
-                        details: details];
+  return [view startDragWithText: @(text.c_str()) details: details];
 }
 
 static mforms::DragOperation view_drag_data(mforms::View *self, mforms::DragDetails details, void *data,
-                                            const std::string &format)
-{
+                                            const std::string &format) {
   NSView *view = self->get_data();
-  return [view startDragWithData: data
-                         details: details
-                          format: @(format.c_str())];
+  return [view startDragWithData:data details:details format:@(format.c_str())];
 }
 
-static mforms::DropPosition view_get_drop_position(mforms::View *self)
-{
+static mforms::DropPosition view_get_drop_position(mforms::View *self) {
   NSView *view = self->get_data();
   return view.lastDropPosition;
 }
 
-void cf_view_init()
-{
-  ::mforms::ControlFactory *f= ::mforms::ControlFactory::get_instance();
-  
-  f->_view_impl.destroy              = &view_destroy;
-  
-  f->_view_impl.get_width            = &view_get_width;
-  f->_view_impl.get_height           = &view_get_height;
-  f->_view_impl.get_preferred_width  = &view_get_preferred_width;
+void cf_view_init() {
+  ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
+
+  f->_view_impl.destroy = &view_destroy;
+
+  f->_view_impl.get_width = &view_get_width;
+  f->_view_impl.get_height = &view_get_height;
+  f->_view_impl.get_preferred_width = &view_get_preferred_width;
   f->_view_impl.get_preferred_height = &view_get_preferred_height;
-  f->_view_impl.set_size             = &view_set_size;
-  f->_view_impl.set_min_size         = &view_set_min_size;
-  f->_view_impl.set_padding          = &view_set_padding;
+  f->_view_impl.set_size = &view_set_size;
+  f->_view_impl.set_min_size = &view_set_min_size;
+  f->_view_impl.set_padding = &view_set_padding;
 
-  f->_view_impl.get_x                = &view_get_x;
-  f->_view_impl.get_y                = &view_get_y;
-  f->_view_impl.set_position         = &view_set_position;
-  f->_view_impl.client_to_screen     = &view_client_to_screen;
-  f->_view_impl.screen_to_client     = &view_screen_to_client;
+  f->_view_impl.get_x = &view_get_x;
+  f->_view_impl.get_y = &view_get_y;
+  f->_view_impl.set_position = &view_set_position;
+  f->_view_impl.client_to_screen = &view_client_to_screen;
+  f->_view_impl.screen_to_client = &view_screen_to_client;
 
-  f->_view_impl.show                 = &view_show;
-  f->_view_impl.is_shown             = &view_is_shown;
-  f->_view_impl.is_fully_visible     = &view_is_fully_visible;
-  
-  f->_view_impl.set_tooltip          = &view_set_tooltip;
-  f->_view_impl.set_name             = &view_set_name;
-  f->_view_impl.set_font             = &view_set_font;
+  f->_view_impl.show = &view_show;
+  f->_view_impl.is_shown = &view_is_shown;
+  f->_view_impl.is_fully_visible = &view_is_fully_visible;
 
-  f->_view_impl.set_enabled          = &view_set_enabled;
-  f->_view_impl.is_enabled           = &view_is_enabled;
-  f->_view_impl.relayout             = &view_relayout;
-  f->_view_impl.set_needs_repaint    = &view_set_needs_repaint;
+  f->_view_impl.set_tooltip = &view_set_tooltip;
+  f->_view_impl.set_name = &view_set_name;
+  f->_view_impl.set_font = &view_set_font;
 
-  f->_view_impl.suspend_layout       = &view_suspend_layout;
-  f->_view_impl.set_front_color      = &view_set_front_color;
-  f->_view_impl.set_back_color       = &view_set_back_color;
-  f->_view_impl.get_front_color      = &view_get_front_color;
-  f->_view_impl.get_back_color       = &view_get_back_color;
-  f->_view_impl.set_back_image       = &view_set_back_image;
+  f->_view_impl.set_enabled = &view_set_enabled;
+  f->_view_impl.is_enabled = &view_is_enabled;
+  f->_view_impl.relayout = &view_relayout;
+  f->_view_impl.set_needs_repaint = &view_set_needs_repaint;
 
-  f->_view_impl.flush_events         = &view_flush_events;
-  f->_view_impl.focus                = &view_focus;
-  f->_view_impl.has_focus            = &view_has_focus;
+  f->_view_impl.suspend_layout = &view_suspend_layout;
+  f->_view_impl.set_front_color = &view_set_front_color;
+  f->_view_impl.set_back_color = &view_set_back_color;
+  f->_view_impl.get_front_color = &view_get_front_color;
+  f->_view_impl.get_back_color = &view_get_back_color;
+  f->_view_impl.set_back_image = &view_set_back_image;
+
+  f->_view_impl.flush_events = &view_flush_events;
+  f->_view_impl.focus = &view_focus;
+  f->_view_impl.has_focus = &view_has_focus;
 
   f->_view_impl.register_drop_formats = &register_drop_formats;
-  f->_view_impl.drag_text            = &view_drag_text;
-  f->_view_impl.drag_data            = &view_drag_data;
-  f->_view_impl.get_drop_position    = &view_get_drop_position;
+  f->_view_impl.drag_text = &view_drag_text;
+  f->_view_impl.drag_data = &view_drag_data;
+  f->_view_impl.get_drop_position = &view_get_drop_position;
 }

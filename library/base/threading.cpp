@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <mutex>
+#include <condition_variable>
 
 #include "base/threading.h"
 
@@ -135,7 +136,7 @@ RecMutexLock::RecMutexLock(RecMutex &mutex, bool throwOnBlock) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-RecMutexLock::RecMutexLock(RecMutexLock &o) {
+RecMutexLock::RecMutexLock(RecMutexLock &&o) {
   // Move ownership of the underlying guard.
   _d = o._d;
   o._d = nullptr;

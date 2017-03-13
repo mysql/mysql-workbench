@@ -37,6 +37,7 @@
 
 using namespace bec;
 using namespace base;
+using namespace parsers;
 
 MySQLTableColumnsListBE::MySQLTableColumnsListBE(MySQLTableEditorBE *owner) : bec::TableColumnsListBE(owner) {
 }
@@ -756,45 +757,43 @@ public:
           // We do a token-based search-and-replace here. Keep in mind the sql text might not be valid.
           std::string sql;
           std::string source = _selected_trigger->sqlDefinition();
-/* XXX:
-          std::shared_ptr<MySQLScanner> scanner = _editor->_parser_context->createScanner(source);
-          size_t ordering_token = _editor->_parser_context->get_keyword_token(_selected_trigger->ordering());
-          bool removal_done = false;
-          do {
-            scanner->next(false);
-            if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+
+          Scanner scanner = _editor->_parser_context->createScanner();
+          std::string orderingText = base::toupper(_selected_trigger->ordering()) + "_SYMBOL";
+          size_t orderingToken = _editor->_parser_services->tokenFromString(_editor->_parser_context, orderingText);
+          bool removalDone = false;
+          while (true) {
+            sql += scanner.tokenText();
+            
+            scanner.next(false);
+            if (scanner.tokenType() == ParserToken::EOF)
               break;
 
-            if (!removal_done && scanner->token_type() == ordering_token) {
+            if (!removalDone && scanner.tokenType() == orderingToken) {
               // The token we are looking for. Skip this and any whitespace token following it.
               do {
-                scanner->next(false);
-                if (scanner->token_channel() == 0 || scanner->token_type() == ANTLR3_TOKEN_EOF)
+                scanner.next(false);
+                if (scanner.tokenChannel() == 0 || scanner.tokenType() == ParserToken::EOF)
                   break;
               } while (true);
 
               // See if there's an identifier following the ordering keyword and if so remove that too
               // including the following whitespace).
-              if (scanner->is_identifier()) {
+              if (_editor->_parser_context->isIdentifier(scanner.tokenType())) {
                 do {
-                  scanner->next(false);
-                  if (scanner->token_channel() == 0 || scanner->token_type() == ANTLR3_TOKEN_EOF)
+                  scanner.next(false);
+                  if (scanner.tokenChannel() == 0 || scanner.tokenType() == ParserToken::EOF)
                     break;
                 } while (true);
               }
 
-              removal_done = true;
-              if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+              removalDone = true;
+              if (scanner.tokenType() == ParserToken::EOF)
                 break;
+            }
+          };
 
-              // Add the following token we already scanned or it will get lost.
-              sql += scanner->token_text();
-            } else
-              sql += scanner->token_text();
-
-          } while (true);
-*/
-          // Finally remove position information from the trigger object, regardless wether the other trigger actually
+          // Finally remove position information from the trigger object, regardless whether the other trigger actually
           // exists (or is valid) and update the code editor.
           _selected_trigger->ordering("");
           _selected_trigger->otherTrigger("");
@@ -1269,37 +1268,40 @@ public:
     // We do a token-based search-and-replace here. Keep in mind the sql text might not be valid.
     std::string sql;
     std::string source = trigger->sqlDefinition();
-/* XXX:
-    std::shared_ptr<MySQLScanner> scanner = _editor->_parser_context->createScanner(source);
-    size_t timing_token = _editor->_parser_context->get_keyword_token(trigger->timing());
-    size_t event_token = _editor->_parser_context->get_keyword_token(trigger->event());
+
+    Scanner scanner = _editor->_parser_context->createScanner();
+    std::string timingText = base::toupper(_selected_trigger->timing()) + "_SYMBOL";
+    size_t timingToken = _editor->_parser_services->tokenFromString(_editor->_parser_context, timingText);
+    std::string eventText = base::toupper(_selected_trigger->event()) + "_SYMBOL";
+    size_t eventToken = _editor->_parser_services->tokenFromString(_editor->_parser_context, eventText);
     bool replace_done = false;
+    sql += scanner.tokenText();
     do {
-      scanner->next(false);
-      if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+      scanner.next(false);
+      if (scanner.tokenType() == ParserToken::EOF)
         break;
 
-      if (!replace_done && scanner->token_type() == timing_token) {
+      if (!replace_done && scanner.tokenType() == timingToken) {
         // The token we are looking for. Replace the timing and see if there's an event token too.
         sql += timing;
         do { // Add any following hidden tokens (whitespace/comment).
-          scanner->next(false);
-          if (scanner->token_channel() == 0 || scanner->token_type() == ANTLR3_TOKEN_EOF)
+          scanner.next(false);
+          if (scanner.tokenChannel() == 0 || scanner.tokenType() == ParserToken::EOF)
             break;
-          sql += scanner->token_text();
+          sql += scanner.tokenText();
         } while (true);
 
-        if (scanner->token_type() == event_token)
+        if (scanner.tokenType() == eventToken)
           sql += event;
 
         replace_done = true;
-        if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+        if (scanner.tokenType() == ParserToken::EOF)
           break;
       } else
-        sql += scanner->token_text();
+        sql += scanner.tokenText();
 
     } while (true);
-*/
+
     trigger->sqlDefinition(sql);
     trigger->timing(timing);
     trigger->event(event);

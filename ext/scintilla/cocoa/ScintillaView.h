@@ -23,7 +23,6 @@
 #define WM_COMMAND 1001
 #define WM_NOTIFY 1002
 
-namespace Scintilla {
 /**
  * On the Mac, there is no WM_COMMAND or WM_NOTIFY message that can be sent
  * back to the parent. Therefore, there must be a callback handler that acts
@@ -37,32 +36,16 @@ namespace Scintilla {
  */
 typedef void(*SciNotifyFunc) (intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam);
 
-class ScintillaCocoa;
-}
-
-@class ScintillaView;
-
 extern NSString *const SCIUpdateUINotification;
 
 @protocol ScintillaNotificationProtocol
-- (void)notification: (Scintilla::SCNotification*)notification;
+- (void)notification: (SCNotification*)notification;
 @end
 
 /**
  * SCIMarginView draws line numbers and other margins next to the text view.
  */
-@interface SCIMarginView : NSRulerView
-{
-@private
-  int marginWidth;
-  ScintillaView *owner;
-  NSMutableArray *currentCursors;
-}
-
-@property (assign) int marginWidth;
-@property (assign) ScintillaView *owner;
-
-- (id)initWithScrollView:(NSScrollView *)aScrollView;
+@interface SCIMarginView : NSRulerView;
 
 @end
 
@@ -74,49 +57,20 @@ extern NSString *const SCIUpdateUINotification;
   NSTextInputClient,
   NSUserInterfaceValidations,
   NSDraggingSource,
-  NSDraggingDestination>
-{
-@private
-  ScintillaView* mOwner;
-  NSCursor* mCurrentCursor;
-  NSTrackingArea *trackingArea;
+  NSDraggingDestination,
+  NSAccessibilityStaticText>;
 
-  // Set when we are in composition mode and partial input is displayed.
-  NSRange mMarkedTextRange;
-}
-
-@property (nonatomic, assign) ScintillaView* owner;
-
-- (void) setCursor: (int) cursor;
-
-- (BOOL) canUndo;
-- (BOOL) canRedo;
+- (void) setCursor: (int) cursor; // Needed by ScintillaCocoa
 
 @end
 
-@interface ScintillaView : NSView <InfoBarCommunicator, ScintillaNotificationProtocol>
-{
-@private
-  // The back end is kind of a controller and model in one.
-  // It uses the content view for display.
-  Scintilla::ScintillaCocoa* mBackend;
+/**
+ * ScintillaView is the class instantiated by client code.
+ * It contains an NSScrollView which contains a SCIMarginView and a SCIContentView.
+ * It is responsible for providing an API and communicating to a delegate.
+ */
+@interface ScintillaView : NSView <InfoBarCommunicator, ScintillaNotificationProtocol>;
 
-  // This is the actual content to which the backend renders itself.
-  SCIContentView* mContent;
-
-  NSScrollView *scrollView;
-  SCIMarginView *marginView;
-
-  CGFloat zoomDelta;
-
-  // Area to display additional controls (e.g. zoom info, caret position, status info).
-  NSView <InfoBarCommunicator>* mInfoBar;
-  BOOL mInfoBarAtTop;
-
-  id<ScintillaNotificationProtocol> mDelegate;
-}
-
-@property (nonatomic, readonly) Scintilla::ScintillaCocoa* backend;
 @property (nonatomic, assign) id<ScintillaNotificationProtocol> delegate;
 @property (nonatomic, readonly) NSScrollView *scrollView;
 
@@ -127,7 +81,9 @@ extern NSString *const SCIUpdateUINotification;
 - (void) setCallback: (id <InfoBarCommunicator>) callback;
 
 - (void) suspendDrawing: (BOOL) suspend;
-- (void) notification: (Scintilla::SCNotification*) notification;
+- (void) notification: (SCNotification*) notification;
+
+- (void) updateIndicatorIME;
 
 // Scroller handling
 - (void) setMarginWidth: (int) width;
@@ -141,6 +97,7 @@ extern NSString *const SCIUpdateUINotification;
 - (void) setEditable: (BOOL) editable;
 - (BOOL) isEditable;
 - (NSRange) selectedRange;
+- (NSRange) selectedRangePositions;
 
 - (NSString*) selectedString;
 
@@ -177,7 +134,7 @@ extern NSString *const SCIUpdateUINotification;
 - (NSString*) getLexerProperty: (NSString*) name;
 
 // The delegate property should be used instead of registerNotifyCallback which is deprecated.
-- (void) registerNotifyCallback: (intptr_t) windowid value: (Scintilla::SciNotifyFunc) callback __attribute__((deprecated));
+- (void) registerNotifyCallback: (intptr_t) windowid value: (SciNotifyFunc) callback __attribute__((deprecated));
 
 - (void) setInfoBar: (NSView <InfoBarCommunicator>*) aView top: (BOOL) top;
 - (void) setStatusText: (NSString*) text;

@@ -70,6 +70,7 @@
 
 #include <math.h>
 #include <mutex>
+#include <thread>
 
 using namespace bec;
 using namespace grt;
