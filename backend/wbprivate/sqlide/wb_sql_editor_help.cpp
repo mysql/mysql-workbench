@@ -239,9 +239,10 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
 }
 
 DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
+  std::string dataDir = base::makePath(mforms::App::get()->get_resource_path(""), "modules/data/sqlide");
   for (long version : { 800, 507, 506, 505 }) {
     std::string fileName = "help-" + std::to_string(version / 100) + "." + std::to_string(version % 10) + ".json";
-    std::string path = mforms::App::get()->get_resource_path(fileName);
+    std::string path = base::makePath(dataDir, fileName);
     if (!base::file_exists(path)) {
       logError("Help file not found (%s)\n", path.c_str());
       continue;

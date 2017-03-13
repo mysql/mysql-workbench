@@ -1897,6 +1897,11 @@
                       <File Id="file8031" Name="JSON.pre.tpl"/>
                       <File Id="file8032" Name="JSON.tpl"/>
                       <File Id="file8033" Name="JSON.tpli"/>
+					  
+					  <File Id="help-5.5" Name="help-5.5.json"/>
+					  <File Id="help-5.6" Name="help-5.6.json"/>
+					  <File Id="help-5.7" Name="help-5.7.json"/>
+					  <File Id="help-8.0" Name="help-8.0.json"/>
                     </Component>
                   </Directory>
 

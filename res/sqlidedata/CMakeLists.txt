@@ -31,6 +31,11 @@ set(DATA_FILES
     templates/JSON.pre.tpl
     templates/JSON.tpl
     templates/JSON.tpli
+	
+	context-help/help-5.5.json
+	context-help/help-5.6.json
+	context-help/help-5.7.json
+	context-help/help-8.0.json
 )
 
 install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/modules/data/sqlide)
