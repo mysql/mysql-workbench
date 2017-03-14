@@ -129,6 +129,10 @@
 		27050B2E1B34459300D6135D /* test_utilities_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B2D1B34459300D6135D /* test_utilities_test.cpp */; };
 		270C50121732AD0900CD33BB /* wbcopytables in Copy Files (executables) */ = {isa = PBXBuildFile; fileRef = 2B2E91C9158915DE0078D08A /* wbcopytables */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270CE08A1725409000BEDDDD /* wb_close.png in Resources */ = {isa = PBXBuildFile; fileRef = 270CE0891725409000BEDDDD /* wb_close.png */; };
+		270FF07D1E77E98A007ABFFE /* help-5.5.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB561E647FFA00BC573D /* help-5.5.json */; };
+		270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB571E647FFA00BC573D /* help-5.6.json */; };
+		270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB581E647FFA00BC573D /* help-5.7.json */; };
+		270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB591E647FFA00BC573D /* help-8.0.json */; };
 		271790191C97000B00B6DAC9 /* jsonparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271790171C97000B00B6DAC9 /* jsonparser.cpp */; };
 		2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901B1C97004A00B6DAC9 /* jsonparser.h */; };
 		2717901F1C97004A00B6DAC9 /* scope_exit_trigger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */; };
@@ -141,10 +145,6 @@
 		271C7F9E1DE2FEF9006D6C88 /* CodeCompletionCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 271C7F9A1DE2FEF9006D6C88 /* CodeCompletionCore.h */; };
 		271C7F9F1DE2FEF9006D6C88 /* mysql-code-completion.h in Headers */ = {isa = PBXBuildFile; fileRef = 271C7F9B1DE2FEF9006D6C88 /* mysql-code-completion.h */; };
 		2720518E111847920013E88B /* message_wb_lock.png in Resources */ = {isa = PBXBuildFile; fileRef = 2720518D111847920013E88B /* message_wb_lock.png */; };
-		2722CB5A1E647FFA00BC573D /* help-5.5.json in Resources */ = {isa = PBXBuildFile; fileRef = 2722CB561E647FFA00BC573D /* help-5.5.json */; };
-		2722CB5B1E647FFA00BC573D /* help-5.6.json in Resources */ = {isa = PBXBuildFile; fileRef = 2722CB571E647FFA00BC573D /* help-5.6.json */; };
-		2722CB5C1E647FFA00BC573D /* help-5.7.json in Resources */ = {isa = PBXBuildFile; fileRef = 2722CB581E647FFA00BC573D /* help-5.7.json */; };
-		2722CB5D1E647FFA00BC573D /* help-8.0.json in Resources */ = {isa = PBXBuildFile; fileRef = 2722CB591E647FFA00BC573D /* help-8.0.json */; };
 		27257468191BBD6A00094162 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		27276AFF19406D050019FB0E /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		27327BA1172FAFC800DE65D7 /* python_copy_data_source.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */; };
@@ -3962,6 +3962,10 @@
 				2BCE4A0415F646A200FA0CDC /* Python in Copy Files (sqlide) */,
 				2B17615914565C62003EFCF7 /* XML_mysql.post.tpl in Copy Files (sqlide) */,
 				2B17615A14565C62003EFCF7 /* XML_mysql.pre.tpl in Copy Files (sqlide) */,
+				270FF07D1E77E98A007ABFFE /* help-5.5.json in Copy Files (sqlide) */,
+				270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */,
+				270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */,
+				270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */,
 				2B17615B14565C62003EFCF7 /* XML_mysql.tpl in Copy Files (sqlide) */,
 				2B17615C14565C62003EFCF7 /* XML_mysql.tpli in Copy Files (sqlide) */,
 				2B17612914563CBB003EFCF7 /* JSON.post.tpl in Copy Files (sqlide) */,
@@ -4212,10 +4216,10 @@
 		271C7F9A1DE2FEF9006D6C88 /* CodeCompletionCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeCompletionCore.h; path = "library/parsers/code-completion/CodeCompletionCore.h"; sourceTree = "<group>"; };
 		271C7F9B1DE2FEF9006D6C88 /* mysql-code-completion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-code-completion.h"; path = "library/parsers/code-completion/mysql-code-completion.h"; sourceTree = "<group>"; };
 		2720518D111847920013E88B /* message_wb_lock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = message_wb_lock.png; sourceTree = "<group>"; };
-		2722CB561E647FFA00BC573D /* help-5.5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.5.json"; path = "res/sqlidedata/context help/help-5.5.json"; sourceTree = "<group>"; };
-		2722CB571E647FFA00BC573D /* help-5.6.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.6.json"; path = "res/sqlidedata/context help/help-5.6.json"; sourceTree = "<group>"; };
-		2722CB581E647FFA00BC573D /* help-5.7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.7.json"; path = "res/sqlidedata/context help/help-5.7.json"; sourceTree = "<group>"; };
-		2722CB591E647FFA00BC573D /* help-8.0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-8.0.json"; path = "res/sqlidedata/context help/help-8.0.json"; sourceTree = "<group>"; };
+		2722CB561E647FFA00BC573D /* help-5.5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.5.json"; path = "res/sqlidedata/context-help/help-5.5.json"; sourceTree = "<group>"; };
+		2722CB571E647FFA00BC573D /* help-5.6.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.6.json"; path = "res/sqlidedata/context-help/help-5.6.json"; sourceTree = "<group>"; };
+		2722CB581E647FFA00BC573D /* help-5.7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.7.json"; path = "res/sqlidedata/context-help/help-5.7.json"; sourceTree = "<group>"; };
+		2722CB591E647FFA00BC573D /* help-8.0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-8.0.json"; path = "res/sqlidedata/context-help/help-8.0.json"; sourceTree = "<group>"; };
 		27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_copy_data_source.cpp; path = plugins/migration/copytable/python_copy_data_source.cpp; sourceTree = "<group>"; };
 		27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_copy_data_source.h; path = plugins/migration/copytable/python_copy_data_source.h; sourceTree = "<group>"; };
 		27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_manage.png; path = images/home/wb_tile_manage.png; sourceTree = "<group>"; };
@@ -13304,7 +13308,6 @@
 				2B263A710E9402DD00933149 /* db.DatatypeGroup.text.16x16.png in Resources */,
 				27EBB99B1CBE795E00998A48 /* wb_tab-close_high-white@2x.png in Resources */,
 				2B263A720E9402DD00933149 /* db.DatatypeGroup.userdefined.16x16.png in Resources */,
-				2722CB5C1E647FFA00BC573D /* help-5.7.json in Resources */,
 				2B263A730E9402DD00933149 /* db.Role.16x16.png in Resources */,
 				27D964221CC0D85600C0E2CF /* JS_Datatype_Date.png in Resources */,
 				27D964341CC0D85600C0E2CF /* task_unchecked.png in Resources */,
@@ -13316,7 +13319,6 @@
 				2B263A770E9402DD00933149 /* db.Role.editor.48x48.png in Resources */,
 				2B263A780E9402DD00933149 /* db.Routine.16x16.png in Resources */,
 				276183751C7B35CE00FD7956 /* maintab_home_home.png in Resources */,
-				2722CB5B1E647FFA00BC573D /* help-5.6.json in Resources */,
 				2B263A790E9402DD00933149 /* db.Routine.24x24.png in Resources */,
 				2B263A7A0E9402DD00933149 /* db.Routine.48x48.png in Resources */,
 				2B02FEF7183E771B00770CC0 /* table.png in Resources */,
@@ -13516,7 +13518,6 @@
 				2B4CAAFC10AB163A00D5F19E /* PluginEditorWindow.xib in Resources */,
 				444937411DBA37C9007263D8 /* wb_starter_edelivery_52.png in Resources */,
 				279EF97810D6B08D00C1ED1B /* mysql_system_status_rmt.vbs in Resources */,
-				2722CB5D1E647FFA00BC573D /* help-8.0.json in Resources */,
 				2BD9E78E185FFF6E00A7252B /* output_type-toggle-off.png in Resources */,
 				279EF97910D6B08D00C1ED1B /* mysql_system_status.vbs in Resources */,
 				2B96EA3310F43226004E6875 /* PageSetup.xib in Resources */,
@@ -13770,7 +13771,6 @@
 				27D964201CC0D85600C0E2CF /* JS_Datatype_Bool.png in Resources */,
 				2BD9E789185FFF6E00A7252B /* output_type-querystats@2x.png in Resources */,
 				2BCEC00013DC565B00A23E75 /* record_autosize.png in Resources */,
-				2722CB5A1E647FFA00BC573D /* help-5.5.json in Resources */,
 				2761836A1C7B35CE00FD7956 /* wb_tab-close@2x.png in Resources */,
 				276183681C7B35CE00FD7956 /* wb_tab-close_high@2x.png in Resources */,
 				2B9BA9E213F436420090DBA9 /* db.Column.many.side.16x16.png in Resources */,

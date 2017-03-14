@@ -25,6 +25,7 @@
 
 #include <stack>
 #include <regex>
+#include <thread>
 
 #include <glib.h>
 

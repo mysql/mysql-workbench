@@ -85,6 +85,10 @@ namespace mforms {
       return _user_data_folder;
     }
 
+    std::string baseDir() {
+      return _baseDir;
+    }
+
     /** Gets the bounds of the main window. */
     base::Rect get_application_bounds();
 
@@ -102,6 +106,10 @@ namespace mforms {
     void set_user_data_folder_path(const std::string &path) {
       _user_data_folder = path;
     }
+
+    void setBaseDir(const std::string &path) {
+      _baseDir = path;
+    }
 #endif
 #endif
   protected:
@@ -109,5 +117,6 @@ namespace mforms {
 
   private:
     std::string _user_data_folder;
+    std::string _baseDir;
   };
 };

@@ -18,6 +18,7 @@
  */
 
 #include <regex>
+#include <thread>
 
 #include "base/log.h"
 #include "base/string_utilities.h"
@@ -115,6 +116,7 @@ DbSqlEditorContextHelp *DbSqlEditorContextHelp::get() {
 
 static std::map<long, std::set<std::string>> helpTopics; // Quick lookup for help topics per server version.
 static std::map<long, std::map<std::string, std::string>> helpContent; // Help text from a topic (also per version).
+static bool helpDataReady = false; // Set once the loader thread is done.
 
 static std::string helpStyleSheet = "<style>\n"
   "body { color: #404040; spacing: 5px; }\n"
@@ -239,35 +241,39 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
 }
 
 DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
-  std::string dataDir = base::makePath(mforms::App::get()->get_resource_path(""), "modules/data/sqlide");
-  for (long version : { 800, 507, 506, 505 }) {
-    std::string fileName = "help-" + std::to_string(version / 100) + "." + std::to_string(version % 10) + ".json";
-    std::string path = base::makePath(dataDir, fileName);
-    if (!base::file_exists(path)) {
-      logError("Help file not found (%s)\n", path.c_str());
-      continue;
-    }
 
-    try {
-      JsonParser::JsonValue document;
-      JsonParser::JsonReader::readFromFile(path, document);
-
-      std::set<std::string> topics;
-      JsonParser::JsonObject &topicRoot = document;
-      JsonParser::JsonArray &topicList = topicRoot.get("topics");
-      for (JsonParser::JsonObject &topic: topicList) {
-        std::string id = base::toupper(topic.get("id"));
-        topics.insert(id);
-        helpContent[version][id] = createHelpTextFromJson(version, topic);
+  std::thread([]() {
+    std::string dataDir = base::makePath(mforms::App::get()->baseDir(), "modules/data/sqlide");
+    for (long version : { 800, 507, 506, 505 }) {
+      std::string fileName = "help-" + std::to_string(version / 100) + "." + std::to_string(version % 10) + ".json";
+      std::string path = base::makePath(dataDir, fileName);
+      if (!base::file_exists(path)) {
+        logError("Help file not found (%s)\n", path.c_str());
+        continue;
       }
-      helpTopics[version] = topics;
-    } catch (JsonParser::ParserException &e) {
-      logError("Could not read help text file (%s)\nError message: %s\n", fileName.c_str(), e.what());
-    } catch (std::bad_cast &e) {
-      logError("Unexpected file format (%s)\nError message: %s\n", fileName.c_str(), e.what());
-    }
 
-  }
+      try {
+        JsonParser::JsonValue document;
+        JsonParser::JsonReader::readFromFile(path, document);
+
+        std::set<std::string> topics;
+        JsonParser::JsonObject &topicRoot = document;
+        JsonParser::JsonArray &topicList = topicRoot.get("topics");
+        for (JsonParser::JsonObject &topic: topicList) {
+          std::string id = base::toupper(topic.get("id"));
+          topics.insert(id);
+          helpContent[version][id] = createHelpTextFromJson(version, topic);
+        }
+        helpTopics[version] = topics;
+      } catch (JsonParser::ParserException &e) {
+        logError("Could not read help text file (%s)\nError message: %s\n", fileName.c_str(), e.what());
+      } catch (std::bad_cast &e) {
+        logError("Unexpected file format (%s)\nError message: %s\n", fileName.c_str(), e.what());
+      }
+      
+    }
+    helpDataReady = true;
+  }).detach();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -276,6 +282,9 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
  * A quick lookup if the help topic exists actually, without retrieving help text.
  */
 bool DbSqlEditorContextHelp::topicExists(long serverVersion, const std::string &topic) {
+  if (!helpDataReady)
+    return false;
+
   auto iterator = helpTopics.find(serverVersion / 100);
   if (iterator == helpTopics.end())
     return false;
@@ -287,7 +296,7 @@ bool DbSqlEditorContextHelp::topicExists(long serverVersion, const std::string &
 bool DbSqlEditorContextHelp::helpTextForTopic(HelpContext *context, const std::string &topic, std::string &text) {
   logDebug2("Looking up help topic: %s\n", topic.c_str());
 
-  if (!topic.empty()) {
+  if (helpDataReady && !topic.empty()) {
     auto iterator = helpContent.find(context->serverVersion() / 100);
     if (iterator == helpContent.end())
       return false;
