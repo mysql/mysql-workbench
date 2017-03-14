@@ -1,5 +1,5 @@
-/* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +52,10 @@
 static NSString *shouldRaiseException = @"should raise exception";
 static NSString *columnDragUTI = @"com.mysql.workbench.column";
 
+extern const char *DEFAULT_CHARSET_CAPTION;
+extern const char *DEFAULT_COLLATION_CAPTION;
+
+
 @interface DbMysqlTableEditor()
 {
   IBOutlet __weak NSTabView* mEditorsTabView;
@@ -64,6 +68,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
   IBOutlet __weak NSTextField* mTableName;
   IBOutlet __weak NSTextField* mSchemaName;
   IBOutlet __weak NSPopUpButton* mTableCollation;
+  IBOutlet __weak NSPopUpButton* mTableCharset;
   IBOutlet __weak NSPopUpButton* mTableEngine;
   IBOutlet NSTextView* mTableComment;
 
@@ -78,6 +83,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
 
   IBOutlet __weak NSBox* mColumnsDetailsBox;
   IBOutlet __weak NSPopUpButton* mColumnsCollation;
+  IBOutlet __weak NSPopUpButton* mColumnsCharset;
   IBOutlet NSTextView* mColumnsComment;
   IBOutlet __weak NSComboBox* mColumnsType;
   IBOutlet __weak NSTextField* mColumnsDefault;
@@ -93,6 +99,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
   // for compact mode
   IBOutlet __weak NSBox* mColumnsDetailsBox2;
   IBOutlet __weak NSPopUpButton* mColumnsCollation2;
+  IBOutlet __weak NSPopUpButton* mColumnsCharset2;
   IBOutlet NSTextView* mColumnsComment2;
 
   // Indices
@@ -206,6 +213,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
     {
       mUnusedColumnsDetailsBox = mColumnsDetailsBox;
       mColumnsDetailsBox = mColumnsDetailsBox2;
+      mColumnsCharset = mColumnsCharset2;
       mColumnsCollation = mColumnsCollation2;
       mColumnsComment = mColumnsComment2;
       [mColumnsSplitter setVertical: YES];
@@ -254,18 +262,30 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
   }
 
   // Populate popup menus.
-  MFillPopupButtonWithStrings(mTableCollation, mBackEnd->get_charset_collation_list());
+  MFillPopupButtonWithStrings(mTableCharset, mBackEnd->get_charset_list());
+  [[mTableCharset menu] insertItem: [NSMenuItem separatorItem]
+                           atIndex: 0];
+  [mTableCharset insertItemWithTitle: [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION]
+                             atIndex: 0];
+    
+  MFillPopupButtonWithStrings(mTableCollation, mBackEnd->get_charset_collation_list(DEFAULT_CHARSET_CAPTION));
   [[mTableCollation menu] insertItem: [NSMenuItem separatorItem]
                              atIndex: 0];
-  [mTableCollation insertItemWithTitle: @"Schema Default"
+  [mTableCollation insertItemWithTitle: [NSString stringWithUTF8String: DEFAULT_COLLATION_CAPTION]
                                atIndex: 0];
 
   MFillPopupButtonWithStrings(mTableEngine, mBackEnd->get_engines_list());
 
-  MFillPopupButtonWithStrings(mColumnsCollation, mBackEnd->get_charset_collation_list());
+  MFillPopupButtonWithStrings(mColumnsCharset, mBackEnd->get_charset_list());
+  [[mColumnsCharset menu] insertItem: [NSMenuItem separatorItem]
+                               atIndex: 0];
+  [mColumnsCharset insertItemWithTitle: [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION]
+                                 atIndex: 0];
+    
+  MFillPopupButtonWithStrings(mColumnsCollation, mBackEnd->get_charset_collation_list(DEFAULT_CHARSET_CAPTION));
   [[mColumnsCollation menu] insertItem: [NSMenuItem separatorItem]
                                atIndex: 0];
-  [mColumnsCollation insertItemWithTitle: @"Table Default"
+  [mColumnsCollation insertItemWithTitle: [NSString stringWithUTF8String: DEFAULT_COLLATION_CAPTION]
                                  atIndex: 0];
 
   MFillPopupButtonWithStrings(mFKOnUpdate, mBackEnd->get_fk_action_options());
@@ -405,10 +425,24 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
     [mTableName setStringValue: name];
     
     [mSchemaName setStringValue: [NSString stringWithCPPString: mBackEnd->get_schema_name()]];
+    
+    NSString* charset = [NSString stringWithCPPString: mBackEnd->get_table_option_by_name("CHARACTER SET")];
+    if ([charset isEqualToString: @"DEFAULT"] || [charset length] == 0) {
+        charset = [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION];
+    }
+    {
+        // DEBUG
+        id item = [mTableCharset itemWithTitle: charset];
+        if (item == nil) {
+            NSLog(@"*** Warning: Table collation '%@' not found in menu.", charset);
+        }
+    }
+    [mTableCharset selectItemWithTitle: charset];
+    [self updateCollation:mTableCollation forCharset:[charset UTF8String]];
 
-    NSString* collation = [NSString stringWithCPPString: mBackEnd->get_table_option_by_name("CHARACTER SET - COLLATE")];
-    if ([collation isEqualToString: @" - "] || [collation length] == 0) {
-      collation = @"Schema Default";
+    NSString* collation = [NSString stringWithCPPString: mBackEnd->get_table_option_by_name("COLLATE")];
+    if ([collation isEqualToString: @"DEFAULT"] || [collation length] == 0) {
+      collation = [NSString stringWithUTF8String: DEFAULT_COLLATION_CAPTION];
     }
     {
       // DEBUG
@@ -436,14 +470,23 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
   
   NSInteger rowIndex = [mColumnsTable selectedRow];
   if (rowIndex >= 0) {
+    NSString* charset = [mColumnsDataSource objectValueForValueIndex: bec::TableColumnsListBE::Charset
+                                                                   row: rowIndex];
+    if ([charset isEqualToString: @"DEFAULT"] || [charset length] == 0) {
+        charset = [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION];
+    }
+    [mColumnsCharset selectItemWithTitle: charset];
+    [self updateCollation:mColumnsCollation forCharset:[charset UTF8String]];
+      
     NSString* collation = [mColumnsDataSource objectValueForValueIndex: bec::TableColumnsListBE::CharsetCollation
                                                                    row: rowIndex];
-    if ([collation isEqualToString: @" - "] || [collation length] == 0) {
-      collation = @"Table Default";
+    if ([collation isEqualToString: @"DEFAULT"] || [collation length] == 0) {
+      collation = [NSString stringWithUTF8String: DEFAULT_COLLATION_CAPTION];
     }
     [mColumnsCollation selectItemWithTitle: collation];
     NSString* collationEnabled = [mColumnsDataSource objectValueForValueIndex: bec::TableColumnsListBE::HasCharset
                                                                           row: rowIndex];
+    [mColumnsCharset setEnabled: [collationEnabled isEqualToString: @"1"]];
     [mColumnsCollation setEnabled: [collationEnabled isEqualToString: @"1"]];
     
     NSString* columnName = [mColumnsDataSource objectValueForValueIndex: bec::TableColumnsListBE::Name
@@ -1454,22 +1497,37 @@ objectValueForItemAtIndex: (NSInteger) index
 {
   NSString* popItemTitle = [sender titleOfSelectedItem];
   
-  if (sender == mTableCollation) {
-    if ([popItemTitle isEqualToString: @"Schema Default"])
-      popItemTitle = @" - ";
-    mBackEnd->set_table_option_by_name("CHARACTER SET - COLLATE", [popItemTitle UTF8String]);
+  if (sender == mTableCharset) {
+      [self updateCollation:mTableCollation forCharset:[popItemTitle UTF8String]];
+      if ([popItemTitle isEqualToString: [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION]])
+        popItemTitle = @"DEFAULT";
+      mBackEnd->set_table_option_by_name("CHARACTER SET", [popItemTitle UTF8String]);
+  }
+  else if (sender == mTableCollation) {
+    if ([popItemTitle isEqualToString: [NSString stringWithUTF8String: DEFAULT_COLLATION_CAPTION]])
+      popItemTitle = @"DEFAULT";
+    mBackEnd->set_table_option_by_name("COLLATE", [popItemTitle UTF8String]);
   }
   else if (sender == mTableEngine)
   {
     mBackEnd->set_table_option_by_name("ENGINE", [popItemTitle UTF8String]);
     [self updateFKPlaceholder];
   }
+  else if( sender == mColumnsCharset) {
+    [self updateCollation:mColumnsCollation forCharset:[popItemTitle UTF8String]];
+    NSInteger rowIndex = [mColumnsTable selectedRow];
+    if ([popItemTitle isEqualToString: [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION]])
+      popItemTitle = @"DEFAULT";
+    [mColumnsDataSource setStringValue: popItemTitle
+                         forValueIndex: bec::TableColumnsListBE::Charset
+                                   row: rowIndex];
+  }
   else if( sender == mColumnsCollation) {
     NSInteger rowIndex = [mColumnsTable selectedRow];
-    if ([popItemTitle isEqualToString: @"Table Default"])
-      popItemTitle = @" - ";
+    if ([popItemTitle isEqualToString: [NSString stringWithUTF8String: DEFAULT_COLLATION_CAPTION]])
+      popItemTitle = @"DEFAULT";
     [mColumnsDataSource setStringValue: popItemTitle
-                         forValueIndex: bec::TableColumnsListBE::CharsetCollation
+                         forValueIndex: bec::TableColumnsListBE::Collation
                                    row: rowIndex];
   }
   else if (sender == mIndicesStorageTypes) {
@@ -1753,6 +1811,11 @@ objectValueForItemAtIndex: (NSInteger) index
       mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::Name, [[sender stringValue] UTF8String]);
     [mColumnsTable setNeedsDisplay];
   }
+  else if (sender == mColumnsCharset || sender == mColumnsCharset2) {
+      if ([mColumnsTable selectedRow] >= 0)
+        mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::Charset, [[sender stringValue] UTF8String]);
+      [mColumnsTable setNeedsDisplay];
+  }
   else if (sender == mColumnsCollation || sender == mColumnsCollation2) {
     if ([mColumnsTable selectedRow] >= 0)
       mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::Collation, [[sender stringValue] UTF8String]);
@@ -1817,6 +1880,15 @@ objectValueForItemAtIndex: (NSInteger) index
   if (splitView == mColumnsSplitter && ![splitView isVertical])
     return MIN(proposedMax, NSHeight([splitView frame]) - 150.0);
   return proposedMax;
+}
+
+- (void) updateCollation:(NSPopUpButton *)collationPopUp forCharset:(const char *) charset;
+{
+  MFillPopupButtonWithStrings(collationPopUp, mBackEnd->get_charset_collation_list(charset));
+  [[collationPopUp menu] insertItem: [NSMenuItem separatorItem]
+                             atIndex: 0];
+  [collationPopUp insertItemWithTitle: [NSString stringWithUTF8String: DEFAULT_COLLATION_CAPTION]
+                               atIndex: 0];
 }
 
 #pragma mark Super class overrides
@@ -1893,5 +1965,4 @@ static void call_partial_refresh(int what, void* theEditor)
       break;
   }
 }
-
 @end

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <development version="7000" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
         <capability name="box content view" minToolsVersion="7.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="DbMysqlTableEditor">
@@ -11,6 +11,7 @@
                 <outlet property="mApplyButton" destination="659" id="664"/>
                 <outlet property="mButtonGCStored" destination="HGE-yC-LkF" id="cbk-v1-Uyn"/>
                 <outlet property="mButtonGCVirtual" destination="Sn6-l7-dXN" id="q99-Sh-yqJ"/>
+                <outlet property="mColumnsCharset" destination="OfV-XR-Q6o" id="hDQ-6Q-NuI"/>
                 <outlet property="mColumnsCollation" destination="56" id="184"/>
                 <outlet property="mColumnsCollation2" destination="759" id="806"/>
                 <outlet property="mColumnsComment" destination="819" id="820"/>
@@ -82,6 +83,7 @@
                 <outlet property="mSubpartitionManualCheckbox" destination="269" id="358"/>
                 <outlet property="mSubpartitionPopup" destination="314" id="352"/>
                 <outlet property="mTabSwitcher" destination="652" id="656"/>
+                <outlet property="mTableCharset" destination="K3v-vj-Lkr" id="cxz-DC-mSb"/>
                 <outlet property="mTableCollation" destination="12" id="172"/>
                 <outlet property="mTableComment" destination="27" id="173"/>
                 <outlet property="mTableEngine" destination="18" id="174"/>
@@ -103,17 +105,12 @@
                         <rect key="frame" x="1" y="1" width="838" height="128"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView tag="1" id="583">
-                                <rect key="frame" x="9" y="71" width="48" height="48"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageAlignment="top" imageScaling="proportionallyDown" image="db.Table.editor.48x48" id="584"/>
-                            </imageView>
                             <scrollView toolTip="Comments are stored in the database up to the 1st empty line or at 60 characters, whatever is shorter. " horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="24">
                                 <rect key="frame" x="149" y="7" width="633" height="59"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <clipView key="contentView" id="eBq-Ra-vIS">
                                     <rect key="frame" x="1" y="1" width="631" height="57"/>
-                                    <autoresizingMask key="autoresizingMask"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" smartInsertDelete="YES" id="27">
                                             <rect key="frame" x="0.0" y="0.0" width="631" height="57"/>
@@ -156,25 +153,6 @@
                                     <action selector="userPickPopup:" target="-2" id="176"/>
                                 </connections>
                             </popUpButton>
-                            <popUpButton verticalHuggingPriority="750" tag="101" id="12">
-                                <rect key="frame" x="146" y="71" width="299" height="22"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                <string key="toolTip">The charset/collation specifies which language-specific characters can be stored in the table and their sort order. Common choices are Latin1 or UTF8.</string>
-                                <popUpButtonCell key="cell" type="push" title="utf8mb4 - utf8mb4_lithuanian_ci" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="15" id="13">
-                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
-                                    <menu key="menu" title="OtherViews" id="14">
-                                        <items>
-                                            <menuItem title="utf8mb4 - utf8mb4_lithuanian_ci" state="on" id="15"/>
-                                            <menuItem title="Item 2" id="16"/>
-                                            <menuItem title="Item 3" id="17"/>
-                                        </items>
-                                    </menu>
-                                </popUpButtonCell>
-                                <connections>
-                                    <action selector="userPickPopup:" target="-2" id="175"/>
-                                </connections>
-                            </popUpButton>
                             <textField verticalHuggingPriority="750" tag="104" id="10">
                                 <rect key="frame" x="78" y="52" width="66" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -193,10 +171,10 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField verticalHuggingPriority="750" tag="100" id="6">
-                                <rect key="frame" x="88" y="76" width="56" height="14"/>
+                            <textField verticalHuggingPriority="750" misplaced="YES" tag="100" id="6">
+                                <rect key="frame" x="45" y="76" width="99" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="7">
+                                <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Charset/Collation:" id="7">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -252,6 +230,48 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <popUpButton verticalHuggingPriority="750" misplaced="YES" tag="101" id="12">
+                                <rect key="frame" x="301" y="71" width="144" height="22"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <string key="toolTip">The charset/collation specifies which language-specific characters can be stored in the table and their sort order. Common choices are Latin1 or UTF8.</string>
+                                <popUpButtonCell key="cell" type="push" title="utf8mb4 - utf8mb4_lithuanian_ci" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="15" id="13">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <menu key="menu" title="OtherViews" id="14">
+                                        <items>
+                                            <menuItem title="utf8mb4 - utf8mb4_lithuanian_ci" state="on" id="15"/>
+                                            <menuItem title="Item 2" id="16"/>
+                                            <menuItem title="Item 3" id="17"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <action selector="userPickPopup:" target="-2" id="175"/>
+                                </connections>
+                            </popUpButton>
+                            <popUpButton verticalHuggingPriority="750" misplaced="YES" id="K3v-vj-Lkr" userLabel="MTable Charset">
+                                <rect key="frame" x="146" y="71" width="144" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <popUpButtonCell key="cell" type="push" title="utf8mb4" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="O3y-N0-YVh" id="cnr-tN-Wxs" userLabel="Menu Charset">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <menu key="menu" id="pmi-PS-at2">
+                                        <items>
+                                            <menuItem title="utf8mb4" state="on" id="O3y-N0-YVh"/>
+                                            <menuItem title="Item 2" id="YUx-FH-uEk"/>
+                                            <menuItem title="Item 3" id="w8l-8g-uM1"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <action selector="userPickPopup:" target="-2" id="QF1-ES-YnV"/>
+                                </connections>
+                            </popUpButton>
+                            <imageView misplaced="YES" tag="1" id="583">
+                                <rect key="frame" x="0.0" y="77" width="48" height="48"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageAlignment="top" imageScaling="proportionallyDown" image="db.Table.editor.48x48" id="584"/>
+                            </imageView>
                         </subviews>
                     </view>
                     <color key="borderColor" red="0.73333334920000004" green="0.73333334920000004" blue="0.73333334920000004" alpha="1" colorSpace="deviceRGB"/>
@@ -308,7 +328,7 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <clipView key="contentView" id="fox-vb-11i">
                                 <rect key="frame" x="1" y="0.0" width="681" height="171"/>
-                                <autoresizingMask key="autoresizingMask"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView focusRingType="exterior" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" emptySelection="NO" rowHeight="16" headerView="33" id="32" customClass="MTableView">
                                         <rect key="frame" x="0.0" y="0.0" width="709" height="154"/>
@@ -1870,15 +1890,6 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                 <rect key="frame" x="1" y="1" width="697" height="166"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <textField verticalHuggingPriority="750" tag="11" id="50">
-                        <rect key="frame" x="51" y="115" width="56" height="14"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="51">
-                            <font key="font" metaFont="smallSystem"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                     <textField verticalHuggingPriority="750" tag="10" id="697">
                         <rect key="frame" x="23" y="141" width="84" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -1906,8 +1917,8 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <popUpButton verticalHuggingPriority="750" tag="21" id="56">
-                        <rect key="frame" x="109" y="109" width="225" height="22"/>
+                    <popUpButton verticalHuggingPriority="750" misplaced="YES" tag="21" id="56">
+                        <rect key="frame" x="223" y="110" width="111" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="59" id="57">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -2056,7 +2067,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="Iur-yw-mZf">
                             <rect key="frame" x="1" y="1" width="217" height="92"/>
-                            <autoresizingMask key="autoresizingMask"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView importsGraphics="NO" richText="NO" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="819">
                                     <rect key="frame" x="0.0" y="0.0" width="217" height="92"/>
@@ -2131,6 +2142,33 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             </subviews>
                         </view>
                     </box>
+                    <popUpButton verticalHuggingPriority="750" misplaced="YES" id="OfV-XR-Q6o">
+                        <rect key="frame" x="109" y="110" width="111" height="22"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="dQM-Fk-tb2" id="eYj-Pb-0I2">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="smallSystem"/>
+                            <menu key="menu" id="Vvw-8e-PRS">
+                                <items>
+                                    <menuItem title="Item 1" state="on" id="dQM-Fk-tb2"/>
+                                    <menuItem title="Item 2" id="wEu-vy-y3h"/>
+                                    <menuItem title="Item 3" id="BZv-JZ-bUf"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                        <connections>
+                            <action selector="userPickPopup:" target="-2" id="4bh-fx-3i0"/>
+                        </connections>
+                    </popUpButton>
+                    <textField verticalHuggingPriority="750" misplaced="YES" tag="11" id="50">
+                        <rect key="frame" x="-1" y="115" width="108" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Charset/Collation:" id="51">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
             <point key="canvasLocation" x="521.5" y="-190"/>
