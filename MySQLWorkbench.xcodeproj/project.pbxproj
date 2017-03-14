@@ -10042,11 +10042,11 @@
 		2B825D2E0E0B59BB00BE52DF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				4401E1981D994DEF0027AD13 /* mtemplate */,
 				2B825D2F0E0B59CC00BE52DF /* base */,
 				2B750DB40E877D7E0003120A /* cdbc */,
 				2B825D6A0E0B600000BE52DF /* grt */,
 				2B9616140F27594600F0B599 /* mforms */,
+				4401E1981D994DEF0027AD13 /* mtemplate */,
 				2B825E250E0B662E00BE52DF /* mysql.canvas */,
 				27467FBA154AC77A00021708 /* parsers */,
 				2B9115AD1577237B00C82308 /* python */,
@@ -10058,10 +10058,6 @@
 		2B825D2F0E0B59CC00BE52DF /* base */ = {
 			isa = PBXGroup;
 			children = (
-				44A3388F1DC1FED200FFAC83 /* xml_functions.h */,
-				44A338901DC1FED200FFAC83 /* xml_functions.cpp */,
-				4401E1C41D9959440027AD13 /* utf8string.h */,
-				4401E1C51D9959440027AD13 /* utf8string.cpp */,
 				2B299C4612CF8C3D008B57C9 /* boost_smart_ptr_helpers.h */,
 				27C3A1301070C3B200DD5717 /* common.h */,
 				2B60D7E7129C6B83000D5760 /* config_file.cpp */,
@@ -10101,11 +10097,15 @@
 				2B0F1CC01501D7630087D62A /* trackable.h */,
 				2B4C9E0610A29CDF00D5F19E /* ui_form.cpp */,
 				2B4C9E0710A29CDF00D5F19E /* ui_form.h */,
+				4401E1C51D9959440027AD13 /* utf8string.cpp */,
+				4401E1C41D9959440027AD13 /* utf8string.h */,
 				2B129A671443E39D00BC78DF /* util_functions.cpp */,
 				2B825D3A0E0B59EE00BE52DF /* util_functions.h */,
 				2B299C4912CF8C3D008B57C9 /* wb_iterators.h */,
 				2B299C4A12CF8C3D008B57C9 /* wb_memory.h */,
 				27C15E651A30989000EB73F7 /* wbbase_prefix.h */,
+				44A338901DC1FED200FFAC83 /* xml_functions.cpp */,
+				44A3388F1DC1FED200FFAC83 /* xml_functions.h */,
 			);
 			name = base;
 			sourceTree = "<group>";
@@ -10117,6 +10117,7 @@
 				2BB58B1E0F45F0C300089423 /* python */,
 				27C15E6A1A30A2E000EB73F7 /* grt_prefix.h */,
 				2B825DC80E0B605A00BE52DF /* grt.cpp */,
+				2B825DB70E0B605A00BE52DF /* grt.h */,
 				2B825DBA0E0B605A00BE52DF /* grtpp_helper.cpp */,
 				2B825DBD0E0B605A00BE52DF /* grtpp_helper.h */,
 				2B825DBB0E0B605A00BE52DF /* grtpp_metaclass.cpp */,
@@ -10133,7 +10134,6 @@
 				2B825DC50E0B605A00BE52DF /* grtpp_util.h */,
 				2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */,
 				2B825DC70E0B605A00BE52DF /* grtpp_value.h */,
-				2B825DB70E0B605A00BE52DF /* grt.h */,
 				2B825DBF0E0B605A00BE52DF /* serializer.cpp */,
 				2B825DBE0E0B605A00BE52DF /* serializer.h */,
 				2B825DB60E0B605A00BE52DF /* unserializer.cpp */,
