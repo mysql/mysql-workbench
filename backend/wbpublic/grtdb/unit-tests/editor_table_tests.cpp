@@ -114,9 +114,6 @@ TEST_DATA_CONSTRUCTOR(editor_table_tests) : wbt(new WBTester()), editor(0) {
   populate_grt(*wbt);
 }
 
-TEST_DATA_DESTRUCTOR(editor_table_tests) {
-  delete editor;
-}
 END_TEST_DATA_CLASS
 
 TEST_MODULE(editor_table_tests, "Table Editor backend");
@@ -798,6 +795,7 @@ TEST_FUNCTION(20) {
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
 TEST_FUNCTION(99) {
+  delete editor;
   delete wbt;
 }
 
