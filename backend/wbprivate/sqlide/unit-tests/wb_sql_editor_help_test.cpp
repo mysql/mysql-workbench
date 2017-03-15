@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
+
+#include <thread>
 
 #include "wb_helpers.h"
 
@@ -92,7 +94,7 @@ void checkTopics(size_t start, const std::vector<HelpTestEntry> entries)
 
 TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test) : _version(0)
 {
-  bec::GRTManager::get(); //need to bcreated first
+  bec::GRTManager::get();
   _tester = new WBTester();
 
   populate_grt(*_tester);
@@ -101,6 +103,11 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test) : _version(0)
   _version = (unsigned long)(version->majorNumber() * 10000 + version->minorNumber() * 100 + version->releaseNumber());
 
   _helpContext = new help::HelpContext(_tester->get_rdbms()->characterSets(), "", _version);
+
+  // Wait for the help to load its data.
+  while (!help::DbSqlEditorContextHelp::helpReady()) {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
 }
 
 END_TEST_DATA_CLASS;

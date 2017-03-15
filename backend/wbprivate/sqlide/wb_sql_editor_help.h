@@ -40,6 +40,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorContextHelp // Made public for tests
 {
 public:
   static DbSqlEditorContextHelp* get();
+  static bool helpReady();
 
   bool helpTextForTopic(HelpContext *helpContext, const std::string &topic, std::string &text);
   std::string helpTopicFromPosition(HelpContext *helpContext, const std::string &query, std::pair<size_t, size_t> caret);

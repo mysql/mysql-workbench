@@ -114,9 +114,19 @@ DbSqlEditorContextHelp *DbSqlEditorContextHelp::get() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static bool helpDataReady = false; // Set once the loader thread is done.
+
+/**
+ * Required if you need to sync loading and use (e.g. in tests).
+ */
+bool DbSqlEditorContextHelp::helpReady() {
+  return helpDataReady;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 static std::map<long, std::set<std::string>> helpTopics; // Quick lookup for help topics per server version.
 static std::map<long, std::map<std::string, std::string>> helpContent; // Help text from a topic (also per version).
-static bool helpDataReady = false; // Set once the loader thread is done.
 
 static std::string helpStyleSheet = "<style>\n"
   "body { color: #404040; spacing: 5px; }\n"
