@@ -967,6 +967,7 @@ namespace MySQL.GUI.Workbench.Plugins
               (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Collation, "");
             idx = 0;
           }
+          columnCollationComboBox.Enabled = true;
           columnCollationComboBox.SelectedIndex = idx;
         }
       }
@@ -1422,6 +1423,9 @@ namespace MySQL.GUI.Workbench.Plugins
         // set charset
         if (optCharset.SelectedIndex == 0) {
           tableEditorBE.set_table_option_by_name("CHARACTER SET", "");
+          optCollation.Items.Clear();
+          optCollation.Items.Add("Default Collation");
+          optCollation.SelectedIndex = 0;
         } else {
           tableEditorBE.set_table_option_by_name("CHARACTER SET", optCharset.Text);
           var collation = tableEditorBE.get_charset_collation_list(optCharset.Text);

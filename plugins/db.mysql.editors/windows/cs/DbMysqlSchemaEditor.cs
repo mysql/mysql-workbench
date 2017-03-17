@@ -132,8 +132,15 @@ namespace MySQL.GUI.Workbench.Plugins
       {
         // set charset/collation
         //If there is no "-" in optCollation.Text like in case of "Server default" collation and charset will be reset to ""
-        schemaEditorWrapper.set_schema_option_by_name("CHARACTER SET", optCollation.Text);
-        schemaEditorWrapper.set_schema_option_by_name("COLLATE", optCharset.Text);
+        if (optCharset.Text == "Default Charset")
+          schemaEditorWrapper.set_schema_option_by_name("CHARACTER SET", "");
+        else
+          schemaEditorWrapper.set_schema_option_by_name("CHARACTER SET", optCharset.Text);
+
+        if(optCollation.Text == "Default Collation")
+          schemaEditorWrapper.set_schema_option_by_name("COLLATE", "");
+        else
+          schemaEditorWrapper.set_schema_option_by_name("COLLATE", optCollation.Text);
 
         if (!optComments.Text.Equals(schemaEditorWrapper.get_comment()))
           schemaEditorWrapper.set_comment(optComments.Text);
