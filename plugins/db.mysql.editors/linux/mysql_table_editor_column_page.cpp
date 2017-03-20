@@ -17,6 +17,10 @@
 std::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::_types_completion;
 std::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::_names_completion;
 
+extern const char *DEFAULT_CHARSET_CAPTION;
+extern const char *DEFAULT_COLLATION_CAPTION;
+
+
 //------------------------------------------------------------------------------
 DbMySQLTableEditorColumnPage::DbMySQLTableEditorColumnPage(DbMySQLTableEditor* owner, MySQLTableEditorBE* be,
                                                            Glib::RefPtr<Gtk::Builder> xml)
@@ -40,14 +44,21 @@ DbMySQLTableEditorColumnPage::DbMySQLTableEditorColumnPage(DbMySQLTableEditor* o
   _xml->get_widget("column_comment", column_comment);
   _owner->add_text_change_timer(column_comment, sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_comment));
 
+  _xml->get_widget("column_charset_combo", _charset_combo);
+  setup_combo_for_string_list(_charset_combo);
+  fill_combo_from_string_list(_charset_combo, _be->get_charset_list());
+  _charset_combo->signal_changed().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_charset));
+  
   _xml->get_widget("column_collation_combo", _collation_combo);
   setup_combo_for_string_list(_collation_combo);
-  _collation_combo->set_size_request(80, -1);
-  std::vector<std::string> collations(_be->get_charset_collation_list());
-  collations.insert(collations.begin(), "*Table Default*");
-  fill_combo_from_string_list(_collation_combo, collations);
+
   _collation_combo->signal_changed().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_collation));
 
+  set_selected_combo_item(_charset_combo, DEFAULT_CHARSET_CAPTION);
+
+  fill_combo_from_string_list(_collation_combo, _be->get_charset_collation_list(DEFAULT_CHARSET_CAPTION));
+  set_selected_combo_item(_collation_combo, DEFAULT_COLLATION_CAPTION);
+  
   Gtk::Box* box;
   _xml->get_widget("gc_storage_type_box", box);
   if (box)
@@ -464,21 +475,41 @@ void DbMySQLTableEditorColumnPage::set_comment(const std::string& comment) {
 }
 
 //------------------------------------------------------------------------------
+void DbMySQLTableEditorColumnPage::set_charset() {
+  const bec::NodeId node = get_selected();
+  if (node.is_valid()) {
+    bec::TableColumnsListBE* columns = _be->get_columns();
+    std::string charset = get_selected_combo_item(_charset_combo);
+
+    fill_combo_from_string_list(_collation_combo, _be->get_charset_collation_list(charset));
+    set_selected_combo_item(_collation_combo, DEFAULT_COLLATION_CAPTION);
+
+    if (charset == DEFAULT_CHARSET_CAPTION)
+      charset = "";
+    
+    columns->set_field(node, MySQLTableColumnsListBE::Charset, charset);
+  }
+}
+
+//------------------------------------------------------------------------------
+
 void DbMySQLTableEditorColumnPage::set_collation() {
   const bec::NodeId node = get_selected();
   if (node.is_valid()) {
     bec::TableColumnsListBE* columns = _be->get_columns();
     std::string collation = get_selected_combo_item(_collation_combo);
-    if (!collation.empty() && collation[0] == '*')
+    
+    if (collation == DEFAULT_FONT_FAMILY)
       collation = "";
-    columns->set_field(node, MySQLTableColumnsListBE::CharsetCollation, collation);
+
+    columns->set_field(node, MySQLTableColumnsListBE::Collation, collation);
   }
 }
 
 //------------------------------------------------------------------------------
 void DbMySQLTableEditorColumnPage::update_collation() {
-  Gtk::ComboBox* collation_combo;
-  _xml->get_widget("column_collation_combo", collation_combo);
+//   Gtk::ComboBox* collation_combo;
+//   _xml->get_widget("column_collation_combo", collation_combo);
 
   const bec::NodeId node = get_selected();
   if (node.is_valid()) {
@@ -487,21 +518,32 @@ void DbMySQLTableEditorColumnPage::update_collation() {
 
     columns->get_field(node, MySQLTableColumnsListBE::HasCharset, has_charset);
     if ("1" == has_charset) {
-      std::string column_cscoll;
-      columns->get_field(node, MySQLTableColumnsListBE::CharsetCollation, column_cscoll);
+      std::string column_selected_charset;
+      std::string column_selected_collation;
+      
+      columns->get_field(node, MySQLTableColumnsListBE::Charset, column_selected_charset);
+      columns->get_field(node, MySQLTableColumnsListBE::Collation, column_selected_collation);
 
-      if (column_cscoll.empty() || column_cscoll == " - ")
-        column_cscoll = "*Table Default*";
-
-      collation_combo->set_sensitive(true);
-      set_selected_combo_item(collation_combo, column_cscoll);
+      if (column_selected_charset == "")
+        column_selected_charset = DEFAULT_CHARSET_CAPTION;
+      if(column_selected_collation == "")
+        column_selected_collation = DEFAULT_COLLATION_CAPTION;
+      
+      _charset_combo->set_sensitive(true);
+      _collation_combo->set_sensitive(true);
+      set_selected_combo_item(_charset_combo, column_selected_charset);
+      set_selected_combo_item(_collation_combo, column_selected_collation);
     } else {
-      set_selected_combo_item(collation_combo, "*Table Default*");
-      collation_combo->set_sensitive(false);
+      set_selected_combo_item(_charset_combo, DEFAULT_CHARSET_CAPTION);
+      set_selected_combo_item(_collation_combo, DEFAULT_COLLATION_CAPTION);
+      _charset_combo->set_sensitive(false);
+      _collation_combo->set_sensitive(false);
     }
   } else {
-    set_selected_combo_item(collation_combo, "*Table Default*");
-    collation_combo->set_sensitive(false);
+    set_selected_combo_item(_charset_combo, DEFAULT_CHARSET_CAPTION);
+    set_selected_combo_item(_collation_combo, DEFAULT_COLLATION_CAPTION);
+    _charset_combo->set_sensitive(false);
+    _collation_combo->set_sensitive(false);
   }
 }
 //--------------------------------------------------------------------------------

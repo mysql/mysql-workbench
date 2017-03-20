@@ -49,6 +49,7 @@ class DbMySQLTableEditor : public PluginEditorBase {
   Gtk::Widget *_main_page_widget;
 
   void create_table_page();
+  void charset_combo_changed(const std::string &name, const std::string &value);
 
   void refresh_table_page();
   void partial_refresh(const int what);

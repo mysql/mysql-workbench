@@ -75,6 +75,8 @@ namespace mforms {
     ActionOpenForum,
 
     CloseWelcomeMessage,
+    
+    RescanLocalServers
   };
 
   enum HomeScreenMenuType {

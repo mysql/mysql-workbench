@@ -232,6 +232,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel2 = new MySQL.Utilities.Bevel();
       this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       this.columnCollationComboBox = new System.Windows.Forms.ComboBox();
+      this.columnCharsetComboBox = new System.Windows.Forms.ComboBox();
       this.label12 = new System.Windows.Forms.Label();
       this.label9 = new System.Windows.Forms.Label();
       this.label6 = new System.Windows.Forms.Label();
@@ -251,12 +252,15 @@ namespace MySQL.GUI.Workbench.Plugins
       this.storageLabel = new System.Windows.Forms.Label();
       this.generatedCheckbox = new System.Windows.Forms.CheckBox();
       this.headingLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      this.charsetCollationPanel = new System.Windows.Forms.TableLayoutPanel();
+      this.columnCharsetCollationPanel = new System.Windows.Forms.TableLayoutPanel();
       this.pictureBox1 = new System.Windows.Forms.PictureBox();
       this.optEngine = new System.Windows.Forms.ComboBox();
       this.label3 = new System.Windows.Forms.Label();
       this.label4 = new System.Windows.Forms.Label();
       this.schemaLabel = new System.Windows.Forms.Label();
       this.optCollation = new System.Windows.Forms.ComboBox();
+      this.optCharset = new System.Windows.Forms.ComboBox();
       this.label2 = new System.Windows.Forms.Label();
       this.nameTextBox = new System.Windows.Forms.TextBox();
       this.label1 = new System.Windows.Forms.Label();
@@ -308,6 +312,8 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnListSplitContainer.SuspendLayout();
       this.tableLayoutPanel1.SuspendLayout();
       this.headingLayoutPanel.SuspendLayout();
+      this.charsetCollationPanel.SuspendLayout();
+      columnCharsetCollationPanel.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
       this.mainTabControl.SuspendLayout();
       this.topPanel.SuspendLayout();
@@ -2521,6 +2527,50 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel2.TabIndex = 17;
       this.bevel2.Text = "bevel2";
       // 
+      // columnCharsetComboBox
+      // 
+      this.columnCharsetComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+      this.columnCharsetComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.columnCharsetComboBox.Enabled = false;
+      this.columnCharsetComboBox.FormattingEnabled = true;
+      this.columnCharsetComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.columnCharsetComboBox.Name = "columnCollationComboBox";
+      this.columnCharsetComboBox.TabIndex = 1;
+      this.columnCharsetComboBox.SelectedIndexChanged += new System.EventHandler(this.columnCharsetComboBox_SelectedIndexChanged);
+      // 
+      // columnCollationComboBox
+      // 
+      this.columnCollationComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+      this.columnCollationComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.columnCollationComboBox.Enabled = false;
+      this.columnCollationComboBox.FormattingEnabled = true;
+      this.columnCollationComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.columnCollationComboBox.Name = "columnCollationComboBox";
+      this.columnCollationComboBox.TabIndex = 2;
+      this.columnCollationComboBox.SelectedIndexChanged += new System.EventHandler(this.columnCollationComboBox_SelectedIndexChanged);
+      //
+      // columnCollationCHarsetPanel
+      //
+      this.columnCharsetCollationPanel.AutoSize = true;
+      this.columnCharsetCollationPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+      this.columnCharsetCollationPanel.BackColor = System.Drawing.Color.White;
+      this.columnCharsetCollationPanel.ColumnCount = 2;
+      this.columnCharsetCollationPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      this.columnCharsetCollationPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      this.columnCharsetCollationPanel.Padding = new System.Windows.Forms.Padding(0);
+      this.columnCharsetCollationPanel.Margin = new System.Windows.Forms.Padding(0);
+      this.columnCharsetCollationPanel.Name = "columnCharsetCollationPanel";
+      this.columnCharsetCollationPanel.Controls.Add(this.columnCharsetComboBox, 0, 0);
+      this.columnCharsetCollationPanel.Controls.Add(this.columnCollationComboBox, 1, 0);
+      this.columnCharsetCollationPanel.RowCount = 1;
+      this.columnCharsetCollationPanel.TabIndex = 7;
+      this.columnCharsetCollationPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+      this.columnCharsetCollationPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      // 
       // tableLayoutPanel1
       // 
       this.tableLayoutPanel1.AutoSize = true;
@@ -2533,7 +2583,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.Controls.Add(this.columnCollationComboBox, 1, 1);
+      this.tableLayoutPanel1.Controls.Add(this.columnCharsetCollationPanel, 1, 1);
       this.tableLayoutPanel1.Controls.Add(this.label12, 0, 2);
       this.tableLayoutPanel1.Controls.Add(this.label9, 0, 1);
       this.tableLayoutPanel1.Controls.Add(this.label6, 0, 0);
@@ -2570,20 +2620,6 @@ namespace MySQL.GUI.Workbench.Plugins
       this.tableLayoutPanel1.Size = new System.Drawing.Size(714, 182);
       this.tableLayoutPanel1.TabIndex = 15;
       // 
-      // columnCollationComboBox
-      // 
-      this.columnCollationComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-      this.columnCollationComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this.columnCollationComboBox.Enabled = false;
-      this.columnCollationComboBox.FormattingEnabled = true;
-      this.columnCollationComboBox.Location = new System.Drawing.Point(108, 38);
-      this.columnCollationComboBox.Name = "columnCollationComboBox";
-      this.columnCollationComboBox.Size = new System.Drawing.Size(183, 25);
-      this.columnCollationComboBox.TabIndex = 7;
-      this.columnCollationComboBox.SelectedIndexChanged += new System.EventHandler(this.columnCollationComboBox_SelectedIndexChanged);
-      // 
       // label12
       // 
       this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -2607,7 +2643,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label9.Name = "label9";
       this.label9.Size = new System.Drawing.Size(99, 31);
       this.label9.TabIndex = 6;
-      this.label9.Text = "Collation:";
+      this.label9.Text = "Charset/Collation:";
       this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // label6
@@ -2845,6 +2881,25 @@ namespace MySQL.GUI.Workbench.Plugins
       this.generatedCheckbox.Text = "Generated";
       this.generatedCheckbox.UseVisualStyleBackColor = true;
       this.generatedCheckbox.CheckStateChanged += new System.EventHandler(this.columnFlagsChanged);
+
+      //
+      // charsetCollationPanel
+      //
+      this.charsetCollationPanel.AutoSize = true;
+      this.charsetCollationPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+      this.charsetCollationPanel.BackColor = System.Drawing.Color.White;
+      this.charsetCollationPanel.ColumnCount = 2;
+      this.charsetCollationPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      this.charsetCollationPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      this.charsetCollationPanel.Padding = new System.Windows.Forms.Padding(0);
+      this.charsetCollationPanel.Margin = new System.Windows.Forms.Padding(0);
+      this.charsetCollationPanel.Name = "charsetCollationPanel";
+      this.charsetCollationPanel.Controls.Add(this.optCharset, 0, 0);
+      this.charsetCollationPanel.Controls.Add(this.optCollation, 1, 0);
+      this.charsetCollationPanel.RowCount = 1;
+      this.charsetCollationPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+      this.charsetCollationPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+
       // 
       // headingLayoutPanel
       // 
@@ -2863,7 +2918,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.headingLayoutPanel.Controls.Add(this.label3, 3, 1);
       this.headingLayoutPanel.Controls.Add(this.label4, 3, 0);
       this.headingLayoutPanel.Controls.Add(this.schemaLabel, 4, 0);
-      this.headingLayoutPanel.Controls.Add(this.optCollation, 2, 1);
+      this.headingLayoutPanel.Controls.Add(this.charsetCollationPanel, 2, 1);
       this.headingLayoutPanel.Controls.Add(this.label2, 1, 1);
       this.headingLayoutPanel.Controls.Add(this.nameTextBox, 2, 0);
       this.headingLayoutPanel.Controls.Add(this.label1, 1, 0);
@@ -2880,6 +2935,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.headingLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.headingLayoutPanel.Size = new System.Drawing.Size(730, 129);
       this.headingLayoutPanel.TabIndex = 13;
+
       // 
       // pictureBox1
       // 
@@ -2944,15 +3000,27 @@ namespace MySQL.GUI.Workbench.Plugins
       this.schemaLabel.TabIndex = 15;
       this.schemaLabel.Text = "schema";
       this.schemaLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+
+      // 
+      // optCharset
+      // 
+      this.optCharset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+      this.optCharset.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.optCharset.FormattingEnabled = true;
+      this.optCharset.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.optCharset.Name = "optCharset";
+      this.optCharset.Size = new System.Drawing.Size(120, 25);
+      this.optCharset.TabIndex = 1;
+      this.optCharset.SelectedIndexChanged += new System.EventHandler(this.tableOptChanged);
       // 
       // optCollation
       // 
       this.optCollation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
       this.optCollation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.optCollation.FormattingEnabled = true;
-      this.optCollation.Location = new System.Drawing.Point(184, 40);
+      this.optCollation.Dock = System.Windows.Forms.DockStyle.Fill;
       this.optCollation.Name = "optCollation";
-      this.optCollation.Size = new System.Drawing.Size(209, 25);
+      this.optCollation.Size = new System.Drawing.Size(120, 25);
       this.optCollation.TabIndex = 1;
       this.optCollation.SelectedIndexChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -2961,11 +3029,11 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(114, 37);
+      this.label2.Location = new System.Drawing.Point(74, 37);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(64, 32);
+      this.label2.Size = new System.Drawing.Size(104, 32);
       this.label2.TabIndex = 9;
-      this.label2.Text = "Collation:";
+      this.label2.Text = "Charset/Collation:";
       this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // nameTextBox
@@ -3143,6 +3211,10 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnListSplitContainer.ResumeLayout(false);
       this.tableLayoutPanel1.ResumeLayout(false);
       this.tableLayoutPanel1.PerformLayout();
+      this.charsetCollationPanel.ResumeLayout(false);
+      this.charsetCollationPanel.PerformLayout();
+      this.columnCharsetCollationPanel.ResumeLayout(false);
+      this.columnCharsetCollationPanel.PerformLayout();
       this.headingLayoutPanel.ResumeLayout(false);
       this.headingLayoutPanel.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -3333,14 +3405,18 @@ namespace MySQL.GUI.Workbench.Plugins
     private System.Windows.Forms.TabPage columnsTabPage;
     private Aga.Controls.Tree.TreeViewAdv columnsTreeView;
     private System.Windows.Forms.Label label12;
+    private System.Windows.Forms.ComboBox columnCharsetComboBox;
     private System.Windows.Forms.ComboBox columnCollationComboBox;
     private System.Windows.Forms.Label label9;
     private System.Windows.Forms.TableLayoutPanel headingLayoutPanel;
+    private System.Windows.Forms.TableLayoutPanel charsetCollationPanel;
+    private System.Windows.Forms.TableLayoutPanel columnCharsetCollationPanel;
     private System.Windows.Forms.Label label7;
     private System.Windows.Forms.Label label2;
     private System.Windows.Forms.Label label1;
     private System.Windows.Forms.TextBox nameTextBox;
     private System.Windows.Forms.ComboBox optCollation;
+    private System.Windows.Forms.ComboBox optCharset;
     private System.Windows.Forms.Label label3;
     private System.Windows.Forms.TextBox optComments;
     private System.Windows.Forms.ComboBox optEngine;

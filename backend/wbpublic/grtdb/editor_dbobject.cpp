@@ -33,7 +33,8 @@
 #include "sqlide/sql_editor_be.h"
 #include "db_helpers.h"
 
-#define DEFAULT_COLLATION_CAPTION "default collation"
+const char *DEFAULT_CHARSET_CAPTION = "Default Charset";
+const char *DEFAULT_COLLATION_CAPTION = "Default Collation";
 
 using namespace bec;
 using namespace parser;
@@ -405,6 +406,50 @@ std::vector<std::string> DBObjectEditorBE::get_table_column_names(const db_Table
   return columns;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> DBObjectEditorBE::get_charset_list() {
+  std::vector<std::string> result;
+  grt::ListRef<db_CharacterSet> charsets = _catalog->characterSets();
+
+  for (size_t j = 0; j < charsets.count(); ++j) {
+    db_CharacterSetRef cs = charsets.get(j);
+    std::string cs_name(cs->name().c_str());
+
+    result.push_back(cs_name);
+  }
+  
+  result.push_back(DEFAULT_CHARSET_CAPTION);
+  std::sort(result.begin(), result.end());
+
+  return result;
+  
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> DBObjectEditorBE::get_charset_collation_list(const std::string &charset) {
+  std::vector<std::string> result;
+  grt::ListRef<db_CharacterSet> charsets = _catalog->characterSets();
+
+  for (size_t j = 0; j < charsets.count(); ++j) {
+    db_CharacterSetRef cs = charsets.get(j);
+    if (cs->name() != charset)
+      continue;
+    
+    grt::StringListRef collations(cs->collations());
+    for (size_t k = 0; k < collations.count(); ++k) {
+      result.push_back(collations.get(k));
+    }
+    
+  }
+  
+  result.push_back(DEFAULT_COLLATION_CAPTION);
+  std::sort(result.begin(), result.end());
+  
+  return result;
+}
 //--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> DBObjectEditorBE::get_charset_collation_list() {

@@ -28,6 +28,10 @@
 #include "mysql_table_editor_fe.h"
 #include "mforms/../gtk/lf_view.h"
 
+extern const char *DEFAULT_CHARSET_CAPTION;
+extern const char *DEFAULT_COLLATION_CAPTION;
+
+
 //------------------------------------------------------------------------------
 DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, const grt::BaseListRef &args)
   //    : PluginEditorBase(m, grtm, args, "modules/data/editor_mysql_table.glade")
@@ -169,7 +173,7 @@ void DbMySQLTableEditor::toggle_header_part() {
         images[i]->show();
     }
 
-    const char *const names[] = {"collation_label", "collation_combo", "engine_label", "engine_combo", "comment_box"};
+    const char *const names[] = {"collation_label", "charset_combo", "collation_combo", "engine_label", "engine_combo", "comment_box"};
     const int names_size = sizeof(names) / sizeof(const char **);
     for (int i = 0; i < names_size; ++i) {
       Gtk::Widget *w = 0;
@@ -236,10 +240,15 @@ void DbMySQLTableEditor::set_table_name(const std::string &name) {
 
 //------------------------------------------------------------------------------
 void DbMySQLTableEditor::set_table_option_by_name(const std::string &name, const std::string &value) {
-  if (name == "CHARACTER SET - COLLATE" && value[0] == '*')
-    _be->set_table_option_by_name(name, "");
-  else
-    _be->set_table_option_by_name(name, value);
+    if (!_be)
+      return;
+    
+    if (name == "CHARACTER SET" and value == DEFAULT_CHARSET_CAPTION)
+      _be->set_table_option_by_name(name, "");
+    else if (name == "COLLATE" and value == DEFAULT_COLLATION_CAPTION)
+      _be->set_table_option_by_name(name, "");
+    else
+      _be->set_table_option_by_name(name, value); 
 }
 
 //------------------------------------------------------------------------------
@@ -247,26 +256,49 @@ void DbMySQLTableEditor::create_table_page() {
   // Connect Table tab widgets
   bind_entry_and_be_setter("table_name", this, &DbMySQLTableEditor::set_table_name);
 
-  Gtk::ComboBox *combo = 0;
+  Gtk::ComboBox *combo = nullptr;
   xml()->get_widget("engine_combo", combo);
   setup_combo_for_string_list(combo);
   fill_combo_from_string_list(combo, _be->get_engines_list());
   add_option_combo_change_handler(combo, "ENGINE", sigc::mem_fun(this, &DbMySQLTableEditor::set_table_option_by_name));
 
-  combo = 0;
-  xml()->get_widget("collation_combo", combo);
-  setup_combo_for_string_list(combo);
-
-  std::vector<std::string> collations(_be->get_charset_collation_list());
-  collations.insert(collations.begin(), "*Default*");
-  fill_combo_from_string_list(combo, collations);
-  add_option_combo_change_handler(combo, "CHARACTER SET - COLLATE",
+  Gtk::ComboBox *charset_combo = nullptr;
+  xml()->get_widget("charset_combo", charset_combo);
+  setup_combo_for_string_list(charset_combo);
+  fill_combo_from_string_list(charset_combo, _be->get_charset_list());
+  add_option_combo_change_handler(charset_combo, "CHARACTER SET",
                                   sigc::mem_fun(this, &DbMySQLTableEditor::set_table_option_by_name));
+  add_option_combo_change_handler(charset_combo, "CHARACTER SET",
+                                  sigc::mem_fun(this, &DbMySQLTableEditor::charset_combo_changed));
+  
+  Gtk::ComboBox *collation_combo = nullptr;
+  xml()->get_widget("collation_combo", collation_combo);
+  setup_combo_for_string_list(collation_combo);
+
+  add_option_combo_change_handler(collation_combo, "COLLATE",
+                                  sigc::mem_fun(this, &DbMySQLTableEditor::set_table_option_by_name));
+
+  set_selected_combo_item(charset_combo, DEFAULT_CHARSET_CAPTION);
 
   Gtk::TextView *tview = 0;
   xml()->get_widget("table_comments", tview);
 
   add_text_change_timer(tview, sigc::mem_fun(this, &DbMySQLTableEditor::set_comment));
+}
+
+//------------------------------------------------------------------------------
+
+void DbMySQLTableEditor::charset_combo_changed(const std::string &name, const std::string &value) {
+  if (name != "CHARACTER SET")
+    return;
+  
+  Gtk::ComboBox *collation_combo;
+  xml()->get_widget("collation_combo", collation_combo);
+  
+  std::vector<std::string> vec = _be->get_charset_collation_list(value);
+  fill_combo_from_string_list(collation_combo, vec);
+  
+  set_selected_combo_item(collation_combo, DEFAULT_COLLATION_CAPTION);
 }
 
 //------------------------------------------------------------------------------
@@ -312,10 +344,13 @@ void DbMySQLTableEditor::refresh_table_page() {
   xml()->get_widget("engine_combo", combo);
   set_selected_combo_item(combo, _be->get_table_option_by_name("ENGINE"));
 
+  xml()->get_widget("charset_combo", combo);
+  set_selected_combo_item(combo, _be->get_table_option_by_name("CHARACTER SET"));
+
   xml()->get_widget("collation_combo", combo);
-  std::string collation = _be->get_table_option_by_name("CHARACTER SET - COLLATE");
+  std::string collation = _be->get_table_option_by_name("COLLATE");
   if (collation == " - " || collation.empty())
-    set_selected_combo_item(combo, "*Default*");
+    set_selected_combo_item(combo, DEFAULT_COLLATION_CAPTION);
   else
     set_selected_combo_item(combo, collation);
 }
