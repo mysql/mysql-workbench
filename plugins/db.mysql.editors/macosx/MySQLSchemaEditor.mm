@@ -156,19 +156,18 @@ static void call_refresh(void *theEditor) {
 - (void)refresh {
     if (mBackEnd) {
         if (!mChanging)
-            [nameText
-             setStringValue:[NSString stringWithCPPString:mBackEnd->get_name()]];
+            [nameText setStringValue:[NSString stringWithCPPString:mBackEnd->get_name()]];
         // select the current value of option "CHARACTER SET" in the charset popup
-        NSString *charset =
-        [NSString stringWithCPPString:mBackEnd->get_schema_option_by_name(
-                                                                          "CHARACTER SET")];
-        [charsetPopup selectItemWithTitle:charset];
+        NSString *charset = [NSString stringWithCPPString:mBackEnd->get_schema_option_by_name("CHARACTER SET")];
+        if ([charset isEqualToString: @"DEFAULT"] or [charset length] == 0)
+            charset = [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION];
+        [charsetPopup selectItemWithTitle: charset];
         // select the current value of option "COLLATE" in the collation popup
-        [self updateCollationPopup:[charset UTF8String]];
-        [collationPopup
-         selectItemWithTitle:
-         [NSString stringWithCPPString:mBackEnd->get_schema_option_by_name(
-                                                                           "COLLATE")]];
+        [self updateCollationPopup: [charset UTF8String]];
+        NSString* collate = [NSString stringWithCPPString: mBackEnd->get_schema_option_by_name("COLLATE")];
+        if ([collate isEqualToString: @"DEFAULT"] or [collate length] == 0)
+            collate = [NSString stringWithUTF8String: DEFAULT_COLLATION_CAPTION];
+        [collationPopup selectItemWithTitle: collate];
         
         if (!mChanging)
             [commentText
@@ -196,15 +195,19 @@ static void call_refresh(void *theEditor) {
 - (IBAction)activateCharsetCollationPopup:(id)sender {
     if (sender == collationPopup) {
         mChanging = YES;
+        NSString* collate = [collationPopup titleOfSelectedItem];
+        if ([collate isEqualToString: [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION]])
+            collate = @"DEFAULT";
         // set the collation and charset of the schema from the selected value
-        mBackEnd->set_schema_option_by_name(
-                                            "COLLATE", [[collationPopup titleOfSelectedItem] UTF8String]);
+        mBackEnd->set_schema_option_by_name("COLLATE", [collate UTF8String]);
         mChanging = NO;
     } else if (sender == charsetPopup) {
         mChanging = YES;
+        NSString* charset = [charsetPopup titleOfSelectedItem];
+        if ([charset isEqualToString: [NSString stringWithUTF8String: DEFAULT_CHARSET_CAPTION]])
+            charset = @"DEFAULT";
         // set the collation and charset of the schema from the selected value
-        mBackEnd->set_schema_option_by_name(
-                                            "CHARACTER SET", [[charsetPopup titleOfSelectedItem] UTF8String]);
+        mBackEnd->set_schema_option_by_name("CHARACTER SET", [charset UTF8String]);
         mChanging = NO;
     }
 }
