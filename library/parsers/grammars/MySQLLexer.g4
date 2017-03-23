@@ -42,6 +42,7 @@ lexer grammar MySQLLexer;
 options {
     superClass = MySQLBaseLexer;
     tokenVocab = predefined; // Certain tokens in a predefined order for simpler checks.
+    exportMacro = PARSERS_PUBLIC_TYPE;
 }
 
 tokens {

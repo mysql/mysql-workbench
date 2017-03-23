@@ -3,7 +3,7 @@
 //  mysql.parser
 //
 //  Created by Mike on 03.04.12.
-//  Copyright 2012, 2016, Oracle Corporation. All rights reserved.
+//  Copyright 2012, 2017, Oracle Corporation. All rights reserved.
 //
 
 #import "mysql_parserAppDelegate.h"
@@ -132,7 +132,7 @@ static std::set<std::string> charsets = { "_utf8", "_ucs2", "_big5", "_latin2", 
 
 class TestErrorListener : public BaseErrorListener {
 public:
-  virtual void syntaxError(IRecognizer *recognizer, antlr4::Token *offendingSymbol, size_t line, size_t charPositionInLine,
+  virtual void syntaxError(Recognizer *recognizer, antlr4::Token *offendingSymbol, size_t line, size_t charPositionInLine,
                            const std::string &msg, std::exception_ptr e) override {
     // Here we use the message provided by the DefaultErrorStrategy class.
     last_error = "line " + std::to_string(line) + ":" + std::to_string(charPositionInLine) + " " + msg;
@@ -236,6 +236,9 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
     tree = parser.query();
   }
+
+  auto toks = tokens.getTokens();
+  std::string t = input.getText(misc::Interval((ssize_t)toks[0]->getStartIndex(), std::numeric_limits<ssize_t>::max()));
 
   lastDuration = -[start timeIntervalSinceNow];
 

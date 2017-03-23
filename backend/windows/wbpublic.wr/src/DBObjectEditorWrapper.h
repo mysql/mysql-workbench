@@ -96,8 +96,18 @@ namespace MySQL {
           }
 
           List<String ^> ^
+            get_charset_list() {
+            return CppStringListToNative(static_cast<::bec::DBObjectEditorBE *>(inner)->get_charset_list());
+          }
+
+          List<String ^> ^
           get_charset_collation_list() {
             return CppStringListToNative(static_cast<::bec::DBObjectEditorBE *>(inner)->get_charset_collation_list());
+          }
+
+          List<String ^> ^
+            get_charset_collation_list(String ^charset) {
+            return CppStringListToNative(static_cast<::bec::DBObjectEditorBE *>(inner)->get_charset_collation_list(NativeToCppString(charset)));
           }
 
           private:

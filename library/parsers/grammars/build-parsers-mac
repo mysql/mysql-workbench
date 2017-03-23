@@ -6,13 +6,13 @@ then
   exit
 fi 
 
-LOCATION=../../../../mysql-mac-res/bin/antlr-4.6-complete.jar
+LOCATION=../../../../mysql-mac-res/bin/antlr-4.7-complete.jar
 case "$1" in
   "antlr") echo "Building ANTLR parser"
-    java -jar $LOCATION -Dlanguage=Cpp -listener -no-visitor -o ../antlr -package parsers -export-macro PARSERS_PUBLIC_TYPE ANTLRv4Parser.g4 ANTLRv4Lexer.g4
+    java -jar $LOCATION -Dlanguage=Cpp -listener -no-visitor -o ../antlr -package parsers ANTLRv4Parser.g4 ANTLRv4Lexer.g4
   ;;
   "mysql") echo "Building MySQL parser"
-    java -jar $LOCATION -Dlanguage=Cpp -listener -visitor -o ../mysql -package parsers -export-macro PARSERS_PUBLIC_TYPE MySQLLexer.g4 MySQLParser.g4
+    java -jar $LOCATION -Dlanguage=Cpp -listener -visitor -o ../mysql -package parsers MySQLLexer.g4 MySQLParser.g4
   ;;
  *) echo "Unknown parser type $1"
  exit 1
