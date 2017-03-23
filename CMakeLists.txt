@@ -50,7 +50,7 @@ find_package(X11)
 
 
 
-set(ANTLR_JAR_FILENAME "antlr-4.6-complete.jar")
+set(ANTLR_JAR_FILENAME "antlr-4.7-complete.jar")
 get_filename_component(SOURCE_PARENT_DIR ${CMAKE_SOURCE_DIR} DIRECTORY)
 set(LINUX_RES_BIN_DIR ${SOURCE_PARENT_DIR}/linux-res/bin)
 if(WITH_ANTLR_JAR)
