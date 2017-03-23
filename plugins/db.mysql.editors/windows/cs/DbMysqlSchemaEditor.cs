@@ -88,32 +88,31 @@ namespace MySQL.GUI.Workbench.Plugins
         InitializingControls = true;
         nameTextBox.Text = schemaEditorWrapper.get_name();
 
-        System.Collections.Generic.List<String> collations_list = schemaEditorWrapper.get_charset_collation_list();
+        var charsetLlist = schemaEditorWrapper.get_charset_list();
+        optCharset.Items.Clear();
+        optCharset.Items.AddRange(charsetLlist.ToArray());
 
+        var charset = schemaEditorWrapper.get_schema_option_by_name("CHARACTER SET");
+        var idx = optCharset.FindString(charset);
+        if (idx < 0)
+          idx = 0;
+        optCharset.SelectedIndex = idx;
+
+        var selectedValue = "Default Charset";
+        if (optCharset.SelectedItem != null)
+          selectedValue = optCharset.SelectedItem.ToString();
+        var collation = schemaEditorWrapper.get_charset_collation_list(selectedValue);
         optCollation.Items.Clear();
-        optCollation.Items.Add("Server Default");
-        optCollation.Items.AddRange(collations_list.ToArray());
+        optCollation.Items.AddRange(collation.ToArray());
 
-        int idx = 0;
-        String cscoll = schemaEditorWrapper.get_schema_option_by_name("CHARACTER SET - COLLATE");
-        bool found = false;
-        foreach (String next_cscoll in optCollation.Items)
-        {
-          if (next_cscoll == cscoll)
-          {
-            found = true;
-            optCollation.SelectedIndex = idx;
-            break;
-          }
-          idx++;
-        }
-        if (!found)
-          optCollation.SelectedIndex = 0;
+        var collate = schemaEditorWrapper.get_schema_option_by_name("COLLATE");
+        idx = optCollation.FindString(charset);
+        if (idx < 0)
+          idx = 0;
+        optCollation.SelectedIndex = idx;
 
         TabText = schemaEditorWrapper.get_title();
-
         optComments.Text = schemaEditorWrapper.get_comment();
-
         refactorButton.Enabled = schemaEditorWrapper.refactor_possible();
       }
       finally
@@ -133,7 +132,15 @@ namespace MySQL.GUI.Workbench.Plugins
       {
         // set charset/collation
         //If there is no "-" in optCollation.Text like in case of "Server default" collation and charset will be reset to ""
-        schemaEditorWrapper.set_schema_option_by_name("CHARACTER SET - COLLATE", optCollation.Text);
+        if (optCharset.Text == "Default Charset")
+          schemaEditorWrapper.set_schema_option_by_name("CHARACTER SET", "");
+        else
+          schemaEditorWrapper.set_schema_option_by_name("CHARACTER SET", optCharset.Text);
+
+        if(optCollation.Text == "Default Collation")
+          schemaEditorWrapper.set_schema_option_by_name("COLLATE", "");
+        else
+          schemaEditorWrapper.set_schema_option_by_name("COLLATE", optCollation.Text);
 
         if (!optComments.Text.Equals(schemaEditorWrapper.get_comment()))
           schemaEditorWrapper.set_comment(optComments.Text);
@@ -166,6 +173,17 @@ namespace MySQL.GUI.Workbench.Plugins
     private void optCollation_SelectedIndexChanged(object sender, EventArgs e)
     {
       setSchemaOpt();
+    }
+
+    private void optCharset_SelectedIndexChanged(object sender, EventArgs e) {
+      var cbCharset = (ComboBox)sender;
+      if (cbCharset != null && cbCharset.SelectedItem != null) {
+        var collation = schemaEditorWrapper.get_charset_collation_list(cbCharset.SelectedItem.ToString());
+        optCollation.Items.Clear();
+        optCollation.Items.AddRange(collation.ToArray());
+        optCollation.SelectedIndex = 0;
+        setSchemaOpt();
+      }
     }
 
     private void optComments_TextChanged(object sender, EventArgs e)

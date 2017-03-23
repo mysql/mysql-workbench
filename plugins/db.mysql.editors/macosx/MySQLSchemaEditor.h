@@ -33,6 +33,7 @@
 
   IBOutlet NSTextField *nameText;
   IBOutlet NSPopUpButton *collationPopup;
+  IBOutlet NSPopUpButton *charsetPopup;
 
   IBOutlet NSTextView *commentText;
 

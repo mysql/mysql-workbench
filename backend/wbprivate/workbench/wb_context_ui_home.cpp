@@ -986,6 +986,8 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       bec::GRTManager::get()->set_app_option("HomeScreen:HeadingMessage", grt::IntegerRef(0));
       break;
 
+    case HomeScreenAction::RescanLocalServers:
+      _wb->execute_plugin("wb.tools.createMissingLocalConnections", ArgumentPool());
     default:
       logError("Unknown Action.\n");
   }

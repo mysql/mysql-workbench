@@ -1071,6 +1071,10 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _manage_button.name = "Manage Connections";
   _manage_button.default_action = "Open Connection Management Dialog";
   _manage_button.default_handler = _accessible_click_handler;
+  
+  _rescanButton.name = "Rescan Servers";
+  _rescanButton.default_action = "Rescan Servers";
+  _rescanButton.default_handler = _accessible_click_handler;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1356,6 +1360,51 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   std::string current_section;
 
   base::Rect bounds(0, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
+  
+  if (connections.size() == 0)
+  {
+    std::string line1 = "MySQL Workbench could not detect any MySQL server running.";
+    std::string line2 = "This means that MySQL is not installed or is not running.";
+    
+    double x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
+    int yoffset = bounds.top() + 30;
+    cairo_text_extents_t extents;
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
+    cairo_text_extents(cr, line1.c_str(), &extents);
+    
+    x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
+    yoffset += extents.height + 10;
+    
+    cairo_move_to(cr, x, yoffset);
+    cairo_show_text(cr, line1.c_str());
+    
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_text_extents(cr, line2.c_str(), &extents);
+    
+    x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
+    yoffset += extents.height + 10;
+    
+    cairo_move_to(cr, x, yoffset);
+    cairo_show_text(cr, line2.c_str());
+
+    cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
+                          CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
+    cairo_set_source_rgb(cr, 0x1b / 255.0, 0xad / 255.0, 0xe8 / 255.0);
+    cairo_text_extents(cr, _rescanButton.name.c_str(), &extents);
+    
+    x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
+    yoffset += extents.height + 10;
+    
+    cairo_move_to(cr, x, yoffset);
+    cairo_show_text(cr, _rescanButton.name.c_str());
+    
+    _rescanButton.bounds = base::Rect(x, yoffset - extents.height - 5, extents.width, extents.height + 10);
+        
+    return;
+  }
+  
   std::size_t index = 0;
   bool done = false;
   while (!done) {
@@ -1677,6 +1726,9 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
       //        return true;
       //      }
 
+    if (_rescanButton.bounds.contains(x, y))
+        _owner->trigger_callback(HomeScreenAction::RescanLocalServers, base::any());
+      
       if (_hot_entry) {
 #ifdef __APPLE__
         bool show_info = _info_button_rect.contains_flipped(x, y);

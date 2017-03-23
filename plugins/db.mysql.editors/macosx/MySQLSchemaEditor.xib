@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <development version="7000" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="DbMysqlSchemaEditor">
             <connections>
+                <outlet property="charsetPopup" destination="8PK-fm-GWe" id="cPm-vg-Oxe"/>
                 <outlet property="collationPopup" destination="34" id="69"/>
                 <outlet property="commentText" destination="82" id="83"/>
                 <outlet property="mApplyButton" destination="91" id="96"/>
@@ -54,17 +55,8 @@
                                             <outlet property="delegate" destination="-2" id="85"/>
                                         </connections>
                                     </textField>
-                                    <textField verticalHuggingPriority="750" id="36">
-                                        <rect key="frame" x="47" y="103" width="98" height="14"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Default Collation:" id="41">
-                                            <font key="font" metaFont="smallSystem"/>
-                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                        </textFieldCell>
-                                    </textField>
-                                    <popUpButton verticalHuggingPriority="750" id="34">
-                                        <rect key="frame" x="147" y="98" width="277" height="22"/>
+                                    <popUpButton verticalHuggingPriority="750" misplaced="YES" id="34">
+                                        <rect key="frame" x="290" y="98" width="135" height="22"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="47" id="43">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -78,7 +70,7 @@
                                             </menu>
                                         </popUpButtonCell>
                                         <connections>
-                                            <action selector="activateCollectionItem:" target="-2" id="77"/>
+                                            <action selector="activateCharsetCollationPopup:" target="-2" id="e2R-h1-f5d"/>
                                         </connections>
                                     </popUpButton>
                                     <textField hidden="YES" verticalHuggingPriority="750" tag="103" id="61">
@@ -128,7 +120,7 @@
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <clipView key="contentView" id="RrG-bA-Jon">
                                             <rect key="frame" x="1" y="1" width="606" height="71"/>
-                                            <autoresizingMask key="autoresizingMask"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" smartInsertDelete="YES" id="82">
                                                     <rect key="frame" x="0.0" y="0.0" width="606" height="71"/>
@@ -907,6 +899,33 @@
                                             <action selector="actionButtonClicked:" target="-2" id="112"/>
                                         </connections>
                                     </button>
+                                    <popUpButton verticalHuggingPriority="750" misplaced="YES" id="8PK-fm-GWe" userLabel="Charset Popup">
+                                        <rect key="frame" x="147" y="98" width="136" height="22"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="Hsk-fu-rhi" id="Boq-SP-pjh">
+                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="smallSystem"/>
+                                            <menu key="menu" id="kFX-Ju-pUt">
+                                                <items>
+                                                    <menuItem title="Item 1" state="on" id="Hsk-fu-rhi"/>
+                                                    <menuItem title="Item 2" id="XES-yf-Y5F"/>
+                                                    <menuItem title="Item 3" id="3Ha-K1-fw5"/>
+                                                </items>
+                                            </menu>
+                                        </popUpButtonCell>
+                                        <connections>
+                                            <action selector="activateCharsetCollationPopup:" target="-2" id="Qr4-rH-nkj"/>
+                                        </connections>
+                                    </popUpButton>
+                                    <textField verticalHuggingPriority="750" misplaced="YES" id="36">
+                                        <rect key="frame" x="47" y="101" width="98" height="14"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Charset/Collation:" id="41">
+                                            <font key="font" metaFont="smallSystem"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
                                 </subviews>
                             </view>
                         </tabViewItem>
