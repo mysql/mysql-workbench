@@ -222,7 +222,7 @@ TEST_FUNCTION(10) {
 class ErrorListener : public BaseErrorListener {
 public:
   size_t errorCount = 0;
-  virtual void syntaxError(IRecognizer *recognizer, Token *offendingSymbol, size_t line, size_t charPositionInLine,
+  virtual void syntaxError(Recognizer *recognizer, Token *offendingSymbol, size_t line, size_t charPositionInLine,
                            const std::string &msg, std::exception_ptr e) override {
     ++errorCount;
   }
