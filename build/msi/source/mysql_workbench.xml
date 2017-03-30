@@ -50,7 +50,7 @@
         <Binary Id="NewBinary8" SourceFile="resources/binary/binary8" />
         <Binary Id="NewBinary12" SourceFile="resources/binary/binary12" />
 
-		<PropertyRef Id="WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED" />
+		<PropertyRef Id="WIX_IS_NETFRAMEWORK_45_OR_LATER_INSTALLED" />
     <Property Id="CPP_2015_REDISTRIBUTABLE_1">
       <RegistrySearch Id="Cpp2015Redistributable1"
                       Root="HKLM"
@@ -75,7 +75,7 @@
         <Condition Message="The amount of RAM is not adequate for running [ProductName].">PhysicalMemory &gt;= 64</Condition>
         <Condition Message="You need Administrator privileges to be able to install [ProductName].">Privileged</Condition>
         <Condition Message="MySQL Workbench requires the Visual C++ 2015 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR CPP_2015_REDISTRIBUTABLE_1 OR CPP_2015_REDISTRIBUTABLE_2]]></Condition>
-        <Condition Message="MySQL Workbench requires the .Net Framework 4.5.2 to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED]]></Condition>
+        <Condition Message="MySQL Workbench requires the .Net Framework 4.5 to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR WIX_IS_NETFRAMEWORK_45_OR_LATER_INSTALLED]]></Condition>
 
         <CustomAction Id="NewerVersionInstalled" Error="A newer version of this product is already installed." />
 
