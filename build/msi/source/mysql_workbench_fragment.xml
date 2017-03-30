@@ -25,7 +25,6 @@
     -->
 
     <Icon Id="WBIcon.exe" SourceFile="resources/MySQLWorkbench.ico"/>
-    <Icon Id="WBXIcon.exe" SourceFile="resources/MySQLWorkbench.X.ico"/>
 
     <!-- *****************************************************************************************
       Directories / Files
@@ -187,7 +186,6 @@
                   <RegistryValue KeyPath="yes" Name="ProgramSC" Type="integer" Value="1"/>
                 </RegistryKey>
                 <Shortcut Advertise="no" Description="MySQL Workbench Visual Database Designer" Directory="MysqlProgramMenuFolder" Icon="WBIcon.exe" IconIndex="0" Id="WBProgramShortcut" Name="$(var.PRODUCT_NAME)" Show="normal" Target="[INSTALLDIR]MySQLWorkbench.exe" WorkingDirectory="INSTALLDIR"/>
-                <Shortcut Advertise="no" Description="MySQL Workbench X" Directory="MysqlProgramMenuFolder" Icon="WBXIcon.exe" IconIndex="0" Id="WBXProgramShortcut" Name="$(var.PRODUCT_NAME_X)" Show="normal" Target="[INSTALLDIR]MySQLWorkbench.X.exe" WorkingDirectory="INSTALLDIR"/>
               </Component>
               <Component DiskId="1" Guid="DA7365B3-7FCC-4724-B583-6577FA55C841" Id="mysql_canvas" Location="either">
                 <File Id="file12004" Name="mysql.canvas.dll"/>
