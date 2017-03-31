@@ -47,7 +47,6 @@ DEFAULT_LOG_DOMAIN("QuerySidebar");
 
 using namespace mforms;
 using namespace base;
-using namespace help;
 
 //----------------- SnippetListView ------------------------------------------------------------------------------------
 
@@ -249,7 +248,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _help_timer = NULL;
   _automatic_help = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 0) == 0;
   _switching_help = false;
-  _helpContext = new HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
+  _helpContext = new help::HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
 
   _pending_snippets_refresh = true;
 
@@ -389,7 +388,7 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic) {
                                 "No Context Help<b><br><br><hr></div></body></html>");
   } else {
     std::string text;
-    DbSqlEditorContextHelp::get()->helpTextForTopic(_helpContext, _currentHelpTopic, text);
+    help::DbSqlEditorContextHelp::get()->helpTextForTopic(_helpContext, _currentHelpTopic, text);
     _help_text->set_markup_text(text);
 
     _switching_help = true;
@@ -433,7 +432,7 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor) {
 
   // Caret position as <column, row>.
   std::pair<size_t, size_t> caret = editor->cursor_pos_row_column(true);
-  std::string topic = DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, editor->current_statement(), caret);
+  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, editor->current_statement(), caret);
   update_help_history(topic);
   show_help_text_for_topic(topic);
 

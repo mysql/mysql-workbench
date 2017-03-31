@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,38 +26,31 @@
 using namespace antlr4;
 using namespace parsers;
 
-MySQLBaseRecognizer::MySQLBaseRecognizer(TokenStream *input) : Parser(input)
-{
+MySQLBaseRecognizer::MySQLBaseRecognizer(TokenStream *input) : Parser(input) {
   removeErrorListeners();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MySQLBaseRecognizer::reset()
-{
+void MySQLBaseRecognizer::reset() {
   Parser::reset();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscapes)
-{
-  if (antlrcpp::is<MySQLParser::TextLiteralContext *>(context))
-  {
+std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscapes) {
+  if (antlrcpp::is<MySQLParser::TextLiteralContext *>(context)) {
     // TODO: take the optional repertoire prefix into account.
     std::string result;
-    auto list = ((MySQLParser::TextLiteralContext *)context)->textStringLiteral();
+    auto list = dynamic_cast<MySQLParser::TextLiteralContext *>(context)->textStringLiteral();
 
     size_t lastType = Token::INVALID_TYPE;
     size_t lastIndex = INVALID_INDEX;
-    for (auto entry : list)
-    {
+    for (auto entry : list) {
       Token *token = entry->value;
-      switch (token->getType())
-      {
+      switch (token->getType()) {
         case MySQLParser::DOUBLE_QUOTED_TEXT:
-        case MySQLParser::SINGLE_QUOTED_TEXT:
-        {
+        case MySQLParser::SINGLE_QUOTED_TEXT: {
           std::string text = token->getText();
           char quoteChar = text[0];
           std::string doubledQuoteChar(2, text[0]);
@@ -71,8 +64,7 @@ std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscap
 
           text = text.substr(1, text.size() - 2); // Remove outer quotes.
           size_t position = 0;
-          while (true)
-          {
+          while (true) {
             position = text.find(doubledQuoteChar, position);
             if (position == std::string::npos)
               break;
@@ -84,37 +76,42 @@ std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscap
       }
     }
 
-    if (convertEscapes)
-    {
+    if (convertEscapes) {
       std::string temp = result;
       result = "";
       result.reserve(temp.size());
 
       bool pendingEscape = false;
-      for (auto c: temp)
-      {
-        if (pendingEscape)
-        {
+      for (auto c : temp) {
+        if (pendingEscape) {
           pendingEscape = false;
-          switch (c)
-          {
-            case 'n': c = '\n'; break;
-            case 't': c = '\t'; break;
-            case 'r': c = '\r'; break;
-            case 'b': c = '\b'; break;
-            case '0': c = 0; break;         // ASCII null
-            case 'Z': c = '\032'; break;    // Win32 end of file
+          switch (c) {
+            case 'n':
+              c = '\n';
+              break;
+            case 't':
+              c = '\t';
+              break;
+            case 'r':
+              c = '\r';
+              break;
+            case 'b':
+              c = '\b';
+              break;
+            case '0':
+              c = 0;
+              break; // ASCII null
+            case 'Z':
+              c = '\032';
+              break; // Win32 end of file
           }
+        } else if (c == '\\') {
+          pendingEscape = true;
+          continue;
         }
-        else
-          if (c == '\\')
-          {
-            pendingEscape = true;
-            continue;
-          }
         result.push_back(c);
       }
-      
+
       if (pendingEscape)
         result.push_back('\\');
     }
@@ -125,12 +122,16 @@ std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscap
   return context->getText();
 }
 
-bool MySQLBaseRecognizer::look(ssize_t position, size_t expected)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+bool MySQLBaseRecognizer::look(ssize_t position, size_t expected) {
   return _input->LA(position) == expected;
 }
 
-bool MySQLBaseRecognizer::containsLinebreak(const std::string &text) const
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+bool MySQLBaseRecognizer::containsLinebreak(const std::string &text) const {
   return text.find_first_of("\r\n") != std::string::npos;
 }
+
+//----------------------------------------------------------------------------------------------------------------------

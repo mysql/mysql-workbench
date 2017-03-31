@@ -362,7 +362,7 @@ namespace parsers {
   class PARSERS_PUBLIC_TYPE SymbolTable : public ScopedSymbol {
   public:
     SymbolTable();
-    ~SymbolTable();
+    virtual ~SymbolTable();
 
     // Lock/unlock can be used recursively, but must be balanced of course.
     void lock();

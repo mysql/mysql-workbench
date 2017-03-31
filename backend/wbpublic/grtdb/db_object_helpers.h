@@ -193,8 +193,7 @@ namespace bec {
     ct::for_each<ct::Schemata>(cat, sa);
   }
 
-  inline bool is_int_datatype(const std::string &type)
-  {
+  inline bool is_int_datatype(const std::string &type) {
     return type == "BIGINT" || type == "MEDIUMINT" || type == "SMALLINT" || type == "TINYINT" || type == "INT";
   }
 

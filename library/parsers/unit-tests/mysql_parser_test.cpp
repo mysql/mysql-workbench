@@ -607,8 +607,7 @@ TEST_FUNCTION(25) {
       expectError = true;
 
     std::vector<EvalValue> expectedResults;
-    if (!expectError) // No results to compare in an error case.
-    {
+    if (!expectError) { // No results to compare in an error case.
       ensure("25.5 - invalid test file format", !std::getline(stream, line).eof());
       std::string temp;
       std::stringstream stream(line);

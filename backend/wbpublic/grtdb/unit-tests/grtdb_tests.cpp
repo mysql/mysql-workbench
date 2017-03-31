@@ -106,8 +106,7 @@ TEST_FUNCTION(15) {
  * Checks the values for precision and scale, as well as character and octet length against the given
  * values depending on the actual type.
  */
-void checkTypeCardinalities(size_t testNo, db_SimpleDatatypeRef type, db_ColumnRef column, int precision, int scale)
-{
+void checkTypeCardinalities(size_t testNo, db_SimpleDatatypeRef type, db_ColumnRef column, int precision, int scale) {
   std::string numberString = " (" + std::to_string(testNo) + ")";
 
   // Check special cases first (blob, text + date(time) types).

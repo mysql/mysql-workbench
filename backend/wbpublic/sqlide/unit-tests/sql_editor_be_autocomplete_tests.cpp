@@ -115,6 +115,8 @@ void createDBObjects(SymbolTable &symbolTable) {
   symbolTable.addNewSymbol<ViewSymbol>(sakila, "sales_by_film_category");
   symbolTable.addNewSymbol<ViewSymbol>(sakila, "sales_by_store");
 
+  symbolTable.addNewSymbol<EventSymbol>(sakila, "event1");
+
   symbolTable.addNewSymbol<StoredRoutineSymbol>(sakila, "film_in_stock", nullptr);
   symbolTable.addNewSymbol<StoredRoutineSymbol>(sakila, "film_not_in_stock", nullptr);
   symbolTable.addNewSymbol<StoredRoutineSymbol>(sakila, "rewards_report", nullptr);
