@@ -27,8 +27,7 @@ using namespace bec;
 
 RoutineEditorBE::RoutineEditorBE(const db_RoutineRef &routine) : DBObjectEditorBE(routine) {
   MySQLEditor::Ref sql_editor = get_sql_editor();
-  if (sql_editor)
-  {
+  if (sql_editor) {
     std::string routineType = get_routine()->routineType();
     if (routineType == "procedure")
       sql_editor->restrict_content_to(MySQLEditor::ContentTypeProcedure);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #include "base/string_utilities.h"
 #include "wb_editor_image.h"
 
-#import "WBModelImageEditor.h"
+#import "WbModelImageEditor.h"
 #import "MCPPUtilities.h"
 
 @interface ImageEditor()

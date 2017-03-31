@@ -508,8 +508,7 @@ bool DBObjectEditorBE::has_editor() {
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
-{
+MySQLEditor::Ref DBObjectEditorBE::get_sql_editor() {
   if (!_sql_editor)
   {
     _sql_editor = MySQLEditor::create(_parser_context, _autocompletion_context, {});

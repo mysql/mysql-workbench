@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -37,11 +37,9 @@ using namespace antlr4;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static std::string getIdentifierList(MySQLParser::IdentifierListContext *ctx)
-{
+static std::string getIdentifierList(MySQLParser::IdentifierListContext *ctx) {
   std::string result;
-  for (auto &identifier : ctx->identifier())
-  {
+  for (auto &identifier : ctx->identifier()) {
     if (!result.empty())
       result += ", ";
     result += base::unquote(identifier->getText());
@@ -56,22 +54,19 @@ static std::string getIdentifierList(MySQLParser::IdentifierListContext *ctx)
  * The next 2 functions take a charset or collation and retrieve the associated charset/collation pair.
  */
 static std::pair<std::string, std::string> detailsForCharset(const std::string &charset, const std::string &collation,
-                                                             const std::string &defaultCharset)
-{
+                                                             const std::string &defaultCharset) {
   std::pair<std::string, std::string> result;
-  if (!charset.empty())
-  {
+  if (!charset.empty()) {
     result.first = base::tolower(charset);
     if (result.first == "default")
       result.first = base::tolower(defaultCharset);
 
-    if (!collation.empty())
-    {
+    if (!collation.empty()) {
       result.second = base::tolower(collation);
 
       // Clear collation if it's the default collation or belongs to another character set.
-      if ((result.second == defaultCollationForCharset(result.first))
-          || (result.first != charsetForCollation(result.second)))
+      if ((result.second == defaultCollationForCharset(result.first)) ||
+          (result.first != charsetForCollation(result.second)))
         result.second = "";
     }
   }
@@ -82,11 +77,9 @@ static std::pair<std::string, std::string> detailsForCharset(const std::string &
 //----------------------------------------------------------------------------------------------------------------------
 
 static std::pair<std::string, std::string> detailsForCollation(const std::string &collation,
-                                                               const std::string &defaultCollation)
-{
+                                                               const std::string &defaultCollation) {
   std::pair<std::string, std::string> result;
-  if (!collation.empty())
-  {
+  if (!collation.empty()) {
     result.second = base::tolower(collation);
     if (result.second == "default")
       result.second = base::tolower(defaultCollation);
@@ -96,46 +89,38 @@ static std::pair<std::string, std::string> detailsForCollation(const std::string
     if (defaultCollationForCharset(result.first) == result.second)
       result.second = "";
   }
-  
+
   return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static void parseReferences(MySQLParser::ReferencesContext *ctx, const std::string &schemaName, DbObjectReferences &references)
-{
+static void parseReferences(MySQLParser::ReferencesContext *ctx, const std::string &schemaName,
+                            DbObjectReferences &references) {
   IdentifierListener listener(ctx->tableRef());
   Identifier identifier;
-  if (listener.parts.size() == 1)
-  {
+  if (listener.parts.size() == 1) {
     identifier.first = schemaName;
     identifier.second = listener.parts[0];
-  }
-  else
-  {
+  } else {
     identifier.first = listener.parts[0];
     identifier.second = listener.parts[1];
   }
 
   references.targetIdentifier = identifier;
-  if (ctx->identifierListWithParentheses() != nullptr)
-  {
+  if (ctx->identifierListWithParentheses() != nullptr) {
     for (auto &column : ctx->identifierListWithParentheses()->identifierList()->identifier())
       references.columnNames.push_back(base::unquote(column->getText()));
   }
 
   // MATCH is ignored by MySQL. We do the same for now.
 
-  if (ctx->option != nullptr)
-  {
-    if (ctx->option->getType() == MySQLLexer::UPDATE_SYMBOL)
-    {
+  if (ctx->option != nullptr) {
+    if (ctx->option->getType() == MySQLLexer::UPDATE_SYMBOL) {
       references.foreignKey->updateRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(0)));
       if (ctx->deleteOption().size() > 1) // 2 rules actually: UPDATE DELETE
         references.foreignKey->deleteRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(1)));
-    }
-    else
-    {
+    } else {
       references.foreignKey->deleteRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(0)));
       if (ctx->deleteOption().size() > 1) // 2 rules actually: DELETE UPDATE
         references.foreignKey->updateRule(MySQLBaseLexer::sourceTextForContext(ctx->deleteOption(1)));
@@ -148,8 +133,7 @@ static void parseReferences(MySQLParser::ReferencesContext *ctx, const std::stri
 /**
  * Collects only the names of each entry in a key list into the references entry.
  */
-static void columnNamesFromKeyList(MySQLParser::KeyListContext *ctx, DbObjectReferences &references)
-{
+static void columnNamesFromKeyList(MySQLParser::KeyListContext *ctx, DbObjectReferences &references) {
   for (auto &part : ctx->keyPart())
     references.columnNames.push_back(base::unquote(part->identifier()->getText()));
 }
@@ -157,21 +141,18 @@ static void columnNamesFromKeyList(MySQLParser::KeyListContext *ctx, DbObjectRef
 //----------------------------------------------------------------------------------------------------------------------
 
 static void parseKeyList(MySQLParser::KeyListContext *ctx, db_mysql_TableRef table, db_mysql_IndexRef index,
-                         DbObjectsRefsCache &refCache)
-{
+                         DbObjectsRefsCache &refCache) {
   DbObjectReferences references(index);
   references.table = table;
   index->columns().remove_all();
 
-  for (auto &part : ctx->keyPart())
-  {
+  for (auto &part : ctx->keyPart()) {
     db_mysql_IndexColumnRef indexColumn(grt::Initialized);
     indexColumn->owner(index);
     indexColumn->name(base::unquote(part->identifier()->getText()));
     references.index->columns().insert(indexColumn);
 
-    if (part->fieldLength() != nullptr)
-    {
+    if (part->fieldLength() != nullptr) {
       auto child = dynamic_cast<tree::ParseTree *>(part->fieldLength()->children[1]);
       indexColumn->columnLength((size_t)std::stoull(child->getText()));
     }
@@ -188,8 +169,7 @@ static void parseKeyList(MySQLParser::KeyListContext *ctx, db_mysql_TableRef tab
 /**
  *	Helper to bring the index type string into a commonly used form.
  */
-static std::string formatIndexType(std::string indexType)
-{
+static std::string formatIndexType(std::string indexType) {
   indexType = indexType.substr(0, indexType.find(' ')); // Only first word is meaningful.
   indexType = base::toupper(indexType);
   if (indexType == "KEY")
@@ -203,15 +183,13 @@ static std::string formatIndexType(std::string indexType)
 
 //----------------- IdentifierListener ---------------------------------------------------------------------------------
 
-IdentifierListener::IdentifierListener(tree::ParseTree *tree)
-{
+IdentifierListener::IdentifierListener(tree::ParseTree *tree) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IdentifierListener::enterIdentifier(MySQLParser::IdentifierContext *ctx)
-{
+void IdentifierListener::enterIdentifier(MySQLParser::IdentifierContext *ctx) {
   parts.push_back(base::unquote(ctx->getText()));
 }
 
@@ -221,8 +199,7 @@ void IdentifierListener::enterIdentifier(MySQLParser::IdentifierContext *ctx)
 // effort to create an own listener for.
 
 DetailsListener::DetailsListener(db_mysql_CatalogRef catalog, bool caseSensitive)
-: _catalog(catalog), _caseSensitive(caseSensitive)
-{
+  : _catalog(catalog), _caseSensitive(caseSensitive) {
 }
 
 //----------------- ColumnDefinitionListener ---------------------------------------------------------------------------
@@ -233,8 +210,11 @@ public:
 
   ColumnDefinitionListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, const std::string &schemaName,
                            db_mysql_TableRef table, DbObjectsRefsCache &refCache)
-    : DetailsListener(catalog, false), column(grt::Initialized), _table(table), _schemaName(schemaName), _refCache(refCache)
-  {
+    : DetailsListener(catalog, false),
+      column(grt::Initialized),
+      _table(table),
+      _schemaName(schemaName),
+      _refCache(refCache) {
     column->owner(_table);
     column->userType(db_UserDatatypeRef()); // We always have normal data types here.
     column->scale(bec::EMPTY_COLUMN_SCALE);
@@ -244,8 +224,7 @@ public:
     tree::ParseTreeWalker::DEFAULT.walk(this, tree);
   }
 
-  virtual void exitColumnDefinition(MySQLParser::ColumnDefinitionContext *ctx) override
-  {
+  virtual void exitColumnDefinition(MySQLParser::ColumnDefinitionContext *ctx) override {
     // The column name can be qualified, but only with the current schema + table.
     IdentifierListener listener(ctx->fieldIdentifier());
     column->name(listener.parts.back());
@@ -258,10 +237,10 @@ public:
     column->precision(typeListener.precision);
     column->length(typeListener.length);
     column->datatypeExplicitParams(typeListener.explicitParams);
-    column->characterSetName(typeListener.charsetName); // Charset comes from data type, collation from column attributes.
+    column->characterSetName(
+      typeListener.charsetName); // Charset comes from data type, collation from column attributes.
 
-    if (column->simpleType().is_valid() && base::same_string(column->simpleType()->name(), "TIMESTAMP", false))
-    {
+    if (column->simpleType().is_valid() && base::same_string(column->simpleType()->name(), "TIMESTAMP", false)) {
       if (!_explicitNullValue)
         column->isNotNull(1);
     }
@@ -273,10 +252,8 @@ public:
     _table->columns().insert(column);
   }
 
-  virtual void exitFieldDefinition(MySQLParser::FieldDefinitionContext *ctx) override
-  {
-    if (ctx->AS_SYMBOL() != nullptr)
-    {
+  virtual void exitFieldDefinition(MySQLParser::FieldDefinitionContext *ctx) override {
+    if (ctx->AS_SYMBOL() != nullptr) {
       // Only there for generated columns.
       column->generated(1);
       column->expression(MySQLBaseLexer::sourceTextForContext(ctx->expr()));
@@ -295,19 +272,15 @@ public:
     }
   }
 
-  virtual void exitColumnAttribute(MySQLParser::ColumnAttributeContext *ctx) override
-  {
-    if (ctx->nullLiteral() != nullptr)
-    {
+  virtual void exitColumnAttribute(MySQLParser::ColumnAttributeContext *ctx) override {
+    if (ctx->nullLiteral() != nullptr) {
       column->isNotNull(ctx->NOT_SYMBOL() != nullptr);
       _explicitNullValue = true;
       return;
     }
 
-    switch (ctx->value->getType())
-    {
-      case MySQLLexer::DEFAULT_SYMBOL:
-      {
+    switch (ctx->value->getType()) {
+      case MySQLLexer::DEFAULT_SYMBOL: {
         // Default values.
         // Note: for DEFAULT NOW (and synonyms) there can be an additional ON UPDATE NOW (and synonyms).
         //       We store both parts together in the defaultValue(). Keep in mind however that
@@ -321,8 +294,7 @@ public:
         // TODO: revise the decision to put both into the default value.
         if (existingDefault != "ON UPDATE CURRENT_TIMESTAMP")
           existingDefault = "";
-        if (ctx->NOW_SYMBOL() != nullptr)
-        {
+        if (ctx->NOW_SYMBOL() != nullptr) {
           // As written above, convert all synonyms. This can cause trouble with additional
           // precision, which we may have to handle later.
           std::string newDefault = "CURRENT_TIMESTAMP";
@@ -331,9 +303,7 @@ public:
           if (!existingDefault.empty())
             newDefault += " " + existingDefault;
           column->defaultValue(newDefault);
-        }
-        else
-        {
+        } else {
           // signed literal
           std::string newDefault = MySQLBaseLexer::sourceTextForContext(ctx->signedLiteral(), true);
           column->defaultValue(newDefault);
@@ -346,8 +316,7 @@ public:
         break;
       }
 
-      case MySQLLexer::ON_SYMBOL:
-      {
+      case MySQLLexer::ON_SYMBOL: {
         // As mentioned above we combine DEFAULT NOW and ON UPDATE NOW into a common default value.
         std::string newDefault = column->defaultValue();
         if (base::hasPrefix(newDefault, "CURRENT_TIMESTAMP"))
@@ -369,10 +338,8 @@ public:
         break;
 
       case MySQLLexer::SERIAL_SYMBOL: // SERIAL DEFAULT VALUE is an alias for NOT NULL AUTO_INCREMENT UNIQUE.
-      case MySQLLexer::UNIQUE_SYMBOL:
-      {
-        if (ctx->DEFAULT_SYMBOL() != nullptr)
-        {
+      case MySQLLexer::UNIQUE_SYMBOL: {
+        if (ctx->DEFAULT_SYMBOL() != nullptr) {
           column->isNotNull(1);
           column->autoIncrement(1);
         }
@@ -394,8 +361,7 @@ public:
       }
 
       case MySQLLexer::PRIMARY_SYMBOL:
-      case MySQLLexer::KEY_SYMBOL:
-      {
+      case MySQLLexer::KEY_SYMBOL: {
         db_mysql_IndexRef index(grt::Initialized);
         index->owner(_table);
 
@@ -419,8 +385,7 @@ public:
         column->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
         break;
 
-      case MySQLLexer::COLLATE_SYMBOL:
-      {
+      case MySQLLexer::COLLATE_SYMBOL: {
         auto info = detailsForCollation(ctx->collationName()->getText(), _table->defaultCollationName());
         column->characterSetName(info.first);
         column->collationName(info.second);
@@ -429,7 +394,7 @@ public:
 
       case MySQLLexer::COLUMN_FORMAT_SYMBOL: // Ignored by the server, so we ignore it here too.
         break;
-        
+
       case MySQLLexer::STORAGE_SYMBOL: // No info available, might later become important.
         break;
 
@@ -438,8 +403,7 @@ public:
     }
   }
 
-  virtual void exitReferences(MySQLParser::ReferencesContext *ctx) override
-  {
+  virtual void exitReferences(MySQLParser::ReferencesContext *ctx) override {
     // This is a so called "inline references specification", which is not supported by
     // MySQL. We parse it nonetheless as it may require to create stub tables and
     // the old parser created foreign key entries for these.
@@ -470,19 +434,20 @@ class KeyDefinitionListener : public DetailsListener {
 public:
   KeyDefinitionListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, const std::string &schemaName,
                         db_mysql_TableRef table, DbObjectsRefsCache &refCache, bool autoGenerateFkNames)
-  : DetailsListener(catalog, false), _table(table), _schemaName(schemaName), _refCache(refCache),
-    _autoGenerateFkNames(autoGenerateFkNames), _currentIndex(grt::Initialized)
-  {
+    : DetailsListener(catalog, false),
+      _table(table),
+      _schemaName(schemaName),
+      _refCache(refCache),
+      _autoGenerateFkNames(autoGenerateFkNames),
+      _currentIndex(grt::Initialized) {
     _currentIndex->owner(_table);
     tree::ParseTreeWalker::DEFAULT.walk(this, tree);
   }
 
-  virtual void exitTableConstraintDef(MySQLParser::TableConstraintDefContext *ctx) override
-  {
+  virtual void exitTableConstraintDef(MySQLParser::TableConstraintDefContext *ctx) override {
     std::string constraintName;
 
-    if (ctx->constraintName() != nullptr)
-    {
+    if (ctx->constraintName() != nullptr) {
       IdentifierListener listener(ctx->constraintName());
       constraintName = listener.parts.back();
     }
@@ -494,11 +459,10 @@ public:
     }
 
     bool isForeignKey = false; // Need the new index only for non-FK constraints.
-    if (ctx->type == nullptr) // Currently null for check constraints (which we ignore).
+    if (ctx->type == nullptr)  // Currently null for check constraints (which we ignore).
       return;
 
-    switch (ctx->type->getType())
-    {
+    switch (ctx->type->getType()) {
       case MySQLLexer::PRIMARY_SYMBOL:
         _currentIndex->isPrimary(1);
         _table->primaryKey(_currentIndex);
@@ -506,8 +470,7 @@ public:
         _currentIndex->indexType("PRIMARY");
         break;
 
-      case MySQLLexer::FOREIGN_SYMBOL:
-      {
+      case MySQLLexer::FOREIGN_SYMBOL: {
         isForeignKey = true;
 
         db_mysql_ForeignKeyRef fk(grt::Initialized);
@@ -515,8 +478,7 @@ public:
         fk->name(constraintName);
         fk->oldName(constraintName);
 
-        if (fk->name().empty() && _autoGenerateFkNames)
-        {
+        if (fk->name().empty() && _autoGenerateFkNames) {
           std::string name = bec::TableHelper::generate_foreign_key_name();
           fk->name(name);
           fk->oldName(name);
@@ -550,12 +512,10 @@ public:
       case MySQLLexer::KEY_SYMBOL:
       case MySQLLexer::FULLTEXT_SYMBOL:
       case MySQLLexer::SPATIAL_SYMBOL:
-        if (ctx->type->getType() == MySQLLexer::UNIQUE_SYMBOL)
-        {
+        if (ctx->type->getType() == MySQLLexer::UNIQUE_SYMBOL) {
           _currentIndex->unique(1);
           _currentIndex->indexType("UNIQUE");
-        }
-        else
+        } else
           _currentIndex->indexType(formatIndexType(ctx->type->getText()));
 
         break;
@@ -564,8 +524,7 @@ public:
         return;
     }
 
-    if (!isForeignKey)
-    {
+    if (!isForeignKey) {
       parseKeyList(ctx->keyList(), _table, _currentIndex, _refCache);
       _currentIndex->name(constraintName);
       _currentIndex->oldName(constraintName);
@@ -573,21 +532,18 @@ public:
     }
   }
 
-  virtual void exitIndexType(MySQLParser::IndexTypeContext *ctx) override
-  {
+  virtual void exitIndexType(MySQLParser::IndexTypeContext *ctx) override {
     _currentIndex->indexKind(base::toupper(ctx->algorithm->getText()));
   }
 
-  virtual void exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx) override
-  {
+  virtual void exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx) override {
     if (ctx->KEY_BLOCK_SIZE_SYMBOL() != nullptr)
       _currentIndex->keyBlockSize((size_t)std::stoull(ctx->ulong_number()->getText()));
     if (ctx->COMMENT_SYMBOL() != nullptr)
       _currentIndex->comment(ctx->textLiteral()->getText());
   }
 
-  virtual void exitFulltextIndexOption(MySQLParser::FulltextIndexOptionContext *ctx) override
-  {
+  virtual void exitFulltextIndexOption(MySQLParser::FulltextIndexOptionContext *ctx) override {
     if (ctx->WITH_SYMBOL() != nullptr)
       _currentIndex->withParser(ctx->identifier()->getText());
   }
@@ -604,8 +560,7 @@ private:
 //----------------- ObjectListener -------------------------------------------------------------------------------------
 
 ObjectListener::ObjectListener(db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive)
-  : DetailsListener(catalog, caseSensitive), _object(anObject)
-{
+  : DetailsListener(catalog, caseSensitive), _object(anObject) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -613,26 +568,24 @@ ObjectListener::ObjectListener(db_mysql_CatalogRef catalog, db_DatabaseObjectRef
 /**
  *	Returns the schema with the given name. If it doesn't exist it will be created.
  */
-db_mysql_SchemaRef ObjectListener::ensureSchemaExists(const std::string &name)
-{
+db_mysql_SchemaRef ObjectListener::ensureSchemaExists(const std::string &name) {
   return ensureSchemaExists(_catalog, name, _caseSensitive);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-db_mysql_SchemaRef ObjectListener::ensureSchemaExists(db_CatalogRef catalog, const std::string &name, bool caseSensitive)
-{
+db_mysql_SchemaRef ObjectListener::ensureSchemaExists(db_CatalogRef catalog, const std::string &name,
+                                                      bool caseSensitive) {
   db_SchemaRef result = find_named_object_in_list(catalog->schemata(), name, caseSensitive);
-  if (!result.is_valid())
-  {
+  if (!result.is_valid()) {
     result = db_mysql_SchemaRef(grt::Initialized);
     result->createDate(base::fmttime(0, DATETIME_FMT));
     result->lastChangeDate(result->createDate());
     result->owner(catalog);
     result->name(name);
     result->oldName(name);
-    std::pair<std::string, std::string> info = detailsForCharset(catalog->defaultCharacterSetName(),
-      catalog->defaultCollationName(), catalog->defaultCharacterSetName());
+    std::pair<std::string, std::string> info = detailsForCharset(
+      catalog->defaultCharacterSetName(), catalog->defaultCollationName(), catalog->defaultCharacterSetName());
     result->defaultCharacterSetName(info.first);
     result->defaultCollationName(info.second);
     catalog->schemata().insert(result);
@@ -643,21 +596,19 @@ db_mysql_SchemaRef ObjectListener::ensureSchemaExists(db_CatalogRef catalog, con
 //----------------- DataTypeListener -----------------------------------------------------------------------------------
 
 DataTypeListener::DataTypeListener(tree::ParseTree *tree, GrtVersionRef version,
-  const grt::ListRef<db_SimpleDatatype> &typeList, StringListRef flags, const std::string &defaultCharsetName)
-: _version(version), _typeList(typeList), _flags(flags), _defaultCharsetName(defaultCharsetName)
-{
+                                   const grt::ListRef<db_SimpleDatatype> &typeList, StringListRef flags,
+                                   const std::string &defaultCharsetName)
+  : _version(version), _typeList(typeList), _flags(flags), _defaultCharsetName(defaultCharsetName) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitDataType(MySQLParser::DataTypeContext *ctx)
-{
+void DataTypeListener::exitDataType(MySQLParser::DataTypeContext *ctx) {
   // A type name can consist of up to 3 parts. Most however just have a single part.
   size_t type = (ctx->nchar() != nullptr) ? ctx->nchar()->type->getType() : ctx->type->getType();
   std::string typeName = (ctx->nchar() != nullptr) ? "NCHAR" : base::toupper(ctx->type->getText());
-  switch (type)
-  {
+  switch (type) {
     case MySQLLexer::NATIONAL_SYMBOL:
       if (ctx->CHAR_SYMBOL() != nullptr)
         typeName += " CHAR";
@@ -696,14 +647,13 @@ void DataTypeListener::exitDataType(MySQLParser::DataTypeContext *ctx)
   if (dataType.is_valid()) // Should always be valid at this point.
   {
     // Unfortunately, the length + precision handling in WB is a bit crude and we cannot simply use what the grammar
-    // dictates. So we have to inspect the associated simple data type to know where to store the parsed length/precision values.
-    if (dataType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH
-      || dataType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH
-      || dataType->dateTimePrecision() != bec::EMPTY_TYPE_MAXIMUM_LENGTH)
-    {
+    // dictates. So we have to inspect the associated simple data type to know where to store the parsed
+    // length/precision values.
+    if (dataType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH ||
+        dataType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH ||
+        dataType->dateTimePrecision() != bec::EMPTY_TYPE_MAXIMUM_LENGTH) {
       // Move a potential precision value into the length field.
-      if (precision != bec::EMPTY_COLUMN_PRECISION)
-      {
+      if (precision != bec::EMPTY_COLUMN_PRECISION) {
         length = precision;
         precision = bec::EMPTY_COLUMN_PRECISION;
       }
@@ -713,8 +663,7 @@ void DataTypeListener::exitDataType(MySQLParser::DataTypeContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitFieldLength(MySQLParser::FieldLengthContext *ctx)
-{
+void DataTypeListener::exitFieldLength(MySQLParser::FieldLengthContext *ctx) {
   // Value should be stored in the length field, but as commented above WB's handling is a bit crude.
   if (ctx->DECIMAL_NUMBER() != nullptr)
     precision = std::stoull(ctx->DECIMAL_NUMBER()->getText());
@@ -724,28 +673,23 @@ void DataTypeListener::exitFieldLength(MySQLParser::FieldLengthContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitPrecision(MySQLParser::PrecisionContext *ctx)
-{
+void DataTypeListener::exitPrecision(MySQLParser::PrecisionContext *ctx) {
   precision = std::stoull(ctx->INT_NUMBER(0)->getText());
   scale = std::stoull(ctx->INT_NUMBER(1)->getText());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitFieldOptions(MySQLParser::FieldOptionsContext *ctx)
-{
-  if (!ctx->UNSIGNED_SYMBOL().empty())
-  {
+void DataTypeListener::exitFieldOptions(MySQLParser::FieldOptionsContext *ctx) {
+  if (!ctx->UNSIGNED_SYMBOL().empty()) {
     if (_flags.get_index("UNSIGNED") == BaseListRef::npos)
       _flags.insert("UNSIGNED");
   }
-  if (!ctx->SIGNED_SYMBOL().empty())
-  {
+  if (!ctx->SIGNED_SYMBOL().empty()) {
     if (_flags.get_index("SIGNED") == BaseListRef::npos)
       _flags.insert("SIGNED");
   }
-  if (!ctx->ZEROFILL_SYMBOL().empty())
-  {
+  if (!ctx->ZEROFILL_SYMBOL().empty()) {
     if (_flags.get_index("ZEROFILL") == BaseListRef::npos)
       _flags.insert("ZEROFILL");
   }
@@ -753,22 +697,17 @@ void DataTypeListener::exitFieldOptions(MySQLParser::FieldOptionsContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitCharsetWithOptBinary(MySQLParser::CharsetWithOptBinaryContext *ctx)
-{
+void DataTypeListener::exitCharsetWithOptBinary(MySQLParser::CharsetWithOptBinaryContext *ctx) {
   std::string flag;
   bool insertBinary = false;
 
-  if (ctx->ascii() != nullptr)
-  {
+  if (ctx->ascii() != nullptr) {
     flag = "ASCII";
     insertBinary = ctx->ascii()->BINARY_SYMBOL() != nullptr;
-  }
-  else if (ctx->unicode() != nullptr)
-  {
+  } else if (ctx->unicode() != nullptr) {
     flag = "UNICODE";
     insertBinary = ctx->unicode()->BINARY_SYMBOL() != nullptr;
-  }
-  else if (ctx->BYTE_SYMBOL() != nullptr)
+  } else if (ctx->BYTE_SYMBOL() != nullptr)
     flag = "BYTE";
   else if (ctx->BINARY_SYMBOL() != nullptr || ctx->charset() != nullptr)
     insertBinary = ctx->BINARY_SYMBOL() != nullptr;
@@ -781,46 +720,40 @@ void DataTypeListener::exitCharsetWithOptBinary(MySQLParser::CharsetWithOptBinar
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitCharsetName(MySQLParser::CharsetNameContext *ctx)
-{
+void DataTypeListener::exitCharsetName(MySQLParser::CharsetNameContext *ctx) {
   auto info = detailsForCharset(base::unquote(ctx->getText()), "", _defaultCharsetName);
   charsetName = info.first;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitTypeDatetimePrecision(MySQLParser::TypeDatetimePrecisionContext *ctx)
-{
+void DataTypeListener::exitTypeDatetimePrecision(MySQLParser::TypeDatetimePrecisionContext *ctx) {
   precision = std::stoull(ctx->INT_NUMBER()->getText());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void DataTypeListener::exitStringList(MySQLParser::StringListContext *ctx)
-{
+void DataTypeListener::exitStringList(MySQLParser::StringListContext *ctx) {
   std::string params;
-  for (auto &entry : ctx->textString())
-  {
+  for (auto &entry : ctx->textString()) {
     if (!params.empty())
       params += ", ";
     params += entry->getText();
   }
-  explicitParams = "(" + params +")";
+  explicitParams = "(" + params + ")";
 }
 
 //----------------- SchemaListener -------------------------------------------------------------------------------------
 
 SchemaListener::SchemaListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject,
                                bool caseSensitive)
-: ObjectListener(catalog, anObject, caseSensitive)
-{
+  : ObjectListener(catalog, anObject, caseSensitive) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void SchemaListener::enterCreateDatabase(MySQLParser::CreateDatabaseContext *ctx)
-{
+void SchemaListener::enterCreateDatabase(MySQLParser::CreateDatabaseContext *ctx) {
   auto info = detailsForCharset(_catalog->defaultCharacterSetName(), _catalog->defaultCollationName(),
                                 _catalog->defaultCharacterSetName());
 
@@ -831,8 +764,7 @@ void SchemaListener::enterCreateDatabase(MySQLParser::CreateDatabaseContext *ctx
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void SchemaListener::exitCreateDatabase(MySQLParser::CreateDatabaseContext *ctx)
-{
+void SchemaListener::exitCreateDatabase(MySQLParser::CreateDatabaseContext *ctx) {
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object);
   schema->name(MySQLBaseLexer::sourceTextForContext(ctx->schemaName()));
   schema->oldName(schema->name());
@@ -841,8 +773,7 @@ void SchemaListener::exitCreateDatabase(MySQLParser::CreateDatabaseContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void SchemaListener::exitCharsetNameOrDefault(MySQLParser::CharsetNameOrDefaultContext *ctx)
-{
+void SchemaListener::exitCharsetNameOrDefault(MySQLParser::CharsetNameOrDefaultContext *ctx) {
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object);
   std::string charsetName;
   if (ctx->DEFAULT_SYMBOL() != nullptr)
@@ -857,8 +788,7 @@ void SchemaListener::exitCharsetNameOrDefault(MySQLParser::CharsetNameOrDefaultC
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void SchemaListener::exitCollationNameOrDefault(MySQLParser::CollationNameOrDefaultContext *ctx)
-{
+void SchemaListener::exitCollationNameOrDefault(MySQLParser::CollationNameOrDefaultContext *ctx) {
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object);
   std::string collationName;
   if (ctx->DEFAULT_SYMBOL() == nullptr)
@@ -874,9 +804,9 @@ void SchemaListener::exitCollationNameOrDefault(MySQLParser::CollationNameOrDefa
 //----------------- TableListener --------------------------------------------------------------------------------------
 
 TableListener::TableListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema,
-  db_mysql_TableRef &table, bool caseSensitive, bool autoGenerateFkNames, DbObjectsRefsCache &refCache)
-  : ObjectListener(catalog, table, caseSensitive), _refCache(refCache)
-{
+                             db_mysql_TableRef &table, bool caseSensitive, bool autoGenerateFkNames,
+                             DbObjectsRefsCache &refCache)
+  : ObjectListener(catalog, table, caseSensitive), _refCache(refCache) {
   _schema = schema;
   _autoGenerateFkNames = autoGenerateFkNames;
 
@@ -890,16 +820,14 @@ TableListener::TableListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog,
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitTableName(MySQLParser::TableNameContext *ctx)
-{
+void TableListener::exitTableName(MySQLParser::TableNameContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
 
   IdentifierListener listener(ctx);
 
   table->name(listener.parts.back());
   table->oldName(listener.parts.back());
-  if (listener.parts.size() > 1)
-  {
+  if (listener.parts.size() > 1) {
     if (!listener.parts[0].empty())
       _schema = ensureSchemaExists(listener.parts[0]);
   }
@@ -907,16 +835,14 @@ void TableListener::exitTableName(MySQLParser::TableNameContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitCreateTable(MySQLParser::CreateTableContext *ctx)
-{
+void TableListener::exitCreateTable(MySQLParser::CreateTableContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
 
   table->isTemporary(ctx->TEMPORARY_SYMBOL() != nullptr);
   ignoreIfExists = ctx->ifNotExists() != nullptr;
 
   std::string schemaName = _schema.is_valid() ? _schema->name() : "";
-  for (auto item : ctx->tableElementList()->tableElement())
-  {
+  for (auto item : ctx->tableElementList()->tableElement()) {
     if (item->columnDefinition() != nullptr)
       ColumnDefinitionListener(item->columnDefinition(), _catalog, schemaName, table, _refCache);
     else
@@ -927,8 +853,7 @@ void TableListener::exitCreateTable(MySQLParser::CreateTableContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitTableRef(MySQLParser::TableRefContext *ctx)
-{
+void TableListener::exitTableRef(MySQLParser::TableRefContext *ctx) {
   // CREATE TABLE LIKE...
   IdentifierListener listener(ctx);
 
@@ -936,11 +861,9 @@ void TableListener::exitTableRef(MySQLParser::TableRefContext *ctx)
   if (listener.parts.size() > 1 && !listener.parts[0].empty())
     schema = find_named_object_in_list(_catalog->schemata(), listener.parts[0]);
 
-  if (schema.is_valid())
-  {
+  if (schema.is_valid()) {
     db_TableRef otherTable = find_named_object_in_list(schema->tables(), listener.parts.back());
-    if (otherTable.is_valid())
-    {
+    if (otherTable.is_valid()) {
       db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
       bool isTemporary = table->isTemporary() != 0; // Ensure this value stays as is.
       table = grt::copy_object(db_mysql_TableRef::cast_from(otherTable));
@@ -951,8 +874,7 @@ void TableListener::exitTableRef(MySQLParser::TableRefContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitPartitionClause(MySQLParser::PartitionClauseContext *ctx)
-{
+void TableListener::exitPartitionClause(MySQLParser::PartitionClauseContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   if (ctx->PARTITIONS_SYMBOL() != nullptr)
     table->partitionCount((size_t)std::stoull(ctx->real_ulong_number()->getText()));
@@ -969,8 +891,7 @@ void TableListener::exitPartitionClause(MySQLParser::PartitionClauseContext *ctx
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitPartitionDefKey(MySQLParser::PartitionDefKeyContext *ctx)
-{
+void TableListener::exitPartitionDefKey(MySQLParser::PartitionDefKeyContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   if (ctx->LINEAR_SYMBOL() != nullptr)
     table->partitionType("LINEAR KEY");
@@ -987,8 +908,7 @@ void TableListener::exitPartitionDefKey(MySQLParser::PartitionDefKeyContext *ctx
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitPartitionDefHash(MySQLParser::PartitionDefHashContext *ctx)
-{
+void TableListener::exitPartitionDefHash(MySQLParser::PartitionDefHashContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   if (ctx->LINEAR_SYMBOL() != nullptr)
     table->partitionType("LINEAR HASH");
@@ -1000,44 +920,37 @@ void TableListener::exitPartitionDefHash(MySQLParser::PartitionDefHashContext *c
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitPartitionDefRangeList(MySQLParser::PartitionDefRangeListContext *ctx)
-{
+void TableListener::exitPartitionDefRangeList(MySQLParser::PartitionDefRangeListContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   table->partitionType(ctx->RANGE_SYMBOL() != nullptr ? "RANGE" : "LISTE");
 
   table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr()));
 
-  if (ctx->COLUMNS_SYMBOL() != nullptr)
-  {
+  if (ctx->COLUMNS_SYMBOL() != nullptr) {
     auto list = ctx->identifierList();
     if (list != nullptr)
       table->partitionExpression(getIdentifierList(list));
-  }
-  else
+  } else
     table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx)
-{
+void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
 
   std::string linearPrefix;
   if (ctx->LINEAR_SYMBOL() != nullptr)
     linearPrefix = "LINEAR ";
-  if (ctx->HASH_SYMBOL() != nullptr)
-  {
+  if (ctx->HASH_SYMBOL() != nullptr) {
     table->partitionType(linearPrefix + "HASH");
     table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr()));
-  }
-  else
-  {
+  } else {
     table->partitionType(linearPrefix + "KEY");
 
     if (ctx->partitionKeyAlgorithm() != nullptr)
       table->partitionKeyAlgorithm((size_t)std::stoull(ctx->partitionKeyAlgorithm()->real_ulong_number()->getText()));
-    
+
     auto list = ctx->identifierListWithParentheses()->identifierList();
     table->partitionExpression(getIdentifierList(list));
   }
@@ -1048,13 +961,12 @@ void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static void evaluatePartitionOption(db_mysql_PartitionDefinitionRef definition, MySQLParser::PartitionOptionContext *ctx)
-{
+static void evaluatePartitionOption(db_mysql_PartitionDefinitionRef definition,
+                                    MySQLParser::PartitionOptionContext *ctx) {
   if (ctx->option == nullptr)
     return;
-  
-  switch (ctx->option->getType())
-  {
+
+  switch (ctx->option->getType()) {
     case MySQLLexer::TABLESPACE_SYMBOL:
       definition->tableSpace(ctx->identifier()->getText());
       break;
@@ -1095,8 +1007,7 @@ static void evaluatePartitionOption(db_mysql_PartitionDefinitionRef definition, 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitPartitionDefinition(MySQLParser::PartitionDefinitionContext *ctx)
-{
+void TableListener::exitPartitionDefinition(MySQLParser::PartitionDefinitionContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
 
   db_mysql_PartitionDefinitionRef definition(grt::Initialized);
@@ -1118,16 +1029,16 @@ void TableListener::exitPartitionDefinition(MySQLParser::PartitionDefinitionCont
       expression = MySQLBaseLexer::sourceTextForRange(ctx->partitionValuesIn()->partitionValueItemListParen().front(),
                                                       ctx->partitionValuesIn()->partitionValueItemListParen().back());
        */
-      expression = MySQLBaseLexer::sourceTextForRange(ctx->partitionValuesIn()->partitionValueItemListParen(0)->partitionValueItem().front(),
-                                                      ctx->partitionValuesIn()->partitionValueItemListParen(0)->partitionValueItem().back());
+      expression = MySQLBaseLexer::sourceTextForRange(
+        ctx->partitionValuesIn()->partitionValueItemListParen(0)->partitionValueItem().front(),
+        ctx->partitionValuesIn()->partitionValueItemListParen(0)->partitionValueItem().back());
     definition->value(expression);
   }
 
   for (auto &option : ctx->partitionOption())
     evaluatePartitionOption(definition, option);
 
-  for (auto &subPartition : ctx->subpartitionDefinition())
-  {
+  for (auto &subPartition : ctx->subpartitionDefinition()) {
     db_mysql_PartitionDefinitionRef subDefinition(grt::Initialized);
     subDefinition->name(subPartition->textOrIdentifier()->getText());
     for (auto &option : subPartition->partitionOption())
@@ -1140,8 +1051,7 @@ void TableListener::exitPartitionDefinition(MySQLParser::PartitionDefinitionCont
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitDuplicateAsQueryExpression(MySQLParser::DuplicateAsQueryExpressionContext *ctx)
-{
+void TableListener::exitDuplicateAsQueryExpression(MySQLParser::DuplicateAsQueryExpressionContext *ctx) {
   // This is a creation-only part, i.e. it is not returned by the server when asking for the creation SQL code.
   // Similar for createSelect, which is used either in this context or createTable.
   // Implementing that is tricky, because we would essentially have to simulate a SELECT run to determine the actual
@@ -1150,8 +1060,7 @@ void TableListener::exitDuplicateAsQueryExpression(MySQLParser::DuplicateAsQuery
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContext *ctx)
-{
+void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContext *ctx) {
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
 
   std::string schemaName = _schema.is_valid() ? _schema->name() : "";
@@ -1160,28 +1069,25 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
   if (defaultCollation.empty() && !defaultCharset.empty())
     defaultCollation = defaultCollationForCharset(defaultCharset);
 
-  for (auto &option : ctx->createTableOption())
-  {
-    if (option->option == nullptr)
-    {
+  for (auto &option : ctx->createTableOption()) {
+    if (option->option == nullptr) {
       // Collation/Charset handling.
-      if (option->defaultCollation() != nullptr)
-      {
-        auto info = detailsForCollation(MySQLBaseLexer::sourceTextForContext(option->defaultCollation()->collationNameOrDefault()), defaultCollation);
+      if (option->defaultCollation() != nullptr) {
+        auto info = detailsForCollation(
+          MySQLBaseLexer::sourceTextForContext(option->defaultCollation()->collationNameOrDefault()), defaultCollation);
         table->defaultCharacterSetName(info.first);
         table->defaultCollationName(info.second);
-      }
-      else
-      {
-        auto info = detailsForCharset(MySQLBaseLexer::sourceTextForContext(option->defaultCharset()->charsetNameOrDefault()), defaultCollation, defaultCharset);
+      } else {
+        auto info =
+          detailsForCharset(MySQLBaseLexer::sourceTextForContext(option->defaultCharset()->charsetNameOrDefault()),
+                            defaultCollation, defaultCharset);
         table->defaultCharacterSetName(info.first);
         table->defaultCollationName(info.second); // Collation name or DEFAULT.
       }
       continue;
     }
 
-    switch (option->option->getType())
-    {
+    switch (option->option->getType()) {
       case MySQLLexer::ENGINE_SYMBOL:
       case MySQLLexer::TYPE_SYMBOL:
         table->tableEngine(option->engineRef()->getText());
@@ -1211,10 +1117,10 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         // TODO: table->compression(option->textString()->getText());
         break;
 
-      case MySQLLexer::ENCRYPTION_SYMBOL:
-      {
+      case MySQLLexer::ENCRYPTION_SYMBOL: {
         // TODO: std::string value = base::tolower(option->textString()->getText());
-        // TODO: table->encryption(value.size() == 1 && value = "n" ? false : true); // Only 'Y' or 'N', case insensitive.
+        // TODO: table->encryption(value.size() == 1 && value = "n" ? false : true); // Only 'Y' or 'N', case
+        // insensitive.
         break;
       }
 
@@ -1267,15 +1173,13 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
       case MySQLLexer::UNION_SYMBOL: // Only for merge engine.
       {
         std::string value;
-        for (auto &tableRef : option->tableRefList()->tableRef())
-        {
+        for (auto &tableRef : option->tableRefList()->tableRef()) {
           IdentifierListener listener(tableRef);
 
           if (!value.empty())
             value += ", ";
 
-          if (listener.parts.size() < 2 || listener.parts[0].empty())
-          {
+          if (listener.parts.size() < 2 || listener.parts[0].empty()) {
             size_t nameIndex = 0;
             if (listener.parts[0].empty())
               ++nameIndex;
@@ -1283,13 +1187,10 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
             // In order to avoid diff problems explicitly qualify unqualified tables
             // with the current schema name.
             value += schemaName + '.' + listener.parts[nameIndex];
-          }
-          else
-          {
+          } else {
             ensureSchemaExists(listener.parts[0]);
             value += listener.parts[0] + "." + listener.parts[1];
           }
-
         }
         table->mergeUnion(value);
         break;
@@ -1314,15 +1215,15 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
       case MySQLLexer::STORAGE_SYMBOL:
         //(DISK_SYMBOL | MEMORY_SYMBOL) ignored for now, as not documented.
         break;
-        
+
       case MySQLLexer::CONNECTION_SYMBOL:
         table->connectionString(MySQLBaseLexer::sourceTextForContext(option->textString()));
         break;
-        
+
       case MySQLLexer::KEY_BLOCK_SIZE_SYMBOL:
         table->keyBlockSize(option->ulong_number()->getText());
         break;
-        
+
       default:
         break;
     }
@@ -1332,29 +1233,26 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
 //----------------- TableAlterListener ---------------------------------------------------------------------------------
 
 TableAlterListener::TableAlterListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog,
-  db_DatabaseObjectRef tableOrView, bool caseSensitive, bool autoGenerateFkNames, DbObjectsRefsCache &refCache)
-: ObjectListener(catalog, tableOrView, caseSensitive), _autoGenerateFkNames(autoGenerateFkNames),
-  _refCache(refCache)
-{
+                                       db_DatabaseObjectRef tableOrView, bool caseSensitive, bool autoGenerateFkNames,
+                                       DbObjectsRefsCache &refCache)
+  : ObjectListener(catalog, tableOrView, caseSensitive),
+    _autoGenerateFkNames(autoGenerateFkNames),
+    _refCache(refCache) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TableAlterListener::exitAlterListItem(MySQLParser::AlterListItemContext *ctx)
-{
+void TableAlterListener::exitAlterListItem(MySQLParser::AlterListItemContext *ctx) {
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object->owner());
 
   db_mysql_TableRef table;
   db_mysql_ViewRef view;
   std::string name;
-  if (db_mysql_TableRef::can_wrap(_object))
-  {
+  if (db_mysql_TableRef::can_wrap(_object)) {
     table = db_mysql_TableRef::cast_from(_object);
     name = table->name();
-  }
-  else
-  {
+  } else {
     view = db_mysql_ViewRef::cast_from(_object);
     name = view->name();
   }
@@ -1363,8 +1261,7 @@ void TableAlterListener::exitAlterListItem(MySQLParser::AlterListItemContext *ct
   if (ctx->tableConstraintDef() != nullptr && table.is_valid())
     KeyDefinitionListener(ctx->tableConstraintDef(), _catalog, schema->name(), table, _refCache, _autoGenerateFkNames);
 
-  if (ctx->tableName() != nullptr)
-  {
+  if (ctx->tableName() != nullptr) {
     // Rename table or view. Can be a move as well (but not for views).
     IdentifierListener listener(ctx->tableName());
 
@@ -1373,17 +1270,13 @@ void TableAlterListener::exitAlterListItem(MySQLParser::AlterListItemContext *ct
       targetSchema = ensureSchemaExists(_catalog, listener.parts[0], _caseSensitive);
 
     // TODO: should we add sanity checks here (e.g. duplicate names)?
-    if (view.is_valid())
-    {
+    if (view.is_valid()) {
       // Cannot move between schemas.
       if (schema == targetSchema)
         view->name(listener.parts.back());
-    }
-    else
-    {
+    } else {
       // Renaming a table.
-      if (schema != targetSchema)
-      {
+      if (schema != targetSchema) {
         schema->tables()->remove(table);
         targetSchema->tables().insert(table);
       }
@@ -1396,15 +1289,13 @@ void TableAlterListener::exitAlterListItem(MySQLParser::AlterListItemContext *ct
 
 LogfileGroupListener::LogfileGroupListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog,
                                            db_DatabaseObjectRef anObject, bool caseSensitive)
-: ObjectListener(catalog, anObject, caseSensitive)
-{
+  : ObjectListener(catalog, anObject, caseSensitive) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LogfileGroupListener::exitCreateLogfileGroup(MySQLParser::CreateLogfileGroupContext *ctx)
-{
+void LogfileGroupListener::exitCreateLogfileGroup(MySQLParser::CreateLogfileGroupContext *ctx) {
   IdentifierListener listener(ctx->logfileGroupName());
 
   db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
@@ -1417,22 +1308,18 @@ void LogfileGroupListener::exitCreateLogfileGroup(MySQLParser::CreateLogfileGrou
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LogfileGroupListener::exitLogfileGroupOption(MySQLParser::LogfileGroupOptionContext *ctx)
-{
+void LogfileGroupListener::exitLogfileGroupOption(MySQLParser::LogfileGroupOptionContext *ctx) {
   db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
 
-  switch (ctx->option->getType())
-  {
+  switch (ctx->option->getType()) {
     case MySQLLexer::INITIAL_SIZE_SYMBOL:
     case MySQLLexer::UNDO_BUFFER_SIZE_SYMBOL:
-    case MySQLLexer::REDO_BUFFER_SIZE_SYMBOL:
-    {
+    case MySQLLexer::REDO_BUFFER_SIZE_SYMBOL: {
       std::string value = ctx->sizeNumber()->getText();
 
       // Value can have a suffix. And it can be a hex number.
       size_t factor = 1;
-      switch (::tolower(value[value.size() - 1]))
-      {
+      switch (::tolower(value[value.size() - 1])) {
         // All cases fall through.
         case 'g':
           factor *= 1024;
@@ -1479,8 +1366,7 @@ void LogfileGroupListener::exitLogfileGroupOption(MySQLParser::LogfileGroupOptio
 
 RoutineListener::RoutineListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_RoutineRef routine,
                                  bool caseSensitive)
-: ObjectListener(catalog, routine, caseSensitive)
-{
+  : ObjectListener(catalog, routine, caseSensitive) {
   routine->params().remove_all();
   routine->modelOnly(0);
 
@@ -1489,16 +1375,14 @@ RoutineListener::RoutineListener(tree::ParseTree *tree, db_mysql_CatalogRef cata
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
-{
+void RoutineListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx) {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
   routine->definer(MySQLBaseLexer::sourceTextForContext(ctx->user(), true));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::exitCreateProcedure(MySQLParser::CreateProcedureContext *ctx)
-{
+void RoutineListener::exitCreateProcedure(MySQLParser::CreateProcedureContext *ctx) {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
   routine->routineType("procedure");
@@ -1507,8 +1391,7 @@ void RoutineListener::exitCreateProcedure(MySQLParser::CreateProcedureContext *c
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::exitCreateFunction(MySQLParser::CreateFunctionContext *ctx)
-{
+void RoutineListener::exitCreateFunction(MySQLParser::CreateFunctionContext *ctx) {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
   routine->returnDatatype(MySQLBaseLexer::sourceTextForContext(ctx->typeWithOptCollate()));
@@ -1519,8 +1402,7 @@ void RoutineListener::exitCreateFunction(MySQLParser::CreateFunctionContext *ctx
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::exitCreateUdf(MySQLParser::CreateUdfContext *ctx)
-{
+void RoutineListener::exitCreateUdf(MySQLParser::CreateUdfContext *ctx) {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
   routine->routineType("udf");
@@ -1533,15 +1415,13 @@ void RoutineListener::exitCreateUdf(MySQLParser::CreateUdfContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::exitProcedureParameter(MySQLParser::ProcedureParameterContext *ctx)
-{
+void RoutineListener::exitProcedureParameter(MySQLParser::ProcedureParameterContext *ctx) {
   _currentParameter->paramType(ctx->type->getText());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::enterFunctionParameter(MySQLParser::FunctionParameterContext *ctx)
-{
+void RoutineListener::enterFunctionParameter(MySQLParser::FunctionParameterContext *ctx) {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
   _currentParameter = db_mysql_RoutineParamRef(grt::Initialized);
@@ -1551,8 +1431,7 @@ void RoutineListener::enterFunctionParameter(MySQLParser::FunctionParameterConte
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::exitFunctionParameter(MySQLParser::FunctionParameterContext *ctx)
-{
+void RoutineListener::exitFunctionParameter(MySQLParser::FunctionParameterContext *ctx) {
   // Called for both functions and procedures.
   _currentParameter->name(MySQLBaseLexer::sourceTextForContext(ctx->parameterName()));
   _currentParameter->datatype(MySQLBaseLexer::sourceTextForContext(ctx->typeWithOptCollate()));
@@ -1560,13 +1439,11 @@ void RoutineListener::exitFunctionParameter(MySQLParser::FunctionParameterContex
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::exitRoutineOption(MySQLParser::RoutineOptionContext *ctx)
-{
+void RoutineListener::exitRoutineOption(MySQLParser::RoutineOptionContext *ctx) {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
   // For now we only store comments and security settings.
-  switch (ctx->option->getType())
-  {
+  switch (ctx->option->getType()) {
     case MySQLLexer::SQL_SYMBOL:
       routine->security(ctx->security->getText());
       break;
@@ -1582,8 +1459,7 @@ void RoutineListener::exitRoutineOption(MySQLParser::RoutineOptionContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void RoutineListener::readRoutineName(ParserRuleContext *ctx)
-{
+void RoutineListener::readRoutineName(ParserRuleContext *ctx) {
   db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(_object);
 
   IdentifierListener listener(ctx);
@@ -1598,26 +1474,21 @@ void RoutineListener::readRoutineName(ParserRuleContext *ctx)
 
 IndexListener::IndexListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema,
                              db_mysql_IndexRef index, bool caseSensitive, DbObjectsRefsCache &refCache)
-  : ObjectListener(catalog, index, caseSensitive), _schema(schema), _refCache(refCache)
-{
+  : ObjectListener(catalog, index, caseSensitive), _schema(schema), _refCache(refCache) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitCreateIndex(MySQLParser::CreateIndexContext *ctx)
-{
+void IndexListener::exitCreateIndex(MySQLParser::CreateIndexContext *ctx) {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
-  switch (ctx->type->getType())
-  {
+  switch (ctx->type->getType()) {
     case MySQLLexer::INDEX_SYMBOL:
-      if (ctx->UNIQUE_SYMBOL() != nullptr)
-      {
+      if (ctx->UNIQUE_SYMBOL() != nullptr) {
         index->unique(1);
         index->indexType("UNIQUE");
-      }
-      else
+      } else
         index->indexType(formatIndexType(ctx->type->getText()));
       break;
 
@@ -1641,29 +1512,25 @@ void IndexListener::exitCreateIndex(MySQLParser::CreateIndexContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitIndexType(MySQLParser::IndexTypeContext *ctx)
-{
+void IndexListener::exitIndexType(MySQLParser::IndexTypeContext *ctx) {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
   index->indexKind(ctx->algorithm->getText());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitCreateIndexTarget(MySQLParser::CreateIndexTargetContext *ctx)
-{
+void IndexListener::exitCreateIndexTarget(MySQLParser::CreateIndexTargetContext *ctx) {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
   IdentifierListener listener(ctx->tableRef());
 
   db_mysql_TableRef table;
   db_mysql_SchemaRef schema = _schema;
-  if (_catalog.is_valid())
-  {
+  if (_catalog.is_valid()) {
     if (listener.parts.size() > 1 && !listener.parts[0].empty())
       schema = ensureSchemaExists(listener.parts[0]);
     table = find_named_object_in_list(schema->tables(), listener.parts.back(), _caseSensitive);
-    if (table.is_valid())
-    {
+    if (table.is_valid()) {
       index->owner(table);
       parseKeyList(ctx->keyList(), table, index, _refCache);
     }
@@ -1672,8 +1539,7 @@ void IndexListener::exitCreateIndexTarget(MySQLParser::CreateIndexTargetContext 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx)
-{
+void IndexListener::exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx) {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
   if (ctx->KEY_BLOCK_SIZE_SYMBOL() != nullptr)
@@ -1684,8 +1550,7 @@ void IndexListener::exitCommonIndexOption(MySQLParser::CommonIndexOptionContext 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitFulltextIndexOption(MySQLParser::FulltextIndexOptionContext *ctx)
-{
+void IndexListener::exitFulltextIndexOption(MySQLParser::FulltextIndexOptionContext *ctx) {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
   if (ctx->WITH_SYMBOL() != nullptr)
@@ -1694,14 +1559,12 @@ void IndexListener::exitFulltextIndexOption(MySQLParser::FulltextIndexOptionCont
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitAlterAlgorithmOption(MySQLParser::AlterAlgorithmOptionContext *ctx)
-{
+void IndexListener::exitAlterAlgorithmOption(MySQLParser::AlterAlgorithmOptionContext *ctx) {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
   if (ctx->DEFAULT_SYMBOL() != nullptr)
     index->algorithm("DEFAULT");
-  else
-  {
+  else {
     // The algorithm can be any text, but allowed are only a small number of values.
     std::string algorithm = base::toupper(ctx->identifier()->getText());
     if (algorithm == "INPLACE" || algorithm == "COPY")
@@ -1711,14 +1574,12 @@ void IndexListener::exitAlterAlgorithmOption(MySQLParser::AlterAlgorithmOptionCo
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void IndexListener::exitAlterLockOption(MySQLParser::AlterLockOptionContext *ctx)
-{
+void IndexListener::exitAlterLockOption(MySQLParser::AlterLockOptionContext *ctx) {
   db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(_object);
 
   if (ctx->DEFAULT_SYMBOL() != nullptr)
     index->lockOption("DEFAULT");
-  else
-  {
+  else {
     // The lock type can be any text, but allowed are only a small number of values.
     std::string lock = base::toupper(ctx->identifier()->getText());
     if (lock == "NONE" || lock == "SHARED" || lock == "EXCLUSIVE")
@@ -1729,9 +1590,8 @@ void IndexListener::exitAlterLockOption(MySQLParser::AlterLockOptionContext *ctx
 //----------------- TriggerListener ------------------------------------------------------------------------------------
 
 TriggerListener::TriggerListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema,
-  db_mysql_TriggerRef trigger, bool caseSensitive)
-  : ObjectListener( catalog, trigger, caseSensitive), _schema(schema)
-{
+                                 db_mysql_TriggerRef trigger, bool caseSensitive)
+  : ObjectListener(catalog, trigger, caseSensitive), _schema(schema) {
   trigger->enabled(1);
 
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
@@ -1739,8 +1599,7 @@ TriggerListener::TriggerListener(tree::ParseTree *tree, db_mysql_CatalogRef cata
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TriggerListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
-{
+void TriggerListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx) {
   db_mysql_TriggerRef trigger = db_mysql_TriggerRef::cast_from(_object);
 
   trigger->definer(MySQLBaseLexer::sourceTextForContext(ctx->user(), true));
@@ -1748,8 +1607,7 @@ void TriggerListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TriggerListener::exitCreateTrigger(MySQLParser::CreateTriggerContext *ctx)
-{
+void TriggerListener::exitCreateTrigger(MySQLParser::CreateTriggerContext *ctx) {
   db_mysql_TriggerRef trigger = db_mysql_TriggerRef::cast_from(_object);
 
   IdentifierListener listener(ctx->triggerName());
@@ -1770,8 +1628,7 @@ void TriggerListener::exitCreateTrigger(MySQLParser::CreateTriggerContext *ctx)
   if (listener.parts.size() > 1 && !listener.parts[0].empty())
     _schema = ensureSchemaExists(_catalog, listener.parts[0], _caseSensitive);
   db_mysql_TableRef table = find_named_object_in_list(_schema->tables(), listener.parts.back(), _caseSensitive);
-  if (!table.is_valid())
-  {
+  if (!table.is_valid()) {
     // If we don't find a table with the given name we create a stub object to be used instead.
     table = db_mysql_TableRef(grt::Initialized);
     table->owner(_schema);
@@ -1782,34 +1639,31 @@ void TriggerListener::exitCreateTrigger(MySQLParser::CreateTriggerContext *ctx)
   }
 
   trigger->owner(table);
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TriggerListener::exitTriggerFollowsPrecedesClause(MySQLParser::TriggerFollowsPrecedesClauseContext *ctx)
-{
+void TriggerListener::exitTriggerFollowsPrecedesClause(MySQLParser::TriggerFollowsPrecedesClauseContext *ctx) {
   db_mysql_TriggerRef trigger = db_mysql_TriggerRef::cast_from(_object);
 
   trigger->ordering(ctx->ordering->getText());
   trigger->otherTrigger(MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier()));
 
-  // Note: ignoreIfExists cannot be derived from the existance of OR REPLACE, which has the opposite meaning of IF NOT EXISTS.
+  // Note: ignoreIfExists cannot be derived from the existance of OR REPLACE, which has the opposite meaning of IF NOT
+  // EXISTS.
 }
 
 //----------------- ViewListener ---------------------------------------------------------------------------------------
 
 ViewListener::ViewListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject,
                            bool caseSensitive)
-: ObjectListener(catalog, anObject, caseSensitive)
-{
+  : ObjectListener(catalog, anObject, caseSensitive) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ViewListener::exitCreateView(MySQLParser::CreateViewContext *ctx)
-{
+void ViewListener::exitCreateView(MySQLParser::CreateViewContext *ctx) {
   db_mysql_ViewRef view = db_mysql_ViewRef::cast_from(_object);
   view->modelOnly(0);
 
@@ -1830,12 +1684,10 @@ void ViewListener::exitViewCheckOption(MySQLParser::ViewCheckOptionContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ViewListener::exitViewAlgorithm(MySQLParser::ViewAlgorithmContext *ctx)
-{
+void ViewListener::exitViewAlgorithm(MySQLParser::ViewAlgorithmContext *ctx) {
   db_mysql_ViewRef view = db_mysql_ViewRef::cast_from(_object);
 
-  switch (ctx->algorithm->getType())
-  {
+  switch (ctx->algorithm->getType()) {
     case MySQLLexer::MERGE_SYMBOL:
       view->algorithm(1);
       break;
@@ -1850,8 +1702,7 @@ void ViewListener::exitViewAlgorithm(MySQLParser::ViewAlgorithmContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ViewListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
-{
+void ViewListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx) {
   db_mysql_ViewRef view = db_mysql_ViewRef::cast_from(_object);
   view->definer(MySQLBaseLexer::sourceTextForContext(ctx->user(), true));
 }
@@ -1860,33 +1711,29 @@ void ViewListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
 
 ServerListener::ServerListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject,
                                bool caseSensitive)
-: ObjectListener(catalog, anObject, caseSensitive)
-{
+  : ObjectListener(catalog, anObject, caseSensitive) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ServerListener::exitCreateServer(MySQLParser::CreateServerContext *ctx)
-{
+void ServerListener::exitCreateServer(MySQLParser::CreateServerContext *ctx) {
   db_mysql_ServerLinkRef server = db_mysql_ServerLinkRef::cast_from(_object);
   server->modelOnly(0);
 
   IdentifierListener listener(ctx->serverName());
   server->name(listener.parts.back());
   server->oldName(listener.parts.back());
-  
+
   server->wrapperName(base::unquote(ctx->textOrIdentifier()->getText()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ServerListener::exitServerOption(MySQLParser::ServerOptionContext *ctx)
-{
+void ServerListener::exitServerOption(MySQLParser::ServerOptionContext *ctx) {
   db_mysql_ServerLinkRef server = db_mysql_ServerLinkRef::cast_from(_object);
 
-  switch (ctx->option->getType())
-  {
+  switch (ctx->option->getType()) {
     case MySQLLexer::HOST_SYMBOL:
       server->host(base::unquote(ctx->textLiteral()->getText()));
       break;
@@ -1913,17 +1760,15 @@ void ServerListener::exitServerOption(MySQLParser::ServerOptionContext *ctx)
 
 //----------------- TablespaceListener ---------------------------------------------------------------------------------
 
-TablespaceListener::TablespaceListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject,
-                                       bool caseSensitive)
-: ObjectListener(catalog, anObject, caseSensitive)
-{
+TablespaceListener::TablespaceListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog,
+                                       db_DatabaseObjectRef anObject, bool caseSensitive)
+  : ObjectListener(catalog, anObject, caseSensitive) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TablespaceListener::exitCreateTablespace(MySQLParser::CreateTablespaceContext *ctx)
-{
+void TablespaceListener::exitCreateTablespace(MySQLParser::CreateTablespaceContext *ctx) {
   db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
   tablespace->modelOnly(0);
 
@@ -1936,8 +1781,7 @@ void TablespaceListener::exitCreateTablespace(MySQLParser::CreateTablespaceConte
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TablespaceListener::exitLogfileGroupRef(MySQLParser::LogfileGroupRefContext *ctx)
-{
+void TablespaceListener::exitLogfileGroupRef(MySQLParser::LogfileGroupRefContext *ctx) {
   db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
 
   db_LogFileGroupRef logfileGroup = find_named_object_in_list(_catalog->logFileGroups(), base::unquote(ctx->getText()));
@@ -1947,24 +1791,20 @@ void TablespaceListener::exitLogfileGroupRef(MySQLParser::LogfileGroupRefContext
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TablespaceListener::exitTablespaceOption(MySQLParser::TablespaceOptionContext *ctx)
-{
+void TablespaceListener::exitTablespaceOption(MySQLParser::TablespaceOptionContext *ctx) {
   db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
 
-  switch (ctx->option->getType())
-  {
+  switch (ctx->option->getType()) {
     case MySQLLexer::INITIAL_SIZE_SYMBOL:
     case MySQLLexer::AUTOEXTEND_SIZE_SYMBOL:
     case MySQLLexer::MAX_SIZE_SYMBOL:
-    case MySQLLexer::EXTENT_SIZE_SYMBOL:
-    {
+    case MySQLLexer::EXTENT_SIZE_SYMBOL: {
       std::string value = ctx->sizeNumber()->getText();
 
       // Value can have a suffix. And it can be a hex number.
       size_t factor = 1;
-      switch (::tolower(value[value.size() - 1]))
-      {
-          // All cases fall through.
+      switch (::tolower(value[value.size() - 1])) {
+        // All cases fall through.
         case 'g':
           factor *= 1024;
         case 'm':
@@ -1975,8 +1815,7 @@ void TablespaceListener::exitTablespaceOption(MySQLParser::TablespaceOptionConte
       }
 
       size_t number = factor * std::stoull(value);
-      switch (ctx->option->getType())
-      {
+      switch (ctx->option->getType()) {
         case MySQLLexer::INITIAL_SIZE_SYMBOL:
           tablespace->initialSize(number);
           break;
@@ -2028,23 +1867,20 @@ void TablespaceListener::exitTablespaceOption(MySQLParser::TablespaceOptionConte
 
 EventListener::EventListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject,
                              bool caseSensitive)
-: ObjectListener(catalog, anObject, caseSensitive)
-{
+  : ObjectListener(catalog, anObject, caseSensitive) {
   tree::ParseTreeWalker::DEFAULT.walk(this, tree);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void EventListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx)
-{
+void EventListener::exitDefinerClause(MySQLParser::DefinerClauseContext *ctx) {
   db_mysql_EventRef event = db_mysql_EventRef::cast_from(_object);
   event->definer(MySQLBaseLexer::sourceTextForContext(ctx->user(), true));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void EventListener::exitCreateEvent(MySQLParser::CreateEventContext *ctx)
-{
+void EventListener::exitCreateEvent(MySQLParser::CreateEventContext *ctx) {
   db_mysql_EventRef event = db_mysql_EventRef::cast_from(_object);
 
   ignoreIfExists = ctx->ifNotExists() != nullptr;
@@ -2068,14 +1904,12 @@ void EventListener::exitCreateEvent(MySQLParser::CreateEventContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void EventListener::exitSchedule(MySQLParser::ScheduleContext *ctx)
-{
+void EventListener::exitSchedule(MySQLParser::ScheduleContext *ctx) {
   db_mysql_EventRef event = db_mysql_EventRef::cast_from(_object);
 
   event->at(MySQLBaseLexer::sourceTextForContext(ctx->expr(0)));
   event->useInterval(ctx->EVERY_SYMBOL() != nullptr);
-  if (event->useInterval())
-  {
+  if (event->useInterval()) {
     event->intervalUnit(MySQLBaseLexer::sourceTextForContext(ctx->interval()));
 
     size_t expressionIndex = 1;

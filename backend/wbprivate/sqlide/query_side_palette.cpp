@@ -47,7 +47,6 @@ DEFAULT_LOG_DOMAIN("QuerySidebar");
 
 using namespace mforms;
 using namespace base;
-using namespace help;
 
 //----------------- SnippetListView ------------------------------------------------------------------------------------
 
@@ -252,7 +251,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _switching_help = false;
   _help_task = GrtThreadedTask::create();
   _help_task->desc("Context Help Task");
-  _helpContext = new HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
+  _helpContext = new help::HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
   createEditorConfig(owner->rdbms_version());
 
   _pending_snippets_refresh = true;
@@ -527,7 +526,7 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor) {
  * to get the actual help text from it.
  */
 grt::StringRef QuerySidePalette::get_help_topic_threaded(const std::string &query, std::pair<ssize_t, ssize_t> caret) {
-  std::string topic = DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, query, caret);
+  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, query, caret);
 
   if (!_help_task->task()->is_cancelled())
     _help_task->execute_in_main_thread(std::bind(&QuerySidePalette::process_help_topic, this, topic), false, false);

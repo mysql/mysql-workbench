@@ -795,7 +795,7 @@ bool isToken(Token *token, size_t type) {
 
 // Determines if the parent of the given tree is a specific context.
 bool isParentContext(tree::ParseTree *tree, size_t type) {
-  auto parent = (ParserRuleContext *)(tree->parent);
+  auto parent = dynamic_cast<ParserRuleContext *>(tree->parent);
   return parent->getRuleIndex() == type;
 }
 
@@ -818,7 +818,7 @@ std::string functionTopicForContext(ParserRuleContext *context) {
   size_t rule = context->getRuleIndex();
   switch (rule) {
     case MySQLParser::RuleFunctionCall: {
-      auto functionContext = (MySQLParser::FunctionCallContext *)context;
+      auto functionContext = dynamic_cast<MySQLParser::FunctionCallContext *>(context);
 
       // We only consider global functions here, hence there should not be any qualifier.
       if (functionContext->pureIdentifier() != nullptr)
@@ -830,7 +830,7 @@ std::string functionTopicForContext(ParserRuleContext *context) {
     }
 
     case MySQLParser::RuleRuntimeFunctionCall: {
-      auto functionContext = (MySQLParser::RuntimeFunctionCallContext *)context;
+      auto functionContext = dynamic_cast<MySQLParser::RuntimeFunctionCallContext *>(context);
       if (functionContext->name != nullptr) {
         switch (functionContext->name->getType()) {
           // Function names that are also keywords.
@@ -855,7 +855,7 @@ std::string functionTopicForContext(ParserRuleContext *context) {
     }
 
     case MySQLParser::RuleSumExpr: {
-      auto exprContext = (MySQLParser::SumExprContext *)context;
+      auto exprContext = dynamic_cast<MySQLParser::SumExprContext *>(context);
       if (exprContext->COUNT_SYMBOL() != nullptr && exprContext->DISTINCT_SYMBOL() != nullptr)
         return "COUNT DISTINCT";
       nameToken = exprContext->name;
@@ -864,7 +864,7 @@ std::string functionTopicForContext(ParserRuleContext *context) {
     }
 
     case MySQLParser::RuleGeometryFunction: {
-      auto functionContext = (MySQLParser::GeometryFunctionContext *)context;
+      auto functionContext = dynamic_cast<MySQLParser::GeometryFunctionContext *>(context);
       nameToken = functionContext->name;
       break;
     }
@@ -1071,11 +1071,11 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
   if (antlrcpp::is<tree::TerminalNode *>(tree)) // Should always be the case at this point.
   {
-    tree::TerminalNode *node = (tree::TerminalNode *)tree;
+    tree::TerminalNode *node = dynamic_cast<tree::TerminalNode *>(tree);
     size_t token = node->getSymbol()->getType();
     if (token == MySQLLexer::SEMICOLON_SYMBOL) {
       tree = MySQLRecognizerCommon::getPrevious(tree);
-      node = (tree::TerminalNode *)tree;
+      node = dynamic_cast<tree::TerminalNode *>(tree);
       token = node->getSymbol()->getType();
     }
 
@@ -1145,7 +1145,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       return "";
 
     // We deliberately don't check if the given tree is actually a parse rule context - there is no other possibility.
-    ParserRuleContext *context = (ParserRuleContext *)tree;
+    ParserRuleContext *context = dynamic_cast<ParserRuleContext *>(tree);
     size_t ruleIndex = context->getRuleIndex();
     if (contextToTopic.count(ruleIndex) > 0)
       return contextToTopic[ruleIndex];
@@ -1163,7 +1163,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
           bool isNot = parent->notRule() != nullptr;
 
           // IN, BETWEEN (with special help topic name), LIKE, REGEXP
-          auto predicateContext = (MySQLParser::PredicateOperationsContext *)context;
+          auto predicateContext = dynamic_cast<MySQLParser::PredicateOperationsContext *>(context);
           if (isToken(predicateContext->children[0], MySQLLexer::BETWEEN_SYMBOL)) {
             if (isNot)
               return "NOT BETWEEN";
@@ -1177,7 +1177,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
       case MySQLParser::RuleOtherAdministrativeStatement: {
         // See if we only have a single flush command.
-        auto adminContext = (MySQLParser::OtherAdministrativeStatementContext *)context;
+        auto adminContext = dynamic_cast<MySQLParser::OtherAdministrativeStatementContext *>(context);
         if (adminContext->type->getType() == MySQLLexer::FLUSH_SYMBOL && adminContext->flushOption().size() == 1 &&
             adminContext->flushOption(0)->option->getType() == MySQLLexer::QUERY_SYMBOL)
           return "FLUSH QUERY CACHE";
@@ -1188,7 +1188,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleInsertStatement: {
-        auto insertContext = (MySQLParser::InsertStatementContext *)context;
+        auto insertContext = dynamic_cast<MySQLParser::InsertStatementContext *>(context);
         if (insertContext->insertQueryExpression() != nullptr)
           return "INSERT SELECT";
         if (insertContext->insertLockOption() != nullptr &&
@@ -1198,14 +1198,14 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleInstallUninstallStatment: {
-        auto pluginContext = (MySQLParser::InstallUninstallStatmentContext *)context;
+        auto pluginContext = dynamic_cast<MySQLParser::InstallUninstallStatmentContext *>(context);
         if (pluginContext->action != nullptr)
           return tokenToTopic[pluginContext->action->getType()];
         break;
       }
 
       case MySQLParser::RuleExpr: {
-        auto exprContext = (MySQLParser::ExprContext *)context;
+        auto exprContext = dynamic_cast<MySQLParser::ExprContext *>(context);
         if (exprContext->children.size() > 2 && isToken(exprContext->children[1], MySQLLexer::IS_SYMBOL)) {
           if (isToken(exprContext->children[2], MySQLLexer::NOT_SYMBOL) ||
               isToken(exprContext->children[2], MySQLLexer::NOT2_SYMBOL))
@@ -1217,7 +1217,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
       case MySQLParser::RuleBoolPri: {
         if (antlrcpp::is<MySQLParser::PrimaryExprIsNullContext *>(context)) {
-          auto primaryExprIsNullContext = (MySQLParser::PrimaryExprIsNullContext *)context;
+          auto primaryExprIsNullContext = dynamic_cast<MySQLParser::PrimaryExprIsNullContext *>(context);
           if (primaryExprIsNullContext->notRule() == nullptr)
             return "IS NULL";
           return "IS NOT NULL";
@@ -1226,7 +1226,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleSetStatement: {
-        auto setStatementContext = (MySQLParser::SetStatementContext *)context;
+        auto setStatementContext = dynamic_cast<MySQLParser::SetStatementContext *>(context);
         if (setStatementContext->TRANSACTION_SYMBOL() != nullptr)
           return "ISOLATION";
 
@@ -1246,7 +1246,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleLoadStatement: {
-        auto loadStatementContext = (MySQLParser::LoadStatementContext *)context;
+        auto loadStatementContext = dynamic_cast<MySQLParser::LoadStatementContext *>(context);
         if (loadStatementContext->dataOrXml()->DATA_SYMBOL() != nullptr)
           return "LOAD DATA";
         return "LOAD XML";
@@ -1266,14 +1266,14 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
 
       case MySQLParser::RuleTableAdministrationStatement: {
-        auto adminStatementContext = (MySQLParser::TableAdministrationStatementContext *)context;
+        auto adminStatementContext = dynamic_cast<MySQLParser::TableAdministrationStatementContext *>(context);
         if (adminStatementContext->type != nullptr)
           return tokenToTopic[adminStatementContext->type->getType()];
         break;
       }
 
       case MySQLParser::RulePreparedStatement: {
-        auto preparedContext = (MySQLParser::PreparedStatementContext *)context;
+        auto preparedContext = dynamic_cast<MySQLParser::PreparedStatementContext *>(context);
         size_t type = 0;
         if (preparedContext->type != nullptr)
           type = preparedContext->type->getType();
@@ -1285,7 +1285,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleReplicationStatement: {
-        auto replicationContext = (MySQLParser::ReplicationStatementContext *)context;
+        auto replicationContext = dynamic_cast<MySQLParser::ReplicationStatementContext *>(context);
         if (replicationContext->PURGE_SYMBOL() != nullptr)
           return "PURGE BINARY LOGS";
         if (replicationContext->RESET_SYMBOL() != nullptr &&
@@ -1295,7 +1295,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleResetOption: {
-        auto optionContext = (MySQLParser::ResetOptionContext *)context;
+        auto optionContext = dynamic_cast<MySQLParser::ResetOptionContext *>(context);
         if (isToken(optionContext->option, MySQLLexer::MASTER_SYMBOL))
           return "RESET MASTER";
         if (isToken(optionContext->option, MySQLLexer::SLAVE_SYMBOL))
@@ -1304,7 +1304,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleShowStatement: {
-        auto showContext = (MySQLParser::ShowStatementContext *)context;
+        auto showContext = dynamic_cast<MySQLParser::ShowStatementContext *>(context);
         if (showContext->value == nullptr) {
           if (showContext->charset() != nullptr)
             return "SHOW CHARACTER SET";
@@ -1344,7 +1344,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleTableConstraintDef: {
-        auto definitionContext = (MySQLParser::TableConstraintDefContext *)context;
+        auto definitionContext = dynamic_cast<MySQLParser::TableConstraintDefContext *>(context);
         if (definitionContext->type->getType() == MySQLLexer::FOREIGN_SYMBOL)
           return "CONSTRAINT";
         break;
@@ -1382,7 +1382,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
         break;
 
       case MySQLParser::RuleDataType: {
-        auto typeContext = (MySQLParser::DataTypeContext *)context;
+        auto typeContext = dynamic_cast<MySQLParser::DataTypeContext *>(context);
         if (typeContext->nchar() != nullptr)
           return "CHAR";
 
@@ -1427,14 +1427,14 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
       }
 
       case MySQLParser::RuleFromClause: {
-        auto keylistContext = (MySQLParser::FromClauseContext *)context;
+        auto keylistContext = dynamic_cast<MySQLParser::FromClauseContext *>(context);
         if (keylistContext->DUAL_SYMBOL() != nullptr)
           return "DUAL";
         break;
       }
 
       case MySQLParser::RuleSetTransactionCharacteristic: {
-        auto characteristicsContext = (MySQLParser::SetTransactionCharacteristicContext *)context;
+        auto characteristicsContext = dynamic_cast<MySQLParser::SetTransactionCharacteristicContext *>(context);
         if (characteristicsContext->ISOLATION_SYMBOL() != nullptr)
           return "ISOLATION";
         break;
@@ -1442,14 +1442,14 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
       case MySQLParser::RuleSubstringFunction: {
         // A case where we might have a synonym, so we need to check the text actually.
-        auto substringContext = (MySQLParser::SubstringFunctionContext *)context;
+        auto substringContext = dynamic_cast<MySQLParser::SubstringFunctionContext *>(context);
         return base::toupper(substringContext->SUBSTRING_SYMBOL()->getText());
 
         break;
       }
 
       case MySQLParser::RuleAlterStatement: {
-        auto alterContext = (MySQLParser::AlterStatementContext *)context;
+        auto alterContext = dynamic_cast<MySQLParser::AlterStatementContext *>(context);
         std::string topic = "ALTER ";
         if (alterContext->alterTable() != nullptr)
           return "ALTER TABLE";
