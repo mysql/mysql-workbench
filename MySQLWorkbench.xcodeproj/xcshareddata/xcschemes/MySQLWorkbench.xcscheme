@@ -84,14 +84,6 @@
             argument = "-help"
             isEnabled = "NO">
          </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--configdir=~/Library/Application\ Support/MySQL/WorkbenchNg"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--log-level=debug2"
-            isEnabled = "YES">
-         </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
