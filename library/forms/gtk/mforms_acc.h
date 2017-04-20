@@ -42,6 +42,8 @@
 namespace mforms {
   namespace gtk {
 
+    void mforms_object_accessible_child_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
+
     typedef GtkAccessible mformsObjectAccessible;
     typedef GtkAccessibleClass mformsObjectAccessibleClass;
 
@@ -50,9 +52,22 @@ namespace mforms {
     class mformsGTK;
 
     class mformsGTKAccessible {
+      friend void mforms_object_accessible_child_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
     public:
-      mformsGTKAccessible(GtkAccessible *accessible, GtkWidget *widget);
-      virtual ~mformsGTKAccessible() { };
+      class AtkActionIface {
+        public:
+          static void init(::AtkActionIface *iface);
+
+        private:
+        AtkActionIface();
+
+        static gboolean doAction(AtkAction *action, gint i);
+        static gint getNActions(AtkAction *action);
+        static const gchar* getDescription(AtkAction *action, gint i);
+        static const gchar* getName(AtkAction *action, gint i);
+      };
+      mformsGTKAccessible(GtkAccessible *accessible, mforms::Accessible *acc);
+      virtual ~mformsGTKAccessible();
       static AtkObject *WidgetGetAccessibleImpl(GtkWidget *widget, AtkObject **cache, gpointer widget_parent_class);
       static mforms::Accessible* getmformsAccessible(AtkObject *accessible);
       static const gchar* getName(AtkObject *accessible);
@@ -65,10 +80,11 @@ namespace mforms {
 
     protected:
       GtkAccessible *_accessible;
-      mformsGTK *_mfgtk;
+      mforms::Accessible *_mformsAcc;
       std::string _name;
       std::string _description;
-      std::map<mforms::Accessible*, AtkObject*> _childMapping;
+      std::string _accDescription;
+      std::vector<mforms::Accessible*> _children;
     };
 
     struct mformsObjectAccessiblePrivate {
@@ -79,9 +95,8 @@ namespace mforms {
       friend class mformsGTKAccessible;
     public:
       mformsGTK(_MFormsObject *mfo);
-      virtual ~mformsGTK() {
-      }
-      ;
+      virtual ~mformsGTK();
+
       static AtkObject* GetAccessible(GtkWidget *widget);
       static void ClassInit(GObjectClass* object_class, GtkWidgetClass *widget_class,
                             GtkEventBoxClass *container_class);
@@ -89,6 +104,7 @@ namespace mforms {
       static mformsGTK* FromWidget(GtkWidget *widget);
       AtkObject* GetAccessibleThis(GtkWidget *widget);
       void SetMFormsOwner(mforms::View *view);
+      mforms::Accessible* getmformsAcc();
     protected:
       _MFormsObject *_mfo;
       GtkWidget* _windowMain;
@@ -98,7 +114,7 @@ namespace mforms {
     };
 
     struct _MFormsObject {
-      GtkEventBox cont;
+      GtkEventBox parent;
       mformsGTK *pmforms;
     };
 
@@ -117,6 +133,5 @@ namespace mforms {
     GType mforms_object_accessible_get_type(GType parent_type G_GNUC_UNUSED);
 
     GtkWidget* mforms_new();
-
   }
 }

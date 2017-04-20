@@ -32,7 +32,8 @@ namespace mforms {
     DrawBoxImpl::DrawBoxImpl(::mforms::DrawBox *self)
       : ViewImpl(self),  _fixed_width(-1), _fixed_height(-1), _fixed(0), _relayout_pending(false), _drag_in_progress(false) {
 
-      auto widget = mforms_new();
+      auto widget = mforms_new(); //this is freed by gtk
+
       _darea = dynamic_cast<Gtk::EventBox*>(Glib::wrap(widget));
       _mformsGTK = MFORMSOBJECT(widget);
       _mformsGTK->pmforms->SetMFormsOwner(self);
@@ -67,7 +68,10 @@ namespace mforms {
 
     DrawBoxImpl::~DrawBoxImpl() {
       _sig_relayout.disconnect();
-      delete _darea;
+      _darea = nullptr;
+      _mformsGTK = nullptr;
+
+
     }
 
     void *DrawBoxImpl::on_repaint() {
