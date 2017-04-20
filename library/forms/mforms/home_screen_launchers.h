@@ -97,26 +97,27 @@ namespace mforms {
 
     void drawEntry(cairo_t *cr, const LauncherEntry &entry, bool hot);
     void layout(cairo_t *cr);
-    virtual void cancelOperation();
-    virtual void setFocus();
-    virtual bool canHandle(HomeScreenMenuType type);
-    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
-    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
+    virtual const char* getTitle() override;
+    virtual void cancelOperation() override;
+    virtual void setFocus() override;
+    virtual bool canHandle(HomeScreenMenuType type) override;
+    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) override;
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) override;
 
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
 
     void addLauncher(const std::string &icon, const std::string &name, const std::string &description,
                      const base::any &obj);
     void clearLaunchers();
-    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
+    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
     bool mouse_leave();
-    virtual bool mouse_move(mforms::MouseButton button, int x, int y);
+    virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
     void handle_command(const std::string &command);
-    virtual int get_acc_child_count();
-    virtual Accessible *get_acc_child(int index);
-    virtual Accessible::Role get_acc_role();
-    virtual mforms::Accessible *hit_test(int x, int y);
+    virtual int get_acc_child_count() override;
+    virtual Accessible *get_acc_child(int index) override;
+    virtual Accessible::Role get_acc_role() override;
+    virtual mforms::Accessible *hit_test(int x, int y) override;
   };
 
 } /* namespace wb */

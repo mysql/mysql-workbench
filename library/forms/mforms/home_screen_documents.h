@@ -46,14 +46,17 @@ namespace mforms {
     base::Rect bounds;
     bool is_model;
 
+    std::function<bool(int, int)> default_handler;
+
     bool operator<(const DocumentEntry &other) const;
     //------ Accessibility Methods -----
-    virtual std::string get_acc_name();
-    virtual std::string get_acc_description();
+    virtual std::string get_acc_name() override;
+    virtual std::string get_acc_description() override;
 
-    virtual Accessible::Role get_acc_role();
-    virtual base::Rect get_acc_bounds();
-    virtual std::string get_acc_default_action();
+    virtual Accessible::Role get_acc_role() override;
+    virtual base::Rect get_acc_bounds() override;
+    virtual std::string get_acc_default_action() override;
+    virtual void do_default_action() override;
   };
 
   //----------------- DocumentsSection ---------------------------------------------------------------
@@ -105,6 +108,8 @@ namespace mforms {
     base::Rect _mixed_heading_rect;
     std::string _pending_script;
 
+    bool accessibleHandler(int x, int y);
+
   public:
     const int DOCUMENTS_LEFT_PADDING = 40;
     const int DOCUMENTS_RIGHT_PADDING = 40;
@@ -138,27 +143,28 @@ namespace mforms {
     void update_filtered_documents();
     void draw_selection_message(cairo_t *cr);
     void layout(cairo_t *cr);
-    virtual void cancelOperation();
-    virtual void setFocus();
-    virtual bool canHandle(HomeScreenMenuType type);
-    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
-    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
+    virtual const char* getTitle() override;
+    virtual void cancelOperation() override;
+    virtual void setFocus() override;
+    virtual bool canHandle(HomeScreenMenuType type) override;
+    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) override;
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) override;
 
     void load_icons();
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
     void add_document(const std::string &path, const time_t &time, const std::string schemas, long file_size);
     void clear_documents();
-    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
+    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
     bool mouse_leave();
-    virtual bool mouse_move(mforms::MouseButton button, int x, int y);
+    virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
     void handle_command(const std::string &command);
     void show_connection_select_message();
     void hide_connection_select_message();
-    virtual int get_acc_child_count();
-    virtual Accessible *get_acc_child(int index);
-    virtual Accessible::Role get_acc_role();
-    virtual mforms::Accessible *hit_test(int x, int y);
+    virtual int get_acc_child_count() override;
+    virtual Accessible *get_acc_child(int index) override;
+    virtual Accessible::Role get_acc_role() override;
+    virtual mforms::Accessible *hit_test(int x, int y) override;
   };
 
 } /* namespace wb */

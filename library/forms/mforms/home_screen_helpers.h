@@ -175,6 +175,7 @@ namespace mforms {
       return _parent;
     }
 
+    virtual const char* getTitle() = 0;
     virtual void cancelOperation() = 0;
     virtual void setFocus() = 0;
     virtual bool canHandle(HomeScreenMenuType type) = 0;

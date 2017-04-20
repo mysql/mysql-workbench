@@ -232,6 +232,12 @@ void LaunchersSection::layout(cairo_t *cr) {
 
 //------------------------------------------------------------------------------------------------
 
+const char* LaunchersSection::getTitle() {
+  return "Shortcuts Section";
+}
+
+//------------------------------------------------------------------------------------------------
+
 void LaunchersSection::cancelOperation() {
   // pass
 }

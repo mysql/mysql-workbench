@@ -62,7 +62,17 @@ std::string DocumentEntry::get_acc_default_action() {
   return "Open Model";
 }
 
+void DocumentEntry::do_default_action() {
+  if (default_handler)
+    default_handler((int)bounds.center().x, (int)bounds.center().y);
+}
+
 //----------------- DocumentsSection ---------------------------------------------------------------
+bool DocumentsSection::accessibleHandler(int x, int y) {
+  mouse_move(MouseButtonLeft, x, y);
+  return mouse_click(MouseButtonLeft, x, y);
+}
+
 
 DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSection("sidebar_modeling.png") {
   _owner = owner;
@@ -80,15 +90,15 @@ DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSectio
 
   _add_button.name = "Add Model";
   _add_button.default_action = "Create New Model";
-  _add_button.default_handler = _accessible_click_handler;
+  _add_button.default_handler = std::bind(&DocumentsSection::accessibleHandler, this, std::placeholders::_1, std::placeholders::_2);
 
   _open_button.name = "Open Model";
   _open_button.default_action = "Open Existing Model";
-  _open_button.default_handler = _accessible_click_handler;
+  _open_button.default_handler = std::bind(&DocumentsSection::accessibleHandler, this, std::placeholders::_1, std::placeholders::_2);
 
   _action_button.name = "Create Model Options";
   _action_button.default_action = "Open Create Model Options Menu";
-  _action_button.default_handler = _accessible_click_handler;
+  _action_button.default_handler = std::bind(&DocumentsSection::accessibleHandler, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -399,6 +409,12 @@ void DocumentsSection::layout(cairo_t *cr) {
 
 //------------------------------------------------------------------------------------------------
 
+const char* DocumentsSection::getTitle() {
+  return "Documents Section";
+}
+
+//------------------------------------------------------------------------------------------------
+
 void DocumentsSection::cancelOperation() {
   _pending_script = "";
   hide_connection_select_message();
@@ -571,6 +587,7 @@ void DocumentsSection::add_document(const std::string &path, const time_t &time,
   entry.path = path;
   entry.timestamp = time;
   entry.schemas = schemas;
+  entry.default_handler = std::bind(&DocumentsSection::accessibleHandler, this, std::placeholders::_1, std::placeholders::_2);
 
   entry.title = base::strip_extension(base::basename(path));
   if (entry.title.empty())
@@ -810,10 +827,13 @@ mforms::Accessible *DocumentsSection::get_acc_child(int index) {
   mforms::Accessible *accessible = NULL;
   switch (index) {
     case 0:
+      accessible = &_add_button;
       break;
     case 1:
+      accessible = &_open_button;
       break;
     case 2:
+      accessible = &_action_button;
       break;
     default: {
       index -= 3;

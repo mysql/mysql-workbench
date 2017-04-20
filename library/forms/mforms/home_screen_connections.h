@@ -195,6 +195,7 @@ namespace mforms {
     void showWelcomeHeading(bool state = true);
 
     virtual base::Size getLayoutSize(base::Size proposedSize) override;
+    virtual const char* getTitle() override;
     virtual void cancelOperation() override;
     virtual void setFocus() override;
     virtual bool canHandle(HomeScreenMenuType type) override;

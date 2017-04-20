@@ -1497,6 +1497,12 @@ base::Size ConnectionsSection::getLayoutSize(base::Size proposedSize) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+const char* ConnectionsSection::getTitle() {
+  return "Connections Section";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void ConnectionsSection::cancelOperation() {
   // noop
 }
