@@ -39,6 +39,9 @@ namespace mforms {
     virtual ~ConnectionsWelcomeScreen();
 
     virtual base::Size getLayoutSize(base::Size proposedSize) override;
+    virtual Role get_acc_role() {
+      return mforms::Accessible::StaticText;
+    }
 
   private:
     int _totalHeight = 100; // Arbitrary initial value, til our computation is done.

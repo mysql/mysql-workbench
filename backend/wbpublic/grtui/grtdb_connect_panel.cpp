@@ -108,6 +108,7 @@ DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
   _desc3.set_style(mforms::SmallHelpTextStyle);
 
   _stored_connection_sel.set_name("Connection List");
+  _driver_sel.set_name("Connection Method");
   if (_show_connection_combo)
     scoped_connect(_stored_connection_sel.signal_changed(),
                    std::bind(&DbConnectPanel::change_active_stored_conn, this));
