@@ -314,7 +314,6 @@
 		27635D1F179968B300288DBE /* tiny_new.png in Resources */ = {isa = PBXBuildFile; fileRef = 27635D04179968B300288DBE /* tiny_new.png */; };
 		27635D20179968B300288DBE /* tiny_refresh@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27635D05179968B300288DBE /* tiny_refresh@2x.png */; };
 		27635D22179968B300288DBE /* wb_toolbar_pages_18x18.png in Resources */ = {isa = PBXBuildFile; fileRef = 27635D07179968B300288DBE /* wb_toolbar_pages_18x18.png */; };
-		27659CB31E4389630025AAC7 /* libmysqlcppconn.7.1.1.8.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 44AAC0021E3A4C3700570341 /* libmysqlcppconn.7.1.1.8.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2767F92B11635C2500931E27 /* geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2767F92911635C2500931E27 /* geometry.cpp */; };
 		2767F92C11635C2500931E27 /* geometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2767F92A11635C2500931E27 /* geometry.h */; };
 		27694816142A4FAA009DE637 /* snippet_popover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27694814142A4FAA009DE637 /* snippet_popover.cpp */; };
@@ -2709,8 +2708,6 @@
 		44A338921DC1FED800FFAC83 /* xml_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 44A3388F1DC1FED200FFAC83 /* xml_functions.h */; };
 		44A338931DC1FED800FFAC83 /* xml_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44A338901DC1FED200FFAC83 /* xml_functions.cpp */; };
 		44A338961DC2006500FFAC83 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
-		44AAC0031E3A4C3700570341 /* libmysqlcppconn.7.1.1.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44AAC0021E3A4C3700570341 /* libmysqlcppconn.7.1.1.8.dylib */; };
-		44AAC0041E3A4C9D00570341 /* libmysqlcppconn.7.1.1.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44AAC0021E3A4C3700570341 /* libmysqlcppconn.7.1.1.8.dylib */; };
 		44B7DC961C0C7A39000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC951C0C7A39000D608D /* wba_firewall */; };
 		44B7DC9C1C0C7A72000D608D /* admin_firewall_reports.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC971C0C7A72000D608D /* admin_firewall_reports.png */; };
 		44B7DC9D1C0C7A72000D608D /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC981C0C7A72000D608D /* admin_firewall.png */; };
@@ -2719,6 +2716,9 @@
 		44B7DCA01C0C7A72000D608D /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC9B1C0C7A72000D608D /* admin_info_offline@2x.png */; };
 		44B7DCA31C0C7A97000D608D /* firewall-header.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DCA11C0C7A97000D608D /* firewall-header.png */; };
 		44B7DCA41C0C7A97000D608D /* firewall-header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DCA21C0C7A97000D608D /* firewall-header@2x.png */; };
+		44D368261EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; };
+		44D3682B1EADDF70009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; };
+		44D3682D1EADE030009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 44D3682C1EADE030009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44FFC3D51AA0BA1F00950A48 /* sqlide_power_export_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */; };
 		44FFC3D61AA0BA1F00950A48 /* sqlide_power_import_export_be.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */; };
 		44FFC3D71AA0BA1F00950A48 /* sqlide_power_import_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */; };
@@ -3912,7 +3912,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				27659CB31E4389630025AAC7 /* libmysqlcppconn.7.1.1.8.dylib in Copy Files (dylibs) */,
+				44D3682D1EADE030009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib in Copy Files (dylibs) */,
 				27183E891DA54E0100257580 /* libmtemplate.dylib in Copy Files (dylibs) */,
 				27BF79501CD3559700FBB3F3 /* libpixman-1.0.dylib in Copy Files (dylibs) */,
 				27BF79401CD352EB00FBB3F3 /* libintl.8.dylib in Copy Files (dylibs) */,
@@ -6758,6 +6758,8 @@
 		44B7DC9B1C0C7A72000D608D /* admin_info_offline@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_info_offline@2x.png"; path = "images/admin/admin_info_offline@2x.png"; sourceTree = "<group>"; };
 		44B7DCA11C0C7A97000D608D /* firewall-header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "firewall-header.png"; sourceTree = "<group>"; };
 		44B7DCA21C0C7A97000D608D /* firewall-header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "firewall-header@2x.png"; sourceTree = "<group>"; };
+		44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.9.dylib; path = "../mysql-mac-res/lib-com/libmysqlcppconn.7.1.1.9.dylib"; sourceTree = "<group>"; };
+		44D3682C1EADE030009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.9.dylib; path = "../mysql-mac-res/lib-com/libmysqlcppconn.7.1.1.9.dylib"; sourceTree = "<group>"; };
 		44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_export_wizard.py; path = plugins/wb.sqlide/sqlide_power_export_wizard.py; sourceTree = "<group>"; };
 		44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_export_be.py; path = plugins/wb.sqlide/sqlide_power_import_export_be.py; sourceTree = "<group>"; };
 		44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_wizard.py; path = plugins/wb.sqlide/sqlide_power_import_wizard.py; sourceTree = "<group>"; };
@@ -7007,7 +7009,7 @@
 				27BF79001CD34BA600FBB3F3 /* libgmodule-2.0.0.dylib in Frameworks */,
 				27BF79011CD34BA900FBB3F3 /* libgthread-2.0.0.dylib in Frameworks */,
 				27BF79021CD34BB500FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
-				44AAC0031E3A4C3700570341 /* libmysqlcppconn.7.1.1.8.dylib in Frameworks */,
+				44D368261EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7157,7 +7159,7 @@
 				27BF79231CD34FA500FBB3F3 /* libpcrecpp.0.dylib in Frameworks */,
 				27BF79241CD34FBC00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
 				27BF79321CD3508900FBB3F3 /* libpcre.1.dylib in Frameworks */,
-				44AAC0041E3A4C9D00570341 /* libmysqlcppconn.7.1.1.8.dylib in Frameworks */,
+				44D3682B1EADDF70009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib in Frameworks */,
 				27BF79391CD3521D00FBB3F3 /* libzip.1.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -8289,6 +8291,7 @@
 		29B97314FDCFA39411CA2CEA /* MySQLWorkbench */ = {
 			isa = PBXGroup;
 			children = (
+				44D3682C1EADE030009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */,
 				2744E6780FC1831900E85C33 /* ScintillaFramework.xcodeproj */,
 				2B825EBD0E0B68EC00BE52DF /* Backend */,
 				2B1E2FCC172F03670037D3DD /* Commercial Plugins */,
@@ -8328,6 +8331,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */,
 				2B750F9E0E8796310003120A /* Libraries */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
