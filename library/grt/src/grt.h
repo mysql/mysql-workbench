@@ -33,7 +33,6 @@
 #include <libxml/xmlmemory.h>
 #include "base/threading.h"
 #include <string>
-#include <gmodule.h>
 
 #ifndef _NODLL_
 #if defined(_WIN32)
@@ -2199,8 +2198,8 @@ namespace grt {
     Module(ModuleLoader *loader);
     virtual ~Module() {
     }
-    virtual GModule *getGModule() {
-      return nullptr;
+
+    virtual void closeModule() noexcept {
     }
 
     std::string name() const {

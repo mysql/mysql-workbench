@@ -277,8 +277,12 @@ namespace grt {
     virtual void initialization_done(){};
 
     void register_functions(ModuleFunctorBase *first, ...);
-    virtual GModule *getGModule() {
-      return _gmodule;
+
+    virtual void closeModule() noexcept override {
+      if (_gmodule != nullptr) {
+        g_module_close(_gmodule);
+        _gmodule = nullptr;
+      }
     }
   };
 
