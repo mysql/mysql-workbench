@@ -116,7 +116,6 @@ namespace mforms {
       G_OBJECT_CLASS(mforms_object_accessible_parent_class)->finalize(object);
     }
 
-
     static void mforms_object_accessible_widget_set(GtkAccessible *accessible) {
       GtkWidget *widget = gtk_accessible_get_widget(accessible);
       if (widget == NULL)
@@ -158,7 +157,7 @@ namespace mforms {
 
       mforms_object_accessible_parent_class = g_type_class_peek_parent(klass);
 
-      g_type_class_add_private(klass, sizeof (mformsObjectAccessiblePrivate));
+      g_type_class_add_private(klass, sizeof(mformsObjectAccessiblePrivate));
     }
 
     // @p parent_type is only required on GTK 3.2 to 3.6, and only on the first call
@@ -166,33 +165,28 @@ namespace mforms {
       static volatile gsize type_id_result = 0;
 
       if (g_once_init_enter(&type_id_result)) {
-        GTypeInfo tinfo = {
-          0,                              /* class size */
-          (GBaseInitFunc) NULL,                   /* base init */
-          (GBaseFinalizeFunc) NULL,                 /* base finalize */
-          (GClassInitFunc) mforms_object_accessible_class_init,  /* class init */
-          (GClassFinalizeFunc) NULL,                  /* class finalize */
-          NULL,                           /* class data */
-          0,                              /* instance size */
-          0,                              /* nb preallocs */
-          (GInstanceInitFunc) mforms_object_accessible_init,   /* instance init */
-          NULL                            /* value table */
+        GTypeInfo tinfo = { 0, /* class size */
+        (GBaseInitFunc) NULL, /* base init */
+        (GBaseFinalizeFunc) NULL, /* base finalize */
+        (GClassInitFunc) mforms_object_accessible_class_init, /* class init */
+        (GClassFinalizeFunc) NULL, /* class finalize */
+        NULL, /* class data */
+        0, /* instance size */
+        0, /* nb preallocs */
+        (GInstanceInitFunc) mforms_object_accessible_init, /* instance init */
+        NULL /* value table */
         };
 
         // good, we have gtk-a11y.h, we can use that
         GType derived_atk_type = GTK_TYPE_CONTAINER_ACCESSIBLE;
-        tinfo.class_size = sizeof (GtkContainerAccessibleClass);
-        tinfo.instance_size = sizeof (GtkContainerAccessible);
+        tinfo.class_size = sizeof(GtkContainerAccessibleClass);
+        tinfo.instance_size = sizeof(GtkContainerAccessible);
 
         GType type_id = g_type_register_static(derived_atk_type, "mformsObjectAccessible", &tinfo, (GTypeFlags) 0);
 
-
-        const GInterfaceInfo atk_action_info = {
-          (GInterfaceInitFunc) mformsGTKAccessible::AtkActionIface::init,
-          (GInterfaceFinalizeFunc) NULL,
-          NULL
-        };
-
+        const GInterfaceInfo atk_action_info = { (GInterfaceInitFunc) mformsGTKAccessible::AtkActionIface::init,
+            (GInterfaceFinalizeFunc) NULL,
+            NULL };
 
         g_type_add_interface_static(type_id, ATK_TYPE_ACTION, &atk_action_info);
 
@@ -202,22 +196,21 @@ namespace mforms {
       return type_id_result;
     }
 
-    mformsGTKAccessible::mformsGTKAccessible(GtkAccessible *accessible, mforms::Accessible *acc) :
-        _accessible(accessible),
-        _mformsAcc(acc) {
+    mformsGTKAccessible::mformsGTKAccessible(GtkAccessible *accessible, mforms::Accessible *acc)
+        : _accessible(accessible), _mformsAcc(acc) {
     }
 
     static std::map<mforms::Accessible*, AtkObject*> childMapping;
 
     mformsGTKAccessible::~mformsGTKAccessible() {
-      for (const auto &it: _children) {
+      for (const auto &it : _children) {
         auto childIt = childMapping.find(it);
         if (childIt != childMapping.end()) {
           auto *widget = gtk_accessible_get_widget(GTK_ACCESSIBLE(childIt->second));
           if (widget != nullptr)
-            g_object_ref_sink(widget); // This is only a floating ref, we remove it.
+            g_object_ref_sink(widget);  // This is only a floating ref, we remove it.
 
-          g_object_unref(childIt->second); // AtkObject is real, we have to unref it.
+          g_object_unref(childIt->second);  // AtkObject is real, we have to unref it.
         }
       }
       _children.clear();
@@ -282,13 +275,14 @@ namespace mforms {
       g_return_val_if_fail(MFORMSOBJECT_IS_OBJECT(obj), NULL);
 
       AtkObject *accessible = (AtkObject *) g_object_new(mforms_object_accessible_get_type(parent_type), "widget", obj,
-                                                         NULL);
+      NULL);
       atk_object_initialize(accessible, obj);
 
       return accessible;
     }
 
-    AtkObject *mformsGTKAccessible::WidgetGetAccessibleImpl(GtkWidget *widget, AtkObject **cache, gpointer widget_parent_class G_GNUC_UNUSED) {
+    AtkObject *mformsGTKAccessible::WidgetGetAccessibleImpl(GtkWidget *widget, AtkObject **cache,
+                                                            gpointer widget_parent_class G_GNUC_UNUSED) {
       if (*cache != nullptr) {
         return *cache;
       }
@@ -329,8 +323,8 @@ namespace mforms {
 
       if (acc != nullptr && convertAccessibleRole(acc->get_acc_role()) != ATK_ROLE_UNKNOWN)
         return convertAccessibleRole(acc->get_acc_role());
-      else { //we need to check if maybe it's not a "virtual" widget
-        for (const auto &it: childMapping) {
+      else {  //we need to check if maybe it's not a "virtual" widget
+        for (const auto &it : childMapping) {
           if (it.second == accessible && convertAccessibleRole(it.first->get_acc_role()) != ATK_ROLE_UNKNOWN)
             return convertAccessibleRole(it.first->get_acc_role());
         }
@@ -355,24 +349,24 @@ namespace mforms {
         int childPos = i - baseChildCount;
         auto acc = getmformsAccessible(accessible);
         if (acc != nullptr) {
-             auto accChild = acc->get_acc_child(childPos);
-             if (accChild != nullptr) {
-               auto it = childMapping.find(accChild);
-               if (it != childMapping.end()) {
-                 auto atkObjectCache = it->second;
-                 return (AtkObject*)g_object_ref(atkObjectCache);
-               }
+          auto accChild = acc->get_acc_child(childPos);
+          if (accChild != nullptr) {
+            auto it = childMapping.find(accChild);
+            if (it != childMapping.end()) {
+              auto atkObjectCache = it->second;
+              return (AtkObject*) g_object_ref(atkObjectCache);
+            }
 
-               auto widget = mforms_new();
-               auto wgtAcc = gtk_widget_get_accessible(widget);
-               auto mformsGtkAcc = FromAccessible(wgtAcc);
-               mformsGtkAcc->_mformsAcc = accChild;
-               childMapping.insert({accChild, (AtkObject*)g_object_ref(wgtAcc)});
+            auto widget = mforms_new();
+            auto wgtAcc = gtk_widget_get_accessible(widget);
+            auto mformsGtkAcc = FromAccessible(wgtAcc);
+            mformsGtkAcc->_mformsAcc = accChild;
+            childMapping.insert( { accChild, (AtkObject*) g_object_ref(wgtAcc) });
 
-               auto thisPtr = FromAccessible(accessible);
-               thisPtr->_children.push_back(accChild); // we need to store ptr cause in the d-tor we can't access children :(
-               return wgtAcc;
-             }
+            auto thisPtr = FromAccessible(accessible);
+            thisPtr->_children.push_back(accChild);  // we need to store ptr cause in the d-tor we can't access children :(
+            return wgtAcc;
+          }
         }
       }
 
@@ -381,7 +375,7 @@ namespace mforms {
 
     mformsGTKAccessible* mformsGTKAccessible::FromAccessible(GtkAccessible *accessible) {
       GtkWidget *widget = gtk_accessible_get_widget(accessible);
-      if (! widget)
+      if (!widget)
         return 0;
 
       return MFORMS_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible)->mfoacc;
@@ -391,9 +385,8 @@ namespace mforms {
       return FromAccessible(GTK_ACCESSIBLE(accessible));
     }
 
-
-
-    mformsGTK::mformsGTK(_MFormsObject *mfo) : _accessible(nullptr), _owner(nullptr) {
+    mformsGTK::mformsGTK(_MFormsObject *mfo)
+        : _accessible(nullptr), _owner(nullptr) {
       _mfo = mfo;
       _windowMain = GTK_WIDGET(mfo);
     }
@@ -420,7 +413,8 @@ namespace mforms {
       return nullptr;
     }
 
-    void mformsGTK::ClassInit(GObjectClass* object_class, GtkWidgetClass *widget_class, GtkEventBoxClass *container_class) {
+    void mformsGTK::ClassInit(GObjectClass* object_class, GtkWidgetClass *widget_class,
+                              GtkEventBoxClass *container_class) {
       widget_class->get_accessible = GetAccessible;
       object_class->finalize = Destroy;
     }
@@ -484,20 +478,19 @@ namespace mforms {
         if (!mforms_type) {
           mforms_type = g_type_from_name("MFormsObject");
           if (!mforms_type) {
-            static GTypeInfo mforms_info = {
-              (guint16) sizeof (MFormsObjectClass),
-              NULL, //(GBaseInitFunc)
-              NULL, //(GBaseFinalizeFunc)
-              (GClassInitFunc) mforms_class_init,
-              NULL, //(GClassFinalizeFunc)
-              NULL, //gconstpointer data
-              (guint16) sizeof (MFormsObject),
-              0, //n_preallocs
-              (GInstanceInitFunc) mforms_init,
-              NULL //(GTypeValueTable*)
-            };
+            static GTypeInfo mforms_info = { (guint16) sizeof(MFormsObjectClass),
+            NULL,  //(GBaseInitFunc)
+                NULL,  //(GBaseFinalizeFunc)
+                (GClassInitFunc) mforms_class_init,
+                NULL,  //(GClassFinalizeFunc)
+                NULL,  //gconstpointer data
+                (guint16) sizeof(MFormsObject), 0,  //n_preallocs
+                (GInstanceInitFunc) mforms_init,
+                NULL  //(GTypeValueTable*)
+                };
             mforms_type = g_type_register_static(
-                        GTK_TYPE_EVENT_BOX, "MFormsObject", &mforms_info, (GTypeFlags) 0);
+            GTK_TYPE_EVENT_BOX,
+                                                 "MFormsObject", &mforms_info, (GTypeFlags) 0);
           }
         }
 

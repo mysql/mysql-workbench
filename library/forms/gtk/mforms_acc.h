@@ -42,7 +42,8 @@
 namespace mforms {
   namespace gtk {
 
-    void mforms_object_accessible_child_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
+    void mforms_object_accessible_child_set_property(GObject *object, guint property_id, const GValue *value,
+                                                     GParamSpec *pspec);
 
     typedef GtkAccessible mformsObjectAccessible;
     typedef GtkAccessibleClass mformsObjectAccessibleClass;
@@ -52,13 +53,14 @@ namespace mforms {
     class mformsGTK;
 
     class mformsGTKAccessible {
-      friend void mforms_object_accessible_child_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
+      friend void mforms_object_accessible_child_set_property(GObject *object, guint property_id, const GValue *value,
+                                                              GParamSpec *pspec);
     public:
       class AtkActionIface {
-        public:
-          static void init(::AtkActionIface *iface);
+      public:
+        static void init(::AtkActionIface *iface);
 
-        private:
+      private:
         AtkActionIface();
 
         static gboolean doAction(AtkAction *action, gint i);

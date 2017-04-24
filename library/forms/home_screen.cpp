@@ -64,8 +64,8 @@ std::string SidebarEntry::get_acc_default_action() {
 
 void SidebarEntry::do_default_action() {
   if (owner != nullptr) {
-    owner->mouse_move(MouseButtonLeft, (int) acc_bounds.center().x, (int) acc_bounds.center().y);
-    owner->mouse_click(MouseButtonLeft, (int) acc_bounds.center().x, (int) acc_bounds.center().y);
+    owner->mouse_move(MouseButtonLeft, (int)acc_bounds.center().x, (int)acc_bounds.center().y);
+    owner->mouse_click(MouseButtonLeft, (int)acc_bounds.center().x, (int)acc_bounds.center().y);
   }
 }
 ;
@@ -151,7 +151,7 @@ int SidebarSection::shortcutFromPoint(int x, int y) {
                 // Take it out from the hit test too.
 
   if (row < _entries.size())
-    return (int) row;
+    return (int)row;
 
   return -1;
 }
@@ -161,8 +161,8 @@ int SidebarSection::shortcutFromPoint(int x, int y) {
 /**
  * Adds a new sidebar entry to the internal list. The function performs some sanity checks.
  */
-void SidebarSection::addEntry(const std::string &title, const std::string &icon_name, HomeScreenSection *section, std::function<void()> callback,
-                              bool canSelect) {
+void SidebarSection::addEntry(const std::string &title, const std::string &icon_name, HomeScreenSection *section,
+                              std::function<void()> callback, bool canSelect) {
   SidebarEntry *entry = new SidebarEntry;
 
   entry->callback = callback;
@@ -273,12 +273,6 @@ void SidebarSection::layout(cairo_t *cr) {
 
 //--------------------------------------------------------------------------------------------------
 
-bool SidebarSection::mouse_double_click(mforms::MouseButton button, int x, int y) {
-  return mouse_click(button, x, y);  // Handle both the same way. Important especially for fast scrolling.
-}
-
-//--------------------------------------------------------------------------------------------------
-
 bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y) {
   switch (button) {
     case mforms::MouseButtonLeft: {
@@ -327,7 +321,7 @@ bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y) {
 //------------------------------------------------------------------------------------------------
 
 int SidebarSection::get_acc_child_count() {
-  return (int) _entries.size();
+  return (int)_entries.size();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -335,7 +329,7 @@ int SidebarSection::get_acc_child_count() {
 Accessible *SidebarSection::get_acc_child(int index) {
   mforms::Accessible *accessible = NULL;
 
-  if (index < (int) _entries.size())
+  if (index < (int)_entries.size())
     accessible = _entries[index].first;
 
   return accessible;
@@ -357,10 +351,10 @@ mforms::Accessible *SidebarSection::hit_test(int x, int y) {
   return accessible;
 }
 
-
 //----------------- HomeScreen ---------------------------------------------------------------------
 
-HomeScreen::HomeScreen(bool singleSection) : AppView(true, "home", true), _singleSection(singleSection) {
+HomeScreen::HomeScreen(bool singleSection)
+    : AppView(true, "home", true), _singleSection(singleSection) {
   if (!_singleSection) {
     _sidebarSection = new SidebarSection(this);
     _sidebarSection->set_name("Home Shortcuts Section");
@@ -379,7 +373,7 @@ HomeScreen::HomeScreen(bool singleSection) : AppView(true, "home", true), _singl
 
 HomeScreen::~HomeScreen() {
   base::NotificationCenter::get()->remove_observer(this);
-  clear_subviews(); // Remove our sections or the View d-tor will try to release them.
+  clear_subviews();  // Remove our sections or the View d-tor will try to release them.
 
   delete _sidebarSection;
 }
@@ -394,7 +388,6 @@ void HomeScreen::update_colors() {
 #else
     _sidebarSection->set_back_color("#464646");
 #endif
-
 
 }
 
@@ -416,21 +409,18 @@ void HomeScreen::addSection(HomeScreenSection *section) {
     scroll->show(false);
 
     bool isCallbackOnly = section->callback ? true : false;
-    _sidebarSection->addEntry(section->getTitle(), section->getIcon(), section,
-                              [this, isCallbackOnly, section]() {
-                                if (isCallbackOnly)
-                                  section->callback();
-                                else {
-                                  for (auto &it : _sections) {
-                                    if (it != section)
-                                      it->getContainer()->get_parent()->show(false);
-                                    else
-                                      it->getContainer()->get_parent()->show(true);
-                                  }
-                                }
-
-                              },
-                              !isCallbackOnly);
+    _sidebarSection->addEntry(section->getTitle(), section->getIcon(), section, [this, isCallbackOnly, section]() {
+      if (isCallbackOnly)
+       section->callback();
+      else {
+        for (auto &it : _sections) {
+          if (it != section)
+           it->getContainer()->get_parent()->show(false);
+          else
+           it->getContainer()->get_parent()->show(true);
+        }
+      }
+    }, !isCallbackOnly);
   } else {
     add(section->getContainer(), true, true);
     section->getContainer()->show(true);
@@ -439,8 +429,8 @@ void HomeScreen::addSection(HomeScreenSection *section) {
 
 //--------------------------------------------------------------------------------------------------
 
-void HomeScreen::addSectionEntry(const std::string &title, const std::string &icon_name,
-                                 std::function<void()> callback, bool canSelect) {
+void HomeScreen::addSectionEntry(const std::string &title, const std::string &icon_name, std::function<void()> callback,
+                                 bool canSelect) {
   if (_sidebarSection != nullptr)
     _sidebarSection->addEntry(title, icon_name, nullptr, callback, canSelect);
   else
