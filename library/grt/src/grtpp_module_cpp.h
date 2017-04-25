@@ -278,12 +278,7 @@ namespace grt {
 
     void register_functions(ModuleFunctorBase *first, ...);
 
-    virtual void closeModule() noexcept override {
-      if (_gmodule != nullptr) {
-        g_module_close(_gmodule);
-        _gmodule = nullptr;
-      }
-    }
+    virtual void closeModule() noexcept override;
   };
 
   typedef CPPModule ModuleImplBase;

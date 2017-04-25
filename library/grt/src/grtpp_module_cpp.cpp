@@ -141,6 +141,13 @@ void CPPModule::register_functions(ModuleFunctorBase *first, ...) {
   _interfaces = _implemented_interfaces;
 }
 
+void CPPModule::closeModule() noexcept {
+  if (_gmodule != nullptr) {
+    g_module_close(_gmodule);
+    _gmodule = nullptr;
+  }
+}
+
 //----------------- CPPModule ----------------------------------------------------------------------
 
 CPPModule::CPPModule(CPPModuleLoader *loader) : Module(loader), _gmodule(NULL) {
