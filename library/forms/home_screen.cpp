@@ -230,49 +230,6 @@ void SidebarSection::setActive(HomeScreenSection *section) {
 
 //--------------------------------------------------------------------------------------------------
 
-void SidebarSection::layout(cairo_t *cr) {
-  if (is_layout_dirty()) {
-    set_layout_dirty(false);
-
-    double icon_xoffset = SIDEBAR_LEFT_PADDING;
-
-    double yoffset = SIDEBAR_TOP_PADDING;
-
-    double text_width = get_width() - SIDEBAR_RIGHT_PADDING;
-
-    cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL,
-                           CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
-
-    cairo_font_extents_t font_extents;
-    cairo_font_extents(cr, &font_extents);
-    double text_height = ceil(font_extents.height);
-
-    // Compute bounding box for each shortcut entry.
-    for (auto iterator : _entries) {
-      int icon_height = imageHeight(iterator.first->icon);
-
-      std::string title = iterator.first->title;
-      if (!title.empty()) {
-        iterator.first->title_bounds.pos.x = icon_xoffset;
-
-        // Text position is the lower-left corner.
-        iterator.first->title_bounds.pos.y = icon_height / 4 + text_height / 2;
-        iterator.first->title_bounds.size.height = text_height;
-
-        cairo_text_extents_t extents;
-        title = mforms::Utilities::shorten_string(cr, title, text_width);
-        cairo_text_extents(cr, title.c_str(), &extents);
-        iterator.first->title_bounds.size.width = extents.width;
-      }
-
-      yoffset += SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING;
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
 bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y) {
   switch (button) {
     case mforms::MouseButtonLeft: {

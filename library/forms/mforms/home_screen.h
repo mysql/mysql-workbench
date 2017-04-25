@@ -92,7 +92,6 @@ namespace mforms {
                   bool canSelect);
     HomeScreenSection *getActive();
     void setActive(HomeScreenSection *section);
-    void layout(cairo_t *cr);
     virtual bool mouse_click(mforms::MouseButton button, int x, int y);
     bool mouse_leave();
 
