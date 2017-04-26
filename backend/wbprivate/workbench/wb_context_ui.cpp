@@ -171,6 +171,9 @@ void WBContextUI::init_finish(WBOptions *options) {
 void WBContextUI::finalize() {
   _wb->finalize();
   _command_ui->clearBuildInCommands();
+  if (_home_screen != nullptr)
+    mforms::App::get()->undock_view(_home_screen);
+
 }
 
 bool WBContextUI::request_quit() {

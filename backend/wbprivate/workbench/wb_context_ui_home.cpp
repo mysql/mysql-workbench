@@ -306,7 +306,7 @@ void WBContextUI::show_home_screen() {
 
 
 
-    _home_screen->addSectionEntry("sidebar_migration.png", nullptr,
+    _home_screen->addSectionEntry("Migration Section", "sidebar_migration.png",
                                   [this]() {
                                     logInfo("Opening Migration Wizard...\n");
                                     _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
