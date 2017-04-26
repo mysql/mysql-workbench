@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -129,9 +129,7 @@ static void imagebox_set_alignment(mforms::ImageBox *self, mforms::Alignment ali
       case mforms::TopRight:
         impl.imageAlignment = NSImageAlignTopRight;
         break;
-
       case mforms::NoAlign:
-      case mforms::WizardLabelAlignment:
         break;
     }
   }  

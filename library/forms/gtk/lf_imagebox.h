@@ -144,8 +144,6 @@ namespace mforms {
             case mforms::TopRight:
               image->_image.set_alignment(1.0, 0.0);
               break;
-            case mforms::WizardLabelAlignment:
-              break;
             case mforms::NoAlign:
               break;
           }

@@ -69,7 +69,6 @@
     case mforms::MiddleCenter:
     case mforms::MiddleLeft:
     case mforms::MiddleRight:
-    case mforms::WizardLabelAlignment:
       frame.origin.y += (NSHeight(frame) - size.height) / 2;
       break;
   }
@@ -194,7 +193,6 @@ static void label_set_text_align(::mforms::Label *self, ::mforms::Alignment alig
       case mforms::BottomRight:
       case mforms::MiddleRight:
       case mforms::TopRight:
-      case mforms::WizardLabelAlignment:
         label.alignment = NSRightTextAlignment;
         break;
     }

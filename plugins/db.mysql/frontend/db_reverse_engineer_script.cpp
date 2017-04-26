@@ -41,7 +41,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form) : WizardPage(form, "options
   _heading.set_text(_("Select the script containing the schemata to reverse engineer"));
   _table.add(&_heading, 0, 2, 0, 1, mforms::HFillFlag);
 
-  _caption.set_text_align(mforms::WizardLabelAlignment);
+  _caption.set_text_align(mforms::TopLeft);
   _caption.set_text(_("Select SQL script file:"));
   _table.add(&_caption, 0, 1, 1, 2, mforms::HFillFlag);
   _table.add(&_file_selector, 1, 2, 1, 2, mforms::HExpandFlag | mforms::HFillFlag);
@@ -53,7 +53,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form) : WizardPage(form, "options
   scoped_connect(_file_selector.signal_changed(), std::bind(&ImportInputPage::file_changed, this));
 
   _file_codeset_caption.set_text(_("File encoding:"));
-  _file_codeset_caption.set_text_align(mforms::WizardLabelAlignment);
+  _file_codeset_caption.set_text_align(mforms::TopLeft);
 
   _table.add(&_file_codeset_caption, 0, 1, 2, 3, mforms::HFillFlag);
   _table.add(&_file_codeset_sel, 1, 2, 2, 3, mforms::HExpandFlag | mforms::HFillFlag);
