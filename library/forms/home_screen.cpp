@@ -102,7 +102,6 @@ void SidebarSection::drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, b
 //------------------------------------------------------------------------------------------------
 
 void SidebarSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
-  layout(cr);
 
   int height = get_height();
 
