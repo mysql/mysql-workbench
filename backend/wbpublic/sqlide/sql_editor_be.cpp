@@ -112,7 +112,6 @@ public:
   mforms::CodeEditor *codeEditor = nullptr;
   std::string currentSchema;
   std::string sqlMode;
-  bool continueOnError = false;
 
   // autocomplete_context will go after auto completion refactoring.
   Private(MySQLParserContext::Ref syntaxcheck_context, MySQLParserContext::Ref autocomplete_context)
@@ -897,16 +896,13 @@ void *MySQLEditor::update_error_markers() {
 
   d->_error_marker_lines.swap(lines);
 
-  mforms::LineMarkup unmark = d->continueOnError ? mforms::LineMarkupError : mforms::LineMarkupErrorContinue;
-  mforms::LineMarkup mark = d->continueOnError ? mforms::LineMarkupErrorContinue : mforms::LineMarkupError;
-
   for (std::set<size_t>::const_iterator iterator = removal_candidates.begin(); iterator != removal_candidates.end();
        ++iterator)
-    d->codeEditor->remove_markup(unmark, *iterator);
+    d->codeEditor->remove_markup(mforms::LineMarkupError, *iterator);
 
   for (std::set<size_t>::const_iterator iterator = insert_candidates.begin(); iterator != insert_candidates.end();
        ++iterator)
-    d->codeEditor->show_markup(mark, *iterator);
+    d->codeEditor->show_markup(mforms::LineMarkupError, *iterator);
 
   return nullptr;
 }
@@ -1436,26 +1432,3 @@ void MySQLEditor::register_file_drop_for(mforms::DropDelegate *target) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-
-void MySQLEditor::set_continue_on_error(bool value) {
-  d->continueOnError = value;
-
-  std::vector<size_t> lines;
-
-  mforms::LineMarkup unmark = d->continueOnError ? mforms::LineMarkupError : mforms::LineMarkupErrorContinue;
-  mforms::LineMarkup mark = d->continueOnError ? mforms::LineMarkupErrorContinue : mforms::LineMarkupError;
-
-  for (size_t i = 0; i < d->_recognition_errors.size(); ++i) {
-    d->codeEditor->show_indicator(mforms::RangeIndicatorError, d->_recognition_errors[i].charOffset,
-                                 d->_recognition_errors[i].length);
-    lines.push_back(d->codeEditor->line_from_position(d->_recognition_errors[i].charOffset));
-  }
-
-  for (std::vector<size_t>::iterator iter = lines.begin(); iter != lines.end(); ++iter) {
-    d->codeEditor->remove_markup(unmark, *iter);
-    d->codeEditor->show_markup(mark, *iter);
-  }
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-

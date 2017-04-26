@@ -57,7 +57,7 @@ namespace mforms {
   };
 
   /**
-   * A number of flags used to specify additional markup for a line (usually shown in the gutter).
+   * A number of flags used to specify additional markup for a line (shown in the gutter).
    */
   enum LineMarkup {
     LineMarkupNone = 0,               // No markup for the given line.
@@ -66,7 +66,7 @@ namespace mforms {
     LineMarkupBreakpoint = 1 << 2,    // Line has a marker set for a break point.
     LineMarkupBreakpointHit = 1 << 3, // Line has a marker set for a break point which is currently hit.
     LineMarkupCurrent = 1 << 4,       // Current execution line.
-    LineMarkupErrorContinue = 1 << 5, // Line's background is drawn in red to mark an execution error on continue.
+    LineMarkupErrorContinue = 1 << 5, // Marker for a failed sql statement (execution).
 
     LineMarkupAll = 0xFF, // All markup, useful for remove_markup.
   };

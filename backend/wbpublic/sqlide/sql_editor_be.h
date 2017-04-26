@@ -144,8 +144,6 @@ public:
 
   void register_file_drop_for(mforms::DropDelegate *target);
 
-  void set_continue_on_error(bool value);
-
 protected:
   MySQLEditor(parsers::MySQLParserContext::Ref syntaxCheckContext,
               parsers::MySQLParserContext::Ref autocompleteContext);

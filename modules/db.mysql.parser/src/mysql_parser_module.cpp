@@ -145,13 +145,17 @@ struct MySQLParserContextImpl : public MySQLParserContext {
   }
 
   void addError(const std::string &message, Token *token) {
-    ParserErrorInfo info = {message,
-                            token->getType(),
-                            token->getStartIndex(),
-                            token->getLine(),
-                            token->getCharPositionInLine(),
-                            token->getStopIndex() - token->getStartIndex() + 1};
-    errors.push_back(info);
+    size_t tokenLength = token->getStopIndex() - token->getStartIndex() + 1;
+    if (tokenLength == 0)
+      tokenLength = 1;
+    errors.push_back({
+      message,
+      token->getType(),
+      token->getStartIndex(),
+      token->getLine(),
+      token->getCharPositionInLine(),
+      tokenLength
+    });
   }
 
   /**
