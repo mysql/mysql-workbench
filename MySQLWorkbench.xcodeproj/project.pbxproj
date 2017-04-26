@@ -468,6 +468,7 @@
 		279292841D0582650047F3FB /* sidebar_modeling@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 279292821D0582650047F3FB /* sidebar_modeling@2x.png */; };
 		2795ED021EB0D28800082169 /* libmysqlcppconn.7.1.1.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; };
 		2795ED031EB0D42700082169 /* libmysqlcppconn.7.1.1.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; };
+		2795ED041EB0D52600082169 /* libmysqlcppconn.7.1.1.9.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		279822FD118AFBC300406A84 /* message_wb_wait.png in Resources */ = {isa = PBXBuildFile; fileRef = 279822FC118AFBC300406A84 /* message_wb_wait.png */; };
 		279823A3118B074C00406A84 /* HUDPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 279822EE118AFB0C00406A84 /* HUDPanel.xib */; };
 		27987706195C5246003E8E44 /* execute_routine_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27987705195C5246003E8E44 /* execute_routine_wizard.cpp */; };
@@ -3909,6 +3910,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				2795ED041EB0D52600082169 /* libmysqlcppconn.7.1.1.9.dylib in Copy Files (dylibs) */,
 				27183E891DA54E0100257580 /* libmtemplate.dylib in Copy Files (dylibs) */,
 				27BF79501CD3559700FBB3F3 /* libpixman-1.0.dylib in Copy Files (dylibs) */,
 				27BF79401CD352EB00FBB3F3 /* libintl.8.dylib in Copy Files (dylibs) */,
