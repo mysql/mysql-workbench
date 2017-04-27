@@ -70,23 +70,35 @@ long shortVersion(const GrtVersionRef &version) {
 
 struct MySQLParserContextImpl;
 
-class ContextErrorListener : public BaseErrorListener {
+class LexerErrorListener : public BaseErrorListener {
 public:
   MySQLParserContextImpl *owner;
 
-  ContextErrorListener(MySQLParserContextImpl *aOwner) : owner(aOwner) {
-  }
+  LexerErrorListener(MySQLParserContextImpl *aOwner) : owner(aOwner) {}
+
+  virtual void syntaxError(Recognizer *recognizer, Token *offendingSymbol, size_t line, size_t charPositionInLine,
+                           const std::string &msg, std::exception_ptr e) override;
+ };
+
+class ParserErrorListener : public BaseErrorListener {
+public:
+  MySQLParserContextImpl *owner;
+
+  ParserErrorListener(MySQLParserContextImpl *aOwner) : owner(aOwner) {}
 
   virtual void syntaxError(Recognizer *recognizer, Token *offendingSymbol, size_t line, size_t charPositionInLine,
                            const std::string &msg, std::exception_ptr e) override;
 };
+      
+//----------------------------------------------------------------------------------------------------------------------
 
 struct MySQLParserContextImpl : public MySQLParserContext {
   ANTLRInputStream input;
   MySQLLexer lexer;
   CommonTokenStream tokens;
   MySQLParser parser;
-  ContextErrorListener errorListener;
+  LexerErrorListener lexerErrorListener;
+  ParserErrorListener parserErrorListener;
 
   GrtVersionRef version;
   std::string mode;
@@ -95,16 +107,21 @@ struct MySQLParserContextImpl : public MySQLParserContext {
   std::vector<ParserErrorInfo> errors;
 
   MySQLParserContextImpl(GrtCharacterSetsRef charsets, GrtVersionRef version_, bool caseSensitive)
-    : lexer(&input), tokens(&lexer), parser(&tokens), errorListener(this), caseSensitive(caseSensitive) {
+    : lexer(&input), tokens(&lexer), parser(&tokens), lexerErrorListener(this), parserErrorListener(this),
+    caseSensitive(caseSensitive) {
+
     std::set<std::string> filteredCharsets;
     for (size_t i = 0; i < charsets->count(); i++)
       filteredCharsets.insert("_" + base::tolower(*charsets[i]->name()));
     lexer.charsets = filteredCharsets;
     updateServerVersion(version_);
 
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(&lexerErrorListener);
+
     parser.removeParseListeners();
     parser.removeErrorListeners();
-    parser.addErrorListener(&errorListener);
+    parser.addErrorListener(&parserErrorListener);
   }
 
   virtual bool isCaseSensitive() override {
@@ -144,18 +161,10 @@ struct MySQLParserContextImpl : public MySQLParserContext {
     return mode;
   }
 
-  void addError(const std::string &message, Token *token) {
-    size_t tokenLength = token->getStopIndex() - token->getStartIndex() + 1;
-    if (tokenLength == 0)
-      tokenLength = 1;
-    errors.push_back({
-      message,
-      token->getType(),
-      token->getStartIndex(),
-      token->getLine(),
-      token->getCharPositionInLine(),
-      tokenLength
-    });
+  void addError(std::string const& message, size_t tokenType, size_t startIndex, size_t line, size_t column, size_t length) {
+    if (length == 0)
+      length = 1;
+    errors.push_back({ message, tokenType, startIndex, line, column, length });
   }
 
   /**
@@ -274,7 +283,9 @@ private:
     try {
       tree = parseUnit(unit);
     } catch (ParseCancellationException &) {
-      if (fast)
+      // Even in fast mode we have to do a second run if we got no error yet (BailErrorStrategy
+      // does not do full processing).
+      if (fast && !errors.empty())
         tree = nullptr;
       else {
         // If parsing was canceled we either really have a syntax error or we need to do a second step,
@@ -287,19 +298,6 @@ private:
       }
     }
 
-    if (errors.empty() && !lexer.hitEOF) {
-      // There is more input than needed for the given parse unit. Make this a fail as we don't allow
-      // extra input after the specific rule.
-      // This part is only needed if the grammar has no explicit EOF token at the end of the parsed rule.
-      Token *token = tokens.LT(1);
-      ParserErrorInfo info = {"extraneous input found, expecting end of input",
-                              token->getType(),
-                              token->getStartIndex(),
-                              token->getLine(),
-                              token->getCharPositionInLine(),
-                              token->getStopIndex() - token->getStartIndex() + 1};
-      errors.push_back(info);
-    }
     return tree;
   }
 
@@ -315,9 +313,152 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ContextErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSymbol, size_t line,
-                                       size_t charPositionInLine, const std::string &msg, std::exception_ptr e) {
-  owner->addError(msg, offendingSymbol);
+void LexerErrorListener::syntaxError(Recognizer *recognizer, Token *, size_t line,
+                                     size_t charPositionInLine, const std::string &, std::exception_ptr ep) {
+  // The passed in string is the ANTLR generated error message which we want to improve here.
+  // The token reference is always null in a lexer error.
+  std::string message;
+  try {
+    std::rethrow_exception(ep);
+  } catch (LexerNoViableAltException &) {
+    Lexer *lexer = dynamic_cast<Lexer *>(recognizer);
+    CharStream *input = lexer->getInputStream();
+    std::string text = lexer->getErrorDisplay(input->getText(misc::Interval(lexer->tokenStartCharIndex, input->index())));
+    if (text.empty())
+      text = " "; // Should never happen.
+
+    switch (text[0]) {
+      case '/':
+        message = "Unfinished multiline comment";
+        break;
+      case '"':
+        message = "Unfinished double quoted string literal";
+        break;
+      case '\'':
+        message = "Unfinished single quoted string literal";
+        break;
+      case '`':
+        message = "Unfinished back tick quoted string literal";
+        break;
+
+      default:
+        // Hex or bin string?
+        if (text.size() > 1 && text[1] == '\'' && (text[0] == 'x' || text[0] == 'b')) {
+          message = std::string("Unfinished ") + (text[0] == 'x' ? "hex" : "binary") + " string literal";
+          break;
+        }
+
+        // Something else the lexer couldn't make sense of (likely there is no rule that accepts this input).
+        message = "\"" + text + "\" is no valid input at all";
+        break;
+    }
+    owner->addError(message, 0, lexer->tokenStartCharIndex, line, charPositionInLine,
+                    input->index() - lexer->tokenStartCharIndex);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string intervalToString(misc::IntervalSet set, size_t maxCount, dfa::Vocabulary vocabulary) {
+  std::vector<ssize_t> symbols = set.toList();
+
+  if (symbols.empty()) {
+    return "{}";
+  }
+
+  std::stringstream ss;
+  if (symbols.size() > 1) {
+    ss << "{";
+  }
+
+  bool firstEntry = true;
+  maxCount = std::min(maxCount, symbols.size());
+  for (size_t i = 0; i < maxCount; ++i) {
+    ssize_t symbol = symbols[i];
+    if (!firstEntry)
+      ss << ", ";
+    firstEntry = false;
+
+    if (symbol < 0) {
+      ss << "no further input";
+    } else {
+      std::string name = vocabulary.getDisplayName(symbol);
+      if (name.find("_SYMBOL") != std::string::npos)
+        name = name.substr(0, name.size() - 7);
+      else if (name.find("_OPERATOR") != std::string::npos)
+        name = name.substr(0, name.size() - 9);
+
+      ss << name;
+    }
+  }
+
+  if (maxCount < symbols.size())
+    ss << ", ...";
+
+  if (symbols.size() > 1) {
+    ss << "}";
+  }
+
+  return ss.str();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSymbol, size_t line,
+                                      size_t charPositionInLine, std::string const& msg, std::exception_ptr ep)  {
+
+  std::string message;
+
+  Parser *parser = dynamic_cast<Parser *>(recognizer);
+  bool isEof = offendingSymbol->getType() == Token::EOF;
+  if (isEof) {
+    // In order to show a good error marker look at the previous token if we are at the input end.
+    Token *previous = parser->getTokenStream()->LT(-1);
+    if (previous != nullptr)
+      offendingSymbol = previous;
+  }
+
+  std::string wrongText = offendingSymbol->getText();
+  if (wrongText[0] != '"' && wrongText[0] != '\'' && wrongText[0] != '`')
+    wrongText = "\"" + wrongText + "\"";
+
+  // TODO: currently the expected token set might also contain a symbol that's actually causing this error.
+  //       That happens if this error was triggered by a failing predicate. getExpectedTokens() ignores predicates.
+  misc::IntervalSet expected = parser->getExpectedTokens();
+  std::string expectedText = intervalToString(expected, 6, parser->getVocabulary());
+
+  if (ep == nullptr) {
+    // Missing or unwanted tokens.
+    if (msg.find("missing") != std::string::npos) {
+      std::cout << "missing" << std::endl;
+
+
+      if (expected.size() == 1) {
+        message = std::string("Expected ") + expectedText + ", but found " + wrongText + " instead";
+      }
+    } else {
+      message = std::string("Extraneous input ") + wrongText + " found, expecting " + expectedText;
+    }
+  } else {
+    try {
+      std::rethrow_exception(ep);
+    } catch (InputMismatchException &) {
+      if (isEof)
+        message = "Unexpected end of input found, expecting " + expectedText;
+      else
+        message = wrongText + " is no valid input at this position, expecting " + expectedText;
+    } catch (FailedPredicateException &) {
+      message = "FailedPredicateException"; // TODO: find a case that throws this.
+    } catch (NoViableAltException &) {
+      if (isEof)
+        message = "Unexpected end of input found, expecting " + expectedText;
+      else
+        message = wrongText + " is no valid input at this position, expecting " + expectedText;
+    }
+  }
+
+  owner->addError(message, offendingSymbol->getType(), offendingSymbol->getStartIndex(), line, charPositionInLine,
+                  offendingSymbol->getStopIndex() - offendingSymbol->getStartIndex() + 1);
 }
 
 //------------------ MySQLParserServicesImpl ---------------------------------------------------------------------------
