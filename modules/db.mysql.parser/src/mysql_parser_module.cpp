@@ -292,6 +292,7 @@ private:
         // now with the default strategy and LL parsing.
         tokens.reset();
         parser.reset();
+        errors.clear();
         parser.setErrorHandler(std::make_shared<DefaultErrorStrategy>());
         parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::LL);
         tree = parseUnit(unit);

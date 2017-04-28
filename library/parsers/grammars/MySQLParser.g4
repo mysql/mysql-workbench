@@ -2629,7 +2629,7 @@ createTableOption: // In the order as they appear in the server grammar.
     | option = PASSWORD_SYMBOL EQUAL_OPERATOR? textString
     | option = COMMENT_SYMBOL EQUAL_OPERATOR? textString
     | {serverVersion >= 50708}? option = COMPRESSION_SYMBOL EQUAL_OPERATOR? textString
-    | {serverVersion >= 50700}? option = ENCRYPTION_SYMBOL EQUAL_OPERATOR? textString
+    | {serverVersion >= 50711}? option = ENCRYPTION_SYMBOL EQUAL_OPERATOR? textString
     | option = AUTO_INCREMENT_SYMBOL EQUAL_OPERATOR? ulonglong_number
     | option = PACK_KEYS_SYMBOL EQUAL_OPERATOR? ternaryOption
     | {serverVersion >= 50600}? option = (STATS_AUTO_RECALC_SYMBOL | STATS_PERSISTENT_SYMBOL | STATS_SAMPLE_PAGES_SYMBOL)

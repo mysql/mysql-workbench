@@ -398,7 +398,7 @@ ELSE_SYMBOL:                            E L S E;                                
 ELSEIF_SYMBOL:                          E L S E I F                                                 {serverVersion >= 50000}?;
 ENABLE_SYMBOL:                          E N A B L E;
 ENCLOSED_SYMBOL:                        E N C L O S E D;
-ENCRYPTION_SYMBOL:                      E N C R Y P T I O N                                         {serverVersion >= 50713}?;
+ENCRYPTION_SYMBOL:                      E N C R Y P T I O N                                         {serverVersion >= 50711}?;
 END_SYMBOL:                             E N D;                                                      // SQL-2003-R
 ENDS_SYMBOL:                            E N D S;
 END_OF_INPUT_SYMBOL:                    E N D '_' O F '_' I N P U T;                                // INTERNAL
