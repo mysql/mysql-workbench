@@ -1429,7 +1429,7 @@ class ExplainContext:
         if 'rows_examined_per_scan' not in table:
             table['rows_examined_per_scan'] = (table.get('rows') or 0)
         if 'rows_produced_per_join' not in table:
-            table['rows_produced_per_join'] = (table.get('rows') or 0) * int(table.get('filtered', 0)) / 100
+            table['rows_produced_per_join'] = (table.get('rows') or 0) * int(float(table.get('filtered', 0))) / 100
 
         # table nodes that have a materialized_from_subquery node are not real tables
         # so show them as a container for the subquery that it executes
