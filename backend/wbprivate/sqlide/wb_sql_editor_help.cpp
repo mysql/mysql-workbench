@@ -555,7 +555,7 @@ static std::unordered_map<size_t, std::string> contextToTopic = {
   {MySQLParser::RuleReplaceStatement, "REPLACE"},
   {MySQLParser::RuleResignalStatement, "RESIGNAL"},
   {MySQLParser::RuleReturnStatement, "RETURN"},
-  {MySQLParser::RuleRevokeStatement, "REVOKE"},
+  {MySQLParser::RuleRevoke, "REVOKE"},
   {MySQLParser::RuleSavepointStatement, "SAVEPOINT"},
   {MySQLParser::RuleSelectStatement, "SELECT"},
   {MySQLParser::RuleSetPassword, "SET PASSWORD"},
