@@ -2277,7 +2277,8 @@ public:
   virtual void exitGrant(MySQLParser::GrantContext *ctx) override {
     std::string target;
     if (ctx->aclType() != nullptr)
-      target = ctx->aclType()->getText();
+      target = ctx->aclType()->getText() + " ";
+    target += MySQLBaseLexer::sourceTextForContext(ctx->grantIdentifier());
     data.gset("target", target);
     if (ctx->WITH_SYMBOL() != nullptr)
       data.set("options", _options);
