@@ -2274,19 +2274,23 @@ public:
     tree::ParseTreeWalker::DEFAULT.walk(this, tree);
   }
 
-  virtual void exitGrantCommand(MySQLParser::GrantCommandContext *ctx) override {
-    // The subtree for the target details includes the ON keyword at the beginning, which we have to remove.
-    data.gset("target", base::trim(MySQLBaseLexer::sourceTextForContext(ctx->privilegeTarget()).substr(2)));
+  virtual void exitGrant(MySQLParser::GrantContext *ctx) override {
+    std::string target;
+    if (ctx->aclType() != nullptr)
+      target = ctx->aclType()->getText();
+    data.gset("target", target);
     if (ctx->WITH_SYMBOL() != nullptr)
       data.set("options", _options);
+
+    if (ctx->ALL_SYMBOL() != nullptr) {
+      std::string priv = ctx->ALL_SYMBOL()->getText();
+      if (ctx->PRIVILEGES_SYMBOL() != nullptr)
+        priv += " " + ctx->PRIVILEGES_SYMBOL()->getText();
+      _privileges.insert(priv);
+    }
   }
 
-  virtual void exitGrantPrivileges(MySQLParser::GrantPrivilegesContext *ctx) override {
-    if (ctx->ALL_SYMBOL() != nullptr)
-      _privileges.insert(MySQLBaseLexer::sourceTextForContext(ctx));
-  }
-
-  virtual void exitObjectPrivilege(MySQLParser::ObjectPrivilegeContext *ctx) override {
+  virtual void exitRoleOrPrivilege(MySQLParser::RoleOrPrivilegeContext *ctx) override {
     std::string privilege;
     for (auto child : ctx->children) {
       if (!privilege.empty())

@@ -36,21 +36,18 @@ namespace antlr4 {
   using TokenList = std::vector<size_t>;
   using RuleList = std::vector<size_t>;
 
-  // A pair containing one of the preferred rule indexes and the rule index path where it has been collected.
-  using RulePathPair = std::pair<size_t, TokenList>;
-
   // All the candidates which have been found. Tokens and rules are separated (both use a numeric value).
-  struct CandidatesCollection { std::map<size_t, TokenList> tokens; std::set<RulePathPair> rules; };
+  struct CandidatesCollection { std::map<size_t, TokenList> tokens; std::set<size_t> rules; };
 
   // The main class for doing the collection process.
   class CodeCompletionCore
   {
   public:
     // Debugging options. Print human readable ATN state and other info.
-    bool showResult = false;                // Not dependent on showDebugOutput. Prints the collected rules + tokens to terminal.
-    bool showDebugOutput = false;           // Enables printing ATN state info to terminal.
-    bool debugOutputWithTransitions = true; // Only relevant when showDebugOutput is true. Enables transition printing for a state.
-    bool showRuleStack = false;             // Also depends on showDebugOutput. Enables call stack printing for each rule recursion.
+    bool showResult = false;                 // Not dependent on showDebugOutput. Prints the collected rules + tokens to terminal.
+    bool showDebugOutput = false;            // Enables printing ATN state info to terminal.
+    bool debugOutputWithTransitions = false; // Only relevant when showDebugOutput is true. Enables transition printing for a state.
+    bool showRuleStack = false;              // Also depends on showDebugOutput. Enables call stack printing for each rule recursion.
 
     // Tailoring of the result.
     std::unordered_set<size_t> ignoredTokens;  // Tokens which should not appear in the candidates set.

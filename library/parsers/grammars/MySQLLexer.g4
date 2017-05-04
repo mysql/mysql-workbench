@@ -20,9 +20,9 @@ lexer grammar MySQLLexer;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [4a3279d] (1 December 2016).
+ * Merged in all changes up to mysql-trunk git revision [3bff562] (13 April 2017).
  *
- * MySQL grammar for ANTLR 4.5 with language features from MySQL 4.0.0 up to MySQL 8.0.0 (except for
+ * MySQL grammar for ANTLR 4.5 with language features from MySQL 4.0.0 up to MySQL 8.0.1 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
@@ -194,14 +194,14 @@ DOT_IDENTIFIER: DOT_SYMBOL LETTER_WHEN_UNQUOTED_NO_DIGIT LETTER_WHEN_UNQUOTED* {
    1) Comments for TOKENS.
 
    For each token, please include in the same line a comment that contains
-   the following tags:
+   one of the following tags:
    SQL-2015-R : Reserved keyword as per SQL-2015 draft
    SQL-2003-R : Reserved keyword as per SQL-2003
    SQL-2003-N : Non Reserved keyword as per SQL-2003
    SQL-1999-R : Reserved keyword as per SQL-1999
    SQL-1999-N : Non Reserved keyword as per SQL-1999
-   MYSQL      : MySQL extention (unspecified)
-   MYSQL-FUNC : MySQL extention, function
+   MYSQL      : MySQL extension (unspecified)
+   MYSQL-FUNC : MySQL extension, function
    INTERNAL   : Not a real token, lex optimization
    OPERATOR   : SQL operator
    FUTURE-USE : Reserved for futur use
@@ -253,7 +253,7 @@ ALGORITHM_SYMBOL:                       A L G O R I T H M;
 ALL_SYMBOL:                             A L L;                                                      // SQL-2003-R
 ALTER_SYMBOL:                           A L T E R;                                                  // SQL-2003-R
 ALWAYS_SYMBOL:                          A L W A Y S                                                 {serverVersion >= 50707}?;
-ANALYSE_SYMBOL:                         A N A L Y S E;
+ANALYSE_SYMBOL:                         A N A L Y S E                                               {serverVersion < 80001}?;
 ANALYZE_SYMBOL:                         A N A L Y Z E;
 AND_SYMBOL:                             A N D;                                                      // SQL-2003-R
 ANY_SYMBOL:                             A N Y;                                                      // SQL-2003-R
@@ -914,11 +914,18 @@ INVISIBLE_SYMBOL:                       I N V I S I B L E                       
 VISIBLE_SYMBOL:                         V I S I B L E                                               {serverVersion >= 80000}?;
 EXCEPT_SYMBOL:                          E X C E P T                                                 {serverVersion >= 80000}?; // SQL-1999-R
 COMPONENT_SYMBOL:                       C O M P O N E N T                                           {serverVersion >= 80000}?; // MYSQL
+RECURSIVE_SYMBOL:                       R E C U R S I V E                                           {serverVersion >= 80001}?; // SQL-1999-R
 //GRAMMAR_SELECTOR_EXPR:;               // synthetic token: starts single expr.
 //GRAMMAR_SELECTOR_GCOL:;               // synthetic token: starts generated col.
 //GRAMMAR_SELECTOR_PART:;               // synthetic token: starts partition expr.
+//GRAMMAR_SELECTOR_CTE:;               // synthetic token: starts CTE expr.
 JSON_OBJECTAGG_SYMBOL:                  J S O N '_' O B J E C T A G G                              {serverVersion >= 80000}?; // SQL-2015-R
 JSON_ARRAYAGG_SYMBOL:                   J S O N '_' A R R A Y A G G                                {serverVersion >= 80000}?; // SQL-2015-R
+OF_SYMBOL:                              O F                                                        {serverVersion >= 80001}?; // SQL-1999-R
+SKIP_SYMBOL:                            S K I P                                                    {serverVersion >= 80001}?; // MYSQL
+LOCKED_SYMBOL:                          L O C K E D                                                {serverVersion >= 80001}?; // MYSQL
+NOWAIT_SYMBOL:                          N O W A I T                                                {serverVersion >= 80001}?; // MYSQL
+GROUPING_SYMBOL:                        G R O U P I N G                                            {serverVersion >= 80001}?; // SQL-2011-R
 
 // Additional tokens which are mapped to existing tokens.
 INT1_SYMBOL:                            I N T '1'                                                   -> type(TINYINT_SYMBOL); // Synonym

@@ -25,11 +25,15 @@ using namespace antlr4;
 using namespace antlr4::atn;
 using namespace antlr4::misc;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::unordered_map<std::type_index, CodeCompletionCore::FollowSetsPerState> CodeCompletionCore::_followSetsByATN;
 
 CodeCompletionCore::CodeCompletionCore(Parser *parser)
 : _parser(parser), _atn(parser->getATN()), _vocabulary(parser->getVocabulary()), _ruleNames(parser->getRuleNames()) {
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 CandidatesCollection CodeCompletionCore::collectCandidates(size_t caretTokenIndex, size_t ruleStartTokenIndex,
                                                            size_t startRule) {
@@ -62,12 +66,7 @@ CandidatesCollection CodeCompletionCore::collectCandidates(size_t caretTokenInde
   if (showResult) {
     std::cout << std::endl << std::endl << "Collected rules:" << std::endl;
     for (auto candidate : _candidates.rules) {
-      std::cout << _ruleNames[candidate.first] << ", path: ";
-
-      for (auto rule : candidate.second) {
-        std::cout << _ruleNames[rule] << " ";
-      }
-      std::cout << std::endl;
+      std::cout << _ruleNames[candidate] << std::endl;
     }
 
     std::set<std::string> sortedTokens;
@@ -94,6 +93,8 @@ bool CodeCompletionCore::checkPredicate(PredicateTransition *transition) const {
   return transition->getPredicate()->eval(_parser, nullptr);
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Walks the rule chain upwards starting at the given state to see if that matches any of the preferred rules.
  * If found, that rule is added to the collection candidates and true is returned.
@@ -108,7 +109,7 @@ bool CodeCompletionCore::translateToRuleIndex(std::vector<size_t> const& ruleSta
     if (std::any_of(preferredRules.begin(), preferredRules.end(), [&ruleStack, i](size_t preferredRule) {
       return ruleStack[i] == preferredRule;
     })) {
-      _candidates.rules.insert({ ruleStack[i], std::vector<size_t>(ruleStack.begin(), ruleStack.begin() + i) });
+      _candidates.rules.insert(ruleStack[i]);
       if (showDebugOutput)
         std::cout << "=====> collected: " << _ruleNames[i] << std::endl;
 
@@ -117,6 +118,8 @@ bool CodeCompletionCore::translateToRuleIndex(std::vector<size_t> const& ruleSta
 
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeCompletionCore::printRuleState(std::vector<size_t> const& stack) const {
   if (stack.empty()) {
@@ -127,6 +130,8 @@ void CodeCompletionCore::printRuleState(std::vector<size_t> const& stack) const 
   for (size_t rule : stack)
     std::cout << _ruleNames[rule] << std::endl;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * This method follows the given transition and collects all symbols within the same rule that directly follow it
@@ -159,6 +164,8 @@ std::vector<size_t> CodeCompletionCore::getFollowingTokens(Transition *transitio
 
   return result;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Collects possible tokens which could be matched following the given ATN state. This is essentially the same
@@ -212,6 +219,8 @@ void CodeCompletionCore::collectFollowSets(ATNState *s, ATNState *stopState, std
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Entry point for the recursive follow set collection function.
  */
@@ -224,6 +233,8 @@ std::vector<CodeCompletionCore::FollowSetWithPath> CodeCompletionCore::determine
 
   return result;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Walks the ATN for a single rule only. It returns the states that continue the walk in the calling rule.
@@ -383,14 +394,14 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
       if (transition->getSerializationType() == Transition::RULE) {
         auto endStatus = processRule(transition->target, currentEntry.tokenIndex, callStack, indentation);
         for (auto &status : endStatus)
-          statePipeline.push_back(status);
+          statePipeline.push_back({ dynamic_cast<RuleTransition *>(transition)->followState, status.tokenIndex });
 
         // See description above for this flag.
         if (isLeftRecursive && transition->target->ruleIndex == callStack.back())
           forceLoopEnd = true;
 
       } else if (transition->getSerializationType() == Transition::PREDICATE) {
-        if (checkPredicate(static_cast<PredicateTransition *>(transition)))
+        if (checkPredicate(dynamic_cast<PredicateTransition *>(transition)))
           statePipeline.push_back({ transition->target, currentEntry.tokenIndex });
       } else if (transition->isEpsilon()) {
         statePipeline.push_back({ transition->target, currentEntry.tokenIndex });
@@ -451,10 +462,14 @@ void CodeCompletionCore::process(size_t startRule) {
     std::cout << "States processed: " << _statesProcessed << std::endl;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string CodeCompletionCore::generateBaseDescription(ATNState *state) const {
   std::string stateValue = state->stateNumber == ATNState::INVALID_STATE_NUMBER ? "Invalid" : std::to_string(state->stateNumber);
   return "[" + stateValue + " " + ATNState::serializationNames[state->getStateType()] + "] in " + _ruleNames[state->ruleIndex];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeCompletionCore::printDescription(std::string const& currentIndent, ATNState *state,
   std::string const& baseDescription, size_t tokenIndex) const {
@@ -495,3 +510,5 @@ void CodeCompletionCore::printDescription(std::string const& currentIndent, ATNS
     std::cout << "<" << _tokenStartIndex + tokenIndex << "> ";
   std::cout << "Current state: " << baseDescription << transitionDescription << std::endl;
 }
+
+//----------------------------------------------------------------------------------------------------------------------

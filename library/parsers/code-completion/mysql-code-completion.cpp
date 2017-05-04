@@ -228,7 +228,7 @@ struct AutoCompletionContext {
 
     // If a column reference is required then we have to continue scanning the query for table references.
     for (auto ruleEntry : completionCandidates.rules) {
-      if (ruleEntry.first == MySQLParser::RuleColumnRef) {
+      if (ruleEntry == MySQLParser::RuleColumnRef) {
         collectRemainingTableReferences(parser, scanner);
         takeReferencesSnapshot(); // Move references from stack to the ref map.
         break;
@@ -779,7 +779,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
     scanner.pop();
     scanner.push();
 
-    switch (candidate.first) {
+    switch (candidate) {
       case MySQLParser::RuleRuntimeFunctionCall: {
         logDebug3("Adding runtime function names\n");
 
@@ -926,7 +926,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         if ((flags & ShowTables) != 0) {
           insertTables(symbolTable, tableEntries, schemas);
-          if (candidate.first == MySQLParser::RuleColumnRef) {
+          if (candidate == MySQLParser::RuleColumnRef) {
             // Insert also views.
             insertViews(symbolTable, viewEntries, schemas);
 
@@ -958,7 +958,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
                 tables.insert(context.references[i].table);
                 break;
               }
-          } else if (!context.references.empty() && candidate.first == MySQLParser::RuleColumnRef) {
+          } else if (!context.references.empty() && candidate == MySQLParser::RuleColumnRef) {
             for (size_t i = 0; i < context.references.size(); ++i)
               tables.insert(context.references[i].table);
           }
