@@ -354,7 +354,8 @@ void SqlEditorResult::switch_tab() {
     } else if (tab->identifier() == "result_grid") {
       if (_resultset_placeholder) {
         _owner->owner()->exec_editor_sql(_owner, true, true, true, false, this);
-        set_title(_rset.lock()->caption());
+        if (!_rset.expired())
+          set_title(_rset.lock()->caption());
       }
     } else if (tab->identifier() == "execution_plan") {
       if (_execution_plan_placeholder) {
