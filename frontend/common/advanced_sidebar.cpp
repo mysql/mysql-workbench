@@ -1386,6 +1386,7 @@ bool AdvancedSidebar::on_search_text_changed() {
       _filtered_schema_model->enable_events(true);
     }
   } else {
+    _schema_box.remove(&_new_schema_tree);
     _schema_box.remove(&_filtered_schema_tree);
 
     if (_remote_search_enabled)
