@@ -20,6 +20,15 @@
 #include "mforms/drawbox.h"
 #import "MFView.h"
 
+@interface AccChildImpl : NSAccessibilityElement {
+@public
+  mforms::Accessible *mformsAcc;
+  mforms::View *parent;
+@protected
+  std::map<mforms::Accessible*, AccChildImpl*> accChildList;
+}
+@end
+
 @interface MFDrawBoxImpl : NSView {
 @private
   mforms::DrawBox *mOwner;
@@ -30,6 +39,7 @@
   float mPaddingBottom;
 
   std::map<mforms::View *, mforms::Alignment> mSubviews;
+  std::map<mforms::Accessible*, AccChildImpl*> accChildList;
 
   BOOL mDrawsBackground;
   NSColor *mBackgroundColor;

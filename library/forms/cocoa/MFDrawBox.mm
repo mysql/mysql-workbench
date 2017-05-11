@@ -21,12 +21,130 @@
 #import "MFMForms.h"
 #include <cairo/cairo-quartz.h>
 
+
+
+static NSString* convertAccessibleRole(mforms::Accessible::Role be_role) {
+  switch (be_role) {
+      
+    case mforms::Accessible::Client:
+      return NSAccessibilityWindowRole;
+      
+    case mforms::Accessible::Pane:
+      return NSAccessibilityGroupRole;
+      
+    case mforms::Accessible::Link:
+      return NSAccessibilityLinkRole;
+      
+    case mforms::Accessible::List:
+      return NSAccessibilityListRole;
+      
+    case mforms::Accessible::ListItem:
+      return NSAccessibilityGroupRole;
+      
+    case mforms::Accessible::PushButton:
+      return NSAccessibilityButtonRole;
+      
+    case mforms::Accessible::StaticText:
+      return NSAccessibilityStaticTextRole;
+      
+    case mforms::Accessible::Text:
+      return NSAccessibilityTextFieldRole;
+      
+    case mforms::Accessible::Outline:
+      return NSAccessibilityOutlineRole;
+      
+    case mforms::Accessible::OutlineButton:
+      return NSAccessibilityGroupRole;
+      
+    case mforms::Accessible::OutlineItem:
+      return NSAccessibilityGroupRole;
+      
+    case mforms::Accessible::RoleNone:
+      return NSAccessibilityGroupRole;
+      
+    default:
+      return NSAccessibilityUnknownRole;
+      
+  }
+  return nil;
+}
+
+
+@implementation AccChildImpl
+
+- (id)initWithObject: (mforms::Accessible *)acc parent: (mforms::View *)parentAcc {
+  
+  self = [super init];
+
+  if (self) {
+    mformsAcc = acc;
+    parent = parentAcc;
+  }
+  
+  return self;
+}
+
+-(NSString*)accessibilityRole {
+  return convertAccessibleRole(mformsAcc->get_acc_role());
+}
+
+-(NSString*)accessibilityRoleDescription {
+  std::string accDescription = mformsAcc->get_acc_description();
+  return [NSString stringWithCString: accDescription.c_str() encoding: [NSString defaultCStringEncoding]];
+}
+
+-(id)accessibilityParent {
+  return parent->get_data();
+}
+
+-(BOOL)accessibilityPerformPress {
+  mformsAcc->do_default_action();
+  return true;
+}
+
+- (NSString *)accessibilityLabel {
+  std::string accName = mformsAcc->get_acc_name();
+  return [NSString stringWithCString: accName.c_str() encoding: [NSString defaultCStringEncoding]];
+}
+
+-(BOOL)isAccessibilityElement {
+  return convertAccessibleRole(mformsAcc->get_acc_role()) != NSAccessibilityUnknownRole;
+}
+
+-(NSRect)accessibilityFrame {
+  base::Rect accBounds = mformsAcc->get_acc_bounds();
+  auto point = parent->client_to_screen(accBounds.left(), accBounds.top());
+  return NSMakeRect(point.first, point.second, accBounds.width(), accBounds.height());
+}
+
+-(id)accessibilityHitTest: (NSPoint)point {
+  
+  std::pair<int, int> p = ((mforms::View*)mformsAcc)->screen_to_client(point.x, point.y);
+  
+  mforms::Accessible *acc = mformsAcc->hit_test(p.first, p.second);
+  if (acc != nullptr) {
+    if (acc == self->mformsAcc)
+      return self;
+    
+    auto it = accChildList.find(acc);
+    if (it != accChildList.end())
+      return it->second;
+    
+    AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: parent];
+    accChildList.insert({acc, accChild});
+    return accChild;
+  }
+  return self;
+}
+
+@end
+
 @implementation MFDrawBoxImpl
 
 @synthesize drawsBackground = mDrawsBackground;
 @synthesize backgroundColor = mBackgroundColor;
 
-- (instancetype)initWithObject:(mforms::DrawBox *)aBox {
+- (instancetype)initWithObject: (mforms::DrawBox *)aBox {
   self = [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
   if (self) {
     mOwner = aBox;
@@ -59,6 +177,58 @@
     mDrawsBackground = flag;
     [self setNeedsDisplay: YES];
   }
+}
+
+-(BOOL)isAccessibilityElement {
+  return convertAccessibleRole(mOwner->get_acc_role()) != NSAccessibilityUnknownRole;
+}
+
+-(id)accessibilityHitTest: (NSPoint)point {
+  std::pair<int, int> p = mOwner->screen_to_client(point.x, point.y);
+
+  mforms::Accessible *acc = mOwner->hit_test(p.first, p.second);
+  if (acc != nullptr) {
+    auto it = accChildList.find(acc);
+    if (it != accChildList.end())
+      return it->second;
+
+    AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: mOwner];
+    accChildList.insert({acc, accChild});
+    return accChild;
+  }
+  return self;
+}
+
+-(NSString*)accessibilityRole {
+  return convertAccessibleRole(mOwner->get_acc_role());
+}
+
+-(NSString*)accessibilityLabel {
+
+  std::string accName = mOwner->get_acc_name();
+  return [NSString stringWithCString: accName.c_str() encoding: [NSString defaultCStringEncoding]];
+}
+
+-(NSString*)accessibilityRoleDescription {
+  std::string accDescription = mOwner->get_acc_description();
+  return [NSString stringWithCString: accDescription.c_str() encoding: [NSString defaultCStringEncoding]];
+}
+
+-(NSArray*)accessibilityChildren {
+  NSMutableArray *children = [[super accessibilityChildren] mutableCopy];
+  int cCount = mOwner->get_acc_child_count();
+  for ( int i = 0; i < cCount; ++i) {
+    mforms::Accessible *acc = mOwner->get_acc_child(i);
+    auto it = accChildList.find(acc);
+    if (it != accChildList.end()) {
+      [children addObject: it->second];
+      continue;
+    }
+    AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: mOwner];
+    accChildList.insert({acc, accChild});
+    [children addObject: accChild];
+  }
+  return children;
 }
 
 - (void)cancelOperation: (id)sender {
@@ -264,4 +434,3 @@ void cf_drawbox_init() {
 }
 
 @end
-
