@@ -188,7 +188,11 @@ namespace mforms {
             (GInterfaceFinalizeFunc) NULL,
             NULL };
 
+        const GInterfaceInfo atk_component_info = { (GInterfaceInitFunc) mformsGTKAccessible::AtkComponentIface::init,
+            (GInterfaceFinalizeFunc) NULL, NULL };
+
         g_type_add_interface_static(type_id, ATK_TYPE_ACTION, &atk_action_info);
+        g_type_add_interface_static(type_id, ATK_TYPE_COMPONENT, &atk_component_info);
 
         g_once_init_leave(&type_id_result, type_id);
       }
@@ -269,6 +273,56 @@ namespace mforms {
         return "click";
 
       return nullptr;
+    }
+
+    void mformsGTKAccessible::AtkComponentIface::init(::AtkComponentIface *iface) {
+      iface->get_position = mformsGTKAccessible::AtkComponentIface::getPosition;
+      iface->get_size = mformsGTKAccessible::AtkComponentIface::getSize;
+      iface->get_extents = mformsGTKAccessible::AtkComponentIface::getExtents;
+    }
+
+    void mformsGTKAccessible::AtkComponentIface::getPosition(AtkComponent *component, gint *x, gint *y, AtkCoordType coord_type) {
+      gint width, height;
+      getExtents(component, x, y, &width, &height, coord_type);
+    }
+
+    void mformsGTKAccessible::AtkComponentIface::getSize(AtkComponent *component, gint *width, gint *height) {
+      gint x, y;
+      getExtents(component, &x, &y, width, height, ATK_XY_SCREEN);
+    }
+
+    void mformsGTKAccessible::AtkComponentIface::getExtents(AtkComponent *component, gint *x, gint *y, gint *width, gint *height, AtkCoordType coord_type) {
+      auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(component));
+      if (thisAccessible != nullptr) {
+        auto mGtk = mformsGTK::FromWidget(gtk_accessible_get_widget(GTK_ACCESSIBLE(component)));
+        auto bounds = thisAccessible->_mformsAcc->get_acc_bounds();
+        *width = bounds.width();
+        *height = bounds.height();
+
+        GtkWidget *widget = mGtk->_windowMain;
+        GdkWindow *window = nullptr;
+        if (gtk_widget_get_parent(widget)) {
+          *x = bounds.pos.x;
+          *y = bounds.pos.y;
+          window = gtk_widget_get_parent_window(widget);
+        } else {
+          *x = 0;
+          *y = 0;
+          window = gtk_widget_get_window(widget);
+        }
+        gint xWindow = 0, yWindow = 0;
+        gdk_window_get_origin(window, &xWindow, &yWindow);
+        *x += xWindow;
+        *y += yWindow;
+        if (coord_type == ATK_XY_WINDOW) {
+          window = gdk_window_get_toplevel (gtk_widget_get_window (widget));
+          gint xTopLevel = 0, yTopLevel = 0;
+          gdk_window_get_origin (window, &xTopLevel, &yTopLevel);
+
+          *x -= xTopLevel;
+          *y -= yTopLevel;
+        }
+      }
     }
 
     static AtkObject *mforms_object_accessible_new(GType parent_type, GObject *obj) {
@@ -358,9 +412,14 @@ namespace mforms {
             }
 
             auto widget = mforms_new();
+            auto parentWidget = gtk_accessible_get_widget(GTK_ACCESSIBLE(accessible));
+            gtk_widget_set_parent(widget, parentWidget);
+            auto mGtk = mformsGTK::FromWidget(widget);
+            mGtk->_windowMain = parentWidget;
             auto wgtAcc = gtk_widget_get_accessible(widget);
             auto mformsGtkAcc = FromAccessible(wgtAcc);
             mformsGtkAcc->_mformsAcc = accChild;
+
             childMapping.insert( { accChild, (AtkObject*) g_object_ref(wgtAcc) });
 
             auto thisPtr = FromAccessible(accessible);

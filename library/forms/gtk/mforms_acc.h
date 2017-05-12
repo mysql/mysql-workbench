@@ -68,6 +68,19 @@ namespace mforms {
         static const gchar* getDescription(AtkAction *action, gint i);
         static const gchar* getName(AtkAction *action, gint i);
       };
+
+      class AtkComponentIface {
+      public:
+        static void init(::AtkComponentIface *iface);
+
+      private:
+        AtkComponentIface();
+
+        static void getPosition(AtkComponent *component, gint *x, gint *y, AtkCoordType coord_type);
+        static void getSize(AtkComponent *component, gint *width, gint *height);
+        static void getExtents(AtkComponent *component, gint *x, gint *y, gint *width, gint *height, AtkCoordType coord_type);
+      };
+
       mformsGTKAccessible(GtkAccessible *accessible, mforms::Accessible *acc);
       virtual ~mformsGTKAccessible();
       static AtkObject *WidgetGetAccessibleImpl(GtkWidget *widget, AtkObject **cache, gpointer widget_parent_class);
