@@ -666,8 +666,12 @@ static void view_set_size(::mforms::View *self, int w, int h) {
       size.height = 0;
     view.minimumSize = size;
   } else {
-    // Window/panel.
-    NSWindow *window = frontend;
+    // Window controller/window/panel.
+    NSWindow *window;
+    if ([frontend isKindOfClass: NSWindowController.class])
+      window = [frontend window];
+    else
+      window = frontend;
     NSRect frame = window.frame;
     if (w >= 0)
       frame.size.width = w;
