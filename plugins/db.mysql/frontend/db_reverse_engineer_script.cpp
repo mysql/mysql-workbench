@@ -38,7 +38,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form) : WizardPage(form, "options
   _table.set_padding(12);
 
   _heading.set_style(WizardHeadingStyle);
-  _heading.set_text(_("Select the script containing the schemata to reverse engineer"));
+  _heading.set_text(_("Select the script containing the schemas to reverse engineer"));
   _table.add(&_heading, 0, 2, 0, 1, mforms::HFillFlag);
 
   _caption.set_text_align(mforms::TopLeft);
