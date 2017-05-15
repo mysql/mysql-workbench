@@ -2392,7 +2392,9 @@ void SqlEditorForm::continue_on_error(bool val) {
   if (_menu)
     _menu->set_item_checked("query.continueOnError", continue_on_error());
   set_editor_tool_items_checked("query.continueOnError", continue_on_error());
-  active_sql_editor_panel()->editor_be()->set_continue_on_error(continue_on_error());
+  auto activePanel = active_sql_editor_panel();
+  if(activePanel)
+    activePanel->editor_be()->set_continue_on_error(continue_on_error());
 }
 
 void SqlEditorForm::send_message_keep_alive() {
