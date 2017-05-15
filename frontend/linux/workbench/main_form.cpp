@@ -1641,7 +1641,10 @@ Gtk::Widget *MainForm::decorate_widget(Gtk::Widget *panel, bec::UIForm *form) {
 }
 
 static gpointer delete_appview(mforms::AppView *appview) {
-  delete appview;
+  if (appview->is_managed())
+    appview->release();
+  else
+    delete appview;
   return 0;
 }
 

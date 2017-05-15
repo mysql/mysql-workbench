@@ -406,10 +406,8 @@ namespace mforms {
           auto accChild = acc->get_acc_child(childPos);
           if (accChild != nullptr) {
             auto it = childMapping.find(accChild);
-            if (it != childMapping.end()) {
-              auto atkObjectCache = it->second;
-              return (AtkObject*) g_object_ref(atkObjectCache);
-            }
+            if (it != childMapping.end())
+              return (AtkObject*) g_object_ref(it->second);
 
             auto widget = mforms_new();
             auto parentWidget = gtk_accessible_get_widget(GTK_ACCESSIBLE(accessible));
