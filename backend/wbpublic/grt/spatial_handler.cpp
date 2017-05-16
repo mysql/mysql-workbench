@@ -443,7 +443,7 @@ spatial::Importer::Importer() : _geometry(NULL), _interrupt(false), _srid(0) {
 
 spatial::Importer::~Importer() {
   if (_geometry != NULL)
-    OGRFree(_geometry);
+    CPLFree(_geometry);
 }
 
 OGRGeometry *spatial::Importer::steal_data() {
@@ -495,7 +495,7 @@ std::string spatial::Importer::as_wkt() {
       logError("Error exporting data to WKT (%i)\n", err);
     } else {
       std::string tmp(data);
-      OGRFree(data);
+      CPLFree(data);
       return tmp;
     }
   }
