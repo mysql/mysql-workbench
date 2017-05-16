@@ -91,48 +91,48 @@ namespace DBExport {
 
       // tables
       _skip_foreign_keys_check.set_text(_("Skip creation of FOREIGN KEYS"));
-      _table_options_box.add(&_skip_foreign_keys_check, false, false);
+      _table_options_box.add(&_skip_foreign_keys_check, false, true);
       scoped_connect(_skip_foreign_keys_check.signal_clicked(), std::bind(&ExportInputPage::SkipFKToggled, this));
       _skip_FK_indexes_check.set_text(_("Skip creation of FK Indexes as well"));
-      _table_options_box.add(&_skip_FK_indexes_check, false, false);
+      _table_options_box.add(&_skip_FK_indexes_check, false, true);
       _generate_create_index_check.set_text(_("Generate separate CREATE INDEX statements"));
-      _table_options_box.add(&_generate_create_index_check, false, false);
+      _table_options_box.add(&_generate_create_index_check, false, true);
       _generate_insert_check.set_text(_("Generate INSERT statements for tables"));
-      _table_options_box.add(&_generate_insert_check, false, false);
+      _table_options_box.add(&_generate_insert_check, false, true);
       _no_FK_for_inserts.set_text(_("Disable FK checks for INSERTs"));
-      _table_options_box.add(&_no_FK_for_inserts, false, false);
+      _table_options_box.add(&_no_FK_for_inserts, false, true);
       //    _triggers_after_inserts.set_text(_("Create triggers after INSERTs"));
       //   _options_box.add(&_triggers_after_inserts, false, false);
-      add(&_table_options, false, false);
+      add(&_table_options, false, true);
 
       // other objects
       _no_view_placeholders.set_text(_("Don't create view placeholder tables"));
       _other_options_box.add(&_no_view_placeholders, false, false);
       _skip_users_check.set_text(_("Do not create users. Only create privileges (GRANTs)"));
-      _other_options_box.add(&_skip_users_check, false, false);
+      _other_options_box.add(&_skip_users_check, false, true);
 
-      add(&_other_options, false, false);
+      add(&_other_options, false, true);
 
       // code generation
       _generate_drop_check.set_text(_("DROP objects before each CREATE object"));
-      _options_box.add(&_generate_drop_check, false, false);
+      _options_box.add(&_generate_drop_check, false, true);
 
       _generate_drop_schema_check.set_text(_("Generate DROP SCHEMA"));
-      _options_box.add(&_generate_drop_schema_check, false, false);
+      _options_box.add(&_generate_drop_schema_check, false, true);
 
       _omit_schema_qualifier_check.set_text(_("Omit schema qualifier in object names"));
-      _options_box.add(&_omit_schema_qualifier_check, false, false);
+      _options_box.add(&_omit_schema_qualifier_check, false, true);
       scoped_connect(_omit_schema_qualifier_check.signal_clicked(),
                      std::bind(&ExportInputPage::OmitSchemaToggled, this));
       _generate_use_check.set_text(_("Generate USE statements"));
-      _options_box.add(&_generate_use_check, false, false);
+      _options_box.add(&_generate_use_check, false, true);
       _generate_show_warnings_check.set_text(_("Add SHOW WARNINGS after every DDL statement"));
-      _options_box.add(&_generate_show_warnings_check, false, false);
+      _options_box.add(&_generate_show_warnings_check, false, true);
 
       _include_user_scripts.set_text(_("Include model attached scripts"));
-      _options_box.add(&_include_user_scripts, false, false);
+      _options_box.add(&_include_user_scripts, false, true);
 
-      add(&_options, false, false);
+      add(&_options, false, true);
 
       scoped_connect(signal_leave(), std::bind(&ExportInputPage::gather_options, this, std::placeholders::_1));
 
