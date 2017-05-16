@@ -299,17 +299,15 @@ namespace mforms {
         *width = bounds.width();
         *height = bounds.height();
 
+        *x = bounds.pos.x;
+        *y = bounds.pos.y;
         GtkWidget *widget = mGtk->_windowMain;
         GdkWindow *window = nullptr;
-        if (gtk_widget_get_parent(widget)) {
-          *x = bounds.pos.x;
-          *y = bounds.pos.y;
-          window = gtk_widget_get_parent_window(widget);
-        } else {
-          *x = 0;
-          *y = 0;
+        if (gtk_widget_get_parent(widget) == nullptr || mGtk->_owner == nullptr)
           window = gtk_widget_get_window(widget);
-        }
+        else
+          window = gtk_widget_get_parent_window(widget);
+
         gint xWindow = 0, yWindow = 0;
         gdk_window_get_origin(window, &xWindow, &yWindow);
         *x += xWindow;
