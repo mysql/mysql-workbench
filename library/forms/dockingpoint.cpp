@@ -43,6 +43,12 @@ std::string DockingPoint::get_type() {
 
 //--------------------------------------------------------------------------------------------------
 
+void DockingPoint::set_name(const std::string &name) {
+  return _delegate->set_name(name);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void DockingPoint::dock_view(AppView *view, const std::string &arg1, int arg2) {
   view->set_containing_docking_point(this);
   _delegate->dock_view(view, arg1, arg2);

@@ -101,6 +101,9 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView* 
   _action_output.set_name("Action Output");
   copy_accessibility_name(_action_output);
 
+  auto acc = _top_box.get_accessible();
+  if (acc)
+    acc->set_name("Action Output Area");
   _action_swnd.add(_action_output);
   _action_swnd.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 

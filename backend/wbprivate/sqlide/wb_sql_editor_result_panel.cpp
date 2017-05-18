@@ -108,6 +108,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 
   add(&_tabview, true, true);
 
+  _switcher.set_name("Resultset View Switcher");
   _switcher.attach_to_tabview(&_tabview);
   _switcher.set_collapsed(bec::GRTManager::get()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
 
@@ -123,6 +124,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _resultset_placeholder->set_title("Result\nGrid");
   _resultset_placeholder->set_identifier("result_grid");
   _tabdock.dock_view(_resultset_placeholder, "output_type-resultset.png");
+  _tabdock.set_name("Resultset Views");
 
   {
     db_query_QueryEditorRef editor(owner->grtobj());
