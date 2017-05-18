@@ -250,6 +250,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _switching_help = false;
   _help_task = GrtThreadedTask::create();
   _help_task->desc("Context Help Task");
+  set_name("Query Side Palette");
 
   _pending_snippets_refresh = true;
 

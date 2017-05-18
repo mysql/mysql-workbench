@@ -116,6 +116,8 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _splitter.add(&_editor_box);
   _splitter.add(&_lower_tabview);
+  _editor_box.set_name("Editor area");
+  _lower_tabview.set_name("Resultset placeholder");
 
   UIForm::scoped_connect(_splitter.signal_position_changed(), std::bind(&SqlEditorPanel::splitter_resized, this));
   _tab_action_box.set_spacing(4);
@@ -726,6 +728,7 @@ static void toggle_continue_on_error(SqlEditorForm *sql_editor_form) {
 
 mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar() {
   mforms::ToolBar *tbar(mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar)));
+  tbar->set_name("Editor Toolbar");
 #ifdef _WIN32
   tbar->set_size(-1, 27);
 #endif

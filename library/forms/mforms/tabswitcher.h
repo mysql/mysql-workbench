@@ -74,16 +74,21 @@ namespace mforms {
     };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    virtual int get_preferred_height();
-    virtual void set_layout_dirty(bool value = true);
+    virtual int get_preferred_height() override;
+    virtual void set_layout_dirty(bool value = true) override;
 
-    virtual void repaint(cairo_t *cr, int x, int y, int w, int h);
-    virtual bool mouse_down(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_up(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_enter();
-    virtual bool mouse_leave();
+    virtual void repaint(cairo_t *cr, int x, int y, int w, int h) override;
+    virtual bool mouse_down(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_up(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_enter() override;
+    virtual bool mouse_leave() override;
 #endif
+    virtual int get_acc_child_count() override;
+    virtual Accessible *get_acc_child(int index) override;
+    virtual Accessible::Role get_acc_role() override;
+    virtual mforms::Accessible *hit_test(int x, int y) override;
+
 #endif
   private:
     TabSwitcherPimpl *_pimpl;

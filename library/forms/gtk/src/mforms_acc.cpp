@@ -236,7 +236,6 @@ namespace mforms {
       iface->do_action = mformsGTKAccessible::AtkActionIface::doAction;
       iface->get_n_actions = mformsGTKAccessible::AtkActionIface::getNActions;
       iface->get_name = mformsGTKAccessible::AtkActionIface::getName;
-      iface->get_description = mformsGTKAccessible::AtkActionIface::getDescription;
     }
 
     gboolean mformsGTKAccessible::AtkActionIface::doAction(AtkAction *action, gint i) {
@@ -257,20 +256,15 @@ namespace mforms {
       return 0;
     }
 
-    const gchar* mformsGTKAccessible::AtkActionIface::getDescription(AtkAction *action, gint i) {
-      auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(action));
-      if (thisAccessible != nullptr) {
-        if (!thisAccessible->_mformsAcc->get_acc_default_action().empty() && thisAccessible->_accDescription.empty())
-          thisAccessible->_accDescription = thisAccessible->_mformsAcc->get_acc_default_action();
-        return thisAccessible->_accDescription.c_str();
-      }
-
-      return nullptr;
-    }
-
     const gchar* mformsGTKAccessible::AtkActionIface::getName(AtkAction *action, gint i) {
-      if (i == 0)
-        return "click";
+      if (i == 0) {
+        auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(action));
+        if (thisAccessible != nullptr) {
+          if (!thisAccessible->_mformsAcc->get_acc_default_action().empty() && thisAccessible->_accActionName.empty())
+            thisAccessible->_accActionName = thisAccessible->_mformsAcc->get_acc_default_action();
+          return thisAccessible->_accActionName.c_str();
+        }
+      }
 
       return nullptr;
     }

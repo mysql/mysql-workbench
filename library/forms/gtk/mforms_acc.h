@@ -65,7 +65,6 @@ namespace mforms {
 
         static gboolean doAction(AtkAction *action, gint i);
         static gint getNActions(AtkAction *action);
-        static const gchar* getDescription(AtkAction *action, gint i);
         static const gchar* getName(AtkAction *action, gint i);
       };
 
@@ -98,7 +97,7 @@ namespace mforms {
       mforms::Accessible *_mformsAcc;
       std::string _name;
       std::string _description;
-      std::string _accDescription;
+      std::string _accActionName;
       std::vector<mforms::Accessible*> _children;
     };
 
