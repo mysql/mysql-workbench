@@ -80,11 +80,11 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
 
   auto acc = _main_pane.get_accessible();
   if (acc)
-    acc->set_name("SQLIde Query Area");
+    acc->set_name("SQL IDE Query Area");
 
   acc = _top_pane.get_accessible();
   if (acc)
-    acc->set_name("SQLIde View");
+    acc->set_name("SQL IDE View");
 
   acc = _editor_note->get_accessible();
   if (acc)

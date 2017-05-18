@@ -185,7 +185,7 @@ void SqlEditorTreeController::finish_init() {
 
   // Left hand sidebar tabview with admin and schema tree pages.
   _task_tabview = new mforms::TabView(mforms::TabViewSelectorSecondary);
-  _task_tabview->set_name("SQLIde Live Schema Tree View");
+  _task_tabview->set_name("SQL IDE Live Schema Tree View");
   _schema_side_bar = (wb::SimpleSidebar *)mforms::TaskSidebar::create("SchemaTree");
   scoped_connect(_schema_side_bar->on_section_command(),
                  std::bind(&SqlEditorTreeController::sidebar_action, this, std::placeholders::_1));
@@ -223,7 +223,7 @@ void SqlEditorTreeController::finish_init() {
   int initial_splitter_pos =
     (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
   _side_splitter = mforms::manage(new mforms::Splitter(false, true));
-  _side_splitter->set_name("SQLIde Live Schema Sidebar");
+  _side_splitter->set_name("SQL IDE Live Schema Sidebar");
 
 #ifdef _WIN32
   mforms::Panel *panel;
