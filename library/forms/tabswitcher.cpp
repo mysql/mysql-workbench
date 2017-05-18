@@ -101,7 +101,7 @@ public:
     }
 
     virtual void do_default_action() override {
-      actionCallback(accBounds.pos.x, accBounds.pos.y);
+      actionCallback((int)accBounds.center().x, (int)accBounds.center().y);
     }
   };
 
@@ -167,8 +167,12 @@ public:
   virtual int add_item(const std::string &title, const std::string &sub_title, const std::string &icon_path,
                        const std::string &alt_icon_path) {
     TabItem *item = new TabItem([&](int x, int y) {
-      if (_owner != nullptr)
+      if (_owner != nullptr) {
+        _owner->mouse_down(MouseButtonLeft, x, y);
         _owner->mouse_click(MouseButtonLeft, x, y);
+        _owner->mouse_up(MouseButtonLeft, x, y);
+      }
+
     });
 
     item->title = title;
