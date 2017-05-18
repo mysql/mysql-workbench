@@ -166,11 +166,15 @@ public:
 
   virtual int add_item(const std::string &title, const std::string &sub_title, const std::string &icon_path,
                        const std::string &alt_icon_path) {
+
     TabItem *item = new TabItem([&](int x, int y) {
       if (_owner != nullptr) {
-        _owner->mouse_down(MouseButtonLeft, x, y);
-        _owner->mouse_click(MouseButtonLeft, x, y);
-        _owner->mouse_up(MouseButtonLeft, x, y);
+        int index = index_from_point(x, y);
+        if (index != -1) {
+          _owner->set_selected(index);
+          (*_owner->signal_changed())();
+        }
+
       }
 
     });
