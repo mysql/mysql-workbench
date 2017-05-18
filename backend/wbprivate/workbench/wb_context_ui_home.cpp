@@ -281,7 +281,7 @@ void WBContextUI::show_home_screen() {
   _initializing_home_screen = (_home_screen == NULL);
   if (_home_screen == NULL) {
     // The home screen and its content is freed in AppView::close() during undock_view(...).
-    _home_screen = mforms::manage(new mforms::HomeScreen);
+    _home_screen = mforms::manage(new mforms::HomeScreen, false);
     _home_screen->set_menubar(_command_ui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL));
     _home_screen->onHomeScreenAction =
       std::bind(&WBContextUI::handle_home_action, this, std::placeholders::_1, std::placeholders::_2);
