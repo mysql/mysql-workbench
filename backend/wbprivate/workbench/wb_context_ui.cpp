@@ -173,7 +173,6 @@ void WBContextUI::finalize() {
   _command_ui->clearBuildInCommands();
   if (_home_screen != nullptr)
     mforms::App::get()->undock_view(_home_screen);
-
 }
 
 bool WBContextUI::request_quit() {

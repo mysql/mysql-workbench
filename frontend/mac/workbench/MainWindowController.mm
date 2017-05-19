@@ -962,6 +962,10 @@ public:
       }
     }
   }
+  
+  virtual void set_name(const std::string &name) {
+    [controller->topTabView setAccessibilityTitle: [NSString stringWithUTF8String:name.c_str()]];
+  }
 
   virtual bool select_view(mforms::AppView *view) {
     NSString *ident = @(view->identifier().c_str());
