@@ -37,13 +37,6 @@ namespace mforms {
 }
 
 namespace wb {
-
-  class Separator : public mforms::DrawBox {
-  public:
-    virtual base::Size getLayoutSize(base::Size proposedSize) override;
-    virtual void repaint(cairo_t* cr, int x, int y, int w, int h) override;
-  };
-
   class SnippetPopover : public mforms::Popover {
   private:
     mforms::Box* _content;

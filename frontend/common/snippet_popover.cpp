@@ -34,31 +34,6 @@ using namespace std;
 
 using namespace wb;
 using namespace mforms;
-
-//----------------- Separator ----------------------------------------------------------------------
-
-base::Size Separator::getLayoutSize(base::Size proposedSize) {
-  return base::Size(100, 4); // Will be adjusted by the layout process.
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void wb::Separator::repaint(cairo_t* cr, int x, int y, int w, int h) {
-  float width = get_width() + 0.5f;
-
-  cairo_set_line_width(cr, 1);
-
-  cairo_set_source_rgb(cr, 212 / 255.0f, 212 / 255.0f, 212 / 255.0f);
-  cairo_move_to(cr, 0.5f, 0.5f);
-  cairo_line_to(cr, width, 0.5f);
-  cairo_stroke(cr);
-
-  cairo_set_source_rgb(cr, 246 / 255.0f, 246 / 255.0f, 246 / 255.0f);
-  cairo_move_to(cr, 0.5f, 1.5f);
-  cairo_line_to(cr, width, 1.5f);
-  cairo_stroke(cr);
-}
-
 //----------------- SnippetPopover -----------------------------------------------------------------
 
 SnippetPopover::SnippetPopover() : Popover(mforms::PopoverStyleNormal) {
@@ -75,8 +50,6 @@ SnippetPopover::SnippetPopover() : Popover(mforms::PopoverStyleNormal) {
   _heading_entry = manage(new TextEntry(), false);
   _header->add(image, false, true);
   _header->add(_heading_label, true, true);
-
-  Separator* separator = manage(new Separator());
 
   Panel* border_panel = manage(new Panel(mforms::FilledPanel));
   border_panel->set_back_color("#cdcdcd");
@@ -120,7 +93,6 @@ SnippetPopover::SnippetPopover() : Popover(mforms::PopoverStyleNormal) {
   button_box->add_end(_edit_button, false, true);
 
   _content->add(_header, false, true);
-  _content->add(separator, false, true);
   _content->add(border_panel, true, true);
   _content->add_end(button_box, false, true);
   _content->set_spacing(4);
