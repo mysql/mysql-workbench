@@ -56,6 +56,7 @@ protected:
   mforms::Menu* _context_menu;
 
   boost::signals2::signal<void()> _selection_changed_signal;
+  std::function<void(int x, int y)> _defaultSnippetActionCb;
 
 protected:
   int find_selected_index();
@@ -76,6 +77,10 @@ protected:
 public:
   BaseSnippetList(const std::string& icon_name, bec::ListModel* model);
   ~BaseSnippetList();
+
+  void setDefaultSnippetAction(const std::function<void(int x, int y)> &cb) {
+    _defaultSnippetActionCb = cb;
+  }
   boost::signals2::signal<void()>* signal_selection_changed() {
     return &_selection_changed_signal;
   }

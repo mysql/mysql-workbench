@@ -81,9 +81,10 @@ private:
   base::Rect _bounds;         // The link's bounds when it was drawn the last time.
   int _text_height;
   bool _enabled; // Draw the button in enabled or disabled state.
+  std::function<void(int x, int y)> _defaultActionCb;
 
 public:
-  Snippet(cairo_surface_t* icon, const std::string& title, const std::string& description, bool enabled) {
+  Snippet(cairo_surface_t* icon, const std::string& title, const std::string& description, bool enabled, const std::function<void(int x, int y)> &cb) {
     _icon = (icon != NULL) ? cairo_surface_reference(icon) : NULL;
     _title = title;
     _description = description;
@@ -94,6 +95,7 @@ public:
     _title_width = 0;
     _text_height = 0;
     _enabled = enabled;
+    _defaultActionCb = cb;
   }
 
   //------------------------------------------------------------------------------------------------
@@ -306,6 +308,15 @@ public:
     return _bounds;
   }
 
+  virtual std::string get_acc_default_action() {
+    return "click";
+  }
+
+  virtual void do_default_action() {
+    if (_defaultActionCb)
+      _defaultActionCb((int)_bounds.center().x, (int)_bounds.center().y);
+  }
+
   // End of internal class Snippets.
 };
 
@@ -319,17 +330,18 @@ int BaseSnippetList::find_selected_index() {
 
 //------------------------------------------------------------------------------------------------
 
-BaseSnippetList::BaseSnippetList(const std::string& icon_name, bec::ListModel* model) : _model(model) {
+BaseSnippetList::BaseSnippetList(const std::string& icon_name, bec::ListModel* model)
+    : _model(model), _last_width(0), _layout_width(0), _layout_height(0), _context_menu(nullptr) {
   // Not sure we need that spacing, so I leave it that way for now.
   _left_spacing = 0;
   _top_spacing = 0;
   _right_spacing = 3;
   _bottom_spacing = 0;
 
-  _hot_snippet = 0;
+  _hot_snippet = nullptr;
 
   _single_click = false;
-  _selected_snippet = 0;
+  _selected_snippet = nullptr;
   _selected_index = -1;
   _last_mouse_button = MouseButtonNone;
 
@@ -369,7 +381,7 @@ void BaseSnippetList::refresh_snippets() {
     if (!_model->get_field(bec::NodeId(i), 1, description))
       skip_image = true;
 
-    Snippet* snippet = new Snippet(skip_image ? NULL : _image, caption, description, true);
+    Snippet* snippet = new Snippet(skip_image ? NULL : _image, caption, description, true, _defaultSnippetActionCb);
     _snippets.push_back(snippet);
   }
   set_layout_dirty(true);
