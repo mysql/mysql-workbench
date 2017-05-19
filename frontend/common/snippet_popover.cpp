@@ -62,7 +62,9 @@ void wb::Separator::repaint(cairo_t* cr, int x, int y, int w, int h) {
 //----------------- SnippetPopover -----------------------------------------------------------------
 
 SnippetPopover::SnippetPopover() : Popover(mforms::PopoverStyleNormal) {
+  setName("Snippet Editor");
   _content = manage(new Box(false));
+  _content->set_name("Snippet Content");
 
   _header = manage(new Box(true));
   _header->set_spacing(10);
@@ -89,6 +91,7 @@ SnippetPopover::SnippetPopover() : Popover(mforms::PopoverStyleNormal) {
 
   Box* button_box = manage(new Box(true));
   button_box->set_spacing(8);
+  button_box->set_name("Button bar");
 
   _revert_button = manage(new Button(mforms::ToolButton));
   _revert_button->set_tooltip("Discard all changes and revert to the current version");
@@ -99,6 +102,7 @@ SnippetPopover::SnippetPopover() : Popover(mforms::PopoverStyleNormal) {
     "tiny_undo.png"
 #endif
     ));
+  _revert_button->set_name("Revert");
   _revert_button->signal_clicked()->connect(std::bind(&SnippetPopover::revert_clicked, this));
 
   _edit_button = manage(new Button());
