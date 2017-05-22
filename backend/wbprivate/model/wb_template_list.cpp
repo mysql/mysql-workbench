@@ -90,6 +90,14 @@ TableTemplateList::TableTemplateList(TableTemplatePanel *owner)
   : BaseSnippetList("snippet_mwb.png", this), _owner(owner) {
   prepare_context_menu();
   refresh_snippets();
+
+  _defaultSnippetActionCb = [&](int x, int y) {
+     Snippet *snippet = snippet_from_point(x, y);
+     if (snippet != nullptr) {
+       set_selected(snippet);
+       _owner->on_action("use_template");
+     }
+  };
 }
 
 //------------------------------------------------------------------------------------------------

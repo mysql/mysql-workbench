@@ -56,6 +56,7 @@ namespace mforms {
     void (*show_and_track)(Popover *self, View *, int, int,
                            StartPosition); // Position of the popover's tip in screen coordinates.
     void (*close)(Popover *self);
+    void (*setName)(Popover *self, const std::string &name);
   };
 #endif
 #endif
@@ -82,6 +83,11 @@ namespace mforms {
     // arrow and is positioned with the left upper corner at the given position.
     void show(int x, int y, StartPosition position);
     void close();
+
+    /**
+     * Used for a11y
+     */
+    void setName(const std::string &name);
 
     // Same as show, but the popover will call the _bound_close callback when the mouse leaves the area
     // of the tracked view (which usually is to close the popover).
