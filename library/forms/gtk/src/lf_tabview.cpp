@@ -128,16 +128,19 @@ int mforms::gtk::TabViewImpl::add_page(::mforms::TabView *self, ::mforms::View *
       Gtk::Widget *label;
       switch (self->get_type()) {
         case mforms::TabViewMainClosable:
+	/* fall-thru */
         case mforms::TabViewEditorBottom:
+	/* fall-thru */
         case mforms::TabViewDocumentClosable:
           if (hasCloseButton) {
             label = Gtk::manage(new MyActiveLabel(
               self, page, caption, sigc::bind(sigc::mem_fun(cb, &TabViewImpl::close_tab_clicked), page)));
             break;
           }
-        /* no break */
+        /* fall-thru */
         default:
           label = Gtk::manage(new Gtk::Label(caption));
+	  break;
       }
       widget_wrapper->get_outer()->show();
       page_index_after_insert = cb->_nb->append_page(*widget_wrapper->get_outer(), *label);
