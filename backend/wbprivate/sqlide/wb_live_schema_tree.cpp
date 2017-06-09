@@ -2074,6 +2074,7 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column) {
       } break;
 
       case Table:
+      /* fall-thru */
       case View: {
         if (column < 0) {
           std::vector<ChangeRecord> changes;
@@ -2100,10 +2101,10 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column) {
           }
           break;
         }
-        // else fall through.
       }
-
+      /* fall-thru */
       case Procedure:
+      /* fall-thru */
       case Function: {
         if (column < 0) {
           std::vector<ChangeRecord> changes;
@@ -2122,9 +2123,8 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column) {
           }
           break;
         }
-        // else fall through.
       }
-
+      /* fall-thru */
       default:
         node_name = base::quote_identifier_if_needed(node_name, '`');
         sql_editor_text_insert_signal(node_name);
