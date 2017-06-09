@@ -988,6 +988,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
 
     case HomeScreenAction::RescanLocalServers:
       _wb->execute_plugin("wb.tools.createMissingLocalConnections", ArgumentPool());
+      break;
     default:
       logError("Unknown Action.\n");
   }

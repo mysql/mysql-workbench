@@ -246,7 +246,9 @@ void QueryOutputView::refresh() {
       _entries_grid.scroll_to(0); // newest entry is always first
       _details_grid.scroll_to(1);
     }
+    /* fall-thru */
     case 0: // Action Output - always need refresh even if it's not visible
+    /* fall-thru */
     case 1: // Text output
     {
       _action_output.refresh(false);
@@ -260,6 +262,9 @@ void QueryOutputView::refresh() {
       }
       break;
     }
+    /* fall-thru */
+    default:
+      break;
   }
 }
 

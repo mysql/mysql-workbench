@@ -771,11 +771,14 @@ double ConfigurationFile::get_float(std::string key, std::string section) {
     // All cases fall through.
     case 'g':
       factor *= 1024;
+      /* fall-thru */
     case 'm':
       factor *= 1024;
+      /* fall-thru */
     case 'k':
       factor *= 1024;
       value[value.size() - 1] = 0;
+      /* fall-thru */
   }
   return factor * base::atof<float>(value, 0.0);
 }
@@ -795,11 +798,14 @@ int ConfigurationFile::get_int(std::string key, std::string section) {
     // All cases fall through.
     case 'g':
       factor *= 1024;
+      /* fall-thru */
     case 'm':
       factor *= 1024;
+      /* fall-thru */
     case 'k':
       factor *= 1024;
       value[value.size() - 1] = 0;
+      /* fall-thru */
   }
 
   return factor * base::atoi<int>(value, 0);
