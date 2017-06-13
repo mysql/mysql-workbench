@@ -108,6 +108,10 @@ BuildRequires: libgnome-keyring-devel libuuid-devel
 BuildRequires: gnome-keyring-devel
 %endif
 
+%if 0%{?fedora} >= 26
+BuildRequires: jasper-devel
+%endif
+
 Provides: mysql-workbench = %{version}-%{release}
 Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 Requires: libzip
