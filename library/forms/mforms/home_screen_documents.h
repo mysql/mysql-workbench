@@ -151,12 +151,12 @@ namespace mforms {
     virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) override;
 
     void load_icons();
-    void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
+    virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
     void add_document(const std::string &path, const time_t &time, const std::string schemas, long file_size);
     void clear_documents();
     virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
     virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
-    bool mouse_leave();
+    virtual bool mouse_leave() override;
     virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
     void handle_command(const std::string &command);
     void show_connection_select_message();

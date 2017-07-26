@@ -19,7 +19,7 @@
 
 #import "MFMForms.h"
 #include "base/string_utilities.h"
-#include "keymap.h"
+#include "KeyMap.h"
 
 #import "MFView.h"
 #import "MFCodeEditor.h"

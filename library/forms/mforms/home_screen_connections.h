@@ -39,7 +39,7 @@ namespace mforms {
     virtual ~ConnectionsWelcomeScreen();
 
     virtual base::Size getLayoutSize(base::Size proposedSize) override;
-    virtual Role get_acc_role() {
+    virtual Role get_acc_role() override {
       return mforms::Accessible::StaticText;
     }
 

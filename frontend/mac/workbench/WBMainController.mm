@@ -445,7 +445,8 @@ static bool validate_delete() {
   NSResponder *responder = NSApp.keyWindow.firstResponder;
   SEL selector = NSSelectorFromString(@"canDeleteItem:");
   if ([responder respondsToSelector: selector])
-    return [responder performSelector:selector withObject: nil];
+    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    return [responder performSelector: selector withObject: nil];
 
   if ([responder respondsToSelector: @selector(selectedRange)]) {
     NSRange textRange = [(id)NSApp.keyWindow.firstResponder selectedRange];
@@ -585,8 +586,9 @@ static bool validate_find(MainWindowController *controller) {
 static void call_undo(MainWindowController *controller) {
   id firstResponder = NSApp.keyWindow.firstResponder;
 
-  if ([firstResponder respondsToSelector: @selector(undo:)])
-    [firstResponder tryToPerform: @selector(undo:) with: nil];
+  SEL selector = NSSelectorFromString(@"undo:");
+  if ([firstResponder respondsToSelector: selector])
+    [firstResponder tryToPerform: selector with: nil];
   else if ([firstResponder isKindOfClass: [NSTextView class]])
     return [[firstResponder undoManager] undo];
   else if (wb::WBContextUI::get()->get_active_main_form())
@@ -610,8 +612,9 @@ static bool validate_undo(MainWindowController *controller) {
 static void call_redo(MainWindowController *controller) {
   id firstResponder = NSApp.keyWindow.firstResponder;
 
-  if ([firstResponder respondsToSelector: @selector(redo:)])
-    [firstResponder tryToPerform: @selector(redo:) with: nil];
+  SEL selector = NSSelectorFromString(@"redo:");
+  if ([firstResponder respondsToSelector: selector])
+    [firstResponder tryToPerform: selector with: nil];
   else if ([firstResponder isKindOfClass: [NSTextView class]])
     return [[firstResponder undoManager] redo];
   else if (wb::WBContextUI::get()->get_active_main_form())

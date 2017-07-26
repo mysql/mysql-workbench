@@ -23,30 +23,23 @@
 #include "mforms/appview.h"
 
 TabViewDockingPointDelegate::TabViewDockingPointDelegate(NSTabView *tabView, const std::string &type)
-: _tabView(tabView), _type(type)
-{
+  : _tabView(tabView), _type(type) {
 }
 
-
-mforms::AppView *TabViewDockingPointDelegate::appview_for_view(NSView *view)
-{
+mforms::AppView *TabViewDockingPointDelegate::appview_for_view(NSView *view) {
   if (_views.find(view) != _views.end())
     return _views[view];
   return NULL;
 }
 
-
-bool TabViewDockingPointDelegate::close_all()
-{
-  for (NSTabViewItem *item in _tabView.tabViewItems)
-  {
+bool TabViewDockingPointDelegate::close_all() {
+  for (NSTabViewItem *item in _tabView.tabViewItems) {
     mforms::AppView *view = appview_for_view(item.view);
     if (view != NULL && !view->on_close())
       return false;
   }
 
-  for (NSTabViewItem *item in _tabView.tabViewItems)
-  {
+  for (NSTabViewItem *item in _tabView.tabViewItems) {
     mforms::AppView *view = appview_for_view(item.view);
     if (view != NULL)
       view->close();
@@ -54,14 +47,11 @@ bool TabViewDockingPointDelegate::close_all()
   return true;
 }
 
-void TabViewDockingPointDelegate::set_name(const std::string &name)
-{
+void TabViewDockingPointDelegate::set_name(const std::string &name) {
   [_tabView setAccessibilityTitle: [NSString stringWithUTF8String:name.c_str()]];
 }
 
-
-void TabViewDockingPointDelegate::dock_view(mforms::AppView *view, const std::string &arg1, int arg2)
-{
+void TabViewDockingPointDelegate::dock_view(mforms::AppView *view, const std::string &arg1, int arg2) {
   id v = view->get_data();
   NSTabViewItem *tabItem = [[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat: @"appview:%p", view]];
   tabItem.view = v;
@@ -69,7 +59,7 @@ void TabViewDockingPointDelegate::dock_view(mforms::AppView *view, const std::st
   if (arg1 == "" || arg1 == "append")
     [_tabView addTabViewItem: tabItem];
   else if (arg1 == "prepend")
-    [_tabView insertTabViewItem: tabItem atIndex: 0];
+    [_tabView insertTabViewItem:tabItem atIndex: 0];
 
   if (view->release_on_add())
     view->set_release_on_add(false);
@@ -81,81 +71,61 @@ void TabViewDockingPointDelegate::dock_view(mforms::AppView *view, const std::st
     [_tabView.delegate tabView:_tabView didSelectTabViewItem: tabItem];
 }
 
-bool TabViewDockingPointDelegate::select_view(mforms::AppView *view)
-{
+bool TabViewDockingPointDelegate::select_view(mforms::AppView *view) {
   NSInteger i = [_tabView indexOfTabViewItemWithIdentifier: [NSString stringWithFormat: @"appview:%p", view]];
-  if (i >= 0)
-  {
+  if (i >= 0) {
     NSTabViewItem *item = [_tabView tabViewItemAtIndex: i];
-    if (item)
-    {
-      [_tabView selectTabViewItem: item];
+    if (item) {
+      [_tabView selectTabViewItem:item];
       return true;
     }
   }
   return false;
 }
 
-
-void TabViewDockingPointDelegate::undock_view(mforms::AppView *view)
-{
+void TabViewDockingPointDelegate::undock_view(mforms::AppView *view) {
   NSInteger i = [_tabView indexOfTabViewItemWithIdentifier: [NSString stringWithFormat: @"appview:%p", view]];
-  if (i != NSNotFound)
-  {
+  if (i != NSNotFound) {
     NSTabViewItem *item = [_tabView tabViewItemAtIndex: i];
-    if (item)
-    {
-      [_tabView removeTabViewItem: item];
+    if (item) {
+      [_tabView removeTabViewItem:item];
       _views.erase(view->get_data());
       view->release();
     }
   }
 }
 
-
-void TabViewDockingPointDelegate::set_view_title(mforms::AppView *view, const std::string &title)
-{
+void TabViewDockingPointDelegate::set_view_title(mforms::AppView *view, const std::string &title) {
   NSInteger i = [_tabView indexOfTabViewItemWithIdentifier: [NSString stringWithFormat: @"appview:%p", view]];
-  if (i >= 0)
-  {
+  if (i >= 0) {
     NSTabViewItem *item = [_tabView tabViewItemAtIndex: i];
-    if (item)
-    {
+    if (item) {
       item.label = [NSString stringWithCPPString: title];
-      [_tabView.superview setNeedsDisplay: YES];
+      [_tabView.superview setNeedsDisplay:YES];
     }
   }
 }
 
-
-std::pair<int, int> TabViewDockingPointDelegate::get_size()
-{
+std::pair<int, int> TabViewDockingPointDelegate::get_size() {
   NSRect frame = _tabView.contentRect;
   return std::make_pair(NSWidth(frame), NSHeight(frame));
 }
 
-
-mforms::AppView *TabViewDockingPointDelegate::selected_view()
-{
+mforms::AppView *TabViewDockingPointDelegate::selected_view() {
   id view = _tabView.selectedTabViewItem.view;
-  if (view)
-  {
+  if (view) {
     if (_views.find(view) != _views.end())
       return _views[view];
   }
   return NULL;
 }
 
-
-int TabViewDockingPointDelegate::view_count()
-{
+int TabViewDockingPointDelegate::view_count() {
   return (int)_tabView.numberOfTabViewItems;
 }
 
-
-mforms::AppView *TabViewDockingPointDelegate::view_at_index(int index)
-{
-  id view = [_tabView tabViewItemAtIndex: index].view;
+mforms::AppView *TabViewDockingPointDelegate::view_at_index(int index) {
+  id view = [_tabView tabViewItemAtIndex:index].view;
 
   if (_views.find(view) != _views.end())
     return _views[view];
