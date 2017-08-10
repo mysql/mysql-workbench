@@ -116,14 +116,14 @@ Provides: mysql-workbench = %{version}-%{release}
 Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 Requires: libzip
 %if %{without paramiko}
-Requires: python-paramiko >= 1.15.1
+Recommends: python-paramiko >= 1.15.1
 %endif
 Requires: gnome-keyring
-Requires: proj
+Recommends: proj
 Requires: glib2 >= 2.28
 Requires: gtk3
 Requires: gtkmm30
-Requires: python2-crypto
+Recommends: python2-crypto
 
 # our old package names
 Obsoletes: mysql-workbench < 7.0
