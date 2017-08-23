@@ -440,6 +440,7 @@ class TunnelManager:
         if not tunnel:
             return 'Could not find a tunnel for port %d' % port
         error = None
+        close_tunnel = False
         tunnel.port_is_set.wait()
         if tunnel.isAlive():
             while True:
@@ -469,6 +470,7 @@ class TunnelManager:
                             error = "Server key has been stored"
                         else:
                             error = "User cancelled"
+                        close_tunnel = True
                         break # Exit returning the error message
                     elif msg_type == 'IO_ERROR':
                         error = msg
@@ -488,6 +490,10 @@ class TunnelManager:
                     break
                 time.sleep(0.3)
         log_debug("returning from wait_connection(%s): %s\n" % (port, error))
+        # we need to close tunnel so it get opened again, without it we may have problems later
+        if close_tunnel:
+            tunnel.close()
+            del self.tunnel_by_port[port]
         return error
 
 
