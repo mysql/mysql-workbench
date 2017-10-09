@@ -1,3 +1,9 @@
+mysql-workbench-@edition@ (6.3.11-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Milosz Bodzek <milosz.bodzek@oracle.com>  Mon, 09 Oct 2017 09:51:36 +0200
+
 mysql-workbench-@edition@ (6.3.10-1@distrov@) @distro@; urgency=low
 
   * The release notes for MySQL Workbench can be found at
