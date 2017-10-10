@@ -167,15 +167,17 @@ void RecordGridView::set_header_menu(ContextMenu *menu)
 
 void RecordGridView::set_font(const std::string &font_desc)
 {
-  std::string font;
+  std::string name;
   float size;
   bool bold;
   bool italic;
-  if (base::parse_font_description(font_desc, font, size, bold, italic))
+  if (base::parse_font_description(font_desc, name, size, bold, italic))
   {
-    NSFontDescriptor *fd = [NSFontDescriptor fontDescriptorWithName: @(font.c_str()) size: size];
-    [viewer setFont: [NSFont fontWithDescriptor: [fd fontDescriptorWithSymbolicTraits: (bold ? NSFontBoldTrait : 0) | (italic ? NSFontItalicTrait : 0)]
-                                           size: size]];
+      NSFont *font = [[NSFontManager sharedFontManager] fontWithFamily: @(name.c_str())
+                                                                traits: (bold? NSBoldFontMask: 0) | (italic? NSItalicFontMask: 0)
+                                                                weight: bold ? 9 : 5
+                                                                  size: size];
+      [viewer setFont:font];
   }
   else
     logError("Invalid font specification: %s\n", font_desc.c_str());
