@@ -151,7 +151,7 @@ static const char *viewFlagsKey = "viewFlagsKey";
 {
   for (id column in [gridView.tableColumns reverseObjectEnumerator])
   {
-    if ([column identifier])
+    if ([column identifier] && [[column identifier] isEqualToString: @""])
       [gridView removeTableColumn: column];
   }
 
@@ -203,9 +203,8 @@ static const char *viewFlagsKey = "viewFlagsKey";
   mFont = font;
 
   float rowHeight = 0;
-  for (size_t index = 0, count = (*mData)->get_column_count(); index <= count; ++index)
+  for (NSTableColumn *column in gridView.tableColumns)
   {
-    NSTableColumn *column= gridView.tableColumns[index];
     if (mFont)
     {
       [column.dataCell setFont: mFont];
