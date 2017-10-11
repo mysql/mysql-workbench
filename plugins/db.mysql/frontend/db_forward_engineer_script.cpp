@@ -47,9 +47,9 @@ public:
     _contents.set_column_spacing(8);
     _contents.set_row_spacing(8);
 
-    _contents.add(&_caption, 0, 1, 0, 1, mforms::HFillFlag);
+    _contents.add(&_caption, 0, 1, 0, 1, mforms::HFillFlag | mforms::HExpandFlag);
     _contents.add(&_filename, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag);
-    _contents.add(&_browse_button, 2, 3, 0, 1, mforms::HFillFlag);
+    _contents.add(&_browse_button, 2, 3, 0, 1, mforms::HFillFlag | mforms::HExpandFlag);
     _contents.add(&_skip_out_label, 1, 2, 1, 2, 0);
 
     _skip_out_label.set_text(_("Leave blank to view generated script but not save to a file."));
@@ -72,39 +72,39 @@ public:
     _options_box.set_spacing(8);
 
     _generate_drop_check.set_text(_("Generate DROP Statements Before Each CREATE Statement"));
-    _options_box.add(&_generate_drop_check, false, false);
+    _options_box.add(&_generate_drop_check, false, true);
     _generate_drop_schema_check.set_text(_("Generate DROP SCHEMA"));
-    _options_box.add(&_generate_drop_schema_check, false, false);
+    _options_box.add(&_generate_drop_schema_check, false, true);
 
     _skip_foreign_keys_check.set_text(_("Skip Creation of FOREIGN KEYS"));
-    _options_box.add(&_skip_foreign_keys_check, false, false);
+    _options_box.add(&_skip_foreign_keys_check, false, true);
     scoped_connect(_skip_foreign_keys_check.signal_clicked(), std::bind(&ExportInputPage::SkipFKToggled, this));
     _skip_FK_indexes_check.set_text(_("Skip creation of FK Indexes as well"));
-    _options_box.add(&_skip_FK_indexes_check, false, false);
+    _options_box.add(&_skip_FK_indexes_check, false, true);
 
     _omit_schema_qualifier_check.set_text(_("Omit Schema Qualifier in Object Names"));
-    _options_box.add(&_omit_schema_qualifier_check, false, false);
+    _options_box.add(&_omit_schema_qualifier_check, false, true);
     scoped_connect(_omit_schema_qualifier_check.signal_clicked(), std::bind(&ExportInputPage::OmitSchemaToggled, this));
     _generate_use_check.set_text(_("Generate USE statements"));
-    _options_box.add(&_generate_use_check, false, false);
+    _options_box.add(&_generate_use_check, false, true);
 
     _generate_create_index_check.set_text(_("Generate Separate CREATE INDEX Statements"));
-    _options_box.add(&_generate_create_index_check, false, false);
+    _options_box.add(&_generate_create_index_check, false, true);
     _generate_show_warnings_check.set_text(_("Add SHOW WARNINGS After Every DDL Statement"));
-    _options_box.add(&_generate_show_warnings_check, false, false);
+    _options_box.add(&_generate_show_warnings_check, false, true);
     _skip_users_check.set_text(_("Do Not Create Users. Only Export Privileges"));
-    _options_box.add(&_skip_users_check, false, false);
+    _options_box.add(&_skip_users_check, false, true);
     _no_view_placeholders.set_text(_("Don't create view placeholder tables."));
-    _options_box.add(&_no_view_placeholders, false, false);
+    _options_box.add(&_no_view_placeholders, false, true);
 
     _generate_insert_check.set_text(_("Generate INSERT Statements for Tables"));
-    _options_box.add(&_generate_insert_check, false, false);
+    _options_box.add(&_generate_insert_check, false, true);
     _no_FK_for_inserts.set_text(_("Disable FK checks for inserts"));
-    _options_box.add(&_no_FK_for_inserts, false, false);
+    _options_box.add(&_no_FK_for_inserts, false, true);
     _triggers_after_inserts.set_text(_("Create triggers after inserts"));
-    _options_box.add(&_triggers_after_inserts, false, false);
+    _options_box.add(&_triggers_after_inserts, false, true);
 
-    add(&_options, false, false);
+    add(&_options, false, true);
 
     _generate_drop_check.set_active(form->module()->document_int_data("generate_drop", false) != 0);
     _generate_drop_schema_check.set_active(form->module()->document_int_data("generate_schema_drop", 0) != 0);
