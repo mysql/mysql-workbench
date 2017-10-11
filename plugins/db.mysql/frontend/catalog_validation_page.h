@@ -68,10 +68,10 @@ namespace grtui {
 #endif
         scoped_connect(_run_button->signal_clicked(), std::bind(&CatalogValidationPage::run_validations, this));
 
-        _run_box->add_end(_run_button, false, false);
+        _run_box->add_end(_run_button, false, true);
         _run_button->set_size(160, -1);
 
-        add_end(_run_box, false, false);
+        add_end(_run_box, false, true);
       } else {
         _run_button = 0;
         _run_box = 0;
