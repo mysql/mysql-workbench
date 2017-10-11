@@ -765,9 +765,6 @@ class WbAdminDashboard(WbAdminBaseTab):
         full_width = max(1024, self.content.get_width())
         full_height = max(700, self.content.get_height())
 
-        if self.drawbox.get_width() != full_width or self.drawbox.get_height() != full_height:
-            self.drawbox.set_size(full_width, full_height)
-
         # return offset
         return (full_width - 1024) / 2, (full_height - 700) / 2
 
