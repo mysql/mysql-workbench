@@ -107,7 +107,7 @@ namespace DBExport {
 
       // other objects
       _no_view_placeholders.set_text(_("Don't create view placeholder tables"));
-      _other_options_box.add(&_no_view_placeholders, false, false);
+      _other_options_box.add(&_no_view_placeholders, false, true);
       _skip_users_check.set_text(_("Do not create users. Only create privileges (GRANTs)"));
       _other_options_box.add(&_skip_users_check, false, true);
 
