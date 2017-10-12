@@ -450,7 +450,14 @@ namespace grt {
 
     Ref<Class> &operator=(const Ref<Class> &other) {
       Ref<Class> tmp(other);
+#ifdef __linux__
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
       swap(tmp._value);
+#ifdef __linux__
+      #pragma GCC diagnostic pop
+#endif
       return *this;
     }
 
