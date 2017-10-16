@@ -139,7 +139,7 @@ class DatabaseObjectSelector(mforms.Box):
                 search_entry.set_placeholder_text("Filter objects (wildcards chars * and ? are allowed)")
                 search_entry.add_changed_callback(functools.partial(self.search_entry_changed, group=group))
                 box.add(search_entry, False, True)
-                group_box.add(box, False, True)
+                group_box.add(box, True, True)
                 search_entry.set_size(350, -1)
 
                 filter_container = mforms.newBox(True)
@@ -175,7 +175,7 @@ class DatabaseObjectSelector(mforms.Box):
                 remove_all_button.enable_internal_padding(False)
                 remove_all_button.add_clicked_callback(functools.partial(self.move_button_clicked, group=group, operation='remove_all'))
                 control_box.add(remove_all_button, False)
-                filter_container.add(control_box, False, False)
+                filter_container.add(control_box, False, True)
 
 
                 selected_list = mforms.newTreeView(mforms.TreeFlatList)
@@ -224,8 +224,7 @@ class DatabaseObjectSelector(mforms.Box):
             self.ui[group]['filter_container'].show(bool(show_details))
         self.ui[group]['filter_button'].set_text('Hide Selection' if show_details else 'Show Selection')
         self.ui_settings[group]['_showing_details'] = show_details
-        if self.get_parent():
-            self.get_parent().relayout()
+        self.relayout()
 
     def filter_button_clicked(self, group):
         self._show_selection(group, not self.ui_settings[group]['_showing_details'])
