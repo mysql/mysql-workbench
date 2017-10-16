@@ -49,13 +49,13 @@ class ReplaceForm(mforms.Form):
         content.set_spacing(12)
 
         v_box = mforms.newBox(False)
-        content.add(v_box, False, False)
+        content.add(v_box, False, True)
         v_box.set_spacing(12)
-        v_box.add(mforms.newLabel(description), False, False)
+        v_box.add(mforms.newLabel(description), False, True)
 
         table = mforms.newTable()
         table.set_padding(12)
-        v_box.add(table, False, False)
+        v_box.add(table, False, True)
         table.set_row_count(2)
         table.set_column_count(2)
         table.set_row_spacing(8)
@@ -70,7 +70,7 @@ class ReplaceForm(mforms.Form):
         table.add(self.to_type_entry, 1, 2, 1, 2)
 
         h_box = mforms.newBox(True)
-        content.add_end(h_box, False, False)
+        content.add_end(h_box, False, True)
         h_box.set_spacing(12)
 
         self.cancel_btn = mforms.newButton()
@@ -104,12 +104,12 @@ class MainView(WizardPage):
         
         hbox = mforms.newBox(True)
         self.tree_head_label = mforms.newLabel("Migrated Objects")
-        hbox.add(self.tree_head_label, False, False)
+        hbox.add(self.tree_head_label, False, True)
         self._filter = mforms.newSelector()
         self._filter.add_items(["Migration Problems", "All Objects", "Column Mappings"])
         self._filter.add_changed_callback(self._filter_changed)
         hbox.add_end(self._filter, False, True)
-        hbox.add_end(mforms.newLabel("View:"), False, False)
+        hbox.add_end(mforms.newLabel("View:"), False, True)
         self.content.add(hbox, False, True)
         
         self._no_errors_text = "No migration problems found. %d warning(s).\nUse the View pulldown menu to review all objects."

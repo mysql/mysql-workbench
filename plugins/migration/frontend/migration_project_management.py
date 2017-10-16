@@ -28,7 +28,7 @@ class MainView(mforms.Box):
 
         label = newHeaderLabel("  Project Management")
         self.main.ui_profile.apply_style(label, 'content-label')
-        self.add(label, False, False)
+        self.add(label, False, True)
 
         self.main.add_content_page(self, "Projects", "Project Management", "admin_export")
 
