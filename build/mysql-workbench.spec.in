@@ -29,6 +29,9 @@
 # Allow to continue when a binary with no build-id was found
 %undefine _missing_build_ids_terminate_build
 
+# Disable debug source packages
+%undefine _debugsource_packages
+
 %if !%{defined version}
 %define version         @VERSION@
 %endif
