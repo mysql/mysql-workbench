@@ -280,7 +280,7 @@ class ApplyWizard(Form):
         button_box.add_end(apply_btn, False, True)
         button_box.add_end(self.cancel_btn, False, True)
 
-        content.add(button_box, False, False)
+        content.add(button_box, False, True)
 
         #panel = Panel(TitledBoxPanel)
         #panel.set_title("Commands which will be run to save config file")
