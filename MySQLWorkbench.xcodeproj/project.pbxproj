@@ -466,9 +466,6 @@
 		279292801D057FC80047F3FB /* sidebar_wb@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2792927E1D057FC80047F3FB /* sidebar_wb@2x.png */; };
 		279292831D0582650047F3FB /* sidebar_modeling.png in Resources */ = {isa = PBXBuildFile; fileRef = 279292811D0582650047F3FB /* sidebar_modeling.png */; };
 		279292841D0582650047F3FB /* sidebar_modeling@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 279292821D0582650047F3FB /* sidebar_modeling@2x.png */; };
-		2795ED021EB0D28800082169 /* libmysqlcppconn.7.1.1.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; };
-		2795ED031EB0D42700082169 /* libmysqlcppconn.7.1.1.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; };
-		2795ED041EB0D52600082169 /* libmysqlcppconn.7.1.1.9.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		279822FD118AFBC300406A84 /* message_wb_wait.png in Resources */ = {isa = PBXBuildFile; fileRef = 279822FC118AFBC300406A84 /* message_wb_wait.png */; };
 		279823A3118B074C00406A84 /* HUDPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 279822EE118AFB0C00406A84 /* HUDPanel.xib */; };
 		27987706195C5246003E8E44 /* execute_routine_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27987705195C5246003E8E44 /* execute_routine_wizard.cpp */; };
@@ -6746,7 +6743,6 @@
 		44B7DC9B1C0C7A72000D608D /* admin_info_offline@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_info_offline@2x.png"; path = "images/admin/admin_info_offline@2x.png"; sourceTree = "<group>"; };
 		44B7DCA11C0C7A97000D608D /* firewall-header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "firewall-header.png"; sourceTree = "<group>"; };
 		44B7DCA21C0C7A97000D608D /* firewall-header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "firewall-header@2x.png"; sourceTree = "<group>"; };
-		44D368251EAA5B64009D0BD5 /* libmysqlcppconn.7.1.1.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.9.dylib; path = "../mysql-mac-res/lib-com/libmysqlcppconn.7.1.1.9.dylib"; sourceTree = "<group>"; };
 		44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_export_wizard.py; path = plugins/wb.sqlide/sqlide_power_export_wizard.py; sourceTree = "<group>"; };
 		44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_export_be.py; path = plugins/wb.sqlide/sqlide_power_import_export_be.py; sourceTree = "<group>"; };
 		44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_wizard.py; path = plugins/wb.sqlide/sqlide_power_import_wizard.py; sourceTree = "<group>"; };
@@ -18012,6 +18008,7 @@
 					USE_MB,
 					HAVE_MEMCPY,
 					HAVE_MEMMOVE,
+					__CORRECT_ISO_CPP_STRING_H_PROTO,
 				);
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
@@ -18042,6 +18039,7 @@
 					USE_MB,
 					HAVE_MEMCPY,
 					HAVE_MEMMOVE,
+					__CORRECT_ISO_CPP_STRING_H_PROTO,
 				);
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
