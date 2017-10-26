@@ -228,7 +228,7 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
 
     "Windows 7", "Windows 8", "Windows 10", "Windows 2012 Server",
 
-    "OS X 10.9", "OS X 10.10", "OS X 10.11", "macOS 10.12",
+    "OS X 10.9", "OS X 10.10", "OS X 10.11", "macOS 10.12", "macOS 10.13"
   };
 
   for (std::string s : supportedOsList) {
