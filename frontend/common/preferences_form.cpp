@@ -1435,8 +1435,8 @@ void PreferencesForm::createLogLevelSelectionPulldown(mforms::Box *content) {
       "serious than a warning, a warning is more serious than an info, etc.  So if log level is set to error, "
       "anything less serious (warning, info, etc) will not be logged.  If log level is set to warning, both warning "
       "and error will still be logged, but info and anything lower will not.  None disables all logging."));
-  logTable->add_option(selector, _("Log Level"), _("Sets the \"chattyness\" of logs. Choices further down the list "
-                                                   "produce more output than the ones that preceed them."));
+  logTable->add_option(selector, _("Log Level"), _("Sets the \"chattiness\" of logs. Choices further down the list "
+                                                   "produce more output than the ones that precede them."));
 
   // callback: on user selection, set log level
   selector->signal_changed()->connect([selector]() {
