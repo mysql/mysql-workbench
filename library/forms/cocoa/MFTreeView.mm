@@ -961,7 +961,9 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
 
   [mOutline addTableColumn: column];
   [column.headerCell setTitle:title];
-  // column.resizingMask = NSTableColumnUserResizingMask;
+  if (!mColumnsAutoResize)
+    column.resizingMask = NSTableColumnUserResizingMask;
+  
   switch (type) {
     case mforms::CheckColumnType: {
       NSButtonCell *cell = [[NSButtonCell alloc] init];
@@ -1468,6 +1470,12 @@ static bool treeview_create(mforms::TreeView *self, mforms::TreeOptions options)
     [tree->mOutline setDraggingSourceOperationMask: NSDragOperationMove | NSDragOperationCopy forLocal: YES];
   }
 
+  if ((options & mforms::TreeColumnsAutoResize) != 0) {
+    tree->mColumnsAutoResize = YES;
+  } else {
+    tree->mColumnsAutoResize = NO;
+  }
+  
   if (options & mforms::TreeNoHeader)
     [tree->mOutline setHeaderView: nil];
 
