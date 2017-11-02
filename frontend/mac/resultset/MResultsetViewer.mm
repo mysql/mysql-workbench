@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,12 +149,10 @@ static const char *viewFlagsKey = "viewFlagsKey";
 
 - (void)rebuildColumns
 {
-  for (id column in [gridView.tableColumns reverseObjectEnumerator])
-  {
-    if ([column identifier] && [[column identifier] isEqualToString: @""])
-      [gridView removeTableColumn: column];
+  for (NSUInteger i = gridView.tableColumns.count - 1; i > 0; --i) {
+    [gridView removeTableColumn: gridView.tableColumns[i]];
   }
-
+  
   if (mWarnedManyColumns == 0 && (*mData)->get_column_count() > 300)
   {
     NSAlert *alert = [NSAlert new];
@@ -453,7 +451,7 @@ static int onRefresh(void *viewer)
     forTableColumn: (NSTableColumn*) aTableColumn
                row: (NSInteger) rowIndex;
 {
-  if (aTableColumn.identifier != nil)
+  if (aTableColumn.identifier && ![[aTableColumn identifier] isEqualToString: @""])
   {
     int columnIndex = aTableColumn.identifier.intValue;    
     
