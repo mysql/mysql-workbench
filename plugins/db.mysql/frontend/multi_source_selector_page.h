@@ -173,10 +173,10 @@ public:
 
     add(&info_label, false, true);
 
-    add(&_left.panel, false, false);
-    add(&_right.panel, false, false);
+    add(&_left.panel, false, true);
+    add(&_right.panel, false, true);
     if (include_result)
-      add(&_result.panel, false, false);
+      add(&_result.panel, false, true);
 
     _left.panel.set_title(_("Source – Database To Take Updates From"));
 
