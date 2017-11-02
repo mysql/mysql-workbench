@@ -51,12 +51,12 @@ struct DataSourceSelector : public base::trackable {
     server_radio = mforms::manage(new mforms::RadioButton(group));
     file_radio = mforms::manage(new mforms::RadioButton(group));
 
-    box.add(model_radio, false, false);
+    box.add(model_radio, false, true);
     model_radio->set_text(_("Model Schemata"));
-    box.add(server_radio, false, false);
+    box.add(server_radio, false, true);
     server_radio->set_text(_("Live Database Server"));
     file_radio->set_text(_("Script File:"));
-    box.add(&browse_box, false, false);
+    box.add(&browse_box, false, true);
 
     browse_box.set_spacing(8);
     browse_box.add(file_radio, false, true);
