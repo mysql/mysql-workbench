@@ -482,7 +482,7 @@ struct ANTLRv3Lexer_Ctx_struct {
   void (*mGATED_SEMPRED_V3TOK)(struct ANTLRv3Lexer_Ctx_struct* ctx);
 
   void (*mTokens)(struct ANTLRv3Lexer_Ctx_struct* ctx);
-  const char* (*getGrammarFileName)();
+  const char* (*getGrammarFileName)(void);
   void (*reset)(struct ANTLRv3Lexer_Ctx_struct* ctx);
   void (*free)(struct ANTLRv3Lexer_Ctx_struct* ctx);
 };

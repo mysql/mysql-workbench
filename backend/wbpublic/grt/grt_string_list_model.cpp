@@ -46,7 +46,8 @@ void GrtStringListModel::reset(const std::list<std::string> &items) {
 }
 
 void GrtStringListModel::invalidate() {
-  _active_items_count = 0, _invalidated = true;
+  _active_items_count = 0;
+  _invalidated = true;
 }
 
 void GrtStringListModel::items_val_mask(const std::string items_val_mask) {

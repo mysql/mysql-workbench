@@ -161,8 +161,7 @@ void concatenate_items(const SqlAstNode *item, StringListRef &list, bool toupper
   }
 }
 
-std::string get_str_attr_from_subitem_(const SqlAstNode *item, sql::symbol name, ...) // item, name1, name2, ...
-{
+std::string get_str_attr_from_subitem_(const SqlAstNode *item, sql::symbol name, ...) { // item, name1, name2, ...
   va_list args;
   va_start(args, name);
   item = item->subitem__(name, args);

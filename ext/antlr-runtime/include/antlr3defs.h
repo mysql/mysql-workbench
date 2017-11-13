@@ -555,7 +555,7 @@ ANTLR3_API pANTLR3_VECTOR	    antlr3VectorNew                             (ANTLR
 ANTLR3_API pANTLR3_STACK	    antlr3StackNew                              (ANTLR3_UINT32 sizeHint);
 ANTLR3_API void                     antlr3SetVectorApi                          (pANTLR3_VECTOR vector, ANTLR3_UINT32 sizeHint);
 ANTLR3_API ANTLR3_UCHAR		    antlr3c8toAntlrc                            (ANTLR3_INT8 inc);
-ANTLR3_API pANTLR3_TOPO             antlr3TopoNew();
+  ANTLR3_API pANTLR3_TOPO             antlr3TopoNew(void);
 
 ANTLR3_API pANTLR3_EXCEPTION	    antlr3ExceptionNew                          (ANTLR3_UINT32 exception, void * name, void * message, ANTLR3_BOOLEAN freeMessage);
 
@@ -603,7 +603,7 @@ ANTLR3_API pANTLR3_COMMON_TREE_NODE_STREAM  antlr3CommonTreeNodeStreamNew       
 ANTLR3_API pANTLR3_COMMON_TREE_NODE_STREAM  antlr3UnbufTreeNodeStreamNewTree    (pANTLR3_BASE_TREE tree, ANTLR3_UINT32 hint);
 ANTLR3_API pANTLR3_COMMON_TREE_NODE_STREAM  antlr3UnbufTreeNodeStreamNew        (pANTLR3_STRING_FACTORY strFactory, ANTLR3_UINT32 hint);
 ANTLR3_API pANTLR3_COMMON_TREE_NODE_STREAM  antlr3CommonTreeNodeStreamNewStream (pANTLR3_COMMON_TREE_NODE_STREAM inStream);
-ANTLR3_API pANTLR3_TREE_NODE_STREAM         antlr3TreeNodeStreamNew             ();
+  ANTLR3_API pANTLR3_TREE_NODE_STREAM         antlr3TreeNodeStreamNew             (void);
 ANTLR3_API void				    fillBufferExt                       (pANTLR3_COMMON_TOKEN_STREAM tokenStream);
 
 ANTLR3_API pANTLR3_REWRITE_RULE_TOKEN_STREAM 
@@ -627,7 +627,7 @@ ANTLR3_API pANTLR3_REWRITE_RULE_SUBTREE_STREAM
 ANTLR3_API pANTLR3_REWRITE_RULE_SUBTREE_STREAM 
     antlr3RewriteRuleSubtreeStreamNewAEV(pANTLR3_BASE_TREE_ADAPTOR adaptor, pANTLR3_BASE_RECOGNIZER rec, pANTLR3_UINT8 description, pANTLR3_VECTOR vector);
 
-ANTLR3_API pANTLR3_DEBUG_EVENT_LISTENER antlr3DebugListenerNew();
+ANTLR3_API pANTLR3_DEBUG_EVENT_LISTENER antlr3DebugListenerNew(void);
 
 #ifdef __cplusplus
 }

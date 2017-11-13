@@ -86,8 +86,9 @@ void DBObjectFilterBE::remove_stored_filter_set(int index) {
     return;
 
   grt::DictRef::const_iterator item = _stored_filter_sets.begin();
-  while (item != _stored_filter_sets.end() && index > 0)
-    ++item, --index;
+  while (item != _stored_filter_sets.end() && index > 0) {
+    ++item; --index;
+  }
 
   if (item != _stored_filter_sets.end())
     _stored_filter_sets.remove(item->first);
@@ -102,8 +103,9 @@ void DBObjectFilterBE::load_stored_filter_set(int index) {
   grt::StringListRef masks;
 
   grt::DictRef::const_iterator item = _stored_filter_sets.begin();
-  while (item != _stored_filter_sets.end() && index > 0)
-    ++item, --index;
+  while (item != _stored_filter_sets.end() && index > 0) {
+    ++item; --index;
+  }
 
   if (item != _stored_filter_sets.end()) {
     masks = grt::StringListRef::cast_from(item->second);

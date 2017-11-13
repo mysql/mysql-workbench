@@ -349,7 +349,7 @@ WBOptions::WBOptions(const std::string &appBinaryName)
     [](const dataTypes::OptionEntry &entry, int *retval) {
       if (entry.value.logicalValue) {
         const char *type = APP_EDITION_NAME;
-        if (strcmp(APP_EDITION_NAME, "Community") == 0)
+        if (strcmp(APP_EDITION_NAME, "Community") == (0)) // Extra parens to silence warning.
           type = "CE";
 
         printf("MySQL Workbench %s (%s) %i.%i.%i %s build %i\n", type, APP_LICENSE_TYPE, APP_MAJOR_NUMBER,

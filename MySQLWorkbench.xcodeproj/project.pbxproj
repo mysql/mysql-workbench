@@ -18135,6 +18135,13 @@
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.sqlparser.grt;
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-overloaded-virtual",
+					"-Wno-unused-local-typedef",
+					"-Wno-deprecated-register",
+					"-Wno-varargs",
+				);
 			};
 			name = Debug;
 		};
@@ -18166,6 +18173,13 @@
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.sqlparser.grt;
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-overloaded-virtual",
+					"-Wno-unused-local-typedef",
+					"-Wno-deprecated-register",
+					"-Wno-varargs",
+				);
 				ZERO_LINK = NO;
 			};
 			name = Release;

@@ -975,8 +975,8 @@ void SqlEditorResult::create_query_stats_panel() {
 
       box->add(bold_label("Rows Processed:"), false, true);
       info.clear();
-      info.append(strfmt("Rows affected: %lli\n", ps_stats["ROWS_AFFECTED"])),
-        info.append(strfmt("Rows sent to client: %lli\n", ps_stats["ROWS_SENT"]));
+      info.append(strfmt("Rows affected: %lli\n", ps_stats["ROWS_AFFECTED"]));
+      info.append(strfmt("Rows sent to client: %lli\n", ps_stats["ROWS_SENT"]));
       info.append(strfmt("Rows examined: %lli\n", ps_stats["ROWS_EXAMINED"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 

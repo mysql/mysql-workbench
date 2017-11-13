@@ -827,7 +827,7 @@ struct ANTLRv3Parser_Ctx_struct {
   ANTLR3_BOOLEAN (*synpred101_ANTLRv3)(struct ANTLRv3Parser_Ctx_struct *ctx);
   // Delegated rules
 
-  const char *(*getGrammarFileName)();
+  const char *(*getGrammarFileName)(void);
   void (*reset)(struct ANTLRv3Parser_Ctx_struct *ctx);
   void (*free)(struct ANTLRv3Parser_Ctx_struct *ctx);
   /* @headerFile.members() */
