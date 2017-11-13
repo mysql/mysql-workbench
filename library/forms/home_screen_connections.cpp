@@ -29,6 +29,7 @@
 
 DEFAULT_LOG_DOMAIN("home");
 
+using namespace base;
 using namespace mforms;
 
 //--------------------------------------------------------------------------------------------------
@@ -461,7 +462,7 @@ public:
 
 //----------------- ConnectionsSection -------------------------------------------------------------
 
-class mforms::ConnectionEntry : mforms::Accessible {
+class mforms::ConnectionEntry : base::Accessible {
   friend class ConnectionsSection;
 
 public:
@@ -489,25 +490,25 @@ protected:
 
   // ------ Accesibility Methods -----
 
-  virtual std::string get_acc_name() {
+  virtual std::string getAccessibilityName() {
     return title;
   }
 
-  virtual std::string get_acc_description() {
+  virtual std::string getAccessibilityDescription() {
     return base::strfmt("desc:%s;schema:%s;user:%s", description.c_str(), schema.c_str(), user.c_str());
   }
 
-  virtual Accessible::Role get_acc_role() {
+  virtual Accessible::Role getAccessibilityRole() {
     return Accessible::ListItem;
   }
-  virtual base::Rect get_acc_bounds() {
+  virtual base::Rect getAccessibilityBounds() {
     return bounds;
   }
-  virtual std::string get_acc_default_action() {
+  virtual std::string getAccessibilityDefaultAction() {
     return "Open Connection";
   }
 
-  virtual void do_default_action() {
+  virtual void accessibilityDoDefaultAction() {
     if (default_handler) {
       // Calls the click at the center of the items
       default_handler((int)bounds.center().x, (int)bounds.center().y);
@@ -738,7 +739,7 @@ public:
 
 class mforms::FolderEntry : public ConnectionEntry {
 protected:
-  virtual std::string get_acc_name() override {
+  virtual std::string getAccessibilityName() override {
     return base::strfmt("%s %s", title.c_str(), _("Connection Group"));
   }
 
@@ -874,6 +875,14 @@ ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(o
   _discussButton.default_handler = _accessible_click_handler;
 
   _closeIcon = mforms::Utilities::load_icon("home_screen_close.png");
+
+  _heading = "Welcome to MySQL Workbench";
+  _content = {
+    "MySQL Workbench is the official graphical user interface (GUI) tool for MySQL. It allows you to design,",
+    "create and browse your database schemas, work with database objects and insert data as well as",
+    "design and run SQL queries to work with stored data. You can also migrate schemas and data from other",
+    "database vendors to your MySQL database."
+  };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -886,6 +895,82 @@ ConnectionsWelcomeScreen::~ConnectionsWelcomeScreen() {
 
 base::Size ConnectionsWelcomeScreen::getLayoutSize(base::Size proposedSize) {
   return base::Size(proposedSize.width, _totalHeight); // Height doesn't change. Constant content.
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+Accessible::Role ConnectionsWelcomeScreen::getAccessibilityRole() {
+  return base::Accessible::Pane;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string ConnectionsWelcomeScreen::getAccessibilityTitle(){
+  return _heading;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string ConnectionsWelcomeScreen::getAccessibilityDescription() {
+  return "MySQL Workbench welcome screen";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string ConnectionsWelcomeScreen::getAccessibilityValue() {
+  std::string result;
+  for (auto &line : _content)
+    result += line + "\n";
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+int ConnectionsWelcomeScreen::getAccessibilityChildCount() {
+  return 4;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+Accessible* ConnectionsWelcomeScreen::getAccessibilityChild(int index) {
+  switch (index) {
+    case 1:
+      return &_browseDocButton;
+    case 2:
+      return &_readBlogButton;
+    case 3:
+      return &_discussButton;
+    default:
+      return &_closeHomeScreenButton;
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+base::Rect ConnectionsWelcomeScreen::getAccessibilityBounds() {
+  return base::Rect(0, 100, 500, 700);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+Accessible* ConnectionsWelcomeScreen::accessibilityHitTest(int x, int y) {
+  if (_browseDocButton.bounds.contains(x, y)) {
+    return &_browseDocButton;
+  }
+
+  if (_discussButton.bounds.contains(x, y)) {
+    return &_discussButton;
+  }
+
+  if (_readBlogButton.bounds.contains(x, y)) {
+    return &_readBlogButton;
+  }
+
+  if (_closeHomeScreenButton.bounds.contains(x, y)) {
+    return &_closeHomeScreenButton;
+  }
+
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -907,28 +992,20 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3);
   cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
 
-  std::string heading = "Welcome to MySQL Workbench";
-
   cairo_text_extents_t extents;
-  cairo_text_extents(cr, heading.c_str(), &extents);
+  cairo_text_extents(cr, _heading.c_str(), &extents);
   double x;
   x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
   cairo_move_to(cr, x, yoffset);
-  cairo_show_text(cr, heading.c_str());
+  cairo_show_text(cr, _heading.c_str());
   yoffset += mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3;
 
-  std::vector<std::string> description = {
-    "MySQL Workbench is the official graphical user interface (GUI) tool for MySQL. It allows you to design,",
-    "create and browse your database schemas, work with database objects and insert data as well as",
-    "design and run SQL queries to work with stored data. You can also migrate schemas and data from other",
-    "database vendors to your MySQL database."};
-
-  for (auto txt : description) {
+  for (auto &line : _content) {
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
-    cairo_text_extents(cr, txt.c_str(), &extents);
+    cairo_text_extents(cr, line.c_str(), &extents);
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
     cairo_move_to(cr, x, yoffset);
-    cairo_show_text(cr, txt.c_str());
+    cairo_show_text(cr, line.c_str());
     yoffset += (int)extents.height + 10;
   }
 
@@ -944,9 +1021,9 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
   for (auto btn : { &_browseDocButton, &_readBlogButton, &_discussButton }) {
     cairo_text_extents(cr, btn->name.c_str(), &extents);
     x = get_width() * pos - (extents.width / 2 + extents.x_bearing);
-    cairo_move_to(cr, x, yoffset);
+    cairo_move_to(cr, floor(x), floor(yoffset));
     cairo_show_text(cr, btn->name.c_str());
-    btn->bounds = base::Rect(x, yoffset - extents.height, extents.width, extents.height);
+    btn->bounds = base::Rect(ceil(x), floor(yoffset + extents.y_bearing), ceil(extents.width), ceil(extents.height));
     pos += 0.25;
   }
 
@@ -955,10 +1032,9 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
   cairo_restore(cr);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, int y) {
-  // everything below this relies on _hot_entry, which will become out of sync
-  // if the user pops up the context menu and then clicks (or right clicks) in some
-  // other tile... so we must first update _hot_entry before doing any actions
   mouse_move(mforms::MouseButtonNone, x, y);
 
   switch (button) {
@@ -990,7 +1066,7 @@ bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, in
   return false;
 }
 
-//------------------------------------------------------------------------------------------------
+//------------------ ConnectionsSection --------------------------------------------------------------------------------
 
 ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   : HomeScreenSection("sidebar_wb.png"),
@@ -1910,7 +1986,7 @@ void ConnectionsSection::popup_closed() {
 
 //------------------------------------------------------------------------------------------------
 
-int ConnectionsSection::get_acc_child_count() {
+int ConnectionsSection::getAccessibilityChildCount() {
   // At least 2 is returned because of the add and manage icons.
   size_t ret_val = 2;
 
@@ -1927,8 +2003,8 @@ int ConnectionsSection::get_acc_child_count() {
   return (int)ret_val;
 }
 
-mforms::Accessible *ConnectionsSection::get_acc_child(int index) {
-  mforms::Accessible *accessible = NULL;
+base::Accessible *ConnectionsSection::getAccessibilityChild(int index) {
+  base::Accessible *accessible = NULL;
 
   switch (index) {
     case 0:
@@ -1969,20 +2045,20 @@ mforms::Accessible *ConnectionsSection::get_acc_child(int index) {
 
 //------------------------------------------------------------------------------------------------
 
-std::string ConnectionsSection::get_acc_name() {
+std::string ConnectionsSection::getAccessibilityName() {
   return get_name();
 }
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible::Role ConnectionsSection::get_acc_role() {
+base::Accessible::Role ConnectionsSection::getAccessibilityRole() {
   return Accessible::List;
 }
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible *ConnectionsSection::hit_test(int x, int y) {
-  mforms::Accessible *accessible = NULL;
+base::Accessible *ConnectionsSection::accessibilityHitTest(int x, int y) {
+  base::Accessible *accessible = NULL;
 
   if (_add_button.bounds.contains(x, y))
     accessible = &_add_button;
@@ -2266,7 +2342,7 @@ mforms::View *ConnectionsSection::getContainer() {
     _welcomeScreen = new ConnectionsWelcomeScreen(_owner);
     if (!_showWelcomeHeading)
       _welcomeScreen->show(false);
-    _welcomeScreen->set_name("Home Screen Welcome Message");
+    _welcomeScreen->set_name("welcomeScreen");
     _welcomeScreen->set_layout_dirty(true);
     _container->add(_welcomeScreen, false, true);
     _container->add(this, true, true);

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "base/accessibility.h"
+
 #include "mforms/task_sidebar.h"
 #include "mforms/drawbox.h"
 #include "mforms/treeview.h"
@@ -45,7 +47,7 @@ namespace wb {
     * The SidebarEntry class is a lean wrapper for an icon/label combination which can be used
     * to trigger an action. It needs a container to be useful (here the class SidebarEntry).
     */
-  class SidebarEntry : public mforms::Accessible {
+  class SidebarEntry : public base::Accessible {
   private:
     std::string _name;
     std::string _title;
@@ -80,33 +82,33 @@ namespace wb {
     }
 
     // ------ Accesibility Methods -----
-    virtual std::string get_acc_name() {
+    virtual std::string getAccessibilityName() {
       return _title;
     }
-    virtual mforms::Accessible::Role get_acc_role() {
-      return mforms::Accessible::OutlineItem;
+    virtual base::Accessible::Role getAccessibilityRole() {
+      return base::Accessible::OutlineItem;
     }
-    virtual base::Rect get_acc_bounds() {
+    virtual base::Rect getAccessibilityBounds() {
       return _bounds;
     }
   };
 
   class SidebarSection : public mforms::DrawBox {
   private:
-    struct Button : public mforms::Accessible {
-      std::string _name;
+    struct Button : public base::Accessible {
+      std::string name;
       cairo_surface_t* icon;
       cairo_surface_t* alt_icon;
-      std::string _icon_name, _alt_icon_name;
+      std::string iconName, altIconName;
       int x, y;
       int bounds_width, bounds_height;
       base::Size size;
       bool hot;
       bool down;
       bool state;
-      base::Rect _bounds;
+      base::Rect bounds;
 
-      Button(const std::string& name, const std::string& icon, const std::string& alt_icon);
+      Button(std::string const& name, std::string const& icon, std::string const& alt_icon);
       virtual ~Button();
 
       void draw(cairo_t* cr);
@@ -115,18 +117,17 @@ namespace wb {
       bool check_hit(int x, int y);
 
       // ------ Accesibility Methods -----
-      virtual std::string get_acc_name() {
-        return _name;
+      virtual std::string getAccessibilityName() {
+        return name;
       }
-      virtual mforms::Accessible::Role get_acc_role() {
-        return mforms::Accessible::PushButton;
+      virtual base::Accessible::Role getAccessibilityRole() {
+        return base::Accessible::PushButton;
       }
-      virtual base::Rect get_acc_bounds() {
+      virtual base::Rect getAccessibilityBounds() {
         return base::Rect(x, y, bounds_width, bounds_height);
       }
     };
 
-    std::string _name;
     std::string _title;
     std::vector<Button*> _enabled_buttons;
     std::vector<SidebarEntry*> _entries;
@@ -158,8 +159,7 @@ namespace wb {
     SidebarEntry* entry_from_point(double x, double y);
 
   public:
-    SidebarSection(SimpleSidebar* owner, const std::string& name, const std::string& title,
-                   mforms::TaskSectionFlags flags);
+    SidebarSection(SimpleSidebar* owner, const std::string& title, mforms::TaskSectionFlags flags);
     ~SidebarSection();
 
     int find_entry(const std::string& name);
@@ -188,9 +188,6 @@ namespace wb {
 
     void update_mode_button(bool active);
 
-    std::string name() {
-      return _name;
-    }
     std::string title() {
       return _title;
     };
@@ -203,15 +200,15 @@ namespace wb {
     virtual bool mouse_up(mforms::MouseButton button, int x, int y) override;
     virtual base::Size getLayoutSize(base::Size proposedSize) override;
 
-    virtual mforms::Accessible::Role get_acc_role() override {
-      return mforms::Accessible::OutlineItem;
+    virtual base::Accessible::Role getAccessibilityRole() override {
+      return base::Accessible::OutlineItem;
     }
-    virtual std::string get_acc_name() override {
-      return _title;
+    virtual std::string getAccessibilityName() override {
+      return get_name();
     }
-    virtual int get_acc_child_count() override;
-    virtual Accessible* get_acc_child(int index) override;
-    virtual mforms::Accessible* hit_test(int x, int y) override;
+    virtual int getAccessibilityChildCount() override;
+    virtual Accessible* getAccessibilityChild(int index) override;
+    virtual base::Accessible* accessibilityHitTest(int x, int y) override;
 
     void clear_selection();
 
@@ -236,34 +233,30 @@ namespace wb {
     ~SimpleSidebar();
 
     virtual int add_section(const std::string& name, const std::string& title,
-                            mforms::TaskSectionFlags flags = mforms::TaskSectionPlain);
-    virtual void remove_section(const std::string& name);
+                            mforms::TaskSectionFlags flags = mforms::TaskSectionPlain) override;
+    virtual void remove_section(const std::string& name) override;
     virtual int add_section_entry(const std::string& section_name, const std::string& name, const std::string& title,
-                                  const std::string& icon, mforms::TaskEntryType type);
-    virtual void set_section_entry_text(const std::string& entry_name, const std::string& title);
-    virtual void set_section_entry_icon(const std::string& entry_name, const std::string& icon);
-    virtual void set_section_entry_enabled(const std::string& entry_name, bool flag);
-    virtual void mark_section_busy(const std::string& section_name, bool busy);
+                                  const std::string& icon, mforms::TaskEntryType type) override;
+    virtual void set_section_entry_text(const std::string& entry_name, const std::string& title) override;
+    virtual void set_section_entry_icon(const std::string& entry_name, const std::string& icon) override;
+    virtual void set_section_entry_enabled(const std::string& entry_name, bool flag) override;
+    virtual void mark_section_busy(const std::string& section_name, bool busy) override;
 
-    virtual void remove_section_entry(const std::string& entry_name);
-    virtual void set_collapse_states(const std::string& data);
-    virtual std::string get_collapse_states();
+    virtual void remove_section_entry(const std::string& entry_name) override;
+    virtual void set_collapse_states(const std::string& data) override;
+    virtual std::string get_collapse_states() override;
 
-    virtual void clear_sections();
-    virtual void clear_section(const std::string& section_name);
-    virtual void set_selection_color(const std::string& color);
-    virtual void set_selection_color(const base::SystemColor color);
+    virtual void clear_sections() override;
+    virtual void clear_section(const std::string& section_name) override;
+    virtual void set_selection_color(const std::string& color) override;
+    virtual void set_selection_color(const base::SystemColor color) override;
     const base::Color& selection_color() const {
       return _selection_color;
     }
 
-    virtual int select_entry(const std::string& entry_name);
-    virtual std::string selected_entry();
-    virtual void clear_selection();
-
-    virtual mforms::Accessible::Role get_acc_role() {
-      return mforms::Accessible::Outline;
-    }
+    virtual int select_entry(const std::string& entry_name) override;
+    virtual std::string selected_entry() override;
+    virtual void clear_selection() override;
 
     virtual void update_mode_buttons(bool active);
 

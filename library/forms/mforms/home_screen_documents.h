@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "base/accessibility.h"
+
 #include "mforms/drawbox.h"
 #include "mforms/menu.h"
 #include <string>
@@ -27,9 +29,10 @@
 
 namespace mforms {
   class HomeScreen;
+
   //----------------- DocumentEntry ---------------------------------------------------------------
 
-  class DocumentEntry : public mforms::Accessible {
+  class DocumentEntry : public base::Accessible {
   public:
     std::string path;
     time_t timestamp; // Last accessed as timestamp for sorting.
@@ -49,14 +52,15 @@ namespace mforms {
     std::function<bool(int, int)> default_handler;
 
     bool operator<(const DocumentEntry &other) const;
-    //------ Accessibility Methods -----
-    virtual std::string get_acc_name() override;
-    virtual std::string get_acc_description() override;
 
-    virtual Accessible::Role get_acc_role() override;
-    virtual base::Rect get_acc_bounds() override;
-    virtual std::string get_acc_default_action() override;
-    virtual void do_default_action() override;
+    //------ Accessibility Methods -----
+    virtual std::string getAccessibilityName() override;
+    virtual std::string getAccessibilityDescription() override;
+
+    virtual Accessible::Role getAccessibilityRole() override;
+    virtual base::Rect getAccessibilityBounds() override;
+    virtual std::string getAccessibilityDefaultAction() override;
+    virtual void accessibilityDoDefaultAction() override;
   };
 
   //----------------- DocumentsSection ---------------------------------------------------------------
@@ -79,7 +83,7 @@ namespace mforms {
 
     ssize_t _entries_per_row;
 
-    bool _show_selection_message; // Additional info to let the user a connection (when opening a script).
+    bool _show_selection_message; // Additional info to let the user select a connection (when opening a script).
     base::Rect _message_close_button_rect;
 
     typedef std::vector<DocumentEntry>::iterator DocumentIterator;
@@ -161,10 +165,10 @@ namespace mforms {
     void handle_command(const std::string &command);
     void show_connection_select_message();
     void hide_connection_select_message();
-    virtual int get_acc_child_count() override;
-    virtual Accessible *get_acc_child(int index) override;
-    virtual Accessible::Role get_acc_role() override;
-    virtual mforms::Accessible *hit_test(int x, int y) override;
+    virtual int getAccessibilityChildCount() override;
+    virtual Accessible *getAccessibilityChild(int index) override;
+    virtual Accessible::Role getAccessibilityRole() override;
+    virtual base::Accessible *accessibilityHitTest(int x, int y) override;
   };
 
 } /* namespace wb */

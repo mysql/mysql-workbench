@@ -94,13 +94,13 @@ public:
   base::Rect snippet_bounds(Snippet* snippet);
 
   // ------ Accesibility Methods -----
-  virtual std::string get_acc_name() override {
+  virtual std::string getAccessibilityName() override {
     return get_name();
   }
-  virtual mforms::Accessible::Role get_acc_role() override {
-    return mforms::Accessible::List;
+  virtual base::Accessible::Role getAccessibilityRole() override {
+    return base::Accessible::List;
   }
-  virtual int get_acc_child_count() override;
-  virtual Accessible* get_acc_child(int index) override;
-  virtual mforms::Accessible* hit_test(int x, int y) override;
+  virtual int getAccessibilityChildCount() override;
+  virtual Accessible* getAccessibilityChild(int index) override;
+  virtual base::Accessible* accessibilityHitTest(int x, int y) override;
 };

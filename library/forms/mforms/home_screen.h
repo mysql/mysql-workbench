@@ -21,15 +21,17 @@
 #define _HOME_SCREEN_H_
 
 #include <ctime>
+
+#include "base/accessibility.h"
 #include "base/notifications.h"
 #include "base/data_types.h"
 #include "base/any.h"
+
 #include "mforms/appview.h"
 #include "mforms/drawbox.h"
 #include "mforms/tabview.h"
 
 #include "home_screen_helpers.h"
-
 
 namespace mforms {
   class Menu;
@@ -42,7 +44,8 @@ namespace mforms {
   class HomeScreen;
 
   //----------------- ShortcutSection ----------------------------------------------------------------
-  struct SidebarEntry : mforms::Accessible {
+
+  struct SidebarEntry : base::Accessible {
     SidebarSection *owner;
     std::function<void()> callback;
     bool canSelect;
@@ -55,11 +58,11 @@ namespace mforms {
 
     SidebarEntry();
     // ------ Accesibility Methods -----
-    virtual std::string get_acc_name();
-    virtual Accessible::Role get_acc_role();
-    virtual base::Rect get_acc_bounds();
-    virtual std::string get_acc_default_action();
-    virtual void do_default_action();
+    virtual std::string getAccessibilityName();
+    virtual base::Accessible::Role getAccessibilityRole();
+    virtual base::Rect getAccessibilityBounds();
+    virtual std::string getAccessibilityDefaultAction();
+    virtual void accessibilityDoDefaultAction();
   };
 
 
@@ -88,18 +91,18 @@ namespace mforms {
     void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, base::Color &color, float alpha);
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
     int shortcutFromPoint(int x, int y);
-    void addEntry(const std::string &title, const std::string &icon_name, HomeScreenSection *section, std::function<void()> callback,
-                  bool canSelect);
+    void addEntry(const std::string &title, const std::string &icon_name, HomeScreenSection *section,
+                  std::function<void()> callback, bool canSelect);
     HomeScreenSection *getActive();
     void setActive(HomeScreenSection *section);
     virtual bool mouse_click(mforms::MouseButton button, int x, int y);
     bool mouse_leave();
 
     virtual bool mouse_move(mforms::MouseButton button, int x, int y);
-    virtual int get_acc_child_count();
-    virtual Accessible *get_acc_child(int index);
-    virtual Accessible::Role get_acc_role();
-    virtual mforms::Accessible *hit_test(int x, int y);
+    virtual int getAccessibilityChildCount();
+    virtual Accessible *getAccessibilityChild(int index);
+    virtual Accessible::Role getAccessibilityRole();
+    virtual base::Accessible *accessibilityHitTest(int x, int y);
   };
 
   //--------------------------------------------------------------------------------------------------

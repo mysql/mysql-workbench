@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "base/accessibility.h"
 #include "home_screen.h"
 
 #include "mforms/box.h"
@@ -39,9 +40,15 @@ namespace mforms {
     virtual ~ConnectionsWelcomeScreen();
 
     virtual base::Size getLayoutSize(base::Size proposedSize) override;
-    virtual Role get_acc_role() override {
-      return mforms::Accessible::StaticText;
-    }
+    
+    virtual base::Accessible::Role getAccessibilityRole() override;
+    virtual std::string getAccessibilityTitle() override;
+    virtual std::string getAccessibilityDescription() override;
+    virtual std::string getAccessibilityValue() override;
+    virtual int getAccessibilityChildCount() override;
+    virtual Accessible* getAccessibilityChild(int index) override;
+    virtual base::Rect getAccessibilityBounds() override;
+    virtual Accessible* accessibilityHitTest(int x, int y) override;
 
   private:
     int _totalHeight = 100; // Arbitrary initial value, til our computation is done.
@@ -54,6 +61,9 @@ namespace mforms {
     cairo_surface_t *_closeIcon;
     std::function<bool(int, int)> _accessible_click_handler;
 
+    std::string _heading;
+    std::vector<std::string> _content;
+    
     virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
     virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
   };
@@ -161,12 +171,12 @@ namespace mforms {
 
     void change_to_folder(std::shared_ptr<FolderEntry> folder);
 
-    virtual int get_acc_child_count() override;
-    virtual Accessible *get_acc_child(int index) override;
-    virtual std::string get_acc_name() override;
-    virtual Accessible::Role get_acc_role() override;
+    virtual int getAccessibilityChildCount() override;
+    virtual Accessible *getAccessibilityChild(int index) override;
+    virtual std::string getAccessibilityName() override;
+    virtual Accessible::Role getAccessibilityRole() override;
 
-    virtual mforms::Accessible *hit_test(int x, int y) override;
+    virtual base::Accessible *accessibilityHitTest(int x, int y) override;
     bool do_tile_drag(ssize_t index, int x, int y);
 
     mforms::DragOperation drag_over(View *sender, base::Point p, mforms::DragOperation allowedOperations,

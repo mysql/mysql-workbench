@@ -34,35 +34,35 @@ bool DocumentEntry::operator<(const DocumentEntry &other) const {
 
 //------------------------------------------------------------------------------------------------
 
-std::string DocumentEntry::get_acc_name() {
+std::string DocumentEntry::getAccessibilityName() {
   return title;
 }
 
 //------------------------------------------------------------------------------------------------
 
-std::string DocumentEntry::get_acc_description() {
+std::string DocumentEntry::getAccessibilityDescription() {
   return base::strfmt("schemas:%s;last_accessed:%s;size:%s", schemas.c_str(), last_accessed.c_str(), size.c_str());
 }
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible::Role DocumentEntry::get_acc_role() {
+base::Accessible::Role DocumentEntry::getAccessibilityRole() {
   return Accessible::ListItem;
 }
 
 //------------------------------------------------------------------------------------------------
 
-base::Rect DocumentEntry::get_acc_bounds() {
+base::Rect DocumentEntry::getAccessibilityBounds() {
   return bounds;
 }
 
 //------------------------------------------------------------------------------------------------
 
-std::string DocumentEntry::get_acc_default_action() {
+std::string DocumentEntry::getAccessibilityDefaultAction() {
   return "Open Model";
 }
 
-void DocumentEntry::do_default_action() {
+void DocumentEntry::accessibilityDoDefaultAction() {
   if (default_handler)
     default_handler((int)bounds.center().x, (int)bounds.center().y);
 }
@@ -813,7 +813,7 @@ void DocumentsSection::hide_connection_select_message() {
 
 //------------------------------------------------------------------------------------------------
 
-int DocumentsSection::get_acc_child_count() {
+int DocumentsSection::getAccessibilityChildCount() {
   // Initial value due to the add/open/create EER Model icons
   int ret_val = 3;
   ret_val += (int)_filtered_documents.size();
@@ -823,8 +823,8 @@ int DocumentsSection::get_acc_child_count() {
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible *DocumentsSection::get_acc_child(int index) {
-  mforms::Accessible *accessible = NULL;
+base::Accessible *DocumentsSection::getAccessibilityChild(int index) {
+  base::Accessible *accessible = NULL;
   switch (index) {
     case 0:
       accessible = &_add_button;
@@ -848,14 +848,14 @@ mforms::Accessible *DocumentsSection::get_acc_child(int index) {
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible::Role DocumentsSection::get_acc_role() {
+base::Accessible::Role DocumentsSection::getAccessibilityRole() {
   return Accessible::List;
 }
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible *DocumentsSection::hit_test(int x, int y) {
-  mforms::Accessible *accessible = NULL;
+base::Accessible *DocumentsSection::accessibilityHitTest(int x, int y) {
+  base::Accessible *accessible = NULL;
 
   if (_add_button.bounds.contains(x, y))
     accessible = &_add_button;

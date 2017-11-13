@@ -24,6 +24,8 @@
 #include "cairo/cairo.h"
 
 #include "base/drawing.h"
+#include "base/accessibility.h"
+
 #include "mforms/base.h"
 #include "mforms/drawbox.h"
 #include "mforms/tabview.h"
@@ -84,10 +86,10 @@ namespace mforms {
     virtual bool mouse_enter() override;
     virtual bool mouse_leave() override;
 #endif
-    virtual int get_acc_child_count() override;
-    virtual Accessible *get_acc_child(int index) override;
-    virtual Accessible::Role get_acc_role() override;
-    virtual mforms::Accessible *hit_test(int x, int y) override;
+    virtual int getAccessibilityChildCount() override;
+    virtual Accessible *getAccessibilityChild(int index) override;
+    virtual Accessible::Role getAccessibilityRole() override;
+    virtual base::Accessible* accessibilityHitTest(int x, int y) override;
 
 #endif
   private:

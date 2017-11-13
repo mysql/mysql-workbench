@@ -59,8 +59,8 @@ static System::Windows::Forms::AccessibleRole convert_accessible_role(mforms::Ac
       role = System::Windows::Forms::AccessibleRole::None;
       break;
 
-    case mforms::Accessible::Client:
-      role = System::Windows::Forms::AccessibleRole::Client;
+    case mforms::Accessible::Window:
+      role = System::Windows::Forms::AccessibleRole::Window;
       break;
 
     case mforms::Accessible::Pane:
@@ -116,49 +116,49 @@ WBControlAccessibleObject::WBControlAccessibleObject(Control ^ owner, mforms::Ac
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBControlAccessibleObject::Name::get() {
-  return CppStringToNativeRaw(backend->get_acc_name());
+  return CppStringToNativeRaw(backend->getAccessibilityName());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 int WBControlAccessibleObject::GetChildCount() {
-  return backend->get_acc_child_count();
+  return backend->getAccessibilityChildCount();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBControlAccessibleObject::Description::get() {
-  return CppStringToNative(backend->get_acc_description());
+  return CppStringToNative(backend->getAccessibilityDescription());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBControlAccessibleObject::DefaultAction::get() {
-  return CppStringToNativeRaw(backend->get_acc_default_action());
+  return CppStringToNativeRaw(backend->getAccessibilityDefaultAction());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBControlAccessibleObject::Value::get() {
-  return CppStringToNative(backend->get_acc_value());
+  return CppStringToNative(backend->getAccessibilityValue());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 System::Windows::Forms::AccessibleRole WBControlAccessibleObject::Role::get() {
-  return convert_accessible_role(backend->get_acc_role());
+  return convert_accessible_role(backend->getAccessibilityRole());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WBControlAccessibleObject::DoDefaultAction() {
-  return backend->do_default_action();
+  return backend->accessibilityDoDefaultAction();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 System::Windows::Forms::AccessibleObject ^ WBControlAccessibleObject::GetChild(int index) {
-  mforms::Accessible *child = backend->get_acc_child(index);
+  mforms::Accessible *child = backend->getAccessibilityChild(index);
 
   if (child)
     return gcnew WBAccessibleObject(child, this);
@@ -191,37 +191,37 @@ WBAccessibleObject::WBAccessibleObject(mforms::Accessible *backendOwner, WBContr
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBAccessibleObject::Name::get() {
-  return CppStringToNativeRaw(backend->get_acc_name());
+  return CppStringToNativeRaw(backend->getAccessibilityName());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBAccessibleObject::Description::get() {
-  return CppStringToNative(backend->get_acc_description());
+  return CppStringToNative(backend->getAccessibilityDescription());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBAccessibleObject::DefaultAction::get() {
-  return CppStringToNativeRaw(backend->get_acc_default_action());
+  return CppStringToNativeRaw(backend->getAccessibilityDefaultAction());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBAccessibleObject::Value::get() {
-  return CppStringToNative(backend->get_acc_value());
+  return CppStringToNative(backend->getAccessibilityValue());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 System::Windows::Forms::AccessibleRole WBAccessibleObject::Role::get() {
-  return convert_accessible_role(backend->get_acc_role());
+  return convert_accessible_role(backend->getAccessibilityRole());
 }
 
 //--------------------------------------------------------------------------------------------------
 
 System::Drawing::Rectangle WBAccessibleObject::Bounds::get() {
-  base::Rect backend_bounds = backend->get_acc_bounds();
+  base::Rect backend_bounds = backend->getAccessibilityBounds();
   System::Drawing::Rectangle bounds = System::Drawing::Rectangle(
     (int)backend_bounds.left(), (int)backend_bounds.top(), (int)backend_bounds.width(), (int)backend_bounds.height());
 
@@ -234,19 +234,19 @@ System::Drawing::Rectangle WBAccessibleObject::Bounds::get() {
 //--------------------------------------------------------------------------------------------------
 
 int WBAccessibleObject::GetChildCount() {
-  return backend->get_acc_child_count();
+  return backend->getAccessibilityChildCount();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WBAccessibleObject::DoDefaultAction() {
-  return backend->do_default_action();
+  return backend->accessibilityDoDefaultAction();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 System::Windows::Forms::AccessibleObject ^ WBAccessibleObject::GetChild(int index) {
-  mforms::Accessible *child = backend->get_acc_child(index);
+  mforms::Accessible *child = backend->getAccessibilityChild(index);
 
   if (child)
     return gcnew WBAccessibleObject(child, parent);
