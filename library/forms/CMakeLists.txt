@@ -30,7 +30,6 @@ endif()
 )
 
 add_library(mforms
-    accessibility.cpp
     app.cpp
     appview.cpp
     base.cpp
