@@ -26,41 +26,42 @@
 #include "mforms/home_screen.h"
 DEFAULT_LOG_DOMAIN("home screen launchers")
 
+using namespace base;
 using namespace mforms;
 
 //----------------- LauncherEntry ---------------------------------------------------------------
 
 bool LauncherEntry::operator<(const LauncherEntry &other) const {
-  return base::string_compare(other.title, title) != 0;
+  return string_compare(other.title, title) != 0;
 }
 
 //------------------------------------------------------------------------------------------------
 
-std::string LauncherEntry::get_acc_name() {
+std::string LauncherEntry::getAccessibilityName() {
   return title;
 }
 
 //------------------------------------------------------------------------------------------------
 
-std::string LauncherEntry::get_acc_description() {
+std::string LauncherEntry::getAccessibilityDescription() {
   return description;
 }
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible::Role LauncherEntry::get_acc_role() {
+Accessible::Role LauncherEntry::getAccessibilityRole() {
   return Accessible::ListItem;
 }
 
 //------------------------------------------------------------------------------------------------
 
-base::Rect LauncherEntry::get_acc_bounds() {
+Rect LauncherEntry::getAccessibilityBounds() {
   return bounds;
 }
 
 //------------------------------------------------------------------------------------------------
 
-std::string LauncherEntry::get_acc_default_action() {
+std::string LauncherEntry::getAccessibilityDefaultAction() {
   return "Open";
 }
 
@@ -158,7 +159,7 @@ std::size_t LaunchersSection::entry_from_point(int x, int y) {
 void LaunchersSection::drawEntry(cairo_t *cr, const LauncherEntry &entry, bool hot) {
   mforms::Utilities::paint_icon(cr, entry.icon, entry.bounds.left(), entry.bounds.top());
 
-  base::Size iconSize = mforms::Utilities::getImageSize(entry.icon);
+  Size iconSize = mforms::Utilities::getImageSize(entry.icon);
 
   cairo_set_source_rgb(cr, 0, 0, 0);
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL,
@@ -217,7 +218,7 @@ void LaunchersSection::layout(cairo_t *cr) {
     double heading_left = LAUNCHERS_LEFT_PADDING;
     cairo_text_extents(cr, _("Shortcuts"), &extents);
     double text_width = ceil(extents.width);
-    _launcher_heading_rect = base::Rect(heading_left, LAUNCHERS_TOP_BASELINE, text_width, ceil(extents.height));
+    _launcher_heading_rect = Rect(heading_left, LAUNCHERS_TOP_BASELINE, text_width, ceil(extents.height));
 
     // Compute the shorted strings.
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
@@ -291,7 +292,7 @@ void LaunchersSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int
   //  cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
   int row = 0;
-  base::Rect bounds(0, LAUNCHERS_TOP_PADDING, LAUNCHERS_ENTRY_WIDTH, LAUNCHERS_ENTRY_HEIGHT);
+  Rect bounds(0, LAUNCHERS_TOP_PADDING, LAUNCHERS_ENTRY_WIDTH, LAUNCHERS_ENTRY_HEIGHT);
   bool done = false;
   while (!done) {
     bool drawHotEntry = false;
@@ -323,11 +324,11 @@ void LaunchersSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int
 //------------------------------------------------------------------------------------------------
 
 void LaunchersSection::addLauncher(const std::string &icon, const std::string &name, const std::string &description,
-                                   const base::any &obj) {
+                                   const any &obj) {
   LauncherEntry entry;
   entry.title = name;
   entry.description = description;
-  entry.descriptionLines = base::split(base::reflow_text(entry.description, 29, "", false, 2), "\n");
+  entry.descriptionLines = split(reflow_text(entry.description, 29, "", false, 2), "\n");
 
   entry.object = obj;
   if (!icon.empty())
@@ -431,13 +432,13 @@ bool LaunchersSection::mouse_move(mforms::MouseButton button, int x, int y) {
 //------------------------------------------------------------------------------------------------
 
 void LaunchersSection::handle_command(const std::string &command) {
-  _owner->handleContextMenu(base::any(), command);
+  _owner->handleContextMenu(any(), command);
   _active_entry = -1;
 }
 
 //------------------------------------------------------------------------------------------------
 
-int LaunchersSection::get_acc_child_count() {
+int LaunchersSection::getAccessibilityChildCount() {
   // Initial value due to the add/open/create EER Model icons
   int ret_val = 3;
   ret_val += (int)_launchers.size();
@@ -447,8 +448,8 @@ int LaunchersSection::get_acc_child_count() {
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible *LaunchersSection::get_acc_child(int index) {
-  mforms::Accessible *accessible = NULL;
+Accessible *LaunchersSection::getAccessibilityChild(int index) {
+  Accessible *accessible = NULL;
   switch (index) {
     case 0:
       break;
@@ -469,14 +470,14 @@ mforms::Accessible *LaunchersSection::get_acc_child(int index) {
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible::Role LaunchersSection::get_acc_role() {
+Accessible::Role LaunchersSection::getAccessibilityRole() {
   return Accessible::List;
 }
 
 //------------------------------------------------------------------------------------------------
 
-mforms::Accessible *LaunchersSection::hit_test(int x, int y) {
-  mforms::Accessible *accessible = NULL;
+Accessible *LaunchersSection::accessibilityHitTest(int x, int y) {
+  Accessible *accessible = NULL;
 
   {
     ssize_t entry = entry_from_point(x, y);

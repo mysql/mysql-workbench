@@ -17,15 +17,17 @@
  * 02110-1301  USA
  */
 
+#include "base/accessibility.h"
+
 #include "mforms/drawbox.h"
 #import "MFView.h"
 
 @interface AccChildImpl : NSAccessibilityElement {
 @public
-  mforms::Accessible *mformsAcc;
+  base::Accessible *mformsAcc;
   mforms::View *parent;
 @protected
-  std::map<mforms::Accessible*, AccChildImpl*> accChildList;
+  std::map<base::Accessible*, AccChildImpl*> accChildList;
 }
 @end
 
@@ -39,7 +41,7 @@
   float mPaddingBottom;
 
   std::map<mforms::View *, mforms::Alignment> mSubviews;
-  std::map<mforms::Accessible*, AccChildImpl*> accChildList;
+  std::map<base::Accessible*, AccChildImpl*> accChildList;
 
   BOOL mDrawsBackground;
   NSColor *mBackgroundColor;

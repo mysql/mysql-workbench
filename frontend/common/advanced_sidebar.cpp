@@ -159,13 +159,11 @@ bool SidebarEntry::contains(double x, double y) {
 
 //----------------- SidebarSection -----------------------------------------------------------------
 
-SidebarSection::Button::Button(const std::string& accessible_name, const std::string& icon_name,
-                               const std::string& alt_icon_name)
-  : icon(NULL), alt_icon(NULL), hot(false), down(false), state(false) {
-  _icon_name = icon_name;
-  _alt_icon_name = alt_icon_name;
+SidebarSection::Button::Button(std::string const& name, std::string const& icon_name, std::string const& alt_icon_name)
+  : name(name), icon(nullptr), alt_icon(nullptr), hot(false), down(false), state(false) {
+  iconName = icon_name;
+  altIconName = alt_icon_name;
 
-  _name = accessible_name;
   move(0, 0);
 
   if (!icon_name.empty())
@@ -182,6 +180,8 @@ SidebarSection::Button::Button(const std::string& accessible_name, const std::st
   bounds_height = (int)size.height + 5;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 SidebarSection::Button::~Button() {
   if (icon)
     cairo_surface_destroy(icon);
@@ -189,14 +189,16 @@ SidebarSection::Button::~Button() {
     cairo_surface_destroy(alt_icon);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void SidebarSection::Button::draw(cairo_t* cr) {
   if (Utilities::icon_needs_reload(icon)) {
     if (icon)
       cairo_surface_destroy(icon);
     if (alt_icon)
       cairo_surface_destroy(alt_icon);
-    icon = Utilities::load_icon(_icon_name, true);
-    alt_icon = Utilities::load_icon(_alt_icon_name, true);
+    icon = Utilities::load_icon(iconName, true);
+    alt_icon = Utilities::load_icon(altIconName, true);
 
     if (icon != nullptr)
       size = Utilities::getImageSize(icon);
@@ -241,20 +243,24 @@ void SidebarSection::Button::draw(cairo_t* cr) {
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 bool SidebarSection::Button::check_hit(int x, int y) {
   return (x >= this->x && x < this->x + bounds_width && y >= this->y && y < this->y + bounds_height);
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void SidebarSection::Button::move(int x, int y) {
   this->x = x;
   this->y = y;
 }
 
-SidebarSection::SidebarSection(SimpleSidebar* owner, const std::string& name, const std::string& title,
-                               mforms::TaskSectionFlags flags)
+//--------------------------------------------------------------------------------------------------
+
+SidebarSection::SidebarSection(SimpleSidebar* owner, const std::string& title, mforms::TaskSectionFlags flags)
   : DrawBox() {
   _owner = owner;
-  _name = name;
   _title = title;
   _selected_entry = NULL;
   _hot_entry = NULL;
@@ -541,13 +547,13 @@ bool SidebarSection::select(const std::string& name) {
 }
 
 //------------------------------------------------------------------------------------------------
-int SidebarSection::get_acc_child_count() {
+int SidebarSection::getAccessibilityChildCount() {
   return (int)(_entries.size() + _enabled_buttons.size());
 }
 
 //------------------------------------------------------------------------------------------------
-Accessible* SidebarSection::get_acc_child(int index) {
-  mforms::Accessible* accessible = NULL;
+Accessible* SidebarSection::getAccessibilityChild(int index) {
+  base::Accessible* accessible = NULL;
 
   if ((size_t)index < _enabled_buttons.size())
     accessible = _enabled_buttons[index];
@@ -558,8 +564,8 @@ Accessible* SidebarSection::get_acc_child(int index) {
 }
 
 //------------------------------------------------------------------------------------------------
-mforms::Accessible* SidebarSection::hit_test(int x, int y) {
-  mforms::Accessible* accessible = NULL;
+base::Accessible* SidebarSection::accessibilityHitTest(int x, int y) {
+  base::Accessible* accessible = NULL;
 
   // if (_expand_text_active)
   if (_config_button && _config_button->check_hit(x, y))
@@ -949,7 +955,7 @@ SimpleSidebar::~SimpleSidebar() {
  */
 int SimpleSidebar::find_section(const std::string& name) {
   for (size_t i = 0; i < _sections.size(); i++) {
-    if (_sections[i]->name() == name)
+    if (_sections[i]->get_name() == name)
       return (int)i;
   }
 
@@ -963,7 +969,8 @@ int SimpleSidebar::add_section(const std::string& name, const string& title, mfo
   if (result > -1)
     return result;
 
-  SidebarSection* box = new SidebarSection(this, name, title, flags);
+  SidebarSection* box = new SidebarSection(this, title, flags);
+  box->set_name(name);
   box->set_back_color(get_back_color());
   _sections.push_back(box);
   add(box, false, true);
@@ -1086,7 +1093,7 @@ std::string SimpleSidebar::get_collapse_states() {
   for (int i = 0; i < (int)_sections.size(); i++) {
     if (i > 0)
       states.append(",");
-    states.append(base::strfmt("%s=%i", _sections[i]->name().c_str(), !_sections[i]->expanded()));
+    states.append(base::strfmt("%s=%i", _sections[i]->get_name().c_str(), !_sections[i]->expanded()));
   }
   return states;
 }

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "base/accessibility.h"
+
 #include "mforms/drawbox.h"
 #include "mforms/menu.h"
 #include <string>
@@ -27,10 +29,12 @@
 
 namespace mforms {
   class HomeScreen;
+
   //----------------- LauncherEntry ---------------------------------------------------------------
 
   typedef std::function<bool()> LauncherCallback;
-  class LauncherEntry : public mforms::Accessible {
+
+  class LauncherEntry : public base::Accessible {
   public:
     std::string title;
     std::string title_shorted;
@@ -43,13 +47,15 @@ namespace mforms {
     cairo_surface_t *icon;
 
     bool operator<(const LauncherEntry &other) const;
-    //------ Accessibility Methods -----
-    virtual std::string get_acc_name();
-    virtual std::string get_acc_description();
 
-    virtual Accessible::Role get_acc_role();
-    virtual base::Rect get_acc_bounds();
-    virtual std::string get_acc_default_action();
+    //------ Accessibility Methods -----
+    virtual std::string getAccessibilityName() override;
+    virtual std::string getAccessibilityDescription() override;
+
+    virtual base::Accessible::Role getAccessibilityRole() override;
+    virtual base::Rect getAccessibilityBounds() override;
+    virtual std::string getAccessibilityDefaultAction() override;
+
     LauncherEntry();
     LauncherEntry(const LauncherEntry &other);
 
@@ -114,10 +120,10 @@ namespace mforms {
     virtual bool mouse_leave() override;
     virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
     void handle_command(const std::string &command);
-    virtual int get_acc_child_count() override;
-    virtual Accessible *get_acc_child(int index) override;
-    virtual Accessible::Role get_acc_role() override;
-    virtual mforms::Accessible *hit_test(int x, int y) override;
+    virtual int getAccessibilityChildCount() override;
+    virtual base::Accessible* getAccessibilityChild(int index) override;
+    virtual base::Accessible::Role getAccessibilityRole() override;
+    virtual base::Accessible* accessibilityHitTest(int x, int y) override;
   };
 
 } /* namespace wb */

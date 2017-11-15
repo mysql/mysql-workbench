@@ -36,6 +36,7 @@
 
 #include "base/any.h"
 
+using namespace base;
 using namespace mforms;
 
 //----------------- ShortcutSection ----------------------------------------------------------------
@@ -46,23 +47,23 @@ SidebarEntry::SidebarEntry()
 }
 
 // ------ Accesibility Methods -----
-std::string SidebarEntry::get_acc_name() {
+std::string SidebarEntry::getAccessibilityName() {
   return title;
 }
 
-Accessible::Role SidebarEntry::get_acc_role() {
+Accessible::Role SidebarEntry::getAccessibilityRole() {
   return Accessible::ListItem;
 }
 
-base::Rect SidebarEntry::get_acc_bounds() {
+Rect SidebarEntry::getAccessibilityBounds() {
   return acc_bounds;
 }
 
-std::string SidebarEntry::get_acc_default_action() {
+std::string SidebarEntry::getAccessibilityDefaultAction() {
   return "Open Item";
 }
 
-void SidebarEntry::do_default_action() {
+void SidebarEntry::accessibilityDoDefaultAction() {
   if (owner != nullptr) {
     owner->mouse_move(MouseButtonLeft, (int)acc_bounds.center().x, (int)acc_bounds.center().y);
     owner->mouse_click(MouseButtonLeft, (int)acc_bounds.center().x, (int)acc_bounds.center().y);
@@ -91,7 +92,7 @@ SidebarSection::~SidebarSection() {
 
 //--------------------------------------------------------------------------------------------------
 
-void SidebarSection::drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, base::Color &color, float alpha) {
+void SidebarSection::drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, Color &color, float alpha) {
   cairo_set_source_rgba(cr, color.red, color.green, color.blue, alpha);
   cairo_move_to(cr, x2, y1 + abs(y2 - y1) / 3);
   cairo_line_to(cr, x1 + abs(x2 - x1) * 0.6, y1 + abs(y2 - y1) / 2);
@@ -172,7 +173,7 @@ void SidebarSection::addEntry(const std::string &title, const std::string &icon_
   if (section)
     entry->indicatorColor = section->getIndicatorColor();
   else
-    entry->indicatorColor = base::Color("#ffffff");  // Use white as default indicator color
+    entry->indicatorColor = Color("#ffffff");  // Use white as default indicator color
 
   // See if we can load the icon. If not use the placeholder.
   entry->icon = mforms::Utilities::load_icon(icon_name, true);
@@ -276,14 +277,14 @@ bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y) {
 
 //------------------------------------------------------------------------------------------------
 
-int SidebarSection::get_acc_child_count() {
+int SidebarSection::getAccessibilityChildCount() {
   return (int)_entries.size();
 }
 
 //------------------------------------------------------------------------------------------------
 
-Accessible *SidebarSection::get_acc_child(int index) {
-  mforms::Accessible *accessible = NULL;
+Accessible *SidebarSection::getAccessibilityChild(int index) {
+  Accessible *accessible = NULL;
 
   if (index < (int)_entries.size())
     accessible = _entries[index].first;
@@ -293,12 +294,14 @@ Accessible *SidebarSection::get_acc_child(int index) {
 
 //------------------------------------------------------------------------------------------------
 
-Accessible::Role SidebarSection::get_acc_role() {
+Accessible::Role SidebarSection::getAccessibilityRole() {
   return Accessible::List;
 }
 
-mforms::Accessible *SidebarSection::hit_test(int x, int y) {
-  mforms::Accessible *accessible = NULL;
+//------------------------------------------------------------------------------------------------
+
+Accessible *SidebarSection::accessibilityHitTest(int x, int y) {
+  Accessible *accessible = NULL;
 
   int row = shortcutFromPoint(x, y);
   if (row != -1)
@@ -322,13 +325,13 @@ HomeScreen::HomeScreen(bool singleSection)
   update_colors();
 
   Box::scoped_connect(signal_resized(), std::bind(&HomeScreen::on_resize, this));
-  base::NotificationCenter::get()->add_observer(this, "GNColorsChanged");
+  NotificationCenter::get()->add_observer(this, "GNColorsChanged");
 }
 
 //--------------------------------------------------------------------------------------------------
 
 HomeScreen::~HomeScreen() {
-  base::NotificationCenter::get()->remove_observer(this);
+  NotificationCenter::get()->remove_observer(this);
   clear_subviews();  // Remove our sections or the View d-tor will try to release them.
 
   delete _sidebarSection;
@@ -395,7 +398,7 @@ void HomeScreen::addSectionEntry(const std::string &title, const std::string &ic
 
 //--------------------------------------------------------------------------------------------------
 
-void HomeScreen::trigger_callback(HomeScreenAction action, const base::any &object) {
+void HomeScreen::trigger_callback(HomeScreenAction action, const any &object) {
   onHomeScreenAction(action, object);
 }
 
@@ -471,7 +474,7 @@ void HomeScreen::showSection(size_t index) {
 
 //--------------------------------------------------------------------------------------------------
 
-void HomeScreen::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
+void HomeScreen::handle_notification(const std::string &name, void *sender, NotificationInfo &info) {
   if (name == "GNColorsChanged") {
     update_colors();
   }

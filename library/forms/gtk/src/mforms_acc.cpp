@@ -25,55 +25,55 @@
 namespace mforms {
   namespace gtk {
 
-    static AtkRole convertAccessibleRole(mforms::Accessible::Role be_role) {
+    static AtkRole convertAccessibleRole(base::Accessible::Role be_role) {
       AtkRole role = ATK_ROLE_INVALID;
 
       switch (be_role) {
-        case mforms::Accessible::RoleNone:
+        case base::Accessible::RoleNone:
           role = ATK_ROLE_INVALID;
           break;
 
-        case mforms::Accessible::Client:
+        case base::Accessible::Window:
           role = ATK_ROLE_WINDOW;
           break;
 
-        case mforms::Accessible::Pane:
+        case base::Accessible::Pane:
           role = ATK_ROLE_PANEL;
           break;
 
-        case mforms::Accessible::Link:
+        case base::Accessible::Link:
           role = ATK_ROLE_UNKNOWN;
           break;
 
-        case mforms::Accessible::List:
+        case base::Accessible::List:
           role = ATK_ROLE_LIST;
           break;
 
-        case mforms::Accessible::ListItem:
+        case base::Accessible::ListItem:
           role = ATK_ROLE_LIST_ITEM;
           break;
 
-        case mforms::Accessible::PushButton:
+        case base::Accessible::PushButton:
           role = ATK_ROLE_PUSH_BUTTON;
           break;
 
-        case mforms::Accessible::StaticText:
+        case base::Accessible::StaticText:
           role = ATK_ROLE_LABEL;
           break;
 
-        case mforms::Accessible::Text:
+        case base::Accessible::Text:
           role = ATK_ROLE_TEXT;
           break;
 
-        case mforms::Accessible::Outline:
+        case base::Accessible::Outline:
           role = ATK_ROLE_TREE_TABLE;
           break;
 
-        case mforms::Accessible::OutlineButton:
+        case base::Accessible::OutlineButton:
           role = ATK_ROLE_UNKNOWN;
           break;
 
-        case mforms::Accessible::OutlineItem:
+        case base::Accessible::OutlineItem:
         default:
           role = ATK_ROLE_UNKNOWN;
 
@@ -200,11 +200,11 @@ namespace mforms {
       return type_id_result;
     }
 
-    mformsGTKAccessible::mformsGTKAccessible(GtkAccessible *accessible, mforms::Accessible *acc)
+    mformsGTKAccessible::mformsGTKAccessible(GtkAccessible *accessible, base::Accessible *acc)
         : _accessible(accessible), _mformsAcc(acc) {
     }
 
-    static std::map<mforms::Accessible*, AtkObject*> childMapping;
+    static std::map<base::Accessible*, AtkObject*> childMapping;
 
     mformsGTKAccessible::~mformsGTKAccessible() {
       for (const auto &it : _children) {
@@ -220,14 +220,14 @@ namespace mforms {
       _children.clear();
     }
 
-    mforms::Accessible* mformsGTKAccessible::getmformsAccessible(AtkObject *accessible) {
+    base::Accessible* mformsGTKAccessible::getmformsAccessible(AtkObject *accessible) {
       GtkWidget *widget = gtk_accessible_get_widget(GTK_ACCESSIBLE(accessible));
       if (widget == NULL)
         return nullptr;
 
       MFormsObject *mfo = MFORMSOBJECT(widget);
       if (mfo != nullptr && mfo->pmforms != nullptr)
-        return dynamic_cast<mforms::Accessible*>(mfo->pmforms->_owner);
+        return dynamic_cast<base::Accessible*>(mfo->pmforms->_owner);
 
       return nullptr;
     }
@@ -241,7 +241,7 @@ namespace mforms {
     gboolean mformsGTKAccessible::AtkActionIface::doAction(AtkAction *action, gint i) {
       auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(action));
       if (thisAccessible != nullptr && thisAccessible->_mformsAcc != nullptr) {
-        thisAccessible->_mformsAcc->do_default_action();
+        thisAccessible->_mformsAcc->accessibilityDoDefaultAction();
         return true;
       }
 
@@ -260,8 +260,8 @@ namespace mforms {
       if (i == 0) {
         auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(action));
         if (thisAccessible != nullptr) {
-          if (!thisAccessible->_mformsAcc->get_acc_default_action().empty() && thisAccessible->_accActionName.empty())
-            thisAccessible->_accActionName = thisAccessible->_mformsAcc->get_acc_default_action();
+          if (!thisAccessible->_mformsAcc->getAccessibilityDefaultAction().empty() && thisAccessible->_accActionName.empty())
+            thisAccessible->_accActionName = thisAccessible->_mformsAcc->getAccessibilityDefaultAction();
           return thisAccessible->_accActionName.c_str();
         }
       }
@@ -289,7 +289,7 @@ namespace mforms {
       auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(component));
       if (thisAccessible != nullptr) {
         auto mGtk = mformsGTK::FromWidget(gtk_accessible_get_widget(GTK_ACCESSIBLE(component)));
-        auto bounds = thisAccessible->_mformsAcc->get_acc_bounds();
+        auto bounds = thisAccessible->_mformsAcc->getAccessibilityBounds();
         *width = bounds.width();
         *height = bounds.height();
 
@@ -342,7 +342,7 @@ namespace mforms {
       auto mformsGtkAcc = FromAccessible(accessible);
       if (mformsGtkAcc != nullptr && mformsGtkAcc->_mformsAcc != nullptr) {
         if (mformsGtkAcc->_name.empty())
-          mformsGtkAcc->_name = mformsGtkAcc->_mformsAcc->get_acc_name();
+          mformsGtkAcc->_name = mformsGtkAcc->_mformsAcc->getAccessibilityName();
 
         if (!mformsGtkAcc->_name.empty())
           return mformsGtkAcc->_name.c_str();
@@ -355,7 +355,7 @@ namespace mforms {
       auto mformsGtkAcc = FromAccessible(accessible);
       if (mformsGtkAcc != nullptr && mformsGtkAcc->_mformsAcc != nullptr) {
         if (mformsGtkAcc->_description.empty())
-          mformsGtkAcc->_description = mformsGtkAcc->_mformsAcc->get_acc_description();
+          mformsGtkAcc->_description = mformsGtkAcc->_mformsAcc->getAccessibilityDescription();
 
         if (!mformsGtkAcc->_description.empty())
           return mformsGtkAcc->_description.c_str();
@@ -367,12 +367,12 @@ namespace mforms {
     AtkRole mformsGTKAccessible::getRole(AtkObject *accessible) {
       auto acc = getmformsAccessible(accessible);
 
-      if (acc != nullptr && convertAccessibleRole(acc->get_acc_role()) != ATK_ROLE_UNKNOWN)
-        return convertAccessibleRole(acc->get_acc_role());
+      if (acc != nullptr && convertAccessibleRole(acc->getAccessibilityRole()) != ATK_ROLE_UNKNOWN)
+        return convertAccessibleRole(acc->getAccessibilityRole());
       else {  //we need to check if maybe it's not a "virtual" widget
         for (const auto &it : childMapping) {
-          if (it.second == accessible && convertAccessibleRole(it.first->get_acc_role()) != ATK_ROLE_UNKNOWN)
-            return convertAccessibleRole(it.first->get_acc_role());
+          if (it.second == accessible && convertAccessibleRole(it.first->getAccessibilityRole()) != ATK_ROLE_UNKNOWN)
+            return convertAccessibleRole(it.first->getAccessibilityRole());
         }
       }
 
@@ -384,7 +384,7 @@ namespace mforms {
 
       auto acc = getmformsAccessible(accessible);
       if (acc != nullptr)
-        return acc->get_acc_child_count() + baseChildCount;
+        return acc->getAccessibilityChildCount() + baseChildCount;
 
       return baseChildCount;
     }
@@ -395,7 +395,7 @@ namespace mforms {
         int childPos = i - baseChildCount;
         auto acc = getmformsAccessible(accessible);
         if (acc != nullptr) {
-          auto accChild = acc->get_acc_child(childPos);
+          auto accChild = acc->getAccessibilityChild(childPos);
           if (accChild != nullptr) {
             auto it = childMapping.find(accChild);
             if (it != childMapping.end())
@@ -451,8 +451,8 @@ namespace mforms {
       _owner = view;
     }
 
-    mforms::Accessible* mformsGTK::getmformsAcc() {
-      return dynamic_cast<mforms::Accessible*>(_owner);
+    base::Accessible* mformsGTK::getmformsAcc() {
+      return dynamic_cast<base::Accessible*>(_owner);
     }
 
     AtkObject* mformsGTK::GetAccessible(GtkWidget *widget) {

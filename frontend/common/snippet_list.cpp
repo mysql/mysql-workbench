@@ -65,7 +65,7 @@ static int image_height(cairo_surface_t* image) {
 
 //----------------- Snippet ------------------------------------------------------------------------
 
-class Snippet : public mforms::Accessible {
+class Snippet : public base::Accessible {
 private:
   cairo_surface_t* _icon;
   std::string _title;
@@ -298,21 +298,21 @@ public:
   //------------------------------------------------------------------------------------------------
 
   // ------ Accesibility Methods -----
-  virtual std::string get_acc_name() {
+  virtual std::string getAccessibilityName() {
     return _title;
   }
-  virtual mforms::Accessible::Role get_acc_role() {
-    return mforms::Accessible::ListItem;
+  virtual base::Accessible::Role getAccessibilityRole() {
+    return base::Accessible::ListItem;
   }
-  virtual base::Rect get_acc_bounds() {
+  virtual base::Rect getAccessibilityBounds() {
     return _bounds;
   }
 
-  virtual std::string get_acc_default_action() {
+  virtual std::string getAccessibilityDefaultAction() {
     return "click";
   }
 
-  virtual void do_default_action() {
+  virtual void accessibilityDoDefaultAction() {
     if (_defaultActionCb)
       _defaultActionCb((int)_bounds.center().x, (int)_bounds.center().y);
   }
@@ -580,13 +580,13 @@ base::Rect BaseSnippetList::snippet_bounds(Snippet* snippet) {
 }
 
 //------------------------------------------------------------------------------------------------
-int BaseSnippetList::get_acc_child_count() {
+int BaseSnippetList::getAccessibilityChildCount() {
   return (int)_snippets.size();
 }
 
 //------------------------------------------------------------------------------------------------
-Accessible* BaseSnippetList::get_acc_child(int index) {
-  mforms::Accessible* accessible = NULL;
+Accessible* BaseSnippetList::getAccessibilityChild(int index) {
+  base::Accessible* accessible = NULL;
 
   if ((size_t)index < _snippets.size())
     accessible = _snippets[index];
@@ -595,6 +595,6 @@ Accessible* BaseSnippetList::get_acc_child(int index) {
 }
 
 //------------------------------------------------------------------------------------------------
-mforms::Accessible* BaseSnippetList::hit_test(int x, int y) {
+base::Accessible* BaseSnippetList::accessibilityHitTest(int x, int y) {
   return snippet_from_point(x, y);
 }

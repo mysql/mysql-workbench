@@ -17,50 +17,50 @@
  * 02110-1301  USA
  */
 
+#include "base/accessibility.h"
+
 #import "MFDrawBox.h"
 #import "MFMForms.h"
 #include <cairo/cairo-quartz.h>
 
-
-
-static NSString* convertAccessibleRole(mforms::Accessible::Role be_role) {
+// TODO: move the accessibility helper to a base lib platform file.
+static NSString* convertAccessibleRole(base::Accessible::Role be_role) {
   switch (be_role) {
-      
-    case mforms::Accessible::Client:
+    case base::Accessible::Window:
       return NSAccessibilityWindowRole;
       
-    case mforms::Accessible::Pane:
+    case base::Accessible::Pane:
       return NSAccessibilityGroupRole;
       
-    case mforms::Accessible::Link:
+    case base::Accessible::Link:
       return NSAccessibilityLinkRole;
       
-    case mforms::Accessible::List:
+    case base::Accessible::List:
       return NSAccessibilityListRole;
       
-    case mforms::Accessible::ListItem:
+    case base::Accessible::ListItem:
       return NSAccessibilityGroupRole;
       
-    case mforms::Accessible::PushButton:
+    case base::Accessible::PushButton:
       return NSAccessibilityButtonRole;
       
-    case mforms::Accessible::StaticText:
+    case base::Accessible::StaticText:
       return NSAccessibilityStaticTextRole;
       
-    case mforms::Accessible::Text:
+    case base::Accessible::Text:
       return NSAccessibilityTextFieldRole;
       
-    case mforms::Accessible::Outline:
+    case base::Accessible::Outline:
       return NSAccessibilityOutlineRole;
       
-    case mforms::Accessible::OutlineButton:
+    case base::Accessible::OutlineButton:
+      return NSAccessibilityButtonRole;
+      
+    case base::Accessible::OutlineItem:
       return NSAccessibilityGroupRole;
       
-    case mforms::Accessible::OutlineItem:
-      return NSAccessibilityGroupRole;
-      
-    case mforms::Accessible::RoleNone:
-      return NSAccessibilityGroupRole;
+    case base::Accessible::RoleNone:
+      return NSAccessibilityUnknownRole;
       
     default:
       return NSAccessibilityUnknownRole;
@@ -72,7 +72,7 @@ static NSString* convertAccessibleRole(mforms::Accessible::Role be_role) {
 
 @implementation AccChildImpl
 
-- (id)initWithObject: (mforms::Accessible *)acc parent: (mforms::View *)parentAcc {
+- (id)initWithObject: (base::Accessible *)acc parent: (mforms::View *)parentAcc {
   
   self = [super init];
 
@@ -85,12 +85,12 @@ static NSString* convertAccessibleRole(mforms::Accessible::Role be_role) {
 }
 
 -(NSString*)accessibilityRole {
-  return convertAccessibleRole(mformsAcc->get_acc_role());
+  return convertAccessibleRole(mformsAcc->getAccessibilityRole());
 }
 
 -(NSString*)accessibilityRoleDescription {
-  std::string accDescription = mformsAcc->get_acc_description();
-  return [NSString stringWithCString: accDescription.c_str() encoding: [NSString defaultCStringEncoding]];
+  std::string accDescription = mformsAcc->getAccessibilityDescription();
+  return [NSString stringWithUTF8String: accDescription.c_str()];
 }
 
 -(id)accessibilityParent {
@@ -98,30 +98,30 @@ static NSString* convertAccessibleRole(mforms::Accessible::Role be_role) {
 }
 
 -(BOOL)accessibilityPerformPress {
-  mformsAcc->do_default_action();
+  mformsAcc->accessibilityDoDefaultAction();
   return true;
 }
 
 - (NSString *)accessibilityLabel {
-  std::string accName = mformsAcc->get_acc_name();
-  return [NSString stringWithCString: accName.c_str() encoding: [NSString defaultCStringEncoding]];
+  std::string accName = mformsAcc->getAccessibilityName();
+  return [NSString stringWithUTF8String: accName.c_str()];
 }
 
 -(BOOL)isAccessibilityElement {
-  return convertAccessibleRole(mformsAcc->get_acc_role()) != NSAccessibilityUnknownRole;
+  return convertAccessibleRole(mformsAcc->getAccessibilityRole()) != NSAccessibilityUnknownRole;
 }
 
 -(NSRect)accessibilityFrame {
-  base::Rect accBounds = mformsAcc->get_acc_bounds();
+  base::Rect accBounds = mformsAcc->getAccessibilityBounds();
   auto point = parent->client_to_screen(accBounds.left(), accBounds.top());
-  return NSMakeRect(point.first, point.second, accBounds.width(), accBounds.height());
+  return NSMakeRect(point.first, point.second - accBounds.height(), accBounds.width(), accBounds.height());
 }
 
 -(id)accessibilityHitTest: (NSPoint)point {
   
   std::pair<int, int> p = ((mforms::View*)mformsAcc)->screen_to_client(point.x, point.y);
   
-  mforms::Accessible *acc = mformsAcc->hit_test(p.first, p.second);
+  base::Accessible *acc = mformsAcc->accessibilityHitTest(p.first, p.second);
   if (acc != nullptr) {
     if (acc == self->mformsAcc)
       return self;
@@ -180,52 +180,56 @@ static NSString* convertAccessibleRole(mforms::Accessible::Role be_role) {
 }
 
 -(BOOL)isAccessibilityElement {
-  return convertAccessibleRole(mOwner->get_acc_role()) != NSAccessibilityUnknownRole;
+  return convertAccessibleRole(mOwner->getAccessibilityRole()) != NSAccessibilityUnknownRole;
 }
 
 -(id)accessibilityHitTest: (NSPoint)point {
   std::pair<int, int> p = mOwner->screen_to_client(point.x, point.y);
 
-  mforms::Accessible *acc = mOwner->hit_test(p.first, p.second);
+  base::Accessible *acc = mOwner->accessibilityHitTest(p.first, p.second);
   if (acc != nullptr) {
     auto it = accChildList.find(acc);
     if (it != accChildList.end())
       return it->second;
 
     AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: mOwner];
-    accChildList.insert({acc, accChild});
+    accChildList.insert({ acc, accChild });
     return accChild;
   }
   return self;
 }
 
 -(NSString*)accessibilityRole {
-  return convertAccessibleRole(mOwner->get_acc_role());
+  return convertAccessibleRole(mOwner->getAccessibilityRole());
+}
+
+-(NSString*)accessibilityIdentifier {
+  std::string name = mOwner->getAccessibilityName();
+  return [NSString stringWithUTF8String: name.c_str()];
 }
 
 -(NSString*)accessibilityLabel {
-
-  std::string accName = mOwner->get_acc_name();
-  return [NSString stringWithCString: accName.c_str() encoding: [NSString defaultCStringEncoding]];
+  std::string description = mOwner->getAccessibilityDescription();
+  return [NSString stringWithUTF8String: description.c_str()];
 }
 
--(NSString*)accessibilityRoleDescription {
-  std::string accDescription = mOwner->get_acc_description();
-  return [NSString stringWithCString: accDescription.c_str() encoding: [NSString defaultCStringEncoding]];
+-(NSString*)accessibilityTitle {
+  std::string title = mOwner->getAccessibilityTitle();
+  return [NSString stringWithUTF8String: title.c_str()];
 }
 
 -(NSArray*)accessibilityChildren {
   NSMutableArray *children = [[super accessibilityChildren] mutableCopy];
-  int cCount = mOwner->get_acc_child_count();
-  for ( int i = 0; i < cCount; ++i) {
-    mforms::Accessible *acc = mOwner->get_acc_child(i);
+  int cCount = mOwner->getAccessibilityChildCount();
+  for (int i = 0; i < cCount; ++i) {
+    base::Accessible *acc = mOwner->getAccessibilityChild(i);
     auto it = accChildList.find(acc);
     if (it != accChildList.end()) {
       [children addObject: it->second];
       continue;
     }
     AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: mOwner];
-    accChildList.insert({acc, accChild});
+    accChildList.insert({ acc, accChild });
     [children addObject: accChild];
   }
   return children;

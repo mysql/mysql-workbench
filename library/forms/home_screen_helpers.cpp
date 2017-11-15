@@ -51,31 +51,31 @@ base::any mforms::getAnyMapValue(const mforms::anyMap& map, const std::string& k
 
 //--------------------------------------------------------------------------------------------------
 
-std::string mforms::HomeAccessibleButton::get_acc_name() {
+std::string mforms::HomeAccessibleButton::getAccessibilityName() {
   return name;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string mforms::HomeAccessibleButton::get_acc_default_action() {
+std::string mforms::HomeAccessibleButton::getAccessibilityDefaultAction() {
   return default_action;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::Accessible::Role mforms::HomeAccessibleButton::get_acc_role() {
-  return mforms::Accessible::PushButton;
+base::Accessible::Role mforms::HomeAccessibleButton::getAccessibilityRole() {
+  return base::Accessible::PushButton;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-base::Rect mforms::HomeAccessibleButton::get_acc_bounds() {
+base::Rect mforms::HomeAccessibleButton::getAccessibilityBounds() {
   return bounds;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void mforms::HomeAccessibleButton::do_default_action() {
+void mforms::HomeAccessibleButton::accessibilityDoDefaultAction() {
   if (default_handler)
     default_handler((int)bounds.center().x, (int)bounds.center().y);
 }
@@ -106,6 +106,8 @@ int mforms::imageHeight(cairo_surface_t* image) {
   return 0;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Helper to draw text with a hot decoration.
  */
@@ -122,3 +124,5 @@ void mforms::textWithDecoration(cairo_t* cr, double x, double y, const char* tex
     cairo_stroke(cr);
   }
 }
+
+//--------------------------------------------------------------------------------------------------

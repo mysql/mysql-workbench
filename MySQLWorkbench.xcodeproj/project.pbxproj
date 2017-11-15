@@ -130,6 +130,7 @@
 		27050B2E1B34459300D6135D /* test_utilities_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B2D1B34459300D6135D /* test_utilities_test.cpp */; };
 		270C50121732AD0900CD33BB /* wbcopytables in Copy Files (executables) */ = {isa = PBXBuildFile; fileRef = 2B2E91C9158915DE0078D08A /* wbcopytables */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270CE08A1725409000BEDDDD /* wb_close.png in Resources */ = {isa = PBXBuildFile; fileRef = 270CE0891725409000BEDDDD /* wb_close.png */; };
+		27100A2E1FBC3D8B004AE384 /* accessibility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27100A2C1FBC3CC6004AE384 /* accessibility.cpp */; };
 		271790191C97000B00B6DAC9 /* jsonparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271790171C97000B00B6DAC9 /* jsonparser.cpp */; };
 		2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901B1C97004A00B6DAC9 /* jsonparser.h */; };
 		2717901F1C97004A00B6DAC9 /* scope_exit_trigger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */; };
@@ -700,6 +701,7 @@
 		27E4B1D01BF0969E0022013F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E4B1CC1BF096450022013F /* QuartzCore.framework */; };
 		27E59B86106B914400C2DA47 /* admin_info_running.png in Resources */ = {isa = PBXBuildFile; fileRef = 27E59B84106B914400C2DA47 /* admin_info_running.png */; };
 		27E59B87106B914400C2DA47 /* admin_info_stopped.png in Resources */ = {isa = PBXBuildFile; fileRef = 27E59B85106B914400C2DA47 /* admin_info_stopped.png */; };
+		27E63EB41FB9E33C001C5BE8 /* accessibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 27E63EB31FB9E33B001C5BE8 /* accessibility.h */; };
 		27EADE1D18E5707100D3C85D /* cppdbc_public_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */; };
 		27EADE1E18E5707100D3C85D /* cppdbc.h in Headers */ = {isa = PBXBuildFile; fileRef = 27EADE1718E5707100D3C85D /* cppdbc.h */; };
 		27EADE1F18E5707100D3C85D /* driver_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27EADE1818E5707100D3C85D /* driver_manager.cpp */; };
@@ -4230,6 +4232,7 @@
 		27050B291B34457900D6135D /* wb_sql_editor_help_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_sql_editor_help_test.cpp; path = "backend/wbprivate/sqlide/unit-tests/wb_sql_editor_help_test.cpp"; sourceTree = "<group>"; };
 		27050B2D1B34459300D6135D /* test_utilities_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_utilities_test.cpp; path = testing/tut/modules/test_utilities_test.cpp; sourceTree = "<group>"; };
 		270CE0891725409000BEDDDD /* wb_close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_close.png; path = images/home/wb_close.png; sourceTree = "<group>"; };
+		27100A2C1FBC3CC6004AE384 /* accessibility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = accessibility.cpp; path = library/base/accessibility.cpp; sourceTree = "<group>"; };
 		271790171C97000B00B6DAC9 /* jsonparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = jsonparser.cpp; path = library/base/jsonparser.cpp; sourceTree = "<group>"; };
 		2717901B1C97004A00B6DAC9 /* jsonparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsonparser.h; path = library/base/base/jsonparser.h; sourceTree = "<group>"; };
 		2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scope_exit_trigger.h; path = library/base/base/scope_exit_trigger.h; sourceTree = "<group>"; };
@@ -4571,6 +4574,7 @@
 		27E4B1CC1BF096450022013F /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		27E59B84106B914400C2DA47 /* admin_info_running.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_running.png; path = images/admin/admin_info_running.png; sourceTree = "<group>"; };
 		27E59B85106B914400C2DA47 /* admin_info_stopped.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_stopped.png; path = images/admin/admin_info_stopped.png; sourceTree = "<group>"; };
+		27E63EB31FB9E33B001C5BE8 /* accessibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = accessibility.h; path = library/base/base/accessibility.h; sourceTree = "<group>"; };
 		27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc_public_interface.h; path = library/cdbc/src/cppdbc_public_interface.h; sourceTree = SOURCE_ROOT; };
 		27EADE1718E5707100D3C85D /* cppdbc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc.h; path = library/cdbc/src/cppdbc.h; sourceTree = SOURCE_ROOT; };
 		27EADE1818E5707100D3C85D /* driver_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = driver_manager.cpp; path = library/cdbc/src/driver_manager.cpp; sourceTree = SOURCE_ROOT; };
@@ -7856,13 +7860,6 @@
 			name = MySQL;
 			sourceTree = "<group>";
 		};
-		27227B9A1C4551730098910A /* ECMA */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = ECMA;
-			sourceTree = "<group>";
-		};
 		2730C7471917866D00A3BD0C /* db.mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
@@ -7944,7 +7941,6 @@
 		27467FBA154AC77A00021708 /* parsers */ = {
 			isa = PBXGroup;
 			children = (
-				27227B9A1C4551730098910A /* ECMA */,
 				27227B991C4551540098910A /* MySQL */,
 				27227B541C454B020098910A /* code-completion */,
 				27227B551C454B100098910A /* grammar-parser */,
@@ -10042,6 +10038,8 @@
 		2B825D2F0E0B59CC00BE52DF /* base */ = {
 			isa = PBXGroup;
 			children = (
+				27100A2C1FBC3CC6004AE384 /* accessibility.cpp */,
+				27E63EB31FB9E33B001C5BE8 /* accessibility.h */,
 				2B299C4612CF8C3D008B57C9 /* boost_smart_ptr_helpers.h */,
 				27C3A1301070C3B200DD5717 /* common.h */,
 				2B60D7E7129C6B83000D5760 /* config_file.cpp */,
@@ -11996,6 +11994,7 @@
 				2767F92C11635C2500931E27 /* geometry.h in Headers */,
 				2B299C4B12CF8C3D008B57C9 /* boost_smart_ptr_helpers.h in Headers */,
 				2B299C4C12CF8C3D008B57C9 /* config_file.h in Headers */,
+				27E63EB41FB9E33C001C5BE8 /* accessibility.h in Headers */,
 				44683E4C1AC9A41700C516C5 /* generic_templates.h in Headers */,
 				2B299C4E12CF8C3D008B57C9 /* wb_iterators.h in Headers */,
 				2B6C4FBD18DDD8C500869EBE /* python_utils.h in Headers */,
@@ -14980,6 +14979,7 @@
 				2738042210AB272500EF15C0 /* string_utilities.cpp in Sources */,
 				2767F92B11635C2500931E27 /* geometry.cpp in Sources */,
 				2774A4C31C92CECD00D1E037 /* drawing_osx.mm in Sources */,
+				27100A2E1FBC3D8B004AE384 /* accessibility.cpp in Sources */,
 				2B60D7E8129C6B83000D5760 /* config_file.cpp in Sources */,
 				2B89B55F12A2FC7B009D4A2C /* file_utilities.cpp in Sources */,
 				2B15AEB612D74EFF006567D6 /* file_functions.cpp in Sources */,
@@ -18135,6 +18135,13 @@
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.sqlparser.grt;
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-overloaded-virtual",
+					"-Wno-unused-local-typedef",
+					"-Wno-deprecated-register",
+					"-Wno-varargs",
+				);
 			};
 			name = Debug;
 		};
@@ -18166,6 +18173,13 @@
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				PRODUCT_NAME = db.mysql.sqlparser.grt;
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-overloaded-virtual",
+					"-Wno-unused-local-typedef",
+					"-Wno-deprecated-register",
+					"-Wno-varargs",
+				);
 				ZERO_LINK = NO;
 			};
 			name = Release;

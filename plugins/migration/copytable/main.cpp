@@ -344,7 +344,7 @@ int main(int argc, char **argv) {
         bulk_insert_batch = 100;
     } else if (strcmp(argv[i], "--version") == 0) {
       const char *type = APP_EDITION_NAME;
-      if (strcmp(APP_EDITION_NAME, "Community") == 0)
+      if (strcmp(APP_EDITION_NAME, "Community") == (0)) // Extra parens to silence warning.
         type = "CE";
 
       printf("%s %s (%s) %i.%i.%i %s build %i\n", base::basename(argv[0]).c_str(), type, APP_LICENSE_TYPE,

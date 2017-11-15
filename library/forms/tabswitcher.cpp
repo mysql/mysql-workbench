@@ -84,23 +84,23 @@ public:
     }
 
     // ------ Accesibility Methods -----
-    virtual std::string get_acc_name() override {
+    virtual std::string getAccessibilityName() override {
       return title;
     }
 
-    virtual Accessible::Role get_acc_role() override {
+    virtual Accessible::Role getAccessibilityRole() override {
       return Accessible::ListItem;
     }
 
-    virtual base::Rect get_acc_bounds() override {
+    virtual base::Rect getAccessibilityBounds() override {
       return accBounds;
     }
 
-    virtual std::string get_acc_default_action() override {
+    virtual std::string getAccessibilityDefaultAction() override {
       return "Switch view";
     }
 
-    virtual void do_default_action() override {
+    virtual void accessibilityDoDefaultAction() override {
       actionCallback((int)accBounds.center().x, (int)accBounds.center().y);
     }
   };
@@ -634,25 +634,25 @@ bool TabSwitcher::mouse_leave() {
 
 //--------------------------------------------------------------------------------------------------
 
-int TabSwitcher::get_acc_child_count() {
+int TabSwitcher::getAccessibilityChildCount() {
   return _pimpl->getItemCount();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Accessible *TabSwitcher::get_acc_child(int index) {
+Accessible *TabSwitcher::getAccessibilityChild(int index) {
   return dynamic_cast<Accessible*>(_pimpl->getItem(index));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Accessible::Role TabSwitcher::get_acc_role() {
+Accessible::Role TabSwitcher::getAccessibilityRole() {
   return Accessible::List;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::Accessible *TabSwitcher::hit_test(int x, int y) {
+base::Accessible *TabSwitcher::accessibilityHitTest(int x, int y) {
   int idx = _pimpl->index_from_point(x, y);
   if (idx == -1)
     return nullptr;
