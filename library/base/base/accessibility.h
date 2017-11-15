@@ -40,7 +40,7 @@ namespace base {
       OutlineItem
     };
 
-    virtual ~Accessible() {};
+    virtual ~Accessible();
 
     // Name + role are mandatory.
     virtual std::string getAccessibilityName() = 0;
@@ -48,39 +48,15 @@ namespace base {
 
     // The rest of the accessible methods are optional, but it is strongly recommended to implement them
     // in all descendants for property accessibility + testing support.
-    virtual std::string getAccessibilityTitle() {
-      return "";
-    }
-
-    virtual std::string getAccessibilityDescription() {
-      return "";
-    }
-
-    virtual std::string getAccessibilityValue() {
-      return "";
-    }
-
-    virtual int getAccessibilityChildCount() {
-      return 0;
-    }
-
-    virtual Accessible* getAccessibilityChild(int index) {
-      return nullptr;
-    }
-
-    virtual base::Rect getAccessibilityBounds() {
-      return base::Rect();
-    }
-
-    virtual Accessible* accessibilityHitTest(int x, int y) {
-      return nullptr;
-    }
-
-    virtual std::string getAccessibilityDefaultAction() {
-      return "";
-    }
-
-    virtual void accessibilityDoDefaultAction() {};
+    virtual std::string getAccessibilityTitle();
+    virtual std::string getAccessibilityDescription();
+    virtual std::string getAccessibilityValue();
+    virtual int getAccessibilityChildCount();
+    virtual Accessible* getAccessibilityChild(int index);
+    virtual base::Rect getAccessibilityBounds();
+    virtual Accessible* accessibilityHitTest(int x, int y);
+    virtual std::string getAccessibilityDefaultAction();
+    virtual void accessibilityDoDefaultAction();
   };
 
 }
