@@ -384,7 +384,7 @@ namespace mforms {
 
       auto acc = getmformsAccessible(accessible);
       if (acc != nullptr)
-        return acc->getAccessibilityCildCount() + baseChildCount;
+        return acc->getAccessibilityChildCount() + baseChildCount;
 
       return baseChildCount;
     }
