@@ -80,10 +80,10 @@ namespace mforms {
         static void getExtents(AtkComponent *component, gint *x, gint *y, gint *width, gint *height, AtkCoordType coord_type);
       };
 
-      mformsGTKAccessible(GtkAccessible *accessible, mforms::Accessible *acc);
+      mformsGTKAccessible(GtkAccessible *accessible, base::Accessible *acc);
       virtual ~mformsGTKAccessible();
       static AtkObject *WidgetGetAccessibleImpl(GtkWidget *widget, AtkObject **cache, gpointer widget_parent_class);
-      static mforms::Accessible* getmformsAccessible(AtkObject *accessible);
+      static base::Accessible* getmformsAccessible(AtkObject *accessible);
       static const gchar* getName(AtkObject *accessible);
       static const gchar* getDescription(AtkObject *accessible);
       static AtkRole getRole(AtkObject *accessible);
@@ -94,11 +94,11 @@ namespace mforms {
 
     protected:
       GtkAccessible *_accessible;
-      mforms::Accessible *_mformsAcc;
+      base::Accessible *_mformsAcc;
       std::string _name;
       std::string _description;
       std::string _accActionName;
-      std::vector<mforms::Accessible*> _children;
+      std::vector<base::Accessible*> _children;
     };
 
     struct mformsObjectAccessiblePrivate {
@@ -118,7 +118,7 @@ namespace mforms {
       static mformsGTK* FromWidget(GtkWidget *widget);
       AtkObject* GetAccessibleThis(GtkWidget *widget);
       void SetMFormsOwner(mforms::View *view);
-      mforms::Accessible* getmformsAcc();
+      base::Accessible* getmformsAcc();
     protected:
       _MFormsObject *_mfo;
       GtkWidget* _windowMain;
