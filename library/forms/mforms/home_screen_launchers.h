@@ -120,10 +120,10 @@ namespace mforms {
     virtual bool mouse_leave() override;
     virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
     void handle_command(const std::string &command);
-    virtual int getAccessibilityChildCount() override;
-    virtual base::Accessible* getAccessibilityChild(int index) override;
+    virtual size_t getAccessibilityChildCount() override;
+    virtual base::Accessible* getAccessibilityChild(size_t index) override;
     virtual base::Accessible::Role getAccessibilityRole() override;
-    virtual base::Accessible* accessibilityHitTest(int x, int y) override;
+    virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
   };
 
 } /* namespace wb */

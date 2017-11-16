@@ -634,13 +634,13 @@ bool TabSwitcher::mouse_leave() {
 
 //--------------------------------------------------------------------------------------------------
 
-int TabSwitcher::getAccessibilityChildCount() {
+size_t TabSwitcher::getAccessibilityChildCount() {
   return _pimpl->getItemCount();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Accessible *TabSwitcher::getAccessibilityChild(int index) {
+Accessible *TabSwitcher::getAccessibilityChild(size_t index) {
   return dynamic_cast<Accessible*>(_pimpl->getItem(index));
 }
 
@@ -652,7 +652,7 @@ Accessible::Role TabSwitcher::getAccessibilityRole() {
 
 //--------------------------------------------------------------------------------------------------
 
-base::Accessible *TabSwitcher::accessibilityHitTest(int x, int y) {
+base::Accessible *TabSwitcher::accessibilityHitTest(ssize_t x, ssize_t y) {
   int idx = _pimpl->index_from_point(x, y);
   if (idx == -1)
     return nullptr;

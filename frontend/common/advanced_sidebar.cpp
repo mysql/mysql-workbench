@@ -245,7 +245,7 @@ void SidebarSection::Button::draw(cairo_t* cr) {
 
 //--------------------------------------------------------------------------------------------------
 
-bool SidebarSection::Button::check_hit(int x, int y) {
+bool SidebarSection::Button::check_hit(ssize_t x, ssize_t y) {
   return (x >= this->x && x < this->x + bounds_width && y >= this->y && y < this->y + bounds_height);
 }
 
@@ -547,12 +547,14 @@ bool SidebarSection::select(const std::string& name) {
 }
 
 //------------------------------------------------------------------------------------------------
-int SidebarSection::getAccessibilityChildCount() {
+
+size_t SidebarSection::getAccessibilityChildCount() {
   return (int)(_entries.size() + _enabled_buttons.size());
 }
 
 //------------------------------------------------------------------------------------------------
-Accessible* SidebarSection::getAccessibilityChild(int index) {
+
+Accessible* SidebarSection::getAccessibilityChild(size_t index) {
   base::Accessible* accessible = NULL;
 
   if ((size_t)index < _enabled_buttons.size())
@@ -564,7 +566,8 @@ Accessible* SidebarSection::getAccessibilityChild(int index) {
 }
 
 //------------------------------------------------------------------------------------------------
-base::Accessible* SidebarSection::accessibilityHitTest(int x, int y) {
+
+base::Accessible* SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   base::Accessible* accessible = NULL;
 
   // if (_expand_text_active)

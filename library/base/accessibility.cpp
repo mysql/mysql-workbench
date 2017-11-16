@@ -46,13 +46,13 @@ std::string Accessible::getAccessibilityValue() {
 
 //---------------------------------------------------------------------------------------------------------------------
 
-int Accessible::getAccessibilityChildCount() {
+size_t Accessible::getAccessibilityChildCount() {
   return 0;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Accessible* Accessible::getAccessibilityChild(int index) {
+Accessible* Accessible::getAccessibilityChild(size_t index) {
   return nullptr;
 }
 
@@ -64,7 +64,7 @@ base::Rect Accessible::getAccessibilityBounds() {
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Accessible* Accessible::accessibilityHitTest(int x, int y) {
+Accessible* Accessible::accessibilityHitTest(ssize_t x, ssize_t y) {
   return nullptr;
 }
 
@@ -77,6 +77,11 @@ std::string Accessible::getAccessibilityDefaultAction() {
 //---------------------------------------------------------------------------------------------------------------------
 
 void Accessible::accessibilityDoDefaultAction() {
+};
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void Accessible::accessibilityShowMenu() {
 };
 
 //---------------------------------------------------------------------------------------------------------------------

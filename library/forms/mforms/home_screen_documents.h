@@ -97,8 +97,6 @@ namespace mforms {
     ssize_t _active_entry;
     enum DisplayMode { Nothing, ModelsOnly, ScriptsOnly, Mixed } _display_mode;
 
-    std::function<bool(int, int)> _accessible_click_handler;
-
     HomeAccessibleButton _add_button;
     HomeAccessibleButton _open_button;
     HomeAccessibleButton _action_button;
@@ -165,10 +163,10 @@ namespace mforms {
     void handle_command(const std::string &command);
     void show_connection_select_message();
     void hide_connection_select_message();
-    virtual int getAccessibilityChildCount() override;
-    virtual Accessible *getAccessibilityChild(int index) override;
+    virtual size_t getAccessibilityChildCount() override;
+    virtual Accessible *getAccessibilityChild(size_t index) override;
     virtual Accessible::Role getAccessibilityRole() override;
-    virtual base::Accessible *accessibilityHitTest(int x, int y) override;
+    virtual base::Accessible *accessibilityHitTest(ssize_t x, ssize_t y) override;
   };
 
 } /* namespace wb */

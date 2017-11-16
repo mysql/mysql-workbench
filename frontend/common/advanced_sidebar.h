@@ -114,7 +114,7 @@ namespace wb {
       void draw(cairo_t* cr);
       void move(int x, int y);
 
-      bool check_hit(int x, int y);
+      bool check_hit(ssize_t x, ssize_t y);
 
       // ------ Accesibility Methods -----
       virtual std::string getAccessibilityName() {
@@ -206,9 +206,9 @@ namespace wb {
     virtual std::string getAccessibilityName() override {
       return get_name();
     }
-    virtual int getAccessibilityChildCount() override;
-    virtual Accessible* getAccessibilityChild(int index) override;
-    virtual base::Accessible* accessibilityHitTest(int x, int y) override;
+    virtual size_t getAccessibilityChildCount() override;
+    virtual Accessible* getAccessibilityChild(size_t index) override;
+    virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
 
     void clear_selection();
 

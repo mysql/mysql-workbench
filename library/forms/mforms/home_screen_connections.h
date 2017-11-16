@@ -45,10 +45,10 @@ namespace mforms {
     virtual std::string getAccessibilityTitle() override;
     virtual std::string getAccessibilityDescription() override;
     virtual std::string getAccessibilityValue() override;
-    virtual int getAccessibilityChildCount() override;
-    virtual Accessible* getAccessibilityChild(int index) override;
+    virtual size_t getAccessibilityChildCount() override;
+    virtual Accessible* getAccessibilityChild(size_t index) override;
     virtual base::Rect getAccessibilityBounds() override;
-    virtual Accessible* accessibilityHitTest(int x, int y) override;
+    virtual Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
 
   private:
     int _totalHeight = 100; // Arbitrary initial value, til our computation is done.
@@ -59,7 +59,6 @@ namespace mforms {
     HomeAccessibleButton _readBlogButton;
     HomeAccessibleButton _discussButton;
     cairo_surface_t *_closeIcon;
-    std::function<bool(int, int)> _accessible_click_handler;
 
     std::string _heading;
     std::vector<std::string> _content;
@@ -124,11 +123,7 @@ namespace mforms {
     HomeAccessibleButton _rescanButton;
 
     base::Rect _info_button_rect;
-
     ConnectionInfoPopup *_info_popup;
-
-    std::function<bool(int, int)> _accessible_click_handler;
-
     mforms::Box _search_box;
     mforms::TextEntry _search_text;
 
@@ -171,12 +166,12 @@ namespace mforms {
 
     void change_to_folder(std::shared_ptr<FolderEntry> folder);
 
-    virtual int getAccessibilityChildCount() override;
-    virtual Accessible *getAccessibilityChild(int index) override;
+    virtual size_t getAccessibilityChildCount() override;
+    virtual Accessible *getAccessibilityChild(size_t index) override;
     virtual std::string getAccessibilityName() override;
     virtual Accessible::Role getAccessibilityRole() override;
 
-    virtual base::Accessible *accessibilityHitTest(int x, int y) override;
+    virtual base::Accessible *accessibilityHitTest(ssize_t x, ssize_t y) override;
     bool do_tile_drag(ssize_t index, int x, int y);
 
     mforms::DragOperation drag_over(View *sender, base::Point p, mforms::DragOperation allowedOperations,

@@ -438,7 +438,7 @@ void LaunchersSection::handle_command(const std::string &command) {
 
 //------------------------------------------------------------------------------------------------
 
-int LaunchersSection::getAccessibilityChildCount() {
+size_t LaunchersSection::getAccessibilityChildCount() {
   // Initial value due to the add/open/create EER Model icons
   int ret_val = 3;
   ret_val += (int)_launchers.size();
@@ -448,7 +448,7 @@ int LaunchersSection::getAccessibilityChildCount() {
 
 //------------------------------------------------------------------------------------------------
 
-Accessible *LaunchersSection::getAccessibilityChild(int index) {
+Accessible *LaunchersSection::getAccessibilityChild(size_t index) {
   Accessible *accessible = NULL;
   switch (index) {
     case 0:
@@ -460,7 +460,7 @@ Accessible *LaunchersSection::getAccessibilityChild(int index) {
     default: {
       index -= 3;
 
-      if (index < (int)_launchers.size())
+      if (index < _launchers.size())
         accessible = &_launchers[index];
     }
   }
@@ -476,7 +476,7 @@ Accessible::Role LaunchersSection::getAccessibilityRole() {
 
 //------------------------------------------------------------------------------------------------
 
-Accessible *LaunchersSection::accessibilityHitTest(int x, int y) {
+Accessible *LaunchersSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   Accessible *accessible = NULL;
 
   {
