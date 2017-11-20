@@ -995,8 +995,7 @@ BACK_TICK_QUOTED_ID: (
     | {isSqlModeActive(NoBackslashEscapes)}? ~[`]
   )*?
   BACK_TICK
-)
-;
+);
 
 DOUBLE_QUOTED_TEXT: (
   DOUBLE_QUOTE (
@@ -1005,8 +1004,7 @@ DOUBLE_QUOTED_TEXT: (
     | {isSqlModeActive(NoBackslashEscapes)}? ~["]
   )*?
   DOUBLE_QUOTE
-)
-;
+);
 
 SINGLE_QUOTED_TEXT: (
   SINGLE_QUOTE (
@@ -1015,8 +1013,7 @@ SINGLE_QUOTED_TEXT: (
     | {isSqlModeActive(NoBackslashEscapes)}? ~[']
   )*?
   SINGLE_QUOTE
-)
-;
+);
 
 fragment ESCAPE_SEQUENCE: '\\' .; // Valid chars: 0'"bnrtZ\%_;
 
@@ -1028,12 +1025,12 @@ fragment ESCAPE_SEQUENCE: '\\' .; // Valid chars: 0'"bnrtZ\%_;
 VERSION_COMMENT_START: ('/*!' DIGITS) (
   {checkVersion(getText())}? // Will set inVersionComment if the number matches.
   | .*? '*/'
-) -> channel(HIDDEN)
-;
+) -> channel(HIDDEN);
 
 // inVersionComment is a variable in the base lexer.
-MYSQL_COMMENT_START: '/*!' { inVersionComment = true; setChannel(HIDDEN); };
-VERSION_COMMENT_END: '*/' {inVersionComment}? { inVersionComment = false; setChannel(HIDDEN); };
+// TODO: use a lexer mode instead of a member variable.
+MYSQL_COMMENT_START: '/*!' { inVersionComment = true; } -> channel(HIDDEN);
+VERSION_COMMENT_END: '*/' {inVersionComment}? { inVersionComment = false; } -> channel(HIDDEN);
 BLOCK_COMMENT: ( '/**/' | '/*' ~[!] .*? '*/') -> channel(HIDDEN);
 
 POUND_COMMENT: '#' ~([\n\r])*  -> channel(HIDDEN);
@@ -1061,4 +1058,3 @@ fragment LETTER_WHEN_UNQUOTED_NO_DIGIT:
 fragment LETTER_WITHOUT_FLOAT_PART:
     [a-df-zA-DF-Z_$\u0080-\uffff]
 ;
-

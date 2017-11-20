@@ -96,7 +96,7 @@ bool CodeCompletionCore::checkPredicate(PredicateTransition *transition) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Walks the rule chain upwards starting at the given state to see if that matches any of the preferred rules.
+ * Walks the rule chain upwards to see if that matches any of the preferred rules.
  * If found, that rule is added to the collection candidates and true is returned.
  */
 bool CodeCompletionCore::translateToRuleIndex(std::vector<size_t> const& ruleStack) {
