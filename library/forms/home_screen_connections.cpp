@@ -523,7 +523,8 @@ protected:
 
   virtual void accessibilityShowMenu() override {
     if (owner->_connection_context_menu != nullptr) {
-      owner->_connection_context_menu->popup_at(owner, bounds.xcenter(), bounds.ycenter());
+      owner->_connection_context_menu->popup_at(owner, static_cast<int>(bounds.xcenter()),
+        static_cast<int>(bounds.ycenter()));
     }
   };
 
@@ -756,7 +757,8 @@ protected:
 
   virtual void accessibilityShowMenu() override {
     if (owner->_folder_context_menu != nullptr) {
-      owner->_folder_context_menu->popup_at(owner, bounds.xcenter(), bounds.ycenter());
+      owner->_folder_context_menu->popup_at(owner, static_cast<int>(bounds.xcenter()), 
+        static_cast<int>(bounds.ycenter()));
     }
   };
 
@@ -983,19 +985,19 @@ base::Rect ConnectionsWelcomeScreen::getAccessibilityBounds() {
 //----------------------------------------------------------------------------------------------------------------------
 
 Accessible* ConnectionsWelcomeScreen::accessibilityHitTest(ssize_t x, ssize_t y) {
-  if (_browseDocButton.bounds.contains(x, y)) {
+  if (_browseDocButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_browseDocButton;
   }
 
-  if (_discussButton.bounds.contains(x, y)) {
+  if (_discussButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_discussButton;
   }
 
-  if (_readBlogButton.bounds.contains(x, y)) {
+  if (_readBlogButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_readBlogButton;
   }
 
-  if (_closeHomeScreenButton.bounds.contains(x, y)) {
+  if (_closeHomeScreenButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_closeHomeScreenButton;
   }
 
@@ -1458,14 +1460,14 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     std::string line2 = "This means that MySQL is not installed or is not running.";
     
     double x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    int yoffset = bounds.top() + 30;
+    int yoffset = static_cast<int>(bounds.top()) + 30;
     cairo_text_extents_t extents;
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
     cairo_text_extents(cr, line1.c_str(), &extents);
     
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    yoffset += extents.height + 10;
+    yoffset += static_cast<int>(extents.height) + 10;
     
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, line1.c_str());
@@ -1474,7 +1476,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     cairo_text_extents(cr, line2.c_str(), &extents);
     
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    yoffset += extents.height + 10;
+    yoffset += static_cast<int>(extents.height) + 10;
     
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, line2.c_str());
@@ -1486,7 +1488,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     cairo_text_extents(cr, _rescanButton.title.c_str(), &extents);
     
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    yoffset += extents.height + 10;
+    yoffset += static_cast<int>(extents.height) + 10;
     
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, _rescanButton.title.c_str());
@@ -2052,13 +2054,13 @@ base::Accessible::Role ConnectionsSection::getAccessibilityRole() {
 base::Accessible *ConnectionsSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   base::Accessible *accessible = NULL;
 
-  if (_add_button.bounds.contains(x, y))
+  if (_add_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_add_button;
-  else if (_manage_button.bounds.contains(x, y))
+  else if (_manage_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_manage_button;
   else {
     bool in_details_area = false;
-    std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
+    std::shared_ptr<ConnectionEntry> entry = entry_from_point(static_cast<int>(x), static_cast<int>(y), in_details_area);
 
     if (entry)
       accessible = entry.get();

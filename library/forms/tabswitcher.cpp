@@ -641,7 +641,7 @@ size_t TabSwitcher::getAccessibilityChildCount() {
 //--------------------------------------------------------------------------------------------------
 
 Accessible *TabSwitcher::getAccessibilityChild(size_t index) {
-  return dynamic_cast<Accessible*>(_pimpl->getItem(index));
+  return dynamic_cast<Accessible*>(_pimpl->getItem(static_cast<int>(index)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -653,7 +653,7 @@ Accessible::Role TabSwitcher::getAccessibilityRole() {
 //--------------------------------------------------------------------------------------------------
 
 base::Accessible *TabSwitcher::accessibilityHitTest(ssize_t x, ssize_t y) {
-  int idx = _pimpl->index_from_point(x, y);
+  int idx = _pimpl->index_from_point(static_cast<int>(x), static_cast<int>(y));
   if (idx == -1)
     return nullptr;
   else

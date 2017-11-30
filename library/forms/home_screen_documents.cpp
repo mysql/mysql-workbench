@@ -106,7 +106,8 @@ DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSectio
   _action_button.title = "Create Model Options";
   _action_button.description = "Open model options menu button";
   _action_button.defaultHandler = [this]() {
-    _model_action_menu->popup_at(this, _action_button.bounds.xcenter(), _action_button.bounds.ycenter());
+    _model_action_menu->popup_at(this, static_cast<int>(_action_button.bounds.xcenter()),
+      static_cast<int>(_action_button.bounds.ycenter()));
   };
 }
 
@@ -866,14 +867,14 @@ base::Accessible::Role DocumentsSection::getAccessibilityRole() {
 base::Accessible *DocumentsSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   base::Accessible *accessible = NULL;
 
-  if (_add_button.bounds.contains(x, y))
+  if (_add_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_add_button;
-  else if (_open_button.bounds.contains(x, y))
+  else if (_open_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_open_button;
-  else if (_action_button.bounds.contains(x, y))
+  else if (_action_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_action_button;
   else {
-    ssize_t entry = entry_from_point(x, y);
+    ssize_t entry = entry_from_point(static_cast<int>(x), static_cast<int>(y));
 
     if (entry != -1)
       accessible = &_filtered_documents[entry];

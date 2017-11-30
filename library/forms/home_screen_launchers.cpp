@@ -480,7 +480,7 @@ Accessible *LaunchersSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   Accessible *accessible = NULL;
 
   {
-    ssize_t entry = entry_from_point(x, y);
+    ssize_t entry = entry_from_point(static_cast<int>(x), static_cast<int>(y));
 
     if (entry != -1)
       accessible = &_launchers[entry];

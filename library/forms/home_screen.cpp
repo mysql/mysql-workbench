@@ -310,7 +310,7 @@ Accessible::Role SidebarSection::getAccessibilityRole() {
 
 Accessible *SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   Accessible *accessible = nullptr;
-  int row = shortcutFromPoint(x, y);
+  int row = shortcutFromPoint(static_cast<int>(x), static_cast<int>(y));
   if (row != -1)
     accessible = _entries[row].first;
 
