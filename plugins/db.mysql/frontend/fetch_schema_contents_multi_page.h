@@ -63,12 +63,12 @@ public:
       clear_tasks();
 
       if (_source_page->get_left_source() == DataSourceSelector::ServerSource)
-        add_async_task(_("Retrieve Source Objects from Selected Schemata"),
+        add_async_task(_("Retrieve Source Objects from Selected Schemas"),
                        std::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, true),
                        _("Retrieving object lists from selected schemata..."));
 
       if (_source_page->get_right_source() == DataSourceSelector::ServerSource)
-        add_async_task(_("Retrieve Target Objects from Selected Schemata"),
+        add_async_task(_("Retrieve Target Objects from Selected Schemas"),
                        std::bind(&FetchSchemaContentsSourceTargetProgressPage::perform_fetch, this, false),
                        _("Retrieving object lists from selected schemata..."));
 

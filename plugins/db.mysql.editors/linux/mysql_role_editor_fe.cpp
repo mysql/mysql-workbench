@@ -23,9 +23,8 @@
 #include <gtkmm/combobox.h>
 #include <gtkmm/builder.h>
 #include "text_list_columns_model.h"
+#include "workbench/wb_context.h"
 
-//==============================================================================
-//
 //==============================================================================
 class DbMySQLRoleEditor : public PluginEditorBase {
   bec::RoleEditorBE *_be;
@@ -62,9 +61,10 @@ public:
   }
 
   virtual void do_refresh_form_data();
-
-  void on_object_drop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y,
+  void onObjectDrop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y,
                       const Gtk::SelectionData &selection_data, guint info, guint time);
+  bool onKeyPressRoleObjects(GdkEventKey *ev);
+  bool onKeyPressRolePrivs(GdkEventKey *ev);
 
   virtual bool switch_edited_object(const grt::BaseListRef &args);
 };
@@ -129,9 +129,14 @@ DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, const grt::BaseListRef &arg
 
   // Setup DnD
   std::vector<Gtk::TargetEntry> targets;
-  targets.push_back(Gtk::TargetEntry("x-mysql-wb/db.DatabaseObject", Gtk::TARGET_SAME_APP));
+  targets.push_back(Gtk::TargetEntry(WB_DBOBJECT_DRAG_TYPE, Gtk::TARGET_SAME_APP));
   _role_objects_tv->drag_dest_set(targets, Gtk::DEST_DEFAULT_ALL, Gdk::ACTION_COPY);
-  _role_objects_tv->signal_drag_data_received().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::on_object_drop));
+  Glib::RefPtr<Gtk::TargetList> target_list = Glib::RefPtr<Gtk::TargetList>(Gtk::TargetList::create(targets));
+  _role_objects_tv->drag_dest_set_target_list(target_list);  // need to explicitly specify target list, cause the one, set by drag_dest_set is not working :/
+  _role_objects_tv->signal_drag_data_received().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::onObjectDrop));
+  _role_objects_tv->signal_key_release_event().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::onKeyPressRoleObjects), false);
+  _role_privs_tv->signal_key_release_event().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::onKeyPressRolePrivs), false);
+
 }
 
 //------------------------------------------------------------------------------
@@ -247,10 +252,11 @@ void DbMySQLRoleEditor::do_refresh_form_data() {
 }
 
 //------------------------------------------------------------------------------
-void DbMySQLRoleEditor::on_object_drop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y,
+
+void DbMySQLRoleEditor::onObjectDrop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y,
                                        const Gtk::SelectionData &selection_data, guint info, guint time) {
   bool dnd_status = false;
-  if (selection_data.get_target() == "x-mysql-wb/db.DatabaseObject") {
+  if (selection_data.get_target() == WB_DBOBJECT_DRAG_TYPE) {
     if (selection_data.get_length() > 0) {
       std::list<db_DatabaseObjectRef> objects;
       db_CatalogRef catalog(db_CatalogRef::cast_from(_be->get_role()->owner()));
@@ -266,6 +272,37 @@ void DbMySQLRoleEditor::on_object_drop(const Glib::RefPtr<Gdk::DragContext> &con
   }
 
   context->drag_finish(dnd_status, false, time);
+}
+
+//------------------------------------------------------------------------------
+
+bool DbMySQLRoleEditor::onKeyPressRoleObjects(GdkEventKey *ev) {
+  if (ev->keyval == GDK_KEY_Delete) {
+    auto list = _role_objects_model->get_selection();
+    for (const auto &node: list)
+      _be->remove_object(node);
+  }
+
+  return false;
+}
+
+//------------------------------------------------------------------------------
+
+bool DbMySQLRoleEditor::onKeyPressRolePrivs(GdkEventKey *ev) {
+  if (ev->keyval == GDK_KEY_space) {
+    auto list = _role_privs_model->get_selection();
+    for (const auto &node: list) {
+      ssize_t val;
+      _be->get_privilege_list()->get_field(node, bec::RolePrivilegeListBE::Enabled, val);
+      if (val == 1)
+        val = 0;
+      else
+        val = 1;
+      _be->get_privilege_list()->set_field(node, bec::RolePrivilegeListBE::Enabled, val);
+    }
+  }
+
+  return false;
 }
 
 //------------------------------------------------------------------------------

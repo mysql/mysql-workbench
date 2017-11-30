@@ -56,6 +56,7 @@ protected:
   mforms::Menu* _context_menu;
 
   boost::signals2::signal<void()> _selection_changed_signal;
+  std::function<void(int x, int y)> _defaultSnippetActionCb;
 
 protected:
   int find_selected_index();
@@ -76,6 +77,10 @@ protected:
 public:
   BaseSnippetList(const std::string& icon_name, bec::ListModel* model);
   ~BaseSnippetList();
+
+  void setDefaultSnippetAction(const std::function<void(int x, int y)> &cb) {
+    _defaultSnippetActionCb = cb;
+  }
   boost::signals2::signal<void()>* signal_selection_changed() {
     return &_selection_changed_signal;
   }
@@ -89,13 +94,13 @@ public:
   base::Rect snippet_bounds(Snippet* snippet);
 
   // ------ Accesibility Methods -----
-  virtual std::string get_acc_name() override {
+  virtual std::string getAccessibilityName() override {
     return get_name();
   }
-  virtual mforms::Accessible::Role get_acc_role() override {
-    return mforms::Accessible::List;
+  virtual base::Accessible::Role getAccessibilityRole() override {
+    return base::Accessible::List;
   }
-  virtual int get_acc_child_count() override;
-  virtual Accessible* get_acc_child(int index) override;
-  virtual mforms::Accessible* hit_test(int x, int y) override;
+  virtual size_t getAccessibilityChildCount() override;
+  virtual Accessible* getAccessibilityChild(size_t index) override;
+  virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
 };

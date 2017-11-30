@@ -8,7 +8,7 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 6.3.10' \
+#                                   --define='version 6.3.11' \
 #                                   --define='release 1'
 ####################################################################
 
@@ -28,6 +28,9 @@
 
 # Allow to continue when a binary with no build-id was found
 %undefine _missing_build_ids_terminate_build
+
+# Disable debug source packages
+%undefine _debugsource_packages
 
 %if !%{defined version}
 %define version         @VERSION@
@@ -107,6 +110,10 @@ BuildRequires: vsqlite++-devel
 BuildRequires: libgnome-keyring-devel libuuid-devel
 %else
 BuildRequires: gnome-keyring-devel
+%endif
+
+%if 0%{?fedora} >= 26
+BuildRequires: jasper-devel
 %endif
 
 Provides: mysql-workbench = %{version}-%{release}

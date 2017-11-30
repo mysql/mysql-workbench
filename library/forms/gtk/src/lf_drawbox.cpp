@@ -19,65 +19,75 @@
 #include "../lf_mforms.h"
 #include "../lf_drawbox.h"
 #include "base/log.h"
+#include <gtk/gtk-a11y.h>
+#include <atk/atk.h>
+#include <atkmm.h>
+#include "../mforms_acc.h"
 
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_GTK);
 
 namespace mforms {
   namespace gtk {
-    struct DrawBoxImplPrivateData {
-      DrawBoxImplPrivateData() : _drawbox(0) {
-      }
-      DrawBoxImpl *_drawbox;
-    };
 
     DrawBoxImpl::DrawBoxImpl(::mforms::DrawBox *self)
-      : ViewImpl(self), _fixed_width(-1), _fixed_height(-1), _fixed(0), _relayout_pending(false), _drag_in_progress(false) {
+      : ViewImpl(self),  _fixed_width(-1), _fixed_height(-1), _fixed(0), _relayout_pending(false), _drag_in_progress(false) {
+
+      auto widget = mforms_new(); //this is freed by gtk
+
+      _darea = dynamic_cast<Gtk::EventBox*>(Glib::wrap(widget));
+      _mformsGTK = MFORMSOBJECT(widget);
+      _mformsGTK->pmforms->SetMFormsOwner(self);
+
       _padding._left = 0;
       _padding._right = 0;
       _padding._top = 0;
       _padding._bottom = 0;
       _last_btn = MouseButtonNone;
-      _darea.signal_draw().connect(sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::repaint), self));
+      _darea->signal_draw().connect(sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::repaint), self));
 
-      _darea.signal_size_allocate().connect_notify(
+      _darea->signal_size_allocate().connect_notify(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::on_size_allocate), self));
-      _darea.signal_button_press_event().connect(
+      _darea->signal_button_press_event().connect(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_button_event), self));
-      _darea.signal_button_release_event().connect(
+      _darea->signal_button_release_event().connect(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_button_event), self));
-      _darea.signal_enter_notify_event().connect_notify(
+      _darea->signal_enter_notify_event().connect_notify(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_cross_event), self));
-      _darea.signal_leave_notify_event().connect_notify(
+      _darea->signal_leave_notify_event().connect_notify(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_cross_event), self));
-      _darea.signal_motion_notify_event().connect(
+      _darea->signal_motion_notify_event().connect(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_move_event), self));
 
-      _darea.set_size_request(10, 10); // set initial size to allow a repaint event to arrive
+      _darea->set_size_request(10, 10); // set initial size to allow a repaint event to arrive
 
       // request mouse moved events
-      _darea.add_events(Gdk::POINTER_MOTION_MASK);
-      _darea.show();
+      _darea->add_events(Gdk::POINTER_MOTION_MASK);
+      _darea->show();
       setup();
     }
 
     DrawBoxImpl::~DrawBoxImpl() {
       _sig_relayout.disconnect();
+      _darea = nullptr;
+      _mformsGTK = nullptr;
+
+
     }
 
     void *DrawBoxImpl::on_repaint() {
-      _darea.queue_draw();
+      _darea->queue_draw();
       return 0;
     }
 
     void DrawBoxImpl::set_size(int width, int height) {
-      _darea.set_size_request(width, height);
+      _darea->set_size_request(width, height);
       ViewImpl::set_size(width, height);
 
       _fixed_width = width;
       _fixed_height = height;
     }
     bool DrawBoxImpl::relayout(::mforms::DrawBox *self) {
-      Glib::RefPtr<Gdk::Window> window = _darea.get_window();
+      Glib::RefPtr<Gdk::Window> window = _darea->get_window();
       if (_fixed && window) {
         int ww, wh;
         ww = window->get_width();
@@ -154,23 +164,23 @@ namespace mforms {
     bool DrawBoxImpl::repaint(const ::Cairo::RefPtr< ::Cairo::Context> &context, ::mforms::DrawBox *self) {
       // This vv needs improvment on linux. Maybe setup an event listener which is bound to resize
       Gtk::Requisition minimum, natural;
-      _darea.get_preferred_size(minimum, natural);
+      _darea->get_preferred_size(minimum, natural);
       auto layoutSize = self->getLayoutSize(base::Size(minimum.width, minimum.height));
 
       if (_fixed_height >= 0)
         layoutSize.height = _fixed_height;
       if (_fixed_width >= 0)
         layoutSize.width = _fixed_width;
-      _darea.set_size_request(layoutSize.width, layoutSize.height);
+      _darea->set_size_request(layoutSize.width, layoutSize.height);
 
 
-      mforms::gtk::draw_event_slot(context, &_darea);
+      mforms::gtk::draw_event_slot(context, _darea);
       double x1, y1, x2, y2;
       context->get_clip_extents(x1, y1, x2, y2);
 
       self->repaint(context->cobj(), x1, y1, x2 - x1, y2 - y1);
 
-      //  Cairo::RefPtr<Cairo::Context> context(_darea.get_window()->create_cairo_context());
+      //  Cairo::RefPtr<Cairo::Context> context(_darea->get_window()->create_cairo_context());
       //    self->repaint(context->cobj(), event->area.x, event->area.y, event->area.width, event->area.height);
 
       return true;
@@ -206,7 +216,7 @@ namespace mforms {
         // if there is some widget inside darea then we need to grab focus, so if there will be entry box,
         // then the focus can be moved
         if (_fixed) {
-          _darea.grab_focus();
+          _darea->grab_focus();
         }
         _last_btn = mbtn;
         return self->mouse_down(mbtn, (int)event->x, (int)event->y);
@@ -235,6 +245,7 @@ namespace mforms {
       return new DrawBoxImpl(self) != 0;
     }
 
+
     void DrawBoxImpl::set_needs_repaint(::mforms::DrawBox *self) {
       // request a repaint so that this can be called from any thread
       DrawBoxImpl *impl = self->get_data<DrawBoxImpl>();
@@ -244,8 +255,8 @@ namespace mforms {
     void DrawBoxImpl::add(::mforms::View *view, mforms::Alignment alignment) {
       if (!_fixed) {
         _fixed = Gtk::manage(new Gtk::Fixed);
-        _darea.add(*_fixed);
-        _darea.set_can_focus(true);
+        _darea->add(*_fixed);
+        _darea->set_can_focus(true);
         _fixed->show();
       }
       std::map<Gtk::Widget *, AlignControl>::iterator it;

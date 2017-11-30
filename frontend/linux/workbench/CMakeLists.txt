@@ -15,7 +15,7 @@ install(FILES ${WORKBENCH_DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR})
 
 set(libdir          ${LIB_INSTALL_DIR})
 set(utilities_cmd   "")
-configure_file(mysql-workbench.in mysql-workbench)
+configure_file(mysql-workbench.in mysql-workbench @ONLY)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/mysql-workbench DESTINATION ${WB_INSTALL_BIN_DIR})
 
 include_directories(.

@@ -666,8 +666,12 @@ static void view_set_size(::mforms::View *self, int w, int h) {
       size.height = 0;
     view.minimumSize = size;
   } else {
-    // Window/panel.
-    NSWindow *window = frontend;
+    // Window controller/window/panel.
+    NSWindow *window;
+    if ([frontend isKindOfClass: NSWindowController.class])
+      window = [frontend window];
+    else
+      window = frontend;
     NSRect frame = window.frame;
     if (w >= 0)
       frame.size.width = w;
@@ -850,7 +854,9 @@ static void view_set_font(::mforms::View *self, const std::string &fontDescripti
   }
 }
 
-static void view_set_name(mforms::View *self, const std::string &) {
+static void view_set_name(mforms::View *self, const std::string &name) {
+  NSView *view = self->get_data();
+  view.accessibilityTitle = [NSString stringWithUTF8String: name.c_str()];
 }
 
 static void view_relayout(mforms::View *self) {

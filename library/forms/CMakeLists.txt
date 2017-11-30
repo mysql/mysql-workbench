@@ -76,6 +76,7 @@ add_library(mforms
     gtk/src/lf_utilities.cpp
     gtk/src/lf_view.cpp
     gtk/src/lf_wizard.cpp
+    gtk/src/mforms_acc.cpp
     hypertext.cpp
     imagebox.cpp
     label.cpp

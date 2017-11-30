@@ -464,7 +464,7 @@ void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel) {
 SqlEditorPanel *SqlEditorForm::active_sql_editor_panel() {
   if (_tabdock)
     return dynamic_cast<SqlEditorPanel *>(_tabdock->selected_view());
-  return NULL;
+  return nullptr;
 }
 
 void SqlEditorForm::sql_editor_panel_switched() {

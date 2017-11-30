@@ -19,9 +19,11 @@
 
 #pragma once
 
-#include <mforms/base.h>
-#include <mforms/view.h>
-#include <base/geometry.h>
+#include "base/accessibility.h"
+#include "base/geometry.h"
+
+#include "mforms/base.h"
+#include "mforms/view.h"
 
 #include "cairo/cairo.h"
 
@@ -39,62 +41,10 @@ namespace mforms {
     void (*move)(DrawBox *, View *, int x, int y);
   };
 
-  struct MFORMS_EXPORT Accessible {
-  public:
-    enum Role {
-      RoleNone,
-      Client,
-      Pane,
-      Link,
-      List,
-      ListItem,
-      PushButton,
-      StaticText,
-      Text,
-      Outline,
-      OutlineButton,
-      OutlineItem
-    };
-
-    virtual ~Accessible(){};
-
-    // This each child class should implement it's own way to get the
-    // accessible name and role
-    virtual std::string get_acc_name() = 0;
-    virtual Role get_acc_role() = 0;
-
-    // The rest of the accessible methods are optional on the child
-    // classes, they must implement them as needed
-    virtual std::string get_acc_description() {
-      return "";
-    }
-    virtual std::string get_acc_value() {
-      return "";
-    }
-
-    virtual int get_acc_child_count() {
-      return 0;
-    }
-    virtual Accessible *get_acc_child(int index) {
-      return NULL;
-    }
-
-    virtual base::Rect get_acc_bounds() {
-      return base::Rect();
-    }
-    virtual Accessible *hit_test(int x, int y) {
-      return NULL;
-    }
-
-    virtual std::string get_acc_default_action() {
-      return "";
-    }
-    virtual void do_default_action(){};
-  };
 #endif
 #endif
 
-  class MFORMS_EXPORT DrawBox : public View, public Accessible {
+  class MFORMS_EXPORT DrawBox : public View, public base::Accessible {
   public:
     DrawBox();
 
@@ -121,14 +71,14 @@ namespace mforms {
     }
     virtual void cancel_operation(){};
 
-    virtual std::string get_acc_name() {
+    virtual std::string getAccessibilityName() {
       return get_name();
     }
-    virtual base::Rect get_acc_bounds() {
+    virtual base::Rect getAccessibilityBounds() {
       return base::Rect(get_x(), get_y(), get_width(), get_height());
     }
-    virtual Role get_acc_role() {
-      return mforms::Accessible::RoleNone;
+    virtual Role getAccessibilityRole() {
+      return base::Accessible::RoleNone;
     }
 #endif
 #endif

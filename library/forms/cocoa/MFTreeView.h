@@ -43,6 +43,7 @@
   BOOL mCanBeDragSource;
   BOOL mPendingReload;
   BOOL mTagIndexEnabled;
+  BOOL mColumnsAutoResize;
 @public
   BOOL mFlatTable;
   BOOL mSmallFont;

@@ -17,20 +17,20 @@
  * 02110-1301  USA
  */
 
-#ifndef _HOME_SCREEN_H_
-#define _HOME_SCREEN_H_
+#pragma once
 
 #include <ctime>
+
+#include "base/accessibility.h"
 #include "base/notifications.h"
 #include "base/data_types.h"
 #include "base/any.h"
+
 #include "mforms/appview.h"
 #include "mforms/drawbox.h"
 #include "mforms/tabview.h"
 
 #include "home_screen_helpers.h"
-
-class SidebarSection;
 
 namespace mforms {
   class Menu;
@@ -39,8 +39,65 @@ namespace mforms {
   class XProjectEntry;
 
   class CommandUI;
+  class SidebarSection;
+  class HomeScreen;
 
-  //--------------------------------------------------------------------------------------------------
+  struct SidebarEntry : base::Accessible {
+    SidebarSection *owner;
+    std::function<void()> callback;
+    bool canSelect;
+
+    cairo_surface_t *icon;
+    std::string title;       // Shorted title, depending on available space.
+    base::Rect title_bounds; // Relative bounds of the title text.
+    base::Rect acc_bounds;   // Bounds to be used for accessibility
+    base::Color indicatorColor; // Color of the indicator triangle
+
+    SidebarEntry();
+
+    virtual std::string getAccessibilityName() override;
+    virtual std::string getAccessibilityTitle() override;
+    virtual std::string getAccessibilityDescription() override;
+    virtual base::Accessible::Role getAccessibilityRole() override;
+    virtual base::Rect getAccessibilityBounds() override;
+    virtual void accessibilityDoDefaultAction() override;
+  };
+
+  class SidebarSection : public mforms::DrawBox {
+  private:
+    HomeScreen *_owner;
+
+    std::vector<std::pair<SidebarEntry *, HomeScreenSection *>> _entries;
+
+    SidebarEntry *_hotEntry;
+    SidebarEntry *_activeEntry; // For the context menu.
+
+  public:
+    const int SIDEBAR_LEFT_PADDING = 18;
+    const int SIDEBAR_TOP_PADDING = 18; // The vertical offset of the first shortcut entry.
+    const int SIDEBAR_RIGHT_PADDING = 25;
+    const int SIDEBAR_ROW_HEIGHT = 50;
+    const int SIDEBAR_SPACING = 18; // Vertical space between entries.
+
+    SidebarSection(HomeScreen *owner);
+    virtual ~SidebarSection();
+
+    void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, base::Color &color, float alpha);
+    void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
+    int shortcutFromPoint(int x, int y);
+    void addEntry(const std::string &title, const std::string &icon_name, HomeScreenSection *section,
+                  std::function<void()> callback, bool canSelect);
+    HomeScreenSection *getActive();
+    void setActive(HomeScreenSection *section);
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
+    bool mouse_leave();
+
+    virtual bool mouse_move(mforms::MouseButton button, int x, int y);
+    virtual size_t getAccessibilityChildCount();
+    virtual Accessible *getAccessibilityChild(size_t index);
+    virtual Accessible::Role getAccessibilityRole();
+    virtual base::Accessible *accessibilityHitTest(ssize_t x, ssize_t y);
+  };
 
   /**
    * This class implements the main (home) screen in MySQL Workbench, containing
@@ -63,7 +120,7 @@ namespace mforms {
     virtual ~HomeScreen();
 
     void addSection(HomeScreenSection *section);
-    void addSectionEntry(const std::string &icon_name, HomeScreenSection *section, std::function<void()> callback,
+    void addSectionEntry(const std::string &title, const std::string &icon_name, std::function<void()> callback,
                          bool canSelect);
 
     std::function<void(base::any, std::string)> handleContextMenu;
@@ -83,4 +140,3 @@ namespace mforms {
   };
 }
 
-#endif // _HOME_SCREEN_H_

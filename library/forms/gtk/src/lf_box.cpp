@@ -24,10 +24,6 @@
 mforms::gtk::BoxImpl::BoxImpl(::mforms::Box *self, bool horiz) : ViewImpl(self) {
   _innerBox = new Gtk::Box(horiz ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
 
-  _outerBox = new Gtk::Box();
-  _outerBox->pack_start(*_innerBox, true, true);
-  _outerBox->show_all();
-
   _innerBox->signal_draw().connect(sigc::bind(sigc::ptr_fun(mforms::gtk::draw_event_slot), _innerBox), false);
   setup();
 }
@@ -90,7 +86,6 @@ void mforms::gtk::BoxImpl::set_size(int width, int height) {
 //------------------------------------------------------------------------------
 mforms::gtk::BoxImpl::~BoxImpl() {
   delete _innerBox;
-  delete _outerBox;
 }
 //------------------------------------------------------------------------------
 void mforms::gtk::BoxImpl::init() {

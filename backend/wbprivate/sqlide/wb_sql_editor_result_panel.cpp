@@ -108,6 +108,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 
   add(&_tabview, true, true);
 
+  _switcher.set_name("Resultset View Switcher");
   _switcher.attach_to_tabview(&_tabview);
   _switcher.set_collapsed(bec::GRTManager::get()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
 
@@ -123,6 +124,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _resultset_placeholder->set_title("Result\nGrid");
   _resultset_placeholder->set_identifier("result_grid");
   _tabdock.dock_view(_resultset_placeholder, "output_type-resultset.png");
+  _tabdock.set_name("Resultset Views");
 
   {
     db_query_QueryEditorRef editor(owner->grtobj());
@@ -354,7 +356,8 @@ void SqlEditorResult::switch_tab() {
     } else if (tab->identifier() == "result_grid") {
       if (_resultset_placeholder) {
         _owner->owner()->exec_editor_sql(_owner, true, true, true, false, this);
-        set_title(_rset.lock()->caption());
+        if (!_rset.expired())
+          set_title(_rset.lock()->caption());
       }
     } else if (tab->identifier() == "execution_plan") {
       if (_execution_plan_placeholder) {
@@ -972,8 +975,8 @@ void SqlEditorResult::create_query_stats_panel() {
 
       box->add(bold_label("Rows Processed:"), false, true);
       info.clear();
-      info.append(strfmt("Rows affected: %lli\n", ps_stats["ROWS_AFFECTED"])),
-        info.append(strfmt("Rows sent to client: %lli\n", ps_stats["ROWS_SENT"]));
+      info.append(strfmt("Rows affected: %lli\n", ps_stats["ROWS_AFFECTED"]));
+      info.append(strfmt("Rows sent to client: %lli\n", ps_stats["ROWS_SENT"]));
       info.append(strfmt("Rows examined: %lli\n", ps_stats["ROWS_EXAMINED"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 

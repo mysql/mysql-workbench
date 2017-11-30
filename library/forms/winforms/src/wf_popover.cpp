@@ -523,6 +523,14 @@ void PopoverWrapper::close(mforms::Popover *backend) {
 
 //--------------------------------------------------------------------------------------------------
 
+void PopoverWrapper::setName(mforms::Popover *backend, const std::string &name) {
+  PopoverControl ^ popover = PopoverWrapper::GetManagedObject<PopoverControl>(backend);
+  popover->Name = CppStringToNative(name);
+  popover->AccessibleName = popover->Name;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void PopoverWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
@@ -533,6 +541,7 @@ void PopoverWrapper::init() {
   f->_popover_impl.show = &PopoverWrapper::show;
   f->_popover_impl.show_and_track = &PopoverWrapper::show_and_track;
   f->_popover_impl.close = &PopoverWrapper::close;
+  f->_popover_impl.setName = &PopoverWrapper::setName;
 }
 
 //--------------------------------------------------------------------------------------------------

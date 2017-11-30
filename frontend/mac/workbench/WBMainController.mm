@@ -444,9 +444,11 @@ static bool validate_select_all() {
 static bool validate_delete() {
   NSResponder *responder = NSApp.keyWindow.firstResponder;
   SEL selector = NSSelectorFromString(@"canDeleteItem:");
-  if ([responder respondsToSelector: selector])
-    return ((BOOL (*)(id, SEL, id))[responder methodForSelector: selector])(responder, selector, nil);
-  
+  if ([responder respondsToSelector: selector]) {
+    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    return [responder performSelector: selector withObject: nil];
+  }
+
   if ([responder respondsToSelector: @selector(selectedRange)]) {
     NSRange textRange = [(id)NSApp.keyWindow.firstResponder selectedRange];
     return textRange.length > 0;

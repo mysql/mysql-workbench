@@ -15,6 +15,8 @@ add_library(db.mysql.parser.grt
     src/ObjectListeners.cpp
 )
 
+
+set_source_files_properties(src/mysql_parser_module.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 target_compile_options(db.mysql.parser.grt PUBLIC ${WB_CXXFLAGS})
 
 add_dependencies(db.mysql.parser.grt parsers)

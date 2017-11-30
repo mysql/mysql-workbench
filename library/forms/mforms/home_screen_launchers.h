@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "base/accessibility.h"
+
 #include "mforms/drawbox.h"
 #include "mforms/menu.h"
 #include <string>
@@ -27,10 +29,12 @@
 
 namespace mforms {
   class HomeScreen;
+
   //----------------- LauncherEntry ---------------------------------------------------------------
 
   typedef std::function<bool()> LauncherCallback;
-  class LauncherEntry : public mforms::Accessible {
+
+  class LauncherEntry : public base::Accessible {
   public:
     std::string title;
     std::string title_shorted;
@@ -43,13 +47,15 @@ namespace mforms {
     cairo_surface_t *icon;
 
     bool operator<(const LauncherEntry &other) const;
-    //------ Accessibility Methods -----
-    virtual std::string get_acc_name();
-    virtual std::string get_acc_description();
 
-    virtual Accessible::Role get_acc_role();
-    virtual base::Rect get_acc_bounds();
-    virtual std::string get_acc_default_action();
+    //------ Accessibility Methods -----
+    virtual std::string getAccessibilityName() override;
+    virtual std::string getAccessibilityDescription() override;
+
+    virtual base::Accessible::Role getAccessibilityRole() override;
+    virtual base::Rect getAccessibilityBounds() override;
+    virtual std::string getAccessibilityDefaultAction() override;
+
     LauncherEntry();
     LauncherEntry(const LauncherEntry &other);
 
@@ -97,26 +103,27 @@ namespace mforms {
 
     void drawEntry(cairo_t *cr, const LauncherEntry &entry, bool hot);
     void layout(cairo_t *cr);
-    virtual void cancelOperation();
-    virtual void setFocus();
-    virtual bool canHandle(HomeScreenMenuType type);
-    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
-    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
+    virtual const char* getTitle() override;
+    virtual void cancelOperation() override;
+    virtual void setFocus() override;
+    virtual bool canHandle(HomeScreenMenuType type) override;
+    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) override;
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) override;
 
-    void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
+    virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
 
     void addLauncher(const std::string &icon, const std::string &name, const std::string &description,
                      const base::any &obj);
     void clearLaunchers();
-    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
-    bool mouse_leave();
-    virtual bool mouse_move(mforms::MouseButton button, int x, int y);
+    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_leave() override;
+    virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
     void handle_command(const std::string &command);
-    virtual int get_acc_child_count();
-    virtual Accessible *get_acc_child(int index);
-    virtual Accessible::Role get_acc_role();
-    virtual mforms::Accessible *hit_test(int x, int y);
+    virtual size_t getAccessibilityChildCount() override;
+    virtual base::Accessible* getAccessibilityChild(size_t index) override;
+    virtual base::Accessible::Role getAccessibilityRole() override;
+    virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
   };
 
 } /* namespace wb */

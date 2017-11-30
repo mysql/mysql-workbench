@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "base/accessibility.h"
+
 #include "mforms/drawbox.h"
 #include "mforms/menu.h"
 #include <string>
@@ -27,9 +29,10 @@
 
 namespace mforms {
   class HomeScreen;
+
   //----------------- DocumentEntry ---------------------------------------------------------------
 
-  class DocumentEntry : public mforms::Accessible {
+  class DocumentEntry : public base::Accessible {
   public:
     std::string path;
     time_t timestamp; // Last accessed as timestamp for sorting.
@@ -46,14 +49,18 @@ namespace mforms {
     base::Rect bounds;
     bool is_model;
 
-    bool operator<(const DocumentEntry &other) const;
-    //------ Accessibility Methods -----
-    virtual std::string get_acc_name();
-    virtual std::string get_acc_description();
+    std::function<bool(int, int)> default_handler;
 
-    virtual Accessible::Role get_acc_role();
-    virtual base::Rect get_acc_bounds();
-    virtual std::string get_acc_default_action();
+    bool operator<(const DocumentEntry &other) const;
+
+    //------ Accessibility Methods -----
+    virtual std::string getAccessibilityName() override;
+    virtual std::string getAccessibilityDescription() override;
+
+    virtual Accessible::Role getAccessibilityRole() override;
+    virtual base::Rect getAccessibilityBounds() override;
+    virtual std::string getAccessibilityDefaultAction() override;
+    virtual void accessibilityDoDefaultAction() override;
   };
 
   //----------------- DocumentsSection ---------------------------------------------------------------
@@ -76,7 +83,7 @@ namespace mforms {
 
     ssize_t _entries_per_row;
 
-    bool _show_selection_message; // Additional info to let the user a connection (when opening a script).
+    bool _show_selection_message; // Additional info to let the user select a connection (when opening a script).
     base::Rect _message_close_button_rect;
 
     typedef std::vector<DocumentEntry>::iterator DocumentIterator;
@@ -90,8 +97,6 @@ namespace mforms {
     ssize_t _active_entry;
     enum DisplayMode { Nothing, ModelsOnly, ScriptsOnly, Mixed } _display_mode;
 
-    std::function<bool(int, int)> _accessible_click_handler;
-
     HomeAccessibleButton _add_button;
     HomeAccessibleButton _open_button;
     HomeAccessibleButton _action_button;
@@ -104,6 +109,8 @@ namespace mforms {
     base::Rect _sql_heading_rect;
     base::Rect _mixed_heading_rect;
     std::string _pending_script;
+
+    bool accessibleHandler(int x, int y);
 
   public:
     const int DOCUMENTS_LEFT_PADDING = 40;
@@ -138,27 +145,28 @@ namespace mforms {
     void update_filtered_documents();
     void draw_selection_message(cairo_t *cr);
     void layout(cairo_t *cr);
-    virtual void cancelOperation();
-    virtual void setFocus();
-    virtual bool canHandle(HomeScreenMenuType type);
-    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type);
-    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type);
+    virtual const char* getTitle() override;
+    virtual void cancelOperation() override;
+    virtual void setFocus() override;
+    virtual bool canHandle(HomeScreenMenuType type) override;
+    virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) override;
+    virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) override;
 
     void load_icons();
-    void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
+    virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
     void add_document(const std::string &path, const time_t &time, const std::string schemas, long file_size);
     void clear_documents();
-    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
-    bool mouse_leave();
-    virtual bool mouse_move(mforms::MouseButton button, int x, int y);
+    virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_leave() override;
+    virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
     void handle_command(const std::string &command);
     void show_connection_select_message();
     void hide_connection_select_message();
-    virtual int get_acc_child_count();
-    virtual Accessible *get_acc_child(int index);
-    virtual Accessible::Role get_acc_role();
-    virtual mforms::Accessible *hit_test(int x, int y);
+    virtual size_t getAccessibilityChildCount() override;
+    virtual Accessible *getAccessibilityChild(size_t index) override;
+    virtual Accessible::Role getAccessibilityRole() override;
+    virtual base::Accessible *accessibilityHitTest(ssize_t x, ssize_t y) override;
   };
 
 } /* namespace wb */

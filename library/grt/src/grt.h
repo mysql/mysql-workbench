@@ -33,7 +33,6 @@
 #include <libxml/xmlmemory.h>
 #include "base/threading.h"
 #include <string>
-#include <gmodule.h>
 
 #ifndef _NODLL_
 #if defined(_WIN32)
@@ -451,7 +450,14 @@ namespace grt {
 
     Ref<Class> &operator=(const Ref<Class> &other) {
       Ref<Class> tmp(other);
+#ifdef __linux__
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
       swap(tmp._value);
+#ifdef __linux__
+      #pragma GCC diagnostic pop
+#endif
       return *this;
     }
 
@@ -2199,8 +2205,8 @@ namespace grt {
     Module(ModuleLoader *loader);
     virtual ~Module() {
     }
-    virtual GModule *getGModule() {
-      return nullptr;
+
+    virtual void closeModule() noexcept {
     }
 
     std::string name() const {

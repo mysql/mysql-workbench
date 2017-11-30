@@ -28,13 +28,7 @@ namespace mforms {
     protected:
       Gtk::Box *_innerBox;
 
-      Gtk::Box *_outerBox;
-
       virtual Gtk::Widget *get_outer() const {
-        return _outerBox;
-      }
-
-      virtual Gtk::Widget *get_inner() const {
         return _innerBox;
       }
 

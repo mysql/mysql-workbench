@@ -59,6 +59,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
     _right_aligned(wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0)),
     _editor_maximized(false) {
   _dpoint = mforms::manage(new mforms::DockingPoint(&_dock_delegate, false));
+
   _top_pane.set_name("sqled.top_pane" + std::string(_right_aligned ? ".right_aligned" : ".left_aligned"));
   _main_pane.set_name("sqled.main_pane" + std::string(_right_aligned ? ".right_aligned" : ".left_aligned"));
   _top_right_pane.set_name("sqled.top_right_pane" + std::string(_right_aligned ? ".right_aligned" : ".left_aligned"));
@@ -76,6 +77,18 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   _editor_note->show();
   _editor_note->set_scrollable(true);
   _editor_note->set_show_border(false);
+
+  auto acc = _main_pane.get_accessible();
+  if (acc)
+    acc->set_name("SQL IDE Query Area");
+
+  acc = _top_pane.get_accessible();
+  if (acc)
+    acc->set_name("SQL IDE View");
+
+  acc = _editor_note->get_accessible();
+  if (acc)
+    acc->set_name("Query Area");
 
   _main_pane.pack1(_top_right_pane, true, false);
   _main_pane.pack2(_output.get_outer(), false, true);

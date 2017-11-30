@@ -19,24 +19,22 @@ destdir="$WB_DEST_DIR"
 
 wblibdir="$destdir@WB_INSTALL_LIB_DIR@"
 
-
-# Set the PROJSO env variable so gdal can find proj cause it's using dlopen instead ld 
-PROJLOC=""
-for lib in libproj.so.0 libproj.so.9
-do
-  for loc in /usr/lib /usr/lib64 /usr/lib/x86_64-linux-gnu
-  do
-    if test -f "$loc/$lib"; then
-       PROJLOC="$loc/$lib"
-       break 2
-    fi
-  done
-done
-
-if [ -z "$PROJLOC" ]; then
-  echo "Workbench can't find libproj.so, some options may be unavailable."
+# Check if PROJSO env is set and file exists, if not, try to handle this on our own
+if [[ -z "${PROJSO}" ]]; then
+  # Set the PROJSO env variable so gdal can find proj cause it's using dlopen instead ld 
+  TMPLOC=`ldconfig -p | grep libproj | awk '{printf $4;exit;}'`
+  if [[ -f "$TMPLOC" ]]; then
+    echo "Found $TMPLOC"
+    export PROJSO=$TMPLOC
+  else
+    echo "Workbench can't find libproj.so, some options may be unavailable."
+  fi
 else
-  export PROJSO=$PROJLOC
+  if [[ ! -f ${PROJSO} ]]; then
+    echo "PROJSO is set to ${PROJSO} but the library doesn't exist, some option may be unavailable."
+  else
+    echo "Using ${PROJSO}."
+  fi
 fi
 
 if test -f $wblibdir/libsqlite3.so; then

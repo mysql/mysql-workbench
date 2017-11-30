@@ -5,6 +5,7 @@ include_directories(.
 )
 
 add_library(wbbase 
+    accessibility.cpp
     util_functions.cpp 
     data_types.cpp
     sqlstring.cpp 

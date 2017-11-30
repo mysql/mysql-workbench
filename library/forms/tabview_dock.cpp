@@ -22,6 +22,10 @@
 
 using namespace mforms;
 
+void TabViewDockingPoint::set_name(const std::string &name) {
+  _tabview->set_name(name);
+}
+
 void TabViewDockingPoint::dock_view(mforms::AppView *view, const std::string &arg1, int arg2) {
   _tabview->add_page(view, view->get_title());
 }

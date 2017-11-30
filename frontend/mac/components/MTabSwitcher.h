@@ -44,8 +44,8 @@ typedef NS_ENUM(NSInteger, MTabSwitcherStyle) {
 @end
 
 @interface MTabSwitcher : NSView<NSTabViewDelegate>
-
-@property(nullable, weak) IBOutlet id delegate;
+@property (nullable, weak) IBOutlet NSTabView *mTabView;
+@property (nullable, weak) IBOutlet id delegate;
 @property float minTabWidth;
 @property(nullable, readonly) NSTabViewItem *clickedItem;
 @property(nonatomic) MTabSwitcherStyle tabStyle;
@@ -58,5 +58,13 @@ typedef NS_ENUM(NSInteger, MTabSwitcherStyle) {
 - (void)closeTabViewItem:(NSTabViewItem *_Nullable)item;
 - (void)tile;
 - (void)makeUnselected;
+
+// Methods needed for accessibility.
+- (NSRect)tabItemRect: (NSTabViewItem *_Nullable)aItem;
+- (void)makeTabVisibleAndSelect: (id _Nonnull)sender;
+- (BOOL)hasCloseButton: (NSTabViewItem * _Nonnull)item;
+- (BOOL)allowClosingItem: (NSTabViewItem * _Nonnull)item;
+- (NSMenu *_Nullable)prepareMenuForItem: (NSTabViewItem * _Nonnull)item;
+- (NSMenu *_Nullable)prepareMenuForTabs;
 
 @end

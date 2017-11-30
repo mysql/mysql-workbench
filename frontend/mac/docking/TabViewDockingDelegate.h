@@ -38,6 +38,7 @@ public:
 
   bool close_all();
 
+  virtual void set_name(const std::string &name);
   virtual void dock_view(mforms::AppView *view, const std::string &arg1, int arg2);
   virtual bool select_view(mforms::AppView *view);
   virtual void undock_view(mforms::AppView *view);

@@ -41,6 +41,7 @@ namespace MySQL {
       static void show_and_track(mforms::Popover *backend, mforms::View *owner, int spot_x, int spot_y,
                                  mforms::StartPosition position);
       static base::Rect get_content_rect(mforms::Popover *backend);
+      static void setName(mforms::Popover *backend, const std::string &name);
       static void close(mforms::Popover *backend);
 
     public:

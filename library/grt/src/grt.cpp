@@ -256,12 +256,8 @@ GRT::~GRT() {
     }
   }
 
-  for (std::vector<Module *>::iterator iter = _modules.begin(); iter != _modules.end(); ++iter) {
-    auto mod = (*iter)->getGModule();
-    delete *iter;
-    if (mod)
-      g_module_close(mod);
-  }
+  for (const auto &it: _modules)
+    it->closeModule();
 
   _modules.clear();
 

@@ -140,6 +140,15 @@ public:
     _snippet_popover->set_size(376, 257);
     _snippet_popover->signal_closed()->connect(std::bind(&SnippetListView::popover_closed, this));
 
+    _defaultSnippetActionCb = [&](int x, int y) {
+       Snippet *snippet = snippet_from_point(x, y);
+       if (snippet != nullptr) {
+         set_selected(snippet);
+         edit_snippet(snippet);
+       }
+    };
+
+
     prepare_context_menu();
   }
 
@@ -253,6 +262,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _help_task->desc("Context Help Task");
   _helpContext = new help::HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
   createEditorConfig(owner->rdbms_version());
+  set_name("querySidePalette");
 
   _pending_snippets_refresh = true;
 
@@ -287,6 +297,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
 
   content_border = manage(new Box(false));
   _snippet_list = manage(new SnippetListView("snippet_sql.png"));
+  _snippet_list->set_name("Snippet list");
 #ifdef _WIN32
   content_border->set_padding(3, 3, 3, 3);
   _snippet_list->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));

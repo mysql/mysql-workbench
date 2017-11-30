@@ -138,6 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="accessibility.cpp" />
     <ClCompile Include="config_file.cpp" />
     <ClCompile Include="data_types.cpp" />
     <ClCompile Include="debugging.cpp" />
@@ -168,6 +169,7 @@
     <ClCompile Include="xml_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="base\accessibility.h" />
     <ClInclude Include="base\boost_smart_ptr_helpers.h" />
     <ClInclude Include="base\c++helpers.h" />
     <ClInclude Include="base\common.h" />
