@@ -39,29 +39,42 @@
 using namespace base;
 using namespace mforms;
 
-//----------------- ShortcutSection ----------------------------------------------------------------
+//----------------- ShortcutSection ------------------------------------------------------------------------------------
 
-SidebarEntry::SidebarEntry()
-    : owner(nullptr), canSelect(false), icon(nullptr) {
-
+SidebarEntry::SidebarEntry() : owner(nullptr), canSelect(false), icon(nullptr) {
 }
 
-// ------ Accesibility Methods -----
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string SidebarEntry::getAccessibilityName() {
+  return "";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string SidebarEntry::getAccessibilityTitle() {
   return title;
 }
 
-Accessible::Role SidebarEntry::getAccessibilityRole() {
-  return Accessible::ListItem;
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string SidebarEntry::getAccessibilityDescription() {
+  return "Homescreen sidebar button";
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+Accessible::Role SidebarEntry::getAccessibilityRole() {
+  return Accessible::PushButton;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 Rect SidebarEntry::getAccessibilityBounds() {
   return acc_bounds;
 }
 
-std::string SidebarEntry::getAccessibilityDefaultAction() {
-  return "Open Item";
-}
+//----------------------------------------------------------------------------------------------------------------------
 
 void SidebarEntry::accessibilityDoDefaultAction() {
   if (owner != nullptr) {
@@ -69,18 +82,16 @@ void SidebarEntry::accessibilityDoDefaultAction() {
     owner->mouse_click(MouseButtonLeft, (int)acc_bounds.center().x, (int)acc_bounds.center().y);
   }
 }
-;
+
+//----------------- SidebarSection -------------------------------------------------------------------------------------
 
 SidebarSection::SidebarSection(HomeScreen *owner) {
   _owner = owner;
   _hotEntry = nullptr;
   _activeEntry = nullptr;
-
-  _accessible_click_handler = std::bind(&SidebarSection::mouse_click, this, mforms::MouseButtonLeft,
-                                        std::placeholders::_1, std::placeholders::_2);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 SidebarSection::~SidebarSection() {
   for (auto &it : _entries) {
@@ -90,7 +101,7 @@ SidebarSection::~SidebarSection() {
   _entries.clear();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SidebarSection::drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, Color &color, float alpha) {
   cairo_set_source_rgba(cr, color.red, color.green, color.blue, alpha);
@@ -100,28 +111,28 @@ void SidebarSection::drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, C
   cairo_fill(cr);
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SidebarSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
-
   int height = get_height();
 
-  // Shortcuts block.
+  // Section buttons.
   int yoffset = SIDEBAR_TOP_PADDING;
   if (_entries.size() > 0 && yoffset < height) {
     for (auto &iterator : _entries) {
-      float alpha = iterator.first == _activeEntry ? 1 : 0.5f;
+      float alpha = (iterator.first == _activeEntry  || iterator.first == _hotEntry) ? 1 : 0.5f;
       if ((yoffset + SIDEBAR_ROW_HEIGHT) > height)
         alpha = 0.25f;
 
+      Size size = mforms::Utilities::getImageSize(iterator.first->icon);
       iterator.first->acc_bounds.pos.x = SIDEBAR_LEFT_PADDING;
       iterator.first->acc_bounds.pos.y = yoffset;
-      iterator.first->acc_bounds.size.width = get_width() - (SIDEBAR_LEFT_PADDING + SIDEBAR_RIGHT_PADDING);
+      iterator.first->acc_bounds.size.width = size.width;
       iterator.first->acc_bounds.size.height = SIDEBAR_ROW_HEIGHT;
 
       mforms::Utilities::paint_icon(cr, iterator.first->icon, SIDEBAR_LEFT_PADDING, yoffset, alpha);
 
-      if (iterator.first == _activeEntry)  //we need to draw an indicator
+      if (iterator.first == _activeEntry)
         drawTriangle(cr, get_width() - SIDEBAR_RIGHT_PADDING, yoffset, get_width(), yoffset + SIDEBAR_ROW_HEIGHT,
                      iterator.first->indicatorColor, alpha);
 
@@ -131,8 +142,7 @@ void SidebarSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int a
     }
   }
 }
-
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 int SidebarSection::shortcutFromPoint(int x, int y) {
   if (x < SIDEBAR_LEFT_PADDING || y < SIDEBAR_TOP_PADDING || x > get_width() - SIDEBAR_RIGHT_PADDING)
@@ -156,8 +166,8 @@ int SidebarSection::shortcutFromPoint(int x, int y) {
   return -1;
 }
 
-//  //--------------------------------------------------------------------------------------------------
-//
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Adds a new sidebar entry to the internal list. The function performs some sanity checks.
  */
@@ -175,12 +185,11 @@ void SidebarSection::addEntry(const std::string &title, const std::string &icon_
   else
     entry->indicatorColor = Color("#ffffff");  // Use white as default indicator color
 
-  // See if we can load the icon. If not use the placeholder.
   entry->icon = mforms::Utilities::load_icon(icon_name, true);
-  if (entry->icon == NULL)
+  if (entry->icon == nullptr)
     throw std::runtime_error("Icon not found: " + icon_name);
 
-  _entries.push_back( { entry, section });
+  _entries.push_back({ entry, section });
   if (_activeEntry == nullptr && entry->canSelect && section != nullptr) {
     _activeEntry = entry;
     // If this is first entry, we need to show it.
@@ -190,7 +199,7 @@ void SidebarSection::addEntry(const std::string &title, const std::string &icon_
   set_layout_dirty(true);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 HomeScreenSection *SidebarSection::getActive() {
   if (_activeEntry != nullptr) {
@@ -203,14 +212,14 @@ HomeScreenSection *SidebarSection::getActive() {
   return nullptr;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SidebarSection::setActive(HomeScreenSection *section) {
   SidebarEntry *entryForSection = nullptr;
   for (auto &it : _entries) {
     if (it.second == section) {
       if (it.first == _activeEntry)
-        return;  // Section already active. Nothing to do.
+        return; // Section already active. Nothing to do.
 
       entryForSection = it.first;
     }
@@ -228,7 +237,7 @@ void SidebarSection::setActive(HomeScreenSection *section) {
   set_needs_repaint();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y) {
   switch (button) {
@@ -249,7 +258,7 @@ bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y) {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SidebarSection::mouse_leave() {
   if (_hotEntry != nullptr) {
@@ -260,7 +269,7 @@ bool SidebarSection::mouse_leave() {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y) {
   SidebarEntry *shortcut = nullptr;
@@ -275,48 +284,46 @@ bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y) {
   return false;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int SidebarSection::getAccessibilityChildCount() {
-  return (int)_entries.size();
+size_t SidebarSection::getAccessibilityChildCount() {
+  return _entries.size();
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-Accessible *SidebarSection::getAccessibilityChild(int index) {
-  Accessible *accessible = NULL;
-
-  if (index < (int)_entries.size())
+Accessible *SidebarSection::getAccessibilityChild(size_t index) {
+  Accessible *accessible = nullptr;
+  if (index < _entries.size())
     accessible = _entries[index].first;
 
   return accessible;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 Accessible::Role SidebarSection::getAccessibilityRole() {
   return Accessible::List;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-Accessible *SidebarSection::accessibilityHitTest(int x, int y) {
-  Accessible *accessible = NULL;
-
-  int row = shortcutFromPoint(x, y);
+Accessible *SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
+  Accessible *accessible = nullptr;
+  int row = shortcutFromPoint(static_cast<int>(x), static_cast<int>(y));
   if (row != -1)
     accessible = _entries[row].first;
 
   return accessible;
 }
 
-//----------------- HomeScreen ---------------------------------------------------------------------
+//----------------- HomeScreen -----------------------------------------------------------------------------------------
 
-HomeScreen::HomeScreen(bool singleSection)
-    : AppView(true, "home", true), _singleSection(singleSection) {
+HomeScreen::HomeScreen(bool singleSection) : AppView(true, "home", true), _singleSection(singleSection) {
+  set_name("homeScreen");
   if (!_singleSection) {
     _sidebarSection = new SidebarSection(this);
-    _sidebarSection->set_name("Home Shortcuts Section");
+    _sidebarSection->set_name("homeScreenSideBar");
     _sidebarSection->set_size(85, -1);
     add(_sidebarSection, false, true);
   } else
@@ -328,7 +335,7 @@ HomeScreen::HomeScreen(bool singleSection)
   NotificationCenter::get()->add_observer(this, "GNColorsChanged");
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 HomeScreen::~HomeScreen() {
   NotificationCenter::get()->remove_observer(this);
@@ -337,7 +344,7 @@ HomeScreen::~HomeScreen() {
   delete _sidebarSection;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::update_colors() {
   set_back_color("#ffffff");
@@ -350,7 +357,7 @@ void HomeScreen::update_colors() {
 
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::addSection(HomeScreenSection *section) {
   if (section == nullptr)
@@ -363,6 +370,7 @@ void HomeScreen::addSection(HomeScreenSection *section) {
 
   if (_sidebarSection != nullptr) {
     mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
+    scroll->set_name("homeScreenScrollPanel");
     scroll->add(section->getContainer());
     add(scroll, true, true);
     scroll->show(false);
@@ -386,7 +394,7 @@ void HomeScreen::addSection(HomeScreenSection *section) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::addSectionEntry(const std::string &title, const std::string &icon_name, std::function<void()> callback,
                                  bool canSelect) {
@@ -396,20 +404,20 @@ void HomeScreen::addSectionEntry(const std::string &title, const std::string &ic
     throw std::runtime_error("HomeScreen is in single section mode");
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::trigger_callback(HomeScreenAction action, const any &object) {
   onHomeScreenAction(action, object);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::cancelOperation() {
   for (auto &it : _sections)
     it->cancelOperation();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::set_menu(mforms::Menu *menu, HomeScreenMenuType type) {
   switch (type) {
@@ -443,14 +451,14 @@ void HomeScreen::set_menu(mforms::Menu *menu, HomeScreenMenuType type) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::on_resize() {
   // Resize changes the layout so if there is pending script loading the popup is likely misplaced.
   cancelOperation();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::setup_done() {
   if (_sidebarSection != nullptr) {
@@ -463,7 +471,7 @@ void HomeScreen::setup_done() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::showSection(size_t index) {
   if (index < _sections.size() && _sidebarSection != nullptr) {
@@ -472,7 +480,7 @@ void HomeScreen::showSection(size_t index) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::handle_notification(const std::string &name, void *sender, NotificationInfo &info) {
   if (name == "GNColorsChanged") {
@@ -480,4 +488,5 @@ void HomeScreen::handle_notification(const std::string &name, void *sender, Noti
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+

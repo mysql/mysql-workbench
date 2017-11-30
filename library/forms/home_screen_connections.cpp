@@ -484,34 +484,47 @@ protected:
   std::string search_user;
   std::string search_schema;
 
-  std::function<void(int, int)> default_handler;
-
   base::Rect bounds;
 
-  // ------ Accesibility Methods -----
+  //------ Accesibility Methods -----
 
-  virtual std::string getAccessibilityName() {
+  virtual std::string getAccessibilityName() override {
+    return "";
+  }
+
+  virtual std::string getAccessibilityTitle() override {
     return title;
   }
 
-  virtual std::string getAccessibilityDescription() {
-    return base::strfmt("desc:%s;schema:%s;user:%s", description.c_str(), schema.c_str(), user.c_str());
+  virtual std::string getAccessibilityDescription() override {
+    return "Connection Tile";
   }
 
-  virtual Accessible::Role getAccessibilityRole() {
-    return Accessible::ListItem;
+  virtual std::string getAccessibilityValue() override {
+    std::string result = "host: " + description;
+    if (!schema.empty())
+      result += ", schema: " + schema;
+    if (!user.empty())
+      result += ", user: " + user;
+    return result;
   }
-  virtual base::Rect getAccessibilityBounds() {
+
+  virtual Accessible::Role getAccessibilityRole() override {
+    return Accessible::PushButton;
+  }
+
+  virtual base::Rect getAccessibilityBounds() override {
     return bounds;
   }
-  virtual std::string getAccessibilityDefaultAction() {
-    return "Open Connection";
-  }
 
-  virtual void accessibilityDoDefaultAction() {
-    if (default_handler) {
-      // Calls the click at the center of the items
-      default_handler((int)bounds.center().x, (int)bounds.center().y);
+  virtual void accessibilityDoDefaultAction() override {
+    activate();
+  };
+
+  virtual void accessibilityShowMenu() override {
+    if (owner->_connection_context_menu != nullptr) {
+      owner->_connection_context_menu->popup_at(owner, static_cast<int>(bounds.xcenter()),
+        static_cast<int>(bounds.ycenter()));
     }
   };
 
@@ -689,8 +702,7 @@ public:
     draw_icon_with_text(cr, x, y, owner->_network_icon, description, alpha);
   }
 
-  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y) {
-    // Anything else.
+  virtual void activate() {
     owner->_owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, connectionId);
   }
 
@@ -737,11 +749,18 @@ public:
   }
 };
 
-class mforms::FolderEntry : public ConnectionEntry {
+class mforms::FolderEntry : public ConnectionEntry, public std::enable_shared_from_this<mforms::FolderEntry> {
 protected:
   virtual std::string getAccessibilityName() override {
     return base::strfmt("%s %s", title.c_str(), _("Connection Group"));
   }
+
+  virtual void accessibilityShowMenu() override {
+    if (owner->_folder_context_menu != nullptr) {
+      owner->_folder_context_menu->popup_at(owner, static_cast<int>(bounds.xcenter()), 
+        static_cast<int>(bounds.ycenter()));
+    }
+  };
 
 public:
   std::vector<std::shared_ptr<ConnectionEntry> > children;
@@ -774,10 +793,8 @@ public:
     menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
   }
 
-  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y) override {
-    owner->change_to_folder(std::dynamic_pointer_cast<FolderEntry>(thisptr));
-    // force a refresh of the hot_entry even if we don't move the mouse after clicking
-    owner->mouse_move(mforms::MouseButtonNone, x, y);
+  virtual void activate() override {
+    owner->change_to_folder(shared_from_this());
   }
 
   virtual base::Color getTitleColor() override {
@@ -798,6 +815,10 @@ public:
 };
 
 class mforms::FolderBackEntry : public ConnectionEntry {
+protected:
+  virtual void accessibilityShowMenu() override {
+  };
+
 public:
   FolderBackEntry(ConnectionsSection *aowner) : ConnectionEntry(aowner) {
     title = "< back";
@@ -848,31 +869,41 @@ public:
     return NULL;
   }
 
-  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y) override {
+  virtual void activate() override {
     owner->change_to_folder(std::shared_ptr<FolderEntry>());
-    // force a refresh of the hot_entry even if we don't move the mouse after clicking
-    owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
 };
 
 //----------------- ConnectionsWelcomeScreen ---------------------------------------------------------------------------
 
 ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(owner) {
-  _closeHomeScreenButton.name = "Close Welcome Message Screen";
-  _closeHomeScreenButton.default_action = "Close Welcome Message Screen";
-  _closeHomeScreenButton.default_handler = _accessible_click_handler;
+  _closeHomeScreenButton.name = "closeHomeScreenButton";
+  _closeHomeScreenButton.title = "Close Welcome Message Screen";
+  _closeHomeScreenButton.description = "Welcome screen close button";
+  _closeHomeScreenButton.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::CloseWelcomeMessage, base::any());
+  };
 
-  _browseDocButton.name = "Browse Documentation >";
-  _browseDocButton.default_action = "Open documentation";
-  _browseDocButton.default_handler = _accessible_click_handler;
+  _browseDocButton.name = "browseDocButton";
+  _browseDocButton.title = "Browse Documentation >";
+  _browseDocButton.description = "Open documentation button";
+  _browseDocButton.defaultHandler =  [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionOpenDocs, base::any());
+  };
 
-  _readBlogButton.name = "Read the Blog >";
-  _readBlogButton.default_action = "Open MySQL Workbench Blog webpage";
-  _readBlogButton.default_handler = _accessible_click_handler;
+  _readBlogButton.name = "readBlogButton";
+  _readBlogButton.title = "Read the Blog >";
+  _readBlogButton.description = "Open MySQL Workbench blog webpage button";
+  _readBlogButton.defaultHandler =  [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionOpenBlog, base::any());
+  };
 
-  _discussButton.name = "Discuss on the Forums >";
-  _discussButton.default_action = "Open MySQL Workbench Forums";
-  _discussButton.default_handler = _accessible_click_handler;
+  _discussButton.name = "discussButton";
+  _discussButton.title = "Discuss on the Forums >";
+  _discussButton.description = "Open MySQL Workbench forums button";
+  _discussButton.defaultHandler =  [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
+  };
 
   _closeIcon = mforms::Utilities::load_icon("home_screen_close.png");
 
@@ -926,13 +957,13 @@ std::string ConnectionsWelcomeScreen::getAccessibilityValue() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int ConnectionsWelcomeScreen::getAccessibilityChildCount() {
+size_t ConnectionsWelcomeScreen::getAccessibilityChildCount() {
   return 4;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Accessible* ConnectionsWelcomeScreen::getAccessibilityChild(int index) {
+Accessible* ConnectionsWelcomeScreen::getAccessibilityChild(size_t index) {
   switch (index) {
     case 1:
       return &_browseDocButton;
@@ -953,20 +984,20 @@ base::Rect ConnectionsWelcomeScreen::getAccessibilityBounds() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Accessible* ConnectionsWelcomeScreen::accessibilityHitTest(int x, int y) {
-  if (_browseDocButton.bounds.contains(x, y)) {
+Accessible* ConnectionsWelcomeScreen::accessibilityHitTest(ssize_t x, ssize_t y) {
+  if (_browseDocButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_browseDocButton;
   }
 
-  if (_discussButton.bounds.contains(x, y)) {
+  if (_discussButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_discussButton;
   }
 
-  if (_readBlogButton.bounds.contains(x, y)) {
+  if (_readBlogButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_readBlogButton;
   }
 
-  if (_closeHomeScreenButton.bounds.contains(x, y)) {
+  if (_closeHomeScreenButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_closeHomeScreenButton;
   }
 
@@ -976,17 +1007,19 @@ Accessible* ConnectionsWelcomeScreen::accessibilityHitTest(int x, int y) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
-  _closeHomeScreenButton.bounds =
-    base::Rect(get_width() - imageWidth(_closeIcon) - ConnectionsSection::CONNECTIONS_RIGHT_PADDING,
-               ConnectionsSection::CONNECTIONS_RIGHT_PADDING - imageHeight(_closeIcon), imageWidth(_closeIcon),
-               imageHeight(_closeIcon));
+  if (_closeIcon != nullptr && Utilities::icon_needs_reload(_closeIcon)) {
+    cairo_surface_destroy(_closeIcon);
+    _closeIcon = Utilities::load_icon("home_screen_close.png", true);
+  }
 
-  cairo_set_source_surface(cr, _closeIcon, _closeHomeScreenButton.bounds.left(), _closeHomeScreenButton.bounds.top());
-  cairo_paint(cr);
+  Size size = Utilities::getImageSize(_closeIcon);
+  _closeHomeScreenButton.bounds = base::Rect(get_width() - size.width - 8, 8, size.width, size.height);
+
+  cairo_save(cr);
+  mforms::Utilities::paint_icon(cr, _closeIcon, _closeHomeScreenButton.bounds.left(), _closeHomeScreenButton.bounds.top());
 
   int yoffset = 100;
 
-  cairo_save(cr);
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
                          CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3);
@@ -1019,10 +1052,10 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
   cairo_set_source_rgb(cr, 0x1b / 255.0, 0xad / 255.0, 0xe8 / 255.0);
   double pos = 0.25;
   for (auto btn : { &_browseDocButton, &_readBlogButton, &_discussButton }) {
-    cairo_text_extents(cr, btn->name.c_str(), &extents);
+    cairo_text_extents(cr, btn->title.c_str(), &extents);
     x = get_width() * pos - (extents.width / 2 + extents.x_bearing);
     cairo_move_to(cr, floor(x), floor(yoffset));
-    cairo_show_text(cr, btn->name.c_str());
+    cairo_show_text(cr, btn->title.c_str());
     btn->bounds = base::Rect(ceil(x), floor(yoffset + extents.y_bearing), ceil(extents.width), ceil(extents.height));
     pos += 0.25;
   }
@@ -1035,41 +1068,19 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
 //----------------------------------------------------------------------------------------------------------------------
 
 bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, int y) {
-  mouse_move(mforms::MouseButtonNone, x, y);
-
-  switch (button) {
-    case mforms::MouseButtonLeft: {
-      if (_browseDocButton.bounds.contains(x, y)) {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenDocs, base::any());
-        return true;
-      }
-
-      if (_discussButton.bounds.contains(x, y)) {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
-        return true;
-      }
-
-      if (_readBlogButton.bounds.contains(x, y)) {
-        _owner->trigger_callback(HomeScreenAction::ActionOpenBlog, base::any());
-        return true;
-      }
-
-      if (_closeHomeScreenButton.bounds.contains(x, y)) {
-        _owner->trigger_callback(HomeScreenAction::CloseWelcomeMessage, base::any());
-        return true;
-      }
+  if (button == MouseButtonLeft) {
+    HomeAccessibleButton *button = dynamic_cast<HomeAccessibleButton *>(accessibilityHitTest(x, y));
+    if (button != nullptr) {
+      button->accessibilityDoDefaultAction();
+      return true;
     }
-    default:
-      break;
   }
-
   return false;
 }
 
 //------------------ ConnectionsSection --------------------------------------------------------------------------------
 
-ConnectionsSection::ConnectionsSection(HomeScreen *owner)
-  : HomeScreenSection("sidebar_wb.png"),
+ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("sidebar_wb.png"),
     _search_box(true),
     _search_text(mforms::SmallSearchEntry),
     _showWelcomeHeading(true),
@@ -1104,7 +1115,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
 
   _info_popup = NULL;
 
-  _search_box.set_name("Search Box");
+  _search_box.set_name("connectionSearchBox");
   _search_box.set_spacing(5);
   _search_text.set_size(150, -1);
 
@@ -1126,7 +1137,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   image->set_image_align(mforms::MiddleCenter);
   _search_box.add(image, false, false);
 #endif
-  _search_text.set_name("Search Entry");
+  _search_text.set_name("searchText");
   _search_text.set_placeholder_text("Filter connections");
   _search_text.set_bordered(false);
   _search_box.add(&_search_text, true, true);
@@ -1137,20 +1148,26 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
 
   set_padding(0, 30, CONNECTIONS_RIGHT_PADDING, 0);
 
-  _accessible_click_handler = std::bind(&ConnectionsSection::mouse_click, this, mforms::MouseButtonLeft,
-                                        std::placeholders::_1, std::placeholders::_2);
+  _add_button.name = "add_button";
+  _add_button.title = "Add Connection";
+  _add_button.description = "Open new connection wizard button";
+  _add_button.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionNewConnection, base::any());
+  };
 
-  _add_button.name = "Add Connection";
-  _add_button.default_action = "Open New Connection Wizard";
-  _add_button.default_handler = _accessible_click_handler;
-
-  _manage_button.name = "Manage Connections";
-  _manage_button.default_action = "Open Connection Management Dialog";
-  _manage_button.default_handler = _accessible_click_handler;
+  _manage_button.name = "manage_button";
+  _manage_button.title = "Manage Connections";
+  _manage_button.description = "Open connection management dialog button";
+  _manage_button.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionManageConnections, base::any());
+  };
   
-  _rescanButton.name = "Rescan Servers";
-  _rescanButton.default_action = "Rescan Servers";
-  _rescanButton.default_handler = _accessible_click_handler;
+  _rescanButton.name = "rescanButton";
+  _rescanButton.title = "Rescan servers";
+  _rescanButton.description = "Rescan servers button";
+  _rescanButton.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::RescanLocalServers, base::any());
+  };
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1443,14 +1460,14 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     std::string line2 = "This means that MySQL is not installed or is not running.";
     
     double x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    int yoffset = bounds.top() + 30;
+    int yoffset = static_cast<int>(bounds.top()) + 30;
     cairo_text_extents_t extents;
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
     cairo_text_extents(cr, line1.c_str(), &extents);
     
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    yoffset += extents.height + 10;
+    yoffset += static_cast<int>(extents.height) + 10;
     
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, line1.c_str());
@@ -1459,7 +1476,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     cairo_text_extents(cr, line2.c_str(), &extents);
     
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    yoffset += extents.height + 10;
+    yoffset += static_cast<int>(extents.height) + 10;
     
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, line2.c_str());
@@ -1468,13 +1485,13 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
                           CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
     cairo_set_source_rgb(cr, 0x1b / 255.0, 0xad / 255.0, 0xe8 / 255.0);
-    cairo_text_extents(cr, _rescanButton.name.c_str(), &extents);
+    cairo_text_extents(cr, _rescanButton.title.c_str(), &extents);
     
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
-    yoffset += extents.height + 10;
+    yoffset += static_cast<int>(extents.height) + 10;
     
     cairo_move_to(cr, x, yoffset);
-    cairo_show_text(cr, _rescanButton.name.c_str());
+    cairo_show_text(cr, _rescanButton.title.c_str());
     
     _rescanButton.bounds = base::Rect(x, yoffset - extents.height - 5, extents.width, extents.height + 10);
         
@@ -1671,9 +1688,6 @@ void ConnectionsSection::addConnection(const std::string &connectionId, const st
   entry->search_user = user;
   entry->search_schema = schema;
 
-  entry->default_handler = std::bind(&ConnectionsSection::mouse_click, this, mforms::MouseButtonLeft,
-                                     std::placeholders::_1, std::placeholders::_2);
-
   std::string::size_type slash_position = title.find("/");
   if (slash_position != std::string::npos) {
     // A child entry->
@@ -1793,23 +1807,10 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
         return true;
       }
 
-      //      if (_browseDocButton.bounds.contains(x, y)) {
-      //        _owner->trigger_callback(HomeScreenAction::ActionOpenDocs, base::any());
-      //        return true;
-      //      }
-      //
-      //      if (_discussButton.bounds.contains(x, y)) {
-      //        _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
-      //        return true;
-      //      }
-      //
-      //      if (_readBlogButton.bounds.contains(x, y)) {
-      //        _owner->trigger_callback(HomeScreenAction::ActionOpenBlog, base::any());
-      //        return true;
-      //      }
-
-    if (_rescanButton.bounds.contains(x, y))
+      if (_rescanButton.bounds.contains(x, y)) {
         _owner->trigger_callback(HomeScreenAction::RescanLocalServers, base::any());
+        return true;
+      }
       
       if (_hot_entry) {
 #ifdef __APPLE__
@@ -1824,11 +1825,13 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
           return true;
         }
 
-        _hot_entry->activate(_hot_entry, x, y);
+        _hot_entry->activate();
 
         return true;
       }
-    } break;
+
+      break;
+    }
 
     case mforms::MouseButtonRight: {
       mforms::Menu *context_menu = NULL;
@@ -1843,7 +1846,9 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
       // At this point the context menu and the associated entry have been selected
       if (context_menu)
         context_menu->popup_at(this, x, y);
-    } break;
+
+      break;
+    }
 
     default:
       break;
@@ -1986,25 +1991,23 @@ void ConnectionsSection::popup_closed() {
 
 //------------------------------------------------------------------------------------------------
 
-int ConnectionsSection::getAccessibilityChildCount() {
-  // At least 2 is returned because of the add and manage icons.
-  size_t ret_val = 2;
+size_t ConnectionsSection::getAccessibilityChildCount() {
+  size_t ret_val = 2; // 2 for create + manage icons.
 
   if (_filtered)
-    ret_val += (int)_filtered_connections.size();
+    ret_val += _filtered_connections.size();
   else if (!_active_folder)
-    ret_val += (int)_connections.size();
-  else {
-    // Adds one because of the back tile
-    ret_val++;
+    ret_val += _connections.size();
+  else
     ret_val += _active_folder->children.size();
-  }
 
-  return (int)ret_val;
+  return ret_val;
 }
 
-base::Accessible *ConnectionsSection::getAccessibilityChild(int index) {
-  base::Accessible *accessible = NULL;
+//------------------------------------------------------------------------------------------------
+
+base::Accessible *ConnectionsSection::getAccessibilityChild(size_t index) {
+  base::Accessible *accessible = nullptr;
 
   switch (index) {
     case 0:
@@ -2014,27 +2017,18 @@ base::Accessible *ConnectionsSection::getAccessibilityChild(int index) {
       accessible = &_manage_button;
       break;
     default: {
-      // Removes 2 to get the real connection index.
-      // Note that if at this point index is bigger than the list
-      // size, it means it is referring to the pageup/pagedown icons.
-      index -= 2;
+      index -= 2; // Offset the index for the buttons handled above.
 
       if (_filtered) {
-        if (index < (int)_filtered_connections.size())
+        if (index < _filtered_connections.size())
           accessible = _filtered_connections[index].get();
-        else
-          index -= (int)_filtered_connections.size();
       } else {
         if (!_active_folder) {
-          if (index < (int)_connections.size())
+          if (index < _connections.size())
             accessible = _connections[index].get();
-          else
-            index -= (int)_connections.size();
         } else {
-          if (index < (int)_active_folder->children.size())
+          if (index < _active_folder->children.size())
             accessible = _active_folder->children[index].get();
-          else
-            index -= (int)_active_folder->children.size();
         }
       }
     }
@@ -2057,16 +2051,16 @@ base::Accessible::Role ConnectionsSection::getAccessibilityRole() {
 
 //------------------------------------------------------------------------------------------------
 
-base::Accessible *ConnectionsSection::accessibilityHitTest(int x, int y) {
+base::Accessible *ConnectionsSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   base::Accessible *accessible = NULL;
 
-  if (_add_button.bounds.contains(x, y))
+  if (_add_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_add_button;
-  else if (_manage_button.bounds.contains(x, y))
+  else if (_manage_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_manage_button;
   else {
     bool in_details_area = false;
-    std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
+    std::shared_ptr<ConnectionEntry> entry = entry_from_point(static_cast<int>(x), static_cast<int>(y), in_details_area);
 
     if (entry)
       accessible = entry.get();

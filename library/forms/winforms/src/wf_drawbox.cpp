@@ -122,7 +122,7 @@ String ^ WBControlAccessibleObject::Name::get() {
 //--------------------------------------------------------------------------------------------------
 
 int WBControlAccessibleObject::GetChildCount() {
-  return backend->getAccessibilityChildCount();
+  return static_cast<int>(backend->getAccessibilityChildCount());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ System::Drawing::Rectangle WBAccessibleObject::Bounds::get() {
 //--------------------------------------------------------------------------------------------------
 
 int WBAccessibleObject::GetChildCount() {
-  return backend->getAccessibilityChildCount();
+  return static_cast<int>(backend->getAccessibilityChildCount());
 }
 
 //--------------------------------------------------------------------------------------------------

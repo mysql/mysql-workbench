@@ -68,11 +68,11 @@ void DocumentEntry::accessibilityDoDefaultAction() {
 }
 
 //----------------- DocumentsSection ---------------------------------------------------------------
+
 bool DocumentsSection::accessibleHandler(int x, int y) {
   mouse_move(MouseButtonLeft, x, y);
   return mouse_click(MouseButtonLeft, x, y);
 }
-
 
 DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSection("sidebar_modeling.png") {
   _owner = owner;
@@ -88,17 +88,27 @@ DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSectio
 
   load_icons();
 
-  _add_button.name = "Add Model";
-  _add_button.default_action = "Create New Model";
-  _add_button.default_handler = std::bind(&DocumentsSection::accessibleHandler, this, std::placeholders::_1, std::placeholders::_2);
+  _add_button.name = "add_button";
+  _add_button.title = "Add Model";
+  _add_button.description = "Create new model button";
+  _add_button.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionNewEERModel, base::any());
+  };
 
-  _open_button.name = "Open Model";
-  _open_button.default_action = "Open Existing Model";
-  _open_button.default_handler = std::bind(&DocumentsSection::accessibleHandler, this, std::placeholders::_1, std::placeholders::_2);
+  _open_button.name = "open_button";
+  _open_button.title = "Open Model";
+  _open_button.description = "Open existing model button";
+  _open_button.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionOpenEERModel, base::any());
+  };
 
-  _action_button.name = "Create Model Options";
-  _action_button.default_action = "Open Create Model Options Menu";
-  _action_button.default_handler = std::bind(&DocumentsSection::accessibleHandler, this, std::placeholders::_1, std::placeholders::_2);
+  _action_button.name = "action_button";
+  _action_button.title = "Create Model Options";
+  _action_button.description = "Open model options menu button";
+  _action_button.defaultHandler = [this]() {
+    _model_action_menu->popup_at(this, static_cast<int>(_action_button.bounds.xcenter()),
+      static_cast<int>(_action_button.bounds.ycenter()));
+  };
 }
 
 //------------------------------------------------------------------------------------------------
@@ -813,7 +823,7 @@ void DocumentsSection::hide_connection_select_message() {
 
 //------------------------------------------------------------------------------------------------
 
-int DocumentsSection::getAccessibilityChildCount() {
+size_t DocumentsSection::getAccessibilityChildCount() {
   // Initial value due to the add/open/create EER Model icons
   int ret_val = 3;
   ret_val += (int)_filtered_documents.size();
@@ -823,7 +833,7 @@ int DocumentsSection::getAccessibilityChildCount() {
 
 //------------------------------------------------------------------------------------------------
 
-base::Accessible *DocumentsSection::getAccessibilityChild(int index) {
+base::Accessible *DocumentsSection::getAccessibilityChild(size_t index) {
   base::Accessible *accessible = NULL;
   switch (index) {
     case 0:
@@ -838,7 +848,7 @@ base::Accessible *DocumentsSection::getAccessibilityChild(int index) {
     default: {
       index -= 3;
 
-      if (index < (int)_filtered_documents.size())
+      if (index < _filtered_documents.size())
         accessible = &_filtered_documents[index];
     }
   }
@@ -854,17 +864,17 @@ base::Accessible::Role DocumentsSection::getAccessibilityRole() {
 
 //------------------------------------------------------------------------------------------------
 
-base::Accessible *DocumentsSection::accessibilityHitTest(int x, int y) {
+base::Accessible *DocumentsSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   base::Accessible *accessible = NULL;
 
-  if (_add_button.bounds.contains(x, y))
+  if (_add_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_add_button;
-  else if (_open_button.bounds.contains(x, y))
+  else if (_open_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_open_button;
-  else if (_action_button.bounds.contains(x, y))
+  else if (_action_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_action_button;
   else {
-    ssize_t entry = entry_from_point(x, y);
+    ssize_t entry = entry_from_point(static_cast<int>(x), static_cast<int>(y));
 
     if (entry != -1)
       accessible = &_filtered_documents[entry];

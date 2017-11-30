@@ -580,12 +580,14 @@ base::Rect BaseSnippetList::snippet_bounds(Snippet* snippet) {
 }
 
 //------------------------------------------------------------------------------------------------
-int BaseSnippetList::getAccessibilityChildCount() {
+
+size_t BaseSnippetList::getAccessibilityChildCount() {
   return (int)_snippets.size();
 }
 
 //------------------------------------------------------------------------------------------------
-Accessible* BaseSnippetList::getAccessibilityChild(int index) {
+
+Accessible* BaseSnippetList::getAccessibilityChild(size_t index) {
   base::Accessible* accessible = NULL;
 
   if ((size_t)index < _snippets.size())
@@ -595,6 +597,7 @@ Accessible* BaseSnippetList::getAccessibilityChild(int index) {
 }
 
 //------------------------------------------------------------------------------------------------
-base::Accessible* BaseSnippetList::accessibilityHitTest(int x, int y) {
+
+base::Accessible* BaseSnippetList::accessibilityHitTest(ssize_t x, ssize_t y) {
   return snippet_from_point(x, y);
 }

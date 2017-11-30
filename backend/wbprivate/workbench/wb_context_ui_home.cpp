@@ -290,28 +290,22 @@ void WBContextUI::show_home_screen() {
 
     // now we have to add sections
     _connectionsSection = mforms::manage(new mforms::ConnectionsSection(_home_screen));
-    _connectionsSection->set_name("Home Connections Section");
+    _connectionsSection->set_name("homeScreenConnectionsSection");
     _connectionsSection->showWelcomeHeading(bec::GRTManager::get()->get_app_option_int("HomeScreen:HeadingMessage", 1) == 1);
-    _connectionsSection->getConnectionInfoCallback = std::bind(
-      [=](const std::string &connectionId) -> mforms::anyMap {
-        return connectionToMap(getConnectionById(connectionId));
-      },
-      std::placeholders::_1);
+    _connectionsSection->getConnectionInfoCallback = std::bind([=] (const std::string &connectionId) -> mforms::anyMap {
+      return connectionToMap(getConnectionById(connectionId));
+    }, std::placeholders::_1);
 
     _home_screen->addSection(_connectionsSection);
 
     _documentsSection = mforms::manage(new mforms::DocumentsSection(_home_screen));
-    _documentsSection->set_name("Documents Section");
+    _documentsSection->set_name("homeScreenDocumentsSection");
     _home_screen->addSection(_documentsSection);
 
-
-
-    _home_screen->addSectionEntry("Migration Section", "sidebar_migration.png",
-                                  [this]() {
-                                    logInfo("Opening Migration Wizard...\n");
-                                    _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
-                                  },
-                                  false);
+    _home_screen->addSectionEntry("Migration Section", "sidebar_migration.png", [this]() {
+      logInfo("Opening Migration Wizard...\n");
+      _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
+    }, false);
 
     // Setup context menus.
     mforms::Menu *menu;

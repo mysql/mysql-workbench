@@ -86,10 +86,10 @@ namespace mforms {
     virtual bool mouse_enter() override;
     virtual bool mouse_leave() override;
 #endif
-    virtual int getAccessibilityChildCount() override;
-    virtual Accessible *getAccessibilityChild(int index) override;
+    virtual size_t getAccessibilityChildCount() override;
+    virtual Accessible *getAccessibilityChild(size_t index) override;
     virtual Accessible::Role getAccessibilityRole() override;
-    virtual base::Accessible* accessibilityHitTest(int x, int y) override;
+    virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
 
 #endif
   private:

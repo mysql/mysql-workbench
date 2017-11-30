@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _HOME_SCREEN_H_
-#define _HOME_SCREEN_H_
+#pragma once
 
 #include <ctime>
 
@@ -43,8 +42,6 @@ namespace mforms {
   class SidebarSection;
   class HomeScreen;
 
-  //----------------- ShortcutSection ----------------------------------------------------------------
-
   struct SidebarEntry : base::Accessible {
     SidebarSection *owner;
     std::function<void()> callback;
@@ -57,14 +54,14 @@ namespace mforms {
     base::Color indicatorColor; // Color of the indicator triangle
 
     SidebarEntry();
-    // ------ Accesibility Methods -----
-    virtual std::string getAccessibilityName();
-    virtual base::Accessible::Role getAccessibilityRole();
-    virtual base::Rect getAccessibilityBounds();
-    virtual std::string getAccessibilityDefaultAction();
-    virtual void accessibilityDoDefaultAction();
-  };
 
+    virtual std::string getAccessibilityName() override;
+    virtual std::string getAccessibilityTitle() override;
+    virtual std::string getAccessibilityDescription() override;
+    virtual base::Accessible::Role getAccessibilityRole() override;
+    virtual base::Rect getAccessibilityBounds() override;
+    virtual void accessibilityDoDefaultAction() override;
+  };
 
   class SidebarSection : public mforms::DrawBox {
   private:
@@ -75,8 +72,6 @@ namespace mforms {
     SidebarEntry *_hotEntry;
     SidebarEntry *_activeEntry; // For the context menu.
 
-    std::function<bool(int, int)> _accessible_click_handler;
-
   public:
     const int SIDEBAR_LEFT_PADDING = 18;
     const int SIDEBAR_TOP_PADDING = 18; // The vertical offset of the first shortcut entry.
@@ -84,10 +79,9 @@ namespace mforms {
     const int SIDEBAR_ROW_HEIGHT = 50;
     const int SIDEBAR_SPACING = 18; // Vertical space between entries.
 
-    //--------------------------------------------------------------------------------------------------
-
     SidebarSection(HomeScreen *owner);
     virtual ~SidebarSection();
+
     void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, base::Color &color, float alpha);
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
     int shortcutFromPoint(int x, int y);
@@ -99,13 +93,11 @@ namespace mforms {
     bool mouse_leave();
 
     virtual bool mouse_move(mforms::MouseButton button, int x, int y);
-    virtual int getAccessibilityChildCount();
-    virtual Accessible *getAccessibilityChild(int index);
+    virtual size_t getAccessibilityChildCount();
+    virtual Accessible *getAccessibilityChild(size_t index);
     virtual Accessible::Role getAccessibilityRole();
-    virtual base::Accessible *accessibilityHitTest(int x, int y);
+    virtual base::Accessible *accessibilityHitTest(ssize_t x, ssize_t y);
   };
-
-  //--------------------------------------------------------------------------------------------------
 
   /**
    * This class implements the main (home) screen in MySQL Workbench, containing
@@ -148,4 +140,3 @@ namespace mforms {
   };
 }
 
-#endif // _HOME_SCREEN_H_

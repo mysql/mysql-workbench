@@ -51,12 +51,13 @@ namespace base {
     virtual std::string getAccessibilityTitle();
     virtual std::string getAccessibilityDescription();
     virtual std::string getAccessibilityValue();
-    virtual int getAccessibilityChildCount();
-    virtual Accessible* getAccessibilityChild(int index);
+    virtual size_t getAccessibilityChildCount();
+    virtual Accessible* getAccessibilityChild(size_t index);
     virtual base::Rect getAccessibilityBounds();
-    virtual Accessible* accessibilityHitTest(int x, int y);
+    virtual Accessible* accessibilityHitTest(ssize_t x, ssize_t y);
     virtual std::string getAccessibilityDefaultAction();
     virtual void accessibilityDoDefaultAction();
+    virtual void accessibilityShowMenu();
   };
 
 }

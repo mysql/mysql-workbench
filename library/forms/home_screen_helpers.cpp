@@ -21,27 +21,29 @@
 #include "mforms/utilities.h"
 #include "mforms/app.h"
 
+using namespace mforms;
+
 #ifdef __APPLE__
-const char* mforms::HomeScreenSettings::HOME_TITLE_FONT = "Helvetica Neue Light";
-const char* mforms::HomeScreenSettings::HOME_NORMAL_FONT = "Helvetica Neue Light";
-const char* mforms::HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica Neue Light";
+const char* HomeScreenSettings::HOME_TITLE_FONT = "Helvetica Neue Light";
+const char* HomeScreenSettings::HOME_NORMAL_FONT = "Helvetica Neue Light";
+const char* HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica Neue Light";
 // Info font is only used on Mac.
-const char* mforms::HomeScreenSettings::HOME_INFO_FONT = "Baskerville";
+const char* HomeScreenSettings::HOME_INFO_FONT = "Baskerville";
 #elif defined(_WIN32)
-const char* mforms::HomeScreenSettings::HOME_TITLE_FONT = "Segoe UI";
-const char* mforms::HomeScreenSettings::HOME_NORMAL_FONT = "Segoe UI";
-const char* mforms::HomeScreenSettings::HOME_DETAILS_FONT = "Segoe UI";
+const char* HomeScreenSettings::HOME_TITLE_FONT = "Segoe UI";
+const char* HomeScreenSettings::HOME_NORMAL_FONT = "Segoe UI";
+const char* HomeScreenSettings::HOME_DETAILS_FONT = "Segoe UI";
 #else
-const char* mforms::HomeScreenSettings::HOME_TITLE_FONT = "Tahoma";
-const char* mforms::HomeScreenSettings::HOME_NORMAL_FONT = "Tahoma";
-const char* mforms::HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica";
+const char* HomeScreenSettings::HOME_TITLE_FONT = "Tahoma";
+const char* HomeScreenSettings::HOME_NORMAL_FONT = "Tahoma";
+const char* HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica";
 #endif
-const char* mforms::HomeScreenSettings::TILE_DRAG_FORMAT = "com.mysql.workbench-drag-tile-format";
+const char* HomeScreenSettings::TILE_DRAG_FORMAT = "com.mysql.workbench-drag-tile-format";
 
 //--------------------------------------------------------------------------------------------------
 
-base::any mforms::getAnyMapValue(const mforms::anyMap& map, const std::string& key, base::any defaultValue) {
-  mforms::anyMap::const_iterator iter = map.find(key);
+base::any getAnyMapValue(const anyMap& map, const std::string& key, base::any defaultValue) {
+  anyMap::const_iterator iter = map.find(key);
 
   if (iter == map.end())
     return defaultValue;
@@ -51,33 +53,39 @@ base::any mforms::getAnyMapValue(const mforms::anyMap& map, const std::string& k
 
 //--------------------------------------------------------------------------------------------------
 
-std::string mforms::HomeAccessibleButton::getAccessibilityName() {
+std::string HomeAccessibleButton::getAccessibilityName() {
   return name;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string mforms::HomeAccessibleButton::getAccessibilityDefaultAction() {
-  return default_action;
+std::string HomeAccessibleButton::getAccessibilityTitle() {
+  return title;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-base::Accessible::Role mforms::HomeAccessibleButton::getAccessibilityRole() {
+std::string HomeAccessibleButton::getAccessibilityDescription() {
+  return description;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+base::Accessible::Role HomeAccessibleButton::getAccessibilityRole() {
   return base::Accessible::PushButton;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-base::Rect mforms::HomeAccessibleButton::getAccessibilityBounds() {
+base::Rect HomeAccessibleButton::getAccessibilityBounds() {
   return bounds;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void mforms::HomeAccessibleButton::accessibilityDoDefaultAction() {
-  if (default_handler)
-    default_handler((int)bounds.center().x, (int)bounds.center().y);
+void HomeAccessibleButton::accessibilityDoDefaultAction() {
+  if (defaultHandler)
+    defaultHandler();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,8 +94,8 @@ void mforms::HomeAccessibleButton::accessibilityDoDefaultAction() {
 
 int mforms::imageWidth(cairo_surface_t* image) {
   if (image != nullptr) {
-    if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return (int)(cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor());
+    if (Utilities::is_hidpi_icon(image) && App::get()->backing_scale_factor() > 1.0)
+      return (int)(cairo_image_surface_get_width(image) / App::get()->backing_scale_factor());
     else
       return (int)cairo_image_surface_get_width(image);
   }
@@ -98,8 +106,8 @@ int mforms::imageWidth(cairo_surface_t* image) {
 
 int mforms::imageHeight(cairo_surface_t* image) {
   if (image != nullptr) {
-    if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return (int)(cairo_image_surface_get_height(image) / mforms::App::get()->backing_scale_factor());
+    if (Utilities::is_hidpi_icon(image) && App::get()->backing_scale_factor() > 1.0)
+      return (int)(cairo_image_surface_get_height(image) / App::get()->backing_scale_factor());
     else
       return (int)cairo_image_surface_get_height(image);
   }

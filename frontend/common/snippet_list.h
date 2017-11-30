@@ -100,7 +100,7 @@ public:
   virtual base::Accessible::Role getAccessibilityRole() override {
     return base::Accessible::List;
   }
-  virtual int getAccessibilityChildCount() override;
-  virtual Accessible* getAccessibilityChild(int index) override;
-  virtual base::Accessible* accessibilityHitTest(int x, int y) override;
+  virtual size_t getAccessibilityChildCount() override;
+  virtual Accessible* getAccessibilityChild(size_t index) override;
+  virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
 };

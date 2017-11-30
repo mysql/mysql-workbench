@@ -138,18 +138,20 @@ namespace mforms {
   class MFORMS_EXPORT HomeAccessibleButton : public base::Accessible {
   public:
     std::string name;
-    std::string default_action;
+    std::string title;
+    std::string description;
     base::Rect bounds;
-    std::function<bool(int, int)> default_handler;
+    std::function<void (void)> defaultHandler;
 
     // ------ Accesibility Customized Methods -----
 
-    virtual std::string getAccessibilityName();
-    virtual std::string getAccessibilityDefaultAction();
-    virtual Accessible::Role getAccessibilityRole();
-    virtual base::Rect getAccessibilityBounds();
+    virtual std::string getAccessibilityName() override;
+    virtual std::string getAccessibilityTitle() override;
+    virtual std::string getAccessibilityDescription() override;
+    virtual Accessible::Role getAccessibilityRole() override;
+    virtual base::Rect getAccessibilityBounds() override;
 
-    virtual void accessibilityDoDefaultAction();
+    virtual void accessibilityDoDefaultAction() override;
   };
 
   class MFORMS_EXPORT HomeScreenSection : public mforms::DrawBox {
