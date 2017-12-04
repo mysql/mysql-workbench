@@ -928,7 +928,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         info_box = mforms.newBox(True)
         info_label = mforms.newLabel("Manage the rules for the current user. Changing the mode to RECORDING will start collecting the SQL commands used by your application.\nWhen all the necessary rules were collected, you should set the mode to PROTECTING. You can then fine-tune the set of rules by adding or deleting them.")
         info_box.add(info_label, True, True)
-        self.add(info_box, False, False)
+        self.add(info_box, False, True)
         
         state_box = mforms.newBox(True)
         
