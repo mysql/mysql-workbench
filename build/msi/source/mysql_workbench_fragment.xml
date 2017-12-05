@@ -40,7 +40,7 @@
               </Directory>
 
               <Component DiskId="1" Guid="4E9CC25E-CB45-47e5-931E-DB57AC74991D" Id="Various" Location="either">
-                <File Id="README" Name="README"/>
+                <File Id="README" Name="README.md"/>
                 <?if $(var.LICENSE_TYPE) = "community"?>
                   <File Id="COPYING" Name="COPYING"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
