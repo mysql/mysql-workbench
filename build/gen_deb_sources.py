@@ -89,7 +89,7 @@ def generate_distro(source_dir, vars):
                         os.chmod(outpath, os.stat(inpath).st_mode)
 
         # always copy this file, since the tar will come with the right README file
-        shutil.copyfile("../README", os.path.join(target_dir,"copyright"))
+        shutil.copyfile("../README.md", os.path.join(target_dir,"copyright"))
         shutil.copyfile(os.path.join(source_dir, "source/format"), os.path.join(target_source_dir,"format"))
 
         print target_dir, "generated"
