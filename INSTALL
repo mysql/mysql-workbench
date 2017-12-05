@@ -1,10 +1,10 @@
-MySQL Workbench 6.3
+MySQL Workbench 8.0
 -------------------
 
 MySQL Workbench is a complete database modeling, administration and development program for MySQL.
 
 
-This tree contains the source files for the MySQL Workbench 6.3.
+This tree contains the source files for the MySQL Workbench 8.0.
 
 MySQL Workbench is an extensible visual database design tool.
 
@@ -25,7 +25,9 @@ To build MySQL Workbench on Ubuntu and other Debian based distros:
                           mesa-common-dev libmysqlclient-dev libmysqlcppconn-dev uuid-dev libpixman-1-dev libpcre3-dev \
                           libgnome2-dev libgnome-keyring-dev libgtk2.0-dev libpango1.0-dev libcairo2-dev python-dev \
                           libboost-dev libctemplate-dev mysql-client python-pysqlite2 libsqlite3-dev \
-                          swig libvsqlitepp-dev libgdal-dev libproj0
+                          swig libvsqlitepp-dev libgdal-dev libprojX
+
+* X - put the proper value for your system
 
 - Extract the sources into a directory
 
