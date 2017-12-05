@@ -278,7 +278,7 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 
 %files 
 %defattr(0644, root, root, 0755)
-%doc %{license_file} README
+%doc %{license_file} README.md
 
 %attr(0755,root,root) %{_bindir}/mysql-workbench
 %attr(0755,root,root) %{_bindir}/wbcopytables
