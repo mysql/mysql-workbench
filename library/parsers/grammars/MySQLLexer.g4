@@ -20,9 +20,9 @@ lexer grammar MySQLLexer;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [3bff562] (13 April 2017).
+ * Merged in all changes up to mysql-trunk git revision [6389618] (7 December 2017).
  *
- * MySQL grammar for ANTLR 4.5 with language features from MySQL 4.0.0 up to MySQL 8.0.1 (except for
+ * MySQL grammar for ANTLR 4.5+ with language features from MySQL 4.0.0 up to MySQL 8.0 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
@@ -30,9 +30,9 @@ lexer grammar MySQLLexer;
  * This grammar is a port of the ANTLR v3 version to v4 + some ehancements for newer server versions.
  * The coverage of the MySQL language should be 100%, but there might still be bugs or omissions.
  *
- * To use this grammar you will need a few support classes (which should be included in the package).
+ * To use this grammar you will need a few support classes (which should be close to where you found this grammar).
  * These classes implement the target specific action code, so we don't clutter the grammar with that
- * and make it simpler to adjust it for other targets. See the demo project for further details.
+ * and make it simpler to adjust it for other targets. See the demo/test project for further details.
  *
  * Written by Mike Lischke. Direct all bug reports, omissions etc. to mike.lischke@oracle.com.
  */
@@ -44,7 +44,8 @@ lexer grammar MySQLLexer;
 
 options {
     superClass = MySQLBaseLexer;
-    tokenVocab = predefined; // Certain tokens in a predefined order for simpler checks.
+    tokenVocab = predefined;
+    // Certain tokens in a predefined order for simpler checks.
     exportMacro = PARSERS_PUBLIC_TYPE;
 }
 
@@ -262,7 +263,7 @@ ALGORITHM_SYMBOL:                A L G O R I T H M;
 ALL_SYMBOL:                      A L L;                                      // SQL-2003-R
 ALTER_SYMBOL:                    A L T E R;                                  // SQL-2003-R
 ALWAYS_SYMBOL:                   A L W A Y S                                 {serverVersion >= 50707}?;
-ANALYSE_SYMBOL:                  A N A L Y S E                               {serverVersion < 80001}?;
+ANALYSE_SYMBOL:                  A N A L Y S E                               {serverVersion < 80000}?;
 ANALYZE_SYMBOL:                  A N A L Y Z E;
 AND_SYMBOL:                      A N D;                                      // SQL-2003-R
 ANY_SYMBOL:                      A N Y;                                      // SQL-2003-R
@@ -391,7 +392,7 @@ DELAY_KEY_WRITE_SYMBOL:          D E L A Y '_' K E Y '_' W R I T E;
 DELETE_SYMBOL:                   D E L E T E;                                // SQL-2003-R
 DESC_SYMBOL:                     D E S C;                                    // SQL-2003-N
 DESCRIBE_SYMBOL:                 D E S C R I B E;                            // SQL-2003-R
-DES_KEY_FILE_SYMBOL:             D E S '_' K E Y '_' F I L E;
+DES_KEY_FILE_SYMBOL:             D E S '_' K E Y '_' F I L E                 {serverVersion < 80000}?;
 DETERMINISTIC_SYMBOL:            D E T E R M I N I S T I C                   {serverVersion >= 50000}?; // SQL-2003-R
 DIAGNOSTICS_SYMBOL:              D I A G N O S T I C S                       {serverVersion >= 50600}?;
 DIRECTORY_SYMBOL:                D I R E C T O R Y;
@@ -714,7 +715,7 @@ READ_WRITE_SYMBOL:               R E A D '_' W R I T E                       {se
 REAL_SYMBOL:                     R E A L;                                    // SQL-2003-R
 REBUILD_SYMBOL:                  R E B U I L D;
 RECOVER_SYMBOL:                  R E C O V E R;
-REDOFILE_SYMBOL:                 R E D O F I L E;
+REDOFILE_SYMBOL:                 R E D O F I L E                             {serverVersion < 80000}?;
 REDO_BUFFER_SIZE_SYMBOL:         R E D O '_' B U F F E R '_' S I Z E;
 REDUNDANT_SYMBOL:                R E D U N D A N T;
 REFERENCES_SYMBOL:               R E F E R E N C E S;                        // SQL-2003-R
@@ -817,7 +818,7 @@ SQL_AFTER_MTS_GAPS_SYMBOL:
 SQL_BEFORE_GTIDS_SYMBOL:         S Q L '_' B E F O R E '_' G T I D S         {serverVersion >= 50600}?; // MYSQL
 SQL_BIG_RESULT_SYMBOL:           S Q L '_' B I G '_' R E S U L T;
 SQL_BUFFER_RESULT_SYMBOL:        S Q L '_' B U F F E R '_' R E S U L T;
-SQL_CACHE_SYMBOL:                S Q L '_' C A C H E;
+SQL_CACHE_SYMBOL:                S Q L '_' C A C H E                         {serverVersion < 80000}?;
 SQL_CALC_FOUND_ROWS_SYMBOL:      S Q L '_' C A L C '_' F O U N D '_' R O W S {serverVersion >= 40000}?;
 SQL_NO_CACHE_SYMBOL:             S Q L '_' N O '_' C A C H E;
 SQL_SMALL_RESULT_SYMBOL:         S Q L '_' S M A L L '_' R E S U L T;
@@ -961,18 +962,63 @@ INVISIBLE_SYMBOL:                I N V I S I B L E                           {se
 VISIBLE_SYMBOL:                  V I S I B L E                               {serverVersion >= 80000}?;
 EXCEPT_SYMBOL:                   E X C E P T                                 {serverVersion >= 80000}?; // SQL-1999-R
 COMPONENT_SYMBOL:                C O M P O N E N T                           {serverVersion >= 80000}?; // MYSQL
-RECURSIVE_SYMBOL:                R E C U R S I V E                           {serverVersion >= 80001}?; // SQL-1999-R
+RECURSIVE_SYMBOL:                R E C U R S I V E                           {serverVersion >= 80000}?; // SQL-1999-R
 //GRAMMAR_SELECTOR_EXPR:;               // synthetic token: starts single expr.
 //GRAMMAR_SELECTOR_GCOL:;               // synthetic token: starts generated col.
 //GRAMMAR_SELECTOR_PART:;               // synthetic token: starts partition expr.
 //GRAMMAR_SELECTOR_CTE:;               // synthetic token: starts CTE expr.
 JSON_OBJECTAGG_SYMBOL:           J S O N '_' O B J E C T A G G               {serverVersion >= 80000}?; // SQL-2015-R
 JSON_ARRAYAGG_SYMBOL:            J S O N '_' A R R A Y A G G                 {serverVersion >= 80000}?; // SQL-2015-R
-OF_SYMBOL:                       O F                                         {serverVersion >= 80001}?; // SQL-1999-R
-SKIP_SYMBOL:                     S K I P                                     {serverVersion >= 80001}?; // MYSQL
-LOCKED_SYMBOL:                   L O C K E D                                 {serverVersion >= 80001}?; // MYSQL
-NOWAIT_SYMBOL:                   N O W A I T                                 {serverVersion >= 80001}?; // MYSQL
-GROUPING_SYMBOL:                 G R O U P I N G                             {serverVersion >= 80001}?; // SQL-2011-R
+OF_SYMBOL:                       O F                                         {serverVersion >= 80000}?; // SQL-1999-R
+SKIP_SYMBOL:                     S K I P                                     {serverVersion >= 80000}?; // MYSQL
+LOCKED_SYMBOL:                   L O C K E D                                 {serverVersion >= 80000}?; // MYSQL
+NOWAIT_SYMBOL:                   N O W A I T                                 {serverVersion >= 80000}?; // MYSQL
+GROUPING_SYMBOL:                 G R O U P I N G                             {serverVersion >= 80000}?; // SQL-2011-R
+PERSIST_ONLY_SYMBOL:             P E R S I S T '_' O N L Y                   {serverVersion >= 80000}?; // MYSQL
+HISTOGRAM_SYMBOL:                H I S T O G R A M                           {serverVersion >= 80000}?; // MYSQL
+BUCKETS_SYMBOL:                  B U C K E T S                               {serverVersion >= 80000}?; // MYSQL
+REMOTE_SYMBOL:                   R E M O T E                                 {serverVersion >= 80000}?; // MYSQL
+CLONE_SYMBOL:                    C L O N E                                   {serverVersion >= 80000}?; // MYSQL
+CUME_DIST_SYMBOL:                C U M E '_' D I S T                         {serverVersion >= 80000}?; // SQL-2003-R
+DENSE_RANK_SYMBOL:               D E N S E '_' R A N K                       {serverVersion >= 80000}?; // SQL-2003-R
+EXCLUDE_SYMBOL:                  E X C L U D E                               {serverVersion >= 80000}?; // SQL-2003-N
+FIRST_VALUE_SYMBOL:              F I R S T '_' V A L U E                     {serverVersion >= 80000}?; // SQL-2011-R
+FOLLOWING_SYMBOL:                F O L L O W I N G                           {serverVersion >= 80000}?; // SQL-2003-N
+GROUPS_SYMBOL:                   G R O U P S                                 {serverVersion >= 80000}?; // SQL-2011-R
+LAG_SYMBOL:                      L A G                                       {serverVersion >= 80000}?; // SQL-2011-R
+LAST_VALUE_SYMBOL:               L A S T '_' V A L U E                       {serverVersion >= 80000}?; // SQL-2011-R
+LEAD_SYMBOL:                     L E A D                                     {serverVersion >= 80000}?; // SQL-2011-R
+NTH_VALUE_SYMBOL:                N T H '_' V A L U E                         {serverVersion >= 80000}?; // SQL-2011-R
+NTILE_SYMBOL:                    N T I L E                                   {serverVersion >= 80000}?; // SQL-2011-R
+NULLS_SYMBOL:                    N U L L S                                   {serverVersion >= 80000}?; // SQL-2003-N
+OTHERS_SYMBOL:                   O T H E R S                                 {serverVersion >= 80000}?; // SQL-2003-N
+OVER_SYMBOL:                     O V E R                                     {serverVersion >= 80000}?; // SQL-2003-R
+PERCENT_RANK_SYMBOL:             P E R C E N T '_' R A N K                   {serverVersion >= 80000}?; // SQL-2003-R
+PRECEDING_SYMBOL:                P R E C E D I N G                           {serverVersion >= 80000}?; // SQL-2003-N
+RANK_SYMBOL:                     R A N K                                     {serverVersion >= 80000}?; // SQL-2003-R
+RESPECT_SYMBOL:                  R E S P E C T                               {serverVersion >= 80000}?; // SQL_2011-N
+ROW_NUMBER_SYMBOL:               R O W '_' N U M B E R                       {serverVersion >= 80000}?; // SQL-2003-R
+TIES_SYMBOL:                     T I E S                                     {serverVersion >= 80000}?; // SQL-2003-N
+UNBOUNDED_SYMBOL:                U N B O U N D E D                           {serverVersion >= 80000}?; // SQL-2003-N
+WINDOW_SYMBOL:                   W I N D O W                                 {serverVersion >= 80000}?; // SQL-2003-R
+EMPTY_SYMBOL:                    E M P T Y                                   {serverVersion >= 80000}?; // SQL-2016-R
+JSON_TABLE_SYMBOL:               J S O N '_' T A B L E                       {serverVersion >= 80000}?; // SQL-2016-R
+NESTED_SYMBOL:                   N E S T E D                                 {serverVersion >= 80000}?; // SQL-2016-N
+ORDINALITY_SYMBOL:               O R D I N A L I T Y                         {serverVersion >= 80000}?; // SQL-2003-N
+PATH_SYMBOL:                     P A T H                                     {serverVersion >= 80000}?; // SQL-2003-N
+HISTORY_SYMBOL:                  H I S T O R Y                               {serverVersion >= 80000}?; // MYSQL
+REUSE_SYMBOL:                    R E U S E                                   {serverVersion >= 80000}?; // MYSQL
+SRID_SYMBOL:                     S R I D                                     {serverVersion >= 80000}?; // MYSQL
+THREAD_PRIORITY_SYMBOL:          T H R E A D '_' P R I O R I T Y             {serverVersion >= 80000}?; // MYSQL
+RESOURCE_SYMBOL:                 R E S O U R C E                             {serverVersion >= 80000}?; // MYSQL
+SYSTEM_SYMBOL:                   S Y S T E M                                 {serverVersion >= 80000}?; // SQL-2003-R
+VCPU_SYMBOL:                     V C P U                                     {serverVersion >= 80000}?; // MYSQL
+MASTER_PUBLIC_KEY_PATH_SYMBOL:
+    M A S T E R '_' P U B L I C '_' K E Y '_' P A T H                        {serverVersion >= 80000}?
+;                                                                            // MYSQL
+GET_MASTER_PUBLIC_KEY_SYM:
+    G E T '_' M A S T E R '_' P U B L I C '_' K E Y '_' S Y M                {serverVersion >= 80000}?
+;                                                                            // MYSQL
 
 // $antlr-format groupedAlignments on, alignTrailers off, alignLexerCommands on
 
