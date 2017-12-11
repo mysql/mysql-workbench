@@ -4203,4 +4203,3 @@ roleKeyword:
     roleOrLabelKeyword
     | roleOrIdentifierKeyword
 ;
-
