@@ -406,8 +406,11 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
       if (query.length > 0) {
         // The progress label is updated in the worker thread, otherwise it would not show changes in realtime.
-        progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %lu", ++count, queryCount];
-        [progressLabel setNeedsDisplay];
+        ++count;
+        dispatch_async(dispatch_get_main_queue(), ^{
+          progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %lu", count, queryCount];
+          [progressLabel setNeedsDisplay];
+        });
         if ([self parseQuery:query version:serverVersion modes:sqlModes dumpToOutput:NO needTree:NO] > 0) {
           dispatch_async(dispatch_get_main_queue(), ^{
             statusText.stringValue = @"Error encountered, offending query below:";
@@ -513,8 +516,10 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
     NSString *query = [NSString stringWithFormat: [NSString stringWithUTF8String:query1], functions[i]];
     if (query.length > 0) {
-      progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %li", i + 1, count];
-      [progressLabel setNeedsDisplay];
+      dispatch_async(dispatch_get_main_queue(), ^{
+        progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %li", i + 1, count];
+        [progressLabel setNeedsDisplay];
+      });
       if ([self parseQuery:query version:serverVersion modes:sqlModes dumpToOutput:NO needTree:NO] > 0) {
         statusText.stringValue = @"Error encountered, offending query below:";
         errorQueryText.string = query;
@@ -524,7 +529,6 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
     query = [NSString stringWithFormat: [NSString stringWithUTF8String:query2], functions[i], functions[i]];
     if (query.length > 0) {
-      [progressLabel setNeedsDisplay];
       if ([self parseQuery:query version:serverVersion modes:sqlModes dumpToOutput:NO needTree:NO] > 0) {
         dispatch_async(dispatch_get_main_queue(), ^{
           statusText.stringValue = @"Error encountered, offending query below:";

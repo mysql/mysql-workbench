@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1004" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner"/>
@@ -159,17 +160,17 @@ DQ
             </items>
         </menu>
         <window title="mysql.parser" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" frameAutosaveName="mysql.parser.test" animationBehavior="default" id="371">
-            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" unifiedTitleAndToolbar="YES"/>
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="92" width="893" height="700"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2137"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3200" height="1778"/>
             <view key="contentView" id="372">
                 <rect key="frame" x="0.0" y="0.0" width="893" height="700"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <tabView translatesAutoresizingMaskIntoConstraints="NO" id="560">
                         <rect key="frame" x="10" y="10" width="868" height="623"/>
-                        <font key="font" metaFont="system"/>
+                        <font key="font" metaFont="smallSystem" size="13"/>
                         <tabViewItems>
                             <tabViewItem label="Single Query" identifier="1" id="561">
                                 <view key="view" id="562">
@@ -182,15 +183,13 @@ DQ
                                                 <rect key="frame" x="1" y="1" width="811" height="137"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textView importsGraphics="NO" richText="NO" horizontallyResizable="YES" allowsUndo="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="538">
+                                                    <textView importsGraphics="NO" richText="NO" horizontallyResizable="YES" verticallyResizable="YES" allowsUndo="YES" allowsNonContiguousLayout="YES" id="538">
                                                         <rect key="frame" x="0.0" y="0.0" width="811" height="137"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="811" height="137"/>
                                                         <size key="maxSize" width="10000000" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="811" height="137"/>
-                                                        <size key="maxSize" width="10000000" height="10000000"/>
                                                         <connections>
                                                             <outlet property="delegate" destination="494" id="632"/>
                                                         </connections>
@@ -209,7 +208,7 @@ DQ
                                         </scrollView>
                                         <tabView translatesAutoresizingMaskIntoConstraints="NO" id="toU-GY-rMR">
                                             <rect key="frame" x="-9" y="27" width="867" height="302"/>
-                                            <font key="font" metaFont="system"/>
+                                            <font key="font" metaFont="smallSystem" size="13"/>
                                             <tabViewItems>
                                                 <tabViewItem label="Token Dump" identifier="1" id="C0E-cj-AR6">
                                                     <view key="view" id="M4d-Xq-BGD">
@@ -222,15 +221,13 @@ DQ
                                                                     <rect key="frame" x="1" y="1" width="811" height="234"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
-                                                                        <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="bar" incrementalSearchingEnabled="YES" verticallyResizable="YES" id="553">
+                                                                        <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" incrementalSearchingEnabled="YES" id="553">
                                                                             <rect key="frame" x="0.0" y="0.0" width="811" height="234"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                             <size key="minSize" width="811" height="234"/>
                                                                             <size key="maxSize" width="1501" height="10000000"/>
                                                                             <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                                            <size key="minSize" width="811" height="234"/>
-                                                                            <size key="maxSize" width="1501" height="10000000"/>
                                                                         </textView>
                                                                     </subviews>
                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -262,17 +259,15 @@ DQ
                                                                 <rect key="frame" x="17" y="17" width="813" height="236"/>
                                                                 <clipView key="contentView" id="C5C-Pw-fI0">
                                                                     <rect key="frame" x="1" y="1" width="811" height="234"/>
-                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                    <autoresizingMask key="autoresizingMask"/>
                                                                     <subviews>
-                                                                        <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="bar" incrementalSearchingEnabled="YES" verticallyResizable="YES" smartInsertDelete="YES" id="Xcw-ot-S0B">
+                                                                        <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" incrementalSearchingEnabled="YES" smartInsertDelete="YES" id="Xcw-ot-S0B">
                                                                             <rect key="frame" x="0.0" y="0.0" width="811" height="234"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                             <size key="minSize" width="811" height="234"/>
                                                                             <size key="maxSize" width="1501" height="10000000"/>
                                                                             <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                            <size key="minSize" width="811" height="234"/>
-                                                                            <size key="maxSize" width="1501" height="10000000"/>
                                                                         </textView>
                                                                     </subviews>
                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -310,8 +305,6 @@ DQ
                                                         <size key="minSize" width="811" height="94"/>
                                                         <size key="maxSize" width="1501" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="811" height="94"/>
-                                                        <size key="maxSize" width="1501" height="10000000"/>
                                                     </textView>
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -332,7 +325,7 @@ DQ
                                             </constraints>
                                             <buttonCell key="cell" type="push" title="Parse" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="541">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="parse:" target="494" id="542"/>
@@ -374,7 +367,7 @@ DQ
                                         <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="567">
                                             <rect key="frame" x="10" y="490" width="819" height="17"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Select a file containing queries:" id="568">
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -382,7 +375,7 @@ DQ
                                         <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="569">
                                             <rect key="frame" x="12" y="460" width="706" height="22"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="/Data/Work/MySQL/workbench/testing/tut/data/db/statements.txt" drawsBackground="YES" id="570">
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -394,7 +387,7 @@ DQ
                                             </constraints>
                                             <buttonCell key="cell" type="push" title="..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="572">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="selectFile:" target="494" id="574"/>
@@ -407,7 +400,7 @@ DQ
                                             </constraints>
                                             <buttonCell key="cell" type="push" title="Start tests" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="576">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="startTests:" target="494" id="577"/>
@@ -417,17 +410,15 @@ DQ
                                             <rect key="frame" x="12" y="17" width="822" height="260"/>
                                             <clipView key="contentView" id="QOp-SS-ldN">
                                                 <rect key="frame" x="1" y="1" width="820" height="258"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
-                                                    <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="586" userLabel="Error Query Text">
+                                                    <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="586" userLabel="Error Query Text">
                                                         <rect key="frame" x="0.0" y="0.0" width="820" height="258"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="820" height="258"/>
                                                         <size key="maxSize" width="830" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="820" height="258"/>
-                                                        <size key="maxSize" width="830" height="10000000"/>
                                                     </textView>
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -447,7 +438,7 @@ DQ
                                                 <constraint firstAttribute="width" constant="144" id="6kY-Xt-3RZ"/>
                                             </constraints>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="0 of 0" id="593">
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -458,7 +449,7 @@ DQ
                                                 <constraint firstAttribute="width" constant="54" id="C0j-1q-o9p"/>
                                             </constraints>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Status:" id="581">
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                                 <color key="textColor" red="0.0" green="0.40461397170000002" blue="0.81900453569999998" alpha="1" colorSpace="calibratedRGB"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -466,7 +457,7 @@ DQ
                                         <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="582">
                                             <rect key="frame" x="76" y="285" width="591" height="17"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="nothing done yet" id="583">
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -475,17 +466,15 @@ DQ
                                             <rect key="frame" x="12" y="311" width="822" height="100"/>
                                             <clipView key="contentView" id="avP-LR-SWZ">
                                                 <rect key="frame" x="1" y="1" width="820" height="98"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
-                                                    <textView importsGraphics="NO" richText="NO" findStyle="panel" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="597">
+                                                    <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="597">
                                                         <rect key="frame" x="0.0" y="0.0" width="820" height="98"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="820" height="98"/>
                                                         <size key="maxSize" width="830" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="820" height="98"/>
-                                                        <size key="maxSize" width="830" height="10000000"/>
                                                     </textView>
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -541,17 +530,15 @@ DQ
                                             <rect key="frame" x="18" y="325" width="813" height="220"/>
                                             <clipView key="contentView" id="1w5-CZ-vXG">
                                                 <rect key="frame" x="1" y="1" width="811" height="218"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
-                                                    <textView importsGraphics="NO" richText="NO" allowsUndo="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="620">
+                                                    <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" allowsUndo="YES" allowsNonContiguousLayout="YES" id="620">
                                                         <rect key="frame" x="0.0" y="0.0" width="811" height="218"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="811" height="218"/>
                                                         <size key="maxSize" width="1501" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="811" height="218"/>
-                                                        <size key="maxSize" width="1501" height="10000000"/>
                                                     </textView>
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -569,7 +556,7 @@ DQ
                                             <rect key="frame" x="18" y="67" width="813" height="250"/>
                                             <clipView key="contentView" id="N5R-bQ-PLd">
                                                 <rect key="frame" x="1" y="1" width="811" height="248"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="617">
                                                         <rect key="frame" x="0.0" y="0.0" width="811" height="248"/>
@@ -578,8 +565,6 @@ DQ
                                                         <size key="minSize" width="811" height="248"/>
                                                         <size key="maxSize" width="1501" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="811" height="248"/>
-                                                        <size key="maxSize" width="1501" height="10000000"/>
                                                     </textView>
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -599,7 +584,7 @@ DQ
                                                 <constraint firstAttribute="height" constant="17" id="Thm-Nh-5Gr"/>
                                             </constraints>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Enter the list of queries to convert. Delimiter must be $$" id="622">
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -607,7 +592,7 @@ DQ
                                         <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="623">
                                             <rect key="frame" x="15" y="42" width="819" height="17"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Nothing done yet" id="624">
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -619,7 +604,7 @@ DQ
                                             </constraints>
                                             <buttonCell key="cell" type="push" title="Start conversion" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="626">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="smallSystem" size="13"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="startConversion:" target="494" id="629"/>
@@ -667,21 +652,21 @@ DQ
                         </constraints>
                         <buttonCell key="cell" type="check" title="IGNORE_SPACE" bezelStyle="regularSquare" imagePosition="left" inset="2" id="639">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
                         </buttonCell>
                     </button>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="640">
                         <rect key="frame" x="106" y="653" width="184" height="18"/>
                         <buttonCell key="cell" type="check" title="ANSI_QUOTES" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="641">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
                         </buttonCell>
                     </button>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="642">
                         <rect key="frame" x="106" y="633" width="184" height="18"/>
                         <buttonCell key="cell" type="check" title="PIPES_AS_CONCAT" bezelStyle="regularSquare" imagePosition="left" inset="2" id="643">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
                         </buttonCell>
                     </button>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="644">
@@ -691,7 +676,7 @@ DQ
                         </constraints>
                         <buttonCell key="cell" type="check" title="HIGH_NOT_PRECEDENCE" bezelStyle="regularSquare" imagePosition="left" inset="2" id="645">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
                         </buttonCell>
                     </button>
                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="646">
@@ -700,7 +685,7 @@ DQ
                             <constraint firstAttribute="width" constant="82" id="NMX-es-OUl"/>
                         </constraints>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="SQL modes:" id="647">
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -709,7 +694,7 @@ DQ
                         <rect key="frame" x="261" y="653" width="184" height="18"/>
                         <buttonCell key="cell" type="check" title="NO_BACKSLASH_ESCAPE" bezelStyle="regularSquare" imagePosition="left" inset="2" id="649">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
                         </buttonCell>
                     </button>
                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="657">
@@ -721,7 +706,7 @@ DQ
                             <numberFormatter key="formatter" formatterBehavior="custom10_4" positiveFormat="0.00.00" negativeFormat="" localizesFormat="NO" numberStyle="decimal" allowsFloats="NO" usesGroupingSeparator="NO" paddingCharacter="*" groupingSize="0" minimumIntegerDigits="1" maximumIntegerDigits="309" maximumFractionDigits="3" decimalSeparator="." groupingSeparator="," currencyDecimalSeparator="." plusSign="+" minusSign="-" notANumberSymbol="NaN" perMillSymbol="‰" percentSymbol="%" exponentSymbol="E" positivePrefix="" positiveSuffix="" negativePrefix="-" negativeSuffix="" id="659">
                                 <integer key="minimum" value="40000"/>
                             </numberFormatter>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -732,7 +717,7 @@ DQ
                             <constraint firstAttribute="width" constant="188" id="yfr-72-ZdI"/>
                         </constraints>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Server versions (e.g. 50610):" id="yiJ-Gq-gM1">
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -764,7 +749,7 @@ DQ
                     <constraint firstItem="644" firstAttribute="leading" secondItem="648" secondAttribute="leading" id="wrk-oO-Qqw"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="-322.5" y="-436"/>
+            <point key="canvasLocation" x="-525" y="-518"/>
         </window>
         <customObject id="494" customClass="mysql_parserAppDelegate">
             <connections>
