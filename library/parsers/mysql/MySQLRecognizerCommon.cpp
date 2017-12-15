@@ -310,3 +310,5 @@ SymbolTable *parsers::functionSymbolsForVersion(size_t version) {
   }
   return &symbolsPerVersion[version];
 }
+
+//----------------------------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ namespace parsers {
     // A specialized function to get the text from a given context. This falls back to context->getText() in the general
     // case, but provides special behavior for certain contexts (e.g. the implicit string concatenation used in MySQL).
     static std::string getText(antlr4::RuleContext *context, bool convertEscapes);
-    
+
   protected:
     // Checks the token at the given position relative to the current position, whether it matches the expected value.
     // For positions > 1 this looks ahead, otherwise it looks back.
