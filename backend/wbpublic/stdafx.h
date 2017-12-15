@@ -26,6 +26,7 @@ typedef int ssize_t;
 #endif
 
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
 #include <winsock2.h>
 
