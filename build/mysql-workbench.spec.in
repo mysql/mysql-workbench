@@ -68,7 +68,7 @@
 %define vsqlite_dir      %{linuxres_binaries}/vsqlite-%{lictag}
 %define antlr_dir        %{linuxres_binaries}/antlr
 %define python_dir       %{linuxres_home}/python
-%define antlr_jar_path   %{linuxres_home}/bin/antlr-4.6-complete.jar
+%define antlr_jar_path   %{linuxres_home}/bin/antlr-4.7.1-complete.jar
 %define boost_root       %{linuxres_home}
 
 Summary: A MySQL visual database modeling, administration, development and migration tool

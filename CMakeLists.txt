@@ -50,7 +50,7 @@ find_package(X11)
 
 
 
-set(ANTLR_JAR_FILENAME "antlr-4.7-complete.jar")
+set(ANTLR_JAR_FILENAME "antlr-4.7.1-complete.jar")
 get_filename_component(SOURCE_PARENT_DIR ${CMAKE_SOURCE_DIR} DIRECTORY)
 set(LINUX_RES_BIN_DIR ${SOURCE_PARENT_DIR}/linux-res/bin)
 if(WITH_ANTLR_JAR)
@@ -258,7 +258,7 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
-set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -std=c++11)
+set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-implicit-fallthrough -std=c++11)
 set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
