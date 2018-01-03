@@ -163,7 +163,7 @@ DQ
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="92" width="893" height="700"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="3200" height="1778"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2138"/>
             <view key="contentView" id="372">
                 <rect key="frame" x="0.0" y="0.0" width="893" height="700"/>
                 <autoresizingMask key="autoresizingMask"/>

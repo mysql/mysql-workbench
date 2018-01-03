@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1261,45 +1261,47 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
                                                     const std::string &sql, grt::DictRef options) {
   MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
 
-  static std::set<MySQLQueryType> relevantQueryTypes = {QtAlterDatabase,
-                                                        QtAlterLogFileGroup,
-                                                        QtAlterFunction,
-                                                        QtAlterProcedure,
-                                                        QtAlterServer,
-                                                        QtAlterTable,
-                                                        QtAlterTableSpace,
-                                                        QtAlterEvent,
-                                                        QtAlterView,
+  static std::set<MySQLQueryType> relevantQueryTypes = {
+    QtAlterDatabase,
+    QtAlterLogFileGroup,
+    QtAlterFunction,
+    QtAlterProcedure,
+    QtAlterServer,
+    QtAlterTable,
+    QtAlterTableSpace,
+    QtAlterEvent,
+    QtAlterView,
 
-                                                        QtCreateTable,
-                                                        QtCreateIndex,
-                                                        QtCreateDatabase,
-                                                        QtCreateEvent,
-                                                        QtCreateView,
-                                                        QtCreateRoutine,
-                                                        QtCreateProcedure,
-                                                        QtCreateFunction,
-                                                        QtCreateUdf,
-                                                        QtCreateTrigger,
-                                                        QtCreateLogFileGroup,
-                                                        QtCreateServer,
-                                                        QtCreateTableSpace,
+    QtCreateTable,
+    QtCreateIndex,
+    QtCreateDatabase,
+    QtCreateEvent,
+    QtCreateView,
+    QtCreateRoutine,
+    QtCreateProcedure,
+    QtCreateFunction,
+    QtCreateUdf,
+    QtCreateTrigger,
+    QtCreateLogFileGroup,
+    QtCreateServer,
+    QtCreateTableSpace,
 
-                                                        QtDropDatabase,
-                                                        QtDropEvent,
-                                                        QtDropFunction,
-                                                        QtDropProcedure,
-                                                        QtDropIndex,
-                                                        QtDropLogfileGroup,
-                                                        QtDropServer,
-                                                        QtDropTable,
-                                                        QtDropTablespace,
-                                                        QtDropTrigger,
-                                                        QtDropView,
+    QtDropDatabase,
+    QtDropEvent,
+    QtDropFunction,
+    QtDropProcedure,
+    QtDropIndex,
+    QtDropLogfileGroup,
+    QtDropServer,
+    QtDropTable,
+    QtDropTablespace,
+    QtDropTrigger,
+    QtDropView,
 
-                                                        QtRenameTable,
+    QtRenameTable,
 
-                                                        QtUse};
+    QtUse
+  };
 
   logDebug2("Parse sql into catalog\n");
 

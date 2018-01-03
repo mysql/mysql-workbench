@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -447,14 +447,14 @@ public:
   virtual void exitTableConstraintDef(MySQLParser::TableConstraintDefContext *ctx) override {
     std::string constraintName;
 
-    if (ctx->constraintName() != nullptr) {
-      IdentifierListener listener(ctx->constraintName());
+    if (ctx->indexNameAndType() != nullptr) {
+      IdentifierListener listener(ctx->indexNameAndType()->indexName());
       constraintName = listener.parts.back();
-    }
-
-    if (ctx->columnInternalRef() != nullptr) // Another constraint name variant.
-    {
-      IdentifierListener listener(ctx->columnInternalRef());
+    } else if (ctx->indexName() != nullptr) {
+      IdentifierListener listener(ctx->indexName());
+      constraintName = listener.parts.back();
+    } if (ctx->identifier() != nullptr) { // Use the constraint symbol as name if given and no other name is available.
+      IdentifierListener listener(ctx->identifier());
       constraintName = listener.parts.back();
     }
 
@@ -1170,8 +1170,7 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         table->rowFormat(option->format->getText());
         break;
 
-      case MySQLLexer::UNION_SYMBOL: // Only for merge engine.
-      {
+      case MySQLLexer::UNION_SYMBOL: { // Only for merge engine.
         std::string value;
         for (auto &tableRef : option->tableRefList()->tableRef()) {
           IdentifierListener listener(tableRef);

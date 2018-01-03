@@ -1,7 +1,7 @@
 parser grammar MySQLParser;
 
 /*
- * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ options {
 //-------------------------------------------------------------------------------------------------
 
 @header {/*
- * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -479,7 +479,7 @@ routineOption:
 
 createIndex:
     CREATE_SYMBOL onlineOption? (
-        UNIQUE_SYMBOL? type = INDEX_SYMBOL indexNameAndType createIndexTarget indexOption*
+        UNIQUE_SYMBOL? type = INDEX_SYMBOL indexNameAndType? createIndexTarget indexOption*
         | type = FULLTEXT_SYMBOL INDEX_SYMBOL indexName createIndexTarget fulltextIndexOption*
         | type = SPATIAL_SYMBOL INDEX_SYMBOL indexName createIndexTarget spatialIndexOption*
     ) indexLockAndAlgorithm?
@@ -503,7 +503,7 @@ createIndex:
   type? For this reason we accept the TYPE syntax only if a name is supplied.
 */
 indexNameAndType:
-    indexName? (USING_SYMBOL indexType)?
+    indexName (USING_SYMBOL indexType)?
     | indexName TYPE_SYMBOL indexType
 ;
 
@@ -2843,13 +2843,13 @@ checkConstraint:
 ;
 
 tableConstraintDef:
-    type = (KEY_SYMBOL | INDEX_SYMBOL) indexNameAndType keyList indexOption*
-    | type = FULLTEXT_SYMBOL keyOrIndex? columnInternalRef? keyList fulltextIndexOption*
-    | type = SPATIAL_SYMBOL keyOrIndex? columnInternalRef? keyList spatialIndexOption*
-    | (CONSTRAINT_SYMBOL constraintName?)? (
-        type = PRIMARY_SYMBOL KEY_SYMBOL indexNameAndType keyList indexOption*
-        | type = UNIQUE_SYMBOL keyOrIndex? indexNameAndType keyList indexOption*
-        | type = FOREIGN_SYMBOL KEY_SYMBOL columnInternalRef? keyList references
+    type = (KEY_SYMBOL | INDEX_SYMBOL) indexNameAndType? keyList indexOption*
+    | type = FULLTEXT_SYMBOL keyOrIndex? indexName? keyList fulltextIndexOption*
+    | type = SPATIAL_SYMBOL keyOrIndex? indexName? keyList spatialIndexOption*
+    | (CONSTRAINT_SYMBOL identifier?)? (
+        type = PRIMARY_SYMBOL KEY_SYMBOL indexNameAndType? keyList indexOption*
+        | type = UNIQUE_SYMBOL keyOrIndex? indexNameAndType? keyList indexOption*
+        | type = FOREIGN_SYMBOL KEY_SYMBOL indexName? keyList references
         | checkConstraint
     )
 ;
@@ -3520,10 +3520,6 @@ pluginRef:
 
 componentRef:
     textStringLiteral
-;
-
-constraintName:
-    fieldIdentifier
 ;
 
 resourceGroupRef:
