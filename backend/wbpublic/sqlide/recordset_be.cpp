@@ -1077,8 +1077,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
     }
     _context_menu->add_item(item);
 
-    if (isGeometry(clicked_column))
-    {
+    if (clicked_column >= 0 && isGeometry(clicked_column)) {
       item = _context_menu->add_item_with_title("Show point in browser",
                                                     std::bind(&Recordset::activate_menu_item, this, "show_in_browser", rows, clicked_column),
                                                     "show_in_browser");

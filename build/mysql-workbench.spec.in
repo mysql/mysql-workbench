@@ -8,7 +8,7 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 6.3.11' \
+#                                   --define='version 8.0.0' \
 #                                   --define='release 1'
 ####################################################################
 
@@ -283,7 +283,7 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 
 %files 
 %defattr(0644, root, root, 0755)
-%doc %{license_file} README
+%doc %{license_file} README.md
 
 %attr(0755,root,root) %{_bindir}/mysql-workbench
 %attr(0755,root,root) %{_bindir}/wbcopytables
