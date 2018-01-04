@@ -225,10 +225,16 @@ public:
   }
 
   virtual void exitColumnDefinition(MySQLParser::ColumnDefinitionContext *ctx) override {
-    // The column name can be qualified, but only with the current schema + table.
-    IdentifierListener listener(ctx->fieldIdentifier());
-    column->name(listener.parts.back());
-    column->oldName(listener.parts.back());
+    // For servers < 8 the column name can be qualified. With 8+ this changed to a simple identifier.
+    if (ctx->fieldIdentifier()) {
+      IdentifierListener listener(ctx->fieldIdentifier());
+      column->name(listener.parts.back());
+      column->oldName(listener.parts.back());
+    } else {
+      IdentifierListener listener(ctx->identifier());
+      column->name(listener.parts.back());
+      column->oldName(listener.parts.back());
+    }
 
     DataTypeListener typeListener(ctx->fieldDefinition()->dataType(), _catalog->version(), _catalog->simpleDatatypes(),
                                   column->flags(), _table->defaultCharacterSetName());
