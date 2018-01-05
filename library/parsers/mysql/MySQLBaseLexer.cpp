@@ -883,7 +883,6 @@ bool MySQLBaseLexer::isKeyword(size_t type) const {
     case MySQLLexer::HEX_NUMBER:
     case MySQLLexer::BIN_NUMBER:
     case MySQLLexer::FLOAT_NUMBER:
-    case MySQLLexer::NUMBER:
     case MySQLLexer::DECIMAL_NUMBER:
     case MySQLLexer::UNDERSCORE_CHARSET:
     case MySQLLexer::IDENTIFIER:
@@ -953,7 +952,9 @@ bool MySQLBaseLexer::isRelation(size_t type) {
 
 bool MySQLBaseLexer::isNumber(size_t type) {
   switch (type) {
-    case MySQLLexer::NUMBER:
+    case MySQLLexer::INT_NUMBER:
+    case MySQLLexer::LONG_NUMBER:
+    case MySQLLexer::ULONGLONG_NUMBER:
     case MySQLLexer::FLOAT_NUMBER:
     case MySQLLexer::HEX_NUMBER:
     case MySQLLexer::BIN_NUMBER:
