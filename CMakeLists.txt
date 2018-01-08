@@ -50,7 +50,7 @@ find_package(X11)
 
 
 
-set(ANTLR_JAR_FILENAME "antlr-4.7-complete.jar")
+set(ANTLR_JAR_FILENAME "antlr-4.7.1-complete.jar")
 get_filename_component(SOURCE_PARENT_DIR ${CMAKE_SOURCE_DIR} DIRECTORY)
 set(LINUX_RES_BIN_DIR ${SOURCE_PARENT_DIR}/linux-res/bin)
 if(WITH_ANTLR_JAR)
@@ -258,7 +258,7 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
-set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -std=c++11)
+set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-implicit-fallthrough -std=c++11)
 set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
@@ -309,11 +309,11 @@ endif()
 install(FILES ${CMAKE_BINARY_DIR}/mysql-workbench.desktop DESTINATION ${WB_INSTALL_SHARED_DIR}/applications)
 
 if (EXISTS ${PROJECT_SOURCE_DIR}/COPYING)
-    install(FILES README COPYING DESTINATION ${WB_INSTALL_DOC_DIR})
+    install(FILES README.md COPYING DESTINATION ${WB_INSTALL_DOC_DIR})
     install(FILES build/mysql-workbench-community.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
     install(FILES build/mysql-workbench-community.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
 else ()
-    install(FILES README LICENSE.mysql DESTINATION ${WB_INSTALL_DOC_DIR})
+    install(FILES README.md LICENSE.mysql DESTINATION ${WB_INSTALL_DOC_DIR})
     install(FILES build/mysql-workbench-commercial.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
     install(FILES build/mysql-workbench-commercial.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
 endif ()

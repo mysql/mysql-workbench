@@ -20,20 +20,20 @@
 #pragma once
 
 #include <cairo/cairo.h>
+#include "base/accessibility.h"
+
 #include "mforms/drawbox.h"
 #include "mforms/menu.h"
 #include "base/any.h"
 
 namespace mforms {
-  //--------------------------------------------------------------------------------------------------
-
   typedef std::map<std::string, base::any> anyMap;
 
-  //    Use this variation to get a base::any. Use type cast directly only if you know the key exists in the map and
-  //    the item (base::any) does not contain a nullptr value
+  // Use this variation to get a base::any. Use type cast directly only if you know the key exists in the map and
+  // the item (base::any) does not contain a nullptr value
   base::any getAnyMapValue(const anyMap& map, const std::string& key, base::any defaultValue = base::any());
 
-  //    Use this variation to cast a base::any safely without throwing and exception
+  // Use this variation to cast a base::any safely without throwing and exception
   template <typename T>
   T getAnyMapValueAs(const anyMap& map, const std::string& key, base::any defaultValue = base::any()) {
     anyMap::const_iterator iter = map.find(key);
@@ -135,21 +135,23 @@ namespace mforms {
     static const char* TILE_DRAG_FORMAT;
   };
 
-  class MFORMS_EXPORT HomeAccessibleButton : public mforms::Accessible {
+  class MFORMS_EXPORT HomeAccessibleButton : public base::Accessible {
   public:
     std::string name;
-    std::string default_action;
+    std::string title;
+    std::string description;
     base::Rect bounds;
-    std::function<bool(int, int)> default_handler;
+    std::function<void (void)> defaultHandler;
 
     // ------ Accesibility Customized Methods -----
 
-    virtual std::string get_acc_name();
-    virtual std::string get_acc_default_action();
-    virtual Accessible::Role get_acc_role();
-    virtual base::Rect get_acc_bounds();
+    virtual std::string getAccessibilityName() override;
+    virtual std::string getAccessibilityTitle() override;
+    virtual std::string getAccessibilityDescription() override;
+    virtual Accessible::Role getAccessibilityRole() override;
+    virtual base::Rect getAccessibilityBounds() override;
 
-    virtual void do_default_action();
+    virtual void accessibilityDoDefaultAction() override;
   };
 
   class MFORMS_EXPORT HomeScreenSection : public mforms::DrawBox {
@@ -175,6 +177,7 @@ namespace mforms {
       return _parent;
     }
 
+    virtual const char* getTitle() = 0;
     virtual void cancelOperation() = 0;
     virtual void setFocus() = 0;
     virtual bool canHandle(HomeScreenMenuType type) = 0;

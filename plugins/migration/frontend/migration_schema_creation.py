@@ -207,7 +207,7 @@ you may correct them in the next step. Table data will be migrated at a later st
                         continue_migration = False
 
                     
-            elif mforms.Utilities.show_message("Existing Schemas", "The %s %s " % ( 'schema' if len(existing_schemas) == 1 else 'schemata', ", ".join(existing_schemas)) +
+            elif mforms.Utilities.show_message("Existing Schemas", "The %s %s " % ( 'schema' if len(existing_schemas) == 1 else 'schemas', ", ".join(existing_schemas)) +
                     "will be dropped in the target MySQL Server and all the existing data will be" +
                     " lost. Do you want to continue?" , "Yes", "No", "") == mforms.ResultCancel:
                 continue_migration = False

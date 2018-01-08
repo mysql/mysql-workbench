@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -24,8 +24,7 @@
 #import "WbModelImageEditor.h"
 #import "MCPPUtilities.h"
 
-@interface ImageEditor()
-{
+@interface ImageEditor () {
   IBOutlet NSTabView *tabView;
 
   IBOutlet NSImageView *imageView;
@@ -42,19 +41,14 @@
 
 @implementation ImageEditor
 
-static void call_refresh(void *theEditor)
-{
+static void call_refresh(void *theEditor) {
   ImageEditor *editor = (__bridge ImageEditor *)theEditor;
   [editor refresh];
 }
 
-
-- (instancetype)initWithModule: (grt::Module*)module
-                     arguments: (const grt::BaseListRef &)args
-{
-  self = [super initWithNibName: @"WbModelImageEditor" bundle: [NSBundle bundleForClass:[self class]]];
-  if (self != nil)
-  {
+- (instancetype)initWithModule: (grt::Module *)module arguments: (const grt::BaseListRef &)args {
+  self = [super initWithNibName: @"WbModelImageEditor" bundle: [NSBundle bundleForClass: [self class]]];
+  if (self != nil) {
     // load GUI. Top level view in the nib is the NSTabView that will be docked to the main window
     [self loadView];
 
@@ -62,112 +56,90 @@ static void call_refresh(void *theEditor)
     // Therefore the nib should be designed as small as possible
     // note: the honouring of the min size is not yet implemented
     [self setMinimumSize: [tabView frame].size];
-    
+
     [self reinitWithArguments: args];
   }
   return self;
 }
 
-
-- (void)reinitWithArguments:(const grt::BaseListRef&)args
-{
+- (void)reinitWithArguments: (const grt::BaseListRef &)args {
   [super reinitWithArguments: args];
   delete mBackEnd;
-  
-    // setup the editor backend with the image object (args[0])
+
+  // setup the editor backend with the image object (args[0])
   mBackEnd = new ImageEditorBE(workbench_model_ImageFigureRef::cast_from(args[0]));
-    
+
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
   mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
-  
+
   // update the UI
   [self refresh];
 }
 
-
-- (void) dealloc
-{
+- (void)dealloc {
   delete mBackEnd;
 }
 
-
 /** Fetches object info from the backend and update the UI
  */
-- (void)refresh
-{
-  if (mBackEnd)
-  {
-    NSImage *image= [[NSImage alloc] initWithContentsOfFile: 
-                      [NSString stringWithCPPString: mBackEnd->get_attached_image_path()]];
+- (void)refresh {
+  if (mBackEnd) {
+    NSImage *image =
+      [[NSImage alloc] initWithContentsOfFile: [NSString stringWithCPPString: mBackEnd->get_attached_image_path()]];
     [imageView setImage: image];
-    
+
     int w, h;
     mBackEnd->get_size(w, h);
-    
+
     [widthField setIntegerValue: w];
     [heightField setIntegerValue: h];
     [keepAspectRatio setState: mBackEnd->get_keep_aspect_ratio() ? NSOnState : NSOffState];
   }
 }
 
-
-- (IBAction)setSize:(id)sender
-{
-  if (sender == widthField)
-  {
+- (IBAction)setSize: (id)sender {
+  if (sender == widthField) {
     int w, h;
     mBackEnd->get_size(w, h);
-    if (w != [widthField integerValue])
-    {
+    if (w != [widthField integerValue]) {
       mBackEnd->set_width([widthField intValue]);
       [self refresh];
     }
-  }
-  else if (sender == heightField)
-  {
+  } else if (sender == heightField) {
     int w, h;
     mBackEnd->get_size(w, h);
-    if (h != [heightField integerValue])
-    {
+    if (h != [heightField integerValue]) {
       mBackEnd->set_height([heightField intValue]);
       [self refresh];
     }
   }
 }
 
-
-- (IBAction)toggleAspectRatio:(id)sender
-{
+- (IBAction)toggleAspectRatio: (id)sender {
   mBackEnd->set_keep_aspect_ratio([keepAspectRatio state] == NSOnState);
 }
 
+- (IBAction)resetSize: (id)sender {
+  NSSize size = [[imageView image] size];
 
-- (IBAction)resetSize:(id)sender
-{
-  NSSize size= [[imageView image] size];
-  
   mBackEnd->set_size(size.width, size.height);
 }
 
+- (IBAction)browse: (id)sender {
+  NSOpenPanel *panel = [NSOpenPanel openPanel];
 
-- (IBAction)browse: (id)sender
-{
-  NSOpenPanel *panel= [NSOpenPanel openPanel];
-  
   [panel setAllowsMultipleSelection: NO];
   [panel setCanChooseFiles: YES];
   [panel setCanChooseDirectories: NO];
-  
+
   [panel setTitle: @"Open Image"];
-  [panel setAllowedFileTypes: @[@"png"]];
-  if ([panel runModal] == NSModalResponseOK)
-  {
-    NSString *path= panel.URL.path;
-    NSImage *image= [[NSImage alloc] initWithContentsOfFile: path];
-    if (!image)
-    {
+  [panel setAllowedFileTypes: @[ @"png" ]];
+  if ([panel runModal] == NSModalResponseOK) {
+    NSString *path = panel.URL.path;
+    NSImage *image = [[NSImage alloc] initWithContentsOfFile: path];
+    if (!image) {
       NSAlert *alert = [NSAlert new];
       alert.messageText = @"Invalid Image";
       alert.informativeText = @"Could not load the image.";
@@ -177,28 +149,23 @@ static void call_refresh(void *theEditor)
 
       return;
     }
-    
+
     mBackEnd->set_filename([path UTF8String]);
-    
+
     [self refresh];
   }
 }
 
-
-- (id)identifier
-{
+- (id)identifier {
   // an identifier for this editor (just take the object id)
   return [NSString stringWithCPPString:mBackEnd->get_object().id()];
 }
 
-
-- (BOOL)matchesIdentifierForClosingEditor:(NSString*)identifier
-{
+- (BOOL)matchesIdentifierForClosingEditor:(NSString *)identifier {
   return mBackEnd->should_close_on_delete_of([identifier UTF8String]);
 }
 
-- (bec::BaseEditor*)editorBE
-{
+- (bec::BaseEditor *)editorBE {
   return mBackEnd;
 }
 

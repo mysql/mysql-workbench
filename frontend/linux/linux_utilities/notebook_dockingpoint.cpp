@@ -53,6 +53,12 @@ bool NotebookDockingPoint::close_page(Gtk::Widget *w) {
   return true;
 }
 
+void NotebookDockingPoint::set_name(const std::string &name) {
+  auto acc = _notebook->get_accessible();
+  if (acc)
+    acc->set_name(name);
+}
+
 void NotebookDockingPoint::dock_view(mforms::AppView *view, const std::string &arg1, int arg2) {
   Gtk::Widget *w = mforms::widget_for_view(view);
   if (w) {

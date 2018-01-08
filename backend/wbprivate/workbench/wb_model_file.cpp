@@ -145,7 +145,7 @@ static int rmdir_recursively(const char *path) {
 
 std::string ModelFile::create_document_dir(const std::string &dir, const std::string &prefix) {
   std::string path;
-  char s[10];
+  char s[12];
   int i = 0;
 
   strcpy(s, "d");

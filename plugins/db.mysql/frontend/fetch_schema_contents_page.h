@@ -9,9 +9,9 @@ public:
     set_title(_("Retrieve and Reverse Engineer Schema Objects"));
     set_short_title(_("Retrieve Objects"));
 
-    add_async_task(_("Retrieve Objects from Selected Schemata"),
+    add_async_task(_("Retrieve Objects from Selected Schemas"),
                    std::bind(&FetchSchemaContentsProgressPage::perform_fetch, this),
-                   _("Retrieving object lists from selected schemata..."));
+                   _("Retrieving object lists from selected schemas..."));
 
     add_task(_("Check Results"), std::bind(&FetchSchemaContentsProgressPage::perform_check, this),
              _("Checking Retrieved data..."));

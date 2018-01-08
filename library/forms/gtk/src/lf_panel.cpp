@@ -32,6 +32,7 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
         _evbox->override_background_color(color_to_rgba(Gdk::Color(sclr.to_html())), Gtk::STATE_FLAG_NORMAL);
       }
     }
+    /* fall-thru */
     case FilledPanel: // just a container with color filled background
       _evbox = new Gtk::EventBox();
       break;

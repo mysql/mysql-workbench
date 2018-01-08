@@ -5,6 +5,7 @@ include_directories(.
 )
 
 add_library(wbbase 
+    accessibility.cpp
     util_functions.cpp 
     data_types.cpp
     sqlstring.cpp 
@@ -25,8 +26,7 @@ add_library(wbbase
     boost_fix.cpp
     utf8string.cpp
     xml_functions.cpp
-	SingleWriteMultipleReadLock.cpp
-    )
+)
 
 target_compile_options(wbbase PUBLIC ${WB_CXXFLAGS})
 

@@ -21,10 +21,14 @@
 
 #include "mforms/label.h"
 #include "lf_view.h"
+#include "mforms_acc.h"
+#include <atkmm/selection.h>
+#include <glib.h>
 
 namespace mforms {
   namespace gtk {
     class DrawBoxImpl : public ViewImpl {
+
       struct AlignControl {
         mforms::Alignment _align;
         int _x;
@@ -40,7 +44,8 @@ namespace mforms {
       void *on_repaint();
 
     protected:
-      mutable Gtk::EventBox _darea;
+      Gtk::EventBox* _darea;
+      MFormsObject *_mformsGTK;
       int _fixed_width;
       int _fixed_height;
       Gtk::Fixed *_fixed;
@@ -55,7 +60,7 @@ namespace mforms {
       std::map<Gtk::Widget *, AlignControl> _alignments;
 
       virtual Gtk::Widget *get_outer() const {
-        return &_darea;
+        return _darea;
       }
 
       DrawBoxImpl(::mforms::DrawBox *self);

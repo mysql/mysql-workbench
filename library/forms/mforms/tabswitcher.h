@@ -24,6 +24,8 @@
 #include "cairo/cairo.h"
 
 #include "base/drawing.h"
+#include "base/accessibility.h"
+
 #include "mforms/base.h"
 #include "mforms/drawbox.h"
 #include "mforms/tabview.h"
@@ -74,16 +76,21 @@ namespace mforms {
     };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    virtual int get_preferred_height();
-    virtual void set_layout_dirty(bool value = true);
+    virtual int get_preferred_height() override;
+    virtual void set_layout_dirty(bool value = true) override;
 
-    virtual void repaint(cairo_t *cr, int x, int y, int w, int h);
-    virtual bool mouse_down(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_up(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_click(mforms::MouseButton button, int x, int y);
-    virtual bool mouse_enter();
-    virtual bool mouse_leave();
+    virtual void repaint(cairo_t *cr, int x, int y, int w, int h) override;
+    virtual bool mouse_down(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_up(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
+    virtual bool mouse_enter() override;
+    virtual bool mouse_leave() override;
 #endif
+    virtual size_t getAccessibilityChildCount() override;
+    virtual Accessible *getAccessibilityChild(size_t index) override;
+    virtual Accessible::Role getAccessibilityRole() override;
+    virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
+
 #endif
   private:
     TabSwitcherPimpl *_pimpl;

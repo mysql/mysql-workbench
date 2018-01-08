@@ -163,6 +163,7 @@ private:
   virtual std::string get_type() {
     return "MainWindow";
   }
+  virtual void set_name(const std::string &name);
   virtual void dock_view(mforms::AppView *view, const std::string &position, int arg);
   virtual bool select_view(mforms::AppView *view);
   virtual void undock_view(mforms::AppView *view);

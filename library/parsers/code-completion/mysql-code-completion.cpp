@@ -58,8 +58,6 @@ struct TableReference {
 
 // Context structure for code completion results and token info.
 struct AutoCompletionContext {
-  enum RunState { RunStateMatching, RunStateCollectionPending } runState;
-
   CandidatesCollection completionCandidates;
 
   // A hierarchical view of all table references in the code, updated constantly during the match process.
@@ -134,7 +132,6 @@ struct AutoCompletionContext {
       MySQLParser::RuleSchemaRef,
 
       MySQLParser::RuleTableRef, MySQLParser::RuleTableRefWithWildcard, MySQLParser::RuleFilterTableRef,
-      MySQLParser::RuleTableRefNoDb,
 
       MySQLParser::RuleColumnRef, MySQLParser::RuleColumnInternalRef, MySQLParser::RuleTableWild,
 
@@ -203,8 +200,8 @@ struct AutoCompletionContext {
 
     parser->reset();
     ParserRuleContext *context = parser->query();
+    /*
     tree::ParseTree *tree = parser->contextFromPosition(context, { caretOffset, caretLine });
-/*
     if (tree->parent) {
       tree = tree->parent;
     }
@@ -216,7 +213,7 @@ struct AutoCompletionContext {
       }
     }
 */
-    completionCandidates = c3.collectCandidates(caretIndex, startTokenIndex, ruleIndex);
+    completionCandidates = c3.collectCandidates(caretIndex, context);
 
     // Post processing some entries.
     if (completionCandidates.tokens.count(MySQLLexer::NOT2_SYMBOL) > 0) {
@@ -228,7 +225,7 @@ struct AutoCompletionContext {
 
     // If a column reference is required then we have to continue scanning the query for table references.
     for (auto ruleEntry : completionCandidates.rules) {
-      if (ruleEntry == MySQLParser::RuleColumnRef) {
+      if (ruleEntry.first == MySQLParser::RuleColumnRef) {
         collectRemainingTableReferences(parser, scanner);
         takeReferencesSnapshot(); // Move references from stack to the ref map.
         break;
@@ -553,7 +550,7 @@ typedef std::set<std::pair<int, std::string>, CompareAcEntries> CompletionSet;
 static void insertSchemas(SymbolTable &symbolTable, CompletionSet &set) {
   auto symbols = symbolTable.getSymbolsOfType<SchemaSymbol>();
   for (auto symbol : symbols)
-    set.insert({AC_SCHEMA_IMAGE, symbol->name});
+    set.insert({ AC_SCHEMA_IMAGE, symbol->name });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,7 +564,7 @@ static void insertTables(SymbolTable &symbolTable, CompletionSet &set, std::set<
 
     auto symbols = schemaSymbol->getSymbolsOfType<TableSymbol>();
     for (auto symbol : symbols)
-      set.insert({AC_TABLE_IMAGE, symbol->name});
+      set.insert({ AC_TABLE_IMAGE, symbol->name });
   }
 }
 
@@ -583,7 +580,7 @@ static void insertViews(SymbolTable &symbolTable, CompletionSet &set, const std:
 
     auto symbols = schemaSymbol->getSymbolsOfType<ViewSymbol>();
     for (auto symbol : symbols)
-      set.insert({AC_VIEW_IMAGE, symbol->name});
+      set.insert({ AC_VIEW_IMAGE, symbol->name });
   }
 }
 
@@ -595,7 +592,7 @@ static void insertRoutines(SymbolTable &symbolTable, CompletionSet &set, std::st
   if (schemaSymbol != nullptr) {
     auto symbols = schemaSymbol->getSymbolsOfType<RoutineSymbol>();
     for (auto symbol : symbols)
-      set.insert({AC_ROUTINE_IMAGE, symbol->name + "()"});
+      set.insert({ AC_ROUTINE_IMAGE, symbol->name + "()" });
   }
 }
 
@@ -618,7 +615,7 @@ static void insertColumns(SymbolTable &symbolTable, CompletionSet &set, const st
 
       auto symbols = tableSymbol->getSymbolsOfType<ColumnSymbol>();
       for (auto symbol : symbols)
-        set.insert({AC_COLUMN_IMAGE, symbol->name});
+        set.insert({ AC_COLUMN_IMAGE, symbol->name });
     }
   }
 
@@ -665,42 +662,42 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
   CompletionSet labelEntries;
 
   static std::map<size_t, std::vector<std::string>> synonyms = {
-    {MySQLLexer::CHAR_SYMBOL, {"CHARACTER"}},
-    {MySQLLexer::NOW_SYMBOL, {"CURRENT_TIMESTAMP", "LOCALTIME", "LOCALTIMESTAMP"}},
-    {MySQLLexer::DAY_SYMBOL, {"DAYOFMONTH"}},
-    {MySQLLexer::DECIMAL_SYMBOL, {"DEC"}},
-    {MySQLLexer::DISTINCT_SYMBOL, {"DISTINCTROW"}},
-    {MySQLLexer::CHAR_SYMBOL, {"CHARACTER"}},
-    {MySQLLexer::COLUMNS_SYMBOL, {"FIELDS"}},
-    {MySQLLexer::FLOAT_SYMBOL, {"FLOAT4"}},
-    {MySQLLexer::DOUBLE_SYMBOL, {"FLOAT8"}},
-    {MySQLLexer::INT_SYMBOL, {"INTEGER", "INT4"}},
-    {MySQLLexer::RELAY_THREAD_SYMBOL, {"IO_THREAD"}},
-    {MySQLLexer::SUBSTRING_SYMBOL, {"MID"}},
-    {MySQLLexer::MID_SYMBOL, {"MEDIUMINT"}},
-    {MySQLLexer::MEDIUMINT_SYMBOL, {"MIDDLEINT"}},
-    {MySQLLexer::NDBCLUSTER_SYMBOL, {"NDB"}},
-    {MySQLLexer::REGEXP_SYMBOL, {"RLIKE"}},
-    {MySQLLexer::DATABASE_SYMBOL, {"SCHEMA"}},
-    {MySQLLexer::DATABASES_SYMBOL, {"SCHEMAS"}},
-    {MySQLLexer::USER_SYMBOL, {"SESSION_USER"}},
-    {MySQLLexer::STD_SYMBOL, {"STDDEV", "STDDEV"}},
-    {MySQLLexer::SUBSTRING_SYMBOL, {"SUBSTR"}},
-    {MySQLLexer::VARCHAR_SYMBOL, {"VARCHARACTER"}},
-    {MySQLLexer::VARIANCE_SYMBOL, {"VAR_POP"}},
-    {MySQLLexer::TINYINT_SYMBOL, {"INT1"}},
-    {MySQLLexer::SMALLINT_SYMBOL, {"INT2"}},
-    {MySQLLexer::MEDIUMINT_SYMBOL, {"INT3"}},
-    {MySQLLexer::BIGINT_SYMBOL, {"INT8"}},
-    {MySQLLexer::FRAC_SECOND_SYMBOL, {"SQL_TSI_FRAC_SECOND"}},
-    {MySQLLexer::SECOND_SYMBOL, {"SQL_TSI_SECOND"}},
-    {MySQLLexer::MINUTE_SYMBOL, {"SQL_TSI_MINUTE"}},
-    {MySQLLexer::HOUR_SYMBOL, {"SQL_TSI_HOUR"}},
-    {MySQLLexer::DAY_SYMBOL, {"SQL_TSI_DAY"}},
-    {MySQLLexer::WEEK_SYMBOL, {"SQL_TSI_WEEK"}},
-    {MySQLLexer::MONTH_SYMBOL, {"SQL_TSI_MONTH"}},
-    {MySQLLexer::QUARTER_SYMBOL, {"SQL_TSI_QUARTER"}},
-    {MySQLLexer::YEAR_SYMBOL, {"SQL_TSI_YEAR"}},
+    {MySQLLexer::CHAR_SYMBOL, {"CHARACTER" }},
+    {MySQLLexer::NOW_SYMBOL, {"CURRENT_TIMESTAMP", "LOCALTIME", "LOCALTIMESTAMP" }},
+    {MySQLLexer::DAY_SYMBOL, {"DAYOFMONTH" }},
+    {MySQLLexer::DECIMAL_SYMBOL, {"DEC" }},
+    {MySQLLexer::DISTINCT_SYMBOL, {"DISTINCTROW" }},
+    {MySQLLexer::CHAR_SYMBOL, {"CHARACTER" }},
+    {MySQLLexer::COLUMNS_SYMBOL, {"FIELDS" }},
+    {MySQLLexer::FLOAT_SYMBOL, {"FLOAT4" }},
+    {MySQLLexer::DOUBLE_SYMBOL, {"FLOAT8" }},
+    {MySQLLexer::INT_SYMBOL, {"INTEGER", "INT4" }},
+    {MySQLLexer::RELAY_THREAD_SYMBOL, {"IO_THREAD" }},
+    {MySQLLexer::SUBSTRING_SYMBOL, {"MID" }},
+    {MySQLLexer::MID_SYMBOL, {"MEDIUMINT" }},
+    {MySQLLexer::MEDIUMINT_SYMBOL, {"MIDDLEINT" }},
+    {MySQLLexer::NDBCLUSTER_SYMBOL, {"NDB" }},
+    {MySQLLexer::REGEXP_SYMBOL, {"RLIKE" }},
+    {MySQLLexer::DATABASE_SYMBOL, {"SCHEMA" }},
+    {MySQLLexer::DATABASES_SYMBOL, {"SCHEMAS" }},
+    {MySQLLexer::USER_SYMBOL, {"SESSION_USER" }},
+    {MySQLLexer::STD_SYMBOL, {"STDDEV", "STDDEV" }},
+    {MySQLLexer::SUBSTRING_SYMBOL, {"SUBSTR" }},
+    {MySQLLexer::VARCHAR_SYMBOL, {"VARCHARACTER" }},
+    {MySQLLexer::VARIANCE_SYMBOL, {"VAR_POP" }},
+    {MySQLLexer::TINYINT_SYMBOL, {"INT1" }},
+    {MySQLLexer::SMALLINT_SYMBOL, {"INT2" }},
+    {MySQLLexer::MEDIUMINT_SYMBOL, {"INT3" }},
+    {MySQLLexer::BIGINT_SYMBOL, {"INT8" }},
+    {MySQLLexer::FRAC_SECOND_SYMBOL, {"SQL_TSI_FRAC_SECOND" }},
+    {MySQLLexer::SECOND_SYMBOL, {"SQL_TSI_SECOND" }},
+    {MySQLLexer::MINUTE_SYMBOL, {"SQL_TSI_MINUTE" }},
+    {MySQLLexer::HOUR_SYMBOL, {"SQL_TSI_HOUR" }},
+    {MySQLLexer::DAY_SYMBOL, {"SQL_TSI_DAY" }},
+    {MySQLLexer::WEEK_SYMBOL, {"SQL_TSI_WEEK" }},
+    {MySQLLexer::MONTH_SYMBOL, {"SQL_TSI_MONTH" }},
+    {MySQLLexer::QUARTER_SYMBOL, {"SQL_TSI_QUARTER" }},
+    {MySQLLexer::YEAR_SYMBOL, {"SQL_TSI_YEAR" }},
   };
 
   std::vector<std::pair<int, std::string>> result;
@@ -711,8 +708,6 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
   // Move to caret position and store that on the scanner stack.
   scanner.advanceToPosition(caretLine + 1, caretOffset);
-  if (scanner.tokenChannel() != Token::DEFAULT_CHANNEL)
-    scanner.previous(true); // Go back to the first non-hidden token if we ended at a hidden one.
   scanner.push();
 
   context.collectCandidates(parser, scanner, caretOffset, caretLine + 1);
@@ -752,14 +747,14 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
     switch (list) {
       case 1:
-        runtimeFunctionEntries.insert({AC_FUNCTION_IMAGE, base::tolower(entry) + "()"});
+        runtimeFunctionEntries.insert({ AC_FUNCTION_IMAGE, base::tolower(entry) + "()" });
         break;
 
       default:
         if (!uppercaseKeywords)
           entry = base::tolower(entry);
 
-        keywordEntries.insert({AC_KEYWORD_IMAGE, entry});
+        keywordEntries.insert({ AC_KEYWORD_IMAGE, entry });
 
         // Add also synonyms, if there are any.
         if (synonyms.count(candidate.first) > 0) {
@@ -767,7 +762,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
             if (!uppercaseKeywords)
               synonym = base::tolower(synonym);
 
-            keywordEntries.insert({AC_KEYWORD_IMAGE, synonym});
+            keywordEntries.insert({ AC_KEYWORD_IMAGE, synonym });
           }
         }
     }
@@ -779,13 +774,13 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
     scanner.pop();
     scanner.push();
 
-    switch (candidate) {
+    switch (candidate.first) {
       case MySQLParser::RuleRuntimeFunctionCall: {
         logDebug3("Adding runtime function names\n");
 
         auto symbols = symbolTable.getSymbolsOfType<RoutineSymbol>();
         for (auto symbol : symbols)
-          runtimeFunctionEntries.insert({AC_FUNCTION_IMAGE, symbol->name + "()"});
+          runtimeFunctionEntries.insert({ AC_FUNCTION_IMAGE, symbol->name + "()" });
         break;
       }
 
@@ -799,7 +794,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
           auto symbols = symbolTable.getSymbolsOfType<UdfSymbol>();
           for (auto symbol : symbols)
-            runtimeFunctionEntries.insert({AC_FUNCTION_IMAGE, symbol->name + "()"});
+            runtimeFunctionEntries.insert({ AC_FUNCTION_IMAGE, symbol->name + "()" });
         }
 
         logDebug3("Adding function names from cache\n");
@@ -822,7 +817,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         auto symbols = symbolTable.getSymbolsOfType<EngineSymbol>();
         for (auto &symbol : symbols)
-          functionEntries.insert({AC_ENGINE_IMAGE, symbol->name});
+          functionEntries.insert({ AC_ENGINE_IMAGE, symbol->name });
 
         break;
       }
@@ -872,8 +867,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
       }
 
       case MySQLParser::RuleTableRef:
-      case MySQLParser::RuleFilterTableRef:
-      case MySQLParser::RuleTableRefNoDb: {
+      case MySQLParser::RuleFilterTableRef: {
         logDebug3("Adding table + view names from cache\n");
 
         // Tables refs - also allow view refs.
@@ -926,7 +920,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         if ((flags & ShowTables) != 0) {
           insertTables(symbolTable, tableEntries, schemas);
-          if (candidate == MySQLParser::RuleColumnRef) {
+          if (candidate.first == MySQLParser::RuleColumnRef) {
             // Insert also views.
             insertViews(symbolTable, viewEntries, schemas);
 
@@ -935,7 +929,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
               // If no schema was specified then allow also tables without a given schema. Otherwise
               // the reference's schema must match any of the specified schemas (which include those from the ref list).
               if ((schema.empty() && reference.schema.empty()) || (schemas.count(reference.schema) > 0))
-                tableEntries.insert({AC_TABLE_IMAGE, reference.alias.empty() ? reference.table : reference.alias});
+                tableEntries.insert({ AC_TABLE_IMAGE, reference.alias.empty() ? reference.table : reference.alias});
             }
           }
         }
@@ -956,9 +950,10 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
             for (size_t i = 0; i < context.references.size(); ++i)
               if (base::same_string(table, context.references[i].alias)) {
                 tables.insert(context.references[i].table);
+                schemas.insert(context.references[i].schema);
                 break;
               }
-          } else if (!context.references.empty() && candidate == MySQLParser::RuleColumnRef) {
+          } else if (!context.references.empty() && candidate.first == MySQLParser::RuleColumnRef) {
             for (size_t i = 0; i < context.references.size(); ++i)
               tables.insert(context.references[i].table);
           }
@@ -996,7 +991,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
           if (schemaSymbol != nullptr) {
             auto symbols = schemaSymbol->getSymbolsOfType<TriggerSymbol>();
             for (auto &symbol : symbols)
-              triggerEntries.insert({AC_TRIGGER_IMAGE, symbol->name});
+              triggerEntries.insert({ AC_TRIGGER_IMAGE, symbol->name });
           }
         }
         break;
@@ -1025,7 +1020,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         auto symbols = symbolTable.getSymbolsOfType<LogfileGroupSymbol>();
         for (auto &symbol : symbols)
-          logfileGroupEntries.insert({AC_LOGFILE_GROUP_IMAGE, symbol->name});
+          logfileGroupEntries.insert({ AC_LOGFILE_GROUP_IMAGE, symbol->name });
         break;
       }
 
@@ -1034,21 +1029,21 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         auto symbols = symbolTable.getSymbolsOfType<TableSpaceSymbol>();
         for (auto &symbol : symbols)
-          tablespaceEntries.insert({AC_TABLESPACE_IMAGE, symbol->name});
+          tablespaceEntries.insert({ AC_TABLESPACE_IMAGE, symbol->name });
         break;
       }
 
       case MySQLParser::RuleUserVariable: {
         logDebug3("Adding user variables\n");
 
-        userVarEntries.insert({AC_USER_VAR_IMAGE, "<user variables>"});
+        userVarEntries.insert({ AC_USER_VAR_IMAGE, "<user variables>" });
         break;
       }
 
       case MySQLParser::RuleLabelRef: {
         logDebug3("Adding label references\n");
 
-        //labelEntries.insert({AC_USER_VAR_IMAGE, "<block labels>"});
+        //labelEntries.insert({ AC_USER_VAR_IMAGE, "<block labels>" });
         break;
       }
 
@@ -1057,7 +1052,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         auto symbols = symbolTable.getSymbolsOfType<SystemVariableSymbol>();
         for (auto &symbol : symbols)
-          systemVarEntries.insert({AC_SYSTEM_VAR_IMAGE, symbol->name});
+          systemVarEntries.insert({ AC_SYSTEM_VAR_IMAGE, symbol->name });
         break;
       }
 
@@ -1066,7 +1061,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         auto symbols = symbolTable.getSymbolsOfType<CharsetSymbol>();
         for (auto &symbol : symbols)
-          charsetEntries.insert({AC_CHARSET_IMAGE, symbol->name});
+          charsetEntries.insert({ AC_CHARSET_IMAGE, symbol->name });
         break;
       }
 
@@ -1075,7 +1070,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         auto symbols = symbolTable.getSymbolsOfType<CollationSymbol>();
         for (auto &symbol : symbols)
-          collationEntries.insert({AC_COLLATION_IMAGE, symbol->name});
+          collationEntries.insert({ AC_COLLATION_IMAGE, symbol->name });
         break;
       }
 
@@ -1094,7 +1089,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
           auto symbols = symbolTable.getSymbolsOfType<EventSymbol>();
           for (auto &symbol : symbols)
-            eventEntries.insert({AC_EVENT_IMAGE, symbol->name});
+            eventEntries.insert({ AC_EVENT_IMAGE, symbol->name });
         }
         break;
       }
@@ -1102,7 +1097,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
       case MySQLParser::RuleUser: {
         logDebug3("Adding users\n");
 
-        collationEntries.insert({AC_USER_IMAGE, "<users>"});
+        collationEntries.insert({ AC_USER_IMAGE, "<users>" });
         break;
       }
     }

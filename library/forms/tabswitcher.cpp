@@ -63,14 +63,18 @@ const int PREV_BUTTON_INDEX = -3;
 //--------------------------------------------------------------------------------------------------
 
 class mforms::TabSwitcherPimpl {
-protected:
-  struct TabItem {
+public:
+  class TabItem : public Accessible {
+  public:
     std::string title;
     std::string sub_title;
     cairo_surface_t *icon;
     cairo_surface_t *alt_icon;
+    base::Rect accBounds;   // Bounds to be used for accessibility
+    std::function<void(int x, int y)> actionCallback;
 
-    TabItem() : icon(0), alt_icon(0) {
+    TabItem(const std::function<void(int x, int y)> &clickCallback) : icon(0), alt_icon(0) {
+      actionCallback = clickCallback;
     }
     ~TabItem() {
       if (icon)
@@ -78,13 +82,36 @@ protected:
       if (alt_icon)
         cairo_surface_destroy(alt_icon);
     }
+
+    // ------ Accesibility Methods -----
+    virtual std::string getAccessibilityName() override {
+      return title;
+    }
+
+    virtual Accessible::Role getAccessibilityRole() override {
+      return Accessible::ListItem;
+    }
+
+    virtual base::Rect getAccessibilityBounds() override {
+      return accBounds;
+    }
+
+    virtual std::string getAccessibilityDefaultAction() override {
+      return "Switch view";
+    }
+
+    virtual void accessibilityDoDefaultAction() override {
+      actionCallback((int)accBounds.center().x, (int)accBounds.center().y);
+    }
   };
 
+protected:
   TabSwitcher *_owner;
   std::vector<TabItem *> _items;
 
   int _selected;
   int _last_clicked;
+
 
   TabSwitcherPimpl(TabSwitcher *owner) : _owner(owner), _selected(-1), _last_clicked(-1) {
   }
@@ -109,6 +136,18 @@ public:
     return _selected;
   }
 
+  std::size_t getItemCount() {
+    return _items.size();
+  }
+
+  TabItem *getItem(int index) {
+    try {
+      return _items[index];
+    } catch (...) {
+      return nullptr;
+    }
+  }
+
   virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) = 0;
 
   virtual void set_icon(int index, const std::string &icon_path, const std::string &alt_icon_path) {
@@ -127,7 +166,18 @@ public:
 
   virtual int add_item(const std::string &title, const std::string &sub_title, const std::string &icon_path,
                        const std::string &alt_icon_path) {
-    TabItem *item = new TabItem();
+
+    TabItem *item = new TabItem([&](int x, int y) {
+      if (_owner != nullptr) {
+        int index = index_from_point(x, y);
+        if (index != -1) {
+          _owner->set_selected(index);
+          (*_owner->signal_changed())();
+        }
+
+      }
+
+    });
 
     item->title = title;
     item->sub_title = sub_title;
@@ -182,7 +232,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl {
 
 public:
   VerticalTabSwitcher(TabSwitcher *owner)
-    : TabSwitcherPimpl(owner), _first_visible(0), _last_visible(0), _collapsed(false) {
+    : TabSwitcherPimpl(owner), _up_arrow_y(0), _down_arrow_y(0), _first_visible(0), _last_visible(0), _collapsed(false) {
 #ifdef _WIN32
     if (base::Color::get_active_scheme() != base::ColorSchemeStandardWin7) {
       _colors[TabInactiveBackground] = base::Color::get_application_color(base::AppColorPanelHeader, false);
@@ -245,15 +295,28 @@ public:
 
     _last_visible = _first_visible;
     for (std::vector<TabItem *>::iterator i = _items.begin(); i != _items.end(); ++i, ++ii) {
-      if (ii < _first_visible)
-        continue;
 
-      if (y + VERTICAL_STYLE_HEIGHT > _owner->get_height())
-        break;
+
+      base::Size size = Utilities::getImageSize((*i)->icon);
+      (*i)->accBounds.size = size;
+      (*i)->accBounds.pos.x = (VERTICAL_STYLE_WIDTH - (VERTICAL_STYLE_WIDTH / 64.0) * size.width) / 2;
+
+      if (ii < _first_visible) {
+        (*i)->accBounds.pos.y = ((VERTICAL_STYLE_WIDTH - size.height) / 2 - font_size) - (_first_visible - ii) * VERTICAL_STYLE_HEIGHT;
+        continue;
+      }
+
+      (*i)->accBounds.pos.y = iy + (VERTICAL_STYLE_WIDTH - size.height) / 2 - font_size;
+
+      if (y + VERTICAL_STYLE_HEIGHT > _owner->get_height()) {
+        iy += VERTICAL_STYLE_HEIGHT;
+        continue;
+      }
 
       _last_visible = ii;
 
-      base::Size size = Utilities::getImageSize((*i)->icon);
+
+
 
       if (_selected == ii) {
         color = _colors[TabActiveBackground];
@@ -264,8 +327,9 @@ public:
         Utilities::paint_icon(cr, _selection_image, 0, iy + (VERTICAL_STYLE_WIDTH - size.width) / 2 + size.height / 2);
       }
 
-      Utilities::paint_icon(cr, (*i)->icon, (VERTICAL_STYLE_WIDTH - (VERTICAL_STYLE_WIDTH / 64.0) * size.width) / 2,
-                            iy + (VERTICAL_STYLE_WIDTH - size.height) / 2 - font_size, _selected == ii ? 1.0f : 0.4f);
+      Utilities::paint_icon(cr, (*i)->icon, (*i)->accBounds.pos.x, (*i)->accBounds.pos.y,
+                                                    _selected == ii ? 1.0f : 0.4f);
+
       if (_selected == ii) {
         color = _colors[TabActiveForeground];
       } else {
@@ -387,7 +451,7 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-TabSwitcher::TabSwitcher(TabSwitcherType type) : _tabView(0), _needs_relayout(true), _was_collapsed(false) {
+TabSwitcher::TabSwitcher(TabSwitcherType type) : _tabView(0), _last_clicked(-1), _needs_relayout(true), _was_collapsed(false) {
   _timeout = 0;
   switch (type) {
     case VerticalIconSwitcher:
@@ -566,6 +630,34 @@ bool TabSwitcher::mouse_leave() {
     _timeout = mforms::Utilities::add_timeout(0.3f, std::bind(&TabSwitcher::collapse, this));
   }
   return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+size_t TabSwitcher::getAccessibilityChildCount() {
+  return _pimpl->getItemCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+Accessible *TabSwitcher::getAccessibilityChild(size_t index) {
+  return dynamic_cast<Accessible*>(_pimpl->getItem(static_cast<int>(index)));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+Accessible::Role TabSwitcher::getAccessibilityRole() {
+  return Accessible::List;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+base::Accessible *TabSwitcher::accessibilityHitTest(ssize_t x, ssize_t y) {
+  int idx = _pimpl->index_from_point(static_cast<int>(x), static_cast<int>(y));
+  if (idx == -1)
+    return nullptr;
+  else
+    return _pimpl->getItem(idx);
 }
 
 //--------------------------------------------------------------------------------------------------

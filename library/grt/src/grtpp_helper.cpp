@@ -78,6 +78,7 @@ static std::string format_type_cpp(const TypeSpec &type, bool unknown_as_void = 
     case UnknownType:
       if (unknown_as_void)
         return "void";
+      /* fall-thru */
     default:
       return "??? invalid ???";
   }

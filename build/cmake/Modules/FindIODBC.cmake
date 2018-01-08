@@ -17,20 +17,24 @@
 
 if (IODBC_INCLUDE_PATH)
     find_path(IODBC_INCLUDE_DIRS iodbcunix.h
-    	PATHS ${IODBC_INCLUDE_PATH} 
-    	      ${CMAKE_SYSTEM_INCLUDE_PATH}
-    	      /usr/include
-              /usr/local/include
-              /usr/include/libiodbc
+      PATHS ${IODBC_INCLUDE_PATH} 
+            ${CMAKE_SYSTEM_INCLUDE_PATH}
+            /usr/include
+            /usr/local/include
+            /usr/include/libiodbc
     )
 else()
     find_path(IODBC_INCLUDE_DIRS iodbcunix.h
-    	PATHS ${CMAKE_SYSTEM_INCLUDE_PATH}
-    	      /usr/include
+      PATHS ${CMAKE_SYSTEM_INCLUDE_PATH}
+            /usr/include
             /usr/local/include
             /usr/include/libiodbc
     )
 endif(IODBC_INCLUDE_PATH)
+
+if (IODBC_INCLUDE_DIRS AND IODBC_LIBRARIES)
+  set(IODBC_FOUND true)
+endif(IODBC_INCLUDE_DIRS AND IODBC_LIBRARIES)
 
 if (IODBC_CONFIG_PATH)
 

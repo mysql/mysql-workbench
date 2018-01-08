@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -364,14 +364,10 @@ std::string intervalToString(misc::IntervalSet set, size_t maxCount, dfa::Vocabu
   std::vector<ssize_t> symbols = set.toList();
 
   if (symbols.empty()) {
-    return "{}";
+    return "";
   }
 
   std::stringstream ss;
-  if (symbols.size() > 1) {
-    ss << "{";
-  }
-
   bool firstEntry = true;
   maxCount = std::min(maxCount, symbols.size());
   for (size_t i = 0; i < maxCount; ++i) {
@@ -381,7 +377,7 @@ std::string intervalToString(misc::IntervalSet set, size_t maxCount, dfa::Vocabu
     firstEntry = false;
 
     if (symbol < 0) {
-      ss << "no further input";
+      ss << "EOF";
     } else {
       std::string name = vocabulary.getDisplayName(symbol);
       if (name.find("_SYMBOL") != std::string::npos)
@@ -396,10 +392,6 @@ std::string intervalToString(misc::IntervalSet set, size_t maxCount, dfa::Vocabu
   if (maxCount < symbols.size())
     ss << ", ...";
 
-  if (symbols.size() > 1) {
-    ss << "}";
-  }
-
   return ss.str();
 }
 
@@ -410,7 +402,8 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
 
   std::string message;
 
-  Parser *parser = dynamic_cast<Parser *>(recognizer);
+  MySQLParser *parser = dynamic_cast<MySQLParser *>(recognizer);
+  MySQLBaseLexer *lexer = dynamic_cast<MySQLBaseLexer *>(parser->getTokenStream()->getTokenSource());
   bool isEof = offendingSymbol->getType() == Token::EOF;
   if (isEof) {
     // In order to show a good error marker look at the previous token if we are at the input end.
@@ -420,41 +413,62 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
   }
 
   std::string wrongText = offendingSymbol->getText();
+
+  // getExpectedTokens() ignores predicates, so it might include the token for which we got this syntax error,
+  // if that was excluded by a predicate (which in our case is always a version check).
+  // That's a good indicator to tell the user that this keyword is not valid *for the current server version*.
+  misc::IntervalSet expected = parser->getExpectedTokens();
+  bool invalidForVersion = false;
+  size_t tokenType = offendingSymbol->getType();
+  if (tokenType != MySQLLexer::IDENTIFIER && !expected.contains(tokenType))
+    invalidForVersion = true;
+  else {
+    tokenType = lexer->keywordFromText(wrongText);
+    if (expected.contains(tokenType))
+      invalidForVersion = true;
+  }
+
+  if (invalidForVersion) {
+    expected.remove(tokenType);
+  }
+
+  std::string expectedText = intervalToString(expected, 6, parser->getVocabulary());
   if (wrongText[0] != '"' && wrongText[0] != '\'' && wrongText[0] != '`')
     wrongText = "\"" + wrongText + "\"";
-
-  // TODO: currently the expected token set might also contain a symbol that's actually causing this error.
-  //       That happens if this error was triggered by a failing predicate. getExpectedTokens() ignores predicates.
-  misc::IntervalSet expected = parser->getExpectedTokens();
-  std::string expectedText = intervalToString(expected, 6, parser->getVocabulary());
 
   if (ep == nullptr) {
     // Missing or unwanted tokens.
     if (msg.find("missing") != std::string::npos) {
-      std::cout << "missing" << std::endl;
-
-
       if (expected.size() == 1) {
         message = std::string("Expected ") + expectedText + ", but found " + wrongText + " instead";
       }
     } else {
-      message = std::string("Extraneous input ") + wrongText + " found, expecting " + expectedText;
+      message = std::string("Extraneous input ") + wrongText + " found, expecting: " + expectedText;
     }
   } else {
     try {
       std::rethrow_exception(ep);
     } catch (InputMismatchException &) {
       if (isEof)
-        message = "Unexpected end of input found, expecting " + expectedText;
+        message = "Unexpected end of input found";
       else
-        message = wrongText + " is no valid input at this position, expecting " + expectedText;
+        message = wrongText + " is no valid input at this position";
+
+      if (!expectedText.empty())
+        message += ", expecting: " + expectedText;
     } catch (FailedPredicateException &) {
       message = "FailedPredicateException"; // TODO: find a case that throws this.
     } catch (NoViableAltException &) {
       if (isEof)
-        message = "Unexpected end of input found, expecting " + expectedText;
-      else
-        message = wrongText + " is no valid input at this position, expecting " + expectedText;
+        message = "Unexpected end of input found";
+      else {
+        message = wrongText + " is no valid input at this position";
+        if (invalidForVersion)
+          message += " for this server version";
+      }
+
+      if (!expectedText.empty())
+        message += ", expecting: " + expectedText;
     }
   }
 
@@ -1261,45 +1275,47 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
                                                     const std::string &sql, grt::DictRef options) {
   MySQLParserContextImpl *impl = dynamic_cast<MySQLParserContextImpl *>(context.get());
 
-  static std::set<MySQLQueryType> relevantQueryTypes = {QtAlterDatabase,
-                                                        QtAlterLogFileGroup,
-                                                        QtAlterFunction,
-                                                        QtAlterProcedure,
-                                                        QtAlterServer,
-                                                        QtAlterTable,
-                                                        QtAlterTableSpace,
-                                                        QtAlterEvent,
-                                                        QtAlterView,
+  static std::set<MySQLQueryType> relevantQueryTypes = {
+    QtAlterDatabase,
+    QtAlterLogFileGroup,
+    QtAlterFunction,
+    QtAlterProcedure,
+    QtAlterServer,
+    QtAlterTable,
+    QtAlterTableSpace,
+    QtAlterEvent,
+    QtAlterView,
 
-                                                        QtCreateTable,
-                                                        QtCreateIndex,
-                                                        QtCreateDatabase,
-                                                        QtCreateEvent,
-                                                        QtCreateView,
-                                                        QtCreateRoutine,
-                                                        QtCreateProcedure,
-                                                        QtCreateFunction,
-                                                        QtCreateUdf,
-                                                        QtCreateTrigger,
-                                                        QtCreateLogFileGroup,
-                                                        QtCreateServer,
-                                                        QtCreateTableSpace,
+    QtCreateTable,
+    QtCreateIndex,
+    QtCreateDatabase,
+    QtCreateEvent,
+    QtCreateView,
+    QtCreateRoutine,
+    QtCreateProcedure,
+    QtCreateFunction,
+    QtCreateUdf,
+    QtCreateTrigger,
+    QtCreateLogFileGroup,
+    QtCreateServer,
+    QtCreateTableSpace,
 
-                                                        QtDropDatabase,
-                                                        QtDropEvent,
-                                                        QtDropFunction,
-                                                        QtDropProcedure,
-                                                        QtDropIndex,
-                                                        QtDropLogfileGroup,
-                                                        QtDropServer,
-                                                        QtDropTable,
-                                                        QtDropTablespace,
-                                                        QtDropTrigger,
-                                                        QtDropView,
+    QtDropDatabase,
+    QtDropEvent,
+    QtDropFunction,
+    QtDropProcedure,
+    QtDropIndex,
+    QtDropLogfileGroup,
+    QtDropServer,
+    QtDropTable,
+    QtDropTablespace,
+    QtDropTrigger,
+    QtDropView,
 
-                                                        QtRenameTable,
+    QtRenameTable,
 
-                                                        QtUse};
+    QtUse
+  };
 
   logDebug2("Parse sql into catalog\n");
 
@@ -2277,7 +2293,8 @@ public:
   virtual void exitGrant(MySQLParser::GrantContext *ctx) override {
     std::string target;
     if (ctx->aclType() != nullptr)
-      target = ctx->aclType()->getText();
+      target = ctx->aclType()->getText() + " ";
+    target += MySQLBaseLexer::sourceTextForContext(ctx->grantIdentifier());
     data.gset("target", target);
     if (ctx->WITH_SYMBOL() != nullptr)
       data.set("options", _options);

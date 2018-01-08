@@ -17,16 +17,145 @@
  * 02110-1301  USA
  */
 
+#include "base/accessibility.h"
+
 #import "MFDrawBox.h"
 #import "MFMForms.h"
 #include <cairo/cairo-quartz.h>
+
+// TODO: move the accessibility helper to a base lib platform file.
+static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
+  switch (be_role) {
+    case base::Accessible::Window:
+      return NSAccessibilityWindowRole;
+
+    case base::Accessible::Pane:
+      return NSAccessibilityGroupRole;
+
+    case base::Accessible::Link:
+      return NSAccessibilityLinkRole;
+
+    case base::Accessible::List:
+      return NSAccessibilityListRole;
+
+    case base::Accessible::ListItem:
+      return NSAccessibilityGroupRole;
+
+    case base::Accessible::PushButton:
+      return NSAccessibilityButtonRole;
+
+    case base::Accessible::StaticText:
+      return NSAccessibilityStaticTextRole;
+
+    case base::Accessible::Text:
+      return NSAccessibilityTextFieldRole;
+
+    case base::Accessible::Outline:
+      return NSAccessibilityOutlineRole;
+
+    case base::Accessible::OutlineButton:
+      return NSAccessibilityButtonRole;
+
+    case base::Accessible::OutlineItem:
+      return NSAccessibilityGroupRole;
+
+    case base::Accessible::RoleNone:
+      return NSAccessibilityUnknownRole;
+
+    default:
+      return NSAccessibilityUnknownRole;
+  }
+  return nil;
+}
+
+@implementation AccChildImpl
+
+- (id)initWithObject: (base::Accessible *)acc parent: (mforms::View *)parentAcc {
+  self = [super init];
+
+  if (self) {
+    mformsAcc = acc;
+    parent = parentAcc;
+  }
+
+  return self;
+}
+
+- (NSString *)accessibilityRole {
+  return convertAccessibleRole(mformsAcc->getAccessibilityRole());
+}
+
+- (id)accessibilityParent {
+  return parent->get_data();
+}
+
+- (BOOL)accessibilityPerformPress {
+  mformsAcc->accessibilityDoDefaultAction();
+  return true;
+}
+
+- (BOOL)accessibilityPerformShowMenu {
+  mformsAcc->accessibilityShowMenu();
+  return true;
+}
+
+- (NSString *)accessibilityIdentifier {
+  std::string name = mformsAcc->getAccessibilityName();
+  return [NSString stringWithUTF8String: name.c_str()];
+}
+
+- (NSString *)accessibilityLabel {
+  std::string label = mformsAcc->getAccessibilityDescription();
+  return [NSString stringWithUTF8String: label.c_str()];
+}
+
+- (NSString *)accessibilityTitle {
+  std::string title = mformsAcc->getAccessibilityTitle();
+  return [NSString stringWithUTF8String: title.c_str()];
+}
+
+- (NSString *)accessibilityValue {
+  std::string value = mformsAcc->getAccessibilityValue();
+  return [NSString stringWithUTF8String: value.c_str()];
+}
+
+- (BOOL)isAccessibilityElement {
+  return convertAccessibleRole(mformsAcc->getAccessibilityRole()) != NSAccessibilityUnknownRole;
+}
+
+- (NSRect)accessibilityFrame {
+  base::Rect accBounds = mformsAcc->getAccessibilityBounds();
+  auto point = parent->client_to_screen(accBounds.left(), accBounds.top());
+  return NSMakeRect(point.first, point.second - accBounds.height(), accBounds.width(), accBounds.height());
+}
+
+- (id)accessibilityHitTest: (NSPoint)point {
+  std::pair<int, int> p = ((mforms::View *)mformsAcc)->screen_to_client(point.x, point.y);
+
+  base::Accessible *acc = mformsAcc->accessibilityHitTest(p.first, p.second);
+  if (acc != nullptr) {
+    if (acc == mformsAcc)
+      return self;
+    
+    auto it = accChildList.find(acc);
+    if (it != accChildList.end())
+      return it->second;
+    
+    AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: parent];
+    accChildList.insert({acc, accChild});
+    return accChild;
+  }
+  return self;
+}
+
+@end
 
 @implementation MFDrawBoxImpl
 
 @synthesize drawsBackground = mDrawsBackground;
 @synthesize backgroundColor = mBackgroundColor;
 
-- (instancetype)initWithObject:(mforms::DrawBox *)aBox {
+- (instancetype)initWithObject: (mforms::DrawBox *)aBox {
   self = [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
   if (self) {
     mOwner = aBox;
@@ -47,7 +176,7 @@
   return YES;
 }
 
-- (void)setBackgroundColor: (NSColor *)value {
+- (void)setBackgroundColor:(NSColor *)value {
   if (mBackgroundColor != value) {
     mBackgroundColor = value;
     [self setNeedsDisplay: YES];
@@ -59,6 +188,61 @@
     mDrawsBackground = flag;
     [self setNeedsDisplay: YES];
   }
+}
+
+- (BOOL)isAccessibilityElement {
+  return convertAccessibleRole(mOwner->getAccessibilityRole()) != NSAccessibilityUnknownRole;
+}
+
+- (id)accessibilityHitTest: (NSPoint)point {
+  std::pair<int, int> p = mOwner->screen_to_client(point.x, point.y);
+  base::Accessible *acc = mOwner->accessibilityHitTest(p.first, p.second);
+  if (acc != nullptr) {
+    auto it = accChildList.find(acc);
+    if (it != accChildList.end())
+      return it->second;
+
+    AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: mOwner];
+    accChildList.insert({ acc, accChild });
+    return accChild;
+  }
+  return self;
+}
+
+- (NSString *)accessibilityRole {
+  return convertAccessibleRole(mOwner->getAccessibilityRole());
+}
+
+- (NSString *)accessibilityIdentifier {
+  std::string name = mOwner->getAccessibilityName();
+  return [NSString stringWithUTF8String:name.c_str()];
+}
+
+- (NSString *)accessibilityLabel {
+  std::string description = mOwner->getAccessibilityDescription();
+  return [NSString stringWithUTF8String:description.c_str()];
+}
+
+- (NSString *)accessibilityTitle {
+  std::string title = mOwner->getAccessibilityTitle();
+  return [NSString stringWithUTF8String:title.c_str()];
+}
+
+- (NSArray *)accessibilityChildren {
+  NSMutableArray *children = [[super accessibilityChildren] mutableCopy];
+  size_t count = mOwner->getAccessibilityChildCount();
+  for (size_t i = 0; i < count; ++i) {
+    base::Accessible *acc = mOwner->getAccessibilityChild(i);
+    auto it = accChildList.find(acc);
+    if (it != accChildList.end()) {
+      [children addObject: it->second];
+      continue;
+    }
+    AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: mOwner];
+    accChildList.insert({ acc, accChild });
+    [children addObject: accChild];
+  }
+  return children;
 }
 
 - (void)cancelOperation: (id)sender {
@@ -102,20 +286,20 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)invalidateRect: (NSString *)rectStr {
+- (void)invalidateRect :(NSString *)rectStr {
   [self setNeedsDisplayInRect: NSRectFromString(rectStr)];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (NSSize)preferredSize: (NSSize)proposal {
+- (NSSize)preferredSize:(NSSize)proposal {
   if (mOwner == NULL || mOwner->is_destroying())
     return NSZeroSize;
 
   base::Size nativeSize = mOwner->getLayoutSize(base::Size(proposal.width, proposal.height));
   NSSize size = NSMakeSize(nativeSize.width, nativeSize.height);
 
-  return { MAX(size.width, self.minimumSize.width), MAX(size.height, self.minimumSize.height) };
+  return {MAX(size.width, self.minimumSize.width), MAX(size.height, self.minimumSize.height)};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,7 +377,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
           break;
       }
 
-      [view setFrameOrigin: NSMakePoint(x, y)];
+      [view setFrameOrigin:NSMakePoint(x, y)];
     }
   }
 }
@@ -264,4 +448,3 @@ void cf_drawbox_init() {
 }
 
 @end
-

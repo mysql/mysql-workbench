@@ -101,6 +101,9 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView* 
   _action_output.set_name("Action Output");
   copy_accessibility_name(_action_output);
 
+  auto acc = _top_box.get_accessible();
+  if (acc)
+    acc->set_name("Action Output Area");
   _action_swnd.add(_action_output);
   _action_swnd.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
@@ -243,7 +246,9 @@ void QueryOutputView::refresh() {
       _entries_grid.scroll_to(0); // newest entry is always first
       _details_grid.scroll_to(1);
     }
+    /* fall-thru */
     case 0: // Action Output - always need refresh even if it's not visible
+    /* fall-thru */
     case 1: // Text output
     {
       _action_output.refresh(false);
@@ -257,6 +262,9 @@ void QueryOutputView::refresh() {
       }
       break;
     }
+    /* fall-thru */
+    default:
+      break;
   }
 }
 

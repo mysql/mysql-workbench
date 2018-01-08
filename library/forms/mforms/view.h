@@ -46,10 +46,7 @@ namespace mforms {
     MiddleRight,
     TopLeft,
     TopCenter,
-    TopRight,
-
-    //
-    WizardLabelAlignment
+    TopRight
   };
 
   struct TextAttributes {

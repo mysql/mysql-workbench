@@ -1052,6 +1052,7 @@ namespace base {
 
     return s.compare(start_at, std::string::npos, part) == 0;
   }
+
   //--------------------------------------------------------------------------------------------------
 
   void replaceStringInplace(std::string &value, const std::string &search, const std::string &replacement) {

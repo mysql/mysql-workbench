@@ -31,10 +31,10 @@ namespace MySQL {
   public
     ref class WBControlAccessibleObject : System::Windows::Forms::Control::ControlAccessibleObject {
     private:
-      mforms::Accessible *backend;
+      base::Accessible *backend;
 
     public:
-      WBControlAccessibleObject(System::Windows::Forms::Control ^ owner, mforms::Accessible *backendOwner);
+      WBControlAccessibleObject(System::Windows::Forms::Control ^ owner, base::Accessible *backendOwner);
 
       property String ^ Name { virtual String ^ get() override; };
       property String ^ Description { virtual String ^ get() override; };
@@ -53,11 +53,11 @@ namespace MySQL {
   public
     ref class WBAccessibleObject : System::Windows::Forms::AccessibleObject {
     private:
-      mforms::Accessible *backend;
+      base::Accessible *backend;
       WBControlAccessibleObject ^ parent;
 
     public:
-      WBAccessibleObject(mforms::Accessible *back, WBControlAccessibleObject ^ parent_control);
+      WBAccessibleObject(base::Accessible *back, WBControlAccessibleObject ^ parent_control);
 
       property String ^ Name { virtual String ^ get() override; };
       property String ^ Description { virtual String ^ get() override; };

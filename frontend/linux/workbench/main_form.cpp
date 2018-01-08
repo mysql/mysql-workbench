@@ -80,11 +80,7 @@ MainForm::MainForm() : _exiting(false) {
   setup_mforms_app();
 
   _ui = Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("wb.glade"));
-  if (get_upper_note()) {
-    Glib::RefPtr<Atk::Object> acc = get_upper_note()->get_accessible();
-    if (acc)
-      acc->set_name("Main Tab Bar");
-  }
+  set_name("Main Tab Bar");
 
   get_mainwindow()->signal_delete_event().connect(sigc::mem_fun(this, &MainForm::close_window));
   get_mainwindow()->signal_set_focus().connect(sigc::mem_fun(this, &MainForm::on_focus_widget));
@@ -1641,7 +1637,10 @@ Gtk::Widget *MainForm::decorate_widget(Gtk::Widget *panel, bec::UIForm *form) {
 }
 
 static gpointer delete_appview(mforms::AppView *appview) {
-  delete appview;
+  if (appview->is_managed())
+    appview->release();
+  else
+    delete appview;
   return 0;
 }
 
@@ -1650,6 +1649,14 @@ std::pair<int, int> MainForm::get_size() {
   int w = note->get_width();
   int h = note->get_height();
   return std::pair<int, int>(w, h);
+}
+
+void MainForm::set_name(const std::string &name) {
+  if (get_upper_note()) {
+   Glib::RefPtr<Atk::Object> acc = get_upper_note()->get_accessible();
+   if (acc)
+     acc->set_name(name);
+  }
 }
 
 void MainForm::dock_view(mforms::AppView *view, const std::string &position, int) {

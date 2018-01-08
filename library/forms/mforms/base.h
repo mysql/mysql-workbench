@@ -45,7 +45,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 namespace mforms {
 
-  // The root of of mforms hierarchy.
+  // The root of our mforms hierarchy.
   class MFORMS_EXPORT Object {
   public:
     Object* retain();

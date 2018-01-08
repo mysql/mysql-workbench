@@ -200,3 +200,4 @@ library/parsers/antlr
 .vscode
 *.[Vv][Cc].db
 *.[Vv][Cc].opendb
+.vs/

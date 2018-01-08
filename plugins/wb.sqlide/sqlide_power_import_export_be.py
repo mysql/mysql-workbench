@@ -763,6 +763,10 @@ class json_module(base_module):
             return False
         
         self._columns = []
+        
+        if type(data) == dict: # We need to have list so if it's dict after that we will be able to handle it.
+            data = [data]
+        
         for elem in data[0]:
             self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False, 'value': []})
 

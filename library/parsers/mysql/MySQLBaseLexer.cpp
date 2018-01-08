@@ -1,20 +1,24 @@
 /*
- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; version 2 of the
- * License.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2.0,
+ * as published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is also distributed with certain software (including
+ * but not limited to OpenSSL) that is licensed under separate terms, as
+ * designated in a particular file or component or in included license
+ * documentation. The authors of MySQL hereby grant you an additional
+ * permission to link the program and your derivative works with the
+ * separately licensed software that they have included with MySQL.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
+ * the GNU General Public License, version 2.0, for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301  USA
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "CommonToken.h"
@@ -27,8 +31,7 @@ using namespace parsers;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-MySQLBaseLexer::MySQLBaseLexer(CharStream *input) : Lexer(input)
-{
+MySQLBaseLexer::MySQLBaseLexer(CharStream *input) : Lexer(input) {
   serverVersion = 0;
   sqlMode = NoMode;
   inVersionComment = false;
@@ -36,8 +39,7 @@ MySQLBaseLexer::MySQLBaseLexer(CharStream *input) : Lexer(input)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MySQLBaseLexer::reset()
-{
+void MySQLBaseLexer::reset() {
   inVersionComment = false;
   Lexer::reset();
 }
@@ -48,8 +50,7 @@ void MySQLBaseLexer::reset()
  * Returns true if the given token is an identifier. This includes all those keywords that are
  * allowed as identifiers too.
  */
-bool MySQLBaseLexer::isIdentifier(size_t type) const
-{
+bool MySQLBaseLexer::isIdentifier(size_t type) const {
   if ((type == MySQLLexer::IDENTIFIER) || (type == MySQLLexer::BACK_TICK_QUOTED_ID))
     return true;
 
@@ -67,12 +68,10 @@ bool MySQLBaseLexer::isIdentifier(size_t type) const
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- *	Helper for the query type determination.
+ *  Helper for the query type determination.
  */
-std::unique_ptr<antlr4::Token> MySQLBaseLexer::nextDefaultChannelToken()
-{
-  do
-  {
+std::unique_ptr<antlr4::Token> MySQLBaseLexer::nextDefaultChannelToken() {
+  do {
     std::unique_ptr<Token> token = nextToken();
     if (token->getChannel() == ParserToken::DEFAULT_CHANNEL)
       return token;
@@ -82,23 +81,20 @@ std::unique_ptr<antlr4::Token> MySQLBaseLexer::nextDefaultChannelToken()
 //--------------------------------------------------------------------------------------------------
 
 /**
- *	Skips over a definer clause if possible. Returns true if it was successful and points to the
- *	token after the last definer part.
- *	On entry the DEFINER symbol has been already consumed.
- *	If the syntax is wrong false is returned and the token source state is undetermined.
+ *  Skips over a definer clause if possible. Returns true if it was successful and points to the
+ *  token after the last definer part.
+ *  On entry the DEFINER symbol has been already consumed.
+ *  If the syntax is wrong false is returned and the token source state is undetermined.
  */
-bool MySQLBaseLexer::skipDefiner(std::unique_ptr<antlr4::Token> &token)
-{
+bool MySQLBaseLexer::skipDefiner(std::unique_ptr<antlr4::Token> &token) {
   token = nextDefaultChannelToken();
   if (token->getType() != MySQLLexer::EQUAL_OPERATOR)
     return false;
 
   token = nextDefaultChannelToken();
-  if (token->getType() == MySQLLexer::CURRENT_USER_SYMBOL)
-  {
+  if (token->getType() == MySQLLexer::CURRENT_USER_SYMBOL) {
     token = nextDefaultChannelToken();
-    if (token->getType() == MySQLLexer::OPEN_PAR_SYMBOL)
-    {
+    if (token->getType() == MySQLLexer::OPEN_PAR_SYMBOL) {
       token = nextDefaultChannelToken();
       if (token->getType() != MySQLLexer::CLOSE_PAR_SYMBOL)
         return false;
@@ -109,17 +105,14 @@ bool MySQLBaseLexer::skipDefiner(std::unique_ptr<antlr4::Token> &token)
     return true;
   }
 
-  if (token->getType() == MySQLLexer::SINGLE_QUOTED_TEXT || isIdentifier(token->getType()))
-  {
+  if (token->getType() == MySQLLexer::SINGLE_QUOTED_TEXT || isIdentifier(token->getType())) {
     // First part of the user definition (mandatory).
     token = nextDefaultChannelToken();
-    if (token->getType() == MySQLLexer::AT_SIGN_SYMBOL || token->getType() == MySQLLexer::AT_TEXT_SUFFIX)
-    {
+    if (token->getType() == MySQLLexer::AT_SIGN_SYMBOL || token->getType() == MySQLLexer::AT_TEXT_SUFFIX) {
       // Second part of the user definition (optional).
       bool needIdentifier = token->getType() == MySQLLexer::AT_SIGN_SYMBOL;
       token = nextDefaultChannelToken();
-      if (needIdentifier)
-      {
+      if (needIdentifier) {
         if (!isIdentifier(token->getType()) && token->getType() != MySQLLexer::SINGLE_QUOTED_TEXT)
           return false;
         token = nextDefaultChannelToken();
@@ -136,21 +129,18 @@ bool MySQLBaseLexer::skipDefiner(std::unique_ptr<antlr4::Token> &token)
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLQueryType MySQLBaseLexer::determineQueryType()
-{
+MySQLQueryType MySQLBaseLexer::determineQueryType() {
   std::unique_ptr<Token> token = nextDefaultChannelToken();
   if (token->getType() == Token::EOF)
     return QtUnknown;
 
-  switch (token->getType())
-  {
+  switch (token->getType()) {
     case MySQLLexer::ALTER_SYMBOL:
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
 
-      switch (token->getType())
-      {
+      switch (token->getType()) {
         case MySQLLexer::DATABASE_SYMBOL:
           return QtAlterDatabase;
 
@@ -185,8 +175,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
           if (!skipDefiner(token))
             return QtAmbiguous;
 
-          switch (token->getType())
-          {
+          switch (token->getType()) {
             case MySQLLexer::EVENT_SYMBOL:
               return QtAlterEvent;
 
@@ -209,8 +198,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
 
-      switch (token->getType())
-      {
+      switch (token->getType()) {
         case MySQLLexer::TEMPORARY_SYMBOL: // Optional part of CREATE TABLE.
         case MySQLLexer::TABLE_SYMBOL:
           return QtCreateTable;
@@ -234,8 +222,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
           if (!skipDefiner(token))
             return QtAmbiguous;
 
-          switch (token->getType())
-          {
+          switch (token->getType()) {
             case MySQLLexer::EVENT_SYMBOL:
               return QtCreateEvent;
 
@@ -246,8 +233,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
             case MySQLLexer::PROCEDURE_SYMBOL:
               return QtCreateProcedure;
 
-            case MySQLLexer::FUNCTION_SYMBOL:
-            {
+            case MySQLLexer::FUNCTION_SYMBOL: {
               token = nextDefaultChannelToken();
               if (token->getType() == Token::EOF)
                 return QtAmbiguous;
@@ -261,15 +247,15 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
 
               return QtCreateFunction;
             }
-              
+
             case MySQLLexer::AGGREGATE_SYMBOL:
               return QtCreateUdf;
-              
+
             case MySQLLexer::TRIGGER_SYMBOL:
               return QtCreateTrigger;
           }
         }
-          
+
         case MySQLLexer::VIEW_SYMBOL:
         case MySQLLexer::OR_SYMBOL:        // CREATE OR REPLACE ... VIEW
         case MySQLLexer::ALGORITHM_SYMBOL: // CREATE ALGORITHM ... VIEW
@@ -302,14 +288,12 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
       break;
     }
 
-    case MySQLLexer::DROP_SYMBOL:
-    {
+    case MySQLLexer::DROP_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
 
-      switch (token->getType())
-      {
+      switch (token->getType()) {
         case MySQLLexer::DATABASE_SYMBOL:
           return QtDropDatabase;
 
@@ -349,7 +333,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
 
         case MySQLLexer::PREPARE_SYMBOL:
           return QtDeallocate;
-          
+
         case MySQLLexer::USER_SYMBOL:
           return QtDropUser;
       }
@@ -373,16 +357,13 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
     case MySQLLexer::INSERT_SYMBOL:
       return QtInsert;
 
-    case MySQLLexer::LOAD_SYMBOL:
-    {
+    case MySQLLexer::LOAD_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
 
-      switch (token->getType())
-      {
-        case MySQLLexer::DATA_SYMBOL:
-        {
+      switch (token->getType()) {
+        case MySQLLexer::DATA_SYMBOL: {
           token = nextDefaultChannelToken();
           if (token->getType() == Token::EOF)
             return QtAmbiguous;
@@ -413,8 +394,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
 
     case MySQLLexer::OPEN_PAR_SYMBOL: // Either (((select ..))) or (partition...)
     {
-      while (token->getType() == MySQLLexer::OPEN_PAR_SYMBOL)
-      {
+      while (token->getType() == MySQLLexer::OPEN_PAR_SYMBOL) {
         token = nextDefaultChannelToken();
         if (token->getType() == Token::EOF)
           return QtAmbiguous;
@@ -428,8 +408,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
     case MySQLLexer::PARTITIONS_SYMBOL:
       return QtPartition;
 
-    case MySQLLexer::START_SYMBOL:
-    {
+    case MySQLLexer::START_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
@@ -445,14 +424,12 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
     case MySQLLexer::COMMIT_SYMBOL:
       return QtCommit;
 
-    case MySQLLexer::ROLLBACK_SYMBOL:
-    {
+    case MySQLLexer::ROLLBACK_SYMBOL: {
       // We assume a transaction statement here unless we exactly know it's about a savepoint.
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtRollbackWork;
-      if (token->getType() == MySQLLexer::WORK_SYMBOL)
-      {
+      if (token->getType() == MySQLLexer::WORK_SYMBOL) {
         token = nextDefaultChannelToken();
         if (token->getType() == Token::EOF)
           return QtRollbackWork;
@@ -463,14 +440,12 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
       return QtRollbackWork;
     }
 
-    case MySQLLexer::SET_SYMBOL:
-    {
+    case MySQLLexer::SET_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtSet;
 
-      switch (token->getType())
-      {
+      switch (token->getType()) {
         case MySQLLexer::PASSWORD_SYMBOL:
           return QtSetPassword;
 
@@ -482,8 +457,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
             return QtSet;
           break;
 
-        case MySQLLexer::IDENTIFIER:
-        {
+        case MySQLLexer::IDENTIFIER: {
           std::string text = token->getText();
           std::transform(text.begin(), text.end(), text.begin(), ::tolower);
           if (text == "autocommit")
@@ -518,14 +492,12 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
     case MySQLLexer::CHANGE_SYMBOL:
       return QtChangeMaster;
 
-    case MySQLLexer::RESET_SYMBOL:
-    {
+    case MySQLLexer::RESET_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtReset;
 
-      switch (token->getType())
-      {
+      switch (token->getType()) {
         case MySQLLexer::SERVER_SYMBOL:
           return QtResetMaster;
         case MySQLLexer::SLAVE_SYMBOL:
@@ -547,8 +519,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
     case MySQLLexer::DEALLOCATE_SYMBOL:
       return QtDeallocate;
 
-    case MySQLLexer::GRANT_SYMBOL:
-    {
+    case MySQLLexer::GRANT_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
@@ -558,8 +529,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
       return QtGrant;
     }
 
-    case MySQLLexer::RENAME_SYMBOL:
-    {
+    case MySQLLexer::RENAME_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
@@ -569,8 +539,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
       return QtRenameTable;
     }
 
-    case MySQLLexer::REVOKE_SYMBOL:
-    {
+    case MySQLLexer::REVOKE_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
@@ -607,14 +576,12 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
     case MySQLLexer::UNINSTALL_SYMBOL:
       return QtUninstallPlugin;
 
-    case MySQLLexer::SHOW_SYMBOL:
-    {
+    case MySQLLexer::SHOW_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtShow;
 
-      if (token->getType() == MySQLLexer::FULL_SYMBOL)
-      {
+      if (token->getType() == MySQLLexer::FULL_SYMBOL) {
         // Not all SHOW cases allow an optional FULL keyword, but this is not about checking for
         // a valid query but to find the most likely type.
         token = nextDefaultChannelToken();
@@ -622,12 +589,10 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
           return QtShow;
       }
 
-      switch (token->getType())
-      {
+      switch (token->getType()) {
         case MySQLLexer::GLOBAL_SYMBOL:
         case MySQLLexer::LOCK_SYMBOL:
-        case MySQLLexer::SESSION_SYMBOL:
-        {
+        case MySQLLexer::SESSION_SYMBOL: {
           token = nextDefaultChannelToken();
           if (token->getType() == Token::EOF)
             return QtShow;
@@ -661,8 +626,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
         case MySQLLexer::CONTRIBUTORS_SYMBOL:
           return QtShowContributors;
 
-        case MySQLLexer::COUNT_SYMBOL:
-        {
+        case MySQLLexer::COUNT_SYMBOL: {
           token = nextDefaultChannelToken();
           if (token->getType() != MySQLLexer::OPEN_PAR_SYMBOL)
             return QtShow;
@@ -677,8 +641,7 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
           if (token->getType() == Token::EOF)
             return QtShow;
 
-          switch (token->getType())
-          {
+          switch (token->getType()) {
             case MySQLLexer::WARNINGS_SYMBOL:
               return QtShowWarnings;
 
@@ -689,14 +652,12 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
           return QtShow;
         }
 
-        case MySQLLexer::CREATE_SYMBOL:
-        {
+        case MySQLLexer::CREATE_SYMBOL: {
           token = nextDefaultChannelToken();
           if (token->getType() == Token::EOF)
             return QtShow;
 
-          switch (token->getType())
-          {
+          switch (token->getType()) {
             case MySQLLexer::DATABASE_SYMBOL:
               return QtShowCreateDatabase;
 
@@ -727,134 +688,127 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
 
         case MySQLLexer::ENGINE_SYMBOL:
           return QtShowEngineStatus;
-          
+
         case MySQLLexer::STORAGE_SYMBOL:
         case MySQLLexer::ENGINES_SYMBOL:
           return QtShowStorageEngines;
-          
+
         case MySQLLexer::ERRORS_SYMBOL:
           return QtShowErrors;
-          
+
         case MySQLLexer::EVENTS_SYMBOL:
           return QtShowEvents;
-          
-        case MySQLLexer::FUNCTION_SYMBOL:
-        {
+
+        case MySQLLexer::FUNCTION_SYMBOL: {
           token = nextDefaultChannelToken();
           if (token->getType() == Token::EOF)
             return QtAmbiguous;
-          
+
           if (token->getType() == MySQLLexer::CODE_SYMBOL)
             return QtShowFunctionCode;
           return QtShowFunctionStatus;
         }
-          
+
         case MySQLLexer::GRANT_SYMBOL:
           return QtShowGrants;
-          
+
         case MySQLLexer::INDEX_SYMBOL:
         case MySQLLexer::INDEXES_SYMBOL:
         case MySQLLexer::KEY_SYMBOL:
           return QtShowIndexes;
-          
+
         case MySQLLexer::INNODB_SYMBOL:
           return QtShowInnoDBStatus;
-          
+
         case MySQLLexer::MASTER_SYMBOL:
           return QtShowMasterStatus;
-          
+
         case MySQLLexer::OPEN_SYMBOL:
           return QtShowOpenTables;
-          
+
         case MySQLLexer::PLUGIN_SYMBOL:
         case MySQLLexer::PLUGINS_SYMBOL:
           return QtShowPlugins;
-          
-        case MySQLLexer::PROCEDURE_SYMBOL:
-        {
+
+        case MySQLLexer::PROCEDURE_SYMBOL: {
           token = nextDefaultChannelToken();
           if (token->getType() == Token::EOF)
             return QtShow;
-          
+
           if (token->getType() == MySQLLexer::STATUS_SYMBOL)
             return QtShowProcedureStatus;
           return QtShowProcedureCode;
         }
-          
+
         case MySQLLexer::PRIVILEGES_SYMBOL:
           return QtShowPrivileges;
-          
+
         case MySQLLexer::PROCESSLIST_SYMBOL:
           return QtShowProcessList;
-          
+
         case MySQLLexer::PROFILE_SYMBOL:
           return QtShowProfile;
-          
+
         case MySQLLexer::PROFILES_SYMBOL:
           return QtShowProfiles;
-          
-        case MySQLLexer::SLAVE_SYMBOL:
-        {
+
+        case MySQLLexer::SLAVE_SYMBOL: {
           token = nextDefaultChannelToken();
           if (token->getType() == Token::EOF)
             return QtAmbiguous;
-          
+
           if (token->getType() == MySQLLexer::HOSTS_SYMBOL)
             return QtShowSlaveHosts;
           return QtShowSlaveStatus;
         }
-          
+
         case MySQLLexer::STATUS_SYMBOL:
           return QtShowStatus;
-          
+
         case MySQLLexer::VARIABLES_SYMBOL:
           return QtShowVariables;
-          
+
         case MySQLLexer::TABLE_SYMBOL:
           return QtShowTableStatus;
-          
+
         case MySQLLexer::TABLES_SYMBOL:
           return QtShowTables;
-          
+
         case MySQLLexer::TRIGGERS_SYMBOL:
           return QtShowTriggers;
-          
+
         case MySQLLexer::WARNINGS_SYMBOL:
           return QtShowWarnings;
       }
-      
+
       return QtShow;
     }
-      
+
     case MySQLLexer::CACHE_SYMBOL:
       return QtCacheIndex;
-      
+
     case MySQLLexer::FLUSH_SYMBOL:
       return QtFlush;
-      
+
     case MySQLLexer::KILL_SYMBOL:
       return QtKill;
-      
-      
+
     case MySQLLexer::DESCRIBE_SYMBOL: // EXPLAIN is converted to DESCRIBE in the lexer.
-    case MySQLLexer::DESC_SYMBOL:
-    {
+    case MySQLLexer::DESC_SYMBOL: {
       token = nextDefaultChannelToken();
       if (token->getType() == Token::EOF)
         return QtAmbiguous;
-      
+
       if (isIdentifier(token->getType()) || token->getType() == MySQLLexer::DOT_SYMBOL)
         return QtExplainTable;
-      
+
       // EXTENDED is a bit special as it can be both, a table identifier or the keyword.
-      if (token->getType() == MySQLLexer::EXTENDED_SYMBOL)
-      {
+      if (token->getType() == MySQLLexer::EXTENDED_SYMBOL) {
         token = nextDefaultChannelToken();
         if (token->getType() == Token::EOF)
           return QtExplainTable;
-        
-        switch (token->getType())
-        {
+
+        switch (token->getType()) {
           case MySQLLexer::DELETE_SYMBOL:
           case MySQLLexer::INSERT_SYMBOL:
           case MySQLLexer::REPLACE_SYMBOL:
@@ -866,23 +820,21 @@ MySQLQueryType MySQLBaseLexer::determineQueryType()
       }
       return QtExplainStatement;
     }
-      
+
     case MySQLLexer::HELP_SYMBOL:
       return QtHelp;
-      
+
     case MySQLLexer::USE_SYMBOL:
       return QtUse;
   }
-  
+
   return QtUnknown;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool MySQLBaseLexer::isKeyword(size_t type) const
-{
-  switch (type)
-  {
+bool MySQLBaseLexer::isKeyword(size_t type) const {
+  switch (type) {
     case Token::EOF:
     case MySQLLexer::NOT2_SYMBOL:
     case MySQLLexer::CONCAT_PIPES_SYMBOL:
@@ -931,7 +883,6 @@ bool MySQLBaseLexer::isKeyword(size_t type) const
     case MySQLLexer::HEX_NUMBER:
     case MySQLLexer::BIN_NUMBER:
     case MySQLLexer::FLOAT_NUMBER:
-    case MySQLLexer::NUMBER:
     case MySQLLexer::DECIMAL_NUMBER:
     case MySQLLexer::UNDERSCORE_CHARSET:
     case MySQLLexer::IDENTIFIER:
@@ -954,10 +905,37 @@ bool MySQLBaseLexer::isKeyword(size_t type) const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool MySQLBaseLexer::isRelation(size_t type)
-{
-  switch (type)
-  {
+/**
+ * Tries to find out if the given text could be a keyword and returns the type.
+ * The problem here is that keywords can be conditionally disabled for certain server versions and lexer tokens in
+ * general rarely have symbol names (read: a simple, fixed sequence of chars). We use a "heuristic" approach here
+ * instead: if the given text corresponds to (the start of) a lexer token rule name we assume it is that token type.
+ */
+size_t MySQLBaseLexer::keywordFromText(std::string const& name) {
+  if (_symbols.empty()) {
+    auto &vocabulary = getVocabulary();
+    size_t max = vocabulary.getMaxTokenType();
+    for (size_t i = 0; i <= max; ++i)
+      _symbols[vocabulary.getSymbolicName(i)] = i;
+  }
+
+  // (My)SQL only uses ASCII chars for keywords so we can do a simple upcase here for comparison.
+  std::string transformed;
+  std::transform(name.begin(), name.end(), std::back_inserter(transformed), ::toupper);
+
+  auto symbol = std::find_if(_symbols.begin(), _symbols.end(), [transformed](std::pair<std::string, size_t> const& s) {
+    return s.first.find(transformed) == 0;
+  });
+
+  if (symbol == _symbols.end())
+    return INVALID_INDEX;
+  return symbol->second;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool MySQLBaseLexer::isRelation(size_t type) {
+  switch (type) {
     case MySQLLexer::EQUAL_OPERATOR:
     case MySQLLexer::ASSIGN_OPERATOR:
     case MySQLLexer::NULL_SAFE_EQUAL_OPERATOR:
@@ -1001,11 +979,11 @@ bool MySQLBaseLexer::isRelation(size_t type)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool MySQLBaseLexer::isNumber(size_t type)
-{
-  switch (type)
-  {
-    case MySQLLexer::NUMBER:
+bool MySQLBaseLexer::isNumber(size_t type) {
+  switch (type) {
+    case MySQLLexer::INT_NUMBER:
+    case MySQLLexer::LONG_NUMBER:
+    case MySQLLexer::ULONGLONG_NUMBER:
     case MySQLLexer::FLOAT_NUMBER:
     case MySQLLexer::HEX_NUMBER:
     case MySQLLexer::BIN_NUMBER:
@@ -1019,10 +997,8 @@ bool MySQLBaseLexer::isNumber(size_t type)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool MySQLBaseLexer::isOperator(size_t type)
-{
-  switch (type)
-  {
+bool MySQLBaseLexer::isOperator(size_t type) {
+  switch (type) {
     case MySQLLexer::EQUAL_OPERATOR:
     case MySQLLexer::ASSIGN_OPERATOR:
     case MySQLLexer::NULL_SAFE_EQUAL_OPERATOR:
@@ -1090,8 +1066,7 @@ std::unique_ptr<antlr4::Token> MySQLBaseLexer::nextToken() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool MySQLBaseLexer::checkVersion(const std::string &text)
-{
+bool MySQLBaseLexer::checkVersion(const std::string &text) {
   if (text.size() < 8) // Minimum is: /*!12345
     return false;
 
@@ -1106,12 +1081,10 @@ bool MySQLBaseLexer::checkVersion(const std::string &text)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-size_t MySQLBaseLexer::determineFunction(size_t proposed)
-{
+size_t MySQLBaseLexer::determineFunction(size_t proposed) {
   // Skip any whitespace character if the sql mode says they should be ignored,
   // before actually trying to match the open parenthesis.
-  if (isSqlModeActive(IgnoreSpace))
-  {
+  if (isSqlModeActive(IgnoreSpace)) {
     size_t input = _input->LA(1);
     while (input == ' ' || input == '\t' || input == '\r' || input == '\n') {
       getInterpreter<atn::LexerATNSimulator>()->consume(_input);
@@ -1126,16 +1099,15 @@ size_t MySQLBaseLexer::determineFunction(size_t proposed)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-size_t MySQLBaseLexer::determineNumericType(const std::string &text)
-{
-  static const char *long_str                 = "2147483647";
-  static const unsigned long_len              = 10;
-  static const char *signed_long_str          = "-2147483648";
-  static const char *longlong_str             = "9223372036854775807";
-  static const unsigned longlong_len          = 19;
-  static const char *signed_longlong_str      = "-9223372036854775808";
-  static const unsigned signed_longlong_len   = 19;
-  static const char *unsigned_longlong_str    = "18446744073709551615";
+size_t MySQLBaseLexer::determineNumericType(const std::string &text) {
+  static const char *long_str = "2147483647";
+  static const unsigned long_len = 10;
+  static const char *signed_long_str = "-2147483648";
+  static const char *longlong_str = "9223372036854775807";
+  static const unsigned longlong_len = 19;
+  static const char *signed_longlong_str = "-9223372036854775808";
+  static const unsigned signed_longlong_len = 19;
+  static const char *unsigned_longlong_str = "18446744073709551615";
   static const unsigned unsigned_longlong_len = 20;
 
   // The original code checks for leading +/- but actually that can never happen, neither in the
@@ -1143,23 +1115,23 @@ size_t MySQLBaseLexer::determineNumericType(const std::string &text)
   // as our rules are defined without signs. But we do it anyway for maximum compatibility.
   unsigned length = (unsigned)text.size() - 1;
   const char *str = text.c_str();
-  if (length < long_len)          // quick normal case
+  if (length < long_len) // quick normal case
     return MySQLLexer::INT_NUMBER;
   unsigned negative = 0;
 
-  if (*str == '+')                // Remove sign and pre-zeros
+  if (*str == '+') // Remove sign and pre-zeros
   {
-    str++; length--;
-  }
-  else if (*str == '-')
-  {
-    str++; length--;
+    str++;
+    length--;
+  } else if (*str == '-') {
+    str++;
+    length--;
     negative = 1;
   }
 
-  while (*str == '0' && length)
-  {
-    str++; length --;
+  while (*str == '0' && length) {
+    str++;
+    length--;
   }
 
   if (length < long_len)
@@ -1167,45 +1139,34 @@ size_t MySQLBaseLexer::determineNumericType(const std::string &text)
 
   unsigned smaller, bigger;
   const char *cmp;
-  if (negative)
-  {
-    if (length == long_len)
-    {
-      cmp = signed_long_str+1;
+  if (negative) {
+    if (length == long_len) {
+      cmp = signed_long_str + 1;
       smaller = MySQLLexer::INT_NUMBER; // If <= signed_long_str
       bigger = MySQLLexer::LONG_NUMBER; // If >= signed_long_str
-    }
-    else if (length < signed_longlong_len)
+    } else if (length < signed_longlong_len)
       return MySQLLexer::LONG_NUMBER;
     else if (length > signed_longlong_len)
       return MySQLLexer::DECIMAL_NUMBER;
-    else
-    {
-      cmp = signed_longlong_str+1;
+    else {
+      cmp = signed_longlong_str + 1;
       smaller = MySQLLexer::LONG_NUMBER; // If <= signed_longlong_str
       bigger = MySQLLexer::DECIMAL_NUMBER;
     }
-  }
-  else
-  {
-    if (length == long_len)
-    {
+  } else {
+    if (length == long_len) {
       cmp = long_str;
       smaller = MySQLLexer::INT_NUMBER;
       bigger = MySQLLexer::LONG_NUMBER;
-    }
-    else if (length < longlong_len)
+    } else if (length < longlong_len)
       return MySQLLexer::LONG_NUMBER;
-    else if (length > longlong_len)
-    {
+    else if (length > longlong_len) {
       if (length > unsigned_longlong_len)
         return MySQLLexer::DECIMAL_NUMBER;
       cmp = unsigned_longlong_str;
       smaller = MySQLLexer::ULONGLONG_NUMBER;
       bigger = MySQLLexer::DECIMAL_NUMBER;
-    }
-    else
-    {
+    } else {
       cmp = longlong_str;
       smaller = MySQLLexer::LONG_NUMBER;
       bigger = MySQLLexer::ULONGLONG_NUMBER;
@@ -1220,8 +1181,7 @@ size_t MySQLBaseLexer::determineNumericType(const std::string &text)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-size_t MySQLBaseLexer::checkCharset(const std::string &text)
-{
+size_t MySQLBaseLexer::checkCharset(const std::string &text) {
   return charsets.count(text) > 0 ? MySQLLexer::UNDERSCORE_CHARSET : MySQLLexer::IDENTIFIER;
 }
 
@@ -1231,8 +1191,9 @@ size_t MySQLBaseLexer::checkCharset(const std::string &text)
  * Puts a DOT token onto the pending token list.
  */
 void MySQLBaseLexer::emitDot() {
-  _pendingTokens.emplace_back(_factory->create({ this, _input }, MySQLLexer::DOT_SYMBOL, _text, channel,
-    tokenStartCharIndex, tokenStartCharIndex, tokenStartLine, tokenStartCharPositionInLine));
+  _pendingTokens.emplace_back(_factory->create({this, _input}, MySQLLexer::DOT_SYMBOL, _text, channel,
+                                               tokenStartCharIndex, tokenStartCharIndex, tokenStartLine,
+                                               tokenStartCharPositionInLine));
   ++tokenStartCharIndex;
 }
 

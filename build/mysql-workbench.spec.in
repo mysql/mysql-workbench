@@ -8,7 +8,7 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 6.3.10' \
+#                                   --define='version 8.0.0' \
 #                                   --define='release 1'
 ####################################################################
 
@@ -28,6 +28,9 @@
 
 # Allow to continue when a binary with no build-id was found
 %undefine _missing_build_ids_terminate_build
+
+# Disable debug source packages
+%undefine _debugsource_packages
 
 %if !%{defined version}
 %define version         @VERSION@
@@ -65,7 +68,7 @@
 %define vsqlite_dir      %{linuxres_binaries}/vsqlite-%{lictag}
 %define antlr_dir        %{linuxres_binaries}/antlr
 %define python_dir       %{linuxres_home}/python
-%define antlr_jar_path   %{linuxres_home}/bin/antlr-4.6-complete.jar
+%define antlr_jar_path   %{linuxres_home}/bin/antlr-4.7.1-complete.jar
 %define boost_root       %{linuxres_home}
 
 Summary: A MySQL visual database modeling, administration, development and migration tool
@@ -107,6 +110,10 @@ BuildRequires: vsqlite++-devel
 BuildRequires: libgnome-keyring-devel libuuid-devel
 %else
 BuildRequires: gnome-keyring-devel
+%endif
+
+%if 0%{?fedora} >= 26
+BuildRequires: jasper-devel
 %endif
 
 Provides: mysql-workbench = %{version}-%{release}
@@ -276,7 +283,7 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 
 %files 
 %defattr(0644, root, root, 0755)
-%doc %{license_file} README
+%doc %{license_file} README.md
 
 %attr(0755,root,root) %{_bindir}/mysql-workbench
 %attr(0755,root,root) %{_bindir}/wbcopytables

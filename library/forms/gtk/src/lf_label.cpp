@@ -178,9 +178,6 @@ void mforms::gtk::LabelImpl::set_text_align(::mforms::Label *self, ::mforms::Ali
         x = 1;
         y = 0;
         break;
-      case ::mforms::WizardLabelAlignment:
-        g_message("mforms::WizardLabelAlignment not handled. %s:%i", __FILE__, __LINE__);
-        break;
       case ::mforms::NoAlign:
         break;
     }

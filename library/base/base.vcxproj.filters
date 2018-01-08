@@ -82,7 +82,7 @@
     <ClCompile Include="xml_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SingleWriteMultipleReadLock.cpp">
+    <ClCompile Include="accessibility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -178,7 +178,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="base\SingleWriteMultipleReadLock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\accessibility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

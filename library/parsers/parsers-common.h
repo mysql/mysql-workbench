@@ -1,20 +1,24 @@
 /*
- * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; version 2 of the
- * License.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2.0,
+ * as published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is also distributed with certain software (including
+ * but not limited to OpenSSL) that is licensed under separate terms, as
+ * designated in a particular file or component or in included license
+ * documentation. The authors of MySQL hereby grant you an additional
+ * permission to link the program and your derivative works with the
+ * separately licensed software that they have included with MySQL.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
+ * the GNU General Public License, version 2.0, for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301  USA
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -29,17 +33,16 @@
   #define PARSERS_PUBLIC_TYPE
 #endif
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
 #include <stack>
 #include <vector>
-#endif
+#include <limits>
 
-// Generally used types by the recognizers/scanners, as well as their consumers.
+// Generally used type by the recognizers/scanners, as well as their consumers.
 #undef EOF
 
 // Same as in antlr4-common.h.
-#define INVALID_INDEX (size_t)-1
+#define INVALID_INDEX std::numeric_limits<size_t>::max()
 
 // Identifiers for images used in auto completion lists.
 #define AC_KEYWORD_IMAGE        1
@@ -69,8 +72,7 @@ namespace antlr4 {
 
 namespace parsers {
 
-  struct PARSERS_PUBLIC_TYPE ParserErrorInfo
-  {
+  struct PARSERS_PUBLIC_TYPE ParserErrorInfo {
     std::string message;
     size_t tokenType;
     size_t charOffset; // Offset (in bytes) from the beginning of the input to the error position.
@@ -80,8 +82,7 @@ namespace parsers {
   };
 
   // A token struct to abstract from antlr4 Token class.
-  struct PARSERS_PUBLIC_TYPE ParserToken
-  {
+  struct PARSERS_PUBLIC_TYPE ParserToken {
     // Same as in antlr4::Token.
     static const size_t INVALID_TYPE = 0;
     static const size_t DEFAULT_CHANNEL = 0;
@@ -100,8 +101,7 @@ namespace parsers {
 
     std::string text; // The text of the token.
 
-    ParserToken()
-    {
+    ParserToken() {
       type = INVALID_TYPE;
       line = 0;
       position = 0;
@@ -115,8 +115,7 @@ namespace parsers {
 
   // A grammar independent class to work directly with ANTLR token streams.
   // The original token stream is not modified. We maintain a copy of all token references and act on that.
-  class PARSERS_PUBLIC_TYPE Scanner
-  {
+  class PARSERS_PUBLIC_TYPE Scanner {
   public:
     Scanner(antlr4::BufferedTokenStream *input);
 

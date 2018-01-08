@@ -44,6 +44,7 @@ namespace mforms {
     virtual ~DockingPointDelegate(){};
 
     virtual std::string get_type() = 0;
+    virtual void set_name(const std::string &name) = 0;
     virtual void dock_view(AppView *view, const std::string &arg1, int arg2) = 0;
     virtual bool select_view(AppView *view) = 0;
     virtual void undock_view(AppView *view) = 0;
@@ -66,7 +67,7 @@ namespace mforms {
     friend class AppView; // for set_view_title().
 
   protected:
-    DockingPoint() {
+    DockingPoint() : _delegate(nullptr), _delete_delegate(false) {
     }
 
   public:
@@ -77,6 +78,10 @@ namespace mforms {
     ~DockingPoint();
 
     std::string get_type();
+
+    /** Set component name, used mainly for a11y
+     */
+    void set_name(const std::string &name);
 
     /** Docks an AppView into a view belonging to the application, at the requested position.
 
