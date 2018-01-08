@@ -45,6 +45,7 @@ namespace parsers {
 
     bool isIdentifier(size_t type) const;
     bool isKeyword(size_t type) const;
+    size_t keywordFromText(std::string const& name);
 
     // Scans from the current token position to find out which query type we are dealing with in the input.
     MySQLQueryType determineQueryType();
@@ -76,6 +77,8 @@ namespace parsers {
 
   private:
     std::list<std::unique_ptr<antlr4::Token>> _pendingTokens;
+    std::map<std::string, size_t> _symbols; // A list of all defined symbols for lookup.
+
     std::unique_ptr<antlr4::Token> nextDefaultChannelToken();
     bool skipDefiner(std::unique_ptr<antlr4::Token> &token);
   };

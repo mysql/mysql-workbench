@@ -905,6 +905,35 @@ bool MySQLBaseLexer::isKeyword(size_t type) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Tries to find out if the given text could be a keyword and returns the type.
+ * The problem here is that keywords can be conditionally disabled for certain server versions and lexer tokens in
+ * general rarely have symbol names (read: a simple, fixed sequence of chars). We use a "heuristic" approach here
+ * instead: if the given text corresponds to (the start of) a lexer token rule name we assume it is that token type.
+ */
+size_t MySQLBaseLexer::keywordFromText(std::string const& name) {
+  if (_symbols.empty()) {
+    auto &vocabulary = getVocabulary();
+    size_t max = vocabulary.getMaxTokenType();
+    for (size_t i = 0; i <= max; ++i)
+      _symbols[vocabulary.getSymbolicName(i)] = i;
+  }
+
+  // (My)SQL only uses ASCII chars for keywords so we can do a simple upcase here for comparison.
+  std::string transformed;
+  std::transform(name.begin(), name.end(), std::back_inserter(transformed), ::toupper);
+
+  auto symbol = std::find_if(_symbols.begin(), _symbols.end(), [transformed](std::pair<std::string, size_t> const& s) {
+    return s.first.find(transformed) == 0;
+  });
+
+  if (symbol == _symbols.end())
+    return INVALID_INDEX;
+  return symbol->second;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 bool MySQLBaseLexer::isRelation(size_t type) {
   switch (type) {
     case MySQLLexer::EQUAL_OPERATOR:

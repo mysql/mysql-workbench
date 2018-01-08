@@ -364,14 +364,10 @@ std::string intervalToString(misc::IntervalSet set, size_t maxCount, dfa::Vocabu
   std::vector<ssize_t> symbols = set.toList();
 
   if (symbols.empty()) {
-    return "{}";
+    return "";
   }
 
   std::stringstream ss;
-  if (symbols.size() > 1) {
-    ss << "{";
-  }
-
   bool firstEntry = true;
   maxCount = std::min(maxCount, symbols.size());
   for (size_t i = 0; i < maxCount; ++i) {
@@ -381,7 +377,7 @@ std::string intervalToString(misc::IntervalSet set, size_t maxCount, dfa::Vocabu
     firstEntry = false;
 
     if (symbol < 0) {
-      ss << "no further input";
+      ss << "EOF";
     } else {
       std::string name = vocabulary.getDisplayName(symbol);
       if (name.find("_SYMBOL") != std::string::npos)
@@ -396,10 +392,6 @@ std::string intervalToString(misc::IntervalSet set, size_t maxCount, dfa::Vocabu
   if (maxCount < symbols.size())
     ss << ", ...";
 
-  if (symbols.size() > 1) {
-    ss << "}";
-  }
-
   return ss.str();
 }
 
@@ -410,7 +402,8 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
 
   std::string message;
 
-  Parser *parser = dynamic_cast<Parser *>(recognizer);
+  MySQLParser *parser = dynamic_cast<MySQLParser *>(recognizer);
+  MySQLBaseLexer *lexer = dynamic_cast<MySQLBaseLexer *>(parser->getTokenStream()->getTokenSource());
   bool isEof = offendingSymbol->getType() == Token::EOF;
   if (isEof) {
     // In order to show a good error marker look at the previous token if we are at the input end.
@@ -420,41 +413,62 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
   }
 
   std::string wrongText = offendingSymbol->getText();
+
+  // getExpectedTokens() ignores predicates, so it might include the token for which we got this syntax error,
+  // if that was excluded by a predicate (which in our case is always a version check).
+  // That's a good indicator to tell the user that this keyword is not valid *for the current server version*.
+  misc::IntervalSet expected = parser->getExpectedTokens();
+  bool invalidForVersion = false;
+  size_t tokenType = offendingSymbol->getType();
+  if (tokenType != MySQLLexer::IDENTIFIER && !expected.contains(tokenType))
+    invalidForVersion = true;
+  else {
+    tokenType = lexer->keywordFromText(wrongText);
+    if (expected.contains(tokenType))
+      invalidForVersion = true;
+  }
+
+  if (invalidForVersion) {
+    expected.remove(tokenType);
+  }
+
+  std::string expectedText = intervalToString(expected, 6, parser->getVocabulary());
   if (wrongText[0] != '"' && wrongText[0] != '\'' && wrongText[0] != '`')
     wrongText = "\"" + wrongText + "\"";
-
-  // TODO: currently the expected token set might also contain a symbol that's actually causing this error.
-  //       That happens if this error was triggered by a failing predicate. getExpectedTokens() ignores predicates.
-  misc::IntervalSet expected = parser->getExpectedTokens();
-  std::string expectedText = intervalToString(expected, 6, parser->getVocabulary());
 
   if (ep == nullptr) {
     // Missing or unwanted tokens.
     if (msg.find("missing") != std::string::npos) {
-      std::cout << "missing" << std::endl;
-
-
       if (expected.size() == 1) {
         message = std::string("Expected ") + expectedText + ", but found " + wrongText + " instead";
       }
     } else {
-      message = std::string("Extraneous input ") + wrongText + " found, expecting " + expectedText;
+      message = std::string("Extraneous input ") + wrongText + " found, expecting: " + expectedText;
     }
   } else {
     try {
       std::rethrow_exception(ep);
     } catch (InputMismatchException &) {
       if (isEof)
-        message = "Unexpected end of input found, expecting " + expectedText;
+        message = "Unexpected end of input found";
       else
-        message = wrongText + " is no valid input at this position, expecting " + expectedText;
+        message = wrongText + " is no valid input at this position";
+
+      if (!expectedText.empty())
+        message += ", expecting: " + expectedText;
     } catch (FailedPredicateException &) {
       message = "FailedPredicateException"; // TODO: find a case that throws this.
     } catch (NoViableAltException &) {
       if (isEof)
-        message = "Unexpected end of input found, expecting " + expectedText;
-      else
-        message = wrongText + " is no valid input at this position, expecting " + expectedText;
+        message = "Unexpected end of input found";
+      else {
+        message = wrongText + " is no valid input at this position";
+        if (invalidForVersion)
+          message += " for this server version";
+      }
+
+      if (!expectedText.empty())
+        message += ", expecting: " + expectedText;
     }
   }
 
