@@ -1,4 +1,4 @@
-# Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -234,7 +234,7 @@ class base_module:
     def prepare_new_table(self):
         try:
             
-            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col["type"]) for col in self._mapping])), 1)
+            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col["type"]) for col in self._mapping if col['active'] is True])), 1)
             self.update_progress(0.0, "Prepared new table")
             # wee need to setup dest_col for each row, as the mapping is empty if we're creating new table
             for col in self._mapping:
