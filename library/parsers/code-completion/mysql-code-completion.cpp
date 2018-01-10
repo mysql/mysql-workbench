@@ -1,20 +1,24 @@
 /*
- * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; version 2 of the
- * License.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2.0,
+ * as published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is also distributed with certain software (including
+ * but not limited to OpenSSL) that is licensed under separate terms, as
+ * designated in a particular file or component or in included license
+ * documentation. The authors of MySQL hereby grant you an additional
+ * permission to link the program and your derivative works with the
+ * separately licensed software that they have included with MySQL.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
+ * the GNU General Public License, version 2.0, for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301  USA
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <fstream>
@@ -183,13 +187,14 @@ struct AutoCompletionContext {
       MySQLLexer::PARAM_MARKER,
     };
 
-    // Certain tokens (like identifiers) must be treated as if the char directly following them still belongs to that token
-    // (e.g. a whitespace after a name), because visually the caret is placed between that token and the whitespace creating
-    // the impression we are still at the identifier (and we should show candidates for this identifier position).
-    // Other tokens (like operators) however don't include that position, hence the caret index is one less for them.
+    // Certain tokens (like identifiers) must be treated as if the char directly following them still belongs to that
+    // token (e.g. a whitespace after a name), because visually the caret is placed between that token and the
+    // whitespace creating the impression we are still at the identifier (and we should show candidates for this
+    // identifier position).
+    // Other tokens (like operators) don't need a separator and hence we can take the caret index as is for them.
     size_t caretIndex = scanner.tokenIndex();
-    if (noSeparatorRequiredFor.count(scanner.tokenType()) > 0)
-      ++caretIndex;
+    if (caretIndex > 0 && noSeparatorRequiredFor.count(scanner.lookBack()) == 0)
+      --caretIndex;
 
     c3.showResult = false;
     c3.showDebugOutput = false;
