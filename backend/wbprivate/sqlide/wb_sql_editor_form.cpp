@@ -2674,6 +2674,7 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
                                                base::StringListPtr functions) {
   std::unique_lock<std::mutex> lock(_pimplMutex->_symbolsMutex);
   std::unique_ptr<sql::Statement> statement;
+  RecMutexLock usr_dbc_conn_mutex(ensure_valid_usr_connection());
   if (_usr_dbc_conn->ref.get() != nullptr)
     statement.reset(_usr_dbc_conn->ref.get()->createStatement());
 
