@@ -1,17 +1,18 @@
 include_directories(${LIBXML2_INCLUDE_DIR}
     .
     ./src
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime 
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/parsers   
+    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/generated
     SYSTEM ${Boost_INCLUDE_DIRS}
+    SYSTEM ${ANTLR4_INCLUDE_DIRS}
 )
 
 add_library(db.mysql.parser.grt
     src/mysql_parser_module.cpp
+    src/ObjectListeners.cpp
 )
 
 

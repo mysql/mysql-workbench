@@ -108,7 +108,7 @@ void RoutineGroupEditorBE::delete_routine_with_name(const std::string &str) {
 
   for (size_t i = 0; i < routines.count(); i++) {
     std::string qname = *routines[i]->owner()->name() + "." + *routines[i]->name();
-    if (base::same_string(str, qname, _parser_context->case_sensitive())) {
+    if (base::same_string(str, qname, _parserContext->isCaseSensitive())) {
       AutoUndoEdit undo(this);
       routines.remove(i);
       undo.end(strfmt(_("Remove routine from routine group `%s`.%s`"), get_schema_name().c_str(), get_name().c_str()));
@@ -144,13 +144,13 @@ void RoutineGroupEditorBE::append_routine_with_id(const std::string &id) {
     return;
 
   for (size_t i = 0; i < routines.count(); ++i) {
-    if (base::same_string(id, routines[i].id(), _parser_context->case_sensitive()))
+    if (base::same_string(id, routines[i].id(), _parserContext->isCaseSensitive()))
       return;
   }
 
   routines = get_schema()->routines();
   for (size_t i = 0; i < routines.count(); ++i) {
-    if (base::same_string(id, routines[i].id(), _parser_context->case_sensitive())) {
+    if (base::same_string(id, routines[i].id(), _parserContext->isCaseSensitive())) {
       AutoUndoEdit undo(this);
       get_routine_group()->routines().insert(routines[i]);
       undo.end(strfmt(_("Add routine to routine group `%s`.%s`"), get_schema_name().c_str(), get_name().c_str()));

@@ -48,6 +48,8 @@
 #include "grtui/file_charset_dialog.h"
 #include "grtsqlparser/mysql_parser_services.h"
 
+#include "mysql/MySQLRecognizerCommon.h"
+
 #include <fstream>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
@@ -89,15 +91,14 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   // In opposition to the object editors, each individual sql editor gets an own parser context
   // (and hence an own parser), to allow concurrent and multi threaded work.
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
 
-  parser::MySQLParserContext::Ref context = services->createParserContext(
-    owner->rdbms()->characterSets(), owner->rdbms_version(), owner->lower_case_table_names() != 0);
+  parsers::MySQLParserContext::Ref context = services->createParserContext(
+    owner->rdbms()->characterSets(), owner->rdbms_version(), owner->sql_mode(), owner->lower_case_table_names() != 0);
 
-  _editor = MySQLEditor::create(context, owner->work_parser_context(), grtobj);
-  _editor->sql_check_progress_msg_throttle(
-    bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500) / (double)1000);
-  _editor->set_auto_completion_cache(owner->auto_completion_cache());
+  long version = long(owner->rdbms_version()->majorNumber() * 100 + owner->rdbms_version()->minorNumber());
+  parsers::SymbolTable *functionSymbols = parsers::functionSymbolsForVersion(version);
+  _editor = MySQLEditor::create(context, owner->work_parser_context(), { functionSymbols, owner->databaseSymbols() }, grtobj);
   _editor->set_sql_mode(owner->sql_mode());
   _editor->set_current_schema(owner->active_schema());
   UIForm::scoped_connect(_editor->text_change_signal(), std::bind(&SqlEditorPanel::update_title, this));

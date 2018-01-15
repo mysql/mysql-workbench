@@ -97,7 +97,7 @@ public:
     bec::GRTManager::get()->perform_idle_tasks();
   }
 
-  std::list<std::string> fetch_schema_list() {
+  std::vector<std::string> fetch_schema_list() {
     return _form->get_live_tree()->fetch_schema_list();
   }
 
@@ -119,7 +119,7 @@ public:
 
   /* mock function that will simulate the schema list loading using this thread */
   void tree_refresh() {
-    std::list<std::string> sl = _form->get_live_tree()->fetch_schema_list();
+    std::vector<std::string> sl = _form->get_live_tree()->fetch_schema_list();
     base::StringListPtr schema_list(new std::list<std::string>());
     schema_list->assign(sl.begin(), sl.end());
     _form->get_live_tree()->_schema_tree->update_schemata(schema_list);
@@ -429,13 +429,13 @@ TEST_MODULE(wb_sql_editor_form_test, "sql editor form test");
 
 // Testing fetch_schema_list.
 TEST_FUNCTION(1) {
-  std::list<std::string> schema_list = form_tester->fetch_schema_list();
+  std::vector<std::string> schema_list = form_tester->fetch_schema_list();
 
   ensure("TF001CHK001: Unexpected number of schemas retrieved", schema_list.size() > 0);
 
   bool found = false;
 
-  std::list<std::string>::iterator index, end = schema_list.end();
+  std::vector<std::string>::iterator index, end = schema_list.end();
   for (index = schema_list.begin(); !found && index != end; index++)
     found = (*index) == "wb_sql_editor_form_test";
 

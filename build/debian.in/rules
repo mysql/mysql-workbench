@@ -1,19 +1,25 @@
 #!/usr/bin/make -f
 
-# Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; version 2 of the License.
+# it under the terms of the GNU General Public License, version 2.0,
+# as published by the Free Software Foundation.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# This program is also distributed with certain software (including
+# but not limited to OpenSSL) that is licensed under separate terms, as
+# designated in a particular file or component or in included license
+# documentation.  The authors of MySQL hereby grant you an additional
+# permission to link the program and your derivative works with the
+# separately licensed software that they have included with MySQL.
+# This program is distributed in the hope that it will be useful,  but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+# the GNU General Public License, version 2.0, for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
 
 # -*- makefile -*-
 # Sample debian/rules that uses debhelper.
@@ -35,7 +41,7 @@ endif
 LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
 
 ifndef ANTLR_JAR_PATH
-ANTLR_JAR_PATH=$(LINUXRES_HOME)/bin/antlr-3.4-complete.jar
+ANTLR_JAR_PATH=$(LINUXRES_HOME)/bin/antlr-4.7.1-complete.jar
 endif
 
 ifndef BOOST_ROOT
@@ -44,6 +50,7 @@ endif
 
 ODBC_HOME=$(LINUXRES_BINARIES)/odbc
 PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
+ANTLR_HOME=$(LINUXRES_BINARIES)/antlr
 
 @ifdef community
 SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite-gpl
@@ -76,7 +83,6 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	CXXFLAGS="-std=c++11 $(CXXFLAGS)" \
-	ANTLR_JAR_PATH=$(ANTLR_JAR_PATH) \
 	BOOST_ROOT=$(BOOST_ROOT) \
 	cmake . \
 	  -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
@@ -92,7 +98,10 @@ configure-stamp:
 	  -DIODBC_INCLUDE_PATH=$(ODBC_HOME)/include \
 	  -DIODBC_LIBRARIES_PATH=$(ODBC_HOME)/lib \
 	  -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
-	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" 
+	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
+	  -DANTLR4_INCLUDE_DIR=$(ANTLR_HOME)/include \
+	  -DANTLR4_LIBRARIES="-L$(ANTLR_HOME)/lib -lantlr-runtime" \
+	  -DWITH_ANTLR_JAR=${ANTLR_JAR_PATH}
 
 	touch configure-stamp
 
@@ -133,6 +142,7 @@ install: build
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(PYODBC_HOME)/pyodbc.so              $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.*    $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(ANTLR_HOME)/lib/libantlr4-runtime.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(GDAL_HOME)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(SQLITE_HOME)/lib/libsqlite3.so*     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)

@@ -30,6 +30,7 @@ typedef int ssize_t;
 #endif
 
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
 #include <winsock2.h>
 
@@ -54,7 +55,7 @@ typedef int ssize_t;
 #include <iosfwd>
 #include <fstream>
 #include <iomanip>
-
+#include <mutex>
 
 #define HAVE_ROUND
 #include <Python/Python.h>
@@ -68,8 +69,6 @@ typedef int ssize_t;
 #include <cairo/cairo-svg.h>
 
 #include <gl/gl.h>
-
-#include <antlr3.h>
 
 #include "grts/structs.h"
 #include "grts/structs.app.h"

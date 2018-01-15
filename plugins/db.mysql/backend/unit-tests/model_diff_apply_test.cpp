@@ -148,8 +148,10 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(model_diff_apply, "db.mysql plugin test");
 
-db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(const std::string& sql) {
-  db_mysql_CatalogRef cat = create_empty_catalog_for_import();
+
+db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(
+  const std::string& sql) {
+  db_mysql_CatalogRef cat= createEmptyCatalog();
   sql_parser->parseSqlScriptString(cat, sql);
   return cat;
 }

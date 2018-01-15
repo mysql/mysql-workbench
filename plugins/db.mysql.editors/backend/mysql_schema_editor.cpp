@@ -46,7 +46,7 @@ void MySQLSchemaEditorBE::refactor_catalog_upon_schema_rename(const std::string 
     bec::AutoUndoEdit undo(this);
 
     db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(get_catalog());
-    _parser_services->renameSchemaReferences(_parser_context, catalog, old_name, new_name);
+    _parserServices->renameSchemaReferences(_parserContext, catalog, old_name, new_name);
 
     undo.end(base::strfmt(_("Update references to schema: `%s` -> `%s`"), old_name.c_str(), new_name.c_str()));
   } catch (std::exception &exc) {
@@ -68,7 +68,7 @@ void MySQLSchemaEditorBE::refactor_catalog() {
       from_name = _initial_name;
 
     db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(get_catalog());
-    _parser_services->renameSchemaReferences(_parser_context, catalog, from_name, to_name);
+    _parserServices->renameSchemaReferences(_parserContext, catalog, from_name, to_name);
 
     get_schema()->customData().set("LastRefactoringTargetName", grt::StringRef(to_name));
 

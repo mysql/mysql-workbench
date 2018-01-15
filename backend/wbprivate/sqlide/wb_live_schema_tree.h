@@ -343,7 +343,7 @@ namespace wb {
       NodeChildrenUpdaterSlot;
 
     struct FetchDelegate {
-      virtual std::list<std::string> fetch_schema_list() = 0;
+      virtual std::vector<std::string> fetch_schema_list() = 0;
       virtual bool fetch_data_for_filter(const std::string&, const std::string&,
                                          const NewSchemaContentArrivedSlot&) = 0;
       virtual bool fetch_schema_contents(const std::string&, const NewSchemaContentArrivedSlot&) = 0;

@@ -82,12 +82,6 @@ xcopy /i /s /y /d %RES_DIR%\grtdata\*.xml %TARGET_DIR%\data\. 1> nul 2> nul
 xcopy /i /s /y /d %RES_DIR%\wbdata\*.xml %TARGET_DIR%\data\. 1> nul 2> nul
 xcopy /i /s /y /d %RES_DIR%\wbdata\data.db %TARGET_DIR%\data\. 1> nul 2> nul
 
-echo Copy parser grammar + support files
-xcopy /i /s /y /d %LIBRARY_DIR%\parsers\MySQL.tokens %TARGET_DIR%\data 1> nul 2> nul
-xcopy /i /s /y /d %LIBRARY_DIR%\parsers\MySQLSimpleParser.tokens %TARGET_DIR%\data 1> nul 2> nul
-xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\MySQL.g %TARGET_DIR%\data 1> nul 2> nul
-xcopy /i /s /y /d %LIBRARY_DIR%\parsers\grammars\MySQLSimpleParser.g %TARGET_DIR%\data 1> nul 2> nul
-
 if not exist %TARGET_DIR%\mysql.profiles mkdir %TARGET_DIR%\mysql.profiles
 copy %RES_DIR%\mysql.profiles\*.xml %TARGET_DIR%\mysql.profiles\. 1> nul 2> nul
 
@@ -149,6 +143,9 @@ xcopy /i /s /y /d %EXT_LIB_DIR%\libxml\libiconv.dll %TARGET_DIR%\.
 echo * zlib + libzip libraries ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\zlib\%2\zlib.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_LIB_DIR%\libzip\%2\libzip.dll %TARGET_DIR%\.
+
+echo * ANTLR4 runtime lib ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\antlr4-runtime\%2\antlr4-runtime.dll %TARGET_DIR%\.
 
 rem =========== Python ============================
 

@@ -37,15 +37,18 @@
 #include "sqlide/sql_editor_be.h"
 #include "db_helpers.h"
 
+#include "mysql/MySQLRecognizerCommon.h"
+
 const char *DEFAULT_CHARSET_CAPTION = "Default Charset";
 const char *DEFAULT_COLLATION_CAPTION = "Default Collation";
 
 using namespace bec;
-using namespace parser;
+using namespace parsers;
 
 //--------------------------------------------------------------------------------------------------
 
-DBObjectEditorBE::DBObjectEditorBE(const db_DatabaseObjectRef &object) : BaseEditor(object) {
+DBObjectEditorBE::DBObjectEditorBE(const db_DatabaseObjectRef &object)
+: BaseEditor(object) {
   _ignored_object_fields_for_ui_refresh.insert("lastChangeDate");
 
   // Get the owning catalog.
@@ -55,7 +58,7 @@ DBObjectEditorBE::DBObjectEditorBE(const db_DatabaseObjectRef &object) : BaseEdi
 
   _catalog = db_CatalogRef::cast_from(run);
 
-  _parser_services = MySQLParserServices::get();
+  _parserServices = MySQLParserServices::get();
   bool case_sensitive = true;
   if (object->customData().get_int("CaseSensitive", 1) == 0)
     case_sensitive = false;
@@ -64,17 +67,17 @@ DBObjectEditorBE::DBObjectEditorBE(const db_DatabaseObjectRef &object) : BaseEdi
   GrtVersionRef version = get_catalog()->version();
   if (!version.is_valid())
     version = bec::parse_version("5.5.1");
-  _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
+  _globalSymbols = parsers::functionSymbolsForVersion(bec::version_to_int(version));
 
+  std::string sqlMode;
   if (object->customData().has_key("sqlMode"))
-    _parser_context->use_sql_mode(object->customData().get_string("sqlMode"));
+    sqlMode = object->customData().get_string("sqlMode");
+  _parserContext =
+    _parserServices->createParserContext(get_catalog()->characterSets(), version, sqlMode, case_sensitive);
 
-  // Because syntax checks and auto completion are done in different threads we need 2 different parser.
-  // With the refactoring of the auto completion code this second parser will go.
-  _autocompletion_context =
-    _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
-  if (object->customData().has_key("sqlMode"))
-    _autocompletion_context->use_sql_mode(object->customData().get_string("sqlMode"));
+  // Because syntax checks and auto completion are done in different threads we need 2 different parser contexts.
+  _autocompletionContext =
+    _parserServices->createParserContext(get_catalog()->characterSets(), version, sqlMode, case_sensitive);
 
   _val_notify_conn = ValidationManager::signal_notify()->connect(
     std::bind(&DBObjectEditorBE::notify_from_validation, this, std::placeholders::_1, std::placeholders::_2,
@@ -104,8 +107,8 @@ void DBObjectEditorBE::handle_grt_notification(const std::string &name, grt::Obj
     if (name == "GRNPreferencesDidClose") {
       // We want to see changes for the server version.
       GrtVersionRef version = get_catalog()->version();
-      _parser_context->use_server_version(version);
-      get_sql_editor()->set_server_version(version);
+      _parserContext->updateServerVersion(version);
+      get_sql_editor()->setServerVersion(version);
     }
   }
 }
@@ -422,14 +425,12 @@ std::vector<std::string> DBObjectEditorBE::get_charset_list() {
 
     result.push_back(cs_name);
   }
-  
+
   result.push_back(DEFAULT_CHARSET_CAPTION);
   std::sort(result.begin(), result.end());
 
   return result;
-  
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
@@ -441,17 +442,16 @@ std::vector<std::string> DBObjectEditorBE::get_charset_collation_list(const std:
     db_CharacterSetRef cs = charsets.get(j);
     if (cs->name() != charset)
       continue;
-    
+
     grt::StringListRef collations(cs->collations());
     for (size_t k = 0; k < collations.count(); ++k) {
       result.push_back(collations.get(k));
     }
-    
   }
-  
+
   result.push_back(DEFAULT_COLLATION_CAPTION);
   std::sort(result.begin(), result.end());
-  
+
   return result;
 }
 //--------------------------------------------------------------------------------------------------
@@ -517,7 +517,7 @@ bool DBObjectEditorBE::has_editor() {
 
 MySQLEditor::Ref DBObjectEditorBE::get_sql_editor() {
   if (!_sql_editor) {
-    _sql_editor = MySQLEditor::create(_parser_context, _autocompletion_context);
+    _sql_editor = MySQLEditor::create(_parserContext, _autocompletionContext, { _globalSymbols });
     grt::DictRef obj_options = get_dbobject()->customData();
     if (obj_options.has_key("sqlMode"))
       _sql_editor->set_sql_mode(obj_options.get_string("sqlMode"));

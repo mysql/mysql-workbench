@@ -30,6 +30,7 @@
 using namespace System::Runtime::InteropServices;
 
 #include <glib.h>
+#include <stack>
 
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"

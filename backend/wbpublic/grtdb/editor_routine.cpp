@@ -40,10 +40,13 @@ RoutineEditorBE::RoutineEditorBE(const db_RoutineRef &routine) : DBObjectEditorB
 std::string RoutineEditorBE::get_sql() {
   std::string sql = DBObjectEditorBE::get_sql();
   if (sql.empty()) {
-    std::string routine_type = get_routine()->routineType();
+    std::string routineType = get_routine()->routineType();
 
-    if (routine_type == "function")
+    if (routineType == "function")
       return "CREATE FUNCTION `" + get_name() + "` ()\nRETURNS INTEGER\nBEGIN\n\nRETURN 1;\nEND\n";
+
+    if (routineType == "udf")
+      return "CREATE FUNCTION `" + get_name() + "` ()\nRETURNS INTEGER SONAME \"soname\"\n";
 
     return "CREATE PROCEDURE `" + get_name() + "` ()\nBEGIN\n\nEND\n";
   }

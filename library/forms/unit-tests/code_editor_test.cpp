@@ -68,8 +68,6 @@ TEST_FUNCTION(1) {
   ensure("Other keyword list empty", !keywords["Keywords"].empty());
   ensure("Procedure keyword list missing", keywords.find("Procedure keywords") != keywords.end());
   ensure("Procedure keyword list empty", !keywords["Procedure keywords"].empty());
-  ensure("Functions keyword list missing", keywords.find("Functions") != keywords.end());
-  ensure("Functions keyword list empty", !keywords["Functions"].empty());
   ensure("User keyword list 1 missing", keywords.find("User Keywords 1") != keywords.end());
   ensure("User keyword list 1 empty", !keywords["User Keywords 1"].empty());
 

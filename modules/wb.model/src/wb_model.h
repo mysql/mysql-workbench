@@ -55,7 +55,7 @@ public:
                      DECLARE_MODULE_FUNCTION(WbModelImpl::expandAllObjects),
                      DECLARE_MODULE_FUNCTION(WbModelImpl::collapseAllObjects));
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo();
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override;
 
   int center(model_DiagramRef view);
   int autolayout(model_DiagramRef view);
@@ -69,13 +69,13 @@ public:
   int collapseAllObjects(model_DiagramRef view);
 
   // Model Reporting
-  virtual ssize_t getAvailableReportingTemplates(grt::StringListRef templates);
+  virtual ssize_t getAvailableReportingTemplates(grt::StringListRef templates) override;
 
-  virtual std::string getTemplateDirFromName(const std::string &template_name);
+  virtual std::string getTemplateDirFromName(const std::string &template_name) override;
 
-  virtual workbench_model_reporting_TemplateInfoRef getReportingTemplateInfo(const std::string &template_name);
+  virtual workbench_model_reporting_TemplateInfoRef getReportingTemplateInfo(const std::string &template_name) override;
 
-  virtual ssize_t generateReport(workbench_physical_ModelRef model, const grt::DictRef &options);
+  virtual ssize_t generateReport(workbench_physical_ModelRef model, const grt::DictRef &options) override;
 
 private:
   void initializeReporting();

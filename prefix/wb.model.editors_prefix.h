@@ -27,6 +27,8 @@
 
 #ifdef __cplusplus
 
+#include <stack>
+
 #include "grts/structs.db.mysql.h"
 
 #endif

@@ -120,18 +120,11 @@ backend/wbpublic/wbpublic.be.sdf
 xcuserdata
 *.xcworkspace
 plugins/migration/doc/_*
-ext/antlr-runtime/m4/*
-ext/antlr-runtime/compile
 m4
 log
-antlr3config.h
-antlr3config.h.in
-include/antlr3config.h
 parser-opt
 wb_config.h
-library/mysql-parser/grammar/output
 DerivedData
-ext/mysql-utilities/scripts/mysqluc
 _build
 _build/*
 mysqlauditadmin
@@ -146,9 +139,6 @@ cairo_wrap.cxx
 mforms.py
 mforms_wrap.cxx
 library/sql-parser/source/windows/myx_sql_parser.output
-MySQLLexer.*
-MySQLParser.*
-MySQLSimpleParser.*
 build/msi/distribution/
 build/zip/distribution/
 *.wixpdb
@@ -165,6 +155,8 @@ wb-build/
 library/parsers/ECMAParser.*
 library/parsers/ECMALexer.*
 library/parsers/ECMA.tokens
+library/parsers/mysql/MySQLParser*
+library/parsers/mysql/MySQLLexer*
 
 testing/tut/data/code_editor.xml
 testing/tut/data/connections.xml
@@ -204,6 +196,7 @@ testing/tut/temp
 testing/tut/wbdata
 testing/tut/output
 wb-build
+library/parsers/antlr
 .vscode
 *.[Vv][Cc].db
 *.[Vv][Cc].opendb

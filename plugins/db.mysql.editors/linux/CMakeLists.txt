@@ -14,6 +14,7 @@ set(MODULE_DATA_FILES
 install(FILES ${MODULE_DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/modules/data)
 
 include_directories(.
+    ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/backend/wbprivate
@@ -25,6 +26,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
     ${PROJECT_SOURCE_DIR}/library/sql-parser/source
     ${PROJECT_SOURCE_DIR}/library/parsers
+    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/frontend/linux
@@ -32,10 +34,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
     ${PROJECT_SOURCE_DIR}/frontend/linux/sqlide
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
     SYSTEM ${GTK3_INCLUDE_DIRS}
     SYSTEM ${CAIRO_INCLUDE_DIRS}
     SYSTEM ${SIGC++_INCLUDE_DIRS}

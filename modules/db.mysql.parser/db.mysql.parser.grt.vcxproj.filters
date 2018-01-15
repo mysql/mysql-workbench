@@ -19,11 +19,17 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\ObjectListeners.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\mysql_parser_module.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="src\ObjectListeners.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

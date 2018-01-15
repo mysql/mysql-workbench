@@ -26,28 +26,29 @@
 #include "grt.h"
 #include "grtsqlparser/mysql_parser_services.h"
 
-using namespace parser;
+using namespace parsers;
 
 // Contains tests for the parser module implementing the ANTLR based parser services.
 // Many of the APIs are also used in other tests.
 
 BEGIN_TEST_DATA_CLASS(mysql_parser_module_tests)
 protected:
-WBTester *_tester;
-MySQLParserServices::Ref _services;
-MySQLParserContext::Ref _context;
+  WBTester *_tester;
+  MySQLParserServices::Ref _services;
+  MySQLParserContext::Ref _context;
 
-TEST_DATA_CONSTRUCTOR(mysql_parser_module_tests) {
-  _tester = new WBTester();
-  populate_grt(*_tester);
+  TEST_DATA_CONSTRUCTOR(mysql_parser_module_tests)
+  {
+    _tester = new WBTester();
+    populate_grt(*_tester);
 
-  _services = MySQLParserServices::get();
-  GrtVersionRef version(grt::Initialized);
-  version->majorNumber(5);
-  version->minorNumber(7);
-  version->releaseNumber(10);
-  _context = MySQLParserServices::createParserContext(_tester->get_rdbms()->characterSets(), version, true);
-}
+    _services = MySQLParserServices::get();
+    GrtVersionRef version(grt::Initialized);
+    version->majorNumber(5);
+    version->minorNumber(7);
+    version->releaseNumber(10);
+    _context = MySQLParserServices::get()->createParserContext(_tester->get_rdbms()->characterSets(), version, "", true);
+  }
 
 END_TEST_DATA_CLASS
 
@@ -57,30 +58,32 @@ TEST_MODULE(mysql_parser_module_tests, "parser module tests");
 // Each test function tests a group of statements from the grammar, as listed in the top rule.
 // Not all query types are implemented in parseStatement. So most of the functions are empty atm.
 
-// alter_statement
-TEST_FUNCTION(5) {
+// alterStatement
+TEST_FUNCTION(5)
+{
 }
 
-// create_statement
-// drop_statement
-// rename_table_statement
-// truncate_table_statement
-// call_statement
-// delete_statement
-// do_statement
-// handler_statement
-// insert_statement
-// load_statement
-// replace_statement
-// select_statement
-// update_statement
+// createStatement
+// dropStatement
+// renameTableStatement
+// truncateTableStatement
+// callStatement
+// deleteStatement
+// doStatement
+// handlerStatement
+// insertStatement
+// loadStatement
+// replaceStatement
+// selectStatement
+// updateStatement
 // partitioning
-// transaction_or_locking_statement
-// replication_statement
-// prepared_statement
+// transactionOrLockingStatement
+// replicationStatement
+// preparedStatement
 
-// account_management_statement
-TEST_FUNCTION(95) {
+// accountManagementStatement
+TEST_FUNCTION(95)
+{
   // ----- Grant statements.
   grt::DictRef result = _services->parseStatement(_context, "grant all privileges on table a to current_user");
   grt::StringListRef privileges = grt::StringListRef::cast_from(result["privileges"]);
@@ -95,8 +98,7 @@ TEST_FUNCTION(95) {
   ensure("95.6", user.has_key("user"));
   ensure_equals("95.7", *grt::StringRef::cast_from(user["user"]), "current_user");
 
-  result = _services->parseStatement(
-    _context, "grant all privileges on table *.* to CURRENT_USER() identified by password 'blah'");
+  result = _services->parseStatement(_context, "grant all privileges on table *.* to CURRENT_USER() identified by password 'blah'");
   privileges = grt::StringListRef::cast_from(result["privileges"]);
   ensure("95.8", privileges.is_valid());
   ensure_equals("95.9", *grt::StringRef::cast_from(privileges[0]), "all privileges");
@@ -152,13 +154,11 @@ TEST_FUNCTION(95) {
   ensure_equals("95.38", user.count(), 1UL);
 
   // Everything possible in a grant statements.
-  std::string sql = base::wstring_to_string(
-    L"grant insert (a), insert (b), insert(c), update(a), "
+  std::string sql = base::wstring_to_string(L"grant insert (a), insert (b), insert(c), update(a), "
     L"alter routine, create routine, "
     L"create tablespace, create\t\t\t temporary      tables, create user, create view, delete, drop, event, "
     L"execute, file, grant option, index, insert, insert (a, b, c, d, ⌚️, ♨️), lock tables, process, proxy, "
-    L"references (a, b, c, d, ⌚️, ♨️), reload, replication client, select, select (a, b, c, d, ⌚️, "
-    L"♨️), "
+    L"references (a, b, c, d, ⌚️, ♨️), reload, replication client, select, select (a, b, c, d, ⌚️, ♨️), "
     L"show databases, show view, shutdown, super, trigger, update, update (a, b, c, d, ⌚️, ♨️), usage "
     L"on *.* to current_user, CURRENT_USER() identified by password 'blah', mike identified with 'blah' by 'blubb', "
     L"mike@home require cipher 'abc' and cipher 'xyz' issuer 'a' subject 'b' and issuer '⌚️' with "
@@ -171,8 +171,7 @@ TEST_FUNCTION(95) {
   ensure_equals("95.41", *grt::StringRef::cast_from(privileges[7]), "create temporary tables");
   ensure_equals("95.42", *grt::StringRef::cast_from(privileges[11]), "drop");
   ensure_equals("95.43", *grt::StringRef::cast_from(privileges[15]), "grant option");
-  ensure_equals("95.44", *grt::StringRef::cast_from(privileges[18]),
-                base::wstring_to_string(L"insert (a, b, c, d, ⌚️, ♨️)"));
+  ensure_equals("95.44", *grt::StringRef::cast_from(privileges[18]), base::wstring_to_string(L"insert (a, b, c, d, ⌚️, ♨️)"));
   ensure_equals("95.45", *grt::StringRef::cast_from(privileges[27]), "show databases");
 
   ensure_equals("95.46", *grt::StringRef::cast_from(result["target"]), "*.*");
@@ -199,18 +198,21 @@ TEST_FUNCTION(95) {
   ensure_equals("95.59", requirements.count(), 3UL);
   ensure_equals("95.60", *grt::StringRef::cast_from(requirements["cipher"]), "xyz");
   ensure_equals("95.61", *grt::StringRef::cast_from(requirements["issuer"]), base::wstring_to_string(L"⌚️"));
+
 }
 
-// table_administration_statement
+// table_administrationStatement
 // install_uninstall_statment
-// set_statement
-// show_statement
-// other_administrative_statement
-// utility_statement
+// setStatement
+// showStatement
+// other_administrativeStatement
+// utilityStatement
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
-TEST_FUNCTION(99) {
+TEST_FUNCTION(99)
+{
+  _context.reset();
   delete _tester;
 }
 

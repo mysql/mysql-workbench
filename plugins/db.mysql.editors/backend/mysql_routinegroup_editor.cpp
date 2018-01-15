@@ -59,7 +59,7 @@ void MySQLRoutineGroupEditorBE::commit_changes() {
       AutoUndoEdit undo(this, _routine_group, "sql");
 
       freeze_refresh_on_object_change();
-      _parser_services->parseRoutines(_parser_context, _routine_group, sql);
+      _parserServices->parseRoutines(_parserContext, _routine_group, sql);
       thaw_refresh_on_object_change();
 
       undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(),
@@ -79,7 +79,7 @@ void MySQLRoutineGroupEditorBE::use_sql(const std::string& sql) {
   AutoUndoEdit undo(this, _routine_group, "sql");
 
   freeze_refresh_on_object_change();
-  _parser_services->parseRoutines(_parser_context, _routine_group, sql);
+  _parserServices->parseRoutines(_parserContext, _routine_group, sql);
   thaw_refresh_on_object_change();
 
   undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(),

@@ -25,14 +25,13 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
-#include <antlr3.h>
-
 #ifdef __cplusplus
 
 #include <string>
 #include <sstream>
 #include <vector>
 #include <list>
+#include <stack>
 #include <iomanip>
 
 #include <glib.h>

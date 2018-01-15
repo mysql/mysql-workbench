@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  *
@@ -53,19 +54,24 @@ namespace mforms {
   class DropDelegate;
 };
 
-class MySQLObjectNamesCache;
 class MySQLRecognizer;
+
+namespace parsers {
+  class SymbolTable;
+}
 
 /**
  * The legacy MySQL editor class.
  */
-
 class WBPUBLICBACKEND_PUBLIC_FUNC MySQLEditor : public base::trackable {
 public:
   enum ContentType {
     ContentTypeGeneral,
     ContentTypeTrigger,
     ContentTypeView,
+    ContentTypeFunction,
+    ContentTypeProcedure,
+    ContentTypeUdf,
     ContentTypeRoutine,
     ContentTypeEvent,
   };
@@ -73,8 +79,9 @@ public:
   typedef std::shared_ptr<MySQLEditor> Ref;
   typedef std::weak_ptr<MySQLEditor> Ptr;
 
-  static Ref create(parser::MySQLParserContext::Ref syntax_check_context,
-                    parser::MySQLParserContext::Ref autocopmlete_context,
+  static Ref create(parsers::MySQLParserContext::Ref syntaxCheckContext,
+                    parsers::MySQLParserContext::Ref autocompleteContext,
+                    std::vector<parsers::SymbolTable *> const &globalSymbols,
                     db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
 
   virtual ~MySQLEditor();
@@ -87,7 +94,6 @@ public:
   mforms::ToolBar *get_toolbar(bool include_file_actions = true);
   mforms::CodeEditor *get_editor_control();
   mforms::FindPanel *get_find_panel();
-  mforms::CodeEditorConfig *get_editor_settings();
 
   void show_special_chars(bool flag);
   void enable_word_wrap(bool flag);
@@ -118,10 +124,9 @@ public:
   bool is_sql_check_enabled() const;
   void set_sql_check_enabled(bool val);
 
-  void show_auto_completion(bool auto_choose_single, parser::MySQLParserContext::Ref parser_context);
+  void show_auto_completion(bool auto_choose_single, parsers::MySQLParserContext::Ref parser_context);
   std::vector<std::pair<int, std::string>> update_auto_completion(const std::string &typed_part);
   void cancel_auto_completion();
-  void set_auto_completion_cache(MySQLObjectNamesCache *cache);
 
   std::string selected_text();
   void set_selected_text(const std::string &new_text);
@@ -129,28 +134,23 @@ public:
 
   boost::signals2::signal<void()> *text_change_signal();
 
-  std::string sql_mode() {
-    return _sql_mode;
-  };
+  std::string sql_mode();
   void set_sql_mode(const std::string &value);
-  void set_server_version(GrtVersionRef version);
+  void setServerVersion(GrtVersionRef version);
 
   void restrict_content_to(ContentType type);
 
   bool has_sql_errors() const;
 
-  void sql_check_progress_msg_throttle(double val);
   void stop_processing();
 
   void focus();
 
   void register_file_drop_for(mforms::DropDelegate *target);
 
-  void set_continue_on_error(bool value);
-
 protected:
-  MySQLEditor(parser::MySQLParserContext::Ref syntax_check_context,
-              parser::MySQLParserContext::Ref autocopmlete_context);
+  MySQLEditor(parsers::MySQLParserContext::Ref syntaxCheckContext,
+              parsers::MySQLParserContext::Ref autocompleteContext);
 
 private:
   class Private;
@@ -170,7 +170,6 @@ private:
   void setup_editor_menu();
   void editor_menu_opening();
   void activate_context_menu_item(const std::string &name);
-  void create_editor_config_for_version(GrtVersionRef version);
 
   bool start_sql_processing();
   bool do_statement_split_and_check(int id); // Run in worker thread.
@@ -185,17 +184,4 @@ private:
   bool code_completion_enabled();
   bool auto_start_code_completion();
   bool make_keywords_uppercase();
-
-  // Entries determined the last time we started auto completion. The actually shown list
-  // is derived from these entries filtered by the current input.
-  std::vector<std::pair<int, std::string>> _auto_completion_entries;
-  MySQLObjectNamesCache *_auto_completion_cache;
-
-  mforms::CodeEditor *_code_editor;
-  mforms::CodeEditorConfig *_editor_config;
-
-  std::string _current_schema;
-
-  std::string _sql_mode;
-  bool _continueOnError;
 };

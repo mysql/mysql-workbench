@@ -82,12 +82,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\antlr4-runtime;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\antlr4-runtime\$(Configuration)\antlr4-runtime.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -98,12 +99,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\antlr4-runtime;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\antlr4-runtime\$(Configuration)\antlr4-runtime.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -114,12 +116,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\antlr4-runtime;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\antlr4-runtime\$(Configuration)\antlr4-runtime.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -127,10 +130,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\mysql_parser_module.h" />
+    <ClInclude Include="src\ObjectListeners.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\mysql_parser_module.cpp" />
+    <ClCompile Include="src\ObjectListeners.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

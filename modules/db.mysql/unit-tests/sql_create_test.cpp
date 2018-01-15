@@ -34,13 +34,13 @@
 
 #include "grtsqlparser/mysql_parser_services.h"
 
-BEGIN_TEST_DATA_CLASS(sql_create)
+BEGIN_TEST_DATA_CLASS(sql_create_test)
 protected:
 WBTester *tester;
 SQLGeneratorInterfaceImpl *diffsql_module;
 sql::ConnectionWrapper connection;
 
-TEST_DATA_CONSTRUCTOR(sql_create) {
+TEST_DATA_CONSTRUCTOR(sql_create_test) {
   tester = new WBTester;
   diffsql_module = NULL;
 
@@ -55,15 +55,15 @@ TEST_DATA_CONSTRUCTOR(sql_create) {
   connection = tester->create_connection_for_import();
 }
 
-TEST_DATA_DESTRUCTOR(sql_create) {
+TEST_DATA_DESTRUCTOR(sql_create_test) {
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  std::string script = "DROP SCHEMA IF EXISTS `A` ; DROP SCHEMA IF EXISTS `B` ;";
-  execute_script(stmt.get(), script);
+  stmt->execute("DROP SCHEMA IF EXISTS `A`;");
+  stmt->execute("DROP SCHEMA IF EXISTS `B`;");
 }
 
 END_TEST_DATA_CLASS
 
-TEST_MODULE(sql_create, "sql create");
+TEST_MODULE(sql_create_test, "sql create");
 
 // Test if sql generated for synthetic model is valid.
 TEST_FUNCTION(10) {
@@ -107,6 +107,7 @@ TEST_FUNCTION(10) {
   std::string export_sql_script = options.get_string("OutputScript");
   ensure("DROP TABLE missing in generated sql",
          export_sql_script.find("DROP TABLE IF EXISTS `test_schema`.`t1`") != std::string::npos);
+
   execute_script(stmt.get(), export_sql_script);
 }
 
@@ -493,10 +494,10 @@ TEST_FUNCTION(70) {
 
   catalog->schemata()[0]->name("sakila_test");
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   GrtVersionRef version = bec::parse_version("5.6.0");
-  parser::MySQLParserContext::Ref context =
-    services->createParserContext(tester->get_rdbms()->characterSets(), version, false);
+  parsers::MySQLParserContext::Ref context =
+    services->createParserContext(tester->get_rdbms()->characterSets(), version, "", false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
 
   cmp.init_omf(&omf);
@@ -547,4 +548,4 @@ TEST_FUNCTION(99) {
   delete tester;
 }
 
-END_TESTS
+END_TESTS 

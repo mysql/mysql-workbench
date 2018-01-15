@@ -29,6 +29,8 @@
 #include <string>
 
 typedef grt::ListRef<db_CharacterSet> GrtCharacterSetsRef;
+typedef grt::ListRef<db_SimpleDatatype> SimpleDatatypeListRef;
+typedef grt::ListRef<db_UserDatatype> UserDatatypeListRef;
 
 namespace bec {
   std::string WBPUBLICBACKEND_PUBLIC_FUNC get_host_identifier_for_connection(const db_mgmt_ConnectionRef &connection);

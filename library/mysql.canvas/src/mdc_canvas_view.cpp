@@ -63,7 +63,6 @@ struct CanvasAutoLock {
 };
 
 CanvasView::CanvasView(int width, int height) : _fps(0), _total_item_cache_mem(0), _last_click_info(3) {
-  base::threading_init();
 
   _page_size = Size(2000, 1500);
   _x_page_num = 1;

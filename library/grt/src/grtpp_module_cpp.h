@@ -326,29 +326,28 @@ namespace grt {
   }
 
 // this must be put in the public section of the modules class
-#define DEFINE_INIT_MODULE(VERSION, AUTHOR, parent_class, first_function, ...)                                 \
-  virtual void init_module() {                                                                                 \
-    set_name(grt::get_type_name(typeid(*this)));                                                               \
-    _meta_version = VERSION;                                                                                   \
-    _meta_author = AUTHOR;                                                                                     \
-    _extends = typeid(parent_class) == typeid(grt::CPPModule) ? "" : grt::get_type_name(typeid(parent_class)); \
-    if (g_str_has_suffix(_extends.c_str(), "Impl"))                                                            \
-      _extends = _extends.substr(0, _extends.length() - 4);                                                    \
-    register_functions(first_function, __VA_ARGS__, NULL);                                                     \
-    initialization_done();                                                                                     \
+#define DEFINE_INIT_MODULE(VERSION, AUTHOR, parent_class, first_function, ...)\
+  virtual void init_module() override \
+  {\
+    set_name(grt::get_type_name(typeid(*this)));\
+    _meta_version= VERSION; _meta_author= AUTHOR;\
+    _extends= typeid(parent_class) == typeid(grt::CPPModule) ? "" : grt::get_type_name(typeid(parent_class));\
+    if (g_str_has_suffix(_extends.c_str(), "Impl"))\
+      _extends= _extends.substr(0, _extends.length()-4);\
+    register_functions(first_function, __VA_ARGS__, NULL);\
+    initialization_done();\
   }
 
-#define DEFINE_INIT_MODULE_DOC(VERSION, AUTHOR, DOC, parent_class, first_function, ...)                        \
-  virtual void init_module() {                                                                                 \
-    set_name(grt::get_type_name(typeid(*this)));                                                               \
-    _meta_version = VERSION;                                                                                   \
-    _meta_author = AUTHOR;                                                                                     \
-    _meta_description = DOC;                                                                                   \
-    _extends = typeid(parent_class) == typeid(grt::CPPModule) ? "" : grt::get_type_name(typeid(parent_class)); \
-    if (g_str_has_suffix(_extends.c_str(), "Impl"))                                                            \
-      _extends = _extends.substr(0, _extends.length() - 4);                                                    \
-    register_functions(first_function, __VA_ARGS__, NULL);                                                     \
-    initialization_done();                                                                                     \
+#define DEFINE_INIT_MODULE_DOC(VERSION, AUTHOR, DOC, parent_class, first_function, ...)\
+  virtual void init_module() override \
+  {\
+    set_name(grt::get_type_name(typeid(*this)));\
+    _meta_version= VERSION; _meta_author= AUTHOR; _meta_description= DOC;\
+    _extends= typeid(parent_class) == typeid(grt::CPPModule) ? "" : grt::get_type_name(typeid(parent_class));\
+    if (g_str_has_suffix(_extends.c_str(), "Impl"))\
+      _extends= _extends.substr(0, _extends.length()-4);\
+    register_functions(first_function, __VA_ARGS__, NULL);\
+    initialization_done();\
   }
 
   template <class T_arg>
@@ -383,17 +382,17 @@ namespace grt {
     if (p.type.base.type == ObjectType) {
       if (typeid(T_arg) != typeid(internal::Object)) {
         const bool castable_to_object_value =
-          Is_super_subclass<internal::Object, typename grt_content_class_name<T_arg>::value>::value;
+        Is_super_subclass<internal::Object, typename grt_content_class_name<T_arg>::value>::value;
         p.type.base.object_class =
-          grt_content_struct_name<typename grt_content_class_name<T_arg>::value, castable_to_object_value>::get();
+        grt_content_struct_name<typename grt_content_class_name<T_arg>::value, castable_to_object_value>::get();
       }
     } else if (p.type.base.type == ListType) {
       p.type.content.type = grt_content_type<T_arg>::id;
       if (p.type.content.type == ObjectType) {
         const bool castable_to_object_value =
-          Is_super_subclass<internal::Object, typename grt_content_class_name<T_arg>::value>::value;
+        Is_super_subclass<internal::Object, typename grt_content_class_name<T_arg>::value>::value;
         p.type.content.object_class =
-          grt_content_struct_name<typename grt_content_class_name<T_arg>::value, castable_to_object_value>::get();
+        grt_content_struct_name<typename grt_content_class_name<T_arg>::value, castable_to_object_value>::get();
       }
     } else if (p.type.base.type == DictType) {
       p.type.content.type = AnyType;
@@ -401,7 +400,7 @@ namespace grt {
 
     return p;
   }
-
+  
   class ModuleFunctorBase {
   protected:
     TypeSpec _return_type;

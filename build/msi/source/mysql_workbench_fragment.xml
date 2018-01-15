@@ -83,6 +83,7 @@
                 <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
                 <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
                 <File Id="file1121" Name="vsqlite++.dll"/>
+                <File Id="file1122" Name="antlr4-runtime.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
@@ -193,8 +194,6 @@
                   <File Id="file2001" Name="db_datatype_groups.xml"/>
                   <File Id="file2002" Name="main_menu.xml"/>
                   <File Id="file2003" Name="model_toolbar.xml"/>
-                  <File Id="mysql.g" Name="MySQL.g"/>
-                  <File Id="mysql.tokens" Name="MySQL.tokens"/>
                   <File Id="file2004" Name="model_option_toolbar_layer.xml"/>
                   <File Id="file2005" Name="model_option_toolbar_note.xml"/>
                   <File Id="file2006" Name="model_option_toolbar_physical_relationship.xml"/>

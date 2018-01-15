@@ -25,4 +25,31 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
-#include <antlr3.h>
+#ifdef __cplusplus
+
+#include <set>
+#include <map>
+#include <deque>
+#include <stack>
+#include <errno.h>
+#include <string>
+#include <math.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <time.h>
+#include <vector>
+#include <list>
+#include <sstream>
+#include <typeinfo>
+#include <unistd.h>
+#include <stdexcept>
+#include <functional>
+#include <locale>
+#include <algorithm>
+#include <fstream>
+#include <vector>
+
+#include <antlr4-runtime.h>
+
+#endif
+

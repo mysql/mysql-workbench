@@ -227,7 +227,7 @@ public:
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::getDefaultUserDatatypes),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::getDefaultColumnValueMappings));
 
-  virtual std::string getTargetDBMSName() {
+  virtual std::string getTargetDBMSName() override {
     return "Mysql";
   }
 
@@ -238,35 +238,36 @@ public:
   grt::StringRef fullyQualifiedObjectName(GrtNamedObjectRef object);
 
   virtual grt::DictRef generateSQLForDifferences(GrtNamedObjectRef srcobj, GrtNamedObjectRef dstobj,
-                                                 grt::DictRef options);
+                                                 grt::DictRef options) override;
 
   /**
    * generate report (create or alter)
    */
   virtual grt::StringRef generateReportForDifferences(GrtNamedObjectRef org_object, GrtNamedObjectRef dst_object,
-                                                      const grt::DictRef& options);
+                                                      const grt::DictRef& options) override;
 
   /**
    * generate sql (create or alter) internal only
    */
-  virtual ssize_t generateSQL(GrtNamedObjectRef, const grt::DictRef& options, std::shared_ptr<grt::DiffChange>);
+  virtual ssize_t generateSQL(GrtNamedObjectRef, const grt::DictRef& options,
+                              std::shared_ptr<grt::DiffChange>) override;
 
   /**
    * generate report (create or alter) internal only
    */
   virtual grt::StringRef generateReport(GrtNamedObjectRef org_object, const grt::DictRef& options,
-                                        std::shared_ptr<grt::DiffChange>);
+                                        std::shared_ptr<grt::DiffChange>) override;
 
   /**
    * generate SQL export script (CREATE statements only)
    */
   virtual ssize_t makeSQLExportScript(GrtNamedObjectRef, grt::DictRef options, const grt::DictRef& createSQL,
-                                      const grt::DictRef& dropSQL);
+                                      const grt::DictRef& dropSQL) override;
 
   /**
    * generate CREATE SQL script for an individual object
    */
-  virtual std::string makeCreateScriptForObject(GrtNamedObjectRef object);
+  virtual std::string makeCreateScriptForObject(GrtNamedObjectRef object) override;
 
   /**
    * generate ALTER SQL script for an individual object
@@ -284,12 +285,12 @@ public:
    * generate SQL alter script
    */
   virtual ssize_t makeSQLSyncScript(db_CatalogRef cat, grt::DictRef options, const grt::StringListRef& sql_list,
-                                    const grt::ListRef<GrtNamedObject>& param2);
+                                    const grt::ListRef<GrtNamedObject>& param2) override;
 
-  virtual grt::ListRef<db_mysql_StorageEngine> getKnownEngines();
+  grt::ListRef<db_mysql_StorageEngine> getKnownEngines();
 
-  virtual grt::DictRef getTraitsFromServerVariables(const grt::DictRef& variables);
-  virtual grt::DictRef getTraitsForServerVersion(const int major, const int minor, const int revision);
+  grt::DictRef getTraitsFromServerVariables(const grt::DictRef& variables);
+  virtual grt::DictRef getTraitsForServerVersion(const int major, const int minor, const int revision) override;
 
   grt::ListRef<db_UserDatatype> getDefaultUserDatatypes(db_mgmt_RdbmsRef rdbms);
 
@@ -297,7 +298,7 @@ public:
     return grt::DictRef(true);
   }
 
-  grt::DictRef getDefaultTraits() const {
+  virtual grt::DictRef getDefaultTraits() const override {
     return _default_traits;
   };
 

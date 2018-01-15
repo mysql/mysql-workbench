@@ -44,6 +44,8 @@
 
 #include "mforms/view.h"
 
+#include "SymbolTable.h"
+
 namespace mforms {
   class ToolBar;
   class AppView;
@@ -61,7 +63,6 @@ namespace bec {
 
 class QuerySidePalette;
 class SqlEditorTreeController;
-class MySQLObjectNamesCache;
 class ColumnWidthCache;
 class SqlEditorPanel;
 class SqlEditorResult;
@@ -115,6 +116,8 @@ public:
    * all */
   std::function<void(int)> set_busy_tab;
 
+  parsers::SymbolTable *databaseSymbols() { return &_databaseSymbols; }
+
 protected:
   SqlEditorForm(wb::WBContextSQLIDE *wbsql);
 
@@ -156,29 +159,6 @@ public:
   void handle_tab_menu_action(const std::string &action, int tab_index);
   void handle_history_action(const std::string &action, const std::string &sql);
 
-private:
-  wb::WBContextSQLIDE *_wbsql;
-  GrtVersionRef _version;
-  mforms::MenuBar *_menu;
-  mforms::ToolBar *_toolbar;
-  std::string _connection_info;
-  base::LockFile *_autosave_lock;
-  std::string _autosave_path;
-
-  mforms::DockingPoint *_tabdock;
-
-  // Set when we triggered a refresh asynchronously.
-  boost::signals2::connection _overviewRefreshPending;
-  boost::signals2::connection _editorRefreshPending;
-
-  bool _autosave_disabled;
-  bool _loading_workspace;
-  bool _cancel_connect;
-  bool _closing;
-  bool _startup_done;
-
-  void activate_command(const std::string &command);
-
 public:
   // do NOT use rdbms->version().. it's not specific for this connection
   db_mgmt_RdbmsRef rdbms();
@@ -198,8 +178,8 @@ public:
   }
 
 private:
-  int _sql_editors_serial;
-  int _scratch_editors_serial;
+  int _sql_editors_serial = 0;
+  int _scratch_editors_serial = 0;
 
   void sql_editor_panel_switched();
   void sql_editor_panel_closed(mforms::AppView *view);
@@ -247,9 +227,6 @@ public:
   std::set<std::string> valid_charsets();
 
 private:
-  std::map<std::string, std::string> _connection_details;
-  std::set<std::string> _charsets;
-
   grt::StringRef do_connect(std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
                             struct ConnectionErrorInfo *autherr_ptr);
   std::string get_client_lib_version();
@@ -311,9 +288,6 @@ private:
   std::vector<SqlEditorForm::PSStage> query_ps_stages(std::int64_t stmt_event_id);
   std::vector<SqlEditorForm::PSWait> query_ps_waits(std::int64_t stmt_event_id);
 
-  std::string _sql_mode;
-  int _lower_case_table_names;
-  parser::MySQLParserContext::Ref _work_parser_context; // Never use in a background thread.
 private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn,
                          std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth,
@@ -331,13 +305,9 @@ private:
 
 public:
   base::RecMutexLock ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly = false);
-  parser::MySQLParserContext::Ref work_parser_context() {
+  parsers::MySQLParserContext::Ref work_parser_context() {
     return _work_parser_context;
   };
-
-private:
-  int _keep_alive_task_id;
-  base::Mutex _keep_alive_thread_mutex;
 
 private:
   void send_message_keep_alive();
@@ -347,32 +317,12 @@ private:
   } // need it for ThreadedTimer, which expects callbacks to return bool
   void reset_keep_alive_thread();
 
-  db_mgmt_ConnectionRef _connection;
-  // connection for maintenance operations, fetching schema contents & live editors (DDL only)
-  sql::Dbc_connection_handler::Ref _aux_dbc_conn;
-  base::RecMutex _aux_dbc_conn_mutex;
-
-  // connection for running sql scripts
-  sql::Dbc_connection_handler::Ref _usr_dbc_conn;
-  mutable base::RecMutex _usr_dbc_conn_mutex;
-
-  sql::Authentication::Ref _dbc_auth;
-
-  ServerState _last_server_running_state;
-
   base::RecMutexLock getAuxConnection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly = false);
   base::RecMutexLock getUserConnection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly = false);
 
-  MySQLObjectNamesCache *_auto_completion_cache;
   void onCacheAction(bool active);
 
-  ColumnWidthCache *_column_width_cache;
-
 public:
-  MySQLObjectNamesCache *auto_completion_cache() {
-    return _auto_completion_cache;
-  }
-
   ColumnWidthCache *column_width_cache() {
     return _column_width_cache;
   }
@@ -413,8 +363,6 @@ public:
   std::function<void()> post_query_slot; // called after a query is executed
 private:
   int on_exec_sql_finished();
-  bool _is_running_query;
-  bool _continueOnError;
 
 public:
   bool continue_on_error() {
@@ -433,9 +381,6 @@ public:
   Error_cb on_sql_script_run_error;
 
 private:
-  Batch_exec_progress_cb on_sql_script_run_progress;
-  Batch_exec_stat_cb on_sql_script_run_statistics;
-
   int sql_script_apply_error(long long, const std::string &, const std::string &, std::string &);
   int sql_script_apply_progress(float);
   int sql_script_stats(long, long);
@@ -473,6 +418,9 @@ public:
 public:
   void active_schema(const std::string &value);
   std::string active_schema() const;
+
+  void schemaListRefreshed(std::vector<std::string> const &schemas);
+
   void schema_meta_data_refreshed(const std::string &schema_name, base::StringListPtr tables, base::StringListPtr views,
                                   base::StringListPtr procedures, base::StringListPtr functions);
 
@@ -481,13 +429,6 @@ private:
 
 public:
   void request_refresh_schema_tree();
-
-private:
-  std::shared_ptr<SqlEditorTreeController> _live_tree;
-
-  mforms::View *_side_palette_host;
-  QuerySidePalette *_side_palette;
-  std::string _pending_expand_nodes;
 
 public:
   std::string fetch_data_from_stored_procedure(std::string proc_call, std::shared_ptr<sql::ResultSet> &rs);
@@ -510,24 +451,18 @@ public:
 
   std::function<void(const std::string &, bool)> output_text_slot;
 
-protected:
-  DbSqlEditorLog::Ref _log;
-  DbSqlEditorHistory::Ref _history;
-  bool _serverIsOffline;
-
 public:
   // Result should be RowId but that requires to change the task callback type (at least for 64bit builds).
-  int add_log_message(int messageType, const std::string &msg, const std::string &context, const std::string &duration);
+  int add_log_message(int msg_type, const std::string &msg, const std::string &context, const std::string &duration);
   void set_log_message(RowId log_message_index, int msg_type, const std::string &msg, const std::string &context,
                        const std::string &duration);
   void refresh_log_messages(bool ignore_last_message_timestamp);
 
-private:
-  bool _has_pending_log_messages;
-  double _last_log_message_timestamp;
-  int _exec_sql_error_count;
-
 protected:
+  DbSqlEditorLog::Ref _log;
+  DbSqlEditorHistory::Ref _history;
+  bool _serverIsOffline = false;
+
   std::string _title;
 
 private:
@@ -554,4 +489,75 @@ public:
 
   void set_autosave_disabled(const bool autosave_disabled);
   bool get_autosave_disabled(void);
+
+private:
+  wb::WBContextSQLIDE *_wbsql;
+  GrtVersionRef _version;
+  mforms::MenuBar *_menu = nullptr;
+  mforms::ToolBar *_toolbar = nullptr;
+  std::string _connection_info;
+  base::LockFile *_autosave_lock = nullptr;
+  std::string _autosave_path;
+
+  mforms::DockingPoint *_tabdock = nullptr;
+
+  // Set when we triggered a refresh asynchronously.
+  boost::signals2::connection _overviewRefreshPending;
+  boost::signals2::connection _editorRefreshPending;
+
+  int _keep_alive_task_id = 0;
+  base::Mutex _keep_alive_thread_mutex;
+
+  Batch_exec_progress_cb on_sql_script_run_progress;
+  Batch_exec_stat_cb on_sql_script_run_statistics;
+
+  bool _autosave_disabled = false;
+  bool _loading_workspace = false;
+  bool _cancel_connect = false;
+  bool _closing = false;
+  bool _startup_done = false;
+  bool _is_running_query = false;
+  bool _continueOnError = false;
+  bool _has_pending_log_messages = false;
+
+  double _last_log_message_timestamp;
+  int _exec_sql_error_count;
+
+  std::shared_ptr<SqlEditorTreeController> _live_tree;
+
+  mforms::View *_side_palette_host = nullptr;
+  QuerySidePalette *_side_palette = nullptr;
+  std::string _pending_expand_nodes;
+
+  std::map<std::string, std::string> _connection_details;
+  std::set<std::string> _charsets;
+
+  std::string _sql_mode;
+  int _lower_case_table_names;
+  parsers::MySQLParserContext::Ref _work_parser_context; // Never use in a background thread.
+
+  db_mgmt_ConnectionRef _connection;
+  // connection for maintenance operations, fetching schema contents & live editors (DDL only)
+  sql::Dbc_connection_handler::Ref _aux_dbc_conn;
+  base::RecMutex _aux_dbc_conn_mutex;
+
+  // connection for running sql scripts
+  sql::Dbc_connection_handler::Ref _usr_dbc_conn;
+  mutable base::RecMutex _usr_dbc_conn_mutex;
+
+  sql::Authentication::Ref _dbc_auth;
+
+  ServerState _last_server_running_state = UnknownState;
+
+  ColumnWidthCache *_column_width_cache = nullptr;
+
+  parsers::SymbolTable _staticServerSymbols; // Charsets, collations, engines.
+  parsers::SymbolTable _databaseSymbols; // All available db objects reachable via the current connection.
+
+  void activate_command(const std::string &command);
+  void readStaticServerSymbols();
+
+  // workaround for managed code windows
+  struct PrivateMutex;
+  std::unique_ptr<PrivateMutex> _pimplMutex;
 };

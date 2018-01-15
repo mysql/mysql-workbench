@@ -111,7 +111,6 @@ WBContextModel::WBContextModel()
       bec::GRTManager::get()->run_every(std::bind(&WBContextModel::auto_save_document, this), interval);
   _auto_save_interval = interval;
 
-  // DON'T set up any UI here. This is running on a background thread!
   _secondary_sidebar = NULL;
   _sidebar_dockpoint = NULL;
   _template_panel = NULL;
@@ -679,8 +678,7 @@ void WBContextModel::add_model_rgroup() {
 void WBContextModel::remove_figure() {
   ModelDiagramForm *view;
   model_DiagramRef diagram(get_active_model_diagram(false));
-  if (!diagram.is_valid()) // in case an editor in a diagram tab is active
-  {
+  if (!diagram.is_valid()) { // in case an editor in a diagram tab is active
     diagram = get_active_model_diagram(true);
     view = dynamic_cast<ModelDiagramForm *>(wb::WBContextUI::get()->get_active_main_form());
   } else
@@ -777,8 +775,7 @@ void WBContextModel::update_plugin_arguments_pool(ArgumentPool &args) {
 
   ModelDiagramForm *view;
   model_DiagramRef diagram(get_active_model_diagram(false));
-  if (!diagram.is_valid()) // in case an editor in a diagram tab is active
-  {
+  if (!diagram.is_valid()) { // in case an editor in a diagram tab is active
     diagram = get_active_model_diagram(true);
     view = dynamic_cast<ModelDiagramForm *>(wb::WBContextUI::get()->get_active_main_form());
   } else

@@ -43,6 +43,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/library/parsers
+    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     SYSTEM ${GTK3_INCLUDE_DIRS}
     SYSTEM ${CAIRO_INCLUDE_DIRS}
     SYSTEM ${LIBZIP_INCLUDE_DIRS}
@@ -52,7 +53,6 @@ include_directories(.
     SYSTEM ${VSQLITE_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
-
 
 SET(CMAKE_INSTALL_RPATH "${WB_INSTALL_LIB_DIR}")
 add_executable(mysql-workbench-bin

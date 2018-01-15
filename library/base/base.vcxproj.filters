@@ -150,7 +150,6 @@
     <ClInclude Include="base\wb_memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="base\generic_templates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -176,6 +175,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="base\xml_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h" />
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="base\accessibility.h">

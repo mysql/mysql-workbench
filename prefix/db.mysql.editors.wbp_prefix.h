@@ -25,9 +25,9 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
-#include <antlr3.h>
-
 #ifdef __cplusplus
+
+#include <stack>
 
 #include "grts/structs.db.mysql.h"
 

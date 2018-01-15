@@ -11,14 +11,14 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/frontend/linux/sqlide
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/ext
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
+    
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/gtk
     ${PROJECT_SOURCE_DIR}/library/forms/gtk/src
     ${PROJECT_SOURCE_DIR}/generated/grti
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/parsers
+    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     SYSTEM ${GTK3_INCLUDE_DIRS}
     SYSTEM ${CAIRO_INCLUDE_DIRS}
     SYSTEM ${GRT_INCLUDE_DIRS}

@@ -6,7 +6,7 @@ include_directories(.
     SYSTEM ${SIGC++_INCLUDE_DIRS}
     SYSTEM ${LIBZIP_INCLUDE_DIRS}
     SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${ANTLR3C_INCLUDE_DIRS}
+    SYSTEM ${ANTLR4_INCLUDE_DIRS}
     SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
     SYSTEM ${PCRE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
@@ -16,6 +16,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/parsers
+    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/frontend/common
@@ -111,6 +112,9 @@ target_link_libraries(wbprivate
     ${GDAL_LIBRARIES}
 )
 
+add_dependencies(wbprivate generate_parser_mysql)
+
+
 if(BUILD_FOR_TESTS)
   target_link_libraries(wbprivate gcov)
 endif()
@@ -118,8 +122,6 @@ endif()
 set_target_properties(wbprivate
                       PROPERTIES VERSION   ${WB_VERSION}
                       SOVERSION ${WB_VERSION})
-
-add_dependencies(wbprivate antlr-wb)
 
 if(COMMAND cotire)
   set_target_properties(wbprivate PROPERTIES

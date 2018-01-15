@@ -48,7 +48,7 @@
 
 #include <glib.h>
 
-#include <antlr3.h>
+#include <antlr4-runtime.h>
 
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"

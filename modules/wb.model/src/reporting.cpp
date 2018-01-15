@@ -37,25 +37,27 @@
 
 #include "mforms/code_editor.h"
 
+#include "mysql/MySQLRecognizerCommon.h"
+#include "SymbolTable.h"
+
 // Support for syntax highlighting in SQL output.
 #ifdef _WIN32
-#include "win32/ScintillaWR.h"
-#define SCI_WRAPPER_NS ScintillaWrapper::
+  #include "win32/ScintillaWR.h"
+  #define SCI_WRAPPER_NS ScintillaWrapper::
 #else
-#include "Scintilla.h"
-#include "WordList.h"
-#include "LexerModule.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "Catalogue.h"
-#include "PropSetSimple.h"
-#define SCI_WRAPPER_NS Scintilla::
+  #include "Scintilla.h"
+  #include "WordList.h"
+  #include "LexerModule.h"
+  #include "LexAccessor.h"
+  #include "Accessor.h"
+  #include "Catalogue.h"
+  #include "PropSetSimple.h"
+  #define SCI_WRAPPER_NS Scintilla::
 #endif
 #include "SciLexer.h"
 
 #include "mtemplate/template.h"
 
-using namespace std;
 using namespace base;
 
 DEFAULT_LOG_DOMAIN("Model.Reporting")
@@ -307,8 +309,8 @@ void WbModelImpl::initializeReporting() {
  */
 ssize_t WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates) {
   // get pointer to the GRT
-  string basedir = bec::GRTManager::get()->get_basedir();
-  string template_base_dir = base::makePath(basedir, "modules/data/wb_model_reporting");
+  std::string basedir = bec::GRTManager::get()->get_basedir();
+  std::string template_base_dir = base::makePath(basedir, "modules/data/wb_model_reporting");
   GDir *dir;
   const char *entry;
 
@@ -351,10 +353,10 @@ ssize_t WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates
  * @param template_name - the name of the template
  * @return the template info object
  */
-workbench_model_reporting_TemplateInfoRef WbModelImpl::getReportingTemplateInfo(const string &template_name) {
-  string template_dir = getTemplateDirFromName(template_name);
+workbench_model_reporting_TemplateInfoRef WbModelImpl::getReportingTemplateInfo(const std::string &template_name) {
+  std::string template_dir = getTemplateDirFromName(template_name);
 
-  string template_info_path = base::makePath(template_dir, "info.xml");
+  std::string template_info_path = base::makePath(template_dir, "info.xml");
   if (g_file_test(template_info_path.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)))
     return workbench_model_reporting_TemplateInfoRef::cast_from(grt::GRT::get()->unserialize(template_info_path));
   else
@@ -363,14 +365,14 @@ workbench_model_reporting_TemplateInfoRef WbModelImpl::getReportingTemplateInfo(
 
 //--------------------------------------------------------------------------------------------------
 
-workbench_model_reporting_TemplateStyleInfoRef WbModelImpl::get_template_style_from_name(string template_name,
-                                                                                         string template_style_name) {
+workbench_model_reporting_TemplateStyleInfoRef WbModelImpl::get_template_style_from_name(std::string template_name,
+                                                                                         std::string template_style_name) {
   if (template_style_name == "")
     return workbench_model_reporting_TemplateStyleInfoRef();
 
-  string template_dir = getTemplateDirFromName(template_name);
+  std::string template_dir = getTemplateDirFromName(template_name);
 
-  string template_info_path = base::makePath(template_dir, "info.xml");
+  std::string template_info_path = base::makePath(template_dir, "info.xml");
   if (g_file_test(template_info_path.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))) {
     workbench_model_reporting_TemplateInfoRef info =
       workbench_model_reporting_TemplateInfoRef::cast_from(grt::GRT::get()->unserialize(template_info_path));
@@ -378,7 +380,7 @@ workbench_model_reporting_TemplateStyleInfoRef WbModelImpl::get_template_style_f
     for (std::size_t i = 0; i < info->styles().count(); i++) {
       workbench_model_reporting_TemplateStyleInfoRef styleInfo = info->styles().get(i);
 
-      if (template_style_name == (string)styleInfo->name())
+      if (template_style_name == (std::string)styleInfo->name())
         return styleInfo;
     }
   }
@@ -395,7 +397,7 @@ void read_option(bool &var, const char *field, const grt::DictRef &dict) {
 
 //--------------------------------------------------------------------------------------------------
 
-void read_option(string &var, const char *field, const grt::DictRef &dict) {
+void read_option(std::string &var, const char *field, const grt::DictRef &dict) {
   if (dict.has_key(field))
     var = dict.get_string(field);
 }
@@ -405,7 +407,7 @@ void read_option(string &var, const char *field, const grt::DictRef &dict) {
 /**
  * Assigns the given value to the dictionary if it is not empty. Otherwise the text "n/a" is added.
  **/
-void assignValueOrNA(mtemplate::DictionaryInterface *dict, const char *key, const string &value) {
+void assignValueOrNA(mtemplate::DictionaryInterface *dict, const char *key, const std::string &value) {
   if (value.size() == 0)
     dict->setValue(key, "<span class=\"report_na_entry\">n/a</span>");
   else
@@ -496,7 +498,7 @@ void fillColumnDict(const db_mysql_ColumnRef &col, const db_mysql_TableRef &tabl
   if (detailed) {
     col_dict->setValue(REPORT_TABLE_NAME, *table->name());
 
-    string key_part = "";
+    std::string key_part = "";
     if (table->isPrimaryKeyColumn(col))
       key_part += "Primary key, ";
     if (table->isForeignKeyColumn(col))
@@ -594,7 +596,7 @@ void fillViewDict(const db_mysql_ViewRef &view, mtemplate::DictionaryInterface *
   view_dict->setValue(REPORT_VIEW_READ_ONLY, view->isReadOnly() ? "read only" : "writable");
   view_dict->setValue(REPORT_VIEW_WITH_CHECK, view->withCheckCondition() ? "yes" : "no");
 
-  string columns = "";
+  std::string columns = "";
   for (grt::StringListRef::const_iterator iterator = view->columns().begin(); iterator != view->columns().end();
        iterator++) {
     columns += *iterator;
@@ -605,7 +607,7 @@ void fillViewDict(const db_mysql_ViewRef &view, mtemplate::DictionaryInterface *
 
 //--------------------------------------------------------------------------------------------------
 void fillRoutineDict(const db_mysql_RoutineRef &routine, mtemplate::DictionaryInterface *routine_dict) {
-  string value;
+  std::string value;
 
   routine_dict->setValue(REPORT_ROUTINE_NAME, *routine->name());
   routine_dict->setValue(REPORT_ROUTINE_TYPE, *routine->routineType());
@@ -646,8 +648,14 @@ const Scintilla::LexerModule *setup_syntax_highlighter(db_mgmt_RdbmsRef rdbms) {
 
     // There are no predefined constants for the indices below, but the occupancy of the list array
     // can be seen in LexMySQL.cxx.
+    parsers::SymbolTable *functions = parsers::functionSymbolsForVersion(507);
+    std::set<std::string> functionNames = functions->getAllSymbolNames();
+    std::string functionList;
+    for (auto &name : functionNames)
+      functionList += name + " ";
+
     ((SCI_WRAPPER_NS WordList *)keywordLists[0])->Set(keywords["Major Keywords"].c_str());
-    ((SCI_WRAPPER_NS WordList *)keywordLists[3])->Set(keywords["Functions"].c_str());
+    ((SCI_WRAPPER_NS WordList *)keywordLists[3])->Set(functionList.c_str());
     ((SCI_WRAPPER_NS WordList *)keywordLists[5])->Set(keywords["Procedure keywords"].c_str());
     ((SCI_WRAPPER_NS WordList *)keywordLists[6])->Set(keywords["User Keywords 1"].c_str());
 
@@ -672,7 +680,7 @@ void cleanup_syntax_highlighter() {
 /**
  * Returns the HTML markup for the given style.
  */
-const string markupFromStyle(int style) {
+const std::string markupFromStyle(int style) {
   switch (style) {
     case SCE_MYSQL_DEFAULT:
       return "<span class=\"syntax_default\">%s</span>";
@@ -749,7 +757,7 @@ const string markupFromStyle(int style) {
 void set_ddl(mtemplate::DictionaryInterface *target, SQLGeneratorInterfaceImpl *sqlgenModule,
              const GrtNamedObjectRef &object, const Scintilla::LexerModule *lexer, bool ddl_enabled) {
   if (ddl_enabled && sqlgenModule != NULL) {
-    string sql = sqlgenModule->makeCreateScriptForObject(object);
+    std::string sql = sqlgenModule->makeCreateScriptForObject(object);
 
     if (lexer != NULL) {
       // Add syntax highlighter markup.
@@ -761,7 +769,7 @@ void set_ddl(mtemplate::DictionaryInterface *target, SQLGeneratorInterfaceImpl *
 
       int currentStyle = SCE_MYSQL_DEFAULT;
       int tokenStart = 0;
-      string markup = "";
+      std::string markup = "";
       int i;
       for (i = 0; i < (int)sql.size(); i++)
         if (currentStyle != accessor->StyleAt(i)) {
@@ -778,7 +786,7 @@ void set_ddl(mtemplate::DictionaryInterface *target, SQLGeneratorInterfaceImpl *
       sql = markup;
     };
 
-    string fixed_line_breaks = base::replaceString(sql, "\n", "<br />");
+    std::string fixed_line_breaks = base::replaceString(sql, "\n", "<br />");
 
     // The DDL script is wrapped in an own section dir to allow switching it off entirely (including
     // the surrounding HTML code).
@@ -788,7 +796,7 @@ void set_ddl(mtemplate::DictionaryInterface *target, SQLGeneratorInterfaceImpl *
 
 //--------------------------------------------------------------------------------------------------
 
-static int count_template_files(const string template_dir) {
+static int count_template_files(const std::string template_dir) {
   // loop over all files in the template dir
   const char *entry;
   int count = 0;
@@ -822,19 +830,19 @@ static int count_template_files(const string template_dir) {
  */
 ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::DictRef &options) {
   // get pointer to the GRT
-  string basedir = bec::GRTManager::get()->get_basedir();
-  string template_base_dir = base::makePath(basedir, "modules/data/wb_model_reporting");
+  std::string basedir = bec::GRTManager::get()->get_basedir();
+  std::string template_base_dir = base::makePath(basedir, "modules/data/wb_model_reporting");
 
   db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(model->catalog());
 
   // helper variables
-  map<string, vector<db_mysql_ForeignKeyRef> > tbl_fk_map;
+  std::map<std::string, std::vector<db_mysql_ForeignKeyRef> > tbl_fk_map;
 
   // Process options
-  string template_name = "HTML Basic Frames";
-  string template_style_name = "";
-  string title = "MySQL Model Report";
-  string output_path = "";
+  std::string template_name = "HTML Basic Frames";
+  std::string template_style_name = "";
+  std::string title = "MySQL Model Report";
+  std::string output_path = "";
   bool columns_show = true;
   bool indices_show = true;
   bool fks_show = true;
@@ -899,13 +907,13 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
             continue;
 
           // look for table in tbl_fk_map
-          map<string, vector<db_mysql_ForeignKeyRef> >::iterator tbl_fk_map_it = tbl_fk_map.find(ref_tbl.id());
+          std::map<std::string, std::vector<db_mysql_ForeignKeyRef> >::iterator tbl_fk_map_it = tbl_fk_map.find(ref_tbl.id());
           if (tbl_fk_map_it != tbl_fk_map.end()) {
             // if found, add fk reference to table
             tbl_fk_map_it->second.push_back(fk);
           } else {
             // if table is not found, create entry
-            vector<db_mysql_ForeignKeyRef> new_tbl_fk_map_v;
+            std::vector<db_mysql_ForeignKeyRef> new_tbl_fk_map_v;
 
             // add fk reference to table
             new_tbl_fk_map_v.push_back(fk);
@@ -924,7 +932,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   // Set some global project info.
   main_dictionary->setValue(REPORT_TITLE, title);
 
-  string time = base::fmttime(0, DATETIME_FMT);
+  std::string time = base::fmttime(0, DATETIME_FMT);
   main_dictionary->setValue(REPORT_GENERATED, time);
 
   workbench_DocumentRef document = workbench_DocumentRef::cast_from(model->owner());
@@ -941,7 +949,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   workbench_model_reporting_TemplateStyleInfoRef styleInfo =
     get_template_style_from_name(template_name, template_style_name);
   if (styleInfo.is_valid())
-    main_dictionary->setValue(REPORT_STYLE_NAME, (string)styleInfo->styleTagValue());
+    main_dictionary->setValue(REPORT_STYLE_NAME, (std::string)styleInfo->styleTagValue());
 
   main_dictionary->setIntValue(REPORT_SCHEMA_COUNT, (long int)catalog->schemata().count());
 
@@ -970,7 +978,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
     }*/
     sqlgenModule = dynamic_cast<SQLGeneratorInterfaceImpl *>(grt::GRT::get()->get_module("DbMySQL"));
     if (!sqlgenModule)
-      throw logic_error("could not find SQL generation module for mysql");
+      throw std::logic_error("could not find SQL generation module for mysql");
   }
 
   // Build schema_dict by looping over all schemata, add it to the main_dict.
@@ -1080,9 +1088,9 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
         }
 
         if (fks_show_referred_fks) {
-          map<string, vector<db_mysql_ForeignKeyRef> >::iterator tbl_fk_map_it = tbl_fk_map.find(table->id());
+          std::map<std::string, std::vector<db_mysql_ForeignKeyRef> >::iterator tbl_fk_map_it = tbl_fk_map.find(table->id());
           if (tbl_fk_map_it != tbl_fk_map.end()) {
-            vector<db_mysql_ForeignKeyRef>::iterator fk_it = tbl_fk_map_it->second.begin();
+            std::vector<db_mysql_ForeignKeyRef>::iterator fk_it = tbl_fk_map_it->second.begin();
             for (; fk_it != tbl_fk_map_it->second.end(); fk_it++) {
               if (fk_list_dictionary == NULL)
                 fk_list_dictionary = table_dictionary->addSectionDictionary(REPORT_REL_LISTING);
@@ -1154,7 +1162,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   // --------------------------------------------------------------------------------------------
   // Process template files
 
-  string template_dir = getTemplateDirFromName(template_name);
+  std::string template_dir = getTemplateDirFromName(template_name);
 
   // loop over all files in the template dir
   const char *entry;
@@ -1185,19 +1193,19 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
           template_index->expand(main_dictionary, &string_output);
 
           // build output file name
-          string output_filename;
+          std::string output_filename;
 
           if (single_file_report) {
             // For single file reports the target file name is constructed from the report title.
             output_filename = base::makePath(output_path, title);
-            string template_filename(entry);
+            std::string template_filename(entry);
 
             // Remove the .tpl suffix.
-            string name = template_filename.substr(0, template_filename.size() - 4);
+            std::string name = template_filename.substr(0, template_filename.size() - 4);
 
             // Find the file's target suffix. If there is one use this for the target file too.
-            string::size_type p = name.rfind('.');
-            if (p != string::npos)
+            std::string::size_type p = name.rfind('.');
+            if (p != std::string::npos)
               output_filename += name.substr(p);
 
             if (single_file_output == nullptr)
@@ -1206,14 +1214,14 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
 
             template_index->expand(main_dictionary, single_file_output.get());
           } else {
-            string template_filename(entry);
+            std::string template_filename(entry);
             output_filename = base::makePath(output_path, template_filename.substr(0, template_filename.size() - 4));
             mtemplate::TemplateOutputFile output(output_filename);
             template_index->expand(main_dictionary, &output);
           }
         } else {
           // Copy files/folders.
-          string target = base::makePath(output_path, entry);
+          std::string target = base::makePath(output_path, entry);
           if (g_file_test(path, G_FILE_TEST_IS_DIR))
             copy_folder(path, target.c_str());
           else

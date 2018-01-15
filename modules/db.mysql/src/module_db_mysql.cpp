@@ -52,6 +52,8 @@
 #include "module_db_mysql_shared_code.h"
 #include "grtdb/db_helpers.h"
 
+#include "grtsqlparser/mysql_parser_services.h"
+
 using namespace grt;
 using namespace base;
 
@@ -236,8 +238,8 @@ namespace {
 
   static std::string generate_drop_index(db_mysql_IndexRef index) {
     /*
-      | DROP {INDEX|KEY} index_name
-    */
+     | DROP {INDEX|KEY} index_name
+     */
     if (index->isPrimary())
       return std::string("DROP PRIMARY KEY");
 
@@ -1081,9 +1083,9 @@ namespace {
       sql.append(",\n");
 
     /*
-      | ADD [COLUMN] column_definition [FIRST | AFTER col_name ]
-      | ADD [COLUMN] (column_definition,...)
-    */
+     | ADD [COLUMN] column_definition [FIRST | AFTER col_name ]
+     | ADD [COLUMN] (column_definition,...)
+     */
 
     sql.append("ADD COLUMN ");
     sql.append(generate_create(column));
@@ -1123,9 +1125,9 @@ namespace {
       sql.append(",\n");
 
     /*
-    | CHANGE [COLUMN] old_col_name column_definition
-          [FIRST|AFTER col_name]
-    */
+     | CHANGE [COLUMN] old_col_name column_definition
+     [FIRST|AFTER col_name]
+     */
 
     sql.append("CHANGE COLUMN `");
     std::map<std::string, std::string>::iterator it = column_rename_map.find(org_col->oldName().c_str());
@@ -1173,8 +1175,8 @@ namespace {
 
   std::string ActionGenerateSQL::generate_add_index(db_mysql_IndexRef index) {
     /*
-      | ADD {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
-    */
+     | ADD {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
+     */
     return std::string("ADD ").append(generate_create(index, "", false));
   }
 
@@ -1211,10 +1213,10 @@ namespace {
       fk_add_sql.append(",\n");
 
     /*
-      | ADD [CONSTRAINT [symbol]]
-            FOREIGN KEY [index_name] (index_col_name,...)
-            [reference_definition]
-    */
+     | ADD [CONSTRAINT [symbol]]
+     FOREIGN KEY [index_name] (index_col_name,...)
+     [reference_definition]
+     */
     fk_add_sql += "ADD ";
     fk_add_sql += global_generate_create(fk, padding, _use_short_names);
   }
@@ -1231,8 +1233,8 @@ namespace {
       fk_drop_sql.append(",\n");
 
     /*
-      | DROP FOREIGN KEY fk_symbol
-    */
+     | DROP FOREIGN KEY fk_symbol
+     */
     fk_drop_sql += "DROP FOREIGN KEY `";
     fk_drop_sql += fk->name().c_str();
     fk_drop_sql += "`";
@@ -1804,8 +1806,7 @@ protected:
     return sql;
   }
 
-  std::string generate_view_ddl(const db_mysql_ViewRef view, std::string create_view,
-                                std::string drop_view = std::string()) {
+  std::string generate_view_ddl(const db_mysql_ViewRef view, std::string create_view, std::string drop_view = "") {
     std::string sql;
     std::string view_q_name(get_name(view, use_short_names));
 
@@ -1815,14 +1816,16 @@ protected:
     sql.append("-- View ").append(view_q_name).append("\n");
     sql.append("-- -----------------------------------------------------\n");
 
-    if (!drop_view.empty())
-      sql.append(drop_view).append(";\n").append(show_warnings_sql());
-
+    // Important: first delete the placeholder then the view. Otherwise we can get a server error
+    // (which seems inconsistent, but that's how it is).
     if (!no_view_placeholder) {
       // remove placehoder
       sql.append("DROP TABLE IF EXISTS ").append(view_q_name).append(";\n");
       sql.append(show_warnings_sql());
     }
+
+    if (!drop_view.empty())
+      sql.append(drop_view).append(";\n").append(show_warnings_sql());
 
     // view DDL
     if (!create_view.empty()) {
@@ -2716,7 +2719,8 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
     if (paren != std::string::npos)
       type = type.substr(0, paren);
 
-    db_SimpleDatatypeRef simpletype(bec::CatalogHelper::get_datatype(rdbms->simpleDatatypes(), type));
+    db_SimpleDatatypeRef simpletype(
+      parsers::MySQLParserServices::findDataType(rdbms->simpleDatatypes(), GrtVersionRef(), type));
 
     if (!simpletype.is_valid()) // unlikely
     {
@@ -2739,3 +2743,5 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
 }
 
 GRT_MODULE_ENTRY_POINT(DbMySQLImpl);
+
+;

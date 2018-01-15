@@ -241,8 +241,6 @@ bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueu
 int main(int argc, char **argv) {
   std::string app_name = base::basename(argv[0]);
 
-  base::threading_init();
-
   TaskQueue tables;
 
   std::string source_password;

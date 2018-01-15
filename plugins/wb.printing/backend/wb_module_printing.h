@@ -45,7 +45,7 @@ public:
                      DECLARE_MODULE_FUNCTION(WbPrintingImpl::printToPrinter));
 
 private:
-  virtual grt::ListRef<app_Plugin> getPluginInfo();
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override;
 
   int printDiagramsToFile(grt::ListRef<model_Diagram> view, const std::string &path, const std::string &format,
                           grt::DictRef options);

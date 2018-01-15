@@ -29,7 +29,7 @@
 #include "grtdb/db_helpers.h"
 #include "wb_helpers.h"
 
-using namespace parser;
+using namespace parsers;
 using namespace tut;
 
 #define VERBOSE_TESTING 0
@@ -73,9 +73,7 @@ TEST_DATA_CONSTRUCTOR(grtdiff_alter_test) {
 
 TEST_DATA_DESTRUCTOR(grtdiff_alter_test) {
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  std::string sql_string = "DROP DATABASE IF EXISTS grtdiff_alter_test;";
-
-  execute_script(stmt.get(), sql_string);
+  stmt->execute("DROP DATABASE IF EXISTS grtdiff_alter_test;");
 }
 
 END_TEST_DATA_CLASS
@@ -1066,8 +1064,8 @@ static struct {
   {NULL, NULL, NULL, NULL, NULL}};
 
 TEST_FUNCTION(10) {
-  std::shared_ptr<DiffChange> alter_change;
-  std::shared_ptr<DiffChange> empty_change;
+  std::shared_ptr<grt::DiffChange> alter_change;
+  std::shared_ptr<grt::DiffChange> empty_change;
 
   // column insertion
 
@@ -1083,16 +1081,16 @@ TEST_FUNCTION(10) {
   }
 
   MySQLParserServices::Ref services = MySQLParserServices::get();
-  parser::MySQLParserContext::Ref context =
-    services->createParserContext(tester->get_rdbms()->characterSets(), tester->get_rdbms()->version(), false);
+  parsers::MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
+    tester->get_rdbms()->version(), "", false);
   grt::DictRef options(true);
   for (int i = 0; data[i].description != NULL; i++) {
     std::cout << ".";
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat = create_empty_catalog_for_import();
-    db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import();
+    db_mysql_CatalogRef org_cat = createEmptyCatalog();
+    db_mysql_CatalogRef mod_cat = createEmptyCatalog();
 
     {
       std::string org_script;
@@ -1223,8 +1221,8 @@ TEST_FUNCTION(10) {
 }
 
 TEST_FUNCTION(20) {
-  std::shared_ptr<DiffChange> alter_change;
-  std::shared_ptr<DiffChange> empty_change;
+  std::shared_ptr<grt::DiffChange> alter_change;
+  std::shared_ptr<grt::DiffChange> empty_change;
 
   // column insertion
   ensure("connection is NULL", connection.get() != NULL);
@@ -1239,8 +1237,8 @@ TEST_FUNCTION(20) {
   }
 
   MySQLParserServices::Ref services = MySQLParserServices::get();
-  MySQLParserContext::Ref context =
-    services->createParserContext(tester->get_rdbms()->characterSets(), tester->get_rdbms()->version(), false);
+  MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
+    tester->get_rdbms()->version(), "", false);
 
   grt::DictRef options(true);
   for (int i = 0; data[i].description != NULL; i++) {
@@ -1249,8 +1247,8 @@ TEST_FUNCTION(20) {
       std::cout << std::endl;
 
     for (int j = 0; j <= 1; ++j) {
-      db_mysql_CatalogRef org_cat = create_empty_catalog_for_import();
-      db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import();
+      db_mysql_CatalogRef org_cat = createEmptyCatalog();
+      db_mysql_CatalogRef mod_cat = createEmptyCatalog();
 
       {
         std::string org_script;
@@ -1376,7 +1374,7 @@ static struct {
   {NULL, NULL, NULL, NULL, NULL}};
 
 TEST_FUNCTION(30) {
-  std::shared_ptr<DiffChange> empty_change;
+  std::shared_ptr<grt::DiffChange> empty_change;
 
   // column insertion
 
@@ -1392,8 +1390,8 @@ TEST_FUNCTION(30) {
   }
 
   MySQLParserServices::Ref services = MySQLParserServices::get();
-  MySQLParserContext::Ref context =
-    services->createParserContext(tester->get_rdbms()->characterSets(), tester->get_rdbms()->version(), false);
+  MySQLParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
+    tester->get_rdbms()->version(), "", false);
 
   grt::DictRef options(true);
   for (int i = 0; neg_data[i].description != NULL; i++) {
@@ -1401,8 +1399,8 @@ TEST_FUNCTION(30) {
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat = create_empty_catalog_for_import();
-    db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import();
+    db_mysql_CatalogRef org_cat= createEmptyCatalog();
+    db_mysql_CatalogRef mod_cat= createEmptyCatalog();
 
     {
       std::string org_script;

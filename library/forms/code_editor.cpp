@@ -33,12 +33,17 @@
 #include "mforms/mforms.h"
 #include "mdc_image.h"
 
+#include "mysql/MySQLRecognizerCommon.h"
+#include "SymbolTable.h"
+
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
 
 using namespace mforms;
 using namespace base;
 
 // Marker ID assignments. Markers with higher number overlay lower ones.
+// Note: the order here matches the LineMarkup enum, so we can directly use the enum as marker flags.
+//       The LineMarkup is a bitmask (so we can create what Scintilla calls a marker set).
 #define CE_STATEMENT_MARKER 0
 #define CE_ERROR_MARKER 1
 #define CE_BREAKPOINT_MARKER 2
@@ -84,6 +89,11 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language) {
 
     case mforms::LanguageMySQL57:
       override_lexer = "SCLEX_MYSQL_57";
+      lexer = "SCLEX_MYSQL";
+      break;
+
+    case mforms::LanguageMySQL80:
+      override_lexer = "SCLEX_MYSQL_80";
       lexer = "SCLEX_MYSQL";
       break;
 
@@ -364,11 +374,9 @@ void CodeEditor::setup() {
   setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");
 
   // Other settings.
-#if defined(_WIN32) || defined(__APPLE__)
   Color color = Color::getSystemColor(base::SelectedTextBackgroundColor);
   sptr_t rawColor = color.toBGR();
   _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, rawColor);
-#endif
   //_code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, 0xFFFFFF);
 
   _code_editor_impl->send_editor(this, SCI_SETCARETLINEVISIBLE, 1, 0);
@@ -729,7 +737,7 @@ void CodeEditor::handleMarkerMove(int position, int linesAdded) {
     // Lines have been deleted and markers merged. Since we don't know which have been combined remove them all
     // and send a separate deletion event for this case.
     _code_editor_impl->send_editor(this, SCI_MARKERDELETE, currentLine, -1);
-    changeset.push_back({ (int)currentLine, 0, LineMarkupAll });
+    changeset.push_back({(int)currentLine, 0, LineMarkupAll});
     _marker_changed_event(changeset, true);
     changeset.clear();
   }
@@ -741,7 +749,7 @@ void CodeEditor::handleMarkerMove(int position, int linesAdded) {
   currentLine = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, currentLine, LineMarkupAll);
   while (currentLine > -1) {
     LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, currentLine, LineMarkupAll);
-    LineMarkupChangeEntry entry = { (int)(currentLine - linesAdded), (int)currentLine, markup };
+    LineMarkupChangeEntry entry = {(int)(currentLine - linesAdded), (int)currentLine, markup};
     changeset.push_back(entry);
 
     currentLine = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, currentLine + 1, LineMarkupAll);
@@ -761,18 +769,50 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language) {
 
   // Key word list sets are from currently active lexer, so that must be set before calling here.
   sptr_t length = _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, 0);
+  if (length > 0) {
+    char* keyword_sets = (char*)malloc(length + 1);
+    _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, (sptr_t)keyword_sets);
+    std::vector<std::string> keyword_list_names = base::split(keyword_sets, "\n");
+    free(keyword_sets);
 
-  char* keyword_sets = (char*)malloc(length + 1);
-  _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, (sptr_t)keyword_sets);
-  std::vector<std::string> keyword_list_names = base::split(keyword_sets, "\n");
-  free(keyword_sets);
+    // Note: this part is in the process of being converted to a different approach (parsers know all keywords
+    //       so they can actually provide them, instead of a manually managed config file).
+    for (auto iterator : keywords) {
+      std::string list_name = iterator.first;
+      int list_index = base::index_of(keyword_list_names, list_name);
+      if (list_index > -1)
+        _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, list_index, (sptr_t)iterator.second.c_str());
+    }
 
-  for (std::map<std::string, std::string>::const_iterator iterator = keywords.begin(); iterator != keywords.end();
-       ++iterator) {
-    std::string list_name = iterator->first;
-    int list_index = base::index_of(keyword_list_names, list_name);
-    if (list_index > -1)
-      _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, list_index, (sptr_t)iterator->second.c_str());
+    // First part delivered by a parser are function names in MySQL.
+    size_t version = 0;
+    switch (language) {
+      case LanguageMySQL55:
+        version = 505;
+        break;
+      case LanguageMySQL56:
+        version = 506;
+        break;
+      case LanguageMySQL57:
+        version = 507;
+        break;
+      case LanguageMySQL80:
+        version = 800;
+        break;
+
+      default:
+        break;
+    }
+
+    if (version > 0) {
+      parsers::SymbolTable* functions = parsers::functionSymbolsForVersion(507);
+      std::set<std::string> functionNames = functions->getAllSymbolNames();
+      std::string functionList;
+      for (auto& name : functionNames)
+        functionList += name + " ";
+
+      _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 3, (sptr_t)functionList.c_str());
+    }
   }
 
   // Properties.
@@ -843,6 +883,7 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language) {
     case mforms::LanguageMySQL55:
     case mforms::LanguageMySQL56:
     case mforms::LanguageMySQL57:
+    case mforms::LanguageMySQL80:
       _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_MYSQL, 0);
       break;
 

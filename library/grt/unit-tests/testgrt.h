@@ -24,5 +24,3 @@
 #include "test.h"
 
 #include "grt.h"
-
-using namespace grt;

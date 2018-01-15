@@ -42,7 +42,7 @@ public:
                      DECLARE_MODULE_FUNCTION(MySQLModelSnippetsModuleImpl::getPluginInfo),
                      DECLARE_MODULE_FUNCTION(MySQLModelSnippetsModuleImpl::includeModel), NULL);
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo() {
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override {
     return get_mysql_plugins_info();
   }
 

@@ -1,5 +1,6 @@
 include_directories(.
     ./src
+    ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/library/grt/src 
@@ -11,15 +12,12 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/sql.parser/source/linux
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/modules/interfaces
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
-    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
     ${PROJECT_SOURCE_DIR}/library/parsers
     SYSTEM ${VSQLITE_INCLUDE_DIRS}
     SYSTEM ${GTK3_INCLUDE_DIRS}
     SYSTEM ${SIGC++_INCLUDE_DIRS}
     SYSTEM ${GRT_INCLUDE_DIRS}
     SYSTEM ${PCRE_INCLUDE_DIR}
-    ${PROJECT_SOURCE_DIR}
     SYSTEM ${MySQL_INCLUDE_DIRS}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )

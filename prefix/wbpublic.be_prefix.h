@@ -42,6 +42,8 @@
 #include <algorithm>
 #include <exception>
 #include <stack>
+#include <thread>
+#include <mutex>
 
 #include <glib.h>
 

@@ -195,13 +195,14 @@ public:
     _expect_fetch_schema_contents_call = true;
   }
 
-  virtual std::list<std::string> fetch_schema_list() {
+  virtual std::vector<std::string> fetch_schema_list() {
     ensure(_check_id + " : Unexpected call to fetch_schema_list", _expect_fetch_schema_list_call);
     _expect_fetch_schema_list_call = false;
-    std::list<std::string> slist;
+    std::vector<std::string> slist;
     slist.assign(_mock_schema_list->begin(), _mock_schema_list->end());
     return slist;
   }
+
   virtual bool fetch_data_for_filter(const std::string& schema_filter, const std::string& object_filter,
                                      const wb::LiveSchemaTree::NewSchemaContentArrivedSlot& arrived_slot) {
     ensure(_check_id + " : Unexpected call to fetch_data_for_filter", _expect_fetch_data_for_filter);

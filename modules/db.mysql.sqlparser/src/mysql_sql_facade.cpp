@@ -44,10 +44,6 @@
 #include "mysql_sql_parser_fe.h"
 #include "myx_sql_tree_item.h"
 
-#include <antlr3.h>
-#include "mysql-parser.h"
-#include "MySQLLexer.h"
-
 using namespace bec;
 
 //--------------------------------------------------------------------------------------------------

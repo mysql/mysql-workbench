@@ -21,7 +21,6 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-
 #ifndef _UPGRADE_HELPER_H_
 #define _UPGRADE_HELPER_H_
 
@@ -31,7 +30,6 @@
 #include "wb_model_file.h"
 
 using namespace wb;
-using namespace grt;
 
 struct xmlString {
   xmlChar *str;

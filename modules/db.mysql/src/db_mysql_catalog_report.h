@@ -21,8 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _DB_MYSQL_CATALOG_REPORT_H_
-#define _DB_MYSQL_CATALOG_REPORT_H_
+#pragma once
 
 #ifdef _WIN32
 #pragma warning(disable : 4251) // class ... needs to have dll-interface to be used by clients
@@ -46,8 +45,6 @@
 
 #include "db_mysql_diffsqlgen_grant.h"
 #include "../res/reporting_includes/basic_text_report.txt.tpl.varnames.h"
-
-using namespace grt;
 
 namespace mtemplate {
   class DictionaryInterface;
@@ -189,5 +186,3 @@ public:
   void alter_schema_props_end(db_mysql_SchemaRef);
   virtual void disable_list_insert(const bool flag){};
 };
-
-#endif // _DB_MYSQL_CATALOG_REPORT_H

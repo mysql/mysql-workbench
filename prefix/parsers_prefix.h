@@ -41,6 +41,7 @@
 #include <list>
 #include <sstream>
 #include <typeinfo>
+#include <typeindex>
 #include <unistd.h>
 #include <stdexcept>
 #include <functional>
@@ -53,12 +54,8 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <antlr3.h>
+#include <antlr4-runtime.h>
 
 #include <boost/bind.hpp>
-#include <boost/optional.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/function.hpp>
-#include <boost/locale/encoding_utf.hpp>
 
 #endif

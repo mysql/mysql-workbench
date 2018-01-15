@@ -38,7 +38,6 @@
 #include "sqlide/wb_sql_editor_tree_controller.h"
 #include "sqlide/sql_script_run_wizard.h"
 
-#include "code-completion/mysql_object_names_cache.h"
 #include "sqlide/column_width_cache.h"
 
 #include "objimpl/db.query/db_query_Resultset.h"
@@ -53,6 +52,7 @@
 #include "base/boost_smart_ptr_helpers.h"
 #include "base/util_functions.h"
 #include "base/scope_exit_trigger.h"
+#include "base/threading.h"
 
 #include "workbench/wb_command_ui.h"
 #include "workbench/wb_context_names.h"
@@ -73,11 +73,14 @@
 #include "grtsqlparser/mysql_parser_services.h"
 
 #include <math.h>
+#include <mutex>
+#include <thread>
 
 using namespace bec;
 using namespace grt;
 using namespace wb;
 using namespace base;
+using namespace parsers;
 
 using boost::signals2::scoped_connection;
 
@@ -157,6 +160,11 @@ private:
   double _duration;
 };
 
+
+struct SqlEditorForm::PrivateMutex {
+  std::mutex _symbolsMutex;
+};
+
 SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn) {
   SqlEditorForm::Ref instance(new SqlEditorForm(wbsql));
 
@@ -232,34 +240,16 @@ void SqlEditorForm::report_connection_failure(const grt::server_denied &info, co
   mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
-  : _wbsql(wbsql),
-    _menu(NULL), // Please use NULL where pointers are assigned, not 0, to avoid confusing the param with ctor flags or
-                 // similar!
-    _toolbar(NULL),
-    _autosave_lock(NULL),
-    _tabdock(NULL),
-    _autosave_disabled(false),
-    _loading_workspace(false),
-    _cancel_connect(false),
-    _closing(false),
-    _sql_editors_serial(0),
-    _scratch_editors_serial(0),
-    _keep_alive_task_id(0),
+  : exec_sql_task(GrtThreadedTask::create()),
+    _history(DbSqlEditorHistory::create()),
+    _wbsql(wbsql),
+    _live_tree(SqlEditorTreeController::create(this)),
     _aux_dbc_conn(new sql::Dbc_connection_handler()),
     _usr_dbc_conn(new sql::Dbc_connection_handler()),
-    _last_server_running_state(UnknownState),
-    _auto_completion_cache(NULL),
-    _column_width_cache(NULL),
-    exec_sql_task(GrtThreadedTask::create()),
-    _is_running_query(false),
-    _live_tree(SqlEditorTreeController::create(this)),
-    _side_palette_host(NULL),
-    _side_palette(NULL),
-    _history(DbSqlEditorHistory::create()),
-    _serverIsOffline(false) {
-  _startup_done = false;
+    _pimplMutex (new PrivateMutex) {
   _log = DbSqlEditorLog::create(this, 500);
 
   NotificationCenter::get()->add_observer(this, "GNApplicationActivated");
@@ -288,6 +278,8 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
 
   // set initial autocommit mode value
   _usr_dbc_conn->autocommit_mode = (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:AutocommitMode", 1) != 0);
+
+  _databaseSymbols.addDependencies({ &_staticServerSymbols });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,19 +296,15 @@ SqlEditorForm::~SqlEditorForm() {
     mforms::Utilities::forget_cached_password(_connection->hostIdentifier(),
                                               _connection->parameterValues().get_string("userName"));
 
-  if (_auto_completion_cache)
-    _auto_completion_cache->shutdown();
-
   delete _column_width_cache;
 
   // debug: ensure that close() was called when the tab is closed
-  if (_toolbar != NULL)
+  if (_toolbar != nullptr)
     logFatal("SqlEditorForm::close() was not called\n");
 
   NotificationCenter::get()->remove_observer(this);
   GRTNotificationCenter::get()->remove_grt_observer(this);
 
-  delete _auto_completion_cache;
   delete _autosave_lock;
   _autosave_lock = 0;
 
@@ -324,7 +312,7 @@ SqlEditorForm::~SqlEditorForm() {
   // On Windows the side palette is a child of the palette host and hence gets freed when we
   // free the host. On other platforms both are the same. In any case, double freeing it is
   // not a good idea.
-  if (_side_palette_host != NULL)
+  if (_side_palette_host != nullptr)
     _side_palette_host->release();
 
   delete _toolbar;
@@ -366,46 +354,11 @@ void SqlEditorForm::finish_startup() {
     logError("Could not create %s: %s\n", cache_dir.c_str(), e.what());
   }
 
-  // we moved this here, cause it needs schema_sidebar to be fully created,
-  // due to some race conditions that occurs sometimes
-  if (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") == 1 && connected()) {
-    try {
-      _auto_completion_cache = new MySQLObjectNamesCache(
-        [this](const std::string &query) -> std::vector<std::pair<std::string, std::string>> {
-          RecMutexLock lock(ensure_valid_aux_connection());
-          {
-            std::auto_ptr<sql::Statement> statement(_aux_dbc_conn->ref->createStatement());
-            std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(query));
-            if (rs.get()) {
-              std::vector<std::pair<std::string, std::string>> result;
-              if (rs->getMetaData()->getColumnCount() > 1) {
-                while (rs->next())
-                  result.push_back({rs->getString(1), rs->getString(2)});
-              } else if (rs->getMetaData()->getColumnCount() == 1) {
-                while (rs->next())
-                  result.push_back({rs->getString(1), ""});
-              }
-
-              return result;
-            }
-          }
-
-          return {{"", ""}};
-        },
-        [this](bool active) { _live_tree->mark_busy(active); });
-
-      _auto_completion_cache->refreshSchemaCache(); // Start fetching schema names immediately.
-    } catch (std::exception &e) {
-      _auto_completion_cache = NULL;
-      logError("Could not create auto completion cache (%s).\n%s\n", cache_dir.c_str(), e.what());
-    }
-  } else
-    logDebug("Code completion is disabled, so no name cache is created\n");
-
   _column_width_cache = new ColumnWidthCache(sanitize_file_name(get_session_name()), cache_dir);
 
   if (_usr_dbc_conn && !_usr_dbc_conn->active_schema.empty())
     _live_tree->on_active_schema_change(_usr_dbc_conn->active_schema);
+  readStaticServerSymbols();
 
   bec::GRTManager::get()->run_once_when_idle(this, std::bind(&SqlEditorForm::update_menu_and_toolbar, this));
 
@@ -653,9 +606,9 @@ void SqlEditorForm::close() {
   bec::GRTManager::get()->replace_status_text("SQL Editor closed");
 
   delete _menu;
-  _menu = NULL;
+  _menu = nullptr;
   delete _toolbar;
-  _toolbar = NULL;
+  _toolbar = nullptr;
 }
 
 std::string SqlEditorForm::get_form_context_name() const {
@@ -689,7 +642,7 @@ void SqlEditorForm::schema_tree_did_populate() {
     mforms::TreeNodeRef node =
       _live_tree->get_schema_tree()->get_node_for_object(schema, wb::LiveSchemaTree::Schema, "");
     if (node) {
-      static const char *nodes[] = {"tables", "views", "procedures", "functions", NULL};
+      static const char *nodes[] = {"tables", "views", "procedures", "functions", nullptr};
       node->expand();
       for (int i = 0; nodes[i]; i++)
         if (strstr(groups.c_str(), nodes[i])) {
@@ -762,7 +715,7 @@ void SqlEditorForm::query_ps_statistics(std::int64_t conn_id, std::map<std::stri
                                       "SORT_SCAN",
                                       "NO_INDEX_USED",
                                       "NO_GOOD_INDEX_USED",
-                                      NULL};
+                                      nullptr};
   RecMutexLock lock(ensure_valid_aux_connection());
 
   std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
@@ -1086,11 +1039,11 @@ struct ConnectionErrorInfo {
   grt::server_denied *serverException;
 
   ConnectionErrorInfo()
-    : auth_error(NULL),
+    : auth_error(nullptr),
       password_expired(false),
       server_probably_down(false),
       serverIsOffline(false),
-      serverException(NULL) {
+      serverException(nullptr) {
   }
   ~ConnectionErrorInfo() {
     delete auth_error;
@@ -1108,13 +1061,17 @@ void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn) {
 
   // initialize the password with a cached value
   {
-    std::string password;
+    std::string password = conn->parameterValues().get_string("password");
     bool ok = true;
-    if (!mforms::Utilities::find_password(conn->hostIdentifier(), conn->parameterValues().get_string("userName"),
-                                          password))
-      if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
-                                                   conn->parameterValues().get_string("userName"), password))
-        ok = false;
+    if (password.empty()) {
+      if (!mforms::Utilities::find_password(conn->hostIdentifier(), conn->parameterValues().get_string("userName"),
+                                            password)) {
+        if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
+                                                     conn->parameterValues().get_string("userName"), password)) {
+          ok = false;
+        }
+      }
+    }
     if (ok)
       _dbc_auth->set_password(password.c_str());
   }
@@ -1151,7 +1108,7 @@ bool SqlEditorForm::connect(std::shared_ptr<sql::TunnelConnection> tunnel) {
         return false;
       }
     } catch (grt::grt_runtime_error &) {
-      if (error_ptr.serverException != NULL)
+      if (error_ptr.serverException != nullptr)
         throw grt::server_denied(*error_ptr.serverException);
 
       if (error_ptr.password_expired)
@@ -1228,7 +1185,7 @@ std::string create_html_line(const std::string &name, const std::string &value) 
 std::string SqlEditorForm::get_client_lib_version() {
   std::string version;
   sql::DriverManager *dbc_driver_man = sql::DriverManager::getDriverManager();
-  if (dbc_driver_man != NULL)
+  if (dbc_driver_man != nullptr)
     version = dbc_driver_man->getClientLibVersion();
   return version;
 }
@@ -1323,10 +1280,9 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
         _lower_case_table_names = base::atoi<int>(value, 0);
 
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+      parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
       _work_parser_context =
-        services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
-      _work_parser_context->use_sql_mode(_sql_mode);
+        services->createParserContext(rdbms()->characterSets(), _version, _sql_mode, _lower_case_table_names != 0);
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   } catch (sql::AuthenticationError &authException) {
@@ -1335,72 +1291,77 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
   } catch (sql::SQLException &exc) {
     logException("SqlEditorForm: exception in do_connect method", exc);
 
-    if (exc.getErrorCode() == 1820) // ER_MUST_CHANGE_PASSWORD_LOGIN
-      err_ptr->password_expired = true;
-    else if (exc.getErrorCode() == 2013 || exc.getErrorCode() == 2003 ||
-             exc.getErrorCode() == 2002) // ERROR 2003 (HY000): Can't connect to MySQL server on X.Y.Z.W (or via socket)
-    {
-      _connection_info.append(create_html_line("", "<b><span style='color: red'>NO CONNECTION</span></b>"));
-      _connection_info.append("</body></html>");
-      add_log_message(WarningMsg, exc.what(), "Could not connect, server may not be running.", "");
+    _version = bec::int_to_version(50717); // Set a meaningful default version if we cannot open a connection.
 
-      err_ptr->server_probably_down = true;
+    switch (exc.getErrorCode()) {
+      case 1820: // ER_MUST_CHANGE_PASSWORD_LOGIN
+        err_ptr->password_expired = true;
+        break;
 
-      if (_connection.is_valid()) {
-        // if there's no connection, then we continue anyway if this is a local connection or
-        // a remote connection with remote admin enabled..
-        grt::Module *m = grt::GRT::get()->get_module("WbAdmin");
-        grt::BaseListRef args(true);
-        args.ginsert(_connection);
-        if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0) {
-          logError("Connection failed but remote admin does not seem to be available, rethrowing exception...\n");
-          throw;
+      case 2013:
+      case 2003:
+      case 2002: { // ERROR 2003 (HY000): Can't connect to MySQL server on X.Y.Z.W (or via socket)
+        _connection_info.append(create_html_line("", "<b><span style='color: red'>NO CONNECTION</span></b>"));
+        _connection_info.append("</body></html>");
+        add_log_message(WarningMsg, exc.what(), "Could not connect, server may not be running.", "");
+
+        err_ptr->server_probably_down = true;
+
+        if (_connection.is_valid()) {
+          // if there's no connection, then we continue anyway if this is a local connection or
+          // a remote connection with remote admin enabled..
+          grt::Module *m = grt::GRT::get()->get_module("WbAdmin");
+          grt::BaseListRef args(true);
+          args.ginsert(_connection);
+          if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0) {
+            logError("Connection failed but remote admin does not seem to be available, rethrowing exception...\n");
+            throw;
+          }
+          logInfo("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
+                  exc.getErrorCode());
         }
+
         logInfo("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
                 exc.getErrorCode());
+
+        // Create a parser with some sensible defaults if we cannot connect.
+        // We specify no charsets here, disabling parsing of repertoires.
+        parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+        _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), _version, _sql_mode, true);
+        return grt::StringRef();
       }
 
-      logInfo("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
-              exc.getErrorCode());
+      case 3032: {
+        err_ptr->serverIsOffline = true;
+        _serverIsOffline = true;
+        add_log_message(WarningMsg, exc.what(), "Could not connect, server is in offline mode.", "");
 
-      // Create a parser with some sensible defaults if we cannot connect.
-      // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503), true);
-      _work_parser_context->use_sql_mode(_sql_mode);
+        if (_connection.is_valid()) {
+          // if there's no connection, then we continue anyway if this is a local connection or
+          // a remote connection with remote admin enabled..
+          grt::GRT::get()->get_module("WbAdmin");
+          grt::BaseListRef args(true);
+          args.ginsert(_connection);
+        }
 
-      return grt::StringRef();
-    } else if (exc.getErrorCode() == 3032) {
-      err_ptr->serverIsOffline = true;
-      _serverIsOffline = true;
-      add_log_message(WarningMsg, exc.what(), "Could not connect, server is in offline mode.", "");
+        logInfo("Error %i connecting to server, server is in offline mode. Only superuser connection are allowed. "
+                "Opening editor with no connection\n", exc.getErrorCode());
 
-      if (_connection.is_valid()) {
-        // if there's no connection, then we continue anyway if this is a local connection or
-        // a remote connection with remote admin enabled..
-        grt::GRT::get()->get_module("WbAdmin");
-        grt::BaseListRef args(true);
-        args.ginsert(_connection);
+        // Create a parser with some sensible defaults if we cannot connect.
+        // We specify no charsets here, disabling parsing of repertoires.
+        parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
+        _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), _version, _sql_mode, true);
+
+        return grt::StringRef();
       }
 
-      logInfo(
-        "Error %i connecting to server, server is in offline mode. Only superuser connection are allowed. Opening "
-        "editor with no connection\n",
-        exc.getErrorCode());
-
-      // Create a parser with some sensible defaults if we cannot connect.
-      // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(true), bec::int_to_version(50503), true);
-      _work_parser_context->use_sql_mode(_sql_mode);
-
-      return grt::StringRef();
-    } else if (exc.getErrorCode() == 3159) // require SSL, offline mode
-    {
-      err_ptr->serverException = new grt::server_denied(
-        exc.what(), exc.getErrorCode()); // we need to change exception type so we can properly handle it in
+      case 3159: {
+        // require SSL, offline mode
+        // we need to change exception type so we can properly handle it in
+        err_ptr->serverException = new grt::server_denied(exc.what(), exc.getErrorCode());
+        break;
+      }
     }
-    // wb_context_sqlide::connect_editor
 
     _connection_info.append("</body></html>");
     throw;
@@ -1413,40 +1374,39 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
 //--------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::connected() const {
-  bool is_locked = false;
-  {
-    base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
-    is_locked = !tmp.locked(); // is conn mutex is locked by someone else, then we assume the conn is in use and thus,
-                               // there'a a connection.
-  }
-  if (_usr_dbc_conn && (is_locked || _usr_dbc_conn->ref.get_ptr()))
+  // If the conn mutex is locked by someone else, then we assume the conn is in use and thus,
+  // there's a connection.
+  bool busy = !_usr_dbc_conn_mutex.tryLock();
+  if (!busy)
+    _usr_dbc_conn_mutex.unlock();
+  if (_usr_dbc_conn && (busy || _usr_dbc_conn->ref.get_ptr()))
     return true; // we don't need to PING the server every time we want to check if the editor is connected
   return false;
 }
 
 void SqlEditorForm::checkIfOffline() {
-  base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
-  int counter = 1;
-  while (!tmp.locked()) {
+  bool locked = _usr_dbc_conn_mutex.tryLock();
+  size_t counter = 1;
+  while (!locked) {
     if (counter >= 30) {
-      logError("Can't lock conn mutex for 30 seconds, assuming server is not offline.");
-      return;
+      logError("Can't lock conn mutex for 30 seconds, assuming server is not offline.\n");
+      break;
     }
 
-    logDebug3("Can't lock conn mutex, trying again in one sec.");
-#if _WIN32
-    Sleep(1);
-#else
-    sleep(1);
-#endif
+    logDebug3("Can't lock connection mutex, trying again in one sec.\n");
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     counter++;
-    tmp.retry_lock(_usr_dbc_conn_mutex);
+    locked = _usr_dbc_conn_mutex.tryLock();
   }
 
-  std::string result;
-  if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "offline_mode", result)) {
-    if (base::string_compare(result, "ON") == 0)
-      _serverIsOffline = true;
+  if (locked) {
+    std::string result;
+    if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "offline_mode", result)) {
+      if (base::string_compare(result, "ON") == 0)
+        _serverIsOffline = true;
+    }
+
+    _usr_dbc_conn_mutex.unlock();
   }
 }
 
@@ -1461,21 +1421,25 @@ bool SqlEditorForm::offline() {
 }
 
 bool SqlEditorForm::ping() const {
-  {
-    base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
-    if (!tmp.locked()) // is conn mutex is locked by someone else, then we assume the conn is in use and thus, there'a a
-                       // connection.
+  // If the conn mutex is locked by someone else, then we assume the conn is in use and thus,
+  // there's a connection.
+  bool locked = _usr_dbc_conn_mutex.tryLock();
+  if (!locked)
+    return true;
+
+  if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr()) {
+    std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
+    try {
+      stmt->execute("do 1");
+      _usr_dbc_conn_mutex.unlock();
       return true;
-    if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr()) {
-      std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
-      try {
-        std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("select 1"));
-        return true;
-      } catch (const std::exception &ex) {
-        logError("Failed to ping the server: %s\n", ex.what());
-      }
+    } catch (const std::exception &ex) {
+      logError("Failed to ping the server: %s\n", ex.what());
     }
   }
+
+  _usr_dbc_conn_mutex.unlock();
+
   return false;
 }
 
@@ -1646,11 +1610,11 @@ void SqlEditorForm::cancel_query() {
 }
 
 void SqlEditorForm::commit() {
-  exec_sql_retaining_editor_contents("COMMIT", NULL, false);
+  exec_sql_retaining_editor_contents("COMMIT", nullptr, false);
 }
 
 void SqlEditorForm::rollback() {
-  exec_sql_retaining_editor_contents("ROLLBACK", NULL, false);
+  exec_sql_retaining_editor_contents("ROLLBACK", nullptr, false);
 }
 
 void SqlEditorForm::explain_current_statement() {
@@ -1699,8 +1663,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
 
   RecordsetsRef rsets(new Recordsets());
 
-  SqlEditorPanel *panel = active_sql_editor_panel();
-  do_exec_sql(weak_ptr_from(this), std::shared_ptr<std::string>(new std::string(sql_script)), panel,
+  do_exec_sql(weak_ptr_from(this), std::shared_ptr<std::string>(new std::string(sql_script)), nullptr,
               (ExecFlags)(dont_add_limit_clause ? DontAddLimitClause : 0), rsets);
 
   return rsets;
@@ -1721,7 +1684,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
  * @param dont_add_limit_clause If true the automatic addition of the LIMIT clause is suppressed, which
  *                              is used to limit on the number of return rows (avoid huge result sets
  *                              by accident).
- * @param into_result If not NULL, the resultset grid will be displayed inside it, instead of creating
+ * @param into_result If not nullptr, the resultset grid will be displayed inside it, instead of creating
  *                     a new one in editor. The query/script must return at most one recordset.
  */
 
@@ -1768,7 +1731,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
     RecordsetsRef rsets(new Recordsets());
 
     exec_sql_task->exec(sync, std::bind(&SqlEditorForm::do_exec_sql, this, weak_ptr_from(this), shared_sql,
-                                        (SqlEditorPanel *)NULL, flags, rsets));
+                                        (SqlEditorPanel *)nullptr, flags, rsets));
 
     if (rsets->size() > 1)
       logError("Statement returns too many resultsets\n");
@@ -1819,7 +1782,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
   _exec_sql_error_count = 0;
 
   bool interrupted = true;
-  sql::Driver *dbc_driver = NULL;
+  sql::Driver *dbc_driver = nullptr;
   try {
     RecMutexLock use_dbc_conn_mutex(ensure_valid_usr_connection());
 
@@ -1861,7 +1824,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
 
     // Intentionally allow any value. For values <= 0 show no result set at all.
     ssize_t max_resultset_count = bec::GRTManager::get()->get_app_option_int("DbSqlEditor::MaxResultsets", 50);
-    ssize_t total_result_count = (editor != NULL) ? editor->resultset_count() : 0; // Consider pinned result sets.
+    ssize_t total_result_count = (editor != nullptr) ? editor->resultset_count() : 0; // Consider pinned result sets.
 
     bool results_left = false;
     for (auto &statement_range : statement_ranges) {
@@ -2004,7 +1967,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
           sql::mysql::MySQL_Connection *mysql_connection =
             dynamic_cast<sql::mysql::MySQL_Connection *>(dbc_statement->getConnection());
           sql::SQLString last_statement_info;
-          if (mysql_connection != NULL)
+          if (mysql_connection != nullptr)
             last_statement_info = mysql_connection->getLastStatementInfo();
           if (updated_rows_count >= 0) {
             std::string message = strfmt(_("%lli row(s) affected"), updated_rows_count);
@@ -2050,7 +2013,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
                       "Yes", "No");
                     if (result == mforms::ResultOk) {
                       add_log_message(DbSqlEditorLog::ErrorMsg,
-                                      "No more results could be displayed. Operation cancelled by user.", statement,
+                                      "No more results could be displayed. Operation canceled by user.", statement,
                                       "");
                       dbc_statement->cancel();
                       dbc_statement->close();
@@ -2396,9 +2359,6 @@ void SqlEditorForm::continue_on_error(bool val) {
   if (_menu)
     _menu->set_item_checked("query.continueOnError", continue_on_error());
   set_editor_tool_items_checked("query.continueOnError", continue_on_error());
-  auto activePanel = active_sql_editor_panel();
-  if(activePanel)
-    activePanel->editor_be()->set_continue_on_error(continue_on_error());
 }
 
 void SqlEditorForm::send_message_keep_alive() {
@@ -2648,25 +2608,116 @@ std::string SqlEditorForm::active_schema() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void SqlEditorForm::schemaListRefreshed(std::vector<std::string> const &schemas) {
+  std::unique_lock<std::mutex> lock(_pimplMutex->_symbolsMutex);
+  _databaseSymbols.clear(); // Doesn't clear the dependencies.
+
+  for (auto schema : schemas) {
+    _databaseSymbols.addNewSymbol<SchemaSymbol>(nullptr, schema);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Reads all relevant built-in symbols like engines and collations in our static server symbols list.
+ */
+void SqlEditorForm::readStaticServerSymbols() {
+  std::unique_lock<std::mutex> lock(_pimplMutex->_symbolsMutex); // Probably not needed, as this runs during startup.
+
+  if (_usr_dbc_conn->ref.get() != nullptr) {
+    const std::unique_ptr<sql::Statement> statement(_usr_dbc_conn->ref.get()->createStatement());
+
+    {
+      const std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("show engines"));
+      while (rs->next()) {
+        std::string name = rs->getString(1);
+        std::string support = rs->getString(2);
+        if (support != "NO") { // Can be YES, NO or DEFAULT.
+          _staticServerSymbols.addNewSymbol<EngineSymbol>(nullptr, name);
+        }
+      }
+    }
+
+    {
+      const std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("show charset"));
+      while (rs->next()) {
+        _staticServerSymbols.addNewSymbol<CharsetSymbol>(nullptr, rs->getString(1));
+      }
+    }
+
+    {
+      const std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("show collation"));
+      while (rs->next()) {
+        _staticServerSymbols.addNewSymbol<CollationSymbol>(nullptr, rs->getString(1));
+      }
+    }
+
+    {
+      const std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("show variables"));
+      while (rs->next()) {
+        _staticServerSymbols.addNewSymbol<SystemVariableSymbol>(nullptr, "@@" + rs->getString(1));
+      }
+    }
+
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Notification from the tree controller that (some) schema meta data has been refreshed. We use this
- * info to update the auto completion cache - avoiding so a separate set of queries to the server.
+ * info to update the database symbol table.
  */
 void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, base::StringListPtr tables,
                                                base::StringListPtr views, base::StringListPtr procedures,
                                                base::StringListPtr functions) {
-  if (_auto_completion_cache != NULL) {
-    _auto_completion_cache->updateTables(schema_name, tables);
-    _auto_completion_cache->updateViews(schema_name, views);
+  std::unique_lock<std::mutex> lock(_pimplMutex->_symbolsMutex);
+  std::unique_ptr<sql::Statement> statement;
+  RecMutexLock usr_dbc_conn_mutex(ensure_valid_usr_connection());
+  if (_usr_dbc_conn->ref.get() != nullptr)
+    statement.reset(_usr_dbc_conn->ref.get()->createStatement());
 
-    // Schedule a refresh of column info for all tables/views.
-    for (std::list<std::string>::const_iterator i = tables->begin(); i != tables->end(); ++i)
-      _auto_completion_cache->refreshColumns(schema_name, *i);
-    for (std::list<std::string>::const_iterator i = views->begin(); i != views->end(); ++i)
-      _auto_completion_cache->refreshColumns(schema_name, *i);
+  auto schemaSymbols = _databaseSymbols.getSymbolsOfType<SchemaSymbol>();
+  for (SchemaSymbol *schemaSymbol : schemaSymbols) {
+    if (schemaSymbol->name == schema_name) {
+      schemaSymbol->clear();
+      for (auto table : *tables) {
+        TableSymbol *tableSymbol = _databaseSymbols.addNewSymbol<TableSymbol>(schemaSymbol, table);
 
-    _auto_completion_cache->updateProcedures(schema_name, procedures);
-    _auto_completion_cache->updateFunctions(schema_name, functions);
+        // Fetch column info for each table.
+        if (statement != nullptr) {
+          std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(
+            std::string(base::sqlstring("SHOW FULL COLUMNS FROM !.!", 0) << schema_name << table)));
+
+          while (rs->next()) {
+            _databaseSymbols.addNewSymbol<ColumnSymbol>(tableSymbol, rs->getString(1), nullptr);
+          }
+        }
+      }
+      for (auto view : *views) {
+        ViewSymbol *viewSymbol = _databaseSymbols.addNewSymbol<ViewSymbol>(schemaSymbol, view);
+
+        // Same for each view.
+        if (statement != nullptr) {
+          std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(
+            std::string(base::sqlstring("SHOW FULL COLUMNS FROM !.!", 0) << schema_name << view)));
+
+          while (rs->next()) {
+            _databaseSymbols.addNewSymbol<ColumnSymbol>(viewSymbol, rs->getString(1), nullptr);
+          }
+        }
+      }
+
+      for (auto procedure : *procedures) {
+        _databaseSymbols.addNewSymbol<StoredRoutineSymbol>(schemaSymbol, procedure, nullptr);
+      }
+
+      for (auto function : *functions) {
+        _databaseSymbols.addNewSymbol<StoredRoutineSymbol>(schemaSymbol, function, nullptr);
+      }
+      return;
+    }
   }
 }
 
@@ -2677,9 +2728,6 @@ void SqlEditorForm::cache_active_schema_name() {
   _usr_dbc_conn->active_schema = schema;
   _aux_dbc_conn->active_schema = schema;
 
-  if (_auto_completion_cache)
-    _auto_completion_cache->loadSchemaObjectsIfNeeded(schema);
-
   exec_sql_task->execute_in_main_thread(std::bind(&SqlEditorForm::update_editor_title_schema, this, schema), false,
                                         true);
 }
@@ -2688,9 +2736,6 @@ void SqlEditorForm::active_schema(const std::string &value) {
   try {
     if (value == active_schema())
       return;
-
-    if (_auto_completion_cache)
-      _auto_completion_cache->loadSchemaObjectsIfNeeded(value);
 
     {
       RecMutexLock aux_dbc_conn_mutex(ensure_valid_aux_connection());
@@ -3033,3 +3078,4 @@ void SqlEditorForm::note_connection_open_outcome(int error) {
 }
 
 //--------------------------------------------------------------------------------------------------
+

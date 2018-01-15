@@ -28,6 +28,8 @@
 #include "grt_values_test_data.h"
 #include "grt_test_utility.h"
 
+using namespace grt;
+
 BEGIN_TEST_DATA_CLASS(grt_value)
 public:
 END_TEST_DATA_CLASS
@@ -427,7 +429,7 @@ TEST_FUNCTION(20) {
 }
 
 template <class ItemType>
-void test_list_value(ListRef<ItemType>& lv, Ref<ItemType> v[]) {
+void test_list_value(ListRef<ItemType>& lv, grt::Ref<ItemType> v[]) {
   Type grt_type(v[0].type());
   lv.retain();
   ensure_equals(format_msg("retained list refcount", NULL, grt_type), lv.refcount(), 2);

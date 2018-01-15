@@ -242,7 +242,7 @@ public:
                      DECLARE_MODULE_FUNCTION(MySQLDBSearchModuleImpl::getPluginInfo),
                      DECLARE_MODULE_FUNCTION(MySQLDBSearchModuleImpl::showSearchPanel), NULL);
 
-  virtual grt::ListRef<app_Plugin> getPluginInfo() {
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override {
     grt::ListRef<app_Plugin> plugins(true);
     {
       app_PluginRef plugin(grt::Initialized);

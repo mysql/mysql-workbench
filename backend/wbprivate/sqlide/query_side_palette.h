@@ -29,6 +29,10 @@ namespace mforms {
   class ToolBarItem;
 }
 
+namespace help {
+  class HelpContext;
+}
+
 #include "base/notifications.h"
 #include "mforms/tabview.h"
 
@@ -36,9 +40,19 @@ class SnippetListView;
 class GrtThreadedTask;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC QuerySidePalette : public mforms::TabView, base::Observer {
+public:
+  QuerySidePalette(const SqlEditorForm::Ref &owner);
+  ~QuerySidePalette();
+  void cancel_timer();
+  void close_popover();
+
+  void refresh_snippets();
+  void edit_last_snippet();
+
 private:
   SqlEditorForm::Ptr _owner;
 
+  help::HelpContext *_helpContext;
   mforms::ToolBar *_help_toolbar;
   mforms::HyperText *_help_text;
   bec::GRTManager::Timer *_help_timer;
@@ -47,6 +61,8 @@ private:
   mforms::ScrollPanel *_snippet_box;
   mforms::ToolBar *_snippet_toolbar;
   SnippetListView *_snippet_list;
+
+  mforms::CodeEditorConfig *_editorConfig;
 
   bool _no_help;        // True if currently no help topic is visible.
   bool _automatic_help; // Automatically show help after moving the caret.
@@ -91,13 +107,6 @@ private:
   std::string format_help_as_html(const std::string &text);
 
   void snippet_selection_changed();
-
-public:
-  QuerySidePalette(const SqlEditorForm::Ref &owner);
-  ~QuerySidePalette();
-  void cancel_timer();
-  void close_popover();
-
-  void refresh_snippets();
-  void edit_last_snippet();
+  void createEditorConfig(GrtVersionRef version);
 };
+

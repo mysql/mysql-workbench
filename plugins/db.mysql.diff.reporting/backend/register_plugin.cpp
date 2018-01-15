@@ -50,8 +50,8 @@ public:
 
     return rc;
   }
-
-  virtual grt::ListRef<app_Plugin> getPluginInfo() {
+  
+  virtual grt::ListRef<app_Plugin> getPluginInfo() override {
     return get_mysql_plugins_info();
   }
 };

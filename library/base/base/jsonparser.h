@@ -224,14 +224,17 @@ namespace JsonParser {
     bool _isValid;
   };
 
-#if defined(_WIN32) || defined(__APPLE__)
-#define NOEXCEPT _NOEXCEPT
-#else
-#ifndef _GLIBCXX_USE_NOEXCEPT
-#define NOEXCEPT throw()
-#else
-#define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
-#endif
+#ifndef HAS_NOEXCEPT
+  #if defined(_WIN32) || defined(__APPLE__)
+    #define NOEXCEPT _NOEXCEPT
+  #else
+    #ifndef _GLIBCXX_USE_NOEXCEPT
+      #define NOEXCEPT throw()
+    #else
+      #define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+    #endif
+  #endif
+  #define HAS_NOEXCEPT
 #endif
 
 #if defined(_WIN32)

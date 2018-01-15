@@ -52,7 +52,7 @@ DEFAULT_LOG_DOMAIN("QuerySidebar");
 using namespace mforms;
 using namespace base;
 
-//----------------- SnippetListView --------------------------------------------------------------------
+//----------------- SnippetListView ------------------------------------------------------------------------------------
 
 /**
   * Internal class containing a list of snippet entries in a scrollable list.
@@ -84,7 +84,7 @@ private:
     }
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void prepare_context_menu() {
     _context_menu = manage(new Menu());
@@ -104,7 +104,7 @@ private:
     _context_menu->add_item(_("Restore Original Snippet List"), "restore_snippets");
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void menu_will_show() {
     bool shared_usable = model()->shared_snippets_usable();
@@ -119,7 +119,7 @@ private:
     _context_menu->set_item_enabled(10, !_user_snippets_active && !_shared_snippets_active);
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void on_action(const std::string &action) {
     if (action == "edit_snippet") {
@@ -133,7 +133,7 @@ private:
       refresh_snippets();
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
 public:
   SnippetListView(const std::string &icon_name) : BaseSnippetList(icon_name, DbSqlEditorSnippets::get_instance()) {
@@ -156,14 +156,14 @@ public:
     prepare_context_menu();
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   ~SnippetListView() {
     delete _snippet_popover;
     _context_menu->release();
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void edit_new_snippet() {
     if (!_snippets.empty()) {
@@ -174,7 +174,7 @@ public:
     }
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   std::string selected_category() {
     return model()->selected_category();
@@ -184,7 +184,7 @@ public:
     return _shared_snippets_active;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   /**
    * Updates the content depending on the selected snippet group.
@@ -200,7 +200,7 @@ public:
     refresh_snippets();
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void edit_snippet(Snippet *snippet) {
     base::Rect bounds = snippet_bounds(snippet);
@@ -219,7 +219,7 @@ public:
     _snippet_popover->show(left_top.first, left_top.second, mforms::StartLeft);
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) {
     bool result = BaseSnippetList::mouse_double_click(button, x, y);
@@ -236,18 +236,18 @@ public:
     return result;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void close_popover() {
     _snippet_popover->close();
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   // End of internal class SnippetListView.
 };
 
-//----------------- QuerySidePalette ---------------------------------------------------------------
+//----------------- QuerySidePalette -----------------------------------------------------------------------------------
 
 QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   :
@@ -257,13 +257,16 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
     TabView(mforms::TabViewSelectorSecondary),
 #endif
     _owner(owner) {
+
   _help_timer = NULL;
   _no_help = true;
   _automatic_help = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 1) == 0;
   _switching_help = false;
   _help_task = GrtThreadedTask::create();
   _help_task->desc("Context Help Task");
-  set_name("Query Side Palette");
+  _helpContext = new help::HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
+  createEditorConfig(owner->rdbms_version());
+  set_name("querySidePalette");
 
   _pending_snippets_refresh = true;
 
@@ -338,7 +341,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   base::NotificationCenter::get()->add_observer(this, "GNTextSelectionChanged");
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 QuerySidePalette::~QuerySidePalette() {
   base::NotificationCenter::get()->remove_observer(this);
@@ -346,16 +349,19 @@ QuerySidePalette::~QuerySidePalette() {
   cancel_timer();
   if (_help_task->is_busy() && _help_task->task())
     _help_task->task()->cancel();
+
+  delete _helpContext;
+  delete _editorConfig;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::cancel_timer() {
   if (_help_timer != NULL)
     bec::GRTManager::get()->cancel_timer(_help_timer);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool contains_editor(SqlEditorForm::Ref form, MySQLEditor *ed) {
   for (int c = form->sql_editor_count(), i = 0; i < c; i++) {
@@ -366,7 +372,7 @@ static bool contains_editor(SqlEditorForm::Ref form, MySQLEditor *ed) {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
   // Selection and caret changes notification.
@@ -391,7 +397,7 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::show_help_text_for_topic(const std::string &topic) {
   std::string title, text, html_text;
@@ -421,7 +427,7 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic) {
   _help_task->exec(false, std::bind(&QuerySidePalette::get_help_text_threaded, this));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Runs in the background to find the text for the last stored topic. Never called if there's no topic.
@@ -433,30 +439,34 @@ grt::StringRef QuerySidePalette::get_help_text_threaded() {
 
   std::string title, text, html_text;
 
-  if (DbSqlEditorContextHelp::get_help_text(form, _last_topic, title, text)) {
+  // XXX: fix it
+  /*
+  if (DbSqlEditorContextHelp::get()->helpTextForTopic(_last_topic, title, text))
+  {
 #ifdef _WIN32
     std::string additional_space = "<div style=\"font-size:4pt\"> </div>";
 #else
     std::string additional_space;
 #endif
-    html_text = std::string("<html><body style=\"font-family:") + DEFAULT_FONT_FAMILY +
-                "; font-size: 8pt\">"
-                "<b style=\"font-size: 11pt\">Topic: <span style=\"color:#688b5e\">" +
-                title + "</span></b><br>" + additional_space + format_help_as_html(text) + "</body></html>";
+    html_text = std::string("<html><body style=\"font-family:") + DEFAULT_FONT_FAMILY + "; font-size: 8pt\">"
+      "<b style=\"font-size: 11pt\">Topic: <span style=\"color:#688b5e\">" + title +
+      "</span></b><br>" + additional_space + format_help_as_html(text) + "</body></html>";
     _no_help = false;
     _topic_cache[_last_topic] = std::make_pair(text, html_text);
-  } else {
+  }
+  else
+  {
     _no_help = true;
     _last_topic = "";
   }
 
   // At this point the previous task has already finished (it's the one that triggered this function).
   _help_task->execute_in_main_thread(std::bind(&QuerySidePalette::update_help_ui, this), false, false);
-
+*/
   return "";
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Runs on the main thread for updating UI elements. Called by the help background task.
@@ -476,7 +486,7 @@ void QuerySidePalette::update_help_ui() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::show_help_hint_or_update() {
   if (!_automatic_help) {
@@ -493,7 +503,7 @@ void QuerySidePalette::show_help_hint_or_update() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Triggered by timer or manually to find a help topic from the given editor's text + position.
@@ -523,7 +533,7 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor) {
   return false; // Don't re-run this task, it's a single-shot.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Get a help topic from the current editor position. This might involve server access already
@@ -531,11 +541,7 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor) {
  * to get the actual help text from it.
  */
 grt::StringRef QuerySidePalette::get_help_topic_threaded(const std::string &query, std::pair<ssize_t, ssize_t> caret) {
-  SqlEditorForm::Ref form = _owner.lock();
-  if (!form)
-    return "";
-
-  std::string topic = DbSqlEditorContextHelp::find_help_topic_from_position(form, query, caret);
+  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, query, caret);
 
   if (!_help_task->task()->is_cancelled())
     _help_task->execute_in_main_thread(std::bind(&QuerySidePalette::process_help_topic, this, topic), false, false);
@@ -543,14 +549,14 @@ grt::StringRef QuerySidePalette::get_help_topic_threaded(const std::string &quer
   return "";
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::process_help_topic(const std::string &topic) {
   update_help_history(topic);
   show_help_text_for_topic(topic);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Adds the given topic to the topic history if the current topic is not the same and updates
@@ -572,7 +578,7 @@ void QuerySidePalette::update_help_history(const std::string &topic) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::click_link(const std::string &link) {
   if (link.find("local:") == 0) {
@@ -588,7 +594,7 @@ void QuerySidePalette::click_link(const std::string &link) {
     mforms::Utilities::open_url(link);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 ToolBar *QuerySidePalette::prepare_snippet_toolbar() {
   ToolBar *toolbar = manage(new ToolBar(mforms::SecondaryToolBar));
@@ -640,7 +646,7 @@ ToolBar *QuerySidePalette::prepare_snippet_toolbar() {
   return toolbar;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::snippet_toolbar_item_activated(ToolBarItem *item) {
   std::string action = item->get_name();
@@ -657,7 +663,7 @@ void QuerySidePalette::snippet_toolbar_item_activated(ToolBarItem *item) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::snippet_selection_changed() {
   bool has_selection = _snippet_list->selected_index() > -1;
@@ -669,7 +675,7 @@ void QuerySidePalette::snippet_selection_changed() {
   _snippet_toolbar->set_item_enabled("insert_text", has_selection);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Called by the owning form if the main form changes to remove the popover.
@@ -678,7 +684,7 @@ void QuerySidePalette::close_popover() {
   _snippet_list->close_popover();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 ToolBar *QuerySidePalette::prepare_help_toolbar() {
   ToolBar *toolbar = manage(new ToolBar(mforms::SecondaryToolBar));
@@ -752,7 +758,7 @@ ToolBar *QuerySidePalette::prepare_help_toolbar() {
   return toolbar;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::help_toolbar_item_activated(ToolBarItem *item) {
   if (_switching_help)
@@ -808,20 +814,18 @@ void QuerySidePalette::help_toolbar_item_activated(ToolBarItem *item) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool compare_lengths(const std::pair<std::string, std::string> &l, const std::pair<std::string, std::string> &r) {
   return l.first.size() > r.first.size();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::check_format_structures(MySQLEditor *editor) {
-  mforms::CodeEditorConfig *config = editor->get_editor_settings();
-
   if (_keyword_color.empty()) {
     // We use the major keyword color for all keywords in the help. Just to simplify things.
-    std::map<std::string, std::string> major_style = config->get_styles()[7]; // Major keyword.
+    std::map<std::string, std::string> major_style = _editorConfig->get_styles()[7]; // Major keyword.
     _keyword_color = major_style["fore-color"];
     if (_keyword_color.empty())
       _keyword_color = "#000000";
@@ -830,7 +834,7 @@ void QuerySidePalette::check_format_structures(MySQLEditor *editor) {
   // Initialize pattern -> color associations if not yet done.
   // We don't consider background colors atm.
   if (_pattern_and_colors.empty()) {
-    std::map<int, std::map<std::string, std::string> > styles = config->get_styles();
+    std::map<int, std::map<std::string, std::string> > styles = _editorConfig->get_styles();
     _pattern_and_colors.push_back(
       std::make_pair("([^A-Za-z])([0-9]+(\\.[0-9]+)?((e|E)[0-9]+)?)", styles[6]["fore-color"]));
     _pattern_and_colors.push_back(std::make_pair("/\\*.*?\\*/", styles[1]["fore-color"]));
@@ -846,7 +850,7 @@ void QuerySidePalette::check_format_structures(MySQLEditor *editor) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string QuerySidePalette::format_help_as_html(const std::string &text) {
   // Start by extracting the syntax part which is always at the top. This will be embedded into
@@ -986,7 +990,7 @@ std::string QuerySidePalette::format_help_as_html(const std::string &text) {
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::refresh_snippets() {
   if (_pending_snippets_refresh && _snippet_list->shared_snippets_active()) {
@@ -1002,8 +1006,48 @@ void QuerySidePalette::refresh_snippets() {
   _snippet_list->refresh_snippets();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::edit_last_snippet() {
   _snippet_list->edit_new_snippet();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void QuerySidePalette::createEditorConfig(GrtVersionRef version) {
+  mforms::SyntaxHighlighterLanguage lang = mforms::LanguageMySQL;
+  if (version.is_valid()) {
+    switch (version->majorNumber()) {
+      case 5:
+        switch (version->minorNumber()) {
+          case 0:
+            lang = mforms::LanguageMySQL50;
+            break;
+          case 1:
+            lang = mforms::LanguageMySQL51;
+            break;
+          case 5:
+            lang = mforms::LanguageMySQL55;
+            break;
+          case 6:
+            lang = mforms::LanguageMySQL56;
+            break;
+          case 7:
+            lang = mforms::LanguageMySQL57;
+            break;
+        }
+        break;
+
+      case 8:
+        switch (version->minorNumber()) {
+          case 0:
+            lang = mforms::LanguageMySQL80;
+            break;
+        }
+        break;
+    }
+  }
+  _editorConfig = new mforms::CodeEditorConfig(lang);
+}
+
+//----------------------------------------------------------------------------------------------------------------------

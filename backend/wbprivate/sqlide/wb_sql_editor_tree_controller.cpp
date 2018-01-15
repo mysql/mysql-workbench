@@ -67,7 +67,7 @@ using namespace grt;
 using namespace bec;
 using namespace wb;
 using namespace base;
-using namespace parser;
+using namespace parsers;
 
 using boost::signals2::scoped_connection;
 
@@ -420,34 +420,23 @@ bool SqlEditorTreeController::fetch_data_for_filter(
 
 //--------------------------------------------------------------------------------------------------
 
-std::list<std::string> SqlEditorTreeController::fetch_schema_list() {
-  std::list<std::string> schemata_names;
+std::vector<std::string> SqlEditorTreeController::fetch_schema_list() {
+  static std::set<std::string> systemSchemaNames{"information_schema", "performance_schema", "mysql"};
+
+  std::vector<std::string> schemata_names;
   try {
     sql::Dbc_connection_handler::Ref conn;
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    bool show_metadata_schemata =
-      (0 != bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ShowMetadataSchemata", 0));
+    bool showSystemSchemas = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ShowMetadataSchemata", 0) != 0;
 
-    std::auto_ptr<sql::ResultSet> rs(conn->ref->getMetaData()->getSchemata());
+    std::unique_ptr<sql::ResultSet> rs(conn->ref->getMetaData()->getSchemata());
     while (rs->next()) {
       std::string name = rs->getString(1);
-      static std::map<std::string, bool> metadata_schemata_names;
-      class MetadataSchemataNamesInitializer {
-      public:
-        MetadataSchemataNamesInitializer(std::map<std::string, bool> &metadata_schemata_names) {
-          //! dbms-specific code
-          // TODO: what it is used for?
-          metadata_schemata_names["information_schema"];
-          metadata_schemata_names["performance_schema"];
-          metadata_schemata_names["mysql"];
-        }
-      };
-      static MetadataSchemataNamesInitializer metadata_schemata_initializer(metadata_schemata_names);
-
-      if (show_metadata_schemata ||
-          (metadata_schemata_names.end() == metadata_schemata_names.find(name) && name[0] != '.'))
+      if (name[0] == '.')
+        continue;
+      if (showSystemSchemas || systemSchemaNames.count(name) == 0)
         schemata_names.push_back(name);
     }
   }
@@ -466,7 +455,7 @@ bool SqlEditorTreeController::fetch_schema_contents(
   live_schema_fetch_task->exec(sync, std::bind(&SqlEditorTreeController::do_fetch_live_schema_contents, this,
                                                weak_ptr_from(this), schema_name, arrived_slot));
 
-  return true; //!
+  return true;
 }
 
 void SqlEditorTreeController::refresh_live_object_in_overview(wb::LiveSchemaTree::ObjectType type,
@@ -1568,7 +1557,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
     return ""; // get_object_create_script() already showed an error.
 
   db_mysql_RoutineRef routine(grt::Initialized);
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
 
   db_mysql_CatalogRef catalog(grt::Initialized);
   catalog->version(_owner->rdbms_version());
@@ -1583,22 +1572,22 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
   schema->routines().insert(routine);
 
   std::string previous_sql_mode;
-  std::string sql_mode = _owner->work_parser_context()->get_sql_mode();
+  std::string sql_mode = _owner->work_parser_context()->sqlMode();
   if (!script.first.empty()) {
     previous_sql_mode = sql_mode;
     sql_mode = script.first;
-    _owner->work_parser_context()->use_sql_mode(script.first);
+    _owner->work_parser_context()->updateSqlMode(script.first);
   }
 
   size_t error_count = services->parseRoutine(_owner->work_parser_context(), routine, script.second);
 
   if (!previous_sql_mode.empty())
-    _owner->work_parser_context()->use_sql_mode(previous_sql_mode);
+    _owner->work_parser_context()->updateSqlMode(previous_sql_mode);
 
   if (error_count > 0) {
     logWarning("Error parsing SQL code for %s.%s:\n%s\n", schema_name.c_str(), obj_name.c_str(), script.second.c_str());
 
-    std::vector<ParserErrorEntry> errors = _owner->work_parser_context()->get_errors_with_offset(0, false);
+    std::vector<ParserErrorInfo> errors = _owner->work_parser_context()->errorsWithOffset(0);
     mforms::Utilities::show_error(_("Error parsing sql code for object"), errors[0].message, "OK");
     return "";
   }
@@ -2087,16 +2076,16 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog, const std::string &objectDescription,
                                                      const std::string &sql, std::string sqlMode,
                                                      const std::string &schema) {
-  std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
+  std::string currentSqlMode = _owner->work_parser_context()->sqlMode();
 
   grt::DictRef options(true);
   options.set("reuse_existing_objects", grt::IntegerRef(1));
   options.set("schema", grt::StringRef(schema));
 
   if (!sqlMode.empty())
-    _owner->work_parser_context()->use_sql_mode(sqlMode);
+    _owner->work_parser_context()->updateSqlMode(sqlMode);
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   size_t errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
 
   bool haveErrors = false;
@@ -2106,10 +2095,10 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
       sqlMode = base::replaceString(sqlMode, "ANSI_QUOTES", "");
     else
       sqlMode += ", ANSI_QUOTES";
-    _owner->work_parser_context()->use_sql_mode(sqlMode);
+    _owner->work_parser_context()->updateSqlMode(sqlMode);
 
     errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
-    _owner->work_parser_context()->use_sql_mode(currentSqlMode);
+    _owner->work_parser_context()->updateSqlMode(currentSqlMode);
 
     if (errorCount == 0) // Error(s) solved by new sql mode -> inconsistency.
     {
@@ -2130,7 +2119,7 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
   } else
     haveErrors = errorCount > 0;
 
-  _owner->work_parser_context()->use_sql_mode(currentSqlMode);
+  _owner->work_parser_context()->updateSqlMode(currentSqlMode);
   if (haveErrors) {
     if (mforms::Utilities::show_error(strfmt(_("Error Parsing DDL for %s"), objectDescription.c_str()),
                                       _("There was an error while parsing the DDL retrieved from the server.\n"
@@ -2475,8 +2464,10 @@ grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(SqlEditorFor
   _is_refreshing_schema_tree = true;
   StringListPtr schema_list(new std::list<std::string>());
 
-  std::list<std::string> fsl = fetch_schema_list();
-  schema_list->assign(fsl.begin(), fsl.end());
+  std::vector<std::string> schemaList = fetch_schema_list();
+  _owner->schemaListRefreshed(schemaList);
+
+  schema_list->assign(schemaList.begin(), schemaList.end());
   bec::GRTManager::get()->run_once_when_idle(this,
                                              std::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
   bec::GRTManager::get()->run_once_when_idle(this, std::bind(&SqlEditorForm::schema_tree_did_populate, _owner));

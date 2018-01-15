@@ -40,7 +40,7 @@ class DbMySQLDiffAlter : public SynchronizeDifferencesPageBEInterface {
   grt::StringListRef _alter_list;
   grt::ListRef<GrtNamedObject> _alter_object_list;
   db_mysql_CatalogRef _left_catalog, _right_catalog;
-  std::shared_ptr<DiffChange> _alter_change;
+  std::shared_ptr<grt::DiffChange> _alter_change;
   db_mysql_CatalogRef _left_cat_copy;
   grt::DictRef _db_options;
 

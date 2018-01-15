@@ -32,7 +32,6 @@
 
 #include "grtdb/catalog_templates.h"
 
-using namespace grt;
 std::string utf_to_upper(const char *str);
 
 #include "diff/diffchange.h"
@@ -44,11 +43,11 @@ std::ostream &operator<<(std::ostream &os, const DiffNode &);
 
 std::string get_old_name_or_name(GrtNamedObjectRef obj);
 
-template <typename T>
-std::string get_catalog_map_key(Ref<T> t) {
+template<typename T>
+std::string get_catalog_map_key(grt::Ref<T> t) {
   typedef typename ct::Traits<T>::ParentType Parent;
 
-  std::string parent_key(utf_to_upper(get_catalog_map_key(Ref<Parent>::cast_from(t->owner())).c_str()));
+  std::string parent_key(utf_to_upper(get_catalog_map_key(grt::Ref<Parent>::cast_from(t->owner())).c_str()));
 
   std::string obj_key(utf_to_upper(get_old_name_or_name(t).c_str()));
 
@@ -94,14 +93,14 @@ public:
 private:
   DiffNodePart model_part;
   DiffNodePart db_part;
-  std::shared_ptr<DiffChange> change;
+  std::shared_ptr<grt::DiffChange> change;
   ApplicationDirection applyDirection;
   DiffNodeVector children;
   bool modified;
 
 public:
   DiffNode(GrtNamedObjectRef model_object, GrtNamedObjectRef external_object, bool inverse,
-           std::shared_ptr<DiffChange> c = std::shared_ptr<DiffChange>())
+           std::shared_ptr<grt::DiffChange> c = std::shared_ptr<grt::DiffChange>())
     : model_part(inverse ? external_object : model_object),
       db_part(inverse ? model_object : external_object),
       change(c),
@@ -116,7 +115,7 @@ public:
 
   void dump(int depth = 0);
 
-  std::shared_ptr<DiffChange> get_change() const {
+  std::shared_ptr<grt::DiffChange> get_change() const {
     return change;
   };
 
@@ -170,7 +169,7 @@ public:
         return true;
     return false;
   }
-  void set_modified_and_update_dir(bool m, std::shared_ptr<DiffChange> c);
+  void set_modified_and_update_dir(bool m, std::shared_ptr<grt::DiffChange> c);
 
   void get_object_list_for_script(std::vector<grt::ValueRef> &vec) const;
   void get_object_list_to_apply_to_model(std::vector<grt::ValueRef> &vec,
@@ -207,8 +206,8 @@ private:
   std::vector<std::string> _schemata;
 
   // static void build_catalog_map(db_mysql_CatalogRef catalog, CatalogMap& map);
-  bool update_tree_with_changes(const std::shared_ptr<DiffChange> diffchange);
-  void apply_change(GrtObjectRef obj, std::shared_ptr<DiffChange> change);
+  bool update_tree_with_changes(const std::shared_ptr<grt::DiffChange> diffchange);
+  void apply_change(GrtObjectRef obj, std::shared_ptr<grt::DiffChange> change);
 
   void fill_tree(DiffNode *root, db_mysql_CatalogRef catalog, const CatalogMap &map, bool inverse);
   void fill_tree(DiffNode *schema_node, db_mysql_SchemaRef schema, const CatalogMap &map, bool inverse);
@@ -217,7 +216,7 @@ private:
 public:
   DiffNode *get_node_with_id(const bec::NodeId &nodeid);
   DiffTreeBE(const std::vector<std::string> &schemata, db_mysql_CatalogRef model_catalogRef,
-             db_mysql_CatalogRef external_catalog, std::shared_ptr<DiffChange> diffchange,
+             db_mysql_CatalogRef external_catalog, std::shared_ptr<grt::DiffChange> diffchange,
              DiffNodeController controller = DiffNodeController());
   virtual ~DiffTreeBE() {
     delete _root;

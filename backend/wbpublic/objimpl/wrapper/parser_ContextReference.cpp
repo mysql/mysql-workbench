@@ -25,13 +25,13 @@
 
 #include "parser_ContextReference_impl.h"
 
-using namespace parser;
+using namespace parsers;
 
 //--------------------------------------------------------------------------------------------------
 
 class parser_ContextReference::ImplData {
 public:
-  parser::MySQLParserContext::Ref _ref;
+  parsers::MySQLParserContext::Ref _ref;
   ImplData(const MySQLParserContext::Ref &ref) {
     _ref = ref;
   }

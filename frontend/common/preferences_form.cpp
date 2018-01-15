@@ -1150,13 +1150,11 @@ mforms::View *PreferencesForm::create_query_page() {
     }
 
     {
-      mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:AutocommitMode");
-      check->set_text(_("Leave autocommit mode enabled by default"));
-      check->set_tooltip(
-        _("Toggles the default autocommit mode for connections.\nWhen enabled, each statement will be committed "
-          "immediately."
-          "\nNOTE: all query tabs in the same connection share the same transaction. "
-          "To have independent transactions, you must open a new connection."));
+      mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:AutocommitMode");
+      check->set_text(_("New connections use auto commit mode"));
+      check->set_tooltip(_("Sets the default autocommit mode for connections.\nWhen enabled, each statement will be committed immediately."
+                           "\nNOTE: all query tabs in the same connection share the same transaction. "
+                           "To have independent transactions, you must open a new connection."));
       vbox->add(check, false);
     }
 
@@ -1451,7 +1449,7 @@ void PreferencesForm::createLogLevelSelectionPulldown(mforms::Box *content) {
     bool ok = base::Logger::active_level(selector->get_string_value());
 
     if (ok)
-      logError("Logger set to level '%s' in Preferences menu\n", base::Logger::active_level().c_str());
+      logInfo("Logger set to level '%s' in preferences menu\n", base::Logger::active_level().c_str());
 
     assert(ok);
   });

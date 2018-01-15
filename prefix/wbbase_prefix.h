@@ -22,7 +22,7 @@
  */
 
 #ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
+  #import <Cocoa/Cocoa.h>
 #endif
 
 #ifdef __cplusplus
@@ -48,6 +48,7 @@
 #include <iomanip>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <condition_variable>
 
 #include <glib.h>
 #include <glib/gstdio.h>

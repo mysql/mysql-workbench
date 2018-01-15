@@ -37,6 +37,8 @@
 #include <list>
 #include <sstream>
 #include <memory>
+#include <stack>
+
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 

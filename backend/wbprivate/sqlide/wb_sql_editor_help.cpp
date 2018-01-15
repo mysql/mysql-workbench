@@ -21,364 +21,752 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include "base/sqlstring.h"
 #include "base/log.h"
-#include "base/threading.h"
+#include "base/string_utilities.h"
 
+#include "mforms/code_editor.h"
+
+#include "grtdb/db_helpers.h"
 #include "workbench/wb_backend_public_interface.h"
 #include "wb_sql_editor_help.h"
 
-#include <antlr3.h>
-#include "mysql-parser.h"
-#include "mysql-scanner.h"
-#include "MySQLLexer.h"
+#include "mysql/mysql-recognition-types.h"
+#include "mysql/MySQLRecognizerCommon.h"
+#include "mysql/MySQLLexer.h"
+#include "mysql/MySQLParser.h"
 
 DEFAULT_LOG_DOMAIN("Context help")
 
-//--------------------------------------------------------------------------------------------------
+using namespace parsers;
+using namespace antlr4;
 
-/**
- * See if there's a help topic for the proposed topic. Return the real topic title if so.
- */
-std::string DbSqlEditorContextHelp::lookup_topic_for_string(const SqlEditorForm::Ref &form, std::string topic) {
-  if (!topic.empty()) {
-    // HELP supports wildcards. We don't use them but if a single % is looked up we get all topics as result.
-    // Since we know there's a topic for '%' we just return it.
-    if (topic != "%") {
-      try {
-        logDebug2("Validating topic: %s\n", topic.c_str());
+using namespace help;
 
-        sql::Dbc_connection_handler::Ref conn;
-        base::RecMutexLock aux_dbc_conn_mutex = form->ensure_valid_aux_connection(conn);
-
-        base::sqlstring query = base::sqlstring("help ?", 0) << topic;
-        std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(query)));
-        if (rs->rowsCount() == 1) {
-          rs->next();
-          topic = rs->getString(1);
-        } else
-          topic = "";
-      } catch (...) {
-        // It's an exception but not relevant for the rest of the code. We just did not get a topic
-        // (maybe the server was busy or not reachable).
-        logDebug2("Exception caught while looking up topic\n");
-      }
-    }
+class HelpContext::Private {
+public:
+  Private() : lexer(&input), tokens(&lexer), parser(&tokens) {
   }
 
-  return topic;
-}
+  ANTLRInputStream input;
+  MySQLLexer lexer;
+  CommonTokenStream tokens;
+  MySQLParser parser;
 
-//--------------------------------------------------------------------------------------------------
+  ParserRuleContext *parse(const std::string &query) {
+    input.load(query);
+    lexer.reset();
+    lexer.setInputStream(&input);
+    tokens.setTokenSource(&lexer);
 
-static std::string query_type_to_help_topic[] = {
-  "",                      // QtUnknown
-  "",                      // QtAmbiguous
-  "alter database",        // QtAlterDatabase
-  "alter logfile group",   // QtAlterLogFileGroup - not there yet
-  "alter function",        // QtAlterFunction
-  "alter procedure",       // QtAlterProcedure
-  "alter server",          // QtAlterServer
-  "alter table",           // QtAlterTable
-  "alter tablespace",      // QtAlterTableSpace - not there yet
-  "alter event",           // QtAlterEvent
-  "alter view",            // QtAlterView
-  "create table",          // QtCreateTable
-  "create index",          // QtCreateIndex
-  "create database",       // QtCreateDatabase
-  "create event",          // QtCreateEvent
-  "create view",           // QtCreateView
-  "create procedure",      // QtCreateRoutine
-  "create procedure",      // QtCreateProcedure
-  "create function",       // QtCreateFunction
-  "create function udf",   // QtCreateUdf
-  "create trigger",        // QtCreateTrigger
-  "create logfile group",  // QtCreateLogFileGroup
-  "create server",         // QtCreateServer
-  "create tablespace",     // QtCreateTableSpace - not there yet
-  "drop database",         // QtDropDatabase
-  "drop event",            // QtDropEvent
-  "drop function",         // QtDropFunction, including UDF
-  "drop procedure",        // QtDropProcedure
-  "drop index",            // QtDropIndex
-  "drop logfile group",    // QtDropLogfileGroup - not there yet
-  "drop server",           // QtDropServer
-  "drop table",            // QtDropTable
-  "drop tablespace",       // QtDropTablespace - not there yet
-  "drop trigger",          // QtDropTrigger
-  "drop view",             // QtDropView
-  "rename table",          // QtRenameTable
-  "truncate table",        // QtTruncateTable
-  "call",                  // QtCall
-  "delete",                // QtDelete
-  "do",                    // QtDo
-  "handler",               // QtHandler,
-  "insert",                // QtInsert
-  "load data",             // QtLoadData
-  "load xml",              // QtLoadXML
-  "replace",               // QtReplace
-  "select",                // QtSelect
-  "update",                // QtUpdate
-  "partition",             // QtPartition (TODO: must be handled individually for each statement type it is used in)
-  "start transaction",     // QtStartTransaction
-  "start transaction",     // QtBeginWork,
-  "commit",                // QtCommit (automatically detours to start transaction)
-  "start transaction",     // QtRollbackWork,
-  "start transaction",     // QtSetAutoCommit
-  "start transaction",     // QtSetTransaction
-  "savepoint",             // QtSavepoint
-  "savepoint",             // QtReleaseSavepoint
-  "savepoint",             // QtRollbackSavepoint
-  "lock",                  // QtLock
-  "unlock",                // QtUnlock
-  "xa",                    // QtXA - not there yet
-  "purge binary logs",     // QtPurge
-  "change master to",      // QtChangeMaster
-  "reset",                 // QtReset
-  "reset master",          // QtResetMaster
-  "reset slave",           // QtResetSlave
-  "start slave",           // QtStartSlave
-  "stop slave",            // QtStopSlave
-  "load data master",      // QtLoadDataMaster - not there yet
-  "load table master",     // QtLoadTableMaster - not there yet
-  "prepare",               // QtPrepare
-  "execute statement",     // QtExecute
-  "deallocate prepare",    // QtDeallocate
-  "alter user",            // QtAlterUser
-  "create user",           // QtCreateUser
-  "drop user",             // QtDropUser
-  "grant",                 // QtGrantProxy
-  "grant",                 // QtGrant
-  "rename user",           // QtRenameUser
-  "revoke",                // QtRevokeProxy
-  "revoke",                // QtRevoke
-  "analyze table",         // QtAnalyzeTable
-  "check table",           // QtCheckTable
-  "checksum table",        // QtChecksumTable
-  "optimize table",        // QtOptimizeTable
-  "repair table",          // QtRepairTable
-  "backup table",          // QtBackUpTable
-  "restore table",         // QtRestoreTable
-  "install plugin",        // QtInstallPlugin
-  "uninstall plugin",      // QtUninstallPlugin
-  "set",                   // QtSet
-  "set password",          // QtSetPassword
-  "show",                  // QtShow
-  "show authors",          // QtShowAuthors
-  "show binary logs",      // QtShowBinaryLogs
-  "show binlog events",    // QtShowBinlogEvents
-  "show relaylog events",  // QtShowRelaylogEvents
-  "show character set",    // QtShowCharset
-  "show collation",        // QtShowCollation
-  "show columns",          // QtShowColumns
-  "show contributors",     // QtShowContributors
-  "show create database",  // QtShowCreateDatabase
-  "show create event",     // QtShowCreateEvent
-  "show create function",  // QtShowCreateFunction
-  "show create procedure", // QtShowCreateProcedure
-  "show create table",     // QtShowCreateTable
-  "show create trigger",   // QtShowCreateTrigger
-  "show create view",      // QtShowCreateView
-  "show databases",        // QtShowDatabases
-  "show engine",           // QtShowEngineStatus
-  "show engines",          // QtShowStorageEngines
-  "show errors",           // QtShowErrors
-  "show events",           // QtShowEvents
-  "show function code",    // QtShowFunctionCode
-  "show function status",  // QtShowFunctionStatus
-  "show grants",           // QtShowGrants
-  "show index",            // QtShowIndexes
-  "show innodb status",    // QtShowInnoDBStatus
-  "show master status",    // QtShowMasterStatus
-  "show open tables",      // QtShowOpenTables
-  "show plugins",          // QtShowPlugins
-  "show procedure status", // QtShowProcedureStatus
-  "show procedure code",   // QtShowProcedureCode
-  "show privileges",       // QtShowPrivileges
-  "show processlist",      // QtShowProcessList
-  "show profile",          // QtShowProfile
-  "show profiles",         // QtShowProfiles
-  "show slave hosts",      // QtShowSlaveHosts
-  "show slave status",     // QtShowSlaveStatus
-  "show status",           // QtShowStatus
-  "show variables",        // QtShowVariables
-  "show table status",     // QtShowTableStatus
-  "show tables",           // QtShowTables
-  "show triggers",         // QtShowTriggers
-  "show warnings",         // QtShowWarnings
-  "cache index",           // QtCacheIndex
-  "flush",                 // QtFlush
-  "kill",                  // QtKill
-  "load index",            // QtLoadIndex
-  "explain",               // QtExplainTable
-  "explain",               // QtExplainStatement
-  "help command",          // QtHelp
-  "use",                   // QtUse
+    parser.reset();
+    return parser.query();
+  }
 };
 
-//--------------------------------------------------------------------------------------------------
+//----------------- HelpContext ----------------------------------------------------------------------------------------
 
-/**
- * Helper to skip over a single text or identifier. Actually for text there can be more than
- * one instance. Cohered string tokens are concatenated and hence to be handled as a single one.
- *
- * On entry we are on the text/id token. On exit we are on the following token.
- */
-bool skip_text_or_identifier(MySQLScanner &scanner) {
-  switch (scanner.token_type()) {
-    case NCHAR_TEXT:
-      scanner.next(true);
-      return true;
+HelpContext::HelpContext(GrtCharacterSetsRef charsets, const std::string &sqlMode, long serverVersion) {
+  _d = new Private();
+  std::set<std::string> filteredCharsets;
+  for (size_t i = 0; i < charsets->count(); i++)
+    filteredCharsets.insert("_" + base::tolower(*charsets[i]->name()));
 
-    case UNDERSCORE_CHARSET:
-    case SINGLE_QUOTED_TEXT:
-    case DOUBLE_QUOTED_TEXT:
-      do {
-        scanner.next(true);
-      } while (scanner.token_type() == SINGLE_QUOTED_TEXT || scanner.token_type() == DOUBLE_QUOTED_TEXT);
-
-      return true;
-
-    default:
-      if (scanner.is_identifier()) {
-        scanner.next(true);
-        return true;
-      }
+  if (_d->lexer.serverVersion < 50503) {
+    filteredCharsets.erase("_utf8mb4");
+    filteredCharsets.erase("_utf16");
+    filteredCharsets.erase("_utf32");
+  } else {
+    filteredCharsets.insert("_utf8mb4");
+    filteredCharsets.insert("_utf16");
+    filteredCharsets.insert("_utf32");
   }
+  _d->lexer.charsets = filteredCharsets;
+  _d->lexer.serverVersion = serverVersion;
 
-  return false;
+  _d->lexer.sqlModeFromString(sqlMode);
+  _d->parser.sqlMode = _d->lexer.sqlMode;
+
+  _d->parser.serverVersion = serverVersion;
+  _d->parser.removeParseListeners();
+  _d->parser.removeErrorListeners();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-/**
- * Determines the object type from the current position (after one of the DML keywords like
- * alter, create, drop). Default is table if we cannot determine the real one.
- */
-std::string object_from_token(MySQLScanner &scanner) {
-  // Not all object types support a definer clause, but we are flexible.
-  // Skip over it if there's one, regardless.
-  if (scanner.token_type() == DEFINER_SYMBOL) {
-    scanner.next(true);
-    if (scanner.token_type() != EQUAL_OPERATOR)
-      return "table";
-
-    // user:
-    //   text_or_identifier (AT_SIGN_SYMBOL text_or_identifier | AT_TEXT_SUFFIX)?
-    //   | CURRENT_USER_SYMBOL parentheses?
-    scanner.next(true);
-
-    if (scanner.token_type() == CURRENT_USER_SYMBOL) {
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL) {
-        scanner.next(true);
-        if (scanner.token_type() == CLOSE_PAR_SYMBOL)
-          scanner.next(true);
-        else
-          return "table";
-      }
-    } else {
-      if (!skip_text_or_identifier(scanner))
-        return "table";
-      if (scanner.token_type() == AT_SIGN_SYMBOL) {
-        scanner.next(true);
-        if (!skip_text_or_identifier(scanner)) {
-          if (scanner.token_type() != AT_TEXT_SUFFIX)
-            return "table";
-          scanner.next(true);
-        }
-      }
-    }
-  }
-
-  switch (scanner.token_type()) {
-    case DATABASE_SYMBOL:
-      return "database";
-
-    case LOGFILE_SYMBOL:
-      return "logfile group";
-
-    case FUNCTION_SYMBOL: {
-      scanner.next(true);
-      if (scanner.token_type() == IDENTIFIER)
-        scanner.next(true);
-
-      if (scanner.token_type() == RETURNS_SYMBOL)
-        return "function udf";
-
-      return "function";
-    }
-
-    case AGGREGATE_SYMBOL: // create aggregate function...
-      return "function udf";
-
-    case PROCEDURE_SYMBOL:
-      return "procedure";
-
-    case SERVER_SYMBOL:
-      return "server";
-
-    case TABLESPACE_SYMBOL:
-      return "tablespace";
-
-    case EVENT_SYMBOL:
-      return "event";
-
-    case VIEW_SYMBOL:
-    case ALGORITHM_SYMBOL:
-    case OR_SYMBOL:  // create or replace...
-    case SQL_SYMBOL: // create sql security... view
-      return "view";
-
-    case TRIGGER_SYMBOL:
-      return "trigger";
-
-    case ONLINE_SYMBOL: // Old style online option.
-    case OFFLINE_SYMBOL: {
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case UNIQUE_SYMBOL:
-        case FULLTEXT_SYMBOL:
-        case SPATIAL_SYMBOL:
-        case INDEX_SYMBOL:
-          return "index";
-
-        default:
-          return "table";
-      }
-    }
-
-    case TEMPORARY_SYMBOL:
-      return "table";
-
-    case USER_SYMBOL:
-      return "user";
-
-    default:
-      return "table";
-  }
+HelpContext::~HelpContext() {
+  delete _d;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------- DbSqlEditorContextHelp -----------------------------------------------------------------------------
 
-bool DbSqlEditorContextHelp::get_help_text(const SqlEditorForm::Ref &form, const std::string &topic, std::string &title,
-                                           std::string &text) {
+DbSqlEditorContextHelp *DbSqlEditorContextHelp::get() {
+  static DbSqlEditorContextHelp instance;
+  return &instance;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static const std::unordered_set<std::string> availableTopics = {
+  "!",
+  "!=",
+  "%",
+  "&",
+  "*",
+  "+",
+  "- BINARY",
+  "- UNARY",
+  "->",
+  "/",
+  "<",
+  "<<",
+  "<=",
+  "<=>",
+  "=",
+  ">",
+  ">=",
+  ">>",
+  "ABS",
+  "ACOS",
+  "ADDDATE",
+  "ADDTIME",
+  "AES_DECRYPT",
+  "AES_ENCRYPT",
+  "ALTER DATABASE",
+  "ALTER EVENT",
+  "ALTER FUNCTION",
+  "ALTER PROCEDURE",
+  "ALTER SERVER",
+  "ALTER TABLE",
+  "ALTER USER",
+  "ALTER VIEW",
+  "ANALYZE TABLE",
+  "AND",
+  "ANY_VALUE",
+  "AREA",
+  "ASBINARY",
+  "ASCII",
+  "ASIN",
+  "ASSIGN-EQUAL",
+  "ASSIGN-VALUE",
+  "ASTEXT",
+  "ASYMMETRIC_DECRYPT",
+  "ASYMMETRIC_DERIVE",
+  "ASYMMETRIC_ENCRYPT",
+  "ASYMMETRIC_SIGN",
+  "ASYMMETRIC_VERIFY",
+  "ATAN",
+  "ATAN2",
+  "AUTO_INCREMENT",
+  "AVG",
+  "BEGIN END",
+  "BENCHMARK",
+  "BETWEEN AND",
+  "BIGINT",
+  "BIN",
+  "BINARY",
+  "BINARY OPERATOR",
+  "BINLOG",
+  "BIT",
+  "BIT_AND",
+  "BIT_COUNT",
+  "BIT_LENGTH",
+  "BIT_OR",
+  "BIT_XOR",
+  "BLOB",
+  "BLOB DATA TYPE",
+  "BOOLEAN",
+  "BUFFER",
+  "CACHE INDEX",
+  "CALL",
+  "CASE OPERATOR",
+  "CASE STATEMENT",
+  "CAST",
+  "CEIL",
+  "CEILING",
+  "CENTROID",
+  "CHANGE MASTER TO",
+  "CHANGE REPLICATION FILTER",
+  "CHAR",
+  "CHAR BYTE",
+  "CHAR FUNCTION",
+  "CHARACTER_LENGTH",
+  "CHARSET",
+  "CHAR_LENGTH",
+  "CHECK TABLE",
+  "CHECKSUM TABLE",
+  "CLOSE",
+  "COALESCE",
+  "COERCIBILITY",
+  "COLLATION",
+  "COMPRESS",
+  "CONCAT",
+  "CONCAT_WS",
+  "CONNECTION_ID",
+  "CONSTRAINT",
+  "CONTAINS",
+  "CONV",
+  "CONVERT",
+  "CONVERT_TZ",
+  "CONVEXHULL",
+  "COS",
+  "COT",
+  "COUNT",
+  "COUNT DISTINCT",
+  "CRC32",
+  "CREATE DATABASE",
+  "CREATE EVENT",
+  "CREATE FUNCTION",
+  "CREATE FUNCTION UDF",
+  "CREATE INDEX",
+  "CREATE PROCEDURE",
+  "CREATE SERVER",
+  "CREATE TABLE",
+  "CREATE TABLESPACE",
+  "CREATE TRIGGER",
+  "CREATE USER",
+  "CREATE VIEW",
+  "CREATE_ASYMMETRIC_PRIV_KEY",
+  "CREATE_ASYMMETRIC_PUB_KEY",
+  "CREATE_DH_PARAMETERS",
+  "CREATE_DIGEST",
+  "CROSSES",
+  "CURDATE",
+  "CURRENT_DATE",
+  "CURRENT_TIME",
+  "CURRENT_TIMESTAMP",
+  "CURRENT_USER",
+  "CURTIME",
+  "DATABASE",
+  "DATE",
+  "DATE FUNCTION",
+  "DATEDIFF",
+  "DATETIME",
+  "DATE_ADD",
+  "DATE_FORMAT",
+  "DATE_SUB",
+  "DAY",
+  "DAYNAME",
+  "DAYOFMONTH",
+  "DAYOFWEEK",
+  "DAYOFYEAR",
+  "DEALLOCATE PREPARE",
+  "DEC",
+  "DECIMAL",
+  "DECLARE CONDITION",
+  "DECLARE CURSOR",
+  "DECLARE HANDLER",
+  "DECLARE VARIABLE",
+  "DECODE",
+  "DEFAULT",
+  "DEGREES",
+  "DELETE",
+  "DES_DECRYPT",
+  "DES_ENCRYPT",
+  "DIMENSION",
+  "DISJOINT",
+  "DISTANCE",
+  "DIV",
+  "DO",
+  "DOUBLE",
+  "DOUBLE PRECISION",
+  "DROP DATABASE",
+  "DROP EVENT",
+  "DROP FUNCTION",
+  "DROP FUNCTION UDF",
+  "DROP INDEX",
+  "DROP PROCEDURE",
+  "DROP SERVER",
+  "DROP TABLE",
+  "DROP TABLESPACE",
+  "DROP TRIGGER",
+  "DROP USER",
+  "DROP VIEW",
+  "DUAL",
+  "ELT",
+  "ENCODE",
+  "ENCRYPT",
+  "ENDPOINT",
+  "ENUM",
+  "ENVELOPE",
+  "EQUALS",
+  "EXECUTE STATEMENT",
+  "EXP",
+  "EXPLAIN",
+  "EXPORT_SET",
+  "EXTERIORRING",
+  "EXTRACT",
+  "EXTRACTVALUE",
+  "FETCH",
+  "FIELD",
+  "FIND_IN_SET",
+  "FLOAT",
+  "FLOOR",
+  "FLUSH",
+  "FLUSH QUERY CACHE",
+  "FORMAT",
+  "FOUND_ROWS",
+  "FROM_BASE64",
+  "FROM_DAYS",
+  "FROM_UNIXTIME",
+  "GEOMCOLLFROMTEXT",
+  "GEOMCOLLFROMWKB",
+  "GEOMETRY",
+  "GEOMETRY HIERARCHY",
+  "GEOMETRYCOLLECTION",
+  "GEOMETRYN",
+  "GEOMETRYTYPE",
+  "GEOMFROMTEXT",
+  "GEOMFROMWKB",
+  "GET DIAGNOSTICS",
+  "GET_FORMAT",
+  "GET_LOCK",
+  "GLENGTH",
+  "GRANT",
+  "GREATEST",
+  "GROUP_CONCAT",
+  "GTID_SUBSET",
+  "GTID_SUBTRACT",
+  "HANDLER",
+  "HELP COMMAND",
+  "HELP STATEMENT",
+  "HELP_DATE",
+  "HELP_VERSION",
+  "HEX",
+  "HOUR",
+  "IF FUNCTION",
+  "IF STATEMENT",
+  "IFNULL",
+  "IN",
+  "INET6_ATON",
+  "INET6_NTOA",
+  "INET_ATON",
+  "INET_NTOA",
+  "INSERT",
+  "INSERT DELAYED",
+  "INSERT FUNCTION",
+  "INSERT SELECT",
+  "INSTALL PLUGIN",
+  "INSTR",
+  "INT",
+  "INTEGER",
+  "INTERIORRINGN",
+  "INTERSECTS",
+  "INTERVAL",
+  "IS",
+  "IS NOT",
+  "IS NOT NULL",
+  "IS NULL",
+  "ISCLOSED",
+  "ISEMPTY",
+  "ISNULL",
+  "ISOLATION",
+  "ISSIMPLE",
+  "IS_FREE_LOCK",
+  "IS_IPV4",
+  "IS_IPV4_COMPAT",
+  "IS_IPV4_MAPPED",
+  "IS_IPV6",
+  "IS_USED_LOCK",
+  "ITERATE",
+  "JOIN",
+  "JSON_APPEND",
+  "JSON_ARRAY",
+  "JSON_ARRAY_APPEND",
+  "JSON_ARRAY_INSERT",
+  "JSON_CONTAINS",
+  "JSON_CONTAINS_PATH",
+  "JSON_DEPTH",
+  "JSON_EXTRACT",
+  "JSON_INSERT",
+  "JSON_KEYS",
+  "JSON_LENGTH",
+  "JSON_MERGE",
+  "JSON_OBJECT",
+  "JSON_QUOTE",
+  "JSON_REMOVE",
+  "JSON_REPLACE",
+  "JSON_SEARCH",
+  "JSON_SET",
+  "JSON_TYPE",
+  "JSON_UNQUOTE",
+  "JSON_VALID",
+  "KILL",
+  "LABELS",
+  "LAST_DAY",
+  "LAST_INSERT_ID",
+  "LCASE",
+  "LEAST",
+  "LEAVE",
+  "LEFT",
+  "LENGTH",
+  "LIKE",
+  "LINEFROMTEXT",
+  "LINEFROMWKB",
+  "LINESTRING",
+  "LN",
+  "LOAD DATA",
+  "LOAD INDEX",
+  "LOAD XML",
+  "LOAD_FILE",
+  "LOCALTIME",
+  "LOCALTIMESTAMP",
+  "LOCATE",
+  "LOCK",
+  "LOG",
+  "LOG10",
+  "LOG2",
+  "LONGBLOB",
+  "LONGTEXT",
+  "LOOP",
+  "LOWER",
+  "LPAD",
+  "LTRIM",
+  "MAKEDATE",
+  "MAKETIME",
+  "MAKE_SET",
+  "MASTER_POS_WAIT",
+  "MATCH AGAINST",
+  "MAX",
+  "MBR DEFINITION",
+  "MBRCONTAINS",
+  "MBRCOVEREDBY",
+  "MBRCOVERS",
+  "MBRDISJOINT",
+  "MBREQUAL",
+  "MBREQUALS",
+  "MBRINTERSECTS",
+  "MBROVERLAPS",
+  "MBRTOUCHES",
+  "MBRWITHIN",
+  "MD5",
+  "MEDIUMBLOB",
+  "MEDIUMINT",
+  "MEDIUMTEXT",
+  "MERGE",
+  "MICROSECOND",
+  "MID",
+  "MIN",
+  "MINUTE",
+  "MLINEFROMTEXT",
+  "MLINEFROMWKB",
+  "MOD",
+  "MONTH",
+  "MONTHNAME",
+  "MPOINTFROMTEXT",
+  "MPOINTFROMWKB",
+  "MPOLYFROMTEXT",
+  "MPOLYFROMWKB",
+  "MULTILINESTRING",
+  "MULTIPOINT",
+  "MULTIPOLYGON",
+  "NAME_CONST",
+  "NOT BETWEEN",
+  "NOT IN",
+  "NOT LIKE",
+  "NOT REGEXP",
+  "NOW",
+  "NULLIF",
+  "NUMGEOMETRIES",
+  "NUMINTERIORRINGS",
+  "NUMPOINTS",
+  "OCT",
+  "OCTET_LENGTH",
+  "OLD_PASSWORD",
+  "OPEN",
+  "OPTIMIZE TABLE",
+  "OR",
+  "ORD",
+  "OVERLAPS",
+  "PASSWORD",
+  "PERIOD_ADD",
+  "PERIOD_DIFF",
+  "PI",
+  "POINT",
+  "POINTFROMTEXT",
+  "POINTFROMWKB",
+  "POINTN",
+  "POLYFROMTEXT",
+  "POLYFROMWKB",
+  "POLYGON",
+  "POSITION",
+  "POW",
+  "POWER",
+  "PREPARE",
+  "PROCEDURE ANALYSE",
+  "PURGE BINARY LOGS",
+  "QUARTER",
+  "QUOTE",
+  "RADIANS",
+  "RAND",
+  "RANDOM_BYTES",
+  "REGEXP",
+  "RELEASE_ALL_LOCKS",
+  "RELEASE_LOCK",
+  "RENAME TABLE",
+  "RENAME USER",
+  "REPAIR TABLE",
+  "REPEAT FUNCTION",
+  "REPEAT LOOP",
+  "REPLACE",
+  "REPLACE FUNCTION",
+  "RESET",
+  "RESET MASTER",
+  "RESET SLAVE",
+  "RESIGNAL",
+  "RETURN",
+  "REVERSE",
+  "REVOKE",
+  "RIGHT",
+  "ROUND",
+  "ROW_COUNT",
+  "RPAD",
+  "RTRIM",
+  "SAVEPOINT",
+  "SCHEMA",
+  "SECOND",
+  "SEC_TO_TIME",
+  "SELECT",
+  "SESSION_USER",
+  "SET",
+  "SET DATA TYPE",
+  "SET GLOBAL SQL_SLAVE_SKIP_COUNTER",
+  "SET PASSWORD",
+  "SET SQL_LOG_BIN",
+  "SHA1",
+  "SHA2",
+  "SHOW",
+  "SHOW BINARY LOGS",
+  "SHOW BINLOG EVENTS",
+  "SHOW CHARACTER SET",
+  "SHOW COLLATION",
+  "SHOW COLUMNS",
+  "SHOW CREATE DATABASE",
+  "SHOW CREATE EVENT",
+  "SHOW CREATE FUNCTION",
+  "SHOW CREATE PROCEDURE",
+  "SHOW CREATE TABLE",
+  "SHOW CREATE TRIGGER",
+  "SHOW CREATE USER",
+  "SHOW CREATE VIEW",
+  "SHOW DATABASES",
+  "SHOW ENGINE",
+  "SHOW ENGINES",
+  "SHOW ERRORS",
+  "SHOW EVENTS",
+  "SHOW FUNCTION CODE",
+  "SHOW FUNCTION STATUS",
+  "SHOW GRANTS",
+  "SHOW INDEX",
+  "SHOW MASTER STATUS",
+  "SHOW OPEN TABLES",
+  "SHOW PLUGINS",
+  "SHOW PRIVILEGES",
+  "SHOW PROCEDURE CODE",
+  "SHOW PROCEDURE STATUS",
+  "SHOW PROCESSLIST",
+  "SHOW PROFILE",
+  "SHOW PROFILES",
+  "SHOW RELAYLOG EVENTS",
+  "SHOW SLAVE HOSTS",
+  "SHOW SLAVE STATUS",
+  "SHOW STATUS",
+  "SHOW TABLE STATUS",
+  "SHOW TABLES",
+  "SHOW TRIGGERS",
+  "SHOW VARIABLES",
+  "SHOW WARNINGS",
+  "SHUTDOWN",
+  "SIGN",
+  "SIGNAL",
+  "SIN",
+  "SLEEP",
+  "SMALLINT",
+  "SOUNDEX",
+  "SOUNDS LIKE",
+  "SPACE",
+  "SPATIAL",
+  "SQRT",
+  "SRID",
+  "START SLAVE",
+  "START TRANSACTION",
+  "STARTPOINT",
+  "STD",
+  "STDDEV",
+  "STDDEV_POP",
+  "STDDEV_SAMP",
+  "STOP SLAVE",
+  "STRCMP",
+  "STR_TO_DATE",
+  "ST_AREA",
+  "ST_ASBINARY",
+  "ST_ASGEOJSON",
+  "ST_ASTEXT",
+  "ST_BUFFER",
+  "ST_BUFFER_STRATEGY",
+  "ST_CENTROID",
+  "ST_CONTAINS",
+  "ST_CONVEXHULL",
+  "ST_CROSSES",
+  "ST_DIFFERENCE",
+  "ST_DIMENSION",
+  "ST_DISJOINT",
+  "ST_DISTANCE",
+  "ST_DISTANCE_SPHERE",
+  "ST_ENDPOINT",
+  "ST_ENVELOPE",
+  "ST_EQUALS",
+  "ST_EXTERIORRING",
+  "ST_GEOHASH",
+  "ST_GEOMCOLLFROMTEXT",
+  "ST_GEOMCOLLFROMWKB",
+  "ST_GEOMETRYN",
+  "ST_GEOMETRYTYPE",
+  "ST_GEOMFROMGEOJSON",
+  "ST_GEOMFROMTEXT",
+  "ST_GEOMFROMWKB",
+  "ST_INTERIORRINGN",
+  "ST_INTERSECTION",
+  "ST_INTERSECTS",
+  "ST_ISCLOSED",
+  "ST_ISEMPTY",
+  "ST_ISSIMPLE",
+  "ST_ISVALID",
+  "ST_LATFROMGEOHASH",
+  "ST_LENGTH",
+  "ST_LINEFROMTEXT",
+  "ST_LINEFROMWKB",
+  "ST_LONGFROMGEOHASH",
+  "ST_MAKEENVELOPE",
+  "ST_MLINEFROMTEXT",
+  "ST_MLINEFROMWKB",
+  "ST_MPOINTFROMTEXT",
+  "ST_MPOINTFROMWKB",
+  "ST_MPOLYFROMTEXT",
+  "ST_MPOLYFROMWKB",
+  "ST_NUMGEOMETRIES",
+  "ST_NUMINTERIORRINGS",
+  "ST_NUMPOINTS",
+  "ST_OVERLAPS",
+  "ST_POINTFROMGEOHASH",
+  "ST_POINTFROMTEXT",
+  "ST_POINTFROMWKB",
+  "ST_POINTN",
+  "ST_POLYFROMTEXT",
+  "ST_POLYFROMWKB",
+  "ST_SIMPLIFY",
+  "ST_SRID",
+  "ST_STARTPOINT",
+  "ST_SYMDIFFERENCE",
+  "ST_TOUCHES",
+  "ST_UNION",
+  "ST_VALIDATE",
+  "ST_WITHIN",
+  "ST_X",
+  "ST_Y",
+  "SUBDATE",
+  "SUBSTR",
+  "SUBSTRING",
+  "SUBSTRING_INDEX",
+  "SUBTIME",
+  "SUM",
+  "SYSDATE",
+  "SYSTEM_USER",
+  "TAN",
+  "TEXT",
+  "TIME",
+  "TIME FUNCTION",
+  "TIMEDIFF",
+  "TIMESTAMP",
+  "TIMESTAMP FUNCTION",
+  "TIMESTAMPADD",
+  "TIMESTAMPDIFF",
+  "TIME_FORMAT",
+  "TIME_TO_SEC",
+  "TINYBLOB",
+  "TINYINT",
+  "TINYTEXT",
+  "TOUCHES",
+  "TO_BASE64",
+  "TO_DAYS",
+  "TO_SECONDS",
+  "TRIM",
+  "TRUE FALSE",
+  "TRUNCATE",
+  "TRUNCATE TABLE",
+  "UCASE",
+  "UNCOMPRESS",
+  "UNCOMPRESSED_LENGTH",
+  "UNHEX",
+  "UNINSTALL PLUGIN",
+  "UNION",
+  "UNIX_TIMESTAMP",
+  "UPDATE",
+  "UPDATEXML",
+  "UPPER",
+  "USE",
+  "USER",
+  "UTC_DATE",
+  "UTC_TIME",
+  "UTC_TIMESTAMP",
+  "UUID",
+  "UUID_SHORT",
+  "VALIDATE_PASSWORD_STRENGTH",
+  "VALUES",
+  "VARBINARY",
+  "VARCHAR",
+  "VARIANCE",
+  "VAR_POP",
+  "VAR_SAMP",
+  "VERSION",
+  "WAIT_FOR_EXECUTED_GTID_SET",
+  "WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS",
+  "WEEK",
+  "WEEKDAY",
+  "WEEKOFYEAR",
+  "WEIGHT_STRING",
+  "WHILE",
+  "WITHIN",
+  "WKT DEFINITION",
+  "X",
+  "XA",
+  "XOR",
+  "Y",
+  "YEAR",
+  "YEAR DATA TYPE",
+  "YEARWEEK",
+  "^",
+  "|",
+  "~",
+};
+
+/**
+ * A quick lookup if the help topic exists actually, without retrieving help text.
+ */
+bool DbSqlEditorContextHelp::topicExists(const std::string &topic) {
+  return availableTopics.count(topic) > 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool DbSqlEditorContextHelp::helpTextForTopic(const std::string &topic, std::string &title, std::string &text) {
   logDebug2("Looking up help topic: %s\n", topic.c_str());
-  if (!topic.empty()) {
-    try {
-      sql::Dbc_connection_handler::Ref conn;
-      base::RecMutexLock aux_dbc_conn_mutex(form->ensure_valid_aux_connection(conn));
 
-      // % is interpreted as a wildcard, so we have to escape it. However, we don't use wildcards
-      // in any other topic (nor %), so a simple check is enough.
-      base::sqlstring query = base::sqlstring("help ?", 0) << (topic == "%" ? "\\%" : topic);
-      std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(query)));
-      if (rs->rowsCount() > 0) {
-        rs->next();
-        title = rs->getString(1);
-        text = rs->getString(2);
-        return true;
-      }
+  if (!topic.empty()) {
+    try { /*
+           sql::Dbc_connection_handler::Ref conn;
+           base::RecMutexLock aux_dbc_conn_mutex(form->ensure_valid_aux_connection(conn));
+
+           // % is interpreted as a wildcard, so we have to escape it. However, we don't use wildcards
+           // in any other topic (nor %), so a simple check is enough.
+           base::sqlstring query = base::sqlstring("help ?", 0) << (topic == "%" ? "\\%" : topic);
+           std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(query)));
+           if (rs->rowsCount() > 0)
+           {
+             rs->next();
+             title = rs->getString(1);
+             text = rs->getString(2);
+             return true;
+           }*/
     } catch (...) {
       logDebug2("Exception caught while looking up help text\n");
     }
@@ -386,1111 +774,717 @@ bool DbSqlEditorContextHelp::get_help_text(const SqlEditorForm::Ref &form, const
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-/**
- * Determines a help topic from the given query at the given position.
- */
-std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEditorForm::Ref &form,
-                                                                  const std::string &query,
-                                                                  std::pair<ssize_t, ssize_t> caret) {
-  logDebug2("Finding help topic\n");
+// Determines if the given tree is a terminal node and if so, if it is of the given type.
+bool isToken(tree::ParseTree *tree, size_t type) {
+  auto terminal = dynamic_cast<tree::TerminalNode *>(tree);
+  if (terminal != nullptr)
+    return terminal->getSymbol()->getType() == type;
 
-  // Ensure our translation list has the same size as there are query types.
-  g_assert((sizeof(query_type_to_help_topic) / sizeof(query_type_to_help_topic[0])) == QtSentinel);
+  auto token = dynamic_cast<ParserRuleContext *>(tree)->start;
+  if (token == nullptr)
+    return false;
+  return token->getType() == type;
+}
 
-  // The strategy here is this:
-  //   1) Try to find help for the word at the caret position by a simple scan for the given position.
-  //      Some cases need parser support already at this stage, so try the parser first for these cases
-  //      and then do the local scan.
-  //   2) Try to parse the query and if that works find the topic from the closest sub query or the top query.
-  //   3) Scan the query from the beginning and try to find enough info to construct a topic.
+//----------------------------------------------------------------------------------------------------------------------
+
+// Determines if the given is of the given type.
+bool isToken(Token *token, size_t type) {
+  return token->getType() == type;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Determines if the parent of the given tree is a specific context.
+bool isParentContext(tree::ParseTree *tree, size_t type) {
+  auto parent = dynamic_cast<ParserRuleContext *>(tree->parent);
+  return parent->getRuleIndex() == type;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::map<std::string, std::string> functionSynonyms = {
+  {"ST_ASWKB", "ASBINARY"},
+  {"ASWKB", "ASBINARY"},
+  {"ST_ASWKT", "ASTEXT"},
+  {"ASWKT", "ASTEXT"},
+  {"ST_CROSSES", "CROSSES"},
+  {"GEOMETRYFROMTEXT", "GEOMFROMTEXT"},
+  {"GEOMETRYFROMWKB", "GEOMFROMWKB"},
+};
+
+std::string functionTopicForContext(ParserRuleContext *context) {
   std::string topic;
 
-  caret.second++; // Lines are one-based.
+  Token *nameToken = nullptr;
+  size_t rule = context->getRuleIndex();
+  switch (rule) {
+    case MySQLParser::RuleFunctionCall: {
+      auto functionContext = dynamic_cast<MySQLParser::FunctionCallContext *>(context);
 
-  // There are a few cases where we need a parser to decide. That might however fail due to
-  // syntax errors. So we check first these special cases if we can solve them by
-  // parsing. If not we continue with our normal strategy.
-  MySQLRecognizer recognizer(form->server_version(), form->sql_mode(), form->valid_charsets());
-  recognizer.parse(query.c_str(), query.length(), true, MySQLParseUnit::PuGeneric);
-  MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
-  bool found_token = walker.advanceToPosition((int)caret.second, (int)caret.first);
-  if (found_token && recognizer.has_errors()) {
-    // We can only assume success if the first error is after our position. Otherwise
-    // we cannot predict what's in the syntax tree.
-    ParserErrorInfo error = recognizer.error_info().front();
-    found_token =
-      ((int)error.line > caret.second || ((int)error.line == caret.second && (int)error.charOffset > caret.first));
-  }
+      // We only consider global functions here, hence there should not be any qualifier.
+      if (functionContext->pureIdentifier() != nullptr)
+        nameToken = functionContext->pureIdentifier()->start;
+      else if (functionContext->qualifiedIdentifier() != nullptr)
+        nameToken = functionContext->qualifiedIdentifier()->start;
 
-  if (found_token) {
-    std::string text = base::tolower(walker.tokenText());
-    switch (walker.tokenType()) {
-      case CHAR_SYMBOL:
-        switch (walker.parentType()) {
-          case FUNCTION_CALL_TOKEN:
-            return "char function";
+      break;
+    }
 
-          case SHOW_SYMBOL:
-            return "show character set";
+    case MySQLParser::RuleRuntimeFunctionCall: {
+      auto functionContext = dynamic_cast<MySQLParser::RuntimeFunctionCallContext *>(context);
+      if (functionContext->name != nullptr) {
+        switch (functionContext->name->getType()) {
+          // Function names that are also keywords.
+          case MySQLLexer::IF_SYMBOL:
+          case MySQLLexer::REPEAT_SYMBOL:
+          case MySQLLexer::REPLACE_SYMBOL:
+          case MySQLLexer::TIME_SYMBOL:
+          case MySQLLexer::TIMESTAMP_SYMBOL:
+          case MySQLLexer::CHAR_SYMBOL:
+          case MySQLLexer::DATE_SYMBOL:
+          case MySQLLexer::INSERT_SYMBOL:
+            return base::toupper(functionContext->name->getText()) + " FUNCTION";
+
+          case MySQLLexer::COLLATION_SYMBOL:
+            return "COLLATION";
+
+          default:
+            nameToken = functionContext->name;
         }
+      }
+      break;
+    }
 
-        if (walker.lookAhead(false) != OPEN_PAR_SYMBOL)
-          return "char byte";
-        return "char";
+    case MySQLParser::RuleSumExpr: {
+      auto exprContext = dynamic_cast<MySQLParser::SumExprContext *>(context);
+      if (exprContext->COUNT_SYMBOL() != nullptr && exprContext->DISTINCT_SYMBOL() != nullptr)
+        return "COUNT DISTINCT";
+      nameToken = exprContext->name;
 
-      case DISTINCT_SYMBOL:
-        if (walker.up() && walker.tokenType() == FUNCTION_CALL_TOKEN) {
-          if (walker.lookAhead(true) == COUNT_SYMBOL)
-            return "count distinct";
-        }
-        break;
+      break;
+    }
 
-      case IDENTIFIER:
-        if (text == "mrg_myisam") // Synonym for merge engine.
-          return "merge";
-
-        if (text == "merge") {
-          if (walker.previousType() == EQUAL_OPERATOR) {
-            if (!walker.previousSibling())
-              break;
-          }
-          if (walker.previousType() == ENGINES_SYMBOL || walker.previousType() == TYPE_SYMBOL)
-            return "merge";
-        }
-        break;
-
-      case YEAR_SYMBOL:
-        if (walker.parentType() == DATA_TYPE_TOKEN)
-          return "year data type";
-        else
-          return "year";
-        break;
-
-      default:
-        switch (walker.parentType()) {
-          case LABEL_TOKEN:
-            return "labels";
-            break;
-        }
-        break;
+    case MySQLParser::RuleGeometryFunction: {
+      auto functionContext = dynamic_cast<MySQLParser::GeometryFunctionContext *>(context);
+      nameToken = functionContext->name;
+      break;
     }
   }
 
-  topic = topic_from_position(form, query, caret);
-
-  // INSERT has a special topic for INSERT SELECT which we can only handle by a parser.
-  if (!topic.empty() && topic != "INSERT")
-    return topic;
-
-  if (found_token) {
-    MySQLQueryType type = walker.getCurrentQueryType();
-
-    if (topic == "INSERT" || type == QtInsert) {
-      if (type == QtInsert)
-        walker.goToSubQueryStart(); // Go back to the start of this specific subquery.
-
-      // Insert is a major keyword, so it has an own AST tree. Hence go down to the first child
-      // for the next scan (which must be non-recursive).
-      walker.next();
-
-      // The current position should now be on the INSERT keyword.
-      if (walker.advanceToType(SELECT_SYMBOL, false))
-        return "insert select";
-      return "insert";
-    }
-
-    // For flush we have a dedicated help topic (flush query cache), so we need an extra scan.
-    if (type != QtUnknown && type != QtAmbiguous && type != QtFlush)
-      return query_type_to_help_topic[type];
-  } else {
-    if (topic == "insert")
-      return topic;
-  }
-
-  return topic_from_position(form, query, std::make_pair(0, 0));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Checks for tokens we know there is no help topic for.
- */
-bool is_token_without_topic(unsigned type) {
-  switch (type) {
-    case DOT_SYMBOL:
-    case COMMA_SYMBOL:
-    case SEMICOLON_SYMBOL:
-    case COLON_SYMBOL:
-    case OPEN_PAR_SYMBOL:
-    case CLOSE_PAR_SYMBOL:
-    case AT_SIGN_SYMBOL:
-    case AT_AT_SIGN_SYMBOL:
-    case PARAM_MARKER:
-    case SINGLE_QUOTED_TEXT:
-    case BACK_TICK_QUOTED_ID:
-    case DOUBLE_QUOTED_TEXT:
-      return true;
-
-    default:
-      return false;
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Start from the given position in the query and construct a topic if possible.
- * This includes all single word topics, so they don't need to be covered later again.
- */
-std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref &form, const std::string &query,
-                                                        std::pair<ssize_t, ssize_t> caret) {
-  // TODO: switch to use a parser context instead of the form reference.
-  logDebug2("Trying to get help topic at position <%li, %li>, from query: %s...\n", (long)caret.first,
-            (long)caret.second, query.substr(0, 300).c_str());
-
-  // First collect all tokens up to the caret position.
-  MySQLScanner scanner(query.c_str(), query.length(), true, form->server_version(), form->sql_mode(),
-                       form->valid_charsets());
-
-  scanner.seek((int)caret.second, (int)caret.first);
-
-  // If we end up in a whitespace or certain other symbols we jump to the previous token instead.
-  if (scanner.token_channel() != 0)
-    scanner.previous(true);
-  while (scanner.position() > 0 && (scanner.is_number() || is_token_without_topic(scanner.token_type())))
-    scanner.previous(true);
-
-  if (scanner.token_type() == ANTLR3_TOKEN_EOF)
-    return "";
-
-  // There are special single token topics (or multi tokens which have a single token topic too)
-  // which require some extra processing.
-  std::string topic = topic_with_single_topic_equivalent(scanner);
-  topic = lookup_topic_for_string(form, topic);
-  if (!topic.empty())
-    return topic;
-
-  // The token at the caret could be part of a multi word topic, so check the special cases.
-  switch (scanner.token_type()) {
-    case ALTER_SYMBOL:
-      scanner.next(true);
-      topic = "alter " + object_from_token(scanner);
-      break;
-
-    case CREATE_SYMBOL:
-      scanner.next(true);
-      topic = "create " + object_from_token(scanner);
-      break;
-
-    case DROP_SYMBOL:
-      scanner.next(true);
-      topic = "drop " + object_from_token(scanner);
-      break;
-
-    case TRUNCATE_SYMBOL:
-      topic = "truncate table";
-      break;
-
-    case ANALYZE_SYMBOL: // TODO: analyze and analyse are subject for merge in 5.7.
-      topic = "analyze table";
-      break;
-
-    case ANALYSE_SYMBOL:
-      topic = "procedure analyse";
-      break;
-
-    case BEGIN_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case WORK_SYMBOL:
-        case ANTLR3_TOKEN_EOF:
-          topic = "begin work"; // Transaction statement. Topic does not exist.
-          break;
-
-        case STRING_TOKEN:
-          topic = "xa start"; // Topic does not exist.
-          break;
-
-        default:
-          topic = "begin end";
-      }
-      break;
-
-    case END_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case LOOP_SYMBOL:
-          topic = "loop";
-          break;
-
-        case REPEAT_SYMBOL:
-          topic = "repeat loop";
-          break;
-
-        case WHILE_SYMBOL:
-          topic = "while loop";
-          break;
-
-        case CASE_SYMBOL: // Case statement.
-          topic = "case statement";
-          break;
-
-        case IF_SYMBOL:
-          topic = "if statement";
-          break;
-
-        default:
-          topic = "begin end"; // Could also be a case expression but it's difficult to determine.
-      }
-      break;
-
-    case CACHE_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == INDEX_SYMBOL)
-        topic = "cache index";
-      break;
-
-    case CHANGE_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == MASTER_SYMBOL)
-        topic = "change master to";
-      break;
-
-    case CHECK_SYMBOL:
-      topic = "check table";
-      break;
-
-    case CHECKSUM_SYMBOL:
-      topic = "checksum table";
-      break;
-
-    case CURRENT_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == GET_SYMBOL)
-        topic = "get diagnostics";
-      else {
-        scanner.previous(true);
-        scanner.previous(true);
-        if (scanner.token_type() == DIAGNOSTICS_SYMBOL)
-          topic = "get diagnostics";
-      }
-      break;
-
-    case DEALLOCATE_SYMBOL:
-      topic = "deallocate prepare";
-      break;
-
-    case DECLARE_SYMBOL:
-      // There must be an identifier before the next keyword, but we also
-      // handle cases where this was not (yet) written.
-      scanner.next(true);
-
-      switch (scanner.token_type()) {
-        case COMMA_SYMBOL:
-        case CONDITION_SYMBOL:
-        case CURSOR_SYMBOL:
-        case CONTINUE_SYMBOL:
-        case EXISTS_SYMBOL:
-        case UNDO_SYMBOL:
-        case HANDLER_SYMBOL:
-          break; // Do nothing.
-
-        default:
-          scanner.next(true);
-      }
-
-      switch (scanner.token_type()) {
-        case CONDITION_SYMBOL:
-          topic = "declare condition";
-          break;
-
-        case CURSOR_SYMBOL:
-          topic = "declare cursor";
-          break;
-
-        case CONTINUE_SYMBOL:
-        case EXISTS_SYMBOL:
-        case UNDO_SYMBOL:
-        case HANDLER_SYMBOL:
-          topic = "declare handler";
-          break;
-
-        default:
-          topic = "declare variable";
-          break;
-      }
-
-      break;
-
-    case DIAGNOSTICS_SYMBOL:
-      topic = "get diagnostics";
-      break;
-
-    case EXECUTE_SYMBOL:
-      topic = "execute statement";
-      break;
-
-    case EVENT_SYMBOL:
-      topic = ""; // Event is complicated. Get topic from start.
-      break;
-
-    case FOREIGN_SYMBOL:
-    case KEY_SYMBOL:
-    case REFERENCES_SYMBOL:
-      topic = "constraint";
-      break;
-
-    case GET_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == CURRENT_SYMBOL)
-        scanner.next(true);
-      scanner.next(true);
-      if (scanner.token_type() == DIAGNOSTICS_SYMBOL)
-        topic = "get diagnostics";
-      break;
-
-    case INSTALL_SYMBOL:
-      topic = "install plugin";
-      break;
-
-    case LOAD_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case DATA_SYMBOL:
-          topic = "load data";
-          break;
-
-        case XML_SYMBOL:
-          topic = "load xml";
-          break;
-
-        case INDEX_SYMBOL:
-          topic = "load index";
-          break;
-      }
-
-      break;
-
-    case NOT_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case BETWEEN_SYMBOL:
-          topic = "not between";
-          break;
-
-        case IN_SYMBOL:
-          topic = "not in";
-          break;
-
-        case LIKE_SYMBOL:
-          topic = "not like";
-          break;
-
-        case REGEXP_SYMBOL:
-          topic = "not regexp";
-          break;
-      }
-
-      break;
-
-    case ON_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case UPDATE_SYMBOL:
-        case DELETE_SYMBOL:
-          topic = "constraint";
-          break;
-      }
-      break;
-
-    case OPTIMIZE_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case LOCAL_SYMBOL:
-        case NO_WRITE_TO_BINLOG_SYMBOL:
-        case TABLE_SYMBOL:
-          topic = "optimize table";
-          break;
-
-        default: // optimize partition... (which is part of a larger statement).
-          topic = "";
-          break;
-      }
-      break;
-
-    case PROCEDURE_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == ANTLR3_TOKEN_INVALID) // Is this the first token?
-        topic = "procedure analyse";
-      else
-        topic = ""; // Anything else with another leading token. Look them up for topic construction.
-      break;
-
-    case PURGE_SYMBOL:
-      topic = "purge binary logs";
-      break;
-
-    case RENAME_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case TABLE_SYMBOL:
-        case TABLES_SYMBOL:
-          topic = "rename table";
-          break;
-
-        case USER_SYMBOL:
-          topic = "rename user";
-          break;
-      }
-
-      break;
-
-    case REPAIR_SYMBOL:
-      topic = "repair table";
-      break;
-
-    case SOUNDS_SYMBOL:
-      topic = "sounds like";
-      break;
-
-    case START_SYMBOL:
-      topic = "start ";
-      scanner.next(true);
-      topic += scanner.token_text();
-
-      break;
-
-    case UNINSTALL_SYMBOL:
-      topic = "uninstall plugin";
-      break;
-
-    case MATCH_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "match against";
-
-      break;
-
-    case AGAINST_SYMBOL:
-      topic = "match against";
-      break;
-
-    case DELAYED_SYMBOL:
-      scanner.previous(true);
-      switch (scanner.token_type()) {
-        case INSERT_SYMBOL:
-          topic = "insert delayed";
-          break;
-
-        case REPLACE_SYMBOL:
-          topic = "replace";
-          break;
-
-        default:
-          topic = "";
-      }
-      break;
-
-    case SESSION_SYMBOL:
-      scanner.previous(true);
-      switch (scanner.token_type()) {
-        case SHOW_SYMBOL:
-          topic = "show";
-          break;
-
-        case SET_SYMBOL:
-          topic = "set";
-          break;
-      }
-      break;
-  }
-
-  return topic; // Could be empty. This is checked at the caller level.
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Handles the search for a single word topic, a topic which requires text transformation or
- * a topic which has several variants and one of them is a single word topic.
- */
-std::string DbSqlEditorContextHelp::topic_with_single_topic_equivalent(MySQLScanner &scanner) {
-  logDebug2("Trying single word topics\n");
-
-  std::string topic = base::tolower(scanner.token_text());
-
-  // First some text transformations, which are not based on (mysql) tokens.
-  if (topic == "mbr") // MBR is not a syntax element, but just a topic part.
-    return "mbr definitions";
-  if (topic == "wkt") // Same for wkt.
-    return "wkt definition";
-
-  // Synonyms.
-  if (topic == "from_base64")
-    return "from_base64()";
-  if (topic == "to_base64")
-    return "to_base64()";
-  if (topic == "geometryfromtext")
-    return "geomfromtext";
-  if (topic == "geometryfromwkb")
-    return "geomfromwkb";
-
-  switch (scanner.token_type()) {
-    case MINUS_OPERATOR:
-      scanner.next(false);
-      if (scanner.token_channel() != 0 || scanner.is_operator()) // whitespace or operator follows
-        topic = "- binary";
-      else
-        topic = "- unary";
-      break;
-
-    case ASSIGN_OPERATOR:
-      topic = "assign-value"; // "assign-equal" contains nearly the same help text, not that for =, as one would expect.
-      break;
-
-    case BETWEEN_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == NOT_SYMBOL)
-        topic = "not between";
-      else
-        topic = "between and";
-      break;
-
-    case BINARY_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == SHOW_SYMBOL) {
-        topic = "show binary logs";
-        break;
-      }
-
-      scanner.next(true);
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "binary";
-      else
-        topic = "binary operator";
-      break;
-
-    case BINLOG_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == SHOW_SYMBOL)
-        topic = "show binlog events";
-      break;
-
-    case CASE_SYMBOL:
-      topic = "case statement";
-      break;
-
-    case NATIONAL_SYMBOL:
-      topic = "char";
-      break;
-
-    case CHAR_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == SHOW_SYMBOL) {
-        topic = "show character set";
-        break;
-      }
-      scanner.next(true);
-      scanner.next(true);
-      if (scanner.token_type() != OPEN_PAR_SYMBOL)
-        topic = "char byte";
-      else
-        topic = ""; // We need a parser to check for "char function" vs "char()"
-      break;
-
-    case COLLATION_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == SHOW_SYMBOL)
-        topic = "show collation";
-      break;
-
-    case COUNT_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == SHOW_SYMBOL) // show count(*) ...
-      {
-        topic = ""; // Let the parser or scan from start do the actual work.
-        break;
-      }
-
-      scanner.next(true);
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL) {
-        scanner.next(true);
-        if (scanner.token_type() == DISTINCT_SYMBOL)
-          topic = "count distinct";
-        else
-          topic = "count";
-      } else
-        topic = "count";
-      break;
-
-    case DATABASE_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "database"; // The function database().
-      else
-        topic = ""; // create database, drop database etc. Need to parse.
-      break;
-
-    case DATE_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "date function";
-      else
-        topic = "date";
-      break;
-
-    case DELETE_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == ON_SYMBOL)
-        topic = "constraint"; // Part of a foreign key definition (on update/delete);
-      break;
-
-    case DOUBLE_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == PRECISION_SYMBOL)
-        topic = "double precision";
-      else
-        topic = "double";
-      break;
-
-    case PRECISION_SYMBOL:
-      topic = "double precision";
-      break;
-
-    case REAL_SYMBOL:
-      topic = "double";
-      break;
-
-    case FLUSH_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == LOCAL_SYMBOL || scanner.token_type() == NO_WRITE_TO_BINLOG_SYMBOL)
-        scanner.next(true);
-      if (scanner.token_type() == QUERY_SYMBOL)
-        topic = "flush query cache";
-      else
-        topic = "flush";
-      break;
-
-    case GEOMETRY_SYMBOL:
-      topic = "geometry hierarchy"; // There's also a "geometry" topic, but that doesn't contain much.
-      break;
-
-    case HELP_SYMBOL:
-      topic = "help command"; // There's also "help statement" which tells essentially the same but shorter.
-      break;
-
-    case IF_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "if function";
-      else
-        topic = "if statement";
-      break;
-
-    case IS_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case NOT_SYMBOL:
-          scanner.next(true);
-          if (scanner.token_type() == NULL_SYMBOL)
-            topic = "is not null";
-          else
-            topic = "is not";
-          break;
-
-        case NULL_SYMBOL:
-          topic = "is null";
-          break;
-
-        default:
-          topic = "is";
-          break;
-      }
-      break;
-
-    case IN_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == NOT_SYMBOL)
-        topic = "not in";
-      break;
-
-    case LIKE_SYMBOL:
-      scanner.previous(true);
-      switch (scanner.token_type()) {
-        case NOT_SYMBOL:
-          topic = "not like";
-          break;
-
-        case SOUNDS_SYMBOL:
-          topic = "sounds like";
-          break;
-      }
-      break;
-
-    case OPEN_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == SHOW_SYMBOL)
-        topic = "show open tables";
-      break;
-
-    case PASSWORD_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == SET_SYMBOL)
-        topic = "set password";
-      break;
-
-    case REPEAT_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "repeat function";
-      else
-        topic = "repeat loop";
-
-      break;
-
-    case REPLACE_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "replace function";
-      else
-        topic = "replace";
-      break;
-
-    case RESET_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case MASTER_SYMBOL:
-          topic = "reset master";
-          break;
-
-        case SLAVE_SYMBOL:
-          topic = "reset slave";
-          break;
-
-        default:
-          topic = "reset";
-      }
-      break;
-
-    case SET_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == GLOBAL_SYMBOL)
-        scanner.next(true);
-
-      switch (scanner.token_type()) {
-        case OPEN_PAR_SYMBOL:
-          topic = "set data type";
-          break;
-
-        case PASSWORD_SYMBOL:
-          topic = "set password";
-          break;
-
-        case IDENTIFIER:
-          if (base::tolower(scanner.token_text()) == "sql_slave_skip_counter")
-            topic = "set global sql_slave_skip_counter";
-          else
-            topic += " " + scanner.token_text();
-          break;
-
-        default:
-          topic = "set";
-      }
-      break;
-
-    case SHOW_SYMBOL:
-      scanner.next(true);
-
-      // Not all queries allow these tokens, but to be flexible we skip them anyway.
-      if (scanner.token_type() == FULL_SYMBOL || scanner.token_type() == GLOBAL_SYMBOL ||
-          scanner.token_type() == LOCAL_SYMBOL || scanner.token_type() == SESSION_SYMBOL)
-        scanner.next(true);
-
-      switch (scanner.token_type()) {
-        case AUTHORS_SYMBOL:
-        case COLLATION_SYMBOL:
-        case COLUMNS_SYMBOL:
-        case CONTRIBUTORS_SYMBOL:
-        case DATABASES_SYMBOL:
-        case ENGINE_SYMBOL:
-        case ENGINES_SYMBOL:
-        case ERRORS_SYMBOL:
-        case EVENTS_SYMBOL:
-        case GRANTS_SYMBOL:
-        case PRIVILEGES_SYMBOL:
-        case PROCESSLIST_SYMBOL:
-        case PROFILE_SYMBOL:
-        case PROFILES_SYMBOL:
-        case PLUGINS_SYMBOL:
-        case WARNINGS_SYMBOL:
-        case STATUS_SYMBOL:
-        case VARIABLES_SYMBOL:
-        case TABLES_SYMBOL:
-        case TRIGGERS_SYMBOL:
-          topic += " " + scanner.token_text();
-          break;
-
-        case BINARY_SYMBOL:
-          topic += " binary logs";
-          break;
-
-        case RELAYLOG_SYMBOL:
-          topic += " relaylog events";
-          break;
-
-        case BINLOG_SYMBOL:
-          topic += " binlog events";
-          break;
-
-        case CHAR_SYMBOL:
-          topic += " character set";
-          break;
-
-        case CREATE_SYMBOL:
-          scanner.next(true);
-          topic += " create " + scanner.token_text();
-          break;
-
-        case FUNCTION_SYMBOL:
-          scanner.next(true);
-          topic += " function " + scanner.token_text();
-          break;
-
-        case INDEX_SYMBOL:
-        case INDEXES_SYMBOL:
-        case KEYS_SYMBOL:
-          topic += " index";
-          break;
-
-        case IN_SYMBOL:
-          scanner.previous(true);
-          if (scanner.token_type() == NOT_SYMBOL)
-            topic = "not in";
-          break;
-
-        case INNODB_SYMBOL:
-          topic += " innodb status";
-          break;
-
-        case MASTER_SYMBOL:
-          topic += " master status";
-          break;
-
-        case OPEN_SYMBOL:
-          topic += " open tables";
-          break;
-
-        case PLUGIN_SYMBOL:
-          topic += " plugins";
-          break;
-
-        case PROCEDURE_SYMBOL:
-          scanner.next(true);
-          topic += " procedure " + scanner.token_text();
-          break;
-
-        case REGEXP_SYMBOL:
-          scanner.previous(true);
-          if (scanner.token_type() == NOT_SYMBOL)
-            topic = "not regexp";
-          break;
-
-        case STORAGE_SYMBOL:
-          topic += " engines";
-          break;
-
-        case SLAVE_SYMBOL:
-          scanner.next(true);
-          topic += " slave " + scanner.token_text();
-          break;
-
-        case TABLE_SYMBOL:
-          topic += " table status";
-          break;
-
-        case COUNT_SYMBOL: // show count(*) ..., use show warnings as default.
-          topic += " warnings";
-          scanner.next(true);
-          if (scanner.token_type() != OPEN_PAR_SYMBOL)
-            break;
-          scanner.next(true);
-          if (scanner.token_type() != MULT_OPERATOR)
-            break;
-          scanner.next(true);
-          if (scanner.token_type() != CLOSE_PAR_SYMBOL)
-            break;
-
-          scanner.next(true);
-          if (scanner.token_type() == ERRORS_SYMBOL)
-            topic += " errors";
-          break;
-      }
-      break;
-
-    case TIME_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "time function";
-      else
-        topic = "time"; // This is not entirely correct. Starting with 5.6 TIME can have a precision value
-      // also specified within parentheses. This makes differentiating between
-      // time function and time value impossible without outer context
-      // (which is only available if we can parse the query).
-      break;
-
-    case TIMESTAMP_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "timestamp function";
-      else
-        topic = "timestamp"; // The same applies here as for time.
-      break;
-
-    case TRUE_SYMBOL:
-    case FALSE_SYMBOL:
-      topic = "true false";
-      break;
-
-    case TRUNCATE_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case OPEN_PAR_SYMBOL:
-          // topic = "truncate";
-          break;
-
-        case TABLE_SYMBOL:
-          topic += " table";
-          break;
-
-        case PARTITION_SYMBOL:
-          topic += " partition";
-          break;
-      }
-      break;
-
-    case YEAR_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() == OPEN_PAR_SYMBOL)
-        topic = "year"; // Similar to time and timestamp this is not entirely correct. See TIME for more info.
-      else
-        topic = "year data type";
-      break;
-
-    case INSERT_SYMBOL:
-      scanner.next(true);
-      switch (scanner.token_type()) {
-        case DELAYED_SYMBOL:
-          topic = "insert delayed";
-          break;
-
-        case OPEN_PAR_SYMBOL: // Insert function or grant insert (...).
-          scanner.reset();
-          if (scanner.token_channel() != ANTLR3_TOKEN_DEFAULT_CHANNEL)
-            scanner.next(true);
-          if (scanner.token_type() == GRANTS_SYMBOL) // Could be wrong if this statement is part of a compound statement
-                                                     // (e.g. in triggers or events).
-            topic = "grant";
-          else
-            topic = "insert function";
-          break;
-
-        case ON_SYMBOL:
-          topic = ""; // Probably part of a trigger definition. Check somewhere else.
-          break;
-
-        default:
-          topic = "insert";
-          break;
-      }
-
-      break;
-
-    case UPDATE_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == ON_SYMBOL)
-        topic = "constraint"; // Part of a foreign key definition (on update/delete);
-      break;
-
-    case USER_SYMBOL:
-      scanner.next(true);
-      if (scanner.token_type() != OPEN_PAR_SYMBOL)
-        topic = ""; // If not the user() function then more parsing is required.
-      break;
-
-    case PREPARE_SYMBOL:
-      scanner.previous(true);
-      switch (scanner.token_type()) {
-        case DEALLOCATE_SYMBOL:
-        case DROP_SYMBOL:
-          topic = "deallocate prepare";
-          break;
-
-        case XA_SYMBOL:
-          topic = "xa prepare"; // This topic doesn't exist (yet).
-          break;
-      }
-
-      // Otherwise the set topic is ok.
-      break;
-
-    case HANDLER_SYMBOL:
-      scanner.previous(true);
-      switch (scanner.token_type()) {
-        case CONDITION_SYMBOL:
-        case EXIT_SYMBOL:
-        case UNDO_SYMBOL:
-        case DECLARE_SYMBOL:
-          topic = ""; // Handling below.
-          break;
-      }
-
-      break;
-
-    case REGEXP_SYMBOL:
-      scanner.previous(true);
-      if (scanner.token_type() == NOT_SYMBOL)
-        topic = "not regexp";
-      break;
-
-    case THEN_SYMBOL:
-    case ELSE_SYMBOL: // ELSE and THEN can also be part of a CASE expression/statement.
-                      // However this is too complicated to figure out here, so we assume IF
-                      // and the user has to set the caret on the CASE keyword to get its help.
-    case ELSEIF_SYMBOL:
-      topic = "if statement";
-      break;
-
-    case IDENTIFIER:
-      if (topic == "sql_log_bin") {
-        scanner.previous(true);
-        if (scanner.token_type() == SET_SYMBOL)
-          topic = "set sql_log_bin";
-        else
-          topic = "";
-        break;
-      }
-
-      scanner.next(true);
-      if (scanner.token_type() == COLON_SYMBOL) {
-        topic = "labels";
-        break;
-      }
-
-      if (topic == "x" || topic == "y") // X() and Y() check.
-      {
-        if (scanner.token_type() != OPEN_PAR_SYMBOL)
-          topic = "";
-        break;
-      }
-
-      break;
-  }
+  if (nameToken != nullptr)
+    topic = base::toupper(nameToken->getText());
+  if (functionSynonyms.count(topic) > 0)
+    topic = functionSynonyms[topic];
 
   return topic;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::unordered_map<size_t, std::string> supportedOperatorsAndKeywords = {
+  {MySQLLexer::EQUAL_OPERATOR, "ASSIGN-EQUAL"},
+  {MySQLLexer::ASSIGN_OPERATOR, "ASSIGN-VALUE"},
+  {MySQLLexer::LOGICAL_AND_OPERATOR, "AND"},
+  {MySQLLexer::LOGICAL_OR_OPERATOR, "||"},
+  {MySQLLexer::BIT_AND_SYMBOL, "BIT_AND"},
+  {MySQLLexer::BIT_OR_SYMBOL, "BIT_OR"},
+  {MySQLLexer::BIT_XOR_SYMBOL, "BIT_XOR"},
+  {MySQLLexer::LOGICAL_NOT_OPERATOR, "!"},
+  {MySQLLexer::NOT_EQUAL_OPERATOR, "!="},
+  {MySQLLexer::MOD_OPERATOR, "%"},
+  {MySQLLexer::BITWISE_AND_OPERATOR, "&"},
+  {MySQLLexer::MULT_OPERATOR, "*"},
+  {MySQLLexer::PLUS_OPERATOR, "+"},
+  {MySQLLexer::JSON_SEPARATOR_SYMBOL, "->"},
+  {MySQLLexer::JSON_UNQUOTED_SEPARATOR_SYMBOL, "->>"},
+  {MySQLLexer::DIV_OPERATOR, "/"},
+  {MySQLLexer::LESS_THAN_OPERATOR, "<"},
+  {MySQLLexer::SHIFT_LEFT_OPERATOR, "<<"},
+  {MySQLLexer::NULL_SAFE_EQUAL_OPERATOR, "<=>"},
+  {MySQLLexer::GREATER_THAN_OPERATOR, ">"},
+  {MySQLLexer::GREATER_OR_EQUAL_OPERATOR, ">="},
+  {MySQLLexer::LESS_OR_EQUAL_OPERATOR, "<="},
+  {MySQLLexer::SHIFT_RIGHT_OPERATOR, ">>"},
+  {MySQLLexer::BITWISE_XOR_OPERATOR, "^"},
+  {MySQLLexer::BITWISE_OR_OPERATOR, "|"},
+  {MySQLLexer::BITWISE_NOT_OPERATOR, "~"},
+
+  {MySQLLexer::AUTO_INCREMENT_SYMBOL, "AUTO_INCREMENT"},
+  {MySQLLexer::CALL_SYMBOL, "CALL"},
+  {MySQLLexer::CAST_SYMBOL, "CAST"},
+  {MySQLLexer::DIV_SYMBOL, "DIV"},
+  {MySQLLexer::MOD_SYMBOL, "MOD"},
+  {MySQLLexer::OR_SYMBOL, "OR"},
+  {MySQLLexer::SPATIAL_SYMBOL, "SPATIAL"},
+  {MySQLLexer::UNION_SYMBOL, "UNION"},
+  {MySQLLexer::XOR_SYMBOL, "XOR"},
+};
+
+// Simple token -> topic matches, only used in certain contexts and only if there is no trivial token -> topic
+// translation.
+static std::unordered_map<size_t, std::string> tokenToTopic = {
+  {MySQLLexer::AUTHORS_SYMBOL, "SHOW AUTHORS"},
+  {MySQLLexer::BINLOG_SYMBOL, "SHOW BINLOG EVENTS"},
+  {MySQLLexer::COLLATION_SYMBOL, "SHOW COLLATION"},
+  {MySQLLexer::COLUMNS_SYMBOL, "SHOW COLUMNS"},
+  {MySQLLexer::CONTRIBUTORS_SYMBOL, "SHOW CONTRIBUTORS"},
+  {MySQLLexer::DATABASES_SYMBOL, "SHOW databases"},
+  {MySQLLexer::ENGINE_SYMBOL, "SHOW ENGINE"},
+  {MySQLLexer::ENGINES_SYMBOL, "SHOW ENGINES"},
+  {MySQLLexer::ERRORS_SYMBOL, "SHOW ERRORS"},
+  {MySQLLexer::EVENTS_SYMBOL, "SHOW EVENTS"},
+  {MySQLLexer::GRANTS_SYMBOL, "SHOW GRANTS"},
+  {MySQLLexer::INDEX_SYMBOL, "SHOW INDEX"},
+  {MySQLLexer::INDEXES_SYMBOL, "SHOW INDEX"},
+  {MySQLLexer::INNODB_SYMBOL, "SHOW INNODB STATUS"},
+  {MySQLLexer::INSTALL_SYMBOL, "INSTALL PLUGIN"},
+  {MySQLLexer::KEYS_SYMBOL, "SHOW INDEX"},
+  {MySQLLexer::LOGS_SYMBOL, "SHOW BINARY LOGS"},
+  {MySQLLexer::MASTER_SYMBOL, "SHOW MASTER STATUS"},
+  {MySQLLexer::OPEN_SYMBOL, "SHOW OPEN TABLES"},
+  {MySQLLexer::PLUGIN_SYMBOL, "SHOW PLUGIN"},
+  {MySQLLexer::PLUGINS_SYMBOL, "SHOW PLUGINS"},
+  {MySQLLexer::PRIVILEGES_SYMBOL, "SHOW PRIVILEGES"},
+  {MySQLLexer::PROCESSLIST_SYMBOL, "SHOW PROCESSLIST"},
+  {MySQLLexer::PROFILE_SYMBOL, "SHOW PROFILE"},
+  {MySQLLexer::PROFILES_SYMBOL, "SHOW PROFILES"},
+  {MySQLLexer::RELAYLOG_SYMBOL, "SHOW RELAYLOG EVENTS"},
+  {MySQLLexer::STATUS_SYMBOL, "SHOW STATUS"},
+  {MySQLLexer::TABLES_SYMBOL, "SHOW TABLES"},
+  {MySQLLexer::TRIGGERS_SYMBOL, "SHOW TRIGGERS"},
+  {MySQLLexer::VARIABLES_SYMBOL, "SHOW VARIABLES"},
+  {MySQLLexer::WARNINGS_SYMBOL, "SHOW WARNINGS"},
+
+  {MySQLLexer::ANALYZE_SYMBOL, "ANALYZE TABLE"},
+  {MySQLLexer::CHECKSUM_SYMBOL, "CHECKSUM TABLE"},
+  {MySQLLexer::CACHE_SYMBOL, "CACHE INDEX"},
+  {MySQLLexer::CHECK_SYMBOL, "CHECK TABLE"},
+  {MySQLLexer::FLUSH_SYMBOL, "FLUSH"},
+  {MySQLLexer::KILL_SYMBOL, "KILL"},
+  {MySQLLexer::LOAD_SYMBOL, "LOAD INDEX"},
+  {MySQLLexer::OPTIMIZE_SYMBOL, "OPTIMIZE TABLE"},
+  {MySQLLexer::REPAIR_SYMBOL, "REPAIR TABLE"},
+  {MySQLLexer::SHUTDOWN_SYMBOL, "SHUTDOWN"},
+  {MySQLLexer::UNINSTALL_SYMBOL, "UNINSTALL PLUGIN"},
+
+};
+
+static std::unordered_map<size_t, std::string> contextToTopic = {
+  {MySQLParser::RuleCreateDatabase, "CREATE DATABASE"},
+  {MySQLParser::RuleCreateEvent, "CREATE EVENT"},
+  {MySQLParser::RuleCreateFunction, "CREATE FUNCTION"},
+  {MySQLParser::RuleCreateUdf, "CREATE FUNCTION UDF"},
+  {MySQLParser::RuleCreateIndex, "CREATE INDEX"},
+  {MySQLParser::RuleCreateProcedure, "CREATE PROCEDURE"},
+  {MySQLParser::RuleCreateServer, "CREATE SERVER"},
+  {MySQLParser::RuleCreateTable, "CREATE TABLE"},
+  {MySQLParser::RuleCreateTablespace, "CREATE TABLESPACE"},
+  {MySQLParser::RuleCreateTrigger, "CREATE TRIGGER"},
+  {MySQLParser::RuleCreateUser, "CREATE USER"},
+  {MySQLParser::RuleCreateView, "CREATE VIEW"},
+  {MySQLParser::RuleDeleteStatement, "DELETE"},
+  {MySQLParser::RuleDoStatement, "DO"},
+  {MySQLParser::RuleDropUser, "DROP USER"},
+  {MySQLParser::RuleExecuteStatement, "EXECUTE STATEMENT"},
+  {MySQLParser::RuleDescribeCommand, "EXPLAIN"},
+  {MySQLParser::RuleGrant, "GRANT"},
+  {MySQLParser::RuleHandlerStatement, "HANDLER"},
+  {MySQLParser::RuleHandlerDeclaration, "DECLARE HANDLER"},
+  {MySQLParser::RuleHelpCommand, "HELP COMMAND"},
+  {MySQLParser::RuleIfStatement, "IF STATEMENT"},
+  {MySQLParser::RuleIterateStatement, "ITERATE"},
+  {MySQLParser::RuleJoinedTable, "JOIN"},
+  {MySQLParser::RuleLabel, "LABELS"},
+  {MySQLParser::RuleLeaveStatement, "LEAVE"},
+  {MySQLParser::RuleLockStatement, "LOCK"},
+  {MySQLParser::RuleLoopBlock, "LOOP"},
+  {MySQLParser::RuleCursorOpen, "OPEN"},
+  {MySQLParser::RuleCursorClose, "CLOSE"},
+  {MySQLParser::RuleCursorFetch, "FETCH"},
+  {MySQLParser::RuleProcedureAnalyseClause, "PROCEDURE ANALYSE"},
+  {MySQLParser::RuleRenameTableStatement, "RENAME TABLE"},
+  {MySQLParser::RuleRenameUser, "RENAME USER"},
+  {MySQLParser::RuleRepeatUntilBlock, "REPEAT LOOP"},
+  {MySQLParser::RuleReplaceStatement, "REPLACE"},
+  {MySQLParser::RuleResignalStatement, "RESIGNAL"},
+  {MySQLParser::RuleReturnStatement, "RETURN"},
+  {MySQLParser::RuleRevoke, "REVOKE"},
+  {MySQLParser::RuleSavepointStatement, "SAVEPOINT"},
+  {MySQLParser::RuleSelectStatement, "SELECT"},
+  {MySQLParser::RuleSetPassword, "SET PASSWORD"},
+  {MySQLParser::RuleTransactionStatement, "START TRANSACTION"},
+  {MySQLParser::RuleTruncateTableStatement, "TRUNCATE TABLE"},
+  {MySQLParser::RuleUpdateStatement, "UPDATE"},
+  {MySQLParser::RuleUseCommand, "USE"},
+  {MySQLParser::RuleWhileDoBlock, "WHILE"},
+  {MySQLParser::RuleXaStatement, "XA"},
+  {MySQLParser::RuleVariableDeclaration, "DECLARE VARIABLE"},
+  {MySQLParser::RuleConditionDeclaration, "DECLARE CONDITION"},
+  {MySQLParser::RuleHandlerDeclaration, "DECLARE HANDLER"},
+  {MySQLParser::RuleCursorDeclaration, "DECLARE CURSOR"},
+  {MySQLParser::RuleGetDiagnostics, "GET DIAGNOSTICS"},
+  {MySQLParser::RuleSignalStatement, "SIGNAL"},
+  {MySQLParser::RuleCursorFetch, "FETCH"},
+  {MySQLParser::RuleLeaveStatement, "LEAVE"},
+  {MySQLParser::RuleAlterUser, "ALTER USER"},
+  {MySQLParser::RuleCaseStatement, "CASE STATEMENT"},
+  {MySQLParser::RuleChangeMaster, "CHANGE MASTER TO"},
+
+  {MySQLParser::RuleDropDatabase, "DROP DATABASE"},
+  {MySQLParser::RuleDropEvent, "DROP EVENT"},
+  {MySQLParser::RuleDropFunction, "DROP FUNCTION"},
+  {MySQLParser::RuleDropProcedure, "DROP PROCEDURE"},
+  {MySQLParser::RuleDropIndex, "DROP INDEX"},
+  {MySQLParser::RuleDropLogfileGroup, "DROP LOGFILEGROUP"},
+  {MySQLParser::RuleDropServer, "DROP SERVER"},
+  {MySQLParser::RuleDropTable, "DROP TABLE"},
+  {MySQLParser::RuleDropTableSpace, "DROP TABLESPACE"},
+  {MySQLParser::RuleDropTrigger, "DROP TRIGGER"},
+  {MySQLParser::RuleDropView, "DROP VIEW"},
+
+};
+
+// Words which are part of a multi word topic or can produce wrong topics if used alone, and hence need further
+// examination.
+static std::unordered_set<std::string> specialWords = {
+  "CHAR", "COUNT",    "DATE",    "DOUBLE",    "REPLACE", "TIME",   "TIMESTAMP", "YEAR", "DATABASE",
+  "USER", "INSERT",   "PREPARE", "HANDLER",   "FLUSH",   "IS",     "IN",        "LIKE", "REGEXP",
+  "SET",  "PASSWORD", "SHOW",    "COLLATION", "OPEN",    "UPDATE", "DELETE"};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Determines a help topic from the given query at the given position (given as column/row pair).
+ */
+std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, const std::string &query,
+                                                          std::pair<size_t, size_t> caret) {
+  logDebug2("Finding help topic\n");
+
+  // We are not interested in validity here. We simply parse in default mode (LL) and examine the returned parse tree.
+  // This usually will give us a good result, except in cases where the query has an error before the caret such that
+  // we cannot predict the path through the rules.
+  ParserRuleContext *parseTree = context->_d->parse(query);
+  ++caret.second; // ANTLR lines are one-based.
+  tree::ParseTree *tree = MySQLRecognizerCommon::contextFromPosition(parseTree, caret);
+
+  if (tree == nullptr)
+    return "";
+
+  if (antlrcpp::is<tree::TerminalNode *>(tree)) // Should always be the case at this point.
+  {
+    tree::TerminalNode *node = dynamic_cast<tree::TerminalNode *>(tree);
+    size_t token = node->getSymbol()->getType();
+    if (token == MySQLLexer::SEMICOLON_SYMBOL) {
+      tree = MySQLRecognizerCommon::getPrevious(tree);
+      node = dynamic_cast<tree::TerminalNode *>(tree);
+      token = node->getSymbol()->getType();
+    }
+
+    // First check if we can get a topic for this single token, either from our topic table or by lookup.
+    // This is a double-edged sword. It will help in incomplete statements where we do not get a good parse tree
+    // but might also show help topics for unrelated stuff (e.g. returns "SAVEPOINT" for "select a := savepoint(c);".
+    if (supportedOperatorsAndKeywords.count(token) > 0)
+      return supportedOperatorsAndKeywords[token];
+
+    switch (token) {
+      case MySQLLexer::MINUS_OPERATOR:
+        if (isParentContext(tree, MySQLParser::RuleSimpleExpr))
+          return "- UNARY";
+        return "- BINARY";
+
+      case MySQLLexer::BINARY_SYMBOL:
+        if (isParentContext(tree, MySQLParser::RuleDataType))
+          return "BINARY";
+        if (isParentContext(tree, MySQLParser::RuleSimpleExpr) || isParentContext(tree, MySQLParser::RuleCastType))
+          return "BINARY OPERATOR";
+
+        tree = tree->parent;
+        break;
+
+      case MySQLLexer::CHANGE_SYMBOL:
+        if (isParentContext(tree, MySQLParser::RuleChangeMaster))
+          return "CHANGE MASTER TO";
+        if (isParentContext(tree, MySQLParser::RuleChangeReplication))
+          return "CHANGE REPLICATION FILTER";
+
+        tree = tree->parent;
+        break;
+
+      // Other keywords connected to topics.
+      case MySQLLexer::BEGIN_SYMBOL:
+      case MySQLLexer::END_SYMBOL:
+        return "BEGIN END";
+
+      case MySQLLexer::TRUE_SYMBOL:
+      case MySQLLexer::FALSE_SYMBOL:
+        return "TRUE FALSE";
+
+      case MySQLLexer::BINLOG_SYMBOL:
+        if (isParentContext(tree, MySQLParser::RuleOtherAdministrativeStatement))
+          return "BINLOG";
+        if (isParentContext(tree, MySQLParser::RuleShowStatement))
+          return "SHOW BINLOG EVENTS";
+
+        tree = tree->parent;
+        break;
+
+      default:
+        std::string s = base::toupper(node->getText());
+        if (specialWords.count(s) == 0 && topicExists(s))
+          return s;
+
+        // No specific help topic for the given terminal. Jump to the token's parent and start the
+        // context search then.
+        tree = tree->parent;
+        break;
+    }
+  }
+
+  // See if we have a help topic for the given tree. If not walk up the parent chain until we find something.
+  while (true) {
+    if (tree == nullptr)
+      return "";
+
+    // We deliberately don't check if the given tree is actually a parse rule context - there is no other possibility.
+    ParserRuleContext *context = dynamic_cast<ParserRuleContext *>(tree);
+    size_t ruleIndex = context->getRuleIndex();
+    if (contextToTopic.count(ruleIndex) > 0)
+      return contextToTopic[ruleIndex];
+
+    // Topics from function names
+    std::string functionTopic = functionTopicForContext(context);
+    if (!functionTopic.empty() && topicExists(functionTopic))
+      return functionTopic;
+
+    switch (ruleIndex) {
+      case MySQLParser::RulePredicateOperations: {
+        if (!context->children.empty()) {
+          // Some keyword topics have variants with a leading NOT.
+          auto parent = dynamic_cast<MySQLParser::PredicateContext *>(context->parent);
+          bool isNot = parent->notRule() != nullptr;
+
+          // IN, BETWEEN (with special help topic name), LIKE, REGEXP
+          auto predicateContext = dynamic_cast<MySQLParser::PredicateOperationsContext *>(context);
+          if (isToken(predicateContext->children[0], MySQLLexer::BETWEEN_SYMBOL)) {
+            if (isNot)
+              return "NOT BETWEEN";
+            return "BETWEEN AND";
+          }
+          std::string topic = isNot ? "NOT " : "";
+          return topic + base::toupper(predicateContext->children[0]->getText());
+        }
+        break;
+      }
+
+      case MySQLParser::RuleOtherAdministrativeStatement: {
+        // See if we only have a single flush command.
+        auto adminContext = dynamic_cast<MySQLParser::OtherAdministrativeStatementContext *>(context);
+        if (adminContext->type->getType() == MySQLLexer::FLUSH_SYMBOL && adminContext->flushOption().size() == 1 &&
+            adminContext->flushOption(0)->option->getType() == MySQLLexer::QUERY_SYMBOL)
+          return "FLUSH QUERY CACHE";
+
+        if (adminContext->type != nullptr)
+          return tokenToTopic[adminContext->type->getType()];
+        break;
+      }
+
+      case MySQLParser::RuleInsertStatement: {
+        auto insertContext = dynamic_cast<MySQLParser::InsertStatementContext *>(context);
+        if (insertContext->insertQueryExpression() != nullptr)
+          return "INSERT SELECT";
+        if (insertContext->insertLockOption() != nullptr &&
+            insertContext->insertLockOption()->DELAYED_SYMBOL() != nullptr)
+          return "INSERT DELAYED";
+        return "INSERT";
+      }
+
+      case MySQLParser::RuleInstallUninstallStatment: {
+        auto pluginContext = dynamic_cast<MySQLParser::InstallUninstallStatmentContext *>(context);
+        if (pluginContext->action != nullptr)
+          return tokenToTopic[pluginContext->action->getType()];
+        break;
+      }
+
+      case MySQLParser::RuleExpr: {
+        auto exprContext = dynamic_cast<MySQLParser::ExprContext *>(context);
+        if (exprContext->children.size() > 2 && isToken(exprContext->children[1], MySQLLexer::IS_SYMBOL)) {
+          if (isToken(exprContext->children[2], MySQLLexer::NOT_SYMBOL) ||
+              isToken(exprContext->children[2], MySQLLexer::NOT2_SYMBOL))
+            return "IS NOT";
+          return "IS";
+        }
+        break;
+      }
+
+      case MySQLParser::RuleBoolPri: {
+        if (antlrcpp::is<MySQLParser::PrimaryExprIsNullContext *>(context)) {
+          auto primaryExprIsNullContext = dynamic_cast<MySQLParser::PrimaryExprIsNullContext *>(context);
+          if (primaryExprIsNullContext->notRule() == nullptr)
+            return "IS NULL";
+          return "IS NOT NULL";
+        }
+        break;
+      }
+
+      case MySQLParser::RuleSetStatement: {
+        auto setStatementContext = dynamic_cast<MySQLParser::SetStatementContext *>(context);
+        if (setStatementContext->TRANSACTION_SYMBOL() != nullptr)
+          return "ISOLATION";
+
+        ParserRuleContext *variableName = nullptr;
+        if (setStatementContext->optionValueFollowingOptionType() != nullptr)
+          variableName = setStatementContext->optionValueFollowingOptionType()->internalVariableName();
+        else if (setStatementContext->optionValueNoOptionType() != nullptr)
+          variableName = setStatementContext->optionValueNoOptionType()->internalVariableName();
+        if (variableName != nullptr) {
+          std::string option = base::toupper(variableName->getText());
+          if (option == "SQL_SLAVE_SKIP_COUNTER")
+            return "SET GLOBAL SQL_SLAVE_SKIP_COUNTER";
+          if (option == "SQL_LOG_BIN")
+            return "SET SQL_LOG_BIN";
+        }
+        return "SET";
+      }
+
+      case MySQLParser::RuleLoadStatement: {
+        auto loadStatementContext = dynamic_cast<MySQLParser::LoadStatementContext *>(context);
+        if (loadStatementContext->dataOrXml()->DATA_SYMBOL() != nullptr)
+          return "LOAD DATA";
+        return "LOAD XML";
+      }
+
+      case MySQLParser::RulePredicate:
+        if (context->children.size() > 2) {
+          if (isToken(context->children[1], MySQLLexer::NOT_SYMBOL) ||
+              isToken(context->children[1], MySQLLexer::NOT2_SYMBOL)) {
+            // For NOT BETWEEN, NOT LIKE, NOT IN, NOT REGEXP.
+            auto predicateContext = dynamic_cast<MySQLParser::PredicateOperationsContext *>(context->children[2]);
+            return "NOT " + base::toupper(predicateContext->children[0]->getText());
+          }
+          if (isToken(context->children[1], MySQLLexer::SOUNDS_SYMBOL))
+            return "SOUNDS LIKE";
+        }
+        break;
+
+      case MySQLParser::RuleTableAdministrationStatement: {
+        auto adminStatementContext = dynamic_cast<MySQLParser::TableAdministrationStatementContext *>(context);
+        if (adminStatementContext->type != nullptr)
+          return tokenToTopic[adminStatementContext->type->getType()];
+        break;
+      }
+
+      case MySQLParser::RulePreparedStatement: {
+        auto preparedContext = dynamic_cast<MySQLParser::PreparedStatementContext *>(context);
+        size_t type = 0;
+        if (preparedContext->type != nullptr)
+          type = preparedContext->type->getType();
+        if (type == MySQLLexer::PREPARE_SYMBOL)
+          return "PREPARE";
+        if (type == MySQLLexer::DEALLOCATE_SYMBOL || type == MySQLLexer::DROP_SYMBOL)
+          return "DEALLOCATE PREPARE";
+        break;
+      }
+
+      case MySQLParser::RuleReplicationStatement: {
+        auto replicationContext = dynamic_cast<MySQLParser::ReplicationStatementContext *>(context);
+        if (replicationContext->PURGE_SYMBOL() != nullptr)
+          return "PURGE BINARY LOGS";
+        if (replicationContext->RESET_SYMBOL() != nullptr &&
+            (replicationContext->resetOption().empty() || replicationContext->resetOption()[0]->option == nullptr))
+          return "RESET";
+        break;
+      }
+
+      case MySQLParser::RuleResetOption: {
+        auto optionContext = dynamic_cast<MySQLParser::ResetOptionContext *>(context);
+        if (isToken(optionContext->option, MySQLLexer::MASTER_SYMBOL))
+          return "RESET MASTER";
+        if (isToken(optionContext->option, MySQLLexer::SLAVE_SYMBOL))
+          return "RESET SLAVE";
+        return "RESET";
+      }
+
+      case MySQLParser::RuleShowStatement: {
+        auto showContext = dynamic_cast<MySQLParser::ShowStatementContext *>(context);
+        if (showContext->value == nullptr) {
+          if (showContext->charset() != nullptr)
+            return "SHOW CHARACTER SET";
+          return "SHOW";
+        }
+
+        switch (showContext->value->getType()) {
+          case MySQLLexer::TABLE_SYMBOL:
+            return "SHOW TABLE STATUS";
+          case MySQLLexer::SLAVE_SYMBOL:
+            if (showContext->HOSTS_SYMBOL() != nullptr)
+              return "SHOW SLAVE HOSTS";
+            if (showContext->STATUS_SYMBOL() != nullptr)
+              return "SHOW SLAVE STATUS";
+            break;
+          case MySQLLexer::CREATE_SYMBOL: {
+            if (showContext->object != nullptr)
+              return "SHOW CREATE " + base::toupper(showContext->object->getText());
+            break;
+          }
+          case MySQLLexer::PROCEDURE_SYMBOL:
+            if (showContext->STATUS_SYMBOL() != nullptr)
+              return "SHOW PROCEDURE STATUS";
+            if (showContext->CODE_SYMBOL() != nullptr)
+              return "SHOW PROCEDURE CODE";
+            break;
+          case MySQLLexer::FUNCTION_SYMBOL:
+            if (showContext->STATUS_SYMBOL() != nullptr)
+              return "SHOW FUNCTION STATUS";
+            if (showContext->CODE_SYMBOL() != nullptr)
+              return "SHOW FUNCTION CODE";
+            break;
+
+          default:
+            return tokenToTopic[showContext->value->getType()];
+        }
+      }
+
+      case MySQLParser::RuleTableConstraintDef: {
+        auto definitionContext = dynamic_cast<MySQLParser::TableConstraintDefContext *>(context);
+        if (definitionContext->type->getType() == MySQLLexer::FOREIGN_SYMBOL)
+          return "CONSTRAINT";
+        break;
+      }
+
+      case MySQLParser::RuleHelpCommand:
+        return "HELP COMMAND";
+
+      case MySQLParser::RuleSimpleExpr:
+        if (!context->children.empty() && antlrcpp::is<tree::TerminalNode *>(context->children[0])) {
+          size_t type = dynamic_cast<tree::TerminalNode *>(context->children[0])->getSymbol()->getType();
+          switch (type) {
+            case MySQLLexer::MATCH_SYMBOL:
+              return "MATCH AGAINST";
+            case MySQLLexer::CONVERT_SYMBOL:
+              return "CONVERT";
+            case MySQLLexer::DEFAULT_SYMBOL:
+              return "DEFAULT";
+            case MySQLLexer::CASE_SYMBOL:
+              return "CASE OPERATOR";
+          }
+        }
+        break;
+
+      case MySQLParser::RuleEngineRef: {
+        std::string engine = base::tolower(context->getText());
+        if (engine == "merge" || engine == "mrg_myisam")
+          return "MERGE";
+        break;
+      }
+
+      case MySQLParser::RuleSlave:
+        if (!context->children.empty())
+          return base::toupper(context->children[0]->getText()) + " SLAVE";
+        break;
+
+      case MySQLParser::RuleDataType: {
+        auto typeContext = dynamic_cast<MySQLParser::DataTypeContext *>(context);
+        if (typeContext->nchar() != nullptr)
+          return "CHAR";
+
+        std::string topic;
+        switch (typeContext->type->getType()) {
+          case MySQLLexer::DOUBLE_SYMBOL:
+            if (typeContext->PRECISION_SYMBOL() != nullptr)
+              return "DOUBLE PRECISION";
+            return "DOUBLE";
+
+          case MySQLLexer::SET_SYMBOL:
+            return "SET DATA TYPE";
+
+          case MySQLLexer::YEAR_SYMBOL:
+            return "YEAR DATA TYPE";
+
+          case MySQLLexer::BOOL_SYMBOL:
+            return "BOOLEAN";
+
+          case MySQLLexer::CHAR_SYMBOL:
+          case MySQLLexer::NCHAR_SYMBOL:
+          case MySQLLexer::NATIONAL_SYMBOL:
+          case MySQLLexer::VARCHAR_SYMBOL:
+          case MySQLLexer::NVARCHAR_SYMBOL:
+          case MySQLLexer::VARYING_SYMBOL:
+            if (typeContext->VARYING_SYMBOL() != nullptr || typeContext->VARCHAR_SYMBOL() != nullptr)
+              return "VARCHAR";
+            if (typeContext->charsetWithOptBinary() != nullptr &&
+                typeContext->charsetWithOptBinary()->BYTE_SYMBOL() != nullptr)
+              return "CHAR BYTE";
+            return "CHAR";
+
+          default:
+            topic = base::toupper(typeContext->type->getText());
+            break;
+        }
+
+        if (topicExists(topic))
+          return topic;
+
+        break; // Not all data types have an own topic.
+      }
+
+      case MySQLParser::RuleFromClause: {
+        auto keylistContext = dynamic_cast<MySQLParser::FromClauseContext *>(context);
+        if (keylistContext->DUAL_SYMBOL() != nullptr)
+          return "DUAL";
+        break;
+      }
+
+      case MySQLParser::RuleSetTransactionCharacteristic: {
+        auto characteristicsContext = dynamic_cast<MySQLParser::SetTransactionCharacteristicContext *>(context);
+        if (characteristicsContext->ISOLATION_SYMBOL() != nullptr)
+          return "ISOLATION";
+        break;
+      }
+
+      case MySQLParser::RuleSubstringFunction: {
+        // A case where we might have a synonym, so we need to check the text actually.
+        auto substringContext = dynamic_cast<MySQLParser::SubstringFunctionContext *>(context);
+        return base::toupper(substringContext->SUBSTRING_SYMBOL()->getText());
+
+        break;
+      }
+
+      case MySQLParser::RuleAlterStatement: {
+        auto alterContext = dynamic_cast<MySQLParser::AlterStatementContext *>(context);
+        std::string topic = "ALTER ";
+        if (alterContext->alterTable() != nullptr)
+          return "ALTER TABLE";
+        if (alterContext->alterDatabase() != nullptr)
+          return "ALTER DATABASE";
+        if (alterContext->PROCEDURE_SYMBOL() != nullptr)
+          return "ALTER PROCEDURE";
+        if (alterContext->FUNCTION_SYMBOL() != nullptr)
+          return "ALTER FUNCTION";
+        if (alterContext->alterView() != nullptr)
+          return "ALTER VIEW";
+        if (alterContext->alterEvent() != nullptr)
+          return "ALTER EVENT";
+        // No tablespace or logfile group topics.
+        if (alterContext->alterServer() != nullptr)
+          return "ALTER SERVER";
+        // No alter instance topic.
+
+        break;
+      }
+
+      default:
+        if (contextToTopic.count(ruleIndex) > 0)
+          return contextToTopic[ruleIndex];
+        break;
+    }
+
+    tree = tree->parent;
+  }
+
+  return "";
+}
+
+//----------------------------------------------------------------------------------------------------------------------

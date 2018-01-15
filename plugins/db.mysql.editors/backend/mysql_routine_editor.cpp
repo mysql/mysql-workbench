@@ -60,7 +60,7 @@ void MySQLRoutineEditorBE::commit_changes() {
       AutoUndoEdit undo(this, routine, "sql");
 
       freeze_refresh_on_object_change();
-      _parser_services->parseRoutine(_parser_context, routine, sql);
+      _parserServices->parseRoutine(_parserContext, routine, sql);
       thaw_refresh_on_object_change();
 
       undo.end(base::strfmt(_("Edit routine `%s` of `%s`.`%s`"), routine->name().c_str(), get_schema_name().c_str(),

@@ -102,7 +102,7 @@ private:
   virtual void handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info);
 
   // LiveSchemaTree::FetchDelegate
-  virtual std::list<std::string> fetch_schema_list();
+  virtual std::vector<std::string> fetch_schema_list();
   virtual bool fetch_data_for_filter(const std::string &schema_filter, const std::string &object_filter,
                                      const wb::LiveSchemaTree::NewSchemaContentArrivedSlot &arrived_slot);
   virtual bool fetch_schema_contents(const std::string &schema_name,
