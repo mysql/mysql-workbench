@@ -1135,8 +1135,7 @@ void MySQLEditor::setup_auto_completion() {
 
 /**
  * Returns the text in the editor starting at the given position backwards until
- * the line start
- * or the first non alphanumeric char is found.
+ * the line start or the first non alphanumeric char is found.
  */
 std::string MySQLEditor::getWrittenPart(size_t position) {
   ssize_t line = d->codeEditor->line_from_position(position);
@@ -1177,17 +1176,14 @@ std::string MySQLEditor::getWrittenPart(size_t position) {
     run++;
   }
 
-  // If we come here then we are outside any quoted text. Scan back for anything
-  // we consider
-  // to be a word stopper.
-  // There is a special case however: if we are directly after a quoted part,
-  // this part is used as typed text
+  // If we come here then we are outside any quoted text. Scan back for anything we consider to be a word stopper.
+  // There is a special case however: if we are directly after a quoted part, this part is used as typed text
   // (treating it so as if it wasn't quoted).
   if (head == run && (*(head - 1) == '\'' || *(head - 1) == '\'' || *(head - 1) == '\''))
     return lastQuotedText;
 
   while (head < run--) {
-    if (!std::isalnum(*run) && *run != '_' && *run != '$') // Allowed parts in an unquoted identifier.
+    if (!std::isalnum(*run) && *run != '_' && *run != '$' && *run != '@') // Allowed parts in an unquoted identifier.
       return run + 1;
   }
   return head;
@@ -1245,7 +1241,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLPa
   }
 
   d->codeCompletionCandidates = d->services->getCodeCompletionCandidates(
-    d->autocompletionContext, {caretOffset, caretLine}, statement, d->currentSchema, make_keywords_uppercase(),
+    d->autocompletionContext, { caretOffset, caretLine }, statement, d->currentSchema, make_keywords_uppercase(),
     d->symbolTable);
 
   update_auto_completion(getWrittenPart(caretPosition));
@@ -1262,8 +1258,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLPa
 std::vector<std::pair<int, std::string>> MySQLEditor::update_auto_completion(const std::string &typed_part) {
   logDebug2("Updating auto completion popup in editor\n");
 
-  // Remove all entries that don't start with the typed text before showing the
-  // list.
+  // Remove all entries that don't start with the typed text before showing the list.
   if (!typed_part.empty()) {
     gchar *prefix = g_utf8_casefold(typed_part.c_str(), -1);
 
