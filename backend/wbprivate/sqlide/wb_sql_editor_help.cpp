@@ -134,6 +134,7 @@ static std::map<long, std::map<std::string, std::string>> helpContent; // Help t
 
 static std::string helpStyleSheet = "<style>\n"
   "body { color: #404040; spacing: 5px; }\n"
+  "emphasis {font-style: italic; font-size: 100%; font-weight: 400;}\n"
   "literal { font-family: monospace; background-color: rgba(0, 0, 0, 0.07); color: black; }\n"
   "literal[role='stmt'] { font-weight: 600; background-color: rgba(0, 0, 0, 0); }\n"
   "literal[role='func'] { font-weight: 600; background-color: rgba(0, 0, 0, 0); }\n"
@@ -141,9 +142,10 @@ static std::string helpStyleSheet = "<style>\n"
   "replaceable { font-style: italic; font-weight: 600; color: black; }\n"
   "indexterm { display: none; }\n"
   "userinput { color: #004480; font-weight: 600; }\n"
-  "li { style-position: outside; list-style-image: none; list-style-type: square; line-height: 120%; }\n"
-  "pre { background-color: #ddd; border: 1px solid #c9c9c9; margin-top: 10px; margin-botton: 10px; margin-left: 6px;"
-    " padding: 3px 8px; line-height: 1.5; }\n"
+  "li { list-style-position: outside; list-style-image: none; list-style-type: square; line-height: 120%; }\n"
+  "pre { margin-top: 0px; margin-bottom: 0px; margin-left: 6px; padding: 3px 8px; line-height: 1.5; }\n"
+  "pre.programlisting {margin-left: 6px; color: black; display: block; font-size: 95%; margin-bottom: 20px; border: 1px"
+    " solid #d9d9d9; background-color: #eee; padding: 3px 8px; }\n"
   "</style>";
 
 std::string convertXRef(long version, std::string const &source) {
@@ -159,6 +161,8 @@ std::string convertXRef(long version, std::string const &source) {
   return result;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string convertInternalLinks(std::string const &source) {
   static std::regex pattern("<literal role=\"stmt\">([^<]+)</literal>");
 
@@ -167,6 +171,8 @@ std::string convertInternalLinks(std::string const &source) {
 
   return std::regex_replace(source, pattern, "<a href='local:$1'>$1</a>");
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string convertList(long version, JsonParser::JsonArray const &list) {
   std::string result;
@@ -197,6 +203,8 @@ std::string convertList(long version, JsonParser::JsonArray const &list) {
   return result;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Creates the HTML formatted help text from the object that's passed in.
  */
@@ -213,7 +221,8 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
     // but e.g. for functions in a list the syntax is a paragraph.
     auto iterator = entry.find("programlisting");
     if (iterator != entry.end()) {
-      result += "<pre>" + convertInternalLinks(iterator->second) + "</pre>";
+      std::string text = convertInternalLinks(iterator->second);
+      result += "<pre class='programlisting line-numbers language-sql'>" + text + "</pre><br/>";
     } else {
       auto iterator = entry.find("para");
       if (iterator != entry.end()) {
@@ -233,7 +242,7 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
       auto iterator = entry.find("programlisting");
       if (iterator != entry.end()) {
         std::string text = convertInternalLinks(iterator->second);
-        result += "<pre>" + text + "</pre>";
+        result += "<pre class='programlisting line-numbers language-sql'>" + text + "</pre><br/>";
       } else {
         auto iterator = entry.find("itemizedlist"); // Convert to bullet list.
         if (iterator != entry.end()) {
@@ -250,9 +259,11 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
 
   std::string page = base::replaceString(base::tolower(id), " ", "-");
   std::string url = base::strfmt("http://dev.mysql.com/doc/refman/%ld.%ld/en/%s.html", version / 100, version % 10, page.c_str());
-  result += "<b>See also: </>: <a href='" + url + "'>Online help " + page + "</a><br /><br />";
-  return result + "</body></html>";
+  result += "<b>See also: </>: <a href='" + url + "'>Online help " + page + "</a><br /><br /></body></html>";
+  return result;
 }
+
+//----------------- DbSqlEditorContextHelp -----------------------------------------------------------------------------
 
 DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
 
