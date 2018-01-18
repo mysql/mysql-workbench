@@ -23,4 +23,4 @@ Extensive documentation is available on our [MySQL Workbench Documentation Home]
 ## License
 Licensed under version 2 of the GNU General Public License. MySQL Workbench is brought to you by the MySQL team at Oracle. For detailed license information, including 3rd party references see the [LICENCES.txt](LICENSE.txt) file or read the [Workbench Licensing Information](https://downloads.mysql.com/docs/licenses/workbench-6.3-gpl-en.pdf) PDF.
 
-Copyright (c) 2006, 2017, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2006, 2018, Oracle and/or its affiliates. All rights reserved.
