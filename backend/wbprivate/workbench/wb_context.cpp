@@ -3033,7 +3033,7 @@ std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_Con
                 "Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
                 "A connection to this database can be established but some MySQL Workbench features may not work "
                 "properly since the database is not fully compatible with the supported versions of MySQL.\n\n"
-                "MySQL Workbench is developed and tested for MySQL Server versions 5.1, 5.5, 5.6 and 5.7",
+                "MySQL Workbench is developed and tested for MySQL Server versions 5.5, 5.6, 5.7 and 8.0",
                 bec::sanitize_server_version_number(form->connection_details()["dbmsProductVersion"]).c_str()),
               "Continue Anyway", "Cancel") != mforms::ResultOk) {
           _frontendCallbacks->show_status_text(_("Unsupported server"));

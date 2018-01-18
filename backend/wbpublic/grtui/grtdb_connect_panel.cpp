@@ -642,13 +642,14 @@ bool DbConnectPanel::test_connection() {
         if (!bec::is_supported_mysql_version(version)) {
           logError("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
                    version.c_str());
+          // TODO: we have the same message in wb_context.cpp. Unite them.
           if (mforms::Utilities::show_warning(
                 "Connection Warning",
                 base::strfmt("Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
                              "A connection to this database can be established but some MySQL Workbench features may "
                              "not work properly since the database is not fully compatible with the supported versions "
                              "of MySQL.\n\n"
-                             "MySQL Workbench is developed and tested for MySQL Server versions 5.1, 5.5, 5.6 and 5.7",
+                             "MySQL Workbench is developed and tested for MySQL Server versions 5.5, 5.6, 5.7 and 8.0",
                              bec::sanitize_server_version_number(version).c_str()),
                 "Continue Anyway", "Cancel") != mforms::ResultOk)
             return false;
