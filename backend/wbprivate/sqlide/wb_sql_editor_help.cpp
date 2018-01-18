@@ -158,6 +158,7 @@ std::string convertXRef(long version, std::string const &source) {
   std::string result = std::regex_replace(source, pattern, "<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/$1.html'>$1</a>");
   result = base::replaceString(result, "{0}", std::to_string(version / 100));
   result = base::replaceString(result, "{1}", std::to_string(version % 10));
+
   return result;
 }
 
@@ -258,6 +259,16 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
   }
 
   std::string page = base::replaceString(base::tolower(id), " ", "-");
+
+  static std::map<std::string, std::string> pageMap = {
+    { "now", "date-and-time-functions" },
+    { "like", "string-comparison-functions" },
+    { "auto_increment", "example-auto-increment" },
+  };
+
+  auto iterator = pageMap.find(page);
+  if (iterator != pageMap.end())
+    page = iterator->second;
   std::string url = base::strfmt("http://dev.mysql.com/doc/refman/%ld.%ld/en/%s.html", version / 100, version % 10, page.c_str());
   result += "<b>See also: </>: <a href='" + url + "'>Online help " + page + "</a><br /><br /></body></html>";
   return result;
