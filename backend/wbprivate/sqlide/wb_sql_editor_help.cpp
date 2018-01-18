@@ -142,23 +142,38 @@ static std::string helpStyleSheet = "<style>\n"
   "replaceable { font-style: italic; font-weight: 600; color: black; }\n"
   "indexterm { display: none; }\n"
   "userinput { color: #004480; font-weight: 600; }\n"
-  "li { list-style-position: outside; list-style-image: none; list-style-type: square; line-height: 120%; }\n"
   "pre { margin-top: 0px; margin-bottom: 0px; margin-left: 6px; padding: 3px 8px; line-height: 1.5; }\n"
   "pre.programlisting {margin-left: 6px; color: black; display: block; font-size: 95%; margin-bottom: 20px; border: 1px"
     " solid #d9d9d9; background-color: #eee; padding: 3px 8px; }\n"
   "</style>";
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string convertXRef(long version, std::string const &source) {
   static std::regex pattern("<xref linkend=\"([^\"]+)\" />");
 
-  if (source.find("xref") == std::string::npos)
+  if (source.find("<xref") == std::string::npos)
     return source;
 
-  // We can have more than one occurence of a link, so a normal string format won't help.
+  // We can have more than one occurrence of a link, so a normal string format won't help.
   std::string result = std::regex_replace(source, pattern, "<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/$1.html'>$1</a>");
   result = base::replaceString(result, "{0}", std::to_string(version / 100));
   result = base::replaceString(result, "{1}", std::to_string(version % 10));
 
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string convertExternalLinks(long version, std::string const &source) {
+  static std::regex pattern("<link linkend=\"([^\"]+)\">([^<]+)<\\/link>");
+
+  if (source.find("<link") == std::string::npos)
+    return source;
+
+  std::string result = std::regex_replace(source, pattern, "<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/glossary.html#$1'>$2</a>");
+  result = base::replaceString(result, "{0}", std::to_string(version / 100));
+  result = base::replaceString(result, "{1}", std::to_string(version % 10));
   return result;
 }
 
@@ -181,7 +196,7 @@ std::string convertList(long version, JsonParser::JsonArray const &list) {
     auto iterator = entry.find("para");
     if (iterator != entry.end()) {
       std::string text = "<p>" + convertInternalLinks(iterator->second) +  "</p>";
-      result += convertXRef(version, text);
+      result += convertXRef(version, convertExternalLinks(version, text));
     } else {
       auto iterator = entry.find("programlisting");
       if (iterator != entry.end()) {
@@ -238,7 +253,7 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
     auto iterator = entry.find("para");
     if (iterator != entry.end()) {
       std::string text = "<p>" + convertInternalLinks(iterator->second) + "</p>";
-      result += convertXRef(version, text);
+      result += convertXRef(version, convertExternalLinks(version, text));
     } else {
       auto iterator = entry.find("programlisting");
       if (iterator != entry.end()) {
