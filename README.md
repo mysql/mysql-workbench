@@ -1,4 +1,23 @@
-# MySQL Workbench - Open Source
+# MySQL Workbench
+
+Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+
+This is a release of [MySQL Workbench](https://mysqlworkbench.org), a graphical tool for working with MySQL servers and databases.
+
+License information can be found in the [LICENSE](LICENSE) file.
+
+This distribution may include materials developed by third parties. 
+For license and attribution notices for these materials, please refer to the [LICENSE](LICENSE) file. 
+
+For more information on MySQL Workbench, visit 
+  [http://dev.mysql.com/doc/workbench/en](http://dev.mysql.com/doc/workbench/en)
+
+For additional downloads and the source of MySQL Workbench, visit
+  [http://dev.mysql.com/downloads](http://dev.mysql.com/downloads)
+
+MySQL Workbench is brought to you by the MySQL team at Oracle.
+
+# Overview
 
 [MySQL Workbench](https://mysqlworkbench.org) is a graphical tool for working with MySQL servers and databases. MySQL Workbench fully supports MySQL server versions 5.5 and higher.
 
@@ -14,13 +33,4 @@ MySQL Workbench functionality covers five main topics:
 
 * **MySQL Enterprise Support:** Support for Enterprise products such as MySQL Enterprise Backup, MySQL Firewall, and MySQL Audit.
 
-You can [download MySQL Workbench](https://dev.mysql.com/downloads/workbench/) from the MySQL Developers site.
-
 The [code repository on Github](https://github.com/mysql/mysql-workbench) is where we publish a snapshot of our internal repository everytime a new release of the tools is published. Use the [MySQL bug system](http://bugs.mysql.com/) to report any issue you have. You can use Github or the MySQL bug system to contribute to the development. Simply file a new issue with your patch and we will take care of it.
-
-Extensive documentation is available on our [MySQL Workbench Documentation Home](https://dev.mysql.com/doc/workbench/en/).
-
-## License
-Licensed under version 2 of the GNU General Public License. MySQL Workbench is brought to you by the MySQL team at Oracle. For detailed license information, including 3rd party references see the [LICENCES.txt](LICENSE.txt) file or read the [Workbench Licensing Information](https://downloads.mysql.com/docs/licenses/workbench-6.3-gpl-en.pdf) PDF.
-
-Copyright (c) 2006, 2018, Oracle and/or its affiliates. All rights reserved.
