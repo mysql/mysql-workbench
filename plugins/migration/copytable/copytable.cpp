@@ -2223,7 +2223,11 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index) {
         // TODO: implement handling
         break;
       case MYSQL_TYPE_GEOMETRY:
-        _bulk_insert_record.append("GeomFromText('");
+        if (_major_version >= 6 || (_major_version == 5 && _minor_version >= 7) ||
+            (_major_version == 5 && _minor_version == 6 && _build_version >= 6))
+          _bulk_insert_record.append("ST_GeomFromText('");
+        else
+          _bulk_insert_record.append("GeomFromText('");
         ret_val = _bulk_insert_record.append_escaped((char *)(*_row_buffer)[col_index].buffer,
                                                      *(*_row_buffer)[col_index].length);
         _bulk_insert_record.append("')");
