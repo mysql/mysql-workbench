@@ -31,7 +31,6 @@ add_library(db.mysql.diff.reporting.wbp MODULE
     backend/db_mysql_diff_reporting.cpp
     backend/register_plugin.cpp
     frontend/diff_reporting.cpp
-    ${PROJECT_SOURCE_DIR}/plugins/db.mysql/backend/db_plugin_be.cpp
     ${PROJECT_SOURCE_DIR}/plugins/db.mysql/backend/wb_plugin_be.cpp
 )
 

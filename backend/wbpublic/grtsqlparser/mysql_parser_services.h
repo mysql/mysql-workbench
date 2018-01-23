@@ -63,6 +63,7 @@ namespace parsers {
    */
   class WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserServices {
   public:
+    virtual ~MySQLParserServices() {};
     typedef MySQLParserServices *Ref; // We only have a singleton, so define Ref only to keep the pattern.
 
     static MySQLParserServices::Ref get();

@@ -32,6 +32,7 @@
 #include "base/string_utilities.h"
 #include "db.mysql/src/module_db_mysql.h"
 #include "base/log.h"
+#include "grtsqlparser/mysql_parser_services.h"
 
 #include <glib.h>
 
@@ -177,6 +178,16 @@ void Db_plugin::load_schemata(std::vector<std::string> &schemata) {
   DbMySQLImpl *diffsql_module = grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
   _db_options = diffsql_module->getTraitsForServerVersion(major, minor, revision);
   _db_options.set("CaseSensitive", grt::IntegerRef(dbc_meta->storesMixedCaseIdentifiers()));
+  _db_options.set("MySQLVersion", grt::StringRef(base::strfmt("%d.%d.%d", major, minor, revision)));
+
+  const std::unique_ptr<sql::Statement> statement(dbc_conn->createStatement());
+  const std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SHOW SESSION VARIABLES LIKE 'sql_mode'"));
+  if (rs->next()) {
+    _db_options.set("SqlMode", grt::StringRef(rs->getString(2)));
+  } else {
+    _db_options.set("SqlMode", grt::StringRef());
+  }
+
 
   std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", "", "schema"));
   _schemata.reserve(rset->rowsCount());
@@ -473,16 +484,28 @@ db_CatalogRef Db_plugin::db_catalog() {
   std::string sql_input_script;
   dump_ddl(sql_input_script);
 
-  db_CatalogRef catalog = grt::GRT::get()->create_object<db_Catalog>(mod_cat.get_metaclass()->name());
-  catalog->version(pm->rdbms()->version());
+  db_mysql_CatalogRef catalog = grt::GRT::get()->create_object<db_mysql_Catalog>(mod_cat.get_metaclass()->name());
+
+
   grt::replace_contents(catalog->simpleDatatypes(), pm->rdbms()->simpleDatatypes());
   catalog->name("default");
   catalog->oldName(catalog->name());
 
-  SqlFacade::Ref sql_parser = SqlFacade::instance_for_rdbms(pm->rdbms());
   grt::DictRef parse_options(true);
   parse_options.set("case_sensitive_identifiers", _db_options.get("CaseSensitive", grt::IntegerRef(1)));
-  sql_parser->parseSqlScriptStringEx(catalog, sql_input_script, parse_options);
+
+  grt::StringRef sqlMode = grt::StringRef::cast_from(_db_options.get("SqlMode", grt::StringRef("")));
+
+  auto version = bec::parse_version(grt::StringRef::cast_from(_db_options.get("MySQLVersion", grt::StringRef("5.6.30"))).c_str());
+  catalog->version(version);
+
+  auto services = parsers::MySQLParserServices::get();
+  auto context = services->createParserContext(pm->rdbms()->characterSets(), version, sqlMode.c_str(), _db_options.get_int("CaseSensitive", 1));
+  auto errorCount = services->parseSQLIntoCatalog(context, catalog, sql_input_script, parse_options);
+
+  if (errorCount != 0) {
+    logError("There was an error while parsing the DDL retrieved from the server.\n");
+  }
 
   return catalog;
 }
