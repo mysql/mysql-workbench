@@ -1345,6 +1345,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
           default:
             return tokenToTopic[showContext->value->getType()];
         }
+        break;  //  This should never fall here...just to avoid gcc to complain about it
       }
 
       case MySQLParser::RuleTableConstraintDef: {

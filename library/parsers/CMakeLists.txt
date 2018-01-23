@@ -64,14 +64,6 @@ set(NEW_WB_CFLAGS ${WB_CFLAGS})
 list(REMOVE_ITEM NEW_WB_CFLAGS -Werror)
 target_compile_options(parsers PUBLIC ${NEW_WB_CFLAGS})
 
-
-foreach(ITEM in ${PARSERS_SOURCES})
-  get_filename_component(FILEEXT ${ITEM} EXT)
-  if ("${FILEEXT}" STREQUAL ".cpp")
-    set_source_files_properties(${ITEM} PROPERTIES COMPILE_FLAGS -std=${STDCPP})
-  endif()
-endforeach(ITEM in ${PARSERS_SOURCES})
-
 add_dependencies(parsers
     generate_parser_mysql
 )

@@ -159,20 +159,12 @@ add_library(wbscintilla
 
 set(NEW_WB_CFLAGS ${WB_CFLAGS})
 list(REMOVE_ITEM NEW_WB_CFLAGS -Werror)
-list(APPEND NEW_WB_CFLAGS -DGTK -DSCI_LEXER -DSCI_NAMESPACE -Wno-deprecated-register)
+list(APPEND NEW_WB_CFLAGS -DGTK -DSCI_LEXER -DSCI_NAMESPACE -Wno-deprecated-register -Wno-implicit-fallthrough)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   list(APPEND NEW_WB_CFLAGS -DNO_CXX11_REGEX)
 endif()
 target_compile_options(wbscintilla PRIVATE ${NEW_WB_CFLAGS})
 target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
-
-
-foreach(ITEM in ${SCINTILLA_SOURCES})
-  get_filename_component(FILEEXT ${ITEM} EXT)
-  if ("${FILEEXT}" STREQUAL ".cxx")
-    set_source_files_properties(${ITEM} PROPERTIES COMPILE_FLAGS -std=${STDCPP})
-  endif()
-endforeach(ITEM in ${SCINTILLA_SOURCES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(wbscintilla gcov)
