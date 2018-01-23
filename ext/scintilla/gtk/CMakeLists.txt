@@ -170,7 +170,7 @@ target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
 foreach(ITEM in ${SCINTILLA_SOURCES})
   get_filename_component(FILEEXT ${ITEM} EXT)
   if ("${FILEEXT}" STREQUAL ".cxx")
-    set_source_files_properties(${ITEM} PROPERTIES COMPILE_FLAGS -std=c++11)
+    set_source_files_properties(${ITEM} PROPERTIES COMPILE_FLAGS -std=${STDCPP})
   endif()
 endforeach(ITEM in ${SCINTILLA_SOURCES})
 

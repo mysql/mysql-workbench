@@ -172,10 +172,7 @@ fi
 
 %build
 export BOOST_ROOT=%{boost_root}
-%if 0%{?fedora} > 22
-CXXFLAGS="-std=c++11 $CXXFLAGS" \
 %undefine _hardened_build #need to undefine because of some memory problems
-%endif
 # CMAKE_INSTALL_PREFIX etc is handled by the cmake macro
 %cmake -DCMAKE_BUILD_TYPE=Release \
        -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \

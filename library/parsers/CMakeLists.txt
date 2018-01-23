@@ -68,7 +68,7 @@ target_compile_options(parsers PUBLIC ${NEW_WB_CFLAGS})
 foreach(ITEM in ${PARSERS_SOURCES})
   get_filename_component(FILEEXT ${ITEM} EXT)
   if ("${FILEEXT}" STREQUAL ".cpp")
-    set_source_files_properties(${ITEM} PROPERTIES COMPILE_FLAGS -std=c++11)
+    set_source_files_properties(${ITEM} PROPERTIES COMPILE_FLAGS -std=${STDCPP})
   endif()
 endforeach(ITEM in ${PARSERS_SOURCES})
 

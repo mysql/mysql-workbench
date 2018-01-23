@@ -88,7 +88,7 @@ find_package(Threads)
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 
-find_package(ANTLR4 REQUIRED)
+
 
 # In Ubuntu 13.04, the built-in check for python fails.. so we have to resort to the check with pkg-config (which doesn't work in many distros)
 find_package(PythonLibs 2.6)
@@ -258,13 +258,22 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
-set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-implicit-fallthrough -std=c++11)
-set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(STDCPP "c++11")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
     message(FATAL_ERROR "Insufficient gcc version. You need gcc v4.7 or newer to build this project")
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.0")
+    message("Using C++11 standard")
+    set(STDCPP "c++11")
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "5.0" OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "5.0")
+    message("Using C++14 standard")
+    set(STDCPP "c++14")
   endif()
+  # C++17 requires gcc7
 endif()
+
+set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -std=${STDCPP})
+set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
 
 if(BUILD_FOR_GCOV)
     message ("Enable GCOV due to BUILD_FOR_GCOV")
