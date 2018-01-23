@@ -302,10 +302,10 @@ void WBContextUI::add_backend_builtin_commands() {
       "web_mysql_docs", std::bind(&WBContextUI::show_web_page, this, "https://dev.mysql.com/doc/workbench/en/", true));
 
   _command_ui->add_builtin_command("web_mysql_blog",
-                                   std::bind(&WBContextUI::show_web_page, this, "http://mysqlworkbench.org/", true));
+                                   std::bind(&WBContextUI::show_web_page, this, "https://mysqlworkbench.org/", true));
 
   _command_ui->add_builtin_command(
-      "web_mysql_forum", std::bind(&WBContextUI::show_web_page, this, "http://forums.mysql.com/list.php?152", true));
+      "web_mysql_forum", std::bind(&WBContextUI::show_web_page, this, "https://forums.mysql.com/list.php?152", true));
 
   if (_wb->is_commercial()) {
     _command_ui->add_builtin_command("web_edelivery",
