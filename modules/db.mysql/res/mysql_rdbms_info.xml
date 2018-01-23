@@ -907,7 +907,7 @@
                         <value type="string" key="lookupValueModule"></value>
                         <value type="string" key="name">socket</value>
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_socket</link>
-                        <value type="string" key="paramType">string</value>
+                        <value type="string" key="paramType">file</value>
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>

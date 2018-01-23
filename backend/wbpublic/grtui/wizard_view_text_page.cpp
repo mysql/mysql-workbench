@@ -8,17 +8,17 @@
  * This program is also distributed with certain software (including
  * but not limited to OpenSSL) that is licensed under separate terms, as
  * designated in a particular file or component or in included license
- * documentation.  The authors of MySQL hereby grant you an additional
+ * documentation. The authors of MySQL hereby grant you an additional
  * permission to link the program and your derivative works with the
  * separately licensed software that they have included with MySQL.
- * This program is distributed in the hope that it will be useful,  but
+ * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
  * the GNU General Public License, version 2.0, for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "grt_wizard_form.h"
@@ -36,7 +36,7 @@ ViewTextPage::ViewTextPage(WizardForm *form, const char *name, Buttons buttons, 
   set_padding(8);
 
   if (buttons != 0) {
-    add_end(&_button_box, false, false);
+    add_end(&_button_box, false, true);
     _button_box.set_spacing(8);
 
     if (buttons & SaveButton) {

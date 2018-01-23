@@ -72,35 +72,35 @@ REMOVE_USER = "DROP USER '%(user)s'@'%(host)s'"
 # Map of user table's column name to privilege and its description.
 # It has the form { 'TableColumnPrivName': ('PrettyName', 'ADescriptionOfThePrivilege'), ... }
 PrivilegeInfo = {
-"Select_priv": ("SELECT", "The SELECT privilege enables you to select rows from tables in a database.\nSELECT statements require the SELECT privilege only if they actually retrieve rows from a table. Some SELECT statements do not access tables and can be executed without permission for any database"),
-"Insert_priv": ("INSERT", "The INSERT privilege enables you to be inserted into tables in a database.\nINSERT is also required for the ANALYZE TABLE, OPTIMIZE TABLE, and REPAIR TABLE table-maintenance statements."),
-"Update_priv": ("UPDATE", "The UPDATE privilege enables you to be updated in tables in a database."),
-"Delete_priv": ("DELETE", "The DELETE privilege enables you to be deleted from tables in a database."),
-"Create_priv": ("CREATE", "The CREATE privilege enables creation of new databases and tables."),
-"Drop_priv": ("DROP", """The DROP privilege enables you to drop (remove) existing databases, tables, and views.
+"Select_priv": ("SELECT", "The SELECT privilege enables querying data from tables and views.\nSELECT statements require the SELECT privilege only if they actually retrieve rows from a table. Some SELECT statements do not access tables and can be executed without permission for any database."),
+"Insert_priv": ("INSERT", "The INSERT privilege enables the insertion of data into tables.\nINSERT is also required for the ANALYZE TABLE, OPTIMIZE TABLE, and REPAIR TABLE table-maintenance statements."),
+"Update_priv": ("UPDATE", "The UPDATE privilege enables changing data in tables."),
+"Delete_priv": ("DELETE", "The DELETE privilege enables deletion of data from tables."),
+"Create_priv": ("CREATE", "The CREATE privilege enables creation of new databases, tables, views, and more."),
+"Drop_priv": ("DROP", """The DROP privilege enables you to drop (remove) existing databases, tables, views, and more.
 Beginning with MySQL 5.1.10, the DROP privilege is also required in order to use the statement ALTER TABLE ... DROP PARTITION on a partitioned table.
-Beginning with MySQL 5.1.16, the DROP privilege is required for TRUNCATE TABLE (before that, TRUNCATE TABLE requires the DELETE privilege).
-If you grant the DROP privilege for the mysql database to a user, that user can drop the database in which the MySQL access privileges are stored."""),
+Beginning with MySQL 5.1.16, the DROP privilege is required for TRUNCATE TABLE (before that, TRUNCATE TABLE required the DELETE privilege).
+Warning: if you grant the DROP privilege for the 'mysql' database to a user, that user can drop the database in which the MySQL access privileges are stored."""),
 "Reload_priv": ("RELOAD", "The RELOAD privilege enables use of the FLUSH statement.\nIt also enables mysqladmin commands that are equivalent to FLUSH operations:\nflush-hosts, flush-logs, flush-privileges, flush-status, flush-tables, flush-threads, refresh, and reload."),
 "Shutdown_priv": ("SHUTDOWN", "The SHUTDOWN privilege enables use of the mysqladmin shutdown command. There is no corresponding SQL statement."),
 "Process_priv": ("PROCESS", "The PROCESS privilege pertains to display of information about the threads executing within the server\n(that is, information about the statements being executed by sessions).\nThe privilege enables use of SHOW PROCESSLIST or mysqladmin processlist to see threads belonging to other accounts; you can always see your own threads."),
 "File_priv": ("FILE", """The FILE privilege gives you permission to read and write files on the server host using the
 LOAD DATA INFILE and SELECT ... INTO OUTFILE statements and the LOAD_FILE() function. A user who has the FILE privilege
 can read any file on the server host that is either world-readable or readable by the MySQL server.
-(This implies the user can read any file in any database directory, because the server can access any of those files.)
+This implies the user can read any file in any database directory, because the server can access any of those files.
 The FILE privilege also enables the user to create new files in any directory where the MySQL server has write access.
 As a security measure, the server will not overwrite existing files."""),
 "Grant_priv": ("GRANT OPTION", "The GRANT OPTION privilege enables you to give to other users or remove from other users those privileges that you yourself possess."),
 "References_priv": ("REFERENCES", "The REFERENCES privilege currently is unused."),
 "Index_priv": ("INDEX", "The INDEX privilege enables you to create or drop (remove) indexes.\nINDEX applies to existing tables. If you have the CREATE privilege for a table, you can include index definitions in the CREATE TABLE statement."),
-"Alter_priv": ("ALTER", "The ALTER privilege enables use of ALTER TABLE to change the structure of or rename tables.\n(ALTER TABLE also requires the INSERT and CREATE privileges.)"),
+"Alter_priv": ("ALTER", "The ALTER privilege enables use of ALTER TABLE to change the structure of or rename tables.\nALTER TABLE also requires the INSERT and CREATE privileges."),
 "Show_db_priv": ("SHOW DATABASES", """The SHOW DATABASES privilege enables the account to see database names by issuing the
 SHOW DATABASE statement. Accounts that do not have this privilege see only databases for which
 they have some privileges, and cannot use the statement at all if the server was started with
 the --skip-show-database option. Note that any global privilege is a privilege for the database."""),
 "Super_priv": ("SUPER", """The SUPER privilege enables an account to use CHANGE MASTER TO, KILL or
 mysqladmin kill to kill threads belonging to other accounts (you can always kill your own threads),
-PURGE BINARY LOGS, configuration changes via SET GLOBAL to modify global system variables,
+PURGE BINARY LOGS, configuration changes with SET GLOBAL to modify global system variables,
 the mysqladmin debug command, enabling or disabling logging, performing updates even if the read_only
 system variable is enabled, starting and stopping replication on slave servers, and allows you to
 connect (once) even if the connection limit controlled by the max_connections system variable is reached."""),
@@ -265,7 +265,7 @@ class AdminSecurity(object):
                 result = self.ctrl_be.exec_query("DESCRIBE mysql.db")
             except QueryError, e:
                 if e.error == 1142:
-                    raise PermissionDeniedError("Please make sure the used account has rights to the MySQL grant tables.\n%s" % e)
+                    raise PermissionDeniedError("Please make sure the account used has rights to the MySQL grant tables.\n%s" % e)
                 raise e
 
             if result is not None:
@@ -279,7 +279,7 @@ class AdminSecurity(object):
                 result = self.ctrl_be.exec_query("DESCRIBE mysql.user")
             except QueryError, e:
                 if e.error == 1142:
-                    raise PermissionDeniedError("Please make sure the used account has rights to the MySQL grant tables.\n%s" % e)
+                    raise PermissionDeniedError("Please make sure the account used has rights to the MySQL grant tables.\n%s" % e)
                 raise e
 
             if result is not None:
@@ -303,7 +303,7 @@ class AdminSecurity(object):
             result = self.ctrl_be.exec_query(LIST_SCHEMAS_QUERY)
         except QueryError, e:
             if e.error == 1142:
-                raise PermissionDeniedError("Please make sure the used account has rights to the MySQL grant tables.\n%s" % e)
+                raise PermissionDeniedError("Please make sure the account used has rights to the MySQL grant tables.\n%s" % e)
             raise e
         except Exception, e:
             raise Exception("Error querying privilege information: %s" % e)

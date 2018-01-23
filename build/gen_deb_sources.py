@@ -11,6 +11,7 @@ output_distros = [
     ("xenial" ,"ubuntu16.04" ,"1604"  ,""),
     ("trusty" ,"ubuntu14.04" ,"1404"  ,"paramiko"),
     ("jessie" ,"debian8"     ,"8"     ,""),
+    ("stretch" ,"debian9"     ,"9"     ,""),
 ]
 
 editions = ["community", "commercial"]

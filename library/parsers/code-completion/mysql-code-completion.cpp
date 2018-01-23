@@ -146,6 +146,7 @@ struct AutoCompletionContext {
       MySQLParser::RuleServerRef, MySQLParser::RuleUser,
 
       MySQLParser::RuleUserVariable, MySQLParser::RuleSystemVariable, MySQLParser::RuleLabelRef,
+      MySQLParser::RuleSetSystemVariable,
 
       // For better handling, but will be ignored.
       MySQLParser::RuleParameterName, MySQLParser::RuleProcedureName, MySQLParser::RuleIdentifier,
@@ -1052,7 +1053,8 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
         break;
       }
 
-      case MySQLParser::RuleSystemVariable: {
+      case MySQLParser::RuleSystemVariable:
+      case MySQLParser::RuleSetSystemVariable: {
         logDebug3("Adding system variables\n");
 
         auto symbols = symbolTable.getSymbolsOfType<SystemVariableSymbol>();

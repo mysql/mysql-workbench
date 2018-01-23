@@ -46,7 +46,7 @@ if CATOPTS is not None:
         print "CATOPT", "'" + enabled + "', '" + cat.get_string_value() + "', '" + grp.get_string_value()
 
 # The list of versions to show to user when detected/given version is not supported
-supported_versions = [5.0, 5.1, 5.5, 5.6, 5.7]
+supported_versions = [5.5, 5.6, 5.7, 8.0]
 
 #===============================================================================
 def verify_selected_version(version_selector, set_back):

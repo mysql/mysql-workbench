@@ -1829,7 +1829,7 @@ installUninstallStatment:
 setStatement:
     SET_SYMBOL (
         optionType? TRANSACTION_SYMBOL setTransactionCharacteristic
-        // ONE_SHOT is available only until 5.6. We don't need a predicate here, however. Handling it in the lexer is enough.
+        // ONE_SHOT is available only until 5.6. Conditionally handled in the lexer.
         | ONE_SHOT_SYMBOL? optionValueNoOptionType (
             COMMA_SYMBOL optionValueList
         )?
@@ -1845,11 +1845,15 @@ optionValueNoOptionType:
     internalVariableName equal setExprOrDefault
     | charsetClause
     | userVariable equal expr
-    | AT_AT_SIGN_SYMBOL setVarIdentType? internalVariableName equal setExprOrDefault
+    | setSystemVariable equal setExprOrDefault
     | NAMES_SYMBOL (
         equal expr
         | charsetNameOrDefault (COLLATE_SYMBOL collationNameOrDefault)?
     )
+;
+
+setSystemVariable:
+    AT_AT_SIGN_SYMBOL setVarIdentType? internalVariableName
 ;
 
 optionValueFollowingOptionType:
@@ -2507,9 +2511,8 @@ userVariable: (AT_SIGN_SYMBOL textOrIdentifier)
     | AT_TEXT_SUFFIX
 ;
 
-// System variables as used in exprs. SET has another variant of this (SET GLOBAL/LOCAL varname).
 systemVariable:
-    AT_AT_SIGN_SYMBOL (optionType DOT_SYMBOL)? internalVariableName
+    AT_AT_SIGN_SYMBOL varIdentType? textOrIdentifier dotIdentifier?
 ;
 
 internalVariableName:
@@ -3709,8 +3712,8 @@ equal:
     | ASSIGN_OPERATOR
 ;
 
+// PERSIST and PERSIST_ONLY are conditionally handled in the lexer. Hence no predicate required here.
 optionType:
-    // The first token are automically set by the lexer, hence no predicate required here.
     PERSIST_SYMBOL
     | PERSIST_ONLY_SYMBOL
     | GLOBAL_SYMBOL
@@ -3718,8 +3721,15 @@ optionType:
     | SESSION_SYMBOL
 ;
 
+varIdentType:
+    GLOBAL_SYMBOL DOT_SYMBOL
+    | LOCAL_SYMBOL DOT_SYMBOL
+    | SESSION_SYMBOL DOT_SYMBOL
+;
+
 setVarIdentType:
-    {serverVersion >= 80000}? PERSIST_SYMBOL DOT_SYMBOL
+    PERSIST_SYMBOL DOT_SYMBOL
+    | PERSIST_ONLY_SYMBOL DOT_SYMBOL
     | GLOBAL_SYMBOL DOT_SYMBOL
     | LOCAL_SYMBOL DOT_SYMBOL
     | SESSION_SYMBOL DOT_SYMBOL

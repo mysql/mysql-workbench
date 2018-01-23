@@ -196,7 +196,7 @@ CXXFLAGS="-std=c++11 $CXXFLAGS" \
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
        -DANTLR4_INCLUDE_DIR=%{antlr_dir}/include \
-       -DANTLR4_LIBRARY="-L%{antlr_dir}/lib -lantlr-runtime" \
+       -DANTLR4_LIBRARIES="-L%{antlr_dir}/lib -lantlr4-runtime" \
        -DWITH_ANTLR_JAR=%{antlr_jar_path}
 
 
@@ -237,7 +237,7 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
 # i.e. is linked into the WB binaries
 # cp -a %%{mysqlshell_dir}/lib/*.so*                  %%{buildroot}%%{_libdir}/mysql-workbench/
   cp -a %{vsqlite_dir}/lib/libvsqlitepp.so*           %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{antlr_dir}/lib/libantlr-runtime.so*         %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{antlr_dir}/lib/libantlr4-runtime.so*         %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{odbc_home}/lib/libiodbc{,inst,adm}.so*      %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{odbc_home}/bin/iodbcadm-gtk                 %{buildroot}%{_libexecdir}/mysql-workbench/
 %if %{with paramiko}
