@@ -2035,7 +2035,7 @@
                 <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
                 <value type="string" key="name">TIMESTAMP</value>
                 <value type="int" key="needsQuotes">1</value>
-                <value type="int" key="numericPrecision">6</value>
+                <value type="int" key="numericPrecision">0</value>
                 <value type="int" key="numericPrecisionRadix">0</value>
                 <value type="int" key="numericScale">0</value>
                 <value type="int" key="parameterFormatType">2</value>
