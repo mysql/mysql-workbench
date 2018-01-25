@@ -256,15 +256,26 @@ add_definitions(-DTIXML_USE_STL=1)
 set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 # SET(GCOV OFF CACHE BOOL "Add gcov flags")
 
-# Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
-# we use supports each flag to allow for non-gcc compilers in Linux (as above)?
-set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-implicit-fallthrough -std=c++11)
-set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
+# Determine std c++ version
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
     message(FATAL_ERROR "Insufficient gcc version. You need gcc v4.7 or newer to build this project")
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.0")
+    message("Using C++11 standard")
+    set(CMAKE_CXX_STANDARD 11)
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "5.0" OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "5.0")
+    message("Using C++14 standard")
+    set(CMAKE_CXX_STANDARD 14)
   endif()
+  # C++17 requires gcc7
 endif()
+
+
+
+set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
+set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
 
 if(BUILD_FOR_GCOV)
     message ("Enable GCOV due to BUILD_FOR_GCOV")

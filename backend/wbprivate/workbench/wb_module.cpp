@@ -230,7 +230,7 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
                                                  // 7.1 (Maipo)"
     "Fedora release 27", "Fedora release 26", "Fedora release 25", "Fedora release 24", "CentOS release 7",
 
-    "Windows 7", "Windows 8", "Windows 10", "Windows 2012 Server",
+    "Windows 7", "Windows 8", "Windows 10", "Windows 2012 Server", "Windows Server 2012 R2", "Windows Server 2016",
 
     "OS X 10.9", "OS X 10.10", "OS X 10.11", "macOS 10.12", "macOS 10.13"
   };

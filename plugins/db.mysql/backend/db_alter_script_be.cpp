@@ -136,6 +136,7 @@ std::string DbMySQLDiffAlter::generate_alter() {
 std::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<std::string> &schemata,
                                                              const grt::ValueRef &left, const grt::ValueRef &right,
                                                              grt::StringListRef SchemaSkipList, grt::DictRef options) {
+
   db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
   grt::ValueRef default_engine = bec::GRTManager::get()->get_app_option("db.mysql.Table:tableEngine");
