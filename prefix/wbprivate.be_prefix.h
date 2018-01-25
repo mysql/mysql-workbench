@@ -28,7 +28,7 @@
 #ifdef __cplusplus
 
 #include <stack>
-#include <regex>
+#include <pcrecpp.h>
 #include <thread>
 
 #include <glib.h>

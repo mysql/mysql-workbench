@@ -22,7 +22,6 @@
  */
 
 #include <boost/signals2/signal.hpp>
-#include <pcrecpp.h>
 
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_panel.h"
