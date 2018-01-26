@@ -388,7 +388,17 @@ std::string intervalToString(misc::IntervalSet set, size_t maxCount, dfa::Vocabu
         name = name.substr(0, name.size() - 7);
       else if (name.find("_OPERATOR") != std::string::npos)
         name = name.substr(0, name.size() - 9);
-
+      else if (name.find("_NUMBER") != std::string::npos)
+        name = name.substr(0, name.size() - 7) + " number";
+      else {
+        static std::map<std::string, std::string> friendlyDescription = {
+          { "BACK_TICK_QUOTED_ID", "`text`" },
+          { "DOUBLE_QUOTED_TEXT", "\"text\"" },
+          { "SINGLE_QUOTED_TEXT", "'text'" },
+        };
+        if (friendlyDescription.find(name) != friendlyDescription.end())
+          name = friendlyDescription[name];
+      }
       ss << name;
     }
   }
@@ -424,7 +434,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
   misc::IntervalSet expected = parser->getExpectedTokens();
   bool invalidForVersion = false;
   size_t tokenType = offendingSymbol->getType();
-  if (tokenType != MySQLLexer::IDENTIFIER && !expected.contains(tokenType))
+  if (tokenType != MySQLLexer::IDENTIFIER && expected.contains(tokenType))
     invalidForVersion = true;
   else {
     tokenType = lexer->keywordFromText(wrongText);

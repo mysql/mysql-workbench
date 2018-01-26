@@ -956,7 +956,7 @@ void SqlEditorPanel::update_title() {
  */
 void SqlEditorPanel::list_members() {
   if (owner()->work_parser_context() != NULL)
-    editor_be()->show_auto_completion(false, owner()->work_parser_context());
+    editor_be()->show_auto_completion(false);
 }
 
 //--------------------------------------------------------------------------------------------------

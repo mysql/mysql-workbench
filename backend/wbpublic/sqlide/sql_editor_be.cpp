@@ -223,8 +223,8 @@ MySQLEditor::Ref MySQLEditor::create(MySQLParserContext::Ref syntax_check_contex
 
 //----------------------------------------------------------------------------------------------------------------------
 
-MySQLEditor::MySQLEditor(MySQLParserContext::Ref syntax_check_context, MySQLParserContext::Ref autocopmlete_context) {
-  d = new Private(syntax_check_context, autocopmlete_context);
+MySQLEditor::MySQLEditor(MySQLParserContext::Ref syntax_check_context, MySQLParserContext::Ref autocomplete_context) {
+  d = new Private(syntax_check_context, autocomplete_context);
 
   d->codeEditor = new mforms::CodeEditor(this);
   d->codeEditor->set_font(bec::GRTManager::get()->get_app_option_string("workbench.general.Editor:Font"));
@@ -796,8 +796,7 @@ bool MySQLEditor::start_sql_processing() {
 bool MySQLEditor::do_statement_split_and_check(int id) {
   d->split_statements_if_required();
 
-  // Start tasks that depend on the statement ranges (markers + auto
-  // completion).
+  // Start tasks that depend on the statement ranges (markers + auto completion).
   bec::GRTManager::get()->run_once_when_idle(this, std::bind(&MySQLEditor::splitting_done, this));
 
   if (d->_stop_processing)
@@ -836,7 +835,7 @@ void *MySQLEditor::splitting_done() {
   if (auto_start_code_completion() && !d->codeEditor->auto_completion_active() &&
       (g_unichar_isalnum(d->_last_typed_char) || d->_last_typed_char == '.' || d->_last_typed_char == '@')) {
     d->_last_typed_char = 0;
-    show_auto_completion(false, d->autocompletionContext);
+    show_auto_completion(false);
   }
 
   std::set<size_t> removal_candidates;
@@ -1191,7 +1190,7 @@ std::string MySQLEditor::getWrittenPart(size_t position) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLParserContext::Ref parser_context) {
+void MySQLEditor::show_auto_completion(bool auto_choose_single) {
   if (!code_completion_enabled())
     return;
 
@@ -1209,12 +1208,9 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLPa
   std::string statement;
   bool fixedCaretPos = false;
   if (get_current_statement_range(min, max, true)) {
-    // If the caret is in the whitespaces before the query we would get a wrong
-    // line number
-    // (because the statement splitter doesn't include these whitespaces in the
-    // determined ranges).
-    // We set the caret pos to the first position in the query, which has the
-    // same effect for
+    // If the caret is in the whitespaces before the query we would get a wrong line number
+    // (because the statement splitter doesn't include these whitespaces in the determined ranges).
+    // We set the caret pos to the first position in the query, which has the same effect for
     // code completion (we don't generate error line numbers).
     uint32_t codeStartLine = (uint32_t)d->codeEditor->line_from_position(min);
     if (codeStartLine > caretLine) {
@@ -1226,8 +1222,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLPa
 
     statement = d->codeEditor->get_text_in_range(min, max);
   } else {
-    // No query, means we have nothing typed yet in the current query (at least
-    // nothing valuable).
+    // No query, means we have nothing typed yet in the current query (except whitespaces/comments).
     caretLine = 0;
     caretOffset = 0;
     fixedCaretPos = true;

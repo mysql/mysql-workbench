@@ -124,7 +124,7 @@ public:
   bool is_sql_check_enabled() const;
   void set_sql_check_enabled(bool val);
 
-  void show_auto_completion(bool auto_choose_single, parsers::MySQLParserContext::Ref parser_context);
+  void show_auto_completion(bool auto_choose_single);
   std::vector<std::pair<int, std::string>> update_auto_completion(const std::string &typed_part);
   void cancel_auto_completion();
 
