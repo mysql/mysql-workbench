@@ -500,7 +500,8 @@ db_CatalogRef Db_plugin::db_catalog() {
   catalog->version(version);
 
   auto services = parsers::MySQLParserServices::get();
-  auto context = services->createParserContext(pm->rdbms()->characterSets(), version, sqlMode.c_str(), _db_options.get_int("CaseSensitive", 1));
+  auto context = services->createParserContext(pm->rdbms()->characterSets(), version, sqlMode.c_str(),
+    _db_options.get_int("CaseSensitive", 1) != 0);
   auto errorCount = services->parseSQLIntoCatalog(context, catalog, sql_input_script, parse_options);
 
   if (errorCount != 0) {
