@@ -1258,7 +1258,8 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, parsers::MySQLPa
 std::vector<std::pair<int, std::string>> MySQLEditor::update_auto_completion(const std::string &typed_part) {
   logDebug2("Updating auto completion popup in editor\n");
 
-  // Remove all entries that don't start with the typed text before showing the list.
+  // Remove all entries that don't start with the typed text before showing the
+  // list.
   if (!typed_part.empty()) {
     gchar *prefix = g_utf8_casefold(typed_part.c_str(), -1);
 

@@ -129,6 +129,10 @@
 		27050B2E1B34459300D6135D /* test_utilities_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B2D1B34459300D6135D /* test_utilities_test.cpp */; };
 		270C50121732AD0900CD33BB /* wbcopytables in Copy Files (executables) */ = {isa = PBXBuildFile; fileRef = 2B2E91C9158915DE0078D08A /* wbcopytables */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270CE08A1725409000BEDDDD /* wb_close.png in Resources */ = {isa = PBXBuildFile; fileRef = 270CE0891725409000BEDDDD /* wb_close.png */; };
+		270FF07D1E77E98A007ABFFE /* help-5.5.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB561E647FFA00BC573D /* help-5.5.json */; };
+		270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB571E647FFA00BC573D /* help-5.6.json */; };
+		270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB581E647FFA00BC573D /* help-5.7.json */; };
+		270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB591E647FFA00BC573D /* help-8.0.json */; };
 		27100A2E1FBC3D8B004AE384 /* accessibility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27100A2C1FBC3CC6004AE384 /* accessibility.cpp */; };
 		271790191C97000B00B6DAC9 /* jsonparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271790171C97000B00B6DAC9 /* jsonparser.cpp */; };
 		2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901B1C97004A00B6DAC9 /* jsonparser.h */; };
@@ -3956,6 +3960,10 @@
 				2BCE4A0415F646A200FA0CDC /* Python in Copy Files (sqlide) */,
 				2B17615914565C62003EFCF7 /* XML_mysql.post.tpl in Copy Files (sqlide) */,
 				2B17615A14565C62003EFCF7 /* XML_mysql.pre.tpl in Copy Files (sqlide) */,
+				270FF07D1E77E98A007ABFFE /* help-5.5.json in Copy Files (sqlide) */,
+				270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */,
+				270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */,
+				270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */,
 				2B17615B14565C62003EFCF7 /* XML_mysql.tpl in Copy Files (sqlide) */,
 				2B17615C14565C62003EFCF7 /* XML_mysql.tpli in Copy Files (sqlide) */,
 				2B17612914563CBB003EFCF7 /* JSON.post.tpl in Copy Files (sqlide) */,
@@ -4206,6 +4214,10 @@
 		271C7F9A1DE2FEF9006D6C88 /* CodeCompletionCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeCompletionCore.h; path = "library/parsers/code-completion/CodeCompletionCore.h"; sourceTree = "<group>"; };
 		271C7F9B1DE2FEF9006D6C88 /* mysql-code-completion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-code-completion.h"; path = "library/parsers/code-completion/mysql-code-completion.h"; sourceTree = "<group>"; };
 		2720518D111847920013E88B /* message_wb_lock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = message_wb_lock.png; sourceTree = "<group>"; };
+		2722CB561E647FFA00BC573D /* help-5.5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.5.json"; path = "res/sqlidedata/context-help/help-5.5.json"; sourceTree = "<group>"; };
+		2722CB571E647FFA00BC573D /* help-5.6.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.6.json"; path = "res/sqlidedata/context-help/help-5.6.json"; sourceTree = "<group>"; };
+		2722CB581E647FFA00BC573D /* help-5.7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.7.json"; path = "res/sqlidedata/context-help/help-5.7.json"; sourceTree = "<group>"; };
+		2722CB591E647FFA00BC573D /* help-8.0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-8.0.json"; path = "res/sqlidedata/context-help/help-8.0.json"; sourceTree = "<group>"; };
 		27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_copy_data_source.cpp; path = plugins/migration/copytable/python_copy_data_source.cpp; sourceTree = "<group>"; };
 		27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_copy_data_source.h; path = plugins/migration/copytable/python_copy_data_source.h; sourceTree = "<group>"; };
 		27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_manage.png; path = images/home/wb_tile_manage.png; sourceTree = "<group>"; };
@@ -7773,6 +7785,59 @@
 			name = MySQL;
 			sourceTree = "<group>";
 		};
+		2722CB541E647FDA00BC573D /* templates */ = {
+			isa = PBXGroup;
+			children = (
+				2BB27C631277DAE0009B1AC6 /* CSV_semicolon.pre.tpl */,
+				2B9BF3B1111B8A950039E901 /* CSV_semicolon.tpl */,
+				2B17603D14546B79003EFCF7 /* CSV_semicolon.tpli */,
+				2BB27C641277DAE0009B1AC6 /* CSV.pre.tpl */,
+				2BE6805E0F8E482100E00A97 /* CSV.tpl */,
+				2B17603E14546B79003EFCF7 /* CSV.tpli */,
+				2B1CF45311939DDE00D1410D /* DB Management.txt */,
+				2BB27C651277DAE0009B1AC6 /* HTML.post.tpl */,
+				2BB27C661277DAE0009B1AC6 /* HTML.pre.tpl */,
+				2BE6805F0F8E482100E00A97 /* HTML.tpl */,
+				2B17603F14546B79003EFCF7 /* HTML.tpli */,
+				2B17612414563CA1003EFCF7 /* JSON.post.tpl */,
+				2B17612514563CA1003EFCF7 /* JSON.pre.tpl */,
+				2B17612614563CA1003EFCF7 /* JSON.tpl */,
+				2B17612714563CA1003EFCF7 /* JSON.tpli */,
+				2B1E28431163DEB900A22E91 /* SQL DDL Statements.txt */,
+				2B1E28441163DEB900A22E91 /* SQL DML Statements.txt */,
+				2BB27C671277DAE0009B1AC6 /* SQL_inserts.pre.tpl */,
+				2B99364511E53C8E004C761B /* SQL_inserts.tpl */,
+				2B17604014546B79003EFCF7 /* SQL_inserts.tpli */,
+				2BB27C681277DAE0009B1AC6 /* tab.pre.tpl */,
+				2B77B0AD11C67230009B5103 /* tab.tpl */,
+				2B17604114546B79003EFCF7 /* tab.tpli */,
+				2B14E585140F0DBF00EB5C8E /* XLS.post.tpl */,
+				2B14E586140F0DBF00EB5C8E /* XLS.pre.tpl */,
+				2B14E587140F0DBF00EB5C8E /* XLS.tpl */,
+				2B17604214546B79003EFCF7 /* XLS.tpli */,
+				2B1760CC1455DB15003EFCF7 /* XML_mysql.post.tpl */,
+				2B1760CD1455DB15003EFCF7 /* XML_mysql.pre.tpl */,
+				2B1760CE1455DB15003EFCF7 /* XML_mysql.tpl */,
+				2B1760CF1455DB15003EFCF7 /* XML_mysql.tpli */,
+				2BB27C691277DAE0009B1AC6 /* XML.post.tpl */,
+				2BB27C6A1277DAE0009B1AC6 /* XML.pre.tpl */,
+				2BE680600F8E482100E00A97 /* XML.tpl */,
+				2B17604314546B79003EFCF7 /* XML.tpli */,
+			);
+			name = templates;
+			sourceTree = "<group>";
+		};
+		2722CB551E647FEC00BC573D /* context help */ = {
+			isa = PBXGroup;
+			children = (
+				2722CB561E647FFA00BC573D /* help-5.5.json */,
+				2722CB571E647FFA00BC573D /* help-5.6.json */,
+				2722CB581E647FFA00BC573D /* help-5.7.json */,
+				2722CB591E647FFA00BC573D /* help-8.0.json */,
+			);
+			name = "context help";
+			sourceTree = "<group>";
+		};
 		2730C7471917866D00A3BD0C /* db.mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
@@ -10971,41 +11036,8 @@
 		2BE680370F8E45DC00E00A97 /* SQLIDE Data */ = {
 			isa = PBXGroup;
 			children = (
-				2BB27C631277DAE0009B1AC6 /* CSV_semicolon.pre.tpl */,
-				2B9BF3B1111B8A950039E901 /* CSV_semicolon.tpl */,
-				2B17603D14546B79003EFCF7 /* CSV_semicolon.tpli */,
-				2BB27C641277DAE0009B1AC6 /* CSV.pre.tpl */,
-				2BE6805E0F8E482100E00A97 /* CSV.tpl */,
-				2B17603E14546B79003EFCF7 /* CSV.tpli */,
-				2B1CF45311939DDE00D1410D /* DB Management.txt */,
-				2BB27C651277DAE0009B1AC6 /* HTML.post.tpl */,
-				2BB27C661277DAE0009B1AC6 /* HTML.pre.tpl */,
-				2BE6805F0F8E482100E00A97 /* HTML.tpl */,
-				2B17603F14546B79003EFCF7 /* HTML.tpli */,
-				2B17612414563CA1003EFCF7 /* JSON.post.tpl */,
-				2B17612514563CA1003EFCF7 /* JSON.pre.tpl */,
-				2B17612614563CA1003EFCF7 /* JSON.tpl */,
-				2B17612714563CA1003EFCF7 /* JSON.tpli */,
-				2B1E28431163DEB900A22E91 /* SQL DDL Statements.txt */,
-				2B1E28441163DEB900A22E91 /* SQL DML Statements.txt */,
-				2BB27C671277DAE0009B1AC6 /* SQL_inserts.pre.tpl */,
-				2B99364511E53C8E004C761B /* SQL_inserts.tpl */,
-				2B17604014546B79003EFCF7 /* SQL_inserts.tpli */,
-				2BB27C681277DAE0009B1AC6 /* tab.pre.tpl */,
-				2B77B0AD11C67230009B5103 /* tab.tpl */,
-				2B17604114546B79003EFCF7 /* tab.tpli */,
-				2B14E585140F0DBF00EB5C8E /* XLS.post.tpl */,
-				2B14E586140F0DBF00EB5C8E /* XLS.pre.tpl */,
-				2B14E587140F0DBF00EB5C8E /* XLS.tpl */,
-				2B17604214546B79003EFCF7 /* XLS.tpli */,
-				2B1760CC1455DB15003EFCF7 /* XML_mysql.post.tpl */,
-				2B1760CD1455DB15003EFCF7 /* XML_mysql.pre.tpl */,
-				2B1760CE1455DB15003EFCF7 /* XML_mysql.tpl */,
-				2B1760CF1455DB15003EFCF7 /* XML_mysql.tpli */,
-				2BB27C691277DAE0009B1AC6 /* XML.post.tpl */,
-				2BB27C6A1277DAE0009B1AC6 /* XML.pre.tpl */,
-				2BE680600F8E482100E00A97 /* XML.tpl */,
-				2B17604314546B79003EFCF7 /* XML.tpli */,
+				2722CB551E647FEC00BC573D /* context help */,
+				2722CB541E647FDA00BC573D /* templates */,
 			);
 			name = "SQLIDE Data";
 			sourceTree = "<group>";

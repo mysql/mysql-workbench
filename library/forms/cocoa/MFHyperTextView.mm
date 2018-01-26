@@ -30,97 +30,88 @@
 
 @implementation MFHyperTextView
 
-- (instancetype)initWithObject: (mforms::HyperText*)ht
-{
-  self = [super initWithFrame: NSMakeRect(0, 0, 50, 50)];
-  if (self)
-  {
+- (instancetype)initWithObject:(mforms::HyperText *)ht {
+  self = [super initWithFrame:NSMakeRect(0, 0, 50, 50)];
+  if (self) {
     mOwner = ht;
     mOwner->set_data(self);
 
     NSRect rect = self.frame;
-    mTextView = [[NSTextView alloc] initWithFrame: rect];
-    
+    mTextView = [[NSTextView alloc] initWithFrame:rect];
+
     self.verticalScroller.controlSize = NSSmallControlSize;
-    [self setHasVerticalScroller: YES];
-    [self setAutohidesScrollers: YES];
+    [self setHasVerticalScroller:YES];
+    [self setAutohidesScrollers:YES];
     self.documentView = mTextView;
 
     mTextView.minSize = NSMakeSize(0.0, NSHeight(self.frame));
     mTextView.maxSize = NSMakeSize(FLT_MAX, FLT_MAX);
-    [mTextView setVerticallyResizable: YES];
-    [mTextView setHorizontallyResizable: NO];
+    [mTextView setVerticallyResizable:YES];
+    [mTextView setHorizontallyResizable:NO];
     mTextView.autoresizingMask = NSViewWidthSizable;
-    
-    mTextView.textContainer.containerSize = NSMakeSize(NSWidth(self.frame), FLT_MAX);
-    [mTextView.textContainer setWidthTracksTextView: YES];
-    
-    mTextView.font = [NSFont systemFontOfSize: [NSFont systemFontSize]]; 
-    [mTextView setRichText: YES];
 
-    [mTextView setEditable: NO];
-    
+    mTextView.textContainer.containerSize = NSMakeSize(NSWidth(self.frame), FLT_MAX);
+    [mTextView.textContainer setWidthTracksTextView:YES];
+
+    mTextView.font = [NSFont systemFontOfSize:[NSFont systemFontSize]];
+    [mTextView setRichText:YES];
+
+    [mTextView setEditable:NO];
+
     mTextView.delegate = self;
   }
   return self;
 }
 
-
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
-- (void)setBackgroundColor:(NSColor *)color
-{
+- (void)setBackgroundColor:(NSColor *)color {
   super.backgroundColor = color;
   mTextView.backgroundColor = color;
 }
 
-- (BOOL)textView:(NSTextView *)aTextView clickedOnLink:(id)link atIndex:(NSUInteger)charIndex
-{
+- (BOOL)textView:(NSTextView *)aTextView clickedOnLink:(id)link atIndex:(NSUInteger)charIndex {
   mOwner->handle_url_click([link absoluteString].UTF8String);
   return YES;
 }
 
-
-static bool ht_create(mforms::HyperText *ht)
-{
-  return [[MFHyperTextView alloc] initWithObject: ht] != nil;
+static bool ht_create(mforms::HyperText *ht) {
+  return [[MFHyperTextView alloc] initWithObject:ht] != nil;
 }
 
-
-static void ht_set_markup(mforms::HyperText *ht, const std::string &text)
-{
+static void ht_set_markup(mforms::HyperText *ht, const std::string &text) {
   MFHyperTextView *htv = ht->get_data();
   if (text.empty()) {
     htv->mTextView.string = @"";
     return;
   }
-  
+
   WebPreferences *defaults = [WebPreferences standardPreferences];
-  
+
   defaults.standardFontFamily = @"Lucida Grande";
-  defaults.defaultFontSize = [NSFont smallSystemFontSize];
-  defaults.defaultFixedFontSize = [NSFont smallSystemFontSize];
-  [defaults setUserStyleSheetEnabled: YES];
-  defaults.userStyleSheetLocation = [NSURL fileURLWithPath: [[NSBundle mainBundle] pathForResource: @"hypertextview"
-                                                                                               ofType: @"css"]];
+  defaults.defaultFontSize = NSFont.systemFontSize;
+  defaults.defaultFixedFontSize = NSFont.systemFontSize;
+  defaults.userStyleSheetEnabled = YES;
+  defaults.userStyleSheetLocation =
+    [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource: @"hypertextview" ofType: @"css"]];
 
-  [htv->mTextView.textStorage replaceCharactersInRange: NSMakeRange(0, htv->mTextView.textStorage.length)
-                                    withAttributedString: [[NSAttributedString alloc] initWithHTML: [NSData dataWithBytes: text.data()
-                                                                                                                   length: text.size()]
-                                                                                           options: @{NSWebPreferencesDocumentOption: defaults,
-                                                                                                      NSTextEncodingNameDocumentOption: @"UTF-8",
-                                                                                                      NSBaseURLDocumentOption: [NSURL URLWithString: @""]}
-                                                                                documentAttributes: nil]];
-
+  [htv->mTextView.textStorage
+    replaceCharactersInRange: NSMakeRange(0, htv->mTextView.textStorage.length)
+        withAttributedString: [[NSAttributedString alloc]
+                                     initWithHTML: [NSData dataWithBytes:text.data() length:text.size()]
+                                          options: @{
+                                            NSWebPreferencesDocumentOption: defaults,
+                                            NSTextEncodingNameDocumentOption: @"UTF-8",
+                                            NSBaseURLDocumentOption : [NSURL URLWithString: @""]
+                                          }
+                               documentAttributes: nil]];
 }
 
-
-void cf_hypertext_init()
-{
+void cf_hypertext_init() {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
-  
-  f->_hypertext_impl.create= &ht_create;
-  f->_hypertext_impl.set_markup_text= &ht_set_markup;
+
+  f->_hypertext_impl.create = &ht_create;
+  f->_hypertext_impl.set_markup_text = &ht_set_markup;
 }
 
 @end

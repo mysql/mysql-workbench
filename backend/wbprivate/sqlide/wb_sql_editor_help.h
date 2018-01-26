@@ -32,6 +32,7 @@ public:
   HelpContext(GrtCharacterSetsRef charsets, const std::string &sqlMode, long serverVersion);
   ~HelpContext();
 
+  long serverVersion() const;
 private:
   friend class DbSqlEditorContextHelp;
   
@@ -43,14 +44,15 @@ class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorContextHelp // Made public for tests
 {
 public:
   static DbSqlEditorContextHelp* get();
+  static bool helpReady();
 
-  bool helpTextForTopic(const std::string &topic, std::string &title, std::string &text);
-  std::string helpTopicFromPosition(HelpContext *context, const std::string &query, std::pair<size_t, size_t> caret);
+  bool helpTextForTopic(HelpContext *helpContext, const std::string &topic, std::string &text);
+  std::string helpTopicFromPosition(HelpContext *helpContext, const std::string &query, std::pair<size_t, size_t> caret);
 
 protected:
-  DbSqlEditorContextHelp() {};
+  DbSqlEditorContextHelp();
 
-  bool topicExists(const std::string &topic);
+  bool topicExists(long serverVersion, const std::string &topic);
 };
 
 } // namespace help

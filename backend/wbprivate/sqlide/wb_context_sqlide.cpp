@@ -656,6 +656,10 @@ void WBContextSQLIDE::handle_notification(const std::string &name, void *sender,
 }
 
 void WBContextSQLIDE::init() {
+
+  // Access the context help once to start its initial loading.
+  help::DbSqlEditorContextHelp::get();
+
   DbSqlEditorSnippets::setup(this, base::makePath(bec::GRTManager::get()->get_user_datadir(), "snippets"));
 
   // scoped_connect(wb::WBContextUI::get()->get_wb()->signal_app_closing(),std::bind(&WBContextSQLIDE::finalize, this));

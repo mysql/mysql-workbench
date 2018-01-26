@@ -28,6 +28,8 @@
 #ifdef __cplusplus
 
 #include <stack>
+#include <pcrecpp.h>
+#include <thread>
 
 #include <glib.h>
 

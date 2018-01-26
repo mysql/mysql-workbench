@@ -215,6 +215,9 @@ echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide
 xcopy /i /s /y /d %RES_DIR%\sqlidedata\templates\*.* %TARGET_DIR%\modules\data\sqlide\. 1> nul 2> nul
 
+echo * Context Help
+xcopy /i /s /y /d %RES_DIR%\sqlidedata\context-help\*.* %TARGET_DIR%\modules\data\sqlide\. 1> nul 2> nul
+
 echo * Copy Sample Files
 if not exist %TARGET_DIR%\extras mkdir %TARGET_DIR%\extras
 xcopy /i /y /d %1samples\models\* %TARGET_DIR%\extras 1> nul 2> nul

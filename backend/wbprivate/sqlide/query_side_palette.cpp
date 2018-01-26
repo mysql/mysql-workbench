@@ -22,7 +22,6 @@
  */
 
 #include <boost/signals2/signal.hpp>
-#include <pcrecpp.h>
 
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_panel.h"
@@ -259,13 +258,9 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
     _owner(owner) {
 
   _help_timer = NULL;
-  _no_help = true;
-  _automatic_help = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 1) == 0;
+  _automatic_help = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 0) == 0;
   _switching_help = false;
-  _help_task = GrtThreadedTask::create();
-  _help_task->desc("Context Help Task");
   _helpContext = new help::HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
-  createEditorConfig(owner->rdbms_version());
   set_name("querySidePalette");
 
   _pending_snippets_refresh = true;
@@ -282,12 +277,15 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
                  std::bind(&QuerySidePalette::click_link, this, std::placeholders::_1));
 
 #if _WIN32
-  _help_text->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
+  std::string backgroundColor = base::Color::get_application_color_as_string(AppColorPanelContentArea, false);
   _help_text->set_font("Tahoma 8");
-  content_border->set_padding(3, 3, 3, 3);
 #else
-  _help_text->set_back_color("#ebebeb");
+  std::string backgroundColor = "#ebebeb";
 #endif
+
+  _help_text->set_back_color(backgroundColor);
+  content_border->set_back_color(backgroundColor);
+  content_border->set_padding(3, 3, 3, 3);
 
   _help_text->set_markup_text("");
   _current_topic_index = -1;
@@ -347,11 +345,8 @@ QuerySidePalette::~QuerySidePalette() {
   base::NotificationCenter::get()->remove_observer(this);
 
   cancel_timer();
-  if (_help_task->is_busy() && _help_task->task())
-    _help_task->task()->cancel();
 
   delete _helpContext;
-  delete _editorConfig;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -388,10 +383,9 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
       // See if this editor instance is actually from the IDE this palette sits in.
       SqlEditorForm::Ref form = _owner.lock();
       if (form && contains_editor(form, editor)) {
-        check_format_structures(editor);
         cancel_timer();
         _help_timer =
-          bec::GRTManager::get()->run_every(std::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
+          bec::GRTManager::get()->run_every(std::bind(&QuerySidePalette::find_context_help, this, editor), 0.5);
       }
     }
   }
@@ -400,88 +394,19 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
 //----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::show_help_text_for_topic(const std::string &topic) {
-  std::string title, text, html_text;
-
-  if (topic.empty()) {
-    _last_topic = "";
-    update_help_ui();
-    return;
-  }
-
-  std::string topic_upper = base::toupper(topic);
-  if (_topic_cache.find(topic_upper) != _topic_cache.end()) {
-    std::pair<std::string, std::string> entry = _topic_cache[topic_upper];
-    html_text = entry.second;
-    _help_text->set_markup_text(html_text);
-    _no_help = false;
-
-    return;
-  }
-
-  // Add a new task to retrieve the actual help text in the background, but only
-  // if the help task wasn't canceled, which indicates we are probably going down right now.
-  if (_help_task->task() && _help_task->task()->is_cancelled())
-    return;
-
-  _last_topic = topic_upper;
-  _help_task->exec(false, std::bind(&QuerySidePalette::get_help_text_threaded, this));
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/**
- * Runs in the background to find the text for the last stored topic. Never called if there's no topic.
- */
-grt::StringRef QuerySidePalette::get_help_text_threaded() {
-  SqlEditorForm::Ref form = _owner.lock();
-  if (!form)
-    return "";
-
-  std::string title, text, html_text;
-
-  // XXX: fix it
-  /*
-  if (DbSqlEditorContextHelp::get()->helpTextForTopic(_last_topic, title, text))
-  {
-#ifdef _WIN32
-    std::string additional_space = "<div style=\"font-size:4pt\"> </div>";
-#else
-    std::string additional_space;
-#endif
-    html_text = std::string("<html><body style=\"font-family:") + DEFAULT_FONT_FAMILY + "; font-size: 8pt\">"
-      "<b style=\"font-size: 11pt\">Topic: <span style=\"color:#688b5e\">" + title +
-      "</span></b><br>" + additional_space + format_help_as_html(text) + "</body></html>";
-    _no_help = false;
-    _topic_cache[_last_topic] = std::make_pair(text, html_text);
-  }
-  else
-  {
-    _no_help = true;
-    _last_topic = "";
-  }
-
-  // At this point the previous task has already finished (it's the one that triggered this function).
-  _help_task->execute_in_main_thread(std::bind(&QuerySidePalette::update_help_ui, this), false, false);
-*/
-  return "";
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/**
- * Runs on the main thread for updating UI elements. Called by the help background task.
- */
-void QuerySidePalette::update_help_ui() {
-  if (_last_topic.empty()) {
+  _currentHelpTopic = topic;
+  if (_currentHelpTopic.empty()) {
     _help_text->set_markup_text(std::string("<hmtl><body style=\"font-family:") + DEFAULT_FONT_FAMILY +
                                 "; font-size: 8pt\">"
                                 "<div style=\"width: 100%\"><b style=\"font-size: 10pt; color:#B0B0B0\">"
                                 "No Context Help<b><br><br><hr></div></body></html>");
   } else {
-    _help_text->set_markup_text(_topic_cache[_last_topic].second);
+    std::string text;
+    help::DbSqlEditorContextHelp::get()->helpTextForTopic(_helpContext, _currentHelpTopic, text);
+    _help_text->set_markup_text(text);
 
     _switching_help = true;
-    _quick_jump_item->set_text(_last_topic);
+    _quick_jump_item->set_text(_currentHelpTopic);
     _switching_help = false;
   }
 }
@@ -497,9 +422,7 @@ void QuerySidePalette::show_help_hint_or_update() {
       "Automatic context help is disabled. Use the toolbar to manually get help for the current caret "
       "position or to toggle automatic help.<b><br><br><hr></div></body></html>");
   } else {
-    if (_current_topic_index > 0)
-      _last_topic = _topic_history[_current_topic_index]; // Restore the last displayed topic.
-    update_help_ui();
+    show_help_text_for_topic(_current_topic_index > 0 ? _topic_history[_current_topic_index] : "");
   }
 }
 
@@ -509,16 +432,13 @@ void QuerySidePalette::show_help_hint_or_update() {
  * Triggered by timer or manually to find a help topic from the given editor's text + position.
  */
 bool QuerySidePalette::find_context_help(MySQLEditor *editor) {
-  _help_timer = NULL;
-
-  if (_help_task->is_busy())
-    return false;
+  _help_timer = nullptr;
 
   // If no editor was given use the currently active one in the SQL editor form.
-  if (editor == NULL) {
+  if (editor == nullptr) {
     SqlEditorForm::Ref form = _owner.lock();
     SqlEditorPanel *panel = form->active_sql_editor_panel();
-    if (panel)
+    if (panel != nullptr)
       editor = panel->editor_be().get();
     else
       return false;
@@ -526,34 +446,11 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor) {
 
   // Caret position as <column, row>.
   std::pair<size_t, size_t> caret = editor->cursor_pos_row_column(true);
-
-  _help_task->exec(false,
-                   std::bind(&QuerySidePalette::get_help_topic_threaded, this, editor->current_statement(), caret));
-
-  return false; // Don't re-run this task, it's a single-shot.
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/**
- * Get a help topic from the current editor position. This might involve server access already
- * to resolve ambiguities, hence it is a threaded task. Once we got the topic we run another task
- * to get the actual help text from it.
- */
-grt::StringRef QuerySidePalette::get_help_topic_threaded(const std::string &query, std::pair<ssize_t, ssize_t> caret) {
-  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, query, caret);
-
-  if (!_help_task->task()->is_cancelled())
-    _help_task->execute_in_main_thread(std::bind(&QuerySidePalette::process_help_topic, this, topic), false, false);
-
-  return "";
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void QuerySidePalette::process_help_topic(const std::string &topic) {
+  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, editor->current_statement(), caret);
   update_help_history(topic);
   show_help_text_for_topic(topic);
+
+  return false; // Don't re-run this task, it's a single-shot.
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -816,182 +713,6 @@ void QuerySidePalette::help_toolbar_item_activated(ToolBarItem *item) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool compare_lengths(const std::pair<std::string, std::string> &l, const std::pair<std::string, std::string> &r) {
-  return l.first.size() > r.first.size();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void QuerySidePalette::check_format_structures(MySQLEditor *editor) {
-  if (_keyword_color.empty()) {
-    // We use the major keyword color for all keywords in the help. Just to simplify things.
-    std::map<std::string, std::string> major_style = _editorConfig->get_styles()[7]; // Major keyword.
-    _keyword_color = major_style["fore-color"];
-    if (_keyword_color.empty())
-      _keyword_color = "#000000";
-  }
-
-  // Initialize pattern -> color associations if not yet done.
-  // We don't consider background colors atm.
-  if (_pattern_and_colors.empty()) {
-    std::map<int, std::map<std::string, std::string> > styles = _editorConfig->get_styles();
-    _pattern_and_colors.push_back(
-      std::make_pair("([^A-Za-z])([0-9]+(\\.[0-9]+)?((e|E)[0-9]+)?)", styles[6]["fore-color"]));
-    _pattern_and_colors.push_back(std::make_pair("/\\*.*?\\*/", styles[1]["fore-color"]));
-    _pattern_and_colors.push_back(std::make_pair("--\\s.*", styles[2]["fore-color"]));
-    _pattern_and_colors.push_back(
-      std::make_pair("@@?([A-Za-z]+|'.*?')", styles[3]["fore-color"])); // user and system variable
-    _pattern_and_colors.push_back(std::make_pair("'.*?'", styles[12]["fore-color"]));
-    _pattern_and_colors.push_back(std::make_pair("`.*?`", styles[17]["fore-color"]));
-    // _pattern_and_colors.push_back(std::make_pair("/\\*!.*\\*/", styles[21]["fore-color"])); don't convert hidden
-    // command.
-    //_pattern_and_colors.push_back(std::make_pair("\".*?\"", styles[13]["fore-color"])); collides with already done
-    //markup
-  }
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-std::string QuerySidePalette::format_help_as_html(const std::string &text) {
-  // Start by extracting the syntax part which is always at the top. This will be embedded into
-  // <pre> tags to stay as formatted.
-  std::string result, line, block;
-  std::istringstream stream(text);
-
-  // Line was read already for the syntax block check (if there's any input remaining yet).
-  while (std::getline(stream, line)) {
-    block = "";
-
-    if (line.empty()) {
-      result += "<br><br>";
-      continue;
-    }
-
-    // First look for list entries es they are similarly formatted like code sections, so we catch lists first.
-    if (line.find("o ") == 0) {
-      // A list starts. End is reached if we find two linebreaks followed by anything not indented
-      // and which is not a list starter.
-      block = "<ul>";
-      std::string pending = line.substr(2, line.size());
-      while (std::getline(stream, line)) {
-        if (line.empty()) {
-          // List item might be done (or just has an empty line in it).
-          // We might even be done with the entire list.
-          if (!std::getline(stream, line))
-            break;
-
-          if (line.find("  ") == 0) {
-            // Just another item part.
-            pending += "<br><br>" + line;
-            continue;
-          }
-
-          if (line.find("o ") == 0) {
-            // Found a new list item. Add the pending one and start over.
-            block += "<li>" + pending + "</li>";
-            pending = line.substr(2, line.size());
-          } else
-            break; // We are done.
-        } else
-          pending += line; // Another part of the current list item.
-      }
-
-      // Last pending list element.
-      result += block + "<li>" + pending + "</li></ul><br>" + line;
-
-      continue;
-    }
-
-    // Syntax lines consist usually of a lead line followed by indented trail lines.
-    // A code block ends on an empty line.
-    if (line.find("mysql>") == 0)
-      block = "mysql&gt;" + line.substr(6, line.size()) + '\n';
-    else if (line[line.size() - 1] == ';')
-      block = line;
-    {
-      std::istream::pos_type position = stream.tellg();
-      std::string pending;
-      if (std::getline(stream, pending) && pending.find("  ") == 0)
-        block = line + '\n' + pending + '\n';
-      else {
-        // Track back and start over with the next line.
-        stream.seekg(position);
-      }
-    }
-
-    if (!block.empty()) {
-      while (std::getline(stream, line)) {
-        block += line + '\n';
-        if (line.empty())
-          break;
-      }
-
-      // Done with the code block. Colorize elements.
-      // Note: this has some limitations because certain text can be catched by several patterns.
-      for (size_t i = 0; i < _pattern_and_colors.size(); i++) {
-        pcrecpp::RE pattern(_pattern_and_colors[i].first);
-        if (i == 0)
-          pattern.GlobalReplace("\\1<span style=\"color:" + _pattern_and_colors[i].second + "\">\\2</span>", &block);
-        else
-          pattern.GlobalReplace("<span style=\"color:" + _pattern_and_colors[i].second + "\">\\0</span>", &block);
-      }
-
-      result += "<pre style=\"font-family: " + std::string(DEFAULT_MONOSPACE_FONT_FAMILY) + "; font-size: 8pt;\">" +
-                block + "</pre>";
-
-      continue;
-    }
-
-    // Wrap emphasized text by <b>.
-    pcrecpp::RE pattern = "\\*([A-Za-z]+)\\*";
-    pattern.GlobalReplace("<b>\\1</b>", &line);
-
-    // Replace triple hyphen by typographic dash.
-    pattern = "---";
-    pattern.GlobalReplace("&mdash;", &line);
-
-    if (!result.empty())
-      result += " ";
-    result += line;
-  }
-
-  // Replace "URL: <link>" by "See Also: <link>"
-  pcrecpp::RE pattern = "URL:";
-  pattern.Replace("<b>See also:</b>", &result);
-
-  // Color all upper case words with at least 2 chars (which should mostly cover keywords).
-  // This step will mess up internal links, so we have to correct them.
-  pattern = "[A-Z]{2,}";
-  pattern.GlobalReplace("<span style=\"color:" + _keyword_color + "\">\\0</span>", &result);
-
-  // Internal help links. Original format: [HELP THE HELP TOPIC]. But due to the previous step each word
-  // is now surrounded by markup. Because of the variable number of keywords in a link we need several runs.
-  pattern = "\\[<span style=\"color:[^\"]+\">HELP</span> +<span style=\"color:[^\"]+\">([A-Z]+)</span>\\]";
-  pattern.GlobalReplace("<a href=\"local:\\1\">\\1</a>", &result);
-  pattern =
-    "\\[<span style=\"color:[^\"]+\">HELP</span> +<span style=\"color:[^\"]+\">([A-Z]+)</span> +"
-    "<span style=\"color:[^\"]+\">([A-Z]+)</span>\\]";
-  pattern.GlobalReplace("<a href=\"local:\\1 \\2\">\\1 \\2</a>", &result);
-  pattern =
-    "\\[<span style=\"color:[^\"]+\">HELP</span> +<span style=\"color:[^\"]+\">([A-Z]+)</span> +"
-    "<span style=\"color:[^\"]+\">([A-Z]+)</span> +<span style=\"color:[^\"]+\">([A-Z]+)</span>\\]";
-  pattern.GlobalReplace("<a href=\"local:\\1 \\2 \\3\">\\1 \\2 \\3</a>", &result);
-
-  // Change references to become real links. A problem here is that due to hard line breaks
-  // in the original text we can now have space chars in links. We cannot fix any possible combination
-  // but we do so for certain cases we know.
-  pattern = ". ?h ?t ?m ?l ?";
-  pattern.GlobalReplace(".html", &result);
-
-  // Not a general URL pattern, but one that fits exactly the help urls.
-  pattern = "https?://[A-Za-z]+(?:\\.[A-Za-z]+)+(?:/[A-Za-z0-9-.]+)+/([A-Za-z0-9-]+)\\.html";
-  pattern.GlobalReplace(" <a href=\"\\0\">Online help \\1</a> ", &result);
-
-  return result;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void QuerySidePalette::refresh_snippets() {
   if (_pending_snippets_refresh && _snippet_list->shared_snippets_active()) {
     SqlEditorForm::Ref owner(_owner.lock());
@@ -1010,44 +731,6 @@ void QuerySidePalette::refresh_snippets() {
 
 void QuerySidePalette::edit_last_snippet() {
   _snippet_list->edit_new_snippet();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void QuerySidePalette::createEditorConfig(GrtVersionRef version) {
-  mforms::SyntaxHighlighterLanguage lang = mforms::LanguageMySQL;
-  if (version.is_valid()) {
-    switch (version->majorNumber()) {
-      case 5:
-        switch (version->minorNumber()) {
-          case 0:
-            lang = mforms::LanguageMySQL50;
-            break;
-          case 1:
-            lang = mforms::LanguageMySQL51;
-            break;
-          case 5:
-            lang = mforms::LanguageMySQL55;
-            break;
-          case 6:
-            lang = mforms::LanguageMySQL56;
-            break;
-          case 7:
-            lang = mforms::LanguageMySQL57;
-            break;
-        }
-        break;
-
-      case 8:
-        switch (version->minorNumber()) {
-          case 0:
-            lang = mforms::LanguageMySQL80;
-            break;
-        }
-        break;
-    }
-  }
-  _editorConfig = new mforms::CodeEditorConfig(lang);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

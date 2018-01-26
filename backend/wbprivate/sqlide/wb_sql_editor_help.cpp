@@ -21,9 +21,15 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+#include <pcrecpp.h>
+#include <thread>
+
 #include "base/log.h"
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
+#include "base/jsonparser.h"
 
+#include "mforms/app.h"
 #include "mforms/code_editor.h"
 
 #include "grtdb/db_helpers.h"
@@ -97,6 +103,12 @@ HelpContext::~HelpContext() {
   delete _d;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+long HelpContext::serverVersion() const {
+  return _d->lexer.serverVersion;
+}
+
 //----------------- DbSqlEditorContextHelp -----------------------------------------------------------------------------
 
 DbSqlEditorContextHelp *DbSqlEditorContextHelp::get() {
@@ -106,670 +118,245 @@ DbSqlEditorContextHelp *DbSqlEditorContextHelp::get() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static const std::unordered_set<std::string> availableTopics = {
-  "!",
-  "!=",
-  "%",
-  "&",
-  "*",
-  "+",
-  "- BINARY",
-  "- UNARY",
-  "->",
-  "/",
-  "<",
-  "<<",
-  "<=",
-  "<=>",
-  "=",
-  ">",
-  ">=",
-  ">>",
-  "ABS",
-  "ACOS",
-  "ADDDATE",
-  "ADDTIME",
-  "AES_DECRYPT",
-  "AES_ENCRYPT",
-  "ALTER DATABASE",
-  "ALTER EVENT",
-  "ALTER FUNCTION",
-  "ALTER PROCEDURE",
-  "ALTER SERVER",
-  "ALTER TABLE",
-  "ALTER USER",
-  "ALTER VIEW",
-  "ANALYZE TABLE",
-  "AND",
-  "ANY_VALUE",
-  "AREA",
-  "ASBINARY",
-  "ASCII",
-  "ASIN",
-  "ASSIGN-EQUAL",
-  "ASSIGN-VALUE",
-  "ASTEXT",
-  "ASYMMETRIC_DECRYPT",
-  "ASYMMETRIC_DERIVE",
-  "ASYMMETRIC_ENCRYPT",
-  "ASYMMETRIC_SIGN",
-  "ASYMMETRIC_VERIFY",
-  "ATAN",
-  "ATAN2",
-  "AUTO_INCREMENT",
-  "AVG",
-  "BEGIN END",
-  "BENCHMARK",
-  "BETWEEN AND",
-  "BIGINT",
-  "BIN",
-  "BINARY",
-  "BINARY OPERATOR",
-  "BINLOG",
-  "BIT",
-  "BIT_AND",
-  "BIT_COUNT",
-  "BIT_LENGTH",
-  "BIT_OR",
-  "BIT_XOR",
-  "BLOB",
-  "BLOB DATA TYPE",
-  "BOOLEAN",
-  "BUFFER",
-  "CACHE INDEX",
-  "CALL",
-  "CASE OPERATOR",
-  "CASE STATEMENT",
-  "CAST",
-  "CEIL",
-  "CEILING",
-  "CENTROID",
-  "CHANGE MASTER TO",
-  "CHANGE REPLICATION FILTER",
-  "CHAR",
-  "CHAR BYTE",
-  "CHAR FUNCTION",
-  "CHARACTER_LENGTH",
-  "CHARSET",
-  "CHAR_LENGTH",
-  "CHECK TABLE",
-  "CHECKSUM TABLE",
-  "CLOSE",
-  "COALESCE",
-  "COERCIBILITY",
-  "COLLATION",
-  "COMPRESS",
-  "CONCAT",
-  "CONCAT_WS",
-  "CONNECTION_ID",
-  "CONSTRAINT",
-  "CONTAINS",
-  "CONV",
-  "CONVERT",
-  "CONVERT_TZ",
-  "CONVEXHULL",
-  "COS",
-  "COT",
-  "COUNT",
-  "COUNT DISTINCT",
-  "CRC32",
-  "CREATE DATABASE",
-  "CREATE EVENT",
-  "CREATE FUNCTION",
-  "CREATE FUNCTION UDF",
-  "CREATE INDEX",
-  "CREATE PROCEDURE",
-  "CREATE SERVER",
-  "CREATE TABLE",
-  "CREATE TABLESPACE",
-  "CREATE TRIGGER",
-  "CREATE USER",
-  "CREATE VIEW",
-  "CREATE_ASYMMETRIC_PRIV_KEY",
-  "CREATE_ASYMMETRIC_PUB_KEY",
-  "CREATE_DH_PARAMETERS",
-  "CREATE_DIGEST",
-  "CROSSES",
-  "CURDATE",
-  "CURRENT_DATE",
-  "CURRENT_TIME",
-  "CURRENT_TIMESTAMP",
-  "CURRENT_USER",
-  "CURTIME",
-  "DATABASE",
-  "DATE",
-  "DATE FUNCTION",
-  "DATEDIFF",
-  "DATETIME",
-  "DATE_ADD",
-  "DATE_FORMAT",
-  "DATE_SUB",
-  "DAY",
-  "DAYNAME",
-  "DAYOFMONTH",
-  "DAYOFWEEK",
-  "DAYOFYEAR",
-  "DEALLOCATE PREPARE",
-  "DEC",
-  "DECIMAL",
-  "DECLARE CONDITION",
-  "DECLARE CURSOR",
-  "DECLARE HANDLER",
-  "DECLARE VARIABLE",
-  "DECODE",
-  "DEFAULT",
-  "DEGREES",
-  "DELETE",
-  "DES_DECRYPT",
-  "DES_ENCRYPT",
-  "DIMENSION",
-  "DISJOINT",
-  "DISTANCE",
-  "DIV",
-  "DO",
-  "DOUBLE",
-  "DOUBLE PRECISION",
-  "DROP DATABASE",
-  "DROP EVENT",
-  "DROP FUNCTION",
-  "DROP FUNCTION UDF",
-  "DROP INDEX",
-  "DROP PROCEDURE",
-  "DROP SERVER",
-  "DROP TABLE",
-  "DROP TABLESPACE",
-  "DROP TRIGGER",
-  "DROP USER",
-  "DROP VIEW",
-  "DUAL",
-  "ELT",
-  "ENCODE",
-  "ENCRYPT",
-  "ENDPOINT",
-  "ENUM",
-  "ENVELOPE",
-  "EQUALS",
-  "EXECUTE STATEMENT",
-  "EXP",
-  "EXPLAIN",
-  "EXPORT_SET",
-  "EXTERIORRING",
-  "EXTRACT",
-  "EXTRACTVALUE",
-  "FETCH",
-  "FIELD",
-  "FIND_IN_SET",
-  "FLOAT",
-  "FLOOR",
-  "FLUSH",
-  "FLUSH QUERY CACHE",
-  "FORMAT",
-  "FOUND_ROWS",
-  "FROM_BASE64",
-  "FROM_DAYS",
-  "FROM_UNIXTIME",
-  "GEOMCOLLFROMTEXT",
-  "GEOMCOLLFROMWKB",
-  "GEOMETRY",
-  "GEOMETRY HIERARCHY",
-  "GEOMETRYCOLLECTION",
-  "GEOMETRYN",
-  "GEOMETRYTYPE",
-  "GEOMFROMTEXT",
-  "GEOMFROMWKB",
-  "GET DIAGNOSTICS",
-  "GET_FORMAT",
-  "GET_LOCK",
-  "GLENGTH",
-  "GRANT",
-  "GREATEST",
-  "GROUP_CONCAT",
-  "GTID_SUBSET",
-  "GTID_SUBTRACT",
-  "HANDLER",
-  "HELP COMMAND",
-  "HELP STATEMENT",
-  "HELP_DATE",
-  "HELP_VERSION",
-  "HEX",
-  "HOUR",
-  "IF FUNCTION",
-  "IF STATEMENT",
-  "IFNULL",
-  "IN",
-  "INET6_ATON",
-  "INET6_NTOA",
-  "INET_ATON",
-  "INET_NTOA",
-  "INSERT",
-  "INSERT DELAYED",
-  "INSERT FUNCTION",
-  "INSERT SELECT",
-  "INSTALL PLUGIN",
-  "INSTR",
-  "INT",
-  "INTEGER",
-  "INTERIORRINGN",
-  "INTERSECTS",
-  "INTERVAL",
-  "IS",
-  "IS NOT",
-  "IS NOT NULL",
-  "IS NULL",
-  "ISCLOSED",
-  "ISEMPTY",
-  "ISNULL",
-  "ISOLATION",
-  "ISSIMPLE",
-  "IS_FREE_LOCK",
-  "IS_IPV4",
-  "IS_IPV4_COMPAT",
-  "IS_IPV4_MAPPED",
-  "IS_IPV6",
-  "IS_USED_LOCK",
-  "ITERATE",
-  "JOIN",
-  "JSON_APPEND",
-  "JSON_ARRAY",
-  "JSON_ARRAY_APPEND",
-  "JSON_ARRAY_INSERT",
-  "JSON_CONTAINS",
-  "JSON_CONTAINS_PATH",
-  "JSON_DEPTH",
-  "JSON_EXTRACT",
-  "JSON_INSERT",
-  "JSON_KEYS",
-  "JSON_LENGTH",
-  "JSON_MERGE",
-  "JSON_OBJECT",
-  "JSON_QUOTE",
-  "JSON_REMOVE",
-  "JSON_REPLACE",
-  "JSON_SEARCH",
-  "JSON_SET",
-  "JSON_TYPE",
-  "JSON_UNQUOTE",
-  "JSON_VALID",
-  "KILL",
-  "LABELS",
-  "LAST_DAY",
-  "LAST_INSERT_ID",
-  "LCASE",
-  "LEAST",
-  "LEAVE",
-  "LEFT",
-  "LENGTH",
-  "LIKE",
-  "LINEFROMTEXT",
-  "LINEFROMWKB",
-  "LINESTRING",
-  "LN",
-  "LOAD DATA",
-  "LOAD INDEX",
-  "LOAD XML",
-  "LOAD_FILE",
-  "LOCALTIME",
-  "LOCALTIMESTAMP",
-  "LOCATE",
-  "LOCK",
-  "LOG",
-  "LOG10",
-  "LOG2",
-  "LONGBLOB",
-  "LONGTEXT",
-  "LOOP",
-  "LOWER",
-  "LPAD",
-  "LTRIM",
-  "MAKEDATE",
-  "MAKETIME",
-  "MAKE_SET",
-  "MASTER_POS_WAIT",
-  "MATCH AGAINST",
-  "MAX",
-  "MBR DEFINITION",
-  "MBRCONTAINS",
-  "MBRCOVEREDBY",
-  "MBRCOVERS",
-  "MBRDISJOINT",
-  "MBREQUAL",
-  "MBREQUALS",
-  "MBRINTERSECTS",
-  "MBROVERLAPS",
-  "MBRTOUCHES",
-  "MBRWITHIN",
-  "MD5",
-  "MEDIUMBLOB",
-  "MEDIUMINT",
-  "MEDIUMTEXT",
-  "MERGE",
-  "MICROSECOND",
-  "MID",
-  "MIN",
-  "MINUTE",
-  "MLINEFROMTEXT",
-  "MLINEFROMWKB",
-  "MOD",
-  "MONTH",
-  "MONTHNAME",
-  "MPOINTFROMTEXT",
-  "MPOINTFROMWKB",
-  "MPOLYFROMTEXT",
-  "MPOLYFROMWKB",
-  "MULTILINESTRING",
-  "MULTIPOINT",
-  "MULTIPOLYGON",
-  "NAME_CONST",
-  "NOT BETWEEN",
-  "NOT IN",
-  "NOT LIKE",
-  "NOT REGEXP",
-  "NOW",
-  "NULLIF",
-  "NUMGEOMETRIES",
-  "NUMINTERIORRINGS",
-  "NUMPOINTS",
-  "OCT",
-  "OCTET_LENGTH",
-  "OLD_PASSWORD",
-  "OPEN",
-  "OPTIMIZE TABLE",
-  "OR",
-  "ORD",
-  "OVERLAPS",
-  "PASSWORD",
-  "PERIOD_ADD",
-  "PERIOD_DIFF",
-  "PI",
-  "POINT",
-  "POINTFROMTEXT",
-  "POINTFROMWKB",
-  "POINTN",
-  "POLYFROMTEXT",
-  "POLYFROMWKB",
-  "POLYGON",
-  "POSITION",
-  "POW",
-  "POWER",
-  "PREPARE",
-  "PROCEDURE ANALYSE",
-  "PURGE BINARY LOGS",
-  "QUARTER",
-  "QUOTE",
-  "RADIANS",
-  "RAND",
-  "RANDOM_BYTES",
-  "REGEXP",
-  "RELEASE_ALL_LOCKS",
-  "RELEASE_LOCK",
-  "RENAME TABLE",
-  "RENAME USER",
-  "REPAIR TABLE",
-  "REPEAT FUNCTION",
-  "REPEAT LOOP",
-  "REPLACE",
-  "REPLACE FUNCTION",
-  "RESET",
-  "RESET MASTER",
-  "RESET SLAVE",
-  "RESIGNAL",
-  "RETURN",
-  "REVERSE",
-  "REVOKE",
-  "RIGHT",
-  "ROUND",
-  "ROW_COUNT",
-  "RPAD",
-  "RTRIM",
-  "SAVEPOINT",
-  "SCHEMA",
-  "SECOND",
-  "SEC_TO_TIME",
-  "SELECT",
-  "SESSION_USER",
-  "SET",
-  "SET DATA TYPE",
-  "SET GLOBAL SQL_SLAVE_SKIP_COUNTER",
-  "SET PASSWORD",
-  "SET SQL_LOG_BIN",
-  "SHA1",
-  "SHA2",
-  "SHOW",
-  "SHOW BINARY LOGS",
-  "SHOW BINLOG EVENTS",
-  "SHOW CHARACTER SET",
-  "SHOW COLLATION",
-  "SHOW COLUMNS",
-  "SHOW CREATE DATABASE",
-  "SHOW CREATE EVENT",
-  "SHOW CREATE FUNCTION",
-  "SHOW CREATE PROCEDURE",
-  "SHOW CREATE TABLE",
-  "SHOW CREATE TRIGGER",
-  "SHOW CREATE USER",
-  "SHOW CREATE VIEW",
-  "SHOW DATABASES",
-  "SHOW ENGINE",
-  "SHOW ENGINES",
-  "SHOW ERRORS",
-  "SHOW EVENTS",
-  "SHOW FUNCTION CODE",
-  "SHOW FUNCTION STATUS",
-  "SHOW GRANTS",
-  "SHOW INDEX",
-  "SHOW MASTER STATUS",
-  "SHOW OPEN TABLES",
-  "SHOW PLUGINS",
-  "SHOW PRIVILEGES",
-  "SHOW PROCEDURE CODE",
-  "SHOW PROCEDURE STATUS",
-  "SHOW PROCESSLIST",
-  "SHOW PROFILE",
-  "SHOW PROFILES",
-  "SHOW RELAYLOG EVENTS",
-  "SHOW SLAVE HOSTS",
-  "SHOW SLAVE STATUS",
-  "SHOW STATUS",
-  "SHOW TABLE STATUS",
-  "SHOW TABLES",
-  "SHOW TRIGGERS",
-  "SHOW VARIABLES",
-  "SHOW WARNINGS",
-  "SHUTDOWN",
-  "SIGN",
-  "SIGNAL",
-  "SIN",
-  "SLEEP",
-  "SMALLINT",
-  "SOUNDEX",
-  "SOUNDS LIKE",
-  "SPACE",
-  "SPATIAL",
-  "SQRT",
-  "SRID",
-  "START SLAVE",
-  "START TRANSACTION",
-  "STARTPOINT",
-  "STD",
-  "STDDEV",
-  "STDDEV_POP",
-  "STDDEV_SAMP",
-  "STOP SLAVE",
-  "STRCMP",
-  "STR_TO_DATE",
-  "ST_AREA",
-  "ST_ASBINARY",
-  "ST_ASGEOJSON",
-  "ST_ASTEXT",
-  "ST_BUFFER",
-  "ST_BUFFER_STRATEGY",
-  "ST_CENTROID",
-  "ST_CONTAINS",
-  "ST_CONVEXHULL",
-  "ST_CROSSES",
-  "ST_DIFFERENCE",
-  "ST_DIMENSION",
-  "ST_DISJOINT",
-  "ST_DISTANCE",
-  "ST_DISTANCE_SPHERE",
-  "ST_ENDPOINT",
-  "ST_ENVELOPE",
-  "ST_EQUALS",
-  "ST_EXTERIORRING",
-  "ST_GEOHASH",
-  "ST_GEOMCOLLFROMTEXT",
-  "ST_GEOMCOLLFROMWKB",
-  "ST_GEOMETRYN",
-  "ST_GEOMETRYTYPE",
-  "ST_GEOMFROMGEOJSON",
-  "ST_GEOMFROMTEXT",
-  "ST_GEOMFROMWKB",
-  "ST_INTERIORRINGN",
-  "ST_INTERSECTION",
-  "ST_INTERSECTS",
-  "ST_ISCLOSED",
-  "ST_ISEMPTY",
-  "ST_ISSIMPLE",
-  "ST_ISVALID",
-  "ST_LATFROMGEOHASH",
-  "ST_LENGTH",
-  "ST_LINEFROMTEXT",
-  "ST_LINEFROMWKB",
-  "ST_LONGFROMGEOHASH",
-  "ST_MAKEENVELOPE",
-  "ST_MLINEFROMTEXT",
-  "ST_MLINEFROMWKB",
-  "ST_MPOINTFROMTEXT",
-  "ST_MPOINTFROMWKB",
-  "ST_MPOLYFROMTEXT",
-  "ST_MPOLYFROMWKB",
-  "ST_NUMGEOMETRIES",
-  "ST_NUMINTERIORRINGS",
-  "ST_NUMPOINTS",
-  "ST_OVERLAPS",
-  "ST_POINTFROMGEOHASH",
-  "ST_POINTFROMTEXT",
-  "ST_POINTFROMWKB",
-  "ST_POINTN",
-  "ST_POLYFROMTEXT",
-  "ST_POLYFROMWKB",
-  "ST_SIMPLIFY",
-  "ST_SRID",
-  "ST_STARTPOINT",
-  "ST_SYMDIFFERENCE",
-  "ST_TOUCHES",
-  "ST_UNION",
-  "ST_VALIDATE",
-  "ST_WITHIN",
-  "ST_X",
-  "ST_Y",
-  "SUBDATE",
-  "SUBSTR",
-  "SUBSTRING",
-  "SUBSTRING_INDEX",
-  "SUBTIME",
-  "SUM",
-  "SYSDATE",
-  "SYSTEM_USER",
-  "TAN",
-  "TEXT",
-  "TIME",
-  "TIME FUNCTION",
-  "TIMEDIFF",
-  "TIMESTAMP",
-  "TIMESTAMP FUNCTION",
-  "TIMESTAMPADD",
-  "TIMESTAMPDIFF",
-  "TIME_FORMAT",
-  "TIME_TO_SEC",
-  "TINYBLOB",
-  "TINYINT",
-  "TINYTEXT",
-  "TOUCHES",
-  "TO_BASE64",
-  "TO_DAYS",
-  "TO_SECONDS",
-  "TRIM",
-  "TRUE FALSE",
-  "TRUNCATE",
-  "TRUNCATE TABLE",
-  "UCASE",
-  "UNCOMPRESS",
-  "UNCOMPRESSED_LENGTH",
-  "UNHEX",
-  "UNINSTALL PLUGIN",
-  "UNION",
-  "UNIX_TIMESTAMP",
-  "UPDATE",
-  "UPDATEXML",
-  "UPPER",
-  "USE",
-  "USER",
-  "UTC_DATE",
-  "UTC_TIME",
-  "UTC_TIMESTAMP",
-  "UUID",
-  "UUID_SHORT",
-  "VALIDATE_PASSWORD_STRENGTH",
-  "VALUES",
-  "VARBINARY",
-  "VARCHAR",
-  "VARIANCE",
-  "VAR_POP",
-  "VAR_SAMP",
-  "VERSION",
-  "WAIT_FOR_EXECUTED_GTID_SET",
-  "WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS",
-  "WEEK",
-  "WEEKDAY",
-  "WEEKOFYEAR",
-  "WEIGHT_STRING",
-  "WHILE",
-  "WITHIN",
-  "WKT DEFINITION",
-  "X",
-  "XA",
-  "XOR",
-  "Y",
-  "YEAR",
-  "YEAR DATA TYPE",
-  "YEARWEEK",
-  "^",
-  "|",
-  "~",
-};
+static bool helpDataReady = false; // Set once the loader thread is done.
+
+/**
+ * Required if you need to sync loading and use (e.g. in tests).
+ */
+bool DbSqlEditorContextHelp::helpReady() {
+  return helpDataReady;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::map<long, std::set<std::string>> helpTopics; // Quick lookup for help topics per server version.
+static std::map<long, std::map<std::string, std::string>> helpContent; // Help text from a topic (also per version).
+
+static std::string helpStyleSheet = "<style>\n"
+  "body { color: #404040; spacing: 5px; }\n"
+  "emphasis {font-style: italic; font-size: 100%; font-weight: 400;}\n"
+  "literal { font-family: monospace; background-color: rgba(0, 0, 0, 0.07); color: black; }\n"
+  "literal[role='stmt'] { font-weight: 600; background-color: rgba(0, 0, 0, 0); }\n"
+  "literal[role='func'] { font-weight: 600; background-color: rgba(0, 0, 0, 0); }\n"
+  "literal[role='cfunc'] { color: #ba0099; background-color: rgba(0, 0, 0, 0); }\n"
+  "replaceable { font-style: italic; font-weight: 600; color: black; }\n"
+  "indexterm { display: none; }\n"
+  "userinput { color: #004480; font-weight: 600; }\n"
+  "pre { margin-top: 0px; margin-bottom: 0px; margin-left: 6px; padding: 3px 8px; line-height: 1.5; }\n"
+  "pre.programlisting {margin-left: 6px; color: black; display: block; font-size: 95%; margin-bottom: 20px; border: 1px"
+    " solid #d9d9d9; background-color: #eee; padding: 3px 8px; }\n"
+  "</style>";
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string convertXRef(long version, std::string const &source) {
+  if (source.find("<xref") == std::string::npos)
+    return source;
+
+  // We cannot use std::regex here atm, as this crashes on macOS. Maybe later...
+  std::string result = source;
+  static pcrecpp::RE pattern = "<xref linkend=\"([^\"]+)\" />";
+  pattern.GlobalReplace("<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/\\1.html'>\\1</a>", &result);
+
+  result = base::replaceString(result, "{0}", std::to_string(version / 100));
+  result = base::replaceString(result, "{1}", std::to_string(version % 10));
+
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string convertExternalLinks(long version, std::string const &source) {
+  if (source.find("<link") == std::string::npos)
+    return source;
+
+  std::string result = source;
+  static pcrecpp::RE pattern = "<link linkend=\"([^\"]+)\">([^<]+)<\\/link>";
+  pattern.GlobalReplace("<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/glossary.html#\\1'>\\2</a>", &result);
+
+  result = base::replaceString(result, "{0}", std::to_string(version / 100));
+  result = base::replaceString(result, "{1}", std::to_string(version % 10));
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string convertInternalLinks(std::string const &source) {
+  if (source.find("role=\"stmt\"") == std::string::npos)
+    return source;
+
+  std::string result = source;
+  static pcrecpp::RE pattern = "<literal role=\"stmt\">([^<]+)</literal>";
+  pattern.GlobalReplace("<a href='local:\\1'>\\1</a>", &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string convertList(long version, JsonParser::JsonArray const &list) {
+  std::string result;
+  for (JsonParser::JsonObject const &entry: list) {
+    auto iterator = entry.find("para");
+    if (iterator != entry.end()) {
+      std::string text = "<p>" + convertInternalLinks(iterator->second) +  "</p>";
+      result += convertXRef(version, convertExternalLinks(version, text));
+    } else {
+      auto iterator = entry.find("programlisting");
+      if (iterator != entry.end()) {
+        std::string text = convertInternalLinks(iterator->second);
+        result += "<pre>" + text + "</pre>";
+      } else {
+        auto iterator = entry.find("itemizedlist"); // Convert to bullet list.
+        if (iterator != entry.end()) {
+          result = "<ul>";
+          JsonParser::JsonArray const &itemizedList = iterator->second;
+          for (JsonParser::JsonArray const &listentry: itemizedList) {
+            result += "<li>" + convertList(version, listentry) + "</li>";
+          }
+          result += "</ul>";
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Creates the HTML formatted help text from the object that's passed in.
+ */
+std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &json) {
+  std::string result = "<html><head>" + helpStyleSheet + "</head><body>";
+
+  std::string id = json.get("id");
+  result += "<h3>" + id + " Syntax:</h3>";
+
+  // Syntax (the summary), often in a code block.
+  JsonParser::JsonArray const &syntax = json.get("syntax");
+  for (JsonParser::JsonObject const &entry: syntax) {
+    // There are different variants for syntax descriptions. Usually it's encapsulated in a program listing,
+    // but e.g. for functions in a list the syntax is a paragraph.
+    auto iterator = entry.find("programlisting");
+    if (iterator != entry.end()) {
+      std::string text = convertInternalLinks(iterator->second);
+      result += "<pre class='programlisting line-numbers language-sql'>" + text + "</pre><br/>";
+    } else {
+      auto iterator = entry.find("para");
+      if (iterator != entry.end()) {
+        result += "<p>" + convertInternalLinks(iterator->second) + "</p>";
+      }
+    }
+  }
+
+  // The full description, plain text with code examples, lists and more.
+  JsonParser::JsonArray const &description = json.get("description");
+  for (JsonParser::JsonObject const &entry: description) {
+    auto iterator = entry.find("para");
+    if (iterator != entry.end()) {
+      std::string text = "<p>" + convertInternalLinks(iterator->second) + "</p>";
+      result += convertXRef(version, convertExternalLinks(version, text));
+    } else {
+      auto iterator = entry.find("programlisting");
+      if (iterator != entry.end()) {
+        std::string text = convertInternalLinks(iterator->second);
+        result += "<pre class='programlisting line-numbers language-sql'>" + text + "</pre><br/>";
+      } else {
+        auto iterator = entry.find("itemizedlist"); // Convert to bullet list.
+        if (iterator != entry.end()) {
+          result += "<ul>";
+          JsonParser::JsonArray const &itemizedList = iterator->second;
+          for (JsonParser::JsonArray const &listentry: itemizedList) {
+            result += "<li>" + convertList(version, listentry) + "</li>";
+          }
+          result += "</ul>";
+        }
+      }
+    }
+  }
+
+  std::string page = base::replaceString(base::tolower(id), " ", "-");
+
+  static std::map<std::string, std::string> pageMap = {
+    { "now", "date-and-time-functions" },
+    { "like", "string-comparison-functions" },
+    { "auto_increment", "example-auto-increment" },
+  };
+
+  auto iterator = pageMap.find(page);
+  if (iterator != pageMap.end())
+    page = iterator->second;
+  std::string url = base::strfmt("http://dev.mysql.com/doc/refman/%ld.%ld/en/%s.html", version / 100, version % 10, page.c_str());
+  result += "<b>See also: </>: <a href='" + url + "'>Online help " + page + "</a><br /><br /></body></html>";
+  return result;
+}
+
+//----------------- DbSqlEditorContextHelp -----------------------------------------------------------------------------
+
+DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
+
+  std::thread([]() {
+    std::string dataDir = base::makePath(mforms::App::get()->baseDir(), "modules/data/sqlide");
+    for (long version : { 800, 507, 506, 505 }) {
+      std::string fileName = "help-" + std::to_string(version / 100) + "." + std::to_string(version % 10) + ".json";
+      std::string path = base::makePath(dataDir, fileName);
+      if (!base::file_exists(path)) {
+        logError("Help file not found (%s)\n", path.c_str());
+        continue;
+      }
+
+      try {
+        JsonParser::JsonValue document;
+        JsonParser::JsonReader::readFromFile(path, document);
+
+        std::set<std::string> topics;
+        JsonParser::JsonObject &topicRoot = document;
+        JsonParser::JsonArray &topicList = topicRoot.get("topics");
+        for (JsonParser::JsonObject &topic: topicList) {
+          std::string id = base::toupper(topic.get("id"));
+          topics.insert(id);
+          helpContent[version][id] = createHelpTextFromJson(version, topic);
+        }
+        helpTopics[version] = topics;
+      } catch (JsonParser::ParserException &e) {
+        logError("Could not read help text file (%s)\nError message: %s\n", fileName.c_str(), e.what());
+      } catch (std::bad_cast &e) {
+        logError("Unexpected file format (%s)\nError message: %s\n", fileName.c_str(), e.what());
+      }
+      
+    }
+    helpDataReady = true;
+  }).detach();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * A quick lookup if the help topic exists actually, without retrieving help text.
  */
-bool DbSqlEditorContextHelp::topicExists(const std::string &topic) {
-  return availableTopics.count(topic) > 0;
+bool DbSqlEditorContextHelp::topicExists(long serverVersion, const std::string &topic) {
+  if (!helpDataReady)
+    return false;
+
+  auto iterator = helpTopics.find(serverVersion / 100);
+  if (iterator == helpTopics.end())
+    return false;
+  return iterator->second.count(topic) > 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool DbSqlEditorContextHelp::helpTextForTopic(const std::string &topic, std::string &title, std::string &text) {
+bool DbSqlEditorContextHelp::helpTextForTopic(HelpContext *context, const std::string &topic, std::string &text) {
   logDebug2("Looking up help topic: %s\n", topic.c_str());
 
-  if (!topic.empty()) {
-    try { /*
-           sql::Dbc_connection_handler::Ref conn;
-           base::RecMutexLock aux_dbc_conn_mutex(form->ensure_valid_aux_connection(conn));
+  if (helpDataReady && !topic.empty()) {
+    auto iterator = helpContent.find(context->serverVersion() / 100);
+    if (iterator == helpContent.end())
+      return false;
 
-           // % is interpreted as a wildcard, so we have to escape it. However, we don't use wildcards
-           // in any other topic (nor %), so a simple check is enough.
-           base::sqlstring query = base::sqlstring("help ?", 0) << (topic == "%" ? "\\%" : topic);
-           std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(query)));
-           if (rs->rowsCount() > 0)
-           {
-             rs->next();
-             title = rs->getString(1);
-             text = rs->getString(2);
-             return true;
-           }*/
-    } catch (...) {
-      logDebug2("Exception caught while looking up help text\n");
-    }
+    text = iterator->second[topic];
+    return true;
   }
   return false;
 }
@@ -973,6 +560,7 @@ static std::unordered_map<size_t, std::string> tokenToTopic = {
 };
 
 static std::unordered_map<size_t, std::string> contextToTopic = {
+  {MySQLParser::RuleCallStatement, "CALL"},
   {MySQLParser::RuleCreateDatabase, "CREATE DATABASE"},
   {MySQLParser::RuleCreateEvent, "CREATE EVENT"},
   {MySQLParser::RuleCreateFunction, "CREATE FUNCTION"},
@@ -1059,14 +647,14 @@ static std::unordered_set<std::string> specialWords = {
 /**
  * Determines a help topic from the given query at the given position (given as column/row pair).
  */
-std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, const std::string &query,
+std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpContext, const std::string &query,
                                                           std::pair<size_t, size_t> caret) {
   logDebug2("Finding help topic\n");
 
   // We are not interested in validity here. We simply parse in default mode (LL) and examine the returned parse tree.
   // This usually will give us a good result, except in cases where the query has an error before the caret such that
   // we cannot predict the path through the rules.
-  ParserRuleContext *parseTree = context->_d->parse(query);
+  ParserRuleContext *parseTree = helpContext->_d->parse(query);
   ++caret.second; // ANTLR lines are one-based.
   tree::ParseTree *tree = MySQLRecognizerCommon::contextFromPosition(parseTree, caret);
 
@@ -1133,7 +721,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
       default:
         std::string s = base::toupper(node->getText());
-        if (specialWords.count(s) == 0 && topicExists(s))
+        if (specialWords.count(s) == 0 && topicExists(helpContext->serverVersion(), s))
           return s;
 
         // No specific help topic for the given terminal. Jump to the token's parent and start the
@@ -1156,7 +744,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
 
     // Topics from function names
     std::string functionTopic = functionTopicForContext(context);
-    if (!functionTopic.empty() && topicExists(functionTopic))
+    if (!functionTopic.empty() && topicExists(helpContext->serverVersion(), functionTopic))
       return functionTopic;
 
     switch (ruleIndex) {
@@ -1425,7 +1013,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *context, 
             break;
         }
 
-        if (topicExists(topic))
+        if (topicExists(helpContext->serverVersion(), topic))
           return topic;
 
         break; // Not all data types have an own topic.

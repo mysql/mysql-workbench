@@ -757,6 +757,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
   _grt->set_global_module_data_path("/wb/customData");
   _grt->set_document_module_data_path("/wb/doc/customData");
 
+  mforms::App::get()->setBaseDir(options->basedir);
   _grtManager->set_datadir(options->basedir);
   _grtManager->set_basedir(options->basedir);
   _grtManager->set_user_datadir(options->user_data_dir);

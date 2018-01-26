@@ -65,6 +65,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <thread>
 
 #include "tut.h"
 #include <cairo/cairo.h>

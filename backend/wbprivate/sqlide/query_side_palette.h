@@ -56,24 +56,15 @@ private:
   mforms::ToolBar *_help_toolbar;
   mforms::HyperText *_help_text;
   bec::GRTManager::Timer *_help_timer;
-  GrtThreadedTask::Ref _help_task; // For running help construction on a background thread.
 
   mforms::ScrollPanel *_snippet_box;
   mforms::ToolBar *_snippet_toolbar;
   SnippetListView *_snippet_list;
 
-  mforms::CodeEditorConfig *_editorConfig;
-
-  bool _no_help;        // True if currently no help topic is visible.
   bool _automatic_help; // Automatically show help after moving the caret.
   bool _switching_help; // Recursion stopper when switching to new topic and setting drop down.
   bool _pending_snippets_refresh;
-  std::string _last_topic;
-
-  // Contains patterns for syntactic elements and their associated colors. Initialized on the fly
-  // but must be cleared when any of the stored colors changes.
-  std::vector<std::pair<std::string, std::string> > _pattern_and_colors;
-  std::string _keyword_color;
+  std::string _currentHelpTopic;
 
   // Topic history.
   mforms::ToolBarItem *_back_item;
@@ -88,13 +79,10 @@ private:
   void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
 
   void show_help_text_for_topic(const std::string &topic);
-  grt::StringRef get_help_text_threaded();
-  void update_help_ui();
   void show_help_hint_or_update();
 
   bool find_context_help(MySQLEditor *editor);
   grt::StringRef get_help_topic_threaded(const std::string &query, std::pair<ssize_t, ssize_t> caret);
-  void process_help_topic(const std::string &topic);
   void update_help_history(const std::string &topic);
 
   void click_link(const std::string &link);
@@ -103,10 +91,6 @@ private:
   void snippet_toolbar_item_activated(mforms::ToolBarItem *item);
   void help_toolbar_item_activated(mforms::ToolBarItem *item);
 
-  void check_format_structures(MySQLEditor *editor);
-  std::string format_help_as_html(const std::string &text);
-
   void snippet_selection_changed();
-  void createEditorConfig(GrtVersionRef version);
 };
 
